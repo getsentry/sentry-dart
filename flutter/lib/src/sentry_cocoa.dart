@@ -1310,11 +1310,13 @@ class SentryCocoa {
           ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>, _NSRange)>();
 
   late final _sel_rangeValue1 = _registerName1("rangeValue");
-  _NSRange _objc_msgSend_49(
+  void _objc_msgSend_49(
+    ffi.Pointer<_NSRange> stret,
     ffi.Pointer<ObjCObject> obj,
     ffi.Pointer<ObjCSel> sel,
   ) {
     return __objc_msgSend_49(
+      stret,
       obj,
       sel,
     );
@@ -1322,10 +1324,11 @@ class SentryCocoa {
 
   late final __objc_msgSend_49Ptr = _lookup<
       ffi.NativeFunction<
-          _NSRange Function(
-              ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>)>>('objc_msgSend');
+          ffi.Void Function(ffi.Pointer<_NSRange>, ffi.Pointer<ObjCObject>,
+              ffi.Pointer<ObjCSel>)>>('objc_msgSend_stret');
   late final __objc_msgSend_49 = __objc_msgSend_49Ptr.asFunction<
-      _NSRange Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>)>();
+      void Function(ffi.Pointer<_NSRange>, ffi.Pointer<ObjCObject>,
+          ffi.Pointer<ObjCSel>)>();
 
   late final _sel_valueWithPoint_1 = _registerName1("valueWithPoint:");
   ffi.Pointer<ObjCObject> _objc_msgSend_50(
@@ -1413,11 +1416,13 @@ class SentryCocoa {
           ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>, NSEdgeInsets)>();
 
   late final _sel_pointValue1 = _registerName1("pointValue");
-  CGPoint _objc_msgSend_54(
+  void _objc_msgSend_54(
+    ffi.Pointer<CGPoint> stret,
     ffi.Pointer<ObjCObject> obj,
     ffi.Pointer<ObjCSel> sel,
   ) {
     return __objc_msgSend_54(
+      stret,
       obj,
       sel,
     );
@@ -1425,17 +1430,20 @@ class SentryCocoa {
 
   late final __objc_msgSend_54Ptr = _lookup<
       ffi.NativeFunction<
-          CGPoint Function(
-              ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>)>>('objc_msgSend');
+          ffi.Void Function(ffi.Pointer<CGPoint>, ffi.Pointer<ObjCObject>,
+              ffi.Pointer<ObjCSel>)>>('objc_msgSend_stret');
   late final __objc_msgSend_54 = __objc_msgSend_54Ptr.asFunction<
-      CGPoint Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>)>();
+      void Function(ffi.Pointer<CGPoint>, ffi.Pointer<ObjCObject>,
+          ffi.Pointer<ObjCSel>)>();
 
   late final _sel_sizeValue1 = _registerName1("sizeValue");
-  CGSize _objc_msgSend_55(
+  void _objc_msgSend_55(
+    ffi.Pointer<CGSize> stret,
     ffi.Pointer<ObjCObject> obj,
     ffi.Pointer<ObjCSel> sel,
   ) {
     return __objc_msgSend_55(
+      stret,
       obj,
       sel,
     );
@@ -1443,17 +1451,20 @@ class SentryCocoa {
 
   late final __objc_msgSend_55Ptr = _lookup<
       ffi.NativeFunction<
-          CGSize Function(
-              ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>)>>('objc_msgSend');
+          ffi.Void Function(ffi.Pointer<CGSize>, ffi.Pointer<ObjCObject>,
+              ffi.Pointer<ObjCSel>)>>('objc_msgSend_stret');
   late final __objc_msgSend_55 = __objc_msgSend_55Ptr.asFunction<
-      CGSize Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>)>();
+      void Function(ffi.Pointer<CGSize>, ffi.Pointer<ObjCObject>,
+          ffi.Pointer<ObjCSel>)>();
 
   late final _sel_rectValue1 = _registerName1("rectValue");
-  CGRect _objc_msgSend_56(
+  void _objc_msgSend_56(
+    ffi.Pointer<CGRect> stret,
     ffi.Pointer<ObjCObject> obj,
     ffi.Pointer<ObjCSel> sel,
   ) {
     return __objc_msgSend_56(
+      stret,
       obj,
       sel,
     );
@@ -1461,17 +1472,20 @@ class SentryCocoa {
 
   late final __objc_msgSend_56Ptr = _lookup<
       ffi.NativeFunction<
-          CGRect Function(
-              ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>)>>('objc_msgSend');
+          ffi.Void Function(ffi.Pointer<CGRect>, ffi.Pointer<ObjCObject>,
+              ffi.Pointer<ObjCSel>)>>('objc_msgSend_stret');
   late final __objc_msgSend_56 = __objc_msgSend_56Ptr.asFunction<
-      CGRect Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>)>();
+      void Function(ffi.Pointer<CGRect>, ffi.Pointer<ObjCObject>,
+          ffi.Pointer<ObjCSel>)>();
 
   late final _sel_edgeInsetsValue1 = _registerName1("edgeInsetsValue");
-  NSEdgeInsets _objc_msgSend_57(
+  void _objc_msgSend_57(
+    ffi.Pointer<NSEdgeInsets> stret,
     ffi.Pointer<ObjCObject> obj,
     ffi.Pointer<ObjCSel> sel,
   ) {
     return __objc_msgSend_57(
+      stret,
       obj,
       sel,
     );
@@ -1479,10 +1493,11 @@ class SentryCocoa {
 
   late final __objc_msgSend_57Ptr = _lookup<
       ffi.NativeFunction<
-          NSEdgeInsets Function(
-              ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>)>>('objc_msgSend');
+          ffi.Void Function(ffi.Pointer<NSEdgeInsets>, ffi.Pointer<ObjCObject>,
+              ffi.Pointer<ObjCSel>)>>('objc_msgSend_stret');
   late final __objc_msgSend_57 = __objc_msgSend_57Ptr.asFunction<
-      NSEdgeInsets Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>)>();
+      void Function(ffi.Pointer<NSEdgeInsets>, ffi.Pointer<ObjCObject>,
+          ffi.Pointer<ObjCSel>)>();
 
   late final _sel_keyPathsForValuesAffectingValueForKey_1 =
       _registerName1("keyPathsForValuesAffectingValueForKey:");
@@ -4169,8 +4184,8 @@ class SentryCocoa {
 
   late final __objc_msgSend_155Ptr = _lookup<
       ffi.NativeFunction<
-          ffi.Double Function(
-              ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>)>>('objc_msgSend');
+          ffi.Double Function(ffi.Pointer<ObjCObject>,
+              ffi.Pointer<ObjCSel>)>>('objc_msgSend_fpret');
   late final __objc_msgSend_155 = __objc_msgSend_155Ptr.asFunction<
       double Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>)>();
 
@@ -4213,7 +4228,7 @@ class SentryCocoa {
   late final __objc_msgSend_157Ptr = _lookup<
       ffi.NativeFunction<
           ffi.Double Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
-              ffi.Pointer<ObjCObject>)>>('objc_msgSend');
+              ffi.Pointer<ObjCObject>)>>('objc_msgSend_fpret');
   late final __objc_msgSend_157 = __objc_msgSend_157Ptr.asFunction<
       double Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
           ffi.Pointer<ObjCObject>)>();
@@ -5910,8 +5925,8 @@ class SentryCocoa {
 
   late final __objc_msgSend_221Ptr = _lookup<
       ffi.NativeFunction<
-          ffi.Float Function(
-              ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>)>>('objc_msgSend');
+          ffi.Float Function(ffi.Pointer<ObjCObject>,
+              ffi.Pointer<ObjCSel>)>>('objc_msgSend_fpret');
   late final __objc_msgSend_221 = __objc_msgSend_221Ptr.asFunction<
       double Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>)>();
 
@@ -6794,7 +6809,8 @@ class SentryCocoa {
 
   late final _sel_rangeOfData_options_range_1 =
       _registerName1("rangeOfData:options:range:");
-  _NSRange _objc_msgSend_250(
+  void _objc_msgSend_250(
+    ffi.Pointer<_NSRange> stret,
     ffi.Pointer<ObjCObject> obj,
     ffi.Pointer<ObjCSel> sel,
     ffi.Pointer<ObjCObject> dataToFind,
@@ -6802,6 +6818,7 @@ class SentryCocoa {
     _NSRange searchRange,
   ) {
     return __objc_msgSend_250(
+      stret,
       obj,
       sel,
       dataToFind,
@@ -6812,11 +6829,16 @@ class SentryCocoa {
 
   late final __objc_msgSend_250Ptr = _lookup<
       ffi.NativeFunction<
-          _NSRange Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
-              ffi.Pointer<ObjCObject>, ffi.Int32, _NSRange)>>('objc_msgSend');
+          ffi.Void Function(
+              ffi.Pointer<_NSRange>,
+              ffi.Pointer<ObjCObject>,
+              ffi.Pointer<ObjCSel>,
+              ffi.Pointer<ObjCObject>,
+              ffi.Int32,
+              _NSRange)>>('objc_msgSend_stret');
   late final __objc_msgSend_250 = __objc_msgSend_250Ptr.asFunction<
-      _NSRange Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
-          ffi.Pointer<ObjCObject>, int, _NSRange)>();
+      void Function(ffi.Pointer<_NSRange>, ffi.Pointer<ObjCObject>,
+          ffi.Pointer<ObjCSel>, ffi.Pointer<ObjCObject>, int, _NSRange)>();
 
   late final _sel_enumerateByteRangesUsingBlock_1 =
       _registerName1("enumerateByteRangesUsingBlock:");
@@ -7675,7 +7697,7 @@ class SentryCocoa {
   late final __objc_msgSend_283Ptr = _lookup<
       ffi.NativeFunction<
           ffi.Float Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
-              ffi.Pointer<ObjCObject>)>>('objc_msgSend');
+              ffi.Pointer<ObjCObject>)>>('objc_msgSend_fpret');
   late final __objc_msgSend_283 = __objc_msgSend_283Ptr.asFunction<
       double Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
           ffi.Pointer<ObjCObject>)>();
@@ -7696,7 +7718,7 @@ class SentryCocoa {
   late final __objc_msgSend_284Ptr = _lookup<
       ffi.NativeFunction<
           ffi.Double Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
-              ffi.Pointer<ObjCObject>)>>('objc_msgSend');
+              ffi.Pointer<ObjCObject>)>>('objc_msgSend_fpret');
   late final __objc_msgSend_284 = __objc_msgSend_284Ptr.asFunction<
       double Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
           ffi.Pointer<ObjCObject>)>();
@@ -8233,12 +8255,14 @@ class SentryCocoa {
           ffi.Pointer<ObjCObject>)>();
 
   late final _sel_decodePointForKey_1 = _registerName1("decodePointForKey:");
-  CGPoint _objc_msgSend_305(
+  void _objc_msgSend_305(
+    ffi.Pointer<CGPoint> stret,
     ffi.Pointer<ObjCObject> obj,
     ffi.Pointer<ObjCSel> sel,
     ffi.Pointer<ObjCObject> key,
   ) {
     return __objc_msgSend_305(
+      stret,
       obj,
       sel,
       key,
@@ -8247,19 +8271,24 @@ class SentryCocoa {
 
   late final __objc_msgSend_305Ptr = _lookup<
       ffi.NativeFunction<
-          CGPoint Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
-              ffi.Pointer<ObjCObject>)>>('objc_msgSend');
+          ffi.Void Function(
+              ffi.Pointer<CGPoint>,
+              ffi.Pointer<ObjCObject>,
+              ffi.Pointer<ObjCSel>,
+              ffi.Pointer<ObjCObject>)>>('objc_msgSend_stret');
   late final __objc_msgSend_305 = __objc_msgSend_305Ptr.asFunction<
-      CGPoint Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
-          ffi.Pointer<ObjCObject>)>();
+      void Function(ffi.Pointer<CGPoint>, ffi.Pointer<ObjCObject>,
+          ffi.Pointer<ObjCSel>, ffi.Pointer<ObjCObject>)>();
 
   late final _sel_decodeSizeForKey_1 = _registerName1("decodeSizeForKey:");
-  CGSize _objc_msgSend_306(
+  void _objc_msgSend_306(
+    ffi.Pointer<CGSize> stret,
     ffi.Pointer<ObjCObject> obj,
     ffi.Pointer<ObjCSel> sel,
     ffi.Pointer<ObjCObject> key,
   ) {
     return __objc_msgSend_306(
+      stret,
       obj,
       sel,
       key,
@@ -8268,19 +8297,24 @@ class SentryCocoa {
 
   late final __objc_msgSend_306Ptr = _lookup<
       ffi.NativeFunction<
-          CGSize Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
-              ffi.Pointer<ObjCObject>)>>('objc_msgSend');
+          ffi.Void Function(
+              ffi.Pointer<CGSize>,
+              ffi.Pointer<ObjCObject>,
+              ffi.Pointer<ObjCSel>,
+              ffi.Pointer<ObjCObject>)>>('objc_msgSend_stret');
   late final __objc_msgSend_306 = __objc_msgSend_306Ptr.asFunction<
-      CGSize Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
-          ffi.Pointer<ObjCObject>)>();
+      void Function(ffi.Pointer<CGSize>, ffi.Pointer<ObjCObject>,
+          ffi.Pointer<ObjCSel>, ffi.Pointer<ObjCObject>)>();
 
   late final _sel_decodeRectForKey_1 = _registerName1("decodeRectForKey:");
-  CGRect _objc_msgSend_307(
+  void _objc_msgSend_307(
+    ffi.Pointer<CGRect> stret,
     ffi.Pointer<ObjCObject> obj,
     ffi.Pointer<ObjCSel> sel,
     ffi.Pointer<ObjCObject> key,
   ) {
     return __objc_msgSend_307(
+      stret,
       obj,
       sel,
       key,
@@ -8289,11 +8323,14 @@ class SentryCocoa {
 
   late final __objc_msgSend_307Ptr = _lookup<
       ffi.NativeFunction<
-          CGRect Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
-              ffi.Pointer<ObjCObject>)>>('objc_msgSend');
+          ffi.Void Function(
+              ffi.Pointer<CGRect>,
+              ffi.Pointer<ObjCObject>,
+              ffi.Pointer<ObjCSel>,
+              ffi.Pointer<ObjCObject>)>>('objc_msgSend_stret');
   late final __objc_msgSend_307 = __objc_msgSend_307Ptr.asFunction<
-      CGRect Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
-          ffi.Pointer<ObjCObject>)>();
+      void Function(ffi.Pointer<CGRect>, ffi.Pointer<ObjCObject>,
+          ffi.Pointer<ObjCSel>, ffi.Pointer<ObjCObject>)>();
 
   late final _sel_substringFromIndex_1 = _registerName1("substringFromIndex:");
   ffi.Pointer<ObjCObject> _objc_msgSend_308(
@@ -8508,12 +8545,14 @@ class SentryCocoa {
       _registerName1("localizedStandardContainsString:");
   late final _sel_localizedStandardRangeOfString_1 =
       _registerName1("localizedStandardRangeOfString:");
-  _NSRange _objc_msgSend_316(
+  void _objc_msgSend_316(
+    ffi.Pointer<_NSRange> stret,
     ffi.Pointer<ObjCObject> obj,
     ffi.Pointer<ObjCSel> sel,
     ffi.Pointer<ObjCObject> str,
   ) {
     return __objc_msgSend_316(
+      stret,
       obj,
       sel,
       str,
@@ -8522,22 +8561,27 @@ class SentryCocoa {
 
   late final __objc_msgSend_316Ptr = _lookup<
       ffi.NativeFunction<
-          _NSRange Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
-              ffi.Pointer<ObjCObject>)>>('objc_msgSend');
+          ffi.Void Function(
+              ffi.Pointer<_NSRange>,
+              ffi.Pointer<ObjCObject>,
+              ffi.Pointer<ObjCSel>,
+              ffi.Pointer<ObjCObject>)>>('objc_msgSend_stret');
   late final __objc_msgSend_316 = __objc_msgSend_316Ptr.asFunction<
-      _NSRange Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
-          ffi.Pointer<ObjCObject>)>();
+      void Function(ffi.Pointer<_NSRange>, ffi.Pointer<ObjCObject>,
+          ffi.Pointer<ObjCSel>, ffi.Pointer<ObjCObject>)>();
 
   late final _sel_rangeOfString_1 = _registerName1("rangeOfString:");
   late final _sel_rangeOfString_options_1 =
       _registerName1("rangeOfString:options:");
-  _NSRange _objc_msgSend_317(
+  void _objc_msgSend_317(
+    ffi.Pointer<_NSRange> stret,
     ffi.Pointer<ObjCObject> obj,
     ffi.Pointer<ObjCSel> sel,
     ffi.Pointer<ObjCObject> searchString,
     int mask,
   ) {
     return __objc_msgSend_317(
+      stret,
       obj,
       sel,
       searchString,
@@ -8547,15 +8591,20 @@ class SentryCocoa {
 
   late final __objc_msgSend_317Ptr = _lookup<
       ffi.NativeFunction<
-          _NSRange Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
-              ffi.Pointer<ObjCObject>, ffi.Int32)>>('objc_msgSend');
+          ffi.Void Function(
+              ffi.Pointer<_NSRange>,
+              ffi.Pointer<ObjCObject>,
+              ffi.Pointer<ObjCSel>,
+              ffi.Pointer<ObjCObject>,
+              ffi.Int32)>>('objc_msgSend_stret');
   late final __objc_msgSend_317 = __objc_msgSend_317Ptr.asFunction<
-      _NSRange Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
-          ffi.Pointer<ObjCObject>, int)>();
+      void Function(ffi.Pointer<_NSRange>, ffi.Pointer<ObjCObject>,
+          ffi.Pointer<ObjCSel>, ffi.Pointer<ObjCObject>, int)>();
 
   late final _sel_rangeOfString_options_range_1 =
       _registerName1("rangeOfString:options:range:");
-  _NSRange _objc_msgSend_318(
+  void _objc_msgSend_318(
+    ffi.Pointer<_NSRange> stret,
     ffi.Pointer<ObjCObject> obj,
     ffi.Pointer<ObjCSel> sel,
     ffi.Pointer<ObjCObject> searchString,
@@ -8563,6 +8612,7 @@ class SentryCocoa {
     _NSRange rangeOfReceiverToSearch,
   ) {
     return __objc_msgSend_318(
+      stret,
       obj,
       sel,
       searchString,
@@ -8573,15 +8623,21 @@ class SentryCocoa {
 
   late final __objc_msgSend_318Ptr = _lookup<
       ffi.NativeFunction<
-          _NSRange Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
-              ffi.Pointer<ObjCObject>, ffi.Int32, _NSRange)>>('objc_msgSend');
+          ffi.Void Function(
+              ffi.Pointer<_NSRange>,
+              ffi.Pointer<ObjCObject>,
+              ffi.Pointer<ObjCSel>,
+              ffi.Pointer<ObjCObject>,
+              ffi.Int32,
+              _NSRange)>>('objc_msgSend_stret');
   late final __objc_msgSend_318 = __objc_msgSend_318Ptr.asFunction<
-      _NSRange Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
-          ffi.Pointer<ObjCObject>, int, _NSRange)>();
+      void Function(ffi.Pointer<_NSRange>, ffi.Pointer<ObjCObject>,
+          ffi.Pointer<ObjCSel>, ffi.Pointer<ObjCObject>, int, _NSRange)>();
 
   late final _sel_rangeOfString_options_range_locale_1 =
       _registerName1("rangeOfString:options:range:locale:");
-  _NSRange _objc_msgSend_319(
+  void _objc_msgSend_319(
+    ffi.Pointer<_NSRange> stret,
     ffi.Pointer<ObjCObject> obj,
     ffi.Pointer<ObjCSel> sel,
     ffi.Pointer<ObjCObject> searchString,
@@ -8590,6 +8646,7 @@ class SentryCocoa {
     ffi.Pointer<ObjCObject> locale,
   ) {
     return __objc_msgSend_319(
+      stret,
       obj,
       sel,
       searchString,
@@ -8601,25 +8658,34 @@ class SentryCocoa {
 
   late final __objc_msgSend_319Ptr = _lookup<
       ffi.NativeFunction<
-          _NSRange Function(
+          ffi.Void Function(
+              ffi.Pointer<_NSRange>,
               ffi.Pointer<ObjCObject>,
               ffi.Pointer<ObjCSel>,
               ffi.Pointer<ObjCObject>,
               ffi.Int32,
               _NSRange,
-              ffi.Pointer<ObjCObject>)>>('objc_msgSend');
+              ffi.Pointer<ObjCObject>)>>('objc_msgSend_stret');
   late final __objc_msgSend_319 = __objc_msgSend_319Ptr.asFunction<
-      _NSRange Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
-          ffi.Pointer<ObjCObject>, int, _NSRange, ffi.Pointer<ObjCObject>)>();
+      void Function(
+          ffi.Pointer<_NSRange>,
+          ffi.Pointer<ObjCObject>,
+          ffi.Pointer<ObjCSel>,
+          ffi.Pointer<ObjCObject>,
+          int,
+          _NSRange,
+          ffi.Pointer<ObjCObject>)>();
 
   late final _sel_rangeOfCharacterFromSet_1 =
       _registerName1("rangeOfCharacterFromSet:");
-  _NSRange _objc_msgSend_320(
+  void _objc_msgSend_320(
+    ffi.Pointer<_NSRange> stret,
     ffi.Pointer<ObjCObject> obj,
     ffi.Pointer<ObjCSel> sel,
     ffi.Pointer<ObjCObject> searchSet,
   ) {
     return __objc_msgSend_320(
+      stret,
       obj,
       sel,
       searchSet,
@@ -8628,21 +8694,26 @@ class SentryCocoa {
 
   late final __objc_msgSend_320Ptr = _lookup<
       ffi.NativeFunction<
-          _NSRange Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
-              ffi.Pointer<ObjCObject>)>>('objc_msgSend');
+          ffi.Void Function(
+              ffi.Pointer<_NSRange>,
+              ffi.Pointer<ObjCObject>,
+              ffi.Pointer<ObjCSel>,
+              ffi.Pointer<ObjCObject>)>>('objc_msgSend_stret');
   late final __objc_msgSend_320 = __objc_msgSend_320Ptr.asFunction<
-      _NSRange Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
-          ffi.Pointer<ObjCObject>)>();
+      void Function(ffi.Pointer<_NSRange>, ffi.Pointer<ObjCObject>,
+          ffi.Pointer<ObjCSel>, ffi.Pointer<ObjCObject>)>();
 
   late final _sel_rangeOfCharacterFromSet_options_1 =
       _registerName1("rangeOfCharacterFromSet:options:");
-  _NSRange _objc_msgSend_321(
+  void _objc_msgSend_321(
+    ffi.Pointer<_NSRange> stret,
     ffi.Pointer<ObjCObject> obj,
     ffi.Pointer<ObjCSel> sel,
     ffi.Pointer<ObjCObject> searchSet,
     int mask,
   ) {
     return __objc_msgSend_321(
+      stret,
       obj,
       sel,
       searchSet,
@@ -8652,15 +8723,20 @@ class SentryCocoa {
 
   late final __objc_msgSend_321Ptr = _lookup<
       ffi.NativeFunction<
-          _NSRange Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
-              ffi.Pointer<ObjCObject>, ffi.Int32)>>('objc_msgSend');
+          ffi.Void Function(
+              ffi.Pointer<_NSRange>,
+              ffi.Pointer<ObjCObject>,
+              ffi.Pointer<ObjCSel>,
+              ffi.Pointer<ObjCObject>,
+              ffi.Int32)>>('objc_msgSend_stret');
   late final __objc_msgSend_321 = __objc_msgSend_321Ptr.asFunction<
-      _NSRange Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
-          ffi.Pointer<ObjCObject>, int)>();
+      void Function(ffi.Pointer<_NSRange>, ffi.Pointer<ObjCObject>,
+          ffi.Pointer<ObjCSel>, ffi.Pointer<ObjCObject>, int)>();
 
   late final _sel_rangeOfCharacterFromSet_options_range_1 =
       _registerName1("rangeOfCharacterFromSet:options:range:");
-  _NSRange _objc_msgSend_322(
+  void _objc_msgSend_322(
+    ffi.Pointer<_NSRange> stret,
     ffi.Pointer<ObjCObject> obj,
     ffi.Pointer<ObjCSel> sel,
     ffi.Pointer<ObjCObject> searchSet,
@@ -8668,6 +8744,7 @@ class SentryCocoa {
     _NSRange rangeOfReceiverToSearch,
   ) {
     return __objc_msgSend_322(
+      stret,
       obj,
       sel,
       searchSet,
@@ -8678,20 +8755,27 @@ class SentryCocoa {
 
   late final __objc_msgSend_322Ptr = _lookup<
       ffi.NativeFunction<
-          _NSRange Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
-              ffi.Pointer<ObjCObject>, ffi.Int32, _NSRange)>>('objc_msgSend');
+          ffi.Void Function(
+              ffi.Pointer<_NSRange>,
+              ffi.Pointer<ObjCObject>,
+              ffi.Pointer<ObjCSel>,
+              ffi.Pointer<ObjCObject>,
+              ffi.Int32,
+              _NSRange)>>('objc_msgSend_stret');
   late final __objc_msgSend_322 = __objc_msgSend_322Ptr.asFunction<
-      _NSRange Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
-          ffi.Pointer<ObjCObject>, int, _NSRange)>();
+      void Function(ffi.Pointer<_NSRange>, ffi.Pointer<ObjCObject>,
+          ffi.Pointer<ObjCSel>, ffi.Pointer<ObjCObject>, int, _NSRange)>();
 
   late final _sel_rangeOfComposedCharacterSequenceAtIndex_1 =
       _registerName1("rangeOfComposedCharacterSequenceAtIndex:");
-  _NSRange _objc_msgSend_323(
+  void _objc_msgSend_323(
+    ffi.Pointer<_NSRange> stret,
     ffi.Pointer<ObjCObject> obj,
     ffi.Pointer<ObjCSel> sel,
     int index,
   ) {
     return __objc_msgSend_323(
+      stret,
       obj,
       sel,
       index,
@@ -8700,19 +8784,22 @@ class SentryCocoa {
 
   late final __objc_msgSend_323Ptr = _lookup<
       ffi.NativeFunction<
-          _NSRange Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
-              ffi.UnsignedLong)>>('objc_msgSend');
+          ffi.Void Function(ffi.Pointer<_NSRange>, ffi.Pointer<ObjCObject>,
+              ffi.Pointer<ObjCSel>, ffi.UnsignedLong)>>('objc_msgSend_stret');
   late final __objc_msgSend_323 = __objc_msgSend_323Ptr.asFunction<
-      _NSRange Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>, int)>();
+      void Function(ffi.Pointer<_NSRange>, ffi.Pointer<ObjCObject>,
+          ffi.Pointer<ObjCSel>, int)>();
 
   late final _sel_rangeOfComposedCharacterSequencesForRange_1 =
       _registerName1("rangeOfComposedCharacterSequencesForRange:");
-  _NSRange _objc_msgSend_324(
+  void _objc_msgSend_324(
+    ffi.Pointer<_NSRange> stret,
     ffi.Pointer<ObjCObject> obj,
     ffi.Pointer<ObjCSel> sel,
     _NSRange range,
   ) {
     return __objc_msgSend_324(
+      stret,
       obj,
       sel,
       range,
@@ -8721,11 +8808,11 @@ class SentryCocoa {
 
   late final __objc_msgSend_324Ptr = _lookup<
       ffi.NativeFunction<
-          _NSRange Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
-              _NSRange)>>('objc_msgSend');
+          ffi.Void Function(ffi.Pointer<_NSRange>, ffi.Pointer<ObjCObject>,
+              ffi.Pointer<ObjCSel>, _NSRange)>>('objc_msgSend_stret');
   late final __objc_msgSend_324 = __objc_msgSend_324Ptr.asFunction<
-      _NSRange Function(
-          ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>, _NSRange)>();
+      void Function(ffi.Pointer<_NSRange>, ffi.Pointer<ObjCObject>,
+          ffi.Pointer<ObjCSel>, _NSRange)>();
 
   late final _sel_stringByAppendingString_1 =
       _registerName1("stringByAppendingString:");
@@ -20576,12 +20663,14 @@ class SentryCocoa {
   late final _sel_AMSymbol1 = _registerName1("AMSymbol");
   late final _sel_PMSymbol1 = _registerName1("PMSymbol");
   late final _sel_minimumRangeOfUnit_1 = _registerName1("minimumRangeOfUnit:");
-  _NSRange _objc_msgSend_736(
+  void _objc_msgSend_736(
+    ffi.Pointer<_NSRange> stret,
     ffi.Pointer<ObjCObject> obj,
     ffi.Pointer<ObjCSel> sel,
     int unit,
   ) {
     return __objc_msgSend_736(
+      stret,
       obj,
       sel,
       unit,
@@ -20590,15 +20679,17 @@ class SentryCocoa {
 
   late final __objc_msgSend_736Ptr = _lookup<
       ffi.NativeFunction<
-          _NSRange Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
-              ffi.Int32)>>('objc_msgSend');
+          ffi.Void Function(ffi.Pointer<_NSRange>, ffi.Pointer<ObjCObject>,
+              ffi.Pointer<ObjCSel>, ffi.Int32)>>('objc_msgSend_stret');
   late final __objc_msgSend_736 = __objc_msgSend_736Ptr.asFunction<
-      _NSRange Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>, int)>();
+      void Function(ffi.Pointer<_NSRange>, ffi.Pointer<ObjCObject>,
+          ffi.Pointer<ObjCSel>, int)>();
 
   late final _sel_maximumRangeOfUnit_1 = _registerName1("maximumRangeOfUnit:");
   late final _sel_rangeOfUnit_inUnit_forDate_1 =
       _registerName1("rangeOfUnit:inUnit:forDate:");
-  _NSRange _objc_msgSend_737(
+  void _objc_msgSend_737(
+    ffi.Pointer<_NSRange> stret,
     ffi.Pointer<ObjCObject> obj,
     ffi.Pointer<ObjCSel> sel,
     int smaller,
@@ -20606,6 +20697,7 @@ class SentryCocoa {
     ffi.Pointer<ObjCObject> date,
   ) {
     return __objc_msgSend_737(
+      stret,
       obj,
       sel,
       smaller,
@@ -20616,11 +20708,16 @@ class SentryCocoa {
 
   late final __objc_msgSend_737Ptr = _lookup<
       ffi.NativeFunction<
-          _NSRange Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
-              ffi.Int32, ffi.Int32, ffi.Pointer<ObjCObject>)>>('objc_msgSend');
+          ffi.Void Function(
+              ffi.Pointer<_NSRange>,
+              ffi.Pointer<ObjCObject>,
+              ffi.Pointer<ObjCSel>,
+              ffi.Int32,
+              ffi.Int32,
+              ffi.Pointer<ObjCObject>)>>('objc_msgSend_stret');
   late final __objc_msgSend_737 = __objc_msgSend_737Ptr.asFunction<
-      _NSRange Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>, int, int,
-          ffi.Pointer<ObjCObject>)>();
+      void Function(ffi.Pointer<_NSRange>, ffi.Pointer<ObjCObject>,
+          ffi.Pointer<ObjCSel>, int, int, ffi.Pointer<ObjCObject>)>();
 
   late final _sel_ordinalityOfUnit_inUnit_forDate_1 =
       _registerName1("ordinalityOfUnit:inUnit:forDate:");
@@ -24889,11 +24986,13 @@ class SentryCocoa {
       _registerName1("operatingSystemVersionString");
   late final _sel_operatingSystemVersion1 =
       _registerName1("operatingSystemVersion");
-  NSOperatingSystemVersion _objc_msgSend_881(
+  void _objc_msgSend_881(
+    ffi.Pointer<NSOperatingSystemVersion> stret,
     ffi.Pointer<ObjCObject> obj,
     ffi.Pointer<ObjCSel> sel,
   ) {
     return __objc_msgSend_881(
+      stret,
       obj,
       sel,
     );
@@ -24901,10 +25000,12 @@ class SentryCocoa {
 
   late final __objc_msgSend_881Ptr = _lookup<
       ffi.NativeFunction<
-          NSOperatingSystemVersion Function(
-              ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>)>>('objc_msgSend');
+          ffi.Void Function(
+              ffi.Pointer<NSOperatingSystemVersion>,
+              ffi.Pointer<ObjCObject>,
+              ffi.Pointer<ObjCSel>)>>('objc_msgSend_stret');
   late final __objc_msgSend_881 = __objc_msgSend_881Ptr.asFunction<
-      NSOperatingSystemVersion Function(
+      void Function(ffi.Pointer<NSOperatingSystemVersion>,
           ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>)>();
 
   late final _sel_processorCount1 = _registerName1("processorCount");
@@ -25315,7 +25416,8 @@ class SentryCocoa {
 
   late final _sel_rangeOfFirstMatchInString_options_range_1 =
       _registerName1("rangeOfFirstMatchInString:options:range:");
-  _NSRange _objc_msgSend_896(
+  void _objc_msgSend_896(
+    ffi.Pointer<_NSRange> stret,
     ffi.Pointer<ObjCObject> obj,
     ffi.Pointer<ObjCSel> sel,
     ffi.Pointer<ObjCObject> string,
@@ -25323,6 +25425,7 @@ class SentryCocoa {
     _NSRange range,
   ) {
     return __objc_msgSend_896(
+      stret,
       obj,
       sel,
       string,
@@ -25333,11 +25436,16 @@ class SentryCocoa {
 
   late final __objc_msgSend_896Ptr = _lookup<
       ffi.NativeFunction<
-          _NSRange Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
-              ffi.Pointer<ObjCObject>, ffi.Int32, _NSRange)>>('objc_msgSend');
+          ffi.Void Function(
+              ffi.Pointer<_NSRange>,
+              ffi.Pointer<ObjCObject>,
+              ffi.Pointer<ObjCSel>,
+              ffi.Pointer<ObjCObject>,
+              ffi.Int32,
+              _NSRange)>>('objc_msgSend_stret');
   late final __objc_msgSend_896 = __objc_msgSend_896Ptr.asFunction<
-      _NSRange Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
-          ffi.Pointer<ObjCObject>, int, _NSRange)>();
+      void Function(ffi.Pointer<_NSRange>, ffi.Pointer<ObjCObject>,
+          ffi.Pointer<ObjCSel>, ffi.Pointer<ObjCObject>, int, _NSRange)>();
 
   late final _sel_stringByReplacingMatchesInString_options_range_withTemplate_1 =
       _registerName1(
@@ -30212,12 +30320,12 @@ class PrivateSentrySDKOnly extends _ObjCWrapper {
 
   /// For storing an envelope synchronously to disk.
   static void storeEnvelope_(SentryCocoa _lib, SentryEnvelope? envelope) {
-    return _lib._objc_msgSend_632(_lib._class_PrivateSentrySDKOnly1,
+    _lib._objc_msgSend_632(_lib._class_PrivateSentrySDKOnly1,
         _lib._sel_storeEnvelope_1, envelope?._id ?? ffi.nullptr);
   }
 
   static void captureEnvelope_(SentryCocoa _lib, SentryEnvelope? envelope) {
-    return _lib._objc_msgSend_632(_lib._class_PrivateSentrySDKOnly1,
+    _lib._objc_msgSend_632(_lib._class_PrivateSentrySDKOnly1,
         _lib._sel_captureEnvelope_1, envelope?._id ?? ffi.nullptr);
   }
 
@@ -30253,7 +30361,7 @@ class PrivateSentrySDKOnly extends _ObjCWrapper {
   /// Override SDK information.
   static void setSdkName_andVersionString_(
       SentryCocoa _lib, NSObject sdkName, NSObject versionString) {
-    return _lib._objc_msgSend_499(
+    _lib._objc_msgSend_499(
         _lib._class_PrivateSentrySDKOnly1,
         _lib._sel_setSdkName_andVersionString_1,
         sdkName._id,
@@ -30262,7 +30370,7 @@ class PrivateSentrySDKOnly extends _ObjCWrapper {
 
   /// Override SDK information.
   static void setSdkName_(SentryCocoa _lib, NSObject sdkName) {
-    return _lib._objc_msgSend_15(
+    _lib._objc_msgSend_15(
         _lib._class_PrivateSentrySDKOnly1, _lib._sel_setSdkName_1, sdkName._id);
   }
 
@@ -30311,19 +30419,20 @@ class PrivateSentrySDKOnly extends _ObjCWrapper {
   /// Discard profiler session data associated with the given @c SentryId.
   /// This only needs to be called in case you haven't collected the profile (and don't intend to).
   static void discardProfilerForTrace_(SentryCocoa _lib, SentryId? traceId) {
-    return _lib._objc_msgSend_635(_lib._class_PrivateSentrySDKOnly1,
+    _lib._objc_msgSend_635(_lib._class_PrivateSentrySDKOnly1,
         _lib._sel_discardProfilerForTrace_1, traceId?._id ?? ffi.nullptr);
   }
 
-  static ObjCBlock23 getOnAppStartMeasurementAvailable(SentryCocoa _lib) {
+  static ObjCBlock_ffiInt_SentryAppStartMeasurement
+      getOnAppStartMeasurementAvailable(SentryCocoa _lib) {
     final _ret = _lib._objc_msgSend_636(_lib._class_PrivateSentrySDKOnly1,
         _lib._sel_onAppStartMeasurementAvailable1);
-    return ObjCBlock23._(_ret, _lib);
+    return ObjCBlock_ffiInt_SentryAppStartMeasurement._(_ret, _lib);
   }
 
   static void setOnAppStartMeasurementAvailable(
-      SentryCocoa _lib, ObjCBlock23 value) {
-    _lib._objc_msgSend_637(_lib._class_PrivateSentrySDKOnly1,
+      SentryCocoa _lib, ObjCBlock_ffiInt_SentryAppStartMeasurement value) {
+    return _lib._objc_msgSend_637(_lib._class_PrivateSentrySDKOnly1,
         _lib._sel_setOnAppStartMeasurementAvailable_1, value._id);
   }
 
@@ -30368,7 +30477,7 @@ class PrivateSentrySDKOnly extends _ObjCWrapper {
   /// @c didFinishLaunchingTimestamp to @c timeIntervalSinceReferenceDate.
   /// @note Default is @c NO.
   static void setAppStartMeasurementHybridSDKMode(SentryCocoa _lib, int value) {
-    _lib._objc_msgSend_640(_lib._class_PrivateSentrySDKOnly1,
+    return _lib._objc_msgSend_640(_lib._class_PrivateSentrySDKOnly1,
         _lib._sel_setAppStartMeasurementHybridSDKMode_1, value);
   }
 
@@ -30554,6 +30663,12 @@ class SentryId extends NSObject {
     return SentryId._(_ret, _lib, retain: false, release: true);
   }
 
+  static SentryId allocWithZone_(SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_SentryId1, _lib._sel_allocWithZone_1, zone);
+    return SentryId._(_ret, _lib, retain: false, release: true);
+  }
+
   static SentryId alloc(SentryCocoa _lib) {
     final _ret = _lib._objc_msgSend_2(_lib._class_SentryId1, _lib._sel_alloc1);
     return SentryId._(_ret, _lib, retain: false, release: true);
@@ -30564,7 +30679,7 @@ class SentryId extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_SentryId1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -30574,7 +30689,7 @@ class SentryId extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_SentryId1,
+    _lib._objc_msgSend_15(_lib._class_SentryId1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -30607,7 +30722,7 @@ class SentryId extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_SentryId1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -30651,11 +30766,11 @@ class NSObject extends _ObjCWrapper {
   }
 
   static void load(SentryCocoa _lib) {
-    return _lib._objc_msgSend_1(_lib._class_NSObject1, _lib._sel_load1);
+    _lib._objc_msgSend_1(_lib._class_NSObject1, _lib._sel_load1);
   }
 
   static void initialize(SentryCocoa _lib) {
-    return _lib._objc_msgSend_1(_lib._class_NSObject1, _lib._sel_initialize1);
+    _lib._objc_msgSend_1(_lib._class_NSObject1, _lib._sel_initialize1);
   }
 
   NSObject init() {
@@ -30680,11 +30795,11 @@ class NSObject extends _ObjCWrapper {
   }
 
   void dealloc() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_dealloc1);
+    _lib._objc_msgSend_1(_id, _lib._sel_dealloc1);
   }
 
   void finalize() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_finalize1);
+    _lib._objc_msgSend_1(_id, _lib._sel_finalize1);
   }
 
   NSObject copy() {
@@ -30734,8 +30849,7 @@ class NSObject extends _ObjCWrapper {
   }
 
   void doesNotRecognizeSelector_(ffi.Pointer<ObjCSel> aSelector) {
-    return _lib._objc_msgSend_7(
-        _id, _lib._sel_doesNotRecognizeSelector_1, aSelector);
+    _lib._objc_msgSend_7(_id, _lib._sel_doesNotRecognizeSelector_1, aSelector);
   }
 
   NSObject forwardingTargetForSelector_(ffi.Pointer<ObjCSel> aSelector) {
@@ -30745,7 +30859,7 @@ class NSObject extends _ObjCWrapper {
   }
 
   void forwardInvocation_(NSInvocation? anInvocation) {
-    return _lib._objc_msgSend_392(
+    _lib._objc_msgSend_392(
         _id, _lib._sel_forwardInvocation_1, anInvocation?._id ?? ffi.nullptr);
   }
 
@@ -30819,7 +30933,7 @@ class NSObject extends _ObjCWrapper {
   }
 
   static void setVersion_(SentryCocoa _lib, int aVersion) {
-    return _lib._objc_msgSend_394(
+    _lib._objc_msgSend_394(
         _lib._class_NSObject1, _lib._sel_setVersion_1, aVersion);
   }
 
@@ -30841,7 +30955,7 @@ class NSObject extends _ObjCWrapper {
   }
 
   static void poseAsClass_(SentryCocoa _lib, NSObject aClass) {
-    return _lib._objc_msgSend_15(
+    _lib._objc_msgSend_15(
         _lib._class_NSObject1, _lib._sel_poseAsClass_1, aClass._id);
   }
 
@@ -30858,7 +30972,7 @@ class NSObject extends _ObjCWrapper {
           NSObject delegate,
           ffi.Pointer<ObjCSel> didRecoverSelector,
           ffi.Pointer<ffi.Void> contextInfo) {
-    return _lib._objc_msgSend_395(
+    _lib._objc_msgSend_395(
         _id,
         _lib._sel_attemptRecoveryFromError_optionIndex_delegate_didRecoverSelector_contextInfo_1,
         error?._id ?? ffi.nullptr,
@@ -30882,7 +30996,7 @@ class NSObject extends _ObjCWrapper {
       NSObject anArgument,
       double delay,
       NSArray? modes) {
-    return _lib._objc_msgSend_397(
+    _lib._objc_msgSend_397(
         _id,
         _lib._sel_performSelector_withObject_afterDelay_inModes_1,
         aSelector,
@@ -30893,7 +31007,7 @@ class NSObject extends _ObjCWrapper {
 
   void performSelector_withObject_afterDelay_(
       ffi.Pointer<ObjCSel> aSelector, NSObject anArgument, double delay) {
-    return _lib._objc_msgSend_398(
+    _lib._objc_msgSend_398(
         _id,
         _lib._sel_performSelector_withObject_afterDelay_1,
         aSelector,
@@ -30906,7 +31020,7 @@ class NSObject extends _ObjCWrapper {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSObject1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -30916,30 +31030,27 @@ class NSObject extends _ObjCWrapper {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSObject1,
+    _lib._objc_msgSend_15(_lib._class_NSObject1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
   void URL_resourceDataDidBecomeAvailable_(NSURL? sender, NSData? newBytes) {
-    return _lib._objc_msgSend_399(
-        _id,
-        _lib._sel_URL_resourceDataDidBecomeAvailable_1,
-        sender?._id ?? ffi.nullptr,
-        newBytes?._id ?? ffi.nullptr);
+    _lib._objc_msgSend_399(_id, _lib._sel_URL_resourceDataDidBecomeAvailable_1,
+        sender?._id ?? ffi.nullptr, newBytes?._id ?? ffi.nullptr);
   }
 
   void URLResourceDidFinishLoading_(NSURL? sender) {
-    return _lib._objc_msgSend_400(_id, _lib._sel_URLResourceDidFinishLoading_1,
+    _lib._objc_msgSend_400(_id, _lib._sel_URLResourceDidFinishLoading_1,
         sender?._id ?? ffi.nullptr);
   }
 
   void URLResourceDidCancelLoading_(NSURL? sender) {
-    return _lib._objc_msgSend_400(_id, _lib._sel_URLResourceDidCancelLoading_1,
+    _lib._objc_msgSend_400(_id, _lib._sel_URLResourceDidCancelLoading_1,
         sender?._id ?? ffi.nullptr);
   }
 
   void URL_resourceDidFailLoadingWithReason_(NSURL? sender, NSString? reason) {
-    return _lib._objc_msgSend_401(
+    _lib._objc_msgSend_401(
         _id,
         _lib._sel_URL_resourceDidFailLoadingWithReason_1,
         sender?._id ?? ffi.nullptr,
@@ -30956,7 +31067,7 @@ class NSObject extends _ObjCWrapper {
   }
 
   void fileManager_willProcessPath_(NSFileManager? fm, NSString? path) {
-    return _lib._objc_msgSend_437(_id, _lib._sel_fileManager_willProcessPath_1,
+    _lib._objc_msgSend_437(_id, _lib._sel_fileManager_willProcessPath_1,
         fm?._id ?? ffi.nullptr, path?._id ?? ffi.nullptr);
   }
 
@@ -30972,7 +31083,7 @@ class NSObject extends _ObjCWrapper {
   }
 
   void setValue_forKey_(NSObject value, NSString? key) {
-    return _lib._objc_msgSend_126(
+    _lib._objc_msgSend_126(
         _id, _lib._sel_setValue_forKey_1, value._id, key?._id ?? ffi.nullptr);
   }
 
@@ -31007,8 +31118,8 @@ class NSObject extends _ObjCWrapper {
   }
 
   void setValue_forKeyPath_(NSObject value, NSString? keyPath) {
-    return _lib._objc_msgSend_126(_id, _lib._sel_setValue_forKeyPath_1,
-        value._id, keyPath?._id ?? ffi.nullptr);
+    _lib._objc_msgSend_126(_id, _lib._sel_setValue_forKeyPath_1, value._id,
+        keyPath?._id ?? ffi.nullptr);
   }
 
   bool validateValue_forKeyPath_error_(
@@ -31050,12 +31161,12 @@ class NSObject extends _ObjCWrapper {
   }
 
   void setValue_forUndefinedKey_(NSObject value, NSString? key) {
-    return _lib._objc_msgSend_126(_id, _lib._sel_setValue_forUndefinedKey_1,
-        value._id, key?._id ?? ffi.nullptr);
+    _lib._objc_msgSend_126(_id, _lib._sel_setValue_forUndefinedKey_1, value._id,
+        key?._id ?? ffi.nullptr);
   }
 
   void setNilValueForKey_(NSString? key) {
-    return _lib._objc_msgSend_192(
+    _lib._objc_msgSend_192(
         _id, _lib._sel_setNilValueForKey_1, key?._id ?? ffi.nullptr);
   }
 
@@ -31066,9 +31177,7 @@ class NSObject extends _ObjCWrapper {
   }
 
   void setValuesForKeysWithDictionary_(NSDictionary? keyedValues) {
-    return _lib._objc_msgSend_476(
-        _id,
-        _lib._sel_setValuesForKeysWithDictionary_1,
+    _lib._objc_msgSend_476(_id, _lib._sel_setValuesForKeysWithDictionary_1,
         keyedValues?._id ?? ffi.nullptr);
   }
 
@@ -31084,18 +31193,18 @@ class NSObject extends _ObjCWrapper {
   }
 
   void takeStoredValue_forKey_(NSObject value, NSString? key) {
-    return _lib._objc_msgSend_126(_id, _lib._sel_takeStoredValue_forKey_1,
-        value._id, key?._id ?? ffi.nullptr);
+    _lib._objc_msgSend_126(_id, _lib._sel_takeStoredValue_forKey_1, value._id,
+        key?._id ?? ffi.nullptr);
   }
 
   void takeValue_forKey_(NSObject value, NSString? key) {
-    return _lib._objc_msgSend_126(
+    _lib._objc_msgSend_126(
         _id, _lib._sel_takeValue_forKey_1, value._id, key?._id ?? ffi.nullptr);
   }
 
   void takeValue_forKeyPath_(NSObject value, NSString? keyPath) {
-    return _lib._objc_msgSend_126(_id, _lib._sel_takeValue_forKeyPath_1,
-        value._id, keyPath?._id ?? ffi.nullptr);
+    _lib._objc_msgSend_126(_id, _lib._sel_takeValue_forKeyPath_1, value._id,
+        keyPath?._id ?? ffi.nullptr);
   }
 
   NSObject handleQueryWithUnboundKey_(NSString? key) {
@@ -31105,15 +31214,12 @@ class NSObject extends _ObjCWrapper {
   }
 
   void handleTakeValue_forUnboundKey_(NSObject value, NSString? key) {
-    return _lib._objc_msgSend_126(
-        _id,
-        _lib._sel_handleTakeValue_forUnboundKey_1,
-        value._id,
-        key?._id ?? ffi.nullptr);
+    _lib._objc_msgSend_126(_id, _lib._sel_handleTakeValue_forUnboundKey_1,
+        value._id, key?._id ?? ffi.nullptr);
   }
 
   void unableToSetNilForKey_(NSString? key) {
-    return _lib._objc_msgSend_192(
+    _lib._objc_msgSend_192(
         _id, _lib._sel_unableToSetNilForKey_1, key?._id ?? ffi.nullptr);
   }
 
@@ -31124,13 +31230,13 @@ class NSObject extends _ObjCWrapper {
   }
 
   void takeValuesFromDictionary_(NSDictionary? properties) {
-    return _lib._objc_msgSend_476(_id, _lib._sel_takeValuesFromDictionary_1,
+    _lib._objc_msgSend_476(_id, _lib._sel_takeValuesFromDictionary_1,
         properties?._id ?? ffi.nullptr);
   }
 
   void observeValueForKeyPath_ofObject_change_context_(NSString? keyPath,
       NSObject object, NSDictionary? change, ffi.Pointer<ffi.Void> context) {
-    return _lib._objc_msgSend_477(
+    _lib._objc_msgSend_477(
         _id,
         _lib._sel_observeValueForKeyPath_ofObject_change_context_1,
         keyPath?._id ?? ffi.nullptr,
@@ -31141,7 +31247,7 @@ class NSObject extends _ObjCWrapper {
 
   void addObserver_forKeyPath_options_context_(NSObject? observer,
       NSString? keyPath, int options, ffi.Pointer<ffi.Void> context) {
-    return _lib._objc_msgSend_130(
+    _lib._objc_msgSend_130(
         _id,
         _lib._sel_addObserver_forKeyPath_options_context_1,
         observer?._id ?? ffi.nullptr,
@@ -31152,52 +31258,40 @@ class NSObject extends _ObjCWrapper {
 
   void removeObserver_forKeyPath_context_(
       NSObject? observer, NSString? keyPath, ffi.Pointer<ffi.Void> context) {
-    return _lib._objc_msgSend_131(
-        _id,
-        _lib._sel_removeObserver_forKeyPath_context_1,
-        observer?._id ?? ffi.nullptr,
-        keyPath?._id ?? ffi.nullptr,
-        context);
+    _lib._objc_msgSend_131(_id, _lib._sel_removeObserver_forKeyPath_context_1,
+        observer?._id ?? ffi.nullptr, keyPath?._id ?? ffi.nullptr, context);
   }
 
   void removeObserver_forKeyPath_(NSObject? observer, NSString? keyPath) {
-    return _lib._objc_msgSend_132(_id, _lib._sel_removeObserver_forKeyPath_1,
+    _lib._objc_msgSend_132(_id, _lib._sel_removeObserver_forKeyPath_1,
         observer?._id ?? ffi.nullptr, keyPath?._id ?? ffi.nullptr);
   }
 
   void willChangeValueForKey_(NSString? key) {
-    return _lib._objc_msgSend_192(
+    _lib._objc_msgSend_192(
         _id, _lib._sel_willChangeValueForKey_1, key?._id ?? ffi.nullptr);
   }
 
   void didChangeValueForKey_(NSString? key) {
-    return _lib._objc_msgSend_192(
+    _lib._objc_msgSend_192(
         _id, _lib._sel_didChangeValueForKey_1, key?._id ?? ffi.nullptr);
   }
 
   void willChange_valuesAtIndexes_forKey_(
       int changeKind, NSIndexSet? indexes, NSString? key) {
-    return _lib._objc_msgSend_478(
-        _id,
-        _lib._sel_willChange_valuesAtIndexes_forKey_1,
-        changeKind,
-        indexes?._id ?? ffi.nullptr,
-        key?._id ?? ffi.nullptr);
+    _lib._objc_msgSend_478(_id, _lib._sel_willChange_valuesAtIndexes_forKey_1,
+        changeKind, indexes?._id ?? ffi.nullptr, key?._id ?? ffi.nullptr);
   }
 
   void didChange_valuesAtIndexes_forKey_(
       int changeKind, NSIndexSet? indexes, NSString? key) {
-    return _lib._objc_msgSend_478(
-        _id,
-        _lib._sel_didChange_valuesAtIndexes_forKey_1,
-        changeKind,
-        indexes?._id ?? ffi.nullptr,
-        key?._id ?? ffi.nullptr);
+    _lib._objc_msgSend_478(_id, _lib._sel_didChange_valuesAtIndexes_forKey_1,
+        changeKind, indexes?._id ?? ffi.nullptr, key?._id ?? ffi.nullptr);
   }
 
   void willChangeValueForKey_withSetMutation_usingObjects_(
       NSString? key, int mutationKind, NSSet? objects) {
-    return _lib._objc_msgSend_479(
+    _lib._objc_msgSend_479(
         _id,
         _lib._sel_willChangeValueForKey_withSetMutation_usingObjects_1,
         key?._id ?? ffi.nullptr,
@@ -31207,7 +31301,7 @@ class NSObject extends _ObjCWrapper {
 
   void didChangeValueForKey_withSetMutation_usingObjects_(
       NSString? key, int mutationKind, NSSet? objects) {
-    return _lib._objc_msgSend_479(
+    _lib._objc_msgSend_479(
         _id,
         _lib._sel_didChangeValueForKey_withSetMutation_usingObjects_1,
         key?._id ?? ffi.nullptr,
@@ -31237,12 +31331,12 @@ class NSObject extends _ObjCWrapper {
   }
 
   set observationInfo(ffi.Pointer<ffi.Void> value) {
-    _lib._objc_msgSend_480(_id, _lib._sel_setObservationInfo_1, value);
+    return _lib._objc_msgSend_480(_id, _lib._sel_setObservationInfo_1, value);
   }
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSObject1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -31276,7 +31370,7 @@ class NSObject extends _ObjCWrapper {
 
   void performSelectorOnMainThread_withObject_waitUntilDone_modes_(
       ffi.Pointer<ObjCSel> aSelector, NSObject arg, bool wait, NSArray? array) {
-    return _lib._objc_msgSend_494(
+    _lib._objc_msgSend_494(
         _id,
         _lib._sel_performSelectorOnMainThread_withObject_waitUntilDone_modes_1,
         aSelector,
@@ -31287,7 +31381,7 @@ class NSObject extends _ObjCWrapper {
 
   void performSelectorOnMainThread_withObject_waitUntilDone_(
       ffi.Pointer<ObjCSel> aSelector, NSObject arg, bool wait) {
-    return _lib._objc_msgSend_495(
+    _lib._objc_msgSend_495(
         _id,
         _lib._sel_performSelectorOnMainThread_withObject_waitUntilDone_1,
         aSelector,
@@ -31301,7 +31395,7 @@ class NSObject extends _ObjCWrapper {
       NSObject arg,
       bool wait,
       NSArray? array) {
-    return _lib._objc_msgSend_512(
+    _lib._objc_msgSend_512(
         _id,
         _lib._sel_performSelector_onThread_withObject_waitUntilDone_modes_1,
         aSelector,
@@ -31313,7 +31407,7 @@ class NSObject extends _ObjCWrapper {
 
   void performSelector_onThread_withObject_waitUntilDone_(
       ffi.Pointer<ObjCSel> aSelector, NSThread? thr, NSObject arg, bool wait) {
-    return _lib._objc_msgSend_513(
+    _lib._objc_msgSend_513(
         _id,
         _lib._sel_performSelector_onThread_withObject_waitUntilDone_1,
         aSelector,
@@ -31324,7 +31418,7 @@ class NSObject extends _ObjCWrapper {
 
   void performSelectorInBackground_withObject_(
       ffi.Pointer<ObjCSel> aSelector, NSObject arg) {
-    return _lib._objc_msgSend_84(_id,
+    _lib._objc_msgSend_84(_id,
         _lib._sel_performSelectorInBackground_withObject_1, aSelector, arg._id);
   }
 
@@ -31403,7 +31497,7 @@ class NSObject extends _ObjCWrapper {
   }
 
   set scriptingProperties(NSDictionary? value) {
-    _lib._objc_msgSend_171(
+    return _lib._objc_msgSend_171(
         _id, _lib._sel_setScriptingProperties_1, value?._id ?? ffi.nullptr);
   }
 
@@ -31475,7 +31569,7 @@ class NSObject extends _ObjCWrapper {
 
   void insertValue_atIndex_inPropertyWithKey_(
       NSObject value, int index, NSString? key) {
-    return _lib._objc_msgSend_605(
+    _lib._objc_msgSend_605(
         _id,
         _lib._sel_insertValue_atIndex_inPropertyWithKey_1,
         value._id,
@@ -31484,7 +31578,7 @@ class NSObject extends _ObjCWrapper {
   }
 
   void removeValueAtIndex_fromPropertyWithKey_(int index, NSString? key) {
-    return _lib._objc_msgSend_606(
+    _lib._objc_msgSend_606(
         _id,
         _lib._sel_removeValueAtIndex_fromPropertyWithKey_1,
         index,
@@ -31493,7 +31587,7 @@ class NSObject extends _ObjCWrapper {
 
   void replaceValueAtIndex_inPropertyWithKey_withValue_(
       int index, NSString? key, NSObject value) {
-    return _lib._objc_msgSend_607(
+    _lib._objc_msgSend_607(
         _id,
         _lib._sel_replaceValueAtIndex_inPropertyWithKey_withValue_1,
         index,
@@ -31502,11 +31596,8 @@ class NSObject extends _ObjCWrapper {
   }
 
   void insertValue_inPropertyWithKey_(NSObject value, NSString? key) {
-    return _lib._objc_msgSend_126(
-        _id,
-        _lib._sel_insertValue_inPropertyWithKey_1,
-        value._id,
-        key?._id ?? ffi.nullptr);
+    _lib._objc_msgSend_126(_id, _lib._sel_insertValue_inPropertyWithKey_1,
+        value._id, key?._id ?? ffi.nullptr);
   }
 
   NSObject coerceValue_forKey_(NSObject value, NSString? key) {
@@ -31674,7 +31765,7 @@ class NSInvocation extends NSObject {
   }
 
   void retainArguments() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_retainArguments1);
+    _lib._objc_msgSend_1(_id, _lib._sel_retainArguments1);
   }
 
   bool get argumentsRetained {
@@ -31687,7 +31778,7 @@ class NSInvocation extends NSObject {
   }
 
   set target(NSObject value) {
-    _lib._objc_msgSend_387(_id, _lib._sel_setTarget_1, value._id);
+    return _lib._objc_msgSend_387(_id, _lib._sel_setTarget_1, value._id);
   }
 
   ffi.Pointer<ObjCSel> get selector {
@@ -31695,43 +31786,56 @@ class NSInvocation extends NSObject {
   }
 
   set selector(ffi.Pointer<ObjCSel> value) {
-    _lib._objc_msgSend_389(_id, _lib._sel_setSelector_1, value);
+    return _lib._objc_msgSend_389(_id, _lib._sel_setSelector_1, value);
   }
 
   void getReturnValue_(ffi.Pointer<ffi.Void> retLoc) {
-    return _lib._objc_msgSend_47(_id, _lib._sel_getReturnValue_1, retLoc);
+    _lib._objc_msgSend_47(_id, _lib._sel_getReturnValue_1, retLoc);
   }
 
   void setReturnValue_(ffi.Pointer<ffi.Void> retLoc) {
-    return _lib._objc_msgSend_47(_id, _lib._sel_setReturnValue_1, retLoc);
+    _lib._objc_msgSend_47(_id, _lib._sel_setReturnValue_1, retLoc);
   }
 
   void getArgument_atIndex_(ffi.Pointer<ffi.Void> argumentLocation, int idx) {
-    return _lib._objc_msgSend_390(
+    _lib._objc_msgSend_390(
         _id, _lib._sel_getArgument_atIndex_1, argumentLocation, idx);
   }
 
   void setArgument_atIndex_(ffi.Pointer<ffi.Void> argumentLocation, int idx) {
-    return _lib._objc_msgSend_390(
+    _lib._objc_msgSend_390(
         _id, _lib._sel_setArgument_atIndex_1, argumentLocation, idx);
   }
 
   void invoke() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_invoke1);
+    _lib._objc_msgSend_1(_id, _lib._sel_invoke1);
   }
 
   void invokeWithTarget_(NSObject target) {
-    return _lib._objc_msgSend_15(_id, _lib._sel_invokeWithTarget_1, target._id);
+    _lib._objc_msgSend_15(_id, _lib._sel_invokeWithTarget_1, target._id);
   }
 
   void invokeUsingIMP_(
       ffi.Pointer<ffi.NativeFunction<ffi.Void Function()>> imp) {
-    return _lib._objc_msgSend_391(_id, _lib._sel_invokeUsingIMP_1, imp);
+    _lib._objc_msgSend_391(_id, _lib._sel_invokeUsingIMP_1, imp);
+  }
+
+  @override
+  NSInvocation init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSInvocation._(_ret, _lib, retain: true, release: true);
   }
 
   static NSInvocation new1(SentryCocoa _lib) {
     final _ret =
         _lib._objc_msgSend_2(_lib._class_NSInvocation1, _lib._sel_new1);
+    return NSInvocation._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSInvocation allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSInvocation1, _lib._sel_allocWithZone_1, zone);
     return NSInvocation._(_ret, _lib, retain: false, release: true);
   }
 
@@ -31746,7 +31850,7 @@ class NSInvocation extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSInvocation1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -31756,7 +31860,7 @@ class NSInvocation extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSInvocation1,
+    _lib._objc_msgSend_15(_lib._class_NSInvocation1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -31789,7 +31893,7 @@ class NSInvocation extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSInvocation1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -31864,9 +31968,22 @@ class NSMethodSignature extends NSObject {
     return _lib._objc_msgSend_10(_id, _lib._sel_methodReturnLength1);
   }
 
+  @override
+  NSMethodSignature init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSMethodSignature._(_ret, _lib, retain: true, release: true);
+  }
+
   static NSMethodSignature new1(SentryCocoa _lib) {
     final _ret =
         _lib._objc_msgSend_2(_lib._class_NSMethodSignature1, _lib._sel_new1);
+    return NSMethodSignature._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSMethodSignature allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSMethodSignature1, _lib._sel_allocWithZone_1, zone);
     return NSMethodSignature._(_ret, _lib, retain: false, release: true);
   }
 
@@ -31881,7 +31998,7 @@ class NSMethodSignature extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSMethodSignature1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -31891,7 +32008,7 @@ class NSMethodSignature extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSMethodSignature1,
+    _lib._objc_msgSend_15(_lib._class_NSMethodSignature1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -31924,7 +32041,7 @@ class NSMethodSignature extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSMethodSignature1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -32044,13 +32161,13 @@ class NSSet extends NSObject {
   }
 
   void makeObjectsPerformSelector_(ffi.Pointer<ObjCSel> aSelector) {
-    return _lib._objc_msgSend_7(
+    _lib._objc_msgSend_7(
         _id, _lib._sel_makeObjectsPerformSelector_1, aSelector);
   }
 
   void makeObjectsPerformSelector_withObject_(
       ffi.Pointer<ObjCSel> aSelector, NSObject argument) {
-    return _lib._objc_msgSend_84(
+    _lib._objc_msgSend_84(
         _id,
         _lib._sel_makeObjectsPerformSelector_withObject_1,
         aSelector,
@@ -32075,23 +32192,25 @@ class NSSet extends NSObject {
     return NSSet._(_ret, _lib, retain: true, release: true);
   }
 
-  void enumerateObjectsUsingBlock_(ObjCBlock16 block) {
-    return _lib._objc_msgSend_378(
+  void enumerateObjectsUsingBlock_(ObjCBlock_ffiVoid_ObjCObject_bool block) {
+    _lib._objc_msgSend_378(
         _id, _lib._sel_enumerateObjectsUsingBlock_1, block._id);
   }
 
-  void enumerateObjectsWithOptions_usingBlock_(int opts, ObjCBlock16 block) {
-    return _lib._objc_msgSend_379(_id,
+  void enumerateObjectsWithOptions_usingBlock_(
+      int opts, ObjCBlock_ffiVoid_ObjCObject_bool block) {
+    _lib._objc_msgSend_379(_id,
         _lib._sel_enumerateObjectsWithOptions_usingBlock_1, opts, block._id);
   }
 
-  NSSet objectsPassingTest_(ObjCBlock17 predicate) {
+  NSSet objectsPassingTest_(ObjCBlock_bool_ObjCObject_bool predicate) {
     final _ret = _lib._objc_msgSend_380(
         _id, _lib._sel_objectsPassingTest_1, predicate._id);
     return NSSet._(_ret, _lib, retain: true, release: true);
   }
 
-  NSSet objectsWithOptions_passingTest_(int opts, ObjCBlock17 predicate) {
+  NSSet objectsWithOptions_passingTest_(
+      int opts, ObjCBlock_bool_ObjCObject_bool predicate) {
     final _ret = _lib._objc_msgSend_381(
         _id, _lib._sel_objectsWithOptions_passingTest_1, opts, predicate._id);
     return NSSet._(_ret, _lib, retain: true, release: true);
@@ -32166,14 +32285,14 @@ class NSSet extends NSObject {
 
   @override
   void setValue_forKey_(NSObject value, NSString? key) {
-    return _lib._objc_msgSend_126(
+    _lib._objc_msgSend_126(
         _id, _lib._sel_setValue_forKey_1, value._id, key?._id ?? ffi.nullptr);
   }
 
   @override
   void addObserver_forKeyPath_options_context_(NSObject? observer,
       NSString? keyPath, int options, ffi.Pointer<ffi.Void> context) {
-    return _lib._objc_msgSend_130(
+    _lib._objc_msgSend_130(
         _id,
         _lib._sel_addObserver_forKeyPath_options_context_1,
         observer?._id ?? ffi.nullptr,
@@ -32185,17 +32304,13 @@ class NSSet extends NSObject {
   @override
   void removeObserver_forKeyPath_context_(
       NSObject? observer, NSString? keyPath, ffi.Pointer<ffi.Void> context) {
-    return _lib._objc_msgSend_131(
-        _id,
-        _lib._sel_removeObserver_forKeyPath_context_1,
-        observer?._id ?? ffi.nullptr,
-        keyPath?._id ?? ffi.nullptr,
-        context);
+    _lib._objc_msgSend_131(_id, _lib._sel_removeObserver_forKeyPath_context_1,
+        observer?._id ?? ffi.nullptr, keyPath?._id ?? ffi.nullptr, context);
   }
 
   @override
   void removeObserver_forKeyPath_(NSObject? observer, NSString? keyPath) {
-    return _lib._objc_msgSend_132(_id, _lib._sel_removeObserver_forKeyPath_1,
+    _lib._objc_msgSend_132(_id, _lib._sel_removeObserver_forKeyPath_1,
         observer?._id ?? ffi.nullptr, keyPath?._id ?? ffi.nullptr);
   }
 
@@ -32218,6 +32333,12 @@ class NSSet extends NSObject {
     return NSSet._(_ret, _lib, retain: false, release: true);
   }
 
+  static NSSet allocWithZone_(SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSSet1, _lib._sel_allocWithZone_1, zone);
+    return NSSet._(_ret, _lib, retain: false, release: true);
+  }
+
   static NSSet alloc(SentryCocoa _lib) {
     final _ret = _lib._objc_msgSend_2(_lib._class_NSSet1, _lib._sel_alloc1);
     return NSSet._(_ret, _lib, retain: false, release: true);
@@ -32228,7 +32349,7 @@ class NSSet extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSSet1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -32238,7 +32359,7 @@ class NSSet extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSSet1,
+    _lib._objc_msgSend_15(_lib._class_NSSet1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -32271,7 +32392,7 @@ class NSSet extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSSet1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -32326,9 +32447,22 @@ class NSEnumerator extends NSObject {
         : NSObject._(_ret, _lib, retain: true, release: true);
   }
 
+  @override
+  NSEnumerator init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSEnumerator._(_ret, _lib, retain: true, release: true);
+  }
+
   static NSEnumerator new1(SentryCocoa _lib) {
     final _ret =
         _lib._objc_msgSend_2(_lib._class_NSEnumerator1, _lib._sel_new1);
+    return NSEnumerator._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSEnumerator allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSEnumerator1, _lib._sel_allocWithZone_1, zone);
     return NSEnumerator._(_ret, _lib, retain: false, release: true);
   }
 
@@ -32343,7 +32477,7 @@ class NSEnumerator extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSEnumerator1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -32353,7 +32487,7 @@ class NSEnumerator extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSEnumerator1,
+    _lib._objc_msgSend_15(_lib._class_NSEnumerator1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -32386,7 +32520,7 @@ class NSEnumerator extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSEnumerator1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -32482,8 +32616,7 @@ class NSString extends NSObject {
 
   void getCharacters_range_(
       ffi.Pointer<ffi.UnsignedShort> buffer, _NSRange range) {
-    return _lib._objc_msgSend_310(
-        _id, _lib._sel_getCharacters_range_1, buffer, range);
+    _lib._objc_msgSend_310(_id, _lib._sel_getCharacters_range_1, buffer, range);
   }
 
   int compare_(NSString? string) {
@@ -32571,30 +32704,37 @@ class NSString extends NSObject {
         _lib._sel_localizedStandardContainsString_1, str?._id ?? ffi.nullptr);
   }
 
-  _NSRange localizedStandardRangeOfString_(NSString? str) {
-    return _lib._objc_msgSend_316(_id,
+  void localizedStandardRangeOfString_(
+      ffi.Pointer<_NSRange> stret, NSString? str) {
+    _lib._objc_msgSend_316(stret, _id,
         _lib._sel_localizedStandardRangeOfString_1, str?._id ?? ffi.nullptr);
   }
 
-  _NSRange rangeOfString_(NSString? searchString) {
-    return _lib._objc_msgSend_316(
-        _id, _lib._sel_rangeOfString_1, searchString?._id ?? ffi.nullptr);
+  void rangeOfString_(ffi.Pointer<_NSRange> stret, NSString? searchString) {
+    _lib._objc_msgSend_316(stret, _id, _lib._sel_rangeOfString_1,
+        searchString?._id ?? ffi.nullptr);
   }
 
-  _NSRange rangeOfString_options_(NSString? searchString, int mask) {
-    return _lib._objc_msgSend_317(_id, _lib._sel_rangeOfString_options_1,
+  void rangeOfString_options_(
+      ffi.Pointer<_NSRange> stret, NSString? searchString, int mask) {
+    _lib._objc_msgSend_317(stret, _id, _lib._sel_rangeOfString_options_1,
         searchString?._id ?? ffi.nullptr, mask);
   }
 
-  _NSRange rangeOfString_options_range_(
+  void rangeOfString_options_range_(ffi.Pointer<_NSRange> stret,
       NSString? searchString, int mask, _NSRange rangeOfReceiverToSearch) {
-    return _lib._objc_msgSend_318(_id, _lib._sel_rangeOfString_options_range_1,
+    _lib._objc_msgSend_318(stret, _id, _lib._sel_rangeOfString_options_range_1,
         searchString?._id ?? ffi.nullptr, mask, rangeOfReceiverToSearch);
   }
 
-  _NSRange rangeOfString_options_range_locale_(NSString? searchString, int mask,
-      _NSRange rangeOfReceiverToSearch, NSLocale? locale) {
-    return _lib._objc_msgSend_319(
+  void rangeOfString_options_range_locale_(
+      ffi.Pointer<_NSRange> stret,
+      NSString? searchString,
+      int mask,
+      _NSRange rangeOfReceiverToSearch,
+      NSLocale? locale) {
+    _lib._objc_msgSend_319(
+        stret,
         _id,
         _lib._sel_rangeOfString_options_range_locale_1,
         searchString?._id ?? ffi.nullptr,
@@ -32603,23 +32743,26 @@ class NSString extends NSObject {
         locale?._id ?? ffi.nullptr);
   }
 
-  _NSRange rangeOfCharacterFromSet_(NSCharacterSet? searchSet) {
-    return _lib._objc_msgSend_320(_id, _lib._sel_rangeOfCharacterFromSet_1,
+  void rangeOfCharacterFromSet_(
+      ffi.Pointer<_NSRange> stret, NSCharacterSet? searchSet) {
+    _lib._objc_msgSend_320(stret, _id, _lib._sel_rangeOfCharacterFromSet_1,
         searchSet?._id ?? ffi.nullptr);
   }
 
-  _NSRange rangeOfCharacterFromSet_options_(
-      NSCharacterSet? searchSet, int mask) {
-    return _lib._objc_msgSend_321(
+  void rangeOfCharacterFromSet_options_(
+      ffi.Pointer<_NSRange> stret, NSCharacterSet? searchSet, int mask) {
+    _lib._objc_msgSend_321(
+        stret,
         _id,
         _lib._sel_rangeOfCharacterFromSet_options_1,
         searchSet?._id ?? ffi.nullptr,
         mask);
   }
 
-  _NSRange rangeOfCharacterFromSet_options_range_(
+  void rangeOfCharacterFromSet_options_range_(ffi.Pointer<_NSRange> stret,
       NSCharacterSet? searchSet, int mask, _NSRange rangeOfReceiverToSearch) {
-    return _lib._objc_msgSend_322(
+    _lib._objc_msgSend_322(
+        stret,
         _id,
         _lib._sel_rangeOfCharacterFromSet_options_range_1,
         searchSet?._id ?? ffi.nullptr,
@@ -32627,14 +32770,16 @@ class NSString extends NSObject {
         rangeOfReceiverToSearch);
   }
 
-  _NSRange rangeOfComposedCharacterSequenceAtIndex_(int index) {
-    return _lib._objc_msgSend_323(
-        _id, _lib._sel_rangeOfComposedCharacterSequenceAtIndex_1, index);
+  void rangeOfComposedCharacterSequenceAtIndex_(
+      ffi.Pointer<_NSRange> stret, int index) {
+    _lib._objc_msgSend_323(
+        stret, _id, _lib._sel_rangeOfComposedCharacterSequenceAtIndex_1, index);
   }
 
-  _NSRange rangeOfComposedCharacterSequencesForRange_(_NSRange range) {
-    return _lib._objc_msgSend_324(
-        _id, _lib._sel_rangeOfComposedCharacterSequencesForRange_1, range);
+  void rangeOfComposedCharacterSequencesForRange_(
+      ffi.Pointer<_NSRange> stret, _NSRange range) {
+    _lib._objc_msgSend_324(stret, _id,
+        _lib._sel_rangeOfComposedCharacterSequencesForRange_1, range);
   }
 
   NSString stringByAppendingString_(NSString? aString) {
@@ -32741,7 +32886,7 @@ class NSString extends NSObject {
       ffi.Pointer<ffi.UnsignedLong> lineEndPtr,
       ffi.Pointer<ffi.UnsignedLong> contentsEndPtr,
       _NSRange range) {
-    return _lib._objc_msgSend_326(
+    _lib._objc_msgSend_326(
         _id,
         _lib._sel_getLineStart_end_contentsEnd_forRange_1,
         startPtr,
@@ -32750,8 +32895,8 @@ class NSString extends NSObject {
         range);
   }
 
-  _NSRange lineRangeForRange_(_NSRange range) {
-    return _lib._objc_msgSend_324(_id, _lib._sel_lineRangeForRange_1, range);
+  void lineRangeForRange_(ffi.Pointer<_NSRange> stret, _NSRange range) {
+    _lib._objc_msgSend_324(stret, _id, _lib._sel_lineRangeForRange_1, range);
   }
 
   void getParagraphStart_end_contentsEnd_forRange_(
@@ -32759,7 +32904,7 @@ class NSString extends NSObject {
       ffi.Pointer<ffi.UnsignedLong> parEndPtr,
       ffi.Pointer<ffi.UnsignedLong> contentsEndPtr,
       _NSRange range) {
-    return _lib._objc_msgSend_326(
+    _lib._objc_msgSend_326(
         _id,
         _lib._sel_getParagraphStart_end_contentsEnd_forRange_1,
         startPtr,
@@ -32768,14 +32913,14 @@ class NSString extends NSObject {
         range);
   }
 
-  _NSRange paragraphRangeForRange_(_NSRange range) {
-    return _lib._objc_msgSend_324(
-        _id, _lib._sel_paragraphRangeForRange_1, range);
+  void paragraphRangeForRange_(ffi.Pointer<_NSRange> stret, _NSRange range) {
+    _lib._objc_msgSend_324(
+        stret, _id, _lib._sel_paragraphRangeForRange_1, range);
   }
 
-  void enumerateSubstringsInRange_options_usingBlock_(
-      _NSRange range, int opts, ObjCBlock13 block) {
-    return _lib._objc_msgSend_327(
+  void enumerateSubstringsInRange_options_usingBlock_(_NSRange range, int opts,
+      ObjCBlock_ffiVoid_NSString_NSRange_NSRange_bool block) {
+    _lib._objc_msgSend_327(
         _id,
         _lib._sel_enumerateSubstringsInRange_options_usingBlock_1,
         range,
@@ -32783,8 +32928,8 @@ class NSString extends NSObject {
         block._id);
   }
 
-  void enumerateLinesUsingBlock_(ObjCBlock14 block) {
-    return _lib._objc_msgSend_328(
+  void enumerateLinesUsingBlock_(ObjCBlock_ffiVoid_NSString_bool block) {
+    _lib._objc_msgSend_328(
         _id, _lib._sel_enumerateLinesUsingBlock_1, block._id);
   }
 
@@ -33042,7 +33187,9 @@ class NSString extends NSObject {
   }
 
   NSString initWithCharactersNoCopy_length_deallocator_(
-      ffi.Pointer<ffi.UnsignedShort> chars, int len, ObjCBlock15 deallocator) {
+      ffi.Pointer<ffi.UnsignedShort> chars,
+      int len,
+      ObjCBlock_ffiVoid_ffiUnsignedShort_ffiUnsignedLong deallocator) {
     final _ret = _lib._objc_msgSend_345(
         _id,
         _lib._sel_initWithCharactersNoCopy_length_deallocator_1,
@@ -33194,7 +33341,7 @@ class NSString extends NSObject {
       ffi.Pointer<ffi.Void> bytes,
       int len,
       int encoding,
-      ObjCBlock12 deallocator) {
+      ObjCBlock_ffiVoid_ffiVoid_ffiUnsignedLong deallocator) {
     final _ret = _lib._objc_msgSend_357(
         _id,
         _lib._sel_initWithBytesNoCopy_length_encoding_deallocator_1,
@@ -33424,17 +33571,17 @@ class NSString extends NSObject {
   }
 
   void getCString_(ffi.Pointer<ffi.Char> bytes) {
-    return _lib._objc_msgSend_266(_id, _lib._sel_getCString_1, bytes);
+    _lib._objc_msgSend_266(_id, _lib._sel_getCString_1, bytes);
   }
 
   void getCString_maxLength_(ffi.Pointer<ffi.Char> bytes, int maxLength) {
-    return _lib._objc_msgSend_364(
+    _lib._objc_msgSend_364(
         _id, _lib._sel_getCString_maxLength_1, bytes, maxLength);
   }
 
   void getCString_maxLength_range_remainingRange_(ffi.Pointer<ffi.Char> bytes,
       int maxLength, _NSRange aRange, ffi.Pointer<_NSRange> leftoverRange) {
-    return _lib._objc_msgSend_365(
+    _lib._objc_msgSend_365(
         _id,
         _lib._sel_getCString_maxLength_range_remainingRange_1,
         bytes,
@@ -33515,7 +33662,7 @@ class NSString extends NSObject {
   }
 
   void getCharacters_(ffi.Pointer<ffi.UnsignedShort> buffer) {
-    return _lib._objc_msgSend_367(_id, _lib._sel_getCharacters_1, buffer);
+    _lib._objc_msgSend_367(_id, _lib._sel_getCharacters_1, buffer);
   }
 
   NSString variantFittingPresentationWidth_(int width) {
@@ -33696,8 +33843,8 @@ class NSString extends NSObject {
       NSString scheme,
       int options,
       NSOrthography? orthography,
-      ObjCBlock13 block) {
-    return _lib._objc_msgSend_373(
+      ObjCBlock_ffiVoid_NSString_NSRange_NSRange_bool block) {
+    _lib._objc_msgSend_373(
         _id,
         _lib._sel_enumerateLinguisticTagsInRange_scheme_options_orthography_usingBlock_1,
         range,
@@ -33712,6 +33859,12 @@ class NSString extends NSObject {
     return NSString._(_ret, _lib, retain: false, release: true);
   }
 
+  static NSString allocWithZone_(SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSString1, _lib._sel_allocWithZone_1, zone);
+    return NSString._(_ret, _lib, retain: false, release: true);
+  }
+
   static NSString alloc(SentryCocoa _lib) {
     final _ret = _lib._objc_msgSend_2(_lib._class_NSString1, _lib._sel_alloc1);
     return NSString._(_ret, _lib, retain: false, release: true);
@@ -33722,7 +33875,7 @@ class NSString extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSString1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -33732,7 +33885,7 @@ class NSString extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSString1,
+    _lib._objc_msgSend_15(_lib._class_NSString1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -33765,7 +33918,7 @@ class NSString extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSString1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -33813,12 +33966,12 @@ class NSCoder extends NSObject {
 
   void encodeValueOfObjCType_at_(
       ffi.Pointer<ffi.Char> type, ffi.Pointer<ffi.Void> addr) {
-    return _lib._objc_msgSend_18(
+    _lib._objc_msgSend_18(
         _id, _lib._sel_encodeValueOfObjCType_at_1, type, addr);
   }
 
   void encodeDataObject_(NSData? data) {
-    return _lib._objc_msgSend_263(
+    _lib._objc_msgSend_263(
         _id, _lib._sel_encodeDataObject_1, data?._id ?? ffi.nullptr);
   }
 
@@ -33829,7 +33982,7 @@ class NSCoder extends NSObject {
 
   void decodeValueOfObjCType_at_size_(
       ffi.Pointer<ffi.Char> type, ffi.Pointer<ffi.Void> data, int size) {
-    return _lib._objc_msgSend_264(
+    _lib._objc_msgSend_264(
         _id, _lib._sel_decodeValueOfObjCType_at_size_1, type, data, size);
   }
 
@@ -33839,42 +33992,37 @@ class NSCoder extends NSObject {
   }
 
   void encodeObject_(NSObject object) {
-    return _lib._objc_msgSend_15(_id, _lib._sel_encodeObject_1, object._id);
+    _lib._objc_msgSend_15(_id, _lib._sel_encodeObject_1, object._id);
   }
 
   void encodeRootObject_(NSObject rootObject) {
-    return _lib._objc_msgSend_15(
-        _id, _lib._sel_encodeRootObject_1, rootObject._id);
+    _lib._objc_msgSend_15(_id, _lib._sel_encodeRootObject_1, rootObject._id);
   }
 
   void encodeBycopyObject_(NSObject anObject) {
-    return _lib._objc_msgSend_15(
-        _id, _lib._sel_encodeBycopyObject_1, anObject._id);
+    _lib._objc_msgSend_15(_id, _lib._sel_encodeBycopyObject_1, anObject._id);
   }
 
   void encodeByrefObject_(NSObject anObject) {
-    return _lib._objc_msgSend_15(
-        _id, _lib._sel_encodeByrefObject_1, anObject._id);
+    _lib._objc_msgSend_15(_id, _lib._sel_encodeByrefObject_1, anObject._id);
   }
 
   void encodeConditionalObject_(NSObject object) {
-    return _lib._objc_msgSend_15(
-        _id, _lib._sel_encodeConditionalObject_1, object._id);
+    _lib._objc_msgSend_15(_id, _lib._sel_encodeConditionalObject_1, object._id);
   }
 
   void encodeValuesOfObjCTypes_(ffi.Pointer<ffi.Char> types) {
-    return _lib._objc_msgSend_266(
-        _id, _lib._sel_encodeValuesOfObjCTypes_1, types);
+    _lib._objc_msgSend_266(_id, _lib._sel_encodeValuesOfObjCTypes_1, types);
   }
 
   void encodeArrayOfObjCType_count_at_(
       ffi.Pointer<ffi.Char> type, int count, ffi.Pointer<ffi.Void> array) {
-    return _lib._objc_msgSend_267(
+    _lib._objc_msgSend_267(
         _id, _lib._sel_encodeArrayOfObjCType_count_at_1, type, count, array);
   }
 
   void encodeBytes_length_(ffi.Pointer<ffi.Void> byteaddr, int length) {
-    return _lib._objc_msgSend_21(
+    _lib._objc_msgSend_21(
         _id, _lib._sel_encodeBytes_length_1, byteaddr, length);
   }
 
@@ -33891,14 +34039,13 @@ class NSCoder extends NSObject {
   }
 
   void decodeValuesOfObjCTypes_(ffi.Pointer<ffi.Char> types) {
-    return _lib._objc_msgSend_266(
-        _id, _lib._sel_decodeValuesOfObjCTypes_1, types);
+    _lib._objc_msgSend_266(_id, _lib._sel_decodeValuesOfObjCTypes_1, types);
   }
 
   void decodeArrayOfObjCType_count_at_(
       ffi.Pointer<ffi.Char> itemType, int count, ffi.Pointer<ffi.Void> array) {
-    return _lib._objc_msgSend_267(_id,
-        _lib._sel_decodeArrayOfObjCType_count_at_1, itemType, count, array);
+    _lib._objc_msgSend_267(_id, _lib._sel_decodeArrayOfObjCType_count_at_1,
+        itemType, count, array);
   }
 
   ffi.Pointer<ffi.Void> decodeBytesWithReturnedLength_(
@@ -33908,7 +34055,7 @@ class NSCoder extends NSObject {
   }
 
   void encodePropertyList_(NSObject aPropertyList) {
-    return _lib._objc_msgSend_15(
+    _lib._objc_msgSend_15(
         _id, _lib._sel_encodePropertyList_1, aPropertyList._id);
   }
 
@@ -33918,7 +34065,7 @@ class NSCoder extends NSObject {
   }
 
   void setObjectZone_(ffi.Pointer<_NSZone> zone) {
-    return _lib._objc_msgSend_270(_id, _lib._sel_setObjectZone_1, zone);
+    _lib._objc_msgSend_270(_id, _lib._sel_setObjectZone_1, zone);
   }
 
   ffi.Pointer<_NSZone> objectZone() {
@@ -33934,52 +34081,49 @@ class NSCoder extends NSObject {
   }
 
   void encodeObject_forKey_(NSObject object, NSString? key) {
-    return _lib._objc_msgSend_126(_id, _lib._sel_encodeObject_forKey_1,
-        object._id, key?._id ?? ffi.nullptr);
-  }
-
-  void encodeConditionalObject_forKey_(NSObject object, NSString? key) {
-    return _lib._objc_msgSend_126(
-        _id,
-        _lib._sel_encodeConditionalObject_forKey_1,
-        object._id,
+    _lib._objc_msgSend_126(_id, _lib._sel_encodeObject_forKey_1, object._id,
         key?._id ?? ffi.nullptr);
   }
 
+  void encodeConditionalObject_forKey_(NSObject object, NSString? key) {
+    _lib._objc_msgSend_126(_id, _lib._sel_encodeConditionalObject_forKey_1,
+        object._id, key?._id ?? ffi.nullptr);
+  }
+
   void encodeBool_forKey_(bool value, NSString? key) {
-    return _lib._objc_msgSend_272(
+    _lib._objc_msgSend_272(
         _id, _lib._sel_encodeBool_forKey_1, value, key?._id ?? ffi.nullptr);
   }
 
   void encodeInt_forKey_(int value, NSString? key) {
-    return _lib._objc_msgSend_273(
+    _lib._objc_msgSend_273(
         _id, _lib._sel_encodeInt_forKey_1, value, key?._id ?? ffi.nullptr);
   }
 
   void encodeInt32_forKey_(int value, NSString? key) {
-    return _lib._objc_msgSend_274(
+    _lib._objc_msgSend_274(
         _id, _lib._sel_encodeInt32_forKey_1, value, key?._id ?? ffi.nullptr);
   }
 
   void encodeInt64_forKey_(int value, NSString? key) {
-    return _lib._objc_msgSend_275(
+    _lib._objc_msgSend_275(
         _id, _lib._sel_encodeInt64_forKey_1, value, key?._id ?? ffi.nullptr);
   }
 
   void encodeFloat_forKey_(double value, NSString? key) {
-    return _lib._objc_msgSend_276(
+    _lib._objc_msgSend_276(
         _id, _lib._sel_encodeFloat_forKey_1, value, key?._id ?? ffi.nullptr);
   }
 
   void encodeDouble_forKey_(double value, NSString? key) {
-    return _lib._objc_msgSend_277(
+    _lib._objc_msgSend_277(
         _id, _lib._sel_encodeDouble_forKey_1, value, key?._id ?? ffi.nullptr);
   }
 
   void encodeBytes_length_forKey_(
       ffi.Pointer<ffi.Uint8> bytes, int length, NSString? key) {
-    return _lib._objc_msgSend_278(_id, _lib._sel_encodeBytes_length_forKey_1,
-        bytes, length, key?._id ?? ffi.nullptr);
+    _lib._objc_msgSend_278(_id, _lib._sel_encodeBytes_length_forKey_1, bytes,
+        length, key?._id ?? ffi.nullptr);
   }
 
   bool containsValueForKey_(NSString? key) {
@@ -34043,7 +34187,7 @@ class NSCoder extends NSObject {
   }
 
   void encodeInteger_forKey_(int value, NSString? key) {
-    return _lib._objc_msgSend_286(
+    _lib._objc_msgSend_286(
         _id, _lib._sel_encodeInteger_forKey_1, value, key?._id ?? ffi.nullptr);
   }
 
@@ -34150,7 +34294,7 @@ class NSCoder extends NSObject {
   }
 
   void failWithError_(NSError? error) {
-    return _lib._objc_msgSend_296(
+    _lib._objc_msgSend_296(
         _id, _lib._sel_failWithError_1, error?._id ?? ffi.nullptr);
   }
 
@@ -34166,7 +34310,7 @@ class NSCoder extends NSObject {
   }
 
   void encodeNXObject_(NSObject object) {
-    return _lib._objc_msgSend_15(_id, _lib._sel_encodeNXObject_1, object._id);
+    _lib._objc_msgSend_15(_id, _lib._sel_encodeNXObject_1, object._id);
   }
 
   NSObject decodeNXObject() {
@@ -34176,66 +34320,78 @@ class NSCoder extends NSObject {
 
   void decodeValueOfObjCType_at_(
       ffi.Pointer<ffi.Char> type, ffi.Pointer<ffi.Void> data) {
-    return _lib._objc_msgSend_18(
+    _lib._objc_msgSend_18(
         _id, _lib._sel_decodeValueOfObjCType_at_1, type, data);
   }
 
   void encodePoint_(CGPoint point) {
-    return _lib._objc_msgSend_299(_id, _lib._sel_encodePoint_1, point);
+    _lib._objc_msgSend_299(_id, _lib._sel_encodePoint_1, point);
   }
 
-  CGPoint decodePoint() {
-    return _lib._objc_msgSend_54(_id, _lib._sel_decodePoint1);
+  void decodePoint(ffi.Pointer<CGPoint> stret) {
+    _lib._objc_msgSend_54(stret, _id, _lib._sel_decodePoint1);
   }
 
   void encodeSize_(CGSize size) {
-    return _lib._objc_msgSend_300(_id, _lib._sel_encodeSize_1, size);
+    _lib._objc_msgSend_300(_id, _lib._sel_encodeSize_1, size);
   }
 
-  CGSize decodeSize() {
-    return _lib._objc_msgSend_55(_id, _lib._sel_decodeSize1);
+  void decodeSize(ffi.Pointer<CGSize> stret) {
+    _lib._objc_msgSend_55(stret, _id, _lib._sel_decodeSize1);
   }
 
   void encodeRect_(CGRect rect) {
-    return _lib._objc_msgSend_301(_id, _lib._sel_encodeRect_1, rect);
+    _lib._objc_msgSend_301(_id, _lib._sel_encodeRect_1, rect);
   }
 
-  CGRect decodeRect() {
-    return _lib._objc_msgSend_56(_id, _lib._sel_decodeRect1);
+  void decodeRect(ffi.Pointer<CGRect> stret) {
+    _lib._objc_msgSend_56(stret, _id, _lib._sel_decodeRect1);
   }
 
   void encodePoint_forKey_(CGPoint point, NSString? key) {
-    return _lib._objc_msgSend_302(
+    _lib._objc_msgSend_302(
         _id, _lib._sel_encodePoint_forKey_1, point, key?._id ?? ffi.nullptr);
   }
 
   void encodeSize_forKey_(CGSize size, NSString? key) {
-    return _lib._objc_msgSend_303(
+    _lib._objc_msgSend_303(
         _id, _lib._sel_encodeSize_forKey_1, size, key?._id ?? ffi.nullptr);
   }
 
   void encodeRect_forKey_(CGRect rect, NSString? key) {
-    return _lib._objc_msgSend_304(
+    _lib._objc_msgSend_304(
         _id, _lib._sel_encodeRect_forKey_1, rect, key?._id ?? ffi.nullptr);
   }
 
-  CGPoint decodePointForKey_(NSString? key) {
-    return _lib._objc_msgSend_305(
-        _id, _lib._sel_decodePointForKey_1, key?._id ?? ffi.nullptr);
+  void decodePointForKey_(ffi.Pointer<CGPoint> stret, NSString? key) {
+    _lib._objc_msgSend_305(
+        stret, _id, _lib._sel_decodePointForKey_1, key?._id ?? ffi.nullptr);
   }
 
-  CGSize decodeSizeForKey_(NSString? key) {
-    return _lib._objc_msgSend_306(
-        _id, _lib._sel_decodeSizeForKey_1, key?._id ?? ffi.nullptr);
+  void decodeSizeForKey_(ffi.Pointer<CGSize> stret, NSString? key) {
+    _lib._objc_msgSend_306(
+        stret, _id, _lib._sel_decodeSizeForKey_1, key?._id ?? ffi.nullptr);
   }
 
-  CGRect decodeRectForKey_(NSString? key) {
-    return _lib._objc_msgSend_307(
-        _id, _lib._sel_decodeRectForKey_1, key?._id ?? ffi.nullptr);
+  void decodeRectForKey_(ffi.Pointer<CGRect> stret, NSString? key) {
+    _lib._objc_msgSend_307(
+        stret, _id, _lib._sel_decodeRectForKey_1, key?._id ?? ffi.nullptr);
+  }
+
+  @override
+  NSCoder init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSCoder._(_ret, _lib, retain: true, release: true);
   }
 
   static NSCoder new1(SentryCocoa _lib) {
     final _ret = _lib._objc_msgSend_2(_lib._class_NSCoder1, _lib._sel_new1);
+    return NSCoder._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSCoder allocWithZone_(SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSCoder1, _lib._sel_allocWithZone_1, zone);
     return NSCoder._(_ret, _lib, retain: false, release: true);
   }
 
@@ -34249,7 +34405,7 @@ class NSCoder extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSCoder1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -34259,7 +34415,7 @@ class NSCoder extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSCoder1,
+    _lib._objc_msgSend_15(_lib._class_NSCoder1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -34292,7 +34448,7 @@ class NSCoder extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSCoder1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -34350,13 +34506,11 @@ class NSData extends NSObject {
   }
 
   void getBytes_length_(ffi.Pointer<ffi.Void> buffer, int length) {
-    return _lib._objc_msgSend_21(
-        _id, _lib._sel_getBytes_length_1, buffer, length);
+    _lib._objc_msgSend_21(_id, _lib._sel_getBytes_length_1, buffer, length);
   }
 
   void getBytes_range_(ffi.Pointer<ffi.Void> buffer, _NSRange range) {
-    return _lib._objc_msgSend_22(
-        _id, _lib._sel_getBytes_range_1, buffer, range);
+    _lib._objc_msgSend_22(_id, _lib._sel_getBytes_range_1, buffer, range);
   }
 
   bool isEqualToData_(NSData? other) {
@@ -34392,14 +34546,15 @@ class NSData extends NSObject {
         url?._id ?? ffi.nullptr, writeOptionsMask, errorPtr);
   }
 
-  _NSRange rangeOfData_options_range_(
+  void rangeOfData_options_range_(ffi.Pointer<_NSRange> stret,
       NSData? dataToFind, int mask, _NSRange searchRange) {
-    return _lib._objc_msgSend_250(_id, _lib._sel_rangeOfData_options_range_1,
+    _lib._objc_msgSend_250(stret, _id, _lib._sel_rangeOfData_options_range_1,
         dataToFind?._id ?? ffi.nullptr, mask, searchRange);
   }
 
-  void enumerateByteRangesUsingBlock_(ObjCBlock11 block) {
-    return _lib._objc_msgSend_251(
+  void enumerateByteRangesUsingBlock_(
+      ObjCBlock_ffiVoid_ffiVoid_NSRange_bool block) {
+    _lib._objc_msgSend_251(
         _id, _lib._sel_enumerateByteRangesUsingBlock_1, block._id);
   }
 
@@ -34488,8 +34643,8 @@ class NSData extends NSObject {
     return NSData._(_ret, _lib, retain: false, release: true);
   }
 
-  NSData initWithBytesNoCopy_length_deallocator_(
-      ffi.Pointer<ffi.Void> bytes, int length, ObjCBlock12 deallocator) {
+  NSData initWithBytesNoCopy_length_deallocator_(ffi.Pointer<ffi.Void> bytes,
+      int length, ObjCBlock_ffiVoid_ffiVoid_ffiUnsignedLong deallocator) {
     final _ret = _lib._objc_msgSend_256(
         _id,
         _lib._sel_initWithBytesNoCopy_length_deallocator_1,
@@ -34591,7 +34746,7 @@ class NSData extends NSObject {
   }
 
   void getBytes_(ffi.Pointer<ffi.Void> buffer) {
-    return _lib._objc_msgSend_47(_id, _lib._sel_getBytes_1, buffer);
+    _lib._objc_msgSend_47(_id, _lib._sel_getBytes_1, buffer);
   }
 
   static NSObject dataWithContentsOfMappedFile_(
@@ -34618,8 +34773,20 @@ class NSData extends NSObject {
     return NSString._(_ret, _lib, retain: true, release: true);
   }
 
+  @override
+  NSData init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSData._(_ret, _lib, retain: true, release: true);
+  }
+
   static NSData new1(SentryCocoa _lib) {
     final _ret = _lib._objc_msgSend_2(_lib._class_NSData1, _lib._sel_new1);
+    return NSData._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSData allocWithZone_(SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSData1, _lib._sel_allocWithZone_1, zone);
     return NSData._(_ret, _lib, retain: false, release: true);
   }
 
@@ -34633,7 +34800,7 @@ class NSData extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSData1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -34643,7 +34810,7 @@ class NSData extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSData1,
+    _lib._objc_msgSend_15(_lib._class_NSData1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -34676,7 +34843,7 @@ class NSData extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSData1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -35098,16 +35265,16 @@ class NSURL extends NSObject {
   }
 
   void removeCachedResourceValueForKey_(NSString key) {
-    return _lib._objc_msgSend_192(
+    _lib._objc_msgSend_192(
         _id, _lib._sel_removeCachedResourceValueForKey_1, key._id);
   }
 
   void removeAllCachedResourceValues() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_removeAllCachedResourceValues1);
+    _lib._objc_msgSend_1(_id, _lib._sel_removeAllCachedResourceValues1);
   }
 
   void setTemporaryResourceValue_forKey_(NSObject value, NSString key) {
-    return _lib._objc_msgSend_126(
+    _lib._objc_msgSend_126(
         _id, _lib._sel_setTemporaryResourceValue_forKey_1, value._id, key._id);
   }
 
@@ -35216,8 +35383,7 @@ class NSURL extends NSObject {
   }
 
   void stopAccessingSecurityScopedResource() {
-    return _lib._objc_msgSend_1(
-        _id, _lib._sel_stopAccessingSecurityScopedResource1);
+    _lib._objc_msgSend_1(_id, _lib._sel_stopAccessingSecurityScopedResource1);
   }
 
   bool getPromisedItemResourceValue_forKey_error_(
@@ -35341,7 +35507,7 @@ class NSURL extends NSObject {
 
   void loadResourceDataNotifyingClient_usingCache_(
       NSObject client, bool shouldUseCache) {
-    return _lib._objc_msgSend_239(
+    _lib._objc_msgSend_239(
         _id,
         _lib._sel_loadResourceDataNotifyingClient_usingCache_1,
         client._id,
@@ -35370,8 +35536,20 @@ class NSURL extends NSObject {
     return NSURLHandle._(_ret, _lib, retain: true, release: true);
   }
 
+  @override
+  NSURL init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSURL._(_ret, _lib, retain: true, release: true);
+  }
+
   static NSURL new1(SentryCocoa _lib) {
     final _ret = _lib._objc_msgSend_2(_lib._class_NSURL1, _lib._sel_new1);
+    return NSURL._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSURL allocWithZone_(SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSURL1, _lib._sel_allocWithZone_1, zone);
     return NSURL._(_ret, _lib, retain: false, release: true);
   }
 
@@ -35385,7 +35563,7 @@ class NSURL extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSURL1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -35395,7 +35573,7 @@ class NSURL extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSURL1,
+    _lib._objc_msgSend_15(_lib._class_NSURL1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -35428,7 +35606,7 @@ class NSURL extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSURL1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -35734,6 +35912,14 @@ class NSNumber extends NSValue {
     return NSNumber._(_ret, _lib, retain: true, release: true);
   }
 
+  @override
+  NSNumber initWithBytes_objCType_(
+      ffi.Pointer<ffi.Void> value, ffi.Pointer<ffi.Char> type) {
+    final _ret = _lib._objc_msgSend_41(
+        _id, _lib._sel_initWithBytes_objCType_1, value, type);
+    return NSNumber._(_ret, _lib, retain: true, release: true);
+  }
+
   static NSValue valueWithBytes_objCType_(SentryCocoa _lib,
       ffi.Pointer<ffi.Void> value, ffi.Pointer<ffi.Char> type) {
     final _ret = _lib._objc_msgSend_43(_lib._class_NSNumber1,
@@ -35792,8 +35978,20 @@ class NSNumber extends NSValue {
     return NSValue._(_ret, _lib, retain: true, release: true);
   }
 
+  @override
+  NSNumber init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSNumber._(_ret, _lib, retain: true, release: true);
+  }
+
   static NSNumber new1(SentryCocoa _lib) {
     final _ret = _lib._objc_msgSend_2(_lib._class_NSNumber1, _lib._sel_new1);
+    return NSNumber._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSNumber allocWithZone_(SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSNumber1, _lib._sel_allocWithZone_1, zone);
     return NSNumber._(_ret, _lib, retain: false, release: true);
   }
 
@@ -35807,7 +36005,7 @@ class NSNumber extends NSValue {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSNumber1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -35817,7 +36015,7 @@ class NSNumber extends NSValue {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSNumber1,
+    _lib._objc_msgSend_15(_lib._class_NSNumber1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -35850,7 +36048,7 @@ class NSNumber extends NSValue {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSNumber1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -35893,7 +36091,7 @@ class NSValue extends NSObject {
   }
 
   void getValue_size_(ffi.Pointer<ffi.Void> value, int size) {
-    return _lib._objc_msgSend_21(_id, _lib._sel_getValue_size_1, value, size);
+    _lib._objc_msgSend_21(_id, _lib._sel_getValue_size_1, value, size);
   }
 
   ffi.Pointer<ffi.Char> get objCType {
@@ -35956,7 +36154,7 @@ class NSValue extends NSObject {
   }
 
   void getValue_(ffi.Pointer<ffi.Void> value) {
-    return _lib._objc_msgSend_47(_id, _lib._sel_getValue_1, value);
+    _lib._objc_msgSend_47(_id, _lib._sel_getValue_1, value);
   }
 
   static NSValue valueWithRange_(SentryCocoa _lib, _NSRange range) {
@@ -35965,8 +36163,8 @@ class NSValue extends NSObject {
     return NSValue._(_ret, _lib, retain: true, release: true);
   }
 
-  _NSRange get rangeValue {
-    return _lib._objc_msgSend_49(_id, _lib._sel_rangeValue1);
+  void getRangeValue(ffi.Pointer<_NSRange> stret) {
+    _lib._objc_msgSend_49(stret, _id, _lib._sel_rangeValue1);
   }
 
   static NSValue valueWithPoint_(SentryCocoa _lib, CGPoint point) {
@@ -35993,24 +36191,36 @@ class NSValue extends NSObject {
     return NSValue._(_ret, _lib, retain: true, release: true);
   }
 
-  CGPoint get pointValue {
-    return _lib._objc_msgSend_54(_id, _lib._sel_pointValue1);
+  void getPointValue(ffi.Pointer<CGPoint> stret) {
+    _lib._objc_msgSend_54(stret, _id, _lib._sel_pointValue1);
   }
 
-  CGSize get sizeValue {
-    return _lib._objc_msgSend_55(_id, _lib._sel_sizeValue1);
+  void getSizeValue(ffi.Pointer<CGSize> stret) {
+    _lib._objc_msgSend_55(stret, _id, _lib._sel_sizeValue1);
   }
 
-  CGRect get rectValue {
-    return _lib._objc_msgSend_56(_id, _lib._sel_rectValue1);
+  void getRectValue(ffi.Pointer<CGRect> stret) {
+    _lib._objc_msgSend_56(stret, _id, _lib._sel_rectValue1);
   }
 
-  NSEdgeInsets get edgeInsetsValue {
-    return _lib._objc_msgSend_57(_id, _lib._sel_edgeInsetsValue1);
+  void getEdgeInsetsValue(ffi.Pointer<NSEdgeInsets> stret) {
+    _lib._objc_msgSend_57(stret, _id, _lib._sel_edgeInsetsValue1);
+  }
+
+  @override
+  NSValue init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSValue._(_ret, _lib, retain: true, release: true);
   }
 
   static NSValue new1(SentryCocoa _lib) {
     final _ret = _lib._objc_msgSend_2(_lib._class_NSValue1, _lib._sel_new1);
+    return NSValue._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSValue allocWithZone_(SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSValue1, _lib._sel_allocWithZone_1, zone);
     return NSValue._(_ret, _lib, retain: false, release: true);
   }
 
@@ -36024,7 +36234,7 @@ class NSValue extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSValue1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -36034,7 +36244,7 @@ class NSValue extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSValue1,
+    _lib._objc_msgSend_15(_lib._class_NSValue1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -36067,7 +36277,7 @@ class NSValue extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSValue1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -36224,8 +36434,7 @@ class NSArray extends NSObject {
 
   void getObjects_range_(
       ffi.Pointer<ffi.Pointer<ObjCObject>> objects, _NSRange range) {
-    return _lib._objc_msgSend_68(
-        _id, _lib._sel_getObjects_range_1, objects, range);
+    _lib._objc_msgSend_68(_id, _lib._sel_getObjects_range_1, objects, range);
   }
 
   int indexOfObject_(NSObject anObject) {
@@ -36327,13 +36536,13 @@ class NSArray extends NSObject {
   }
 
   void makeObjectsPerformSelector_(ffi.Pointer<ObjCSel> aSelector) {
-    return _lib._objc_msgSend_7(
+    _lib._objc_msgSend_7(
         _id, _lib._sel_makeObjectsPerformSelector_1, aSelector);
   }
 
   void makeObjectsPerformSelector_withObject_(
       ffi.Pointer<ObjCSel> aSelector, NSObject argument) {
-    return _lib._objc_msgSend_84(
+    _lib._objc_msgSend_84(
         _id,
         _lib._sel_makeObjectsPerformSelector_withObject_1,
         aSelector,
@@ -36352,19 +36561,21 @@ class NSArray extends NSObject {
     return NSObject._(_ret, _lib, retain: true, release: true);
   }
 
-  void enumerateObjectsUsingBlock_(ObjCBlock4 block) {
-    return _lib._objc_msgSend_106(
+  void enumerateObjectsUsingBlock_(
+      ObjCBlock_ffiVoid_ObjCObject_ffiUnsignedLong_bool block) {
+    _lib._objc_msgSend_106(
         _id, _lib._sel_enumerateObjectsUsingBlock_1, block._id);
   }
 
-  void enumerateObjectsWithOptions_usingBlock_(int opts, ObjCBlock4 block) {
-    return _lib._objc_msgSend_107(_id,
+  void enumerateObjectsWithOptions_usingBlock_(
+      int opts, ObjCBlock_ffiVoid_ObjCObject_ffiUnsignedLong_bool block) {
+    _lib._objc_msgSend_107(_id,
         _lib._sel_enumerateObjectsWithOptions_usingBlock_1, opts, block._id);
   }
 
-  void enumerateObjectsAtIndexes_options_usingBlock_(
-      NSIndexSet? s, int opts, ObjCBlock4 block) {
-    return _lib._objc_msgSend_108(
+  void enumerateObjectsAtIndexes_options_usingBlock_(NSIndexSet? s, int opts,
+      ObjCBlock_ffiVoid_ObjCObject_ffiUnsignedLong_bool block) {
+    _lib._objc_msgSend_108(
         _id,
         _lib._sel_enumerateObjectsAtIndexes_options_usingBlock_1,
         s?._id ?? ffi.nullptr,
@@ -36372,18 +36583,20 @@ class NSArray extends NSObject {
         block._id);
   }
 
-  int indexOfObjectPassingTest_(ObjCBlock5 predicate) {
+  int indexOfObjectPassingTest_(
+      ObjCBlock_bool_ObjCObject_ffiUnsignedLong_bool predicate) {
     return _lib._objc_msgSend_109(
         _id, _lib._sel_indexOfObjectPassingTest_1, predicate._id);
   }
 
-  int indexOfObjectWithOptions_passingTest_(int opts, ObjCBlock5 predicate) {
+  int indexOfObjectWithOptions_passingTest_(
+      int opts, ObjCBlock_bool_ObjCObject_ffiUnsignedLong_bool predicate) {
     return _lib._objc_msgSend_110(_id,
         _lib._sel_indexOfObjectWithOptions_passingTest_1, opts, predicate._id);
   }
 
-  int indexOfObjectAtIndexes_options_passingTest_(
-      NSIndexSet? s, int opts, ObjCBlock5 predicate) {
+  int indexOfObjectAtIndexes_options_passingTest_(NSIndexSet? s, int opts,
+      ObjCBlock_bool_ObjCObject_ffiUnsignedLong_bool predicate) {
     return _lib._objc_msgSend_111(
         _id,
         _lib._sel_indexOfObjectAtIndexes_options_passingTest_1,
@@ -36392,14 +36605,15 @@ class NSArray extends NSObject {
         predicate._id);
   }
 
-  NSIndexSet indexesOfObjectsPassingTest_(ObjCBlock5 predicate) {
+  NSIndexSet indexesOfObjectsPassingTest_(
+      ObjCBlock_bool_ObjCObject_ffiUnsignedLong_bool predicate) {
     final _ret = _lib._objc_msgSend_112(
         _id, _lib._sel_indexesOfObjectsPassingTest_1, predicate._id);
     return NSIndexSet._(_ret, _lib, retain: true, release: true);
   }
 
   NSIndexSet indexesOfObjectsWithOptions_passingTest_(
-      int opts, ObjCBlock5 predicate) {
+      int opts, ObjCBlock_bool_ObjCObject_ffiUnsignedLong_bool predicate) {
     final _ret = _lib._objc_msgSend_113(
         _id,
         _lib._sel_indexesOfObjectsWithOptions_passingTest_1,
@@ -36408,8 +36622,8 @@ class NSArray extends NSObject {
     return NSIndexSet._(_ret, _lib, retain: true, release: true);
   }
 
-  NSIndexSet indexesOfObjectsAtIndexes_options_passingTest_(
-      NSIndexSet? s, int opts, ObjCBlock5 predicate) {
+  NSIndexSet indexesOfObjectsAtIndexes_options_passingTest_(NSIndexSet? s,
+      int opts, ObjCBlock_bool_ObjCObject_ffiUnsignedLong_bool predicate) {
     final _ret = _lib._objc_msgSend_114(
         _id,
         _lib._sel_indexesOfObjectsAtIndexes_options_passingTest_1,
@@ -36419,20 +36633,25 @@ class NSArray extends NSObject {
     return NSIndexSet._(_ret, _lib, retain: true, release: true);
   }
 
-  NSArray sortedArrayUsingComparator_(ObjCBlock6 cmptr) {
+  NSArray sortedArrayUsingComparator_(
+      ObjCBlock_NSComparisonResult_ObjCObject_ObjCObject cmptr) {
     final _ret = _lib._objc_msgSend_115(
         _id, _lib._sel_sortedArrayUsingComparator_1, cmptr._id);
     return NSArray._(_ret, _lib, retain: true, release: true);
   }
 
-  NSArray sortedArrayWithOptions_usingComparator_(int opts, ObjCBlock6 cmptr) {
+  NSArray sortedArrayWithOptions_usingComparator_(
+      int opts, ObjCBlock_NSComparisonResult_ObjCObject_ObjCObject cmptr) {
     final _ret = _lib._objc_msgSend_116(_id,
         _lib._sel_sortedArrayWithOptions_usingComparator_1, opts, cmptr._id);
     return NSArray._(_ret, _lib, retain: true, release: true);
   }
 
   int indexOfObject_inSortedRange_options_usingComparator_(
-      NSObject obj, _NSRange r, int opts, ObjCBlock6 cmp) {
+      NSObject obj,
+      _NSRange r,
+      int opts,
+      ObjCBlock_NSComparisonResult_ObjCObject_ObjCObject cmp) {
     return _lib._objc_msgSend_117(
         _id,
         _lib._sel_indexOfObject_inSortedRange_options_usingComparator_1,
@@ -36511,7 +36730,7 @@ class NSArray extends NSObject {
   }
 
   NSObject differenceFromArray_withOptions_usingEquivalenceTest_(
-      NSArray? other, int options, ObjCBlock7 block) {
+      NSArray? other, int options, ObjCBlock_bool_ObjCObject_ObjCObject block) {
     final _ret = _lib._objc_msgSend_120(
         _id,
         _lib._sel_differenceFromArray_withOptions_usingEquivalenceTest_1,
@@ -36543,7 +36762,7 @@ class NSArray extends NSObject {
   }
 
   void getObjects_(ffi.Pointer<ffi.Pointer<ObjCObject>> objects) {
-    return _lib._objc_msgSend_122(_id, _lib._sel_getObjects_1, objects);
+    _lib._objc_msgSend_122(_id, _lib._sel_getObjects_1, objects);
   }
 
   static NSArray arrayWithContentsOfFile_(SentryCocoa _lib, NSString? path) {
@@ -36595,7 +36814,7 @@ class NSArray extends NSObject {
 
   @override
   void setValue_forKey_(NSObject value, NSString? key) {
-    return _lib._objc_msgSend_126(
+    _lib._objc_msgSend_126(
         _id, _lib._sel_setValue_forKey_1, value._id, key?._id ?? ffi.nullptr);
   }
 
@@ -36605,7 +36824,7 @@ class NSArray extends NSObject {
       NSString? keyPath,
       int options,
       ffi.Pointer<ffi.Void> context) {
-    return _lib._objc_msgSend_127(
+    _lib._objc_msgSend_127(
         _id,
         _lib._sel_addObserver_toObjectsAtIndexes_forKeyPath_options_context_1,
         observer?._id ?? ffi.nullptr,
@@ -36620,7 +36839,7 @@ class NSArray extends NSObject {
       NSIndexSet? indexes,
       NSString? keyPath,
       ffi.Pointer<ffi.Void> context) {
-    return _lib._objc_msgSend_128(
+    _lib._objc_msgSend_128(
         _id,
         _lib._sel_removeObserver_fromObjectsAtIndexes_forKeyPath_context_1,
         observer?._id ?? ffi.nullptr,
@@ -36631,7 +36850,7 @@ class NSArray extends NSObject {
 
   void removeObserver_fromObjectsAtIndexes_forKeyPath_(
       NSObject? observer, NSIndexSet? indexes, NSString? keyPath) {
-    return _lib._objc_msgSend_129(
+    _lib._objc_msgSend_129(
         _id,
         _lib._sel_removeObserver_fromObjectsAtIndexes_forKeyPath_1,
         observer?._id ?? ffi.nullptr,
@@ -36642,7 +36861,7 @@ class NSArray extends NSObject {
   @override
   void addObserver_forKeyPath_options_context_(NSObject? observer,
       NSString? keyPath, int options, ffi.Pointer<ffi.Void> context) {
-    return _lib._objc_msgSend_130(
+    _lib._objc_msgSend_130(
         _id,
         _lib._sel_addObserver_forKeyPath_options_context_1,
         observer?._id ?? ffi.nullptr,
@@ -36654,17 +36873,13 @@ class NSArray extends NSObject {
   @override
   void removeObserver_forKeyPath_context_(
       NSObject? observer, NSString? keyPath, ffi.Pointer<ffi.Void> context) {
-    return _lib._objc_msgSend_131(
-        _id,
-        _lib._sel_removeObserver_forKeyPath_context_1,
-        observer?._id ?? ffi.nullptr,
-        keyPath?._id ?? ffi.nullptr,
-        context);
+    _lib._objc_msgSend_131(_id, _lib._sel_removeObserver_forKeyPath_context_1,
+        observer?._id ?? ffi.nullptr, keyPath?._id ?? ffi.nullptr, context);
   }
 
   @override
   void removeObserver_forKeyPath_(NSObject? observer, NSString? keyPath) {
-    return _lib._objc_msgSend_132(_id, _lib._sel_removeObserver_forKeyPath_1,
+    _lib._objc_msgSend_132(_id, _lib._sel_removeObserver_forKeyPath_1,
         observer?._id ?? ffi.nullptr, keyPath?._id ?? ffi.nullptr);
   }
 
@@ -36687,6 +36902,12 @@ class NSArray extends NSObject {
     return NSArray._(_ret, _lib, retain: false, release: true);
   }
 
+  static NSArray allocWithZone_(SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSArray1, _lib._sel_allocWithZone_1, zone);
+    return NSArray._(_ret, _lib, retain: false, release: true);
+  }
+
   static NSArray alloc(SentryCocoa _lib) {
     final _ret = _lib._objc_msgSend_2(_lib._class_NSArray1, _lib._sel_alloc1);
     return NSArray._(_ret, _lib, retain: false, release: true);
@@ -36697,7 +36918,7 @@ class NSArray extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSArray1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -36707,7 +36928,7 @@ class NSArray extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSArray1,
+    _lib._objc_msgSend_15(_lib._class_NSArray1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -36740,7 +36961,7 @@ class NSArray extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSArray1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -36869,28 +37090,43 @@ class NSError extends NSObject {
         : NSArray._(_ret, _lib, retain: true, release: true);
   }
 
-  static void setUserInfoValueProviderForDomain_provider_(
-      SentryCocoa _lib, NSString errorDomain, ObjCBlock provider) {
-    return _lib._objc_msgSend_80(
+  static void setUserInfoValueProviderForDomain_provider_(SentryCocoa _lib,
+      NSString errorDomain, ObjCBlock_ObjCObject_NSError_NSString provider) {
+    _lib._objc_msgSend_80(
         _lib._class_NSError1,
         _lib._sel_setUserInfoValueProviderForDomain_provider_1,
         errorDomain._id,
         provider._id);
   }
 
-  static ObjCBlock userInfoValueProviderForDomain_(SentryCocoa _lib,
-      NSError? err, NSString userInfoKey, NSString errorDomain) {
+  static ObjCBlock_ObjCObject_NSError_NSString userInfoValueProviderForDomain_(
+      SentryCocoa _lib,
+      NSError? err,
+      NSString userInfoKey,
+      NSString errorDomain) {
     final _ret = _lib._objc_msgSend_81(
         _lib._class_NSError1,
         _lib._sel_userInfoValueProviderForDomain_1,
         err?._id ?? ffi.nullptr,
         userInfoKey._id,
         errorDomain._id);
-    return ObjCBlock._(_ret, _lib);
+    return ObjCBlock_ObjCObject_NSError_NSString._(_ret, _lib);
+  }
+
+  @override
+  NSError init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSError._(_ret, _lib, retain: true, release: true);
   }
 
   static NSError new1(SentryCocoa _lib) {
     final _ret = _lib._objc_msgSend_2(_lib._class_NSError1, _lib._sel_new1);
+    return NSError._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSError allocWithZone_(SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSError1, _lib._sel_allocWithZone_1, zone);
     return NSError._(_ret, _lib, retain: false, release: true);
   }
 
@@ -36904,7 +37140,7 @@ class NSError extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSError1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -36914,7 +37150,7 @@ class NSError extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSError1,
+    _lib._objc_msgSend_15(_lib._class_NSError1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -36947,7 +37183,7 @@ class NSError extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSError1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -37008,7 +37244,7 @@ class _ObjCBlockBase implements ffi.Finalizable {
   ffi.Pointer<_ObjCBlock> get pointer => _id;
 }
 
-ffi.Pointer<ObjCObject> _ObjCBlock_fnPtrTrampoline(
+ffi.Pointer<ObjCObject> _ObjCBlock_ObjCObject_NSError_NSString_fnPtrTrampoline(
     ffi.Pointer<_ObjCBlock> block,
     ffi.Pointer<ObjCObject> arg0,
     ffi.Pointer<ObjCObject> arg1) {
@@ -37022,29 +37258,34 @@ ffi.Pointer<ObjCObject> _ObjCBlock_fnPtrTrampoline(
               ffi.Pointer<ObjCObject> arg1)>()(arg0, arg1);
 }
 
-final _ObjCBlock_closureRegistry = <int, Function>{};
-int _ObjCBlock_closureRegistryIndex = 0;
-ffi.Pointer<ffi.Void> _ObjCBlock_registerClosure(Function fn) {
-  final id = ++_ObjCBlock_closureRegistryIndex;
-  _ObjCBlock_closureRegistry[id] = fn;
+final _ObjCBlock_ObjCObject_NSError_NSString_closureRegistry =
+    <int, Function>{};
+int _ObjCBlock_ObjCObject_NSError_NSString_closureRegistryIndex = 0;
+ffi.Pointer<ffi.Void> _ObjCBlock_ObjCObject_NSError_NSString_registerClosure(
+    Function fn) {
+  final id = ++_ObjCBlock_ObjCObject_NSError_NSString_closureRegistryIndex;
+  _ObjCBlock_ObjCObject_NSError_NSString_closureRegistry[id] = fn;
   return ffi.Pointer<ffi.Void>.fromAddress(id);
 }
 
-ffi.Pointer<ObjCObject> _ObjCBlock_closureTrampoline(
-    ffi.Pointer<_ObjCBlock> block,
-    ffi.Pointer<ObjCObject> arg0,
-    ffi.Pointer<ObjCObject> arg1) {
-  return (_ObjCBlock_closureRegistry[block.ref.target.address]
+ffi.Pointer<ObjCObject>
+    _ObjCBlock_ObjCObject_NSError_NSString_closureTrampoline(
+        ffi.Pointer<_ObjCBlock> block,
+        ffi.Pointer<ObjCObject> arg0,
+        ffi.Pointer<ObjCObject> arg1) {
+  return (_ObjCBlock_ObjCObject_NSError_NSString_closureRegistry[
+          block.ref.target.address]
       as ffi.Pointer<ObjCObject> Function(
           ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCObject>))(arg0, arg1);
 }
 
-class ObjCBlock extends _ObjCBlockBase {
-  ObjCBlock._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
+class ObjCBlock_ObjCObject_NSError_NSString extends _ObjCBlockBase {
+  ObjCBlock_ObjCObject_NSError_NSString._(
+      ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
       : super._(id, lib, retain: false, release: true);
 
   /// Creates a block from a C function pointer.
-  ObjCBlock.fromFunctionPointer(
+  ObjCBlock_ObjCObject_NSError_NSString.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
               ffi.NativeFunction<
@@ -37058,14 +37299,14 @@ class ObjCBlock extends _ObjCBlockBase {
                                 ffi.Pointer<_ObjCBlock> block,
                                 ffi.Pointer<ObjCObject> arg0,
                                 ffi.Pointer<ObjCObject> arg1)>(
-                        _ObjCBlock_fnPtrTrampoline)
+                        _ObjCBlock_ObjCObject_NSError_NSString_fnPtrTrampoline)
                     .cast(),
                 ptr.cast()),
             lib);
   static ffi.Pointer<ffi.Void>? _cFuncTrampoline;
 
   /// Creates a block from a Dart function.
-  ObjCBlock.fromFunction(
+  ObjCBlock_ObjCObject_NSError_NSString.fromFunction(
       SentryCocoa lib,
       ffi.Pointer<ObjCObject> Function(
               ffi.Pointer<ObjCObject> arg0, ffi.Pointer<ObjCObject> arg1)
@@ -37077,9 +37318,9 @@ class ObjCBlock extends _ObjCBlockBase {
                                 ffi.Pointer<_ObjCBlock> block,
                                 ffi.Pointer<ObjCObject> arg0,
                                 ffi.Pointer<ObjCObject> arg1)>(
-                        _ObjCBlock_closureTrampoline)
+                        _ObjCBlock_ObjCObject_NSError_NSString_closureTrampoline)
                     .cast(),
-                _ObjCBlock_registerClosure(fn)),
+                _ObjCBlock_ObjCObject_NSError_NSString_registerClosure(fn)),
             lib);
   static ffi.Pointer<ffi.Void>? _dartFuncTrampoline;
   ffi.Pointer<ObjCObject> call(
@@ -37258,19 +37499,21 @@ class NSIndexSet extends NSObject {
         _id, _lib._sel_intersectsIndexesInRange_1, range);
   }
 
-  void enumerateIndexesUsingBlock_(ObjCBlock1 block) {
-    return _lib._objc_msgSend_93(
+  void enumerateIndexesUsingBlock_(
+      ObjCBlock_ffiVoid_ffiUnsignedLong_bool block) {
+    _lib._objc_msgSend_93(
         _id, _lib._sel_enumerateIndexesUsingBlock_1, block._id);
   }
 
-  void enumerateIndexesWithOptions_usingBlock_(int opts, ObjCBlock1 block) {
-    return _lib._objc_msgSend_94(_id,
+  void enumerateIndexesWithOptions_usingBlock_(
+      int opts, ObjCBlock_ffiVoid_ffiUnsignedLong_bool block) {
+    _lib._objc_msgSend_94(_id,
         _lib._sel_enumerateIndexesWithOptions_usingBlock_1, opts, block._id);
   }
 
   void enumerateIndexesInRange_options_usingBlock_(
-      _NSRange range, int opts, ObjCBlock1 block) {
-    return _lib._objc_msgSend_95(
+      _NSRange range, int opts, ObjCBlock_ffiVoid_ffiUnsignedLong_bool block) {
+    _lib._objc_msgSend_95(
         _id,
         _lib._sel_enumerateIndexesInRange_options_usingBlock_1,
         range,
@@ -37278,18 +37521,19 @@ class NSIndexSet extends NSObject {
         block._id);
   }
 
-  int indexPassingTest_(ObjCBlock2 predicate) {
+  int indexPassingTest_(ObjCBlock_bool_ffiUnsignedLong_bool predicate) {
     return _lib._objc_msgSend_96(
         _id, _lib._sel_indexPassingTest_1, predicate._id);
   }
 
-  int indexWithOptions_passingTest_(int opts, ObjCBlock2 predicate) {
+  int indexWithOptions_passingTest_(
+      int opts, ObjCBlock_bool_ffiUnsignedLong_bool predicate) {
     return _lib._objc_msgSend_97(
         _id, _lib._sel_indexWithOptions_passingTest_1, opts, predicate._id);
   }
 
   int indexInRange_options_passingTest_(
-      _NSRange range, int opts, ObjCBlock2 predicate) {
+      _NSRange range, int opts, ObjCBlock_bool_ffiUnsignedLong_bool predicate) {
     return _lib._objc_msgSend_98(
         _id,
         _lib._sel_indexInRange_options_passingTest_1,
@@ -37298,20 +37542,22 @@ class NSIndexSet extends NSObject {
         predicate._id);
   }
 
-  NSIndexSet indexesPassingTest_(ObjCBlock2 predicate) {
+  NSIndexSet indexesPassingTest_(
+      ObjCBlock_bool_ffiUnsignedLong_bool predicate) {
     final _ret = _lib._objc_msgSend_99(
         _id, _lib._sel_indexesPassingTest_1, predicate._id);
     return NSIndexSet._(_ret, _lib, retain: true, release: true);
   }
 
-  NSIndexSet indexesWithOptions_passingTest_(int opts, ObjCBlock2 predicate) {
+  NSIndexSet indexesWithOptions_passingTest_(
+      int opts, ObjCBlock_bool_ffiUnsignedLong_bool predicate) {
     final _ret = _lib._objc_msgSend_100(
         _id, _lib._sel_indexesWithOptions_passingTest_1, opts, predicate._id);
     return NSIndexSet._(_ret, _lib, retain: true, release: true);
   }
 
   NSIndexSet indexesInRange_options_passingTest_(
-      _NSRange range, int opts, ObjCBlock2 predicate) {
+      _NSRange range, int opts, ObjCBlock_bool_ffiUnsignedLong_bool predicate) {
     final _ret = _lib._objc_msgSend_101(
         _id,
         _lib._sel_indexesInRange_options_passingTest_1,
@@ -37321,19 +37567,20 @@ class NSIndexSet extends NSObject {
     return NSIndexSet._(_ret, _lib, retain: true, release: true);
   }
 
-  void enumerateRangesUsingBlock_(ObjCBlock3 block) {
-    return _lib._objc_msgSend_102(
+  void enumerateRangesUsingBlock_(ObjCBlock_ffiVoid_NSRange_bool block) {
+    _lib._objc_msgSend_102(
         _id, _lib._sel_enumerateRangesUsingBlock_1, block._id);
   }
 
-  void enumerateRangesWithOptions_usingBlock_(int opts, ObjCBlock3 block) {
-    return _lib._objc_msgSend_103(_id,
+  void enumerateRangesWithOptions_usingBlock_(
+      int opts, ObjCBlock_ffiVoid_NSRange_bool block) {
+    _lib._objc_msgSend_103(_id,
         _lib._sel_enumerateRangesWithOptions_usingBlock_1, opts, block._id);
   }
 
   void enumerateRangesInRange_options_usingBlock_(
-      _NSRange range, int opts, ObjCBlock3 block) {
-    return _lib._objc_msgSend_104(
+      _NSRange range, int opts, ObjCBlock_ffiVoid_NSRange_bool block) {
+    _lib._objc_msgSend_104(
         _id,
         _lib._sel_enumerateRangesInRange_options_usingBlock_1,
         range,
@@ -37341,8 +37588,21 @@ class NSIndexSet extends NSObject {
         block._id);
   }
 
+  @override
+  NSIndexSet init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSIndexSet._(_ret, _lib, retain: true, release: true);
+  }
+
   static NSIndexSet new1(SentryCocoa _lib) {
     final _ret = _lib._objc_msgSend_2(_lib._class_NSIndexSet1, _lib._sel_new1);
+    return NSIndexSet._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSIndexSet allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSIndexSet1, _lib._sel_allocWithZone_1, zone);
     return NSIndexSet._(_ret, _lib, retain: false, release: true);
   }
 
@@ -37357,7 +37617,7 @@ class NSIndexSet extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSIndexSet1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -37367,7 +37627,7 @@ class NSIndexSet extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSIndexSet1,
+    _lib._objc_msgSend_15(_lib._class_NSIndexSet1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -37400,7 +37660,7 @@ class NSIndexSet extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSIndexSet1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -37420,7 +37680,7 @@ class NSIndexSet extends NSObject {
   }
 }
 
-void _ObjCBlock1_fnPtrTrampoline(
+void _ObjCBlock_ffiVoid_ffiUnsignedLong_bool_fnPtrTrampoline(
     ffi.Pointer<_ObjCBlock> block, int arg0, ffi.Pointer<ffi.Bool> arg1) {
   return block.ref.target
           .cast<
@@ -37431,48 +37691,52 @@ void _ObjCBlock1_fnPtrTrampoline(
       arg0, arg1);
 }
 
-final _ObjCBlock1_closureRegistry = <int, Function>{};
-int _ObjCBlock1_closureRegistryIndex = 0;
-ffi.Pointer<ffi.Void> _ObjCBlock1_registerClosure(Function fn) {
-  final id = ++_ObjCBlock1_closureRegistryIndex;
-  _ObjCBlock1_closureRegistry[id] = fn;
+final _ObjCBlock_ffiVoid_ffiUnsignedLong_bool_closureRegistry =
+    <int, Function>{};
+int _ObjCBlock_ffiVoid_ffiUnsignedLong_bool_closureRegistryIndex = 0;
+ffi.Pointer<ffi.Void> _ObjCBlock_ffiVoid_ffiUnsignedLong_bool_registerClosure(
+    Function fn) {
+  final id = ++_ObjCBlock_ffiVoid_ffiUnsignedLong_bool_closureRegistryIndex;
+  _ObjCBlock_ffiVoid_ffiUnsignedLong_bool_closureRegistry[id] = fn;
   return ffi.Pointer<ffi.Void>.fromAddress(id);
 }
 
-void _ObjCBlock1_closureTrampoline(
+void _ObjCBlock_ffiVoid_ffiUnsignedLong_bool_closureTrampoline(
     ffi.Pointer<_ObjCBlock> block, int arg0, ffi.Pointer<ffi.Bool> arg1) {
-  return (_ObjCBlock1_closureRegistry[block.ref.target.address] as void
-      Function(int, ffi.Pointer<ffi.Bool>))(arg0, arg1);
+  return (_ObjCBlock_ffiVoid_ffiUnsignedLong_bool_closureRegistry[block
+      .ref
+      .target
+      .address] as void Function(int, ffi.Pointer<ffi.Bool>))(arg0, arg1);
 }
 
-class ObjCBlock1 extends _ObjCBlockBase {
-  ObjCBlock1._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
+class ObjCBlock_ffiVoid_ffiUnsignedLong_bool extends _ObjCBlockBase {
+  ObjCBlock_ffiVoid_ffiUnsignedLong_bool._(
+      ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
       : super._(id, lib, retain: false, release: true);
 
   /// Creates a block from a C function pointer.
-  ObjCBlock1.fromFunctionPointer(
+  ObjCBlock_ffiVoid_ffiUnsignedLong_bool.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
               ffi.NativeFunction<
-                  ffi.Void Function(ffi.UnsignedLong arg0,
-                      ffi.Pointer<ffi.Bool> arg1)>>
+                  ffi.Void Function(
+                      ffi.UnsignedLong arg0, ffi.Pointer<ffi.Bool> arg1)>>
           ptr)
       : this._(
-            lib
-                ._newBlock1(
-                    _cFuncTrampoline ??= ffi.Pointer.fromFunction<
-                                ffi.Void Function(
-                                    ffi.Pointer<_ObjCBlock> block,
-                                    ffi.UnsignedLong arg0,
-                                    ffi.Pointer<ffi.Bool> arg1)>(
-                            _ObjCBlock1_fnPtrTrampoline)
-                        .cast(),
-                    ptr.cast()),
+            lib._newBlock1(
+                _cFuncTrampoline ??= ffi.Pointer.fromFunction<
+                            ffi.Void Function(
+                                ffi.Pointer<_ObjCBlock> block,
+                                ffi.UnsignedLong arg0,
+                                ffi.Pointer<ffi.Bool> arg1)>(
+                        _ObjCBlock_ffiVoid_ffiUnsignedLong_bool_fnPtrTrampoline)
+                    .cast(),
+                ptr.cast()),
             lib);
   static ffi.Pointer<ffi.Void>? _cFuncTrampoline;
 
   /// Creates a block from a Dart function.
-  ObjCBlock1.fromFunction(
+  ObjCBlock_ffiVoid_ffiUnsignedLong_bool.fromFunction(
       SentryCocoa lib, void Function(int arg0, ffi.Pointer<ffi.Bool> arg1) fn)
       : this._(
             lib._newBlock1(
@@ -37481,9 +37745,9 @@ class ObjCBlock1 extends _ObjCBlockBase {
                                 ffi.Pointer<_ObjCBlock> block,
                                 ffi.UnsignedLong arg0,
                                 ffi.Pointer<ffi.Bool> arg1)>(
-                        _ObjCBlock1_closureTrampoline)
+                        _ObjCBlock_ffiVoid_ffiUnsignedLong_bool_closureTrampoline)
                     .cast(),
-                _ObjCBlock1_registerClosure(fn)),
+                _ObjCBlock_ffiVoid_ffiUnsignedLong_bool_registerClosure(fn)),
             lib);
   static ffi.Pointer<ffi.Void>? _dartFuncTrampoline;
   void call(int arg0, ffi.Pointer<ffi.Bool> arg1) {
@@ -37503,7 +37767,7 @@ abstract class NSEnumerationOptions {
   static const int NSEnumerationReverse = 2;
 }
 
-bool _ObjCBlock2_fnPtrTrampoline(
+bool _ObjCBlock_bool_ffiUnsignedLong_bool_fnPtrTrampoline(
     ffi.Pointer<_ObjCBlock> block, int arg0, ffi.Pointer<ffi.Bool> arg1) {
   return block.ref.target
           .cast<
@@ -37514,26 +37778,28 @@ bool _ObjCBlock2_fnPtrTrampoline(
       arg0, arg1);
 }
 
-final _ObjCBlock2_closureRegistry = <int, Function>{};
-int _ObjCBlock2_closureRegistryIndex = 0;
-ffi.Pointer<ffi.Void> _ObjCBlock2_registerClosure(Function fn) {
-  final id = ++_ObjCBlock2_closureRegistryIndex;
-  _ObjCBlock2_closureRegistry[id] = fn;
+final _ObjCBlock_bool_ffiUnsignedLong_bool_closureRegistry = <int, Function>{};
+int _ObjCBlock_bool_ffiUnsignedLong_bool_closureRegistryIndex = 0;
+ffi.Pointer<ffi.Void> _ObjCBlock_bool_ffiUnsignedLong_bool_registerClosure(
+    Function fn) {
+  final id = ++_ObjCBlock_bool_ffiUnsignedLong_bool_closureRegistryIndex;
+  _ObjCBlock_bool_ffiUnsignedLong_bool_closureRegistry[id] = fn;
   return ffi.Pointer<ffi.Void>.fromAddress(id);
 }
 
-bool _ObjCBlock2_closureTrampoline(
+bool _ObjCBlock_bool_ffiUnsignedLong_bool_closureTrampoline(
     ffi.Pointer<_ObjCBlock> block, int arg0, ffi.Pointer<ffi.Bool> arg1) {
-  return (_ObjCBlock2_closureRegistry[block.ref.target.address] as bool
-      Function(int, ffi.Pointer<ffi.Bool>))(arg0, arg1);
+  return (_ObjCBlock_bool_ffiUnsignedLong_bool_closureRegistry[block.ref.target
+      .address] as bool Function(int, ffi.Pointer<ffi.Bool>))(arg0, arg1);
 }
 
-class ObjCBlock2 extends _ObjCBlockBase {
-  ObjCBlock2._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
+class ObjCBlock_bool_ffiUnsignedLong_bool extends _ObjCBlockBase {
+  ObjCBlock_bool_ffiUnsignedLong_bool._(
+      ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
       : super._(id, lib, retain: false, release: true);
 
   /// Creates a block from a C function pointer.
-  ObjCBlock2.fromFunctionPointer(
+  ObjCBlock_bool_ffiUnsignedLong_bool.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
               ffi.NativeFunction<
@@ -37547,14 +37813,15 @@ class ObjCBlock2 extends _ObjCBlockBase {
                                 ffi.Pointer<_ObjCBlock> block,
                                 ffi.UnsignedLong arg0,
                                 ffi.Pointer<ffi.Bool> arg1)>(
-                        _ObjCBlock2_fnPtrTrampoline, false)
+                        _ObjCBlock_bool_ffiUnsignedLong_bool_fnPtrTrampoline,
+                        false)
                     .cast(),
                 ptr.cast()),
             lib);
   static ffi.Pointer<ffi.Void>? _cFuncTrampoline;
 
   /// Creates a block from a Dart function.
-  ObjCBlock2.fromFunction(
+  ObjCBlock_bool_ffiUnsignedLong_bool.fromFunction(
       SentryCocoa lib, bool Function(int arg0, ffi.Pointer<ffi.Bool> arg1) fn)
       : this._(
             lib._newBlock1(
@@ -37563,9 +37830,10 @@ class ObjCBlock2 extends _ObjCBlockBase {
                                 ffi.Pointer<_ObjCBlock> block,
                                 ffi.UnsignedLong arg0,
                                 ffi.Pointer<ffi.Bool> arg1)>(
-                        _ObjCBlock2_closureTrampoline, false)
+                        _ObjCBlock_bool_ffiUnsignedLong_bool_closureTrampoline,
+                        false)
                     .cast(),
-                _ObjCBlock2_registerClosure(fn)),
+                _ObjCBlock_bool_ffiUnsignedLong_bool_registerClosure(fn)),
             lib);
   static ffi.Pointer<ffi.Void>? _dartFuncTrampoline;
   bool call(int arg0, ffi.Pointer<ffi.Bool> arg1) {
@@ -37580,7 +37848,7 @@ class ObjCBlock2 extends _ObjCBlockBase {
   }
 }
 
-void _ObjCBlock3_fnPtrTrampoline(
+void _ObjCBlock_ffiVoid_NSRange_bool_fnPtrTrampoline(
     ffi.Pointer<_ObjCBlock> block, _NSRange arg0, ffi.Pointer<ffi.Bool> arg1) {
   return block.ref.target
       .cast<
@@ -37591,26 +37859,27 @@ void _ObjCBlock3_fnPtrTrampoline(
               _NSRange arg0, ffi.Pointer<ffi.Bool> arg1)>()(arg0, arg1);
 }
 
-final _ObjCBlock3_closureRegistry = <int, Function>{};
-int _ObjCBlock3_closureRegistryIndex = 0;
-ffi.Pointer<ffi.Void> _ObjCBlock3_registerClosure(Function fn) {
-  final id = ++_ObjCBlock3_closureRegistryIndex;
-  _ObjCBlock3_closureRegistry[id] = fn;
+final _ObjCBlock_ffiVoid_NSRange_bool_closureRegistry = <int, Function>{};
+int _ObjCBlock_ffiVoid_NSRange_bool_closureRegistryIndex = 0;
+ffi.Pointer<ffi.Void> _ObjCBlock_ffiVoid_NSRange_bool_registerClosure(
+    Function fn) {
+  final id = ++_ObjCBlock_ffiVoid_NSRange_bool_closureRegistryIndex;
+  _ObjCBlock_ffiVoid_NSRange_bool_closureRegistry[id] = fn;
   return ffi.Pointer<ffi.Void>.fromAddress(id);
 }
 
-void _ObjCBlock3_closureTrampoline(
+void _ObjCBlock_ffiVoid_NSRange_bool_closureTrampoline(
     ffi.Pointer<_ObjCBlock> block, _NSRange arg0, ffi.Pointer<ffi.Bool> arg1) {
-  return (_ObjCBlock3_closureRegistry[block.ref.target.address] as void
-      Function(_NSRange, ffi.Pointer<ffi.Bool>))(arg0, arg1);
+  return (_ObjCBlock_ffiVoid_NSRange_bool_closureRegistry[block.ref.target
+      .address] as void Function(_NSRange, ffi.Pointer<ffi.Bool>))(arg0, arg1);
 }
 
-class ObjCBlock3 extends _ObjCBlockBase {
-  ObjCBlock3._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
+class ObjCBlock_ffiVoid_NSRange_bool extends _ObjCBlockBase {
+  ObjCBlock_ffiVoid_NSRange_bool._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
       : super._(id, lib, retain: false, release: true);
 
   /// Creates a block from a C function pointer.
-  ObjCBlock3.fromFunctionPointer(
+  ObjCBlock_ffiVoid_NSRange_bool.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
               ffi.NativeFunction<
@@ -37621,23 +37890,23 @@ class ObjCBlock3 extends _ObjCBlockBase {
                 _cFuncTrampoline ??= ffi.Pointer.fromFunction<
                             ffi.Void Function(ffi.Pointer<_ObjCBlock> block,
                                 _NSRange arg0, ffi.Pointer<ffi.Bool> arg1)>(
-                        _ObjCBlock3_fnPtrTrampoline)
+                        _ObjCBlock_ffiVoid_NSRange_bool_fnPtrTrampoline)
                     .cast(),
                 ptr.cast()),
             lib);
   static ffi.Pointer<ffi.Void>? _cFuncTrampoline;
 
   /// Creates a block from a Dart function.
-  ObjCBlock3.fromFunction(SentryCocoa lib,
+  ObjCBlock_ffiVoid_NSRange_bool.fromFunction(SentryCocoa lib,
       void Function(_NSRange arg0, ffi.Pointer<ffi.Bool> arg1) fn)
       : this._(
             lib._newBlock1(
                 _dartFuncTrampoline ??= ffi.Pointer.fromFunction<
                             ffi.Void Function(ffi.Pointer<_ObjCBlock> block,
                                 _NSRange arg0, ffi.Pointer<ffi.Bool> arg1)>(
-                        _ObjCBlock3_closureTrampoline)
+                        _ObjCBlock_ffiVoid_NSRange_bool_closureTrampoline)
                     .cast(),
-                _ObjCBlock3_registerClosure(fn)),
+                _ObjCBlock_ffiVoid_NSRange_bool_registerClosure(fn)),
             lib);
   static ffi.Pointer<ffi.Void>? _dartFuncTrampoline;
   void call(_NSRange arg0, ffi.Pointer<ffi.Bool> arg1) {
@@ -37652,8 +37921,11 @@ class ObjCBlock3 extends _ObjCBlockBase {
   }
 }
 
-void _ObjCBlock4_fnPtrTrampoline(ffi.Pointer<_ObjCBlock> block,
-    ffi.Pointer<ObjCObject> arg0, int arg1, ffi.Pointer<ffi.Bool> arg2) {
+void _ObjCBlock_ffiVoid_ObjCObject_ffiUnsignedLong_bool_fnPtrTrampoline(
+    ffi.Pointer<_ObjCBlock> block,
+    ffi.Pointer<ObjCObject> arg0,
+    int arg1,
+    ffi.Pointer<ffi.Bool> arg2) {
   return block.ref.target
       .cast<
           ffi.NativeFunction<
@@ -37664,27 +37936,36 @@ void _ObjCBlock4_fnPtrTrampoline(ffi.Pointer<_ObjCBlock> block,
               ffi.Pointer<ffi.Bool> arg2)>()(arg0, arg1, arg2);
 }
 
-final _ObjCBlock4_closureRegistry = <int, Function>{};
-int _ObjCBlock4_closureRegistryIndex = 0;
-ffi.Pointer<ffi.Void> _ObjCBlock4_registerClosure(Function fn) {
-  final id = ++_ObjCBlock4_closureRegistryIndex;
-  _ObjCBlock4_closureRegistry[id] = fn;
+final _ObjCBlock_ffiVoid_ObjCObject_ffiUnsignedLong_bool_closureRegistry =
+    <int, Function>{};
+int _ObjCBlock_ffiVoid_ObjCObject_ffiUnsignedLong_bool_closureRegistryIndex = 0;
+ffi.Pointer<ffi.Void>
+    _ObjCBlock_ffiVoid_ObjCObject_ffiUnsignedLong_bool_registerClosure(
+        Function fn) {
+  final id =
+      ++_ObjCBlock_ffiVoid_ObjCObject_ffiUnsignedLong_bool_closureRegistryIndex;
+  _ObjCBlock_ffiVoid_ObjCObject_ffiUnsignedLong_bool_closureRegistry[id] = fn;
   return ffi.Pointer<ffi.Void>.fromAddress(id);
 }
 
-void _ObjCBlock4_closureTrampoline(ffi.Pointer<_ObjCBlock> block,
-    ffi.Pointer<ObjCObject> arg0, int arg1, ffi.Pointer<ffi.Bool> arg2) {
-  return (_ObjCBlock4_closureRegistry[block.ref.target.address] as void
-          Function(ffi.Pointer<ObjCObject>, int, ffi.Pointer<ffi.Bool>))(
-      arg0, arg1, arg2);
+void _ObjCBlock_ffiVoid_ObjCObject_ffiUnsignedLong_bool_closureTrampoline(
+    ffi.Pointer<_ObjCBlock> block,
+    ffi.Pointer<ObjCObject> arg0,
+    int arg1,
+    ffi.Pointer<ffi.Bool> arg2) {
+  return (_ObjCBlock_ffiVoid_ObjCObject_ffiUnsignedLong_bool_closureRegistry[
+          block.ref.target.address]
+      as void Function(ffi.Pointer<ObjCObject>, int,
+          ffi.Pointer<ffi.Bool>))(arg0, arg1, arg2);
 }
 
-class ObjCBlock4 extends _ObjCBlockBase {
-  ObjCBlock4._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
+class ObjCBlock_ffiVoid_ObjCObject_ffiUnsignedLong_bool extends _ObjCBlockBase {
+  ObjCBlock_ffiVoid_ObjCObject_ffiUnsignedLong_bool._(
+      ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
       : super._(id, lib, retain: false, release: true);
 
   /// Creates a block from a C function pointer.
-  ObjCBlock4.fromFunctionPointer(
+  ObjCBlock_ffiVoid_ObjCObject_ffiUnsignedLong_bool.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
               ffi.NativeFunction<
@@ -37699,14 +37980,14 @@ class ObjCBlock4 extends _ObjCBlockBase {
                                 ffi.Pointer<ObjCObject> arg0,
                                 ffi.UnsignedLong arg1,
                                 ffi.Pointer<ffi.Bool> arg2)>(
-                        _ObjCBlock4_fnPtrTrampoline)
+                        _ObjCBlock_ffiVoid_ObjCObject_ffiUnsignedLong_bool_fnPtrTrampoline)
                     .cast(),
                 ptr.cast()),
             lib);
   static ffi.Pointer<ffi.Void>? _cFuncTrampoline;
 
   /// Creates a block from a Dart function.
-  ObjCBlock4.fromFunction(
+  ObjCBlock_ffiVoid_ObjCObject_ffiUnsignedLong_bool.fromFunction(
       SentryCocoa lib,
       void Function(ffi.Pointer<ObjCObject> arg0, int arg1,
               ffi.Pointer<ffi.Bool> arg2)
@@ -37719,9 +38000,10 @@ class ObjCBlock4 extends _ObjCBlockBase {
                                 ffi.Pointer<ObjCObject> arg0,
                                 ffi.UnsignedLong arg1,
                                 ffi.Pointer<ffi.Bool> arg2)>(
-                        _ObjCBlock4_closureTrampoline)
+                        _ObjCBlock_ffiVoid_ObjCObject_ffiUnsignedLong_bool_closureTrampoline)
                     .cast(),
-                _ObjCBlock4_registerClosure(fn)),
+                _ObjCBlock_ffiVoid_ObjCObject_ffiUnsignedLong_bool_registerClosure(
+                    fn)),
             lib);
   static ffi.Pointer<ffi.Void>? _dartFuncTrampoline;
   void call(
@@ -37743,8 +38025,11 @@ class ObjCBlock4 extends _ObjCBlockBase {
   }
 }
 
-bool _ObjCBlock5_fnPtrTrampoline(ffi.Pointer<_ObjCBlock> block,
-    ffi.Pointer<ObjCObject> arg0, int arg1, ffi.Pointer<ffi.Bool> arg2) {
+bool _ObjCBlock_bool_ObjCObject_ffiUnsignedLong_bool_fnPtrTrampoline(
+    ffi.Pointer<_ObjCBlock> block,
+    ffi.Pointer<ObjCObject> arg0,
+    int arg1,
+    ffi.Pointer<ffi.Bool> arg2) {
   return block.ref.target
       .cast<
           ffi.NativeFunction<
@@ -37755,30 +38040,40 @@ bool _ObjCBlock5_fnPtrTrampoline(ffi.Pointer<_ObjCBlock> block,
               ffi.Pointer<ffi.Bool> arg2)>()(arg0, arg1, arg2);
 }
 
-final _ObjCBlock5_closureRegistry = <int, Function>{};
-int _ObjCBlock5_closureRegistryIndex = 0;
-ffi.Pointer<ffi.Void> _ObjCBlock5_registerClosure(Function fn) {
-  final id = ++_ObjCBlock5_closureRegistryIndex;
-  _ObjCBlock5_closureRegistry[id] = fn;
+final _ObjCBlock_bool_ObjCObject_ffiUnsignedLong_bool_closureRegistry =
+    <int, Function>{};
+int _ObjCBlock_bool_ObjCObject_ffiUnsignedLong_bool_closureRegistryIndex = 0;
+ffi.Pointer<ffi.Void>
+    _ObjCBlock_bool_ObjCObject_ffiUnsignedLong_bool_registerClosure(
+        Function fn) {
+  final id =
+      ++_ObjCBlock_bool_ObjCObject_ffiUnsignedLong_bool_closureRegistryIndex;
+  _ObjCBlock_bool_ObjCObject_ffiUnsignedLong_bool_closureRegistry[id] = fn;
   return ffi.Pointer<ffi.Void>.fromAddress(id);
 }
 
-bool _ObjCBlock5_closureTrampoline(ffi.Pointer<_ObjCBlock> block,
-    ffi.Pointer<ObjCObject> arg0, int arg1, ffi.Pointer<ffi.Bool> arg2) {
-  return (_ObjCBlock5_closureRegistry[block.ref.target.address] as bool
-          Function(ffi.Pointer<ObjCObject>, int, ffi.Pointer<ffi.Bool>))(
-      arg0, arg1, arg2);
+bool _ObjCBlock_bool_ObjCObject_ffiUnsignedLong_bool_closureTrampoline(
+    ffi.Pointer<_ObjCBlock> block,
+    ffi.Pointer<ObjCObject> arg0,
+    int arg1,
+    ffi.Pointer<ffi.Bool> arg2) {
+  return (_ObjCBlock_bool_ObjCObject_ffiUnsignedLong_bool_closureRegistry[
+          block.ref.target.address]
+      as bool Function(ffi.Pointer<ObjCObject>, int,
+          ffi.Pointer<ffi.Bool>))(arg0, arg1, arg2);
 }
 
-class ObjCBlock5 extends _ObjCBlockBase {
-  ObjCBlock5._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
+class ObjCBlock_bool_ObjCObject_ffiUnsignedLong_bool extends _ObjCBlockBase {
+  ObjCBlock_bool_ObjCObject_ffiUnsignedLong_bool._(
+      ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
       : super._(id, lib, retain: false, release: true);
 
   /// Creates a block from a C function pointer.
-  ObjCBlock5.fromFunctionPointer(
+  ObjCBlock_bool_ObjCObject_ffiUnsignedLong_bool.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
-              ffi.NativeFunction<
+              ffi
+              .NativeFunction<
                   ffi.Bool Function(ffi.Pointer<ObjCObject> arg0,
                       ffi.UnsignedLong arg1, ffi.Pointer<ffi.Bool> arg2)>>
           ptr)
@@ -37790,14 +38085,15 @@ class ObjCBlock5 extends _ObjCBlockBase {
                                 ffi.Pointer<ObjCObject> arg0,
                                 ffi.UnsignedLong arg1,
                                 ffi.Pointer<ffi.Bool> arg2)>(
-                        _ObjCBlock5_fnPtrTrampoline, false)
+                        _ObjCBlock_bool_ObjCObject_ffiUnsignedLong_bool_fnPtrTrampoline,
+                        false)
                     .cast(),
                 ptr.cast()),
             lib);
   static ffi.Pointer<ffi.Void>? _cFuncTrampoline;
 
   /// Creates a block from a Dart function.
-  ObjCBlock5.fromFunction(
+  ObjCBlock_bool_ObjCObject_ffiUnsignedLong_bool.fromFunction(
       SentryCocoa lib,
       bool Function(ffi.Pointer<ObjCObject> arg0, int arg1,
               ffi.Pointer<ffi.Bool> arg2)
@@ -37810,9 +38106,11 @@ class ObjCBlock5 extends _ObjCBlockBase {
                                 ffi.Pointer<ObjCObject> arg0,
                                 ffi.UnsignedLong arg1,
                                 ffi.Pointer<ffi.Bool> arg2)>(
-                        _ObjCBlock5_closureTrampoline, false)
+                        _ObjCBlock_bool_ObjCObject_ffiUnsignedLong_bool_closureTrampoline,
+                        false)
                     .cast(),
-                _ObjCBlock5_registerClosure(fn)),
+                _ObjCBlock_bool_ObjCObject_ffiUnsignedLong_bool_registerClosure(
+                    fn)),
             lib);
   static ffi.Pointer<ffi.Void>? _dartFuncTrampoline;
   bool call(
@@ -37834,8 +38132,10 @@ class ObjCBlock5 extends _ObjCBlockBase {
   }
 }
 
-int _ObjCBlock6_fnPtrTrampoline(ffi.Pointer<_ObjCBlock> block,
-    ffi.Pointer<ObjCObject> arg0, ffi.Pointer<ObjCObject> arg1) {
+int _ObjCBlock_NSComparisonResult_ObjCObject_ObjCObject_fnPtrTrampoline(
+    ffi.Pointer<_ObjCBlock> block,
+    ffi.Pointer<ObjCObject> arg0,
+    ffi.Pointer<ObjCObject> arg1) {
   return block.ref.target
       .cast<
           ffi.NativeFunction<
@@ -37846,30 +38146,40 @@ int _ObjCBlock6_fnPtrTrampoline(ffi.Pointer<_ObjCBlock> block,
               ffi.Pointer<ObjCObject> arg1)>()(arg0, arg1);
 }
 
-final _ObjCBlock6_closureRegistry = <int, Function>{};
-int _ObjCBlock6_closureRegistryIndex = 0;
-ffi.Pointer<ffi.Void> _ObjCBlock6_registerClosure(Function fn) {
-  final id = ++_ObjCBlock6_closureRegistryIndex;
-  _ObjCBlock6_closureRegistry[id] = fn;
+final _ObjCBlock_NSComparisonResult_ObjCObject_ObjCObject_closureRegistry =
+    <int, Function>{};
+int _ObjCBlock_NSComparisonResult_ObjCObject_ObjCObject_closureRegistryIndex =
+    0;
+ffi.Pointer<ffi.Void>
+    _ObjCBlock_NSComparisonResult_ObjCObject_ObjCObject_registerClosure(
+        Function fn) {
+  final id =
+      ++_ObjCBlock_NSComparisonResult_ObjCObject_ObjCObject_closureRegistryIndex;
+  _ObjCBlock_NSComparisonResult_ObjCObject_ObjCObject_closureRegistry[id] = fn;
   return ffi.Pointer<ffi.Void>.fromAddress(id);
 }
 
-int _ObjCBlock6_closureTrampoline(ffi.Pointer<_ObjCBlock> block,
-    ffi.Pointer<ObjCObject> arg0, ffi.Pointer<ObjCObject> arg1) {
-  return (_ObjCBlock6_closureRegistry[block.ref.target.address] as int Function(
-      ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCObject>))(arg0, arg1);
+int _ObjCBlock_NSComparisonResult_ObjCObject_ObjCObject_closureTrampoline(
+    ffi.Pointer<_ObjCBlock> block,
+    ffi.Pointer<ObjCObject> arg0,
+    ffi.Pointer<ObjCObject> arg1) {
+  return (_ObjCBlock_NSComparisonResult_ObjCObject_ObjCObject_closureRegistry[
+          block.ref.target.address]
+      as int Function(
+          ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCObject>))(arg0, arg1);
 }
 
-class ObjCBlock6 extends _ObjCBlockBase {
-  ObjCBlock6._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
+class ObjCBlock_NSComparisonResult_ObjCObject_ObjCObject
+    extends _ObjCBlockBase {
+  ObjCBlock_NSComparisonResult_ObjCObject_ObjCObject._(
+      ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
       : super._(id, lib, retain: false, release: true);
 
   /// Creates a block from a C function pointer.
-  ObjCBlock6.fromFunctionPointer(
+  ObjCBlock_NSComparisonResult_ObjCObject_ObjCObject.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
-              ffi
-              .NativeFunction<
+              ffi.NativeFunction<
                   ffi.Int32 Function(ffi.Pointer<ObjCObject> arg0,
                       ffi.Pointer<ObjCObject> arg1)>>
           ptr)
@@ -37880,14 +38190,15 @@ class ObjCBlock6 extends _ObjCBlockBase {
                                 ffi.Pointer<_ObjCBlock> block,
                                 ffi.Pointer<ObjCObject> arg0,
                                 ffi.Pointer<ObjCObject> arg1)>(
-                        _ObjCBlock6_fnPtrTrampoline, 0)
+                        _ObjCBlock_NSComparisonResult_ObjCObject_ObjCObject_fnPtrTrampoline,
+                        0)
                     .cast(),
                 ptr.cast()),
             lib);
   static ffi.Pointer<ffi.Void>? _cFuncTrampoline;
 
   /// Creates a block from a Dart function.
-  ObjCBlock6.fromFunction(
+  ObjCBlock_NSComparisonResult_ObjCObject_ObjCObject.fromFunction(
       SentryCocoa lib,
       int Function(ffi.Pointer<ObjCObject> arg0, ffi.Pointer<ObjCObject> arg1)
           fn)
@@ -37898,9 +38209,11 @@ class ObjCBlock6 extends _ObjCBlockBase {
                                 ffi.Pointer<_ObjCBlock> block,
                                 ffi.Pointer<ObjCObject> arg0,
                                 ffi.Pointer<ObjCObject> arg1)>(
-                        _ObjCBlock6_closureTrampoline, 0)
+                        _ObjCBlock_NSComparisonResult_ObjCObject_ObjCObject_closureTrampoline,
+                        0)
                     .cast(),
-                _ObjCBlock6_registerClosure(fn)),
+                _ObjCBlock_NSComparisonResult_ObjCObject_ObjCObject_registerClosure(
+                    fn)),
             lib);
   static ffi.Pointer<ffi.Void>? _dartFuncTrampoline;
   int call(ffi.Pointer<ObjCObject> arg0, ffi.Pointer<ObjCObject> arg1) {
@@ -37944,8 +38257,10 @@ abstract class NSOrderedCollectionDifferenceCalculationOptions {
   static const int NSOrderedCollectionDifferenceCalculationInferMoves = 4;
 }
 
-bool _ObjCBlock7_fnPtrTrampoline(ffi.Pointer<_ObjCBlock> block,
-    ffi.Pointer<ObjCObject> arg0, ffi.Pointer<ObjCObject> arg1) {
+bool _ObjCBlock_bool_ObjCObject_ObjCObject_fnPtrTrampoline(
+    ffi.Pointer<_ObjCBlock> block,
+    ffi.Pointer<ObjCObject> arg0,
+    ffi.Pointer<ObjCObject> arg1) {
   return block.ref.target
       .cast<
           ffi.NativeFunction<
@@ -37956,26 +38271,32 @@ bool _ObjCBlock7_fnPtrTrampoline(ffi.Pointer<_ObjCBlock> block,
               ffi.Pointer<ObjCObject> arg1)>()(arg0, arg1);
 }
 
-final _ObjCBlock7_closureRegistry = <int, Function>{};
-int _ObjCBlock7_closureRegistryIndex = 0;
-ffi.Pointer<ffi.Void> _ObjCBlock7_registerClosure(Function fn) {
-  final id = ++_ObjCBlock7_closureRegistryIndex;
-  _ObjCBlock7_closureRegistry[id] = fn;
+final _ObjCBlock_bool_ObjCObject_ObjCObject_closureRegistry = <int, Function>{};
+int _ObjCBlock_bool_ObjCObject_ObjCObject_closureRegistryIndex = 0;
+ffi.Pointer<ffi.Void> _ObjCBlock_bool_ObjCObject_ObjCObject_registerClosure(
+    Function fn) {
+  final id = ++_ObjCBlock_bool_ObjCObject_ObjCObject_closureRegistryIndex;
+  _ObjCBlock_bool_ObjCObject_ObjCObject_closureRegistry[id] = fn;
   return ffi.Pointer<ffi.Void>.fromAddress(id);
 }
 
-bool _ObjCBlock7_closureTrampoline(ffi.Pointer<_ObjCBlock> block,
-    ffi.Pointer<ObjCObject> arg0, ffi.Pointer<ObjCObject> arg1) {
-  return (_ObjCBlock7_closureRegistry[block.ref.target.address] as bool
-      Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCObject>))(arg0, arg1);
+bool _ObjCBlock_bool_ObjCObject_ObjCObject_closureTrampoline(
+    ffi.Pointer<_ObjCBlock> block,
+    ffi.Pointer<ObjCObject> arg0,
+    ffi.Pointer<ObjCObject> arg1) {
+  return (_ObjCBlock_bool_ObjCObject_ObjCObject_closureRegistry[
+          block.ref.target.address]
+      as bool Function(
+          ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCObject>))(arg0, arg1);
 }
 
-class ObjCBlock7 extends _ObjCBlockBase {
-  ObjCBlock7._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
+class ObjCBlock_bool_ObjCObject_ObjCObject extends _ObjCBlockBase {
+  ObjCBlock_bool_ObjCObject_ObjCObject._(
+      ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
       : super._(id, lib, retain: false, release: true);
 
   /// Creates a block from a C function pointer.
-  ObjCBlock7.fromFunctionPointer(
+  ObjCBlock_bool_ObjCObject_ObjCObject.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
               ffi.NativeFunction<
@@ -37989,14 +38310,15 @@ class ObjCBlock7 extends _ObjCBlockBase {
                                 ffi.Pointer<_ObjCBlock> block,
                                 ffi.Pointer<ObjCObject> arg0,
                                 ffi.Pointer<ObjCObject> arg1)>(
-                        _ObjCBlock7_fnPtrTrampoline, false)
+                        _ObjCBlock_bool_ObjCObject_ObjCObject_fnPtrTrampoline,
+                        false)
                     .cast(),
                 ptr.cast()),
             lib);
   static ffi.Pointer<ffi.Void>? _cFuncTrampoline;
 
   /// Creates a block from a Dart function.
-  ObjCBlock7.fromFunction(
+  ObjCBlock_bool_ObjCObject_ObjCObject.fromFunction(
       SentryCocoa lib,
       bool Function(ffi.Pointer<ObjCObject> arg0, ffi.Pointer<ObjCObject> arg1)
           fn)
@@ -38007,9 +38329,10 @@ class ObjCBlock7 extends _ObjCBlockBase {
                                 ffi.Pointer<_ObjCBlock> block,
                                 ffi.Pointer<ObjCObject> arg0,
                                 ffi.Pointer<ObjCObject> arg1)>(
-                        _ObjCBlock7_closureTrampoline, false)
+                        _ObjCBlock_bool_ObjCObject_ObjCObject_closureTrampoline,
+                        false)
                     .cast(),
-                _ObjCBlock7_registerClosure(fn)),
+                _ObjCBlock_bool_ObjCObject_ObjCObject_registerClosure(fn)),
             lib);
   static ffi.Pointer<ffi.Void>? _dartFuncTrampoline;
   bool call(ffi.Pointer<ObjCObject> arg0, ffi.Pointer<ObjCObject> arg1) {
@@ -38100,7 +38423,8 @@ class NSPredicate extends NSObject {
     return NSPredicate._(_ret, _lib, retain: true, release: true);
   }
 
-  static NSPredicate predicateWithBlock_(SentryCocoa _lib, ObjCBlock8 block) {
+  static NSPredicate predicateWithBlock_(
+      SentryCocoa _lib, ObjCBlock_bool_ObjCObject_NSDictionary block) {
     final _ret = _lib._objc_msgSend_199(
         _lib._class_NSPredicate1, _lib._sel_predicateWithBlock_1, block._id);
     return NSPredicate._(_ret, _lib, retain: true, release: true);
@@ -38136,11 +38460,24 @@ class NSPredicate extends NSObject {
   }
 
   void allowEvaluation() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_allowEvaluation1);
+    _lib._objc_msgSend_1(_id, _lib._sel_allowEvaluation1);
+  }
+
+  @override
+  NSPredicate init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSPredicate._(_ret, _lib, retain: true, release: true);
   }
 
   static NSPredicate new1(SentryCocoa _lib) {
     final _ret = _lib._objc_msgSend_2(_lib._class_NSPredicate1, _lib._sel_new1);
+    return NSPredicate._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSPredicate allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSPredicate1, _lib._sel_allocWithZone_1, zone);
     return NSPredicate._(_ret, _lib, retain: false, release: true);
   }
 
@@ -38155,7 +38492,7 @@ class NSPredicate extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSPredicate1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -38165,7 +38502,7 @@ class NSPredicate extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSPredicate1,
+    _lib._objc_msgSend_15(_lib._class_NSPredicate1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -38198,7 +38535,7 @@ class NSPredicate extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSPredicate1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -38218,8 +38555,10 @@ class NSPredicate extends NSObject {
   }
 }
 
-bool _ObjCBlock8_fnPtrTrampoline(ffi.Pointer<_ObjCBlock> block,
-    ffi.Pointer<ObjCObject> arg0, ffi.Pointer<ObjCObject> arg1) {
+bool _ObjCBlock_bool_ObjCObject_NSDictionary_fnPtrTrampoline(
+    ffi.Pointer<_ObjCBlock> block,
+    ffi.Pointer<ObjCObject> arg0,
+    ffi.Pointer<ObjCObject> arg1) {
   return block.ref.target
       .cast<
           ffi.NativeFunction<
@@ -38230,26 +38569,33 @@ bool _ObjCBlock8_fnPtrTrampoline(ffi.Pointer<_ObjCBlock> block,
               ffi.Pointer<ObjCObject> arg1)>()(arg0, arg1);
 }
 
-final _ObjCBlock8_closureRegistry = <int, Function>{};
-int _ObjCBlock8_closureRegistryIndex = 0;
-ffi.Pointer<ffi.Void> _ObjCBlock8_registerClosure(Function fn) {
-  final id = ++_ObjCBlock8_closureRegistryIndex;
-  _ObjCBlock8_closureRegistry[id] = fn;
+final _ObjCBlock_bool_ObjCObject_NSDictionary_closureRegistry =
+    <int, Function>{};
+int _ObjCBlock_bool_ObjCObject_NSDictionary_closureRegistryIndex = 0;
+ffi.Pointer<ffi.Void> _ObjCBlock_bool_ObjCObject_NSDictionary_registerClosure(
+    Function fn) {
+  final id = ++_ObjCBlock_bool_ObjCObject_NSDictionary_closureRegistryIndex;
+  _ObjCBlock_bool_ObjCObject_NSDictionary_closureRegistry[id] = fn;
   return ffi.Pointer<ffi.Void>.fromAddress(id);
 }
 
-bool _ObjCBlock8_closureTrampoline(ffi.Pointer<_ObjCBlock> block,
-    ffi.Pointer<ObjCObject> arg0, ffi.Pointer<ObjCObject> arg1) {
-  return (_ObjCBlock8_closureRegistry[block.ref.target.address] as bool
-      Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCObject>))(arg0, arg1);
+bool _ObjCBlock_bool_ObjCObject_NSDictionary_closureTrampoline(
+    ffi.Pointer<_ObjCBlock> block,
+    ffi.Pointer<ObjCObject> arg0,
+    ffi.Pointer<ObjCObject> arg1) {
+  return (_ObjCBlock_bool_ObjCObject_NSDictionary_closureRegistry[
+          block.ref.target.address]
+      as bool Function(
+          ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCObject>))(arg0, arg1);
 }
 
-class ObjCBlock8 extends _ObjCBlockBase {
-  ObjCBlock8._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
+class ObjCBlock_bool_ObjCObject_NSDictionary extends _ObjCBlockBase {
+  ObjCBlock_bool_ObjCObject_NSDictionary._(
+      ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
       : super._(id, lib, retain: false, release: true);
 
   /// Creates a block from a C function pointer.
-  ObjCBlock8.fromFunctionPointer(
+  ObjCBlock_bool_ObjCObject_NSDictionary.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
               ffi.NativeFunction<
@@ -38263,14 +38609,15 @@ class ObjCBlock8 extends _ObjCBlockBase {
                                 ffi.Pointer<_ObjCBlock> block,
                                 ffi.Pointer<ObjCObject> arg0,
                                 ffi.Pointer<ObjCObject> arg1)>(
-                        _ObjCBlock8_fnPtrTrampoline, false)
+                        _ObjCBlock_bool_ObjCObject_NSDictionary_fnPtrTrampoline,
+                        false)
                     .cast(),
                 ptr.cast()),
             lib);
   static ffi.Pointer<ffi.Void>? _cFuncTrampoline;
 
   /// Creates a block from a Dart function.
-  ObjCBlock8.fromFunction(
+  ObjCBlock_bool_ObjCObject_NSDictionary.fromFunction(
       SentryCocoa lib,
       bool Function(ffi.Pointer<ObjCObject> arg0, ffi.Pointer<ObjCObject> arg1)
           fn)
@@ -38281,9 +38628,10 @@ class ObjCBlock8 extends _ObjCBlockBase {
                                 ffi.Pointer<_ObjCBlock> block,
                                 ffi.Pointer<ObjCObject> arg0,
                                 ffi.Pointer<ObjCObject> arg1)>(
-                        _ObjCBlock8_closureTrampoline, false)
+                        _ObjCBlock_bool_ObjCObject_NSDictionary_closureTrampoline,
+                        false)
                     .cast(),
-                _ObjCBlock8_registerClosure(fn)),
+                _ObjCBlock_bool_ObjCObject_NSDictionary_registerClosure(fn)),
             lib);
   static ffi.Pointer<ffi.Void>? _dartFuncTrampoline;
   bool call(ffi.Pointer<ObjCObject> arg0, ffi.Pointer<ObjCObject> arg1) {
@@ -38440,7 +38788,7 @@ class NSDictionary extends NSObject {
 
   void getObjects_andKeys_count_(ffi.Pointer<ffi.Pointer<ObjCObject>> objects,
       ffi.Pointer<ffi.Pointer<ObjCObject>> keys, int count) {
-    return _lib._objc_msgSend_140(
+    _lib._objc_msgSend_140(
         _id, _lib._sel_getObjects_andKeys_count_1, objects, keys, count);
   }
 
@@ -38450,28 +38798,30 @@ class NSDictionary extends NSObject {
     return NSObject._(_ret, _lib, retain: true, release: true);
   }
 
-  void enumerateKeysAndObjectsUsingBlock_(ObjCBlock9 block) {
-    return _lib._objc_msgSend_141(
+  void enumerateKeysAndObjectsUsingBlock_(
+      ObjCBlock_ffiVoid_ObjCObject_ObjCObject_bool block) {
+    _lib._objc_msgSend_141(
         _id, _lib._sel_enumerateKeysAndObjectsUsingBlock_1, block._id);
   }
 
   void enumerateKeysAndObjectsWithOptions_usingBlock_(
-      int opts, ObjCBlock9 block) {
-    return _lib._objc_msgSend_142(
+      int opts, ObjCBlock_ffiVoid_ObjCObject_ObjCObject_bool block) {
+    _lib._objc_msgSend_142(
         _id,
         _lib._sel_enumerateKeysAndObjectsWithOptions_usingBlock_1,
         opts,
         block._id);
   }
 
-  NSArray keysSortedByValueUsingComparator_(ObjCBlock6 cmptr) {
+  NSArray keysSortedByValueUsingComparator_(
+      ObjCBlock_NSComparisonResult_ObjCObject_ObjCObject cmptr) {
     final _ret = _lib._objc_msgSend_115(
         _id, _lib._sel_keysSortedByValueUsingComparator_1, cmptr._id);
     return NSArray._(_ret, _lib, retain: true, release: true);
   }
 
   NSArray keysSortedByValueWithOptions_usingComparator_(
-      int opts, ObjCBlock6 cmptr) {
+      int opts, ObjCBlock_NSComparisonResult_ObjCObject_ObjCObject cmptr) {
     final _ret = _lib._objc_msgSend_116(
         _id,
         _lib._sel_keysSortedByValueWithOptions_usingComparator_1,
@@ -38480,14 +38830,15 @@ class NSDictionary extends NSObject {
     return NSArray._(_ret, _lib, retain: true, release: true);
   }
 
-  NSObject keysOfEntriesPassingTest_(ObjCBlock10 predicate) {
+  NSObject keysOfEntriesPassingTest_(
+      ObjCBlock_bool_ObjCObject_ObjCObject_bool predicate) {
     final _ret = _lib._objc_msgSend_143(
         _id, _lib._sel_keysOfEntriesPassingTest_1, predicate._id);
     return NSObject._(_ret, _lib, retain: true, release: true);
   }
 
   NSObject keysOfEntriesWithOptions_passingTest_(
-      int opts, ObjCBlock10 predicate) {
+      int opts, ObjCBlock_bool_ObjCObject_ObjCObject_bool predicate) {
     final _ret = _lib._objc_msgSend_144(_id,
         _lib._sel_keysOfEntriesWithOptions_passingTest_1, opts, predicate._id);
     return NSObject._(_ret, _lib, retain: true, release: true);
@@ -38495,8 +38846,7 @@ class NSDictionary extends NSObject {
 
   void getObjects_andKeys_(ffi.Pointer<ffi.Pointer<ObjCObject>> objects,
       ffi.Pointer<ffi.Pointer<ObjCObject>> keys) {
-    return _lib._objc_msgSend_145(
-        _id, _lib._sel_getObjects_andKeys_1, objects, keys);
+    _lib._objc_msgSend_145(_id, _lib._sel_getObjects_andKeys_1, objects, keys);
   }
 
   static NSDictionary dictionaryWithContentsOfFile_(
@@ -38740,6 +39090,13 @@ class NSDictionary extends NSObject {
     return NSDictionary._(_ret, _lib, retain: false, release: true);
   }
 
+  static NSDictionary allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSDictionary1, _lib._sel_allocWithZone_1, zone);
+    return NSDictionary._(_ret, _lib, retain: false, release: true);
+  }
+
   static NSDictionary alloc(SentryCocoa _lib) {
     final _ret =
         _lib._objc_msgSend_2(_lib._class_NSDictionary1, _lib._sel_alloc1);
@@ -38751,7 +39108,7 @@ class NSDictionary extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSDictionary1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -38761,7 +39118,7 @@ class NSDictionary extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSDictionary1,
+    _lib._objc_msgSend_15(_lib._class_NSDictionary1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -38794,7 +39151,7 @@ class NSDictionary extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSDictionary1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -38814,7 +39171,7 @@ class NSDictionary extends NSObject {
   }
 }
 
-void _ObjCBlock9_fnPtrTrampoline(
+void _ObjCBlock_ffiVoid_ObjCObject_ObjCObject_bool_fnPtrTrampoline(
     ffi.Pointer<_ObjCBlock> block,
     ffi.Pointer<ObjCObject> arg0,
     ffi.Pointer<ObjCObject> arg1,
@@ -38831,30 +39188,35 @@ void _ObjCBlock9_fnPtrTrampoline(
               ffi.Pointer<ffi.Bool> arg2)>()(arg0, arg1, arg2);
 }
 
-final _ObjCBlock9_closureRegistry = <int, Function>{};
-int _ObjCBlock9_closureRegistryIndex = 0;
-ffi.Pointer<ffi.Void> _ObjCBlock9_registerClosure(Function fn) {
-  final id = ++_ObjCBlock9_closureRegistryIndex;
-  _ObjCBlock9_closureRegistry[id] = fn;
+final _ObjCBlock_ffiVoid_ObjCObject_ObjCObject_bool_closureRegistry =
+    <int, Function>{};
+int _ObjCBlock_ffiVoid_ObjCObject_ObjCObject_bool_closureRegistryIndex = 0;
+ffi.Pointer<ffi.Void>
+    _ObjCBlock_ffiVoid_ObjCObject_ObjCObject_bool_registerClosure(Function fn) {
+  final id =
+      ++_ObjCBlock_ffiVoid_ObjCObject_ObjCObject_bool_closureRegistryIndex;
+  _ObjCBlock_ffiVoid_ObjCObject_ObjCObject_bool_closureRegistry[id] = fn;
   return ffi.Pointer<ffi.Void>.fromAddress(id);
 }
 
-void _ObjCBlock9_closureTrampoline(
+void _ObjCBlock_ffiVoid_ObjCObject_ObjCObject_bool_closureTrampoline(
     ffi.Pointer<_ObjCBlock> block,
     ffi.Pointer<ObjCObject> arg0,
     ffi.Pointer<ObjCObject> arg1,
     ffi.Pointer<ffi.Bool> arg2) {
-  return (_ObjCBlock9_closureRegistry[block.ref.target.address]
+  return (_ObjCBlock_ffiVoid_ObjCObject_ObjCObject_bool_closureRegistry[
+          block.ref.target.address]
       as void Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCObject>,
           ffi.Pointer<ffi.Bool>))(arg0, arg1, arg2);
 }
 
-class ObjCBlock9 extends _ObjCBlockBase {
-  ObjCBlock9._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
+class ObjCBlock_ffiVoid_ObjCObject_ObjCObject_bool extends _ObjCBlockBase {
+  ObjCBlock_ffiVoid_ObjCObject_ObjCObject_bool._(
+      ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
       : super._(id, lib, retain: false, release: true);
 
   /// Creates a block from a C function pointer.
-  ObjCBlock9.fromFunctionPointer(
+  ObjCBlock_ffiVoid_ObjCObject_ObjCObject_bool.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
               ffi.NativeFunction<
@@ -38871,14 +39233,14 @@ class ObjCBlock9 extends _ObjCBlockBase {
                                 ffi.Pointer<ObjCObject> arg0,
                                 ffi.Pointer<ObjCObject> arg1,
                                 ffi.Pointer<ffi.Bool> arg2)>(
-                        _ObjCBlock9_fnPtrTrampoline)
+                        _ObjCBlock_ffiVoid_ObjCObject_ObjCObject_bool_fnPtrTrampoline)
                     .cast(),
                 ptr.cast()),
             lib);
   static ffi.Pointer<ffi.Void>? _cFuncTrampoline;
 
   /// Creates a block from a Dart function.
-  ObjCBlock9.fromFunction(
+  ObjCBlock_ffiVoid_ObjCObject_ObjCObject_bool.fromFunction(
       SentryCocoa lib,
       void Function(ffi.Pointer<ObjCObject> arg0, ffi.Pointer<ObjCObject> arg1,
               ffi.Pointer<ffi.Bool> arg2)
@@ -38891,9 +39253,10 @@ class ObjCBlock9 extends _ObjCBlockBase {
                                 ffi.Pointer<ObjCObject> arg0,
                                 ffi.Pointer<ObjCObject> arg1,
                                 ffi.Pointer<ffi.Bool> arg2)>(
-                        _ObjCBlock9_closureTrampoline)
+                        _ObjCBlock_ffiVoid_ObjCObject_ObjCObject_bool_closureTrampoline)
                     .cast(),
-                _ObjCBlock9_registerClosure(fn)),
+                _ObjCBlock_ffiVoid_ObjCObject_ObjCObject_bool_registerClosure(
+                    fn)),
             lib);
   static ffi.Pointer<ffi.Void>? _dartFuncTrampoline;
   void call(ffi.Pointer<ObjCObject> arg0, ffi.Pointer<ObjCObject> arg1,
@@ -38915,7 +39278,7 @@ class ObjCBlock9 extends _ObjCBlockBase {
   }
 }
 
-bool _ObjCBlock10_fnPtrTrampoline(
+bool _ObjCBlock_bool_ObjCObject_ObjCObject_bool_fnPtrTrampoline(
     ffi.Pointer<_ObjCBlock> block,
     ffi.Pointer<ObjCObject> arg0,
     ffi.Pointer<ObjCObject> arg1,
@@ -38932,56 +39295,59 @@ bool _ObjCBlock10_fnPtrTrampoline(
               ffi.Pointer<ffi.Bool> arg2)>()(arg0, arg1, arg2);
 }
 
-final _ObjCBlock10_closureRegistry = <int, Function>{};
-int _ObjCBlock10_closureRegistryIndex = 0;
-ffi.Pointer<ffi.Void> _ObjCBlock10_registerClosure(Function fn) {
-  final id = ++_ObjCBlock10_closureRegistryIndex;
-  _ObjCBlock10_closureRegistry[id] = fn;
+final _ObjCBlock_bool_ObjCObject_ObjCObject_bool_closureRegistry =
+    <int, Function>{};
+int _ObjCBlock_bool_ObjCObject_ObjCObject_bool_closureRegistryIndex = 0;
+ffi.Pointer<ffi.Void>
+    _ObjCBlock_bool_ObjCObject_ObjCObject_bool_registerClosure(Function fn) {
+  final id = ++_ObjCBlock_bool_ObjCObject_ObjCObject_bool_closureRegistryIndex;
+  _ObjCBlock_bool_ObjCObject_ObjCObject_bool_closureRegistry[id] = fn;
   return ffi.Pointer<ffi.Void>.fromAddress(id);
 }
 
-bool _ObjCBlock10_closureTrampoline(
+bool _ObjCBlock_bool_ObjCObject_ObjCObject_bool_closureTrampoline(
     ffi.Pointer<_ObjCBlock> block,
     ffi.Pointer<ObjCObject> arg0,
     ffi.Pointer<ObjCObject> arg1,
     ffi.Pointer<ffi.Bool> arg2) {
-  return (_ObjCBlock10_closureRegistry[block.ref.target.address]
+  return (_ObjCBlock_bool_ObjCObject_ObjCObject_bool_closureRegistry[
+          block.ref.target.address]
       as bool Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCObject>,
           ffi.Pointer<ffi.Bool>))(arg0, arg1, arg2);
 }
 
-class ObjCBlock10 extends _ObjCBlockBase {
-  ObjCBlock10._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
+class ObjCBlock_bool_ObjCObject_ObjCObject_bool extends _ObjCBlockBase {
+  ObjCBlock_bool_ObjCObject_ObjCObject_bool._(
+      ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
       : super._(id, lib, retain: false, release: true);
 
   /// Creates a block from a C function pointer.
-  ObjCBlock10.fromFunctionPointer(
+  ObjCBlock_bool_ObjCObject_ObjCObject_bool.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
-              ffi
-              .NativeFunction<
+              ffi.NativeFunction<
                   ffi.Bool Function(
                       ffi.Pointer<ObjCObject> arg0,
                       ffi.Pointer<ObjCObject> arg1,
                       ffi.Pointer<ffi.Bool> arg2)>>
           ptr)
       : this._(
-            lib
-                ._newBlock1(
-                    _cFuncTrampoline ??= ffi.Pointer.fromFunction<
-                                ffi.Bool Function(
-                                    ffi.Pointer<_ObjCBlock> block,
-                                    ffi.Pointer<ObjCObject> arg0,
-                                    ffi.Pointer<ObjCObject> arg1,
-                                    ffi.Pointer<ffi.Bool> arg2)>(
-                            _ObjCBlock10_fnPtrTrampoline, false)
-                        .cast(),
-                    ptr.cast()),
+            lib._newBlock1(
+                _cFuncTrampoline ??= ffi.Pointer.fromFunction<
+                            ffi.Bool Function(
+                                ffi.Pointer<_ObjCBlock> block,
+                                ffi.Pointer<ObjCObject> arg0,
+                                ffi.Pointer<ObjCObject> arg1,
+                                ffi.Pointer<ffi.Bool> arg2)>(
+                        _ObjCBlock_bool_ObjCObject_ObjCObject_bool_fnPtrTrampoline,
+                        false)
+                    .cast(),
+                ptr.cast()),
             lib);
   static ffi.Pointer<ffi.Void>? _cFuncTrampoline;
 
   /// Creates a block from a Dart function.
-  ObjCBlock10.fromFunction(
+  ObjCBlock_bool_ObjCObject_ObjCObject_bool.fromFunction(
       SentryCocoa lib,
       bool Function(ffi.Pointer<ObjCObject> arg0, ffi.Pointer<ObjCObject> arg1,
               ffi.Pointer<ffi.Bool> arg2)
@@ -38994,9 +39360,10 @@ class ObjCBlock10 extends _ObjCBlockBase {
                                 ffi.Pointer<ObjCObject> arg0,
                                 ffi.Pointer<ObjCObject> arg1,
                                 ffi.Pointer<ffi.Bool> arg2)>(
-                        _ObjCBlock10_closureTrampoline, false)
+                        _ObjCBlock_bool_ObjCObject_ObjCObject_bool_closureTrampoline,
+                        false)
                     .cast(),
-                _ObjCBlock10_registerClosure(fn)),
+                _ObjCBlock_bool_ObjCObject_ObjCObject_bool_registerClosure(fn)),
             lib);
   static ffi.Pointer<ffi.Void>? _dartFuncTrampoline;
   bool call(ffi.Pointer<ObjCObject> arg0, ffi.Pointer<ObjCObject> arg1,
@@ -39268,6 +39635,12 @@ class NSDate extends NSObject {
     return NSDate._(_ret, _lib, retain: false, release: true);
   }
 
+  static NSDate allocWithZone_(SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSDate1, _lib._sel_allocWithZone_1, zone);
+    return NSDate._(_ret, _lib, retain: false, release: true);
+  }
+
   static NSDate alloc(SentryCocoa _lib) {
     final _ret = _lib._objc_msgSend_2(_lib._class_NSDate1, _lib._sel_alloc1);
     return NSDate._(_ret, _lib, retain: false, release: true);
@@ -39278,7 +39651,7 @@ class NSDate extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSDate1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -39288,7 +39661,7 @@ class NSDate extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSDate1,
+    _lib._objc_msgSend_15(_lib._class_NSDate1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -39321,7 +39694,7 @@ class NSDate extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSDate1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -39546,12 +39919,12 @@ class NSCalendarDate extends NSDate {
   }
 
   void setCalendarFormat_(NSString? format) {
-    return _lib._objc_msgSend_192(
+    _lib._objc_msgSend_192(
         _id, _lib._sel_setCalendarFormat_1, format?._id ?? ffi.nullptr);
   }
 
   void setTimeZone_(NSTimeZone? aTimeZone) {
-    return _lib._objc_msgSend_193(
+    _lib._objc_msgSend_193(
         _id, _lib._sel_setTimeZone_1, aTimeZone?._id ?? ffi.nullptr);
   }
 
@@ -39563,7 +39936,7 @@ class NSCalendarDate extends NSDate {
       ffi.Pointer<ffi.Long> mip,
       ffi.Pointer<ffi.Long> sp,
       NSCalendarDate? date) {
-    return _lib._objc_msgSend_194(
+    _lib._objc_msgSend_194(
         _id,
         _lib._sel_years_months_days_hours_minutes_seconds_sinceDate_1,
         yp,
@@ -39589,6 +39962,33 @@ class NSCalendarDate extends NSDate {
     return _ret.address == 0
         ? null
         : NSDate._(_ret, _lib, retain: true, release: true);
+  }
+
+  @override
+  NSCalendarDate init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSCalendarDate._(_ret, _lib, retain: true, release: true);
+  }
+
+  @override
+  NSCalendarDate initWithTimeIntervalSinceReferenceDate_(double ti) {
+    final _ret = _lib._objc_msgSend_156(
+        _id, _lib._sel_initWithTimeIntervalSinceReferenceDate_1, ti);
+    return NSCalendarDate._(_ret, _lib, retain: true, release: true);
+  }
+
+  @override
+  NSCalendarDate initWithCoder_(NSCoder? coder) {
+    final _ret = _lib._objc_msgSend_42(
+        _id, _lib._sel_initWithCoder_1, coder?._id ?? ffi.nullptr);
+    return NSCalendarDate._(_ret, _lib, retain: true, release: true);
+  }
+
+  @override
+  NSCalendarDate dateByAddingTimeInterval_(double ti) {
+    final _ret =
+        _lib._objc_msgSend_156(_id, _lib._sel_dateByAddingTimeInterval_1, ti);
+    return NSCalendarDate._(_ret, _lib, retain: true, release: true);
   }
 
   static NSCalendarDate date(SentryCocoa _lib) {
@@ -39636,6 +40036,31 @@ class NSCalendarDate extends NSDate {
         : NSDate._(_ret, _lib, retain: true, release: true);
   }
 
+  @override
+  NSCalendarDate initWithTimeIntervalSinceNow_(double secs) {
+    final _ret = _lib._objc_msgSend_156(
+        _id, _lib._sel_initWithTimeIntervalSinceNow_1, secs);
+    return NSCalendarDate._(_ret, _lib, retain: true, release: true);
+  }
+
+  @override
+  NSCalendarDate initWithTimeIntervalSince1970_(double secs) {
+    final _ret = _lib._objc_msgSend_156(
+        _id, _lib._sel_initWithTimeIntervalSince1970_1, secs);
+    return NSCalendarDate._(_ret, _lib, retain: true, release: true);
+  }
+
+  @override
+  NSCalendarDate initWithTimeInterval_sinceDate_(
+      double secsToBeAdded, NSDate? date) {
+    final _ret = _lib._objc_msgSend_161(
+        _id,
+        _lib._sel_initWithTimeInterval_sinceDate_1,
+        secsToBeAdded,
+        date?._id ?? ffi.nullptr);
+    return NSCalendarDate._(_ret, _lib, retain: true, release: true);
+  }
+
   static NSObject dateWithNaturalLanguageString_locale_(
       SentryCocoa _lib, NSString? string, NSObject locale) {
     final _ret = _lib._objc_msgSend_163(
@@ -39665,6 +40090,13 @@ class NSCalendarDate extends NSDate {
     return NSCalendarDate._(_ret, _lib, retain: false, release: true);
   }
 
+  static NSCalendarDate allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSCalendarDate1, _lib._sel_allocWithZone_1, zone);
+    return NSCalendarDate._(_ret, _lib, retain: false, release: true);
+  }
+
   static NSCalendarDate alloc(SentryCocoa _lib) {
     final _ret =
         _lib._objc_msgSend_2(_lib._class_NSCalendarDate1, _lib._sel_alloc1);
@@ -39676,7 +40108,7 @@ class NSCalendarDate extends NSDate {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSCalendarDate1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -39686,7 +40118,7 @@ class NSCalendarDate extends NSDate {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSCalendarDate1,
+    _lib._objc_msgSend_15(_lib._class_NSCalendarDate1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -39719,7 +40151,7 @@ class NSCalendarDate extends NSDate {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSCalendarDate1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -39814,7 +40246,7 @@ class NSTimeZone extends NSObject {
   }
 
   static void resetSystemTimeZone(SentryCocoa _lib) {
-    return _lib._objc_msgSend_1(
+    _lib._objc_msgSend_1(
         _lib._class_NSTimeZone1, _lib._sel_resetSystemTimeZone1);
   }
 
@@ -39827,7 +40259,7 @@ class NSTimeZone extends NSObject {
   }
 
   static void setDefaultTimeZone(SentryCocoa _lib, NSTimeZone? value) {
-    _lib._objc_msgSend_169(_lib._class_NSTimeZone1,
+    return _lib._objc_msgSend_169(_lib._class_NSTimeZone1,
         _lib._sel_setDefaultTimeZone_1, value?._id ?? ffi.nullptr);
   }
 
@@ -39856,7 +40288,7 @@ class NSTimeZone extends NSObject {
   }
 
   static void setAbbreviationDictionary(SentryCocoa _lib, NSDictionary? value) {
-    _lib._objc_msgSend_171(_lib._class_NSTimeZone1,
+    return _lib._objc_msgSend_171(_lib._class_NSTimeZone1,
         _lib._sel_setAbbreviationDictionary_1, value?._id ?? ffi.nullptr);
   }
 
@@ -39954,8 +40386,21 @@ class NSTimeZone extends NSObject {
     return NSTimeZone._(_ret, _lib, retain: true, release: true);
   }
 
+  @override
+  NSTimeZone init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSTimeZone._(_ret, _lib, retain: true, release: true);
+  }
+
   static NSTimeZone new1(SentryCocoa _lib) {
     final _ret = _lib._objc_msgSend_2(_lib._class_NSTimeZone1, _lib._sel_new1);
+    return NSTimeZone._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSTimeZone allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSTimeZone1, _lib._sel_allocWithZone_1, zone);
     return NSTimeZone._(_ret, _lib, retain: false, release: true);
   }
 
@@ -39970,7 +40415,7 @@ class NSTimeZone extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSTimeZone1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -39980,7 +40425,7 @@ class NSTimeZone extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSTimeZone1,
+    _lib._objc_msgSend_15(_lib._class_NSTimeZone1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -40013,7 +40458,7 @@ class NSTimeZone extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSTimeZone1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -40437,6 +40882,12 @@ class NSLocale extends NSObject {
     return NSLocale._(_ret, _lib, retain: false, release: true);
   }
 
+  static NSLocale allocWithZone_(SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSLocale1, _lib._sel_allocWithZone_1, zone);
+    return NSLocale._(_ret, _lib, retain: false, release: true);
+  }
+
   static NSLocale alloc(SentryCocoa _lib) {
     final _ret = _lib._objc_msgSend_2(_lib._class_NSLocale1, _lib._sel_alloc1);
     return NSLocale._(_ret, _lib, retain: false, release: true);
@@ -40447,7 +40898,7 @@ class NSLocale extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSLocale1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -40457,7 +40908,7 @@ class NSLocale extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSLocale1,
+    _lib._objc_msgSend_15(_lib._class_NSLocale1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -40490,7 +40941,7 @@ class NSLocale extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSLocale1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -40772,9 +41223,22 @@ class NSCharacterSet extends NSObject {
         : NSCharacterSet._(_ret, _lib, retain: true, release: true);
   }
 
+  @override
+  NSCharacterSet init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSCharacterSet._(_ret, _lib, retain: true, release: true);
+  }
+
   static NSCharacterSet new1(SentryCocoa _lib) {
     final _ret =
         _lib._objc_msgSend_2(_lib._class_NSCharacterSet1, _lib._sel_new1);
+    return NSCharacterSet._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSCharacterSet allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSCharacterSet1, _lib._sel_allocWithZone_1, zone);
     return NSCharacterSet._(_ret, _lib, retain: false, release: true);
   }
 
@@ -40789,7 +41253,7 @@ class NSCharacterSet extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSCharacterSet1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -40799,7 +41263,7 @@ class NSCharacterSet extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSCharacterSet1,
+    _lib._objc_msgSend_15(_lib._class_NSCharacterSet1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -40832,7 +41296,7 @@ class NSCharacterSet extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSCharacterSet1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -40902,7 +41366,7 @@ class NSURLHandle extends NSObject {
 
   static void registerURLHandleClass_(
       SentryCocoa _lib, NSObject anURLHandleSubclass) {
-    return _lib._objc_msgSend_15(_lib._class_NSURLHandle1,
+    _lib._objc_msgSend_15(_lib._class_NSURLHandle1,
         _lib._sel_registerURLHandleClass_1, anURLHandleSubclass._id);
   }
 
@@ -40922,21 +41386,21 @@ class NSURLHandle extends NSObject {
   }
 
   void addClient_(NSObject? client) {
-    return _lib._objc_msgSend_15(
+    _lib._objc_msgSend_15(
         _id, _lib._sel_addClient_1, client?._id ?? ffi.nullptr);
   }
 
   void removeClient_(NSObject? client) {
-    return _lib._objc_msgSend_15(
+    _lib._objc_msgSend_15(
         _id, _lib._sel_removeClient_1, client?._id ?? ffi.nullptr);
   }
 
   void loadInBackground() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_loadInBackground1);
+    _lib._objc_msgSend_1(_id, _lib._sel_loadInBackground1);
   }
 
   void cancelLoadInBackground() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_cancelLoadInBackground1);
+    _lib._objc_msgSend_1(_id, _lib._sel_cancelLoadInBackground1);
   }
 
   NSData resourceData() {
@@ -40954,18 +41418,16 @@ class NSURLHandle extends NSObject {
   }
 
   void flushCachedData() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_flushCachedData1);
+    _lib._objc_msgSend_1(_id, _lib._sel_flushCachedData1);
   }
 
   void backgroundLoadDidFailWithReason_(NSString? reason) {
-    return _lib._objc_msgSend_192(
-        _id,
-        _lib._sel_backgroundLoadDidFailWithReason_1,
+    _lib._objc_msgSend_192(_id, _lib._sel_backgroundLoadDidFailWithReason_1,
         reason?._id ?? ffi.nullptr);
   }
 
   void didLoadBytes_loadComplete_(NSData? newBytes, bool yorn) {
-    return _lib._objc_msgSend_243(_id, _lib._sel_didLoadBytes_loadComplete_1,
+    _lib._objc_msgSend_243(_id, _lib._sel_didLoadBytes_loadComplete_1,
         newBytes?._id ?? ffi.nullptr, yorn);
   }
 
@@ -41014,15 +41476,28 @@ class NSURLHandle extends NSObject {
   }
 
   void beginLoadInBackground() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_beginLoadInBackground1);
+    _lib._objc_msgSend_1(_id, _lib._sel_beginLoadInBackground1);
   }
 
   void endLoadInBackground() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_endLoadInBackground1);
+    _lib._objc_msgSend_1(_id, _lib._sel_endLoadInBackground1);
+  }
+
+  @override
+  NSURLHandle init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSURLHandle._(_ret, _lib, retain: true, release: true);
   }
 
   static NSURLHandle new1(SentryCocoa _lib) {
     final _ret = _lib._objc_msgSend_2(_lib._class_NSURLHandle1, _lib._sel_new1);
+    return NSURLHandle._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSURLHandle allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSURLHandle1, _lib._sel_allocWithZone_1, zone);
     return NSURLHandle._(_ret, _lib, retain: false, release: true);
   }
 
@@ -41037,7 +41512,7 @@ class NSURLHandle extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSURLHandle1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -41047,7 +41522,7 @@ class NSURLHandle extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSURLHandle1,
+    _lib._objc_msgSend_15(_lib._class_NSURLHandle1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -41080,7 +41555,7 @@ class NSURLHandle extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSURLHandle1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -41125,8 +41600,11 @@ abstract class NSDataSearchOptions {
   static const int NSDataSearchAnchored = 2;
 }
 
-void _ObjCBlock11_fnPtrTrampoline(ffi.Pointer<_ObjCBlock> block,
-    ffi.Pointer<ffi.Void> arg0, _NSRange arg1, ffi.Pointer<ffi.Bool> arg2) {
+void _ObjCBlock_ffiVoid_ffiVoid_NSRange_bool_fnPtrTrampoline(
+    ffi.Pointer<_ObjCBlock> block,
+    ffi.Pointer<ffi.Void> arg0,
+    _NSRange arg1,
+    ffi.Pointer<ffi.Bool> arg2) {
   return block.ref.target
       .cast<
           ffi.NativeFunction<
@@ -41137,27 +41615,34 @@ void _ObjCBlock11_fnPtrTrampoline(ffi.Pointer<_ObjCBlock> block,
               ffi.Pointer<ffi.Bool> arg2)>()(arg0, arg1, arg2);
 }
 
-final _ObjCBlock11_closureRegistry = <int, Function>{};
-int _ObjCBlock11_closureRegistryIndex = 0;
-ffi.Pointer<ffi.Void> _ObjCBlock11_registerClosure(Function fn) {
-  final id = ++_ObjCBlock11_closureRegistryIndex;
-  _ObjCBlock11_closureRegistry[id] = fn;
+final _ObjCBlock_ffiVoid_ffiVoid_NSRange_bool_closureRegistry =
+    <int, Function>{};
+int _ObjCBlock_ffiVoid_ffiVoid_NSRange_bool_closureRegistryIndex = 0;
+ffi.Pointer<ffi.Void> _ObjCBlock_ffiVoid_ffiVoid_NSRange_bool_registerClosure(
+    Function fn) {
+  final id = ++_ObjCBlock_ffiVoid_ffiVoid_NSRange_bool_closureRegistryIndex;
+  _ObjCBlock_ffiVoid_ffiVoid_NSRange_bool_closureRegistry[id] = fn;
   return ffi.Pointer<ffi.Void>.fromAddress(id);
 }
 
-void _ObjCBlock11_closureTrampoline(ffi.Pointer<_ObjCBlock> block,
-    ffi.Pointer<ffi.Void> arg0, _NSRange arg1, ffi.Pointer<ffi.Bool> arg2) {
-  return (_ObjCBlock11_closureRegistry[block.ref.target.address] as void
-          Function(ffi.Pointer<ffi.Void>, _NSRange, ffi.Pointer<ffi.Bool>))(
-      arg0, arg1, arg2);
+void _ObjCBlock_ffiVoid_ffiVoid_NSRange_bool_closureTrampoline(
+    ffi.Pointer<_ObjCBlock> block,
+    ffi.Pointer<ffi.Void> arg0,
+    _NSRange arg1,
+    ffi.Pointer<ffi.Bool> arg2) {
+  return (_ObjCBlock_ffiVoid_ffiVoid_NSRange_bool_closureRegistry[
+          block.ref.target.address]
+      as void Function(ffi.Pointer<ffi.Void>, _NSRange,
+          ffi.Pointer<ffi.Bool>))(arg0, arg1, arg2);
 }
 
-class ObjCBlock11 extends _ObjCBlockBase {
-  ObjCBlock11._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
+class ObjCBlock_ffiVoid_ffiVoid_NSRange_bool extends _ObjCBlockBase {
+  ObjCBlock_ffiVoid_ffiVoid_NSRange_bool._(
+      ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
       : super._(id, lib, retain: false, release: true);
 
   /// Creates a block from a C function pointer.
-  ObjCBlock11.fromFunctionPointer(
+  ObjCBlock_ffiVoid_ffiVoid_NSRange_bool.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
               ffi.NativeFunction<
@@ -41172,14 +41657,14 @@ class ObjCBlock11 extends _ObjCBlockBase {
                                 ffi.Pointer<ffi.Void> arg0,
                                 _NSRange arg1,
                                 ffi.Pointer<ffi.Bool> arg2)>(
-                        _ObjCBlock11_fnPtrTrampoline)
+                        _ObjCBlock_ffiVoid_ffiVoid_NSRange_bool_fnPtrTrampoline)
                     .cast(),
                 ptr.cast()),
             lib);
   static ffi.Pointer<ffi.Void>? _cFuncTrampoline;
 
   /// Creates a block from a Dart function.
-  ObjCBlock11.fromFunction(
+  ObjCBlock_ffiVoid_ffiVoid_NSRange_bool.fromFunction(
       SentryCocoa lib,
       void Function(ffi.Pointer<ffi.Void> arg0, _NSRange arg1,
               ffi.Pointer<ffi.Bool> arg2)
@@ -41192,9 +41677,9 @@ class ObjCBlock11 extends _ObjCBlockBase {
                                 ffi.Pointer<ffi.Void> arg0,
                                 _NSRange arg1,
                                 ffi.Pointer<ffi.Bool> arg2)>(
-                        _ObjCBlock11_closureTrampoline)
+                        _ObjCBlock_ffiVoid_ffiVoid_NSRange_bool_closureTrampoline)
                     .cast(),
-                _ObjCBlock11_registerClosure(fn)),
+                _ObjCBlock_ffiVoid_ffiVoid_NSRange_bool_registerClosure(fn)),
             lib);
   static ffi.Pointer<ffi.Void>? _dartFuncTrampoline;
   void call(
@@ -41225,7 +41710,7 @@ abstract class NSDataReadingOptions {
   static const int NSUncachedRead = 2;
 }
 
-void _ObjCBlock12_fnPtrTrampoline(
+void _ObjCBlock_ffiVoid_ffiVoid_ffiUnsignedLong_fnPtrTrampoline(
     ffi.Pointer<_ObjCBlock> block, ffi.Pointer<ffi.Void> arg0, int arg1) {
   return block.ref.target
           .cast<
@@ -41236,48 +41721,52 @@ void _ObjCBlock12_fnPtrTrampoline(
       arg0, arg1);
 }
 
-final _ObjCBlock12_closureRegistry = <int, Function>{};
-int _ObjCBlock12_closureRegistryIndex = 0;
-ffi.Pointer<ffi.Void> _ObjCBlock12_registerClosure(Function fn) {
-  final id = ++_ObjCBlock12_closureRegistryIndex;
-  _ObjCBlock12_closureRegistry[id] = fn;
+final _ObjCBlock_ffiVoid_ffiVoid_ffiUnsignedLong_closureRegistry =
+    <int, Function>{};
+int _ObjCBlock_ffiVoid_ffiVoid_ffiUnsignedLong_closureRegistryIndex = 0;
+ffi.Pointer<ffi.Void>
+    _ObjCBlock_ffiVoid_ffiVoid_ffiUnsignedLong_registerClosure(Function fn) {
+  final id = ++_ObjCBlock_ffiVoid_ffiVoid_ffiUnsignedLong_closureRegistryIndex;
+  _ObjCBlock_ffiVoid_ffiVoid_ffiUnsignedLong_closureRegistry[id] = fn;
   return ffi.Pointer<ffi.Void>.fromAddress(id);
 }
 
-void _ObjCBlock12_closureTrampoline(
+void _ObjCBlock_ffiVoid_ffiVoid_ffiUnsignedLong_closureTrampoline(
     ffi.Pointer<_ObjCBlock> block, ffi.Pointer<ffi.Void> arg0, int arg1) {
-  return (_ObjCBlock12_closureRegistry[block.ref.target.address] as void
-      Function(ffi.Pointer<ffi.Void>, int))(arg0, arg1);
+  return (_ObjCBlock_ffiVoid_ffiVoid_ffiUnsignedLong_closureRegistry[block
+      .ref
+      .target
+      .address] as void Function(ffi.Pointer<ffi.Void>, int))(arg0, arg1);
 }
 
-class ObjCBlock12 extends _ObjCBlockBase {
-  ObjCBlock12._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
+class ObjCBlock_ffiVoid_ffiVoid_ffiUnsignedLong extends _ObjCBlockBase {
+  ObjCBlock_ffiVoid_ffiVoid_ffiUnsignedLong._(
+      ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
       : super._(id, lib, retain: false, release: true);
 
   /// Creates a block from a C function pointer.
-  ObjCBlock12.fromFunctionPointer(
+  ObjCBlock_ffiVoid_ffiVoid_ffiUnsignedLong.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
               ffi.NativeFunction<
-                  ffi.Void Function(ffi.Pointer<ffi.Void> arg0,
-                      ffi.UnsignedLong arg1)>>
+                  ffi.Void Function(
+                      ffi.Pointer<ffi.Void> arg0, ffi.UnsignedLong arg1)>>
           ptr)
       : this._(
-            lib
-                ._newBlock1(
-                    _cFuncTrampoline ??= ffi.Pointer.fromFunction<
-                                ffi.Void Function(
-                                    ffi.Pointer<_ObjCBlock> block,
-                                    ffi.Pointer<ffi.Void> arg0,
-                                    ffi.UnsignedLong arg1)>(
-                            _ObjCBlock12_fnPtrTrampoline)
-                        .cast(),
-                    ptr.cast()),
+            lib._newBlock1(
+                _cFuncTrampoline ??= ffi.Pointer.fromFunction<
+                            ffi.Void Function(
+                                ffi.Pointer<_ObjCBlock> block,
+                                ffi.Pointer<ffi.Void> arg0,
+                                ffi.UnsignedLong arg1)>(
+                        _ObjCBlock_ffiVoid_ffiVoid_ffiUnsignedLong_fnPtrTrampoline)
+                    .cast(),
+                ptr.cast()),
             lib);
   static ffi.Pointer<ffi.Void>? _cFuncTrampoline;
 
   /// Creates a block from a Dart function.
-  ObjCBlock12.fromFunction(
+  ObjCBlock_ffiVoid_ffiVoid_ffiUnsignedLong.fromFunction(
       SentryCocoa lib, void Function(ffi.Pointer<ffi.Void> arg0, int arg1) fn)
       : this._(
             lib._newBlock1(
@@ -41286,9 +41775,9 @@ class ObjCBlock12 extends _ObjCBlockBase {
                                 ffi.Pointer<_ObjCBlock> block,
                                 ffi.Pointer<ffi.Void> arg0,
                                 ffi.UnsignedLong arg1)>(
-                        _ObjCBlock12_closureTrampoline)
+                        _ObjCBlock_ffiVoid_ffiVoid_ffiUnsignedLong_closureTrampoline)
                     .cast(),
-                _ObjCBlock12_registerClosure(fn)),
+                _ObjCBlock_ffiVoid_ffiVoid_ffiUnsignedLong_registerClosure(fn)),
             lib);
   static ffi.Pointer<ffi.Void>? _dartFuncTrampoline;
   void call(ffi.Pointer<ffi.Void> arg0, int arg1) {
@@ -41351,7 +41840,7 @@ abstract class NSStringEnumerationOptions {
   static const int NSStringEnumerationLocalized = 1024;
 }
 
-void _ObjCBlock13_fnPtrTrampoline(
+void _ObjCBlock_ffiVoid_NSString_NSRange_NSRange_bool_fnPtrTrampoline(
     ffi.Pointer<_ObjCBlock> block,
     ffi.Pointer<ObjCObject> arg0,
     _NSRange arg1,
@@ -41370,31 +41859,37 @@ void _ObjCBlock13_fnPtrTrampoline(
               ffi.Pointer<ffi.Bool> arg3)>()(arg0, arg1, arg2, arg3);
 }
 
-final _ObjCBlock13_closureRegistry = <int, Function>{};
-int _ObjCBlock13_closureRegistryIndex = 0;
-ffi.Pointer<ffi.Void> _ObjCBlock13_registerClosure(Function fn) {
-  final id = ++_ObjCBlock13_closureRegistryIndex;
-  _ObjCBlock13_closureRegistry[id] = fn;
+final _ObjCBlock_ffiVoid_NSString_NSRange_NSRange_bool_closureRegistry =
+    <int, Function>{};
+int _ObjCBlock_ffiVoid_NSString_NSRange_NSRange_bool_closureRegistryIndex = 0;
+ffi.Pointer<ffi.Void>
+    _ObjCBlock_ffiVoid_NSString_NSRange_NSRange_bool_registerClosure(
+        Function fn) {
+  final id =
+      ++_ObjCBlock_ffiVoid_NSString_NSRange_NSRange_bool_closureRegistryIndex;
+  _ObjCBlock_ffiVoid_NSString_NSRange_NSRange_bool_closureRegistry[id] = fn;
   return ffi.Pointer<ffi.Void>.fromAddress(id);
 }
 
-void _ObjCBlock13_closureTrampoline(
+void _ObjCBlock_ffiVoid_NSString_NSRange_NSRange_bool_closureTrampoline(
     ffi.Pointer<_ObjCBlock> block,
     ffi.Pointer<ObjCObject> arg0,
     _NSRange arg1,
     _NSRange arg2,
     ffi.Pointer<ffi.Bool> arg3) {
-  return (_ObjCBlock13_closureRegistry[block.ref.target.address]
+  return (_ObjCBlock_ffiVoid_NSString_NSRange_NSRange_bool_closureRegistry[
+          block.ref.target.address]
       as void Function(ffi.Pointer<ObjCObject>, _NSRange, _NSRange,
           ffi.Pointer<ffi.Bool>))(arg0, arg1, arg2, arg3);
 }
 
-class ObjCBlock13 extends _ObjCBlockBase {
-  ObjCBlock13._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
+class ObjCBlock_ffiVoid_NSString_NSRange_NSRange_bool extends _ObjCBlockBase {
+  ObjCBlock_ffiVoid_NSString_NSRange_NSRange_bool._(
+      ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
       : super._(id, lib, retain: false, release: true);
 
   /// Creates a block from a C function pointer.
-  ObjCBlock13.fromFunctionPointer(
+  ObjCBlock_ffiVoid_NSString_NSRange_NSRange_bool.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
               ffi.NativeFunction<
@@ -41410,14 +41905,14 @@ class ObjCBlock13 extends _ObjCBlockBase {
                                 _NSRange arg1,
                                 _NSRange arg2,
                                 ffi.Pointer<ffi.Bool> arg3)>(
-                        _ObjCBlock13_fnPtrTrampoline)
+                        _ObjCBlock_ffiVoid_NSString_NSRange_NSRange_bool_fnPtrTrampoline)
                     .cast(),
                 ptr.cast()),
             lib);
   static ffi.Pointer<ffi.Void>? _cFuncTrampoline;
 
   /// Creates a block from a Dart function.
-  ObjCBlock13.fromFunction(
+  ObjCBlock_ffiVoid_NSString_NSRange_NSRange_bool.fromFunction(
       SentryCocoa lib,
       void Function(ffi.Pointer<ObjCObject> arg0, _NSRange arg1, _NSRange arg2,
               ffi.Pointer<ffi.Bool> arg3)
@@ -41431,9 +41926,10 @@ class ObjCBlock13 extends _ObjCBlockBase {
                                 _NSRange arg1,
                                 _NSRange arg2,
                                 ffi.Pointer<ffi.Bool> arg3)>(
-                        _ObjCBlock13_closureTrampoline)
+                        _ObjCBlock_ffiVoid_NSString_NSRange_NSRange_bool_closureTrampoline)
                     .cast(),
-                _ObjCBlock13_registerClosure(fn)),
+                _ObjCBlock_ffiVoid_NSString_NSRange_NSRange_bool_registerClosure(
+                    fn)),
             lib);
   static ffi.Pointer<ffi.Void>? _dartFuncTrampoline;
   void call(ffi.Pointer<ObjCObject> arg0, _NSRange arg1, _NSRange arg2,
@@ -41457,8 +41953,10 @@ class ObjCBlock13 extends _ObjCBlockBase {
   }
 }
 
-void _ObjCBlock14_fnPtrTrampoline(ffi.Pointer<_ObjCBlock> block,
-    ffi.Pointer<ObjCObject> arg0, ffi.Pointer<ffi.Bool> arg1) {
+void _ObjCBlock_ffiVoid_NSString_bool_fnPtrTrampoline(
+    ffi.Pointer<_ObjCBlock> block,
+    ffi.Pointer<ObjCObject> arg0,
+    ffi.Pointer<ffi.Bool> arg1) {
   return block.ref.target
       .cast<
           ffi.NativeFunction<
@@ -41469,26 +41967,31 @@ void _ObjCBlock14_fnPtrTrampoline(ffi.Pointer<_ObjCBlock> block,
               ffi.Pointer<ffi.Bool> arg1)>()(arg0, arg1);
 }
 
-final _ObjCBlock14_closureRegistry = <int, Function>{};
-int _ObjCBlock14_closureRegistryIndex = 0;
-ffi.Pointer<ffi.Void> _ObjCBlock14_registerClosure(Function fn) {
-  final id = ++_ObjCBlock14_closureRegistryIndex;
-  _ObjCBlock14_closureRegistry[id] = fn;
+final _ObjCBlock_ffiVoid_NSString_bool_closureRegistry = <int, Function>{};
+int _ObjCBlock_ffiVoid_NSString_bool_closureRegistryIndex = 0;
+ffi.Pointer<ffi.Void> _ObjCBlock_ffiVoid_NSString_bool_registerClosure(
+    Function fn) {
+  final id = ++_ObjCBlock_ffiVoid_NSString_bool_closureRegistryIndex;
+  _ObjCBlock_ffiVoid_NSString_bool_closureRegistry[id] = fn;
   return ffi.Pointer<ffi.Void>.fromAddress(id);
 }
 
-void _ObjCBlock14_closureTrampoline(ffi.Pointer<_ObjCBlock> block,
-    ffi.Pointer<ObjCObject> arg0, ffi.Pointer<ffi.Bool> arg1) {
-  return (_ObjCBlock14_closureRegistry[block.ref.target.address] as void
-      Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ffi.Bool>))(arg0, arg1);
+void _ObjCBlock_ffiVoid_NSString_bool_closureTrampoline(
+    ffi.Pointer<_ObjCBlock> block,
+    ffi.Pointer<ObjCObject> arg0,
+    ffi.Pointer<ffi.Bool> arg1) {
+  return (_ObjCBlock_ffiVoid_NSString_bool_closureRegistry[
+          block.ref.target.address]
+      as void Function(
+          ffi.Pointer<ObjCObject>, ffi.Pointer<ffi.Bool>))(arg0, arg1);
 }
 
-class ObjCBlock14 extends _ObjCBlockBase {
-  ObjCBlock14._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
+class ObjCBlock_ffiVoid_NSString_bool extends _ObjCBlockBase {
+  ObjCBlock_ffiVoid_NSString_bool._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
       : super._(id, lib, retain: false, release: true);
 
   /// Creates a block from a C function pointer.
-  ObjCBlock14.fromFunctionPointer(
+  ObjCBlock_ffiVoid_NSString_bool.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
               ffi.NativeFunction<
@@ -41502,14 +42005,14 @@ class ObjCBlock14 extends _ObjCBlockBase {
                                 ffi.Pointer<_ObjCBlock> block,
                                 ffi.Pointer<ObjCObject> arg0,
                                 ffi.Pointer<ffi.Bool> arg1)>(
-                        _ObjCBlock14_fnPtrTrampoline)
+                        _ObjCBlock_ffiVoid_NSString_bool_fnPtrTrampoline)
                     .cast(),
                 ptr.cast()),
             lib);
   static ffi.Pointer<ffi.Void>? _cFuncTrampoline;
 
   /// Creates a block from a Dart function.
-  ObjCBlock14.fromFunction(
+  ObjCBlock_ffiVoid_NSString_bool.fromFunction(
       SentryCocoa lib,
       void Function(ffi.Pointer<ObjCObject> arg0, ffi.Pointer<ffi.Bool> arg1)
           fn)
@@ -41520,9 +42023,9 @@ class ObjCBlock14 extends _ObjCBlockBase {
                                 ffi.Pointer<_ObjCBlock> block,
                                 ffi.Pointer<ObjCObject> arg0,
                                 ffi.Pointer<ffi.Bool> arg1)>(
-                        _ObjCBlock14_closureTrampoline)
+                        _ObjCBlock_ffiVoid_NSString_bool_closureTrampoline)
                     .cast(),
-                _ObjCBlock14_registerClosure(fn)),
+                _ObjCBlock_ffiVoid_NSString_bool_registerClosure(fn)),
             lib);
   static ffi.Pointer<ffi.Void>? _dartFuncTrampoline;
   void call(ffi.Pointer<ObjCObject> arg0, ffi.Pointer<ffi.Bool> arg1) {
@@ -41546,8 +42049,10 @@ abstract class NSStringEncodingConversionOptions {
   static const int NSStringEncodingConversionExternalRepresentation = 2;
 }
 
-void _ObjCBlock15_fnPtrTrampoline(ffi.Pointer<_ObjCBlock> block,
-    ffi.Pointer<ffi.UnsignedShort> arg0, int arg1) {
+void _ObjCBlock_ffiVoid_ffiUnsignedShort_ffiUnsignedLong_fnPtrTrampoline(
+    ffi.Pointer<_ObjCBlock> block,
+    ffi.Pointer<ffi.UnsignedShort> arg0,
+    int arg1) {
   return block.ref.target
       .cast<
           ffi.NativeFunction<
@@ -41558,26 +42063,36 @@ void _ObjCBlock15_fnPtrTrampoline(ffi.Pointer<_ObjCBlock> block,
               ffi.Pointer<ffi.UnsignedShort> arg0, int arg1)>()(arg0, arg1);
 }
 
-final _ObjCBlock15_closureRegistry = <int, Function>{};
-int _ObjCBlock15_closureRegistryIndex = 0;
-ffi.Pointer<ffi.Void> _ObjCBlock15_registerClosure(Function fn) {
-  final id = ++_ObjCBlock15_closureRegistryIndex;
-  _ObjCBlock15_closureRegistry[id] = fn;
+final _ObjCBlock_ffiVoid_ffiUnsignedShort_ffiUnsignedLong_closureRegistry =
+    <int, Function>{};
+int _ObjCBlock_ffiVoid_ffiUnsignedShort_ffiUnsignedLong_closureRegistryIndex =
+    0;
+ffi.Pointer<ffi.Void>
+    _ObjCBlock_ffiVoid_ffiUnsignedShort_ffiUnsignedLong_registerClosure(
+        Function fn) {
+  final id =
+      ++_ObjCBlock_ffiVoid_ffiUnsignedShort_ffiUnsignedLong_closureRegistryIndex;
+  _ObjCBlock_ffiVoid_ffiUnsignedShort_ffiUnsignedLong_closureRegistry[id] = fn;
   return ffi.Pointer<ffi.Void>.fromAddress(id);
 }
 
-void _ObjCBlock15_closureTrampoline(ffi.Pointer<_ObjCBlock> block,
-    ffi.Pointer<ffi.UnsignedShort> arg0, int arg1) {
-  return (_ObjCBlock15_closureRegistry[block.ref.target.address] as void
-      Function(ffi.Pointer<ffi.UnsignedShort>, int))(arg0, arg1);
+void _ObjCBlock_ffiVoid_ffiUnsignedShort_ffiUnsignedLong_closureTrampoline(
+    ffi.Pointer<_ObjCBlock> block,
+    ffi.Pointer<ffi.UnsignedShort> arg0,
+    int arg1) {
+  return (_ObjCBlock_ffiVoid_ffiUnsignedShort_ffiUnsignedLong_closureRegistry[
+          block.ref.target.address]
+      as void Function(ffi.Pointer<ffi.UnsignedShort>, int))(arg0, arg1);
 }
 
-class ObjCBlock15 extends _ObjCBlockBase {
-  ObjCBlock15._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
+class ObjCBlock_ffiVoid_ffiUnsignedShort_ffiUnsignedLong
+    extends _ObjCBlockBase {
+  ObjCBlock_ffiVoid_ffiUnsignedShort_ffiUnsignedLong._(
+      ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
       : super._(id, lib, retain: false, release: true);
 
   /// Creates a block from a C function pointer.
-  ObjCBlock15.fromFunctionPointer(
+  ObjCBlock_ffiVoid_ffiUnsignedShort_ffiUnsignedLong.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
               ffi.NativeFunction<
@@ -41591,14 +42106,15 @@ class ObjCBlock15 extends _ObjCBlockBase {
                                 ffi.Pointer<_ObjCBlock> block,
                                 ffi.Pointer<ffi.UnsignedShort> arg0,
                                 ffi.UnsignedLong arg1)>(
-                        _ObjCBlock15_fnPtrTrampoline)
+                        _ObjCBlock_ffiVoid_ffiUnsignedShort_ffiUnsignedLong_fnPtrTrampoline)
                     .cast(),
                 ptr.cast()),
             lib);
   static ffi.Pointer<ffi.Void>? _cFuncTrampoline;
 
   /// Creates a block from a Dart function.
-  ObjCBlock15.fromFunction(SentryCocoa lib,
+  ObjCBlock_ffiVoid_ffiUnsignedShort_ffiUnsignedLong.fromFunction(
+      SentryCocoa lib,
       void Function(ffi.Pointer<ffi.UnsignedShort> arg0, int arg1) fn)
       : this._(
             lib._newBlock1(
@@ -41607,9 +42123,10 @@ class ObjCBlock15 extends _ObjCBlockBase {
                                 ffi.Pointer<_ObjCBlock> block,
                                 ffi.Pointer<ffi.UnsignedShort> arg0,
                                 ffi.UnsignedLong arg1)>(
-                        _ObjCBlock15_closureTrampoline)
+                        _ObjCBlock_ffiVoid_ffiUnsignedShort_ffiUnsignedLong_closureTrampoline)
                     .cast(),
-                _ObjCBlock15_registerClosure(fn)),
+                _ObjCBlock_ffiVoid_ffiUnsignedShort_ffiUnsignedLong_registerClosure(
+                    fn)),
             lib);
   static ffi.Pointer<ffi.Void>? _dartFuncTrampoline;
   void call(ffi.Pointer<ffi.UnsignedShort> arg0, int arg1) {
@@ -41741,9 +42258,22 @@ class NSOrthography extends NSObject {
     return NSOrthography._(_ret, _lib, retain: true, release: true);
   }
 
+  @override
+  NSOrthography init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSOrthography._(_ret, _lib, retain: true, release: true);
+  }
+
   static NSOrthography new1(SentryCocoa _lib) {
     final _ret =
         _lib._objc_msgSend_2(_lib._class_NSOrthography1, _lib._sel_new1);
+    return NSOrthography._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSOrthography allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSOrthography1, _lib._sel_allocWithZone_1, zone);
     return NSOrthography._(_ret, _lib, retain: false, release: true);
   }
 
@@ -41758,7 +42288,7 @@ class NSOrthography extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSOrthography1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -41768,7 +42298,7 @@ class NSOrthography extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSOrthography1,
+    _lib._objc_msgSend_15(_lib._class_NSOrthography1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -41801,7 +42331,7 @@ class NSOrthography extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSOrthography1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -41821,8 +42351,10 @@ class NSOrthography extends NSObject {
   }
 }
 
-void _ObjCBlock16_fnPtrTrampoline(ffi.Pointer<_ObjCBlock> block,
-    ffi.Pointer<ObjCObject> arg0, ffi.Pointer<ffi.Bool> arg1) {
+void _ObjCBlock_ffiVoid_ObjCObject_bool_fnPtrTrampoline(
+    ffi.Pointer<_ObjCBlock> block,
+    ffi.Pointer<ObjCObject> arg0,
+    ffi.Pointer<ffi.Bool> arg1) {
   return block.ref.target
       .cast<
           ffi.NativeFunction<
@@ -41833,26 +42365,32 @@ void _ObjCBlock16_fnPtrTrampoline(ffi.Pointer<_ObjCBlock> block,
               ffi.Pointer<ffi.Bool> arg1)>()(arg0, arg1);
 }
 
-final _ObjCBlock16_closureRegistry = <int, Function>{};
-int _ObjCBlock16_closureRegistryIndex = 0;
-ffi.Pointer<ffi.Void> _ObjCBlock16_registerClosure(Function fn) {
-  final id = ++_ObjCBlock16_closureRegistryIndex;
-  _ObjCBlock16_closureRegistry[id] = fn;
+final _ObjCBlock_ffiVoid_ObjCObject_bool_closureRegistry = <int, Function>{};
+int _ObjCBlock_ffiVoid_ObjCObject_bool_closureRegistryIndex = 0;
+ffi.Pointer<ffi.Void> _ObjCBlock_ffiVoid_ObjCObject_bool_registerClosure(
+    Function fn) {
+  final id = ++_ObjCBlock_ffiVoid_ObjCObject_bool_closureRegistryIndex;
+  _ObjCBlock_ffiVoid_ObjCObject_bool_closureRegistry[id] = fn;
   return ffi.Pointer<ffi.Void>.fromAddress(id);
 }
 
-void _ObjCBlock16_closureTrampoline(ffi.Pointer<_ObjCBlock> block,
-    ffi.Pointer<ObjCObject> arg0, ffi.Pointer<ffi.Bool> arg1) {
-  return (_ObjCBlock16_closureRegistry[block.ref.target.address] as void
-      Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ffi.Bool>))(arg0, arg1);
+void _ObjCBlock_ffiVoid_ObjCObject_bool_closureTrampoline(
+    ffi.Pointer<_ObjCBlock> block,
+    ffi.Pointer<ObjCObject> arg0,
+    ffi.Pointer<ffi.Bool> arg1) {
+  return (_ObjCBlock_ffiVoid_ObjCObject_bool_closureRegistry[
+          block.ref.target.address]
+      as void Function(
+          ffi.Pointer<ObjCObject>, ffi.Pointer<ffi.Bool>))(arg0, arg1);
 }
 
-class ObjCBlock16 extends _ObjCBlockBase {
-  ObjCBlock16._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
+class ObjCBlock_ffiVoid_ObjCObject_bool extends _ObjCBlockBase {
+  ObjCBlock_ffiVoid_ObjCObject_bool._(
+      ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
       : super._(id, lib, retain: false, release: true);
 
   /// Creates a block from a C function pointer.
-  ObjCBlock16.fromFunctionPointer(
+  ObjCBlock_ffiVoid_ObjCObject_bool.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
               ffi.NativeFunction<
@@ -41866,14 +42404,14 @@ class ObjCBlock16 extends _ObjCBlockBase {
                                 ffi.Pointer<_ObjCBlock> block,
                                 ffi.Pointer<ObjCObject> arg0,
                                 ffi.Pointer<ffi.Bool> arg1)>(
-                        _ObjCBlock16_fnPtrTrampoline)
+                        _ObjCBlock_ffiVoid_ObjCObject_bool_fnPtrTrampoline)
                     .cast(),
                 ptr.cast()),
             lib);
   static ffi.Pointer<ffi.Void>? _cFuncTrampoline;
 
   /// Creates a block from a Dart function.
-  ObjCBlock16.fromFunction(
+  ObjCBlock_ffiVoid_ObjCObject_bool.fromFunction(
       SentryCocoa lib,
       void Function(ffi.Pointer<ObjCObject> arg0, ffi.Pointer<ffi.Bool> arg1)
           fn)
@@ -41884,9 +42422,9 @@ class ObjCBlock16 extends _ObjCBlockBase {
                                 ffi.Pointer<_ObjCBlock> block,
                                 ffi.Pointer<ObjCObject> arg0,
                                 ffi.Pointer<ffi.Bool> arg1)>(
-                        _ObjCBlock16_closureTrampoline)
+                        _ObjCBlock_ffiVoid_ObjCObject_bool_closureTrampoline)
                     .cast(),
-                _ObjCBlock16_registerClosure(fn)),
+                _ObjCBlock_ffiVoid_ObjCObject_bool_registerClosure(fn)),
             lib);
   static ffi.Pointer<ffi.Void>? _dartFuncTrampoline;
   void call(ffi.Pointer<ObjCObject> arg0, ffi.Pointer<ffi.Bool> arg1) {
@@ -41905,8 +42443,10 @@ class ObjCBlock16 extends _ObjCBlockBase {
   }
 }
 
-bool _ObjCBlock17_fnPtrTrampoline(ffi.Pointer<_ObjCBlock> block,
-    ffi.Pointer<ObjCObject> arg0, ffi.Pointer<ffi.Bool> arg1) {
+bool _ObjCBlock_bool_ObjCObject_bool_fnPtrTrampoline(
+    ffi.Pointer<_ObjCBlock> block,
+    ffi.Pointer<ObjCObject> arg0,
+    ffi.Pointer<ffi.Bool> arg1) {
   return block.ref.target
       .cast<
           ffi.NativeFunction<
@@ -41917,30 +42457,34 @@ bool _ObjCBlock17_fnPtrTrampoline(ffi.Pointer<_ObjCBlock> block,
               ffi.Pointer<ffi.Bool> arg1)>()(arg0, arg1);
 }
 
-final _ObjCBlock17_closureRegistry = <int, Function>{};
-int _ObjCBlock17_closureRegistryIndex = 0;
-ffi.Pointer<ffi.Void> _ObjCBlock17_registerClosure(Function fn) {
-  final id = ++_ObjCBlock17_closureRegistryIndex;
-  _ObjCBlock17_closureRegistry[id] = fn;
+final _ObjCBlock_bool_ObjCObject_bool_closureRegistry = <int, Function>{};
+int _ObjCBlock_bool_ObjCObject_bool_closureRegistryIndex = 0;
+ffi.Pointer<ffi.Void> _ObjCBlock_bool_ObjCObject_bool_registerClosure(
+    Function fn) {
+  final id = ++_ObjCBlock_bool_ObjCObject_bool_closureRegistryIndex;
+  _ObjCBlock_bool_ObjCObject_bool_closureRegistry[id] = fn;
   return ffi.Pointer<ffi.Void>.fromAddress(id);
 }
 
-bool _ObjCBlock17_closureTrampoline(ffi.Pointer<_ObjCBlock> block,
-    ffi.Pointer<ObjCObject> arg0, ffi.Pointer<ffi.Bool> arg1) {
-  return (_ObjCBlock17_closureRegistry[block.ref.target.address] as bool
-      Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ffi.Bool>))(arg0, arg1);
+bool _ObjCBlock_bool_ObjCObject_bool_closureTrampoline(
+    ffi.Pointer<_ObjCBlock> block,
+    ffi.Pointer<ObjCObject> arg0,
+    ffi.Pointer<ffi.Bool> arg1) {
+  return (_ObjCBlock_bool_ObjCObject_bool_closureRegistry[
+          block.ref.target.address]
+      as bool Function(
+          ffi.Pointer<ObjCObject>, ffi.Pointer<ffi.Bool>))(arg0, arg1);
 }
 
-class ObjCBlock17 extends _ObjCBlockBase {
-  ObjCBlock17._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
+class ObjCBlock_bool_ObjCObject_bool extends _ObjCBlockBase {
+  ObjCBlock_bool_ObjCObject_bool._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
       : super._(id, lib, retain: false, release: true);
 
   /// Creates a block from a C function pointer.
-  ObjCBlock17.fromFunctionPointer(
+  ObjCBlock_bool_ObjCObject_bool.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
-              ffi
-              .NativeFunction<
+              ffi.NativeFunction<
                   ffi.Bool Function(ffi.Pointer<ObjCObject> arg0,
                       ffi.Pointer<ffi.Bool> arg1)>>
           ptr)
@@ -41952,14 +42496,15 @@ class ObjCBlock17 extends _ObjCBlockBase {
                                     ffi.Pointer<_ObjCBlock> block,
                                     ffi.Pointer<ObjCObject> arg0,
                                     ffi.Pointer<ffi.Bool> arg1)>(
-                            _ObjCBlock17_fnPtrTrampoline, false)
+                            _ObjCBlock_bool_ObjCObject_bool_fnPtrTrampoline,
+                            false)
                         .cast(),
                     ptr.cast()),
             lib);
   static ffi.Pointer<ffi.Void>? _cFuncTrampoline;
 
   /// Creates a block from a Dart function.
-  ObjCBlock17.fromFunction(
+  ObjCBlock_bool_ObjCObject_bool.fromFunction(
       SentryCocoa lib,
       bool Function(ffi.Pointer<ObjCObject> arg0, ffi.Pointer<ffi.Bool> arg1)
           fn)
@@ -41970,9 +42515,10 @@ class ObjCBlock17 extends _ObjCBlockBase {
                                 ffi.Pointer<_ObjCBlock> block,
                                 ffi.Pointer<ObjCObject> arg0,
                                 ffi.Pointer<ffi.Bool> arg1)>(
-                        _ObjCBlock17_closureTrampoline, false)
+                        _ObjCBlock_bool_ObjCObject_bool_closureTrampoline,
+                        false)
                     .cast(),
-                _ObjCBlock17_registerClosure(fn)),
+                _ObjCBlock_bool_ObjCObject_bool_registerClosure(fn)),
             lib);
   static ffi.Pointer<ffi.Void>? _dartFuncTrampoline;
   bool call(ffi.Pointer<ObjCObject> arg0, ffi.Pointer<ffi.Bool> arg1) {
@@ -42033,8 +42579,8 @@ class NSFileManager extends NSObject {
   }
 
   void unmountVolumeAtURL_options_completionHandler_(
-      NSURL? url, int mask, ObjCBlock18 completionHandler) {
-    return _lib._objc_msgSend_404(
+      NSURL? url, int mask, ObjCBlock_ffiVoid_NSError completionHandler) {
+    _lib._objc_msgSend_404(
         _id,
         _lib._sel_unmountVolumeAtURL_options_completionHandler_1,
         url?._id ?? ffi.nullptr,
@@ -42142,7 +42688,7 @@ class NSFileManager extends NSObject {
   }
 
   set delegate(NSObject? value) {
-    _lib._objc_msgSend_387(
+    return _lib._objc_msgSend_387(
         _id, _lib._sel_setDelegate_1, value?._id ?? ffi.nullptr);
   }
 
@@ -42430,7 +42976,10 @@ class NSFileManager extends NSObject {
   }
 
   NSObject enumeratorAtURL_includingPropertiesForKeys_options_errorHandler_(
-      NSURL? url, NSArray? keys, int mask, ObjCBlock19 handler) {
+      NSURL? url,
+      NSArray? keys,
+      int mask,
+      ObjCBlock_bool_NSURL_NSError handler) {
     final _ret = _lib._objc_msgSend_427(
         _id,
         _lib._sel_enumeratorAtURL_includingPropertiesForKeys_options_errorHandler_1,
@@ -42557,8 +43106,8 @@ class NSFileManager extends NSObject {
   }
 
   void getFileProviderServicesForItemAtURL_completionHandler_(
-      NSURL? url, ObjCBlock20 completionHandler) {
-    return _lib._objc_msgSend_435(
+      NSURL? url, ObjCBlock_ffiVoid_NSDictionary_NSError completionHandler) {
+    _lib._objc_msgSend_435(
         _id,
         _lib._sel_getFileProviderServicesForItemAtURL_completionHandler_1,
         url?._id ?? ffi.nullptr,
@@ -42595,9 +43144,22 @@ class NSFileManager extends NSObject {
     return NSURL._(_ret, _lib, retain: true, release: true);
   }
 
+  @override
+  NSFileManager init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSFileManager._(_ret, _lib, retain: true, release: true);
+  }
+
   static NSFileManager new1(SentryCocoa _lib) {
     final _ret =
         _lib._objc_msgSend_2(_lib._class_NSFileManager1, _lib._sel_new1);
+    return NSFileManager._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSFileManager allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSFileManager1, _lib._sel_allocWithZone_1, zone);
     return NSFileManager._(_ret, _lib, retain: false, release: true);
   }
 
@@ -42612,7 +43174,7 @@ class NSFileManager extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSFileManager1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -42622,7 +43184,7 @@ class NSFileManager extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSFileManager1,
+    _lib._objc_msgSend_15(_lib._class_NSFileManager1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -42655,7 +43217,7 @@ class NSFileManager extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSFileManager1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -42685,7 +43247,7 @@ abstract class NSFileManagerUnmountOptions {
   static const int NSFileManagerUnmountWithoutUI = 2;
 }
 
-void _ObjCBlock18_fnPtrTrampoline(
+void _ObjCBlock_ffiVoid_NSError_fnPtrTrampoline(
     ffi.Pointer<_ObjCBlock> block, ffi.Pointer<ObjCObject> arg0) {
   return block.ref.target
       .cast<
@@ -42693,26 +43255,26 @@ void _ObjCBlock18_fnPtrTrampoline(
       .asFunction<void Function(ffi.Pointer<ObjCObject> arg0)>()(arg0);
 }
 
-final _ObjCBlock18_closureRegistry = <int, Function>{};
-int _ObjCBlock18_closureRegistryIndex = 0;
-ffi.Pointer<ffi.Void> _ObjCBlock18_registerClosure(Function fn) {
-  final id = ++_ObjCBlock18_closureRegistryIndex;
-  _ObjCBlock18_closureRegistry[id] = fn;
+final _ObjCBlock_ffiVoid_NSError_closureRegistry = <int, Function>{};
+int _ObjCBlock_ffiVoid_NSError_closureRegistryIndex = 0;
+ffi.Pointer<ffi.Void> _ObjCBlock_ffiVoid_NSError_registerClosure(Function fn) {
+  final id = ++_ObjCBlock_ffiVoid_NSError_closureRegistryIndex;
+  _ObjCBlock_ffiVoid_NSError_closureRegistry[id] = fn;
   return ffi.Pointer<ffi.Void>.fromAddress(id);
 }
 
-void _ObjCBlock18_closureTrampoline(
+void _ObjCBlock_ffiVoid_NSError_closureTrampoline(
     ffi.Pointer<_ObjCBlock> block, ffi.Pointer<ObjCObject> arg0) {
-  return (_ObjCBlock18_closureRegistry[block.ref.target.address] as void
-      Function(ffi.Pointer<ObjCObject>))(arg0);
+  return (_ObjCBlock_ffiVoid_NSError_closureRegistry[block.ref.target.address]
+      as void Function(ffi.Pointer<ObjCObject>))(arg0);
 }
 
-class ObjCBlock18 extends _ObjCBlockBase {
-  ObjCBlock18._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
+class ObjCBlock_ffiVoid_NSError extends _ObjCBlockBase {
+  ObjCBlock_ffiVoid_NSError._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
       : super._(id, lib, retain: false, release: true);
 
   /// Creates a block from a C function pointer.
-  ObjCBlock18.fromFunctionPointer(
+  ObjCBlock_ffiVoid_NSError.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
               ffi
@@ -42723,23 +43285,23 @@ class ObjCBlock18 extends _ObjCBlockBase {
                 _cFuncTrampoline ??= ffi.Pointer.fromFunction<
                             ffi.Void Function(ffi.Pointer<_ObjCBlock> block,
                                 ffi.Pointer<ObjCObject> arg0)>(
-                        _ObjCBlock18_fnPtrTrampoline)
+                        _ObjCBlock_ffiVoid_NSError_fnPtrTrampoline)
                     .cast(),
                 ptr.cast()),
             lib);
   static ffi.Pointer<ffi.Void>? _cFuncTrampoline;
 
   /// Creates a block from a Dart function.
-  ObjCBlock18.fromFunction(
+  ObjCBlock_ffiVoid_NSError.fromFunction(
       SentryCocoa lib, void Function(ffi.Pointer<ObjCObject> arg0) fn)
       : this._(
             lib._newBlock1(
                 _dartFuncTrampoline ??= ffi.Pointer.fromFunction<
                             ffi.Void Function(ffi.Pointer<_ObjCBlock> block,
                                 ffi.Pointer<ObjCObject> arg0)>(
-                        _ObjCBlock18_closureTrampoline)
+                        _ObjCBlock_ffiVoid_NSError_closureTrampoline)
                     .cast(),
-                _ObjCBlock18_registerClosure(fn)),
+                _ObjCBlock_ffiVoid_NSError_registerClosure(fn)),
             lib);
   static ffi.Pointer<ffi.Void>? _dartFuncTrampoline;
   void call(ffi.Pointer<ObjCObject> arg0) {
@@ -42806,8 +43368,10 @@ abstract class NSURLRelationship {
   static const int NSURLRelationshipOther = 2;
 }
 
-bool _ObjCBlock19_fnPtrTrampoline(ffi.Pointer<_ObjCBlock> block,
-    ffi.Pointer<ObjCObject> arg0, ffi.Pointer<ObjCObject> arg1) {
+bool _ObjCBlock_bool_NSURL_NSError_fnPtrTrampoline(
+    ffi.Pointer<_ObjCBlock> block,
+    ffi.Pointer<ObjCObject> arg0,
+    ffi.Pointer<ObjCObject> arg1) {
   return block.ref.target
       .cast<
           ffi.NativeFunction<
@@ -42818,26 +43382,31 @@ bool _ObjCBlock19_fnPtrTrampoline(ffi.Pointer<_ObjCBlock> block,
               ffi.Pointer<ObjCObject> arg1)>()(arg0, arg1);
 }
 
-final _ObjCBlock19_closureRegistry = <int, Function>{};
-int _ObjCBlock19_closureRegistryIndex = 0;
-ffi.Pointer<ffi.Void> _ObjCBlock19_registerClosure(Function fn) {
-  final id = ++_ObjCBlock19_closureRegistryIndex;
-  _ObjCBlock19_closureRegistry[id] = fn;
+final _ObjCBlock_bool_NSURL_NSError_closureRegistry = <int, Function>{};
+int _ObjCBlock_bool_NSURL_NSError_closureRegistryIndex = 0;
+ffi.Pointer<ffi.Void> _ObjCBlock_bool_NSURL_NSError_registerClosure(
+    Function fn) {
+  final id = ++_ObjCBlock_bool_NSURL_NSError_closureRegistryIndex;
+  _ObjCBlock_bool_NSURL_NSError_closureRegistry[id] = fn;
   return ffi.Pointer<ffi.Void>.fromAddress(id);
 }
 
-bool _ObjCBlock19_closureTrampoline(ffi.Pointer<_ObjCBlock> block,
-    ffi.Pointer<ObjCObject> arg0, ffi.Pointer<ObjCObject> arg1) {
-  return (_ObjCBlock19_closureRegistry[block.ref.target.address] as bool
-      Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCObject>))(arg0, arg1);
+bool _ObjCBlock_bool_NSURL_NSError_closureTrampoline(
+    ffi.Pointer<_ObjCBlock> block,
+    ffi.Pointer<ObjCObject> arg0,
+    ffi.Pointer<ObjCObject> arg1) {
+  return (_ObjCBlock_bool_NSURL_NSError_closureRegistry[
+          block.ref.target.address]
+      as bool Function(
+          ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCObject>))(arg0, arg1);
 }
 
-class ObjCBlock19 extends _ObjCBlockBase {
-  ObjCBlock19._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
+class ObjCBlock_bool_NSURL_NSError extends _ObjCBlockBase {
+  ObjCBlock_bool_NSURL_NSError._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
       : super._(id, lib, retain: false, release: true);
 
   /// Creates a block from a C function pointer.
-  ObjCBlock19.fromFunctionPointer(
+  ObjCBlock_bool_NSURL_NSError.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
               ffi.NativeFunction<
@@ -42851,14 +43420,14 @@ class ObjCBlock19 extends _ObjCBlockBase {
                                 ffi.Pointer<_ObjCBlock> block,
                                 ffi.Pointer<ObjCObject> arg0,
                                 ffi.Pointer<ObjCObject> arg1)>(
-                        _ObjCBlock19_fnPtrTrampoline, false)
+                        _ObjCBlock_bool_NSURL_NSError_fnPtrTrampoline, false)
                     .cast(),
                 ptr.cast()),
             lib);
   static ffi.Pointer<ffi.Void>? _cFuncTrampoline;
 
   /// Creates a block from a Dart function.
-  ObjCBlock19.fromFunction(
+  ObjCBlock_bool_NSURL_NSError.fromFunction(
       SentryCocoa lib,
       bool Function(ffi.Pointer<ObjCObject> arg0, ffi.Pointer<ObjCObject> arg1)
           fn)
@@ -42869,9 +43438,9 @@ class ObjCBlock19 extends _ObjCBlockBase {
                                 ffi.Pointer<_ObjCBlock> block,
                                 ffi.Pointer<ObjCObject> arg0,
                                 ffi.Pointer<ObjCObject> arg1)>(
-                        _ObjCBlock19_closureTrampoline, false)
+                        _ObjCBlock_bool_NSURL_NSError_closureTrampoline, false)
                     .cast(),
-                _ObjCBlock19_registerClosure(fn)),
+                _ObjCBlock_bool_NSURL_NSError_registerClosure(fn)),
             lib);
   static ffi.Pointer<ffi.Void>? _dartFuncTrampoline;
   bool call(ffi.Pointer<ObjCObject> arg0, ffi.Pointer<ObjCObject> arg1) {
@@ -42895,8 +43464,10 @@ abstract class NSFileManagerItemReplacementOptions {
   static const int NSFileManagerItemReplacementWithoutDeletingBackupItem = 2;
 }
 
-void _ObjCBlock20_fnPtrTrampoline(ffi.Pointer<_ObjCBlock> block,
-    ffi.Pointer<ObjCObject> arg0, ffi.Pointer<ObjCObject> arg1) {
+void _ObjCBlock_ffiVoid_NSDictionary_NSError_fnPtrTrampoline(
+    ffi.Pointer<_ObjCBlock> block,
+    ffi.Pointer<ObjCObject> arg0,
+    ffi.Pointer<ObjCObject> arg1) {
   return block.ref.target
       .cast<
           ffi.NativeFunction<
@@ -42907,26 +43478,33 @@ void _ObjCBlock20_fnPtrTrampoline(ffi.Pointer<_ObjCBlock> block,
               ffi.Pointer<ObjCObject> arg1)>()(arg0, arg1);
 }
 
-final _ObjCBlock20_closureRegistry = <int, Function>{};
-int _ObjCBlock20_closureRegistryIndex = 0;
-ffi.Pointer<ffi.Void> _ObjCBlock20_registerClosure(Function fn) {
-  final id = ++_ObjCBlock20_closureRegistryIndex;
-  _ObjCBlock20_closureRegistry[id] = fn;
+final _ObjCBlock_ffiVoid_NSDictionary_NSError_closureRegistry =
+    <int, Function>{};
+int _ObjCBlock_ffiVoid_NSDictionary_NSError_closureRegistryIndex = 0;
+ffi.Pointer<ffi.Void> _ObjCBlock_ffiVoid_NSDictionary_NSError_registerClosure(
+    Function fn) {
+  final id = ++_ObjCBlock_ffiVoid_NSDictionary_NSError_closureRegistryIndex;
+  _ObjCBlock_ffiVoid_NSDictionary_NSError_closureRegistry[id] = fn;
   return ffi.Pointer<ffi.Void>.fromAddress(id);
 }
 
-void _ObjCBlock20_closureTrampoline(ffi.Pointer<_ObjCBlock> block,
-    ffi.Pointer<ObjCObject> arg0, ffi.Pointer<ObjCObject> arg1) {
-  return (_ObjCBlock20_closureRegistry[block.ref.target.address] as void
-      Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCObject>))(arg0, arg1);
+void _ObjCBlock_ffiVoid_NSDictionary_NSError_closureTrampoline(
+    ffi.Pointer<_ObjCBlock> block,
+    ffi.Pointer<ObjCObject> arg0,
+    ffi.Pointer<ObjCObject> arg1) {
+  return (_ObjCBlock_ffiVoid_NSDictionary_NSError_closureRegistry[
+          block.ref.target.address]
+      as void Function(
+          ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCObject>))(arg0, arg1);
 }
 
-class ObjCBlock20 extends _ObjCBlockBase {
-  ObjCBlock20._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
+class ObjCBlock_ffiVoid_NSDictionary_NSError extends _ObjCBlockBase {
+  ObjCBlock_ffiVoid_NSDictionary_NSError._(
+      ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
       : super._(id, lib, retain: false, release: true);
 
   /// Creates a block from a C function pointer.
-  ObjCBlock20.fromFunctionPointer(
+  ObjCBlock_ffiVoid_NSDictionary_NSError.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
               ffi.NativeFunction<
@@ -42940,14 +43518,14 @@ class ObjCBlock20 extends _ObjCBlockBase {
                                 ffi.Pointer<_ObjCBlock> block,
                                 ffi.Pointer<ObjCObject> arg0,
                                 ffi.Pointer<ObjCObject> arg1)>(
-                        _ObjCBlock20_fnPtrTrampoline)
+                        _ObjCBlock_ffiVoid_NSDictionary_NSError_fnPtrTrampoline)
                     .cast(),
                 ptr.cast()),
             lib);
   static ffi.Pointer<ffi.Void>? _cFuncTrampoline;
 
   /// Creates a block from a Dart function.
-  ObjCBlock20.fromFunction(
+  ObjCBlock_ffiVoid_NSDictionary_NSError.fromFunction(
       SentryCocoa lib,
       void Function(ffi.Pointer<ObjCObject> arg0, ffi.Pointer<ObjCObject> arg1)
           fn)
@@ -42958,9 +43536,9 @@ class ObjCBlock20 extends _ObjCBlockBase {
                                 ffi.Pointer<_ObjCBlock> block,
                                 ffi.Pointer<ObjCObject> arg0,
                                 ffi.Pointer<ObjCObject> arg1)>(
-                        _ObjCBlock20_closureTrampoline)
+                        _ObjCBlock_ffiVoid_NSDictionary_NSError_closureTrampoline)
                     .cast(),
-                _ObjCBlock20_registerClosure(fn)),
+                _ObjCBlock_ffiVoid_NSDictionary_NSError_registerClosure(fn)),
             lib);
   static ffi.Pointer<ffi.Void>? _dartFuncTrampoline;
   void call(ffi.Pointer<ObjCObject> arg0, ffi.Pointer<ObjCObject> arg1) {
@@ -43003,24 +43581,24 @@ class NSMutableArray extends NSArray {
   }
 
   void addObject_(NSObject anObject) {
-    return _lib._objc_msgSend_15(_id, _lib._sel_addObject_1, anObject._id);
+    _lib._objc_msgSend_15(_id, _lib._sel_addObject_1, anObject._id);
   }
 
   void insertObject_atIndex_(NSObject anObject, int index) {
-    return _lib._objc_msgSend_438(
+    _lib._objc_msgSend_438(
         _id, _lib._sel_insertObject_atIndex_1, anObject._id, index);
   }
 
   void removeLastObject() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_removeLastObject1);
+    _lib._objc_msgSend_1(_id, _lib._sel_removeLastObject1);
   }
 
   void removeObjectAtIndex_(int index) {
-    return _lib._objc_msgSend_439(_id, _lib._sel_removeObjectAtIndex_1, index);
+    _lib._objc_msgSend_439(_id, _lib._sel_removeObjectAtIndex_1, index);
   }
 
   void replaceObjectAtIndex_withObject_(int index, NSObject anObject) {
-    return _lib._objc_msgSend_440(
+    _lib._objc_msgSend_440(
         _id, _lib._sel_replaceObjectAtIndex_withObject_1, index, anObject._id);
   }
 
@@ -43044,56 +43622,56 @@ class NSMutableArray extends NSArray {
   }
 
   void addObjectsFromArray_(NSArray? otherArray) {
-    return _lib._objc_msgSend_441(
+    _lib._objc_msgSend_441(
         _id, _lib._sel_addObjectsFromArray_1, otherArray?._id ?? ffi.nullptr);
   }
 
   void exchangeObjectAtIndex_withObjectAtIndex_(int idx1, int idx2) {
-    return _lib._objc_msgSend_442(
+    _lib._objc_msgSend_442(
         _id, _lib._sel_exchangeObjectAtIndex_withObjectAtIndex_1, idx1, idx2);
   }
 
   void removeAllObjects() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_removeAllObjects1);
+    _lib._objc_msgSend_1(_id, _lib._sel_removeAllObjects1);
   }
 
   void removeObject_inRange_(NSObject anObject, _NSRange range) {
-    return _lib._objc_msgSend_443(
+    _lib._objc_msgSend_443(
         _id, _lib._sel_removeObject_inRange_1, anObject._id, range);
   }
 
   void removeObject_(NSObject anObject) {
-    return _lib._objc_msgSend_15(_id, _lib._sel_removeObject_1, anObject._id);
+    _lib._objc_msgSend_15(_id, _lib._sel_removeObject_1, anObject._id);
   }
 
   void removeObjectIdenticalTo_inRange_(NSObject anObject, _NSRange range) {
-    return _lib._objc_msgSend_443(
+    _lib._objc_msgSend_443(
         _id, _lib._sel_removeObjectIdenticalTo_inRange_1, anObject._id, range);
   }
 
   void removeObjectIdenticalTo_(NSObject anObject) {
-    return _lib._objc_msgSend_15(
+    _lib._objc_msgSend_15(
         _id, _lib._sel_removeObjectIdenticalTo_1, anObject._id);
   }
 
   void removeObjectsFromIndices_numIndices_(
       ffi.Pointer<ffi.UnsignedLong> indices, int cnt) {
-    return _lib._objc_msgSend_444(
+    _lib._objc_msgSend_444(
         _id, _lib._sel_removeObjectsFromIndices_numIndices_1, indices, cnt);
   }
 
   void removeObjectsInArray_(NSArray? otherArray) {
-    return _lib._objc_msgSend_441(
+    _lib._objc_msgSend_441(
         _id, _lib._sel_removeObjectsInArray_1, otherArray?._id ?? ffi.nullptr);
   }
 
   void removeObjectsInRange_(_NSRange range) {
-    return _lib._objc_msgSend_445(_id, _lib._sel_removeObjectsInRange_1, range);
+    _lib._objc_msgSend_445(_id, _lib._sel_removeObjectsInRange_1, range);
   }
 
   void replaceObjectsInRange_withObjectsFromArray_range_(
       _NSRange range, NSArray? otherArray, _NSRange otherRange) {
-    return _lib._objc_msgSend_446(
+    _lib._objc_msgSend_446(
         _id,
         _lib._sel_replaceObjectsInRange_withObjectsFromArray_range_1,
         range,
@@ -43103,7 +43681,7 @@ class NSMutableArray extends NSArray {
 
   void replaceObjectsInRange_withObjectsFromArray_(
       _NSRange range, NSArray? otherArray) {
-    return _lib._objc_msgSend_447(
+    _lib._objc_msgSend_447(
         _id,
         _lib._sel_replaceObjectsInRange_withObjectsFromArray_1,
         range,
@@ -43111,7 +43689,7 @@ class NSMutableArray extends NSArray {
   }
 
   void setArray_(NSArray? otherArray) {
-    return _lib._objc_msgSend_441(
+    _lib._objc_msgSend_441(
         _id, _lib._sel_setArray_1, otherArray?._id ?? ffi.nullptr);
   }
 
@@ -43122,45 +43700,43 @@ class NSMutableArray extends NSArray {
                       ffi.Pointer<ObjCObject>, ffi.Pointer<ffi.Void>)>>
           compare,
       ffi.Pointer<ffi.Void> context) {
-    return _lib._objc_msgSend_448(
+    _lib._objc_msgSend_448(
         _id, _lib._sel_sortUsingFunction_context_1, compare, context);
   }
 
   void sortUsingSelector_(ffi.Pointer<ObjCSel> comparator) {
-    return _lib._objc_msgSend_7(_id, _lib._sel_sortUsingSelector_1, comparator);
+    _lib._objc_msgSend_7(_id, _lib._sel_sortUsingSelector_1, comparator);
   }
 
   void insertObjects_atIndexes_(NSArray? objects, NSIndexSet? indexes) {
-    return _lib._objc_msgSend_449(_id, _lib._sel_insertObjects_atIndexes_1,
+    _lib._objc_msgSend_449(_id, _lib._sel_insertObjects_atIndexes_1,
         objects?._id ?? ffi.nullptr, indexes?._id ?? ffi.nullptr);
   }
 
   void removeObjectsAtIndexes_(NSIndexSet? indexes) {
-    return _lib._objc_msgSend_450(
+    _lib._objc_msgSend_450(
         _id, _lib._sel_removeObjectsAtIndexes_1, indexes?._id ?? ffi.nullptr);
   }
 
   void replaceObjectsAtIndexes_withObjects_(
       NSIndexSet? indexes, NSArray? objects) {
-    return _lib._objc_msgSend_451(
-        _id,
-        _lib._sel_replaceObjectsAtIndexes_withObjects_1,
-        indexes?._id ?? ffi.nullptr,
-        objects?._id ?? ffi.nullptr);
+    _lib._objc_msgSend_451(_id, _lib._sel_replaceObjectsAtIndexes_withObjects_1,
+        indexes?._id ?? ffi.nullptr, objects?._id ?? ffi.nullptr);
   }
 
   void setObject_atIndexedSubscript_(NSObject obj, int idx) {
-    return _lib._objc_msgSend_438(
+    _lib._objc_msgSend_438(
         _id, _lib._sel_setObject_atIndexedSubscript_1, obj._id, idx);
   }
 
-  void sortUsingComparator_(ObjCBlock6 cmptr) {
-    return _lib._objc_msgSend_452(
-        _id, _lib._sel_sortUsingComparator_1, cmptr._id);
+  void sortUsingComparator_(
+      ObjCBlock_NSComparisonResult_ObjCObject_ObjCObject cmptr) {
+    _lib._objc_msgSend_452(_id, _lib._sel_sortUsingComparator_1, cmptr._id);
   }
 
-  void sortWithOptions_usingComparator_(int opts, ObjCBlock6 cmptr) {
-    return _lib._objc_msgSend_453(
+  void sortWithOptions_usingComparator_(
+      int opts, ObjCBlock_NSComparisonResult_ObjCObject_ObjCObject cmptr) {
+    _lib._objc_msgSend_453(
         _id, _lib._sel_sortWithOptions_usingComparator_1, opts, cmptr._id);
   }
 
@@ -43196,18 +43772,26 @@ class NSMutableArray extends NSArray {
   }
 
   void applyDifference_(NSObject? difference) {
-    return _lib._objc_msgSend_15(
+    _lib._objc_msgSend_15(
         _id, _lib._sel_applyDifference_1, difference?._id ?? ffi.nullptr);
   }
 
   void sortUsingDescriptors_(NSArray? sortDescriptors) {
-    return _lib._objc_msgSend_441(_id, _lib._sel_sortUsingDescriptors_1,
+    _lib._objc_msgSend_441(_id, _lib._sel_sortUsingDescriptors_1,
         sortDescriptors?._id ?? ffi.nullptr);
   }
 
   void filterUsingPredicate_(NSPredicate? predicate) {
-    return _lib._objc_msgSend_456(
+    _lib._objc_msgSend_456(
         _id, _lib._sel_filterUsingPredicate_1, predicate?._id ?? ffi.nullptr);
+  }
+
+  @override
+  NSMutableArray initWithObjects_count_(
+      ffi.Pointer<ffi.Pointer<ObjCObject>> objects, int cnt) {
+    final _ret = _lib._objc_msgSend_61(
+        _id, _lib._sel_initWithObjects_count_1, objects, cnt);
+    return NSMutableArray._(_ret, _lib, retain: true, release: true);
   }
 
   static NSMutableArray array(SentryCocoa _lib) {
@@ -43241,6 +43825,27 @@ class NSMutableArray extends NSArray {
     return NSMutableArray._(_ret, _lib, retain: true, release: true);
   }
 
+  @override
+  NSMutableArray initWithObjects_(NSObject firstObj) {
+    final _ret =
+        _lib._objc_msgSend_16(_id, _lib._sel_initWithObjects_1, firstObj._id);
+    return NSMutableArray._(_ret, _lib, retain: true, release: true);
+  }
+
+  @override
+  NSMutableArray initWithArray_(NSArray? array) {
+    final _ret = _lib._objc_msgSend_67(
+        _id, _lib._sel_initWithArray_1, array?._id ?? ffi.nullptr);
+    return NSMutableArray._(_ret, _lib, retain: true, release: true);
+  }
+
+  @override
+  NSMutableArray initWithArray_copyItems_(NSArray? array, bool flag) {
+    final _ret = _lib._objc_msgSend_118(_id,
+        _lib._sel_initWithArray_copyItems_1, array?._id ?? ffi.nullptr, flag);
+    return NSMutableArray._(_ret, _lib, retain: false, release: true);
+  }
+
   static NSArray arrayWithContentsOfURL_error_(SentryCocoa _lib, NSURL? url,
       ffi.Pointer<ffi.Pointer<ObjCObject>> error) {
     final _ret = _lib._objc_msgSend_119(
@@ -43257,6 +43862,13 @@ class NSMutableArray extends NSArray {
     return NSMutableArray._(_ret, _lib, retain: false, release: true);
   }
 
+  static NSMutableArray allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSMutableArray1, _lib._sel_allocWithZone_1, zone);
+    return NSMutableArray._(_ret, _lib, retain: false, release: true);
+  }
+
   static NSMutableArray alloc(SentryCocoa _lib) {
     final _ret =
         _lib._objc_msgSend_2(_lib._class_NSMutableArray1, _lib._sel_alloc1);
@@ -43268,7 +43880,7 @@ class NSMutableArray extends NSArray {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSMutableArray1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -43278,7 +43890,7 @@ class NSMutableArray extends NSArray {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSMutableArray1,
+    _lib._objc_msgSend_15(_lib._class_NSMutableArray1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -43311,7 +43923,7 @@ class NSMutableArray extends NSArray {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSMutableArray1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -43356,16 +43968,16 @@ class NSMutableOrderedSet extends NSOrderedSet {
   }
 
   void insertObject_atIndex_(NSObject object, int idx) {
-    return _lib._objc_msgSend_438(
+    _lib._objc_msgSend_438(
         _id, _lib._sel_insertObject_atIndex_1, object._id, idx);
   }
 
   void removeObjectAtIndex_(int idx) {
-    return _lib._objc_msgSend_439(_id, _lib._sel_removeObjectAtIndex_1, idx);
+    _lib._objc_msgSend_439(_id, _lib._sel_removeObjectAtIndex_1, idx);
   }
 
   void replaceObjectAtIndex_withObject_(int idx, NSObject object) {
-    return _lib._objc_msgSend_440(
+    _lib._objc_msgSend_440(
         _id, _lib._sel_replaceObjectAtIndex_withObject_1, idx, object._id);
   }
 
@@ -43389,48 +44001,46 @@ class NSMutableOrderedSet extends NSOrderedSet {
   }
 
   void addObject_(NSObject object) {
-    return _lib._objc_msgSend_15(_id, _lib._sel_addObject_1, object._id);
+    _lib._objc_msgSend_15(_id, _lib._sel_addObject_1, object._id);
   }
 
   void addObjects_count_(
       ffi.Pointer<ffi.Pointer<ObjCObject>> objects, int count) {
-    return _lib._objc_msgSend_467(
-        _id, _lib._sel_addObjects_count_1, objects, count);
+    _lib._objc_msgSend_467(_id, _lib._sel_addObjects_count_1, objects, count);
   }
 
   void addObjectsFromArray_(NSArray? array) {
-    return _lib._objc_msgSend_441(
+    _lib._objc_msgSend_441(
         _id, _lib._sel_addObjectsFromArray_1, array?._id ?? ffi.nullptr);
   }
 
   void exchangeObjectAtIndex_withObjectAtIndex_(int idx1, int idx2) {
-    return _lib._objc_msgSend_442(
+    _lib._objc_msgSend_442(
         _id, _lib._sel_exchangeObjectAtIndex_withObjectAtIndex_1, idx1, idx2);
   }
 
   void moveObjectsAtIndexes_toIndex_(NSIndexSet? indexes, int idx) {
-    return _lib._objc_msgSend_468(_id, _lib._sel_moveObjectsAtIndexes_toIndex_1,
+    _lib._objc_msgSend_468(_id, _lib._sel_moveObjectsAtIndexes_toIndex_1,
         indexes?._id ?? ffi.nullptr, idx);
   }
 
   void insertObjects_atIndexes_(NSArray? objects, NSIndexSet? indexes) {
-    return _lib._objc_msgSend_449(_id, _lib._sel_insertObjects_atIndexes_1,
+    _lib._objc_msgSend_449(_id, _lib._sel_insertObjects_atIndexes_1,
         objects?._id ?? ffi.nullptr, indexes?._id ?? ffi.nullptr);
   }
 
   void setObject_atIndex_(NSObject obj, int idx) {
-    return _lib._objc_msgSend_438(
-        _id, _lib._sel_setObject_atIndex_1, obj._id, idx);
+    _lib._objc_msgSend_438(_id, _lib._sel_setObject_atIndex_1, obj._id, idx);
   }
 
   void setObject_atIndexedSubscript_(NSObject obj, int idx) {
-    return _lib._objc_msgSend_438(
+    _lib._objc_msgSend_438(
         _id, _lib._sel_setObject_atIndexedSubscript_1, obj._id, idx);
   }
 
   void replaceObjectsInRange_withObjects_count_(
       _NSRange range, ffi.Pointer<ffi.Pointer<ObjCObject>> objects, int count) {
-    return _lib._objc_msgSend_469(
+    _lib._objc_msgSend_469(
         _id,
         _lib._sel_replaceObjectsInRange_withObjects_count_1,
         range,
@@ -43440,79 +44050,77 @@ class NSMutableOrderedSet extends NSOrderedSet {
 
   void replaceObjectsAtIndexes_withObjects_(
       NSIndexSet? indexes, NSArray? objects) {
-    return _lib._objc_msgSend_451(
-        _id,
-        _lib._sel_replaceObjectsAtIndexes_withObjects_1,
-        indexes?._id ?? ffi.nullptr,
-        objects?._id ?? ffi.nullptr);
+    _lib._objc_msgSend_451(_id, _lib._sel_replaceObjectsAtIndexes_withObjects_1,
+        indexes?._id ?? ffi.nullptr, objects?._id ?? ffi.nullptr);
   }
 
   void removeObjectsInRange_(_NSRange range) {
-    return _lib._objc_msgSend_445(_id, _lib._sel_removeObjectsInRange_1, range);
+    _lib._objc_msgSend_445(_id, _lib._sel_removeObjectsInRange_1, range);
   }
 
   void removeObjectsAtIndexes_(NSIndexSet? indexes) {
-    return _lib._objc_msgSend_450(
+    _lib._objc_msgSend_450(
         _id, _lib._sel_removeObjectsAtIndexes_1, indexes?._id ?? ffi.nullptr);
   }
 
   void removeAllObjects() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_removeAllObjects1);
+    _lib._objc_msgSend_1(_id, _lib._sel_removeAllObjects1);
   }
 
   void removeObject_(NSObject object) {
-    return _lib._objc_msgSend_15(_id, _lib._sel_removeObject_1, object._id);
+    _lib._objc_msgSend_15(_id, _lib._sel_removeObject_1, object._id);
   }
 
   void removeObjectsInArray_(NSArray? array) {
-    return _lib._objc_msgSend_441(
+    _lib._objc_msgSend_441(
         _id, _lib._sel_removeObjectsInArray_1, array?._id ?? ffi.nullptr);
   }
 
   void intersectOrderedSet_(NSOrderedSet? other) {
-    return _lib._objc_msgSend_470(
+    _lib._objc_msgSend_470(
         _id, _lib._sel_intersectOrderedSet_1, other?._id ?? ffi.nullptr);
   }
 
   void minusOrderedSet_(NSOrderedSet? other) {
-    return _lib._objc_msgSend_470(
+    _lib._objc_msgSend_470(
         _id, _lib._sel_minusOrderedSet_1, other?._id ?? ffi.nullptr);
   }
 
   void unionOrderedSet_(NSOrderedSet? other) {
-    return _lib._objc_msgSend_470(
+    _lib._objc_msgSend_470(
         _id, _lib._sel_unionOrderedSet_1, other?._id ?? ffi.nullptr);
   }
 
   void intersectSet_(NSSet? other) {
-    return _lib._objc_msgSend_471(
+    _lib._objc_msgSend_471(
         _id, _lib._sel_intersectSet_1, other?._id ?? ffi.nullptr);
   }
 
   void minusSet_(NSSet? other) {
-    return _lib._objc_msgSend_471(
+    _lib._objc_msgSend_471(
         _id, _lib._sel_minusSet_1, other?._id ?? ffi.nullptr);
   }
 
   void unionSet_(NSSet? other) {
-    return _lib._objc_msgSend_471(
+    _lib._objc_msgSend_471(
         _id, _lib._sel_unionSet_1, other?._id ?? ffi.nullptr);
   }
 
-  void sortUsingComparator_(ObjCBlock6 cmptr) {
-    return _lib._objc_msgSend_452(
-        _id, _lib._sel_sortUsingComparator_1, cmptr._id);
+  void sortUsingComparator_(
+      ObjCBlock_NSComparisonResult_ObjCObject_ObjCObject cmptr) {
+    _lib._objc_msgSend_452(_id, _lib._sel_sortUsingComparator_1, cmptr._id);
   }
 
-  void sortWithOptions_usingComparator_(int opts, ObjCBlock6 cmptr) {
-    return _lib._objc_msgSend_453(
+  void sortWithOptions_usingComparator_(
+      int opts, ObjCBlock_NSComparisonResult_ObjCObject_ObjCObject cmptr) {
+    _lib._objc_msgSend_453(
         _id, _lib._sel_sortWithOptions_usingComparator_1, opts, cmptr._id);
   }
 
-  void sortRange_options_usingComparator_(
-      _NSRange range, int opts, ObjCBlock6 cmptr) {
-    return _lib._objc_msgSend_472(_id,
-        _lib._sel_sortRange_options_usingComparator_1, range, opts, cmptr._id);
+  void sortRange_options_usingComparator_(_NSRange range, int opts,
+      ObjCBlock_NSComparisonResult_ObjCObject_ObjCObject cmptr) {
+    _lib._objc_msgSend_472(_id, _lib._sel_sortRange_options_usingComparator_1,
+        range, opts, cmptr._id);
   }
 
   static NSMutableOrderedSet orderedSetWithCapacity_(
@@ -43523,18 +44131,26 @@ class NSMutableOrderedSet extends NSOrderedSet {
   }
 
   void applyDifference_(NSObject? difference) {
-    return _lib._objc_msgSend_15(
+    _lib._objc_msgSend_15(
         _id, _lib._sel_applyDifference_1, difference?._id ?? ffi.nullptr);
   }
 
   void sortUsingDescriptors_(NSArray? sortDescriptors) {
-    return _lib._objc_msgSend_441(_id, _lib._sel_sortUsingDescriptors_1,
+    _lib._objc_msgSend_441(_id, _lib._sel_sortUsingDescriptors_1,
         sortDescriptors?._id ?? ffi.nullptr);
   }
 
   void filterUsingPredicate_(NSPredicate? p) {
-    return _lib._objc_msgSend_456(
+    _lib._objc_msgSend_456(
         _id, _lib._sel_filterUsingPredicate_1, p?._id ?? ffi.nullptr);
+  }
+
+  @override
+  NSMutableOrderedSet initWithObjects_count_(
+      ffi.Pointer<ffi.Pointer<ObjCObject>> objects, int cnt) {
+    final _ret = _lib._objc_msgSend_61(
+        _id, _lib._sel_initWithObjects_count_1, objects, cnt);
+    return NSMutableOrderedSet._(_ret, _lib, retain: true, release: true);
   }
 
   static NSMutableOrderedSet orderedSet(SentryCocoa _lib) {
@@ -43613,9 +44229,100 @@ class NSMutableOrderedSet extends NSOrderedSet {
     return NSMutableOrderedSet._(_ret, _lib, retain: false, release: true);
   }
 
+  @override
+  NSMutableOrderedSet initWithObject_(NSObject object) {
+    final _ret =
+        _lib._objc_msgSend_16(_id, _lib._sel_initWithObject_1, object._id);
+    return NSMutableOrderedSet._(_ret, _lib, retain: true, release: true);
+  }
+
+  @override
+  NSMutableOrderedSet initWithObjects_(NSObject firstObj) {
+    final _ret =
+        _lib._objc_msgSend_16(_id, _lib._sel_initWithObjects_1, firstObj._id);
+    return NSMutableOrderedSet._(_ret, _lib, retain: true, release: true);
+  }
+
+  @override
+  NSMutableOrderedSet initWithOrderedSet_(NSOrderedSet? set) {
+    final _ret = _lib._objc_msgSend_459(
+        _id, _lib._sel_initWithOrderedSet_1, set?._id ?? ffi.nullptr);
+    return NSMutableOrderedSet._(_ret, _lib, retain: true, release: true);
+  }
+
+  @override
+  NSMutableOrderedSet initWithOrderedSet_copyItems_(
+      NSOrderedSet? set, bool flag) {
+    final _ret = _lib._objc_msgSend_462(
+        _id,
+        _lib._sel_initWithOrderedSet_copyItems_1,
+        set?._id ?? ffi.nullptr,
+        flag);
+    return NSMutableOrderedSet._(_ret, _lib, retain: false, release: true);
+  }
+
+  @override
+  NSMutableOrderedSet initWithOrderedSet_range_copyItems_(
+      NSOrderedSet? set, _NSRange range, bool flag) {
+    final _ret = _lib._objc_msgSend_460(
+        _id,
+        _lib._sel_initWithOrderedSet_range_copyItems_1,
+        set?._id ?? ffi.nullptr,
+        range,
+        flag);
+    return NSMutableOrderedSet._(_ret, _lib, retain: false, release: true);
+  }
+
+  @override
+  NSMutableOrderedSet initWithArray_(NSArray? array) {
+    final _ret = _lib._objc_msgSend_67(
+        _id, _lib._sel_initWithArray_1, array?._id ?? ffi.nullptr);
+    return NSMutableOrderedSet._(_ret, _lib, retain: true, release: true);
+  }
+
+  @override
+  NSMutableOrderedSet initWithArray_copyItems_(NSArray? set, bool flag) {
+    final _ret = _lib._objc_msgSend_118(_id,
+        _lib._sel_initWithArray_copyItems_1, set?._id ?? ffi.nullptr, flag);
+    return NSMutableOrderedSet._(_ret, _lib, retain: false, release: true);
+  }
+
+  @override
+  NSMutableOrderedSet initWithArray_range_copyItems_(
+      NSArray? set, _NSRange range, bool flag) {
+    final _ret = _lib._objc_msgSend_461(
+        _id,
+        _lib._sel_initWithArray_range_copyItems_1,
+        set?._id ?? ffi.nullptr,
+        range,
+        flag);
+    return NSMutableOrderedSet._(_ret, _lib, retain: false, release: true);
+  }
+
+  @override
+  NSMutableOrderedSet initWithSet_(NSSet? set) {
+    final _ret = _lib._objc_msgSend_382(
+        _id, _lib._sel_initWithSet_1, set?._id ?? ffi.nullptr);
+    return NSMutableOrderedSet._(_ret, _lib, retain: true, release: true);
+  }
+
+  @override
+  NSMutableOrderedSet initWithSet_copyItems_(NSSet? set, bool flag) {
+    final _ret = _lib._objc_msgSend_383(
+        _id, _lib._sel_initWithSet_copyItems_1, set?._id ?? ffi.nullptr, flag);
+    return NSMutableOrderedSet._(_ret, _lib, retain: false, release: true);
+  }
+
   static NSMutableOrderedSet new1(SentryCocoa _lib) {
     final _ret =
         _lib._objc_msgSend_2(_lib._class_NSMutableOrderedSet1, _lib._sel_new1);
+    return NSMutableOrderedSet._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSMutableOrderedSet allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSMutableOrderedSet1, _lib._sel_allocWithZone_1, zone);
     return NSMutableOrderedSet._(_ret, _lib, retain: false, release: true);
   }
 
@@ -43630,7 +44337,7 @@ class NSMutableOrderedSet extends NSOrderedSet {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSMutableOrderedSet1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -43640,7 +44347,7 @@ class NSMutableOrderedSet extends NSOrderedSet {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSMutableOrderedSet1,
+    _lib._objc_msgSend_15(_lib._class_NSMutableOrderedSet1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -43673,7 +44380,7 @@ class NSMutableOrderedSet extends NSOrderedSet {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSMutableOrderedSet1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -43750,8 +44457,7 @@ class NSOrderedSet extends NSObject {
 
   void getObjects_range_(
       ffi.Pointer<ffi.Pointer<ObjCObject>> objects, _NSRange range) {
-    return _lib._objc_msgSend_68(
-        _id, _lib._sel_getObjects_range_1, objects, range);
+    _lib._objc_msgSend_68(_id, _lib._sel_getObjects_range_1, objects, range);
   }
 
   NSArray objectsAtIndexes_(NSIndexSet? indexes) {
@@ -43836,19 +44542,21 @@ class NSOrderedSet extends NSObject {
         : NSSet._(_ret, _lib, retain: true, release: true);
   }
 
-  void enumerateObjectsUsingBlock_(ObjCBlock4 block) {
-    return _lib._objc_msgSend_106(
+  void enumerateObjectsUsingBlock_(
+      ObjCBlock_ffiVoid_ObjCObject_ffiUnsignedLong_bool block) {
+    _lib._objc_msgSend_106(
         _id, _lib._sel_enumerateObjectsUsingBlock_1, block._id);
   }
 
-  void enumerateObjectsWithOptions_usingBlock_(int opts, ObjCBlock4 block) {
-    return _lib._objc_msgSend_107(_id,
+  void enumerateObjectsWithOptions_usingBlock_(
+      int opts, ObjCBlock_ffiVoid_ObjCObject_ffiUnsignedLong_bool block) {
+    _lib._objc_msgSend_107(_id,
         _lib._sel_enumerateObjectsWithOptions_usingBlock_1, opts, block._id);
   }
 
-  void enumerateObjectsAtIndexes_options_usingBlock_(
-      NSIndexSet? s, int opts, ObjCBlock4 block) {
-    return _lib._objc_msgSend_108(
+  void enumerateObjectsAtIndexes_options_usingBlock_(NSIndexSet? s, int opts,
+      ObjCBlock_ffiVoid_ObjCObject_ffiUnsignedLong_bool block) {
+    _lib._objc_msgSend_108(
         _id,
         _lib._sel_enumerateObjectsAtIndexes_options_usingBlock_1,
         s?._id ?? ffi.nullptr,
@@ -43856,18 +44564,20 @@ class NSOrderedSet extends NSObject {
         block._id);
   }
 
-  int indexOfObjectPassingTest_(ObjCBlock5 predicate) {
+  int indexOfObjectPassingTest_(
+      ObjCBlock_bool_ObjCObject_ffiUnsignedLong_bool predicate) {
     return _lib._objc_msgSend_109(
         _id, _lib._sel_indexOfObjectPassingTest_1, predicate._id);
   }
 
-  int indexOfObjectWithOptions_passingTest_(int opts, ObjCBlock5 predicate) {
+  int indexOfObjectWithOptions_passingTest_(
+      int opts, ObjCBlock_bool_ObjCObject_ffiUnsignedLong_bool predicate) {
     return _lib._objc_msgSend_110(_id,
         _lib._sel_indexOfObjectWithOptions_passingTest_1, opts, predicate._id);
   }
 
-  int indexOfObjectAtIndexes_options_passingTest_(
-      NSIndexSet? s, int opts, ObjCBlock5 predicate) {
+  int indexOfObjectAtIndexes_options_passingTest_(NSIndexSet? s, int opts,
+      ObjCBlock_bool_ObjCObject_ffiUnsignedLong_bool predicate) {
     return _lib._objc_msgSend_111(
         _id,
         _lib._sel_indexOfObjectAtIndexes_options_passingTest_1,
@@ -43876,14 +44586,15 @@ class NSOrderedSet extends NSObject {
         predicate._id);
   }
 
-  NSIndexSet indexesOfObjectsPassingTest_(ObjCBlock5 predicate) {
+  NSIndexSet indexesOfObjectsPassingTest_(
+      ObjCBlock_bool_ObjCObject_ffiUnsignedLong_bool predicate) {
     final _ret = _lib._objc_msgSend_112(
         _id, _lib._sel_indexesOfObjectsPassingTest_1, predicate._id);
     return NSIndexSet._(_ret, _lib, retain: true, release: true);
   }
 
   NSIndexSet indexesOfObjectsWithOptions_passingTest_(
-      int opts, ObjCBlock5 predicate) {
+      int opts, ObjCBlock_bool_ObjCObject_ffiUnsignedLong_bool predicate) {
     final _ret = _lib._objc_msgSend_113(
         _id,
         _lib._sel_indexesOfObjectsWithOptions_passingTest_1,
@@ -43892,8 +44603,8 @@ class NSOrderedSet extends NSObject {
     return NSIndexSet._(_ret, _lib, retain: true, release: true);
   }
 
-  NSIndexSet indexesOfObjectsAtIndexes_options_passingTest_(
-      NSIndexSet? s, int opts, ObjCBlock5 predicate) {
+  NSIndexSet indexesOfObjectsAtIndexes_options_passingTest_(NSIndexSet? s,
+      int opts, ObjCBlock_bool_ObjCObject_ffiUnsignedLong_bool predicate) {
     final _ret = _lib._objc_msgSend_114(
         _id,
         _lib._sel_indexesOfObjectsAtIndexes_options_passingTest_1,
@@ -43904,7 +44615,10 @@ class NSOrderedSet extends NSObject {
   }
 
   int indexOfObject_inSortedRange_options_usingComparator_(
-      NSObject object, _NSRange range, int opts, ObjCBlock6 cmp) {
+      NSObject object,
+      _NSRange range,
+      int opts,
+      ObjCBlock_NSComparisonResult_ObjCObject_ObjCObject cmp) {
     return _lib._objc_msgSend_117(
         _id,
         _lib._sel_indexOfObject_inSortedRange_options_usingComparator_1,
@@ -43914,13 +44628,15 @@ class NSOrderedSet extends NSObject {
         cmp._id);
   }
 
-  NSArray sortedArrayUsingComparator_(ObjCBlock6 cmptr) {
+  NSArray sortedArrayUsingComparator_(
+      ObjCBlock_NSComparisonResult_ObjCObject_ObjCObject cmptr) {
     final _ret = _lib._objc_msgSend_115(
         _id, _lib._sel_sortedArrayUsingComparator_1, cmptr._id);
     return NSArray._(_ret, _lib, retain: true, release: true);
   }
 
-  NSArray sortedArrayWithOptions_usingComparator_(int opts, ObjCBlock6 cmptr) {
+  NSArray sortedArrayWithOptions_usingComparator_(
+      int opts, ObjCBlock_NSComparisonResult_ObjCObject_ObjCObject cmptr) {
     final _ret = _lib._objc_msgSend_116(_id,
         _lib._sel_sortedArrayWithOptions_usingComparator_1, opts, cmptr._id);
     return NSArray._(_ret, _lib, retain: true, release: true);
@@ -44093,7 +44809,9 @@ class NSOrderedSet extends NSObject {
   }
 
   NSObject differenceFromOrderedSet_withOptions_usingEquivalenceTest_(
-      NSOrderedSet? other, int options, ObjCBlock7 block) {
+      NSOrderedSet? other,
+      int options,
+      ObjCBlock_bool_ObjCObject_ObjCObject block) {
     final _ret = _lib._objc_msgSend_463(
         _id,
         _lib._sel_differenceFromOrderedSet_withOptions_usingEquivalenceTest_1,
@@ -44136,14 +44854,14 @@ class NSOrderedSet extends NSObject {
 
   @override
   void setValue_forKey_(NSObject value, NSString? key) {
-    return _lib._objc_msgSend_126(
+    _lib._objc_msgSend_126(
         _id, _lib._sel_setValue_forKey_1, value._id, key?._id ?? ffi.nullptr);
   }
 
   @override
   void addObserver_forKeyPath_options_context_(NSObject? observer,
       NSString? keyPath, int options, ffi.Pointer<ffi.Void> context) {
-    return _lib._objc_msgSend_130(
+    _lib._objc_msgSend_130(
         _id,
         _lib._sel_addObserver_forKeyPath_options_context_1,
         observer?._id ?? ffi.nullptr,
@@ -44155,17 +44873,13 @@ class NSOrderedSet extends NSObject {
   @override
   void removeObserver_forKeyPath_context_(
       NSObject? observer, NSString? keyPath, ffi.Pointer<ffi.Void> context) {
-    return _lib._objc_msgSend_131(
-        _id,
-        _lib._sel_removeObserver_forKeyPath_context_1,
-        observer?._id ?? ffi.nullptr,
-        keyPath?._id ?? ffi.nullptr,
-        context);
+    _lib._objc_msgSend_131(_id, _lib._sel_removeObserver_forKeyPath_context_1,
+        observer?._id ?? ffi.nullptr, keyPath?._id ?? ffi.nullptr, context);
   }
 
   @override
   void removeObserver_forKeyPath_(NSObject? observer, NSString? keyPath) {
-    return _lib._objc_msgSend_132(_id, _lib._sel_removeObserver_forKeyPath_1,
+    _lib._objc_msgSend_132(_id, _lib._sel_removeObserver_forKeyPath_1,
         observer?._id ?? ffi.nullptr, keyPath?._id ?? ffi.nullptr);
   }
 
@@ -44189,6 +44903,13 @@ class NSOrderedSet extends NSObject {
     return NSOrderedSet._(_ret, _lib, retain: false, release: true);
   }
 
+  static NSOrderedSet allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSOrderedSet1, _lib._sel_allocWithZone_1, zone);
+    return NSOrderedSet._(_ret, _lib, retain: false, release: true);
+  }
+
   static NSOrderedSet alloc(SentryCocoa _lib) {
     final _ret =
         _lib._objc_msgSend_2(_lib._class_NSOrderedSet1, _lib._sel_alloc1);
@@ -44200,7 +44921,7 @@ class NSOrderedSet extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSOrderedSet1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -44210,7 +44931,7 @@ class NSOrderedSet extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSOrderedSet1,
+    _lib._objc_msgSend_15(_lib._class_NSOrderedSet1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -44243,7 +44964,7 @@ class NSOrderedSet extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSOrderedSet1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -44287,11 +45008,11 @@ class NSMutableSet extends NSSet {
   }
 
   void addObject_(NSObject object) {
-    return _lib._objc_msgSend_15(_id, _lib._sel_addObject_1, object._id);
+    _lib._objc_msgSend_15(_id, _lib._sel_addObject_1, object._id);
   }
 
   void removeObject_(NSObject object) {
-    return _lib._objc_msgSend_15(_id, _lib._sel_removeObject_1, object._id);
+    _lib._objc_msgSend_15(_id, _lib._sel_removeObject_1, object._id);
   }
 
   @override
@@ -44314,31 +45035,31 @@ class NSMutableSet extends NSSet {
   }
 
   void addObjectsFromArray_(NSArray? array) {
-    return _lib._objc_msgSend_441(
+    _lib._objc_msgSend_441(
         _id, _lib._sel_addObjectsFromArray_1, array?._id ?? ffi.nullptr);
   }
 
   void intersectSet_(NSSet? otherSet) {
-    return _lib._objc_msgSend_471(
+    _lib._objc_msgSend_471(
         _id, _lib._sel_intersectSet_1, otherSet?._id ?? ffi.nullptr);
   }
 
   void minusSet_(NSSet? otherSet) {
-    return _lib._objc_msgSend_471(
+    _lib._objc_msgSend_471(
         _id, _lib._sel_minusSet_1, otherSet?._id ?? ffi.nullptr);
   }
 
   void removeAllObjects() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_removeAllObjects1);
+    _lib._objc_msgSend_1(_id, _lib._sel_removeAllObjects1);
   }
 
   void unionSet_(NSSet? otherSet) {
-    return _lib._objc_msgSend_471(
+    _lib._objc_msgSend_471(
         _id, _lib._sel_unionSet_1, otherSet?._id ?? ffi.nullptr);
   }
 
   void setSet_(NSSet? otherSet) {
-    return _lib._objc_msgSend_471(
+    _lib._objc_msgSend_471(
         _id, _lib._sel_setSet_1, otherSet?._id ?? ffi.nullptr);
   }
 
@@ -44349,8 +45070,16 @@ class NSMutableSet extends NSSet {
   }
 
   void filterUsingPredicate_(NSPredicate? predicate) {
-    return _lib._objc_msgSend_456(
+    _lib._objc_msgSend_456(
         _id, _lib._sel_filterUsingPredicate_1, predicate?._id ?? ffi.nullptr);
+  }
+
+  @override
+  NSMutableSet initWithObjects_count_(
+      ffi.Pointer<ffi.Pointer<ObjCObject>> objects, int cnt) {
+    final _ret = _lib._objc_msgSend_61(
+        _id, _lib._sel_initWithObjects_count_1, objects, cnt);
+    return NSMutableSet._(_ret, _lib, retain: true, release: true);
   }
 
   static NSMutableSet set1(SentryCocoa _lib) {
@@ -44390,9 +45119,44 @@ class NSMutableSet extends NSSet {
     return NSMutableSet._(_ret, _lib, retain: true, release: true);
   }
 
+  @override
+  NSMutableSet initWithObjects_(NSObject firstObj) {
+    final _ret =
+        _lib._objc_msgSend_16(_id, _lib._sel_initWithObjects_1, firstObj._id);
+    return NSMutableSet._(_ret, _lib, retain: true, release: true);
+  }
+
+  @override
+  NSMutableSet initWithSet_(NSSet? set) {
+    final _ret = _lib._objc_msgSend_382(
+        _id, _lib._sel_initWithSet_1, set?._id ?? ffi.nullptr);
+    return NSMutableSet._(_ret, _lib, retain: true, release: true);
+  }
+
+  @override
+  NSMutableSet initWithSet_copyItems_(NSSet? set, bool flag) {
+    final _ret = _lib._objc_msgSend_383(
+        _id, _lib._sel_initWithSet_copyItems_1, set?._id ?? ffi.nullptr, flag);
+    return NSMutableSet._(_ret, _lib, retain: false, release: true);
+  }
+
+  @override
+  NSMutableSet initWithArray_(NSArray? array) {
+    final _ret = _lib._objc_msgSend_67(
+        _id, _lib._sel_initWithArray_1, array?._id ?? ffi.nullptr);
+    return NSMutableSet._(_ret, _lib, retain: true, release: true);
+  }
+
   static NSMutableSet new1(SentryCocoa _lib) {
     final _ret =
         _lib._objc_msgSend_2(_lib._class_NSMutableSet1, _lib._sel_new1);
+    return NSMutableSet._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSMutableSet allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSMutableSet1, _lib._sel_allocWithZone_1, zone);
     return NSMutableSet._(_ret, _lib, retain: false, release: true);
   }
 
@@ -44407,7 +45171,7 @@ class NSMutableSet extends NSSet {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSMutableSet1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -44417,7 +45181,7 @@ class NSMutableSet extends NSSet {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSMutableSet1,
+    _lib._objc_msgSend_15(_lib._class_NSMutableSet1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -44450,7 +45214,7 @@ class NSMutableSet extends NSSet {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSMutableSet1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -44528,6 +45292,7 @@ class NSKeyedArchiver extends NSCoder {
     return NSData._(_ret, _lib, retain: true, release: true);
   }
 
+  @override
   NSKeyedArchiver init() {
     final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
     return NSKeyedArchiver._(_ret, _lib, retain: true, release: true);
@@ -44563,7 +45328,7 @@ class NSKeyedArchiver extends NSCoder {
   }
 
   set delegate(NSObject? value) {
-    _lib._objc_msgSend_387(
+    return _lib._objc_msgSend_387(
         _id, _lib._sel_setDelegate_1, value?._id ?? ffi.nullptr);
   }
 
@@ -44572,7 +45337,7 @@ class NSKeyedArchiver extends NSCoder {
   }
 
   set outputFormat(int value) {
-    _lib._objc_msgSend_490(_id, _lib._sel_setOutputFormat_1, value);
+    return _lib._objc_msgSend_490(_id, _lib._sel_setOutputFormat_1, value);
   }
 
   NSData? get encodedData {
@@ -44583,12 +45348,12 @@ class NSKeyedArchiver extends NSCoder {
   }
 
   void finishEncoding() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_finishEncoding1);
+    _lib._objc_msgSend_1(_id, _lib._sel_finishEncoding1);
   }
 
   static void setClassName_forClass_(
       SentryCocoa _lib, NSString? codedName, NSObject cls) {
-    return _lib._objc_msgSend_491(
+    _lib._objc_msgSend_491(
         _lib._class_NSKeyedArchiver1,
         _lib._sel_setClassName_forClass_1,
         codedName?._id ?? ffi.nullptr,
@@ -44603,60 +45368,57 @@ class NSKeyedArchiver extends NSCoder {
 
   @override
   void encodeObject_forKey_(NSObject object, NSString? key) {
-    return _lib._objc_msgSend_126(_id, _lib._sel_encodeObject_forKey_1,
-        object._id, key?._id ?? ffi.nullptr);
-  }
-
-  @override
-  void encodeConditionalObject_forKey_(NSObject object, NSString? key) {
-    return _lib._objc_msgSend_126(
-        _id,
-        _lib._sel_encodeConditionalObject_forKey_1,
-        object._id,
+    _lib._objc_msgSend_126(_id, _lib._sel_encodeObject_forKey_1, object._id,
         key?._id ?? ffi.nullptr);
   }
 
   @override
+  void encodeConditionalObject_forKey_(NSObject object, NSString? key) {
+    _lib._objc_msgSend_126(_id, _lib._sel_encodeConditionalObject_forKey_1,
+        object._id, key?._id ?? ffi.nullptr);
+  }
+
+  @override
   void encodeBool_forKey_(bool value, NSString? key) {
-    return _lib._objc_msgSend_272(
+    _lib._objc_msgSend_272(
         _id, _lib._sel_encodeBool_forKey_1, value, key?._id ?? ffi.nullptr);
   }
 
   @override
   void encodeInt_forKey_(int value, NSString? key) {
-    return _lib._objc_msgSend_273(
+    _lib._objc_msgSend_273(
         _id, _lib._sel_encodeInt_forKey_1, value, key?._id ?? ffi.nullptr);
   }
 
   @override
   void encodeInt32_forKey_(int value, NSString? key) {
-    return _lib._objc_msgSend_274(
+    _lib._objc_msgSend_274(
         _id, _lib._sel_encodeInt32_forKey_1, value, key?._id ?? ffi.nullptr);
   }
 
   @override
   void encodeInt64_forKey_(int value, NSString? key) {
-    return _lib._objc_msgSend_275(
+    _lib._objc_msgSend_275(
         _id, _lib._sel_encodeInt64_forKey_1, value, key?._id ?? ffi.nullptr);
   }
 
   @override
   void encodeFloat_forKey_(double value, NSString? key) {
-    return _lib._objc_msgSend_276(
+    _lib._objc_msgSend_276(
         _id, _lib._sel_encodeFloat_forKey_1, value, key?._id ?? ffi.nullptr);
   }
 
   @override
   void encodeDouble_forKey_(double value, NSString? key) {
-    return _lib._objc_msgSend_277(
+    _lib._objc_msgSend_277(
         _id, _lib._sel_encodeDouble_forKey_1, value, key?._id ?? ffi.nullptr);
   }
 
   @override
   void encodeBytes_length_forKey_(
       ffi.Pointer<ffi.Uint8> bytes, int length, NSString? key) {
-    return _lib._objc_msgSend_278(_id, _lib._sel_encodeBytes_length_forKey_1,
-        bytes, length, key?._id ?? ffi.nullptr);
+    _lib._objc_msgSend_278(_id, _lib._sel_encodeBytes_length_forKey_1, bytes,
+        length, key?._id ?? ffi.nullptr);
   }
 
   @override
@@ -44665,12 +45427,20 @@ class NSKeyedArchiver extends NSCoder {
   }
 
   set requiresSecureCoding(bool value) {
-    _lib._objc_msgSend_492(_id, _lib._sel_setRequiresSecureCoding_1, value);
+    return _lib._objc_msgSend_492(
+        _id, _lib._sel_setRequiresSecureCoding_1, value);
   }
 
   static NSKeyedArchiver new1(SentryCocoa _lib) {
     final _ret =
         _lib._objc_msgSend_2(_lib._class_NSKeyedArchiver1, _lib._sel_new1);
+    return NSKeyedArchiver._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSKeyedArchiver allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSKeyedArchiver1, _lib._sel_allocWithZone_1, zone);
     return NSKeyedArchiver._(_ret, _lib, retain: false, release: true);
   }
 
@@ -44685,7 +45455,7 @@ class NSKeyedArchiver extends NSCoder {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSKeyedArchiver1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -44695,7 +45465,7 @@ class NSKeyedArchiver extends NSCoder {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSKeyedArchiver1,
+    _lib._objc_msgSend_15(_lib._class_NSKeyedArchiver1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -44728,7 +45498,7 @@ class NSKeyedArchiver extends NSCoder {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSKeyedArchiver1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -44781,42 +45551,39 @@ class NSMutableData extends NSData {
   }
 
   set length(int value) {
-    _lib._objc_msgSend_483(_id, _lib._sel_setLength_1, value);
+    return _lib._objc_msgSend_483(_id, _lib._sel_setLength_1, value);
   }
 
   void appendBytes_length_(ffi.Pointer<ffi.Void> bytes, int length) {
-    return _lib._objc_msgSend_21(
-        _id, _lib._sel_appendBytes_length_1, bytes, length);
+    _lib._objc_msgSend_21(_id, _lib._sel_appendBytes_length_1, bytes, length);
   }
 
   void appendData_(NSData? other) {
-    return _lib._objc_msgSend_263(
+    _lib._objc_msgSend_263(
         _id, _lib._sel_appendData_1, other?._id ?? ffi.nullptr);
   }
 
   void increaseLengthBy_(int extraLength) {
-    return _lib._objc_msgSend_439(
-        _id, _lib._sel_increaseLengthBy_1, extraLength);
+    _lib._objc_msgSend_439(_id, _lib._sel_increaseLengthBy_1, extraLength);
   }
 
   void replaceBytesInRange_withBytes_(
       _NSRange range, ffi.Pointer<ffi.Void> bytes) {
-    return _lib._objc_msgSend_484(
+    _lib._objc_msgSend_484(
         _id, _lib._sel_replaceBytesInRange_withBytes_1, range, bytes);
   }
 
   void resetBytesInRange_(_NSRange range) {
-    return _lib._objc_msgSend_445(_id, _lib._sel_resetBytesInRange_1, range);
+    _lib._objc_msgSend_445(_id, _lib._sel_resetBytesInRange_1, range);
   }
 
   void setData_(NSData? data) {
-    return _lib._objc_msgSend_263(
-        _id, _lib._sel_setData_1, data?._id ?? ffi.nullptr);
+    _lib._objc_msgSend_263(_id, _lib._sel_setData_1, data?._id ?? ffi.nullptr);
   }
 
   void replaceBytesInRange_withBytes_length_(_NSRange range,
       ffi.Pointer<ffi.Void> replacementBytes, int replacementLength) {
-    return _lib._objc_msgSend_485(
+    _lib._objc_msgSend_485(
         _id,
         _lib._sel_replaceBytesInRange_withBytes_length_1,
         range,
@@ -44927,9 +45694,129 @@ class NSMutableData extends NSData {
     return NSMutableData._(_ret, _lib, retain: true, release: true);
   }
 
+  @override
+  NSMutableData initWithBytes_length_(ffi.Pointer<ffi.Void> bytes, int length) {
+    final _ret = _lib._objc_msgSend_252(
+        _id, _lib._sel_initWithBytes_length_1, bytes, length);
+    return NSMutableData._(_ret, _lib, retain: true, release: true);
+  }
+
+  @override
+  NSMutableData initWithBytesNoCopy_length_(
+      ffi.Pointer<ffi.Void> bytes, int length) {
+    final _ret = _lib._objc_msgSend_252(
+        _id, _lib._sel_initWithBytesNoCopy_length_1, bytes, length);
+    return NSMutableData._(_ret, _lib, retain: false, release: true);
+  }
+
+  @override
+  NSMutableData initWithBytesNoCopy_length_freeWhenDone_(
+      ffi.Pointer<ffi.Void> bytes, int length, bool b) {
+    final _ret = _lib._objc_msgSend_253(_id,
+        _lib._sel_initWithBytesNoCopy_length_freeWhenDone_1, bytes, length, b);
+    return NSMutableData._(_ret, _lib, retain: false, release: true);
+  }
+
+  @override
+  NSMutableData initWithBytesNoCopy_length_deallocator_(
+      ffi.Pointer<ffi.Void> bytes,
+      int length,
+      ObjCBlock_ffiVoid_ffiVoid_ffiUnsignedLong deallocator) {
+    final _ret = _lib._objc_msgSend_256(
+        _id,
+        _lib._sel_initWithBytesNoCopy_length_deallocator_1,
+        bytes,
+        length,
+        deallocator._id);
+    return NSMutableData._(_ret, _lib, retain: false, release: true);
+  }
+
+  @override
+  NSMutableData initWithContentsOfFile_options_error_(NSString? path,
+      int readOptionsMask, ffi.Pointer<ffi.Pointer<ObjCObject>> errorPtr) {
+    final _ret = _lib._objc_msgSend_254(
+        _id,
+        _lib._sel_initWithContentsOfFile_options_error_1,
+        path?._id ?? ffi.nullptr,
+        readOptionsMask,
+        errorPtr);
+    return NSMutableData._(_ret, _lib, retain: true, release: true);
+  }
+
+  @override
+  NSMutableData initWithContentsOfURL_options_error_(NSURL? url,
+      int readOptionsMask, ffi.Pointer<ffi.Pointer<ObjCObject>> errorPtr) {
+    final _ret = _lib._objc_msgSend_255(
+        _id,
+        _lib._sel_initWithContentsOfURL_options_error_1,
+        url?._id ?? ffi.nullptr,
+        readOptionsMask,
+        errorPtr);
+    return NSMutableData._(_ret, _lib, retain: true, release: true);
+  }
+
+  @override
+  NSMutableData initWithContentsOfFile_(NSString? path) {
+    final _ret = _lib._objc_msgSend_30(
+        _id, _lib._sel_initWithContentsOfFile_1, path?._id ?? ffi.nullptr);
+    return NSMutableData._(_ret, _lib, retain: true, release: true);
+  }
+
+  @override
+  NSMutableData initWithContentsOfURL_(NSURL? url) {
+    final _ret = _lib._objc_msgSend_241(
+        _id, _lib._sel_initWithContentsOfURL_1, url?._id ?? ffi.nullptr);
+    return NSMutableData._(_ret, _lib, retain: true, release: true);
+  }
+
+  @override
+  NSMutableData initWithData_(NSData? data) {
+    final _ret = _lib._objc_msgSend_257(
+        _id, _lib._sel_initWithData_1, data?._id ?? ffi.nullptr);
+    return NSMutableData._(_ret, _lib, retain: true, release: true);
+  }
+
   static NSMutableData dataWithData_(SentryCocoa _lib, NSData? data) {
     final _ret = _lib._objc_msgSend_257(_lib._class_NSMutableData1,
         _lib._sel_dataWithData_1, data?._id ?? ffi.nullptr);
+    return NSMutableData._(_ret, _lib, retain: true, release: true);
+  }
+
+  @override
+  NSMutableData initWithBase64EncodedString_options_(
+      NSString? base64String, int options) {
+    final _ret = _lib._objc_msgSend_258(
+        _id,
+        _lib._sel_initWithBase64EncodedString_options_1,
+        base64String?._id ?? ffi.nullptr,
+        options);
+    return NSMutableData._(_ret, _lib, retain: true, release: true);
+  }
+
+  @override
+  NSMutableData initWithBase64EncodedData_options_(
+      NSData? base64Data, int options) {
+    final _ret = _lib._objc_msgSend_260(
+        _id,
+        _lib._sel_initWithBase64EncodedData_options_1,
+        base64Data?._id ?? ffi.nullptr,
+        options);
+    return NSMutableData._(_ret, _lib, retain: true, release: true);
+  }
+
+  @override
+  NSMutableData decompressedDataUsingAlgorithm_error_(
+      int algorithm, ffi.Pointer<ffi.Pointer<ObjCObject>> error) {
+    final _ret = _lib._objc_msgSend_262(_id,
+        _lib._sel_decompressedDataUsingAlgorithm_error_1, algorithm, error);
+    return NSMutableData._(_ret, _lib, retain: true, release: true);
+  }
+
+  @override
+  NSMutableData compressedDataUsingAlgorithm_error_(
+      int algorithm, ffi.Pointer<ffi.Pointer<ObjCObject>> error) {
+    final _ret = _lib._objc_msgSend_262(
+        _id, _lib._sel_compressedDataUsingAlgorithm_error_1, algorithm, error);
     return NSMutableData._(_ret, _lib, retain: true, release: true);
   }
 
@@ -44940,9 +45827,22 @@ class NSMutableData extends NSData {
     return NSObject._(_ret, _lib, retain: true, release: true);
   }
 
+  @override
+  NSMutableData init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSMutableData._(_ret, _lib, retain: true, release: true);
+  }
+
   static NSMutableData new1(SentryCocoa _lib) {
     final _ret =
         _lib._objc_msgSend_2(_lib._class_NSMutableData1, _lib._sel_new1);
+    return NSMutableData._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSMutableData allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSMutableData1, _lib._sel_allocWithZone_1, zone);
     return NSMutableData._(_ret, _lib, retain: false, release: true);
   }
 
@@ -44957,7 +45857,7 @@ class NSMutableData extends NSData {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSMutableData1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -44967,7 +45867,7 @@ class NSMutableData extends NSData {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSMutableData1,
+    _lib._objc_msgSend_15(_lib._class_NSMutableData1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -45000,7 +45900,7 @@ class NSMutableData extends NSData {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSMutableData1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -45057,14 +45957,15 @@ class NSThread extends NSObject {
         : NSThread._(_ret, _lib, retain: true, release: true);
   }
 
-  static void detachNewThreadWithBlock_(SentryCocoa _lib, ObjCBlock21 block) {
-    return _lib._objc_msgSend_497(
+  static void detachNewThreadWithBlock_(
+      SentryCocoa _lib, ObjCBlock_ffiVoid block) {
+    _lib._objc_msgSend_497(
         _lib._class_NSThread1, _lib._sel_detachNewThreadWithBlock_1, block._id);
   }
 
   static void detachNewThreadSelector_toTarget_withObject_(SentryCocoa _lib,
       ffi.Pointer<ObjCSel> selector, NSObject target, NSObject argument) {
-    return _lib._objc_msgSend_498(
+    _lib._objc_msgSend_498(
         _lib._class_NSThread1,
         _lib._sel_detachNewThreadSelector_toTarget_withObject_1,
         selector,
@@ -45085,17 +45986,17 @@ class NSThread extends NSObject {
   }
 
   static void sleepUntilDate_(SentryCocoa _lib, NSDate? date) {
-    return _lib._objc_msgSend_504(_lib._class_NSThread1,
-        _lib._sel_sleepUntilDate_1, date?._id ?? ffi.nullptr);
+    _lib._objc_msgSend_504(_lib._class_NSThread1, _lib._sel_sleepUntilDate_1,
+        date?._id ?? ffi.nullptr);
   }
 
   static void sleepForTimeInterval_(SentryCocoa _lib, double ti) {
-    return _lib._objc_msgSend_505(
+    _lib._objc_msgSend_505(
         _lib._class_NSThread1, _lib._sel_sleepForTimeInterval_1, ti);
   }
 
   static void exit(SentryCocoa _lib) {
-    return _lib._objc_msgSend_1(_lib._class_NSThread1, _lib._sel_exit1);
+    _lib._objc_msgSend_1(_lib._class_NSThread1, _lib._sel_exit1);
   }
 
   double get threadPriority {
@@ -45103,7 +46004,7 @@ class NSThread extends NSObject {
   }
 
   set threadPriority(double value) {
-    _lib._objc_msgSend_506(_id, _lib._sel_setThreadPriority_1, value);
+    return _lib._objc_msgSend_506(_id, _lib._sel_setThreadPriority_1, value);
   }
 
   int get qualityOfService {
@@ -45111,7 +46012,7 @@ class NSThread extends NSObject {
   }
 
   set qualityOfService(int value) {
-    _lib._objc_msgSend_508(_id, _lib._sel_setQualityOfService_1, value);
+    return _lib._objc_msgSend_508(_id, _lib._sel_setQualityOfService_1, value);
   }
 
   static NSArray? getCallStackReturnAddresses(SentryCocoa _lib) {
@@ -45138,7 +46039,8 @@ class NSThread extends NSObject {
   }
 
   set name(NSString? value) {
-    _lib._objc_msgSend_509(_id, _lib._sel_setName_1, value?._id ?? ffi.nullptr);
+    return _lib._objc_msgSend_509(
+        _id, _lib._sel_setName_1, value?._id ?? ffi.nullptr);
   }
 
   int get stackSize {
@@ -45146,7 +46048,7 @@ class NSThread extends NSObject {
   }
 
   set stackSize(int value) {
-    _lib._objc_msgSend_483(_id, _lib._sel_setStackSize_1, value);
+    return _lib._objc_msgSend_483(_id, _lib._sel_setStackSize_1, value);
   }
 
   bool get isMainThread {
@@ -45178,7 +46080,7 @@ class NSThread extends NSObject {
     return NSThread._(_ret, _lib, retain: true, release: true);
   }
 
-  NSThread initWithBlock_(ObjCBlock21 block) {
+  NSThread initWithBlock_(ObjCBlock_ffiVoid block) {
     final _ret =
         _lib._objc_msgSend_511(_id, _lib._sel_initWithBlock_1, block._id);
     return NSThread._(_ret, _lib, retain: true, release: true);
@@ -45197,19 +46099,25 @@ class NSThread extends NSObject {
   }
 
   void cancel() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_cancel1);
+    _lib._objc_msgSend_1(_id, _lib._sel_cancel1);
   }
 
   void start() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_start1);
+    _lib._objc_msgSend_1(_id, _lib._sel_start1);
   }
 
   void main() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_main1);
+    _lib._objc_msgSend_1(_id, _lib._sel_main1);
   }
 
   static NSThread new1(SentryCocoa _lib) {
     final _ret = _lib._objc_msgSend_2(_lib._class_NSThread1, _lib._sel_new1);
+    return NSThread._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSThread allocWithZone_(SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSThread1, _lib._sel_allocWithZone_1, zone);
     return NSThread._(_ret, _lib, retain: false, release: true);
   }
 
@@ -45223,7 +46131,7 @@ class NSThread extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSThread1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -45233,7 +46141,7 @@ class NSThread extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSThread1,
+    _lib._objc_msgSend_15(_lib._class_NSThread1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -45266,7 +46174,7 @@ class NSThread extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSThread1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -45286,51 +46194,51 @@ class NSThread extends NSObject {
   }
 }
 
-void _ObjCBlock21_fnPtrTrampoline(ffi.Pointer<_ObjCBlock> block) {
+void _ObjCBlock_ffiVoid_fnPtrTrampoline(ffi.Pointer<_ObjCBlock> block) {
   return block.ref.target
       .cast<ffi.NativeFunction<ffi.Void Function()>>()
       .asFunction<void Function()>()();
 }
 
-final _ObjCBlock21_closureRegistry = <int, Function>{};
-int _ObjCBlock21_closureRegistryIndex = 0;
-ffi.Pointer<ffi.Void> _ObjCBlock21_registerClosure(Function fn) {
-  final id = ++_ObjCBlock21_closureRegistryIndex;
-  _ObjCBlock21_closureRegistry[id] = fn;
+final _ObjCBlock_ffiVoid_closureRegistry = <int, Function>{};
+int _ObjCBlock_ffiVoid_closureRegistryIndex = 0;
+ffi.Pointer<ffi.Void> _ObjCBlock_ffiVoid_registerClosure(Function fn) {
+  final id = ++_ObjCBlock_ffiVoid_closureRegistryIndex;
+  _ObjCBlock_ffiVoid_closureRegistry[id] = fn;
   return ffi.Pointer<ffi.Void>.fromAddress(id);
 }
 
-void _ObjCBlock21_closureTrampoline(ffi.Pointer<_ObjCBlock> block) {
-  return (_ObjCBlock21_closureRegistry[block.ref.target.address] as void
+void _ObjCBlock_ffiVoid_closureTrampoline(ffi.Pointer<_ObjCBlock> block) {
+  return (_ObjCBlock_ffiVoid_closureRegistry[block.ref.target.address] as void
       Function())();
 }
 
-class ObjCBlock21 extends _ObjCBlockBase {
-  ObjCBlock21._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
+class ObjCBlock_ffiVoid extends _ObjCBlockBase {
+  ObjCBlock_ffiVoid._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
       : super._(id, lib, retain: false, release: true);
 
   /// Creates a block from a C function pointer.
-  ObjCBlock21.fromFunctionPointer(
+  ObjCBlock_ffiVoid.fromFunctionPointer(
       SentryCocoa lib, ffi.Pointer<ffi.NativeFunction<ffi.Void Function()>> ptr)
       : this._(
             lib._newBlock1(
                 _cFuncTrampoline ??= ffi.Pointer.fromFunction<
                             ffi.Void Function(ffi.Pointer<_ObjCBlock> block)>(
-                        _ObjCBlock21_fnPtrTrampoline)
+                        _ObjCBlock_ffiVoid_fnPtrTrampoline)
                     .cast(),
                 ptr.cast()),
             lib);
   static ffi.Pointer<ffi.Void>? _cFuncTrampoline;
 
   /// Creates a block from a Dart function.
-  ObjCBlock21.fromFunction(SentryCocoa lib, void Function() fn)
+  ObjCBlock_ffiVoid.fromFunction(SentryCocoa lib, void Function() fn)
       : this._(
             lib._newBlock1(
                 _dartFuncTrampoline ??= ffi.Pointer.fromFunction<
                             ffi.Void Function(ffi.Pointer<_ObjCBlock> block)>(
-                        _ObjCBlock21_closureTrampoline)
+                        _ObjCBlock_ffiVoid_closureTrampoline)
                     .cast(),
-                _ObjCBlock21_registerClosure(fn)),
+                _ObjCBlock_ffiVoid_registerClosure(fn)),
             lib);
   static ffi.Pointer<ffi.Void>? _dartFuncTrampoline;
   void call() {
@@ -45367,12 +46275,12 @@ class NSMutableDictionary extends NSDictionary {
   }
 
   void removeObjectForKey_(NSObject aKey) {
-    return _lib._objc_msgSend_15(_id, _lib._sel_removeObjectForKey_1, aKey._id);
+    _lib._objc_msgSend_15(_id, _lib._sel_removeObjectForKey_1, aKey._id);
   }
 
   void setObject_forKey_(NSObject anObject, NSObject? aKey) {
-    return _lib._objc_msgSend_499(_id, _lib._sel_setObject_forKey_1,
-        anObject._id, aKey?._id ?? ffi.nullptr);
+    _lib._objc_msgSend_499(_id, _lib._sel_setObject_forKey_1, anObject._id,
+        aKey?._id ?? ffi.nullptr);
   }
 
   @override
@@ -45395,26 +46303,26 @@ class NSMutableDictionary extends NSDictionary {
   }
 
   void addEntriesFromDictionary_(NSDictionary? otherDictionary) {
-    return _lib._objc_msgSend_476(_id, _lib._sel_addEntriesFromDictionary_1,
+    _lib._objc_msgSend_476(_id, _lib._sel_addEntriesFromDictionary_1,
         otherDictionary?._id ?? ffi.nullptr);
   }
 
   void removeAllObjects() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_removeAllObjects1);
+    _lib._objc_msgSend_1(_id, _lib._sel_removeAllObjects1);
   }
 
   void removeObjectsForKeys_(NSArray? keyArray) {
-    return _lib._objc_msgSend_441(
+    _lib._objc_msgSend_441(
         _id, _lib._sel_removeObjectsForKeys_1, keyArray?._id ?? ffi.nullptr);
   }
 
   void setDictionary_(NSDictionary? otherDictionary) {
-    return _lib._objc_msgSend_476(
+    _lib._objc_msgSend_476(
         _id, _lib._sel_setDictionary_1, otherDictionary?._id ?? ffi.nullptr);
   }
 
   void setObject_forKeyedSubscript_(NSObject obj, NSObject? key) {
-    return _lib._objc_msgSend_499(_id, _lib._sel_setObject_forKeyedSubscript_1,
+    _lib._objc_msgSend_499(_id, _lib._sel_setObject_forKeyedSubscript_1,
         obj._id, key?._id ?? ffi.nullptr);
   }
 
@@ -45459,8 +46367,18 @@ class NSMutableDictionary extends NSDictionary {
   }
 
   void setValue_forKey_(NSObject value, NSString? key) {
-    return _lib._objc_msgSend_126(
+    _lib._objc_msgSend_126(
         _id, _lib._sel_setValue_forKey_1, value._id, key?._id ?? ffi.nullptr);
+  }
+
+  @override
+  NSMutableDictionary initWithObjects_forKeys_count_(
+      ffi.Pointer<ffi.Pointer<ObjCObject>> objects,
+      ffi.Pointer<ffi.Pointer<ObjCObject>> keys,
+      int cnt) {
+    final _ret = _lib._objc_msgSend_137(
+        _id, _lib._sel_initWithObjects_forKeys_count_1, objects, keys, cnt);
+    return NSMutableDictionary._(_ret, _lib, retain: true, release: true);
   }
 
   static NSMutableDictionary dictionary(SentryCocoa _lib) {
@@ -45513,6 +46431,42 @@ class NSMutableDictionary extends NSDictionary {
     return NSMutableDictionary._(_ret, _lib, retain: true, release: true);
   }
 
+  @override
+  NSMutableDictionary initWithObjectsAndKeys_(NSObject firstObject) {
+    final _ret = _lib._objc_msgSend_16(
+        _id, _lib._sel_initWithObjectsAndKeys_1, firstObject._id);
+    return NSMutableDictionary._(_ret, _lib, retain: true, release: true);
+  }
+
+  @override
+  NSMutableDictionary initWithDictionary_(NSDictionary? otherDictionary) {
+    final _ret = _lib._objc_msgSend_149(_id, _lib._sel_initWithDictionary_1,
+        otherDictionary?._id ?? ffi.nullptr);
+    return NSMutableDictionary._(_ret, _lib, retain: true, release: true);
+  }
+
+  @override
+  NSMutableDictionary initWithDictionary_copyItems_(
+      NSDictionary? otherDictionary, bool flag) {
+    final _ret = _lib._objc_msgSend_151(
+        _id,
+        _lib._sel_initWithDictionary_copyItems_1,
+        otherDictionary?._id ?? ffi.nullptr,
+        flag);
+    return NSMutableDictionary._(_ret, _lib, retain: false, release: true);
+  }
+
+  @override
+  NSMutableDictionary initWithObjects_forKeys_(
+      NSArray? objects, NSArray? keys) {
+    final _ret = _lib._objc_msgSend_150(
+        _id,
+        _lib._sel_initWithObjects_forKeys_1,
+        objects?._id ?? ffi.nullptr,
+        keys?._id ?? ffi.nullptr);
+    return NSMutableDictionary._(_ret, _lib, retain: true, release: true);
+  }
+
   static NSDictionary dictionaryWithContentsOfURL_error_(SentryCocoa _lib,
       NSURL? url, ffi.Pointer<ffi.Pointer<ObjCObject>> error) {
     final _ret = _lib._objc_msgSend_152(
@@ -45535,6 +46489,13 @@ class NSMutableDictionary extends NSDictionary {
     return NSMutableDictionary._(_ret, _lib, retain: false, release: true);
   }
 
+  static NSMutableDictionary allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSMutableDictionary1, _lib._sel_allocWithZone_1, zone);
+    return NSMutableDictionary._(_ret, _lib, retain: false, release: true);
+  }
+
   static NSMutableDictionary alloc(SentryCocoa _lib) {
     final _ret = _lib._objc_msgSend_2(
         _lib._class_NSMutableDictionary1, _lib._sel_alloc1);
@@ -45546,7 +46507,7 @@ class NSMutableDictionary extends NSDictionary {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSMutableDictionary1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -45556,7 +46517,7 @@ class NSMutableDictionary extends NSDictionary {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSMutableDictionary1,
+    _lib._objc_msgSend_15(_lib._class_NSMutableDictionary1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -45589,7 +46550,7 @@ class NSMutableDictionary extends NSDictionary {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSMutableDictionary1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -45655,14 +46616,12 @@ class NSArchiver extends NSCoder {
 
   @override
   void encodeRootObject_(NSObject rootObject) {
-    return _lib._objc_msgSend_15(
-        _id, _lib._sel_encodeRootObject_1, rootObject._id);
+    _lib._objc_msgSend_15(_id, _lib._sel_encodeRootObject_1, rootObject._id);
   }
 
   @override
   void encodeConditionalObject_(NSObject object) {
-    return _lib._objc_msgSend_15(
-        _id, _lib._sel_encodeConditionalObject_1, object._id);
+    _lib._objc_msgSend_15(_id, _lib._sel_encodeConditionalObject_1, object._id);
   }
 
   static NSData archivedDataWithRootObject_(
@@ -45683,11 +46642,8 @@ class NSArchiver extends NSCoder {
 
   void encodeClassName_intoClassName_(
       NSString? trueName, NSString? inArchiveName) {
-    return _lib._objc_msgSend_515(
-        _id,
-        _lib._sel_encodeClassName_intoClassName_1,
-        trueName?._id ?? ffi.nullptr,
-        inArchiveName?._id ?? ffi.nullptr);
+    _lib._objc_msgSend_515(_id, _lib._sel_encodeClassName_intoClassName_1,
+        trueName?._id ?? ffi.nullptr, inArchiveName?._id ?? ffi.nullptr);
   }
 
   NSString classNameEncodedForTrueClassName_(NSString? trueName) {
@@ -45699,12 +46655,25 @@ class NSArchiver extends NSCoder {
   }
 
   void replaceObject_withObject_(NSObject object, NSObject newObject) {
-    return _lib._objc_msgSend_499(
+    _lib._objc_msgSend_499(
         _id, _lib._sel_replaceObject_withObject_1, object._id, newObject._id);
+  }
+
+  @override
+  NSArchiver init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSArchiver._(_ret, _lib, retain: true, release: true);
   }
 
   static NSArchiver new1(SentryCocoa _lib) {
     final _ret = _lib._objc_msgSend_2(_lib._class_NSArchiver1, _lib._sel_new1);
+    return NSArchiver._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSArchiver allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSArchiver1, _lib._sel_allocWithZone_1, zone);
     return NSArchiver._(_ret, _lib, retain: false, release: true);
   }
 
@@ -45719,7 +46688,7 @@ class NSArchiver extends NSCoder {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSArchiver1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -45729,7 +46698,7 @@ class NSArchiver extends NSCoder {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSArchiver1,
+    _lib._objc_msgSend_15(_lib._class_NSArchiver1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -45762,7 +46731,7 @@ class NSArchiver extends NSCoder {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSArchiver1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -45814,7 +46783,7 @@ class NSPortCoder extends NSCoder {
   }
 
   void encodePortObject_(NSPort? aport) {
-    return _lib._objc_msgSend_552(
+    _lib._objc_msgSend_552(
         _id, _lib._sel_encodePortObject_1, aport?._id ?? ffi.nullptr);
   }
 
@@ -45851,11 +46820,24 @@ class NSPortCoder extends NSCoder {
   }
 
   void dispatch() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_dispatch1);
+    _lib._objc_msgSend_1(_id, _lib._sel_dispatch1);
+  }
+
+  @override
+  NSPortCoder init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSPortCoder._(_ret, _lib, retain: true, release: true);
   }
 
   static NSPortCoder new1(SentryCocoa _lib) {
     final _ret = _lib._objc_msgSend_2(_lib._class_NSPortCoder1, _lib._sel_new1);
+    return NSPortCoder._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSPortCoder allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSPortCoder1, _lib._sel_allocWithZone_1, zone);
     return NSPortCoder._(_ret, _lib, retain: false, release: true);
   }
 
@@ -45870,7 +46852,7 @@ class NSPortCoder extends NSCoder {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSPortCoder1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -45880,7 +46862,7 @@ class NSPortCoder extends NSCoder {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSPortCoder1,
+    _lib._objc_msgSend_15(_lib._class_NSPortCoder1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -45913,7 +46895,7 @@ class NSPortCoder extends NSCoder {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSPortCoder1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -45961,7 +46943,7 @@ class NSPort extends NSObject {
   }
 
   void invalidate() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_invalidate1);
+    _lib._objc_msgSend_1(_id, _lib._sel_invalidate1);
   }
 
   bool get valid {
@@ -45969,7 +46951,7 @@ class NSPort extends NSObject {
   }
 
   void setDelegate_(NSObject? anObject) {
-    return _lib._objc_msgSend_15(
+    _lib._objc_msgSend_15(
         _id, _lib._sel_setDelegate_1, anObject?._id ?? ffi.nullptr);
   }
 
@@ -45979,12 +46961,12 @@ class NSPort extends NSObject {
   }
 
   void scheduleInRunLoop_forMode_(NSRunLoop? runLoop, NSString mode) {
-    return _lib._objc_msgSend_533(_id, _lib._sel_scheduleInRunLoop_forMode_1,
+    _lib._objc_msgSend_533(_id, _lib._sel_scheduleInRunLoop_forMode_1,
         runLoop?._id ?? ffi.nullptr, mode._id);
   }
 
   void removeFromRunLoop_forMode_(NSRunLoop? runLoop, NSString mode) {
-    return _lib._objc_msgSend_533(_id, _lib._sel_removeFromRunLoop_forMode_1,
+    _lib._objc_msgSend_533(_id, _lib._sel_removeFromRunLoop_forMode_1,
         runLoop?._id ?? ffi.nullptr, mode._id);
   }
 
@@ -46024,17 +47006,13 @@ class NSPort extends NSObject {
 
   void addConnection_toRunLoop_forMode_(
       NSConnection? conn, NSRunLoop? runLoop, NSString mode) {
-    return _lib._objc_msgSend_551(
-        _id,
-        _lib._sel_addConnection_toRunLoop_forMode_1,
-        conn?._id ?? ffi.nullptr,
-        runLoop?._id ?? ffi.nullptr,
-        mode._id);
+    _lib._objc_msgSend_551(_id, _lib._sel_addConnection_toRunLoop_forMode_1,
+        conn?._id ?? ffi.nullptr, runLoop?._id ?? ffi.nullptr, mode._id);
   }
 
   void removeConnection_fromRunLoop_forMode_(
       NSConnection? conn, NSRunLoop? runLoop, NSString mode) {
-    return _lib._objc_msgSend_551(
+    _lib._objc_msgSend_551(
         _id,
         _lib._sel_removeConnection_fromRunLoop_forMode_1,
         conn?._id ?? ffi.nullptr,
@@ -46042,8 +47020,20 @@ class NSPort extends NSObject {
         mode._id);
   }
 
+  @override
+  NSPort init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSPort._(_ret, _lib, retain: true, release: true);
+  }
+
   static NSPort new1(SentryCocoa _lib) {
     final _ret = _lib._objc_msgSend_2(_lib._class_NSPort1, _lib._sel_new1);
+    return NSPort._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSPort allocWithZone_(SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSPort1, _lib._sel_allocWithZone_1, zone);
     return NSPort._(_ret, _lib, retain: false, release: true);
   }
 
@@ -46057,7 +47047,7 @@ class NSPort extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSPort1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -46067,7 +47057,7 @@ class NSPort extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSPort1,
+    _lib._objc_msgSend_15(_lib._class_NSPort1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -46100,7 +47090,7 @@ class NSPort extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSPort1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -46169,17 +47159,17 @@ class NSRunLoop extends NSObject {
   }
 
   void addTimer_forMode_(NSTimer? timer, NSString mode) {
-    return _lib._objc_msgSend_526(
+    _lib._objc_msgSend_526(
         _id, _lib._sel_addTimer_forMode_1, timer?._id ?? ffi.nullptr, mode._id);
   }
 
   void addPort_forMode_(NSPort? aPort, NSString mode) {
-    return _lib._objc_msgSend_527(
+    _lib._objc_msgSend_527(
         _id, _lib._sel_addPort_forMode_1, aPort?._id ?? ffi.nullptr, mode._id);
   }
 
   void removePort_forMode_(NSPort? aPort, NSString mode) {
-    return _lib._objc_msgSend_527(_id, _lib._sel_removePort_forMode_1,
+    _lib._objc_msgSend_527(_id, _lib._sel_removePort_forMode_1,
         aPort?._id ?? ffi.nullptr, mode._id);
   }
 
@@ -46190,19 +47180,16 @@ class NSRunLoop extends NSObject {
   }
 
   void acceptInputForMode_beforeDate_(NSString mode, NSDate? limitDate) {
-    return _lib._objc_msgSend_529(
-        _id,
-        _lib._sel_acceptInputForMode_beforeDate_1,
-        mode._id,
-        limitDate?._id ?? ffi.nullptr);
+    _lib._objc_msgSend_529(_id, _lib._sel_acceptInputForMode_beforeDate_1,
+        mode._id, limitDate?._id ?? ffi.nullptr);
   }
 
   void run() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_run1);
+    _lib._objc_msgSend_1(_id, _lib._sel_run1);
   }
 
   void runUntilDate_(NSDate? limitDate) {
-    return _lib._objc_msgSend_504(
+    _lib._objc_msgSend_504(
         _id, _lib._sel_runUntilDate_1, limitDate?._id ?? ffi.nullptr);
   }
 
@@ -46212,16 +47199,16 @@ class NSRunLoop extends NSObject {
   }
 
   void configureAsServer() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_configureAsServer1);
+    _lib._objc_msgSend_1(_id, _lib._sel_configureAsServer1);
   }
 
-  void performInModes_block_(NSArray? modes, ObjCBlock21 block) {
-    return _lib._objc_msgSend_531(_id, _lib._sel_performInModes_block_1,
+  void performInModes_block_(NSArray? modes, ObjCBlock_ffiVoid block) {
+    _lib._objc_msgSend_531(_id, _lib._sel_performInModes_block_1,
         modes?._id ?? ffi.nullptr, block._id);
   }
 
-  void performBlock_(ObjCBlock21 block) {
-    return _lib._objc_msgSend_497(_id, _lib._sel_performBlock_1, block._id);
+  void performBlock_(ObjCBlock_ffiVoid block) {
+    _lib._objc_msgSend_497(_id, _lib._sel_performBlock_1, block._id);
   }
 
   void performSelector_target_argument_order_modes_(
@@ -46230,7 +47217,7 @@ class NSRunLoop extends NSObject {
       NSObject arg,
       int order,
       NSArray? modes) {
-    return _lib._objc_msgSend_532(
+    _lib._objc_msgSend_532(
         _id,
         _lib._sel_performSelector_target_argument_order_modes_1,
         aSelector,
@@ -46242,7 +47229,7 @@ class NSRunLoop extends NSObject {
 
   void cancelPerformSelector_target_argument_(
       ffi.Pointer<ObjCSel> aSelector, NSObject target, NSObject arg) {
-    return _lib._objc_msgSend_498(
+    _lib._objc_msgSend_498(
         _id,
         _lib._sel_cancelPerformSelector_target_argument_1,
         aSelector,
@@ -46251,12 +47238,24 @@ class NSRunLoop extends NSObject {
   }
 
   void cancelPerformSelectorsWithTarget_(NSObject target) {
-    return _lib._objc_msgSend_15(
+    _lib._objc_msgSend_15(
         _id, _lib._sel_cancelPerformSelectorsWithTarget_1, target._id);
+  }
+
+  @override
+  NSRunLoop init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSRunLoop._(_ret, _lib, retain: true, release: true);
   }
 
   static NSRunLoop new1(SentryCocoa _lib) {
     final _ret = _lib._objc_msgSend_2(_lib._class_NSRunLoop1, _lib._sel_new1);
+    return NSRunLoop._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSRunLoop allocWithZone_(SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSRunLoop1, _lib._sel_allocWithZone_1, zone);
     return NSRunLoop._(_ret, _lib, retain: false, release: true);
   }
 
@@ -46270,7 +47269,7 @@ class NSRunLoop extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSRunLoop1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -46280,7 +47279,7 @@ class NSRunLoop extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSRunLoop1,
+    _lib._objc_msgSend_15(_lib._class_NSRunLoop1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -46313,7 +47312,7 @@ class NSRunLoop extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSRunLoop1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -46416,8 +47415,8 @@ class NSTimer extends NSObject {
     return NSTimer._(_ret, _lib, retain: true, release: true);
   }
 
-  static NSTimer timerWithTimeInterval_repeats_block_(
-      SentryCocoa _lib, double interval, bool repeats, ObjCBlock22 block) {
+  static NSTimer timerWithTimeInterval_repeats_block_(SentryCocoa _lib,
+      double interval, bool repeats, ObjCBlock_ffiVoid_NSTimer block) {
     final _ret = _lib._objc_msgSend_522(
         _lib._class_NSTimer1,
         _lib._sel_timerWithTimeInterval_repeats_block_1,
@@ -46427,8 +47426,8 @@ class NSTimer extends NSObject {
     return NSTimer._(_ret, _lib, retain: true, release: true);
   }
 
-  static NSTimer scheduledTimerWithTimeInterval_repeats_block_(
-      SentryCocoa _lib, double interval, bool repeats, ObjCBlock22 block) {
+  static NSTimer scheduledTimerWithTimeInterval_repeats_block_(SentryCocoa _lib,
+      double interval, bool repeats, ObjCBlock_ffiVoid_NSTimer block) {
     final _ret = _lib._objc_msgSend_522(
         _lib._class_NSTimer1,
         _lib._sel_scheduledTimerWithTimeInterval_repeats_block_1,
@@ -46438,8 +47437,8 @@ class NSTimer extends NSObject {
     return NSTimer._(_ret, _lib, retain: true, release: true);
   }
 
-  NSTimer initWithFireDate_interval_repeats_block_(
-      NSDate? date, double interval, bool repeats, ObjCBlock22 block) {
+  NSTimer initWithFireDate_interval_repeats_block_(NSDate? date,
+      double interval, bool repeats, ObjCBlock_ffiVoid_NSTimer block) {
     final _ret = _lib._objc_msgSend_523(
         _id,
         _lib._sel_initWithFireDate_interval_repeats_block_1,
@@ -46470,7 +47469,7 @@ class NSTimer extends NSObject {
   }
 
   void fire() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_fire1);
+    _lib._objc_msgSend_1(_id, _lib._sel_fire1);
   }
 
   NSDate? get fireDate {
@@ -46481,7 +47480,7 @@ class NSTimer extends NSObject {
   }
 
   set fireDate(NSDate? value) {
-    _lib._objc_msgSend_525(
+    return _lib._objc_msgSend_525(
         _id, _lib._sel_setFireDate_1, value?._id ?? ffi.nullptr);
   }
 
@@ -46494,11 +47493,11 @@ class NSTimer extends NSObject {
   }
 
   set tolerance(double value) {
-    _lib._objc_msgSend_506(_id, _lib._sel_setTolerance_1, value);
+    return _lib._objc_msgSend_506(_id, _lib._sel_setTolerance_1, value);
   }
 
   void invalidate() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_invalidate1);
+    _lib._objc_msgSend_1(_id, _lib._sel_invalidate1);
   }
 
   bool get valid {
@@ -46510,8 +47509,20 @@ class NSTimer extends NSObject {
     return NSObject._(_ret, _lib, retain: true, release: true);
   }
 
+  @override
+  NSTimer init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSTimer._(_ret, _lib, retain: true, release: true);
+  }
+
   static NSTimer new1(SentryCocoa _lib) {
     final _ret = _lib._objc_msgSend_2(_lib._class_NSTimer1, _lib._sel_new1);
+    return NSTimer._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSTimer allocWithZone_(SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSTimer1, _lib._sel_allocWithZone_1, zone);
     return NSTimer._(_ret, _lib, retain: false, release: true);
   }
 
@@ -46525,7 +47536,7 @@ class NSTimer extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSTimer1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -46535,7 +47546,7 @@ class NSTimer extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSTimer1,
+    _lib._objc_msgSend_15(_lib._class_NSTimer1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -46568,7 +47579,7 @@ class NSTimer extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSTimer1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -46588,7 +47599,7 @@ class NSTimer extends NSObject {
   }
 }
 
-void _ObjCBlock22_fnPtrTrampoline(
+void _ObjCBlock_ffiVoid_NSTimer_fnPtrTrampoline(
     ffi.Pointer<_ObjCBlock> block, ffi.Pointer<ObjCObject> arg0) {
   return block.ref.target
       .cast<
@@ -46596,26 +47607,26 @@ void _ObjCBlock22_fnPtrTrampoline(
       .asFunction<void Function(ffi.Pointer<ObjCObject> arg0)>()(arg0);
 }
 
-final _ObjCBlock22_closureRegistry = <int, Function>{};
-int _ObjCBlock22_closureRegistryIndex = 0;
-ffi.Pointer<ffi.Void> _ObjCBlock22_registerClosure(Function fn) {
-  final id = ++_ObjCBlock22_closureRegistryIndex;
-  _ObjCBlock22_closureRegistry[id] = fn;
+final _ObjCBlock_ffiVoid_NSTimer_closureRegistry = <int, Function>{};
+int _ObjCBlock_ffiVoid_NSTimer_closureRegistryIndex = 0;
+ffi.Pointer<ffi.Void> _ObjCBlock_ffiVoid_NSTimer_registerClosure(Function fn) {
+  final id = ++_ObjCBlock_ffiVoid_NSTimer_closureRegistryIndex;
+  _ObjCBlock_ffiVoid_NSTimer_closureRegistry[id] = fn;
   return ffi.Pointer<ffi.Void>.fromAddress(id);
 }
 
-void _ObjCBlock22_closureTrampoline(
+void _ObjCBlock_ffiVoid_NSTimer_closureTrampoline(
     ffi.Pointer<_ObjCBlock> block, ffi.Pointer<ObjCObject> arg0) {
-  return (_ObjCBlock22_closureRegistry[block.ref.target.address] as void
-      Function(ffi.Pointer<ObjCObject>))(arg0);
+  return (_ObjCBlock_ffiVoid_NSTimer_closureRegistry[block.ref.target.address]
+      as void Function(ffi.Pointer<ObjCObject>))(arg0);
 }
 
-class ObjCBlock22 extends _ObjCBlockBase {
-  ObjCBlock22._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
+class ObjCBlock_ffiVoid_NSTimer extends _ObjCBlockBase {
+  ObjCBlock_ffiVoid_NSTimer._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
       : super._(id, lib, retain: false, release: true);
 
   /// Creates a block from a C function pointer.
-  ObjCBlock22.fromFunctionPointer(
+  ObjCBlock_ffiVoid_NSTimer.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
               ffi
@@ -46626,23 +47637,23 @@ class ObjCBlock22 extends _ObjCBlockBase {
                 _cFuncTrampoline ??= ffi.Pointer.fromFunction<
                             ffi.Void Function(ffi.Pointer<_ObjCBlock> block,
                                 ffi.Pointer<ObjCObject> arg0)>(
-                        _ObjCBlock22_fnPtrTrampoline)
+                        _ObjCBlock_ffiVoid_NSTimer_fnPtrTrampoline)
                     .cast(),
                 ptr.cast()),
             lib);
   static ffi.Pointer<ffi.Void>? _cFuncTrampoline;
 
   /// Creates a block from a Dart function.
-  ObjCBlock22.fromFunction(
+  ObjCBlock_ffiVoid_NSTimer.fromFunction(
       SentryCocoa lib, void Function(ffi.Pointer<ObjCObject> arg0) fn)
       : this._(
             lib._newBlock1(
                 _dartFuncTrampoline ??= ffi.Pointer.fromFunction<
                             ffi.Void Function(ffi.Pointer<_ObjCBlock> block,
                                 ffi.Pointer<ObjCObject> arg0)>(
-                        _ObjCBlock22_closureTrampoline)
+                        _ObjCBlock_ffiVoid_NSTimer_closureTrampoline)
                     .cast(),
-                _ObjCBlock22_registerClosure(fn)),
+                _ObjCBlock_ffiVoid_NSTimer_registerClosure(fn)),
             lib);
   static ffi.Pointer<ffi.Void>? _dartFuncTrampoline;
   void call(ffi.Pointer<ObjCObject> arg0) {
@@ -46777,7 +47788,7 @@ class NSConnection extends NSObject {
   }
 
   set requestTimeout(double value) {
-    _lib._objc_msgSend_506(_id, _lib._sel_setRequestTimeout_1, value);
+    return _lib._objc_msgSend_506(_id, _lib._sel_setRequestTimeout_1, value);
   }
 
   double get replyTimeout {
@@ -46785,7 +47796,7 @@ class NSConnection extends NSObject {
   }
 
   set replyTimeout(double value) {
-    _lib._objc_msgSend_506(_id, _lib._sel_setReplyTimeout_1, value);
+    return _lib._objc_msgSend_506(_id, _lib._sel_setReplyTimeout_1, value);
   }
 
   NSObject get rootObject {
@@ -46794,7 +47805,7 @@ class NSConnection extends NSObject {
   }
 
   set rootObject(NSObject value) {
-    _lib._objc_msgSend_387(_id, _lib._sel_setRootObject_1, value._id);
+    return _lib._objc_msgSend_387(_id, _lib._sel_setRootObject_1, value._id);
   }
 
   NSObject? get delegate {
@@ -46805,7 +47816,7 @@ class NSConnection extends NSObject {
   }
 
   set delegate(NSObject? value) {
-    _lib._objc_msgSend_387(
+    return _lib._objc_msgSend_387(
         _id, _lib._sel_setDelegate_1, value?._id ?? ffi.nullptr);
   }
 
@@ -46815,7 +47826,7 @@ class NSConnection extends NSObject {
   }
 
   set independentConversationQueueing(bool value) {
-    _lib._objc_msgSend_492(
+    return _lib._objc_msgSend_492(
         _id, _lib._sel_setIndependentConversationQueueing_1, value);
   }
 
@@ -46831,16 +47842,16 @@ class NSConnection extends NSObject {
   }
 
   void invalidate() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_invalidate1);
+    _lib._objc_msgSend_1(_id, _lib._sel_invalidate1);
   }
 
   void addRequestMode_(NSString? rmode) {
-    return _lib._objc_msgSend_192(
+    _lib._objc_msgSend_192(
         _id, _lib._sel_addRequestMode_1, rmode?._id ?? ffi.nullptr);
   }
 
   void removeRequestMode_(NSString? rmode) {
-    return _lib._objc_msgSend_192(
+    _lib._objc_msgSend_192(
         _id, _lib._sel_removeRequestMode_1, rmode?._id ?? ffi.nullptr);
   }
 
@@ -46902,7 +47913,7 @@ class NSConnection extends NSObject {
   }
 
   void enableMultipleThreads() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_enableMultipleThreads1);
+    _lib._objc_msgSend_1(_id, _lib._sel_enableMultipleThreads1);
   }
 
   bool get multipleThreadsEnabled {
@@ -46910,17 +47921,17 @@ class NSConnection extends NSObject {
   }
 
   void addRunLoop_(NSRunLoop? runloop) {
-    return _lib._objc_msgSend_550(
+    _lib._objc_msgSend_550(
         _id, _lib._sel_addRunLoop_1, runloop?._id ?? ffi.nullptr);
   }
 
   void removeRunLoop_(NSRunLoop? runloop) {
-    return _lib._objc_msgSend_550(
+    _lib._objc_msgSend_550(
         _id, _lib._sel_removeRunLoop_1, runloop?._id ?? ffi.nullptr);
   }
 
   void runInNewThread() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_runInNewThread1);
+    _lib._objc_msgSend_1(_id, _lib._sel_runInNewThread1);
   }
 
   NSArray? get remoteObjects {
@@ -46938,13 +47949,26 @@ class NSConnection extends NSObject {
   }
 
   void dispatchWithComponents_(NSArray? components) {
-    return _lib._objc_msgSend_441(_id, _lib._sel_dispatchWithComponents_1,
+    _lib._objc_msgSend_441(_id, _lib._sel_dispatchWithComponents_1,
         components?._id ?? ffi.nullptr);
+  }
+
+  @override
+  NSConnection init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSConnection._(_ret, _lib, retain: true, release: true);
   }
 
   static NSConnection new1(SentryCocoa _lib) {
     final _ret =
         _lib._objc_msgSend_2(_lib._class_NSConnection1, _lib._sel_new1);
+    return NSConnection._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSConnection allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSConnection1, _lib._sel_allocWithZone_1, zone);
     return NSConnection._(_ret, _lib, retain: false, release: true);
   }
 
@@ -46959,7 +47983,7 @@ class NSConnection extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSConnection1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -46969,7 +47993,7 @@ class NSConnection extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSConnection1,
+    _lib._objc_msgSend_15(_lib._class_NSConnection1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -47002,7 +48026,7 @@ class NSConnection extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSConnection1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -47074,9 +48098,22 @@ class NSPortNameServer extends NSObject {
         _id, _lib._sel_removePortForName_1, name?._id ?? ffi.nullptr);
   }
 
+  @override
+  NSPortNameServer init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSPortNameServer._(_ret, _lib, retain: true, release: true);
+  }
+
   static NSPortNameServer new1(SentryCocoa _lib) {
     final _ret =
         _lib._objc_msgSend_2(_lib._class_NSPortNameServer1, _lib._sel_new1);
+    return NSPortNameServer._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSPortNameServer allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSPortNameServer1, _lib._sel_allocWithZone_1, zone);
     return NSPortNameServer._(_ret, _lib, retain: false, release: true);
   }
 
@@ -47091,7 +48128,7 @@ class NSPortNameServer extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSPortNameServer1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -47101,7 +48138,7 @@ class NSPortNameServer extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSPortNameServer1,
+    _lib._objc_msgSend_15(_lib._class_NSPortNameServer1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -47134,7 +48171,7 @@ class NSPortNameServer extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSPortNameServer1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -47225,7 +48262,7 @@ class NSDistantObject extends NSProxy {
   }
 
   void setProtocolForProxy_(Protocol? proto) {
-    return _lib._objc_msgSend_543(
+    _lib._objc_msgSend_543(
         _id, _lib._sel_setProtocolForProxy_1, proto?._id ?? ffi.nullptr);
   }
 
@@ -47288,7 +48325,7 @@ class NSProxy extends _ObjCWrapper {
   }
 
   void forwardInvocation_(NSInvocation? invocation) {
-    return _lib._objc_msgSend_392(
+    _lib._objc_msgSend_392(
         _id, _lib._sel_forwardInvocation_1, invocation?._id ?? ffi.nullptr);
   }
 
@@ -47299,11 +48336,11 @@ class NSProxy extends _ObjCWrapper {
   }
 
   void dealloc() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_dealloc1);
+    _lib._objc_msgSend_1(_id, _lib._sel_dealloc1);
   }
 
   void finalize() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_finalize1);
+    _lib._objc_msgSend_1(_id, _lib._sel_finalize1);
   }
 
   NSString? get description {
@@ -47361,7 +48398,7 @@ class NSClassDescription extends NSObject {
 
   static void registerClassDescription_forClass_(
       SentryCocoa _lib, NSClassDescription? description, NSObject aClass) {
-    return _lib._objc_msgSend_555(
+    _lib._objc_msgSend_555(
         _lib._class_NSClassDescription1,
         _lib._sel_registerClassDescription_forClass_1,
         description?._id ?? ffi.nullptr,
@@ -47369,7 +48406,7 @@ class NSClassDescription extends NSObject {
   }
 
   static void invalidateClassDescriptionCache(SentryCocoa _lib) {
-    return _lib._objc_msgSend_1(_lib._class_NSClassDescription1,
+    _lib._objc_msgSend_1(_lib._class_NSClassDescription1,
         _lib._sel_invalidateClassDescriptionCache1);
   }
 
@@ -47413,9 +48450,22 @@ class NSClassDescription extends NSObject {
     return NSString._(_ret, _lib, retain: true, release: true);
   }
 
+  @override
+  NSClassDescription init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSClassDescription._(_ret, _lib, retain: true, release: true);
+  }
+
   static NSClassDescription new1(SentryCocoa _lib) {
     final _ret =
         _lib._objc_msgSend_2(_lib._class_NSClassDescription1, _lib._sel_new1);
+    return NSClassDescription._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSClassDescription allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSClassDescription1, _lib._sel_allocWithZone_1, zone);
     return NSClassDescription._(_ret, _lib, retain: false, release: true);
   }
 
@@ -47430,7 +48480,7 @@ class NSClassDescription extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSClassDescription1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -47440,7 +48490,7 @@ class NSClassDescription extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSClassDescription1,
+    _lib._objc_msgSend_15(_lib._class_NSClassDescription1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -47473,7 +48523,7 @@ class NSClassDescription extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSClassDescription1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -47565,7 +48615,7 @@ class NSScriptObjectSpecifier extends NSObject {
   }
 
   set childSpecifier(NSScriptObjectSpecifier? value) {
-    _lib._objc_msgSend_589(
+    return _lib._objc_msgSend_589(
         _id, _lib._sel_setChildSpecifier_1, value?._id ?? ffi.nullptr);
   }
 
@@ -47577,7 +48627,7 @@ class NSScriptObjectSpecifier extends NSObject {
   }
 
   set containerSpecifier(NSScriptObjectSpecifier? value) {
-    _lib._objc_msgSend_589(
+    return _lib._objc_msgSend_589(
         _id, _lib._sel_setContainerSpecifier_1, value?._id ?? ffi.nullptr);
   }
 
@@ -47586,7 +48636,7 @@ class NSScriptObjectSpecifier extends NSObject {
   }
 
   set containerIsObjectBeingTested(bool value) {
-    _lib._objc_msgSend_492(
+    return _lib._objc_msgSend_492(
         _id, _lib._sel_setContainerIsObjectBeingTested_1, value);
   }
 
@@ -47596,7 +48646,7 @@ class NSScriptObjectSpecifier extends NSObject {
   }
 
   set containerIsRangeContainerObject(bool value) {
-    _lib._objc_msgSend_492(
+    return _lib._objc_msgSend_492(
         _id, _lib._sel_setContainerIsRangeContainerObject_1, value);
   }
 
@@ -47608,7 +48658,8 @@ class NSScriptObjectSpecifier extends NSObject {
   }
 
   set key(NSString? value) {
-    _lib._objc_msgSend_509(_id, _lib._sel_setKey_1, value?._id ?? ffi.nullptr);
+    return _lib._objc_msgSend_509(
+        _id, _lib._sel_setKey_1, value?._id ?? ffi.nullptr);
   }
 
   NSScriptClassDescription? get containerClassDescription {
@@ -47620,7 +48671,7 @@ class NSScriptObjectSpecifier extends NSObject {
   }
 
   set containerClassDescription(NSScriptClassDescription? value) {
-    _lib._objc_msgSend_599(_id, _lib._sel_setContainerClassDescription_1,
+    return _lib._objc_msgSend_599(_id, _lib._sel_setContainerClassDescription_1,
         value?._id ?? ffi.nullptr);
   }
 
@@ -47657,7 +48708,8 @@ class NSScriptObjectSpecifier extends NSObject {
   }
 
   set evaluationErrorNumber(int value) {
-    _lib._objc_msgSend_590(_id, _lib._sel_setEvaluationErrorNumber_1, value);
+    return _lib._objc_msgSend_590(
+        _id, _lib._sel_setEvaluationErrorNumber_1, value);
   }
 
   NSScriptObjectSpecifier? get evaluationErrorSpecifier {
@@ -47675,9 +48727,22 @@ class NSScriptObjectSpecifier extends NSObject {
         : NSAppleEventDescriptor._(_ret, _lib, retain: true, release: true);
   }
 
+  @override
+  NSScriptObjectSpecifier init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSScriptObjectSpecifier._(_ret, _lib, retain: true, release: true);
+  }
+
   static NSScriptObjectSpecifier new1(SentryCocoa _lib) {
     final _ret = _lib._objc_msgSend_2(
         _lib._class_NSScriptObjectSpecifier1, _lib._sel_new1);
+    return NSScriptObjectSpecifier._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSScriptObjectSpecifier allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSScriptObjectSpecifier1, _lib._sel_allocWithZone_1, zone);
     return NSScriptObjectSpecifier._(_ret, _lib, retain: false, release: true);
   }
 
@@ -47692,7 +48757,7 @@ class NSScriptObjectSpecifier extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSScriptObjectSpecifier1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -47702,7 +48767,7 @@ class NSScriptObjectSpecifier extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSScriptObjectSpecifier1,
+    _lib._objc_msgSend_15(_lib._class_NSScriptObjectSpecifier1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -47735,7 +48800,7 @@ class NSScriptObjectSpecifier extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSScriptObjectSpecifier1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -48057,11 +49122,8 @@ class NSAppleEventDescriptor extends NSObject {
 
   void setParamDescriptor_forKeyword_(
       NSAppleEventDescriptor? descriptor, int keyword) {
-    return _lib._objc_msgSend_574(
-        _id,
-        _lib._sel_setParamDescriptor_forKeyword_1,
-        descriptor?._id ?? ffi.nullptr,
-        keyword);
+    _lib._objc_msgSend_574(_id, _lib._sel_setParamDescriptor_forKeyword_1,
+        descriptor?._id ?? ffi.nullptr, keyword);
   }
 
   NSAppleEventDescriptor paramDescriptorForKeyword_(int keyword) {
@@ -48071,17 +49133,14 @@ class NSAppleEventDescriptor extends NSObject {
   }
 
   void removeParamDescriptorWithKeyword_(int keyword) {
-    return _lib._objc_msgSend_575(
+    _lib._objc_msgSend_575(
         _id, _lib._sel_removeParamDescriptorWithKeyword_1, keyword);
   }
 
   void setAttributeDescriptor_forKeyword_(
       NSAppleEventDescriptor? descriptor, int keyword) {
-    return _lib._objc_msgSend_574(
-        _id,
-        _lib._sel_setAttributeDescriptor_forKeyword_1,
-        descriptor?._id ?? ffi.nullptr,
-        keyword);
+    _lib._objc_msgSend_574(_id, _lib._sel_setAttributeDescriptor_forKeyword_1,
+        descriptor?._id ?? ffi.nullptr, keyword);
   }
 
   NSAppleEventDescriptor attributeDescriptorForKeyword_(int keyword) {
@@ -48111,7 +49170,7 @@ class NSAppleEventDescriptor extends NSObject {
 
   void insertDescriptor_atIndex_(
       NSAppleEventDescriptor? descriptor, int index) {
-    return _lib._objc_msgSend_577(_id, _lib._sel_insertDescriptor_atIndex_1,
+    _lib._objc_msgSend_577(_id, _lib._sel_insertDescriptor_atIndex_1,
         descriptor?._id ?? ffi.nullptr, index);
   }
 
@@ -48122,13 +49181,12 @@ class NSAppleEventDescriptor extends NSObject {
   }
 
   void removeDescriptorAtIndex_(int index) {
-    return _lib._objc_msgSend_394(
-        _id, _lib._sel_removeDescriptorAtIndex_1, index);
+    _lib._objc_msgSend_394(_id, _lib._sel_removeDescriptorAtIndex_1, index);
   }
 
   void setDescriptor_forKeyword_(
       NSAppleEventDescriptor? descriptor, int keyword) {
-    return _lib._objc_msgSend_574(_id, _lib._sel_setDescriptor_forKeyword_1,
+    _lib._objc_msgSend_574(_id, _lib._sel_setDescriptor_forKeyword_1,
         descriptor?._id ?? ffi.nullptr, keyword);
   }
 
@@ -48139,7 +49197,7 @@ class NSAppleEventDescriptor extends NSObject {
   }
 
   void removeDescriptorWithKeyword_(int keyword) {
-    return _lib._objc_msgSend_575(
+    _lib._objc_msgSend_575(
         _id, _lib._sel_removeDescriptorWithKeyword_1, keyword);
   }
 
@@ -48154,9 +49212,22 @@ class NSAppleEventDescriptor extends NSObject {
     return NSAppleEventDescriptor._(_ret, _lib, retain: true, release: true);
   }
 
+  @override
+  NSAppleEventDescriptor init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSAppleEventDescriptor._(_ret, _lib, retain: true, release: true);
+  }
+
   static NSAppleEventDescriptor new1(SentryCocoa _lib) {
     final _ret = _lib._objc_msgSend_2(
         _lib._class_NSAppleEventDescriptor1, _lib._sel_new1);
+    return NSAppleEventDescriptor._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSAppleEventDescriptor allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSAppleEventDescriptor1, _lib._sel_allocWithZone_1, zone);
     return NSAppleEventDescriptor._(_ret, _lib, retain: false, release: true);
   }
 
@@ -48171,7 +49242,7 @@ class NSAppleEventDescriptor extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSAppleEventDescriptor1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -48181,7 +49252,7 @@ class NSAppleEventDescriptor extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSAppleEventDescriptor1,
+    _lib._objc_msgSend_15(_lib._class_NSAppleEventDescriptor1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -48214,7 +49285,7 @@ class NSAppleEventDescriptor extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSAppleEventDescriptor1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -48418,7 +49489,7 @@ class NSScriptClassDescription extends NSClassDescription {
 
   static void registerClassDescription_forClass_(
       SentryCocoa _lib, NSClassDescription? description, NSObject aClass) {
-    return _lib._objc_msgSend_555(
+    _lib._objc_msgSend_555(
         _lib._class_NSScriptClassDescription1,
         _lib._sel_registerClassDescription_forClass_1,
         description?._id ?? ffi.nullptr,
@@ -48426,13 +49497,26 @@ class NSScriptClassDescription extends NSClassDescription {
   }
 
   static void invalidateClassDescriptionCache(SentryCocoa _lib) {
-    return _lib._objc_msgSend_1(_lib._class_NSScriptClassDescription1,
+    _lib._objc_msgSend_1(_lib._class_NSScriptClassDescription1,
         _lib._sel_invalidateClassDescriptionCache1);
+  }
+
+  @override
+  NSScriptClassDescription init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSScriptClassDescription._(_ret, _lib, retain: true, release: true);
   }
 
   static NSScriptClassDescription new1(SentryCocoa _lib) {
     final _ret = _lib._objc_msgSend_2(
         _lib._class_NSScriptClassDescription1, _lib._sel_new1);
+    return NSScriptClassDescription._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSScriptClassDescription allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSScriptClassDescription1, _lib._sel_allocWithZone_1, zone);
     return NSScriptClassDescription._(_ret, _lib, retain: false, release: true);
   }
 
@@ -48447,7 +49531,7 @@ class NSScriptClassDescription extends NSClassDescription {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSScriptClassDescription1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -48457,7 +49541,7 @@ class NSScriptClassDescription extends NSClassDescription {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSScriptClassDescription1,
+    _lib._objc_msgSend_15(_lib._class_NSScriptClassDescription1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -48490,7 +49574,7 @@ class NSScriptClassDescription extends NSClassDescription {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSScriptClassDescription1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -48645,6 +49729,14 @@ class NSScriptCommandDescription extends NSObject {
         retain: false, release: true);
   }
 
+  static NSScriptCommandDescription allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(_lib._class_NSScriptCommandDescription1,
+        _lib._sel_allocWithZone_1, zone);
+    return NSScriptCommandDescription._(_ret, _lib,
+        retain: false, release: true);
+  }
+
   static NSScriptCommandDescription alloc(SentryCocoa _lib) {
     final _ret = _lib._objc_msgSend_2(
         _lib._class_NSScriptCommandDescription1, _lib._sel_alloc1);
@@ -48657,7 +49749,7 @@ class NSScriptCommandDescription extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSScriptCommandDescription1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -48667,7 +49759,7 @@ class NSScriptCommandDescription extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSScriptCommandDescription1,
+    _lib._objc_msgSend_15(_lib._class_NSScriptCommandDescription1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -48700,7 +49792,7 @@ class NSScriptCommandDescription extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSScriptCommandDescription1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -48770,7 +49862,8 @@ class NSScriptCommand extends NSObject {
   }
 
   set directParameter(NSObject value) {
-    _lib._objc_msgSend_387(_id, _lib._sel_setDirectParameter_1, value._id);
+    return _lib._objc_msgSend_387(
+        _id, _lib._sel_setDirectParameter_1, value._id);
   }
 
   NSScriptObjectSpecifier? get receiversSpecifier {
@@ -48781,7 +49874,7 @@ class NSScriptCommand extends NSObject {
   }
 
   set receiversSpecifier(NSScriptObjectSpecifier? value) {
-    _lib._objc_msgSend_589(
+    return _lib._objc_msgSend_589(
         _id, _lib._sel_setReceiversSpecifier_1, value?._id ?? ffi.nullptr);
   }
 
@@ -48798,7 +49891,7 @@ class NSScriptCommand extends NSObject {
   }
 
   set arguments(NSDictionary? value) {
-    _lib._objc_msgSend_171(
+    return _lib._objc_msgSend_171(
         _id, _lib._sel_setArguments_1, value?._id ?? ffi.nullptr);
   }
 
@@ -48829,7 +49922,7 @@ class NSScriptCommand extends NSObject {
   }
 
   set scriptErrorNumber(int value) {
-    _lib._objc_msgSend_590(_id, _lib._sel_setScriptErrorNumber_1, value);
+    return _lib._objc_msgSend_590(_id, _lib._sel_setScriptErrorNumber_1, value);
   }
 
   NSAppleEventDescriptor? get scriptErrorOffendingObjectDescriptor {
@@ -48841,7 +49934,7 @@ class NSScriptCommand extends NSObject {
   }
 
   set scriptErrorOffendingObjectDescriptor(NSAppleEventDescriptor? value) {
-    _lib._objc_msgSend_591(
+    return _lib._objc_msgSend_591(
         _id,
         _lib._sel_setScriptErrorOffendingObjectDescriptor_1,
         value?._id ?? ffi.nullptr);
@@ -48856,7 +49949,7 @@ class NSScriptCommand extends NSObject {
   }
 
   set scriptErrorExpectedTypeDescriptor(NSAppleEventDescriptor? value) {
-    _lib._objc_msgSend_591(
+    return _lib._objc_msgSend_591(
         _id,
         _lib._sel_setScriptErrorExpectedTypeDescriptor_1,
         value?._id ?? ffi.nullptr);
@@ -48870,7 +49963,7 @@ class NSScriptCommand extends NSObject {
   }
 
   set scriptErrorString(NSString? value) {
-    _lib._objc_msgSend_509(
+    return _lib._objc_msgSend_509(
         _id, _lib._sel_setScriptErrorString_1, value?._id ?? ffi.nullptr);
   }
 
@@ -48888,17 +49981,30 @@ class NSScriptCommand extends NSObject {
   }
 
   void suspendExecution() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_suspendExecution1);
+    _lib._objc_msgSend_1(_id, _lib._sel_suspendExecution1);
   }
 
   void resumeExecutionWithResult_(NSObject result) {
-    return _lib._objc_msgSend_15(
+    _lib._objc_msgSend_15(
         _id, _lib._sel_resumeExecutionWithResult_1, result._id);
+  }
+
+  @override
+  NSScriptCommand init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSScriptCommand._(_ret, _lib, retain: true, release: true);
   }
 
   static NSScriptCommand new1(SentryCocoa _lib) {
     final _ret =
         _lib._objc_msgSend_2(_lib._class_NSScriptCommand1, _lib._sel_new1);
+    return NSScriptCommand._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSScriptCommand allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSScriptCommand1, _lib._sel_allocWithZone_1, zone);
     return NSScriptCommand._(_ret, _lib, retain: false, release: true);
   }
 
@@ -48913,7 +50019,7 @@ class NSScriptCommand extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSScriptCommand1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -48923,7 +50029,7 @@ class NSScriptCommand extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSScriptCommand1,
+    _lib._objc_msgSend_15(_lib._class_NSScriptCommand1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -48956,7 +50062,7 @@ class NSScriptCommand extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSScriptCommand1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -49022,7 +50128,7 @@ class NSUUID extends NSObject {
   }
 
   void getUUIDBytes_(ffi.Pointer<ffi.UnsignedChar> uuid) {
-    return _lib._objc_msgSend_610(_id, _lib._sel_getUUIDBytes_1, uuid);
+    _lib._objc_msgSend_610(_id, _lib._sel_getUUIDBytes_1, uuid);
   }
 
   int compare_(NSUUID? otherUUID) {
@@ -49042,6 +50148,12 @@ class NSUUID extends NSObject {
     return NSUUID._(_ret, _lib, retain: false, release: true);
   }
 
+  static NSUUID allocWithZone_(SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSUUID1, _lib._sel_allocWithZone_1, zone);
+    return NSUUID._(_ret, _lib, retain: false, release: true);
+  }
+
   static NSUUID alloc(SentryCocoa _lib) {
     final _ret = _lib._objc_msgSend_2(_lib._class_NSUUID1, _lib._sel_alloc1);
     return NSUUID._(_ret, _lib, retain: false, release: true);
@@ -49052,7 +50164,7 @@ class NSUUID extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSUUID1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -49062,7 +50174,7 @@ class NSUUID extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSUUID1,
+    _lib._objc_msgSend_15(_lib._class_NSUUID1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -49095,7 +50207,7 @@ class NSUUID extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSUUID1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -49420,7 +50532,7 @@ class SentryEnvelopeHeader extends _ObjCWrapper {
   /// so that the delay between sending the envelope and receiving it on the server-side is
   /// minimized.
   set sentAt(ffi.Pointer<ffi.Int> value) {
-    _lib._objc_msgSend_627(_id, _lib._sel_setSentAt_1, value);
+    return _lib._objc_msgSend_627(_id, _lib._sel_setSentAt_1, value);
   }
 }
 
@@ -49473,7 +50585,7 @@ class SentrySdkInfo extends _ObjCWrapper {
   }
 }
 
-int _ObjCBlock23_fnPtrTrampoline(
+int _ObjCBlock_ffiInt_SentryAppStartMeasurement_fnPtrTrampoline(
     ffi.Pointer<_ObjCBlock> block, ffi.Pointer<ObjCObject> arg0) {
   return block.ref.target
       .cast<
@@ -49481,26 +50593,29 @@ int _ObjCBlock23_fnPtrTrampoline(
       .asFunction<int Function(ffi.Pointer<ObjCObject> arg0)>()(arg0);
 }
 
-final _ObjCBlock23_closureRegistry = <int, Function>{};
-int _ObjCBlock23_closureRegistryIndex = 0;
-ffi.Pointer<ffi.Void> _ObjCBlock23_registerClosure(Function fn) {
-  final id = ++_ObjCBlock23_closureRegistryIndex;
-  _ObjCBlock23_closureRegistry[id] = fn;
+final _ObjCBlock_ffiInt_SentryAppStartMeasurement_closureRegistry =
+    <int, Function>{};
+int _ObjCBlock_ffiInt_SentryAppStartMeasurement_closureRegistryIndex = 0;
+ffi.Pointer<ffi.Void>
+    _ObjCBlock_ffiInt_SentryAppStartMeasurement_registerClosure(Function fn) {
+  final id = ++_ObjCBlock_ffiInt_SentryAppStartMeasurement_closureRegistryIndex;
+  _ObjCBlock_ffiInt_SentryAppStartMeasurement_closureRegistry[id] = fn;
   return ffi.Pointer<ffi.Void>.fromAddress(id);
 }
 
-int _ObjCBlock23_closureTrampoline(
+int _ObjCBlock_ffiInt_SentryAppStartMeasurement_closureTrampoline(
     ffi.Pointer<_ObjCBlock> block, ffi.Pointer<ObjCObject> arg0) {
-  return (_ObjCBlock23_closureRegistry[block.ref.target.address] as int
-      Function(ffi.Pointer<ObjCObject>))(arg0);
+  return (_ObjCBlock_ffiInt_SentryAppStartMeasurement_closureRegistry[
+      block.ref.target.address] as int Function(ffi.Pointer<ObjCObject>))(arg0);
 }
 
-class ObjCBlock23 extends _ObjCBlockBase {
-  ObjCBlock23._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
+class ObjCBlock_ffiInt_SentryAppStartMeasurement extends _ObjCBlockBase {
+  ObjCBlock_ffiInt_SentryAppStartMeasurement._(
+      ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
       : super._(id, lib, retain: false, release: true);
 
   /// Creates a block from a C function pointer.
-  ObjCBlock23.fromFunctionPointer(
+  ObjCBlock_ffiInt_SentryAppStartMeasurement.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
               ffi
@@ -49511,23 +50626,26 @@ class ObjCBlock23 extends _ObjCBlockBase {
                 _cFuncTrampoline ??= ffi.Pointer.fromFunction<
                             ffi.Int Function(ffi.Pointer<_ObjCBlock> block,
                                 ffi.Pointer<ObjCObject> arg0)>(
-                        _ObjCBlock23_fnPtrTrampoline, 0)
+                        _ObjCBlock_ffiInt_SentryAppStartMeasurement_fnPtrTrampoline,
+                        0)
                     .cast(),
                 ptr.cast()),
             lib);
   static ffi.Pointer<ffi.Void>? _cFuncTrampoline;
 
   /// Creates a block from a Dart function.
-  ObjCBlock23.fromFunction(
+  ObjCBlock_ffiInt_SentryAppStartMeasurement.fromFunction(
       SentryCocoa lib, int Function(ffi.Pointer<ObjCObject> arg0) fn)
       : this._(
             lib._newBlock1(
                 _dartFuncTrampoline ??= ffi.Pointer.fromFunction<
                             ffi.Int Function(ffi.Pointer<_ObjCBlock> block,
                                 ffi.Pointer<ObjCObject> arg0)>(
-                        _ObjCBlock23_closureTrampoline, 0)
+                        _ObjCBlock_ffiInt_SentryAppStartMeasurement_closureTrampoline,
+                        0)
                     .cast(),
-                _ObjCBlock23_registerClosure(fn)),
+                _ObjCBlock_ffiInt_SentryAppStartMeasurement_registerClosure(
+                    fn)),
             lib);
   static ffi.Pointer<ffi.Void>? _dartFuncTrampoline;
   int call(ffi.Pointer<ObjCObject> arg0) {
@@ -49671,8 +50789,10 @@ class NSItemProvider extends NSObject {
   }
 
   void registerDataRepresentationForTypeIdentifier_visibility_loadHandler_(
-      NSString? typeIdentifier, int visibility, ObjCBlock24 loadHandler) {
-    return _lib._objc_msgSend_657(
+      NSString? typeIdentifier,
+      int visibility,
+      ObjCBlock_NSProgress_ffiVoidNSDataNSError loadHandler) {
+    _lib._objc_msgSend_657(
         _id,
         _lib._sel_registerDataRepresentationForTypeIdentifier_visibility_loadHandler_1,
         typeIdentifier?._id ?? ffi.nullptr,
@@ -49685,8 +50805,8 @@ class NSItemProvider extends NSObject {
           NSString? typeIdentifier,
           int fileOptions,
           int visibility,
-          ObjCBlock27 loadHandler) {
-    return _lib._objc_msgSend_658(
+          ObjCBlock_NSProgress_ffiVoidNSURLboolNSError loadHandler) {
+    _lib._objc_msgSend_658(
         _id,
         _lib._sel_registerFileRepresentationForTypeIdentifier_fileOptions_visibility_loadHandler_1,
         typeIdentifier?._id ?? ffi.nullptr,
@@ -49726,7 +50846,8 @@ class NSItemProvider extends NSObject {
   }
 
   NSProgress loadDataRepresentationForTypeIdentifier_completionHandler_(
-      NSString? typeIdentifier, ObjCBlock26 completionHandler) {
+      NSString? typeIdentifier,
+      ObjCBlock_ffiVoid_NSData_NSError completionHandler) {
     final _ret = _lib._objc_msgSend_661(
         _id,
         _lib._sel_loadDataRepresentationForTypeIdentifier_completionHandler_1,
@@ -49736,7 +50857,8 @@ class NSItemProvider extends NSObject {
   }
 
   NSProgress loadFileRepresentationForTypeIdentifier_completionHandler_(
-      NSString? typeIdentifier, ObjCBlock29 completionHandler) {
+      NSString? typeIdentifier,
+      ObjCBlock_ffiVoid_NSURL_NSError completionHandler) {
     final _ret = _lib._objc_msgSend_662(
         _id,
         _lib._sel_loadFileRepresentationForTypeIdentifier_completionHandler_1,
@@ -49746,7 +50868,8 @@ class NSItemProvider extends NSObject {
   }
 
   NSProgress loadInPlaceFileRepresentationForTypeIdentifier_completionHandler_(
-      NSString? typeIdentifier, ObjCBlock28 completionHandler) {
+      NSString? typeIdentifier,
+      ObjCBlock_ffiVoid_NSURL_bool_NSError completionHandler) {
     final _ret = _lib._objc_msgSend_663(
         _id,
         _lib._sel_loadInPlaceFileRepresentationForTypeIdentifier_completionHandler_1,
@@ -49763,7 +50886,7 @@ class NSItemProvider extends NSObject {
   }
 
   set suggestedName(NSString? value) {
-    _lib._objc_msgSend_509(
+    return _lib._objc_msgSend_509(
         _id, _lib._sel_setSuggestedName_1, value?._id ?? ffi.nullptr);
   }
 
@@ -49774,13 +50897,15 @@ class NSItemProvider extends NSObject {
   }
 
   void registerObject_visibility_(NSObject? object, int visibility) {
-    return _lib._objc_msgSend_664(_id, _lib._sel_registerObject_visibility_1,
+    _lib._objc_msgSend_664(_id, _lib._sel_registerObject_visibility_1,
         object?._id ?? ffi.nullptr, visibility);
   }
 
   void registerObjectOfClass_visibility_loadHandler_(
-      NSObject? aClass, int visibility, ObjCBlock30 loadHandler) {
-    return _lib._objc_msgSend_665(
+      NSObject? aClass,
+      int visibility,
+      ObjCBlock_NSProgress_ffiVoidObjCObjectNSError loadHandler) {
+    _lib._objc_msgSend_665(
         _id,
         _lib._sel_registerObjectOfClass_visibility_loadHandler_1,
         aClass?._id ?? ffi.nullptr,
@@ -49793,8 +50918,8 @@ class NSItemProvider extends NSObject {
         _id, _lib._sel_canLoadObjectOfClass_1, aClass?._id ?? ffi.nullptr);
   }
 
-  NSProgress loadObjectOfClass_completionHandler_(
-      NSObject? aClass, ObjCBlock31 completionHandler) {
+  NSProgress loadObjectOfClass_completionHandler_(NSObject? aClass,
+      ObjCBlock_ffiVoid_ObjCObject_NSError completionHandler) {
     final _ret = _lib._objc_msgSend_666(
         _id,
         _lib._sel_loadObjectOfClass_completionHandler_1,
@@ -49820,8 +50945,10 @@ class NSItemProvider extends NSObject {
   }
 
   void registerItemForTypeIdentifier_loadHandler_(
-      NSString? typeIdentifier, ObjCBlock32 loadHandler) {
-    return _lib._objc_msgSend_667(
+      NSString? typeIdentifier,
+      ObjCBlock_ffiVoid_ffiVoidObjCObjectNSError_ObjCObject_NSDictionary
+          loadHandler) {
+    _lib._objc_msgSend_667(
         _id,
         _lib._sel_registerItemForTypeIdentifier_loadHandler_1,
         typeIdentifier?._id ?? ffi.nullptr,
@@ -49831,8 +50958,8 @@ class NSItemProvider extends NSObject {
   void loadItemForTypeIdentifier_options_completionHandler_(
       NSString? typeIdentifier,
       NSDictionary? options,
-      ObjCBlock31 completionHandler) {
-    return _lib._objc_msgSend_668(
+      ObjCBlock_ffiVoid_ObjCObject_NSError completionHandler) {
+    _lib._objc_msgSend_668(
         _id,
         _lib._sel_loadItemForTypeIdentifier_options_completionHandler_1,
         typeIdentifier?._id ?? ffi.nullptr,
@@ -49840,18 +50967,23 @@ class NSItemProvider extends NSObject {
         completionHandler._id);
   }
 
-  ObjCBlock32 get previewImageHandler {
+  ObjCBlock_ffiVoid_ffiVoidObjCObjectNSError_ObjCObject_NSDictionary
+      get previewImageHandler {
     final _ret = _lib._objc_msgSend_669(_id, _lib._sel_previewImageHandler1);
-    return ObjCBlock32._(_ret, _lib);
+    return ObjCBlock_ffiVoid_ffiVoidObjCObjectNSError_ObjCObject_NSDictionary._(
+        _ret, _lib);
   }
 
-  set previewImageHandler(ObjCBlock32 value) {
-    _lib._objc_msgSend_670(_id, _lib._sel_setPreviewImageHandler_1, value._id);
+  set previewImageHandler(
+      ObjCBlock_ffiVoid_ffiVoidObjCObjectNSError_ObjCObject_NSDictionary
+          value) {
+    return _lib._objc_msgSend_670(
+        _id, _lib._sel_setPreviewImageHandler_1, value._id);
   }
 
-  void loadPreviewImageWithOptions_completionHandler_(
-      NSDictionary? options, ObjCBlock31 completionHandler) {
-    return _lib._objc_msgSend_671(
+  void loadPreviewImageWithOptions_completionHandler_(NSDictionary? options,
+      ObjCBlock_ffiVoid_ObjCObject_NSError completionHandler) {
+    _lib._objc_msgSend_671(
         _id,
         _lib._sel_loadPreviewImageWithOptions_completionHandler_1,
         options?._id ?? ffi.nullptr,
@@ -49861,6 +50993,13 @@ class NSItemProvider extends NSObject {
   static NSItemProvider new1(SentryCocoa _lib) {
     final _ret =
         _lib._objc_msgSend_2(_lib._class_NSItemProvider1, _lib._sel_new1);
+    return NSItemProvider._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSItemProvider allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSItemProvider1, _lib._sel_allocWithZone_1, zone);
     return NSItemProvider._(_ret, _lib, retain: false, release: true);
   }
 
@@ -49875,7 +51014,7 @@ class NSItemProvider extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSItemProvider1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -49885,7 +51024,7 @@ class NSItemProvider extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSItemProvider1,
+    _lib._objc_msgSend_15(_lib._class_NSItemProvider1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -49918,7 +51057,7 @@ class NSItemProvider extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSItemProvider1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -49945,8 +51084,9 @@ abstract class NSItemProviderRepresentationVisibility {
   static const int NSItemProviderRepresentationVisibilityOwnProcess = 3;
 }
 
-ffi.Pointer<ObjCObject> _ObjCBlock24_fnPtrTrampoline(
-    ffi.Pointer<_ObjCBlock> block, ffi.Pointer<_ObjCBlock> arg0) {
+ffi.Pointer<ObjCObject>
+    _ObjCBlock_NSProgress_ffiVoidNSDataNSError_fnPtrTrampoline(
+        ffi.Pointer<_ObjCBlock> block, ffi.Pointer<_ObjCBlock> arg0) {
   return block.ref.target
       .cast<
           ffi.NativeFunction<
@@ -49956,26 +51096,31 @@ ffi.Pointer<ObjCObject> _ObjCBlock24_fnPtrTrampoline(
               ffi.Pointer<_ObjCBlock> arg0)>()(arg0);
 }
 
-final _ObjCBlock24_closureRegistry = <int, Function>{};
-int _ObjCBlock24_closureRegistryIndex = 0;
-ffi.Pointer<ffi.Void> _ObjCBlock24_registerClosure(Function fn) {
-  final id = ++_ObjCBlock24_closureRegistryIndex;
-  _ObjCBlock24_closureRegistry[id] = fn;
+final _ObjCBlock_NSProgress_ffiVoidNSDataNSError_closureRegistry =
+    <int, Function>{};
+int _ObjCBlock_NSProgress_ffiVoidNSDataNSError_closureRegistryIndex = 0;
+ffi.Pointer<ffi.Void>
+    _ObjCBlock_NSProgress_ffiVoidNSDataNSError_registerClosure(Function fn) {
+  final id = ++_ObjCBlock_NSProgress_ffiVoidNSDataNSError_closureRegistryIndex;
+  _ObjCBlock_NSProgress_ffiVoidNSDataNSError_closureRegistry[id] = fn;
   return ffi.Pointer<ffi.Void>.fromAddress(id);
 }
 
-ffi.Pointer<ObjCObject> _ObjCBlock24_closureTrampoline(
-    ffi.Pointer<_ObjCBlock> block, ffi.Pointer<_ObjCBlock> arg0) {
-  return (_ObjCBlock24_closureRegistry[block.ref.target.address]
+ffi.Pointer<ObjCObject>
+    _ObjCBlock_NSProgress_ffiVoidNSDataNSError_closureTrampoline(
+        ffi.Pointer<_ObjCBlock> block, ffi.Pointer<_ObjCBlock> arg0) {
+  return (_ObjCBlock_NSProgress_ffiVoidNSDataNSError_closureRegistry[
+          block.ref.target.address]
       as ffi.Pointer<ObjCObject> Function(ffi.Pointer<_ObjCBlock>))(arg0);
 }
 
-class ObjCBlock24 extends _ObjCBlockBase {
-  ObjCBlock24._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
+class ObjCBlock_NSProgress_ffiVoidNSDataNSError extends _ObjCBlockBase {
+  ObjCBlock_NSProgress_ffiVoidNSDataNSError._(
+      ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
       : super._(id, lib, retain: false, release: true);
 
   /// Creates a block from a C function pointer.
-  ObjCBlock24.fromFunctionPointer(
+  ObjCBlock_NSProgress_ffiVoidNSDataNSError.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
               ffi.NativeFunction<
@@ -49988,14 +51133,14 @@ class ObjCBlock24 extends _ObjCBlockBase {
                             ffi.Pointer<ObjCObject> Function(
                                 ffi.Pointer<_ObjCBlock> block,
                                 ffi.Pointer<_ObjCBlock> arg0)>(
-                        _ObjCBlock24_fnPtrTrampoline)
+                        _ObjCBlock_NSProgress_ffiVoidNSDataNSError_fnPtrTrampoline)
                     .cast(),
                 ptr.cast()),
             lib);
   static ffi.Pointer<ffi.Void>? _cFuncTrampoline;
 
   /// Creates a block from a Dart function.
-  ObjCBlock24.fromFunction(SentryCocoa lib,
+  ObjCBlock_NSProgress_ffiVoidNSDataNSError.fromFunction(SentryCocoa lib,
       ffi.Pointer<ObjCObject> Function(ffi.Pointer<_ObjCBlock> arg0) fn)
       : this._(
             lib._newBlock1(
@@ -50003,9 +51148,9 @@ class ObjCBlock24 extends _ObjCBlockBase {
                             ffi.Pointer<ObjCObject> Function(
                                 ffi.Pointer<_ObjCBlock> block,
                                 ffi.Pointer<_ObjCBlock> arg0)>(
-                        _ObjCBlock24_closureTrampoline)
+                        _ObjCBlock_NSProgress_ffiVoidNSDataNSError_closureTrampoline)
                     .cast(),
-                _ObjCBlock24_registerClosure(fn)),
+                _ObjCBlock_NSProgress_ffiVoidNSDataNSError_registerClosure(fn)),
             lib);
   static ffi.Pointer<ffi.Void>? _dartFuncTrampoline;
   ffi.Pointer<ObjCObject> call(ffi.Pointer<_ObjCBlock> arg0) {
@@ -50088,13 +51233,13 @@ class NSProgress extends NSObject {
   }
 
   void becomeCurrentWithPendingUnitCount_(int unitCount) {
-    return _lib._objc_msgSend_647(
+    _lib._objc_msgSend_647(
         _id, _lib._sel_becomeCurrentWithPendingUnitCount_1, unitCount);
   }
 
   void performAsCurrentWithPendingUnitCount_usingBlock_(
-      int unitCount, ObjCBlock21 work) {
-    return _lib._objc_msgSend_648(
+      int unitCount, ObjCBlock_ffiVoid work) {
+    _lib._objc_msgSend_648(
         _id,
         _lib._sel_performAsCurrentWithPendingUnitCount_usingBlock_1,
         unitCount,
@@ -50102,15 +51247,12 @@ class NSProgress extends NSObject {
   }
 
   void resignCurrent() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_resignCurrent1);
+    _lib._objc_msgSend_1(_id, _lib._sel_resignCurrent1);
   }
 
   void addChild_withPendingUnitCount_(NSProgress? child, int inUnitCount) {
-    return _lib._objc_msgSend_649(
-        _id,
-        _lib._sel_addChild_withPendingUnitCount_1,
-        child?._id ?? ffi.nullptr,
-        inUnitCount);
+    _lib._objc_msgSend_649(_id, _lib._sel_addChild_withPendingUnitCount_1,
+        child?._id ?? ffi.nullptr, inUnitCount);
   }
 
   int get totalUnitCount {
@@ -50118,7 +51260,7 @@ class NSProgress extends NSObject {
   }
 
   set totalUnitCount(int value) {
-    _lib._objc_msgSend_651(_id, _lib._sel_setTotalUnitCount_1, value);
+    return _lib._objc_msgSend_651(_id, _lib._sel_setTotalUnitCount_1, value);
   }
 
   int get completedUnitCount {
@@ -50126,7 +51268,8 @@ class NSProgress extends NSObject {
   }
 
   set completedUnitCount(int value) {
-    _lib._objc_msgSend_651(_id, _lib._sel_setCompletedUnitCount_1, value);
+    return _lib._objc_msgSend_651(
+        _id, _lib._sel_setCompletedUnitCount_1, value);
   }
 
   NSString? get localizedDescription {
@@ -50137,7 +51280,7 @@ class NSProgress extends NSObject {
   }
 
   set localizedDescription(NSString? value) {
-    _lib._objc_msgSend_509(
+    return _lib._objc_msgSend_509(
         _id, _lib._sel_setLocalizedDescription_1, value?._id ?? ffi.nullptr);
   }
 
@@ -50150,7 +51293,9 @@ class NSProgress extends NSObject {
   }
 
   set localizedAdditionalDescription(NSString? value) {
-    _lib._objc_msgSend_509(_id, _lib._sel_setLocalizedAdditionalDescription_1,
+    return _lib._objc_msgSend_509(
+        _id,
+        _lib._sel_setLocalizedAdditionalDescription_1,
         value?._id ?? ffi.nullptr);
   }
 
@@ -50159,7 +51304,7 @@ class NSProgress extends NSObject {
   }
 
   set cancellable(bool value) {
-    _lib._objc_msgSend_492(_id, _lib._sel_setCancellable_1, value);
+    return _lib._objc_msgSend_492(_id, _lib._sel_setCancellable_1, value);
   }
 
   bool get pausable {
@@ -50167,7 +51312,7 @@ class NSProgress extends NSObject {
   }
 
   set pausable(bool value) {
-    _lib._objc_msgSend_492(_id, _lib._sel_setPausable_1, value);
+    return _lib._objc_msgSend_492(_id, _lib._sel_setPausable_1, value);
   }
 
   bool get cancelled {
@@ -50178,35 +51323,38 @@ class NSProgress extends NSObject {
     return _lib._objc_msgSend_12(_id, _lib._sel_isPaused1);
   }
 
-  ObjCBlock21 get cancellationHandler {
+  ObjCBlock_ffiVoid get cancellationHandler {
     final _ret = _lib._objc_msgSend_652(_id, _lib._sel_cancellationHandler1);
-    return ObjCBlock21._(_ret, _lib);
+    return ObjCBlock_ffiVoid._(_ret, _lib);
   }
 
-  set cancellationHandler(ObjCBlock21 value) {
-    _lib._objc_msgSend_653(_id, _lib._sel_setCancellationHandler_1, value._id);
+  set cancellationHandler(ObjCBlock_ffiVoid value) {
+    return _lib._objc_msgSend_653(
+        _id, _lib._sel_setCancellationHandler_1, value._id);
   }
 
-  ObjCBlock21 get pausingHandler {
+  ObjCBlock_ffiVoid get pausingHandler {
     final _ret = _lib._objc_msgSend_652(_id, _lib._sel_pausingHandler1);
-    return ObjCBlock21._(_ret, _lib);
+    return ObjCBlock_ffiVoid._(_ret, _lib);
   }
 
-  set pausingHandler(ObjCBlock21 value) {
-    _lib._objc_msgSend_653(_id, _lib._sel_setPausingHandler_1, value._id);
+  set pausingHandler(ObjCBlock_ffiVoid value) {
+    return _lib._objc_msgSend_653(
+        _id, _lib._sel_setPausingHandler_1, value._id);
   }
 
-  ObjCBlock21 get resumingHandler {
+  ObjCBlock_ffiVoid get resumingHandler {
     final _ret = _lib._objc_msgSend_652(_id, _lib._sel_resumingHandler1);
-    return ObjCBlock21._(_ret, _lib);
+    return ObjCBlock_ffiVoid._(_ret, _lib);
   }
 
-  set resumingHandler(ObjCBlock21 value) {
-    _lib._objc_msgSend_653(_id, _lib._sel_setResumingHandler_1, value._id);
+  set resumingHandler(ObjCBlock_ffiVoid value) {
+    return _lib._objc_msgSend_653(
+        _id, _lib._sel_setResumingHandler_1, value._id);
   }
 
   void setUserInfoObject_forKey_(NSObject objectOrNil, NSString key) {
-    return _lib._objc_msgSend_126(
+    _lib._objc_msgSend_126(
         _id, _lib._sel_setUserInfoObject_forKey_1, objectOrNil._id, key._id);
   }
 
@@ -50223,15 +51371,15 @@ class NSProgress extends NSObject {
   }
 
   void cancel() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_cancel1);
+    _lib._objc_msgSend_1(_id, _lib._sel_cancel1);
   }
 
   void pause() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_pause1);
+    _lib._objc_msgSend_1(_id, _lib._sel_pause1);
   }
 
   void resume() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_resume1);
+    _lib._objc_msgSend_1(_id, _lib._sel_resume1);
   }
 
   NSObject? get userInfo {
@@ -50247,7 +51395,7 @@ class NSProgress extends NSObject {
   }
 
   set kind(NSString value) {
-    _lib._objc_msgSend_509(_id, _lib._sel_setKind_1, value._id);
+    return _lib._objc_msgSend_509(_id, _lib._sel_setKind_1, value._id);
   }
 
   NSNumber? get estimatedTimeRemaining {
@@ -50258,7 +51406,7 @@ class NSProgress extends NSObject {
   }
 
   set estimatedTimeRemaining(NSNumber? value) {
-    _lib._objc_msgSend_654(
+    return _lib._objc_msgSend_654(
         _id, _lib._sel_setEstimatedTimeRemaining_1, value?._id ?? ffi.nullptr);
   }
 
@@ -50270,7 +51418,7 @@ class NSProgress extends NSObject {
   }
 
   set throughput(NSNumber? value) {
-    _lib._objc_msgSend_654(
+    return _lib._objc_msgSend_654(
         _id, _lib._sel_setThroughput_1, value?._id ?? ffi.nullptr);
   }
 
@@ -50280,7 +51428,8 @@ class NSProgress extends NSObject {
   }
 
   set fileOperationKind(NSString value) {
-    _lib._objc_msgSend_509(_id, _lib._sel_setFileOperationKind_1, value._id);
+    return _lib._objc_msgSend_509(
+        _id, _lib._sel_setFileOperationKind_1, value._id);
   }
 
   NSURL? get fileURL {
@@ -50291,7 +51440,7 @@ class NSProgress extends NSObject {
   }
 
   set fileURL(NSURL? value) {
-    _lib._objc_msgSend_655(
+    return _lib._objc_msgSend_655(
         _id, _lib._sel_setFileURL_1, value?._id ?? ffi.nullptr);
   }
 
@@ -50303,7 +51452,7 @@ class NSProgress extends NSObject {
   }
 
   set fileTotalCount(NSNumber? value) {
-    _lib._objc_msgSend_654(
+    return _lib._objc_msgSend_654(
         _id, _lib._sel_setFileTotalCount_1, value?._id ?? ffi.nullptr);
   }
 
@@ -50315,20 +51464,22 @@ class NSProgress extends NSObject {
   }
 
   set fileCompletedCount(NSNumber? value) {
-    _lib._objc_msgSend_654(
+    return _lib._objc_msgSend_654(
         _id, _lib._sel_setFileCompletedCount_1, value?._id ?? ffi.nullptr);
   }
 
   void publish() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_publish1);
+    _lib._objc_msgSend_1(_id, _lib._sel_publish1);
   }
 
   void unpublish() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_unpublish1);
+    _lib._objc_msgSend_1(_id, _lib._sel_unpublish1);
   }
 
   static NSObject addSubscriberForFileURL_withPublishingHandler_(
-      SentryCocoa _lib, NSURL? url, ObjCBlock25 publishingHandler) {
+      SentryCocoa _lib,
+      NSURL? url,
+      ObjCBlock_ffiVoid_NSProgress publishingHandler) {
     final _ret = _lib._objc_msgSend_656(
         _lib._class_NSProgress1,
         _lib._sel_addSubscriberForFileURL_withPublishingHandler_1,
@@ -50338,7 +51489,7 @@ class NSProgress extends NSObject {
   }
 
   static void removeSubscriber_(SentryCocoa _lib, NSObject subscriber) {
-    return _lib._objc_msgSend_15(
+    _lib._objc_msgSend_15(
         _lib._class_NSProgress1, _lib._sel_removeSubscriber_1, subscriber._id);
   }
 
@@ -50346,8 +51497,21 @@ class NSProgress extends NSObject {
     return _lib._objc_msgSend_12(_id, _lib._sel_isOld1);
   }
 
+  @override
+  NSProgress init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSProgress._(_ret, _lib, retain: true, release: true);
+  }
+
   static NSProgress new1(SentryCocoa _lib) {
     final _ret = _lib._objc_msgSend_2(_lib._class_NSProgress1, _lib._sel_new1);
+    return NSProgress._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSProgress allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSProgress1, _lib._sel_allocWithZone_1, zone);
     return NSProgress._(_ret, _lib, retain: false, release: true);
   }
 
@@ -50362,7 +51526,7 @@ class NSProgress extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSProgress1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -50372,7 +51536,7 @@ class NSProgress extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSProgress1,
+    _lib._objc_msgSend_15(_lib._class_NSProgress1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -50405,7 +51569,7 @@ class NSProgress extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSProgress1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -50425,7 +51589,7 @@ class NSProgress extends NSObject {
   }
 }
 
-ffi.Pointer<_ObjCBlock> _ObjCBlock25_fnPtrTrampoline(
+ffi.Pointer<_ObjCBlock> _ObjCBlock_ffiVoid_NSProgress_fnPtrTrampoline(
     ffi.Pointer<_ObjCBlock> block, ffi.Pointer<ObjCObject> arg0) {
   return block.ref.target
       .cast<
@@ -50436,26 +51600,28 @@ ffi.Pointer<_ObjCBlock> _ObjCBlock25_fnPtrTrampoline(
               ffi.Pointer<ObjCObject> arg0)>()(arg0);
 }
 
-final _ObjCBlock25_closureRegistry = <int, Function>{};
-int _ObjCBlock25_closureRegistryIndex = 0;
-ffi.Pointer<ffi.Void> _ObjCBlock25_registerClosure(Function fn) {
-  final id = ++_ObjCBlock25_closureRegistryIndex;
-  _ObjCBlock25_closureRegistry[id] = fn;
+final _ObjCBlock_ffiVoid_NSProgress_closureRegistry = <int, Function>{};
+int _ObjCBlock_ffiVoid_NSProgress_closureRegistryIndex = 0;
+ffi.Pointer<ffi.Void> _ObjCBlock_ffiVoid_NSProgress_registerClosure(
+    Function fn) {
+  final id = ++_ObjCBlock_ffiVoid_NSProgress_closureRegistryIndex;
+  _ObjCBlock_ffiVoid_NSProgress_closureRegistry[id] = fn;
   return ffi.Pointer<ffi.Void>.fromAddress(id);
 }
 
-ffi.Pointer<_ObjCBlock> _ObjCBlock25_closureTrampoline(
+ffi.Pointer<_ObjCBlock> _ObjCBlock_ffiVoid_NSProgress_closureTrampoline(
     ffi.Pointer<_ObjCBlock> block, ffi.Pointer<ObjCObject> arg0) {
-  return (_ObjCBlock25_closureRegistry[block.ref.target.address]
+  return (_ObjCBlock_ffiVoid_NSProgress_closureRegistry[
+          block.ref.target.address]
       as ffi.Pointer<_ObjCBlock> Function(ffi.Pointer<ObjCObject>))(arg0);
 }
 
-class ObjCBlock25 extends _ObjCBlockBase {
-  ObjCBlock25._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
+class ObjCBlock_ffiVoid_NSProgress extends _ObjCBlockBase {
+  ObjCBlock_ffiVoid_NSProgress._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
       : super._(id, lib, retain: false, release: true);
 
   /// Creates a block from a C function pointer.
-  ObjCBlock25.fromFunctionPointer(
+  ObjCBlock_ffiVoid_NSProgress.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
               ffi.NativeFunction<
@@ -50468,14 +51634,14 @@ class ObjCBlock25 extends _ObjCBlockBase {
                             ffi.Pointer<_ObjCBlock> Function(
                                 ffi.Pointer<_ObjCBlock> block,
                                 ffi.Pointer<ObjCObject> arg0)>(
-                        _ObjCBlock25_fnPtrTrampoline)
+                        _ObjCBlock_ffiVoid_NSProgress_fnPtrTrampoline)
                     .cast(),
                 ptr.cast()),
             lib);
   static ffi.Pointer<ffi.Void>? _cFuncTrampoline;
 
   /// Creates a block from a Dart function.
-  ObjCBlock25.fromFunction(SentryCocoa lib,
+  ObjCBlock_ffiVoid_NSProgress.fromFunction(SentryCocoa lib,
       ffi.Pointer<_ObjCBlock> Function(ffi.Pointer<ObjCObject> arg0) fn)
       : this._(
             lib._newBlock1(
@@ -50483,9 +51649,9 @@ class ObjCBlock25 extends _ObjCBlockBase {
                             ffi.Pointer<_ObjCBlock> Function(
                                 ffi.Pointer<_ObjCBlock> block,
                                 ffi.Pointer<ObjCObject> arg0)>(
-                        _ObjCBlock25_closureTrampoline)
+                        _ObjCBlock_ffiVoid_NSProgress_closureTrampoline)
                     .cast(),
-                _ObjCBlock25_registerClosure(fn)),
+                _ObjCBlock_ffiVoid_NSProgress_registerClosure(fn)),
             lib);
   static ffi.Pointer<ffi.Void>? _dartFuncTrampoline;
   ffi.Pointer<_ObjCBlock> call(ffi.Pointer<ObjCObject> arg0) {
@@ -50500,8 +51666,10 @@ class ObjCBlock25 extends _ObjCBlockBase {
   }
 }
 
-void _ObjCBlock26_fnPtrTrampoline(ffi.Pointer<_ObjCBlock> block,
-    ffi.Pointer<ObjCObject> arg0, ffi.Pointer<ObjCObject> arg1) {
+void _ObjCBlock_ffiVoid_NSData_NSError_fnPtrTrampoline(
+    ffi.Pointer<_ObjCBlock> block,
+    ffi.Pointer<ObjCObject> arg0,
+    ffi.Pointer<ObjCObject> arg1) {
   return block.ref.target
       .cast<
           ffi.NativeFunction<
@@ -50512,26 +51680,32 @@ void _ObjCBlock26_fnPtrTrampoline(ffi.Pointer<_ObjCBlock> block,
               ffi.Pointer<ObjCObject> arg1)>()(arg0, arg1);
 }
 
-final _ObjCBlock26_closureRegistry = <int, Function>{};
-int _ObjCBlock26_closureRegistryIndex = 0;
-ffi.Pointer<ffi.Void> _ObjCBlock26_registerClosure(Function fn) {
-  final id = ++_ObjCBlock26_closureRegistryIndex;
-  _ObjCBlock26_closureRegistry[id] = fn;
+final _ObjCBlock_ffiVoid_NSData_NSError_closureRegistry = <int, Function>{};
+int _ObjCBlock_ffiVoid_NSData_NSError_closureRegistryIndex = 0;
+ffi.Pointer<ffi.Void> _ObjCBlock_ffiVoid_NSData_NSError_registerClosure(
+    Function fn) {
+  final id = ++_ObjCBlock_ffiVoid_NSData_NSError_closureRegistryIndex;
+  _ObjCBlock_ffiVoid_NSData_NSError_closureRegistry[id] = fn;
   return ffi.Pointer<ffi.Void>.fromAddress(id);
 }
 
-void _ObjCBlock26_closureTrampoline(ffi.Pointer<_ObjCBlock> block,
-    ffi.Pointer<ObjCObject> arg0, ffi.Pointer<ObjCObject> arg1) {
-  return (_ObjCBlock26_closureRegistry[block.ref.target.address] as void
-      Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCObject>))(arg0, arg1);
+void _ObjCBlock_ffiVoid_NSData_NSError_closureTrampoline(
+    ffi.Pointer<_ObjCBlock> block,
+    ffi.Pointer<ObjCObject> arg0,
+    ffi.Pointer<ObjCObject> arg1) {
+  return (_ObjCBlock_ffiVoid_NSData_NSError_closureRegistry[
+          block.ref.target.address]
+      as void Function(
+          ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCObject>))(arg0, arg1);
 }
 
-class ObjCBlock26 extends _ObjCBlockBase {
-  ObjCBlock26._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
+class ObjCBlock_ffiVoid_NSData_NSError extends _ObjCBlockBase {
+  ObjCBlock_ffiVoid_NSData_NSError._(
+      ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
       : super._(id, lib, retain: false, release: true);
 
   /// Creates a block from a C function pointer.
-  ObjCBlock26.fromFunctionPointer(
+  ObjCBlock_ffiVoid_NSData_NSError.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
               ffi.NativeFunction<
@@ -50545,14 +51719,14 @@ class ObjCBlock26 extends _ObjCBlockBase {
                                 ffi.Pointer<_ObjCBlock> block,
                                 ffi.Pointer<ObjCObject> arg0,
                                 ffi.Pointer<ObjCObject> arg1)>(
-                        _ObjCBlock26_fnPtrTrampoline)
+                        _ObjCBlock_ffiVoid_NSData_NSError_fnPtrTrampoline)
                     .cast(),
                 ptr.cast()),
             lib);
   static ffi.Pointer<ffi.Void>? _cFuncTrampoline;
 
   /// Creates a block from a Dart function.
-  ObjCBlock26.fromFunction(
+  ObjCBlock_ffiVoid_NSData_NSError.fromFunction(
       SentryCocoa lib,
       void Function(ffi.Pointer<ObjCObject> arg0, ffi.Pointer<ObjCObject> arg1)
           fn)
@@ -50563,9 +51737,9 @@ class ObjCBlock26 extends _ObjCBlockBase {
                                 ffi.Pointer<_ObjCBlock> block,
                                 ffi.Pointer<ObjCObject> arg0,
                                 ffi.Pointer<ObjCObject> arg1)>(
-                        _ObjCBlock26_closureTrampoline)
+                        _ObjCBlock_ffiVoid_NSData_NSError_closureTrampoline)
                     .cast(),
-                _ObjCBlock26_registerClosure(fn)),
+                _ObjCBlock_ffiVoid_NSData_NSError_registerClosure(fn)),
             lib);
   static ffi.Pointer<ffi.Void>? _dartFuncTrampoline;
   void call(ffi.Pointer<ObjCObject> arg0, ffi.Pointer<ObjCObject> arg1) {
@@ -50588,8 +51762,9 @@ abstract class NSItemProviderFileOptions {
   static const int NSItemProviderFileOptionOpenInPlace = 1;
 }
 
-ffi.Pointer<ObjCObject> _ObjCBlock27_fnPtrTrampoline(
-    ffi.Pointer<_ObjCBlock> block, ffi.Pointer<_ObjCBlock> arg0) {
+ffi.Pointer<ObjCObject>
+    _ObjCBlock_NSProgress_ffiVoidNSURLboolNSError_fnPtrTrampoline(
+        ffi.Pointer<_ObjCBlock> block, ffi.Pointer<_ObjCBlock> arg0) {
   return block.ref.target
       .cast<
           ffi.NativeFunction<
@@ -50599,26 +51774,32 @@ ffi.Pointer<ObjCObject> _ObjCBlock27_fnPtrTrampoline(
               ffi.Pointer<_ObjCBlock> arg0)>()(arg0);
 }
 
-final _ObjCBlock27_closureRegistry = <int, Function>{};
-int _ObjCBlock27_closureRegistryIndex = 0;
-ffi.Pointer<ffi.Void> _ObjCBlock27_registerClosure(Function fn) {
-  final id = ++_ObjCBlock27_closureRegistryIndex;
-  _ObjCBlock27_closureRegistry[id] = fn;
+final _ObjCBlock_NSProgress_ffiVoidNSURLboolNSError_closureRegistry =
+    <int, Function>{};
+int _ObjCBlock_NSProgress_ffiVoidNSURLboolNSError_closureRegistryIndex = 0;
+ffi.Pointer<ffi.Void>
+    _ObjCBlock_NSProgress_ffiVoidNSURLboolNSError_registerClosure(Function fn) {
+  final id =
+      ++_ObjCBlock_NSProgress_ffiVoidNSURLboolNSError_closureRegistryIndex;
+  _ObjCBlock_NSProgress_ffiVoidNSURLboolNSError_closureRegistry[id] = fn;
   return ffi.Pointer<ffi.Void>.fromAddress(id);
 }
 
-ffi.Pointer<ObjCObject> _ObjCBlock27_closureTrampoline(
-    ffi.Pointer<_ObjCBlock> block, ffi.Pointer<_ObjCBlock> arg0) {
-  return (_ObjCBlock27_closureRegistry[block.ref.target.address]
+ffi.Pointer<ObjCObject>
+    _ObjCBlock_NSProgress_ffiVoidNSURLboolNSError_closureTrampoline(
+        ffi.Pointer<_ObjCBlock> block, ffi.Pointer<_ObjCBlock> arg0) {
+  return (_ObjCBlock_NSProgress_ffiVoidNSURLboolNSError_closureRegistry[
+          block.ref.target.address]
       as ffi.Pointer<ObjCObject> Function(ffi.Pointer<_ObjCBlock>))(arg0);
 }
 
-class ObjCBlock27 extends _ObjCBlockBase {
-  ObjCBlock27._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
+class ObjCBlock_NSProgress_ffiVoidNSURLboolNSError extends _ObjCBlockBase {
+  ObjCBlock_NSProgress_ffiVoidNSURLboolNSError._(
+      ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
       : super._(id, lib, retain: false, release: true);
 
   /// Creates a block from a C function pointer.
-  ObjCBlock27.fromFunctionPointer(
+  ObjCBlock_NSProgress_ffiVoidNSURLboolNSError.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
               ffi.NativeFunction<
@@ -50631,14 +51812,14 @@ class ObjCBlock27 extends _ObjCBlockBase {
                             ffi.Pointer<ObjCObject> Function(
                                 ffi.Pointer<_ObjCBlock> block,
                                 ffi.Pointer<_ObjCBlock> arg0)>(
-                        _ObjCBlock27_fnPtrTrampoline)
+                        _ObjCBlock_NSProgress_ffiVoidNSURLboolNSError_fnPtrTrampoline)
                     .cast(),
                 ptr.cast()),
             lib);
   static ffi.Pointer<ffi.Void>? _cFuncTrampoline;
 
   /// Creates a block from a Dart function.
-  ObjCBlock27.fromFunction(SentryCocoa lib,
+  ObjCBlock_NSProgress_ffiVoidNSURLboolNSError.fromFunction(SentryCocoa lib,
       ffi.Pointer<ObjCObject> Function(ffi.Pointer<_ObjCBlock> arg0) fn)
       : this._(
             lib._newBlock1(
@@ -50646,9 +51827,10 @@ class ObjCBlock27 extends _ObjCBlockBase {
                             ffi.Pointer<ObjCObject> Function(
                                 ffi.Pointer<_ObjCBlock> block,
                                 ffi.Pointer<_ObjCBlock> arg0)>(
-                        _ObjCBlock27_closureTrampoline)
+                        _ObjCBlock_NSProgress_ffiVoidNSURLboolNSError_closureTrampoline)
                     .cast(),
-                _ObjCBlock27_registerClosure(fn)),
+                _ObjCBlock_NSProgress_ffiVoidNSURLboolNSError_registerClosure(
+                    fn)),
             lib);
   static ffi.Pointer<ffi.Void>? _dartFuncTrampoline;
   ffi.Pointer<ObjCObject> call(ffi.Pointer<_ObjCBlock> arg0) {
@@ -50663,8 +51845,11 @@ class ObjCBlock27 extends _ObjCBlockBase {
   }
 }
 
-void _ObjCBlock28_fnPtrTrampoline(ffi.Pointer<_ObjCBlock> block,
-    ffi.Pointer<ObjCObject> arg0, bool arg1, ffi.Pointer<ObjCObject> arg2) {
+void _ObjCBlock_ffiVoid_NSURL_bool_NSError_fnPtrTrampoline(
+    ffi.Pointer<_ObjCBlock> block,
+    ffi.Pointer<ObjCObject> arg0,
+    bool arg1,
+    ffi.Pointer<ObjCObject> arg2) {
   return block.ref.target
       .cast<
           ffi.NativeFunction<
@@ -50675,27 +51860,33 @@ void _ObjCBlock28_fnPtrTrampoline(ffi.Pointer<_ObjCBlock> block,
               ffi.Pointer<ObjCObject> arg2)>()(arg0, arg1, arg2);
 }
 
-final _ObjCBlock28_closureRegistry = <int, Function>{};
-int _ObjCBlock28_closureRegistryIndex = 0;
-ffi.Pointer<ffi.Void> _ObjCBlock28_registerClosure(Function fn) {
-  final id = ++_ObjCBlock28_closureRegistryIndex;
-  _ObjCBlock28_closureRegistry[id] = fn;
+final _ObjCBlock_ffiVoid_NSURL_bool_NSError_closureRegistry = <int, Function>{};
+int _ObjCBlock_ffiVoid_NSURL_bool_NSError_closureRegistryIndex = 0;
+ffi.Pointer<ffi.Void> _ObjCBlock_ffiVoid_NSURL_bool_NSError_registerClosure(
+    Function fn) {
+  final id = ++_ObjCBlock_ffiVoid_NSURL_bool_NSError_closureRegistryIndex;
+  _ObjCBlock_ffiVoid_NSURL_bool_NSError_closureRegistry[id] = fn;
   return ffi.Pointer<ffi.Void>.fromAddress(id);
 }
 
-void _ObjCBlock28_closureTrampoline(ffi.Pointer<_ObjCBlock> block,
-    ffi.Pointer<ObjCObject> arg0, bool arg1, ffi.Pointer<ObjCObject> arg2) {
-  return (_ObjCBlock28_closureRegistry[block.ref.target.address] as void
-          Function(ffi.Pointer<ObjCObject>, bool, ffi.Pointer<ObjCObject>))(
-      arg0, arg1, arg2);
+void _ObjCBlock_ffiVoid_NSURL_bool_NSError_closureTrampoline(
+    ffi.Pointer<_ObjCBlock> block,
+    ffi.Pointer<ObjCObject> arg0,
+    bool arg1,
+    ffi.Pointer<ObjCObject> arg2) {
+  return (_ObjCBlock_ffiVoid_NSURL_bool_NSError_closureRegistry[
+          block.ref.target.address]
+      as void Function(ffi.Pointer<ObjCObject>, bool,
+          ffi.Pointer<ObjCObject>))(arg0, arg1, arg2);
 }
 
-class ObjCBlock28 extends _ObjCBlockBase {
-  ObjCBlock28._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
+class ObjCBlock_ffiVoid_NSURL_bool_NSError extends _ObjCBlockBase {
+  ObjCBlock_ffiVoid_NSURL_bool_NSError._(
+      ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
       : super._(id, lib, retain: false, release: true);
 
   /// Creates a block from a C function pointer.
-  ObjCBlock28.fromFunctionPointer(
+  ObjCBlock_ffiVoid_NSURL_bool_NSError.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
               ffi.NativeFunction<
@@ -50710,14 +51901,14 @@ class ObjCBlock28 extends _ObjCBlockBase {
                                 ffi.Pointer<ObjCObject> arg0,
                                 ffi.Bool arg1,
                                 ffi.Pointer<ObjCObject> arg2)>(
-                        _ObjCBlock28_fnPtrTrampoline)
+                        _ObjCBlock_ffiVoid_NSURL_bool_NSError_fnPtrTrampoline)
                     .cast(),
                 ptr.cast()),
             lib);
   static ffi.Pointer<ffi.Void>? _cFuncTrampoline;
 
   /// Creates a block from a Dart function.
-  ObjCBlock28.fromFunction(
+  ObjCBlock_ffiVoid_NSURL_bool_NSError.fromFunction(
       SentryCocoa lib,
       void Function(ffi.Pointer<ObjCObject> arg0, bool arg1,
               ffi.Pointer<ObjCObject> arg2)
@@ -50730,9 +51921,9 @@ class ObjCBlock28 extends _ObjCBlockBase {
                                 ffi.Pointer<ObjCObject> arg0,
                                 ffi.Bool arg1,
                                 ffi.Pointer<ObjCObject> arg2)>(
-                        _ObjCBlock28_closureTrampoline)
+                        _ObjCBlock_ffiVoid_NSURL_bool_NSError_closureTrampoline)
                     .cast(),
-                _ObjCBlock28_registerClosure(fn)),
+                _ObjCBlock_ffiVoid_NSURL_bool_NSError_registerClosure(fn)),
             lib);
   static ffi.Pointer<ffi.Void>? _dartFuncTrampoline;
   void call(
@@ -50754,8 +51945,10 @@ class ObjCBlock28 extends _ObjCBlockBase {
   }
 }
 
-void _ObjCBlock29_fnPtrTrampoline(ffi.Pointer<_ObjCBlock> block,
-    ffi.Pointer<ObjCObject> arg0, ffi.Pointer<ObjCObject> arg1) {
+void _ObjCBlock_ffiVoid_NSURL_NSError_fnPtrTrampoline(
+    ffi.Pointer<_ObjCBlock> block,
+    ffi.Pointer<ObjCObject> arg0,
+    ffi.Pointer<ObjCObject> arg1) {
   return block.ref.target
       .cast<
           ffi.NativeFunction<
@@ -50766,26 +51959,31 @@ void _ObjCBlock29_fnPtrTrampoline(ffi.Pointer<_ObjCBlock> block,
               ffi.Pointer<ObjCObject> arg1)>()(arg0, arg1);
 }
 
-final _ObjCBlock29_closureRegistry = <int, Function>{};
-int _ObjCBlock29_closureRegistryIndex = 0;
-ffi.Pointer<ffi.Void> _ObjCBlock29_registerClosure(Function fn) {
-  final id = ++_ObjCBlock29_closureRegistryIndex;
-  _ObjCBlock29_closureRegistry[id] = fn;
+final _ObjCBlock_ffiVoid_NSURL_NSError_closureRegistry = <int, Function>{};
+int _ObjCBlock_ffiVoid_NSURL_NSError_closureRegistryIndex = 0;
+ffi.Pointer<ffi.Void> _ObjCBlock_ffiVoid_NSURL_NSError_registerClosure(
+    Function fn) {
+  final id = ++_ObjCBlock_ffiVoid_NSURL_NSError_closureRegistryIndex;
+  _ObjCBlock_ffiVoid_NSURL_NSError_closureRegistry[id] = fn;
   return ffi.Pointer<ffi.Void>.fromAddress(id);
 }
 
-void _ObjCBlock29_closureTrampoline(ffi.Pointer<_ObjCBlock> block,
-    ffi.Pointer<ObjCObject> arg0, ffi.Pointer<ObjCObject> arg1) {
-  return (_ObjCBlock29_closureRegistry[block.ref.target.address] as void
-      Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCObject>))(arg0, arg1);
+void _ObjCBlock_ffiVoid_NSURL_NSError_closureTrampoline(
+    ffi.Pointer<_ObjCBlock> block,
+    ffi.Pointer<ObjCObject> arg0,
+    ffi.Pointer<ObjCObject> arg1) {
+  return (_ObjCBlock_ffiVoid_NSURL_NSError_closureRegistry[
+          block.ref.target.address]
+      as void Function(
+          ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCObject>))(arg0, arg1);
 }
 
-class ObjCBlock29 extends _ObjCBlockBase {
-  ObjCBlock29._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
+class ObjCBlock_ffiVoid_NSURL_NSError extends _ObjCBlockBase {
+  ObjCBlock_ffiVoid_NSURL_NSError._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
       : super._(id, lib, retain: false, release: true);
 
   /// Creates a block from a C function pointer.
-  ObjCBlock29.fromFunctionPointer(
+  ObjCBlock_ffiVoid_NSURL_NSError.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
               ffi.NativeFunction<
@@ -50799,14 +51997,14 @@ class ObjCBlock29 extends _ObjCBlockBase {
                                 ffi.Pointer<_ObjCBlock> block,
                                 ffi.Pointer<ObjCObject> arg0,
                                 ffi.Pointer<ObjCObject> arg1)>(
-                        _ObjCBlock29_fnPtrTrampoline)
+                        _ObjCBlock_ffiVoid_NSURL_NSError_fnPtrTrampoline)
                     .cast(),
                 ptr.cast()),
             lib);
   static ffi.Pointer<ffi.Void>? _cFuncTrampoline;
 
   /// Creates a block from a Dart function.
-  ObjCBlock29.fromFunction(
+  ObjCBlock_ffiVoid_NSURL_NSError.fromFunction(
       SentryCocoa lib,
       void Function(ffi.Pointer<ObjCObject> arg0, ffi.Pointer<ObjCObject> arg1)
           fn)
@@ -50817,9 +52015,9 @@ class ObjCBlock29 extends _ObjCBlockBase {
                                 ffi.Pointer<_ObjCBlock> block,
                                 ffi.Pointer<ObjCObject> arg0,
                                 ffi.Pointer<ObjCObject> arg1)>(
-                        _ObjCBlock29_closureTrampoline)
+                        _ObjCBlock_ffiVoid_NSURL_NSError_closureTrampoline)
                     .cast(),
-                _ObjCBlock29_registerClosure(fn)),
+                _ObjCBlock_ffiVoid_NSURL_NSError_registerClosure(fn)),
             lib);
   static ffi.Pointer<ffi.Void>? _dartFuncTrampoline;
   void call(ffi.Pointer<ObjCObject> arg0, ffi.Pointer<ObjCObject> arg1) {
@@ -50838,8 +52036,9 @@ class ObjCBlock29 extends _ObjCBlockBase {
   }
 }
 
-ffi.Pointer<ObjCObject> _ObjCBlock30_fnPtrTrampoline(
-    ffi.Pointer<_ObjCBlock> block, ffi.Pointer<_ObjCBlock> arg0) {
+ffi.Pointer<ObjCObject>
+    _ObjCBlock_NSProgress_ffiVoidObjCObjectNSError_fnPtrTrampoline(
+        ffi.Pointer<_ObjCBlock> block, ffi.Pointer<_ObjCBlock> arg0) {
   return block.ref.target
       .cast<
           ffi.NativeFunction<
@@ -50849,26 +52048,33 @@ ffi.Pointer<ObjCObject> _ObjCBlock30_fnPtrTrampoline(
               ffi.Pointer<_ObjCBlock> arg0)>()(arg0);
 }
 
-final _ObjCBlock30_closureRegistry = <int, Function>{};
-int _ObjCBlock30_closureRegistryIndex = 0;
-ffi.Pointer<ffi.Void> _ObjCBlock30_registerClosure(Function fn) {
-  final id = ++_ObjCBlock30_closureRegistryIndex;
-  _ObjCBlock30_closureRegistry[id] = fn;
+final _ObjCBlock_NSProgress_ffiVoidObjCObjectNSError_closureRegistry =
+    <int, Function>{};
+int _ObjCBlock_NSProgress_ffiVoidObjCObjectNSError_closureRegistryIndex = 0;
+ffi.Pointer<ffi.Void>
+    _ObjCBlock_NSProgress_ffiVoidObjCObjectNSError_registerClosure(
+        Function fn) {
+  final id =
+      ++_ObjCBlock_NSProgress_ffiVoidObjCObjectNSError_closureRegistryIndex;
+  _ObjCBlock_NSProgress_ffiVoidObjCObjectNSError_closureRegistry[id] = fn;
   return ffi.Pointer<ffi.Void>.fromAddress(id);
 }
 
-ffi.Pointer<ObjCObject> _ObjCBlock30_closureTrampoline(
-    ffi.Pointer<_ObjCBlock> block, ffi.Pointer<_ObjCBlock> arg0) {
-  return (_ObjCBlock30_closureRegistry[block.ref.target.address]
+ffi.Pointer<ObjCObject>
+    _ObjCBlock_NSProgress_ffiVoidObjCObjectNSError_closureTrampoline(
+        ffi.Pointer<_ObjCBlock> block, ffi.Pointer<_ObjCBlock> arg0) {
+  return (_ObjCBlock_NSProgress_ffiVoidObjCObjectNSError_closureRegistry[
+          block.ref.target.address]
       as ffi.Pointer<ObjCObject> Function(ffi.Pointer<_ObjCBlock>))(arg0);
 }
 
-class ObjCBlock30 extends _ObjCBlockBase {
-  ObjCBlock30._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
+class ObjCBlock_NSProgress_ffiVoidObjCObjectNSError extends _ObjCBlockBase {
+  ObjCBlock_NSProgress_ffiVoidObjCObjectNSError._(
+      ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
       : super._(id, lib, retain: false, release: true);
 
   /// Creates a block from a C function pointer.
-  ObjCBlock30.fromFunctionPointer(
+  ObjCBlock_NSProgress_ffiVoidObjCObjectNSError.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
               ffi.NativeFunction<
@@ -50881,14 +52087,14 @@ class ObjCBlock30 extends _ObjCBlockBase {
                             ffi.Pointer<ObjCObject> Function(
                                 ffi.Pointer<_ObjCBlock> block,
                                 ffi.Pointer<_ObjCBlock> arg0)>(
-                        _ObjCBlock30_fnPtrTrampoline)
+                        _ObjCBlock_NSProgress_ffiVoidObjCObjectNSError_fnPtrTrampoline)
                     .cast(),
                 ptr.cast()),
             lib);
   static ffi.Pointer<ffi.Void>? _cFuncTrampoline;
 
   /// Creates a block from a Dart function.
-  ObjCBlock30.fromFunction(SentryCocoa lib,
+  ObjCBlock_NSProgress_ffiVoidObjCObjectNSError.fromFunction(SentryCocoa lib,
       ffi.Pointer<ObjCObject> Function(ffi.Pointer<_ObjCBlock> arg0) fn)
       : this._(
             lib._newBlock1(
@@ -50896,9 +52102,10 @@ class ObjCBlock30 extends _ObjCBlockBase {
                             ffi.Pointer<ObjCObject> Function(
                                 ffi.Pointer<_ObjCBlock> block,
                                 ffi.Pointer<_ObjCBlock> arg0)>(
-                        _ObjCBlock30_closureTrampoline)
+                        _ObjCBlock_NSProgress_ffiVoidObjCObjectNSError_closureTrampoline)
                     .cast(),
-                _ObjCBlock30_registerClosure(fn)),
+                _ObjCBlock_NSProgress_ffiVoidObjCObjectNSError_registerClosure(
+                    fn)),
             lib);
   static ffi.Pointer<ffi.Void>? _dartFuncTrampoline;
   ffi.Pointer<ObjCObject> call(ffi.Pointer<_ObjCBlock> arg0) {
@@ -50913,8 +52120,10 @@ class ObjCBlock30 extends _ObjCBlockBase {
   }
 }
 
-void _ObjCBlock31_fnPtrTrampoline(ffi.Pointer<_ObjCBlock> block,
-    ffi.Pointer<ObjCObject> arg0, ffi.Pointer<ObjCObject> arg1) {
+void _ObjCBlock_ffiVoid_ObjCObject_NSError_fnPtrTrampoline(
+    ffi.Pointer<_ObjCBlock> block,
+    ffi.Pointer<ObjCObject> arg0,
+    ffi.Pointer<ObjCObject> arg1) {
   return block.ref.target
       .cast<
           ffi.NativeFunction<
@@ -50925,26 +52134,32 @@ void _ObjCBlock31_fnPtrTrampoline(ffi.Pointer<_ObjCBlock> block,
               ffi.Pointer<ObjCObject> arg1)>()(arg0, arg1);
 }
 
-final _ObjCBlock31_closureRegistry = <int, Function>{};
-int _ObjCBlock31_closureRegistryIndex = 0;
-ffi.Pointer<ffi.Void> _ObjCBlock31_registerClosure(Function fn) {
-  final id = ++_ObjCBlock31_closureRegistryIndex;
-  _ObjCBlock31_closureRegistry[id] = fn;
+final _ObjCBlock_ffiVoid_ObjCObject_NSError_closureRegistry = <int, Function>{};
+int _ObjCBlock_ffiVoid_ObjCObject_NSError_closureRegistryIndex = 0;
+ffi.Pointer<ffi.Void> _ObjCBlock_ffiVoid_ObjCObject_NSError_registerClosure(
+    Function fn) {
+  final id = ++_ObjCBlock_ffiVoid_ObjCObject_NSError_closureRegistryIndex;
+  _ObjCBlock_ffiVoid_ObjCObject_NSError_closureRegistry[id] = fn;
   return ffi.Pointer<ffi.Void>.fromAddress(id);
 }
 
-void _ObjCBlock31_closureTrampoline(ffi.Pointer<_ObjCBlock> block,
-    ffi.Pointer<ObjCObject> arg0, ffi.Pointer<ObjCObject> arg1) {
-  return (_ObjCBlock31_closureRegistry[block.ref.target.address] as void
-      Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCObject>))(arg0, arg1);
+void _ObjCBlock_ffiVoid_ObjCObject_NSError_closureTrampoline(
+    ffi.Pointer<_ObjCBlock> block,
+    ffi.Pointer<ObjCObject> arg0,
+    ffi.Pointer<ObjCObject> arg1) {
+  return (_ObjCBlock_ffiVoid_ObjCObject_NSError_closureRegistry[
+          block.ref.target.address]
+      as void Function(
+          ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCObject>))(arg0, arg1);
 }
 
-class ObjCBlock31 extends _ObjCBlockBase {
-  ObjCBlock31._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
+class ObjCBlock_ffiVoid_ObjCObject_NSError extends _ObjCBlockBase {
+  ObjCBlock_ffiVoid_ObjCObject_NSError._(
+      ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
       : super._(id, lib, retain: false, release: true);
 
   /// Creates a block from a C function pointer.
-  ObjCBlock31.fromFunctionPointer(
+  ObjCBlock_ffiVoid_ObjCObject_NSError.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
               ffi.NativeFunction<
@@ -50958,14 +52173,14 @@ class ObjCBlock31 extends _ObjCBlockBase {
                                 ffi.Pointer<_ObjCBlock> block,
                                 ffi.Pointer<ObjCObject> arg0,
                                 ffi.Pointer<ObjCObject> arg1)>(
-                        _ObjCBlock31_fnPtrTrampoline)
+                        _ObjCBlock_ffiVoid_ObjCObject_NSError_fnPtrTrampoline)
                     .cast(),
                 ptr.cast()),
             lib);
   static ffi.Pointer<ffi.Void>? _cFuncTrampoline;
 
   /// Creates a block from a Dart function.
-  ObjCBlock31.fromFunction(
+  ObjCBlock_ffiVoid_ObjCObject_NSError.fromFunction(
       SentryCocoa lib,
       void Function(ffi.Pointer<ObjCObject> arg0, ffi.Pointer<ObjCObject> arg1)
           fn)
@@ -50976,9 +52191,9 @@ class ObjCBlock31 extends _ObjCBlockBase {
                                 ffi.Pointer<_ObjCBlock> block,
                                 ffi.Pointer<ObjCObject> arg0,
                                 ffi.Pointer<ObjCObject> arg1)>(
-                        _ObjCBlock31_closureTrampoline)
+                        _ObjCBlock_ffiVoid_ObjCObject_NSError_closureTrampoline)
                     .cast(),
-                _ObjCBlock31_registerClosure(fn)),
+                _ObjCBlock_ffiVoid_ObjCObject_NSError_registerClosure(fn)),
             lib);
   static ffi.Pointer<ffi.Void>? _dartFuncTrampoline;
   void call(ffi.Pointer<ObjCObject> arg0, ffi.Pointer<ObjCObject> arg1) {
@@ -50997,11 +52212,12 @@ class ObjCBlock31 extends _ObjCBlockBase {
   }
 }
 
-void _ObjCBlock32_fnPtrTrampoline(
-    ffi.Pointer<_ObjCBlock> block,
-    ffi.Pointer<_ObjCBlock> arg0,
-    ffi.Pointer<ObjCObject> arg1,
-    ffi.Pointer<ObjCObject> arg2) {
+void
+    _ObjCBlock_ffiVoid_ffiVoidObjCObjectNSError_ObjCObject_NSDictionary_fnPtrTrampoline(
+        ffi.Pointer<_ObjCBlock> block,
+        ffi.Pointer<_ObjCBlock> arg0,
+        ffi.Pointer<ObjCObject> arg1,
+        ffi.Pointer<ObjCObject> arg2) {
   return block.ref.target
       .cast<
           ffi.NativeFunction<
@@ -51016,34 +52232,43 @@ void _ObjCBlock32_fnPtrTrampoline(
               ffi.Pointer<ObjCObject> arg2)>()(arg0, arg1, arg2);
 }
 
-final _ObjCBlock32_closureRegistry = <int, Function>{};
-int _ObjCBlock32_closureRegistryIndex = 0;
-ffi.Pointer<ffi.Void> _ObjCBlock32_registerClosure(Function fn) {
-  final id = ++_ObjCBlock32_closureRegistryIndex;
-  _ObjCBlock32_closureRegistry[id] = fn;
+final _ObjCBlock_ffiVoid_ffiVoidObjCObjectNSError_ObjCObject_NSDictionary_closureRegistry =
+    <int, Function>{};
+int _ObjCBlock_ffiVoid_ffiVoidObjCObjectNSError_ObjCObject_NSDictionary_closureRegistryIndex =
+    0;
+ffi.Pointer<ffi.Void>
+    _ObjCBlock_ffiVoid_ffiVoidObjCObjectNSError_ObjCObject_NSDictionary_registerClosure(
+        Function fn) {
+  final id =
+      ++_ObjCBlock_ffiVoid_ffiVoidObjCObjectNSError_ObjCObject_NSDictionary_closureRegistryIndex;
+  _ObjCBlock_ffiVoid_ffiVoidObjCObjectNSError_ObjCObject_NSDictionary_closureRegistry[
+      id] = fn;
   return ffi.Pointer<ffi.Void>.fromAddress(id);
 }
 
-void _ObjCBlock32_closureTrampoline(
-    ffi.Pointer<_ObjCBlock> block,
-    ffi.Pointer<_ObjCBlock> arg0,
-    ffi.Pointer<ObjCObject> arg1,
-    ffi.Pointer<ObjCObject> arg2) {
-  return (_ObjCBlock32_closureRegistry[block.ref.target.address]
+void
+    _ObjCBlock_ffiVoid_ffiVoidObjCObjectNSError_ObjCObject_NSDictionary_closureTrampoline(
+        ffi.Pointer<_ObjCBlock> block,
+        ffi.Pointer<_ObjCBlock> arg0,
+        ffi.Pointer<ObjCObject> arg1,
+        ffi.Pointer<ObjCObject> arg2) {
+  return (_ObjCBlock_ffiVoid_ffiVoidObjCObjectNSError_ObjCObject_NSDictionary_closureRegistry[
+          block.ref.target.address]
       as void Function(ffi.Pointer<_ObjCBlock>, ffi.Pointer<ObjCObject>,
           ffi.Pointer<ObjCObject>))(arg0, arg1, arg2);
 }
 
-class ObjCBlock32 extends _ObjCBlockBase {
-  ObjCBlock32._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
+class ObjCBlock_ffiVoid_ffiVoidObjCObjectNSError_ObjCObject_NSDictionary
+    extends _ObjCBlockBase {
+  ObjCBlock_ffiVoid_ffiVoidObjCObjectNSError_ObjCObject_NSDictionary._(
+      ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
       : super._(id, lib, retain: false, release: true);
 
   /// Creates a block from a C function pointer.
-  ObjCBlock32.fromFunctionPointer(
+  ObjCBlock_ffiVoid_ffiVoidObjCObjectNSError_ObjCObject_NSDictionary.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
-              ffi
-              .NativeFunction<
+              ffi.NativeFunction<
                   ffi.Void Function(
                       ffi.Pointer<_ObjCBlock> arg0,
                       ffi.Pointer<ObjCObject> arg1,
@@ -51057,14 +52282,14 @@ class ObjCBlock32 extends _ObjCBlockBase {
                                 ffi.Pointer<_ObjCBlock> arg0,
                                 ffi.Pointer<ObjCObject> arg1,
                                 ffi.Pointer<ObjCObject> arg2)>(
-                        _ObjCBlock32_fnPtrTrampoline)
+                        _ObjCBlock_ffiVoid_ffiVoidObjCObjectNSError_ObjCObject_NSDictionary_fnPtrTrampoline)
                     .cast(),
                 ptr.cast()),
             lib);
   static ffi.Pointer<ffi.Void>? _cFuncTrampoline;
 
   /// Creates a block from a Dart function.
-  ObjCBlock32.fromFunction(
+  ObjCBlock_ffiVoid_ffiVoidObjCObjectNSError_ObjCObject_NSDictionary.fromFunction(
       SentryCocoa lib,
       void Function(ffi.Pointer<_ObjCBlock> arg0, ffi.Pointer<ObjCObject> arg1,
               ffi.Pointer<ObjCObject> arg2)
@@ -51077,9 +52302,10 @@ class ObjCBlock32 extends _ObjCBlockBase {
                                 ffi.Pointer<_ObjCBlock> arg0,
                                 ffi.Pointer<ObjCObject> arg1,
                                 ffi.Pointer<ObjCObject> arg2)>(
-                        _ObjCBlock32_closureTrampoline)
+                        _ObjCBlock_ffiVoid_ffiVoidObjCObjectNSError_ObjCObject_NSDictionary_closureTrampoline)
                     .cast(),
-                _ObjCBlock32_registerClosure(fn)),
+                _ObjCBlock_ffiVoid_ffiVoidObjCObjectNSError_ObjCObject_NSDictionary_registerClosure(
+                    fn)),
             lib);
   static ffi.Pointer<ffi.Void>? _dartFuncTrampoline;
   void call(ffi.Pointer<_ObjCBlock> arg0, ffi.Pointer<ObjCObject> arg1,
@@ -51126,35 +52352,31 @@ class NSMutableString extends NSString {
   }
 
   void replaceCharactersInRange_withString_(_NSRange range, NSString? aString) {
-    return _lib._objc_msgSend_672(
-        _id,
-        _lib._sel_replaceCharactersInRange_withString_1,
-        range,
-        aString?._id ?? ffi.nullptr);
+    _lib._objc_msgSend_672(_id, _lib._sel_replaceCharactersInRange_withString_1,
+        range, aString?._id ?? ffi.nullptr);
   }
 
   void insertString_atIndex_(NSString? aString, int loc) {
-    return _lib._objc_msgSend_673(_id, _lib._sel_insertString_atIndex_1,
+    _lib._objc_msgSend_673(_id, _lib._sel_insertString_atIndex_1,
         aString?._id ?? ffi.nullptr, loc);
   }
 
   void deleteCharactersInRange_(_NSRange range) {
-    return _lib._objc_msgSend_445(
-        _id, _lib._sel_deleteCharactersInRange_1, range);
+    _lib._objc_msgSend_445(_id, _lib._sel_deleteCharactersInRange_1, range);
   }
 
   void appendString_(NSString? aString) {
-    return _lib._objc_msgSend_192(
+    _lib._objc_msgSend_192(
         _id, _lib._sel_appendString_1, aString?._id ?? ffi.nullptr);
   }
 
   void appendFormat_(NSString? format) {
-    return _lib._objc_msgSend_192(
+    _lib._objc_msgSend_192(
         _id, _lib._sel_appendFormat_1, format?._id ?? ffi.nullptr);
   }
 
   void setString_(NSString? aString) {
-    return _lib._objc_msgSend_192(
+    _lib._objc_msgSend_192(
         _id, _lib._sel_setString_1, aString?._id ?? ffi.nullptr);
   }
 
@@ -51192,6 +52414,19 @@ class NSMutableString extends NSString {
     return NSMutableString._(_ret, _lib, retain: true, release: true);
   }
 
+  @override
+  NSMutableString init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSMutableString._(_ret, _lib, retain: true, release: true);
+  }
+
+  @override
+  NSMutableString initWithCoder_(NSCoder? coder) {
+    final _ret = _lib._objc_msgSend_42(
+        _id, _lib._sel_initWithCoder_1, coder?._id ?? ffi.nullptr);
+    return NSMutableString._(_ret, _lib, retain: true, release: true);
+  }
+
   static ffi.Pointer<ffi.UnsignedLong> getAvailableStringEncodings(
       SentryCocoa _lib) {
     return _lib._objc_msgSend_333(
@@ -51208,6 +52443,202 @@ class NSMutableString extends NSString {
   static int getDefaultCStringEncoding(SentryCocoa _lib) {
     return _lib._objc_msgSend_10(
         _lib._class_NSMutableString1, _lib._sel_defaultCStringEncoding1);
+  }
+
+  @override
+  NSMutableString initWithCharactersNoCopy_length_freeWhenDone_(
+      ffi.Pointer<ffi.UnsignedShort> characters, int length, bool freeBuffer) {
+    final _ret = _lib._objc_msgSend_344(
+        _id,
+        _lib._sel_initWithCharactersNoCopy_length_freeWhenDone_1,
+        characters,
+        length,
+        freeBuffer);
+    return NSMutableString._(_ret, _lib, retain: false, release: true);
+  }
+
+  @override
+  NSMutableString initWithCharactersNoCopy_length_deallocator_(
+      ffi.Pointer<ffi.UnsignedShort> chars,
+      int len,
+      ObjCBlock_ffiVoid_ffiUnsignedShort_ffiUnsignedLong deallocator) {
+    final _ret = _lib._objc_msgSend_345(
+        _id,
+        _lib._sel_initWithCharactersNoCopy_length_deallocator_1,
+        chars,
+        len,
+        deallocator._id);
+    return NSMutableString._(_ret, _lib, retain: false, release: true);
+  }
+
+  @override
+  NSMutableString initWithCharacters_length_(
+      ffi.Pointer<ffi.UnsignedShort> characters, int length) {
+    final _ret = _lib._objc_msgSend_346(
+        _id, _lib._sel_initWithCharacters_length_1, characters, length);
+    return NSMutableString._(_ret, _lib, retain: true, release: true);
+  }
+
+  @override
+  NSMutableString initWithUTF8String_(
+      ffi.Pointer<ffi.Char> nullTerminatedCString) {
+    final _ret = _lib._objc_msgSend_347(
+        _id, _lib._sel_initWithUTF8String_1, nullTerminatedCString);
+    return NSMutableString._(_ret, _lib, retain: true, release: true);
+  }
+
+  @override
+  NSMutableString initWithString_(NSString? aString) {
+    final _ret = _lib._objc_msgSend_30(
+        _id, _lib._sel_initWithString_1, aString?._id ?? ffi.nullptr);
+    return NSMutableString._(_ret, _lib, retain: true, release: true);
+  }
+
+  @override
+  NSMutableString initWithFormat_(NSString? format) {
+    final _ret = _lib._objc_msgSend_30(
+        _id, _lib._sel_initWithFormat_1, format?._id ?? ffi.nullptr);
+    return NSMutableString._(_ret, _lib, retain: true, release: true);
+  }
+
+  @override
+  NSMutableString initWithFormat_arguments_(
+      NSString? format, ffi.Pointer<ffi.Char> argList) {
+    final _ret = _lib._objc_msgSend_348(
+        _id,
+        _lib._sel_initWithFormat_arguments_1,
+        format?._id ?? ffi.nullptr,
+        argList);
+    return NSMutableString._(_ret, _lib, retain: true, release: true);
+  }
+
+  @override
+  NSMutableString initWithFormat_locale_(NSString? format, NSObject locale) {
+    final _ret = _lib._objc_msgSend_163(_id, _lib._sel_initWithFormat_locale_1,
+        format?._id ?? ffi.nullptr, locale._id);
+    return NSMutableString._(_ret, _lib, retain: true, release: true);
+  }
+
+  @override
+  NSMutableString initWithFormat_locale_arguments_(
+      NSString? format, NSObject locale, ffi.Pointer<ffi.Char> argList) {
+    final _ret = _lib._objc_msgSend_349(
+        _id,
+        _lib._sel_initWithFormat_locale_arguments_1,
+        format?._id ?? ffi.nullptr,
+        locale._id,
+        argList);
+    return NSMutableString._(_ret, _lib, retain: true, release: true);
+  }
+
+  @override
+  NSMutableString initWithValidatedFormat_validFormatSpecifiers_error_(
+      NSString? format,
+      NSString? validFormatSpecifiers,
+      ffi.Pointer<ffi.Pointer<ObjCObject>> error) {
+    final _ret = _lib._objc_msgSend_350(
+        _id,
+        _lib._sel_initWithValidatedFormat_validFormatSpecifiers_error_1,
+        format?._id ?? ffi.nullptr,
+        validFormatSpecifiers?._id ?? ffi.nullptr,
+        error);
+    return NSMutableString._(_ret, _lib, retain: true, release: true);
+  }
+
+  @override
+  NSMutableString initWithValidatedFormat_validFormatSpecifiers_locale_error_(
+      NSString? format,
+      NSString? validFormatSpecifiers,
+      NSObject locale,
+      ffi.Pointer<ffi.Pointer<ObjCObject>> error) {
+    final _ret = _lib._objc_msgSend_351(
+        _id,
+        _lib._sel_initWithValidatedFormat_validFormatSpecifiers_locale_error_1,
+        format?._id ?? ffi.nullptr,
+        validFormatSpecifiers?._id ?? ffi.nullptr,
+        locale._id,
+        error);
+    return NSMutableString._(_ret, _lib, retain: true, release: true);
+  }
+
+  @override
+  NSMutableString
+      initWithValidatedFormat_validFormatSpecifiers_arguments_error_(
+          NSString? format,
+          NSString? validFormatSpecifiers,
+          ffi.Pointer<ffi.Char> argList,
+          ffi.Pointer<ffi.Pointer<ObjCObject>> error) {
+    final _ret = _lib._objc_msgSend_352(
+        _id,
+        _lib._sel_initWithValidatedFormat_validFormatSpecifiers_arguments_error_1,
+        format?._id ?? ffi.nullptr,
+        validFormatSpecifiers?._id ?? ffi.nullptr,
+        argList,
+        error);
+    return NSMutableString._(_ret, _lib, retain: true, release: true);
+  }
+
+  @override
+  NSMutableString
+      initWithValidatedFormat_validFormatSpecifiers_locale_arguments_error_(
+          NSString? format,
+          NSString? validFormatSpecifiers,
+          NSObject locale,
+          ffi.Pointer<ffi.Char> argList,
+          ffi.Pointer<ffi.Pointer<ObjCObject>> error) {
+    final _ret = _lib._objc_msgSend_353(
+        _id,
+        _lib._sel_initWithValidatedFormat_validFormatSpecifiers_locale_arguments_error_1,
+        format?._id ?? ffi.nullptr,
+        validFormatSpecifiers?._id ?? ffi.nullptr,
+        locale._id,
+        argList,
+        error);
+    return NSMutableString._(_ret, _lib, retain: true, release: true);
+  }
+
+  @override
+  NSMutableString initWithData_encoding_(NSData? data, int encoding) {
+    final _ret = _lib._objc_msgSend_354(_id, _lib._sel_initWithData_encoding_1,
+        data?._id ?? ffi.nullptr, encoding);
+    return NSMutableString._(_ret, _lib, retain: true, release: true);
+  }
+
+  @override
+  NSMutableString initWithBytes_length_encoding_(
+      ffi.Pointer<ffi.Void> bytes, int len, int encoding) {
+    final _ret = _lib._objc_msgSend_355(
+        _id, _lib._sel_initWithBytes_length_encoding_1, bytes, len, encoding);
+    return NSMutableString._(_ret, _lib, retain: true, release: true);
+  }
+
+  @override
+  NSMutableString initWithBytesNoCopy_length_encoding_freeWhenDone_(
+      ffi.Pointer<ffi.Void> bytes, int len, int encoding, bool freeBuffer) {
+    final _ret = _lib._objc_msgSend_356(
+        _id,
+        _lib._sel_initWithBytesNoCopy_length_encoding_freeWhenDone_1,
+        bytes,
+        len,
+        encoding,
+        freeBuffer);
+    return NSMutableString._(_ret, _lib, retain: false, release: true);
+  }
+
+  @override
+  NSMutableString initWithBytesNoCopy_length_encoding_deallocator_(
+      ffi.Pointer<ffi.Void> bytes,
+      int len,
+      int encoding,
+      ObjCBlock_ffiVoid_ffiVoid_ffiUnsignedLong deallocator) {
+    final _ret = _lib._objc_msgSend_357(
+        _id,
+        _lib._sel_initWithBytesNoCopy_length_encoding_deallocator_1,
+        bytes,
+        len,
+        encoding,
+        deallocator._id);
+    return NSMutableString._(_ret, _lib, retain: false, release: true);
   }
 
   static NSMutableString string(SentryCocoa _lib) {
@@ -51278,10 +52709,42 @@ class NSMutableString extends NSString {
     return NSMutableString._(_ret, _lib, retain: true, release: true);
   }
 
+  @override
+  NSMutableString initWithCString_encoding_(
+      ffi.Pointer<ffi.Char> nullTerminatedCString, int encoding) {
+    final _ret = _lib._objc_msgSend_358(_id,
+        _lib._sel_initWithCString_encoding_1, nullTerminatedCString, encoding);
+    return NSMutableString._(_ret, _lib, retain: true, release: true);
+  }
+
   static NSMutableString stringWithCString_encoding_(
       SentryCocoa _lib, ffi.Pointer<ffi.Char> cString, int enc) {
     final _ret = _lib._objc_msgSend_358(_lib._class_NSMutableString1,
         _lib._sel_stringWithCString_encoding_1, cString, enc);
+    return NSMutableString._(_ret, _lib, retain: true, release: true);
+  }
+
+  @override
+  NSMutableString initWithContentsOfURL_encoding_error_(
+      NSURL? url, int enc, ffi.Pointer<ffi.Pointer<ObjCObject>> error) {
+    final _ret = _lib._objc_msgSend_359(
+        _id,
+        _lib._sel_initWithContentsOfURL_encoding_error_1,
+        url?._id ?? ffi.nullptr,
+        enc,
+        error);
+    return NSMutableString._(_ret, _lib, retain: true, release: true);
+  }
+
+  @override
+  NSMutableString initWithContentsOfFile_encoding_error_(
+      NSString? path, int enc, ffi.Pointer<ffi.Pointer<ObjCObject>> error) {
+    final _ret = _lib._objc_msgSend_360(
+        _id,
+        _lib._sel_initWithContentsOfFile_encoding_error_1,
+        path?._id ?? ffi.nullptr,
+        enc,
+        error);
     return NSMutableString._(_ret, _lib, retain: true, release: true);
   }
 
@@ -51307,6 +52770,34 @@ class NSMutableString extends NSString {
     final _ret = _lib._objc_msgSend_360(
         _lib._class_NSMutableString1,
         _lib._sel_stringWithContentsOfFile_encoding_error_1,
+        path?._id ?? ffi.nullptr,
+        enc,
+        error);
+    return NSMutableString._(_ret, _lib, retain: true, release: true);
+  }
+
+  @override
+  NSMutableString initWithContentsOfURL_usedEncoding_error_(
+      NSURL? url,
+      ffi.Pointer<ffi.UnsignedLong> enc,
+      ffi.Pointer<ffi.Pointer<ObjCObject>> error) {
+    final _ret = _lib._objc_msgSend_361(
+        _id,
+        _lib._sel_initWithContentsOfURL_usedEncoding_error_1,
+        url?._id ?? ffi.nullptr,
+        enc,
+        error);
+    return NSMutableString._(_ret, _lib, retain: true, release: true);
+  }
+
+  @override
+  NSMutableString initWithContentsOfFile_usedEncoding_error_(
+      NSString? path,
+      ffi.Pointer<ffi.UnsignedLong> enc,
+      ffi.Pointer<ffi.Pointer<ObjCObject>> error) {
+    final _ret = _lib._objc_msgSend_362(
+        _id,
+        _lib._sel_initWithContentsOfFile_usedEncoding_error_1,
         path?._id ?? ffi.nullptr,
         enc,
         error);
@@ -51395,6 +52886,13 @@ class NSMutableString extends NSString {
     return NSMutableString._(_ret, _lib, retain: false, release: true);
   }
 
+  static NSMutableString allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSMutableString1, _lib._sel_allocWithZone_1, zone);
+    return NSMutableString._(_ret, _lib, retain: false, release: true);
+  }
+
   static NSMutableString alloc(SentryCocoa _lib) {
     final _ret =
         _lib._objc_msgSend_2(_lib._class_NSMutableString1, _lib._sel_alloc1);
@@ -51406,7 +52904,7 @@ class NSMutableString extends NSString {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSMutableString1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -51416,7 +52914,7 @@ class NSMutableString extends NSString {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSMutableString1,
+    _lib._objc_msgSend_15(_lib._class_NSMutableString1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -51449,7 +52947,7 @@ class NSMutableString extends NSString {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSMutableString1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -51556,6 +53054,13 @@ class NSNotification extends NSObject {
     return NSNotification._(_ret, _lib, retain: false, release: true);
   }
 
+  static NSNotification allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSNotification1, _lib._sel_allocWithZone_1, zone);
+    return NSNotification._(_ret, _lib, retain: false, release: true);
+  }
+
   static NSNotification alloc(SentryCocoa _lib) {
     final _ret =
         _lib._objc_msgSend_2(_lib._class_NSNotification1, _lib._sel_alloc1);
@@ -51567,7 +53072,7 @@ class NSNotification extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSNotification1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -51577,7 +53082,7 @@ class NSNotification extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSNotification1,
+    _lib._objc_msgSend_15(_lib._class_NSNotification1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -51610,7 +53115,7 @@ class NSNotification extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSNotification1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -52097,11 +53602,8 @@ class NSBundle extends NSObject {
   }
 
   void setPreservationPriority_forTags_(double priority, NSSet? tags) {
-    return _lib._objc_msgSend_712(
-        _id,
-        _lib._sel_setPreservationPriority_forTags_1,
-        priority,
-        tags?._id ?? ffi.nullptr);
+    _lib._objc_msgSend_712(_id, _lib._sel_setPreservationPriority_forTags_1,
+        priority, tags?._id ?? ffi.nullptr);
   }
 
   double preservationPriorityForTag_(NSString? tag) {
@@ -52109,8 +53611,20 @@ class NSBundle extends NSObject {
         _id, _lib._sel_preservationPriorityForTag_1, tag?._id ?? ffi.nullptr);
   }
 
+  @override
+  NSBundle init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSBundle._(_ret, _lib, retain: true, release: true);
+  }
+
   static NSBundle new1(SentryCocoa _lib) {
     final _ret = _lib._objc_msgSend_2(_lib._class_NSBundle1, _lib._sel_new1);
+    return NSBundle._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSBundle allocWithZone_(SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSBundle1, _lib._sel_allocWithZone_1, zone);
     return NSBundle._(_ret, _lib, retain: false, release: true);
   }
 
@@ -52124,7 +53638,7 @@ class NSBundle extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSBundle1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -52134,7 +53648,7 @@ class NSBundle extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSBundle1,
+    _lib._objc_msgSend_15(_lib._class_NSBundle1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -52167,7 +53681,7 @@ class NSBundle extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSBundle1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -52296,9 +53810,9 @@ class NSAttributedString extends NSObject {
     return NSAttributedString._(_ret, _lib, retain: true, release: true);
   }
 
-  void enumerateAttributesInRange_options_usingBlock_(
-      _NSRange enumerationRange, int opts, ObjCBlock33 block) {
-    return _lib._objc_msgSend_697(
+  void enumerateAttributesInRange_options_usingBlock_(_NSRange enumerationRange,
+      int opts, ObjCBlock_ffiVoid_NSDictionary_NSRange_bool block) {
+    _lib._objc_msgSend_697(
         _id,
         _lib._sel_enumerateAttributesInRange_options_usingBlock_1,
         enumerationRange,
@@ -52306,9 +53820,12 @@ class NSAttributedString extends NSObject {
         block._id);
   }
 
-  void enumerateAttribute_inRange_options_usingBlock_(NSString attrName,
-      _NSRange enumerationRange, int opts, ObjCBlock34 block) {
-    return _lib._objc_msgSend_698(
+  void enumerateAttribute_inRange_options_usingBlock_(
+      NSString attrName,
+      _NSRange enumerationRange,
+      int opts,
+      ObjCBlock_ffiVoid_ObjCObject_NSRange_bool block) {
+    _lib._objc_msgSend_698(
         _id,
         _lib._sel_enumerateAttribute_inRange_options_usingBlock_1,
         attrName._id,
@@ -52413,9 +53930,22 @@ class NSAttributedString extends NSObject {
     return NSAttributedString._(_ret, _lib, retain: true, release: true);
   }
 
+  @override
+  NSAttributedString init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSAttributedString._(_ret, _lib, retain: true, release: true);
+  }
+
   static NSAttributedString new1(SentryCocoa _lib) {
     final _ret =
         _lib._objc_msgSend_2(_lib._class_NSAttributedString1, _lib._sel_new1);
+    return NSAttributedString._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSAttributedString allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSAttributedString1, _lib._sel_allocWithZone_1, zone);
     return NSAttributedString._(_ret, _lib, retain: false, release: true);
   }
 
@@ -52430,7 +53960,7 @@ class NSAttributedString extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSAttributedString1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -52440,7 +53970,7 @@ class NSAttributedString extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSAttributedString1,
+    _lib._objc_msgSend_15(_lib._class_NSAttributedString1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -52473,7 +54003,7 @@ class NSAttributedString extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSAttributedString1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -52499,8 +54029,11 @@ abstract class NSAttributedStringEnumerationOptions {
       NSAttributedStringEnumerationLongestEffectiveRangeNotRequired = 1048576;
 }
 
-void _ObjCBlock33_fnPtrTrampoline(ffi.Pointer<_ObjCBlock> block,
-    ffi.Pointer<ObjCObject> arg0, _NSRange arg1, ffi.Pointer<ffi.Bool> arg2) {
+void _ObjCBlock_ffiVoid_NSDictionary_NSRange_bool_fnPtrTrampoline(
+    ffi.Pointer<_ObjCBlock> block,
+    ffi.Pointer<ObjCObject> arg0,
+    _NSRange arg1,
+    ffi.Pointer<ffi.Bool> arg2) {
   return block.ref.target
       .cast<
           ffi.NativeFunction<
@@ -52511,27 +54044,35 @@ void _ObjCBlock33_fnPtrTrampoline(ffi.Pointer<_ObjCBlock> block,
               ffi.Pointer<ffi.Bool> arg2)>()(arg0, arg1, arg2);
 }
 
-final _ObjCBlock33_closureRegistry = <int, Function>{};
-int _ObjCBlock33_closureRegistryIndex = 0;
-ffi.Pointer<ffi.Void> _ObjCBlock33_registerClosure(Function fn) {
-  final id = ++_ObjCBlock33_closureRegistryIndex;
-  _ObjCBlock33_closureRegistry[id] = fn;
+final _ObjCBlock_ffiVoid_NSDictionary_NSRange_bool_closureRegistry =
+    <int, Function>{};
+int _ObjCBlock_ffiVoid_NSDictionary_NSRange_bool_closureRegistryIndex = 0;
+ffi.Pointer<ffi.Void>
+    _ObjCBlock_ffiVoid_NSDictionary_NSRange_bool_registerClosure(Function fn) {
+  final id =
+      ++_ObjCBlock_ffiVoid_NSDictionary_NSRange_bool_closureRegistryIndex;
+  _ObjCBlock_ffiVoid_NSDictionary_NSRange_bool_closureRegistry[id] = fn;
   return ffi.Pointer<ffi.Void>.fromAddress(id);
 }
 
-void _ObjCBlock33_closureTrampoline(ffi.Pointer<_ObjCBlock> block,
-    ffi.Pointer<ObjCObject> arg0, _NSRange arg1, ffi.Pointer<ffi.Bool> arg2) {
-  return (_ObjCBlock33_closureRegistry[block.ref.target.address] as void
-          Function(ffi.Pointer<ObjCObject>, _NSRange, ffi.Pointer<ffi.Bool>))(
-      arg0, arg1, arg2);
+void _ObjCBlock_ffiVoid_NSDictionary_NSRange_bool_closureTrampoline(
+    ffi.Pointer<_ObjCBlock> block,
+    ffi.Pointer<ObjCObject> arg0,
+    _NSRange arg1,
+    ffi.Pointer<ffi.Bool> arg2) {
+  return (_ObjCBlock_ffiVoid_NSDictionary_NSRange_bool_closureRegistry[
+          block.ref.target.address]
+      as void Function(ffi.Pointer<ObjCObject>, _NSRange,
+          ffi.Pointer<ffi.Bool>))(arg0, arg1, arg2);
 }
 
-class ObjCBlock33 extends _ObjCBlockBase {
-  ObjCBlock33._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
+class ObjCBlock_ffiVoid_NSDictionary_NSRange_bool extends _ObjCBlockBase {
+  ObjCBlock_ffiVoid_NSDictionary_NSRange_bool._(
+      ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
       : super._(id, lib, retain: false, release: true);
 
   /// Creates a block from a C function pointer.
-  ObjCBlock33.fromFunctionPointer(
+  ObjCBlock_ffiVoid_NSDictionary_NSRange_bool.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
               ffi.NativeFunction<
@@ -52546,14 +54087,14 @@ class ObjCBlock33 extends _ObjCBlockBase {
                                 ffi.Pointer<ObjCObject> arg0,
                                 _NSRange arg1,
                                 ffi.Pointer<ffi.Bool> arg2)>(
-                        _ObjCBlock33_fnPtrTrampoline)
+                        _ObjCBlock_ffiVoid_NSDictionary_NSRange_bool_fnPtrTrampoline)
                     .cast(),
                 ptr.cast()),
             lib);
   static ffi.Pointer<ffi.Void>? _cFuncTrampoline;
 
   /// Creates a block from a Dart function.
-  ObjCBlock33.fromFunction(
+  ObjCBlock_ffiVoid_NSDictionary_NSRange_bool.fromFunction(
       SentryCocoa lib,
       void Function(ffi.Pointer<ObjCObject> arg0, _NSRange arg1,
               ffi.Pointer<ffi.Bool> arg2)
@@ -52566,9 +54107,10 @@ class ObjCBlock33 extends _ObjCBlockBase {
                                 ffi.Pointer<ObjCObject> arg0,
                                 _NSRange arg1,
                                 ffi.Pointer<ffi.Bool> arg2)>(
-                        _ObjCBlock33_closureTrampoline)
+                        _ObjCBlock_ffiVoid_NSDictionary_NSRange_bool_closureTrampoline)
                     .cast(),
-                _ObjCBlock33_registerClosure(fn)),
+                _ObjCBlock_ffiVoid_NSDictionary_NSRange_bool_registerClosure(
+                    fn)),
             lib);
   static ffi.Pointer<ffi.Void>? _dartFuncTrampoline;
   void call(
@@ -52590,8 +54132,11 @@ class ObjCBlock33 extends _ObjCBlockBase {
   }
 }
 
-void _ObjCBlock34_fnPtrTrampoline(ffi.Pointer<_ObjCBlock> block,
-    ffi.Pointer<ObjCObject> arg0, _NSRange arg1, ffi.Pointer<ffi.Bool> arg2) {
+void _ObjCBlock_ffiVoid_ObjCObject_NSRange_bool_fnPtrTrampoline(
+    ffi.Pointer<_ObjCBlock> block,
+    ffi.Pointer<ObjCObject> arg0,
+    _NSRange arg1,
+    ffi.Pointer<ffi.Bool> arg2) {
   return block.ref.target
       .cast<
           ffi.NativeFunction<
@@ -52602,27 +54147,34 @@ void _ObjCBlock34_fnPtrTrampoline(ffi.Pointer<_ObjCBlock> block,
               ffi.Pointer<ffi.Bool> arg2)>()(arg0, arg1, arg2);
 }
 
-final _ObjCBlock34_closureRegistry = <int, Function>{};
-int _ObjCBlock34_closureRegistryIndex = 0;
-ffi.Pointer<ffi.Void> _ObjCBlock34_registerClosure(Function fn) {
-  final id = ++_ObjCBlock34_closureRegistryIndex;
-  _ObjCBlock34_closureRegistry[id] = fn;
+final _ObjCBlock_ffiVoid_ObjCObject_NSRange_bool_closureRegistry =
+    <int, Function>{};
+int _ObjCBlock_ffiVoid_ObjCObject_NSRange_bool_closureRegistryIndex = 0;
+ffi.Pointer<ffi.Void>
+    _ObjCBlock_ffiVoid_ObjCObject_NSRange_bool_registerClosure(Function fn) {
+  final id = ++_ObjCBlock_ffiVoid_ObjCObject_NSRange_bool_closureRegistryIndex;
+  _ObjCBlock_ffiVoid_ObjCObject_NSRange_bool_closureRegistry[id] = fn;
   return ffi.Pointer<ffi.Void>.fromAddress(id);
 }
 
-void _ObjCBlock34_closureTrampoline(ffi.Pointer<_ObjCBlock> block,
-    ffi.Pointer<ObjCObject> arg0, _NSRange arg1, ffi.Pointer<ffi.Bool> arg2) {
-  return (_ObjCBlock34_closureRegistry[block.ref.target.address] as void
-          Function(ffi.Pointer<ObjCObject>, _NSRange, ffi.Pointer<ffi.Bool>))(
-      arg0, arg1, arg2);
+void _ObjCBlock_ffiVoid_ObjCObject_NSRange_bool_closureTrampoline(
+    ffi.Pointer<_ObjCBlock> block,
+    ffi.Pointer<ObjCObject> arg0,
+    _NSRange arg1,
+    ffi.Pointer<ffi.Bool> arg2) {
+  return (_ObjCBlock_ffiVoid_ObjCObject_NSRange_bool_closureRegistry[
+          block.ref.target.address]
+      as void Function(ffi.Pointer<ObjCObject>, _NSRange,
+          ffi.Pointer<ffi.Bool>))(arg0, arg1, arg2);
 }
 
-class ObjCBlock34 extends _ObjCBlockBase {
-  ObjCBlock34._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
+class ObjCBlock_ffiVoid_ObjCObject_NSRange_bool extends _ObjCBlockBase {
+  ObjCBlock_ffiVoid_ObjCObject_NSRange_bool._(
+      ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
       : super._(id, lib, retain: false, release: true);
 
   /// Creates a block from a C function pointer.
-  ObjCBlock34.fromFunctionPointer(
+  ObjCBlock_ffiVoid_ObjCObject_NSRange_bool.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
               ffi.NativeFunction<
@@ -52637,14 +54189,14 @@ class ObjCBlock34 extends _ObjCBlockBase {
                                 ffi.Pointer<ObjCObject> arg0,
                                 _NSRange arg1,
                                 ffi.Pointer<ffi.Bool> arg2)>(
-                        _ObjCBlock34_fnPtrTrampoline)
+                        _ObjCBlock_ffiVoid_ObjCObject_NSRange_bool_fnPtrTrampoline)
                     .cast(),
                 ptr.cast()),
             lib);
   static ffi.Pointer<ffi.Void>? _cFuncTrampoline;
 
   /// Creates a block from a Dart function.
-  ObjCBlock34.fromFunction(
+  ObjCBlock_ffiVoid_ObjCObject_NSRange_bool.fromFunction(
       SentryCocoa lib,
       void Function(ffi.Pointer<ObjCObject> arg0, _NSRange arg1,
               ffi.Pointer<ffi.Bool> arg2)
@@ -52657,9 +54209,9 @@ class ObjCBlock34 extends _ObjCBlockBase {
                                 ffi.Pointer<ObjCObject> arg0,
                                 _NSRange arg1,
                                 ffi.Pointer<ffi.Bool> arg2)>(
-                        _ObjCBlock34_closureTrampoline)
+                        _ObjCBlock_ffiVoid_ObjCObject_NSRange_bool_closureTrampoline)
                     .cast(),
-                _ObjCBlock34_registerClosure(fn)),
+                _ObjCBlock_ffiVoid_ObjCObject_NSRange_bool_registerClosure(fn)),
             lib);
   static ffi.Pointer<ffi.Void>? _dartFuncTrampoline;
   void call(
@@ -52720,7 +54272,8 @@ class NSAttributedStringMarkdownParsingOptions extends NSObject {
   }
 
   set allowsExtendedAttributes(bool value) {
-    _lib._objc_msgSend_492(_id, _lib._sel_setAllowsExtendedAttributes_1, value);
+    return _lib._objc_msgSend_492(
+        _id, _lib._sel_setAllowsExtendedAttributes_1, value);
   }
 
   int get interpretedSyntax {
@@ -52728,7 +54281,7 @@ class NSAttributedStringMarkdownParsingOptions extends NSObject {
   }
 
   set interpretedSyntax(int value) {
-    _lib._objc_msgSend_700(_id, _lib._sel_setInterpretedSyntax_1, value);
+    return _lib._objc_msgSend_700(_id, _lib._sel_setInterpretedSyntax_1, value);
   }
 
   int get failurePolicy {
@@ -52736,7 +54289,7 @@ class NSAttributedStringMarkdownParsingOptions extends NSObject {
   }
 
   set failurePolicy(int value) {
-    _lib._objc_msgSend_702(_id, _lib._sel_setFailurePolicy_1, value);
+    return _lib._objc_msgSend_702(_id, _lib._sel_setFailurePolicy_1, value);
   }
 
   NSString? get languageCode {
@@ -52747,7 +54300,7 @@ class NSAttributedStringMarkdownParsingOptions extends NSObject {
   }
 
   set languageCode(NSString? value) {
-    _lib._objc_msgSend_509(
+    return _lib._objc_msgSend_509(
         _id, _lib._sel_setLanguageCode_1, value?._id ?? ffi.nullptr);
   }
 
@@ -52757,13 +54310,23 @@ class NSAttributedStringMarkdownParsingOptions extends NSObject {
   }
 
   set appliesSourcePositionAttributes(bool value) {
-    _lib._objc_msgSend_492(
+    return _lib._objc_msgSend_492(
         _id, _lib._sel_setAppliesSourcePositionAttributes_1, value);
   }
 
   static NSAttributedStringMarkdownParsingOptions new1(SentryCocoa _lib) {
     final _ret = _lib._objc_msgSend_2(
         _lib._class_NSAttributedStringMarkdownParsingOptions1, _lib._sel_new1);
+    return NSAttributedStringMarkdownParsingOptions._(_ret, _lib,
+        retain: false, release: true);
+  }
+
+  static NSAttributedStringMarkdownParsingOptions allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSAttributedStringMarkdownParsingOptions1,
+        _lib._sel_allocWithZone_1,
+        zone);
     return NSAttributedStringMarkdownParsingOptions._(_ret, _lib,
         retain: false, release: true);
   }
@@ -52781,7 +54344,7 @@ class NSAttributedStringMarkdownParsingOptions extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSAttributedStringMarkdownParsingOptions1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -52791,10 +54354,8 @@ class NSAttributedStringMarkdownParsingOptions extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(
-        _lib._class_NSAttributedStringMarkdownParsingOptions1,
-        _lib._sel_cancelPreviousPerformRequestsWithTarget_1,
-        aTarget._id);
+    _lib._objc_msgSend_15(_lib._class_NSAttributedStringMarkdownParsingOptions1,
+        _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
   static bool getAccessInstanceVariablesDirectly(SentryCocoa _lib) {
@@ -52828,7 +54389,7 @@ class NSAttributedStringMarkdownParsingOptions extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSAttributedStringMarkdownParsingOptions1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -52898,15 +54459,12 @@ class NSMutableAttributedString extends NSAttributedString {
   }
 
   void replaceCharactersInRange_withString_(_NSRange range, NSString? str) {
-    return _lib._objc_msgSend_672(
-        _id,
-        _lib._sel_replaceCharactersInRange_withString_1,
-        range,
-        str?._id ?? ffi.nullptr);
+    _lib._objc_msgSend_672(_id, _lib._sel_replaceCharactersInRange_withString_1,
+        range, str?._id ?? ffi.nullptr);
   }
 
   void setAttributes_range_(NSDictionary? attrs, _NSRange range) {
-    return _lib._objc_msgSend_713(
+    _lib._objc_msgSend_713(
         _id, _lib._sel_setAttributes_range_1, attrs?._id ?? ffi.nullptr, range);
   }
 
@@ -52919,23 +54477,23 @@ class NSMutableAttributedString extends NSAttributedString {
 
   void addAttribute_value_range_(
       NSString name, NSObject value, _NSRange range) {
-    return _lib._objc_msgSend_715(
+    _lib._objc_msgSend_715(
         _id, _lib._sel_addAttribute_value_range_1, name._id, value._id, range);
   }
 
   void addAttributes_range_(NSDictionary? attrs, _NSRange range) {
-    return _lib._objc_msgSend_713(
+    _lib._objc_msgSend_713(
         _id, _lib._sel_addAttributes_range_1, attrs?._id ?? ffi.nullptr, range);
   }
 
   void removeAttribute_range_(NSString name, _NSRange range) {
-    return _lib._objc_msgSend_716(
+    _lib._objc_msgSend_716(
         _id, _lib._sel_removeAttribute_range_1, name._id, range);
   }
 
   void replaceCharactersInRange_withAttributedString_(
       _NSRange range, NSAttributedString? attrString) {
-    return _lib._objc_msgSend_717(
+    _lib._objc_msgSend_717(
         _id,
         _lib._sel_replaceCharactersInRange_withAttributedString_1,
         range,
@@ -52944,39 +54502,138 @@ class NSMutableAttributedString extends NSAttributedString {
 
   void insertAttributedString_atIndex_(
       NSAttributedString? attrString, int loc) {
-    return _lib._objc_msgSend_718(
-        _id,
-        _lib._sel_insertAttributedString_atIndex_1,
-        attrString?._id ?? ffi.nullptr,
-        loc);
+    _lib._objc_msgSend_718(_id, _lib._sel_insertAttributedString_atIndex_1,
+        attrString?._id ?? ffi.nullptr, loc);
   }
 
   void appendAttributedString_(NSAttributedString? attrString) {
-    return _lib._objc_msgSend_719(_id, _lib._sel_appendAttributedString_1,
+    _lib._objc_msgSend_719(_id, _lib._sel_appendAttributedString_1,
         attrString?._id ?? ffi.nullptr);
   }
 
   void deleteCharactersInRange_(_NSRange range) {
-    return _lib._objc_msgSend_445(
-        _id, _lib._sel_deleteCharactersInRange_1, range);
+    _lib._objc_msgSend_445(_id, _lib._sel_deleteCharactersInRange_1, range);
   }
 
   void setAttributedString_(NSAttributedString? attrString) {
-    return _lib._objc_msgSend_719(
+    _lib._objc_msgSend_719(
         _id, _lib._sel_setAttributedString_1, attrString?._id ?? ffi.nullptr);
   }
 
   void beginEditing() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_beginEditing1);
+    _lib._objc_msgSend_1(_id, _lib._sel_beginEditing1);
   }
 
   void endEditing() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_endEditing1);
+    _lib._objc_msgSend_1(_id, _lib._sel_endEditing1);
   }
 
   void appendLocalizedFormat_(NSAttributedString? format) {
-    return _lib._objc_msgSend_719(
+    _lib._objc_msgSend_719(
         _id, _lib._sel_appendLocalizedFormat_1, format?._id ?? ffi.nullptr);
+  }
+
+  @override
+  NSMutableAttributedString initWithString_(NSString? str) {
+    final _ret = _lib._objc_msgSend_30(
+        _id, _lib._sel_initWithString_1, str?._id ?? ffi.nullptr);
+    return NSMutableAttributedString._(_ret, _lib, retain: true, release: true);
+  }
+
+  @override
+  NSMutableAttributedString initWithString_attributes_(
+      NSString? str, NSDictionary? attrs) {
+    final _ret = _lib._objc_msgSend_371(
+        _id,
+        _lib._sel_initWithString_attributes_1,
+        str?._id ?? ffi.nullptr,
+        attrs?._id ?? ffi.nullptr);
+    return NSMutableAttributedString._(_ret, _lib, retain: true, release: true);
+  }
+
+  @override
+  NSMutableAttributedString initWithAttributedString_(
+      NSAttributedString? attrStr) {
+    final _ret = _lib._objc_msgSend_696(
+        _id, _lib._sel_initWithAttributedString_1, attrStr?._id ?? ffi.nullptr);
+    return NSMutableAttributedString._(_ret, _lib, retain: true, release: true);
+  }
+
+  @override
+  NSMutableAttributedString
+      initWithContentsOfMarkdownFileAtURL_options_baseURL_error_(
+          NSURL? markdownFile,
+          NSAttributedStringMarkdownParsingOptions? options,
+          NSURL? baseURL,
+          ffi.Pointer<ffi.Pointer<ObjCObject>> error) {
+    final _ret = _lib._objc_msgSend_703(
+        _id,
+        _lib._sel_initWithContentsOfMarkdownFileAtURL_options_baseURL_error_1,
+        markdownFile?._id ?? ffi.nullptr,
+        options?._id ?? ffi.nullptr,
+        baseURL?._id ?? ffi.nullptr,
+        error);
+    return NSMutableAttributedString._(_ret, _lib, retain: true, release: true);
+  }
+
+  @override
+  NSMutableAttributedString initWithMarkdown_options_baseURL_error_(
+      NSData? markdown,
+      NSAttributedStringMarkdownParsingOptions? options,
+      NSURL? baseURL,
+      ffi.Pointer<ffi.Pointer<ObjCObject>> error) {
+    final _ret = _lib._objc_msgSend_704(
+        _id,
+        _lib._sel_initWithMarkdown_options_baseURL_error_1,
+        markdown?._id ?? ffi.nullptr,
+        options?._id ?? ffi.nullptr,
+        baseURL?._id ?? ffi.nullptr,
+        error);
+    return NSMutableAttributedString._(_ret, _lib, retain: true, release: true);
+  }
+
+  @override
+  NSMutableAttributedString initWithMarkdownString_options_baseURL_error_(
+      NSString? markdownString,
+      NSAttributedStringMarkdownParsingOptions? options,
+      NSURL? baseURL,
+      ffi.Pointer<ffi.Pointer<ObjCObject>> error) {
+    final _ret = _lib._objc_msgSend_705(
+        _id,
+        _lib._sel_initWithMarkdownString_options_baseURL_error_1,
+        markdownString?._id ?? ffi.nullptr,
+        options?._id ?? ffi.nullptr,
+        baseURL?._id ?? ffi.nullptr,
+        error);
+    return NSMutableAttributedString._(_ret, _lib, retain: true, release: true);
+  }
+
+  @override
+  NSMutableAttributedString initWithFormat_options_locale_(
+      NSAttributedString? format, int options, NSLocale? locale) {
+    final _ret = _lib._objc_msgSend_706(
+        _id,
+        _lib._sel_initWithFormat_options_locale_1,
+        format?._id ?? ffi.nullptr,
+        options,
+        locale?._id ?? ffi.nullptr);
+    return NSMutableAttributedString._(_ret, _lib, retain: true, release: true);
+  }
+
+  @override
+  NSMutableAttributedString initWithFormat_options_locale_arguments_(
+      NSAttributedString? format,
+      int options,
+      NSLocale? locale,
+      ffi.Pointer<ffi.Char> arguments) {
+    final _ret = _lib._objc_msgSend_707(
+        _id,
+        _lib._sel_initWithFormat_options_locale_arguments_1,
+        format?._id ?? ffi.nullptr,
+        options,
+        locale?._id ?? ffi.nullptr,
+        arguments);
+    return NSMutableAttributedString._(_ret, _lib, retain: true, release: true);
   }
 
   static NSMutableAttributedString localizedAttributedStringWithFormat_(
@@ -52998,9 +54655,23 @@ class NSMutableAttributedString extends NSAttributedString {
     return NSMutableAttributedString._(_ret, _lib, retain: true, release: true);
   }
 
+  @override
+  NSMutableAttributedString init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSMutableAttributedString._(_ret, _lib, retain: true, release: true);
+  }
+
   static NSMutableAttributedString new1(SentryCocoa _lib) {
     final _ret = _lib._objc_msgSend_2(
         _lib._class_NSMutableAttributedString1, _lib._sel_new1);
+    return NSMutableAttributedString._(_ret, _lib,
+        retain: false, release: true);
+  }
+
+  static NSMutableAttributedString allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(_lib._class_NSMutableAttributedString1,
+        _lib._sel_allocWithZone_1, zone);
     return NSMutableAttributedString._(_ret, _lib,
         retain: false, release: true);
   }
@@ -53017,7 +54688,7 @@ class NSMutableAttributedString extends NSAttributedString {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSMutableAttributedString1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -53027,7 +54698,7 @@ class NSMutableAttributedString extends NSAttributedString {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSMutableAttributedString1,
+    _lib._objc_msgSend_15(_lib._class_NSMutableAttributedString1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -53060,7 +54731,7 @@ class NSMutableAttributedString extends NSAttributedString {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSMutableAttributedString1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -53109,7 +54780,7 @@ class NSDateFormatter extends NSFormatter {
   }
 
   set formattingContext(int value) {
-    _lib._objc_msgSend_725(_id, _lib._sel_setFormattingContext_1, value);
+    return _lib._objc_msgSend_725(_id, _lib._sel_setFormattingContext_1, value);
   }
 
   bool getObjectValue_forString_range_error_(
@@ -53166,14 +54837,12 @@ class NSDateFormatter extends NSFormatter {
   }
 
   static void setDefaultFormatterBehavior(SentryCocoa _lib, int value) {
-    _lib._objc_msgSend_730(_lib._class_NSDateFormatter1,
+    return _lib._objc_msgSend_730(_lib._class_NSDateFormatter1,
         _lib._sel_setDefaultFormatterBehavior_1, value);
   }
 
   void setLocalizedDateFormatFromTemplate_(NSString? dateFormatTemplate) {
-    return _lib._objc_msgSend_192(
-        _id,
-        _lib._sel_setLocalizedDateFormatFromTemplate_1,
+    _lib._objc_msgSend_192(_id, _lib._sel_setLocalizedDateFormatFromTemplate_1,
         dateFormatTemplate?._id ?? ffi.nullptr);
   }
 
@@ -53185,7 +54854,7 @@ class NSDateFormatter extends NSFormatter {
   }
 
   set dateFormat(NSString? value) {
-    _lib._objc_msgSend_509(
+    return _lib._objc_msgSend_509(
         _id, _lib._sel_setDateFormat_1, value?._id ?? ffi.nullptr);
   }
 
@@ -53194,7 +54863,7 @@ class NSDateFormatter extends NSFormatter {
   }
 
   set dateStyle(int value) {
-    _lib._objc_msgSend_732(_id, _lib._sel_setDateStyle_1, value);
+    return _lib._objc_msgSend_732(_id, _lib._sel_setDateStyle_1, value);
   }
 
   int get timeStyle {
@@ -53202,7 +54871,7 @@ class NSDateFormatter extends NSFormatter {
   }
 
   set timeStyle(int value) {
-    _lib._objc_msgSend_732(_id, _lib._sel_setTimeStyle_1, value);
+    return _lib._objc_msgSend_732(_id, _lib._sel_setTimeStyle_1, value);
   }
 
   NSLocale? get locale {
@@ -53213,7 +54882,7 @@ class NSDateFormatter extends NSFormatter {
   }
 
   set locale(NSLocale? value) {
-    _lib._objc_msgSend_733(
+    return _lib._objc_msgSend_733(
         _id, _lib._sel_setLocale_1, value?._id ?? ffi.nullptr);
   }
 
@@ -53222,7 +54891,8 @@ class NSDateFormatter extends NSFormatter {
   }
 
   set generatesCalendarDates(bool value) {
-    _lib._objc_msgSend_492(_id, _lib._sel_setGeneratesCalendarDates_1, value);
+    return _lib._objc_msgSend_492(
+        _id, _lib._sel_setGeneratesCalendarDates_1, value);
   }
 
   int get formatterBehavior {
@@ -53230,7 +54900,7 @@ class NSDateFormatter extends NSFormatter {
   }
 
   set formatterBehavior(int value) {
-    _lib._objc_msgSend_730(_id, _lib._sel_setFormatterBehavior_1, value);
+    return _lib._objc_msgSend_730(_id, _lib._sel_setFormatterBehavior_1, value);
   }
 
   NSTimeZone? get timeZone {
@@ -53241,7 +54911,7 @@ class NSDateFormatter extends NSFormatter {
   }
 
   set timeZone(NSTimeZone? value) {
-    _lib._objc_msgSend_169(
+    return _lib._objc_msgSend_169(
         _id, _lib._sel_setTimeZone_1, value?._id ?? ffi.nullptr);
   }
 
@@ -53253,7 +54923,7 @@ class NSDateFormatter extends NSFormatter {
   }
 
   set calendar(NSCalendar? value) {
-    _lib._objc_msgSend_740(
+    return _lib._objc_msgSend_740(
         _id, _lib._sel_setCalendar_1, value?._id ?? ffi.nullptr);
   }
 
@@ -53262,7 +54932,7 @@ class NSDateFormatter extends NSFormatter {
   }
 
   set lenient(bool value) {
-    _lib._objc_msgSend_492(_id, _lib._sel_setLenient_1, value);
+    return _lib._objc_msgSend_492(_id, _lib._sel_setLenient_1, value);
   }
 
   NSDate? get twoDigitStartDate {
@@ -53273,7 +54943,7 @@ class NSDateFormatter extends NSFormatter {
   }
 
   set twoDigitStartDate(NSDate? value) {
-    _lib._objc_msgSend_525(
+    return _lib._objc_msgSend_525(
         _id, _lib._sel_setTwoDigitStartDate_1, value?._id ?? ffi.nullptr);
   }
 
@@ -53285,7 +54955,7 @@ class NSDateFormatter extends NSFormatter {
   }
 
   set defaultDate(NSDate? value) {
-    _lib._objc_msgSend_525(
+    return _lib._objc_msgSend_525(
         _id, _lib._sel_setDefaultDate_1, value?._id ?? ffi.nullptr);
   }
 
@@ -53297,7 +54967,7 @@ class NSDateFormatter extends NSFormatter {
   }
 
   set eraSymbols(NSArray? value) {
-    _lib._objc_msgSend_765(
+    return _lib._objc_msgSend_765(
         _id, _lib._sel_setEraSymbols_1, value?._id ?? ffi.nullptr);
   }
 
@@ -53309,7 +54979,7 @@ class NSDateFormatter extends NSFormatter {
   }
 
   set monthSymbols(NSArray? value) {
-    _lib._objc_msgSend_765(
+    return _lib._objc_msgSend_765(
         _id, _lib._sel_setMonthSymbols_1, value?._id ?? ffi.nullptr);
   }
 
@@ -53321,7 +54991,7 @@ class NSDateFormatter extends NSFormatter {
   }
 
   set shortMonthSymbols(NSArray? value) {
-    _lib._objc_msgSend_765(
+    return _lib._objc_msgSend_765(
         _id, _lib._sel_setShortMonthSymbols_1, value?._id ?? ffi.nullptr);
   }
 
@@ -53333,7 +55003,7 @@ class NSDateFormatter extends NSFormatter {
   }
 
   set weekdaySymbols(NSArray? value) {
-    _lib._objc_msgSend_765(
+    return _lib._objc_msgSend_765(
         _id, _lib._sel_setWeekdaySymbols_1, value?._id ?? ffi.nullptr);
   }
 
@@ -53345,7 +55015,7 @@ class NSDateFormatter extends NSFormatter {
   }
 
   set shortWeekdaySymbols(NSArray? value) {
-    _lib._objc_msgSend_765(
+    return _lib._objc_msgSend_765(
         _id, _lib._sel_setShortWeekdaySymbols_1, value?._id ?? ffi.nullptr);
   }
 
@@ -53357,7 +55027,7 @@ class NSDateFormatter extends NSFormatter {
   }
 
   set AMSymbol(NSString? value) {
-    _lib._objc_msgSend_509(
+    return _lib._objc_msgSend_509(
         _id, _lib._sel_setAMSymbol_1, value?._id ?? ffi.nullptr);
   }
 
@@ -53369,7 +55039,7 @@ class NSDateFormatter extends NSFormatter {
   }
 
   set PMSymbol(NSString? value) {
-    _lib._objc_msgSend_509(
+    return _lib._objc_msgSend_509(
         _id, _lib._sel_setPMSymbol_1, value?._id ?? ffi.nullptr);
   }
 
@@ -53381,7 +55051,7 @@ class NSDateFormatter extends NSFormatter {
   }
 
   set longEraSymbols(NSArray? value) {
-    _lib._objc_msgSend_765(
+    return _lib._objc_msgSend_765(
         _id, _lib._sel_setLongEraSymbols_1, value?._id ?? ffi.nullptr);
   }
 
@@ -53393,7 +55063,7 @@ class NSDateFormatter extends NSFormatter {
   }
 
   set veryShortMonthSymbols(NSArray? value) {
-    _lib._objc_msgSend_765(
+    return _lib._objc_msgSend_765(
         _id, _lib._sel_setVeryShortMonthSymbols_1, value?._id ?? ffi.nullptr);
   }
 
@@ -53405,7 +55075,7 @@ class NSDateFormatter extends NSFormatter {
   }
 
   set standaloneMonthSymbols(NSArray? value) {
-    _lib._objc_msgSend_765(
+    return _lib._objc_msgSend_765(
         _id, _lib._sel_setStandaloneMonthSymbols_1, value?._id ?? ffi.nullptr);
   }
 
@@ -53418,8 +55088,8 @@ class NSDateFormatter extends NSFormatter {
   }
 
   set shortStandaloneMonthSymbols(NSArray? value) {
-    _lib._objc_msgSend_765(_id, _lib._sel_setShortStandaloneMonthSymbols_1,
-        value?._id ?? ffi.nullptr);
+    return _lib._objc_msgSend_765(_id,
+        _lib._sel_setShortStandaloneMonthSymbols_1, value?._id ?? ffi.nullptr);
   }
 
   NSArray? get veryShortStandaloneMonthSymbols {
@@ -53431,7 +55101,9 @@ class NSDateFormatter extends NSFormatter {
   }
 
   set veryShortStandaloneMonthSymbols(NSArray? value) {
-    _lib._objc_msgSend_765(_id, _lib._sel_setVeryShortStandaloneMonthSymbols_1,
+    return _lib._objc_msgSend_765(
+        _id,
+        _lib._sel_setVeryShortStandaloneMonthSymbols_1,
         value?._id ?? ffi.nullptr);
   }
 
@@ -53443,7 +55115,7 @@ class NSDateFormatter extends NSFormatter {
   }
 
   set veryShortWeekdaySymbols(NSArray? value) {
-    _lib._objc_msgSend_765(
+    return _lib._objc_msgSend_765(
         _id, _lib._sel_setVeryShortWeekdaySymbols_1, value?._id ?? ffi.nullptr);
   }
 
@@ -53456,7 +55128,7 @@ class NSDateFormatter extends NSFormatter {
   }
 
   set standaloneWeekdaySymbols(NSArray? value) {
-    _lib._objc_msgSend_765(_id, _lib._sel_setStandaloneWeekdaySymbols_1,
+    return _lib._objc_msgSend_765(_id, _lib._sel_setStandaloneWeekdaySymbols_1,
         value?._id ?? ffi.nullptr);
   }
 
@@ -53469,7 +55141,9 @@ class NSDateFormatter extends NSFormatter {
   }
 
   set shortStandaloneWeekdaySymbols(NSArray? value) {
-    _lib._objc_msgSend_765(_id, _lib._sel_setShortStandaloneWeekdaySymbols_1,
+    return _lib._objc_msgSend_765(
+        _id,
+        _lib._sel_setShortStandaloneWeekdaySymbols_1,
         value?._id ?? ffi.nullptr);
   }
 
@@ -53482,7 +55156,7 @@ class NSDateFormatter extends NSFormatter {
   }
 
   set veryShortStandaloneWeekdaySymbols(NSArray? value) {
-    _lib._objc_msgSend_765(
+    return _lib._objc_msgSend_765(
         _id,
         _lib._sel_setVeryShortStandaloneWeekdaySymbols_1,
         value?._id ?? ffi.nullptr);
@@ -53496,7 +55170,7 @@ class NSDateFormatter extends NSFormatter {
   }
 
   set quarterSymbols(NSArray? value) {
-    _lib._objc_msgSend_765(
+    return _lib._objc_msgSend_765(
         _id, _lib._sel_setQuarterSymbols_1, value?._id ?? ffi.nullptr);
   }
 
@@ -53508,7 +55182,7 @@ class NSDateFormatter extends NSFormatter {
   }
 
   set shortQuarterSymbols(NSArray? value) {
-    _lib._objc_msgSend_765(
+    return _lib._objc_msgSend_765(
         _id, _lib._sel_setShortQuarterSymbols_1, value?._id ?? ffi.nullptr);
   }
 
@@ -53521,7 +55195,7 @@ class NSDateFormatter extends NSFormatter {
   }
 
   set standaloneQuarterSymbols(NSArray? value) {
-    _lib._objc_msgSend_765(_id, _lib._sel_setStandaloneQuarterSymbols_1,
+    return _lib._objc_msgSend_765(_id, _lib._sel_setStandaloneQuarterSymbols_1,
         value?._id ?? ffi.nullptr);
   }
 
@@ -53534,7 +55208,9 @@ class NSDateFormatter extends NSFormatter {
   }
 
   set shortStandaloneQuarterSymbols(NSArray? value) {
-    _lib._objc_msgSend_765(_id, _lib._sel_setShortStandaloneQuarterSymbols_1,
+    return _lib._objc_msgSend_765(
+        _id,
+        _lib._sel_setShortStandaloneQuarterSymbols_1,
         value?._id ?? ffi.nullptr);
   }
 
@@ -53546,7 +55222,7 @@ class NSDateFormatter extends NSFormatter {
   }
 
   set gregorianStartDate(NSDate? value) {
-    _lib._objc_msgSend_525(
+    return _lib._objc_msgSend_525(
         _id, _lib._sel_setGregorianStartDate_1, value?._id ?? ffi.nullptr);
   }
 
@@ -53555,7 +55231,7 @@ class NSDateFormatter extends NSFormatter {
   }
 
   set doesRelativeDateFormatting(bool value) {
-    _lib._objc_msgSend_492(
+    return _lib._objc_msgSend_492(
         _id, _lib._sel_setDoesRelativeDateFormatting_1, value);
   }
 
@@ -53573,9 +55249,22 @@ class NSDateFormatter extends NSFormatter {
     return _lib._objc_msgSend_12(_id, _lib._sel_allowsNaturalLanguage1);
   }
 
+  @override
+  NSDateFormatter init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSDateFormatter._(_ret, _lib, retain: true, release: true);
+  }
+
   static NSDateFormatter new1(SentryCocoa _lib) {
     final _ret =
         _lib._objc_msgSend_2(_lib._class_NSDateFormatter1, _lib._sel_new1);
+    return NSDateFormatter._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSDateFormatter allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSDateFormatter1, _lib._sel_allocWithZone_1, zone);
     return NSDateFormatter._(_ret, _lib, retain: false, release: true);
   }
 
@@ -53590,7 +55279,7 @@ class NSDateFormatter extends NSFormatter {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSDateFormatter1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -53600,7 +55289,7 @@ class NSDateFormatter extends NSFormatter {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSDateFormatter1,
+    _lib._objc_msgSend_15(_lib._class_NSDateFormatter1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -53633,7 +55322,7 @@ class NSDateFormatter extends NSFormatter {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSDateFormatter1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -53739,8 +55428,21 @@ class NSFormatter extends NSObject {
         error);
   }
 
+  @override
+  NSFormatter init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSFormatter._(_ret, _lib, retain: true, release: true);
+  }
+
   static NSFormatter new1(SentryCocoa _lib) {
     final _ret = _lib._objc_msgSend_2(_lib._class_NSFormatter1, _lib._sel_new1);
+    return NSFormatter._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSFormatter allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSFormatter1, _lib._sel_allocWithZone_1, zone);
     return NSFormatter._(_ret, _lib, retain: false, release: true);
   }
 
@@ -53755,7 +55457,7 @@ class NSFormatter extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSFormatter1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -53765,7 +55467,7 @@ class NSFormatter extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSFormatter1,
+    _lib._objc_msgSend_15(_lib._class_NSFormatter1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -53798,7 +55500,7 @@ class NSFormatter extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSFormatter1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -53912,7 +55614,7 @@ class NSCalendar extends NSObject {
   }
 
   set locale(NSLocale? value) {
-    _lib._objc_msgSend_733(
+    return _lib._objc_msgSend_733(
         _id, _lib._sel_setLocale_1, value?._id ?? ffi.nullptr);
   }
 
@@ -53924,7 +55626,7 @@ class NSCalendar extends NSObject {
   }
 
   set timeZone(NSTimeZone? value) {
-    _lib._objc_msgSend_169(
+    return _lib._objc_msgSend_169(
         _id, _lib._sel_setTimeZone_1, value?._id ?? ffi.nullptr);
   }
 
@@ -53933,7 +55635,7 @@ class NSCalendar extends NSObject {
   }
 
   set firstWeekday(int value) {
-    _lib._objc_msgSend_483(_id, _lib._sel_setFirstWeekday_1, value);
+    return _lib._objc_msgSend_483(_id, _lib._sel_setFirstWeekday_1, value);
   }
 
   int get minimumDaysInFirstWeek {
@@ -53941,7 +55643,8 @@ class NSCalendar extends NSObject {
   }
 
   set minimumDaysInFirstWeek(int value) {
-    _lib._objc_msgSend_483(_id, _lib._sel_setMinimumDaysInFirstWeek_1, value);
+    return _lib._objc_msgSend_483(
+        _id, _lib._sel_setMinimumDaysInFirstWeek_1, value);
   }
 
   NSArray? get eraSymbols {
@@ -54091,16 +55794,17 @@ class NSCalendar extends NSObject {
         : NSString._(_ret, _lib, retain: true, release: true);
   }
 
-  _NSRange minimumRangeOfUnit_(int unit) {
-    return _lib._objc_msgSend_736(_id, _lib._sel_minimumRangeOfUnit_1, unit);
+  void minimumRangeOfUnit_(ffi.Pointer<_NSRange> stret, int unit) {
+    _lib._objc_msgSend_736(stret, _id, _lib._sel_minimumRangeOfUnit_1, unit);
   }
 
-  _NSRange maximumRangeOfUnit_(int unit) {
-    return _lib._objc_msgSend_736(_id, _lib._sel_maximumRangeOfUnit_1, unit);
+  void maximumRangeOfUnit_(ffi.Pointer<_NSRange> stret, int unit) {
+    _lib._objc_msgSend_736(stret, _id, _lib._sel_maximumRangeOfUnit_1, unit);
   }
 
-  _NSRange rangeOfUnit_inUnit_forDate_(int smaller, int larger, NSDate? date) {
-    return _lib._objc_msgSend_737(_id, _lib._sel_rangeOfUnit_inUnit_forDate_1,
+  void rangeOfUnit_inUnit_forDate_(
+      ffi.Pointer<_NSRange> stret, int smaller, int larger, NSDate? date) {
+    _lib._objc_msgSend_737(stret, _id, _lib._sel_rangeOfUnit_inUnit_forDate_1,
         smaller, larger, date?._id ?? ffi.nullptr);
   }
 
@@ -54168,7 +55872,7 @@ class NSCalendar extends NSObject {
       ffi.Pointer<ffi.Long> monthValuePointer,
       ffi.Pointer<ffi.Long> dayValuePointer,
       NSDate? date) {
-    return _lib._objc_msgSend_748(
+    _lib._objc_msgSend_748(
         _id,
         _lib._sel_getEra_year_month_day_fromDate_1,
         eraValuePointer,
@@ -54184,7 +55888,7 @@ class NSCalendar extends NSObject {
       ffi.Pointer<ffi.Long> weekValuePointer,
       ffi.Pointer<ffi.Long> weekdayValuePointer,
       NSDate? date) {
-    return _lib._objc_msgSend_748(
+    _lib._objc_msgSend_748(
         _id,
         _lib._sel_getEra_yearForWeekOfYear_weekOfYear_weekday_fromDate_1,
         eraValuePointer,
@@ -54200,7 +55904,7 @@ class NSCalendar extends NSObject {
       ffi.Pointer<ffi.Long> secondValuePointer,
       ffi.Pointer<ffi.Long> nanosecondValuePointer,
       NSDate? date) {
-    return _lib._objc_msgSend_748(
+    _lib._objc_msgSend_748(
         _id,
         _lib._sel_getHour_minute_second_nanosecond_fromDate_1,
         hourValuePointer,
@@ -54377,8 +56081,11 @@ class NSCalendar extends NSObject {
   }
 
   void enumerateDatesStartingAfterDate_matchingComponents_options_usingBlock_(
-      NSDate? start, NSDateComponents? comps, int opts, ObjCBlock35 block) {
-    return _lib._objc_msgSend_759(
+      NSDate? start,
+      NSDateComponents? comps,
+      int opts,
+      ObjCBlock_ffiVoid_NSDate_bool_bool block) {
+    _lib._objc_msgSend_759(
         _id,
         _lib._sel_enumerateDatesStartingAfterDate_matchingComponents_options_usingBlock_1,
         start?._id ?? ffi.nullptr,
@@ -54458,6 +56165,13 @@ class NSCalendar extends NSObject {
     return NSCalendar._(_ret, _lib, retain: false, release: true);
   }
 
+  static NSCalendar allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSCalendar1, _lib._sel_allocWithZone_1, zone);
+    return NSCalendar._(_ret, _lib, retain: false, release: true);
+  }
+
   static NSCalendar alloc(SentryCocoa _lib) {
     final _ret =
         _lib._objc_msgSend_2(_lib._class_NSCalendar1, _lib._sel_alloc1);
@@ -54469,7 +56183,7 @@ class NSCalendar extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSCalendar1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -54479,7 +56193,7 @@ class NSCalendar extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSCalendar1,
+    _lib._objc_msgSend_15(_lib._class_NSCalendar1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -54512,7 +56226,7 @@ class NSCalendar extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSCalendar1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -54599,7 +56313,7 @@ class NSDateComponents extends NSObject {
   }
 
   set calendar(NSCalendar? value) {
-    _lib._objc_msgSend_740(
+    return _lib._objc_msgSend_740(
         _id, _lib._sel_setCalendar_1, value?._id ?? ffi.nullptr);
   }
 
@@ -54611,7 +56325,7 @@ class NSDateComponents extends NSObject {
   }
 
   set timeZone(NSTimeZone? value) {
-    _lib._objc_msgSend_169(
+    return _lib._objc_msgSend_169(
         _id, _lib._sel_setTimeZone_1, value?._id ?? ffi.nullptr);
   }
 
@@ -54620,7 +56334,7 @@ class NSDateComponents extends NSObject {
   }
 
   set era(int value) {
-    _lib._objc_msgSend_590(_id, _lib._sel_setEra_1, value);
+    return _lib._objc_msgSend_590(_id, _lib._sel_setEra_1, value);
   }
 
   int get year {
@@ -54628,7 +56342,7 @@ class NSDateComponents extends NSObject {
   }
 
   set year(int value) {
-    _lib._objc_msgSend_590(_id, _lib._sel_setYear_1, value);
+    return _lib._objc_msgSend_590(_id, _lib._sel_setYear_1, value);
   }
 
   int get month {
@@ -54636,7 +56350,7 @@ class NSDateComponents extends NSObject {
   }
 
   set month(int value) {
-    _lib._objc_msgSend_590(_id, _lib._sel_setMonth_1, value);
+    return _lib._objc_msgSend_590(_id, _lib._sel_setMonth_1, value);
   }
 
   int get day {
@@ -54644,7 +56358,7 @@ class NSDateComponents extends NSObject {
   }
 
   set day(int value) {
-    _lib._objc_msgSend_590(_id, _lib._sel_setDay_1, value);
+    return _lib._objc_msgSend_590(_id, _lib._sel_setDay_1, value);
   }
 
   int get hour {
@@ -54652,7 +56366,7 @@ class NSDateComponents extends NSObject {
   }
 
   set hour(int value) {
-    _lib._objc_msgSend_590(_id, _lib._sel_setHour_1, value);
+    return _lib._objc_msgSend_590(_id, _lib._sel_setHour_1, value);
   }
 
   int get minute {
@@ -54660,7 +56374,7 @@ class NSDateComponents extends NSObject {
   }
 
   set minute(int value) {
-    _lib._objc_msgSend_590(_id, _lib._sel_setMinute_1, value);
+    return _lib._objc_msgSend_590(_id, _lib._sel_setMinute_1, value);
   }
 
   int get second {
@@ -54668,7 +56382,7 @@ class NSDateComponents extends NSObject {
   }
 
   set second(int value) {
-    _lib._objc_msgSend_590(_id, _lib._sel_setSecond_1, value);
+    return _lib._objc_msgSend_590(_id, _lib._sel_setSecond_1, value);
   }
 
   int get nanosecond {
@@ -54676,7 +56390,7 @@ class NSDateComponents extends NSObject {
   }
 
   set nanosecond(int value) {
-    _lib._objc_msgSend_590(_id, _lib._sel_setNanosecond_1, value);
+    return _lib._objc_msgSend_590(_id, _lib._sel_setNanosecond_1, value);
   }
 
   int get weekday {
@@ -54684,7 +56398,7 @@ class NSDateComponents extends NSObject {
   }
 
   set weekday(int value) {
-    _lib._objc_msgSend_590(_id, _lib._sel_setWeekday_1, value);
+    return _lib._objc_msgSend_590(_id, _lib._sel_setWeekday_1, value);
   }
 
   int get weekdayOrdinal {
@@ -54692,7 +56406,7 @@ class NSDateComponents extends NSObject {
   }
 
   set weekdayOrdinal(int value) {
-    _lib._objc_msgSend_590(_id, _lib._sel_setWeekdayOrdinal_1, value);
+    return _lib._objc_msgSend_590(_id, _lib._sel_setWeekdayOrdinal_1, value);
   }
 
   int get quarter {
@@ -54700,7 +56414,7 @@ class NSDateComponents extends NSObject {
   }
 
   set quarter(int value) {
-    _lib._objc_msgSend_590(_id, _lib._sel_setQuarter_1, value);
+    return _lib._objc_msgSend_590(_id, _lib._sel_setQuarter_1, value);
   }
 
   int get weekOfMonth {
@@ -54708,7 +56422,7 @@ class NSDateComponents extends NSObject {
   }
 
   set weekOfMonth(int value) {
-    _lib._objc_msgSend_590(_id, _lib._sel_setWeekOfMonth_1, value);
+    return _lib._objc_msgSend_590(_id, _lib._sel_setWeekOfMonth_1, value);
   }
 
   int get weekOfYear {
@@ -54716,7 +56430,7 @@ class NSDateComponents extends NSObject {
   }
 
   set weekOfYear(int value) {
-    _lib._objc_msgSend_590(_id, _lib._sel_setWeekOfYear_1, value);
+    return _lib._objc_msgSend_590(_id, _lib._sel_setWeekOfYear_1, value);
   }
 
   int get yearForWeekOfYear {
@@ -54724,7 +56438,7 @@ class NSDateComponents extends NSObject {
   }
 
   set yearForWeekOfYear(int value) {
-    _lib._objc_msgSend_590(_id, _lib._sel_setYearForWeekOfYear_1, value);
+    return _lib._objc_msgSend_590(_id, _lib._sel_setYearForWeekOfYear_1, value);
   }
 
   bool get leapMonth {
@@ -54732,7 +56446,7 @@ class NSDateComponents extends NSObject {
   }
 
   set leapMonth(bool value) {
-    _lib._objc_msgSend_492(_id, _lib._sel_setLeapMonth_1, value);
+    return _lib._objc_msgSend_492(_id, _lib._sel_setLeapMonth_1, value);
   }
 
   NSDate? get date {
@@ -54747,12 +56461,11 @@ class NSDateComponents extends NSObject {
   }
 
   void setWeek_(int v) {
-    return _lib._objc_msgSend_394(_id, _lib._sel_setWeek_1, v);
+    _lib._objc_msgSend_394(_id, _lib._sel_setWeek_1, v);
   }
 
   void setValue_forComponent_(int value, int unit) {
-    return _lib._objc_msgSend_741(
-        _id, _lib._sel_setValue_forComponent_1, value, unit);
+    _lib._objc_msgSend_741(_id, _lib._sel_setValue_forComponent_1, value, unit);
   }
 
   int valueForComponent_(int unit) {
@@ -54768,9 +56481,22 @@ class NSDateComponents extends NSObject {
         _id, _lib._sel_isValidDateInCalendar_1, calendar?._id ?? ffi.nullptr);
   }
 
+  @override
+  NSDateComponents init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSDateComponents._(_ret, _lib, retain: true, release: true);
+  }
+
   static NSDateComponents new1(SentryCocoa _lib) {
     final _ret =
         _lib._objc_msgSend_2(_lib._class_NSDateComponents1, _lib._sel_new1);
+    return NSDateComponents._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSDateComponents allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSDateComponents1, _lib._sel_allocWithZone_1, zone);
     return NSDateComponents._(_ret, _lib, retain: false, release: true);
   }
 
@@ -54785,7 +56511,7 @@ class NSDateComponents extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSDateComponents1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -54795,7 +56521,7 @@ class NSDateComponents extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSDateComponents1,
+    _lib._objc_msgSend_15(_lib._class_NSDateComponents1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -54828,7 +56554,7 @@ class NSDateComponents extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSDateComponents1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -54859,8 +56585,11 @@ abstract class NSCalendarOptions {
   static const int NSCalendarMatchLast = 8192;
 }
 
-void _ObjCBlock35_fnPtrTrampoline(ffi.Pointer<_ObjCBlock> block,
-    ffi.Pointer<ObjCObject> arg0, bool arg1, ffi.Pointer<ffi.Bool> arg2) {
+void _ObjCBlock_ffiVoid_NSDate_bool_bool_fnPtrTrampoline(
+    ffi.Pointer<_ObjCBlock> block,
+    ffi.Pointer<ObjCObject> arg0,
+    bool arg1,
+    ffi.Pointer<ffi.Bool> arg2) {
   return block.ref.target
       .cast<
           ffi.NativeFunction<
@@ -54871,27 +56600,33 @@ void _ObjCBlock35_fnPtrTrampoline(ffi.Pointer<_ObjCBlock> block,
               ffi.Pointer<ffi.Bool> arg2)>()(arg0, arg1, arg2);
 }
 
-final _ObjCBlock35_closureRegistry = <int, Function>{};
-int _ObjCBlock35_closureRegistryIndex = 0;
-ffi.Pointer<ffi.Void> _ObjCBlock35_registerClosure(Function fn) {
-  final id = ++_ObjCBlock35_closureRegistryIndex;
-  _ObjCBlock35_closureRegistry[id] = fn;
+final _ObjCBlock_ffiVoid_NSDate_bool_bool_closureRegistry = <int, Function>{};
+int _ObjCBlock_ffiVoid_NSDate_bool_bool_closureRegistryIndex = 0;
+ffi.Pointer<ffi.Void> _ObjCBlock_ffiVoid_NSDate_bool_bool_registerClosure(
+    Function fn) {
+  final id = ++_ObjCBlock_ffiVoid_NSDate_bool_bool_closureRegistryIndex;
+  _ObjCBlock_ffiVoid_NSDate_bool_bool_closureRegistry[id] = fn;
   return ffi.Pointer<ffi.Void>.fromAddress(id);
 }
 
-void _ObjCBlock35_closureTrampoline(ffi.Pointer<_ObjCBlock> block,
-    ffi.Pointer<ObjCObject> arg0, bool arg1, ffi.Pointer<ffi.Bool> arg2) {
-  return (_ObjCBlock35_closureRegistry[block.ref.target.address] as void
-          Function(ffi.Pointer<ObjCObject>, bool, ffi.Pointer<ffi.Bool>))(
-      arg0, arg1, arg2);
+void _ObjCBlock_ffiVoid_NSDate_bool_bool_closureTrampoline(
+    ffi.Pointer<_ObjCBlock> block,
+    ffi.Pointer<ObjCObject> arg0,
+    bool arg1,
+    ffi.Pointer<ffi.Bool> arg2) {
+  return (_ObjCBlock_ffiVoid_NSDate_bool_bool_closureRegistry[
+          block.ref.target.address]
+      as void Function(ffi.Pointer<ObjCObject>, bool,
+          ffi.Pointer<ffi.Bool>))(arg0, arg1, arg2);
 }
 
-class ObjCBlock35 extends _ObjCBlockBase {
-  ObjCBlock35._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
+class ObjCBlock_ffiVoid_NSDate_bool_bool extends _ObjCBlockBase {
+  ObjCBlock_ffiVoid_NSDate_bool_bool._(
+      ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
       : super._(id, lib, retain: false, release: true);
 
   /// Creates a block from a C function pointer.
-  ObjCBlock35.fromFunctionPointer(
+  ObjCBlock_ffiVoid_NSDate_bool_bool.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
               ffi.NativeFunction<
@@ -54906,14 +56641,14 @@ class ObjCBlock35 extends _ObjCBlockBase {
                                 ffi.Pointer<ObjCObject> arg0,
                                 ffi.Bool arg1,
                                 ffi.Pointer<ffi.Bool> arg2)>(
-                        _ObjCBlock35_fnPtrTrampoline)
+                        _ObjCBlock_ffiVoid_NSDate_bool_bool_fnPtrTrampoline)
                     .cast(),
                 ptr.cast()),
             lib);
   static ffi.Pointer<ffi.Void>? _cFuncTrampoline;
 
   /// Creates a block from a Dart function.
-  ObjCBlock35.fromFunction(
+  ObjCBlock_ffiVoid_NSDate_bool_bool.fromFunction(
       SentryCocoa lib,
       void Function(ffi.Pointer<ObjCObject> arg0, bool arg1,
               ffi.Pointer<ffi.Bool> arg2)
@@ -54926,9 +56661,9 @@ class ObjCBlock35 extends _ObjCBlockBase {
                                 ffi.Pointer<ObjCObject> arg0,
                                 ffi.Bool arg1,
                                 ffi.Pointer<ffi.Bool> arg2)>(
-                        _ObjCBlock35_closureTrampoline)
+                        _ObjCBlock_ffiVoid_NSDate_bool_bool_closureTrampoline)
                     .cast(),
-                _ObjCBlock35_registerClosure(fn)),
+                _ObjCBlock_ffiVoid_NSDate_bool_bool_registerClosure(fn)),
             lib);
   static ffi.Pointer<ffi.Void>? _dartFuncTrampoline;
   void call(
@@ -54979,7 +56714,7 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set formattingContext(int value) {
-    _lib._objc_msgSend_725(_id, _lib._sel_setFormattingContext_1, value);
+    return _lib._objc_msgSend_725(_id, _lib._sel_setFormattingContext_1, value);
   }
 
   bool getObjectValue_forString_range_error_(
@@ -55024,7 +56759,7 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   static void setDefaultFormatterBehavior_(SentryCocoa _lib, int behavior) {
-    return _lib._objc_msgSend_770(_lib._class_NSNumberFormatter1,
+    _lib._objc_msgSend_770(_lib._class_NSNumberFormatter1,
         _lib._sel_setDefaultFormatterBehavior_1, behavior);
   }
 
@@ -55033,7 +56768,7 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set numberStyle(int value) {
-    _lib._objc_msgSend_772(_id, _lib._sel_setNumberStyle_1, value);
+    return _lib._objc_msgSend_772(_id, _lib._sel_setNumberStyle_1, value);
   }
 
   NSLocale? get locale {
@@ -55044,7 +56779,7 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set locale(NSLocale? value) {
-    _lib._objc_msgSend_733(
+    return _lib._objc_msgSend_733(
         _id, _lib._sel_setLocale_1, value?._id ?? ffi.nullptr);
   }
 
@@ -55053,7 +56788,8 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set generatesDecimalNumbers(bool value) {
-    _lib._objc_msgSend_492(_id, _lib._sel_setGeneratesDecimalNumbers_1, value);
+    return _lib._objc_msgSend_492(
+        _id, _lib._sel_setGeneratesDecimalNumbers_1, value);
   }
 
   int get formatterBehavior {
@@ -55061,7 +56797,7 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set formatterBehavior(int value) {
-    _lib._objc_msgSend_773(_id, _lib._sel_setFormatterBehavior_1, value);
+    return _lib._objc_msgSend_773(_id, _lib._sel_setFormatterBehavior_1, value);
   }
 
   NSString? get negativeFormat {
@@ -55072,7 +56808,7 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set negativeFormat(NSString? value) {
-    _lib._objc_msgSend_509(
+    return _lib._objc_msgSend_509(
         _id, _lib._sel_setNegativeFormat_1, value?._id ?? ffi.nullptr);
   }
 
@@ -55085,7 +56821,9 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set textAttributesForNegativeValues(NSDictionary? value) {
-    _lib._objc_msgSend_171(_id, _lib._sel_setTextAttributesForNegativeValues_1,
+    return _lib._objc_msgSend_171(
+        _id,
+        _lib._sel_setTextAttributesForNegativeValues_1,
         value?._id ?? ffi.nullptr);
   }
 
@@ -55097,7 +56835,7 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set positiveFormat(NSString? value) {
-    _lib._objc_msgSend_509(
+    return _lib._objc_msgSend_509(
         _id, _lib._sel_setPositiveFormat_1, value?._id ?? ffi.nullptr);
   }
 
@@ -55110,7 +56848,9 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set textAttributesForPositiveValues(NSDictionary? value) {
-    _lib._objc_msgSend_171(_id, _lib._sel_setTextAttributesForPositiveValues_1,
+    return _lib._objc_msgSend_171(
+        _id,
+        _lib._sel_setTextAttributesForPositiveValues_1,
         value?._id ?? ffi.nullptr);
   }
 
@@ -55119,7 +56859,7 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set allowsFloats(bool value) {
-    _lib._objc_msgSend_492(_id, _lib._sel_setAllowsFloats_1, value);
+    return _lib._objc_msgSend_492(_id, _lib._sel_setAllowsFloats_1, value);
   }
 
   NSString? get decimalSeparator {
@@ -55130,7 +56870,7 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set decimalSeparator(NSString? value) {
-    _lib._objc_msgSend_509(
+    return _lib._objc_msgSend_509(
         _id, _lib._sel_setDecimalSeparator_1, value?._id ?? ffi.nullptr);
   }
 
@@ -55139,7 +56879,7 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set alwaysShowsDecimalSeparator(bool value) {
-    _lib._objc_msgSend_492(
+    return _lib._objc_msgSend_492(
         _id, _lib._sel_setAlwaysShowsDecimalSeparator_1, value);
   }
 
@@ -55152,7 +56892,7 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set currencyDecimalSeparator(NSString? value) {
-    _lib._objc_msgSend_509(_id, _lib._sel_setCurrencyDecimalSeparator_1,
+    return _lib._objc_msgSend_509(_id, _lib._sel_setCurrencyDecimalSeparator_1,
         value?._id ?? ffi.nullptr);
   }
 
@@ -55161,7 +56901,8 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set usesGroupingSeparator(bool value) {
-    _lib._objc_msgSend_492(_id, _lib._sel_setUsesGroupingSeparator_1, value);
+    return _lib._objc_msgSend_492(
+        _id, _lib._sel_setUsesGroupingSeparator_1, value);
   }
 
   NSString? get groupingSeparator {
@@ -55172,7 +56913,7 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set groupingSeparator(NSString? value) {
-    _lib._objc_msgSend_509(
+    return _lib._objc_msgSend_509(
         _id, _lib._sel_setGroupingSeparator_1, value?._id ?? ffi.nullptr);
   }
 
@@ -55184,7 +56925,7 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set zeroSymbol(NSString? value) {
-    _lib._objc_msgSend_509(
+    return _lib._objc_msgSend_509(
         _id, _lib._sel_setZeroSymbol_1, value?._id ?? ffi.nullptr);
   }
 
@@ -55196,7 +56937,7 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set textAttributesForZero(NSDictionary? value) {
-    _lib._objc_msgSend_171(
+    return _lib._objc_msgSend_171(
         _id, _lib._sel_setTextAttributesForZero_1, value?._id ?? ffi.nullptr);
   }
 
@@ -55208,7 +56949,7 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set nilSymbol(NSString? value) {
-    _lib._objc_msgSend_509(
+    return _lib._objc_msgSend_509(
         _id, _lib._sel_setNilSymbol_1, value?._id ?? ffi.nullptr);
   }
 
@@ -55220,7 +56961,7 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set textAttributesForNil(NSDictionary? value) {
-    _lib._objc_msgSend_171(
+    return _lib._objc_msgSend_171(
         _id, _lib._sel_setTextAttributesForNil_1, value?._id ?? ffi.nullptr);
   }
 
@@ -55232,7 +56973,7 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set notANumberSymbol(NSString? value) {
-    _lib._objc_msgSend_509(
+    return _lib._objc_msgSend_509(
         _id, _lib._sel_setNotANumberSymbol_1, value?._id ?? ffi.nullptr);
   }
 
@@ -55245,8 +56986,8 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set textAttributesForNotANumber(NSDictionary? value) {
-    _lib._objc_msgSend_171(_id, _lib._sel_setTextAttributesForNotANumber_1,
-        value?._id ?? ffi.nullptr);
+    return _lib._objc_msgSend_171(_id,
+        _lib._sel_setTextAttributesForNotANumber_1, value?._id ?? ffi.nullptr);
   }
 
   NSString? get positiveInfinitySymbol {
@@ -55257,7 +56998,7 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set positiveInfinitySymbol(NSString? value) {
-    _lib._objc_msgSend_509(
+    return _lib._objc_msgSend_509(
         _id, _lib._sel_setPositiveInfinitySymbol_1, value?._id ?? ffi.nullptr);
   }
 
@@ -55270,7 +57011,7 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set textAttributesForPositiveInfinity(NSDictionary? value) {
-    _lib._objc_msgSend_171(
+    return _lib._objc_msgSend_171(
         _id,
         _lib._sel_setTextAttributesForPositiveInfinity_1,
         value?._id ?? ffi.nullptr);
@@ -55284,7 +57025,7 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set negativeInfinitySymbol(NSString? value) {
-    _lib._objc_msgSend_509(
+    return _lib._objc_msgSend_509(
         _id, _lib._sel_setNegativeInfinitySymbol_1, value?._id ?? ffi.nullptr);
   }
 
@@ -55297,7 +57038,7 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set textAttributesForNegativeInfinity(NSDictionary? value) {
-    _lib._objc_msgSend_171(
+    return _lib._objc_msgSend_171(
         _id,
         _lib._sel_setTextAttributesForNegativeInfinity_1,
         value?._id ?? ffi.nullptr);
@@ -55311,7 +57052,7 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set positivePrefix(NSString? value) {
-    _lib._objc_msgSend_509(
+    return _lib._objc_msgSend_509(
         _id, _lib._sel_setPositivePrefix_1, value?._id ?? ffi.nullptr);
   }
 
@@ -55323,7 +57064,7 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set positiveSuffix(NSString? value) {
-    _lib._objc_msgSend_509(
+    return _lib._objc_msgSend_509(
         _id, _lib._sel_setPositiveSuffix_1, value?._id ?? ffi.nullptr);
   }
 
@@ -55335,7 +57076,7 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set negativePrefix(NSString? value) {
-    _lib._objc_msgSend_509(
+    return _lib._objc_msgSend_509(
         _id, _lib._sel_setNegativePrefix_1, value?._id ?? ffi.nullptr);
   }
 
@@ -55347,7 +57088,7 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set negativeSuffix(NSString? value) {
-    _lib._objc_msgSend_509(
+    return _lib._objc_msgSend_509(
         _id, _lib._sel_setNegativeSuffix_1, value?._id ?? ffi.nullptr);
   }
 
@@ -55359,7 +57100,7 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set currencyCode(NSString? value) {
-    _lib._objc_msgSend_509(
+    return _lib._objc_msgSend_509(
         _id, _lib._sel_setCurrencyCode_1, value?._id ?? ffi.nullptr);
   }
 
@@ -55371,7 +57112,7 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set currencySymbol(NSString? value) {
-    _lib._objc_msgSend_509(
+    return _lib._objc_msgSend_509(
         _id, _lib._sel_setCurrencySymbol_1, value?._id ?? ffi.nullptr);
   }
 
@@ -55384,8 +57125,8 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set internationalCurrencySymbol(NSString? value) {
-    _lib._objc_msgSend_509(_id, _lib._sel_setInternationalCurrencySymbol_1,
-        value?._id ?? ffi.nullptr);
+    return _lib._objc_msgSend_509(_id,
+        _lib._sel_setInternationalCurrencySymbol_1, value?._id ?? ffi.nullptr);
   }
 
   NSString? get percentSymbol {
@@ -55396,7 +57137,7 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set percentSymbol(NSString? value) {
-    _lib._objc_msgSend_509(
+    return _lib._objc_msgSend_509(
         _id, _lib._sel_setPercentSymbol_1, value?._id ?? ffi.nullptr);
   }
 
@@ -55408,7 +57149,7 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set perMillSymbol(NSString? value) {
-    _lib._objc_msgSend_509(
+    return _lib._objc_msgSend_509(
         _id, _lib._sel_setPerMillSymbol_1, value?._id ?? ffi.nullptr);
   }
 
@@ -55420,7 +57161,7 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set minusSign(NSString? value) {
-    _lib._objc_msgSend_509(
+    return _lib._objc_msgSend_509(
         _id, _lib._sel_setMinusSign_1, value?._id ?? ffi.nullptr);
   }
 
@@ -55432,7 +57173,7 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set plusSign(NSString? value) {
-    _lib._objc_msgSend_509(
+    return _lib._objc_msgSend_509(
         _id, _lib._sel_setPlusSign_1, value?._id ?? ffi.nullptr);
   }
 
@@ -55444,7 +57185,7 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set exponentSymbol(NSString? value) {
-    _lib._objc_msgSend_509(
+    return _lib._objc_msgSend_509(
         _id, _lib._sel_setExponentSymbol_1, value?._id ?? ffi.nullptr);
   }
 
@@ -55453,7 +57194,7 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set groupingSize(int value) {
-    _lib._objc_msgSend_483(_id, _lib._sel_setGroupingSize_1, value);
+    return _lib._objc_msgSend_483(_id, _lib._sel_setGroupingSize_1, value);
   }
 
   int get secondaryGroupingSize {
@@ -55461,7 +57202,8 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set secondaryGroupingSize(int value) {
-    _lib._objc_msgSend_483(_id, _lib._sel_setSecondaryGroupingSize_1, value);
+    return _lib._objc_msgSend_483(
+        _id, _lib._sel_setSecondaryGroupingSize_1, value);
   }
 
   NSNumber? get multiplier {
@@ -55472,7 +57214,7 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set multiplier(NSNumber? value) {
-    _lib._objc_msgSend_654(
+    return _lib._objc_msgSend_654(
         _id, _lib._sel_setMultiplier_1, value?._id ?? ffi.nullptr);
   }
 
@@ -55481,7 +57223,7 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set formatWidth(int value) {
-    _lib._objc_msgSend_483(_id, _lib._sel_setFormatWidth_1, value);
+    return _lib._objc_msgSend_483(_id, _lib._sel_setFormatWidth_1, value);
   }
 
   NSString? get paddingCharacter {
@@ -55492,7 +57234,7 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set paddingCharacter(NSString? value) {
-    _lib._objc_msgSend_509(
+    return _lib._objc_msgSend_509(
         _id, _lib._sel_setPaddingCharacter_1, value?._id ?? ffi.nullptr);
   }
 
@@ -55501,7 +57243,7 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set paddingPosition(int value) {
-    _lib._objc_msgSend_775(_id, _lib._sel_setPaddingPosition_1, value);
+    return _lib._objc_msgSend_775(_id, _lib._sel_setPaddingPosition_1, value);
   }
 
   int get roundingMode {
@@ -55509,7 +57251,7 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set roundingMode(int value) {
-    _lib._objc_msgSend_777(_id, _lib._sel_setRoundingMode_1, value);
+    return _lib._objc_msgSend_777(_id, _lib._sel_setRoundingMode_1, value);
   }
 
   NSNumber? get roundingIncrement {
@@ -55520,7 +57262,7 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set roundingIncrement(NSNumber? value) {
-    _lib._objc_msgSend_654(
+    return _lib._objc_msgSend_654(
         _id, _lib._sel_setRoundingIncrement_1, value?._id ?? ffi.nullptr);
   }
 
@@ -55529,7 +57271,8 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set minimumIntegerDigits(int value) {
-    _lib._objc_msgSend_483(_id, _lib._sel_setMinimumIntegerDigits_1, value);
+    return _lib._objc_msgSend_483(
+        _id, _lib._sel_setMinimumIntegerDigits_1, value);
   }
 
   int get maximumIntegerDigits {
@@ -55537,7 +57280,8 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set maximumIntegerDigits(int value) {
-    _lib._objc_msgSend_483(_id, _lib._sel_setMaximumIntegerDigits_1, value);
+    return _lib._objc_msgSend_483(
+        _id, _lib._sel_setMaximumIntegerDigits_1, value);
   }
 
   int get minimumFractionDigits {
@@ -55545,7 +57289,8 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set minimumFractionDigits(int value) {
-    _lib._objc_msgSend_483(_id, _lib._sel_setMinimumFractionDigits_1, value);
+    return _lib._objc_msgSend_483(
+        _id, _lib._sel_setMinimumFractionDigits_1, value);
   }
 
   int get maximumFractionDigits {
@@ -55553,7 +57298,8 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set maximumFractionDigits(int value) {
-    _lib._objc_msgSend_483(_id, _lib._sel_setMaximumFractionDigits_1, value);
+    return _lib._objc_msgSend_483(
+        _id, _lib._sel_setMaximumFractionDigits_1, value);
   }
 
   NSNumber? get minimum {
@@ -55564,7 +57310,7 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set minimum(NSNumber? value) {
-    _lib._objc_msgSend_654(
+    return _lib._objc_msgSend_654(
         _id, _lib._sel_setMinimum_1, value?._id ?? ffi.nullptr);
   }
 
@@ -55576,7 +57322,7 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set maximum(NSNumber? value) {
-    _lib._objc_msgSend_654(
+    return _lib._objc_msgSend_654(
         _id, _lib._sel_setMaximum_1, value?._id ?? ffi.nullptr);
   }
 
@@ -55589,7 +57335,7 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set currencyGroupingSeparator(NSString? value) {
-    _lib._objc_msgSend_509(_id, _lib._sel_setCurrencyGroupingSeparator_1,
+    return _lib._objc_msgSend_509(_id, _lib._sel_setCurrencyGroupingSeparator_1,
         value?._id ?? ffi.nullptr);
   }
 
@@ -55598,7 +57344,7 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set lenient(bool value) {
-    _lib._objc_msgSend_492(_id, _lib._sel_setLenient_1, value);
+    return _lib._objc_msgSend_492(_id, _lib._sel_setLenient_1, value);
   }
 
   bool get usesSignificantDigits {
@@ -55606,7 +57352,8 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set usesSignificantDigits(bool value) {
-    _lib._objc_msgSend_492(_id, _lib._sel_setUsesSignificantDigits_1, value);
+    return _lib._objc_msgSend_492(
+        _id, _lib._sel_setUsesSignificantDigits_1, value);
   }
 
   int get minimumSignificantDigits {
@@ -55614,7 +57361,8 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set minimumSignificantDigits(int value) {
-    _lib._objc_msgSend_483(_id, _lib._sel_setMinimumSignificantDigits_1, value);
+    return _lib._objc_msgSend_483(
+        _id, _lib._sel_setMinimumSignificantDigits_1, value);
   }
 
   int get maximumSignificantDigits {
@@ -55622,7 +57370,8 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set maximumSignificantDigits(int value) {
-    _lib._objc_msgSend_483(_id, _lib._sel_setMaximumSignificantDigits_1, value);
+    return _lib._objc_msgSend_483(
+        _id, _lib._sel_setMaximumSignificantDigits_1, value);
   }
 
   bool get partialStringValidationEnabled {
@@ -55631,7 +57380,7 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set partialStringValidationEnabled(bool value) {
-    _lib._objc_msgSend_492(
+    return _lib._objc_msgSend_492(
         _id, _lib._sel_setPartialStringValidationEnabled_1, value);
   }
 
@@ -55640,7 +57389,8 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set hasThousandSeparators(bool value) {
-    _lib._objc_msgSend_492(_id, _lib._sel_setHasThousandSeparators_1, value);
+    return _lib._objc_msgSend_492(
+        _id, _lib._sel_setHasThousandSeparators_1, value);
   }
 
   NSString? get thousandSeparator {
@@ -55651,7 +57401,7 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set thousandSeparator(NSString? value) {
-    _lib._objc_msgSend_509(
+    return _lib._objc_msgSend_509(
         _id, _lib._sel_setThousandSeparator_1, value?._id ?? ffi.nullptr);
   }
 
@@ -55660,7 +57410,7 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set localizesFormat(bool value) {
-    _lib._objc_msgSend_492(_id, _lib._sel_setLocalizesFormat_1, value);
+    return _lib._objc_msgSend_492(_id, _lib._sel_setLocalizesFormat_1, value);
   }
 
   NSString? get format {
@@ -55671,7 +57421,7 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set format(NSString? value) {
-    _lib._objc_msgSend_509(
+    return _lib._objc_msgSend_509(
         _id, _lib._sel_setFormat_1, value?._id ?? ffi.nullptr);
   }
 
@@ -55684,7 +57434,7 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set attributedStringForZero(NSAttributedString? value) {
-    _lib._objc_msgSend_778(
+    return _lib._objc_msgSend_778(
         _id, _lib._sel_setAttributedStringForZero_1, value?._id ?? ffi.nullptr);
   }
 
@@ -55696,7 +57446,7 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set attributedStringForNil(NSAttributedString? value) {
-    _lib._objc_msgSend_778(
+    return _lib._objc_msgSend_778(
         _id, _lib._sel_setAttributedStringForNil_1, value?._id ?? ffi.nullptr);
   }
 
@@ -55709,7 +57459,9 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set attributedStringForNotANumber(NSAttributedString? value) {
-    _lib._objc_msgSend_778(_id, _lib._sel_setAttributedStringForNotANumber_1,
+    return _lib._objc_msgSend_778(
+        _id,
+        _lib._sel_setAttributedStringForNotANumber_1,
         value?._id ?? ffi.nullptr);
   }
 
@@ -55721,13 +57473,26 @@ class NSNumberFormatter extends NSFormatter {
   }
 
   set roundingBehavior(NSDecimalNumberHandler? value) {
-    _lib._objc_msgSend_781(
+    return _lib._objc_msgSend_781(
         _id, _lib._sel_setRoundingBehavior_1, value?._id ?? ffi.nullptr);
+  }
+
+  @override
+  NSNumberFormatter init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSNumberFormatter._(_ret, _lib, retain: true, release: true);
   }
 
   static NSNumberFormatter new1(SentryCocoa _lib) {
     final _ret =
         _lib._objc_msgSend_2(_lib._class_NSNumberFormatter1, _lib._sel_new1);
+    return NSNumberFormatter._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSNumberFormatter allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSNumberFormatter1, _lib._sel_allocWithZone_1, zone);
     return NSNumberFormatter._(_ret, _lib, retain: false, release: true);
   }
 
@@ -55742,7 +57507,7 @@ class NSNumberFormatter extends NSFormatter {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSNumberFormatter1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -55752,7 +57517,7 @@ class NSNumberFormatter extends NSFormatter {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSNumberFormatter1,
+    _lib._objc_msgSend_15(_lib._class_NSNumberFormatter1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -55785,7 +57550,7 @@ class NSNumberFormatter extends NSFormatter {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSNumberFormatter1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -55916,9 +57681,22 @@ class NSDecimalNumberHandler extends NSObject {
     return NSDecimalNumberHandler._(_ret, _lib, retain: true, release: true);
   }
 
+  @override
+  NSDecimalNumberHandler init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSDecimalNumberHandler._(_ret, _lib, retain: true, release: true);
+  }
+
   static NSDecimalNumberHandler new1(SentryCocoa _lib) {
     final _ret = _lib._objc_msgSend_2(
         _lib._class_NSDecimalNumberHandler1, _lib._sel_new1);
+    return NSDecimalNumberHandler._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSDecimalNumberHandler allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSDecimalNumberHandler1, _lib._sel_allocWithZone_1, zone);
     return NSDecimalNumberHandler._(_ret, _lib, retain: false, release: true);
   }
 
@@ -55933,7 +57711,7 @@ class NSDecimalNumberHandler extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSDecimalNumberHandler1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -55943,7 +57721,7 @@ class NSDecimalNumberHandler extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSDecimalNumberHandler1,
+    _lib._objc_msgSend_15(_lib._class_NSDecimalNumberHandler1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -55976,7 +57754,7 @@ class NSDecimalNumberHandler extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSDecimalNumberHandler1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -56038,7 +57816,7 @@ class NSScanner extends NSObject {
   }
 
   set scanLocation(int value) {
-    _lib._objc_msgSend_483(_id, _lib._sel_setScanLocation_1, value);
+    return _lib._objc_msgSend_483(_id, _lib._sel_setScanLocation_1, value);
   }
 
   NSCharacterSet? get charactersToBeSkipped {
@@ -56049,7 +57827,7 @@ class NSScanner extends NSObject {
   }
 
   set charactersToBeSkipped(NSCharacterSet? value) {
-    _lib._objc_msgSend_782(
+    return _lib._objc_msgSend_782(
         _id, _lib._sel_setCharactersToBeSkipped_1, value?._id ?? ffi.nullptr);
   }
 
@@ -56058,7 +57836,7 @@ class NSScanner extends NSObject {
   }
 
   set caseSensitive(bool value) {
-    _lib._objc_msgSend_492(_id, _lib._sel_setCaseSensitive_1, value);
+    return _lib._objc_msgSend_492(_id, _lib._sel_setCaseSensitive_1, value);
   }
 
   NSObject get locale {
@@ -56067,7 +57845,7 @@ class NSScanner extends NSObject {
   }
 
   set locale(NSObject value) {
-    _lib._objc_msgSend_387(_id, _lib._sel_setLocale_1, value._id);
+    return _lib._objc_msgSend_387(_id, _lib._sel_setLocale_1, value._id);
   }
 
   NSScanner initWithString_(NSString? string) {
@@ -56168,8 +57946,20 @@ class NSScanner extends NSObject {
     return _lib._objc_msgSend_792(_id, _lib._sel_scanDecimal_1, dcm);
   }
 
+  @override
+  NSScanner init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSScanner._(_ret, _lib, retain: true, release: true);
+  }
+
   static NSScanner new1(SentryCocoa _lib) {
     final _ret = _lib._objc_msgSend_2(_lib._class_NSScanner1, _lib._sel_new1);
+    return NSScanner._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSScanner allocWithZone_(SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSScanner1, _lib._sel_allocWithZone_1, zone);
     return NSScanner._(_ret, _lib, retain: false, release: true);
   }
 
@@ -56183,7 +57973,7 @@ class NSScanner extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSScanner1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -56193,7 +57983,7 @@ class NSScanner extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSScanner1,
+    _lib._objc_msgSend_15(_lib._class_NSScanner1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -56226,7 +58016,7 @@ class NSScanner extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSScanner1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -56328,17 +58118,17 @@ class NSException extends NSObject {
   }
 
   void raise() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_raise1);
+    _lib._objc_msgSend_1(_id, _lib._sel_raise1);
   }
 
   static void raise_format_(SentryCocoa _lib, NSString name, NSString? format) {
-    return _lib._objc_msgSend_515(_lib._class_NSException1,
-        _lib._sel_raise_format_1, name._id, format?._id ?? ffi.nullptr);
+    _lib._objc_msgSend_515(_lib._class_NSException1, _lib._sel_raise_format_1,
+        name._id, format?._id ?? ffi.nullptr);
   }
 
   static void raise_format_arguments_(SentryCocoa _lib, NSString name,
       NSString? format, ffi.Pointer<ffi.Char> argList) {
-    return _lib._objc_msgSend_794(
+    _lib._objc_msgSend_794(
         _lib._class_NSException1,
         _lib._sel_raise_format_arguments_1,
         name._id,
@@ -56346,8 +58136,21 @@ class NSException extends NSObject {
         argList);
   }
 
+  @override
+  NSException init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSException._(_ret, _lib, retain: true, release: true);
+  }
+
   static NSException new1(SentryCocoa _lib) {
     final _ret = _lib._objc_msgSend_2(_lib._class_NSException1, _lib._sel_new1);
+    return NSException._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSException allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSException1, _lib._sel_allocWithZone_1, zone);
     return NSException._(_ret, _lib, retain: false, release: true);
   }
 
@@ -56362,7 +58165,7 @@ class NSException extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSException1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -56372,7 +58175,7 @@ class NSException extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSException1,
+    _lib._objc_msgSend_15(_lib._class_NSException1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -56405,7 +58208,7 @@ class NSException extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSException1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -56605,68 +58408,65 @@ class NSFileHandle extends NSObject {
   }
 
   void readInBackgroundAndNotifyForModes_(NSArray? modes) {
-    return _lib._objc_msgSend_441(
-        _id,
-        _lib._sel_readInBackgroundAndNotifyForModes_1,
+    _lib._objc_msgSend_441(_id, _lib._sel_readInBackgroundAndNotifyForModes_1,
         modes?._id ?? ffi.nullptr);
   }
 
   void readInBackgroundAndNotify() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_readInBackgroundAndNotify1);
+    _lib._objc_msgSend_1(_id, _lib._sel_readInBackgroundAndNotify1);
   }
 
   void readToEndOfFileInBackgroundAndNotifyForModes_(NSArray? modes) {
-    return _lib._objc_msgSend_441(
+    _lib._objc_msgSend_441(
         _id,
         _lib._sel_readToEndOfFileInBackgroundAndNotifyForModes_1,
         modes?._id ?? ffi.nullptr);
   }
 
   void readToEndOfFileInBackgroundAndNotify() {
-    return _lib._objc_msgSend_1(
-        _id, _lib._sel_readToEndOfFileInBackgroundAndNotify1);
+    _lib._objc_msgSend_1(_id, _lib._sel_readToEndOfFileInBackgroundAndNotify1);
   }
 
   void acceptConnectionInBackgroundAndNotifyForModes_(NSArray? modes) {
-    return _lib._objc_msgSend_441(
+    _lib._objc_msgSend_441(
         _id,
         _lib._sel_acceptConnectionInBackgroundAndNotifyForModes_1,
         modes?._id ?? ffi.nullptr);
   }
 
   void acceptConnectionInBackgroundAndNotify() {
-    return _lib._objc_msgSend_1(
-        _id, _lib._sel_acceptConnectionInBackgroundAndNotify1);
+    _lib._objc_msgSend_1(_id, _lib._sel_acceptConnectionInBackgroundAndNotify1);
   }
 
   void waitForDataInBackgroundAndNotifyForModes_(NSArray? modes) {
-    return _lib._objc_msgSend_441(
+    _lib._objc_msgSend_441(
         _id,
         _lib._sel_waitForDataInBackgroundAndNotifyForModes_1,
         modes?._id ?? ffi.nullptr);
   }
 
   void waitForDataInBackgroundAndNotify() {
-    return _lib._objc_msgSend_1(
-        _id, _lib._sel_waitForDataInBackgroundAndNotify1);
+    _lib._objc_msgSend_1(_id, _lib._sel_waitForDataInBackgroundAndNotify1);
   }
 
-  ObjCBlock36 get readabilityHandler {
+  ObjCBlock_ffiVoid_NSFileHandle get readabilityHandler {
     final _ret = _lib._objc_msgSend_803(_id, _lib._sel_readabilityHandler1);
-    return ObjCBlock36._(_ret, _lib);
+    return ObjCBlock_ffiVoid_NSFileHandle._(_ret, _lib);
   }
 
-  set readabilityHandler(ObjCBlock36 value) {
-    _lib._objc_msgSend_804(_id, _lib._sel_setReadabilityHandler_1, value._id);
+  set readabilityHandler(ObjCBlock_ffiVoid_NSFileHandle value) {
+    return _lib._objc_msgSend_804(
+        _id, _lib._sel_setReadabilityHandler_1, value._id);
   }
 
-  ObjCBlock36 get writeabilityHandler {
+  ObjCBlock_ffiVoid_NSFileHandle get writeabilityHandler {
     final _ret = _lib._objc_msgSend_803(_id, _lib._sel_writeabilityHandler1);
-    return ObjCBlock36._(_ret, _lib);
+    return ObjCBlock_ffiVoid_NSFileHandle._(_ret, _lib);
   }
 
-  set writeabilityHandler(ObjCBlock36 value) {
-    _lib._objc_msgSend_804(_id, _lib._sel_setWriteabilityHandler_1, value._id);
+  set writeabilityHandler(ObjCBlock_ffiVoid_NSFileHandle value) {
+    return _lib._objc_msgSend_804(
+        _id, _lib._sel_setWriteabilityHandler_1, value._id);
   }
 
   NSFileHandle initWithFileDescriptor_(int fd) {
@@ -56691,7 +58491,7 @@ class NSFileHandle extends NSObject {
   }
 
   void writeData_(NSData? data) {
-    return _lib._objc_msgSend_263(
+    _lib._objc_msgSend_263(
         _id, _lib._sel_writeData_1, data?._id ?? ffi.nullptr);
   }
 
@@ -56704,25 +58504,37 @@ class NSFileHandle extends NSObject {
   }
 
   void seekToFileOffset_(int offset) {
-    return _lib._objc_msgSend_806(_id, _lib._sel_seekToFileOffset_1, offset);
+    _lib._objc_msgSend_806(_id, _lib._sel_seekToFileOffset_1, offset);
   }
 
   void truncateFileAtOffset_(int offset) {
-    return _lib._objc_msgSend_806(
-        _id, _lib._sel_truncateFileAtOffset_1, offset);
+    _lib._objc_msgSend_806(_id, _lib._sel_truncateFileAtOffset_1, offset);
   }
 
   void synchronizeFile() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_synchronizeFile1);
+    _lib._objc_msgSend_1(_id, _lib._sel_synchronizeFile1);
   }
 
   void closeFile() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_closeFile1);
+    _lib._objc_msgSend_1(_id, _lib._sel_closeFile1);
+  }
+
+  @override
+  NSFileHandle init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSFileHandle._(_ret, _lib, retain: true, release: true);
   }
 
   static NSFileHandle new1(SentryCocoa _lib) {
     final _ret =
         _lib._objc_msgSend_2(_lib._class_NSFileHandle1, _lib._sel_new1);
+    return NSFileHandle._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSFileHandle allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSFileHandle1, _lib._sel_allocWithZone_1, zone);
     return NSFileHandle._(_ret, _lib, retain: false, release: true);
   }
 
@@ -56737,7 +58549,7 @@ class NSFileHandle extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSFileHandle1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -56747,7 +58559,7 @@ class NSFileHandle extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSFileHandle1,
+    _lib._objc_msgSend_15(_lib._class_NSFileHandle1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -56780,7 +58592,7 @@ class NSFileHandle extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSFileHandle1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -56800,7 +58612,7 @@ class NSFileHandle extends NSObject {
   }
 }
 
-void _ObjCBlock36_fnPtrTrampoline(
+void _ObjCBlock_ffiVoid_NSFileHandle_fnPtrTrampoline(
     ffi.Pointer<_ObjCBlock> block, ffi.Pointer<ObjCObject> arg0) {
   return block.ref.target
       .cast<
@@ -56808,26 +58620,27 @@ void _ObjCBlock36_fnPtrTrampoline(
       .asFunction<void Function(ffi.Pointer<ObjCObject> arg0)>()(arg0);
 }
 
-final _ObjCBlock36_closureRegistry = <int, Function>{};
-int _ObjCBlock36_closureRegistryIndex = 0;
-ffi.Pointer<ffi.Void> _ObjCBlock36_registerClosure(Function fn) {
-  final id = ++_ObjCBlock36_closureRegistryIndex;
-  _ObjCBlock36_closureRegistry[id] = fn;
+final _ObjCBlock_ffiVoid_NSFileHandle_closureRegistry = <int, Function>{};
+int _ObjCBlock_ffiVoid_NSFileHandle_closureRegistryIndex = 0;
+ffi.Pointer<ffi.Void> _ObjCBlock_ffiVoid_NSFileHandle_registerClosure(
+    Function fn) {
+  final id = ++_ObjCBlock_ffiVoid_NSFileHandle_closureRegistryIndex;
+  _ObjCBlock_ffiVoid_NSFileHandle_closureRegistry[id] = fn;
   return ffi.Pointer<ffi.Void>.fromAddress(id);
 }
 
-void _ObjCBlock36_closureTrampoline(
+void _ObjCBlock_ffiVoid_NSFileHandle_closureTrampoline(
     ffi.Pointer<_ObjCBlock> block, ffi.Pointer<ObjCObject> arg0) {
-  return (_ObjCBlock36_closureRegistry[block.ref.target.address] as void
-      Function(ffi.Pointer<ObjCObject>))(arg0);
+  return (_ObjCBlock_ffiVoid_NSFileHandle_closureRegistry[block
+      .ref.target.address] as void Function(ffi.Pointer<ObjCObject>))(arg0);
 }
 
-class ObjCBlock36 extends _ObjCBlockBase {
-  ObjCBlock36._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
+class ObjCBlock_ffiVoid_NSFileHandle extends _ObjCBlockBase {
+  ObjCBlock_ffiVoid_NSFileHandle._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
       : super._(id, lib, retain: false, release: true);
 
   /// Creates a block from a C function pointer.
-  ObjCBlock36.fromFunctionPointer(
+  ObjCBlock_ffiVoid_NSFileHandle.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
               ffi
@@ -56838,23 +58651,23 @@ class ObjCBlock36 extends _ObjCBlockBase {
                 _cFuncTrampoline ??= ffi.Pointer.fromFunction<
                             ffi.Void Function(ffi.Pointer<_ObjCBlock> block,
                                 ffi.Pointer<ObjCObject> arg0)>(
-                        _ObjCBlock36_fnPtrTrampoline)
+                        _ObjCBlock_ffiVoid_NSFileHandle_fnPtrTrampoline)
                     .cast(),
                 ptr.cast()),
             lib);
   static ffi.Pointer<ffi.Void>? _cFuncTrampoline;
 
   /// Creates a block from a Dart function.
-  ObjCBlock36.fromFunction(
+  ObjCBlock_ffiVoid_NSFileHandle.fromFunction(
       SentryCocoa lib, void Function(ffi.Pointer<ObjCObject> arg0) fn)
       : this._(
             lib._newBlock1(
                 _dartFuncTrampoline ??= ffi.Pointer.fromFunction<
                             ffi.Void Function(ffi.Pointer<_ObjCBlock> block,
                                 ffi.Pointer<ObjCObject> arg0)>(
-                        _ObjCBlock36_closureTrampoline)
+                        _ObjCBlock_ffiVoid_NSFileHandle_closureTrampoline)
                     .cast(),
-                _ObjCBlock36_registerClosure(fn)),
+                _ObjCBlock_ffiVoid_NSFileHandle_registerClosure(fn)),
             lib);
   static ffi.Pointer<ffi.Void>? _dartFuncTrampoline;
   void call(ffi.Pointer<ObjCObject> arg0) {
@@ -56918,17 +58731,17 @@ class NSHTTPCookieStorage extends NSObject {
   }
 
   void setCookie_(NSHTTPCookie? cookie) {
-    return _lib._objc_msgSend_811(
+    _lib._objc_msgSend_811(
         _id, _lib._sel_setCookie_1, cookie?._id ?? ffi.nullptr);
   }
 
   void deleteCookie_(NSHTTPCookie? cookie) {
-    return _lib._objc_msgSend_811(
+    _lib._objc_msgSend_811(
         _id, _lib._sel_deleteCookie_1, cookie?._id ?? ffi.nullptr);
   }
 
   void removeCookiesSinceDate_(NSDate? date) {
-    return _lib._objc_msgSend_504(
+    _lib._objc_msgSend_504(
         _id, _lib._sel_removeCookiesSinceDate_1, date?._id ?? ffi.nullptr);
   }
 
@@ -56940,7 +58753,7 @@ class NSHTTPCookieStorage extends NSObject {
 
   void setCookies_forURL_mainDocumentURL_(
       NSArray? cookies, NSURL? URL, NSURL? mainDocumentURL) {
-    return _lib._objc_msgSend_812(
+    _lib._objc_msgSend_812(
         _id,
         _lib._sel_setCookies_forURL_mainDocumentURL_1,
         cookies?._id ?? ffi.nullptr,
@@ -56953,7 +58766,8 @@ class NSHTTPCookieStorage extends NSObject {
   }
 
   set cookieAcceptPolicy(int value) {
-    _lib._objc_msgSend_814(_id, _lib._sel_setCookieAcceptPolicy_1, value);
+    return _lib._objc_msgSend_814(
+        _id, _lib._sel_setCookieAcceptPolicy_1, value);
   }
 
   NSArray sortedCookiesUsingDescriptors_(NSArray? sortOrder) {
@@ -56965,22 +58779,32 @@ class NSHTTPCookieStorage extends NSObject {
   }
 
   void storeCookies_forTask_(NSArray? cookies, NSURLSessionTask? task) {
-    return _lib._objc_msgSend_834(_id, _lib._sel_storeCookies_forTask_1,
+    _lib._objc_msgSend_834(_id, _lib._sel_storeCookies_forTask_1,
         cookies?._id ?? ffi.nullptr, task?._id ?? ffi.nullptr);
   }
 
   void getCookiesForTask_completionHandler_(
-      NSURLSessionTask? task, ObjCBlock37 completionHandler) {
-    return _lib._objc_msgSend_835(
-        _id,
-        _lib._sel_getCookiesForTask_completionHandler_1,
-        task?._id ?? ffi.nullptr,
-        completionHandler._id);
+      NSURLSessionTask? task, ObjCBlock_ffiVoid_NSArray completionHandler) {
+    _lib._objc_msgSend_835(_id, _lib._sel_getCookiesForTask_completionHandler_1,
+        task?._id ?? ffi.nullptr, completionHandler._id);
+  }
+
+  @override
+  NSHTTPCookieStorage init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSHTTPCookieStorage._(_ret, _lib, retain: true, release: true);
   }
 
   static NSHTTPCookieStorage new1(SentryCocoa _lib) {
     final _ret =
         _lib._objc_msgSend_2(_lib._class_NSHTTPCookieStorage1, _lib._sel_new1);
+    return NSHTTPCookieStorage._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSHTTPCookieStorage allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSHTTPCookieStorage1, _lib._sel_allocWithZone_1, zone);
     return NSHTTPCookieStorage._(_ret, _lib, retain: false, release: true);
   }
 
@@ -56995,7 +58819,7 @@ class NSHTTPCookieStorage extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSHTTPCookieStorage1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -57005,7 +58829,7 @@ class NSHTTPCookieStorage extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSHTTPCookieStorage1,
+    _lib._objc_msgSend_15(_lib._class_NSHTTPCookieStorage1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -57038,7 +58862,7 @@ class NSHTTPCookieStorage extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSHTTPCookieStorage1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -57197,9 +59021,22 @@ class NSHTTPCookie extends NSObject {
     return NSString._(_ret, _lib, retain: true, release: true);
   }
 
+  @override
+  NSHTTPCookie init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSHTTPCookie._(_ret, _lib, retain: true, release: true);
+  }
+
   static NSHTTPCookie new1(SentryCocoa _lib) {
     final _ret =
         _lib._objc_msgSend_2(_lib._class_NSHTTPCookie1, _lib._sel_new1);
+    return NSHTTPCookie._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSHTTPCookie allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSHTTPCookie1, _lib._sel_allocWithZone_1, zone);
     return NSHTTPCookie._(_ret, _lib, retain: false, release: true);
   }
 
@@ -57214,7 +59051,7 @@ class NSHTTPCookie extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSHTTPCookie1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -57224,7 +59061,7 @@ class NSHTTPCookie extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSHTTPCookie1,
+    _lib._objc_msgSend_15(_lib._class_NSHTTPCookie1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -57257,7 +59094,7 @@ class NSHTTPCookie extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSHTTPCookie1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -57340,7 +59177,7 @@ class NSURLSessionTask extends NSObject {
   }
 
   set delegate(NSObject? value) {
-    _lib._objc_msgSend_387(
+    return _lib._objc_msgSend_387(
         _id, _lib._sel_setDelegate_1, value?._id ?? ffi.nullptr);
   }
 
@@ -57359,7 +59196,7 @@ class NSURLSessionTask extends NSObject {
   }
 
   set earliestBeginDate(NSDate? value) {
-    _lib._objc_msgSend_525(
+    return _lib._objc_msgSend_525(
         _id, _lib._sel_setEarliestBeginDate_1, value?._id ?? ffi.nullptr);
   }
 
@@ -57369,7 +59206,7 @@ class NSURLSessionTask extends NSObject {
   }
 
   set countOfBytesClientExpectsToSend(int value) {
-    _lib._objc_msgSend_651(
+    return _lib._objc_msgSend_651(
         _id, _lib._sel_setCountOfBytesClientExpectsToSend_1, value);
   }
 
@@ -57379,7 +59216,7 @@ class NSURLSessionTask extends NSObject {
   }
 
   set countOfBytesClientExpectsToReceive(int value) {
-    _lib._objc_msgSend_651(
+    return _lib._objc_msgSend_651(
         _id, _lib._sel_setCountOfBytesClientExpectsToReceive_1, value);
   }
 
@@ -57408,12 +59245,12 @@ class NSURLSessionTask extends NSObject {
   }
 
   set taskDescription(NSString? value) {
-    _lib._objc_msgSend_509(
+    return _lib._objc_msgSend_509(
         _id, _lib._sel_setTaskDescription_1, value?._id ?? ffi.nullptr);
   }
 
   void cancel() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_cancel1);
+    _lib._objc_msgSend_1(_id, _lib._sel_cancel1);
   }
 
   int get state {
@@ -57428,11 +59265,11 @@ class NSURLSessionTask extends NSObject {
   }
 
   void suspend() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_suspend1);
+    _lib._objc_msgSend_1(_id, _lib._sel_suspend1);
   }
 
   void resume() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_resume1);
+    _lib._objc_msgSend_1(_id, _lib._sel_resume1);
   }
 
   double get priority {
@@ -57440,7 +59277,7 @@ class NSURLSessionTask extends NSObject {
   }
 
   set priority(double value) {
-    _lib._objc_msgSend_833(_id, _lib._sel_setPriority_1, value);
+    return _lib._objc_msgSend_833(_id, _lib._sel_setPriority_1, value);
   }
 
   bool get prefersIncrementalDelivery {
@@ -57448,7 +59285,7 @@ class NSURLSessionTask extends NSObject {
   }
 
   set prefersIncrementalDelivery(bool value) {
-    _lib._objc_msgSend_492(
+    return _lib._objc_msgSend_492(
         _id, _lib._sel_setPrefersIncrementalDelivery_1, value);
   }
 
@@ -57464,6 +59301,13 @@ class NSURLSessionTask extends NSObject {
     return NSURLSessionTask._(_ret, _lib, retain: false, release: true);
   }
 
+  static NSURLSessionTask allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSURLSessionTask1, _lib._sel_allocWithZone_1, zone);
+    return NSURLSessionTask._(_ret, _lib, retain: false, release: true);
+  }
+
   static NSURLSessionTask alloc(SentryCocoa _lib) {
     final _ret =
         _lib._objc_msgSend_2(_lib._class_NSURLSessionTask1, _lib._sel_alloc1);
@@ -57475,7 +59319,7 @@ class NSURLSessionTask extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSURLSessionTask1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -57485,7 +59329,7 @@ class NSURLSessionTask extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSURLSessionTask1,
+    _lib._objc_msgSend_15(_lib._class_NSURLSessionTask1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -57518,7 +59362,7 @@ class NSURLSessionTask extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSURLSessionTask1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -57693,9 +59537,22 @@ class NSURLRequest extends NSObject {
     return _lib._objc_msgSend_12(_id, _lib._sel_HTTPShouldUsePipelining1);
   }
 
+  @override
+  NSURLRequest init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSURLRequest._(_ret, _lib, retain: true, release: true);
+  }
+
   static NSURLRequest new1(SentryCocoa _lib) {
     final _ret =
         _lib._objc_msgSend_2(_lib._class_NSURLRequest1, _lib._sel_new1);
+    return NSURLRequest._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSURLRequest allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSURLRequest1, _lib._sel_allocWithZone_1, zone);
     return NSURLRequest._(_ret, _lib, retain: false, release: true);
   }
 
@@ -57710,7 +59567,7 @@ class NSURLRequest extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSURLRequest1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -57720,7 +59577,7 @@ class NSURLRequest extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSURLRequest1,
+    _lib._objc_msgSend_15(_lib._class_NSURLRequest1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -57753,7 +59610,7 @@ class NSURLRequest extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSURLRequest1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -57880,7 +59737,7 @@ class NSInputStream extends NSStream {
       int port,
       ffi.Pointer<ffi.Pointer<ObjCObject>> inputStream,
       ffi.Pointer<ffi.Pointer<ObjCObject>> outputStream) {
-    return _lib._objc_msgSend_822(
+    _lib._objc_msgSend_822(
         _lib._class_NSInputStream1,
         _lib._sel_getStreamsToHostWithName_port_inputStream_outputStream_1,
         hostname?._id ?? ffi.nullptr,
@@ -57895,7 +59752,7 @@ class NSInputStream extends NSStream {
       int port,
       ffi.Pointer<ffi.Pointer<ObjCObject>> inputStream,
       ffi.Pointer<ffi.Pointer<ObjCObject>> outputStream) {
-    return _lib._objc_msgSend_825(
+    _lib._objc_msgSend_825(
         _lib._class_NSInputStream1,
         _lib._sel_getStreamsToHost_port_inputStream_outputStream_1,
         host?._id ?? ffi.nullptr,
@@ -57909,7 +59766,7 @@ class NSInputStream extends NSStream {
       int bufferSize,
       ffi.Pointer<ffi.Pointer<ObjCObject>> inputStream,
       ffi.Pointer<ffi.Pointer<ObjCObject>> outputStream) {
-    return _lib._objc_msgSend_826(
+    _lib._objc_msgSend_826(
         _lib._class_NSInputStream1,
         _lib._sel_getBoundStreamsWithBufferSize_inputStream_outputStream_1,
         bufferSize,
@@ -57917,9 +59774,22 @@ class NSInputStream extends NSStream {
         outputStream);
   }
 
+  @override
+  NSInputStream init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSInputStream._(_ret, _lib, retain: true, release: true);
+  }
+
   static NSInputStream new1(SentryCocoa _lib) {
     final _ret =
         _lib._objc_msgSend_2(_lib._class_NSInputStream1, _lib._sel_new1);
+    return NSInputStream._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSInputStream allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSInputStream1, _lib._sel_allocWithZone_1, zone);
     return NSInputStream._(_ret, _lib, retain: false, release: true);
   }
 
@@ -57934,7 +59804,7 @@ class NSInputStream extends NSStream {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSInputStream1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -57944,7 +59814,7 @@ class NSInputStream extends NSStream {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSInputStream1,
+    _lib._objc_msgSend_15(_lib._class_NSInputStream1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -57977,7 +59847,7 @@ class NSInputStream extends NSStream {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSInputStream1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -58021,11 +59891,11 @@ class NSStream extends NSObject {
   }
 
   void open() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_open1);
+    _lib._objc_msgSend_1(_id, _lib._sel_open1);
   }
 
   void close() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_close1);
+    _lib._objc_msgSend_1(_id, _lib._sel_close1);
   }
 
   NSObject? get delegate {
@@ -58036,7 +59906,7 @@ class NSStream extends NSObject {
   }
 
   set delegate(NSObject? value) {
-    _lib._objc_msgSend_387(
+    return _lib._objc_msgSend_387(
         _id, _lib._sel_setDelegate_1, value?._id ?? ffi.nullptr);
   }
 
@@ -58052,12 +59922,12 @@ class NSStream extends NSObject {
   }
 
   void scheduleInRunLoop_forMode_(NSRunLoop? aRunLoop, NSString mode) {
-    return _lib._objc_msgSend_533(_id, _lib._sel_scheduleInRunLoop_forMode_1,
+    _lib._objc_msgSend_533(_id, _lib._sel_scheduleInRunLoop_forMode_1,
         aRunLoop?._id ?? ffi.nullptr, mode._id);
   }
 
   void removeFromRunLoop_forMode_(NSRunLoop? aRunLoop, NSString mode) {
-    return _lib._objc_msgSend_533(_id, _lib._sel_removeFromRunLoop_forMode_1,
+    _lib._objc_msgSend_533(_id, _lib._sel_removeFromRunLoop_forMode_1,
         aRunLoop?._id ?? ffi.nullptr, mode._id);
   }
 
@@ -58078,7 +59948,7 @@ class NSStream extends NSObject {
       int port,
       ffi.Pointer<ffi.Pointer<ObjCObject>> inputStream,
       ffi.Pointer<ffi.Pointer<ObjCObject>> outputStream) {
-    return _lib._objc_msgSend_822(
+    _lib._objc_msgSend_822(
         _lib._class_NSStream1,
         _lib._sel_getStreamsToHostWithName_port_inputStream_outputStream_1,
         hostname?._id ?? ffi.nullptr,
@@ -58093,7 +59963,7 @@ class NSStream extends NSObject {
       int port,
       ffi.Pointer<ffi.Pointer<ObjCObject>> inputStream,
       ffi.Pointer<ffi.Pointer<ObjCObject>> outputStream) {
-    return _lib._objc_msgSend_825(
+    _lib._objc_msgSend_825(
         _lib._class_NSStream1,
         _lib._sel_getStreamsToHost_port_inputStream_outputStream_1,
         host?._id ?? ffi.nullptr,
@@ -58107,7 +59977,7 @@ class NSStream extends NSObject {
       int bufferSize,
       ffi.Pointer<ffi.Pointer<ObjCObject>> inputStream,
       ffi.Pointer<ffi.Pointer<ObjCObject>> outputStream) {
-    return _lib._objc_msgSend_826(
+    _lib._objc_msgSend_826(
         _lib._class_NSStream1,
         _lib._sel_getBoundStreamsWithBufferSize_inputStream_outputStream_1,
         bufferSize,
@@ -58115,8 +59985,20 @@ class NSStream extends NSObject {
         outputStream);
   }
 
+  @override
+  NSStream init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSStream._(_ret, _lib, retain: true, release: true);
+  }
+
   static NSStream new1(SentryCocoa _lib) {
     final _ret = _lib._objc_msgSend_2(_lib._class_NSStream1, _lib._sel_new1);
+    return NSStream._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSStream allocWithZone_(SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSStream1, _lib._sel_allocWithZone_1, zone);
     return NSStream._(_ret, _lib, retain: false, release: true);
   }
 
@@ -58130,7 +60012,7 @@ class NSStream extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSStream1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -58140,7 +60022,7 @@ class NSStream extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSStream1,
+    _lib._objc_msgSend_15(_lib._class_NSStream1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -58173,7 +60055,7 @@ class NSStream extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSStream1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -58299,7 +60181,7 @@ class NSOutputStream extends NSStream {
       int port,
       ffi.Pointer<ffi.Pointer<ObjCObject>> inputStream,
       ffi.Pointer<ffi.Pointer<ObjCObject>> outputStream) {
-    return _lib._objc_msgSend_822(
+    _lib._objc_msgSend_822(
         _lib._class_NSOutputStream1,
         _lib._sel_getStreamsToHostWithName_port_inputStream_outputStream_1,
         hostname?._id ?? ffi.nullptr,
@@ -58314,7 +60196,7 @@ class NSOutputStream extends NSStream {
       int port,
       ffi.Pointer<ffi.Pointer<ObjCObject>> inputStream,
       ffi.Pointer<ffi.Pointer<ObjCObject>> outputStream) {
-    return _lib._objc_msgSend_825(
+    _lib._objc_msgSend_825(
         _lib._class_NSOutputStream1,
         _lib._sel_getStreamsToHost_port_inputStream_outputStream_1,
         host?._id ?? ffi.nullptr,
@@ -58328,7 +60210,7 @@ class NSOutputStream extends NSStream {
       int bufferSize,
       ffi.Pointer<ffi.Pointer<ObjCObject>> inputStream,
       ffi.Pointer<ffi.Pointer<ObjCObject>> outputStream) {
-    return _lib._objc_msgSend_826(
+    _lib._objc_msgSend_826(
         _lib._class_NSOutputStream1,
         _lib._sel_getBoundStreamsWithBufferSize_inputStream_outputStream_1,
         bufferSize,
@@ -58336,9 +60218,22 @@ class NSOutputStream extends NSStream {
         outputStream);
   }
 
+  @override
+  NSOutputStream init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSOutputStream._(_ret, _lib, retain: true, release: true);
+  }
+
   static NSOutputStream new1(SentryCocoa _lib) {
     final _ret =
         _lib._objc_msgSend_2(_lib._class_NSOutputStream1, _lib._sel_new1);
+    return NSOutputStream._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSOutputStream allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSOutputStream1, _lib._sel_allocWithZone_1, zone);
     return NSOutputStream._(_ret, _lib, retain: false, release: true);
   }
 
@@ -58353,7 +60248,7 @@ class NSOutputStream extends NSStream {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSOutputStream1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -58363,7 +60258,7 @@ class NSOutputStream extends NSStream {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSOutputStream1,
+    _lib._objc_msgSend_15(_lib._class_NSOutputStream1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -58396,7 +60291,7 @@ class NSOutputStream extends NSStream {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSOutputStream1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -58497,7 +60392,7 @@ class NSHost extends NSObject {
   }
 
   static void setHostCacheEnabled_(SentryCocoa _lib, bool flag) {
-    return _lib._objc_msgSend_824(
+    _lib._objc_msgSend_824(
         _lib._class_NSHost1, _lib._sel_setHostCacheEnabled_1, flag);
   }
 
@@ -58507,11 +60402,23 @@ class NSHost extends NSObject {
   }
 
   static void flushHostCache(SentryCocoa _lib) {
-    return _lib._objc_msgSend_1(_lib._class_NSHost1, _lib._sel_flushHostCache1);
+    _lib._objc_msgSend_1(_lib._class_NSHost1, _lib._sel_flushHostCache1);
+  }
+
+  @override
+  NSHost init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSHost._(_ret, _lib, retain: true, release: true);
   }
 
   static NSHost new1(SentryCocoa _lib) {
     final _ret = _lib._objc_msgSend_2(_lib._class_NSHost1, _lib._sel_new1);
+    return NSHost._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSHost allocWithZone_(SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSHost1, _lib._sel_allocWithZone_1, zone);
     return NSHost._(_ret, _lib, retain: false, release: true);
   }
 
@@ -58525,7 +60432,7 @@ class NSHost extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSHost1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -58535,7 +60442,7 @@ class NSHost extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSHost1,
+    _lib._objc_msgSend_15(_lib._class_NSHost1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -58568,7 +60475,7 @@ class NSHost extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSHost1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -58655,9 +60562,22 @@ class NSURLResponse extends NSObject {
         : NSString._(_ret, _lib, retain: true, release: true);
   }
 
+  @override
+  NSURLResponse init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSURLResponse._(_ret, _lib, retain: true, release: true);
+  }
+
   static NSURLResponse new1(SentryCocoa _lib) {
     final _ret =
         _lib._objc_msgSend_2(_lib._class_NSURLResponse1, _lib._sel_new1);
+    return NSURLResponse._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSURLResponse allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSURLResponse1, _lib._sel_allocWithZone_1, zone);
     return NSURLResponse._(_ret, _lib, retain: false, release: true);
   }
 
@@ -58672,7 +60592,7 @@ class NSURLResponse extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSURLResponse1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -58682,7 +60602,7 @@ class NSURLResponse extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSURLResponse1,
+    _lib._objc_msgSend_15(_lib._class_NSURLResponse1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -58715,7 +60635,7 @@ class NSURLResponse extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSURLResponse1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -58742,7 +60662,7 @@ abstract class NSURLSessionTaskState {
   static const int NSURLSessionTaskStateCompleted = 3;
 }
 
-void _ObjCBlock37_fnPtrTrampoline(
+void _ObjCBlock_ffiVoid_NSArray_fnPtrTrampoline(
     ffi.Pointer<_ObjCBlock> block, ffi.Pointer<ObjCObject> arg0) {
   return block.ref.target
       .cast<
@@ -58750,26 +60670,26 @@ void _ObjCBlock37_fnPtrTrampoline(
       .asFunction<void Function(ffi.Pointer<ObjCObject> arg0)>()(arg0);
 }
 
-final _ObjCBlock37_closureRegistry = <int, Function>{};
-int _ObjCBlock37_closureRegistryIndex = 0;
-ffi.Pointer<ffi.Void> _ObjCBlock37_registerClosure(Function fn) {
-  final id = ++_ObjCBlock37_closureRegistryIndex;
-  _ObjCBlock37_closureRegistry[id] = fn;
+final _ObjCBlock_ffiVoid_NSArray_closureRegistry = <int, Function>{};
+int _ObjCBlock_ffiVoid_NSArray_closureRegistryIndex = 0;
+ffi.Pointer<ffi.Void> _ObjCBlock_ffiVoid_NSArray_registerClosure(Function fn) {
+  final id = ++_ObjCBlock_ffiVoid_NSArray_closureRegistryIndex;
+  _ObjCBlock_ffiVoid_NSArray_closureRegistry[id] = fn;
   return ffi.Pointer<ffi.Void>.fromAddress(id);
 }
 
-void _ObjCBlock37_closureTrampoline(
+void _ObjCBlock_ffiVoid_NSArray_closureTrampoline(
     ffi.Pointer<_ObjCBlock> block, ffi.Pointer<ObjCObject> arg0) {
-  return (_ObjCBlock37_closureRegistry[block.ref.target.address] as void
-      Function(ffi.Pointer<ObjCObject>))(arg0);
+  return (_ObjCBlock_ffiVoid_NSArray_closureRegistry[block.ref.target.address]
+      as void Function(ffi.Pointer<ObjCObject>))(arg0);
 }
 
-class ObjCBlock37 extends _ObjCBlockBase {
-  ObjCBlock37._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
+class ObjCBlock_ffiVoid_NSArray extends _ObjCBlockBase {
+  ObjCBlock_ffiVoid_NSArray._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
       : super._(id, lib, retain: false, release: true);
 
   /// Creates a block from a C function pointer.
-  ObjCBlock37.fromFunctionPointer(
+  ObjCBlock_ffiVoid_NSArray.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
               ffi
@@ -58780,23 +60700,23 @@ class ObjCBlock37 extends _ObjCBlockBase {
                 _cFuncTrampoline ??= ffi.Pointer.fromFunction<
                             ffi.Void Function(ffi.Pointer<_ObjCBlock> block,
                                 ffi.Pointer<ObjCObject> arg0)>(
-                        _ObjCBlock37_fnPtrTrampoline)
+                        _ObjCBlock_ffiVoid_NSArray_fnPtrTrampoline)
                     .cast(),
                 ptr.cast()),
             lib);
   static ffi.Pointer<ffi.Void>? _cFuncTrampoline;
 
   /// Creates a block from a Dart function.
-  ObjCBlock37.fromFunction(
+  ObjCBlock_ffiVoid_NSArray.fromFunction(
       SentryCocoa lib, void Function(ffi.Pointer<ObjCObject> arg0) fn)
       : this._(
             lib._newBlock1(
                 _dartFuncTrampoline ??= ffi.Pointer.fromFunction<
                             ffi.Void Function(ffi.Pointer<_ObjCBlock> block,
                                 ffi.Pointer<ObjCObject> arg0)>(
-                        _ObjCBlock37_closureTrampoline)
+                        _ObjCBlock_ffiVoid_NSArray_closureTrampoline)
                     .cast(),
-                _ObjCBlock37_registerClosure(fn)),
+                _ObjCBlock_ffiVoid_NSArray_registerClosure(fn)),
             lib);
   static ffi.Pointer<ffi.Void>? _dartFuncTrampoline;
   void call(ffi.Pointer<ObjCObject> arg0) {
@@ -58881,7 +60801,7 @@ class NSIndexPath extends NSObject {
 
   void getIndexes_range_(
       ffi.Pointer<ffi.UnsignedLong> indexes, _NSRange positionRange) {
-    return _lib._objc_msgSend_839(
+    _lib._objc_msgSend_839(
         _id, _lib._sel_getIndexes_range_1, indexes, positionRange);
   }
 
@@ -58891,11 +60811,24 @@ class NSIndexPath extends NSObject {
   }
 
   void getIndexes_(ffi.Pointer<ffi.UnsignedLong> indexes) {
-    return _lib._objc_msgSend_841(_id, _lib._sel_getIndexes_1, indexes);
+    _lib._objc_msgSend_841(_id, _lib._sel_getIndexes_1, indexes);
+  }
+
+  @override
+  NSIndexPath init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSIndexPath._(_ret, _lib, retain: true, release: true);
   }
 
   static NSIndexPath new1(SentryCocoa _lib) {
     final _ret = _lib._objc_msgSend_2(_lib._class_NSIndexPath1, _lib._sel_new1);
+    return NSIndexPath._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSIndexPath allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSIndexPath1, _lib._sel_allocWithZone_1, zone);
     return NSIndexPath._(_ret, _lib, retain: false, release: true);
   }
 
@@ -58910,7 +60843,7 @@ class NSIndexPath extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSIndexPath1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -58920,7 +60853,7 @@ class NSIndexPath extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSIndexPath1,
+    _lib._objc_msgSend_15(_lib._class_NSIndexPath1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -58953,7 +60886,7 @@ class NSIndexPath extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSIndexPath1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -59027,6 +60960,13 @@ class NSInflectionRule extends NSObject {
     return NSInflectionRule._(_ret, _lib, retain: false, release: true);
   }
 
+  static NSInflectionRule allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSInflectionRule1, _lib._sel_allocWithZone_1, zone);
+    return NSInflectionRule._(_ret, _lib, retain: false, release: true);
+  }
+
   static NSInflectionRule alloc(SentryCocoa _lib) {
     final _ret =
         _lib._objc_msgSend_2(_lib._class_NSInflectionRule1, _lib._sel_alloc1);
@@ -59038,7 +60978,7 @@ class NSInflectionRule extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSInflectionRule1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -59048,7 +60988,7 @@ class NSInflectionRule extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSInflectionRule1,
+    _lib._objc_msgSend_15(_lib._class_NSInflectionRule1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -59081,7 +61021,7 @@ class NSInflectionRule extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSInflectionRule1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -59129,7 +61069,7 @@ class NSMorphology extends NSObject {
   }
 
   set grammaticalGender(int value) {
-    _lib._objc_msgSend_844(_id, _lib._sel_setGrammaticalGender_1, value);
+    return _lib._objc_msgSend_844(_id, _lib._sel_setGrammaticalGender_1, value);
   }
 
   int get partOfSpeech {
@@ -59137,7 +61077,7 @@ class NSMorphology extends NSObject {
   }
 
   set partOfSpeech(int value) {
-    _lib._objc_msgSend_846(_id, _lib._sel_setPartOfSpeech_1, value);
+    return _lib._objc_msgSend_846(_id, _lib._sel_setPartOfSpeech_1, value);
   }
 
   int get number {
@@ -59145,7 +61085,7 @@ class NSMorphology extends NSObject {
   }
 
   set number(int value) {
-    _lib._objc_msgSend_848(_id, _lib._sel_setNumber_1, value);
+    return _lib._objc_msgSend_848(_id, _lib._sel_setNumber_1, value);
   }
 
   NSMorphologyCustomPronoun customPronounForLanguage_(NSString? language) {
@@ -59176,9 +61116,22 @@ class NSMorphology extends NSObject {
         : NSMorphology._(_ret, _lib, retain: true, release: true);
   }
 
+  @override
+  NSMorphology init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSMorphology._(_ret, _lib, retain: true, release: true);
+  }
+
   static NSMorphology new1(SentryCocoa _lib) {
     final _ret =
         _lib._objc_msgSend_2(_lib._class_NSMorphology1, _lib._sel_new1);
+    return NSMorphology._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSMorphology allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSMorphology1, _lib._sel_allocWithZone_1, zone);
     return NSMorphology._(_ret, _lib, retain: false, release: true);
   }
 
@@ -59193,7 +61146,7 @@ class NSMorphology extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSMorphology1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -59203,7 +61156,7 @@ class NSMorphology extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSMorphology1,
+    _lib._objc_msgSend_15(_lib._class_NSMorphology1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -59236,7 +61189,7 @@ class NSMorphology extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSMorphology1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -59336,7 +61289,7 @@ class NSMorphologyCustomPronoun extends NSObject {
   }
 
   set subjectForm(NSString? value) {
-    _lib._objc_msgSend_509(
+    return _lib._objc_msgSend_509(
         _id, _lib._sel_setSubjectForm_1, value?._id ?? ffi.nullptr);
   }
 
@@ -59348,7 +61301,7 @@ class NSMorphologyCustomPronoun extends NSObject {
   }
 
   set objectForm(NSString? value) {
-    _lib._objc_msgSend_509(
+    return _lib._objc_msgSend_509(
         _id, _lib._sel_setObjectForm_1, value?._id ?? ffi.nullptr);
   }
 
@@ -59360,7 +61313,7 @@ class NSMorphologyCustomPronoun extends NSObject {
   }
 
   set possessiveForm(NSString? value) {
-    _lib._objc_msgSend_509(
+    return _lib._objc_msgSend_509(
         _id, _lib._sel_setPossessiveForm_1, value?._id ?? ffi.nullptr);
   }
 
@@ -59372,7 +61325,7 @@ class NSMorphologyCustomPronoun extends NSObject {
   }
 
   set possessiveAdjectiveForm(NSString? value) {
-    _lib._objc_msgSend_509(
+    return _lib._objc_msgSend_509(
         _id, _lib._sel_setPossessiveAdjectiveForm_1, value?._id ?? ffi.nullptr);
   }
 
@@ -59384,13 +61337,27 @@ class NSMorphologyCustomPronoun extends NSObject {
   }
 
   set reflexiveForm(NSString? value) {
-    _lib._objc_msgSend_509(
+    return _lib._objc_msgSend_509(
         _id, _lib._sel_setReflexiveForm_1, value?._id ?? ffi.nullptr);
+  }
+
+  @override
+  NSMorphologyCustomPronoun init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSMorphologyCustomPronoun._(_ret, _lib, retain: true, release: true);
   }
 
   static NSMorphologyCustomPronoun new1(SentryCocoa _lib) {
     final _ret = _lib._objc_msgSend_2(
         _lib._class_NSMorphologyCustomPronoun1, _lib._sel_new1);
+    return NSMorphologyCustomPronoun._(_ret, _lib,
+        retain: false, release: true);
+  }
+
+  static NSMorphologyCustomPronoun allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(_lib._class_NSMorphologyCustomPronoun1,
+        _lib._sel_allocWithZone_1, zone);
     return NSMorphologyCustomPronoun._(_ret, _lib,
         retain: false, release: true);
   }
@@ -59407,7 +61374,7 @@ class NSMorphologyCustomPronoun extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSMorphologyCustomPronoun1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -59417,7 +61384,7 @@ class NSMorphologyCustomPronoun extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSMorphologyCustomPronoun1,
+    _lib._objc_msgSend_15(_lib._class_NSMorphologyCustomPronoun1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -59450,7 +61417,7 @@ class NSMorphologyCustomPronoun extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSMorphologyCustomPronoun1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -59502,26 +61469,21 @@ class NSOperationQueue extends NSObject {
   }
 
   void addOperation_(NSOperation? op) {
-    return _lib._objc_msgSend_852(
+    _lib._objc_msgSend_852(
         _id, _lib._sel_addOperation_1, op?._id ?? ffi.nullptr);
   }
 
   void addOperations_waitUntilFinished_(NSArray? ops, bool wait) {
-    return _lib._objc_msgSend_855(
-        _id,
-        _lib._sel_addOperations_waitUntilFinished_1,
-        ops?._id ?? ffi.nullptr,
-        wait);
+    _lib._objc_msgSend_855(_id, _lib._sel_addOperations_waitUntilFinished_1,
+        ops?._id ?? ffi.nullptr, wait);
   }
 
-  void addOperationWithBlock_(ObjCBlock21 block) {
-    return _lib._objc_msgSend_497(
-        _id, _lib._sel_addOperationWithBlock_1, block._id);
+  void addOperationWithBlock_(ObjCBlock_ffiVoid block) {
+    _lib._objc_msgSend_497(_id, _lib._sel_addOperationWithBlock_1, block._id);
   }
 
-  void addBarrierBlock_(ObjCBlock21 barrier) {
-    return _lib._objc_msgSend_497(
-        _id, _lib._sel_addBarrierBlock_1, barrier._id);
+  void addBarrierBlock_(ObjCBlock_ffiVoid barrier) {
+    _lib._objc_msgSend_497(_id, _lib._sel_addBarrierBlock_1, barrier._id);
   }
 
   int get maxConcurrentOperationCount {
@@ -59529,7 +61491,7 @@ class NSOperationQueue extends NSObject {
   }
 
   set maxConcurrentOperationCount(int value) {
-    _lib._objc_msgSend_590(
+    return _lib._objc_msgSend_590(
         _id, _lib._sel_setMaxConcurrentOperationCount_1, value);
   }
 
@@ -59538,7 +61500,7 @@ class NSOperationQueue extends NSObject {
   }
 
   set suspended(bool value) {
-    _lib._objc_msgSend_492(_id, _lib._sel_setSuspended_1, value);
+    return _lib._objc_msgSend_492(_id, _lib._sel_setSuspended_1, value);
   }
 
   NSString? get name {
@@ -59549,7 +61511,8 @@ class NSOperationQueue extends NSObject {
   }
 
   set name(NSString? value) {
-    _lib._objc_msgSend_509(_id, _lib._sel_setName_1, value?._id ?? ffi.nullptr);
+    return _lib._objc_msgSend_509(
+        _id, _lib._sel_setName_1, value?._id ?? ffi.nullptr);
   }
 
   int get qualityOfService {
@@ -59557,7 +61520,7 @@ class NSOperationQueue extends NSObject {
   }
 
   set qualityOfService(int value) {
-    _lib._objc_msgSend_508(_id, _lib._sel_setQualityOfService_1, value);
+    return _lib._objc_msgSend_508(_id, _lib._sel_setQualityOfService_1, value);
   }
 
   NSObject get underlyingQueue {
@@ -59566,16 +61529,16 @@ class NSOperationQueue extends NSObject {
   }
 
   set underlyingQueue(NSObject value) {
-    _lib._objc_msgSend_857(_id, _lib._sel_setUnderlyingQueue_1, value._id);
+    return _lib._objc_msgSend_857(
+        _id, _lib._sel_setUnderlyingQueue_1, value._id);
   }
 
   void cancelAllOperations() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_cancelAllOperations1);
+    _lib._objc_msgSend_1(_id, _lib._sel_cancelAllOperations1);
   }
 
   void waitUntilAllOperationsAreFinished() {
-    return _lib._objc_msgSend_1(
-        _id, _lib._sel_waitUntilAllOperationsAreFinished1);
+    _lib._objc_msgSend_1(_id, _lib._sel_waitUntilAllOperationsAreFinished1);
   }
 
   static NSOperationQueue? getCurrentQueue(SentryCocoa _lib) {
@@ -59605,9 +61568,22 @@ class NSOperationQueue extends NSObject {
     return _lib._objc_msgSend_10(_id, _lib._sel_operationCount1);
   }
 
+  @override
+  NSOperationQueue init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSOperationQueue._(_ret, _lib, retain: true, release: true);
+  }
+
   static NSOperationQueue new1(SentryCocoa _lib) {
     final _ret =
         _lib._objc_msgSend_2(_lib._class_NSOperationQueue1, _lib._sel_new1);
+    return NSOperationQueue._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSOperationQueue allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSOperationQueue1, _lib._sel_allocWithZone_1, zone);
     return NSOperationQueue._(_ret, _lib, retain: false, release: true);
   }
 
@@ -59622,7 +61598,7 @@ class NSOperationQueue extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSOperationQueue1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -59632,7 +61608,7 @@ class NSOperationQueue extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSOperationQueue1,
+    _lib._objc_msgSend_15(_lib._class_NSOperationQueue1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -59665,7 +61641,7 @@ class NSOperationQueue extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSOperationQueue1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -59709,11 +61685,11 @@ class NSOperation extends NSObject {
   }
 
   void start() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_start1);
+    _lib._objc_msgSend_1(_id, _lib._sel_start1);
   }
 
   void main() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_main1);
+    _lib._objc_msgSend_1(_id, _lib._sel_main1);
   }
 
   bool get cancelled {
@@ -59721,7 +61697,7 @@ class NSOperation extends NSObject {
   }
 
   void cancel() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_cancel1);
+    _lib._objc_msgSend_1(_id, _lib._sel_cancel1);
   }
 
   bool get executing {
@@ -59745,12 +61721,12 @@ class NSOperation extends NSObject {
   }
 
   void addDependency_(NSOperation? op) {
-    return _lib._objc_msgSend_852(
+    _lib._objc_msgSend_852(
         _id, _lib._sel_addDependency_1, op?._id ?? ffi.nullptr);
   }
 
   void removeDependency_(NSOperation? op) {
-    return _lib._objc_msgSend_852(
+    _lib._objc_msgSend_852(
         _id, _lib._sel_removeDependency_1, op?._id ?? ffi.nullptr);
   }
 
@@ -59766,20 +61742,21 @@ class NSOperation extends NSObject {
   }
 
   set queuePriority(int value) {
-    _lib._objc_msgSend_854(_id, _lib._sel_setQueuePriority_1, value);
+    return _lib._objc_msgSend_854(_id, _lib._sel_setQueuePriority_1, value);
   }
 
-  ObjCBlock21 get completionBlock {
+  ObjCBlock_ffiVoid get completionBlock {
     final _ret = _lib._objc_msgSend_652(_id, _lib._sel_completionBlock1);
-    return ObjCBlock21._(_ret, _lib);
+    return ObjCBlock_ffiVoid._(_ret, _lib);
   }
 
-  set completionBlock(ObjCBlock21 value) {
-    _lib._objc_msgSend_653(_id, _lib._sel_setCompletionBlock_1, value._id);
+  set completionBlock(ObjCBlock_ffiVoid value) {
+    return _lib._objc_msgSend_653(
+        _id, _lib._sel_setCompletionBlock_1, value._id);
   }
 
   void waitUntilFinished() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_waitUntilFinished1);
+    _lib._objc_msgSend_1(_id, _lib._sel_waitUntilFinished1);
   }
 
   double get threadPriority {
@@ -59787,7 +61764,7 @@ class NSOperation extends NSObject {
   }
 
   set threadPriority(double value) {
-    _lib._objc_msgSend_506(_id, _lib._sel_setThreadPriority_1, value);
+    return _lib._objc_msgSend_506(_id, _lib._sel_setThreadPriority_1, value);
   }
 
   int get qualityOfService {
@@ -59795,7 +61772,7 @@ class NSOperation extends NSObject {
   }
 
   set qualityOfService(int value) {
-    _lib._objc_msgSend_508(_id, _lib._sel_setQualityOfService_1, value);
+    return _lib._objc_msgSend_508(_id, _lib._sel_setQualityOfService_1, value);
   }
 
   NSString? get name {
@@ -59806,11 +61783,25 @@ class NSOperation extends NSObject {
   }
 
   set name(NSString? value) {
-    _lib._objc_msgSend_509(_id, _lib._sel_setName_1, value?._id ?? ffi.nullptr);
+    return _lib._objc_msgSend_509(
+        _id, _lib._sel_setName_1, value?._id ?? ffi.nullptr);
+  }
+
+  @override
+  NSOperation init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSOperation._(_ret, _lib, retain: true, release: true);
   }
 
   static NSOperation new1(SentryCocoa _lib) {
     final _ret = _lib._objc_msgSend_2(_lib._class_NSOperation1, _lib._sel_new1);
+    return NSOperation._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSOperation allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSOperation1, _lib._sel_allocWithZone_1, zone);
     return NSOperation._(_ret, _lib, retain: false, release: true);
   }
 
@@ -59825,7 +61816,7 @@ class NSOperation extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSOperation1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -59835,7 +61826,7 @@ class NSOperation extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSOperation1,
+    _lib._objc_msgSend_15(_lib._class_NSOperation1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -59868,7 +61859,7 @@ class NSOperation extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSOperation1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -59959,26 +61950,25 @@ class NSPointerArray extends NSObject {
   }
 
   void addPointer_(ffi.Pointer<ffi.Void> pointer) {
-    return _lib._objc_msgSend_47(_id, _lib._sel_addPointer_1, pointer);
+    _lib._objc_msgSend_47(_id, _lib._sel_addPointer_1, pointer);
   }
 
   void removePointerAtIndex_(int index) {
-    return _lib._objc_msgSend_439(_id, _lib._sel_removePointerAtIndex_1, index);
+    _lib._objc_msgSend_439(_id, _lib._sel_removePointerAtIndex_1, index);
   }
 
   void insertPointer_atIndex_(ffi.Pointer<ffi.Void> item, int index) {
-    return _lib._objc_msgSend_21(
-        _id, _lib._sel_insertPointer_atIndex_1, item, index);
+    _lib._objc_msgSend_21(_id, _lib._sel_insertPointer_atIndex_1, item, index);
   }
 
   void replacePointerAtIndex_withPointer_(
       int index, ffi.Pointer<ffi.Void> item) {
-    return _lib._objc_msgSend_878(
+    _lib._objc_msgSend_878(
         _id, _lib._sel_replacePointerAtIndex_withPointer_1, index, item);
   }
 
   void compact() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_compact1);
+    _lib._objc_msgSend_1(_id, _lib._sel_compact1);
   }
 
   int get count {
@@ -59986,7 +61976,7 @@ class NSPointerArray extends NSObject {
   }
 
   set count(int value) {
-    _lib._objc_msgSend_483(_id, _lib._sel_setCount_1, value);
+    return _lib._objc_msgSend_483(_id, _lib._sel_setCount_1, value);
   }
 
   static NSObject pointerArrayWithStrongObjects(SentryCocoa _lib) {
@@ -60020,9 +62010,22 @@ class NSPointerArray extends NSObject {
         : NSArray._(_ret, _lib, retain: true, release: true);
   }
 
+  @override
+  NSPointerArray init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSPointerArray._(_ret, _lib, retain: true, release: true);
+  }
+
   static NSPointerArray new1(SentryCocoa _lib) {
     final _ret =
         _lib._objc_msgSend_2(_lib._class_NSPointerArray1, _lib._sel_new1);
+    return NSPointerArray._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSPointerArray allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSPointerArray1, _lib._sel_allocWithZone_1, zone);
     return NSPointerArray._(_ret, _lib, retain: false, release: true);
   }
 
@@ -60037,7 +62040,7 @@ class NSPointerArray extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSPointerArray1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -60047,7 +62050,7 @@ class NSPointerArray extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSPointerArray1,
+    _lib._objc_msgSend_15(_lib._class_NSPointerArray1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -60080,7 +62083,7 @@ class NSPointerArray extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSPointerArray1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -60174,7 +62177,7 @@ class NSPointerFunctions extends NSObject {
                               ffi.UnsignedLong Function(
                                   ffi.Pointer<ffi.Void>)>>)>>
           value) {
-    _lib._objc_msgSend_862(_id, _lib._sel_setHashFunction_1, value);
+    return _lib._objc_msgSend_862(_id, _lib._sel_setHashFunction_1, value);
   }
 
   ffi.Pointer<
@@ -60200,7 +62203,7 @@ class NSPointerFunctions extends NSObject {
                               ffi.UnsignedLong Function(
                                   ffi.Pointer<ffi.Void>)>>)>>
           value) {
-    _lib._objc_msgSend_864(_id, _lib._sel_setIsEqualFunction_1, value);
+    return _lib._objc_msgSend_864(_id, _lib._sel_setIsEqualFunction_1, value);
   }
 
   ffi.Pointer<
@@ -60214,7 +62217,7 @@ class NSPointerFunctions extends NSObject {
               ffi
               .NativeFunction<ffi.UnsignedLong Function(ffi.Pointer<ffi.Void>)>>
           value) {
-    _lib._objc_msgSend_866(_id, _lib._sel_setSizeFunction_1, value);
+    return _lib._objc_msgSend_866(_id, _lib._sel_setSizeFunction_1, value);
   }
 
   ffi.Pointer<
@@ -60229,7 +62232,8 @@ class NSPointerFunctions extends NSObject {
               ffi.NativeFunction<
                   ffi.Pointer<ObjCObject> Function(ffi.Pointer<ffi.Void>)>>
           value) {
-    _lib._objc_msgSend_868(_id, _lib._sel_setDescriptionFunction_1, value);
+    return _lib._objc_msgSend_868(
+        _id, _lib._sel_setDescriptionFunction_1, value);
   }
 
   ffi.Pointer<
@@ -60253,7 +62257,8 @@ class NSPointerFunctions extends NSObject {
                               ffi.UnsignedLong Function(
                                   ffi.Pointer<ffi.Void>)>>)>>
           value) {
-    _lib._objc_msgSend_870(_id, _lib._sel_setRelinquishFunction_1, value);
+    return _lib._objc_msgSend_870(
+        _id, _lib._sel_setRelinquishFunction_1, value);
   }
 
   ffi.Pointer<
@@ -60278,7 +62283,7 @@ class NSPointerFunctions extends NSObject {
                                   ffi.Pointer<ffi.Void>)>>,
                       ffi.Bool)>>
           value) {
-    _lib._objc_msgSend_872(_id, _lib._sel_setAcquireFunction_1, value);
+    return _lib._objc_msgSend_872(_id, _lib._sel_setAcquireFunction_1, value);
   }
 
   bool get usesStrongWriteBarrier {
@@ -60286,7 +62291,8 @@ class NSPointerFunctions extends NSObject {
   }
 
   set usesStrongWriteBarrier(bool value) {
-    _lib._objc_msgSend_492(_id, _lib._sel_setUsesStrongWriteBarrier_1, value);
+    return _lib._objc_msgSend_492(
+        _id, _lib._sel_setUsesStrongWriteBarrier_1, value);
   }
 
   bool get usesWeakReadAndWriteBarriers {
@@ -60294,13 +62300,26 @@ class NSPointerFunctions extends NSObject {
   }
 
   set usesWeakReadAndWriteBarriers(bool value) {
-    _lib._objc_msgSend_492(
+    return _lib._objc_msgSend_492(
         _id, _lib._sel_setUsesWeakReadAndWriteBarriers_1, value);
+  }
+
+  @override
+  NSPointerFunctions init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSPointerFunctions._(_ret, _lib, retain: true, release: true);
   }
 
   static NSPointerFunctions new1(SentryCocoa _lib) {
     final _ret =
         _lib._objc_msgSend_2(_lib._class_NSPointerFunctions1, _lib._sel_new1);
+    return NSPointerFunctions._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSPointerFunctions allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSPointerFunctions1, _lib._sel_allocWithZone_1, zone);
     return NSPointerFunctions._(_ret, _lib, retain: false, release: true);
   }
 
@@ -60315,7 +62334,7 @@ class NSPointerFunctions extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSPointerFunctions1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -60325,7 +62344,7 @@ class NSPointerFunctions extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSPointerFunctions1,
+    _lib._objc_msgSend_15(_lib._class_NSPointerFunctions1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -60358,7 +62377,7 @@ class NSPointerFunctions extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSPointerFunctions1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -60438,7 +62457,7 @@ class NSProcessInfo extends NSObject {
   }
 
   set processName(NSString? value) {
-    _lib._objc_msgSend_509(
+    return _lib._objc_msgSend_509(
         _id, _lib._sel_setProcessName_1, value?._id ?? ffi.nullptr);
   }
 
@@ -60470,8 +62489,8 @@ class NSProcessInfo extends NSObject {
         : NSString._(_ret, _lib, retain: true, release: true);
   }
 
-  NSOperatingSystemVersion get operatingSystemVersion {
-    return _lib._objc_msgSend_881(_id, _lib._sel_operatingSystemVersion1);
+  void getOperatingSystemVersion(ffi.Pointer<NSOperatingSystemVersion> stret) {
+    _lib._objc_msgSend_881(stret, _id, _lib._sel_operatingSystemVersion1);
   }
 
   int get processorCount {
@@ -60496,20 +62515,20 @@ class NSProcessInfo extends NSObject {
   }
 
   void disableSuddenTermination() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_disableSuddenTermination1);
+    _lib._objc_msgSend_1(_id, _lib._sel_disableSuddenTermination1);
   }
 
   void enableSuddenTermination() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_enableSuddenTermination1);
+    _lib._objc_msgSend_1(_id, _lib._sel_enableSuddenTermination1);
   }
 
   void disableAutomaticTermination_(NSString? reason) {
-    return _lib._objc_msgSend_192(_id, _lib._sel_disableAutomaticTermination_1,
+    _lib._objc_msgSend_192(_id, _lib._sel_disableAutomaticTermination_1,
         reason?._id ?? ffi.nullptr);
   }
 
   void enableAutomaticTermination_(NSString? reason) {
-    return _lib._objc_msgSend_192(_id, _lib._sel_enableAutomaticTermination_1,
+    _lib._objc_msgSend_192(_id, _lib._sel_enableAutomaticTermination_1,
         reason?._id ?? ffi.nullptr);
   }
 
@@ -60519,7 +62538,7 @@ class NSProcessInfo extends NSObject {
   }
 
   set automaticTerminationSupportEnabled(bool value) {
-    _lib._objc_msgSend_492(
+    return _lib._objc_msgSend_492(
         _id, _lib._sel_setAutomaticTerminationSupportEnabled_1, value);
   }
 
@@ -60533,13 +62552,13 @@ class NSProcessInfo extends NSObject {
   }
 
   void endActivity_(NSObject? activity) {
-    return _lib._objc_msgSend_15(
+    _lib._objc_msgSend_15(
         _id, _lib._sel_endActivity_1, activity?._id ?? ffi.nullptr);
   }
 
   void performActivityWithOptions_reason_usingBlock_(
-      int options, NSString? reason, ObjCBlock21 block) {
-    return _lib._objc_msgSend_884(
+      int options, NSString? reason, ObjCBlock_ffiVoid block) {
+    _lib._objc_msgSend_884(
         _id,
         _lib._sel_performActivityWithOptions_reason_usingBlock_1,
         options,
@@ -60548,8 +62567,8 @@ class NSProcessInfo extends NSObject {
   }
 
   void performExpiringActivityWithReason_usingBlock_(
-      NSString? reason, ObjCBlock38 block) {
-    return _lib._objc_msgSend_885(
+      NSString? reason, ObjCBlock_ffiVoid_bool block) {
+    _lib._objc_msgSend_885(
         _id,
         _lib._sel_performExpiringActivityWithReason_usingBlock_1,
         reason?._id ?? ffi.nullptr,
@@ -60586,9 +62605,22 @@ class NSProcessInfo extends NSObject {
     return _lib._objc_msgSend_12(_id, _lib._sel_isiOSAppOnMac1);
   }
 
+  @override
+  NSProcessInfo init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSProcessInfo._(_ret, _lib, retain: true, release: true);
+  }
+
   static NSProcessInfo new1(SentryCocoa _lib) {
     final _ret =
         _lib._objc_msgSend_2(_lib._class_NSProcessInfo1, _lib._sel_new1);
+    return NSProcessInfo._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSProcessInfo allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSProcessInfo1, _lib._sel_allocWithZone_1, zone);
     return NSProcessInfo._(_ret, _lib, retain: false, release: true);
   }
 
@@ -60603,7 +62635,7 @@ class NSProcessInfo extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSProcessInfo1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -60613,7 +62645,7 @@ class NSProcessInfo extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSProcessInfo1,
+    _lib._objc_msgSend_15(_lib._class_NSProcessInfo1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -60646,7 +62678,7 @@ class NSProcessInfo extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSProcessInfo1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -60691,51 +62723,56 @@ abstract class NSActivityOptions {
   static const int NSActivityUserInteractive = 1095233437695;
 }
 
-void _ObjCBlock38_fnPtrTrampoline(ffi.Pointer<_ObjCBlock> block, bool arg0) {
+void _ObjCBlock_ffiVoid_bool_fnPtrTrampoline(
+    ffi.Pointer<_ObjCBlock> block, bool arg0) {
   return block.ref.target
       .cast<ffi.NativeFunction<ffi.Void Function(ffi.Bool arg0)>>()
       .asFunction<void Function(bool arg0)>()(arg0);
 }
 
-final _ObjCBlock38_closureRegistry = <int, Function>{};
-int _ObjCBlock38_closureRegistryIndex = 0;
-ffi.Pointer<ffi.Void> _ObjCBlock38_registerClosure(Function fn) {
-  final id = ++_ObjCBlock38_closureRegistryIndex;
-  _ObjCBlock38_closureRegistry[id] = fn;
+final _ObjCBlock_ffiVoid_bool_closureRegistry = <int, Function>{};
+int _ObjCBlock_ffiVoid_bool_closureRegistryIndex = 0;
+ffi.Pointer<ffi.Void> _ObjCBlock_ffiVoid_bool_registerClosure(Function fn) {
+  final id = ++_ObjCBlock_ffiVoid_bool_closureRegistryIndex;
+  _ObjCBlock_ffiVoid_bool_closureRegistry[id] = fn;
   return ffi.Pointer<ffi.Void>.fromAddress(id);
 }
 
-void _ObjCBlock38_closureTrampoline(ffi.Pointer<_ObjCBlock> block, bool arg0) {
-  return (_ObjCBlock38_closureRegistry[block.ref.target.address] as void
-      Function(bool))(arg0);
+void _ObjCBlock_ffiVoid_bool_closureTrampoline(
+    ffi.Pointer<_ObjCBlock> block, bool arg0) {
+  return (_ObjCBlock_ffiVoid_bool_closureRegistry[block.ref.target.address]
+      as void Function(bool))(arg0);
 }
 
-class ObjCBlock38 extends _ObjCBlockBase {
-  ObjCBlock38._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
+class ObjCBlock_ffiVoid_bool extends _ObjCBlockBase {
+  ObjCBlock_ffiVoid_bool._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
       : super._(id, lib, retain: false, release: true);
 
   /// Creates a block from a C function pointer.
-  ObjCBlock38.fromFunctionPointer(SentryCocoa lib,
+  ObjCBlock_ffiVoid_bool.fromFunctionPointer(SentryCocoa lib,
       ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Bool arg0)>> ptr)
       : this._(
             lib._newBlock1(
                 _cFuncTrampoline ??= ffi.Pointer.fromFunction<
-                        ffi.Void Function(ffi.Pointer<_ObjCBlock> block,
-                            ffi.Bool arg0)>(_ObjCBlock38_fnPtrTrampoline)
+                            ffi.Void Function(
+                                ffi.Pointer<_ObjCBlock> block, ffi.Bool arg0)>(
+                        _ObjCBlock_ffiVoid_bool_fnPtrTrampoline)
                     .cast(),
                 ptr.cast()),
             lib);
   static ffi.Pointer<ffi.Void>? _cFuncTrampoline;
 
   /// Creates a block from a Dart function.
-  ObjCBlock38.fromFunction(SentryCocoa lib, void Function(bool arg0) fn)
+  ObjCBlock_ffiVoid_bool.fromFunction(
+      SentryCocoa lib, void Function(bool arg0) fn)
       : this._(
             lib._newBlock1(
                 _dartFuncTrampoline ??= ffi.Pointer.fromFunction<
-                        ffi.Void Function(ffi.Pointer<_ObjCBlock> block,
-                            ffi.Bool arg0)>(_ObjCBlock38_closureTrampoline)
+                            ffi.Void Function(
+                                ffi.Pointer<_ObjCBlock> block, ffi.Bool arg0)>(
+                        _ObjCBlock_ffiVoid_bool_closureTrampoline)
                     .cast(),
-                _ObjCBlock38_registerClosure(fn)),
+                _ObjCBlock_ffiVoid_bool_registerClosure(fn)),
             lib);
   static ffi.Pointer<ffi.Void>? _dartFuncTrampoline;
   void call(bool arg0) {
@@ -60785,8 +62822,8 @@ class NSTextCheckingResult extends NSObject {
     return _lib._objc_msgSend_887(_id, _lib._sel_resultType1);
   }
 
-  _NSRange get range {
-    return _lib._objc_msgSend_49(_id, _lib._sel_range1);
+  void getRange(ffi.Pointer<_NSRange> stret) {
+    _lib._objc_msgSend_49(stret, _id, _lib._sel_range1);
   }
 
   NSOrthography? get orthography {
@@ -60867,13 +62904,13 @@ class NSTextCheckingResult extends NSObject {
     return _lib._objc_msgSend_10(_id, _lib._sel_numberOfRanges1);
   }
 
-  _NSRange rangeAtIndex_(int idx) {
-    return _lib._objc_msgSend_323(_id, _lib._sel_rangeAtIndex_1, idx);
+  void rangeAtIndex_(ffi.Pointer<_NSRange> stret, int idx) {
+    _lib._objc_msgSend_323(stret, _id, _lib._sel_rangeAtIndex_1, idx);
   }
 
-  _NSRange rangeWithName_(NSString? name) {
-    return _lib._objc_msgSend_316(
-        _id, _lib._sel_rangeWithName_1, name?._id ?? ffi.nullptr);
+  void rangeWithName_(ffi.Pointer<_NSRange> stret, NSString? name) {
+    _lib._objc_msgSend_316(
+        stret, _id, _lib._sel_rangeWithName_1, name?._id ?? ffi.nullptr);
   }
 
   NSTextCheckingResult resultByAdjustingRangesWithOffset_(int offset) {
@@ -61052,9 +63089,22 @@ class NSTextCheckingResult extends NSObject {
     return NSTextCheckingResult._(_ret, _lib, retain: true, release: true);
   }
 
+  @override
+  NSTextCheckingResult init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSTextCheckingResult._(_ret, _lib, retain: true, release: true);
+  }
+
   static NSTextCheckingResult new1(SentryCocoa _lib) {
     final _ret =
         _lib._objc_msgSend_2(_lib._class_NSTextCheckingResult1, _lib._sel_new1);
+    return NSTextCheckingResult._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSTextCheckingResult allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSTextCheckingResult1, _lib._sel_allocWithZone_1, zone);
     return NSTextCheckingResult._(_ret, _lib, retain: false, release: true);
   }
 
@@ -61069,7 +63119,7 @@ class NSTextCheckingResult extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSTextCheckingResult1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -61079,7 +63129,7 @@ class NSTextCheckingResult extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSTextCheckingResult1,
+    _lib._objc_msgSend_15(_lib._class_NSTextCheckingResult1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -61112,7 +63162,7 @@ class NSTextCheckingResult extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSTextCheckingResult1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -61219,8 +63269,11 @@ class NSRegularExpression extends NSObject {
   }
 
   void enumerateMatchesInString_options_range_usingBlock_(
-      NSString? string, int options, _NSRange range, ObjCBlock39 block) {
-    return _lib._objc_msgSend_892(
+      NSString? string,
+      int options,
+      _NSRange range,
+      ObjCBlock_ffiVoid_NSTextCheckingResult_NSMatchingFlags_bool block) {
+    _lib._objc_msgSend_892(
         _id,
         _lib._sel_enumerateMatchesInString_options_range_usingBlock_1,
         string?._id ?? ffi.nullptr,
@@ -61261,9 +63314,10 @@ class NSRegularExpression extends NSObject {
     return NSTextCheckingResult._(_ret, _lib, retain: true, release: true);
   }
 
-  _NSRange rangeOfFirstMatchInString_options_range_(
+  void rangeOfFirstMatchInString_options_range_(ffi.Pointer<_NSRange> stret,
       NSString? string, int options, _NSRange range) {
-    return _lib._objc_msgSend_896(
+    _lib._objc_msgSend_896(
+        stret,
         _id,
         _lib._sel_rangeOfFirstMatchInString_options_range_1,
         string?._id ?? ffi.nullptr,
@@ -61316,9 +63370,22 @@ class NSRegularExpression extends NSObject {
     return NSString._(_ret, _lib, retain: true, release: true);
   }
 
+  @override
+  NSRegularExpression init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSRegularExpression._(_ret, _lib, retain: true, release: true);
+  }
+
   static NSRegularExpression new1(SentryCocoa _lib) {
     final _ret =
         _lib._objc_msgSend_2(_lib._class_NSRegularExpression1, _lib._sel_new1);
+    return NSRegularExpression._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSRegularExpression allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSRegularExpression1, _lib._sel_allocWithZone_1, zone);
     return NSRegularExpression._(_ret, _lib, retain: false, release: true);
   }
 
@@ -61333,7 +63400,7 @@ class NSRegularExpression extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSRegularExpression1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -61343,7 +63410,7 @@ class NSRegularExpression extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSRegularExpression1,
+    _lib._objc_msgSend_15(_lib._class_NSRegularExpression1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -61376,7 +63443,7 @@ class NSRegularExpression extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSRegularExpression1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -61414,8 +63481,12 @@ abstract class NSMatchingOptions {
   static const int NSMatchingWithoutAnchoringBounds = 16;
 }
 
-void _ObjCBlock39_fnPtrTrampoline(ffi.Pointer<_ObjCBlock> block,
-    ffi.Pointer<ObjCObject> arg0, int arg1, ffi.Pointer<ffi.Bool> arg2) {
+void
+    _ObjCBlock_ffiVoid_NSTextCheckingResult_NSMatchingFlags_bool_fnPtrTrampoline(
+        ffi.Pointer<_ObjCBlock> block,
+        ffi.Pointer<ObjCObject> arg0,
+        int arg1,
+        ffi.Pointer<ffi.Bool> arg2) {
   return block.ref.target
       .cast<
           ffi.NativeFunction<
@@ -61426,27 +63497,40 @@ void _ObjCBlock39_fnPtrTrampoline(ffi.Pointer<_ObjCBlock> block,
               ffi.Pointer<ffi.Bool> arg2)>()(arg0, arg1, arg2);
 }
 
-final _ObjCBlock39_closureRegistry = <int, Function>{};
-int _ObjCBlock39_closureRegistryIndex = 0;
-ffi.Pointer<ffi.Void> _ObjCBlock39_registerClosure(Function fn) {
-  final id = ++_ObjCBlock39_closureRegistryIndex;
-  _ObjCBlock39_closureRegistry[id] = fn;
+final _ObjCBlock_ffiVoid_NSTextCheckingResult_NSMatchingFlags_bool_closureRegistry =
+    <int, Function>{};
+int _ObjCBlock_ffiVoid_NSTextCheckingResult_NSMatchingFlags_bool_closureRegistryIndex =
+    0;
+ffi.Pointer<ffi.Void>
+    _ObjCBlock_ffiVoid_NSTextCheckingResult_NSMatchingFlags_bool_registerClosure(
+        Function fn) {
+  final id =
+      ++_ObjCBlock_ffiVoid_NSTextCheckingResult_NSMatchingFlags_bool_closureRegistryIndex;
+  _ObjCBlock_ffiVoid_NSTextCheckingResult_NSMatchingFlags_bool_closureRegistry[
+      id] = fn;
   return ffi.Pointer<ffi.Void>.fromAddress(id);
 }
 
-void _ObjCBlock39_closureTrampoline(ffi.Pointer<_ObjCBlock> block,
-    ffi.Pointer<ObjCObject> arg0, int arg1, ffi.Pointer<ffi.Bool> arg2) {
-  return (_ObjCBlock39_closureRegistry[block.ref.target.address] as void
-          Function(ffi.Pointer<ObjCObject>, int, ffi.Pointer<ffi.Bool>))(
-      arg0, arg1, arg2);
+void
+    _ObjCBlock_ffiVoid_NSTextCheckingResult_NSMatchingFlags_bool_closureTrampoline(
+        ffi.Pointer<_ObjCBlock> block,
+        ffi.Pointer<ObjCObject> arg0,
+        int arg1,
+        ffi.Pointer<ffi.Bool> arg2) {
+  return (_ObjCBlock_ffiVoid_NSTextCheckingResult_NSMatchingFlags_bool_closureRegistry[
+          block.ref.target.address]
+      as void Function(ffi.Pointer<ObjCObject>, int,
+          ffi.Pointer<ffi.Bool>))(arg0, arg1, arg2);
 }
 
-class ObjCBlock39 extends _ObjCBlockBase {
-  ObjCBlock39._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
+class ObjCBlock_ffiVoid_NSTextCheckingResult_NSMatchingFlags_bool
+    extends _ObjCBlockBase {
+  ObjCBlock_ffiVoid_NSTextCheckingResult_NSMatchingFlags_bool._(
+      ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
       : super._(id, lib, retain: false, release: true);
 
   /// Creates a block from a C function pointer.
-  ObjCBlock39.fromFunctionPointer(
+  ObjCBlock_ffiVoid_NSTextCheckingResult_NSMatchingFlags_bool.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
               ffi.NativeFunction<
@@ -61461,14 +63545,14 @@ class ObjCBlock39 extends _ObjCBlockBase {
                                 ffi.Pointer<ObjCObject> arg0,
                                 ffi.Int32 arg1,
                                 ffi.Pointer<ffi.Bool> arg2)>(
-                        _ObjCBlock39_fnPtrTrampoline)
+                        _ObjCBlock_ffiVoid_NSTextCheckingResult_NSMatchingFlags_bool_fnPtrTrampoline)
                     .cast(),
                 ptr.cast()),
             lib);
   static ffi.Pointer<ffi.Void>? _cFuncTrampoline;
 
   /// Creates a block from a Dart function.
-  ObjCBlock39.fromFunction(
+  ObjCBlock_ffiVoid_NSTextCheckingResult_NSMatchingFlags_bool.fromFunction(
       SentryCocoa lib,
       void Function(ffi.Pointer<ObjCObject> arg0, int arg1,
               ffi.Pointer<ffi.Bool> arg2)
@@ -61481,9 +63565,10 @@ class ObjCBlock39 extends _ObjCBlockBase {
                                 ffi.Pointer<ObjCObject> arg0,
                                 ffi.Int32 arg1,
                                 ffi.Pointer<ffi.Bool> arg2)>(
-                        _ObjCBlock39_closureTrampoline)
+                        _ObjCBlock_ffiVoid_NSTextCheckingResult_NSMatchingFlags_bool_closureTrampoline)
                     .cast(),
-                _ObjCBlock39_registerClosure(fn)),
+                _ObjCBlock_ffiVoid_NSTextCheckingResult_NSMatchingFlags_bool_registerClosure(
+                    fn)),
             lib);
   static ffi.Pointer<ffi.Void>? _dartFuncTrampoline;
   void call(
@@ -61545,7 +63630,7 @@ class NSURLCache extends NSObject {
   }
 
   static void setSharedURLCache(SentryCocoa _lib, NSURLCache? value) {
-    _lib._objc_msgSend_913(_lib._class_NSURLCache1,
+    return _lib._objc_msgSend_913(_lib._class_NSURLCache1,
         _lib._sel_setSharedURLCache_1, value?._id ?? ffi.nullptr);
   }
 
@@ -61579,27 +63664,22 @@ class NSURLCache extends NSObject {
 
   void storeCachedResponse_forRequest_(
       NSCachedURLResponse? cachedResponse, NSURLRequest? request) {
-    return _lib._objc_msgSend_920(
-        _id,
-        _lib._sel_storeCachedResponse_forRequest_1,
-        cachedResponse?._id ?? ffi.nullptr,
-        request?._id ?? ffi.nullptr);
+    _lib._objc_msgSend_920(_id, _lib._sel_storeCachedResponse_forRequest_1,
+        cachedResponse?._id ?? ffi.nullptr, request?._id ?? ffi.nullptr);
   }
 
   void removeCachedResponseForRequest_(NSURLRequest? request) {
-    return _lib._objc_msgSend_921(
-        _id,
-        _lib._sel_removeCachedResponseForRequest_1,
+    _lib._objc_msgSend_921(_id, _lib._sel_removeCachedResponseForRequest_1,
         request?._id ?? ffi.nullptr);
   }
 
   void removeAllCachedResponses() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_removeAllCachedResponses1);
+    _lib._objc_msgSend_1(_id, _lib._sel_removeAllCachedResponses1);
   }
 
   void removeCachedResponsesSinceDate_(NSDate? date) {
-    return _lib._objc_msgSend_504(_id,
-        _lib._sel_removeCachedResponsesSinceDate_1, date?._id ?? ffi.nullptr);
+    _lib._objc_msgSend_504(_id, _lib._sel_removeCachedResponsesSinceDate_1,
+        date?._id ?? ffi.nullptr);
   }
 
   int get memoryCapacity {
@@ -61607,7 +63687,7 @@ class NSURLCache extends NSObject {
   }
 
   set memoryCapacity(int value) {
-    _lib._objc_msgSend_483(_id, _lib._sel_setMemoryCapacity_1, value);
+    return _lib._objc_msgSend_483(_id, _lib._sel_setMemoryCapacity_1, value);
   }
 
   int get diskCapacity {
@@ -61615,7 +63695,7 @@ class NSURLCache extends NSObject {
   }
 
   set diskCapacity(int value) {
-    _lib._objc_msgSend_483(_id, _lib._sel_setDiskCapacity_1, value);
+    return _lib._objc_msgSend_483(_id, _lib._sel_setDiskCapacity_1, value);
   }
 
   int get currentMemoryUsage {
@@ -61628,16 +63708,14 @@ class NSURLCache extends NSObject {
 
   void storeCachedResponse_forDataTask_(
       NSCachedURLResponse? cachedResponse, NSURLSessionDataTask? dataTask) {
-    return _lib._objc_msgSend_922(
-        _id,
-        _lib._sel_storeCachedResponse_forDataTask_1,
-        cachedResponse?._id ?? ffi.nullptr,
-        dataTask?._id ?? ffi.nullptr);
+    _lib._objc_msgSend_922(_id, _lib._sel_storeCachedResponse_forDataTask_1,
+        cachedResponse?._id ?? ffi.nullptr, dataTask?._id ?? ffi.nullptr);
   }
 
   void getCachedResponseForDataTask_completionHandler_(
-      NSURLSessionDataTask? dataTask, ObjCBlock40 completionHandler) {
-    return _lib._objc_msgSend_923(
+      NSURLSessionDataTask? dataTask,
+      ObjCBlock_ffiVoid_NSCachedURLResponse completionHandler) {
+    _lib._objc_msgSend_923(
         _id,
         _lib._sel_getCachedResponseForDataTask_completionHandler_1,
         dataTask?._id ?? ffi.nullptr,
@@ -61645,14 +63723,25 @@ class NSURLCache extends NSObject {
   }
 
   void removeCachedResponseForDataTask_(NSURLSessionDataTask? dataTask) {
-    return _lib._objc_msgSend_924(
-        _id,
-        _lib._sel_removeCachedResponseForDataTask_1,
+    _lib._objc_msgSend_924(_id, _lib._sel_removeCachedResponseForDataTask_1,
         dataTask?._id ?? ffi.nullptr);
+  }
+
+  @override
+  NSURLCache init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSURLCache._(_ret, _lib, retain: true, release: true);
   }
 
   static NSURLCache new1(SentryCocoa _lib) {
     final _ret = _lib._objc_msgSend_2(_lib._class_NSURLCache1, _lib._sel_new1);
+    return NSURLCache._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSURLCache allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSURLCache1, _lib._sel_allocWithZone_1, zone);
     return NSURLCache._(_ret, _lib, retain: false, release: true);
   }
 
@@ -61667,7 +63756,7 @@ class NSURLCache extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSURLCache1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -61677,7 +63766,7 @@ class NSURLCache extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSURLCache1,
+    _lib._objc_msgSend_15(_lib._class_NSURLCache1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -61710,7 +63799,7 @@ class NSURLCache extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSURLCache1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -61801,9 +63890,22 @@ class NSCachedURLResponse extends NSObject {
     return _lib._objc_msgSend_918(_id, _lib._sel_storagePolicy1);
   }
 
+  @override
+  NSCachedURLResponse init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSCachedURLResponse._(_ret, _lib, retain: true, release: true);
+  }
+
   static NSCachedURLResponse new1(SentryCocoa _lib) {
     final _ret =
         _lib._objc_msgSend_2(_lib._class_NSCachedURLResponse1, _lib._sel_new1);
+    return NSCachedURLResponse._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSCachedURLResponse allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSCachedURLResponse1, _lib._sel_allocWithZone_1, zone);
     return NSCachedURLResponse._(_ret, _lib, retain: false, release: true);
   }
 
@@ -61818,7 +63920,7 @@ class NSCachedURLResponse extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSCachedURLResponse1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -61828,7 +63930,7 @@ class NSCachedURLResponse extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSCachedURLResponse1,
+    _lib._objc_msgSend_15(_lib._class_NSCachedURLResponse1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -61861,7 +63963,7 @@ class NSCachedURLResponse extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSCachedURLResponse1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -61923,6 +64025,13 @@ class NSURLSessionDataTask extends NSURLSessionTask {
     return NSURLSessionDataTask._(_ret, _lib, retain: false, release: true);
   }
 
+  static NSURLSessionDataTask allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSURLSessionDataTask1, _lib._sel_allocWithZone_1, zone);
+    return NSURLSessionDataTask._(_ret, _lib, retain: false, release: true);
+  }
+
   static NSURLSessionDataTask alloc(SentryCocoa _lib) {
     final _ret = _lib._objc_msgSend_2(
         _lib._class_NSURLSessionDataTask1, _lib._sel_alloc1);
@@ -61934,7 +64043,7 @@ class NSURLSessionDataTask extends NSURLSessionTask {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSURLSessionDataTask1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -61944,7 +64053,7 @@ class NSURLSessionDataTask extends NSURLSessionTask {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSURLSessionDataTask1,
+    _lib._objc_msgSend_15(_lib._class_NSURLSessionDataTask1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -61977,7 +64086,7 @@ class NSURLSessionDataTask extends NSURLSessionTask {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSURLSessionDataTask1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -61997,7 +64106,7 @@ class NSURLSessionDataTask extends NSURLSessionTask {
   }
 }
 
-void _ObjCBlock40_fnPtrTrampoline(
+void _ObjCBlock_ffiVoid_NSCachedURLResponse_fnPtrTrampoline(
     ffi.Pointer<_ObjCBlock> block, ffi.Pointer<ObjCObject> arg0) {
   return block.ref.target
       .cast<
@@ -62005,26 +64114,29 @@ void _ObjCBlock40_fnPtrTrampoline(
       .asFunction<void Function(ffi.Pointer<ObjCObject> arg0)>()(arg0);
 }
 
-final _ObjCBlock40_closureRegistry = <int, Function>{};
-int _ObjCBlock40_closureRegistryIndex = 0;
-ffi.Pointer<ffi.Void> _ObjCBlock40_registerClosure(Function fn) {
-  final id = ++_ObjCBlock40_closureRegistryIndex;
-  _ObjCBlock40_closureRegistry[id] = fn;
+final _ObjCBlock_ffiVoid_NSCachedURLResponse_closureRegistry =
+    <int, Function>{};
+int _ObjCBlock_ffiVoid_NSCachedURLResponse_closureRegistryIndex = 0;
+ffi.Pointer<ffi.Void> _ObjCBlock_ffiVoid_NSCachedURLResponse_registerClosure(
+    Function fn) {
+  final id = ++_ObjCBlock_ffiVoid_NSCachedURLResponse_closureRegistryIndex;
+  _ObjCBlock_ffiVoid_NSCachedURLResponse_closureRegistry[id] = fn;
   return ffi.Pointer<ffi.Void>.fromAddress(id);
 }
 
-void _ObjCBlock40_closureTrampoline(
+void _ObjCBlock_ffiVoid_NSCachedURLResponse_closureTrampoline(
     ffi.Pointer<_ObjCBlock> block, ffi.Pointer<ObjCObject> arg0) {
-  return (_ObjCBlock40_closureRegistry[block.ref.target.address] as void
-      Function(ffi.Pointer<ObjCObject>))(arg0);
+  return (_ObjCBlock_ffiVoid_NSCachedURLResponse_closureRegistry[block
+      .ref.target.address] as void Function(ffi.Pointer<ObjCObject>))(arg0);
 }
 
-class ObjCBlock40 extends _ObjCBlockBase {
-  ObjCBlock40._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
+class ObjCBlock_ffiVoid_NSCachedURLResponse extends _ObjCBlockBase {
+  ObjCBlock_ffiVoid_NSCachedURLResponse._(
+      ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
       : super._(id, lib, retain: false, release: true);
 
   /// Creates a block from a C function pointer.
-  ObjCBlock40.fromFunctionPointer(
+  ObjCBlock_ffiVoid_NSCachedURLResponse.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
               ffi
@@ -62035,23 +64147,23 @@ class ObjCBlock40 extends _ObjCBlockBase {
                 _cFuncTrampoline ??= ffi.Pointer.fromFunction<
                             ffi.Void Function(ffi.Pointer<_ObjCBlock> block,
                                 ffi.Pointer<ObjCObject> arg0)>(
-                        _ObjCBlock40_fnPtrTrampoline)
+                        _ObjCBlock_ffiVoid_NSCachedURLResponse_fnPtrTrampoline)
                     .cast(),
                 ptr.cast()),
             lib);
   static ffi.Pointer<ffi.Void>? _cFuncTrampoline;
 
   /// Creates a block from a Dart function.
-  ObjCBlock40.fromFunction(
+  ObjCBlock_ffiVoid_NSCachedURLResponse.fromFunction(
       SentryCocoa lib, void Function(ffi.Pointer<ObjCObject> arg0) fn)
       : this._(
             lib._newBlock1(
                 _dartFuncTrampoline ??= ffi.Pointer.fromFunction<
                             ffi.Void Function(ffi.Pointer<_ObjCBlock> block,
                                 ffi.Pointer<ObjCObject> arg0)>(
-                        _ObjCBlock40_closureTrampoline)
+                        _ObjCBlock_ffiVoid_NSCachedURLResponse_closureTrampoline)
                     .cast(),
-                _ObjCBlock40_registerClosure(fn)),
+                _ObjCBlock_ffiVoid_NSCachedURLResponse_registerClosure(fn)),
             lib);
   static ffi.Pointer<ffi.Void>? _dartFuncTrampoline;
   void call(ffi.Pointer<ObjCObject> arg0) {
@@ -62136,28 +64248,25 @@ class NSURLConnection extends NSObject {
   }
 
   void start() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_start1);
+    _lib._objc_msgSend_1(_id, _lib._sel_start1);
   }
 
   void cancel() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_cancel1);
+    _lib._objc_msgSend_1(_id, _lib._sel_cancel1);
   }
 
   void scheduleInRunLoop_forMode_(NSRunLoop? aRunLoop, NSString mode) {
-    return _lib._objc_msgSend_533(_id, _lib._sel_scheduleInRunLoop_forMode_1,
+    _lib._objc_msgSend_533(_id, _lib._sel_scheduleInRunLoop_forMode_1,
         aRunLoop?._id ?? ffi.nullptr, mode._id);
   }
 
   void unscheduleFromRunLoop_forMode_(NSRunLoop? aRunLoop, NSString mode) {
-    return _lib._objc_msgSend_533(
-        _id,
-        _lib._sel_unscheduleFromRunLoop_forMode_1,
-        aRunLoop?._id ?? ffi.nullptr,
-        mode._id);
+    _lib._objc_msgSend_533(_id, _lib._sel_unscheduleFromRunLoop_forMode_1,
+        aRunLoop?._id ?? ffi.nullptr, mode._id);
   }
 
   void setDelegateQueue_(NSOperationQueue? queue) {
-    return _lib._objc_msgSend_928(
+    _lib._objc_msgSend_928(
         _id, _lib._sel_setDelegateQueue_1, queue?._id ?? ffi.nullptr);
   }
 
@@ -62180,9 +64289,12 @@ class NSURLConnection extends NSObject {
     return NSData._(_ret, _lib, retain: true, release: true);
   }
 
-  static void sendAsynchronousRequest_queue_completionHandler_(SentryCocoa _lib,
-      NSURLRequest? request, NSOperationQueue? queue, ObjCBlock41 handler) {
-    return _lib._objc_msgSend_931(
+  static void sendAsynchronousRequest_queue_completionHandler_(
+      SentryCocoa _lib,
+      NSURLRequest? request,
+      NSOperationQueue? queue,
+      ObjCBlock_ffiVoid_NSURLResponse_NSData_NSError handler) {
+    _lib._objc_msgSend_931(
         _lib._class_NSURLConnection1,
         _lib._sel_sendAsynchronousRequest_queue_completionHandler_1,
         request?._id ?? ffi.nullptr,
@@ -62190,9 +64302,22 @@ class NSURLConnection extends NSObject {
         handler._id);
   }
 
+  @override
+  NSURLConnection init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSURLConnection._(_ret, _lib, retain: true, release: true);
+  }
+
   static NSURLConnection new1(SentryCocoa _lib) {
     final _ret =
         _lib._objc_msgSend_2(_lib._class_NSURLConnection1, _lib._sel_new1);
+    return NSURLConnection._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSURLConnection allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSURLConnection1, _lib._sel_allocWithZone_1, zone);
     return NSURLConnection._(_ret, _lib, retain: false, release: true);
   }
 
@@ -62207,7 +64332,7 @@ class NSURLConnection extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSURLConnection1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -62217,7 +64342,7 @@ class NSURLConnection extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSURLConnection1,
+    _lib._objc_msgSend_15(_lib._class_NSURLConnection1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -62250,7 +64375,7 @@ class NSURLConnection extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSURLConnection1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -62270,7 +64395,7 @@ class NSURLConnection extends NSObject {
   }
 }
 
-void _ObjCBlock41_fnPtrTrampoline(
+void _ObjCBlock_ffiVoid_NSURLResponse_NSData_NSError_fnPtrTrampoline(
     ffi.Pointer<_ObjCBlock> block,
     ffi.Pointer<ObjCObject> arg0,
     ffi.Pointer<ObjCObject> arg1,
@@ -62289,34 +64414,39 @@ void _ObjCBlock41_fnPtrTrampoline(
               ffi.Pointer<ObjCObject> arg2)>()(arg0, arg1, arg2);
 }
 
-final _ObjCBlock41_closureRegistry = <int, Function>{};
-int _ObjCBlock41_closureRegistryIndex = 0;
-ffi.Pointer<ffi.Void> _ObjCBlock41_registerClosure(Function fn) {
-  final id = ++_ObjCBlock41_closureRegistryIndex;
-  _ObjCBlock41_closureRegistry[id] = fn;
+final _ObjCBlock_ffiVoid_NSURLResponse_NSData_NSError_closureRegistry =
+    <int, Function>{};
+int _ObjCBlock_ffiVoid_NSURLResponse_NSData_NSError_closureRegistryIndex = 0;
+ffi.Pointer<ffi.Void>
+    _ObjCBlock_ffiVoid_NSURLResponse_NSData_NSError_registerClosure(
+        Function fn) {
+  final id =
+      ++_ObjCBlock_ffiVoid_NSURLResponse_NSData_NSError_closureRegistryIndex;
+  _ObjCBlock_ffiVoid_NSURLResponse_NSData_NSError_closureRegistry[id] = fn;
   return ffi.Pointer<ffi.Void>.fromAddress(id);
 }
 
-void _ObjCBlock41_closureTrampoline(
+void _ObjCBlock_ffiVoid_NSURLResponse_NSData_NSError_closureTrampoline(
     ffi.Pointer<_ObjCBlock> block,
     ffi.Pointer<ObjCObject> arg0,
     ffi.Pointer<ObjCObject> arg1,
     ffi.Pointer<ObjCObject> arg2) {
-  return (_ObjCBlock41_closureRegistry[block.ref.target.address]
+  return (_ObjCBlock_ffiVoid_NSURLResponse_NSData_NSError_closureRegistry[
+          block.ref.target.address]
       as void Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCObject>,
           ffi.Pointer<ObjCObject>))(arg0, arg1, arg2);
 }
 
-class ObjCBlock41 extends _ObjCBlockBase {
-  ObjCBlock41._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
+class ObjCBlock_ffiVoid_NSURLResponse_NSData_NSError extends _ObjCBlockBase {
+  ObjCBlock_ffiVoid_NSURLResponse_NSData_NSError._(
+      ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
       : super._(id, lib, retain: false, release: true);
 
   /// Creates a block from a C function pointer.
-  ObjCBlock41.fromFunctionPointer(
+  ObjCBlock_ffiVoid_NSURLResponse_NSData_NSError.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
-              ffi
-              .NativeFunction<
+              ffi.NativeFunction<
                   ffi.Void Function(
                       ffi.Pointer<ObjCObject> arg0,
                       ffi.Pointer<ObjCObject> arg1,
@@ -62330,14 +64460,14 @@ class ObjCBlock41 extends _ObjCBlockBase {
                                 ffi.Pointer<ObjCObject> arg0,
                                 ffi.Pointer<ObjCObject> arg1,
                                 ffi.Pointer<ObjCObject> arg2)>(
-                        _ObjCBlock41_fnPtrTrampoline)
+                        _ObjCBlock_ffiVoid_NSURLResponse_NSData_NSError_fnPtrTrampoline)
                     .cast(),
                 ptr.cast()),
             lib);
   static ffi.Pointer<ffi.Void>? _cFuncTrampoline;
 
   /// Creates a block from a Dart function.
-  ObjCBlock41.fromFunction(
+  ObjCBlock_ffiVoid_NSURLResponse_NSData_NSError.fromFunction(
       SentryCocoa lib,
       void Function(ffi.Pointer<ObjCObject> arg0, ffi.Pointer<ObjCObject> arg1,
               ffi.Pointer<ObjCObject> arg2)
@@ -62350,9 +64480,10 @@ class ObjCBlock41 extends _ObjCBlockBase {
                                 ffi.Pointer<ObjCObject> arg0,
                                 ffi.Pointer<ObjCObject> arg1,
                                 ffi.Pointer<ObjCObject> arg2)>(
-                        _ObjCBlock41_closureTrampoline)
+                        _ObjCBlock_ffiVoid_NSURLResponse_NSData_NSError_closureTrampoline)
                     .cast(),
-                _ObjCBlock41_registerClosure(fn)),
+                _ObjCBlock_ffiVoid_NSURLResponse_NSData_NSError_registerClosure(
+                    fn)),
             lib);
   static ffi.Pointer<ffi.Void>? _dartFuncTrampoline;
   void call(ffi.Pointer<ObjCObject> arg0, ffi.Pointer<ObjCObject> arg1,
@@ -62492,9 +64623,22 @@ class NSURLCredential extends NSObject {
     return NSURLCredential._(_ret, _lib, retain: true, release: true);
   }
 
+  @override
+  NSURLCredential init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSURLCredential._(_ret, _lib, retain: true, release: true);
+  }
+
   static NSURLCredential new1(SentryCocoa _lib) {
     final _ret =
         _lib._objc_msgSend_2(_lib._class_NSURLCredential1, _lib._sel_new1);
+    return NSURLCredential._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSURLCredential allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSURLCredential1, _lib._sel_allocWithZone_1, zone);
     return NSURLCredential._(_ret, _lib, retain: false, release: true);
   }
 
@@ -62509,7 +64653,7 @@ class NSURLCredential extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSURLCredential1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -62519,7 +64663,7 @@ class NSURLCredential extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSURLCredential1,
+    _lib._objc_msgSend_15(_lib._class_NSURLCredential1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -62552,7 +64696,7 @@ class NSURLCredential extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSURLCredential1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -62699,9 +64843,22 @@ class NSURLProtectionSpace extends NSObject {
     return _lib._objc_msgSend_941(_id, _lib._sel_serverTrust1);
   }
 
+  @override
+  NSURLProtectionSpace init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSURLProtectionSpace._(_ret, _lib, retain: true, release: true);
+  }
+
   static NSURLProtectionSpace new1(SentryCocoa _lib) {
     final _ret =
         _lib._objc_msgSend_2(_lib._class_NSURLProtectionSpace1, _lib._sel_new1);
+    return NSURLProtectionSpace._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSURLProtectionSpace allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSURLProtectionSpace1, _lib._sel_allocWithZone_1, zone);
     return NSURLProtectionSpace._(_ret, _lib, retain: false, release: true);
   }
 
@@ -62716,7 +64873,7 @@ class NSURLProtectionSpace extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSURLProtectionSpace1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -62726,7 +64883,7 @@ class NSURLProtectionSpace extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSURLProtectionSpace1,
+    _lib._objc_msgSend_15(_lib._class_NSURLProtectionSpace1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -62759,7 +64916,7 @@ class NSURLProtectionSpace extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSURLProtectionSpace1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -62827,25 +64984,19 @@ class NSURLCredentialStorage extends NSObject {
 
   void setCredential_forProtectionSpace_(
       NSURLCredential? credential, NSURLProtectionSpace? space) {
-    return _lib._objc_msgSend_944(
-        _id,
-        _lib._sel_setCredential_forProtectionSpace_1,
-        credential?._id ?? ffi.nullptr,
-        space?._id ?? ffi.nullptr);
+    _lib._objc_msgSend_944(_id, _lib._sel_setCredential_forProtectionSpace_1,
+        credential?._id ?? ffi.nullptr, space?._id ?? ffi.nullptr);
   }
 
   void removeCredential_forProtectionSpace_(
       NSURLCredential? credential, NSURLProtectionSpace? space) {
-    return _lib._objc_msgSend_944(
-        _id,
-        _lib._sel_removeCredential_forProtectionSpace_1,
-        credential?._id ?? ffi.nullptr,
-        space?._id ?? ffi.nullptr);
+    _lib._objc_msgSend_944(_id, _lib._sel_removeCredential_forProtectionSpace_1,
+        credential?._id ?? ffi.nullptr, space?._id ?? ffi.nullptr);
   }
 
   void removeCredential_forProtectionSpace_options_(NSURLCredential? credential,
       NSURLProtectionSpace? space, NSDictionary? options) {
-    return _lib._objc_msgSend_945(
+    _lib._objc_msgSend_945(
         _id,
         _lib._sel_removeCredential_forProtectionSpace_options_1,
         credential?._id ?? ffi.nullptr,
@@ -62864,7 +65015,7 @@ class NSURLCredentialStorage extends NSObject {
 
   void setDefaultCredential_forProtectionSpace_(
       NSURLCredential? credential, NSURLProtectionSpace? space) {
-    return _lib._objc_msgSend_944(
+    _lib._objc_msgSend_944(
         _id,
         _lib._sel_setDefaultCredential_forProtectionSpace_1,
         credential?._id ?? ffi.nullptr,
@@ -62874,8 +65025,8 @@ class NSURLCredentialStorage extends NSObject {
   void getCredentialsForProtectionSpace_task_completionHandler_(
       NSURLProtectionSpace? protectionSpace,
       NSURLSessionTask? task,
-      ObjCBlock42 completionHandler) {
-    return _lib._objc_msgSend_947(
+      ObjCBlock_ffiVoid_NSDictionary completionHandler) {
+    _lib._objc_msgSend_947(
         _id,
         _lib._sel_getCredentialsForProtectionSpace_task_completionHandler_1,
         protectionSpace?._id ?? ffi.nullptr,
@@ -62885,7 +65036,7 @@ class NSURLCredentialStorage extends NSObject {
 
   void setCredential_forProtectionSpace_task_(NSURLCredential? credential,
       NSURLProtectionSpace? protectionSpace, NSURLSessionTask? task) {
-    return _lib._objc_msgSend_948(
+    _lib._objc_msgSend_948(
         _id,
         _lib._sel_setCredential_forProtectionSpace_task_1,
         credential?._id ?? ffi.nullptr,
@@ -62898,7 +65049,7 @@ class NSURLCredentialStorage extends NSObject {
       NSURLProtectionSpace? protectionSpace,
       NSDictionary? options,
       NSURLSessionTask? task) {
-    return _lib._objc_msgSend_949(
+    _lib._objc_msgSend_949(
         _id,
         _lib._sel_removeCredential_forProtectionSpace_options_task_1,
         credential?._id ?? ffi.nullptr,
@@ -62910,8 +65061,8 @@ class NSURLCredentialStorage extends NSObject {
   void getDefaultCredentialForProtectionSpace_task_completionHandler_(
       NSURLProtectionSpace? space,
       NSURLSessionTask? task,
-      ObjCBlock43 completionHandler) {
-    return _lib._objc_msgSend_950(
+      ObjCBlock_ffiVoid_NSURLCredential completionHandler) {
+    _lib._objc_msgSend_950(
         _id,
         _lib._sel_getDefaultCredentialForProtectionSpace_task_completionHandler_1,
         space?._id ?? ffi.nullptr,
@@ -62923,7 +65074,7 @@ class NSURLCredentialStorage extends NSObject {
       NSURLCredential? credential,
       NSURLProtectionSpace? protectionSpace,
       NSURLSessionTask? task) {
-    return _lib._objc_msgSend_948(
+    _lib._objc_msgSend_948(
         _id,
         _lib._sel_setDefaultCredential_forProtectionSpace_task_1,
         credential?._id ?? ffi.nullptr,
@@ -62931,9 +65082,22 @@ class NSURLCredentialStorage extends NSObject {
         task?._id ?? ffi.nullptr);
   }
 
+  @override
+  NSURLCredentialStorage init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSURLCredentialStorage._(_ret, _lib, retain: true, release: true);
+  }
+
   static NSURLCredentialStorage new1(SentryCocoa _lib) {
     final _ret = _lib._objc_msgSend_2(
         _lib._class_NSURLCredentialStorage1, _lib._sel_new1);
+    return NSURLCredentialStorage._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSURLCredentialStorage allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSURLCredentialStorage1, _lib._sel_allocWithZone_1, zone);
     return NSURLCredentialStorage._(_ret, _lib, retain: false, release: true);
   }
 
@@ -62948,7 +65112,7 @@ class NSURLCredentialStorage extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSURLCredentialStorage1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -62958,7 +65122,7 @@ class NSURLCredentialStorage extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSURLCredentialStorage1,
+    _lib._objc_msgSend_15(_lib._class_NSURLCredentialStorage1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -62991,7 +65155,7 @@ class NSURLCredentialStorage extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSURLCredentialStorage1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -63011,7 +65175,7 @@ class NSURLCredentialStorage extends NSObject {
   }
 }
 
-void _ObjCBlock42_fnPtrTrampoline(
+void _ObjCBlock_ffiVoid_NSDictionary_fnPtrTrampoline(
     ffi.Pointer<_ObjCBlock> block, ffi.Pointer<ObjCObject> arg0) {
   return block.ref.target
       .cast<
@@ -63019,26 +65183,27 @@ void _ObjCBlock42_fnPtrTrampoline(
       .asFunction<void Function(ffi.Pointer<ObjCObject> arg0)>()(arg0);
 }
 
-final _ObjCBlock42_closureRegistry = <int, Function>{};
-int _ObjCBlock42_closureRegistryIndex = 0;
-ffi.Pointer<ffi.Void> _ObjCBlock42_registerClosure(Function fn) {
-  final id = ++_ObjCBlock42_closureRegistryIndex;
-  _ObjCBlock42_closureRegistry[id] = fn;
+final _ObjCBlock_ffiVoid_NSDictionary_closureRegistry = <int, Function>{};
+int _ObjCBlock_ffiVoid_NSDictionary_closureRegistryIndex = 0;
+ffi.Pointer<ffi.Void> _ObjCBlock_ffiVoid_NSDictionary_registerClosure(
+    Function fn) {
+  final id = ++_ObjCBlock_ffiVoid_NSDictionary_closureRegistryIndex;
+  _ObjCBlock_ffiVoid_NSDictionary_closureRegistry[id] = fn;
   return ffi.Pointer<ffi.Void>.fromAddress(id);
 }
 
-void _ObjCBlock42_closureTrampoline(
+void _ObjCBlock_ffiVoid_NSDictionary_closureTrampoline(
     ffi.Pointer<_ObjCBlock> block, ffi.Pointer<ObjCObject> arg0) {
-  return (_ObjCBlock42_closureRegistry[block.ref.target.address] as void
-      Function(ffi.Pointer<ObjCObject>))(arg0);
+  return (_ObjCBlock_ffiVoid_NSDictionary_closureRegistry[block
+      .ref.target.address] as void Function(ffi.Pointer<ObjCObject>))(arg0);
 }
 
-class ObjCBlock42 extends _ObjCBlockBase {
-  ObjCBlock42._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
+class ObjCBlock_ffiVoid_NSDictionary extends _ObjCBlockBase {
+  ObjCBlock_ffiVoid_NSDictionary._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
       : super._(id, lib, retain: false, release: true);
 
   /// Creates a block from a C function pointer.
-  ObjCBlock42.fromFunctionPointer(
+  ObjCBlock_ffiVoid_NSDictionary.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
               ffi
@@ -63049,23 +65214,23 @@ class ObjCBlock42 extends _ObjCBlockBase {
                 _cFuncTrampoline ??= ffi.Pointer.fromFunction<
                             ffi.Void Function(ffi.Pointer<_ObjCBlock> block,
                                 ffi.Pointer<ObjCObject> arg0)>(
-                        _ObjCBlock42_fnPtrTrampoline)
+                        _ObjCBlock_ffiVoid_NSDictionary_fnPtrTrampoline)
                     .cast(),
                 ptr.cast()),
             lib);
   static ffi.Pointer<ffi.Void>? _cFuncTrampoline;
 
   /// Creates a block from a Dart function.
-  ObjCBlock42.fromFunction(
+  ObjCBlock_ffiVoid_NSDictionary.fromFunction(
       SentryCocoa lib, void Function(ffi.Pointer<ObjCObject> arg0) fn)
       : this._(
             lib._newBlock1(
                 _dartFuncTrampoline ??= ffi.Pointer.fromFunction<
                             ffi.Void Function(ffi.Pointer<_ObjCBlock> block,
                                 ffi.Pointer<ObjCObject> arg0)>(
-                        _ObjCBlock42_closureTrampoline)
+                        _ObjCBlock_ffiVoid_NSDictionary_closureTrampoline)
                     .cast(),
-                _ObjCBlock42_registerClosure(fn)),
+                _ObjCBlock_ffiVoid_NSDictionary_registerClosure(fn)),
             lib);
   static ffi.Pointer<ffi.Void>? _dartFuncTrampoline;
   void call(ffi.Pointer<ObjCObject> arg0) {
@@ -63080,7 +65245,7 @@ class ObjCBlock42 extends _ObjCBlockBase {
   }
 }
 
-void _ObjCBlock43_fnPtrTrampoline(
+void _ObjCBlock_ffiVoid_NSURLCredential_fnPtrTrampoline(
     ffi.Pointer<_ObjCBlock> block, ffi.Pointer<ObjCObject> arg0) {
   return block.ref.target
       .cast<
@@ -63088,26 +65253,28 @@ void _ObjCBlock43_fnPtrTrampoline(
       .asFunction<void Function(ffi.Pointer<ObjCObject> arg0)>()(arg0);
 }
 
-final _ObjCBlock43_closureRegistry = <int, Function>{};
-int _ObjCBlock43_closureRegistryIndex = 0;
-ffi.Pointer<ffi.Void> _ObjCBlock43_registerClosure(Function fn) {
-  final id = ++_ObjCBlock43_closureRegistryIndex;
-  _ObjCBlock43_closureRegistry[id] = fn;
+final _ObjCBlock_ffiVoid_NSURLCredential_closureRegistry = <int, Function>{};
+int _ObjCBlock_ffiVoid_NSURLCredential_closureRegistryIndex = 0;
+ffi.Pointer<ffi.Void> _ObjCBlock_ffiVoid_NSURLCredential_registerClosure(
+    Function fn) {
+  final id = ++_ObjCBlock_ffiVoid_NSURLCredential_closureRegistryIndex;
+  _ObjCBlock_ffiVoid_NSURLCredential_closureRegistry[id] = fn;
   return ffi.Pointer<ffi.Void>.fromAddress(id);
 }
 
-void _ObjCBlock43_closureTrampoline(
+void _ObjCBlock_ffiVoid_NSURLCredential_closureTrampoline(
     ffi.Pointer<_ObjCBlock> block, ffi.Pointer<ObjCObject> arg0) {
-  return (_ObjCBlock43_closureRegistry[block.ref.target.address] as void
-      Function(ffi.Pointer<ObjCObject>))(arg0);
+  return (_ObjCBlock_ffiVoid_NSURLCredential_closureRegistry[block
+      .ref.target.address] as void Function(ffi.Pointer<ObjCObject>))(arg0);
 }
 
-class ObjCBlock43 extends _ObjCBlockBase {
-  ObjCBlock43._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
+class ObjCBlock_ffiVoid_NSURLCredential extends _ObjCBlockBase {
+  ObjCBlock_ffiVoid_NSURLCredential._(
+      ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
       : super._(id, lib, retain: false, release: true);
 
   /// Creates a block from a C function pointer.
-  ObjCBlock43.fromFunctionPointer(
+  ObjCBlock_ffiVoid_NSURLCredential.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
               ffi
@@ -63118,23 +65285,23 @@ class ObjCBlock43 extends _ObjCBlockBase {
                 _cFuncTrampoline ??= ffi.Pointer.fromFunction<
                             ffi.Void Function(ffi.Pointer<_ObjCBlock> block,
                                 ffi.Pointer<ObjCObject> arg0)>(
-                        _ObjCBlock43_fnPtrTrampoline)
+                        _ObjCBlock_ffiVoid_NSURLCredential_fnPtrTrampoline)
                     .cast(),
                 ptr.cast()),
             lib);
   static ffi.Pointer<ffi.Void>? _cFuncTrampoline;
 
   /// Creates a block from a Dart function.
-  ObjCBlock43.fromFunction(
+  ObjCBlock_ffiVoid_NSURLCredential.fromFunction(
       SentryCocoa lib, void Function(ffi.Pointer<ObjCObject> arg0) fn)
       : this._(
             lib._newBlock1(
                 _dartFuncTrampoline ??= ffi.Pointer.fromFunction<
                             ffi.Void Function(ffi.Pointer<_ObjCBlock> block,
                                 ffi.Pointer<ObjCObject> arg0)>(
-                        _ObjCBlock43_closureTrampoline)
+                        _ObjCBlock_ffiVoid_NSURLCredential_closureTrampoline)
                     .cast(),
-                _ObjCBlock43_registerClosure(fn)),
+                _ObjCBlock_ffiVoid_NSURLCredential_registerClosure(fn)),
             lib);
   static ffi.Pointer<ffi.Void>? _dartFuncTrampoline;
   void call(ffi.Pointer<ObjCObject> arg0) {
@@ -63226,11 +65393,11 @@ class NSURLProtocol extends NSObject {
   }
 
   void startLoading() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_startLoading1);
+    _lib._objc_msgSend_1(_id, _lib._sel_startLoading1);
   }
 
   void stopLoading() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_stopLoading1);
+    _lib._objc_msgSend_1(_id, _lib._sel_stopLoading1);
   }
 
   static NSObject propertyForKey_inRequest_(
@@ -63245,7 +65412,7 @@ class NSURLProtocol extends NSObject {
 
   static void setProperty_forKey_inRequest_(SentryCocoa _lib, NSObject value,
       NSString? key, NSMutableURLRequest? request) {
-    return _lib._objc_msgSend_961(
+    _lib._objc_msgSend_961(
         _lib._class_NSURLProtocol1,
         _lib._sel_setProperty_forKey_inRequest_1,
         value._id,
@@ -63255,7 +65422,7 @@ class NSURLProtocol extends NSObject {
 
   static void removePropertyForKey_inRequest_(
       SentryCocoa _lib, NSString? key, NSMutableURLRequest? request) {
-    return _lib._objc_msgSend_962(
+    _lib._objc_msgSend_962(
         _lib._class_NSURLProtocol1,
         _lib._sel_removePropertyForKey_inRequest_1,
         key?._id ?? ffi.nullptr,
@@ -63268,7 +65435,7 @@ class NSURLProtocol extends NSObject {
   }
 
   static void unregisterClass_(SentryCocoa _lib, NSObject protocolClass) {
-    return _lib._objc_msgSend_15(_lib._class_NSURLProtocol1,
+    _lib._objc_msgSend_15(_lib._class_NSURLProtocol1,
         _lib._sel_unregisterClass_1, protocolClass._id);
   }
 
@@ -63295,9 +65462,22 @@ class NSURLProtocol extends NSObject {
         : NSURLSessionTask._(_ret, _lib, retain: true, release: true);
   }
 
+  @override
+  NSURLProtocol init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSURLProtocol._(_ret, _lib, retain: true, release: true);
+  }
+
   static NSURLProtocol new1(SentryCocoa _lib) {
     final _ret =
         _lib._objc_msgSend_2(_lib._class_NSURLProtocol1, _lib._sel_new1);
+    return NSURLProtocol._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSURLProtocol allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSURLProtocol1, _lib._sel_allocWithZone_1, zone);
     return NSURLProtocol._(_ret, _lib, retain: false, release: true);
   }
 
@@ -63312,7 +65492,7 @@ class NSURLProtocol extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSURLProtocol1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -63322,7 +65502,7 @@ class NSURLProtocol extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSURLProtocol1,
+    _lib._objc_msgSend_15(_lib._class_NSURLProtocol1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -63355,7 +65535,7 @@ class NSURLProtocol extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSURLProtocol1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -63408,7 +65588,8 @@ class NSMutableURLRequest extends NSURLRequest {
   }
 
   set URL(NSURL? value) {
-    _lib._objc_msgSend_655(_id, _lib._sel_setURL_1, value?._id ?? ffi.nullptr);
+    return _lib._objc_msgSend_655(
+        _id, _lib._sel_setURL_1, value?._id ?? ffi.nullptr);
   }
 
   @override
@@ -63417,7 +65598,7 @@ class NSMutableURLRequest extends NSURLRequest {
   }
 
   set cachePolicy(int value) {
-    _lib._objc_msgSend_956(_id, _lib._sel_setCachePolicy_1, value);
+    return _lib._objc_msgSend_956(_id, _lib._sel_setCachePolicy_1, value);
   }
 
   @override
@@ -63426,7 +65607,7 @@ class NSMutableURLRequest extends NSURLRequest {
   }
 
   set timeoutInterval(double value) {
-    _lib._objc_msgSend_506(_id, _lib._sel_setTimeoutInterval_1, value);
+    return _lib._objc_msgSend_506(_id, _lib._sel_setTimeoutInterval_1, value);
   }
 
   @override
@@ -63438,7 +65619,7 @@ class NSMutableURLRequest extends NSURLRequest {
   }
 
   set mainDocumentURL(NSURL? value) {
-    _lib._objc_msgSend_655(
+    return _lib._objc_msgSend_655(
         _id, _lib._sel_setMainDocumentURL_1, value?._id ?? ffi.nullptr);
   }
 
@@ -63448,7 +65629,8 @@ class NSMutableURLRequest extends NSURLRequest {
   }
 
   set networkServiceType(int value) {
-    _lib._objc_msgSend_957(_id, _lib._sel_setNetworkServiceType_1, value);
+    return _lib._objc_msgSend_957(
+        _id, _lib._sel_setNetworkServiceType_1, value);
   }
 
   @override
@@ -63457,7 +65639,8 @@ class NSMutableURLRequest extends NSURLRequest {
   }
 
   set allowsCellularAccess(bool value) {
-    _lib._objc_msgSend_492(_id, _lib._sel_setAllowsCellularAccess_1, value);
+    return _lib._objc_msgSend_492(
+        _id, _lib._sel_setAllowsCellularAccess_1, value);
   }
 
   @override
@@ -63466,7 +65649,7 @@ class NSMutableURLRequest extends NSURLRequest {
   }
 
   set allowsExpensiveNetworkAccess(bool value) {
-    _lib._objc_msgSend_492(
+    return _lib._objc_msgSend_492(
         _id, _lib._sel_setAllowsExpensiveNetworkAccess_1, value);
   }
 
@@ -63477,7 +65660,7 @@ class NSMutableURLRequest extends NSURLRequest {
   }
 
   set allowsConstrainedNetworkAccess(bool value) {
-    _lib._objc_msgSend_492(
+    return _lib._objc_msgSend_492(
         _id, _lib._sel_setAllowsConstrainedNetworkAccess_1, value);
   }
 
@@ -63487,7 +65670,8 @@ class NSMutableURLRequest extends NSURLRequest {
   }
 
   set assumesHTTP3Capable(bool value) {
-    _lib._objc_msgSend_492(_id, _lib._sel_setAssumesHTTP3Capable_1, value);
+    return _lib._objc_msgSend_492(
+        _id, _lib._sel_setAssumesHTTP3Capable_1, value);
   }
 
   @override
@@ -63496,7 +65680,7 @@ class NSMutableURLRequest extends NSURLRequest {
   }
 
   set attribution(int value) {
-    _lib._objc_msgSend_958(_id, _lib._sel_setAttribution_1, value);
+    return _lib._objc_msgSend_958(_id, _lib._sel_setAttribution_1, value);
   }
 
   @override
@@ -63505,7 +65689,8 @@ class NSMutableURLRequest extends NSURLRequest {
   }
 
   set requiresDNSSECValidation(bool value) {
-    _lib._objc_msgSend_492(_id, _lib._sel_setRequiresDNSSECValidation_1, value);
+    return _lib._objc_msgSend_492(
+        _id, _lib._sel_setRequiresDNSSECValidation_1, value);
   }
 
   @override
@@ -63517,7 +65702,7 @@ class NSMutableURLRequest extends NSURLRequest {
   }
 
   set HTTPMethod(NSString? value) {
-    _lib._objc_msgSend_509(
+    return _lib._objc_msgSend_509(
         _id, _lib._sel_setHTTPMethod_1, value?._id ?? ffi.nullptr);
   }
 
@@ -63530,17 +65715,17 @@ class NSMutableURLRequest extends NSURLRequest {
   }
 
   set allHTTPHeaderFields(NSDictionary? value) {
-    _lib._objc_msgSend_171(
+    return _lib._objc_msgSend_171(
         _id, _lib._sel_setAllHTTPHeaderFields_1, value?._id ?? ffi.nullptr);
   }
 
   void setValue_forHTTPHeaderField_(NSString? value, NSString? field) {
-    return _lib._objc_msgSend_515(_id, _lib._sel_setValue_forHTTPHeaderField_1,
+    _lib._objc_msgSend_515(_id, _lib._sel_setValue_forHTTPHeaderField_1,
         value?._id ?? ffi.nullptr, field?._id ?? ffi.nullptr);
   }
 
   void addValue_forHTTPHeaderField_(NSString? value, NSString? field) {
-    return _lib._objc_msgSend_515(_id, _lib._sel_addValue_forHTTPHeaderField_1,
+    _lib._objc_msgSend_515(_id, _lib._sel_addValue_forHTTPHeaderField_1,
         value?._id ?? ffi.nullptr, field?._id ?? ffi.nullptr);
   }
 
@@ -63553,7 +65738,7 @@ class NSMutableURLRequest extends NSURLRequest {
   }
 
   set HTTPBody(NSData? value) {
-    _lib._objc_msgSend_959(
+    return _lib._objc_msgSend_959(
         _id, _lib._sel_setHTTPBody_1, value?._id ?? ffi.nullptr);
   }
 
@@ -63566,7 +65751,7 @@ class NSMutableURLRequest extends NSURLRequest {
   }
 
   set HTTPBodyStream(NSInputStream? value) {
-    _lib._objc_msgSend_960(
+    return _lib._objc_msgSend_960(
         _id, _lib._sel_setHTTPBodyStream_1, value?._id ?? ffi.nullptr);
   }
 
@@ -63576,7 +65761,8 @@ class NSMutableURLRequest extends NSURLRequest {
   }
 
   set HTTPShouldHandleCookies(bool value) {
-    _lib._objc_msgSend_492(_id, _lib._sel_setHTTPShouldHandleCookies_1, value);
+    return _lib._objc_msgSend_492(
+        _id, _lib._sel_setHTTPShouldHandleCookies_1, value);
   }
 
   @override
@@ -63585,7 +65771,8 @@ class NSMutableURLRequest extends NSURLRequest {
   }
 
   set HTTPShouldUsePipelining(bool value) {
-    _lib._objc_msgSend_492(_id, _lib._sel_setHTTPShouldUsePipelining_1, value);
+    return _lib._objc_msgSend_492(
+        _id, _lib._sel_setHTTPShouldUsePipelining_1, value);
   }
 
   static NSMutableURLRequest requestWithURL_(SentryCocoa _lib, NSURL? URL) {
@@ -63610,9 +65797,41 @@ class NSMutableURLRequest extends NSURLRequest {
     return NSMutableURLRequest._(_ret, _lib, retain: true, release: true);
   }
 
+  @override
+  NSMutableURLRequest initWithURL_(NSURL? URL) {
+    final _ret = _lib._objc_msgSend_241(
+        _id, _lib._sel_initWithURL_1, URL?._id ?? ffi.nullptr);
+    return NSMutableURLRequest._(_ret, _lib, retain: true, release: true);
+  }
+
+  @override
+  NSMutableURLRequest initWithURL_cachePolicy_timeoutInterval_(
+      NSURL? URL, int cachePolicy, double timeoutInterval) {
+    final _ret = _lib._objc_msgSend_815(
+        _id,
+        _lib._sel_initWithURL_cachePolicy_timeoutInterval_1,
+        URL?._id ?? ffi.nullptr,
+        cachePolicy,
+        timeoutInterval);
+    return NSMutableURLRequest._(_ret, _lib, retain: true, release: true);
+  }
+
+  @override
+  NSMutableURLRequest init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSMutableURLRequest._(_ret, _lib, retain: true, release: true);
+  }
+
   static NSMutableURLRequest new1(SentryCocoa _lib) {
     final _ret =
         _lib._objc_msgSend_2(_lib._class_NSMutableURLRequest1, _lib._sel_new1);
+    return NSMutableURLRequest._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSMutableURLRequest allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSMutableURLRequest1, _lib._sel_allocWithZone_1, zone);
     return NSMutableURLRequest._(_ret, _lib, retain: false, release: true);
   }
 
@@ -63627,7 +65846,7 @@ class NSMutableURLRequest extends NSURLRequest {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSMutableURLRequest1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -63637,7 +65856,7 @@ class NSMutableURLRequest extends NSURLRequest {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSMutableURLRequest1,
+    _lib._objc_msgSend_15(_lib._class_NSMutableURLRequest1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -63670,7 +65889,7 @@ class NSMutableURLRequest extends NSURLRequest {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSMutableURLRequest1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -63739,7 +65958,7 @@ class NSXMLParser extends NSObject {
   }
 
   set delegate(NSObject? value) {
-    _lib._objc_msgSend_387(
+    return _lib._objc_msgSend_387(
         _id, _lib._sel_setDelegate_1, value?._id ?? ffi.nullptr);
   }
 
@@ -63748,7 +65967,8 @@ class NSXMLParser extends NSObject {
   }
 
   set shouldProcessNamespaces(bool value) {
-    _lib._objc_msgSend_492(_id, _lib._sel_setShouldProcessNamespaces_1, value);
+    return _lib._objc_msgSend_492(
+        _id, _lib._sel_setShouldProcessNamespaces_1, value);
   }
 
   bool get shouldReportNamespacePrefixes {
@@ -63756,7 +65976,7 @@ class NSXMLParser extends NSObject {
   }
 
   set shouldReportNamespacePrefixes(bool value) {
-    _lib._objc_msgSend_492(
+    return _lib._objc_msgSend_492(
         _id, _lib._sel_setShouldReportNamespacePrefixes_1, value);
   }
 
@@ -63766,7 +65986,7 @@ class NSXMLParser extends NSObject {
   }
 
   set externalEntityResolvingPolicy(int value) {
-    _lib._objc_msgSend_968(
+    return _lib._objc_msgSend_968(
         _id, _lib._sel_setExternalEntityResolvingPolicy_1, value);
   }
 
@@ -63779,7 +65999,7 @@ class NSXMLParser extends NSObject {
   }
 
   set allowedExternalEntityURLs(NSSet? value) {
-    _lib._objc_msgSend_969(_id, _lib._sel_setAllowedExternalEntityURLs_1,
+    return _lib._objc_msgSend_969(_id, _lib._sel_setAllowedExternalEntityURLs_1,
         value?._id ?? ffi.nullptr);
   }
 
@@ -63788,7 +66008,7 @@ class NSXMLParser extends NSObject {
   }
 
   void abortParsing() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_abortParsing1);
+    _lib._objc_msgSend_1(_id, _lib._sel_abortParsing1);
   }
 
   NSError? get parserError {
@@ -63803,7 +66023,7 @@ class NSXMLParser extends NSObject {
   }
 
   set shouldResolveExternalEntities(bool value) {
-    _lib._objc_msgSend_492(
+    return _lib._objc_msgSend_492(
         _id, _lib._sel_setShouldResolveExternalEntities_1, value);
   }
 
@@ -63829,8 +66049,21 @@ class NSXMLParser extends NSObject {
     return _lib._objc_msgSend_78(_id, _lib._sel_columnNumber1);
   }
 
+  @override
+  NSXMLParser init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSXMLParser._(_ret, _lib, retain: true, release: true);
+  }
+
   static NSXMLParser new1(SentryCocoa _lib) {
     final _ret = _lib._objc_msgSend_2(_lib._class_NSXMLParser1, _lib._sel_new1);
+    return NSXMLParser._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSXMLParser allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSXMLParser1, _lib._sel_allocWithZone_1, zone);
     return NSXMLParser._(_ret, _lib, retain: false, release: true);
   }
 
@@ -63845,7 +66078,7 @@ class NSXMLParser extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSXMLParser1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -63855,7 +66088,7 @@ class NSXMLParser extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSXMLParser1,
+    _lib._objc_msgSend_15(_lib._class_NSXMLParser1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -63888,7 +66121,7 @@ class NSXMLParser extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSXMLParser1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -64007,7 +66240,7 @@ class NSFileWrapper extends NSObject {
   }
 
   set preferredFilename(NSString? value) {
-    _lib._objc_msgSend_509(
+    return _lib._objc_msgSend_509(
         _id, _lib._sel_setPreferredFilename_1, value?._id ?? ffi.nullptr);
   }
 
@@ -64019,7 +66252,7 @@ class NSFileWrapper extends NSObject {
   }
 
   set filename(NSString? value) {
-    _lib._objc_msgSend_509(
+    return _lib._objc_msgSend_509(
         _id, _lib._sel_setFilename_1, value?._id ?? ffi.nullptr);
   }
 
@@ -64031,7 +66264,7 @@ class NSFileWrapper extends NSObject {
   }
 
   set fileAttributes(NSDictionary? value) {
-    _lib._objc_msgSend_171(
+    return _lib._objc_msgSend_171(
         _id, _lib._sel_setFileAttributes_1, value?._id ?? ffi.nullptr);
   }
 
@@ -64085,7 +66318,7 @@ class NSFileWrapper extends NSObject {
   }
 
   void removeFileWrapper_(NSFileWrapper? child) {
-    return _lib._objc_msgSend_975(
+    _lib._objc_msgSend_975(
         _id, _lib._sel_removeFileWrapper_1, child?._id ?? ffi.nullptr);
   }
 
@@ -64170,9 +66403,22 @@ class NSFileWrapper extends NSObject {
     return NSString._(_ret, _lib, retain: true, release: true);
   }
 
+  @override
+  NSFileWrapper init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSFileWrapper._(_ret, _lib, retain: true, release: true);
+  }
+
   static NSFileWrapper new1(SentryCocoa _lib) {
     final _ret =
         _lib._objc_msgSend_2(_lib._class_NSFileWrapper1, _lib._sel_new1);
+    return NSFileWrapper._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSFileWrapper allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSFileWrapper1, _lib._sel_allocWithZone_1, zone);
     return NSFileWrapper._(_ret, _lib, retain: false, release: true);
   }
 
@@ -64187,7 +66433,7 @@ class NSFileWrapper extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSFileWrapper1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -64197,7 +66443,7 @@ class NSFileWrapper extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSFileWrapper1,
+    _lib._objc_msgSend_15(_lib._class_NSFileWrapper1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -64230,7 +66476,7 @@ class NSFileWrapper extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSFileWrapper1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -64343,36 +66589,38 @@ class NSURLSession extends NSObject {
   }
 
   set sessionDescription(NSString? value) {
-    _lib._objc_msgSend_509(
+    return _lib._objc_msgSend_509(
         _id, _lib._sel_setSessionDescription_1, value?._id ?? ffi.nullptr);
   }
 
   void finishTasksAndInvalidate() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_finishTasksAndInvalidate1);
+    _lib._objc_msgSend_1(_id, _lib._sel_finishTasksAndInvalidate1);
   }
 
   void invalidateAndCancel() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_invalidateAndCancel1);
+    _lib._objc_msgSend_1(_id, _lib._sel_invalidateAndCancel1);
   }
 
-  void resetWithCompletionHandler_(ObjCBlock21 completionHandler) {
-    return _lib._objc_msgSend_497(
+  void resetWithCompletionHandler_(ObjCBlock_ffiVoid completionHandler) {
+    _lib._objc_msgSend_497(
         _id, _lib._sel_resetWithCompletionHandler_1, completionHandler._id);
   }
 
-  void flushWithCompletionHandler_(ObjCBlock21 completionHandler) {
-    return _lib._objc_msgSend_497(
+  void flushWithCompletionHandler_(ObjCBlock_ffiVoid completionHandler) {
+    _lib._objc_msgSend_497(
         _id, _lib._sel_flushWithCompletionHandler_1, completionHandler._id);
   }
 
-  void getTasksWithCompletionHandler_(ObjCBlock44 completionHandler) {
-    return _lib._objc_msgSend_990(
+  void getTasksWithCompletionHandler_(
+      ObjCBlock_ffiVoid_NSArray_NSArray_NSArray completionHandler) {
+    _lib._objc_msgSend_990(
         _id, _lib._sel_getTasksWithCompletionHandler_1, completionHandler._id);
   }
 
-  void getAllTasksWithCompletionHandler_(ObjCBlock37 completionHandler) {
-    return _lib._objc_msgSend_991(_id,
-        _lib._sel_getAllTasksWithCompletionHandler_1, completionHandler._id);
+  void getAllTasksWithCompletionHandler_(
+      ObjCBlock_ffiVoid_NSArray completionHandler) {
+    _lib._objc_msgSend_991(_id, _lib._sel_getAllTasksWithCompletionHandler_1,
+        completionHandler._id);
   }
 
   NSURLSessionDataTask dataTaskWithRequest_(NSURLRequest? request) {
@@ -64482,7 +66730,8 @@ class NSURLSession extends NSObject {
   }
 
   NSURLSessionDataTask dataTaskWithRequest_completionHandler_(
-      NSURLRequest? request, ObjCBlock48 completionHandler) {
+      NSURLRequest? request,
+      ObjCBlock_ffiVoid_NSData_NSURLResponse_NSError completionHandler) {
     final _ret = _lib._objc_msgSend_1019(
         _id,
         _lib._sel_dataTaskWithRequest_completionHandler_1,
@@ -64491,8 +66740,8 @@ class NSURLSession extends NSObject {
     return NSURLSessionDataTask._(_ret, _lib, retain: true, release: true);
   }
 
-  NSURLSessionDataTask dataTaskWithURL_completionHandler_(
-      NSURL? url, ObjCBlock48 completionHandler) {
+  NSURLSessionDataTask dataTaskWithURL_completionHandler_(NSURL? url,
+      ObjCBlock_ffiVoid_NSData_NSURLResponse_NSError completionHandler) {
     final _ret = _lib._objc_msgSend_1020(
         _id,
         _lib._sel_dataTaskWithURL_completionHandler_1,
@@ -64502,7 +66751,9 @@ class NSURLSession extends NSObject {
   }
 
   NSURLSessionUploadTask uploadTaskWithRequest_fromFile_completionHandler_(
-      NSURLRequest? request, NSURL? fileURL, ObjCBlock48 completionHandler) {
+      NSURLRequest? request,
+      NSURL? fileURL,
+      ObjCBlock_ffiVoid_NSData_NSURLResponse_NSError completionHandler) {
     final _ret = _lib._objc_msgSend_1021(
         _id,
         _lib._sel_uploadTaskWithRequest_fromFile_completionHandler_1,
@@ -64513,7 +66764,9 @@ class NSURLSession extends NSObject {
   }
 
   NSURLSessionUploadTask uploadTaskWithRequest_fromData_completionHandler_(
-      NSURLRequest? request, NSData? bodyData, ObjCBlock48 completionHandler) {
+      NSURLRequest? request,
+      NSData? bodyData,
+      ObjCBlock_ffiVoid_NSData_NSURLResponse_NSError completionHandler) {
     final _ret = _lib._objc_msgSend_1022(
         _id,
         _lib._sel_uploadTaskWithRequest_fromData_completionHandler_1,
@@ -64524,7 +66777,8 @@ class NSURLSession extends NSObject {
   }
 
   NSURLSessionDownloadTask downloadTaskWithRequest_completionHandler_(
-      NSURLRequest? request, ObjCBlock49 completionHandler) {
+      NSURLRequest? request,
+      ObjCBlock_ffiVoid_NSURL_NSURLResponse_NSError completionHandler) {
     final _ret = _lib._objc_msgSend_1023(
         _id,
         _lib._sel_downloadTaskWithRequest_completionHandler_1,
@@ -64533,8 +66787,8 @@ class NSURLSession extends NSObject {
     return NSURLSessionDownloadTask._(_ret, _lib, retain: true, release: true);
   }
 
-  NSURLSessionDownloadTask downloadTaskWithURL_completionHandler_(
-      NSURL? url, ObjCBlock49 completionHandler) {
+  NSURLSessionDownloadTask downloadTaskWithURL_completionHandler_(NSURL? url,
+      ObjCBlock_ffiVoid_NSURL_NSURLResponse_NSError completionHandler) {
     final _ret = _lib._objc_msgSend_1024(
         _id,
         _lib._sel_downloadTaskWithURL_completionHandler_1,
@@ -64544,13 +66798,21 @@ class NSURLSession extends NSObject {
   }
 
   NSURLSessionDownloadTask downloadTaskWithResumeData_completionHandler_(
-      NSData? resumeData, ObjCBlock49 completionHandler) {
+      NSData? resumeData,
+      ObjCBlock_ffiVoid_NSURL_NSURLResponse_NSError completionHandler) {
     final _ret = _lib._objc_msgSend_1025(
         _id,
         _lib._sel_downloadTaskWithResumeData_completionHandler_1,
         resumeData?._id ?? ffi.nullptr,
         completionHandler._id);
     return NSURLSessionDownloadTask._(_ret, _lib, retain: true, release: true);
+  }
+
+  static NSURLSession allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSURLSession1, _lib._sel_allocWithZone_1, zone);
+    return NSURLSession._(_ret, _lib, retain: false, release: true);
   }
 
   static NSURLSession alloc(SentryCocoa _lib) {
@@ -64564,7 +66826,7 @@ class NSURLSession extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSURLSession1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -64574,7 +66836,7 @@ class NSURLSession extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSURLSession1,
+    _lib._objc_msgSend_15(_lib._class_NSURLSession1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -64607,7 +66869,7 @@ class NSURLSession extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSURLSession1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -64692,7 +66954,8 @@ class NSURLSessionConfiguration extends NSObject {
   }
 
   set requestCachePolicy(int value) {
-    _lib._objc_msgSend_956(_id, _lib._sel_setRequestCachePolicy_1, value);
+    return _lib._objc_msgSend_956(
+        _id, _lib._sel_setRequestCachePolicy_1, value);
   }
 
   double get timeoutIntervalForRequest {
@@ -64700,7 +66963,7 @@ class NSURLSessionConfiguration extends NSObject {
   }
 
   set timeoutIntervalForRequest(double value) {
-    _lib._objc_msgSend_506(
+    return _lib._objc_msgSend_506(
         _id, _lib._sel_setTimeoutIntervalForRequest_1, value);
   }
 
@@ -64709,7 +66972,7 @@ class NSURLSessionConfiguration extends NSObject {
   }
 
   set timeoutIntervalForResource(double value) {
-    _lib._objc_msgSend_506(
+    return _lib._objc_msgSend_506(
         _id, _lib._sel_setTimeoutIntervalForResource_1, value);
   }
 
@@ -64718,7 +66981,8 @@ class NSURLSessionConfiguration extends NSObject {
   }
 
   set networkServiceType(int value) {
-    _lib._objc_msgSend_957(_id, _lib._sel_setNetworkServiceType_1, value);
+    return _lib._objc_msgSend_957(
+        _id, _lib._sel_setNetworkServiceType_1, value);
   }
 
   bool get allowsCellularAccess {
@@ -64726,7 +66990,8 @@ class NSURLSessionConfiguration extends NSObject {
   }
 
   set allowsCellularAccess(bool value) {
-    _lib._objc_msgSend_492(_id, _lib._sel_setAllowsCellularAccess_1, value);
+    return _lib._objc_msgSend_492(
+        _id, _lib._sel_setAllowsCellularAccess_1, value);
   }
 
   bool get allowsExpensiveNetworkAccess {
@@ -64734,7 +66999,7 @@ class NSURLSessionConfiguration extends NSObject {
   }
 
   set allowsExpensiveNetworkAccess(bool value) {
-    _lib._objc_msgSend_492(
+    return _lib._objc_msgSend_492(
         _id, _lib._sel_setAllowsExpensiveNetworkAccess_1, value);
   }
 
@@ -64744,7 +67009,7 @@ class NSURLSessionConfiguration extends NSObject {
   }
 
   set allowsConstrainedNetworkAccess(bool value) {
-    _lib._objc_msgSend_492(
+    return _lib._objc_msgSend_492(
         _id, _lib._sel_setAllowsConstrainedNetworkAccess_1, value);
   }
 
@@ -64753,7 +67018,8 @@ class NSURLSessionConfiguration extends NSObject {
   }
 
   set requiresDNSSECValidation(bool value) {
-    _lib._objc_msgSend_492(_id, _lib._sel_setRequiresDNSSECValidation_1, value);
+    return _lib._objc_msgSend_492(
+        _id, _lib._sel_setRequiresDNSSECValidation_1, value);
   }
 
   bool get waitsForConnectivity {
@@ -64761,7 +67027,8 @@ class NSURLSessionConfiguration extends NSObject {
   }
 
   set waitsForConnectivity(bool value) {
-    _lib._objc_msgSend_492(_id, _lib._sel_setWaitsForConnectivity_1, value);
+    return _lib._objc_msgSend_492(
+        _id, _lib._sel_setWaitsForConnectivity_1, value);
   }
 
   bool get discretionary {
@@ -64769,7 +67036,7 @@ class NSURLSessionConfiguration extends NSObject {
   }
 
   set discretionary(bool value) {
-    _lib._objc_msgSend_492(_id, _lib._sel_setDiscretionary_1, value);
+    return _lib._objc_msgSend_492(_id, _lib._sel_setDiscretionary_1, value);
   }
 
   NSString? get sharedContainerIdentifier {
@@ -64781,7 +67048,7 @@ class NSURLSessionConfiguration extends NSObject {
   }
 
   set sharedContainerIdentifier(NSString? value) {
-    _lib._objc_msgSend_509(_id, _lib._sel_setSharedContainerIdentifier_1,
+    return _lib._objc_msgSend_509(_id, _lib._sel_setSharedContainerIdentifier_1,
         value?._id ?? ffi.nullptr);
   }
 
@@ -64790,7 +67057,8 @@ class NSURLSessionConfiguration extends NSObject {
   }
 
   set sessionSendsLaunchEvents(bool value) {
-    _lib._objc_msgSend_492(_id, _lib._sel_setSessionSendsLaunchEvents_1, value);
+    return _lib._objc_msgSend_492(
+        _id, _lib._sel_setSessionSendsLaunchEvents_1, value);
   }
 
   NSDictionary? get connectionProxyDictionary {
@@ -64802,7 +67070,7 @@ class NSURLSessionConfiguration extends NSObject {
   }
 
   set connectionProxyDictionary(NSDictionary? value) {
-    _lib._objc_msgSend_171(_id, _lib._sel_setConnectionProxyDictionary_1,
+    return _lib._objc_msgSend_171(_id, _lib._sel_setConnectionProxyDictionary_1,
         value?._id ?? ffi.nullptr);
   }
 
@@ -64811,7 +67079,7 @@ class NSURLSessionConfiguration extends NSObject {
   }
 
   set TLSMinimumSupportedProtocol(int value) {
-    _lib._objc_msgSend_981(
+    return _lib._objc_msgSend_981(
         _id, _lib._sel_setTLSMinimumSupportedProtocol_1, value);
   }
 
@@ -64820,7 +67088,7 @@ class NSURLSessionConfiguration extends NSObject {
   }
 
   set TLSMaximumSupportedProtocol(int value) {
-    _lib._objc_msgSend_981(
+    return _lib._objc_msgSend_981(
         _id, _lib._sel_setTLSMaximumSupportedProtocol_1, value);
   }
 
@@ -64830,7 +67098,7 @@ class NSURLSessionConfiguration extends NSObject {
   }
 
   set TLSMinimumSupportedProtocolVersion(int value) {
-    _lib._objc_msgSend_983(
+    return _lib._objc_msgSend_983(
         _id, _lib._sel_setTLSMinimumSupportedProtocolVersion_1, value);
   }
 
@@ -64840,7 +67108,7 @@ class NSURLSessionConfiguration extends NSObject {
   }
 
   set TLSMaximumSupportedProtocolVersion(int value) {
-    _lib._objc_msgSend_983(
+    return _lib._objc_msgSend_983(
         _id, _lib._sel_setTLSMaximumSupportedProtocolVersion_1, value);
   }
 
@@ -64849,7 +67117,8 @@ class NSURLSessionConfiguration extends NSObject {
   }
 
   set HTTPShouldUsePipelining(bool value) {
-    _lib._objc_msgSend_492(_id, _lib._sel_setHTTPShouldUsePipelining_1, value);
+    return _lib._objc_msgSend_492(
+        _id, _lib._sel_setHTTPShouldUsePipelining_1, value);
   }
 
   bool get HTTPShouldSetCookies {
@@ -64857,7 +67126,8 @@ class NSURLSessionConfiguration extends NSObject {
   }
 
   set HTTPShouldSetCookies(bool value) {
-    _lib._objc_msgSend_492(_id, _lib._sel_setHTTPShouldSetCookies_1, value);
+    return _lib._objc_msgSend_492(
+        _id, _lib._sel_setHTTPShouldSetCookies_1, value);
   }
 
   int get HTTPCookieAcceptPolicy {
@@ -64865,7 +67135,8 @@ class NSURLSessionConfiguration extends NSObject {
   }
 
   set HTTPCookieAcceptPolicy(int value) {
-    _lib._objc_msgSend_814(_id, _lib._sel_setHTTPCookieAcceptPolicy_1, value);
+    return _lib._objc_msgSend_814(
+        _id, _lib._sel_setHTTPCookieAcceptPolicy_1, value);
   }
 
   NSDictionary? get HTTPAdditionalHeaders {
@@ -64876,7 +67147,7 @@ class NSURLSessionConfiguration extends NSObject {
   }
 
   set HTTPAdditionalHeaders(NSDictionary? value) {
-    _lib._objc_msgSend_171(
+    return _lib._objc_msgSend_171(
         _id, _lib._sel_setHTTPAdditionalHeaders_1, value?._id ?? ffi.nullptr);
   }
 
@@ -64885,7 +67156,7 @@ class NSURLSessionConfiguration extends NSObject {
   }
 
   set HTTPMaximumConnectionsPerHost(int value) {
-    _lib._objc_msgSend_590(
+    return _lib._objc_msgSend_590(
         _id, _lib._sel_setHTTPMaximumConnectionsPerHost_1, value);
   }
 
@@ -64897,7 +67168,7 @@ class NSURLSessionConfiguration extends NSObject {
   }
 
   set HTTPCookieStorage(NSHTTPCookieStorage? value) {
-    _lib._objc_msgSend_984(
+    return _lib._objc_msgSend_984(
         _id, _lib._sel_setHTTPCookieStorage_1, value?._id ?? ffi.nullptr);
   }
 
@@ -64909,7 +67180,7 @@ class NSURLSessionConfiguration extends NSObject {
   }
 
   set URLCredentialStorage(NSURLCredentialStorage? value) {
-    _lib._objc_msgSend_985(
+    return _lib._objc_msgSend_985(
         _id, _lib._sel_setURLCredentialStorage_1, value?._id ?? ffi.nullptr);
   }
 
@@ -64921,7 +67192,7 @@ class NSURLSessionConfiguration extends NSObject {
   }
 
   set URLCache(NSURLCache? value) {
-    _lib._objc_msgSend_913(
+    return _lib._objc_msgSend_913(
         _id, _lib._sel_setURLCache_1, value?._id ?? ffi.nullptr);
   }
 
@@ -64931,7 +67202,7 @@ class NSURLSessionConfiguration extends NSObject {
   }
 
   set shouldUseExtendedBackgroundIdleMode(bool value) {
-    _lib._objc_msgSend_492(
+    return _lib._objc_msgSend_492(
         _id, _lib._sel_setShouldUseExtendedBackgroundIdleMode_1, value);
   }
 
@@ -64943,7 +67214,7 @@ class NSURLSessionConfiguration extends NSObject {
   }
 
   set protocolClasses(NSArray? value) {
-    _lib._objc_msgSend_765(
+    return _lib._objc_msgSend_765(
         _id, _lib._sel_setProtocolClasses_1, value?._id ?? ffi.nullptr);
   }
 
@@ -64952,7 +67223,8 @@ class NSURLSessionConfiguration extends NSObject {
   }
 
   set multipathServiceType(int value) {
-    _lib._objc_msgSend_987(_id, _lib._sel_setMultipathServiceType_1, value);
+    return _lib._objc_msgSend_987(
+        _id, _lib._sel_setMultipathServiceType_1, value);
   }
 
   @override
@@ -64977,6 +67249,14 @@ class NSURLSessionConfiguration extends NSObject {
     return NSURLSessionConfiguration._(_ret, _lib, retain: true, release: true);
   }
 
+  static NSURLSessionConfiguration allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(_lib._class_NSURLSessionConfiguration1,
+        _lib._sel_allocWithZone_1, zone);
+    return NSURLSessionConfiguration._(_ret, _lib,
+        retain: false, release: true);
+  }
+
   static NSURLSessionConfiguration alloc(SentryCocoa _lib) {
     final _ret = _lib._objc_msgSend_2(
         _lib._class_NSURLSessionConfiguration1, _lib._sel_alloc1);
@@ -64989,7 +67269,7 @@ class NSURLSessionConfiguration extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSURLSessionConfiguration1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -64999,7 +67279,7 @@ class NSURLSessionConfiguration extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSURLSessionConfiguration1,
+    _lib._objc_msgSend_15(_lib._class_NSURLSessionConfiguration1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -65032,7 +67312,7 @@ class NSURLSessionConfiguration extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSURLSessionConfiguration1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -65084,7 +67364,7 @@ abstract class NSURLSessionMultipathServiceType {
   static const int NSURLSessionMultipathServiceTypeAggregate = 3;
 }
 
-void _ObjCBlock44_fnPtrTrampoline(
+void _ObjCBlock_ffiVoid_NSArray_NSArray_NSArray_fnPtrTrampoline(
     ffi.Pointer<_ObjCBlock> block,
     ffi.Pointer<ObjCObject> arg0,
     ffi.Pointer<ObjCObject> arg1,
@@ -65103,34 +67383,37 @@ void _ObjCBlock44_fnPtrTrampoline(
               ffi.Pointer<ObjCObject> arg2)>()(arg0, arg1, arg2);
 }
 
-final _ObjCBlock44_closureRegistry = <int, Function>{};
-int _ObjCBlock44_closureRegistryIndex = 0;
-ffi.Pointer<ffi.Void> _ObjCBlock44_registerClosure(Function fn) {
-  final id = ++_ObjCBlock44_closureRegistryIndex;
-  _ObjCBlock44_closureRegistry[id] = fn;
+final _ObjCBlock_ffiVoid_NSArray_NSArray_NSArray_closureRegistry =
+    <int, Function>{};
+int _ObjCBlock_ffiVoid_NSArray_NSArray_NSArray_closureRegistryIndex = 0;
+ffi.Pointer<ffi.Void>
+    _ObjCBlock_ffiVoid_NSArray_NSArray_NSArray_registerClosure(Function fn) {
+  final id = ++_ObjCBlock_ffiVoid_NSArray_NSArray_NSArray_closureRegistryIndex;
+  _ObjCBlock_ffiVoid_NSArray_NSArray_NSArray_closureRegistry[id] = fn;
   return ffi.Pointer<ffi.Void>.fromAddress(id);
 }
 
-void _ObjCBlock44_closureTrampoline(
+void _ObjCBlock_ffiVoid_NSArray_NSArray_NSArray_closureTrampoline(
     ffi.Pointer<_ObjCBlock> block,
     ffi.Pointer<ObjCObject> arg0,
     ffi.Pointer<ObjCObject> arg1,
     ffi.Pointer<ObjCObject> arg2) {
-  return (_ObjCBlock44_closureRegistry[block.ref.target.address]
+  return (_ObjCBlock_ffiVoid_NSArray_NSArray_NSArray_closureRegistry[
+          block.ref.target.address]
       as void Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCObject>,
           ffi.Pointer<ObjCObject>))(arg0, arg1, arg2);
 }
 
-class ObjCBlock44 extends _ObjCBlockBase {
-  ObjCBlock44._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
+class ObjCBlock_ffiVoid_NSArray_NSArray_NSArray extends _ObjCBlockBase {
+  ObjCBlock_ffiVoid_NSArray_NSArray_NSArray._(
+      ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
       : super._(id, lib, retain: false, release: true);
 
   /// Creates a block from a C function pointer.
-  ObjCBlock44.fromFunctionPointer(
+  ObjCBlock_ffiVoid_NSArray_NSArray_NSArray.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
-              ffi
-              .NativeFunction<
+              ffi.NativeFunction<
                   ffi.Void Function(
                       ffi.Pointer<ObjCObject> arg0,
                       ffi.Pointer<ObjCObject> arg1,
@@ -65144,14 +67427,14 @@ class ObjCBlock44 extends _ObjCBlockBase {
                                 ffi.Pointer<ObjCObject> arg0,
                                 ffi.Pointer<ObjCObject> arg1,
                                 ffi.Pointer<ObjCObject> arg2)>(
-                        _ObjCBlock44_fnPtrTrampoline)
+                        _ObjCBlock_ffiVoid_NSArray_NSArray_NSArray_fnPtrTrampoline)
                     .cast(),
                 ptr.cast()),
             lib);
   static ffi.Pointer<ffi.Void>? _cFuncTrampoline;
 
   /// Creates a block from a Dart function.
-  ObjCBlock44.fromFunction(
+  ObjCBlock_ffiVoid_NSArray_NSArray_NSArray.fromFunction(
       SentryCocoa lib,
       void Function(ffi.Pointer<ObjCObject> arg0, ffi.Pointer<ObjCObject> arg1,
               ffi.Pointer<ObjCObject> arg2)
@@ -65164,9 +67447,9 @@ class ObjCBlock44 extends _ObjCBlockBase {
                                 ffi.Pointer<ObjCObject> arg0,
                                 ffi.Pointer<ObjCObject> arg1,
                                 ffi.Pointer<ObjCObject> arg2)>(
-                        _ObjCBlock44_closureTrampoline)
+                        _ObjCBlock_ffiVoid_NSArray_NSArray_NSArray_closureTrampoline)
                     .cast(),
-                _ObjCBlock44_registerClosure(fn)),
+                _ObjCBlock_ffiVoid_NSArray_NSArray_NSArray_registerClosure(fn)),
             lib);
   static ffi.Pointer<ffi.Void>? _dartFuncTrampoline;
   void call(ffi.Pointer<ObjCObject> arg0, ffi.Pointer<ObjCObject> arg1,
@@ -65225,6 +67508,13 @@ class NSURLSessionUploadTask extends NSURLSessionDataTask {
     return NSURLSessionUploadTask._(_ret, _lib, retain: false, release: true);
   }
 
+  static NSURLSessionUploadTask allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSURLSessionUploadTask1, _lib._sel_allocWithZone_1, zone);
+    return NSURLSessionUploadTask._(_ret, _lib, retain: false, release: true);
+  }
+
   static NSURLSessionUploadTask alloc(SentryCocoa _lib) {
     final _ret = _lib._objc_msgSend_2(
         _lib._class_NSURLSessionUploadTask1, _lib._sel_alloc1);
@@ -65236,7 +67526,7 @@ class NSURLSessionUploadTask extends NSURLSessionDataTask {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSURLSessionUploadTask1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -65246,7 +67536,7 @@ class NSURLSessionUploadTask extends NSURLSessionDataTask {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSURLSessionUploadTask1,
+    _lib._objc_msgSend_15(_lib._class_NSURLSessionUploadTask1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -65279,7 +67569,7 @@ class NSURLSessionUploadTask extends NSURLSessionDataTask {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSURLSessionUploadTask1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -65324,8 +67614,9 @@ class NSURLSessionDownloadTask extends NSURLSessionTask {
         obj._lib._class_NSURLSessionDownloadTask1);
   }
 
-  void cancelByProducingResumeData_(ObjCBlock45 completionHandler) {
-    return _lib._objc_msgSend_997(
+  void cancelByProducingResumeData_(
+      ObjCBlock_ffiVoid_NSData completionHandler) {
+    _lib._objc_msgSend_997(
         _id, _lib._sel_cancelByProducingResumeData_1, completionHandler._id);
   }
 
@@ -65341,6 +67632,13 @@ class NSURLSessionDownloadTask extends NSURLSessionTask {
     return NSURLSessionDownloadTask._(_ret, _lib, retain: false, release: true);
   }
 
+  static NSURLSessionDownloadTask allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSURLSessionDownloadTask1, _lib._sel_allocWithZone_1, zone);
+    return NSURLSessionDownloadTask._(_ret, _lib, retain: false, release: true);
+  }
+
   static NSURLSessionDownloadTask alloc(SentryCocoa _lib) {
     final _ret = _lib._objc_msgSend_2(
         _lib._class_NSURLSessionDownloadTask1, _lib._sel_alloc1);
@@ -65352,7 +67650,7 @@ class NSURLSessionDownloadTask extends NSURLSessionTask {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSURLSessionDownloadTask1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -65362,7 +67660,7 @@ class NSURLSessionDownloadTask extends NSURLSessionTask {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSURLSessionDownloadTask1,
+    _lib._objc_msgSend_15(_lib._class_NSURLSessionDownloadTask1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -65395,7 +67693,7 @@ class NSURLSessionDownloadTask extends NSURLSessionTask {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSURLSessionDownloadTask1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -65415,7 +67713,7 @@ class NSURLSessionDownloadTask extends NSURLSessionTask {
   }
 }
 
-void _ObjCBlock45_fnPtrTrampoline(
+void _ObjCBlock_ffiVoid_NSData_fnPtrTrampoline(
     ffi.Pointer<_ObjCBlock> block, ffi.Pointer<ObjCObject> arg0) {
   return block.ref.target
       .cast<
@@ -65423,26 +67721,26 @@ void _ObjCBlock45_fnPtrTrampoline(
       .asFunction<void Function(ffi.Pointer<ObjCObject> arg0)>()(arg0);
 }
 
-final _ObjCBlock45_closureRegistry = <int, Function>{};
-int _ObjCBlock45_closureRegistryIndex = 0;
-ffi.Pointer<ffi.Void> _ObjCBlock45_registerClosure(Function fn) {
-  final id = ++_ObjCBlock45_closureRegistryIndex;
-  _ObjCBlock45_closureRegistry[id] = fn;
+final _ObjCBlock_ffiVoid_NSData_closureRegistry = <int, Function>{};
+int _ObjCBlock_ffiVoid_NSData_closureRegistryIndex = 0;
+ffi.Pointer<ffi.Void> _ObjCBlock_ffiVoid_NSData_registerClosure(Function fn) {
+  final id = ++_ObjCBlock_ffiVoid_NSData_closureRegistryIndex;
+  _ObjCBlock_ffiVoid_NSData_closureRegistry[id] = fn;
   return ffi.Pointer<ffi.Void>.fromAddress(id);
 }
 
-void _ObjCBlock45_closureTrampoline(
+void _ObjCBlock_ffiVoid_NSData_closureTrampoline(
     ffi.Pointer<_ObjCBlock> block, ffi.Pointer<ObjCObject> arg0) {
-  return (_ObjCBlock45_closureRegistry[block.ref.target.address] as void
-      Function(ffi.Pointer<ObjCObject>))(arg0);
+  return (_ObjCBlock_ffiVoid_NSData_closureRegistry[block.ref.target.address]
+      as void Function(ffi.Pointer<ObjCObject>))(arg0);
 }
 
-class ObjCBlock45 extends _ObjCBlockBase {
-  ObjCBlock45._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
+class ObjCBlock_ffiVoid_NSData extends _ObjCBlockBase {
+  ObjCBlock_ffiVoid_NSData._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
       : super._(id, lib, retain: false, release: true);
 
   /// Creates a block from a C function pointer.
-  ObjCBlock45.fromFunctionPointer(
+  ObjCBlock_ffiVoid_NSData.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
               ffi
@@ -65453,23 +67751,23 @@ class ObjCBlock45 extends _ObjCBlockBase {
                 _cFuncTrampoline ??= ffi.Pointer.fromFunction<
                             ffi.Void Function(ffi.Pointer<_ObjCBlock> block,
                                 ffi.Pointer<ObjCObject> arg0)>(
-                        _ObjCBlock45_fnPtrTrampoline)
+                        _ObjCBlock_ffiVoid_NSData_fnPtrTrampoline)
                     .cast(),
                 ptr.cast()),
             lib);
   static ffi.Pointer<ffi.Void>? _cFuncTrampoline;
 
   /// Creates a block from a Dart function.
-  ObjCBlock45.fromFunction(
+  ObjCBlock_ffiVoid_NSData.fromFunction(
       SentryCocoa lib, void Function(ffi.Pointer<ObjCObject> arg0) fn)
       : this._(
             lib._newBlock1(
                 _dartFuncTrampoline ??= ffi.Pointer.fromFunction<
                             ffi.Void Function(ffi.Pointer<_ObjCBlock> block,
                                 ffi.Pointer<ObjCObject> arg0)>(
-                        _ObjCBlock45_closureTrampoline)
+                        _ObjCBlock_ffiVoid_NSData_closureTrampoline)
                     .cast(),
-                _ObjCBlock45_registerClosure(fn)),
+                _ObjCBlock_ffiVoid_NSData_registerClosure(fn)),
             lib);
   static ffi.Pointer<ffi.Void>? _dartFuncTrampoline;
   void call(ffi.Pointer<ObjCObject> arg0) {
@@ -65509,9 +67807,12 @@ class NSURLSessionStreamTask extends NSURLSessionTask {
         obj._lib._class_NSURLSessionStreamTask1);
   }
 
-  void readDataOfMinLength_maxLength_timeout_completionHandler_(int minBytes,
-      int maxBytes, double timeout, ObjCBlock46 completionHandler) {
-    return _lib._objc_msgSend_1001(
+  void readDataOfMinLength_maxLength_timeout_completionHandler_(
+      int minBytes,
+      int maxBytes,
+      double timeout,
+      ObjCBlock_ffiVoid_NSData_bool_NSError completionHandler) {
+    _lib._objc_msgSend_1001(
         _id,
         _lib._sel_readDataOfMinLength_maxLength_timeout_completionHandler_1,
         minBytes,
@@ -65520,9 +67821,9 @@ class NSURLSessionStreamTask extends NSURLSessionTask {
         completionHandler._id);
   }
 
-  void writeData_timeout_completionHandler_(
-      NSData? data, double timeout, ObjCBlock18 completionHandler) {
-    return _lib._objc_msgSend_1002(
+  void writeData_timeout_completionHandler_(NSData? data, double timeout,
+      ObjCBlock_ffiVoid_NSError completionHandler) {
+    _lib._objc_msgSend_1002(
         _id,
         _lib._sel_writeData_timeout_completionHandler_1,
         data?._id ?? ffi.nullptr,
@@ -65531,23 +67832,23 @@ class NSURLSessionStreamTask extends NSURLSessionTask {
   }
 
   void captureStreams() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_captureStreams1);
+    _lib._objc_msgSend_1(_id, _lib._sel_captureStreams1);
   }
 
   void closeWrite() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_closeWrite1);
+    _lib._objc_msgSend_1(_id, _lib._sel_closeWrite1);
   }
 
   void closeRead() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_closeRead1);
+    _lib._objc_msgSend_1(_id, _lib._sel_closeRead1);
   }
 
   void startSecureConnection() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_startSecureConnection1);
+    _lib._objc_msgSend_1(_id, _lib._sel_startSecureConnection1);
   }
 
   void stopSecureConnection() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_stopSecureConnection1);
+    _lib._objc_msgSend_1(_id, _lib._sel_stopSecureConnection1);
   }
 
   @override
@@ -65562,6 +67863,13 @@ class NSURLSessionStreamTask extends NSURLSessionTask {
     return NSURLSessionStreamTask._(_ret, _lib, retain: false, release: true);
   }
 
+  static NSURLSessionStreamTask allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSURLSessionStreamTask1, _lib._sel_allocWithZone_1, zone);
+    return NSURLSessionStreamTask._(_ret, _lib, retain: false, release: true);
+  }
+
   static NSURLSessionStreamTask alloc(SentryCocoa _lib) {
     final _ret = _lib._objc_msgSend_2(
         _lib._class_NSURLSessionStreamTask1, _lib._sel_alloc1);
@@ -65573,7 +67881,7 @@ class NSURLSessionStreamTask extends NSURLSessionTask {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSURLSessionStreamTask1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -65583,7 +67891,7 @@ class NSURLSessionStreamTask extends NSURLSessionTask {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSURLSessionStreamTask1,
+    _lib._objc_msgSend_15(_lib._class_NSURLSessionStreamTask1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -65616,7 +67924,7 @@ class NSURLSessionStreamTask extends NSURLSessionTask {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSURLSessionStreamTask1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -65636,8 +67944,11 @@ class NSURLSessionStreamTask extends NSURLSessionTask {
   }
 }
 
-void _ObjCBlock46_fnPtrTrampoline(ffi.Pointer<_ObjCBlock> block,
-    ffi.Pointer<ObjCObject> arg0, bool arg1, ffi.Pointer<ObjCObject> arg2) {
+void _ObjCBlock_ffiVoid_NSData_bool_NSError_fnPtrTrampoline(
+    ffi.Pointer<_ObjCBlock> block,
+    ffi.Pointer<ObjCObject> arg0,
+    bool arg1,
+    ffi.Pointer<ObjCObject> arg2) {
   return block.ref.target
       .cast<
           ffi.NativeFunction<
@@ -65648,27 +67959,34 @@ void _ObjCBlock46_fnPtrTrampoline(ffi.Pointer<_ObjCBlock> block,
               ffi.Pointer<ObjCObject> arg2)>()(arg0, arg1, arg2);
 }
 
-final _ObjCBlock46_closureRegistry = <int, Function>{};
-int _ObjCBlock46_closureRegistryIndex = 0;
-ffi.Pointer<ffi.Void> _ObjCBlock46_registerClosure(Function fn) {
-  final id = ++_ObjCBlock46_closureRegistryIndex;
-  _ObjCBlock46_closureRegistry[id] = fn;
+final _ObjCBlock_ffiVoid_NSData_bool_NSError_closureRegistry =
+    <int, Function>{};
+int _ObjCBlock_ffiVoid_NSData_bool_NSError_closureRegistryIndex = 0;
+ffi.Pointer<ffi.Void> _ObjCBlock_ffiVoid_NSData_bool_NSError_registerClosure(
+    Function fn) {
+  final id = ++_ObjCBlock_ffiVoid_NSData_bool_NSError_closureRegistryIndex;
+  _ObjCBlock_ffiVoid_NSData_bool_NSError_closureRegistry[id] = fn;
   return ffi.Pointer<ffi.Void>.fromAddress(id);
 }
 
-void _ObjCBlock46_closureTrampoline(ffi.Pointer<_ObjCBlock> block,
-    ffi.Pointer<ObjCObject> arg0, bool arg1, ffi.Pointer<ObjCObject> arg2) {
-  return (_ObjCBlock46_closureRegistry[block.ref.target.address] as void
-          Function(ffi.Pointer<ObjCObject>, bool, ffi.Pointer<ObjCObject>))(
-      arg0, arg1, arg2);
+void _ObjCBlock_ffiVoid_NSData_bool_NSError_closureTrampoline(
+    ffi.Pointer<_ObjCBlock> block,
+    ffi.Pointer<ObjCObject> arg0,
+    bool arg1,
+    ffi.Pointer<ObjCObject> arg2) {
+  return (_ObjCBlock_ffiVoid_NSData_bool_NSError_closureRegistry[
+          block.ref.target.address]
+      as void Function(ffi.Pointer<ObjCObject>, bool,
+          ffi.Pointer<ObjCObject>))(arg0, arg1, arg2);
 }
 
-class ObjCBlock46 extends _ObjCBlockBase {
-  ObjCBlock46._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
+class ObjCBlock_ffiVoid_NSData_bool_NSError extends _ObjCBlockBase {
+  ObjCBlock_ffiVoid_NSData_bool_NSError._(
+      ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
       : super._(id, lib, retain: false, release: true);
 
   /// Creates a block from a C function pointer.
-  ObjCBlock46.fromFunctionPointer(
+  ObjCBlock_ffiVoid_NSData_bool_NSError.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
               ffi.NativeFunction<
@@ -65683,14 +68001,14 @@ class ObjCBlock46 extends _ObjCBlockBase {
                                 ffi.Pointer<ObjCObject> arg0,
                                 ffi.Bool arg1,
                                 ffi.Pointer<ObjCObject> arg2)>(
-                        _ObjCBlock46_fnPtrTrampoline)
+                        _ObjCBlock_ffiVoid_NSData_bool_NSError_fnPtrTrampoline)
                     .cast(),
                 ptr.cast()),
             lib);
   static ffi.Pointer<ffi.Void>? _cFuncTrampoline;
 
   /// Creates a block from a Dart function.
-  ObjCBlock46.fromFunction(
+  ObjCBlock_ffiVoid_NSData_bool_NSError.fromFunction(
       SentryCocoa lib,
       void Function(ffi.Pointer<ObjCObject> arg0, bool arg1,
               ffi.Pointer<ObjCObject> arg2)
@@ -65703,9 +68021,9 @@ class ObjCBlock46 extends _ObjCBlockBase {
                                 ffi.Pointer<ObjCObject> arg0,
                                 ffi.Bool arg1,
                                 ffi.Pointer<ObjCObject> arg2)>(
-                        _ObjCBlock46_closureTrampoline)
+                        _ObjCBlock_ffiVoid_NSData_bool_NSError_closureTrampoline)
                     .cast(),
-                _ObjCBlock46_registerClosure(fn)),
+                _ObjCBlock_ffiVoid_NSData_bool_NSError_registerClosure(fn)),
             lib);
   static ffi.Pointer<ffi.Void>? _dartFuncTrampoline;
   void call(
@@ -65774,12 +68092,12 @@ class NSNetService extends NSObject {
   }
 
   void scheduleInRunLoop_forMode_(NSRunLoop? aRunLoop, NSString mode) {
-    return _lib._objc_msgSend_533(_id, _lib._sel_scheduleInRunLoop_forMode_1,
+    _lib._objc_msgSend_533(_id, _lib._sel_scheduleInRunLoop_forMode_1,
         aRunLoop?._id ?? ffi.nullptr, mode._id);
   }
 
   void removeFromRunLoop_forMode_(NSRunLoop? aRunLoop, NSString mode) {
-    return _lib._objc_msgSend_533(_id, _lib._sel_removeFromRunLoop_forMode_1,
+    _lib._objc_msgSend_533(_id, _lib._sel_removeFromRunLoop_forMode_1,
         aRunLoop?._id ?? ffi.nullptr, mode._id);
   }
 
@@ -65791,7 +68109,7 @@ class NSNetService extends NSObject {
   }
 
   set delegate(NSObject? value) {
-    _lib._objc_msgSend_387(
+    return _lib._objc_msgSend_387(
         _id, _lib._sel_setDelegate_1, value?._id ?? ffi.nullptr);
   }
 
@@ -65800,7 +68118,8 @@ class NSNetService extends NSObject {
   }
 
   set includesPeerToPeer(bool value) {
-    _lib._objc_msgSend_492(_id, _lib._sel_setIncludesPeerToPeer_1, value);
+    return _lib._objc_msgSend_492(
+        _id, _lib._sel_setIncludesPeerToPeer_1, value);
   }
 
   NSString? get name {
@@ -65843,20 +68162,19 @@ class NSNetService extends NSObject {
   }
 
   void publish() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_publish1);
+    _lib._objc_msgSend_1(_id, _lib._sel_publish1);
   }
 
   void publishWithOptions_(int options) {
-    return _lib._objc_msgSend_1005(
-        _id, _lib._sel_publishWithOptions_1, options);
+    _lib._objc_msgSend_1005(_id, _lib._sel_publishWithOptions_1, options);
   }
 
   void resolve() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_resolve1);
+    _lib._objc_msgSend_1(_id, _lib._sel_resolve1);
   }
 
   void stop() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_stop1);
+    _lib._objc_msgSend_1(_id, _lib._sel_stop1);
   }
 
   static NSDictionary dictionaryFromTXTRecordData_(
@@ -65876,7 +68194,7 @@ class NSNetService extends NSObject {
   }
 
   void resolveWithTimeout_(double timeout) {
-    return _lib._objc_msgSend_505(_id, _lib._sel_resolveWithTimeout_1, timeout);
+    _lib._objc_msgSend_505(_id, _lib._sel_resolveWithTimeout_1, timeout);
   }
 
   bool getInputStream_outputStream_(
@@ -65897,16 +68215,29 @@ class NSNetService extends NSObject {
   }
 
   void startMonitoring() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_startMonitoring1);
+    _lib._objc_msgSend_1(_id, _lib._sel_startMonitoring1);
   }
 
   void stopMonitoring() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_stopMonitoring1);
+    _lib._objc_msgSend_1(_id, _lib._sel_stopMonitoring1);
+  }
+
+  @override
+  NSNetService init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSNetService._(_ret, _lib, retain: true, release: true);
   }
 
   static NSNetService new1(SentryCocoa _lib) {
     final _ret =
         _lib._objc_msgSend_2(_lib._class_NSNetService1, _lib._sel_new1);
+    return NSNetService._(_ret, _lib, retain: false, release: true);
+  }
+
+  static NSNetService allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSNetService1, _lib._sel_allocWithZone_1, zone);
     return NSNetService._(_ret, _lib, retain: false, release: true);
   }
 
@@ -65921,7 +68252,7 @@ class NSNetService extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSNetService1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -65931,7 +68262,7 @@ class NSNetService extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSNetService1,
+    _lib._objc_msgSend_15(_lib._class_NSNetService1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -65964,7 +68295,7 @@ class NSNetService extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSNetService1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -66014,27 +68345,27 @@ class NSURLSessionWebSocketTask extends NSURLSessionTask {
         obj._lib._class_NSURLSessionWebSocketTask1);
   }
 
-  void sendMessage_completionHandler_(
-      NSURLSessionWebSocketMessage? message, ObjCBlock18 completionHandler) {
-    return _lib._objc_msgSend_1011(
-        _id,
-        _lib._sel_sendMessage_completionHandler_1,
-        message?._id ?? ffi.nullptr,
-        completionHandler._id);
+  void sendMessage_completionHandler_(NSURLSessionWebSocketMessage? message,
+      ObjCBlock_ffiVoid_NSError completionHandler) {
+    _lib._objc_msgSend_1011(_id, _lib._sel_sendMessage_completionHandler_1,
+        message?._id ?? ffi.nullptr, completionHandler._id);
   }
 
-  void receiveMessageWithCompletionHandler_(ObjCBlock47 completionHandler) {
-    return _lib._objc_msgSend_1012(_id,
+  void receiveMessageWithCompletionHandler_(
+      ObjCBlock_ffiVoid_NSURLSessionWebSocketMessage_NSError
+          completionHandler) {
+    _lib._objc_msgSend_1012(_id,
         _lib._sel_receiveMessageWithCompletionHandler_1, completionHandler._id);
   }
 
-  void sendPingWithPongReceiveHandler_(ObjCBlock18 pongReceiveHandler) {
-    return _lib._objc_msgSend_1013(_id,
-        _lib._sel_sendPingWithPongReceiveHandler_1, pongReceiveHandler._id);
+  void sendPingWithPongReceiveHandler_(
+      ObjCBlock_ffiVoid_NSError pongReceiveHandler) {
+    _lib._objc_msgSend_1013(_id, _lib._sel_sendPingWithPongReceiveHandler_1,
+        pongReceiveHandler._id);
   }
 
   void cancelWithCloseCode_reason_(int closeCode, NSData? reason) {
-    return _lib._objc_msgSend_1014(_id, _lib._sel_cancelWithCloseCode_reason_1,
+    _lib._objc_msgSend_1014(_id, _lib._sel_cancelWithCloseCode_reason_1,
         closeCode, reason?._id ?? ffi.nullptr);
   }
 
@@ -66043,7 +68374,8 @@ class NSURLSessionWebSocketTask extends NSURLSessionTask {
   }
 
   set maximumMessageSize(int value) {
-    _lib._objc_msgSend_590(_id, _lib._sel_setMaximumMessageSize_1, value);
+    return _lib._objc_msgSend_590(
+        _id, _lib._sel_setMaximumMessageSize_1, value);
   }
 
   int get closeCode {
@@ -66070,6 +68402,14 @@ class NSURLSessionWebSocketTask extends NSURLSessionTask {
         retain: false, release: true);
   }
 
+  static NSURLSessionWebSocketTask allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(_lib._class_NSURLSessionWebSocketTask1,
+        _lib._sel_allocWithZone_1, zone);
+    return NSURLSessionWebSocketTask._(_ret, _lib,
+        retain: false, release: true);
+  }
+
   static NSURLSessionWebSocketTask alloc(SentryCocoa _lib) {
     final _ret = _lib._objc_msgSend_2(
         _lib._class_NSURLSessionWebSocketTask1, _lib._sel_alloc1);
@@ -66082,7 +68422,7 @@ class NSURLSessionWebSocketTask extends NSURLSessionTask {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSURLSessionWebSocketTask1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -66092,7 +68432,7 @@ class NSURLSessionWebSocketTask extends NSURLSessionTask {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSURLSessionWebSocketTask1,
+    _lib._objc_msgSend_15(_lib._class_NSURLSessionWebSocketTask1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -66125,7 +68465,7 @@ class NSURLSessionWebSocketTask extends NSURLSessionTask {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSURLSessionWebSocketTask1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -66217,6 +68557,14 @@ class NSURLSessionWebSocketMessage extends NSObject {
         retain: false, release: true);
   }
 
+  static NSURLSessionWebSocketMessage allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(_lib._class_NSURLSessionWebSocketMessage1,
+        _lib._sel_allocWithZone_1, zone);
+    return NSURLSessionWebSocketMessage._(_ret, _lib,
+        retain: false, release: true);
+  }
+
   static NSURLSessionWebSocketMessage alloc(SentryCocoa _lib) {
     final _ret = _lib._objc_msgSend_2(
         _lib._class_NSURLSessionWebSocketMessage1, _lib._sel_alloc1);
@@ -66229,7 +68577,7 @@ class NSURLSessionWebSocketMessage extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSURLSessionWebSocketMessage1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -66239,7 +68587,7 @@ class NSURLSessionWebSocketMessage extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSURLSessionWebSocketMessage1,
+    _lib._objc_msgSend_15(_lib._class_NSURLSessionWebSocketMessage1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -66272,7 +68620,7 @@ class NSURLSessionWebSocketMessage extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSURLSessionWebSocketMessage1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -66298,8 +68646,10 @@ abstract class NSURLSessionWebSocketMessageType {
   static const int NSURLSessionWebSocketMessageTypeString = 1;
 }
 
-void _ObjCBlock47_fnPtrTrampoline(ffi.Pointer<_ObjCBlock> block,
-    ffi.Pointer<ObjCObject> arg0, ffi.Pointer<ObjCObject> arg1) {
+void _ObjCBlock_ffiVoid_NSURLSessionWebSocketMessage_NSError_fnPtrTrampoline(
+    ffi.Pointer<_ObjCBlock> block,
+    ffi.Pointer<ObjCObject> arg0,
+    ffi.Pointer<ObjCObject> arg1) {
   return block.ref.target
       .cast<
           ffi.NativeFunction<
@@ -66310,26 +68660,38 @@ void _ObjCBlock47_fnPtrTrampoline(ffi.Pointer<_ObjCBlock> block,
               ffi.Pointer<ObjCObject> arg1)>()(arg0, arg1);
 }
 
-final _ObjCBlock47_closureRegistry = <int, Function>{};
-int _ObjCBlock47_closureRegistryIndex = 0;
-ffi.Pointer<ffi.Void> _ObjCBlock47_registerClosure(Function fn) {
-  final id = ++_ObjCBlock47_closureRegistryIndex;
-  _ObjCBlock47_closureRegistry[id] = fn;
+final _ObjCBlock_ffiVoid_NSURLSessionWebSocketMessage_NSError_closureRegistry =
+    <int, Function>{};
+int _ObjCBlock_ffiVoid_NSURLSessionWebSocketMessage_NSError_closureRegistryIndex =
+    0;
+ffi.Pointer<ffi.Void>
+    _ObjCBlock_ffiVoid_NSURLSessionWebSocketMessage_NSError_registerClosure(
+        Function fn) {
+  final id =
+      ++_ObjCBlock_ffiVoid_NSURLSessionWebSocketMessage_NSError_closureRegistryIndex;
+  _ObjCBlock_ffiVoid_NSURLSessionWebSocketMessage_NSError_closureRegistry[id] =
+      fn;
   return ffi.Pointer<ffi.Void>.fromAddress(id);
 }
 
-void _ObjCBlock47_closureTrampoline(ffi.Pointer<_ObjCBlock> block,
-    ffi.Pointer<ObjCObject> arg0, ffi.Pointer<ObjCObject> arg1) {
-  return (_ObjCBlock47_closureRegistry[block.ref.target.address] as void
-      Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCObject>))(arg0, arg1);
+void _ObjCBlock_ffiVoid_NSURLSessionWebSocketMessage_NSError_closureTrampoline(
+    ffi.Pointer<_ObjCBlock> block,
+    ffi.Pointer<ObjCObject> arg0,
+    ffi.Pointer<ObjCObject> arg1) {
+  return (_ObjCBlock_ffiVoid_NSURLSessionWebSocketMessage_NSError_closureRegistry[
+          block.ref.target.address]
+      as void Function(
+          ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCObject>))(arg0, arg1);
 }
 
-class ObjCBlock47 extends _ObjCBlockBase {
-  ObjCBlock47._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
+class ObjCBlock_ffiVoid_NSURLSessionWebSocketMessage_NSError
+    extends _ObjCBlockBase {
+  ObjCBlock_ffiVoid_NSURLSessionWebSocketMessage_NSError._(
+      ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
       : super._(id, lib, retain: false, release: true);
 
   /// Creates a block from a C function pointer.
-  ObjCBlock47.fromFunctionPointer(
+  ObjCBlock_ffiVoid_NSURLSessionWebSocketMessage_NSError.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
               ffi.NativeFunction<
@@ -66343,14 +68705,14 @@ class ObjCBlock47 extends _ObjCBlockBase {
                                 ffi.Pointer<_ObjCBlock> block,
                                 ffi.Pointer<ObjCObject> arg0,
                                 ffi.Pointer<ObjCObject> arg1)>(
-                        _ObjCBlock47_fnPtrTrampoline)
+                        _ObjCBlock_ffiVoid_NSURLSessionWebSocketMessage_NSError_fnPtrTrampoline)
                     .cast(),
                 ptr.cast()),
             lib);
   static ffi.Pointer<ffi.Void>? _cFuncTrampoline;
 
   /// Creates a block from a Dart function.
-  ObjCBlock47.fromFunction(
+  ObjCBlock_ffiVoid_NSURLSessionWebSocketMessage_NSError.fromFunction(
       SentryCocoa lib,
       void Function(ffi.Pointer<ObjCObject> arg0, ffi.Pointer<ObjCObject> arg1)
           fn)
@@ -66361,9 +68723,10 @@ class ObjCBlock47 extends _ObjCBlockBase {
                                 ffi.Pointer<_ObjCBlock> block,
                                 ffi.Pointer<ObjCObject> arg0,
                                 ffi.Pointer<ObjCObject> arg1)>(
-                        _ObjCBlock47_closureTrampoline)
+                        _ObjCBlock_ffiVoid_NSURLSessionWebSocketMessage_NSError_closureTrampoline)
                     .cast(),
-                _ObjCBlock47_registerClosure(fn)),
+                _ObjCBlock_ffiVoid_NSURLSessionWebSocketMessage_NSError_registerClosure(
+                    fn)),
             lib);
   static ffi.Pointer<ffi.Void>? _dartFuncTrampoline;
   void call(ffi.Pointer<ObjCObject> arg0, ffi.Pointer<ObjCObject> arg1) {
@@ -66399,7 +68762,7 @@ abstract class NSURLSessionWebSocketCloseCode {
   static const int NSURLSessionWebSocketCloseCodeTLSHandshakeFailure = 1015;
 }
 
-void _ObjCBlock48_fnPtrTrampoline(
+void _ObjCBlock_ffiVoid_NSData_NSURLResponse_NSError_fnPtrTrampoline(
     ffi.Pointer<_ObjCBlock> block,
     ffi.Pointer<ObjCObject> arg0,
     ffi.Pointer<ObjCObject> arg1,
@@ -66418,34 +68781,39 @@ void _ObjCBlock48_fnPtrTrampoline(
               ffi.Pointer<ObjCObject> arg2)>()(arg0, arg1, arg2);
 }
 
-final _ObjCBlock48_closureRegistry = <int, Function>{};
-int _ObjCBlock48_closureRegistryIndex = 0;
-ffi.Pointer<ffi.Void> _ObjCBlock48_registerClosure(Function fn) {
-  final id = ++_ObjCBlock48_closureRegistryIndex;
-  _ObjCBlock48_closureRegistry[id] = fn;
+final _ObjCBlock_ffiVoid_NSData_NSURLResponse_NSError_closureRegistry =
+    <int, Function>{};
+int _ObjCBlock_ffiVoid_NSData_NSURLResponse_NSError_closureRegistryIndex = 0;
+ffi.Pointer<ffi.Void>
+    _ObjCBlock_ffiVoid_NSData_NSURLResponse_NSError_registerClosure(
+        Function fn) {
+  final id =
+      ++_ObjCBlock_ffiVoid_NSData_NSURLResponse_NSError_closureRegistryIndex;
+  _ObjCBlock_ffiVoid_NSData_NSURLResponse_NSError_closureRegistry[id] = fn;
   return ffi.Pointer<ffi.Void>.fromAddress(id);
 }
 
-void _ObjCBlock48_closureTrampoline(
+void _ObjCBlock_ffiVoid_NSData_NSURLResponse_NSError_closureTrampoline(
     ffi.Pointer<_ObjCBlock> block,
     ffi.Pointer<ObjCObject> arg0,
     ffi.Pointer<ObjCObject> arg1,
     ffi.Pointer<ObjCObject> arg2) {
-  return (_ObjCBlock48_closureRegistry[block.ref.target.address]
+  return (_ObjCBlock_ffiVoid_NSData_NSURLResponse_NSError_closureRegistry[
+          block.ref.target.address]
       as void Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCObject>,
           ffi.Pointer<ObjCObject>))(arg0, arg1, arg2);
 }
 
-class ObjCBlock48 extends _ObjCBlockBase {
-  ObjCBlock48._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
+class ObjCBlock_ffiVoid_NSData_NSURLResponse_NSError extends _ObjCBlockBase {
+  ObjCBlock_ffiVoid_NSData_NSURLResponse_NSError._(
+      ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
       : super._(id, lib, retain: false, release: true);
 
   /// Creates a block from a C function pointer.
-  ObjCBlock48.fromFunctionPointer(
+  ObjCBlock_ffiVoid_NSData_NSURLResponse_NSError.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
-              ffi
-              .NativeFunction<
+              ffi.NativeFunction<
                   ffi.Void Function(
                       ffi.Pointer<ObjCObject> arg0,
                       ffi.Pointer<ObjCObject> arg1,
@@ -66459,14 +68827,14 @@ class ObjCBlock48 extends _ObjCBlockBase {
                                 ffi.Pointer<ObjCObject> arg0,
                                 ffi.Pointer<ObjCObject> arg1,
                                 ffi.Pointer<ObjCObject> arg2)>(
-                        _ObjCBlock48_fnPtrTrampoline)
+                        _ObjCBlock_ffiVoid_NSData_NSURLResponse_NSError_fnPtrTrampoline)
                     .cast(),
                 ptr.cast()),
             lib);
   static ffi.Pointer<ffi.Void>? _cFuncTrampoline;
 
   /// Creates a block from a Dart function.
-  ObjCBlock48.fromFunction(
+  ObjCBlock_ffiVoid_NSData_NSURLResponse_NSError.fromFunction(
       SentryCocoa lib,
       void Function(ffi.Pointer<ObjCObject> arg0, ffi.Pointer<ObjCObject> arg1,
               ffi.Pointer<ObjCObject> arg2)
@@ -66479,9 +68847,10 @@ class ObjCBlock48 extends _ObjCBlockBase {
                                 ffi.Pointer<ObjCObject> arg0,
                                 ffi.Pointer<ObjCObject> arg1,
                                 ffi.Pointer<ObjCObject> arg2)>(
-                        _ObjCBlock48_closureTrampoline)
+                        _ObjCBlock_ffiVoid_NSData_NSURLResponse_NSError_closureTrampoline)
                     .cast(),
-                _ObjCBlock48_registerClosure(fn)),
+                _ObjCBlock_ffiVoid_NSData_NSURLResponse_NSError_registerClosure(
+                    fn)),
             lib);
   static ffi.Pointer<ffi.Void>? _dartFuncTrampoline;
   void call(ffi.Pointer<ObjCObject> arg0, ffi.Pointer<ObjCObject> arg1,
@@ -66503,7 +68872,7 @@ class ObjCBlock48 extends _ObjCBlockBase {
   }
 }
 
-void _ObjCBlock49_fnPtrTrampoline(
+void _ObjCBlock_ffiVoid_NSURL_NSURLResponse_NSError_fnPtrTrampoline(
     ffi.Pointer<_ObjCBlock> block,
     ffi.Pointer<ObjCObject> arg0,
     ffi.Pointer<ObjCObject> arg1,
@@ -66522,34 +68891,39 @@ void _ObjCBlock49_fnPtrTrampoline(
               ffi.Pointer<ObjCObject> arg2)>()(arg0, arg1, arg2);
 }
 
-final _ObjCBlock49_closureRegistry = <int, Function>{};
-int _ObjCBlock49_closureRegistryIndex = 0;
-ffi.Pointer<ffi.Void> _ObjCBlock49_registerClosure(Function fn) {
-  final id = ++_ObjCBlock49_closureRegistryIndex;
-  _ObjCBlock49_closureRegistry[id] = fn;
+final _ObjCBlock_ffiVoid_NSURL_NSURLResponse_NSError_closureRegistry =
+    <int, Function>{};
+int _ObjCBlock_ffiVoid_NSURL_NSURLResponse_NSError_closureRegistryIndex = 0;
+ffi.Pointer<ffi.Void>
+    _ObjCBlock_ffiVoid_NSURL_NSURLResponse_NSError_registerClosure(
+        Function fn) {
+  final id =
+      ++_ObjCBlock_ffiVoid_NSURL_NSURLResponse_NSError_closureRegistryIndex;
+  _ObjCBlock_ffiVoid_NSURL_NSURLResponse_NSError_closureRegistry[id] = fn;
   return ffi.Pointer<ffi.Void>.fromAddress(id);
 }
 
-void _ObjCBlock49_closureTrampoline(
+void _ObjCBlock_ffiVoid_NSURL_NSURLResponse_NSError_closureTrampoline(
     ffi.Pointer<_ObjCBlock> block,
     ffi.Pointer<ObjCObject> arg0,
     ffi.Pointer<ObjCObject> arg1,
     ffi.Pointer<ObjCObject> arg2) {
-  return (_ObjCBlock49_closureRegistry[block.ref.target.address]
+  return (_ObjCBlock_ffiVoid_NSURL_NSURLResponse_NSError_closureRegistry[
+          block.ref.target.address]
       as void Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCObject>,
           ffi.Pointer<ObjCObject>))(arg0, arg1, arg2);
 }
 
-class ObjCBlock49 extends _ObjCBlockBase {
-  ObjCBlock49._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
+class ObjCBlock_ffiVoid_NSURL_NSURLResponse_NSError extends _ObjCBlockBase {
+  ObjCBlock_ffiVoid_NSURL_NSURLResponse_NSError._(
+      ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
       : super._(id, lib, retain: false, release: true);
 
   /// Creates a block from a C function pointer.
-  ObjCBlock49.fromFunctionPointer(
+  ObjCBlock_ffiVoid_NSURL_NSURLResponse_NSError.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
-              ffi
-              .NativeFunction<
+              ffi.NativeFunction<
                   ffi.Void Function(
                       ffi.Pointer<ObjCObject> arg0,
                       ffi.Pointer<ObjCObject> arg1,
@@ -66563,14 +68937,14 @@ class ObjCBlock49 extends _ObjCBlockBase {
                                 ffi.Pointer<ObjCObject> arg0,
                                 ffi.Pointer<ObjCObject> arg1,
                                 ffi.Pointer<ObjCObject> arg2)>(
-                        _ObjCBlock49_fnPtrTrampoline)
+                        _ObjCBlock_ffiVoid_NSURL_NSURLResponse_NSError_fnPtrTrampoline)
                     .cast(),
                 ptr.cast()),
             lib);
   static ffi.Pointer<ffi.Void>? _cFuncTrampoline;
 
   /// Creates a block from a Dart function.
-  ObjCBlock49.fromFunction(
+  ObjCBlock_ffiVoid_NSURL_NSURLResponse_NSError.fromFunction(
       SentryCocoa lib,
       void Function(ffi.Pointer<ObjCObject> arg0, ffi.Pointer<ObjCObject> arg1,
               ffi.Pointer<ObjCObject> arg2)
@@ -66583,9 +68957,10 @@ class ObjCBlock49 extends _ObjCBlockBase {
                                 ffi.Pointer<ObjCObject> arg0,
                                 ffi.Pointer<ObjCObject> arg1,
                                 ffi.Pointer<ObjCObject> arg2)>(
-                        _ObjCBlock49_closureTrampoline)
+                        _ObjCBlock_ffiVoid_NSURL_NSURLResponse_NSError_closureTrampoline)
                     .cast(),
-                _ObjCBlock49_registerClosure(fn)),
+                _ObjCBlock_ffiVoid_NSURL_NSURLResponse_NSError_registerClosure(
+                    fn)),
             lib);
   static ffi.Pointer<ffi.Void>? _dartFuncTrampoline;
   void call(ffi.Pointer<ObjCObject> arg0, ffi.Pointer<ObjCObject> arg1,
@@ -66714,7 +69089,7 @@ class NSTask extends NSObject {
   }
 
   set executableURL(NSURL? value) {
-    _lib._objc_msgSend_655(
+    return _lib._objc_msgSend_655(
         _id, _lib._sel_setExecutableURL_1, value?._id ?? ffi.nullptr);
   }
 
@@ -66726,7 +69101,7 @@ class NSTask extends NSObject {
   }
 
   set arguments(NSArray? value) {
-    _lib._objc_msgSend_765(
+    return _lib._objc_msgSend_765(
         _id, _lib._sel_setArguments_1, value?._id ?? ffi.nullptr);
   }
 
@@ -66738,7 +69113,7 @@ class NSTask extends NSObject {
   }
 
   set environment(NSDictionary? value) {
-    _lib._objc_msgSend_171(
+    return _lib._objc_msgSend_171(
         _id, _lib._sel_setEnvironment_1, value?._id ?? ffi.nullptr);
   }
 
@@ -66750,7 +69125,7 @@ class NSTask extends NSObject {
   }
 
   set currentDirectoryURL(NSURL? value) {
-    _lib._objc_msgSend_655(
+    return _lib._objc_msgSend_655(
         _id, _lib._sel_setCurrentDirectoryURL_1, value?._id ?? ffi.nullptr);
   }
 
@@ -66760,7 +69135,7 @@ class NSTask extends NSObject {
   }
 
   set standardInput(NSObject value) {
-    _lib._objc_msgSend_387(_id, _lib._sel_setStandardInput_1, value._id);
+    return _lib._objc_msgSend_387(_id, _lib._sel_setStandardInput_1, value._id);
   }
 
   NSObject get standardOutput {
@@ -66769,7 +69144,8 @@ class NSTask extends NSObject {
   }
 
   set standardOutput(NSObject value) {
-    _lib._objc_msgSend_387(_id, _lib._sel_setStandardOutput_1, value._id);
+    return _lib._objc_msgSend_387(
+        _id, _lib._sel_setStandardOutput_1, value._id);
   }
 
   NSObject get standardError {
@@ -66778,7 +69154,7 @@ class NSTask extends NSObject {
   }
 
   set standardError(NSObject value) {
-    _lib._objc_msgSend_387(_id, _lib._sel_setStandardError_1, value._id);
+    return _lib._objc_msgSend_387(_id, _lib._sel_setStandardError_1, value._id);
   }
 
   bool launchAndReturnError_(ffi.Pointer<ffi.Pointer<ObjCObject>> error) {
@@ -66786,11 +69162,11 @@ class NSTask extends NSObject {
   }
 
   void interrupt() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_interrupt1);
+    _lib._objc_msgSend_1(_id, _lib._sel_interrupt1);
   }
 
   void terminate() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_terminate1);
+    _lib._objc_msgSend_1(_id, _lib._sel_terminate1);
   }
 
   bool suspend() {
@@ -66817,13 +69193,14 @@ class NSTask extends NSObject {
     return _lib._objc_msgSend_1028(_id, _lib._sel_terminationReason1);
   }
 
-  ObjCBlock50 get terminationHandler {
+  ObjCBlock_ffiVoid_NSTask get terminationHandler {
     final _ret = _lib._objc_msgSend_1029(_id, _lib._sel_terminationHandler1);
-    return ObjCBlock50._(_ret, _lib);
+    return ObjCBlock_ffiVoid_NSTask._(_ret, _lib);
   }
 
-  set terminationHandler(ObjCBlock50 value) {
-    _lib._objc_msgSend_1030(_id, _lib._sel_setTerminationHandler_1, value._id);
+  set terminationHandler(ObjCBlock_ffiVoid_NSTask value) {
+    return _lib._objc_msgSend_1030(
+        _id, _lib._sel_setTerminationHandler_1, value._id);
   }
 
   int get qualityOfService {
@@ -66831,7 +69208,7 @@ class NSTask extends NSObject {
   }
 
   set qualityOfService(int value) {
-    _lib._objc_msgSend_508(_id, _lib._sel_setQualityOfService_1, value);
+    return _lib._objc_msgSend_508(_id, _lib._sel_setQualityOfService_1, value);
   }
 
   static NSTask
@@ -66840,7 +69217,7 @@ class NSTask extends NSObject {
           NSURL? url,
           NSArray? arguments,
           ffi.Pointer<ffi.Pointer<ObjCObject>> error,
-          ObjCBlock50 terminationHandler) {
+          ObjCBlock_ffiVoid_NSTask terminationHandler) {
     final _ret = _lib._objc_msgSend_1031(
         _lib._class_NSTask1,
         _lib._sel_launchedTaskWithExecutableURL_arguments_error_terminationHandler_1,
@@ -66852,7 +69229,7 @@ class NSTask extends NSObject {
   }
 
   void waitUntilExit() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_waitUntilExit1);
+    _lib._objc_msgSend_1(_id, _lib._sel_waitUntilExit1);
   }
 
   NSString? get launchPath {
@@ -66863,7 +69240,7 @@ class NSTask extends NSObject {
   }
 
   set launchPath(NSString? value) {
-    _lib._objc_msgSend_509(
+    return _lib._objc_msgSend_509(
         _id, _lib._sel_setLaunchPath_1, value?._id ?? ffi.nullptr);
   }
 
@@ -66875,12 +69252,12 @@ class NSTask extends NSObject {
   }
 
   set currentDirectoryPath(NSString? value) {
-    _lib._objc_msgSend_509(
+    return _lib._objc_msgSend_509(
         _id, _lib._sel_setCurrentDirectoryPath_1, value?._id ?? ffi.nullptr);
   }
 
   void launch() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_launch1);
+    _lib._objc_msgSend_1(_id, _lib._sel_launch1);
   }
 
   static NSTask launchedTaskWithLaunchPath_arguments_(
@@ -66898,6 +69275,12 @@ class NSTask extends NSObject {
     return NSTask._(_ret, _lib, retain: false, release: true);
   }
 
+  static NSTask allocWithZone_(SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSTask1, _lib._sel_allocWithZone_1, zone);
+    return NSTask._(_ret, _lib, retain: false, release: true);
+  }
+
   static NSTask alloc(SentryCocoa _lib) {
     final _ret = _lib._objc_msgSend_2(_lib._class_NSTask1, _lib._sel_alloc1);
     return NSTask._(_ret, _lib, retain: false, release: true);
@@ -66908,7 +69291,7 @@ class NSTask extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSTask1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -66918,7 +69301,7 @@ class NSTask extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSTask1,
+    _lib._objc_msgSend_15(_lib._class_NSTask1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -66951,7 +69334,7 @@ class NSTask extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSTask1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -66976,7 +69359,7 @@ abstract class NSTaskTerminationReason {
   static const int NSTaskTerminationReasonUncaughtSignal = 2;
 }
 
-void _ObjCBlock50_fnPtrTrampoline(
+void _ObjCBlock_ffiVoid_NSTask_fnPtrTrampoline(
     ffi.Pointer<_ObjCBlock> block, ffi.Pointer<ObjCObject> arg0) {
   return block.ref.target
       .cast<
@@ -66984,26 +69367,26 @@ void _ObjCBlock50_fnPtrTrampoline(
       .asFunction<void Function(ffi.Pointer<ObjCObject> arg0)>()(arg0);
 }
 
-final _ObjCBlock50_closureRegistry = <int, Function>{};
-int _ObjCBlock50_closureRegistryIndex = 0;
-ffi.Pointer<ffi.Void> _ObjCBlock50_registerClosure(Function fn) {
-  final id = ++_ObjCBlock50_closureRegistryIndex;
-  _ObjCBlock50_closureRegistry[id] = fn;
+final _ObjCBlock_ffiVoid_NSTask_closureRegistry = <int, Function>{};
+int _ObjCBlock_ffiVoid_NSTask_closureRegistryIndex = 0;
+ffi.Pointer<ffi.Void> _ObjCBlock_ffiVoid_NSTask_registerClosure(Function fn) {
+  final id = ++_ObjCBlock_ffiVoid_NSTask_closureRegistryIndex;
+  _ObjCBlock_ffiVoid_NSTask_closureRegistry[id] = fn;
   return ffi.Pointer<ffi.Void>.fromAddress(id);
 }
 
-void _ObjCBlock50_closureTrampoline(
+void _ObjCBlock_ffiVoid_NSTask_closureTrampoline(
     ffi.Pointer<_ObjCBlock> block, ffi.Pointer<ObjCObject> arg0) {
-  return (_ObjCBlock50_closureRegistry[block.ref.target.address] as void
-      Function(ffi.Pointer<ObjCObject>))(arg0);
+  return (_ObjCBlock_ffiVoid_NSTask_closureRegistry[block.ref.target.address]
+      as void Function(ffi.Pointer<ObjCObject>))(arg0);
 }
 
-class ObjCBlock50 extends _ObjCBlockBase {
-  ObjCBlock50._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
+class ObjCBlock_ffiVoid_NSTask extends _ObjCBlockBase {
+  ObjCBlock_ffiVoid_NSTask._(ffi.Pointer<_ObjCBlock> id, SentryCocoa lib)
       : super._(id, lib, retain: false, release: true);
 
   /// Creates a block from a C function pointer.
-  ObjCBlock50.fromFunctionPointer(
+  ObjCBlock_ffiVoid_NSTask.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
               ffi
@@ -67014,23 +69397,23 @@ class ObjCBlock50 extends _ObjCBlockBase {
                 _cFuncTrampoline ??= ffi.Pointer.fromFunction<
                             ffi.Void Function(ffi.Pointer<_ObjCBlock> block,
                                 ffi.Pointer<ObjCObject> arg0)>(
-                        _ObjCBlock50_fnPtrTrampoline)
+                        _ObjCBlock_ffiVoid_NSTask_fnPtrTrampoline)
                     .cast(),
                 ptr.cast()),
             lib);
   static ffi.Pointer<ffi.Void>? _cFuncTrampoline;
 
   /// Creates a block from a Dart function.
-  ObjCBlock50.fromFunction(
+  ObjCBlock_ffiVoid_NSTask.fromFunction(
       SentryCocoa lib, void Function(ffi.Pointer<ObjCObject> arg0) fn)
       : this._(
             lib._newBlock1(
                 _dartFuncTrampoline ??= ffi.Pointer.fromFunction<
                             ffi.Void Function(ffi.Pointer<_ObjCBlock> block,
                                 ffi.Pointer<ObjCObject> arg0)>(
-                        _ObjCBlock50_closureTrampoline)
+                        _ObjCBlock_ffiVoid_NSTask_closureTrampoline)
                     .cast(),
-                _ObjCBlock50_registerClosure(fn)),
+                _ObjCBlock_ffiVoid_NSTask_registerClosure(fn)),
             lib);
   static ffi.Pointer<ffi.Void>? _dartFuncTrampoline;
   void call(ffi.Pointer<ObjCObject> arg0) {
@@ -67119,12 +69502,12 @@ class NSXMLElement extends NSXMLNode {
   }
 
   void addAttribute_(NSXMLNode? attribute) {
-    return _lib._objc_msgSend_1046(
+    _lib._objc_msgSend_1046(
         _id, _lib._sel_addAttribute_1, attribute?._id ?? ffi.nullptr);
   }
 
   void removeAttributeForName_(NSString? name) {
-    return _lib._objc_msgSend_192(
+    _lib._objc_msgSend_192(
         _id, _lib._sel_removeAttributeForName_1, name?._id ?? ffi.nullptr);
   }
 
@@ -67136,12 +69519,12 @@ class NSXMLElement extends NSXMLNode {
   }
 
   set attributes(NSArray? value) {
-    _lib._objc_msgSend_765(
+    return _lib._objc_msgSend_765(
         _id, _lib._sel_setAttributes_1, value?._id ?? ffi.nullptr);
   }
 
   void setAttributesWithDictionary_(NSDictionary? attributes) {
-    return _lib._objc_msgSend_476(_id, _lib._sel_setAttributesWithDictionary_1,
+    _lib._objc_msgSend_476(_id, _lib._sel_setAttributesWithDictionary_1,
         attributes?._id ?? ffi.nullptr);
   }
 
@@ -67161,12 +69544,12 @@ class NSXMLElement extends NSXMLNode {
   }
 
   void addNamespace_(NSXMLNode? aNamespace) {
-    return _lib._objc_msgSend_1046(
+    _lib._objc_msgSend_1046(
         _id, _lib._sel_addNamespace_1, aNamespace?._id ?? ffi.nullptr);
   }
 
   void removeNamespaceForPrefix_(NSString? name) {
-    return _lib._objc_msgSend_192(
+    _lib._objc_msgSend_192(
         _id, _lib._sel_removeNamespaceForPrefix_1, name?._id ?? ffi.nullptr);
   }
 
@@ -67178,7 +69561,7 @@ class NSXMLElement extends NSXMLNode {
   }
 
   set namespaces(NSArray? value) {
-    _lib._objc_msgSend_765(
+    return _lib._objc_msgSend_765(
         _id, _lib._sel_setNamespaces_1, value?._id ?? ffi.nullptr);
   }
 
@@ -67203,45 +69586,54 @@ class NSXMLElement extends NSXMLNode {
   }
 
   void insertChild_atIndex_(NSXMLNode? child, int index) {
-    return _lib._objc_msgSend_1044(
+    _lib._objc_msgSend_1044(
         _id, _lib._sel_insertChild_atIndex_1, child?._id ?? ffi.nullptr, index);
   }
 
   void insertChildren_atIndex_(NSArray? children, int index) {
-    return _lib._objc_msgSend_1045(_id, _lib._sel_insertChildren_atIndex_1,
+    _lib._objc_msgSend_1045(_id, _lib._sel_insertChildren_atIndex_1,
         children?._id ?? ffi.nullptr, index);
   }
 
   void removeChildAtIndex_(int index) {
-    return _lib._objc_msgSend_439(_id, _lib._sel_removeChildAtIndex_1, index);
+    _lib._objc_msgSend_439(_id, _lib._sel_removeChildAtIndex_1, index);
   }
 
   void setChildren_(NSArray? children) {
-    return _lib._objc_msgSend_441(
+    _lib._objc_msgSend_441(
         _id, _lib._sel_setChildren_1, children?._id ?? ffi.nullptr);
   }
 
   void addChild_(NSXMLNode? child) {
-    return _lib._objc_msgSend_1046(
+    _lib._objc_msgSend_1046(
         _id, _lib._sel_addChild_1, child?._id ?? ffi.nullptr);
   }
 
   void replaceChildAtIndex_withNode_(int index, NSXMLNode? node) {
-    return _lib._objc_msgSend_1047(
-        _id,
-        _lib._sel_replaceChildAtIndex_withNode_1,
-        index,
-        node?._id ?? ffi.nullptr);
+    _lib._objc_msgSend_1047(_id, _lib._sel_replaceChildAtIndex_withNode_1,
+        index, node?._id ?? ffi.nullptr);
   }
 
   void normalizeAdjacentTextNodesPreservingCDATA_(bool preserve) {
-    return _lib._objc_msgSend_824(
+    _lib._objc_msgSend_824(
         _id, _lib._sel_normalizeAdjacentTextNodesPreservingCDATA_1, preserve);
   }
 
   void setAttributesAsDictionary_(NSDictionary? attributes) {
-    return _lib._objc_msgSend_476(_id, _lib._sel_setAttributesAsDictionary_1,
+    _lib._objc_msgSend_476(_id, _lib._sel_setAttributesAsDictionary_1,
         attributes?._id ?? ffi.nullptr);
+  }
+
+  @override
+  NSXMLElement init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return NSXMLElement._(_ret, _lib, retain: true, release: true);
+  }
+
+  @override
+  NSXMLElement initWithKind_(int kind) {
+    final _ret = _lib._objc_msgSend_1033(_id, _lib._sel_initWithKind_1, kind);
+    return NSXMLElement._(_ret, _lib, retain: true, release: true);
   }
 
   static NSObject document(SentryCocoa _lib) {
@@ -67380,6 +69772,13 @@ class NSXMLElement extends NSXMLNode {
     return NSXMLElement._(_ret, _lib, retain: false, release: true);
   }
 
+  static NSXMLElement allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSXMLElement1, _lib._sel_allocWithZone_1, zone);
+    return NSXMLElement._(_ret, _lib, retain: false, release: true);
+  }
+
   static NSXMLElement alloc(SentryCocoa _lib) {
     final _ret =
         _lib._objc_msgSend_2(_lib._class_NSXMLElement1, _lib._sel_alloc1);
@@ -67391,7 +69790,7 @@ class NSXMLElement extends NSXMLNode {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSXMLElement1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -67401,7 +69800,7 @@ class NSXMLElement extends NSXMLNode {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSXMLElement1,
+    _lib._objc_msgSend_15(_lib._class_NSXMLElement1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -67434,7 +69833,7 @@ class NSXMLElement extends NSXMLNode {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSXMLElement1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -67617,7 +70016,8 @@ class NSXMLNode extends NSObject {
   }
 
   set name(NSString? value) {
-    _lib._objc_msgSend_509(_id, _lib._sel_setName_1, value?._id ?? ffi.nullptr);
+    return _lib._objc_msgSend_509(
+        _id, _lib._sel_setName_1, value?._id ?? ffi.nullptr);
   }
 
   NSObject get objectValue {
@@ -67626,7 +70026,7 @@ class NSXMLNode extends NSObject {
   }
 
   set objectValue(NSObject value) {
-    _lib._objc_msgSend_387(_id, _lib._sel_setObjectValue_1, value._id);
+    return _lib._objc_msgSend_387(_id, _lib._sel_setObjectValue_1, value._id);
   }
 
   NSString? get stringValue {
@@ -67637,16 +70037,13 @@ class NSXMLNode extends NSObject {
   }
 
   set stringValue(NSString? value) {
-    _lib._objc_msgSend_509(
+    return _lib._objc_msgSend_509(
         _id, _lib._sel_setStringValue_1, value?._id ?? ffi.nullptr);
   }
 
   void setStringValue_resolvingEntities_(NSString? string, bool resolve) {
-    return _lib._objc_msgSend_1038(
-        _id,
-        _lib._sel_setStringValue_resolvingEntities_1,
-        string?._id ?? ffi.nullptr,
-        resolve);
+    _lib._objc_msgSend_1038(_id, _lib._sel_setStringValue_resolvingEntities_1,
+        string?._id ?? ffi.nullptr, resolve);
   }
 
   int get index {
@@ -67716,7 +70113,7 @@ class NSXMLNode extends NSObject {
   }
 
   void detach() {
-    return _lib._objc_msgSend_1(_id, _lib._sel_detach1);
+    _lib._objc_msgSend_1(_id, _lib._sel_detach1);
   }
 
   NSString? get XPath {
@@ -67748,7 +70145,8 @@ class NSXMLNode extends NSObject {
   }
 
   set URI(NSString? value) {
-    _lib._objc_msgSend_509(_id, _lib._sel_setURI_1, value?._id ?? ffi.nullptr);
+    return _lib._objc_msgSend_509(
+        _id, _lib._sel_setURI_1, value?._id ?? ffi.nullptr);
   }
 
   static NSString localNameForName_(SentryCocoa _lib, NSString? name) {
@@ -67826,6 +70224,12 @@ class NSXMLNode extends NSObject {
     return NSXMLNode._(_ret, _lib, retain: false, release: true);
   }
 
+  static NSXMLNode allocWithZone_(SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSXMLNode1, _lib._sel_allocWithZone_1, zone);
+    return NSXMLNode._(_ret, _lib, retain: false, release: true);
+  }
+
   static NSXMLNode alloc(SentryCocoa _lib) {
     final _ret = _lib._objc_msgSend_2(_lib._class_NSXMLNode1, _lib._sel_alloc1);
     return NSXMLNode._(_ret, _lib, retain: false, release: true);
@@ -67836,7 +70240,7 @@ class NSXMLNode extends NSObject {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSXMLNode1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -67846,7 +70250,7 @@ class NSXMLNode extends NSObject {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSXMLNode1,
+    _lib._objc_msgSend_15(_lib._class_NSXMLNode1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -67879,7 +70283,7 @@ class NSXMLNode extends NSObject {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSXMLNode1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -68028,7 +70432,7 @@ class NSXMLDocument extends NSXMLNode {
   }
 
   set characterEncoding(NSString? value) {
-    _lib._objc_msgSend_509(
+    return _lib._objc_msgSend_509(
         _id, _lib._sel_setCharacterEncoding_1, value?._id ?? ffi.nullptr);
   }
 
@@ -68040,7 +70444,7 @@ class NSXMLDocument extends NSXMLNode {
   }
 
   set version(NSString? value) {
-    _lib._objc_msgSend_509(
+    return _lib._objc_msgSend_509(
         _id, _lib._sel_setVersion_1, value?._id ?? ffi.nullptr);
   }
 
@@ -68049,7 +70453,7 @@ class NSXMLDocument extends NSXMLNode {
   }
 
   set standalone(bool value) {
-    _lib._objc_msgSend_492(_id, _lib._sel_setStandalone_1, value);
+    return _lib._objc_msgSend_492(_id, _lib._sel_setStandalone_1, value);
   }
 
   int get documentContentKind {
@@ -68057,7 +70461,8 @@ class NSXMLDocument extends NSXMLNode {
   }
 
   set documentContentKind(int value) {
-    _lib._objc_msgSend_1043(_id, _lib._sel_setDocumentContentKind_1, value);
+    return _lib._objc_msgSend_1043(
+        _id, _lib._sel_setDocumentContentKind_1, value);
   }
 
   NSString? get MIMEType {
@@ -68068,7 +70473,7 @@ class NSXMLDocument extends NSXMLNode {
   }
 
   set MIMEType(NSString? value) {
-    _lib._objc_msgSend_509(
+    return _lib._objc_msgSend_509(
         _id, _lib._sel_setMIMEType_1, value?._id ?? ffi.nullptr);
   }
 
@@ -68080,11 +70485,12 @@ class NSXMLDocument extends NSXMLNode {
   }
 
   set DTD(NSXMLDTD? value) {
-    _lib._objc_msgSend_1054(_id, _lib._sel_setDTD_1, value?._id ?? ffi.nullptr);
+    return _lib._objc_msgSend_1054(
+        _id, _lib._sel_setDTD_1, value?._id ?? ffi.nullptr);
   }
 
   void setRootElement_(NSXMLElement? root) {
-    return _lib._objc_msgSend_1055(
+    _lib._objc_msgSend_1055(
         _id, _lib._sel_setRootElement_1, root?._id ?? ffi.nullptr);
   }
 
@@ -68094,35 +70500,32 @@ class NSXMLDocument extends NSXMLNode {
   }
 
   void insertChild_atIndex_(NSXMLNode? child, int index) {
-    return _lib._objc_msgSend_1044(
+    _lib._objc_msgSend_1044(
         _id, _lib._sel_insertChild_atIndex_1, child?._id ?? ffi.nullptr, index);
   }
 
   void insertChildren_atIndex_(NSArray? children, int index) {
-    return _lib._objc_msgSend_1045(_id, _lib._sel_insertChildren_atIndex_1,
+    _lib._objc_msgSend_1045(_id, _lib._sel_insertChildren_atIndex_1,
         children?._id ?? ffi.nullptr, index);
   }
 
   void removeChildAtIndex_(int index) {
-    return _lib._objc_msgSend_439(_id, _lib._sel_removeChildAtIndex_1, index);
+    _lib._objc_msgSend_439(_id, _lib._sel_removeChildAtIndex_1, index);
   }
 
   void setChildren_(NSArray? children) {
-    return _lib._objc_msgSend_441(
+    _lib._objc_msgSend_441(
         _id, _lib._sel_setChildren_1, children?._id ?? ffi.nullptr);
   }
 
   void addChild_(NSXMLNode? child) {
-    return _lib._objc_msgSend_1046(
+    _lib._objc_msgSend_1046(
         _id, _lib._sel_addChild_1, child?._id ?? ffi.nullptr);
   }
 
   void replaceChildAtIndex_withNode_(int index, NSXMLNode? node) {
-    return _lib._objc_msgSend_1047(
-        _id,
-        _lib._sel_replaceChildAtIndex_withNode_1,
-        index,
-        node?._id ?? ffi.nullptr);
+    _lib._objc_msgSend_1047(_id, _lib._sel_replaceChildAtIndex_withNode_1,
+        index, node?._id ?? ffi.nullptr);
   }
 
   NSData? get XMLData {
@@ -68174,6 +70577,19 @@ class NSXMLDocument extends NSXMLNode {
   bool validateAndReturnError_(ffi.Pointer<ffi.Pointer<ObjCObject>> error) {
     return _lib._objc_msgSend_225(
         _id, _lib._sel_validateAndReturnError_1, error);
+  }
+
+  @override
+  NSXMLDocument initWithKind_(int kind) {
+    final _ret = _lib._objc_msgSend_1033(_id, _lib._sel_initWithKind_1, kind);
+    return NSXMLDocument._(_ret, _lib, retain: true, release: true);
+  }
+
+  @override
+  NSXMLDocument initWithKind_options_(int kind, int options) {
+    final _ret = _lib._objc_msgSend_1034(
+        _id, _lib._sel_initWithKind_options_1, kind, options);
+    return NSXMLDocument._(_ret, _lib, retain: true, release: true);
   }
 
   static NSObject document(SentryCocoa _lib) {
@@ -68312,6 +70728,13 @@ class NSXMLDocument extends NSXMLNode {
     return NSXMLDocument._(_ret, _lib, retain: false, release: true);
   }
 
+  static NSXMLDocument allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSXMLDocument1, _lib._sel_allocWithZone_1, zone);
+    return NSXMLDocument._(_ret, _lib, retain: false, release: true);
+  }
+
   static NSXMLDocument alloc(SentryCocoa _lib) {
     final _ret =
         _lib._objc_msgSend_2(_lib._class_NSXMLDocument1, _lib._sel_alloc1);
@@ -68323,7 +70746,7 @@ class NSXMLDocument extends NSXMLNode {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSXMLDocument1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -68333,7 +70756,7 @@ class NSXMLDocument extends NSXMLNode {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSXMLDocument1,
+    _lib._objc_msgSend_15(_lib._class_NSXMLDocument1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -68366,7 +70789,7 @@ class NSXMLDocument extends NSXMLNode {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSXMLDocument1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -68459,7 +70882,7 @@ class NSXMLDTD extends NSXMLNode {
   }
 
   set publicID(NSString? value) {
-    _lib._objc_msgSend_509(
+    return _lib._objc_msgSend_509(
         _id, _lib._sel_setPublicID_1, value?._id ?? ffi.nullptr);
   }
 
@@ -68471,40 +70894,37 @@ class NSXMLDTD extends NSXMLNode {
   }
 
   set systemID(NSString? value) {
-    _lib._objc_msgSend_509(
+    return _lib._objc_msgSend_509(
         _id, _lib._sel_setSystemID_1, value?._id ?? ffi.nullptr);
   }
 
   void insertChild_atIndex_(NSXMLNode? child, int index) {
-    return _lib._objc_msgSend_1044(
+    _lib._objc_msgSend_1044(
         _id, _lib._sel_insertChild_atIndex_1, child?._id ?? ffi.nullptr, index);
   }
 
   void insertChildren_atIndex_(NSArray? children, int index) {
-    return _lib._objc_msgSend_1045(_id, _lib._sel_insertChildren_atIndex_1,
+    _lib._objc_msgSend_1045(_id, _lib._sel_insertChildren_atIndex_1,
         children?._id ?? ffi.nullptr, index);
   }
 
   void removeChildAtIndex_(int index) {
-    return _lib._objc_msgSend_439(_id, _lib._sel_removeChildAtIndex_1, index);
+    _lib._objc_msgSend_439(_id, _lib._sel_removeChildAtIndex_1, index);
   }
 
   void setChildren_(NSArray? children) {
-    return _lib._objc_msgSend_441(
+    _lib._objc_msgSend_441(
         _id, _lib._sel_setChildren_1, children?._id ?? ffi.nullptr);
   }
 
   void addChild_(NSXMLNode? child) {
-    return _lib._objc_msgSend_1046(
+    _lib._objc_msgSend_1046(
         _id, _lib._sel_addChild_1, child?._id ?? ffi.nullptr);
   }
 
   void replaceChildAtIndex_withNode_(int index, NSXMLNode? node) {
-    return _lib._objc_msgSend_1047(
-        _id,
-        _lib._sel_replaceChildAtIndex_withNode_1,
-        index,
-        node?._id ?? ffi.nullptr);
+    _lib._objc_msgSend_1047(_id, _lib._sel_replaceChildAtIndex_withNode_1,
+        index, node?._id ?? ffi.nullptr);
   }
 
   NSXMLDTDNode entityDeclarationForName_(NSString? name) {
@@ -68542,6 +70962,12 @@ class NSXMLDTD extends NSXMLNode {
         _lib._sel_predefinedEntityDeclarationForName_1,
         name?._id ?? ffi.nullptr);
     return NSXMLDTDNode._(_ret, _lib, retain: true, release: true);
+  }
+
+  @override
+  NSXMLDTD initWithKind_(int kind) {
+    final _ret = _lib._objc_msgSend_1033(_id, _lib._sel_initWithKind_1, kind);
+    return NSXMLDTD._(_ret, _lib, retain: true, release: true);
   }
 
   static NSObject document(SentryCocoa _lib) {
@@ -68679,6 +71105,12 @@ class NSXMLDTD extends NSXMLNode {
     return NSXMLDTD._(_ret, _lib, retain: false, release: true);
   }
 
+  static NSXMLDTD allocWithZone_(SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSXMLDTD1, _lib._sel_allocWithZone_1, zone);
+    return NSXMLDTD._(_ret, _lib, retain: false, release: true);
+  }
+
   static NSXMLDTD alloc(SentryCocoa _lib) {
     final _ret = _lib._objc_msgSend_2(_lib._class_NSXMLDTD1, _lib._sel_alloc1);
     return NSXMLDTD._(_ret, _lib, retain: false, release: true);
@@ -68689,7 +71121,7 @@ class NSXMLDTD extends NSXMLNode {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSXMLDTD1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -68699,7 +71131,7 @@ class NSXMLDTD extends NSXMLNode {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSXMLDTD1,
+    _lib._objc_msgSend_15(_lib._class_NSXMLDTD1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -68732,7 +71164,7 @@ class NSXMLDTD extends NSXMLNode {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSXMLDTD1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
@@ -68799,7 +71231,7 @@ class NSXMLDTDNode extends NSXMLNode {
   }
 
   set DTDKind(int value) {
-    _lib._objc_msgSend_1049(_id, _lib._sel_setDTDKind_1, value);
+    return _lib._objc_msgSend_1049(_id, _lib._sel_setDTDKind_1, value);
   }
 
   bool get external1 {
@@ -68814,7 +71246,7 @@ class NSXMLDTDNode extends NSXMLNode {
   }
 
   set publicID(NSString? value) {
-    _lib._objc_msgSend_509(
+    return _lib._objc_msgSend_509(
         _id, _lib._sel_setPublicID_1, value?._id ?? ffi.nullptr);
   }
 
@@ -68826,7 +71258,7 @@ class NSXMLDTDNode extends NSXMLNode {
   }
 
   set systemID(NSString? value) {
-    _lib._objc_msgSend_509(
+    return _lib._objc_msgSend_509(
         _id, _lib._sel_setSystemID_1, value?._id ?? ffi.nullptr);
   }
 
@@ -68838,8 +71270,14 @@ class NSXMLDTDNode extends NSXMLNode {
   }
 
   set notationName(NSString? value) {
-    _lib._objc_msgSend_509(
+    return _lib._objc_msgSend_509(
         _id, _lib._sel_setNotationName_1, value?._id ?? ffi.nullptr);
+  }
+
+  @override
+  NSXMLDTDNode initWithKind_(int kind) {
+    final _ret = _lib._objc_msgSend_1033(_id, _lib._sel_initWithKind_1, kind);
+    return NSXMLDTDNode._(_ret, _lib, retain: true, release: true);
   }
 
   static NSObject document(SentryCocoa _lib) {
@@ -68978,6 +71416,13 @@ class NSXMLDTDNode extends NSXMLNode {
     return NSXMLDTDNode._(_ret, _lib, retain: false, release: true);
   }
 
+  static NSXMLDTDNode allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_NSXMLDTDNode1, _lib._sel_allocWithZone_1, zone);
+    return NSXMLDTDNode._(_ret, _lib, retain: false, release: true);
+  }
+
   static NSXMLDTDNode alloc(SentryCocoa _lib) {
     final _ret =
         _lib._objc_msgSend_2(_lib._class_NSXMLDTDNode1, _lib._sel_alloc1);
@@ -68989,7 +71434,7 @@ class NSXMLDTDNode extends NSXMLNode {
       NSObject aTarget,
       ffi.Pointer<ObjCSel> aSelector,
       NSObject anArgument) {
-    return _lib._objc_msgSend_14(
+    _lib._objc_msgSend_14(
         _lib._class_NSXMLDTDNode1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
         aTarget._id,
@@ -68999,7 +71444,7 @@ class NSXMLDTDNode extends NSXMLNode {
 
   static void cancelPreviousPerformRequestsWithTarget_(
       SentryCocoa _lib, NSObject aTarget) {
-    return _lib._objc_msgSend_15(_lib._class_NSXMLDTDNode1,
+    _lib._objc_msgSend_15(_lib._class_NSXMLDTDNode1,
         _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
   }
 
@@ -69032,7 +71477,7 @@ class NSXMLDTDNode extends NSXMLNode {
 
   static void setKeys_triggerChangeNotificationsForDependentKey_(
       SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    return _lib._objc_msgSend_82(
+    _lib._objc_msgSend_82(
         _lib._class_NSXMLDTDNode1,
         _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
         keys?._id ?? ffi.nullptr,
