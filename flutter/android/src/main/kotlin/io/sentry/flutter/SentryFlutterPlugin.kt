@@ -40,7 +40,6 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
   private var activity: WeakReference<Activity>? = null
   private var framesTracker: ActivityFramesTracker? = null
-  private var autoPerformanceTracingEnabled = false
 
   override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     context = flutterPluginBinding.applicationContext
@@ -137,7 +136,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
   }
 
   private fun fetchNativeAppStart(result: Result) {
-    if (!autoPerformanceTracingEnabled) {
+    if (!sentryFlutter.autoPerformanceTracingEnabled) {
       result.success(null)
       return
     }
@@ -161,7 +160,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
   }
 
   private fun beginNativeFrames(result: Result) {
-    if (!autoPerformanceTracingEnabled) {
+    if (!sentryFlutter.autoPerformanceTracingEnabled) {
       result.success(null)
       return
     }
@@ -174,7 +173,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
   private fun endNativeFrames(id: String?, result: Result) {
     val activity = activity?.get()
-    if (!autoPerformanceTracingEnabled || activity == null || id == null) {
+    if (!sentryFlutter.autoPerformanceTracingEnabled || activity == null || id == null) {
       if (id == null) {
         Log.w("Sentry", "Parameter id cannot be null when calling endNativeFrames.")
       }
