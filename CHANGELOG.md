@@ -4,6 +4,7 @@
 
 ### Enhancements
 
+- Add Sampling Decision to Trace Envelope Header ([#1639](https://github.com/getsentry/sentry-dart/pull/1639))
 - Add http.request.method attribute to http spans data ([#1633](https://github.com/getsentry/sentry-dart/pull/1633))
 - Add db.system and db.name attributes to db spans data ([#1629](https://github.com/getsentry/sentry-dart/pull/1629))
 - Log SDK errors to the console if the log level is `fatal` even if `debug` is disabled ([#1635](https://github.com/getsentry/sentry-dart/pull/1635))
