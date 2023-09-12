@@ -44,15 +44,10 @@ class NativeProfilerFactory implements ProfilerFactory {
     }
 
     final startTime = _native.startProfiler(context.traceId);
-
-    // TODO we cannot await the future returned by a method channel because
-    //  startTransaction() is synchronous. In order to make this code fully
-    //  synchronous and actually start the profiler, we need synchronous FFI
-    //  calls, see https://github.com/getsentry/sentry-dart/issues/1444
-    //  For now, return immediately even though the profiler may not have started yet...
-    // XXX fixme future.value
-    return NativeProfiler(
-        _native, Future.value(startTime), context.traceId, _clock);
+    if (startTime == null) {
+      return null;
+    }
+    return NativeProfiler(_native, startTime, context.traceId, _clock);
   }
 }
 
@@ -61,18 +56,18 @@ class NativeProfilerFactory implements ProfilerFactory {
 // ignore: invalid_use_of_internal_member
 class NativeProfiler implements Profiler {
   final SentryNative _native;
-  final Future<int?> _startTime;
+  final int _starTimeNs;
   final SentryId _traceId;
   bool _finished = false;
   final ClockProvider _clock;
 
-  NativeProfiler(this._native, this._startTime, this._traceId, this._clock);
+  NativeProfiler(this._native, this._starTimeNs, this._traceId, this._clock);
 
   @override
   void dispose() {
     if (!_finished) {
       _finished = true;
-      _startTime.then((_) => _native.discardProfiler(_traceId));
+      _native.discardProfiler(_traceId);
     }
   }
 
@@ -83,18 +78,13 @@ class NativeProfiler implements Profiler {
     }
     _finished = true;
 
-    final starTimeNs = await _startTime;
-    if (starTimeNs == null) {
-      return null;
-    }
-
     // ignore: invalid_use_of_internal_member
     final transactionEndTime = transaction.timestamp ?? _clock();
     final duration = transactionEndTime.difference(transaction.startTimestamp);
-    final endTimeNs = starTimeNs + (duration.inMicroseconds * 1000);
+    final endTimeNs = _starTimeNs + (duration.inMicroseconds * 1000);
 
     final payload =
-        await _native.collectProfile(_traceId, starTimeNs, endTimeNs);
+        await _native.collectProfile(_traceId, _starTimeNs, endTimeNs);
     if (payload == null) {
       return null;
     }
@@ -104,13 +94,6 @@ class NativeProfiler implements Profiler {
     payload["transaction"]["name"] = transaction.transaction;
     payload["timestamp"] = transaction.startTimestamp.toIso8601String();
     return NativeProfileInfo(payload);
-    // final cSentryId = c.SentryId.alloc(_ffi)
-    //   ..initWithUUIDString_(c.NSString(_ffi, context.traceId.toString()));
-    // final startTime =
-    //     c.PrivateSentrySDKOnly.startProfilerForTrace_(_ffi, cSentryId);
-
-    // return NativeProfiler(
-    //     _native, Future.value(startTime), context.traceId, _clock);
   }
 }
 

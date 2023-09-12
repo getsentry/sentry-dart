@@ -10,6 +10,7 @@ import 'event_processor/android_platform_exception_event_processor.dart';
 import 'event_processor/flutter_exception_event_processor.dart';
 import 'event_processor/platform_exception_event_processor.dart';
 import 'integrations/screenshot_integration.dart';
+import 'native/cocoa/sentry_native_cocoa.dart';
 import 'native/native_scope_observer.dart';
 import 'native/sentry_native_channel.dart';
 import 'profiling.dart';
@@ -55,8 +56,7 @@ mixin SentryFlutter {
       // Set a default native channel to the singleton SentryNative instance.
       if (flutterOptions.platformChecker.platform.isIOS ||
           flutterOptions.platformChecker.platform.isMacOS) {
-        // TODO SentryNativeCocoa(channel);
-        binding = SentryNativeChannel(channel);
+        binding = SentryNativeCocoa(channel);
       } else {
         binding = SentryNativeChannel(channel);
       }
