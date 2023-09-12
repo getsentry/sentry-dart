@@ -11,7 +11,7 @@ platform :ios do
   end
 
   desc "Build Release"
-  lane :build do
+  lane :build_release do
 
     setup_ci
 
