@@ -28,6 +28,10 @@ jobs:
           flutter pub get
           flutter build ios --no-codesign
 
+      - name: Install Fastlane
+        working-directory: ./flutter/example/ios
+        run: bundle install
+
       # We upload a new version to TestFlight on every commit on main
       # So we need to bump the build number each time
       - name: Bump Build Number
