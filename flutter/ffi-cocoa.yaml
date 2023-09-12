@@ -1,7 +1,7 @@
 name: SentryCocoa
 description: Sentry Cocoa SDK FFI binding.
 language: objc
-output: lib/src/sentry_cocoa.dart
+output: lib/src/native/cocoa/binding.dart
 headers:
   entry-points:
     - ./cocoa_bindings_temp/Sentry.framework/Versions/A/PrivateHeaders/PrivateSentrySDKOnly.h

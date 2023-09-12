@@ -13,8 +13,8 @@ import 'package:sentry/sentry.dart' as _i2;
 import 'package:sentry/src/protocol.dart' as _i3;
 import 'package:sentry/src/sentry_envelope.dart' as _i7;
 import 'package:sentry/src/sentry_tracer.dart' as _i8;
-import 'package:sentry_flutter/src/sentry_native.dart' as _i10;
-import 'package:sentry_flutter/src/sentry_native_channel.dart' as _i11;
+import 'package:sentry_flutter/src/native/sentry_native.dart' as _i10;
+import 'package:sentry_flutter/src/native/sentry_native_channel.dart' as _i11;
 
 import 'mocks.dart' as _i12;
 
@@ -112,8 +112,18 @@ class _FakeSentryId_7 extends _i1.SmartFake implements _i3.SentryId {
         );
 }
 
-class _FakeHub_8 extends _i1.SmartFake implements _i2.Hub {
-  _FakeHub_8(
+class _FakeScope_8 extends _i1.SmartFake implements _i2.Scope {
+  _FakeScope_8(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
+class _FakeHub_9 extends _i1.SmartFake implements _i2.Hub {
+  _FakeHub_9(
     Object parent,
     Invocation parentInvocation,
   ) : super(
@@ -144,7 +154,6 @@ class MockTransport extends _i1.Mock implements _i2.Transport {
 /// A class which mocks [SentryTracer].
 ///
 /// See the documentation for Mockito's code generation for more information.
-// ignore: invalid_use_of_internal_member
 class MockSentryTracer extends _i1.Mock implements _i8.SentryTracer {
   MockSentryTracer() {
     _i1.throwOnMissingStub(this);
@@ -526,13 +535,13 @@ class MockSentryNative extends _i1.Mock implements _i10.SentryNative {
         returnValue: false,
       ) as bool);
   @override
-  _i6.Future<_i11.NativeAppStart?> fetchNativeAppStart() => (super.noSuchMethod(
+  _i6.Future<_i10.NativeAppStart?> fetchNativeAppStart() => (super.noSuchMethod(
         Invocation.method(
           #fetchNativeAppStart,
           [],
         ),
-        returnValue: _i6.Future<_i11.NativeAppStart?>.value(),
-      ) as _i6.Future<_i11.NativeAppStart?>);
+        returnValue: _i6.Future<_i10.NativeAppStart?>.value(),
+      ) as _i6.Future<_i10.NativeAppStart?>);
   @override
   _i6.Future<void> beginNativeFramesCollection() => (super.noSuchMethod(
         Invocation.method(
@@ -543,15 +552,15 @@ class MockSentryNative extends _i1.Mock implements _i10.SentryNative {
         returnValueForMissingStub: _i6.Future<void>.value(),
       ) as _i6.Future<void>);
   @override
-  _i6.Future<_i11.NativeFrames?> endNativeFramesCollection(
+  _i6.Future<_i10.NativeFrames?> endNativeFramesCollection(
           _i3.SentryId? traceId) =>
       (super.noSuchMethod(
         Invocation.method(
           #endNativeFramesCollection,
           [traceId],
         ),
-        returnValue: _i6.Future<_i11.NativeFrames?>.value(),
-      ) as _i6.Future<_i11.NativeFrames?>);
+        returnValue: _i6.Future<_i10.NativeFrames?>.value(),
+      ) as _i6.Future<_i10.NativeFrames?>);
   @override
   _i6.Future<void> setContexts(
     String? key,
@@ -695,6 +704,14 @@ class MockHub extends _i1.Mock implements _i2.Hub {
         ),
       ) as _i3.SentryId);
   @override
+  _i2.Scope get scope => (super.noSuchMethod(
+        Invocation.getter(#scope),
+        returnValue: _FakeScope_8(
+          this,
+          Invocation.getter(#scope),
+        ),
+      ) as _i2.Scope);
+  @override
   _i6.Future<_i3.SentryId> captureEvent(
     _i3.SentryEvent? event, {
     dynamic stackTrace,
@@ -828,7 +845,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
           #clone,
           [],
         ),
-        returnValue: _FakeHub_8(
+        returnValue: _FakeHub_9(
           this,
           Invocation.method(
             #clone,
