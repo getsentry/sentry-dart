@@ -11,7 +11,7 @@ platform :ios do
   end
 
   desc "Build Release"
-  lane :build
+  lane :build do
 
     setup_ci
 
@@ -35,7 +35,7 @@ platform :ios do
   end
 
   desc "Upload to TestFlight"
-  lane :testflight do
+  lane :upload_to_testflight do
 
     app_store_connect_api_key(
       key_id: ENV["APP_STORE_CONNECT_KEY_ID"],
@@ -54,4 +54,5 @@ platform :ios do
       include_sources: true
     )
   end
+
 end

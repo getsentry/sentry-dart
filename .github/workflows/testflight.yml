@@ -53,5 +53,5 @@ jobs:
           MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
         run: |
-          bundle exec fastlane build
-          bundle exec fastlane testflight
+          bundle exec fastlane build_release
+          bundle exec fastlane upload_to_testflight
