@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:logging/logging.dart';
 import 'package:sentry/sentry.dart';
 
+import 'extension.dart';
 import 'version.dart';
 
 /// An [Integration] which listens to all messages of the
