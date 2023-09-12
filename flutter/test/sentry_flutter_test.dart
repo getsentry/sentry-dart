@@ -6,7 +6,7 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/integrations/integrations.dart';
 import 'package:sentry_flutter/src/integrations/screenshot_integration.dart';
 import 'package:sentry_flutter/src/renderer/renderer.dart';
-import 'package:sentry_flutter/src/sentry_native.dart';
+import 'package:sentry_flutter/src/native/sentry_native.dart';
 import 'package:sentry_flutter/src/version.dart';
 import 'package:sentry_flutter/src/view_hierarchy/view_hierarchy_integration.dart';
 import 'mocks.dart';

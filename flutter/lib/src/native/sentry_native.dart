@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:meta/meta.dart';
 
-import '../sentry_flutter.dart';
+import '../../sentry_flutter.dart';
 import 'sentry_native_channel.dart';
 
 /// [SentryNative] holds state that it fetches from to the native SDKs. Always
@@ -96,5 +96,35 @@ class SentryNative {
   void reset() {
     appStartEnd = null;
     _didFetchAppStart = false;
+  }
+}
+
+class NativeAppStart {
+  NativeAppStart(this.appStartTime, this.isColdStart);
+
+  double appStartTime;
+  bool isColdStart;
+
+  factory NativeAppStart.fromJson(Map<String, dynamic> json) {
+    return NativeAppStart(
+      json['appStartTime'] as double,
+      json['isColdStart'] as bool,
+    );
+  }
+}
+
+class NativeFrames {
+  NativeFrames(this.totalFrames, this.slowFrames, this.frozenFrames);
+
+  int totalFrames;
+  int slowFrames;
+  int frozenFrames;
+
+  factory NativeFrames.fromJson(Map<String, dynamic> json) {
+    return NativeFrames(
+      json['totalFrames'] as int,
+      json['slowFrames'] as int,
+      json['frozenFrames'] as int,
+    );
   }
 }

@@ -3,10 +3,11 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:meta/meta.dart';
 
-import '../sentry_flutter.dart';
+import '../../sentry_flutter.dart';
+import 'sentry_native.dart';
 import 'method_channel_helper.dart';
 
-/// Provide typed methods to access native layer.
+/// Provide typed methods to access native layer via MethodChannel.
 @internal
 class SentryNativeChannel {
   SentryNativeChannel(this._channel, this._options);
@@ -146,36 +147,6 @@ class SentryNativeChannel {
       'Native call `$nativeMethodName` failed',
       exception: error,
       stackTrace: stackTrace,
-    );
-  }
-}
-
-class NativeAppStart {
-  NativeAppStart(this.appStartTime, this.isColdStart);
-
-  double appStartTime;
-  bool isColdStart;
-
-  factory NativeAppStart.fromJson(Map<String, dynamic> json) {
-    return NativeAppStart(
-      json['appStartTime'] as double,
-      json['isColdStart'] as bool,
-    );
-  }
-}
-
-class NativeFrames {
-  NativeFrames(this.totalFrames, this.slowFrames, this.frozenFrames);
-
-  int totalFrames;
-  int slowFrames;
-  int frozenFrames;
-
-  factory NativeFrames.fromJson(Map<String, dynamic> json) {
-    return NativeFrames(
-      json['totalFrames'] as int,
-      json['slowFrames'] as int,
-      json['frozenFrames'] as int,
     );
   }
 }

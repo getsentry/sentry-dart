@@ -11,8 +11,8 @@ import 'package:sentry/src/sentry_tracer.dart';
 import 'package:meta/meta.dart';
 import 'package:sentry_flutter/src/binding_wrapper.dart';
 import 'package:sentry_flutter/src/renderer/renderer.dart';
-import 'package:sentry_flutter/src/sentry_native.dart';
-import 'package:sentry_flutter/src/sentry_native_channel.dart';
+import 'package:sentry_flutter/src/native/sentry_native.dart';
+import 'package:sentry_flutter/src/native/sentry_native_channel.dart';
 
 import 'mocks.mocks.dart';
 import 'no_such_method_provider.dart';
