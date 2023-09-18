@@ -2,6 +2,7 @@
 set -euo pipefail
 
 GITHUB_BRANCH="${1}"
+COMMIT_MESSAGE="${2}"
 
 if [[ $(git status) == *"nothing to commit"* ]]; then
     echo "Nothing to commit. All code formatted correctly."
@@ -11,6 +12,6 @@ else
     git config --global user.email 'bot+github-bot@sentry.io'
     git fetch
     git checkout ${GITHUB_BRANCH}
-    git commit -am "Format & fix code"
-    git push --set-upstream origin ${GITHUB_BRANCH}
+    git commit -am ${GITHUB_BRANCH}
+    git push --set-upstream origin ${COMMIT_MESSAGE}
 fi
