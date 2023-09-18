@@ -5,9 +5,9 @@ GITHUB_BRANCH="${1}"
 COMMIT_MESSAGE="${2}"
 
 if [[ $(git status) == *"nothing to commit"* ]]; then
-    echo "Nothing to commit. All code formatted correctly."
+    echo "Nothing to commit."
 else
-    echo "Formatted some code. Going to push the changes."
+    echo "Changed some code. Going to push the changes."
     git config --global user.name 'Sentry Github Bot'
     git config --global user.email 'bot+github-bot@sentry.io'
     git fetch
