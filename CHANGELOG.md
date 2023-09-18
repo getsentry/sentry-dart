@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Enable compatibility with uuid v4 ([#xxx](https://github.com/getsentry/sentry-dart/pull/xxx))
+
 ## 7.10.1
 
 ### Enhancements
