@@ -50,9 +50,6 @@ class NativeProfilerFactory implements ProfilerFactory {
     return NativeProfiler(_native, startTime, context.traceId, _clock);
   }
 }
-
-// TODO this may move to the native code in the future - instead of unit-testing,
-//      do an integration test once https://github.com/getsentry/sentry-dart/issues/1605 is done.
 // ignore: invalid_use_of_internal_member
 class NativeProfiler implements Profiler {
   final SentryNative _native;
