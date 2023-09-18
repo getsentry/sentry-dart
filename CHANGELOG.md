@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Enable compatibility with uuid v4 ([#xxx](https://github.com/getsentry/sentry-dart/pull/xxx))
+- Enable compatibility with uuid v4 ([#1647](https://github.com/getsentry/sentry-dart/pull/1647))
 
 ## 7.10.1
 
