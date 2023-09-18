@@ -12,6 +12,6 @@ else
     git config --global user.email 'bot+github-bot@sentry.io'
     git fetch
     git checkout ${GITHUB_BRANCH}
-    git commit -am ${GITHUB_BRANCH}
-    git push --set-upstream origin ${COMMIT_MESSAGE}
+    git commit -am ${COMMIT_MESSAGE}
+    git push --set-upstream origin ${GITHUB_BRANCH}
 fi
