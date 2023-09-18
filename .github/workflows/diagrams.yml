@@ -46,14 +46,14 @@ jobs:
         working-directory: ./logging
         run: lakos . -i "{test/**,example/**}" | dot -Tsvg -o class-diagram.svg
 
-        # Source: https://stackoverflow.com/a/58035262
-      # - name: Extract branch name
-      #   shell: bash
-      #   run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
-      #   id: extract_branch
+        Source: https://stackoverflow.com/a/58035262
+      - name: Extract branch name
+        shell: bash
+        run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+        id: extract_branch
 
-        # actions/checkout fetches only a single commit in a detached HEAD state. Therefore
-        # we need to pass the current branch, otherwise we can't commit the changes.
-        # GITHUB_HEAD_REF is the name of the head branch. GitHub Actions only sets this for PRs.
-      # - name: Commit & push
-      #   run: ./scripts/commit-code.sh ${{ steps.extract_branch.outputs.branch }} "Update class diagrams"
+        actions/checkout fetches only a single commit in a detached HEAD state. Therefore
+        we need to pass the current branch, otherwise we can't commit the changes.
+        GITHUB_HEAD_REF is the name of the head branch. GitHub Actions only sets this for PRs.
+      - name: Commit & push
+        run: ./scripts/commit-code.sh ${{ steps.extract_branch.outputs.branch }} "Update class diagrams"
