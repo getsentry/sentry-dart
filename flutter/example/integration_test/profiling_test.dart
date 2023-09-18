@@ -1,12 +1,11 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import '../../../dart/test/mocks/mock_transport.dart';
 
 void main() {
-  TestWidgetsFlutterBinding.ensureInitialized();
-
   final transport = MockTransport();
 
   setUp(() async {
@@ -60,5 +59,8 @@ void main() {
     expect(profileData["profile"]["samples"], isNotEmpty);
     expect(profileData["profile"]["stacks"], isNotEmpty);
     expect(profileData["profile"]["frames"], isNotEmpty);
-  });
+  },
+      skip: (Platform.isMacOS || Platform.isIOS)
+          ? false
+          : "Profiling is not supported on this platform");
 }
