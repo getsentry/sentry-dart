@@ -7,10 +7,11 @@ on:
       - dart/**
       - flutter/**
       - metrics/**
+      - "!**/*.md"
     branches-ignore:
       - deps/**
       - dependabot/**
-    tags-ignore: ['**']
+    tags-ignore: ["**"]
 
 jobs:
   cancel-previous-workflow:
@@ -59,8 +60,8 @@ jobs:
       - uses: actions/setup-java@v3
         if: ${{ matrix.platform == 'android' }}
         with:
-          java-version: '11'
-          distribution: 'adopt'
+          java-version: "11"
+          distribution: "adopt"
 
       - run: ./metrics/prepare.sh
 

@@ -6,11 +6,12 @@ on:
       - release/**
   pull_request:
     paths-ignore:
-      - 'logging/**'
-      - 'dio/**'
-      - 'flutter/**'
-      - 'file/**'
-      - 'sqflite/**'
+      - "**/*.md"
+      - "logging/**"
+      - "dio/**"
+      - "flutter/**"
+      - "file/**"
+      - "sqflite/**"
 
 env:
   SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
@@ -27,7 +28,7 @@ jobs:
 
   build:
     name: E2E
-    runs-on: 'ubuntu-latest'
+    runs-on: "ubuntu-latest"
     timeout-minutes: 30
     defaults:
       run:
