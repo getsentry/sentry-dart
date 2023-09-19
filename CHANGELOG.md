@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Breadcrumbs for file I/O operations ([#1649](https://github.com/getsentry/sentry-dart/pull/1649))
+
 ## 7.10.1
 
 ### Enhancements
