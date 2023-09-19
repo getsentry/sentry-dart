@@ -50,6 +50,7 @@ class NativeProfilerFactory implements ProfilerFactory {
     return NativeProfiler(_native, startTime, context.traceId, _clock);
   }
 }
+
 // ignore: invalid_use_of_internal_member
 class NativeProfiler implements Profiler {
   final SentryNative _native;
