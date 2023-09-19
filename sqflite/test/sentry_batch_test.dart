@@ -22,6 +22,7 @@ void main() {
       fixture = Fixture();
 
       when(fixture.hub.options).thenReturn(fixture.options);
+      when(fixture.hub.scope).thenReturn(fixture.scope);
       when(fixture.hub.getSpan()).thenReturn(fixture.tracer);
 
       // using ffi for testing on vm
@@ -62,6 +63,9 @@ void main() {
       expect(span.status, SpanStatus.ok());
       // ignore: invalid_use_of_internal_member
       expect(span.origin, SentryTraceOrigins.autoDbSqfliteBatch);
+
+      final breadcrumb = fixture.hub.scope.breadcrumbs.first;
+      expect(breadcrumb, isNotNull);
 
       await db.close();
     });
@@ -334,6 +338,7 @@ SELECT * FROM Product''';
       fixture = Fixture();
 
       when(fixture.hub.options).thenReturn(fixture.options);
+      when(fixture.hub.scope).thenReturn(fixture.scope);
       when(fixture.hub.getSpan()).thenReturn(fixture.tracer);
     });
 
@@ -378,6 +383,7 @@ class Fixture {
   late final tracer = SentryTracer(_context, hub);
   final batch = MockBatch();
   final exception = Exception('error');
+  late final scope = Scope(options);
 
   Future<Database> getDatabase({
     double? tracesSampleRate = 1.0,

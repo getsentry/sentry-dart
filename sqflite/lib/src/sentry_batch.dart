@@ -72,6 +72,9 @@ class SentryBatch implements Batch {
         rethrow;
       } finally {
         await span?.finish();
+        await _hub.scope.addBreadcrumb(
+          Breadcrumb(),
+        );
       }
     });
   }
@@ -111,6 +114,9 @@ class SentryBatch implements Batch {
         rethrow;
       } finally {
         await span?.finish();
+        await _hub.scope.addBreadcrumb(
+          Breadcrumb(),
+        );
       }
     });
   }
