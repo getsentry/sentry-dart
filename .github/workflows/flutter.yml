@@ -21,7 +21,7 @@ jobs:
           access_token: ${{ github.token }}
 
   build:
-    name: ${{ matrix.target }} | ${{ matrix.os }} | ${{ matrix.sdk }}
+    name: "${{ matrix.target }} | ${{ matrix.os }} | ${{ matrix.sdk }}"
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
     defaults:
