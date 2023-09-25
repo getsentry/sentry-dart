@@ -153,9 +153,6 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
             removeTag(key: key, result: result)
 
         #if !os(tvOS) && !os(watchOS)
-        case "startProfiler":
-            startProfiler(call, result)
-
         case "discardProfiler":
             discardProfiler(call, result)
 
@@ -560,17 +557,6 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 
         result("")
       }
-    }
-
-    private func startProfiler(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
-        guard let traceId = call.arguments as? String else {
-            print("Cannot start profiling: trace ID missing")
-            result(FlutterError(code: "5", message: "Cannot start profiling: trace ID missing", details: nil))
-            return
-        }
-
-        let startTime = PrivateSentrySDKOnly.startProfiler(forTrace: SentryId(uuidString: traceId))
-        result(startTime)
     }
 
     private func collectProfile(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
