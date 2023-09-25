@@ -75,24 +75,37 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
   Future<void> close() {
     return Future<void>(() async {
       final currentSpan = _hub.getSpan();
+      final description = 'Close DB: ${_database.path}';
       final span = currentSpan?.startChild(
         dbOp,
-        description: 'Close DB: ${_database.path}',
+        description: description,
       );
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabase;
+
+      final Map<String, dynamic> breadcrumbData = {};
 
       try {
         await _database.close();
 
         span?.status = SpanStatus.ok();
+        breadcrumbData['status'] = 'ok';
       } catch (exception) {
         span?.throwable = exception;
         span?.status = SpanStatus.internalError();
+        breadcrumbData['status'] = 'internalError';
 
         rethrow;
       } finally {
         await span?.finish();
+
+        final breadcrumb = Breadcrumb(
+          message: description,
+          category: dbOp,
+          data: breadcrumbData,
+        );
+        // ignore: invalid_use_of_internal_member
+        await _hub.scope.addBreadcrumb(breadcrumb);
       }
     });
   }
@@ -126,13 +139,16 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
   }) {
     return Future<T>(() async {
       final currentSpan = _hub.getSpan();
+      final description = 'Transaction DB: ${_database.path}';
       final span = currentSpan?.startChild(
         _dbSqlOp,
-        description: 'Transaction DB: ${_database.path}',
+        description: description,
       );
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabase;
       setDatabaseAttributeData(span, dbName);
+
+      final Map<String, dynamic> breadcrumbData = {};
 
       Future<T> newAction(Transaction txn) async {
         final executor = SentryDatabaseExecutor(
@@ -152,15 +168,26 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
             await _database.transaction(newAction, exclusive: exclusive);
 
         span?.status = SpanStatus.ok();
+        breadcrumbData['status'] = 'ok';
 
         return result;
       } catch (exception) {
         span?.throwable = exception;
         span?.status = SpanStatus.internalError();
+        breadcrumbData['status'] = 'internalError';
 
         rethrow;
       } finally {
         await span?.finish();
+
+        final breadcrumb = Breadcrumb(
+          message: description,
+          category: _dbSqlOp,
+          data: breadcrumbData,
+        );
+        setDatabaseAttributeOnBreadcrumb(breadcrumb, dbName);
+        // ignore: invalid_use_of_internal_member
+        await _hub.scope.addBreadcrumb(breadcrumb);
       }
     });
   }

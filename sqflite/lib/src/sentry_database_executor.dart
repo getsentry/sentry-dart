@@ -47,20 +47,33 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
       setDatabaseAttributeData(span, _dbName);
 
+      final Map<String, dynamic> breadcrumbData = {};
+
       try {
         final result =
             await _executor.delete(table, where: where, whereArgs: whereArgs);
 
         span?.status = SpanStatus.ok();
+        breadcrumbData['status'] = 'ok';
 
         return result;
       } catch (exception) {
         span?.throwable = exception;
         span?.status = SpanStatus.internalError();
+        breadcrumbData['status'] = 'internalError';
 
         rethrow;
       } finally {
         await span?.finish();
+
+        final breadcrumb = Breadcrumb(
+          message: builder.sql,
+          category: SentryDatabase.dbSqlExecuteOp,
+          data: breadcrumbData,
+        );
+        setDatabaseAttributeOnBreadcrumb(breadcrumb, _dbName);
+        // ignore: invalid_use_of_internal_member
+        await _hub.scope.addBreadcrumb(breadcrumb);
       }
     });
   }
@@ -78,17 +91,30 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
       setDatabaseAttributeData(span, _dbName);
 
+      final Map<String, dynamic> breadcrumbData = {};
+
       try {
         await _executor.execute(sql, arguments);
 
         span?.status = SpanStatus.ok();
+        breadcrumbData['status'] = 'ok';
       } catch (exception) {
         span?.throwable = exception;
         span?.status = SpanStatus.internalError();
+        breadcrumbData['status'] = 'internalError';
 
         rethrow;
       } finally {
         await span?.finish();
+
+        final breadcrumb = Breadcrumb(
+          message: sql,
+          category: SentryDatabase.dbSqlExecuteOp,
+          data: breadcrumbData,
+        );
+        setDatabaseAttributeOnBreadcrumb(breadcrumb, _dbName);
+        // ignore: invalid_use_of_internal_member
+        await _hub.scope.addBreadcrumb(breadcrumb);
       }
     });
   }
@@ -116,6 +142,8 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
       setDatabaseAttributeData(span, _dbName);
 
+      final Map<String, dynamic> breadcrumbData = {};
+
       try {
         final result = await _executor.insert(
           table,
@@ -125,15 +153,26 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
         );
 
         span?.status = SpanStatus.ok();
+        breadcrumbData['status'] = 'ok';
 
         return result;
       } catch (exception) {
         span?.throwable = exception;
         span?.status = SpanStatus.internalError();
+        breadcrumbData['status'] = 'internalError';
 
         rethrow;
       } finally {
         await span?.finish();
+
+        final breadcrumb = Breadcrumb(
+          message: builder.sql,
+          category: SentryDatabase.dbSqlExecuteOp,
+          data: breadcrumbData,
+        );
+        setDatabaseAttributeOnBreadcrumb(breadcrumb, _dbName);
+        // ignore: invalid_use_of_internal_member
+        await _hub.scope.addBreadcrumb(breadcrumb);
       }
     });
   }
@@ -173,6 +212,8 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
       setDatabaseAttributeData(span, _dbName);
 
+      final Map<String, dynamic> breadcrumbData = {};
+
       try {
         final result = await _executor.query(
           table,
@@ -188,15 +229,26 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
         );
 
         span?.status = SpanStatus.ok();
+        breadcrumbData['status'] = 'ok';
 
         return result;
       } catch (exception) {
         span?.throwable = exception;
         span?.status = SpanStatus.internalError();
+        breadcrumbData['status'] = 'internalError';
 
         rethrow;
       } finally {
         await span?.finish();
+
+        final breadcrumb = Breadcrumb(
+          message: builder.sql,
+          category: SentryDatabase.dbSqlQueryOp,
+          data: breadcrumbData,
+        );
+        setDatabaseAttributeOnBreadcrumb(breadcrumb, _dbName);
+        // ignore: invalid_use_of_internal_member
+        await _hub.scope.addBreadcrumb(breadcrumb);
       }
     });
   }
@@ -237,6 +289,8 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
       setDatabaseAttributeData(span, _dbName);
 
+      final Map<String, dynamic> breadcrumbData = {};
+
       try {
         final result = await _executor.queryCursor(
           table,
@@ -253,15 +307,26 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
         );
 
         span?.status = SpanStatus.ok();
+        breadcrumbData['status'] = 'ok';
 
         return result;
       } catch (exception) {
         span?.throwable = exception;
         span?.status = SpanStatus.internalError();
+        breadcrumbData['status'] = 'internalError';
 
         rethrow;
       } finally {
         await span?.finish();
+
+        final breadcrumb = Breadcrumb(
+          message: builder.sql,
+          category: SentryDatabase.dbSqlQueryOp,
+          data: breadcrumbData,
+        );
+        setDatabaseAttributeOnBreadcrumb(breadcrumb, _dbName);
+        // ignore: invalid_use_of_internal_member
+        await _hub.scope.addBreadcrumb(breadcrumb);
       }
     });
   }
@@ -278,19 +343,32 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
       setDatabaseAttributeData(span, _dbName);
 
+      final Map<String, dynamic> breadcrumbData = {};
+
       try {
         final result = await _executor.rawDelete(sql, arguments);
 
         span?.status = SpanStatus.ok();
+        breadcrumbData['status'] = 'ok';
 
         return result;
       } catch (exception) {
         span?.throwable = exception;
         span?.status = SpanStatus.internalError();
+        breadcrumbData['status'] = 'internalError';
 
         rethrow;
       } finally {
         await span?.finish();
+
+        final breadcrumb = Breadcrumb(
+          message: sql,
+          category: SentryDatabase.dbSqlExecuteOp,
+          data: breadcrumbData,
+        );
+        setDatabaseAttributeOnBreadcrumb(breadcrumb, _dbName);
+        // ignore: invalid_use_of_internal_member
+        await _hub.scope.addBreadcrumb(breadcrumb);
       }
     });
   }
@@ -307,19 +385,32 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
       setDatabaseAttributeData(span, _dbName);
 
+      final Map<String, dynamic> breadcrumbData = {};
+
       try {
         final result = await _executor.rawInsert(sql, arguments);
 
         span?.status = SpanStatus.ok();
+        breadcrumbData['status'] = 'ok';
 
         return result;
       } catch (exception) {
         span?.throwable = exception;
         span?.status = SpanStatus.internalError();
+        breadcrumbData['status'] = 'internalError';
 
         rethrow;
       } finally {
         await span?.finish();
+
+        final breadcrumb = Breadcrumb(
+          message: sql,
+          category: SentryDatabase.dbSqlExecuteOp,
+          data: breadcrumbData,
+        );
+        setDatabaseAttributeOnBreadcrumb(breadcrumb, _dbName);
+        // ignore: invalid_use_of_internal_member
+        await _hub.scope.addBreadcrumb(breadcrumb);
       }
     });
   }
@@ -339,19 +430,32 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
       setDatabaseAttributeData(span, _dbName);
 
+      final Map<String, dynamic> breadcrumbData = {};
+
       try {
         final result = await _executor.rawQuery(sql, arguments);
 
         span?.status = SpanStatus.ok();
+        breadcrumbData['status'] = 'ok';
 
         return result;
       } catch (exception) {
         span?.throwable = exception;
         span?.status = SpanStatus.internalError();
+        breadcrumbData['status'] = 'internalError';
 
         rethrow;
       } finally {
         await span?.finish();
+
+        final breadcrumb = Breadcrumb(
+          message: sql,
+          category: SentryDatabase.dbSqlQueryOp,
+          data: breadcrumbData,
+        );
+        setDatabaseAttributeOnBreadcrumb(breadcrumb, _dbName);
+        // ignore: invalid_use_of_internal_member
+        await _hub.scope.addBreadcrumb(breadcrumb);
       }
     });
   }
@@ -372,6 +476,8 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
       setDatabaseAttributeData(span, _dbName);
 
+      final Map<String, dynamic> breadcrumbData = {};
+
       try {
         final result = await _executor.rawQueryCursor(
           sql,
@@ -380,15 +486,26 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
         );
 
         span?.status = SpanStatus.ok();
+        breadcrumbData['status'] = 'ok';
 
         return result;
       } catch (exception) {
         span?.throwable = exception;
         span?.status = SpanStatus.internalError();
+        breadcrumbData['status'] = 'internalError';
 
         rethrow;
       } finally {
         await span?.finish();
+
+        final breadcrumb = Breadcrumb(
+          message: sql,
+          category: SentryDatabase.dbSqlQueryOp,
+          data: breadcrumbData,
+        );
+        setDatabaseAttributeOnBreadcrumb(breadcrumb, _dbName);
+        // ignore: invalid_use_of_internal_member
+        await _hub.scope.addBreadcrumb(breadcrumb);
       }
     });
   }
@@ -405,19 +522,32 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
       setDatabaseAttributeData(span, _dbName);
 
+      final Map<String, dynamic> breadcrumbData = {};
+
       try {
         final result = await _executor.rawUpdate(sql, arguments);
 
         span?.status = SpanStatus.ok();
+        breadcrumbData['status'] = 'ok';
 
         return result;
       } catch (exception) {
         span?.throwable = exception;
         span?.status = SpanStatus.internalError();
+        breadcrumbData['status'] = 'internalError';
 
         rethrow;
       } finally {
         await span?.finish();
+
+        final breadcrumb = Breadcrumb(
+          message: sql,
+          category: SentryDatabase.dbSqlExecuteOp,
+          data: breadcrumbData,
+        );
+        setDatabaseAttributeOnBreadcrumb(breadcrumb, _dbName);
+        // ignore: invalid_use_of_internal_member
+        await _hub.scope.addBreadcrumb(breadcrumb);
       }
     });
   }
@@ -447,6 +577,8 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
       setDatabaseAttributeData(span, _dbName);
 
+      final Map<String, dynamic> breadcrumbData = {};
+
       try {
         final result = await _executor.update(
           table,
@@ -457,15 +589,26 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
         );
 
         span?.status = SpanStatus.ok();
+        breadcrumbData['status'] = 'ok';
 
         return result;
       } catch (exception) {
         span?.throwable = exception;
         span?.status = SpanStatus.internalError();
+        breadcrumbData['status'] = 'internalError';
 
         rethrow;
       } finally {
         await span?.finish();
+
+        final breadcrumb = Breadcrumb(
+          message: builder.sql,
+          category: SentryDatabase.dbSqlExecuteOp,
+          data: breadcrumbData,
+        );
+        setDatabaseAttributeOnBreadcrumb(breadcrumb, _dbName);
+        // ignore: invalid_use_of_internal_member
+        await _hub.scope.addBreadcrumb(breadcrumb);
       }
     });
   }

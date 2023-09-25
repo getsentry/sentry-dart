@@ -81,6 +81,7 @@ class SentryBatch implements Batch {
           data: breadcrumbData,
         );
         setDatabaseAttributeOnBreadcrumb(breadcrumb, _dbName);
+        // ignore: invalid_use_of_internal_member
         await _hub.scope.addBreadcrumb(breadcrumb);
       }
     });
