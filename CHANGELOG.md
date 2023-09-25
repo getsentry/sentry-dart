@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Breadcrumbs for file I/O operations ([#1649](https://github.com/getsentry/sentry-dart/pull/1649))
+
 ### Dependencies
 
 - Enable compatibility with uuid v4 ([#1647](https://github.com/getsentry/sentry-dart/pull/1647))
