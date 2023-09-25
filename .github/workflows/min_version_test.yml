@@ -6,8 +6,9 @@ on:
       - release/**
   pull_request:
     paths-ignore:
-      - 'file/**'
-      - 'sqflite/**'
+      - "**/*.md"
+      - "file/**"
+      - "sqflite/**"
 
 jobs:
   cancel-previous-workflow:
@@ -27,12 +28,12 @@ jobs:
 
       - uses: actions/setup-java@v3
         with:
-          distribution: 'adopt'
-          java-version: '11'
+          distribution: "adopt"
+          java-version: "11"
 
       - uses: subosito/flutter-action@48cafc24713cca54bbe03cdc3a423187d413aafa # pin@v2.10.0
         with:
-          flutter-version: '3.0.0'
+          flutter-version: "3.0.0"
 
       - name: Build Android
         run: |
@@ -49,7 +50,7 @@ jobs:
 
       - uses: subosito/flutter-action@48cafc24713cca54bbe03cdc3a423187d413aafa # pin@v2.10.0
         with:
-          flutter-version: '3.0.0'
+          flutter-version: "3.0.0"
 
       - name: Build iOS
         run: |
@@ -66,7 +67,7 @@ jobs:
 
       - uses: subosito/flutter-action@48cafc24713cca54bbe03cdc3a423187d413aafa # pin@v2.10.0
         with:
-          flutter-version: '3.0.0'
+          flutter-version: "3.0.0"
 
       - name: Build web
         run: |
