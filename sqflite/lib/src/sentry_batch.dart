@@ -56,6 +56,8 @@ class SentryBatch implements Batch {
       span?.origin = SentryTraceOrigins.autoDbSqfliteBatch;
       setDatabaseAttributeData(span, _dbName);
 
+      final Map<String, dynamic> breadcrumbData = {};
+
       try {
         final result = await _batch.apply(
           noResult: noResult,
@@ -63,18 +65,23 @@ class SentryBatch implements Batch {
         );
 
         span?.status = SpanStatus.ok();
+        breadcrumbData['status'] = 'ok';
 
         return result;
       } catch (exception) {
         span?.throwable = exception;
         span?.status = SpanStatus.internalError();
+        breadcrumbData['status'] = 'internalError';
 
         rethrow;
       } finally {
         await span?.finish();
-        await _hub.scope.addBreadcrumb(
-          Breadcrumb(),
+        final breadcrumb = Breadcrumb(
+          message: _buffer.toString().trim(),
+          data: breadcrumbData,
         );
+        setDatabaseAttributeOnBreadcrumb(breadcrumb, _dbName);
+        await _hub.scope.addBreadcrumb(breadcrumb);
       }
     });
   }
@@ -97,6 +104,8 @@ class SentryBatch implements Batch {
       span?.origin = SentryTraceOrigins.autoDbSqfliteBatch;
       setDatabaseAttributeData(span, _dbName);
 
+      final Map<String, dynamic> breadcrumbData = {};
+
       try {
         final result = await _batch.commit(
           exclusive: exclusive,
@@ -105,18 +114,24 @@ class SentryBatch implements Batch {
         );
 
         span?.status = SpanStatus.ok();
+        breadcrumbData['status'] = 'ok';
 
         return result;
       } catch (exception) {
         span?.throwable = exception;
         span?.status = SpanStatus.internalError();
+        breadcrumbData['status'] = 'internalError';
 
         rethrow;
       } finally {
         await span?.finish();
-        await _hub.scope.addBreadcrumb(
-          Breadcrumb(),
+        final breadcrumb = Breadcrumb(
+          message: _buffer.toString().trim(),
+          data: breadcrumbData,
         );
+        setDatabaseAttributeOnBreadcrumb(breadcrumb, _dbName);
+        // ignore: invalid_use_of_internal_member
+        await _hub.scope.addBreadcrumb(breadcrumb);
       }
     });
   }
