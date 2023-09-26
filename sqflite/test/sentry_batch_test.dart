@@ -64,7 +64,7 @@ void main() {
       // ignore: invalid_use_of_internal_member
       expect(span.origin, SentryTraceOrigins.autoDbSqfliteBatch);
 
-      final breadcrumb = fixture.hub.scope.breadcrumbs.first;
+      final breadcrumb = fixture.hub.scope.breadcrumbs.last;
       expect(breadcrumb.data?['status'], 'ok');
 
       await db.close();
@@ -83,7 +83,7 @@ void main() {
       // ignore: invalid_use_of_internal_member
       expect(span.origin, SentryTraceOrigins.autoDbSqfliteBatch);
 
-      final breadcrumb = fixture.hub.scope.breadcrumbs.first;
+      final breadcrumb = fixture.hub.scope.breadcrumbs.last;
       expect(breadcrumb.data?['status'], 'ok');
 
       await db.close();
@@ -117,7 +117,7 @@ void main() {
 
       await batch.commit();
 
-      final breadcrumb = fixture.hub.scope.breadcrumbs.first;
+      final breadcrumb = fixture.hub.scope.breadcrumbs.last;
       expect(
         breadcrumb.message,
         'INSERT INTO Product (title) VALUES (?)',
@@ -154,7 +154,7 @@ void main() {
 
       await batch.commit();
 
-      final breadcrumb = fixture.hub.scope.breadcrumbs.first;
+      final breadcrumb = fixture.hub.scope.breadcrumbs.last;
       expect(
         breadcrumb.message,
         'INSERT INTO Product (title) VALUES (?)',
@@ -188,7 +188,7 @@ void main() {
 
       await batch.commit();
 
-      final breadcrumb = fixture.hub.scope.breadcrumbs.first;
+      final breadcrumb = fixture.hub.scope.breadcrumbs.last;
       expect(
         breadcrumb.message,
         'UPDATE Product SET title = ?',
@@ -222,7 +222,7 @@ void main() {
 
       await batch.commit();
 
-      final breadcrumb = fixture.hub.scope.breadcrumbs.first;
+      final breadcrumb = fixture.hub.scope.breadcrumbs.last;
       expect(
         breadcrumb.message,
         'UPDATE Product SET title = ?',
@@ -256,7 +256,7 @@ void main() {
 
       await batch.commit();
 
-      final breadcrumb = fixture.hub.scope.breadcrumbs.first;
+      final breadcrumb = fixture.hub.scope.breadcrumbs.last;
       expect(
         breadcrumb.message,
         'DELETE FROM Product',
@@ -290,7 +290,7 @@ void main() {
 
       await batch.commit();
 
-      final breadcrumb = fixture.hub.scope.breadcrumbs.first;
+      final breadcrumb = fixture.hub.scope.breadcrumbs.last;
       expect(
         breadcrumb.message,
         'DELETE FROM Product',
@@ -324,7 +324,7 @@ void main() {
 
       await batch.commit();
 
-      final breadcrumb = fixture.hub.scope.breadcrumbs.first;
+      final breadcrumb = fixture.hub.scope.breadcrumbs.last;
       expect(
         breadcrumb.message,
         'DELETE FROM Product',
@@ -358,7 +358,7 @@ void main() {
 
       await batch.commit();
 
-      final breadcrumb = fixture.hub.scope.breadcrumbs.first;
+      final breadcrumb = fixture.hub.scope.breadcrumbs.last;
       expect(
         breadcrumb.message,
         'SELECT * FROM Product',
@@ -392,7 +392,7 @@ void main() {
 
       await batch.commit();
 
-      final breadcrumb = fixture.hub.scope.breadcrumbs.first;
+      final breadcrumb = fixture.hub.scope.breadcrumbs.last;
       expect(
         breadcrumb.message,
         'SELECT * FROM Product',
@@ -435,7 +435,7 @@ SELECT * FROM Product''';
       final desc = '''INSERT INTO Product (title) VALUES (?)
 SELECT * FROM Product''';
 
-      final breadcrumb = fixture.hub.scope.breadcrumbs.first;
+      final breadcrumb = fixture.hub.scope.breadcrumbs.last;
       expect(breadcrumb.message, desc);
 
       await db.close();
@@ -475,7 +475,7 @@ SELECT * FROM Product''';
       final desc = '''INSERT INTO Product (title) VALUES (?)
 SELECT * FROM Product''';
 
-      final breadcrumb = fixture.hub.scope.breadcrumbs.first;
+      final breadcrumb = fixture.hub.scope.breadcrumbs.last;
       expect(breadcrumb.message, desc);
 
       await db.close();
@@ -496,7 +496,7 @@ SELECT * FROM Product''';
         (db as SentryDatabase).dbName,
       );
 
-      final breadcrumb = fixture.hub.scope.breadcrumbs.first;
+      final breadcrumb = fixture.hub.scope.breadcrumbs.last;
       expect(
         breadcrumb.data?[SentryDatabase.dbSystemKey],
         SentryDatabase.dbSystem,
@@ -518,7 +518,7 @@ SELECT * FROM Product''';
 
       await batch.apply();
 
-      final breadcrumb = fixture.hub.scope.breadcrumbs.first;
+      final breadcrumb = fixture.hub.scope.breadcrumbs.last;
       expect(
         breadcrumb.data?[SentryDatabase.dbSystemKey],
         SentryDatabase.dbSystem,
@@ -559,7 +559,7 @@ SELECT * FROM Product''';
 
       await batch.commit();
 
-      final breadcrumb = fixture.hub.scope.breadcrumbs.first;
+      final breadcrumb = fixture.hub.scope.breadcrumbs.last;
       expect(
         breadcrumb.data?[SentryDatabase.dbSystemKey],
         SentryDatabase.dbSystem,
@@ -613,7 +613,7 @@ SELECT * FROM Product''';
 
       await expectLater(() async => await batch.commit(), throwsException);
 
-      final breadcrumb = fixture.hub.scope.breadcrumbs.first;
+      final breadcrumb = fixture.hub.scope.breadcrumbs.last;
       expect(breadcrumb.data?['status'], 'internalError');
     });
 
@@ -642,7 +642,7 @@ SELECT * FROM Product''';
 
       await expectLater(() async => await batch.apply(), throwsException);
 
-      final breadcrumb = fixture.hub.scope.breadcrumbs.first;
+      final breadcrumb = fixture.hub.scope.breadcrumbs.last;
       expect(breadcrumb.data?['status'], 'internalError');
     });
   });
