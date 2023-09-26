@@ -72,7 +72,8 @@ void main() {
       await db.close();
     });
 
-    test('starts and finishes a open db breadcrumb when performance enabled', () async {
+    test('starts and finishes a open db breadcrumb when performance enabled',
+        () async {
       final db = await openDatabase(inMemoryDatabasePath);
 
       expect((db as SentryDatabase).dbName, inMemoryDatabasePath);

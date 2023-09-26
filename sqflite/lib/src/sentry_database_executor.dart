@@ -451,10 +451,10 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       setDatabaseAttributeData(span, _dbName);
 
       var breadcrumb = Breadcrumb(
-          message: sql,
-          category: SentryDatabase.dbSqlQueryOp,
-          data: {},
-          type: 'query',
+        message: sql,
+        category: SentryDatabase.dbSqlQueryOp,
+        data: {},
+        type: 'query',
       );
       setDatabaseAttributeOnBreadcrumb(breadcrumb, _dbName);
 

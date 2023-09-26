@@ -182,7 +182,7 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
         span?.throwable = exception;
         span?.status = SpanStatus.internalError();
         breadcrumb.data?['status'] = 'internalError';
-          breadcrumb = breadcrumb.copyWith(
+        breadcrumb = breadcrumb.copyWith(
           type: 'error',
           level: SentryLevel.error,
         );
@@ -190,7 +190,6 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
         rethrow;
       } finally {
         await span?.finish();
-
 
         // ignore: invalid_use_of_internal_member
         await _hub.scope.addBreadcrumb(breadcrumb);
