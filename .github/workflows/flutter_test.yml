@@ -141,7 +141,7 @@ jobs:
         run: |
           case "${{ matrix.target }}" in
             ios)
-            device=$(xcrun simctl create sentryPhone com.apple.CoreSimulator.SimDeviceType.iPhone-14 com.apple.CoreSimulator.SimRuntime.iOS-16-4)
+            device=$(xcrun simctl create sentryPhone com.apple.CoreSimulator.SimDeviceType.iPhone-14 com.apple.CoreSimulator.SimRuntime.iOS-17-0)
             xcrun simctl boot ${device}
             echo "platform=iOS Simulator,id=${device}" >> "$GITHUB_OUTPUT"
             ;;
