@@ -83,27 +83,29 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabase;
 
-      final Map<String, dynamic> breadcrumbData = {};
+      var breadcrumb = Breadcrumb(
+        message: description,
+        category: dbOp,
+        data: {},
+      );
 
       try {
         await _database.close();
 
         span?.status = SpanStatus.ok();
-        breadcrumbData['status'] = 'ok';
+        breadcrumb.data?['status'] = 'ok';
       } catch (exception) {
         span?.throwable = exception;
         span?.status = SpanStatus.internalError();
-        breadcrumbData['status'] = 'internalError';
+        breadcrumb.data?['status'] = 'internalError';
+        breadcrumb = breadcrumb.copyWith(
+          type: 'error',
+          level: SentryLevel.error,
+        );
 
         rethrow;
       } finally {
         await span?.finish();
-
-        final breadcrumb = Breadcrumb(
-          message: description,
-          category: dbOp,
-          data: breadcrumbData,
-        );
         // ignore: invalid_use_of_internal_member
         await _hub.scope.addBreadcrumb(breadcrumb);
       }
@@ -148,7 +150,12 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabase;
       setDatabaseAttributeData(span, dbName);
 
-      final Map<String, dynamic> breadcrumbData = {};
+      var breadcrumb = Breadcrumb(
+        message: description,
+        category: _dbSqlOp,
+        data: {},
+      );
+      setDatabaseAttributeOnBreadcrumb(breadcrumb, dbName);
 
       Future<T> newAction(Transaction txn) async {
         final executor = SentryDatabaseExecutor(
@@ -168,24 +175,23 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
             await _database.transaction(newAction, exclusive: exclusive);
 
         span?.status = SpanStatus.ok();
-        breadcrumbData['status'] = 'ok';
+        breadcrumb.data?['status'] = 'ok';
 
         return result;
       } catch (exception) {
         span?.throwable = exception;
         span?.status = SpanStatus.internalError();
-        breadcrumbData['status'] = 'internalError';
+        breadcrumb.data?['status'] = 'internalError';
+          breadcrumb = breadcrumb.copyWith(
+          type: 'error',
+          level: SentryLevel.error,
+        );
 
         rethrow;
       } finally {
         await span?.finish();
 
-        final breadcrumb = Breadcrumb(
-          message: description,
-          category: _dbSqlOp,
-          data: breadcrumbData,
-        );
-        setDatabaseAttributeOnBreadcrumb(breadcrumb, dbName);
+
         // ignore: invalid_use_of_internal_member
         await _hub.scope.addBreadcrumb(breadcrumb);
       }

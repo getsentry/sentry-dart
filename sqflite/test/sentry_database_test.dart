@@ -242,6 +242,8 @@ void main() {
 
       final breadcrumb = fixture.hub.scope.breadcrumbs.first;
       expect(breadcrumb.data?['status'], 'internalError');
+      expect(breadcrumb.type, 'error');
+      expect(breadcrumb.level, SentryLevel.error);
     });
 
     test('transaction sets span to internal error', () async {
@@ -279,6 +281,8 @@ void main() {
 
       final breadcrumb = fixture.hub.scope.breadcrumbs.first;
       expect(breadcrumb.data?['status'], 'internalError');
+      expect(breadcrumb.type, 'error');
+      expect(breadcrumb.level, SentryLevel.error);
     });
   });
 
@@ -448,6 +452,7 @@ void main() {
 
       final breadcrumb = fixture.hub.scope.breadcrumbs.first;
       expect(breadcrumb.category, 'db.sql.query');
+      expect(breadcrumb.type, 'query');
       expect(breadcrumb.message, 'SELECT * FROM Product');
       expect(breadcrumb.data?['status'], 'ok');
       expect(
@@ -487,6 +492,7 @@ void main() {
 
       final breadcrumb = fixture.hub.scope.breadcrumbs.first;
       expect(breadcrumb.category, 'db.sql.query');
+      expect(breadcrumb.type, 'query');
       expect(breadcrumb.message, 'SELECT * FROM Product');
       expect(breadcrumb.data?['status'], 'ok');
       expect(
@@ -609,6 +615,7 @@ void main() {
 
       final breadcrumb = fixture.hub.scope.breadcrumbs.first;
       expect(breadcrumb.category, 'db.sql.query');
+      expect(breadcrumb.type, 'query');
       expect(breadcrumb.message, 'SELECT * FROM Product');
       expect(breadcrumb.data?['status'], 'ok');
       expect(
@@ -648,6 +655,7 @@ void main() {
 
       final breadcrumb = fixture.hub.scope.breadcrumbs.first;
       expect(breadcrumb.category, 'db.sql.query');
+      expect(breadcrumb.type, 'query');
       expect(breadcrumb.message, 'SELECT * FROM Product');
       expect(breadcrumb.data?['status'], 'ok');
       expect(
@@ -999,6 +1007,8 @@ void main() {
 
       final breadcrumb = fixture.hub.scope.breadcrumbs.first;
       expect(breadcrumb.data?['status'], 'internalError');
+      expect(breadcrumb.type, 'error');
+      expect(breadcrumb.level, SentryLevel.error);
     });
 
     test('execute sets breadcrumb to internal error', () async {
@@ -1013,6 +1023,8 @@ void main() {
 
       final breadcrumb = fixture.hub.scope.breadcrumbs.first;
       expect(breadcrumb.data?['status'], 'internalError');
+      expect(breadcrumb.type, 'error');
+      expect(breadcrumb.level, SentryLevel.error);
     });
 
     test('insert sets breadcrumb to internal error', () async {
@@ -1028,6 +1040,8 @@ void main() {
 
       final breadcrumb = fixture.hub.scope.breadcrumbs.first;
       expect(breadcrumb.data?['status'], 'internalError');
+      expect(breadcrumb.type, 'error');
+      expect(breadcrumb.level, SentryLevel.error);
     });
 
     test('query sets breadcrumb to internal error', () async {
@@ -1042,6 +1056,8 @@ void main() {
 
       final breadcrumb = fixture.hub.scope.breadcrumbs.first;
       expect(breadcrumb.data?['status'], 'internalError');
+      expect(breadcrumb.type, 'error');
+      expect(breadcrumb.level, SentryLevel.error);
     });
 
     test('query cursor sets breadcrumb to internal error', () async {
@@ -1056,6 +1072,8 @@ void main() {
 
       final breadcrumb = fixture.hub.scope.breadcrumbs.first;
       expect(breadcrumb.data?['status'], 'internalError');
+      expect(breadcrumb.type, 'error');
+      expect(breadcrumb.level, SentryLevel.error);
     });
 
     test('raw delete sets breadcrumb to internal error', () async {
@@ -1070,6 +1088,8 @@ void main() {
 
       final breadcrumb = fixture.hub.scope.breadcrumbs.first;
       expect(breadcrumb.data?['status'], 'internalError');
+      expect(breadcrumb.type, 'error');
+      expect(breadcrumb.level, SentryLevel.error);
     });
 
     test('raw insert sets breadcrumb to internal error', () async {
@@ -1084,6 +1104,8 @@ void main() {
 
       final breadcrumb = fixture.hub.scope.breadcrumbs.first;
       expect(breadcrumb.data?['status'], 'internalError');
+      expect(breadcrumb.type, 'error');
+      expect(breadcrumb.level, SentryLevel.error);
     });
 
     test('raw query sets breadcrumb to internal error', () async {
@@ -1098,6 +1120,8 @@ void main() {
 
       final breadcrumb = fixture.hub.scope.breadcrumbs.first;
       expect(breadcrumb.data?['status'], 'internalError');
+      expect(breadcrumb.type, 'error');
+      expect(breadcrumb.level, SentryLevel.error);
     });
 
     test('raw query cursor sets breadcrumb to internal error', () async {
@@ -1113,6 +1137,8 @@ void main() {
 
       final breadcrumb = fixture.hub.scope.breadcrumbs.first;
       expect(breadcrumb.data?['status'], 'internalError');
+      expect(breadcrumb.type, 'error');
+      expect(breadcrumb.level, SentryLevel.error);
     });
 
     test('raw update sets breadcrumb to internal error', () async {
@@ -1127,6 +1153,8 @@ void main() {
 
       final breadcrumb = fixture.hub.scope.breadcrumbs.first;
       expect(breadcrumb.data?['status'], 'internalError');
+      expect(breadcrumb.type, 'error');
+      expect(breadcrumb.level, SentryLevel.error);
     });
 
     test('update sets breadcrumb to internal error', () async {
@@ -1142,6 +1170,8 @@ void main() {
 
       final breadcrumb = fixture.hub.scope.breadcrumbs.first;
       expect(breadcrumb.data?['status'], 'internalError');
+      expect(breadcrumb.type, 'error');
+      expect(breadcrumb.level, SentryLevel.error);
     });
   });
 }
