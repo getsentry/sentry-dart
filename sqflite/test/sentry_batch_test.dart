@@ -615,6 +615,8 @@ SELECT * FROM Product''';
 
       final breadcrumb = fixture.hub.scope.breadcrumbs.last;
       expect(breadcrumb.data?['status'], 'internalError');
+      expect(breadcrumb.type, 'error');
+      expect(breadcrumb.level, SentryLevel.error);
     });
 
     test('apply sets span to internal error if its thrown', () async {
@@ -644,6 +646,8 @@ SELECT * FROM Product''';
 
       final breadcrumb = fixture.hub.scope.breadcrumbs.last;
       expect(breadcrumb.data?['status'], 'internalError');
+      expect(breadcrumb.type, 'error');
+      expect(breadcrumb.level, SentryLevel.error);
     });
   });
 }
