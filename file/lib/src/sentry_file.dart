@@ -215,7 +215,8 @@ import 'version.dart';
 typedef Callback<T> = FutureOr<T> Function();
 
 /// The Sentry wrapper for the File IO implementation that creates a span
-/// out of the active transaction in the scope.
+/// out of the active transaction in the scope and a breadcrumb, which gets
+/// added to the hub.
 /// The span is started before the operation is executed and finished after.
 /// The File tracing isn't available for Web.
 ///
@@ -228,7 +229,7 @@ typedef Callback<T> = FutureOr<T> Function();
 /// final sentryFile = SentryFile(file);
 /// // span starts
 /// await sentryFile.writeAsString('Hello World');
-/// // span finishes
+/// // span finishes, adds breadcrumb
 /// ```
 ///
 /// All the copy, create, delete, open, rename, read, and write operations are
@@ -425,8 +426,13 @@ class SentryFile implements File {
 
     span?.origin = SentryTraceOrigins.autoFile;
     span?.setData('file.async', true);
+
+    final Map<String, dynamic> breadcrumbData = {};
+    breadcrumbData['file.async'] = true;
+
     if (_hub.options.sendDefaultPii) {
       span?.setData('file.path', absolute.path);
+      breadcrumbData['file.path'] = absolute.path;
     }
     T data;
     try {
@@ -453,6 +459,7 @@ class SentryFile implements File {
 
       if (length != null) {
         span?.setData('file.size', length);
+        breadcrumbData['file.size'] = length;
       }
 
       span?.status = SpanStatus.ok();
@@ -462,6 +469,14 @@ class SentryFile implements File {
       rethrow;
     } finally {
       await span?.finish();
+
+      await _hub.addBreadcrumb(
+        Breadcrumb(
+          message: desc,
+          data: breadcrumbData,
+          category: operation,
+        ),
+      );
     }
     return data;
   }
@@ -475,8 +490,12 @@ class SentryFile implements File {
     span?.origin = SentryTraceOrigins.autoFile;
     span?.setData('file.async', false);
 
+    final Map<String, dynamic> breadcrumbData = {};
+    breadcrumbData['file.async'] = false;
+
     if (_hub.options.sendDefaultPii) {
       span?.setData('file.path', absolute.path);
+      breadcrumbData['file.path'] = absolute.path;
     }
 
     T data;
@@ -504,6 +523,7 @@ class SentryFile implements File {
 
       if (length != null) {
         span?.setData('file.size', length);
+        breadcrumbData['file.size'] = length;
       }
 
       span?.status = SpanStatus.ok();
@@ -513,6 +533,14 @@ class SentryFile implements File {
       rethrow;
     } finally {
       span?.finish();
+
+      _hub.addBreadcrumb(
+        Breadcrumb(
+          message: desc,
+          data: breadcrumbData,
+          category: operation,
+        ),
+      );
     }
     return data;
   }

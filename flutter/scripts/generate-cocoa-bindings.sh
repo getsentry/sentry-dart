@@ -34,5 +34,5 @@ unzip -q $temp/Sentry.xcframework.zip "$subdir/*" -d $temp
 mv "$temp/$subdir" $temp/Sentry.framework
 
 dart run ffigen --config ffi-cocoa.yaml
-sed -i.bak 's|final class|class|g' lib/src/sentry_cocoa.dart
-rm lib/src/sentry_cocoa.dart.bak
+sed -i.bak 's|final class|class|g' lib/src/native/cocoa/binding.dart
+rm lib/src/native/cocoa/binding.dart.bak
