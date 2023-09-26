@@ -5,6 +5,7 @@
 ### Features
 
 - Breadcrumbs for file I/O operations ([#1649](https://github.com/getsentry/sentry-dart/pull/1649))
+- Breadcrumbs for database operations ([#1656](https://github.com/getsentry/sentry-dart/pull/1656))
 
 ### Dependencies
 
