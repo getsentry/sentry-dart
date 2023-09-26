@@ -48,7 +48,11 @@ Future<Database> openDatabaseWithSentry(
     // ignore: invalid_use_of_internal_member
     span?.origin = SentryTraceOrigins.autoDbSqfliteOpenDatabase;
 
-    final Map<String, dynamic> breadcrumbData = {};
+    var breadcrumb = Breadcrumb(
+      message: description,
+      category: SentryDatabase.dbOp,
+      data: {},
+    );
 
     try {
       final database =
@@ -57,23 +61,21 @@ Future<Database> openDatabaseWithSentry(
       final sentryDatabase = SentryDatabase(database, hub: newHub);
 
       span?.status = SpanStatus.ok();
-      breadcrumbData['status'] = 'ok';
+      breadcrumb.data?['status'] = 'ok';
 
       return sentryDatabase;
     } catch (exception) {
       span?.throwable = exception;
       span?.status = SpanStatus.internalError();
-      breadcrumbData['status'] = 'internalError';
+      breadcrumb.data?['status'] = 'internalError';
+      breadcrumb = breadcrumb.copyWith(
+        type: 'error',
+        level: SentryLevel.error,
+      );
 
       rethrow;
     } finally {
       await span?.finish();
-
-      final breadcrumb = Breadcrumb(
-        message: description,
-        category: SentryDatabase.dbOp,
-        data: breadcrumbData,
-      );
       // ignore: invalid_use_of_internal_member
       await newHub.scope.addBreadcrumb(breadcrumb);
     }
