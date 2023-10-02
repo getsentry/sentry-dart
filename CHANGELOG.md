@@ -5,6 +5,7 @@
 ### Features
 
 - Breadcrumbs for file I/O operations ([#1649](https://github.com/getsentry/sentry-dart/pull/1649))
+- Add `SentryNavigatorObserver` current route to `event.app.contexts.viewNames` ([#1545](https://github.com/getsentry/sentry-dart/pull/1545))
 
 ### Dependencies
 
@@ -25,7 +26,6 @@
 ### Features
 
 - Tracing without performance ([#1621](https://github.com/getsentry/sentry-dart/pull/1621))
-- Add `SentryNavigatorObserver` current route to `event.app.contexts.viewNames` ([#1545](https://github.com/getsentry/sentry-dart/pull/1545))
 
 ### Fixes
 
