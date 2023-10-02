@@ -2,10 +2,25 @@
 
 ## Unreleased
 
+### Features
+
+- Breadcrumbs for file I/O operations ([#1649](https://github.com/getsentry/sentry-dart/pull/1649))
+
+### Dependencies
+
+- Enable compatibility with uuid v4 ([#1647](https://github.com/getsentry/sentry-dart/pull/1647))
+- Bump Cocoa SDK from v8.11.0 to v8.12.0 ([#1650](https://github.com/getsentry/sentry-dart/pull/1650))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8120)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.11.0...8.12.0)
+
+## 7.10.1
+
 ### Enhancements
 
+- Add Sampling Decision to Trace Envelope Header ([#1639](https://github.com/getsentry/sentry-dart/pull/1639))
 - Add http.request.method attribute to http spans data ([#1633](https://github.com/getsentry/sentry-dart/pull/1633))
 - Add db.system and db.name attributes to db spans data ([#1629](https://github.com/getsentry/sentry-dart/pull/1629))
+- Log SDK errors to the console if the log level is `fatal` even if `debug` is disabled ([#1635](https://github.com/getsentry/sentry-dart/pull/1635))
 
 ### Features
 

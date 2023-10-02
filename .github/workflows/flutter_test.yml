@@ -6,7 +6,8 @@ on:
       - release/**
   pull_request:
     paths-ignore:
-      - 'file/**'
+      - "**/*.md"
+      - "file/**"
 
 env:
   SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
@@ -103,9 +104,10 @@ jobs:
           avd-name: macOS-avd-x86_64-31
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
-          script: flutter test integration_test/integration_test.dart --verbose
+          script: flutter test integration_test --verbose
 
-  test-ios:
+  cocoa:
+    name: "${{ matrix.target }} | ${{ matrix.sdk }}"
     runs-on: macos-13
     timeout-minutes: 30
     defaults:
@@ -114,8 +116,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # 'beta' is flaky because of https://github.com/flutter/flutter/issues/124340
-        sdk: ["stable"]
+        sdk: ["stable", "beta"]
+        target: ["ios", "macos"]
     steps:
       - name: checkout
         uses: actions/checkout@v3
@@ -131,25 +133,33 @@ jobs:
         run: flutter pub get
 
       - name: pod install
-        working-directory: ./flutter/example/ios
+        working-directory: ./flutter/example/${{ matrix.target }}
         run: pod install
 
-      - name: launch ios simulator
-        id: sim
+      - name: prepare test device
+        id: device
         run: |
-          simulator_id=$(xcrun simctl create sentryPhone com.apple.CoreSimulator.SimDeviceType.iPhone-14 com.apple.CoreSimulator.SimRuntime.iOS-16-4)
-          echo "SIMULATOR_ID=${simulator_id}" >> "$GITHUB_OUTPUT"
-          xcrun simctl boot ${simulator_id}
-# Disable flutter integration tests because of flaky execution
-#      - name: run ios integration test
-#        env:
-#          SIMULATOR_ID: ${{ steps.sim.outputs.SIMULATOR_ID }}
-#        run: flutter test -d "$SIMULATOR_ID" integration_test/integration_test.dart --verbose
+          case "${{ matrix.target }}" in
+            ios)
+            device=$(xcrun simctl create sentryPhone com.apple.CoreSimulator.SimDeviceType.iPhone-14 com.apple.CoreSimulator.SimRuntime.iOS-16-4)
+            xcrun simctl boot ${device}
+            echo "platform=iOS Simulator,id=${device}" >> "$GITHUB_OUTPUT"
+            ;;
+            macos)
+            device="macos"
+            echo "platform=OS X" >> "$GITHUB_OUTPUT"
+            ;;
+            esac
+          echo "name=${device}" >> "$GITHUB_OUTPUT"
 
-      - name: run ios native test
-        working-directory: ./flutter/example/ios
-        env:
-          SIMULATOR_ID: ${{ steps.sim.outputs.SIMULATOR_ID }}
-        run: xcodebuild test -workspace Runner.xcworkspace -scheme Runner -configuration Debug -destination "platform=iOS Simulator,id=$SIMULATOR_ID" -allowProvisioningUpdates CODE_SIGNING_ALLOWED=NO
+      - name: run integration test
+        # Disable flutter integration tests for iOS for now (https://github.com/getsentry/sentry-dart/issues/1605#issuecomment-1695809346)
+        if: ${{ matrix.target != 'ios' }}
+        run: flutter test -d "${{ steps.device.outputs.name }}" integration_test --verbose
 
-
+      - name: run native test
+        # We only have the native unit test package in the iOS xcodeproj at the moment.
+        # Should be OK because it will likely be removed after switching to FFI (see https://github.com/getsentry/sentry-dart/issues/1444).
+        if: ${{ matrix.target != 'macos' }}
+        working-directory: ./flutter/example/${{ matrix.target }}
+        run: xcodebuild test -workspace Runner.xcworkspace -scheme Runner -configuration Debug -destination "platform=${{ steps.device.outputs.platform }}" -allowProvisioningUpdates CODE_SIGNING_ALLOWED=NO

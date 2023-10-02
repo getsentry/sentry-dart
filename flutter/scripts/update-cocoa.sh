@@ -20,6 +20,7 @@ get-repo)
 set-version)
     newValue="${BASH_REMATCH[1]}'$2'"
     echo "${content/${BASH_REMATCH[0]}/$newValue}" >$file
+    ../scripts/generate-cocoa-bindings.sh "$2"
     ;;
 *)
     echo "Unknown argument $1"

@@ -26,6 +26,8 @@ class DiagnosticLogger {
   }
 
   bool _isEnabled(SentryLevel level) {
-    return _options.debug && level.ordinal >= _options.diagnosticLevel.ordinal;
+    return _options.debug &&
+            level.ordinal >= _options.diagnosticLevel.ordinal ||
+        level == SentryLevel.fatal;
   }
 }
