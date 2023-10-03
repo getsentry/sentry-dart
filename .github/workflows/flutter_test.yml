@@ -104,7 +104,13 @@ jobs:
           avd-name: macOS-avd-x86_64-31
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
-          script: flutter test integration_test --verbose
+          script: flutter test --coverage integration_test --verbose
+
+      - uses: codecov/codecov-action@d9f34f8cd5cb3b3eb79b3e4b5dae3a16df499a70 # pin@v3
+        if: matrix.sdk == 'stable'
+        with:
+          name: sentry_flutter_integration_android
+          file: ./flutter/coverage/lcov.info
 
   cocoa:
     name: "${{ matrix.target }} | ${{ matrix.sdk }}"
@@ -155,7 +161,7 @@ jobs:
       - name: run integration test
         # Disable flutter integration tests for iOS for now (https://github.com/getsentry/sentry-dart/issues/1605#issuecomment-1695809346)
         if: ${{ matrix.target != 'ios' }}
-        run: flutter test -d "${{ steps.device.outputs.name }}" integration_test --verbose
+        run: flutter test --coverage -d "${{ steps.device.outputs.name }}" integration_test --verbose
 
       - name: run native test
         # We only have the native unit test package in the iOS xcodeproj at the moment.
@@ -163,3 +169,9 @@ jobs:
         if: ${{ matrix.target != 'macos' }}
         working-directory: ./flutter/example/${{ matrix.target }}
         run: xcodebuild test -workspace Runner.xcworkspace -scheme Runner -configuration Debug -destination "platform=${{ steps.device.outputs.platform }}" -allowProvisioningUpdates CODE_SIGNING_ALLOWED=NO
+
+      - uses: codecov/codecov-action@d9f34f8cd5cb3b3eb79b3e4b5dae3a16df499a70 # pin@v3
+        if: matrix.sdk == 'stable'
+        with:
+          name: sentry_flutter_integration_cocoa
+          file: ./flutter/coverage/lcov.info

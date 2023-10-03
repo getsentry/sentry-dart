@@ -14,14 +14,8 @@ build/
 .cxx/
 .vscode/
 
-
 .test_coverage.dart
-dart/coverage/*
-logging/coverage/*
-dio/coverage/*
-file/coverage/*
-flutter/coverage/*
-sqflite/coverage/*
+**/coverage/*
 
 pubspec.lock
 Podfile.lock
