@@ -33,11 +33,11 @@ class SentryTracer extends ISentrySpan {
   SentryTraceContextHeader? _sentryTraceContextHeader;
 
   // Profiler attached to this tracer.
-  late final Profiler? profiler;
+  late final SentryProfiler? profiler;
 
   // Resulting profile, after it has been collected.  This is later used by
   // SentryClient to attach as an envelope item when sending the transaction.
-  ProfileInfo? profileInfo;
+  SentryProfileInfo? profileInfo;
 
   /// If [waitForChildren] is true, this transaction will not finish until all
   /// its children are finished.

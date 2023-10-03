@@ -11,7 +11,7 @@ import '../sentry_flutter.dart';
 import 'native/sentry_native.dart';
 
 // ignore: invalid_use_of_internal_member
-class NativeProfilerFactory implements ProfilerFactory {
+class NativeProfilerFactory implements SentryProfilerFactory {
   final SentryNative _native;
   final ClockProvider _clock;
 
@@ -52,7 +52,7 @@ class NativeProfilerFactory implements ProfilerFactory {
 }
 
 // ignore: invalid_use_of_internal_member
-class NativeProfiler implements Profiler {
+class NativeProfiler implements SentryProfiler {
   final SentryNative _native;
   final int _starTimeNs;
   final SentryId _traceId;
@@ -96,7 +96,7 @@ class NativeProfiler implements Profiler {
 }
 
 // ignore: invalid_use_of_internal_member
-class NativeProfileInfo implements ProfileInfo {
+class NativeProfileInfo implements SentryProfileInfo {
   final Map<String, dynamic> _payload;
   // ignore: invalid_use_of_internal_member
   late final List<int> _data = utf8JsonEncoder.convert(_payload);

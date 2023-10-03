@@ -123,11 +123,11 @@ class NoOpHub implements Hub {
 
   @internal
   @override
-  set profilerFactory(ProfilerFactory? value) {}
+  set profilerFactory(SentryProfilerFactory? value) {}
 
   @internal
   @override
-  ProfilerFactory? get profilerFactory => null;
+  SentryProfilerFactory? get profilerFactory => null;
 
   @override
   Scope get scope => Scope(_options);

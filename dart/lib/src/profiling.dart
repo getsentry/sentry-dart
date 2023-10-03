@@ -5,18 +5,18 @@ import 'package:meta/meta.dart';
 import '../sentry.dart';
 
 @internal
-abstract class ProfilerFactory {
-  Profiler? startProfiler(SentryTransactionContext context);
+abstract class SentryProfilerFactory {
+  SentryProfiler? startProfiler(SentryTransactionContext context);
 }
 
 @internal
-abstract class Profiler {
-  Future<ProfileInfo?> finishFor(SentryTransaction transaction);
+abstract class SentryProfiler {
+  Future<SentryProfileInfo?> finishFor(SentryTransaction transaction);
   void dispose();
 }
 
 // See https://develop.sentry.dev/sdk/profiles/
 @internal
-abstract class ProfileInfo {
+abstract class SentryProfileInfo {
   SentryEnvelopeItem asEnvelopeItem();
 }

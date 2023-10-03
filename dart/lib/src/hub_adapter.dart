@@ -171,12 +171,13 @@ class HubAdapter implements Hub {
 
   @internal
   @override
-  set profilerFactory(ProfilerFactory? value) =>
+  set profilerFactory(SentryProfilerFactory? value) =>
       Sentry.currentHub.profilerFactory = value;
 
   @internal
   @override
-  ProfilerFactory? get profilerFactory => Sentry.currentHub.profilerFactory;
+  SentryProfilerFactory? get profilerFactory =>
+      Sentry.currentHub.profilerFactory;
 
   @override
   Scope get scope => Sentry.currentHub.scope;

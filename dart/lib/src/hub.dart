@@ -452,7 +452,7 @@ class Hub {
         );
       }
 
-      Profiler? profiler;
+      SentryProfiler? profiler;
       if (_profilerFactory != null &&
           _tracesSampler.sampleProfiling(samplingDecision)) {
         profiler = _profilerFactory?.startProfiler(transactionContext);
@@ -563,12 +563,12 @@ class Hub {
       _throwableToSpan.add(throwable, span, transaction);
 
   @internal
-  ProfilerFactory? get profilerFactory => _profilerFactory;
+  SentryProfilerFactory? get profilerFactory => _profilerFactory;
 
   @internal
-  set profilerFactory(ProfilerFactory? value) => _profilerFactory = value;
+  set profilerFactory(SentryProfilerFactory? value) => _profilerFactory = value;
 
-  ProfilerFactory? _profilerFactory;
+  SentryProfilerFactory? _profilerFactory;
 
   SentryEvent _assignTraceContext(SentryEvent event) {
     // assign trace context

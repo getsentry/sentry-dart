@@ -153,8 +153,8 @@ class MockRateLimiter implements RateLimiter {
 }
 
 @GenerateMocks([
-  ProfilerFactory,
-  Profiler,
-  ProfileInfo,
+  SentryProfilerFactory,
+  SentryProfiler,
+  SentryProfileInfo,
 ])
 void main() {}

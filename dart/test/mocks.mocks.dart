@@ -31,39 +31,41 @@ class _FakeSentryEnvelopeItem_0 extends _i1.SmartFake
         );
 }
 
-/// A class which mocks [ProfilerFactory].
+/// A class which mocks [SentryProfilerFactory].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockProfilerFactory extends _i1.Mock implements _i3.ProfilerFactory {
-  MockProfilerFactory() {
+class MockSentryProfilerFactory extends _i1.Mock
+    implements _i3.SentryProfilerFactory {
+  MockSentryProfilerFactory() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i3.Profiler? startProfiler(_i2.SentryTransactionContext? context) =>
+  _i3.SentryProfiler? startProfiler(_i2.SentryTransactionContext? context) =>
       (super.noSuchMethod(Invocation.method(
         #startProfiler,
         [context],
-      )) as _i3.Profiler?);
+      )) as _i3.SentryProfiler?);
 }
 
-/// A class which mocks [Profiler].
+/// A class which mocks [SentryProfiler].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockProfiler extends _i1.Mock implements _i3.Profiler {
-  MockProfiler() {
+class MockSentryProfiler extends _i1.Mock implements _i3.SentryProfiler {
+  MockSentryProfiler() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i4.Future<_i3.ProfileInfo?> finishFor(_i2.SentryTransaction? transaction) =>
+  _i4.Future<_i3.SentryProfileInfo?> finishFor(
+          _i2.SentryTransaction? transaction) =>
       (super.noSuchMethod(
         Invocation.method(
           #finishFor,
           [transaction],
         ),
-        returnValue: _i4.Future<_i3.ProfileInfo?>.value(),
-      ) as _i4.Future<_i3.ProfileInfo?>);
+        returnValue: _i4.Future<_i3.SentryProfileInfo?>.value(),
+      ) as _i4.Future<_i3.SentryProfileInfo?>);
   @override
   void dispose() => super.noSuchMethod(
         Invocation.method(
@@ -74,11 +76,11 @@ class MockProfiler extends _i1.Mock implements _i3.Profiler {
       );
 }
 
-/// A class which mocks [ProfileInfo].
+/// A class which mocks [SentryProfileInfo].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockProfileInfo extends _i1.Mock implements _i3.ProfileInfo {
-  MockProfileInfo() {
+class MockSentryProfileInfo extends _i1.Mock implements _i3.SentryProfileInfo {
+  MockSentryProfileInfo() {
     _i1.throwOnMissingStub(this);
   }
 

@@ -219,7 +219,7 @@ class MockSentryTracer extends _i1.Mock implements _i4.SentryTracer {
         returnValueForMissingStub: null,
       );
   @override
-  set profiler(_i9.Profiler? _profiler) => super.noSuchMethod(
+  set profiler(_i9.SentryProfiler? _profiler) => super.noSuchMethod(
         Invocation.setter(
           #profiler,
           _profiler,
@@ -227,7 +227,7 @@ class MockSentryTracer extends _i1.Mock implements _i4.SentryTracer {
         returnValueForMissingStub: null,
       );
   @override
-  set profileInfo(_i9.ProfileInfo? _profileInfo) => super.noSuchMethod(
+  set profileInfo(_i9.SentryProfileInfo? _profileInfo) => super.noSuchMethod(
         Invocation.setter(
           #profileInfo,
           _profileInfo,
@@ -797,7 +797,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
         ),
       ) as _i2.Scope);
   @override
-  set profilerFactory(_i9.ProfilerFactory? value) => super.noSuchMethod(
+  set profilerFactory(_i9.SentryProfilerFactory? value) => super.noSuchMethod(
         Invocation.setter(
           #profilerFactory,
           value,
