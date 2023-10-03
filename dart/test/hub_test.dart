@@ -386,8 +386,9 @@ void main() {
 
     test('profiler is started according to the sampling rate', () async {
       final hub = fixture.getSut();
-      final factory = MockProfilerFactory();
-      when(factory.startProfiler(fixture._context)).thenReturn(MockProfiler());
+      final factory = MockSentryProfilerFactory();
+      when(factory.startProfiler(fixture._context))
+          .thenReturn(MockSentryProfiler());
       hub.profilerFactory = factory;
 
       var tr = hub.startTransactionWithContext(fixture._context);
@@ -402,9 +403,9 @@ void main() {
 
     test('profiler.finish() is called', () async {
       final hub = fixture.getSut();
-      final factory = MockProfilerFactory();
-      final profiler = MockProfiler();
-      final expected = MockProfileInfo();
+      final factory = MockSentryProfilerFactory();
+      final profiler = MockSentryProfiler();
+      final expected = MockSentryProfileInfo();
       when(factory.startProfiler(fixture._context)).thenReturn(profiler);
       when(profiler.finishFor(any)).thenAnswer((_) async => expected);
 
@@ -418,9 +419,9 @@ void main() {
 
     test('profiler.dispose() is called even if not captured', () async {
       final hub = fixture.getSut();
-      final factory = MockProfilerFactory();
-      final profiler = MockProfiler();
-      final expected = MockProfileInfo();
+      final factory = MockSentryProfilerFactory();
+      final profiler = MockSentryProfiler();
+      final expected = MockSentryProfileInfo();
       when(factory.startProfiler(fixture._context)).thenReturn(profiler);
       when(profiler.finishFor(any)).thenAnswer((_) async => expected);
 
