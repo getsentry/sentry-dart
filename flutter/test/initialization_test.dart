@@ -18,7 +18,7 @@ void main() {
       (options) {
         options.dsn = fakeDsn;
         // ignore: invalid_use_of_internal_member
-        options.devMode = true;
+        options.automatedTestMode = true;
       },
     );
 
@@ -28,7 +28,7 @@ void main() {
       (options) {
         options.dsn = fakeDsn;
         // ignore: invalid_use_of_internal_member
-        options.devMode = true;
+        options.automatedTestMode = true;
       },
     );
 
@@ -42,7 +42,7 @@ void main() {
       (options) {
         options.dsn = fakeDsn;
         // ignore: invalid_use_of_internal_member
-        options.devMode = true;
+        options.automatedTestMode = true;
       },
     );
 
@@ -52,7 +52,7 @@ void main() {
       (options) {
         options.dsn = fakeDsn;
         // ignore: invalid_use_of_internal_member
-        options.devMode = true;
+        options.automatedTestMode = true;
       },
     );
 

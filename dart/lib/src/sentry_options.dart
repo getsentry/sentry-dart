@@ -353,10 +353,10 @@ class SentryOptions {
   /// are set.
   bool? enableTracing;
 
-  /// Changed SDK behaviour when set to true:
+  /// Only for internal use. Changed SDK behaviour when set to true:
   /// - Rethrow exceptions that occur in user provided closures
   @internal
-  bool devMode = false;
+  bool automatedTestMode = false;
 
   SentryOptions({this.dsn, PlatformChecker? checker}) {
     if (checker != null) {
