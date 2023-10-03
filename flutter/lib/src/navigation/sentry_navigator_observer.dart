@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 
 import '../../sentry_flutter.dart';
+import '../event_processor/flutter_enricher_event_processor.dart';
 import '../native/sentry_native.dart';
 
 /// This key must be used so that the web interface displays the events nicely
