@@ -328,7 +328,7 @@ class MainScaffold extends StatelessWidget {
                     status: const SpanStatus.internalError());
 
                 await Future.delayed(const Duration(milliseconds: 50));
-                findPrimeNumber(1000000); // xxx remove - just for testing
+                // findPrimeNumber(1000000); // Uncomment to see it with profiling
                 await transaction.finish(status: const SpanStatus.ok());
               },
               child: const Text('Capture transaction'),
