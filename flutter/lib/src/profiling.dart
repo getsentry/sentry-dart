@@ -11,11 +11,11 @@ import '../sentry_flutter.dart';
 import 'native/sentry_native.dart';
 
 // ignore: invalid_use_of_internal_member
-class NativeProfilerFactory implements SentryProfilerFactory {
+class SentryNativeProfilerFactory implements SentryProfilerFactory {
   final SentryNative _native;
   final ClockProvider _clock;
 
-  NativeProfilerFactory(this._native, this._clock);
+  SentryNativeProfilerFactory(this._native, this._clock);
 
   static void attachTo(Hub hub, SentryNative native) {
     // ignore: invalid_use_of_internal_member
@@ -33,12 +33,12 @@ class NativeProfilerFactory implements SentryProfilerFactory {
     if (options.platformChecker.platform.isMacOS ||
         options.platformChecker.platform.isIOS) {
       // ignore: invalid_use_of_internal_member
-      hub.profilerFactory = NativeProfilerFactory(native, options.clock);
+      hub.profilerFactory = SentryNativeProfilerFactory(native, options.clock);
     }
   }
 
   @override
-  NativeProfiler? startProfiler(SentryTransactionContext context) {
+  SentryNativeProfiler? startProfiler(SentryTransactionContext context) {
     if (context.traceId == SentryId.empty()) {
       return null;
     }
@@ -47,19 +47,20 @@ class NativeProfilerFactory implements SentryProfilerFactory {
     if (startTime == null) {
       return null;
     }
-    return NativeProfiler(_native, startTime, context.traceId, _clock);
+    return SentryNativeProfiler(_native, startTime, context.traceId, _clock);
   }
 }
 
 // ignore: invalid_use_of_internal_member
-class NativeProfiler implements SentryProfiler {
+class SentryNativeProfiler implements SentryProfiler {
   final SentryNative _native;
   final int _starTimeNs;
   final SentryId _traceId;
   bool _finished = false;
   final ClockProvider _clock;
 
-  NativeProfiler(this._native, this._starTimeNs, this._traceId, this._clock);
+  SentryNativeProfiler(
+      this._native, this._starTimeNs, this._traceId, this._clock);
 
   @override
   void dispose() {
@@ -70,7 +71,8 @@ class NativeProfiler implements SentryProfiler {
   }
 
   @override
-  Future<NativeProfileInfo?> finishFor(SentryTransaction transaction) async {
+  Future<SentryNativeProfileInfo?> finishFor(
+      SentryTransaction transaction) async {
     if (_finished) {
       return null;
     }
@@ -91,17 +93,17 @@ class NativeProfiler implements SentryProfiler {
     payload["transaction"]["trace_id"] = _traceId.toString();
     payload["transaction"]["name"] = transaction.transaction;
     payload["timestamp"] = transaction.startTimestamp.toIso8601String();
-    return NativeProfileInfo(payload);
+    return SentryNativeProfileInfo(payload);
   }
 }
 
 // ignore: invalid_use_of_internal_member
-class NativeProfileInfo implements SentryProfileInfo {
+class SentryNativeProfileInfo implements SentryProfileInfo {
   final Map<String, dynamic> _payload;
   // ignore: invalid_use_of_internal_member
   late final List<int> _data = utf8JsonEncoder.convert(_payload);
 
-  NativeProfileInfo(this._payload);
+  SentryNativeProfileInfo(this._payload);
 
   @override
   SentryEnvelopeItem asEnvelopeItem() {

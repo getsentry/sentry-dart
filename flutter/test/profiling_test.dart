@@ -9,7 +9,7 @@ import 'mocks.mocks.dart';
 import 'sentry_flutter_test.dart';
 
 void main() {
-  group('$NativeProfilerFactory', () {
+  group('$SentryNativeProfilerFactory', () {
     Hub hubWithSampleRate(double profilesSampleRate) {
       final o = SentryFlutterOptions(dsn: fakeDsn);
       o.platformChecker = getPlatformChecker(platform: MockPlatform.iOs());
@@ -22,12 +22,12 @@ void main() {
 
     test('attachTo() respects sampling rate', () async {
       var hub = hubWithSampleRate(0.0);
-      NativeProfilerFactory.attachTo(hub, TestMockSentryNative());
+      SentryNativeProfilerFactory.attachTo(hub, TestMockSentryNative());
       // ignore: invalid_use_of_internal_member
       verifyNever(hub.profilerFactory = any);
 
       hub = hubWithSampleRate(0.1);
-      NativeProfilerFactory.attachTo(hub, TestMockSentryNative());
+      SentryNativeProfilerFactory.attachTo(hub, TestMockSentryNative());
       // ignore: invalid_use_of_internal_member
       verify(hub.profilerFactory = any);
     });
@@ -35,7 +35,7 @@ void main() {
     test('creates a profiler', () async {
       final nativeMock = TestMockSentryNative();
       // ignore: invalid_use_of_internal_member
-      final sut = NativeProfilerFactory(nativeMock, getUtcDateTime);
+      final sut = SentryNativeProfilerFactory(nativeMock, getUtcDateTime);
       final profiler = sut.startProfiler(SentryTransactionContext(
         'name',
         'op',
@@ -45,14 +45,14 @@ void main() {
     });
   });
 
-  group('$NativeProfiler', () {
+  group('$SentryNativeProfiler', () {
     late TestMockSentryNative nativeMock;
-    late NativeProfiler sut;
+    late SentryNativeProfiler sut;
 
     setUp(() {
       nativeMock = TestMockSentryNative();
       // ignore: invalid_use_of_internal_member
-      final factory = NativeProfilerFactory(nativeMock, getUtcDateTime);
+      final factory = SentryNativeProfilerFactory(nativeMock, getUtcDateTime);
       final profiler = factory.startProfiler(SentryTransactionContext(
         'name',
         'op',

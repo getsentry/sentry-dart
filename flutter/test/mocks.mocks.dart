@@ -80,29 +80,9 @@ class _FakeSentryTracer_4 extends _i1.SmartFake implements _i4.SentryTracer {
         );
 }
 
-class _FakeSentryId_5 extends _i1.SmartFake implements _i3.SentryId {
-  _FakeSentryId_5(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
-}
-
-class _FakeContexts_6 extends _i1.SmartFake implements _i3.Contexts {
-  _FakeContexts_6(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
-}
-
-class _FakeSentryTransaction_7 extends _i1.SmartFake
+class _FakeSentryTransaction_5 extends _i1.SmartFake
     implements _i3.SentryTransaction {
-  _FakeSentryTransaction_7(
+  _FakeSentryTransaction_5(
     Object parent,
     Invocation parentInvocation,
   ) : super(
@@ -111,8 +91,8 @@ class _FakeSentryTransaction_7 extends _i1.SmartFake
         );
 }
 
-class _FakeMethodCodec_8 extends _i1.SmartFake implements _i5.MethodCodec {
-  _FakeMethodCodec_8(
+class _FakeMethodCodec_6 extends _i1.SmartFake implements _i5.MethodCodec {
+  _FakeMethodCodec_6(
     Object parent,
     Invocation parentInvocation,
   ) : super(
@@ -121,9 +101,9 @@ class _FakeMethodCodec_8 extends _i1.SmartFake implements _i5.MethodCodec {
         );
 }
 
-class _FakeBinaryMessenger_9 extends _i1.SmartFake
+class _FakeBinaryMessenger_7 extends _i1.SmartFake
     implements _i6.BinaryMessenger {
-  _FakeBinaryMessenger_9(
+  _FakeBinaryMessenger_7(
     Object parent,
     Invocation parentInvocation,
   ) : super(
@@ -132,8 +112,8 @@ class _FakeBinaryMessenger_9 extends _i1.SmartFake
         );
 }
 
-class _FakeSentryOptions_10 extends _i1.SmartFake implements _i2.SentryOptions {
-  _FakeSentryOptions_10(
+class _FakeSentryOptions_8 extends _i1.SmartFake implements _i2.SentryOptions {
+  _FakeSentryOptions_8(
     Object parent,
     Invocation parentInvocation,
   ) : super(
@@ -142,8 +122,8 @@ class _FakeSentryOptions_10 extends _i1.SmartFake implements _i2.SentryOptions {
         );
 }
 
-class _FakeScope_11 extends _i1.SmartFake implements _i2.Scope {
-  _FakeScope_11(
+class _FakeSentryId_9 extends _i1.SmartFake implements _i3.SentryId {
+  _FakeSentryId_9(
     Object parent,
     Invocation parentInvocation,
   ) : super(
@@ -152,8 +132,18 @@ class _FakeScope_11 extends _i1.SmartFake implements _i2.Scope {
         );
 }
 
-class _FakeHub_12 extends _i1.SmartFake implements _i2.Hub {
-  _FakeHub_12(
+class _FakeScope_10 extends _i1.SmartFake implements _i2.Scope {
+  _FakeScope_10(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
+class _FakeHub_11 extends _i1.SmartFake implements _i2.Hub {
+  _FakeHub_11(
     Object parent,
     Invocation parentInvocation,
   ) : super(
@@ -282,7 +272,7 @@ class MockSentryTracer extends _i1.Mock implements _i4.SentryTracer {
         returnValueForMissingStub: null,
       );
   @override
-  set status(_i3.SpanStatus? status) => super.noSuchMethod(
+  set status(dynamic status) => super.noSuchMethod(
         Invocation.setter(
           #status,
           status,
@@ -301,7 +291,7 @@ class MockSentryTracer extends _i1.Mock implements _i4.SentryTracer {
       ) as Map<String, _i2.SentryMeasurement>);
   @override
   _i7.Future<void> finish({
-    _i3.SpanStatus? status,
+    dynamic status,
     DateTime? endTimestamp,
   }) =>
       (super.noSuchMethod(
@@ -391,7 +381,7 @@ class MockSentryTracer extends _i1.Mock implements _i4.SentryTracer {
       ) as _i2.ISentrySpan);
   @override
   _i2.ISentrySpan startChildWithParentSpanId(
-    _i3.SpanId? parentSpanId,
+    dynamic parentSpanId,
     String? operation, {
     String? description,
     DateTime? startTimestamp,
@@ -544,22 +534,6 @@ class MockSentryTransaction extends _i1.Mock implements _i3.SentryTransaction {
         returnValue: false,
       ) as bool);
   @override
-  _i3.SentryId get eventId => (super.noSuchMethod(
-        Invocation.getter(#eventId),
-        returnValue: _FakeSentryId_5(
-          this,
-          Invocation.getter(#eventId),
-        ),
-      ) as _i3.SentryId);
-  @override
-  _i3.Contexts get contexts => (super.noSuchMethod(
-        Invocation.getter(#contexts),
-        returnValue: _FakeContexts_6(
-          this,
-          Invocation.getter(#contexts),
-        ),
-      ) as _i3.Contexts);
-  @override
   Map<String, dynamic> toJson() => (super.noSuchMethod(
         Invocation.method(
           #toJson,
@@ -578,7 +552,7 @@ class MockSentryTransaction extends _i1.Mock implements _i3.SentryTransaction {
     String? dist,
     String? environment,
     Map<String, String>? modules,
-    _i3.SentryMessage? message,
+    dynamic message,
     String? transaction,
     dynamic throwable,
     _i3.SentryLevel? level,
@@ -587,13 +561,13 @@ class MockSentryTransaction extends _i1.Mock implements _i3.SentryTransaction {
     Map<String, dynamic>? extra,
     List<String>? fingerprint,
     _i3.SentryUser? user,
-    _i3.Contexts? contexts,
+    dynamic contexts,
     List<_i3.Breadcrumb>? breadcrumbs,
     _i3.SdkVersion? sdk,
-    _i3.SentryRequest? request,
-    _i3.DebugMeta? debugMeta,
+    dynamic request,
+    dynamic debugMeta,
     List<_i3.SentryException>? exceptions,
-    List<_i3.SentryThread>? threads,
+    List<dynamic>? threads,
     String? type,
     Map<String, _i2.SentryMeasurement>? measurements,
     _i3.SentryTransactionInfo? transactionInfo,
@@ -633,7 +607,7 @@ class MockSentryTransaction extends _i1.Mock implements _i3.SentryTransaction {
             #transactionInfo: transactionInfo,
           },
         ),
-        returnValue: _FakeSentryTransaction_7(
+        returnValue: _FakeSentryTransaction_5(
           this,
           Invocation.method(
             #copyWith,
@@ -689,7 +663,7 @@ class MockMethodChannel extends _i1.Mock implements _i10.MethodChannel {
   @override
   _i5.MethodCodec get codec => (super.noSuchMethod(
         Invocation.getter(#codec),
-        returnValue: _FakeMethodCodec_8(
+        returnValue: _FakeMethodCodec_6(
           this,
           Invocation.getter(#codec),
         ),
@@ -697,7 +671,7 @@ class MockMethodChannel extends _i1.Mock implements _i10.MethodChannel {
   @override
   _i6.BinaryMessenger get binaryMessenger => (super.noSuchMethod(
         Invocation.getter(#binaryMessenger),
-        returnValue: _FakeBinaryMessenger_9(
+        returnValue: _FakeBinaryMessenger_7(
           this,
           Invocation.getter(#binaryMessenger),
         ),
@@ -770,7 +744,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
   @override
   _i2.SentryOptions get options => (super.noSuchMethod(
         Invocation.getter(#options),
-        returnValue: _FakeSentryOptions_10(
+        returnValue: _FakeSentryOptions_8(
           this,
           Invocation.getter(#options),
         ),
@@ -783,7 +757,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
   @override
   _i3.SentryId get lastEventId => (super.noSuchMethod(
         Invocation.getter(#lastEventId),
-        returnValue: _FakeSentryId_5(
+        returnValue: _FakeSentryId_9(
           this,
           Invocation.getter(#lastEventId),
         ),
@@ -791,7 +765,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
   @override
   _i2.Scope get scope => (super.noSuchMethod(
         Invocation.getter(#scope),
-        returnValue: _FakeScope_11(
+        returnValue: _FakeScope_10(
           this,
           Invocation.getter(#scope),
         ),
@@ -806,7 +780,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
       );
   @override
   _i7.Future<_i3.SentryId> captureEvent(
-    _i3.SentryEvent? event, {
+    dynamic event, {
     dynamic stackTrace,
     _i2.Hint? hint,
     _i2.ScopeCallback? withScope,
@@ -821,7 +795,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
             #withScope: withScope,
           },
         ),
-        returnValue: _i7.Future<_i3.SentryId>.value(_FakeSentryId_5(
+        returnValue: _i7.Future<_i3.SentryId>.value(_FakeSentryId_9(
           this,
           Invocation.method(
             #captureEvent,
@@ -851,7 +825,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
             #withScope: withScope,
           },
         ),
-        returnValue: _i7.Future<_i3.SentryId>.value(_FakeSentryId_5(
+        returnValue: _i7.Future<_i3.SentryId>.value(_FakeSentryId_9(
           this,
           Invocation.method(
             #captureException,
@@ -885,7 +859,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
             #withScope: withScope,
           },
         ),
-        returnValue: _i7.Future<_i3.SentryId>.value(_FakeSentryId_5(
+        returnValue: _i7.Future<_i3.SentryId>.value(_FakeSentryId_9(
           this,
           Invocation.method(
             #captureMessage,
@@ -938,7 +912,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
           #clone,
           [],
         ),
-        returnValue: _FakeHub_12(
+        returnValue: _FakeHub_11(
           this,
           Invocation.method(
             #clone,
@@ -1058,7 +1032,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
           [transaction],
           {#traceContext: traceContext},
         ),
-        returnValue: _i7.Future<_i3.SentryId>.value(_FakeSentryId_5(
+        returnValue: _i7.Future<_i3.SentryId>.value(_FakeSentryId_9(
           this,
           Invocation.method(
             #captureTransaction,

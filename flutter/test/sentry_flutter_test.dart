@@ -148,7 +148,7 @@ void main() {
 
       expect(SentryFlutter.native, isNotNull);
       expect(Sentry.currentHub.profilerFactory,
-          isInstanceOf<NativeProfilerFactory>());
+          isInstanceOf<SentryNativeProfilerFactory>());
 
       await Sentry.close();
     }, testOn: 'vm');
@@ -197,7 +197,7 @@ void main() {
 
       expect(SentryFlutter.native, isNotNull);
       expect(Sentry.currentHub.profilerFactory,
-          isInstanceOf<NativeProfilerFactory>());
+          isInstanceOf<SentryNativeProfilerFactory>());
 
       await Sentry.close();
     }, testOn: 'vm');

@@ -93,7 +93,7 @@ mixin SentryFlutter {
 
     if (_native != null) {
       // ignore: invalid_use_of_internal_member
-      NativeProfilerFactory.attachTo(Sentry.currentHub, _native!);
+      SentryNativeProfilerFactory.attachTo(Sentry.currentHub, _native!);
     }
   }
 
