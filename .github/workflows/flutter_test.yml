@@ -111,6 +111,7 @@ jobs:
         with:
           name: sentry_flutter_integration_android
           file: ./flutter/example/coverage/lcov.info
+          functionalities: "search" # remove after https://github.com/codecov/codecov-action/issues/600
 
   cocoa:
     name: "${{ matrix.target }} | ${{ matrix.sdk }}"
@@ -175,3 +176,4 @@ jobs:
         with:
           name: sentry_flutter_integration_cocoa
           file: ./flutter/example/coverage/lcov.info
+          functionalities: "search" # remove after https://github.com/codecov/codecov-action/issues/600
