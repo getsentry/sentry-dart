@@ -110,7 +110,7 @@ jobs:
         if: matrix.sdk == 'stable'
         with:
           name: sentry_flutter_integration_android
-          file: ./flutter/coverage/lcov.info
+          file: ./flutter/example/coverage/lcov.info
 
   cocoa:
     name: "${{ matrix.target }} | ${{ matrix.sdk }}"
@@ -160,18 +160,18 @@ jobs:
 
       - name: run integration test
         # Disable flutter integration tests for iOS for now (https://github.com/getsentry/sentry-dart/issues/1605#issuecomment-1695809346)
-        if: ${{ matrix.target != 'ios' }}
+        if: ${{ matrix.target == 'macos' }}
         run: flutter test --coverage -d "${{ steps.device.outputs.name }}" integration_test --verbose
 
       - name: run native test
         # We only have the native unit test package in the iOS xcodeproj at the moment.
         # Should be OK because it will likely be removed after switching to FFI (see https://github.com/getsentry/sentry-dart/issues/1444).
-        if: ${{ matrix.target != 'macos' }}
+        if: ${{ matrix.target == 'ios' }}
         working-directory: ./flutter/example/${{ matrix.target }}
         run: xcodebuild test -workspace Runner.xcworkspace -scheme Runner -configuration Debug -destination "platform=${{ steps.device.outputs.platform }}" -allowProvisioningUpdates CODE_SIGNING_ALLOWED=NO
 
       - uses: codecov/codecov-action@d9f34f8cd5cb3b3eb79b3e4b5dae3a16df499a70 # pin@v3
-        if: matrix.sdk == 'stable'
+        if: ${{ matrix.sdk == 'stable' && matrix.target == 'macos' }}
         with:
           name: sentry_flutter_integration_cocoa
-          file: ./flutter/coverage/lcov.info
+          file: ./flutter/example/coverage/lcov.info
