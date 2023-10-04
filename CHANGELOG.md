@@ -4,6 +4,7 @@
 
 ### Features
 
+- Initial (alpha) support for profiling on iOS and macOS ([#1611](https://github.com/getsentry/sentry-dart/pull/1611))
 - Breadcrumbs for file I/O operations ([#1649](https://github.com/getsentry/sentry-dart/pull/1649))
 
 ### Dependencies
