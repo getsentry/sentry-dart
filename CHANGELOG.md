@@ -9,9 +9,9 @@
 ### Dependencies
 
 - Enable compatibility with uuid v4 ([#1647](https://github.com/getsentry/sentry-dart/pull/1647))
-- Bump Cocoa SDK from v8.11.0 to v8.12.0 ([#1650](https://github.com/getsentry/sentry-dart/pull/1650))
-  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8120)
-  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.11.0...8.12.0)
+- Bump Cocoa SDK from v8.11.0 to v8.13.0 ([#1650](https://github.com/getsentry/sentry-dart/pull/1650), [#1655](https://github.com/getsentry/sentry-dart/pull/1655))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8130)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.11.0...8.13.0)
 
 ## 7.10.1
 
