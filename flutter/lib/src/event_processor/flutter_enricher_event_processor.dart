@@ -50,7 +50,7 @@ class FlutterEnricherEventProcessor implements EventProcessor {
 
     final app = contexts.app;
     if (app != null) {
-      _getAppScreen(contexts, app);
+      contexts.app = _appWithCurrentRouteViewName(app);
     }
 
     // Flutter has a lot of Accessibility Settings available and exposes them
@@ -244,12 +244,14 @@ class FlutterEnricherEventProcessor implements EventProcessor {
     );
   }
 
-  void _getAppScreen(Contexts contexts, SentryApp app) {
+  SentryApp _appWithCurrentRouteViewName(SentryApp app) {
     final currentRouteName = SentryNavigatorObserver.currentRouteName;
     if (currentRouteName != null) {
       final viewNames = app.viewNames ?? [];
       viewNames.add(currentRouteName);
-      contexts.app = app.copyWith(viewNames: viewNames);
+      return app.copyWith(viewNames: viewNames);
+    } else {
+      return app;
     }
   }
 }
