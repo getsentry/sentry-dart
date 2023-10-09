@@ -178,7 +178,7 @@ class Scope {
           exception: exception,
           stackTrace: stackTrace,
         );
-        if (_options.devMode) {
+        if (_options.automatedTestMode) {
           rethrow;
         }
       }
@@ -345,7 +345,7 @@ class Scope {
           exception: exception,
           stackTrace: stackTrace,
         );
-        if (_options.devMode) {
+        if (_options.automatedTestMode) {
           rethrow;
         }
       }
