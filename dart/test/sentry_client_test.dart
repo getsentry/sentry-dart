@@ -826,25 +826,14 @@ void main() {
     });
   });
 
-  group('SentryClient: apply default pii', () {
+  group('SentryClient: sets user & user ip', () {
     late Fixture fixture;
 
     setUp(() {
       fixture = Fixture();
     });
 
-    test('sendDefaultPii is disabled', () async {
-      final client = fixture.getSut(sendDefaultPii: false);
-
-      await client.captureEvent(fakeEvent);
-
-      final capturedEnvelope = fixture.transport.envelopes.first;
-      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
-
-      expect(capturedEvent.user?.toJson(), fakeEvent.user?.toJson());
-    });
-
-    test('sendDefaultPii is enabled and event has no user', () async {
+    test('event has no user', () async {
       final client = fixture.getSut(sendDefaultPii: true);
       var fakeEvent = SentryEvent();
 
@@ -858,7 +847,7 @@ void main() {
       expect(capturedEvent.user?.ipAddress, '{{auto}}');
     });
 
-    test('sendDefaultPii is enabled and event has a user with IP address',
+    test('event has a user with IP address',
         () async {
       final client = fixture.getSut(sendDefaultPii: true);
 
@@ -875,7 +864,7 @@ void main() {
       expect(capturedEvent.user?.email, fakeEvent.user!.email);
     });
 
-    test('sendDefaultPii is enabled and event has a user without IP address',
+    test('event has a user without IP address',
         () async {
       final client = fixture.getSut(sendDefaultPii: true);
 

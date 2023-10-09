@@ -23,8 +23,7 @@ import 'client_reports/discard_reason.dart';
 import 'transport/data_category.dart';
 
 /// Default value for [User.ipAddress]. It gets set when an event does not have
-/// a user and IP address. Only applies if [SentryOptions.sendDefaultPii] is set
-/// to true.
+/// a user and IP address.
 const _defaultIpAddress = '{{auto}}';
 
 /// Logs crash reports and events to the Sentry.io service.
@@ -142,7 +141,7 @@ class SentryClient {
       platform: event.platform ?? sdkPlatform(_options.platformChecker.isWeb),
     );
 
-    event = _applyDefaultPii(event);
+    event = _createUserOrSetDefaultIpAddress(event);
 
     if (event is SentryTransaction) {
       return event;
@@ -222,20 +221,13 @@ class SentryClient {
     return event;
   }
 
-  /// This modifies the users IP address according
-  /// to [SentryOptions.sendDefaultPii].
-  SentryEvent _applyDefaultPii(SentryEvent event) {
-    if (!_options.sendDefaultPii) {
-      return event;
-    }
+  SentryEvent _createUserOrSetDefaultIpAddress(SentryEvent event) {
     var user = event.user;
     if (user == null) {
-      user = SentryUser(ipAddress: _defaultIpAddress);
-      return event.copyWith(user: user);
+      return event.copyWith(user: SentryUser(ipAddress: _defaultIpAddress));
     } else if (event.user?.ipAddress == null) {
       return event.copyWith(user: user.copyWith(ipAddress: _defaultIpAddress));
     }
-
     return event;
   }
 
