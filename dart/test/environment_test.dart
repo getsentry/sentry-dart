@@ -23,7 +23,7 @@ void main() {
         release: 'release-9.8.7',
         dist: 'bar',
       );
-      options.devMode = true;
+      options.automatedTestMode = true;
 
       await Sentry.init(
         (options) => options,
@@ -44,7 +44,7 @@ void main() {
         release: 'release-9.8.7',
         dist: 'bar',
       );
-      options.devMode = true;
+      options.automatedTestMode = true;
 
       await Sentry.init(
         (options) => options,

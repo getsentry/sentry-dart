@@ -58,7 +58,7 @@ class Sentry {
         exception: exception,
         stackTrace: stackTrace,
       );
-      if (sentryOptions.devMode) {
+      if (sentryOptions.automatedTestMode) {
         rethrow;
       }
     }
