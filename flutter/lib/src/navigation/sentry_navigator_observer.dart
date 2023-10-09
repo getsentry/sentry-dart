@@ -97,7 +97,8 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
     super.didPush(route, previousRoute);
 
-    _setCurrentRoute(route);
+    _setCurrentRouteName(route);
+    _setCurrentRouteNameAsTransaction(route);
 
     _addBreadcrumb(
       type: 'didPush',
@@ -113,7 +114,9 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   void didReplace({Route<dynamic>? newRoute, Route<dynamic>? oldRoute}) {
     super.didReplace(newRoute: newRoute, oldRoute: oldRoute);
 
-    _setCurrentRoute(newRoute);
+    _setCurrentRouteName(newRoute);
+    _setCurrentRouteNameAsTransaction(newRoute);
+
     _addBreadcrumb(
       type: 'didReplace',
       from: oldRoute?.settings,
@@ -125,7 +128,9 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
     super.didPop(route, previousRoute);
 
-    _setCurrentRoute(previousRoute);
+    _setCurrentRouteName(previousRoute);
+    _setCurrentRouteNameAsTransaction(previousRoute);
+
     _addBreadcrumb(
       type: 'didPop',
       from: route.settings,
@@ -156,7 +161,11 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
         ?.name;
   }
 
-  Future<void> _setCurrentRoute(Route<dynamic>? route) async {
+  Future<void> _setCurrentRouteName(Route<dynamic>? route) async {
+    _currentRouteName = _getRouteName(route);
+  }
+
+  Future<void> _setCurrentRouteNameAsTransaction(Route<dynamic>? route) async {
     final name = _getRouteName(route);
     if (name == null) {
       return;
@@ -212,7 +221,6 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
         }
       },
     );
-    _currentRouteName = name;
 
     // if _enableAutoTransactions is enabled but there's no traces sample rate
     if (_transaction is NoOpSentrySpan) {
