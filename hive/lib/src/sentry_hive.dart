@@ -1,6 +1,19 @@
-// TODO: Put public facing types in this file.
+import 'package:meta/meta.dart';
 
 /// Checks if you are awesome. Spoiler: you are.
-class Awesome {
-  bool get isAwesome => true;
+class SentryHive {
+  @internal
+  // ignore: public_member_api_docs
+  static const dbOp = 'db';
+
+  @internal
+  // ignore: public_member_api_docs
+  static const dbSystemKey = 'db.system';
+  @internal
+  // ignore: public_member_api_docs
+  static const dbSystem = 'sqlite';
+
+  @internal
+  // ignore: public_member_api_docs
+  static const dbNameKey = 'db.name';
 }
