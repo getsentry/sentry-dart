@@ -63,7 +63,7 @@ class SentryBox<E> implements Box<E> {
   @override
   // ignore: strict_raw_type
   Future<void> deleteAll(Iterable keys) async {
-    return _asyncWrapInSpan('delete', () async {
+    return _asyncWrapInSpan('deleteAll', () async {
       return await _box.deleteAll(keys);
     });
   }

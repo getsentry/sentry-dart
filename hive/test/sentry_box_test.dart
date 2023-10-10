@@ -13,13 +13,17 @@ import 'mocks/mocks.mocks.dart';
 
 void main() {
 
-  void verifySpan(SentrySpan? span) {
+  void verifySpan(String description, SentrySpan? span) {
+    expect(span?.context.operation, SentryHive.dbOp);
+    expect(span?.context.description, description);
     expect(span?.status, SpanStatus.ok());
+    // ignore: invalid_use_of_internal_member
+    expect(span?.origin, SentryTraceOrigins.autoDbHiveBox);
     expect(span?.data[SentryHive.dbSystemKey], SentryHive.dbSystem);
     expect(span?.data[SentryHive.dbNameKey], Fixture.dbName);
   }
 
-  group('span tests', () {
+  group('adds span', () {
 
     late Fixture fixture;
 
@@ -40,7 +44,64 @@ void main() {
 
       await sut.add(Person('Joe Dirt'));
 
-      verifySpan(fixture.getCreatedSpan());
+      verifySpan('add', fixture.getCreatedSpan());
+    });
+
+    test('addAll adds span', () async {
+      final sut = await fixture.getSut();
+
+      await sut.addAll([Person('Joe Dirt')]);
+
+      verifySpan('addAll', fixture.getCreatedSpan());
+    });
+
+    test('clear adds span', () async {
+      final sut = await fixture.getSut();
+
+      await sut.clear();
+
+      verifySpan('clear', fixture.getCreatedSpan());
+    });
+
+    test('close adds span', () async {
+      final sut = await fixture.getSut();
+
+      await sut.close();
+
+      verifySpan('close', fixture.getCreatedSpan());
+    });
+
+    test('compact adds span', () async {
+      final sut = await fixture.getSut();
+
+      await sut.compact();
+
+      verifySpan('compact', fixture.getCreatedSpan());
+    });
+
+    test('delete adds span', () async {
+      final sut = await fixture.getSut();
+
+      await sut.delete('fixture-key');
+
+      verifySpan('delete', fixture.getCreatedSpan());
+    });
+
+    test('deleteAll adds span', () async {
+      final sut = await fixture.getSut();
+
+      await sut.deleteAll(['fixture-key']);
+
+      verifySpan('deleteAll', fixture.getCreatedSpan());
+    });
+
+    test('deleteAt adds span', () async {
+      final sut = await fixture.getSut();
+
+      await sut.add(Person('Joe Dirt'));
+      await sut.deleteAt(0);
+
+      verifySpan('deleteAt', fixture.getCreatedSpan());
     });
   });
 }
