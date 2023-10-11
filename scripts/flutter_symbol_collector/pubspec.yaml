@@ -1,0 +1,18 @@
+name: flutter_symbol_collector
+description: Internal tool to collect Flutter debug symbols and upload them to Sentry
+publish_to: none
+
+environment:
+  sdk: ^3.0.0
+
+dependencies:
+  gcloud: ^0.8.11
+  github: ^9.19.0
+  http: ^1.1.0
+  logging: ^1.2.0
+  path: ^1.8.3
+  
+
+dev_dependencies:
+  lints: ^2.0.0
+  test: ^1.21.0
