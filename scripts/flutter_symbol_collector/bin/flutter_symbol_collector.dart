@@ -1,19 +1,20 @@
-import 'dart:io';
-
 import 'package:file/local.dart';
 import 'package:flutter_symbol_collector/flutter_symbol_collector.dart';
 import 'package:logging/logging.dart';
 
-late final source = FlutterSymbolSource();
-late final fs = LocalFileSystem();
-late final tempDir = fs.currentDirectory.childDirectory('.temp');
+final source = FlutterSymbolSource();
+final fs = LocalFileSystem();
+final tempDir = fs.currentDirectory.childDirectory('.temp');
+late final SymbolCollectorCli collector;
 
-void main(List<String> arguments) {
+void main(List<String> arguments) async {
   Logger.root.level = Level.ALL;
   Logger.root.onRecord.listen((record) {
     print('${record.level.name}: ${record.time}: ${record.message}'
         '${record.error == null ? '' : ': ${record.error}'}');
   });
+
+  collector = await SymbolCollectorCli.setup(tempDir);
 
   // source
   //     .listFlutterVersions()
@@ -21,7 +22,7 @@ void main(List<String> arguments) {
   //     .where((version) => version.tagName.startsWith('3.'))
   //     .forEach(processFlutterVerion);
 
-  processFlutterVerion(FlutterVersion('3.13.7'));
+  await processFlutterVerion(FlutterVersion('3.13.7'));
 }
 
 Future<void> processFlutterVerion(FlutterVersion version) async {
@@ -34,5 +35,6 @@ Future<void> processFlutterVerion(FlutterVersion version) async {
   for (final archive in archives) {
     final archiveDir = dir.childDirectory(archive.platform.operatingSystem);
     await source.downloadAndExtractTo(archiveDir, archive.path);
+    await collector.upload(archiveDir, archive.platform, version);
   }
 }

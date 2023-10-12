@@ -18,13 +18,13 @@ class SymbolCollectorCli {
   late bool _isExecutable;
 
   // https://github.com/getsentry/symbol-collector/releases
-  @visibleForTesting
+  @internal
   static const version = '1.12.0';
 
-  @visibleForTesting
+  @internal
   late final String cli;
 
-  @visibleForTesting
+  @internal
   static Platform platform = LocalPlatform();
 
   SymbolCollectorCli._();
