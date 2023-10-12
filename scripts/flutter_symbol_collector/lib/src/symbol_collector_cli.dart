@@ -54,7 +54,7 @@ class SymbolCollectorCli {
 
     final archive = ZipDecoder().decodeBytes(zipData);
     final stream = OutputStream();
-    archive.single.writeContent(stream);
+    archive.single.writeContent(stream, freeMemory: true);
     stream.flush();
 
     await tempDir.create();

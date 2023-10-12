@@ -1,3 +1,5 @@
+import 'package:file/file.dart';
+import 'package:file/memory.dart';
 import 'package:flutter_symbol_collector/flutter_symbol_collector.dart';
 import 'package:test/test.dart';
 
@@ -5,9 +7,11 @@ import 'common.dart';
 
 void main() {
   setupLogging();
+  late FileSystem fs;
   late FlutterSymbolSource sut;
 
   setUp(() {
+    fs = MemoryFileSystem.test();
     sut = FlutterSymbolSource();
   });
 
@@ -57,5 +61,19 @@ void main() {
         .map(String.fromCharCodes)
         .reduce((a, b) => '$a$b');
     expect(content, equals('test\n'));
+  });
+
+  test('downloadAndExtractTo() downloads a plain file', () async {
+    await sut.downloadAndExtractTo(fs.currentDirectory, 'test.txt');
+    expect(fs.isFileSync('test.txt'), isTrue);
+    expect(fs.file('test.txt').readAsStringSync(), equals('test\n'));
+  });
+
+  test('downloadAndExtractTo() extracts a zip file', () async {
+    await sut.downloadAndExtractTo(fs.currentDirectory,
+        'flutter/0005149dca9b248663adcde4bdd7c6c915a76584/sky_engine.zip');
+    expect(fs.isDirectorySync('sky_engine'), isTrue);
+    expect(fs.file('sky_engine/README.md').readAsStringSync(),
+        startsWith('Flutter Engine'));
   });
 }

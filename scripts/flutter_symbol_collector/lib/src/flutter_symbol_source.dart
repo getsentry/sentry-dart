@@ -1,3 +1,8 @@
+import 'dart:typed_data';
+
+import 'package:archive/archive.dart';
+import 'package:archive/archive_io.dart';
+import 'package:file/file.dart';
 import 'package:github/github.dart';
 import 'package:gcloud/storage.dart';
 import 'package:http/http.dart';
@@ -55,5 +60,67 @@ class FlutterSymbolSource {
     return archives;
   }
 
-  Stream<List<int>> download(String path) => _symbolsBucket.read(path);
+  // Streams the remote file contents.
+  Stream<List<int>> download(String filePath) => _symbolsBucket.read(filePath);
+
+  // Downloads the remote file to the given target directory or if it's an
+  //archive, extracts the content instead.
+  Future<void> downloadAndExtractTo(Directory target, String filePath) async {
+    await target.create(recursive: true);
+
+    if (path.extension(filePath) == '.zip') {
+      try {
+        final buffer = BytesBuilder();
+        await download(filePath).forEach(buffer.add);
+        final archive = ZipDecoder().decodeBytes(buffer.toBytes());
+        buffer.clear();
+
+        // For all of the entries in the archive
+        for (var entry in archive.files) {
+          // Make sure we don't have any zip-slip issues.
+          final entryPath = path.normalize(entry.name);
+
+          if (!path
+              .normalize(target.childFile(entryPath).path)
+              .startsWith(target.path)) {
+            throw Exception(
+                'Invalid ZIP entry path (looks like a zip-slip issue): ${entry.name}');
+          }
+
+          // If it's a file and not a directory
+          if (entry.isFile) {
+            final file = await target
+                .childFile(path.normalize(entryPath))
+                .create(exclusive: true);
+
+            // Note: package:archive doesn't support extracting directly to an
+            // IOSink. See https://github.com/brendan-duncan/archive/issues/12
+            final stream = OutputStream();
+            entry.writeContent(stream, freeMemory: true);
+            stream.flush();
+
+            await file.writeAsBytes(stream.getBytes(), flush: true);
+          } else {
+            await target.childDirectory(entryPath).create(recursive: true);
+          }
+        }
+      } catch (e, trace) {
+        _log.warning('Failed to download $filePath to $target', e, trace);
+      }
+    } else {
+      final file = await target
+          .childFile(path.basename(filePath))
+          .create(exclusive: true);
+      final sink = file.openWrite();
+      try {
+        await sink.addStream(download(filePath));
+        await sink.flush();
+        await sink.close();
+      } catch (e, trace) {
+        _log.warning('Failed to download $filePath to $target', e, trace);
+        await sink.close();
+        await file.delete();
+      }
+    }
+  }
 }
