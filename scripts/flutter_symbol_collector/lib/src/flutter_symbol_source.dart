@@ -52,7 +52,7 @@ class FlutterSymbolSource {
             'Flutter ${version.tagName}: no debug symbols found by ${resolver.runtimeType}');
       } else {
         _log.fine(
-            'Flutter ${version.tagName}: ${resolver.runtimeType} found debug symbols: ${files.map((v) => path.basename(v.path))}');
+            'Flutter ${version.tagName}: ${resolver.runtimeType} found ${files.length} debug symbols: ${files.map((v) => path.basename(v.path))}');
         archives.addAll(files);
       }
     }
@@ -61,20 +61,23 @@ class FlutterSymbolSource {
   }
 
   // Streams the remote file contents.
-  Stream<List<int>> download(String filePath) => _symbolsBucket.read(filePath);
+  Stream<List<int>> download(String filePath) {
+    _log.fine('Downloading $filePath');
+    return _symbolsBucket.read(filePath);
+  }
 
   // Downloads the remote file to the given target directory or if it's an
   //archive, extracts the content instead.
   Future<void> downloadAndExtractTo(Directory target, String filePath) async {
-    await target.create(recursive: true);
-
     if (path.extension(filePath) == '.zip') {
+      target = await target.childDirectory(filePath).create(recursive: true);
       try {
         final buffer = BytesBuilder();
         await download(filePath).forEach(buffer.add);
         final archive = ZipDecoder().decodeBytes(buffer.toBytes());
         buffer.clear();
 
+        _log.fine('Extracting $filePath to $target');
         // For all of the entries in the archive
         for (var entry in archive.files) {
           // Make sure we don't have any zip-slip issues.
@@ -108,9 +111,10 @@ class FlutterSymbolSource {
         _log.warning('Failed to download $filePath to $target', e, trace);
       }
     } else {
+      _log.fine('Downloading $filePath to $target');
       final file = await target
-          .childFile(path.basename(filePath))
-          .create(exclusive: true);
+          .childFile(filePath)
+          .create(recursive: true, exclusive: true);
       final sink = file.openWrite();
       try {
         await sink.addStream(download(filePath));
