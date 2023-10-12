@@ -1,10 +1,11 @@
-import 'package:flutter_symbol_collector/src/flutter_version.dart';
-import 'package:flutter_symbol_collector/src/flutter_symbol_resolver.dart';
 import 'package:github/github.dart';
 import 'package:gcloud/storage.dart';
 import 'package:http/http.dart';
 import 'package:logging/logging.dart';
 import 'package:path/path.dart' as path;
+
+import 'flutter_version.dart';
+import 'flutter_symbol_resolver.dart';
 
 class FlutterSymbolSource {
   late final Logger _log;

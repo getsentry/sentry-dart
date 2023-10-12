@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:archive/archive.dart';
@@ -8,6 +9,9 @@ import 'package:logging/logging.dart';
 import 'package:meta/meta.dart';
 import 'package:platform/platform.dart';
 import 'package:posix/posix.dart' as posix;
+import 'package:path/path.dart' as path;
+
+import 'flutter_version.dart';
 
 class SymbolCollectorCli {
   late final Logger _log = Logger.root;
@@ -83,15 +87,55 @@ class SymbolCollectorCli {
 
   Future<String> getVersion() => _execute(['--version', '-h']);
 
+  Future<void> upload(
+      Directory dir, Platform symbolsPlatform, FlutterVersion flutterVersion,
+      {bool dryRun = false}) {
+    final type = symbolsPlatform.operatingSystem;
+    return _execute([
+      '--upload',
+      'directory',
+      '--path',
+      dir.path,
+      '--batch-type',
+      type,
+      '--bundle-id',
+      'flutter-${flutterVersion.tagName}-$type',
+      '--server-endpoint',
+      'https://symbol-collector.services.sentry.io/',
+    ]);
+  }
+
   Future<String> _execute(List<String> arguments) async {
     _ensureIsExecutable();
-    var result = await Process.run(cli, arguments);
-    if (result.exitCode != 0) {
-      _log.shout(
-          'Symbol-collector CLI failed to execute $arguments with exit code ${result.exitCode}.');
-      _log.shout('Stderr: ${result.stderr}');
-      _log.shout('Stdout: ${result.stdout}');
+
+    _log.fine('Executing ${path.basename(cli)} $arguments');
+    final process = await Process.start(cli, arguments);
+
+    final output = StringBuffer();
+    handleOutput(Level level, String message) {
+      message.trimRight().split('\n').forEach((s) => _log.log(level, '   $s'));
+      output.write(message);
     }
-    return result.stdout.trim();
+
+    final pipes = [
+      process.stdout
+          .transform(utf8.decoder)
+          .forEach((s) => handleOutput(Level.FINER, s)),
+      process.stderr
+          .transform(utf8.decoder)
+          .forEach((s) => handleOutput(Level.SEVERE, s))
+    ];
+
+    final exitCode = await process.exitCode;
+    await Future.wait(pipes);
+    final strOutput = output.toString().trimRight();
+    if (exitCode != 0) {
+      throw Exception('Symbol-collector CLI failed with exit code $exitCode.');
+    } else if (strOutput.contains('Exception:')) {
+      // see https://github.com/getsentry/symbol-collector/issues/162
+      throw Exception('Symbol-collector CLI failed with an exception.');
+    }
+
+    return strOutput;
   }
 }
