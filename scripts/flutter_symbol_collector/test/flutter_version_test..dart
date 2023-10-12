@@ -1,5 +1,4 @@
 import 'package:flutter_symbol_collector/flutter_symbol_collector.dart';
-import 'package:logging/logging.dart';
 import 'package:test/test.dart';
 
 void main() {

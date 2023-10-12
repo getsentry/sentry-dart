@@ -1,9 +1,10 @@
 import 'package:flutter_symbol_collector/flutter_symbol_collector.dart';
-import 'package:logging/logging.dart';
 import 'package:test/test.dart';
 
+import 'common.dart';
+
 void main() {
-  Logger.root.level = Level.ALL;
+  setupLogging();
   late FlutterSymbolSource sut;
 
   setUp(() {
