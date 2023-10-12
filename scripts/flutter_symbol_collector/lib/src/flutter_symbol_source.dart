@@ -1,19 +1,19 @@
 import 'package:flutter_symbol_collector/src/flutter_version.dart';
-import 'package:flutter_symbol_collector/src/symbol_resolver.dart';
+import 'package:flutter_symbol_collector/src/flutter_symbol_resolver.dart';
 import 'package:github/github.dart';
 import 'package:gcloud/storage.dart';
 import 'package:http/http.dart';
 import 'package:logging/logging.dart';
 import 'package:path/path.dart' as path;
 
-class FlutterSymbolDownloader {
+class FlutterSymbolSource {
   late final Logger _log;
   final _github = GitHub();
   late final _flutterRepo = RepositorySlug('flutter', 'flutter');
   late final _symbolsBucket =
       Storage(Client(), '').bucket('flutter_infra_release');
 
-  FlutterSymbolDownloader({Logger? logger}) {
+  FlutterSymbolSource({Logger? logger}) {
     _log = logger ?? Logger.root;
   }
 
@@ -25,7 +25,7 @@ class FlutterSymbolDownloader {
     // example: https://console.cloud.google.com/storage/browser/flutter_infra_release/flutter/9064459a8b0dcd32877107f6002cc429a71659d1
     final prefix = 'flutter/${await version.getEngineVersion()}/';
 
-    late final List<SymbolResolver> resolvers;
+    late final List<FlutterSymbolResolver> resolvers;
     if (version.tagName.startsWith('3.')) {
       resolvers = [
         IosSymbolResolver(_symbolsBucket, prefix),

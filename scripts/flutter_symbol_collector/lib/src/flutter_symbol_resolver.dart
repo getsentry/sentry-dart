@@ -1,11 +1,11 @@
 import 'package:gcloud/storage.dart';
 
-abstract class SymbolResolver {
+abstract class FlutterSymbolResolver {
   final String _prefix;
   final Bucket _bucket;
   final _resolvedFiles = List<String>.empty(growable: true);
 
-  SymbolResolver(this._bucket, String prefix)
+  FlutterSymbolResolver(this._bucket, String prefix)
       : _prefix = prefix.endsWith('/')
             ? prefix.substring(0, prefix.length - 1)
             : prefix;
@@ -26,7 +26,7 @@ abstract class SymbolResolver {
   Future<List<String>> listArchives();
 }
 
-class IosSymbolResolver extends SymbolResolver {
+class IosSymbolResolver extends FlutterSymbolResolver {
   IosSymbolResolver(super.bucket, super.prefix);
 
   @override
@@ -36,7 +36,7 @@ class IosSymbolResolver extends SymbolResolver {
   }
 }
 
-class MacOSSymbolResolver extends SymbolResolver {
+class MacOSSymbolResolver extends FlutterSymbolResolver {
   MacOSSymbolResolver(super.bucket, super.prefix);
 
   @override
