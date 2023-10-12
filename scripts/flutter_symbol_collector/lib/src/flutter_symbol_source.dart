@@ -6,6 +6,7 @@ import 'package:path/path.dart' as path;
 
 import 'flutter_version.dart';
 import 'flutter_symbol_resolver.dart';
+import 'symbol_archive.dart';
 
 class FlutterSymbolSource {
   late final Logger _log;
@@ -22,7 +23,7 @@ class FlutterSymbolSource {
       .listTags(_flutterRepo, perPage: 30)
       .map((t) => FlutterVersion(t.name));
 
-  Future<List<String>> listSymbolArchives(FlutterVersion version) async {
+  Future<List<SymbolArchive>> listSymbolArchives(FlutterVersion version) async {
     // example: https://console.cloud.google.com/storage/browser/flutter_infra_release/flutter/9064459a8b0dcd32877107f6002cc429a71659d1
     final prefix = 'flutter/${await version.getEngineVersion()}/';
 
@@ -38,7 +39,7 @@ class FlutterSymbolSource {
     }
 
     assert(resolvers.isNotEmpty);
-    final archives = List<String>.empty(growable: true);
+    final archives = List<SymbolArchive>.empty(growable: true);
     for (var resolver in resolvers) {
       final files = await resolver.listArchives();
       if (files.isEmpty) {
@@ -46,7 +47,7 @@ class FlutterSymbolSource {
             'Flutter ${version.tagName}: no debug symbols found by ${resolver.runtimeType}');
       } else {
         _log.fine(
-            'Flutter ${version.tagName}: ${resolver.runtimeType} found debug symbols: ${files.map((v) => path.basename(v))}');
+            'Flutter ${version.tagName}: ${resolver.runtimeType} found debug symbols: ${files.map((v) => path.basename(v.path))}');
         archives.addAll(files);
       }
     }
@@ -54,8 +55,5 @@ class FlutterSymbolSource {
     return archives;
   }
 
-  Stream<List<int>> download(
-    String path,
-  ) =>
-      _symbolsBucket.read(path);
+  Stream<List<int>> download(String path) => _symbolsBucket.read(path);
 }

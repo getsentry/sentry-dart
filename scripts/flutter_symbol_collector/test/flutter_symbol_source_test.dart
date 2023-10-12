@@ -43,21 +43,10 @@ void main() {
     final archives = await sut.listSymbolArchives(FlutterVersion('3.13.4'));
     const prefix = 'flutter/9064459a8b0dcd32877107f6002cc429a71659d1';
     expect(
-        archives,
+        archives.map((v) => '${v.platform.operatingSystem} - ${v.path}'),
         equals([
-          '$prefix/ios-release/Flutter.dSYM.zip',
-          '$prefix/darwin-x64-release/FlutterMacOS.dSYM.zip'
-        ]));
-  });
-
-  test('listSymbolArchives() supports expected platforms', () async {
-    final archives = await sut.listSymbolArchives(FlutterVersion('3.13.4'));
-    const prefix = 'flutter/9064459a8b0dcd32877107f6002cc429a71659d1';
-    expect(
-        archives,
-        equals([
-          '$prefix/ios-release/Flutter.dSYM.zip',
-          '$prefix/darwin-x64-release/FlutterMacOS.dSYM.zip'
+          'ios - $prefix/ios-release/Flutter.dSYM.zip',
+          'macos - $prefix/darwin-x64-release/FlutterMacOS.dSYM.zip'
         ]));
   });
 
