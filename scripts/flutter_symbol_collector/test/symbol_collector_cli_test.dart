@@ -1,4 +1,5 @@
 import 'package:file/file.dart';
+import 'package:file/local.dart';
 import 'package:file/memory.dart';
 import 'package:flutter_symbol_collector/src/symbol_collector_cli.dart';
 import 'package:platform/platform.dart';
@@ -35,8 +36,19 @@ void main() {
     }
   });
 
-  test('exec() works', () async {
-    final sut = await SymbolCollectorCli.setup(fs.currentDirectory);
-    expect(sut.getVersion(), startsWith('${SymbolCollectorCli.version}+'));
+  group('execute', () {
+    final tmpDir = LocalFileSystem()
+        .systemTempDirectory
+        .createTempSync('symbol_collector_test');
+    late final SymbolCollectorCli sut;
+
+    setUp(() async => sut = await SymbolCollectorCli.setup(tmpDir));
+    tearDown(() => tmpDir.delete(recursive: true));
+
+    test('getVersion()', () async {
+      final versionString = await sut.getVersion();
+      expect(versionString, startsWith('${SymbolCollectorCli.version}+'));
+      expect(versionString.split("\n").length, equals(1));
+    });
   }, skip: LocalPlatform().isWindows);
 }

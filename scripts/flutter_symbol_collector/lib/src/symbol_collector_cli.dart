@@ -57,21 +57,21 @@ class SymbolCollectorCli {
     final executableFile = await tempDir.childFile(executableName).create();
     self.cli = executableFile.path;
 
-    executableFile.writeAsBytes(stream.getBytes(), flush: true);
+    await executableFile.writeAsBytes(stream.getBytes(), flush: true);
     self._log.fine(
         'Symbol-collector CLI extracted to ${executableFile.path}: ${await executableFile.length()} bytes');
     self._isExecutable = platform.isWindows;
     return self;
   }
 
-  void _makeExecutable() {
+  void _ensureIsExecutable() {
     if (!_isExecutable) {
       _isExecutable = true;
       if (LocalPlatform().operatingSystem == platform.operatingSystem) {
         if (platform.isLinux || platform.isMacOS) {
           _log.fine('Making Symbol-collector CLI executable (chmod +x)');
 
-          posix.chmod(cli, '0666');
+          posix.chmod(cli, '0700');
         }
       } else {
         _log.warning(
@@ -84,6 +84,7 @@ class SymbolCollectorCli {
   Future<String> getVersion() => _execute(['--version', '-h']);
 
   Future<String> _execute(List<String> arguments) async {
+    _ensureIsExecutable();
     var result = await Process.run(cli, arguments);
     if (result.exitCode != 0) {
       _log.shout(
@@ -91,6 +92,6 @@ class SymbolCollectorCli {
       _log.shout('Stderr: ${result.stderr}');
       _log.shout('Stdout: ${result.stdout}');
     }
-    return result.stdout;
+    return result.stdout.trim();
   }
 }
