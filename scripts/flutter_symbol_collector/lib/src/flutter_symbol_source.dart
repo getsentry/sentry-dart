@@ -33,7 +33,7 @@ class FlutterSymbolSource {
 
   Future<List<SymbolArchive>> listSymbolArchives(FlutterVersion version) async {
     // example: https://console.cloud.google.com/storage/browser/flutter_infra_release/flutter/9064459a8b0dcd32877107f6002cc429a71659d1
-    final prefix = 'flutter/${await version.getEngineVersion()}/';
+    final prefix = 'flutter/${await version.engineVersion}/';
 
     late final List<FlutterSymbolResolver> resolvers;
     if (version.tagName.startsWith('3.')) {

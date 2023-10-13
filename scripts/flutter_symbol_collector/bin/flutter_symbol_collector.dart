@@ -53,8 +53,7 @@ void main(List<String> arguments) async {
 
 Future<void> processFlutterVerion(FlutterVersion version) async {
   Logger.root.info('Processing Flutter ${version.tagName}');
-  final engineVersion = await version.getEngineVersion();
-  Logger.root.info('Engine version: $engineVersion');
+  Logger.root.info('Engine version: ${await version.engineVersion}');
 
   final archives = await source.listSymbolArchives(version);
   final dir = tempDir.childDirectory(version.tagName);

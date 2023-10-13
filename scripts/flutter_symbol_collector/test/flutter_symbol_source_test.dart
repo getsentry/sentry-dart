@@ -32,7 +32,7 @@ void main() {
     final versions = await sut.listFlutterVersions().take(3).toList();
     final engines = List.empty(growable: true);
     for (var v in versions) {
-      engines.add("${v.tagName} => ${await v.getEngineVersion()}");
+      engines.add("${v.tagName} => ${await v.engineVersion}");
     }
     expect(
         engines,
