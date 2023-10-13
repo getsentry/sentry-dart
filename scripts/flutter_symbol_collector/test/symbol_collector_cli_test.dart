@@ -43,8 +43,8 @@ void main() {
         .createTempSync('symbol_collector_test');
     late final SymbolCollectorCli sut;
 
-    setUp(() async => sut = await SymbolCollectorCli.setup(tmpDir));
-    tearDown(() => tmpDir.delete(recursive: true));
+    setUpAll(() async => sut = await SymbolCollectorCli.setup(tmpDir));
+    tearDownAll(() => tmpDir.delete(recursive: true));
 
     test('getVersion()', () async {
       final output = await sut.getVersion();
