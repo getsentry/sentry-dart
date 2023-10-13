@@ -1,8 +1,14 @@
+import 'package:args/args.dart';
 import 'package:file/local.dart';
 import 'package:flutter_symbol_collector/flutter_symbol_collector.dart';
+import 'package:github/github.dart';
 import 'package:logging/logging.dart';
 
-final source = FlutterSymbolSource();
+const githubToken = String.fromEnvironment('GITHUB_TOKEN');
+final source = FlutterSymbolSource(
+    githubAuth: githubToken.isEmpty
+        ? Authentication.anonymous()
+        : Authentication.withToken(githubToken));
 final fs = LocalFileSystem();
 final tempDir = fs.currentDirectory.childDirectory('.temp');
 late final SymbolCollectorCli collector;
@@ -14,15 +20,35 @@ void main(List<String> arguments) async {
         '${record.error == null ? '' : ': ${record.error}'}');
   });
 
+  final parser = ArgParser()..addOption('version', defaultsTo: '');
+  final args = parser.parse(arguments);
+  final argVersion = args['version'] as String;
+
   collector = await SymbolCollectorCli.setup(tempDir);
 
-  // source
-  //     .listFlutterVersions()
-  //     .where((version) => !version.isPreRelease)
-  //     .where((version) => version.tagName.startsWith('3.'))
-  //     .forEach(processFlutterVerion);
-
-  await processFlutterVerion(FlutterVersion('3.13.7'));
+  // If a specific version was given, run just for this version.
+  if (argVersion.isNotEmpty &&
+      !argVersion.contains('*') &&
+      argVersion.split('.').length == 3) {
+    Logger.root.info('Running for a single flutter version: $argVersion');
+    await processFlutterVerion(FlutterVersion(argVersion));
+  } else {
+    // Otherwise, walk all the versions and run for the matching ones.
+    final versionRegex = RegExp(argVersion.isEmpty
+        ? '.*'
+        : '^${argVersion.replaceAll('.', '\\.').replaceAll('*', '.+')}\$');
+    Logger.root.info('Running for all Flutter versions matching $versionRegex');
+    final versions = await source
+        .listFlutterVersions()
+        .where((v) => !v.isPreRelease)
+        .where((v) => versionRegex.hasMatch(v.tagName))
+        .toList();
+    Logger.root.info(
+        'Found ${versions.length} Flutter versions matching $versionRegex');
+    for (var version in versions) {
+      await processFlutterVerion(version);
+    }
+  }
 }
 
 Future<void> processFlutterVerion(FlutterVersion version) async {

@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'package:archive/archive.dart';
 import 'package:archive/archive_io.dart';
 import 'package:file/file.dart';
-import 'package:github/github.dart';
+import 'package:github/github.dart' as github;
 import 'package:gcloud/storage.dart';
 import 'package:http/http.dart';
 import 'package:logging/logging.dart';
@@ -15,14 +15,17 @@ import 'symbol_archive.dart';
 
 class FlutterSymbolSource {
   late final Logger _log;
-  final _github = GitHub();
-  late final _flutterRepo = RepositorySlug('flutter', 'flutter');
+  final github.GitHub _github;
+  late final _flutterRepo = github.RepositorySlug('flutter', 'flutter');
   late final _symbolsBucket =
       Storage(Client(), '').bucket('flutter_infra_release');
 
-  FlutterSymbolSource({Logger? logger}) {
-    _log = logger ?? Logger.root;
-  }
+  FlutterSymbolSource(
+      {Logger? logger,
+      github.Authentication githubAuth =
+          const github.Authentication.anonymous()})
+      : _log = logger ?? Logger.root,
+        _github = github.GitHub(auth: githubAuth);
 
   Stream<FlutterVersion> listFlutterVersions() => _github.repositories
       .listTags(_flutterRepo, perPage: 30)

@@ -7,6 +7,7 @@ environment:
 
 dependencies:
   archive: ^3.4.6
+  args: ^2.4.2
   file: ^7.0.0
   gcloud: ^0.8.11
   github: ^9.19.0
