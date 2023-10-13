@@ -70,10 +70,10 @@ void main() {
   });
 
   test('downloadAndExtractTo() extracts a zip file', () async {
-    await sut.downloadAndExtractTo(fs.currentDirectory,
-        'flutter/0005149dca9b248663adcde4bdd7c6c915a76584/sky_engine.zip');
-    expect(fs.isDirectorySync('sky_engine'), isTrue);
-    expect(fs.file('sky_engine/README.md').readAsStringSync(),
+    const path = 'flutter/0005149dca9b248663adcde4bdd7c6c915a76584';
+    await sut.downloadAndExtractTo(fs.currentDirectory, '$path/sky_engine.zip');
+    expect(fs.isDirectorySync('$path/sky_engine/sky_engine'), isTrue);
+    expect(fs.file('$path/sky_engine/sky_engine/README.md').readAsStringSync(),
         startsWith('Flutter Engine'));
   });
 }

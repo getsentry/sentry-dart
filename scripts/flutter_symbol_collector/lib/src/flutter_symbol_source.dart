@@ -63,14 +63,14 @@ class FlutterSymbolSource {
     return archives;
   }
 
-  // Streams the remote file contents.
+  /// Streams the remote file contents.
   Stream<List<int>> download(String filePath) {
     _log.fine('Downloading $filePath');
     return _symbolsBucket.read(filePath);
   }
 
-  // Downloads the remote file to the given target directory or if it's an
-  //archive, extracts the content instead.
+  /// Downloads the remote [filePath] to the given [target] directory.
+  /// If it's an archive, extracts the content instead.
   Future<void> downloadAndExtractTo(Directory target, String filePath) async {
     if (path.extension(filePath) == '.zip') {
       target = await target
@@ -109,9 +109,8 @@ class FlutterSymbolSource {
   Future<void> _extractZip(Directory target, Archive archive) async {
     for (var entry in archive.files) {
       // Make sure we don't have any zip-slip issues.
-      final entryPath = path.normalize(entry.name);
-      if (!path
-          .normalize(target.childFile(entryPath).path)
+      final entryPath = _pathNormalize(entry.name);
+      if (!_pathNormalize(target.childFile(entryPath).path)
           .startsWith(target.path)) {
         throw Exception(
             'Invalid ZIP entry path (looks like a zip-slip issue): ${entry.name}');
@@ -131,17 +130,20 @@ class FlutterSymbolSource {
         if (path.extension(entryPath) == '.zip') {
           final innerArchive = ZipDecoder().decodeBytes(stream.getBytes());
           stream.clear();
-          final innerTarget = target
-              .childDirectory(path.withoutExtension(path.normalize(entryPath)));
+          final innerTarget =
+              target.childDirectory(path.withoutExtension(entryPath));
           _log.fine('Extracting inner archive $entryPath to $innerTarget');
           await _extractZip(innerTarget, innerArchive);
         } else {
-          final file = await target
-              .childFile(path.normalize(entryPath))
-              .create(exclusive: true);
+          final file =
+              await target.childFile(entryPath).create(exclusive: true);
+          _log.finer('Writing $file: ${stream.length} bytes');
           await file.writeAsBytes(stream.getBytes(), flush: true);
         }
       }
     }
   }
+
+  String _pathNormalize(String p) =>
+      path.normalize(p).replaceAll(path.separator, '/');
 }

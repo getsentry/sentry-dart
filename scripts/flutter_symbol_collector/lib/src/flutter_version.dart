@@ -1,5 +1,7 @@
 import 'package:http/http.dart' as http;
+import 'package:meta/meta.dart';
 
+@immutable
 class FlutterVersion {
   final String tagName;
 
