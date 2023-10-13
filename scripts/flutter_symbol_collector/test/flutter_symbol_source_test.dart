@@ -50,7 +50,9 @@ void main() {
         archives.map((v) => '${v.platform.operatingSystem} - ${v.path}'),
         equals([
           'ios - $prefix/ios-release/Flutter.dSYM.zip',
-          'macos - $prefix/darwin-x64-release/FlutterMacOS.dSYM.zip'
+          'macos - $prefix/darwin-x64-release/FlutterMacOS.dSYM.zip',
+          'android - flutter/9064459a8b0dcd32877107f6002cc429a71659d1/android-arm-release/symbols.zip',
+          'android - flutter/9064459a8b0dcd32877107f6002cc429a71659d1/android-arm64-release/symbols.zip'
         ]));
   });
 

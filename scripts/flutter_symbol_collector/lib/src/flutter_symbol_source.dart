@@ -39,7 +39,9 @@ class FlutterSymbolSource {
     if (version.tagName.startsWith('3.')) {
       resolvers = [
         IosSymbolResolver(_symbolsBucket, prefix),
-        MacOSSymbolResolver(_symbolsBucket, prefix)
+        MacOSSymbolResolver(_symbolsBucket, prefix),
+        AndroidSymbolResolver(_symbolsBucket, prefix, 'arm'),
+        AndroidSymbolResolver(_symbolsBucket, prefix, 'arm64')
       ];
     } else {
       _log.warning('No symbol resolvers registered for ${version.tagName}');

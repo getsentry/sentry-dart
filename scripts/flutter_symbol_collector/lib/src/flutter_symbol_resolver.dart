@@ -56,3 +56,18 @@ class MacOSSymbolResolver extends FlutterSymbolResolver {
     return _resolvedFiles;
   }
 }
+
+class AndroidSymbolResolver extends FlutterSymbolResolver {
+  final String architecture;
+
+  AndroidSymbolResolver(super.bucket, super.prefix, this.architecture);
+
+  @override
+  final platform = FakePlatform(operatingSystem: Platform.android);
+
+  @override
+  Future<List<SymbolArchive>> listArchives() async {
+    await tryResolve('android-$architecture-release/symbols.zip');
+    return _resolvedFiles;
+  }
+}
