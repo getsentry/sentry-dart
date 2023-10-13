@@ -108,7 +108,7 @@ class SymbolCollectorCli {
   Future<String> _execute(List<String> arguments) async {
     _ensureIsExecutable();
 
-    _log.fine('Executing ${path.basename(cli)} $arguments');
+    _log.fine('Executing ${path.basename(cli)} ${arguments.join(' ')}');
     final process = await Process.start(cli, arguments);
 
     final output = StringBuffer();
