@@ -10,13 +10,13 @@ import 'common.dart';
 
 void main() {
   setupLogging();
-  late FileSystem fs;
-
-  setUp(() {
-    fs = MemoryFileSystem.test();
-  });
 
   group('setup() downloads CLI on', () {
+    late FileSystem fs;
+
+    setUp(() {
+      fs = MemoryFileSystem.test();
+    });
     for (final platform in [Platform.macOS, Platform.linux]) {
       test(platform, () async {
         const path = 'temp/symbol-collector';
@@ -28,11 +28,16 @@ void main() {
             .then((file) => file.writeAsString('foo'));
         expect(fs.file(path).lengthSync(), equals(3));
 
-        SymbolCollectorCli.platform = FakePlatform(operatingSystem: platform);
-        final sut = await SymbolCollectorCli.setup(fs.directory('temp'));
-        expect(sut.cli, equals(path));
-        expect(fs.file(path).existsSync(), isTrue);
-        expect(fs.file(path).lengthSync(), greaterThan(1000000));
+        final originalPlatform = SymbolCollectorCli.platform;
+        try {
+          SymbolCollectorCli.platform = FakePlatform(operatingSystem: platform);
+          final sut = await SymbolCollectorCli.setup(fs.directory('temp'));
+          expect(sut.cli, equals(path));
+          expect(fs.file(path).existsSync(), isTrue);
+          expect(fs.file(path).lengthSync(), greaterThan(1000000));
+        } finally {
+          SymbolCollectorCli.platform = originalPlatform;
+        }
       });
     }
   });
