@@ -59,8 +59,7 @@ Future<void> processFlutterVerion(FlutterVersion version) async {
   final archives = await source.listSymbolArchives(version);
   final dir = tempDir.childDirectory(version.tagName);
   for (final archive in archives) {
-    final archiveDir = dir.childDirectory(archive.platform.operatingSystem);
-    await source.downloadAndExtractTo(archiveDir, archive.path);
-    await collector.upload(archiveDir, archive.platform, version);
+    await source.downloadAndExtractTo(dir, archive.path);
+    await collector.upload(dir, archive.platform, version);
   }
 }

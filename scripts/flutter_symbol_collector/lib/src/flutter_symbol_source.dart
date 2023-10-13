@@ -73,45 +73,20 @@ class FlutterSymbolSource {
   //archive, extracts the content instead.
   Future<void> downloadAndExtractTo(Directory target, String filePath) async {
     if (path.extension(filePath) == '.zip') {
-      target = await target.childDirectory(filePath).create(recursive: true);
+      target = await target
+          .childDirectory(path.withoutExtension(filePath))
+          .create(recursive: true);
       try {
         final buffer = BytesBuilder();
         await download(filePath).forEach(buffer.add);
         final archive = ZipDecoder().decodeBytes(buffer.toBytes());
         buffer.clear();
-
         _log.fine('Extracting $filePath to $target');
-        // For all of the entries in the archive
-        for (var entry in archive.files) {
-          // Make sure we don't have any zip-slip issues.
-          final entryPath = path.normalize(entry.name);
-
-          if (!path
-              .normalize(target.childFile(entryPath).path)
-              .startsWith(target.path)) {
-            throw Exception(
-                'Invalid ZIP entry path (looks like a zip-slip issue): ${entry.name}');
-          }
-
-          // If it's a file and not a directory
-          if (entry.isFile) {
-            final file = await target
-                .childFile(path.normalize(entryPath))
-                .create(exclusive: true);
-
-            // Note: package:archive doesn't support extracting directly to an
-            // IOSink. See https://github.com/brendan-duncan/archive/issues/12
-            final stream = OutputStream();
-            entry.writeContent(stream, freeMemory: true);
-            stream.flush();
-
-            await file.writeAsBytes(stream.getBytes(), flush: true);
-          } else {
-            await target.childDirectory(entryPath).create(recursive: true);
-          }
-        }
+        await _extractZip(target, archive);
       } catch (e, trace) {
         _log.warning('Failed to download $filePath to $target', e, trace);
+        // Remove the directory so that we don't leave a partial extraction.
+        await target.delete(recursive: true);
       }
     } else {
       _log.fine('Downloading $filePath to $target');
@@ -127,6 +102,45 @@ class FlutterSymbolSource {
         _log.warning('Failed to download $filePath to $target', e, trace);
         await sink.close();
         await file.delete();
+      }
+    }
+  }
+
+  Future<void> _extractZip(Directory target, Archive archive) async {
+    for (var entry in archive.files) {
+      // Make sure we don't have any zip-slip issues.
+      final entryPath = path.normalize(entry.name);
+      if (!path
+          .normalize(target.childFile(entryPath).path)
+          .startsWith(target.path)) {
+        throw Exception(
+            'Invalid ZIP entry path (looks like a zip-slip issue): ${entry.name}');
+      }
+
+      if (!entry.isFile) {
+        // If it's a directory - create it.
+        await target.childDirectory(entryPath).create(recursive: true);
+      } else {
+        // Note: package:archive doesn't support extracting directly to an
+        // IOSink. See https://github.com/brendan-duncan/archive/issues/12
+        final stream = OutputStream();
+        entry.writeContent(stream, freeMemory: true);
+        stream.flush();
+
+        // If it's an inner ZIP archive - extract it recursively.
+        if (path.extension(entryPath) == '.zip') {
+          final innerArchive = ZipDecoder().decodeBytes(stream.getBytes());
+          stream.clear();
+          final innerTarget = target
+              .childDirectory(path.withoutExtension(path.normalize(entryPath)));
+          _log.fine('Extracting inner archive $entryPath to $innerTarget');
+          await _extractZip(innerTarget, innerArchive);
+        } else {
+          final file = await target
+              .childFile(path.normalize(entryPath))
+              .create(exclusive: true);
+          await file.writeAsBytes(stream.getBytes(), flush: true);
+        }
       }
     }
   }
