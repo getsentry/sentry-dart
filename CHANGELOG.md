@@ -9,12 +9,12 @@
 ### Dependencies
 
 - Enable compatibility with uuid v4 ([#1647](https://github.com/getsentry/sentry-dart/pull/1647))
+- Bump Android SDK from v6.29.0 to v6.31.0 ([#1660](https://github.com/getsentry/sentry-dart/pull/1660), [#1676](https://github.com/getsentry/sentry-dart/pull/1676))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#6310)
+  - [diff](https://github.com/getsentry/sentry-java/compare/6.29.0...6.31.0)
 - Bump Cocoa SDK from v8.11.0 to v8.13.1 ([#1650](https://github.com/getsentry/sentry-dart/pull/1650), [#1655](https://github.com/getsentry/sentry-dart/pull/1655), [#1677](https://github.com/getsentry/sentry-dart/pull/1677))
   - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8131)
   - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.11.0...8.13.1)
-- Bump Android SDK from v6.29.0 to v6.30.0 ([#1660](https://github.com/getsentry/sentry-dart/pull/1660))
-  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#6300)
-  - [diff](https://github.com/getsentry/sentry-java/compare/6.29.0...6.30.0)
 
 ## 7.10.1
 
