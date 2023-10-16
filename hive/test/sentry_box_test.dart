@@ -6,6 +6,7 @@ import 'package:hive/hive.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry_hive/sentry_hive.dart';
+import 'package:sentry_hive/src/sentry_hive_impl.dart';
 import 'package:test/test.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 
@@ -14,13 +15,13 @@ import 'mocks/mocks.mocks.dart';
 void main() {
 
   void verifySpan(String description, SentrySpan? span) {
-    expect(span?.context.operation, SentryHive.dbOp);
+    expect(span?.context.operation, SentryHiveImpl.dbOp);
     expect(span?.context.description, description);
     expect(span?.status, SpanStatus.ok());
     // ignore: invalid_use_of_internal_member
-    expect(span?.origin, SentryTraceOrigins.autoDbHiveBox);
-    expect(span?.data[SentryHive.dbSystemKey], SentryHive.dbSystem);
-    expect(span?.data[SentryHive.dbNameKey], Fixture.dbName);
+    expect(span?.origin, SentryTraceOrigins.autoDbHiveBaseBox);
+    expect(span?.data[SentryHiveImpl.dbSystemKey], SentryHiveImpl.dbSystem);
+    expect(span?.data[SentryHiveImpl.dbNameKey], Fixture.dbName);
   }
 
   group('adds span', () {

@@ -20,5 +20,6 @@ class SentryTraceOrigins {
       'auto.db.sqflite.database_factory';
 
   static const autoDbHive = 'auto.db.hive';
-  static const autoDbHiveBox = 'auto.db.hive.box';
+  static const autoDbHiveOpenDatabase = 'auto.db.hive.open_database';
+  static const autoDbHiveBaseBox = 'auto.db.hive.base_box';
 }
