@@ -2,9 +2,10 @@ import 'package:meta/meta.dart';
 import 'package:hive/hive.dart';
 import 'package:sentry/sentry.dart';
 
-import '../sentry_hive.dart';
+import 'sentry_hive_impl.dart';
 
-// ignore: public_member_api_docs
+///
+@experimental
 class SentryBox<E> implements Box<E> {
 
   final Box<E> _box;
@@ -173,15 +174,15 @@ class SentryBox<E> implements Box<E> {
   Future<T> _asyncWrapInSpan<T>(String description, Future<T> Function() execute) async {
     final currentSpan = _hub.getSpan();
     final span = currentSpan?.startChild(
-      SentryHive.dbOp,
+      SentryHiveImpl.dbOp,
       description: description,
     );
 
     // ignore: invalid_use_of_internal_member
     span?.origin = SentryTraceOrigins.autoDbHiveBox;
 
-    span?.setData(SentryHive.dbSystemKey, SentryHive.dbSystem);
-    span?.setData(SentryHive.dbNameKey, name);
+    span?.setData(SentryHiveImpl.dbSystemKey, SentryHiveImpl.dbSystem);
+    span?.setData(SentryHiveImpl.dbNameKey, name);
 
     try {
       final result = await execute();

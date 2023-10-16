@@ -1,19 +1,6 @@
-import 'package:meta/meta.dart';
+import 'package:hive/hive.dart';
+import 'sentry_hive_impl.dart';
 
-/// Checks if you are awesome. Spoiler: you are.
-class SentryHive {
-  @internal
-  // ignore: public_member_api_docs
-  static const dbOp = 'db';
-
-  @internal
-  // ignore: public_member_api_docs
-  static const dbSystemKey = 'db.system';
-  @internal
-  // ignore: public_member_api_docs
-  static const dbSystem = 'sqlite';
-
-  @internal
-  // ignore: public_member_api_docs
-  static const dbNameKey = 'db.name';
-}
+///
+// ignore: non_constant_identifier_names
+HiveInterface SentryHive = SentryHiveImpl(Hive);
