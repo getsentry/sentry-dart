@@ -241,7 +241,7 @@ void main() {
       await expectLater(() async => await db.close(), throwsException);
 
       final breadcrumb = fixture.hub.scope.breadcrumbs.first;
-      expect(breadcrumb.data?['status'], 'internalError');
+      expect(breadcrumb.data?['status'], 'internal_error');
       expect(breadcrumb.type, 'error');
       expect(breadcrumb.level, SentryLevel.error);
     });
@@ -280,7 +280,7 @@ void main() {
       );
 
       final breadcrumb = fixture.hub.scope.breadcrumbs.first;
-      expect(breadcrumb.data?['status'], 'internalError');
+      expect(breadcrumb.data?['status'], 'internal_error');
       expect(breadcrumb.type, 'error');
       expect(breadcrumb.level, SentryLevel.error);
     });
@@ -1006,7 +1006,7 @@ void main() {
       );
 
       final breadcrumb = fixture.hub.scope.breadcrumbs.first;
-      expect(breadcrumb.data?['status'], 'internalError');
+      expect(breadcrumb.data?['status'], 'internal_error');
       expect(breadcrumb.type, 'error');
       expect(breadcrumb.level, SentryLevel.error);
     });
@@ -1022,7 +1022,7 @@ void main() {
       );
 
       final breadcrumb = fixture.hub.scope.breadcrumbs.first;
-      expect(breadcrumb.data?['status'], 'internalError');
+      expect(breadcrumb.data?['status'], 'internal_error');
       expect(breadcrumb.type, 'error');
       expect(breadcrumb.level, SentryLevel.error);
     });
@@ -1039,7 +1039,7 @@ void main() {
       );
 
       final breadcrumb = fixture.hub.scope.breadcrumbs.first;
-      expect(breadcrumb.data?['status'], 'internalError');
+      expect(breadcrumb.data?['status'], 'internal_error');
       expect(breadcrumb.type, 'error');
       expect(breadcrumb.level, SentryLevel.error);
     });
@@ -1055,7 +1055,7 @@ void main() {
       );
 
       final breadcrumb = fixture.hub.scope.breadcrumbs.first;
-      expect(breadcrumb.data?['status'], 'internalError');
+      expect(breadcrumb.data?['status'], 'internal_error');
       expect(breadcrumb.type, 'error');
       expect(breadcrumb.level, SentryLevel.error);
     });
@@ -1071,7 +1071,7 @@ void main() {
       );
 
       final breadcrumb = fixture.hub.scope.breadcrumbs.first;
-      expect(breadcrumb.data?['status'], 'internalError');
+      expect(breadcrumb.data?['status'], 'internal_error');
       expect(breadcrumb.type, 'error');
       expect(breadcrumb.level, SentryLevel.error);
     });
@@ -1087,7 +1087,7 @@ void main() {
       );
 
       final breadcrumb = fixture.hub.scope.breadcrumbs.first;
-      expect(breadcrumb.data?['status'], 'internalError');
+      expect(breadcrumb.data?['status'], 'internal_error');
       expect(breadcrumb.type, 'error');
       expect(breadcrumb.level, SentryLevel.error);
     });
@@ -1103,7 +1103,7 @@ void main() {
       );
 
       final breadcrumb = fixture.hub.scope.breadcrumbs.first;
-      expect(breadcrumb.data?['status'], 'internalError');
+      expect(breadcrumb.data?['status'], 'internal_error');
       expect(breadcrumb.type, 'error');
       expect(breadcrumb.level, SentryLevel.error);
     });
@@ -1119,7 +1119,7 @@ void main() {
       );
 
       final breadcrumb = fixture.hub.scope.breadcrumbs.first;
-      expect(breadcrumb.data?['status'], 'internalError');
+      expect(breadcrumb.data?['status'], 'internal_error');
       expect(breadcrumb.type, 'error');
       expect(breadcrumb.level, SentryLevel.error);
     });
@@ -1136,7 +1136,7 @@ void main() {
       );
 
       final breadcrumb = fixture.hub.scope.breadcrumbs.first;
-      expect(breadcrumb.data?['status'], 'internalError');
+      expect(breadcrumb.data?['status'], 'internal_error');
       expect(breadcrumb.type, 'error');
       expect(breadcrumb.level, SentryLevel.error);
     });
@@ -1152,7 +1152,7 @@ void main() {
       );
 
       final breadcrumb = fixture.hub.scope.breadcrumbs.first;
-      expect(breadcrumb.data?['status'], 'internalError');
+      expect(breadcrumb.data?['status'], 'internal_error');
       expect(breadcrumb.type, 'error');
       expect(breadcrumb.level, SentryLevel.error);
     });
@@ -1169,7 +1169,7 @@ void main() {
       );
 
       final breadcrumb = fixture.hub.scope.breadcrumbs.first;
-      expect(breadcrumb.data?['status'], 'internalError');
+      expect(breadcrumb.data?['status'], 'internal_error');
       expect(breadcrumb.type, 'error');
       expect(breadcrumb.level, SentryLevel.error);
     });

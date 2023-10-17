@@ -614,7 +614,7 @@ SELECT * FROM Product''';
       await expectLater(() async => await batch.commit(), throwsException);
 
       final breadcrumb = fixture.hub.scope.breadcrumbs.last;
-      expect(breadcrumb.data?['status'], 'internalError');
+      expect(breadcrumb.data?['status'], 'internal_error');
       expect(breadcrumb.type, 'error');
       expect(breadcrumb.level, SentryLevel.error);
     });
@@ -645,7 +645,7 @@ SELECT * FROM Product''';
       await expectLater(() async => await batch.apply(), throwsException);
 
       final breadcrumb = fixture.hub.scope.breadcrumbs.last;
-      expect(breadcrumb.data?['status'], 'internalError');
+      expect(breadcrumb.data?['status'], 'internal_error');
       expect(breadcrumb.type, 'error');
       expect(breadcrumb.level, SentryLevel.error);
     });

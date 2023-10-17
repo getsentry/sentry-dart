@@ -88,7 +88,7 @@ class SentrySqfliteDatabaseFactory with SqfliteDatabaseFactoryMixin {
       } catch (exception) {
         span?.throwable = exception;
         span?.status = SpanStatus.internalError();
-        breadcrumb.data?['status'] = 'internalError';
+        breadcrumb.data?['status'] = 'internal_error';
         breadcrumb = breadcrumb.copyWith(
           type: 'error',
           level: SentryLevel.error,
