@@ -17,6 +17,7 @@ dependencies:
   sentry_logging:
   sentry_sqflite:
   sentry_file:
+  sentry_hive:
   universal_platform: ^1.0.0
   feedback: ^2.0.0
   provider: ^6.0.0
@@ -28,6 +29,7 @@ dependencies:
   #sqflite_common_ffi: ^2.0.0
   #sqflite_common_ffi_web: ^0.3.0
   http: ^1.0.0
+  hive: any  # This gets constrained by `sentry_hive`
 
 dev_dependencies:
   flutter_lints: ^2.0.0

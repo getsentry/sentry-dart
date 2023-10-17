@@ -2,11 +2,13 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:logging/logging.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_sqflite/sentry_sqflite.dart';
 import 'package:sqflite/sqflite.dart';
@@ -19,6 +21,7 @@ import 'user_feedback_dialog.dart';
 import 'package:dio/dio.dart';
 import 'package:sentry_dio/sentry_dio.dart';
 import 'package:sentry_logging/sentry_logging.dart';
+import 'package:sentry_hive/sentry_hive.dart';
 
 // ATTENTION: Change the DSN below with your own to see the events in Sentry. Get one at sentry.io
 const String exampleDsn =
@@ -148,6 +151,10 @@ class MainScaffold extends StatelessWidget {
           children: [
             if (_isIntegrationTest) const IntegrationTestWidget(),
             const Center(child: Text('Trigger an action:\n')),
+            ElevatedButton(
+              onPressed: () => hiveTest(),
+              child: const Text('hive'),
+            ),
             ElevatedButton(
               onPressed: () => sqfliteTest(),
               child: const Text('sqflite'),
@@ -419,6 +426,31 @@ class MainScaffold extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> hiveTest() async {
+    if (kIsWeb) {
+      return;
+    }
+
+    final tr = Sentry.startTransaction(
+      'hiveTest',
+      'db',
+      bindToScope: true,
+    );
+
+    var appDir = await getApplicationDocumentsDirectory();
+    SentryHive.init(appDir.path);
+
+    final catsBox = await SentryHive.openBox<Map>('cats');
+    await catsBox.put('fluffy', {'name': 'Fluffy', 'age': 4});
+    await catsBox.put('loki', {'name': 'Loki', 'age': 2});
+    await catsBox.clear();
+    await catsBox.close();
+
+    SentryHive.close();
+
+    await tr.finish(status: const SpanStatus.ok());
   }
 
   Future<void> sqfliteTest() async {
