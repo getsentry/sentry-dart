@@ -14,7 +14,6 @@ import 'mocks/mocks.mocks.dart';
 import 'person.dart';
 
 void main() {
-
   void verifySpan(String description, SentrySpan? span) {
     expect(span?.context.operation, SentryHiveImpl.dbOp);
     expect(span?.context.description, description);
@@ -26,7 +25,6 @@ void main() {
   }
 
   group('adds span', () {
-
     late Fixture fixture;
 
     setUp(() async {
@@ -42,7 +40,7 @@ void main() {
     });
 
     test('add adds span', () async {
-      final sut = await fixture.getSut();
+      final sut = fixture.getSut();
 
       await sut.add(Person('Joe Dirt'));
 
@@ -50,7 +48,7 @@ void main() {
     });
 
     test('addAll adds span', () async {
-      final sut = await fixture.getSut();
+      final sut = fixture.getSut();
 
       await sut.addAll([Person('Joe Dirt')]);
 
@@ -58,7 +56,7 @@ void main() {
     });
 
     test('clear adds span', () async {
-      final sut = await fixture.getSut();
+      final sut = fixture.getSut();
 
       await sut.clear();
 
@@ -66,7 +64,7 @@ void main() {
     });
 
     test('close adds span', () async {
-      final sut = await fixture.getSut();
+      final sut = fixture.getSut();
 
       await sut.close();
 
@@ -74,7 +72,7 @@ void main() {
     });
 
     test('compact adds span', () async {
-      final sut = await fixture.getSut();
+      final sut = fixture.getSut();
 
       await sut.compact();
 
@@ -82,7 +80,7 @@ void main() {
     });
 
     test('delete adds span', () async {
-      final sut = await fixture.getSut();
+      final sut = fixture.getSut();
 
       await sut.delete('fixture-key');
 
@@ -90,7 +88,7 @@ void main() {
     });
 
     test('deleteAll adds span', () async {
-      final sut = await fixture.getSut();
+      final sut = fixture.getSut();
 
       await sut.deleteAll(['fixture-key']);
 
@@ -98,7 +96,7 @@ void main() {
     });
 
     test('deleteAt adds span', () async {
-      final sut = await fixture.getSut();
+      final sut = fixture.getSut();
 
       await sut.add(Person('Joe Dirt'));
       await sut.deleteAt(0);
@@ -107,8 +105,6 @@ void main() {
     });
   });
 }
-
-
 
 class Fixture {
   late final Box<Person> box;
@@ -132,9 +128,10 @@ class Fixture {
       await box.deleteFromDisk();
       await box.close();
     }
+    await Hive.close();
   }
 
-  Future<SentryBoxBase<Person>> getSut() async {
+  SentryBoxBase<Person> getSut() {
     return SentryBoxBase(box, hub);
   }
 

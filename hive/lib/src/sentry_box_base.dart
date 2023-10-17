@@ -1,16 +1,15 @@
-
 import 'package:hive/hive.dart';
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 import 'sentry_hive_impl.dart';
 
-///
+/// @nodoc
+@internal
 class SentryBoxBase<E> implements BoxBase<E> {
-
   final BoxBase<E> _boxBase;
   final Hub _hub;
 
-  ///
+  /// @nodoc
   SentryBoxBase(this._boxBase, this._hub);
 
   @override
@@ -145,7 +144,8 @@ class SentryBoxBase<E> implements BoxBase<E> {
 
   // Helper
 
-  Future<T> _asyncWrapInSpan<T>(String description, Future<T> Function() execute) async {
+  Future<T> _asyncWrapInSpan<T>(
+      String description, Future<T> Function() execute) async {
     final currentSpan = _hub.getSpan();
     final span = currentSpan?.startChild(
       SentryHiveImpl.dbOp,

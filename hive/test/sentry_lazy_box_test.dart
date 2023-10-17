@@ -25,7 +25,6 @@ void main() {
   }
 
   group('adds span', () {
-
     late Fixture fixture;
 
     setUp(() async {
@@ -41,7 +40,7 @@ void main() {
     });
 
     test('get adds span', () async {
-      final sut = await fixture.getSut();
+      final sut = fixture.getSut();
 
       await sut.put('fixture-key', Person('John Malkovich'));
       await sut.get('fixture-key');
@@ -50,7 +49,7 @@ void main() {
     });
 
     test('getAt adds span', () async {
-      final sut = await fixture.getSut();
+      final sut = fixture.getSut();
 
       await sut.add(Person('John Malkovich'));
       await sut.getAt(0);
@@ -82,9 +81,10 @@ class Fixture {
       await box.deleteFromDisk();
       await box.close();
     }
+    await Hive.close();
   }
 
-  Future<SentryLazyBox<Person>> getSut() async {
+  SentryLazyBox<Person> getSut() {
     return SentryLazyBox(box, hub);
   }
 

@@ -1,5 +1,5 @@
-import 'package:hive/hive.dart';
 import 'package:sentry/sentry.dart';
+import 'package:hive/hive.dart';
 import 'package:sentry_hive/sentry_hive.dart';
 
 part 'main.g.dart';
@@ -7,10 +7,10 @@ part 'main.g.dart';
 Future<void> main() async {
   // ATTENTION: Change the DSN below with your own to see the events in Sentry. Get one at sentry.io
   const dsn =
-  'https://e85b375ffb9f43cf8bdf9787768149e0@o447951.ingest.sentry.io/5428562';
+      'https://e85b375ffb9f43cf8bdf9787768149e0@o447951.ingest.sentry.io/5428562';
 
   await Sentry.init(
-        (options) {
+    (options) {
       options.dsn = dsn;
       options.tracesSampleRate = 1.0;
       options.debug = true;
@@ -20,16 +20,21 @@ Future<void> main() async {
 }
 
 Future<void> runApp() async {
-  Hive
+  // Use [SentryHive] where you would use [Hive]
+  SentryHive
     ..init(Directory.current.path)
     ..registerAdapter(PersonAdapter());
 
-  var box = await Hive.openBox('testBox');
+  var box = await SentryHive.openBox('testBox');
 
-  var sentryBox = SentryBox
+  var person = Person(
+    name: 'Dave',
+    age: 22,
+  );
 
-  var person = Person(name: 'Dave', age: 23);
+  await box.put('dave', person);
 
+  print(box.get('dave')); // Dave: 22
 }
 
 @HiveType(typeId: 1)

@@ -1,4 +1,3 @@
-
 import 'package:hive/hive.dart';
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
@@ -6,13 +5,13 @@ import 'sentry_hive_impl.dart';
 
 import 'sentry_box_base.dart';
 
-///
+/// @nodoc
+@internal
 class SentryLazyBox<E> extends SentryBoxBase<E> implements LazyBox<E> {
-
   final LazyBox<E> _lazyBox;
   final Hub _hub;
 
-  ///
+  /// @nodoc
   SentryLazyBox(this._lazyBox, @internal this._hub) : super(_lazyBox, _hub);
 
   @override
@@ -31,7 +30,8 @@ class SentryLazyBox<E> extends SentryBoxBase<E> implements LazyBox<E> {
 
   // Helper
 
-  Future<T> _asyncWrapInSpan<T>(String description, Future<T> Function() execute) async {
+  Future<T> _asyncWrapInSpan<T>(
+      String description, Future<T> Function() execute) async {
     final currentSpan = _hub.getSpan();
     final span = currentSpan?.startChild(
       SentryHiveImpl.dbOp,

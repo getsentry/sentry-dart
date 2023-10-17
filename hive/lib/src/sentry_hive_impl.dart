@@ -3,15 +3,16 @@ import 'dart:typed_data';
 import 'package:hive/hive.dart';
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
+import 'sentry_box.dart';
+import 'sentry_lazy_box.dart';
 import 'sentry_hive_interface.dart';
 
 import 'default_compaction_strategy.dart';
 import 'default_key_comparator.dart';
 
-///
-@experimental
+/// @nodoc
+@internal
 class SentryHiveImpl implements SentryHiveInterface {
-
   @internal
   // ignore: public_member_api_docs
   static const dbOp = 'db';
@@ -21,7 +22,7 @@ class SentryHiveImpl implements SentryHiveInterface {
   static const dbSystemKey = 'db.system';
   @internal
   // ignore: public_member_api_docs
-  static const dbSystem = 'sqlite';
+  static const dbSystem = 'noSQL';
 
   @internal
   // ignore: public_member_api_docs
@@ -30,7 +31,7 @@ class SentryHiveImpl implements SentryHiveInterface {
   final HiveInterface _hive;
   Hub _hub = HubAdapter();
 
-  ///
+  /// @nodoc
   SentryHiveImpl(this._hive);
 
   // SentryHiveInterface
@@ -43,7 +44,9 @@ class SentryHiveImpl implements SentryHiveInterface {
   // HiveInterface
 
   @override
-  void init(String? path, {HiveStorageBackendPreference backendPreference = HiveStorageBackendPreference.native}) {
+  void init(String? path,
+      {HiveStorageBackendPreference backendPreference =
+          HiveStorageBackendPreference.native}) {
     return Hive.init(path, backendPreference: backendPreference);
   }
 
@@ -54,22 +57,30 @@ class SentryHiveImpl implements SentryHiveInterface {
 
   @override
   Future<bool> boxExists(String name, {String? path}) {
-    return _hive.boxExists(name, path: path);
+    return _asyncWrapInSpan('boxExists', () async {
+      return _hive.boxExists(name, path: path);
+    });
   }
 
   @override
   Future<void> close() {
-    return _hive.close();
+    return _asyncWrapInSpan('close', () async {
+      return _hive.close();
+    });
   }
 
   @override
   Future<void> deleteBoxFromDisk(String name, {String? path}) {
-    return _hive.deleteBoxFromDisk(name, path: path);
+    return _asyncWrapInSpan('deleteBoxFromDisk', () async {
+      return _hive.deleteBoxFromDisk(name, path: path);
+    });
   }
 
   @override
   Future<void> deleteFromDisk() {
-    return _hive.deleteFromDisk();
+    return _asyncWrapInSpan('deleteFromDisk', () async {
+      return await _hive.deleteFromDisk();
+    });
   }
 
   @override
@@ -98,37 +109,60 @@ class SentryHiveImpl implements SentryHiveInterface {
   }
 
   @override
-  Future<Box<E>> openBox<E>(String name, {HiveCipher? encryptionCipher, KeyComparator keyComparator = defaultKeyComparator, CompactionStrategy compactionStrategy = defaultCompactionStrategy, bool crashRecovery = true, String? path, Uint8List? bytes, String? collection, List<int>? encryptionKey}) {
-    return _hive.openBox(
-      name,
-      encryptionCipher: encryptionCipher,
-      keyComparator: keyComparator,
-      compactionStrategy: compactionStrategy,
-      crashRecovery: crashRecovery,
-      path: path,
-      bytes: bytes,
-      collection: collection,
-      encryptionKey: encryptionKey,
-    );
+  Future<Box<E>> openBox<E>(String name,
+      {HiveCipher? encryptionCipher,
+      KeyComparator keyComparator = defaultKeyComparator,
+      CompactionStrategy compactionStrategy = defaultCompactionStrategy,
+      bool crashRecovery = true,
+      String? path,
+      Uint8List? bytes,
+      String? collection,
+      List<int>? encryptionKey}) {
+    return _asyncWrapInSpan('openBox', () async {
+      final Box<E> box = await _hive.openBox(
+        name,
+        encryptionCipher: encryptionCipher,
+        keyComparator: keyComparator,
+        compactionStrategy: compactionStrategy,
+        crashRecovery: crashRecovery,
+        path: path,
+        bytes: bytes,
+        collection: collection,
+        encryptionKey: encryptionKey,
+      );
+      return SentryBox(box, _hub);
+    });
   }
 
   @override
-  Future<LazyBox<E>> openLazyBox<E>(String name, {HiveCipher? encryptionCipher, KeyComparator keyComparator = defaultKeyComparator, CompactionStrategy compactionStrategy = defaultCompactionStrategy, bool crashRecovery = true, String? path, String? collection, List<int>? encryptionKey}) {
-    return _hive.openLazyBox(
-      name,
-      encryptionCipher: encryptionCipher,
-      keyComparator: keyComparator,
-      compactionStrategy: compactionStrategy,
-      crashRecovery: crashRecovery,
-      path: path,
-      collection: collection,
-      encryptionKey: encryptionKey,
-    );
+  Future<LazyBox<E>> openLazyBox<E>(String name,
+      {HiveCipher? encryptionCipher,
+      KeyComparator keyComparator = defaultKeyComparator,
+      CompactionStrategy compactionStrategy = defaultCompactionStrategy,
+      bool crashRecovery = true,
+      String? path,
+      String? collection,
+      List<int>? encryptionKey}) {
+    return _asyncWrapInSpan('openLazyBox', () async {
+      final LazyBox<E> lazyBox = await _hive.openLazyBox(
+        name,
+        encryptionCipher: encryptionCipher,
+        keyComparator: keyComparator,
+        compactionStrategy: compactionStrategy,
+        crashRecovery: crashRecovery,
+        path: path,
+        collection: collection,
+        encryptionKey: encryptionKey,
+      );
+      return SentryLazyBox(lazyBox, _hub);
+    });
   }
 
   @override
-  void registerAdapter<T>(TypeAdapter<T> adapter, {bool internal = false, bool override = false}) {
-    return _hive.registerAdapter(adapter, internal: internal, override: override);
+  void registerAdapter<T>(TypeAdapter<T> adapter,
+      {bool internal = false, bool override = false}) {
+    return _hive.registerAdapter(adapter,
+        internal: internal, override: override);
   }
 
   @visibleForTesting
@@ -136,5 +170,35 @@ class SentryHiveImpl implements SentryHiveInterface {
   void resetAdapters() {
     // ignore: invalid_use_of_visible_for_testing_member
     return _hive.resetAdapters();
+  }
+
+  // Helper
+
+  Future<T> _asyncWrapInSpan<T>(
+      String description, Future<T> Function() execute) async {
+    final currentSpan = _hub.getSpan();
+    final span = currentSpan?.startChild(
+      SentryHiveImpl.dbOp,
+      description: description,
+    );
+
+    // ignore: invalid_use_of_internal_member
+    span?.origin = SentryTraceOrigins.autoDbHive;
+
+    span?.setData(SentryHiveImpl.dbSystemKey, SentryHiveImpl.dbSystem);
+
+    try {
+      final result = await execute();
+      span?.status = SpanStatus.ok();
+
+      return result;
+    } catch (exception) {
+      span?.throwable = exception;
+      span?.status = SpanStatus.internalError();
+
+      rethrow;
+    } finally {
+      await span?.finish();
+    }
   }
 }

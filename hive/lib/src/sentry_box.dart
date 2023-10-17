@@ -4,13 +4,12 @@ import 'package:sentry/sentry.dart';
 
 import 'sentry_box_base.dart';
 
-///
-@experimental
+/// @nodoc
+@internal
 class SentryBox<E> extends SentryBoxBase<E> implements Box<E> {
-
   final Box<E> _box;
 
-  ///
+  /// @nodoc
   SentryBox(this._box, @internal Hub hub) : super(_box, hub);
 
   @override
