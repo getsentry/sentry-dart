@@ -29,7 +29,6 @@ class SentryBox<E> extends SentryBoxBase<E> implements Box<E> {
   }
 
   @override
-  // TODO: implement values
   Iterable<E> get values => _box.values;
 
   @override

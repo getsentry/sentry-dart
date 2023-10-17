@@ -1,5 +1,6 @@
 
 import 'package:hive/hive.dart';
+import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 import 'sentry_hive_impl.dart';
 
@@ -152,7 +153,7 @@ class SentryBoxBase<E> implements BoxBase<E> {
     );
 
     // ignore: invalid_use_of_internal_member
-    span?.origin = SentryTraceOrigins.autoDbHiveBaseBox;
+    span?.origin = SentryTraceOrigins.autoDbHiveBoxBase;
 
     span?.setData(SentryHiveImpl.dbSystemKey, SentryHiveImpl.dbSystem);
     span?.setData(SentryHiveImpl.dbNameKey, name);

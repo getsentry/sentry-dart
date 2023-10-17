@@ -5,12 +5,13 @@ import 'dart:io';
 import 'package:hive/hive.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
-import 'package:sentry_hive/sentry_hive.dart';
+import 'package:sentry_hive/src/sentry_box_base.dart';
 import 'package:sentry_hive/src/sentry_hive_impl.dart';
 import 'package:test/test.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 
 import 'mocks/mocks.mocks.dart';
+import 'person.dart';
 
 void main() {
 
@@ -19,7 +20,7 @@ void main() {
     expect(span?.context.description, description);
     expect(span?.status, SpanStatus.ok());
     // ignore: invalid_use_of_internal_member
-    expect(span?.origin, SentryTraceOrigins.autoDbHiveBaseBox);
+    expect(span?.origin, SentryTraceOrigins.autoDbHiveBoxBase);
     expect(span?.data[SentryHiveImpl.dbSystemKey], SentryHiveImpl.dbSystem);
     expect(span?.data[SentryHiveImpl.dbNameKey], Fixture.dbName);
   }
@@ -107,28 +108,7 @@ void main() {
   });
 }
 
-@HiveType(typeId: 0)
-class Person extends HiveObject {
-  @HiveField(0)
-  final String name;
 
-  Person(this.name);
-}
-
-class PersonAdapter extends TypeAdapter<Person> {
-  @override
-  final typeId = 0;
-
-  @override
-  Person read(BinaryReader reader) {
-    return Person(reader.readString());
-  }
-
-  @override
-  void write(BinaryWriter writer, Person obj) {
-    writer.write(obj.name);
-  }
-}
 
 class Fixture {
   late final Box<Person> box;
@@ -141,8 +121,9 @@ class Fixture {
 
   Future<void> setUp() async {
     Hive.init(Directory.systemTemp.path);
-    Hive.registerAdapter(PersonAdapter());
-
+    if (!Hive.isAdapterRegistered(0)) {
+      Hive.registerAdapter(PersonAdapter());
+    }
     box = await Hive.openBox(dbName);
   }
 
@@ -153,8 +134,8 @@ class Fixture {
     }
   }
 
-  Future<SentryBox<Person>> getSut() async {
-    return SentryBox(box, hub);
+  Future<SentryBoxBase<Person>> getSut() async {
+    return SentryBoxBase(box, hub);
   }
 
   SentrySpan? getCreatedSpan() {
