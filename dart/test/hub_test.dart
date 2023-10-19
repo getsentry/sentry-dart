@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/client_reports/discard_reason.dart';
@@ -148,8 +150,8 @@ void main() {
 
       final capturedEvent = fixture.client.captureEventCalls.first;
 
-      expect(capturedEvent.event.transaction, isNull);
-      expect(capturedEvent.event.contexts.trace, isNull);
+      expect(capturedEvent.event.transaction, 'test');
+      expect(capturedEvent.event.contexts.trace, isNotNull);
     });
   });
 

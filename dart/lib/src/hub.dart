@@ -589,6 +589,8 @@ class _WeakMap {
 
   final SentryOptions _options;
 
+  final exceptionsWrapperUtil = ExceptionWrapperUtil();
+
   _WeakMap(this._options);
 
   void add(
@@ -599,6 +601,8 @@ class _WeakMap {
     if (throwable == null) {
       return;
     }
+    throwable = exceptionsWrapperUtil.wrapIfUnsupportedType(throwable);
+    _expando[throwable];
     try {
       if (_expando[throwable] == null) {
         _expando[throwable] = MapEntry(span, transaction);
@@ -617,6 +621,7 @@ class _WeakMap {
     if (throwable == null) {
       return null;
     }
+    throwable = exceptionsWrapperUtil.wrapIfUnsupportedType(throwable);
     try {
       return _expando[throwable] as MapEntry<ISentrySpan, String>?;
     } catch (exception, stackTrace) {
@@ -626,7 +631,39 @@ class _WeakMap {
         exception: exception,
         stackTrace: stackTrace,
       );
+      print('hahaa');
     }
     return null;
   }
+}
+
+class ExceptionWrapperUtil {
+  final _unsupportedTypes = {String, int, double, bool};
+  final _unsupportedThrowables = <Object>{};
+
+  /// Wraps the throwable as [_ExceptionWrapper] if it is of an unsupported type.
+  dynamic wrapIfUnsupportedType(dynamic throwable) {
+    if (_unsupportedTypes.contains(throwable.runtimeType)) {
+      throwable = _ExceptionWrapper(Exception(throwable));
+      _unsupportedThrowables.add(throwable);
+    }
+    return _unsupportedThrowables.lookup(throwable) ?? throwable;
+  }
+}
+
+class _ExceptionWrapper {
+  _ExceptionWrapper(this.exception);
+
+  final Exception exception;
+
+  @override
+  bool operator ==(Object other) {
+    if (other is _ExceptionWrapper) {
+      return other.exception.toString() == exception.toString();
+    }
+    return false;
+  }
+
+  @override
+  int get hashCode => exception.toString().hashCode;
 }
