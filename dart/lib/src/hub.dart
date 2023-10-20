@@ -602,7 +602,6 @@ class _WeakMap {
       return;
     }
     throwable = exceptionsWrapperUtil.wrapIfUnsupportedType(throwable);
-    _expando[throwable];
     try {
       if (_expando[throwable] == null) {
         _expando[throwable] = MapEntry(span, transaction);
@@ -631,7 +630,6 @@ class _WeakMap {
         exception: exception,
         stackTrace: stackTrace,
       );
-      print('hahaa');
     }
     return null;
   }

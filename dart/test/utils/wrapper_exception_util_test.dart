@@ -71,7 +71,7 @@ void main() {
 
       final third =
           exceptionWrapperUtil.wrapIfUnsupportedType(unsupportedThrowable);
-      expect(fixture.expando[third], 2);
+      expect(fixture.expando[third], 2.0);
     });
   });
 
