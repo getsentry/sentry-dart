@@ -589,7 +589,7 @@ class _WeakMap {
 
   final SentryOptions _options;
 
-  final exceptionsWrapperUtil = ExceptionWrapperUtil();
+  final exceptionsWrapperUtil = UnsupportedThrowablesHandler();
 
   _WeakMap(this._options);
 
@@ -635,28 +635,29 @@ class _WeakMap {
   }
 }
 
-class ExceptionWrapperUtil {
+/// A handler for unsupported throwables used for Expando<Object>.
+@visibleForTesting
+class UnsupportedThrowablesHandler {
   final _unsupportedTypes = {String, int, double, bool};
   final _unsupportedThrowables = <Object>{};
 
-  /// Wraps the throwable as [_ExceptionWrapper] if it is of an unsupported type.
   dynamic wrapIfUnsupportedType(dynamic throwable) {
     if (_unsupportedTypes.contains(throwable.runtimeType)) {
-      throwable = _ExceptionWrapper(Exception(throwable));
+      throwable = _UnsupportedExceptionWrapper(Exception(throwable));
       _unsupportedThrowables.add(throwable);
     }
     return _unsupportedThrowables.lookup(throwable) ?? throwable;
   }
 }
 
-class _ExceptionWrapper {
-  _ExceptionWrapper(this.exception);
+class _UnsupportedExceptionWrapper {
+  _UnsupportedExceptionWrapper(this.exception);
 
   final Exception exception;
 
   @override
   bool operator ==(Object other) {
-    if (other is _ExceptionWrapper) {
+    if (other is _UnsupportedExceptionWrapper) {
       return other.exception.toString() == exception.toString();
     }
     return false;

@@ -88,5 +88,5 @@ void main() {
 class Fixture {
   final expando = Expando();
 
-  ExceptionWrapperUtil get sut => ExceptionWrapperUtil();
+  UnsupportedThrowablesHandler get sut => UnsupportedThrowablesHandler();
 }
