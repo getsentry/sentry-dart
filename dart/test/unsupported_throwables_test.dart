@@ -11,10 +11,10 @@ void main() {
 
   group('unsupported throwable types', () {
     test('wrapped string throwable does not throw when expanding', () async {
-      final exceptionWrapperUtil = fixture.sut;
+      final throwableHandler = fixture.sut;
       final unsupportedThrowable = 'test throwable';
       final wrappedThrowable =
-          exceptionWrapperUtil.wrapIfUnsupportedType(unsupportedThrowable);
+          throwableHandler.wrapIfUnsupportedType(unsupportedThrowable);
 
       expect(() {
         fixture.expando[wrappedThrowable];
@@ -22,10 +22,10 @@ void main() {
     });
 
     test('wrapped int throwable does not throw when expanding', () async {
-      final exceptionWrapperUtil = fixture.sut;
+      final throwableHandler = fixture.sut;
       final unsupportedThrowable = 1;
       final wrappedThrowable =
-          exceptionWrapperUtil.wrapIfUnsupportedType(unsupportedThrowable);
+          throwableHandler.wrapIfUnsupportedType(unsupportedThrowable);
 
       expect(() {
         fixture.expando[wrappedThrowable];
@@ -33,10 +33,10 @@ void main() {
     });
 
     test('wrapped double throwable does not throw when expanding', () async {
-      final exceptionWrapperUtil = fixture.sut;
+      final throwableHandler = fixture.sut;
       final unsupportedThrowable = 1.0;
       final wrappedThrowable =
-          exceptionWrapperUtil.wrapIfUnsupportedType(unsupportedThrowable);
+          throwableHandler.wrapIfUnsupportedType(unsupportedThrowable);
 
       expect(() {
         fixture.expando[wrappedThrowable];
@@ -44,10 +44,10 @@ void main() {
     });
 
     test('wrapped bool throwable does not throw when expanding', () async {
-      final exceptionWrapperUtil = fixture.sut;
+      final throwableHandler = fixture.sut;
       final unsupportedThrowable = true;
       final wrappedThrowable =
-          exceptionWrapperUtil.wrapIfUnsupportedType(unsupportedThrowable);
+          throwableHandler.wrapIfUnsupportedType(unsupportedThrowable);
 
       expect(() {
         fixture.expando[wrappedThrowable];
@@ -58,19 +58,19 @@ void main() {
         'creating multiple instances of string wrapped exceptions accesses the same expando value',
         () async {
       final unsupportedThrowable = 'test throwable';
-      final exceptionWrapperUtil = fixture.sut;
+      final throwableHandler = fixture.sut;
 
       final first =
-          exceptionWrapperUtil.wrapIfUnsupportedType(unsupportedThrowable);
+          throwableHandler.wrapIfUnsupportedType(unsupportedThrowable);
       fixture.expando[first] = 1;
 
       final second =
-          exceptionWrapperUtil.wrapIfUnsupportedType(unsupportedThrowable);
+          throwableHandler.wrapIfUnsupportedType(unsupportedThrowable);
       expect(fixture.expando[second], 1);
       fixture.expando[second] = 2.0;
 
       final third =
-          exceptionWrapperUtil.wrapIfUnsupportedType(unsupportedThrowable);
+          throwableHandler.wrapIfUnsupportedType(unsupportedThrowable);
       expect(fixture.expando[third], 2.0);
     });
   });

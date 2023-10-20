@@ -589,7 +589,7 @@ class _WeakMap {
 
   final SentryOptions _options;
 
-  final exceptionsWrapperUtil = UnsupportedThrowablesHandler();
+  final throwableHandler = UnsupportedThrowablesHandler();
 
   _WeakMap(this._options);
 
@@ -601,7 +601,7 @@ class _WeakMap {
     if (throwable == null) {
       return;
     }
-    throwable = exceptionsWrapperUtil.wrapIfUnsupportedType(throwable);
+    throwable = throwableHandler.wrapIfUnsupportedType(throwable);
     try {
       if (_expando[throwable] == null) {
         _expando[throwable] = MapEntry(span, transaction);
@@ -620,7 +620,7 @@ class _WeakMap {
     if (throwable == null) {
       return null;
     }
-    throwable = exceptionsWrapperUtil.wrapIfUnsupportedType(throwable);
+    throwable = throwableHandler.wrapIfUnsupportedType(throwable);
     try {
       return _expando[throwable] as MapEntry<ISentrySpan, String>?;
     } catch (exception, stackTrace) {
