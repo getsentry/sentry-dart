@@ -8,6 +8,7 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry_hive/src/sentry_box.dart';
 import 'package:sentry_hive/src/sentry_hive_impl.dart';
+import 'package:sentry_hive/src/sentry_lazy_box.dart';
 import 'package:test/test.dart';
 
 import 'mocks/mocks.mocks.dart';
@@ -25,6 +26,15 @@ void main() {
     if (checkName) {
       expect(span?.data[SentryHiveImpl.dbNameKey], Fixture.dbName);
     }
+  }
+
+  void verifyErrorSpan(String description, SentrySpan? span, Exception error) {
+    expect(span?.context.operation, SentryHiveImpl.dbOp);
+    expect(span?.context.description, description);
+    expect(span?.status, SpanStatus.internalError());
+    // ignore: invalid_use_of_internal_member
+    expect(span?.origin, SentryTraceOrigins.autoDbHive);
+    expect(span?.throwable, error);
   }
 
   group('adds span', () {
@@ -88,28 +98,188 @@ void main() {
     test('openLazyBox adds span', () async {
       final sut = fixture.getSut();
 
-      final box = await sut.openBox<Person>(Fixture.dbName);
+      final box = await sut.openLazyBox<Person>(Fixture.dbName);
 
-      expect(box is SentryBox<Person>, true);
-      verifySpan('openBox', fixture.getCreatedSpan(), checkName: true);
+      expect(box is SentryLazyBox<Person>, true);
+      verifySpan('openLazyBox', fixture.getCreatedSpan(), checkName: true);
+    });
+  });
+
+  group('adds error span', () {
+    late Fixture fixture;
+
+    setUp(() async {
+      fixture = Fixture();
+      await fixture.setUp(injectMockHive: true);
+
+      when(fixture.hub.options).thenReturn(fixture.options);
+      when(fixture.hub.getSpan()).thenReturn(fixture.tracer);
+      when(fixture.mockHive.close()).thenAnswer((_) async => {});
+    });
+
+    test('throwing boxExists adds error span', () async {
+      final Box<Person> box = MockBox<Person>();
+      when(
+        fixture.mockHive.openBox<Person>(
+          any,
+          encryptionCipher: anyNamed('encryptionCipher'),
+          keyComparator: anyNamed('keyComparator'),
+          compactionStrategy: anyNamed('compactionStrategy'),
+          crashRecovery: anyNamed('crashRecovery'),
+          path: anyNamed('path'),
+          bytes: anyNamed('bytes'),
+          collection: anyNamed('collection'),
+          encryptionKey: anyNamed('encryptionKey'),
+        ),
+      ).thenAnswer((_) => Future(() => box));
+      when(fixture.mockHive.boxExists(any)).thenThrow(fixture.exception);
+
+      final sut = fixture.getSut();
+
+      await sut.openBox<Person>(Fixture.dbName);
+      try {
+        await sut.boxExists(Fixture.dbName);
+      } catch (error) {
+        expect(error, fixture.exception);
+      }
+
+      verifyErrorSpan('boxExists', fixture.getCreatedSpan(), fixture.exception);
+    });
+
+    test('throwing close adds error span', () async {
+      when(fixture.mockHive.close()).thenThrow(fixture.exception);
+
+      final sut = fixture.getSut();
+
+      try {
+        await sut.close();
+      } catch (error) {
+        expect(error, fixture.exception);
+      }
+
+      verifyErrorSpan('close', fixture.getCreatedSpan(), fixture.exception);
+    });
+
+    test('throwing deleteBoxFromDisk adds error span', () async {
+      final Box<Person> box = MockBox<Person>();
+      when(
+        fixture.mockHive.openBox<Person>(
+          any,
+          encryptionCipher: anyNamed('encryptionCipher'),
+          keyComparator: anyNamed('keyComparator'),
+          compactionStrategy: anyNamed('compactionStrategy'),
+          crashRecovery: anyNamed('crashRecovery'),
+          path: anyNamed('path'),
+          bytes: anyNamed('bytes'),
+          collection: anyNamed('collection'),
+          encryptionKey: anyNamed('encryptionKey'),
+        ),
+      ).thenAnswer((_) => Future(() => box));
+      when(fixture.mockHive.deleteBoxFromDisk(any))
+          .thenThrow(fixture.exception);
+
+      final sut = fixture.getSut();
+
+      await sut.openBox<Person>(Fixture.dbName);
+      try {
+        await sut.deleteBoxFromDisk(Fixture.dbName);
+      } catch (error) {
+        expect(error, fixture.exception);
+      }
+
+      verifyErrorSpan(
+          'deleteBoxFromDisk', fixture.getCreatedSpan(), fixture.exception);
+    });
+
+    test('throwing deleteFromDisk adds error span', () async {
+      when(fixture.mockHive.deleteFromDisk()).thenThrow(fixture.exception);
+
+      final sut = fixture.getSut();
+
+      try {
+        await sut.deleteFromDisk();
+      } catch (error) {
+        expect(error, fixture.exception);
+      }
+
+      verifyErrorSpan(
+          'deleteFromDisk', fixture.getCreatedSpan(), fixture.exception);
+    });
+
+    test('throwing openBox adds error span', () async {
+      when(
+        fixture.mockHive.openBox<Person>(
+          any,
+          encryptionCipher: anyNamed('encryptionCipher'),
+          keyComparator: anyNamed('keyComparator'),
+          compactionStrategy: anyNamed('compactionStrategy'),
+          crashRecovery: anyNamed('crashRecovery'),
+          path: anyNamed('path'),
+          bytes: anyNamed('bytes'),
+          collection: anyNamed('collection'),
+          encryptionKey: anyNamed('encryptionKey'),
+        ),
+      ).thenThrow(fixture.exception);
+
+      final sut = fixture.getSut();
+
+      try {
+        await sut.openBox<Person>(Fixture.dbName);
+      } catch (error) {
+        expect(error, fixture.exception);
+      }
+
+      verifyErrorSpan('openBox', fixture.getCreatedSpan(), fixture.exception);
+    });
+
+    test('throwing openLazyBox adds error span', () async {
+      when(
+        fixture.mockHive.openLazyBox<Person>(
+          any,
+          encryptionCipher: anyNamed('encryptionCipher'),
+          keyComparator: anyNamed('keyComparator'),
+          compactionStrategy: anyNamed('compactionStrategy'),
+          crashRecovery: anyNamed('crashRecovery'),
+          path: anyNamed('path'),
+          collection: anyNamed('collection'),
+          encryptionKey: anyNamed('encryptionKey'),
+        ),
+      ).thenThrow(fixture.exception);
+
+      final sut = fixture.getSut();
+
+      try {
+        await sut.openLazyBox<Person>(Fixture.dbName);
+      } catch (error) {
+        expect(error, fixture.exception);
+      }
+
+      verifyErrorSpan(
+          'openLazyBox', fixture.getCreatedSpan(), fixture.exception);
     });
   });
 }
 
 class Fixture {
   final options = SentryOptions();
+  late final mockHive = MockHiveInterface();
   final hub = MockHub();
   static final dbName = 'people';
+  final exception = Exception('fixture-exception');
 
   final _context = SentryTransactionContext('name', 'operation');
   late final tracer = SentryTracer(_context, hub);
   late SentryHiveImpl sut;
 
-  Future<void> setUp() async {
-    sut = SentryHiveImpl(Hive);
-    sut.init(Directory.systemTemp.path);
-    if (!sut.isAdapterRegistered(0)) {
-      sut.registerAdapter(PersonAdapter());
+  Future<void> setUp({bool injectMockHive = false}) async {
+    if (injectMockHive) {
+      sut = SentryHiveImpl(mockHive);
+    } else {
+      sut = SentryHiveImpl(Hive);
+      sut.init(Directory.systemTemp.path);
+      if (!sut.isAdapterRegistered(0)) {
+        sut.registerAdapter(PersonAdapter());
+      }
     }
     sut.setHub(hub);
   }

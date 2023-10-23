@@ -3,9 +3,12 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i3;
+import 'dart:async' as _i4;
+import 'dart:typed_data' as _i7;
 
-import 'package:hive/hive.dart' as _i4;
+import 'package:hive/hive.dart' as _i3;
+import 'package:hive/src/box/default_compaction_strategy.dart' as _i6;
+import 'package:hive/src/box/default_key_comparator.dart' as _i5;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:sentry/sentry.dart' as _i2;
 
@@ -70,6 +73,26 @@ class _FakeISentrySpan_4 extends _i1.SmartFake implements _i2.ISentrySpan {
         );
 }
 
+class _FakeBox_5<E1> extends _i1.SmartFake implements _i3.Box<E1> {
+  _FakeBox_5(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
+class _FakeLazyBox_6<E1> extends _i1.SmartFake implements _i3.LazyBox<E1> {
+  _FakeLazyBox_6(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
 /// A class which mocks [Hub].
 ///
 /// See the documentation for Mockito's code generation for more information.
@@ -112,8 +135,8 @@ class MockHub extends _i1.Mock implements _i2.Hub {
       ) as _i2.Scope);
 
   @override
-  _i3.Future<_i2.SentryId> captureEvent(
-    dynamic event, {
+  _i4.Future<_i2.SentryId> captureEvent(
+    _i2.SentryEvent? event, {
     dynamic stackTrace,
     _i2.Hint? hint,
     _i2.ScopeCallback? withScope,
@@ -128,7 +151,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
             #withScope: withScope,
           },
         ),
-        returnValue: _i3.Future<_i2.SentryId>.value(_FakeSentryId_1(
+        returnValue: _i4.Future<_i2.SentryId>.value(_FakeSentryId_1(
           this,
           Invocation.method(
             #captureEvent,
@@ -140,10 +163,10 @@ class MockHub extends _i1.Mock implements _i2.Hub {
             },
           ),
         )),
-      ) as _i3.Future<_i2.SentryId>);
+      ) as _i4.Future<_i2.SentryId>);
 
   @override
-  _i3.Future<_i2.SentryId> captureException(
+  _i4.Future<_i2.SentryId> captureException(
     dynamic throwable, {
     dynamic stackTrace,
     _i2.Hint? hint,
@@ -159,7 +182,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
             #withScope: withScope,
           },
         ),
-        returnValue: _i3.Future<_i2.SentryId>.value(_FakeSentryId_1(
+        returnValue: _i4.Future<_i2.SentryId>.value(_FakeSentryId_1(
           this,
           Invocation.method(
             #captureException,
@@ -171,10 +194,10 @@ class MockHub extends _i1.Mock implements _i2.Hub {
             },
           ),
         )),
-      ) as _i3.Future<_i2.SentryId>);
+      ) as _i4.Future<_i2.SentryId>);
 
   @override
-  _i3.Future<_i2.SentryId> captureMessage(
+  _i4.Future<_i2.SentryId> captureMessage(
     String? message, {
     _i2.SentryLevel? level,
     String? template,
@@ -194,7 +217,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
             #withScope: withScope,
           },
         ),
-        returnValue: _i3.Future<_i2.SentryId>.value(_FakeSentryId_1(
+        returnValue: _i4.Future<_i2.SentryId>.value(_FakeSentryId_1(
           this,
           Invocation.method(
             #captureMessage,
@@ -208,21 +231,21 @@ class MockHub extends _i1.Mock implements _i2.Hub {
             },
           ),
         )),
-      ) as _i3.Future<_i2.SentryId>);
+      ) as _i4.Future<_i2.SentryId>);
 
   @override
-  _i3.Future<void> captureUserFeedback(_i2.SentryUserFeedback? userFeedback) =>
+  _i4.Future<void> captureUserFeedback(_i2.SentryUserFeedback? userFeedback) =>
       (super.noSuchMethod(
         Invocation.method(
           #captureUserFeedback,
           [userFeedback],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<void> addBreadcrumb(
+  _i4.Future<void> addBreadcrumb(
     _i2.Breadcrumb? crumb, {
     _i2.Hint? hint,
   }) =>
@@ -232,9 +255,9 @@ class MockHub extends _i1.Mock implements _i2.Hub {
           [crumb],
           {#hint: hint},
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
   void bindClient(_i2.SentryClient? client) => super.noSuchMethod(
@@ -261,21 +284,21 @@ class MockHub extends _i1.Mock implements _i2.Hub {
       ) as _i2.Hub);
 
   @override
-  _i3.Future<void> close() => (super.noSuchMethod(
+  _i4.Future<void> close() => (super.noSuchMethod(
         Invocation.method(
           #close,
           [],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.FutureOr<void> configureScope(_i2.ScopeCallback? callback) =>
+  _i4.FutureOr<void> configureScope(_i2.ScopeCallback? callback) =>
       (super.noSuchMethod(Invocation.method(
         #configureScope,
         [callback],
-      )) as _i3.FutureOr<void>);
+      )) as _i4.FutureOr<void>);
 
   @override
   _i2.ISentrySpan startTransaction(
@@ -374,7 +397,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
       ) as _i2.ISentrySpan);
 
   @override
-  _i3.Future<_i2.SentryId> captureTransaction(
+  _i4.Future<_i2.SentryId> captureTransaction(
     _i2.SentryTransaction? transaction, {
     _i2.SentryTraceContextHeader? traceContext,
   }) =>
@@ -384,7 +407,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
           [transaction],
           {#traceContext: traceContext},
         ),
-        returnValue: _i3.Future<_i2.SentryId>.value(_FakeSentryId_1(
+        returnValue: _i4.Future<_i2.SentryId>.value(_FakeSentryId_1(
           this,
           Invocation.method(
             #captureTransaction,
@@ -392,7 +415,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
             {#traceContext: traceContext},
           ),
         )),
-      ) as _i3.Future<_i2.SentryId>);
+      ) as _i4.Future<_i2.SentryId>);
 
   @override
   void setSpanContext(
@@ -416,7 +439,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
 /// A class which mocks [Box].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockBox<E> extends _i1.Mock implements _i4.Box<E> {
+class MockBox<E> extends _i1.Mock implements _i3.Box<E> {
   MockBox() {
     _i1.throwOnMissingStub(this);
   }
@@ -508,14 +531,14 @@ class MockBox<E> extends _i1.Mock implements _i4.Box<E> {
       ));
 
   @override
-  _i3.Stream<_i4.BoxEvent> watch({dynamic key}) => (super.noSuchMethod(
+  _i4.Stream<_i3.BoxEvent> watch({dynamic key}) => (super.noSuchMethod(
         Invocation.method(
           #watch,
           [],
           {#key: key},
         ),
-        returnValue: _i3.Stream<_i4.BoxEvent>.empty(),
-      ) as _i3.Stream<_i4.BoxEvent>);
+        returnValue: _i4.Stream<_i3.BoxEvent>.empty(),
+      ) as _i4.Stream<_i3.BoxEvent>);
 
   @override
   bool containsKey(dynamic key) => (super.noSuchMethod(
@@ -527,7 +550,7 @@ class MockBox<E> extends _i1.Mock implements _i4.Box<E> {
       ) as bool);
 
   @override
-  _i3.Future<void> put(
+  _i4.Future<void> put(
     dynamic key,
     E? value,
   ) =>
@@ -539,12 +562,12 @@ class MockBox<E> extends _i1.Mock implements _i4.Box<E> {
             value,
           ],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<void> putAt(
+  _i4.Future<void> putAt(
     int? index,
     E? value,
   ) =>
@@ -556,122 +579,122 @@ class MockBox<E> extends _i1.Mock implements _i4.Box<E> {
             value,
           ],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<void> putAll(Map<dynamic, E>? entries) => (super.noSuchMethod(
+  _i4.Future<void> putAll(Map<dynamic, E>? entries) => (super.noSuchMethod(
         Invocation.method(
           #putAll,
           [entries],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<int> add(E? value) => (super.noSuchMethod(
+  _i4.Future<int> add(E? value) => (super.noSuchMethod(
         Invocation.method(
           #add,
           [value],
         ),
-        returnValue: _i3.Future<int>.value(0),
-      ) as _i3.Future<int>);
+        returnValue: _i4.Future<int>.value(0),
+      ) as _i4.Future<int>);
 
   @override
-  _i3.Future<Iterable<int>> addAll(Iterable<E>? values) => (super.noSuchMethod(
+  _i4.Future<Iterable<int>> addAll(Iterable<E>? values) => (super.noSuchMethod(
         Invocation.method(
           #addAll,
           [values],
         ),
-        returnValue: _i3.Future<Iterable<int>>.value(<int>[]),
-      ) as _i3.Future<Iterable<int>>);
+        returnValue: _i4.Future<Iterable<int>>.value(<int>[]),
+      ) as _i4.Future<Iterable<int>>);
 
   @override
-  _i3.Future<void> delete(dynamic key) => (super.noSuchMethod(
+  _i4.Future<void> delete(dynamic key) => (super.noSuchMethod(
         Invocation.method(
           #delete,
           [key],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<void> deleteAt(int? index) => (super.noSuchMethod(
+  _i4.Future<void> deleteAt(int? index) => (super.noSuchMethod(
         Invocation.method(
           #deleteAt,
           [index],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<void> deleteAll(Iterable<dynamic>? keys) => (super.noSuchMethod(
+  _i4.Future<void> deleteAll(Iterable<dynamic>? keys) => (super.noSuchMethod(
         Invocation.method(
           #deleteAll,
           [keys],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<void> compact() => (super.noSuchMethod(
+  _i4.Future<void> compact() => (super.noSuchMethod(
         Invocation.method(
           #compact,
           [],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<int> clear() => (super.noSuchMethod(
+  _i4.Future<int> clear() => (super.noSuchMethod(
         Invocation.method(
           #clear,
           [],
         ),
-        returnValue: _i3.Future<int>.value(0),
-      ) as _i3.Future<int>);
+        returnValue: _i4.Future<int>.value(0),
+      ) as _i4.Future<int>);
 
   @override
-  _i3.Future<void> close() => (super.noSuchMethod(
+  _i4.Future<void> close() => (super.noSuchMethod(
         Invocation.method(
           #close,
           [],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<void> deleteFromDisk() => (super.noSuchMethod(
+  _i4.Future<void> deleteFromDisk() => (super.noSuchMethod(
         Invocation.method(
           #deleteFromDisk,
           [],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<void> flush() => (super.noSuchMethod(
+  _i4.Future<void> flush() => (super.noSuchMethod(
         Invocation.method(
           #flush,
           [],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 }
 
 /// A class which mocks [LazyBox].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockLazyBox<E> extends _i1.Mock implements _i4.LazyBox<E> {
+class MockLazyBox<E> extends _i1.Mock implements _i3.LazyBox<E> {
   MockLazyBox() {
     _i1.throwOnMissingStub(this);
   }
@@ -719,7 +742,7 @@ class MockLazyBox<E> extends _i1.Mock implements _i4.LazyBox<E> {
       ) as bool);
 
   @override
-  _i3.Future<E?> get(
+  _i4.Future<E?> get(
     dynamic key, {
     E? defaultValue,
   }) =>
@@ -729,17 +752,17 @@ class MockLazyBox<E> extends _i1.Mock implements _i4.LazyBox<E> {
           [key],
           {#defaultValue: defaultValue},
         ),
-        returnValue: _i3.Future<E?>.value(),
-      ) as _i3.Future<E?>);
+        returnValue: _i4.Future<E?>.value(),
+      ) as _i4.Future<E?>);
 
   @override
-  _i3.Future<E?> getAt(int? index) => (super.noSuchMethod(
+  _i4.Future<E?> getAt(int? index) => (super.noSuchMethod(
         Invocation.method(
           #getAt,
           [index],
         ),
-        returnValue: _i3.Future<E?>.value(),
-      ) as _i3.Future<E?>);
+        returnValue: _i4.Future<E?>.value(),
+      ) as _i4.Future<E?>);
 
   @override
   dynamic keyAt(int? index) => super.noSuchMethod(Invocation.method(
@@ -748,14 +771,14 @@ class MockLazyBox<E> extends _i1.Mock implements _i4.LazyBox<E> {
       ));
 
   @override
-  _i3.Stream<_i4.BoxEvent> watch({dynamic key}) => (super.noSuchMethod(
+  _i4.Stream<_i3.BoxEvent> watch({dynamic key}) => (super.noSuchMethod(
         Invocation.method(
           #watch,
           [],
           {#key: key},
         ),
-        returnValue: _i3.Stream<_i4.BoxEvent>.empty(),
-      ) as _i3.Stream<_i4.BoxEvent>);
+        returnValue: _i4.Stream<_i3.BoxEvent>.empty(),
+      ) as _i4.Stream<_i3.BoxEvent>);
 
   @override
   bool containsKey(dynamic key) => (super.noSuchMethod(
@@ -767,7 +790,7 @@ class MockLazyBox<E> extends _i1.Mock implements _i4.LazyBox<E> {
       ) as bool);
 
   @override
-  _i3.Future<void> put(
+  _i4.Future<void> put(
     dynamic key,
     E? value,
   ) =>
@@ -779,12 +802,12 @@ class MockLazyBox<E> extends _i1.Mock implements _i4.LazyBox<E> {
             value,
           ],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<void> putAt(
+  _i4.Future<void> putAt(
     int? index,
     E? value,
   ) =>
@@ -796,114 +819,369 @@ class MockLazyBox<E> extends _i1.Mock implements _i4.LazyBox<E> {
             value,
           ],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<void> putAll(Map<dynamic, E>? entries) => (super.noSuchMethod(
+  _i4.Future<void> putAll(Map<dynamic, E>? entries) => (super.noSuchMethod(
         Invocation.method(
           #putAll,
           [entries],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<int> add(E? value) => (super.noSuchMethod(
+  _i4.Future<int> add(E? value) => (super.noSuchMethod(
         Invocation.method(
           #add,
           [value],
         ),
-        returnValue: _i3.Future<int>.value(0),
-      ) as _i3.Future<int>);
+        returnValue: _i4.Future<int>.value(0),
+      ) as _i4.Future<int>);
 
   @override
-  _i3.Future<Iterable<int>> addAll(Iterable<E>? values) => (super.noSuchMethod(
+  _i4.Future<Iterable<int>> addAll(Iterable<E>? values) => (super.noSuchMethod(
         Invocation.method(
           #addAll,
           [values],
         ),
-        returnValue: _i3.Future<Iterable<int>>.value(<int>[]),
-      ) as _i3.Future<Iterable<int>>);
+        returnValue: _i4.Future<Iterable<int>>.value(<int>[]),
+      ) as _i4.Future<Iterable<int>>);
 
   @override
-  _i3.Future<void> delete(dynamic key) => (super.noSuchMethod(
+  _i4.Future<void> delete(dynamic key) => (super.noSuchMethod(
         Invocation.method(
           #delete,
           [key],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<void> deleteAt(int? index) => (super.noSuchMethod(
+  _i4.Future<void> deleteAt(int? index) => (super.noSuchMethod(
         Invocation.method(
           #deleteAt,
           [index],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<void> deleteAll(Iterable<dynamic>? keys) => (super.noSuchMethod(
+  _i4.Future<void> deleteAll(Iterable<dynamic>? keys) => (super.noSuchMethod(
         Invocation.method(
           #deleteAll,
           [keys],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<void> compact() => (super.noSuchMethod(
+  _i4.Future<void> compact() => (super.noSuchMethod(
         Invocation.method(
           #compact,
           [],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<int> clear() => (super.noSuchMethod(
+  _i4.Future<int> clear() => (super.noSuchMethod(
         Invocation.method(
           #clear,
           [],
         ),
-        returnValue: _i3.Future<int>.value(0),
-      ) as _i3.Future<int>);
+        returnValue: _i4.Future<int>.value(0),
+      ) as _i4.Future<int>);
 
   @override
-  _i3.Future<void> close() => (super.noSuchMethod(
+  _i4.Future<void> close() => (super.noSuchMethod(
         Invocation.method(
           #close,
           [],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<void> deleteFromDisk() => (super.noSuchMethod(
+  _i4.Future<void> deleteFromDisk() => (super.noSuchMethod(
         Invocation.method(
           #deleteFromDisk,
           [],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<void> flush() => (super.noSuchMethod(
+  _i4.Future<void> flush() => (super.noSuchMethod(
         Invocation.method(
           #flush,
           [],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
+}
+
+/// A class which mocks [HiveInterface].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockHiveInterface extends _i1.Mock implements _i3.HiveInterface {
+  MockHiveInterface() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  void init(
+    String? path, {
+    _i3.HiveStorageBackendPreference? backendPreference =
+        _i3.HiveStorageBackendPreference.native,
+  }) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #init,
+          [path],
+          {#backendPreference: backendPreference},
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  _i4.Future<_i3.Box<E>> openBox<E>(
+    String? name, {
+    _i3.HiveCipher? encryptionCipher,
+    _i3.KeyComparator? keyComparator = _i5.defaultKeyComparator,
+    _i3.CompactionStrategy? compactionStrategy = _i6.defaultCompactionStrategy,
+    bool? crashRecovery = true,
+    String? path,
+    _i7.Uint8List? bytes,
+    String? collection,
+    List<int>? encryptionKey,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #openBox,
+          [name],
+          {
+            #encryptionCipher: encryptionCipher,
+            #keyComparator: keyComparator,
+            #compactionStrategy: compactionStrategy,
+            #crashRecovery: crashRecovery,
+            #path: path,
+            #bytes: bytes,
+            #collection: collection,
+            #encryptionKey: encryptionKey,
+          },
+        ),
+        returnValue: _i4.Future<_i3.Box<E>>.value(_FakeBox_5<E>(
+          this,
+          Invocation.method(
+            #openBox,
+            [name],
+            {
+              #encryptionCipher: encryptionCipher,
+              #keyComparator: keyComparator,
+              #compactionStrategy: compactionStrategy,
+              #crashRecovery: crashRecovery,
+              #path: path,
+              #bytes: bytes,
+              #collection: collection,
+              #encryptionKey: encryptionKey,
+            },
+          ),
+        )),
+      ) as _i4.Future<_i3.Box<E>>);
+
+  @override
+  _i4.Future<_i3.LazyBox<E>> openLazyBox<E>(
+    String? name, {
+    _i3.HiveCipher? encryptionCipher,
+    _i3.KeyComparator? keyComparator = _i5.defaultKeyComparator,
+    _i3.CompactionStrategy? compactionStrategy = _i6.defaultCompactionStrategy,
+    bool? crashRecovery = true,
+    String? path,
+    String? collection,
+    List<int>? encryptionKey,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #openLazyBox,
+          [name],
+          {
+            #encryptionCipher: encryptionCipher,
+            #keyComparator: keyComparator,
+            #compactionStrategy: compactionStrategy,
+            #crashRecovery: crashRecovery,
+            #path: path,
+            #collection: collection,
+            #encryptionKey: encryptionKey,
+          },
+        ),
+        returnValue: _i4.Future<_i3.LazyBox<E>>.value(_FakeLazyBox_6<E>(
+          this,
+          Invocation.method(
+            #openLazyBox,
+            [name],
+            {
+              #encryptionCipher: encryptionCipher,
+              #keyComparator: keyComparator,
+              #compactionStrategy: compactionStrategy,
+              #crashRecovery: crashRecovery,
+              #path: path,
+              #collection: collection,
+              #encryptionKey: encryptionKey,
+            },
+          ),
+        )),
+      ) as _i4.Future<_i3.LazyBox<E>>);
+
+  @override
+  _i3.Box<E> box<E>(String? name) => (super.noSuchMethod(
+        Invocation.method(
+          #box,
+          [name],
+        ),
+        returnValue: _FakeBox_5<E>(
+          this,
+          Invocation.method(
+            #box,
+            [name],
+          ),
+        ),
+      ) as _i3.Box<E>);
+
+  @override
+  _i3.LazyBox<E> lazyBox<E>(String? name) => (super.noSuchMethod(
+        Invocation.method(
+          #lazyBox,
+          [name],
+        ),
+        returnValue: _FakeLazyBox_6<E>(
+          this,
+          Invocation.method(
+            #lazyBox,
+            [name],
+          ),
+        ),
+      ) as _i3.LazyBox<E>);
+
+  @override
+  bool isBoxOpen(String? name) => (super.noSuchMethod(
+        Invocation.method(
+          #isBoxOpen,
+          [name],
+        ),
+        returnValue: false,
+      ) as bool);
+
+  @override
+  _i4.Future<void> close() => (super.noSuchMethod(
+        Invocation.method(
+          #close,
+          [],
+        ),
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> deleteBoxFromDisk(
+    String? name, {
+    String? path,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #deleteBoxFromDisk,
+          [name],
+          {#path: path},
+        ),
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> deleteFromDisk() => (super.noSuchMethod(
+        Invocation.method(
+          #deleteFromDisk,
+          [],
+        ),
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
+
+  @override
+  List<int> generateSecureKey() => (super.noSuchMethod(
+        Invocation.method(
+          #generateSecureKey,
+          [],
+        ),
+        returnValue: <int>[],
+      ) as List<int>);
+
+  @override
+  _i4.Future<bool> boxExists(
+    String? name, {
+    String? path,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #boxExists,
+          [name],
+          {#path: path},
+        ),
+        returnValue: _i4.Future<bool>.value(false),
+      ) as _i4.Future<bool>);
+
+  @override
+  void resetAdapters() => super.noSuchMethod(
+        Invocation.method(
+          #resetAdapters,
+          [],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void registerAdapter<T>(
+    _i3.TypeAdapter<T>? adapter, {
+    bool? internal = false,
+    bool? override = false,
+  }) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #registerAdapter,
+          [adapter],
+          {
+            #internal: internal,
+            #override: override,
+          },
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  bool isAdapterRegistered(int? typeId) => (super.noSuchMethod(
+        Invocation.method(
+          #isAdapterRegistered,
+          [typeId],
+        ),
+        returnValue: false,
+      ) as bool);
+
+  @override
+  void ignoreTypeId<T>(int? typeId) => super.noSuchMethod(
+        Invocation.method(
+          #ignoreTypeId,
+          [typeId],
+        ),
+        returnValueForMissingStub: null,
+      );
 }

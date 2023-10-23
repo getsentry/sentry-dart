@@ -6,5 +6,6 @@ import 'package:sentry/sentry.dart';
   Hub,
   Box,
   LazyBox,
+  HiveInterface,
 ])
 void main() {}
