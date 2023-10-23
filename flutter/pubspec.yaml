@@ -26,7 +26,7 @@ dev_dependencies:
     sdk: flutter
   mockito: ^5.1.0
   yaml: ^3.1.0 # needed for version match (code and pubspec)
-  flutter_lints: ^2.0.0
+  flutter_lints: ^3.0.0
   collection: ^1.16.0
 
 flutter:
