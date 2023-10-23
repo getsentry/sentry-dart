@@ -53,7 +53,7 @@ jobs:
           dart test -p vm --coverage=coverage --test-randomize-ordering-seed=random --chain-stack-traces
           dart pub run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.dart_tool/package_config.json --report-on=lib
 
-      - uses: codecov/codecov-action@d9f34f8cd5cb3b3eb79b3e4b5dae3a16df499a70 # pin@v3
+      - uses: codecov/codecov-action@eaaf4bedf32dbdc6b720b63067d99c4d77d6047d # pin@v3
         if: runner.os == 'Linux' && matrix.sdk == 'stable'
         with:
           name: sentry_dio
