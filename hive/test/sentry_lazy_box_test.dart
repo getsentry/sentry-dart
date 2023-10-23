@@ -24,6 +24,19 @@ void main() {
     expect(span?.data[SentryHiveImpl.dbNameKey], Fixture.dbName);
   }
 
+  void verifyErrorSpan(
+      String description, Exception exception, SentrySpan? span) {
+    expect(span?.context.operation, SentryHiveImpl.dbOp);
+    expect(span?.context.description, description);
+    expect(span?.status, SpanStatus.internalError());
+    // ignore: invalid_use_of_internal_member
+    expect(span?.origin, SentryTraceOrigins.autoDbHiveLazyBox);
+    expect(span?.data[SentryHiveImpl.dbSystemKey], SentryHiveImpl.dbSystem);
+    expect(span?.data[SentryHiveImpl.dbNameKey], Fixture.dbName);
+
+    expect(span?.throwable, exception);
+  }
+
   group('adds span', () {
     late Fixture fixture;
 
@@ -57,13 +70,68 @@ void main() {
       verifySpan('getAt', fixture.getCreatedSpan());
     });
   });
+
+  group('adds error span', () {
+    late Fixture fixture;
+
+    setUp(() async {
+      fixture = Fixture();
+      await fixture.setUp();
+
+      when(fixture.hub.options).thenReturn(fixture.options);
+      when(fixture.hub.getSpan()).thenReturn(fixture.tracer);
+      when(fixture.mockBox.name).thenReturn(Fixture.dbName);
+    });
+
+    tearDown(() async {
+      await fixture.tearDown();
+    });
+
+    test('throwing get adds error span', () async {
+      when(fixture.mockBox.add(any)).thenAnswer((_) async {
+        return 1;
+      });
+      when(fixture.mockBox.get(any)).thenThrow(fixture.exception);
+
+      final sut = fixture.getSut(injectMockBox: true);
+
+      await sut.put('fixture-key', Person('John Malkovich'));
+      try {
+        await sut.get('fixture-key');
+      } catch (error) {
+        expect(error, fixture.exception);
+      }
+
+      verifyErrorSpan('get', fixture.exception, fixture.getCreatedSpan());
+    });
+
+    test('throwing getAt adds error span', () async {
+      when(fixture.mockBox.add(any)).thenAnswer((_) async {
+        return 1;
+      });
+      when(fixture.mockBox.getAt(any)).thenThrow(fixture.exception);
+
+      final sut = fixture.getSut(injectMockBox: true);
+
+      await sut.add(Person('John Malkovich'));
+      try {
+        await sut.getAt(0);
+      } catch (error) {
+        expect(error, fixture.exception);
+      }
+
+      verifyErrorSpan('getAt', fixture.exception, fixture.getCreatedSpan());
+    });
+  });
 }
 
 class Fixture {
   late final LazyBox<Person> box;
+  late final mockBox = MockLazyBox<Person>();
   final options = SentryOptions();
   final hub = MockHub();
   static final dbName = 'people';
+  final exception = Exception('fixture-exception');
 
   final _context = SentryTransactionContext('name', 'operation');
   late final tracer = SentryTracer(_context, hub);
@@ -84,8 +152,12 @@ class Fixture {
     await Hive.close();
   }
 
-  SentryLazyBox<Person> getSut() {
-    return SentryLazyBox(box, hub);
+  SentryLazyBox<Person> getSut({bool injectMockBox = false}) {
+    if (injectMockBox) {
+      return SentryLazyBox(mockBox, hub);
+    } else {
+      return SentryLazyBox(box, hub);
+    }
   }
 
   SentrySpan? getCreatedSpan() {

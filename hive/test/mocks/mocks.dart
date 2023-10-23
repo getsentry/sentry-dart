@@ -5,5 +5,6 @@ import 'package:sentry/sentry.dart';
 @GenerateMocks([
   Hub,
   Box,
+  LazyBox,
 ])
 void main() {}

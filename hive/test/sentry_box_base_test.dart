@@ -127,17 +127,17 @@ void main() {
 
       when(fixture.hub.options).thenReturn(fixture.options);
       when(fixture.hub.getSpan()).thenReturn(fixture.tracer);
-      when(fixture.mockBock.name).thenReturn(Fixture.dbName);
+      when(fixture.mockBox.name).thenReturn(Fixture.dbName);
     });
 
     tearDown(() async {
       await fixture.tearDown();
     });
 
-    test('failing add adds errored span', () async {
-      when(fixture.mockBock.add(any)).thenThrow(fixture.exception);
+    test('throwing add adds error span', () async {
+      when(fixture.mockBox.add(any)).thenThrow(fixture.exception);
 
-      final sut = fixture.getSut(mockBox: true);
+      final sut = fixture.getSut(injectMockBox: true);
 
       try {
         await sut.add(Person('Joe Dirt'));
@@ -148,10 +148,10 @@ void main() {
       verifyErrorSpan('add', fixture.exception, fixture.getCreatedSpan());
     });
 
-    test('failing addAll adds errored span', () async {
-      when(fixture.mockBock.addAll(any)).thenThrow(fixture.exception);
+    test('throwing addAll adds error span', () async {
+      when(fixture.mockBox.addAll(any)).thenThrow(fixture.exception);
 
-      final sut = fixture.getSut(mockBox: true);
+      final sut = fixture.getSut(injectMockBox: true);
 
       try {
         await sut.addAll([Person('Joe Dirt')]);
@@ -162,10 +162,10 @@ void main() {
       verifyErrorSpan('addAll', fixture.exception, fixture.getCreatedSpan());
     });
 
-    test('failing clear adds errored span', () async {
-      when(fixture.mockBock.clear()).thenThrow(fixture.exception);
+    test('throwing clear adds error span', () async {
+      when(fixture.mockBox.clear()).thenThrow(fixture.exception);
 
-      final sut = fixture.getSut(mockBox: true);
+      final sut = fixture.getSut(injectMockBox: true);
 
       try {
         await sut.clear();
@@ -176,10 +176,10 @@ void main() {
       verifyErrorSpan('clear', fixture.exception, fixture.getCreatedSpan());
     });
 
-    test('failing close adds errored span', () async {
-      when(fixture.mockBock.close()).thenThrow(fixture.exception);
+    test('throwing close adds error span', () async {
+      when(fixture.mockBox.close()).thenThrow(fixture.exception);
 
-      final sut = fixture.getSut(mockBox: true);
+      final sut = fixture.getSut(injectMockBox: true);
 
       try {
         await sut.close();
@@ -190,10 +190,10 @@ void main() {
       verifyErrorSpan('close', fixture.exception, fixture.getCreatedSpan());
     });
 
-    test('failing compact adds errored span', () async {
-      when(fixture.mockBock.compact()).thenThrow(fixture.exception);
+    test('throwing compact adds error span', () async {
+      when(fixture.mockBox.compact()).thenThrow(fixture.exception);
 
-      final sut = fixture.getSut(mockBox: true);
+      final sut = fixture.getSut(injectMockBox: true);
 
       try {
         await sut.compact();
@@ -204,10 +204,10 @@ void main() {
       verifyErrorSpan('compact', fixture.exception, fixture.getCreatedSpan());
     });
 
-    test('failing delete adds errored span', () async {
-      when(fixture.mockBock.delete(any)).thenThrow(fixture.exception);
+    test('throwing delete adds error span', () async {
+      when(fixture.mockBox.delete(any)).thenThrow(fixture.exception);
 
-      final sut = fixture.getSut(mockBox: true);
+      final sut = fixture.getSut(injectMockBox: true);
 
       try {
         await sut.delete('fixture-key');
@@ -218,10 +218,10 @@ void main() {
       verifyErrorSpan('delete', fixture.exception, fixture.getCreatedSpan());
     });
 
-    test('failing deleteAll adds errored span', () async {
-      when(fixture.mockBock.deleteAll(any)).thenThrow(fixture.exception);
+    test('throwing deleteAll adds error span', () async {
+      when(fixture.mockBox.deleteAll(any)).thenThrow(fixture.exception);
 
-      final sut = fixture.getSut(mockBox: true);
+      final sut = fixture.getSut(injectMockBox: true);
 
       try {
         await sut.deleteAll(['fixture-key']);
@@ -232,13 +232,13 @@ void main() {
       verifyErrorSpan('deleteAll', fixture.exception, fixture.getCreatedSpan());
     });
 
-    test('failing deleteAt adds errored span', () async {
-      when(fixture.mockBock.add(any)).thenAnswer((_) async {
+    test('throwing deleteAt adds error span', () async {
+      when(fixture.mockBox.add(any)).thenAnswer((_) async {
         return 1;
       });
-      when(fixture.mockBock.deleteAt(any)).thenThrow(fixture.exception);
+      when(fixture.mockBox.deleteAt(any)).thenThrow(fixture.exception);
 
-      final sut = fixture.getSut(mockBox: true);
+      final sut = fixture.getSut(injectMockBox: true);
 
       await sut.add(Person('Joe Dirt'));
       try {
@@ -254,7 +254,7 @@ void main() {
 
 class Fixture {
   late final Box<Person> box;
-  late final mockBock = MockBox<Person>();
+  late final mockBox = MockBox<Person>();
   final options = SentryOptions();
   final hub = MockHub();
   final exception = Exception('fixture-exception');
@@ -280,9 +280,9 @@ class Fixture {
     await Hive.close();
   }
 
-  SentryBoxBase<Person> getSut({bool mockBox = false}) {
-    if (mockBox) {
-      return SentryBoxBase(mockBock, hub);
+  SentryBoxBase<Person> getSut({bool injectMockBox = false}) {
+    if (injectMockBox) {
+      return SentryBoxBase(mockBox, hub);
     } else {
       return SentryBoxBase(box, hub);
     }
