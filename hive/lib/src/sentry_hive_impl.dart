@@ -120,7 +120,7 @@ class SentryHiveImpl implements SentryHiveInterface {
     String? path,
     Uint8List? bytes,
     String? collection,
-    List<int>? encryptionKey,
+    @Deprecated('Use encryptionCipher instead') List<int>? encryptionKey,
   }) {
     return _asyncWrapInSpan(
       'openBox',
@@ -134,6 +134,7 @@ class SentryHiveImpl implements SentryHiveInterface {
           path: path,
           bytes: bytes,
           collection: collection,
+          // ignore: deprecated_member_use
           encryptionKey: encryptionKey,
         );
         return SentryBox(box, _hub);
@@ -151,7 +152,7 @@ class SentryHiveImpl implements SentryHiveInterface {
     bool crashRecovery = true,
     String? path,
     String? collection,
-    List<int>? encryptionKey,
+    @Deprecated('Use encryptionCipher instead') List<int>? encryptionKey,
   }) {
     return _asyncWrapInSpan(
       'openLazyBox',
@@ -164,6 +165,7 @@ class SentryHiveImpl implements SentryHiveInterface {
           crashRecovery: crashRecovery,
           path: path,
           collection: collection,
+          // ignore: deprecated_member_use
           encryptionKey: encryptionKey,
         );
         return SentryLazyBox(lazyBox, _hub);
