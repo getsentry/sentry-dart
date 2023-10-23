@@ -19,4 +19,3 @@ dev_dependencies:
   yaml: ^3.1.0 # needed for version match (code and pubspec)
   mockito: ^5.1.0
   build_runner: ^2.4.2
-  path_provider: ^2.1.1
