@@ -276,7 +276,7 @@ class Fixture {
   final options = SentryOptions();
   late final mockHive = MockHiveInterface();
   final hub = MockHub();
-  static final dbName = 'people';
+  static final dbName = 'people-hive-impl';
   final exception = Exception('fixture-exception');
 
   final _context = SentryTransactionContext('name', 'operation');

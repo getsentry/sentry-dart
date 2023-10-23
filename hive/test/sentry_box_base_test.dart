@@ -262,7 +262,7 @@ class Fixture {
   final hub = MockHub();
   final exception = Exception('fixture-exception');
 
-  static final dbName = 'people';
+  static final dbName = 'people-box-base';
 
   final _context = SentryTransactionContext('name', 'operation');
   late final tracer = SentryTracer(_context, hub);

@@ -133,8 +133,11 @@ class Fixture {
   late final mockBox = MockLazyBox<Person>();
   final options = SentryOptions();
   final hub = MockHub();
-  static final dbName = 'people';
   final exception = Exception('fixture-exception');
+
+  static final dbName = 'people-lazy-box';
+
+
 
   final _context = SentryTransactionContext('name', 'operation');
   late final tracer = SentryTracer(_context, hub);
