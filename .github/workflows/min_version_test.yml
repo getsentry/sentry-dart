@@ -9,6 +9,7 @@ on:
       - "**/*.md"
       - "file/**"
       - "sqflite/**"
+      - "hive/**"
 
 jobs:
   cancel-previous-workflow:

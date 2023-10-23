@@ -1,4 +1,4 @@
-name: sentry-logging
+name: sentry-hive
 on:
   push:
     branches:
@@ -7,11 +7,11 @@ on:
   pull_request:
     paths-ignore:
       - "**/*.md"
-      - "dio/**"
+      - "logging/**"
       - "flutter/**"
+      - "dio/**"
       - "file/**"
       - "sqflite/**"
-      - "hive/**"
 
 jobs:
   cancel-previous-workflow:
@@ -29,7 +29,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: ./logging
+        working-directory: ./hive
     strategy:
       fail-fast: false
       matrix:
@@ -46,25 +46,26 @@ jobs:
           sdk: ${{ matrix.sdk }}
       - uses: actions/checkout@v3
 
-      - name: Test (VM and browser)
+      - name: Test VM
         run: |
           dart pub get
-          dart test -p chrome --test-randomize-ordering-seed=random --chain-stack-traces
           dart test -p vm --coverage=coverage --test-randomize-ordering-seed=random --chain-stack-traces
           dart pub run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.dart_tool/package_config.json --report-on=lib
 
       - uses: codecov/codecov-action@d9f34f8cd5cb3b3eb79b3e4b5dae3a16df499a70 # pin@v3
         if: runner.os == 'Linux' && matrix.sdk == 'stable'
         with:
-          name: sentry_logging
-          files: ./logging/coverage/lcov.info
+          name: sentry_hive
+          files: ./hive/coverage/lcov.info
 
-      - uses: VeryGoodOpenSource/very_good_coverage@e5c91bc7ce9843e87c800b3bcafdfb86fbe28491 # pin@v2.1.0        if: runner.os == 'Linux' && matrix.sdk == 'stable'
+      - uses: VeryGoodOpenSource/very_good_coverage@e5c91bc7ce9843e87c800b3bcafdfb86fbe28491 # pin@v2.1.0
+        if: runner.os == 'Linux' && matrix.sdk == 'stable'
         with:
-          path: "./logging/coverage/lcov.info"
-          min_coverage: 90
+          path: "./hive/coverage/lcov.info"
+          min_coverage: 55
 
   analyze:
     uses: ./.github/workflows/analyze.yml
     with:
-      package: logging
+      package: hive
+      panaThreshold: 90

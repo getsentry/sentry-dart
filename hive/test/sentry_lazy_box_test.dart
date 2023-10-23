@@ -137,8 +137,6 @@ class Fixture {
 
   static final dbName = 'people-lazy-box';
 
-
-
   final _context = SentryTransactionContext('name', 'operation');
   late final tracer = SentryTracer(_context, hub);
 
