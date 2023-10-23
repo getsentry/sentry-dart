@@ -25,7 +25,10 @@ void main() {
   }
 
   void verifyErrorSpan(
-      String description, Exception exception, SentrySpan? span) {
+    String description,
+    Exception exception,
+    SentrySpan? span,
+  ) {
     expect(span?.context.operation, SentryHiveImpl.dbOp);
     expect(span?.context.description, description);
     expect(span?.status, SpanStatus.internalError());

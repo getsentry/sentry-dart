@@ -15,8 +15,11 @@ import 'mocks/mocks.mocks.dart';
 import 'person.dart';
 
 void main() {
-  void verifySpan(String description, SentrySpan? span,
-      {bool checkName = false}) {
+  void verifySpan(
+    String description,
+    SentrySpan? span, {
+    bool checkName = false,
+  }) {
     expect(span?.context.operation, SentryHiveImpl.dbOp);
     expect(span?.context.description, description);
     expect(span?.status, SpanStatus.ok());
@@ -188,7 +191,10 @@ void main() {
       }
 
       verifyErrorSpan(
-          'deleteBoxFromDisk', fixture.getCreatedSpan(), fixture.exception);
+        'deleteBoxFromDisk',
+        fixture.getCreatedSpan(),
+        fixture.exception,
+      );
     });
 
     test('throwing deleteFromDisk adds error span', () async {
@@ -203,7 +209,10 @@ void main() {
       }
 
       verifyErrorSpan(
-          'deleteFromDisk', fixture.getCreatedSpan(), fixture.exception);
+        'deleteFromDisk',
+        fixture.getCreatedSpan(),
+        fixture.exception,
+      );
     });
 
     test('throwing openBox adds error span', () async {
@@ -255,7 +264,10 @@ void main() {
       }
 
       verifyErrorSpan(
-          'openLazyBox', fixture.getCreatedSpan(), fixture.exception);
+        'openLazyBox',
+        fixture.getCreatedSpan(),
+        fixture.exception,
+      );
     });
   });
 }

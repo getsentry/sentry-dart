@@ -149,7 +149,9 @@ class SentryBoxBase<E> implements BoxBase<E> {
   // Helper
 
   Future<T> _asyncWrapInSpan<T>(
-      String description, Future<T> Function() execute) async {
+    String description,
+    Future<T> Function() execute,
+  ) async {
     final currentSpan = _hub.getSpan();
     final span = currentSpan?.startChild(
       SentryHiveImpl.dbOp,

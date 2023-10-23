@@ -44,9 +44,11 @@ class SentryHiveImpl implements SentryHiveInterface {
   // HiveInterface
 
   @override
-  void init(String? path,
-      {HiveStorageBackendPreference backendPreference =
-          HiveStorageBackendPreference.native}) {
+  void init(
+    String? path, {
+    HiveStorageBackendPreference backendPreference =
+        HiveStorageBackendPreference.native,
+  }) {
     return Hive.init(path, backendPreference: backendPreference);
   }
 
@@ -109,15 +111,17 @@ class SentryHiveImpl implements SentryHiveInterface {
   }
 
   @override
-  Future<Box<E>> openBox<E>(String name,
-      {HiveCipher? encryptionCipher,
-      KeyComparator keyComparator = defaultKeyComparator,
-      CompactionStrategy compactionStrategy = defaultCompactionStrategy,
-      bool crashRecovery = true,
-      String? path,
-      Uint8List? bytes,
-      String? collection,
-      List<int>? encryptionKey}) {
+  Future<Box<E>> openBox<E>(
+    String name, {
+    HiveCipher? encryptionCipher,
+    KeyComparator keyComparator = defaultKeyComparator,
+    CompactionStrategy compactionStrategy = defaultCompactionStrategy,
+    bool crashRecovery = true,
+    String? path,
+    Uint8List? bytes,
+    String? collection,
+    List<int>? encryptionKey,
+  }) {
     return _asyncWrapInSpan(
       'openBox',
       () async {
@@ -139,14 +143,16 @@ class SentryHiveImpl implements SentryHiveInterface {
   }
 
   @override
-  Future<LazyBox<E>> openLazyBox<E>(String name,
-      {HiveCipher? encryptionCipher,
-      KeyComparator keyComparator = defaultKeyComparator,
-      CompactionStrategy compactionStrategy = defaultCompactionStrategy,
-      bool crashRecovery = true,
-      String? path,
-      String? collection,
-      List<int>? encryptionKey}) {
+  Future<LazyBox<E>> openLazyBox<E>(
+    String name, {
+    HiveCipher? encryptionCipher,
+    KeyComparator keyComparator = defaultKeyComparator,
+    CompactionStrategy compactionStrategy = defaultCompactionStrategy,
+    bool crashRecovery = true,
+    String? path,
+    String? collection,
+    List<int>? encryptionKey,
+  }) {
     return _asyncWrapInSpan(
       'openLazyBox',
       () async {
@@ -167,10 +173,16 @@ class SentryHiveImpl implements SentryHiveInterface {
   }
 
   @override
-  void registerAdapter<T>(TypeAdapter<T> adapter,
-      {bool internal = false, bool override = false}) {
-    return _hive.registerAdapter(adapter,
-        internal: internal, override: override);
+  void registerAdapter<T>(
+    TypeAdapter<T> adapter, {
+    bool internal = false,
+    bool override = false,
+  }) {
+    return _hive.registerAdapter(
+      adapter,
+      internal: internal,
+      override: override,
+    );
   }
 
   @visibleForTesting
