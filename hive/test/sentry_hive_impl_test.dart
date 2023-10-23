@@ -14,14 +14,17 @@ import 'mocks/mocks.mocks.dart';
 import 'person.dart';
 
 void main() {
-  void verifySpan(String description, SentrySpan? span) {
+  void verifySpan(String description, SentrySpan? span,
+      {bool checkName = false}) {
     expect(span?.context.operation, SentryHiveImpl.dbOp);
     expect(span?.context.description, description);
     expect(span?.status, SpanStatus.ok());
     // ignore: invalid_use_of_internal_member
     expect(span?.origin, SentryTraceOrigins.autoDbHive);
     // expect(span?.data[SentryHiveImpl.dbSystemKey], SentryHiveImpl.dbSystem);
-    // expect(span?.data[SentryHiveImpl.dbNameKey], Fixture.dbName);
+    if (checkName) {
+      expect(span?.data[SentryHiveImpl.dbNameKey], Fixture.dbName);
+    }
   }
 
   group('adds span', () {
@@ -79,7 +82,7 @@ void main() {
       final box = await sut.openBox<Person>(Fixture.dbName);
 
       expect(box is SentryBox<Person>, true);
-      verifySpan('openBox', fixture.getCreatedSpan());
+      verifySpan('openBox', fixture.getCreatedSpan(), checkName: true);
     });
 
     test('openLazyBox adds span', () async {
@@ -88,7 +91,7 @@ void main() {
       final box = await sut.openBox<Person>(Fixture.dbName);
 
       expect(box is SentryBox<Person>, true);
-      verifySpan('openBox', fixture.getCreatedSpan());
+      verifySpan('openBox', fixture.getCreatedSpan(), checkName: true);
     });
   });
 }

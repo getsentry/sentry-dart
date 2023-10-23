@@ -24,6 +24,19 @@ void main() {
     expect(span?.data[SentryHiveImpl.dbNameKey], Fixture.dbName);
   }
 
+  void verifyErrorSpan(
+      String description, Exception exception, SentrySpan? span) {
+    expect(span?.context.operation, SentryHiveImpl.dbOp);
+    expect(span?.context.description, description);
+    expect(span?.status, SpanStatus.internalError());
+    // ignore: invalid_use_of_internal_member
+    expect(span?.origin, SentryTraceOrigins.autoDbHiveBoxBase);
+    expect(span?.data[SentryHiveImpl.dbSystemKey], SentryHiveImpl.dbSystem);
+    expect(span?.data[SentryHiveImpl.dbNameKey], Fixture.dbName);
+
+    expect(span?.throwable, exception);
+  }
+
   group('adds span', () {
     late Fixture fixture;
 
@@ -104,12 +117,148 @@ void main() {
       verifySpan('deleteAt', fixture.getCreatedSpan());
     });
   });
+
+  group('adds error span', () {
+    late Fixture fixture;
+
+    setUp(() async {
+      fixture = Fixture();
+      await fixture.setUp();
+
+      when(fixture.hub.options).thenReturn(fixture.options);
+      when(fixture.hub.getSpan()).thenReturn(fixture.tracer);
+      when(fixture.mockBock.name).thenReturn(Fixture.dbName);
+    });
+
+    tearDown(() async {
+      await fixture.tearDown();
+    });
+
+    test('failing add adds errored span', () async {
+      when(fixture.mockBock.add(any)).thenThrow(fixture.exception);
+
+      final sut = fixture.getSut(mockBox: true);
+
+      try {
+        await sut.add(Person('Joe Dirt'));
+      } catch (error) {
+        expect(error, fixture.exception);
+      }
+
+      verifyErrorSpan('add', fixture.exception, fixture.getCreatedSpan());
+    });
+
+    test('failing addAll adds errored span', () async {
+      when(fixture.mockBock.addAll(any)).thenThrow(fixture.exception);
+
+      final sut = fixture.getSut(mockBox: true);
+
+      try {
+        await sut.addAll([Person('Joe Dirt')]);
+      } catch (error) {
+        expect(error, fixture.exception);
+      }
+
+      verifyErrorSpan('addAll', fixture.exception, fixture.getCreatedSpan());
+    });
+
+    test('failing clear adds errored span', () async {
+      when(fixture.mockBock.clear()).thenThrow(fixture.exception);
+
+      final sut = fixture.getSut(mockBox: true);
+
+      try {
+        await sut.clear();
+      } catch (error) {
+        expect(error, fixture.exception);
+      }
+
+      verifyErrorSpan('clear', fixture.exception, fixture.getCreatedSpan());
+    });
+
+    test('failing close adds errored span', () async {
+      when(fixture.mockBock.close()).thenThrow(fixture.exception);
+
+      final sut = fixture.getSut(mockBox: true);
+
+      try {
+        await sut.close();
+      } catch (error) {
+        expect(error, fixture.exception);
+      }
+
+      verifyErrorSpan('close', fixture.exception, fixture.getCreatedSpan());
+    });
+
+    test('failing compact adds errored span', () async {
+      when(fixture.mockBock.compact()).thenThrow(fixture.exception);
+
+      final sut = fixture.getSut(mockBox: true);
+
+      try {
+        await sut.compact();
+      } catch (error) {
+        expect(error, fixture.exception);
+      }
+
+      verifyErrorSpan('compact', fixture.exception, fixture.getCreatedSpan());
+    });
+
+    test('failing delete adds errored span', () async {
+      when(fixture.mockBock.delete(any)).thenThrow(fixture.exception);
+
+      final sut = fixture.getSut(mockBox: true);
+
+      try {
+        await sut.delete('fixture-key');
+      } catch (error) {
+        expect(error, fixture.exception);
+      }
+
+      verifyErrorSpan('delete', fixture.exception, fixture.getCreatedSpan());
+    });
+
+    test('failing deleteAll adds errored span', () async {
+      when(fixture.mockBock.deleteAll(any)).thenThrow(fixture.exception);
+
+      final sut = fixture.getSut(mockBox: true);
+
+      try {
+        await sut.deleteAll(['fixture-key']);
+      } catch (error) {
+        expect(error, fixture.exception);
+      }
+
+      verifyErrorSpan('deleteAll', fixture.exception, fixture.getCreatedSpan());
+    });
+
+    test('failing deleteAt adds errored span', () async {
+      when(fixture.mockBock.add(any)).thenAnswer((_) async {
+        return 1;
+      });
+      when(fixture.mockBock.deleteAt(any)).thenThrow(fixture.exception);
+
+      final sut = fixture.getSut(mockBox: true);
+
+      await sut.add(Person('Joe Dirt'));
+      try {
+        await sut.deleteAt(0);
+      } catch (error) {
+        expect(error, fixture.exception);
+      }
+
+      verifyErrorSpan('deleteAt', fixture.exception, fixture.getCreatedSpan());
+    });
+  });
 }
 
 class Fixture {
   late final Box<Person> box;
+  late final mockBock = MockBox<Person>();
   final options = SentryOptions();
   final hub = MockHub();
+  final exception = Exception('fixture-exception');
+
   static final dbName = 'people';
 
   final _context = SentryTransactionContext('name', 'operation');
@@ -131,8 +280,12 @@ class Fixture {
     await Hive.close();
   }
 
-  SentryBoxBase<Person> getSut() {
-    return SentryBoxBase(box, hub);
+  SentryBoxBase<Person> getSut({bool mockBox = false}) {
+    if (mockBox) {
+      return SentryBoxBase(mockBock, hub);
+    } else {
+      return SentryBoxBase(box, hub);
+    }
   }
 
   SentrySpan? getCreatedSpan() {

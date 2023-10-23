@@ -28,6 +28,7 @@ Integration for the [`hive`](https://pub.dev/packages/hive) package.
 import 'package:sentry/sentry.dart';
 import 'package:hive/hive.dart';
 import 'package:sentry_hive/sentry_hive.dart';
+import 'package:path_provider/path_provider.dart';
 
 Future<void> main() async {
   await SentryFlutter.init(
@@ -41,8 +42,9 @@ Future<void> main() async {
 
 Future<void> insertUser() async {
   // Use [SentryHive] where you would use [Hive]
+  final appDir = await getApplicationDocumentsDirectory();
   SentryHive
-    ..init(Directory.current.path)
+    ..init(appDir.path)
     ..registerAdapter(PersonAdapter());
 
   var box = await SentryHive.openBox('testBox');

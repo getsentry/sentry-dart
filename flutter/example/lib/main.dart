@@ -2,7 +2,6 @@
 
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -439,7 +438,7 @@ class MainScaffold extends StatelessWidget {
       bindToScope: true,
     );
 
-    var appDir = await getApplicationDocumentsDirectory();
+    final appDir = await getApplicationDocumentsDirectory();
     SentryHive.init(appDir.path);
 
     final catsBox = await SentryHive.openBox<Map>('cats');

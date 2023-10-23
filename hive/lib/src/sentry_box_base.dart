@@ -15,7 +15,11 @@ class SentryBoxBase<E> implements BoxBase<E> {
   @override
   Future<int> add(E value) async {
     return _asyncWrapInSpan('add', () async {
-      return await _boxBase.add(value);
+      try {
+        return await _boxBase.add(value);
+      } catch (error) {
+        rethrow;
+      }
     });
   }
 

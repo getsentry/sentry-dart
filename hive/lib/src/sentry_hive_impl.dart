@@ -118,20 +118,24 @@ class SentryHiveImpl implements SentryHiveInterface {
       Uint8List? bytes,
       String? collection,
       List<int>? encryptionKey}) {
-    return _asyncWrapInSpan('openBox', () async {
-      final Box<E> box = await _hive.openBox(
-        name,
-        encryptionCipher: encryptionCipher,
-        keyComparator: keyComparator,
-        compactionStrategy: compactionStrategy,
-        crashRecovery: crashRecovery,
-        path: path,
-        bytes: bytes,
-        collection: collection,
-        encryptionKey: encryptionKey,
-      );
-      return SentryBox(box, _hub);
-    });
+    return _asyncWrapInSpan(
+      'openBox',
+      () async {
+        final Box<E> box = await _hive.openBox(
+          name,
+          encryptionCipher: encryptionCipher,
+          keyComparator: keyComparator,
+          compactionStrategy: compactionStrategy,
+          crashRecovery: crashRecovery,
+          path: path,
+          bytes: bytes,
+          collection: collection,
+          encryptionKey: encryptionKey,
+        );
+        return SentryBox(box, _hub);
+      },
+      dbName: name,
+    );
   }
 
   @override
@@ -143,19 +147,23 @@ class SentryHiveImpl implements SentryHiveInterface {
       String? path,
       String? collection,
       List<int>? encryptionKey}) {
-    return _asyncWrapInSpan('openLazyBox', () async {
-      final LazyBox<E> lazyBox = await _hive.openLazyBox(
-        name,
-        encryptionCipher: encryptionCipher,
-        keyComparator: keyComparator,
-        compactionStrategy: compactionStrategy,
-        crashRecovery: crashRecovery,
-        path: path,
-        collection: collection,
-        encryptionKey: encryptionKey,
-      );
-      return SentryLazyBox(lazyBox, _hub);
-    });
+    return _asyncWrapInSpan(
+      'openLazyBox',
+      () async {
+        final LazyBox<E> lazyBox = await _hive.openLazyBox(
+          name,
+          encryptionCipher: encryptionCipher,
+          keyComparator: keyComparator,
+          compactionStrategy: compactionStrategy,
+          crashRecovery: crashRecovery,
+          path: path,
+          collection: collection,
+          encryptionKey: encryptionKey,
+        );
+        return SentryLazyBox(lazyBox, _hub);
+      },
+      dbName: name,
+    );
   }
 
   @override
@@ -175,7 +183,10 @@ class SentryHiveImpl implements SentryHiveInterface {
   // Helper
 
   Future<T> _asyncWrapInSpan<T>(
-      String description, Future<T> Function() execute) async {
+    String description,
+    Future<T> Function() execute, {
+    String? dbName,
+  }) async {
     final currentSpan = _hub.getSpan();
     final span = currentSpan?.startChild(
       SentryHiveImpl.dbOp,
@@ -186,6 +197,10 @@ class SentryHiveImpl implements SentryHiveInterface {
     span?.origin = SentryTraceOrigins.autoDbHive;
 
     span?.setData(SentryHiveImpl.dbSystemKey, SentryHiveImpl.dbSystem);
+
+    if (dbName != null) {
+      span?.setData(SentryHiveImpl.dbNameKey, dbName);
+    }
 
     try {
       final result = await execute();
