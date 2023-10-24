@@ -35,6 +35,7 @@ jobs:
       - run: dart pub get
 
       - uses: actions/download-artifact@v3
+        continue-on-error: true
         with:
           name: flutter-symbol-collector-database
           path: scripts/flutter_symbol_collector/.successful
@@ -45,6 +46,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
 
       - uses: actions/upload-artifact@v3
+        if: always()
         with:
           name: flutter-symbol-collector-database
           path: scripts/flutter_symbol_collector/.successful
