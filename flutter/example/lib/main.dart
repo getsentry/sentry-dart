@@ -85,7 +85,20 @@ class MyApp extends StatefulWidget {
   _MyAppState createState() => _MyAppState();
 }
 
-class _MyAppState extends State<MyApp> {
+class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return feedback.BetterFeedback(
@@ -102,6 +115,30 @@ class _MyAppState extends State<MyApp> {
         ),
       ),
     );
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.paused) {
+      print('App is going into the background');
+      Future.delayed(const Duration(seconds: 2), () async {
+        // This code will be executed 2 seconds after the app goes into the background
+        print('Trigger exception in background');
+        await _exceptionInBackground();
+      });
+    }
+  }
+
+  Future<void> _exceptionInBackground() async {
+    try {
+      throw Exception('_exceptionInBackground 2');
+    } catch (exception, stackTrace) {
+      await Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
+    }
   }
 }
 
