@@ -5,6 +5,7 @@
 ### Features
 
 - Breadcrumbs for file I/O operations ([#1649](https://github.com/getsentry/sentry-dart/pull/1649))
+- Only attach screenshot if app is in resumed state ([#1700](https://github.com/getsentry/sentry-dart/pull/1700))
 
 ### Dependencies
 
