@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixes
+
+- Session: missing mechanism.handled is considered crash ([#3353](https://github.com/getsentry/sentry-cocoa/pull/3353))
+
 ### Features
 
 - Breadcrumbs for file I/O operations ([#1649](https://github.com/getsentry/sentry-dart/pull/1649))
