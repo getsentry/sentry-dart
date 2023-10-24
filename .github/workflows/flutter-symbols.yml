@@ -1,6 +1,6 @@
 name: Flutter symbols collection
 on:
-  push:
+  push: # TODO REMOVE
   schedule:
     - cron: "10 */6 * * *" # every six hours
   workflow_dispatch:
@@ -43,8 +43,7 @@ jobs:
           name: flutter-symbol-collector-database
           path: scripts/flutter_symbol_collector/.successful
 
-      # - run: dart run bin/flutter_symbol_collector.dart --version=${{ inputs.flutter_version }}
-      - run: dart run bin/flutter_symbol_collector.dart --version=3.13.7  ; exit 1
+      - run: dart run bin/flutter_symbol_collector.dart --version=${{ inputs.flutter_version || '3.*.*' }}
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
