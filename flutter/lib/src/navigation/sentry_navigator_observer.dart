@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
 import '../event_processor/flutter_enricher_event_processor.dart';
@@ -90,7 +91,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
 
   static String? _currentRouteName;
 
-  /// Get the current route of the observer.
+  @internal
   static String? get currentRouteName => _currentRouteName;
 
   @override
