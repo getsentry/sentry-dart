@@ -87,22 +87,28 @@ class SymbolCollectorCli {
 
   Future<String> getVersion() => _execute(['--version', '-h']);
 
-  Future<void> upload(
+  Future<bool> upload(
       Directory dir, Platform symbolsPlatform, FlutterVersion flutterVersion,
-      {bool dryRun = false}) {
+      {bool dryRun = false}) async {
     final type = symbolsPlatform.operatingSystem;
-    return _execute([
-      '--upload',
-      'directory',
-      '--path',
-      dir.path,
-      '--batch-type',
-      type,
-      '--bundle-id',
-      'flutter-${flutterVersion.tagName}-$type',
-      '--server-endpoint',
-      'https://symbol-collector.services.sentry.io/',
-    ]);
+    try {
+      await _execute([
+        '--upload',
+        'directory',
+        '--path',
+        dir.path,
+        '--batch-type',
+        type,
+        '--bundle-id',
+        'flutter-${flutterVersion.tagName}-$type',
+        '--server-endpoint',
+        'https://symbol-collector.services.sentry.io/',
+      ]);
+    } catch (e) {
+      _log.warning('Failed to upload symbols from ${dir.path}', e);
+      return false;
+    }
+    return true;
   }
 
   Future<String> _execute(List<String> arguments) async {

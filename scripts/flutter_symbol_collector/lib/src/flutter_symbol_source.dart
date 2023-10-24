@@ -31,6 +31,7 @@ class FlutterSymbolSource {
       .listTags(_flutterRepo, perPage: 30)
       .map((t) => FlutterVersion(t.name));
 
+  /// Returns false as the first record value in case there was any error fetching the symbol archives.
   Future<List<SymbolArchive>> listSymbolArchives(FlutterVersion version) async {
     // example: https://console.cloud.google.com/storage/browser/flutter_infra_release/flutter/9064459a8b0dcd32877107f6002cc429a71659d1
     final prefix = 'flutter/${await version.engineVersion}/';
@@ -73,7 +74,8 @@ class FlutterSymbolSource {
 
   /// Downloads the remote [filePath] to the given [target] directory.
   /// If it's an archive, extracts the content instead.
-  Future<void> downloadAndExtractTo(Directory target, String filePath) async {
+  /// returns `true` if the file was downloaded and extracted successfully.
+  Future<bool> downloadAndExtractTo(Directory target, String filePath) async {
     if (path.extension(filePath) == '.zip') {
       target = await target
           .childDirectory(path.withoutExtension(filePath))
@@ -89,6 +91,7 @@ class FlutterSymbolSource {
         _log.warning('Failed to download $filePath to $target', e, trace);
         // Remove the directory so that we don't leave a partial extraction.
         await target.delete(recursive: true);
+        return false;
       }
     } else {
       _log.fine('Downloading $filePath to $target');
@@ -104,8 +107,10 @@ class FlutterSymbolSource {
         _log.warning('Failed to download $filePath to $target', e, trace);
         await sink.close();
         await file.delete();
+        return false;
       }
     }
+    return true;
   }
 
   Future<void> _extractZip(Directory target, Archive archive) async {

@@ -11,6 +11,7 @@ final source = FlutterSymbolSource(
         : Authentication.withToken(githubToken));
 final fs = LocalFileSystem();
 final tempDir = fs.currentDirectory.childDirectory('.temp');
+final successDir = fs.currentDirectory.childDirectory('.successful');
 late final SymbolCollectorCli collector;
 
 void main(List<String> arguments) async {
@@ -25,6 +26,7 @@ void main(List<String> arguments) async {
   final argVersion = args['version'] as String;
 
   collector = await SymbolCollectorCli.setup(tempDir);
+  successDir.createSync(recursive: true);
 
   // If a specific version was given, run just for this version.
   if (argVersion.isNotEmpty &&
@@ -52,14 +54,36 @@ void main(List<String> arguments) async {
 }
 
 Future<void> processFlutterVerion(FlutterVersion version) async {
+  if (bool.hasEnvironment('CI')) {
+    print('::group::Processing Flutter ${version.tagName}');
+  }
   Logger.root.info('Processing Flutter ${version.tagName}');
   Logger.root.info('Engine version: ${await version.engineVersion}');
 
   final archives = await source.listSymbolArchives(version);
   final dir = tempDir.childDirectory(version.tagName);
+  final sdir = successDir.childDirectory(version.tagName.toLowerCase());
   for (final archive in archives) {
+    // Later, we'll write create an empty file to mark this as successful.
+    final sFile = sdir.childFile(archive.path.toLowerCase());
+    if (sFile.existsSync()) {
+      Logger.root
+          .info('Skipping ${archive.path} - already processed successfully');
+      continue;
+    }
+
     final archiveDir = dir.childDirectory(archive.platform.operatingSystem);
-    await source.downloadAndExtractTo(archiveDir, archive.path);
-    await collector.upload(archiveDir, archive.platform, version);
+    if (!await source.downloadAndExtractTo(archiveDir, archive.path)) {
+      continue;
+    }
+    if (!await collector.upload(archiveDir, archive.platform, version)) {
+      continue;
+    }
+
+    sFile.createSync(recursive: true);
+  }
+
+  if (bool.hasEnvironment('CI')) {
+    print('::endgroup::');
   }
 }

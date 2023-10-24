@@ -1,6 +1,6 @@
 name: Flutter symbols collection
 on:
-  push: # Temporary so we get the workflow on the PR branch
+  push: # TODO REMOVE
   workflow_dispatch:
     inputs:
       flutter_version:
@@ -27,7 +27,6 @@ jobs:
   run:
     needs: [test]
     runs-on: ubuntu-latest
-    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v3
 
@@ -35,7 +34,17 @@ jobs:
 
       - run: dart pub get
 
+      - uses: actions/download-artifact@v3
+        with:
+          name: flutter-symbol-collector-database
+          path: scripts/flutter_symbol_collector/.successful
+
       # - run: dart run bin/flutter_symbol_collector.dart --version=${{ inputs.flutter_version }}
-      - run: dart run bin/flutter_symbol_collector.dart --version=3.13.*
+      - run: dart run bin/flutter_symbol_collector.dart --version=3.13.8
         env:
           GITHUB_TOKEN: ${{ github.token }}
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: flutter-symbol-collector-database
+          path: scripts/flutter_symbol_collector/.successful
