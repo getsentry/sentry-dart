@@ -67,8 +67,8 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
         span?.status = SpanStatus.internalError();
         breadcrumb.data?['status'] = 'internal_error';
         breadcrumb = breadcrumb.copyWith(
-          type: 'error',
-          level: SentryLevel.error,
+          type: 'query',
+          level: SentryLevel.warning,
         );
 
         rethrow;
@@ -110,12 +110,12 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
         span?.status = SpanStatus.internalError();
         breadcrumb.data?['status'] = 'internal_error';
         breadcrumb = breadcrumb.copyWith(
-          type: 'error',
-          level: SentryLevel.error,
+          type: 'query',
+          level: SentryLevel.warning,
         );
         breadcrumb = breadcrumb.copyWith(
-          type: 'error',
-          level: SentryLevel.error,
+          type: 'query',
+          level: SentryLevel.warning,
         );
 
         rethrow;
@@ -174,8 +174,8 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
         span?.status = SpanStatus.internalError();
         breadcrumb.data?['status'] = 'internal_error';
         breadcrumb = breadcrumb.copyWith(
-          type: 'error',
-          level: SentryLevel.error,
+          type: 'query',
+          level: SentryLevel.warning,
         );
 
         rethrow;
@@ -253,8 +253,8 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
         span?.status = SpanStatus.internalError();
         breadcrumb.data?['status'] = 'internal_error';
         breadcrumb = breadcrumb.copyWith(
-          type: 'error',
-          level: SentryLevel.error,
+          type: 'query',
+          level: SentryLevel.warning,
         );
 
         rethrow;
@@ -334,8 +334,8 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
         span?.status = SpanStatus.internalError();
         breadcrumb.data?['status'] = 'internal_error';
         breadcrumb = breadcrumb.copyWith(
-          type: 'error',
-          level: SentryLevel.error,
+          type: 'query',
+          level: SentryLevel.warning,
         );
 
         rethrow;
@@ -378,8 +378,8 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
         span?.status = SpanStatus.internalError();
         breadcrumb.data?['status'] = 'internal_error';
         breadcrumb = breadcrumb.copyWith(
-          type: 'error',
-          level: SentryLevel.error,
+          type: 'query',
+          level: SentryLevel.warning,
         );
 
         rethrow;
@@ -422,8 +422,8 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
         span?.status = SpanStatus.internalError();
         breadcrumb.data?['status'] = 'internal_error';
         breadcrumb = breadcrumb.copyWith(
-          type: 'error',
-          level: SentryLevel.error,
+          type: 'query',
+          level: SentryLevel.warning,
         );
 
         rethrow;
@@ -470,8 +470,8 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
         span?.status = SpanStatus.internalError();
         breadcrumb.data?['status'] = 'internal_error';
         breadcrumb = breadcrumb.copyWith(
-          type: 'error',
-          level: SentryLevel.error,
+          type: 'query',
+          level: SentryLevel.warning,
         );
 
         rethrow;
@@ -523,8 +523,8 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
         span?.status = SpanStatus.internalError();
         breadcrumb.data?['status'] = 'internal_error';
         breadcrumb = breadcrumb.copyWith(
-          type: 'error',
-          level: SentryLevel.error,
+          type: 'query',
+          level: SentryLevel.warning,
         );
 
         rethrow;
@@ -567,8 +567,8 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
         span?.status = SpanStatus.internalError();
         breadcrumb.data?['status'] = 'internal_error';
         breadcrumb = breadcrumb.copyWith(
-          type: 'error',
-          level: SentryLevel.error,
+          type: 'query',
+          level: SentryLevel.warning,
         );
 
         rethrow;
@@ -630,8 +630,8 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
         span?.status = SpanStatus.internalError();
         breadcrumb.data?['status'] = 'internal_error';
         breadcrumb = breadcrumb.copyWith(
-          type: 'error',
-          level: SentryLevel.error,
+          type: 'query',
+          level: SentryLevel.warning,
         );
 
         rethrow;

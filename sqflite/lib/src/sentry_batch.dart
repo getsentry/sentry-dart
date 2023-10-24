@@ -79,8 +79,8 @@ class SentryBatch implements Batch {
 
         breadcrumb.data?['status'] = 'internal_error';
         breadcrumb = breadcrumb.copyWith(
-          type: 'error',
-          level: SentryLevel.error,
+          type: 'query',
+          level: SentryLevel.warning,
         );
 
         rethrow;
@@ -133,8 +133,8 @@ class SentryBatch implements Batch {
 
         breadcrumb.data?['status'] = 'internal_error';
         breadcrumb = breadcrumb.copyWith(
-          type: 'error',
-          level: SentryLevel.error,
+          type: 'query',
+          level: SentryLevel.warning,
         );
 
         rethrow;
