@@ -4,7 +4,7 @@
 
 ### Fixes
 
-- Sessions: missing mechanism.handled is considered crash ([#3353](https://github.com/getsentry/sentry-cocoa/pull/3353))
+- Session: missing mechanism.handled is considered crash ([#3353](https://github.com/getsentry/sentry-cocoa/pull/3353))
 
 ### Features
 
