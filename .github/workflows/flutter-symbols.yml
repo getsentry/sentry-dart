@@ -37,9 +37,10 @@ jobs:
 
       - run: dart pub get
 
-      - uses: actions/cache/restore@v3
+      - uses: actions/download-artifact@v3
+        continue-on-error: true
         with:
-          key: flutter-symbol-collector-database
+          name: flutter-symbol-collector-database
           path: scripts/flutter_symbol_collector/.successful
 
       # - run: dart run bin/flutter_symbol_collector.dart --version=${{ inputs.flutter_version }}
@@ -47,8 +48,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
-      - uses: actions/cache/save@v3
+      - uses: actions/upload-artifact@v3
         if: always()
         with:
-          key: flutter-symbol-collector-database
+          name: flutter-symbol-collector-database
           path: scripts/flutter_symbol_collector/.successful
