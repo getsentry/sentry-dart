@@ -113,10 +113,6 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
           type: 'query',
           level: SentryLevel.warning,
         );
-        breadcrumb = breadcrumb.copyWith(
-          type: 'query',
-          level: SentryLevel.warning,
-        );
 
         rethrow;
       } finally {
