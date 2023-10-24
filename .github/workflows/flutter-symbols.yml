@@ -1,12 +1,15 @@
 name: Flutter symbols collection
 on:
-  push: # TODO REMOVE
+  push:
+  schedule:
+    - cron: "10 */6 * * *" # every six hours
   workflow_dispatch:
     inputs:
       flutter_version:
         description: Flutter version, can be either a specific version (3.17.0) or a wildcard (3.2.*)
         required: false
         type: string
+        default: "3.*.*"
 
 defaults:
   run:
@@ -34,12 +37,18 @@ jobs:
 
       - run: dart pub get
 
-      - uses: actions/cache@v3
+      - uses: actions/cache/restore@v3
         with:
           key: flutter-symbol-collector-database
           path: scripts/flutter_symbol_collector/.successful
 
       # - run: dart run bin/flutter_symbol_collector.dart --version=${{ inputs.flutter_version }}
-      - run: dart run bin/flutter_symbol_collector.dart --version=3.13.8
+      - run: dart run bin/flutter_symbol_collector.dart --version=3.13.8  ; exit 1
         env:
           GITHUB_TOKEN: ${{ github.token }}
+
+      - uses: actions/cache/save@v3
+        if: always()
+        with:
+          key: flutter-symbol-collector-database
+          path: scripts/flutter_symbol_collector/.successful
