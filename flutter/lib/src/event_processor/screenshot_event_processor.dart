@@ -10,7 +10,6 @@ import '../sentry_flutter_options.dart';
 import 'package:flutter/rendering.dart';
 import '../renderer/renderer.dart';
 
-
 class ScreenshotEventProcessor implements EventProcessor {
   final SentryFlutterOptions _options;
 
@@ -40,7 +39,8 @@ class ScreenshotEventProcessor implements EventProcessor {
       return event;
     }
 
-    if (_options.attachScreenshotWhenResumed && WidgetsBinding.instance.lifecycleState != AppLifecycleState.resumed) {
+    if (_options.attachScreenshotWhenResumed &&
+        WidgetsBinding.instance.lifecycleState != AppLifecycleState.resumed) {
       _options.logger(SentryLevel.debug,
           'Only attaching screenshots when application state is resumed.');
       return event;
