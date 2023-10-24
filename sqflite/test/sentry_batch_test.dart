@@ -122,6 +122,7 @@ void main() {
         breadcrumb.message,
         'INSERT INTO Product (title) VALUES (?)',
       );
+      expect(breadcrumb.type, 'query');
 
       await db.close();
     });
@@ -159,6 +160,7 @@ void main() {
         breadcrumb.message,
         'INSERT INTO Product (title) VALUES (?)',
       );
+      expect(breadcrumb.type, 'query');
 
       await db.close();
     });
@@ -193,6 +195,7 @@ void main() {
         breadcrumb.message,
         'UPDATE Product SET title = ?',
       );
+      expect(breadcrumb.type, 'query');
 
       await db.close();
     });
@@ -227,6 +230,7 @@ void main() {
         breadcrumb.message,
         'UPDATE Product SET title = ?',
       );
+      expect(breadcrumb.type, 'query');
 
       await db.close();
     });
@@ -261,6 +265,7 @@ void main() {
         breadcrumb.message,
         'DELETE FROM Product',
       );
+      expect(breadcrumb.type, 'query');
 
       await db.close();
     });
@@ -295,6 +300,7 @@ void main() {
         breadcrumb.message,
         'DELETE FROM Product',
       );
+      expect(breadcrumb.type, 'query');
 
       await db.close();
     });
@@ -329,6 +335,7 @@ void main() {
         breadcrumb.message,
         'DELETE FROM Product',
       );
+      expect(breadcrumb.type, 'query');
 
       await db.close();
     });
@@ -363,6 +370,7 @@ void main() {
         breadcrumb.message,
         'SELECT * FROM Product',
       );
+      expect(breadcrumb.type, 'query');
 
       await db.close();
     });
@@ -397,6 +405,7 @@ void main() {
         breadcrumb.message,
         'SELECT * FROM Product',
       );
+      expect(breadcrumb.type, 'query');
 
       await db.close();
     });
@@ -437,6 +446,7 @@ SELECT * FROM Product''';
 
       final breadcrumb = fixture.hub.scope.breadcrumbs.last;
       expect(breadcrumb.message, desc);
+      expect(breadcrumb.type, 'query');
 
       await db.close();
     });
@@ -477,6 +487,7 @@ SELECT * FROM Product''';
 
       final breadcrumb = fixture.hub.scope.breadcrumbs.last;
       expect(breadcrumb.message, desc);
+      expect(breadcrumb.type, 'query');
 
       await db.close();
     });
@@ -527,6 +538,7 @@ SELECT * FROM Product''';
         breadcrumb.data?[SentryDatabase.dbNameKey],
         (db as SentryDatabase).dbName,
       );
+      expect(breadcrumb.type, 'query');
 
       await db.close();
     });
@@ -568,6 +580,7 @@ SELECT * FROM Product''';
         breadcrumb.data?[SentryDatabase.dbNameKey],
         (db as SentryDatabase).dbName,
       );
+      expect(breadcrumb.type, 'query');
 
       await db.close();
     });

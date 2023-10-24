@@ -83,6 +83,7 @@ void main() {
       final breadcrumb = fixture.hub.scope.breadcrumbs.first;
       expect(breadcrumb.message, 'Close DB: $inMemoryDatabasePath');
       expect(breadcrumb.category, SentryDatabase.dbOp);
+      expect(breadcrumb.type, 'query');
     });
 
     test('creates transaction span', () async {
@@ -122,6 +123,7 @@ void main() {
         SentryDatabase.dbSystem,
       );
       expect(breadcrumb.data?[SentryDatabase.dbNameKey], inMemoryDatabasePath);
+      expect(breadcrumb.type, 'query');
 
       await db.close();
     });
@@ -336,6 +338,7 @@ void main() {
         SentryDatabase.dbSystem,
       );
       expect(breadcrumb.data?[SentryDatabase.dbNameKey], inMemoryDatabasePath);
+      expect(breadcrumb.type, 'query');
 
       await db.close();
     });
@@ -361,7 +364,7 @@ void main() {
       await db.close();
     });
 
-    test('creates execute span', () async {
+    test('creates execute breadcrumb', () async {
       final db = await fixture.getSut();
 
       await db.execute('DELETE FROM Product');
@@ -375,6 +378,7 @@ void main() {
         SentryDatabase.dbSystem,
       );
       expect(breadcrumb.data?[SentryDatabase.dbNameKey], inMemoryDatabasePath);
+      expect(breadcrumb.type, 'query');
 
       await db.close();
     });
@@ -420,6 +424,7 @@ void main() {
         SentryDatabase.dbSystem,
       );
       expect(breadcrumb.data?[SentryDatabase.dbNameKey], inMemoryDatabasePath);
+      expect(breadcrumb.type, 'query');
 
       await db.close();
     });
@@ -460,6 +465,7 @@ void main() {
         SentryDatabase.dbSystem,
       );
       expect(breadcrumb.data?[SentryDatabase.dbNameKey], inMemoryDatabasePath);
+      expect(breadcrumb.type, 'query');
 
       await db.close();
     });
@@ -500,6 +506,7 @@ void main() {
         SentryDatabase.dbSystem,
       );
       expect(breadcrumb.data?[SentryDatabase.dbNameKey], inMemoryDatabasePath);
+      expect(breadcrumb.type, 'query');
 
       await db.close();
     });
@@ -539,6 +546,7 @@ void main() {
         SentryDatabase.dbSystem,
       );
       expect(breadcrumb.data?[SentryDatabase.dbNameKey], inMemoryDatabasePath);
+      expect(breadcrumb.type, 'query');
 
       await db.close();
     });
@@ -583,6 +591,7 @@ void main() {
         SentryDatabase.dbSystem,
       );
       expect(breadcrumb.data?[SentryDatabase.dbNameKey], inMemoryDatabasePath);
+      expect(breadcrumb.type, 'query');
 
       await db.close();
     });
@@ -623,6 +632,7 @@ void main() {
         SentryDatabase.dbSystem,
       );
       expect(breadcrumb.data?[SentryDatabase.dbNameKey], inMemoryDatabasePath);
+      expect(breadcrumb.type, 'query');
 
       await db.close();
     });
@@ -663,6 +673,7 @@ void main() {
         SentryDatabase.dbSystem,
       );
       expect(breadcrumb.data?[SentryDatabase.dbNameKey], inMemoryDatabasePath);
+      expect(breadcrumb.type, 'query');
 
       await db.close();
     });
@@ -702,6 +713,7 @@ void main() {
         SentryDatabase.dbSystem,
       );
       expect(breadcrumb.data?[SentryDatabase.dbNameKey], inMemoryDatabasePath);
+      expect(breadcrumb.type, 'query');
 
       await db.close();
     });
@@ -741,6 +753,7 @@ void main() {
         SentryDatabase.dbSystem,
       );
       expect(breadcrumb.data?[SentryDatabase.dbNameKey], inMemoryDatabasePath);
+      expect(breadcrumb.type, 'query');
 
       await db.close();
     });

@@ -51,6 +51,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
         message: builder.sql,
         category: SentryDatabase.dbSqlExecuteOp,
         data: {},
+        type: 'query',
       );
       setDatabaseAttributeOnBreadcrumb(breadcrumb, _dbName);
 
@@ -67,7 +68,6 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
         span?.status = SpanStatus.internalError();
         breadcrumb.data?['status'] = 'internal_error';
         breadcrumb = breadcrumb.copyWith(
-          type: 'query',
           level: SentryLevel.warning,
         );
 
@@ -97,6 +97,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
         message: sql,
         category: SentryDatabase.dbSqlExecuteOp,
         data: {},
+        type: 'query',
       );
       setDatabaseAttributeOnBreadcrumb(breadcrumb, _dbName);
 
@@ -110,7 +111,6 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
         span?.status = SpanStatus.internalError();
         breadcrumb.data?['status'] = 'internal_error';
         breadcrumb = breadcrumb.copyWith(
-          type: 'query',
           level: SentryLevel.warning,
         );
 
@@ -150,6 +150,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
         message: builder.sql,
         category: SentryDatabase.dbSqlExecuteOp,
         data: {},
+        type: 'query',
       );
       setDatabaseAttributeOnBreadcrumb(breadcrumb, _dbName);
 
@@ -170,7 +171,6 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
         span?.status = SpanStatus.internalError();
         breadcrumb.data?['status'] = 'internal_error';
         breadcrumb = breadcrumb.copyWith(
-          type: 'query',
           level: SentryLevel.warning,
         );
 
@@ -249,7 +249,6 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
         span?.status = SpanStatus.internalError();
         breadcrumb.data?['status'] = 'internal_error';
         breadcrumb = breadcrumb.copyWith(
-          type: 'query',
           level: SentryLevel.warning,
         );
 
@@ -330,7 +329,6 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
         span?.status = SpanStatus.internalError();
         breadcrumb.data?['status'] = 'internal_error';
         breadcrumb = breadcrumb.copyWith(
-          type: 'query',
           level: SentryLevel.warning,
         );
 
@@ -359,6 +357,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
         message: sql,
         category: SentryDatabase.dbSqlExecuteOp,
         data: {},
+        type: 'query',
       );
       setDatabaseAttributeOnBreadcrumb(breadcrumb, _dbName);
 
@@ -374,7 +373,6 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
         span?.status = SpanStatus.internalError();
         breadcrumb.data?['status'] = 'internal_error';
         breadcrumb = breadcrumb.copyWith(
-          type: 'query',
           level: SentryLevel.warning,
         );
 
@@ -403,6 +401,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
         message: sql,
         category: SentryDatabase.dbSqlExecuteOp,
         data: {},
+        type: 'query',
       );
       setDatabaseAttributeOnBreadcrumb(breadcrumb, _dbName);
 
@@ -418,7 +417,6 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
         span?.status = SpanStatus.internalError();
         breadcrumb.data?['status'] = 'internal_error';
         breadcrumb = breadcrumb.copyWith(
-          type: 'query',
           level: SentryLevel.warning,
         );
 
@@ -466,7 +464,6 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
         span?.status = SpanStatus.internalError();
         breadcrumb.data?['status'] = 'internal_error';
         breadcrumb = breadcrumb.copyWith(
-          type: 'query',
           level: SentryLevel.warning,
         );
 
@@ -519,7 +516,6 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
         span?.status = SpanStatus.internalError();
         breadcrumb.data?['status'] = 'internal_error';
         breadcrumb = breadcrumb.copyWith(
-          type: 'query',
           level: SentryLevel.warning,
         );
 
@@ -548,6 +544,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
         message: sql,
         category: SentryDatabase.dbSqlExecuteOp,
         data: {},
+        type: 'query',
       );
       setDatabaseAttributeOnBreadcrumb(breadcrumb, _dbName);
 
@@ -563,7 +560,6 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
         span?.status = SpanStatus.internalError();
         breadcrumb.data?['status'] = 'internal_error';
         breadcrumb = breadcrumb.copyWith(
-          type: 'query',
           level: SentryLevel.warning,
         );
 
@@ -605,6 +601,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
         message: builder.sql,
         category: SentryDatabase.dbSqlExecuteOp,
         data: {},
+        type: 'query',
       );
       setDatabaseAttributeOnBreadcrumb(breadcrumb, _dbName);
 
@@ -626,7 +623,6 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
         span?.status = SpanStatus.internalError();
         breadcrumb.data?['status'] = 'internal_error';
         breadcrumb = breadcrumb.copyWith(
-          type: 'query',
           level: SentryLevel.warning,
         );
 

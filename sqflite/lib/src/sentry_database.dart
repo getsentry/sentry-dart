@@ -87,6 +87,7 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
         message: description,
         category: dbOp,
         data: {},
+        type: 'query',
       );
 
       try {
@@ -99,7 +100,6 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
         span?.status = SpanStatus.internalError();
         breadcrumb.data?['status'] = 'internal_error';
         breadcrumb = breadcrumb.copyWith(
-          type: 'query',
           level: SentryLevel.warning,
         );
 
@@ -154,6 +154,7 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
         message: description,
         category: _dbSqlOp,
         data: {},
+        type: 'query',
       );
       setDatabaseAttributeOnBreadcrumb(breadcrumb, dbName);
 
@@ -183,7 +184,6 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
         span?.status = SpanStatus.internalError();
         breadcrumb.data?['status'] = 'internal_error';
         breadcrumb = breadcrumb.copyWith(
-          type: 'query',
           level: SentryLevel.warning,
         );
 

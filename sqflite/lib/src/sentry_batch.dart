@@ -59,6 +59,7 @@ class SentryBatch implements Batch {
       var breadcrumb = Breadcrumb(
         message: _buffer.toString().trim(),
         data: {},
+        type: 'query',
       );
       setDatabaseAttributeOnBreadcrumb(breadcrumb, _dbName);
 
@@ -79,7 +80,6 @@ class SentryBatch implements Batch {
 
         breadcrumb.data?['status'] = 'internal_error';
         breadcrumb = breadcrumb.copyWith(
-          type: 'query',
           level: SentryLevel.warning,
         );
 
@@ -113,6 +113,7 @@ class SentryBatch implements Batch {
       var breadcrumb = Breadcrumb(
         message: _buffer.toString().trim(),
         data: {},
+        type: 'query',
       );
       setDatabaseAttributeOnBreadcrumb(breadcrumb, _dbName);
 
@@ -133,7 +134,6 @@ class SentryBatch implements Batch {
 
         breadcrumb.data?['status'] = 'internal_error';
         breadcrumb = breadcrumb.copyWith(
-          type: 'query',
           level: SentryLevel.warning,
         );
 
