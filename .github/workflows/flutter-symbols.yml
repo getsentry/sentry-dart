@@ -43,7 +43,7 @@ jobs:
           path: scripts/flutter_symbol_collector/.successful
 
       # - run: dart run bin/flutter_symbol_collector.dart --version=${{ inputs.flutter_version }}
-      - run: dart run bin/flutter_symbol_collector.dart --version=3.13.8  ; exit 1
+      - run: dart run bin/flutter_symbol_collector.dart --version=3.13.7  ; exit 1
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
