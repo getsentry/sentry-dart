@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Better Flutter framework stack traces - we now collect Flutter framework debug symbols for iOS, macOS and Android automatically on the Sentry server ([#1673](https://github.com/getsentry/sentry-dart/pull/1673))
+
 ## 7.11.0
 
 ### Fixes
