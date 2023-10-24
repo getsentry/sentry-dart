@@ -36,6 +36,6 @@ jobs:
       - run: dart pub get
 
       # - run: dart run bin/flutter_symbol_collector.dart --version=${{ inputs.flutter_version }}
-      - run: dart run bin/flutter_symbol_collector.dart --version=3.13.7
+      - run: dart run bin/flutter_symbol_collector.dart --version=3.13.*
         env:
           GITHUB_TOKEN: ${{ github.token }}
