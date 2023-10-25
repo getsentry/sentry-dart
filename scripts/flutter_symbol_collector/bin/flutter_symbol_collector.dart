@@ -5,13 +5,13 @@ import 'package:github/github.dart';
 import 'package:logging/logging.dart';
 
 const githubToken = String.fromEnvironment('GITHUB_TOKEN');
-final source = FlutterSymbolSource(
-    githubAuth: githubToken.isEmpty
-        ? Authentication.anonymous()
-        : Authentication.withToken(githubToken));
+final githubAuth = githubToken.isEmpty
+    ? Authentication.anonymous()
+    : Authentication.withToken(githubToken);
+final source = FlutterSymbolSource(githubAuth: githubAuth);
 final fs = LocalFileSystem();
 final tempDir = fs.currentDirectory.childDirectory('.temp');
-final successDir = fs.currentDirectory.childDirectory('.successful');
+final stateCache = DirectoryStatusCache(fs.currentDirectory.childDirectory('.successful'));
 late final SymbolCollectorCli collector;
 
 void main(List<String> arguments) async {
@@ -26,7 +26,6 @@ void main(List<String> arguments) async {
   final argVersion = args['version'] as String;
 
   collector = await SymbolCollectorCli.setup(tempDir);
-  successDir.createSync(recursive: true);
 
   // If a specific version was given, run just for this version.
   if (argVersion.isNotEmpty &&
@@ -62,25 +61,22 @@ Future<void> processFlutterVerion(FlutterVersion version) async {
 
   final archives = await source.listSymbolArchives(version);
   final dir = tempDir.childDirectory(version.tagName);
-  final sdir = successDir.childDirectory(version.tagName.toLowerCase());
   for (final archive in archives) {
-    // Later, we'll write create an empty file to mark this as successful.
-    final sFile = sdir.childFile(archive.path.toLowerCase());
-    if (sFile.existsSync()) {
+    final status = await stateCache.getStatus(archive);
+    if (status == SymbolArchiveStatus.success) {
       Logger.root
           .info('Skipping ${archive.path} - already processed successfully');
       continue;
     }
 
     final archiveDir = dir.childDirectory(archive.platform.operatingSystem);
-    if (!await source.downloadAndExtractTo(archiveDir, archive.path)) {
-      continue;
+    if (await source.downloadAndExtractTo(archiveDir, archive.path)) {
+      if (await collector.upload(archiveDir, archive.platform, version)) {
+        await stateCache.setStatus(archive, SymbolArchiveStatus.success);
+        continue;
+      }
     }
-    if (!await collector.upload(archiveDir, archive.platform, version)) {
-      continue;
-    }
-
-    sFile.createSync(recursive: true);
+    await stateCache.setStatus(archive, SymbolArchiveStatus.error);
   }
 
   if (bool.hasEnvironment('CI')) {
