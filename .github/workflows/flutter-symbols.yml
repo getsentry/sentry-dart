@@ -46,7 +46,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
-      - run: dart run bin/flutter_symbol_collector.dart --version=${{ inputs.flutter_version || '3.13.1' }}
+      - run: dart run bin/flutter_symbol_collector.dart --version=${{ inputs.flutter_version || '3.*.*' }}
         timeout-minutes: 300
         env:
           GITHUB_TOKEN: ${{ github.token }}
