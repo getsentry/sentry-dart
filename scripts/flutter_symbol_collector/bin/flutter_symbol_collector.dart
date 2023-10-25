@@ -71,14 +71,20 @@ Future<void> processFlutterVerion(FlutterVersion version) async {
     }
 
     final archiveDir = dir.childDirectory(archive.platform.operatingSystem);
-    if (await source.downloadAndExtractTo(archiveDir, archive.path)) {
-      if (await collector.upload(archiveDir, archive.platform, version)) {
-        await stateCache.setStatus(
-            version, archive, SymbolArchiveStatus.success);
-        continue;
+    try {
+      if (await source.downloadAndExtractTo(archiveDir, archive.path)) {
+        if (await collector.upload(archiveDir, archive.platform, version)) {
+          await stateCache.setStatus(
+              version, archive, SymbolArchiveStatus.success);
+          continue;
+        }
+      }
+      await stateCache.setStatus(version, archive, SymbolArchiveStatus.error);
+    } finally {
+      if (await archiveDir.exists()) {
+        await archiveDir.delete(recursive: true);
       }
     }
-    await stateCache.setStatus(version, archive, SymbolArchiveStatus.error);
   }
 
   if (await dir.exists()) {
