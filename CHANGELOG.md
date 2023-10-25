@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Enhancements
+
+- Log warning if both tracesSampleRate and tracesSampler are set ([#1701](https://github.com/getsentry/sentry-dart/pull/1701))
+
 ## 7.11.0
 
 ### Fixes
