@@ -17,7 +17,7 @@ defaults:
 
 jobs:
   test:
-    runs-on: macos-13 # macOS 13 runner has 4 CPUs and 14 GB of RAM
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
 
@@ -45,10 +45,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
-      # An AOT compiled app should have slightly lower memory footprint than JIT.
-      - run: |
-          dart compile exe bin/flutter_symbol_collector.dart
-          ./bin/flutter_symbol_collector.exe --version=${{ inputs.flutter_version || '3.*.*' }}
+      - run: dart run bin/flutter_symbol_collector.dart --version=${{ inputs.flutter_version || '3.*.*' }}
         timeout-minutes: 300
         env:
           GITHUB_TOKEN: ${{ github.token }}
