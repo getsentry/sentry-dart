@@ -81,6 +81,10 @@ Future<void> processFlutterVerion(FlutterVersion version) async {
     await stateCache.setStatus(version, archive, SymbolArchiveStatus.error);
   }
 
+  if (await dir.exists()) {
+    await dir.delete(recursive: true);
+  }
+
   if (bool.hasEnvironment('CI')) {
     print('::endgroup::');
   }
