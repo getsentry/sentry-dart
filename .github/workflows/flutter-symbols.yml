@@ -38,7 +38,10 @@ jobs:
       - run: dart pub get
 
       # This downloads the database from the latest successful run.
-      - run: gh run download --name 'flutter-symbol-collector-database'
+      - name: Download status of previously processed files
+        run: |
+          gh run download --name 'flutter-symbol-collector-database' --dir .successful
+          find ./.successful/ -name '*.status'
         continue-on-error: true
         env:
           GITHUB_TOKEN: ${{ github.token }}
