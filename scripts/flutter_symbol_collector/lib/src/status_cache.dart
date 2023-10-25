@@ -45,7 +45,8 @@ class DirectoryStatusCache implements SymbolArchiveStatusCache {
         case 'error':
           return SymbolArchiveStatus.error;
         default:
-          throw StateError('Unknown status: $value');
+          Logger.root.warning('Unknown status \'$value\' in $file');
+          return SymbolArchiveStatus.error;
       }
     });
   }
@@ -55,6 +56,6 @@ class DirectoryStatusCache implements SymbolArchiveStatusCache {
       SymbolArchive archive, SymbolArchiveStatus status) async {
     final file = _statusFile(archive);
     await file.create(recursive: true);
-    await file.writeAsString(status.toString());
+    await file.writeAsString(status.name);
   }
 }
