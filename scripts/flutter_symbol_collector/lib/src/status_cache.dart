@@ -54,6 +54,7 @@ class DirectoryStatusCache implements SymbolArchiveStatusCache {
   @override
   Future<void> setStatus(
       SymbolArchive archive, SymbolArchiveStatus status) async {
+    Logger.root.info('Setting ${archive.path} status to ${status.name}');
     final file = _statusFile(archive);
     await file.create(recursive: true);
     await file.writeAsString(status.name);
