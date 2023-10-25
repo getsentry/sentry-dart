@@ -11,7 +11,8 @@ final githubAuth = githubToken.isEmpty
 final source = FlutterSymbolSource(githubAuth: githubAuth);
 final fs = LocalFileSystem();
 final tempDir = fs.currentDirectory.childDirectory('.temp');
-final stateCache = DirectoryStatusCache(fs.currentDirectory.childDirectory('.successful'));
+final stateCache =
+    DirectoryStatusCache(fs.currentDirectory.childDirectory('.successful'));
 late final SymbolCollectorCli collector;
 
 void main(List<String> arguments) async {
@@ -62,7 +63,7 @@ Future<void> processFlutterVerion(FlutterVersion version) async {
   final archives = await source.listSymbolArchives(version);
   final dir = tempDir.childDirectory(version.tagName);
   for (final archive in archives) {
-    final status = await stateCache.getStatus(archive);
+    final status = await stateCache.getStatus(version, archive);
     if (status == SymbolArchiveStatus.success) {
       Logger.root
           .info('Skipping ${archive.path} - already processed successfully');
@@ -72,11 +73,12 @@ Future<void> processFlutterVerion(FlutterVersion version) async {
     final archiveDir = dir.childDirectory(archive.platform.operatingSystem);
     if (await source.downloadAndExtractTo(archiveDir, archive.path)) {
       if (await collector.upload(archiveDir, archive.platform, version)) {
-        await stateCache.setStatus(archive, SymbolArchiveStatus.success);
+        await stateCache.setStatus(
+            version, archive, SymbolArchiveStatus.success);
         continue;
       }
     }
-    await stateCache.setStatus(archive, SymbolArchiveStatus.error);
+    await stateCache.setStatus(version, archive, SymbolArchiveStatus.error);
   }
 
   if (bool.hasEnvironment('CI')) {

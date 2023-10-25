@@ -1,7 +1,7 @@
 import 'package:file/file.dart';
-import 'package:github/github.dart' as github;
 import 'package:logging/logging.dart';
 
+import 'flutter_version.dart';
 import 'symbol_archive.dart';
 
 enum SymbolArchiveStatus {
@@ -17,8 +17,10 @@ enum SymbolArchiveStatus {
 
 /// Stores and retrieves information about symbol processing status.
 abstract class SymbolArchiveStatusCache {
-  Future<void> setStatus(SymbolArchive archive, SymbolArchiveStatus status);
-  Future<SymbolArchiveStatus> getStatus(SymbolArchive archive);
+  Future<void> setStatus(FlutterVersion version, SymbolArchive archive,
+      SymbolArchiveStatus status);
+  Future<SymbolArchiveStatus> getStatus(
+      FlutterVersion version, SymbolArchive archive);
 }
 
 /// Stores information about symbol processing status in a local directory.
@@ -29,12 +31,13 @@ class DirectoryStatusCache implements SymbolArchiveStatusCache {
     _dir.createSync(recursive: true);
   }
 
-  File _statusFile(SymbolArchive archive) =>
-      _dir.childFile(archive.path.toLowerCase());
+  File _statusFile(FlutterVersion version, SymbolArchive archive) =>
+      _dir.childFile('${version.tagName}/${archive.path.toLowerCase()}.status');
 
   @override
-  Future<SymbolArchiveStatus> getStatus(SymbolArchive archive) async {
-    final file = _statusFile(archive);
+  Future<SymbolArchiveStatus> getStatus(
+      FlutterVersion version, SymbolArchive archive) async {
+    final file = _statusFile(version, archive);
     if (!await file.exists()) {
       return SymbolArchiveStatus.pending;
     }
@@ -52,10 +55,10 @@ class DirectoryStatusCache implements SymbolArchiveStatusCache {
   }
 
   @override
-  Future<void> setStatus(
-      SymbolArchive archive, SymbolArchiveStatus status) async {
-    Logger.root.info('Setting ${archive.path} status to ${status.name}');
-    final file = _statusFile(archive);
+  Future<void> setStatus(FlutterVersion version, SymbolArchive archive,
+      SymbolArchiveStatus status) async {
+    final file = _statusFile(version, archive);
+    Logger.root.info('Setting ${file.path} status to ${status.name}');
     await file.create(recursive: true);
     await file.writeAsString(status.name);
   }

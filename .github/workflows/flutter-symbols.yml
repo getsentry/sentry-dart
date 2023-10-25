@@ -37,16 +37,13 @@ jobs:
 
       - run: dart pub get
 
-      # We use a custom action that downloads artifacts from the previous run.
-      - uses: dawidd6/action-download-artifact@268677152d06ba59fcec7a7f0b5d961b6ccd7e1e # pin@v2.28.0
+      # This downloads the database from the latest successful run.
+      - run: gh run download --name 'flutter-symbol-collector-database'
         continue-on-error: true
-        with:
-          workflow_conclusion: "" # i.e. any conclusion, even failures and timeouts
-          if_no_artifact_found: warn
-          name: flutter-symbol-collector-database
-          path: scripts/flutter_symbol_collector/.successful
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
 
-      - run: dart run bin/flutter_symbol_collector.dart --version=${{ inputs.flutter_version || '3.13.*' }}
+      - run: dart run bin/flutter_symbol_collector.dart --version=${{ inputs.flutter_version || '3.13.1' }}
         timeout-minutes: 300
         env:
           GITHUB_TOKEN: ${{ github.token }}
