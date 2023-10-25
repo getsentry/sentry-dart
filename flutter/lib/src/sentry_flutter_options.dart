@@ -10,8 +10,7 @@ import 'screenshot/sentry_screenshot_quality.dart';
 /// Note that some of these options require native Sentry integration, which is
 /// not available on all platforms.
 class SentryFlutterOptions extends SentryOptions {
-  SentryFlutterOptions({String? dsn, PlatformChecker? checker})
-      : super(dsn: dsn, checker: checker) {
+  SentryFlutterOptions({super.dsn, super.checker}) {
     enableBreadcrumbTrackingForCurrentPlatform();
   }
 

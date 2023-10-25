@@ -264,14 +264,12 @@ class RouteObserverBreadcrumb extends Breadcrumb {
     dynamic fromArgs,
     String? to,
     dynamic toArgs,
-    SentryLevel? level,
-    DateTime? timestamp,
+    super.level,
+    super.timestamp,
     Map<String, dynamic>? data,
   }) : super(
             category: _navigationKey,
             type: _navigationKey,
-            level: level,
-            timestamp: timestamp,
             data: <String, dynamic>{
               'state': navigationType,
               if (from != null) 'from': from,
