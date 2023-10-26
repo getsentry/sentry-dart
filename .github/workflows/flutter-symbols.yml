@@ -1,7 +1,8 @@
 name: Flutter symbols collection
 on:
   schedule:
-    - cron: "10 */6 * * *" # every six hours
+    # Run once an hour. It takes just a couple of minutes because of status caching.
+    - cron: "10 * * * *"
   workflow_dispatch:
     inputs:
       flutter_version:
