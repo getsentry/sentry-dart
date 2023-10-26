@@ -62,7 +62,7 @@ void main() {
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
-          options.devMode = true;
+          options.automatedTestMode = true;
           options.profilesSampleRate = 1.0;
           integrations = options.integrations;
           transport = options.transport;
@@ -112,7 +112,7 @@ void main() {
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
-          options.devMode = true;
+          options.automatedTestMode = true;
           options.profilesSampleRate = 1.0;
           integrations = options.integrations;
           transport = options.transport;
@@ -161,7 +161,7 @@ void main() {
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
-          options.devMode = true;
+          options.automatedTestMode = true;
           options.profilesSampleRate = 1.0;
           integrations = options.integrations;
           transport = options.transport;
@@ -210,7 +210,7 @@ void main() {
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
-          options.devMode = true;
+          options.automatedTestMode = true;
           options.profilesSampleRate = 1.0;
           integrations = options.integrations;
           transport = options.transport;
@@ -261,7 +261,7 @@ void main() {
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
-          options.devMode = true;
+          options.automatedTestMode = true;
           options.profilesSampleRate = 1.0;
           integrations = options.integrations;
           transport = options.transport;
@@ -312,7 +312,7 @@ void main() {
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
-          options.devMode = true;
+          options.automatedTestMode = true;
           options.profilesSampleRate = 1.0;
           integrations = options.integrations;
           transport = options.transport;
@@ -365,7 +365,7 @@ void main() {
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
-          options.devMode = true;
+          options.automatedTestMode = true;
           integrations = options.integrations;
           transport = options.transport;
         },
@@ -409,7 +409,7 @@ void main() {
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
-          options.devMode = true;
+          options.automatedTestMode = true;
           integrations = options.integrations;
           transport = options.transport;
         },
@@ -454,7 +454,7 @@ void main() {
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
-          options.devMode = true;
+          options.automatedTestMode = true;
           integrations = options.integrations;
           transport = options.transport;
         },
@@ -501,7 +501,7 @@ void main() {
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
-          options.devMode = true;
+          options.automatedTestMode = true;
           integrations = options.integrations;
         },
         appRunner: appRunner,
@@ -524,7 +524,7 @@ void main() {
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
-          options.devMode = true;
+          options.automatedTestMode = true;
           integrations = options.integrations;
         },
         appRunner: appRunner,
@@ -547,7 +547,7 @@ void main() {
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
-          options.devMode = true;
+          options.automatedTestMode = true;
           integrations = options.integrations;
         },
         appRunner: appRunner,
@@ -570,7 +570,7 @@ void main() {
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
-          options.devMode = true;
+          options.automatedTestMode = true;
           integrations = options.integrations;
         },
         appRunner: appRunner,
@@ -598,7 +598,7 @@ void main() {
       await SentryFlutter.init(
         (options) {
           options.dsn = fakeDsn;
-          options.devMode = true;
+          options.automatedTestMode = true;
 
           expect(false, options.debug);
           expect('debug', options.environment);

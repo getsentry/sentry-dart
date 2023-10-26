@@ -20,7 +20,7 @@ void main(List<String> arguments) async {
   }
   final options = SentryOptions(dsn: _exampleDsn)
     // ignore: invalid_use_of_internal_member
-    ..devMode = true;
+    ..automatedTestMode = true;
   await Sentry.init(
     (options) {
       options.dsn = _exampleDsn;

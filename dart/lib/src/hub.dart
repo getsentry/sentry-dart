@@ -278,7 +278,7 @@ class Hub {
           exception: exception,
           stackTrace: stackTrace,
         );
-        if (_options.devMode) {
+        if (_options.automatedTestMode) {
           rethrow;
         }
       }
@@ -378,7 +378,7 @@ class Hub {
           SentryLevel.error,
           "Error in the 'configureScope' callback, error: $err",
         );
-        if (_options.devMode) {
+        if (_options.automatedTestMode) {
           rethrow;
         }
       }

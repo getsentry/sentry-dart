@@ -95,7 +95,7 @@ class SentryNative {
     } catch (error, stackTrace) {
       _logError(nativeMethodName, error, stackTrace);
       // ignore: invalid_use_of_internal_member
-      if (_options.devMode) {
+      if (_options.automatedTestMode) {
         rethrow;
       }
       return null;
@@ -108,7 +108,7 @@ class SentryNative {
     } catch (error, stackTrace) {
       _logError(nativeMethodName, error, stackTrace);
       // ignore: invalid_use_of_internal_member
-      if (_options.devMode) {
+      if (_options.automatedTestMode) {
         rethrow;
       }
       return null;

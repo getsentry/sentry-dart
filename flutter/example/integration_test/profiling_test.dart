@@ -11,7 +11,7 @@ void main() {
   setUp(() async {
     await SentryFlutter.init((options) {
       // ignore: invalid_use_of_internal_member
-      options.devMode = true;
+      options.automatedTestMode = true;
       options.dsn = 'https://abc@def.ingest.sentry.io/1234567';
       options.debug = true;
       options.transport = transport;

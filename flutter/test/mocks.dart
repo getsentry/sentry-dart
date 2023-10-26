@@ -22,7 +22,7 @@ const fakeProguardUuid = '3457d982-65ef-576d-a6ad-65b5f30f49a5';
 // TODO use this everywhere in tests so that we don't get exceptions swallowed.
 SentryFlutterOptions defaultTestOptions() {
   // ignore: invalid_use_of_internal_member
-  return SentryFlutterOptions(dsn: fakeDsn)..devMode = true;
+  return SentryFlutterOptions(dsn: fakeDsn)..automatedTestMode = true;
 }
 
 // https://github.com/dart-lang/mockito/blob/master/NULL_SAFETY_README.md#fallback-generators

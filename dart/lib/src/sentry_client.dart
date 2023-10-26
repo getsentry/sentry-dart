@@ -406,7 +406,7 @@ class SentryClient {
         exception: exception,
         stackTrace: stackTrace,
       );
-      if (_options.devMode) {
+      if (_options.automatedTestMode) {
         rethrow;
       }
     }
@@ -443,7 +443,7 @@ class SentryClient {
           exception: exception,
           stackTrace: stackTrace,
         );
-        if (_options.devMode) {
+        if (_options.automatedTestMode) {
           rethrow;
         }
       }
