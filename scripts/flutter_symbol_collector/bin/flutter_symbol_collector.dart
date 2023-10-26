@@ -63,7 +63,7 @@ Future<void> processFlutterVerion(FlutterVersion version) async {
   final archives = await source.listSymbolArchives(version);
   final dir = tempDir.childDirectory(version.tagName);
   for (final archive in archives) {
-    final status = await stateCache.getStatus(version, archive);
+    final status = await stateCache.getStatus(archive);
     if (status == SymbolArchiveStatus.success) {
       Logger.root
           .info('Skipping ${archive.path} - already processed successfully');
@@ -74,12 +74,11 @@ Future<void> processFlutterVerion(FlutterVersion version) async {
     try {
       if (await source.downloadAndExtractTo(archiveDir, archive.path)) {
         if (await collector.upload(archiveDir, archive.platform, version)) {
-          await stateCache.setStatus(
-              version, archive, SymbolArchiveStatus.success);
+          await stateCache.setStatus(archive, SymbolArchiveStatus.success);
           continue;
         }
       }
-      await stateCache.setStatus(version, archive, SymbolArchiveStatus.error);
+      await stateCache.setStatus(archive, SymbolArchiveStatus.error);
     } finally {
       if (await archiveDir.exists()) {
         await archiveDir.delete(recursive: true);

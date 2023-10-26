@@ -12,7 +12,6 @@ void main() {
   group('DirectoryStatusCache', () {
     late FileSystem fs;
     late SymbolArchiveStatusCache sut;
-    final version = FlutterVersion('1.2.3');
     final archive = SymbolArchive('path/to/archive.zip', LocalPlatform());
 
     setUp(() {
@@ -21,38 +20,24 @@ void main() {
     });
 
     test('retrieve unprocessed file', () async {
-      expect(
-          await sut.getStatus(version, archive), SymbolArchiveStatus.pending);
+      expect(await sut.getStatus(archive), SymbolArchiveStatus.pending);
     });
 
     test('store and retrieve error', () async {
-      await sut.setStatus(version, archive, SymbolArchiveStatus.error);
-      expect(await sut.getStatus(version, archive), SymbolArchiveStatus.error);
+      await sut.setStatus(archive, SymbolArchiveStatus.error);
+      expect(await sut.getStatus(archive), SymbolArchiveStatus.error);
     });
 
     test('store and retrieve success', () async {
-      await sut.setStatus(version, archive, SymbolArchiveStatus.success);
-      expect(
-          await sut.getStatus(version, archive), SymbolArchiveStatus.success);
+      await sut.setStatus(archive, SymbolArchiveStatus.success);
+      expect(await sut.getStatus(archive), SymbolArchiveStatus.success);
     });
 
     test('store, overwrite and retrieve', () async {
-      await sut.setStatus(version, archive, SymbolArchiveStatus.error);
-      expect(await sut.getStatus(version, archive), SymbolArchiveStatus.error);
-      await sut.setStatus(version, archive, SymbolArchiveStatus.success);
-      expect(
-          await sut.getStatus(version, archive), SymbolArchiveStatus.success);
-    });
-
-    test('various flutter versions are independent', () async {
-      await sut.setStatus(
-          FlutterVersion('1.2.3'), archive, SymbolArchiveStatus.success);
-      await sut.setStatus(
-          FlutterVersion('5.6.7'), archive, SymbolArchiveStatus.error);
-      expect(await sut.getStatus(FlutterVersion('1.2.3'), archive),
-          SymbolArchiveStatus.success);
-      expect(await sut.getStatus(FlutterVersion('5.6.7'), archive),
-          SymbolArchiveStatus.error);
+      await sut.setStatus(archive, SymbolArchiveStatus.error);
+      expect(await sut.getStatus(archive), SymbolArchiveStatus.error);
+      await sut.setStatus(archive, SymbolArchiveStatus.success);
+      expect(await sut.getStatus(archive), SymbolArchiveStatus.success);
     });
   });
 }
