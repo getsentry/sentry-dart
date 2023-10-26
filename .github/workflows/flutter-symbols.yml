@@ -1,6 +1,5 @@
 name: Flutter symbols collection
 on:
-  push: # TODO REMOVE
   schedule:
     - cron: "10 */6 * * *" # every six hours
   workflow_dispatch:
