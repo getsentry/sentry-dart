@@ -19,7 +19,7 @@ class SymbolCollectorCli {
 
   // https://github.com/getsentry/symbol-collector/releases
   @internal
-  static const version = '1.12.0';
+  static const version = '1.12.1';
 
   @internal
   late final String cli;
