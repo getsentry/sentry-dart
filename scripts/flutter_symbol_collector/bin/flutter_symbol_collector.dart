@@ -12,7 +12,7 @@ final source = FlutterSymbolSource(githubAuth: githubAuth);
 final fs = LocalFileSystem();
 final tempDir = fs.currentDirectory.childDirectory('.temp');
 final stateCache =
-    DirectoryStatusCache(fs.currentDirectory.childDirectory('.successful'));
+    DirectoryStatusCache(fs.currentDirectory.childDirectory('.cache'));
 late final SymbolCollectorCli collector;
 
 void main(List<String> arguments) async {

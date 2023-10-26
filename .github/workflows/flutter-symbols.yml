@@ -37,10 +37,10 @@ jobs:
 
       - run: dart pub get
 
-      - name: Download status of previously processed files
+      - name: Download status cache of previously processed files
         run: |
-          gh run download --name 'flutter-symbol-collector-database' --dir .successful
-          find ./.successful/ -name '*.status'
+          gh run download --name 'flutter-symbol-collector-database' --dir .cache
+          grep -r "" .cache
         continue-on-error: true
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -50,8 +50,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
-      - uses: actions/upload-artifact@v3
+      - name: Upload updated status cache of processed files
+        uses: actions/upload-artifact@v3
         if: always()
         with:
           name: flutter-symbol-collector-database
-          path: scripts/flutter_symbol_collector/.successful
+          path: scripts/flutter_symbol_collector/.cache
