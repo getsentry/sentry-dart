@@ -67,7 +67,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
         _setRouteNameAsTransaction = setRouteNameAsTransaction,
         _routeNameExtractor = routeNameExtractor,
         _additionalInfoProvider = additionalInfoProvider,
-        _native = SentryNative() {
+        _native = SentryFlutter.native {
     if (enableAutoTransactions) {
       // ignore: invalid_use_of_internal_member
       _hub.options.sdk.addIntegration('UINavigationTracing');
@@ -80,7 +80,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   final bool _setRouteNameAsTransaction;
   final RouteNameExtractor? _routeNameExtractor;
   final AdditionalInfoExtractor? _additionalInfoProvider;
-  final SentryNative _native;
+  final SentryNative? _native;
 
   ISentrySpan? _transaction;
 
@@ -189,7 +189,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       trimEnd: true,
       onFinish: (transaction) async {
         final nativeFrames = await _native
-            .endNativeFramesCollection(transaction.context.traceId);
+            ?.endNativeFramesCollection(transaction.context.traceId);
         if (nativeFrames != null) {
           final measurements = nativeFrames.toMeasurements();
           for (final item in measurements.entries) {
@@ -218,7 +218,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       scope.span ??= _transaction;
     });
 
-    await _native.beginNativeFramesCollection();
+    await _native?.beginNativeFramesCollection();
   }
 
   Future<void> _finishTransaction() async {

@@ -263,4 +263,24 @@ class SentryFlutterOptions extends SentryOptions {
   /// Setting this to a custom [BindingWrapper] allows you to use a custom [WidgetsBinding].
   @experimental
   BindingWrapper bindingUtils = BindingWrapper();
+
+  /// The sample rate for profiling traces in the range of 0.0 to 1.0.
+  /// This is relative to tracesSampleRate - it is a ratio of profiled traces out of all sampled traces.
+  /// At the moment, only apps targeting iOS and macOS are supported.
+  @override
+  @experimental
+  double? get profilesSampleRate {
+    // ignore: invalid_use_of_internal_member
+    return super.profilesSampleRate;
+  }
+
+  /// The sample rate for profiling traces in the range of 0.0 to 1.0.
+  /// This is relative to tracesSampleRate - it is a ratio of profiled traces out of all sampled traces.
+  /// At the moment, only apps targeting iOS and macOS are supported.
+  @override
+  @experimental
+  set profilesSampleRate(double? value) {
+    // ignore: invalid_use_of_internal_member
+    super.profilesSampleRate = value;
+  }
 }
