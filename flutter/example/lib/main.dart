@@ -857,6 +857,8 @@ Future<void> execute(String method) async {
   await _channel.invokeMethod(method);
 }
 
+// Don't inline this one or it shows up as an anonymous closure in profiles.
+@pragma("vm:never-inline")
 int findPrimeNumber(int n) {
   int count = 0;
   int a = 2;
