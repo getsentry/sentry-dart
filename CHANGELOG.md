@@ -5,6 +5,9 @@
 ### Enhancements
 
 - Log warning if both tracesSampleRate and tracesSampler are set ([#1701](https://github.com/getsentry/sentry-dart/pull/1701))
+### Features
+
+- Initial (alpha) support for profiling on iOS and macOS ([#1611](https://github.com/getsentry/sentry-dart/pull/1611))
 
 ## 7.11.0
 
