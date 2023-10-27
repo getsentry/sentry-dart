@@ -14,7 +14,12 @@ class SentryTracesSampler {
   SentryTracesSampler(
     this._options, {
     Random? random,
-  }) : _random = random ?? Random();
+  }) : _random = random ?? Random() {
+    if (_options.tracesSampler != null && _options.tracesSampleRate != null) {
+      _options.logger(SentryLevel.warning,
+          'Both tracesSampler and traceSampleRate are set. tracesSampler will take precedence and fallback to traceSampleRate if it returns null.');
+    }
+  }
 
   SentryTracesSamplingDecision sample(SentrySamplingContext samplingContext) {
     final samplingDecision =
