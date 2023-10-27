@@ -138,7 +138,7 @@ class SymbolCollectorCli {
     if (exitCode != 0) {
       throw Exception('Symbol-collector CLI failed with exit code $exitCode.');
     } else if (strOutput.contains('Exception:')) {
-      // see https://github.com/getsentry/symbol-collector/issues/162
+      // see https://github.com/getsentry/symbol-collector/issues/167
       throw Exception('Symbol-collector CLI failed with an exception.');
     }
 
