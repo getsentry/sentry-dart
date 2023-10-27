@@ -17,7 +17,7 @@ class SentryTracesSampler {
   }) : _random = random ?? Random() {
     if (_options.tracesSampler != null && _options.tracesSampleRate != null) {
       _options.logger(SentryLevel.warning,
-          'Both tracesSampler and sampleRate are set - only tracesSampler will be used.');
+          'Both tracesSampler and traceSampleRate are set. tracesSampler will take precedence and fallback to traceSampleRate if it returns null.');
     }
   }
 
