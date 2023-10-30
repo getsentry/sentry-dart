@@ -70,13 +70,13 @@ class SymbolCollectorCli {
 
   void _ensureIsExecutable() {
     if (!_isExecutable) {
-      _isExecutable = true;
       if (LocalPlatform().operatingSystem == platform.operatingSystem) {
         if (platform.isLinux || platform.isMacOS) {
           _log.fine('Making Symbol-collector CLI executable (chmod +x)');
 
           posix.chmod(cli, '0700');
         }
+        _isExecutable = true;
       } else {
         _log.warning(
             'Symbol-collector CLI has been run with a platform that is not the current OS platform.'

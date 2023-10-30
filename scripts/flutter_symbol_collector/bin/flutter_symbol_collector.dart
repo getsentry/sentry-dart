@@ -33,7 +33,7 @@ void main(List<String> arguments) async {
       !argVersion.contains('*') &&
       argVersion.split('.').length == 3) {
     Logger.root.info('Running for a single flutter version: $argVersion');
-    await processFlutterVerion(FlutterVersion(argVersion));
+    await processFlutterVersion(FlutterVersion(argVersion));
   } else {
     // Otherwise, walk all the versions and run for the matching ones.
     final versionRegex = RegExp(argVersion.isEmpty
@@ -48,12 +48,12 @@ void main(List<String> arguments) async {
     Logger.root.info(
         'Found ${versions.length} Flutter versions matching $versionRegex');
     for (var version in versions) {
-      await processFlutterVerion(version);
+      await processFlutterVersion(version);
     }
   }
 }
 
-Future<void> processFlutterVerion(FlutterVersion version) async {
+Future<void> processFlutterVersion(FlutterVersion version) async {
   if (bool.hasEnvironment('CI')) {
     print('::group::Processing Flutter ${version.tagName}');
   }
