@@ -9,6 +9,7 @@ import 'sentry_hive_interface.dart';
 
 import 'default_compaction_strategy.dart';
 import 'default_key_comparator.dart';
+import 'sentry_span_helper.dart';
 
 /// @nodoc
 @internal
@@ -34,11 +35,17 @@ class SentryHiveImpl implements SentryHiveInterface {
   /// @nodoc
   SentryHiveImpl(this._hive);
 
+  final _spanHelper = SentrySpanHelper(
+    // ignore: invalid_use_of_internal_member
+    SentryTraceOrigins.autoDbHive,
+  );
+
   // SentryHiveInterface
 
   @override
   void setHub(Hub hub) {
     _hub = hub;
+    _spanHelper.setHub(hub);
   }
 
   // HiveInterface
@@ -59,28 +66,28 @@ class SentryHiveImpl implements SentryHiveInterface {
 
   @override
   Future<bool> boxExists(String name, {String? path}) {
-    return _asyncWrapInSpan('boxExists', () async {
+    return _spanHelper.asyncWrapInSpan('boxExists', () async {
       return _hive.boxExists(name, path: path);
     });
   }
 
   @override
   Future<void> close() {
-    return _asyncWrapInSpan('close', () async {
+    return _spanHelper.asyncWrapInSpan('close', () async {
       return _hive.close();
     });
   }
 
   @override
   Future<void> deleteBoxFromDisk(String name, {String? path}) {
-    return _asyncWrapInSpan('deleteBoxFromDisk', () async {
+    return _spanHelper.asyncWrapInSpan('deleteBoxFromDisk', () async {
       return _hive.deleteBoxFromDisk(name, path: path);
     });
   }
 
   @override
   Future<void> deleteFromDisk() {
-    return _asyncWrapInSpan('deleteFromDisk', () async {
+    return _spanHelper.asyncWrapInSpan('deleteFromDisk', () async {
       return await _hive.deleteFromDisk();
     });
   }
@@ -122,7 +129,7 @@ class SentryHiveImpl implements SentryHiveInterface {
     String? collection,
     @Deprecated('Use encryptionCipher instead') List<int>? encryptionKey,
   }) {
-    return _asyncWrapInSpan(
+    return _spanHelper.asyncWrapInSpan(
       'openBox',
       () async {
         final Box<E> box = await _hive.openBox(
@@ -154,7 +161,7 @@ class SentryHiveImpl implements SentryHiveInterface {
     String? collection,
     @Deprecated('Use encryptionCipher instead') List<int>? encryptionKey,
   }) {
-    return _asyncWrapInSpan(
+    return _spanHelper.asyncWrapInSpan(
       'openLazyBox',
       () async {
         final LazyBox<E> lazyBox = await _hive.openLazyBox(
@@ -192,42 +199,5 @@ class SentryHiveImpl implements SentryHiveInterface {
   void resetAdapters() {
     // ignore: invalid_use_of_visible_for_testing_member
     return _hive.resetAdapters();
-  }
-
-  // Helper
-
-  Future<T> _asyncWrapInSpan<T>(
-    String description,
-    Future<T> Function() execute, {
-    String? dbName,
-  }) async {
-    final currentSpan = _hub.getSpan();
-    final span = currentSpan?.startChild(
-      SentryHiveImpl.dbOp,
-      description: description,
-    );
-
-    // ignore: invalid_use_of_internal_member
-    span?.origin = SentryTraceOrigins.autoDbHive;
-
-    span?.setData(SentryHiveImpl.dbSystemKey, SentryHiveImpl.dbSystem);
-
-    if (dbName != null) {
-      span?.setData(SentryHiveImpl.dbNameKey, dbName);
-    }
-
-    try {
-      final result = await execute();
-      span?.status = SpanStatus.ok();
-
-      return result;
-    } catch (exception) {
-      span?.throwable = exception;
-      span?.status = SpanStatus.internalError();
-
-      rethrow;
-    } finally {
-      await span?.finish();
-    }
   }
 }

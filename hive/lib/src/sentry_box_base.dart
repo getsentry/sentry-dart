@@ -1,7 +1,7 @@
 import 'package:hive/hive.dart';
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
-import 'sentry_hive_impl.dart';
+import 'sentry_span_helper.dart';
 
 /// @nodoc
 @internal
@@ -9,46 +9,69 @@ class SentryBoxBase<E> implements BoxBase<E> {
   final BoxBase<E> _boxBase;
   final Hub _hub;
 
+  final _spanHelper = SentrySpanHelper(
+    // ignore: invalid_use_of_internal_member
+    SentryTraceOrigins.autoDbHiveBoxBase,
+  );
+
   /// @nodoc
-  SentryBoxBase(this._boxBase, this._hub);
+  SentryBoxBase(this._boxBase, this._hub) {
+    _spanHelper.setHub(this._hub);
+  }
 
   @override
   Future<int> add(E value) async {
-    return _asyncWrapInSpan('add', () async {
-      try {
+    return _spanHelper.asyncWrapInSpan(
+      'add',
+      () async {
         return await _boxBase.add(value);
-      } catch (error) {
-        rethrow;
-      }
-    });
+      },
+      dbName: name,
+    );
   }
 
   @override
   Future<Iterable<int>> addAll(Iterable<E> values) {
-    return _asyncWrapInSpan('addAll', () async {
-      return await _boxBase.addAll(values);
-    });
+    return _spanHelper.asyncWrapInSpan(
+      'addAll',
+      () async {
+        return await _boxBase.addAll(values);
+      },
+      dbName: name,
+    );
   }
 
   @override
   Future<int> clear() {
-    return _asyncWrapInSpan('clear', () async {
-      return await _boxBase.clear();
-    });
+    return _spanHelper.asyncWrapInSpan(
+      'clear',
+      () async {
+        return await _boxBase.clear();
+      },
+      dbName: name,
+    );
   }
 
   @override
   Future<void> close() {
-    return _asyncWrapInSpan('close', () async {
-      return await _boxBase.close();
-    });
+    return _spanHelper.asyncWrapInSpan(
+      'close',
+      () async {
+        return await _boxBase.close();
+      },
+      dbName: name,
+    );
   }
 
   @override
   Future<void> compact() {
-    return _asyncWrapInSpan('compact', () async {
-      return await _boxBase.compact();
-    });
+    return _spanHelper.asyncWrapInSpan(
+      'compact',
+      () async {
+        return await _boxBase.compact();
+      },
+      dbName: name,
+    );
   }
 
   @override
@@ -58,37 +81,57 @@ class SentryBoxBase<E> implements BoxBase<E> {
 
   @override
   Future<void> delete(key) {
-    return _asyncWrapInSpan('delete', () async {
-      return await _boxBase.delete(key);
-    });
+    return _spanHelper.asyncWrapInSpan(
+      'delete',
+      () async {
+        return await _boxBase.delete(key);
+      },
+      dbName: name,
+    );
   }
 
   @override
   Future<void> deleteAll(Iterable<dynamic> keys) {
-    return _asyncWrapInSpan('deleteAll', () async {
-      return await _boxBase.deleteAll(keys);
-    });
+    return _spanHelper.asyncWrapInSpan(
+      'deleteAll',
+      () async {
+        return await _boxBase.deleteAll(keys);
+      },
+      dbName: name,
+    );
   }
 
   @override
   Future<void> deleteAt(int index) {
-    return _asyncWrapInSpan('deleteAt', () async {
-      return await _boxBase.deleteAt(index);
-    });
+    return _spanHelper.asyncWrapInSpan(
+      'deleteAt',
+      () async {
+        return await _boxBase.deleteAt(index);
+      },
+      dbName: name,
+    );
   }
 
   @override
   Future<void> deleteFromDisk() {
-    return _asyncWrapInSpan('deleteFromDisk', () async {
-      return await _boxBase.deleteFromDisk();
-    });
+    return _spanHelper.asyncWrapInSpan(
+      'deleteFromDisk',
+      () async {
+        return await _boxBase.deleteFromDisk();
+      },
+      dbName: name,
+    );
   }
 
   @override
   Future<void> flush() {
-    return _asyncWrapInSpan('flush', () async {
-      return await _boxBase.flush();
-    });
+    return _spanHelper.asyncWrapInSpan(
+      'flush',
+      () async {
+        return await _boxBase.flush();
+      },
+      dbName: name,
+    );
   }
 
   @override
@@ -122,60 +165,39 @@ class SentryBoxBase<E> implements BoxBase<E> {
 
   @override
   Future<void> put(key, value) {
-    return _asyncWrapInSpan('put', () async {
-      return await _boxBase.put(key, value);
-    });
+    return _spanHelper.asyncWrapInSpan(
+      'put',
+      () async {
+        return await _boxBase.put(key, value);
+      },
+      dbName: name,
+    );
   }
 
   @override
   Future<void> putAll(Map<dynamic, E> entries) {
-    return _asyncWrapInSpan('putAll', () async {
-      return await _boxBase.putAll(entries);
-    });
+    return _spanHelper.asyncWrapInSpan(
+      'putAll',
+      () async {
+        return await _boxBase.putAll(entries);
+      },
+      dbName: name,
+    );
   }
 
   @override
   Future<void> putAt(int index, value) {
-    return _asyncWrapInSpan('putAt', () async {
-      return await _boxBase.putAt(index, value);
-    });
+    return _spanHelper.asyncWrapInSpan(
+      'putAt',
+      () async {
+        return await _boxBase.putAt(index, value);
+      },
+      dbName: name,
+    );
   }
 
   @override
   Stream<BoxEvent> watch({key}) {
     return _boxBase.watch(key: key);
-  }
-
-  // Helper
-
-  Future<T> _asyncWrapInSpan<T>(
-    String description,
-    Future<T> Function() execute,
-  ) async {
-    final currentSpan = _hub.getSpan();
-    final span = currentSpan?.startChild(
-      SentryHiveImpl.dbOp,
-      description: description,
-    );
-
-    // ignore: invalid_use_of_internal_member
-    span?.origin = SentryTraceOrigins.autoDbHiveBoxBase;
-
-    span?.setData(SentryHiveImpl.dbSystemKey, SentryHiveImpl.dbSystem);
-    span?.setData(SentryHiveImpl.dbNameKey, name);
-
-    try {
-      final result = await execute();
-      span?.status = SpanStatus.ok();
-
-      return result;
-    } catch (exception) {
-      span?.throwable = exception;
-      span?.status = SpanStatus.internalError();
-
-      rethrow;
-    } finally {
-      await span?.finish();
-    }
   }
 }
