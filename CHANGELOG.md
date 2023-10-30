@@ -5,6 +5,7 @@
 ### Enhancements
 
 - Log warning if both tracesSampleRate and tracesSampler are set ([#1701](https://github.com/getsentry/sentry-dart/pull/1701))
+- Better Flutter framework stack traces - we now collect Flutter framework debug symbols for iOS, macOS and Android automatically on the Sentry server ([#1673](https://github.com/getsentry/sentry-dart/pull/1673))
 
 ### Features
 
