@@ -1,14 +1,14 @@
 import 'dart:async';
 import 'dart:math';
 import 'dart:typed_data';
-import 'dart:ui' as ui;
+import 'dart:ui';
 
-import 'package:flutter/widgets.dart';
 import 'package:sentry/sentry.dart';
 import '../screenshot/sentry_screenshot_widget.dart';
 import '../sentry_flutter_options.dart';
 import 'package:flutter/rendering.dart';
 import '../renderer/renderer.dart';
+import 'package:flutter/widgets.dart' as widget;
 
 class ScreenshotEventProcessor implements EventProcessor {
   final SentryFlutterOptions _options;
@@ -40,7 +40,8 @@ class ScreenshotEventProcessor implements EventProcessor {
     }
 
     if (_options.attachScreenshotWhenResumed &&
-        WidgetsBinding.instance.lifecycleState != AppLifecycleState.resumed) {
+        widget.WidgetsBinding.instance.lifecycleState !=
+            AppLifecycleState.resumed) {
       _options.logger(SentryLevel.debug,
           'Only attaching screenshots when application state is resumed.');
       return event;
@@ -59,10 +60,10 @@ class ScreenshotEventProcessor implements EventProcessor {
           sentryScreenshotWidgetGlobalKey.currentContext?.findRenderObject();
       if (renderObject is RenderRepaintBoundary) {
         // ignore: deprecated_member_use
-        final pixelRatio = ui.window.devicePixelRatio;
+        final pixelRatio = window.devicePixelRatio;
         var imageResult = _getImage(renderObject, pixelRatio);
-        ui.Image image;
-        if (imageResult is Future<ui.Image>) {
+        Image image;
+        if (imageResult is Future<Image>) {
           image = await imageResult;
         } else {
           image = imageResult;
@@ -83,14 +84,14 @@ class ScreenshotEventProcessor implements EventProcessor {
           var ratio = min(ratioWidth, ratioHeight);
           if (ratio > 0.0 && ratio < 1.0) {
             imageResult = _getImage(renderObject, ratio * pixelRatio);
-            if (imageResult is Future<ui.Image>) {
+            if (imageResult is Future<Image>) {
               image = await imageResult;
             } else {
               image = imageResult;
             }
           }
         }
-        final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+        final byteData = await image.toByteData(format: ImageByteFormat.png);
 
         final bytes = byteData?.buffer.asUint8List();
         if (bytes?.isNotEmpty == true) {
@@ -112,12 +113,12 @@ class ScreenshotEventProcessor implements EventProcessor {
     return null;
   }
 
-  FutureOr<ui.Image> _getImage(
+  FutureOr<Image> _getImage(
       RenderRepaintBoundary repaintBoundary, double pixelRatio) {
     // This one is a hack to use https://api.flutter.dev/flutter/rendering/RenderRepaintBoundary/toImage.html on versions older than 3.7 and https://api.flutter.dev/flutter/rendering/RenderRepaintBoundary/toImageSync.html on versions equal or newer than 3.7
     try {
       return (repaintBoundary as dynamic).toImageSync(pixelRatio: pixelRatio)
-          as ui.Image;
+          as Image;
     } on NoSuchMethodError catch (_) {
       return repaintBoundary.toImage(pixelRatio: pixelRatio);
     }
