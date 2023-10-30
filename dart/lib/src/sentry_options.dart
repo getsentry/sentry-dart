@@ -289,6 +289,17 @@ class SentryOptions {
   /// to be sent to Sentry.
   TracesSamplerCallback? tracesSampler;
 
+  double? _profilesSampleRate;
+
+  @internal // Only exposed by SentryFlutterOptions at the moment.
+  double? get profilesSampleRate => _profilesSampleRate;
+
+  @internal // Only exposed by SentryFlutterOptions at the moment.
+  set profilesSampleRate(double? value) {
+    assert(value == null || (value >= 0 && value <= 1));
+    _profilesSampleRate = value;
+  }
+
   /// Send statistics to sentry when the client drops events.
   bool sendClientReports = true;
 

@@ -116,6 +116,7 @@ jobs:
         with:
           path: "./flutter/coverage/lcov.info"
           min_coverage: 90
+          exclude: "lib/src/native/cocoa/binding.dart"
 
       - name: Build ${{ matrix.target }}
         run: |
