@@ -22,4 +22,5 @@ class SentryTraceOrigins {
   static const autoDbHive = 'auto.db.hive';
   static const autoDbHiveBoxBase = 'auto.db.hive.box_base';
   static const autoDbHiveLazyBox = 'auto.db.hive.lazy_box';
+  static const autoDbHiveBoxCollection = 'auto.db.hive.box_collection';
 }
