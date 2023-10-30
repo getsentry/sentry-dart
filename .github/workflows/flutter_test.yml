@@ -104,7 +104,7 @@ jobs:
           avd-name: macOS-avd-x86_64-31
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
-          script: flutter test integration_test --verbose
+          script: flutter test integration_test/all.dart --verbose
 
   cocoa:
     name: "${{ matrix.target }} | ${{ matrix.sdk }}"
@@ -155,7 +155,7 @@ jobs:
       - name: run integration test
         # Disable flutter integration tests for iOS for now (https://github.com/getsentry/sentry-dart/issues/1605#issuecomment-1695809346)
         if: ${{ matrix.target != 'ios' }}
-        run: flutter test -d "${{ steps.device.outputs.name }}" integration_test --verbose
+        run: flutter test -d "${{ steps.device.outputs.name }}" integration_test/all.dart --verbose
 
       - name: run native test
         # We only have the native unit test package in the iOS xcodeproj at the moment.

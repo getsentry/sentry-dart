@@ -4,6 +4,7 @@ import 'package:meta/meta.dart';
 import 'hint.dart';
 
 import 'hub.dart';
+import 'profiling.dart';
 import 'protocol.dart';
 import 'scope.dart';
 import 'sentry.dart';
@@ -167,6 +168,16 @@ class HubAdapter implements Hub {
     String transaction,
   ) =>
       Sentry.currentHub.setSpanContext(throwable, span, transaction);
+
+  @internal
+  @override
+  set profilerFactory(SentryProfilerFactory? value) =>
+      Sentry.currentHub.profilerFactory = value;
+
+  @internal
+  @override
+  SentryProfilerFactory? get profilerFactory =>
+      Sentry.currentHub.profilerFactory;
 
   @override
   Scope get scope => Sentry.currentHub.scope;
