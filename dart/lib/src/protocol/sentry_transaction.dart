@@ -10,12 +10,13 @@ class SentryTransaction extends SentryEvent {
   late final DateTime startTimestamp;
   static const String _type = 'transaction';
   late final List<SentrySpan> spans;
-  final SentryTracer _tracer;
+  @internal
+  final SentryTracer tracer;
   late final Map<String, SentryMeasurement> measurements;
   late final SentryTransactionInfo? transactionInfo;
 
   SentryTransaction(
-    this._tracer, {
+    this.tracer, {
     SentryId? eventId,
     DateTime? timestamp,
     String? platform,
@@ -39,17 +40,17 @@ class SentryTransaction extends SentryEvent {
     SentryTransactionInfo? transactionInfo,
   }) : super(
           eventId: eventId,
-          timestamp: timestamp ?? _tracer.endTimestamp,
+          timestamp: timestamp ?? tracer.endTimestamp,
           platform: platform,
           serverName: serverName,
           release: release,
           dist: dist,
           environment: environment,
-          transaction: transaction ?? _tracer.name,
-          throwable: throwable ?? _tracer.throwable,
-          tags: tags ?? _tracer.tags,
+          transaction: transaction ?? tracer.name,
+          throwable: throwable ?? tracer.throwable,
+          tags: tags ?? tracer.tags,
           // ignore: deprecated_member_use_from_same_package
-          extra: extra ?? _tracer.data,
+          extra: extra ?? tracer.data,
           user: user,
           contexts: contexts,
           breadcrumbs: breadcrumbs,
@@ -57,19 +58,19 @@ class SentryTransaction extends SentryEvent {
           request: request,
           type: _type,
         ) {
-    startTimestamp = _tracer.startTimestamp;
+    startTimestamp = tracer.startTimestamp;
 
-    final spanContext = _tracer.context;
-    spans = _tracer.children;
+    final spanContext = tracer.context;
+    spans = tracer.children;
     this.measurements = measurements ?? {};
 
     this.contexts.trace = spanContext.toTraceContext(
-      sampled: _tracer.samplingDecision?.sampled,
-      status: _tracer.status,
+      sampled: tracer.samplingDecision?.sampled,
+      status: tracer.status,
     );
 
     this.transactionInfo = transactionInfo ??
-        SentryTransactionInfo(_tracer.transactionNameSource.name);
+        SentryTransactionInfo(tracer.transactionNameSource.name);
   }
 
   @override
@@ -136,7 +137,7 @@ class SentryTransaction extends SentryEvent {
     SentryTransactionInfo? transactionInfo,
   }) =>
       SentryTransaction(
-        _tracer,
+        tracer,
         eventId: eventId ?? this.eventId,
         timestamp: timestamp ?? this.timestamp,
         platform: platform ?? this.platform,
