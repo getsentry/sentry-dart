@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/client_reports/discard_reason.dart';
 import 'package:sentry/src/sentry_tracer.dart';
@@ -6,6 +7,7 @@ import 'package:sentry/src/transport/data_category.dart';
 import 'package:test/test.dart';
 
 import 'mocks.dart';
+import 'mocks.mocks.dart';
 import 'mocks/mock_client_report_recorder.dart';
 import 'mocks/mock_sentry_client.dart';
 
@@ -375,6 +377,62 @@ void main() {
           fixture.client.captureTransactionCalls.first.traceContext, context);
     });
 
+    test('profiler is not started by default', () async {
+      final hub = fixture.getSut();
+      final tr = hub.startTransaction('name', 'op');
+      expect(tr, isA<SentryTracer>());
+      expect((tr as SentryTracer).profiler, isNull);
+    });
+
+    test('profiler is started according to the sampling rate', () async {
+      final hub = fixture.getSut();
+      final factory = MockSentryProfilerFactory();
+      when(factory.startProfiler(fixture._context))
+          .thenReturn(MockSentryProfiler());
+      hub.profilerFactory = factory;
+
+      var tr = hub.startTransactionWithContext(fixture._context);
+      expect((tr as SentryTracer).profiler, isNull);
+      verifyZeroInteractions(factory);
+
+      hub.options.profilesSampleRate = 1.0;
+      tr = hub.startTransactionWithContext(fixture._context);
+      expect((tr as SentryTracer).profiler, isNotNull);
+      verify(factory.startProfiler(fixture._context)).called(1);
+    });
+
+    test('profiler.finish() is called', () async {
+      final hub = fixture.getSut();
+      final factory = MockSentryProfilerFactory();
+      final profiler = MockSentryProfiler();
+      final expected = MockSentryProfileInfo();
+      when(factory.startProfiler(fixture._context)).thenReturn(profiler);
+      when(profiler.finishFor(any)).thenAnswer((_) async => expected);
+
+      hub.profilerFactory = factory;
+      hub.options.profilesSampleRate = 1.0;
+      final tr = hub.startTransactionWithContext(fixture._context);
+      await tr.finish();
+      verify(profiler.finishFor(any)).called(1);
+      verify(profiler.dispose()).called(1);
+    });
+
+    test('profiler.dispose() is called even if not captured', () async {
+      final hub = fixture.getSut();
+      final factory = MockSentryProfilerFactory();
+      final profiler = MockSentryProfiler();
+      final expected = MockSentryProfileInfo();
+      when(factory.startProfiler(fixture._context)).thenReturn(profiler);
+      when(profiler.finishFor(any)).thenAnswer((_) async => expected);
+
+      hub.profilerFactory = factory;
+      hub.options.profilesSampleRate = 1.0;
+      final tr = hub.startTransactionWithContext(fixture._context);
+      await tr.finish(status: SpanStatus.aborted());
+      verify(profiler.dispose()).called(1);
+      verifyNever(profiler.finishFor(any));
+    });
+
     test('returns scope', () async {
       final hub = fixture.getSut();
 
@@ -649,10 +707,12 @@ class Fixture {
 
     final hub = Hub(options);
 
+    // A fully configured context - won't trigger a copy in startTransaction().
     _context = SentryTransactionContext(
       'name',
       'op',
       samplingDecision: SentryTracesSamplingDecision(sampled!),
+      origin: SentryTraceOrigins.manual,
     );
 
     tracer = SentryTracer(_context, hub);
