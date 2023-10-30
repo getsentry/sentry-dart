@@ -33,7 +33,7 @@ jobs:
         sdk: ["stable", "beta"]
     steps:
       - name: checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - uses: actions/setup-java@v3
         with:
@@ -120,7 +120,7 @@ jobs:
         target: ["ios", "macos"]
     steps:
       - name: checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - uses: subosito/flutter-action@48cafc24713cca54bbe03cdc3a423187d413aafa # pin@v2.10.0
         with:
