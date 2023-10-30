@@ -50,6 +50,7 @@ Future<void> setupSentry(AppRunner appRunner, String dsn,
   await SentryFlutter.init((options) {
     options.dsn = exampleDsn;
     options.tracesSampleRate = 1.0;
+    options.profilesSampleRate = 1.0;
     options.reportPackages = false;
     options.addInAppInclude('sentry_flutter_example');
     options.considerInAppFramesByDefault = false;
@@ -333,7 +334,7 @@ class MainScaffold extends StatelessWidget {
                     status: const SpanStatus.internalError());
 
                 await Future.delayed(const Duration(milliseconds: 50));
-
+                // findPrimeNumber(1000000); // Uncomment to see it with profiling
                 await transaction.finish(status: const SpanStatus.ok());
               },
               child: const Text('Capture transaction'),
@@ -885,4 +886,27 @@ class ThemeProvider extends ChangeNotifier {
 
 Future<void> execute(String method) async {
   await _channel.invokeMethod(method);
+}
+
+// Don't inline this one or it shows up as an anonymous closure in profiles.
+@pragma("vm:never-inline")
+int findPrimeNumber(int n) {
+  int count = 0;
+  int a = 2;
+  while (count < n) {
+    int b = 2;
+    bool prime = true; // to check if found a prime
+    while (b * b <= a) {
+      if (a % b == 0) {
+        prime = false;
+        break;
+      }
+      b++;
+    }
+    if (prime) {
+      count++;
+    }
+    a++;
+  }
+  return a - 1;
 }
