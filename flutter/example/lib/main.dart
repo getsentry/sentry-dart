@@ -409,7 +409,7 @@ class MainScaffold extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 final log = Logger('Logging');
-                log.info('My Logging test.');
+                log.info('My Logging test');
               },
               child: const Text('Logging'),
             ),
