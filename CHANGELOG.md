@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Breadcrumbs for database operations ([#1656](https://github.com/getsentry/sentry-dart/pull/1656))
+
 ## 7.12.0
 
 ### Enhancements

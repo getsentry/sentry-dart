@@ -24,6 +24,7 @@ void main() {
       fixture = Fixture();
 
       when(fixture.hub.options).thenReturn(fixture.options);
+      when(fixture.hub.scope).thenReturn(fixture.scope);
       when(fixture.hub.getSpan()).thenReturn(fixture.tracer);
 
       // using ffi for testing on vm
@@ -68,6 +69,7 @@ void main() {
       fixture = Fixture();
 
       when(fixture.hub.options).thenReturn(fixture.options);
+      when(fixture.hub.scope).thenReturn(fixture.scope);
       when(fixture.hub.getSpan()).thenReturn(fixture.tracer);
 
       // using ffi for testing on vm
@@ -101,6 +103,18 @@ void main() {
 
       await db.close();
     });
+
+    test('creates db open breadcrumb', () async {
+      final db =
+          await openDatabaseWithSentry(inMemoryDatabasePath, hub: fixture.hub);
+
+      final breadcrumb = fixture.hub.scope.breadcrumbs.first;
+      expect(breadcrumb.category, SentryDatabase.dbOp);
+      expect(breadcrumb.message, 'Open DB: $inMemoryDatabasePath');
+      expect(breadcrumb.data?['status'], 'ok');
+
+      await db.close();
+    });
   });
 }
 
@@ -109,4 +123,5 @@ class Fixture {
   final options = SentryOptions(dsn: fakeDsn)..tracesSampleRate = 1.0;
   final _context = SentryTransactionContext('name', 'operation');
   late final tracer = SentryTracer(_context, hub);
+  late final scope = Scope(options);
 }

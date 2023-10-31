@@ -22,6 +22,7 @@ void main() {
       fixture = Fixture();
 
       when(fixture.hub.options).thenReturn(fixture.options);
+      when(fixture.hub.scope).thenReturn(fixture.scope);
       when(fixture.hub.getSpan()).thenReturn(fixture.tracer);
 
       // using ffi for testing on vm
@@ -63,6 +64,9 @@ void main() {
       // ignore: invalid_use_of_internal_member
       expect(span.origin, SentryTraceOrigins.autoDbSqfliteBatch);
 
+      final breadcrumb = fixture.hub.scope.breadcrumbs.last;
+      expect(breadcrumb.data?['status'], 'ok');
+
       await db.close();
     });
 
@@ -78,6 +82,9 @@ void main() {
       expect(span.status, SpanStatus.ok());
       // ignore: invalid_use_of_internal_member
       expect(span.origin, SentryTraceOrigins.autoDbSqfliteBatch);
+
+      final breadcrumb = fixture.hub.scope.breadcrumbs.last;
+      expect(breadcrumb.data?['status'], 'ok');
 
       await db.close();
     });
@@ -102,6 +109,24 @@ void main() {
       await db.close();
     });
 
+    test('creates insert breadcrumb', () async {
+      final db = await fixture.getDatabase();
+      final batch = db.batch();
+
+      batch.insert('Product', <String, Object?>{'title': 'Product 1'});
+
+      await batch.commit();
+
+      final breadcrumb = fixture.hub.scope.breadcrumbs.last;
+      expect(
+        breadcrumb.message,
+        'INSERT INTO Product (title) VALUES (?)',
+      );
+      expect(breadcrumb.type, 'query');
+
+      await db.close();
+    });
+
     test('creates raw insert span', () async {
       final db = await fixture.getDatabase();
       final batch = db.batch();
@@ -118,6 +143,24 @@ void main() {
       );
       // ignore: invalid_use_of_internal_member
       expect(span.origin, SentryTraceOrigins.autoDbSqfliteBatch);
+
+      await db.close();
+    });
+
+    test('creates raw insert breadcrumb', () async {
+      final db = await fixture.getDatabase();
+      final batch = db.batch();
+
+      batch.rawInsert('INSERT INTO Product (title) VALUES (?)', ['Product 1']);
+
+      await batch.commit();
+
+      final breadcrumb = fixture.hub.scope.breadcrumbs.last;
+      expect(
+        breadcrumb.message,
+        'INSERT INTO Product (title) VALUES (?)',
+      );
+      expect(breadcrumb.type, 'query');
 
       await db.close();
     });
@@ -139,6 +182,24 @@ void main() {
       await db.close();
     });
 
+    test('creates update breadcrumb', () async {
+      final db = await fixture.getDatabase();
+      final batch = db.batch();
+
+      batch.update('Product', <String, Object?>{'title': 'Product 1'});
+
+      await batch.commit();
+
+      final breadcrumb = fixture.hub.scope.breadcrumbs.last;
+      expect(
+        breadcrumb.message,
+        'UPDATE Product SET title = ?',
+      );
+      expect(breadcrumb.type, 'query');
+
+      await db.close();
+    });
+
     test('creates raw update span', () async {
       final db = await fixture.getDatabase();
       final batch = db.batch();
@@ -152,6 +213,24 @@ void main() {
       expect(span.context.description, 'UPDATE Product SET title = ?');
       // ignore: invalid_use_of_internal_member
       expect(span.origin, SentryTraceOrigins.autoDbSqfliteBatch);
+
+      await db.close();
+    });
+
+    test('creates raw update breadcrumb', () async {
+      final db = await fixture.getDatabase();
+      final batch = db.batch();
+
+      batch.rawUpdate('UPDATE Product SET title = ?', ['Product 1']);
+
+      await batch.commit();
+
+      final breadcrumb = fixture.hub.scope.breadcrumbs.last;
+      expect(
+        breadcrumb.message,
+        'UPDATE Product SET title = ?',
+      );
+      expect(breadcrumb.type, 'query');
 
       await db.close();
     });
@@ -173,6 +252,24 @@ void main() {
       await db.close();
     });
 
+    test('creates delete breadcrumb', () async {
+      final db = await fixture.getDatabase();
+      final batch = db.batch();
+
+      batch.delete('Product');
+
+      await batch.commit();
+
+      final breadcrumb = fixture.hub.scope.breadcrumbs.last;
+      expect(
+        breadcrumb.message,
+        'DELETE FROM Product',
+      );
+      expect(breadcrumb.type, 'query');
+
+      await db.close();
+    });
+
     test('creates raw delete span', () async {
       final db = await fixture.getDatabase();
       final batch = db.batch();
@@ -186,6 +283,24 @@ void main() {
       expect(span.context.description, 'DELETE FROM Product');
       // ignore: invalid_use_of_internal_member
       expect(span.origin, SentryTraceOrigins.autoDbSqfliteBatch);
+
+      await db.close();
+    });
+
+    test('creates raw delete breadcrumb', () async {
+      final db = await fixture.getDatabase();
+      final batch = db.batch();
+
+      batch.rawDelete('DELETE FROM Product');
+
+      await batch.commit();
+
+      final breadcrumb = fixture.hub.scope.breadcrumbs.last;
+      expect(
+        breadcrumb.message,
+        'DELETE FROM Product',
+      );
+      expect(breadcrumb.type, 'query');
 
       await db.close();
     });
@@ -207,6 +322,24 @@ void main() {
       await db.close();
     });
 
+    test('creates execute breadcrumb', () async {
+      final db = await fixture.getDatabase();
+      final batch = db.batch();
+
+      batch.execute('DELETE FROM Product');
+
+      await batch.commit();
+
+      final breadcrumb = fixture.hub.scope.breadcrumbs.last;
+      expect(
+        breadcrumb.message,
+        'DELETE FROM Product',
+      );
+      expect(breadcrumb.type, 'query');
+
+      await db.close();
+    });
+
     test('creates query span', () async {
       final db = await fixture.getDatabase();
       final batch = db.batch();
@@ -224,6 +357,24 @@ void main() {
       await db.close();
     });
 
+    test('creates query breadcrumb', () async {
+      final db = await fixture.getDatabase();
+      final batch = db.batch();
+
+      batch.query('Product');
+
+      await batch.commit();
+
+      final breadcrumb = fixture.hub.scope.breadcrumbs.last;
+      expect(
+        breadcrumb.message,
+        'SELECT * FROM Product',
+      );
+      expect(breadcrumb.type, 'query');
+
+      await db.close();
+    });
+
     test('creates raw query span', () async {
       final db = await fixture.getDatabase();
       final batch = db.batch();
@@ -237,6 +388,24 @@ void main() {
       expect(span.context.description, 'SELECT * FROM Product');
       // ignore: invalid_use_of_internal_member
       expect(span.origin, SentryTraceOrigins.autoDbSqfliteBatch);
+
+      await db.close();
+    });
+
+    test('creates raw query breadcrumb', () async {
+      final db = await fixture.getDatabase();
+      final batch = db.batch();
+
+      batch.rawQuery('SELECT * FROM Product');
+
+      await batch.commit();
+
+      final breadcrumb = fixture.hub.scope.breadcrumbs.last;
+      expect(
+        breadcrumb.message,
+        'SELECT * FROM Product',
+      );
+      expect(breadcrumb.type, 'query');
 
       await db.close();
     });
@@ -263,6 +432,25 @@ SELECT * FROM Product''';
       await db.close();
     });
 
+    test('creates breadcrumb with batch description', () async {
+      final db = await fixture.getDatabase();
+      final batch = db.batch();
+
+      batch.insert('Product', <String, Object?>{'title': 'Product 1'});
+      batch.query('Product');
+
+      await batch.commit();
+
+      final desc = '''INSERT INTO Product (title) VALUES (?)
+SELECT * FROM Product''';
+
+      final breadcrumb = fixture.hub.scope.breadcrumbs.last;
+      expect(breadcrumb.message, desc);
+      expect(breadcrumb.type, 'query');
+
+      await db.close();
+    });
+
     test('creates span with batch description using apply', () async {
       final db = await fixture.getDatabase();
       final batch = db.batch();
@@ -285,6 +473,25 @@ SELECT * FROM Product''';
       await db.close();
     });
 
+    test('creates breadcrumb with batch description using apply', () async {
+      final db = await fixture.getDatabase();
+      final batch = db.batch();
+
+      batch.insert('Product', <String, Object?>{'title': 'Product 1'});
+      batch.query('Product');
+
+      await batch.apply();
+
+      final desc = '''INSERT INTO Product (title) VALUES (?)
+SELECT * FROM Product''';
+
+      final breadcrumb = fixture.hub.scope.breadcrumbs.last;
+      expect(breadcrumb.message, desc);
+      expect(breadcrumb.type, 'query');
+
+      await db.close();
+    });
+
     test('apply creates db span with dbSystem and dbName attributes', () async {
       final db = await fixture.getDatabase();
       final batch = db.batch();
@@ -299,6 +506,39 @@ SELECT * FROM Product''';
         span.data[SentryDatabase.dbNameKey],
         (db as SentryDatabase).dbName,
       );
+
+      final breadcrumb = fixture.hub.scope.breadcrumbs.last;
+      expect(
+        breadcrumb.data?[SentryDatabase.dbSystemKey],
+        SentryDatabase.dbSystem,
+      );
+      expect(
+        breadcrumb.data?[SentryDatabase.dbNameKey],
+        db.dbName,
+      );
+
+      await db.close();
+    });
+
+    test('apply creates a breadcrumb with dbSystem and dbName attributes',
+        () async {
+      final db = await fixture.getDatabase();
+      final batch = db.batch();
+
+      batch.insert('Product', <String, Object?>{'title': 'Product 1'});
+
+      await batch.apply();
+
+      final breadcrumb = fixture.hub.scope.breadcrumbs.last;
+      expect(
+        breadcrumb.data?[SentryDatabase.dbSystemKey],
+        SentryDatabase.dbSystem,
+      );
+      expect(
+        breadcrumb.data?[SentryDatabase.dbNameKey],
+        (db as SentryDatabase).dbName,
+      );
+      expect(breadcrumb.type, 'query');
 
       await db.close();
     });
@@ -322,6 +562,29 @@ SELECT * FROM Product''';
       await db.close();
     });
 
+    test('commit creates breadcrumb with dbSystem and dbName attributes',
+        () async {
+      final db = await fixture.getDatabase();
+      final batch = db.batch();
+
+      batch.insert('Product', <String, Object?>{'title': 'Product 1'});
+
+      await batch.commit();
+
+      final breadcrumb = fixture.hub.scope.breadcrumbs.last;
+      expect(
+        breadcrumb.data?[SentryDatabase.dbSystemKey],
+        SentryDatabase.dbSystem,
+      );
+      expect(
+        breadcrumb.data?[SentryDatabase.dbNameKey],
+        (db as SentryDatabase).dbName,
+      );
+      expect(breadcrumb.type, 'query');
+
+      await db.close();
+    });
+
     tearDown(() {
       databaseFactory = sqfliteDatabaseFactoryDefault;
     });
@@ -334,6 +597,7 @@ SELECT * FROM Product''';
       fixture = Fixture();
 
       when(fixture.hub.options).thenReturn(fixture.options);
+      when(fixture.hub.scope).thenReturn(fixture.scope);
       when(fixture.hub.getSpan()).thenReturn(fixture.tracer);
     });
 
@@ -353,6 +617,21 @@ SELECT * FROM Product''';
       expect(span.origin, SentryTraceOrigins.autoDbSqfliteBatch);
     });
 
+    test('commit sets batch to internal error if its thrown', () async {
+      final batch = SentryBatch(fixture.batch, hub: fixture.hub);
+
+      when(fixture.batch.commit()).thenThrow(fixture.exception);
+
+      batch.insert('Product', <String, Object?>{'title': 'Product 1'});
+
+      await expectLater(() async => await batch.commit(), throwsException);
+
+      final breadcrumb = fixture.hub.scope.breadcrumbs.last;
+      expect(breadcrumb.data?['status'], 'internal_error');
+      expect(breadcrumb.type, 'query');
+      expect(breadcrumb.level, SentryLevel.warning);
+    });
+
     test('apply sets span to internal error if its thrown', () async {
       final batch = SentryBatch(fixture.batch, hub: fixture.hub);
 
@@ -368,6 +647,21 @@ SELECT * FROM Product''';
       // ignore: invalid_use_of_internal_member
       expect(span.origin, SentryTraceOrigins.autoDbSqfliteBatch);
     });
+
+    test('apply sets breadcrumb to internal error if its thrown', () async {
+      final batch = SentryBatch(fixture.batch, hub: fixture.hub);
+
+      when(fixture.batch.apply()).thenThrow(fixture.exception);
+
+      batch.insert('Product', <String, Object?>{'title': 'Product 1'});
+
+      await expectLater(() async => await batch.apply(), throwsException);
+
+      final breadcrumb = fixture.hub.scope.breadcrumbs.last;
+      expect(breadcrumb.data?['status'], 'internal_error');
+      expect(breadcrumb.type, 'query');
+      expect(breadcrumb.level, SentryLevel.warning);
+    });
   });
 }
 
@@ -378,6 +672,7 @@ class Fixture {
   late final tracer = SentryTracer(_context, hub);
   final batch = MockBatch();
   final exception = Exception('error');
+  late final scope = Scope(options);
 
   Future<Database> getDatabase({
     double? tracesSampleRate = 1.0,
