@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- APM for hive ([#1672](https://github.com/getsentry/sentry-dart/pull/1672))
+
 ## 7.12.0
 
 ### Enhancements
@@ -10,7 +16,6 @@
 ### Features
 
 - Initial (alpha) support for profiling on iOS and macOS ([#1611](https://github.com/getsentry/sentry-dart/pull/1611))
-- APM for hive ([#1672](https://github.com/getsentry/sentry-dart/pull/1672))
 
 ## 7.11.0
 
