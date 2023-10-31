@@ -69,8 +69,7 @@ Future<Database> openDatabaseWithSentry(
       span?.status = SpanStatus.internalError();
       breadcrumb.data?['status'] = 'internal_error';
       breadcrumb = breadcrumb.copyWith(
-        type: 'error',
-        level: SentryLevel.error,
+        level: SentryLevel.warning,
       );
 
       rethrow;
