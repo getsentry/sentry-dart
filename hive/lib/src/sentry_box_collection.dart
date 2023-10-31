@@ -82,10 +82,12 @@ class SentryBoxCollection implements stub.BoxCollection {
   }
 
   @override
-  Future<stub.CollectionBox<V>> openBox<V>(String name,
-      {bool preload = false,
-      stub.CollectionBox<V> Function(String p1, stub.BoxCollection p2)?
-          boxCreator,}) {
+  Future<stub.CollectionBox<V>> openBox<V>(
+    String name, {
+    bool preload = false,
+    stub.CollectionBox<V> Function(String p1, stub.BoxCollection p2)?
+        boxCreator,
+  }) {
     return _spanHelper.asyncWrapInSpan(
       'openBox',
       () async {

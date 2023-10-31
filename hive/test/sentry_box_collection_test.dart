@@ -26,6 +26,22 @@ void main() {
     expect(span?.data[SentryHiveImpl.dbNameKey], Fixture.dbName);
   }
 
+  void verifyErrorSpan(
+    String description,
+    Exception exception,
+    SentrySpan? span,
+  ) {
+    expect(span?.context.operation, SentryHiveImpl.dbOp);
+    expect(span?.context.description, description);
+    expect(span?.status, SpanStatus.internalError());
+    // ignore: invalid_use_of_internal_member
+    expect(span?.origin, SentryTraceOrigins.autoDbHiveBoxCollection);
+    expect(span?.data[SentryHiveImpl.dbSystemKey], SentryHiveImpl.dbSystem);
+    expect(span?.data[SentryHiveImpl.dbNameKey], Fixture.dbName);
+
+    expect(span?.throwable, exception);
+  }
+
   group('adds span when calling', () {
     late Fixture fixture;
 
@@ -42,8 +58,11 @@ void main() {
     });
 
     test('open', () async {
-      await SentryBoxCollection.open(Fixture.dbName, {'people'},
-          hub: fixture.hub,);
+      await SentryBoxCollection.open(
+        Fixture.dbName,
+        {'people'},
+        hub: fixture.hub,
+      );
 
       final span = fixture.getCreatedSpan();
       verifySpan('open', span);
@@ -81,12 +100,84 @@ void main() {
       verifySpan('deleteFromDisk', span);
     });
   });
+
+  group('adds error span when calling', () {
+    late Fixture fixture;
+
+    setUp(() async {
+      fixture = Fixture();
+      await fixture.setUp();
+
+      when(fixture.hub.options).thenReturn(fixture.options);
+      when(fixture.hub.getSpan()).thenReturn(fixture.tracer);
+      when(fixture.mockBoxCollection.name).thenReturn(Fixture.dbName);
+    });
+
+    tearDown(() async {
+      await fixture.tearDown();
+    });
+
+    // open is static and cannot be mocked
+
+    test('throwing openBox', () async {
+      // ignore: inference_failure_on_function_invocation
+      when(fixture.mockBoxCollection.openBox(any,
+              preload: anyNamed('preload'), boxCreator: anyNamed('boxCreator')))
+          .thenThrow(fixture.exception);
+
+      final sut = await fixture.getSut(injectMock: true);
+
+      try {
+        // ignore: inference_failure_on_function_invocation
+        await sut.openBox('people');
+      } catch (error) {
+        expect(error, fixture.exception);
+      }
+
+      verifyErrorSpan('openBox', fixture.exception, fixture.getCreatedSpan());
+    });
+
+    test('throwing transaction', () async {
+      when(fixture.mockBoxCollection.transaction(any,
+              boxNames: anyNamed('boxNames'), readOnly: anyNamed('readOnly')))
+          .thenThrow(fixture.exception);
+
+      final sut = await fixture.getSut(injectMock: true);
+
+      try {
+        await sut.transaction(() async {});
+      } catch (error) {
+        expect(error, fixture.exception);
+      }
+
+      verifyErrorSpan(
+          'transaction', fixture.exception, fixture.getCreatedSpan());
+    });
+
+    test('throwing deleteFromDisk', () async {
+      when(fixture.mockBoxCollection.deleteFromDisk())
+          .thenThrow(fixture.exception);
+
+      final sut = await fixture.getSut(injectMock: true);
+
+      try {
+        await sut.deleteFromDisk();
+      } catch (error) {
+        expect(error, fixture.exception);
+      }
+
+      verifyErrorSpan(
+          'deleteFromDisk', fixture.exception, fixture.getCreatedSpan());
+    });
+  });
 }
 
 class Fixture {
   final options = SentryOptions();
   final hub = MockHub();
   final exception = Exception('fixture-exception');
+
+  late final mockBoxCollection = MockBoxCollection();
 
   static final dbName = 'people-box-collection';
 
@@ -104,8 +195,14 @@ class Fixture {
     await SentryHive.close();
   }
 
-  Future<stub.BoxCollection> getSut() async {
-    return await SentryBoxCollection.open(dbName, {'people'}, hub: hub);
+  Future<stub.BoxCollection> getSut({bool injectMock = false}) async {
+    if (injectMock) {
+      final sbc = SentryBoxCollection(mockBoxCollection);
+      sbc.setHub(hub);
+      return sbc;
+    } else {
+      return await SentryBoxCollection.open(dbName, {'people'}, hub: hub);
+    }
   }
 
   SentrySpan? getCreatedSpan() {

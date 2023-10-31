@@ -3,14 +3,23 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i4;
-import 'dart:typed_data' as _i7;
+import 'dart:async' as _i5;
+import 'dart:typed_data' as _i8;
 
 import 'package:hive/hive.dart' as _i3;
-import 'package:hive/src/box/default_compaction_strategy.dart' as _i6;
-import 'package:hive/src/box/default_key_comparator.dart' as _i5;
+import 'package:hive/src/box/default_compaction_strategy.dart' as _i7;
+import 'package:hive/src/box/default_key_comparator.dart' as _i6;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:sentry/sentry.dart' as _i2;
+import 'package:sentry/src/profiling.dart' as _i4;
+
+import 'package:hive/src/box_collection/box_collection_stub.dart' as stub;
+
+// ignore: implementation_imports
+import 'package:hive/src/box_collection/box_collection_stub.dart'
+    if (dart.library.html) 'package:hive/src/box_collection/box_collection_indexed_db.dart'
+    if (dart.library.io) 'package:hive/src/box_collection/box_collection.dart'
+    as impl;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -93,6 +102,17 @@ class _FakeLazyBox_6<E1> extends _i1.SmartFake implements _i3.LazyBox<E1> {
         );
 }
 
+class _FakeCollectionBox_7<V1> extends _i1.SmartFake
+    implements _i3.CollectionBox<V1> {
+  _FakeCollectionBox_7(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
 /// A class which mocks [Hub].
 ///
 /// See the documentation for Mockito's code generation for more information.
@@ -135,8 +155,17 @@ class MockHub extends _i1.Mock implements _i2.Hub {
       ) as _i2.Scope);
 
   @override
-  _i4.Future<_i2.SentryId> captureEvent(
-    _i2.SentryEvent? event, {
+  set profilerFactory(_i4.SentryProfilerFactory? value) => super.noSuchMethod(
+        Invocation.setter(
+          #profilerFactory,
+          value,
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  _i5.Future<_i2.SentryId> captureEvent(
+    dynamic event, {
     dynamic stackTrace,
     _i2.Hint? hint,
     _i2.ScopeCallback? withScope,
@@ -151,7 +180,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
             #withScope: withScope,
           },
         ),
-        returnValue: _i4.Future<_i2.SentryId>.value(_FakeSentryId_1(
+        returnValue: _i5.Future<_i2.SentryId>.value(_FakeSentryId_1(
           this,
           Invocation.method(
             #captureEvent,
@@ -163,10 +192,10 @@ class MockHub extends _i1.Mock implements _i2.Hub {
             },
           ),
         )),
-      ) as _i4.Future<_i2.SentryId>);
+      ) as _i5.Future<_i2.SentryId>);
 
   @override
-  _i4.Future<_i2.SentryId> captureException(
+  _i5.Future<_i2.SentryId> captureException(
     dynamic throwable, {
     dynamic stackTrace,
     _i2.Hint? hint,
@@ -182,7 +211,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
             #withScope: withScope,
           },
         ),
-        returnValue: _i4.Future<_i2.SentryId>.value(_FakeSentryId_1(
+        returnValue: _i5.Future<_i2.SentryId>.value(_FakeSentryId_1(
           this,
           Invocation.method(
             #captureException,
@@ -194,10 +223,10 @@ class MockHub extends _i1.Mock implements _i2.Hub {
             },
           ),
         )),
-      ) as _i4.Future<_i2.SentryId>);
+      ) as _i5.Future<_i2.SentryId>);
 
   @override
-  _i4.Future<_i2.SentryId> captureMessage(
+  _i5.Future<_i2.SentryId> captureMessage(
     String? message, {
     _i2.SentryLevel? level,
     String? template,
@@ -217,7 +246,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
             #withScope: withScope,
           },
         ),
-        returnValue: _i4.Future<_i2.SentryId>.value(_FakeSentryId_1(
+        returnValue: _i5.Future<_i2.SentryId>.value(_FakeSentryId_1(
           this,
           Invocation.method(
             #captureMessage,
@@ -231,21 +260,21 @@ class MockHub extends _i1.Mock implements _i2.Hub {
             },
           ),
         )),
-      ) as _i4.Future<_i2.SentryId>);
+      ) as _i5.Future<_i2.SentryId>);
 
   @override
-  _i4.Future<void> captureUserFeedback(_i2.SentryUserFeedback? userFeedback) =>
+  _i5.Future<void> captureUserFeedback(_i2.SentryUserFeedback? userFeedback) =>
       (super.noSuchMethod(
         Invocation.method(
           #captureUserFeedback,
           [userFeedback],
         ),
-        returnValue: _i4.Future<void>.value(),
-        returnValueForMissingStub: _i4.Future<void>.value(),
-      ) as _i4.Future<void>);
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
 
   @override
-  _i4.Future<void> addBreadcrumb(
+  _i5.Future<void> addBreadcrumb(
     _i2.Breadcrumb? crumb, {
     _i2.Hint? hint,
   }) =>
@@ -255,9 +284,9 @@ class MockHub extends _i1.Mock implements _i2.Hub {
           [crumb],
           {#hint: hint},
         ),
-        returnValue: _i4.Future<void>.value(),
-        returnValueForMissingStub: _i4.Future<void>.value(),
-      ) as _i4.Future<void>);
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
 
   @override
   void bindClient(_i2.SentryClient? client) => super.noSuchMethod(
@@ -284,21 +313,21 @@ class MockHub extends _i1.Mock implements _i2.Hub {
       ) as _i2.Hub);
 
   @override
-  _i4.Future<void> close() => (super.noSuchMethod(
+  _i5.Future<void> close() => (super.noSuchMethod(
         Invocation.method(
           #close,
           [],
         ),
-        returnValue: _i4.Future<void>.value(),
-        returnValueForMissingStub: _i4.Future<void>.value(),
-      ) as _i4.Future<void>);
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
 
   @override
-  _i4.FutureOr<void> configureScope(_i2.ScopeCallback? callback) =>
+  _i5.FutureOr<void> configureScope(_i2.ScopeCallback? callback) =>
       (super.noSuchMethod(Invocation.method(
         #configureScope,
         [callback],
-      )) as _i4.FutureOr<void>);
+      )) as _i5.FutureOr<void>);
 
   @override
   _i2.ISentrySpan startTransaction(
@@ -397,7 +426,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
       ) as _i2.ISentrySpan);
 
   @override
-  _i4.Future<_i2.SentryId> captureTransaction(
+  _i5.Future<_i2.SentryId> captureTransaction(
     _i2.SentryTransaction? transaction, {
     _i2.SentryTraceContextHeader? traceContext,
   }) =>
@@ -407,7 +436,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
           [transaction],
           {#traceContext: traceContext},
         ),
-        returnValue: _i4.Future<_i2.SentryId>.value(_FakeSentryId_1(
+        returnValue: _i5.Future<_i2.SentryId>.value(_FakeSentryId_1(
           this,
           Invocation.method(
             #captureTransaction,
@@ -415,7 +444,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
             {#traceContext: traceContext},
           ),
         )),
-      ) as _i4.Future<_i2.SentryId>);
+      ) as _i5.Future<_i2.SentryId>);
 
   @override
   void setSpanContext(
@@ -531,14 +560,14 @@ class MockBox<E> extends _i1.Mock implements _i3.Box<E> {
       ));
 
   @override
-  _i4.Stream<_i3.BoxEvent> watch({dynamic key}) => (super.noSuchMethod(
+  _i5.Stream<_i3.BoxEvent> watch({dynamic key}) => (super.noSuchMethod(
         Invocation.method(
           #watch,
           [],
           {#key: key},
         ),
-        returnValue: _i4.Stream<_i3.BoxEvent>.empty(),
-      ) as _i4.Stream<_i3.BoxEvent>);
+        returnValue: _i5.Stream<_i3.BoxEvent>.empty(),
+      ) as _i5.Stream<_i3.BoxEvent>);
 
   @override
   bool containsKey(dynamic key) => (super.noSuchMethod(
@@ -550,7 +579,7 @@ class MockBox<E> extends _i1.Mock implements _i3.Box<E> {
       ) as bool);
 
   @override
-  _i4.Future<void> put(
+  _i5.Future<void> put(
     dynamic key,
     E? value,
   ) =>
@@ -562,12 +591,12 @@ class MockBox<E> extends _i1.Mock implements _i3.Box<E> {
             value,
           ],
         ),
-        returnValue: _i4.Future<void>.value(),
-        returnValueForMissingStub: _i4.Future<void>.value(),
-      ) as _i4.Future<void>);
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
 
   @override
-  _i4.Future<void> putAt(
+  _i5.Future<void> putAt(
     int? index,
     E? value,
   ) =>
@@ -579,116 +608,116 @@ class MockBox<E> extends _i1.Mock implements _i3.Box<E> {
             value,
           ],
         ),
-        returnValue: _i4.Future<void>.value(),
-        returnValueForMissingStub: _i4.Future<void>.value(),
-      ) as _i4.Future<void>);
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
 
   @override
-  _i4.Future<void> putAll(Map<dynamic, E>? entries) => (super.noSuchMethod(
+  _i5.Future<void> putAll(Map<dynamic, E>? entries) => (super.noSuchMethod(
         Invocation.method(
           #putAll,
           [entries],
         ),
-        returnValue: _i4.Future<void>.value(),
-        returnValueForMissingStub: _i4.Future<void>.value(),
-      ) as _i4.Future<void>);
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
 
   @override
-  _i4.Future<int> add(E? value) => (super.noSuchMethod(
+  _i5.Future<int> add(E? value) => (super.noSuchMethod(
         Invocation.method(
           #add,
           [value],
         ),
-        returnValue: _i4.Future<int>.value(0),
-      ) as _i4.Future<int>);
+        returnValue: _i5.Future<int>.value(0),
+      ) as _i5.Future<int>);
 
   @override
-  _i4.Future<Iterable<int>> addAll(Iterable<E>? values) => (super.noSuchMethod(
+  _i5.Future<Iterable<int>> addAll(Iterable<E>? values) => (super.noSuchMethod(
         Invocation.method(
           #addAll,
           [values],
         ),
-        returnValue: _i4.Future<Iterable<int>>.value(<int>[]),
-      ) as _i4.Future<Iterable<int>>);
+        returnValue: _i5.Future<Iterable<int>>.value(<int>[]),
+      ) as _i5.Future<Iterable<int>>);
 
   @override
-  _i4.Future<void> delete(dynamic key) => (super.noSuchMethod(
+  _i5.Future<void> delete(dynamic key) => (super.noSuchMethod(
         Invocation.method(
           #delete,
           [key],
         ),
-        returnValue: _i4.Future<void>.value(),
-        returnValueForMissingStub: _i4.Future<void>.value(),
-      ) as _i4.Future<void>);
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
 
   @override
-  _i4.Future<void> deleteAt(int? index) => (super.noSuchMethod(
+  _i5.Future<void> deleteAt(int? index) => (super.noSuchMethod(
         Invocation.method(
           #deleteAt,
           [index],
         ),
-        returnValue: _i4.Future<void>.value(),
-        returnValueForMissingStub: _i4.Future<void>.value(),
-      ) as _i4.Future<void>);
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
 
   @override
-  _i4.Future<void> deleteAll(Iterable<dynamic>? keys) => (super.noSuchMethod(
+  _i5.Future<void> deleteAll(Iterable<dynamic>? keys) => (super.noSuchMethod(
         Invocation.method(
           #deleteAll,
           [keys],
         ),
-        returnValue: _i4.Future<void>.value(),
-        returnValueForMissingStub: _i4.Future<void>.value(),
-      ) as _i4.Future<void>);
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
 
   @override
-  _i4.Future<void> compact() => (super.noSuchMethod(
+  _i5.Future<void> compact() => (super.noSuchMethod(
         Invocation.method(
           #compact,
           [],
         ),
-        returnValue: _i4.Future<void>.value(),
-        returnValueForMissingStub: _i4.Future<void>.value(),
-      ) as _i4.Future<void>);
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
 
   @override
-  _i4.Future<int> clear() => (super.noSuchMethod(
+  _i5.Future<int> clear() => (super.noSuchMethod(
         Invocation.method(
           #clear,
           [],
         ),
-        returnValue: _i4.Future<int>.value(0),
-      ) as _i4.Future<int>);
+        returnValue: _i5.Future<int>.value(0),
+      ) as _i5.Future<int>);
 
   @override
-  _i4.Future<void> close() => (super.noSuchMethod(
+  _i5.Future<void> close() => (super.noSuchMethod(
         Invocation.method(
           #close,
           [],
         ),
-        returnValue: _i4.Future<void>.value(),
-        returnValueForMissingStub: _i4.Future<void>.value(),
-      ) as _i4.Future<void>);
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
 
   @override
-  _i4.Future<void> deleteFromDisk() => (super.noSuchMethod(
+  _i5.Future<void> deleteFromDisk() => (super.noSuchMethod(
         Invocation.method(
           #deleteFromDisk,
           [],
         ),
-        returnValue: _i4.Future<void>.value(),
-        returnValueForMissingStub: _i4.Future<void>.value(),
-      ) as _i4.Future<void>);
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
 
   @override
-  _i4.Future<void> flush() => (super.noSuchMethod(
+  _i5.Future<void> flush() => (super.noSuchMethod(
         Invocation.method(
           #flush,
           [],
         ),
-        returnValue: _i4.Future<void>.value(),
-        returnValueForMissingStub: _i4.Future<void>.value(),
-      ) as _i4.Future<void>);
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
 }
 
 /// A class which mocks [LazyBox].
@@ -742,7 +771,7 @@ class MockLazyBox<E> extends _i1.Mock implements _i3.LazyBox<E> {
       ) as bool);
 
   @override
-  _i4.Future<E?> get(
+  _i5.Future<E?> get(
     dynamic key, {
     E? defaultValue,
   }) =>
@@ -752,17 +781,17 @@ class MockLazyBox<E> extends _i1.Mock implements _i3.LazyBox<E> {
           [key],
           {#defaultValue: defaultValue},
         ),
-        returnValue: _i4.Future<E?>.value(),
-      ) as _i4.Future<E?>);
+        returnValue: _i5.Future<E?>.value(),
+      ) as _i5.Future<E?>);
 
   @override
-  _i4.Future<E?> getAt(int? index) => (super.noSuchMethod(
+  _i5.Future<E?> getAt(int? index) => (super.noSuchMethod(
         Invocation.method(
           #getAt,
           [index],
         ),
-        returnValue: _i4.Future<E?>.value(),
-      ) as _i4.Future<E?>);
+        returnValue: _i5.Future<E?>.value(),
+      ) as _i5.Future<E?>);
 
   @override
   dynamic keyAt(int? index) => super.noSuchMethod(Invocation.method(
@@ -771,14 +800,14 @@ class MockLazyBox<E> extends _i1.Mock implements _i3.LazyBox<E> {
       ));
 
   @override
-  _i4.Stream<_i3.BoxEvent> watch({dynamic key}) => (super.noSuchMethod(
+  _i5.Stream<_i3.BoxEvent> watch({dynamic key}) => (super.noSuchMethod(
         Invocation.method(
           #watch,
           [],
           {#key: key},
         ),
-        returnValue: _i4.Stream<_i3.BoxEvent>.empty(),
-      ) as _i4.Stream<_i3.BoxEvent>);
+        returnValue: _i5.Stream<_i3.BoxEvent>.empty(),
+      ) as _i5.Stream<_i3.BoxEvent>);
 
   @override
   bool containsKey(dynamic key) => (super.noSuchMethod(
@@ -790,7 +819,7 @@ class MockLazyBox<E> extends _i1.Mock implements _i3.LazyBox<E> {
       ) as bool);
 
   @override
-  _i4.Future<void> put(
+  _i5.Future<void> put(
     dynamic key,
     E? value,
   ) =>
@@ -802,12 +831,12 @@ class MockLazyBox<E> extends _i1.Mock implements _i3.LazyBox<E> {
             value,
           ],
         ),
-        returnValue: _i4.Future<void>.value(),
-        returnValueForMissingStub: _i4.Future<void>.value(),
-      ) as _i4.Future<void>);
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
 
   @override
-  _i4.Future<void> putAt(
+  _i5.Future<void> putAt(
     int? index,
     E? value,
   ) =>
@@ -819,116 +848,116 @@ class MockLazyBox<E> extends _i1.Mock implements _i3.LazyBox<E> {
             value,
           ],
         ),
-        returnValue: _i4.Future<void>.value(),
-        returnValueForMissingStub: _i4.Future<void>.value(),
-      ) as _i4.Future<void>);
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
 
   @override
-  _i4.Future<void> putAll(Map<dynamic, E>? entries) => (super.noSuchMethod(
+  _i5.Future<void> putAll(Map<dynamic, E>? entries) => (super.noSuchMethod(
         Invocation.method(
           #putAll,
           [entries],
         ),
-        returnValue: _i4.Future<void>.value(),
-        returnValueForMissingStub: _i4.Future<void>.value(),
-      ) as _i4.Future<void>);
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
 
   @override
-  _i4.Future<int> add(E? value) => (super.noSuchMethod(
+  _i5.Future<int> add(E? value) => (super.noSuchMethod(
         Invocation.method(
           #add,
           [value],
         ),
-        returnValue: _i4.Future<int>.value(0),
-      ) as _i4.Future<int>);
+        returnValue: _i5.Future<int>.value(0),
+      ) as _i5.Future<int>);
 
   @override
-  _i4.Future<Iterable<int>> addAll(Iterable<E>? values) => (super.noSuchMethod(
+  _i5.Future<Iterable<int>> addAll(Iterable<E>? values) => (super.noSuchMethod(
         Invocation.method(
           #addAll,
           [values],
         ),
-        returnValue: _i4.Future<Iterable<int>>.value(<int>[]),
-      ) as _i4.Future<Iterable<int>>);
+        returnValue: _i5.Future<Iterable<int>>.value(<int>[]),
+      ) as _i5.Future<Iterable<int>>);
 
   @override
-  _i4.Future<void> delete(dynamic key) => (super.noSuchMethod(
+  _i5.Future<void> delete(dynamic key) => (super.noSuchMethod(
         Invocation.method(
           #delete,
           [key],
         ),
-        returnValue: _i4.Future<void>.value(),
-        returnValueForMissingStub: _i4.Future<void>.value(),
-      ) as _i4.Future<void>);
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
 
   @override
-  _i4.Future<void> deleteAt(int? index) => (super.noSuchMethod(
+  _i5.Future<void> deleteAt(int? index) => (super.noSuchMethod(
         Invocation.method(
           #deleteAt,
           [index],
         ),
-        returnValue: _i4.Future<void>.value(),
-        returnValueForMissingStub: _i4.Future<void>.value(),
-      ) as _i4.Future<void>);
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
 
   @override
-  _i4.Future<void> deleteAll(Iterable<dynamic>? keys) => (super.noSuchMethod(
+  _i5.Future<void> deleteAll(Iterable<dynamic>? keys) => (super.noSuchMethod(
         Invocation.method(
           #deleteAll,
           [keys],
         ),
-        returnValue: _i4.Future<void>.value(),
-        returnValueForMissingStub: _i4.Future<void>.value(),
-      ) as _i4.Future<void>);
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
 
   @override
-  _i4.Future<void> compact() => (super.noSuchMethod(
+  _i5.Future<void> compact() => (super.noSuchMethod(
         Invocation.method(
           #compact,
           [],
         ),
-        returnValue: _i4.Future<void>.value(),
-        returnValueForMissingStub: _i4.Future<void>.value(),
-      ) as _i4.Future<void>);
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
 
   @override
-  _i4.Future<int> clear() => (super.noSuchMethod(
+  _i5.Future<int> clear() => (super.noSuchMethod(
         Invocation.method(
           #clear,
           [],
         ),
-        returnValue: _i4.Future<int>.value(0),
-      ) as _i4.Future<int>);
+        returnValue: _i5.Future<int>.value(0),
+      ) as _i5.Future<int>);
 
   @override
-  _i4.Future<void> close() => (super.noSuchMethod(
+  _i5.Future<void> close() => (super.noSuchMethod(
         Invocation.method(
           #close,
           [],
         ),
-        returnValue: _i4.Future<void>.value(),
-        returnValueForMissingStub: _i4.Future<void>.value(),
-      ) as _i4.Future<void>);
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
 
   @override
-  _i4.Future<void> deleteFromDisk() => (super.noSuchMethod(
+  _i5.Future<void> deleteFromDisk() => (super.noSuchMethod(
         Invocation.method(
           #deleteFromDisk,
           [],
         ),
-        returnValue: _i4.Future<void>.value(),
-        returnValueForMissingStub: _i4.Future<void>.value(),
-      ) as _i4.Future<void>);
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
 
   @override
-  _i4.Future<void> flush() => (super.noSuchMethod(
+  _i5.Future<void> flush() => (super.noSuchMethod(
         Invocation.method(
           #flush,
           [],
         ),
-        returnValue: _i4.Future<void>.value(),
-        returnValueForMissingStub: _i4.Future<void>.value(),
-      ) as _i4.Future<void>);
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
 }
 
 /// A class which mocks [HiveInterface].
@@ -955,14 +984,14 @@ class MockHiveInterface extends _i1.Mock implements _i3.HiveInterface {
       );
 
   @override
-  _i4.Future<_i3.Box<E>> openBox<E>(
+  _i5.Future<_i3.Box<E>> openBox<E>(
     String? name, {
     _i3.HiveCipher? encryptionCipher,
-    _i3.KeyComparator? keyComparator = _i5.defaultKeyComparator,
-    _i3.CompactionStrategy? compactionStrategy = _i6.defaultCompactionStrategy,
+    _i3.KeyComparator? keyComparator = _i6.defaultKeyComparator,
+    _i3.CompactionStrategy? compactionStrategy = _i7.defaultCompactionStrategy,
     bool? crashRecovery = true,
     String? path,
-    _i7.Uint8List? bytes,
+    _i8.Uint8List? bytes,
     String? collection,
     List<int>? encryptionKey,
   }) =>
@@ -981,7 +1010,7 @@ class MockHiveInterface extends _i1.Mock implements _i3.HiveInterface {
             #encryptionKey: encryptionKey,
           },
         ),
-        returnValue: _i4.Future<_i3.Box<E>>.value(_FakeBox_5<E>(
+        returnValue: _i5.Future<_i3.Box<E>>.value(_FakeBox_5<E>(
           this,
           Invocation.method(
             #openBox,
@@ -998,14 +1027,14 @@ class MockHiveInterface extends _i1.Mock implements _i3.HiveInterface {
             },
           ),
         )),
-      ) as _i4.Future<_i3.Box<E>>);
+      ) as _i5.Future<_i3.Box<E>>);
 
   @override
-  _i4.Future<_i3.LazyBox<E>> openLazyBox<E>(
+  _i5.Future<_i3.LazyBox<E>> openLazyBox<E>(
     String? name, {
     _i3.HiveCipher? encryptionCipher,
-    _i3.KeyComparator? keyComparator = _i5.defaultKeyComparator,
-    _i3.CompactionStrategy? compactionStrategy = _i6.defaultCompactionStrategy,
+    _i3.KeyComparator? keyComparator = _i6.defaultKeyComparator,
+    _i3.CompactionStrategy? compactionStrategy = _i7.defaultCompactionStrategy,
     bool? crashRecovery = true,
     String? path,
     String? collection,
@@ -1025,7 +1054,7 @@ class MockHiveInterface extends _i1.Mock implements _i3.HiveInterface {
             #encryptionKey: encryptionKey,
           },
         ),
-        returnValue: _i4.Future<_i3.LazyBox<E>>.value(_FakeLazyBox_6<E>(
+        returnValue: _i5.Future<_i3.LazyBox<E>>.value(_FakeLazyBox_6<E>(
           this,
           Invocation.method(
             #openLazyBox,
@@ -1041,7 +1070,7 @@ class MockHiveInterface extends _i1.Mock implements _i3.HiveInterface {
             },
           ),
         )),
-      ) as _i4.Future<_i3.LazyBox<E>>);
+      ) as _i5.Future<_i3.LazyBox<E>>);
 
   @override
   _i3.Box<E> box<E>(String? name) => (super.noSuchMethod(
@@ -1083,17 +1112,17 @@ class MockHiveInterface extends _i1.Mock implements _i3.HiveInterface {
       ) as bool);
 
   @override
-  _i4.Future<void> close() => (super.noSuchMethod(
+  _i5.Future<void> close() => (super.noSuchMethod(
         Invocation.method(
           #close,
           [],
         ),
-        returnValue: _i4.Future<void>.value(),
-        returnValueForMissingStub: _i4.Future<void>.value(),
-      ) as _i4.Future<void>);
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
 
   @override
-  _i4.Future<void> deleteBoxFromDisk(
+  _i5.Future<void> deleteBoxFromDisk(
     String? name, {
     String? path,
   }) =>
@@ -1103,19 +1132,19 @@ class MockHiveInterface extends _i1.Mock implements _i3.HiveInterface {
           [name],
           {#path: path},
         ),
-        returnValue: _i4.Future<void>.value(),
-        returnValueForMissingStub: _i4.Future<void>.value(),
-      ) as _i4.Future<void>);
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
 
   @override
-  _i4.Future<void> deleteFromDisk() => (super.noSuchMethod(
+  _i5.Future<void> deleteFromDisk() => (super.noSuchMethod(
         Invocation.method(
           #deleteFromDisk,
           [],
         ),
-        returnValue: _i4.Future<void>.value(),
-        returnValueForMissingStub: _i4.Future<void>.value(),
-      ) as _i4.Future<void>);
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
 
   @override
   List<int> generateSecureKey() => (super.noSuchMethod(
@@ -1127,7 +1156,7 @@ class MockHiveInterface extends _i1.Mock implements _i3.HiveInterface {
       ) as List<int>);
 
   @override
-  _i4.Future<bool> boxExists(
+  _i5.Future<bool> boxExists(
     String? name, {
     String? path,
   }) =>
@@ -1137,8 +1166,8 @@ class MockHiveInterface extends _i1.Mock implements _i3.HiveInterface {
           [name],
           {#path: path},
         ),
-        returnValue: _i4.Future<bool>.value(false),
-      ) as _i4.Future<bool>);
+        returnValue: _i5.Future<bool>.value(false),
+      ) as _i5.Future<bool>);
 
   @override
   void resetAdapters() => super.noSuchMethod(
@@ -1184,4 +1213,95 @@ class MockHiveInterface extends _i1.Mock implements _i3.HiveInterface {
         ),
         returnValueForMissingStub: null,
       );
+}
+
+/// A class which mocks [BoxCollection].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockBoxCollection extends _i1.Mock implements impl.BoxCollection {
+  MockBoxCollection() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  String get name => (super.noSuchMethod(
+        Invocation.getter(#name),
+        returnValue: '',
+      ) as String);
+
+  @override
+  Set<String> get boxNames => (super.noSuchMethod(
+        Invocation.getter(#boxNames),
+        returnValue: <String>{},
+      ) as Set<String>);
+
+  @override
+  _i5.Future<impl.CollectionBox<V>> openBox<V>(
+    String? name, {
+    bool? preload = false,
+    stub.CollectionBox<V> Function(
+      String,
+      impl.BoxCollection,
+    )? boxCreator,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #openBox,
+          [name],
+          {
+            #preload: preload,
+            #boxCreator: boxCreator,
+          },
+        ),
+        returnValue:
+            _i5.Future<impl.CollectionBox<V>>.value(_FakeCollectionBox_7<V>(
+          this,
+          Invocation.method(
+            #openBox,
+            [name],
+            {
+              #preload: preload,
+              #boxCreator: boxCreator,
+            },
+          ),
+        )),
+      ) as _i5.Future<impl.CollectionBox<V>>);
+
+  @override
+  _i5.Future<void> transaction(
+    _i5.Future<void> Function()? action, {
+    List<String>? boxNames,
+    bool? readOnly = false,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #transaction,
+          [action],
+          {
+            #boxNames: boxNames,
+            #readOnly: readOnly,
+          },
+        ),
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
+
+  @override
+  void close() => super.noSuchMethod(
+        Invocation.method(
+          #close,
+          [],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  _i5.Future<void> deleteFromDisk() => (super.noSuchMethod(
+        Invocation.method(
+          #deleteFromDisk,
+          [],
+        ),
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
 }
