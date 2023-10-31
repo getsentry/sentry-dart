@@ -6,6 +6,7 @@ import 'src/sentry_hive_impl.dart';
 import 'src/sentry_hive_interface.dart';
 
 export 'src/sentry_hive_interface.dart';
+export 'src/sentry_box_collection.dart';
 
 /// Use [SentryHive] constant instead of [Hive] to get automatic performance
 /// monitoring.
