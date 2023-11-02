@@ -23,11 +23,9 @@ void main() {
     expect(span?.data[SentryDriftDatabase.dbNameKey], Fixture.dbName);
   }
 
-  void verifyErrorSpan(
-    String description,
-    Exception exception,
-    SentrySpan? span,
-  ) {
+  void verifyErrorSpan(String description,
+      Exception exception,
+      SentrySpan? span,) {
     expect(span?.context.operation, SentryDriftDatabase.dbOp);
     expect(span?.context.description, description);
     expect(span?.status, SpanStatus.internalError());
@@ -56,26 +54,26 @@ void main() {
     });
 
     test('insert adds span', () async {
-      final sut = fixture.getSut();
+      final sut = fixture.sut;
 
       await sut.into(sut.todoItems).insert(TodoItemsCompanion.insert(
-            title: 'todo: finish drift setup',
-            content: 'We can now write queries and define our own tables.',
-          ));
+        title: 'todo: finish drift setup',
+        content: 'We can now write queries and define our own tables.',
+      ));
 
       verifySpan('insert', fixture.getCreatedSpan());
     });
 
     test('update adds span', () async {
-      final sut = fixture.getSut();
+      final sut = fixture.sut;
 
       await sut.into(sut.todoItems).insert(TodoItemsCompanion.insert(
-            title: 'todo: finish drift setup',
-            content: 'We can now write queries and define our own tables.',
-          ));
+        title: 'todo: finish drift setup',
+        content: 'We can now write queries and define our own tables.',
+      ));
 
       await (sut.update(sut.todoItems)
-            ..where((tbl) => tbl.title.equals('todo: finish drift setup')))
+        ..where((tbl) => tbl.title.equals('todo: finish drift setup')))
           .write(TodoItemsCompanion(
         title: Value('after update'),
         content: Value('We can now write queries and define our own tables.'),
@@ -85,7 +83,7 @@ void main() {
     });
 
     test('custom adds span', () async {
-      final sut = fixture.getSut();
+      final sut = fixture.sut;
 
       await sut.customStatement('SELECT * FROM todo_items');
 
@@ -93,20 +91,27 @@ void main() {
     });
 
     test('batch adds span', () async {
-      final sut = fixture.getSut();
+      final sut = fixture.sut;
 
       await sut.transaction(() async {
         await sut.into(sut.todoItems).insert(TodoItemsCompanion.insert(
-              title: 'todo: finish drift setup',
-              content: 'We can now write queries and define our own tables.',
-            ));
+          title: 'todo: finish drift setup',
+          content: 'We can now write queries and define our own tables.',
+        ));
+      });
+
+      await sut.batch((batch) async {
+        await sut.into(sut.todoItems).insert(TodoItemsCompanion.insert(
+          title: 'todo: finish drift setup',
+          content: 'We can now write queries and define our own tables.',
+        ));
       });
 
       // TODO
     });
 
     test('close adds span', () async {
-      final sut = fixture.getSut();
+      final sut = fixture.sut;
 
       await sut.close();
 
@@ -114,55 +119,20 @@ void main() {
     });
 
     test('open adds span', () async {
-      final sut = fixture.getSut();
+      final sut = fixture.sut;
 
-      // SentryDriftDatabase is lazily opened by default so it won't create a span
-      // until it is actually used.
+      // SentryDriftDatabase is by default lazily opened by default so it won't
+      // create a span until it is actually used.
       await sut.select(sut.todoItems).get();
 
       verifySpan('open', fixture.getSpanByDescription('open'));
     });
 
     test('will not add open span if db is not used', () async {
-      fixture.getSut();
+      fixture.sut;
 
       expect(fixture.tracer.children.isEmpty, true);
     });
-  });
-
-  group('adds error span', () {
-    late Fixture fixture;
-
-    setUp(() async {
-      fixture = Fixture();
-      await fixture.setUp();
-
-      when(fixture.hub.options).thenReturn(fixture.options);
-      when(fixture.hub.getSpan()).thenReturn(fixture.tracer);
-    });
-
-    tearDown(() async {
-      await fixture.tearDown();
-    });
-
-    // test('throwing insert adds error span', () async {
-    //   final sut = fixture.getSut();
-    //   Exception? exception;
-    //
-    //   try {
-    //     await sut.into(fixture.sut.todoItems).insert(TodoItemsCompanion.insert(
-    //       title: 'AAAaaaaaa',
-    //       content: 'aaaaaaaaaa',
-    //     ));
-    //   } catch (error) {
-    //     expect(error is InvalidDataException, true);
-    //     exception = error as InvalidDataException;
-    //   }
-    //
-    //
-    //
-    //   //verifyErrorSpan('insert', exception!, fixture.getCreatedSpan());
-    // });
   });
 }
 
@@ -171,7 +141,6 @@ class Fixture {
   final hub = MockHub();
   static final dbName = 'people-drift-impl';
   final exception = Exception('fixture-exception');
-
   final _context = SentryTransactionContext('name', 'operation');
   late final tracer = SentryTracer(_context, hub);
   late AppDatabase sut;
@@ -184,21 +153,18 @@ class Fixture {
     await sut.close();
   }
 
-  AppDatabase getSut() {
-    return sut;
-  }
-
   SentrySpan? getCreatedSpan() {
     return tracer.children.last;
   }
-  
+
   SentrySpan? getSpanByDescription(String description) {
-    return tracer.children.firstWhere((element) => element.context.description == description);
+    return tracer.children
+        .firstWhere((element) => element.context.description == description);
   }
 
   SentryDriftDatabase openConnection() {
     return SentryDriftDatabase(() {
       return NativeDatabase.memory();
-    }, hub: hub);
+    }, hub: hub, dbName: dbName);
   }
 }

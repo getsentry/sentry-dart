@@ -9,18 +9,21 @@ import 'sentry_span_helper.dart';
 /// Signature of a function that opens a database connection when instructed to.
 typedef DatabaseOpener = FutureOr<QueryExecutor> Function();
 
-/// Sentry Drift Database Executor based on [LazyDatabase].
+/// The Sentry Drift Database Executor.
 ///
-/// A special database executor that delegates work to another [QueryExecutor].
-/// The other executor is lazily opened by a [DatabaseOpener].
-class SentryDriftDatabase extends LazyDatabase {
+/// If queryExecutor is not null, it will be used instead of the default one.
+/// The default is [LazyDatabase].
+class SentryDriftDatabase extends QueryExecutor {
   final Hub _hub;
+
   final _spanHelper = SentrySpanHelper(
     // ignore: invalid_use_of_internal_member
     SentryTraceOrigins.autoDbDriftDatabaseExecutor,
   );
 
-  String? dbName = 'people-drift-impl';
+  final QueryExecutor _queryExecutor;
+
+  final String? _dbName;
 
   @internal
   // ignore: public_member_api_docs
@@ -41,61 +44,76 @@ class SentryDriftDatabase extends LazyDatabase {
   /// Declares a [SentryDriftDatabase] that will run [opener] when the database is
   /// first requested to be opened. You must specify the same [dialect] as the
   /// underlying database has
-  SentryDriftDatabase(
-    super.opener, {
-    super.dialect,
-    @internal Hub? hub,
-  })  : _hub = hub ?? HubAdapter() {
+  SentryDriftDatabase(DatabaseOpener opener,
+      {@internal Hub? hub,
+      @internal QueryExecutor? queryExecutor,
+      @internal String? dbName})
+      : _hub = hub ?? HubAdapter(),
+        _dbName = dbName,
+        _queryExecutor = queryExecutor ?? LazyDatabase(opener) {
     _spanHelper.setHub(_hub);
+  }
+
+  @override
+  TransactionExecutor beginTransaction() {
+    return _queryExecutor.beginTransaction();
+  }
+
+  @override
+  Future<void> runBatched(BatchedStatements statements) {
+    return _queryExecutor.runBatched(statements);
   }
 
   @override
   Future<bool> ensureOpen(QueryExecutorUser user) {
     return _spanHelper.asyncWrapInSpan('open', () async {
-      return await super.ensureOpen(user);
-    });
+      return await _queryExecutor.ensureOpen(user);
+    }, dbName: _dbName);
   }
 
   @override
   Future<void> runCustom(String statement, [List<Object?>? args]) {
     return _spanHelper.asyncWrapInSpan('custom', () async {
-      return await super.runCustom(statement, args);
-    }, dbName: dbName);
+      return await _queryExecutor.runCustom(statement, args);
+    }, dbName: _dbName);
   }
 
   @override
   Future<int> runDelete(String statement, List<Object?> args) {
     return _spanHelper.asyncWrapInSpan('delete', () async {
-      return await super.runDelete(statement, args);
-    }, dbName: dbName);
+      return await _queryExecutor.runDelete(statement, args);
+    }, dbName: _dbName);
   }
 
   @override
   Future<int> runInsert(String statement, List<Object?> args) {
     return _spanHelper.asyncWrapInSpan('insert', () async {
-      return await super.runInsert(statement, args);
-    }, dbName: dbName);
+      return await _queryExecutor.runInsert(statement, args);
+    }, dbName: _dbName);
   }
 
   @override
   Future<List<Map<String, Object?>>> runSelect(
       String statement, List<Object?> args) {
     return _spanHelper.asyncWrapInSpan('select', () async {
-      return await super.runSelect(statement, args);
-    }, dbName: dbName);
+      return await _queryExecutor.runSelect(statement, args);
+    }, dbName: _dbName);
   }
 
   @override
   Future<int> runUpdate(String statement, List<Object?> args) {
     return _spanHelper.asyncWrapInSpan('update', () async {
-      return await super.runUpdate(statement, args);
-    }, dbName: dbName);
+      return await _queryExecutor.runUpdate(statement, args);
+    }, dbName: _dbName);
   }
 
   @override
   Future<void> close() {
     return _spanHelper.asyncWrapInSpan('close', () async {
-      return await super.close();
-    }, dbName: dbName);
+      return await _queryExecutor.close();
+    }, dbName: _dbName);
   }
+
+  @override
+  SqlDialect get dialect => _queryExecutor.dialect;
 }

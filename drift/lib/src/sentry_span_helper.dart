@@ -45,7 +45,6 @@ class SentrySpanHelper {
 
     try {
       final result = await execute();
-
       span?.status = SpanStatus.ok();
 
       return result;
