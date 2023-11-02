@@ -149,7 +149,6 @@ void main() {
 class Fixture {
   final options = SentryOptions();
   final hub = MockHub();
-  final mockDatabase = MockAppDatabase();
   static final dbName = 'people-drift-impl';
   final exception = Exception('fixture-exception');
 
