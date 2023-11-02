@@ -72,27 +72,26 @@ class SentryDriftDatabase extends QueryExecutor {
   }
 
   Future<void> _awaitOpened() {
-    if (_delegateAvailable) {
-      return Future.value();
-    } else if (_openDelegate != null) {
-      return _openDelegate!.future;
-    } else {
-      final delegate = _openDelegate = Completer();
-      Future.sync(opener).then((database) {
-        _delegate = database;
-        _delegateAvailable = true;
-        delegate.complete();
-      }, onError: delegate.completeError);
-      return delegate.future;
-    }
+    return _spanHelper.asyncWrapInSpan('open', () async {
+      if (_delegateAvailable) {
+        return Future.value();
+      } else if (_openDelegate != null) {
+        return _openDelegate!.future;
+      } else {
+        final delegate = _openDelegate = Completer();
+        await Future.sync(opener).then((database) {
+          _delegate = database;
+          _delegateAvailable = true;
+          delegate.complete();
+        }, onError: delegate.completeError);
+        return delegate.future;
+      }
+    }, dbName: dbName);
   }
-
-  @override
 
   @override
   TransactionExecutor beginTransaction() {
     final a = _delegate.beginTransaction();
-    print(a.toString());
     return _delegate.beginTransaction();
   }
 

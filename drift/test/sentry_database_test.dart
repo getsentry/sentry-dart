@@ -102,22 +102,7 @@ void main() {
             ));
       });
 
-      // await sut.batch((batch) {
-      //   batch.insert(
-      //       sut.todoItems,
-      //       TodoItemsCompanion.insert(
-      //         title: 'todo: finish drift setup',
-      //         content: 'We can now write queries and define our own tables.',
-      //       ));
-      //   batch.insert(
-      //       sut.todoItems,
-      //       TodoItemsCompanion.insert(
-      //         title: 'todo: finish drift setup',
-      //         content: 'We can now write queries and define our own tables.',
-      //       ));
-      // });
-
-      //verifySpan('batch', fixture.getCreatedSpan());
+      // TODO
     });
 
     test('close adds span', () async {
@@ -126,6 +111,22 @@ void main() {
       await sut.close();
 
       verifySpan('close', fixture.getCreatedSpan());
+    });
+
+    test('open adds span', () async {
+      final sut = fixture.getSut();
+
+      // SentryDriftDatabase is lazily opened by default so it won't create a span
+      // until it is actually used.
+      await sut.select(sut.todoItems).get();
+
+      verifySpan('open', fixture.getSpanByDescription('open'));
+    });
+
+    test('will not add open span if db is not used', () async {
+      fixture.getSut();
+
+      expect(fixture.tracer.children.isEmpty, true);
     });
   });
 
@@ -143,6 +144,25 @@ void main() {
     tearDown(() async {
       await fixture.tearDown();
     });
+
+    // test('throwing insert adds error span', () async {
+    //   final sut = fixture.getSut();
+    //   Exception? exception;
+    //
+    //   try {
+    //     await sut.into(fixture.sut.todoItems).insert(TodoItemsCompanion.insert(
+    //       title: 'AAAaaaaaa',
+    //       content: 'aaaaaaaaaa',
+    //     ));
+    //   } catch (error) {
+    //     expect(error is InvalidDataException, true);
+    //     exception = error as InvalidDataException;
+    //   }
+    //
+    //
+    //
+    //   //verifyErrorSpan('insert', exception!, fixture.getCreatedSpan());
+    // });
   });
 }
 
@@ -171,10 +191,14 @@ class Fixture {
   SentrySpan? getCreatedSpan() {
     return tracer.children.last;
   }
+  
+  SentrySpan? getSpanByDescription(String description) {
+    return tracer.children.firstWhere((element) => element.context.description == description);
+  }
 
   SentryDriftDatabase openConnection() {
-    return SentryDriftDatabase(hub: hub, () async {
+    return SentryDriftDatabase(() {
       return NativeDatabase.memory();
-    });
+    }, hub: hub);
   }
 }
