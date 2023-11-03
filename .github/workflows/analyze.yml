@@ -31,7 +31,7 @@ jobs:
       run:
         working-directory: ${{ inputs.package }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: dart-lang/setup-dart@6a218f2413a3e78e9087f638a238f6b40893203d # pin@v1
         if: ${{ inputs.sdk == 'dart' }}
       - uses: subosito/flutter-action@48cafc24713cca54bbe03cdc3a423187d413aafa # pin@v2.10.0
@@ -59,7 +59,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+      - name: Apply dependency override
+        if: ${{ inputs.package == 'flutter' }}
+        working-directory: ${{ inputs.package }}
+        run: |
+          sed -i.bak 's|sentry:.*|sentry:\n    path: /github/workspace/dart|g' pubspec.yaml
       - uses: axel-op/dart-package-analyzer@7a6c3c66bce78d82b729a1ffef2d9458fde6c8d2 # pin@v3
         id: analysis
         with:
