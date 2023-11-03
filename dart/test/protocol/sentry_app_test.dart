@@ -14,6 +14,7 @@ void main() {
     startTime: testStartTime,
     deviceAppHash: 'fixture-deviceAppHash',
     inForeground: true,
+    viewNames: ['fixture-viewName', 'fixture-viewName2'],
   );
 
   final sentryAppJson = <String, dynamic>{
@@ -25,25 +26,36 @@ void main() {
     'app_start_time': testStartTime.toIso8601String(),
     'device_app_hash': 'fixture-deviceAppHash',
     'in_foreground': true,
+    'view_names': ['fixture-viewName', 'fixture-viewName2'],
   };
 
   group('json', () {
     test('toJson', () {
       final json = sentryApp.toJson();
 
-      expect(
-        MapEquality().equals(sentryAppJson, json),
-        true,
-      );
+      expect(json['app_name'], 'fixture-name');
+      expect(json['app_version'], 'fixture-version');
+      expect(json['app_identifier'], 'fixture-identifier');
+      expect(json['app_build'], 'fixture-build');
+      expect(json['build_type'], 'fixture-buildType');
+      expect(json['app_start_time'], testStartTime.toIso8601String());
+      expect(json['device_app_hash'], 'fixture-deviceAppHash');
+      expect(json['in_foreground'], true);
+      expect(json['view_names'], ['fixture-viewName', 'fixture-viewName2']);
     });
     test('fromJson', () {
       final sentryApp = SentryApp.fromJson(sentryAppJson);
       final json = sentryApp.toJson();
 
-      expect(
-        MapEquality().equals(sentryAppJson, json),
-        true,
-      );
+      expect(json['app_name'], 'fixture-name');
+      expect(json['app_version'], 'fixture-version');
+      expect(json['app_identifier'], 'fixture-identifier');
+      expect(json['app_build'], 'fixture-build');
+      expect(json['build_type'], 'fixture-buildType');
+      expect(json['app_start_time'], testStartTime.toIso8601String());
+      expect(json['device_app_hash'], 'fixture-deviceAppHash');
+      expect(json['in_foreground'], true);
+      expect(json['view_names'], ['fixture-viewName', 'fixture-viewName2']);
     });
   });
 
@@ -73,6 +85,7 @@ void main() {
         startTime: startTime,
         deviceAppHash: 'hash1',
         inForeground: true,
+        viewNames: ['screen1'],
       );
 
       expect('name1', copy.name);
@@ -83,6 +96,7 @@ void main() {
       expect(startTime, copy.startTime);
       expect('hash1', copy.deviceAppHash);
       expect(true, copy.inForeground);
+      expect(['screen1'], copy.viewNames);
     });
   });
 }
