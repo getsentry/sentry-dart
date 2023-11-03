@@ -40,7 +40,7 @@ jobs:
           - os: macos-latest
             sdk: beta
     steps:
-      - uses: dart-lang/setup-dart@6a218f2413a3e78e9087f638a238f6b40893203d # pin@v1
+      - uses: dart-lang/setup-dart@b64355ae6ca0b5d484f0106a033dd1388965d06d # pin@v1
         with:
           sdk: ${{ matrix.sdk }}
       - uses: actions/checkout@v4
