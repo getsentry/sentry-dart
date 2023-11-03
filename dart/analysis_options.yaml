@@ -3,6 +3,7 @@ include: package:lints/recommended.yaml
 analyzer:
   exclude:
     - example/** # the example has its own 'analysis_options.yaml'
+    - test/*.mocks.dart
   errors:
     # treat missing required parameters as a warning (not a hint)
     missing_required_param: error

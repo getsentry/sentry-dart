@@ -41,7 +41,7 @@ jobs:
             host: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       # Let's stick to an explicit version and update manually because a version change may affect results.
       # If it would update implicitly it could confuse people to think the change is actually caused by the PR.

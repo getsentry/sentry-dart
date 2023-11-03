@@ -33,7 +33,7 @@ jobs:
         sdk: ["stable", "beta"]
     steps:
       - name: checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - uses: actions/setup-java@v3
         with:
@@ -104,7 +104,7 @@ jobs:
           avd-name: macOS-avd-x86_64-31
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
-          script: flutter test integration_test --verbose
+          script: flutter test integration_test/all.dart --verbose
 
   cocoa:
     name: "${{ matrix.target }} | ${{ matrix.sdk }}"
@@ -120,7 +120,7 @@ jobs:
         target: ["ios", "macos"]
     steps:
       - name: checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - uses: subosito/flutter-action@48cafc24713cca54bbe03cdc3a423187d413aafa # pin@v2.10.0
         with:
@@ -141,7 +141,7 @@ jobs:
         run: |
           case "${{ matrix.target }}" in
             ios)
-            device=$(xcrun simctl create sentryPhone com.apple.CoreSimulator.SimDeviceType.iPhone-14 com.apple.CoreSimulator.SimRuntime.iOS-16-4)
+            device=$(xcrun simctl create sentryPhone com.apple.CoreSimulator.SimDeviceType.iPhone-14 com.apple.CoreSimulator.SimRuntime.iOS-17-0)
             xcrun simctl boot ${device}
             echo "platform=iOS Simulator,id=${device}" >> "$GITHUB_OUTPUT"
             ;;
@@ -155,7 +155,7 @@ jobs:
       - name: run integration test
         # Disable flutter integration tests for iOS for now (https://github.com/getsentry/sentry-dart/issues/1605#issuecomment-1695809346)
         if: ${{ matrix.target != 'ios' }}
-        run: flutter test -d "${{ steps.device.outputs.name }}" integration_test --verbose
+        run: flutter test -d "${{ steps.device.outputs.name }}" integration_test/all.dart --verbose
 
       - name: run native test
         # We only have the native unit test package in the iOS xcodeproj at the moment.

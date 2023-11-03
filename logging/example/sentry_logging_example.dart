@@ -20,7 +20,7 @@ Future<void> main() async {
 Future<void> runApp() async {
   final log = Logger('MyAwesomeLogger');
 
-  log.warning('a warning!');
+  log.warning('this is a warning!');
 
   try {
     throw Exception();

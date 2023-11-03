@@ -61,7 +61,7 @@ jobs:
             sdk: beta
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: actions/setup-java@v3
         if: ${{ matrix.target == 'android' }}

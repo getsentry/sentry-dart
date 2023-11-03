@@ -65,7 +65,7 @@ jobs:
             sdk: beta
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: actions/setup-java@v3
         if: ${{ matrix.target == 'android' }}
@@ -103,6 +103,7 @@ jobs:
         run: |
           cd flutter
           flutter test --coverage --test-randomize-ordering-seed=random
+          dart run remove_from_coverage -f coverage/lcov.info -r 'binding.dart'
 
       - uses: codecov/codecov-action@eaaf4bedf32dbdc6b720b63067d99c4d77d6047d # pin@v3
         if: runner.os == 'Linux' && matrix.sdk == 'stable' && matrix.target == 'linux'
@@ -116,6 +117,7 @@ jobs:
         with:
           path: "./flutter/coverage/lcov.info"
           min_coverage: 90
+          exclude: "lib/src/native/cocoa/binding.dart"
 
       - name: Build ${{ matrix.target }}
         run: |
@@ -159,7 +161,7 @@ jobs:
       run:
         working-directory: ./flutter
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       # https://github.com/CocoaPods/CocoaPods/issues/5275#issuecomment-315461879
       - run: pod lib lint ios/sentry_flutter.podspec --configuration=Debug --skip-import-validation --allow-warnings --verbose
 
@@ -170,7 +172,7 @@ jobs:
       run:
         working-directory: ./flutter
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: norio-nomura/action-swiftlint@9f4dcd7fd46b4e75d7935cf2f4df406d5cae3684 # pin@3.2.1
         with:
           args: --strict
@@ -182,10 +184,10 @@ jobs:
       run:
         working-directory: ./flutter
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: ktlint
-        uses: ScaCap/action-ktlint@2cf245b99bc91f73bc4c96a3d9d57bb5da3533ae # pin@1.7.1
+        uses: ScaCap/action-ktlint@0ff81efa49425bd0df46caabd8005aafdc8f2cf2 # pin@1.8.0
         with:
           github_token: ${{ secrets.github_token }}
           reporter: github-pr-review
@@ -196,7 +198,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       # To recreate baseline run: detekt -i flutter/android,flutter/example/android -b flutter/config/detekt-bl.xml -cb
       - uses: natiginfo/action-detekt-all@e01de6ff0eef7c24131e8a133bf598cfac6ceeab # pin@1.21.0
         with:

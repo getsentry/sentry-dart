@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:collection';
 
 import 'package:meta/meta.dart';
+import 'profiling.dart';
 import 'propagation_context.dart';
 import 'transport/data_category.dart';
 
@@ -435,12 +436,12 @@ class Hub {
     } else {
       final item = _peek();
 
-      final samplingContext = SentrySamplingContext(
-          transactionContext, customSamplingContext ?? {});
-
       // if transactionContext has no sampled decision, run the traces sampler
-      if (transactionContext.samplingDecision == null) {
-        final samplingDecision = _tracesSampler.sample(samplingContext);
+      var samplingDecision = transactionContext.samplingDecision;
+      if (samplingDecision == null) {
+        final samplingContext = SentrySamplingContext(
+            transactionContext, customSamplingContext ?? {});
+        samplingDecision = _tracesSampler.sample(samplingContext);
         transactionContext =
             transactionContext.copyWith(samplingDecision: samplingDecision);
       }
@@ -451,6 +452,12 @@ class Hub {
         );
       }
 
+      SentryProfiler? profiler;
+      if (_profilerFactory != null &&
+          _tracesSampler.sampleProfiling(samplingDecision)) {
+        profiler = _profilerFactory?.startProfiler(transactionContext);
+      }
+
       final tracer = SentryTracer(
         transactionContext,
         this,
@@ -459,6 +466,7 @@ class Hub {
         autoFinishAfter: autoFinishAfter,
         trimEnd: trimEnd ?? false,
         onFinish: onFinish,
+        profiler: profiler,
       );
       if (bindToScope ?? false) {
         item.scope.span = tracer;
@@ -553,6 +561,14 @@ class Hub {
     String transaction,
   ) =>
       _throwableToSpan.add(throwable, span, transaction);
+
+  @internal
+  SentryProfilerFactory? get profilerFactory => _profilerFactory;
+
+  @internal
+  set profilerFactory(SentryProfilerFactory? value) => _profilerFactory = value;
+
+  SentryProfilerFactory? _profilerFactory;
 
   SentryEvent _assignTraceContext(SentryEvent event) {
     // assign trace context
