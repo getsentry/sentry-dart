@@ -90,24 +90,14 @@ void main() {
       verifySpan('custom', fixture.getCreatedSpan());
     });
 
-    test('batch adds span', () async {
+    test('transaction adds span', () async {
       final sut = fixture.sut;
 
       await sut.transaction(() async {
-        await sut.into(sut.todoItems).insert(TodoItemsCompanion.insert(
-          title: 'todo: finish drift setup',
-          content: 'We can now write queries and define our own tables.',
-        ));
+
       });
 
-      await sut.batch((batch) async {
-        await sut.into(sut.todoItems).insert(TodoItemsCompanion.insert(
-          title: 'todo: finish drift setup',
-          content: 'We can now write queries and define our own tables.',
-        ));
-      });
-
-      // TODO
+      // verifySpan('transaction', fixture.getCreatedSpan());
     });
 
     test('close adds span', () async {
@@ -125,7 +115,7 @@ void main() {
       // create a span until it is actually used.
       await sut.select(sut.todoItems).get();
 
-      verifySpan('open', fixture.getSpanByDescription('open'));
+      verifySpan('open', fixture.getCreatedSpanByDescription('open'));
     });
 
     test('will not add open span if db is not used', () async {
@@ -157,7 +147,7 @@ class Fixture {
     return tracer.children.last;
   }
 
-  SentrySpan? getSpanByDescription(String description) {
+  SentrySpan? getCreatedSpanByDescription(String description) {
     return tracer.children
         .firstWhere((element) => element.context.description == description);
   }

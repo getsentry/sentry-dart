@@ -5,6 +5,7 @@ import 'package:drift/drift.dart';
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 import 'sentry_span_helper.dart';
+import 'sentry_transaction_executor.dart';
 
 /// Signature of a function that opens a database connection when instructed to.
 typedef DatabaseOpener = FutureOr<QueryExecutor> Function();
@@ -56,7 +57,8 @@ class SentryDriftDatabase extends QueryExecutor {
 
   @override
   TransactionExecutor beginTransaction() {
-    return _queryExecutor.beginTransaction();
+    final transactionExecutor = _queryExecutor.beginTransaction();
+    return SentryTransactionExecutor(transactionExecutor, _hub, dbName: _dbName);
   }
 
   @override

@@ -19,4 +19,5 @@ class SentryTraceOrigins {
   static const autoDbSqfliteDatabaseFactory =
       'auto.db.sqflite.database_factory';
   static const autoDbDriftDatabaseExecutor = 'auto.db.drift.database.executor';
+  static const autoDbDriftTransactionExecutor = 'auto.db.drift.transaction.executor';
 }
