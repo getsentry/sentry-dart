@@ -2,7 +2,7 @@ import 'package:meta/meta.dart';
 
 import 'package:sentry/sentry.dart';
 
-import 'sentry_drift_database.dart';
+import 'sentry_query_executor.dart';
 
 /// @nodoc
 @internal
@@ -21,6 +21,8 @@ class SentrySpanHelper {
     _hub = hub;
   }
 
+  ISentrySpan? spanTest;
+
   /// @nodoc
   @internal
   Future<T> asyncWrapInSpan<T>(
@@ -30,13 +32,13 @@ class SentrySpanHelper {
   }) async {
     final currentSpan = _hub.getSpan();
     final span = currentSpan?.startChild(
-      SentryDriftDatabase.dbOp,
+      SentryQueryExecutor.dbOp,
       description: description,
     );
 
     final breadcrumb = Breadcrumb(
       message: description,
-      category: SentryDriftDatabase.dbOp,
+      category: SentryQueryExecutor.dbOp,
       data: {},
       type: 'query',
     );
@@ -45,10 +47,10 @@ class SentrySpanHelper {
     span?.origin = _origin;
 
     span?.setData(
-        SentryDriftDatabase.dbSystemKey, SentryDriftDatabase.dbSystem);
+        SentryQueryExecutor.dbSystemKey, SentryQueryExecutor.dbSystem);
 
     if (dbName != null) {
-      span?.setData(SentryDriftDatabase.dbNameKey, dbName);
+      span?.setData(SentryQueryExecutor.dbNameKey, dbName);
     }
 
     try {
@@ -74,7 +76,7 @@ class SentrySpanHelper {
   }) {
     final currentSpan = _hub.getSpan();
     final span = currentSpan?.startChild(
-      SentryDriftDatabase.dbOp,
+      SentryQueryExecutor.dbOp,
       description: description,
     );
 
@@ -82,10 +84,10 @@ class SentrySpanHelper {
     span?.origin = _origin;
 
     span?.setData(
-        SentryDriftDatabase.dbSystemKey, SentryDriftDatabase.dbSystem);
+        SentryQueryExecutor.dbSystemKey, SentryQueryExecutor.dbSystem);
 
     if (dbName != null) {
-      span?.setData(SentryDriftDatabase.dbNameKey, dbName);
+      span?.setData(SentryQueryExecutor.dbNameKey, dbName);
     }
 
     try {
@@ -98,39 +100,48 @@ class SentrySpanHelper {
       span?.status = SpanStatus.internalError();
 
       rethrow;
+    } finally {
+      spanTest = span;
     }
   }
 
   @internal
-  T finishTransaction<T>(
-    T Function() execute, {
+  Future<T> finishTransaction<T>(
+    Future<T> Function() execute, {
     String? dbName,
-  }) {
-    // TODO: is this always the right way to get the current span?
-    final span = _hub.getSpan();
-
-    // ignore: invalid_use_of_internal_member
-    span?.origin = _origin;
-
-    span?.setData(
-        SentryDriftDatabase.dbSystemKey, SentryDriftDatabase.dbSystem);
-
-    if (dbName != null) {
-      span?.setData(SentryDriftDatabase.dbNameKey, dbName);
-    }
-
+  }) async {
     try {
-      final result = execute();
-      span?.status = SpanStatus.ok();
+      final result = await execute();
+      spanTest?.status = SpanStatus.ok();
 
       return result;
     } catch (exception) {
-      span?.throwable = exception;
-      span?.status = SpanStatus.internalError();
+      spanTest?.throwable = exception;
+      spanTest?.status = SpanStatus.internalError();
 
       rethrow;
     } finally {
-      span?.finish();
+      await spanTest?.finish();
+    }
+  }
+
+  @internal
+  Future<T> abortTransaction<T>(
+      Future<T> Function() execute, {
+        String? dbName,
+      }) async {
+    try {
+      final result = await execute();
+      spanTest?.status = SpanStatus.aborted();
+
+      return result;
+    } catch (exception) {
+      spanTest?.throwable = exception;
+      spanTest?.status = SpanStatus.internalError();
+
+      rethrow;
+    } finally {
+      await spanTest?.finish();
     }
   }
 }

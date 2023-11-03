@@ -10,16 +10,16 @@ import 'sentry_transaction_executor.dart';
 /// Signature of a function that opens a database connection when instructed to.
 typedef DatabaseOpener = FutureOr<QueryExecutor> Function();
 
-/// The Sentry Drift Database Executor.
+/// The Sentry Query Executor.
 ///
 /// If queryExecutor is not null, it will be used instead of the default one.
 /// The default is [LazyDatabase].
-class SentryDriftDatabase extends QueryExecutor {
+class SentryQueryExecutor extends QueryExecutor {
   final Hub _hub;
 
   final _spanHelper = SentrySpanHelper(
     // ignore: invalid_use_of_internal_member
-    SentryTraceOrigins.autoDbDriftDatabaseExecutor,
+    SentryTraceOrigins.autoDbDriftQueryExecutor,
   );
 
   final QueryExecutor _queryExecutor;
@@ -42,10 +42,10 @@ class SentryDriftDatabase extends QueryExecutor {
   // ignore: public_member_api_docs
   static const dbSystem = 'sqlite';
 
-  /// Declares a [SentryDriftDatabase] that will run [opener] when the database is
+  /// Declares a [SentryQueryExecutor] that will run [opener] when the database is
   /// first requested to be opened. You must specify the same [dialect] as the
   /// underlying database has
-  SentryDriftDatabase(DatabaseOpener opener,
+  SentryQueryExecutor(DatabaseOpener opener,
       {@internal Hub? hub,
       @internal QueryExecutor? queryExecutor,
       @internal String? dbName})

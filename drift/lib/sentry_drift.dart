@@ -1,3 +1,3 @@
 library sentry_drift;
 
-export 'src/sentry_drift_database.dart';
+export 'src/sentry_query_executor.dart';

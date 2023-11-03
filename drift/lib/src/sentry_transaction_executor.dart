@@ -19,24 +19,27 @@ class SentryTransactionExecutor extends TransactionExecutor {
       : _hub = hub,
         _dbName = dbName {
     _spanHelper.setHub(_hub);
+    beginTransaction();
   }
 
   @override
   TransactionExecutor beginTransaction() {
     return _spanHelper.beginTransaction('transaction', () {
       return _executor.beginTransaction();
-    });
+    }, dbName: _dbName);
   }
 
   @override
   Future<void> rollback() {
-    return _executor.rollback();
+    return _spanHelper.abortTransaction(() async {
+      return await _executor.rollback();
+    });
   }
 
   @override
-  Future<void> send() async {
-    return _spanHelper.finishTransaction(() {
-      return _executor.send();
+  Future<void> send() {
+    return _spanHelper.finishTransaction(() async {
+      return await _executor.send();
     });
   }
 
@@ -50,7 +53,6 @@ class SentryTransactionExecutor extends TransactionExecutor {
 
   @override
   Future<void> runBatched(BatchedStatements statements) {
-    print('haha');
     return _executor.runBatched(statements);
   }
 
