@@ -3,11 +3,16 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i4;
+import 'dart:async' as _i6;
 
+import 'package:drift/drift.dart' as _i5;
+import 'package:drift/src/dsl/dsl.dart' as _i4;
+import 'package:drift/src/runtime/api/runtime_api.dart' as _i3;
+import 'package:drift/src/runtime/data_class.dart' as _i8;
 import 'package:mockito/mockito.dart' as _i1;
+import 'package:mockito/src/dummies.dart' as _i9;
 import 'package:sentry/sentry.dart' as _i2;
-import 'package:sentry/src/profiling.dart' as _i3;
+import 'package:sentry/src/profiling.dart' as _i7;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -70,6 +75,70 @@ class _FakeISentrySpan_4 extends _i1.SmartFake implements _i2.ISentrySpan {
         );
 }
 
+class _FakeDatabaseConnectionUser_5 extends _i1.SmartFake
+    implements _i3.DatabaseConnectionUser {
+  _FakeDatabaseConnectionUser_5(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
+class _FakeTableInfo_6<TableDsl extends _i4.Table, D1> extends _i1.SmartFake
+    implements _i5.TableInfo<TableDsl, D1> {
+  _FakeTableInfo_6(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
+class _FakeFuture_7<T1> extends _i1.SmartFake implements _i6.Future<T1> {
+  _FakeFuture_7(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
+class _FakeGenerationContext_8 extends _i1.SmartFake
+    implements _i5.GenerationContext {
+  _FakeGenerationContext_8(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
+class _FakeQueryExecutor_9 extends _i1.SmartFake implements _i5.QueryExecutor {
+  _FakeQueryExecutor_9(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
+class _FakeTransactionExecutor_10 extends _i1.SmartFake
+    implements _i5.TransactionExecutor {
+  _FakeTransactionExecutor_10(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
 /// A class which mocks [Hub].
 ///
 /// See the documentation for Mockito's code generation for more information.
@@ -112,7 +181,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
       ) as _i2.Scope);
 
   @override
-  set profilerFactory(_i3.SentryProfilerFactory? value) => super.noSuchMethod(
+  set profilerFactory(_i7.SentryProfilerFactory? value) => super.noSuchMethod(
         Invocation.setter(
           #profilerFactory,
           value,
@@ -121,7 +190,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
       );
 
   @override
-  _i4.Future<_i2.SentryId> captureEvent(
+  _i6.Future<_i2.SentryId> captureEvent(
     _i2.SentryEvent? event, {
     dynamic stackTrace,
     _i2.Hint? hint,
@@ -137,7 +206,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
             #withScope: withScope,
           },
         ),
-        returnValue: _i4.Future<_i2.SentryId>.value(_FakeSentryId_1(
+        returnValue: _i6.Future<_i2.SentryId>.value(_FakeSentryId_1(
           this,
           Invocation.method(
             #captureEvent,
@@ -149,10 +218,10 @@ class MockHub extends _i1.Mock implements _i2.Hub {
             },
           ),
         )),
-      ) as _i4.Future<_i2.SentryId>);
+      ) as _i6.Future<_i2.SentryId>);
 
   @override
-  _i4.Future<_i2.SentryId> captureException(
+  _i6.Future<_i2.SentryId> captureException(
     dynamic throwable, {
     dynamic stackTrace,
     _i2.Hint? hint,
@@ -168,7 +237,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
             #withScope: withScope,
           },
         ),
-        returnValue: _i4.Future<_i2.SentryId>.value(_FakeSentryId_1(
+        returnValue: _i6.Future<_i2.SentryId>.value(_FakeSentryId_1(
           this,
           Invocation.method(
             #captureException,
@@ -180,10 +249,10 @@ class MockHub extends _i1.Mock implements _i2.Hub {
             },
           ),
         )),
-      ) as _i4.Future<_i2.SentryId>);
+      ) as _i6.Future<_i2.SentryId>);
 
   @override
-  _i4.Future<_i2.SentryId> captureMessage(
+  _i6.Future<_i2.SentryId> captureMessage(
     String? message, {
     _i2.SentryLevel? level,
     String? template,
@@ -203,7 +272,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
             #withScope: withScope,
           },
         ),
-        returnValue: _i4.Future<_i2.SentryId>.value(_FakeSentryId_1(
+        returnValue: _i6.Future<_i2.SentryId>.value(_FakeSentryId_1(
           this,
           Invocation.method(
             #captureMessage,
@@ -217,21 +286,21 @@ class MockHub extends _i1.Mock implements _i2.Hub {
             },
           ),
         )),
-      ) as _i4.Future<_i2.SentryId>);
+      ) as _i6.Future<_i2.SentryId>);
 
   @override
-  _i4.Future<void> captureUserFeedback(_i2.SentryUserFeedback? userFeedback) =>
+  _i6.Future<void> captureUserFeedback(_i2.SentryUserFeedback? userFeedback) =>
       (super.noSuchMethod(
         Invocation.method(
           #captureUserFeedback,
           [userFeedback],
         ),
-        returnValue: _i4.Future<void>.value(),
-        returnValueForMissingStub: _i4.Future<void>.value(),
-      ) as _i4.Future<void>);
+        returnValue: _i6.Future<void>.value(),
+        returnValueForMissingStub: _i6.Future<void>.value(),
+      ) as _i6.Future<void>);
 
   @override
-  _i4.Future<void> addBreadcrumb(
+  _i6.Future<void> addBreadcrumb(
     _i2.Breadcrumb? crumb, {
     _i2.Hint? hint,
   }) =>
@@ -241,9 +310,9 @@ class MockHub extends _i1.Mock implements _i2.Hub {
           [crumb],
           {#hint: hint},
         ),
-        returnValue: _i4.Future<void>.value(),
-        returnValueForMissingStub: _i4.Future<void>.value(),
-      ) as _i4.Future<void>);
+        returnValue: _i6.Future<void>.value(),
+        returnValueForMissingStub: _i6.Future<void>.value(),
+      ) as _i6.Future<void>);
 
   @override
   void bindClient(_i2.SentryClient? client) => super.noSuchMethod(
@@ -270,21 +339,21 @@ class MockHub extends _i1.Mock implements _i2.Hub {
       ) as _i2.Hub);
 
   @override
-  _i4.Future<void> close() => (super.noSuchMethod(
+  _i6.Future<void> close() => (super.noSuchMethod(
         Invocation.method(
           #close,
           [],
         ),
-        returnValue: _i4.Future<void>.value(),
-        returnValueForMissingStub: _i4.Future<void>.value(),
-      ) as _i4.Future<void>);
+        returnValue: _i6.Future<void>.value(),
+        returnValueForMissingStub: _i6.Future<void>.value(),
+      ) as _i6.Future<void>);
 
   @override
-  _i4.FutureOr<void> configureScope(_i2.ScopeCallback? callback) =>
+  _i6.FutureOr<void> configureScope(_i2.ScopeCallback? callback) =>
       (super.noSuchMethod(Invocation.method(
         #configureScope,
         [callback],
-      )) as _i4.FutureOr<void>);
+      )) as _i6.FutureOr<void>);
 
   @override
   _i2.ISentrySpan startTransaction(
@@ -383,7 +452,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
       ) as _i2.ISentrySpan);
 
   @override
-  _i4.Future<_i2.SentryId> captureTransaction(
+  _i6.Future<_i2.SentryId> captureTransaction(
     _i2.SentryTransaction? transaction, {
     _i2.SentryTraceContextHeader? traceContext,
   }) =>
@@ -393,7 +462,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
           [transaction],
           {#traceContext: traceContext},
         ),
-        returnValue: _i4.Future<_i2.SentryId>.value(_FakeSentryId_1(
+        returnValue: _i6.Future<_i2.SentryId>.value(_FakeSentryId_1(
           this,
           Invocation.method(
             #captureTransaction,
@@ -401,7 +470,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
             {#traceContext: traceContext},
           ),
         )),
-      ) as _i4.Future<_i2.SentryId>);
+      ) as _i6.Future<_i2.SentryId>);
 
   @override
   void setSpanContext(
@@ -420,4 +489,534 @@ class MockHub extends _i1.Mock implements _i2.Hub {
         ),
         returnValueForMissingStub: null,
       );
+}
+
+/// A class which mocks [InsertStatement].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockInsertStatement<T extends _i4.Table, D> extends _i1.Mock
+    implements _i5.InsertStatement<T, D> {
+  MockInsertStatement() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i3.DatabaseConnectionUser get database => (super.noSuchMethod(
+        Invocation.getter(#database),
+        returnValue: _FakeDatabaseConnectionUser_5(
+          this,
+          Invocation.getter(#database),
+        ),
+      ) as _i3.DatabaseConnectionUser);
+
+  @override
+  _i5.TableInfo<T, D> get table => (super.noSuchMethod(
+        Invocation.getter(#table),
+        returnValue: _FakeTableInfo_6<T, D>(
+          this,
+          Invocation.getter(#table),
+        ),
+      ) as _i5.TableInfo<T, D>);
+
+  @override
+  _i6.Future<int> insert(
+    _i8.Insertable<D>? entity, {
+    _i5.InsertMode? mode,
+    _i5.UpsertClause<T, D>? onConflict,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #insert,
+          [entity],
+          {
+            #mode: mode,
+            #onConflict: onConflict,
+          },
+        ),
+        returnValue: _i6.Future<int>.value(0),
+      ) as _i6.Future<int>);
+
+  @override
+  _i6.Future<void> insertFromSelect(
+    _i5.BaseSelectStatement<dynamic>? select, {
+    required Map<_i4.Column<Object>, _i5.Expression<Object>>? columns,
+    _i5.InsertMode? mode = _i5.InsertMode.insert,
+    _i5.UpsertClause<T, D>? onConflict,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #insertFromSelect,
+          [select],
+          {
+            #columns: columns,
+            #mode: mode,
+            #onConflict: onConflict,
+          },
+        ),
+        returnValue: _i6.Future<void>.value(),
+        returnValueForMissingStub: _i6.Future<void>.value(),
+      ) as _i6.Future<void>);
+
+  @override
+  _i6.Future<D> insertReturning(
+    _i8.Insertable<D>? entity, {
+    _i5.InsertMode? mode,
+    _i5.UpsertClause<T, D>? onConflict,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #insertReturning,
+          [entity],
+          {
+            #mode: mode,
+            #onConflict: onConflict,
+          },
+        ),
+        returnValue: _i9.ifNotNull(
+              _i9.dummyValueOrNull<D>(
+                this,
+                Invocation.method(
+                  #insertReturning,
+                  [entity],
+                  {
+                    #mode: mode,
+                    #onConflict: onConflict,
+                  },
+                ),
+              ),
+              (D v) => _i6.Future<D>.value(v),
+            ) ??
+            _FakeFuture_7<D>(
+              this,
+              Invocation.method(
+                #insertReturning,
+                [entity],
+                {
+                  #mode: mode,
+                  #onConflict: onConflict,
+                },
+              ),
+            ),
+      ) as _i6.Future<D>);
+
+  @override
+  _i6.Future<D?> insertReturningOrNull(
+    _i8.Insertable<D>? entity, {
+    _i5.InsertMode? mode,
+    _i5.UpsertClause<T, D>? onConflict,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #insertReturningOrNull,
+          [entity],
+          {
+            #mode: mode,
+            #onConflict: onConflict,
+          },
+        ),
+        returnValue: _i6.Future<D?>.value(),
+      ) as _i6.Future<D?>);
+
+  @override
+  _i6.Future<int> insertOnConflictUpdate(_i8.Insertable<D>? entity) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #insertOnConflictUpdate,
+          [entity],
+        ),
+        returnValue: _i6.Future<int>.value(0),
+      ) as _i6.Future<int>);
+
+  @override
+  _i5.GenerationContext createContext(
+    _i8.Insertable<D>? entry,
+    _i5.InsertMode? mode, {
+    _i5.UpsertClause<T, D>? onConflict,
+    bool? returning = false,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #createContext,
+          [
+            entry,
+            mode,
+          ],
+          {
+            #onConflict: onConflict,
+            #returning: returning,
+          },
+        ),
+        returnValue: _FakeGenerationContext_8(
+          this,
+          Invocation.method(
+            #createContext,
+            [
+              entry,
+              mode,
+            ],
+            {
+              #onConflict: onConflict,
+              #returning: returning,
+            },
+          ),
+        ),
+      ) as _i5.GenerationContext);
+
+  @override
+  void writeInsertable(
+    _i5.GenerationContext? ctx,
+    Map<String, _i5.Expression<Object>>? map,
+  ) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #writeInsertable,
+          [
+            ctx,
+            map,
+          ],
+        ),
+        returnValueForMissingStub: null,
+      );
+}
+
+/// A class which mocks [Insertable].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockInsertable<D> extends _i1.Mock implements _i8.Insertable<D> {
+  MockInsertable() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  Map<String, _i5.Expression<Object>> toColumns(bool? nullToAbsent) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #toColumns,
+          [nullToAbsent],
+        ),
+        returnValue: <String, _i5.Expression<Object>>{},
+      ) as Map<String, _i5.Expression<Object>>);
+}
+
+/// A class which mocks [LazyDatabase].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockLazyDatabase extends _i1.Mock implements _i5.LazyDatabase {
+  MockLazyDatabase() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i5.DatabaseOpener get opener => (super.noSuchMethod(
+        Invocation.getter(#opener),
+        returnValue: () =>
+            _i6.Future<_i5.QueryExecutor>.value(_FakeQueryExecutor_9(
+          this,
+          Invocation.getter(#opener),
+        )),
+      ) as _i5.DatabaseOpener);
+
+  @override
+  _i5.SqlDialect get dialect => (super.noSuchMethod(
+        Invocation.getter(#dialect),
+        returnValue: _i5.SqlDialect.sqlite,
+      ) as _i5.SqlDialect);
+
+  @override
+  _i5.TransactionExecutor beginTransaction() => (super.noSuchMethod(
+        Invocation.method(
+          #beginTransaction,
+          [],
+        ),
+        returnValue: _FakeTransactionExecutor_10(
+          this,
+          Invocation.method(
+            #beginTransaction,
+            [],
+          ),
+        ),
+      ) as _i5.TransactionExecutor);
+
+  @override
+  _i6.Future<bool> ensureOpen(_i5.QueryExecutorUser? user) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #ensureOpen,
+          [user],
+        ),
+        returnValue: _i6.Future<bool>.value(false),
+      ) as _i6.Future<bool>);
+
+  @override
+  _i6.Future<void> runBatched(_i5.BatchedStatements? statements) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #runBatched,
+          [statements],
+        ),
+        returnValue: _i6.Future<void>.value(),
+        returnValueForMissingStub: _i6.Future<void>.value(),
+      ) as _i6.Future<void>);
+
+  @override
+  _i6.Future<void> runCustom(
+    String? statement, [
+    List<Object?>? args,
+  ]) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #runCustom,
+          [
+            statement,
+            args,
+          ],
+        ),
+        returnValue: _i6.Future<void>.value(),
+        returnValueForMissingStub: _i6.Future<void>.value(),
+      ) as _i6.Future<void>);
+
+  @override
+  _i6.Future<int> runDelete(
+    String? statement,
+    List<Object?>? args,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #runDelete,
+          [
+            statement,
+            args,
+          ],
+        ),
+        returnValue: _i6.Future<int>.value(0),
+      ) as _i6.Future<int>);
+
+  @override
+  _i6.Future<int> runInsert(
+    String? statement,
+    List<Object?>? args,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #runInsert,
+          [
+            statement,
+            args,
+          ],
+        ),
+        returnValue: _i6.Future<int>.value(0),
+      ) as _i6.Future<int>);
+
+  @override
+  _i6.Future<List<Map<String, Object?>>> runSelect(
+    String? statement,
+    List<Object?>? args,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #runSelect,
+          [
+            statement,
+            args,
+          ],
+        ),
+        returnValue: _i6.Future<List<Map<String, Object?>>>.value(
+            <Map<String, Object?>>[]),
+      ) as _i6.Future<List<Map<String, Object?>>>);
+
+  @override
+  _i6.Future<int> runUpdate(
+    String? statement,
+    List<Object?>? args,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #runUpdate,
+          [
+            statement,
+            args,
+          ],
+        ),
+        returnValue: _i6.Future<int>.value(0),
+      ) as _i6.Future<int>);
+
+  @override
+  _i6.Future<void> close() => (super.noSuchMethod(
+        Invocation.method(
+          #close,
+          [],
+        ),
+        returnValue: _i6.Future<void>.value(),
+        returnValueForMissingStub: _i6.Future<void>.value(),
+      ) as _i6.Future<void>);
+}
+
+/// A class which mocks [TransactionExecutor].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockTransactionExecutor extends _i1.Mock
+    implements _i5.TransactionExecutor {
+  MockTransactionExecutor() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  bool get supportsNestedTransactions => (super.noSuchMethod(
+        Invocation.getter(#supportsNestedTransactions),
+        returnValue: false,
+      ) as bool);
+
+  @override
+  _i5.SqlDialect get dialect => (super.noSuchMethod(
+        Invocation.getter(#dialect),
+        returnValue: _i5.SqlDialect.sqlite,
+      ) as _i5.SqlDialect);
+
+  @override
+  _i6.Future<void> send() => (super.noSuchMethod(
+        Invocation.method(
+          #send,
+          [],
+        ),
+        returnValue: _i6.Future<void>.value(),
+        returnValueForMissingStub: _i6.Future<void>.value(),
+      ) as _i6.Future<void>);
+
+  @override
+  _i6.Future<void> rollback() => (super.noSuchMethod(
+        Invocation.method(
+          #rollback,
+          [],
+        ),
+        returnValue: _i6.Future<void>.value(),
+        returnValueForMissingStub: _i6.Future<void>.value(),
+      ) as _i6.Future<void>);
+
+  @override
+  _i6.Future<bool> ensureOpen(_i5.QueryExecutorUser? user) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #ensureOpen,
+          [user],
+        ),
+        returnValue: _i6.Future<bool>.value(false),
+      ) as _i6.Future<bool>);
+
+  @override
+  _i6.Future<List<Map<String, Object?>>> runSelect(
+    String? statement,
+    List<Object?>? args,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #runSelect,
+          [
+            statement,
+            args,
+          ],
+        ),
+        returnValue: _i6.Future<List<Map<String, Object?>>>.value(
+            <Map<String, Object?>>[]),
+      ) as _i6.Future<List<Map<String, Object?>>>);
+
+  @override
+  _i6.Future<int> runInsert(
+    String? statement,
+    List<Object?>? args,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #runInsert,
+          [
+            statement,
+            args,
+          ],
+        ),
+        returnValue: _i6.Future<int>.value(0),
+      ) as _i6.Future<int>);
+
+  @override
+  _i6.Future<int> runUpdate(
+    String? statement,
+    List<Object?>? args,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #runUpdate,
+          [
+            statement,
+            args,
+          ],
+        ),
+        returnValue: _i6.Future<int>.value(0),
+      ) as _i6.Future<int>);
+
+  @override
+  _i6.Future<int> runDelete(
+    String? statement,
+    List<Object?>? args,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #runDelete,
+          [
+            statement,
+            args,
+          ],
+        ),
+        returnValue: _i6.Future<int>.value(0),
+      ) as _i6.Future<int>);
+
+  @override
+  _i6.Future<void> runCustom(
+    String? statement, [
+    List<Object?>? args,
+  ]) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #runCustom,
+          [
+            statement,
+            args,
+          ],
+        ),
+        returnValue: _i6.Future<void>.value(),
+        returnValueForMissingStub: _i6.Future<void>.value(),
+      ) as _i6.Future<void>);
+
+  @override
+  _i6.Future<void> runBatched(_i5.BatchedStatements? statements) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #runBatched,
+          [statements],
+        ),
+        returnValue: _i6.Future<void>.value(),
+        returnValueForMissingStub: _i6.Future<void>.value(),
+      ) as _i6.Future<void>);
+
+  @override
+  _i5.TransactionExecutor beginTransaction() => (super.noSuchMethod(
+        Invocation.method(
+          #beginTransaction,
+          [],
+        ),
+        returnValue: _FakeTransactionExecutor_10(
+          this,
+          Invocation.method(
+            #beginTransaction,
+            [],
+          ),
+        ),
+      ) as _i5.TransactionExecutor);
+
+  @override
+  _i6.Future<void> close() => (super.noSuchMethod(
+        Invocation.method(
+          #close,
+          [],
+        ),
+        returnValue: _i6.Future<void>.value(),
+        returnValueForMissingStub: _i6.Future<void>.value(),
+      ) as _i6.Future<void>);
 }

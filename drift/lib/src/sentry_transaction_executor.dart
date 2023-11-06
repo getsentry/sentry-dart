@@ -3,6 +3,8 @@ import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry_drift/src/sentry_span_helper.dart';
 
+/// @nodoc
+@internal
 class SentryTransactionExecutor extends TransactionExecutor {
   final TransactionExecutor _executor;
 
@@ -15,6 +17,7 @@ class SentryTransactionExecutor extends TransactionExecutor {
 
   final String? _dbName;
 
+  /// @nodoc
   SentryTransactionExecutor(this._executor, Hub hub, {@internal String? dbName})
       : _hub = hub,
         _dbName = dbName {
@@ -53,7 +56,9 @@ class SentryTransactionExecutor extends TransactionExecutor {
 
   @override
   Future<void> runBatched(BatchedStatements statements) {
-    return _executor.runBatched(statements);
+    return _spanHelper.asyncWrapInSpan('batch', () async {
+      return await _executor.runBatched(statements);
+    }, dbName: _dbName);
   }
 
   @override

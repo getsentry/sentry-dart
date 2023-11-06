@@ -21,8 +21,6 @@ class SentrySpanHelper {
     _hub = hub;
   }
 
-  ISentrySpan? spanTest;
-
   /// @nodoc
   @internal
   Future<T> asyncWrapInSpan<T>(
@@ -34,13 +32,6 @@ class SentrySpanHelper {
     final span = currentSpan?.startChild(
       SentryQueryExecutor.dbOp,
       description: description,
-    );
-
-    final breadcrumb = Breadcrumb(
-      message: description,
-      category: SentryQueryExecutor.dbOp,
-      data: {},
-      type: 'query',
     );
 
     // ignore: invalid_use_of_internal_member
@@ -67,6 +58,10 @@ class SentrySpanHelper {
       await span?.finish();
     }
   }
+
+  /// This span is used for the database transaction.
+  @internal
+  ISentrySpan? transactionSpan;
 
   @internal
   T beginTransaction<T>(
@@ -101,7 +96,7 @@ class SentrySpanHelper {
 
       rethrow;
     } finally {
-      spanTest = span;
+      transactionSpan = span;
     }
   }
 
@@ -112,16 +107,17 @@ class SentrySpanHelper {
   }) async {
     try {
       final result = await execute();
-      spanTest?.status = SpanStatus.ok();
+      transactionSpan?.status = SpanStatus.ok();
 
       return result;
     } catch (exception) {
-      spanTest?.throwable = exception;
-      spanTest?.status = SpanStatus.internalError();
+      transactionSpan?.throwable = exception;
+      transactionSpan?.status = SpanStatus.internalError();
 
       rethrow;
     } finally {
-      await spanTest?.finish();
+      await transactionSpan?.finish();
+      transactionSpan = null;
     }
   }
 
@@ -132,16 +128,17 @@ class SentrySpanHelper {
       }) async {
     try {
       final result = await execute();
-      spanTest?.status = SpanStatus.aborted();
+      transactionSpan?.status = SpanStatus.aborted();
 
       return result;
     } catch (exception) {
-      spanTest?.throwable = exception;
-      spanTest?.status = SpanStatus.internalError();
+      transactionSpan?.throwable = exception;
+      transactionSpan?.status = SpanStatus.internalError();
 
       rethrow;
     } finally {
-      await spanTest?.finish();
+      await transactionSpan?.finish();
+      transactionSpan = null;
     }
   }
 }

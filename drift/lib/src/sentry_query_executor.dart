@@ -12,10 +12,11 @@ typedef DatabaseOpener = FutureOr<QueryExecutor> Function();
 
 /// The Sentry Query Executor.
 ///
-/// If queryExecutor is not null, it will be used instead of the default one.
-/// The default is [LazyDatabase].
+/// If the constructor parameter queryExecutor is not null, it will be used
+/// instead of the default [LazyDatabase].
+@experimental
 class SentryQueryExecutor extends QueryExecutor {
-  final Hub _hub;
+  Hub _hub;
 
   final _spanHelper = SentrySpanHelper(
     // ignore: invalid_use_of_internal_member
@@ -48,22 +49,31 @@ class SentryQueryExecutor extends QueryExecutor {
   SentryQueryExecutor(DatabaseOpener opener,
       {@internal Hub? hub,
       @internal QueryExecutor? queryExecutor,
-      @internal String? dbName})
+      required String databaseName})
       : _hub = hub ?? HubAdapter(),
-        _dbName = dbName,
+        _dbName = databaseName,
         _queryExecutor = queryExecutor ?? LazyDatabase(opener) {
     _spanHelper.setHub(_hub);
+  }
+
+  @internal
+  void setHub(Hub hub) {
+    _hub = hub;
+    _spanHelper.setHub(hub);
   }
 
   @override
   TransactionExecutor beginTransaction() {
     final transactionExecutor = _queryExecutor.beginTransaction();
-    return SentryTransactionExecutor(transactionExecutor, _hub, dbName: _dbName);
+    return SentryTransactionExecutor(transactionExecutor, _hub,
+        dbName: _dbName);
   }
 
   @override
   Future<void> runBatched(BatchedStatements statements) {
-    return _queryExecutor.runBatched(statements);
+    return _spanHelper.asyncWrapInSpan('batch', () async {
+      return await _queryExecutor.runBatched(statements);
+    }, dbName: _dbName);
   }
 
   @override
