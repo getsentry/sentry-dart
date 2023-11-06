@@ -27,9 +27,13 @@ class SentryTransactionExecutor extends TransactionExecutor {
 
   @override
   TransactionExecutor beginTransaction() {
-    return _spanHelper.beginTransaction('transaction', () {
-      return _executor.beginTransaction();
-    }, dbName: _dbName,);
+    return _spanHelper.beginTransaction(
+      'transaction',
+      () {
+        return _executor.beginTransaction();
+      },
+      dbName: _dbName,
+    );
   }
 
   @override
@@ -56,9 +60,13 @@ class SentryTransactionExecutor extends TransactionExecutor {
 
   @override
   Future<void> runBatched(BatchedStatements statements) {
-    return _spanHelper.asyncWrapInSpan('batch', () async {
-      return await _executor.runBatched(statements);
-    }, dbName: _dbName,);
+    return _spanHelper.asyncWrapInSpan(
+      'batch',
+      () async {
+        return await _executor.runBatched(statements);
+      },
+      dbName: _dbName,
+    );
   }
 
   @override
@@ -78,7 +86,9 @@ class SentryTransactionExecutor extends TransactionExecutor {
 
   @override
   Future<List<Map<String, Object?>>> runSelect(
-      String statement, List<Object?> args,) {
+    String statement,
+    List<Object?> args,
+  ) {
     return _executor.runSelect(statement, args);
   }
 

@@ -15,44 +15,64 @@ import 'mocks/mocks.mocks.dart';
 import 'test_database.dart';
 
 void main() {
-  void verifySpan(String description, SentrySpan? span,
-      {String origin = SentryTraceOrigins.autoDbDriftQueryExecutor,
-      SpanStatus? status,}) {
+  void verifySpan(
+    String description,
+    SentrySpan? span, {
+    String origin = SentryTraceOrigins.autoDbDriftQueryExecutor,
+    SpanStatus? status,
+  }) {
     status ??= SpanStatus.ok();
     expect(span?.context.operation, SentryQueryExecutor.dbOp);
     expect(span?.context.description, description);
     expect(span?.status, status);
     expect(span?.origin, origin);
-    expect(span?.data[SentryQueryExecutor.dbSystemKey],
-        SentryQueryExecutor.dbSystem,);
-    expect(span?.data[SentryQueryExecutor.dbNameKey], Fixture.dbName,);
+    expect(
+      span?.data[SentryQueryExecutor.dbSystemKey],
+      SentryQueryExecutor.dbSystem,
+    );
+    expect(
+      span?.data[SentryQueryExecutor.dbNameKey],
+      Fixture.dbName,
+    );
   }
 
   void verifyErrorSpan(
-      String description, Exception exception, SentrySpan? span,
-      {String origin = SentryTraceOrigins.autoDbDriftQueryExecutor,}) {
+    String description,
+    Exception exception,
+    SentrySpan? span, {
+    String origin = SentryTraceOrigins.autoDbDriftQueryExecutor,
+  }) {
     expect(span?.context.operation, SentryQueryExecutor.dbOp);
     expect(span?.context.description, description);
     expect(span?.status, SpanStatus.internalError());
     expect(span?.origin, origin);
-    expect(span?.data[SentryQueryExecutor.dbSystemKey],
-        SentryQueryExecutor.dbSystem,);
-    expect(span?.data[SentryQueryExecutor.dbNameKey], Fixture.dbName,);
+    expect(
+      span?.data[SentryQueryExecutor.dbSystemKey],
+      SentryQueryExecutor.dbSystem,
+    );
+    expect(
+      span?.data[SentryQueryExecutor.dbNameKey],
+      Fixture.dbName,
+    );
 
     expect(span?.throwable, exception);
   }
 
   Future<void> insertRow(AppDatabase sut, {bool withError = false}) {
     if (withError) {
-      return sut.into(sut.todoItems).insert(TodoItemsCompanion.insert(
-            title: '',
-            content: '',
-          ),);
+      return sut.into(sut.todoItems).insert(
+            TodoItemsCompanion.insert(
+              title: '',
+              content: '',
+            ),
+          );
     } else {
-      return sut.into(sut.todoItems).insert(TodoItemsCompanion.insert(
-            title: 'todo: finish drift setup',
-            content: 'We can now write queries and define our own tables.',
-          ),);
+      return sut.into(sut.todoItems).insert(
+            TodoItemsCompanion.insert(
+              title: 'todo: finish drift setup',
+              content: 'We can now write queries and define our own tables.',
+            ),
+          );
     }
   }
 
@@ -60,17 +80,21 @@ void main() {
     if (withError) {
       return (sut.update(sut.todoItems)
             ..where((tbl) => tbl.title.equals('doesnt exist')))
-          .write(TodoItemsCompanion(
-        title: Value('after update'),
-        content: Value('We can now write queries and define our own tables.'),
-      ),);
+          .write(
+        TodoItemsCompanion(
+          title: Value('after update'),
+          content: Value('We can now write queries and define our own tables.'),
+        ),
+      );
     } else {
       return (sut.update(sut.todoItems)
             ..where((tbl) => tbl.title.equals('todo: finish drift setup')))
-          .write(TodoItemsCompanion(
-        title: Value('after update'),
-        content: Value('We can now write queries and define our own tables.'),
-      ),);
+          .write(
+        TodoItemsCompanion(
+          title: Value('after update'),
+          content: Value('We can now write queries and define our own tables.'),
+        ),
+      );
     }
   }
 
@@ -121,8 +145,11 @@ void main() {
         await insertRow(sut);
       });
 
-      verifySpan('transaction', fixture.getCreatedSpan(),
-          origin: SentryTraceOrigins.autoDbDriftTransactionExecutor,);
+      verifySpan(
+        'transaction',
+        fixture.getCreatedSpan(),
+        origin: SentryTraceOrigins.autoDbDriftTransactionExecutor,
+      );
     });
 
     test('transaction rollback adds span', () async {
@@ -134,9 +161,12 @@ void main() {
         });
       } catch (_) {}
 
-      verifySpan('transaction', fixture.getCreatedSpan(),
-          origin: SentryTraceOrigins.autoDbDriftTransactionExecutor,
-          status: SpanStatus.aborted(),);
+      verifySpan(
+        'transaction',
+        fixture.getCreatedSpan(),
+        origin: SentryTraceOrigins.autoDbDriftTransactionExecutor,
+        status: SpanStatus.aborted(),
+      );
     });
 
     test('batch adds span', () async {
@@ -147,8 +177,11 @@ void main() {
         await insertRow(sut);
       });
 
-      verifySpan('batch', fixture.getCreatedSpan(),
-          origin: SentryTraceOrigins.autoDbDriftTransactionExecutor,);
+      verifySpan(
+        'batch',
+        fixture.getCreatedSpan(),
+        origin: SentryTraceOrigins.autoDbDriftTransactionExecutor,
+      );
     });
 
     test('close adds span', () async {
@@ -206,8 +239,10 @@ void main() {
 
     test('batch does not add span for failed operations', () async {
       final lazyDatabase = MockLazyDatabase();
-      final queryExecutor =
-          SentryQueryExecutor(() => lazyDatabase, databaseName: Fixture.dbName,);
+      final queryExecutor = SentryQueryExecutor(
+        () => lazyDatabase,
+        databaseName: Fixture.dbName,
+      );
       queryExecutor.setHub(fixture.hub);
       when(lazyDatabase.ensureOpen(any)).thenAnswer((_) => Future.value(true));
       when(lazyDatabase.runInsert(any, any)).thenThrow(fixture.exception);
@@ -288,8 +323,11 @@ void main() {
         // We need to move it inside the try/catch becaue SentryTransactionExecutor
         // starts beginTransaction() directly after init
         final SentryTransactionExecutor transactionExecutor =
-            SentryTransactionExecutor(mockTransactionExecutor, fixture.hub,
-                dbName: Fixture.dbName,);
+            SentryTransactionExecutor(
+          mockTransactionExecutor,
+          fixture.hub,
+          dbName: Fixture.dbName,
+        );
 
         when(fixture.mockLazyDatabase.beginTransaction())
             .thenReturn(transactionExecutor);
@@ -302,8 +340,11 @@ void main() {
       }
 
       verifyErrorSpan(
-          'transaction', fixture.exception, fixture.getCreatedSpan(),
-          origin: SentryTraceOrigins.autoDbDriftTransactionExecutor,);
+        'transaction',
+        fixture.exception,
+        fixture.getCreatedSpan(),
+        origin: SentryTraceOrigins.autoDbDriftTransactionExecutor,
+      );
     });
 
     test('throwing batch throws error span', () async {
@@ -315,8 +356,11 @@ void main() {
         // We need to move it inside the try/catch becaue SentryTransactionExecutor
         // starts beginTransaction() directly after init
         final SentryTransactionExecutor transactionExecutor =
-            SentryTransactionExecutor(mockTransactionExecutor, fixture.hub,
-                dbName: Fixture.dbName,);
+            SentryTransactionExecutor(
+          mockTransactionExecutor,
+          fixture.hub,
+          dbName: Fixture.dbName,
+        );
 
         when(fixture.mockLazyDatabase.beginTransaction())
             .thenReturn(transactionExecutor);
@@ -329,8 +373,11 @@ void main() {
       }
 
       verifyErrorSpan(
-          'transaction', fixture.exception, fixture.getCreatedSpan(),
-          origin: SentryTraceOrigins.autoDbDriftTransactionExecutor,);
+        'transaction',
+        fixture.exception,
+        fixture.getCreatedSpan(),
+        origin: SentryTraceOrigins.autoDbDriftTransactionExecutor,
+      );
     });
 
     test('throwing close throws error span', () async {
@@ -360,8 +407,11 @@ void main() {
         expect(exception, fixture.exception);
       }
 
-      verifyErrorSpan('open', fixture.exception,
-          fixture.getCreatedSpanByDescription('open'),);
+      verifyErrorSpan(
+        'open',
+        fixture.exception,
+        fixture.getCreatedSpanByDescription('open'),
+      );
     });
 
     test('throwing runDelete throws error span', () async {
@@ -413,9 +463,13 @@ class Fixture {
       executor.setHub(hub);
       return executor;
     } else {
-      return SentryQueryExecutor(() {
-        return NativeDatabase.memory();
-      }, hub: hub, databaseName: dbName,);
+      return SentryQueryExecutor(
+        () {
+          return NativeDatabase.memory();
+        },
+        hub: hub,
+        databaseName: dbName,
+      );
     }
   }
 }

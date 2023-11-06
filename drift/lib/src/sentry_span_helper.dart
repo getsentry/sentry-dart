@@ -38,7 +38,9 @@ class SentrySpanHelper {
     span?.origin = _origin;
 
     span?.setData(
-        SentryQueryExecutor.dbSystemKey, SentryQueryExecutor.dbSystem,);
+      SentryQueryExecutor.dbSystemKey,
+      SentryQueryExecutor.dbSystem,
+    );
 
     if (dbName != null) {
       span?.setData(SentryQueryExecutor.dbNameKey, dbName);
@@ -80,7 +82,9 @@ class SentrySpanHelper {
     span?.origin = _origin;
 
     span?.setData(
-        SentryQueryExecutor.dbSystemKey, SentryQueryExecutor.dbSystem,);
+      SentryQueryExecutor.dbSystemKey,
+      SentryQueryExecutor.dbSystem,
+    );
 
     if (dbName != null) {
       span?.setData(SentryQueryExecutor.dbNameKey, dbName);
