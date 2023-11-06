@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Add APM integration for Drift ([#1709](https://github.com/getsentry/sentry-dart/pull/1709))
+
 ## 7.12.0
 
 ### Enhancements
