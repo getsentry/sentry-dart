@@ -4,8 +4,8 @@
 
 ### Features
 
-- APM for hive ([#1672](https://github.com/getsentry/sentry-dart/pull/1672))
 - Breadcrumbs for database operations ([#1656](https://github.com/getsentry/sentry-dart/pull/1656))
+- APM for hive ([#1672](https://github.com/getsentry/sentry-dart/pull/1672))
 
 ## 7.12.0
 

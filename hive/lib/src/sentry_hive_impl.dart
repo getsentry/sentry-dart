@@ -23,7 +23,7 @@ class SentryHiveImpl implements SentryHiveInterface {
   static const dbSystemKey = 'db.system';
   @internal
   // ignore: public_member_api_docs
-  static const dbSystem = 'noSQL';
+  static const dbSystem = 'nosql';
 
   @internal
   // ignore: public_member_api_docs
