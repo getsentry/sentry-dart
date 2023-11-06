@@ -49,13 +49,14 @@ class SentryQueryExecutor extends QueryExecutor {
   SentryQueryExecutor(DatabaseOpener opener,
       {@internal Hub? hub,
       @internal QueryExecutor? queryExecutor,
-      required String databaseName})
+      required String databaseName,})
       : _hub = hub ?? HubAdapter(),
         _dbName = databaseName,
         _queryExecutor = queryExecutor ?? LazyDatabase(opener) {
     _spanHelper.setHub(_hub);
   }
 
+  /// @nodoc
   @internal
   void setHub(Hub hub) {
     _hub = hub;
@@ -66,64 +67,64 @@ class SentryQueryExecutor extends QueryExecutor {
   TransactionExecutor beginTransaction() {
     final transactionExecutor = _queryExecutor.beginTransaction();
     return SentryTransactionExecutor(transactionExecutor, _hub,
-        dbName: _dbName);
+        dbName: _dbName,);
   }
 
   @override
   Future<void> runBatched(BatchedStatements statements) {
     return _spanHelper.asyncWrapInSpan('batch', () async {
       return await _queryExecutor.runBatched(statements);
-    }, dbName: _dbName);
+    }, dbName: _dbName,);
   }
 
   @override
   Future<bool> ensureOpen(QueryExecutorUser user) {
     return _spanHelper.asyncWrapInSpan('open', () async {
       return await _queryExecutor.ensureOpen(user);
-    }, dbName: _dbName);
+    }, dbName: _dbName,);
   }
 
   @override
   Future<void> runCustom(String statement, [List<Object?>? args]) {
     return _spanHelper.asyncWrapInSpan('custom', () async {
       return await _queryExecutor.runCustom(statement, args);
-    }, dbName: _dbName);
+    }, dbName: _dbName,);
   }
 
   @override
   Future<int> runDelete(String statement, List<Object?> args) {
     return _spanHelper.asyncWrapInSpan('delete', () async {
       return await _queryExecutor.runDelete(statement, args);
-    }, dbName: _dbName);
+    }, dbName: _dbName,);
   }
 
   @override
   Future<int> runInsert(String statement, List<Object?> args) {
     return _spanHelper.asyncWrapInSpan('insert', () async {
       return await _queryExecutor.runInsert(statement, args);
-    }, dbName: _dbName);
+    }, dbName: _dbName,);
   }
 
   @override
   Future<List<Map<String, Object?>>> runSelect(
-      String statement, List<Object?> args) {
+      String statement, List<Object?> args,) {
     return _spanHelper.asyncWrapInSpan('select', () async {
       return await _queryExecutor.runSelect(statement, args);
-    }, dbName: _dbName);
+    }, dbName: _dbName,);
   }
 
   @override
   Future<int> runUpdate(String statement, List<Object?> args) {
     return _spanHelper.asyncWrapInSpan('update', () async {
       return await _queryExecutor.runUpdate(statement, args);
-    }, dbName: _dbName);
+    }, dbName: _dbName,);
   }
 
   @override
   Future<void> close() {
     return _spanHelper.asyncWrapInSpan('close', () async {
       return await _queryExecutor.close();
-    }, dbName: _dbName);
+    }, dbName: _dbName,);
   }
 
   @override

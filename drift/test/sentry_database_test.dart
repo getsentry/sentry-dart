@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_use_of_internal_member
+
 @TestOn('vm')
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
@@ -15,29 +17,27 @@ import 'test_database.dart';
 void main() {
   void verifySpan(String description, SentrySpan? span,
       {String origin = SentryTraceOrigins.autoDbDriftQueryExecutor,
-      SpanStatus? status}) {
+      SpanStatus? status,}) {
     status ??= SpanStatus.ok();
     expect(span?.context.operation, SentryQueryExecutor.dbOp);
     expect(span?.context.description, description);
     expect(span?.status, status);
-    // ignore: invalid_use_of_internal_member
     expect(span?.origin, origin);
     expect(span?.data[SentryQueryExecutor.dbSystemKey],
-        SentryQueryExecutor.dbSystem);
-    expect(span?.data[SentryQueryExecutor.dbNameKey], Fixture.dbName);
+        SentryQueryExecutor.dbSystem,);
+    expect(span?.data[SentryQueryExecutor.dbNameKey], Fixture.dbName,);
   }
 
   void verifyErrorSpan(
       String description, Exception exception, SentrySpan? span,
-      {String origin = SentryTraceOrigins.autoDbDriftQueryExecutor}) {
+      {String origin = SentryTraceOrigins.autoDbDriftQueryExecutor,}) {
     expect(span?.context.operation, SentryQueryExecutor.dbOp);
     expect(span?.context.description, description);
     expect(span?.status, SpanStatus.internalError());
-    // ignore: invalid_use_of_internal_member
     expect(span?.origin, origin);
     expect(span?.data[SentryQueryExecutor.dbSystemKey],
-        SentryQueryExecutor.dbSystem);
-    expect(span?.data[SentryQueryExecutor.dbNameKey], Fixture.dbName);
+        SentryQueryExecutor.dbSystem,);
+    expect(span?.data[SentryQueryExecutor.dbNameKey], Fixture.dbName,);
 
     expect(span?.throwable, exception);
   }
@@ -47,12 +47,12 @@ void main() {
       return sut.into(sut.todoItems).insert(TodoItemsCompanion.insert(
             title: '',
             content: '',
-          ));
+          ),);
     } else {
       return sut.into(sut.todoItems).insert(TodoItemsCompanion.insert(
             title: 'todo: finish drift setup',
             content: 'We can now write queries and define our own tables.',
-          ));
+          ),);
     }
   }
 
@@ -63,14 +63,14 @@ void main() {
           .write(TodoItemsCompanion(
         title: Value('after update'),
         content: Value('We can now write queries and define our own tables.'),
-      ));
+      ),);
     } else {
       return (sut.update(sut.todoItems)
             ..where((tbl) => tbl.title.equals('todo: finish drift setup')))
           .write(TodoItemsCompanion(
         title: Value('after update'),
         content: Value('We can now write queries and define our own tables.'),
-      ));
+      ),);
     }
   }
 
@@ -122,7 +122,7 @@ void main() {
       });
 
       verifySpan('transaction', fixture.getCreatedSpan(),
-          origin: SentryTraceOrigins.autoDbDriftTransactionExecutor);
+          origin: SentryTraceOrigins.autoDbDriftTransactionExecutor,);
     });
 
     test('transaction rollback adds span', () async {
@@ -136,7 +136,7 @@ void main() {
 
       verifySpan('transaction', fixture.getCreatedSpan(),
           origin: SentryTraceOrigins.autoDbDriftTransactionExecutor,
-          status: SpanStatus.aborted());
+          status: SpanStatus.aborted(),);
     });
 
     test('batch adds span', () async {
@@ -148,7 +148,7 @@ void main() {
       });
 
       verifySpan('batch', fixture.getCreatedSpan(),
-          origin: SentryTraceOrigins.autoDbDriftTransactionExecutor);
+          origin: SentryTraceOrigins.autoDbDriftTransactionExecutor,);
     });
 
     test('close adds span', () async {
@@ -207,7 +207,7 @@ void main() {
     test('batch does not add span for failed operations', () async {
       final lazyDatabase = MockLazyDatabase();
       final queryExecutor =
-          SentryQueryExecutor(() => lazyDatabase, databaseName: Fixture.dbName);
+          SentryQueryExecutor(() => lazyDatabase, databaseName: Fixture.dbName,);
       queryExecutor.setHub(fixture.hub);
       when(lazyDatabase.ensureOpen(any)).thenAnswer((_) => Future.value(true));
       when(lazyDatabase.runInsert(any, any)).thenThrow(fixture.exception);
@@ -289,7 +289,7 @@ void main() {
         // starts beginTransaction() directly after init
         final SentryTransactionExecutor transactionExecutor =
             SentryTransactionExecutor(mockTransactionExecutor, fixture.hub,
-                dbName: Fixture.dbName);
+                dbName: Fixture.dbName,);
 
         when(fixture.mockLazyDatabase.beginTransaction())
             .thenReturn(transactionExecutor);
@@ -303,7 +303,7 @@ void main() {
 
       verifyErrorSpan(
           'transaction', fixture.exception, fixture.getCreatedSpan(),
-          origin: SentryTraceOrigins.autoDbDriftTransactionExecutor);
+          origin: SentryTraceOrigins.autoDbDriftTransactionExecutor,);
     });
 
     test('throwing batch throws error span', () async {
@@ -316,7 +316,7 @@ void main() {
         // starts beginTransaction() directly after init
         final SentryTransactionExecutor transactionExecutor =
             SentryTransactionExecutor(mockTransactionExecutor, fixture.hub,
-                dbName: Fixture.dbName);
+                dbName: Fixture.dbName,);
 
         when(fixture.mockLazyDatabase.beginTransaction())
             .thenReturn(transactionExecutor);
@@ -330,7 +330,7 @@ void main() {
 
       verifyErrorSpan(
           'transaction', fixture.exception, fixture.getCreatedSpan(),
-          origin: SentryTraceOrigins.autoDbDriftTransactionExecutor);
+          origin: SentryTraceOrigins.autoDbDriftTransactionExecutor,);
     });
 
     test('throwing close throws error span', () async {
@@ -361,7 +361,7 @@ void main() {
       }
 
       verifyErrorSpan('open', fixture.exception,
-          fixture.getCreatedSpanByDescription('open'));
+          fixture.getCreatedSpanByDescription('open'),);
     });
 
     test('throwing runDelete throws error span', () async {
@@ -415,7 +415,7 @@ class Fixture {
     } else {
       return SentryQueryExecutor(() {
         return NativeDatabase.memory();
-      }, hub: hub, databaseName: dbName);
+      }, hub: hub, databaseName: dbName,);
     }
   }
 }

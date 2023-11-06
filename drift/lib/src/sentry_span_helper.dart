@@ -38,7 +38,7 @@ class SentrySpanHelper {
     span?.origin = _origin;
 
     span?.setData(
-        SentryQueryExecutor.dbSystemKey, SentryQueryExecutor.dbSystem);
+        SentryQueryExecutor.dbSystemKey, SentryQueryExecutor.dbSystem,);
 
     if (dbName != null) {
       span?.setData(SentryQueryExecutor.dbNameKey, dbName);
@@ -63,6 +63,7 @@ class SentrySpanHelper {
   @internal
   ISentrySpan? transactionSpan;
 
+  /// @nodoc
   @internal
   T beginTransaction<T>(
     String description,
@@ -79,7 +80,7 @@ class SentrySpanHelper {
     span?.origin = _origin;
 
     span?.setData(
-        SentryQueryExecutor.dbSystemKey, SentryQueryExecutor.dbSystem);
+        SentryQueryExecutor.dbSystemKey, SentryQueryExecutor.dbSystem,);
 
     if (dbName != null) {
       span?.setData(SentryQueryExecutor.dbNameKey, dbName);
@@ -100,6 +101,7 @@ class SentrySpanHelper {
     }
   }
 
+  /// @nodoc
   @internal
   Future<T> finishTransaction<T>(
     Future<T> Function() execute, {
@@ -121,6 +123,7 @@ class SentrySpanHelper {
     }
   }
 
+  /// @nodoc
   @internal
   Future<T> abortTransaction<T>(
     Future<T> Function() execute, {

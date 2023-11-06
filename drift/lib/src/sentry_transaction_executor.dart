@@ -1,7 +1,7 @@
 import 'package:drift/backends.dart';
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
-import 'package:sentry_drift/src/sentry_span_helper.dart';
+import 'sentry_span_helper.dart';
 
 /// @nodoc
 @internal
@@ -29,7 +29,7 @@ class SentryTransactionExecutor extends TransactionExecutor {
   TransactionExecutor beginTransaction() {
     return _spanHelper.beginTransaction('transaction', () {
       return _executor.beginTransaction();
-    }, dbName: _dbName);
+    }, dbName: _dbName,);
   }
 
   @override
@@ -58,7 +58,7 @@ class SentryTransactionExecutor extends TransactionExecutor {
   Future<void> runBatched(BatchedStatements statements) {
     return _spanHelper.asyncWrapInSpan('batch', () async {
       return await _executor.runBatched(statements);
-    }, dbName: _dbName);
+    }, dbName: _dbName,);
   }
 
   @override
@@ -78,7 +78,7 @@ class SentryTransactionExecutor extends TransactionExecutor {
 
   @override
   Future<List<Map<String, Object?>>> runSelect(
-      String statement, List<Object?> args) {
+      String statement, List<Object?> args,) {
     return _executor.runSelect(statement, args);
   }
 
