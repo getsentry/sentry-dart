@@ -39,7 +39,7 @@ class ScreenshotEventProcessor implements EventProcessor {
       return event;
     }
 
-    if (_options.attachScreenshotWhenResumed &&
+    if (_options.attachScreenshotOnlyWhenResumed &&
         widget.WidgetsBinding.instance.lifecycleState !=
             AppLifecycleState.resumed) {
       _options.logger(SentryLevel.debug,

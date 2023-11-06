@@ -168,7 +168,7 @@ class SentryFlutterOptions extends SentryOptions {
   SentryScreenshotQuality screenshotQuality = SentryScreenshotQuality.high;
 
   /// Only attach a screenshot when the app is resumed.
-  bool attachScreenshotWhenResumed = false;
+  bool attachScreenshotOnlyWhenResumed = false;
 
   /// Enable or disable automatic breadcrumbs for User interactions Using [Listener]
   ///
