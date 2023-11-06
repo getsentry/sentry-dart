@@ -23,7 +23,7 @@ class SentryHiveImpl implements SentryHiveInterface {
   static const dbSystemKey = 'db.system';
   @internal
   // ignore: public_member_api_docs
-  static const dbSystem = 'nosql';
+  static const dbSystem = 'flutter_hive';
 
   @internal
   // ignore: public_member_api_docs
