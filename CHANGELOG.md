@@ -5,6 +5,7 @@
 ### Features
 
 - APM for hive ([#1672](https://github.com/getsentry/sentry-dart/pull/1672))
+- Breadcrumbs for database operations ([#1656](https://github.com/getsentry/sentry-dart/pull/1656))
 
 ## 7.12.0
 
@@ -16,6 +17,8 @@
 ### Features
 
 - Initial (alpha) support for profiling on iOS and macOS ([#1611](https://github.com/getsentry/sentry-dart/pull/1611))
+- Add `SentryNavigatorObserver` current route to `event.app.contexts.viewNames` ([#1545](https://github.com/getsentry/sentry-dart/pull/1545))
+  - Requires relay version [23.9.0](https://github.com/getsentry/relay/blob/master/CHANGELOG.md#2390) for self-hosted instances
 
 ## 7.11.0
 

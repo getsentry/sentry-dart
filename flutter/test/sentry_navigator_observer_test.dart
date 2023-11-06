@@ -367,6 +367,73 @@ void main() {
         expect(scope.span, span);
       });
     });
+
+    test('didPush sets current route name', () {
+      const name = 'Current Route';
+      final currentRoute = route(RouteSettings(name: name));
+
+      const op = 'navigation';
+      final hub = _MockHub();
+      final span = getMockSentryTracer(name: name);
+      when(span.context).thenReturn(SentrySpanContext(operation: op));
+      _whenAnyStart(hub, span);
+
+      final sut = fixture.getSut(
+        hub: hub,
+        autoFinishAfter: Duration(seconds: 5),
+      );
+
+      sut.didPush(currentRoute, null);
+
+      expect(SentryNavigatorObserver.currentRouteName, 'Current Route');
+    });
+
+    test('didReplace sets new route name', () {
+      const oldRouteName = 'Old Route';
+      final oldRoute = route(RouteSettings(name: oldRouteName));
+      const newRouteName = 'New Route';
+      final newRoute = route(RouteSettings(name: newRouteName));
+
+      const op = 'navigation';
+      final hub = _MockHub();
+      final span = getMockSentryTracer(name: oldRouteName);
+      when(span.context).thenReturn(SentrySpanContext(operation: op));
+      _whenAnyStart(hub, span);
+
+      final sut = fixture.getSut(
+        hub: hub,
+        autoFinishAfter: Duration(seconds: 5),
+      );
+
+      sut.didPush(oldRoute, null);
+      sut.didReplace(newRoute: newRoute, oldRoute: oldRoute);
+
+      expect(SentryNavigatorObserver.currentRouteName, 'New Route');
+    });
+
+    test('popRoute sets previous route name', () {
+      const oldRouteName = 'Old Route';
+      final oldRoute = route(RouteSettings(name: oldRouteName));
+      const newRouteName = 'New Route';
+      final newRoute = route(RouteSettings(name: newRouteName));
+
+      const op = 'navigation';
+      final hub = _MockHub();
+      final span = getMockSentryTracer(name: oldRouteName);
+      when(span.context).thenReturn(SentrySpanContext(operation: op));
+      when(span.status).thenReturn(null);
+      _whenAnyStart(hub, span);
+
+      final sut = fixture.getSut(
+        hub: hub,
+        autoFinishAfter: Duration(seconds: 5),
+      );
+
+      sut.didPush(oldRoute, null);
+      sut.didPop(newRoute, oldRoute);
+
+      expect(SentryNavigatorObserver.currentRouteName, 'Old Route');
+    });
   });
 
   group('RouteObserverBreadcrumb', () {
