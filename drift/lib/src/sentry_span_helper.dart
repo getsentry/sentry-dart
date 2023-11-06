@@ -123,9 +123,9 @@ class SentrySpanHelper {
 
   @internal
   Future<T> abortTransaction<T>(
-      Future<T> Function() execute, {
-        String? dbName,
-      }) async {
+    Future<T> Function() execute, {
+    String? dbName,
+  }) async {
     try {
       final result = await execute();
       transactionSpan?.status = SpanStatus.aborted();
