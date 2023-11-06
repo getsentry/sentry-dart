@@ -12,6 +12,7 @@ on:
       - "flutter/**"
       - "file/**"
       - "sqflite/**"
+      - "drift/**"
 
 env:
   SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
