@@ -75,24 +75,39 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
   Future<void> close() {
     return Future<void>(() async {
       final currentSpan = _hub.getSpan();
+      final description = 'Close DB: ${_database.path}';
       final span = currentSpan?.startChild(
         dbOp,
-        description: 'Close DB: ${_database.path}',
+        description: description,
       );
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabase;
+
+      var breadcrumb = Breadcrumb(
+        message: description,
+        category: dbOp,
+        data: {},
+        type: 'query',
+      );
 
       try {
         await _database.close();
 
         span?.status = SpanStatus.ok();
+        breadcrumb.data?['status'] = 'ok';
       } catch (exception) {
         span?.throwable = exception;
         span?.status = SpanStatus.internalError();
+        breadcrumb.data?['status'] = 'internal_error';
+        breadcrumb = breadcrumb.copyWith(
+          level: SentryLevel.warning,
+        );
 
         rethrow;
       } finally {
         await span?.finish();
+        // ignore: invalid_use_of_internal_member
+        await _hub.scope.addBreadcrumb(breadcrumb);
       }
     });
   }
@@ -126,13 +141,22 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
   }) {
     return Future<T>(() async {
       final currentSpan = _hub.getSpan();
+      final description = 'Transaction DB: ${_database.path}';
       final span = currentSpan?.startChild(
         _dbSqlOp,
-        description: 'Transaction DB: ${_database.path}',
+        description: description,
       );
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabase;
       setDatabaseAttributeData(span, dbName);
+
+      var breadcrumb = Breadcrumb(
+        message: description,
+        category: _dbSqlOp,
+        data: {},
+        type: 'query',
+      );
+      setDatabaseAttributeOnBreadcrumb(breadcrumb, dbName);
 
       Future<T> newAction(Transaction txn) async {
         final executor = SentryDatabaseExecutor(
@@ -152,15 +176,23 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
             await _database.transaction(newAction, exclusive: exclusive);
 
         span?.status = SpanStatus.ok();
+        breadcrumb.data?['status'] = 'ok';
 
         return result;
       } catch (exception) {
         span?.throwable = exception;
         span?.status = SpanStatus.internalError();
+        breadcrumb.data?['status'] = 'internal_error';
+        breadcrumb = breadcrumb.copyWith(
+          level: SentryLevel.warning,
+        );
 
         rethrow;
       } finally {
         await span?.finish();
+
+        // ignore: invalid_use_of_internal_member
+        await _hub.scope.addBreadcrumb(breadcrumb);
       }
     });
   }
