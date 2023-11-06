@@ -7,6 +7,12 @@
 - Breadcrumbs for database operations ([#1656](https://github.com/getsentry/sentry-dart/pull/1656))
 - APM for hive ([#1672](https://github.com/getsentry/sentry-dart/pull/1672))
 
+### Dependencies
+
+- Bump Android SDK from v6.32.0 to v6.33.0 ([#1710](https://github.com/getsentry/sentry-dart/pull/1710))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#6330)
+  - [diff](https://github.com/getsentry/sentry-java/compare/6.32.0...6.33.0)
+
 ## 7.12.0
 
 ### Enhancements
