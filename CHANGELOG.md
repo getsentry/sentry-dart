@@ -2,14 +2,29 @@
 
 ## Unreleased
 
+### Features
+
+- Breadcrumbs for database operations ([#1656](https://github.com/getsentry/sentry-dart/pull/1656))
+
+### Dependencies
+
+- Bump Android SDK from v6.32.0 to v6.33.0 ([#1710](https://github.com/getsentry/sentry-dart/pull/1710))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#6330)
+  - [diff](https://github.com/getsentry/sentry-java/compare/6.32.0...6.33.0)
+
+## 7.12.0
+
 ### Enhancements
 
 - Log warning if both tracesSampleRate and tracesSampler are set ([#1701](https://github.com/getsentry/sentry-dart/pull/1701))
+- Better Flutter framework stack traces - we now collect Flutter framework debug symbols for iOS, macOS and Android automatically on the Sentry server ([#1673](https://github.com/getsentry/sentry-dart/pull/1673))
 
 ### Features
 
 - Initial (alpha) support for profiling on iOS and macOS ([#1611](https://github.com/getsentry/sentry-dart/pull/1611))
 - Only attach screenshot if app is in resumed state ([#1700](https://github.com/getsentry/sentry-dart/pull/1700))
+- Add `SentryNavigatorObserver` current route to `event.app.contexts.viewNames` ([#1545](https://github.com/getsentry/sentry-dart/pull/1545))
+  - Requires relay version [23.9.0](https://github.com/getsentry/relay/blob/master/CHANGELOG.md#2390) for self-hosted instances
 
 ## 7.11.0
 

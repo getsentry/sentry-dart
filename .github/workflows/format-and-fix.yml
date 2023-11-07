@@ -6,7 +6,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Cancel Previous Runs
-        uses: styfle/cancel-workflow-action@b173b6ec0100793626c2d9e6b90435061f4fc3e5 # pin@0.11.0
+        uses: styfle/cancel-workflow-action@01ce38bf961b4e243a6342cbade0dbc8ba3f0432 # pin@0.12.0
         with:
           access_token: ${{ github.token }}
 
@@ -29,10 +29,10 @@ jobs:
       run:
         working-directory: ${{ matrix.package.name }}
     steps:
-      - uses: actions/checkout@v3
-      - uses: dart-lang/setup-dart@6a218f2413a3e78e9087f638a238f6b40893203d # pin@v1
+      - uses: actions/checkout@v4
+      - uses: dart-lang/setup-dart@b64355ae6ca0b5d484f0106a033dd1388965d06d # pin@v1
         if: ${{ matrix.package.sdk == 'dart' }}
-      - uses: subosito/flutter-action@48cafc24713cca54bbe03cdc3a423187d413aafa # pin@v2.10.0
+      - uses: subosito/flutter-action@2783a3f08e1baf891508463f8c6653c258246225 # pin@v2.12.0
         if: ${{ matrix.package.sdk == 'flutter' }}
 
       - run: ${{ matrix.package.sdk }} pub get
