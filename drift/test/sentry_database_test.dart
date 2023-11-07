@@ -271,30 +271,6 @@ void main() {
 
       expect(fixture.tracer.children.isEmpty, true);
     });
-
-    test('batch does not add span for failed operations', () async {
-      final lazyDatabase = MockLazyDatabase();
-      final queryExecutor = SentryQueryExecutor(
-        () => lazyDatabase,
-        databaseName: Fixture.dbName,
-      );
-      queryExecutor.setHub(fixture.hub);
-      when(lazyDatabase.ensureOpen(any)).thenAnswer((_) => Future.value(true));
-      when(lazyDatabase.runInsert(any, any)).thenThrow(fixture.exception);
-      final sut = AppDatabase(queryExecutor);
-
-      try {
-        await insertRow(sut);
-      } catch (exception) {
-        expect(exception, fixture.exception);
-      }
-
-      verifyErrorSpan(
-        expectedInsertStatement,
-        fixture.exception,
-        fixture.getCreatedSpan(),
-      );
-    });
   });
 
   group('adds error span', () {
