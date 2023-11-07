@@ -83,15 +83,6 @@ jobs:
           sdk: ${{ matrix.sdk }}
       - uses: actions/checkout@v4
 
-      # Install sqlite3.dll and add it to path
-      - name: "Setup Windows"
-        run: |
-          cd drift
-          flutter pub get
-          dart run test/download_sqlite3.dart
-        working-directory: ${{ github.workspace }}
-        if: matrix.os == 'windows-latest' && matrix.target == 'windows'
-
       - uses: subosito/flutter-action@48cafc24713cca54bbe03cdc3a423187d413aafa # pin@v2.10.0
         with:
           channel: ${{ matrix.sdk }}
@@ -102,6 +93,14 @@ jobs:
         run: |
           cd drift
           flutter pub get
+
+      # Install sqlite3.dll and add it to path
+      - name: "Setup Windows"
+        run: |
+          cd drift
+          dart run test/download_sqlite3.dart
+        working-directory: ${{ github.workspace }}
+        if: matrix.os == 'windows-latest' && matrix.target == 'windows'
 
       - name: Test VM with coverage
         run: |
