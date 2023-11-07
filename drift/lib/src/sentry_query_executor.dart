@@ -67,11 +67,13 @@ class SentryQueryExecutor extends QueryExecutor {
   @override
   TransactionExecutor beginTransaction() {
     final transactionExecutor = _queryExecutor.beginTransaction();
-    return SentryTransactionExecutor(
+    final sentryTransactionExecutor = SentryTransactionExecutor(
       transactionExecutor,
       _hub,
       dbName: _dbName,
     );
+    sentryTransactionExecutor.beginTransaction();
+    return sentryTransactionExecutor;
   }
 
   @override

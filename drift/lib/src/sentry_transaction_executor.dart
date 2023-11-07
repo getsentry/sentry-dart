@@ -22,7 +22,6 @@ class SentryTransactionExecutor extends TransactionExecutor {
       : _hub = hub,
         _dbName = dbName {
     _spanHelper.setHub(_hub);
-    beginTransaction();
   }
 
   @override
@@ -81,7 +80,14 @@ class SentryTransactionExecutor extends TransactionExecutor {
 
   @override
   Future<int> runInsert(String statement, List<Object?> args) {
-    return _executor.runInsert(statement, args);
+    return _spanHelper.asyncWrapInSpan(
+      'within transaction: $statement',
+      () async {
+        return _executor.runInsert(statement, args);
+      },
+      dbName: _dbName,
+      useTransactionSpan: true,
+    );
   }
 
   @override

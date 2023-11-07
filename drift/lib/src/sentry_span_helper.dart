@@ -27,8 +27,12 @@ class SentrySpanHelper {
     String description,
     Future<T> Function() execute, {
     String? dbName,
+    bool useTransactionSpan = false,
   }) async {
-    final currentSpan = _hub.getSpan();
+    ISentrySpan? currentSpan = _hub.getSpan();
+    if (useTransactionSpan) {
+      currentSpan = transactionSpan;
+    }
     final span = currentSpan?.startChild(
       SentryQueryExecutor.dbOp,
       description: description,

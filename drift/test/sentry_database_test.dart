@@ -175,8 +175,14 @@ void main() {
       });
 
       verifySpan(
-        'transaction',
+        'within transaction: $expectedInsertStatement',
         fixture.getCreatedSpan(),
+        origin: SentryTraceOrigins.autoDbDriftTransactionExecutor,
+      );
+
+      verifySpan(
+        'transaction',
+        fixture.getCreatedSpanByDescription('transaction'),
         origin: SentryTraceOrigins.autoDbDriftTransactionExecutor,
       );
     });
@@ -379,19 +385,21 @@ void main() {
       when(mockTransactionExecutor.beginTransaction())
           .thenThrow(fixture.exception);
 
+      // We need to move it inside the try/catch becaue SentryTransactionExecutor
+      // starts beginTransaction() directly after init
+      final SentryTransactionExecutor transactionExecutor =
+      SentryTransactionExecutor(
+        mockTransactionExecutor,
+        fixture.hub,
+        dbName: Fixture.dbName,
+      );
+
+      when(fixture.mockLazyDatabase.beginTransaction())
+          .thenReturn(transactionExecutor);
+
+      when(fixture.mockLazyDatabase.runInsert(any, any)).thenAnswer((realInvocation) => Future.value(1));
+
       try {
-        // We need to move it inside the try/catch becaue SentryTransactionExecutor
-        // starts beginTransaction() directly after init
-        final SentryTransactionExecutor transactionExecutor =
-            SentryTransactionExecutor(
-          mockTransactionExecutor,
-          fixture.hub,
-          dbName: Fixture.dbName,
-        );
-
-        when(fixture.mockLazyDatabase.beginTransaction())
-            .thenReturn(transactionExecutor);
-
         await fixture.sut.batch((batch) async {
           await insertRow(fixture.sut);
         });
