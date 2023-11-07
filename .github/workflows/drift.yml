@@ -86,7 +86,8 @@ jobs:
       # Install sqlite3.dll and add it to path
       - name: "Setup Windows"
         run: |
-          dart run drift/tool/download_sqlite3.dart
+          cd drift
+          dart run test/download_sqlite3.dart
         working-directory: ${{ github.workspace }}
         if: matrix.os == 'windows-latest' && matrix.target == 'windows'
 
