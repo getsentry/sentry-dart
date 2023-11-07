@@ -87,7 +87,7 @@ jobs:
       - name: "Setup Windows"
         run: |
           cd drift
-          dart pub get
+          flutter pub get
           dart run test/download_sqlite3.dart
         working-directory: ${{ github.workspace }}
         if: matrix.os == 'windows-latest' && matrix.target == 'windows'
