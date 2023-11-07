@@ -25,7 +25,7 @@ Future<void> runApp() async {
       Sentry.startTransaction('drift', 'op', bindToScope: true);
   final executor = SentryQueryExecutor(
     () => NativeDatabase.memory(),
-    databaseName: 'my_db_name',
+    databaseName: 'your_db_name',
   );
   final db = AppDatabase(executor);
 
