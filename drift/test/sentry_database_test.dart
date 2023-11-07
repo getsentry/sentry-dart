@@ -3,13 +3,12 @@
 @TestOn('vm')
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry_drift/src/sentry_query_executor.dart';
 import 'package:sentry_drift/src/sentry_transaction_executor.dart';
-import 'package:test/expect.dart';
-import 'package:test/scaffolding.dart';
 
 import 'mocks/mocks.mocks.dart';
 import 'test_database.dart';
