@@ -29,7 +29,6 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: ./drift
     strategy:
       fail-fast: false
       matrix:
@@ -87,10 +86,12 @@ jobs:
 
       - name: Pub Get
         run: |
+          cd drift
           flutter pub get
 
       - name: Test VM with coverage
         run: |
+          cd drift
           flutter test --coverage --test-randomize-ordering-seed=random
 
       - uses: codecov/codecov-action@eaaf4bedf32dbdc6b720b63067d99c4d77d6047d # pin@v3
