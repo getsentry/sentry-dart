@@ -36,15 +36,47 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
         sdk: [stable, beta]
         exclude:
+          - os: ubuntu-latest
+            target: ios
+          - os: ubuntu-latest
+            target: macos
+          - os: ubuntu-latest
+            target: windows
           - os: windows-latest
-            sdk: beta
+            target: ios
+          - os: windows-latest
+            target: android
+          - os: windows-latest
+            target: macos
+          - os: windows-latest
+            target: linux
+          # macos-latest is taking hours due to limited resources
+          - os: macos-latest
+            target: android
+          - os: macos-latest
+            target: linux
+          - os: macos-latest
+            target: windows
+          # Bad CPU type in executable
           - os: macos-latest
             sdk: beta
+
     steps:
-      - uses: dart-lang/setup-dart@6a218f2413a3e78e9087f638a238f6b40893203d # pin@v1
+      - uses: actions/checkout@v4
+
+      # Install required dependencies for Flutter on Linux on Ubuntu
+      - name: "Setup Linux"
+        run: |
+          sudo apt update
+          sudo apt install -y cmake dbus libblkid-dev libgtk-3-dev liblzma-dev ninja-build pkg-config xvfb
+          sudo apt install -y network-manager upower
+        if: matrix.os == 'ubuntu-latest' && matrix.target == 'linux'
+
+      - uses: subosito/flutter-action@48cafc24713cca54bbe03cdc3a423187d413aafa # pin@v2.10.0
         with:
-          sdk: ${{ matrix.sdk }}
-      - uses: actions/checkout@v3
+          channel: ${{ matrix.sdk }}
+
+      - run: flutter upgrade
 
       - name: Test VM
         run: |
