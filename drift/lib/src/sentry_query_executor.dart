@@ -25,7 +25,7 @@ class SentryQueryExecutor extends QueryExecutor {
 
   final QueryExecutor _queryExecutor;
 
-  final String? _dbName;
+  final String _dbName;
 
   @internal
   // ignore: public_member_api_docs
@@ -77,7 +77,7 @@ class SentryQueryExecutor extends QueryExecutor {
   @override
   Future<void> runBatched(BatchedStatements statements) {
     return _spanHelper.asyncWrapInSpan(
-      'batch',
+      statements.toString(),
       () async {
         return await _queryExecutor.runBatched(statements);
       },
@@ -88,7 +88,7 @@ class SentryQueryExecutor extends QueryExecutor {
   @override
   Future<bool> ensureOpen(QueryExecutorUser user) {
     return _spanHelper.asyncWrapInSpan(
-      'open',
+      'Open DB: $_dbName',
       () async {
         return await _queryExecutor.ensureOpen(user);
       },
@@ -99,7 +99,7 @@ class SentryQueryExecutor extends QueryExecutor {
   @override
   Future<void> runCustom(String statement, [List<Object?>? args]) {
     return _spanHelper.asyncWrapInSpan(
-      'custom',
+      statement,
       () async {
         return await _queryExecutor.runCustom(statement, args);
       },
@@ -110,7 +110,7 @@ class SentryQueryExecutor extends QueryExecutor {
   @override
   Future<int> runDelete(String statement, List<Object?> args) {
     return _spanHelper.asyncWrapInSpan(
-      'delete',
+      statement,
       () async {
         return await _queryExecutor.runDelete(statement, args);
       },
@@ -121,7 +121,7 @@ class SentryQueryExecutor extends QueryExecutor {
   @override
   Future<int> runInsert(String statement, List<Object?> args) {
     return _spanHelper.asyncWrapInSpan(
-      'insert',
+      statement,
       () async {
         return await _queryExecutor.runInsert(statement, args);
       },
@@ -135,7 +135,7 @@ class SentryQueryExecutor extends QueryExecutor {
     List<Object?> args,
   ) {
     return _spanHelper.asyncWrapInSpan(
-      'select',
+      statement,
       () async {
         return await _queryExecutor.runSelect(statement, args);
       },
@@ -146,7 +146,7 @@ class SentryQueryExecutor extends QueryExecutor {
   @override
   Future<int> runUpdate(String statement, List<Object?> args) {
     return _spanHelper.asyncWrapInSpan(
-      'update',
+      statement,
       () async {
         return await _queryExecutor.runUpdate(statement, args);
       },
@@ -157,7 +157,7 @@ class SentryQueryExecutor extends QueryExecutor {
   @override
   Future<void> close() {
     return _spanHelper.asyncWrapInSpan(
-      'close',
+      'Close DB: $_dbName',
       () async {
         return await _queryExecutor.close();
       },

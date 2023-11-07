@@ -15,6 +15,13 @@ import 'mocks/mocks.mocks.dart';
 import 'test_database.dart';
 
 void main() {
+  final expectedInsertStatement = 'INSERT INTO "todo_items" ("title", "body") VALUES (?, ?)';
+  final expectedUpdateStatement = 'UPDATE "todo_items" SET "title" = ?, "body" = ? WHERE "title" = ?;';
+  final expectedSelectStatement = 'SELECT * FROM todo_items';
+  final expectedDeleteStatement = 'DELETE FROM "todo_items";';
+  final expectedCloseStatement = 'Close DB: ${Fixture.dbName}';
+  final expectedOpenStatement = 'Open DB: ${Fixture.dbName}';
+
   void verifySpan(
     String description,
     SentrySpan? span, {
@@ -118,7 +125,7 @@ void main() {
 
       await insertRow(sut);
 
-      verifySpan('insert', fixture.getCreatedSpan());
+      verifySpan(expectedInsertStatement, fixture.getCreatedSpan());
     });
 
     test('update adds span', () async {
@@ -127,7 +134,7 @@ void main() {
       await insertRow(sut);
       await updateRow(sut);
 
-      verifySpan('update', fixture.getCreatedSpan());
+      verifySpan(expectedUpdateStatement, fixture.getCreatedSpan());
     });
 
     test('custom adds span', () async {
@@ -135,7 +142,16 @@ void main() {
 
       await sut.customStatement('SELECT * FROM todo_items');
 
-      verifySpan('custom', fixture.getCreatedSpan());
+      verifySpan(expectedSelectStatement, fixture.getCreatedSpan());
+    });
+
+    test('delete adds span', () async {
+      final sut = fixture.sut;
+
+      await insertRow(sut);
+      await fixture.sut.delete(fixture.sut.todoItems).go();
+
+      verifySpan(expectedDeleteStatement, fixture.getCreatedSpan());
     });
 
     test('transaction adds span', () async {
@@ -189,7 +205,7 @@ void main() {
 
       await sut.close();
 
-      verifySpan('close', fixture.getCreatedSpan());
+      verifySpan('Close DB: ${Fixture.dbName}', fixture.getCreatedSpan());
     });
 
     test('open adds span', () async {
@@ -199,7 +215,7 @@ void main() {
       // create a span until it is actually used.
       await sut.select(sut.todoItems).get();
 
-      verifySpan('open', fixture.getCreatedSpanByDescription('open'));
+      verifySpan(expectedOpenStatement, fixture.getCreatedSpanByDescription(expectedOpenStatement));
     });
   });
 
@@ -254,7 +270,7 @@ void main() {
         expect(exception, fixture.exception);
       }
 
-      verifyErrorSpan('insert', fixture.exception, fixture.getCreatedSpan());
+      verifyErrorSpan(expectedInsertStatement, fixture.exception, fixture.getCreatedSpan());
     });
   });
 
@@ -285,7 +301,7 @@ void main() {
         expect(exception, fixture.exception);
       }
 
-      verifyErrorSpan('insert', fixture.exception, fixture.getCreatedSpan());
+      verifyErrorSpan(expectedInsertStatement, fixture.exception, fixture.getCreatedSpan());
     });
 
     test('throwing runUpdate throws error span', () async {
@@ -298,7 +314,7 @@ void main() {
         expect(exception, fixture.exception);
       }
 
-      verifyErrorSpan('update', fixture.exception, fixture.getCreatedSpan());
+      verifyErrorSpan(expectedUpdateStatement, fixture.exception, fixture.getCreatedSpan());
     });
 
     test('throwing runCustom throws error span', () async {
@@ -311,7 +327,7 @@ void main() {
         expect(exception, fixture.exception);
       }
 
-      verifyErrorSpan('custom', fixture.exception, fixture.getCreatedSpan());
+      verifyErrorSpan(expectedSelectStatement, fixture.exception, fixture.getCreatedSpan());
     });
 
     test('throwing transaction throws error span', () async {
@@ -392,7 +408,7 @@ void main() {
         expect(exception, fixture.exception);
       }
 
-      verifyErrorSpan('close', fixture.exception, fixture.getCreatedSpan());
+      verifyErrorSpan(expectedCloseStatement, fixture.exception, fixture.getCreatedSpan());
 
       when(fixture.mockLazyDatabase.close()).thenAnswer((_) => Future.value());
     });
@@ -408,9 +424,9 @@ void main() {
       }
 
       verifyErrorSpan(
-        'open',
+        expectedOpenStatement,
         fixture.exception,
-        fixture.getCreatedSpanByDescription('open'),
+        fixture.getCreatedSpanByDescription(expectedOpenStatement),
       );
     });
 
@@ -424,7 +440,7 @@ void main() {
         expect(exception, fixture.exception);
       }
 
-      verifyErrorSpan('delete', fixture.exception, fixture.getCreatedSpan());
+      verifyErrorSpan(expectedDeleteStatement, fixture.exception, fixture.getCreatedSpan());
     });
   });
 }
@@ -465,7 +481,7 @@ class Fixture {
     } else {
       return SentryQueryExecutor(
         () {
-          return NativeDatabase.memory();
+          return NativeDatabase. memory();
         },
         hub: hub,
         databaseName: dbName,
