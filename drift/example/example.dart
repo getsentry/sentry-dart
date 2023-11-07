@@ -21,8 +21,7 @@ Future<void> main() async {
 }
 
 Future<void> runApp() async {
-  final tr =
-      Sentry.startTransaction('drift', 'op', bindToScope: true);
+  final tr = Sentry.startTransaction('drift', 'op', bindToScope: true);
   final executor = SentryQueryExecutor(
     () => NativeDatabase.memory(),
     databaseName: 'your_db_name',
