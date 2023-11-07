@@ -78,6 +78,17 @@ jobs:
           sudo apt install -y network-manager upower
         if: matrix.os == 'ubuntu-latest' && matrix.target == 'linux'
 
+      # Install sqlite3.dll and add it to path
+      - name: "Setup Windows"
+        run: |
+          curl -L -o sqlite.zip https://www.sqlite.org/2023/sqlite-dll-win-x64-3440000.zip
+          7z x sqlite.zip -ossqlite
+          echo "::add-path::${{ github.workspace }}"
+          echo "Adding ${{ github.workspace }}/sqlite" >> $GITHUB_PATH
+          where sqlite3.dll
+        working-directory: ${{ github.workspace }}
+        if: matrix.os == 'windows-latest' && matrix.target == 'windows'
+
       - uses: subosito/flutter-action@48cafc24713cca54bbe03cdc3a423187d413aafa # pin@v2.10.0
         with:
           channel: ${{ matrix.sdk }}
