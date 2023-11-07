@@ -78,6 +78,11 @@ jobs:
           sudo apt install -y network-manager upower
         if: matrix.os == 'ubuntu-latest' && matrix.target == 'linux'
 
+      - uses: dart-lang/setup-dart@b64355ae6ca0b5d484f0106a033dd1388965d06d # pin@v1
+        with:
+          sdk: ${{ matrix.sdk }}
+      - uses: actions/checkout@v4
+
       # Install sqlite3.dll and add it to path
       - name: "Setup Windows"
         run: |
