@@ -127,7 +127,10 @@ void main() {
 
       await insertRow(sut);
 
-      verifySpan(expectedInsertStatement, fixture.getCreatedSpan());
+      verifySpan(
+        expectedInsertStatement,
+        fixture.getCreatedSpan(),
+      );
     });
 
     test('update adds span', () async {
@@ -136,7 +139,10 @@ void main() {
       await insertRow(sut);
       await updateRow(sut);
 
-      verifySpan(expectedUpdateStatement, fixture.getCreatedSpan());
+      verifySpan(
+        expectedUpdateStatement,
+        fixture.getCreatedSpan(),
+      );
     });
 
     test('custom adds span', () async {
@@ -144,7 +150,10 @@ void main() {
 
       await sut.customStatement('SELECT * FROM todo_items');
 
-      verifySpan(expectedSelectStatement, fixture.getCreatedSpan());
+      verifySpan(
+        expectedSelectStatement,
+        fixture.getCreatedSpan(),
+      );
     });
 
     test('delete adds span', () async {
@@ -153,7 +162,10 @@ void main() {
       await insertRow(sut);
       await fixture.sut.delete(fixture.sut.todoItems).go();
 
-      verifySpan(expectedDeleteStatement, fixture.getCreatedSpan());
+      verifySpan(
+        expectedDeleteStatement,
+        fixture.getCreatedSpan(),
+      );
     });
 
     test('transaction adds span', () async {
@@ -207,7 +219,10 @@ void main() {
 
       await sut.close();
 
-      verifySpan('Close DB: ${Fixture.dbName}', fixture.getCreatedSpan());
+      verifySpan(
+        'Close DB: ${Fixture.dbName}',
+        fixture.getCreatedSpan(),
+      );
     });
 
     test('open adds span', () async {
@@ -217,8 +232,10 @@ void main() {
       // create a span until it is actually used.
       await sut.select(sut.todoItems).get();
 
-      verifySpan(expectedOpenStatement,
-          fixture.getCreatedSpanByDescription(expectedOpenStatement));
+      verifySpan(
+        expectedOpenStatement,
+        fixture.getCreatedSpanByDescription(expectedOpenStatement),
+      );
     });
   });
 
@@ -274,7 +291,10 @@ void main() {
       }
 
       verifyErrorSpan(
-          expectedInsertStatement, fixture.exception, fixture.getCreatedSpan());
+        expectedInsertStatement,
+        fixture.exception,
+        fixture.getCreatedSpan(),
+      );
     });
   });
 
@@ -306,7 +326,10 @@ void main() {
       }
 
       verifyErrorSpan(
-          expectedInsertStatement, fixture.exception, fixture.getCreatedSpan());
+        expectedInsertStatement,
+        fixture.exception,
+        fixture.getCreatedSpan(),
+      );
     });
 
     test('throwing runUpdate throws error span', () async {
@@ -320,7 +343,10 @@ void main() {
       }
 
       verifyErrorSpan(
-          expectedUpdateStatement, fixture.exception, fixture.getCreatedSpan());
+        expectedUpdateStatement,
+        fixture.exception,
+        fixture.getCreatedSpan(),
+      );
     });
 
     test('throwing runCustom throws error span', () async {
@@ -334,7 +360,10 @@ void main() {
       }
 
       verifyErrorSpan(
-          expectedSelectStatement, fixture.exception, fixture.getCreatedSpan());
+        expectedSelectStatement,
+        fixture.exception,
+        fixture.getCreatedSpan(),
+      );
     });
 
     test('throwing transaction throws error span', () async {
@@ -416,7 +445,10 @@ void main() {
       }
 
       verifyErrorSpan(
-          expectedCloseStatement, fixture.exception, fixture.getCreatedSpan());
+        expectedCloseStatement,
+        fixture.exception,
+        fixture.getCreatedSpan(),
+      );
 
       when(fixture.mockLazyDatabase.close()).thenAnswer((_) => Future.value());
     });
@@ -449,7 +481,10 @@ void main() {
       }
 
       verifyErrorSpan(
-          expectedDeleteStatement, fixture.exception, fixture.getCreatedSpan());
+        expectedDeleteStatement,
+        fixture.exception,
+        fixture.getCreatedSpan(),
+      );
     });
   });
 }
