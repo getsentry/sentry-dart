@@ -11,6 +11,7 @@ targets:
       dio:
       file:
       sqflite:
+      drift:
   - name: github
   - name: registry
     sdks:
@@ -20,3 +21,5 @@ targets:
       pub:sentry_dio:
       pub:sentry_file:
       pub:sentry_sqflite:
+      # This needs to be added to the Sentry registry before uncommenting
+      # pub:sentry_drift:
