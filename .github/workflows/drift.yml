@@ -32,8 +32,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        target: ["ios", "android", "macos", "linux", "windows"]
+        # skipping Windows for now since it requires sqlite3.dll to get working
+        os: [ubuntu-latest, macos-latest]
+        target: ["ios", "android", "macos", "linux"]
         sdk: ["stable", "beta"]
         exclude:
           - os: ubuntu-latest
@@ -78,11 +79,6 @@ jobs:
           sudo apt install -y network-manager upower
         if: matrix.os == 'ubuntu-latest' && matrix.target == 'linux'
 
-      - uses: dart-lang/setup-dart@b64355ae6ca0b5d484f0106a033dd1388965d06d # pin@v1
-        with:
-          sdk: ${{ matrix.sdk }}
-      - uses: actions/checkout@v4
-
       - uses: subosito/flutter-action@48cafc24713cca54bbe03cdc3a423187d413aafa # pin@v2.10.0
         with:
           channel: ${{ matrix.sdk }}
@@ -93,14 +89,6 @@ jobs:
         run: |
           cd drift
           flutter pub get
-
-      # Install sqlite3.dll and add it to path
-      - name: "Setup Windows"
-        run: |
-          cd drift
-          dart run test/download_sqlite3.dart
-        working-directory: ${{ github.workspace }}
-        if: matrix.os == 'windows-latest' && matrix.target == 'windows'
 
       - name: Test VM with coverage
         run: |

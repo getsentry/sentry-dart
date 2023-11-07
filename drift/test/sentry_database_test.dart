@@ -13,6 +13,16 @@ import 'package:sentry_drift/src/sentry_transaction_executor.dart';
 import 'mocks/mocks.mocks.dart';
 import 'test_database.dart';
 
+import 'dart:ffi';
+import 'dart:io';
+
+DynamicLibrary _openOnLinux() {
+  final scriptDir = File(Platform.script.toFilePath()).parent;
+  print('scriptDir');
+  final libraryNextToScript = File('${scriptDir.path}/sqlite3.dll');
+  return DynamicLibrary.open(libraryNextToScript.path);
+}
+
 void main() {
   final expectedInsertStatement =
       'INSERT INTO "todo_items" ("title", "body") VALUES (?, ?)';
