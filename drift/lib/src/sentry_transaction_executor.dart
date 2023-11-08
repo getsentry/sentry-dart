@@ -17,6 +17,10 @@ class SentryTransactionExecutor extends TransactionExecutor {
 
   final String? _dbName;
 
+  bool _isOpen = false;
+
+  final _withinTransactionDescription = 'Within transaction: ';
+
   /// @nodoc
   SentryTransactionExecutor(this._executor, Hub hub, {@internal String? dbName})
       : _hub = hub,
@@ -54,7 +58,18 @@ class SentryTransactionExecutor extends TransactionExecutor {
 
   @override
   Future<bool> ensureOpen(QueryExecutorUser user) {
-    return _executor.ensureOpen(user);
+    if (_isOpen) {
+      return Future.value(true);
+    }
+    return _spanHelper.asyncWrapInSpan(
+      'Open transaction',
+      () async {
+        final res = await _executor.ensureOpen(user);
+        _isOpen = true;
+        return res;
+      },
+      dbName: _dbName,
+    );
   }
 
   @override
@@ -70,18 +85,32 @@ class SentryTransactionExecutor extends TransactionExecutor {
 
   @override
   Future<void> runCustom(String statement, [List<Object?>? args]) {
-    return _executor.runCustom(statement, args);
+    return _spanHelper.asyncWrapInSpan(
+      _spanDescriptionForOperations(statement),
+      () async {
+        return _executor.runCustom(statement, args);
+      },
+      dbName: _dbName,
+      useTransactionSpan: true,
+    );
   }
 
   @override
   Future<int> runDelete(String statement, List<Object?> args) {
-    return _executor.runDelete(statement, args);
+    return _spanHelper.asyncWrapInSpan(
+      _spanDescriptionForOperations(statement),
+      () async {
+        return _executor.runDelete(statement, args);
+      },
+      dbName: _dbName,
+      useTransactionSpan: true,
+    );
   }
 
   @override
   Future<int> runInsert(String statement, List<Object?> args) {
     return _spanHelper.asyncWrapInSpan(
-      'within transaction: $statement',
+      _spanDescriptionForOperations(statement),
       () async {
         return _executor.runInsert(statement, args);
       },
@@ -95,14 +124,32 @@ class SentryTransactionExecutor extends TransactionExecutor {
     String statement,
     List<Object?> args,
   ) {
-    return _executor.runSelect(statement, args);
+    return _spanHelper.asyncWrapInSpan(
+      _spanDescriptionForOperations(statement),
+      () async {
+        return _executor.runSelect(statement, args);
+      },
+      dbName: _dbName,
+      useTransactionSpan: true,
+    );
   }
 
   @override
   Future<int> runUpdate(String statement, List<Object?> args) {
-    return _executor.runUpdate(statement, args);
+    return _spanHelper.asyncWrapInSpan(
+      _spanDescriptionForOperations(statement),
+      () async {
+        return _executor.runUpdate(statement, args);
+      },
+      dbName: _dbName,
+      useTransactionSpan: true,
+    );
   }
 
   @override
   bool get supportsNestedTransactions => _executor.supportsNestedTransactions;
+
+  String _spanDescriptionForOperations(String operation) {
+    return '$_withinTransactionDescription$operation';
+  }
 }

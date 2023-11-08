@@ -22,6 +22,8 @@ void main() {
   final expectedDeleteStatement = 'DELETE FROM "todo_items";';
   final expectedCloseStatement = 'Close DB: ${Fixture.dbName}';
   final expectedOpenStatement = 'Open DB: ${Fixture.dbName}';
+  final expectedTransactionStatement = 'transaction';
+  final withinTransactionDescription = 'Within transaction: ';
 
   void verifySpan(
     String description,
@@ -121,6 +123,22 @@ void main() {
       await fixture.tearDown();
     });
 
+    test('open span is only added once', () async {
+      final sut = fixture.sut;
+
+      await insertRow(sut);
+      await insertRow(sut);
+      await insertRow(sut);
+
+      final openSpansCount = fixture.tracer.children
+          .where(
+            (element) => element.context.description == expectedOpenStatement,
+          )
+          .length;
+
+      expect(openSpansCount, 1);
+    });
+
     test('insert adds span', () async {
       final sut = fixture.sut;
 
@@ -167,28 +185,131 @@ void main() {
       );
     });
 
-    test('transaction adds span', () async {
+    test('transaction adds insert spans', () async {
       final sut = fixture.sut;
 
       await sut.transaction(() async {
         await insertRow(sut);
+        await insertRow(sut);
       });
 
+      final insertSpanCount = fixture.tracer.children
+          .where(
+            (element) =>
+                element.context.description ==
+                '$withinTransactionDescription$expectedInsertStatement',
+          )
+          .length;
+      expect(insertSpanCount, 2);
+
       verifySpan(
-        'within transaction: $expectedInsertStatement',
+        '$withinTransactionDescription$expectedInsertStatement',
         fixture.getCreatedSpan(),
         origin: SentryTraceOrigins.autoDbDriftTransactionExecutor,
       );
 
       verifySpan(
-        'transaction',
-        fixture.getCreatedSpanByDescription('transaction'),
+        expectedTransactionStatement,
+        fixture.getCreatedSpanByDescription(expectedTransactionStatement),
+        origin: SentryTraceOrigins.autoDbDriftTransactionExecutor,
+      );
+    });
+
+    test('transaction adds update spans', () async {
+      final sut = fixture.sut;
+
+      await sut.transaction(() async {
+        await insertRow(sut);
+        await updateRow(sut);
+      });
+
+      final updateSpanCount = fixture.tracer.children
+          .where(
+            (element) =>
+                element.context.description ==
+                '$withinTransactionDescription$expectedUpdateStatement',
+          )
+          .length;
+      expect(updateSpanCount, 1);
+
+      verifySpan(
+        '$withinTransactionDescription$expectedUpdateStatement',
+        fixture.getCreatedSpan(),
+        origin: SentryTraceOrigins.autoDbDriftTransactionExecutor,
+      );
+
+      verifySpan(
+        expectedTransactionStatement,
+        fixture.getCreatedSpanByDescription(expectedTransactionStatement),
+        origin: SentryTraceOrigins.autoDbDriftTransactionExecutor,
+      );
+    });
+
+    test('transaction adds delete spans', () async {
+      final sut = fixture.sut;
+
+      await sut.transaction(() async {
+        await insertRow(sut);
+        await fixture.sut.delete(fixture.sut.todoItems).go();
+      });
+
+      final deleteSpanCount = fixture.tracer.children
+          .where(
+            (element) =>
+                element.context.description ==
+                '$withinTransactionDescription$expectedDeleteStatement',
+          )
+          .length;
+      expect(deleteSpanCount, 1);
+
+      verifySpan(
+        '$withinTransactionDescription$expectedDeleteStatement',
+        fixture.getCreatedSpan(),
+        origin: SentryTraceOrigins.autoDbDriftTransactionExecutor,
+      );
+
+      verifySpan(
+        expectedTransactionStatement,
+        fixture.getCreatedSpanByDescription(expectedTransactionStatement),
+        origin: SentryTraceOrigins.autoDbDriftTransactionExecutor,
+      );
+    });
+
+    test('transaction adds custom spans', () async {
+      final sut = fixture.sut;
+
+      await sut.transaction(() async {
+        await insertRow(sut);
+        await sut.customStatement('SELECT * FROM todo_items');
+      });
+
+      final customSpanCount = fixture.tracer.children
+          .where(
+            (element) =>
+                element.context.description ==
+                '$withinTransactionDescription$expectedSelectStatement',
+          )
+          .length;
+      expect(customSpanCount, 1);
+
+      verifySpan(
+        '$withinTransactionDescription$expectedSelectStatement',
+        fixture.getCreatedSpan(),
+        origin: SentryTraceOrigins.autoDbDriftTransactionExecutor,
+      );
+
+      verifySpan(
+        expectedTransactionStatement,
+        fixture.getCreatedSpanByDescription(expectedTransactionStatement),
         origin: SentryTraceOrigins.autoDbDriftTransactionExecutor,
       );
     });
 
     test('transaction rollback adds span', () async {
       final sut = fixture.sut;
+
+      await insertRow(sut);
+      await insertRow(sut);
 
       try {
         await sut.transaction(() async {
@@ -197,7 +318,7 @@ void main() {
       } catch (_) {}
 
       verifySpan(
-        'transaction',
+        expectedTransactionStatement,
         fixture.getCreatedSpan(),
         origin: SentryTraceOrigins.autoDbDriftTransactionExecutor,
         status: SpanStatus.aborted(),
@@ -373,7 +494,7 @@ void main() {
       }
 
       verifyErrorSpan(
-        'transaction',
+        expectedTransactionStatement,
         fixture.exception,
         fixture.getCreatedSpan(),
         origin: SentryTraceOrigins.autoDbDriftTransactionExecutor,
@@ -388,7 +509,7 @@ void main() {
       // We need to move it inside the try/catch becaue SentryTransactionExecutor
       // starts beginTransaction() directly after init
       final SentryTransactionExecutor transactionExecutor =
-      SentryTransactionExecutor(
+          SentryTransactionExecutor(
         mockTransactionExecutor,
         fixture.hub,
         dbName: Fixture.dbName,
@@ -397,7 +518,8 @@ void main() {
       when(fixture.mockLazyDatabase.beginTransaction())
           .thenReturn(transactionExecutor);
 
-      when(fixture.mockLazyDatabase.runInsert(any, any)).thenAnswer((realInvocation) => Future.value(1));
+      when(fixture.mockLazyDatabase.runInsert(any, any))
+          .thenAnswer((realInvocation) => Future.value(1));
 
       try {
         await fixture.sut.batch((batch) async {
@@ -408,7 +530,7 @@ void main() {
       }
 
       verifyErrorSpan(
-        'transaction',
+        expectedTransactionStatement,
         fixture.exception,
         fixture.getCreatedSpan(),
         origin: SentryTraceOrigins.autoDbDriftTransactionExecutor,
