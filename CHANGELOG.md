@@ -4,7 +4,7 @@
 
 ### Features
 
-- StackTraces in `PlatformException.message` will get nicely formatted too
+- StackTraces in `PlatformException.message` will get nicely formatted too when present ([#1716](https://github.com/getsentry/sentry-dart/pull/1716))
 - Breadcrumbs for database operations ([#1656](https://github.com/getsentry/sentry-dart/pull/1656))
 
 ## 7.12.0
