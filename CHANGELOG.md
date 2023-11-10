@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixes 
+
+- Unsupported types with Expando ([#1690](https://github.com/getsentry/sentry-dart/pull/1690))
+
 ### Features
 
 - Breadcrumbs for database operations ([#1656](https://github.com/getsentry/sentry-dart/pull/1656))

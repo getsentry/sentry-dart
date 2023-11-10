@@ -605,6 +605,8 @@ class _WeakMap {
 
   final SentryOptions _options;
 
+  final throwableHandler = UnsupportedThrowablesHandler();
+
   _WeakMap(this._options);
 
   void add(
@@ -615,6 +617,7 @@ class _WeakMap {
     if (throwable == null) {
       return;
     }
+    throwable = throwableHandler.wrapIfUnsupportedType(throwable);
     try {
       if (_expando[throwable] == null) {
         _expando[throwable] = MapEntry(span, transaction);
@@ -633,6 +636,7 @@ class _WeakMap {
     if (throwable == null) {
       return null;
     }
+    throwable = throwableHandler.wrapIfUnsupportedType(throwable);
     try {
       return _expando[throwable] as MapEntry<ISentrySpan, String>?;
     } catch (exception, stackTrace) {
@@ -645,4 +649,36 @@ class _WeakMap {
     }
     return null;
   }
+}
+
+/// A handler for unsupported throwables used for Expando<Object>.
+@visibleForTesting
+class UnsupportedThrowablesHandler {
+  final _unsupportedTypes = {String, int, double, bool};
+  final _unsupportedThrowables = <Object>{};
+
+  dynamic wrapIfUnsupportedType(dynamic throwable) {
+    if (_unsupportedTypes.contains(throwable.runtimeType)) {
+      throwable = _UnsupportedExceptionWrapper(Exception(throwable));
+      _unsupportedThrowables.add(throwable);
+    }
+    return _unsupportedThrowables.lookup(throwable) ?? throwable;
+  }
+}
+
+class _UnsupportedExceptionWrapper {
+  _UnsupportedExceptionWrapper(this.exception);
+
+  final Exception exception;
+
+  @override
+  bool operator ==(Object other) {
+    if (other is _UnsupportedExceptionWrapper) {
+      return other.exception.toString() == exception.toString();
+    }
+    return false;
+  }
+
+  @override
+  int get hashCode => exception.toString().hashCode;
 }

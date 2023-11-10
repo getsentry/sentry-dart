@@ -150,8 +150,8 @@ void main() {
 
       final capturedEvent = fixture.client.captureEventCalls.first;
 
-      expect(capturedEvent.event.transaction, isNull);
-      expect(capturedEvent.event.contexts.trace, isNull);
+      expect(capturedEvent.event.transaction, 'test');
+      expect(capturedEvent.event.contexts.trace, isNotNull);
     });
   });
 
