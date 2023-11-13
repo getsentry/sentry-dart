@@ -286,4 +286,7 @@ class SentryFlutterOptions extends SentryOptions {
     // ignore: invalid_use_of_internal_member
     super.profilesSampleRate = value;
   }
+
+  /// The navigatorKey used to retrieve the current context of the app.
+  GlobalKey<NavigatorState>? navigatorKey;
 }

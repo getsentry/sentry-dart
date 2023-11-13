@@ -79,8 +79,11 @@ void main() {
     testWidgets(
         'GIVEN MaterialApp WHEN setting locale and sentryNavigatorKey THEN enrich event culture with selected locale',
         (WidgetTester tester) async {
+      GlobalKey<NavigatorState> navigatorKey =
+          GlobalKey<NavigatorState>();
+
       await tester.pumpWidget(MaterialApp(
-        navigatorKey: sentryNavigatorKey,
+        navigatorKey: navigatorKey,
         home: Material(),
         localizationsDelegates: const [
           GlobalMaterialLocalizations.delegate,
@@ -95,6 +98,10 @@ void main() {
 
       final enricher = fixture.getSut(
         binding: () => tester.binding,
+        optionsBuilder: (options) {
+          options.navigatorKey = navigatorKey;
+          return options;
+        },
       );
 
       final event = await enricher.apply(SentryEvent());
@@ -373,21 +380,31 @@ void main() {
 }
 
 class Fixture {
+  // options
+  late SentryFlutterOptions options;
+
   FlutterEnricherEventProcessor getSut({
     required WidgetBindingGetter binding,
     PlatformChecker? checker,
     bool hasNativeIntegration = false,
     bool reportPackages = true,
+    SentryFlutterOptions Function(SentryFlutterOptions)? optionsBuilder,
   }) {
     final platformChecker = checker ??
         MockPlatformChecker(
           hasNativeIntegration: hasNativeIntegration,
         );
+
     final options = SentryFlutterOptions(
       dsn: fakeDsn,
       checker: platformChecker,
     )..reportPackages = reportPackages;
-    return FlutterEnricherEventProcessor(options);
+
+    // Allow customization of options through the provided optionsBuilder function
+    final customizedOptions = optionsBuilder?.call(options) ?? options;
+
+    this.options = customizedOptions;
+    return FlutterEnricherEventProcessor(customizedOptions);
   }
 
   PageRoute<dynamic> route(RouteSettings? settings) => PageRouteBuilder<void>(

@@ -1,13 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:meta/meta.dart';
 
-GlobalKey<NavigatorState> sentryNavigatorKey = GlobalKey<NavigatorState>();
-
 @internal
-Locale? retrieveWidgetLocale() {
-  final BuildContext? context = sentryNavigatorKey.currentContext;
+Locale? retrieveWidgetLocale(GlobalKey<NavigatorState>? navigatorKey) {
+  final BuildContext? context = navigatorKey?.currentContext;
   if (context != null) {
-    return Localizations.localeOf(context);
+    return Localizations.maybeLocaleOf(context);
   }
   return null;
 }
