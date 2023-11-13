@@ -2,6 +2,10 @@
 
 ## 8.0.0
 
+### Features
+
+- Add `markUnhandledAsFatal` to `SentryOptions` ([#1720](https://github.com/getsentry/sentry-dart/pull/1720))
+
 ### Breaking Changes
 
 - Mark exceptions not handled by the user as `handled: false` ([#1535](https://github.com/getsentry/sentry-dart/pull/1535))
