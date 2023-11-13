@@ -29,6 +29,8 @@ dev_dependencies:
   flutter_lints: ^2.0.0
   collection: ^1.16.0
   remove_from_coverage: ^2.0.0
+  flutter_localizations:
+    sdk: flutter
 
 flutter:
   plugin:

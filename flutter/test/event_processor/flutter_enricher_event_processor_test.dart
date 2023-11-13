@@ -1,13 +1,16 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+
 // backcompatibility for Flutter < 3.3
 // ignore: unnecessary_import
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/event_processor/flutter_enricher_event_processor.dart';
+import 'package:sentry_flutter/src/localizations.dart';
 
 import '../mocks.dart';
 
@@ -71,6 +74,32 @@ void main() {
 
       expect(culture?.is24HourFormat, isNotNull);
       expect(culture?.timezone, isNotNull);
+    });
+
+    testWidgets(
+        'GIVEN MaterialApp WHEN setting locale and sentryNavigatorKey THEN enrich event culture with selected locale',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(MaterialApp(
+        navigatorKey: sentryNavigatorKey,
+        home: Material(),
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: const [
+          Locale('en', 'US'),
+          Locale('de', 'DE'),
+        ],
+        locale: const Locale('de', 'DE'),
+      ));
+
+      final enricher = fixture.getSut(
+        binding: () => tester.binding,
+      );
+
+      final event = await enricher.apply(SentryEvent());
+
+      expect(event?.contexts.culture?.locale, 'de-DE');
     });
 
     testWidgets('app context in foreground', (WidgetTester tester) async {
