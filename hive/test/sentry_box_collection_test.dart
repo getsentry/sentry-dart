@@ -121,9 +121,13 @@ void main() {
 
     test('throwing openBox', () async {
       // ignore: inference_failure_on_function_invocation
-      when(fixture.mockBoxCollection.openBox(any,
-              preload: anyNamed('preload'), boxCreator: anyNamed('boxCreator')))
-          .thenThrow(fixture.exception);
+      when(
+        fixture.mockBoxCollection.openBox(
+          any,
+          preload: anyNamed('preload'),
+          boxCreator: anyNamed('boxCreator'),
+        ),
+      ).thenThrow(fixture.exception);
 
       final sut = await fixture.getSut(injectMock: true);
 
@@ -138,9 +142,13 @@ void main() {
     });
 
     test('throwing transaction', () async {
-      when(fixture.mockBoxCollection.transaction(any,
-              boxNames: anyNamed('boxNames'), readOnly: anyNamed('readOnly')))
-          .thenThrow(fixture.exception);
+      when(
+        fixture.mockBoxCollection.transaction(
+          any,
+          boxNames: anyNamed('boxNames'),
+          readOnly: anyNamed('readOnly'),
+        ),
+      ).thenThrow(fixture.exception);
 
       final sut = await fixture.getSut(injectMock: true);
 
@@ -151,7 +159,10 @@ void main() {
       }
 
       verifyErrorSpan(
-          'transaction', fixture.exception, fixture.getCreatedSpan());
+        'transaction',
+        fixture.exception,
+        fixture.getCreatedSpan(),
+      );
     });
 
     test('throwing deleteFromDisk', () async {
@@ -167,7 +178,10 @@ void main() {
       }
 
       verifyErrorSpan(
-          'deleteFromDisk', fixture.exception, fixture.getCreatedSpan());
+        'deleteFromDisk',
+        fixture.exception,
+        fixture.getCreatedSpan(),
+      );
     });
   });
 }

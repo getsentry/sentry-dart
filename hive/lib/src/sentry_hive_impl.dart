@@ -66,29 +66,29 @@ class SentryHiveImpl implements SentryHiveInterface {
 
   @override
   Future<bool> boxExists(String name, {String? path}) {
-    return _spanHelper.asyncWrapInSpan('boxExists', () async {
+    return _spanHelper.asyncWrapInSpan('boxExists', () {
       return _hive.boxExists(name, path: path);
     });
   }
 
   @override
   Future<void> close() {
-    return _spanHelper.asyncWrapInSpan('close', () async {
+    return _spanHelper.asyncWrapInSpan('close', () {
       return _hive.close();
     });
   }
 
   @override
   Future<void> deleteBoxFromDisk(String name, {String? path}) {
-    return _spanHelper.asyncWrapInSpan('deleteBoxFromDisk', () async {
+    return _spanHelper.asyncWrapInSpan('deleteBoxFromDisk', () {
       return _hive.deleteBoxFromDisk(name, path: path);
     });
   }
 
   @override
   Future<void> deleteFromDisk() {
-    return _spanHelper.asyncWrapInSpan('deleteFromDisk', () async {
-      return await _hive.deleteFromDisk();
+    return _spanHelper.asyncWrapInSpan('deleteFromDisk', () {
+      return _hive.deleteFromDisk();
     });
   }
 

@@ -40,8 +40,8 @@ class SentryBoxCollection implements stub.BoxCollection {
   Future<void> deleteFromDisk() {
     return _spanHelper.asyncWrapInSpan(
       'deleteFromDisk',
-      () async {
-        return await _boxCollection.deleteFromDisk();
+      () {
+        return _boxCollection.deleteFromDisk();
       },
       dbName: name,
     );
@@ -90,8 +90,8 @@ class SentryBoxCollection implements stub.BoxCollection {
   }) {
     return _spanHelper.asyncWrapInSpan(
       'openBox',
-      () async {
-        return await _boxCollection.openBox(
+      () {
+        return _boxCollection.openBox(
           name,
           preload: preload,
           boxCreator: boxCreator,
@@ -109,8 +109,8 @@ class SentryBoxCollection implements stub.BoxCollection {
   }) async {
     return await _spanHelper.asyncWrapInSpan(
       'transaction',
-      () async {
-        return await _boxCollection.transaction(
+      () {
+        return _boxCollection.transaction(
           action,
           boxNames: boxNames,
           readOnly: readOnly,

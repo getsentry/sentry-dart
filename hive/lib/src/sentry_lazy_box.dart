@@ -1,7 +1,6 @@
 import 'package:hive/hive.dart';
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
-import 'sentry_hive_impl.dart';
 
 import 'sentry_box_base.dart';
 import 'sentry_span_helper.dart';
@@ -26,8 +25,8 @@ class SentryLazyBox<E> extends SentryBoxBase<E> implements LazyBox<E> {
   Future<E?> get(key, {E? defaultValue}) {
     return _spanHelper.asyncWrapInSpan(
       'get',
-      () async {
-        return await _lazyBox.get(key, defaultValue: defaultValue);
+      () {
+        return _lazyBox.get(key, defaultValue: defaultValue);
       },
       dbName: name,
     );
@@ -37,7 +36,7 @@ class SentryLazyBox<E> extends SentryBoxBase<E> implements LazyBox<E> {
   Future<E?> getAt(int index) {
     return _spanHelper.asyncWrapInSpan(
       'getAt',
-      () async {
+      () {
         return _lazyBox.getAt(index);
       },
       dbName: name,

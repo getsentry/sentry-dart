@@ -23,8 +23,8 @@ class SentryBoxBase<E> implements BoxBase<E> {
   Future<int> add(E value) async {
     return _spanHelper.asyncWrapInSpan(
       'add',
-      () async {
-        return await _boxBase.add(value);
+      () {
+        return _boxBase.add(value);
       },
       dbName: name,
     );
@@ -34,8 +34,8 @@ class SentryBoxBase<E> implements BoxBase<E> {
   Future<Iterable<int>> addAll(Iterable<E> values) {
     return _spanHelper.asyncWrapInSpan(
       'addAll',
-      () async {
-        return await _boxBase.addAll(values);
+      () {
+        return _boxBase.addAll(values);
       },
       dbName: name,
     );
@@ -45,8 +45,8 @@ class SentryBoxBase<E> implements BoxBase<E> {
   Future<int> clear() {
     return _spanHelper.asyncWrapInSpan(
       'clear',
-      () async {
-        return await _boxBase.clear();
+      () {
+        return _boxBase.clear();
       },
       dbName: name,
     );
@@ -56,8 +56,8 @@ class SentryBoxBase<E> implements BoxBase<E> {
   Future<void> close() {
     return _spanHelper.asyncWrapInSpan(
       'close',
-      () async {
-        return await _boxBase.close();
+      () {
+        return _boxBase.close();
       },
       dbName: name,
     );
@@ -67,8 +67,8 @@ class SentryBoxBase<E> implements BoxBase<E> {
   Future<void> compact() {
     return _spanHelper.asyncWrapInSpan(
       'compact',
-      () async {
-        return await _boxBase.compact();
+      () {
+        return _boxBase.compact();
       },
       dbName: name,
     );
@@ -83,8 +83,8 @@ class SentryBoxBase<E> implements BoxBase<E> {
   Future<void> delete(key) {
     return _spanHelper.asyncWrapInSpan(
       'delete',
-      () async {
-        return await _boxBase.delete(key);
+      () {
+        return _boxBase.delete(key);
       },
       dbName: name,
     );
@@ -94,8 +94,8 @@ class SentryBoxBase<E> implements BoxBase<E> {
   Future<void> deleteAll(Iterable<dynamic> keys) {
     return _spanHelper.asyncWrapInSpan(
       'deleteAll',
-      () async {
-        return await _boxBase.deleteAll(keys);
+      () {
+        return _boxBase.deleteAll(keys);
       },
       dbName: name,
     );
@@ -105,8 +105,8 @@ class SentryBoxBase<E> implements BoxBase<E> {
   Future<void> deleteAt(int index) {
     return _spanHelper.asyncWrapInSpan(
       'deleteAt',
-      () async {
-        return await _boxBase.deleteAt(index);
+      () {
+        return _boxBase.deleteAt(index);
       },
       dbName: name,
     );
@@ -116,8 +116,8 @@ class SentryBoxBase<E> implements BoxBase<E> {
   Future<void> deleteFromDisk() {
     return _spanHelper.asyncWrapInSpan(
       'deleteFromDisk',
-      () async {
-        return await _boxBase.deleteFromDisk();
+      () {
+        return _boxBase.deleteFromDisk();
       },
       dbName: name,
     );
@@ -127,8 +127,8 @@ class SentryBoxBase<E> implements BoxBase<E> {
   Future<void> flush() {
     return _spanHelper.asyncWrapInSpan(
       'flush',
-      () async {
-        return await _boxBase.flush();
+      () {
+        return _boxBase.flush();
       },
       dbName: name,
     );
@@ -167,8 +167,8 @@ class SentryBoxBase<E> implements BoxBase<E> {
   Future<void> put(key, value) {
     return _spanHelper.asyncWrapInSpan(
       'put',
-      () async {
-        return await _boxBase.put(key, value);
+      () {
+        return _boxBase.put(key, value);
       },
       dbName: name,
     );
@@ -178,8 +178,8 @@ class SentryBoxBase<E> implements BoxBase<E> {
   Future<void> putAll(Map<dynamic, E> entries) {
     return _spanHelper.asyncWrapInSpan(
       'putAll',
-      () async {
-        return await _boxBase.putAll(entries);
+      () {
+        return _boxBase.putAll(entries);
       },
       dbName: name,
     );
@@ -189,8 +189,8 @@ class SentryBoxBase<E> implements BoxBase<E> {
   Future<void> putAt(int index, value) {
     return _spanHelper.asyncWrapInSpan(
       'putAt',
-      () async {
-        return await _boxBase.putAt(index, value);
+      () {
+        return _boxBase.putAt(index, value);
       },
       dbName: name,
     );
