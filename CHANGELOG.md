@@ -4,6 +4,8 @@
 
 ### Fixes 
 
+- Fixes setting the correct locale to contexts with navigatorKey ([#1724](https://github.com/getsentry/sentry-dart/pull/1724))
+  - If you have a selected locale in e.g MaterialApp, this fix will retrieve the correct locale in the event context.
 - Unsupported types with Expando ([#1690](https://github.com/getsentry/sentry-dart/pull/1690))
 
 ### Features
