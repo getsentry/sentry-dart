@@ -380,9 +380,6 @@ void main() {
 }
 
 class Fixture {
-  // options
-  late SentryFlutterOptions options;
-
   FlutterEnricherEventProcessor getSut({
     required WidgetBindingGetter binding,
     PlatformChecker? checker,
@@ -399,11 +396,7 @@ class Fixture {
       dsn: fakeDsn,
       checker: platformChecker,
     )..reportPackages = reportPackages;
-
-    // Allow customization of options through the provided optionsBuilder function
     final customizedOptions = optionsBuilder?.call(options) ?? options;
-
-    this.options = customizedOptions;
     return FlutterEnricherEventProcessor(customizedOptions);
   }
 
