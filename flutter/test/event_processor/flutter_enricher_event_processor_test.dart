@@ -79,8 +79,7 @@ void main() {
     testWidgets(
         'GIVEN MaterialApp WHEN setting locale and sentryNavigatorKey THEN enrich event culture with selected locale',
         (WidgetTester tester) async {
-      GlobalKey<NavigatorState> navigatorKey =
-          GlobalKey<NavigatorState>();
+      GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
       await tester.pumpWidget(MaterialApp(
         navigatorKey: navigatorKey,
