@@ -167,6 +167,9 @@ class SentryFlutterOptions extends SentryOptions {
   /// The quality of the attached screenshot
   SentryScreenshotQuality screenshotQuality = SentryScreenshotQuality.high;
 
+  /// Only attach a screenshot when the app is resumed.
+  bool attachScreenshotOnlyWhenResumed = false;
+
   /// Enable or disable automatic breadcrumbs for User interactions Using [Listener]
   ///
   /// Requires adding the [SentryUserInteractionWidget] to the widget tree.

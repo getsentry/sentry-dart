@@ -2,16 +2,25 @@
 
 ## Unreleased
 
+### Fixes 
+
+- Unsupported types with Expando ([#1690](https://github.com/getsentry/sentry-dart/pull/1690))
+
 ### Features
 
+- StackTraces in `PlatformException.message` will get nicely formatted too when present ([#1716](https://github.com/getsentry/sentry-dart/pull/1716))
 - Breadcrumbs for database operations ([#1656](https://github.com/getsentry/sentry-dart/pull/1656))
 - APM for hive ([#1672](https://github.com/getsentry/sentry-dart/pull/1672))
+- Add `attachScreenshotOnlyWhenResumed` to options ([#1700](https://github.com/getsentry/sentry-dart/pull/1700))
 
 ### Dependencies
 
-- Bump Android SDK from v6.32.0 to v6.33.0 ([#1710](https://github.com/getsentry/sentry-dart/pull/1710))
-  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#6330)
-  - [diff](https://github.com/getsentry/sentry-java/compare/6.32.0...6.33.0)
+- Bump Android SDK from v6.32.0 to v6.33.1 ([#1710](https://github.com/getsentry/sentry-dart/pull/1710), [#1713](https://github.com/getsentry/sentry-dart/pull/1713))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#6331)
+  - [diff](https://github.com/getsentry/sentry-java/compare/6.32.0...6.33.1)
+- Bump Cocoa SDK from v8.14.2 to v8.15.2 ([#1712](https://github.com/getsentry/sentry-dart/pull/1712), [#1714](https://github.com/getsentry/sentry-dart/pull/1714), [#1717](https://github.com/getsentry/sentry-dart/pull/1717))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8152)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.14.2...8.15.2)
 
 ## 7.12.0
 
