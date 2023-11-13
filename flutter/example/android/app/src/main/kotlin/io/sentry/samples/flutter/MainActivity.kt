@@ -13,7 +13,7 @@ class MainActivity : FlutterActivity() {
     super.configureFlutterEngine(flutterEngine)
     MethodChannel(
       flutterEngine.dartExecutor.binaryMessenger,
-      _channel
+      _channel,
     ).setMethodCallHandler { call, result ->
       // Note: this method is invoked on the main thread.
       when (call.method) {
