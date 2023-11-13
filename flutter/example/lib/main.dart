@@ -12,6 +12,7 @@ import 'package:sentry_drift/sentry_drift.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_sqflite/sentry_sqflite.dart';
 import 'package:sqflite/sqflite.dart';
+
 // import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 // import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 import 'package:universal_platform/universal_platform.dart';
@@ -152,10 +153,12 @@ class MainScaffold extends StatelessWidget {
           children: [
             if (_isIntegrationTest) const IntegrationTestWidget(),
             const Center(child: Text('Trigger an action:\n')),
-            ElevatedButton(
-              onPressed: () => driftTest(),
-              child: const Text('drift'),
-            ),
+            // For simplicity sake we skip the web set up.
+            if (!UniversalPlatform.isWeb)
+              ElevatedButton(
+                onPressed: () => driftTest(),
+                child: const Text('drift'),
+              ),
             ElevatedButton(
               onPressed: () => sqfliteTest(),
               child: const Text('sqflite'),
