@@ -3,10 +3,12 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:drift/native.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:logging/logging.dart';
+import 'package:sentry_drift/sentry_drift.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_sqflite/sentry_sqflite.dart';
 import 'package:sqflite/sqflite.dart';
@@ -15,6 +17,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:universal_platform/universal_platform.dart';
 import 'package:feedback/feedback.dart' as feedback;
 import 'package:provider/provider.dart';
+import 'drift/database.dart';
 import 'user_feedback_dialog.dart';
 import 'package:dio/dio.dart';
 import 'package:sentry_dio/sentry_dio.dart';
@@ -149,6 +152,10 @@ class MainScaffold extends StatelessWidget {
           children: [
             if (_isIntegrationTest) const IntegrationTestWidget(),
             const Center(child: Text('Trigger an action:\n')),
+            ElevatedButton(
+              onPressed: () => driftTest(),
+              child: const Text('drift'),
+            ),
             ElevatedButton(
               onPressed: () => sqfliteTest(),
               child: const Text('sqflite'),
@@ -462,6 +469,34 @@ class MainScaffold extends StatelessWidget {
     // final batch = db.batch();
     // batch.delete('Product', where: 'title = ?', whereArgs: dbTitles);
     // await batch.commit();
+
+    await db.close();
+
+    await tr.finish(status: const SpanStatus.ok());
+  }
+
+  Future<void> driftTest() async {
+    final tr = Sentry.startTransaction(
+      'driftTest',
+      'db',
+      bindToScope: true,
+    );
+
+    final executor = SentryQueryExecutor(
+      () => NativeDatabase.memory(),
+      databaseName: 'sentry_inmemory_db',
+    );
+
+    final db = AppDatabase(executor);
+
+    await db.into(db.todoItems).insert(
+          TodoItemsCompanion.insert(
+            title: 'This is a test thing',
+            content: 'test',
+          ),
+        );
+
+    await db.select(db.todoItems).get();
 
     await db.close();
 
