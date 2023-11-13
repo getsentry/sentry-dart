@@ -6,14 +6,22 @@ import 'unknown_renderer.dart'
 
 @internal
 class RendererWrapper {
-  FlutterRenderer getRenderer() {
+  FlutterRenderer? getRenderer() {
     return implementation.getRenderer();
   }
 }
 
 enum FlutterRenderer {
+  /// https://skia.org/
   skia,
+
+  /// https://docs.flutter.dev/perf/impeller
+  impeller,
+
+  /// https://docs.flutter.dev/platform-integration/web/renderers
   canvasKit,
+
+  /// https://docs.flutter.dev/platform-integration/web/renderers
   html,
   unknown,
 }

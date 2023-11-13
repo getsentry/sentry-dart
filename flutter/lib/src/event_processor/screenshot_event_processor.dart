@@ -32,10 +32,12 @@ class ScreenshotEventProcessor implements EventProcessor {
     }
 
     final renderer = _options.rendererWrapper.getRenderer();
-    if (renderer != FlutterRenderer.skia &&
-        renderer != FlutterRenderer.canvasKit) {
-      _options.logger(SentryLevel.debug,
-          'Cannot take screenshot with ${_options.rendererWrapper.getRenderer().name} renderer.');
+
+    if (_options.platformChecker.isWeb && renderer == FlutterRenderer.html) {
+      _options.logger(
+        SentryLevel.debug,
+        'Cannot take screenshot with ${FlutterRenderer.html.name} renderer.',
+      );
       return event;
     }
 
