@@ -50,7 +50,8 @@ class RunZonedGuardedIntegration extends Integration<SentryOptions> {
 
     final event = SentryEvent(
       throwable: throwableMechanism,
-      level: SentryLevel.fatal,
+      level:
+          options.markUnhandledAsFatal ? SentryLevel.fatal : SentryLevel.error,
       timestamp: hub.options.clock(),
     );
 

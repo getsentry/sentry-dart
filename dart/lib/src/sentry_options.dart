@@ -4,7 +4,7 @@ import 'dart:developer';
 import 'package:meta/meta.dart';
 import 'package:http/http.dart';
 
-import '../sentry.dart';
+import '../sentry_io.dart';
 import 'client_reports/client_report_recorder.dart';
 import 'client_reports/noop_client_report_recorder.dart';
 import 'sentry_exception_factory.dart';
@@ -357,6 +357,11 @@ class SentryOptions {
   /// - Rethrow exceptions that occur in user provided closures
   @internal
   bool devMode = false;
+
+  /// Unhandled exceptions that the SDK automatically reports, for example in
+  /// [SentryIsolate], have `level` [SentryLevel.fatal] set per default.
+  /// Settings this to `false` will set the `level` to [SentryLevel.error].
+  bool markUnhandledAsFatal = true;
 
   SentryOptions({this.dsn, PlatformChecker? checker}) {
     if (checker != null) {

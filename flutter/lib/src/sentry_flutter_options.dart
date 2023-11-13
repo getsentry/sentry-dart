@@ -1,6 +1,7 @@
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 import 'package:flutter/widgets.dart';
+import 'package:sentry/sentry_io.dart';
 
 import 'binding_wrapper.dart';
 import 'renderer/renderer.dart';

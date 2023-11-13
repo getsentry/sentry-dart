@@ -60,7 +60,9 @@ class FlutterErrorIntegration implements Integration<SentryFlutterOptions> {
 
         var event = SentryEvent(
           throwable: throwableMechanism,
-          level: SentryLevel.fatal,
+          level: options.markUnhandledAsFatal
+              ? SentryLevel.fatal
+              : SentryLevel.error,
           contexts: flutterErrorDetails.isNotEmpty
               ? (Contexts()..['flutter_error_details'] = flutterErrorDetails)
               : null,

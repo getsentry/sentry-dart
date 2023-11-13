@@ -54,6 +54,23 @@ void main() {
 
       expect(onErrorCalled, true);
     });
+
+    test('sets level to error instead of fatal', () async {
+      final exception = StateError('error');
+      final stackTrace = StackTrace.current;
+
+      final hub = Hub(fixture.options);
+      final client = MockSentryClient();
+      hub.bindClient(client);
+
+      final sut = fixture.getSut(runner: () async {});
+
+      fixture.options.markUnhandledAsFatal = false;
+      await sut.captureError(hub, fixture.options, exception, stackTrace);
+
+      final capturedEvent = client.captureEventCalls.last.event;
+      expect(capturedEvent.level, SentryLevel.error);
+    });
   });
 }
 

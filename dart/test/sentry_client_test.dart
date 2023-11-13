@@ -847,8 +847,7 @@ void main() {
       expect(capturedEvent.user?.ipAddress, '{{auto}}');
     });
 
-    test('event has a user with IP address',
-        () async {
+    test('event has a user with IP address', () async {
       final client = fixture.getSut(sendDefaultPii: true);
 
       await client.captureEvent(fakeEvent);
@@ -864,8 +863,7 @@ void main() {
       expect(capturedEvent.user?.email, fakeEvent.user!.email);
     });
 
-    test('event has a user without IP address',
-        () async {
+    test('event has a user without IP address', () async {
       final client = fixture.getSut(sendDefaultPii: true);
 
       final event = fakeEvent.copyWith(user: fakeUser);
