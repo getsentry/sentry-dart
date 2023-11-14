@@ -70,17 +70,6 @@ jobs:
           java-version: "11"
           distribution: "adopt"
 
-#      - name: "Setup Windows"
-#        run: |
-#          mkdir -p $HOME/sqlite
-#          curl -L https://www.sqlite.org/2023/sqlite-dll-win-x64-3440000.zip -o sqlite.zip
-#          unzip sqlite.zip -d $HOME/sqlite
-#          echo "::add-path::$HOME/sqlite"
-#        if: matrix.os == 'windows-latest' && matrix.target == 'windows'
-#
-#      - name: Show SQLite version
-#        run: sqlite3 --version
-
       # Install required dependencies for Flutter on Linux on Ubuntu
       - name: "Setup Linux"
         run: |
