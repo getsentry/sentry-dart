@@ -71,14 +71,6 @@ jobs:
           java-version: "11"
           distribution: "adopt"
 
-      - name: Setup SQLite
-        run: |
-          mkdir -p $HOME/sqlite
-          curl -L https://www.sqlite.org/2023/sqlite-dll-win64-x64-3420000.zip -o sqlite.zip
-          unzip sqlite.zip -d $HOME/sqlite
-          echo "PATH=\$HOME/sqlite:\$PATH" >> $GITHUB_ENV
-        if: matrix.os == 'windows-latest' && matrix.target == 'windows'
-
       # Install required dependencies for Flutter on Linux on Ubuntu
       - name: "Setup Linux"
         run: |
@@ -90,6 +82,14 @@ jobs:
       - uses: subosito/flutter-action@48cafc24713cca54bbe03cdc3a423187d413aafa # pin@v2.10.0
         with:
           channel: ${{ matrix.sdk }}
+
+      - name: Setup SQLite
+        run: |
+          mkdir -p $HOME/sqlite
+          curl -L https://www.sqlite.org/2023/sqlite-dll-win64-x64-3420000.zip -o sqlite.zip
+          unzip sqlite.zip -d $HOME/sqlite
+          echo "PATH=\$HOME/sqlite:\$PATH" >> $GITHUB_ENV
+        if: matrix.os == 'windows-latest' && matrix.target == 'windows'
 
       - run: flutter upgrade
 
