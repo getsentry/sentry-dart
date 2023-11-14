@@ -33,8 +33,8 @@ jobs:
       fail-fast: false
       matrix:
         # skipping Windows for now since it requires sqlite3.dll to get working
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        target: ["ios", "android", "macos", "linux", "windows"]
+        os: [ubuntu-latest, macos-latest]
+        target: ["ios", "android", "macos", "linux"]
         sdk: ["stable", "beta"]
         exclude:
           - os: ubuntu-latest
@@ -82,14 +82,6 @@ jobs:
       - uses: subosito/flutter-action@48cafc24713cca54bbe03cdc3a423187d413aafa # pin@v2.10.0
         with:
           channel: ${{ matrix.sdk }}
-
-      - name: Setup SQLite
-        run: |
-          mkdir -p $HOME/sqlite
-          curl -L https://www.sqlite.org/2023/sqlite-dll-win64-x64-3420000.zip -o sqlite.zip
-          unzip sqlite.zip -d $HOME/sqlite
-          echo "PATH=\$HOME/sqlite/sqlite3.dll:\$PATH" >> $GITHUB_ENV
-        if: matrix.os == 'windows-latest' && matrix.target == 'windows'
 
       - run: flutter upgrade
 
