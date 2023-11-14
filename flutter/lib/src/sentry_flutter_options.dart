@@ -287,6 +287,6 @@ class SentryFlutterOptions extends SentryOptions {
     super.profilesSampleRate = value;
   }
 
-  /// The navigatorKey used to retrieve the current context of the app.
+  /// The [navigatorKey] is used to add information of the currently used locale to the contexts.
   GlobalKey<NavigatorState>? navigatorKey;
 }

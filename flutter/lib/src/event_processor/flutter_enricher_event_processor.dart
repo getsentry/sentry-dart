@@ -5,7 +5,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:sentry/sentry.dart';
 
-import '../localizations.dart';
 import '../navigation/sentry_navigator_observer.dart';
 import '../sentry_flutter_options.dart';
 
@@ -109,7 +108,7 @@ class FlutterEnricherEventProcessor implements EventProcessor {
 
   SentryCulture _getCulture(SentryCulture? culture) {
     final windowLanguageTag = _window?.locale.toLanguageTag();
-    final screenLocale = retrieveWidgetLocale(_options.navigatorKey);
+    final screenLocale = _retrieveWidgetLocale(_options.navigatorKey);
     final languageTag = screenLocale?.toLanguageTag() ?? windowLanguageTag;
 
     // Future enhancement:
@@ -256,5 +255,13 @@ class FlutterEnricherEventProcessor implements EventProcessor {
     } else {
       return app;
     }
+  }
+
+  Locale? _retrieveWidgetLocale(GlobalKey<NavigatorState>? navigatorKey) {
+    final BuildContext? context = navigatorKey?.currentContext;
+    if (context != null) {
+      return Localizations.maybeLocaleOf(context);
+    }
+    return null;
   }
 }
