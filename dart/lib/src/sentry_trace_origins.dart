@@ -18,4 +18,6 @@ class SentryTraceOrigins {
       'auto.db.sqflite.database_executor';
   static const autoDbSqfliteDatabaseFactory =
       'auto.db.sqflite.database_factory';
+  static const autoDbIsar = 'auto.db.isar';
+  static const autoDbIsarCollection = 'auto.db.isar.collection';
 }

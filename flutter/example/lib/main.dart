@@ -7,7 +7,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:logging/logging.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_isar/sentry_isar.dart';
+import 'package:sentry_isar/user.dart';
 import 'package:sentry_sqflite/sentry_sqflite.dart';
 import 'package:sqflite/sqflite.dart';
 // import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -150,9 +153,13 @@ class MainScaffold extends StatelessWidget {
             if (_isIntegrationTest) const IntegrationTestWidget(),
             const Center(child: Text('Trigger an action:\n')),
             ElevatedButton(
-              onPressed: () => sqfliteTest(),
-              child: const Text('sqflite'),
+              onPressed: () => isarTest(),
+              child: const Text('isar'),
             ),
+            // ElevatedButton(
+            //   onPressed: () => sqfliteTest(),
+            //   child: const Text('sqflite'),
+            // ),
             ElevatedButton(
               onPressed: () => SecondaryScaffold.openSecondaryScaffold(context),
               child: const Text('Open another Scaffold'),
@@ -420,6 +427,37 @@ class MainScaffold extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> isarTest() async {
+    final tr = Sentry.startTransaction(
+      'isarTest',
+      'db',
+      bindToScope: true,
+    );
+
+    final dir = await getApplicationDocumentsDirectory();
+
+    final isar = await SentryIsar.open(
+      [UserSchema],
+      directory: dir.path,
+    );
+
+    final newUser = User()
+      ..name = 'Joe Dirt'
+      ..age = 36;
+
+    await isar.writeTxn(() async {
+      await isar.users.put(newUser); // insert & update
+    });
+
+    final existingUser = await isar.users.get(newUser.id); // get
+
+    await isar.writeTxn(() async {
+      await isar.users.delete(existingUser!.id); // delete
+    });
+
+    await tr.finish(status: const SpanStatus.ok());
   }
 
   Future<void> sqfliteTest() async {

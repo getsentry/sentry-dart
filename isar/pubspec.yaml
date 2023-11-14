@@ -10,14 +10,14 @@ environment:
   flutter: '>=3.3.0'
 
 dependencies:
-  isar: 3.1.0
-  isar_flutter_libs: 3.1.0 # contains Isar Core
+  isar: ^3.1.0+1
+  isar_flutter_libs: ^3.1.0+1 # contains Isar Core
   sentry: 7.12.0
   meta: ^1.3.0
   path: ^1.8.3
 
 dev_dependencies:
-  isar_generator: 3.1.0
+  isar_generator: ^3.1.0+1
   build_runner: ^2.4.2
   lints: ^3.0.0
   flutter_test:
@@ -25,3 +25,4 @@ dev_dependencies:
   coverage: ^1.3.0
   mockito: ^5.1.0
   yaml: ^3.1.0 # needed for version match (code and pubspec)
+  path_provider: ^2.1.1
