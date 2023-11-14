@@ -8,6 +8,7 @@ import '../screenshot/sentry_screenshot_widget.dart';
 import '../sentry_flutter_options.dart';
 import 'package:flutter/rendering.dart';
 import '../renderer/renderer.dart';
+import 'package:flutter/widgets.dart' as widget;
 
 class ScreenshotEventProcessor implements EventProcessor {
   final SentryFlutterOptions _options;
@@ -35,6 +36,14 @@ class ScreenshotEventProcessor implements EventProcessor {
         renderer != FlutterRenderer.canvasKit) {
       _options.logger(SentryLevel.debug,
           'Cannot take screenshot with ${_options.rendererWrapper.getRenderer().name} renderer.');
+      return event;
+    }
+
+    if (_options.attachScreenshotOnlyWhenResumed &&
+        widget.WidgetsBinding.instance.lifecycleState !=
+            AppLifecycleState.resumed) {
+      _options.logger(SentryLevel.debug,
+          'Only attaching screenshots when application state is resumed.');
       return event;
     }
 
