@@ -24,4 +24,5 @@ dev_dependencies:
   drift_dev: ^2.13.0
   yaml: ^3.1.0 # needed for version match (code and pubspec)
   sqlite3_flutter_libs: ^0.5.0
+  sqlite3: ^2.1.0
   archive: ^3.1.2

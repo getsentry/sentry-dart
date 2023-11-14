@@ -1,6 +1,9 @@
 // ignore_for_file: invalid_use_of_internal_member
 
 @TestOn('vm')
+import 'dart:ffi';
+import 'dart:io';
+
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -9,11 +12,20 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry_drift/src/sentry_query_executor.dart';
 import 'package:sentry_drift/src/sentry_transaction_executor.dart';
+import 'package:sqlite3/open.dart';
 
 import 'mocks/mocks.mocks.dart';
 import 'test_database.dart';
 
+DynamicLibrary _openOnWindows() {
+  final scriptDir = File(Platform.script.toFilePath()).parent;
+  final libraryNextToScript = File('${scriptDir.path}/test/sqlite3.dll');
+  return DynamicLibrary.open(libraryNextToScript.path);
+}
+
 void main() {
+  open.overrideFor(OperatingSystem.windows, _openOnWindows);
+
   final expectedInsertStatement =
       'INSERT INTO "todo_items" ("title", "body") VALUES (?, ?)';
   final expectedUpdateStatement =
