@@ -11,6 +11,7 @@ Never _unsupported() {
 QueryExecutor inMemoryExecutor() {
   return _unsupported();
 }
+
 Future<void> validateDatabaseSchema(GeneratedDatabase database) async {
   _unsupported();
 }

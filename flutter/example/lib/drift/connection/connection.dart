@@ -1,2 +1,1 @@
-export 'unsupported.dart'
-    if (dart.library.ffi) 'native.dart';
+export 'unsupported.dart' if (dart.library.ffi) 'native.dart';
