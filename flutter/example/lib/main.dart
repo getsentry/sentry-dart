@@ -490,6 +490,8 @@ class MainScaffold extends StatelessWidget {
       databaseName: 'sentry_in_memory_db',
     );
 
+    // try
+
     final db = AppDatabase(executor);
 
     await db.into(db.todoItems).insert(
