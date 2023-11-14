@@ -1,8 +1,6 @@
 // ignore_for_file: invalid_use_of_internal_member
 
 @TestOn('vm')
-import 'dart:ffi';
-import 'dart:io';
 
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
