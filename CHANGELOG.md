@@ -4,6 +4,7 @@
 
 ### Fixes 
 
+- Flutter renderer information was removed on dart:io platforms since it didn't add the correct value ([#1723](https://github.com/getsentry/sentry-dart/pull/1723))
 - Unsupported types with Expando ([#1690](https://github.com/getsentry/sentry-dart/pull/1690))
 
 ### Features

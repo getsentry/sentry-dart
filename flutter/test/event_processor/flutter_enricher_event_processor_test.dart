@@ -22,7 +22,38 @@ void main() {
       fixture = Fixture();
     });
 
-    testWidgets('flutter context', (WidgetTester tester) async {
+    testWidgets('flutter context on dart:io', (WidgetTester tester) async {
+      if (kIsWeb) {
+        // widget tests don't support onPlatform config
+        // https://pub.dev/packages/test#platform-specific-configuration
+        return;
+      }
+      // These two values need to be changed inside the test,
+      // otherwise the Flutter test framework complains that these
+      // values are changed outside of a test.
+      debugBrightnessOverride = Brightness.dark;
+      debugDefaultTargetPlatformOverride = TargetPlatform.android;
+      final enricher = fixture.getSut(
+        binding: () => tester.binding,
+      );
+
+      final event = await enricher.apply(SentryEvent());
+
+      debugBrightnessOverride = null;
+      debugDefaultTargetPlatformOverride = null;
+
+      final flutterContext = event?.contexts['flutter_context'];
+      expect(flutterContext, isNotNull);
+      expect(flutterContext, isA<Map<String, String>>());
+    }, skip: !kIsWeb);
+
+    testWidgets('flutter context on web', (WidgetTester tester) async {
+      if (!kIsWeb) {
+        // widget tests don't support onPlatform config
+        // https://pub.dev/packages/test#platform-specific-configuration
+        return;
+      }
+
       // These two values need to be changed inside the test,
       // otherwise the Flutter test framework complains that these
       // values are changed outside of a test.

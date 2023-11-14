@@ -19,11 +19,15 @@ void main() {
   });
 
   Future<void> _addScreenshotAttachment(
-      WidgetTester tester, FlutterRenderer renderer, bool added,
-      {int? expectedMaxWidthOrHeight}) async {
+    WidgetTester tester,
+    FlutterRenderer? renderer, {
+    required bool isWeb,
+    required bool added,
+    int? expectedMaxWidthOrHeight,
+  }) async {
     // Run with real async https://stackoverflow.com/a/54021863
     await tester.runAsync(() async {
-      final sut = fixture.getSut(renderer);
+      final sut = fixture.getSut(renderer, isWeb);
 
       await tester.pumpWidget(SentryScreenshotWidget(
           child: Text('Catching Pokémon is a snap!',
@@ -48,55 +52,54 @@ void main() {
     });
   }
 
-  testWidgets('adds screenshot attachment with skia renderer', (tester) async {
-    await _addScreenshotAttachment(tester, FlutterRenderer.skia, true);
+  testWidgets('adds screenshot attachment dart:io', (tester) async {
+    await _addScreenshotAttachment(tester, null, added: true, isWeb: false);
   });
 
   testWidgets('adds screenshot attachment with canvasKit renderer',
       (tester) async {
-    await _addScreenshotAttachment(tester, FlutterRenderer.canvasKit, true);
+    await _addScreenshotAttachment(tester, FlutterRenderer.canvasKit,
+        added: true, isWeb: true);
   });
 
   testWidgets('does not add screenshot attachment with html renderer',
       (tester) async {
-    await _addScreenshotAttachment(tester, FlutterRenderer.html, false);
-  });
-
-  testWidgets('does not add screenshot attachment with unknown renderer',
-      (tester) async {
-    await _addScreenshotAttachment(tester, FlutterRenderer.unknown, false);
+    await _addScreenshotAttachment(tester, FlutterRenderer.html,
+        added: false, isWeb: true);
   });
 
   testWidgets('does add screenshot in correct resolution for low',
       (tester) async {
     final height = SentryScreenshotQuality.low.targetResolution()!;
     fixture.options.screenshotQuality = SentryScreenshotQuality.low;
-    await _addScreenshotAttachment(tester, FlutterRenderer.skia, true,
-        expectedMaxWidthOrHeight: height);
+    await _addScreenshotAttachment(tester, null,
+        added: true, isWeb: false, expectedMaxWidthOrHeight: height);
   });
 
   testWidgets('does add screenshot in correct resolution for medium',
       (tester) async {
     final height = SentryScreenshotQuality.medium.targetResolution()!;
     fixture.options.screenshotQuality = SentryScreenshotQuality.medium;
-    await _addScreenshotAttachment(tester, FlutterRenderer.skia, true,
-        expectedMaxWidthOrHeight: height);
+    await _addScreenshotAttachment(tester, null,
+        added: true, isWeb: false, expectedMaxWidthOrHeight: height);
   });
 
   testWidgets('does add screenshot in correct resolution for high',
       (tester) async {
     final widthOrHeight = SentryScreenshotQuality.high.targetResolution()!;
     fixture.options.screenshotQuality = SentryScreenshotQuality.high;
-    await _addScreenshotAttachment(tester, FlutterRenderer.skia, true,
-        expectedMaxWidthOrHeight: widthOrHeight);
+    await _addScreenshotAttachment(tester, null,
+        added: true, isWeb: false, expectedMaxWidthOrHeight: widthOrHeight);
   });
 }
 
 class Fixture {
   SentryFlutterOptions options = SentryFlutterOptions(dsn: fakeDsn);
 
-  ScreenshotEventProcessor getSut(FlutterRenderer flutterRenderer) {
+  ScreenshotEventProcessor getSut(
+      FlutterRenderer? flutterRenderer, bool isWeb) {
     options.rendererWrapper = MockRendererWrapper(flutterRenderer);
+    options.platformChecker = MockPlatformChecker(isWebValue: isWeb);
     return ScreenshotEventProcessor(options);
   }
 }
