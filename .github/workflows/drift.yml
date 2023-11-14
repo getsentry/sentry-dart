@@ -76,7 +76,7 @@ jobs:
           mkdir -p $HOME/sqlite
           curl -L https://www.sqlite.org/2023/sqlite-dll-win64-x64-3420000.zip -o sqlite.zip
           unzip sqlite.zip -d $HOME/sqlite
-          echo "PATH=\$HOME/sqlite:\$PATH" >> $GITHUB_ENV
+          echo "$HOME/sqlite" >> $GITHUB_ENV
         if: matrix.os == 'windows-latest' && matrix.target == 'windows'
 
       - name: Show SQLite version
