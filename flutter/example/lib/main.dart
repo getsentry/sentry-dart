@@ -489,7 +489,6 @@ class MainScaffold extends StatelessWidget {
       () async => inMemoryExecutor(),
       databaseName: 'sentry_in_memory_db',
     );
-    // remove after
 
     final db = AppDatabase(executor);
 

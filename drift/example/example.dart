@@ -39,6 +39,7 @@ Future<void> runApp() async {
   print(items);
 
   await db.close();
+  // remove after
 
   await tr.finish(status: const SpanStatus.ok());
 }
