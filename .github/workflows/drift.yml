@@ -33,7 +33,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ ubuntu-latest, macos-latest, windows-latest ]
-        target: [ "ios", "android", "macos", "linux" ]
+        target: [ "ios", "android", "macos", "linux", "windows" ]
         sdk: [ "stable", "beta" ]
         exclude:
           - os: ubuntu-latest
