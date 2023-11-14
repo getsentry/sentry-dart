@@ -76,11 +76,9 @@ jobs:
           mkdir -p $HOME/sqlite
           curl -L https://www.sqlite.org/2023/sqlite-dll-win64-x64-3420000.zip -o sqlite.zip
           unzip sqlite.zip -d $HOME/sqlite
-          echo "$HOME/sqlite" >> $GITHUB_ENV
+          echo "PATH=\$HOME/sqlite:\$PATH" >> $GITHUB_ENV
         if: matrix.os == 'windows-latest' && matrix.target == 'windows'
 
-      - name: Show SQLite version
-        run: sqlite3 --version
       # Install required dependencies for Flutter on Linux on Ubuntu
       - name: "Setup Linux"
         run: |
