@@ -16,15 +16,10 @@ import 'package:sqlite3/open.dart';
 
 import 'mocks/mocks.mocks.dart';
 import 'test_database.dart';
-
-DynamicLibrary _openOnWindows() {
-  final scriptDir = File(Platform.script.toFilePath()).parent;
-  final libraryNextToScript = File('${scriptDir.path}/test/sqlite3.dll');
-  return DynamicLibrary.open(libraryNextToScript.path);
-}
+import 'utils/windows_helper.dart';
 
 void main() {
-  open.overrideFor(OperatingSystem.windows, _openOnWindows);
+  open.overrideFor(OperatingSystem.windows, openOnWindows);
 
   final expectedInsertStatement =
       'INSERT INTO "todo_items" ("title", "body") VALUES (?, ?)';
