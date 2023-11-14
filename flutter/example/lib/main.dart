@@ -487,7 +487,7 @@ class MainScaffold extends StatelessWidget {
 
     final executor = SentryQueryExecutor(
       () async => inMemoryExecutor(),
-      databaseName: 'sentry_inmemory_db',
+      databaseName: 'sentry_in_memory_db',
     );
 
     final db = AppDatabase(executor);
