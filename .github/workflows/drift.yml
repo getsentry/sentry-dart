@@ -32,9 +32,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-latest, macos-latest ]
-        target: [ "ios", "android", "macos", "linux" ]
-        sdk: [ "stable", "beta" ]
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        target: ["ios", "android", "macos", "linux", "windows"]
+        sdk: ["stable", "beta"]
         exclude:
           - os: ubuntu-latest
             target: ios
@@ -69,6 +69,17 @@ jobs:
         with:
           java-version: "11"
           distribution: "adopt"
+
+      - name: "Setup Windows"
+        run: |
+          mkdir -p $HOME/sqlite
+          curl -L https://www.sqlite.org/2023/sqlite-dll-win-x64-3440000.zip -o sqlite.zip
+          unzip sqlite.zip -d $HOME/sqlite
+          echo "::add-path::$HOME/sqlite"
+        if: matrix.os == 'windows-latest' && matrix.target == 'windows'
+
+      - name: Show SQLite version
+        run: sqlite3 --version
 
       # Install required dependencies for Flutter on Linux on Ubuntu
       - name: "Setup Linux"
