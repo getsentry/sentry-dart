@@ -3,7 +3,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:drift/native.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -19,6 +18,7 @@ import 'package:universal_platform/universal_platform.dart';
 import 'package:feedback/feedback.dart' as feedback;
 import 'package:provider/provider.dart';
 import 'drift/database.dart';
+import 'drift/connection/connection.dart';
 import 'user_feedback_dialog.dart';
 import 'package:dio/dio.dart';
 import 'package:sentry_dio/sentry_dio.dart';
@@ -153,7 +153,7 @@ class MainScaffold extends StatelessWidget {
           children: [
             if (_isIntegrationTest) const IntegrationTestWidget(),
             const Center(child: Text('Trigger an action:\n')),
-            // For simplicity sake we skip the web set up.
+            // For simplicity sake we skip the web set up for now.
             if (!UniversalPlatform.isWeb)
               ElevatedButton(
                 onPressed: () => driftTest(),
@@ -486,7 +486,7 @@ class MainScaffold extends StatelessWidget {
     );
 
     final executor = SentryQueryExecutor(
-      () => NativeDatabase.memory(),
+      () async => inMemoryExecutor(),
       databaseName: 'sentry_inmemory_db',
     );
 
