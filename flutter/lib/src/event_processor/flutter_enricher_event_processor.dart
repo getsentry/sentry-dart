@@ -132,6 +132,8 @@ class FlutterEnricherEventProcessor implements EventProcessor {
     // ignore: deprecated_member_use
     final hasRenderView = _widgetsBinding?.renderViewElement != null;
 
+    final renderer = _options.rendererWrapper.getRenderer()?.name;
+
     return <String, String>{
       'has_render_view': hasRenderView.toString(),
       if (tempDebugBrightnessOverride != null)
@@ -149,7 +151,7 @@ class FlutterEnricherEventProcessor implements EventProcessor {
       // Also always fails in tests.
       // See https://github.com/flutter/flutter/issues/83919
       // 'window_is_visible': _window.viewConfiguration.visible,
-      'renderer': _options.rendererWrapper.getRenderer().name,
+      if (renderer != null) 'renderer': renderer,
     };
   }
 

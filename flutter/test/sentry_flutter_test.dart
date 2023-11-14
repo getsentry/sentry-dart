@@ -495,7 +495,7 @@ void main() {
       await Sentry.close();
     });
 
-    test('installed with skia renderer', () async {
+    test('installed on io platforms', () async {
       List<Integration> integrations = [];
 
       await SentryFlutter.init(
@@ -505,7 +505,8 @@ void main() {
           integrations = options.integrations;
         },
         appRunner: appRunner,
-        platformChecker: getPlatformChecker(platform: MockPlatform.iOs()),
+        platformChecker:
+            getPlatformChecker(platform: MockPlatform.iOs(), isWeb: false),
         rendererWrapper: MockRendererWrapper(FlutterRenderer.skia),
       );
 
@@ -528,7 +529,8 @@ void main() {
           integrations = options.integrations;
         },
         appRunner: appRunner,
-        platformChecker: getPlatformChecker(platform: MockPlatform.iOs()),
+        platformChecker:
+            getPlatformChecker(platform: MockPlatform.iOs(), isWeb: true),
         rendererWrapper: MockRendererWrapper(FlutterRenderer.canvasKit),
       );
 
@@ -551,31 +553,9 @@ void main() {
           integrations = options.integrations;
         },
         appRunner: appRunner,
-        platformChecker: getPlatformChecker(platform: MockPlatform.iOs()),
+        platformChecker:
+            getPlatformChecker(platform: MockPlatform.iOs(), isWeb: true),
         rendererWrapper: MockRendererWrapper(FlutterRenderer.html),
-      );
-
-      expect(
-          integrations
-              .map((e) => e.runtimeType)
-              .contains(ScreenshotIntegration),
-          false);
-
-      await Sentry.close();
-    }, testOn: 'vm');
-
-    test('not installed with unknown renderer', () async {
-      List<Integration> integrations = [];
-
-      await SentryFlutter.init(
-        (options) async {
-          options.dsn = fakeDsn;
-          options.automatedTestMode = true;
-          integrations = options.integrations;
-        },
-        appRunner: appRunner,
-        platformChecker: getPlatformChecker(platform: MockPlatform.iOs()),
-        rendererWrapper: MockRendererWrapper(FlutterRenderer.unknown),
       );
 
       expect(
