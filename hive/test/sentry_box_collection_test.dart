@@ -120,9 +120,9 @@ void main() {
     // open is static and cannot be mocked
 
     test('throwing openBox', () async {
-      // ignore: inference_failure_on_function_invocation
       when(
-        fixture.mockBoxCollection.openBox(
+        // ignore: inference_failure_on_function_invocation
+      fixture.mockBoxCollection.openBox(
           any,
           preload: anyNamed('preload'),
           boxCreator: anyNamed('boxCreator'),

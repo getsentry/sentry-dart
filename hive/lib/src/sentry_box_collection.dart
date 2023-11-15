@@ -1,4 +1,5 @@
 import 'package:hive/hive.dart';
+import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 
 import 'sentry_span_helper.dart';
@@ -32,6 +33,8 @@ class SentryBoxCollection implements stub.BoxCollection {
     _boxCollection.close();
   }
 
+  /// @nodoc
+  @internal
   void setHub(Hub hub) {
     _spanHelper.setHub(hub);
   }

@@ -20,6 +20,7 @@ analyzer:
     unnecessary_import: ignore
   exclude:
     - example/**
+    - test/mocks/mocks.mocks.dart
 
 linter:
   rules:
