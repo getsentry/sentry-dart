@@ -23,6 +23,7 @@ file/coverage/*
 flutter/coverage/*
 sqflite/coverage/*
 drift/coverage/*
+hive/coverage/*
 
 pubspec.lock
 Podfile.lock
