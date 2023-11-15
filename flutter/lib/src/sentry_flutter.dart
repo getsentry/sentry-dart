@@ -167,8 +167,7 @@ mixin SentryFlutter {
       integrations.add(LoadImageListIntegration(channel));
     }
     final renderer = options.rendererWrapper.getRenderer();
-    if (renderer == FlutterRenderer.skia ||
-        renderer == FlutterRenderer.canvasKit) {
+    if (!platformChecker.isWeb || renderer == FlutterRenderer.canvasKit) {
       integrations.add(ScreenshotIntegration());
     }
 
