@@ -45,6 +45,7 @@ class SentryHiveImpl implements SentryHiveInterface {
 
   @override
   void setHub(Hub hub) {
+    // ignore: invalid_use_of_internal_member
     final options = hub.options;
     options.sdk.addIntegration('SentryHiveTracing');
     options.sdk.addPackage(packageName, sdkVersion);

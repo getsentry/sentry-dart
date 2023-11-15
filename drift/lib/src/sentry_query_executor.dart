@@ -57,6 +57,7 @@ class SentryQueryExecutor extends QueryExecutor {
   })  : _hub = hub ?? HubAdapter(),
         _dbName = databaseName,
         _executor = queryExecutor ?? LazyDatabase(opener) {
+    // ignore: invalid_use_of_internal_member
     final options = _hub.options;
     options.sdk.addIntegration('SentryDriftTracing');
     options.sdk.addPackage(packageName, sdkVersion);

@@ -628,8 +628,8 @@ void main() {
     test('adds package', () {
       expect(
         fixture.options.sdk.packages.any(
-              (element) =>
-          element.name == packageName && element.version == sdkVersion,
+          (element) =>
+              element.name == packageName && element.version == sdkVersion,
         ),
         true,
       );

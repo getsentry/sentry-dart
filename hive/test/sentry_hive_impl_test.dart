@@ -289,7 +289,6 @@ void main() {
     });
 
     test('adds integration', () {
-      print(fixture.options.sdk.integrations.length);
       expect(
         fixture.options.sdk.integrations.contains('SentryHiveTracing'),
         true,
@@ -299,8 +298,8 @@ void main() {
     test('adds package', () {
       expect(
         fixture.options.sdk.packages.any(
-              (element) =>
-          element.name == packageName && element.version == sdkVersion,
+          (element) =>
+              element.name == packageName && element.version == sdkVersion,
         ),
         true,
       );
