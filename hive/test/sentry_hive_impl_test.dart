@@ -46,10 +46,11 @@ void main() {
 
     setUp(() async {
       fixture = Fixture();
-      await fixture.setUp();
 
       when(fixture.hub.options).thenReturn(fixture.options);
       when(fixture.hub.getSpan()).thenReturn(fixture.tracer);
+
+      await fixture.setUp();
     });
 
     tearDown(() async {
@@ -114,11 +115,12 @@ void main() {
 
     setUp(() async {
       fixture = Fixture();
-      await fixture.setUp(injectMockHive: true);
 
       when(fixture.hub.options).thenReturn(fixture.options);
       when(fixture.hub.getSpan()).thenReturn(fixture.tracer);
       when(fixture.mockHive.close()).thenAnswer((_) async => {});
+
+      await fixture.setUp(injectMockHive: true);
     });
 
     test('throwing boxExists adds error span', () async {
