@@ -4,6 +4,8 @@
 
 ### Fixes 
 
+- Fixes setting the correct locale to contexts with navigatorKey ([#1724](https://github.com/getsentry/sentry-dart/pull/1724))
+  - If you have a selected locale in e.g MaterialApp, this fix will retrieve the correct locale for the event context.
 - Flutter renderer information was removed on dart:io platforms since it didn't add the correct value ([#1723](https://github.com/getsentry/sentry-dart/pull/1723))
 - Unsupported types with Expando ([#1690](https://github.com/getsentry/sentry-dart/pull/1690))
 

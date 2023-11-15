@@ -107,7 +107,9 @@ class FlutterEnricherEventProcessor implements EventProcessor {
   }
 
   SentryCulture _getCulture(SentryCulture? culture) {
-    final languageTag = _window?.locale.toLanguageTag();
+    final windowLanguageTag = _window?.locale.toLanguageTag();
+    final screenLocale = _retrieveWidgetLocale(_options.navigatorKey);
+    final languageTag = screenLocale?.toLanguageTag() ?? windowLanguageTag;
 
     // Future enhancement:
     // _window?.locales
@@ -255,5 +257,13 @@ class FlutterEnricherEventProcessor implements EventProcessor {
     } else {
       return app;
     }
+  }
+
+  Locale? _retrieveWidgetLocale(GlobalKey<NavigatorState>? navigatorKey) {
+    final BuildContext? context = navigatorKey?.currentContext;
+    if (context != null) {
+      return Localizations.maybeLocaleOf(context);
+    }
+    return null;
   }
 }

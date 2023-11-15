@@ -1,9 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+
 // backcompatibility for Flutter < 3.3
 // ignore: unnecessary_import
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -102,6 +104,38 @@ void main() {
 
       expect(culture?.is24HourFormat, isNotNull);
       expect(culture?.timezone, isNotNull);
+    });
+
+    testWidgets(
+        'GIVEN MaterialApp WHEN setting locale and sentryNavigatorKey THEN enrich event culture with selected locale',
+        (WidgetTester tester) async {
+      GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
+      await tester.pumpWidget(MaterialApp(
+        navigatorKey: navigatorKey,
+        home: Material(),
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: const [
+          Locale('en', 'US'),
+          Locale('de', 'DE'),
+        ],
+        locale: const Locale('de', 'DE'),
+      ));
+
+      final enricher = fixture.getSut(
+        binding: () => tester.binding,
+        optionsBuilder: (options) {
+          options.navigatorKey = navigatorKey;
+          return options;
+        },
+      );
+
+      final event = await enricher.apply(SentryEvent());
+
+      expect(event?.contexts.culture?.locale, 'de-DE');
     });
 
     testWidgets('app context in foreground', (WidgetTester tester) async {
@@ -380,16 +414,19 @@ class Fixture {
     PlatformChecker? checker,
     bool hasNativeIntegration = false,
     bool reportPackages = true,
+    SentryFlutterOptions Function(SentryFlutterOptions)? optionsBuilder,
   }) {
     final platformChecker = checker ??
         MockPlatformChecker(
           hasNativeIntegration: hasNativeIntegration,
         );
+
     final options = SentryFlutterOptions(
       dsn: fakeDsn,
       checker: platformChecker,
     )..reportPackages = reportPackages;
-    return FlutterEnricherEventProcessor(options);
+    final customizedOptions = optionsBuilder?.call(options) ?? options;
+    return FlutterEnricherEventProcessor(customizedOptions);
   }
 
   PageRoute<dynamic> route(RouteSettings? settings) => PageRouteBuilder<void>(

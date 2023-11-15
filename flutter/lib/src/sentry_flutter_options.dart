@@ -286,4 +286,7 @@ class SentryFlutterOptions extends SentryOptions {
     // ignore: invalid_use_of_internal_member
     super.profilesSampleRate = value;
   }
+
+  /// The [navigatorKey] is used to add information of the currently used locale to the contexts.
+  GlobalKey<NavigatorState>? navigatorKey;
 }
