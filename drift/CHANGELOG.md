@@ -1,28 +1,5 @@
 # Changelog
 
-## Unreleased
-
-### Fixes 
-
-- Flutter renderer information was removed on dart:io platforms since it didn't add the correct value ([#1723](https://github.com/getsentry/sentry-dart/pull/1723))
-- Unsupported types with Expando ([#1690](https://github.com/getsentry/sentry-dart/pull/1690))
-
-### Features
-
-- Add APM integration for Drift ([#1709](https://github.com/getsentry/sentry-dart/pull/1709))
-- StackTraces in `PlatformException.message` will get nicely formatted too when present ([#1716](https://github.com/getsentry/sentry-dart/pull/1716))
-- Breadcrumbs for database operations ([#1656](https://github.com/getsentry/sentry-dart/pull/1656))
-- Add `attachScreenshotOnlyWhenResumed` to options ([#1700](https://github.com/getsentry/sentry-dart/pull/1700))
-
-### Dependencies
-
-- Bump Android SDK from v6.32.0 to v6.33.1 ([#1710](https://github.com/getsentry/sentry-dart/pull/1710), [#1713](https://github.com/getsentry/sentry-dart/pull/1713))
-  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#6331)
-  - [diff](https://github.com/getsentry/sentry-java/compare/6.32.0...6.33.1)
-- Bump Cocoa SDK from v8.14.2 to v8.15.2 ([#1712](https://github.com/getsentry/sentry-dart/pull/1712), [#1714](https://github.com/getsentry/sentry-dart/pull/1714), [#1717](https://github.com/getsentry/sentry-dart/pull/1717))
-  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8152)
-  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.14.2...8.15.2)
-
 ## 7.12.0
 
 ### Enhancements
@@ -33,8 +10,6 @@
 ### Features
 
 - Initial (alpha) support for profiling on iOS and macOS ([#1611](https://github.com/getsentry/sentry-dart/pull/1611))
-- Add `SentryNavigatorObserver` current route to `event.app.contexts.viewNames` ([#1545](https://github.com/getsentry/sentry-dart/pull/1545))
-  - Requires relay version [23.9.0](https://github.com/getsentry/relay/blob/master/CHANGELOG.md#2390) for self-hosted instances
 
 ## 7.11.0
 

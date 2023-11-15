@@ -11,6 +11,7 @@ on:
       - "flutter/**"
       - "dio/**"
       - "sqflite/**"
+      - "drift/**"
 
 jobs:
   cancel-previous-workflow:
