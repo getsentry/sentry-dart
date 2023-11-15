@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:hive/hive.dart';
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
+import 'version.dart';
 import 'sentry_box.dart';
 import 'sentry_lazy_box.dart';
 import 'sentry_hive_interface.dart';
@@ -44,6 +45,10 @@ class SentryHiveImpl implements SentryHiveInterface {
 
   @override
   void setHub(Hub hub) {
+    // ignore: invalid_use_of_internal_member
+    final options = hub.options;
+    options.sdk.addIntegration('SentryHiveTracing');
+    options.sdk.addPackage(packageName, sdkVersion);
     _hub = hub;
     _spanHelper.setHub(hub);
   }

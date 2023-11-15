@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Fixes release of drift & hive and adds missing integration & sdk version information in the hub options ([#1729](https://github.com/getsentry/sentry-dart/pull/1729))
+
 ## 7.13.0
 
 ### Fixes 

@@ -4,6 +4,7 @@ import 'package:drift/backends.dart';
 import 'package:drift/drift.dart';
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
+import 'version.dart';
 import 'sentry_span_helper.dart';
 import 'sentry_transaction_executor.dart';
 
@@ -56,6 +57,10 @@ class SentryQueryExecutor extends QueryExecutor {
   })  : _hub = hub ?? HubAdapter(),
         _dbName = databaseName,
         _executor = queryExecutor ?? LazyDatabase(opener) {
+    // ignore: invalid_use_of_internal_member
+    final options = _hub.options;
+    options.sdk.addIntegration('SentryDriftTracing');
+    options.sdk.addPackage(packageName, sdkVersion);
     _spanHelper.setHub(_hub);
   }
 
