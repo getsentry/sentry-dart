@@ -122,7 +122,7 @@ void main() {
     test('throwing openBox', () async {
       when(
         // ignore: inference_failure_on_function_invocation
-      fixture.mockBoxCollection.openBox(
+        fixture.mockBoxCollection.openBox(
           any,
           preload: anyNamed('preload'),
           boxCreator: anyNamed('boxCreator'),
