@@ -9,6 +9,7 @@ import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry_hive/src/sentry_box.dart';
 import 'package:sentry_hive/src/sentry_hive_impl.dart';
 import 'package:sentry_hive/src/sentry_lazy_box.dart';
+import 'package:sentry_hive/src/version.dart';
 import 'package:test/test.dart';
 
 import 'mocks/mocks.mocks.dart';
@@ -267,6 +268,41 @@ void main() {
         'openLazyBox',
         fixture.getCreatedSpan(),
         fixture.exception,
+      );
+    });
+  });
+
+  group('integrations', () {
+    late Fixture fixture;
+
+    setUp(() async {
+      fixture = Fixture();
+
+      when(fixture.hub.options).thenReturn(fixture.options);
+      when(fixture.hub.getSpan()).thenReturn(fixture.tracer);
+
+      await fixture.setUp();
+    });
+
+    tearDown(() async {
+      await fixture.tearDown();
+    });
+
+    test('adds integration', () {
+      print(fixture.options.sdk.integrations.length);
+      expect(
+        fixture.options.sdk.integrations.contains('SentryHiveTracing'),
+        true,
+      );
+    });
+
+    test('adds package', () {
+      expect(
+        fixture.options.sdk.packages.any(
+              (element) =>
+          element.name == packageName && element.version == sdkVersion,
+        ),
+        true,
       );
     });
   });

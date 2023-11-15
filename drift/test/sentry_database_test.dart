@@ -10,6 +10,7 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry_drift/src/sentry_query_executor.dart';
 import 'package:sentry_drift/src/sentry_transaction_executor.dart';
+import 'package:sentry_drift/src/version.dart';
 import 'package:sqlite3/open.dart';
 
 import 'mocks/mocks.mocks.dart';
@@ -118,10 +119,11 @@ void main() {
 
     setUp(() async {
       fixture = Fixture();
-      await fixture.setUp();
 
       when(fixture.hub.options).thenReturn(fixture.options);
       when(fixture.hub.getSpan()).thenReturn(fixture.tracer);
+
+      await fixture.setUp();
     });
 
     tearDown(() async {
@@ -375,10 +377,11 @@ void main() {
 
     setUp(() async {
       fixture = Fixture();
-      await fixture.setUp();
 
       when(fixture.hub.options).thenReturn(fixture.options);
       when(fixture.hub.getSpan()).thenReturn(fixture.tracer);
+
+      await fixture.setUp();
     });
 
     tearDown(() async {
@@ -410,12 +413,13 @@ void main() {
 
     setUp(() async {
       fixture = Fixture();
-      await fixture.setUp(injectMock: true);
 
       when(fixture.hub.options).thenReturn(fixture.options);
       when(fixture.hub.getSpan()).thenReturn(fixture.tracer);
       when(fixture.mockLazyDatabase.ensureOpen(any))
           .thenAnswer((_) => Future.value(true));
+
+      await fixture.setUp(injectMock: true);
     });
 
     tearDown(() async {
@@ -594,6 +598,40 @@ void main() {
         expectedDeleteStatement,
         fixture.exception,
         fixture.getCreatedSpan(),
+      );
+    });
+  });
+
+  group('integrations', () {
+    late Fixture fixture;
+
+    setUp(() async {
+      fixture = Fixture();
+
+      when(fixture.hub.options).thenReturn(fixture.options);
+      when(fixture.hub.getSpan()).thenReturn(fixture.tracer);
+
+      await fixture.setUp();
+    });
+
+    tearDown(() async {
+      await fixture.tearDown();
+    });
+
+    test('adds integration', () {
+      expect(
+        fixture.options.sdk.integrations.contains('SentryDriftTracing'),
+        true,
+      );
+    });
+
+    test('adds package', () {
+      expect(
+        fixture.options.sdk.packages.any(
+              (element) =>
+          element.name == packageName && element.version == sdkVersion,
+        ),
+        true,
       );
     });
   });
