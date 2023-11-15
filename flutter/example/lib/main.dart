@@ -8,14 +8,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:logging/logging.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:sentry_drift/sentry_drift.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_sqflite/sentry_sqflite.dart';
 import 'package:sqflite/sqflite.dart';
+
 // import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 // import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 import 'package:universal_platform/universal_platform.dart';
 import 'package:feedback/feedback.dart' as feedback;
 import 'package:provider/provider.dart';
+import 'drift/database.dart';
+import 'drift/connection/connection.dart';
 import 'user_feedback_dialog.dart';
 import 'package:dio/dio.dart';
 import 'package:sentry_dio/sentry_dio.dart';
@@ -151,6 +155,12 @@ class MainScaffold extends StatelessWidget {
           children: [
             if (_isIntegrationTest) const IntegrationTestWidget(),
             const Center(child: Text('Trigger an action:\n')),
+            // For simplicity sake we skip the web set up for now.
+            if (!UniversalPlatform.isWeb)
+              ElevatedButton(
+                onPressed: () => driftTest(),
+                child: const Text('drift'),
+              ),
             ElevatedButton(
               onPressed: () => hiveTest(),
               child: const Text('hive'),
@@ -493,6 +503,34 @@ class MainScaffold extends StatelessWidget {
     // final batch = db.batch();
     // batch.delete('Product', where: 'title = ?', whereArgs: dbTitles);
     // await batch.commit();
+
+    await db.close();
+
+    await tr.finish(status: const SpanStatus.ok());
+  }
+
+  Future<void> driftTest() async {
+    final tr = Sentry.startTransaction(
+      'driftTest',
+      'db',
+      bindToScope: true,
+    );
+
+    final executor = SentryQueryExecutor(
+      () async => inMemoryExecutor(),
+      databaseName: 'sentry_in_memory_db',
+    );
+
+    final db = AppDatabase(executor);
+
+    await db.into(db.todoItems).insert(
+          TodoItemsCompanion.insert(
+            title: 'This is a test thing',
+            content: 'test',
+          ),
+        );
+
+    await db.select(db.todoItems).get();
 
     await db.close();
 

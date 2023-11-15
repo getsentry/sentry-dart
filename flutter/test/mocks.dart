@@ -396,10 +396,10 @@ class MockNativeChannel implements SentryNativeBinding {
 class MockRendererWrapper implements RendererWrapper {
   MockRendererWrapper(this._renderer);
 
-  final FlutterRenderer _renderer;
+  final FlutterRenderer? _renderer;
 
   @override
-  FlutterRenderer getRenderer() {
+  FlutterRenderer? getRenderer() {
     return _renderer;
   }
 }

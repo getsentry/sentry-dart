@@ -12,6 +12,7 @@ on:
       - "file/**"
       - "sqflite/**"
       - "hive/**"
+      - "drift/**"
 
 jobs:
   cancel-previous-workflow:
@@ -201,6 +202,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       # To recreate baseline run: detekt -i flutter/android,flutter/example/android -b flutter/config/detekt-bl.xml -cb
-      - uses: natiginfo/action-detekt-all@be3c18799c7c392b2f41a674beed9ced7ae2f21b # pin@1.23.1
+      - uses: natiginfo/action-detekt-all@68eb02dd9f2c2686d5026f5957756064424261a9 # pin@1.23.3
         with:
           args: -i flutter/android,flutter/example/android --baseline flutter/config/detekt-bl.xml --jvm-target 1.8 --build-upon-default-config --all-rules

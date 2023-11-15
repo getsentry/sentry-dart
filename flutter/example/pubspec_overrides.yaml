@@ -13,3 +13,5 @@ dependency_overrides:
     path: ../../file
   sentry_hive:
     path: ../../hive
+  sentry_drift:
+    path: ../../drift

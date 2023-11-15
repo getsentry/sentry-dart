@@ -1,4 +1,4 @@
-name: sentry-sqflite
+name: sentry-drift
 on:
   push:
     branches:
@@ -11,8 +11,7 @@ on:
       - "flutter/**"
       - "dio/**"
       - "file/**"
-      - "hive/**"
-      - "drift/**"
+      - "sqflite/**"
 
 jobs:
   cancel-previous-workflow:
@@ -33,7 +32,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest]
         target: ["ios", "android", "macos", "linux", "windows"]
         sdk: ["stable", "beta"]
         exclude:
@@ -79,7 +78,7 @@ jobs:
           sudo apt install -y network-manager upower
         if: matrix.os == 'ubuntu-latest' && matrix.target == 'linux'
 
-      - uses: subosito/flutter-action@2783a3f08e1baf891508463f8c6653c258246225 # pin@v2.12.0
+      - uses: subosito/flutter-action@48cafc24713cca54bbe03cdc3a423187d413aafa # pin@v2.10.0
         with:
           channel: ${{ matrix.sdk }}
 
@@ -87,29 +86,29 @@ jobs:
 
       - name: Pub Get
         run: |
-          cd sqflite
+          cd drift
           flutter pub get
 
       - name: Test VM with coverage
         run: |
-          cd sqflite
+          cd drift
           flutter test --coverage --test-randomize-ordering-seed=random
 
       - uses: codecov/codecov-action@eaaf4bedf32dbdc6b720b63067d99c4d77d6047d # pin@v3
         if: runner.os == 'Linux' && matrix.sdk == 'stable' && matrix.target == 'linux'
         with:
-          name: sentry_sqflite
-          file: ./sqflite/coverage/lcov.info
+          name: sentry_drift
+          file: ./drift/coverage/lcov.info
           functionalities: "search" # remove after https://github.com/codecov/codecov-action/issues/600
 
       - uses: VeryGoodOpenSource/very_good_coverage@e5c91bc7ce9843e87c800b3bcafdfb86fbe28491 # pin@v2.1.0
         if: runner.os == 'Linux' && matrix.sdk == 'stable' && matrix.target == 'linux'
         with:
-          path: "./sqflite/coverage/lcov.info"
+          path: "./drift/coverage/lcov.info"
           min_coverage: 80
 
   analyze:
     uses: ./.github/workflows/analyze.yml
     with:
-      package: sqflite
+      package: drift
       sdk: flutter
