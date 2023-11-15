@@ -43,6 +43,10 @@ jobs:
         working-directory: ./logging
         run: lakos . -i "{test/**,example/**}" | dot -Tsvg -o class-diagram.svg
 
+      - name: hive
+        working-directory: ./hive
+        run: lakos . -i "{test/**,example/**}" | dot -Tsvg -o class-diagram.svg
+
         # Source: https://stackoverflow.com/a/58035262
       - name: Extract branch name
         shell: bash

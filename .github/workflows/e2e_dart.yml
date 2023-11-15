@@ -12,6 +12,7 @@ on:
       - "flutter/**"
       - "file/**"
       - "sqflite/**"
+      - "hive/**"
       - "drift/**"
 
 env:

@@ -11,6 +11,7 @@ on:
       - "flutter/**"
       - "dio/**"
       - "file/**"
+      - "hive/**"
       - "drift/**"
 
 jobs:

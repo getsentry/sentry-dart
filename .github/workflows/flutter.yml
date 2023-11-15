@@ -11,6 +11,7 @@ on:
       - "dio/**"
       - "file/**"
       - "sqflite/**"
+      - "hive/**"
       - "drift/**"
 
 jobs:

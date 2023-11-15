@@ -11,6 +11,7 @@ on:
       - "flutter/**"
       - "file/**"
       - "sqflite/**"
+      - "hive/**"
       - "drift/**"
 
 jobs:

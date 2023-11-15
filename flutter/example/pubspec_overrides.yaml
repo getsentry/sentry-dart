@@ -11,5 +11,7 @@ dependency_overrides:
     path: ../../sqflite
   sentry_file:
     path: ../../file
+  sentry_hive:
+    path: ../../hive
   sentry_drift:
     path: ../../drift
