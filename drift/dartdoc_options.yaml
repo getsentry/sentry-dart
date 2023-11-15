@@ -1,3 +1,1 @@
-dartdoc:
-  errors:
-    - unresolved-doc-reference
+../dart/dartdoc_options.yaml
