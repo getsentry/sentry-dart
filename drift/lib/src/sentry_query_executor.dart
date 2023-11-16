@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:drift/backends.dart';
 import 'package:drift/drift.dart';
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';

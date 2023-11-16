@@ -139,16 +139,15 @@ class FlutterEnricherEventProcessor implements EventProcessor {
     return <String, String>{
       'has_render_view': hasRenderView.toString(),
       if (tempDebugBrightnessOverride != null)
-        'debug_brightness_override': describeEnum(tempDebugBrightnessOverride),
+        'debug_brightness_override': tempDebugBrightnessOverride.name,
       if (debugPlatformOverride != null)
-        'debug_default_target_platform_override':
-            describeEnum(debugPlatformOverride),
+        'debug_default_target_platform_override': debugPlatformOverride.name,
       if (initialLifecycleState != null && initialLifecycleState.isNotEmpty)
         'initial_lifecycle_state': initialLifecycleState,
       if (defaultRouteName != null && defaultRouteName.isNotEmpty)
         'default_route_name': defaultRouteName,
       if (currentLifecycle != null)
-        'current_lifecycle_state': describeEnum(currentLifecycle),
+        'current_lifecycle_state': currentLifecycle.name,
       // Seems to always return false.
       // Also always fails in tests.
       // See https://github.com/flutter/flutter/issues/83919
