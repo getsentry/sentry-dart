@@ -8,6 +8,14 @@
 Sentry integration for `drift` package
 ===========
 
+| package     | build                                                                                                                                                                             | pub                                                                                                  | likes                                                                                                | popularity                                                                                                     | pub points |
+|-------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------| ------- |
+| sentry_drift | [![build](https://github.com/getsentry/sentry-dart/workflows/sentry-drift/badge.svg?branch=main)](https://github.com/getsentry/sentry-dart/actions?query=workflow%3Asentry-drift) | [![pub package](https://img.shields.io/pub/v/sentry_drift.svg)](https://pub.dev/packages/sentry_drift) | [![likes](https://img.shields.io/pub/likes/sentry_drift)](https://pub.dev/packages/sentry_drift/score) | [![popularity](https://img.shields.io/pub/popularity/sentry_drift)](https://pub.dev/packages/sentry_drift/score) | [![pub points](https://img.shields.io/pub/points/sentry_drift)](https://pub.dev/packages/sentry_drift/score)
+
+Integration for the [`drift`](https://pub.dev/packages/drift) package.
+
+#### Usage
+
 - Sign up for a Sentry.io account and get a DSN at https://sentry.io.
 
 - Follow the installing instructions on [pub.dev](https://pub.dev/packages/sentry/install).
@@ -22,7 +30,7 @@ import 'package:drift/native.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry_drift/sentry_drift.dart';
 
-import '../test/test_database.dart';
+import 'your_database.dart';
 
 Future<void> main() async {
   // ATTENTION: Change the DSN below with your own to see the events in Sentry. Get one at sentry.io
