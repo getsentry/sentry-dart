@@ -27,6 +27,10 @@ This page serves as a checklist of what to do when releasing a new package for t
 
 - [ ] In the root `.gitignore` file add the package coverage as ignored.
 
+The `analyze` workflow will fail in your PR and in the main branch because the package is not released yet and the `pubspec.yaml` is not 'valid' according to the analyzer.
+This is expected - it will succeed after the release.
+- [ ] Make sure the analyze workflow doesn't have other failures, only the one mentioned above.
+
 - [ ] **The most important**: add your package to `scripts/bump-version.sh`.
 
 ## Doing the Release
