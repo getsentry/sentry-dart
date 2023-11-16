@@ -14,13 +14,16 @@ This page serves as a checklist of what to do when releasing a new package for t
     - [ ] The package contains a pubspec.yaml file
     - [ ] The package contains a analysis_options.yaml file
 
+- [ ] Update the [Flutter example](https://github.com/getsentry/sentry-dart/tree/main/flutter/example) to use your new package if applicable
+
 - [ ] Make sure your new package has a `version.dart` in the `lib/src` folder.
     - This is used to set the version and package in the `Hub`. See this [example](https://github.com/getsentry/sentry-dart/blob/8609bd8dd7ea572e5d241a59643c7570e5621bda/sqflite/lib/src/sentry_database.dart#L69).
     - The version will be updated to the newest version after triggering the release process.
 
-- [ ] Create a new workflow called `package-name.yml` for building and testing the package.
+- [ ] Create a new workflow called `your-package-name.yml` for building and testing the package.
 
-- [ ] Other than your `package-name.yml`, add the package to the `paths-ignore` section of all package workflow files.
+- [ ] Excluding `your-package-name.yml`, add the package to the `paths-ignore` section of all package workflow files.
+  - For examples see `sqflite.yml`, `dio.yml` etc...
 
 - [ ] In the root `.gitignore` file add the package coverage as ignored.
 
