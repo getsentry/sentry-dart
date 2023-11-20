@@ -24,10 +24,10 @@ class SentrySpanHelper {
   /// @nodoc
   @internal
   Future<T> asyncWrapInSpan<T>(
-      String description,
-      Future<T> Function() execute, {
-        String? dbName,
-      }) async {
+    String description,
+    Future<T> Function() execute, {
+    String? dbName,
+  }) async {
     final currentSpan = _hub.getSpan();
     final span = currentSpan?.startChild(
       SentryIsar.dbOp,

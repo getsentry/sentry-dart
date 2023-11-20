@@ -8,7 +8,6 @@ import 'sentry_span_helper.dart';
 /// Sentry wrapper around IsarCollection
 @experimental
 class SentryIsarCollection<OBJ> implements IsarCollection<OBJ> {
-
   final IsarCollection<OBJ> _isarCollection;
   final Hub _hub;
   final _spanHelper = SentrySpanHelper(
@@ -32,15 +31,15 @@ class SentryIsarCollection<OBJ> implements IsarCollection<OBJ> {
     String? property,
   }) {
     return _isarCollection.buildQuery(
-        whereClauses: whereClauses,
-        whereDistinct: whereDistinct,
-        whereSort: whereSort,
-        filter: filter,
-        sortBy: sortBy,
-        distinctBy: distinctBy,
-        offset: offset,
-        limit: limit,
-        property: property,
+      whereClauses: whereClauses,
+      whereDistinct: whereDistinct,
+      whereSort: whereSort,
+      filter: filter,
+      sortBy: sortBy,
+      distinctBy: distinctBy,
+      offset: offset,
+      limit: limit,
+      property: property,
     );
   }
 
@@ -165,7 +164,8 @@ class SentryIsarCollection<OBJ> implements IsarCollection<OBJ> {
   }
 
   @override
-  Future<int> getSize({bool includeIndexes = false, bool includeLinks = false}) {
+  Future<int> getSize(
+      {bool includeIndexes = false, bool includeLinks = false}) {
     return _spanHelper.asyncWrapInSpan('getSize', () {
       return _isarCollection.getSize(
         includeIndexes: includeIndexes,
@@ -239,11 +239,12 @@ class SentryIsarCollection<OBJ> implements IsarCollection<OBJ> {
   }
 
   @override
-  List<Id> putAllByIndexSync(String indexName, List<OBJ> objects, {bool saveLinks = true}) {
+  List<Id> putAllByIndexSync(String indexName, List<OBJ> objects,
+      {bool saveLinks = true}) {
     return _isarCollection.putAllByIndexSync(
-        indexName,
-        objects,
-        saveLinks: saveLinks,
+      indexName,
+      objects,
+      saveLinks: saveLinks,
     );
   }
 
@@ -262,8 +263,9 @@ class SentryIsarCollection<OBJ> implements IsarCollection<OBJ> {
   @override
   Id putByIndexSync(String indexName, OBJ object, {bool saveLinks = true}) {
     return _isarCollection.putByIndexSync(
-        indexName, object,
-        saveLinks: saveLinks,
+      indexName,
+      object,
+      saveLinks: saveLinks,
     );
   }
 
@@ -288,7 +290,8 @@ class SentryIsarCollection<OBJ> implements IsarCollection<OBJ> {
   @override
   @visibleForTesting
   @experimental
-  Future<void> verifyLink(String linkName, List<int> sourceIds, List<int> targetIds) {
+  Future<void> verifyLink(
+      String linkName, List<int> sourceIds, List<int> targetIds) {
     return _spanHelper.asyncWrapInSpan('verifyLink', () {
       // ignore: invalid_use_of_visible_for_testing_member
       return _isarCollection.verifyLink(linkName, sourceIds, targetIds);
@@ -307,11 +310,13 @@ class SentryIsarCollection<OBJ> implements IsarCollection<OBJ> {
 
   @override
   Stream<void> watchObjectLazy(Id id, {bool fireImmediately = false}) {
-    return _isarCollection.watchObjectLazy(id, fireImmediately: fireImmediately);
+    return _isarCollection.watchObjectLazy(id,
+        fireImmediately: fireImmediately);
   }
 
   @override
-  QueryBuilder<OBJ, OBJ, QWhere> where({bool distinct = false, Sort sort = Sort.asc}) {
+  QueryBuilder<OBJ, OBJ, QWhere> where(
+      {bool distinct = false, Sort sort = Sort.asc}) {
     return _isarCollection.where(distinct: distinct, sort: sort);
   }
 }

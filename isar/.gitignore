@@ -12,3 +12,9 @@ pubspec.lock
 .pub-cache/
 .pub/
 /build/
+
+# Created by build runner
+test/person.g.dart
+
+# Downloaded on demand by tests for correct architecture.
+libisar.dylib

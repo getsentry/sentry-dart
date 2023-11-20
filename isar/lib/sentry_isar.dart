@@ -1,4 +1,5 @@
 library sentry_isar;
+
 import 'package:isar/isar.dart';
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
@@ -9,7 +10,6 @@ import 'sentry_span_helper.dart';
 /// A sentry wrapper around the Isar Database
 @experimental
 class SentryIsar implements Isar {
-
   @internal
   // ignore: public_member_api_docs
   static const dbOp = 'db';
@@ -33,48 +33,62 @@ class SentryIsar implements Isar {
   );
 
   /// ctor of SentryIsar
-  SentryIsar(this._isar, this._hub);
+  SentryIsar(this._isar, this._hub) {
+    _spanHelper.setHub(_hub);
+  }
 
   /// Open a new Isar instance, wrapped by SentryIsar
   static Future<Isar> open(
-      List<CollectionSchema<dynamic>> schemas, {
-        required String directory,
-        String name = Isar.defaultName,
-        int maxSizeMiB = Isar.defaultMaxSizeMiB,
-        bool relaxedDurability = true,
-        CompactCondition? compactOnLaunch,
-        bool inspector = true,
-        Hub? hub,
-      }
-  ) async {
-    final isar = await Isar.open(
-      schemas,
-      directory: directory,
-      name: name,
-      maxSizeMiB: maxSizeMiB,
-      relaxedDurability: relaxedDurability,
-      compactOnLaunch: compactOnLaunch,
-      inspector: inspector,
+    List<CollectionSchema<dynamic>> schemas, {
+    required String directory,
+    String name = Isar.defaultName,
+    int maxSizeMiB = Isar.defaultMaxSizeMiB,
+    bool relaxedDurability = true,
+    CompactCondition? compactOnLaunch,
+    bool inspector = true,
+    Hub? hub,
+  }) async {
+    final spanHelper = SentrySpanHelper(
+      // ignore: invalid_use_of_internal_member
+      SentryTraceOrigins.autoDbIsar,
     );
-    return SentryIsar(isar, hub ?? HubAdapter());
+    final hubToUse = hub ?? HubAdapter();
+    spanHelper.setHub(hubToUse);
+
+    final isar = await spanHelper.asyncWrapInSpan(
+      'open',
+      () async {
+        return await Isar.open(
+          schemas,
+          directory: directory,
+          name: name,
+          maxSizeMiB: maxSizeMiB,
+          relaxedDurability: relaxedDurability,
+          compactOnLaunch: compactOnLaunch,
+          inspector: inspector,
+        );
+      },
+      dbName: name,
+    );
+
+    return SentryIsar(isar, hubToUse);
   }
 
   /// Open a new Isar instance, wrapped by SentryIsar
   static Isar openSync(
     List<CollectionSchema<dynamic>> schemas, {
-      required String directory,
-      String name = Isar.defaultName,
-      int maxSizeMiB = Isar.defaultMaxSizeMiB,
-      bool relaxedDurability = true,
-      CompactCondition? compactOnLaunch,
-      bool inspector = true,
-      Hub? hub,
-    }
-  ) {
+    required String directory,
+    String name = Isar.defaultName,
+    int maxSizeMiB = Isar.defaultMaxSizeMiB,
+    bool relaxedDurability = true,
+    CompactCondition? compactOnLaunch,
+    bool inspector = true,
+    Hub? hub,
+  }) {
     final isar = Isar.openSync(
       schemas,
       directory: directory,
-        name: name,
+      name: name,
       maxSizeMiB: maxSizeMiB,
       relaxedDurability: relaxedDurability,
       compactOnLaunch: compactOnLaunch,
@@ -90,9 +104,13 @@ class SentryIsar implements Isar {
 
   @override
   Future<void> clear() {
-    return _spanHelper.asyncWrapInSpan('clear', () {
-      return _isar.clear();
-    });
+    return _spanHelper.asyncWrapInSpan(
+      'clear',
+      () {
+        return _isar.clear();
+      },
+      dbName: name,
+    );
   }
 
   @override
@@ -102,9 +120,13 @@ class SentryIsar implements Isar {
 
   @override
   Future<bool> close({bool deleteFromDisk = false}) {
-    return _spanHelper.asyncWrapInSpan('close', () {
-      return _isar.close(deleteFromDisk: deleteFromDisk);
-    });
+    return _spanHelper.asyncWrapInSpan(
+      'close',
+      () {
+        return _isar.close(deleteFromDisk: deleteFromDisk);
+      },
+      dbName: name,
+    );
   }
 
   @override
@@ -114,9 +136,13 @@ class SentryIsar implements Isar {
 
   @override
   Future<void> copyToFile(String targetPath) {
-    return _spanHelper.asyncWrapInSpan('copyToFile', () {
-      return _isar.copyToFile(targetPath);
-    });
+    return _spanHelper.asyncWrapInSpan(
+      'copyToFile',
+      () {
+        return _isar.copyToFile(targetPath);
+      },
+      dbName: name,
+    );
   }
 
   @override
@@ -133,13 +159,18 @@ class SentryIsar implements Isar {
   }
 
   @override
-  Future<int> getSize({bool includeIndexes = false, bool includeLinks = false}) {
-    return _spanHelper.asyncWrapInSpan('getSize', () {
-      return _isar.getSize(
-        includeIndexes: includeIndexes,
-        includeLinks: includeLinks,
-      );
-    });
+  Future<int> getSize(
+      {bool includeIndexes = false, bool includeLinks = false}) {
+    return _spanHelper.asyncWrapInSpan(
+      'getSize',
+      () {
+        return _isar.getSize(
+          includeIndexes: includeIndexes,
+          includeLinks: includeLinks,
+        );
+      },
+      dbName: name,
+    );
   }
 
   @override
@@ -166,9 +197,13 @@ class SentryIsar implements Isar {
 
   @override
   Future<T> txn<T>(Future<T> Function() callback) {
-    return _spanHelper.asyncWrapInSpan('txn', () {
-      return _isar.txn(callback);
-    });
+    return _spanHelper.asyncWrapInSpan(
+      'txn',
+      () {
+        return _isar.txn(callback);
+      },
+      dbName: name,
+    );
   }
 
   @override
@@ -180,17 +215,25 @@ class SentryIsar implements Isar {
   @visibleForTesting
   @experimental
   Future<void> verify() {
-    return _spanHelper.asyncWrapInSpan('verify', () {
-      // ignore: invalid_use_of_visible_for_testing_member
-      return _isar.verify();
-    });
+    return _spanHelper.asyncWrapInSpan(
+      'verify',
+      () {
+        // ignore: invalid_use_of_visible_for_testing_member
+        return _isar.verify();
+      },
+      dbName: name,
+    );
   }
 
   @override
   Future<T> writeTxn<T>(Future<T> Function() callback, {bool silent = false}) {
-    return _spanHelper.asyncWrapInSpan('writeTxn', () {
-      return _isar.writeTxn(callback, silent: silent);
-    });
+    return _spanHelper.asyncWrapInSpan(
+      'writeTxn',
+      () {
+        return _isar.writeTxn(callback, silent: silent);
+      },
+      dbName: name,
+    );
   }
 
   @override
