@@ -20,4 +20,11 @@ class SentryTraceOrigins {
       'auto.db.sqflite.database_factory';
   static const autoDbIsar = 'auto.db.isar';
   static const autoDbIsarCollection = 'auto.db.isar.collection';
+  static const autoDbHive = 'auto.db.hive';
+  static const autoDbHiveBoxBase = 'auto.db.hive.box_base';
+  static const autoDbHiveLazyBox = 'auto.db.hive.lazy_box';
+  static const autoDbHiveBoxCollection = 'auto.db.hive.box_collection';
+  static const autoDbDriftQueryExecutor = 'auto.db.drift.query.executor';
+  static const autoDbDriftTransactionExecutor =
+      'auto.db.drift.transaction.executor';
 }

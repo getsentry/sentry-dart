@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:logging/logging.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:sentry_drift/sentry_drift.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_isar/sentry_isar.dart';
 import 'package:sentry_isar/user.dart';
@@ -18,10 +19,13 @@ import 'package:sqflite/sqflite.dart';
 import 'package:universal_platform/universal_platform.dart';
 import 'package:feedback/feedback.dart' as feedback;
 import 'package:provider/provider.dart';
+import 'drift/database.dart';
+import 'drift/connection/connection.dart';
 import 'user_feedback_dialog.dart';
 import 'package:dio/dio.dart';
 import 'package:sentry_dio/sentry_dio.dart';
 import 'package:sentry_logging/sentry_logging.dart';
+import 'package:sentry_hive/sentry_hive.dart';
 
 // ATTENTION: Change the DSN below with your own to see the events in Sentry. Get one at sentry.io
 const String exampleDsn =
@@ -152,14 +156,25 @@ class MainScaffold extends StatelessWidget {
           children: [
             if (_isIntegrationTest) const IntegrationTestWidget(),
             const Center(child: Text('Trigger an action:\n')),
+            if (!UniversalPlatform.isWeb)
+              ElevatedButton(
+                onPressed: () => driftTest(),
+                child: const Text('drift'),
+              ),
+            if (!UniversalPlatform.isWeb)
+              ElevatedButton(
+                onPressed: () => hiveTest(),
+                child: const Text('hive'),
+              ),
+            if (!UniversalPlatform.isWeb)
+              ElevatedButton(
+                onPressed: () => isarTest(),
+                child: const Text('isar'),
+              ),
             ElevatedButton(
-              onPressed: () => isarTest(),
-              child: const Text('isar'),
+              onPressed: () => sqfliteTest(),
+              child: const Text('sqflite'),
             ),
-            // ElevatedButton(
-            //   onPressed: () => sqfliteTest(),
-            //   child: const Text('sqflite'),
-            // ),
             ElevatedButton(
               onPressed: () => SecondaryScaffold.openSecondaryScaffold(context),
               child: const Text('Open another Scaffold'),
@@ -460,6 +475,27 @@ class MainScaffold extends StatelessWidget {
     await tr.finish(status: const SpanStatus.ok());
   }
 
+  Future<void> hiveTest() async {
+    final tr = Sentry.startTransaction(
+      'hiveTest',
+      'db',
+      bindToScope: true,
+    );
+
+    final appDir = await getApplicationDocumentsDirectory();
+    SentryHive.init(appDir.path);
+
+    final catsBox = await SentryHive.openBox<Map>('cats');
+    await catsBox.put('fluffy', {'name': 'Fluffy', 'age': 4});
+    await catsBox.put('loki', {'name': 'Loki', 'age': 2});
+    await catsBox.clear();
+    await catsBox.close();
+
+    SentryHive.close();
+
+    await tr.finish(status: const SpanStatus.ok());
+  }
+
   Future<void> sqfliteTest() async {
     final tr = Sentry.startTransaction(
       'sqfliteTest',
@@ -500,6 +536,34 @@ class MainScaffold extends StatelessWidget {
     // final batch = db.batch();
     // batch.delete('Product', where: 'title = ?', whereArgs: dbTitles);
     // await batch.commit();
+
+    await db.close();
+
+    await tr.finish(status: const SpanStatus.ok());
+  }
+
+  Future<void> driftTest() async {
+    final tr = Sentry.startTransaction(
+      'driftTest',
+      'db',
+      bindToScope: true,
+    );
+
+    final executor = SentryQueryExecutor(
+      () async => inMemoryExecutor(),
+      databaseName: 'sentry_in_memory_db',
+    );
+
+    final db = AppDatabase(executor);
+
+    await db.into(db.todoItems).insert(
+          TodoItemsCompanion.insert(
+            title: 'This is a test thing',
+            content: 'test',
+          ),
+        );
+
+    await db.select(db.todoItems).get();
 
     await db.close();
 

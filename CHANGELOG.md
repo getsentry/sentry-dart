@@ -1,15 +1,26 @@
 # Changelog
 
-## Unreleased
+## 7.13.1
+
+### Fixes
+
+- Fixes release of drift & hive and adds missing integration & sdk version information in the hub options ([#1729](https://github.com/getsentry/sentry-dart/pull/1729))
+
+## 7.13.0
 
 ### Fixes 
 
+- Fixes setting the correct locale to contexts with navigatorKey ([#1724](https://github.com/getsentry/sentry-dart/pull/1724))
+  - If you have a selected locale in e.g MaterialApp, this fix will retrieve the correct locale for the event context.
+- Flutter renderer information was removed on dart:io platforms since it didn't add the correct value ([#1723](https://github.com/getsentry/sentry-dart/pull/1723))
 - Unsupported types with Expando ([#1690](https://github.com/getsentry/sentry-dart/pull/1690))
 
 ### Features
 
+- Add APM integration for Drift ([#1709](https://github.com/getsentry/sentry-dart/pull/1709))
 - StackTraces in `PlatformException.message` will get nicely formatted too when present ([#1716](https://github.com/getsentry/sentry-dart/pull/1716))
 - Breadcrumbs for database operations ([#1656](https://github.com/getsentry/sentry-dart/pull/1656))
+- APM for hive ([#1672](https://github.com/getsentry/sentry-dart/pull/1672))
 - Add `attachScreenshotOnlyWhenResumed` to options ([#1700](https://github.com/getsentry/sentry-dart/pull/1700))
 
 ### Dependencies

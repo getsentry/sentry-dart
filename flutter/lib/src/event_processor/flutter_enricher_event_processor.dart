@@ -107,7 +107,9 @@ class FlutterEnricherEventProcessor implements EventProcessor {
   }
 
   SentryCulture _getCulture(SentryCulture? culture) {
-    final languageTag = _window?.locale.toLanguageTag();
+    final windowLanguageTag = _window?.locale.toLanguageTag();
+    final screenLocale = _retrieveWidgetLocale(_options.navigatorKey);
+    final languageTag = screenLocale?.toLanguageTag() ?? windowLanguageTag;
 
     // Future enhancement:
     // _window?.locales
@@ -132,24 +134,25 @@ class FlutterEnricherEventProcessor implements EventProcessor {
     // ignore: deprecated_member_use
     final hasRenderView = _widgetsBinding?.renderViewElement != null;
 
+    final renderer = _options.rendererWrapper.getRenderer()?.name;
+
     return <String, String>{
       'has_render_view': hasRenderView.toString(),
       if (tempDebugBrightnessOverride != null)
-        'debug_brightness_override': describeEnum(tempDebugBrightnessOverride),
+        'debug_brightness_override': tempDebugBrightnessOverride.name,
       if (debugPlatformOverride != null)
-        'debug_default_target_platform_override':
-            describeEnum(debugPlatformOverride),
+        'debug_default_target_platform_override': debugPlatformOverride.name,
       if (initialLifecycleState != null && initialLifecycleState.isNotEmpty)
         'initial_lifecycle_state': initialLifecycleState,
       if (defaultRouteName != null && defaultRouteName.isNotEmpty)
         'default_route_name': defaultRouteName,
       if (currentLifecycle != null)
-        'current_lifecycle_state': describeEnum(currentLifecycle),
+        'current_lifecycle_state': currentLifecycle.name,
       // Seems to always return false.
       // Also always fails in tests.
       // See https://github.com/flutter/flutter/issues/83919
       // 'window_is_visible': _window.viewConfiguration.visible,
-      'renderer': _options.rendererWrapper.getRenderer().name,
+      if (renderer != null) 'renderer': renderer,
     };
   }
 
@@ -253,5 +256,13 @@ class FlutterEnricherEventProcessor implements EventProcessor {
     } else {
       return app;
     }
+  }
+
+  Locale? _retrieveWidgetLocale(GlobalKey<NavigatorState>? navigatorKey) {
+    final BuildContext? context = navigatorKey?.currentContext;
+    if (context != null) {
+      return Localizations.maybeLocaleOf(context);
+    }
+    return null;
   }
 }
