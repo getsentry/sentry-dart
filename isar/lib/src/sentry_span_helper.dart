@@ -27,6 +27,7 @@ class SentrySpanHelper {
     String description,
     Future<T> Function() execute, {
     String? dbName,
+    String? collectionName,
   }) async {
     final currentSpan = _hub.getSpan();
     final span = currentSpan?.startChild(
@@ -41,6 +42,10 @@ class SentrySpanHelper {
 
     if (dbName != null) {
       span?.setData(SentryIsar.dbNameKey, dbName);
+    }
+
+    if (collectionName != null) {
+      span?.setData(SentryIsar.dbCollectionKey, collectionName);
     }
 
     try {

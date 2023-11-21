@@ -3,11 +3,13 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i4;
+import 'dart:async' as _i3;
 
+import 'package:isar/isar.dart' as _i4;
 import 'package:mockito/mockito.dart' as _i1;
+import 'package:mockito/src/dummies.dart' as _i6;
 import 'package:sentry/sentry.dart' as _i2;
-import 'package:sentry/src/profiling.dart' as _i3;
+import 'package:sentry/src/profiling.dart' as _i5;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -70,6 +72,27 @@ class _FakeISentrySpan_4 extends _i1.SmartFake implements _i2.ISentrySpan {
         );
 }
 
+class _FakeFuture_5<T1> extends _i1.SmartFake implements _i3.Future<T1> {
+  _FakeFuture_5(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
+class _FakeIsarCollection_6<OBJ> extends _i1.SmartFake
+    implements _i4.IsarCollection<OBJ> {
+  _FakeIsarCollection_6(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
 /// A class which mocks [Hub].
 ///
 /// See the documentation for Mockito's code generation for more information.
@@ -112,7 +135,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
       ) as _i2.Scope);
 
   @override
-  set profilerFactory(_i3.SentryProfilerFactory? value) => super.noSuchMethod(
+  set profilerFactory(_i5.SentryProfilerFactory? value) => super.noSuchMethod(
         Invocation.setter(
           #profilerFactory,
           value,
@@ -121,7 +144,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
       );
 
   @override
-  _i4.Future<_i2.SentryId> captureEvent(
+  _i3.Future<_i2.SentryId> captureEvent(
     _i2.SentryEvent? event, {
     dynamic stackTrace,
     _i2.Hint? hint,
@@ -137,7 +160,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
             #withScope: withScope,
           },
         ),
-        returnValue: _i4.Future<_i2.SentryId>.value(_FakeSentryId_1(
+        returnValue: _i3.Future<_i2.SentryId>.value(_FakeSentryId_1(
           this,
           Invocation.method(
             #captureEvent,
@@ -149,10 +172,10 @@ class MockHub extends _i1.Mock implements _i2.Hub {
             },
           ),
         )),
-      ) as _i4.Future<_i2.SentryId>);
+      ) as _i3.Future<_i2.SentryId>);
 
   @override
-  _i4.Future<_i2.SentryId> captureException(
+  _i3.Future<_i2.SentryId> captureException(
     dynamic throwable, {
     dynamic stackTrace,
     _i2.Hint? hint,
@@ -168,7 +191,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
             #withScope: withScope,
           },
         ),
-        returnValue: _i4.Future<_i2.SentryId>.value(_FakeSentryId_1(
+        returnValue: _i3.Future<_i2.SentryId>.value(_FakeSentryId_1(
           this,
           Invocation.method(
             #captureException,
@@ -180,10 +203,10 @@ class MockHub extends _i1.Mock implements _i2.Hub {
             },
           ),
         )),
-      ) as _i4.Future<_i2.SentryId>);
+      ) as _i3.Future<_i2.SentryId>);
 
   @override
-  _i4.Future<_i2.SentryId> captureMessage(
+  _i3.Future<_i2.SentryId> captureMessage(
     String? message, {
     _i2.SentryLevel? level,
     String? template,
@@ -203,7 +226,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
             #withScope: withScope,
           },
         ),
-        returnValue: _i4.Future<_i2.SentryId>.value(_FakeSentryId_1(
+        returnValue: _i3.Future<_i2.SentryId>.value(_FakeSentryId_1(
           this,
           Invocation.method(
             #captureMessage,
@@ -217,21 +240,21 @@ class MockHub extends _i1.Mock implements _i2.Hub {
             },
           ),
         )),
-      ) as _i4.Future<_i2.SentryId>);
+      ) as _i3.Future<_i2.SentryId>);
 
   @override
-  _i4.Future<void> captureUserFeedback(_i2.SentryUserFeedback? userFeedback) =>
+  _i3.Future<void> captureUserFeedback(_i2.SentryUserFeedback? userFeedback) =>
       (super.noSuchMethod(
         Invocation.method(
           #captureUserFeedback,
           [userFeedback],
         ),
-        returnValue: _i4.Future<void>.value(),
-        returnValueForMissingStub: _i4.Future<void>.value(),
-      ) as _i4.Future<void>);
+        returnValue: _i3.Future<void>.value(),
+        returnValueForMissingStub: _i3.Future<void>.value(),
+      ) as _i3.Future<void>);
 
   @override
-  _i4.Future<void> addBreadcrumb(
+  _i3.Future<void> addBreadcrumb(
     _i2.Breadcrumb? crumb, {
     _i2.Hint? hint,
   }) =>
@@ -241,9 +264,9 @@ class MockHub extends _i1.Mock implements _i2.Hub {
           [crumb],
           {#hint: hint},
         ),
-        returnValue: _i4.Future<void>.value(),
-        returnValueForMissingStub: _i4.Future<void>.value(),
-      ) as _i4.Future<void>);
+        returnValue: _i3.Future<void>.value(),
+        returnValueForMissingStub: _i3.Future<void>.value(),
+      ) as _i3.Future<void>);
 
   @override
   void bindClient(_i2.SentryClient? client) => super.noSuchMethod(
@@ -270,21 +293,21 @@ class MockHub extends _i1.Mock implements _i2.Hub {
       ) as _i2.Hub);
 
   @override
-  _i4.Future<void> close() => (super.noSuchMethod(
+  _i3.Future<void> close() => (super.noSuchMethod(
         Invocation.method(
           #close,
           [],
         ),
-        returnValue: _i4.Future<void>.value(),
-        returnValueForMissingStub: _i4.Future<void>.value(),
-      ) as _i4.Future<void>);
+        returnValue: _i3.Future<void>.value(),
+        returnValueForMissingStub: _i3.Future<void>.value(),
+      ) as _i3.Future<void>);
 
   @override
-  _i4.FutureOr<void> configureScope(_i2.ScopeCallback? callback) =>
+  _i3.FutureOr<void> configureScope(_i2.ScopeCallback? callback) =>
       (super.noSuchMethod(Invocation.method(
         #configureScope,
         [callback],
-      )) as _i4.FutureOr<void>);
+      )) as _i3.FutureOr<void>);
 
   @override
   _i2.ISentrySpan startTransaction(
@@ -383,7 +406,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
       ) as _i2.ISentrySpan);
 
   @override
-  _i4.Future<_i2.SentryId> captureTransaction(
+  _i3.Future<_i2.SentryId> captureTransaction(
     _i2.SentryTransaction? transaction, {
     _i2.SentryTraceContextHeader? traceContext,
   }) =>
@@ -393,7 +416,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
           [transaction],
           {#traceContext: traceContext},
         ),
-        returnValue: _i4.Future<_i2.SentryId>.value(_FakeSentryId_1(
+        returnValue: _i3.Future<_i2.SentryId>.value(_FakeSentryId_1(
           this,
           Invocation.method(
             #captureTransaction,
@@ -401,7 +424,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
             {#traceContext: traceContext},
           ),
         )),
-      ) as _i4.Future<_i2.SentryId>);
+      ) as _i3.Future<_i2.SentryId>);
 
   @override
   void setSpanContext(
@@ -420,4 +443,243 @@ class MockHub extends _i1.Mock implements _i2.Hub {
         ),
         returnValueForMissingStub: null,
       );
+}
+
+/// A class which mocks [Isar].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockIsar extends _i1.Mock implements _i4.Isar {
+  MockIsar() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  String get name => (super.noSuchMethod(
+        Invocation.getter(#name),
+        returnValue: '',
+      ) as String);
+
+  @override
+  bool get isOpen => (super.noSuchMethod(
+        Invocation.getter(#isOpen),
+        returnValue: false,
+      ) as bool);
+
+  @override
+  void requireOpen() => super.noSuchMethod(
+        Invocation.method(
+          #requireOpen,
+          [],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  _i3.Future<T> txn<T>(_i3.Future<T> Function()? callback) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #txn,
+          [callback],
+        ),
+        returnValue: _i6.ifNotNull(
+              _i6.dummyValueOrNull<T>(
+                this,
+                Invocation.method(
+                  #txn,
+                  [callback],
+                ),
+              ),
+              (T v) => _i3.Future<T>.value(v),
+            ) ??
+            _FakeFuture_5<T>(
+              this,
+              Invocation.method(
+                #txn,
+                [callback],
+              ),
+            ),
+      ) as _i3.Future<T>);
+
+  @override
+  _i3.Future<T> writeTxn<T>(
+    _i3.Future<T> Function()? callback, {
+    bool? silent = false,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #writeTxn,
+          [callback],
+          {#silent: silent},
+        ),
+        returnValue: _i6.ifNotNull(
+              _i6.dummyValueOrNull<T>(
+                this,
+                Invocation.method(
+                  #writeTxn,
+                  [callback],
+                  {#silent: silent},
+                ),
+              ),
+              (T v) => _i3.Future<T>.value(v),
+            ) ??
+            _FakeFuture_5<T>(
+              this,
+              Invocation.method(
+                #writeTxn,
+                [callback],
+                {#silent: silent},
+              ),
+            ),
+      ) as _i3.Future<T>);
+
+  @override
+  T txnSync<T>(T Function()? callback) => (super.noSuchMethod(
+        Invocation.method(
+          #txnSync,
+          [callback],
+        ),
+        returnValue: _i6.dummyValue<T>(
+          this,
+          Invocation.method(
+            #txnSync,
+            [callback],
+          ),
+        ),
+      ) as T);
+
+  @override
+  T writeTxnSync<T>(
+    T Function()? callback, {
+    bool? silent = false,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #writeTxnSync,
+          [callback],
+          {#silent: silent},
+        ),
+        returnValue: _i6.dummyValue<T>(
+          this,
+          Invocation.method(
+            #writeTxnSync,
+            [callback],
+            {#silent: silent},
+          ),
+        ),
+      ) as T);
+
+  @override
+  void attachCollections(Map<Type, _i4.IsarCollection<dynamic>>? collections) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #attachCollections,
+          [collections],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  _i4.IsarCollection<T> collection<T>() => (super.noSuchMethod(
+        Invocation.method(
+          #collection,
+          [],
+        ),
+        returnValue: _FakeIsarCollection_6<T>(
+          this,
+          Invocation.method(
+            #collection,
+            [],
+          ),
+        ),
+      ) as _i4.IsarCollection<T>);
+
+  @override
+  _i4.IsarCollection<dynamic>? getCollectionByNameInternal(String? name) =>
+      (super.noSuchMethod(Invocation.method(
+        #getCollectionByNameInternal,
+        [name],
+      )) as _i4.IsarCollection<dynamic>?);
+
+  @override
+  _i3.Future<void> clear() => (super.noSuchMethod(
+        Invocation.method(
+          #clear,
+          [],
+        ),
+        returnValue: _i3.Future<void>.value(),
+        returnValueForMissingStub: _i3.Future<void>.value(),
+      ) as _i3.Future<void>);
+
+  @override
+  void clearSync() => super.noSuchMethod(
+        Invocation.method(
+          #clearSync,
+          [],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  _i3.Future<int> getSize({
+    bool? includeIndexes = false,
+    bool? includeLinks = false,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #getSize,
+          [],
+          {
+            #includeIndexes: includeIndexes,
+            #includeLinks: includeLinks,
+          },
+        ),
+        returnValue: _i3.Future<int>.value(0),
+      ) as _i3.Future<int>);
+
+  @override
+  int getSizeSync({
+    bool? includeIndexes = false,
+    bool? includeLinks = false,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #getSizeSync,
+          [],
+          {
+            #includeIndexes: includeIndexes,
+            #includeLinks: includeLinks,
+          },
+        ),
+        returnValue: 0,
+      ) as int);
+
+  @override
+  _i3.Future<void> copyToFile(String? targetPath) => (super.noSuchMethod(
+        Invocation.method(
+          #copyToFile,
+          [targetPath],
+        ),
+        returnValue: _i3.Future<void>.value(),
+        returnValueForMissingStub: _i3.Future<void>.value(),
+      ) as _i3.Future<void>);
+
+  @override
+  _i3.Future<bool> close({bool? deleteFromDisk = false}) => (super.noSuchMethod(
+        Invocation.method(
+          #close,
+          [],
+          {#deleteFromDisk: deleteFromDisk},
+        ),
+        returnValue: _i3.Future<bool>.value(false),
+      ) as _i3.Future<bool>);
+
+  @override
+  _i3.Future<void> verify() => (super.noSuchMethod(
+        Invocation.method(
+          #verify,
+          [],
+        ),
+        returnValue: _i3.Future<void>.value(),
+        returnValueForMissingStub: _i3.Future<void>.value(),
+      ) as _i3.Future<void>);
 }
