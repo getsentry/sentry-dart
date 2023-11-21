@@ -27,6 +27,7 @@ dependencies:
   sqflite: any # This gets constrained by `sentry_sqflite`
   logging: any # This gets constrained by `sentry_logging`
   drift: any # This gets constrained by `sentry_drift`
+  isar: any # This gets constrained by `sentry_isar`
   package_info_plus: ^4.0.0
   path_provider: ^2.0.0
   #sqflite_common_ffi: ^2.0.0
@@ -43,6 +44,8 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   test: ^1.21.1
+  isar_generator: any
+  build_runner: any
 
 flutter:
   uses-material-design: true
