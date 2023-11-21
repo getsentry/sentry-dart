@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:isar/isar.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
+import 'package:sentry_isar/sentry_isar.dart';
 import 'package:sentry_isar/src/sentry_isar.dart';
 
 import 'package:sentry/src/sentry_tracer.dart';
@@ -194,33 +195,261 @@ void main() {
       verifySpan('putByIndex', span);
     });
   });
+
+  group('add error spans', () {
+    late Fixture fixture;
+
+    setUp(() async {
+      fixture = Fixture();
+
+      when(fixture.hub.options).thenReturn(fixture.options);
+      when(fixture.hub.getSpan()).thenReturn(fixture.tracer);
+      when(fixture.isarCollection.name).thenReturn(Fixture.dbCollection);
+
+      await fixture.setUp();
+    });
+
+    tearDown(() async {
+      await fixture.tearDown();
+    });
+
+    test('throwing clear adds error span', () async {
+      when(fixture.isarCollection.clear()).thenThrow(fixture.exception);
+      try {
+        await fixture.getSut(injectMock: true).clear();
+      } catch (error) {
+        expect(error, fixture.exception);
+      }
+      verifyErrorSpan('clear', fixture.getCreatedSpan(), fixture.exception);
+    });
+
+    test('throwing count adds error span', () async {
+      when(fixture.isarCollection.count()).thenThrow(fixture.exception);
+      try {
+        await fixture.getSut(injectMock: true).count();
+      } catch (error) {
+        expect(error, fixture.exception);
+      }
+      verifyErrorSpan('count', fixture.getCreatedSpan(), fixture.exception);
+    });
+
+    test('throwing delete adds error span', () async {
+      when(fixture.isarCollection.delete(any)).thenThrow(fixture.exception);
+      try {
+        await fixture.getSut(injectMock: true).delete(0);
+      } catch (error) {
+        expect(error, fixture.exception);
+      }
+      verifyErrorSpan('delete', fixture.getCreatedSpan(), fixture.exception);
+    });
+
+    test('throwing deleteAll adds error span', () async {
+      when(fixture.isarCollection.deleteAll(any)).thenThrow(fixture.exception);
+      try {
+        await fixture.getSut(injectMock: true).deleteAll([0]);
+      } catch (error) {
+        expect(error, fixture.exception);
+      }
+      verifyErrorSpan('deleteAll', fixture.getCreatedSpan(), fixture.exception);
+    });
+
+    test('throwing deleteAllByIndex adds error span', () async {
+      when(fixture.isarCollection.deleteAllByIndex(any, any))
+          .thenThrow(fixture.exception);
+      try {
+        await fixture.getSut(injectMock: true).deleteAllByIndex('name', []);
+      } catch (error) {
+        expect(error, fixture.exception);
+      }
+      verifyErrorSpan(
+        'deleteAllByIndex',
+        fixture.getCreatedSpan(),
+        fixture.exception,
+      );
+    });
+
+    test('throwing deleteByIndex adds error span', () async {
+      when(fixture.isarCollection.deleteByIndex(any, any))
+          .thenThrow(fixture.exception);
+      try {
+        await fixture.getSut(injectMock: true).deleteByIndex('name', []);
+      } catch (error) {
+        expect(error, fixture.exception);
+      }
+      verifyErrorSpan(
+        'deleteByIndex',
+        fixture.getCreatedSpan(),
+        fixture.exception,
+      );
+    });
+
+    test('throwing get adds error span', () async {
+      when(fixture.isarCollection.get(any)).thenThrow(fixture.exception);
+      try {
+        await fixture.getSut(injectMock: true).get(1);
+      } catch (error) {
+        expect(error, fixture.exception);
+      }
+      verifyErrorSpan('get', fixture.getCreatedSpan(), fixture.exception);
+    });
+
+    test('throwing getAll adds error span', () async {
+      when(fixture.isarCollection.getAll(any)).thenThrow(fixture.exception);
+      try {
+        await fixture.getSut(injectMock: true).getAll([1]);
+      } catch (error) {
+        expect(error, fixture.exception);
+      }
+      verifyErrorSpan('getAll', fixture.getCreatedSpan(), fixture.exception);
+    });
+
+    test('throwing getAllByIndex adds error span', () async {
+      when(fixture.isarCollection.getAllByIndex(any, any))
+          .thenThrow(fixture.exception);
+      try {
+        await fixture.getSut(injectMock: true).getAllByIndex('name', []);
+      } catch (error) {
+        expect(error, fixture.exception);
+      }
+      verifyErrorSpan(
+        'getAllByIndex',
+        fixture.getCreatedSpan(),
+        fixture.exception,
+      );
+    });
+
+    test('throwing getByIndex adds error span', () async {
+      when(fixture.isarCollection.getByIndex(any, any))
+          .thenThrow(fixture.exception);
+      try {
+        await fixture.getSut(injectMock: true).getByIndex('name', []);
+      } catch (error) {
+        expect(error, fixture.exception);
+      }
+      verifyErrorSpan(
+        'getByIndex',
+        fixture.getCreatedSpan(),
+        fixture.exception,
+      );
+    });
+
+    test('throwing getSize adds error span', () async {
+      when(fixture.isarCollection.getSize()).thenThrow(fixture.exception);
+      try {
+        await fixture.getSut(injectMock: true).getSize();
+      } catch (error) {
+        expect(error, fixture.exception);
+      }
+      verifyErrorSpan('getSize', fixture.getCreatedSpan(), fixture.exception);
+    });
+
+    test('throwing importJson adds error span', () async {
+      when(fixture.isarCollection.importJson(any)).thenThrow(fixture.exception);
+      try {
+        await fixture.getSut(injectMock: true).importJson([]);
+      } catch (error) {
+        expect(error, fixture.exception);
+      }
+      verifyErrorSpan(
+        'importJson',
+        fixture.getCreatedSpan(),
+        fixture.exception,
+      );
+    });
+
+    test('throwing importJsonRaw adds error span', () async {
+      when(fixture.isarCollection.importJsonRaw(any))
+          .thenThrow(fixture.exception);
+      try {
+        await fixture
+            .getSut(injectMock: true)
+            .importJsonRaw(Uint8List.fromList([]));
+      } catch (error) {
+        expect(error, fixture.exception);
+      }
+      verifyErrorSpan(
+        'importJsonRaw',
+        fixture.getCreatedSpan(),
+        fixture.exception,
+      );
+    });
+
+    test('throwing put adds error span', () async {
+      when(fixture.isarCollection.put(any)).thenThrow(fixture.exception);
+      try {
+        await fixture.getSut(injectMock: true).put(Person());
+      } catch (error) {
+        expect(error, fixture.exception);
+      }
+      verifyErrorSpan('put', fixture.getCreatedSpan(), fixture.exception);
+    });
+
+    test('throwing putAll adds error span', () async {
+      when(fixture.isarCollection.putAll(any)).thenThrow(fixture.exception);
+      try {
+        await fixture.getSut(injectMock: true).putAll([Person()]);
+      } catch (error) {
+        expect(error, fixture.exception);
+      }
+      verifyErrorSpan('putAll', fixture.getCreatedSpan(), fixture.exception);
+    });
+
+    test('throwing putAllByIndex adds error span', () async {
+      when(fixture.isarCollection.putAllByIndex(any, any))
+          .thenThrow(fixture.exception);
+      try {
+        await fixture
+            .getSut(injectMock: true)
+            .putAllByIndex('name', [Person()]);
+      } catch (error) {
+        expect(error, fixture.exception);
+      }
+      verifyErrorSpan(
+        'putAllByIndex',
+        fixture.getCreatedSpan(),
+        fixture.exception,
+      );
+    });
+
+    test('throwing putByIndex adds error span', () async {
+      when(fixture.isarCollection.putByIndex(any, any))
+          .thenThrow(fixture.exception);
+      try {
+        await fixture.getSut(injectMock: true).putByIndex('name', Person());
+      } catch (error) {
+        expect(error, fixture.exception);
+      }
+      verifyErrorSpan(
+        'putByIndex',
+        fixture.getCreatedSpan(),
+        fixture.exception,
+      );
+    });
+  });
 }
 
 class Fixture {
   final options = SentryOptions();
   final hub = MockHub();
-  final isar = MockIsar();
+  final isarCollection = MockIsarCollection<Person>();
 
   static final dbName = 'people-isar';
+  static final dbCollection = 'Person';
   final exception = Exception('fixture-exception');
 
   final _context = SentryTransactionContext('name', 'operation');
   late final tracer = SentryTracer(_context, hub);
   late Isar sentryIsar;
 
-  Future<void> setUp({bool injectMock = false}) async {
-    if (injectMock) {
-      sentryIsar = SentryIsar(isar, hub);
-    } else {
-      // Make sure to use flutter test -j 1 to avoid tests running in parallel. This would break the automatic download.
-      await Isar.initializeIsarCore(download: true);
-      sentryIsar = await SentryIsar.open(
-        [PersonSchema],
-        directory: Directory.systemTemp.path,
-        name: dbName,
-        hub: hub,
-      );
-    }
+  Future<void> setUp() async {
+    // Make sure to use flutter test -j 1 to avoid tests running in parallel. This would break the automatic download.
+    await Isar.initializeIsarCore(download: true);
+    sentryIsar = await SentryIsar.open(
+      [PersonSchema],
+      directory: Directory.systemTemp.path,
+      name: dbName,
+      hub: hub,
+    );
   }
 
   Future<void> tearDown() async {
@@ -233,8 +462,12 @@ class Fixture {
     }
   }
 
-  IsarCollection<Person> getSut() {
-    return sentryIsar.collection();
+  IsarCollection<Person> getSut({bool injectMock = false}) {
+    if (injectMock) {
+      return SentryIsarCollection(isarCollection, hub, sentryIsar.name);
+    } else {
+      return sentryIsar.collection();
+    }
   }
 
   SentrySpan? getCreatedSpan() {
