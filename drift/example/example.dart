@@ -5,6 +5,7 @@ import 'package:sentry_drift/sentry_drift.dart';
 
 import 'database.dart';
 
+
 Future<void> main() async {
   // ATTENTION: Change the DSN below with your own to see the events in Sentry. Get one at sentry.io
   const dsn =

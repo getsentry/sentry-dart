@@ -25,8 +25,11 @@ Integration for the [`isar`](https://pub.dev/packages/isar) package.
 - Call...
 
 ```dart
+import 'package:path_provider/path_provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_isar/sentry_isar.dart';
+
+import 'user.dart';
 
 Future<void> main() async {
   await SentryFlutter.init(
@@ -39,8 +42,36 @@ Future<void> main() async {
   );
 }
 
-// TODO: Example
+Future<void> runApp() async {
+  final tr = Sentry.startTransaction(
+    'isarTest',
+    'db',
+    bindToScope: true,
+  );
 
+  final dir = await getApplicationDocumentsDirectory();
+
+  final isar = await SentryIsar.open(
+    [UserSchema],
+    directory: dir.path,
+  );
+
+  final newUser = User()
+    ..name = 'Joe Dirt'
+    ..age = 36;
+
+  await isar.writeTxn(() async {
+    await isar.users.put(newUser); // insert & update
+  });
+
+  final existingUser = await isar.users.get(newUser.id); // get
+
+  await isar.writeTxn(() async {
+    await isar.users.delete(existingUser!.id); // delete
+  });
+
+  await tr.finish(status: const SpanStatus.ok());
+}
 ```
 
 #### Resources
