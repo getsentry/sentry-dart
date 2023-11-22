@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+-  Fix SIGSEV, SIGABRT and SIGBUS crashes happening after/around the August Google Play System update, see [#2955](https://github-redirect.dependabot.com/getsentry/sentry-java/issues/2955) for more details (fix provided by Native SDK bump)
+
+### Dependencies
+
+- Bump Android SDK from v6.33.1 to v6.34.0 ([#1746](https://github.com/getsentry/sentry-dart/pull/1746))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#6340)
+  - [diff](https://github.com/getsentry/sentry-java/compare/6.33.1...6.34.0)
+
 ## 7.13.1
 
 ### Fixes
