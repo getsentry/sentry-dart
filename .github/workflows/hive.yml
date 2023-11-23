@@ -44,7 +44,7 @@ jobs:
       - uses: dart-lang/setup-dart@b64355ae6ca0b5d484f0106a033dd1388965d06d # pin@v1
         with:
           sdk: ${{ matrix.sdk }}
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Test VM
         run: |
