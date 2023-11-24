@@ -38,7 +38,10 @@ extension _NeedsSymbolication on SentryEvent {
     }
     if (threads?.isNotEmpty == true) {
       var stacktraces = threads?.map((e) => e.stacktrace);
-      return stacktraces?.where((element) => element != null).expand((element) => element!.frames).toList();
+      return stacktraces
+          ?.where((element) => element != null)
+          .expand((element) => element!.frames)
+          .toList();
     }
     return null;
   }
