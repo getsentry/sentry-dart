@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Add debug_meta to all events ([#1756](https://github.com/getsentry/sentry-dart/pull/1756))
+
 ## 7.13.2
 
 ### Fixes
