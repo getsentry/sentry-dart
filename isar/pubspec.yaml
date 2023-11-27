@@ -10,7 +10,6 @@ environment:
   flutter: '>=3.3.0'
 
 dependencies:
-  isar: ^3.1.0+1
   isar_flutter_libs: ^3.1.0+1 # contains Isar Core
   sentry: 7.12.0
   meta: ^1.3.0
