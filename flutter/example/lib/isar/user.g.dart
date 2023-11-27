@@ -13,17 +13,17 @@ extension GetUserCollection on Isar {
   IsarCollection<User> get users => this.collection();
 }
 
-const UserSchema = CollectionSchema(
+final UserSchema = CollectionSchema(
   name: r'User',
-  id: -7838171048429979076,
+  id: BigInt.parse("-7838171048429979076").toInt(),
   properties: {
     r'age': PropertySchema(
-      id: 0,
+      id: BigInt.parse("0").toInt(),
       name: r'age',
       type: IsarType.long,
     ),
     r'name': PropertySchema(
-      id: 1,
+      id: BigInt.parse("1").toInt(),
       name: r'name',
       type: IsarType.string,
     )
@@ -39,7 +39,7 @@ const UserSchema = CollectionSchema(
   getId: _userGetId,
   getLinks: _userGetLinks,
   attach: _userAttach,
-  version: '3.1.0+1',
+  version: '3.1.0',
 );
 
 int _userEstimateSize(

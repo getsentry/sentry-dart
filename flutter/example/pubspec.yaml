@@ -44,7 +44,11 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   test: ^1.21.1
-  isar_generator: any
+  isar_generator: # https://github.com/isar/isar/issues/686#issuecomment-1473668196
+    git:
+      url: https://github.com/Kiruel/isar
+      ref: fix/web_build
+      path: packages/isar_generator
   build_runner: any
 
 flutter:
