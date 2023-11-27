@@ -5,6 +5,7 @@
 ### Features
 
 - APM for isar ([#1726](https://github.com/getsentry/sentry-dart/pull/1726))
+
 ## 7.13.2
 
 ### Fixes
