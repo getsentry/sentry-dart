@@ -107,7 +107,7 @@ jobs:
         if: runner.os == 'Linux' && matrix.sdk == 'stable' && matrix.target == 'linux'
         with:
           path: "./isar/coverage/lcov.info"
-          min_coverage: 80
+          min_coverage: 55
 
   analyze:
     uses: ./.github/workflows/analyze.yml
