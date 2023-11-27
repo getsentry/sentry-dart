@@ -2,7 +2,7 @@
 // in sentry_isar/test/mocks/mocks.dart.
 // Do not manually edit this file.
 
-// ignore_for_file: no_leading_underscores_for_library_prefixes
+// ignore_for_file: no_leading_underscores_for_library_prefixes, invalid_use_of_internal_member
 import 'dart:async' as _i3;
 import 'dart:typed_data' as _i7;
 
