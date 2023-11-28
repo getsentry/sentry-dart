@@ -18,6 +18,6 @@
 - [ ] I updated the docs if needed
 - [ ] All tests passing
 - [ ] No breaking changes
-
+- [ ] This is a test for path filters, don't merge.
 
 ## :crystal_ball: Next steps
