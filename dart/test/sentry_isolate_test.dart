@@ -1,6 +1,7 @@
 @TestOn('vm')
 
 import 'package:sentry/src/hub.dart';
+import 'package:sentry/src/protocol/sentry_level.dart';
 import 'package:sentry/src/protocol/span_status.dart';
 import 'package:sentry/src/sentry_isolate.dart';
 import 'package:sentry/src/sentry_options.dart';
@@ -47,6 +48,23 @@ void main() {
       expect(span?.status, const SpanStatus.internalError());
 
       await span?.finish();
+    });
+
+    test('sets level to error instead of fatal', () async {
+      final exception = StateError('error');
+      final stackTrace = StackTrace.current.toString();
+
+      final hub = Hub(fixture.options);
+      final client = MockSentryClient();
+      hub.bindClient(client);
+
+      fixture.options.markAutomaticallyCollectedErrorsAsFatal = false;
+
+      await SentryIsolate.handleIsolateError(
+          hub, [exception.toString(), stackTrace]);
+
+      final capturedEvent = client.captureEventCalls.last.event;
+      expect(capturedEvent.level, SentryLevel.error);
     });
   });
 }
