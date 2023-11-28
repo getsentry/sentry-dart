@@ -3,6 +3,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_flutter/src/integrations/connectivity_integration.dart';
 import 'package:sentry_flutter/src/integrations/integrations.dart';
 import 'package:sentry_flutter/src/integrations/screenshot_integration.dart';
 import 'package:sentry_flutter/src/profiling.dart';
@@ -41,6 +42,11 @@ final iOsAndMacOsIntegrations = [
 // These should be added to every platform which has a native integration.
 final nativeIntegrations = [
   NativeSdkIntegration,
+];
+
+// These should be added to every platform except Android & iOS/macOS.
+final nonMobileIntegrations = [
+  ConnectivityIntegration,
 ];
 
 void main() {
@@ -88,7 +94,11 @@ void main() {
             ...platformAgnosticIntegrations,
             ...nonWebIntegrations,
           ],
-          shouldNotHaveIntegrations: iOsAndMacOsIntegrations);
+          shouldNotHaveIntegrations: [
+            ...iOsAndMacOsIntegrations,
+            ...nonWebIntegrations,
+          ],
+      );
 
       integrations
           .indexWhere((element) => element is WidgetsFlutterBindingIntegration);
@@ -138,7 +148,10 @@ void main() {
           ...platformAgnosticIntegrations,
           ...nonWebIntegrations,
         ],
-        shouldNotHaveIntegrations: androidIntegrations,
+        shouldNotHaveIntegrations: [
+          ...androidIntegrations,
+          ...nonWebIntegrations,
+        ],
       );
 
       testBefore(
@@ -187,7 +200,10 @@ void main() {
           ...platformAgnosticIntegrations,
           ...nonWebIntegrations,
         ],
-        shouldNotHaveIntegrations: androidIntegrations,
+        shouldNotHaveIntegrations: [
+          ...androidIntegrations,
+          ...nonWebIntegrations,
+        ]
       );
 
       testBefore(
@@ -234,6 +250,7 @@ void main() {
         shouldHaveIntegrations: [
           ...platformAgnosticIntegrations,
           ...nonWebIntegrations,
+          ...nonMobileIntegrations,
         ],
         shouldNotHaveIntegrations: [
           ...androidIntegrations,
@@ -285,6 +302,7 @@ void main() {
         shouldHaveIntegrations: [
           ...platformAgnosticIntegrations,
           ...nonWebIntegrations,
+          ...nonMobileIntegrations,
         ],
         shouldNotHaveIntegrations: [
           ...androidIntegrations,
@@ -336,7 +354,10 @@ void main() {
 
       testConfiguration(
         integrations: integrations,
-        shouldHaveIntegrations: platformAgnosticIntegrations,
+        shouldHaveIntegrations: [
+          ...platformAgnosticIntegrations,
+          ...nonMobileIntegrations,
+        ],
         shouldNotHaveIntegrations: [
           ...androidIntegrations,
           ...iOsAndMacOsIntegrations,
