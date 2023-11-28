@@ -5,6 +5,7 @@
 ### Features
 
 - Add option to opt out of fatal level for automatically collected errors ([#1738](https://github.com/getsentry/sentry-dart/pull/1738))
+
 ## 7.13.2
 
 ### Fixes
