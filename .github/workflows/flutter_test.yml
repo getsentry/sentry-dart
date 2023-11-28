@@ -7,7 +7,14 @@ on:
   pull_request:
     paths-ignore:
       - "**/*.md"
+      - "**/class-diagram.svg"
+      - "dio/**"
+      - "drift/**"
+      - "e2e_test/**"
       - "file/**"
+      - "hive/**"
+      - "logging/**"
+      - "sqflite/**"
 
 env:
   SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}

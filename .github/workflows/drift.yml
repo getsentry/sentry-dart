@@ -7,10 +7,14 @@ on:
   pull_request:
     paths-ignore:
       - "**/*.md"
-      - "logging/**"
-      - "flutter/**"
+      - "**/class-diagram.svg"
       - "dio/**"
+      - "e2e_test/**"
       - "file/**"
+      - "flutter/**"
+      - "hive/**"
+      - "logging/**"
+      - "min_version_test/**"
       - "sqflite/**"
 
 jobs:

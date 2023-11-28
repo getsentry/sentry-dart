@@ -7,12 +7,14 @@ on:
   pull_request:
     paths-ignore:
       - "**/*.md"
-      - "logging/**"
       - "dio/**"
-      - "file/**"
-      - "sqflite/**"
-      - "hive/**"
       - "drift/**"
+      - "file/**"
+      - "hive/**"
+      - "integration_test/**"
+      - "logging/**"
+      - "min_version_test/**"
+      - "sqflite/**"
 
 jobs:
   cancel-previous-workflow:
