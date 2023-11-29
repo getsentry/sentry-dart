@@ -54,4 +54,4 @@ Do these steps in the **correct order**
 - [ ] Add an entry to `.craft.yml` for the package in the `registry` section.
   - Now all future releases will be added to the registry automatically.
 - [ ] Update the repo's `README.md`
-- [ ] Prepare and merge [Sentry documentation](https://github.com/getsentry/sentry-docs/)https://github.com/getsentry/sentry-docs/ 
+- [ ] Prepare and merge [Sentry documentation](https://github.com/getsentry/sentry-docs/)
