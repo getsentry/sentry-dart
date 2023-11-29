@@ -8,6 +8,7 @@ This page serves as a checklist of what to do when releasing a new package for t
     - [ ] The package only exports the public API
     - [ ] The package contains an example folder
     - [ ] The package contains a README.md file
+        - [ ] CI badges show a status
     - [ ] The package contains a CHANGELOG.md file (symlink to the root changelog)
     - [ ] The package contains a dartdoc_options.yaml file (symlink to the root file)
     - [ ] The package contains a LICENSE (default is `MIT`)
@@ -24,6 +25,8 @@ This page serves as a checklist of what to do when releasing a new package for t
 
 - [ ] Excluding `your-package-name.yml`, add the package to the `paths-ignore` section of all package workflow files.
   - For examples see `sqflite.yml`, `dio.yml` etc...
+     
+- [ ] Add an entry to [diagram.yml](https://github.com/getsentry/sentry-dart/blob/main/.github/workflows/diagrams.yml) for your package. 
 
 - [ ] In the root `.gitignore` file add the package coverage as ignored.
 
@@ -31,7 +34,7 @@ The `analyze` workflow will fail in your PR and in the main branch because the p
 This is expected - it will succeed after the release.
 - [ ] Make sure the analyze workflow doesn't have other failures, only the one mentioned above.
 
-- [ ] **The most important**: add your package to `scripts/bump-version.sh`.
+- [ ] **Very important**: add your package to `scripts/bump-version.sh`.
 
 ## Doing the Release
 
@@ -51,3 +54,4 @@ Do these steps in the **correct order**
 - [ ] Add an entry to `.craft.yml` for the package in the `registry` section.
   - Now all future releases will be added to the registry automatically.
 - [ ] Update the repo's `README.md`
+- [ ] Prepare and merge [Sentry documentation](https://github.com/getsentry/sentry-docs/)https://github.com/getsentry/sentry-docs/ 
