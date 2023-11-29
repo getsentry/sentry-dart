@@ -5,6 +5,15 @@
 ### Fixes
 
 - Add debug_meta to all events ([#1756](https://github.com/getsentry/sentry-dart/pull/1756))
+### Features
+
+- Add option to opt out of fatal level for automatically collected errors ([#1738](https://github.com/getsentry/sentry-dart/pull/1738))
+
+### Dependencies
+
+- Bump Cocoa SDK from v8.15.2 to v8.17.0 ([#1761](https://github.com/getsentry/sentry-dart/pull/1761))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8170)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.15.2...8.17.0)
 
 ## 7.13.2
 
