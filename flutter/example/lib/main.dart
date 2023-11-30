@@ -514,7 +514,16 @@ class MainScaffold extends StatelessWidget {
             if (UniversalPlatform.isIOS || UniversalPlatform.isMacOS)
               const CocoaExample(),
             if (UniversalPlatform.isAndroid) const AndroidExample(),
-          ],
+          ].map((widget) {
+            if (kIsWeb) {
+              // Add vertical padding to web so the tooltip doesn't obstruct the clicking of the button below.
+              return Padding(
+                padding: const EdgeInsets.only(top: 18.0, bottom: 18.0),
+                child: widget,
+              );
+            }
+            return widget;
+          }).toList(),
         ),
       ),
     );
