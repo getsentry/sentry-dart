@@ -23,7 +23,8 @@ class _AutoCloseScreenState extends State<AutoCloseScreen> {
 
   Future<void> _doComplexOperationThenClose() async {
     final activeSpan = Sentry.getSpan();
-    final childSpan = activeSpan?.startChild('complex operation', description: 'running a $delayInSeconds seconds operation');
+    final childSpan = activeSpan?.startChild('complex operation',
+        description: 'running a $delayInSeconds seconds operation');
     await Future.delayed(const Duration(seconds: delayInSeconds));
     childSpan?.finish();
     Navigator.of(context).pop();

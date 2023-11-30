@@ -186,9 +186,12 @@ class MainScaffold extends StatelessWidget {
           children: [
             if (_isIntegrationTest) const IntegrationTestWidget(),
             const Center(child: Text('Trigger an action.\n')),
-            const Center(
-                child: Text(
-                    'Hover over a button to see more information. (long press on mobile) \n')),
+            const Padding(
+              padding: EdgeInsets.all(15), //apply padding to all four sides
+              child: Center(
+                  child: Text(
+                      'Long press a button to see more information. (hover on web)')),
+            ),
             TooltipButton(
               onPressed: () => navigateToAutoCloseScreen(context),
               text:
@@ -338,14 +341,14 @@ class MainScaffold extends StatelessWidget {
               onPressed: () async => await makeWebRequestWithDio(context),
               key: const Key('dio_web_request'),
               text:
-              'Attaches web request related spans to the transaction and send it to Sentry.',
+                  'Attaches web request related spans to the transaction and send it to Sentry.',
               buttonTitle: 'Dio: Web request',
             ),
 
             TooltipButton(
               onPressed: () => showDialogWithTextAndImage(context),
               text:
-              'Attaches asset bundle related spans to the transaction and send it to Sentry.',
+                  'Attaches asset bundle related spans to the transaction and send it to Sentry.',
               buttonTitle: 'Flutter: Load assets',
             ),
             TooltipButton(
@@ -354,7 +357,8 @@ class MainScaffold extends StatelessWidget {
                 print('A print breadcrumb');
                 Sentry.captureMessage('A message with a print() Breadcrumb');
               },
-              text: 'Sends a captureMessage to Sentry with a breadcrumb created by a print() statement.',
+              text:
+                  'Sends a captureMessage to Sentry with a breadcrumb created by a print() statement.',
               buttonTitle: 'Record print() as breadcrumb',
             ),
             TooltipButton(
@@ -366,7 +370,8 @@ class MainScaffold extends StatelessWidget {
                   },
                 );
               },
-              text: 'Sends the capture message event with additional Tag to Sentry.',
+              text:
+                  'Sends the capture message event with additional Tag to Sentry.',
               buttonTitle: 'Capture message with scope with additional tag',
             ),
             TooltipButton(
@@ -414,7 +419,8 @@ class MainScaffold extends StatelessWidget {
                 // findPrimeNumber(1000000); // Uncomment to see it with profiling
                 await transaction.finish(status: const SpanStatus.ok());
               },
-              text: 'Creates a custom transaction, adds child spans and send them to Sentry.',
+              text:
+                  'Creates a custom transaction, adds child spans and send them to Sentry.',
               buttonTitle: 'Capture transaction',
             ),
             TooltipButton(
@@ -460,7 +466,8 @@ class MainScaffold extends StatelessWidget {
                   );
                 });
               },
-              text: 'Sends the capture message with an image attachment to Sentry.',
+              text:
+                  'Sends the capture message with an image attachment to Sentry.',
               buttonTitle: 'Capture message with image attachment',
             ),
             TooltipButton(
@@ -479,7 +486,8 @@ class MainScaffold extends StatelessWidget {
                   },
                 );
               },
-              text: 'Shows a custom user feedback dialog without an ongoing event that captures and sends user feedback data to Sentry.',
+              text:
+                  'Shows a custom user feedback dialog without an ongoing event that captures and sends user feedback data to Sentry.',
               buttonTitle: 'Capture User Feedback',
             ),
             TooltipButton(
@@ -499,7 +507,8 @@ class MainScaffold extends StatelessWidget {
                 final log = Logger('Logging');
                 log.info('My Logging test');
               },
-              text: 'Demonstrates the logging integration. log.info() will create an info event send it to Sentry.',
+              text:
+                  'Demonstrates the logging integration. log.info() will create an info event send it to Sentry.',
               buttonTitle: 'Logging',
             ),
             if (UniversalPlatform.isIOS || UniversalPlatform.isMacOS)
