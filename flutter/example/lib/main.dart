@@ -179,7 +179,6 @@ class MainScaffold extends StatelessWidget {
           children: [
             if (_isIntegrationTest) const IntegrationTestWidget(),
             const Center(child: Text('Trigger an action:\n')),
-            // For simplicity sake we skip the web set up for now.
             TooltipButton(
               onPressed: () => navigateToDelayedScreen(context),
               text: 'Pushes a screen and creates a transaction named \'DelayedScreen\' with a child span that finishes after 3 seconds. \nAfter the screen has popped the transaction can then be seen on the performance page.',
