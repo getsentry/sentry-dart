@@ -2,12 +2,17 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:sentry/sentry.dart';
 
-class DelayedScreen extends StatefulWidget {
+/// This screen is only used to demonstrate how route navigation works.
+/// Init will create a child span and pop the screen after 3 seconds.
+/// Afterwards the transaction should be seen on the performance page.
+class AutoCloseScreen extends StatefulWidget {
+  const AutoCloseScreen({super.key});
+
   @override
-  _DelayedScreenState createState() => _DelayedScreenState();
+  _AutoCloseScreenState createState() => _AutoCloseScreenState();
 }
 
-class _DelayedScreenState extends State<DelayedScreen> {
+class _AutoCloseScreenState extends State<AutoCloseScreen> {
   static const delayInSeconds = 3;
 
   @override
