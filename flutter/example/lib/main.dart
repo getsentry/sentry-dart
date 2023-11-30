@@ -18,6 +18,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:universal_platform/universal_platform.dart';
 import 'package:feedback/feedback.dart' as feedback;
 import 'package:provider/provider.dart';
+import 'delayed_screen.dart';
 import 'drift/database.dart';
 import 'drift/connection/connection.dart';
 import 'user_feedback_dialog.dart';
@@ -30,8 +31,13 @@ import 'package:sentry_hive/sentry_hive.dart';
 const String exampleDsn =
     'https://e85b375ffb9f43cf8bdf9787768149e0@o447951.ingest.sentry.io/5428562';
 
+/// This is an exampleUrl that will be used to demonstrate how http requests are captured.
+const String exampleUrl = 'https://jsonplaceholder.typicode.com/todos/';
+
 const _channel = MethodChannel('example.flutter.sentry.io');
 var _isIntegrationTest = false;
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {
   await setupSentry(
@@ -100,6 +106,7 @@ class _MyAppState extends State<MyApp> {
         create: (_) => ThemeProvider(),
         child: Builder(
           builder: (context) => MaterialApp(
+            navigatorKey: navigatorKey,
             navigatorObservers: [
               SentryNavigatorObserver(),
             ],
@@ -111,6 +118,23 @@ class _MyAppState extends State<MyApp> {
     );
   }
 }
+
+class TooltipButton extends StatelessWidget {
+  final String text;
+  final String buttonTitle;
+  final void Function()? onPressed;
+
+  const TooltipButton({required this.onPressed, required this.buttonTitle, required this.text, Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: text,
+      child: ElevatedButton(onPressed: onPressed, child: Text(buttonTitle))
+    );
+  }
+}
+
 
 class MainScaffold extends StatelessWidget {
   const MainScaffold({
@@ -156,6 +180,11 @@ class MainScaffold extends StatelessWidget {
             if (_isIntegrationTest) const IntegrationTestWidget(),
             const Center(child: Text('Trigger an action:\n')),
             // For simplicity sake we skip the web set up for now.
+            TooltipButton(
+              onPressed: () => navigateToDelayedScreen(context),
+              text: 'Pushes a screen and creates a transaction named \'DelayedScreen\' with a child span that finishes after 3 seconds. \nAfter the screen has popped the transaction can then be seen on the performance page.',
+              buttonTitle: 'Route Navigation Observer',
+            ),
             if (!UniversalPlatform.isWeb)
               ElevatedButton(
                 onPressed: () => driftTest(),
@@ -596,6 +625,16 @@ class AndroidExample extends StatelessWidget {
   }
 }
 
+void navigateToDelayedScreen(BuildContext context) {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      settings: const RouteSettings(name: 'DelayedScreen'),
+      builder: (context) => DelayedScreen(),
+    ),
+  );
+}
+
 Future<void> tryCatch() async {
   try {
     throw StateError('try catch');
@@ -756,7 +795,8 @@ class SecondaryScaffold extends StatelessWidget {
   }
 }
 
-Future<void> makeWebRequest(BuildContext context) async {
+void makeWebRequest(BuildContext context) async {
+  print('span: ${Sentry.getSpan()}');
   final transaction = Sentry.getSpan() ??
       Sentry.startTransaction(
         'flutterwebrequest',
@@ -769,7 +809,7 @@ Future<void> makeWebRequest(BuildContext context) async {
   );
   // We don't do any exception handling here.
   // In case of an exception, let it get caught and reported to Sentry
-  final response = await client.get(Uri.parse('https://flutter.dev/'));
+  final response = await client.get(Uri.parse(exampleUrl));
 
   await transaction.finish(status: const SpanStatus.ok());
 
@@ -781,10 +821,6 @@ Future<void> makeWebRequest(BuildContext context) async {
   // ignore: use_build_context_synchronously
   await showDialog<void>(
     context: context,
-    // gets tracked if using SentryNavigatorObserver
-    routeSettings: const RouteSettings(
-      name: 'flutter.dev dialog',
-    ),
     builder: (context) {
       return AlertDialog(
         title: Text('Response ${response.statusCode}'),
@@ -818,7 +854,7 @@ Future<void> makeWebRequestWithDio(BuildContext context) async {
   );
   Response<String>? response;
   try {
-    response = await dio.get<String>('https://flutter.dev/');
+    response = await dio.get<String>(exampleUrl);
     span.status = const SpanStatus.ok();
   } catch (exception, stackTrace) {
     span.throwable = exception;
@@ -836,10 +872,6 @@ Future<void> makeWebRequestWithDio(BuildContext context) async {
   // ignore: use_build_context_synchronously
   await showDialog<void>(
     context: context,
-    // gets tracked if using SentryNavigatorObserver
-    routeSettings: const RouteSettings(
-      name: 'flutter.dev dialog',
-    ),
     builder: (context) {
       return AlertDialog(
         title: Text('Response ${response?.statusCode}'),
