@@ -369,6 +369,11 @@ class SentryOptions {
   @internal
   bool automatedTestMode = false;
 
+  /// Errors that the SDK automatically collects, for example in
+  /// [SentryIsolate], have `level` [SentryLevel.fatal] set per default.
+  /// Settings this to `false` will set the `level` to [SentryLevel.error].
+  bool markAutomaticallyCollectedErrorsAsFatal = true;
+
   SentryOptions({this.dsn, PlatformChecker? checker}) {
     if (checker != null) {
       platformChecker = checker;

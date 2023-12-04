@@ -74,7 +74,9 @@ class SentryIsolate {
       final throwableMechanism = ThrowableMechanism(mechanism, throwable);
       final event = SentryEvent(
         throwable: throwableMechanism,
-        level: SentryLevel.fatal,
+        level: hub.options.markAutomaticallyCollectedErrorsAsFatal
+            ? SentryLevel.fatal
+            : SentryLevel.error,
         timestamp: hub.options.clock(),
       );
 
