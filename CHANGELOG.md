@@ -4,15 +4,13 @@
 
 ### Features
 
+- Add option to opt out of fatal level for automatically collected errors ([#1738](https://github.com/getsentry/sentry-dart/pull/1738))
 - APM for isar ([#1726](https://github.com/getsentry/sentry-dart/pull/1726))
+
 ### Fixes
 
 - Add debug_meta to all events ([#1756](https://github.com/getsentry/sentry-dart/pull/1756))
   - Fixes obfuscated stacktraces when `captureMessage` or `captureEvent` is called with `attachStacktrace` option 
-
-### Features
-
-- Add option to opt out of fatal level for automatically collected errors ([#1738](https://github.com/getsentry/sentry-dart/pull/1738))
 
 ### Dependencies
 
