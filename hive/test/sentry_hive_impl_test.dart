@@ -554,6 +554,7 @@ void main() {
 
       when(fixture.hub.options).thenReturn(fixture.options);
       when(fixture.hub.getSpan()).thenReturn(fixture.tracer);
+      when(fixture.hub.scope).thenReturn(fixture.scope);
 
       await fixture.setUp();
     });
