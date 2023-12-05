@@ -10,7 +10,7 @@ Sentry integration for `isar` package
 
 | package | build | pub | likes | popularity | pub points |
 | ------- | ------- | ------- | ------- | ------- | ------- |
-| sentry_isar | [![build](https://github.com/getsentry/sentry-dart/workflows/sentry-isar/badge.svg?branch=main)](https://github.com/getsentry/sentry-dart/actions?query=workflow%3Asentry-isar) | [![pub package](https://img.shields.io/pub/v/sentry_isar.svg)](https://pub.dev/packages/sentry_isar) | [![likes](https://img.shields.io/pub/likes/sentry_isar)](https://pub.dev/packages/sentry_isar/score) | [![popularity](https://img.shields.io/pub/popularity/sentry_isar)](https://pub.dev/packages/sentry_isar/score) | [![pub points](https://img.shields.io/pub/points/sentry_isar)](https://pub.dev/packages/sentry_isar/score)
+| sentry_isar | [![build](https://github.com/getsentry/sentry-dart/actions/workflows/isar.yml/badge.svg?branch=main)](https://github.com/getsentry/sentry-dart/actions?query=workflow%3Asentry-isar) | [![pub package](https://img.shields.io/pub/v/sentry_isar.svg)](https://pub.dev/packages/sentry_isar) | [![likes](https://img.shields.io/pub/likes/sentry_isar)](https://pub.dev/packages/sentry_isar/score) | [![popularity](https://img.shields.io/pub/popularity/sentry_isar)](https://pub.dev/packages/sentry_isar/score) | [![pub points](https://img.shields.io/pub/points/sentry_isar)](https://pub.dev/packages/sentry_isar/score)
 
 Integration for the [`isar`](https://pub.dev/packages/isar) package.
 
