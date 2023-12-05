@@ -338,7 +338,7 @@ class MainScaffold extends StatelessWidget {
               buttonTitle: 'Dart: Web request',
             ),
             TooltipButton(
-              onPressed: () async => await makeWebRequestWithDio(context),
+              onPressed: () => makeWebRequestWithDio(context),
               key: const Key('dio_web_request'),
               text:
                   'Attaches web request related spans to the transaction and send it to Sentry.',
@@ -857,7 +857,7 @@ class SecondaryScaffold extends StatelessWidget {
   }
 }
 
-void makeWebRequest(BuildContext context) async {
+Future<void> makeWebRequest(BuildContext context) async {
   final transaction = Sentry.getSpan() ??
       Sentry.startTransaction(
         'flutterwebrequest',

@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:sentry/sentry.dart';
 
@@ -9,10 +8,10 @@ class AutoCloseScreen extends StatefulWidget {
   const AutoCloseScreen({super.key});
 
   @override
-  _AutoCloseScreenState createState() => _AutoCloseScreenState();
+  AutoCloseScreenState createState() => AutoCloseScreenState();
 }
 
-class _AutoCloseScreenState extends State<AutoCloseScreen> {
+class AutoCloseScreenState extends State<AutoCloseScreen> {
   static const delayInSeconds = 3;
 
   @override
@@ -27,6 +26,7 @@ class _AutoCloseScreenState extends State<AutoCloseScreen> {
         description: 'running a $delayInSeconds seconds operation');
     await Future.delayed(const Duration(seconds: delayInSeconds));
     childSpan?.finish();
+    // ignore: use_build_context_synchronously
     Navigator.of(context).pop();
   }
 
