@@ -34,108 +34,18 @@ void main() {
   });
 
   test(
-      '$ConnectivityIntegration: connectivity changed `bluetooth` adds `wifi` breadcrumb',
+      '$ConnectivityIntegration: addsBreadcrumb',
       () {
     final integration = fixture.getSut();
     integration.call(fixture.hub, fixture.options);
 
-    integration.addBreadcrumb(ConnectivityResult.bluetooth);
+    integration.addBreadcrumb('bluetooth');
 
     final crumb = verify(
       fixture.hub.addBreadcrumb(captureAny),
     ).captured.first as Breadcrumb;
 
-    verifyBreadcrumb(crumb, 'wifi');
-  });
-
-  test(
-      '$ConnectivityIntegration: connectivity changed `wifi` adds `wifi` breadcrumb',
-      () {
-    final integration = fixture.getSut();
-    integration.call(fixture.hub, fixture.options);
-
-    integration.addBreadcrumb(ConnectivityResult.wifi);
-
-    final crumb = verify(
-      fixture.hub.addBreadcrumb(captureAny),
-    ).captured.first as Breadcrumb;
-
-    verifyBreadcrumb(crumb, 'wifi');
-  });
-
-  test(
-      '$ConnectivityIntegration: connectivity changed `vpn` adds `vpn` breadcrumb',
-      () {
-    final integration = fixture.getSut();
-    integration.call(fixture.hub, fixture.options);
-
-    integration.addBreadcrumb(ConnectivityResult.vpn);
-
-    final crumb = verify(
-      fixture.hub.addBreadcrumb(captureAny),
-    ).captured.first as Breadcrumb;
-
-    verifyBreadcrumb(crumb, 'wifi');
-  });
-
-  test(
-      '$ConnectivityIntegration: connectivity changed `ethernet` adds `ethernet` breadcrumb',
-      () {
-    final integration = fixture.getSut();
-    integration.call(fixture.hub, fixture.options);
-
-    integration.addBreadcrumb(ConnectivityResult.ethernet);
-
-    final crumb = verify(
-      fixture.hub.addBreadcrumb(captureAny),
-    ).captured.first as Breadcrumb;
-
-    verifyBreadcrumb(crumb, 'ethernet');
-  });
-
-  test(
-      '$ConnectivityIntegration: connectivity changed `mobile` adds  `cellular` breadcrumb',
-      () {
-    final integration = fixture.getSut();
-    integration.call(fixture.hub, fixture.options);
-
-    integration.addBreadcrumb(ConnectivityResult.mobile);
-
-    final crumb = verify(
-      fixture.hub.addBreadcrumb(captureAny),
-    ).captured.first as Breadcrumb;
-
-    verifyBreadcrumb(crumb, 'cellular');
-  });
-
-  test(
-      '$ConnectivityIntegration: connectivity changed `other` adds `other` breadcrumb',
-      () {
-    final integration = fixture.getSut();
-    integration.call(fixture.hub, fixture.options);
-
-    integration.addBreadcrumb(ConnectivityResult.other);
-
-    final crumb = verify(
-      fixture.hub.addBreadcrumb(captureAny),
-    ).captured.first as Breadcrumb;
-
-    verifyBreadcrumb(crumb, 'other');
-  });
-
-  test(
-      '$ConnectivityIntegration: connectivity changed `none` adds `none` breadcrumb',
-      () {
-    final integration = fixture.getSut();
-    integration.call(fixture.hub, fixture.options);
-
-    integration.addBreadcrumb(ConnectivityResult.none);
-
-    final crumb = verify(
-      fixture.hub.addBreadcrumb(captureAny),
-    ).captured.first as Breadcrumb;
-
-    verifyBreadcrumb(crumb, 'none');
+    verifyBreadcrumb(crumb, 'bluetooth');
   });
 }
 

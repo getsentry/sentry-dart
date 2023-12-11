@@ -172,7 +172,7 @@ mixin SentryFlutter {
       integrations.add(ScreenshotIntegration());
     }
 
-    if (!platform.isIOS && !platform.isMacOS || !platform.isAndroid) {
+    if (platformChecker.isWeb) {
       integrations.add(ConnectivityIntegration());
     }
 
