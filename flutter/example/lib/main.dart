@@ -231,9 +231,8 @@ class MainScaffold extends StatelessWidget {
               buttonTitle: 'Dart: try catch',
             ),
             TooltipButton(
-              onPressed: () => Scaffold.of(context).showBottomSheet<dynamic>(
-                (context) => const Text('Scaffold error'),
-              ),
+              onPressed: () => Scaffold.of(context)
+                  .showBottomSheet((context) => const Text('Scaffold error')),
               text:
                   'Creates an uncaught exception and sends it to Sentry. This demonstrates how our flutter error integration catches unhandled exceptions.',
               buttonTitle: 'Flutter error : Scaffold.of()',
