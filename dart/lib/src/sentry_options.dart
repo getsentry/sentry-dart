@@ -374,6 +374,12 @@ class SentryOptions {
   /// Settings this to `false` will set the `level` to [SentryLevel.error].
   bool markAutomaticallyCollectedErrorsAsFatal = true;
 
+  /// Whether to enable Spotlight for local development.
+  bool enableSpotlight = false;
+
+  /// The Spotlight URL. Defaults to http://localhost:8969/stream
+  String spotlightUrl = 'http://localhost:8969/stream';
+
   SentryOptions({this.dsn, PlatformChecker? checker}) {
     if (checker != null) {
       platformChecker = checker;

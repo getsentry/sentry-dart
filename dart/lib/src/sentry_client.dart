@@ -16,6 +16,7 @@ import 'sentry_options.dart';
 import 'sentry_stack_trace_factory.dart';
 import 'transport/http_transport.dart';
 import 'transport/noop_transport.dart';
+import 'transport/spotlight_http_transport.dart';
 import 'utils/isolate_utils.dart';
 import 'version.dart';
 import 'sentry_envelope.dart';
@@ -48,6 +49,9 @@ class SentryClient {
     if (options.transport is NoOpTransport) {
       final rateLimiter = RateLimiter(options);
       options.transport = HttpTransport(options, rateLimiter);
+    }
+    if (options.enableSpotlight) {
+      options.transport = SpotlightHttpTransport(options, options.transport);
     }
     return SentryClient._(options);
   }
