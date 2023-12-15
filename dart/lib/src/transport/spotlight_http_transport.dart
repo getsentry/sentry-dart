@@ -1,16 +1,28 @@
 import 'package:http/http.dart';
+import 'http_transport_request_creator.dart';
 
 import '../../sentry.dart';
 import '../client_reports/discard_reason.dart';
+import '../noop_client.dart';
 import 'data_category.dart';
 
-/// Spotlight HTTP transport class that sends Sentry envelopes to both Sentry and Spotlight.
+/// Spotlight HTTP transport decorator that sends Sentry envelopes to both Sentry and Spotlight.
 class SpotlightHttpTransport extends Transport {
   final SentryOptions _options;
   final Transport _transport;
-  final Map<String, String> _headers = {'Content-Type': 'application/x-sentry-envelope'};
+  final HttpTransportRequestCreator _requestCreator;
 
-  SpotlightHttpTransport(this._options, this._transport);
+  factory SpotlightHttpTransport(SentryOptions options, Transport transport) {
+    if (options.httpClient is NoOpClient) {
+      options.httpClient = Client();
+    }
+    return SpotlightHttpTransport._(options, transport);
+  }
+
+  SpotlightHttpTransport._(this._options, this._transport) :
+    _requestCreator =
+        HttpTransportRequestCreator(_options, Uri.parse(_options.spotlightUrl));
+
 
   @override
   Future<SentryId?> send(SentryEnvelope envelope) async {
@@ -19,16 +31,13 @@ class SpotlightHttpTransport extends Transport {
   }
 
   Future<void> _sendToSpotlight(SentryEnvelope envelope) async {
-    final Uri spotlightUri = Uri.parse(_options.spotlightUrl);
-    final StreamedRequest spotlightRequest =
-        StreamedRequest('POST', spotlightUri);
+    envelope.header.sentAt = _options.clock();
 
-    envelope
-        .envelopeStream(_options)
-        .listen(spotlightRequest.sink.add)
-        .onDone(spotlightRequest.sink.close);
+    // Screenshots do not work currently https://github.com/getsentry/spotlight/issues/274
+    envelope.items
+        .removeWhere((element) => element.header.contentType == 'image/png');
 
-    spotlightRequest.headers.addAll(_headers);
+    final spotlightRequest = await _requestCreator.createRequest(envelope);
 
     final response = await _options.httpClient
         .send(spotlightRequest)
@@ -40,20 +49,20 @@ class SpotlightHttpTransport extends Transport {
       if (_options.debug) {
         _options.logger(
           SentryLevel.error,
-          'Spotlight Sidecar API returned an error, statusCode = ${response.statusCode}, '
+          'Spotlight returned an error, statusCode = ${response.statusCode}, '
           'body = ${response.body}',
         );
         print('body = ${response.request}');
       }
 
       if (response.statusCode >= 400 && response.statusCode != 429) {
-        _options.recorder.recordLostEvent(
-            DiscardReason.networkError, DataCategory.error);
+        _options.recorder
+            .recordLostEvent(DiscardReason.networkError, DataCategory.error);
       }
     } else {
       _options.logger(
         SentryLevel.debug,
-        'Envelope ${envelope.header.eventId ?? "--"} was sent successfully to spotlight ($spotlightUri)',
+        'Envelope ${envelope.header.eventId ?? "--"} was sent successfully to Spotlight (${_options.spotlightUrl})',
       );
     }
   }

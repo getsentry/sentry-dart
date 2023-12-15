@@ -378,7 +378,7 @@ class SentryOptions {
   bool enableSpotlight = false;
 
   /// The Spotlight URL. Defaults to http://localhost:8969/stream
-  String spotlightUrl = 'http://localhost:8969/stream';
+  String spotlightUrl = 'http://10.0.2.2:8969/stream';
 
   SentryOptions({this.dsn, PlatformChecker? checker}) {
     if (checker != null) {
