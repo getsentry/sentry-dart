@@ -43,8 +43,6 @@ class SpotlightHttpTransport extends Transport {
         .then(Response.fromStream);
 
     if (response.statusCode != 200) {
-      // body guard to not log the error as it has performance impact to allocate
-      // the body String.
       if (_options.debug) {
         _options.logger(
           SentryLevel.error,
