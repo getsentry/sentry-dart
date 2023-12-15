@@ -9,6 +9,7 @@
 
 ### Features
 
+- Add [Spotlight](https://spotlightjs.com/about/) support ([#1786](https://github.com/getsentry/sentry-dart/pull/1786))
 - Add option to opt out of fatal level for automatically collected errors ([#1738](https://github.com/getsentry/sentry-dart/pull/1738))
 - Add `Hive` breadcrumbs ([#1773](https://github.com/getsentry/sentry-dart/pull/1773))
 
