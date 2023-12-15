@@ -18,7 +18,7 @@ class HttpTransport implements Transport {
 
   final RateLimiter _rateLimiter;
 
-  late HttpTransportRequestHandler _requestHandler;
+  final HttpTransportRequestHandler _requestHandler;
 
   factory HttpTransport(SentryOptions options, RateLimiter rateLimiter) {
     if (options.httpClient is NoOpClient) {
@@ -28,10 +28,9 @@ class HttpTransport implements Transport {
     return HttpTransport._(options, rateLimiter);
   }
 
-  HttpTransport._(this._options, this._rateLimiter) {
-    final dsn = Dsn.parse(_options.dsn!);
-    _requestHandler = HttpTransportRequestHandler(_options, dsn.postUri);
-  }
+  HttpTransport._(this._options, this._rateLimiter)
+      : _requestHandler = HttpTransportRequestHandler(
+            _options, Dsn.parse(_options.dsn!).postUri);
 
   @override
   Future<SentryId?> send(SentryEnvelope envelope) async {
