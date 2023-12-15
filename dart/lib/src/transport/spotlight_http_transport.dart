@@ -1,16 +1,15 @@
 import 'package:http/http.dart';
-import 'http_transport_request_creator.dart';
+import '../utils/transport_utils.dart';
+import 'http_transport_request_handler.dart';
 
 import '../../sentry.dart';
-import '../client_reports/discard_reason.dart';
 import '../noop_client.dart';
-import 'data_category.dart';
 
 /// Spotlight HTTP transport decorator that sends Sentry envelopes to both Sentry and Spotlight.
 class SpotlightHttpTransport extends Transport {
   final SentryOptions _options;
   final Transport _transport;
-  final HttpTransportRequestCreator _requestCreator;
+  final HttpTransportRequestHandler _requestHandler;
 
   factory SpotlightHttpTransport(SentryOptions options, Transport transport) {
     if (options.httpClient is NoOpClient) {
@@ -20,7 +19,7 @@ class SpotlightHttpTransport extends Transport {
   }
 
   SpotlightHttpTransport._(this._options, this._transport)
-      : _requestCreator = HttpTransportRequestCreator(
+      : _requestHandler = HttpTransportRequestHandler(
             _options, Uri.parse(_options.spotlightUrl));
 
   @override
@@ -36,30 +35,13 @@ class SpotlightHttpTransport extends Transport {
     envelope.items
         .removeWhere((element) => element.header.contentType == 'image/png');
 
-    final spotlightRequest = await _requestCreator.createRequest(envelope);
+    final spotlightRequest = await _requestHandler.createRequest(envelope);
 
     final response = await _options.httpClient
         .send(spotlightRequest)
         .then(Response.fromStream);
 
-    if (response.statusCode != 200) {
-      if (_options.debug) {
-        _options.logger(
-          SentryLevel.error,
-          'Spotlight returned an error, statusCode = ${response.statusCode}, '
-          'body = ${response.body}',
-        );
-      }
-
-      if (response.statusCode >= 400 && response.statusCode != 429) {
-        _options.recorder
-            .recordLostEvent(DiscardReason.networkError, DataCategory.error);
-      }
-    } else {
-      _options.logger(
-        SentryLevel.debug,
-        'Envelope ${envelope.header.eventId ?? "--"} was sent successfully to Spotlight (${_options.spotlightUrl})',
-      );
-    }
+    TransportUtils.logResponse(_options, envelope, response,
+        target: 'Spotlight');
   }
 }

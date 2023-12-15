@@ -2,11 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:http/http.dart';
-import 'http_transport_request_creator.dart';
+import '../utils/transport_utils.dart';
+import 'http_transport_request_handler.dart';
 
-import '../client_reports/client_report_recorder.dart';
-import '../client_reports/discard_reason.dart';
-import 'data_category.dart';
 import '../noop_client.dart';
 import '../protocol.dart';
 import '../sentry_options.dart';
@@ -18,13 +16,9 @@ import 'rate_limiter.dart';
 class HttpTransport implements Transport {
   final SentryOptions _options;
 
-  final Dsn _dsn;
-
   final RateLimiter _rateLimiter;
 
-  final ClientReportRecorder _recorder;
-
-  late HttpTransportRequestCreator _httpTransportRequestCreator;
+  late HttpTransportRequestHandler _requestHandler;
 
   factory HttpTransport(SentryOptions options, RateLimiter rateLimiter) {
     if (options.httpClient is NoOpClient) {
@@ -34,11 +28,9 @@ class HttpTransport implements Transport {
     return HttpTransport._(options, rateLimiter);
   }
 
-  HttpTransport._(this._options, this._rateLimiter)
-      : _dsn = Dsn.parse(_options.dsn!),
-        _recorder = _options.recorder {
-    _httpTransportRequestCreator =
-        HttpTransportRequestCreator(_options, _dsn.postUri);
+  HttpTransport._(this._options, this._rateLimiter) {
+    final dsn = Dsn.parse(_options.dsn!);
+    _requestHandler = HttpTransportRequestHandler(_options, dsn.postUri);
   }
 
   @override
@@ -50,7 +42,7 @@ class HttpTransport implements Transport {
     filteredEnvelope.header.sentAt = _options.clock();
 
     final streamedRequest =
-        await _httpTransportRequestCreator.createRequest(filteredEnvelope);
+        await _requestHandler.createRequest(filteredEnvelope);
 
     final response = await _options.httpClient
         .send(streamedRequest)
@@ -58,35 +50,22 @@ class HttpTransport implements Transport {
 
     _updateRetryAfterLimits(response);
 
-    if (response.statusCode != 200) {
-      // body guard to not log the error as it has performance impact to allocate
-      // the body String.
-      if (_options.debug) {
-        _options.logger(
-          SentryLevel.error,
-          'API returned an error, statusCode = ${response.statusCode}, '
-          'body = ${response.body}',
-        );
-      }
+    TransportUtils.logResponse(_options, envelope, response, target: 'Sentry');
 
-      if (response.statusCode >= 400 && response.statusCode != 429) {
-        _recorder.recordLostEvent(
-            DiscardReason.networkError, DataCategory.error);
-      }
-
-      return SentryId.empty();
-    } else {
-      _options.logger(
-        SentryLevel.debug,
-        'Envelope ${envelope.header.eventId ?? "--"} was sent successfully.',
-      );
+    if (response.statusCode == 200) {
+      return _parseEventId(response);
     }
+    return SentryId.empty();
+  }
 
-    final eventId = json.decode(response.body)['id'];
-    if (eventId == null) {
+  SentryId? _parseEventId(Response response) {
+    try {
+      final eventId = json.decode(response.body)['id'];
+      return eventId != null ? SentryId.fromId(eventId) : null;
+    } catch (e) {
+      _options.logger(SentryLevel.error, 'Error parsing response: $e');
       return null;
     }
-    return SentryId.fromId(eventId);
   }
 
   void _updateRetryAfterLimits(Response response) {

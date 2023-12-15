@@ -1,18 +1,22 @@
+import 'dart:async';
+
 import 'package:http/http.dart';
 import 'package:meta/meta.dart';
 
-import '../../sentry.dart';
-import 'encode.dart';
+import 'noop_encode.dart' if (dart.library.io) 'encode.dart';
+import '../protocol.dart';
+import '../sentry_options.dart';
+import '../sentry_envelope.dart';
 
 @internal
-class HttpTransportRequestCreator {
+class HttpTransportRequestHandler {
   final SentryOptions _options;
   final Dsn _dsn;
   final Map<String, String> _headers;
   final Uri _requestUri;
   late _CredentialBuilder _credentialBuilder;
 
-  HttpTransportRequestCreator(this._options, this._requestUri)
+  HttpTransportRequestHandler(this._options, this._requestUri)
       : _dsn = Dsn.parse(_options.dsn!),
         _headers = _buildHeaders(
           _options.platformChecker.isWeb,
