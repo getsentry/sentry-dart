@@ -19,10 +19,9 @@ class SpotlightHttpTransport extends Transport {
     return SpotlightHttpTransport._(options, transport);
   }
 
-  SpotlightHttpTransport._(this._options, this._transport) :
-    _requestCreator =
-        HttpTransportRequestCreator(_options, Uri.parse(_options.spotlightUrl));
-
+  SpotlightHttpTransport._(this._options, this._transport)
+      : _requestCreator = HttpTransportRequestCreator(
+            _options, Uri.parse(_options.spotlightUrl));
 
   @override
   Future<SentryId?> send(SentryEnvelope envelope) async {
@@ -52,7 +51,6 @@ class SpotlightHttpTransport extends Transport {
           'Spotlight returned an error, statusCode = ${response.statusCode}, '
           'body = ${response.body}',
         );
-        print('body = ${response.request}');
       }
 
       if (response.statusCode >= 400 && response.statusCode != 429) {

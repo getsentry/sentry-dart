@@ -37,7 +37,8 @@ class HttpTransport implements Transport {
   HttpTransport._(this._options, this._rateLimiter)
       : _dsn = Dsn.parse(_options.dsn!),
         _recorder = _options.recorder {
-    _httpTransportRequestCreator = HttpTransportRequestCreator(_options, _dsn.postUri);
+    _httpTransportRequestCreator =
+        HttpTransportRequestCreator(_options, _dsn.postUri);
   }
 
   @override
@@ -48,7 +49,9 @@ class HttpTransport implements Transport {
     }
     filteredEnvelope.header.sentAt = _options.clock();
 
-    final streamedRequest = await _httpTransportRequestCreator.createRequest(filteredEnvelope);
+    final streamedRequest =
+        await _httpTransportRequestCreator.createRequest(filteredEnvelope);
+
     final response = await _options.httpClient
         .send(streamedRequest)
         .then(Response.fromStream);

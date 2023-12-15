@@ -28,8 +28,7 @@ class HttpTransportRequestCreator {
     final streamedRequest = StreamedRequest('POST', _requestUri);
 
     if (_options.compressPayload) {
-      final compressionSink =
-          compressInSink(streamedRequest.sink, _headers);
+      final compressionSink = compressInSink(streamedRequest.sink, _headers);
       envelope
           .envelopeStream(_options)
           .listen(compressionSink.add)
