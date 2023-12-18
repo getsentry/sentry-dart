@@ -187,12 +187,7 @@ void main() {
 SentryEvent _getEvent() {
   final frame = SentryStackFrame(platform: 'native');
   final st = SentryStackTrace(frames: [frame]);
-  final ex = SentryException(
-    type: 'type',
-    value: 'value',
-    stackTrace: st,
-  );
-  return SentryEvent(exceptions: [ex]);
+  return SentryEvent(threads: [SentryThread(stacktrace: st)]);
 }
 
 class Fixture {
