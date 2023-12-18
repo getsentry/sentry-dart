@@ -32,7 +32,7 @@ void main() {
       expect(options.enableAutoNativeBreadcrumbs, isFalse);
     });
 
-    testWidgets('useFlutterBreadcrumbTracking', (WidgetTester tester) async {
+    testWidgets('useNativeBreadcrumbTracking', (WidgetTester tester) async {
       final options = SentryFlutterOptions();
       options.useNativeBreadcrumbTracking();
 

@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 7.14.0
 
 ### Features
 
@@ -12,11 +12,21 @@
 - Add debug_meta to all events ([#1756](https://github.com/getsentry/sentry-dart/pull/1756))
   - Fixes obfuscated stacktraces when `captureMessage` or `captureEvent` is called with `attachStacktrace` option 
 
+### Features
+
+- Add option to opt out of fatal level for automatically collected errors ([#1738](https://github.com/getsentry/sentry-dart/pull/1738))
+- Add `Hive` breadcrumbs ([#1773](https://github.com/getsentry/sentry-dart/pull/1773))
+- Add `ConnectivityIntegration` for web ([#1765](https://github.com/getsentry/sentry-dart/pull/1765))
+  - We only get the info if online/offline on web platform. The added breadcrumb is set to either `wifi` or `none`.
+
 ### Dependencies
 
-- Bump Cocoa SDK from v8.15.2 to v8.17.1 ([#1761](https://github.com/getsentry/sentry-dart/pull/1761), [#1771](https://github.com/getsentry/sentry-dart/pull/1771))
-  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8171)
-  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.15.2...8.17.1)
+- Bump Android SDK from v6.34.0 to v7.0.0 ([#1768](https://github.com/getsentry/sentry-dart/pull/1768))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#700)
+  - [diff](https://github.com/getsentry/sentry-java/compare/6.34.0...7.0.0)
+- Bump Cocoa SDK from v8.15.2 to v8.17.2 ([#1761](https://github.com/getsentry/sentry-dart/pull/1761), [#1771](https://github.com/getsentry/sentry-dart/pull/1771), [#1787](https://github.com/getsentry/sentry-dart/pull/1787))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8172)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.15.2...8.17.2)
 
 ## 7.13.2
 
