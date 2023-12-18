@@ -3,7 +3,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:sentry_flutter/src/integrations/connectivity_integration.dart';
+import 'package:sentry_flutter/src/integrations/connectivity/connectivity_integration.dart';
 import 'package:sentry_flutter/src/integrations/integrations.dart';
 import 'package:sentry_flutter/src/integrations/screenshot_integration.dart';
 import 'package:sentry_flutter/src/profiling.dart';

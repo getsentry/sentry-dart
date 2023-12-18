@@ -1,22 +1,23 @@
 import 'dart:async';
 import 'dart:html' as html;
 
-import 'package:meta/meta.dart';
-import '../../sentry_flutter.dart';
+import 'connectivity_provider.dart';
 
-class ConnectivityIntegration extends Integration<SentryFlutterOptions> {
-  Hub? _hub;
+ConnectivityProvider connectivityProvider() {
+  return WebConnectivityProvider();
+}
+
+class WebConnectivityProvider implements ConnectivityProvider {
+
   html.NetworkInformation? _networkInformation;
-  String? _oldResult = 'none';
+  String? _oldResult;
 
   StreamSubscription<html.Event>? _networkInfoSub;
   StreamSubscription<html.Event>? _onOnlineSub;
   StreamSubscription<html.Event>? _onOfflineSub;
 
   @override
-  void call(Hub hub, SentryFlutterOptions options) {
-    _hub = hub;
-
+  void listen(void Function(String connectivity) onChange) {
     final supportsNetworkInformation = html.window.navigator.connection != null;
     if (supportsNetworkInformation) {
       _networkInformation = html.window.navigator.connection;
@@ -26,26 +27,23 @@ class ConnectivityIntegration extends Integration<SentryFlutterOptions> {
         final newResult = _networkInformation?.toConnectivityResult();
         if (newResult != null && _oldResult != newResult) {
           _oldResult = newResult;
-          addBreadcrumb(newResult);
+          onChange(newResult);
         }
       });
     } else {
       // Fallback to onLine/onOffline API
       _oldResult = (html.window.navigator.onLine ?? false) ? 'wifi' : 'none';
       _onOnlineSub = html.window.onOnline.listen((_) {
-        addBreadcrumb('wifi');
+        onChange('wifi');
       });
       _onOfflineSub = html.window.onOffline.listen((_) {
-        addBreadcrumb('none');
+        onChange('none');
       });
     }
-    options.sdk.addIntegration('connectivityIntegration');
   }
 
   @override
-  void close() {
-    _hub = null;
-
+  void cancel() {
     _networkInfoSub?.cancel();
     _networkInfoSub = null;
 
@@ -55,20 +53,8 @@ class ConnectivityIntegration extends Integration<SentryFlutterOptions> {
     _onOfflineSub?.cancel();
     _onOfflineSub = null;
 
-    _oldResult = 'none';
+    _oldResult = null;
     _networkInformation = null;
-  }
-
-  @internal
-  @visibleForTesting
-  void addBreadcrumb(String result) {
-    _hub?.addBreadcrumb(
-      Breadcrumb(
-          category: 'device.connectivity',
-          level: SentryLevel.info,
-          type: 'connectivity',
-          data: {'connectivity': result}),
-    );
   }
 }
 
