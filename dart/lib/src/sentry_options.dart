@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:meta/meta.dart';
 import 'package:http/http.dart';
@@ -377,8 +378,10 @@ class SentryOptions {
   /// Whether to enable Spotlight for local development.
   bool enableSpotlight = false;
 
-  /// The Spotlight URL. Defaults to http://localhost:8969/stream
-  String spotlightUrl = 'http://10.0.2.2:8969/stream';
+  /// The Spotlight URL.
+  /// Defaults to http://10.0.2.2:8969/stream due to Emulator on Android.
+  /// Otherwise defaults to http://localhost:8969/stream.
+  String spotlightUrl = Platform.isAndroid ? 'http://10.0.2.2:8969/stream' : 'http://localhost:8969/stream';
 
   SentryOptions({this.dsn, PlatformChecker? checker}) {
     if (checker != null) {

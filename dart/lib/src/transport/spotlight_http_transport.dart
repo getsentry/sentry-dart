@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:http/http.dart';
 import '../utils/transport_utils.dart';
 import 'http_transport_request_handler.dart';
@@ -24,7 +26,14 @@ class SpotlightHttpTransport extends Transport {
 
   @override
   Future<SentryId?> send(SentryEnvelope envelope) async {
-    await _sendToSpotlight(envelope);
+    print(_options.spotlightUrl);
+    try {
+      await _sendToSpotlight(envelope);
+    } catch (e) {
+      print('not here');
+      _options.logger(
+          SentryLevel.warning, 'Failed to send envelope to Spotlight: $e');
+    }
     return _transport.send(envelope);
   }
 
