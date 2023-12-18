@@ -23,7 +23,7 @@ void main() {
 
       final httpMock = MockClient((http.Request request) async {
         body = request.bodyBytes;
-        if (request.url.toString() == fixture.options.spotlightUrl) {
+        if (request.url.toString() == fixture.options.spotlight.url) {
           return http.Response('{}', 500);
         }
         return http.Response('{}', 200);

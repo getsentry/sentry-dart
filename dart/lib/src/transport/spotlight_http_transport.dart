@@ -20,7 +20,7 @@ class SpotlightHttpTransport extends Transport {
 
   SpotlightHttpTransport._(this._options, this._transport)
       : _requestHandler = HttpTransportRequestHandler(
-            _options, Uri.parse(_options.spotlightUrl));
+            _options, Uri.parse(_options.spotlight.url));
 
   @override
   Future<SentryId?> send(SentryEnvelope envelope) async {

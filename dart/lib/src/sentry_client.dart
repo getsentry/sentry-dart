@@ -50,7 +50,7 @@ class SentryClient {
       final rateLimiter = RateLimiter(options);
       options.transport = HttpTransport(options, rateLimiter);
     }
-    if (options.enableSpotlight) {
+    if (options.spotlight.enabled) {
       options.transport = SpotlightHttpTransport(options, options.transport);
     }
     return SentryClient._(options);
