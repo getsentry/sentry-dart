@@ -381,7 +381,7 @@ class SentryOptions {
   /// The Spotlight URL.
   /// Defaults to http://10.0.2.2:8969/stream due to Emulator on Android.
   /// Otherwise defaults to http://localhost:8969/stream.
-  String spotlightUrl = Platform.isAndroid
+  String spotlightUrl = PlatformChecker().platform.isAndroid
       ? 'http://10.0.2.2:8969/stream'
       : 'http://localhost:8969/stream';
 
