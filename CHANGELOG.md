@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Add `ConnectivityIntegration` for web ([#1765](https://github.com/getsentry/sentry-dart/pull/1765))
+  - We only get the info if online/offline on web platform. The added breadcrumb is set to either `wifi` or `none`.
+
 ## 7.14.0
 
 ### Fixes
@@ -11,8 +18,6 @@
 
 - Add option to opt out of fatal level for automatically collected errors ([#1738](https://github.com/getsentry/sentry-dart/pull/1738))
 - Add `Hive` breadcrumbs ([#1773](https://github.com/getsentry/sentry-dart/pull/1773))
-- Add `ConnectivityIntegration` for web ([#1765](https://github.com/getsentry/sentry-dart/pull/1765))
-  - We only get the info if online/offline on web platform. The added breadcrumb is set to either `wifi` or `none`.
 
 ### Dependencies
 
