@@ -8,7 +8,6 @@ ConnectivityProvider connectivityProvider() {
 }
 
 class WebConnectivityProvider implements ConnectivityProvider {
-
   StreamSubscription<html.Event>? _onOnlineSub;
   StreamSubscription<html.Event>? _onOfflineSub;
 

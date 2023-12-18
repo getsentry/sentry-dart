@@ -1,4 +1,3 @@
-
 import 'connectivity_provider.dart';
 
 ConnectivityProvider connectivityProvider() {
@@ -6,7 +5,6 @@ ConnectivityProvider connectivityProvider() {
 }
 
 class NoOpConnectivityProvider implements ConnectivityProvider {
-
   @override
   void listen(void Function(String connectivity) onChange) {
     // NoOp

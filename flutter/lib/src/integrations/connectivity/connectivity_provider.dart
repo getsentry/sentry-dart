@@ -1,6 +1,5 @@
-
 import 'noop_connectivity_provider.dart'
-if (dart.library.html) 'web_connectivity_provider.dart';
+    if (dart.library.html) 'web_connectivity_provider.dart';
 
 abstract class ConnectivityProvider {
   factory ConnectivityProvider() => connectivityProvider();

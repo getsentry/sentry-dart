@@ -32,9 +32,7 @@ void main() {
         true);
   });
 
-  test(
-      '$ConnectivityIntegration: addsBreadcrumb',
-      () {
+  test('$ConnectivityIntegration: addsBreadcrumb', () {
     final integration = fixture.getSut();
     integration.call(fixture.hub, fixture.options);
 
