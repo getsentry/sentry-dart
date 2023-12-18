@@ -1,4 +1,3 @@
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
@@ -39,13 +38,13 @@ void main() {
     final integration = fixture.getSut();
     integration.call(fixture.hub, fixture.options);
 
-    integration.addBreadcrumb('bluetooth');
+    integration.addBreadcrumb('wifi');
 
     final crumb = verify(
       fixture.hub.addBreadcrumb(captureAny),
     ).captured.first as Breadcrumb;
 
-    verifyBreadcrumb(crumb, 'bluetooth');
+    verifyBreadcrumb(crumb, 'wifi');
   });
 }
 
