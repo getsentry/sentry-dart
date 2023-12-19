@@ -4,9 +4,9 @@
 
 ### Features
 
-- APM for isar ([#1726](https://github.com/getsentry/sentry-dart/pull/1726))
 - Add `ConnectivityIntegration` for web ([#1765](https://github.com/getsentry/sentry-dart/pull/1765))
   - We only get the info if online/offline on web platform. The added breadcrumb is set to either `wifi` or `none`.
+- APM for isar ([#1726](https://github.com/getsentry/sentry-dart/pull/1726))
 
 ## 7.14.0
 
