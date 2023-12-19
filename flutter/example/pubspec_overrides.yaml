@@ -15,3 +15,5 @@ dependency_overrides:
     path: ../../hive
   sentry_drift:
     path: ../../drift
+  sentry_isar:
+    path: ../../isar
