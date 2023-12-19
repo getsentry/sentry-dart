@@ -17,8 +17,3 @@ dependency_overrides:
     path: ../../drift
   sentry_isar:
     path: ../../isar
-  isar_generator: # https://github.com/isar/isar/issues/686#issuecomment-1473668196
-    git:
-      url: https://github.com/Kiruel/isar
-      ref: fix/web_build
-      path: packages/isar_generator
