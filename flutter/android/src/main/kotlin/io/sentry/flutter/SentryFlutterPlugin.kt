@@ -142,7 +142,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     }
 
     val appStartTime = AppStartMetrics.getInstance().appStartTimeSpan.startTimestamp
-    val isColdStart = AppStartMetrics.getInstance().appStartType == AppStartMetrics.AppStartType.COLD;
+    val isColdStart = AppStartMetrics.getInstance().appStartType == AppStartMetrics.AppStartType.COLD
 
     if (appStartTime == null) {
       Log.w("Sentry", "App start won't be sent due to missing appStartTime")
