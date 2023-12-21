@@ -234,10 +234,10 @@ Element? _clickTrackerElement;
 /// [SentryUserInteractionWidget] as a child of [SentryScreenshotWidget].
 class SentryUserInteractionWidget extends StatefulWidget {
   SentryUserInteractionWidget({
-    Key? key,
+    super.key,
     required this.child,
     @internal Hub? hub,
-  }) : super(key: key) {
+  }) {
     _hub = hub ?? HubAdapter();
 
     if (_options?.enableUserInteractionTracing ?? false) {

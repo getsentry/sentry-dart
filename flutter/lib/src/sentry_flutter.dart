@@ -9,6 +9,7 @@ import '../sentry_flutter.dart';
 import 'event_processor/android_platform_exception_event_processor.dart';
 import 'event_processor/flutter_exception_event_processor.dart';
 import 'event_processor/platform_exception_event_processor.dart';
+import 'integrations/connectivity/connectivity_integration.dart';
 import 'integrations/screenshot_integration.dart';
 import 'native/factory.dart';
 import 'native/native_scope_observer.dart';
@@ -169,6 +170,10 @@ mixin SentryFlutter {
     final renderer = options.rendererWrapper.getRenderer();
     if (!platformChecker.isWeb || renderer == FlutterRenderer.canvasKit) {
       integrations.add(ScreenshotIntegration());
+    }
+
+    if (platformChecker.isWeb) {
+      integrations.add(ConnectivityIntegration());
     }
 
     // works with Skia, CanvasKit and HTML renderer

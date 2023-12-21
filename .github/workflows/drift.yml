@@ -12,6 +12,8 @@ on:
       - "dio/**"
       - "file/**"
       - "sqflite/**"
+      - "hive/**"
+      - "isar/**"
 
 jobs:
   cancel-previous-workflow:
