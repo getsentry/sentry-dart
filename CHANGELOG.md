@@ -4,6 +4,7 @@
 
 ### Features
 
+- Add [Spotlight](https://spotlightjs.com/about/) support ([#1786](https://github.com/getsentry/sentry-dart/pull/1786))
 - Add `ConnectivityIntegration` for web ([#1765](https://github.com/getsentry/sentry-dart/pull/1765))
   - We only get the info if online/offline on web platform. The added breadcrumb is set to either `wifi` or `none`.
 - APM for isar ([#1726](https://github.com/getsentry/sentry-dart/pull/1726))
@@ -19,7 +20,6 @@
 
 ### Features
 
-- Add [Spotlight](https://spotlightjs.com/about/) support ([#1786](https://github.com/getsentry/sentry-dart/pull/1786))
 - Add option to opt out of fatal level for automatically collected errors ([#1738](https://github.com/getsentry/sentry-dart/pull/1738))
 - Add `Hive` breadcrumbs ([#1773](https://github.com/getsentry/sentry-dart/pull/1773))
 
