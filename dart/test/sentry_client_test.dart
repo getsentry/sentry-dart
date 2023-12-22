@@ -12,6 +12,7 @@ import 'package:sentry/src/sentry_item_type.dart';
 import 'package:sentry/src/sentry_stack_trace_factory.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry/src/transport/data_category.dart';
+import 'package:sentry/src/transport/spotlight_http_transport.dart';
 import 'package:test/test.dart';
 
 import 'mocks.dart';
@@ -1705,6 +1706,13 @@ void main() {
       final capturedEnvelope = (fixture.transport).envelopes.first;
 
       expect(capturedEnvelope.header.dsn, fixture.options.dsn);
+    });
+
+    test('Spotlight enabled should set transport to SpotlightHttpTransport', () async {
+      fixture.options.spotlight = Spotlight(enabled: true);
+      fixture.getSut();
+
+      expect(fixture.options.transport is SpotlightHttpTransport, true);
     });
   });
 }
