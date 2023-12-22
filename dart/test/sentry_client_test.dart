@@ -1708,7 +1708,8 @@ void main() {
       expect(capturedEnvelope.header.dsn, fixture.options.dsn);
     });
 
-    test('Spotlight enabled should set transport to SpotlightHttpTransport', () async {
+    test('Spotlight enabled should set transport to SpotlightHttpTransport',
+        () async {
       fixture.options.spotlight = Spotlight(enabled: true);
       fixture.getSut();
 
