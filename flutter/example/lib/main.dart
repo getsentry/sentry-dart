@@ -10,9 +10,9 @@ import 'package:logging/logging.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sentry_drift/sentry_drift.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_isar/sentry_isar.dart';
 import 'package:sentry_sqflite/sentry_sqflite.dart';
 import 'package:sqflite/sqflite.dart';
-
 // import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 // import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 import 'package:universal_platform/universal_platform.dart';
@@ -21,6 +21,7 @@ import 'package:provider/provider.dart';
 import 'auto_close_screen.dart';
 import 'drift/database.dart';
 import 'drift/connection/connection.dart';
+import 'isar/user.dart';
 import 'user_feedback_dialog.dart';
 import 'package:dio/dio.dart';
 import 'package:sentry_dio/sentry_dio.dart';
@@ -211,6 +212,13 @@ class MainScaffold extends StatelessWidget {
                 text:
                     'Executes CRUD operations on an in-memory with Hive and sends the created transaction to Sentry.',
                 buttonTitle: 'hive',
+              ),
+            if (!UniversalPlatform.isWeb)
+              TooltipButton(
+                onPressed: isarTest,
+                text:
+                    'Executes CRUD operations on an in-memory with Isart and sends the created transaction to Sentry.',
+                buttonTitle: 'isar',
               ),
             TooltipButton(
               onPressed: sqfliteTest,
@@ -528,11 +536,38 @@ class MainScaffold extends StatelessWidget {
     );
   }
 
-  Future<void> hiveTest() async {
-    if (kIsWeb) {
-      return;
-    }
+  Future<void> isarTest() async {
+    final tr = Sentry.startTransaction(
+      'isarTest',
+      'db',
+      bindToScope: true,
+    );
 
+    final dir = await getApplicationDocumentsDirectory();
+
+    final isar = await SentryIsar.open(
+      [UserSchema],
+      directory: dir.path,
+    );
+
+    final newUser = User()
+      ..name = 'Joe Dirt'
+      ..age = 36;
+
+    await isar.writeTxn(() async {
+      await isar.users.put(newUser); // insert & update
+    });
+
+    final existingUser = await isar.users.get(newUser.id); // get
+
+    await isar.writeTxn(() async {
+      await isar.users.delete(existingUser!.id); // delete
+    });
+
+    await tr.finish(status: const SpanStatus.ok());
+  }
+
+  Future<void> hiveTest() async {
     final tr = Sentry.startTransaction(
       'hiveTest',
       'db',

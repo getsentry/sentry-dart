@@ -17,45 +17,34 @@ class SentryTransaction extends SentryEvent {
 
   SentryTransaction(
     this.tracer, {
-    SentryId? eventId,
+    super.eventId,
     DateTime? timestamp,
-    String? platform,
-    String? serverName,
-    String? release,
-    String? dist,
-    String? environment,
+    super.platform,
+    super.serverName,
+    super.release,
+    super.dist,
+    super.environment,
     String? transaction,
     dynamic throwable,
     Map<String, String>? tags,
     @Deprecated(
         'Additional Data is deprecated in favor of structured [Contexts] and should be avoided when possible')
     Map<String, dynamic>? extra,
-    SentryUser? user,
-    Contexts? contexts,
-    List<Breadcrumb>? breadcrumbs,
-    SdkVersion? sdk,
-    SentryRequest? request,
+    super.user,
+    super.contexts,
+    super.breadcrumbs,
+    super.sdk,
+    super.request,
     String? type,
     Map<String, SentryMeasurement>? measurements,
     SentryTransactionInfo? transactionInfo,
   }) : super(
-          eventId: eventId,
           timestamp: timestamp ?? tracer.endTimestamp,
-          platform: platform,
-          serverName: serverName,
-          release: release,
-          dist: dist,
-          environment: environment,
           transaction: transaction ?? tracer.name,
           throwable: throwable ?? tracer.throwable,
           tags: tags ?? tracer.tags,
           // ignore: deprecated_member_use_from_same_package
           extra: extra ?? tracer.data,
-          user: user,
-          contexts: contexts,
-          breadcrumbs: breadcrumbs,
-          sdk: sdk,
-          request: request,
           type: _type,
         ) {
     startTimestamp = tracer.startTimestamp;
@@ -64,7 +53,7 @@ class SentryTransaction extends SentryEvent {
     spans = tracer.children;
     this.measurements = measurements ?? {};
 
-    this.contexts.trace = spanContext.toTraceContext(
+    contexts.trace = spanContext.toTraceContext(
       sampled: tracer.samplingDecision?.sampled,
       status: tracer.status,
     );
