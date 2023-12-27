@@ -16,6 +16,8 @@ on:
       - "logging/**"
       - "min_version_test/**"
       - "sqflite/**"
+      - "drift/**"
+      - "isar/**"
 
 jobs:
   cancel-previous-workflow:

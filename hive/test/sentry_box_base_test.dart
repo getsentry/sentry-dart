@@ -40,6 +40,23 @@ void main() {
     expect(span?.throwable, exception);
   }
 
+  void verifyBreadcrumb(
+    String message,
+    Breadcrumb? crumb, {
+    bool checkName = false,
+    String status = 'ok',
+  }) {
+    expect(
+      crumb?.message,
+      message,
+    );
+    expect(crumb?.type, 'query');
+    if (checkName) {
+      expect(crumb?.data?[SentryHiveImpl.dbNameKey], Fixture.dbName);
+    }
+    expect(crumb?.data?['status'], status);
+  }
+
   group('adds span', () {
     late Fixture fixture;
 
@@ -49,6 +66,7 @@ void main() {
 
       when(fixture.hub.options).thenReturn(fixture.options);
       when(fixture.hub.getSpan()).thenReturn(fixture.tracer);
+      when(fixture.hub.scope).thenReturn(fixture.scope);
     });
 
     tearDown(() async {
@@ -131,6 +149,7 @@ void main() {
       when(fixture.hub.options).thenReturn(fixture.options);
       when(fixture.hub.getSpan()).thenReturn(fixture.tracer);
       when(fixture.mockBox.name).thenReturn(Fixture.dbName);
+      when(fixture.hub.scope).thenReturn(fixture.scope);
     });
 
     tearDown(() async {
@@ -253,6 +272,254 @@ void main() {
       verifyErrorSpan('deleteAt', fixture.exception, fixture.getCreatedSpan());
     });
   });
+
+  group('adds breadcrumb', () {
+    late Fixture fixture;
+
+    setUp(() async {
+      fixture = Fixture();
+      await fixture.setUp();
+
+      when(fixture.hub.options).thenReturn(fixture.options);
+      when(fixture.hub.getSpan()).thenReturn(fixture.tracer);
+      when(fixture.hub.scope).thenReturn(fixture.scope);
+    });
+
+    tearDown(() async {
+      await fixture.tearDown();
+    });
+
+    test('add adds breadcrumb', () async {
+      final sut = fixture.getSut();
+
+      await sut.add(Person('Joe Dirt'));
+
+      verifyBreadcrumb('add', fixture.getCreatedBreadcrumb());
+    });
+
+    test('addAll adds breadcrumb', () async {
+      final sut = fixture.getSut();
+
+      await sut.addAll([Person('Joe Dirt')]);
+
+      verifyBreadcrumb('addAll', fixture.getCreatedBreadcrumb());
+    });
+
+    test('clear adds breadcrumb', () async {
+      final sut = fixture.getSut();
+
+      await sut.clear();
+
+      verifyBreadcrumb('clear', fixture.getCreatedBreadcrumb());
+    });
+
+    test('close adds breadcrumb', () async {
+      final sut = fixture.getSut();
+
+      await sut.close();
+
+      verifyBreadcrumb('close', fixture.getCreatedBreadcrumb());
+    });
+
+    test('compact adds breadcrumb', () async {
+      final sut = fixture.getSut();
+
+      await sut.compact();
+
+      verifyBreadcrumb('compact', fixture.getCreatedBreadcrumb());
+    });
+
+    test('delete adds breadcrumb', () async {
+      final sut = fixture.getSut();
+
+      await sut.delete('fixture-key');
+
+      verifyBreadcrumb('delete', fixture.getCreatedBreadcrumb());
+    });
+
+    test('deleteAll adds breadcrumb', () async {
+      final sut = fixture.getSut();
+
+      await sut.deleteAll(['fixture-key']);
+
+      verifyBreadcrumb('deleteAll', fixture.getCreatedBreadcrumb());
+    });
+
+    test('deleteAt adds breadcrumb', () async {
+      final sut = fixture.getSut();
+
+      await sut.add(Person('Joe Dirt'));
+      await sut.deleteAt(0);
+
+      verifyBreadcrumb('deleteAt', fixture.getCreatedBreadcrumb());
+    });
+  });
+
+  group('adds error breadcrumb', () {
+    late Fixture fixture;
+
+    setUp(() async {
+      fixture = Fixture();
+      await fixture.setUp();
+
+      when(fixture.hub.options).thenReturn(fixture.options);
+      when(fixture.hub.getSpan()).thenReturn(fixture.tracer);
+      when(fixture.mockBox.name).thenReturn(Fixture.dbName);
+      when(fixture.hub.scope).thenReturn(fixture.scope);
+    });
+
+    tearDown(() async {
+      await fixture.tearDown();
+    });
+
+    test('throwing add adds error breadcrumb', () async {
+      when(fixture.mockBox.add(any)).thenThrow(fixture.exception);
+
+      final sut = fixture.getSut(injectMockBox: true);
+
+      try {
+        await sut.add(Person('Joe Dirt'));
+      } catch (error) {
+        expect(error, fixture.exception);
+      }
+
+      verifyBreadcrumb(
+        'add',
+        fixture.getCreatedBreadcrumb(),
+        status: 'internal_error',
+      );
+    });
+
+    test('throwing addAll adds error breadcrumb', () async {
+      when(fixture.mockBox.addAll(any)).thenThrow(fixture.exception);
+
+      final sut = fixture.getSut(injectMockBox: true);
+
+      try {
+        await sut.addAll([Person('Joe Dirt')]);
+      } catch (error) {
+        expect(error, fixture.exception);
+      }
+
+      verifyBreadcrumb(
+        'addAll',
+        fixture.getCreatedBreadcrumb(),
+        status: 'internal_error',
+      );
+    });
+
+    test('throwing clear adds error breadcrumb', () async {
+      when(fixture.mockBox.clear()).thenThrow(fixture.exception);
+
+      final sut = fixture.getSut(injectMockBox: true);
+
+      try {
+        await sut.clear();
+      } catch (error) {
+        expect(error, fixture.exception);
+      }
+
+      verifyBreadcrumb(
+        'clear',
+        fixture.getCreatedBreadcrumb(),
+        status: 'internal_error',
+      );
+    });
+
+    test('throwing close adds error breadcrumb', () async {
+      when(fixture.mockBox.close()).thenThrow(fixture.exception);
+
+      final sut = fixture.getSut(injectMockBox: true);
+
+      try {
+        await sut.close();
+      } catch (error) {
+        expect(error, fixture.exception);
+      }
+
+      verifyBreadcrumb(
+        'close',
+        fixture.getCreatedBreadcrumb(),
+        status: 'internal_error',
+      );
+    });
+
+    test('throwing compact adds error breadcrumb', () async {
+      when(fixture.mockBox.compact()).thenThrow(fixture.exception);
+
+      final sut = fixture.getSut(injectMockBox: true);
+
+      try {
+        await sut.compact();
+      } catch (error) {
+        expect(error, fixture.exception);
+      }
+
+      verifyBreadcrumb(
+        'compact',
+        fixture.getCreatedBreadcrumb(),
+        status: 'internal_error',
+      );
+    });
+
+    test('throwing delete adds error breadcrumb', () async {
+      when(fixture.mockBox.delete(any)).thenThrow(fixture.exception);
+
+      final sut = fixture.getSut(injectMockBox: true);
+
+      try {
+        await sut.delete('fixture-key');
+      } catch (error) {
+        expect(error, fixture.exception);
+      }
+
+      verifyBreadcrumb(
+        'delete',
+        fixture.getCreatedBreadcrumb(),
+        status: 'internal_error',
+      );
+    });
+
+    test('throwing deleteAll adds error breadcrumb', () async {
+      when(fixture.mockBox.deleteAll(any)).thenThrow(fixture.exception);
+
+      final sut = fixture.getSut(injectMockBox: true);
+
+      try {
+        await sut.deleteAll(['fixture-key']);
+      } catch (error) {
+        expect(error, fixture.exception);
+      }
+
+      verifyBreadcrumb(
+        'deleteAll',
+        fixture.getCreatedBreadcrumb(),
+        status: 'internal_error',
+      );
+    });
+
+    test('throwing deleteAt adds error breadcrumb', () async {
+      when(fixture.mockBox.add(any)).thenAnswer((_) async {
+        return 1;
+      });
+      when(fixture.mockBox.deleteAt(any)).thenThrow(fixture.exception);
+
+      final sut = fixture.getSut(injectMockBox: true);
+
+      await sut.add(Person('Joe Dirt'));
+      try {
+        await sut.deleteAt(0);
+      } catch (error) {
+        expect(error, fixture.exception);
+      }
+
+      verifyBreadcrumb(
+        'deleteAt',
+        fixture.getCreatedBreadcrumb(),
+        status: 'internal_error',
+      );
+    });
+  });
 }
 
 class Fixture {
@@ -266,6 +533,7 @@ class Fixture {
 
   final _context = SentryTransactionContext('name', 'operation');
   late final tracer = SentryTracer(_context, hub);
+  late final scope = Scope(options);
 
   Future<void> setUp() async {
     Hive.init(Directory.systemTemp.path);
@@ -293,5 +561,9 @@ class Fixture {
 
   SentrySpan? getCreatedSpan() {
     return tracer.children.last;
+  }
+
+  Breadcrumb? getCreatedBreadcrumb() {
+    return hub.scope.breadcrumbs.last;
   }
 }
