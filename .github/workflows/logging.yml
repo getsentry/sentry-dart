@@ -5,18 +5,12 @@ on:
       - main
       - release/**
   pull_request:
-    paths-ignore:
-      - "**/*.md"
-      - "**/class-diagram.svg"
-      - "dio/**"
-      - "drift/**"
-      - "e2e_test/**"
-      - "file/**"
-      - "flutter/**"
-      - "hive/**"
-      - "min_version_test/**"
-      - "sqflite/**"
-      - "isar/**"
+    paths:
+      - "!**/*.md"
+      - "!**/class-diagram.svg"
+      - ".github/workflows/logging.yml"
+      - "dart/**"
+      - "logging/**"
 
 jobs:
   cancel-previous-workflow:
