@@ -68,6 +68,7 @@
 - Breadcrumbs for database operations ([#1656](https://github.com/getsentry/sentry-dart/pull/1656))
 - APM for hive ([#1672](https://github.com/getsentry/sentry-dart/pull/1672))
 - Add `attachScreenshotOnlyWhenResumed` to options ([#1700](https://github.com/getsentry/sentry-dart/pull/1700))
+- Starting with Flutter 3.16, Sentry adds the [`appFlavor`](https://api.flutter.dev/flutter/services/appFlavor-constant.html) to the `flutter_context` ([#1700](https://github.com/getsentry/sentry-dart/pull/1700))
 
 ### Dependencies
 
