@@ -36,6 +36,19 @@ void main() {
     expect(span?.throwable, error);
   }
 
+  void verifyBreadcrumb(
+    String message,
+    Breadcrumb? crumb, {
+    String status = 'ok',
+  }) {
+    expect(
+      crumb?.message,
+      message,
+    );
+    expect(crumb?.type, 'query');
+    expect(crumb?.data?['status'], status);
+  }
+
   group('add spans', () {
     late Fixture fixture;
 
@@ -428,6 +441,167 @@ void main() {
       );
     });
   });
+
+  group('add breadcrumbs', () {
+    late Fixture fixture;
+
+    setUp(() async {
+      fixture = Fixture();
+
+      when(fixture.hub.options).thenReturn(fixture.options);
+      when(fixture.hub.getSpan()).thenReturn(fixture.tracer);
+      when(fixture.hub.scope).thenReturn(fixture.scope);
+
+      await fixture.setUp();
+    });
+
+    tearDown(() async {
+      await fixture.tearDown();
+    });
+
+    test('clear adds breadcrumb', () async {
+      await fixture.sentryIsar.writeTxn(() async {
+        await fixture.getSut().clear();
+      });
+      final breadcrumb = fixture.hub.scope.breadcrumbs[1];
+      verifyBreadcrumb('clear', breadcrumb);
+    });
+
+    test('count adds breadcrumb', () async {
+      await fixture.sentryIsar.writeTxn(() async {
+        await fixture.getSut().count();
+      });
+      final breadcrumb = fixture.hub.scope.breadcrumbs[1];
+      verifyBreadcrumb('count', breadcrumb);
+    });
+
+    test('delete adds breadcrumb', () async {
+      await fixture.sentryIsar.writeTxn(() async {
+        await fixture.getSut().delete(0);
+      });
+      final breadcrumb = fixture.hub.scope.breadcrumbs[1];
+      verifyBreadcrumb('delete', breadcrumb);
+    });
+
+    test('deleteAll adds breadcrumb', () async {
+      await fixture.sentryIsar.writeTxn(() async {
+        await fixture.getSut().deleteAll([0]);
+      });
+      final breadcrumb = fixture.hub.scope.breadcrumbs[1];
+      verifyBreadcrumb('deleteAll', breadcrumb);
+    });
+
+    test('deleteAllByIndex adds breadcrumb', () async {
+      await fixture.sentryIsar.writeTxn(() async {
+        await fixture.getSut().putByIndex('name', Person()..name = 'Joe');
+        await fixture.getSut().deleteAllByIndex('name', []);
+      });
+      final breadcrumb = fixture.hub.scope.breadcrumbs[2];
+      verifyBreadcrumb('deleteAllByIndex', breadcrumb);
+    });
+
+    test('deleteByIndex adds breadcrumb', () async {
+      await fixture.sentryIsar.writeTxn(() async {
+        await fixture.getSut().putByIndex('name', Person()..name = 'Joe');
+        await fixture.getSut().deleteByIndex('name', []);
+      });
+      final breadcrumb = fixture.hub.scope.breadcrumbs[2];
+      verifyBreadcrumb('deleteByIndex', breadcrumb);
+    });
+
+    test('get adds breadcrumb', () async {
+      await fixture.sentryIsar.writeTxn(() async {
+        await fixture.getSut().get(1);
+      });
+      final breadcrumb = fixture.hub.scope.breadcrumbs[1];
+      verifyBreadcrumb('get', breadcrumb);
+    });
+
+    test('getAll adds breadcrumb', () async {
+      await fixture.sentryIsar.writeTxn(() async {
+        await fixture.getSut().getAll([1]);
+      });
+      final breadcrumb = fixture.hub.scope.breadcrumbs[1];
+      verifyBreadcrumb('getAll', breadcrumb);
+    });
+
+    test('getAllByIndex adds breadcrumb', () async {
+      await fixture.sentryIsar.writeTxn(() async {
+        await fixture.getSut().getAllByIndex('name', []);
+      });
+      final breadcrumb = fixture.hub.scope.breadcrumbs[1];
+      verifyBreadcrumb('getAllByIndex', breadcrumb);
+    });
+
+    test('getByIndex adds breadcrumb', () async {
+      await fixture.sentryIsar.writeTxn(() async {
+        await fixture.getSut().getByIndex('name', []);
+      });
+      final breadcrumb = fixture.hub.scope.breadcrumbs[1];
+      verifyBreadcrumb('getByIndex', breadcrumb);
+    });
+
+    test('getSize adds breadcrumb', () async {
+      await fixture.sentryIsar.writeTxn(() async {
+        await fixture.getSut().getSize();
+      });
+      final breadcrumb = fixture.hub.scope.breadcrumbs[1];
+      verifyBreadcrumb('getSize', breadcrumb);
+    });
+
+    test('importJson adds breadcrumb', () async {
+      await fixture.sentryIsar.writeTxn(() async {
+        await fixture.getSut().importJson([]);
+      });
+      final breadcrumb = fixture.hub.scope.breadcrumbs[1];
+      verifyBreadcrumb('importJson', breadcrumb);
+    });
+
+    test('importJsonRaw adds breadcrumb', () async {
+      await fixture.sentryIsar.writeTxn(() async {
+        final query = fixture.getSut().buildQuery<Person>();
+        Uint8List jsonRaw = Uint8List.fromList([]);
+        await query.exportJsonRaw((raw) {
+          jsonRaw = Uint8List.fromList(raw);
+        });
+        await fixture.getSut().importJsonRaw(jsonRaw);
+      });
+      final breadcrumb = fixture.hub.scope.breadcrumbs[1];
+      verifyBreadcrumb('importJsonRaw', breadcrumb);
+    });
+
+    test('put adds breadcrumb', () async {
+      await fixture.sentryIsar.writeTxn(() async {
+        await fixture.getSut().put(Person());
+      });
+      final breadcrumb = fixture.hub.scope.breadcrumbs[1];
+      verifyBreadcrumb('put', breadcrumb);
+    });
+
+    test('putAll adds breadcrumb', () async {
+      await fixture.sentryIsar.writeTxn(() async {
+        await fixture.getSut().putAll([Person()]);
+      });
+      final breadcrumb = fixture.hub.scope.breadcrumbs[1];
+      verifyBreadcrumb('putAll', breadcrumb);
+    });
+
+    test('putAllByIndex adds breadcrumb', () async {
+      await fixture.sentryIsar.writeTxn(() async {
+        await fixture.getSut().putAllByIndex('name', [Person()]);
+      });
+      final breadcrumb = fixture.hub.scope.breadcrumbs[1];
+      verifyBreadcrumb('putAllByIndex', breadcrumb);
+    });
+
+    test('putByIndex adds breadcrumb', () async {
+      await fixture.sentryIsar.writeTxn(() async {
+        await fixture.getSut().putByIndex('name', Person());
+      });
+      final breadcrumb = fixture.hub.scope.breadcrumbs[1];
+      verifyBreadcrumb('putByIndex', breadcrumb);
+    });
+  });
 }
 
 class Fixture {
@@ -475,5 +649,9 @@ class Fixture {
 
   SentrySpan? getCreatedSpan() {
     return tracer.children.last;
+  }
+
+  Breadcrumb? getCreatedBreadcrumb() {
+    return hub.scope.breadcrumbs.last;
   }
 }

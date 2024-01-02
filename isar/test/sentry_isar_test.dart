@@ -206,7 +206,7 @@ void main() {
     });
   });
 
-  group('adds breadcrumb', () {
+  group('adds breadcrumbs', () {
     late Fixture fixture;
 
     setUp(() async {
