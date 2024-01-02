@@ -45,6 +45,9 @@ void main() {
     expect(crumb?.type, 'query');
     expect(crumb?.data?[SentryIsar.dbNameKey], Fixture.dbName);
     expect(crumb?.data?['status'], status);
+    if (status != 'ok') {
+      expect(crumb?.level, SentryLevel.warning);
+    }
   }
 
   group('add spans', () {
