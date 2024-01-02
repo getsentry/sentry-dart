@@ -374,6 +374,13 @@ class SentryOptions {
   /// Settings this to `false` will set the `level` to [SentryLevel.error].
   bool markAutomaticallyCollectedErrorsAsFatal = true;
 
+  /// The Spotlight configuration.
+  /// Disabled by default.
+  /// ```dart
+  /// spotlight = Spotlight(enabled: true)
+  /// ```
+  Spotlight spotlight = Spotlight(enabled: false);
+
   SentryOptions({this.dsn, PlatformChecker? checker}) {
     if (checker != null) {
       platformChecker = checker;

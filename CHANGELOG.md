@@ -4,6 +4,8 @@
 
 ### Features
 
+- Add [Spotlight](https://spotlightjs.com/about/) support ([#1786](https://github.com/getsentry/sentry-dart/pull/1786))
+  - Set `options.spotlight = Spotlight(enabled: true)` to enable Spotlight
 - Add `ConnectivityIntegration` for web ([#1765](https://github.com/getsentry/sentry-dart/pull/1765))
   - We only get the info if online/offline on web platform. The added breadcrumb is set to either `wifi` or `none`.
 - APM for isar ([#1726](https://github.com/getsentry/sentry-dart/pull/1726))
