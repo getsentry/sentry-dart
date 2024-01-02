@@ -5,16 +5,12 @@ on:
       - main
       - release/**
   pull_request:
-    paths-ignore:
-      - "**/*.md"
-      - "logging/**"
-      - "dio/**"
-      - "flutter/**"
-      - "file/**"
-      - "sqflite/**"
-      - "hive/**"
-      - "drift/**"
-      - "isar/**"
+    paths:
+      - "!**/*.md"
+      - "!**/class-diagram.svg"
+      - ".github/workflows/e2e_dart.yml"
+      - "dart/**"
+      - "e2e_test/**"
 
 env:
   SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
