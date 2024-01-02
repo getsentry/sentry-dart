@@ -34,6 +34,9 @@ void main() {
               .endsWith('test_resources/testfile.txt'),
           true);
       expect(span.origin, SentryTraceOrigins.autoFile);
+      if (!async) {
+        expect(span.data['file.isolate'], 'main');
+      }
     }
 
     void _asserBreadcrumb(bool async) {
@@ -121,6 +124,9 @@ void main() {
               .endsWith('test_resources/testfile_create.txt'),
           true);
       expect(span.origin, SentryTraceOrigins.autoFile);
+      if (!async) {
+        expect(span.data['file.isolate'], 'main');
+      }
     }
 
     void _assertBreadcrumb(bool async, {int? size = 0}) {
@@ -206,6 +212,9 @@ void main() {
               .endsWith('test_resources/testfile_delete.txt'),
           true);
       expect(span.origin, SentryTraceOrigins.autoFile);
+      if (!async) {
+        expect(span.data['file.isolate'], 'main');
+      }
     }
 
     void _assertBreadcrumb(bool async, {int? size = 0}) {
@@ -347,6 +356,9 @@ void main() {
               .endsWith('test_resources/$fileName'),
           true);
       expect(span.origin, SentryTraceOrigins.autoFile);
+      if (!async) {
+        expect(span.data['file.isolate'], 'main');
+      }
     }
 
     void _assertBreadcrumb(String fileName, bool async, {int? size = 0}) {
@@ -497,6 +509,9 @@ void main() {
           (span.data['file.path'] as String).endsWith('test_resources/$name'),
           true);
       expect(span.origin, SentryTraceOrigins.autoFile);
+      if (!async) {
+        expect(span.data['file.isolate'], 'main');
+      }
     }
 
     void _assertBreadcrumb(bool async, String name) {

@@ -206,6 +206,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:isolate';
 import 'dart:typed_data';
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
@@ -489,7 +490,10 @@ class SentryFile implements File {
 
     span?.origin = SentryTraceOrigins.autoFile;
     span?.setData('file.async', false);
-
+    final isolateName = Isolate.current.debugName;
+    if (isolateName != null && isolateName.isNotEmpty) {
+      span?.setData('file.isolate', isolateName);
+    }
     final Map<String, dynamic> breadcrumbData = {};
     breadcrumbData['file.async'] = false;
 
