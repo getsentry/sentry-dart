@@ -15,19 +15,13 @@ import 'mocks/mocks.mocks.dart';
 import 'person.dart';
 
 void main() {
-  void verifySpan(
-    String description,
-    SentrySpan? span, {
-    bool checkName = false,
-  }) {
+  void verifySpan(String description, SentrySpan? span) {
     expect(span?.context.operation, SentryIsar.dbOp);
     expect(span?.context.description, description);
     expect(span?.status, SpanStatus.ok());
     // ignore: invalid_use_of_internal_member
     expect(span?.origin, SentryTraceOrigins.autoDbIsar);
-    if (checkName) {
-      expect(span?.data[SentryIsar.dbNameKey], Fixture.dbName);
-    }
+    expect(span?.data[SentryIsar.dbNameKey], Fixture.dbName);
   }
 
   void verifyErrorSpan(String description, SentrySpan? span, Exception error) {
@@ -42,7 +36,6 @@ void main() {
   void verifyBreadcrumb(
     String message,
     Breadcrumb? crumb, {
-    bool checkName = false,
     String status = 'ok',
   }) {
     expect(
@@ -50,9 +43,7 @@ void main() {
       message,
     );
     expect(crumb?.type, 'query');
-    if (checkName) {
-      expect(crumb?.data?[SentryIsar.dbNameKey], Fixture.dbName);
-    }
+    expect(crumb?.data?[SentryIsar.dbNameKey], Fixture.dbName);
     expect(crumb?.data?['status'], status);
   }
 
@@ -75,7 +66,7 @@ void main() {
 
     test('open adds span', () async {
       final span = fixture.getCreatedSpan();
-      verifySpan('open', span, checkName: true);
+      verifySpan('open', span);
     });
 
     test('clear adds span', () async {
@@ -83,37 +74,37 @@ void main() {
         await fixture.sut.clear();
       });
       final span = fixture.getCreatedSpan();
-      verifySpan('clear', span, checkName: true);
+      verifySpan('clear', span);
     });
 
     test('close adds span', () async {
       await fixture.sut.close();
       final span = fixture.getCreatedSpan();
-      verifySpan('close', span, checkName: true);
+      verifySpan('close', span);
     });
 
     test('copyToFile adds span', () async {
       await fixture.sut.copyToFile(fixture.copyPath);
       final span = fixture.getCreatedSpan();
-      verifySpan('copyToFile', span, checkName: true);
+      verifySpan('copyToFile', span);
     });
 
     test('getSize adds span', () async {
       await fixture.sut.getSize();
       final span = fixture.getCreatedSpan();
-      verifySpan('getSize', span, checkName: true);
+      verifySpan('getSize', span);
     });
 
     test('txn adds span', () async {
       await fixture.sut.txn(() async {});
       final span = fixture.getCreatedSpan();
-      verifySpan('txn', span, checkName: true);
+      verifySpan('txn', span);
     });
 
     test('writeTxn adds span', () async {
       await fixture.sut.writeTxn(() async {});
       final span = fixture.getCreatedSpan();
-      verifySpan('writeTxn', span, checkName: true);
+      verifySpan('writeTxn', span);
     });
   });
 
@@ -225,7 +216,7 @@ void main() {
 
     test('open adds breadcrumb', () async {
       final breadcrumb = fixture.getCreatedBreadcrumb();
-      verifyBreadcrumb('open', breadcrumb, checkName: true);
+      verifyBreadcrumb('open', breadcrumb);
     });
 
     test('clear adds breadcrumb', () async {
@@ -236,43 +227,152 @@ void main() {
       // order: open, clear, writeTxn
 
       final openCrumb = fixture.hub.scope.breadcrumbs[0];
-      verifyBreadcrumb('open', openCrumb, checkName: true);
+      verifyBreadcrumb('open', openCrumb);
 
       final clearCrumb = fixture.hub.scope.breadcrumbs[1];
-      verifyBreadcrumb('clear', clearCrumb, checkName: true);
+      verifyBreadcrumb('clear', clearCrumb);
 
       final writeTxnCrumb = fixture.hub.scope.breadcrumbs[2];
-      verifyBreadcrumb('writeTxn', writeTxnCrumb, checkName: true);
+      verifyBreadcrumb('writeTxn', writeTxnCrumb);
     });
 
     test('close adds breadcrumb', () async {
       await fixture.sut.close();
       final breadcrumb = fixture.getCreatedBreadcrumb();
-      verifyBreadcrumb('close', breadcrumb, checkName: true);
+      verifyBreadcrumb('close', breadcrumb);
     });
 
     test('copyToFile adds breadcrumb', () async {
       await fixture.sut.copyToFile(fixture.copyPath);
       final breadcrumb = fixture.getCreatedBreadcrumb();
-      verifyBreadcrumb('copyToFile', breadcrumb, checkName: true);
+      verifyBreadcrumb('copyToFile', breadcrumb);
     });
 
     test('getSize adds breadcrumb', () async {
       await fixture.sut.getSize();
       final breadcrumb = fixture.getCreatedBreadcrumb();
-      verifyBreadcrumb('getSize', breadcrumb, checkName: true);
+      verifyBreadcrumb('getSize', breadcrumb);
     });
 
     test('txn adds breadcrumb', () async {
       await fixture.sut.txn(() async {});
       final breadcrumb = fixture.getCreatedBreadcrumb();
-      verifyBreadcrumb('txn', breadcrumb, checkName: true);
+      verifyBreadcrumb('txn', breadcrumb);
     });
 
     test('writeTxn adds breadcrumb', () async {
       await fixture.sut.writeTxn(() async {});
       final breadcrumb = fixture.getCreatedBreadcrumb();
-      verifyBreadcrumb('writeTxn', breadcrumb, checkName: true);
+      verifyBreadcrumb('writeTxn', breadcrumb);
+    });
+  });
+
+  group('add error breadcrumbs', () {
+    late Fixture fixture;
+
+    setUp(() async {
+      fixture = Fixture();
+
+      when(fixture.hub.options).thenReturn(fixture.options);
+      when(fixture.hub.getSpan()).thenReturn(fixture.tracer);
+      when(fixture.hub.scope).thenReturn(fixture.scope);
+
+      when(fixture.isar.close()).thenAnswer((_) async {
+        return true;
+      });
+      when(fixture.isar.name).thenReturn(Fixture.dbName);
+
+      await fixture.setUp(injectMock: true);
+    });
+
+    tearDown(() async {
+      await fixture.tearDown();
+    });
+
+    test('throwing close adds error breadcrumb', () async {
+      when(fixture.isar.close()).thenThrow(fixture.exception);
+      try {
+        await fixture.sut.close();
+      } catch (error) {
+        expect(error, fixture.exception);
+      }
+      verifyBreadcrumb(
+        'close',
+        fixture.getCreatedBreadcrumb(),
+        status: 'internal_error',
+      );
+    });
+
+    test('throwing clear adds error breadcrumb', () async {
+      when(fixture.isar.clear()).thenThrow(fixture.exception);
+      try {
+        await fixture.sut.clear();
+      } catch (error) {
+        expect(error, fixture.exception);
+      }
+      verifyBreadcrumb(
+        'clear',
+        fixture.getCreatedBreadcrumb(),
+        status: 'internal_error',
+      );
+    });
+
+    test('throwing copyToFile adds error breadcrumb', () async {
+      when(fixture.isar.copyToFile(any)).thenThrow(fixture.exception);
+      try {
+        await fixture.sut.copyToFile(fixture.copyPath);
+      } catch (error) {
+        expect(error, fixture.exception);
+      }
+      verifyBreadcrumb(
+        'copyToFile',
+        fixture.getCreatedBreadcrumb(),
+        status: 'internal_error',
+      );
+    });
+
+    test('throwing getSize adds error breadcrumb', () async {
+      when(fixture.isar.getSize()).thenThrow(fixture.exception);
+      try {
+        await fixture.sut.getSize();
+      } catch (error) {
+        expect(error, fixture.exception);
+      }
+      verifyBreadcrumb(
+        'getSize',
+        fixture.getCreatedBreadcrumb(),
+        status: 'internal_error',
+      );
+    });
+
+    test('throwing txn adds error breadcrumb', () async {
+      param() async {}
+      when(fixture.isar.txn(param)).thenThrow(fixture.exception);
+      try {
+        await fixture.sut.txn(param);
+      } catch (error) {
+        expect(error, fixture.exception);
+      }
+      verifyBreadcrumb(
+        'txn',
+        fixture.getCreatedBreadcrumb(),
+        status: 'internal_error',
+      );
+    });
+
+    test('throwing writeTxn adds error breadcrumb', () async {
+      param() async {}
+      when(fixture.isar.writeTxn(param)).thenThrow(fixture.exception);
+      try {
+        await fixture.sut.writeTxn(param);
+      } catch (error) {
+        expect(error, fixture.exception);
+      }
+      verifyBreadcrumb(
+        'writeTxn',
+        fixture.getCreatedBreadcrumb(),
+        status: 'internal_error',
+      );
     });
   });
 
