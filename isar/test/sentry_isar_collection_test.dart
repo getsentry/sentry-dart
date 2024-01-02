@@ -44,6 +44,7 @@ void main() {
 
       when(fixture.hub.options).thenReturn(fixture.options);
       when(fixture.hub.getSpan()).thenReturn(fixture.tracer);
+      when(fixture.hub.scope).thenReturn(fixture.scope);
 
       await fixture.setUp();
     });
@@ -204,6 +205,7 @@ void main() {
 
       when(fixture.hub.options).thenReturn(fixture.options);
       when(fixture.hub.getSpan()).thenReturn(fixture.tracer);
+      when(fixture.hub.scope).thenReturn(fixture.scope);
       when(fixture.isarCollection.name).thenReturn(Fixture.dbCollection);
 
       await fixture.setUp();
@@ -440,6 +442,7 @@ class Fixture {
   final _context = SentryTransactionContext('name', 'operation');
   late final tracer = SentryTracer(_context, hub);
   late Isar sentryIsar;
+  late final scope = Scope(options);
 
   Future<void> setUp() async {
     // Make sure to use flutter test -j 1 to avoid tests running in parallel. This would break the automatic download.

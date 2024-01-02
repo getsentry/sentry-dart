@@ -39,6 +39,23 @@ void main() {
     expect(span?.throwable, error);
   }
 
+  void verifyBreadcrumb(
+    String message,
+    Breadcrumb? crumb, {
+    bool checkName = false,
+    String status = 'ok',
+  }) {
+    expect(
+      crumb?.message,
+      message,
+    );
+    expect(crumb?.type, 'query');
+    if (checkName) {
+      expect(crumb?.data?[SentryIsar.dbNameKey], Fixture.dbName);
+    }
+    expect(crumb?.data?['status'], status);
+  }
+
   group('add spans', () {
     late Fixture fixture;
 
@@ -47,6 +64,7 @@ void main() {
 
       when(fixture.hub.options).thenReturn(fixture.options);
       when(fixture.hub.getSpan()).thenReturn(fixture.tracer);
+      when(fixture.hub.scope).thenReturn(fixture.scope);
 
       await fixture.setUp();
     });
@@ -107,6 +125,8 @@ void main() {
 
       when(fixture.hub.options).thenReturn(fixture.options);
       when(fixture.hub.getSpan()).thenReturn(fixture.tracer);
+      when(fixture.hub.scope).thenReturn(fixture.scope);
+
       when(fixture.isar.close()).thenAnswer((_) async {
         return true;
       });
@@ -186,6 +206,76 @@ void main() {
     });
   });
 
+  group('adds breadcrumb', () {
+    late Fixture fixture;
+
+    setUp(() async {
+      fixture = Fixture();
+
+      when(fixture.hub.options).thenReturn(fixture.options);
+      when(fixture.hub.getSpan()).thenReturn(fixture.tracer);
+      when(fixture.hub.scope).thenReturn(fixture.scope);
+
+      await fixture.setUp();
+    });
+
+    tearDown(() async {
+      await fixture.tearDown();
+    });
+
+    test('open adds breadcrumb', () async {
+      final breadcrumb = fixture.getCreatedBreadcrumb();
+      verifyBreadcrumb('open', breadcrumb, checkName: true);
+    });
+
+    test('clear adds breadcrumb', () async {
+      await fixture.sut.writeTxn(() async {
+        await fixture.sut.clear();
+      });
+
+      // order: open, clear, writeTxn
+
+      final openCrumb = fixture.hub.scope.breadcrumbs[0];
+      verifyBreadcrumb('open', openCrumb, checkName: true);
+
+      final clearCrumb = fixture.hub.scope.breadcrumbs[1];
+      verifyBreadcrumb('clear', clearCrumb, checkName: true);
+
+      final writeTxnCrumb = fixture.hub.scope.breadcrumbs[2];
+      verifyBreadcrumb('writeTxn', writeTxnCrumb, checkName: true);
+    });
+
+    test('close adds breadcrumb', () async {
+      await fixture.sut.close();
+      final breadcrumb = fixture.getCreatedBreadcrumb();
+      verifyBreadcrumb('close', breadcrumb, checkName: true);
+    });
+
+    test('copyToFile adds breadcrumb', () async {
+      await fixture.sut.copyToFile(fixture.copyPath);
+      final breadcrumb = fixture.getCreatedBreadcrumb();
+      verifyBreadcrumb('copyToFile', breadcrumb, checkName: true);
+    });
+
+    test('getSize adds breadcrumb', () async {
+      await fixture.sut.getSize();
+      final breadcrumb = fixture.getCreatedBreadcrumb();
+      verifyBreadcrumb('getSize', breadcrumb, checkName: true);
+    });
+
+    test('txn adds breadcrumb', () async {
+      await fixture.sut.txn(() async {});
+      final breadcrumb = fixture.getCreatedBreadcrumb();
+      verifyBreadcrumb('txn', breadcrumb, checkName: true);
+    });
+
+    test('writeTxn adds breadcrumb', () async {
+      await fixture.sut.writeTxn(() async {});
+      final breadcrumb = fixture.getCreatedBreadcrumb();
+      verifyBreadcrumb('writeTxn', breadcrumb, checkName: true);
+    });
+  });
+
   group('integrations', () {
     late Fixture fixture;
 
@@ -194,6 +284,7 @@ void main() {
 
       when(fixture.hub.options).thenReturn(fixture.options);
       when(fixture.hub.getSpan()).thenReturn(fixture.tracer);
+      when(fixture.hub.scope).thenReturn(fixture.scope);
 
       await fixture.setUp();
     });
@@ -233,6 +324,7 @@ class Fixture {
   final _context = SentryTransactionContext('name', 'operation');
   late final tracer = SentryTracer(_context, hub);
   late Isar sut;
+  late final scope = Scope(options);
 
   Future<void> setUp({bool injectMock = false}) async {
     if (injectMock) {
@@ -266,6 +358,10 @@ class Fixture {
 
   SentrySpan? getCreatedSpan() {
     return tracer.children.last;
+  }
+
+  Breadcrumb? getCreatedBreadcrumb() {
+    return hub.scope.breadcrumbs.last;
   }
 
   Future<void> deleteCopyPath() async {
