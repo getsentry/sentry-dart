@@ -153,6 +153,7 @@ class FlutterEnricherEventProcessor implements EventProcessor {
       // See https://github.com/flutter/flutter/issues/83919
       // 'window_is_visible': _window.viewConfiguration.visible,
       if (renderer != null) 'renderer': renderer,
+      if (_appFlavor != null) 'appFlavor': _appFlavor!,
     };
   }
 
@@ -266,3 +267,10 @@ class FlutterEnricherEventProcessor implements EventProcessor {
     return null;
   }
 }
+
+/// Copied from https://api.flutter.dev/flutter/services/appFlavor-constant.html
+/// As soon as Flutter 3.16 is the minimal supported version of Sentry, this
+/// can be replaced with the property from the link above.
+const String? _appFlavor = String.fromEnvironment('FLUTTER_APP_FLAVOR') != ''
+    ? String.fromEnvironment('FLUTTER_APP_FLAVOR')
+    : null;
