@@ -11,6 +11,12 @@
 - APM for isar ([#1726](https://github.com/getsentry/sentry-dart/pull/1726))
 - Starting with Flutter 3.16, Sentry adds the [`appFlavor`](https://api.flutter.dev/flutter/services/appFlavor-constant.html) to the `flutter_context` ([#1799](https://github.com/getsentry/sentry-dart/pull/1799))
 
+### Dependencies
+
+- Bump Android SDK from v7.0.0 to v7.1.0 ([#1788](https://github.com/getsentry/sentry-dart/pull/1788))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#710)
+  - [diff](https://github.com/getsentry/sentry-java/compare/7.0.0...7.1.0)
+
 ## 7.14.0
 
 - Add option to opt out of fatal level for automatically collected errors ([#1738](https://github.com/getsentry/sentry-dart/pull/1738))
