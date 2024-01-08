@@ -62,7 +62,7 @@ class Hint {
     return hint;
   }
 
-  factory Hint.withMap(Map<String, Object> map) {
+  factory Hint.withMap(Map<String, dynamic> map) {
     final hint = Hint();
     hint.addAll(map);
     return hint;
@@ -80,7 +80,7 @@ class Hint {
     return hint;
   }
 
-  // Objects
+  // Key/Value Storage
 
   void addAll(Map<String, dynamic> keysAndValues) {
     _internalStorage.addAll(keysAndValues);
