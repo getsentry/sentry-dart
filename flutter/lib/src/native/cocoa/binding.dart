@@ -37603,7 +37603,8 @@ class ObjCBlock_bool_ObjCObject_ffiUnsignedLong_bool extends _ObjCBlockBase {
   ObjCBlock_bool_ObjCObject_ffiUnsignedLong_bool.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
-              ffi.NativeFunction<
+              ffi
+              .NativeFunction<
                   ffi.Bool Function(ffi.Pointer<ObjCObject> arg0,
                       ffi.UnsignedLong arg1, ffi.Pointer<ffi.Bool> arg2)>>
           ptr)
@@ -42031,15 +42032,17 @@ class ObjCBlock_bool_ObjCObject_bool extends _ObjCBlockBase {
                       ffi.Pointer<ffi.Bool> arg1)>>
           ptr)
       : this._(
-            lib._newBlock1(
-                _cFuncTrampoline ??= ffi.Pointer.fromFunction<
-                            ffi.Bool Function(
-                                ffi.Pointer<_ObjCBlock> block,
-                                ffi.Pointer<ObjCObject> arg0,
-                                ffi.Pointer<ffi.Bool> arg1)>(
-                        _ObjCBlock_bool_ObjCObject_bool_fnPtrTrampoline, false)
-                    .cast(),
-                ptr.cast()),
+            lib
+                ._newBlock1(
+                    _cFuncTrampoline ??= ffi.Pointer.fromFunction<
+                                ffi.Bool Function(
+                                    ffi.Pointer<_ObjCBlock> block,
+                                    ffi.Pointer<ObjCObject> arg0,
+                                    ffi.Pointer<ffi.Bool> arg1)>(
+                            _ObjCBlock_bool_ObjCObject_bool_fnPtrTrampoline,
+                            false)
+                        .cast(),
+                    ptr.cast()),
             lib);
   static ffi.Pointer<ffi.Void>? _cFuncTrampoline;
 
@@ -70495,15 +70498,18 @@ class PrivateSentrySDKOnly extends NSObject {
 
   /// Collect a profiler session data associated with the given @c SentryId.
   /// This also discards the profiler.
-  static NSDictionary collectProfileBetween_and_forTrace_(SentryCocoa _lib,
-      int startSystemTime, int endSystemTime, SentryId? traceId) {
+  static NSMutableDictionary collectProfileBetween_and_forTrace_(
+      SentryCocoa _lib,
+      int startSystemTime,
+      int endSystemTime,
+      SentryId? traceId) {
     final _ret = _lib._objc_msgSend_1059(
         _lib._class_PrivateSentrySDKOnly1,
         _lib._sel_collectProfileBetween_and_forTrace_1,
         startSystemTime,
         endSystemTime,
         traceId?._id ?? ffi.nullptr);
-    return NSDictionary._(_ret, _lib, retain: true, release: true);
+    return NSMutableDictionary._(_ret, _lib, retain: true, release: true);
   }
 
   /// Discard profiler session data associated with the given @c SentryId.
