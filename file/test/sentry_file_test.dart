@@ -3,6 +3,7 @@
 @TestOn('vm')
 
 import 'dart:io';
+import 'dart:isolate';
 
 import 'package:sentry/sentry.dart';
 import 'package:sentry_file/sentry_file.dart';
@@ -35,7 +36,7 @@ void main() {
           true);
       expect(span.origin, SentryTraceOrigins.autoFile);
       if (!async) {
-        expect(span.data['file.isolate'], 'main');
+        expect(span.data['file.isolate'], Isolate.current.debugName);
       }
     }
 
@@ -125,7 +126,7 @@ void main() {
           true);
       expect(span.origin, SentryTraceOrigins.autoFile);
       if (!async) {
-        expect(span.data['file.isolate'], 'main');
+        expect(span.data['file.isolate'], Isolate.current.debugName);
       }
     }
 
@@ -213,7 +214,7 @@ void main() {
           true);
       expect(span.origin, SentryTraceOrigins.autoFile);
       if (!async) {
-        expect(span.data['file.isolate'], 'main');
+        expect(span.data['file.isolate'], Isolate.current.debugName);
       }
     }
 
@@ -357,7 +358,7 @@ void main() {
           true);
       expect(span.origin, SentryTraceOrigins.autoFile);
       if (!async) {
-        expect(span.data['file.isolate'], 'main');
+        expect(span.data['file.isolate'], Isolate.current.debugName);
       }
     }
 
@@ -510,7 +511,7 @@ void main() {
           true);
       expect(span.origin, SentryTraceOrigins.autoFile);
       if (!async) {
-        expect(span.data['file.isolate'], 'main');
+        expect(span.data['file.isolate'], Isolate.current.debugName);
       }
     }
 
