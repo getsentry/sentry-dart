@@ -42039,7 +42039,8 @@ class ObjCBlock_bool_ObjCObject_bool extends _ObjCBlockBase {
                                     ffi.Pointer<_ObjCBlock> block,
                                     ffi.Pointer<ObjCObject> arg0,
                                     ffi.Pointer<ffi.Bool> arg1)>(
-                            _ObjCBlock_bool_ObjCObject_bool_fnPtrTrampoline, false)
+                            _ObjCBlock_bool_ObjCObject_bool_fnPtrTrampoline,
+                            false)
                         .cast(),
                     ptr.cast()),
             lib);
