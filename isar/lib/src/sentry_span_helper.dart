@@ -38,28 +38,46 @@ class SentrySpanHelper {
     // ignore: invalid_use_of_internal_member
     span?.origin = _origin;
 
+    var breadcrumb = Breadcrumb(
+      message: description,
+      data: {},
+      type: 'query',
+    );
+
     span?.setData(SentryIsar.dbSystemKey, SentryIsar.dbSystem);
 
     if (dbName != null) {
       span?.setData(SentryIsar.dbNameKey, dbName);
+      breadcrumb.data?[SentryIsar.dbNameKey] = dbName;
     }
 
     if (collectionName != null) {
       span?.setData(SentryIsar.dbCollectionKey, collectionName);
+      breadcrumb.data?[SentryIsar.dbCollectionKey] = collectionName;
     }
 
     try {
       final result = await execute();
+
       span?.status = SpanStatus.ok();
+      breadcrumb.data?['status'] = 'ok';
 
       return result;
     } catch (exception) {
       span?.throwable = exception;
       span?.status = SpanStatus.internalError();
 
+      breadcrumb.data?['status'] = 'internal_error';
+      breadcrumb = breadcrumb.copyWith(
+        level: SentryLevel.warning,
+      );
+
       rethrow;
     } finally {
       await span?.finish();
+
+      // ignore: invalid_use_of_internal_member
+      await _hub.scope.addBreadcrumb(breadcrumb);
     }
   }
 }

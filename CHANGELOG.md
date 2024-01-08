@@ -10,6 +10,14 @@
   - We only get the info if online/offline on web platform. The added breadcrumb is set to either `wifi` or `none`.
 - APM for isar ([#1726](https://github.com/getsentry/sentry-dart/pull/1726))
 - Add isolate name to sync file spans ([#1801](https://github.com/getsentry/sentry-dart/pull/1801))
+- Add isar breadcrumbs ([#1800](https://github.com/getsentry/sentry-dart/pull/1800))
+- Starting with Flutter 3.16, Sentry adds the [`appFlavor`](https://api.flutter.dev/flutter/services/appFlavor-constant.html) to the `flutter_context` ([#1799](https://github.com/getsentry/sentry-dart/pull/1799))
+
+### Dependencies
+
+- Bump Android SDK from v7.0.0 to v7.1.0 ([#1788](https://github.com/getsentry/sentry-dart/pull/1788))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#710)
+  - [diff](https://github.com/getsentry/sentry-java/compare/7.0.0...7.1.0)
 
 ## 7.14.0
 
