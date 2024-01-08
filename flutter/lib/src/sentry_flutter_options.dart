@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 import 'package:flutter/widgets.dart';
@@ -288,4 +290,11 @@ class SentryFlutterOptions extends SentryOptions {
 
   /// The [navigatorKey] is used to add information of the currently used locale to the contexts.
   GlobalKey<NavigatorState>? navigatorKey;
+
+  BeforeScreenshotCallback? beforeScreenshot;
 }
+
+typedef BeforeScreenshotCallback = FutureOr<bool> Function(
+  SentryEvent event, {
+  Hint? hint,
+});
