@@ -7,8 +7,9 @@ import 'package:flutter/widgets.dart';
 import 'binding_wrapper.dart';
 import 'renderer/renderer.dart';
 import 'screenshot/sentry_screenshot_quality.dart';
+import 'event_processor/screenshot_event_processor.dart';
 
-/// This class adds options which are only availble in a Flutter environment.
+/// This class adds options which are only available in a Flutter environment.
 /// Note that some of these options require native Sentry integration, which is
 /// not available on all platforms.
 class SentryFlutterOptions extends SentryOptions {
