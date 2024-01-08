@@ -171,6 +171,11 @@ class SentryFlutterOptions extends SentryOptions {
   /// Only attach a screenshot when the app is resumed.
   bool attachScreenshotOnlyWhenResumed = false;
 
+  /// Sets a callback which is executed before capturing screenshots. Only
+  /// relevant if `attachScreenshot` is set to true. When false is returned
+  /// from the function, no screenshot will be attached.
+  BeforeScreenshotCallback? beforeScreenshot;
+
   /// Enable or disable automatic breadcrumbs for User interactions Using [Listener]
   ///
   /// Requires adding the [SentryUserInteractionWidget] to the widget tree.
@@ -290,10 +295,10 @@ class SentryFlutterOptions extends SentryOptions {
 
   /// The [navigatorKey] is used to add information of the currently used locale to the contexts.
   GlobalKey<NavigatorState>? navigatorKey;
-
-  BeforeScreenshotCallback? beforeScreenshot;
 }
 
+/// Callback being executed in [ScreenshotEventProcessor], deciding if a
+/// screenshot should be recorded and attached.
 typedef BeforeScreenshotCallback = FutureOr<bool> Function(
   SentryEvent event, {
   Hint? hint,
