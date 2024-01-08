@@ -196,4 +196,9 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
       }
     });
   }
+
+  @override
+  Future<T> readTransaction<T>(Future<T> Function(Transaction txn) action) {
+    return transaction((txn) => action(txn));
+  }
 }
