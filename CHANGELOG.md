@@ -17,6 +17,7 @@
     - Method `hint.addAll(Map<String, dynamic> keysAndValues)` now takes `Map<String, dynamic>` instead of `Map<String, Object>`
     - Method `set(String key, dynamic value)` now takes value of `dynamic` instead of `Object`
     - Method `hint.get(String key)` now returns `dynamic` instead of `Object?`
+- Add beforeScreenshotCallback to SentryFlutterOptions ([#1805](https://github.com/getsentry/sentry-dart/pull/1805))
 
 ### Dependencies
 
