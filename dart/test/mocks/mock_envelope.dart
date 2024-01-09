@@ -11,7 +11,7 @@ class MockEnvelope implements SentryEnvelope {
   }
 
   @override
-  Stream<List<int>> envelopeStream(SentryOptions options) async* {
+  Stream<List<int>> envelopeStream(int maxAttachmentSize) async* {
     yield [0];
   }
 

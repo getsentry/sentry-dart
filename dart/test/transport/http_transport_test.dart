@@ -76,7 +76,7 @@ void main() {
 
       final envelopeData = <int>[];
       await filteredEnvelope
-          .envelopeStream(fixture.options)
+          .envelopeStream(20 * 1024 * 1024)
           .forEach(envelopeData.addAll);
 
       expect(body, envelopeData);

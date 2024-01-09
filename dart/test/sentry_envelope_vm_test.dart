@@ -35,7 +35,7 @@ void main() {
 
       final envelopeData = <int>[];
       await envelope
-          .envelopeStream(SentryOptions())
+          .envelopeStream(20 * 1024 * 1024)
           .forEach(envelopeData.addAll);
 
       final expectedEnvelopeFile =
@@ -60,7 +60,7 @@ void main() {
         attachments: [attachment],
       );
 
-      final data = (await envelope.envelopeStream(SentryOptions()).toList())
+      final data = (await envelope.envelopeStream(20 * 1024 * 1024).toList())
           .reduce((a, b) => a + b);
 
       final file = File('test_resources/envelope-no-attachment.envelope');

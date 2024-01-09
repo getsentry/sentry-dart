@@ -51,7 +51,7 @@ void main() {
           '$expectedHeaderJsonSerialized\n$expectedItemSerialized\n$expectedItemSerialized');
 
       final envelopeData = <int>[];
-      await sut.envelopeStream(SentryOptions()).forEach(envelopeData.addAll);
+      await sut.envelopeStream(20 * 1024 * 1024).forEach(envelopeData.addAll);
       expect(envelopeData, expected);
     });
 
@@ -155,13 +155,11 @@ void main() {
       );
 
       final sutEnvelopeData = <int>[];
-      await sut
-          .envelopeStream(SentryOptions()..maxAttachmentSize = 1)
-          .forEach(sutEnvelopeData.addAll);
+      await sut.envelopeStream(1).forEach(sutEnvelopeData.addAll);
 
       final envelopeData = <int>[];
       await expectedEnvelopeItem
-          .envelopeStream(SentryOptions())
+          .envelopeStream(20 * 1024 * 1024)
           .forEach(envelopeData.addAll);
 
       expect(sutEnvelopeData, envelopeData);
@@ -181,7 +179,7 @@ void main() {
         dsn: fakeDsn,
       );
 
-      final _ = sut.envelopeStream(SentryOptions()).map((e) => e);
+      final _ = sut.envelopeStream(20 * 1024 * 1024).map((e) => e);
     });
   });
 }
