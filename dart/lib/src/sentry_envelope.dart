@@ -93,8 +93,7 @@ class SentryEnvelope {
       if (length < 0) {
         continue;
       }
-      // Only attachments should be filtered according to
-      // SentryOptions.maxAttachmentSize
+      // Filter out attachments larger than maxAttachmentSize
       if (item.header.type == SentryItemType.attachment) {
         if (await item.header.length() > maxAttachmentSize) {
           continue;
