@@ -196,4 +196,10 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
       }
     });
   }
+
+  @override
+  Future<T> readTransaction<T>(Future<T> Function(Transaction txn) action) {
+    // TODO: Add sentry span/crumb
+    return _database.readTransaction(action);
+  }
 }
