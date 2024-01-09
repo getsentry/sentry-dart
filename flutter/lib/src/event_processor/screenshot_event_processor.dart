@@ -30,6 +30,32 @@ class ScreenshotEventProcessor implements EventProcessor {
         _hasSentryScreenshotWidget) {
       return event;
     }
+    final beforeScreenshot = _options.beforeScreenshot;
+    if (beforeScreenshot != null) {
+      try {
+        final result = beforeScreenshot(event, hint: hint);
+        bool takeScreenshot;
+        if (result is Future<bool>) {
+          takeScreenshot = await result;
+        } else {
+          takeScreenshot = result;
+        }
+        if (!takeScreenshot) {
+          return event;
+        }
+      } catch (exception, stackTrace) {
+        _options.logger(
+          SentryLevel.error,
+          'The beforeScreenshot callback threw an exception',
+          exception: exception,
+          stackTrace: stackTrace,
+        );
+        // ignore: invalid_use_of_internal_member
+        if (_options.automatedTestMode) {
+          rethrow;
+        }
+      }
+    }
 
     final renderer = _options.rendererWrapper.getRenderer();
 
