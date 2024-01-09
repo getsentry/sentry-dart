@@ -2,6 +2,7 @@
 // ignore: unnecessary_import
 import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:sentry/sentry.dart';
 
@@ -13,10 +14,8 @@ class FileSystemTransport implements Transport {
 
   @override
   Future<SentryId?> send(SentryEnvelope envelope) async {
-    final envelopeData = <int>[];
-    await envelope.envelopeStream(_options).forEach(envelopeData.addAll);
-    // https://flutter.dev/docs/development/platform-integration/platform-channels#codec
-    final args = [Uint8List.fromList(envelopeData)];
+    final envelopeData = await compute(_convert, _ConvertMessage(envelope, _options.maxAttachmentSize));
+    final args = [envelopeData];
     try {
       await _channel.invokeMethod('captureEnvelope', args);
     } catch (exception, stackTrace) {
@@ -31,4 +30,18 @@ class FileSystemTransport implements Transport {
 
     return envelope.header.eventId;
   }
+
+  static Future<Uint8List> _convert(_ConvertMessage message) async {
+    final envelopeData = <int>[];
+    await message.envelope.envelopeStream(message.maxAttachmentSize).forEach(envelopeData.addAll);
+    //https://flutter.dev/docs/development/platform-integration/platform-channels#codec
+    return Uint8List.fromList(envelopeData);
+  }
+}
+
+class _ConvertMessage {
+  final SentryEnvelope envelope;
+  final int maxAttachmentSize;
+
+  _ConvertMessage(this.envelope, this.maxAttachmentSize);
 }

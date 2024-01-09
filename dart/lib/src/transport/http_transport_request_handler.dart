@@ -34,12 +34,12 @@ class HttpTransportRequestHandler {
     if (_options.compressPayload) {
       final compressionSink = compressInSink(streamedRequest.sink, _headers);
       envelope
-          .envelopeStream(_options)
+          .envelopeStream(_options.maxAttachmentSize)
           .listen(compressionSink.add)
           .onDone(compressionSink.close);
     } else {
       envelope
-          .envelopeStream(_options)
+          .envelopeStream(_options.maxAttachmentSize)
           .listen(streamedRequest.sink.add)
           .onDone(streamedRequest.sink.close);
     }

@@ -83,7 +83,7 @@ class SentryEnvelope {
   }
 
   /// Stream binary data representation of `Envelope` file encoded.
-  Stream<List<int>> envelopeStream(SentryOptions options) async* {
+  Stream<List<int>> envelopeStream(int maxAttachmentSize) async* {
     yield utf8JsonEncoder.convert(header.toJson());
 
     final newLineData = utf8.encode('\n');
@@ -97,7 +97,7 @@ class SentryEnvelope {
       // Only attachments should be filtered according to
       // SentryOptions.maxAttachmentSize
       if (item.header.type == SentryItemType.attachment) {
-        if (await item.header.length() > options.maxAttachmentSize) {
+        if (await item.header.length() > maxAttachmentSize) {
           continue;
         }
       }
