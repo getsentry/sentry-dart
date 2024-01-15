@@ -230,14 +230,13 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
           dbName: dbName,
         );
         final sentrySqfliteTransaction =
-        SentrySqfliteTransaction(executor, hub: _hub, dbName: dbName);
+            SentrySqfliteTransaction(executor, hub: _hub, dbName: dbName);
 
         return await action(sentrySqfliteTransaction);
       }
 
       try {
-        final result =
-        await _database.readTransaction(newAction);
+        final result = await _database.readTransaction(newAction);
 
         span?.status = SpanStatus.ok();
         breadcrumb.data?['status'] = 'ok';
