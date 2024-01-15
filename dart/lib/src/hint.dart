@@ -83,11 +83,14 @@ class Hint {
   // Key/Value Storage
 
   void addAll(Map<String, dynamic> keysAndValues) {
-    _internalStorage.addAll(keysAndValues);
+    final withoutNullValues = keysAndValues.map(
+        (key, value) => MapEntry(key, value ?? "null")
+    );
+    _internalStorage.addAll(withoutNullValues);
   }
 
   void set(String key, dynamic value) {
-    _internalStorage[key] = value;
+    _internalStorage[key] = value ?? "null";
   }
 
   dynamic get(String key) {
