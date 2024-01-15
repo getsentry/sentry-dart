@@ -201,6 +201,11 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
   @override
   // ignore: override_on_non_overriding_member
   Future<T> readTransaction<T>(Future<T> Function(Transaction txn) action) {
-    return transaction(action);
+    try {
+      // ignore: return_of_invalid_type
+      return (_database as dynamic).readTransaction(action);
+    } on NoSuchMethodError catch (_) {
+      return transaction(action);
+    }
   }
 }
