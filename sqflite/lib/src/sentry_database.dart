@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sqflite/sqflite.dart';
@@ -32,7 +34,9 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
   // ignore: public_member_api_docs
   static const dbSqlQueryOp = 'db.sql.query';
 
-  static const _dbSqlOp = 'db.sql.transaction';
+  static const _dbSqlTransactionOp = 'db.sql.transaction';
+
+  static const _dbSqlReadTransactionOp = 'db.sql.readTransaction';
 
   @internal
   // ignore: public_member_api_docs
@@ -144,7 +148,7 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
       final currentSpan = _hub.getSpan();
       final description = 'Transaction DB: ${_database.path}';
       final span = currentSpan?.startChild(
-        _dbSqlOp,
+        _dbSqlTransactionOp,
         description: description,
       );
       // ignore: invalid_use_of_internal_member
@@ -153,7 +157,7 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
 
       var breadcrumb = Breadcrumb(
         message: description,
-        category: _dbSqlOp,
+        category: _dbSqlTransactionOp,
         data: {},
         type: 'query',
       );
@@ -201,13 +205,82 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
   @override
   // ignore: override_on_non_overriding_member
   Future<T> readTransaction<T>(Future<T> Function(Transaction txn) action) {
+    return Future<T>(() async {
+      final currentSpan = _hub.getSpan();
+      final description = 'Transaction DB: ${_database.path}';
+      final span = currentSpan?.startChild(
+        _dbSqlReadTransactionOp,
+        description: description,
+      );
+      // ignore: invalid_use_of_internal_member
+      span?.origin = SentryTraceOrigins.autoDbSqfliteDatabase;
+      setDatabaseAttributeData(span, dbName);
+
+      var breadcrumb = Breadcrumb(
+        message: description,
+        category: _dbSqlReadTransactionOp,
+        data: {},
+        type: 'query',
+      );
+      setDatabaseAttributeOnBreadcrumb(breadcrumb, dbName);
+
+      Future<T> newAction(Transaction txn) async {
+        final executor = SentryDatabaseExecutor(
+          txn,
+          parentSpan: span,
+          hub: _hub,
+          dbName: dbName,
+        );
+        final sentrySqfliteTransaction =
+            SentrySqfliteTransaction(executor, hub: _hub, dbName: dbName);
+
+        return await action(sentrySqfliteTransaction);
+      }
+
+      try {
+        final futureOrResult = _resolvedReadTransaction(newAction);
+        T result;
+
+        if (futureOrResult is Future<T>) {
+          result = await futureOrResult;
+        } else {
+          result = futureOrResult;
+        }
+
+        span?.status = SpanStatus.ok();
+        breadcrumb.data?['status'] = 'ok';
+
+        return result;
+      } catch (exception) {
+        span?.throwable = exception;
+        span?.status = SpanStatus.internalError();
+        breadcrumb.data?['status'] = 'internal_error';
+        breadcrumb = breadcrumb.copyWith(
+          level: SentryLevel.warning,
+        );
+
+        rethrow;
+      } finally {
+        await span?.finish();
+
+        // ignore: invalid_use_of_internal_member
+        await _hub.scope.addBreadcrumb(breadcrumb);
+      }
+    });
+  }
+
+  FutureOr<T> _resolvedReadTransaction<T>(
+    Future<T> Function(Transaction txn) action,
+  ) async {
     try {
       // ignore: return_of_invalid_type
-      return (_database as dynamic).readTransaction(action);
+      final result = await (_database as dynamic).readTransaction(action);
+      // Await and cast, as directly returning the future resulted in a runtime error.
+      return result as T;
     } on NoSuchMethodError catch (_) {
       // The `readTransaction` does not exists on sqflite version < 2.5.0+2.
       // Fallback to transaction instead.
-      return transaction(action);
+      return _database.transaction(action);
     }
   }
 }
