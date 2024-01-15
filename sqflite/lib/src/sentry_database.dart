@@ -196,10 +196,4 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
       }
     });
   }
-
-  // ignore: annotate_overrides
-  Future<T> readTransaction<T>(Future<T> Function(Transaction txn) action) {
-    // Use fallback that is available in al 2.X versions of sqflite.
-    return _database.transaction(action);
-  }
 }
