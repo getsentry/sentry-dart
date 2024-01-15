@@ -107,6 +107,27 @@ void main() {
       await db.close();
     });
 
+    test('creates readTransaction span', () async {
+      final db = await fixture.getSut();
+
+      await db.readTransaction((txn) async {
+        expect(txn is SentrySqfliteTransaction, true);
+      });
+      final span = fixture.tracer.children.last;
+      expect(span.context.operation, 'db.sql.readTransaction');
+      expect(span.context.description, 'Transaction DB: $inMemoryDatabasePath');
+      expect(span.status, SpanStatus.ok());
+      expect(span.data[SentryDatabase.dbSystemKey], SentryDatabase.dbSystem);
+      expect(span.data[SentryDatabase.dbNameKey], inMemoryDatabasePath);
+      expect(
+        span.origin,
+        // ignore: invalid_use_of_internal_member
+        SentryTraceOrigins.autoDbSqfliteDatabase,
+      );
+
+      await db.close();
+    });
+
     test('creates transaction breadcrumb', () async {
       final db = await fixture.getSut();
 
@@ -117,6 +138,27 @@ void main() {
       final breadcrumb = fixture.hub.scope.breadcrumbs.first;
       expect(breadcrumb.message, 'Transaction DB: $inMemoryDatabasePath');
       expect(breadcrumb.category, 'db.sql.transaction');
+      expect(breadcrumb.data?['status'], 'ok');
+      expect(
+        breadcrumb.data?[SentryDatabase.dbSystemKey],
+        SentryDatabase.dbSystem,
+      );
+      expect(breadcrumb.data?[SentryDatabase.dbNameKey], inMemoryDatabasePath);
+      expect(breadcrumb.type, 'query');
+
+      await db.close();
+    });
+
+    test('creates readTransaction breadcrumb', () async {
+      final db = await fixture.getSut();
+
+      await db.readTransaction((txn) async {
+        expect(txn is SentrySqfliteTransaction, true);
+      });
+
+      final breadcrumb = fixture.hub.scope.breadcrumbs.first;
+      expect(breadcrumb.message, 'Transaction DB: $inMemoryDatabasePath');
+      expect(breadcrumb.category, 'db.sql.readTransaction');
       expect(breadcrumb.data?['status'], 'ok');
       expect(
         breadcrumb.data?[SentryDatabase.dbSystemKey],
