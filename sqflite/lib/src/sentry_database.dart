@@ -205,6 +205,8 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
       // ignore: return_of_invalid_type
       return (_database as dynamic).readTransaction(action);
     } on NoSuchMethodError catch (_) {
+      // The `readTransaction` does not exists on sqflite version < 2.5.0+2.
+      // Fallback to transaction instead.
       return transaction(action);
     }
   }
