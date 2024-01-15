@@ -16,7 +16,7 @@
   - Now the device context from Android is available in `BeforeSendCallback`
 - Set ip_address to {{auto}} by default, even if sendDefaultPII is disabled ([#1665](https://github.com/getsentry/sentry-dart/pull/1665))
   - Instead use the "Prevent Storing of IP Addresses" option in the "Security & Privacy" project settings on sentry.io
-- Bump iOS minimum deployment target from **11** to **12**
+- Bump iOS minimum deployment target from **11** to **12** ([#1821](https://github.com/getsentry/sentry-dart/pull/1821))
 
 ## Unreleased
   
