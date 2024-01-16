@@ -114,7 +114,7 @@ void main() {
         expect(txn is SentrySqfliteTransaction, true);
       });
       final span = fixture.tracer.children.last;
-      expect(span.context.operation, 'db.sql.readTransaction');
+      expect(span.context.operation, 'db.sql.read_transaction');
       expect(span.context.description, 'Transaction DB: $inMemoryDatabasePath');
       expect(span.status, SpanStatus.ok());
       expect(span.data[SentryDatabase.dbSystemKey], SentryDatabase.dbSystem);
@@ -158,7 +158,7 @@ void main() {
 
       final breadcrumb = fixture.hub.scope.breadcrumbs.first;
       expect(breadcrumb.message, 'Transaction DB: $inMemoryDatabasePath');
-      expect(breadcrumb.category, 'db.sql.readTransaction');
+      expect(breadcrumb.category, 'db.sql.read_transaction');
       expect(breadcrumb.data?['status'], 'ok');
       expect(
         breadcrumb.data?[SentryDatabase.dbSystemKey],

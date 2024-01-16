@@ -36,7 +36,7 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
 
   static const _dbSqlTransactionOp = 'db.sql.transaction';
 
-  static const _dbSqlReadTransactionOp = 'db.sql.readTransaction';
+  static const _dbSqlReadTransactionOp = 'db.sql.read_transaction';
 
   @internal
   // ignore: public_member_api_docs
