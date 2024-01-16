@@ -214,6 +214,7 @@ import 'package:sentry/sentry.dart';
 import 'version.dart';
 
 typedef Callback<T> = FutureOr<T> Function();
+typedef IsMainIsolateCallback = bool Function();
 
 /// The Sentry wrapper for the File IO implementation that creates a span
 /// out of the active transaction in the scope and a breadcrumb, which gets
@@ -239,13 +240,19 @@ class SentryFile implements File {
   SentryFile(
     this._file, {
     @internal Hub? hub,
-  }) : _hub = hub ?? HubAdapter() {
+    @internal IsMainIsolateCallback? isMainIsolateCallback,
+  })  : _hub = hub ?? HubAdapter(),
+        _isMainIsolateCallback = isMainIsolateCallback ??
+            (() {
+              return Isolate.current.debugName == 'main';
+            }) {
     _hub.options.sdk.addIntegration('SentryFileTracing');
     _hub.options.sdk.addPackage(packageName, sdkVersion);
   }
 
   final File _file;
   final Hub _hub;
+  final IsMainIsolateCallback _isMainIsolateCallback;
 
   @override
   Future<File> copy(String newPath) {
@@ -490,10 +497,10 @@ class SentryFile implements File {
 
     span?.origin = SentryTraceOrigins.autoFile;
     span?.setData('file.async', false);
-    final isolateName = Isolate.current.debugName;
-    if (isolateName != null && isolateName.isNotEmpty) {
-      span?.setData('file.isolate', isolateName);
-    }
+
+    final isMainIsolate = _isMainIsolateCallback();
+    span?.setData('blocked_main_thread', isMainIsolate);
+
     final Map<String, dynamic> breadcrumbData = {};
     breadcrumbData['file.async'] = false;
 
