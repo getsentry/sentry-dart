@@ -952,15 +952,12 @@ class Fixture {
   }) {
     options.sendDefaultPii = sendDefaultPii;
     options.tracesSampleRate = tracesSampleRate;
+    options.isMainIsolate = () {
+      return isMainIsolate;
+    };
 
     hub = Hub(options);
     hub.bindClient(client);
-    return SentryFile(
-      file,
-      hub: hub,
-      isMainIsolateCallback: () {
-        return isMainIsolate;
-      },
-    );
+    return SentryFile(file, hub: hub);
   }
 }
