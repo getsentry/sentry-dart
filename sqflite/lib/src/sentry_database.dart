@@ -203,8 +203,7 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
   }
 
   @override
-  // ignore: public_member_api_docs
-  // ignore: override_on_non_overriding_member
+  // ignore: override_on_non_overriding_member, public_member_api_docs
   Future<T> readTransaction<T>(Future<T> Function(Transaction txn) action) {
     return Future<T>(() async {
       final currentSpan = _hub.getSpan();
