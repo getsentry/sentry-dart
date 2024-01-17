@@ -14,6 +14,8 @@
 - Add beforeScreenshotCallback to SentryFlutterOptions ([#1805](https://github.com/getsentry/sentry-dart/pull/1805))
 - Add `blocked_main_thread` to sync file spans ([#1801](https://github.com/getsentry/sentry-dart/pull/1801))
 
+- Add support for `readTransaction` in `sqflite` ([#1819](https://github.com/getsentry/sentry-dart/pull/1819))
+  
 ### Dependencies
 
 - Bump Android SDK from v7.0.0 to v7.1.0 ([#1788](https://github.com/getsentry/sentry-dart/pull/1788))
