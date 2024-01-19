@@ -36,11 +36,6 @@ android {
     defaultConfig {
         minSdkVersion 19
         targetSdkVersion 33
-
-        ndk {
-            // Flutter does not currently support building for x86 Android (See Issue 9253).
-            abiFilters("armeabi-v7a", "x86_64", "arm64-v8a")
-        }
     }
 
     buildTypes {
