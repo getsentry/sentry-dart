@@ -5,18 +5,19 @@ on:
       - main
       - release/**
   pull_request:
-    paths-ignore:
-      - "dio/**"
-      - "flutter/**"
-      - "file/**"
-      - "sqflite/**"
+    paths:
+      - "!**/*.md"
+      - "!**/class-diagram.svg"
+      - ".github/workflows/logging.yml"
+      - "dart/**"
+      - "logging/**"
 
 jobs:
   cancel-previous-workflow:
     runs-on: ubuntu-latest
     steps:
       - name: Cancel Previous Runs
-        uses: styfle/cancel-workflow-action@b173b6ec0100793626c2d9e6b90435061f4fc3e5 # pin@0.11.0
+        uses: styfle/cancel-workflow-action@01ce38bf961b4e243a6342cbade0dbc8ba3f0432 # pin@0.12.0
         with:
           access_token: ${{ github.token }}
 
@@ -39,10 +40,10 @@ jobs:
           - os: macos-latest
             sdk: beta
     steps:
-      - uses: dart-lang/setup-dart@6a218f2413a3e78e9087f638a238f6b40893203d # pin@v1
+      - uses: dart-lang/setup-dart@b64355ae6ca0b5d484f0106a033dd1388965d06d # pin@v1
         with:
           sdk: ${{ matrix.sdk }}
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Test (VM and browser)
         run: |
@@ -51,13 +52,13 @@ jobs:
           dart test -p vm --coverage=coverage --test-randomize-ordering-seed=random --chain-stack-traces
           dart pub run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.dart_tool/package_config.json --report-on=lib
 
-      - uses: codecov/codecov-action@d9f34f8cd5cb3b3eb79b3e4b5dae3a16df499a70 # pin@v3
+      - uses: codecov/codecov-action@eaaf4bedf32dbdc6b720b63067d99c4d77d6047d # pin@v3
         if: runner.os == 'Linux' && matrix.sdk == 'stable'
         with:
           name: sentry_logging
           files: ./logging/coverage/lcov.info
 
-      - uses: VeryGoodOpenSource/very_good_coverage@e5c91bc7ce9843e87c800b3bcafdfb86fbe28491 # pin@v2.1.0        if: runner.os == 'Linux' && matrix.sdk == 'stable'
+      - uses: VeryGoodOpenSource/very_good_coverage@3b475421464c564c0714d92ce02742bd81fa9eda # pin@v2.1.0        if: runner.os == 'Linux' && matrix.sdk == 'stable'
         with:
           path: "./logging/coverage/lcov.info"
           min_coverage: 90

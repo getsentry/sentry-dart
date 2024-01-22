@@ -16,6 +16,7 @@ import 'sentry_options.dart';
 import 'sentry_stack_trace_factory.dart';
 import 'transport/http_transport.dart';
 import 'transport/noop_transport.dart';
+import 'transport/spotlight_http_transport.dart';
 import 'utils/isolate_utils.dart';
 import 'version.dart';
 import 'sentry_envelope.dart';
@@ -48,6 +49,9 @@ class SentryClient {
     if (options.transport is NoOpTransport) {
       final rateLimiter = RateLimiter(options);
       options.transport = HttpTransport(options, rateLimiter);
+    }
+    if (options.spotlight.enabled) {
+      options.transport = SpotlightHttpTransport(options, options.transport);
     }
     return SentryClient._(options);
   }
@@ -345,6 +349,11 @@ class SentryClient {
       traceContext: traceContext,
       attachments: attachments,
     );
+
+    final profileInfo = preparedTransaction.tracer.profileInfo;
+    if (profileInfo != null) {
+      envelope.items.add(profileInfo.asEnvelopeItem());
+    }
     final id = await captureEnvelope(envelope);
 
     return id ?? SentryId.empty();
@@ -401,7 +410,7 @@ class SentryClient {
         exception: exception,
         stackTrace: stackTrace,
       );
-      if (_options.devMode) {
+      if (_options.automatedTestMode) {
         rethrow;
       }
     }
@@ -438,7 +447,7 @@ class SentryClient {
           exception: exception,
           stackTrace: stackTrace,
         );
-        if (_options.devMode) {
+        if (_options.automatedTestMode) {
           rethrow;
         }
       }

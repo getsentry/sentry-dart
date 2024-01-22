@@ -188,6 +188,10 @@ class SentryBaggage {
     set(_sampleRateKeyName, value);
   }
 
+  void setSampled(String value) {
+    set('sentry-sampled', value);
+  }
+
   double? getSampleRate() {
     final sampleRate = get(_sampleRateKeyName);
     if (sampleRate == null) {

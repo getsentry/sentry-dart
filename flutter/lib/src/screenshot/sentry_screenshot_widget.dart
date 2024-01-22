@@ -22,8 +22,7 @@ final sentryScreenshotWidgetGlobalKey =
 /// - You can only have one [SentryScreenshotWidget] widget in your widget tree at all
 ///   times.
 class SentryScreenshotWidget extends StatefulWidget {
-  const SentryScreenshotWidget({Key? key, required this.child})
-      : super(key: key);
+  const SentryScreenshotWidget({super.key, required this.child});
 
   final Widget child;
 

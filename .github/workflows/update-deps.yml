@@ -35,3 +35,12 @@ jobs:
       changelog-entry: false
     secrets:
       api-token: ${{ secrets.CI_DEPLOY_KEY }}
+
+  symbol-collector:
+    uses: getsentry/github-workflows/.github/workflows/updater.yml@v2
+    with:
+      path: scripts/update-symbol-collector.sh
+      name: Symbol collector CLI
+      changelog-entry: false
+    secrets:
+      api-token: ${{ secrets.CI_DEPLOY_KEY }}

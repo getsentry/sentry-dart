@@ -59,7 +59,7 @@ class SentryEvent with SentryEventLike<SentryEvent> {
   /// The ID Sentry.io assigned to the submitted event for future reference.
   final SentryId eventId;
 
-  /// A timestamp representing when the breadcrumb occurred.
+  /// A timestamp representing when the event occurred.
   final DateTime? timestamp;
 
   /// A string representing the platform the SDK is submitting from. This will be used by the Sentry interface to customize various components in the interface.

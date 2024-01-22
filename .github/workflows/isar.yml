@@ -1,0 +1,113 @@
+name: sentry-isar
+on:
+  push:
+    branches:
+      - main
+      - release/**
+  pull_request:
+    paths:
+      - "!**/*.md"
+      - "!**/class-diagram.svg"
+      - ".github/workflows/isar.yml"
+      - "dart/**"
+      - "isar/**"
+
+jobs:
+  cancel-previous-workflow:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@01ce38bf961b4e243a6342cbade0dbc8ba3f0432 # pin@0.12.0
+        with:
+          access_token: ${{ github.token }}
+
+  build:
+    name: ${{ matrix.target }} | ${{ matrix.os }} | ${{ matrix.sdk }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: bash
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        target: ["ios", "android", "macos", "linux", "windows"]
+        sdk: ["stable", "beta"]
+        exclude:
+          - os: ubuntu-latest
+            target: ios
+          - os: ubuntu-latest
+            target: macos
+          - os: ubuntu-latest
+            target: windows
+          - os: windows-latest
+            target: ios
+          - os: windows-latest
+            target: android
+          - os: windows-latest
+            target: macos
+          - os: windows-latest
+            target: linux
+          # macos-latest is taking hours due to limited resources
+          - os: macos-latest
+            target: android
+          - os: macos-latest
+            target: linux
+          - os: macos-latest
+            target: windows
+          # Bad CPU type in executable
+          - os: macos-latest
+            sdk: beta
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        if: ${{ matrix.target == 'android' }}
+        with:
+          java-version: "11"
+          distribution: "adopt"
+
+      # Install required dependencies for Flutter on Linux on Ubuntu
+      - name: "Setup Linux"
+        run: |
+          sudo apt update
+          sudo apt install -y cmake dbus libblkid-dev libgtk-3-dev liblzma-dev ninja-build pkg-config xvfb
+          sudo apt install -y network-manager upower
+        if: matrix.os == 'ubuntu-latest' && matrix.target == 'linux'
+
+      - uses: subosito/flutter-action@2783a3f08e1baf891508463f8c6653c258246225 # pin@v2.12.0
+        with:
+          channel: ${{ matrix.sdk }}
+
+      - run: flutter upgrade
+
+      - name: Pub Get
+        run: |
+          cd isar
+          flutter pub get
+
+      - name: Test VM with coverage
+        run: |
+          cd isar
+          flutter test -j 1 --coverage --test-randomize-ordering-seed=random
+
+      - uses: codecov/codecov-action@eaaf4bedf32dbdc6b720b63067d99c4d77d6047d # pin@v3
+        if: runner.os == 'Linux' && matrix.sdk == 'stable' && matrix.target == 'linux'
+        with:
+          name: sentry_isar
+          file: ./isar/coverage/lcov.info
+          functionalities: "search" # remove after https://github.com/codecov/codecov-action/issues/600
+
+      - uses: VeryGoodOpenSource/very_good_coverage@3b475421464c564c0714d92ce02742bd81fa9eda # pin@v2.2.0
+        if: runner.os == 'Linux' && matrix.sdk == 'stable' && matrix.target == 'linux'
+        with:
+          path: "./isar/coverage/lcov.info"
+          min_coverage: 55
+
+  analyze:
+    uses: ./.github/workflows/analyze.yml
+    with:
+      package: isar
+      sdk: flutter

@@ -14,7 +14,7 @@ void main() {
   });
 
   test('async re-initilization', () async {
-    final options = SentryOptions(dsn: fakeDsn)..devMode = true;
+    final options = SentryOptions(dsn: fakeDsn)..automatedTestMode = true;
     await Sentry.init(
       (options) {
         options.dsn = fakeDsn;
@@ -35,7 +35,7 @@ void main() {
   // This is the failure from
   // https://github.com/getsentry/sentry-dart/issues/508
   test('re-initilization', () async {
-    final options = SentryOptions(dsn: fakeDsn)..devMode = true;
+    final options = SentryOptions(dsn: fakeDsn)..automatedTestMode = true;
     await Sentry.init(
       (options) {
         options.dsn = fakeDsn;

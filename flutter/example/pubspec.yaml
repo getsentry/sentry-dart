@@ -1,6 +1,6 @@
 name: sentry_flutter_example
 description: Demonstrates how to use the sentry_flutter plugin.
-version: 7.9.0
+version: 7.14.0
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
@@ -17,17 +17,24 @@ dependencies:
   sentry_logging:
   sentry_sqflite:
   sentry_file:
+  sentry_hive:
+  sentry_drift:
+  sentry_isar:
   universal_platform: ^1.0.0
   feedback: ^2.0.0
   provider: ^6.0.0
   dio: any # This gets constrained by `sentry_dio`
   sqflite: any # This gets constrained by `sentry_sqflite`
   logging: any # This gets constrained by `sentry_logging`
+  drift: any # This gets constrained by `sentry_drift`
+  isar: any # This gets constrained by `sentry_isar`
   package_info_plus: ^4.0.0
   path_provider: ^2.0.0
   #sqflite_common_ffi: ^2.0.0
   #sqflite_common_ffi_web: ^0.3.0
   http: ^1.0.0
+  hive: any  # This gets constrained by `sentry_hive`
+  sqlite3_flutter_libs: ^0.5.0
 
 dev_dependencies:
   flutter_lints: ^2.0.0
@@ -36,6 +43,8 @@ dev_dependencies:
     sdk: flutter
   flutter_test:
     sdk: flutter
+  test: ^1.21.1
+  build_runner: any
 
 flutter:
   uses-material-design: true

@@ -5,8 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:sentry_flutter/src/sentry_native.dart';
-import 'package:sentry_flutter/src/sentry_native_channel.dart';
+import 'package:sentry_flutter/src/native/sentry_native.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 
 import 'mocks.dart';
@@ -34,21 +33,25 @@ void main() {
   }
 
   setUp(() {
-    SentryNative().reset();
     fixture = Fixture();
   });
 
-  tearDown(() {
-    SentryNative().reset();
-  });
-
   group('NativeFrames', () {
+    late MockNativeChannel mockNativeChannel;
+
+    setUp(() {
+      mockNativeChannel = MockNativeChannel();
+      SentryFlutter.native =
+          SentryNative(SentryFlutterOptions(dsn: fakeDsn), mockNativeChannel);
+    });
+
+    tearDown(() {
+      SentryFlutter.native = null;
+    });
+
     test('transaction start begins frames collection', () async {
       final currentRoute = route(RouteSettings(name: 'Current Route'));
       final mockHub = _MockHub();
-      final native = SentryNative();
-      final mockNativeChannel = MockNativeChannel();
-      native.nativeChannel = mockNativeChannel;
 
       final tracer = getMockSentryTracer();
       _whenAnyStart(mockHub, tracer);
@@ -66,16 +69,12 @@ void main() {
     test('transaction finish adds native frames to tracer', () async {
       final currentRoute = route(RouteSettings(name: 'Current Route'));
 
-      final options = SentryOptions(dsn: fakeDsn);
+      final options = defaultTestOptions();
       options.tracesSampleRate = 1;
       final hub = Hub(options);
 
       final nativeFrames = NativeFrames(3, 2, 1);
-      final mockNativeChannel = MockNativeChannel();
       mockNativeChannel.nativeFrames = nativeFrames;
-
-      final mockNative = SentryNative();
-      mockNative.nativeChannel = mockNativeChannel;
 
       final sut = fixture.getSut(
         hub: hub,
@@ -367,6 +366,73 @@ void main() {
       hub.configureScope((scope) {
         expect(scope.span, span);
       });
+    });
+
+    test('didPush sets current route name', () {
+      const name = 'Current Route';
+      final currentRoute = route(RouteSettings(name: name));
+
+      const op = 'navigation';
+      final hub = _MockHub();
+      final span = getMockSentryTracer(name: name);
+      when(span.context).thenReturn(SentrySpanContext(operation: op));
+      _whenAnyStart(hub, span);
+
+      final sut = fixture.getSut(
+        hub: hub,
+        autoFinishAfter: Duration(seconds: 5),
+      );
+
+      sut.didPush(currentRoute, null);
+
+      expect(SentryNavigatorObserver.currentRouteName, 'Current Route');
+    });
+
+    test('didReplace sets new route name', () {
+      const oldRouteName = 'Old Route';
+      final oldRoute = route(RouteSettings(name: oldRouteName));
+      const newRouteName = 'New Route';
+      final newRoute = route(RouteSettings(name: newRouteName));
+
+      const op = 'navigation';
+      final hub = _MockHub();
+      final span = getMockSentryTracer(name: oldRouteName);
+      when(span.context).thenReturn(SentrySpanContext(operation: op));
+      _whenAnyStart(hub, span);
+
+      final sut = fixture.getSut(
+        hub: hub,
+        autoFinishAfter: Duration(seconds: 5),
+      );
+
+      sut.didPush(oldRoute, null);
+      sut.didReplace(newRoute: newRoute, oldRoute: oldRoute);
+
+      expect(SentryNavigatorObserver.currentRouteName, 'New Route');
+    });
+
+    test('popRoute sets previous route name', () {
+      const oldRouteName = 'Old Route';
+      final oldRoute = route(RouteSettings(name: oldRouteName));
+      const newRouteName = 'New Route';
+      final newRoute = route(RouteSettings(name: newRouteName));
+
+      const op = 'navigation';
+      final hub = _MockHub();
+      final span = getMockSentryTracer(name: oldRouteName);
+      when(span.context).thenReturn(SentrySpanContext(operation: op));
+      when(span.status).thenReturn(null);
+      _whenAnyStart(hub, span);
+
+      final sut = fixture.getSut(
+        hub: hub,
+        autoFinishAfter: Duration(seconds: 5),
+      );
+
+      sut.didPush(oldRoute, null);
+      sut.didPop(newRoute, oldRoute);
+
+      expect(SentryNavigatorObserver.currentRouteName, 'Old Route');
     });
   });
 
@@ -729,6 +795,8 @@ void main() {
 }
 
 class Fixture {
+  final mockNativeChannel = MockNativeChannel();
+
   SentryNavigatorObserver getSut({
     required Hub hub,
     bool enableAutoTransactions = true,
@@ -754,7 +822,7 @@ class Fixture {
 
 class _MockHub extends MockHub {
   @override
-  final options = SentryOptions(dsn: fakeDsn);
+  final options = defaultTestOptions();
 
   @override
   late final scope = Scope(options);

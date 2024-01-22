@@ -159,7 +159,7 @@ void main() {
     });
 
     test('$IoEnricherEventProcessor gets added on init', () async {
-      final options = SentryOptions(dsn: fakeDsn)..devMode = true;
+      final options = SentryOptions(dsn: fakeDsn)..automatedTestMode = true;
       late SentryOptions configuredOptions;
       await Sentry.init(
         (options) {

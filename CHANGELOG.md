@@ -2,10 +2,136 @@
 
 ## Unreleased
 
+### Features
+
+- Add [Spotlight](https://spotlightjs.com/about/) support ([#1786](https://github.com/getsentry/sentry-dart/pull/1786))
+  - Set `options.spotlight = Spotlight(enabled: true)` to enable Spotlight
+- Add `ConnectivityIntegration` for web ([#1765](https://github.com/getsentry/sentry-dart/pull/1765))
+  - We only get the info if online/offline on web platform. The added breadcrumb is set to either `wifi` or `none`.
+- APM for isar ([#1726](https://github.com/getsentry/sentry-dart/pull/1726))
+- Add isar breadcrumbs ([#1800](https://github.com/getsentry/sentry-dart/pull/1800))
+- Starting with Flutter 3.16, Sentry adds the [`appFlavor`](https://api.flutter.dev/flutter/services/appFlavor-constant.html) to the `flutter_context` ([#1799](https://github.com/getsentry/sentry-dart/pull/1799))
+- Add beforeScreenshotCallback to SentryFlutterOptions ([#1805](https://github.com/getsentry/sentry-dart/pull/1805))
+- Add support for `readTransaction` in `sqflite` ([#1819](https://github.com/getsentry/sentry-dart/pull/1819))
+  
+### Dependencies
+
+- Bump Android SDK from v7.0.0 to v7.1.0 ([#1788](https://github.com/getsentry/sentry-dart/pull/1788))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#710)
+  - [diff](https://github.com/getsentry/sentry-java/compare/7.0.0...7.1.0)
+- Bump Cocoa SDK from v8.17.2 to v8.18.0 ([#1803](https://github.com/getsentry/sentry-dart/pull/1803))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8180)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.17.2...8.18.0)
+
+## 7.14.0
+
+- Add option to opt out of fatal level for automatically collected errors ([#1738](https://github.com/getsentry/sentry-dart/pull/1738))
+
+### Fixes
+
+- Add debug_meta to all events ([#1756](https://github.com/getsentry/sentry-dart/pull/1756))
+  - Fixes obfuscated stacktraces when `captureMessage` or `captureEvent` is called with `attachStacktrace` option 
+
+### Features
+
+- Add option to opt out of fatal level for automatically collected errors ([#1738](https://github.com/getsentry/sentry-dart/pull/1738))
+- Add `Hive` breadcrumbs ([#1773](https://github.com/getsentry/sentry-dart/pull/1773))
+
+### Dependencies
+
+- Bump Android SDK from v6.34.0 to v7.0.0 ([#1768](https://github.com/getsentry/sentry-dart/pull/1768))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#700)
+  - [diff](https://github.com/getsentry/sentry-java/compare/6.34.0...7.0.0)
+- Bump Cocoa SDK from v8.15.2 to v8.17.2 ([#1761](https://github.com/getsentry/sentry-dart/pull/1761), [#1771](https://github.com/getsentry/sentry-dart/pull/1771), [#1787](https://github.com/getsentry/sentry-dart/pull/1787))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8172)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.15.2...8.17.2)
+
+## 7.13.2
+
+### Fixes
+
+-  Fix SIGSEV, SIGABRT and SIGBUS crashes happening after/around the August Google Play System update, see [#2955](https://github-redirect.dependabot.com/getsentry/sentry-java/issues/2955) for more details (fix provided by Native SDK bump)
+
+### Dependencies
+
+- Update package-info-plus constraint to include 5.0.1 ([#1749](https://github.com/getsentry/sentry-dart/pull/1749))
+- Bump Android SDK from v6.33.1 to v6.34.0 ([#1746](https://github.com/getsentry/sentry-dart/pull/1746))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#6340)
+  - [diff](https://github.com/getsentry/sentry-java/compare/6.33.1...6.34.0)
+
+## 7.13.1
+
+### Fixes
+
+- Fixes release of drift & hive and adds missing integration & sdk version information in the hub options ([#1729](https://github.com/getsentry/sentry-dart/pull/1729))
+
+## 7.13.0
+
+### Fixes 
+
+- Fixes setting the correct locale to contexts with navigatorKey ([#1724](https://github.com/getsentry/sentry-dart/pull/1724))
+  - If you have a selected locale in e.g MaterialApp, this fix will retrieve the correct locale for the event context.
+- Flutter renderer information was removed on dart:io platforms since it didn't add the correct value ([#1723](https://github.com/getsentry/sentry-dart/pull/1723))
+- Unsupported types with Expando ([#1690](https://github.com/getsentry/sentry-dart/pull/1690))
+
+### Features
+
+- Add APM integration for Drift ([#1709](https://github.com/getsentry/sentry-dart/pull/1709))
+- StackTraces in `PlatformException.message` will get nicely formatted too when present ([#1716](https://github.com/getsentry/sentry-dart/pull/1716))
+- Breadcrumbs for database operations ([#1656](https://github.com/getsentry/sentry-dart/pull/1656))
+- APM for hive ([#1672](https://github.com/getsentry/sentry-dart/pull/1672))
+- Add `attachScreenshotOnlyWhenResumed` to options ([#1700](https://github.com/getsentry/sentry-dart/pull/1700))
+
+### Dependencies
+
+- Bump Android SDK from v6.32.0 to v6.33.1 ([#1710](https://github.com/getsentry/sentry-dart/pull/1710), [#1713](https://github.com/getsentry/sentry-dart/pull/1713))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#6331)
+  - [diff](https://github.com/getsentry/sentry-java/compare/6.32.0...6.33.1)
+- Bump Cocoa SDK from v8.14.2 to v8.15.2 ([#1712](https://github.com/getsentry/sentry-dart/pull/1712), [#1714](https://github.com/getsentry/sentry-dart/pull/1714), [#1717](https://github.com/getsentry/sentry-dart/pull/1717))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8152)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.14.2...8.15.2)
+
+## 7.12.0
+
 ### Enhancements
 
+- Log warning if both tracesSampleRate and tracesSampler are set ([#1701](https://github.com/getsentry/sentry-dart/pull/1701))
+- Better Flutter framework stack traces - we now collect Flutter framework debug symbols for iOS, macOS and Android automatically on the Sentry server ([#1673](https://github.com/getsentry/sentry-dart/pull/1673))
+
+### Features
+
+- Initial (alpha) support for profiling on iOS and macOS ([#1611](https://github.com/getsentry/sentry-dart/pull/1611))
+- Add `SentryNavigatorObserver` current route to `event.app.contexts.viewNames` ([#1545](https://github.com/getsentry/sentry-dart/pull/1545))
+  - Requires relay version [23.9.0](https://github.com/getsentry/relay/blob/master/CHANGELOG.md#2390) for self-hosted instances
+
+## 7.11.0
+
+### Fixes
+
+- Session: missing mechanism.handled is considered crash ([#3353](https://github.com/getsentry/sentry-cocoa/pull/3353))
+
+### Features
+
+- Breadcrumbs for file I/O operations ([#1649](https://github.com/getsentry/sentry-dart/pull/1649))
+
+### Dependencies
+
+- Enable compatibility with uuid v4 ([#1647](https://github.com/getsentry/sentry-dart/pull/1647))
+- Bump Android SDK from v6.29.0 to v6.32.0 ([#1660](https://github.com/getsentry/sentry-dart/pull/1660), [#1676](https://github.com/getsentry/sentry-dart/pull/1676), [#1688](https://github.com/getsentry/sentry-dart/pull/1688))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#6320)
+  - [diff](https://github.com/getsentry/sentry-java/compare/6.29.0...6.32.0)
+- Bump Cocoa SDK from v8.11.0 to v8.14.2 ([#1650](https://github.com/getsentry/sentry-dart/pull/1650), [#1655](https://github.com/getsentry/sentry-dart/pull/1655), [#1677](https://github.com/getsentry/sentry-dart/pull/1677), [#1691](https://github.com/getsentry/sentry-dart/pull/1691))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8142)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.11.0...8.14.2)
+
+## 7.10.1
+
+### Enhancements
+
+- Add Sampling Decision to Trace Envelope Header ([#1639](https://github.com/getsentry/sentry-dart/pull/1639))
 - Add http.request.method attribute to http spans data ([#1633](https://github.com/getsentry/sentry-dart/pull/1633))
 - Add db.system and db.name attributes to db spans data ([#1629](https://github.com/getsentry/sentry-dart/pull/1629))
+- Log SDK errors to the console if the log level is `fatal` even if `debug` is disabled ([#1635](https://github.com/getsentry/sentry-dart/pull/1635))
 
 ### Features
 

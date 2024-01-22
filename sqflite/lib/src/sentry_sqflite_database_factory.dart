@@ -59,14 +59,21 @@ class SentrySqfliteDatabaseFactory with SqfliteDatabaseFactoryMixin {
 
     return Future<Database>(() async {
       final currentSpan = _hub.getSpan();
+      final description = 'Open DB: $path';
       final span = currentSpan?.startChild(
         SentryDatabase.dbOp,
-        description: 'Open DB: $path',
+        description: description,
       );
 
       span?.origin =
           // ignore: invalid_use_of_internal_member
           SentryTraceOrigins.autoDbSqfliteDatabaseFactory;
+
+      var breadcrumb = Breadcrumb(
+        message: description,
+        category: SentryDatabase.dbOp,
+        data: {},
+      );
 
       try {
         final database =
@@ -75,14 +82,21 @@ class SentrySqfliteDatabaseFactory with SqfliteDatabaseFactoryMixin {
         final sentryDatabase = SentryDatabase(database, hub: _hub);
 
         span?.status = SpanStatus.ok();
+        breadcrumb.data?['status'] = 'ok';
+
         return sentryDatabase;
       } catch (exception) {
         span?.throwable = exception;
         span?.status = SpanStatus.internalError();
-
+        breadcrumb.data?['status'] = 'internal_error';
+        breadcrumb = breadcrumb.copyWith(
+          level: SentryLevel.warning,
+        );
         rethrow;
       } finally {
         await span?.finish();
+        // ignore: invalid_use_of_internal_member
+        await _hub.scope.addBreadcrumb(breadcrumb);
       }
     });
   }

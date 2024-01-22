@@ -289,6 +289,17 @@ class SentryOptions {
   /// to be sent to Sentry.
   TracesSamplerCallback? tracesSampler;
 
+  double? _profilesSampleRate;
+
+  @internal // Only exposed by SentryFlutterOptions at the moment.
+  double? get profilesSampleRate => _profilesSampleRate;
+
+  @internal // Only exposed by SentryFlutterOptions at the moment.
+  set profilesSampleRate(double? value) {
+    assert(value == null || (value >= 0 && value <= 1));
+    _profilesSampleRate = value;
+  }
+
   /// Send statistics to sentry when the client drops events.
   bool sendClientReports = true;
 
@@ -353,10 +364,22 @@ class SentryOptions {
   /// are set.
   bool? enableTracing;
 
-  /// Changed SDK behaviour when set to true:
+  /// Only for internal use. Changed SDK behaviour when set to true:
   /// - Rethrow exceptions that occur in user provided closures
   @internal
-  bool devMode = false;
+  bool automatedTestMode = false;
+
+  /// Errors that the SDK automatically collects, for example in
+  /// [SentryIsolate], have `level` [SentryLevel.fatal] set per default.
+  /// Settings this to `false` will set the `level` to [SentryLevel.error].
+  bool markAutomaticallyCollectedErrorsAsFatal = true;
+
+  /// The Spotlight configuration.
+  /// Disabled by default.
+  /// ```dart
+  /// spotlight = Spotlight(enabled: true)
+  /// ```
+  Spotlight spotlight = Spotlight(enabled: false);
 
   SentryOptions({this.dsn, PlatformChecker? checker}) {
     if (checker != null) {

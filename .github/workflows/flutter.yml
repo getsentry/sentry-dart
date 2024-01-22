@@ -5,23 +5,24 @@ on:
       - main
       - release/**
   pull_request:
-    paths-ignore:
-      - "logging/**"
-      - "dio/**"
-      - "file/**"
-      - "sqflite/**"
+    paths:
+      - ".github/workflows/flutter.yml"
+      - "!**/*.md"
+      - "!**/class-diagram.svg"
+      - "dart/**"
+      - "flutter/**"
 
 jobs:
   cancel-previous-workflow:
     runs-on: ubuntu-latest
     steps:
       - name: Cancel Previous Runs
-        uses: styfle/cancel-workflow-action@b173b6ec0100793626c2d9e6b90435061f4fc3e5 # pin@0.11.0
+        uses: styfle/cancel-workflow-action@01ce38bf961b4e243a6342cbade0dbc8ba3f0432 # pin@0.12.0
         with:
           access_token: ${{ github.token }}
 
   build:
-    name: ${{ matrix.target }} | ${{ matrix.os }} | ${{ matrix.sdk }}
+    name: "${{ matrix.target }} | ${{ matrix.os }} | ${{ matrix.sdk }}"
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
     defaults:
@@ -64,9 +65,9 @@ jobs:
             sdk: beta
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - uses: actions/setup-java@v3
+      - uses: actions/setup-java@v4
         if: ${{ matrix.target == 'android' }}
         with:
           java-version: "11"
@@ -80,7 +81,7 @@ jobs:
           sudo apt install -y network-manager upower
         if: matrix.os == 'ubuntu-latest' && matrix.target == 'linux'
 
-      - uses: subosito/flutter-action@48cafc24713cca54bbe03cdc3a423187d413aafa # pin@v2.10.0
+      - uses: subosito/flutter-action@2783a3f08e1baf891508463f8c6653c258246225 # pin@v2.12.0
         with:
           channel: ${{ matrix.sdk }}
 
@@ -102,19 +103,21 @@ jobs:
         run: |
           cd flutter
           flutter test --coverage --test-randomize-ordering-seed=random
+          dart run remove_from_coverage -f coverage/lcov.info -r 'binding.dart'
 
-      - uses: codecov/codecov-action@d9f34f8cd5cb3b3eb79b3e4b5dae3a16df499a70 # pin@v3
+      - uses: codecov/codecov-action@eaaf4bedf32dbdc6b720b63067d99c4d77d6047d # pin@v3
         if: runner.os == 'Linux' && matrix.sdk == 'stable' && matrix.target == 'linux'
         with:
           name: sentry_flutter
           file: ./flutter/coverage/lcov.info
           functionalities: "search" # remove after https://github.com/codecov/codecov-action/issues/600
 
-      - uses: VeryGoodOpenSource/very_good_coverage@e5c91bc7ce9843e87c800b3bcafdfb86fbe28491 # pin@v2.1.0
+      - uses: VeryGoodOpenSource/very_good_coverage@3b475421464c564c0714d92ce02742bd81fa9eda # pin@v2.2.0
         if: runner.os == 'Linux' && matrix.sdk == 'stable' && matrix.target == 'linux'
         with:
           path: "./flutter/coverage/lcov.info"
           min_coverage: 90
+          exclude: "lib/src/native/cocoa/binding.dart"
 
       - name: Build ${{ matrix.target }}
         run: |
@@ -158,7 +161,7 @@ jobs:
       run:
         working-directory: ./flutter
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       # https://github.com/CocoaPods/CocoaPods/issues/5275#issuecomment-315461879
       - run: pod lib lint ios/sentry_flutter.podspec --configuration=Debug --skip-import-validation --allow-warnings --verbose
 
@@ -169,7 +172,7 @@ jobs:
       run:
         working-directory: ./flutter
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: norio-nomura/action-swiftlint@9f4dcd7fd46b4e75d7935cf2f4df406d5cae3684 # pin@3.2.1
         with:
           args: --strict
@@ -181,10 +184,10 @@ jobs:
       run:
         working-directory: ./flutter
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: ktlint
-        uses: ScaCap/action-ktlint@2cf245b99bc91f73bc4c96a3d9d57bb5da3533ae # pin@1.7.1
+        uses: ScaCap/action-ktlint@0ff81efa49425bd0df46caabd8005aafdc8f2cf2 # pin@1.8.0
         with:
           github_token: ${{ secrets.github_token }}
           reporter: github-pr-review
@@ -195,8 +198,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       # To recreate baseline run: detekt -i flutter/android,flutter/example/android -b flutter/config/detekt-bl.xml -cb
-      - uses: natiginfo/action-detekt-all@e01de6ff0eef7c24131e8a133bf598cfac6ceeab # pin@1.21.0
+      - uses: natiginfo/action-detekt-all@1349d3d957cba64d7b6b2752ef874d1e03e402a2 # pin@1.23.4
         with:
           args: -i flutter/android,flutter/example/android --baseline flutter/config/detekt-bl.xml --jvm-target 1.8 --build-upon-default-config --all-rules

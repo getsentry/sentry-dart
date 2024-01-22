@@ -5,9 +5,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:sentry_flutter/src/method_channel_helper.dart';
-import 'package:sentry_flutter/src/sentry_native.dart';
-import 'package:sentry_flutter/src/sentry_native_channel.dart';
+import 'package:sentry_flutter/src/native/method_channel_helper.dart';
+import 'package:sentry_flutter/src/native/sentry_native.dart';
+import 'package:sentry_flutter/src/native/sentry_native_channel.dart';
 import 'mocks.mocks.dart';
 
 void main() {
@@ -38,6 +38,8 @@ void main() {
 
     test('beginNativeFrames', () async {
       final sut = fixture.getSut();
+      when(fixture.methodChannel.invokeMethod('beginNativeFrames'))
+          .thenAnswer((realInvocation) async {});
       await sut.beginNativeFrames();
 
       verify(fixture.methodChannel.invokeMethod('beginNativeFrames'));
@@ -186,14 +188,53 @@ void main() {
       verify(fixture.methodChannel
           .invokeMethod('removeTag', {'key': 'fixture-key'}));
     });
+
+    test('startProfiler', () {
+      final sut = fixture.getSut();
+      expect(() => sut.startProfiler(SentryId.newId()), throwsUnsupportedError);
+      verifyZeroInteractions(fixture.methodChannel);
+    });
+
+    test('discardProfiler', () async {
+      final traceId = SentryId.newId();
+      when(fixture.methodChannel
+              .invokeMethod('discardProfiler', traceId.toString()))
+          .thenAnswer((_) async {});
+
+      final sut = fixture.getSut();
+      await sut.discardProfiler(traceId);
+
+      verify(fixture.methodChannel
+          .invokeMethod('discardProfiler', traceId.toString()));
+    });
+
+    test('collectProfile', () async {
+      final traceId = SentryId.newId();
+      const startTime = 42;
+      const endTime = 50;
+      when(fixture.methodChannel
+          .invokeMapMethod<String, dynamic>('collectProfile', {
+        'traceId': traceId.toString(),
+        'startTime': startTime,
+        'endTime': endTime,
+      })).thenAnswer((_) => Future.value());
+
+      final sut = fixture.getSut();
+      await sut.collectProfile(traceId, startTime, endTime);
+
+      verify(fixture.methodChannel.invokeMapMethod('collectProfile', {
+        'traceId': traceId.toString(),
+        'startTime': startTime,
+        'endTime': endTime,
+      }));
+    });
   });
 }
 
 class Fixture {
   final methodChannel = MockMethodChannel();
-  final options = SentryFlutterOptions();
 
   SentryNativeChannel getSut() {
-    return SentryNativeChannel(methodChannel, options);
+    return SentryNativeChannel(methodChannel);
   }
 }

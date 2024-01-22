@@ -3,10 +3,11 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_flutter/src/integrations/connectivity/connectivity_integration.dart';
 import 'package:sentry_flutter/src/integrations/integrations.dart';
 import 'package:sentry_flutter/src/integrations/screenshot_integration.dart';
+import 'package:sentry_flutter/src/profiling.dart';
 import 'package:sentry_flutter/src/renderer/renderer.dart';
-import 'package:sentry_flutter/src/sentry_native.dart';
 import 'package:sentry_flutter/src/version.dart';
 import 'package:sentry_flutter/src/view_hierarchy/view_hierarchy_integration.dart';
 import 'mocks.dart';
@@ -21,6 +22,10 @@ final platformAgnosticIntegrations = [
   LoadReleaseIntegration,
   DebugPrintIntegration,
   SentryViewHierarchyIntegration,
+];
+
+final webIntegrations = [
+  ConnectivityIntegration,
 ];
 
 final nonWebIntegrations = [
@@ -50,9 +55,7 @@ void main() {
     setUp(() async {
       loadTestPackage();
       await Sentry.close();
-      final sentryNative = SentryNative();
-      sentryNative.nativeChannel = null;
-      sentryNative.reset();
+      SentryFlutter.native = null;
     });
 
     test('Android', () async {
@@ -64,7 +67,8 @@ void main() {
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
-          options.devMode = true;
+          options.automatedTestMode = true;
+          options.profilesSampleRate = 1.0;
           integrations = options.integrations;
           transport = options.transport;
           sentryFlutterOptions = options;
@@ -82,14 +86,18 @@ void main() {
           options: sentryFlutterOptions!, expectedHasNativeScopeObserver: true);
 
       testConfiguration(
-          integrations: integrations,
-          shouldHaveIntegrations: [
-            ...androidIntegrations,
-            ...nativeIntegrations,
-            ...platformAgnosticIntegrations,
-            ...nonWebIntegrations,
-          ],
-          shouldNotHaveIntegrations: iOsAndMacOsIntegrations);
+        integrations: integrations,
+        shouldHaveIntegrations: [
+          ...androidIntegrations,
+          ...nativeIntegrations,
+          ...platformAgnosticIntegrations,
+          ...nonWebIntegrations,
+        ],
+        shouldNotHaveIntegrations: [
+          ...iOsAndMacOsIntegrations,
+          ...nonWebIntegrations,
+        ],
+      );
 
       integrations
           .indexWhere((element) => element is WidgetsFlutterBindingIntegration);
@@ -99,7 +107,8 @@ void main() {
           beforeIntegration: WidgetsFlutterBindingIntegration,
           afterIntegration: OnErrorIntegration);
 
-      expect(SentryNative().nativeChannel, isNotNull);
+      expect(SentryFlutter.native, isNotNull);
+      expect(Sentry.currentHub.profilerFactory, isNull);
 
       await Sentry.close();
     }, testOn: 'vm');
@@ -112,7 +121,8 @@ void main() {
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
-          options.devMode = true;
+          options.automatedTestMode = true;
+          options.profilesSampleRate = 1.0;
           integrations = options.integrations;
           transport = options.transport;
           sentryFlutterOptions = options;
@@ -137,7 +147,10 @@ void main() {
           ...platformAgnosticIntegrations,
           ...nonWebIntegrations,
         ],
-        shouldNotHaveIntegrations: androidIntegrations,
+        shouldNotHaveIntegrations: [
+          ...androidIntegrations,
+          ...nonWebIntegrations,
+        ],
       );
 
       testBefore(
@@ -145,7 +158,9 @@ void main() {
           beforeIntegration: WidgetsFlutterBindingIntegration,
           afterIntegration: OnErrorIntegration);
 
-      expect(SentryNative().nativeChannel, isNotNull);
+      expect(SentryFlutter.native, isNotNull);
+      expect(Sentry.currentHub.profilerFactory,
+          isInstanceOf<SentryNativeProfilerFactory>());
 
       await Sentry.close();
     }, testOn: 'vm');
@@ -158,7 +173,8 @@ void main() {
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
-          options.devMode = true;
+          options.automatedTestMode = true;
+          options.profilesSampleRate = 1.0;
           integrations = options.integrations;
           transport = options.transport;
           sentryFlutterOptions = options;
@@ -175,23 +191,24 @@ void main() {
       testScopeObserver(
           options: sentryFlutterOptions!, expectedHasNativeScopeObserver: true);
 
-      testConfiguration(
-        integrations: integrations,
-        shouldHaveIntegrations: [
-          ...iOsAndMacOsIntegrations,
-          ...nativeIntegrations,
-          ...platformAgnosticIntegrations,
-          ...nonWebIntegrations,
-        ],
-        shouldNotHaveIntegrations: androidIntegrations,
-      );
+      testConfiguration(integrations: integrations, shouldHaveIntegrations: [
+        ...iOsAndMacOsIntegrations,
+        ...nativeIntegrations,
+        ...platformAgnosticIntegrations,
+        ...nonWebIntegrations,
+      ], shouldNotHaveIntegrations: [
+        ...androidIntegrations,
+        ...nonWebIntegrations,
+      ]);
 
       testBefore(
           integrations: integrations,
           beforeIntegration: WidgetsFlutterBindingIntegration,
           afterIntegration: OnErrorIntegration);
 
-      expect(SentryNative().nativeChannel, isNotNull);
+      expect(SentryFlutter.native, isNotNull);
+      expect(Sentry.currentHub.profilerFactory,
+          isInstanceOf<SentryNativeProfilerFactory>());
 
       await Sentry.close();
     }, testOn: 'vm');
@@ -204,7 +221,8 @@ void main() {
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
-          options.devMode = true;
+          options.automatedTestMode = true;
+          options.profilesSampleRate = 1.0;
           integrations = options.integrations;
           transport = options.transport;
           sentryFlutterOptions = options;
@@ -232,6 +250,7 @@ void main() {
           ...androidIntegrations,
           ...iOsAndMacOsIntegrations,
           ...nativeIntegrations,
+          ...webIntegrations,
         ],
       );
 
@@ -240,7 +259,8 @@ void main() {
           beforeIntegration: WidgetsFlutterBindingIntegration,
           afterIntegration: OnErrorIntegration);
 
-      expect(SentryNative().nativeChannel, isNull);
+      expect(SentryFlutter.native, isNull);
+      expect(Sentry.currentHub.profilerFactory, isNull);
 
       await Sentry.close();
     }, testOn: 'vm');
@@ -253,7 +273,8 @@ void main() {
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
-          options.devMode = true;
+          options.automatedTestMode = true;
+          options.profilesSampleRate = 1.0;
           integrations = options.integrations;
           transport = options.transport;
           sentryFlutterOptions = options;
@@ -281,6 +302,7 @@ void main() {
           ...androidIntegrations,
           ...iOsAndMacOsIntegrations,
           ...nativeIntegrations,
+          ...webIntegrations,
         ],
       );
 
@@ -289,7 +311,8 @@ void main() {
           beforeIntegration: WidgetsFlutterBindingIntegration,
           afterIntegration: OnErrorIntegration);
 
-      expect(SentryNative().nativeChannel, isNull);
+      expect(SentryFlutter.native, isNull);
+      expect(Sentry.currentHub.profilerFactory, isNull);
 
       await Sentry.close();
     }, testOn: 'vm');
@@ -302,7 +325,8 @@ void main() {
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
-          options.devMode = true;
+          options.automatedTestMode = true;
+          options.profilesSampleRate = 1.0;
           integrations = options.integrations;
           transport = options.transport;
           sentryFlutterOptions = options;
@@ -325,7 +349,10 @@ void main() {
 
       testConfiguration(
         integrations: integrations,
-        shouldHaveIntegrations: platformAgnosticIntegrations,
+        shouldHaveIntegrations: [
+          ...platformAgnosticIntegrations,
+          ...webIntegrations,
+        ],
         shouldNotHaveIntegrations: [
           ...androidIntegrations,
           ...iOsAndMacOsIntegrations,
@@ -339,7 +366,8 @@ void main() {
           beforeIntegration: RunZonedGuardedIntegration,
           afterIntegration: WidgetsFlutterBindingIntegration);
 
-      expect(SentryNative().nativeChannel, isNull);
+      expect(SentryFlutter.native, isNull);
+      expect(Sentry.currentHub.profilerFactory, isNull);
 
       await Sentry.close();
     });
@@ -353,7 +381,7 @@ void main() {
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
-          options.devMode = true;
+          options.automatedTestMode = true;
           integrations = options.integrations;
           transport = options.transport;
         },
@@ -371,7 +399,10 @@ void main() {
 
       testConfiguration(
         integrations: integrations,
-        shouldHaveIntegrations: platformAgnosticIntegrations,
+        shouldHaveIntegrations: [
+          ...platformAgnosticIntegrations,
+          ...webIntegrations,
+        ],
         shouldNotHaveIntegrations: [
           ...androidIntegrations,
           ...iOsAndMacOsIntegrations,
@@ -397,7 +428,7 @@ void main() {
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
-          options.devMode = true;
+          options.automatedTestMode = true;
           integrations = options.integrations;
           transport = options.transport;
         },
@@ -415,7 +446,10 @@ void main() {
 
       testConfiguration(
         integrations: integrations,
-        shouldHaveIntegrations: platformAgnosticIntegrations,
+        shouldHaveIntegrations: [
+          ...platformAgnosticIntegrations,
+          ...webIntegrations,
+        ],
         shouldNotHaveIntegrations: [
           ...androidIntegrations,
           ...iOsAndMacOsIntegrations,
@@ -429,6 +463,8 @@ void main() {
           beforeIntegration: RunZonedGuardedIntegration,
           afterIntegration: WidgetsFlutterBindingIntegration);
 
+      expect(Sentry.currentHub.profilerFactory, isNull);
+
       await Sentry.close();
     });
 
@@ -440,7 +476,7 @@ void main() {
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
-          options.devMode = true;
+          options.automatedTestMode = true;
           integrations = options.integrations;
           transport = options.transport;
         },
@@ -458,7 +494,10 @@ void main() {
 
       testConfiguration(
         integrations: integrations,
-        shouldHaveIntegrations: platformAgnosticIntegrations,
+        shouldHaveIntegrations: [
+          ...platformAgnosticIntegrations,
+          ...webIntegrations,
+        ],
         shouldNotHaveIntegrations: [
           ...androidIntegrations,
           ...iOsAndMacOsIntegrations,
@@ -481,17 +520,18 @@ void main() {
       await Sentry.close();
     });
 
-    test('installed with skia renderer', () async {
+    test('installed on io platforms', () async {
       List<Integration> integrations = [];
 
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
-          options.devMode = true;
+          options.automatedTestMode = true;
           integrations = options.integrations;
         },
         appRunner: appRunner,
-        platformChecker: getPlatformChecker(platform: MockPlatform.iOs()),
+        platformChecker:
+            getPlatformChecker(platform: MockPlatform.iOs(), isWeb: false),
         rendererWrapper: MockRendererWrapper(FlutterRenderer.skia),
       );
 
@@ -510,11 +550,12 @@ void main() {
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
-          options.devMode = true;
+          options.automatedTestMode = true;
           integrations = options.integrations;
         },
         appRunner: appRunner,
-        platformChecker: getPlatformChecker(platform: MockPlatform.iOs()),
+        platformChecker:
+            getPlatformChecker(platform: MockPlatform.iOs(), isWeb: true),
         rendererWrapper: MockRendererWrapper(FlutterRenderer.canvasKit),
       );
 
@@ -533,35 +574,13 @@ void main() {
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
-          options.devMode = true;
+          options.automatedTestMode = true;
           integrations = options.integrations;
         },
         appRunner: appRunner,
-        platformChecker: getPlatformChecker(platform: MockPlatform.iOs()),
+        platformChecker:
+            getPlatformChecker(platform: MockPlatform.iOs(), isWeb: true),
         rendererWrapper: MockRendererWrapper(FlutterRenderer.html),
-      );
-
-      expect(
-          integrations
-              .map((e) => e.runtimeType)
-              .contains(ScreenshotIntegration),
-          false);
-
-      await Sentry.close();
-    }, testOn: 'vm');
-
-    test('not installed with unknown renderer', () async {
-      List<Integration> integrations = [];
-
-      await SentryFlutter.init(
-        (options) async {
-          options.dsn = fakeDsn;
-          options.devMode = true;
-          integrations = options.integrations;
-        },
-        appRunner: appRunner,
-        platformChecker: getPlatformChecker(platform: MockPlatform.iOs()),
-        rendererWrapper: MockRendererWrapper(FlutterRenderer.unknown),
       );
 
       expect(
@@ -584,7 +603,7 @@ void main() {
       await SentryFlutter.init(
         (options) {
           options.dsn = fakeDsn;
-          options.devMode = true;
+          options.automatedTestMode = true;
 
           expect(false, options.debug);
           expect('debug', options.environment);

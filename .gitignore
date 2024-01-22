@@ -22,6 +22,9 @@ dio/coverage/*
 file/coverage/*
 flutter/coverage/*
 sqflite/coverage/*
+drift/coverage/*
+hive/coverage/*
+isar/coverage/*
 
 pubspec.lock
 Podfile.lock

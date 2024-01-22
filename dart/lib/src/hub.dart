@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:collection';
 
 import 'package:meta/meta.dart';
+import 'profiling.dart';
 import 'propagation_context.dart';
 import 'transport/data_category.dart';
 
@@ -277,7 +278,7 @@ class Hub {
           exception: exception,
           stackTrace: stackTrace,
         );
-        if (_options.devMode) {
+        if (_options.automatedTestMode) {
           rethrow;
         }
       }
@@ -377,7 +378,7 @@ class Hub {
           SentryLevel.error,
           "Error in the 'configureScope' callback, error: $err",
         );
-        if (_options.devMode) {
+        if (_options.automatedTestMode) {
           rethrow;
         }
       }
@@ -435,12 +436,12 @@ class Hub {
     } else {
       final item = _peek();
 
-      final samplingContext = SentrySamplingContext(
-          transactionContext, customSamplingContext ?? {});
-
       // if transactionContext has no sampled decision, run the traces sampler
-      if (transactionContext.samplingDecision == null) {
-        final samplingDecision = _tracesSampler.sample(samplingContext);
+      var samplingDecision = transactionContext.samplingDecision;
+      if (samplingDecision == null) {
+        final samplingContext = SentrySamplingContext(
+            transactionContext, customSamplingContext ?? {});
+        samplingDecision = _tracesSampler.sample(samplingContext);
         transactionContext =
             transactionContext.copyWith(samplingDecision: samplingDecision);
       }
@@ -451,6 +452,12 @@ class Hub {
         );
       }
 
+      SentryProfiler? profiler;
+      if (_profilerFactory != null &&
+          _tracesSampler.sampleProfiling(samplingDecision)) {
+        profiler = _profilerFactory?.startProfiler(transactionContext);
+      }
+
       final tracer = SentryTracer(
         transactionContext,
         this,
@@ -459,6 +466,7 @@ class Hub {
         autoFinishAfter: autoFinishAfter,
         trimEnd: trimEnd ?? false,
         onFinish: onFinish,
+        profiler: profiler,
       );
       if (bindToScope ?? false) {
         item.scope.span = tracer;
@@ -554,6 +562,14 @@ class Hub {
   ) =>
       _throwableToSpan.add(throwable, span, transaction);
 
+  @internal
+  SentryProfilerFactory? get profilerFactory => _profilerFactory;
+
+  @internal
+  set profilerFactory(SentryProfilerFactory? value) => _profilerFactory = value;
+
+  SentryProfilerFactory? _profilerFactory;
+
   SentryEvent _assignTraceContext(SentryEvent event) {
     // assign trace context
     if (event.throwable != null && event.contexts.trace == null) {
@@ -589,6 +605,8 @@ class _WeakMap {
 
   final SentryOptions _options;
 
+  final throwableHandler = UnsupportedThrowablesHandler();
+
   _WeakMap(this._options);
 
   void add(
@@ -599,6 +617,7 @@ class _WeakMap {
     if (throwable == null) {
       return;
     }
+    throwable = throwableHandler.wrapIfUnsupportedType(throwable);
     try {
       if (_expando[throwable] == null) {
         _expando[throwable] = MapEntry(span, transaction);
@@ -617,6 +636,7 @@ class _WeakMap {
     if (throwable == null) {
       return null;
     }
+    throwable = throwableHandler.wrapIfUnsupportedType(throwable);
     try {
       return _expando[throwable] as MapEntry<ISentrySpan, String>?;
     } catch (exception, stackTrace) {
@@ -629,4 +649,36 @@ class _WeakMap {
     }
     return null;
   }
+}
+
+/// A handler for unsupported throwables used for Expando<Object>.
+@visibleForTesting
+class UnsupportedThrowablesHandler {
+  final _unsupportedTypes = {String, int, double, bool};
+  final _unsupportedThrowables = <Object>{};
+
+  dynamic wrapIfUnsupportedType(dynamic throwable) {
+    if (_unsupportedTypes.contains(throwable.runtimeType)) {
+      throwable = _UnsupportedExceptionWrapper(Exception(throwable));
+      _unsupportedThrowables.add(throwable);
+    }
+    return _unsupportedThrowables.lookup(throwable) ?? throwable;
+  }
+}
+
+class _UnsupportedExceptionWrapper {
+  _UnsupportedExceptionWrapper(this.exception);
+
+  final Exception exception;
+
+  @override
+  bool operator ==(Object other) {
+    if (other is _UnsupportedExceptionWrapper) {
+      return other.exception.toString() == exception.toString();
+    }
+    return false;
+  }
+
+  @override
+  int get hashCode => exception.toString().hashCode;
 }
