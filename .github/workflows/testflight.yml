@@ -16,7 +16,7 @@ jobs:
           bundler-cache: true
 
       - name: flutter
-        working-directory: ./flutter/example/ios
+        working-directory: ./flutter/example
         run: |
           flutter upgrade
           flutter pub get
@@ -48,4 +48,4 @@ jobs:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
         run: |
           bundle exec fastlane build_release
-          bundle exec fastlane upload_to_testflight
+          bundle exec fastlane upload_testflight
