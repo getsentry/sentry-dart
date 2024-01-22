@@ -121,11 +121,6 @@ mixin SentryFlutter {
     options.addEventProcessor(PlatformExceptionEventProcessor());
 
     _setSdk(options);
-
-    // ignore: invalid_use_of_internal_member
-    options.isMainIsolate = () {
-      return ServicesBinding.rootIsolateToken != null;
-    };
   }
 
   /// Install default integrations
