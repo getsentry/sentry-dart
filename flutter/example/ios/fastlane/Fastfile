@@ -18,7 +18,7 @@ platform :ios do
     sync_code_signing(
       type: "appstore",
       readonly: true,
-      app_identifier: ["io.sentry.flutter.example"]
+      app_identifier: ["io.sentry.flutter.sample"]
     )
 
     build_app(
