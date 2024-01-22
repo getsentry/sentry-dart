@@ -1,13 +1,5 @@
 name: Upload to Testflight
 on:
-  push:
-    branches:
-      - main
-
-  pull_request:
-    paths:
-      - '.github/workflows/testflight.yml'
-
   workflow_dispatch:
 
 jobs:
