@@ -56,6 +56,21 @@ void main() {
     expect(sentryId != const SentryId.empty(), true);
   });
 
+  testWidgets('setup sentry and capture event with attachment', (tester) async {
+    await setupSentryAndApp(tester);
+
+    final event = SentryEvent();
+    final attachment = SentryAttachment.fromIntList(
+      utf8.encode('Lorem Ipsum dolar sit amet'),
+      'foobar.txt',
+      contentType: 'text/plain',
+    );
+    final hint = Hint.withAttachment(attachment);
+    final sentryId = await Sentry.captureEvent(event, hint: hint);
+
+    expect(sentryId != const SentryId.empty(), true);
+  });
+
   testWidgets('setup sentry and capture exception', (tester) async {
     await setupSentryAndApp(tester);
 
