@@ -386,11 +386,12 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       return
     }
     val currentScope = InternalSentrySdk.getCurrentScope()
-    val serializedScope = InternalSentrySdk.serializeScope(
-      context,
-      options,
-      currentScope,
-    )
+    val serializedScope =
+      InternalSentrySdk.serializeScope(
+        context,
+        options,
+        currentScope,
+      )
     result.success(serializedScope)
   }
 }
