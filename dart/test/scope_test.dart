@@ -830,7 +830,7 @@ class AddTagsEventProcessor implements EventProcessor {
   AddTagsEventProcessor(this.tags);
 
   @override
-  SentryEvent? apply(SentryEvent event, Hint hint) {
+  SentryEvent? apply(SentryEvent event, {Hint? hint}) {
     return event..tags?.addAll(tags);
   }
 }

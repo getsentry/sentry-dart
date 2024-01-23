@@ -10,7 +10,7 @@ class SentryViewHierarchyEventProcessor implements EventProcessor {
   final SentryFlutterOptions _options;
 
   @override
-  SentryEvent? apply(SentryEvent event, Hint hint) {
+  SentryEvent? apply(SentryEvent event, {Hint? hint}) {
     if (event is SentryTransaction) {
       return event;
     }
@@ -31,7 +31,7 @@ class SentryViewHierarchyEventProcessor implements EventProcessor {
 
     final viewHierarchy =
         SentryAttachment.fromViewHierarchy(sentryViewHierarchy);
-    hint.viewHierarchy = viewHierarchy;
+    hint?.viewHierarchy = viewHierarchy;
     return event;
   }
 }

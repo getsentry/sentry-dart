@@ -21,7 +21,7 @@ class WebEnricherEventProcessor implements EnricherEventProcessor {
   final SentryOptions _options;
 
   @override
-  SentryEvent? apply(SentryEvent event, Hint hint) {
+  SentryEvent? apply(SentryEvent event, {Hint? hint}) {
     // Web has no native integration, so no need to check for it
 
     final contexts = event.contexts.copyWith(

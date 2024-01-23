@@ -54,7 +54,7 @@ class _LoadImageListIntegrationEventProcessor implements EventProcessor {
   final SentryFlutterOptions _options;
 
   @override
-  Future<SentryEvent?> apply(SentryEvent event, Hint hint) async {
+  Future<SentryEvent?> apply(SentryEvent event, {Hint? hint}) async {
     if (event.needsSymbolication()) {
       try {
         // we call on every event because the loaded image list is cached

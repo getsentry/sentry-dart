@@ -78,7 +78,7 @@ class ScreenshotEventProcessor implements EventProcessor {
 
     final bytes = await _createScreenshot();
     if (bytes != null) {
-      hint.screenshot = SentryAttachment.fromScreenshotData(bytes);
+      hint?.screenshot = SentryAttachment.fromScreenshotData(bytes);
     }
     return event;
   }
