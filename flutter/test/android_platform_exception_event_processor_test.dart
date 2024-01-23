@@ -30,7 +30,7 @@ void main() {
           .apply(fixture.eventWithPlatformStackTrace, Hint());
 
       final exceptions = platformExceptionEvent!.exceptions!;
-      expect(exceptions.length, 2);
+      expect(exceptions.length, 3);
 
       final platformException = exceptions[1];
 
@@ -40,6 +40,15 @@ void main() {
         "Unsupported value: '[Ljava.lang.StackTraceElement;@ba6feed' of type 'class [Ljava.lang.StackTraceElement;'",
       );
       expect(platformException.stackTrace!.frames.length, 18);
+
+      final platformException_2 = exceptions[2];
+
+      expect(platformException_2.type, 'IllegalArgumentException');
+      expect(
+        platformException_2.value,
+        "Unsupported value: '[Ljava.lang.StackTraceElement;@ba6feed' of type 'class [Ljava.lang.StackTraceElement;'",
+      );
+      expect(platformException_2.stackTrace!.frames.length, 18);
     });
 
     test(
@@ -49,7 +58,7 @@ void main() {
           .apply(fixture.eventWithPlatformStackTrace, Hint());
 
       final exceptions = platformExceptionEvent!.exceptions!;
-      expect(exceptions.length, 2);
+      expect(exceptions.length, 3);
 
       expect(platformExceptionEvent.threads?.first.current, true);
       expect(platformExceptionEvent.threads?.first.crashed, false);
@@ -60,7 +69,7 @@ void main() {
           .apply(fixture.eventWithPlatformStackTrace, Hint());
 
       final exceptions = platformExceptionEvent!.exceptions!;
-      expect(exceptions.length, 2);
+      expect(exceptions.length, 3);
 
       final platformException = exceptions[1];
       final platformThread = platformExceptionEvent.threads?[1];
@@ -80,7 +89,7 @@ void main() {
           .apply(fixture.eventWithPlatformStackTrace, Hint());
 
       final exceptions = platformExceptionEvent!.exceptions!;
-      expect(exceptions.length, 2);
+      expect(exceptions.length, 3);
 
       expect(platformExceptionEvent.threads?.length, threadCount);
     });
@@ -148,9 +157,20 @@ final testPlatformException = PlatformException(
   code: 'error',
   details:
       "Unsupported value: '[Ljava.lang.StackTraceElement;@fa902f1' of type 'class [Ljava.lang.StackTraceElement;'",
+  message: _jvmStackTrace,
+  stacktrace: _jvmStackTrace,
+);
+
+final emptyPlatformException = PlatformException(
+  code: 'error',
+  details:
+      "Unsupported value: '[Ljava.lang.StackTraceElement;@fa902f1' of type 'class [Ljava.lang.StackTraceElement;'",
   message: null,
-  stacktrace:
-      """java.lang.IllegalArgumentException: Unsupported value: '[Ljava.lang.StackTraceElement;@ba6feed' of type 'class [Ljava.lang.StackTraceElement;'
+  stacktrace: null,
+);
+
+const _jvmStackTrace =
+    """java.lang.IllegalArgumentException: Unsupported value: '[Ljava.lang.StackTraceElement;@ba6feed' of type 'class [Ljava.lang.StackTraceElement;'
 	at io.flutter.plugin.common.StandardMessageCodec.writeValue(StandardMessageCodec.java:292)
 	at io.flutter.plugin.common.StandardMethodCodec.encodeSuccessEnvelope(StandardMethodCodec.java:59)
 	at io.flutter.plugin.common.MethodChannel\$IncomingMethodCallHandler\$1.success(MethodChannel.java:267)
@@ -168,13 +188,4 @@ final testPlatformException = PlatformException(
 	at android.app.ActivityThread.main(ActivityThread.java:8138)
 	at java.lang.reflect.Method.invoke(Native Method)
 	at com.android.internal.os.RuntimeInit\$MethodAndArgsCaller.run(RuntimeInit.java:556)
-	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:1037)""",
-);
-
-final emptyPlatformException = PlatformException(
-  code: 'error',
-  details:
-      "Unsupported value: '[Ljava.lang.StackTraceElement;@fa902f1' of type 'class [Ljava.lang.StackTraceElement;'",
-  message: null,
-  stacktrace: null,
-);
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:1037)""";

@@ -5,8 +5,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:sentry_flutter/src/sentry_native.dart';
-import 'package:sentry_flutter/src/sentry_native_channel.dart';
+import 'package:sentry_flutter/src/native/method_channel_helper.dart';
+import 'package:sentry_flutter/src/native/sentry_native.dart';
+import 'package:sentry_flutter/src/native/sentry_native_channel.dart';
 import 'mocks.mocks.dart';
 
 void main() {
@@ -37,6 +38,8 @@ void main() {
 
     test('beginNativeFrames', () async {
       final sut = fixture.getSut();
+      when(fixture.methodChannel.invokeMethod('beginNativeFrames'))
+          .thenAnswer((realInvocation) async {});
       await sut.beginNativeFrames();
 
       verify(fixture.methodChannel.invokeMethod('beginNativeFrames'));
@@ -64,26 +67,40 @@ void main() {
     });
 
     test('setUser', () async {
-      when(fixture.methodChannel.invokeMethod('setUser', {'user': null}))
+      final user = SentryUser(
+        id: "fixture-id",
+        data: {'object': Object()},
+      );
+      final normalizedUser = user.copyWith(
+        data: MethodChannelHelper.normalizeMap(user.data),
+      );
+      when(fixture.methodChannel
+              .invokeMethod('setUser', {'user': normalizedUser.toJson()}))
           .thenAnswer((_) => Future.value());
 
       final sut = fixture.getSut();
-      await sut.setUser(null);
+      await sut.setUser(user);
 
-      verify(fixture.methodChannel.invokeMethod('setUser', {'user': null}));
+      verify(fixture.methodChannel
+          .invokeMethod('setUser', {'user': normalizedUser.toJson()}));
     });
 
     test('addBreadcrumb', () async {
-      final breadcrumb = Breadcrumb();
+      final breadcrumb = Breadcrumb(
+        data: {'object': Object()},
+      );
+      final normalizedBreadcrumb = breadcrumb.copyWith(
+          data: MethodChannelHelper.normalizeMap(breadcrumb.data));
+
       when(fixture.methodChannel.invokeMethod(
-              'addBreadcrumb', {'breadcrumb': breadcrumb.toJson()}))
+              'addBreadcrumb', {'breadcrumb': normalizedBreadcrumb.toJson()}))
           .thenAnswer((_) => Future.value());
 
       final sut = fixture.getSut();
       await sut.addBreadcrumb(breadcrumb);
 
-      verify(fixture.methodChannel
-          .invokeMethod('addBreadcrumb', {'breadcrumb': breadcrumb.toJson()}));
+      verify(fixture.methodChannel.invokeMethod(
+          'addBreadcrumb', {'breadcrumb': normalizedBreadcrumb.toJson()}));
     });
 
     test('clearBreadcrumbs', () async {
@@ -97,15 +114,17 @@ void main() {
     });
 
     test('setContexts', () async {
+      final value = {'object': Object()};
+      final normalizedValue = MethodChannelHelper.normalize(value);
       when(fixture.methodChannel.invokeMethod(
-              'setContexts', {'key': 'fixture-key', 'value': 'fixture-value'}))
+              'setContexts', {'key': 'fixture-key', 'value': normalizedValue}))
           .thenAnswer((_) => Future.value());
 
       final sut = fixture.getSut();
-      await sut.setContexts('fixture-key', 'fixture-value');
+      await sut.setContexts('fixture-key', value);
 
       verify(fixture.methodChannel.invokeMethod(
-          'setContexts', {'key': 'fixture-key', 'value': 'fixture-value'}));
+          'setContexts', {'key': 'fixture-key', 'value': normalizedValue}));
     });
 
     test('removeContexts', () async {
@@ -121,15 +140,17 @@ void main() {
     });
 
     test('setExtra', () async {
+      final value = {'object': Object()};
+      final normalizedValue = MethodChannelHelper.normalize(value);
       when(fixture.methodChannel.invokeMethod(
-              'setExtra', {'key': 'fixture-key', 'value': 'fixture-value'}))
+              'setExtra', {'key': 'fixture-key', 'value': normalizedValue}))
           .thenAnswer((_) => Future.value());
 
       final sut = fixture.getSut();
-      await sut.setExtra('fixture-key', 'fixture-value');
+      await sut.setExtra('fixture-key', value);
 
       verify(fixture.methodChannel.invokeMethod(
-          'setExtra', {'key': 'fixture-key', 'value': 'fixture-value'}));
+          'setExtra', {'key': 'fixture-key', 'value': normalizedValue}));
     });
 
     test('removeExtra', () async {
@@ -167,14 +188,53 @@ void main() {
       verify(fixture.methodChannel
           .invokeMethod('removeTag', {'key': 'fixture-key'}));
     });
+
+    test('startProfiler', () {
+      final sut = fixture.getSut();
+      expect(() => sut.startProfiler(SentryId.newId()), throwsUnsupportedError);
+      verifyZeroInteractions(fixture.methodChannel);
+    });
+
+    test('discardProfiler', () async {
+      final traceId = SentryId.newId();
+      when(fixture.methodChannel
+              .invokeMethod('discardProfiler', traceId.toString()))
+          .thenAnswer((_) async {});
+
+      final sut = fixture.getSut();
+      await sut.discardProfiler(traceId);
+
+      verify(fixture.methodChannel
+          .invokeMethod('discardProfiler', traceId.toString()));
+    });
+
+    test('collectProfile', () async {
+      final traceId = SentryId.newId();
+      const startTime = 42;
+      const endTime = 50;
+      when(fixture.methodChannel
+          .invokeMapMethod<String, dynamic>('collectProfile', {
+        'traceId': traceId.toString(),
+        'startTime': startTime,
+        'endTime': endTime,
+      })).thenAnswer((_) => Future.value());
+
+      final sut = fixture.getSut();
+      await sut.collectProfile(traceId, startTime, endTime);
+
+      verify(fixture.methodChannel.invokeMapMethod('collectProfile', {
+        'traceId': traceId.toString(),
+        'startTime': startTime,
+        'endTime': endTime,
+      }));
+    });
   });
 }
 
 class Fixture {
   final methodChannel = MockMethodChannel();
-  final options = SentryFlutterOptions();
 
   SentryNativeChannel getSut() {
-    return SentryNativeChannel(methodChannel, options);
+    return SentryNativeChannel(methodChannel);
   }
 }

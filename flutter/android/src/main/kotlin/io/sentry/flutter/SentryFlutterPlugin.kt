@@ -19,12 +19,12 @@ import io.sentry.SentryEvent
 import io.sentry.SentryLevel
 import io.sentry.SentryOptions
 import io.sentry.android.core.ActivityFramesTracker
-import io.sentry.android.core.AppStartState
 import io.sentry.android.core.BuildConfig.VERSION_NAME
 import io.sentry.android.core.InternalSentrySdk
 import io.sentry.android.core.LoadClass
 import io.sentry.android.core.SentryAndroid
 import io.sentry.android.core.SentryAndroidOptions
+import io.sentry.android.core.performance.AppStartMetrics
 import io.sentry.protocol.DebugImage
 import io.sentry.protocol.SdkVersion
 import io.sentry.protocol.SentryId
@@ -37,15 +37,20 @@ import java.util.UUID
 class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
   private lateinit var channel: MethodChannel
   private lateinit var context: Context
+  private lateinit var sentryFlutter: SentryFlutter
 
   private var activity: WeakReference<Activity>? = null
   private var framesTracker: ActivityFramesTracker? = null
-  private var autoPerformanceTracingEnabled = false
 
   override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     context = flutterPluginBinding.applicationContext
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, "sentry_flutter")
     channel.setMethodCallHandler(this)
+
+    sentryFlutter = SentryFlutter(
+      androidSdk = androidSdk,
+      nativeSdk = nativeSdk
+    )
   }
 
   override fun onMethodCall(call: MethodCall, result: Result) {
@@ -109,90 +114,25 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     }
 
     SentryAndroid.init(context) { options ->
-      args.getIfNotNull<String>("dsn") { options.dsn = it }
-      args.getIfNotNull<Boolean>("debug") { options.isDebug = it }
-      args.getIfNotNull<String>("environment") { options.environment = it }
-      args.getIfNotNull<String>("release") { options.release = it }
-      args.getIfNotNull<String>("dist") { options.dist = it }
-      args.getIfNotNull<Boolean>("enableAutoSessionTracking") {
-        options.isEnableAutoSessionTracking = it
-      }
-      args.getIfNotNull<Long>("autoSessionTrackingIntervalMillis") {
-        options.sessionTrackingIntervalMillis = it
-      }
-      args.getIfNotNull<Long>("anrTimeoutIntervalMillis") {
-        options.anrTimeoutIntervalMillis = it
-      }
-      args.getIfNotNull<Boolean>("attachThreads") { options.isAttachThreads = it }
-      args.getIfNotNull<Boolean>("attachStacktrace") { options.isAttachStacktrace = it }
-      args.getIfNotNull<Boolean>("enableAutoNativeBreadcrumbs") {
-        options.isEnableActivityLifecycleBreadcrumbs = it
-        options.isEnableAppLifecycleBreadcrumbs = it
-        options.isEnableSystemEventBreadcrumbs = it
-        options.isEnableAppComponentBreadcrumbs = it
-        options.isEnableUserInteractionBreadcrumbs = it
-      }
-      args.getIfNotNull<Int>("maxBreadcrumbs") { options.maxBreadcrumbs = it }
-      args.getIfNotNull<Int>("maxCacheItems") { options.maxCacheItems = it }
-      args.getIfNotNull<String>("diagnosticLevel") {
-        if (options.isDebug) {
-          val sentryLevel = SentryLevel.valueOf(it.toUpperCase(Locale.ROOT))
-          options.setDiagnosticLevel(sentryLevel)
-        }
-      }
-      args.getIfNotNull<Boolean>("anrEnabled") { options.isAnrEnabled = it }
-      args.getIfNotNull<Boolean>("sendDefaultPii") { options.isSendDefaultPii = it }
-      args.getIfNotNull<Boolean>("enableNdkScopeSync") { options.isEnableScopeSync = it }
-      args.getIfNotNull<String>("proguardUuid") { options.proguardUuid = it }
+      sentryFlutter.updateOptions(options, args)
 
-      val nativeCrashHandling = (args["enableNativeCrashHandling"] as? Boolean) ?: true
-      // nativeCrashHandling has priority over anrEnabled
-      if (!nativeCrashHandling) {
-        options.isEnableUncaughtExceptionHandler = false
-        options.isAnrEnabled = false
-        // if split symbols are enabled, we need Ndk integration so we can't really offer the option
-        // to turn it off
-        // options.isEnableNdk = false
+      if (sentryFlutter.autoPerformanceTracingEnabled) {
+        framesTracker = ActivityFramesTracker(LoadClass(), options)
       }
 
-      args.getIfNotNull<Boolean>("enableAutoPerformanceTracing") { enableAutoPerformanceTracing ->
-        if (enableAutoPerformanceTracing) {
-          autoPerformanceTracingEnabled = true
-          framesTracker = ActivityFramesTracker(LoadClass(), options)
-        }
-      }
-
-      args.getIfNotNull<Boolean>("sendClientReports") { options.isSendClientReports = it }
-
-      args.getIfNotNull<Long>("maxAttachmentSize") { options.maxAttachmentSize = it }
-
-      var sdkVersion = options.sdkVersion
-      if (sdkVersion == null) {
-        sdkVersion = SdkVersion(androidSdk, VERSION_NAME)
-      } else {
-        sdkVersion.name = androidSdk
-      }
-
-      options.sdkVersion = sdkVersion
-      options.sentryClientName = "$androidSdk/$VERSION_NAME"
-      options.nativeSdkName = nativeSdk
       options.beforeSend = BeforeSendCallbackImpl(options.sdkVersion)
-
-      args.getIfNotNull<Int>("connectionTimeoutMillis") { options.connectionTimeoutMillis = it }
-      args.getIfNotNull<Int>("readTimeoutMillis") { options.readTimeoutMillis = it }
-
-      // missing proxy
     }
     result.success("")
   }
 
   private fun fetchNativeAppStart(result: Result) {
-    if (!autoPerformanceTracingEnabled) {
+    if (!sentryFlutter.autoPerformanceTracingEnabled) {
       result.success(null)
       return
     }
-    val appStartTime = AppStartState.getInstance().appStartTime
-    val isColdStart = AppStartState.getInstance().isColdStart
+
+    val appStartTime = AppStartMetrics.getInstance().appStartTimeSpan.startTimestamp
+    val isColdStart = AppStartMetrics.getInstance().appStartType == AppStartMetrics.AppStartType.COLD
 
     if (appStartTime == null) {
       Log.w("Sentry", "App start won't be sent due to missing appStartTime")
@@ -211,7 +151,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
   }
 
   private fun beginNativeFrames(result: Result) {
-    if (!autoPerformanceTracingEnabled) {
+    if (!sentryFlutter.autoPerformanceTracingEnabled) {
       result.success(null)
       return
     }
@@ -224,7 +164,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
   private fun endNativeFrames(id: String?, result: Result) {
     val activity = activity?.get()
-    if (!autoPerformanceTracingEnabled || activity == null || id == null) {
+    if (!sentryFlutter.autoPerformanceTracingEnabled || activity == null || id == null) {
       if (id == null) {
         Log.w("Sentry", "Parameter id cannot be null when calling endNativeFrames.")
       }
@@ -457,12 +397,5 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       currentScope
     )
     result.success(serializedScope)
-  }
-}
-
-// Call the `completion` closure if cast to map value with `key` and type `T` is successful.
-private fun <T> Map<String, Any>.getIfNotNull(key: String, callback: (T) -> Unit) {
-  (get(key) as? T)?.let {
-    callback(it)
   }
 }

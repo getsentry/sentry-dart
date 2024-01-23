@@ -127,4 +127,10 @@ void main() {
 
     expect(options.isTracingEnabled(), false);
   });
+
+  test('Spotlight is disabled by default', () {
+    final options = SentryOptions(dsn: fakeDsn);
+
+    expect(options.spotlight.enabled, false);
+  });
 }

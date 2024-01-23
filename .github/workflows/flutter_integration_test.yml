@@ -8,7 +8,7 @@ on:
   #     - release/**
   # pull_request:
   #   paths-ignore:
-  #     - 'file/**'
+#     - 'file/**'
 
 jobs:
   cancel-previous-workflow:
@@ -28,7 +28,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        sdk: ["stable", "beta"]
+        sdk: [ "stable", "beta" ]
     steps:
       - name: checkout
         uses: actions/checkout@v3
@@ -48,17 +48,17 @@ jobs:
       - name: flutter pub get
         run: flutter pub get
 
-     - name: Gradle cache
-       uses: gradle/gradle-build-action@v2
+      - name: Gradle cache
+        uses: gradle/gradle-build-action@v2
 
-     - name: AVD cache
-       uses: actions/cache@v3
-       id: avd-cache
-       with:
-         path: |
-           ~/.android/avd/*
-           ~/.android/adb*
-          key: avd-21
+      - name: AVD cache
+        uses: actions/cache@v3
+        id: avd-cache
+        with:
+          path: |
+            ~/.android/avd/*
+            ~/.android/adb*
+            key: avd-21
 
       - name: create AVD and generate snapshot for caching
         if: steps.avd-cache.outputs.cache-hit != 'true'
@@ -73,17 +73,17 @@ jobs:
           profile: Nexus 6
           script: echo 'Generated AVD snapshot for caching.'
 
-     - name: launch android emulator & run android integration test
-       uses: reactivecircus/android-emulator-runner@d94c3fbe4fe6a29e4a5ba47c12fb47677c73656b #pin@v2.28.0
-       with:
-         working-directory: ./flutter/example
-         api-level: 21
-         force-avd-creation: false
-         emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-         disable-animations: true
-         arch: x86_64
-         profile: Nexus 6
-         script: flutter test integration_test/integration_test.dart --verbose
+      - name: launch android emulator & run android integration test
+        uses: reactivecircus/android-emulator-runner@d94c3fbe4fe6a29e4a5ba47c12fb47677c73656b #pin@v2.28.0
+        with:
+          working-directory: ./flutter/example
+          api-level: 21
+          force-avd-creation: false
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: true
+          arch: x86_64
+          profile: Nexus 6
+          script: flutter test integration_test/integration_test.dart --verbose
 
   test-ios:
     runs-on: macos-13
@@ -95,7 +95,7 @@ jobs:
       fail-fast: false
       matrix:
         # 'beta' is flaky because of https://github.com/flutter/flutter/issues/124340
-        sdk: ["stable"]
+        sdk: [ "stable" ]
     steps:
       - name: checkout
         uses: actions/checkout@v3

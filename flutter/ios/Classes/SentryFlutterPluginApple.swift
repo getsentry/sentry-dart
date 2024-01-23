@@ -39,6 +39,8 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         registrar.addMethodCallDelegate(instance, channel: channel)
     }
 
+    private lazy var sentryFlutter = SentryFlutter()
+
     private func registerObserver() {
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(applicationDidBecomeActive),
@@ -150,6 +152,14 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
             let key = arguments?["key"] as? String
             removeTag(key: key, result: result)
 
+        #if !os(tvOS) && !os(watchOS)
+        case "discardProfiler":
+            discardProfiler(call, result)
+
+        case "collectProfile":
+            collectProfile(call, result)
+        #endif
+
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -250,7 +260,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         }
 
         SentrySDK.start { options in
-            self.updateOptions(arguments: arguments, options: options)
+            self.sentryFlutter.update(options: options, with: arguments)
 
             if arguments["enableAutoPerformanceTracing"] as? Bool ?? false {
                 PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode = true
@@ -307,106 +317,6 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         result("")
     }
 
-    // swiftlint:disable:next cyclomatic_complexity
-    private func updateOptions(arguments: [String: Any], options: Options) {
-        if let dsn = arguments["dsn"] as? String {
-            options.dsn = dsn
-        }
-
-        if let isDebug = arguments["debug"] as? Bool {
-            options.debug = isDebug
-        }
-
-        if let environment = arguments["environment"] as? String {
-            options.environment = environment
-        }
-
-        if let releaseName = arguments["release"] as? String {
-            options.releaseName = releaseName
-        }
-
-        if let enableAutoSessionTracking = arguments["enableAutoSessionTracking"] as? Bool {
-            options.enableAutoSessionTracking = enableAutoSessionTracking
-        }
-
-        if let attachStacktrace = arguments["attachStacktrace"] as? Bool {
-            options.attachStacktrace = attachStacktrace
-        }
-
-        if let diagnosticLevel = arguments["diagnosticLevel"] as? String, options.debug == true {
-            options.diagnosticLevel = logLevelFrom(diagnosticLevel: diagnosticLevel)
-        }
-
-        if let sessionTrackingIntervalMillis = arguments["autoSessionTrackingIntervalMillis"] as? UInt {
-            options.sessionTrackingIntervalMillis = sessionTrackingIntervalMillis
-        }
-
-        if let dist = arguments["dist"] as? String {
-            options.dist = dist
-        }
-
-        if let enableAutoNativeBreadcrumbs = arguments["enableAutoNativeBreadcrumbs"] as? Bool {
-            options.enableAutoBreadcrumbTracking = enableAutoNativeBreadcrumbs
-        }
-
-        if let enableNativeCrashHandling = arguments["enableNativeCrashHandling"] as? Bool {
-            options.enableCrashHandler = enableNativeCrashHandling
-        }
-
-        if let maxBreadcrumbs = arguments["maxBreadcrumbs"] as? UInt {
-            options.maxBreadcrumbs = maxBreadcrumbs
-        }
-
-        if let sendDefaultPii = arguments["sendDefaultPii"] as? Bool {
-            options.sendDefaultPii = sendDefaultPii
-        }
-
-        if let maxCacheItems = arguments["maxCacheItems"] as? UInt {
-            options.maxCacheItems = maxCacheItems
-        }
-
-        if let enableWatchdogTerminationTracking = arguments["enableWatchdogTerminationTracking"] as? Bool {
-            options.enableWatchdogTerminationTracking = enableWatchdogTerminationTracking
-        }
-
-        if let sendClientReports = arguments["sendClientReports"] as? Bool {
-            options.sendClientReports = sendClientReports
-        }
-
-        if let maxAttachmentSize = arguments["maxAttachmentSize"] as? UInt {
-            options.maxAttachmentSize = maxAttachmentSize
-        }
-
-        if let captureFailedRequests = arguments["captureFailedRequests"] as? Bool {
-            options.enableCaptureFailedRequests = captureFailedRequests
-        }
-
-        if let enableAppHangTracking = arguments["enableAppHangTracking"] as? Bool {
-            options.enableAppHangTracking = enableAppHangTracking
-        }
-
-        if let appHangTimeoutIntervalMillis = arguments["appHangTimeoutIntervalMillis"] as? UInt {
-            options.appHangTimeoutInterval = TimeInterval(appHangTimeoutIntervalMillis) / 1000
-        }
-    }
-
-    private func logLevelFrom(diagnosticLevel: String) -> SentryLevel {
-        switch diagnosticLevel {
-        case "fatal":
-            return .fatal
-        case "error":
-            return .error
-        case "debug":
-            return .debug
-        case "warning":
-            return .warning
-        case "info":
-            return .info
-        default:
-            return .none
-        }
-    }
-
     private func setEventOriginTag(event: Event) {
         guard let sdk = event.sdk else {
             return
@@ -450,8 +360,8 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
     private func captureEnvelope(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         guard let arguments = call.arguments as? [Any],
               !arguments.isEmpty,
-              let data = (arguments.first as? FlutterStandardTypedData)?.data  else {
-            print("Envelope is null or empty !")
+              let data = (arguments.first as? FlutterStandardTypedData)?.data else {
+            print("Envelope is null or empty!")
             result(FlutterError(code: "2", message: "Envelope is null or empty", details: nil))
             return
         }
@@ -483,8 +393,8 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 
         result(item)
         #else
-            print("note: appStartMeasurement not available on this platform")
-            result(nil)
+        print("note: appStartMeasurement not available on this platform")
+        result(nil)
         #endif
     }
 
@@ -647,6 +557,42 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 
         result("")
       }
+    }
+
+    private func collectProfile(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        guard let arguments = call.arguments as? [String: Any],
+              let traceId = arguments["traceId"] as? String else {
+            print("Cannot collect profile: trace ID missing")
+            result(FlutterError(code: "6", message: "Cannot collect profile: trace ID missing", details: nil))
+            return
+        }
+
+        guard let startTime = arguments["startTime"] as? UInt64 else {
+            print("Cannot collect profile: start time missing")
+            result(FlutterError(code: "7", message: "Cannot collect profile: start time missing", details: nil))
+            return
+        }
+
+        guard let endTime = arguments["endTime"] as? UInt64 else {
+            print("Cannot collect profile: end time missing")
+            result(FlutterError(code: "8", message: "Cannot collect profile: end time missing", details: nil))
+            return
+        }
+
+        let payload = PrivateSentrySDKOnly.collectProfileBetween(startTime, and: endTime,
+                                                                       forTrace: SentryId(uuidString: traceId))
+        result(payload)
+    }
+
+    private func discardProfiler(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        guard let traceId = call.arguments as? String else {
+            print("Cannot discard a profiler: trace ID missing")
+            result(FlutterError(code: "9", message: "Cannot discard a profiler: trace ID missing", details: nil))
+            return
+        }
+
+        PrivateSentrySDKOnly.discardProfiler(forTrace: SentryId(uuidString: traceId))
+        result(nil)
     }
 }
 

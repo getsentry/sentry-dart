@@ -2,7 +2,7 @@ import 'dart:js' as js;
 
 import 'renderer.dart';
 
-FlutterRenderer getRenderer() {
+FlutterRenderer? getRenderer() {
   return isCanvasKitRenderer ? FlutterRenderer.canvasKit : FlutterRenderer.html;
 }
 

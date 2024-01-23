@@ -473,6 +473,7 @@ void main() {
       expect(newBaggage.get('sentry-user_segment'), 'segment');
       expect(newBaggage.get('sentry-transaction'), 'name');
       expect(newBaggage.get('sentry-sample_rate'), '1');
+      expect(newBaggage.get('sentry-sampled'), 'true');
     });
 
     test('skip transaction name if low cardinality', () {
@@ -546,6 +547,7 @@ void main() {
       expect(context.userSegment, 'segment');
       expect(context.transaction, 'name');
       expect(context.sampleRate, '1');
+      expect(context.sampled, 'true');
     });
   });
 }
