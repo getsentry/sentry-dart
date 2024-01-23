@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Tracing without performance for Dio integration ([#1837](https://github.com/getsentry/sentry-dart/pull/1837))
+
 ## 7.15.0
 
 ### Features
