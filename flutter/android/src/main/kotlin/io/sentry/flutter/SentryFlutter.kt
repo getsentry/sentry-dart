@@ -10,7 +10,6 @@ class SentryFlutter(
   private val androidSdk: String,
   private val nativeSdk: String,
 ) {
-
   var autoPerformanceTracingEnabled = false
 
   fun updateOptions(options: SentryAndroidOptions, data: Map<String, Any>) {
