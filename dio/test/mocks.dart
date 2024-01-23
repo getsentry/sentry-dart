@@ -122,8 +122,10 @@ class FunctionEventProcessor implements EventProcessor {
   }
 }
 
-typedef EventProcessorFunction = SentryEvent? Function(SentryEvent event,
-    {Hint? hint});
+typedef EventProcessorFunction = SentryEvent? Function(
+  SentryEvent event, {
+  Hint? hint,
+});
 
 var fakeEnvelope = SentryEnvelope.fromEvent(
   fakeEvent,
