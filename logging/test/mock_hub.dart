@@ -16,7 +16,7 @@ class MockHub with NoSuchMethodProvider implements Hub {
   SentryOptions get options => _options;
 
   @override
-  Future<void> addBreadcrumb(Breadcrumb crumb, Hint hint) async {
+  Future<void> addBreadcrumb(Breadcrumb crumb, {Hint? hint}) async {
     breadcrumbs.add(CapturedBreadcrumb(crumb, hint));
   }
 
