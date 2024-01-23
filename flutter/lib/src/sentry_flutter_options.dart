@@ -301,6 +301,6 @@ class SentryFlutterOptions extends SentryOptions {
 /// Callback being executed in [ScreenshotEventProcessor], deciding if a
 /// screenshot should be recorded and attached.
 typedef BeforeScreenshotCallback = FutureOr<bool> Function(
-  SentryEvent event, {
-  Hint? hint,
-});
+  SentryEvent event,
+  Hint hint,
+);

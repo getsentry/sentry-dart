@@ -432,7 +432,7 @@ void main() {
       await scope.setContexts('theme', 'material');
       await scope.setUser(scopeUser);
 
-      final updatedEvent = await scope.applyToEvent(event, hint: Hint());
+      final updatedEvent = await scope.applyToEvent(event, Hint());
 
       expect(updatedEvent?.user, scopeUser);
       expect(updatedEvent?.transaction, '/example/app');
@@ -453,7 +453,7 @@ void main() {
       final scope = Scope(SentryOptions(dsn: fakeDsn))
         ..span = fixture.sentryTracer;
 
-      final updatedEvent = await scope.applyToEvent(event, hint: Hint());
+      final updatedEvent = await scope.applyToEvent(event, Hint());
 
       expect(updatedEvent?.contexts['trace'] is SentryTraceContext, true);
     });
@@ -476,7 +476,7 @@ void main() {
       await scope.addBreadcrumb(breadcrumb);
       await scope.setUser(scopeUser);
 
-      final updatedEvent = await scope.applyToEvent(event, hint: Hint());
+      final updatedEvent = await scope.applyToEvent(event, Hint());
 
       expect(updatedEvent?.user, isNotNull);
       expect(updatedEvent?.user?.id, eventUser.id);
@@ -524,7 +524,7 @@ void main() {
         SentryOperatingSystem(name: 'context-os'),
       );
 
-      final updatedEvent = await scope.applyToEvent(event, hint: Hint());
+      final updatedEvent = await scope.applyToEvent(event, Hint());
 
       expect(updatedEvent?.contexts[SentryDevice.type].name, 'event-device');
       expect(updatedEvent?.contexts[SentryApp.type].name, 'event-app');
@@ -554,7 +554,7 @@ void main() {
       await scope.setContexts('location', {'city': 'London'});
       await scope.setContexts('items', [1, 2, 3]);
 
-      final updatedEvent = await scope.applyToEvent(event, hint: Hint());
+      final updatedEvent = await scope.applyToEvent(event, Hint());
 
       expect(updatedEvent?.contexts[SentryDevice.type].name, 'context-device');
       expect(updatedEvent?.contexts[SentryApp.type].name, 'context-app');
@@ -579,7 +579,7 @@ void main() {
       final scope = Scope(SentryOptions(dsn: fakeDsn))
         ..level = SentryLevel.error;
 
-      final updatedEvent = await scope.applyToEvent(event, hint: Hint());
+      final updatedEvent = await scope.applyToEvent(event, Hint());
 
       expect(updatedEvent?.level, SentryLevel.error);
     });
@@ -589,7 +589,7 @@ void main() {
       final scope = Scope(SentryOptions(dsn: fakeDsn))
         ..span = fixture.sentryTracer;
 
-      final updatedEvent = await scope.applyToEvent(event, hint: Hint());
+      final updatedEvent = await scope.applyToEvent(event, Hint());
 
       expect(updatedEvent?.transaction, 'name');
     });
@@ -601,7 +601,7 @@ void main() {
     sut.addEventProcessor(fixture.processor);
 
     final event = SentryEvent();
-    var newEvent = await sut.applyToEvent(event, hint: Hint());
+    var newEvent = await sut.applyToEvent(event, Hint());
 
     expect(newEvent, isNull);
   });
@@ -610,7 +610,7 @@ void main() {
     var tr = SentryTransaction(fixture.sentryTracer);
     final scope = Scope(SentryOptions(dsn: fakeDsn))..fingerprint = ['test'];
 
-    final updatedTr = await scope.applyToEvent(tr, hint: Hint());
+    final updatedTr = await scope.applyToEvent(tr, Hint());
 
     expect(updatedTr?.fingerprint, isNull);
   });
@@ -619,7 +619,7 @@ void main() {
     var tr = SentryTransaction(fixture.sentryTracer);
     final scope = Scope(SentryOptions(dsn: fakeDsn))..level = SentryLevel.error;
 
-    final updatedTr = await scope.applyToEvent(tr, hint: Hint());
+    final updatedTr = await scope.applyToEvent(tr, Hint());
 
     expect(updatedTr?.level, isNull);
   });
@@ -628,7 +628,7 @@ void main() {
     var tr = SentryTransaction(fixture.sentryTracer);
     final scope = Scope(SentryOptions(dsn: fakeDsn))..level = SentryLevel.error;
 
-    final updatedTr = await scope.applyToEvent(tr, hint: Hint());
+    final updatedTr = await scope.applyToEvent(tr, Hint());
 
     expect(updatedTr?.contexts.trace?.sampled, isTrue);
   });
@@ -830,7 +830,7 @@ class AddTagsEventProcessor implements EventProcessor {
   AddTagsEventProcessor(this.tags);
 
   @override
-  SentryEvent? apply(SentryEvent event, {Hint? hint}) {
+  SentryEvent? apply(SentryEvent event, Hint hint) {
     return event..tags?.addAll(tags);
   }
 }

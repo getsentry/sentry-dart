@@ -10,7 +10,7 @@ class SentryViewHierarchyEventProcessor implements EventProcessor {
   final SentryFlutterOptions _options;
 
   @override
-  SentryEvent? apply(SentryEvent event, {Hint? hint}) {
+  SentryEvent? apply(SentryEvent event, Hint hint) {
     if (event is SentryTransaction) {
       return event;
     }

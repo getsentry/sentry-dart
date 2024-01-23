@@ -35,7 +35,7 @@ class _LoadContextsIntegrationEventProcessor implements EventProcessor {
   final SentryFlutterOptions _options;
 
   @override
-  Future<SentryEvent?> apply(SentryEvent event, {Hint? hint}) async {
+  Future<SentryEvent?> apply(SentryEvent event, Hint hint) async {
     try {
       final loadContexts = await _channel.invokeMethod('loadContexts');
 

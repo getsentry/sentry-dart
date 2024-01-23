@@ -23,7 +23,7 @@ void main() {
             uri: Uri.parse('https://example.org/foo/bar?foo=bar'),
           ),
         ),
-        hint: Hint(),
+        Hint(),
       );
 
       expect(event?.request, isNotNull);
@@ -37,7 +37,7 @@ void main() {
         SentryEvent(
           throwable: HttpException(''),
         ),
-        hint: Hint(),
+        Hint(),
       );
 
       expect(event?.request, isNull);
@@ -57,7 +57,7 @@ void main() {
             ),
           ),
         ),
-        hint: Hint(),
+        Hint(),
       );
 
       expect(event?.request, isNotNull);
@@ -84,7 +84,7 @@ void main() {
             OSError('Oh no :(', 42),
           ),
         ),
-        hint: Hint(),
+        Hint(),
       );
 
       // Due to the test setup, there's no SentryException for the FileSystemException.

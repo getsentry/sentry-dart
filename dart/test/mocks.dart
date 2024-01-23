@@ -100,7 +100,7 @@ final fakeEvent = SentryEvent(
 /// Always returns null and thus drops all events
 class DropAllEventProcessor implements EventProcessor {
   @override
-  SentryEvent? apply(SentryEvent event, {Hint? hint}) {
+  SentryEvent? apply(SentryEvent event, Hint hint) {
     return null;
   }
 }
@@ -111,7 +111,7 @@ class FunctionEventProcessor implements EventProcessor {
   final EventProcessorFunction applyFunction;
 
   @override
-  SentryEvent? apply(SentryEvent event, {Hint? hint}) {
+  SentryEvent? apply(SentryEvent event, Hint hint) {
     return applyFunction(event, hint);
   }
 }

@@ -39,7 +39,7 @@ void main() {
       final throwable = Exception();
       event = SentryEvent(throwable: throwable);
       hint = Hint();
-      await sut.apply(event, hint: hint);
+      await sut.apply(event, hint);
 
       expect(hint.screenshot != null, added);
       if (expectedMaxWidthOrHeight != null) {
@@ -98,7 +98,7 @@ void main() {
   group('beforeScreenshot', () {
     testWidgets('does add screenshot if beforeScreenshot returns true',
         (tester) async {
-      fixture.options.beforeScreenshot = (SentryEvent event, {Hint? hint}) {
+      fixture.options.beforeScreenshot = (SentryEvent event, Hint hint) {
         return true;
       };
       await _addScreenshotAttachment(tester, FlutterRenderer.canvasKit,
@@ -107,8 +107,7 @@ void main() {
 
     testWidgets('does add screenshot if async beforeScreenshot returns true',
         (tester) async {
-      fixture.options.beforeScreenshot =
-          (SentryEvent event, {Hint? hint}) async {
+      fixture.options.beforeScreenshot = (SentryEvent event, Hint hint) async {
         await Future<void>.delayed(Duration(milliseconds: 1));
         return true;
       };
@@ -118,7 +117,7 @@ void main() {
 
     testWidgets('does not add screenshot if beforeScreenshot returns false',
         (tester) async {
-      fixture.options.beforeScreenshot = (SentryEvent event, {Hint? hint}) {
+      fixture.options.beforeScreenshot = (SentryEvent event, Hint hint) {
         return false;
       };
       await _addScreenshotAttachment(tester, FlutterRenderer.canvasKit,
@@ -128,8 +127,7 @@ void main() {
     testWidgets(
         'does not add screenshot if async beforeScreenshot returns false',
         (tester) async {
-      fixture.options.beforeScreenshot =
-          (SentryEvent event, {Hint? hint}) async {
+      fixture.options.beforeScreenshot = (SentryEvent event, Hint hint) async {
         await Future<void>.delayed(Duration(milliseconds: 1));
         return false;
       };
@@ -139,7 +137,7 @@ void main() {
 
     testWidgets('does add screenshot if beforeScreenshot throws',
         (tester) async {
-      fixture.options.beforeScreenshot = (SentryEvent event, {Hint? hint}) {
+      fixture.options.beforeScreenshot = (SentryEvent event, Hint hint) {
         throw Error();
       };
       await _addScreenshotAttachment(tester, FlutterRenderer.canvasKit,
@@ -148,8 +146,7 @@ void main() {
 
     testWidgets('does add screenshot if async beforeScreenshot throws',
         (tester) async {
-      fixture.options.beforeScreenshot =
-          (SentryEvent event, {Hint? hint}) async {
+      fixture.options.beforeScreenshot = (SentryEvent event, Hint hint) async {
         await Future<void>.delayed(Duration(milliseconds: 1));
         throw Error();
       };
@@ -162,7 +159,7 @@ void main() {
       SentryEvent? beforeScreenshotEvent;
       Hint? beforeScreenshotHint;
 
-      fixture.options.beforeScreenshot = (SentryEvent event, {Hint? hint}) {
+      fixture.options.beforeScreenshot = (SentryEvent event, Hint hint) {
         beforeScreenshotEvent = event;
         beforeScreenshotHint = hint;
         return true;
