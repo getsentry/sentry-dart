@@ -8,7 +8,7 @@ import java.util.Locale
 
 class SentryFlutter(
   private val androidSdk: String,
-  private val nativeSdk: String
+  private val nativeSdk: String,
 ) {
 
   var autoPerformanceTracingEnabled = false

@@ -16,10 +16,8 @@ import io.sentry.Hint
 import io.sentry.HubAdapter
 import io.sentry.Sentry
 import io.sentry.SentryEvent
-import io.sentry.SentryLevel
 import io.sentry.SentryOptions
 import io.sentry.android.core.ActivityFramesTracker
-import io.sentry.android.core.BuildConfig.VERSION_NAME
 import io.sentry.android.core.InternalSentrySdk
 import io.sentry.android.core.LoadClass
 import io.sentry.android.core.SentryAndroid
@@ -29,10 +27,7 @@ import io.sentry.protocol.DebugImage
 import io.sentry.protocol.SdkVersion
 import io.sentry.protocol.SentryId
 import io.sentry.protocol.User
-import java.io.File
 import java.lang.ref.WeakReference
-import java.util.Locale
-import java.util.UUID
 
 class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
   private lateinit var channel: MethodChannel
@@ -49,7 +44,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
     sentryFlutter = SentryFlutter(
       androidSdk = androidSdk,
-      nativeSdk = nativeSdk
+      nativeSdk = nativeSdk,
     )
   }
 
@@ -144,7 +139,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       val appStartTimeMillis = DateUtils.nanosToMillis(appStartTime.nanoTimestamp().toDouble())
       val item = mapOf<String, Any?>(
         "appStartTime" to appStartTimeMillis,
-        "isColdStart" to isColdStart
+        "isColdStart" to isColdStart,
       )
       result.success(item)
     }
@@ -185,7 +180,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       val frames = mapOf<String, Any?>(
         "totalFrames" to total,
         "slowFrames" to slow,
-        "frozenFrames" to frozen
+        "frozenFrames" to frozen,
       )
       result.success(frames)
     }
@@ -336,7 +331,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
   }
 
   private class BeforeSendCallbackImpl(
-    private val sdkVersion: SdkVersion?
+    private val sdkVersion: SdkVersion?,
   ) : SentryOptions.BeforeSendCallback {
     override fun execute(event: SentryEvent, hint: Hint): SentryEvent {
       setEventOriginTag(event)
@@ -364,7 +359,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     private fun setEventEnvironmentTag(
       event: SentryEvent,
       origin: String = "android",
-      environment: String
+      environment: String,
     ) {
       event.setTag("event.origin", origin)
       event.setTag("event.environment", environment)
@@ -394,7 +389,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     val serializedScope = InternalSentrySdk.serializeScope(
       context,
       options,
-      currentScope
+      currentScope,
     )
     result.success(serializedScope)
   }
