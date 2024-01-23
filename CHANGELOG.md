@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Accept `Map<String, dynamic>` in `Hint` class ([#1807](https://github.com/getsentry/sentry-dart/pull/1807))
+  - Please check if everything works as expected when using `Hint`
+    - Factory constructor `Hint.withMap(Map<String, dynamic> map)` now takes `Map<String, dynamic>` instead of `Map<String, Object>`
+    - Method `hint.addAll(Map<String, dynamic> keysAndValues)` now takes `Map<String, dynamic>` instead of `Map<String, Object>`
+    - Method `set(String key, dynamic value)` now takes value of `dynamic` instead of `Object`
+    - Method `hint.get(String key)` now returns `dynamic` instead of `Object?`
+
 ## 7.15.0
 
 ### Features
@@ -11,12 +22,6 @@
 - APM for isar ([#1726](https://github.com/getsentry/sentry-dart/pull/1726))
 - Add isar breadcrumbs ([#1800](https://github.com/getsentry/sentry-dart/pull/1800))
 - Starting with Flutter 3.16, Sentry adds the [`appFlavor`](https://api.flutter.dev/flutter/services/appFlavor-constant.html) to the `flutter_context` ([#1799](https://github.com/getsentry/sentry-dart/pull/1799))
-- Accept `Map<String, dynamic>` in `Hint` class ([#1807](https://github.com/getsentry/sentry-dart/pull/1807))
-  - Please check if everything works as expected when using `Hint`
-    - Factory constructor `Hint.withMap(Map<String, dynamic> map)` now takes `Map<String, dynamic>` instead of `Map<String, Object>`
-    - Method `hint.addAll(Map<String, dynamic> keysAndValues)` now takes `Map<String, dynamic>` instead of `Map<String, Object>`
-    - Method `set(String key, dynamic value)` now takes value of `dynamic` instead of `Object`
-    - Method `hint.get(String key)` now returns `dynamic` instead of `Object?`
 - Add beforeScreenshotCallback to SentryFlutterOptions ([#1805](https://github.com/getsentry/sentry-dart/pull/1805))
 - Add support for `readTransaction` in `sqflite` ([#1819](https://github.com/getsentry/sentry-dart/pull/1819))
   
