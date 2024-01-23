@@ -11,6 +11,8 @@ targets:
       dio:
       file:
       sqflite:
+      hive:
+      drift:
   - name: github
   - name: registry
     sdks:
@@ -20,3 +22,7 @@ targets:
       pub:sentry_dio:
       pub:sentry_file:
       pub:sentry_sqflite:
+      pub:sentry_drift:
+      pub:sentry_hive:
+      # Initial release on pub.dev needed first before uncommenting
+      # pub:sentry_isar:

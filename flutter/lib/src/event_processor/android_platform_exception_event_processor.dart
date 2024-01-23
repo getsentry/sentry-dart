@@ -15,9 +15,6 @@ class AndroidPlatformExceptionEventProcessor implements EventProcessor {
 
   final SentryFlutterOptions _options;
 
-  // Because of obfuscation, we need to dynamically get the name
-  static final _platformExceptionType = (PlatformException).toString();
-
   @override
   Future<SentryEvent?> apply(SentryEvent event, Hint hint) async {
     if (event is SentryTransaction) {
@@ -29,19 +26,23 @@ class AndroidPlatformExceptionEventProcessor implements EventProcessor {
       return event;
     }
 
-    final nativeStackTrace = plaformException.stacktrace;
-    if (nativeStackTrace == null) {
-      return event;
-    }
-
     try {
       // PackageInfo has an internal cache, so no need to do it ourselves.
       final packageInfo = await PackageInfo.fromPlatform();
+
+      final nativeStackTrace =
+          _tryParse(plaformException.stacktrace, packageInfo.packageName);
+      final messageStackTrace =
+          _tryParse(plaformException.message, packageInfo.packageName);
+
+      if (nativeStackTrace == null && messageStackTrace == null) {
+        return event;
+      }
+
       return _processPlatformException(
         event,
-        plaformException,
         nativeStackTrace,
-        packageInfo.packageName,
+        messageStackTrace,
       );
     } catch (e, stackTrace) {
       _options.logger(
@@ -55,25 +56,35 @@ class AndroidPlatformExceptionEventProcessor implements EventProcessor {
     }
   }
 
-  SentryEvent _processPlatformException(
-    SentryEvent event,
-    PlatformException exception,
-    String nativeStackTrace,
+  List<MapEntry<SentryException, SentryThread>>? _tryParse(
+    String? potentialStackTrace,
     String packageName,
   ) {
-    final jvmException =
-        _JvmExceptionFactory(packageName).fromJvmStackTrace(nativeStackTrace);
+    if (potentialStackTrace == null) {
+      return null;
+    }
 
-    final exceptions = _removePlatformExceptionStackTraceFromValue(
-      event.exceptions,
-      exception,
-    );
+    return _JvmExceptionFactory(packageName)
+        .fromJvmStackTrace(potentialStackTrace);
+  }
 
+  SentryEvent _processPlatformException(
+    SentryEvent event,
+    List<MapEntry<SentryException, SentryThread>>? nativeStackTrace,
+    List<MapEntry<SentryException, SentryThread>>? messageStackTrace,
+  ) {
     final threads = _markDartThreadsAsNonCrashed(event.threads);
 
-    final jvmExceptions = jvmException.map((e) => e.key);
+    final jvmExceptions = [
+      ...?nativeStackTrace?.map((e) => e.key),
+      ...?messageStackTrace?.map((e) => e.key)
+    ];
 
-    var jvmThreads = jvmException.map((e) => e.value).toList(growable: false);
+    var jvmThreads = [
+      ...?nativeStackTrace?.map((e) => e.value),
+      ...?messageStackTrace?.map((e) => e.value),
+    ];
+
     if (jvmThreads.isNotEmpty) {
       // filter potential duplicated threads
       final first = jvmThreads.first;
@@ -84,13 +95,16 @@ class AndroidPlatformExceptionEventProcessor implements EventProcessor {
       jvmThreads.add(first);
     }
 
-    return event.copyWith(exceptions: [
-      ...?exceptions,
-      ...jvmExceptions,
-    ], threads: [
-      ...?threads,
-      if (_options.attachThreads) ...jvmThreads,
-    ]);
+    return event.copyWith(
+      exceptions: [
+        ...?event.exceptions,
+        ...jvmExceptions,
+      ],
+      threads: [
+        ...?threads,
+        if (_options.attachThreads) ...jvmThreads,
+      ],
+    );
   }
 
   /// If the crash originated on Android, the Dart side didn't crash.
@@ -99,59 +113,15 @@ class AndroidPlatformExceptionEventProcessor implements EventProcessor {
     List<SentryThread>? threads,
   ) {
     return threads
-        ?.map((e) => e.copyWith(
-              crashed: false,
-              // Isolate is safe to use directly,
-              // because Android is only run in the dart:io context.
-              current: e.name == Isolate.current.debugName,
-            ))
+        ?.map(
+          (e) => e.copyWith(
+            crashed: false,
+            // Isolate is safe to use directly,
+            // because Android is only run in the dart:io context.
+            current: e.name == Isolate.current.debugName,
+          ),
+        )
         .toList(growable: false);
-  }
-
-  /// Remove the StackTrace from [PlatformException] so the message on Sentry
-  /// looks much better.
-  List<SentryException>? _removePlatformExceptionStackTraceFromValue(
-    List<SentryException>? exceptions,
-    PlatformException platformException,
-  ) {
-    if (exceptions == null || exceptions.isEmpty) {
-      return null;
-    }
-    final exceptionCopy = List<SentryException>.from(exceptions);
-
-    final sentryExceptions = exceptionCopy
-        .where((element) => element.type == _platformExceptionType);
-    if (sentryExceptions.isEmpty) {
-      return null;
-    }
-    var sentryException = sentryExceptions.first;
-
-    final exceptionIndex = exceptionCopy.indexOf(sentryException);
-    exceptionCopy.remove(sentryException);
-
-    // Remove stacktrace, so that the PlatformException value doesn't
-    // include the chained exception.
-    // PlatformException.stackTrace is an empty string so that
-    // PlatformException.toString() results in
-    // `PlatformException(error, Exception Message, null, )`
-    // instead of
-    // `PlatformException(error, Exception Message, null, null)`.
-    // While `null` for `PlatformException.stackTrace` is technically correct
-    // it's semantically wrong.
-    platformException = PlatformException(
-      code: platformException.code,
-      details: platformException.details,
-      message: platformException.message,
-      stacktrace: '',
-    );
-
-    sentryException = sentryException.copyWith(
-      value: platformException.toString(),
-    );
-
-    exceptionCopy.insert(exceptionIndex, sentryException);
-
-    return exceptionCopy;
   }
 }
 
@@ -161,7 +131,8 @@ class _JvmExceptionFactory {
   final String nativePackageName;
 
   List<MapEntry<SentryException, SentryThread>> fromJvmStackTrace(
-      String exceptionAsString) {
+    String exceptionAsString,
+  ) {
     final jvmException = JvmException.parse(exceptionAsString);
     final jvmExceptions = <JvmException>[
       jvmException,

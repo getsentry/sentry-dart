@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 import 'package:flutter/widgets.dart';
@@ -5,13 +7,13 @@ import 'package:flutter/widgets.dart';
 import 'binding_wrapper.dart';
 import 'renderer/renderer.dart';
 import 'screenshot/sentry_screenshot_quality.dart';
+import 'event_processor/screenshot_event_processor.dart';
 
-/// This class adds options which are only availble in a Flutter environment.
+/// This class adds options which are only available in a Flutter environment.
 /// Note that some of these options require native Sentry integration, which is
 /// not available on all platforms.
 class SentryFlutterOptions extends SentryOptions {
-  SentryFlutterOptions({String? dsn, PlatformChecker? checker})
-      : super(dsn: dsn, checker: checker) {
+  SentryFlutterOptions({super.dsn, super.checker}) {
     enableBreadcrumbTrackingForCurrentPlatform();
   }
 
@@ -167,6 +169,14 @@ class SentryFlutterOptions extends SentryOptions {
   /// The quality of the attached screenshot
   SentryScreenshotQuality screenshotQuality = SentryScreenshotQuality.high;
 
+  /// Only attach a screenshot when the app is resumed.
+  bool attachScreenshotOnlyWhenResumed = false;
+
+  /// Sets a callback which is executed before capturing screenshots. Only
+  /// relevant if `attachScreenshot` is set to true. When false is returned
+  /// from the function, no screenshot will be attached.
+  BeforeScreenshotCallback? beforeScreenshot;
+
   /// Enable or disable automatic breadcrumbs for User interactions Using [Listener]
   ///
   /// Requires adding the [SentryUserInteractionWidget] to the widget tree.
@@ -263,4 +273,34 @@ class SentryFlutterOptions extends SentryOptions {
   /// Setting this to a custom [BindingWrapper] allows you to use a custom [WidgetsBinding].
   @experimental
   BindingWrapper bindingUtils = BindingWrapper();
+
+  /// The sample rate for profiling traces in the range of 0.0 to 1.0.
+  /// This is relative to tracesSampleRate - it is a ratio of profiled traces out of all sampled traces.
+  /// At the moment, only apps targeting iOS and macOS are supported.
+  @override
+  @experimental
+  double? get profilesSampleRate {
+    // ignore: invalid_use_of_internal_member
+    return super.profilesSampleRate;
+  }
+
+  /// The sample rate for profiling traces in the range of 0.0 to 1.0.
+  /// This is relative to tracesSampleRate - it is a ratio of profiled traces out of all sampled traces.
+  /// At the moment, only apps targeting iOS and macOS are supported.
+  @override
+  @experimental
+  set profilesSampleRate(double? value) {
+    // ignore: invalid_use_of_internal_member
+    super.profilesSampleRate = value;
+  }
+
+  /// The [navigatorKey] is used to add information of the currently used locale to the contexts.
+  GlobalKey<NavigatorState>? navigatorKey;
 }
+
+/// Callback being executed in [ScreenshotEventProcessor], deciding if a
+/// screenshot should be recorded and attached.
+typedef BeforeScreenshotCallback = FutureOr<bool> Function(
+  SentryEvent event, {
+  Hint? hint,
+});

@@ -1,3 +1,4 @@
+// ignore: dangling_library_doc_comments
 /// Code ported & adapted from `intl` package
 /// https://pub.dev/packages/intl
 ///

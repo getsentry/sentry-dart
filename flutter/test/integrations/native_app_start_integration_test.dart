@@ -4,8 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/integrations/native_app_start_integration.dart';
-import 'package:sentry_flutter/src/sentry_native.dart';
-import 'package:sentry_flutter/src/sentry_native_channel.dart';
+import 'package:sentry_flutter/src/native/sentry_native.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 
 import '../mocks.dart';
@@ -24,7 +23,7 @@ void main() {
     test('native app start measurement added to first transaction', () async {
       fixture.options.autoAppStart = false;
       fixture.native.appStartEnd = DateTime.fromMillisecondsSinceEpoch(10);
-      fixture.wrapper.nativeAppStart = NativeAppStart(0, true);
+      fixture.binding.nativeAppStart = NativeAppStart(0, true);
 
       fixture.getNativeAppStartIntegration().call(fixture.hub, fixture.options);
 
@@ -44,7 +43,7 @@ void main() {
         () async {
       fixture.options.autoAppStart = false;
       fixture.native.appStartEnd = DateTime.fromMillisecondsSinceEpoch(10);
-      fixture.wrapper.nativeAppStart = NativeAppStart(0, true);
+      fixture.binding.nativeAppStart = NativeAppStart(0, true);
 
       fixture.getNativeAppStartIntegration().call(fixture.hub, fixture.options);
 
@@ -64,7 +63,7 @@ void main() {
     test('measurements appended', () async {
       fixture.options.autoAppStart = false;
       fixture.native.appStartEnd = DateTime.fromMillisecondsSinceEpoch(10);
-      fixture.wrapper.nativeAppStart = NativeAppStart(0, true);
+      fixture.binding.nativeAppStart = NativeAppStart(0, true);
       final measurement = SentryMeasurement.warmAppStart(Duration(seconds: 1));
 
       fixture.getNativeAppStartIntegration().call(fixture.hub, fixture.options);
@@ -87,7 +86,7 @@ void main() {
     test('native app start measurement not added if more than 60s', () async {
       fixture.options.autoAppStart = false;
       fixture.native.appStartEnd = DateTime.fromMillisecondsSinceEpoch(60001);
-      fixture.wrapper.nativeAppStart = NativeAppStart(0, true);
+      fixture.binding.nativeAppStart = NativeAppStart(0, true);
 
       fixture.getNativeAppStartIntegration().call(fixture.hub, fixture.options);
 
@@ -106,11 +105,10 @@ void main() {
 class Fixture {
   final hub = MockHub();
   final options = SentryFlutterOptions(dsn: fakeDsn);
-  final wrapper = MockNativeChannel();
-  late final native = SentryNative();
+  final binding = MockNativeChannel();
+  late final native = SentryNative(options, binding);
 
   Fixture() {
-    native.nativeChannel = wrapper;
     native.reset();
     when(hub.options).thenReturn(options);
   }

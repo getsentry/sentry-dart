@@ -246,6 +246,20 @@ void main() {
 
       await span?.finish();
     });
+
+    test('captures error with level error', () async {
+      final exception = StateError('error');
+
+      fixture.options.markAutomaticallyCollectedErrorsAsFatal = false;
+
+      _reportError(exception: exception);
+
+      final event = verify(
+        await fixture.hub.captureEvent(captureAny, hint: anyNamed('hint')),
+      ).captured.first as SentryEvent;
+
+      expect(event.level, SentryLevel.error);
+    });
   });
 }
 

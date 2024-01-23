@@ -99,7 +99,7 @@ runApp(
 );
 ```
 
-This adds performance tracing for all `AssetBundle` usages, where the `AssetBundle` is accessed with `DefaultAssetBunlde.of(context)`.
+This adds performance tracing for all `AssetBundle` usages, where the `AssetBundle` is accessed with `DefaultAssetBundle.of(context)`.
 This includes all of Flutters internal access of `AssetBundle`s, like `Image.asset` for example.
 
 ##### Tracking HTTP events

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+
 import 'client_reports/client_report.dart';
 import 'protocol.dart';
 import 'utils.dart';
@@ -97,6 +98,7 @@ class SentryEnvelopeItem {
 
       final newLine = utf8.encode('\n');
       final data = await dataFactory();
+      // TODO the data copy could be avoided - this would be most significant with attachments.
       return [...itemHeader, ...newLine, ...data];
     } catch (e) {
       return [];

@@ -1,0 +1,70 @@
+name: sentry-hive
+on:
+  push:
+    branches:
+      - main
+      - release/**
+  pull_request:
+    paths:
+      - "!**/*.md"
+      - "!**/class-diagram.svg"
+      - ".github/workflows/hive.yml"
+      - "dart/**"
+      - "hive/**"
+
+jobs:
+  cancel-previous-workflow:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@01ce38bf961b4e243a6342cbade0dbc8ba3f0432 # pin@0.12.0
+        with:
+          access_token: ${{ github.token }}
+
+  build:
+    name: Build ${{matrix.sdk}} on ${{matrix.os}}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./hive
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        sdk: [stable, beta]
+        exclude:
+          - os: windows-latest
+            sdk: beta
+          - os: macos-latest
+            sdk: beta
+    steps:
+      - uses: dart-lang/setup-dart@b64355ae6ca0b5d484f0106a033dd1388965d06d # pin@v1
+        with:
+          sdk: ${{ matrix.sdk }}
+      - uses: actions/checkout@v4
+
+      - name: Test VM
+        run: |
+          dart pub get
+          dart test -p vm --coverage=coverage --test-randomize-ordering-seed=random --chain-stack-traces
+          dart pub run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.dart_tool/package_config.json --report-on=lib
+
+      - uses: codecov/codecov-action@eaaf4bedf32dbdc6b720b63067d99c4d77d6047d # pin@v3
+        if: runner.os == 'Linux' && matrix.sdk == 'stable'
+        with:
+          name: sentry_hive
+          files: ./hive/coverage/lcov.info
+
+      - uses: VeryGoodOpenSource/very_good_coverage@3b475421464c564c0714d92ce02742bd81fa9eda # pin@v2.2.0
+        if: runner.os == 'Linux' && matrix.sdk == 'stable'
+        with:
+          path: "./hive/coverage/lcov.info"
+          min_coverage: 55
+
+  analyze:
+    uses: ./.github/workflows/analyze.yml
+    with:
+      package: hive
+      panaThreshold: 90
