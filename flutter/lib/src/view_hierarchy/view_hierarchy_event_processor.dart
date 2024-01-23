@@ -31,7 +31,7 @@ class SentryViewHierarchyEventProcessor implements EventProcessor {
 
     final viewHierarchy =
         SentryAttachment.fromViewHierarchy(sentryViewHierarchy);
-    hint?.viewHierarchy = viewHierarchy;
+    hint.viewHierarchy = viewHierarchy;
     return event;
   }
 }
