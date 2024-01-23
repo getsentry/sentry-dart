@@ -14,7 +14,7 @@ class SentryFlutter(
 
   fun updateOptions(
     options: SentryAndroidOptions,
-    data: Map<String, Any>
+    data: Map<String, Any>,
   ) {
     data.getIfNotNull<String>("dsn") {
       options.dsn = it
@@ -126,7 +126,7 @@ class SentryFlutter(
 @Suppress("UNCHECKED_CAST")
 private fun <T> Map<String, Any>.getIfNotNull(
   key: String,
-  callback: (T) -> Unit
+  callback: (T) -> Unit,
 ) {
   (get(key) as? T)?.let {
     callback(it)
