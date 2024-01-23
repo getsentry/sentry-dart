@@ -82,6 +82,23 @@ void main() {
     expect(sut.screenshot, attachment);
     expect(sut.viewHierarchy, attachment);
   });
+
+  test('Hint init with map null fallback', () {
+    final hint = Hint.withMap({'fixture-key': null});
+    expect("null", hint.get("fixture-key"));
+  });
+
+  test('Hint addAll with map null fallback', () {
+    final hint = Hint();
+    hint.addAll({'fixture-key': null});
+    expect("null", hint.get("fixture-key"));
+  });
+
+  test('Hint set with null value fallback', () {
+    final hint = Hint();
+    hint.set("fixture-key", null);
+    expect("null", hint.get("fixture-key"));
+  });
 }
 
 class Fixture {

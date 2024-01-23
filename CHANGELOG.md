@@ -4,6 +4,17 @@
 
 ### Features
 
+- Accept `Map<String, dynamic>` in `Hint` class ([#1807](https://github.com/getsentry/sentry-dart/pull/1807))
+  - Please check if everything works as expected when using `Hint`
+    - Factory constructor `Hint.withMap(Map<String, dynamic> map)` now takes `Map<String, dynamic>` instead of `Map<String, Object>`
+    - Method `hint.addAll(Map<String, dynamic> keysAndValues)` now takes `Map<String, dynamic>` instead of `Map<String, Object>`
+    - Method `set(String key, dynamic value)` now takes value of `dynamic` instead of `Object`
+    - Method `hint.get(String key)` now returns `dynamic` instead of `Object?`
+
+## 7.15.0
+
+### Features
+
 - Add [Spotlight](https://spotlightjs.com/about/) support ([#1786](https://github.com/getsentry/sentry-dart/pull/1786))
   - Set `options.spotlight = Spotlight(enabled: true)` to enable Spotlight
 - Add `ConnectivityIntegration` for web ([#1765](https://github.com/getsentry/sentry-dart/pull/1765))
