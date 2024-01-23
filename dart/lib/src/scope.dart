@@ -281,10 +281,7 @@ class Scope {
         (scopeObserver) async => await scopeObserver.removeExtra(key));
   }
 
-  Future<SentryEvent?> applyToEvent(
-    SentryEvent event,
-    Hint hint,
-  ) async {
+  Future<SentryEvent?> applyToEvent(SentryEvent event, {Hint? hint}) async {
     event = event.copyWith(
       transaction: event.transaction ?? transaction,
       user: _mergeUsers(user, event.user),
@@ -332,7 +329,7 @@ class Scope {
     SentryEvent? processedEvent = event;
     for (final processor in _eventProcessors) {
       try {
-        final e = processor.apply(processedEvent!, hint);
+        final e = processor.apply(processedEvent!, hint: hint);
         if (e is Future<SentryEvent?>) {
           processedEvent = await e;
         } else {
