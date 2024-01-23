@@ -39,7 +39,7 @@ void main() {
         binding: () => tester.binding,
       );
 
-      final event = await enricher.apply(SentryEvent());
+      final event = await enricher.apply(SentryEvent(), Hint());
 
       debugBrightnessOverride = null;
       debugDefaultTargetPlatformOverride = null;
@@ -133,7 +133,7 @@ void main() {
         },
       );
 
-      final event = await enricher.apply(SentryEvent());
+      final event = await enricher.apply(SentryEvent(), Hint());
 
       expect(event?.contexts.culture?.locale, 'de-DE');
     });
@@ -401,7 +401,7 @@ void main() {
       final enricher = fixture.getSut(
         binding: () => tester.binding,
       );
-      final event = await enricher.apply(eventWithContextsApp);
+      final event = await enricher.apply(eventWithContextsApp, Hint());
 
       expect(event?.contexts.app?.viewNames, ['fixture-currentRouteName']);
     });
