@@ -4,6 +4,18 @@
 
 ### Features
 
+- Tracing without performance for Dio integration ([#1837](https://github.com/getsentry/sentry-dart/pull/1837))
+- Accept `Map<String, dynamic>` in `Hint` class ([#1807](https://github.com/getsentry/sentry-dart/pull/1807))
+  - Please check if everything works as expected when using `Hint`
+    - Factory constructor `Hint.withMap(Map<String, dynamic> map)` now takes `Map<String, dynamic>` instead of `Map<String, Object>`
+    - Method `hint.addAll(Map<String, dynamic> keysAndValues)` now takes `Map<String, dynamic>` instead of `Map<String, Object>`
+    - Method `set(String key, dynamic value)` now takes value of `dynamic` instead of `Object`
+    - Method `hint.get(String key)` now returns `dynamic` instead of `Object?`
+
+## 7.15.0
+
+### Features
+
 - Add [Spotlight](https://spotlightjs.com/about/) support ([#1786](https://github.com/getsentry/sentry-dart/pull/1786))
   - Set `options.spotlight = Spotlight(enabled: true)` to enable Spotlight
 - Add `ConnectivityIntegration` for web ([#1765](https://github.com/getsentry/sentry-dart/pull/1765))
@@ -12,7 +24,8 @@
 - Add isar breadcrumbs ([#1800](https://github.com/getsentry/sentry-dart/pull/1800))
 - Starting with Flutter 3.16, Sentry adds the [`appFlavor`](https://api.flutter.dev/flutter/services/appFlavor-constant.html) to the `flutter_context` ([#1799](https://github.com/getsentry/sentry-dart/pull/1799))
 - Add beforeScreenshotCallback to SentryFlutterOptions ([#1805](https://github.com/getsentry/sentry-dart/pull/1805))
-
+- Add support for `readTransaction` in `sqflite` ([#1819](https://github.com/getsentry/sentry-dart/pull/1819))
+  
 ### Dependencies
 
 - Bump Android SDK from v7.0.0 to v7.2.0 ([#1788](https://github.com/getsentry/sentry-dart/pull/1788), [#1815](https://github.com/getsentry/sentry-dart/pull/1815))

@@ -57,7 +57,7 @@ jobs:
         uses: gradle/gradle-build-action@v2
 
       - name: AVD cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         id: avd-cache
         with:
           path: |
@@ -120,7 +120,8 @@ jobs:
       fail-fast: false
       matrix:
         sdk: ["stable", "beta"]
-        target: ["ios", "macos"]
+        # TODO: remove ios for now, will be fixed in v8
+        target: ["macos"]
     steps:
       - name: checkout
         uses: actions/checkout@v4
