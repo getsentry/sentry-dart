@@ -11,6 +11,7 @@ on:
       - "!**/class-diagram.svg"
       - "dart/**"
       - "flutter/**"
+      - "metrics/flutter.properties"
 
 jobs:
   cancel-previous-workflow:
