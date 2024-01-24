@@ -4,6 +4,7 @@
 
 ### Features
 
+- APM for isar ([#1726](https://github.com/getsentry/sentry-dart/pull/1726))
 - Tracing without performance for Dio integration ([#1837](https://github.com/getsentry/sentry-dart/pull/1837))
 - Accept `Map<String, dynamic>` in `Hint` class ([#1807](https://github.com/getsentry/sentry-dart/pull/1807))
   - Please check if everything works as expected when using `Hint`
@@ -20,7 +21,6 @@
   - Set `options.spotlight = Spotlight(enabled: true)` to enable Spotlight
 - Add `ConnectivityIntegration` for web ([#1765](https://github.com/getsentry/sentry-dart/pull/1765))
   - We only get the info if online/offline on web platform. The added breadcrumb is set to either `wifi` or `none`.
-- APM for isar ([#1726](https://github.com/getsentry/sentry-dart/pull/1726))
 - Add isar breadcrumbs ([#1800](https://github.com/getsentry/sentry-dart/pull/1800))
 - Starting with Flutter 3.16, Sentry adds the [`appFlavor`](https://api.flutter.dev/flutter/services/appFlavor-constant.html) to the `flutter_context` ([#1799](https://github.com/getsentry/sentry-dart/pull/1799))
 - Add beforeScreenshotCallback to SentryFlutterOptions ([#1805](https://github.com/getsentry/sentry-dart/pull/1805))
