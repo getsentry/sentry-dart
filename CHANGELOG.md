@@ -4,7 +4,7 @@
 
 ### Features
 
-- APM for isar ([#1726](https://github.com/getsentry/sentry-dart/pull/1726))
+- APM support for isar ([#1726](https://github.com/getsentry/sentry-dart/pull/1726))
 - Tracing without performance for Dio integration ([#1837](https://github.com/getsentry/sentry-dart/pull/1837))
 - Accept `Map<String, dynamic>` in `Hint` class ([#1807](https://github.com/getsentry/sentry-dart/pull/1807))
   - Please check if everything works as expected when using `Hint`
