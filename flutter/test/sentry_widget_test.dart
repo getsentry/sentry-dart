@@ -2,7 +2,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 import 'mocks.dart';
-import 'mocks.mocks.dart';
 import 'user_interaction/sentry_user_interaction_widget_test.dart';
 
 void main() {
@@ -78,20 +77,22 @@ void main() {
 
       expect(SentryFlutter.flutterOptions.attachScreenshot, true);
       expect(SentryFlutter.flutterOptions.enableUserInteractionTracing, true);
-      expect(SentryFlutter.flutterOptions.enableUserInteractionBreadcrumbs, true);
+      expect(
+          SentryFlutter.flutterOptions.enableUserInteractionBreadcrumbs, true);
     });
 
     test('test options are false in SentryFlutter.init', () async {
       await SentryFlutter.init((options) => {
-        options.dsn = fakeDsn,
-        options.attachScreenshot = false,
-        options.enableUserInteractionTracing = false,
-        options.enableUserInteractionBreadcrumbs = false,
-      });
+            options.dsn = fakeDsn,
+            options.attachScreenshot = false,
+            options.enableUserInteractionTracing = false,
+            options.enableUserInteractionBreadcrumbs = false,
+          });
 
       expect(SentryFlutter.flutterOptions.attachScreenshot, false);
       expect(SentryFlutter.flutterOptions.enableUserInteractionTracing, false);
-      expect(SentryFlutter.flutterOptions.enableUserInteractionBreadcrumbs, false);
+      expect(
+          SentryFlutter.flutterOptions.enableUserInteractionBreadcrumbs, false);
     });
   });
 }
