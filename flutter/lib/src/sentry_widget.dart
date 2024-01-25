@@ -2,7 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:meta/meta.dart';
 import '../sentry_flutter.dart';
 
-/// A central widget that contains the Sentry widgets.
+/// This widget serves as a wrapper to conditionally include Sentry widgets such
+/// as [SentryScreenshotWidget] and [SentryUserInteractionWidget].
 class SentryWidget extends StatefulWidget {
   late final Hub _hub;
   final Widget child;
@@ -20,19 +21,19 @@ class _SentryWidgetState extends State<SentryWidget> {
   @override
   Widget build(BuildContext context) {
     Widget content = widget.child;
-    content = _maybeWrapScreenshotWidget(content);
-    content = _maybeWrapUserInteractionWidget(content);
+    content = _wrapWithScreenshotIfNeeded(content);
+    content = _wrapWithUserInteractionIfNeeded(content);
     return content;
   }
 
-  Widget _maybeWrapScreenshotWidget(Widget child) {
+  Widget _wrapWithScreenshotIfNeeded(Widget child) {
     if (_options.attachScreenshot) {
       return SentryScreenshotWidget(child: child);
     }
     return child;
   }
 
-  Widget _maybeWrapUserInteractionWidget(Widget child) {
+  Widget _wrapWithUserInteractionIfNeeded(Widget child) {
     if (_options.enableUserInteractionTracing ||
         _options.enableUserInteractionBreadcrumbs) {
       return SentryUserInteractionWidget(hub: widget._hub, child: child);
