@@ -21,6 +21,7 @@ final sentryScreenshotWidgetGlobalKey =
 ///   information see https://flutter.dev/docs/development/tools/web-renderers
 /// - You can only have one [SentryScreenshotWidget] widget in your widget tree at all
 ///   times.
+@Deprecated('Use [SentryWidget] instead')
 class SentryScreenshotWidget extends StatefulWidget {
   const SentryScreenshotWidget({super.key, required this.child});
 
