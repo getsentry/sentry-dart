@@ -69,11 +69,11 @@ void main() {
 
   group('SentryWidget', () {
     test('test options are true in SentryFlutter.init', () async {
-      await SentryFlutter.init((p0) => {
-            p0.dsn = fakeDsn,
-            p0.attachScreenshot = true,
-            p0.enableUserInteractionTracing = true,
-            p0.enableUserInteractionBreadcrumbs = true,
+      await SentryFlutter.init((options) => {
+            options.dsn = fakeDsn,
+            options.attachScreenshot = true,
+            options.enableUserInteractionTracing = true,
+            options.enableUserInteractionBreadcrumbs = true,
           });
 
       expect(SentryFlutter.flutterOptions.attachScreenshot, true);
@@ -82,11 +82,11 @@ void main() {
     });
 
     test('test options are false in SentryFlutter.init', () async {
-      await SentryFlutter.init((p0) => {
-        p0.dsn = fakeDsn,
-        p0.attachScreenshot = false,
-        p0.enableUserInteractionTracing = false,
-        p0.enableUserInteractionBreadcrumbs = false,
+      await SentryFlutter.init((options) => {
+        options.dsn = fakeDsn,
+        options.attachScreenshot = false,
+        options.enableUserInteractionTracing = false,
+        options.enableUserInteractionBreadcrumbs = false,
       });
 
       expect(SentryFlutter.flutterOptions.attachScreenshot, false);
