@@ -1,11 +1,14 @@
 import 'package:flutter/cupertino.dart';
+import 'package:meta/meta.dart';
 import '../sentry_flutter.dart';
 
 /// A central widget that contains the Sentry widgets.
 class SentryWidget extends StatefulWidget {
-  const SentryWidget({super.key, required this.child});
-
+  late final Hub _hub;
   final Widget child;
+
+  SentryWidget({super.key, required this.child, @internal Hub? hub})
+      : _hub = hub ?? HubAdapter();
 
   @override
   _SentryWidgetState createState() => _SentryWidgetState();
@@ -32,7 +35,7 @@ class _SentryWidgetState extends State<SentryWidget> {
   Widget _maybeWrapUserInteractionWidget(Widget child) {
     if (_options.enableUserInteractionTracing ||
         _options.enableUserInteractionBreadcrumbs) {
-      return SentryUserInteractionWidget(child: child);
+      return SentryUserInteractionWidget(hub: widget._hub, child: child);
     }
     return child;
   }
