@@ -99,7 +99,6 @@ void main() {
 class Fixture {
   // SentryWidget uses an internal static flutterOptions reference to get the options
   final _options = SentryFlutter.flutterOptions;
-  final _transport = MockTransport();
   late Hub hub;
 
   SentryWidget getSut({
@@ -108,7 +107,6 @@ class Fixture {
     bool attachScreenshot = true,
   }) {
     _options.dsn = fakeDsn;
-    _options.transport = _transport;
     _options.attachScreenshot = attachScreenshot;
     _options.enableUserInteractionTracing = enableUserInteractionTracing;
     _options.enableUserInteractionBreadcrumbs =
