@@ -33,11 +33,6 @@ typedef FlutterOptionsConfiguration = FutureOr<void> Function(
 mixin SentryFlutter {
   static const _channel = MethodChannel('sentry_flutter');
 
-  static SentryFlutterOptions _flutterOptions = SentryFlutterOptions();
-
-  @internal
-  static SentryFlutterOptions get flutterOptions => _flutterOptions;
-
   static Future<void> init(
     FlutterOptionsConfiguration optionsConfiguration, {
     AppRunner? appRunner,
@@ -101,8 +96,6 @@ mixin SentryFlutter {
       // ignore: invalid_use_of_internal_member
       SentryNativeProfilerFactory.attachTo(Sentry.currentHub, _native!);
     }
-
-    SentryFlutter._flutterOptions = flutterOptions;
   }
 
   static Future<void> _initDefaultValues(
