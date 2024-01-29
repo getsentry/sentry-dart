@@ -232,7 +232,6 @@ Element? _clickTrackerElement;
 ///
 /// If you are using the [SentryScreenshotWidget] as well, make sure to add
 /// [SentryUserInteractionWidget] as a child of [SentryScreenshotWidget].
-@Deprecated('Use [SentryWidget] instead')
 class SentryUserInteractionWidget extends StatefulWidget {
   SentryUserInteractionWidget({
     super.key,

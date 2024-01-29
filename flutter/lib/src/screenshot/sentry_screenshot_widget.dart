@@ -23,7 +23,6 @@ final sentryScreenshotWidgetGlobalKey =
 ///   information see https://flutter.dev/docs/development/tools/web-renderers
 /// - You can only have one [SentryScreenshotWidget] widget in your widget tree at all
 ///   times.
-@Deprecated('Use [SentryWidget] instead')
 class SentryScreenshotWidget extends StatefulWidget {
   final Widget child;
   late final Hub _hub;
@@ -50,6 +49,7 @@ class _SentryScreenshotWidgetState extends State<SentryScreenshotWidget> {
 
   @override
   Widget build(BuildContext context) {
+    print('got it ${_options?.attachScreenshot}');
     if (_options?.attachScreenshot ?? false) {
       return RepaintBoundary(
         key: sentryScreenshotWidgetGlobalKey,
