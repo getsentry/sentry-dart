@@ -5,7 +5,6 @@
 ### Features
 
 - Add `SentryWidget` ([#1846](https://github.com/getsentry/sentry-dart/pull/1846))
-  - Deprecates `SentryScreenshotWidget` and `SentryUserInteractionWidget`
 - APM for isar ([#1726](https://github.com/getsentry/sentry-dart/pull/1726))
 - Performance monitoring support for isar ([#1726](https://github.com/getsentry/sentry-dart/pull/1726))
 - Tracing without performance for Dio integration ([#1837](https://github.com/getsentry/sentry-dart/pull/1837))
