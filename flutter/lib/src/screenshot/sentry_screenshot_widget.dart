@@ -49,7 +49,6 @@ class _SentryScreenshotWidgetState extends State<SentryScreenshotWidget> {
 
   @override
   Widget build(BuildContext context) {
-    print('got it ${_options?.attachScreenshot}');
     if (_options?.attachScreenshot ?? false) {
       return RepaintBoundary(
         key: sentryScreenshotWidgetGlobalKey,
