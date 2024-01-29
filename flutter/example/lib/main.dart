@@ -93,13 +93,23 @@ Future<void> setupSentry(AppRunner appRunner, String dsn,
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({Key? key, this.withNavigatorObserver = true}) : super(key: key);
+
+  final bool withNavigatorObserver;
 
   @override
   _MyAppState createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> {
+  late bool withNavigatorObserver;
+
+  @override
+  void initState() {
+    super.initState();
+    withNavigatorObserver = widget.withNavigatorObserver;
+  }
+
   @override
   Widget build(BuildContext context) {
     return feedback.BetterFeedback(
@@ -109,7 +119,7 @@ class _MyAppState extends State<MyApp> {
           builder: (context) => MaterialApp(
             navigatorKey: navigatorKey,
             navigatorObservers: [
-              SentryNavigatorObserver(),
+              if (withNavigatorObserver) SentryNavigatorObserver()
             ],
             theme: Provider.of<ThemeProvider>(context).theme,
             home: const MainScaffold(),

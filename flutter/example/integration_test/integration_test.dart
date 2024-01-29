@@ -2,9 +2,13 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:sentry_file/sentry_file.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter_example/main.dart';
 import 'package:http/http.dart';
@@ -29,7 +33,7 @@ void main() {
         await tester.pumpWidget(SentryScreenshotWidget(
             child: DefaultAssetBundle(
           bundle: SentryAssetBundle(enableStructuredDataTracing: true),
-          child: const MyApp(),
+          child: const MyApp(withNavigatorObserver: false),
         )));
       },
       dsn ?? fakeDsn,
@@ -139,6 +143,65 @@ void main() {
     final context = SentryTransactionContext('transaction', 'test');
     final transaction = Sentry.startTransactionWithContext(context);
     await transaction.finish();
+  });
+
+  testWidgets(
+      'sync call in sentry file sets blocked_main_thread to true on main isolate',
+      (tester) async {
+    await setupSentryAndApp(tester);
+    final documentsDir = await getApplicationDocumentsDirectory();
+    final file = File('${documentsDir.path}/testfile.txt').sentryTrace();
+
+    // Start a transaction if there's no active transaction
+    Sentry.startTransaction(
+      'File',
+      'file',
+      bindToScope: true,
+    );
+
+    file.createSync();
+
+    var span = Sentry.getSpan() as dynamic;
+    var fileSpan = span.children.first;
+    expect(fileSpan?.data['blocked_main_thread'], true);
+  });
+
+  testWidgets(
+      'sync call in sentry file sets blocked_main_thread to false on background isolate',
+      (tester) async {
+    // Only setup app without sentry.
+    await tester.pumpWidget(SentryScreenshotWidget(
+        child: DefaultAssetBundle(
+      bundle: SentryAssetBundle(enableStructuredDataTracing: true),
+      child: const MyApp(withNavigatorObserver: false),
+    )));
+
+    final documentsDir = await getApplicationDocumentsDirectory();
+    final file = File('${documentsDir.path}/testfile.txt').sentryTrace();
+
+    final blockedMainThread = await compute<File, bool?>((path) async {
+      // Isolates do not share state. Init Sentry within isolate.
+      await Sentry.init((options) {
+        options.dsn = 'https://abc@def.ingest.sentry.io/1234567';
+        options.tracesSampleRate = 1.0;
+      });
+
+      // Start a transaction if there's no active transaction
+      Sentry.startTransaction(
+        'File',
+        'file',
+        bindToScope: true,
+      );
+
+      final sentryFile = file.sentryTrace();
+      sentryFile.createSync();
+
+      var span = Sentry.getSpan() as dynamic;
+      var fileSpan = span.children.first;
+      return fileSpan?.data['blocked_main_thread'];
+    }, file);
+
+    expect(blockedMainThread, false);
   });
 
   // group('e2e', () {
