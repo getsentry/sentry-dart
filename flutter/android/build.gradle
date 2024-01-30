@@ -60,7 +60,7 @@ android {
 }
 
 dependencies {
-    api 'io.sentry:sentry-android:7.1.0'
+    api 'io.sentry:sentry-android:7.2.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 
     // Required -- JUnit 4 framework
