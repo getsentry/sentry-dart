@@ -43,12 +43,10 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 Future<void> main() async {
   await setupSentry(
       () => runApp(
-            SentryScreenshotWidget(
-              child: SentryUserInteractionWidget(
-                child: DefaultAssetBundle(
-                  bundle: SentryAssetBundle(),
-                  child: const MyApp(),
-                ),
+            SentryWidget(
+              child: DefaultAssetBundle(
+                bundle: SentryAssetBundle(),
+                child: const MyApp(),
               ),
             ),
           ),
