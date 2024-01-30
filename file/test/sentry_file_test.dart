@@ -657,6 +657,286 @@ void main() {
       );
     });
   });
+
+  group('$SentryFile span sets `blocked_main_thread`', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    tearDown(() {});
+
+    void _assertSpan(bool isMainIsolate) {
+      final call = fixture.client.captureTransactionCalls.first;
+      final span = call.transaction.spans.first;
+      expect(span.data['blocked_main_thread'], isMainIsolate);
+    }
+
+    test('to `true` when calling `copySync` on main', () async {
+      final file = File('test_resources/testfile.txt');
+
+      final sut = fixture.getSut(
+        file,
+        sendDefaultPii: true,
+        tracesSampleRate: 1.0,
+        isMainIsolate: true,
+      );
+
+      final tr = fixture.hub.startTransaction('name', 'op', bindToScope: true);
+      sut.copySync('test_resources/testfile_copy.txt');
+      await tr.finish();
+
+      _assertSpan(true);
+    });
+
+    test('to `false` when not calling `copySync` on main', () async {
+      final file = File('test_resources/testfile.txt');
+
+      final sut = fixture.getSut(
+        file,
+        sendDefaultPii: true,
+        tracesSampleRate: 1.0,
+        isMainIsolate: false,
+      );
+
+      final tr = fixture.hub.startTransaction('name', 'op', bindToScope: true);
+      final newFile = sut.copySync('test_resources/testfile_copy.txt');
+      await tr.finish();
+
+      _assertSpan(false);
+
+      newFile.deleteSync();
+    });
+
+    test('to `true` when calling `createSync` on main', () async {
+      final file = File('test_resources/testfile.txt');
+
+      final sut = fixture.getSut(
+        file,
+        sendDefaultPii: true,
+        tracesSampleRate: 1.0,
+        isMainIsolate: true,
+      );
+
+      final tr = fixture.hub.startTransaction('name', 'op', bindToScope: true);
+      sut.createSync();
+      await tr.finish();
+
+      _assertSpan(true);
+    });
+
+    test('to `false` when not calling `createSync` on main', () async {
+      final file = File('test_resources/testfile.txt');
+
+      final sut = fixture.getSut(
+        file,
+        sendDefaultPii: true,
+        tracesSampleRate: 1.0,
+        isMainIsolate: false,
+      );
+
+      final tr = fixture.hub.startTransaction('name', 'op', bindToScope: true);
+      sut.createSync();
+      await tr.finish();
+
+      _assertSpan(false);
+    });
+
+    // deleteSync
+
+    test('to `true` when calling `deleteSync` on main', () async {
+      final file = File('test_resources/testfile_delete.txt');
+      file.createSync();
+      expect(file.existsSync(), true);
+
+      final sut = fixture.getSut(
+        file,
+        sendDefaultPii: true,
+        tracesSampleRate: 1.0,
+        isMainIsolate: true,
+      );
+
+      final tr = fixture.hub.startTransaction('name', 'op', bindToScope: true);
+      sut.deleteSync();
+      await tr.finish();
+
+      _assertSpan(true);
+    });
+
+    test('to `false` when not calling `deleteSync` on main', () async {
+      final file = File('test_resources/testfile_delete.txt');
+      file.createSync();
+      expect(file.existsSync(), true);
+
+      final sut = fixture.getSut(
+        file,
+        sendDefaultPii: true,
+        tracesSampleRate: 1.0,
+        isMainIsolate: false,
+      );
+
+      final tr = fixture.hub.startTransaction('name', 'op', bindToScope: true);
+      sut.deleteSync();
+      await tr.finish();
+
+      _assertSpan(false);
+    });
+
+    // readAsBytesSync
+
+    test('to `true` when calling `readAsBytesSync` on main', () async {
+      final file = File('test_resources/sentry.png');
+
+      final sut = fixture.getSut(
+        file,
+        sendDefaultPii: true,
+        tracesSampleRate: 1.0,
+        isMainIsolate: true,
+      );
+
+      final tr = fixture.hub.startTransaction('name', 'op', bindToScope: true);
+      sut.readAsBytesSync();
+      await tr.finish();
+
+      _assertSpan(true);
+    });
+
+    test('to `false` when not calling `readAsBytesSync` on main', () async {
+      final file = File('test_resources/testfile.txt');
+
+      final sut = fixture.getSut(
+        file,
+        sendDefaultPii: true,
+        tracesSampleRate: 1.0,
+        isMainIsolate: false,
+      );
+
+      final tr = fixture.hub.startTransaction('name', 'op', bindToScope: true);
+      sut.readAsBytesSync();
+      await tr.finish();
+
+      _assertSpan(false);
+    });
+
+    // readAsLinesSync
+
+    test('to `true` when calling `readAsLinesSync` on main', () async {
+      final file = File('test_resources/testfile.txt');
+
+      final sut = fixture.getSut(
+        file,
+        sendDefaultPii: true,
+        tracesSampleRate: 1.0,
+        isMainIsolate: true,
+      );
+
+      final tr = fixture.hub.startTransaction('name', 'op', bindToScope: true);
+
+      sut.readAsLinesSync();
+
+      await tr.finish();
+
+      _assertSpan(true);
+    });
+
+    test('to `false` when not calling `readAsLinesSync` on main', () async {
+      final file = File('test_resources/testfile.txt');
+
+      final sut = fixture.getSut(
+        file,
+        sendDefaultPii: true,
+        tracesSampleRate: 1.0,
+        isMainIsolate: false,
+      );
+
+      final tr = fixture.hub.startTransaction('name', 'op', bindToScope: true);
+      sut.readAsLinesSync();
+      await tr.finish();
+
+      _assertSpan(false);
+    });
+
+    // readAsStringSync
+
+    test('to `true` when calling `readAsStringSync` on main', () async {
+      final file = File('test_resources/testfile.txt');
+
+      final sut = fixture.getSut(
+        file,
+        sendDefaultPii: true,
+        tracesSampleRate: 1.0,
+        isMainIsolate: true,
+      );
+
+      final tr = fixture.hub.startTransaction('name', 'op', bindToScope: true);
+
+      sut.readAsStringSync();
+
+      await tr.finish();
+
+      _assertSpan(true);
+    });
+
+    test('to `false` when not calling `readAsStringSync` on main', () async {
+      final file = File('test_resources/testfile.txt');
+
+      final sut = fixture.getSut(
+        file,
+        sendDefaultPii: true,
+        tracesSampleRate: 1.0,
+        isMainIsolate: false,
+      );
+
+      final tr = fixture.hub.startTransaction('name', 'op', bindToScope: true);
+      sut.readAsStringSync();
+      await tr.finish();
+
+      _assertSpan(false);
+    });
+
+    // renameSync
+
+    test('to `true` when calling `renameSync` on main', () async {
+      final file = File('test_resources/old_name.txt');
+      file.createSync();
+
+      final sut = fixture.getSut(
+        file,
+        sendDefaultPii: true,
+        tracesSampleRate: 1.0,
+        isMainIsolate: true,
+      );
+
+      final tr = fixture.hub.startTransaction('name', 'op', bindToScope: true);
+      final newFile = sut.renameSync('test_resources/testfile_copy.txt');
+      await tr.finish();
+
+      _assertSpan(true);
+
+      newFile.deleteSync();
+    });
+
+    test('to `false` when not calling `renameSync` on main', () async {
+      final file = File('test_resources/old_name.txt');
+      file.createSync();
+
+      final sut = fixture.getSut(
+        file,
+        sendDefaultPii: true,
+        tracesSampleRate: 1.0,
+        isMainIsolate: false,
+      );
+
+      final tr = fixture.hub.startTransaction('name', 'op', bindToScope: true);
+      final newFile = sut.renameSync('test_resources/testfile_copy.txt');
+      await tr.finish();
+
+      _assertSpan(false);
+
+      newFile.deleteSync();
+    });
+  });
 }
 
 class Fixture {
@@ -667,10 +947,14 @@ class Fixture {
   SentryFile getSut(
     File file, {
     bool sendDefaultPii = false,
+    bool isMainIsolate = false,
     double? tracesSampleRate,
   }) {
     options.sendDefaultPii = sendDefaultPii;
     options.tracesSampleRate = tracesSampleRate;
+    options.isMainIsolate = () {
+      return isMainIsolate;
+    };
 
     hub = Hub(options);
     hub.bindClient(client);

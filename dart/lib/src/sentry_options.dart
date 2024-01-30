@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
+import 'dart:isolate';
 
 import 'package:meta/meta.dart';
 import 'package:http/http.dart';
@@ -446,6 +447,11 @@ class SentryOptions {
   late SentryStackTraceFactory stackTraceFactory =
       SentryStackTraceFactory(this);
 
+  @internal
+  IsMainIsolateCallback isMainIsolate = () {
+    return Isolate.current.debugName == 'main';
+  };
+
   void _debugLogger(
     SentryLevel level,
     String message, {
@@ -527,3 +533,6 @@ void dartLogger(
     stackTrace: stackTrace,
   );
 }
+
+/// A callback used to check if we are on the main isolate.
+typedef IsMainIsolateCallback = bool Function();

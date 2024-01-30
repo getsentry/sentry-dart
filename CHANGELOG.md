@@ -14,6 +14,7 @@
     - Method `hint.addAll(Map<String, dynamic> keysAndValues)` now takes `Map<String, dynamic>` instead of `Map<String, Object>`
     - Method `set(String key, dynamic value)` now takes value of `dynamic` instead of `Object`
     - Method `hint.get(String key)` now returns `dynamic` instead of `Object?`
+- Add `blocked_main_thread` to sync file spans ([#1801](https://github.com/getsentry/sentry-dart/pull/1801))
 
 ## 7.15.0
 
@@ -27,7 +28,7 @@
 - Starting with Flutter 3.16, Sentry adds the [`appFlavor`](https://api.flutter.dev/flutter/services/appFlavor-constant.html) to the `flutter_context` ([#1799](https://github.com/getsentry/sentry-dart/pull/1799))
 - Add beforeScreenshotCallback to SentryFlutterOptions ([#1805](https://github.com/getsentry/sentry-dart/pull/1805))
 - Add support for `readTransaction` in `sqflite` ([#1819](https://github.com/getsentry/sentry-dart/pull/1819))
-  
+
 ### Dependencies
 
 - Bump Android SDK from v7.0.0 to v7.2.0 ([#1788](https://github.com/getsentry/sentry-dart/pull/1788), [#1815](https://github.com/getsentry/sentry-dart/pull/1815))
