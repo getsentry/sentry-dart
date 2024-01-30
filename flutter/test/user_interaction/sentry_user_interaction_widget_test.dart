@@ -32,6 +32,75 @@ void main() {
     },
   );
 
+  testWidgets(
+    '$SentryUserInteractionWidget does not apply when enableUserInteractionTracing and enableUserInteractionBreadcrumbs is false',
+    (tester) async {
+      await tester.runAsync(() async {
+        await tester.pumpWidget(
+          fixture.getSut(
+            enableUserInteractionTracing: false,
+            enableUserInteractionBreadcrumbs: false,
+          ),
+        );
+        final specificChildFinder = find.byType(MyApp);
+
+        expect(
+          find.ancestor(
+            of: specificChildFinder,
+            matching: find.byType(Listener),
+          ),
+          findsNothing,
+        );
+      });
+    },
+  );
+
+  testWidgets(
+    '$SentryUserInteractionWidget does apply when enableUserInteractionTracing is true',
+    (tester) async {
+      await tester.runAsync(() async {
+        await tester.pumpWidget(
+          fixture.getSut(
+            enableUserInteractionTracing: true,
+            enableUserInteractionBreadcrumbs: false,
+          ),
+        );
+        final specificChildFinder = find.byType(MyApp);
+
+        expect(
+          find.ancestor(
+            of: specificChildFinder,
+            matching: find.byType(Listener),
+          ),
+          findsOne,
+        );
+      });
+    },
+  );
+
+  testWidgets(
+    '$SentryUserInteractionWidget does apply when enableUserInteractionBreadcrumbs is true',
+    (tester) async {
+      await tester.runAsync(() async {
+        await tester.pumpWidget(
+          fixture.getSut(
+            enableUserInteractionTracing: false,
+            enableUserInteractionBreadcrumbs: true,
+          ),
+        );
+        final specificChildFinder = find.byType(MyApp);
+
+        expect(
+          find.ancestor(
+            of: specificChildFinder,
+            matching: find.byType(Listener),
+          ),
+          findsOne,
+        );
+      });
+    },
+  );
+
   group('$SentryUserInteractionWidget crumbs', () {
     testWidgets('Add crumb for MaterialButton', (tester) async {
       await tester.runAsync(() async {
