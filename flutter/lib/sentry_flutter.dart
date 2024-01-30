@@ -15,3 +15,4 @@ export 'src/screenshot/sentry_screenshot_widget.dart';
 export 'src/screenshot/sentry_screenshot_quality.dart';
 export 'src/user_interaction/sentry_user_interaction_widget.dart';
 export 'src/binding_wrapper.dart';
+export 'src/sentry_widget.dart';
