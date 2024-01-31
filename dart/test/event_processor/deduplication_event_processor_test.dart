@@ -77,7 +77,7 @@ void main() {
 
       final transport = MockTransport();
 
-      final options = SentryOptions(dsn: fakeDsn)..devMode = true;
+      final options = SentryOptions(dsn: fakeDsn)..automatedTestMode = true;
       await Sentry.init(
         (options) {
           options.dsn = fakeDsn;

@@ -14,7 +14,12 @@ class SentryTracesSampler {
   SentryTracesSampler(
     this._options, {
     Random? random,
-  }) : _random = random ?? Random();
+  }) : _random = random ?? Random() {
+    if (_options.tracesSampler != null && _options.tracesSampleRate != null) {
+      _options.logger(SentryLevel.warning,
+          'Both tracesSampler and traceSampleRate are set. tracesSampler will take precedence and fallback to traceSampleRate if it returns null.');
+    }
+  }
 
   SentryTracesSamplingDecision sample(SentrySamplingContext samplingContext) {
     final samplingDecision =
@@ -40,7 +45,7 @@ class SentryTracesSampler {
           exception: exception,
           stackTrace: stackTrace,
         );
-        if (_options.devMode) {
+        if (_options.automatedTestMode) {
           rethrow;
         }
       }
@@ -65,6 +70,14 @@ class SentryTracesSampler {
     }
 
     return SentryTracesSamplingDecision(false);
+  }
+
+  bool sampleProfiling(SentryTracesSamplingDecision tracesSamplingDecision) {
+    double? optionsRate = _options.profilesSampleRate;
+    if (optionsRate == null || !tracesSamplingDecision.sampled) {
+      return false;
+    }
+    return _sample(optionsRate);
   }
 
   bool _sample(double result) => !(result < _random.nextDouble());

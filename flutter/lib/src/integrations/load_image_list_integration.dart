@@ -25,14 +25,25 @@ extension _NeedsSymbolication on SentryEvent {
     if (this is SentryTransaction) {
       return false;
     }
-    if (exceptions?.isNotEmpty == false) {
-      return false;
-    }
-    final frames = exceptions?.first.stackTrace?.frames;
+    final frames = _getStacktraceFrames();
     if (frames == null) {
       return false;
     }
-    return frames.any((frame) => 'native' == frame.platform);
+    return frames.any((frame) => 'native' == frame?.platform);
+  }
+
+  List<SentryStackFrame?>? _getStacktraceFrames() {
+    if (exceptions?.isNotEmpty == true) {
+      return exceptions?.first.stackTrace?.frames;
+    }
+    if (threads?.isNotEmpty == true) {
+      var stacktraces = threads?.map((e) => e.stacktrace);
+      return stacktraces
+          ?.where((element) => element != null)
+          .expand((element) => element!.frames)
+          .toList();
+    }
+    return null;
   }
 }
 

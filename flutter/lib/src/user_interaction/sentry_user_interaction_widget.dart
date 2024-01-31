@@ -234,10 +234,10 @@ Element? _clickTrackerElement;
 /// [SentryUserInteractionWidget] as a child of [SentryScreenshotWidget].
 class SentryUserInteractionWidget extends StatefulWidget {
   SentryUserInteractionWidget({
-    Key? key,
+    super.key,
     required this.child,
     @internal Hub? hub,
-  }) : super(key: key) {
+  }) {
     _hub = hub ?? HubAdapter();
 
     if (_options?.enableUserInteractionTracing ?? false) {
@@ -281,12 +281,16 @@ class _SentryUserInteractionWidgetState
 
   @override
   Widget build(BuildContext context) {
-    return Listener(
-      behavior: HitTestBehavior.translucent,
-      onPointerDown: _onPointerDown,
-      onPointerUp: _onPointerUp,
-      child: widget.child,
-    );
+    if ((_options?.enableUserInteractionTracing ?? true) ||
+        (_options?.enableUserInteractionBreadcrumbs ?? true)) {
+      return Listener(
+        behavior: HitTestBehavior.translucent,
+        onPointerDown: _onPointerDown,
+        onPointerUp: _onPointerUp,
+        child: widget.child,
+      );
+    }
+    return widget.child;
   }
 
   void _onPointerDown(PointerDownEvent event) {

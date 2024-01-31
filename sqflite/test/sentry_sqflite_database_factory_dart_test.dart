@@ -24,6 +24,7 @@ void main() {
       fixture = Fixture();
 
       when(fixture.hub.options).thenReturn(fixture.options);
+      when(fixture.hub.scope).thenReturn(fixture.scope);
       when(fixture.hub.getSpan()).thenReturn(fixture.tracer);
 
       // using ffi for testing on vm
@@ -38,6 +39,7 @@ void main() {
       final db = await openDatabase(inMemoryDatabasePath);
 
       expect(db is SentryDatabase, true);
+      expect((db as SentryDatabase).dbName, inMemoryDatabasePath);
 
       await db.close();
     });
@@ -56,9 +58,10 @@ void main() {
         () async {
       final db = await openDatabase(inMemoryDatabasePath);
 
+      expect((db as SentryDatabase).dbName, inMemoryDatabasePath);
+
       final span = fixture.tracer.children.last;
       expect(span.context.operation, 'db');
-      expect(span.context.description, 'Open DB: $inMemoryDatabasePath');
       expect(span.context.description, 'Open DB: $inMemoryDatabasePath');
 
       expect(
@@ -66,6 +69,20 @@ void main() {
         // ignore: invalid_use_of_internal_member
         SentryTraceOrigins.autoDbSqfliteDatabaseFactory,
       );
+      await db.close();
+    });
+
+    test('starts and finishes a open db breadcrumb when performance enabled',
+        () async {
+      final db = await openDatabase(inMemoryDatabasePath);
+
+      expect((db as SentryDatabase).dbName, inMemoryDatabasePath);
+
+      final breadcrumb = fixture.hub.scope.breadcrumbs.first;
+      expect(breadcrumb.category, 'db');
+      expect(breadcrumb.message, 'Open DB: $inMemoryDatabasePath');
+      expect(breadcrumb.data?['status'], 'ok');
+
       await db.close();
     });
   });
@@ -80,4 +97,5 @@ class Fixture {
   final options = SentryOptions(dsn: fakeDsn)..tracesSampleRate = 1.0;
   final _context = SentryTransactionContext('name', 'operation');
   late final tracer = SentryTracer(_context, hub);
+  late final scope = Scope(options);
 }

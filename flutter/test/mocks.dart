@@ -4,21 +4,26 @@ import 'package:flutter/services.dart';
 import 'package:flutter/src/widgets/binding.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
-import 'package:sentry/sentry.dart';
 import 'package:sentry/src/platform/platform.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 
 import 'package:meta/meta.dart';
-import 'package:sentry_flutter/src/binding_wrapper.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/renderer/renderer.dart';
-import 'package:sentry_flutter/src/sentry_native.dart';
-import 'package:sentry_flutter/src/sentry_native_channel.dart';
+import 'package:sentry_flutter/src/native/sentry_native.dart';
+import 'package:sentry_flutter/src/native/sentry_native_binding.dart';
 
 import 'mocks.mocks.dart';
 import 'no_such_method_provider.dart';
 
 const fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
 const fakeProguardUuid = '3457d982-65ef-576d-a6ad-65b5f30f49a5';
+
+// TODO use this everywhere in tests so that we don't get exceptions swallowed.
+SentryFlutterOptions defaultTestOptions() {
+  // ignore: invalid_use_of_internal_member
+  return SentryFlutterOptions(dsn: fakeDsn)..automatedTestMode = true;
+}
 
 // https://github.com/dart-lang/mockito/blob/master/NULL_SAFETY_README.md#fallback-generators
 ISentrySpan startTransactionShim(
@@ -40,8 +45,8 @@ ISentrySpan startTransactionShim(
   Transport,
   // ignore: invalid_use_of_internal_member
   SentryTracer,
+  SentryTransaction,
   MethodChannel,
-  SentryNative,
 ], customMocks: [
   MockSpec<Hub>(fallbackGenerators: {#startTransaction: startTransactionShim})
 ])
@@ -146,7 +151,7 @@ class MockPlatformChecker with NoSuchMethodProvider implements PlatformChecker {
 // Does nothing or returns default values.
 // Useful for when a Hub needs to be passed but is not used.
 class NoOpHub with NoSuchMethodProvider implements Hub {
-  final _options = SentryOptions(dsn: 'fixture-dsn');
+  final _options = defaultTestOptions();
 
   @override
   @internal
@@ -156,12 +161,10 @@ class NoOpHub with NoSuchMethodProvider implements Hub {
   bool get isEnabled => false;
 }
 
+// TODO can this be replaced with https://pub.dev/packages/mockito#verifying-exact-number-of-invocations--at-least-x--never
 class TestMockSentryNative implements SentryNative {
   @override
   DateTime? appStartEnd;
-
-  @override
-  SentryNativeChannel? nativeChannel;
 
   bool _didFetchAppStart = false;
 
@@ -189,6 +192,9 @@ class TestMockSentryNative implements SentryNative {
   var numberOfSetTagCalls = 0;
   SentryUser? sentryUser;
   var numberOfSetUserCalls = 0;
+  var numberOfStartProfilerCalls = 0;
+  var numberOfDiscardProfilerCalls = 0;
+  var numberOfCollectProfileCalls = 0;
 
   @override
   Future<void> addBreadcrumb(Breadcrumb breadcrumb) async {
@@ -265,9 +271,29 @@ class TestMockSentryNative implements SentryNative {
     this.sentryUser = sentryUser;
     numberOfSetUserCalls++;
   }
+
+  @override
+  Future<Map<String, dynamic>?> collectProfile(
+      SentryId traceId, int startTimeNs, int endTimeNs) {
+    numberOfCollectProfileCalls++;
+    return Future.value(null);
+  }
+
+  @override
+  int? startProfiler(SentryId traceId) {
+    numberOfStartProfilerCalls++;
+    return 42;
+  }
+
+  @override
+  Future<void> discardProfiler(SentryId traceId) {
+    numberOfDiscardProfilerCalls++;
+    return Future.value(null);
+  }
 }
 
-class MockNativeChannel implements SentryNativeChannel {
+// TODO can this be replaced with https://pub.dev/packages/mockito#verifying-exact-number-of-invocations--at-least-x--never
+class MockNativeChannel implements SentryNativeBinding {
   NativeAppStart? nativeAppStart;
   NativeFrames? nativeFrames;
   SentryId? id;
@@ -283,6 +309,9 @@ class MockNativeChannel implements SentryNativeChannel {
   int numberOfSetContextsCalls = 0;
   int numberOfSetExtraCalls = 0;
   int numberOfSetTagCalls = 0;
+  int numberOfStartProfilerCalls = 0;
+  int numberOfDiscardProfilerCalls = 0;
+  int numberOfCollectProfileCalls = 0;
 
   @override
   Future<NativeAppStart?> fetchNativeAppStart() async => nativeAppStart;
@@ -343,15 +372,34 @@ class MockNativeChannel implements SentryNativeChannel {
   Future<void> setTag(String key, value) async {
     numberOfSetTagCalls += 1;
   }
+
+  @override
+  Future<Map<String, dynamic>?> collectProfile(
+      SentryId traceId, int startTimeNs, int endTimeNs) {
+    numberOfCollectProfileCalls++;
+    return Future.value(null);
+  }
+
+  @override
+  int? startProfiler(SentryId traceId) {
+    numberOfStartProfilerCalls++;
+    return null;
+  }
+
+  @override
+  Future<int?> discardProfiler(SentryId traceId) {
+    numberOfDiscardProfilerCalls++;
+    return Future.value(null);
+  }
 }
 
 class MockRendererWrapper implements RendererWrapper {
   MockRendererWrapper(this._renderer);
 
-  final FlutterRenderer _renderer;
+  final FlutterRenderer? _renderer;
 
   @override
-  FlutterRenderer getRenderer() {
+  FlutterRenderer? getRenderer() {
     return _renderer;
   }
 }

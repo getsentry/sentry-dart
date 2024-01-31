@@ -2,27 +2,22 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:sentry_flutter/src/sentry_native.dart';
-import 'package:sentry_flutter/src/sentry_native_channel.dart';
+import 'package:sentry_flutter/src/native/sentry_native.dart';
 import 'mocks.dart';
 
 void main() {
   group('$SentryNative', () {
-    late Fixture fixture;
-
-    setUp(() {
-      fixture = Fixture();
-    });
+    final channel = MockNativeChannel();
+    final options = SentryFlutterOptions(dsn: fakeDsn);
+    late final sut = SentryNative(options, channel);
 
     tearDown(() {
-      fixture.getSut().reset();
+      sut.reset();
     });
 
     test('fetchNativeAppStart sets didFetchAppStart', () async {
       final nativeAppStart = NativeAppStart(0.0, true);
-      fixture.channel.nativeAppStart = nativeAppStart;
-
-      final sut = fixture.getSut();
+      channel.nativeAppStart = nativeAppStart;
 
       expect(sut.didFetchAppStart, false);
 
@@ -33,110 +28,88 @@ void main() {
     });
 
     test('beginNativeFramesCollection', () async {
-      final sut = fixture.getSut();
-
       await sut.beginNativeFramesCollection();
-
-      expect(fixture.channel.numberOfBeginNativeFramesCalls, 1);
+      expect(channel.numberOfBeginNativeFramesCalls, 1);
     });
 
     test('endNativeFramesCollection', () async {
       final nativeFrames = NativeFrames(3, 2, 1);
       final traceId = SentryId.empty();
-      fixture.channel.nativeFrames = nativeFrames;
-
-      final sut = fixture.getSut();
+      channel.nativeFrames = nativeFrames;
 
       final actual = await sut.endNativeFramesCollection(traceId);
 
       expect(actual, nativeFrames);
-      expect(fixture.channel.id, traceId);
-      expect(fixture.channel.numberOfEndNativeFramesCalls, 1);
+      expect(channel.id, traceId);
+      expect(channel.numberOfEndNativeFramesCalls, 1);
     });
 
     test('setUser', () async {
-      final sut = fixture.getSut();
       await sut.setUser(null);
-
-      expect(fixture.channel.numberOfSetUserCalls, 1);
+      expect(channel.numberOfSetUserCalls, 1);
     });
 
     test('addBreadcrumb', () async {
-      final sut = fixture.getSut();
       await sut.addBreadcrumb(Breadcrumb());
-
-      expect(fixture.channel.numberOfAddBreadcrumbCalls, 1);
+      expect(channel.numberOfAddBreadcrumbCalls, 1);
     });
 
     test('clearBreadcrumbs', () async {
-      final sut = fixture.getSut();
       await sut.clearBreadcrumbs();
-
-      expect(fixture.channel.numberOfClearBreadcrumbCalls, 1);
+      expect(channel.numberOfClearBreadcrumbCalls, 1);
     });
 
     test('setContexts', () async {
-      final sut = fixture.getSut();
       await sut.setContexts('fixture-key', 'fixture-value');
-
-      expect(fixture.channel.numberOfSetContextsCalls, 1);
+      expect(channel.numberOfSetContextsCalls, 1);
     });
 
     test('removeContexts', () async {
-      final sut = fixture.getSut();
       await sut.removeContexts('fixture-key');
-
-      expect(fixture.channel.numberOfRemoveContextsCalls, 1);
+      expect(channel.numberOfRemoveContextsCalls, 1);
     });
 
     test('setExtra', () async {
-      final sut = fixture.getSut();
       await sut.setExtra('fixture-key', 'fixture-value');
-
-      expect(fixture.channel.numberOfSetExtraCalls, 1);
+      expect(channel.numberOfSetExtraCalls, 1);
     });
 
     test('removeExtra', () async {
-      final sut = fixture.getSut();
       await sut.removeExtra('fixture-key');
-
-      expect(fixture.channel.numberOfRemoveExtraCalls, 1);
+      expect(channel.numberOfRemoveExtraCalls, 1);
     });
 
     test('setTag', () async {
-      final sut = fixture.getSut();
       await sut.setTag('fixture-key', 'fixture-value');
-
-      expect(fixture.channel.numberOfSetTagCalls, 1);
+      expect(channel.numberOfSetTagCalls, 1);
     });
 
     test('removeTag', () async {
-      final sut = fixture.getSut();
       await sut.removeTag('fixture-key');
+      expect(channel.numberOfRemoveTagCalls, 1);
+    });
 
-      expect(fixture.channel.numberOfRemoveTagCalls, 1);
+    test('startProfiler', () async {
+      sut.startProfiler(SentryId.newId());
+      expect(channel.numberOfStartProfilerCalls, 1);
+    });
+
+    test('discardProfiler', () async {
+      await sut.discardProfiler(SentryId.newId());
+      expect(channel.numberOfDiscardProfilerCalls, 1);
+    });
+
+    test('collectProfile', () async {
+      await sut.collectProfile(SentryId.newId(), 1, 2);
+      expect(channel.numberOfCollectProfileCalls, 1);
     });
 
     test('reset', () async {
-      final sut = fixture.getSut();
-
       sut.appStartEnd = DateTime.now();
       await sut.fetchNativeAppStart();
-
       sut.reset();
-
       expect(sut.appStartEnd, null);
       expect(sut.didFetchAppStart, false);
     });
   });
-}
-
-class Fixture {
-  final channel = MockNativeChannel();
-
-  SentryNative getSut() {
-    final sut = SentryNative();
-    sut.nativeChannel = channel;
-    return sut;
-  }
 }

@@ -11,6 +11,9 @@ targets:
       dio:
       file:
       sqflite:
+      hive:
+      drift:
+      isar:
   - name: github
   - name: registry
     sdks:
@@ -20,3 +23,6 @@ targets:
       pub:sentry_dio:
       pub:sentry_file:
       pub:sentry_sqflite:
+      pub:sentry_drift:
+      pub:sentry_hive:
+      pub:sentry_isar:

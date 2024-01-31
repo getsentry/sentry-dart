@@ -41,20 +41,33 @@ class TracingClient extends BaseClient {
       span = null;
     }
 
-    span?.setData('http.method', request.method);
+    span?.setData('http.request.method', request.method);
     urlDetails?.applyToSpan(span);
 
     StreamedResponse? response;
     try {
-      if (span != null) {
-        if (containsTargetOrMatchesRegExp(
-            _hub.options.tracePropagationTargets, request.url.toString())) {
-          addSentryTraceHeader(span, request.headers);
-          addBaggageHeader(
+      if (containsTargetOrMatchesRegExp(
+          _hub.options.tracePropagationTargets, request.url.toString())) {
+        if (span != null) {
+          addSentryTraceHeaderFromSpan(span, request.headers);
+          addBaggageHeaderFromSpan(
             span,
             request.headers,
             logger: _hub.options.logger,
           );
+        } else {
+          final scope = _hub.scope;
+          final propagationContext = scope.propagationContext;
+
+          final traceHeader = propagationContext.toSentryTrace();
+          addSentryTraceHeader(traceHeader, request.headers);
+
+          final baggage = propagationContext.baggage;
+          if (baggage != null) {
+            final baggageHeader = SentryBaggageHeader.fromBaggage(baggage);
+            addBaggageHeader(baggageHeader, request.headers,
+                logger: _hub.options.logger);
+          }
         }
       }
 

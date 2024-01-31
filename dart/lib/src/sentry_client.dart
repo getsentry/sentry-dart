@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:meta/meta.dart';
+import 'sentry_baggage.dart';
 import 'sentry_attachment/sentry_attachment.dart';
 
 import 'event_processor.dart';
@@ -15,6 +16,7 @@ import 'sentry_options.dart';
 import 'sentry_stack_trace_factory.dart';
 import 'transport/http_transport.dart';
 import 'transport/noop_transport.dart';
+import 'transport/spotlight_http_transport.dart';
 import 'utils/isolate_utils.dart';
 import 'version.dart';
 import 'sentry_envelope.dart';
@@ -46,6 +48,9 @@ class SentryClient {
     if (options.transport is NoOpTransport) {
       final rateLimiter = RateLimiter(options);
       options.transport = HttpTransport(options, rateLimiter);
+    }
+    if (options.spotlight.enabled) {
+      options.transport = SpotlightHttpTransport(options, options.transport);
     }
     return SentryClient._(options);
   }
@@ -119,11 +124,24 @@ class SentryClient {
       attachments.add(viewHierarchy);
     }
 
+    var traceContext = scope?.span?.traceContext();
+    if (traceContext == null) {
+      if (scope?.propagationContext.baggage == null) {
+        scope?.propagationContext.baggage =
+            SentryBaggage({}, logger: _options.logger);
+        scope?.propagationContext.baggage?.setValuesFromScope(scope, _options);
+      }
+      if (scope != null) {
+        traceContext = SentryTraceContextHeader.fromBaggage(
+            scope.propagationContext.baggage!);
+      }
+    }
+
     final envelope = SentryEnvelope.fromEvent(
       preparedEvent,
       _options.sdk,
       dsn: _options.dsn,
-      traceContext: scope?.span?.traceContext(),
+      traceContext: traceContext,
       attachments: attachments.isNotEmpty ? attachments : null,
     );
 
@@ -322,6 +340,11 @@ class SentryClient {
       traceContext: traceContext,
       attachments: attachments,
     );
+
+    final profileInfo = preparedTransaction.tracer.profileInfo;
+    if (profileInfo != null) {
+      envelope.items.add(profileInfo.asEnvelopeItem());
+    }
     final id = await captureEnvelope(envelope);
 
     return id ?? SentryId.empty();
@@ -378,7 +401,7 @@ class SentryClient {
         exception: exception,
         stackTrace: stackTrace,
       );
-      if (_options.devMode) {
+      if (_options.automatedTestMode) {
         rethrow;
       }
     }
@@ -415,7 +438,7 @@ class SentryClient {
           exception: exception,
           stackTrace: stackTrace,
         );
-        if (_options.devMode) {
+        if (_options.automatedTestMode) {
           rethrow;
         }
       }
