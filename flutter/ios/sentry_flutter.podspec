@@ -15,7 +15,7 @@ Sentry SDK for Flutter with support to native through sentry-cocoa.
   s.dependency 'Sentry/HybridSDK', '8.19.0'
   s.ios.dependency 'Flutter'
   s.osx.dependency 'FlutterMacOS'
-  s.ios.deployment_target = '11.0'
+  s.ios.deployment_target = '12.0'
   # Flutter 3.7 requires 10.14
   s.osx.deployment_target = '10.13'
 

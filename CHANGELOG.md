@@ -4,6 +4,7 @@
 
 ### Breaking Changes
 
+- Bump iOS minimum deployment target from **11** to **12** ([#1821](https://github.com/getsentry/sentry-dart/pull/1821))
 - Mark exceptions not handled by the user as `handled: false` ([#1535](https://github.com/getsentry/sentry-dart/pull/1535))
   - This will affect your release health data, and is therefore considered a breaking change.
 - Refrain from overwriting the span status for unfinished spans ([#1577](https://github.com/getsentry/sentry-dart/pull/1577))
@@ -16,7 +17,7 @@
   - Now the device context from Android is available in `BeforeSendCallback`
 - Set ip_address to {{auto}} by default, even if sendDefaultPII is disabled ([#1665](https://github.com/getsentry/sentry-dart/pull/1665))
   - Instead use the "Prevent Storing of IP Addresses" option in the "Security & Privacy" project settings on sentry.io
-
+ 
 ## 7.16.0
 
 ### Features
