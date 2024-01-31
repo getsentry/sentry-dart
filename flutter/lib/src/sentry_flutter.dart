@@ -229,6 +229,14 @@ mixin SentryFlutter {
     options.sdk = sdk;
   }
 
+  static void reportInitialDisplay() {
+    print('reported accurate TTID!');
+  }
+
+  static void reportFullDisplay() {
+
+  }
+
   @internal
   static SentryNative? get native => _native;
   @internal
