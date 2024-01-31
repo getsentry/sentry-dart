@@ -281,12 +281,16 @@ class _SentryUserInteractionWidgetState
 
   @override
   Widget build(BuildContext context) {
-    return Listener(
-      behavior: HitTestBehavior.translucent,
-      onPointerDown: _onPointerDown,
-      onPointerUp: _onPointerUp,
-      child: widget.child,
-    );
+    if ((_options?.enableUserInteractionTracing ?? true) ||
+        (_options?.enableUserInteractionBreadcrumbs ?? true)) {
+      return Listener(
+        behavior: HitTestBehavior.translucent,
+        onPointerDown: _onPointerDown,
+        onPointerUp: _onPointerUp,
+        child: widget.child,
+      );
+    }
+    return widget.child;
   }
 
   void _onPointerDown(PointerDownEvent event) {

@@ -33,6 +33,7 @@ void main() {
       final sut = fixture.getSut(renderer, isWeb);
 
       await tester.pumpWidget(SentryScreenshotWidget(
+          hub: fixture.hub,
           child: Text('Catching Pokémon is a snap!',
               textDirection: TextDirection.ltr)));
 
@@ -178,7 +179,13 @@ void main() {
 }
 
 class Fixture {
+  late Hub hub;
   SentryFlutterOptions options = SentryFlutterOptions(dsn: fakeDsn);
+
+  Fixture() {
+    options.attachScreenshot = true;
+    hub = Hub(options);
+  }
 
   ScreenshotEventProcessor getSut(
       FlutterRenderer? flutterRenderer, bool isWeb) {
