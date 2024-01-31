@@ -7,17 +7,18 @@ on:
       - dart/**
       - flutter/**
       - metrics/**
+      - "!**/*.md"
     branches-ignore:
       - deps/**
       - dependabot/**
-    tags-ignore: ['**']
+    tags-ignore: ["**"]
 
 jobs:
   cancel-previous-workflow:
     runs-on: ubuntu-latest
     steps:
       - name: Cancel Previous Runs
-        uses: styfle/cancel-workflow-action@b173b6ec0100793626c2d9e6b90435061f4fc3e5 # pin@0.11.0
+        uses: styfle/cancel-workflow-action@85880fa0301c86cca9da44039ee3bb12d3bedbfa # pin@0.12.1
         with:
           access_token: ${{ github.token }}
 
@@ -40,7 +41,7 @@ jobs:
             host: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       # Let's stick to an explicit version and update manually because a version change may affect results.
       # If it would update implicitly it could confuse people to think the change is actually caused by the PR.
@@ -52,19 +53,19 @@ jobs:
           echo "flutter=$version" >> "$GITHUB_OUTPUT"
 
       - name: Install Flutter v${{ steps.conf.outputs.flutter }}
-        uses: subosito/flutter-action@48cafc24713cca54bbe03cdc3a423187d413aafa # pin@v2.10.0
+        uses: subosito/flutter-action@2783a3f08e1baf891508463f8c6653c258246225 # pin@v2.12.0
         with:
           flutter-version: ${{ steps.conf.outputs.flutter }}
 
-      - uses: actions/setup-java@v3
+      - uses: actions/setup-java@v4
         if: ${{ matrix.platform == 'android' }}
         with:
-          java-version: '11'
-          distribution: 'adopt'
+          java-version: "11"
+          distribution: "adopt"
 
       - run: ./metrics/prepare.sh
 
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         id: app-plain-cache
         with:
           path: ${{ matrix.appPlain }}

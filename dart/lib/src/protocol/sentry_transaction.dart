@@ -10,66 +10,56 @@ class SentryTransaction extends SentryEvent {
   late final DateTime startTimestamp;
   static const String _type = 'transaction';
   late final List<SentrySpan> spans;
-  final SentryTracer _tracer;
+  @internal
+  final SentryTracer tracer;
   late final Map<String, SentryMeasurement> measurements;
   late final SentryTransactionInfo? transactionInfo;
 
   SentryTransaction(
-    this._tracer, {
-    SentryId? eventId,
+    this.tracer, {
+    super.eventId,
     DateTime? timestamp,
-    String? platform,
-    String? serverName,
-    String? release,
-    String? dist,
-    String? environment,
+    super.platform,
+    super.serverName,
+    super.release,
+    super.dist,
+    super.environment,
     String? transaction,
     dynamic throwable,
     Map<String, String>? tags,
     @Deprecated(
         'Additional Data is deprecated in favor of structured [Contexts] and should be avoided when possible')
     Map<String, dynamic>? extra,
-    SentryUser? user,
-    Contexts? contexts,
-    List<Breadcrumb>? breadcrumbs,
-    SdkVersion? sdk,
-    SentryRequest? request,
+    super.user,
+    super.contexts,
+    super.breadcrumbs,
+    super.sdk,
+    super.request,
     String? type,
     Map<String, SentryMeasurement>? measurements,
     SentryTransactionInfo? transactionInfo,
   }) : super(
-          eventId: eventId,
-          timestamp: timestamp ?? _tracer.endTimestamp,
-          platform: platform,
-          serverName: serverName,
-          release: release,
-          dist: dist,
-          environment: environment,
-          transaction: transaction ?? _tracer.name,
-          throwable: throwable ?? _tracer.throwable,
-          tags: tags ?? _tracer.tags,
+          timestamp: timestamp ?? tracer.endTimestamp,
+          transaction: transaction ?? tracer.name,
+          throwable: throwable ?? tracer.throwable,
+          tags: tags ?? tracer.tags,
           // ignore: deprecated_member_use_from_same_package
-          extra: extra ?? _tracer.data,
-          user: user,
-          contexts: contexts,
-          breadcrumbs: breadcrumbs,
-          sdk: sdk,
-          request: request,
+          extra: extra ?? tracer.data,
           type: _type,
         ) {
-    startTimestamp = _tracer.startTimestamp;
+    startTimestamp = tracer.startTimestamp;
 
-    final spanContext = _tracer.context;
-    spans = _tracer.children;
+    final spanContext = tracer.context;
+    spans = tracer.children;
     this.measurements = measurements ?? {};
 
-    this.contexts.trace = spanContext.toTraceContext(
-      sampled: _tracer.samplingDecision?.sampled,
-      status: _tracer.status,
+    contexts.trace = spanContext.toTraceContext(
+      sampled: tracer.samplingDecision?.sampled,
+      status: tracer.status,
     );
 
     this.transactionInfo = transactionInfo ??
-        SentryTransactionInfo(_tracer.transactionNameSource.name);
+        SentryTransactionInfo(tracer.transactionNameSource.name);
   }
 
   @override
@@ -136,7 +126,7 @@ class SentryTransaction extends SentryEvent {
     SentryTransactionInfo? transactionInfo,
   }) =>
       SentryTransaction(
-        _tracer,
+        tracer,
         eventId: eventId ?? this.eventId,
         timestamp: timestamp ?? this.timestamp,
         platform: platform ?? this.platform,

@@ -40,7 +40,7 @@ void main() {
         'Violation of unique constraint MY_ENTITY_UK_1: duplicate value(s) for column(s) MY_COLUMN in statement [...]');
     expect(thirdCause.thread, null);
     expect(thirdCause.type, 'java.sql.SQLException');
-    expect(thirdCause.stackTrace.length, 6);
+    expect(thirdCause.stackTrace.length, 5);
     expect(thirdCause.causes, null);
     expect(thirdCause.suppressed, null);
   });
@@ -84,6 +84,16 @@ void main() {
     expect(exception.stackTrace[0].method, 'writeValue');
     expect(exception.stackTrace[0].fileName, 'StandardMessageCodec.java');
     expect(exception.stackTrace[0].lineNumber, 292);
+  });
+
+  test('parse drops empty frames', () {
+    final exception = JvmException.parse(platformExceptionWithEmptyStackFrames);
+    expect(exception.stackTrace.length, 13);
+    expect(exception.stackTrace.last.className,
+        'com.android.internal.os.ZygoteInit');
+    expect(exception.stackTrace.last.fileName, 'ZygoteInit.java');
+    expect(exception.stackTrace.last.method, 'main');
+    expect(exception.stackTrace.last.lineNumber, 936);
   });
 }
 
@@ -194,3 +204,21 @@ java.lang.IllegalArgumentException: Unsupported value: '[Ljava.lang.StackTraceEl
 	at java.lang.reflect.Method.invoke(Native Method)
 	at com.android.internal.os.RuntimeInit\$MethodAndArgsCaller.run(RuntimeInit.java:556)
 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:1037)''';
+
+const platformExceptionWithEmptyStackFrames = '''
+java.lang.RuntimeException: Catch this platform exception!
+    at io.sentry.samples.flutter.MainActivity\$configureFlutterEngine\$1.onMethodCall(MainActivity.kt:40)
+    at io.flutter.plugin.common.MethodChannel\$IncomingMethodCallHandler.onMessage(MethodChannel.java:258)
+    at io.flutter.embedding.engine.dart.DartMessenger.invokeHandler(DartMessenger.java:295)
+    at io.flutter.embedding.engine.dart.DartMessenger.lambda\$dispatchMessageToQueue\$0\$io-flutter-embedding-engine-dart-DartMessenger(DartMessenger.java:322)
+    at io.flutter.embedding.engine.dart.DartMessenger\$\$ExternalSyntheticLambda0.run(Unknown Source:12)
+    at android.os.Handler.handleCallback(Handler.java:942)
+    at android.os.Handler.dispatchMessage(Handler.java:99)
+    at android.os.Looper.loopOnce(Looper.java:201)
+    at android.os.Looper.loop(Looper.java:288)
+    at android.app.ActivityThread.main(ActivityThread.java:7872)
+    at java.lang.reflect.Method.invoke
+    at com.android.internal.os.RuntimeInit\$MethodAndArgsCaller.run(RuntimeInit.java:548)
+    at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:936)
+
+    ''';

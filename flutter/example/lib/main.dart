@@ -7,7 +7,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:logging/logging.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:sentry_drift/sentry_drift.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_isar/sentry_isar.dart';
 import 'package:sentry_sqflite/sentry_sqflite.dart';
 import 'package:sqflite/sqflite.dart';
 // import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -15,27 +18,35 @@ import 'package:sqflite/sqflite.dart';
 import 'package:universal_platform/universal_platform.dart';
 import 'package:feedback/feedback.dart' as feedback;
 import 'package:provider/provider.dart';
+import 'auto_close_screen.dart';
+import 'drift/database.dart';
+import 'drift/connection/connection.dart';
+import 'isar/user.dart';
 import 'user_feedback_dialog.dart';
 import 'package:dio/dio.dart';
 import 'package:sentry_dio/sentry_dio.dart';
 import 'package:sentry_logging/sentry_logging.dart';
+import 'package:sentry_hive/sentry_hive.dart';
 
 // ATTENTION: Change the DSN below with your own to see the events in Sentry. Get one at sentry.io
 const String exampleDsn =
     'https://e85b375ffb9f43cf8bdf9787768149e0@o447951.ingest.sentry.io/5428562';
 
+/// This is an exampleUrl that will be used to demonstrate how http requests are captured.
+const String exampleUrl = 'https://jsonplaceholder.typicode.com/todos/';
+
 const _channel = MethodChannel('example.flutter.sentry.io');
 var _isIntegrationTest = false;
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {
   await setupSentry(
       () => runApp(
-            SentryScreenshotWidget(
-              child: SentryUserInteractionWidget(
-                child: DefaultAssetBundle(
-                  bundle: SentryAssetBundle(),
-                  child: const MyApp(),
-                ),
+            SentryWidget(
+              child: DefaultAssetBundle(
+                bundle: SentryAssetBundle(),
+                child: const MyApp(),
               ),
             ),
           ),
@@ -48,6 +59,7 @@ Future<void> setupSentry(AppRunner appRunner, String dsn,
   await SentryFlutter.init((options) {
     options.dsn = exampleDsn;
     options.tracesSampleRate = 1.0;
+    options.profilesSampleRate = 1.0;
     options.reportPackages = false;
     options.addInAppInclude('sentry_flutter_example');
     options.considerInAppFramesByDefault = false;
@@ -93,6 +105,7 @@ class _MyAppState extends State<MyApp> {
         create: (_) => ThemeProvider(),
         child: Builder(
           builder: (context) => MaterialApp(
+            navigatorKey: navigatorKey,
             navigatorObservers: [
               SentryNavigatorObserver(),
             ],
@@ -102,6 +115,30 @@ class _MyAppState extends State<MyApp> {
         ),
       ),
     );
+  }
+}
+
+class TooltipButton extends StatelessWidget {
+  final String text;
+  final String buttonTitle;
+  final void Function()? onPressed;
+
+  const TooltipButton(
+      {required this.onPressed,
+      required this.buttonTitle,
+      required this.text,
+      Key? key})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+        message: text,
+        child: ElevatedButton(
+          onPressed: onPressed,
+          key: key,
+          child: Text(buttonTitle),
+        ));
   }
 }
 
@@ -147,67 +184,121 @@ class MainScaffold extends StatelessWidget {
         child: Column(
           children: [
             if (_isIntegrationTest) const IntegrationTestWidget(),
-            const Center(child: Text('Trigger an action:\n')),
-            ElevatedButton(
-              onPressed: () => sqfliteTest(),
-              child: const Text('sqflite'),
+            const Center(child: Text('Trigger an action.\n')),
+            const Padding(
+              padding: EdgeInsets.all(15), //apply padding to all four sides
+              child: Center(
+                  child: Text(
+                      'Long press a button to see more information. (hover on web)')),
             ),
-            ElevatedButton(
-              onPressed: () => SecondaryScaffold.openSecondaryScaffold(context),
-              child: const Text('Open another Scaffold'),
+            TooltipButton(
+              onPressed: () => navigateToAutoCloseScreen(context),
+              text:
+                  'Pushes a screen and creates a transaction named \'AutoCloseScreen\' with a child span that finishes after 3 seconds. \nAfter the screen has popped the transaction can then be seen on the performance page.',
+              buttonTitle: 'Route Navigation Observer',
             ),
-            ElevatedButton(
-              onPressed: () => tryCatch(),
-              key: const Key('dart_try_catch'),
-              child: const Text('Dart: try catch'),
-            ),
-            ElevatedButton(
-              onPressed: () => Scaffold.of(context).showBottomSheet<dynamic>(
-                (context) => const Text('Scaffold error'),
+            if (!UniversalPlatform.isWeb)
+              TooltipButton(
+                onPressed: driftTest,
+                text:
+                    'Executes CRUD operations on an in-memory with Drift and sends the created transaction to Sentry.',
+                buttonTitle: 'drift',
               ),
-              child: const Text('Flutter error : Scaffold.of()'),
+            if (!UniversalPlatform.isWeb)
+              TooltipButton(
+                onPressed: hiveTest,
+                text:
+                    'Executes CRUD operations on an in-memory with Hive and sends the created transaction to Sentry.',
+                buttonTitle: 'hive',
+              ),
+            if (!UniversalPlatform.isWeb)
+              TooltipButton(
+                onPressed: isarTest,
+                text:
+                    'Executes CRUD operations on an in-memory with Isart and sends the created transaction to Sentry.',
+                buttonTitle: 'isar',
+              ),
+            TooltipButton(
+              onPressed: sqfliteTest,
+              text:
+                  'Executes CRUD operations on an in-memory with Hive and sends the created transaction to Sentry.',
+              buttonTitle: 'sqflite',
             ),
-            ElevatedButton(
+            TooltipButton(
+              onPressed: () => SecondaryScaffold.openSecondaryScaffold(context),
+              text:
+                  'Demonstrates how the router integration adds a navigation event to the breadcrumbs that can be seen when throwing an exception for example.',
+              buttonTitle: 'Open another Scaffold',
+            ),
+            const TooltipButton(
+              onPressed: tryCatch,
+              key: Key('dart_try_catch'),
+              text: 'Creates a caught exception and sends it to Sentry.',
+              buttonTitle: 'Dart: try catch',
+            ),
+            TooltipButton(
+              onPressed: () => Scaffold.of(context)
+                  .showBottomSheet((context) => const Text('Scaffold error')),
+              text:
+                  'Creates an uncaught exception and sends it to Sentry. This demonstrates how our flutter error integration catches unhandled exceptions.',
+              buttonTitle: 'Flutter error : Scaffold.of()',
+            ),
+            TooltipButton(
               // Warning : not captured if a debugger is attached
               // https://github.com/flutter/flutter/issues/48972
               onPressed: () => throw Exception('Throws onPressed'),
-              child: const Text('Dart: throw onPressed'),
+              text:
+                  'Creates an uncaught exception and sends it to Sentry. This demonstrates how our flutter error integration catches unhandled exceptions.',
+              buttonTitle: 'Dart: throw onPressed',
             ),
-            ElevatedButton(
+            TooltipButton(
+              // Warning : not captured if a debugger is attached
+              // https://github.com/flutter/flutter/issues/48972
               onPressed: () {
-                // Only relevant in debug builds
-                // Warning : not captured if a debugger is attached
-                // https://github.com/flutter/flutter/issues/48972
                 assert(false, 'assert failure');
               },
-              child: const Text('Dart: assert'),
+              text:
+                  'Creates an uncaught exception and sends it to Sentry. This demonstrates how our flutter error integration catches unhandled exceptions.',
+              buttonTitle: 'Dart: assert',
             ),
             // Calling the SDK with an appRunner will handle errors from Futures
             // in SDKs runZonedGuarded onError handler
-            ElevatedButton(
+            TooltipButton(
               onPressed: () async => asyncThrows(),
-              child: const Text('Dart: async throws'),
+              text:
+                  'Creates an async uncaught exception and sends it to Sentry. This demonstrates how our flutter error integration catches unhandled exceptions.',
+              buttonTitle: 'Dart: async throws',
             ),
-            ElevatedButton(
+            TooltipButton(
               onPressed: () async => {
                 await Future.microtask(
                   () => throw StateError('Failure in a microtask'),
                 )
               },
-              child: const Text('Dart: Fail in microtask.'),
+              text:
+                  'Creates an uncaught exception in a microtask and sends it to Sentry. This demonstrates how our flutter error integration catches unhandled exceptions.',
+              buttonTitle: 'Dart: Fail in microtask',
             ),
-            ElevatedButton(
-              onPressed: () async => {await compute(loop, 10)},
-              child: const Text('Dart: Fail in compute'),
+            TooltipButton(
+              onPressed: () async => {
+                await compute(loop, 10),
+              },
+              text:
+                  'Creates an uncaught exception in a compute isolate and sends it to Sentry. This demonstrates how our flutter error integration catches unhandled exceptions.',
+              buttonTitle: 'Dart: Fail in compute',
             ),
-            ElevatedButton(
-              onPressed: () => Future.delayed(
-                const Duration(milliseconds: 100),
-                () => throw Exception('Throws in Future.delayed'),
-              ),
-              child: const Text('Throws in Future.delayed'),
+            TooltipButton(
+              onPressed: () async => {
+                await Future.delayed(
+                  const Duration(milliseconds: 100),
+                  () => throw StateError('Failure in a Future.delayed'),
+                ),
+              },
+              text:
+                  'Creates an uncaught exception in a Future.delayed and sends it to Sentry. This demonstrates how our flutter error integration catches unhandled exceptions.',
+              buttonTitle: 'Throws in Future.delayed',
             ),
-            ElevatedButton(
+            TooltipButton(
               onPressed: () {
                 // modeled after a real exception
                 FlutterError.onError?.call(FlutterErrorDetails(
@@ -225,9 +316,11 @@ class MainScaffold extends StatelessWidget {
                   ],
                 ));
               },
-              child: const Text('Capture from FlutterError.onError'),
+              text:
+                  'Creates a FlutterError and passes it to FlutterError.onError callback. This demonstrates how our flutter error integration catches unhandled exceptions.',
+              buttonTitle: 'Capture from FlutterError.onError',
             ),
-            ElevatedButton(
+            TooltipButton(
               onPressed: () {
                 // Only usable on Flutter >= 3.3
                 // and needs the following additional setup:
@@ -239,41 +332,41 @@ class MainScaffold extends StatelessWidget {
                       StackTrace.current,
                     );
               },
-              child: const Text('Capture from PlatformDispatcher.onError'),
+              text:
+                  'This is only usable on Flutter >= 3.3 and requires additional setup: options.addIntegration(OnErrorIntegration());',
+              buttonTitle: 'Capture from PlatformDispatcher.onError',
             ),
-            ElevatedButton(
-              key: const Key('view hierarchy'),
-              onPressed: () => {},
-              child: const Visibility(
-                visible: true,
-                child: Opacity(
-                  opacity: 0.5,
-                  child: Text('view hierarchy'),
-                ),
-              ),
-            ),
-            ElevatedButton(
+            TooltipButton(
               onPressed: () => makeWebRequest(context),
-              child: const Text('Dart: Web request'),
+              text:
+                  'Attaches web request related spans to the transaction and send it to Sentry.',
+              buttonTitle: 'Dart: Web request',
             ),
-            ElevatedButton(
-              onPressed: () => showDialogWithTextAndImage(context),
-              child: const Text('Flutter: Load assets'),
-            ),
-            ElevatedButton(
+            TooltipButton(
+              onPressed: () => makeWebRequestWithDio(context),
               key: const Key('dio_web_request'),
-              onPressed: () async => await makeWebRequestWithDio(context),
-              child: const Text('Dio: Web request'),
+              text:
+                  'Attaches web request related spans to the transaction and send it to Sentry.',
+              buttonTitle: 'Dio: Web request',
             ),
-            ElevatedButton(
+
+            TooltipButton(
+              onPressed: () => showDialogWithTextAndImage(context),
+              text:
+                  'Attaches asset bundle related spans to the transaction and send it to Sentry.',
+              buttonTitle: 'Flutter: Load assets',
+            ),
+            TooltipButton(
               onPressed: () {
                 // ignore: avoid_print
                 print('A print breadcrumb');
                 Sentry.captureMessage('A message with a print() Breadcrumb');
               },
-              child: const Text('Record print() as breadcrumb'),
+              text:
+                  'Sends a captureMessage to Sentry with a breadcrumb created by a print() statement.',
+              buttonTitle: 'Record print() as breadcrumb',
             ),
-            ElevatedButton(
+            TooltipButton(
               onPressed: () {
                 Sentry.captureMessage(
                   'This event has an extra tag',
@@ -282,10 +375,11 @@ class MainScaffold extends StatelessWidget {
                   },
                 );
               },
-              child:
-                  const Text('Capture message with scope with additional tag'),
+              text:
+                  'Sends the capture message event with additional Tag to Sentry.',
+              buttonTitle: 'Capture message with scope with additional tag',
             ),
-            ElevatedButton(
+            TooltipButton(
               onPressed: () async {
                 final transaction = Sentry.getSpan() ??
                     Sentry.startTransaction(
@@ -327,12 +421,14 @@ class MainScaffold extends StatelessWidget {
                     status: const SpanStatus.internalError());
 
                 await Future.delayed(const Duration(milliseconds: 50));
-
+                // findPrimeNumber(1000000); // Uncomment to see it with profiling
                 await transaction.finish(status: const SpanStatus.ok());
               },
-              child: const Text('Capture transaction'),
+              text:
+                  'Creates a custom transaction, adds child spans and send them to Sentry.',
+              buttonTitle: 'Capture transaction',
             ),
-            ElevatedButton(
+            TooltipButton(
               onPressed: () {
                 Sentry.captureMessage(
                   'This message has an attachment',
@@ -348,9 +444,10 @@ class MainScaffold extends StatelessWidget {
                   },
                 );
               },
-              child: const Text('Capture message with attachment'),
+              text: 'Sends the capture message with an attachment to Sentry.',
+              buttonTitle: 'Capture message with attachment',
             ),
-            ElevatedButton(
+            TooltipButton(
               onPressed: () {
                 feedback.BetterFeedback.of(context)
                     .show((feedback.UserFeedback feedback) {
@@ -374,9 +471,11 @@ class MainScaffold extends StatelessWidget {
                   );
                 });
               },
-              child: const Text('Capture message with image attachment'),
+              text:
+                  'Sends the capture message with an image attachment to Sentry.',
+              buttonTitle: 'Capture message with image attachment',
             ),
-            ElevatedButton(
+            TooltipButton(
               onPressed: () async {
                 final id = await Sentry.captureMessage('UserFeedback');
                 // ignore: use_build_context_synchronously
@@ -392,9 +491,11 @@ class MainScaffold extends StatelessWidget {
                   },
                 );
               },
-              child: const Text('Capture User Feedback'),
+              text:
+                  'Shows a custom user feedback dialog without an ongoing event that captures and sends user feedback data to Sentry.',
+              buttonTitle: 'Capture User Feedback',
             ),
-            ElevatedButton(
+            TooltipButton(
               onPressed: () async {
                 await showDialog(
                   context: context,
@@ -403,22 +504,86 @@ class MainScaffold extends StatelessWidget {
                   },
                 );
               },
-              child: const Text('Show UserFeedback Dialog without event'),
+              text: '',
+              buttonTitle: 'Show UserFeedback Dialog without event',
             ),
-            ElevatedButton(
+            TooltipButton(
               onPressed: () {
                 final log = Logger('Logging');
                 log.info('My Logging test');
               },
-              child: const Text('Logging'),
+              text:
+                  'Demonstrates the logging integration. log.info() will create an info event send it to Sentry.',
+              buttonTitle: 'Logging',
             ),
             if (UniversalPlatform.isIOS || UniversalPlatform.isMacOS)
               const CocoaExample(),
             if (UniversalPlatform.isAndroid) const AndroidExample(),
-          ],
+          ].map((widget) {
+            if (kIsWeb) {
+              // Add vertical padding to web so the tooltip doesn't obstruct the clicking of the button below.
+              return Padding(
+                padding: const EdgeInsets.only(top: 18.0, bottom: 18.0),
+                child: widget,
+              );
+            }
+            return widget;
+          }).toList(),
         ),
       ),
     );
+  }
+
+  Future<void> isarTest() async {
+    final tr = Sentry.startTransaction(
+      'isarTest',
+      'db',
+      bindToScope: true,
+    );
+
+    final dir = await getApplicationDocumentsDirectory();
+
+    final isar = await SentryIsar.open(
+      [UserSchema],
+      directory: dir.path,
+    );
+
+    final newUser = User()
+      ..name = 'Joe Dirt'
+      ..age = 36;
+
+    await isar.writeTxn(() async {
+      await isar.users.put(newUser); // insert & update
+    });
+
+    final existingUser = await isar.users.get(newUser.id); // get
+
+    await isar.writeTxn(() async {
+      await isar.users.delete(existingUser!.id); // delete
+    });
+
+    await tr.finish(status: const SpanStatus.ok());
+  }
+
+  Future<void> hiveTest() async {
+    final tr = Sentry.startTransaction(
+      'hiveTest',
+      'db',
+      bindToScope: true,
+    );
+
+    final appDir = await getApplicationDocumentsDirectory();
+    SentryHive.init(appDir.path);
+
+    final catsBox = await SentryHive.openBox<Map>('cats');
+    await catsBox.put('fluffy', {'name': 'Fluffy', 'age': 4});
+    await catsBox.put('loki', {'name': 'Loki', 'age': 2});
+    await catsBox.clear();
+    await catsBox.close();
+
+    SentryHive.close();
+
+    await tr.finish(status: const SpanStatus.ok());
   }
 
   Future<void> sqfliteTest() async {
@@ -461,6 +626,34 @@ class MainScaffold extends StatelessWidget {
     // final batch = db.batch();
     // batch.delete('Product', where: 'title = ?', whereArgs: dbTitles);
     // await batch.commit();
+
+    await db.close();
+
+    await tr.finish(status: const SpanStatus.ok());
+  }
+
+  Future<void> driftTest() async {
+    final tr = Sentry.startTransaction(
+      'driftTest',
+      'db',
+      bindToScope: true,
+    );
+
+    final executor = SentryQueryExecutor(
+      () async => inMemoryExecutor(),
+      databaseName: 'sentry_in_memory_db',
+    );
+
+    final db = AppDatabase(executor);
+
+    await db.into(db.todoItems).insert(
+          TodoItemsCompanion.insert(
+            title: 'This is a test thing',
+            content: 'test',
+          ),
+        );
+
+    await db.select(db.todoItems).get();
 
     await db.close();
 
@@ -524,6 +717,16 @@ class AndroidExample extends StatelessWidget {
       ),
     ]);
   }
+}
+
+void navigateToAutoCloseScreen(BuildContext context) {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      settings: const RouteSettings(name: 'AutoCloseScreen'),
+      builder: (context) => const AutoCloseScreen(),
+    ),
+  );
 }
 
 Future<void> tryCatch() async {
@@ -699,7 +902,7 @@ Future<void> makeWebRequest(BuildContext context) async {
   );
   // We don't do any exception handling here.
   // In case of an exception, let it get caught and reported to Sentry
-  final response = await client.get(Uri.parse('https://flutter.dev/'));
+  final response = await client.get(Uri.parse(exampleUrl));
 
   await transaction.finish(status: const SpanStatus.ok());
 
@@ -711,10 +914,6 @@ Future<void> makeWebRequest(BuildContext context) async {
   // ignore: use_build_context_synchronously
   await showDialog<void>(
     context: context,
-    // gets tracked if using SentryNavigatorObserver
-    routeSettings: const RouteSettings(
-      name: 'flutter.dev dialog',
-    ),
     builder: (context) {
       return AlertDialog(
         title: Text('Response ${response.statusCode}'),
@@ -748,7 +947,7 @@ Future<void> makeWebRequestWithDio(BuildContext context) async {
   );
   Response<String>? response;
   try {
-    response = await dio.get<String>('https://flutter.dev/');
+    response = await dio.get<String>(exampleUrl);
     span.status = const SpanStatus.ok();
   } catch (exception, stackTrace) {
     span.throwable = exception;
@@ -766,10 +965,6 @@ Future<void> makeWebRequestWithDio(BuildContext context) async {
   // ignore: use_build_context_synchronously
   await showDialog<void>(
     context: context,
-    // gets tracked if using SentryNavigatorObserver
-    routeSettings: const RouteSettings(
-      name: 'flutter.dev dialog',
-    ),
     builder: (context) {
       return AlertDialog(
         title: Text('Response ${response?.statusCode}'),
@@ -854,4 +1049,27 @@ class ThemeProvider extends ChangeNotifier {
 
 Future<void> execute(String method) async {
   await _channel.invokeMethod(method);
+}
+
+// Don't inline this one or it shows up as an anonymous closure in profiles.
+@pragma("vm:never-inline")
+int findPrimeNumber(int n) {
+  int count = 0;
+  int a = 2;
+  while (count < n) {
+    int b = 2;
+    bool prime = true; // to check if found a prime
+    while (b * b <= a) {
+      if (a % b == 0) {
+        prime = false;
+        break;
+      }
+      b++;
+    }
+    if (prime) {
+      count++;
+    }
+    a++;
+  }
+  return a - 1;
 }

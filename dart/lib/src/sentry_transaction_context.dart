@@ -15,21 +15,16 @@ class SentryTransactionContext extends SentrySpanContext {
   SentryTransactionContext(
     this.name,
     String operation, {
-    String? description,
+    super.description,
     this.parentSamplingDecision,
-    SentryId? traceId,
-    SpanId? spanId,
-    SpanId? parentSpanId,
+    super.traceId,
+    super.spanId,
+    super.parentSpanId,
     this.transactionNameSource,
     this.samplingDecision,
-    String? origin,
+    super.origin,
   }) : super(
           operation: operation,
-          description: description,
-          traceId: traceId,
-          spanId: spanId,
-          parentSpanId: parentSpanId,
-          origin: origin,
         );
 
   factory SentryTransactionContext.fromSentryTrace(

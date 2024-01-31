@@ -1,8 +1,11 @@
 import 'dart:async';
 import 'dart:collection';
 
+import 'package:meta/meta.dart';
+
 import 'event_processor.dart';
 import 'hint.dart';
+import 'propagation_context.dart';
 import 'protocol.dart';
 import 'scope_observer.dart';
 import 'sentry_attachment/sentry_attachment.dart';
@@ -38,6 +41,9 @@ class Scope {
 
   /// Returns active transaction or null if there is no active transaction.
   ISentrySpan? span;
+
+  @internal
+  PropagationContext propagationContext = PropagationContext();
 
   SentryUser? _user;
 
@@ -136,6 +142,7 @@ class Scope {
       List.unmodifiable(_eventProcessors);
 
   final SentryOptions _options;
+  bool _enableScopeSync = true;
 
   final List<SentryAttachment> _attachments = [];
 
@@ -171,7 +178,7 @@ class Scope {
           exception: exception,
           stackTrace: stackTrace,
         );
-        if (_options.devMode) {
+        if (_options.automatedTestMode) {
           rethrow;
         }
       }
@@ -311,10 +318,15 @@ class Scope {
     });
 
     final newSpan = span;
-    if (event.contexts.trace == null && newSpan != null) {
-      event.contexts.trace = newSpan.context.toTraceContext(
-        sampled: newSpan.samplingDecision?.sampled,
-      );
+    if (event.contexts.trace == null) {
+      if (newSpan != null) {
+        event.contexts.trace = newSpan.context.toTraceContext(
+          sampled: newSpan.samplingDecision?.sampled,
+        );
+      } else {
+        event.contexts.trace =
+            SentryTraceContext.fromPropagationContext(propagationContext);
+      }
     }
 
     SentryEvent? processedEvent = event;
@@ -333,7 +345,7 @@ class Scope {
           exception: exception,
           stackTrace: stackTrace,
         );
-        if (_options.devMode) {
+        if (_options.automatedTestMode) {
           rethrow;
         }
       }
@@ -412,7 +424,8 @@ class Scope {
       ..level = level
       ..fingerprint = List.from(fingerprint)
       .._transaction = _transaction
-      ..span = span;
+      ..span = span
+      .._enableScopeSync = false;
 
     clone._setUserSync(user);
 
@@ -450,7 +463,7 @@ class Scope {
   }
 
   Future<void> _callScopeObservers(_OnScopeObserver action) async {
-    if (_options.enableScopeSync) {
+    if (_options.enableScopeSync && _enableScopeSync) {
       for (final scopeObserver in _options.scopeObservers) {
         await action(scopeObserver);
       }

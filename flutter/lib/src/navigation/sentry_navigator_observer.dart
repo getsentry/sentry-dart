@@ -1,8 +1,9 @@
 import 'package:flutter/widgets.dart';
+import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
-import '../sentry_native.dart';
-import '../sentry_native_channel.dart';
+import '../event_processor/flutter_enricher_event_processor.dart';
+import '../native/sentry_native.dart';
 
 /// This key must be used so that the web interface displays the events nicely
 /// See https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/
@@ -22,6 +23,9 @@ typedef AdditionalInfoExtractor = Map<String, dynamic>? Function(
 /// For example, if the application starts, there is no previous route.
 /// The [RouteSettings] is null if a developer has not specified any
 /// RouteSettings.
+///
+/// The current route name will also be set to [SentryEvent]
+/// `contexts.app.view_names` by [FlutterEnricherEventProcessor].
 ///
 /// [SentryNavigatorObserver] must be added to the [navigation observer](https://api.flutter.dev/flutter/material/MaterialApp/navigatorObservers.html) of
 /// your used app. This is an example for [MaterialApp](https://api.flutter.dev/flutter/material/MaterialApp/navigatorObservers.html),
@@ -68,7 +72,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
         _setRouteNameAsTransaction = setRouteNameAsTransaction,
         _routeNameExtractor = routeNameExtractor,
         _additionalInfoProvider = additionalInfoProvider,
-        _native = SentryNative() {
+        _native = SentryFlutter.native {
     if (enableAutoTransactions) {
       // ignore: invalid_use_of_internal_member
       _hub.options.sdk.addIntegration('UINavigationTracing');
@@ -81,15 +85,21 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   final bool _setRouteNameAsTransaction;
   final RouteNameExtractor? _routeNameExtractor;
   final AdditionalInfoExtractor? _additionalInfoProvider;
-  final SentryNative _native;
+  final SentryNative? _native;
 
   ISentrySpan? _transaction;
+
+  static String? _currentRouteName;
+
+  @internal
+  static String? get currentRouteName => _currentRouteName;
 
   @override
   void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
     super.didPush(route, previousRoute);
 
-    _setCurrentRoute(route);
+    _setCurrentRouteName(route);
+    _setCurrentRouteNameAsTransaction(route);
 
     _addBreadcrumb(
       type: 'didPush',
@@ -105,7 +115,9 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   void didReplace({Route<dynamic>? newRoute, Route<dynamic>? oldRoute}) {
     super.didReplace(newRoute: newRoute, oldRoute: oldRoute);
 
-    _setCurrentRoute(newRoute);
+    _setCurrentRouteName(newRoute);
+    _setCurrentRouteNameAsTransaction(newRoute);
+
     _addBreadcrumb(
       type: 'didReplace',
       from: oldRoute?.settings,
@@ -117,7 +129,9 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
     super.didPop(route, previousRoute);
 
-    _setCurrentRoute(previousRoute);
+    _setCurrentRouteName(previousRoute);
+    _setCurrentRouteNameAsTransaction(previousRoute);
+
     _addBreadcrumb(
       type: 'didPop',
       from: route.settings,
@@ -148,7 +162,11 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
         ?.name;
   }
 
-  Future<void> _setCurrentRoute(Route<dynamic>? route) async {
+  Future<void> _setCurrentRouteName(Route<dynamic>? route) async {
+    _currentRouteName = _getRouteName(route);
+  }
+
+  Future<void> _setCurrentRouteNameAsTransaction(Route<dynamic>? route) async {
     final name = _getRouteName(route);
     if (name == null) {
       return;
@@ -190,7 +208,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       trimEnd: true,
       onFinish: (transaction) async {
         final nativeFrames = await _native
-            .endNativeFramesCollection(transaction.context.traceId);
+            ?.endNativeFramesCollection(transaction.context.traceId);
         if (nativeFrames != null) {
           final measurements = nativeFrames.toMeasurements();
           for (final item in measurements.entries) {
@@ -219,7 +237,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       scope.span ??= _transaction;
     });
 
-    await _native.beginNativeFramesCollection();
+    await _native?.beginNativeFramesCollection();
   }
 
   Future<void> _finishTransaction() async {
@@ -265,14 +283,12 @@ class RouteObserverBreadcrumb extends Breadcrumb {
     dynamic fromArgs,
     String? to,
     dynamic toArgs,
-    SentryLevel? level,
-    DateTime? timestamp,
+    super.level,
+    super.timestamp,
     Map<String, dynamic>? data,
   }) : super(
             category: _navigationKey,
             type: _navigationKey,
-            level: level,
-            timestamp: timestamp,
             data: <String, dynamic>{
               'state': navigationType,
               if (from != null) 'from': from,

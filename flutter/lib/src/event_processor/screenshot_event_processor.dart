@@ -8,6 +8,7 @@ import '../screenshot/sentry_screenshot_widget.dart';
 import '../sentry_flutter_options.dart';
 import 'package:flutter/rendering.dart';
 import '../renderer/renderer.dart';
+import 'package:flutter/widgets.dart' as widget;
 
 class ScreenshotEventProcessor implements EventProcessor {
   final SentryFlutterOptions _options;
@@ -29,12 +30,49 @@ class ScreenshotEventProcessor implements EventProcessor {
         _hasSentryScreenshotWidget) {
       return event;
     }
+    final beforeScreenshot = _options.beforeScreenshot;
+    if (beforeScreenshot != null) {
+      try {
+        final result = beforeScreenshot(event, hint: hint);
+        bool takeScreenshot;
+        if (result is Future<bool>) {
+          takeScreenshot = await result;
+        } else {
+          takeScreenshot = result;
+        }
+        if (!takeScreenshot) {
+          return event;
+        }
+      } catch (exception, stackTrace) {
+        _options.logger(
+          SentryLevel.error,
+          'The beforeScreenshot callback threw an exception',
+          exception: exception,
+          stackTrace: stackTrace,
+        );
+        // ignore: invalid_use_of_internal_member
+        if (_options.automatedTestMode) {
+          rethrow;
+        }
+      }
+    }
 
     final renderer = _options.rendererWrapper.getRenderer();
-    if (renderer != FlutterRenderer.skia &&
+
+    if (_options.platformChecker.isWeb &&
         renderer != FlutterRenderer.canvasKit) {
+      _options.logger(
+        SentryLevel.debug,
+        'Cannot take screenshot with ${renderer?.name} renderer.',
+      );
+      return event;
+    }
+
+    if (_options.attachScreenshotOnlyWhenResumed &&
+        widget.WidgetsBinding.instance.lifecycleState !=
+            AppLifecycleState.resumed) {
       _options.logger(SentryLevel.debug,
-          'Cannot take screenshot with ${_options.rendererWrapper.getRenderer().name} renderer.');
+          'Only attaching screenshots when application state is resumed.');
       return event;
     }
 

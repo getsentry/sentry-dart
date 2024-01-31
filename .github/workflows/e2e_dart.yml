@@ -5,12 +5,12 @@ on:
       - main
       - release/**
   pull_request:
-    paths-ignore:
-      - 'logging/**'
-      - 'dio/**'
-      - 'flutter/**'
-      - 'file/**'
-      - 'sqflite/**'
+    paths:
+      - "!**/*.md"
+      - "!**/class-diagram.svg"
+      - ".github/workflows/e2e_dart.yml"
+      - "dart/**"
+      - "e2e_test/**"
 
 env:
   SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
@@ -21,13 +21,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Cancel Previous Runs
-        uses: styfle/cancel-workflow-action@b173b6ec0100793626c2d9e6b90435061f4fc3e5 # pin@0.11.0
+        uses: styfle/cancel-workflow-action@85880fa0301c86cca9da44039ee3bb12d3bedbfa # pin@0.12.1
         with:
           access_token: ${{ github.token }}
 
   build:
     name: E2E
-    runs-on: 'ubuntu-latest'
+    runs-on: "ubuntu-latest"
     timeout-minutes: 30
     defaults:
       run:
@@ -37,10 +37,10 @@ jobs:
       matrix:
         sdk: [stable, beta]
     steps:
-      - uses: dart-lang/setup-dart@6a218f2413a3e78e9087f638a238f6b40893203d # pin@v1
+      - uses: dart-lang/setup-dart@ca7e6fee45ffbd82b555a7ebfc236d2c86439f5b # pin@v1
         with:
           sdk: ${{ matrix.sdk }}
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Run
         if: env.SENTRY_AUTH_TOKEN != null
         run: |

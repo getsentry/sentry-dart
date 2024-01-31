@@ -131,6 +131,9 @@ class MockHub with NoSuchMethodProvider implements Hub {
   void setSpanContext(throwable, ISentrySpan span, String transaction) {
     spanContextCals++;
   }
+
+  @override
+  Scope get scope => Scope(_options);
 }
 
 class CaptureEventCall {

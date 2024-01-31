@@ -40,7 +40,7 @@ import 'sentry_attachment/sentry_attachment.dart';
 /// };
 /// ```
 class Hint {
-  final Map<String, Object> _internalStorage = {};
+  final Map<String, dynamic> _internalStorage = {};
 
   final List<SentryAttachment> attachments = [];
 
@@ -62,7 +62,7 @@ class Hint {
     return hint;
   }
 
-  factory Hint.withMap(Map<String, Object> map) {
+  factory Hint.withMap(Map<String, dynamic> map) {
     final hint = Hint();
     hint.addAll(map);
     return hint;
@@ -80,17 +80,19 @@ class Hint {
     return hint;
   }
 
-  // Objects
+  // Key/Value Storage
 
-  void addAll(Map<String, Object> keysAndValues) {
-    _internalStorage.addAll(keysAndValues);
+  void addAll(Map<String, dynamic> keysAndValues) {
+    final withoutNullValues =
+        keysAndValues.map((key, value) => MapEntry(key, value ?? "null"));
+    _internalStorage.addAll(withoutNullValues);
   }
 
-  void set(String key, Object value) {
-    _internalStorage[key] = value;
+  void set(String key, dynamic value) {
+    _internalStorage[key] = value ?? "null";
   }
 
-  Object? get(String key) {
+  dynamic get(String key) {
     return _internalStorage[key];
   }
 

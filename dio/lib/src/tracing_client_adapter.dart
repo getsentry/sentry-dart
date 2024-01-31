@@ -46,24 +46,43 @@ class TracingClientAdapter implements HttpClientAdapter {
       span = null;
     }
 
-    span?.setData('http.method', options.method);
+    span?.setData('http.request.method', options.method);
     urlDetails?.applyToSpan(span);
 
     ResponseBody? response;
     try {
-      if (span != null) {
-        if (containsTargetOrMatchesRegExp(
-          // ignore: invalid_use_of_internal_member
-          _hub.options.tracePropagationTargets,
-          options.uri.toString(),
-        )) {
-          addSentryTraceHeader(span, options.headers);
-          addBaggageHeader(
+      if (containsTargetOrMatchesRegExp(
+        // ignore: invalid_use_of_internal_member
+        _hub.options.tracePropagationTargets,
+        options.uri.toString(),
+      )) {
+        if (span != null) {
+          addSentryTraceHeaderFromSpan(span, options.headers);
+          addBaggageHeaderFromSpan(
             span,
             options.headers,
             // ignore: invalid_use_of_internal_member
             logger: _hub.options.logger,
           );
+        } else {
+          // ignore: invalid_use_of_internal_member
+          final scope = _hub.scope;
+          // ignore: invalid_use_of_internal_member
+          final propagationContext = scope.propagationContext;
+
+          final traceHeader = propagationContext.toSentryTrace();
+          addSentryTraceHeader(traceHeader, options.headers);
+
+          final baggage = propagationContext.baggage;
+          if (baggage != null) {
+            final baggageHeader = SentryBaggageHeader.fromBaggage(baggage);
+            addBaggageHeader(
+              baggageHeader,
+              options.headers,
+              // ignore: invalid_use_of_internal_member
+              logger: _hub.options.logger,
+            );
+          }
         }
       }
 

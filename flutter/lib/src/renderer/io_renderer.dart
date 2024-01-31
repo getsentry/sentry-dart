@@ -1,5 +1,3 @@
 import 'renderer.dart';
 
-FlutterRenderer getRenderer() {
-  return FlutterRenderer.skia;
-}
+FlutterRenderer? getRenderer() => null;
