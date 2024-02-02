@@ -1,3 +1,4 @@
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
@@ -86,6 +87,9 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   final RouteNameExtractor? _routeNameExtractor;
   final AdditionalInfoExtractor? _additionalInfoProvider;
   final SentryNative? _native;
+  static ISentrySpan? _transaction2;
+
+  static ISentrySpan? get transaction2 => _transaction2;
 
   ISentrySpan? _transaction;
 
@@ -93,6 +97,8 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
 
   @internal
   static String? get currentRouteName => _currentRouteName;
+  static var startTime = DateTime.now();
+  static ISentrySpan? ttidSpan;
 
   @override
   void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
@@ -108,7 +114,36 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     );
 
     _finishTransaction();
+
+    var routeName = route.settings.name ?? 'Unknown';
+
     _startTransaction(route);
+
+    // Start timing
+    DateTime? approximationEndTimestamp;
+    int? approximationDurationMillis;
+
+    SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
+      approximationEndTimestamp = DateTime.now();
+      approximationDurationMillis =
+          approximationEndTimestamp!.millisecond - startTime.millisecond;
+    });
+
+    SentryDisplayTracker().startTimeout(routeName, () {
+      _transaction2?.setMeasurement(
+          'time_to_initial_display', approximationDurationMillis!,
+          unit: DurationSentryMeasurementUnit.milliSecond);
+      ttidSpan?.setTag('measurement', 'approximation');
+      ttidSpan?.finish(endTimestamp: approximationEndTimestamp!);
+    });
+  }
+
+  void freezeUIForSeconds(int seconds) {
+    var sw = Stopwatch()..start();
+    while (sw.elapsed.inSeconds < seconds) {
+      // This loop will block the UI thread.
+    }
+    sw.stop();
   }
 
   @override
@@ -193,16 +228,26 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     if (name == '/') {
       name = 'root ("/")';
     }
-    final transactionContext = SentryTransactionContext(
+    // final transactionContext = SentryTransactionContext(
+    //   name,
+    //   'navigation',
+    //   transactionNameSource: SentryTransactionNameSource.component,
+    //   // ignore: invalid_use_of_internal_member
+    //   origin: SentryTraceOrigins.autoNavigationRouteObserver,
+    // );
+
+    final transactionContext2 = SentryTransactionContext(
       name,
-      'navigation',
+      'ui.load',
       transactionNameSource: SentryTransactionNameSource.component,
       // ignore: invalid_use_of_internal_member
       origin: SentryTraceOrigins.autoNavigationRouteObserver,
     );
 
-    _transaction = _hub.startTransactionWithContext(
-      transactionContext,
+    // IMPORTANT -> we need to wait for ttid/ttfd children to finish AND wait [autoFinishAfter] afterwards so the user can add additional spans
+    // right now it auto finishes when ttid/ttfd finishes but that doesn't allow the user to add spans within the idle timeout
+    _transaction2 = _hub.startTransactionWithContext(
+      transactionContext2,
       waitForChildren: true,
       autoFinishAfter: _autoFinishAfter,
       trimEnd: true,
@@ -225,24 +270,33 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
 
     // if _enableAutoTransactions is enabled but there's no traces sample rate
     if (_transaction is NoOpSentrySpan) {
-      _transaction = null;
+      _transaction2 = null;
       return;
     }
 
+    startTime = DateTime.now();
+    ttidSpan = _transaction2?.startChild('ui.load.initial_display');
+    ttidSpan?.origin = 'auto.ui.time_to_display';
+    ttidSpan?.setData('test', 'cachea');
+
+    // Needs to finish after 30 seconds
+    // If not then it will finish with status deadline exceeded
+    // final ttfdSpan = _transaction2?.startChild('ui.load.full_display');
+
     if (arguments != null) {
-      _transaction?.setData('route_settings_arguments', arguments);
+      _transaction2?.setData('route_settings_arguments', arguments);
     }
 
     await _hub.configureScope((scope) {
-      scope.span ??= _transaction;
+      scope.span ??= _transaction2;
     });
 
     await _native?.beginNativeFramesCollection();
   }
 
-  Future<void> _finishTransaction() async {
-    _transaction?.status ??= SpanStatus.ok();
-    await _transaction?.finish();
+  Future<void> _finishTransaction({DateTime? endTimestamp}) async {
+    _transaction2?.status ??= SpanStatus.ok();
+    await _transaction2?.finish(endTimestamp: endTimestamp);
   }
 }
 

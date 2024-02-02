@@ -229,13 +229,21 @@ mixin SentryFlutter {
     options.sdk = sdk;
   }
 
-  static void reportInitialDisplay() {
-    print('reported accurate TTID!');
+  static void reportInitialDisplay(BuildContext context) {
+    final routeName = ModalRoute.of(context)?.settings.name ?? 'Unknown';
+    final endTime = DateTime.now();
+    if (!SentryDisplayTracker().reportManual(routeName)) {
+      SentryNavigatorObserver.transaction2?.setMeasurement(
+          'time_to_initial_display',
+          endTime.millisecond - SentryNavigatorObserver.startTime.millisecond,
+          unit: DurationSentryMeasurementUnit.milliSecond);
+
+      SentryNavigatorObserver.ttidSpan?.setTag('measurement', 'manual');
+      SentryNavigatorObserver.ttidSpan?.finish(endTimestamp: endTime);
+    }
   }
 
-  static void reportFullDisplay() {
-
-  }
+  static void reportFullDisplay() {}
 
   @internal
   static SentryNative? get native => _native;
