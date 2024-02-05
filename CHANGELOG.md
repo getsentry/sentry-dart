@@ -20,7 +20,7 @@
 
 ### Features
 
-- Add support for exception aggregates ([#xxxx](https://github.com/getsentry/sentry-dart/pull/xxxx))
+- Add support for exception aggregates ([#1866](https://github.com/getsentry/sentry-dart/pull/1866))
  
 ## 7.16.0
 
