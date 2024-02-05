@@ -127,25 +127,48 @@ void main() {
       );
     });
 
-    test('captured span do not add headers if NoOp', () async {
-      final sut = fixture.getSut(
-        client: fixture.getClient(statusCode: 200, reason: 'OK'),
-      );
-      await fixture._hub
-          .configureScope((scope) => scope.span = NoOpSentrySpan());
-
-      final response = await sut.get<dynamic>(requestOptions);
-
-      expect(response.headers['baggage'], null);
-      expect(response.headers['sentry-trace'], null);
-    });
-
     test('do not throw if no span bound to the scope', () async {
       final sut = fixture.getSut(
         client: fixture.getClient(statusCode: 200, reason: 'OK'),
       );
 
       await sut.get<dynamic>(requestOptions);
+    });
+
+    test('set headers from propagationContext when tracing is disabled',
+        () async {
+      fixture._options.enableTracing = false;
+      final sut = fixture.getSut(
+        client: fixture.getClient(statusCode: 200, reason: 'OK'),
+      );
+
+      final propagationContext = fixture._hub.scope.propagationContext;
+      propagationContext.baggage = SentryBaggage({'foo': 'bar'});
+
+      final response = await sut.get<dynamic>(requestOptions);
+
+      expect(
+        response.headers['sentry-trace'],
+        [propagationContext.toSentryTrace().value],
+      );
+      expect(response.headers['baggage'], ['foo=bar']);
+    });
+
+    test('set headers from propagationContext when no transaction', () async {
+      final sut = fixture.getSut(
+        client: fixture.getClient(statusCode: 200, reason: 'OK'),
+      );
+
+      final propagationContext = fixture._hub.scope.propagationContext;
+      propagationContext.baggage = SentryBaggage({'foo': 'bar'});
+
+      final response = await sut.get<dynamic>(requestOptions);
+
+      expect(
+        response.headers['sentry-trace'],
+        [propagationContext.toSentryTrace().value],
+      );
+      expect(response.headers['baggage'], ['foo=bar']);
     });
   });
 }

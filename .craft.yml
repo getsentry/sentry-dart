@@ -13,6 +13,7 @@ targets:
       sqflite:
       hive:
       drift:
+      isar:
   - name: github
   - name: registry
     sdks:
