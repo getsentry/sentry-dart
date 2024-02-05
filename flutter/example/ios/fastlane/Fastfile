@@ -70,6 +70,7 @@ platform :ios do
 
     testflight(
       skip_waiting_for_build_processing: true,
+      ipa: "./build/sentry_flutter_sample.ipa"
     )
 
     sentry_upload_dif(
