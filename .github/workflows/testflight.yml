@@ -1,6 +1,7 @@
 name: Upload to Testflight
 on:
   workflow_dispatch:
+  pull_request: #TODO: Remove before merging
 
 jobs:
   upload_to_testflight:
