@@ -29,12 +29,29 @@ platform :ios do
       app_identifier: ["io.sentry.flutter.sample"]
     )
 
+    update_project_provisioning(
+      xcodeproj: "Runner.xcodeproj",
+      target_filter: "Runner",
+      profile: ENV["sigh_io.sentry.flutter.sample_appstore_profile-path"],
+      build_configuration: "Release"
+    )
+
     build_app(
       workspace: "Runner.xcworkspace",
       scheme: "Runner",
+      configuration: "Release",
+      clean: true,
       include_symbols: true,
       export_method: "app-store",
-      archive_path: "sentry-flutter-example"
+      output_directory:"./build/",
+      export_options: {
+        method: "app-store",
+        provisioningProfiles: {
+          "io.sentry.flutter.sample" => ENV["sigh_io.sentry.flutter.sample_appstore_profile-name"]
+        }
+      },
+      codesigning_identity: ENV["sigh_io.sentry.flutter.sample_appstore_certificate-name"],
+      output_name: "sentry_flutter_sample.ipa"
     )
 
     delete_keychain(
