@@ -15,6 +15,14 @@ platform :ios do
 
     setup_ci
 
+    disable_automatic_code_signing
+
+    sync_code_signing(
+      type: "development",
+      readonly: true,
+      app_identifier: ["io.sentry.flutter.sample"]
+    )
+
     sync_code_signing(
       type: "appstore",
       readonly: true,
