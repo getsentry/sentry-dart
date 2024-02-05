@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Remove dead code, cold start bool is now always present ([#1861](https://github.com/getsentry/sentry-dart/pull/1861))
+
 ## 7.16.0
 
 ### Features
