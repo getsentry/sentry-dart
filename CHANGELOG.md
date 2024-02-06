@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixes 
+
+- Remove Flutter dependency from Drift integration ([#1867](https://github.com/getsentry/sentry-dart/pull/1867))
+
 ### Dependencies
 
 - Bump Cocoa SDK from v8.19.0 to v8.20.0 ([#1856](https://github.com/getsentry/sentry-dart/pull/1856))
