@@ -18,6 +18,16 @@
 - Set ip_address to {{auto}} by default, even if sendDefaultPII is disabled ([#1665](https://github.com/getsentry/sentry-dart/pull/1665))
   - Instead use the "Prevent Storing of IP Addresses" option in the "Security & Privacy" project settings on sentry.io
  
+### Fixes 
+
+- Remove dead code, cold start bool is now always present ([#1861](https://github.com/getsentry/sentry-dart/pull/1861))
+
+### Dependencies 
+
+- Bump Cocoa SDK from v8.19.0 to v8.20.0 ([#1856](https://github.com/getsentry/sentry-dart/pull/1856))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8200)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.19.0...8.20.0)
+
 ## 7.16.0
 
 ### Features
@@ -77,16 +87,6 @@
 
 - Add option to opt out of fatal level for automatically collected errors ([#1738](https://github.com/getsentry/sentry-dart/pull/1738))
 - Add `Hive` breadcrumbs ([#1773](https://github.com/getsentry/sentry-dart/pull/1773))
-
-### Dependencies
-
-- Remove dead code, cold start bool is now always present ([#1861](https://github.com/getsentry/sentry-dart/pull/1861))
-
-### Dependencies
-
-- Bump Cocoa SDK from v8.19.0 to v8.20.0 ([#1856](https://github.com/getsentry/sentry-dart/pull/1856))
-  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8200)
-  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.19.0...8.20.0)
 
 ## 7.16.0
 
