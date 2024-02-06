@@ -235,25 +235,20 @@ mixin SentryFlutter {
     if (!SentryDisplayTracker().reportManual(routeName)) {
       SentryNavigatorObserver.transaction2?.setMeasurement(
           'time_to_initial_display',
-          endTime.millisecond - SentryNavigatorObserver.startTime.millisecond,
+          endTime.millisecondsSinceEpoch - SentryNavigatorObserver.startTime.millisecondsSinceEpoch,
           unit: DurationSentryMeasurementUnit.milliSecond);
-
-      SentryNavigatorObserver.ttidSpan?.setTag('measurement', 'manual');
       SentryNavigatorObserver.ttidSpan?.finish(endTimestamp: endTime);
     }
   }
 
   /// Reports the time it took for the screen to be fully displayed.
   static void reportFullDisplay() {
-    if (SentryNavigatorObserver.ttfdStopwatch?.elapsedMilliseconds != null) {
-      SentryNavigatorObserver.ttfdStopwatch?.stop();
-      SentryNavigatorObserver.ttfdSpan?.setMeasurement(
-          'time_to_full_display',
-          SentryNavigatorObserver.ttfdStopwatch!.elapsedMilliseconds,
-          unit: DurationSentryMeasurementUnit.milliSecond);
-      SentryNavigatorObserver.ttfdStopwatch?.reset();
-    }
-    SentryNavigatorObserver.ttfdSpan?.finish();
+    final endTime = DateTime.now();
+    SentryNavigatorObserver.ttfdSpan?.setMeasurement(
+        'time_to_full_display',
+        endTime.millisecondsSinceEpoch - SentryNavigatorObserver.ttfdStartTime.millisecondsSinceEpoch,
+        unit: DurationSentryMeasurementUnit.milliSecond);
+    SentryNavigatorObserver.ttfdSpan?.finish(endTimestamp: endTime);
   }
 
   @internal

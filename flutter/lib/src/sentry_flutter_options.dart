@@ -223,7 +223,7 @@ class SentryFlutterOptions extends SentryOptions {
   /// Read timeout. This will only be synced to the Android native SDK.
   Duration readTimeout = Duration(seconds: 5);
 
-  /// Enable or disable the tracing of time to full display.
+  /// Enable or disable the tracing of time to full display (TTFD).
   /// This feature requires using the [Routing Instrumentation](https://docs.sentry.io/platforms/flutter/integrations/routing-instrumentation/).
   bool enableTimeToFullDisplayTracing = false;
 

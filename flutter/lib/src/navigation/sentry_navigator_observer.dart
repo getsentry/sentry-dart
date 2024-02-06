@@ -127,7 +127,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
       approximationEndTimestamp = DateTime.now();
       approximationDurationMillis =
-          approximationEndTimestamp!.millisecond - startTime.millisecond;
+          approximationEndTimestamp!.millisecondsSinceEpoch - startTime.millisecondsSinceEpoch;
     });
 
     SentryDisplayTracker().startTimeout(routeName ?? 'Unknown', () {
@@ -139,6 +139,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
           'time_to_initial_display', approximationDurationMillis!,
           unit: DurationSentryMeasurementUnit.milliSecond);
       ttidSpan?.finish(endTimestamp: approximationEndTimestamp!);
+      print('finished already');
     });
   }
 
@@ -276,17 +277,29 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       return;
     }
 
-    startTime = DateTime.now();
-    ttidSpan = _transaction2?.startChild('ui.load.initial_display', description: '$name initial display');
-    ttidSpan?.origin = 'auto.ui.time_to_display';
+    if (name == 'root ("/")') {
+      // root ttid spans have to align with app start
+      // so the ttid instrumentation needs to be different here.
+      startTime = DateTime.now();
+      ttidSpan = _transaction2?.startChild('ui.load.initial_display', description: '$name initial display', startTimestamp: startTime);
+      ttidSpan?.origin = 'auto.ui.time_to_display';
+    } else {
+      startTime = DateTime.now();
+      ttidSpan = _transaction2?.startChild('ui.load.initial_display', description: '$name initial display', startTimestamp: startTime);
+      ttidSpan?.origin = 'auto.ui.time_to_display';
+    }
 
     // TODO: Needs to finish max within 30 seconds
     // If timeout exceeds then it will finish with status deadline exceeded
     // What to do if root also has TTFD but it's not finished yet and we start navigating to another?
     // How to track the time that 30 sec have passed?
+    //
+    // temporarily disable ttfd for root since it somehow swallows other spans
+    // e.g the complex operation span in autoclosescreen
     if ((_hub.options as SentryFlutterOptions).enableTimeToFullDisplayTracing && name != 'root ("/")') {
       ttfdStopwatch = Stopwatch()..start();
-      ttfdSpan = _transaction2?.startChild('ui.load.full_display', description: '$name full display');
+      ttfdStartTime = DateTime.now();
+      ttfdSpan = _transaction2?.startChild('ui.load.full_display', description: '$name full display', startTimestamp: ttfdStartTime);
     }
 
     if (arguments != null) {
