@@ -223,6 +223,10 @@ class SentryFlutterOptions extends SentryOptions {
   /// Read timeout. This will only be synced to the Android native SDK.
   Duration readTimeout = Duration(seconds: 5);
 
+  /// Enable or disable the tracing of time to full display.
+  /// This feature requires using the [Routing Instrumentation](https://docs.sentry.io/platforms/flutter/integrations/routing-instrumentation/).
+  bool enableTimeToFullDisplayTracing = false;
+
   /// By using this, you are disabling native [Breadcrumb] tracking and instead
   /// you are just tracking [Breadcrumb]s which result from events available
   /// in the current Flutter environment.

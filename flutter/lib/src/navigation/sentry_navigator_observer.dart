@@ -99,6 +99,9 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   static String? get currentRouteName => _currentRouteName;
   static var startTime = DateTime.now();
   static ISentrySpan? ttidSpan;
+  static ISentrySpan? ttfdSpan;
+  static var ttfdStartTime = DateTime.now();
+  static Stopwatch? ttfdStopwatch;
 
   @override
   void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
@@ -114,14 +117,12 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     );
 
     _finishTransaction();
-
-    var routeName = route.settings.name ?? 'Unknown';
-
     _startTransaction(route);
 
     // Start timing
     DateTime? approximationEndTimestamp;
     int? approximationDurationMillis;
+    final routeName = _getRouteName(route);
 
     SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
       approximationEndTimestamp = DateTime.now();
@@ -129,11 +130,14 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
           approximationEndTimestamp!.millisecond - startTime.millisecond;
     });
 
-    SentryDisplayTracker().startTimeout(routeName, () {
+    SentryDisplayTracker().startTimeout(routeName ?? 'Unknown', () {
+      if (routeName == '/') {
+        // TODO: Does TTID have to be completely in line with app start?
+        // If yes, how do we access the appstart metrics
+      }
       _transaction2?.setMeasurement(
           'time_to_initial_display', approximationDurationMillis!,
           unit: DurationSentryMeasurementUnit.milliSecond);
-      ttidSpan?.setTag('measurement', 'approximation');
       ttidSpan?.finish(endTimestamp: approximationEndTimestamp!);
     });
   }
@@ -244,8 +248,6 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       origin: SentryTraceOrigins.autoNavigationRouteObserver,
     );
 
-    // IMPORTANT -> we need to wait for ttid/ttfd children to finish AND wait [autoFinishAfter] afterwards so the user can add additional spans
-    // right now it auto finishes when ttid/ttfd finishes but that doesn't allow the user to add spans within the idle timeout
     _transaction2 = _hub.startTransactionWithContext(
       transactionContext2,
       waitForChildren: true,
@@ -275,13 +277,17 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     }
 
     startTime = DateTime.now();
-    ttidSpan = _transaction2?.startChild('ui.load.initial_display');
+    ttidSpan = _transaction2?.startChild('ui.load.initial_display', description: '$name initial display');
     ttidSpan?.origin = 'auto.ui.time_to_display';
-    ttidSpan?.setData('test', 'cachea');
 
-    // Needs to finish after 30 seconds
-    // If not then it will finish with status deadline exceeded
-    // final ttfdSpan = _transaction2?.startChild('ui.load.full_display');
+    // TODO: Needs to finish max within 30 seconds
+    // If timeout exceeds then it will finish with status deadline exceeded
+    // What to do if root also has TTFD but it's not finished yet and we start navigating to another?
+    // How to track the time that 30 sec have passed?
+    if ((_hub.options as SentryFlutterOptions).enableTimeToFullDisplayTracing && name != 'root ("/")') {
+      ttfdStopwatch = Stopwatch()..start();
+      ttfdSpan = _transaction2?.startChild('ui.load.full_display', description: '$name full display');
+    }
 
     if (arguments != null) {
       _transaction2?.setData('route_settings_arguments', arguments);

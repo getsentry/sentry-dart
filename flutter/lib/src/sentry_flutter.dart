@@ -243,7 +243,18 @@ mixin SentryFlutter {
     }
   }
 
-  static void reportFullDisplay() {}
+  /// Reports the time it took for the screen to be fully displayed.
+  static void reportFullDisplay() {
+    if (SentryNavigatorObserver.ttfdStopwatch?.elapsedMilliseconds != null) {
+      SentryNavigatorObserver.ttfdStopwatch?.stop();
+      SentryNavigatorObserver.ttfdSpan?.setMeasurement(
+          'time_to_full_display',
+          SentryNavigatorObserver.ttfdStopwatch!.elapsedMilliseconds,
+          unit: DurationSentryMeasurementUnit.milliSecond);
+      SentryNavigatorObserver.ttfdStopwatch?.reset();
+    }
+    SentryNavigatorObserver.ttfdSpan?.finish();
+  }
 
   @internal
   static SentryNative? get native => _native;
