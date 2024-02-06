@@ -2,12 +2,23 @@
 
 ## Unreleased
 
+### Fixes
+
+- Remove dead code, cold start bool is now always present ([#1861](https://github.com/getsentry/sentry-dart/pull/1861))
+
+### Dependencies
+
+- Bump Cocoa SDK from v8.19.0 to v8.20.0 ([#1856](https://github.com/getsentry/sentry-dart/pull/1856))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8200)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.19.0...8.20.0)
+
+## 7.16.0
+
 ### Features
 
 - Add `SentryWidget` ([#1846](https://github.com/getsentry/sentry-dart/pull/1846))
   - Prefer to use `SentryWidget` now instead of `SentryScreenshotWidget` and `SentryUserInteractionWidget` directly
-- APM for isar ([#1726](https://github.com/getsentry/sentry-dart/pull/1726))
-- Performance monitoring support for isar ([#1726](https://github.com/getsentry/sentry-dart/pull/1726))
+- Performance monitoring support for Isar ([#1726](https://github.com/getsentry/sentry-dart/pull/1726))
 - Tracing without performance for Dio integration ([#1837](https://github.com/getsentry/sentry-dart/pull/1837))
 - Accept `Map<String, dynamic>` in `Hint` class ([#1807](https://github.com/getsentry/sentry-dart/pull/1807))
   - Please check if everything works as expected when using `Hint`
@@ -15,6 +26,15 @@
     - Method `hint.addAll(Map<String, dynamic> keysAndValues)` now takes `Map<String, dynamic>` instead of `Map<String, Object>`
     - Method `set(String key, dynamic value)` now takes value of `dynamic` instead of `Object`
     - Method `hint.get(String key)` now returns `dynamic` instead of `Object?`
+   
+### Dependencies
+
+- Bump Cocoa SDK from v8.18.0 to v8.19.0 ([#1803](https://github.com/getsentry/sentry-dart/pull/1844))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8190)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.18.0...8.19.0)
+- Bump Android SDK from v7.2.0 to v7.3.0 ([#1852](https://github.com/getsentry/sentry-dart/pull/1852))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#730)
+  - [diff](https://github.com/getsentry/sentry-java/compare/7.2.0...7.3.0)
 
 ## 7.15.0
 
@@ -31,9 +51,9 @@
   
 ### Dependencies
 
-- Bump Android SDK from v7.0.0 to v7.1.0 ([#1788](https://github.com/getsentry/sentry-dart/pull/1788))
-  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#710)
-  - [diff](https://github.com/getsentry/sentry-java/compare/7.0.0...7.1.0)
+- Bump Android SDK from v7.0.0 to v7.2.0 ([#1788](https://github.com/getsentry/sentry-dart/pull/1788), [#1815](https://github.com/getsentry/sentry-dart/pull/1815))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#720)
+  - [diff](https://github.com/getsentry/sentry-java/compare/7.0.0...7.2.0)
 - Bump Cocoa SDK from v8.17.2 to v8.18.0 ([#1803](https://github.com/getsentry/sentry-dart/pull/1803))
   - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8180)
   - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.17.2...8.18.0)
