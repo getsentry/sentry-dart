@@ -81,6 +81,15 @@ class SentryOptions {
     _maxSpans = maxSpans;
   }
 
+  int _maxQueueSize = 30;
+
+  int get maxQueueSize => _maxQueueSize;
+
+  set maxQueueSize(int count) {
+    assert(count > 0);
+    _maxQueueSize = count;
+  }
+
   /// Configures up to which size request bodies should be included in events.
   /// This does not change whether an event is captured.
   MaxRequestBodySize maxRequestBodySize = MaxRequestBodySize.never;
