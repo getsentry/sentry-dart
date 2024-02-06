@@ -131,3 +131,7 @@ private fun <T> Map<String, Any>.getIfNotNull(
   key: String,
   callback: (T) -> Unit,
 ) {
+  (get(key) as? T)?.let {
+    callback(it)
+  }
+}
