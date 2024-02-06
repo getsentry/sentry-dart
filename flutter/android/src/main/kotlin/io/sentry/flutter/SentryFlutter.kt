@@ -16,8 +16,11 @@ class SentryFlutter(
     options: SentryAndroidOptions,
     data: Map<String, Any>,
   ) {
+  private val nativeSdk: String
+) {
     data.getIfNotNull<String>("dsn") {
-      options.dsn = it
+        options.dsn = it
+      }
     }
     data.getIfNotNull<Boolean>("debug") {
       options.isDebug = it
@@ -128,7 +131,3 @@ private fun <T> Map<String, Any>.getIfNotNull(
   key: String,
   callback: (T) -> Unit,
 ) {
-  (get(key) as? T)?.let {
-    callback(it)
-  }
-}

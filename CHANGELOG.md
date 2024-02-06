@@ -80,6 +80,76 @@
 
 ### Dependencies
 
+- Remove dead code, cold start bool is now always present ([#1861](https://github.com/getsentry/sentry-dart/pull/1861))
+
+### Dependencies
+
+- Bump Cocoa SDK from v8.19.0 to v8.20.0 ([#1856](https://github.com/getsentry/sentry-dart/pull/1856))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8200)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.19.0...8.20.0)
+
+## 7.16.0
+
+### Features
+
+- Add `SentryWidget` ([#1846](https://github.com/getsentry/sentry-dart/pull/1846))
+  - Prefer to use `SentryWidget` now instead of `SentryScreenshotWidget` and `SentryUserInteractionWidget` directly
+- Performance monitoring support for Isar ([#1726](https://github.com/getsentry/sentry-dart/pull/1726))
+- Tracing without performance for Dio integration ([#1837](https://github.com/getsentry/sentry-dart/pull/1837))
+- Accept `Map<String, dynamic>` in `Hint` class ([#1807](https://github.com/getsentry/sentry-dart/pull/1807))
+  - Please check if everything works as expected when using `Hint`
+    - Factory constructor `Hint.withMap(Map<String, dynamic> map)` now takes `Map<String, dynamic>` instead of `Map<String, Object>`
+    - Method `hint.addAll(Map<String, dynamic> keysAndValues)` now takes `Map<String, dynamic>` instead of `Map<String, Object>`
+    - Method `set(String key, dynamic value)` now takes value of `dynamic` instead of `Object`
+    - Method `hint.get(String key)` now returns `dynamic` instead of `Object?`
+   
+### Dependencies
+
+- Bump Cocoa SDK from v8.18.0 to v8.19.0 ([#1803](https://github.com/getsentry/sentry-dart/pull/1844))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8190)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.18.0...8.19.0)
+- Bump Android SDK from v7.2.0 to v7.3.0 ([#1852](https://github.com/getsentry/sentry-dart/pull/1852))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#730)
+  - [diff](https://github.com/getsentry/sentry-java/compare/7.2.0...7.3.0)
+
+## 7.15.0
+
+### Features
+
+- Add [Spotlight](https://spotlightjs.com/about/) support ([#1786](https://github.com/getsentry/sentry-dart/pull/1786))
+  - Set `options.spotlight = Spotlight(enabled: true)` to enable Spotlight
+- Add `ConnectivityIntegration` for web ([#1765](https://github.com/getsentry/sentry-dart/pull/1765))
+  - We only get the info if online/offline on web platform. The added breadcrumb is set to either `wifi` or `none`.
+- Add isar breadcrumbs ([#1800](https://github.com/getsentry/sentry-dart/pull/1800))
+- Starting with Flutter 3.16, Sentry adds the [`appFlavor`](https://api.flutter.dev/flutter/services/appFlavor-constant.html) to the `flutter_context` ([#1799](https://github.com/getsentry/sentry-dart/pull/1799))
+- Add beforeScreenshotCallback to SentryFlutterOptions ([#1805](https://github.com/getsentry/sentry-dart/pull/1805))
+- Add support for `readTransaction` in `sqflite` ([#1819](https://github.com/getsentry/sentry-dart/pull/1819))
+  
+### Dependencies
+
+- Bump Android SDK from v7.0.0 to v7.2.0 ([#1788](https://github.com/getsentry/sentry-dart/pull/1788), [#1815](https://github.com/getsentry/sentry-dart/pull/1815))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#720)
+  - [diff](https://github.com/getsentry/sentry-java/compare/7.0.0...7.2.0)
+- Bump Cocoa SDK from v8.17.2 to v8.18.0 ([#1803](https://github.com/getsentry/sentry-dart/pull/1803))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8180)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.17.2...8.18.0)
+
+## 7.14.0
+
+- Add option to opt out of fatal level for automatically collected errors ([#1738](https://github.com/getsentry/sentry-dart/pull/1738))
+
+### Fixes
+
+- Add debug_meta to all events ([#1756](https://github.com/getsentry/sentry-dart/pull/1756))
+  - Fixes obfuscated stacktraces when `captureMessage` or `captureEvent` is called with `attachStacktrace` option 
+
+### Features
+
+- Add option to opt out of fatal level for automatically collected errors ([#1738](https://github.com/getsentry/sentry-dart/pull/1738))
+- Add `Hive` breadcrumbs ([#1773](https://github.com/getsentry/sentry-dart/pull/1773))
+
+### Dependencies
+
 - Bump Android SDK from v6.34.0 to v7.0.0 ([#1768](https://github.com/getsentry/sentry-dart/pull/1768))
   - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#700)
   - [diff](https://github.com/getsentry/sentry-java/compare/6.34.0...7.0.0)
