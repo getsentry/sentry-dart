@@ -35,7 +35,7 @@ jobs:
           FASTLANE_BUILD_NUMBER: ${{ github.run_number }}
         run: bundle exec fastlane bump_build_number
 
-      - name: Build & Upload with Fastlane
+      - name: Build & Upload App to TestFlight
         working-directory: ./flutter/example/ios
         env:
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
@@ -50,3 +50,9 @@ jobs:
         run: |
           bundle exec fastlane build_release
           bundle exec fastlane upload_testflight
+
+      - name: Upload Symbols to Sentry
+        working-directory: ./flutter/example
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+        run: flutter packages pub run sentry_dart_plugin
