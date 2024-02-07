@@ -134,9 +134,6 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     if (appStartTime == null) {
       Log.w("Sentry", "App start won't be sent due to missing appStartTime")
       result.success(null)
-    } else if (isColdStart == null) {
-      Log.w("Sentry", "App start won't be sent due to missing isColdStart")
-      result.success(null)
     } else {
       val appStartTimeMillis = DateUtils.nanosToMillis(appStartTime.nanoTimestamp().toDouble())
       val item = mapOf<String, Any?>(
