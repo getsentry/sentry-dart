@@ -4,6 +4,7 @@
 
 ### Fixes
 
+- Remove Flutter dependency from Drift integration ([#1867](https://github.com/getsentry/sentry-dart/pull/1867))
 - Remove dead code, cold start bool is now always present ([#1861](https://github.com/getsentry/sentry-dart/pull/1861))
 
 ### Dependencies
