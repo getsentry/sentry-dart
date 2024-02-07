@@ -30,7 +30,7 @@ Future<void> runApp() async {
 
   await db.into(db.todoItems).insert(
         TodoItemsCompanion.insert(
-          title: 'This is a test thing',
+          title: 'This is a test item',
           content: 'test',
         ),
       );
