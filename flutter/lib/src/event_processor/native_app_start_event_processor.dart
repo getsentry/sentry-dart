@@ -39,7 +39,7 @@ class NativeAppStartEventProcessor implements EventProcessor {
       if (measurement.value >= _maxAppStartMillis) {
         return event;
       }
-      print('hello app');
+
       event.measurements[measurement.name] = measurement;
     }
     return event;

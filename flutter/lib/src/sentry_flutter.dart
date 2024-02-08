@@ -244,6 +244,7 @@ mixin SentryFlutter {
   /// Reports the time it took for the screen to be fully displayed.
   static void reportFullDisplay() {
     final endTime = DateTime.now();
+    print('end of the road2');
     SentryNavigatorObserver.ttfdSpan?.setMeasurement(
         'time_to_full_display',
         endTime.millisecondsSinceEpoch - SentryNavigatorObserver.ttfdStartTime.millisecondsSinceEpoch,

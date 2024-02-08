@@ -4,6 +4,7 @@ import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
 import '../event_processor/flutter_enricher_event_processor.dart';
+import '../event_processor/native_app_start_event_processor.dart';
 import '../native/sentry_native.dart';
 
 /// This key must be used so that the web interface displays the events nicely
@@ -127,19 +128,21 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
       approximationEndTimestamp = DateTime.now();
       approximationDurationMillis =
-          approximationEndTimestamp!.millisecondsSinceEpoch - startTime.millisecondsSinceEpoch;
+          approximationEndTimestamp!.millisecondsSinceEpoch -
+              startTime.millisecondsSinceEpoch;
     });
 
     SentryDisplayTracker().startTimeout(routeName ?? 'Unknown', () {
       if (routeName == '/') {
         // TODO: Does TTID have to be completely in line with app start?
         // If yes, how do we access the appstart metrics
+      } else {
+        _transaction2?.setMeasurement(
+            'time_to_initial_display', approximationDurationMillis!,
+            unit: DurationSentryMeasurementUnit.milliSecond);
+        ttidSpan?.finish(endTimestamp: approximationEndTimestamp!);
+        print('finished already');
       }
-      _transaction2?.setMeasurement(
-          'time_to_initial_display', approximationDurationMillis!,
-          unit: DurationSentryMeasurementUnit.milliSecond);
-      ttidSpan?.finish(endTimestamp: approximationEndTimestamp!);
-      print('finished already');
     });
   }
 
@@ -249,27 +252,31 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       origin: SentryTraceOrigins.autoNavigationRouteObserver,
     );
 
-    _transaction2 = _hub.startTransactionWithContext(
-      transactionContext2,
-      waitForChildren: true,
-      autoFinishAfter: _autoFinishAfter,
-      trimEnd: true,
-      onFinish: (transaction) async {
-        final nativeFrames = await _native
-            ?.endNativeFramesCollection(transaction.context.traceId);
-        if (nativeFrames != null) {
-          final measurements = nativeFrames.toMeasurements();
-          for (final item in measurements.entries) {
-            final measurement = item.value;
-            transaction.setMeasurement(
-              item.key,
-              measurement.value,
-              unit: measurement.unit,
-            );
+    if (name == 'root ("/")') {
+
+    } else {
+      _transaction2 = _hub.startTransactionWithContext(
+        transactionContext2,
+        waitForChildren: true,
+        autoFinishAfter: _autoFinishAfter,
+        trimEnd: true,
+        onFinish: (transaction) async {
+          final nativeFrames = await _native
+              ?.endNativeFramesCollection(transaction.context.traceId);
+          if (nativeFrames != null) {
+            final measurements = nativeFrames.toMeasurements();
+            for (final item in measurements.entries) {
+              final measurement = item.value;
+              transaction.setMeasurement(
+                item.key,
+                measurement.value,
+                unit: measurement.unit,
+              );
+            }
           }
-        }
-      },
-    );
+        },
+      );
+    }
 
     // if _enableAutoTransactions is enabled but there's no traces sample rate
     if (_transaction is NoOpSentrySpan) {
@@ -280,12 +287,13 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     if (name == 'root ("/")') {
       // root ttid spans have to align with app start
       // so the ttid instrumentation needs to be different here.
-      startTime = DateTime.now();
-      ttidSpan = _transaction2?.startChild('ui.load.initial_display', description: '$name initial display', startTimestamp: startTime);
-      ttidSpan?.origin = 'auto.ui.time_to_display';
+      // startTime = DateTime.now();
+      // ttidSpan = _transaction2?.startChild('ui.load.initial_display', description: '$name initial display', startTimestamp: startTime);
+      // ttidSpan?.origin = 'auto.ui.time_to_display';
     } else {
       startTime = DateTime.now();
-      ttidSpan = _transaction2?.startChild('ui.load.initial_display', description: '$name initial display', startTimestamp: startTime);
+      ttidSpan = _transaction2?.startChild('ui.load.initial_display',
+          description: '$name initial display', startTimestamp: startTime);
       ttidSpan?.origin = 'auto.ui.time_to_display';
     }
 
@@ -296,10 +304,11 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     //
     // temporarily disable ttfd for root since it somehow swallows other spans
     // e.g the complex operation span in autoclosescreen
-    if ((_hub.options as SentryFlutterOptions).enableTimeToFullDisplayTracing && name != 'root ("/")') {
-      ttfdStopwatch = Stopwatch()..start();
+    if ((_hub.options as SentryFlutterOptions).enableTimeToFullDisplayTracing &&
+        name != 'root ("/")') {
       ttfdStartTime = DateTime.now();
-      ttfdSpan = _transaction2?.startChild('ui.load.full_display', description: '$name full display', startTimestamp: ttfdStartTime);
+      ttfdSpan = _transaction2?.startChild('ui.load.full_display',
+          description: '$name full display', startTimestamp: ttfdStartTime);
     }
 
     if (arguments != null) {

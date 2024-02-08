@@ -72,6 +72,7 @@ Future<void> setupSentry(AppRunner appRunner, String dsn,
     options.screenshotQuality = SentryScreenshotQuality.low;
     options.attachViewHierarchy = true;
     options.enableTimeToFullDisplayTracing = true;
+    options.spotlight = Spotlight(enabled: true);
     // We can enable Sentry debug logging during development. This is likely
     // going to log too much for your app, but can be useful when figuring out
     // configuration issues, e.g. finding out why your events are not uploaded.
@@ -99,8 +100,10 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+
   @override
   Widget build(BuildContext context) {
+    SentryFlutter.reportFullDisplay();
     return feedback.BetterFeedback(
       child: ChangeNotifierProvider<ThemeProvider>(
         create: (_) => ThemeProvider(),
