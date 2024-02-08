@@ -95,9 +95,22 @@ class AndroidPlatformExceptionEventProcessor implements EventProcessor {
       jvmThreads.add(first);
     }
 
+    final eventExceptions = event.exceptions?.map((e) {
+      if (event.throwable is! PlatformException) {
+        return e;
+      }
+      return e.copyWith(
+        mechanism: Mechanism(
+          type: 'chained',
+          exceptionId: jvmExceptions.length,
+          parentId: 0,
+        ),
+      );
+    });
+
     return event.copyWith(
       exceptions: [
-        ...?event.exceptions,
+        ...?eventExceptions,
         ...jvmExceptions,
       ],
       threads: [
@@ -140,15 +153,18 @@ class _JvmExceptionFactory {
       ...?jvmException.suppressed,
     ];
 
-    return jvmExceptions.map((exception) {
-      return exception.toSentryException(nativePackageName);
+    return jvmExceptions.asMap().entries.map((indexedException) {
+      return indexedException.value
+          .toSentryException(nativePackageName, indexedException.key);
     }).toList(growable: false);
   }
 }
 
 extension on JvmException {
   MapEntry<SentryException, SentryThread> toSentryException(
-      String nativePackageName) {
+    String nativePackageName,
+    int index,
+  ) {
     String? exceptionType;
     String? module;
     final typeParts = type?.split('.');
@@ -169,6 +185,12 @@ extension on JvmException {
       module: module,
       stackTrace: SentryStackTrace(
         frames: stackFrames.reversed.toList(growable: false),
+      ),
+      mechanism: Mechanism(
+        type: index == 0 ? "sentry-flutter" : "chained",
+        exceptionId: index,
+        parentId: index == 0 ? null : index - 1,
+        isExceptionGroup: index == 0 ? true : null,
       ),
     );
 
