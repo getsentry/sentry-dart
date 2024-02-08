@@ -25,10 +25,10 @@ void main() {
     'meta': {'key': 'value'},
     'data': {'keyb': 'valueb'},
     'synthetic': true,
-    'isExceptionGroup': true,
-    'exceptionId': 0,
-    'parentId': 0,
+    'is_exception_group': false,
     'source': 'source',
+    'exception_id': 0,
+    'parent_id': 0,
   };
 
   group('json', () {
