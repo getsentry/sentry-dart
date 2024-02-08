@@ -41,7 +41,7 @@ jobs:
           - os: macos-latest
             sdk: beta
     steps:
-      - uses: dart-lang/setup-dart@ca7e6fee45ffbd82b555a7ebfc236d2c86439f5b # pin@v1
+      - uses: dart-lang/setup-dart@fedb1266e91cf51be2fdb382869461a434b920a3 # pin@v1
         with:
           sdk: ${{ matrix.sdk }}
       - uses: actions/checkout@v4
@@ -52,7 +52,7 @@ jobs:
           dart test -p vm --coverage=coverage --test-randomize-ordering-seed=random --chain-stack-traces
           dart pub run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.dart_tool/package_config.json --report-on=lib
 
-      - uses: codecov/codecov-action@4fe8c5f003fae66aa5ebb77cfd3e7bfbbda0b6b0 # pin@v3
+      - uses: codecov/codecov-action@e0b68c6749509c5f83f984dd99a76a1c1a231044 # pin@v3
         if: runner.os == 'Linux' && matrix.sdk == 'stable'
         with:
           name: sentry_file
