@@ -27,7 +27,7 @@ class AutoCloseScreenState extends State<AutoCloseScreen> {
         description: 'running a $delayInSeconds seconds operation');
     await Future.delayed(const Duration(seconds: delayInSeconds));
     await childSpan?.finish();
-    SentryFlutter.reportFullDisplay();
+    SentryFlutter.reportFullyDisplayed();
     // ignore: use_build_context_synchronously
     // Navigator.of(context).pop();
   }

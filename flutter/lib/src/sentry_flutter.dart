@@ -233,27 +233,35 @@ mixin SentryFlutter {
     final routeName = ModalRoute.of(context)?.settings.name ?? 'Unknown';
     final endTime = DateTime.now();
     if (!SentryDisplayTracker().reportManual(routeName)) {
-      SentryNavigatorObserver.transaction2?.setMeasurement(
-          'time_to_initial_display',
-          endTime.millisecondsSinceEpoch - SentryNavigatorObserver.startTime.millisecondsSinceEpoch,
+      final transaction = Sentry.getSpan();
+      final duration = endTime.millisecondsSinceEpoch -
+          SentryNavigatorObserver.startTime.millisecondsSinceEpoch;
+      transaction?.setMeasurement('time_to_initial_display', duration,
           unit: DurationSentryMeasurementUnit.milliSecond);
-      SentryNavigatorObserver.ttidSpan?.finish(endTimestamp: endTime);
+      if (routeName == '/') {
+        print('is root screen manual');
+      } else {
+        SentryNavigatorObserver.ttidSpanMap[routeName]?.finish(
+          endTimestamp: endTime,
+        );
+      }
     }
   }
 
   /// Reports the time it took for the screen to be fully displayed.
-  static void reportFullDisplay() {
+  static void reportFullyDisplayed() {
     final endTime = DateTime.now();
-    print('end of the road2');
     SentryNavigatorObserver.ttfdSpan?.setMeasurement(
         'time_to_full_display',
-        endTime.millisecondsSinceEpoch - SentryNavigatorObserver.ttfdStartTime.millisecondsSinceEpoch,
+        endTime.millisecondsSinceEpoch -
+            SentryNavigatorObserver.ttfdStartTime.millisecondsSinceEpoch,
         unit: DurationSentryMeasurementUnit.milliSecond);
     SentryNavigatorObserver.ttfdSpan?.finish(endTimestamp: endTime);
   }
 
   @internal
   static SentryNative? get native => _native;
+
   @internal
   static set native(SentryNative? value) => _native = value;
   static SentryNative? _native;

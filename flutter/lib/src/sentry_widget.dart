@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:meta/meta.dart';
 import '../sentry_flutter.dart';
 
 /// This widget serves as a wrapper to include Sentry widgets such
@@ -64,7 +65,7 @@ class SentryDisplayTracker {
 
   void startTimeout(String routeName, Function onTimeout) {
     _timers[routeName]?.cancel(); // Cancel any existing timer
-    _timers[routeName] = Timer(Duration(seconds: 2), () {
+    _timers[routeName] = Timer(Duration(seconds: 1), () {
       // Don't send if we already received a manual report or if we're on the root route e.g App start.
       if (!(_manualReportReceived[routeName] ?? false)) {
         onTimeout();
