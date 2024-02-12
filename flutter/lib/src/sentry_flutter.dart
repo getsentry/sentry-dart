@@ -231,32 +231,12 @@ mixin SentryFlutter {
 
   static void reportInitialDisplay(BuildContext context) {
     final routeName = ModalRoute.of(context)?.settings.name ?? 'Unknown';
-    final endTime = DateTime.now();
-    if (!SentryDisplayTracker().reportManual(routeName)) {
-      final transaction = Sentry.getSpan();
-      final duration = endTime.millisecondsSinceEpoch -
-          SentryNavigatorObserver.startTime.millisecondsSinceEpoch;
-      transaction?.setMeasurement('time_to_initial_display', duration,
-          unit: DurationSentryMeasurementUnit.milliSecond);
-      if (routeName == '/') {
-        print('is root screen manual');
-      } else {
-        SentryNavigatorObserver.ttidSpanMap[routeName]?.finish(
-          endTimestamp: endTime,
-        );
-      }
-    }
+    NavigationTimingManager2.reportInitiallyDisplayed(routeName);
   }
 
   /// Reports the time it took for the screen to be fully displayed.
   static void reportFullyDisplayed() {
-    final endTime = DateTime.now();
-    SentryNavigatorObserver.ttfdSpan?.setMeasurement(
-        'time_to_full_display',
-        endTime.millisecondsSinceEpoch -
-            SentryNavigatorObserver.ttfdStartTime.millisecondsSinceEpoch,
-        unit: DurationSentryMeasurementUnit.milliSecond);
-    SentryNavigatorObserver.ttfdSpan?.finish(endTimestamp: endTime);
+    NavigationTimingManager2.reportFullyDisplayed();
   }
 
   @internal

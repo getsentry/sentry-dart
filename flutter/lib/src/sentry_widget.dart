@@ -62,6 +62,7 @@ class SentryDisplayTracker {
 
   final Map<String, bool> _manualReportReceived = {};
   final Map<String, Timer> _timers = {};
+  final Map<String, Completer<StrategyDecision>> _completers = {}; // Track completers
 
   void startTimeout(String routeName, Function onTimeout) {
     _timers[routeName]?.cancel(); // Cancel any existing timer
@@ -73,10 +74,24 @@ class SentryDisplayTracker {
     });
   }
 
+  Future<StrategyDecision> decideStrategyWithTimeout(String routeName) {
+    var completer = Completer<StrategyDecision>();
+
+    _timers[routeName]?.cancel();
+    _timers[routeName] = Timer(Duration(seconds: 1), () {
+      if (_manualReportReceived[routeName] == true) {
+        completer.complete(StrategyDecision.manual);
+      } else {
+        completer.complete(StrategyDecision.approximation);
+      }
+    });
+
+    return completer.future;
+  }
+
   bool reportManual(String routeName) {
     var wasReportedAlready = _manualReportReceived[routeName] ?? false;
     _manualReportReceived[routeName] = true;
-    _timers[routeName]?.cancel();
     return wasReportedAlready;
   }
 
@@ -84,5 +99,12 @@ class SentryDisplayTracker {
     _manualReportReceived.remove(routeName);
     _timers[routeName]?.cancel();
     _timers.remove(routeName);
+    _completers.remove(routeName);
   }
+}
+
+enum StrategyDecision {
+  manual,
+  approximation,
+  undecided,
 }

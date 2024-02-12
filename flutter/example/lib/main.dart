@@ -71,12 +71,12 @@ Future<void> setupSentry(AppRunner appRunner, String dsn,
     options.attachScreenshot = true;
     options.screenshotQuality = SentryScreenshotQuality.low;
     options.attachViewHierarchy = true;
-    options.enableTimeToFullDisplayTracing = true;
+    options.enableTimeToFullDisplayTracing = false;
     options.spotlight = Spotlight(enabled: true);
     // We can enable Sentry debug logging during development. This is likely
     // going to log too much for your app, but can be useful when figuring out
     // configuration issues, e.g. finding out why your events are not uploaded.
-    options.debug = true;
+    options.debug = false;
 
     options.maxRequestBodySize = MaxRequestBodySize.always;
     options.maxResponseBodySize = MaxResponseBodySize.always;
@@ -847,7 +847,11 @@ int loop(int val) {
 }
 
 class SecondaryScaffold extends StatelessWidget {
-  const SecondaryScaffold({Key? key}) : super(key: key);
+  SecondaryScaffold({Key? key}) : super(key: key) {
+    Timer(const Duration(seconds: 1), () {
+      SentryFlutter.reportFullyDisplayed();
+    });
+  }
 
   static Future<void> openSecondaryScaffold(BuildContext context) {
     return Navigator.push(
@@ -856,7 +860,7 @@ class SecondaryScaffold extends StatelessWidget {
         settings:
             const RouteSettings(name: 'SecondaryScaffold', arguments: 'foobar'),
         builder: (context) {
-          return const SecondaryScaffold();
+          return SecondaryScaffold();
         },
       ),
     );
