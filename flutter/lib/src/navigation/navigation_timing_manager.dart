@@ -6,6 +6,7 @@ import 'package:meta/meta.dart';
 import '../../sentry_flutter.dart';
 import '../integrations/integrations.dart';
 import '../native/sentry_native.dart';
+import 'display_strategy_evaluator.dart';
 import 'navigation_transaction_manager.dart';
 
 @internal
@@ -96,14 +97,13 @@ class NavigationTimingManager {
     });
 
     final strategyDecision =
-        await SentryDisplayTracker().decideStrategyWithTimeout2(routeName);
+        await DisplayStrategyEvaluator().decideStrategy(routeName);
 
     if (strategyDecision == StrategyDecision.manual &&
         !endTimeCompleter.isCompleted) {
       approximationEndTime = DateTime.now();
       endTimeCompleter.complete(approximationEndTime);
     } else if (!endTimeCompleter.isCompleted) {
-      // If the decision is not manual and the completer hasn't been completed, await it.
       await endTimeCompleter.future;
     }
 
@@ -111,7 +111,7 @@ class NavigationTimingManager {
   }
 
   void reportInitiallyDisplayed(String routeName) {
-    SentryDisplayTracker().reportManual2(routeName);
+    DisplayStrategyEvaluator().reportManual(routeName);
   }
 
   void reportFullyDisplayed() {

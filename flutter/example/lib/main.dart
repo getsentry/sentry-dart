@@ -104,7 +104,6 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    // SentryFlutter.reportFullDisplay();
     return feedback.BetterFeedback(
       child: ChangeNotifierProvider<ThemeProvider>(
         create: (_) => ThemeProvider(),
@@ -849,7 +848,7 @@ int loop(int val) {
 
 class SecondaryScaffold extends StatelessWidget {
   SecondaryScaffold({Key? key}) : super(key: key) {
-    Timer(const Duration(seconds: 1), () {
+    Timer(const Duration(milliseconds: 500), () {
       SentryFlutter.reportFullyDisplayed();
     });
   }
