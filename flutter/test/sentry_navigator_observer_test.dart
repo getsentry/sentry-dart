@@ -261,7 +261,7 @@ void main() {
       final secondRoute = route(RouteSettings(name: 'Second Route'));
 
       final hub = _MockHub();
-      final span = getMockSentryTracer();
+      final span = getMockSentryTracer(finished: false);
       when(span.context).thenReturn(SentrySpanContext(operation: 'op'));
       when(span.status).thenReturn(null);
       _whenAnyStart(hub, span);
@@ -279,7 +279,7 @@ void main() {
       final currentRoute = route(RouteSettings(name: 'Current Route'));
 
       final hub = _MockHub();
-      final span = getMockSentryTracer();
+      final span = getMockSentryTracer(finished: false);
       when(span.context).thenReturn(SentrySpanContext(operation: 'op'));
       when(span.status).thenReturn(null);
       _whenAnyStart(hub, span);
@@ -833,9 +833,10 @@ class _MockHub extends MockHub {
   }
 }
 
-ISentrySpan getMockSentryTracer({String? name}) {
+ISentrySpan getMockSentryTracer({String? name, bool? finished}) {
   final tracer = MockSentryTracer();
   when(tracer.name).thenReturn(name ?? 'name');
+  when(tracer.finished).thenReturn(finished ?? true);
   return tracer;
 }
 
