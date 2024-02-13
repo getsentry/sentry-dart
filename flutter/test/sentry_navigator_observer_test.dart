@@ -293,6 +293,24 @@ void main() {
       verify(span.finish());
     });
 
+    test('multiple didPop only finish transaction once', () {
+      final currentRoute = route(RouteSettings(name: 'Current Route'));
+
+      final hub = _MockHub();
+      final span = getMockSentryTracer(finished: false);
+      when(span.context).thenReturn(SentrySpanContext(operation: 'op'));
+      when(span.status).thenReturn(null);
+      _whenAnyStart(hub, span);
+
+      final sut = fixture.getSut(hub: hub);
+
+      sut.didPush(currentRoute, null);
+      sut.didPop(currentRoute, null);
+      sut.didPop(currentRoute, null);
+
+      verify(span.finish()).called(1);
+    });
+
     test('didPop re-starts previous', () {
       final previousRoute = route(RouteSettings(name: 'Previous Route'));
       final currentRoute = route(RouteSettings(name: 'Current Route'));
