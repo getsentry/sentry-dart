@@ -1,11 +1,14 @@
 import 'dart:async';
 
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
+import '../event_processor/flutter_enricher_event_processor.dart';
+import '../integrations/integrations.dart';
 import '../native/sentry_native.dart';
-import 'navigation_timing_manager.dart';
+import 'display_strategy_evaluator.dart';
 
 /// This key must be used so that the web interface displays the events nicely
 /// See https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/
@@ -77,11 +80,6 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
         _native = SentryFlutter.native {
     if (enableAutoTransactions) {
       // ignore: invalid_use_of_internal_member
-      // _timingManager = NavigationTimingManager(
-      //   hub: _hub,
-      //   native: _native,
-      //   autoFinishAfter: autoFinishAfter,
-      // );
       _hub.options.sdk.addIntegration('UINavigationTracing');
     }
   }
@@ -93,24 +91,16 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   final RouteNameExtractor? _routeNameExtractor;
   final AdditionalInfoExtractor? _additionalInfoProvider;
   final SentryNative? _native;
-  static ISentrySpan? _transaction2;
-
-  static ISentrySpan? get transaction2 => _transaction2;
-
-  static final Map<Object, ISentrySpan> ttidSpanMap = {};
-  static final Map<Object, ISentrySpan> ttfdSpanMap = {};
 
   ISentrySpan? _transaction;
+  static DateTime? _startTimestamp;
+  static ISentrySpan? _ttidSpan;
+  static ISentrySpan? _ttfdSpan;
 
   static String? _currentRouteName;
 
   @internal
   static String? get currentRouteName => _currentRouteName;
-  static var startTime = DateTime.now();
-  static ISentrySpan? ttidSpan;
-  static ISentrySpan? ttfdSpan;
-  static var ttfdStartTime = DateTime.now();
-  static Stopwatch? ttfdStopwatch;
 
   @override
   void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
@@ -126,17 +116,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     );
 
     _finishTransaction();
-    // _startTransaction(route);
-
-    NavigationTimingManager()
-        .startMeasurement(_getRouteName(route) ?? 'Unknown');
-
-    try {
-      // ignore: invalid_use_of_internal_member
-      _hub.options.sdk.addIntegration('UINavigationTracing');
-    } on Exception catch (e) {
-      print(e);
-    }
+    _startMeasurement(route);
   }
 
   @override
@@ -167,7 +147,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     );
 
     _finishTransaction();
-    _startTransaction(previousRoute);
+    _startMeasurement(previousRoute);
   }
 
   void _addBreadcrumb({
@@ -206,7 +186,8 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     }
   }
 
-  Future<void> _startTransaction(Route<dynamic>? route) async {
+  Future<void> _startTransaction(Route<dynamic>? route,
+      {DateTime? startTimestamp}) async {
     if (!_enableAutoTransactions) {
       return;
     }
@@ -222,83 +203,173 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       name = 'root ("/")';
     }
 
-    // final transactionContext2 = SentryTransactionContext(
-    //   name,
-    //   'ui.load',
-    //   transactionNameSource: SentryTransactionNameSource.component,
-    //   // ignore: invalid_use_of_internal_member
-    //   origin: SentryTraceOrigins.autoNavigationRouteObserver,
-    // );
-    //
-    // if (name != 'root ("/")') {
-    //   _transaction2 = _hub.startTransactionWithContext(
-    //     transactionContext2,
-    //     waitForChildren: true,
-    //     autoFinishAfter: _autoFinishAfter,
-    //     trimEnd: true,
-    //     onFinish: (transaction) async {
-    //       final nativeFrames = await _native
-    //           ?.endNativeFramesCollection(transaction.context.traceId);
-    //       if (nativeFrames != null) {
-    //         final measurements = nativeFrames.toMeasurements();
-    //         for (final item in measurements.entries) {
-    //           final measurement = item.value;
-    //           transaction.setMeasurement(
-    //             item.key,
-    //             measurement.value,
-    //             unit: measurement.unit,
-    //           );
-    //         }
-    //       }
-    //     },
-    //   );
-    // }
+    final transactionContext = SentryTransactionContext(
+      name,
+      'navigation',
+      transactionNameSource: SentryTransactionNameSource.component,
+      // ignore: invalid_use_of_internal_member
+      origin: SentryTraceOrigins.autoNavigationRouteObserver,
+    );
+
+    _transaction = _hub.startTransactionWithContext(
+      transactionContext,
+      waitForChildren: true,
+      autoFinishAfter: _autoFinishAfter,
+      trimEnd: true,
+      startTimestamp: startTimestamp,
+      onFinish: (transaction) async {
+        final nativeFrames = await _native
+            ?.endNativeFramesCollection(transaction.context.traceId);
+        if (nativeFrames != null) {
+          final measurements = nativeFrames.toMeasurements();
+          for (final item in measurements.entries) {
+            final measurement = item.value;
+            transaction.setMeasurement(
+              item.key,
+              measurement.value,
+              unit: measurement.unit,
+            );
+          }
+        }
+      },
+    );
 
     // if _enableAutoTransactions is enabled but there's no traces sample rate
     if (_transaction is NoOpSentrySpan) {
-      _transaction2 = null;
+      _transaction = null;
       return;
     }
 
-    if (name == 'root ("/")') {
-    } else {
-      // startTime = DateTime.now();
-
-      // final ttidSpan = _transaction2?.startChild('ui.load.initial_display',
-      //     description: '$name initial display', startTimestamp: startTime);
-      // ttidSpan?.origin = 'auto.ui.time_to_display';
-      // ttidSpanMap[name] = ttidSpan!;
-    }
-
-    // TODO: Needs to finish max within 30 seconds
-    // If timeout exceeds then it will finish with status deadline exceeded
-    // What to do if root also has TTFD but it's not finished yet and we start navigating to another?
-    // How to track the time that 30 sec have passed?
-    //
-    // temporarily disable ttfd for root since it somehow swallows other spans
-    // e.g the complex operation span in autoclosescreen
-    if ((_hub.options as SentryFlutterOptions).enableTimeToFullDisplayTracing &&
-        name != 'root ("/")') {
-      print('ttfd');
-      ttfdStartTime = DateTime.now();
-      ttfdSpan = _transaction2?.startChild('ui.load.full_display',
-          description: '$name full display', startTimestamp: ttfdStartTime);
-    }
-
     if (arguments != null) {
-      _transaction2?.setData('route_settings_arguments', arguments);
+      _transaction?.setData('route_settings_arguments', arguments);
     }
 
     await _hub.configureScope((scope) {
-      scope.span ??= _transaction2;
+      scope.span ??= _transaction;
     });
 
     await _native?.beginNativeFramesCollection();
   }
 
-  Future<void> _finishTransaction({DateTime? endTimestamp}) async {
-    _transaction2?.status ??= SpanStatus.ok();
-    await _transaction2?.finish(endTimestamp: endTimestamp);
+  Future<void> _finishTransaction() async {
+    _transaction?.status ??= SpanStatus.ok();
+    await _transaction?.finish();
+  }
+
+  void _startMeasurement(Route<dynamic>? route) async {
+    // Assigning a timestamp within this function so we don't have to force unwrap _startTimestamp
+    final startTimestamp = DateTime.now();
+    _startTimestamp = startTimestamp;
+
+    final routeName = _getRouteName(route);
+    final isRootScreen = routeName == '/';
+    final didFetchAppStart = _native?.didFetchAppStart;
+    if (isRootScreen && didFetchAppStart == false) {
+      // This branch is a special edge case that only happens once
+      AppStartTracker().onAppStartComplete((appStartInfo) async {
+        // Create a transaction based on app start start time
+        // Then create ttidSpan and finish immediately with the app start start & end time
+        // This is a small workaround to pass the correct time stamps since we cannot mutate
+        // timestamps of transactions or spans in history
+        if (appStartInfo != null && routeName != null) {
+          await _startTransaction(route, startTimestamp: appStartInfo.start);
+          final ttidSpan =
+              _createTTIDSpan(_transaction!, routeName, appStartInfo.start);
+          _finishSpan(ttidSpan, _transaction!, appStartInfo.end,
+              measurement: appStartInfo.measurement);
+        }
+      });
+    } else {
+      await _startTransaction(route, startTimestamp: startTimestamp);
+      _initializeSpans(_transaction!, routeName!, startTimestamp);
+      final endTimestamp = await _determineEndTime(routeName);
+      final duration = endTimestamp.difference(startTimestamp).inMilliseconds;
+      final measurement = SentryMeasurement('time_to_initial_display', duration,
+          unit: DurationSentryMeasurementUnit.milliSecond);
+      _finishSpan(_ttidSpan!, _transaction!, endTimestamp,
+          measurement: measurement);
+    }
+  }
+
+  Future<DateTime> _determineEndTime(String routeName) async {
+    DateTime? endTimestamp;
+    final endTimeCompleter = Completer<DateTime>();
+
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      endTimestamp = DateTime.now();
+      endTimeCompleter.complete(endTimestamp);
+    });
+
+    final strategyDecision =
+        await DisplayStrategyEvaluator().decideStrategy(routeName);
+
+    if (strategyDecision == StrategyDecision.manual &&
+        !endTimeCompleter.isCompleted) {
+      endTimestamp = DateTime.now();
+      endTimeCompleter.complete(endTimestamp);
+    } else if (!endTimeCompleter.isCompleted) {
+      await endTimeCompleter.future;
+    }
+
+    return endTimestamp!;
+  }
+
+  void reportInitiallyDisplayed(String routeName) {
+    DisplayStrategyEvaluator().reportManual(routeName);
+  }
+
+  void reportFullyDisplayed() {
+    final endTimestamp = DateTime.now();
+    final duration = endTimestamp.difference(_startTimestamp!).inMilliseconds;
+    final transaction = Sentry.getSpan();
+    if (_ttfdSpan == null || transaction == null) {
+      return;
+    }
+    final measurement = SentryMeasurement('time_to_full_display', duration,
+        unit: DurationSentryMeasurementUnit.milliSecond);
+    _finishSpan(_ttfdSpan!, transaction, endTimestamp,
+        measurement: measurement);
+  }
+
+  void _initializeSpans(
+      ISentrySpan? transaction, String routeName, DateTime startTimestamp) {
+    final options = _hub.options is SentryFlutterOptions
+        // ignore: invalid_use_of_internal_member
+        ? _hub.options as SentryFlutterOptions
+        : null;
+    if (transaction == null) return;
+    _ttidSpan = _createTTIDSpan(transaction, routeName, startTimestamp);
+    if (options?.enableTimeToFullDisplayTracing == true) {
+      _ttfdSpan = _createTTFDSpan(transaction, routeName, startTimestamp);
+    }
+  }
+
+  ISentrySpan _createTTIDSpan(
+      ISentrySpan transaction, String routeName, DateTime startTimestamp) {
+    return transaction.startChild(
+      SentryTraceOrigins.uiTimeToInitialDisplay,
+      description: '$routeName initial display',
+      startTimestamp: startTimestamp,
+    );
+  }
+
+  ISentrySpan _createTTFDSpan(
+      ISentrySpan transaction, String routeName, DateTime startTimestamp) {
+    return transaction.startChild(
+      SentryTraceOrigins.uiTimeToFullDisplay,
+      description: '$routeName full display',
+      startTimestamp: startTimestamp,
+    );
+  }
+
+  void _finishSpan(
+      ISentrySpan span, ISentrySpan transaction, DateTime endTimestamp,
+      {SentryMeasurement? measurement}) {
+    if (measurement != null) {
+      transaction.setMeasurement(measurement.name, measurement.value,
+          unit: measurement.unit);
+    }
+    span.finish(endTimestamp: endTimestamp);
   }
 }
 
