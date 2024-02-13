@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 8.0.0-beta.2
 
 ### Breaking Changes
 
@@ -32,6 +32,10 @@
 - Bump Cocoa SDK from v8.19.0 to v8.20.0 ([#1856](https://github.com/getsentry/sentry-dart/pull/1856))
   - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8200)
   - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.19.0...8.20.0)
+
+## 8.0.0-beta.1
+
+This release is replaced by `8.0.0-beta.2`
 
 ## 7.16.0
 
