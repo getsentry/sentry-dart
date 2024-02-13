@@ -77,6 +77,7 @@ Future<void> setupSentry(AppRunner appRunner, String dsn,
     // going to log too much for your app, but can be useful when figuring out
     // configuration issues, e.g. finding out why your events are not uploaded.
     options.debug = true;
+    options.enableTimeToFullDisplayTracing = true;
 
     options.maxRequestBodySize = MaxRequestBodySize.always;
     options.maxResponseBodySize = MaxResponseBodySize.always;

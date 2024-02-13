@@ -143,5 +143,4 @@ class SentryDisplayTracker {
 enum StrategyDecision {
   manual,
   approximation,
-  undecided,
 }
