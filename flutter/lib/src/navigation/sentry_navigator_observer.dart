@@ -1,14 +1,11 @@
 import 'dart:async';
 
-import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
-import '../event_processor/flutter_enricher_event_processor.dart';
-import '../event_processor/native_app_start_event_processor.dart';
-import '../integrations/integrations.dart';
 import '../native/sentry_native.dart';
+import 'navigation_timing_manager.dart';
 
 /// This key must be used so that the web interface displays the events nicely
 /// See https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/
@@ -131,7 +128,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     _finishTransaction();
     // _startTransaction(route);
 
-    NavigationTimingManager2()
+    NavigationTimingManager()
         .startMeasurement(_getRouteName(route) ?? 'Unknown');
 
     try {
@@ -170,8 +167,6 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     );
 
     _finishTransaction();
-    NavigationTimingManager2.ttidSpan = null;
-    NavigationTimingManager2.ttidSpan = null;
     _startTransaction(previousRoute);
   }
 
@@ -227,37 +222,37 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       name = 'root ("/")';
     }
 
-    final transactionContext2 = SentryTransactionContext(
-      name,
-      'ui.load',
-      transactionNameSource: SentryTransactionNameSource.component,
-      // ignore: invalid_use_of_internal_member
-      origin: SentryTraceOrigins.autoNavigationRouteObserver,
-    );
-
-    if (name != 'root ("/")') {
-      _transaction2 = _hub.startTransactionWithContext(
-        transactionContext2,
-        waitForChildren: true,
-        autoFinishAfter: _autoFinishAfter,
-        trimEnd: true,
-        onFinish: (transaction) async {
-          final nativeFrames = await _native
-              ?.endNativeFramesCollection(transaction.context.traceId);
-          if (nativeFrames != null) {
-            final measurements = nativeFrames.toMeasurements();
-            for (final item in measurements.entries) {
-              final measurement = item.value;
-              transaction.setMeasurement(
-                item.key,
-                measurement.value,
-                unit: measurement.unit,
-              );
-            }
-          }
-        },
-      );
-    }
+    // final transactionContext2 = SentryTransactionContext(
+    //   name,
+    //   'ui.load',
+    //   transactionNameSource: SentryTransactionNameSource.component,
+    //   // ignore: invalid_use_of_internal_member
+    //   origin: SentryTraceOrigins.autoNavigationRouteObserver,
+    // );
+    //
+    // if (name != 'root ("/")') {
+    //   _transaction2 = _hub.startTransactionWithContext(
+    //     transactionContext2,
+    //     waitForChildren: true,
+    //     autoFinishAfter: _autoFinishAfter,
+    //     trimEnd: true,
+    //     onFinish: (transaction) async {
+    //       final nativeFrames = await _native
+    //           ?.endNativeFramesCollection(transaction.context.traceId);
+    //       if (nativeFrames != null) {
+    //         final measurements = nativeFrames.toMeasurements();
+    //         for (final item in measurements.entries) {
+    //           final measurement = item.value;
+    //           transaction.setMeasurement(
+    //             item.key,
+    //             measurement.value,
+    //             unit: measurement.unit,
+    //           );
+    //         }
+    //       }
+    //     },
+    //   );
+    // }
 
     // if _enableAutoTransactions is enabled but there's no traces sample rate
     if (_transaction is NoOpSentrySpan) {
@@ -267,12 +262,12 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
 
     if (name == 'root ("/")') {
     } else {
-      startTime = DateTime.now();
+      // startTime = DateTime.now();
 
-      final ttidSpan = _transaction2?.startChild('ui.load.initial_display',
-          description: '$name initial display', startTimestamp: startTime);
-      ttidSpan?.origin = 'auto.ui.time_to_display';
-      ttidSpanMap[name] = ttidSpan!;
+      // final ttidSpan = _transaction2?.startChild('ui.load.initial_display',
+      //     description: '$name initial display', startTimestamp: startTime);
+      // ttidSpan?.origin = 'auto.ui.time_to_display';
+      // ttidSpanMap[name] = ttidSpan!;
     }
 
     // TODO: Needs to finish max within 30 seconds
@@ -381,158 +376,5 @@ extension NativeFramesMeasurement on NativeFrames {
       slow.name: slow,
       frozen.name: frozen,
     };
-  }
-}
-
-@internal
-class NavigationTimingManager2 {
-  static NavigationTimingManager2? _instance;
-  final Hub _hub;
-  final Duration _autoFinishAfter;
-  final SentryNative? _native;
-
-  static ISentrySpan? ttidSpan;
-  static ISentrySpan? ttfdSpan;
-
-  NavigationTimingManager2._({
-    Hub? hub,
-    Duration autoFinishAfter = const Duration(seconds: 3),
-    SentryNative? native,
-  })  : _hub = hub ?? HubAdapter(),
-        _autoFinishAfter = autoFinishAfter,
-        _native = native;
-
-  factory NavigationTimingManager2({
-    Hub? hub,
-    Duration autoFinishAfter = const Duration(seconds: 3),
-  }) {
-    _instance ??= NavigationTimingManager2._(
-      hub: hub ?? HubAdapter(),
-      autoFinishAfter: autoFinishAfter,
-      native: SentryFlutter.native,
-    );
-
-    return _instance!;
-  }
-
-  void startMeasurement(String routeName) async {
-    final options = _hub.options is SentryFlutterOptions
-    // ignore: invalid_use_of_internal_member
-        ? _hub.options as SentryFlutterOptions
-        : null;
-
-    // This has multiple branches
-    // - normal screen navigation -> affects all screens
-    // - app start navigation -> only affects root screen
-    bool isRootScreen = routeName == '/' || routeName == 'root ("/")';
-    bool isAppStart = false;
-    if (isRootScreen && _native?.didFetchAppStart == false) {
-      // App start navigation
-      // Can not be manual or approx -> this is a special edge case
-      AppStartTracker().onAppStartComplete((appStartInfo) => {
-            // Create a transaction based on app start start time
-            // Create ttidSpan and finish immediately with the app start start & end time
-            // This is a small workaround to pass the correct time stamps since we cannot
-            // change timestamps of transactions or spans afterwards
-          });
-    } else {
-      DateTime? approximationEndTime;
-      final startTime = DateTime.now();
-      final manager = TransactionManager(_hub, _native);
-      final endTimeCompleter = Completer<DateTime>();
-      final transaction = manager.startTransaction(routeName, startTime);
-
-      if (options?.enableTimeToFullDisplayTracing == true) {
-        ttfdSpan = transaction.startChild('ui.load.full_display',
-            description: '$routeName full display', startTimestamp: startTime);
-      }
-
-      ttidSpan = transaction.startChild('ui.load.initial_display',
-          description: '$routeName initial display',
-          startTimestamp: startTime);
-
-      SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
-        approximationEndTime = DateTime.now();
-        endTimeCompleter.complete(approximationEndTime);
-      });
-
-      final strategyDecision =
-          await SentryDisplayTracker().decideStrategyWithTimeout(routeName);
-      if (strategyDecision == StrategyDecision.approximation) {
-        if (approximationEndTime == null) {
-          await endTimeCompleter.future;
-        }
-        await ttidSpan?.finish(endTimestamp: approximationEndTime);
-      }
-    }
-  }
-
-  static void reportInitiallyDisplayed(String routeName) {
-    final endTime = DateTime.now();
-    print('report  end of display');
-    if (!SentryDisplayTracker().reportManual(routeName)) {
-      final transaction = Sentry.getSpan();
-      print(transaction);
-      final duration = endTime.millisecondsSinceEpoch -
-          SentryNavigatorObserver.startTime.millisecondsSinceEpoch;
-      transaction?.setMeasurement('time_to_initial_display', duration,
-          unit: DurationSentryMeasurementUnit.milliSecond);
-      if (routeName == '/') {
-      } else {
-        ttidSpan?.finish(
-          endTimestamp: endTime,
-        );
-      }
-    }
-  }
-
-  static void reportFullyDisplayed() {
-    final endTime = DateTime.now();
-    ttfdSpan?.setMeasurement(
-        'time_to_full_display',
-        endTime.millisecondsSinceEpoch -
-            SentryNavigatorObserver.ttfdStartTime.millisecondsSinceEpoch,
-        unit: DurationSentryMeasurementUnit.milliSecond);
-    ttfdSpan?.finish(endTimestamp: endTime);
-  }
-}
-
-class TransactionManager {
-  final Hub _hub;
-  final SentryNative? _native;
-
-  TransactionManager(this._hub, this._native);
-
-  ISentrySpan startTransaction(String routeName, DateTime startTime) {
-    final transactionContext = SentryTransactionContext(
-      routeName,
-      'ui.load',
-      transactionNameSource: SentryTransactionNameSource.component,
-      origin: SentryTraceOrigins.autoNavigationRouteObserver,
-    );
-
-    return _hub.startTransactionWithContext(
-      transactionContext,
-      waitForChildren: true,
-      autoFinishAfter: Duration(seconds: 3),
-      trimEnd: true,
-      startTimestamp: startTime,
-      bindToScope: true,
-      onFinish: (transaction) async {
-        final nativeFrames = await _native
-            ?.endNativeFramesCollection(transaction.context.traceId);
-        if (nativeFrames != null) {
-          final measurements = nativeFrames.toMeasurements();
-          for (final item in measurements.entries) {
-            final measurement = item.value;
-            transaction.setMeasurement(
-              item.key,
-              measurement.value,
-              unit: measurement.unit,
-            );
-          }
-        }
-      },
-    );
   }
 }
