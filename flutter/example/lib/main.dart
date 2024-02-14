@@ -727,7 +727,7 @@ void navigateToAutoCloseScreen(BuildContext context) {
   Navigator.push(
     context,
     MaterialPageRoute(
-        settings: const RouteSettings(name: 'AutoCloseScreen'),
+        settings: const RouteSettings(name: 'AutoCloseScreen32'),
         builder: (context) => const SentryDisplayWidget(
               child: AutoCloseScreen(),
             )),

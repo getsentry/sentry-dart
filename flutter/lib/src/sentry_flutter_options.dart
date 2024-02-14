@@ -224,6 +224,8 @@ class SentryFlutterOptions extends SentryOptions {
   Duration readTimeout = Duration(seconds: 5);
 
   /// Enable or disable the tracing of time to full display (TTFD).
+  /// If `SentryFlutter.reportFullyDisplayed()` is not called within 30 seconds
+  /// after the creation of the TTFD span, it will finish with the status [SpanStatus.deadlineExceeded].
   /// This feature requires using the [Routing Instrumentation](https://docs.sentry.io/platforms/flutter/integrations/routing-instrumentation/).
   bool enableTimeToFullDisplayTracing = false;
 

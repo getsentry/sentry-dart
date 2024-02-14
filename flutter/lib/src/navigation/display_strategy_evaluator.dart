@@ -28,7 +28,6 @@ class DisplayStrategyEvaluator {
     if (!_manualReportReceived.containsKey(routeName) || !_manualReportReceived[routeName]!) {
       _timers[routeName]?.cancel(); // Cancel any existing timer.
       _timers[routeName] = Timer(Duration(seconds: 1), () {
-        // Double-check to prevent race conditions.
         if (!_manualReportReceived.containsKey(routeName) || !_manualReportReceived[routeName]!) {
           if (!completer.isCompleted) {
             completer.complete(StrategyDecision.approximation);
@@ -52,14 +51,6 @@ class DisplayStrategyEvaluator {
     // Cancel the timer as it's no longer necessary.
     _timers[routeName]?.cancel();
     return wasReportedAlready;
-  }
-
-  // TODO: when do we need to clear state?
-  void clearState(String routeName) {
-    _manualReportReceived.remove(routeName);
-    _timers[routeName]?.cancel();
-    _timers.remove(routeName);
-    _completers.remove(routeName);
   }
 }
 
