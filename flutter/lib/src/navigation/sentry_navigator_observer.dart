@@ -69,6 +69,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     bool setRouteNameAsTransaction = false,
     RouteNameExtractor? routeNameExtractor,
     AdditionalInfoExtractor? additionalInfoProvider,
+    @internal TimeToDisplayTracker? timeToDisplayTracker,
   })  : _hub = hub ?? HubAdapter(),
         _setRouteNameAsTransaction = setRouteNameAsTransaction,
         _routeNameExtractor = routeNameExtractor,
@@ -77,11 +78,12 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       // ignore: invalid_use_of_internal_member
       _hub.options.sdk.addIntegration('UINavigationTracing');
     }
-    _timeToDisplayTracker = TimeToDisplayTracker(
-      hub: _hub,
-      enableAutoTransactions: enableAutoTransactions,
-      autoFinishAfter: autoFinishAfter,
-    );
+    _timeToDisplayTracker = timeToDisplayTracker ??
+        TimeToDisplayTracker(
+          hub: _hub,
+          enableAutoTransactions: enableAutoTransactions,
+          autoFinishAfter: autoFinishAfter,
+        );
   }
 
   final Hub _hub;

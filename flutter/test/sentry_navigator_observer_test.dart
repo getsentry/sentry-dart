@@ -7,6 +7,7 @@ import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/native/sentry_native.dart';
 import 'package:sentry/src/sentry_tracer.dart';
+import 'package:sentry_flutter/src/navigation/time_to_display_tracker.dart';
 
 import 'mocks.dart';
 import 'mocks.mocks.dart';
@@ -50,18 +51,36 @@ void main() {
     });
 
     test('transaction start begins frames collection', () async {
+      WidgetsFlutterBinding.ensureInitialized();
       final currentRoute = route(RouteSettings(name: 'Current Route'));
       final mockHub = _MockHub();
 
       final tracer = getMockSentryTracer();
       _whenAnyStart(mockHub, tracer);
+      when(mockHub.getSpan()).thenReturn(tracer);
+
+      when(tracer.startChild(
+          'ui.load.initial_display', // Matches any string for the operation argument
+          description: anyNamed('description'), // Matches any description
+          startTimestamp: anyNamed('startTimestamp') // Matches any startTimestamp
+      )).thenReturn(NoOpSentrySpan());
+
+      when(tracer.startChild(
+          'ui.load.full_display', // Matches any string for the operation argument
+          description: anyNamed('description'), // Matches any description
+          startTimestamp: anyNamed('startTimestamp') // Matches any startTimestamp
+      )).thenReturn(NoOpSentrySpan());
+
+      // when(mockTimeToDisplayTracker.startMeasurement(any, any)).thenAnswer((realInvocation) async {});
 
       final sut = fixture.getSut(hub: mockHub);
 
       sut.didPush(currentRoute, null);
 
+      // verify(mockTimeToDisplayTracker.startMeasurement(any, any)).called(1);
+
       // Handle internal async method calls.
-      await Future.delayed(const Duration(milliseconds: 10), () {
+      await Future.delayed(const Duration(milliseconds: 500), () {
         expect(mockNativeChannel.numberOfBeginNativeFramesCalls, 1);
       });
     });
@@ -805,6 +824,12 @@ class Fixture {
     RouteNameExtractor? routeNameExtractor,
     AdditionalInfoExtractor? additionalInfoProvider,
   }) {
+    final timeToDisplayTracker = TimeToDisplayTracker(
+      hub: hub,
+      enableAutoTransactions: enableAutoTransactions,
+      autoFinishAfter: autoFinishAfter,
+    );
+
     return SentryNavigatorObserver(
       hub: hub,
       enableAutoTransactions: enableAutoTransactions,
@@ -812,6 +837,7 @@ class Fixture {
       setRouteNameAsTransaction: setRouteNameAsTransaction,
       routeNameExtractor: routeNameExtractor,
       additionalInfoProvider: additionalInfoProvider,
+      timeToDisplayTracker: timeToDisplayTracker,
     );
   }
 
@@ -822,7 +848,7 @@ class Fixture {
 
 class _MockHub extends MockHub {
   @override
-  final options = defaultTestOptions();
+  final options = defaultTestOptions()..enableTimeToFullDisplayTracing = true;
 
   @override
   late final scope = Scope(options);
