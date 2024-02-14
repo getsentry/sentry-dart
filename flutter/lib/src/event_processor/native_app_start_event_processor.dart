@@ -20,6 +20,7 @@ class NativeAppStartEventProcessor implements EventProcessor {
   @override
   Future<SentryEvent?> apply(SentryEvent event, {Hint? hint}) async {
     final appStartInfo = AppStartTracker().appStartInfo;
+    // TODO: only do this once per app start
     if (appStartInfo != null && event is SentryTransaction) {
       final measurement = appStartInfo.measurement;
       event.measurements[measurement.name] = measurement;

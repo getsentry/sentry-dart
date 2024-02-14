@@ -318,7 +318,8 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     final ttidSpan = _ttidSpan;
     if (ttidSpan == null) return;
 
-    await _finishInitialDisplay(ttidSpan, transaction, routeName, startTimestamp);
+    await _finishInitialDisplay(
+        ttidSpan, transaction, routeName, startTimestamp);
   }
 
   Future<DateTime?> _determineEndTime(String routeName) async {
@@ -371,16 +372,20 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     if (_options?.enableTimeToFullDisplayTracing == true) {
       _ttfdSpan = _createTTFDSpan(transaction, routeName, startTimestamp);
       _ttfdTimer = Timer(Duration(seconds: 6), () {
-        final ttidEndTimestamp = _ttidEndTimestamp;
-        if (_ttfdSpan?.finished == true || ttidEndTimestamp == null) {
+        if (_ttfdSpan?.finished == true) {
           return;
         }
-        _ttfdSpan?.finish(status: SpanStatus.ok(), endTimestamp: ttidEndTimestamp);
+        _finishSpan(_ttfdSpan!, transaction, _ttidEndTimestamp!,
+            status: SpanStatus.deadlineExceeded());
       });
     }
   }
 
-  Future<void> _finishInitialDisplay(ISentrySpan ttidSpan, ISentrySpan transaction, String routeName, DateTime startTimestamp) async {
+  Future<void> _finishInitialDisplay(
+      ISentrySpan ttidSpan,
+      ISentrySpan transaction,
+      String routeName,
+      DateTime startTimestamp) async {
     final endTimestamp = await _determineEndTime(routeName);
     if (endTimestamp == null) return;
     _ttidEndTimestamp = endTimestamp;
@@ -411,12 +416,12 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
 
   void _finishSpan(
       ISentrySpan span, ISentrySpan transaction, DateTime endTimestamp,
-      {SentryMeasurement? measurement}) {
+      {SentryMeasurement? measurement, SpanStatus? status}) {
     if (measurement != null) {
       transaction.setMeasurement(measurement.name, measurement.value,
           unit: measurement.unit);
     }
-    span.finish(endTimestamp: endTimestamp);
+    span.finish(status: status, endTimestamp: endTimestamp);
   }
 }
 
