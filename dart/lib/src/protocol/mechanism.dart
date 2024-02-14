@@ -47,7 +47,7 @@ class Mechanism {
   /// An optional boolean value, set `true` when the exception is the exception
   /// group type specific to the platform or language.
   /// The default is false when omitted.
-  /// For example, exceptions of type (PlatformException)[https://api.flutter.dev/flutter/services/PlatformException-class.html]
+  /// For example, exceptions of type [PlatformException](https://api.flutter.dev/flutter/services/PlatformException-class.html)
   /// have set it to `true`, others are set to `false`.
   final bool? isExceptionGroup;
 
