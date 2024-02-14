@@ -44,14 +44,14 @@ typedef AdditionalInfoExtractor = Map<String, dynamic>? Function(
 /// )
 /// ```
 ///
-/// The option [enableAutoTransactions] is enabled by default. For every new
-/// route a transaction is started. It's automatically finished after
-/// [autoFinishAfter] duration or when all child spans are finished,
-/// if those happen to take longer. The transaction will be set to [Scope.span]
-/// if the latter is empty.
+/// The option [SentryOptions.enableAutoTransactions] is enabled by default.
+/// For every new route a transaction is started. It's automatically finished
+/// after [SentryOptions.autoFinishAfter] duration or when all child spans are
+/// finished, if those happen to take longer.
+/// The transaction will be set to [Scope.span] if the latter is empty.
 ///
-/// Enabling the [setRouteNameAsTransaction] option overrides the current
-/// [Scope.transaction] which will also override the name of the current
+/// Enabling the [SentryOptions.setRouteNameAsTransaction] option overrides the
+/// current [Scope.transaction] which will also override the name of the current
 /// [Scope.span]. So be careful when this is used together with performance
 /// monitoring.
 ///
