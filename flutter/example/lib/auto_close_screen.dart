@@ -29,7 +29,7 @@ class AutoCloseScreenState extends State<AutoCloseScreen> {
     await childSpan?.finish();
     SentryFlutter.reportFullyDisplayed();
     // ignore: use_build_context_synchronously
-    Navigator.of(context).pop();
+    // Navigator.of(context).pop();
   }
 
   @override

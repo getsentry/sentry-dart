@@ -334,7 +334,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     final strategyDecision =
         await DisplayStrategyEvaluator().decideStrategy(routeName);
 
-    if (strategyDecision == StrategyDecision.manual &&
+    if (strategyDecision == TimeToDisplayStrategy.manual &&
         !endTimeCompleter.isCompleted) {
       endTimestamp = DateTime.now();
       endTimeCompleter.complete(endTimestamp);

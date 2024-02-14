@@ -103,6 +103,15 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
 
   @override
+  void initState() {
+    super.initState();
+    // Example of reporting TTFD
+    Future.delayed(
+      const Duration(seconds: 1), () => SentryFlutter.reportFullyDisplayed(),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     return feedback.BetterFeedback(
       child: ChangeNotifierProvider<ThemeProvider>(
@@ -727,7 +736,7 @@ void navigateToAutoCloseScreen(BuildContext context) {
   Navigator.push(
     context,
     MaterialPageRoute(
-        settings: const RouteSettings(name: 'AutoCloseScreen32'),
+        settings: const RouteSettings(name: 'AutoCloseScreen'),
         builder: (context) => const SentryDisplayWidget(
               child: AutoCloseScreen(),
             )),
