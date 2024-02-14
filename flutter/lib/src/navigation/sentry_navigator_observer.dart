@@ -294,7 +294,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       final transaction = _transaction;
       if (transaction == null) return;
 
-      final ttidSpan =`
+      final ttidSpan =
           _createTTIDSpan(transaction, routeName, appStartInfo.start);
       if (_options?.enableTimeToFullDisplayTracing == true) {
         _ttfdSpan = _createTTFDSpan(transaction, routeName, appStartInfo.start);
