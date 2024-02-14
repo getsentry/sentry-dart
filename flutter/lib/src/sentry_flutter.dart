@@ -13,6 +13,7 @@ import 'integrations/connectivity/connectivity_integration.dart';
 import 'integrations/screenshot_integration.dart';
 import 'native/factory.dart';
 import 'native/native_scope_observer.dart';
+import 'navigation/time_to_display_tracker.dart';
 import 'profiling.dart';
 import 'renderer/renderer.dart';
 import 'native/sentry_native.dart';
@@ -232,13 +233,13 @@ mixin SentryFlutter {
   static void reportInitiallyDisplayed(BuildContext context) {
     final routeName = ModalRoute.of(context)?.settings.name;
     if (routeName != null) {
-      SentryNavigatorObserver().reportInitiallyDisplayed(routeName);
+      TimeToDisplayTracker.reportInitiallyDisplayed(routeName);
     }
   }
 
   /// Reports the time it took for the screen to be fully displayed.
   static void reportFullyDisplayed() {
-    SentryNavigatorObserver().reportFullyDisplayed();
+    TimeToDisplayTracker.reportFullyDisplayed();
   }
 
   @internal
