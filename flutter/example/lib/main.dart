@@ -101,13 +101,13 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-
   @override
   void initState() {
     super.initState();
     // Example of reporting TTFD
     Future.delayed(
-      const Duration(seconds: 1), () => SentryFlutter.reportFullyDisplayed(),
+      const Duration(seconds: 1),
+      () => SentryFlutter.reportFullyDisplayed(),
     );
   }
 

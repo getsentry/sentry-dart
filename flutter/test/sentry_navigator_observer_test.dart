@@ -7,6 +7,7 @@ import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/native/sentry_native.dart';
 import 'package:sentry/src/sentry_tracer.dart';
+import 'package:sentry_flutter/src/navigation/display_strategy_evaluator.dart';
 import 'package:sentry_flutter/src/navigation/time_to_display_tracker.dart';
 
 import 'mocks.dart';
@@ -41,6 +42,7 @@ void main() {
     late MockNativeChannel mockNativeChannel;
 
     setUp(() {
+      TestWidgetsFlutterBinding.ensureInitialized();
       mockNativeChannel = MockNativeChannel();
       SentryFlutter.native =
           SentryNative(SentryFlutterOptions(dsn: fakeDsn), mockNativeChannel);
@@ -51,7 +53,6 @@ void main() {
     });
 
     test('transaction start begins frames collection', () async {
-      WidgetsFlutterBinding.ensureInitialized();
       final currentRoute = route(RouteSettings(name: 'Current Route'));
       final mockHub = _MockHub();
 
@@ -60,27 +61,27 @@ void main() {
       when(mockHub.getSpan()).thenReturn(tracer);
 
       when(tracer.startChild(
-          'ui.load.initial_display', // Matches any string for the operation argument
-          description: anyNamed('description'), // Matches any description
-          startTimestamp: anyNamed('startTimestamp') // Matches any startTimestamp
-      )).thenReturn(NoOpSentrySpan());
+              'ui.load.initial_display', // Matches any string for the operation argument
+              description: anyNamed('description'), // Matches any description
+              startTimestamp:
+                  anyNamed('startTimestamp') // Matches any startTimestamp
+              ))
+          .thenReturn(NoOpSentrySpan());
 
       when(tracer.startChild(
-          'ui.load.full_display', // Matches any string for the operation argument
-          description: anyNamed('description'), // Matches any description
-          startTimestamp: anyNamed('startTimestamp') // Matches any startTimestamp
-      )).thenReturn(NoOpSentrySpan());
-
-      // when(mockTimeToDisplayTracker.startMeasurement(any, any)).thenAnswer((realInvocation) async {});
+              'ui.load.full_display', // Matches any string for the operation argument
+              description: anyNamed('description'), // Matches any description
+              startTimestamp:
+                  anyNamed('startTimestamp') // Matches any startTimestamp
+              ))
+          .thenReturn(NoOpSentrySpan());
 
       final sut = fixture.getSut(hub: mockHub);
 
       sut.didPush(currentRoute, null);
 
-      // verify(mockTimeToDisplayTracker.startMeasurement(any, any)).called(1);
-
       // Handle internal async method calls.
-      await Future.delayed(const Duration(milliseconds: 500), () {
+      await Future.delayed(const Duration(milliseconds: 10), () {
         expect(mockNativeChannel.numberOfBeginNativeFramesCalls, 1);
       });
     });
@@ -92,6 +93,10 @@ void main() {
       options.tracesSampleRate = 1;
       final hub = Hub(options);
 
+      mockNativeChannel = MockNativeChannel();
+      SentryFlutter.native =
+          SentryNative(SentryFlutterOptions(dsn: fakeDsn), mockNativeChannel);
+
       final nativeFrames = NativeFrames(3, 2, 1);
       mockNativeChannel.nativeFrames = nativeFrames;
 
@@ -101,6 +106,9 @@ void main() {
       );
 
       sut.didPush(currentRoute, null);
+
+      await Future<void>.delayed(Duration(milliseconds: 50));
+      DisplayStrategyEvaluator().reportManual('Current Route');
 
       // Get ref to created transaction
       // ignore: invalid_use_of_internal_member
@@ -116,7 +124,7 @@ void main() {
 
       final measurements = actualTransaction?.measurements ?? {};
 
-      expect(measurements.length, 3);
+      expect(measurements.length, 4);
 
       final expectedTotal = SentryMeasurement.totalFrames(3);
       final expectedSlow = SentryMeasurement.slowFrames(2);
@@ -848,7 +856,7 @@ class Fixture {
 
 class _MockHub extends MockHub {
   @override
-  final options = defaultTestOptions()..enableTimeToFullDisplayTracing = true;
+  final options = defaultTestOptions();
 
   @override
   late final scope = Scope(options);

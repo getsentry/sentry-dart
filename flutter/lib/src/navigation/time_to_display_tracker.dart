@@ -15,7 +15,6 @@ class TimeToDisplayTracker {
   final Duration _autoFinishAfter;
   final SentryNative? _native;
 
-  ISentrySpan? _transaction;
   static DateTime? _startTimestamp;
   static DateTime? _ttidEndTimestamp;
   static ISentrySpan? _ttidSpan;
@@ -81,7 +80,6 @@ class TimeToDisplayTracker {
         }
       },
     );
-    _transaction = transaction;
 
     // if _enableAutoTransactions is enabled but there's no traces sample rate
     if (transaction is NoOpSentrySpan) {
@@ -100,7 +98,6 @@ class TimeToDisplayTracker {
   void startMeasurement(String? routeName, Object? arguments) async {
     _ttidSpan = null;
     _ttfdSpan = null;
-    _transaction = null;
 
     final startTimestamp = DateTime.now();
     _startTimestamp = startTimestamp;
@@ -153,8 +150,7 @@ class TimeToDisplayTracker {
     final ttidSpan = _ttidSpan;
     if (ttidSpan == null) return;
 
-    _finishInitialDisplay(
-        ttidSpan, transaction, routeName, startTimestamp);
+    _finishInitialDisplay(ttidSpan, transaction, routeName, startTimestamp);
   }
 
   void _initializeTimeToDisplaySpans(
@@ -201,12 +197,10 @@ class TimeToDisplayTracker {
     });
 
     final strategyDecision =
-    await DisplayStrategyEvaluator().decideStrategy(routeName);
+        await DisplayStrategyEvaluator().decideStrategy(routeName);
 
-    if (strategyDecision == TimeToDisplayStrategy.manual &&
-        !endTimeCompleter.isCompleted) {
+    if (strategyDecision == TimeToDisplayStrategy.manual) {
       endTimestamp = DateTime.now();
-      endTimeCompleter.complete(endTimestamp);
     } else if (!endTimeCompleter.isCompleted) {
       // In approximation we want to wait until addPostFrameCallback has triggered
       await endTimeCompleter.future;
@@ -214,7 +208,6 @@ class TimeToDisplayTracker {
 
     return endTimestamp;
   }
-
 
   @internal
   static void reportInitiallyDisplayed(String routeName) {
@@ -241,11 +234,8 @@ class TimeToDisplayTracker {
     _finishSpan(ttfdSpan, transaction, endTimestamp, measurement: measurement);
   }
 
-  void _finishInitialDisplay(
-      ISentrySpan ttidSpan,
-      ISentrySpan transaction,
-      String routeName,
-      DateTime startTimestamp) async {
+  void _finishInitialDisplay(ISentrySpan ttidSpan, ISentrySpan transaction,
+      String routeName, DateTime startTimestamp) async {
     final endTimestamp = await _determineEndTimeOfTTID(routeName);
     if (endTimestamp == null) return;
     _ttidEndTimestamp = endTimestamp;

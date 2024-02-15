@@ -5,7 +5,7 @@ import 'package:meta/meta.dart';
 @internal
 class DisplayStrategyEvaluator {
   static final DisplayStrategyEvaluator _instance =
-  DisplayStrategyEvaluator._internal();
+      DisplayStrategyEvaluator._internal();
 
   factory DisplayStrategyEvaluator() {
     return _instance;
@@ -19,16 +19,19 @@ class DisplayStrategyEvaluator {
 
   Future<TimeToDisplayStrategy> decideStrategy(String routeName) {
     // Ensure initialization of a completer for the given route name.
-    if (!_completers.containsKey(routeName) || _completers[routeName]!.isCompleted) {
+    if (!_completers.containsKey(routeName) ||
+        _completers[routeName]!.isCompleted) {
       _completers[routeName] = Completer<TimeToDisplayStrategy>();
     }
     var completer = _completers[routeName]!;
 
     // Start or reset the timer only if a manual report has not been received.
-    if (!_manualReportReceived.containsKey(routeName) || !_manualReportReceived[routeName]!) {
+    if (!_manualReportReceived.containsKey(routeName) ||
+        !_manualReportReceived[routeName]!) {
       _timers[routeName]?.cancel(); // Cancel any existing timer.
       _timers[routeName] = Timer(Duration(seconds: 1), () {
-        if (!_manualReportReceived.containsKey(routeName) || !_manualReportReceived[routeName]!) {
+        if (!_manualReportReceived.containsKey(routeName) ||
+            !_manualReportReceived[routeName]!) {
           if (!completer.isCompleted) {
             completer.complete(TimeToDisplayStrategy.approximation);
           }

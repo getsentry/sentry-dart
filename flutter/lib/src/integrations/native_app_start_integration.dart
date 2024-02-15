@@ -10,10 +10,13 @@ import '../event_processor/native_app_start_event_processor.dart';
 /// Integration which handles communication with native frameworks in order to
 /// enrich [SentryTransaction] objects with app start data for mobile vitals.
 class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
-  NativeAppStartIntegration(this._native, this._schedulerBindingProvider);
+  NativeAppStartIntegration(this._native, this._schedulerBindingProvider,
+      {IAppStartTracker? appStartTracker})
+      : _appStartTracker = appStartTracker ?? AppStartTracker();
 
   final SentryNative _native;
   final SchedulerBindingProvider _schedulerBindingProvider;
+  final IAppStartTracker? _appStartTracker;
 
   @override
   void call(Hub hub, SentryFlutterOptions options) {
@@ -43,7 +46,7 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
             if (nativeAppStart == null ||
                 measurement == null ||
                 measurement.value >= 60000) {
-              AppStartTracker().setAppStartInfo(null);
+              _appStartTracker?.setAppStartInfo(null);
               return;
             }
 
@@ -54,15 +57,15 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
               measurement,
             );
 
-            AppStartTracker().setAppStartInfo(appStartInfo);
+            _appStartTracker?.setAppStartInfo(appStartInfo);
           } else {
-            AppStartTracker().setAppStartInfo(null);
+            _appStartTracker?.setAppStartInfo(null);
           }
         });
       }
     }
 
-    options.addEventProcessor(NativeAppStartEventProcessor(_native));
+    options.addEventProcessor(NativeAppStartEventProcessor(appStartTracker: _appStartTracker));
 
     options.sdk.addIntegration('nativeAppStartIntegration');
   }
@@ -80,24 +83,35 @@ class AppStartInfo {
   AppStartInfo(this.start, this.end, this.measurement);
 }
 
+abstract class IAppStartTracker {
+  AppStartInfo? get appStartInfo;
+
+  void setAppStartInfo(AppStartInfo? appStartInfo);
+
+  void onAppStartComplete(Function(AppStartInfo?) callback);
+}
+
 @internal
-class AppStartTracker {
+class AppStartTracker extends IAppStartTracker {
   static final AppStartTracker _instance = AppStartTracker._internal();
 
   factory AppStartTracker() => _instance;
 
   AppStartInfo? _appStartInfo;
 
+  @override
   AppStartInfo? get appStartInfo => _appStartInfo;
   Function(AppStartInfo?)? _callback;
 
   AppStartTracker._internal();
 
+  @override
   void setAppStartInfo(AppStartInfo? appStartInfo) {
     _appStartInfo = appStartInfo;
     _notifyObserver();
   }
 
+  @override
   void onAppStartComplete(Function(AppStartInfo?) callback) {
     _callback = callback;
     _callback?.call(_appStartInfo);

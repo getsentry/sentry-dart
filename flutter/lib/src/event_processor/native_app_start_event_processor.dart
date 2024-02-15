@@ -11,19 +11,24 @@ class NativeAppStartEventProcessor implements EventProcessor {
   /// We filter out App starts more than 60s
   static const _maxAppStartMillis = 60000;
 
-  NativeAppStartEventProcessor(
-    this._native,
-  );
+  final IAppStartTracker? _appStartTracker;
 
-  final SentryNative _native;
+  NativeAppStartEventProcessor({
+    IAppStartTracker? appStartTracker,
+  }) : _appStartTracker = appStartTracker ?? AppStartTracker();
+
+  bool didAddAppStartMeasurement = false;
 
   @override
   Future<SentryEvent?> apply(SentryEvent event, {Hint? hint}) async {
-    final appStartInfo = AppStartTracker().appStartInfo;
+    final measurement = _appStartTracker?.appStartInfo?.measurement;
     // TODO: only do this once per app start
-    if (appStartInfo != null && event is SentryTransaction) {
-      final measurement = appStartInfo.measurement;
+    if (!didAddAppStartMeasurement &&
+        measurement != null &&
+        measurement.value.toInt() <= _maxAppStartMillis &&
+        event is SentryTransaction) {
       event.measurements[measurement.name] = measurement;
+      didAddAppStartMeasurement = true;
     }
     return event;
   }

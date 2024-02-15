@@ -9,6 +9,7 @@ import 'package:sentry/src/sentry_tracer.dart';
 
 import '../mocks.dart';
 import '../mocks.mocks.dart';
+import '../navigation/fake_app_start_tracker.dart';
 
 void main() {
   group('$NativeAppStartIntegration', () {
@@ -22,8 +23,14 @@ void main() {
 
     test('native app start measurement added to first transaction', () async {
       fixture.options.autoAppStart = false;
-      fixture.native.appStartEnd = DateTime.fromMillisecondsSinceEpoch(10);
-      fixture.binding.nativeAppStart = NativeAppStart(0, true);
+      fixture.appStartTracker.setAppStartInfo(
+        AppStartInfo(
+          DateTime.fromMillisecondsSinceEpoch(0),
+          DateTime.fromMillisecondsSinceEpoch(10),
+          SentryMeasurement('app_start_cold', 10,
+              unit: DurationSentryMeasurementUnit.milliSecond),
+        ),
+      );
 
       fixture.getNativeAppStartIntegration().call(fixture.hub, fixture.options);
 
@@ -41,8 +48,14 @@ void main() {
     test('native app start measurement not added to following transactions',
         () async {
       fixture.options.autoAppStart = false;
-      fixture.native.appStartEnd = DateTime.fromMillisecondsSinceEpoch(10);
-      fixture.binding.nativeAppStart = NativeAppStart(0, true);
+      fixture.appStartTracker.setAppStartInfo(
+        AppStartInfo(
+          DateTime.fromMillisecondsSinceEpoch(0),
+          DateTime.fromMillisecondsSinceEpoch(10),
+          SentryMeasurement('app_start_cold', 10,
+              unit: DurationSentryMeasurementUnit.milliSecond),
+        ),
+      );
 
       fixture.getNativeAppStartIntegration().call(fixture.hub, fixture.options);
 
@@ -59,8 +72,14 @@ void main() {
 
     test('measurements appended', () async {
       fixture.options.autoAppStart = false;
-      fixture.native.appStartEnd = DateTime.fromMillisecondsSinceEpoch(10);
-      fixture.binding.nativeAppStart = NativeAppStart(0, true);
+      fixture.appStartTracker.setAppStartInfo(
+        AppStartInfo(
+          DateTime.fromMillisecondsSinceEpoch(0),
+          DateTime.fromMillisecondsSinceEpoch(10),
+          SentryMeasurement('app_start_cold', 10,
+              unit: DurationSentryMeasurementUnit.milliSecond),
+        ),
+      );
       final measurement = SentryMeasurement.warmAppStart(Duration(seconds: 1));
 
       fixture.getNativeAppStartIntegration().call(fixture.hub, fixture.options);
@@ -80,8 +99,14 @@ void main() {
 
     test('native app start measurement not added if more than 60s', () async {
       fixture.options.autoAppStart = false;
-      fixture.native.appStartEnd = DateTime.fromMillisecondsSinceEpoch(60001);
-      fixture.binding.nativeAppStart = NativeAppStart(0, true);
+      fixture.appStartTracker.setAppStartInfo(
+        AppStartInfo(
+          DateTime.fromMillisecondsSinceEpoch(0),
+          DateTime.fromMillisecondsSinceEpoch(60001),
+          SentryMeasurement('app_start_cold', 60001,
+              unit: DurationSentryMeasurementUnit.milliSecond),
+        ),
+      );
 
       fixture.getNativeAppStartIntegration().call(fixture.hub, fixture.options);
 
@@ -93,6 +118,35 @@ void main() {
 
       expect(enriched.measurements.isEmpty, true);
     });
+
+
+    test('native app start measurement only added once for multiple different transactions', () async {
+      fixture.options.autoAppStart = false;
+      await fixture.native.fetchNativeAppStart();
+      fixture.appStartTracker.setAppStartInfo(
+        AppStartInfo(
+          DateTime.fromMillisecondsSinceEpoch(0),
+          DateTime.fromMillisecondsSinceEpoch(10),
+          SentryMeasurement('app_start_cold', 10,
+              unit: DurationSentryMeasurementUnit.milliSecond),
+        ),
+      );
+
+      fixture.getNativeAppStartIntegration().call(fixture.hub, fixture.options);
+
+      final processor = fixture.options.eventProcessors.first;
+      final tracer = fixture.createTracer();
+
+      // Represents the app start transaction
+      final transaction = SentryTransaction(tracer);
+      var enriched = await processor.apply(transaction) as SentryTransaction;
+      expect(enriched.measurements.length, 1);
+
+      // Represents any other transaction that happened afterwards
+      final transaction2 = SentryTransaction(tracer);
+      var secondEnriched = await processor.apply(transaction2) as SentryTransaction;
+      expect(secondEnriched.measurements.length, 0);
+    });
   });
 }
 
@@ -100,6 +154,7 @@ class Fixture {
   final hub = MockHub();
   final options = SentryFlutterOptions(dsn: fakeDsn);
   final binding = MockNativeChannel();
+  final appStartTracker = FakeAppStartTracker();
   late final native = SentryNative(options, binding);
 
   Fixture() {
@@ -113,6 +168,7 @@ class Fixture {
       () {
         return TestWidgetsFlutterBinding.ensureInitialized();
       },
+      appStartTracker: appStartTracker,
     );
   }
 
