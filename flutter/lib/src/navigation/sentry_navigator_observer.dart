@@ -207,6 +207,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       autoFinishAfter: _autoFinishAfter,
       trimEnd: true,
       onFinish: (transaction) async {
+        _transaction = null;
         final nativeFrames = await _native
             ?.endNativeFramesCollection(transaction.context.traceId);
         if (nativeFrames != null) {
@@ -241,8 +242,13 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   }
 
   Future<void> _finishTransaction() async {
-    _transaction?.status ??= SpanStatus.ok();
-    await _transaction?.finish();
+    final transaction = _transaction;
+    _transaction = null;
+    if (transaction == null || transaction.finished) {
+      return;
+    }
+    transaction.status ??= SpanStatus.ok();
+    await transaction.finish();
   }
 }
 
