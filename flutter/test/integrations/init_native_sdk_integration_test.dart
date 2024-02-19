@@ -58,6 +58,7 @@ void main() {
         'sendClientReports': true,
         'proguardUuid': null,
         'maxAttachmentSize': 20 * 1024 * 1024,
+        'recordHttpBreadcrumbs': true,
         'captureFailedRequests': true,
         'enableAppHangTracking': true,
         'connectionTimeoutMillis': 5000,
@@ -98,6 +99,7 @@ void main() {
         ..enableNdkScopeSync = true
         ..proguardUuid = fakeProguardUuid
         ..maxAttachmentSize = 10
+        ..recordHttpBreadcrumbs = false
         ..captureFailedRequests = false
         ..enableAppHangTracking = false
         ..connectionTimeout = Duration(milliseconds: 9001)
@@ -141,6 +143,7 @@ void main() {
         'sendClientReports': false,
         'proguardUuid': fakeProguardUuid,
         'maxAttachmentSize': 10,
+        'recordHttpBreadcrumbs': false,
         'captureFailedRequests': false,
         'enableAppHangTracking': false,
         'connectionTimeoutMillis': 9001,

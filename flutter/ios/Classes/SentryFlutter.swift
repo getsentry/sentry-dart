@@ -58,6 +58,9 @@ public final class SentryFlutter {
         if let maxAttachmentSize = data["maxAttachmentSize"] as? NSNumber {
             options.maxAttachmentSize = maxAttachmentSize.uintValue
         }
+        if let recordHttpBreadcrumbs = data["recordHttpBreadcrumbs"] as? Bool {
+            options.enableNetworkBreadcrumbs = recordHttpBreadcrumbs
+        }
         if let captureFailedRequests = data["captureFailedRequests"] as? Bool {
             options.enableCaptureFailedRequests = captureFailedRequests
         }
