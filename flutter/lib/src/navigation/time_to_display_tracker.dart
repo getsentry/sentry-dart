@@ -7,19 +7,23 @@ import '../../sentry_flutter.dart';
 import '../integrations/integrations.dart';
 import '../native/sentry_native.dart';
 import 'display_strategy_evaluator.dart';
+import 'time_to_display_transaction_handler.dart';
 
 @internal
 class TimeToDisplayTracker {
   final Hub _hub;
-  final bool _enableAutoTransactions;
-  final Duration _autoFinishAfter;
   final SentryNative? _native;
+  final TimeToDisplayTransactionHandler _transactionHandler;
 
   static DateTime? _startTimestamp;
   static DateTime? _ttidEndTimestamp;
   static ISentrySpan? _ttidSpan;
   static ISentrySpan? _ttfdSpan;
   static Timer? _ttfdTimer;
+  static ISentrySpan? _transaction;
+
+  @visibleForTesting
+  Duration ttfdAutoFinishAfter = Duration(seconds: 30);
 
   SentryFlutterOptions? get _options => _hub.options is SentryFlutterOptions
       // ignore: invalid_use_of_internal_member
@@ -30,75 +34,17 @@ class TimeToDisplayTracker {
     required Hub? hub,
     required bool enableAutoTransactions,
     required Duration autoFinishAfter,
+    TimeToDisplayTransactionHandler? transactionHandler,
   })  : _hub = hub ?? HubAdapter(),
-        _enableAutoTransactions = enableAutoTransactions,
-        _autoFinishAfter = autoFinishAfter,
-        _native = SentryFlutter.native;
-
-  Future<ISentrySpan?> _startTransaction(String? routeName, Object? arguments,
-      {DateTime? startTimestamp}) async {
-    if (!_enableAutoTransactions) {
-      return null;
-    }
-
-    if (routeName == null) {
-      return null;
-    }
-
-    if (routeName == '/') {
-      routeName = 'root ("/")';
-    }
-
-    final transactionContext = SentryTransactionContext(
-      routeName,
-      'ui.load',
-      transactionNameSource: SentryTransactionNameSource.component,
-      // ignore: invalid_use_of_internal_member
-      origin: SentryTraceOrigins.autoNavigationRouteObserver,
-    );
-
-    final transaction = _hub.startTransactionWithContext(
-      transactionContext,
-      waitForChildren: true,
-      autoFinishAfter: _autoFinishAfter,
-      trimEnd: true,
-      bindToScope: true,
-      startTimestamp: startTimestamp,
-      onFinish: (transaction) async {
-        final nativeFrames = await _native
-            ?.endNativeFramesCollection(transaction.context.traceId);
-        if (nativeFrames != null) {
-          final measurements = nativeFrames.toMeasurements();
-          for (final item in measurements.entries) {
-            final measurement = item.value;
-            transaction.setMeasurement(
-              item.key,
-              measurement.value,
-              unit: measurement.unit,
+        _native = SentryFlutter.native,
+        _transactionHandler = transactionHandler ??
+            TimeToDisplayTransactionHandler(
+              hub: hub,
+              enableAutoTransactions: enableAutoTransactions,
+              autoFinishAfter: autoFinishAfter,
             );
-          }
-        }
-      },
-    );
-
-    // if _enableAutoTransactions is enabled but there's no traces sample rate
-    if (transaction is NoOpSentrySpan) {
-      return null;
-    }
-
-    if (arguments != null) {
-      transaction.setData('route_settings_arguments', arguments);
-    }
-
-    await _native?.beginNativeFramesCollection();
-
-    return transaction;
-  }
 
   void startMeasurement(String? routeName, Object? arguments) async {
-    _ttidSpan = null;
-    _ttfdSpan = null;
-
     final startTimestamp = DateTime.now();
     _startTimestamp = startTimestamp;
 
@@ -123,16 +69,25 @@ class TimeToDisplayTracker {
       final routeName = SentryNavigatorObserver.currentRouteName;
       if (appStartInfo == null || routeName == null) return;
 
-      final transaction = await _startTransaction(routeName, arguments,
+      final transaction = await _transactionHandler.startTransaction(
+          routeName, arguments,
           startTimestamp: appStartInfo.start);
       if (transaction == null) return;
+      _transaction = transaction;
 
-      final ttidSpan =
-          _createTTIDSpan(transaction, routeName, appStartInfo.start);
+      final ttidSpan = _transactionHandler.createSpan(
+          transaction,
+          TimeToDisplayType.timeToInitialDisplay,
+          routeName,
+          appStartInfo.start);
       if (_options?.enableTimeToFullDisplayTracing == true) {
-        _ttfdSpan = _createTTFDSpan(transaction, routeName, appStartInfo.start);
+        _ttfdSpan = _transactionHandler.createSpan(transaction,
+            TimeToDisplayType.timeToFullDisplay, routeName, appStartInfo.start);
       }
-      _finishSpan(ttidSpan, transaction, appStartInfo.end,
+      TimeToDisplayTransactionHandler.finishSpan(
+          transaction: transaction,
+          span: ttidSpan,
+          endTimestamp: appStartInfo.end,
           measurement: appStartInfo.measurement);
     });
   }
@@ -140,10 +95,11 @@ class TimeToDisplayTracker {
   // Handles measuring navigation for regular routes
   void _handleRegularRouteMeasurement(
       String? routeName, Object? arguments, DateTime startTimestamp) async {
-    final transaction = await _startTransaction(routeName, arguments,
-        startTimestamp: startTimestamp);
+    final transaction = await _transactionHandler
+        .startTransaction(routeName, arguments, startTimestamp: startTimestamp);
 
     if (transaction == null || routeName == null) return;
+    _transaction = transaction;
 
     _initializeTimeToDisplaySpans(transaction, routeName, startTimestamp);
 
@@ -155,36 +111,43 @@ class TimeToDisplayTracker {
 
   void _initializeTimeToDisplaySpans(
       ISentrySpan transaction, String routeName, DateTime startTimestamp) {
-    _ttidSpan = _createTTIDSpan(transaction, routeName, startTimestamp);
+    _ttidSpan = _transactionHandler.createSpan(transaction,
+        TimeToDisplayType.timeToInitialDisplay, routeName, startTimestamp);
     if (_options?.enableTimeToFullDisplayTracing == true) {
-      _ttfdSpan = _createTTFDSpan(transaction, routeName, startTimestamp);
-      final ttfdAutoFinishAfter = Duration(seconds: 30);
-      _ttfdTimer = Timer(ttfdAutoFinishAfter, () {
-        if (_ttfdSpan?.finished == true) {
+      _ttfdSpan = _transactionHandler.createSpan(transaction,
+          TimeToDisplayType.timeToFullDisplay, routeName, startTimestamp);
+      _ttfdTimer = Timer(ttfdAutoFinishAfter, () async {
+        final ttfdSpan = _ttfdSpan;
+        final ttfdEndTimestamp = _ttidEndTimestamp;
+        if (ttfdSpan == null ||
+            ttfdSpan.finished == true ||
+            ttfdEndTimestamp == null) {
           return;
         }
-        _finishSpan(_ttfdSpan!, transaction, _ttidEndTimestamp!,
+        TimeToDisplayTransactionHandler.finishSpan(
+            transaction: transaction,
+            span: ttfdSpan,
+            endTimestamp: ttfdEndTimestamp,
             status: SpanStatus.deadlineExceeded());
       });
     }
   }
 
-  ISentrySpan _createTTIDSpan(
-      ISentrySpan transaction, String routeName, DateTime startTimestamp) {
-    return transaction.startChild(
-      SentryTraceOrigins.uiTimeToInitialDisplay,
-      description: '$routeName initial display',
-      startTimestamp: startTimestamp,
-    );
-  }
+  void _finishInitialDisplay(ISentrySpan ttidSpan, ISentrySpan transaction,
+      String routeName, DateTime startTimestamp) async {
+    final endTimestamp = await _determineEndTimeOfTTID(routeName);
+    if (endTimestamp == null) return;
+    _ttidEndTimestamp = endTimestamp;
 
-  ISentrySpan _createTTFDSpan(
-      ISentrySpan transaction, String routeName, DateTime startTimestamp) {
-    return transaction.startChild(
-      SentryTraceOrigins.uiTimeToFullDisplay,
-      description: '$routeName full display',
-      startTimestamp: startTimestamp,
-    );
+    final duration = endTimestamp.difference(startTimestamp).inMilliseconds;
+    final measurement = SentryMeasurement('time_to_initial_display', duration,
+        unit: DurationSentryMeasurementUnit.milliSecond);
+
+    TimeToDisplayTransactionHandler.finishSpan(
+        transaction: transaction,
+        span: ttidSpan,
+        endTimestamp: endTimestamp,
+        measurement: measurement);
   }
 
   Future<DateTime?> _determineEndTimeOfTTID(String routeName) async {
@@ -216,14 +179,10 @@ class TimeToDisplayTracker {
 
   @internal
   static void reportFullyDisplayed() {
-    _finishFullDisplay();
-  }
-
-  static void _finishFullDisplay() {
     _ttfdTimer?.cancel();
     final endTimestamp = DateTime.now();
     final startTimestamp = _startTimestamp;
-    final transaction = Sentry.getSpan();
+    final transaction = _transaction;
     final ttfdSpan = _ttfdSpan;
     if (startTimestamp == null || transaction == null || ttfdSpan == null) {
       return;
@@ -231,28 +190,10 @@ class TimeToDisplayTracker {
     final duration = endTimestamp.difference(startTimestamp).inMilliseconds;
     final measurement = SentryMeasurement('time_to_full_display', duration,
         unit: DurationSentryMeasurementUnit.milliSecond);
-    _finishSpan(ttfdSpan, transaction, endTimestamp, measurement: measurement);
-  }
-
-  void _finishInitialDisplay(ISentrySpan ttidSpan, ISentrySpan transaction,
-      String routeName, DateTime startTimestamp) async {
-    final endTimestamp = await _determineEndTimeOfTTID(routeName);
-    if (endTimestamp == null) return;
-    _ttidEndTimestamp = endTimestamp;
-
-    final duration = endTimestamp.difference(startTimestamp).inMilliseconds;
-    final measurement = SentryMeasurement('time_to_initial_display', duration,
-        unit: DurationSentryMeasurementUnit.milliSecond);
-    _finishSpan(ttidSpan, transaction, endTimestamp, measurement: measurement);
-  }
-
-  static void _finishSpan(
-      ISentrySpan span, ISentrySpan transaction, DateTime endTimestamp,
-      {SentryMeasurement? measurement, SpanStatus? status}) {
-    if (measurement != null) {
-      transaction.setMeasurement(measurement.name, measurement.value,
-          unit: measurement.unit);
-    }
-    span.finish(status: status, endTimestamp: endTimestamp);
+    TimeToDisplayTransactionHandler.finishSpan(
+        transaction: transaction,
+        span: ttfdSpan,
+        endTimestamp: endTimestamp,
+        measurement: measurement);
   }
 }
