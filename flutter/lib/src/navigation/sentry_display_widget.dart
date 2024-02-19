@@ -16,7 +16,8 @@ class _SentryDisplayWidgetState extends State<SentryDisplayWidget> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      SentryFlutter.reportInitiallyDisplayed(context);
+      final route = ModalRoute.of(context);
+      SentryFlutter.reportInitiallyDisplayed(routeName: route?.settings.name);
     });
   }
 

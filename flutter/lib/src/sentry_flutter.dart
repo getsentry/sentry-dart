@@ -230,11 +230,8 @@ mixin SentryFlutter {
     options.sdk = sdk;
   }
 
-  static void reportInitiallyDisplayed(BuildContext context) {
-    final routeName = ModalRoute.of(context)?.settings.name;
-    if (routeName != null) {
-      TimeToDisplayTracker.reportInitiallyDisplayed(routeName);
-    }
+  static void reportInitiallyDisplayed({String? routeName}) {
+    TimeToDisplayTracker.reportInitiallyDisplayed(routeName: routeName);
   }
 
   /// Reports the time it took for the screen to be fully displayed.

@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:sentry_flutter/src/navigation/display_strategy_evaluator.dart';
+import 'package:sentry_flutter/src/integrations/integrations.dart';
 import 'package:sentry_flutter/src/navigation/time_to_display_tracker.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 
@@ -15,24 +15,47 @@ void main() {
   });
 
   group('time to initial display', () {
-    group('in root screen app start route', () {});
-
-    group('in regular routes', () {
-      test('startMeasurement creates ttid span', () async {
+    group('in root screen app start route', () {
+      test('startMeasurement finishes ttid span', () async {
+        SentryFlutter.native = TestMockSentryNative();
         final sut = fixture.getSut();
 
-        sut.startMeasurement('Current Route', null);
+        sut.startMeasurement('/', null);
+
+        AppStartTracker().setAppStartInfo(AppStartInfo(
+            DateTime.fromMillisecondsSinceEpoch(0),
+            DateTime.fromMillisecondsSinceEpoch(10),
+            SentryMeasurement('', 0)));
+
+        await Future.delayed(const Duration(milliseconds: 100));
 
         final transaction = fixture.hub.getSpan() as SentryTracer;
-        await Future.delayed(const Duration(milliseconds: 100));
 
         final spans = transaction.children;
         expect(transaction.children, hasLength(1));
         expect(spans[0].context.operation,
             SentryTraceOrigins.uiTimeToInitialDisplay);
+        expect(spans[0].finished, isTrue);
       });
+    });
 
-      group('with approximation strategy', () {});
+    group('in regular routes', () {
+      group('with approximation strategy', () {
+        test('startMeasurement finishes ttid span', () async {
+          final sut = fixture.getSut();
+
+          sut.startMeasurement('Current Route', null);
+
+          final transaction = fixture.hub.getSpan() as SentryTracer;
+          await Future.delayed(const Duration(milliseconds: 2000));
+
+          final spans = transaction.children;
+          expect(transaction.children, hasLength(1));
+          expect(spans[0].context.operation,
+              SentryTraceOrigins.uiTimeToInitialDisplay);
+          expect(spans[0].finished, isTrue);
+        });
+      });
 
       group('with manual strategy', () {
         test('finishes ttid span after reporting with manual api', () async {
@@ -41,7 +64,10 @@ void main() {
           sut.startMeasurement('Current Route', null);
 
           final transaction = fixture.hub.getSpan() as SentryTracer;
+
           await Future.delayed(const Duration(milliseconds: 100));
+
+          SentryFlutter.reportInitiallyDisplayed(routeName: 'Current Route');
 
           final ttidSpan = transaction.children
               .where((element) =>
@@ -79,7 +105,36 @@ void main() {
           spans[1].context.operation, SentryTraceOrigins.uiTimeToFullDisplay);
     });
 
-    group('in root screen app start route', () {});
+    group('in root screen app start route', () {
+      test('startMeasurement finishes ttfd span', () async {
+        SentryFlutter.native = TestMockSentryNative();
+        final sut = fixture.getSut();
+
+        sut.startMeasurement('/', null);
+
+        AppStartTracker().setAppStartInfo(AppStartInfo(
+            DateTime.fromMillisecondsSinceEpoch(0),
+            DateTime.fromMillisecondsSinceEpoch(10),
+            SentryMeasurement('', 0)));
+
+        await Future.delayed(const Duration(milliseconds: 100));
+
+        final transaction = fixture.hub.getSpan() as SentryTracer;
+
+        final ttfdSpan = transaction.children
+            .where((element) =>
+                element.context.operation ==
+                SentryTraceOrigins.uiTimeToFullDisplay)
+            .first;
+        expect(ttfdSpan, isNotNull);
+
+        SentryFlutter.reportFullyDisplayed();
+        await Future.delayed(const Duration(milliseconds: 100));
+
+        expect(ttfdSpan.finished, isTrue);
+      });
+    });
+
     group('in regular routes', () {
       test('finishes ttfd span after calling reportFullyDisplayed', () async {
         final sut = fixture.getSut();
@@ -103,7 +158,7 @@ void main() {
       });
 
       test(
-          'not using reportFullyDisplayed finishes ttfd span after timeout with deadline exceeded',
+          'not using reportFullyDisplayed finishes ttfd span after timeout with deadline exceeded and ttid matching end time',
           () async {
         final sut = fixture.getSut();
         sut.ttfdAutoFinishAfter = const Duration(seconds: 3);
@@ -111,8 +166,8 @@ void main() {
         sut.startMeasurement('Current Route', null);
 
         final transaction = fixture.hub.getSpan() as SentryTracer;
+
         await Future.delayed(const Duration(milliseconds: 100));
-        DisplayStrategyEvaluator().reportManual('Current Route');
 
         final ttfdSpan = transaction.children
             .where((element) =>
@@ -121,10 +176,19 @@ void main() {
             .first;
         expect(ttfdSpan, isNotNull);
 
-        await Future.delayed(sut.ttfdAutoFinishAfter + const Duration(milliseconds: 100));
+        final ttidSpan = transaction.children
+            .where((element) =>
+                element.context.operation ==
+                SentryTraceOrigins.uiTimeToInitialDisplay)
+            .first;
+        expect(ttfdSpan, isNotNull);
+
+        await Future.delayed(
+            sut.ttfdAutoFinishAfter + const Duration(milliseconds: 100));
 
         expect(ttfdSpan.finished, isTrue);
         expect(ttfdSpan.status, SpanStatus.deadlineExceeded());
+        expect(ttfdSpan.endTimestamp, ttidSpan.endTimestamp);
       });
     });
   });
@@ -145,6 +209,8 @@ class Fixture {
     ..dsn = fakeDsn
     ..tracesSampleRate = 1.0;
 
+  final frameCallbackHandler = MockFrameCallbackHandler();
+
   late final hub = Hub(options);
 
   TimeToDisplayTracker getSut({bool enableTimeToFullDisplayTracing = false}) {
@@ -152,6 +218,7 @@ class Fixture {
       hub: hub,
       enableAutoTransactions: true,
       autoFinishAfter: const Duration(seconds: 3),
+      frameCallbackHandler: frameCallbackHandler,
     );
   }
 }

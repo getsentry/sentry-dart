@@ -14,6 +14,7 @@ class TimeToDisplayTracker {
   final Hub _hub;
   final SentryNative? _native;
   final TimeToDisplayTransactionHandler _transactionHandler;
+  final IFrameCallbackHandler _frameCallbackHandler;
 
   static DateTime? _startTimestamp;
   static DateTime? _ttidEndTimestamp;
@@ -34,9 +35,11 @@ class TimeToDisplayTracker {
     required Hub? hub,
     required bool enableAutoTransactions,
     required Duration autoFinishAfter,
+    IFrameCallbackHandler? frameCallbackHandler,
     TimeToDisplayTransactionHandler? transactionHandler,
   })  : _hub = hub ?? HubAdapter(),
         _native = SentryFlutter.native,
+        _frameCallbackHandler = frameCallbackHandler ?? FrameCallbackHandler(),
         _transactionHandler = transactionHandler ??
             TimeToDisplayTransactionHandler(
               hub: hub,
@@ -66,11 +69,11 @@ class TimeToDisplayTracker {
   /// We start and immediately finish the TTID span since we cannot mutate the history of spans.
   void _handleAppStartMeasurement(String? routeName, Object? arguments) {
     AppStartTracker().onAppStartComplete((appStartInfo) async {
-      final routeName = SentryNavigatorObserver.currentRouteName;
-      if (appStartInfo == null || routeName == null) return;
+      final name = routeName ?? SentryNavigatorObserver.currentRouteName;
+      if (appStartInfo == null || name == null) return;
 
       final transaction = await _transactionHandler.startTransaction(
-          routeName, arguments,
+          name, arguments,
           startTimestamp: appStartInfo.start);
       if (transaction == null) return;
       _transaction = transaction;
@@ -78,12 +81,14 @@ class TimeToDisplayTracker {
       final ttidSpan = _transactionHandler.createSpan(
           transaction,
           TimeToDisplayType.timeToInitialDisplay,
-          routeName,
+          name,
           appStartInfo.start);
+
       if (_options?.enableTimeToFullDisplayTracing == true) {
         _ttfdSpan = _transactionHandler.createSpan(transaction,
-            TimeToDisplayType.timeToFullDisplay, routeName, appStartInfo.start);
+            TimeToDisplayType.timeToFullDisplay, name, appStartInfo.start);
       }
+
       TimeToDisplayTransactionHandler.finishSpan(
           transaction: transaction,
           span: ttidSpan,
@@ -154,7 +159,7 @@ class TimeToDisplayTracker {
     DateTime? endTimestamp;
     final endTimeCompleter = Completer<DateTime>();
 
-    SchedulerBinding.instance.addPostFrameCallback((_) {
+    _frameCallbackHandler.addPostFrameCallback((_) {
       endTimestamp = DateTime.now();
       endTimeCompleter.complete(endTimestamp);
     });
@@ -173,7 +178,10 @@ class TimeToDisplayTracker {
   }
 
   @internal
-  static void reportInitiallyDisplayed(String routeName) {
+  static void reportInitiallyDisplayed({String? routeName}) {
+    routeName = routeName ?? SentryNavigatorObserver.currentRouteName;
+
+    if (routeName == null) return;
     DisplayStrategyEvaluator().reportManual(routeName);
   }
 
@@ -195,5 +203,29 @@ class TimeToDisplayTracker {
         span: ttfdSpan,
         endTimestamp: endTimestamp,
         measurement: measurement);
+  }
+}
+
+abstract class IFrameCallbackHandler {
+  void addPostFrameCallback(FrameCallback callback, {String debugLabel});
+}
+
+class FrameCallbackHandler implements IFrameCallbackHandler {
+  @override
+  void addPostFrameCallback(FrameCallback callback,
+      {String debugLabel = 'callback'}) {
+    SchedulerBinding.instance.addPostFrameCallback(callback);
+  }
+}
+
+class MockFrameCallbackHandler implements IFrameCallbackHandler {
+  FrameCallback? storedCallback;
+
+  @override
+  void addPostFrameCallback(FrameCallback callback,
+      {String debugLabel = 'callback'}) {
+    Future.delayed(Duration(milliseconds: 500), () {
+      callback(Duration.zero);
+    });
   }
 }
