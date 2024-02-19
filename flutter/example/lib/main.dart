@@ -79,10 +79,6 @@ Future<void> setupSentry(AppRunner appRunner, String dsn,
     options.maxRequestBodySize = MaxRequestBodySize.always;
     options.maxResponseBodySize = MaxResponseBodySize.always;
 
-    options.enableAutoNativeBreadcrumbs = false;
-    options.recordHttpBreadcrumbs = false;
-    options.captureFailedRequests = false;
-
     _isIntegrationTest = isIntegrationTest;
     if (_isIntegrationTest) {
       options.dist = '1';
