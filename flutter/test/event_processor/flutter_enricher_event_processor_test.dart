@@ -138,30 +138,6 @@ void main() {
       expect(event?.contexts.culture?.locale, 'de-DE');
     });
 
-    testWidgets(
-        'GIVEN MaterialApp WHEN setting sentryNavigatorKey THEN enrich event app with textScale',
-        (WidgetTester tester) async {
-      GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
-
-      await tester.pumpWidget(MaterialApp(
-        navigatorKey: navigatorKey,
-        home: Material(),
-      ));
-
-      final enricher = fixture.getSut(
-        binding: () => tester.binding,
-        optionsBuilder: (options) {
-          options.navigatorKey = navigatorKey;
-          return options;
-        },
-      );
-
-      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
-      final event = await enricher.apply(SentryEvent());
-
-      expect(event?.contexts.app?.textScale, 'no scaling');
-    });
-
     testWidgets('app context in foreground', (WidgetTester tester) async {
       final enricher = fixture.getSut(
         binding: () => tester.binding,

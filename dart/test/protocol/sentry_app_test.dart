@@ -90,7 +90,7 @@ void main() {
         deviceAppHash: 'hash1',
         inForeground: true,
         viewNames: ['screen1'],
-        textScale: 'textScale1'
+        textScale: 'textScale1',
       );
 
       expect('name1', copy.name);
