@@ -50,7 +50,9 @@ class FlutterEnricherEventProcessor implements EventProcessor {
 
     final app = contexts.app;
     if (app != null) {
-      contexts.app = _appWithCurrentRouteViewName(app);
+      contexts.app = _appWithCurrentRouteViewName(app).copyWith(
+        textScale: _retrieveWidgetTextScale(_options.navigatorKey),
+      );
     }
 
     // Flutter has a lot of Accessibility Settings available and exposes them
@@ -260,11 +262,26 @@ class FlutterEnricherEventProcessor implements EventProcessor {
   }
 
   Locale? _retrieveWidgetLocale(GlobalKey<NavigatorState>? navigatorKey) {
-    final BuildContext? context = navigatorKey?.currentContext;
-    if (context != null) {
-      return Localizations.maybeLocaleOf(context);
+    final context = navigatorKey?.currentContext;
+    if (context == null) {
+      return null;
     }
-    return null;
+    return Localizations.maybeLocaleOf(context);
+  }
+
+  String? _retrieveWidgetTextScale(GlobalKey<NavigatorState>? navigatorKey) {
+    final context = navigatorKey?.currentContext;
+    if (context == null) {
+      return null;
+    }
+    final textScaleFactor =
+        MediaQuery.maybeTextScalerOf(context)?.textScaleFactor;
+    if (textScaleFactor == null) {
+      return null;
+    }
+    return textScaleFactor == 1.0
+        ? 'no scaling'
+        : 'linear (${textScaleFactor}x)';
   }
 }
 

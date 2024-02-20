@@ -78,6 +78,7 @@ Future<void> setupSentry(AppRunner appRunner, String dsn,
 
     options.maxRequestBodySize = MaxRequestBodySize.always;
     options.maxResponseBodySize = MaxResponseBodySize.always;
+    options.navigatorKey = navigatorKey;
 
     _isIntegrationTest = isIntegrationTest;
     if (_isIntegrationTest) {

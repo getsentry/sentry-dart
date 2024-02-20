@@ -15,6 +15,7 @@ void main() {
     deviceAppHash: 'fixture-deviceAppHash',
     inForeground: true,
     viewNames: ['fixture-viewName', 'fixture-viewName2'],
+    textScale: 'fixture-textScale',
   );
 
   final sentryAppJson = <String, dynamic>{
@@ -27,6 +28,7 @@ void main() {
     'device_app_hash': 'fixture-deviceAppHash',
     'in_foreground': true,
     'view_names': ['fixture-viewName', 'fixture-viewName2'],
+    'text_scale': 'fixture-textScale',
   };
 
   group('json', () {
@@ -42,6 +44,7 @@ void main() {
       expect(json['device_app_hash'], 'fixture-deviceAppHash');
       expect(json['in_foreground'], true);
       expect(json['view_names'], ['fixture-viewName', 'fixture-viewName2']);
+      expect(json['text_scale'], 'fixture-textScale');
     });
     test('fromJson', () {
       final sentryApp = SentryApp.fromJson(sentryAppJson);
@@ -56,6 +59,7 @@ void main() {
       expect(json['device_app_hash'], 'fixture-deviceAppHash');
       expect(json['in_foreground'], true);
       expect(json['view_names'], ['fixture-viewName', 'fixture-viewName2']);
+      expect(json['text_scale'], 'fixture-textScale');
     });
   });
 
@@ -86,6 +90,7 @@ void main() {
         deviceAppHash: 'hash1',
         inForeground: true,
         viewNames: ['screen1'],
+        textScale: 'textScale1'
       );
 
       expect('name1', copy.name);
@@ -97,6 +102,7 @@ void main() {
       expect('hash1', copy.deviceAppHash);
       expect(true, copy.inForeground);
       expect(['screen1'], copy.viewNames);
+      expect('textScale1', copy.textScale);
     });
   });
 }
