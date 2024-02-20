@@ -116,7 +116,11 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
 
   Future<void> _finishTransaction() async {
     final transaction = _hub.getSpan();
-    await transaction?.finish();
+    if (transaction == null || transaction.finished) {
+      return;
+    }
+    transaction.status ??= SpanStatus.ok();
+    await transaction.finish();
   }
 
   @override

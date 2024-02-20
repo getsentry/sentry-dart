@@ -57,7 +57,6 @@ class TimeToDisplayTransactionHandler extends ITimeToDisplayTransactionHandler {
       waitForChildren: true,
       autoFinishAfter: _autoFinishAfter,
       trimEnd: true,
-      bindToScope: true,
       startTimestamp: startTimestamp,
       onFinish: (transaction) async {
         final nativeFrames = await _native
@@ -84,6 +83,10 @@ class TimeToDisplayTransactionHandler extends ITimeToDisplayTransactionHandler {
     if (arguments != null) {
       transaction?.setData('route_settings_arguments', arguments);
     }
+
+    _hub?.configureScope((scope) {
+      scope.span ??= transaction;
+    });
 
     await _native?.beginNativeFramesCollection();
 

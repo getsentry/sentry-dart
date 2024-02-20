@@ -22,6 +22,7 @@ class TimeToDisplayTracker {
   static ISentrySpan? _ttfdSpan;
   static Timer? _ttfdTimer;
   static ISentrySpan? _transaction;
+  static ISentrySpan? get transaction => _transaction;
 
   @visibleForTesting
   Duration ttfdAutoFinishAfter = Duration(seconds: 30);
