@@ -260,7 +260,7 @@ class FlutterEnricherEventProcessor implements EventProcessor {
   }
 
   Locale? _retrieveWidgetLocale(GlobalKey<NavigatorState>? navigatorKey) {
-    final context = navigatorKey?.currentContext;
+    final BuildContext? context = navigatorKey?.currentContext;
     if (context != null) {
       return Localizations.maybeLocaleOf(context);
     }
