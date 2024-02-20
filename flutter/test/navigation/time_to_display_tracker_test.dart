@@ -14,6 +14,10 @@ void main() {
     fixture = Fixture();
   });
 
+  tearDown(() async {
+    await Future.delayed(const Duration(milliseconds: 500));
+  });
+
   group('time to initial display', () {
     group('in root screen app start route', () {
       test('startMeasurement finishes ttid span', () async {
@@ -34,7 +38,7 @@ void main() {
         final spans = transaction.children;
         expect(transaction.children, hasLength(1));
         expect(spans[0].context.operation,
-            SentryTraceOrigins.uiTimeToInitialDisplay);
+            SentrySpanOperations.uiTimeToInitialDisplay);
         expect(spans[0].finished, isTrue);
       });
     });
@@ -52,7 +56,7 @@ void main() {
           final spans = transaction.children;
           expect(transaction.children, hasLength(1));
           expect(spans[0].context.operation,
-              SentryTraceOrigins.uiTimeToInitialDisplay);
+              SentrySpanOperations.uiTimeToInitialDisplay);
           expect(spans[0].finished, isTrue);
         });
       });
@@ -72,7 +76,7 @@ void main() {
           final ttidSpan = transaction.children
               .where((element) =>
                   element.context.operation ==
-                  SentryTraceOrigins.uiTimeToInitialDisplay)
+                  SentrySpanOperations.uiTimeToInitialDisplay)
               .first;
           expect(ttidSpan, isNotNull);
 
@@ -100,9 +104,9 @@ void main() {
       final spans = transaction.children;
       expect(transaction.children, hasLength(2));
       expect(spans[0].context.operation,
-          SentryTraceOrigins.uiTimeToInitialDisplay);
+          SentrySpanOperations.uiTimeToInitialDisplay);
       expect(
-          spans[1].context.operation, SentryTraceOrigins.uiTimeToFullDisplay);
+          spans[1].context.operation, SentrySpanOperations.uiTimeToFullDisplay);
     });
 
     group('in root screen app start route', () {
@@ -115,7 +119,8 @@ void main() {
         AppStartTracker().setAppStartInfo(AppStartInfo(
             DateTime.fromMillisecondsSinceEpoch(0),
             DateTime.fromMillisecondsSinceEpoch(10),
-            SentryMeasurement('', 0)));
+            SentryMeasurement('', 10,
+                unit: DurationSentryMeasurementUnit.milliSecond)));
 
         await Future.delayed(const Duration(milliseconds: 100));
 
@@ -124,11 +129,12 @@ void main() {
         final ttfdSpan = transaction.children
             .where((element) =>
                 element.context.operation ==
-                SentryTraceOrigins.uiTimeToFullDisplay)
+                SentrySpanOperations.uiTimeToFullDisplay)
             .first;
         expect(ttfdSpan, isNotNull);
 
         SentryFlutter.reportFullyDisplayed();
+
         await Future.delayed(const Duration(milliseconds: 100));
 
         expect(ttfdSpan.finished, isTrue);
@@ -147,7 +153,7 @@ void main() {
         final ttfdSpan = transaction.children
             .where((element) =>
                 element.context.operation ==
-                SentryTraceOrigins.uiTimeToFullDisplay)
+                SentrySpanOperations.uiTimeToFullDisplay)
             .first;
         expect(ttfdSpan, isNotNull);
 
@@ -172,14 +178,14 @@ void main() {
         final ttfdSpan = transaction.children
             .where((element) =>
                 element.context.operation ==
-                SentryTraceOrigins.uiTimeToFullDisplay)
+                SentrySpanOperations.uiTimeToFullDisplay)
             .first;
         expect(ttfdSpan, isNotNull);
 
         final ttidSpan = transaction.children
             .where((element) =>
                 element.context.operation ==
-                SentryTraceOrigins.uiTimeToInitialDisplay)
+                SentrySpanOperations.uiTimeToInitialDisplay)
             .first;
         expect(ttfdSpan, isNotNull);
 
@@ -200,7 +206,7 @@ void main() {
 
     final transaction = fixture.hub.getSpan();
     expect(transaction, isNotNull);
-    expect(transaction?.context.operation, SentryTraceOrigins.uiLoad);
+    expect(transaction?.context.operation, SentrySpanOperations.uiLoad);
   });
 }
 
@@ -209,7 +215,7 @@ class Fixture {
     ..dsn = fakeDsn
     ..tracesSampleRate = 1.0;
 
-  final frameCallbackHandler = MockFrameCallbackHandler();
+  final frameCallbackHandler = FakeFrameCallbackHandler();
 
   late final hub = Hub(options);
 

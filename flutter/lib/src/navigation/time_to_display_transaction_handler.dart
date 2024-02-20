@@ -46,7 +46,7 @@ class TimeToDisplayTransactionHandler extends ITimeToDisplayTransactionHandler {
 
     final transactionContext = SentryTransactionContext(
       routeName,
-      'ui.load',
+      SentrySpanOperations.uiLoad,
       transactionNameSource: SentryTransactionNameSource.component,
       // ignore: invalid_use_of_internal_member
       origin: SentryTraceOrigins.autoNavigationRouteObserver,
@@ -100,28 +100,16 @@ class TimeToDisplayTransactionHandler extends ITimeToDisplayTransactionHandler {
     String description;
     switch (type) {
       case TimeToDisplayType.timeToInitialDisplay:
-        operation = SentryTraceOrigins.uiTimeToInitialDisplay;
+        operation = SentrySpanOperations.uiTimeToInitialDisplay;
         description = '$routeName initial display';
         break;
       case TimeToDisplayType.timeToFullDisplay:
-        operation = SentryTraceOrigins.uiTimeToFullDisplay;
+        operation = SentrySpanOperations.uiTimeToFullDisplay;
         description = '$routeName full display';
         break;
     }
-    return transaction.startChild(operation,
+    final span = transaction.startChild(operation,
         description: description, startTimestamp: startTimestamp);
-  }
-
-  static void finishSpan(
-      {required ISentrySpan span,
-      required ISentrySpan transaction,
-      DateTime? endTimestamp,
-      SentryMeasurement? measurement,
-      SpanStatus? status}) {
-    if (measurement != null) {
-      transaction.setMeasurement(measurement.name, measurement.value,
-          unit: measurement.unit);
-    }
-    span.finish(status: status, endTimestamp: endTimestamp);
+    return span;
   }
 }
