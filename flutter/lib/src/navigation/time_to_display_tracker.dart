@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:meta/meta.dart';
+import 'package:sentry_flutter/src/navigation/time_to_full_display_tracker.dart';
 
 import '../../sentry_flutter.dart';
 import '../frame_callback_handler.dart';
@@ -14,7 +15,7 @@ import 'time_to_initial_display_tracker.dart';
 class TimeToDisplayTracker {
   final Hub _hub;
   final SentryNative? _native;
-  final TimeToDisplayTransactionHandler _transactionHandler;
+  final TimeToDisplayTransactionHandler _ttdTransactionHandler;
   final TTIDEndTimeTracker _ttidEndTimeTracker;
 
   // We need to keep these static to be able to access them from reportFullyDisplayed
@@ -23,6 +24,9 @@ class TimeToDisplayTracker {
   static ISentrySpan? _ttfdSpan;
   static Timer? _ttfdTimer;
   static ISentrySpan? _transaction;
+  static TTFDState ttfdState = TTFDState();
+
+  static TimeToFullDisplayTracker? _ttfdTracker = TimeToFullDisplayTracker();
 
   static ISentrySpan? get transaction => _transaction;
 
@@ -39,10 +43,11 @@ class TimeToDisplayTracker {
     required bool enableAutoTransactions,
     required Duration autoFinishAfter,
     IFrameCallbackHandler? frameCallbackHandler,
-    TimeToDisplayTransactionHandler? transactionHandler,
+    TimeToDisplayTransactionHandler? ttdTransactionHandler,
+    TimeToFullDisplayTracker? ttfdTracker,
   })  : _hub = hub ?? HubAdapter(),
         _native = SentryFlutter.native,
-        _transactionHandler = transactionHandler ??
+        _ttdTransactionHandler = ttdTransactionHandler ??
             TimeToDisplayTransactionHandler(
               hub: hub,
               enableAutoTransactions: enableAutoTransactions,
@@ -75,13 +80,13 @@ class TimeToDisplayTracker {
       final name = routeName ?? SentryNavigatorObserver.currentRouteName;
       if (appStartInfo == null || name == null) return;
 
-      final transaction = await _transactionHandler.startTransaction(
+      final transaction = await _ttdTransactionHandler.startTransaction(
           name, arguments,
           startTimestamp: appStartInfo.start);
       if (transaction == null) return;
       _transaction = transaction;
 
-      final ttidSpan = _transactionHandler.createSpan(transaction,
+      final ttidSpan = _ttdTransactionHandler.createSpan(transaction,
           TimeToDisplayType.timeToInitialDisplay, name, appStartInfo.start);
 
       if (_options?.enableTimeToFullDisplayTracing == true) {
@@ -94,17 +99,22 @@ class TimeToDisplayTracker {
     });
   }
 
-  void _setAppStartMeasurement(ISentrySpan transaction, AppStartInfo appStartInfo) {
-    transaction.setMeasurement(appStartInfo.measurement.name, appStartInfo.measurement.value, unit: appStartInfo.measurement.unit);
+  void _setAppStartMeasurement(
+      ISentrySpan transaction, AppStartInfo appStartInfo) {
+    transaction.setMeasurement(
+        appStartInfo.measurement.name, appStartInfo.measurement.value,
+        unit: appStartInfo.measurement.unit);
 
-    final ttidMeasurement = SentryFlutterMeasurement.timeToInitialDisplay(Duration(milliseconds: appStartInfo.measurement.value.toInt()));
-    transaction.setMeasurement(ttidMeasurement.name, ttidMeasurement.value, unit: ttidMeasurement.unit);
+    final ttidMeasurement = SentryFlutterMeasurement.timeToInitialDisplay(
+        Duration(milliseconds: appStartInfo.measurement.value.toInt()));
+    transaction.setMeasurement(ttidMeasurement.name, ttidMeasurement.value,
+        unit: ttidMeasurement.unit);
   }
 
   // Handles measuring navigation for regular routes
   void _handleRegularRouteMeasurement(
       String? routeName, Object? arguments, DateTime startTimestamp) async {
-    final transaction = await _transactionHandler
+    final transaction = await _ttdTransactionHandler
         .startTransaction(routeName, arguments, startTimestamp: startTimestamp);
 
     if (transaction == null || routeName == null) return;
@@ -113,22 +123,22 @@ class TimeToDisplayTracker {
     await _trackTTID(transaction, startTimestamp, routeName);
 
     if (_options?.enableTimeToFullDisplayTracing == true) {
-      _initializeTTFD(transaction, startTimestamp, routeName);
+      _ttfdTracker?.initializeTTFD(transaction, startTimestamp, routeName);
     }
   }
 
-  Future<void> _trackTTID(ISentrySpan transaction,
-      DateTime startTimestamp, String routeName) async {
+  Future<void> _trackTTID(ISentrySpan transaction, DateTime startTimestamp,
+      String routeName) async {
     final endTimestamp = await _ttidEndTimeTracker.determineEndTime();
     _ttidEndTimestamp = endTimestamp;
-    final ttidSpan = _transactionHandler.createSpan(transaction,
+    final ttidSpan = _ttdTransactionHandler.createSpan(transaction,
         TimeToDisplayType.timeToInitialDisplay, routeName, startTimestamp);
     return ttidSpan.finish(endTimestamp: endTimestamp);
   }
 
   void _initializeTTFD(
       ISentrySpan transaction, DateTime startTimestamp, String routeName) {
-    _ttfdSpan = _transactionHandler.createSpan(transaction,
+    _ttfdSpan = _ttdTransactionHandler.createSpan(transaction,
         TimeToDisplayType.timeToFullDisplay, routeName, startTimestamp);
     _ttfdTimer = Timer(ttfdAutoFinishAfter, handleTimeToFullDisplayTimeout);
   }
@@ -137,27 +147,40 @@ class TimeToDisplayTracker {
     final ttfdSpan = _ttfdSpan;
     final endTimestamp = _ttidEndTimestamp ?? DateTime.now();
     final startTimestamp = _startTimestamp;
-    if (ttfdSpan == null || ttfdSpan.finished == true || startTimestamp == null) return;
+    if (ttfdSpan == null || ttfdSpan.finished == true || startTimestamp == null) {
+      return;
+    }
 
     _setTTFDMeasurement(startTimestamp, endTimestamp);
-    ttfdSpan.finish(status: SpanStatus.deadlineExceeded(), endTimestamp: endTimestamp);
+    ttfdSpan.finish(
+        status: SpanStatus.deadlineExceeded(), endTimestamp: endTimestamp);
   }
 
   @internal
-  static void reportFullyDisplayed() {
-    _ttfdTimer?.cancel();
-    final endTimestamp = DateTime.now();
-    final startTimestamp = _startTimestamp;
-    final ttfdSpan = _ttfdSpan;
-    if (ttfdSpan == null || ttfdSpan.finished == true || startTimestamp == null) return;
-
-    _setTTFDMeasurement(startTimestamp, endTimestamp);
-    ttfdSpan.finish(endTimestamp: endTimestamp);
+  static Future<void> reportFullyDisplayed() async {
+    return _ttfdTracker?.reportFullyDisplayed();
   }
 
-  static void _setTTFDMeasurement(DateTime startTimestamp, DateTime endTimestamp) {
+  static void _setTTFDMeasurement(
+      DateTime startTimestamp, DateTime endTimestamp) {
     final duration = endTimestamp.difference(startTimestamp);
     final measurement = SentryFlutterMeasurement.timeToFullDisplay(duration);
-    _transaction?.setMeasurement(measurement.name, measurement.value, unit: measurement.unit);
+    _transaction?.setMeasurement(measurement.name, measurement.value,
+        unit: measurement.unit);
+  }
+}
+
+class TTFDState {
+  DateTime? startTimestamp;
+  DateTime? ttfdEndTimestamp;
+  ISentrySpan? ttfdSpan;
+  Timer? ttfdTimer;
+
+  void reset() {
+    startTimestamp = null;
+    ttfdEndTimestamp = null;
+    ttfdSpan = null;
+    ttfdTimer?.cancel();
+    ttfdTimer = null;
   }
 }

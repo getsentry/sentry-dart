@@ -196,7 +196,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     _currentRouteName = routeName;
 
     final arguments = route?.settings.arguments;
-    _timeToDisplayTracker.startMeasurement(routeName, arguments);
+    await _timeToDisplayTracker.startMeasurement(routeName, arguments);
   }
 }
 

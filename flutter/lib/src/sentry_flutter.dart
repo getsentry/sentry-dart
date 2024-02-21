@@ -231,8 +231,8 @@ mixin SentryFlutter {
   }
 
   /// Reports the time it took for the screen to be fully displayed.
-  static void reportFullyDisplayed() {
-    TimeToDisplayTracker.reportFullyDisplayed();
+  static void reportFullyDisplayed() async {
+    await TimeToDisplayTracker.reportFullyDisplayed();
   }
 
   @internal
