@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:sentry_flutter/src/navigation/time_to_initial_display_tracker.dart';
 
 import '../../sentry_flutter.dart';
 
@@ -15,10 +16,11 @@ class _SentryDisplayWidgetState extends State<SentryDisplayWidget> {
   @override
   void initState() {
     super.initState();
-    TimeToInitialDisplayTracker().markAsManual();
+    // TODO: add via dependency injection
+    TTIDEndTimeTracker().markAsManual();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      TimeToInitialDisplayTracker().completeTracking();
+      TTIDEndTimeTracker().completeTracking();
     });
   }
 

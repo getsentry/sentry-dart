@@ -119,8 +119,9 @@ void main() {
       expect(enriched.measurements.isEmpty, true);
     });
 
-
-    test('native app start measurement only added once for multiple different transactions', () async {
+    test(
+        'native app start measurement only added once for multiple different transactions',
+        () async {
       fixture.options.autoAppStart = false;
       await fixture.native.fetchNativeAppStart();
       fixture.appStartTracker.setAppStartInfo(
@@ -144,7 +145,8 @@ void main() {
 
       // Represents any other transaction that happened afterwards
       final transaction2 = SentryTransaction(tracer);
-      var secondEnriched = await processor.apply(transaction2) as SentryTransaction;
+      var secondEnriched =
+          await processor.apply(transaction2) as SentryTransaction;
       expect(secondEnriched.measurements.length, 0);
     });
   });

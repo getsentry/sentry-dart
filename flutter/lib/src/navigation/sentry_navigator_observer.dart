@@ -86,7 +86,6 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
           enableAutoTransactions: enableAutoTransactions,
           autoFinishAfter: autoFinishAfter,
         );
-
   }
 
   final Hub _hub;
@@ -277,46 +276,3 @@ extension NativeFramesMeasurement on NativeFrames {
     };
   }
 }
-
-class TimeToInitialDisplayTracker {
-  static final TimeToInitialDisplayTracker _instance = TimeToInitialDisplayTracker._internal();
-  factory TimeToInitialDisplayTracker() => _instance;
-  TimeToInitialDisplayTracker._internal();
-
-  DateTime? _startTime;
-  bool _isManual = false;
-  Completer<DateTime>? _trackingCompleter;
-
-  /// Starts the TTID tracking process and returns a Future that completes
-  /// with the tracking duration when tracking is completed.
-  Future<DateTime>? determineEndTime() {
-    _startTime = DateTime.now();
-    _trackingCompleter = Completer<DateTime>();
-
-    // Schedules a check at the end of the frame to determine if the tracking
-    // should be completed immediately (approximation mode) or deferred (manual mode).
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!_isManual) {
-        completeTracking();
-      }
-    });
-
-    return _trackingCompleter?.future;
-  }
-
-  void markAsManual() {
-    _isManual = true;
-  }
-
-  void completeTracking() {
-    if (_startTime != null) {
-      final endTime = DateTime.now();
-      // Reset after completion
-      _startTime = null;
-      _isManual = false;
-      _trackingCompleter?.complete(endTime);
-    }
-  }
-}
-
-

@@ -60,8 +60,8 @@ void main() {
       final tracer = getMockSentryTracer();
       _whenAnyStart(mockHub, tracer);
       when(tracer.startChild('ui.load.initial_display',
-          description: anyNamed('description'),
-          startTimestamp: anyNamed('startTimestamp')))
+              description: anyNamed('description'),
+              startTimestamp: anyNamed('startTimestamp')))
           .thenReturn(NoOpSentrySpan());
       when(tracer.finished).thenReturn(false);
       when(tracer.status).thenReturn(SpanStatus.ok());
@@ -146,8 +146,8 @@ void main() {
       when(span.finished).thenReturn(false);
       when(span.status).thenReturn(SpanStatus.ok());
       when(span.startChild('ui.load.initial_display',
-          description: anyNamed('description'),
-          startTimestamp: anyNamed('startTimestamp')))
+              description: anyNamed('description'),
+              startTimestamp: anyNamed('startTimestamp')))
           .thenReturn(NoOpSentrySpan());
 
       final sut = fixture.getSut(
@@ -272,8 +272,8 @@ void main() {
       when(span.finished).thenReturn(false);
       when(span.status).thenReturn(SpanStatus.ok());
       when(span.startChild('ui.load.initial_display',
-          description: anyNamed('description'),
-          startTimestamp: anyNamed('startTimestamp')))
+              description: anyNamed('description'),
+              startTimestamp: anyNamed('startTimestamp')))
           .thenReturn(NoOpSentrySpan());
       _whenAnyStart(hub, span);
 
@@ -305,8 +305,8 @@ void main() {
       when(span.status).thenReturn(null);
       when(span.finished).thenReturn(false);
       when(span.startChild('ui.load.initial_display',
-          description: anyNamed('description'),
-          startTimestamp: anyNamed('startTimestamp')))
+              description: anyNamed('description'),
+              startTimestamp: anyNamed('startTimestamp')))
           .thenReturn(NoOpSentrySpan());
       _whenAnyStart(hub, span);
 
@@ -328,8 +328,8 @@ void main() {
       when(span.status).thenReturn(null);
       when(span.finished).thenReturn(false);
       when(span.startChild('ui.load.initial_display',
-          description: anyNamed('description'),
-          startTimestamp: anyNamed('startTimestamp')))
+              description: anyNamed('description'),
+              startTimestamp: anyNamed('startTimestamp')))
           .thenReturn(NoOpSentrySpan());
       _whenAnyStart(hub, span);
 
@@ -355,8 +355,8 @@ void main() {
       when(span.status).thenReturn(null);
       when(span.finished).thenReturn(false);
       when(span.startChild('ui.load.initial_display',
-          description: anyNamed('description'),
-          startTimestamp: anyNamed('startTimestamp')))
+              description: anyNamed('description'),
+              startTimestamp: anyNamed('startTimestamp')))
           .thenReturn(NoOpSentrySpan());
       _whenAnyStart(hub, span);
 
@@ -376,8 +376,8 @@ void main() {
       when(span.finished).thenReturn(false);
       when(span.status).thenReturn(SpanStatus.ok());
       when(span.startChild('ui.load.initial_display',
-          description: anyNamed('description'),
-          startTimestamp: anyNamed('startTimestamp')))
+              description: anyNamed('description'),
+              startTimestamp: anyNamed('startTimestamp')))
           .thenReturn(NoOpSentrySpan());
       _whenAnyStart(hub, span);
 
@@ -412,8 +412,8 @@ void main() {
       when(span.finished).thenReturn(false);
       when(span.status).thenReturn(SpanStatus.ok());
       when(span.startChild('ui.load.initial_display',
-          description: anyNamed('description'),
-          startTimestamp: anyNamed('startTimestamp')))
+              description: anyNamed('description'),
+              startTimestamp: anyNamed('startTimestamp')))
           .thenReturn(NoOpSentrySpan());
       _whenAnyStart(hub, span);
 
@@ -440,8 +440,8 @@ void main() {
       when(span.finished).thenReturn(false);
       when(span.status).thenReturn(SpanStatus.ok());
       when(span.startChild('ui.load.initial_display',
-          description: anyNamed('description'),
-          startTimestamp: anyNamed('startTimestamp')))
+              description: anyNamed('description'),
+              startTimestamp: anyNamed('startTimestamp')))
           .thenReturn(NoOpSentrySpan());
       _whenAnyStart(hub, span);
 
@@ -469,8 +469,8 @@ void main() {
       when(span.status).thenReturn(null);
       when(span.finished).thenReturn(false);
       when(span.startChild('ui.load.initial_display',
-          description: anyNamed('description'),
-          startTimestamp: anyNamed('startTimestamp')))
+              description: anyNamed('description'),
+              startTimestamp: anyNamed('startTimestamp')))
           .thenReturn(NoOpSentrySpan());
       _whenAnyStart(hub, span);
 

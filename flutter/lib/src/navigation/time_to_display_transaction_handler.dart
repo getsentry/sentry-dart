@@ -5,16 +5,7 @@ import '../native/sentry_native.dart';
 enum TimeToDisplayType { timeToInitialDisplay, timeToFullDisplay }
 
 @internal
-abstract class ITimeToDisplayTransactionHandler {
-  Future<ISentrySpan?> startTransaction(String? routeName, Object? arguments,
-      {DateTime? startTimestamp});
-
-  ISentrySpan createSpan(ISentrySpan transaction, TimeToDisplayType type,
-      String routeName, DateTime startTimestamp);
-}
-
-@internal
-class TimeToDisplayTransactionHandler extends ITimeToDisplayTransactionHandler {
+class TimeToDisplayTransactionHandler {
   final Hub? _hub;
   final bool? _enableAutoTransactions;
   final Duration? _autoFinishAfter;

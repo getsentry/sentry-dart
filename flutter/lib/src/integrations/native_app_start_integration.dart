@@ -65,7 +65,8 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
       }
     }
 
-    options.addEventProcessor(NativeAppStartEventProcessor(appStartTracker: _appStartTracker));
+    options.addEventProcessor(
+        NativeAppStartEventProcessor(appStartTracker: _appStartTracker));
 
     options.sdk.addIntegration('nativeAppStartIntegration');
   }
@@ -111,6 +112,7 @@ class AppStartTracker extends IAppStartTracker {
     _notifyObserver();
   }
 
+  // TODO: replace this with a future
   @override
   void onAppStartComplete(Function(AppStartInfo?) callback) {
     _callback = callback;
