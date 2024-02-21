@@ -7,8 +7,8 @@ import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/native/sentry_native.dart';
 import 'package:sentry/src/sentry_tracer.dart';
-import 'package:sentry_flutter/src/navigation/display_strategy_evaluator.dart';
 import 'package:sentry_flutter/src/navigation/time_to_display_tracker.dart';
+import 'package:sentry_flutter/src/navigation/time_to_initial_display_tracker.dart';
 
 import 'mocks.dart';
 import 'mocks.mocks.dart';
@@ -98,7 +98,8 @@ void main() {
       sut.didPush(currentRoute, null);
 
       await Future<void>.delayed(Duration(milliseconds: 50));
-      TTIDModeEvaluator().reportManual('Current Route');
+      TimeToInitialDisplayTracker().markAsManual();
+      TimeToInitialDisplayTracker().completeTracking();
 
       // Get ref to created transaction
       // ignore: invalid_use_of_internal_member

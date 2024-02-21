@@ -2,6 +2,7 @@ import 'dart:async';
 
 import '../../sentry_flutter.dart';
 import '../sentry_flutter_measurement.dart';
+import 'time_to_initial_display_tracker.dart';
 
 class TimeToFullDisplayTracker {
   static final TimeToFullDisplayTracker _singleton =
@@ -14,7 +15,6 @@ class TimeToFullDisplayTracker {
   TimeToFullDisplayTracker._internal();
 
   DateTime? _startTimestamp;
-  DateTime? _ttfdEndTimestamp;
   ISentrySpan? _ttfdSpan;
   Timer? _ttfdTimer;
   ISentrySpan? _transaction;
@@ -25,6 +25,7 @@ class TimeToFullDisplayTracker {
     final endTimestamp = DateTime.now();
     final startTimestamp = _startTimestamp;
     final ttfdSpan = _ttfdSpan;
+
     if (ttfdSpan == null ||
         ttfdSpan.finished == true ||
         startTimestamp == null) {
@@ -32,34 +33,32 @@ class TimeToFullDisplayTracker {
     }
 
     _setTTFDMeasurement(startTimestamp, endTimestamp);
-    await ttfdSpan.finish(endTimestamp: endTimestamp);
+    return ttfdSpan.finish(endTimestamp: endTimestamp);
   }
 
-  void initializeTTFD(
+  void startTracking(
       ISentrySpan transaction, DateTime startTimestamp, String routeName) {
     _startTimestamp = startTimestamp;
     _transaction = transaction;
-    _ttfdSpan = transaction.startChild(
-        SentrySpanOperations.uiTimeToFullDisplay,
-        description: '$routeName full display',
-        startTimestamp: startTimestamp);
-    _ttfdTimer =
-        Timer(ttfdAutoFinishAfter, handleTimeToFullDisplayTimeout);
-  }
-
-  void setTTFDEndTimestamp(DateTime ttfdEndTimestamp) {
-    _ttfdEndTimestamp = ttfdEndTimestamp;
+    _ttfdSpan = transaction.startChild(SentrySpanOperations.uiTimeToFullDisplay,
+        description: '$routeName full display', startTimestamp: startTimestamp);
+    _ttfdSpan?.origin = SentryTraceOrigins.manualUiTimeToDisplay;
+    _ttfdTimer = Timer(ttfdAutoFinishAfter, handleTimeToFullDisplayTimeout);
   }
 
   void handleTimeToFullDisplayTimeout() {
     final ttfdSpan = _ttfdSpan;
-    final endTimestamp = _ttfdEndTimestamp ?? DateTime.now();
     final startTimestamp = _startTimestamp;
     if (ttfdSpan == null ||
         ttfdSpan.finished == true ||
         startTimestamp == null) {
       return;
     }
+
+    // If for some reason we can't get the ttid end timestamp
+    // we'll use the start timestamp + autoFinishTime as a fallback
+    final endTimestamp = TimeToInitialDisplayTracker().endTimestamp ??
+        startTimestamp.add(ttfdAutoFinishAfter);
 
     _setTTFDMeasurement(startTimestamp, endTimestamp);
     ttfdSpan.finish(
@@ -72,5 +71,4 @@ class TimeToFullDisplayTracker {
     _transaction?.setMeasurement(measurement.name, measurement.value,
         unit: measurement.unit);
   }
-
 }

@@ -2,8 +2,6 @@ import 'package:meta/meta.dart';
 import '../../sentry_flutter.dart';
 import '../native/sentry_native.dart';
 
-enum TimeToDisplayType { timeToInitialDisplay, timeToFullDisplay }
-
 @internal
 class TimeToDisplayTransactionHandler {
   final Hub? _hub;
@@ -82,25 +80,5 @@ class TimeToDisplayTransactionHandler {
     await _native?.beginNativeFramesCollection();
 
     return transaction;
-  }
-
-  @override
-  ISentrySpan createSpan(ISentrySpan transaction, TimeToDisplayType type,
-      String routeName, DateTime startTimestamp) {
-    String operation;
-    String description;
-    switch (type) {
-      case TimeToDisplayType.timeToInitialDisplay:
-        operation = SentrySpanOperations.uiTimeToInitialDisplay;
-        description = '$routeName initial display';
-        break;
-      case TimeToDisplayType.timeToFullDisplay:
-        operation = SentrySpanOperations.uiTimeToFullDisplay;
-        description = '$routeName full display';
-        break;
-    }
-    final span = transaction.startChild(operation,
-        description: description, startTimestamp: startTimestamp);
-    return span;
   }
 }

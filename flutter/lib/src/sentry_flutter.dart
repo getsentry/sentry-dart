@@ -34,8 +34,7 @@ typedef FlutterOptionsConfiguration = FutureOr<void> Function(
 mixin SentryFlutter {
   static const _channel = MethodChannel('sentry_flutter');
 
-  static Future<void> init(
-    FlutterOptionsConfiguration optionsConfiguration, {
+  static Future<void> init(FlutterOptionsConfiguration optionsConfiguration, {
     AppRunner? appRunner,
     @internal MethodChannel channel = _channel,
     @internal PlatformChecker? platformChecker,
@@ -83,7 +82,7 @@ mixin SentryFlutter {
     await _initDefaultValues(flutterOptions, channel);
 
     await Sentry.init(
-      (options) => optionsConfiguration(options as SentryFlutterOptions),
+          (options) => optionsConfiguration(options as SentryFlutterOptions),
       appRunner: appRunner,
       // ignore: invalid_use_of_internal_member
       options: flutterOptions,
@@ -99,10 +98,8 @@ mixin SentryFlutter {
     }
   }
 
-  static Future<void> _initDefaultValues(
-    SentryFlutterOptions options,
-    MethodChannel channel,
-  ) async {
+  static Future<void> _initDefaultValues(SentryFlutterOptions options,
+      MethodChannel channel,) async {
     options.addEventProcessor(FlutterExceptionEventProcessor());
 
     // Not all platforms have a native integration.
@@ -126,11 +123,9 @@ mixin SentryFlutter {
 
   /// Install default integrations
   /// https://medium.com/flutter-community/error-handling-in-flutter-98fce88a34f0
-  static List<Integration> _createDefaultIntegrations(
-    MethodChannel channel,
-    SentryFlutterOptions options,
-    bool isOnErrorSupported,
-  ) {
+  static List<Integration> _createDefaultIntegrations(MethodChannel channel,
+      SentryFlutterOptions options,
+      bool isOnErrorSupported,) {
     final integrations = <Integration>[];
     final platformChecker = options.platformChecker;
     final platform = platformChecker.platform;
@@ -190,7 +185,7 @@ mixin SentryFlutter {
     if (_native != null) {
       integrations.add(NativeAppStartIntegration(
         _native!,
-        () {
+            () {
           try {
             /// Flutter >= 2.12 throws if SchedulerBinding.instance isn't initialized.
             return SchedulerBinding.instance;
@@ -231,8 +226,8 @@ mixin SentryFlutter {
   }
 
   /// Reports the time it took for the screen to be fully displayed.
-  static void reportFullyDisplayed() async {
-    await TimeToDisplayTracker.reportFullyDisplayed();
+  static Future<void> reportFullyDisplayed() async {
+    return SentryNavigatorObserver.timeToDisplayTracker?.reportFullyDisplayed();
   }
 
   @internal

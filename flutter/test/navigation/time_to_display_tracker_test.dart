@@ -1,8 +1,12 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_flutter/src/integrations/app_start/app_start_tracker.dart';
 import 'package:sentry_flutter/src/integrations/integrations.dart';
 import 'package:sentry_flutter/src/navigation/time_to_display_tracker.dart';
 import 'package:sentry/src/sentry_tracer.dart';
+import 'package:sentry_flutter/src/navigation/time_to_display_transaction_handler.dart';
+import 'package:sentry_flutter/src/navigation/time_to_full_display_tracker.dart';
+import 'package:sentry_flutter/src/navigation/time_to_initial_display_tracker.dart';
 
 import '../fake_frame_callback_handler.dart';
 import '../mocks.dart';
@@ -25,7 +29,7 @@ void main() {
         SentryFlutter.native = TestMockSentryNative();
         final sut = fixture.getSut();
 
-        sut.startMeasurement('/', null);
+        sut.startTracking('/', null);
 
         AppStartTracker().setAppStartInfo(AppStartInfo(
             DateTime.fromMillisecondsSinceEpoch(0),
@@ -49,7 +53,7 @@ void main() {
         test('startMeasurement finishes ttid span', () async {
           final sut = fixture.getSut();
 
-          sut.startMeasurement('Current Route', null);
+          sut.startTracking('Current Route', null);
 
           final transaction = fixture.hub.getSpan() as SentryTracer;
           await Future.delayed(const Duration(milliseconds: 2000));
@@ -66,7 +70,7 @@ void main() {
         test('finishes ttid span after reporting with manual api', () async {
           final sut = fixture.getSut();
 
-          sut.startMeasurement('Current Route', null);
+          sut.startTracking('Current Route', null);
 
           final transaction = fixture.hub.getSpan() as SentryTracer;
 
@@ -97,7 +101,7 @@ void main() {
     test('startMeasurement creates ttfd and ttid span', () async {
       final sut = fixture.getSut();
 
-      sut.startMeasurement('Current Route', null);
+      await sut.startTracking('Current Route', null);
 
       final transaction = fixture.hub.getSpan() as SentryTracer;
       await Future.delayed(const Duration(milliseconds: 100));
@@ -115,15 +119,16 @@ void main() {
         SentryFlutter.native = TestMockSentryNative();
         final sut = fixture.getSut();
 
-        sut.startMeasurement('/', null);
+        // Simulate app start info being fetched async
+        Future.delayed(const Duration(milliseconds: 500), () async {
+          AppStartTracker().setAppStartInfo(AppStartInfo(
+              DateTime.fromMillisecondsSinceEpoch(0),
+              DateTime.fromMillisecondsSinceEpoch(10),
+              SentryMeasurement('', 10,
+                  unit: DurationSentryMeasurementUnit.milliSecond)));
+        });
 
-        AppStartTracker().setAppStartInfo(AppStartInfo(
-            DateTime.fromMillisecondsSinceEpoch(0),
-            DateTime.fromMillisecondsSinceEpoch(10),
-            SentryMeasurement('', 10,
-                unit: DurationSentryMeasurementUnit.milliSecond)));
-
-        await Future.delayed(const Duration(milliseconds: 100));
+        await sut.startTracking('/', null);
 
         final transaction = fixture.hub.getSpan() as SentryTracer;
 
@@ -134,9 +139,7 @@ void main() {
             .first;
         expect(ttfdSpan, isNotNull);
 
-        SentryFlutter.reportFullyDisplayed();
-
-        await Future.delayed(const Duration(milliseconds: 100));
+        await fixture.getSut().reportFullyDisplayed();
 
         expect(ttfdSpan.finished, isTrue);
       });
@@ -146,10 +149,9 @@ void main() {
       test('finishes ttfd span after calling reportFullyDisplayed', () async {
         final sut = fixture.getSut();
 
-        sut.startMeasurement('Current Route', null);
+        await sut.startTracking('Current Route', null);
 
         final transaction = fixture.hub.getSpan() as SentryTracer;
-        await Future.delayed(const Duration(milliseconds: 100));
 
         final ttfdSpan = transaction.children
             .where((element) =>
@@ -158,8 +160,7 @@ void main() {
             .first;
         expect(ttfdSpan, isNotNull);
 
-        SentryFlutter.reportFullyDisplayed();
-        await Future.delayed(const Duration(milliseconds: 100));
+        await fixture.getSut().reportFullyDisplayed();
 
         expect(ttfdSpan.finished, isTrue);
       });
@@ -168,13 +169,18 @@ void main() {
           'not using reportFullyDisplayed finishes ttfd span after timeout with deadline exceeded and ttid matching end time',
           () async {
         final sut = fixture.getSut();
-        sut.ttfdAutoFinishAfter = const Duration(seconds: 3);
+        fixture.ttfdTracker.ttfdAutoFinishAfter = const Duration(seconds: 1);
 
-        sut.startMeasurement('Current Route', null);
+        await sut.startTracking('Current Route', null);
 
         final transaction = fixture.hub.getSpan() as SentryTracer;
 
-        await Future.delayed(const Duration(milliseconds: 100));
+        final ttidSpan = transaction.children
+            .where((element) =>
+                element.context.operation ==
+                SentrySpanOperations.uiTimeToInitialDisplay)
+            .first;
+        expect(ttidSpan, isNotNull);
 
         final ttfdSpan = transaction.children
             .where((element) =>
@@ -183,15 +189,8 @@ void main() {
             .first;
         expect(ttfdSpan, isNotNull);
 
-        final ttidSpan = transaction.children
-            .where((element) =>
-                element.context.operation ==
-                SentrySpanOperations.uiTimeToInitialDisplay)
-            .first;
-        expect(ttfdSpan, isNotNull);
-
-        await Future.delayed(
-            sut.ttfdAutoFinishAfter + const Duration(milliseconds: 100));
+        await Future.delayed(fixture.ttfdTracker.ttfdAutoFinishAfter +
+            const Duration(milliseconds: 100));
 
         expect(ttfdSpan.finished, isTrue);
         expect(ttfdSpan.status, SpanStatus.deadlineExceeded());
@@ -203,7 +202,7 @@ void main() {
   test('screen load tracking creates ui.load transaction', () async {
     final sut = fixture.getSut();
 
-    sut.startMeasurement('Current Route', null);
+    await sut.startTracking('Current Route', null);
 
     final transaction = fixture.hub.getSpan();
     expect(transaction, isNotNull);
@@ -220,12 +219,24 @@ class Fixture {
 
   late final hub = Hub(options);
 
-  TimeToDisplayTracker getSut({bool enableTimeToFullDisplayTracing = false}) {
+  final ttidTracker = TimeToInitialDisplayTracker()
+    ..frameCallbackHandler = FakeFrameCallbackHandler();
+
+  final ttfdTracker = TimeToFullDisplayTracker();
+
+  TimeToDisplayTracker getSut() {
+    final enableTimeToFullDisplayTracing =
+        options.enableTimeToFullDisplayTracing;
+
     return TimeToDisplayTracker(
-      hub: hub,
-      enableAutoTransactions: true,
-      autoFinishAfter: const Duration(seconds: 3),
-      frameCallbackHandler: frameCallbackHandler,
+      enableTimeToFullDisplayTracing: enableTimeToFullDisplayTracing,
+      ttdTransactionHandler: TimeToDisplayTransactionHandler(
+        hub: hub,
+        enableAutoTransactions: true,
+        autoFinishAfter: const Duration(seconds: 30),
+      ),
+      ttidTracker: ttidTracker,
+      ttfdTracker: ttfdTracker,
     );
   }
 }

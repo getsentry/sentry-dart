@@ -3,13 +3,13 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_flutter/src/integrations/app_start/app_start_tracker.dart';
 import 'package:sentry_flutter/src/integrations/native_app_start_integration.dart';
 import 'package:sentry_flutter/src/native/sentry_native.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 
 import '../mocks.dart';
 import '../mocks.mocks.dart';
-import '../navigation/fake_app_start_tracker.dart';
 
 void main() {
   group('$NativeAppStartIntegration', () {
@@ -156,7 +156,7 @@ class Fixture {
   final hub = MockHub();
   final options = SentryFlutterOptions(dsn: fakeDsn);
   final binding = MockNativeChannel();
-  final appStartTracker = FakeAppStartTracker();
+  final appStartTracker = AppStartTracker();
   late final native = SentryNative(options, binding);
 
   Fixture() {

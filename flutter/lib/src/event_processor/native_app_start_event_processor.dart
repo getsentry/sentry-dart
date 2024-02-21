@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:sentry/sentry.dart';
 
+import '../integrations/app_start/app_start_tracker.dart';
 import '../integrations/integrations.dart';
 import '../native/sentry_native.dart';
 
@@ -11,18 +12,18 @@ class NativeAppStartEventProcessor implements EventProcessor {
   /// We filter out App starts more than 60s
   static const _maxAppStartMillis = 60000;
 
-  final IAppStartTracker? _appStartTracker;
+  final AppStartTracker? _appStartTracker;
 
   NativeAppStartEventProcessor({
-    IAppStartTracker? appStartTracker,
+    AppStartTracker? appStartTracker,
   }) : _appStartTracker = appStartTracker ?? AppStartTracker();
 
   bool didAddAppStartMeasurement = false;
 
   @override
   Future<SentryEvent?> apply(SentryEvent event, {Hint? hint}) async {
-    final measurement = _appStartTracker?.appStartInfo?.measurement;
-    // TODO: only do this once per app start
+    final appStartInfo = await _appStartTracker?.getAppStartInfo();
+    final measurement = appStartInfo?.measurement;
     if (!didAddAppStartMeasurement &&
         measurement != null &&
         measurement.value.toInt() <= _maxAppStartMillis &&

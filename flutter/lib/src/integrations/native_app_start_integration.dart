@@ -6,17 +6,18 @@ import '../../sentry_flutter.dart';
 import '../sentry_flutter_options.dart';
 import '../native/sentry_native.dart';
 import '../event_processor/native_app_start_event_processor.dart';
+import 'app_start/app_start_tracker.dart';
 
 /// Integration which handles communication with native frameworks in order to
 /// enrich [SentryTransaction] objects with app start data for mobile vitals.
 class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
   NativeAppStartIntegration(this._native, this._schedulerBindingProvider,
-      {IAppStartTracker? appStartTracker})
+      {AppStartTracker? appStartTracker})
       : _appStartTracker = appStartTracker ?? AppStartTracker();
 
   final SentryNative _native;
   final SchedulerBindingProvider _schedulerBindingProvider;
-  final IAppStartTracker? _appStartTracker;
+  final AppStartTracker? _appStartTracker;
 
   @override
   void call(Hub hub, SentryFlutterOptions options) {
@@ -74,52 +75,3 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
 
 /// Used to provide scheduler binding at call time.
 typedef SchedulerBindingProvider = SchedulerBinding? Function();
-
-@internal
-class AppStartInfo {
-  final DateTime start;
-  final DateTime end;
-  final SentryMeasurement measurement;
-
-  AppStartInfo(this.start, this.end, this.measurement);
-}
-
-abstract class IAppStartTracker {
-  AppStartInfo? get appStartInfo;
-
-  void setAppStartInfo(AppStartInfo? appStartInfo);
-
-  void onAppStartComplete(Function(AppStartInfo?) callback);
-}
-
-@internal
-class AppStartTracker extends IAppStartTracker {
-  static final AppStartTracker _instance = AppStartTracker._internal();
-
-  factory AppStartTracker() => _instance;
-
-  AppStartInfo? _appStartInfo;
-
-  @override
-  AppStartInfo? get appStartInfo => _appStartInfo;
-  Function(AppStartInfo?)? _callback;
-
-  AppStartTracker._internal();
-
-  @override
-  void setAppStartInfo(AppStartInfo? appStartInfo) {
-    _appStartInfo = appStartInfo;
-    _notifyObserver();
-  }
-
-  // TODO: replace this with a future
-  @override
-  void onAppStartComplete(Function(AppStartInfo?) callback) {
-    _callback = callback;
-    _callback?.call(_appStartInfo);
-  }
-
-  void _notifyObserver() {
-    _callback?.call(_appStartInfo);
-  }
-}

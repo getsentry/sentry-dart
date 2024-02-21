@@ -1,9 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
+import 'time_to_display_transaction_handler.dart';
 
 import '../../sentry_flutter.dart';
 import '../event_processor/flutter_enricher_event_processor.dart';
@@ -80,11 +80,16 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       // ignore: invalid_use_of_internal_member
       _hub.options.sdk.addIntegration('UINavigationTracing');
     }
+    final enableTimeToFullDisplayTracing =
+        (_hub.options as SentryFlutterOptions).enableTimeToFullDisplayTracing;
     _timeToDisplayTracker = timeToDisplayTracker ??
         TimeToDisplayTracker(
-          hub: _hub,
-          enableAutoTransactions: enableAutoTransactions,
-          autoFinishAfter: autoFinishAfter,
+          enableTimeToFullDisplayTracing: enableTimeToFullDisplayTracing,
+          ttdTransactionHandler: TimeToDisplayTransactionHandler(
+            hub: _hub,
+            enableAutoTransactions: enableAutoTransactions,
+            autoFinishAfter: autoFinishAfter,
+          ),
         );
   }
 
@@ -92,7 +97,12 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   final bool _setRouteNameAsTransaction;
   final RouteNameExtractor? _routeNameExtractor;
   final AdditionalInfoExtractor? _additionalInfoProvider;
-  late final TimeToDisplayTracker _timeToDisplayTracker;
+
+  static TimeToDisplayTracker? _timeToDisplayTracker;
+
+  @internal
+  static TimeToDisplayTracker? get timeToDisplayTracker =>
+      _timeToDisplayTracker;
 
   static String? _currentRouteName;
 
@@ -196,7 +206,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     _currentRouteName = routeName;
 
     final arguments = route?.settings.arguments;
-    await _timeToDisplayTracker.startMeasurement(routeName, arguments);
+    await _timeToDisplayTracker?.startTracking(routeName, arguments);
   }
 }
 

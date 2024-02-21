@@ -17,10 +17,10 @@ class _SentryDisplayWidgetState extends State<SentryDisplayWidget> {
   void initState() {
     super.initState();
     // TODO: add via dependency injection
-    TTIDEndTimeTracker().markAsManual();
+    TimeToInitialDisplayTracker().markAsManual();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      TTIDEndTimeTracker().completeTracking();
+      TimeToInitialDisplayTracker().completeTracking();
     });
   }
 
