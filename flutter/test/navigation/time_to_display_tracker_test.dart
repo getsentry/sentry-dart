@@ -4,6 +4,7 @@ import 'package:sentry_flutter/src/integrations/integrations.dart';
 import 'package:sentry_flutter/src/navigation/time_to_display_tracker.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 
+import '../fake_frame_callback_handler.dart';
 import '../mocks.dart';
 
 void main() {
@@ -71,7 +72,7 @@ void main() {
 
           await Future.delayed(const Duration(milliseconds: 100));
 
-          SentryFlutter.reportInitiallyDisplayed(routeName: 'Current Route');
+          // SentryFlutter.reportInitiallyDisplayed(routeName: 'Current Route');
 
           final ttidSpan = transaction.children
               .where((element) =>
@@ -94,7 +95,7 @@ void main() {
     });
 
     test('startMeasurement creates ttfd and ttid span', () async {
-      final sut = fixture.getSut(enableTimeToFullDisplayTracing: true);
+      final sut = fixture.getSut();
 
       sut.startMeasurement('Current Route', null);
 

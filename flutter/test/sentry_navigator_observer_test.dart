@@ -98,7 +98,7 @@ void main() {
       sut.didPush(currentRoute, null);
 
       await Future<void>.delayed(Duration(milliseconds: 50));
-      DisplayStrategyEvaluator().reportManual('Current Route');
+      TTIDModeEvaluator().reportManual('Current Route');
 
       // Get ref to created transaction
       // ignore: invalid_use_of_internal_member
