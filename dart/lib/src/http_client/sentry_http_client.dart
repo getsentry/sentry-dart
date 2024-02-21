@@ -83,6 +83,7 @@ class SentryHttpClient extends BaseClient {
   SentryHttpClient({
     Client? client,
     Hub? hub,
+    bool? captureFailedRequests,
     List<SentryStatusCode> failedRequestStatusCodes =
         defaultFailedRequestStatusCodes,
     List<String> failedRequestTargets = defaultFailedRequestTargets,

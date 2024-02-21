@@ -44,6 +44,7 @@ extension SentryDioExtension on Dio {
   /// ```
   void addSentry({
     Hub? hub,
+    bool? captureFailedRequests,
     List<SentryStatusCode> failedRequestStatusCodes =
         SentryHttpClient.defaultFailedRequestStatusCodes,
     List<String> failedRequestTargets =
@@ -71,7 +72,9 @@ extension SentryDioExtension on Dio {
     }
     options.sdk.addPackage(packageName, sdkVersion);
 
-    if (options.captureFailedRequests) {
+    final shouldCaptureFailedRequests = captureFailedRequests ?? options.captureFailedRequests;
+
+    if (shouldCaptureFailedRequests) {
       // Add FailedRequestInterceptor at index 0, so it's the first interceptor.
       // This ensures that it is called and not skipped by any previous interceptor.
       interceptors.insert(

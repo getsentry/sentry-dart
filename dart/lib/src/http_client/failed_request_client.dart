@@ -67,6 +67,7 @@ import 'sentry_http_client.dart';
 /// }
 /// ```
 class FailedRequestClient extends BaseClient {
+  // TODO: add capture failed request here as well
   FailedRequestClient({
     this.failedRequestStatusCodes =
         SentryHttpClient.defaultFailedRequestStatusCodes,
