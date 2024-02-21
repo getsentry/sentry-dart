@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/widgets.dart';
+import 'package:meta/meta.dart';
 
+@internal
 class TTIDEndTimeTracker {
   static final TTIDEndTimeTracker _instance =
       TTIDEndTimeTracker._internal();
@@ -11,8 +13,6 @@ class TTIDEndTimeTracker {
   bool _isManual = false;
   Completer<DateTime>? _trackingCompleter;
 
-  /// Starts the TTID end time tracking process and returns a Future that completes
-  /// with the tracking duration when tracking is completed.
   Future<DateTime>? determineEndTime() {
     _trackingCompleter = Completer<DateTime>();
 

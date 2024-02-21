@@ -15,7 +15,7 @@ class TimeToDisplayTracker {
   final Hub _hub;
   final SentryNative? _native;
   final TimeToDisplayTransactionHandler _transactionHandler;
-  final TTIDEndTimeTracker _timeToInitialDisplayTracker;
+  final TTIDEndTimeTracker _ttidEndTimeTracker;
 
   // We need to keep these static to be able to access them from reportFullyDisplayed
   static DateTime? _startTimestamp;
@@ -48,7 +48,7 @@ class TimeToDisplayTracker {
               enableAutoTransactions: enableAutoTransactions,
               autoFinishAfter: autoFinishAfter,
             ),
-        _timeToInitialDisplayTracker = TTIDEndTimeTracker();
+        _ttidEndTimeTracker = TTIDEndTimeTracker();
 
   Future<void> startMeasurement(String? routeName, Object? arguments) async {
     final startTimestamp = DateTime.now();
@@ -119,7 +119,7 @@ class TimeToDisplayTracker {
 
   Future<void> _trackTTID(ISentrySpan transaction,
       DateTime startTimestamp, String routeName) async {
-    final endTimestamp = await _timeToInitialDisplayTracker.determineEndTime();
+    final endTimestamp = await _ttidEndTimeTracker.determineEndTime();
     _ttidEndTimestamp = endTimestamp;
     final ttidSpan = _transactionHandler.createSpan(transaction,
         TimeToDisplayType.timeToInitialDisplay, routeName, startTimestamp);
