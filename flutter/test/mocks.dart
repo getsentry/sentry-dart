@@ -9,6 +9,7 @@ import 'package:sentry/src/sentry_tracer.dart';
 
 import 'package:meta/meta.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_flutter/src/frame_callback_handler.dart';
 import 'package:sentry_flutter/src/renderer/renderer.dart';
 import 'package:sentry_flutter/src/native/sentry_native.dart';
 import 'package:sentry_flutter/src/native/sentry_native_binding.dart';
@@ -47,6 +48,7 @@ ISentrySpan startTransactionShim(
   SentryTracer,
   SentryTransaction,
   MethodChannel,
+  IFrameCallbackHandler,
 ], customMocks: [
   MockSpec<Hub>(fallbackGenerators: {#startTransaction: startTransactionShim})
 ])

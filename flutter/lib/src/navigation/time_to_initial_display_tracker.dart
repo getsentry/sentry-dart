@@ -41,6 +41,7 @@ class TimeToInitialDisplayTracker {
       ttidSpan.origin = SentryTraceOrigins.autoUiTimeToDisplay;
     }
 
+    // Reset after completion
     _isManual = false;
 
     final ttidMeasurement = SentryFlutterMeasurement.timeToInitialDisplay(
