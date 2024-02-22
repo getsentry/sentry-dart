@@ -8,6 +8,7 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/native/sentry_native.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry_flutter/src/navigation/time_to_display_tracker.dart';
+import 'package:sentry_flutter/src/navigation/time_to_display_transaction_handler.dart';
 import 'package:sentry_flutter/src/navigation/time_to_initial_display_tracker.dart';
 
 import 'mocks.dart';
@@ -858,11 +859,13 @@ class Fixture {
     AdditionalInfoExtractor? additionalInfoProvider,
   }) {
     final timeToDisplayTracker = TimeToDisplayTracker(
-      hub: hub,
-      enableAutoTransactions: enableAutoTransactions,
-      autoFinishAfter: autoFinishAfter,
+      enableTimeToFullDisplayTracing: true,
+      ttdTransactionHandler: TimeToDisplayTransactionHandler(
+        hub: hub,
+        enableAutoTransactions: true,
+        autoFinishAfter: const Duration(seconds: 30),
+      ),
     );
-
     return SentryNavigatorObserver(
       hub: hub,
       enableAutoTransactions: enableAutoTransactions,

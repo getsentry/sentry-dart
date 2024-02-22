@@ -86,7 +86,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
         TimeToDisplayTracker(
           enableTimeToFullDisplayTracing: enableTimeToFullDisplayTracing,
           ttdTransactionHandler: TimeToDisplayTransactionHandler(
-            hub: _hub,
+            hub: hub,
             enableAutoTransactions: enableAutoTransactions,
             autoFinishAfter: autoFinishAfter,
           ),
@@ -108,6 +108,11 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
 
   @internal
   static String? get currentRouteName => _currentRouteName;
+
+  Completer<void>? _completedDisplayTracking;
+
+  @internal
+  Completer<void>? get completedDisplayTracking => _completedDisplayTracking;
 
   @override
   void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
@@ -202,11 +207,13 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   }
 
   Future<void> _startTimeToDisplayTracking(Route<dynamic>? route) async {
+    _completedDisplayTracking = Completer<void>();
     final routeName = _getRouteName(route);
     _currentRouteName = routeName;
 
     final arguments = route?.settings.arguments;
     await _timeToDisplayTracker?.startTracking(routeName, arguments);
+    completedDisplayTracking?.complete();
   }
 }
 

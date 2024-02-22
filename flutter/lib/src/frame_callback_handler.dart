@@ -5,7 +5,7 @@ abstract class IFrameCallbackHandler {
   void addPostFrameCallback(FrameCallback callback, {String debugLabel});
 }
 
-class FrameCallbackHandler implements IFrameCallbackHandler {
+class DefaultFrameCallbackHandler implements IFrameCallbackHandler {
   @override
   void addPostFrameCallback(FrameCallback callback,
       {String debugLabel = 'callback'}) {

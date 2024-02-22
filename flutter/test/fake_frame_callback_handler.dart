@@ -12,9 +12,8 @@ class FakeFrameCallbackHandler implements IFrameCallbackHandler {
 
   @override
   void addPostFrameCallback(FrameCallback callback,
-      {String debugLabel = 'callback'}) {
-    Future.delayed(_finishAfterDuration, () {
-      callback(Duration.zero);
-    });
+      {String debugLabel = 'callback'}) async {
+    await Future.delayed(_finishAfterDuration);
+    callback(Duration.zero);
   }
 }

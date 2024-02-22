@@ -29,12 +29,15 @@ void main() {
         SentryFlutter.native = TestMockSentryNative();
         final sut = fixture.getSut();
 
-        sut.startTracking('/', null);
+        Future.delayed(const Duration(milliseconds: 500), () async {
+          AppStartTracker().setAppStartInfo(AppStartInfo(
+              DateTime.fromMillisecondsSinceEpoch(0),
+              DateTime.fromMillisecondsSinceEpoch(10),
+              SentryMeasurement('', 10,
+                  unit: DurationSentryMeasurementUnit.milliSecond)));
+        });
 
-        AppStartTracker().setAppStartInfo(AppStartInfo(
-            DateTime.fromMillisecondsSinceEpoch(0),
-            DateTime.fromMillisecondsSinceEpoch(10),
-            SentryMeasurement('', 0)));
+        await sut.startTracking('/', null);
 
         await Future.delayed(const Duration(milliseconds: 100));
 
@@ -70,13 +73,15 @@ void main() {
         test('finishes ttid span after reporting with manual api', () async {
           final sut = fixture.getSut();
 
-          sut.startTracking('Current Route', null);
+          Future.delayed(const Duration(milliseconds: 100), () {
+            fixture.ttidTracker.markAsManual();
+            fixture.ttidTracker.completeTracking();
+          });
+          await sut.startTracking('Current Route', null);
 
           final transaction = fixture.hub.getSpan() as SentryTracer;
 
           await Future.delayed(const Duration(milliseconds: 100));
-
-          // SentryFlutter.reportInitiallyDisplayed(routeName: 'Current Route');
 
           final ttidSpan = transaction.children
               .where((element) =>

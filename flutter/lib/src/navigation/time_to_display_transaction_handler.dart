@@ -29,10 +29,6 @@ class TimeToDisplayTransactionHandler {
       return null;
     }
 
-    if (routeName == '/') {
-      routeName = 'root ("/")';
-    }
-
     final transactionContext = SentryTransactionContext(
       routeName,
       SentrySpanOperations.uiLoad,

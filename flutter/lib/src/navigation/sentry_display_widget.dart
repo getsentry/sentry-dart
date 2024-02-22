@@ -2,11 +2,17 @@ import 'package:flutter/cupertino.dart';
 import 'package:sentry_flutter/src/navigation/time_to_initial_display_tracker.dart';
 
 import '../../sentry_flutter.dart';
+import '../frame_callback_handler.dart';
 
 class SentryDisplayWidget extends StatefulWidget {
   final Widget child;
+  final IFrameCallbackHandler _frameCallbackHandler;
 
-  const SentryDisplayWidget({super.key, required this.child});
+  SentryDisplayWidget({
+    super.key,
+    required this.child,
+    IFrameCallbackHandler? frameCallbackHandler,
+  }) : _frameCallbackHandler = frameCallbackHandler ?? DefaultFrameCallbackHandler();
 
   @override
   _SentryDisplayWidgetState createState() => _SentryDisplayWidgetState();
@@ -16,10 +22,9 @@ class _SentryDisplayWidgetState extends State<SentryDisplayWidget> {
   @override
   void initState() {
     super.initState();
-    // TODO: add via dependency injection
     TimeToInitialDisplayTracker().markAsManual();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    widget._frameCallbackHandler.addPostFrameCallback((_) {
       TimeToInitialDisplayTracker().completeTracking();
     });
   }

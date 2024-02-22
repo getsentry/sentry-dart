@@ -36,7 +36,10 @@ class TimeToDisplayTracker {
 
   Future<void> startTracking(String? routeName, Object? arguments) async {
     final startTimestamp = DateTime.now();
-    final isRootScreen = routeName == '/';
+    if (routeName == '/') {
+      routeName = 'root ("/")';
+    }
+    final isRootScreen = routeName == 'root ("/")';
     final didFetchAppStart = _native?.didFetchAppStart;
     if (isRootScreen && didFetchAppStart == false) {
       return _trackAppStartTTD(routeName, arguments);
@@ -77,7 +80,6 @@ class TimeToDisplayTracker {
         .startTransaction(routeName, arguments, startTimestamp: startTimestamp);
 
     if (transaction == null || routeName == null) return;
-
 
     await _ttidTracker.trackRegularRoute(transaction, startTimestamp, routeName);
 

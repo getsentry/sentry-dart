@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ffi';
 
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
@@ -16,7 +17,7 @@ class TimeToInitialDisplayTracker {
   factory TimeToInitialDisplayTracker() => _instance;
   TimeToInitialDisplayTracker._internal();
 
-  IFrameCallbackHandler frameCallbackHandler = FrameCallbackHandler();
+  IFrameCallbackHandler frameCallbackHandler = DefaultFrameCallbackHandler();
   bool _isManual = false;
   Completer<DateTime>? _trackingCompleter;
   DateTime? _endTimestamp;
@@ -39,6 +40,8 @@ class TimeToInitialDisplayTracker {
     } else {
       ttidSpan.origin = SentryTraceOrigins.autoUiTimeToDisplay;
     }
+
+    _isManual = false;
 
     final ttidMeasurement = SentryFlutterMeasurement.timeToInitialDisplay(
         Duration(
@@ -96,7 +99,6 @@ class TimeToInitialDisplayTracker {
       final endTimestamp = DateTime.now();
       _endTimestamp = endTimestamp;
       // Reset after completion
-      _isManual = false;
       _trackingCompleter?.complete(endTimestamp);
     }
   }
