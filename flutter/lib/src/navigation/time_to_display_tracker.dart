@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:meta/meta.dart';
-import 'package:sentry_flutter/src/navigation/time_to_full_display_tracker.dart';
+import 'time_to_full_display_tracker.dart';
 
 import '../../sentry_flutter.dart';
 import '../frame_callback_handler.dart';

@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
-import 'package:sentry_flutter/src/navigation/time_to_initial_display_tracker.dart';
+import 'time_to_initial_display_tracker.dart';
 
-import '../../sentry_flutter.dart';
 import '../frame_callback_handler.dart';
 
 class SentryDisplayWidget extends StatefulWidget {

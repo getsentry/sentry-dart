@@ -1,13 +1,10 @@
 import 'dart:async';
-import 'dart:ffi';
 
-import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
 import '../frame_callback_handler.dart';
 import '../integrations/app_start/app_start_tracker.dart';
-import '../integrations/integrations.dart';
 import '../sentry_flutter_measurement.dart';
 
 @internal

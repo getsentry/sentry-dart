@@ -32,36 +32,37 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
           final appStartEnd = options.clock();
           _native.appStartEnd = appStartEnd;
 
-          if (!_native.didFetchAppStart) {
-            final nativeAppStart = await _native.fetchNativeAppStart();
-            final measurement = nativeAppStart?.toMeasurement(appStartEnd!);
-
-            // We filter out app start more than 60s.
-            // This could be due to many different reasons.
-            // If you do the manual init and init the SDK too late and it does not
-            // compute the app start end in the very first Screen.
-            // If the process starts but the App isn't in the foreground.
-            // If the system forked the process earlier to accelerate the app start.
-            // And some unknown reasons that could not be reproduced.
-            // We've seen app starts with hours, days and even months.
-            if (nativeAppStart == null ||
-                measurement == null ||
-                measurement.value >= 60000) {
-              _appStartTracker?.setAppStartInfo(null);
-              return;
-            }
-
-            final appStartInfo = AppStartInfo(
-              DateTime.fromMillisecondsSinceEpoch(
-                  nativeAppStart.appStartTime.toInt()),
-              appStartEnd,
-              measurement,
-            );
-
-            _appStartTracker?.setAppStartInfo(appStartInfo);
-          } else {
+          if (_native.didFetchAppStart) {
             _appStartTracker?.setAppStartInfo(null);
+            return;
           }
+
+          final nativeAppStart = await _native.fetchNativeAppStart();
+          final measurement = nativeAppStart?.toMeasurement(appStartEnd);
+
+          // We filter out app start more than 60s.
+          // This could be due to many different reasons.
+          // If you do the manual init and init the SDK too late and it does not
+          // compute the app start end in the very first Screen.
+          // If the process starts but the App isn't in the foreground.
+          // If the system forked the process earlier to accelerate the app start.
+          // And some unknown reasons that could not be reproduced.
+          // We've seen app starts with hours, days and even months.
+          if (nativeAppStart == null ||
+              measurement == null ||
+              measurement.value >= 60000) {
+            _appStartTracker?.setAppStartInfo(null);
+            return;
+          }
+
+          final appStartInfo = AppStartInfo(
+            DateTime.fromMillisecondsSinceEpoch(
+                nativeAppStart.appStartTime.toInt()),
+            appStartEnd,
+            measurement,
+          );
+
+          _appStartTracker?.setAppStartInfo(appStartInfo);
         });
       }
     }
