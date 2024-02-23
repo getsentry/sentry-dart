@@ -61,9 +61,8 @@ class TimeToDisplayTracker {
 
     if (appStartInfo == null || name == null) return;
 
-    final transaction = await _ttdTransactionHandler.startTransaction(
-        name, arguments,
-        startTimestamp: appStartInfo.start);
+    final transaction = await _ttdTransactionHandler
+        .startTransaction(name, arguments, startTimestamp: appStartInfo.start);
     if (transaction == null) return;
 
     await _ttidTracker.trackAppStart(transaction, appStartInfo, name);
@@ -81,7 +80,8 @@ class TimeToDisplayTracker {
 
     if (transaction == null || routeName == null) return;
 
-    await _ttidTracker.trackRegularRoute(transaction, startTimestamp, routeName);
+    await _ttidTracker.trackRegularRoute(
+        transaction, startTimestamp, routeName);
 
     if (_enableTimeToFullDisplayTracing) {
       _ttfdTracker.startTracking(transaction, startTimestamp, routeName);

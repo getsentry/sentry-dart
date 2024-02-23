@@ -21,7 +21,8 @@ void main() {
     fixture = Fixture();
   });
 
-  testWidgets('SentryDisplayWidget reports manual ttid span after didPush', (WidgetTester tester) async {
+  testWidgets('SentryDisplayWidget reports manual ttid span after didPush',
+      (WidgetTester tester) async {
     final currentRoute = route(RouteSettings(name: 'Current Route'));
 
     await tester.runAsync(() async {
@@ -48,7 +49,8 @@ void main() {
     expect(measurement?.unit, DurationSentryMeasurementUnit.milliSecond);
   });
 
-  testWidgets('SentryDisplayWidget is ignored for app starts', (WidgetTester tester) async {
+  testWidgets('SentryDisplayWidget is ignored for app starts',
+      (WidgetTester tester) async {
     final currentRoute = route(RouteSettings(name: '/'));
 
     await tester.runAsync(() async {
@@ -78,8 +80,10 @@ void main() {
     expect(ttidSpan.context.description, 'root ("/") initial display');
     expect(ttidSpan.origin, SentryTraceOrigins.autoUiTimeToDisplay);
 
-    expect(ttidSpan.startTimestamp, DateTime.fromMillisecondsSinceEpoch(0).toUtc());
-    expect(ttidSpan.endTimestamp, DateTime.fromMillisecondsSinceEpoch(10).toUtc());
+    expect(ttidSpan.startTimestamp,
+        DateTime.fromMillisecondsSinceEpoch(0).toUtc());
+    expect(
+        ttidSpan.endTimestamp, DateTime.fromMillisecondsSinceEpoch(10).toUtc());
 
     expect(tracer.measurements, hasLength(1));
     final measurement = tracer.measurements['time_to_initial_display'];
@@ -90,16 +94,17 @@ void main() {
 }
 
 class Fixture {
-  final Hub hub = Hub(SentryFlutterOptions(dsn: fakeDsn)..tracesSampleRate = 1.0);
+  final Hub hub =
+      Hub(SentryFlutterOptions(dsn: fakeDsn)..tracesSampleRate = 1.0);
   late final SentryNavigatorObserver navigatorObserver;
   late final TimeToInitialDisplayTracker timeToInitialDisplayTracker;
+  final fakeFrameCallbackHandler = FakeFrameCallbackHandler();
 
   Fixture() {
     SentryFlutter.native = TestMockSentryNative();
     navigatorObserver = SentryNavigatorObserver(hub: hub);
-    timeToInitialDisplayTracker = TimeToInitialDisplayTracker();
-    TimeToInitialDisplayTracker().frameCallbackHandler =
-        FakeFrameCallbackHandler();
+    timeToInitialDisplayTracker = TimeToInitialDisplayTracker(
+        frameCallbackHandler: fakeFrameCallbackHandler);
   }
 
   MaterialApp getSut() {

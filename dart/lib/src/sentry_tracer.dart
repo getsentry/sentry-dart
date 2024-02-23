@@ -117,7 +117,8 @@ class SentryTracer extends ISentrySpan {
         for (var child in children) {
           final childEndTimestamp = child.endTimestamp;
           if (childEndTimestamp != null) {
-            if (latestEndTime == null || childEndTimestamp.isAfter(latestEndTime)) {
+            if (latestEndTime == null ||
+                childEndTimestamp.isAfter(latestEndTime)) {
               latestEndTime = child.endTimestamp;
             }
           }

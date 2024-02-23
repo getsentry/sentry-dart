@@ -1,7 +1,7 @@
 import 'package:flutter/scheduler.dart';
 import 'package:sentry_flutter/src/frame_callback_handler.dart';
 
-class FakeFrameCallbackHandler implements IFrameCallbackHandler {
+class FakeFrameCallbackHandler implements FrameCallbackHandler {
   FrameCallback? storedCallback;
 
   final Duration _finishAfterDuration;

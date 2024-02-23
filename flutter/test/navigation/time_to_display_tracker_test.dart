@@ -19,10 +19,6 @@ void main() {
     fixture = Fixture();
   });
 
-  tearDown(() async {
-    await Future.delayed(const Duration(milliseconds: 500));
-  });
-
   group('time to initial display', () {
     group('in root screen app start route', () {
       test('startMeasurement finishes ttid span', () async {
@@ -56,7 +52,7 @@ void main() {
         test('startMeasurement finishes ttid span', () async {
           final sut = fixture.getSut();
 
-          sut.startTracking('Current Route', null);
+          await sut.startTracking('Current Route', null);
 
           final transaction = fixture.hub.getSpan() as SentryTracer;
           await Future.delayed(const Duration(milliseconds: 2000));
@@ -174,7 +170,6 @@ void main() {
           'not using reportFullyDisplayed finishes ttfd span after timeout with deadline exceeded and ttid matching end time',
           () async {
         final sut = fixture.getSut();
-        fixture.ttfdTracker.ttfdAutoFinishAfter = const Duration(seconds: 1);
 
         await sut.startTracking('Current Route', null);
 
@@ -194,8 +189,8 @@ void main() {
             .first;
         expect(ttfdSpan, isNotNull);
 
-        await Future.delayed(fixture.ttfdTracker.ttfdAutoFinishAfter +
-            const Duration(milliseconds: 100));
+        await Future.delayed(
+            fixture.ttfdAutoFinishAfter + const Duration(milliseconds: 100));
 
         expect(ttfdSpan.finished, isTrue);
         expect(ttfdSpan.status, SpanStatus.deadlineExceeded());
@@ -220,14 +215,15 @@ class Fixture {
     ..dsn = fakeDsn
     ..tracesSampleRate = 1.0;
 
-  final frameCallbackHandler = FakeFrameCallbackHandler();
-
   late final hub = Hub(options);
 
-  final ttidTracker = TimeToInitialDisplayTracker()
-    ..frameCallbackHandler = FakeFrameCallbackHandler();
+  final frameCallbackHandler = FakeFrameCallbackHandler();
+  late final ttidTracker =
+      TimeToInitialDisplayTracker(frameCallbackHandler: frameCallbackHandler);
 
-  final ttfdTracker = TimeToFullDisplayTracker();
+  final ttfdAutoFinishAfter = Duration(milliseconds: 500);
+  late final ttfdTracker =
+      TimeToFullDisplayTracker(autoFinishAfter: ttfdAutoFinishAfter);
 
   TimeToDisplayTracker getSut() {
     final enableTimeToFullDisplayTracing =

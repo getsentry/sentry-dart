@@ -27,7 +27,6 @@ class AppStartTracker {
   void setAppStartInfo(AppStartInfo? appStartInfo) {
     _appStartInfo = appStartInfo;
     if (!_appStartCompleter.isCompleted) {
-
       // Complete the completer with the app start info when it becomes available
       _appStartCompleter.complete(appStartInfo);
     } else {

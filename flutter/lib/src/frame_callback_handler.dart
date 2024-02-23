@@ -1,11 +1,11 @@
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 
-abstract class IFrameCallbackHandler {
+abstract class FrameCallbackHandler {
   void addPostFrameCallback(FrameCallback callback, {String debugLabel});
 }
 
-class DefaultFrameCallbackHandler implements IFrameCallbackHandler {
+class DefaultFrameCallbackHandler implements FrameCallbackHandler {
   @override
   void addPostFrameCallback(FrameCallback callback,
       {String debugLabel = 'callback'}) {

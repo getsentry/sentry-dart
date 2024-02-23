@@ -14,10 +14,18 @@ import '../sentry_flutter_measurement.dart';
 class TimeToInitialDisplayTracker {
   static final TimeToInitialDisplayTracker _instance =
       TimeToInitialDisplayTracker._internal();
-  factory TimeToInitialDisplayTracker() => _instance;
+
+  factory TimeToInitialDisplayTracker(
+      {FrameCallbackHandler? frameCallbackHandler}) {
+    if (frameCallbackHandler != null) {
+      _instance._frameCallbackHandler = frameCallbackHandler;
+    }
+    return _instance;
+  }
+
   TimeToInitialDisplayTracker._internal();
 
-  IFrameCallbackHandler frameCallbackHandler = DefaultFrameCallbackHandler();
+  FrameCallbackHandler _frameCallbackHandler = DefaultFrameCallbackHandler();
   bool _isManual = false;
   Completer<DateTime>? _trackingCompleter;
   DateTime? _endTimestamp;
@@ -26,7 +34,8 @@ class TimeToInitialDisplayTracker {
   @internal
   DateTime? get endTimestamp => _endTimestamp;
 
-  Future<void> trackRegularRoute(ISentrySpan transaction, DateTime startTimestamp, String routeName) async {
+  Future<void> trackRegularRoute(ISentrySpan transaction,
+      DateTime startTimestamp, String routeName) async {
     final endTimestamp = await determineEndTime();
     if (endTimestamp == null) return;
 
@@ -41,19 +50,20 @@ class TimeToInitialDisplayTracker {
       ttidSpan.origin = SentryTraceOrigins.autoUiTimeToDisplay;
     }
 
-    // Reset after completion
-    _isManual = false;
-
     final ttidMeasurement = SentryFlutterMeasurement.timeToInitialDisplay(
         Duration(
             milliseconds:
-            endTimestamp.difference(startTimestamp).inMilliseconds));
+                endTimestamp.difference(startTimestamp).inMilliseconds));
     transaction.setMeasurement(ttidMeasurement.name, ttidMeasurement.value,
         unit: ttidMeasurement.unit);
-    return ttidSpan.finish(endTimestamp: endTimestamp);
+    await ttidSpan.finish(endTimestamp: endTimestamp);
+
+    // We can clear the state after creating and finishing the ttid span has finished
+    clear();
   }
 
-  Future<void> trackAppStart(ISentrySpan transaction, AppStartInfo appStartInfo, String routeName) async {
+  Future<void> trackAppStart(ISentrySpan transaction, AppStartInfo appStartInfo,
+      String routeName) async {
     final ttidSpan = transaction.startChild(
       SentrySpanOperations.uiTimeToInitialDisplay,
       description: '$routeName initial display',
@@ -68,7 +78,8 @@ class TimeToInitialDisplayTracker {
     final ttidMeasurement = SentryFlutterMeasurement.timeToInitialDisplay(
       Duration(milliseconds: appStartInfo.measurement.value.toInt()),
     );
-    transaction.setMeasurement(ttidMeasurement.name, ttidMeasurement.value, unit: ttidMeasurement.unit);
+    transaction.setMeasurement(ttidMeasurement.name, ttidMeasurement.value,
+        unit: ttidMeasurement.unit);
 
     // Since app start measurement is immediate, finish the TTID span with the app start's end timestamp
     await ttidSpan.finish(endTimestamp: appStartInfo.end);
@@ -80,9 +91,14 @@ class TimeToInitialDisplayTracker {
   Future<DateTime>? determineEndTime() {
     _trackingCompleter = Completer<DateTime>();
 
+    // If we already know it's manual we can return the future immediately
+    if (_isManual) {
+      return _trackingCompleter?.future;
+    }
+
     // Schedules a check at the end of the frame to determine if the tracking
     // should be completed immediately (approximation mode) or deferred (manual mode).
-    frameCallbackHandler.addPostFrameCallback((_) {
+    _frameCallbackHandler.addPostFrameCallback((_) {
       if (!_isManual) {
         completeTracking();
       }
@@ -102,5 +118,12 @@ class TimeToInitialDisplayTracker {
       // Reset after completion
       _trackingCompleter?.complete(endTimestamp);
     }
+  }
+
+  void clear() {
+    _isManual = false;
+    _trackingCompleter = null;
+    // We can't clear the ttid end time stamp here, because it might be needed
+    // in the [TimeToFullDisplayTracker] class
   }
 }

@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/integrations/app_start/app_start_tracker.dart';
@@ -11,16 +9,22 @@ import 'package:sentry/src/sentry_tracer.dart';
 
 void main() {
   late Fixture fixture;
+  late TimeToInitialDisplayTracker sut;
 
   setUp(() {
     fixture = Fixture();
+    sut = fixture.getSut();
+  });
+
+  tearDown(() {
+    sut.clear();
   });
 
   group('app start', () {
-    test('tracking creates and finishes ttid span with correct measurements', () async {
-      final sut = fixture.getSut();
-      final transaction = fixture.hub.startTransaction('fake', 'fake')
-          as SentryTracer;
+    test('tracking creates and finishes ttid span with correct measurements',
+        () async {
+      final transaction =
+          fixture.hub.startTransaction('fake', 'fake') as SentryTracer;
       final startTimestamp = DateTime.now();
       final appStartInfo = AppStartInfo(
           startTimestamp,
@@ -33,28 +37,32 @@ void main() {
       expect(children, hasLength(1));
 
       final ttidSpan = children.first;
-      expect(ttidSpan.context.operation, SentrySpanOperations.uiTimeToInitialDisplay);
+      expect(ttidSpan.context.operation,
+          SentrySpanOperations.uiTimeToInitialDisplay);
       expect(ttidSpan.finished, isTrue);
       expect(ttidSpan.context.description, 'route ("/") initial display');
       expect(ttidSpan.origin, SentryTraceOrigins.autoUiTimeToDisplay);
 
-      final ttidMeasurement = transaction.measurements['time_to_initial_display'];
+      final ttidMeasurement =
+          transaction.measurements['time_to_initial_display'];
       expect(ttidMeasurement, isNotNull);
       expect(ttidMeasurement?.unit, DurationSentryMeasurementUnit.milliSecond);
       expect(ttidMeasurement?.value, 10);
 
       final appStartMeasurement = transaction.measurements['app_start_cold'];
       expect(appStartMeasurement, isNotNull);
-      expect(appStartMeasurement?.unit, DurationSentryMeasurementUnit.milliSecond);
+      expect(
+          appStartMeasurement?.unit, DurationSentryMeasurementUnit.milliSecond);
       expect(appStartMeasurement?.value, 10);
     });
   });
 
   group('regular route', () {
-    test('approximation tracking creates and finishes ttid span with correct measurements', () async {
-      final sut = fixture.getSut();
-      final transaction = fixture.hub.startTransaction('fake', 'fake')
-          as SentryTracer;
+    test(
+        'approximation tracking creates and finishes ttid span with correct measurements',
+        () async {
+      final transaction =
+          fixture.hub.startTransaction('fake', 'fake') as SentryTracer;
       final startTimestamp = DateTime.now();
 
       await sut.trackRegularRoute(transaction, startTimestamp, 'regular route');
@@ -63,26 +71,31 @@ void main() {
       expect(children, hasLength(1));
 
       final ttidSpan = children.first;
-      expect(ttidSpan.context.operation, SentrySpanOperations.uiTimeToInitialDisplay);
+      expect(ttidSpan.context.operation,
+          SentrySpanOperations.uiTimeToInitialDisplay);
       expect(ttidSpan.finished, isTrue);
       expect(ttidSpan.context.description, 'regular route initial display');
       expect(ttidSpan.origin, SentryTraceOrigins.autoUiTimeToDisplay);
 
-      final ttidMeasurement = transaction.measurements['time_to_initial_display'];
+      final ttidMeasurement =
+          transaction.measurements['time_to_initial_display'];
       expect(ttidMeasurement, isNotNull);
       expect(ttidMeasurement?.unit, DurationSentryMeasurementUnit.milliSecond);
-      expect(ttidMeasurement?.value, greaterThan(fixture.finishAfterDuration.inMilliseconds));
-      expect(ttidMeasurement?.value, lessThan(fixture.finishAfterDuration.inMilliseconds + 10));
+      expect(ttidMeasurement?.value,
+          greaterThan(fixture.finishFrameAfterDuration.inMilliseconds));
+      expect(ttidMeasurement?.value,
+          lessThan(fixture.finishFrameAfterDuration.inMilliseconds + 10));
     });
 
-    test('manual tracking creates and finishes ttid span with correct measurements', () async {
-      final sut = fixture.getSut();
-      final transaction = fixture.hub.startTransaction('fake', 'fake')
-          as SentryTracer;
+    test(
+        'manual tracking creates and finishes ttid span with correct measurements',
+        () async {
+      final transaction =
+          fixture.hub.startTransaction('fake', 'fake') as SentryTracer;
       final startTimestamp = DateTime.now();
 
       sut.markAsManual();
-      Future.delayed(fixture.finishAfterDuration, () {
+      Future.delayed(fixture.finishFrameAfterDuration, () {
         sut.completeTracking();
       });
       await sut.trackRegularRoute(transaction, startTimestamp, 'regular route');
@@ -91,31 +104,31 @@ void main() {
       expect(children, hasLength(1));
 
       final ttidSpan = children.first;
-      expect(ttidSpan.context.operation, SentrySpanOperations.uiTimeToInitialDisplay);
+      expect(ttidSpan.context.operation,
+          SentrySpanOperations.uiTimeToInitialDisplay);
       expect(ttidSpan.finished, isTrue);
       expect(ttidSpan.context.description, 'regular route initial display');
       expect(ttidSpan.origin, SentryTraceOrigins.manualUiTimeToDisplay);
 
-      final ttidMeasurement = transaction.measurements['time_to_initial_display'];
+      final ttidMeasurement =
+          transaction.measurements['time_to_initial_display'];
       expect(ttidMeasurement, isNotNull);
       expect(ttidMeasurement?.unit, DurationSentryMeasurementUnit.milliSecond);
-      expect(ttidMeasurement?.value, greaterThan(fixture.finishAfterDuration.inMilliseconds));
-      expect(ttidMeasurement?.value, lessThan(fixture.finishAfterDuration.inMilliseconds + 10));
+      expect(ttidMeasurement?.value,
+          greaterThan(fixture.finishFrameAfterDuration.inMilliseconds));
+      expect(ttidMeasurement?.value,
+          lessThan(fixture.finishFrameAfterDuration.inMilliseconds + 10));
     });
   });
 
   group('determineEndtime', () {
     test('can complete automatically in approximation mode', () async {
-      final sut = fixture.getSut();
-
       final futureEndTime = sut.determineEndTime();
 
       expect(futureEndTime, completes);
     });
 
     test('prevents automatic completion in manual mode', () async {
-      final sut = fixture.getSut();
-
       sut.markAsManual();
       final futureEndTime = sut.determineEndTime();
 
@@ -123,8 +136,6 @@ void main() {
     });
 
     test('can complete manually in manual mode', () async {
-      final sut = fixture.getSut();
-
       sut.markAsManual();
       final futureEndTime = sut.determineEndTime();
 
@@ -134,42 +145,39 @@ void main() {
 
     test('returns the correct approximation end time', () async {
       final startTime = DateTime.now();
-      final sut = fixture.getSut();
 
       final futureEndTime = sut.determineEndTime();
 
       final endTime = await futureEndTime;
       expect(endTime?.difference(startTime).inSeconds,
-          fixture.finishAfterDuration.inSeconds);
+          fixture.finishFrameAfterDuration.inSeconds);
     });
 
     test('returns the correct manual end time', () async {
       final startTime = DateTime.now();
-      final sut = fixture.getSut();
 
       sut.markAsManual();
       final futureEndTime = sut.determineEndTime();
 
-      Future.delayed(fixture.finishAfterDuration, () {
+      Future.delayed(fixture.finishFrameAfterDuration, () {
         sut.completeTracking();
       });
 
       final endTime = await futureEndTime;
       expect(endTime?.difference(startTime).inSeconds,
-          fixture.finishAfterDuration.inSeconds);
+          fixture.finishFrameAfterDuration.inSeconds);
     });
   });
 }
 
 class Fixture {
   final hub = Hub(SentryFlutterOptions(dsn: fakeDsn)..tracesSampleRate = 1.0);
-  final finishAfterDuration = Duration(milliseconds: 100);
+  final finishFrameAfterDuration = Duration(milliseconds: 100);
   late final fakeFrameCallbackHandler =
-      FakeFrameCallbackHandler(finishAfterDuration: finishAfterDuration);
+      FakeFrameCallbackHandler(finishAfterDuration: finishFrameAfterDuration);
 
   TimeToInitialDisplayTracker getSut() {
-    final sut = TimeToInitialDisplayTracker();
-    sut.frameCallbackHandler = fakeFrameCallbackHandler;
-    return sut;
+    return TimeToInitialDisplayTracker(
+        frameCallbackHandler: fakeFrameCallbackHandler);
   }
 }

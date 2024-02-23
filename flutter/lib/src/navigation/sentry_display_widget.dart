@@ -6,13 +6,14 @@ import '../frame_callback_handler.dart';
 
 class SentryDisplayWidget extends StatefulWidget {
   final Widget child;
-  final IFrameCallbackHandler _frameCallbackHandler;
+  final FrameCallbackHandler _frameCallbackHandler;
 
   SentryDisplayWidget({
     super.key,
     required this.child,
-    IFrameCallbackHandler? frameCallbackHandler,
-  }) : _frameCallbackHandler = frameCallbackHandler ?? DefaultFrameCallbackHandler();
+    FrameCallbackHandler? frameCallbackHandler,
+  }) : _frameCallbackHandler =
+            frameCallbackHandler ?? DefaultFrameCallbackHandler();
 
   @override
   _SentryDisplayWidgetState createState() => _SentryDisplayWidgetState();
