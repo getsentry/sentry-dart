@@ -302,7 +302,7 @@ void main() {
       final secondRoute = route(RouteSettings(name: 'Second Route'));
 
       final hub = _MockHub();
-      final span = getMockSentryTracer();
+      final span = getMockSentryTracer(finished: false);
       when(span.context).thenReturn(SentrySpanContext(operation: 'op'));
       when(span.status).thenReturn(null);
       when(span.finished).thenReturn(false);
@@ -325,7 +325,7 @@ void main() {
       final currentRoute = route(RouteSettings(name: 'Current Route'));
 
       final hub = _MockHub();
-      final span = getMockSentryTracer();
+      final span = getMockSentryTracer(finished: false);
       when(span.context).thenReturn(SentrySpanContext(operation: 'op'));
       when(span.status).thenReturn(null);
       when(span.finished).thenReturn(false);
@@ -342,6 +342,52 @@ void main() {
 
       verify(span.status = SpanStatus.ok());
       verify(span.finish());
+    });
+
+    test('multiple didPop only finish transaction once', () {
+      final currentRoute = route(RouteSettings(name: 'Current Route'));
+
+      final hub = _MockHub();
+      final span = getMockSentryTracer(finished: false);
+      when(span.context).thenReturn(SentrySpanContext(operation: 'op'));
+      when(span.status).thenReturn(null);
+      _whenAnyStart(hub, span);
+
+      final sut = fixture.getSut(hub: hub);
+
+      sut.didPush(currentRoute, null);
+      sut.didPop(currentRoute, null);
+      sut.didPop(currentRoute, null);
+
+      verify(span.finish()).called(1);
+    });
+
+    test('didPop re-starts previous', () {
+      final previousRoute = route(RouteSettings(name: 'Previous Route'));
+      final currentRoute = route(RouteSettings(name: 'Current Route'));
+
+      final hub = _MockHub();
+      final previousSpan = getMockSentryTracer();
+      when(previousSpan.context).thenReturn(SentrySpanContext(operation: 'op'));
+      when(previousSpan.status).thenReturn(null);
+
+      _whenAnyStart(hub, previousSpan);
+
+      final sut = fixture.getSut(hub: hub);
+
+      sut.didPop(currentRoute, previousRoute);
+
+      verify(hub.startTransactionWithContext(
+        any,
+        waitForChildren: true,
+        autoFinishAfter: anyNamed('autoFinishAfter'),
+        trimEnd: true,
+        onFinish: anyNamed('onFinish'),
+      ));
+
+      hub.configureScope((scope) {
+        expect(scope.span, previousSpan);
+      });
     });
 
     test('route arguments are set on transaction', () {
@@ -895,9 +941,10 @@ class _MockHub extends MockHub {
   }
 }
 
-ISentrySpan getMockSentryTracer({String? name}) {
+ISentrySpan getMockSentryTracer({String? name, bool? finished}) {
   final tracer = MockSentryTracer();
   when(tracer.name).thenReturn(name ?? 'name');
+  when(tracer.finished).thenReturn(finished ?? true);
   return tracer;
 }
 
