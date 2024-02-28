@@ -24,6 +24,8 @@ typedef AdditionalInfoExtractor = Map<String, dynamic>? Function(
 /// This is a navigation observer to record navigational breadcrumbs.
 /// For now it only records navigation events and no gestures.
 ///
+/// It also records Time to Initial Display (TTID) and Time to Full Display (TTFD).
+///
 /// [Route]s can always be null and their [Route.settings] can also always be null.
 /// For example, if the application starts, there is no previous route.
 /// The [RouteSettings] is null if a developer has not specified any
