@@ -65,6 +65,8 @@ jobs:
         working-directory: ${{ inputs.package }}
         run: |
           sed -i.bak 's|sentry:.*|sentry:\n    path: /github/workspace/dart|g' pubspec.yaml
+      - name: Ignore safe directory warning
+        run: git config --global --add safe.directory '*'
       - uses: axel-op/dart-package-analyzer@7a6c3c66bce78d82b729a1ffef2d9458fde6c8d2 # pin@v3
         id: analysis
         with:
