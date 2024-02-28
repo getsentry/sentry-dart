@@ -80,17 +80,19 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       // ignore: invalid_use_of_internal_member
       _hub.options.sdk.addIntegration('UINavigationTracing');
     }
-    final enableTimeToFullDisplayTracing =
-        (_hub.options as SentryFlutterOptions).enableTimeToFullDisplayTracing;
-    _timeToDisplayTracker = timeToDisplayTracker ??
-        TimeToDisplayTracker(
-          enableTimeToFullDisplayTracing: enableTimeToFullDisplayTracing,
-          ttdTransactionHandler: TimeToDisplayTransactionHandler(
-            hub: hub,
-            enableAutoTransactions: enableAutoTransactions,
-            autoFinishAfter: autoFinishAfter,
-          ),
-        );
+    final options = _hub.options;
+    if (options is SentryFlutterOptions) {
+      final enableTimeToFullDisplayTracing = options.enableTimeToFullDisplayTracing;
+      _timeToDisplayTracker = timeToDisplayTracker ??
+          TimeToDisplayTracker(
+            enableTimeToFullDisplayTracing: enableTimeToFullDisplayTracing,
+            ttdTransactionHandler: TimeToDisplayTransactionHandler(
+              hub: hub,
+              enableAutoTransactions: enableAutoTransactions,
+              autoFinishAfter: autoFinishAfter,
+            ),
+          );
+    }
   }
 
   final Hub _hub;
@@ -111,7 +113,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
 
   Completer<void>? _completedDisplayTracking;
 
-  @internal
+  @visibleForTesting
   Completer<void>? get completedDisplayTracking => _completedDisplayTracking;
 
   @override

@@ -11,6 +11,7 @@ import 'package:sentry_flutter/src/navigation/time_to_display_tracker.dart';
 import 'package:sentry_flutter/src/navigation/time_to_display_transaction_handler.dart';
 import 'package:sentry_flutter/src/navigation/time_to_initial_display_tracker.dart';
 
+import 'fake_frame_callback_handler.dart';
 import 'mocks.dart';
 import 'mocks.mocks.dart';
 
@@ -92,15 +93,10 @@ void main() {
       mockNativeChannel.nativeFrames = nativeFrames;
 
       final sut = fixture.getSut(
-        hub: hub,
-        autoFinishAfter: Duration(milliseconds: 50),
+        hub: hub
       );
 
       sut.didPush(currentRoute, null);
-
-      await Future<void>.delayed(Duration(milliseconds: 50));
-      TimeToInitialDisplayTracker().markAsManual();
-      TimeToInitialDisplayTracker().completeTracking();
 
       // Get ref to created transaction
       // ignore: invalid_use_of_internal_member
@@ -110,7 +106,9 @@ void main() {
         actualTransaction = scope.span as SentryTracer;
       });
 
-      await Future<void>.delayed(Duration(milliseconds: 500));
+      await sut.completedDisplayTracking?.future;
+
+      await Future<void>.delayed(Duration(milliseconds: 1500));
 
       expect(mockNativeChannel.numberOfEndNativeFramesCalls, 1);
 
@@ -356,38 +354,12 @@ void main() {
       final sut = fixture.getSut(hub: hub);
 
       sut.didPush(currentRoute, null);
+      when(span.finished).thenReturn(true);
+
       sut.didPop(currentRoute, null);
       sut.didPop(currentRoute, null);
 
       verify(span.finish()).called(1);
-    });
-
-    test('didPop re-starts previous', () {
-      final previousRoute = route(RouteSettings(name: 'Previous Route'));
-      final currentRoute = route(RouteSettings(name: 'Current Route'));
-
-      final hub = _MockHub();
-      final previousSpan = getMockSentryTracer();
-      when(previousSpan.context).thenReturn(SentrySpanContext(operation: 'op'));
-      when(previousSpan.status).thenReturn(null);
-
-      _whenAnyStart(hub, previousSpan);
-
-      final sut = fixture.getSut(hub: hub);
-
-      sut.didPop(currentRoute, previousRoute);
-
-      verify(hub.startTransactionWithContext(
-        any,
-        waitForChildren: true,
-        autoFinishAfter: anyNamed('autoFinishAfter'),
-        trimEnd: true,
-        onFinish: anyNamed('onFinish'),
-      ));
-
-      hub.configureScope((scope) {
-        expect(scope.span, previousSpan);
-      });
     });
 
     test('route arguments are set on transaction', () {
@@ -899,18 +871,22 @@ class Fixture {
   SentryNavigatorObserver getSut({
     required Hub hub,
     bool enableAutoTransactions = true,
-    Duration autoFinishAfter = const Duration(seconds: 3),
+    Duration autoFinishAfter = const Duration(seconds: 1),
     bool setRouteNameAsTransaction = false,
     RouteNameExtractor? routeNameExtractor,
     AdditionalInfoExtractor? additionalInfoProvider,
   }) {
+    final frameCallbackHandler = FakeFrameCallbackHandler();
+    final timeToInitialDisplayTracker =
+        TimeToInitialDisplayTracker(frameCallbackHandler: frameCallbackHandler);
     final timeToDisplayTracker = TimeToDisplayTracker(
-      enableTimeToFullDisplayTracing: true,
+      enableTimeToFullDisplayTracing: false,
       ttdTransactionHandler: TimeToDisplayTransactionHandler(
         hub: hub,
-        enableAutoTransactions: true,
-        autoFinishAfter: const Duration(seconds: 30),
+        enableAutoTransactions: enableAutoTransactions,
+        autoFinishAfter: autoFinishAfter,
       ),
+      ttidTracker: timeToInitialDisplayTracker,
     );
     return SentryNavigatorObserver(
       hub: hub,

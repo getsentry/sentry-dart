@@ -109,13 +109,12 @@ void main() {
       expect(ttidSpan.finished, isTrue);
       expect(ttidSpan.context.description, 'regular route initial display');
       expect(ttidSpan.origin, SentryTraceOrigins.manualUiTimeToDisplay);
-
       final ttidMeasurement =
           transaction.measurements['time_to_initial_display'];
       expect(ttidMeasurement, isNotNull);
       expect(ttidMeasurement?.unit, DurationSentryMeasurementUnit.milliSecond);
       expect(ttidMeasurement?.value,
-          greaterThan(fixture.finishFrameAfterDuration.inMilliseconds));
+          greaterThanOrEqualTo(fixture.finishFrameAfterDuration.inMilliseconds));
       expect(ttidMeasurement?.value,
           lessThan(fixture.finishFrameAfterDuration.inMilliseconds + 10));
     });

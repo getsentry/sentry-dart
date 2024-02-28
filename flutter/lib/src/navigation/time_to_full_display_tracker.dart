@@ -1,18 +1,26 @@
 import 'dart:async';
 
+import 'package:meta/meta.dart';
+
 import '../../sentry_flutter.dart';
 import '../sentry_flutter_measurement.dart';
 import 'time_to_initial_display_tracker.dart';
 
+/// We need to retrieve the end time stamp in case TTFD timeout is triggered.
+/// In those cases TTFD end time should match TTID end time.
+/// This provider allows us to inject endTimestamps for testing as well.
+@internal
 abstract class EndTimestampProvider {
   DateTime? get endTimestamp;
 }
 
+@internal
 class TTIDEndTimestampProvider implements EndTimestampProvider {
   @override
   DateTime? get endTimestamp => TimeToInitialDisplayTracker().endTimestamp;
 }
 
+@internal
 class TimeToFullDisplayTracker {
   static final TimeToFullDisplayTracker _instance =
       TimeToFullDisplayTracker._internal();

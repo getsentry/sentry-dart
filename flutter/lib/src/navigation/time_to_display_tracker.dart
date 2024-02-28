@@ -4,11 +4,8 @@ import 'package:meta/meta.dart';
 import 'time_to_full_display_tracker.dart';
 
 import '../../sentry_flutter.dart';
-import '../frame_callback_handler.dart';
 import '../integrations/app_start/app_start_tracker.dart';
-import '../integrations/integrations.dart';
 import '../native/sentry_native.dart';
-import '../sentry_flutter_measurement.dart';
 import 'time_to_display_transaction_handler.dart';
 import 'time_to_initial_display_tracker.dart';
 
@@ -72,7 +69,7 @@ class TimeToDisplayTracker {
     }
   }
 
-  // Handles measuring navigation for regular routes
+  /// Starts and finishes Time To Display spans for regular routes meaning routes that are not root.
   Future<void> _trackRegularRouteTTD(
       String? routeName, Object? arguments, DateTime startTimestamp) async {
     final transaction = await _ttdTransactionHandler
