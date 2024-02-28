@@ -69,6 +69,7 @@ jobs:
         run: git config --global --add safe.directory /github/workspace
       - uses: axel-op/dart-package-analyzer@7a6c3c66bce78d82b729a1ffef2d9458fde6c8d2 # pin@v3
         id: analysis
+        run: git config --global --add safe.directory /github/workspace
         with:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
           relativePath: ${{ inputs.package }}
