@@ -99,20 +99,19 @@ void main() {
       fixture.options.enableTimeToFullDisplayTracing = true;
     });
 
-    test('startMeasurement creates ttfd and ttid span', () async {
+    test('startMeasurement creates ttfd and ttid span', () {
       final sut = fixture.getSut();
 
-      await sut.startTracking('Current Route', null);
+      return sut.startTracking('Current Route', null).then((value){
+        final transaction = fixture.hub.getSpan() as SentryTracer;
 
-      final transaction = fixture.hub.getSpan() as SentryTracer;
-      await Future.delayed(const Duration(milliseconds: 100));
-
-      final spans = transaction.children;
-      expect(transaction.children, hasLength(2));
-      expect(spans[0].context.operation,
-          SentrySpanOperations.uiTimeToInitialDisplay);
-      expect(
-          spans[1].context.operation, SentrySpanOperations.uiTimeToFullDisplay);
+        final spans = transaction.children;
+        expect(transaction.children, hasLength(2));
+        expect(spans[0].context.operation,
+            SentrySpanOperations.uiTimeToInitialDisplay);
+        expect(
+            spans[1].context.operation, SentrySpanOperations.uiTimeToFullDisplay);
+      });
     });
 
     group('in root screen app start route', () {
