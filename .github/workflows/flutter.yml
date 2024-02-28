@@ -93,11 +93,17 @@ jobs:
           cd flutter
           flutter pub get
 
-      - name: Test chrome
+      - name: Test chrome (exclude canvasKit)
         if: runner.os == 'Linux'
         run: |
           cd flutter
           flutter test --platform chrome --test-randomize-ordering-seed=random --exclude-tags canvasKit
+
+      # TODO: Revert when canvasKit is available again in `beta` channel
+      - name: Test chrome (canvasKit)
+        if: runner.os == 'Linux' && matrix.sdk == 'beta'
+        run: |
+          cd flutter
           flutter test --platform chrome --test-randomize-ordering-seed=random --tags canvasKit --web-renderer canvaskit
 
       - name: Test VM with coverage
