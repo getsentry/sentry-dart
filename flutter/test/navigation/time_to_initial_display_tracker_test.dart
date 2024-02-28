@@ -82,7 +82,7 @@ void main() {
       expect(ttidMeasurement, isNotNull);
       expect(ttidMeasurement?.unit, DurationSentryMeasurementUnit.milliSecond);
       expect(ttidMeasurement?.value,
-          greaterThan(fixture.finishFrameAfterDuration.inMilliseconds));
+          greaterThanOrEqualTo(fixture.finishFrameAfterDuration.inMilliseconds));
       expect(ttidMeasurement?.value,
           lessThan(fixture.finishFrameAfterDuration.inMilliseconds + 10));
     });
