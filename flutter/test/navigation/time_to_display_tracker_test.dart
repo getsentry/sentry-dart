@@ -102,15 +102,15 @@ void main() {
     test('startMeasurement creates ttfd and ttid span', () {
       final sut = fixture.getSut();
 
-      return sut.startTracking('Current Route', null).then((value){
+      return sut.startTracking('Current Route', null).then((value) {
         final transaction = fixture.hub.getSpan() as SentryTracer;
 
         final spans = transaction.children;
         expect(transaction.children, hasLength(2));
         expect(spans[0].context.operation,
             SentrySpanOperations.uiTimeToInitialDisplay);
-        expect(
-            spans[1].context.operation, SentrySpanOperations.uiTimeToFullDisplay);
+        expect(spans[1].context.operation,
+            SentrySpanOperations.uiTimeToFullDisplay);
       });
     });
 

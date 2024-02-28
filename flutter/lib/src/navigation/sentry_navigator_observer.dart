@@ -82,7 +82,8 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     }
     final options = _hub.options;
     if (options is SentryFlutterOptions) {
-      final enableTimeToFullDisplayTracing = options.enableTimeToFullDisplayTracing;
+      final enableTimeToFullDisplayTracing =
+          options.enableTimeToFullDisplayTracing;
       _timeToDisplayTracker = timeToDisplayTracker ??
           TimeToDisplayTracker(
             enableTimeToFullDisplayTracing: enableTimeToFullDisplayTracing,

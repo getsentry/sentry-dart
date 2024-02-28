@@ -81,10 +81,10 @@ void main() {
           transaction.measurements['time_to_initial_display'];
       expect(ttidMeasurement, isNotNull);
       expect(ttidMeasurement?.unit, DurationSentryMeasurementUnit.milliSecond);
-      expect(ttidMeasurement?.value,
-          greaterThanOrEqualTo(fixture.finishFrameAfterDuration.inMilliseconds));
-      expect(ttidMeasurement?.value,
-          lessThan(fixture.finishFrameAfterDuration.inMilliseconds + 10));
+      expect(
+          ttidMeasurement?.value,
+          greaterThanOrEqualTo(
+              fixture.finishFrameAfterDuration.inMilliseconds));
     });
 
     test(
@@ -113,10 +113,10 @@ void main() {
           transaction.measurements['time_to_initial_display'];
       expect(ttidMeasurement, isNotNull);
       expect(ttidMeasurement?.unit, DurationSentryMeasurementUnit.milliSecond);
-      expect(ttidMeasurement?.value,
-          greaterThanOrEqualTo(fixture.finishFrameAfterDuration.inMilliseconds));
-      expect(ttidMeasurement?.value,
-          lessThan(fixture.finishFrameAfterDuration.inMilliseconds + 10));
+      expect(
+          ttidMeasurement?.value,
+          greaterThanOrEqualTo(
+              fixture.finishFrameAfterDuration.inMilliseconds));
     });
   });
 

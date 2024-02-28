@@ -92,9 +92,7 @@ void main() {
       final nativeFrames = NativeFrames(3, 2, 1);
       mockNativeChannel.nativeFrames = nativeFrames;
 
-      final sut = fixture.getSut(
-        hub: hub
-      );
+      final sut = fixture.getSut(hub: hub);
 
       sut.didPush(currentRoute, null);
 
