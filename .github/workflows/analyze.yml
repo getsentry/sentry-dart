@@ -56,7 +56,7 @@ jobs:
     # which ignores pubspec.yaml `dependency_overrides`. Because of that, all `release/*` branches are failing,
     # because the package cannot find the "about to be released" version of our sentry-dart package that it depends on.
     if: ${{ !startsWith(github.ref, 'refs/heads/release/') && inputs.panaThreshold > 0 }}
-    runs-on: ubuntu-22.04.3
+    runs-on: macos-latest
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
