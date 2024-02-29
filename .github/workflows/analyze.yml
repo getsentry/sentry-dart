@@ -60,7 +60,7 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
-      - run: git config --system --add safe.directory '*'
+      - run: sudo git config --system --add safe.directory '*'
       - name: Apply dependency override
         if: ${{ inputs.package == 'flutter' }}
         working-directory: ${{ inputs.package }}
