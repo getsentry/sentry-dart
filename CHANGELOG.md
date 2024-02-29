@@ -24,6 +24,7 @@
 - Bump Android SDK from v7.3.0 to v7.5.0 ([#1907](https://github.com/getsentry/sentry-dart/pull/1907))
   - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#750)
   - [diff](https://github.com/getsentry/sentry-java/compare/7.3.0...7.5.0)
+- remove transitive dart:io reference for web ([#1898](https://github.com/getsentry/sentry-dart/pull/1898))
 
 ## 7.16.1
 
