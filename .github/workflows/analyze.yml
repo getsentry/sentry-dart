@@ -60,8 +60,6 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
-        with:
-          set-safe-directory: '*'
       - name: Apply dependency override
         if: ${{ inputs.package == 'flutter' }}
         working-directory: ${{ inputs.package }}
@@ -72,6 +70,7 @@ jobs:
         with:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
           relativePath: ${{ inputs.package }}
+          minAnnotationLevel: warning
       - name: Check scores
         env:
           TOTAL: ${{ steps.analysis.outputs.total }}
