@@ -2,9 +2,8 @@ import 'dart:async';
 
 import 'package:sentry/sentry.dart';
 
+import '../../sentry_flutter.dart';
 import '../integrations/app_start/app_start_tracker.dart';
-import '../integrations/integrations.dart';
-import '../native/sentry_native.dart';
 
 /// EventProcessor that enriches [SentryTransaction] objects with app start
 /// measurement.
@@ -13,13 +12,13 @@ class NativeAppStartEventProcessor implements EventProcessor {
 
   NativeAppStartEventProcessor({
     AppStartTracker? appStartTracker,
-  })  : _appStartTracker = appStartTracker ?? AppStartTracker();
+  }) : _appStartTracker = appStartTracker ?? AppStartTracker();
 
   bool didAddAppStartMeasurement = false;
 
   @override
   Future<SentryEvent?> apply(SentryEvent event, {Hint? hint}) async {
-    if (didAddAppStartMeasurement || event is! SentryTransaction) {
+    if (!didAddAppStartMeasurement || event is! SentryTransaction) {
       return event;
     }
 
@@ -34,14 +33,3 @@ class NativeAppStartEventProcessor implements EventProcessor {
   }
 }
 
-extension NativeAppStartMeasurement on NativeAppStart {
-  SentryMeasurement toMeasurement(DateTime appStartEnd) {
-    final appStartDateTime =
-        DateTime.fromMillisecondsSinceEpoch(appStartTime.toInt());
-    final duration = appStartEnd.difference(appStartDateTime);
-
-    return isColdStart
-        ? SentryMeasurement.coldAppStart(duration)
-        : SentryMeasurement.warmAppStart(duration);
-  }
-}

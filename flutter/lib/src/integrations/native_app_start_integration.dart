@@ -79,3 +79,15 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
 
 /// Used to provide scheduler binding at call time.
 typedef SchedulerBindingProvider = SchedulerBinding? Function();
+
+extension NativeAppStartMeasurement on NativeAppStart {
+  SentryMeasurement toMeasurement(DateTime appStartEnd) {
+    final appStartDateTime =
+    DateTime.fromMillisecondsSinceEpoch(appStartTime.toInt());
+    final duration = appStartEnd.difference(appStartDateTime);
+
+    return isColdStart
+        ? SentryMeasurement.coldAppStart(duration)
+        : SentryMeasurement.warmAppStart(duration);
+  }
+}

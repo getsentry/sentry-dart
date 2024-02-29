@@ -8,8 +8,9 @@ import '../../../sentry_flutter.dart';
 class AppStartInfo {
   final DateTime start;
   final DateTime end;
+  final SentryMeasurement measurement;
 
-  AppStartInfo(this.start, this.end);
+  AppStartInfo(this.start, this.end, this.measurement);
 }
 
 @internal
@@ -38,4 +39,3 @@ class AppStartTracker {
     return _appStartCompleter.future;
   }
 }
-
