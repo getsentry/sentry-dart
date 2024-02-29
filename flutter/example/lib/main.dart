@@ -641,6 +641,7 @@ class MainScaffold extends StatelessWidget {
     );
 
     final db = AppDatabase(executor);
+
     await db.into(db.todoItems).insert(
           TodoItemsCompanion.insert(
             title: 'This is a test thing',
