@@ -68,10 +68,6 @@ class TimeToInitialDisplayTracker {
     );
     ttidSpan.origin = SentryTraceOrigins.autoUiTimeToDisplay;
 
-    transaction.setMeasurement(
-        appStartInfo.measurement.name, appStartInfo.measurement.value,
-        unit: appStartInfo.measurement.unit);
-
     final ttidMeasurement = SentryFlutterMeasurement.timeToInitialDisplay(
       Duration(milliseconds: appStartInfo.measurement.value.toInt()),
     );

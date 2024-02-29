@@ -19,6 +19,9 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
   final SchedulerBindingProvider _schedulerBindingProvider;
   final AppStartTracker? _appStartTracker;
 
+  /// We filter out App starts more than 60s
+  static const _maxAppStartMillis = 60000;
+
   @override
   void call(Hub hub, SentryFlutterOptions options) {
     if (options.autoAppStart) {
@@ -50,7 +53,7 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
           // We've seen app starts with hours, days and even months.
           if (nativeAppStart == null ||
               measurement == null ||
-              measurement.value >= 60000) {
+              measurement.value > _maxAppStartMillis) {
             _appStartTracker?.setAppStartInfo(null);
             return;
           }

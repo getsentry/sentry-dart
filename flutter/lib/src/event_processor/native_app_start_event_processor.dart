@@ -9,14 +9,11 @@ import '../native/sentry_native.dart';
 /// EventProcessor that enriches [SentryTransaction] objects with app start
 /// measurement.
 class NativeAppStartEventProcessor implements EventProcessor {
-  /// We filter out App starts more than 60s
-  static const _maxAppStartMillis = 60000;
-
   final AppStartTracker? _appStartTracker;
 
   NativeAppStartEventProcessor({
     AppStartTracker? appStartTracker,
-  }) : _appStartTracker = appStartTracker ?? AppStartTracker();
+  })  : _appStartTracker = appStartTracker ?? AppStartTracker();
 
   bool didAddAppStartMeasurement = false;
 
@@ -29,8 +26,7 @@ class NativeAppStartEventProcessor implements EventProcessor {
     final appStartInfo = await _appStartTracker?.getAppStartInfo();
     final measurement = appStartInfo?.measurement;
 
-    if (measurement != null &&
-        measurement.value.toInt() <= _maxAppStartMillis) {
+    if (measurement != null) {
       event.measurements[measurement.name] = measurement;
       didAddAppStartMeasurement = true;
     }

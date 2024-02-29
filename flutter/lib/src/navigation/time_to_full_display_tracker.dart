@@ -72,6 +72,8 @@ class TimeToFullDisplayTracker {
     _setTTFDMeasurement(startTimestamp, endTimestamp);
     ttfdSpan.finish(
         status: SpanStatus.deadlineExceeded(), endTimestamp: endTimestamp);
+
+    clearState();
   }
 
   Future<void> reportFullyDisplayed() async {
@@ -87,7 +89,9 @@ class TimeToFullDisplayTracker {
     }
 
     _setTTFDMeasurement(startTimestamp, endTimestamp);
-    return ttfdSpan.finish(endTimestamp: endTimestamp);
+    await ttfdSpan.finish(endTimestamp: endTimestamp);
+
+    clearState();
   }
 
   void _setTTFDMeasurement(DateTime startTimestamp, DateTime endTimestamp) {
@@ -95,5 +99,12 @@ class TimeToFullDisplayTracker {
     final measurement = SentryFlutterMeasurement.timeToFullDisplay(duration);
     _transaction?.setMeasurement(measurement.name, measurement.value,
         unit: measurement.unit);
+  }
+
+  void clearState() {
+    _startTimestamp = null;
+    _ttfdSpan = null;
+    _ttfdTimer = null;
+    _transaction = null;
   }
 }
