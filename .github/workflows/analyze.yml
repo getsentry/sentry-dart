@@ -59,9 +59,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v3
-      - name: Fix git safe.directory in container
-        run: mkdir -p /home/runner/work/_temp/_github_home && printf "[safe]\n\tdirectory = /github/workspace" > /home/runner/work/_temp/_github_home/.gitconfig
+      - uses: actions/checkout@v4
+      - name: Add safe.directory
+        run: sh -c "git config --global --add safe.directory $PWD"
       - name: Apply dependency override
         if: ${{ inputs.package == 'flutter' }}
         working-directory: ${{ inputs.package }}
