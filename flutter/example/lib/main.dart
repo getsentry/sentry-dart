@@ -483,7 +483,6 @@ class MainScaffold extends StatelessWidget {
                   return;
                 }
 
-
                 // ignore: use_build_context_synchronously
                 await showDialog(
                   context: context,
