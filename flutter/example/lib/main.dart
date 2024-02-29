@@ -621,7 +621,7 @@ class MainScaffold extends StatelessWidget {
 
     // final batch = db.batch();
     // batch.delete('Product', where: 'title = ?', whereArgs: dbTitles);
-    // await batch.commit();
+    // await batch.commit();s
 
     await db.close();
 
