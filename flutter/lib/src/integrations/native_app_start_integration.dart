@@ -53,20 +53,18 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
             'Scheduler binding is null. Can\'t auto detect app start time.');
       } else {
         schedulerBinding.addPostFrameCallback((timeStamp) async {
-          // ignore: invalid_use_of_internal_member
-          // We only assign the current time if it's not already set
-          // this is useful in tests
-          _native.appStartEnd ??= options.clock();
-          final appStartEnd = _native.appStartEnd;
-
-          if (_native.didFetchAppStart || appStartEnd == null) {
+          if (_native.didFetchAppStart) {
             setAppStartInfo(null);
             return;
           }
 
+          // ignore: invalid_use_of_internal_member
+          // We only assign the current time if it's not already set - this is useful in tests
+          _native.appStartEnd ??= options.clock();
+          final appStartEnd = _native.appStartEnd;
           final nativeAppStart = await _native.fetchNativeAppStart();
 
-          if (nativeAppStart == null) {
+          if (nativeAppStart == null || appStartEnd == null) {
             setAppStartInfo(null);
             return;
           }
