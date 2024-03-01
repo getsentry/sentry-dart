@@ -7,23 +7,6 @@ import '../frame_callback_handler.dart';
 import '../native/sentry_native.dart';
 import '../event_processor/native_app_start_event_processor.dart';
 
-enum AppStartType { cold, warm }
-
-class AppStartInfo {
-  AppStartInfo(this.type, {required this.start, required this.end});
-
-  final AppStartType type;
-  final DateTime start;
-  final DateTime end;
-
-  SentryMeasurement toMeasurement() {
-    final duration = end.difference(start);
-    return type == AppStartType.cold
-        ? SentryMeasurement.coldAppStart(duration)
-        : SentryMeasurement.warmAppStart(duration);
-  }
-}
-
 /// Integration which handles communication with native frameworks in order to
 /// enrich [SentryTransaction] objects with app start data for mobile vitals.
 class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
@@ -126,3 +109,19 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
 /// Used to provide scheduler binding at call time.
 typedef SchedulerBindingProvider = FrameCallbackHandler? Function();
 
+enum AppStartType { cold, warm }
+
+class AppStartInfo {
+  AppStartInfo(this.type, {required this.start, required this.end});
+
+  final AppStartType type;
+  final DateTime start;
+  final DateTime end;
+
+  SentryMeasurement toMeasurement() {
+    final duration = end.difference(start);
+    return type == AppStartType.cold
+        ? SentryMeasurement.coldAppStart(duration)
+        : SentryMeasurement.warmAppStart(duration);
+  }
+}
