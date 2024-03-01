@@ -25,6 +25,9 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
   @internal
   static void setAppStartInfo(AppStartInfo? appStartInfo) {
     _appStartInfo = appStartInfo;
+    if (_appStartCompleter.isCompleted) {
+      _appStartCompleter = Completer<AppStartInfo?>();
+    }
     _appStartCompleter.complete(appStartInfo);
   }
 
