@@ -14,11 +14,11 @@ class NativeAppStartEventProcessor implements EventProcessor {
     AppStartTracker? appStartTracker,
   }) : _appStartTracker = appStartTracker ?? AppStartTracker();
 
-  bool didAddAppStartMeasurement = false;
+  bool _didAddAppStartMeasurement = false;
 
   @override
   Future<SentryEvent?> apply(SentryEvent event, {Hint? hint}) async {
-    if (!didAddAppStartMeasurement || event is! SentryTransaction) {
+    if (!_didAddAppStartMeasurement || event is! SentryTransaction) {
       return event;
     }
 
@@ -27,7 +27,7 @@ class NativeAppStartEventProcessor implements EventProcessor {
 
     if (measurement != null) {
       event.measurements[measurement.name] = measurement;
-      didAddAppStartMeasurement = true;
+      _didAddAppStartMeasurement = true;
     }
     return event;
   }

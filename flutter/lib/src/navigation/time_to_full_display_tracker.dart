@@ -23,7 +23,7 @@ class TTIDEndTimestampProvider implements EndTimestampProvider {
 @internal
 class TimeToFullDisplayTracker {
   static final TimeToFullDisplayTracker _instance =
-      TimeToFullDisplayTracker._internal();
+      TimeToFullDisplayTracker._();
 
   factory TimeToFullDisplayTracker(
       {EndTimestampProvider? endTimestampProvider, Duration? autoFinishAfter}) {
@@ -36,7 +36,7 @@ class TimeToFullDisplayTracker {
     return _instance;
   }
 
-  TimeToFullDisplayTracker._internal();
+  TimeToFullDisplayTracker._();
 
   DateTime? _startTimestamp;
   ISentrySpan? _ttfdSpan;

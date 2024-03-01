@@ -15,9 +15,9 @@ class AppStartInfo {
 
 @internal
 class AppStartTracker {
-  static final AppStartTracker _instance = AppStartTracker._internal();
+  static final AppStartTracker _instance = AppStartTracker._();
   factory AppStartTracker() => _instance;
-  AppStartTracker._internal();
+  AppStartTracker._();
 
   Completer<AppStartInfo?> _appStartCompleter = Completer<AppStartInfo?>();
   AppStartInfo? _appStartInfo;
@@ -25,11 +25,9 @@ class AppStartTracker {
   void setAppStartInfo(AppStartInfo? appStartInfo) {
     _appStartInfo = appStartInfo;
     if (!_appStartCompleter.isCompleted) {
-      _appStartCompleter.complete(appStartInfo);
-    } else {
       _appStartCompleter = Completer<AppStartInfo?>();
-      _appStartCompleter.complete(appStartInfo);
     }
+    _appStartCompleter.complete(appStartInfo);
   }
 
   Future<AppStartInfo?> getAppStartInfo() {

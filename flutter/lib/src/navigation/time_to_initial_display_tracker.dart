@@ -10,7 +10,7 @@ import '../sentry_flutter_measurement.dart';
 @internal
 class TimeToInitialDisplayTracker {
   static final TimeToInitialDisplayTracker _instance =
-      TimeToInitialDisplayTracker._internal();
+      TimeToInitialDisplayTracker._();
 
   factory TimeToInitialDisplayTracker(
       {FrameCallbackHandler? frameCallbackHandler}) {
@@ -20,7 +20,7 @@ class TimeToInitialDisplayTracker {
     return _instance;
   }
 
-  TimeToInitialDisplayTracker._internal();
+  TimeToInitialDisplayTracker._();
 
   FrameCallbackHandler _frameCallbackHandler = DefaultFrameCallbackHandler();
   bool _isManual = false;
