@@ -36,12 +36,10 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
     return _appStartCompleter.future;
   }
 
-  @internal
+  @visibleForTesting
   static void clearAppStartInfo() {
     _appStartInfo = null;
-    if (_appStartCompleter.isCompleted) {
-      _appStartCompleter = Completer<AppStartInfo?>();
-    }
+    _appStartCompleter = Completer<AppStartInfo?>();
   }
 
   @override
