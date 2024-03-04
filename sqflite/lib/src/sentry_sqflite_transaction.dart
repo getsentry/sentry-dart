@@ -23,8 +23,8 @@ class SentrySqfliteTransaction extends Transaction implements DatabaseExecutor {
   final Hub _hub;
   final String? _dbName;
 
-  // ignore: public_member_api_docs
   @internal
+  // ignore: public_member_api_docs
   SentrySqfliteTransaction(
     this._executor, {
     @internal Hub? hub,

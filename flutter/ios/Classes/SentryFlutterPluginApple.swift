@@ -430,10 +430,9 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
       }
 
       let currentFrames = PrivateSentrySDKOnly.currentScreenFrames
-
-      let total = currentFrames.total - totalFrames
-      let frozen = currentFrames.frozen - frozenFrames
-      let slow = currentFrames.slow - slowFrames
+      let total = max(Int(currentFrames.total) - Int(totalFrames), 0)
+      let frozen = max(Int(currentFrames.frozen) - Int(frozenFrames), 0)
+      let slow = max(Int(currentFrames.slow) - Int(slowFrames), 0)
 
       if total <= 0 && frozen <= 0 && slow <= 0 {
         result(nil)
