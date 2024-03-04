@@ -19,9 +19,11 @@ class TaskQueue<T> {
       return fallbackResult;
     } else {
       _queueCount++;
-      final result = await task();
-      _queueCount--;
-      return result;
+      try {
+        return await task();
+      } finally {
+        _queueCount--;
+      }
     }
   }
 }
