@@ -117,6 +117,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
 
   Completer<void>? _completedDisplayTracking;
 
+  // Since didPush does not have a future, we can keep track of when the display tracking has finished
   @visibleForTesting
   Completer<void>? get completedDisplayTracking => _completedDisplayTracking;
 
