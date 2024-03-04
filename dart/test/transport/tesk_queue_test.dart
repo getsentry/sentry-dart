@@ -16,17 +16,17 @@ void main() {
 
     test("enqueue only executed `maxQueueSize` times when not awaiting",
         () async {
-      final sut = fixture.getSut(5);
+      final sut = fixture.getSut(maxQueueSize: 5);
 
       var completedTasks = 0;
 
       for (int i = 0; i < 10; i++) {
-        sut.enqueue(() async {
+        unawaited(sut.enqueue(() async {
           print('Task $i');
           await Future.delayed(Duration(milliseconds: 1));
           completedTasks += 1;
           return 1 + 1;
-        }, -1);
+        }, -1));
       }
 
       // This will always await the other futures, even if they are running longer, as it was scheduled after them.
@@ -38,18 +38,18 @@ void main() {
     });
 
     test("enqueue picks up tasks again after await in-between", () async {
-      final sut = fixture.getSut(5);
+      final sut = fixture.getSut(maxQueueSize: 5);
 
       var completedTasks = 0;
 
       for (int i = 1; i <= 10; i++) {
-        sut.enqueue(() async {
+        unawaited(sut.enqueue(() async {
           print('Started task $i');
           await Future.delayed(Duration(milliseconds: 1));
           print('Completed task $i');
           completedTasks += 1;
           return 1 + 1;
-        }, -1);
+        }, -1));
       }
 
       print('Started waiting for first 5 tasks');
@@ -57,13 +57,13 @@ void main() {
       print('Stopped waiting for first 5 tasks');
 
       for (int i = 6; i <= 15; i++) {
-        sut.enqueue(() async {
+        unawaited(sut.enqueue(() async {
           print('Started task $i');
           await Future.delayed(Duration(milliseconds: 1));
           print('Completed task $i');
           completedTasks += 1;
           return 1 + 1;
-        }, -1);
+        }, -1));
       }
 
       print('Started waiting for second 5 tasks');
@@ -74,7 +74,7 @@ void main() {
     });
 
     test("enqueue executes all tasks when awaiting", () async {
-      final sut = fixture.getSut(5);
+      final sut = fixture.getSut(maxQueueSize: 5);
 
       var completedTasks = 0;
 
@@ -88,13 +88,31 @@ void main() {
       }
       expect(completedTasks, 10);
     });
+
+    test("throwing tasks still execute as expected", () async {
+      final sut = fixture.getSut(maxQueueSize: 5);
+
+      var completedTasks = 0;
+
+      for (int i = 0; i < 10; i++) {
+        try {
+          await sut.enqueue(() async {
+            completedTasks += 1;
+            throw Error();
+          }, -1);
+        } catch (_) {
+          // Ignore
+        }
+      }
+      expect(completedTasks, 10);
+    });
   });
 }
 
 class Fixture {
   final options = SentryOptions(dsn: fakeDsn);
 
-  TaskQueue<int> getSut(int maxQueueSize) {
+  TaskQueue<int> getSut({required int maxQueueSize}) {
     return TaskQueue(maxQueueSize, options.logger);
   }
 }
