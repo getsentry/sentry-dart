@@ -51,33 +51,36 @@ jobs:
 
       - run: dart doc --dry-run
 
-  package-analysis:
-    # `axel-op/dart-package-analyzer` is using `flutter pub upgrade` instead of `get`,
-    # which ignores pubspec.yaml `dependency_overrides`. Because of that, all `release/*` branches are failing,
-    # because the package cannot find the "about to be released" version of our sentry-dart package that it depends on.
-    if: ${{ !startsWith(github.ref, 'refs/heads/release/') && inputs.panaThreshold > 0 }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    steps:
-      - uses: actions/checkout@v4
-      - name: Apply dependency override
-        if: ${{ inputs.package == 'flutter' }}
-        working-directory: ${{ inputs.package }}
-        run: |
-          sed -i.bak 's|sentry:.*|sentry:\n    path: /github/workspace/dart|g' pubspec.yaml
-      - uses: axel-op/dart-package-analyzer@7a6c3c66bce78d82b729a1ffef2d9458fde6c8d2 # pin@v3
-        id: analysis
-        with:
-          githubToken: ${{ secrets.GITHUB_TOKEN }}
-          relativePath: ${{ inputs.package }}
-      - name: Check scores
-        env:
-          TOTAL: ${{ steps.analysis.outputs.total }}
-          TOTAL_MAX: ${{ steps.analysis.outputs.total_max }}
-        run: |
-          PERCENTAGE=$(( $TOTAL * 100 / $TOTAL_MAX ))
-          if (( $PERCENTAGE < ${{ inputs.panaThreshold }} ))
-          then
-            echo Score too low!
-            exit 1
-          fi
+# Currently Disabled because of git error `detected dubious ownership in repository.
+# TODO: check if this is still an issue when git version in github runners is updated
+#
+#  package-analysis:
+#    # `axel-op/dart-package-analyzer` is using `flutter pub upgrade` instead of `get`,
+#    # which ignores pubspec.yaml `dependency_overrides`. Because of that, all `release/*` branches are failing,
+#    # because the package cannot find the "about to be released" version of our sentry-dart package that it depends on.
+#    if: ${{ !startsWith(github.ref, 'refs/heads/release/') && inputs.panaThreshold > 0 }}
+#    runs-on: ubuntu-20.04
+#    timeout-minutes: 20
+#    steps:
+#      - uses: actions/checkout@v4
+#      - name: Apply dependency override
+#        if: ${{ inputs.package == 'flutter' }}
+#        working-directory: ${{ inputs.package }}
+#        run: |
+#          sed -i.bak 's|sentry:.*|sentry:\n    path: /github/workspace/dart|g' pubspec.yaml
+#      - uses: axel-op/dart-package-analyzer@7a6c3c66bce78d82b729a1ffef2d9458fde6c8d2 # pin@v3
+#        id: analysis
+#        with:
+#          githubToken: ${{ secrets.GITHUB_TOKEN }}
+#          relativePath: ${{ inputs.package }}
+#      - name: Check scores
+#        env:
+#          TOTAL: ${{ steps.analysis.outputs.total }}
+#          TOTAL_MAX: ${{ steps.analysis.outputs.total_max }}
+#        run: |
+#          PERCENTAGE=$(( $TOTAL * 100 / $TOTAL_MAX ))
+#          if (( $PERCENTAGE < ${{ inputs.panaThreshold }} ))
+#          then
+#            echo Score too low!
+#            exit 1
+#          fi

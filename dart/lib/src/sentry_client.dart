@@ -24,7 +24,7 @@ import 'client_reports/client_report_recorder.dart';
 import 'client_reports/discard_reason.dart';
 import 'transport/data_category.dart';
 
-/// Default value for [User.ipAddress]. It gets set when an event does not have
+/// Default value for [SentryUser.ipAddress]. It gets set when an event does not have
 /// a user and IP address. Only applies if [SentryOptions.sendDefaultPii] is set
 /// to true.
 const _defaultIpAddress = '{{auto}}';

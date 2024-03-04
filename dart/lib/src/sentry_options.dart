@@ -248,11 +248,13 @@ class SentryOptions {
   /// - In an browser environment this can be requests which fail because of CORS.
   /// - In an mobile or desktop application this can be requests which failed
   ///   because the connection was interrupted.
-  /// Use with [SentryHttpClient] or `sentry_dio` integration for this to work
+  /// Use with [SentryHttpClient] or `sentry_dio` integration for this to work,
+  /// or iOS native where it sets the value to `enableCaptureFailedRequests`.
   bool captureFailedRequests = true;
 
   /// Whether to records requests as breadcrumbs. This is on by default.
-  /// It only has an effect when the SentryHttpClient or dio integration is in use
+  /// It only has an effect when the SentryHttpClient or dio integration is in
+  /// use, or iOS native where it sets the value to `enableNetworkBreadcrumbs`.
   bool recordHttpBreadcrumbs = true;
 
   /// Whether [SentryEvent] deduplication is enabled.
