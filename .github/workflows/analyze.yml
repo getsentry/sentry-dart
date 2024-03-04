@@ -51,6 +51,8 @@ jobs:
 
       - run: dart doc --dry-run
 
+      - uses: stefanzweifel/git-auto-commit-action@v5
+
 # Currently Disabled because of git error `detected dubious ownership in repository.
 # TODO: check if this is still an issue when git version in github runners is updated
 #
