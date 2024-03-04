@@ -56,9 +56,6 @@ class TimeToInitialDisplayTracker {
     transaction.setMeasurement(ttidMeasurement.name, ttidMeasurement.value,
         unit: ttidMeasurement.unit);
     await ttidSpan.finish(endTimestamp: endTimestamp);
-
-    // We can clear the state after creating and finishing the ttid span has finished
-    clear();
   }
 
   Future<void> trackAppStart(ISentrySpan transaction, AppStartInfo appStartInfo,

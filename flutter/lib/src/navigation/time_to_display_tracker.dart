@@ -34,10 +34,11 @@ class TimeToDisplayTracker {
     if (isRootScreen && didFetchAppStart == false) {
       // Dart cannot infer here that routeName is not nullable
       if (routeName == null) return;
-      return _trackAppStartTTD(routeName, arguments);
+      await _trackAppStartTTD(routeName, arguments);
     } else {
-      return _trackRegularRouteTTD(routeName, arguments, startTimestamp);
+      await _trackRegularRouteTTD(routeName, arguments, startTimestamp);
     }
+    _ttidTracker.clear();
   }
 
   /// This method listens for the completion of the app's start process via
