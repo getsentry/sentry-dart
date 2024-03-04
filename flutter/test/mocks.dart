@@ -171,6 +171,9 @@ class TestMockSentryNative implements SentryNative {
   @override
   bool get didFetchAppStart => _didFetchAppStart;
 
+  @override
+  bool didAddAppStartMeasurement = false;
+
   Breadcrumb? breadcrumb;
   var numberOfAddBreadcrumbCalls = 0;
   var numberOfBeginNativeFramesCollectionCalls = 0;
