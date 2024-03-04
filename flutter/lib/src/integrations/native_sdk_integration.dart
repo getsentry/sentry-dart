@@ -47,6 +47,7 @@ class NativeSdkIntegration implements Integration<SentryFlutterOptions> {
         'sendClientReports': options.sendClientReports,
         'proguardUuid': options.proguardUuid,
         'maxAttachmentSize': options.maxAttachmentSize,
+        'recordHttpBreadcrumbs': options.recordHttpBreadcrumbs,
         'captureFailedRequests': options.captureFailedRequests,
         'enableAppHangTracking': options.enableAppHangTracking,
         'connectionTimeoutMillis': options.connectionTimeout.inMilliseconds,
