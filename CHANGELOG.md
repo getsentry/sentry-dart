@@ -4,7 +4,7 @@
 
 ### Features
 
-- Add TTID, allows you to measure the time it takes to render the first frame of your screen ([#1882](https://github.com/getsentry/sentry-dart/pull/1882))
+- Add TTID, allows you to measure the time it takes to render the first frame of your screen ([#1910](https://github.com/getsentry/sentry-dart/pull/1910))
   - Requires using the [routing instrumentation](https://docs.sentry.io/platforms/flutter/integrations/routing-instrumentation/).
   - Introduces two modes: `automatic` and `manual`.
     - `automatic` mode is enabled by default for all screens and will yield only an approximation result.
