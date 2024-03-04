@@ -91,8 +91,8 @@ void main() {
       expect(enriched.measurements.isEmpty, true);
     });
 
-
-    test('native app start integration is called and sets app start info', () async {
+    test('native app start integration is called and sets app start info',
+        () async {
       fixture.native.appStartEnd = DateTime.fromMillisecondsSinceEpoch(10);
       fixture.binding.nativeAppStart = NativeAppStart(0, true);
 
@@ -119,10 +119,7 @@ class Fixture {
   NativeAppStartIntegration getNativeAppStartIntegration() {
     return NativeAppStartIntegration(
       native,
-      () {
-        TestWidgetsFlutterBinding.ensureInitialized();
-        return FakeFrameCallbackHandler();
-      },
+      FakeFrameCallbackHandler(),
     );
   }
 

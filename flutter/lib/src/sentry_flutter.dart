@@ -189,13 +189,7 @@ mixin SentryFlutter {
     if (_native != null) {
       integrations.add(NativeAppStartIntegration(
         _native!,
-        () {
-          try {
-            /// Flutter >= 2.12 throws if SchedulerBinding.instance isn't initialized.
-            return DefaultFrameCallbackHandler();
-          } catch (_) {}
-          return null;
-        },
+        DefaultFrameCallbackHandler(),
       ));
     }
     return integrations;
@@ -231,6 +225,7 @@ mixin SentryFlutter {
 
   @internal
   static SentryNative? get native => _native;
+
   @internal
   static set native(SentryNative? value) => _native = value;
   static SentryNative? _native;

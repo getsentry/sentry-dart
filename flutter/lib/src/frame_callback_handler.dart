@@ -7,6 +7,9 @@ abstract class FrameCallbackHandler {
 class DefaultFrameCallbackHandler implements FrameCallbackHandler {
   @override
   void addPostFrameCallback(FrameCallback callback) {
-    SchedulerBinding.instance.addPostFrameCallback(callback);
+    try {
+      /// Flutter >= 2.12 throws if SchedulerBinding.instance isn't initialized.
+      SchedulerBinding.instance.addPostFrameCallback(callback);
+    } catch (_) {}
   }
 }
