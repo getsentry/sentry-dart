@@ -5,12 +5,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
+import 'time_to_display_tracker.dart';
 import 'time_to_display_transaction_handler.dart';
 
 import '../../sentry_flutter.dart';
 import '../event_processor/flutter_enricher_event_processor.dart';
 import '../native/sentry_native.dart';
-import 'time_to_display_tracker.dart';
 
 /// This key must be used so that the web interface displays the events nicely
 /// See https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/
@@ -26,7 +26,7 @@ typedef AdditionalInfoExtractor = Map<String, dynamic>? Function(
 /// This is a navigation observer to record navigational breadcrumbs.
 /// For now it only records navigation events and no gestures.
 ///
-/// It also records Time to Initial Display (TTID) and Time to Full Display (TTFD).
+/// It also records Time to Initial Display (TTID).
 ///
 /// [Route]s can always be null and their [Route.settings] can also always be null.
 /// For example, if the application starts, there is no previous route.
