@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Use `recordHttpBreadcrumbs` to set iOS `enableNetworkBreadcrumbs` ([#1884](https://github.com/getsentry/sentry-dart/pull/1884))
+
 ### Improvements
 
 - App start is now fetched within integration instead of event processor ([#1905](https://github.com/getsentry/sentry-dart/pull/1905))
