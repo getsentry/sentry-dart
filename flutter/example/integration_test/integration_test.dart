@@ -132,14 +132,8 @@ void main() {
   testWidgets('setup sentry and start transaction', (tester) async {
     await setupSentryAndApp(tester);
 
-    print('here');
     final transaction = Sentry.startTransaction('transaction', 'test');
-
-    print('here2');
-
     await transaction.finish();
-
-    print('here3');
   });
 
   testWidgets('setup sentry and start transaction with context',
