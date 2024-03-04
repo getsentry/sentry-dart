@@ -50,9 +50,7 @@ class WebEnricherEventProcessor implements EnricherEventProcessor {
 
     final url = request?.url ?? _window.location.toString();
     return (request ?? SentryRequest(url: url))
-        .copyWith(
-          headers: header,
-        )
+        .copyWith(headers: header)
         .sanitized();
   }
 
