@@ -5,7 +5,7 @@ import 'noop_origin.dart' if (dart.library.html) 'origin.dart';
 import 'protocol.dart';
 import 'sentry_options.dart';
 
-/// converts [StackTrace] to [SentryStackFrames]
+/// converts [StackTrace] to [SentryStackFrame]s
 class SentryStackTraceFactory {
   final SentryOptions _options;
 
@@ -21,6 +21,10 @@ class SentryStackTraceFactory {
     'sentry_logging',
     'sentry_dio',
     'sentry_file',
+    'sentry_hive',
+    'sentry_isar',
+    'sentry_sqflite',
+    'sentry_drift',
   ];
 
   SentryStackTraceFactory(this._options);
@@ -123,16 +127,18 @@ class SentryStackTraceFactory {
       absPath: abs,
       function: member,
       // https://docs.sentry.io/development/sdk-dev/features/#in-app-frames
-      inApp: isInApp(frame),
+      inApp: _isInApp(frame),
       fileName: fileName,
       package: frame.package,
     );
 
-    if (frame.line != null && frame.line! >= 0) {
+    final line = frame.line;
+    if (line != null && line >= 0) {
       sentryStackFrame = sentryStackFrame.copyWith(lineNo: frame.line);
     }
 
-    if (frame.column != null && frame.column! >= 0) {
+    final column = frame.column;
+    if (column != null && column >= 0) {
       sentryStackFrame = sentryStackFrame.copyWith(colNo: frame.column);
     }
     return sentryStackFrame;
@@ -153,11 +159,11 @@ class SentryStackTraceFactory {
       return frame.uri.pathSegments.last;
     }
 
-    return '${frame.uri}';
+    return frame.uri.toString();
   }
 
   /// whether this frame comes from the app and not from Dart core or 3rd party librairies
-  bool isInApp(Frame frame) {
+  bool _isInApp(Frame frame) {
     final scheme = frame.uri.scheme;
 
     if (scheme.isEmpty) {

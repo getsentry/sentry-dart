@@ -44,21 +44,22 @@ typedef AdditionalInfoExtractor = Map<String, dynamic>? Function(
 /// )
 /// ```
 ///
-/// The option [enableAutoTransactions] is enabled by default. For every new
-/// route a transaction is started. It's automatically finished after
-/// [autoFinishAfter] duration or when all child spans are finished,
-/// if those happen to take longer. The transaction will be set to [Scope.span]
-/// if the latter is empty.
-///
-/// Enabling the [setRouteNameAsTransaction] option overrides the current
-/// [Scope.transaction] which will also override the name of the current
-/// [Scope.span]. So be careful when this is used together with performance
-/// monitoring.
+/// See the constructor docs for the argument documentation.
 ///
 /// See also:
 ///   - [RouteObserver](https://api.flutter.dev/flutter/widgets/RouteObserver-class.html)
 ///   - [Navigating with arguments](https://flutter.dev/docs/cookbook/navigation/navigate-with-arguments)
 class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
+  /// The option [enableAutoTransactions] is enabled by default.
+  /// For every new route a transaction is started. It's automatically finished
+  /// after [autoFinishAfter] duration or when all child spans are
+  /// finished, if those happen to take longer.
+  /// The transaction will be set to [Scope.span] if the latter is empty.
+  ///
+  /// Enabling the [setRouteNameAsTransaction] option overrides the
+  /// current [Scope.transaction] which will also override the name of the current
+  /// [Scope.span]. So be careful when this is used together with performance
+  /// monitoring.
   SentryNavigatorObserver({
     Hub? hub,
     bool enableAutoTransactions = true,
@@ -207,6 +208,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       autoFinishAfter: _autoFinishAfter,
       trimEnd: true,
       onFinish: (transaction) async {
+        _transaction = null;
         final nativeFrames = await _native
             ?.endNativeFramesCollection(transaction.context.traceId);
         if (nativeFrames != null) {
@@ -241,8 +243,13 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   }
 
   Future<void> _finishTransaction() async {
-    _transaction?.status ??= SpanStatus.ok();
-    await _transaction?.finish();
+    final transaction = _transaction;
+    _transaction = null;
+    if (transaction == null || transaction.finished) {
+      return;
+    }
+    transaction.status ??= SpanStatus.ok();
+    await transaction.finish();
   }
 }
 

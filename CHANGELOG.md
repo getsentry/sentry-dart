@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+### Features
+
+- Use `recordHttpBreadcrumbs` to set iOS `enableNetworkBreadcrumbs` ([#1884](https://github.com/getsentry/sentry-dart/pull/1884))
+
+## 7.16.1
+
+### Fixes
+
+- Remove Flutter dependency from Drift integration ([#1867](https://github.com/getsentry/sentry-dart/pull/1867))
+- Remove dead code, cold start bool is now always present ([#1861](https://github.com/getsentry/sentry-dart/pull/1861))
+- Fix iOS "Arithmetic Overflow" ([#1874](https://github.com/getsentry/sentry-dart/pull/1874))
+
 ### Dependencies
 
 - Bump Cocoa SDK from v8.19.0 to v8.20.0 ([#1856](https://github.com/getsentry/sentry-dart/pull/1856))

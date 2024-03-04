@@ -21,9 +21,9 @@ void main() {
       final options = SentryOptions(dsn: fakeDsn)..automatedTestMode = true;
       await Sentry.init(
         options: options,
-        (options) => {
-          options.dsn = fakeDsn,
-          options.tracesSampleRate = 1.0,
+        (options) {
+          options.dsn = fakeDsn;
+          options.tracesSampleRate = 1.0;
         },
       );
       anException = Exception('anException');
