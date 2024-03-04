@@ -41,6 +41,7 @@ final class SentryFlutterTests: XCTestCase {
                 "enableWatchdogTerminationTracking": false,
                 "sendClientReports": false,
                 "maxAttachmentSize": NSNumber(value: 9004),
+                "recordHttpBreadcrumbs": false,
                 "captureFailedRequests": false,
                 "enableAppHangTracking": false,
                 "appHangTimeoutIntervalMillis": NSNumber(value: 10000)
@@ -65,6 +66,7 @@ final class SentryFlutterTests: XCTestCase {
         XCTAssertEqual(false, fixture.options.enableWatchdogTerminationTracking)
         XCTAssertEqual(false, fixture.options.sendClientReports)
         XCTAssertEqual(9004, fixture.options.maxAttachmentSize)
+        XCTAssertEqual(false, fixture.options.enableNetworkBreadcrumbs)
         XCTAssertEqual(false, fixture.options.enableCaptureFailedRequests)
         XCTAssertEqual(false, fixture.options.enableAppHangTracking)
         XCTAssertEqual(10, fixture.options.appHangTimeoutInterval)
