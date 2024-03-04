@@ -106,7 +106,6 @@ class TimeToInitialDisplayTracker {
     if (_trackingCompleter != null && !_trackingCompleter!.isCompleted) {
       final endTimestamp = DateTime.now();
       _endTimestamp = endTimestamp;
-      // Reset after completion
       _trackingCompleter?.complete(endTimestamp);
     }
   }

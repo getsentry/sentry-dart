@@ -139,13 +139,14 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   }
 
   Future<void> _finishTransaction() async {
+    timeToDisplayTracker?.clear();
+
     final transaction = _hub.getSpan();
     if (transaction == null || transaction.finished) {
       return;
     }
     transaction.status ??= SpanStatus.ok();
     await transaction.finish();
-    timeToDisplayTracker?.clear();
   }
 
   @override
