@@ -111,7 +111,7 @@ jobs:
 
   cocoa:
     name: "${{ matrix.target }} | ${{ matrix.sdk }}"
-    runs-on: macos-13
+    runs-on: macos-latest-xlarge
     timeout-minutes: 30
     defaults:
       run:
