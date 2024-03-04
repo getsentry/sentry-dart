@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+
+- App start is now fetched within integration instead of event processor ([#1905](https://github.com/getsentry/sentry-dart/pull/1905))
+
 ## 7.16.1
 
 ### Fixes

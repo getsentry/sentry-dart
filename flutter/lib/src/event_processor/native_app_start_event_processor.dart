@@ -3,18 +3,18 @@ import 'dart:async';
 import 'package:sentry/sentry.dart';
 
 import '../integrations/integrations.dart';
+import '../native/sentry_native.dart';
 
 /// EventProcessor that enriches [SentryTransaction] objects with app start
 /// measurement.
 class NativeAppStartEventProcessor implements EventProcessor {
-  NativeAppStartEventProcessor();
+  final SentryNative _native;
 
-  // We want the app start measurement to only be added once to the first transaction
-  bool _didAddAppStartMeasurement = false;
+  NativeAppStartEventProcessor(this._native);
 
   @override
   Future<SentryEvent?> apply(SentryEvent event, {Hint? hint}) async {
-    if (_didAddAppStartMeasurement || event is! SentryTransaction) {
+    if (_native.didAddAppStartMeasurement || event is! SentryTransaction) {
       return event;
     }
 
@@ -23,7 +23,7 @@ class NativeAppStartEventProcessor implements EventProcessor {
 
     if (measurement != null) {
       event.measurements[measurement.name] = measurement;
-      _didAddAppStartMeasurement = true;
+      _native.setDidAddAppStartMeasurement(true);
     }
     return event;
   }

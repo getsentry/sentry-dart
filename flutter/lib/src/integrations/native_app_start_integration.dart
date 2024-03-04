@@ -59,8 +59,8 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
             return;
           }
 
-          // ignore: invalid_use_of_internal_member
           // We only assign the current time if it's not already set - this is useful in tests
+          // ignore: invalid_use_of_internal_member
           _native.appStartEnd ??= options.clock();
           final appStartEnd = _native.appStartEnd;
           final nativeAppStart = await _native.fetchNativeAppStart();
@@ -99,7 +99,7 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
       }
     }
 
-    options.addEventProcessor(NativeAppStartEventProcessor());
+    options.addEventProcessor(NativeAppStartEventProcessor(_native));
 
     options.sdk.addIntegration('nativeAppStartIntegration');
   }

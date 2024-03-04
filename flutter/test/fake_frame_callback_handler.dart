@@ -12,6 +12,7 @@ class FakeFrameCallbackHandler implements FrameCallbackHandler {
 
   @override
   void addPostFrameCallback(FrameCallback callback) async {
+    // ignore: inference_failure_on_instance_creation
     await Future.delayed(_finishAfterDuration);
     callback(Duration.zero);
   }

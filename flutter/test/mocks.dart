@@ -171,6 +171,11 @@ class TestMockSentryNative implements SentryNative {
   @override
   bool get didFetchAppStart => _didFetchAppStart;
 
+  bool _didAddAppStartMeasurement = false;
+
+  @override
+  bool get didAddAppStartMeasurement => _didAddAppStartMeasurement;
+
   Breadcrumb? breadcrumb;
   var numberOfAddBreadcrumbCalls = 0;
   var numberOfBeginNativeFramesCollectionCalls = 0;
@@ -289,6 +294,11 @@ class TestMockSentryNative implements SentryNative {
   Future<void> discardProfiler(SentryId traceId) {
     numberOfDiscardProfilerCalls++;
     return Future.value(null);
+  }
+
+  @override
+  void setDidAddAppStartMeasurement(bool value) {
+    _didAddAppStartMeasurement = value;
   }
 }
 
