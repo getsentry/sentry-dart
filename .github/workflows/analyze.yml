@@ -34,14 +34,14 @@ jobs:
       - uses: actions/checkout@v4
       - uses: dart-lang/setup-dart@fedb1266e91cf51be2fdb382869461a434b920a3 # pin@v1
         if: ${{ inputs.sdk == 'dart' }}
-      - uses: subosito/flutter-action@2783a3f08e1baf891508463f8c6653c258246225 # pin@v2.12.0
+      - uses: subosito/flutter-action@62f096cacda5168a3bd7b95793373be14fa4fbaf # pin@v2.13.0
         if: ${{ inputs.sdk == 'flutter' }}
 
       - run: ${{ inputs.sdk }} pub get
       - run: dart format --set-exit-if-changed ./
         
       - name: dart analyze
-        uses: invertase/github-action-dart-analyzer@1cda5922c6369263b1c7e2fbe281f69704f4d63e # pin@v2.0.0
+        uses: invertase/github-action-dart-analyzer@e981b01a458d0bab71ee5da182e5b26687b7101b # pin@v3.0.0
         with:
           annotate: true
           fatal-infos: true
