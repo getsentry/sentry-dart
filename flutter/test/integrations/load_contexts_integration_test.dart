@@ -88,6 +88,42 @@ void main() {
       expect(event.breadcrumbs!.length, 1);
       expect(event.breadcrumbs!.first.message, 'event');
     });
+
+    test('apply beforeBreadcrumb to native breadcrumbs', () async {
+      fixture.options.enableScopeSync = true;
+      fixture.options.beforeBreadcrumb = (breadcrumb, {hint}) {
+        if (breadcrumb?.message == 'native-mutated') {
+          return breadcrumb?.copyWith(message: 'native-mutated-applied');
+        } else {
+          return null;
+        }
+      };
+
+      final eventBreadcrumb = Breadcrumb(message: 'event');
+      var event = SentryEvent(breadcrumbs: [eventBreadcrumb]);
+
+      final nativeMutatedBreadcrumb = Breadcrumb(message: 'native-mutated');
+      final nativeDeletedBreadcrumb = Breadcrumb(message: 'native-deleted');
+      Map<String, dynamic> loadContexts = {
+        'breadcrumbs': [
+          nativeMutatedBreadcrumb.toJson(),
+          nativeDeletedBreadcrumb.toJson(),
+        ]
+      };
+
+      final future = Future.value(loadContexts);
+      when(fixture.methodChannel.invokeMethod<dynamic>('loadContexts'))
+          .thenAnswer((_) => future);
+      // ignore: deprecated_member_use
+      _channel.setMockMethodCallHandler((MethodCall methodCall) async {});
+
+      final integration = LoadContextsIntegration(fixture.methodChannel);
+      integration.call(fixture.hub, fixture.options);
+      event = (await fixture.options.eventProcessors.first.apply(event))!;
+
+      expect(event.breadcrumbs!.length, 1);
+      expect(event.breadcrumbs!.first.message, 'native-mutated-applied');
+    });
   });
 }
 
