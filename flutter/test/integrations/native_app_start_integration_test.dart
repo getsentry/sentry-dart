@@ -90,6 +90,18 @@ void main() {
 
       expect(enriched.measurements.isEmpty, true);
     });
+
+
+    test('native app start integration is called and sets app start info', () async {
+      fixture.native.appStartEnd = DateTime.fromMillisecondsSinceEpoch(10);
+      fixture.binding.nativeAppStart = NativeAppStart(0, true);
+
+      fixture.getNativeAppStartIntegration().call(fixture.hub, fixture.options);
+
+      final appStartInfo = await NativeAppStartIntegration.getAppStartInfo();
+      expect(appStartInfo?.start, DateTime.fromMillisecondsSinceEpoch(0));
+      expect(appStartInfo?.end, DateTime.fromMillisecondsSinceEpoch(10));
+    });
   });
 }
 
