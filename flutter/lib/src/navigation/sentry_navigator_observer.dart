@@ -145,6 +145,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     }
     transaction.status ??= SpanStatus.ok();
     await transaction.finish();
+    timeToDisplayTracker?.clear();
   }
 
   @override

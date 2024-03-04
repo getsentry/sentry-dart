@@ -23,6 +23,9 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
   static AppStartInfo? _appStartInfo;
 
   @internal
+  static bool isIntegrationTest = false;
+
+  @internal
   static void setAppStartInfo(AppStartInfo? appStartInfo) {
     _appStartInfo = appStartInfo;
     if (_appStartCompleter.isCompleted) {
@@ -47,10 +50,17 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
 
   @override
   void call(Hub hub, SentryFlutterOptions options) {
+    if (isIntegrationTest) {
+      final appStartInfo = AppStartInfo(AppStartType.cold,
+          start: DateTime.now(),
+          end: DateTime.now().add(const Duration(milliseconds: 100)));
+      setAppStartInfo(appStartInfo);
+      return;
+    }
+
     if (options.autoAppStart) {
       _frameCallbackHandler.addPostFrameCallback((timeStamp) async {
         if (_native.didFetchAppStart) {
-          setAppStartInfo(null);
           return;
         }
 

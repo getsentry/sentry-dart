@@ -84,4 +84,8 @@ class TimeToDisplayTracker {
   Future<void> reportFullyDisplayed() async {
     // TODO: implement TTFD
   }
+
+  void clear() {
+    _ttidTracker.clear();
+  }
 }
