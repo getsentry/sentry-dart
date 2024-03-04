@@ -104,9 +104,9 @@ class AppStartInfo {
   final AppStartType type;
   final DateTime start;
   final DateTime end;
+  Duration get duration => end.difference(start);
 
   SentryMeasurement toMeasurement() {
-    final duration = end.difference(start);
     return type == AppStartType.cold
         ? SentryMeasurement.coldAppStart(duration)
         : SentryMeasurement.warmAppStart(duration);

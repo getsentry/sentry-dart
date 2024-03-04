@@ -1,9 +1,16 @@
+// ignore_for_file: invalid_use_of_internal_member
+
+import 'dart:async';
+
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
+import 'time_to_display_transaction_handler.dart';
 
 import '../../sentry_flutter.dart';
 import '../event_processor/flutter_enricher_event_processor.dart';
 import '../native/sentry_native.dart';
+import 'time_to_display_tracker.dart';
 
 /// This key must be used so that the web interface displays the events nicely
 /// See https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/
@@ -18,6 +25,8 @@ typedef AdditionalInfoExtractor = Map<String, dynamic>? Function(
 
 /// This is a navigation observer to record navigational breadcrumbs.
 /// For now it only records navigation events and no gestures.
+///
+/// It also records Time to Initial Display (TTID) and Time to Full Display (TTFD).
 ///
 /// [Route]s can always be null and their [Route.settings] can also always be null.
 /// For example, if the application starts, there is no previous route.
@@ -44,22 +53,21 @@ typedef AdditionalInfoExtractor = Map<String, dynamic>? Function(
 /// )
 /// ```
 ///
-/// See the constructor docs for the argument documentation.
+/// The option [enableAutoTransactions] is enabled by default. For every new
+/// route a transaction is started. It's automatically finished after
+/// [autoFinishAfter] duration or when all child spans are finished,
+/// if those happen to take longer. The transaction will be set to [Scope.span]
+/// if the latter is empty.
+///
+/// Enabling the [setRouteNameAsTransaction] option overrides the current
+/// [Scope.transaction] which will also override the name of the current
+/// [Scope.span]. So be careful when this is used together with performance
+/// monitoring.
 ///
 /// See also:
 ///   - [RouteObserver](https://api.flutter.dev/flutter/widgets/RouteObserver-class.html)
 ///   - [Navigating with arguments](https://flutter.dev/docs/cookbook/navigation/navigate-with-arguments)
 class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
-  /// The option [enableAutoTransactions] is enabled by default.
-  /// For every new route a transaction is started. It's automatically finished
-  /// after [autoFinishAfter] duration or when all child spans are
-  /// finished, if those happen to take longer.
-  /// The transaction will be set to [Scope.span] if the latter is empty.
-  ///
-  /// Enabling the [setRouteNameAsTransaction] option overrides the
-  /// current [Scope.transaction] which will also override the name of the current
-  /// [Scope.span]. So be careful when this is used together with performance
-  /// monitoring.
   SentryNavigatorObserver({
     Hub? hub,
     bool enableAutoTransactions = true,
@@ -67,33 +75,50 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     bool setRouteNameAsTransaction = false,
     RouteNameExtractor? routeNameExtractor,
     AdditionalInfoExtractor? additionalInfoProvider,
+    @internal TimeToDisplayTracker? timeToDisplayTracker,
   })  : _hub = hub ?? HubAdapter(),
-        _enableAutoTransactions = enableAutoTransactions,
-        _autoFinishAfter = autoFinishAfter,
         _setRouteNameAsTransaction = setRouteNameAsTransaction,
         _routeNameExtractor = routeNameExtractor,
-        _additionalInfoProvider = additionalInfoProvider,
-        _native = SentryFlutter.native {
+        _additionalInfoProvider = additionalInfoProvider {
     if (enableAutoTransactions) {
-      // ignore: invalid_use_of_internal_member
       _hub.options.sdk.addIntegration('UINavigationTracing');
+    }
+    final options = _hub.options;
+    if (options is SentryFlutterOptions) {
+      const enableTimeToFullDisplayTracing =
+          false; // TODO: replace with options.enableTimeToFullDisplayTracing in TTFD
+      _timeToDisplayTracker = timeToDisplayTracker ??
+          TimeToDisplayTracker(
+            enableTimeToFullDisplayTracing: enableTimeToFullDisplayTracing,
+            ttdTransactionHandler: TimeToDisplayTransactionHandler(
+              hub: hub,
+              enableAutoTransactions: enableAutoTransactions,
+              autoFinishAfter: autoFinishAfter,
+            ),
+          );
     }
   }
 
   final Hub _hub;
-  final bool _enableAutoTransactions;
-  final Duration _autoFinishAfter;
   final bool _setRouteNameAsTransaction;
   final RouteNameExtractor? _routeNameExtractor;
   final AdditionalInfoExtractor? _additionalInfoProvider;
-  final SentryNative? _native;
 
-  ISentrySpan? _transaction;
+  static TimeToDisplayTracker? _timeToDisplayTracker;
+
+  @internal
+  static TimeToDisplayTracker? get timeToDisplayTracker =>
+      _timeToDisplayTracker;
 
   static String? _currentRouteName;
 
   @internal
   static String? get currentRouteName => _currentRouteName;
+
+  Completer<void>? _completedDisplayTracking;
+
+  @visibleForTesting
+  Completer<void>? get completedDisplayTracking => _completedDisplayTracking;
 
   @override
   void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
@@ -109,7 +134,16 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     );
 
     _finishTransaction();
-    _startTransaction(route);
+    _startTimeToDisplayTracking(route);
+  }
+
+  Future<void> _finishTransaction() async {
+    final transaction = _hub.getSpan();
+    if (transaction == null || transaction.finished) {
+      return;
+    }
+    transaction.status ??= SpanStatus.ok();
+    await transaction.finish();
   }
 
   @override
@@ -140,7 +174,6 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     );
 
     _finishTransaction();
-    _startTransaction(previousRoute);
   }
 
   void _addBreadcrumb({
@@ -152,7 +185,6 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       navigationType: type,
       from: _routeNameExtractor?.call(from) ?? from,
       to: _routeNameExtractor?.call(to) ?? to,
-      // ignore: invalid_use_of_internal_member
       timestamp: _hub.options.clock(),
       data: _additionalInfoProvider?.call(from, to),
     ));
@@ -179,77 +211,14 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     }
   }
 
-  Future<void> _startTransaction(Route<dynamic>? route) async {
-    if (!_enableAutoTransactions) {
-      return;
-    }
+  Future<void> _startTimeToDisplayTracking(Route<dynamic>? route) async {
+    _completedDisplayTracking = Completer<void>();
+    final routeName = _getRouteName(route);
+    _currentRouteName = routeName;
 
-    String? name = _getRouteName(route);
     final arguments = route?.settings.arguments;
-
-    if (name == null) {
-      return;
-    }
-
-    if (name == '/') {
-      name = 'root ("/")';
-    }
-    final transactionContext = SentryTransactionContext(
-      name,
-      'navigation',
-      transactionNameSource: SentryTransactionNameSource.component,
-      // ignore: invalid_use_of_internal_member
-      origin: SentryTraceOrigins.autoNavigationRouteObserver,
-    );
-
-    _transaction = _hub.startTransactionWithContext(
-      transactionContext,
-      waitForChildren: true,
-      autoFinishAfter: _autoFinishAfter,
-      trimEnd: true,
-      onFinish: (transaction) async {
-        _transaction = null;
-        final nativeFrames = await _native
-            ?.endNativeFramesCollection(transaction.context.traceId);
-        if (nativeFrames != null) {
-          final measurements = nativeFrames.toMeasurements();
-          for (final item in measurements.entries) {
-            final measurement = item.value;
-            transaction.setMeasurement(
-              item.key,
-              measurement.value,
-              unit: measurement.unit,
-            );
-          }
-        }
-      },
-    );
-
-    // if _enableAutoTransactions is enabled but there's no traces sample rate
-    if (_transaction is NoOpSentrySpan) {
-      _transaction = null;
-      return;
-    }
-
-    if (arguments != null) {
-      _transaction?.setData('route_settings_arguments', arguments);
-    }
-
-    await _hub.configureScope((scope) {
-      scope.span ??= _transaction;
-    });
-
-    await _native?.beginNativeFramesCollection();
-  }
-
-  Future<void> _finishTransaction() async {
-    final transaction = _transaction;
-    _transaction = null;
-    if (transaction == null || transaction.finished) {
-      return;
-    }
-    transaction.status ??= SpanStatus.ok();
-    await transaction.finish();
+    await _timeToDisplayTracker?.startTracking(routeName, arguments);
+    completedDisplayTracking?.complete();
   }
 }
 
