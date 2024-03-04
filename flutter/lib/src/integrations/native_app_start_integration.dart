@@ -66,7 +66,6 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
           final nativeAppStart = await _native.fetchNativeAppStart();
 
           if (nativeAppStart == null || appStartEnd == null) {
-            setAppStartInfo(null);
             return;
           }
 
