@@ -19,6 +19,10 @@ void main() {
     fixture = Fixture();
   });
 
+  tearDown(() {
+    fixture.ttidTracker.clear();
+  });
+
   group('time to initial display', () {
     group('in root screen app start route', () {
       test('startMeasurement finishes ttid span', () async {
