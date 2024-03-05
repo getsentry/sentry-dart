@@ -54,16 +54,16 @@ void main() {
   testWidgets('SentryDisplayWidget is ignored for app starts',
       (WidgetTester tester) async {
     final currentRoute = route(RouteSettings(name: '/'));
+    final appStartInfo = AppStartInfo(
+      AppStartType.cold,
+      start: DateTime.now().add(Duration(seconds: 1)),
+      end: DateTime.now().add(Duration(seconds: 2)),
+    );
+    NativeAppStartIntegration.setAppStartInfo(appStartInfo);
 
     await tester.runAsync(() async {
       fixture.navigatorObserver.didPush(currentRoute, null);
       await tester.pumpWidget(fixture.getSut());
-      final appStartInfo = AppStartInfo(
-        AppStartType.cold,
-        start: DateTime.fromMillisecondsSinceEpoch(0),
-        end: DateTime.fromMillisecondsSinceEpoch(10),
-      );
-      NativeAppStartIntegration.setAppStartInfo(appStartInfo);
       await fixture.navigatorObserver.completedDisplayTracking?.future;
     });
 
@@ -81,15 +81,14 @@ void main() {
     expect(ttidSpan.context.description, 'root ("/") initial display');
     expect(ttidSpan.origin, SentryTraceOrigins.autoUiTimeToDisplay);
 
-    expect(ttidSpan.startTimestamp,
-        DateTime.fromMillisecondsSinceEpoch(0).toUtc());
+    expect(ttidSpan.startTimestamp.toUtc(), appStartInfo.start.toUtc());
     expect(
-        ttidSpan.endTimestamp, DateTime.fromMillisecondsSinceEpoch(10).toUtc());
+        ttidSpan.endTimestamp?.toUtc(), appStartInfo.end.toUtc());
 
     expect(tracer.measurements, hasLength(1));
     final measurement = tracer.measurements['time_to_initial_display'];
     expect(measurement, isNotNull);
-    expect(measurement?.value, 10);
+    expect(measurement?.value, 1000);
     expect(measurement?.unit, DurationSentryMeasurementUnit.milliSecond);
   });
 }
@@ -98,14 +97,11 @@ class Fixture {
   final Hub hub =
       Hub(SentryFlutterOptions(dsn: fakeDsn)..tracesSampleRate = 1.0);
   late final SentryNavigatorObserver navigatorObserver;
-  late final TimeToInitialDisplayTracker timeToInitialDisplayTracker;
   final fakeFrameCallbackHandler = FakeFrameCallbackHandler();
 
   Fixture() {
     SentryFlutter.native = TestMockSentryNative();
     navigatorObserver = SentryNavigatorObserver(hub: hub);
-    timeToInitialDisplayTracker = TimeToInitialDisplayTracker(
-        frameCallbackHandler: fakeFrameCallbackHandler);
   }
 
   MaterialApp getSut() {

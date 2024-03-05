@@ -26,8 +26,6 @@ class TimeToDisplayTracker {
 
   Future<void> startTracking(
       ISentrySpan transaction, String? routeName, Object? arguments) async {
-    clear();
-
     final startTimestamp = DateTime.now();
     if (routeName == '/') {
       routeName = 'root ("/")';

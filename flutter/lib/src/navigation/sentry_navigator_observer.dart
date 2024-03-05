@@ -202,6 +202,8 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   }
 
   Future<void> _finishTransaction() async {
+    _timeToDisplayTracker?.clear();
+
     final transaction = _hub.getSpan();
     if (transaction == null || transaction.finished) {
       return;
@@ -227,7 +229,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     }
     final transactionContext = SentryTransactionContext(
       name,
-      'navigation',
+      SentrySpanOperations.uiLoad,
       transactionNameSource: SentryTransactionNameSource.component,
       origin: SentryTraceOrigins.autoNavigationRouteObserver,
     );
