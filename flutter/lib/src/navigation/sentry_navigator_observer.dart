@@ -231,7 +231,6 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       name,
       'navigation',
       transactionNameSource: SentryTransactionNameSource.component,
-      // ignore: invalid_use_of_internal_member
       origin: SentryTraceOrigins.autoNavigationRouteObserver,
     );
 
