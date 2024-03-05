@@ -85,8 +85,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     if (enableAutoTransactions) {
       _hub.options.sdk.addIntegration('UINavigationTracing');
     }
-    _timeToDisplayTracker = timeToDisplayTracker ??
-        TimeToDisplayTracker();
+    _timeToDisplayTracker = timeToDisplayTracker ?? TimeToDisplayTracker();
   }
 
   final Hub _hub;
