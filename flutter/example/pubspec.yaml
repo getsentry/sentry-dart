@@ -53,8 +53,8 @@ flutter:
     - assets/sentry-wordmark.png
 
 sentry:
-  upload_source_maps: true
-  upload_sources: true
+  upload_source_maps: false
+  upload_sources: false
   project: sentry-flutter
   org: sentry-sdks
   wait_for_processing: true
