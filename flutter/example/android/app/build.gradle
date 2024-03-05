@@ -48,7 +48,7 @@ android {
 
     defaultConfig {
         applicationId "io.sentry.samples.flutter"
-        minSdkVersion flutter.minSdkVersion
+        minSdkVersion 19
         targetSdkVersion 33
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
