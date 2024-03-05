@@ -92,7 +92,7 @@ Future<void> setupSentry(
       }
 
       options.beforeInitNativeSdk = (arguments) {
-        arguments['recordHttpBreadcrumbs'] = false;
+        arguments['captureFailedRequests'] = false;
         return arguments;
       };
 
