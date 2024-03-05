@@ -6,7 +6,6 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry_flutter/src/integrations/integrations.dart';
 import 'package:sentry_flutter/src/navigation/sentry_display_widget.dart';
-import 'package:sentry_flutter/src/navigation/time_to_initial_display_tracker.dart';
 
 import '../fake_frame_callback_handler.dart';
 import '../mocks.dart';
@@ -82,8 +81,7 @@ void main() {
     expect(ttidSpan.origin, SentryTraceOrigins.autoUiTimeToDisplay);
 
     expect(ttidSpan.startTimestamp.toUtc(), appStartInfo.start.toUtc());
-    expect(
-        ttidSpan.endTimestamp?.toUtc(), appStartInfo.end.toUtc());
+    expect(ttidSpan.endTimestamp?.toUtc(), appStartInfo.end.toUtc());
 
     expect(tracer.measurements, hasLength(1));
     final measurement = tracer.measurements['time_to_initial_display'];
