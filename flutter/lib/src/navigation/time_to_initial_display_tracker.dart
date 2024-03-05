@@ -7,7 +7,6 @@ import '../integrations/integrations.dart';
 
 import '../../sentry_flutter.dart';
 import '../frame_callback_handler.dart';
-import '../sentry_flutter_measurement.dart';
 
 @internal
 class TimeToInitialDisplayTracker {
@@ -49,10 +48,8 @@ class TimeToInitialDisplayTracker {
       ttidSpan.origin = SentryTraceOrigins.autoUiTimeToDisplay;
     }
 
-    final ttidMeasurement = SentryFlutterMeasurement.timeToInitialDisplay(
-        Duration(
-            milliseconds:
-                endTimestamp.difference(startTimestamp).inMilliseconds));
+    final ttidMeasurement = SentryMeasurement.timeToInitialDisplay(Duration(
+        milliseconds: endTimestamp.difference(startTimestamp).inMilliseconds));
     transaction.setMeasurement(ttidMeasurement.name, ttidMeasurement.value,
         unit: ttidMeasurement.unit);
     await ttidSpan.finish(endTimestamp: endTimestamp);
@@ -68,7 +65,7 @@ class TimeToInitialDisplayTracker {
     ttidSpan.origin = SentryTraceOrigins.autoUiTimeToDisplay;
 
     final ttidMeasurement =
-        SentryFlutterMeasurement.timeToInitialDisplay(appStartInfo.duration);
+        SentryMeasurement.timeToInitialDisplay(appStartInfo.duration);
     transaction.setMeasurement(ttidMeasurement.name, ttidMeasurement.value,
         unit: ttidMeasurement.unit);
 
