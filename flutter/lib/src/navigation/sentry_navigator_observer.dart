@@ -136,17 +136,6 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     _startTimeToDisplayTracking(route);
   }
 
-  Future<void> _finishTransaction() async {
-    timeToDisplayTracker?.clear();
-
-    final transaction = _hub.getSpan();
-    if (transaction == null || transaction.finished) {
-      return;
-    }
-    transaction.status ??= SpanStatus.ok();
-    await transaction.finish();
-  }
-
   @override
   void didReplace({Route<dynamic>? newRoute, Route<dynamic>? oldRoute}) {
     super.didReplace(newRoute: newRoute, oldRoute: oldRoute);
@@ -210,6 +199,15 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
         scope.transaction = name;
       });
     }
+  }
+
+  Future<void> _finishTransaction() async {
+    final transaction = _hub.getSpan();
+    if (transaction == null || transaction.finished) {
+      return;
+    }
+    transaction.status ??= SpanStatus.ok();
+    await transaction.finish();
   }
 
   Future<void> _startTransaction(Route<dynamic>? route) async {

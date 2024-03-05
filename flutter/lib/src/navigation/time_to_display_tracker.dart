@@ -26,6 +26,8 @@ class TimeToDisplayTracker {
 
   Future<void> startTracking(
       ISentrySpan transaction, String? routeName, Object? arguments) async {
+    clear();
+
     final startTimestamp = DateTime.now();
     if (routeName == '/') {
       routeName = 'root ("/")';
@@ -42,6 +44,8 @@ class TimeToDisplayTracker {
       await _trackRegularRouteTTD(
           transaction, routeName, arguments, startTimestamp);
     }
+
+    clear();
   }
 
   /// This method listens for the completion of the app's start process via

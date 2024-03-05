@@ -34,7 +34,7 @@ class SentryDisplayWidget extends StatefulWidget {
   SentryDisplayWidget({
     super.key,
     required this.child,
-    FrameCallbackHandler? frameCallbackHandler,
+    @visibleForTesting FrameCallbackHandler? frameCallbackHandler,
   }) : _frameCallbackHandler =
             frameCallbackHandler ?? DefaultFrameCallbackHandler();
 
