@@ -53,8 +53,8 @@ class SentryApp {
   /// The names of the currently visible views.
   final List<String>? viewNames;
 
-  /// The global text scale of the [SentryWidget]
-  final String? textScale;
+  /// The text scale of the [SentryWidget] using fontSize == 1
+  final double? textScale;
 
   /// Deserializes a [SentryApp] from JSON [Map].
   factory SentryApp.fromJson(Map<String, dynamic> data) {
@@ -118,7 +118,7 @@ class SentryApp {
     int? appMemory,
     bool? inForeground,
     List<String>? viewNames,
-    String? textScale,
+    double? textScale,
   }) =>
       SentryApp(
         name: name ?? this.name,

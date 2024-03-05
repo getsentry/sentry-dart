@@ -17,13 +17,10 @@ class WidgetEventProcessor implements EventProcessor {
     if (context == null) {
       return event;
     }
-    final textScaleFactor =
-        MediaQuery.maybeTextScalerOf(context)?.textScaleFactor;
-    if (textScaleFactor == null) {
+    final textScale = MediaQuery.maybeTextScalerOf(context)?.scale(1);
+    if (textScale == null) {
       return event;
     }
-    final textScale =
-        textScaleFactor == 1.0 ? 'no scaling' : 'linear (${textScaleFactor}x)';
     return event.copyWith(
       contexts: event.contexts.copyWith(
         app: event.contexts.app?.copyWith(

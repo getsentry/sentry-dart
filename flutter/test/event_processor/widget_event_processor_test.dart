@@ -32,7 +32,7 @@ void main() {
       );
       event = await sut.apply(event);
 
-      expect(event?.contexts.app?.textScale, 'no scaling');
+      expect(event?.contexts.app?.textScale, 1.0);
     });
   });
 }
