@@ -91,6 +91,7 @@ Future<void> setupSentry(
         options.beforeSend = beforeSendCallback;
       }
 
+      options.captureFailedRequests = true;
       options.beforeInitNativeSdk = (arguments) {
         arguments['captureFailedRequests'] = false;
         return arguments;
