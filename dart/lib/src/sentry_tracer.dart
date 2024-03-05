@@ -49,9 +49,9 @@ class SentryTracer extends ISentrySpan {
   /// highest timestamp of child spans, trimming the duration of the
   /// transaction. This is useful to discard extra time in the transaction that
   /// is not accounted for in child spans, like what happens in the
-  /// [SentryNavigatorObserver] idle transactions, where we finish the
-  /// transaction after a given "idle time" and we don't want this "idle time"
-  /// to be part of the transaction.
+  /// [SentryNavigatorObserver](https://pub.dev/documentation/sentry_flutter/latest/sentry_flutter/SentryNavigatorObserver-class.html)
+  /// idle transactions, where we finish the transaction after a given
+  /// "idle time" and we don't want this "idle time" to be part of the transaction.
   SentryTracer(
     SentryTransactionContext transactionContext,
     this._hub, {
