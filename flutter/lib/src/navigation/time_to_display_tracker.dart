@@ -105,7 +105,6 @@ class TimeToDisplayTracker {
     } else {
       await _trackRegularRouteTTD(routeName, arguments, startTimestamp);
     }
-    _ttidTracker.clear();
   }
 
   /// This method listens for the completion of the app's start process via
