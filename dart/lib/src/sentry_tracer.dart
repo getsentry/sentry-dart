@@ -368,8 +368,7 @@ class SentryTracer extends ISentrySpan {
       Dsn.parse(_hub.options.dsn!).publicKey,
       release: _hub.options.release,
       environment: _hub.options.environment,
-      userId: null,
-      // because of PII not sending it for now
+      userId: null, // because of PII not sending it for now
       userSegment: user?.segment,
       transaction:
           _isHighQualityTransactionName(transactionNameSource) ? name : null,
