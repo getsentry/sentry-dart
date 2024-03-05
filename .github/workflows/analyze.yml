@@ -65,7 +65,7 @@ jobs:
         working-directory: ${{ inputs.package }}
         run: |
           sed -i.bak 's|sentry:.*|sentry:\n    path: /github/workspace/dart|g' pubspec.yaml
-      - uses: axel-op/dart-package-analyzer@37efc9adee2996477c9988b4c876ef8ca8cdbf75 # pin@v3
+      - uses: axel-op/dart-package-analyzer@d9b13539ce28b8a2f85605379ce8670209d571e8 # pin@v3
         id: analysis
         with:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
