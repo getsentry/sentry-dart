@@ -5,24 +5,87 @@ import '../integrations/integrations.dart';
 
 import '../../sentry_flutter.dart';
 import '../native/sentry_native.dart';
-import 'time_to_display_transaction_handler.dart';
 import 'time_to_initial_display_tracker.dart';
 
 @internal
 class TimeToDisplayTracker {
+  final Hub? _hub;
+  final bool? _enableAutoTransactions;
+  final Duration? _autoFinishAfter;
   final SentryNative? _native;
-  final TimeToDisplayTransactionHandler _ttdTransactionHandler;
   final TimeToInitialDisplayTracker _ttidTracker;
-  final bool _enableTimeToFullDisplayTracing;
+
+  // TODO We can use _hub.options to fetch the ttfd flag
+  bool get _enableTimeToFullDisplayTracing => false;
 
   TimeToDisplayTracker({
-    required bool enableTimeToFullDisplayTracing,
-    required TimeToDisplayTransactionHandler ttdTransactionHandler,
+    required Hub? hub,
+    required bool? enableAutoTransactions,
+    required Duration? autoFinishAfter,
     TimeToInitialDisplayTracker? ttidTracker,
   })  : _native = SentryFlutter.native,
-        _enableTimeToFullDisplayTracing = enableTimeToFullDisplayTracing,
-        _ttdTransactionHandler = ttdTransactionHandler,
+        _hub = hub ?? HubAdapter(),
+        _enableAutoTransactions = enableAutoTransactions,
+        _autoFinishAfter = autoFinishAfter,
         _ttidTracker = ttidTracker ?? TimeToInitialDisplayTracker();
+
+  Future<ISentrySpan?> _startTransaction(String? routeName, Object? arguments,
+      {DateTime? startTimestamp}) async {
+    if (_enableAutoTransactions == false) {
+      return null;
+    }
+
+    if (routeName == null) {
+      return null;
+    }
+
+    final transactionContext = SentryTransactionContext(
+      routeName,
+      SentrySpanOperations.uiLoad,
+      transactionNameSource: SentryTransactionNameSource.component,
+      origin: SentryTraceOrigins.autoNavigationRouteObserver,
+    );
+
+    final transaction = _hub?.startTransactionWithContext(
+      transactionContext,
+      waitForChildren: true,
+      autoFinishAfter: _autoFinishAfter,
+      trimEnd: true,
+      startTimestamp: startTimestamp,
+      onFinish: (transaction) async {
+        final nativeFrames = await _native
+            ?.endNativeFramesCollection(transaction.context.traceId);
+        if (nativeFrames != null) {
+          final measurements = nativeFrames.toMeasurements();
+          for (final item in measurements.entries) {
+            final measurement = item.value;
+            transaction.setMeasurement(
+              item.key,
+              measurement.value,
+              unit: measurement.unit,
+            );
+          }
+        }
+      },
+    );
+
+    // if _enableAutoTransactions is enabled but there's no traces sample rate
+    if (transaction is NoOpSentrySpan) {
+      return null;
+    }
+
+    if (arguments != null) {
+      transaction?.setData('route_settings_arguments', arguments);
+    }
+
+    _hub?.configureScope((scope) {
+      scope.span ??= transaction;
+    });
+
+    await _native?.beginNativeFramesCollection();
+
+    return transaction;
+  }
 
   Future<void> startTracking(String? routeName, Object? arguments) async {
     final startTimestamp = DateTime.now();
@@ -54,8 +117,7 @@ class TimeToDisplayTracker {
 
     if (appStartInfo == null) return;
 
-    final transaction = await _ttdTransactionHandler
-        .startTransaction(name, arguments, startTimestamp: appStartInfo.start);
+    final transaction = await _startTransaction(name, arguments, startTimestamp: appStartInfo.start);
     if (transaction == null) return;
 
     if (_enableTimeToFullDisplayTracing) {
@@ -68,8 +130,7 @@ class TimeToDisplayTracker {
   /// Starts and finishes Time To Display spans for regular routes meaning routes that are not root.
   Future<void> _trackRegularRouteTTD(
       String? routeName, Object? arguments, DateTime startTimestamp) async {
-    final transaction = await _ttdTransactionHandler
-        .startTransaction(routeName, arguments, startTimestamp: startTimestamp);
+    final transaction = await _startTransaction(routeName, arguments, startTimestamp: startTimestamp);
 
     if (transaction == null || routeName == null) return;
 

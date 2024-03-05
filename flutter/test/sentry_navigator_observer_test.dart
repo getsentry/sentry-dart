@@ -8,7 +8,6 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/native/sentry_native.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry_flutter/src/navigation/time_to_display_tracker.dart';
-import 'package:sentry_flutter/src/navigation/time_to_display_transaction_handler.dart';
 import 'package:sentry_flutter/src/navigation/time_to_initial_display_tracker.dart';
 
 import 'fake_frame_callback_handler.dart';
@@ -878,12 +877,9 @@ class Fixture {
     final timeToInitialDisplayTracker =
         TimeToInitialDisplayTracker(frameCallbackHandler: frameCallbackHandler);
     final timeToDisplayTracker = TimeToDisplayTracker(
-      enableTimeToFullDisplayTracing: false,
-      ttdTransactionHandler: TimeToDisplayTransactionHandler(
-        hub: hub,
-        enableAutoTransactions: enableAutoTransactions,
-        autoFinishAfter: autoFinishAfter,
-      ),
+      hub: hub,
+      enableAutoTransactions: enableAutoTransactions,
+      autoFinishAfter: autoFinishAfter,
       ttidTracker: timeToInitialDisplayTracker,
     );
     return SentryNavigatorObserver(

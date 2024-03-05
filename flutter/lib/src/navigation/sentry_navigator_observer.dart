@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 import 'time_to_display_tracker.dart';
-import 'time_to_display_transaction_handler.dart';
 
 import '../../sentry_flutter.dart';
 import '../event_processor/flutter_enricher_event_processor.dart';
@@ -83,20 +82,12 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     if (enableAutoTransactions) {
       _hub.options.sdk.addIntegration('UINavigationTracing');
     }
-    final options = _hub.options;
-    if (options is SentryFlutterOptions) {
-      const enableTimeToFullDisplayTracing =
-          false; // TODO: replace with options.enableTimeToFullDisplayTracing in TTFD
-      _timeToDisplayTracker = timeToDisplayTracker ??
-          TimeToDisplayTracker(
-            enableTimeToFullDisplayTracing: enableTimeToFullDisplayTracing,
-            ttdTransactionHandler: TimeToDisplayTransactionHandler(
-              hub: hub,
-              enableAutoTransactions: enableAutoTransactions,
-              autoFinishAfter: autoFinishAfter,
-            ),
-          );
-    }
+    _timeToDisplayTracker = timeToDisplayTracker ??
+        TimeToDisplayTracker(
+          hub: hub,
+          enableAutoTransactions: enableAutoTransactions,
+          autoFinishAfter: autoFinishAfter,
+        );
   }
 
   final Hub _hub;
