@@ -123,16 +123,12 @@ class Fixture {
   late final ttidTracker =
       TimeToInitialDisplayTracker(frameCallbackHandler: frameCallbackHandler);
 
-  final ttfdAutoFinishAfter = Duration(milliseconds: 500);
-
   ISentrySpan getTransaction({String? name = "Current route"}) {
     return hub.startTransaction(name!, 'ui.load', bindToScope: true);
   }
 
   TimeToDisplayTracker getSut() {
     return TimeToDisplayTracker(
-      // TODO: ttfd flag
-      enableTimeToFullDisplayTracing: false,
       ttidTracker: ttidTracker,
     );
   }

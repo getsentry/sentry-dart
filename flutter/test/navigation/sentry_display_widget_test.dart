@@ -86,7 +86,7 @@ void main() {
     expect(tracer.measurements, hasLength(1));
     final measurement = tracer.measurements['time_to_initial_display'];
     expect(measurement, isNotNull);
-    expect(measurement?.value, 1000);
+    expect(measurement?.value, appStartInfo.duration.inMilliseconds);
     expect(measurement?.unit, DurationSentryMeasurementUnit.milliSecond);
   });
 }

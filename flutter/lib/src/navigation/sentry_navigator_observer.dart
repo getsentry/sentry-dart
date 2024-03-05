@@ -86,10 +86,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       _hub.options.sdk.addIntegration('UINavigationTracing');
     }
     _timeToDisplayTracker = timeToDisplayTracker ??
-        TimeToDisplayTracker(
-          // TODO: ttfd flag
-          enableTimeToFullDisplayTracing: false,
-        );
+        TimeToDisplayTracker();
   }
 
   final Hub _hub;
@@ -202,14 +199,15 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   }
 
   Future<void> _finishTransaction() async {
-    _timeToDisplayTracker?.clear();
-
-    final transaction = _hub.getSpan();
+    final transaction = _transaction;
+    _transaction = null;
     if (transaction == null || transaction.finished) {
       return;
     }
     transaction.status ??= SpanStatus.ok();
     await transaction.finish();
+
+    _timeToDisplayTracker?.clear();
   }
 
   Future<void> _startTransaction(Route<dynamic>? route) async {
