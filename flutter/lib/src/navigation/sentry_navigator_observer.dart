@@ -74,32 +74,39 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     bool setRouteNameAsTransaction = false,
     RouteNameExtractor? routeNameExtractor,
     AdditionalInfoExtractor? additionalInfoProvider,
-    @internal TimeToDisplayTracker? timeToDisplayTracker,
+    @visibleForTesting TimeToDisplayTracker? timeToDisplayTracker,
   })  : _hub = hub ?? HubAdapter(),
+        _enableAutoTransactions = enableAutoTransactions,
+        _autoFinishAfter = autoFinishAfter,
         _setRouteNameAsTransaction = setRouteNameAsTransaction,
         _routeNameExtractor = routeNameExtractor,
-        _additionalInfoProvider = additionalInfoProvider {
+        _additionalInfoProvider = additionalInfoProvider,
+        _native = SentryFlutter.native {
     if (enableAutoTransactions) {
       _hub.options.sdk.addIntegration('UINavigationTracing');
     }
     _timeToDisplayTracker = timeToDisplayTracker ??
         TimeToDisplayTracker(
-          hub: hub,
-          enableAutoTransactions: enableAutoTransactions,
-          autoFinishAfter: autoFinishAfter,
+          // TODO: ttfd flag
+          enableTimeToFullDisplayTracing: false,
         );
   }
 
   final Hub _hub;
+  final bool _enableAutoTransactions;
+  final Duration _autoFinishAfter;
   final bool _setRouteNameAsTransaction;
   final RouteNameExtractor? _routeNameExtractor;
   final AdditionalInfoExtractor? _additionalInfoProvider;
+  final SentryNative? _native;
 
   static TimeToDisplayTracker? _timeToDisplayTracker;
 
   @internal
   static TimeToDisplayTracker? get timeToDisplayTracker =>
       _timeToDisplayTracker;
+
+  ISentrySpan? _transaction;
 
   static String? _currentRouteName;
 
@@ -205,13 +212,81 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     }
   }
 
+  Future<ISentrySpan?> _startTransaction(Route<dynamic>? route) async {
+    if (!_enableAutoTransactions) {
+      return null;
+    }
+
+    String? name = _getRouteName(route);
+    final arguments = route?.settings.arguments;
+
+    if (name == null) {
+      return null;
+    }
+
+    if (name == '/') {
+      name = 'root ("/")';
+    }
+    final transactionContext = SentryTransactionContext(
+      name,
+      'navigation',
+      transactionNameSource: SentryTransactionNameSource.component,
+      // ignore: invalid_use_of_internal_member
+      origin: SentryTraceOrigins.autoNavigationRouteObserver,
+    );
+
+    _transaction = _hub.startTransactionWithContext(
+      transactionContext,
+      waitForChildren: true,
+      autoFinishAfter: _autoFinishAfter,
+      trimEnd: true,
+      onFinish: (transaction) async {
+        _transaction = null;
+        final nativeFrames = await _native
+            ?.endNativeFramesCollection(transaction.context.traceId);
+        if (nativeFrames != null) {
+          final measurements = nativeFrames.toMeasurements();
+          for (final item in measurements.entries) {
+            final measurement = item.value;
+            transaction.setMeasurement(
+              item.key,
+              measurement.value,
+              unit: measurement.unit,
+            );
+          }
+        }
+      },
+    );
+
+    // if _enableAutoTransactions is enabled but there's no traces sample rate
+    if (_transaction is NoOpSentrySpan) {
+      _transaction = null;
+      return null;
+    }
+
+    if (arguments != null) {
+      _transaction?.setData('route_settings_arguments', arguments);
+    }
+
+    await _hub.configureScope((scope) {
+      scope.span ??= _transaction;
+    });
+
+    await _native?.beginNativeFramesCollection();
+
+    return _transaction;
+  }
+
   Future<void> _startTimeToDisplayTracking(Route<dynamic>? route) async {
     _completedDisplayTracking = Completer<void>();
     final routeName = _getRouteName(route);
     _currentRouteName = routeName;
 
     final arguments = route?.settings.arguments;
-    await _timeToDisplayTracker?.startTracking(routeName, arguments);
+    final transaction = await _startTransaction(route);
+    if (transaction == null) return;
+    await _timeToDisplayTracker?.startTracking(
+        transaction, routeName, arguments);
     _completedDisplayTracking?.complete();
   }
 }

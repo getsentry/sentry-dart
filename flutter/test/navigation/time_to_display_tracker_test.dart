@@ -29,15 +29,16 @@ void main() {
         SentryFlutter.native = TestMockSentryNative();
         final sut = fixture.getSut();
 
+        // Fake app start
         Future.delayed(const Duration(milliseconds: 500), () async {
           final appStartInfo = AppStartInfo(AppStartType.cold,
-              start: DateTime.fromMillisecondsSinceEpoch(0),
-              end: DateTime.fromMillisecondsSinceEpoch(10));
+              start: DateTime.now(),
+              end: DateTime.now().add(const Duration(milliseconds: 10)));
 
           NativeAppStartIntegration.setAppStartInfo(appStartInfo);
         });
 
-        await sut.startTracking('/', null);
+        await sut.startTracking(fixture.getTransaction(), '/', null);
 
         await Future.delayed(const Duration(milliseconds: 100));
 
@@ -56,7 +57,8 @@ void main() {
         test('startMeasurement finishes ttid span', () async {
           final sut = fixture.getSut();
 
-          await sut.startTracking('Current Route', null);
+          await sut.startTracking(
+              fixture.getTransaction(), 'Current Route', null);
 
           final transaction = fixture.hub.getSpan() as SentryTracer;
           await Future.delayed(const Duration(milliseconds: 2000));
@@ -77,7 +79,8 @@ void main() {
             fixture.ttidTracker.markAsManual();
             fixture.ttidTracker.completeTracking();
           });
-          await sut.startTracking('Current Route', null);
+          await sut.startTracking(
+              fixture.getTransaction(), 'Current Route', null);
 
           final transaction = fixture.hub.getSpan() as SentryTracer;
 
@@ -101,7 +104,7 @@ void main() {
   test('screen load tracking creates ui.load transaction', () async {
     final sut = fixture.getSut();
 
-    await sut.startTracking('Current Route', null);
+    await sut.startTracking(fixture.getTransaction(), 'Current Route', null);
 
     final transaction = fixture.hub.getSpan();
     expect(transaction, isNotNull);
@@ -122,11 +125,14 @@ class Fixture {
 
   final ttfdAutoFinishAfter = Duration(milliseconds: 500);
 
+  ISentrySpan getTransaction({String? name = "Current route"}) {
+    return hub.startTransaction(name!, 'ui.load', bindToScope: true);
+  }
+
   TimeToDisplayTracker getSut() {
     return TimeToDisplayTracker(
-      hub: hub,
-      enableAutoTransactions: true,
-      autoFinishAfter: const Duration(seconds: 30),
+      // TODO: ttfd flag
+      enableTimeToFullDisplayTracing: false,
       ttidTracker: ttidTracker,
     );
   }

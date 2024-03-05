@@ -110,22 +110,17 @@ class SentryTracer extends ISentrySpan {
 
       var _rootEndTimestamp = commonEndTimestamp;
 
-      // Trim the end timestamp of the transaction to the very last timestamp of child spans
       if (_trimEnd && children.isNotEmpty) {
-        DateTime? latestEndTime;
+        final childEndTimestamps = children
+            .where((child) => child.endTimestamp != null)
+            .map((child) => child.endTimestamp!);
 
-        for (var child in children) {
-          final childEndTimestamp = child.endTimestamp;
-          if (childEndTimestamp != null) {
-            if (latestEndTime == null ||
-                childEndTimestamp.isAfter(latestEndTime)) {
-              latestEndTime = child.endTimestamp;
-            }
+        if (childEndTimestamps.isNotEmpty) {
+          final oldestChildEndTimestamp =
+          childEndTimestamps.reduce((a, b) => a.isAfter(b) ? a : b);
+          if (_rootEndTimestamp.isAfter(oldestChildEndTimestamp)) {
+            _rootEndTimestamp = oldestChildEndTimestamp;
           }
-        }
-
-        if (latestEndTime != null) {
-          _rootEndTimestamp = latestEndTime;
         }
       }
 

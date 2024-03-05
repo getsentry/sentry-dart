@@ -877,9 +877,8 @@ class Fixture {
     final timeToInitialDisplayTracker =
         TimeToInitialDisplayTracker(frameCallbackHandler: frameCallbackHandler);
     final timeToDisplayTracker = TimeToDisplayTracker(
-      hub: hub,
-      enableAutoTransactions: enableAutoTransactions,
-      autoFinishAfter: autoFinishAfter,
+      // TODO: ttfd flag
+      enableTimeToFullDisplayTracing: false,
       ttidTracker: timeToInitialDisplayTracker,
     );
     return SentryNavigatorObserver(

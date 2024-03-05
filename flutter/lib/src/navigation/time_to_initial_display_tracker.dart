@@ -33,10 +33,10 @@ class TimeToInitialDisplayTracker {
   DateTime? get endTimestamp => _endTimestamp;
 
   Future<void> trackRegularRoute(
-      ISentrySpan transaction,
-      DateTime startTimestamp,
-      String routeName,
-      ) async {
+    ISentrySpan transaction,
+    DateTime startTimestamp,
+    String routeName,
+  ) async {
     await _trackTimeToInitialDisplay(
       transaction: transaction,
       startTimestamp: startTimestamp,
@@ -47,10 +47,10 @@ class TimeToInitialDisplayTracker {
   }
 
   Future<void> trackAppStart(
-      ISentrySpan transaction,
-      AppStartInfo appStartInfo,
-      String routeName,
-      ) async {
+    ISentrySpan transaction,
+    AppStartInfo appStartInfo,
+    String routeName,
+  ) async {
     await _trackTimeToInitialDisplay(
       transaction: transaction,
       startTimestamp: appStartInfo.start,

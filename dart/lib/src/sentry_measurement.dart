@@ -46,7 +46,6 @@ class SentryMeasurement {
         value = duration.inMilliseconds,
         unit = DurationSentryMeasurementUnit.milliSecond;
 
-
   final String name;
   final num value;
   final SentryMeasurementUnit? unit;
