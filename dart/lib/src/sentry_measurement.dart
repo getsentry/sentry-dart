@@ -46,12 +46,6 @@ class SentryMeasurement {
         value = duration.inMilliseconds,
         unit = DurationSentryMeasurementUnit.milliSecond;
 
-  /// Duration of the time to full display in milliseconds
-  SentryMeasurement.timeToFullDisplay(Duration duration)
-      : assert(!duration.isNegative),
-        name = 'time_to_full_display',
-        value = duration.inMilliseconds,
-        unit = DurationSentryMeasurementUnit.milliSecond;
 
   final String name;
   final num value;

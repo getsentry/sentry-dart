@@ -4,9 +4,9 @@
 
 ### Features
 
-- Add TTID, allows you to measure the time it takes to render the first frame of your screen ([#1910](https://github.com/getsentry/sentry-dart/pull/1910))
+- Add TTID (time to initial display), which allows you to measure the time it takes to render the first frame of your screen ([#1910](https://github.com/getsentry/sentry-dart/pull/1910))
   - Requires using the [routing instrumentation](https://docs.sentry.io/platforms/flutter/integrations/routing-instrumentation/).
-  - Introduces two modes: `automatic` and `manual`.
+  - Introduces two modes: 
     - `automatic` mode is enabled by default for all screens and will yield only an approximation result.
     - `manual` mode requires manual instrumentation and will yield a more accurate result.
       - To use `manual` mode, you need to wrap your desired widget: `SentryDisplayWidget(child: MyScreen())`.
