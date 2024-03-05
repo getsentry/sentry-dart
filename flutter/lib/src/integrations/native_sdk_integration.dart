@@ -17,45 +17,52 @@ class NativeSdkIntegration implements Integration<SentryFlutterOptions> {
     if (!options.autoInitializeNativeSdk) {
       return;
     }
-    try {
-      await _channel.invokeMethod('initNativeSdk', <String, dynamic>{
-        'dsn': options.dsn,
-        'debug': options.debug,
-        'environment': options.environment,
-        'release': options.release,
-        'enableAutoSessionTracking': options.enableAutoSessionTracking,
-        'enableNativeCrashHandling': options.enableNativeCrashHandling,
-        'attachStacktrace': options.attachStacktrace,
-        'attachThreads': options.attachThreads,
-        'autoSessionTrackingIntervalMillis':
-            options.autoSessionTrackingInterval.inMilliseconds,
-        'dist': options.dist,
-        'integrations': options.sdk.integrations,
-        'packages':
-            options.sdk.packages.map((e) => e.toJson()).toList(growable: false),
-        'diagnosticLevel': options.diagnosticLevel.name,
-        'maxBreadcrumbs': options.maxBreadcrumbs,
-        'anrEnabled': options.anrEnabled,
-        'anrTimeoutIntervalMillis': options.anrTimeoutInterval.inMilliseconds,
-        'enableAutoNativeBreadcrumbs': options.enableAutoNativeBreadcrumbs,
-        'maxCacheItems': options.maxCacheItems,
-        'sendDefaultPii': options.sendDefaultPii,
-        'enableWatchdogTerminationTracking':
-            options.enableWatchdogTerminationTracking,
-        'enableNdkScopeSync': options.enableNdkScopeSync,
-        'enableAutoPerformanceTracing': options.enableAutoPerformanceTracing,
-        'sendClientReports': options.sendClientReports,
-        'proguardUuid': options.proguardUuid,
-        'maxAttachmentSize': options.maxAttachmentSize,
-        'recordHttpBreadcrumbs': options.recordHttpBreadcrumbs,
-        'captureFailedRequests': options.captureFailedRequests,
-        'enableAppHangTracking': options.enableAppHangTracking,
-        'connectionTimeoutMillis': options.connectionTimeout.inMilliseconds,
-        'readTimeoutMillis': options.readTimeout.inMilliseconds,
-        'appHangTimeoutIntervalMillis':
-            options.appHangTimeoutInterval.inMilliseconds,
-      });
 
+    var arguments = <String, dynamic>{
+      'dsn': options.dsn,
+      'debug': options.debug,
+      'environment': options.environment,
+      'release': options.release,
+      'enableAutoSessionTracking': options.enableAutoSessionTracking,
+      'enableNativeCrashHandling': options.enableNativeCrashHandling,
+      'attachStacktrace': options.attachStacktrace,
+      'attachThreads': options.attachThreads,
+      'autoSessionTrackingIntervalMillis':
+      options.autoSessionTrackingInterval.inMilliseconds,
+      'dist': options.dist,
+      'integrations': options.sdk.integrations,
+      'packages':
+      options.sdk.packages.map((e) => e.toJson()).toList(growable: false),
+      'diagnosticLevel': options.diagnosticLevel.name,
+      'maxBreadcrumbs': options.maxBreadcrumbs,
+      'anrEnabled': options.anrEnabled,
+      'anrTimeoutIntervalMillis': options.anrTimeoutInterval.inMilliseconds,
+      'enableAutoNativeBreadcrumbs': options.enableAutoNativeBreadcrumbs,
+      'maxCacheItems': options.maxCacheItems,
+      'sendDefaultPii': options.sendDefaultPii,
+      'enableWatchdogTerminationTracking':
+      options.enableWatchdogTerminationTracking,
+      'enableNdkScopeSync': options.enableNdkScopeSync,
+      'enableAutoPerformanceTracing': options.enableAutoPerformanceTracing,
+      'sendClientReports': options.sendClientReports,
+      'proguardUuid': options.proguardUuid,
+      'maxAttachmentSize': options.maxAttachmentSize,
+      'recordHttpBreadcrumbs': options.recordHttpBreadcrumbs,
+      'captureFailedRequests': options.captureFailedRequests,
+      'enableAppHangTracking': options.enableAppHangTracking,
+      'connectionTimeoutMillis': options.connectionTimeout.inMilliseconds,
+      'readTimeoutMillis': options.readTimeout.inMilliseconds,
+      'appHangTimeoutIntervalMillis':
+      options.appHangTimeoutInterval.inMilliseconds,
+    };
+
+    try {
+      final beforeInitNativeSdk = options.beforeInitNativeSdk;
+      if (beforeInitNativeSdk != null) {
+        arguments = await beforeInitNativeSdk(arguments);
+      }
+
+      await _channel.invokeMethod('initNativeSdk', arguments);
       options.sdk.addIntegration('nativeSdkIntegration');
     } catch (exception, stackTrace) {
       options.logger(

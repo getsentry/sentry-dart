@@ -90,6 +90,12 @@ Future<void> setupSentry(
         options.environment = 'integration';
         options.beforeSend = beforeSendCallback;
       }
+
+      options.beforeInitNativeSdk = (arguments) {
+        arguments['recordHttpBreadcrumbs'] = false;
+        return arguments;
+      };
+
     },
     // Init your App.
     appRunner: appRunner,

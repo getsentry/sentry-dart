@@ -28,6 +28,11 @@ class SentryFlutterOptions extends SentryOptions {
   /// Defaults to `true`.
   bool autoInitializeNativeSdk = true;
 
+  /// Set so you can mutate arguments being passed to sentry native SDKs.
+  ///
+  /// NOTE: Be careful and only use this if you know what you are doing.
+  BeforeInitNativeSDKCallback? beforeInitNativeSdk;
+
   /// Enable or disable reporting of used packages.
   bool reportPackages = true;
 
@@ -307,3 +312,9 @@ typedef BeforeScreenshotCallback = FutureOr<bool> Function(
   SentryEvent event, {
   Hint? hint,
 });
+
+/// Callback being executed in [NativeSdkIntegration] before passing arguments
+/// to sentry native.
+typedef BeforeInitNativeSDKCallback = FutureOr<Map<String, dynamic>> Function(
+  Map<String, dynamic> arguments,
+);
