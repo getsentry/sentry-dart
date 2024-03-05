@@ -6,7 +6,6 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/integrations/integrations.dart';
 import 'package:sentry_flutter/src/navigation/time_to_display_tracker.dart';
 import 'package:sentry/src/sentry_tracer.dart';
-import 'package:sentry_flutter/src/navigation/time_to_display_transaction_handler.dart';
 import 'package:sentry_flutter/src/navigation/time_to_initial_display_tracker.dart';
 
 import '../fake_frame_callback_handler.dart';
@@ -120,16 +119,10 @@ class Fixture {
   final ttfdAutoFinishAfter = Duration(milliseconds: 500);
 
   TimeToDisplayTracker getSut() {
-    // TODO: replace with options.enableTimeToFullDisplayTracing in TTFD
-    const enableTimeToFullDisplayTracing = false;
-
     return TimeToDisplayTracker(
-      enableTimeToFullDisplayTracing: enableTimeToFullDisplayTracing,
-      ttdTransactionHandler: TimeToDisplayTransactionHandler(
-        hub: hub,
-        enableAutoTransactions: true,
-        autoFinishAfter: const Duration(seconds: 30),
-      ),
+      hub: hub,
+      enableAutoTransactions: true,
+      autoFinishAfter: const Duration(seconds: 30),
       ttidTracker: ttidTracker,
     );
   }

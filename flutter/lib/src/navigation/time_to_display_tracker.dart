@@ -94,9 +94,11 @@ class TimeToDisplayTracker {
     }
     final isRootScreen = routeName == 'root ("/")';
     final didFetchAppStart = _native?.didFetchAppStart;
+
+    if (routeName == null) return;
+
     if (isRootScreen && didFetchAppStart == false) {
       // Dart cannot infer here that routeName is not nullable
-      if (routeName == null) return;
       await _trackAppStartTTD(routeName, arguments);
     } else {
       await _trackRegularRouteTTD(routeName, arguments, startTimestamp);
@@ -113,26 +115,23 @@ class TimeToDisplayTracker {
   /// We start and immediately finish the TTID span since we cannot mutate the history of spans.
   Future<void> _trackAppStartTTD(String routeName, Object? arguments) async {
     final appStartInfo = await NativeAppStartIntegration.getAppStartInfo();
-    final name = routeName;
-
     if (appStartInfo == null) return;
 
-    final transaction = await _startTransaction(name, arguments, startTimestamp: appStartInfo.start);
+    final transaction = await _startTransaction(routeName, arguments, startTimestamp: appStartInfo.start);
     if (transaction == null) return;
 
     if (_enableTimeToFullDisplayTracing) {
       // TODO: implement TTFD
     }
 
-    await _ttidTracker.trackAppStart(transaction, appStartInfo, name);
+    await _ttidTracker.trackAppStart(transaction, appStartInfo, routeName);
   }
 
   /// Starts and finishes Time To Display spans for regular routes meaning routes that are not root.
   Future<void> _trackRegularRouteTTD(
-      String? routeName, Object? arguments, DateTime startTimestamp) async {
+      String routeName, Object? arguments, DateTime startTimestamp) async {
     final transaction = await _startTransaction(routeName, arguments, startTimestamp: startTimestamp);
-
-    if (transaction == null || routeName == null) return;
+    if (transaction == null) return;
 
     if (_enableTimeToFullDisplayTracing) {
       // TODO: implement TTFD

@@ -32,48 +32,67 @@ class TimeToInitialDisplayTracker {
   @internal
   DateTime? get endTimestamp => _endTimestamp;
 
-  Future<void> trackRegularRoute(ISentrySpan transaction,
-      DateTime startTimestamp, String routeName) async {
-    final endTimestamp = await determineEndTime();
-    if (endTimestamp == null) return;
-
-    final ttidSpan = transaction.startChild(
-        SentrySpanOperations.uiTimeToInitialDisplay,
-        description: '$routeName initial display',
-        startTimestamp: startTimestamp);
-
-    if (_isManual) {
-      ttidSpan.origin = SentryTraceOrigins.manualUiTimeToDisplay;
-    } else {
-      ttidSpan.origin = SentryTraceOrigins.autoUiTimeToDisplay;
-    }
-
-    final ttidMeasurement = SentryMeasurement.timeToInitialDisplay(Duration(
-        milliseconds: endTimestamp.difference(startTimestamp).inMilliseconds));
-    transaction.setMeasurement(ttidMeasurement.name, ttidMeasurement.value,
-        unit: ttidMeasurement.unit);
-    await ttidSpan.finish(endTimestamp: endTimestamp);
+  Future<void> trackRegularRoute(
+      ISentrySpan transaction,
+      DateTime startTimestamp,
+      String routeName,
+      ) async {
+    await _trackTimeToInitialDisplay(
+      transaction: transaction,
+      startTimestamp: startTimestamp,
+      routeName: routeName,
+      // endTimestamp is null by default, determined inside the private method
+      // origin could be set here if needed, or determined inside the private method
+    );
   }
 
-  Future<void> trackAppStart(ISentrySpan transaction, AppStartInfo appStartInfo,
-      String routeName) async {
-    final ttidSpan = transaction.startChild(
-      SentrySpanOperations.uiTimeToInitialDisplay,
-      description: '$routeName initial display',
+  Future<void> trackAppStart(
+      ISentrySpan transaction,
+      AppStartInfo appStartInfo,
+      String routeName,
+      ) async {
+    await _trackTimeToInitialDisplay(
+      transaction: transaction,
       startTimestamp: appStartInfo.start,
+      routeName: routeName,
+      endTimestamp: appStartInfo.end,
+      origin: SentryTraceOrigins.autoUiTimeToDisplay,
     );
-    ttidSpan.origin = SentryTraceOrigins.autoUiTimeToDisplay;
-
-    final ttidMeasurement =
-        SentryMeasurement.timeToInitialDisplay(appStartInfo.duration);
-    transaction.setMeasurement(ttidMeasurement.name, ttidMeasurement.value,
-        unit: ttidMeasurement.unit);
-
-    // Since app start measurement is immediate, finish the TTID span with the app start's end timestamp
-    await ttidSpan.finish(endTimestamp: appStartInfo.end);
 
     // Store the end timestamp for potential use by TTFD tracking
     _endTimestamp = appStartInfo.end;
+  }
+
+  Future<void> _trackTimeToInitialDisplay({
+    required ISentrySpan transaction,
+    required DateTime startTimestamp,
+    required String routeName,
+    DateTime? endTimestamp,
+    String? origin,
+  }) async {
+    // Determine endTimestamp if not provided
+    final _endTimestamp = endTimestamp ?? await determineEndTime();
+    if (_endTimestamp == null) return;
+
+    final ttidSpan = transaction.startChild(
+      SentrySpanOperations.uiTimeToInitialDisplay,
+      description: '$routeName initial display',
+      startTimestamp: startTimestamp,
+    );
+
+    // Set the origin based on provided value or determine based on _isManual
+    ttidSpan.origin = origin ??
+        (_isManual
+            ? SentryTraceOrigins.manualUiTimeToDisplay
+            : SentryTraceOrigins.autoUiTimeToDisplay);
+
+    final duration = Duration(
+        milliseconds: _endTimestamp.difference(startTimestamp).inMilliseconds);
+    final ttidMeasurement = SentryMeasurement.timeToInitialDisplay(duration);
+
+    transaction.setMeasurement(ttidMeasurement.name, ttidMeasurement.value,
+        unit: ttidMeasurement.unit);
+    await ttidSpan.finish(endTimestamp: _endTimestamp);
   }
 
   Future<DateTime>? determineEndTime() {
