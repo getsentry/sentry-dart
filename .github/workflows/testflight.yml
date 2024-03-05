@@ -27,15 +27,7 @@ jobs:
         working-directory: ./flutter/example/ios
         run: bundle install
 
-      # We upload a new version to TestFlight on every commit on main
-      # So we need to bump the build number each time
-      - name: Bump Build Number
-        working-directory: ./flutter/example/ios
-        env:
-          FASTLANE_BUILD_NUMBER: ${{ github.run_number }}
-        run: bundle exec fastlane bump_build_number
-
-      - name: Build & Upload App to TestFlight
+      - name: Bump, Build & Upload App to TestFlight
         working-directory: ./flutter/example/ios
         env:
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
@@ -48,6 +40,7 @@ jobs:
           MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
         run: |
+          bundle exec fastlane bump_build_number
           bundle exec fastlane build_release
           bundle exec fastlane upload_testflight
 
