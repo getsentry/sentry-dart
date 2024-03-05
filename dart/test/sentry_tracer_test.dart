@@ -405,7 +405,7 @@ void main() {
 
       expect(sut.endTimestamp, equals(childB.endTimestamp),
           reason:
-          'The root end timestamp should be updated to match the latest child end timestamp.');
+              'The root end timestamp should be updated to match the latest child end timestamp.');
     });
 
     test('does not add more spans than configured in options', () async {
