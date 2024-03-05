@@ -109,7 +109,6 @@ class SentryTracer extends ISentrySpan {
       }
 
       var _rootEndTimestamp = commonEndTimestamp;
-
       if (_trimEnd && children.isNotEmpty) {
         final childEndTimestamps = children
             .where((child) => child.endTimestamp != null)
@@ -117,7 +116,7 @@ class SentryTracer extends ISentrySpan {
 
         if (childEndTimestamps.isNotEmpty) {
           final oldestChildEndTimestamp =
-          childEndTimestamps.reduce((a, b) => a.isAfter(b) ? a : b);
+              childEndTimestamps.reduce((a, b) => a.isAfter(b) ? a : b);
           if (_rootEndTimestamp.isAfter(oldestChildEndTimestamp)) {
             _rootEndTimestamp = oldestChildEndTimestamp;
           }
@@ -363,7 +362,8 @@ class SentryTracer extends ISentrySpan {
       Dsn.parse(_hub.options.dsn!).publicKey,
       release: _hub.options.release,
       environment: _hub.options.environment,
-      userId: null, // because of PII not sending it for now
+      userId: null,
+      // because of PII not sending it for now
       userSegment: user?.segment,
       transaction:
           _isHighQualityTransactionName(transactionNameSource) ? name : null,

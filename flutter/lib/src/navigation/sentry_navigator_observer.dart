@@ -212,16 +212,16 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     }
   }
 
-  Future<ISentrySpan?> _startTransaction(Route<dynamic>? route) async {
+  Future<void> _startTransaction(Route<dynamic>? route) async {
     if (!_enableAutoTransactions) {
-      return null;
+      return;
     }
 
     String? name = _getRouteName(route);
     final arguments = route?.settings.arguments;
 
     if (name == null) {
-      return null;
+      return;
     }
 
     if (name == '/') {
@@ -260,7 +260,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     // if _enableAutoTransactions is enabled but there's no traces sample rate
     if (_transaction is NoOpSentrySpan) {
       _transaction = null;
-      return null;
+      return;
     }
 
     if (arguments != null) {
@@ -272,18 +272,15 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     });
 
     await _native?.beginNativeFramesCollection();
-
-    return _transaction;
   }
 
   Future<void> _startTimeToDisplayTracking(Route<dynamic>? route) async {
     _completedDisplayTracking = Completer<void>();
-    final routeName = _getRouteName(route);
-    _currentRouteName = routeName;
-
     final arguments = route?.settings.arguments;
-    final transaction = await _startTransaction(route);
+    await _startTransaction(route);
+    final transaction = _transaction;
     if (transaction == null) return;
+    final routeName = _getRouteName(route);
     await _timeToDisplayTracker?.startTracking(
         transaction, routeName, arguments);
     _completedDisplayTracking?.complete();
