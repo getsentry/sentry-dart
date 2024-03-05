@@ -49,9 +49,9 @@ class SentryTracer extends ISentrySpan {
   /// highest timestamp of child spans, trimming the duration of the
   /// transaction. This is useful to discard extra time in the transaction that
   /// is not accounted for in child spans, like what happens in the
-  /// [SentryNavigatorObserver](https://pub.dev/documentation/sentry_flutter/latest/sentry_flutter/SentryNavigatorObserver-class.html)
-  /// idle transactions, where we finish the transaction after a given
-  /// "idle time" and we don't want this "idle time" to be part of the transaction.
+  /// [SentryNavigatorObserver] idle transactions, where we finish the
+  /// transaction after a given "idle time" and we don't want this "idle time"
+  /// to be part of the transaction.
   SentryTracer(
     SentryTransactionContext transactionContext,
     this._hub, {
@@ -109,17 +109,23 @@ class SentryTracer extends ISentrySpan {
       }
 
       var _rootEndTimestamp = commonEndTimestamp;
-      if (_trimEnd && children.isNotEmpty) {
-        final childEndTimestamps = children
-            .where((child) => child.endTimestamp != null)
-            .map((child) => child.endTimestamp!);
 
-        if (childEndTimestamps.isNotEmpty) {
-          final oldestChildEndTimestamp =
-              childEndTimestamps.reduce((a, b) => a.isAfter(b) ? a : b);
-          if (_rootEndTimestamp.isAfter(oldestChildEndTimestamp)) {
-            _rootEndTimestamp = oldestChildEndTimestamp;
+      // Trim the end timestamp of the transaction to the very last timestamp of child spans
+      if (_trimEnd && children.isNotEmpty) {
+        DateTime? latestEndTime;
+
+        for (var child in children) {
+          final childEndTimestamp = child.endTimestamp;
+          if (childEndTimestamp != null) {
+            if (latestEndTime == null ||
+                childEndTimestamp.isAfter(latestEndTime)) {
+              latestEndTime = child.endTimestamp;
+            }
           }
+        }
+
+        if (latestEndTime != null) {
+          _rootEndTimestamp = latestEndTime;
         }
       }
 
@@ -362,7 +368,8 @@ class SentryTracer extends ISentrySpan {
       Dsn.parse(_hub.options.dsn!).publicKey,
       release: _hub.options.release,
       environment: _hub.options.environment,
-      userId: null, // because of PII not sending it for now
+      userId: null,
+      // because of PII not sending it for now
       userSegment: user?.segment,
       transaction:
           _isHighQualityTransactionName(transactionNameSource) ? name : null,

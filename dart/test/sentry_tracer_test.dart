@@ -386,6 +386,28 @@ void main() {
       expect(sut.endTimestamp, endTimestamp);
     });
 
+    test('end trimmed to latest child end timestamp', () async {
+      final sut = fixture.getSut(trimEnd: true);
+      final rootEndInitial = getUtcDateTime();
+      final childEnd1 = rootEndInitial;
+      final childEnd2 = rootEndInitial.add(Duration(seconds: 1));
+      final childEnd3 = rootEndInitial;
+
+      final childA = sut.startChild('operation-a', description: 'description');
+      final childB = sut.startChild('operation-b', description: 'description');
+      final childC = sut.startChild('operation-c', description: 'description');
+
+      await childA.finish(endTimestamp: childEnd1);
+      await childB.finish(endTimestamp: childEnd2);
+      await childC.finish(endTimestamp: childEnd3);
+
+      await sut.finish(endTimestamp: rootEndInitial);
+
+      expect(sut.endTimestamp, equals(childB.endTimestamp),
+          reason:
+          'The root end timestamp should be updated to match the latest child end timestamp.');
+    });
+
     test('does not add more spans than configured in options', () async {
       fixture.hub.options.maxSpans = 2;
       final sut = fixture.getSut();
