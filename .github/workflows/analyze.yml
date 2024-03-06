@@ -38,7 +38,7 @@ jobs:
         if: ${{ inputs.sdk == 'flutter' }}
 
       - run: ${{ inputs.sdk }} pub get
-      - run: dart format --set-exit-if-changed ./
+      - run: dart format ./
         
       - name: dart analyze
         uses: invertase/github-action-dart-analyzer@e981b01a458d0bab71ee5da182e5b26687b7101b # pin@v3.0.0
@@ -50,6 +50,8 @@ jobs:
           working-directory: ${{ inputs.package }}
 
       - run: dart doc --dry-run
+
+      - uses: stefanzweifel/git-auto-commit-action@e040c596f0a65570b339c60818081175bcf82d11
 
   package-analysis:
     # `axel-op/dart-package-analyzer` is using `flutter pub upgrade` instead of `get`,

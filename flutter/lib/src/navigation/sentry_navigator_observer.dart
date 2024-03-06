@@ -269,6 +269,8 @@ class RouteObserverBreadcrumb extends Breadcrumb {
     SentryLevel? level,
     DateTime? timestamp,
     Map<String, dynamic>? data,
+
+
   }) {
     final dynamic fromArgs = _formatArgs(from?.arguments);
     final dynamic toArgs = _formatArgs(to?.arguments);
