@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Fixes
+
+- Fix transaction end timestamp trimming ([#1916](https://github.com/getsentry/sentry-dart/pull/1916))
+  - Transaction end timestamps are now correctly trimmed to the latest child span end timestamp
+
 ### Features
 
 - Add TTID (time to initial display), which allows you to measure the time it takes to render the first frame of your screen ([#1910](https://github.com/getsentry/sentry-dart/pull/1910))
