@@ -284,7 +284,6 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   Future<void> _startTimeToDisplayTracking(Route<dynamic>? route) async {
     _completedDisplayTracking = Completer<void>();
     String? routeName = _currentRouteName;
-
     if (routeName == null) return;
 
     DateTime startTimestamp = _hub.options.clock();
