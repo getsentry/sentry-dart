@@ -51,7 +51,21 @@ jobs:
 
       - run: dart doc --dry-run
 
+      - name: Extract PR Author
+        id: pr_author
+        run: |
+          PR_AUTHOR_USERNAME=$(jq -r ".pull_request.user.login" $GITHUB_EVENT_PATH)
+          PR_AUTHOR_EMAIL="${PR_AUTHOR_USERNAME}@users.noreply.github.com" # Example mapping
+          echo "PR_AUTHOR_NAME=$PR_AUTHOR_USERNAME" >> $GITHUB_ENV
+          echo "PR_AUTHOR_EMAIL=$PR_AUTHOR_EMAIL" >> $GITHUB_ENV
+
       - uses: stefanzweifel/git-auto-commit-action@e040c596f0a65570b339c60818081175bcf82d11
+        with:
+          commit_user_name: ${{ env.PR_AUTHOR_NAME }}
+          commit_user_email: ${{ env.PR_AUTHOR_EMAIL }}
+          commit_message: Your commit message
+          branch: ${{ github.head_ref }} # This is important for PRs coming from forks
+          token: ${{ secrets.GITHUB_TOKEN }}
 
   package-analysis:
     # `axel-op/dart-package-analyzer` is using `flutter pub upgrade` instead of `get`,
