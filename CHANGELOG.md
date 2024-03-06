@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Fixes
+
+- Fix transaction end timestamp trimming ([#1916](https://github.com/getsentry/sentry-dart/pull/1916))
+  - Transaction end timestamps are now correctly trimmed to the latest child span end timestamp
+
 ### Features
 
 - Use `recordHttpBreadcrumbs` to set iOS `enableNetworkBreadcrumbs` ([#1884](https://github.com/getsentry/sentry-dart/pull/1884))
