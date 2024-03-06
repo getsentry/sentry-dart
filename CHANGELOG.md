@@ -8,7 +8,11 @@
   - Transaction end timestamps are now correctly trimmed to the latest child span end timestamp
 
 ### Features
-
+- Add TTFD (time to full display), which allows you to measure the time it takes to render the full screen ([#1920](https://github.com/getsentry/sentry-dart/pull/1920))
+  - Requires using the [routing instrumentation](https://docs.sentry.io/platforms/flutter/integrations/routing-instrumentation/).
+  - Set `enableTimeToFullDisplayTracing = true` in your `SentryFlutterOptions` to enable TTFD
+  - Manually report the end of the full display by calling `SentryFlutter.reportFullyDisplayed()`
+  - If not reported within 30 seconds, the span will be automatically ended with the status `deadline_exceeded`
 - Add TTID (time to initial display), which allows you to measure the time it takes to render the first frame of your screen ([#1910](https://github.com/getsentry/sentry-dart/pull/1910))
   - Requires using the [routing instrumentation](https://docs.sentry.io/platforms/flutter/integrations/routing-instrumentation/).
   - Introduces two modes: 

@@ -65,26 +65,19 @@ class TimeToFullDisplayTracker {
   void handleTimeToFullDisplayTimeout() {
     final ttfdSpan = _ttfdSpan;
     final startTimestamp = _startTimestamp;
+    final endTimestamp = _endTimestampProvider.endTimestamp;
     if (ttfdSpan == null ||
         ttfdSpan.finished == true ||
-        startTimestamp == null) {
+        startTimestamp == null || endTimestamp == null) {
       _completedTTFDTracking.complete();
       return;
     }
-
-    print('te: ${_endTimestampProvider.endTimestamp}');
-
-    // If for some reason we can't get the ttid end timestamp
-    // we'll use the start timestamp + autoFinishAfter as a fallback
-    final endTimestamp = _endTimestampProvider.endTimestamp ??
-        startTimestamp.add(_autoFinishAfter);
 
     _setTTFDMeasurement(startTimestamp, endTimestamp);
     ttfdSpan.finish(
         status: SpanStatus.deadlineExceeded(), endTimestamp: endTimestamp);
 
     _completedTTFDTracking.complete();
-
     clear();
   }
 
