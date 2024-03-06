@@ -46,7 +46,7 @@ class TimeToFullDisplayTracker {
   ISentrySpan? _ttfdSpan;
   Timer? _ttfdTimer;
   ISentrySpan? _transaction;
-  Duration _autoFinishAfter = const Duration(seconds: 5);
+  Duration _autoFinishAfter = const Duration(seconds: 30);
   EndTimestampProvider _endTimestampProvider = TTIDEndTimestampProvider();
   Completer<void> _completedTTFDTracking = Completer<void>();
 
@@ -59,26 +59,31 @@ class TimeToFullDisplayTracker {
         startTimestamp: startTimestamp);
     _ttfdSpan?.origin = SentryTraceOrigins.manualUiTimeToDisplay;
     _ttfdTimer = Timer(_autoFinishAfter, handleTimeToFullDisplayTimeout);
-    return _completedTTFDTracking.future;
+    await _completedTTFDTracking.future;
+
+    clear();
   }
 
   void handleTimeToFullDisplayTimeout() {
     final ttfdSpan = _ttfdSpan;
     final startTimestamp = _startTimestamp;
     final endTimestamp = _endTimestampProvider.endTimestamp;
+
+    print(_endTimestampProvider.endTimestamp);
     if (ttfdSpan == null ||
         ttfdSpan.finished == true ||
-        startTimestamp == null || endTimestamp == null) {
+        startTimestamp == null ||
+        endTimestamp == null) {
       _completedTTFDTracking.complete();
       return;
     }
+    print('here2');
 
     _setTTFDMeasurement(startTimestamp, endTimestamp);
     ttfdSpan.finish(
         status: SpanStatus.deadlineExceeded(), endTimestamp: endTimestamp);
 
     _completedTTFDTracking.complete();
-    clear();
   }
 
   Future<void> reportFullyDisplayed() async {
@@ -89,7 +94,6 @@ class TimeToFullDisplayTracker {
 
     if (ttfdSpan?.finished == true || startTimestamp == null) {
       _completedTTFDTracking.complete();
-      clear();
       return;
     }
 
@@ -97,7 +101,6 @@ class TimeToFullDisplayTracker {
     await ttfdSpan?.finish(status: SpanStatus.ok(), endTimestamp: endTimestamp);
 
     _completedTTFDTracking.complete();
-    clear();
   }
 
   void _setTTFDMeasurement(DateTime startTimestamp, DateTime endTimestamp) {

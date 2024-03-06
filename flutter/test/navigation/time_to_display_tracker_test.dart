@@ -196,8 +196,8 @@ void main() {
         final sut = fixture.getSut();
         final transaction = fixture.getTransaction() as SentryTracer;
 
-        Future.delayed(const Duration(milliseconds: 100), () {
-          fixture.getSut().reportFullyDisplayed();
+        Future.delayed(const Duration(seconds: 1), () {
+          sut.reportFullyDisplayed();
         });
 
         await sut.trackRegularRouteTTD(transaction,

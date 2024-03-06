@@ -42,5 +42,6 @@ class TimeToDisplayTracker {
 
   void clear() {
     _ttidTracker.clear();
+    _ttfdTracker?.clear();
   }
 }
