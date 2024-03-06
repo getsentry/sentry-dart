@@ -351,7 +351,6 @@ void main() {
       final sut = fixture.getSut(hub: hub);
 
       sut.didPush(currentRoute, null);
-      when(span.finished).thenReturn(true);
 
       sut.didPop(currentRoute, null);
       sut.didPop(currentRoute, null);
