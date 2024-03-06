@@ -129,7 +129,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       to: route.settings,
     );
 
-    _finishDisplayTracking();
+    _finishTimeToDisplayTracking();
     _startTimeToDisplayTracking(route);
   }
 
@@ -160,7 +160,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       to: previousRoute?.settings,
     );
 
-    _finishDisplayTracking();
+    _finishTimeToDisplayTracking();
   }
 
   void _addBreadcrumb({
@@ -258,7 +258,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     await _native?.beginNativeFramesCollection();
   }
 
-  Future<void> _finishDisplayTracking() async {
+  Future<void> _finishTimeToDisplayTracking() async {
     _timeToDisplayTracker?.clear();
 
     final transaction = _transaction;
