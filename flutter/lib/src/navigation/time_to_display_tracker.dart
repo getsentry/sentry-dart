@@ -3,10 +3,8 @@
 import 'dart:async';
 
 import 'package:meta/meta.dart';
-import '../integrations/integrations.dart';
 
 import '../../sentry_flutter.dart';
-import '../native/sentry_native.dart';
 import 'time_to_initial_display_tracker.dart';
 
 @internal
