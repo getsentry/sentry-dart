@@ -88,7 +88,6 @@ class TimeToInitialDisplayTracker {
         unit: ttidMeasurement.unit);
     await ttidSpan.finish(endTimestamp: endTimestamp);
 
-    print(endTimestamp);
     _endTimestamp = endTimestamp;
   }
 

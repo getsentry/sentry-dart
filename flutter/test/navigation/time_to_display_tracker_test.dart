@@ -10,7 +10,6 @@ import 'package:sentry_flutter/src/navigation/time_to_initial_display_tracker.da
 
 import '../fake_frame_callback_handler.dart';
 import '../mocks.dart';
-import 'time_to_full_display_tracker_test.dart';
 
 void main() {
   late Fixture fixture;
@@ -237,8 +236,6 @@ void main() {
                 SentrySpanOperations.uiTimeToFullDisplay)
             .first;
         expect(ttfdSpan, isNotNull);
-
-        print('te2: ${fixture.endTimeProvider.endTimestamp}');
 
         expect(ttfdSpan.finished, isTrue);
         expect(ttfdSpan.status, SpanStatus.deadlineExceeded());
