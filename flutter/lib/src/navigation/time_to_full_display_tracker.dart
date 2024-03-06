@@ -69,7 +69,6 @@ class TimeToFullDisplayTracker {
     final startTimestamp = _startTimestamp;
     final endTimestamp = _endTimestampProvider.endTimestamp;
 
-    print(_endTimestampProvider.endTimestamp);
     if (ttfdSpan == null ||
         ttfdSpan.finished == true ||
         startTimestamp == null ||
@@ -77,7 +76,6 @@ class TimeToFullDisplayTracker {
       _completedTTFDTracking.complete();
       return;
     }
-    print('here2');
 
     _setTTFDMeasurement(startTimestamp, endTimestamp);
     ttfdSpan.finish(

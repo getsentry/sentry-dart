@@ -36,7 +36,8 @@ void main() {
   test(
       'TTFD span finishes automatically after timeout with correct status and end time',
       () async {
-    final sut = fixture.getSut(endTimestampProvider: fixture.endTimestampProvider);
+    final sut =
+        fixture.getSut(endTimestampProvider: fixture.endTimestampProvider);
     final transaction = fixture.getTransaction() as SentryTracer;
 
     await sut.track(transaction, fixture.startTimestamp);
@@ -58,14 +59,16 @@ class Fixture {
   final startTimestamp = getUtcDateTime();
   final hub = Hub(SentryFlutterOptions(dsn: fakeDsn)..tracesSampleRate = 1.0);
   final autoFinishAfter = const Duration(seconds: 2);
-  late final endTimestampProvider = FakeTTIDEndTimeStampProvider(startTimestamp);
+  late final endTimestampProvider =
+      FakeTTIDEndTimeStampProvider(startTimestamp);
 
   ISentrySpan getTransaction({String? name = "Current route"}) {
     return hub.startTransaction(name!, SentrySpanOperations.uiLoad,
         bindToScope: true, startTimestamp: startTimestamp);
   }
 
-  TimeToFullDisplayTracker getSut({EndTimestampProvider? endTimestampProvider}) {
+  TimeToFullDisplayTracker getSut(
+      {EndTimestampProvider? endTimestampProvider}) {
     return TimeToFullDisplayTracker(
         endTimestampProvider: endTimestampProvider,
         autoFinishAfter: autoFinishAfter);
