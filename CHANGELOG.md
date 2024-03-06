@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Add support for exception aggregates ([#1866](https://github.com/getsentry/sentry-dart/pull/1866))
+
 ## 8.0.0-beta.2
 
 ### Breaking Changes
