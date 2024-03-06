@@ -129,7 +129,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       to: route.settings,
     );
 
-    _finishTransaction();
+    _finishDisplayTracking();
     _startTimeToDisplayTracking(route);
   }
 
@@ -160,7 +160,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       to: previousRoute?.settings,
     );
 
-    _finishTransaction();
+    _finishDisplayTracking();
   }
 
   void _addBreadcrumb({
@@ -198,24 +198,8 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     }
   }
 
-  Future<void> _finishTransaction() async {
-    _timeToDisplayTracker?.clear();
-
-    final transaction = _transaction;
-    _transaction = null;
-    if (transaction == null || transaction.finished) {
-      return;
-    }
-    transaction.status ??= SpanStatus.ok();
-    await transaction.finish();
-  }
-
   Future<void> _startTransaction(
       Route<dynamic>? route, DateTime startTimestamp) async {
-    if (!_enableAutoTransactions) {
-      return;
-    }
-
     String? name = _getRouteName(route);
     final arguments = route?.settings.arguments;
 
@@ -274,7 +258,23 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     await _native?.beginNativeFramesCollection();
   }
 
+  Future<void> _finishDisplayTracking() async {
+    _timeToDisplayTracker?.clear();
+
+    final transaction = _transaction;
+    _transaction = null;
+    if (transaction == null || transaction.finished) {
+      return;
+    }
+    transaction.status ??= SpanStatus.ok();
+    await transaction.finish();
+  }
+
   Future<void> _startTimeToDisplayTracking(Route<dynamic>? route) async {
+    if (!_enableAutoTransactions) {
+      return;
+    }
+
     _completedDisplayTracking = Completer<void>();
     String? routeName = _currentRouteName;
     if (routeName == null) return;
