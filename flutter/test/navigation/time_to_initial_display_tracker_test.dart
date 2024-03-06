@@ -2,6 +2,7 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_flutter/src/frame_callback_handler.dart';
 import 'package:sentry_flutter/src/navigation/time_to_initial_display_tracker.dart';
 
 import '../fake_frame_callback_handler.dart';
@@ -41,6 +42,8 @@ void main() {
       expect(ttidSpan.finished, isTrue);
       expect(ttidSpan.context.description, 'root ("/") initial display');
       expect(ttidSpan.origin, SentryTraceOrigins.autoUiTimeToDisplay);
+      expect(ttidSpan.startTimestamp, fixture.startTimestamp);
+      expect(ttidSpan.endTimestamp, endTimestamp);
 
       final ttidMeasurement =
           transaction.measurements['time_to_initial_display'];
@@ -110,6 +113,15 @@ void main() {
   });
 
   group('determineEndtime', () {
+    test('can complete with null in approximation mode with timeout', () async {
+      // this test will trigger the timeout
+      final futureEndTime = await fixture
+          .getSut(frameCallbackHandler: DefaultFrameCallbackHandler())
+          .determineEndTime();
+
+      expect(futureEndTime, null);
+    });
+
     test('can complete automatically in approximation mode', () async {
       final futureEndTime = sut.determineEndTime();
 
@@ -166,8 +178,10 @@ class Fixture {
         bindToScope: true, startTimestamp: startTimestamp);
   }
 
-  TimeToInitialDisplayTracker getSut() {
+  TimeToInitialDisplayTracker getSut(
+      {FrameCallbackHandler? frameCallbackHandler}) {
+    frameCallbackHandler ??= fakeFrameCallbackHandler;
     return TimeToInitialDisplayTracker(
-        frameCallbackHandler: fakeFrameCallbackHandler);
+        frameCallbackHandler: frameCallbackHandler);
   }
 }

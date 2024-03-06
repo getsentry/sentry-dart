@@ -38,16 +38,21 @@ void main() {
         SentrySpanOperations.uiTimeToInitialDisplay);
 
     expect(spans, hasLength(1));
+
     final ttidSpan = spans.first;
     expect(ttidSpan.context.operation,
         SentrySpanOperations.uiTimeToInitialDisplay);
     expect(ttidSpan.finished, isTrue);
     expect(ttidSpan.context.description, 'Current Route initial display');
     expect(ttidSpan.origin, SentryTraceOrigins.manualUiTimeToDisplay);
+    final ttidSpanDuration =
+        ttidSpan.endTimestamp!.difference(ttidSpan.startTimestamp);
+
     expect(tracer.measurements, hasLength(1));
     final measurement = tracer.measurements['time_to_initial_display'];
     expect(measurement, isNotNull);
     expect(measurement?.unit, DurationSentryMeasurementUnit.milliSecond);
+    expect(measurement?.value, ttidSpanDuration.inMilliseconds);
   });
 
   testWidgets('SentryDisplayWidget is ignored for app starts',
@@ -55,8 +60,8 @@ void main() {
     final currentRoute = route(RouteSettings(name: '/'));
     final appStartInfo = AppStartInfo(
       AppStartType.cold,
-      start: DateTime.now().add(Duration(seconds: 1)),
-      end: DateTime.now().add(Duration(seconds: 2)),
+      start: getUtcDateTime().add(Duration(seconds: 1)),
+      end: getUtcDateTime().add(Duration(seconds: 2)),
     );
     NativeAppStartIntegration.setAppStartInfo(appStartInfo);
 
@@ -80,13 +85,16 @@ void main() {
     expect(ttidSpan.context.description, 'root ("/") initial display');
     expect(ttidSpan.origin, SentryTraceOrigins.autoUiTimeToDisplay);
 
-    expect(ttidSpan.startTimestamp.toUtc(), appStartInfo.start.toUtc());
-    expect(ttidSpan.endTimestamp?.toUtc(), appStartInfo.end.toUtc());
+    expect(ttidSpan.startTimestamp, appStartInfo.start);
+    expect(ttidSpan.endTimestamp, appStartInfo.end);
+    final ttidSpanDuration =
+        ttidSpan.endTimestamp!.difference(ttidSpan.startTimestamp);
 
     expect(tracer.measurements, hasLength(1));
     final measurement = tracer.measurements['time_to_initial_display'];
     expect(measurement, isNotNull);
     expect(measurement?.value, appStartInfo.duration.inMilliseconds);
+    expect(measurement?.value, ttidSpanDuration.inMilliseconds);
     expect(measurement?.unit, DurationSentryMeasurementUnit.milliSecond);
   });
 }

@@ -3,6 +3,7 @@
 import 'dart:async';
 
 import 'package:meta/meta.dart';
+
 // ignore: implementation_imports
 import 'package:sentry/src/sentry_tracer.dart';
 
@@ -26,8 +27,9 @@ class TimeToInitialDisplayTracker {
 
   FrameCallbackHandler _frameCallbackHandler = DefaultFrameCallbackHandler();
   bool _isManual = false;
-  Completer<DateTime>? _trackingCompleter;
+  Completer<DateTime?>? _trackingCompleter;
   DateTime? _endTimestamp;
+  final Duration _determineEndtimeTimeout = Duration(seconds: 5);
 
   /// This endTimestamp is needed in the [TimeToFullDisplayTracker] class
   @internal
@@ -40,8 +42,6 @@ class TimeToInitialDisplayTracker {
     await _trackTimeToInitialDisplay(
       transaction: transaction,
       startTimestamp: startTimestamp,
-      // endTimestamp is null by default, determined inside the private method
-      // origin could be set here if needed, or determined inside the private method
     );
   }
 
@@ -65,7 +65,6 @@ class TimeToInitialDisplayTracker {
     DateTime? endTimestamp,
     String? origin,
   }) async {
-    // Determine endTimestamp if not provided
     final _endTimestamp = endTimestamp ?? await determineEndTime();
     if (_endTimestamp == null) return;
 
@@ -77,7 +76,6 @@ class TimeToInitialDisplayTracker {
       startTimestamp: startTimestamp,
     );
 
-    // Set the origin based on provided value or determine based on _isManual
     ttidSpan.origin = origin ??
         (_isManual
             ? SentryTraceOrigins.manualUiTimeToDisplay
@@ -92,8 +90,8 @@ class TimeToInitialDisplayTracker {
     await ttidSpan.finish(endTimestamp: _endTimestamp);
   }
 
-  Future<DateTime>? determineEndTime() {
-    _trackingCompleter = Completer<DateTime>();
+  Future<DateTime?>? determineEndTime() {
+    _trackingCompleter = Completer<DateTime?>();
 
     // If we already know it's manual we can return the future immediately
     if (_isManual) {
@@ -108,7 +106,12 @@ class TimeToInitialDisplayTracker {
       }
     });
 
-    return _trackingCompleter?.future;
+    return _trackingCompleter?.future.timeout(
+      _determineEndtimeTimeout,
+      onTimeout: () {
+        return Future.value(null);
+      },
+    );
   }
 
   void markAsManual() {
