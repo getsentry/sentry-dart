@@ -11,54 +11,23 @@ import 'time_to_initial_display_tracker.dart';
 
 @internal
 class TimeToDisplayTracker {
-  final SentryNative? _native;
   final TimeToInitialDisplayTracker _ttidTracker;
 
   TimeToDisplayTracker({
     TimeToInitialDisplayTracker? ttidTracker,
-  })  : _native = SentryFlutter.native,
-        _ttidTracker = ttidTracker ?? TimeToInitialDisplayTracker();
+  }) : _ttidTracker = ttidTracker ?? TimeToInitialDisplayTracker();
 
-  Future<void> startTracking(
-      ISentrySpan transaction, String? routeName, Object? arguments) async {
-    final startTimestamp = DateTime.now();
-    if (routeName == '/') {
-      routeName = 'root ("/")';
-    }
-    final isRootScreen = routeName == 'root ("/")';
-    final didFetchAppStart = _native?.didFetchAppStart;
-
-    if (routeName == null) return;
-
-    if (isRootScreen && didFetchAppStart == false) {
-      await _trackAppStartTTD(transaction, routeName, arguments);
-    } else {
-      await _trackRegularRouteTTD(
-          transaction, routeName, arguments, startTimestamp);
-    }
-
-    clear();
+  Future<void> trackAppStartTTD(ISentrySpan transaction,
+      {required DateTime startTimestamp,
+      required DateTime endTimestamp}) async {
+    // We start and immediately finish the spans since we cannot mutate the history of spans.
+    await _ttidTracker.trackAppStart(transaction,
+        startTimestamp: startTimestamp, endTimestamp: endTimestamp);
   }
 
-  /// This method listens for the completion of the app's start process via
-  /// [AppStartTracker], then:
-  /// - Starts a transaction with the app start start timestamp
-  /// - Starts a TTID span based on the app start start timestamp
-  /// - Finishes the TTID span immediately with the app start end timestamp
-  ///
-  /// We start and immediately finish the TTID span since we cannot mutate the history of spans.
-  Future<void> _trackAppStartTTD(
-      ISentrySpan transaction, String routeName, Object? arguments) async {
-    final appStartInfo = await NativeAppStartIntegration.getAppStartInfo();
-    if (appStartInfo == null) return;
-    await _ttidTracker.trackAppStart(transaction, appStartInfo, routeName);
-  }
-
-  /// Starts and finishes Time To Display spans for regular routes meaning routes that are not root.
-  Future<void> _trackRegularRouteTTD(ISentrySpan transaction, String routeName,
-      Object? arguments, DateTime startTimestamp) async {
-    await _ttidTracker.trackRegularRoute(
-        transaction, startTimestamp, routeName);
+  Future<void> trackRegularRouteTTD(ISentrySpan transaction,
+      {required DateTime startTimestamp}) async {
+    await _ttidTracker.trackRegularRoute(transaction, startTimestamp);
   }
 
   void clear() {

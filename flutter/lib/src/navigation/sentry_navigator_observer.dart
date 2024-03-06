@@ -5,6 +5,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
+import '../integrations/integrations.dart';
 import 'time_to_display_tracker.dart';
 
 import '../../sentry_flutter.dart';
@@ -209,7 +210,8 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     await transaction.finish();
   }
 
-  Future<void> _startTransaction(Route<dynamic>? route) async {
+  Future<void> _startTransaction(
+      Route<dynamic>? route, DateTime startTimestamp) async {
     if (!_enableAutoTransactions) {
       return;
     }
@@ -233,6 +235,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
 
     _transaction = _hub.startTransactionWithContext(
       transactionContext,
+      startTimestamp: startTimestamp,
       waitForChildren: true,
       autoFinishAfter: _autoFinishAfter,
       trimEnd: true,
@@ -273,14 +276,43 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
 
   Future<void> _startTimeToDisplayTracking(Route<dynamic>? route) async {
     _completedDisplayTracking = Completer<void>();
-    final arguments = route?.settings.arguments;
-    await _startTransaction(route);
+    String? routeName = _currentRouteName;
+
+    if (routeName == null) return;
+
+    DateTime startTimestamp = _hub.options.clock();
+    DateTime? endTimestamp;
+
+    if (routeName == '/') {
+      final appStartInfo = await NativeAppStartIntegration
+          .getAppStartInfo();
+      if (appStartInfo == null) {
+        return;
+      }
+
+      startTimestamp =
+          appStartInfo.start; // Adjust start timestamp based on app start info.
+      endTimestamp =
+          appStartInfo.end; // Set end timestamp for app start tracking.
+    }
+
+    await _startTransaction(route, startTimestamp);
     final transaction = _transaction;
-    if (transaction == null) return;
-    final routeName = _getRouteName(route);
-    await _timeToDisplayTracker?.startTracking(
-        transaction, routeName, arguments);
+    if (transaction == null) {
+      return;
+    }
+
+    if (routeName == '/' && endTimestamp != null) {
+      await _timeToDisplayTracker?.trackAppStartTTD(transaction,
+          startTimestamp: startTimestamp, endTimestamp: endTimestamp);
+    } else {
+      await _timeToDisplayTracker?.trackRegularRouteTTD(transaction,
+          startTimestamp: startTimestamp);
+    }
+
+    // Mark the tracking as completed and clear any temporary state.
     _completedDisplayTracking?.complete();
+    _timeToDisplayTracker?.clear();
   }
 }
 

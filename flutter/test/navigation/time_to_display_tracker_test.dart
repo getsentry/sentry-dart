@@ -3,7 +3,6 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:sentry_flutter/src/integrations/integrations.dart';
 import 'package:sentry_flutter/src/navigation/time_to_display_tracker.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry_flutter/src/navigation/time_to_initial_display_tracker.dart';
@@ -25,20 +24,34 @@ void main() {
 
   group('time to initial display', () {
     group('in root screen app start route', () {
+      test('matches startTimestamp of transaction', () async {
+        final sut = fixture.getSut();
+
+        await sut.trackRegularRouteTTD(fixture.getTransaction(name: '/'),
+            startTimestamp: fixture.startTimestamp);
+
+        final transaction = fixture.hub.getSpan() as SentryTracer;
+
+        final spans = transaction.children;
+        final ttidSpan = spans
+            .where((element) =>
+                element.context.operation ==
+                SentrySpanOperations.uiTimeToInitialDisplay)
+            .first;
+
+        expect(transaction, isNotNull);
+        expect(transaction.context.operation, SentrySpanOperations.uiLoad);
+        expect(transaction.startTimestamp, ttidSpan.startTimestamp);
+      });
+
       test('startMeasurement finishes ttid span', () async {
         SentryFlutter.native = TestMockSentryNative();
         final sut = fixture.getSut();
+        final endTimestamp =
+            fixture.startTimestamp.add(const Duration(milliseconds: 10));
 
-        // Fake app start
-        Future.delayed(const Duration(milliseconds: 500), () async {
-          final appStartInfo = AppStartInfo(AppStartType.cold,
-              start: DateTime.now(),
-              end: DateTime.now().add(const Duration(milliseconds: 10)));
-
-          NativeAppStartIntegration.setAppStartInfo(appStartInfo);
-        });
-
-        await sut.startTracking(fixture.getTransaction(), '/', null);
+        await sut.trackAppStartTTD(fixture.getTransaction(name: '/'),
+            startTimestamp: fixture.startTimestamp, endTimestamp: endTimestamp);
 
         await Future.delayed(const Duration(milliseconds: 100));
 
@@ -53,12 +66,32 @@ void main() {
     });
 
     group('in regular routes', () {
+      test('matches startTimestamp of transaction', () async {
+        final sut = fixture.getSut();
+
+        await sut.trackRegularRouteTTD(fixture.getTransaction(),
+            startTimestamp: fixture.startTimestamp);
+
+        final transaction = fixture.hub.getSpan() as SentryTracer;
+
+        final spans = transaction.children;
+        final ttidSpan = spans
+            .where((element) =>
+        element.context.operation ==
+            SentrySpanOperations.uiTimeToInitialDisplay)
+            .first;
+
+        expect(transaction, isNotNull);
+        expect(transaction.context.operation, SentrySpanOperations.uiLoad);
+        expect(transaction.startTimestamp, ttidSpan.startTimestamp);
+      });
+
       group('with approximation strategy', () {
         test('startMeasurement finishes ttid span', () async {
           final sut = fixture.getSut();
 
-          await sut.startTracking(
-              fixture.getTransaction(), 'Current Route', null);
+          await sut.trackRegularRouteTTD(fixture.getTransaction(),
+              startTimestamp: fixture.startTimestamp);
 
           final transaction = fixture.hub.getSpan() as SentryTracer;
           await Future.delayed(const Duration(milliseconds: 2000));
@@ -79,8 +112,8 @@ void main() {
             fixture.ttidTracker.markAsManual();
             fixture.ttidTracker.completeTracking();
           });
-          await sut.startTracking(
-              fixture.getTransaction(), 'Current Route', null);
+          await sut.trackRegularRouteTTD(fixture.getTransaction(),
+              startTimestamp: fixture.startTimestamp);
 
           final transaction = fixture.hub.getSpan() as SentryTracer;
 
@@ -103,8 +136,11 @@ void main() {
 
   test('screen load tracking creates ui.load transaction', () async {
     final sut = fixture.getSut();
+    final startTimestamp =
+        getUtcDateTime().add(const Duration(milliseconds: 100));
 
-    await sut.startTracking(fixture.getTransaction(), 'Current Route', null);
+    await sut.trackRegularRouteTTD(fixture.getTransaction(),
+        startTimestamp: startTimestamp);
 
     final transaction = fixture.hub.getSpan();
     expect(transaction, isNotNull);
@@ -113,6 +149,7 @@ void main() {
 }
 
 class Fixture {
+  final startTimestamp = getUtcDateTime();
   final options = SentryFlutterOptions()
     ..dsn = fakeDsn
     ..tracesSampleRate = 1.0;
@@ -124,7 +161,8 @@ class Fixture {
       TimeToInitialDisplayTracker(frameCallbackHandler: frameCallbackHandler);
 
   ISentrySpan getTransaction({String? name = "Current route"}) {
-    return hub.startTransaction(name!, 'ui.load', bindToScope: true);
+    return hub.startTransaction(name!, 'ui.load',
+        bindToScope: true, startTimestamp: startTimestamp);
   }
 
   TimeToDisplayTracker getSut() {
