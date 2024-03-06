@@ -389,9 +389,9 @@ void main() {
     test('end trimmed to latest child end timestamp', () async {
       final sut = fixture.getSut(trimEnd: true);
       final rootEndInitial = getUtcDateTime();
-      final childEnd1 = rootEndInitial;
-      final childEnd2 = rootEndInitial.add(Duration(seconds: 1));
-      final childEnd3 = rootEndInitial;
+      final childAEnd = rootEndInitial;
+      final childBEnd = rootEndInitial.add(Duration(seconds: 1));
+      final childCEnd = rootEndInitial;
 
       final childA = sut.startChild('operation-a', description: 'description');
       final childB = sut.startChild('operation-b', description: 'description');
