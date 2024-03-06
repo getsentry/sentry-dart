@@ -37,8 +37,8 @@ jobs:
       - uses: subosito/flutter-action@62f096cacda5168a3bd7b95793373be14fa4fbaf # pin@v2.13.0
         if: ${{ inputs.sdk == 'flutter' }}
 
-#      - run: ${{ inputs.sdk }} pub get
-##      - run: dart format ./
+      - run: ${{ inputs.sdk }} pub get
+      - run: dart format ./
         
       - name: dart analyze
         uses: invertase/github-action-dart-analyzer@e981b01a458d0bab71ee5da182e5b26687b7101b # pin@v3.0.0
@@ -51,13 +51,13 @@ jobs:
 
       - run: dart doc --dry-run
 
-#      - uses: stefanzweifel/git-auto-commit-action@e040c596f0a65570b339c60818081175bcf82d11
-#        with:
-#          commit_user_name: 'Sentry Github Bot'
-#          commit_user_email: 'bot+github-bot@sentry.io'
-#          commit_message: Your commit message
-#          branch: ${{ github.head_ref }} # This is important for PRs coming from forks
-#          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: stefanzweifel/git-auto-commit-action@e040c596f0a65570b339c60818081175bcf82d11
+        with:
+          commit_user_name: 'Sentry Github Bot'
+          commit_user_email: 'bot+github-bot@sentry.io'
+          commit_message: Your commit message
+          branch: ${{ github.head_ref }} # This is important for PRs coming from forks
+          token: ${{ secrets.GITHUB_TOKEN }}
 
   package-analysis:
     # `axel-op/dart-package-analyzer` is using `flutter pub upgrade` instead of `get`,
