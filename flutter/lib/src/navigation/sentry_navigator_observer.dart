@@ -291,9 +291,9 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       }
 
       startTimestamp =
-          appStartInfo.start; // Adjust start timestamp based on app start info.
+          appStartInfo.start;
       endTimestamp =
-          appStartInfo.end; // Set end timestamp for app start tracking.
+          appStartInfo.end;
     }
 
     await _startTransaction(route, startTimestamp);
