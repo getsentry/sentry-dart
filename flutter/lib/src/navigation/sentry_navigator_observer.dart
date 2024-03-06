@@ -284,16 +284,13 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     DateTime? endTimestamp;
 
     if (routeName == '/') {
-      final appStartInfo = await NativeAppStartIntegration
-          .getAppStartInfo();
+      final appStartInfo = await NativeAppStartIntegration.getAppStartInfo();
       if (appStartInfo == null) {
         return;
       }
 
-      startTimestamp =
-          appStartInfo.start;
-      endTimestamp =
-          appStartInfo.end;
+      startTimestamp = appStartInfo.start;
+      endTimestamp = appStartInfo.end;
     }
 
     await _startTransaction(route, startTimestamp);

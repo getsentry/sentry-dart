@@ -24,7 +24,8 @@ void main() {
   group('app start', () {
     test('tracking creates and finishes ttid span with correct measurements',
         () async {
-      final transaction = fixture.getTransaction(name: 'root ("/")') as SentryTracer;
+      final transaction =
+          fixture.getTransaction(name: 'root ("/")') as SentryTracer;
       final endTimestamp =
           fixture.startTimestamp.add(const Duration(milliseconds: 10));
 

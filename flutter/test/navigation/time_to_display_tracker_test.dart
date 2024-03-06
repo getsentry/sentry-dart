@@ -77,8 +77,8 @@ void main() {
         final spans = transaction.children;
         final ttidSpan = spans
             .where((element) =>
-        element.context.operation ==
-            SentrySpanOperations.uiTimeToInitialDisplay)
+                element.context.operation ==
+                SentrySpanOperations.uiTimeToInitialDisplay)
             .first;
 
         expect(transaction, isNotNull);
