@@ -198,6 +198,8 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   }
 
   Future<void> _finishTransaction() async {
+    _timeToDisplayTracker?.clear();
+
     final transaction = _transaction;
     _transaction = null;
     if (transaction == null || transaction.finished) {
@@ -205,8 +207,6 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     }
     transaction.status ??= SpanStatus.ok();
     await transaction.finish();
-
-    _timeToDisplayTracker?.clear();
   }
 
   Future<void> _startTransaction(Route<dynamic>? route) async {
