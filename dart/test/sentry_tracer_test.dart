@@ -397,9 +397,9 @@ void main() {
       final childB = sut.startChild('operation-b', description: 'description');
       final childC = sut.startChild('operation-c', description: 'description');
 
-      await childA.finish(endTimestamp: childEnd1);
-      await childB.finish(endTimestamp: childEnd2);
-      await childC.finish(endTimestamp: childEnd3);
+      await childA.finish(endTimestamp: childAEnd);
+      await childB.finish(endTimestamp: childBEnd);
+      await childC.finish(endTimestamp: childCEnd);
 
       await sut.finish(endTimestamp: rootEndInitial);
 
