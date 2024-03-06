@@ -3,7 +3,8 @@
 import 'dart:async';
 
 import 'package:meta/meta.dart';
-import '../integrations/integrations.dart';
+// ignore: implementation_imports
+import 'package:sentry/src/sentry_tracer.dart';
 
 import '../../sentry_flutter.dart';
 import '../frame_callback_handler.dart';
@@ -35,38 +36,32 @@ class TimeToInitialDisplayTracker {
   Future<void> trackRegularRoute(
     ISentrySpan transaction,
     DateTime startTimestamp,
-    String routeName,
   ) async {
     await _trackTimeToInitialDisplay(
       transaction: transaction,
       startTimestamp: startTimestamp,
-      routeName: routeName,
       // endTimestamp is null by default, determined inside the private method
       // origin could be set here if needed, or determined inside the private method
     );
   }
 
-  Future<void> trackAppStart(
-    ISentrySpan transaction,
-    AppStartInfo appStartInfo,
-    String routeName,
-  ) async {
+  Future<void> trackAppStart(ISentrySpan transaction,
+      {required DateTime startTimestamp,
+      required DateTime endTimestamp}) async {
     await _trackTimeToInitialDisplay(
       transaction: transaction,
-      startTimestamp: appStartInfo.start,
-      routeName: routeName,
-      endTimestamp: appStartInfo.end,
+      startTimestamp: startTimestamp,
+      endTimestamp: endTimestamp,
       origin: SentryTraceOrigins.autoUiTimeToDisplay,
     );
 
     // Store the end timestamp for potential use by TTFD tracking
-    _endTimestamp = appStartInfo.end;
+    _endTimestamp = endTimestamp;
   }
 
   Future<void> _trackTimeToInitialDisplay({
     required ISentrySpan transaction,
     required DateTime startTimestamp,
-    required String routeName,
     DateTime? endTimestamp,
     String? origin,
   }) async {
@@ -74,9 +69,11 @@ class TimeToInitialDisplayTracker {
     final _endTimestamp = endTimestamp ?? await determineEndTime();
     if (_endTimestamp == null) return;
 
+    final tracer = transaction as SentryTracer;
+
     final ttidSpan = transaction.startChild(
       SentrySpanOperations.uiTimeToInitialDisplay,
-      description: '$routeName initial display',
+      description: '${tracer.name} initial display',
       startTimestamp: startTimestamp,
     );
 

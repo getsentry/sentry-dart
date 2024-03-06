@@ -871,12 +871,14 @@ class Fixture {
     bool setRouteNameAsTransaction = false,
     RouteNameExtractor? routeNameExtractor,
     AdditionalInfoExtractor? additionalInfoProvider,
+    bool enableTimeToFullDisplayTracing = false,
   }) {
     final frameCallbackHandler = FakeFrameCallbackHandler();
     final timeToInitialDisplayTracker =
         TimeToInitialDisplayTracker(frameCallbackHandler: frameCallbackHandler);
     final timeToDisplayTracker = TimeToDisplayTracker(
       ttidTracker: timeToInitialDisplayTracker,
+      enableTimeToFullDisplayTracing: enableTimeToFullDisplayTracing,
     );
     return SentryNavigatorObserver(
       hub: hub,
