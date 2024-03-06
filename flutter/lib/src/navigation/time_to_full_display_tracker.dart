@@ -4,6 +4,9 @@ import 'dart:async';
 
 import 'package:meta/meta.dart';
 
+// ignore: implementation_imports
+import 'package:sentry/src/sentry_tracer.dart';
+
 import '../../sentry_flutter.dart';
 import 'time_to_initial_display_tracker.dart';
 
@@ -47,15 +50,15 @@ class TimeToFullDisplayTracker {
   EndTimestampProvider _endTimestampProvider = TTIDEndTimestampProvider();
   Completer<void> _completedTTFDTracking = Completer<void>();
 
-  Future<void> track(
-      ISentrySpan transaction, DateTime startTimestamp, String routeName) async {
+  Future<void> track(ISentrySpan transaction, DateTime startTimestamp) async {
     _startTimestamp = startTimestamp;
     _transaction = transaction;
+    final tracer = transaction as SentryTracer;
     _ttfdSpan = transaction.startChild(SentrySpanOperations.uiTimeToFullDisplay,
-        description: '$routeName full display', startTimestamp: startTimestamp);
+        description: '${tracer.name} full display',
+        startTimestamp: startTimestamp);
     _ttfdSpan?.origin = SentryTraceOrigins.manualUiTimeToDisplay;
     _ttfdTimer = Timer(_autoFinishAfter, handleTimeToFullDisplayTimeout);
-
     return _completedTTFDTracking.future;
   }
 
@@ -68,6 +71,8 @@ class TimeToFullDisplayTracker {
       _completedTTFDTracking.complete();
       return;
     }
+
+    print('te: ${_endTimestampProvider.endTimestamp}');
 
     // If for some reason we can't get the ttid end timestamp
     // we'll use the start timestamp + autoFinishAfter as a fallback
@@ -89,18 +94,16 @@ class TimeToFullDisplayTracker {
     final startTimestamp = _startTimestamp;
     final ttfdSpan = _ttfdSpan;
 
-    if (ttfdSpan == null ||
-        ttfdSpan.finished == true ||
-        startTimestamp == null) {
+    if (ttfdSpan?.finished == true || startTimestamp == null) {
       _completedTTFDTracking.complete();
+      clear();
       return;
     }
 
     _setTTFDMeasurement(startTimestamp, endTimestamp);
-    await ttfdSpan.finish(endTimestamp: endTimestamp);
+    await ttfdSpan?.finish(status: SpanStatus.ok(), endTimestamp: endTimestamp);
 
     _completedTTFDTracking.complete();
-
     clear();
   }
 

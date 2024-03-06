@@ -54,9 +54,6 @@ class TimeToInitialDisplayTracker {
       endTimestamp: endTimestamp,
       origin: SentryTraceOrigins.autoUiTimeToDisplay,
     );
-
-    // Store the end timestamp for potential use by TTFD tracking
-    _endTimestamp = endTimestamp;
   }
 
   Future<void> _trackTimeToInitialDisplay({
@@ -66,8 +63,8 @@ class TimeToInitialDisplayTracker {
     String? origin,
   }) async {
     // Determine endTimestamp if not provided
-    final _endTimestamp = endTimestamp ?? await determineEndTime();
-    if (_endTimestamp == null) return;
+    endTimestamp = endTimestamp ?? await determineEndTime();
+    if (endTimestamp == null) return;
 
     final tracer = transaction as SentryTracer;
 
@@ -84,12 +81,15 @@ class TimeToInitialDisplayTracker {
             : SentryTraceOrigins.autoUiTimeToDisplay);
 
     final duration = Duration(
-        milliseconds: _endTimestamp.difference(startTimestamp).inMilliseconds);
+        milliseconds: endTimestamp.difference(startTimestamp).inMilliseconds);
     final ttidMeasurement = SentryMeasurement.timeToInitialDisplay(duration);
 
     transaction.setMeasurement(ttidMeasurement.name, ttidMeasurement.value,
         unit: ttidMeasurement.unit);
-    await ttidSpan.finish(endTimestamp: _endTimestamp);
+    await ttidSpan.finish(endTimestamp: endTimestamp);
+
+    print(endTimestamp);
+    _endTimestamp = endTimestamp;
   }
 
   Future<DateTime>? determineEndTime() {

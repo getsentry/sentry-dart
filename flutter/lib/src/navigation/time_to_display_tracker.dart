@@ -9,18 +9,16 @@ import 'time_to_initial_display_tracker.dart';
 @internal
 class TimeToDisplayTracker {
   final TimeToInitialDisplayTracker _ttidTracker;
-  late final TimeToFullDisplayTracker? _ttfdTracker;
+  final TimeToFullDisplayTracker? _ttfdTracker;
 
   TimeToDisplayTracker({
     TimeToInitialDisplayTracker? ttidTracker,
     TimeToFullDisplayTracker? ttfdTracker,
     required bool enableTimeToFullDisplayTracing,
-  })  :
-        _ttidTracker = ttidTracker ?? TimeToInitialDisplayTracker() {
-    if (enableTimeToFullDisplayTracing) {
-      _ttfdTracker = ttfdTracker ?? TimeToFullDisplayTracker();
-    }
-  }
+  })  : _ttidTracker = ttidTracker ?? TimeToInitialDisplayTracker(),
+        _ttfdTracker = enableTimeToFullDisplayTracing
+            ? ttfdTracker ?? TimeToFullDisplayTracker()
+            : null;
 
   Future<void> trackAppStartTTD(ISentrySpan transaction,
       {required DateTime startTimestamp,
@@ -28,11 +26,13 @@ class TimeToDisplayTracker {
     // We start and immediately finish the spans since we cannot mutate the history of spans.
     await _ttidTracker.trackAppStart(transaction,
         startTimestamp: startTimestamp, endTimestamp: endTimestamp);
+    await _ttfdTracker?.track(transaction, startTimestamp);
   }
 
   Future<void> trackRegularRouteTTD(ISentrySpan transaction,
       {required DateTime startTimestamp}) async {
     await _ttidTracker.trackRegularRoute(transaction, startTimestamp);
+    await _ttfdTracker?.track(transaction, startTimestamp);
   }
 
   @internal
