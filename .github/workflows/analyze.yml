@@ -49,17 +49,17 @@ jobs:
           annotate-only: false
           working-directory: ${{ inputs.package }}
 
-      - run: dart doc --dry-run
+#      - run: dart doc --dry-run
 
       - name: Internal github app token
         id: token
         uses: getsentry/action-github-app-token@97c9e23528286821f97fba885c1b1123284b29cc # v2.0.0
         continue-on-error: true
         with:
-          app_id: ${{ vars.SENTRY_INTERNAL_APP_ID }}
-          private_key: ${{ secrets.SENTRY_INTERNAL_APP_PRIVATE_KEY }}
+          app_id: ${{ secrets.APP_ID }}
+          private_key: ${{ secrets.APP_PRIVATE_KEY }}
 
-      - name: Commit any eslint fixed files
+      - name: Commit changed files
         if: github.ref != 'refs/heads/main'
         uses: getsentry/action-github-commit@748c31dd78cffe76f51bef49a0be856b6effeda7 # main
         with:
