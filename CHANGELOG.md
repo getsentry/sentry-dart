@@ -20,10 +20,20 @@
     - `didPop` doesn't trigger a new transaction
     - Change transaction operation name to `ui.load` instead of `navigation`
 - Use `recordHttpBreadcrumbs` to set iOS `enableNetworkBreadcrumbs` ([#1884](https://github.com/getsentry/sentry-dart/pull/1884))
+- Add `maxQueueSize` to limit the number of unawaited events sent to Sentry ([#1868]((https://github.com/getsentry/sentry-dart/pull/1868))
 
 ### Improvements
 
 - App start is now fetched within integration instead of event processor ([#1905](https://github.com/getsentry/sentry-dart/pull/1905))
+
+### Dependencies
+
+- Bump Cocoa SDK from v8.20.0 to v8.21.0 ([#1909](https://github.com/getsentry/sentry-dart/pull/1909))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8210)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.20.0...8.21.0)
+- Bump Android SDK from v7.3.0 to v7.5.0 ([#1907](https://github.com/getsentry/sentry-dart/pull/1907))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#750)
+  - [diff](https://github.com/getsentry/sentry-java/compare/7.3.0...7.5.0)
 
 ## 7.16.1
 
