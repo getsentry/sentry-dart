@@ -10,7 +10,7 @@
 ### Features
 
 - Use `recordHttpBreadcrumbs` to set iOS `enableNetworkBreadcrumbs` ([#1884](https://github.com/getsentry/sentry-dart/pull/1884))
-- Add `maxQueueSize` to limit the number of unawaited events sent to Sentry ([#1868]((https://github.com/getsentry/sentry-dart/pull/1868))
+- Add `maxQueueSize` to limit the number of unawaited events sent to Sentry ([#1868](https://github.com/getsentry/sentry-dart/pull/1868))
 
 ### Improvements
 
