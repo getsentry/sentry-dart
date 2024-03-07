@@ -254,7 +254,7 @@ void main() {
         expect(ttfdSpan.finished, isTrue);
         expect(ttfdSpan.status, SpanStatus.deadlineExceeded());
         expect(ttfdSpan.endTimestamp, ttidSpan.endTimestamp);
-        expect(ttfdSpan.endTimestamp, ttidSpan.startTimestamp);
+        expect(ttfdSpan.startTimestamp, ttidSpan.startTimestamp);
       });
     });
   });
