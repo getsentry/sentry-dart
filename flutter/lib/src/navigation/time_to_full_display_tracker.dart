@@ -85,7 +85,7 @@ class TimeToFullDisplayTracker {
 
   Future<void> reportFullyDisplayed() async {
     _ttfdTimer?.cancel();
-    final endTimestamp = DateTime.now();
+    final endTimestamp = getUtcDateTime();
     final startTimestamp = _startTimestamp;
     final ttfdSpan = _ttfdSpan;
 
