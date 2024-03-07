@@ -224,7 +224,7 @@ mixin SentryFlutter {
   }
 
   /// Reports the time it took for the screen to be fully displayed.
-  /// This requires the [enableTimeToFullDisplayTracing] option to be set to `true`.
+  /// This requires the [SentryFlutterOptions.enableTimeToFullDisplayTracing] option to be set to `true`.
   static Future<void> reportFullyDisplayed() async {
     return SentryNavigatorObserver.timeToDisplayTracker?.reportFullyDisplayed();
   }
