@@ -42,7 +42,7 @@ void main() {
         expect(transaction.startTimestamp, ttidSpan.startTimestamp);
       });
 
-      test('trackAppStartTTD finishes ttid span', () async {
+      test('finishes ttid span', () async {
         SentryFlutter.native = TestMockSentryNative();
         final sut = fixture.getSut();
         final endTimestamp =
@@ -61,24 +61,6 @@ void main() {
             SentrySpanOperations.uiTimeToInitialDisplay);
         expect(ttidSpan.finished, isTrue);
         expect(ttidSpan.origin, SentryTraceOrigins.autoUiTimeToDisplay);
-      });
-
-      test('trackRegularRoute finishes ttid span', () async {
-        SentryFlutter.native = TestMockSentryNative();
-        final sut = fixture.getSut();
-
-        final transaction = fixture.getTransaction() as SentryTracer;
-        await sut.trackRegularRouteTTD(transaction,
-            startTimestamp: fixture.startTimestamp);
-
-        final ttidSpan = transaction.children
-            .where((element) =>
-                element.context.operation ==
-                SentrySpanOperations.uiTimeToInitialDisplay)
-            .first;
-        expect(ttidSpan.context.operation,
-            SentrySpanOperations.uiTimeToInitialDisplay);
-        expect(ttidSpan.finished, isTrue);
       });
     });
 
@@ -101,7 +83,7 @@ void main() {
       });
 
       group('with approximation strategy', () {
-        test('trackRegularRouteTTD finishes ttid span', () async {
+        test('finishes ttid span', () async {
           final sut = fixture.getSut();
 
           final transaction = fixture.getTransaction() as SentryTracer;
@@ -131,7 +113,7 @@ void main() {
       });
 
       group('with manual strategy', () {
-        test('finishes ttid span after reporting with manual api', () async {
+        test('finishes ttid span', () async {
           final sut = fixture.getSut();
 
           Future.delayed(const Duration(milliseconds: 1), () {
@@ -152,7 +134,7 @@ void main() {
           expect(ttidSpan.origin, SentryTraceOrigins.manualUiTimeToDisplay);
         });
 
-        test('timeout triggered when not completing the tracking', () async {
+        test('triggers timeout when not completing the tracking', () async {
           final sut = fixture.getSut();
 
           fixture.ttidTracker?.markAsManual();
