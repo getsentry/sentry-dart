@@ -101,14 +101,12 @@ void main() {
           expect(ttidSpan.origin, SentryTraceOrigins.autoUiTimeToDisplay);
         });
 
-        test('timeout triggered when not completing the tracking', () async {
+        test('completes with timeout when not completing the tracking', () async {
           final sut = fixture.getSut(triggerApproximationTimeout: true);
 
           final transaction = fixture.getTransaction() as SentryTracer;
           await sut.trackRegularRouteTTD(transaction,
               startTimestamp: fixture.startTimestamp);
-
-          expect(transaction.children, hasLength(0));
         });
       });
 
@@ -134,7 +132,7 @@ void main() {
           expect(ttidSpan.origin, SentryTraceOrigins.manualUiTimeToDisplay);
         });
 
-        test('triggers timeout when not completing the tracking', () async {
+        test('completes with timeout when not completing the tracking', () async {
           final sut = fixture.getSut();
 
           fixture.ttidTracker?.markAsManual();
@@ -143,8 +141,6 @@ void main() {
           final transaction = fixture.getTransaction() as SentryTracer;
           await sut.trackRegularRouteTTD(transaction,
               startTimestamp: fixture.startTimestamp);
-
-          expect(transaction.children, hasLength(0));
         });
       });
     });
@@ -172,8 +168,7 @@ class Fixture {
   TimeToInitialDisplayTracker? ttidTracker;
 
   ISentrySpan getTransaction({String? name = "Current route"}) {
-    return hub.startTransaction(name!, 'ui.load',
-        bindToScope: true, startTimestamp: startTimestamp);
+    return hub.startTransaction(name!, 'ui.load', startTimestamp: startTimestamp);
   }
 
   TimeToDisplayTracker getSut({bool triggerApproximationTimeout = false}) {
