@@ -49,7 +49,11 @@ void main() {
           transaction.measurements['time_to_initial_display'];
       expect(ttidMeasurement, isNotNull);
       expect(ttidMeasurement?.unit, DurationSentryMeasurementUnit.milliSecond);
-      expect(ttidMeasurement?.value, 10);
+      expect(
+          ttidMeasurement?.value,
+          ttidSpan.endTimestamp!
+              .difference(ttidSpan.startTimestamp)
+              .inMilliseconds);
     });
   });
 
@@ -76,6 +80,11 @@ void main() {
       expect(ttidMeasurement?.unit, DurationSentryMeasurementUnit.milliSecond);
       expect(ttidMeasurement?.value,
           greaterThanOrEqualTo(fixture.finishFrameDuration.inMilliseconds));
+      expect(
+          ttidMeasurement?.value,
+          ttidSpan.endTimestamp!
+              .difference(ttidSpan.startTimestamp)
+              .inMilliseconds);
     });
 
     test(
@@ -104,6 +113,11 @@ void main() {
       expect(ttidMeasurement?.unit, DurationSentryMeasurementUnit.milliSecond);
       expect(ttidMeasurement?.value,
           greaterThanOrEqualTo(fixture.finishFrameDuration.inMilliseconds));
+      expect(
+          ttidMeasurement?.value,
+          ttidSpan.endTimestamp!
+              .difference(ttidSpan.startTimestamp)
+              .inMilliseconds);
     });
   });
 
