@@ -327,6 +327,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
 
     // Mark the tracking as completed and clear any temporary state.
     _completedDisplayTracking?.complete();
+    _completedDisplayTracking = null;
     _timeToDisplayTracker?.clear();
   }
 }

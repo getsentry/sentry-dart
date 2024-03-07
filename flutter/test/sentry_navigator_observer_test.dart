@@ -400,10 +400,12 @@ void main() {
 
       // Push to new screen, e.g app start / root screen
       sut.didPush(currentRoute, null);
+      await Future<void>.delayed(const Duration(milliseconds: 10));
       await sut.completedDisplayTracking?.future;
 
       // Push to screen e.g root to user screen
       sut.didPush(currentRoute, null);
+      await Future<void>.delayed(const Duration(milliseconds: 10));
       await sut.completedDisplayTracking?.future;
 
       verify(mockChildA.finish(status: SpanStatus.cancelled())).called(1);
@@ -436,11 +438,13 @@ void main() {
 
       // Push to new screen, e.g root to user screen
       sut.didPush(currentRoute, null);
+      await Future<void>.delayed(const Duration(milliseconds: 10));
       await sut.completedDisplayTracking?.future;
 
       // Pop back e.g user to root screen
       sut.didPop(currentRoute, null);
-      await Future<void>.delayed(const Duration(milliseconds: 100));
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+      await sut.completedDisplayTracking?.future;
 
       verify(mockChildA.finish(status: SpanStatus.cancelled())).called(1);
       verify(mockChildB.finish(status: SpanStatus.cancelled())).called(1);
