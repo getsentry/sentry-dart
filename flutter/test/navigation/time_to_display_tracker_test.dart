@@ -101,7 +101,8 @@ void main() {
           expect(ttidSpan.origin, SentryTraceOrigins.autoUiTimeToDisplay);
         });
 
-        test('completes with timeout when not completing the tracking', () async {
+        test('completes with timeout when not completing the tracking',
+            () async {
           final sut = fixture.getSut(triggerApproximationTimeout: true);
 
           final transaction = fixture.getTransaction() as SentryTracer;
@@ -132,7 +133,8 @@ void main() {
           expect(ttidSpan.origin, SentryTraceOrigins.manualUiTimeToDisplay);
         });
 
-        test('completes with timeout when not completing the tracking', () async {
+        test('completes with timeout when not completing the tracking',
+            () async {
           final sut = fixture.getSut();
 
           fixture.ttidTracker?.markAsManual();
@@ -168,7 +170,8 @@ class Fixture {
   TimeToInitialDisplayTracker? ttidTracker;
 
   ISentrySpan getTransaction({String? name = "Current route"}) {
-    return hub.startTransaction(name!, 'ui.load', startTimestamp: startTimestamp);
+    return hub.startTransaction(name!, 'ui.load',
+        startTimestamp: startTimestamp);
   }
 
   TimeToDisplayTracker getSut({bool triggerApproximationTimeout = false}) {
