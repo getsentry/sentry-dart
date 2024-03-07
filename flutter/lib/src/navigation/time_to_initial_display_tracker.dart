@@ -91,10 +91,16 @@ class TimeToInitialDisplayTracker {
 
   Future<DateTime?>? determineEndTime() {
     _trackingCompleter = Completer<DateTime?>();
+    final future = _trackingCompleter?.future.timeout(
+      _determineEndtimeTimeout,
+      onTimeout: () {
+        return Future.value(null);
+      },
+    );
 
     // If we already know it's manual we can return the future immediately
     if (_isManual) {
-      return _trackingCompleter?.future;
+      return future;
     }
 
     // Schedules a check at the end of the frame to determine if the tracking
@@ -105,12 +111,7 @@ class TimeToInitialDisplayTracker {
       }
     });
 
-    return _trackingCompleter?.future.timeout(
-      _determineEndtimeTimeout,
-      onTimeout: () {
-        return Future.value(null);
-      },
-    );
+    return future;
   }
 
   void markAsManual() {

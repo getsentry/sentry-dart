@@ -4,16 +4,15 @@ import 'package:sentry_flutter/src/frame_callback_handler.dart';
 class FakeFrameCallbackHandler implements FrameCallbackHandler {
   FrameCallback? storedCallback;
 
-  final Duration _finishAfterDuration;
+  final Duration finishAfterDuration;
 
   FakeFrameCallbackHandler(
-      {Duration finishAfterDuration = const Duration(milliseconds: 500)})
-      : _finishAfterDuration = finishAfterDuration;
+      {this.finishAfterDuration = const Duration(milliseconds: 50)});
 
   @override
   void addPostFrameCallback(FrameCallback callback) async {
     // ignore: inference_failure_on_instance_creation
-    await Future.delayed(_finishAfterDuration);
+    await Future.delayed(finishAfterDuration);
     callback(Duration.zero);
   }
 }
