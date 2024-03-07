@@ -74,17 +74,15 @@ void main() {
           transaction.measurements['time_to_initial_display'];
       expect(ttidMeasurement, isNotNull);
       expect(ttidMeasurement?.unit, DurationSentryMeasurementUnit.milliSecond);
-      expect(
-          ttidMeasurement?.value,
-          greaterThanOrEqualTo(
-              fixture.finishFrameAfterDuration.inMilliseconds));
+      expect(ttidMeasurement?.value,
+          greaterThanOrEqualTo(fixture.finishFrameDuration.inMilliseconds));
     });
 
     test(
         'manual tracking creates and finishes ttid span with correct measurements',
         () async {
       sut.markAsManual();
-      Future.delayed(fixture.finishFrameAfterDuration, () {
+      Future.delayed(fixture.finishFrameDuration, () {
         sut.completeTracking();
       });
 
@@ -104,10 +102,8 @@ void main() {
           transaction.measurements['time_to_initial_display'];
       expect(ttidMeasurement, isNotNull);
       expect(ttidMeasurement?.unit, DurationSentryMeasurementUnit.milliSecond);
-      expect(
-          ttidMeasurement?.value,
-          greaterThanOrEqualTo(
-              fixture.finishFrameAfterDuration.inMilliseconds));
+      expect(ttidMeasurement?.value,
+          greaterThanOrEqualTo(fixture.finishFrameDuration.inMilliseconds));
     });
   });
 
@@ -150,19 +146,19 @@ void main() {
       final endTme = await sut.determineEndTime();
 
       expect(endTme?.difference(fixture.startTimestamp).inSeconds,
-          fixture.finishFrameAfterDuration.inSeconds);
+          fixture.finishFrameDuration.inSeconds);
     });
 
     test('returns the correct manual end time', () async {
       sut.markAsManual();
-      Future.delayed(fixture.finishFrameAfterDuration, () {
+      Future.delayed(fixture.finishFrameDuration, () {
         sut.completeTracking();
       });
 
       final endTime = await sut.determineEndTime();
 
       expect(endTime?.difference(fixture.startTimestamp).inSeconds,
-          fixture.finishFrameAfterDuration.inSeconds);
+          fixture.finishFrameDuration.inSeconds);
     });
   });
 }
@@ -170,14 +166,16 @@ void main() {
 class Fixture {
   final startTimestamp = getUtcDateTime();
   final hub = Hub(SentryFlutterOptions(dsn: fakeDsn)..tracesSampleRate = 1.0);
-  final finishFrameAfterDuration = Duration(milliseconds: 100);
-  late final fakeFrameCallbackHandler =
-      FakeFrameCallbackHandler(finishAfterDuration: finishFrameAfterDuration);
+  late final fakeFrameCallbackHandler = FakeFrameCallbackHandler();
 
   ISentrySpan getTransaction({String? name = "Regular route"}) {
     return hub.startTransaction(name!, 'ui.load',
         bindToScope: true, startTimestamp: startTimestamp);
   }
+
+  /// The time it takes until a fake frame has been triggered
+  Duration get finishFrameDuration =>
+      fakeFrameCallbackHandler.finishAfterDuration;
 
   TimeToInitialDisplayTracker getSut(
       {bool triggerApproximationTimeout = false}) {

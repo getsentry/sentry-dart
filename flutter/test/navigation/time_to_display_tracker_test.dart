@@ -34,8 +34,8 @@ void main() {
 
         final ttidSpan = transaction.children
             .where((element) =>
-        element.context.operation ==
-            SentrySpanOperations.uiTimeToInitialDisplay)
+                element.context.operation ==
+                SentrySpanOperations.uiTimeToInitialDisplay)
             .first;
         expect(transaction, isNotNull);
         expect(transaction.context.operation, SentrySpanOperations.uiLoad);
@@ -54,8 +54,8 @@ void main() {
 
         final ttidSpan = transaction.children
             .where((element) =>
-        element.context.operation ==
-            SentrySpanOperations.uiTimeToInitialDisplay)
+                element.context.operation ==
+                SentrySpanOperations.uiTimeToInitialDisplay)
             .first;
         expect(ttidSpan.context.operation,
             SentrySpanOperations.uiTimeToInitialDisplay);
@@ -71,11 +71,14 @@ void main() {
         await sut.trackRegularRouteTTD(transaction,
             startTimestamp: fixture.startTimestamp);
 
-        final spans = transaction.children;
-        expect(transaction.children, hasLength(1));
-        expect(spans[0].context.operation,
+        final ttidSpan = transaction.children
+            .where((element) =>
+                element.context.operation ==
+                SentrySpanOperations.uiTimeToInitialDisplay)
+            .first;
+        expect(ttidSpan.context.operation,
             SentrySpanOperations.uiTimeToInitialDisplay);
-        expect(spans[0].finished, isTrue);
+        expect(ttidSpan.finished, isTrue);
       });
     });
 
@@ -89,8 +92,8 @@ void main() {
 
         final ttidSpan = transaction.children
             .where((element) =>
-        element.context.operation ==
-            SentrySpanOperations.uiTimeToInitialDisplay)
+                element.context.operation ==
+                SentrySpanOperations.uiTimeToInitialDisplay)
             .first;
         expect(transaction, isNotNull);
         expect(transaction.context.operation, SentrySpanOperations.uiLoad);
@@ -107,8 +110,8 @@ void main() {
 
           final ttidSpan = transaction.children
               .where((element) =>
-          element.context.operation ==
-              SentrySpanOperations.uiTimeToInitialDisplay)
+                  element.context.operation ==
+                  SentrySpanOperations.uiTimeToInitialDisplay)
               .first;
           expect(ttidSpan.context.operation,
               SentrySpanOperations.uiTimeToInitialDisplay);
@@ -167,11 +170,10 @@ void main() {
 
   test('screen load tracking creates ui.load transaction', () async {
     final sut = fixture.getSut();
-    final startTimestamp =
-        getUtcDateTime().add(const Duration(milliseconds: 100));
 
     final transaction = fixture.getTransaction() as SentryTracer;
-    await sut.trackRegularRouteTTD(transaction, startTimestamp: startTimestamp);
+    await sut.trackRegularRouteTTD(transaction,
+        startTimestamp: fixture.startTimestamp);
 
     expect(transaction, isNotNull);
     expect(transaction.context.operation, SentrySpanOperations.uiLoad);
