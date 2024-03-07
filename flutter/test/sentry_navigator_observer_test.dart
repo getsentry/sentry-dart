@@ -106,6 +106,8 @@ void main() {
         actualTransaction = scope.span as SentryTracer;
       });
 
+      await sut.completedDisplayTracking?.future;
+
       await Future<void>.delayed(Duration(milliseconds: 1500));
 
       expect(mockNativeChannel.numberOfEndNativeFramesCalls, 1);

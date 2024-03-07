@@ -6,6 +6,7 @@
 
 - Fix transaction end timestamp trimming ([#1916](https://github.com/getsentry/sentry-dart/pull/1916))
   - Transaction end timestamps are now correctly trimmed to the latest child span end timestamp
+- remove transitive dart:io reference for web ([#1898](https://github.com/getsentry/sentry-dart/pull/1898))  
 
 ### Features
 
@@ -25,6 +26,7 @@
     - `didPop` doesn't trigger a new transaction
     - Change transaction operation name to `ui.load` instead of `navigation`
 - Use `recordHttpBreadcrumbs` to set iOS `enableNetworkBreadcrumbs` ([#1884](https://github.com/getsentry/sentry-dart/pull/1884))
+- Apply `beforeBreadcrumb` on native iOS crumbs ([#1914](https://github.com/getsentry/sentry-dart/pull/1914))
 - Add `maxQueueSize` to limit the number of unawaited events sent to Sentry ([#1868](https://github.com/getsentry/sentry-dart/pull/1868))
 
 ### Improvements

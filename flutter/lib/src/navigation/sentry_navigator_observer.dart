@@ -286,8 +286,6 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
 
   Future<void> _finishThenStartTimeToDisplayTracking(
       Route<dynamic>? route) async {
-    _completedDisplayTracking = Completer<void>();
-
     // We can await inside this function so we can make sure the previous
     // tracking is finished before starting a new one.
     await _finishTimeToDisplayTracking();
@@ -296,6 +294,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       return;
     }
 
+    _completedDisplayTracking = Completer<void>();
     String? routeName = _currentRouteName;
     if (routeName == null) return;
 
