@@ -103,6 +103,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   final SentryNative? _native;
   late final TimeToDisplayTracker? _timeToDisplayTracker;
 
+  @internal
   static TimeToDisplayTracker? get timeToDisplayTracker =>
       SentryNavigatorObserver()._timeToDisplayTracker;
 
