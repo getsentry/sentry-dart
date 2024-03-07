@@ -5,7 +5,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry_flutter/src/integrations/integrations.dart';
-import 'package:sentry_flutter/src/navigation/sentry_display_widget.dart';
 
 import '../fake_frame_callback_handler.dart';
 import '../mocks.dart';
