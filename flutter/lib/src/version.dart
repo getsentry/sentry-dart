@@ -1,5 +1,5 @@
 /// The SDK version reported to Sentry.io in the submitted events.
-const String sdkVersion = '7.16.1';
+const String sdkVersion = '7.17.0';
 
 /// The default SDK name reported to Sentry.io in the submitted events.
 const String sdkName = 'sentry.dart.flutter';
