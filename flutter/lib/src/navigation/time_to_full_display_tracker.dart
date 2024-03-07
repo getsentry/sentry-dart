@@ -52,10 +52,9 @@ class TimeToFullDisplayTracker {
 
   Future<void> track(ISentrySpan transaction, DateTime startTimestamp) async {
     _startTimestamp = startTimestamp;
-    _transaction = transaction;
-    final tracer = transaction as SentryTracer;
+    _transaction = transaction as SentryTracer;
     _ttfdSpan = transaction.startChild(SentrySpanOperations.uiTimeToFullDisplay,
-        description: '${tracer.name} full display',
+        description: '${transaction.name} full display',
         startTimestamp: startTimestamp);
     _ttfdSpan?.origin = SentryTraceOrigins.manualUiTimeToDisplay;
     _ttfdTimer = Timer(_autoFinishAfter, handleTimeToFullDisplayTimeout);

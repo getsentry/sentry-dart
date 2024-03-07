@@ -159,11 +159,13 @@ void main() {
         SentryFlutter.native = TestMockSentryNative();
         final sut = fixture.getSut(triggerApproximationTimeout: true);
 
-        final transaction = fixture.getTransaction(name: 'root: ("/")') as SentryTracer;
+        final transaction =
+            fixture.getTransaction(name: 'root: ("/")') as SentryTracer;
+        final endTimestamp =
+            fixture.startTimestamp.add(const Duration(milliseconds: 10));
+
         await sut.trackAppStartTTD(transaction,
-            startTimestamp: fixture.startTimestamp,
-            endTimestamp:
-                fixture.startTimestamp.add(const Duration(milliseconds: 10)));
+            startTimestamp: fixture.startTimestamp, endTimestamp: endTimestamp);
 
         final ttfdSpan = transaction.children
             .where((element) =>
@@ -179,13 +181,14 @@ void main() {
           () async {
         SentryFlutter.native = TestMockSentryNative();
         final sut = fixture.getSut();
+
         final transaction =
             fixture.getTransaction(name: 'root: ("/")') as SentryTracer;
         final endTimestamp =
             fixture.startTimestamp.add(const Duration(milliseconds: 10));
 
         Future.delayed(const Duration(milliseconds: 100), () {
-          fixture.getSut().reportFullyDisplayed();
+          sut.reportFullyDisplayed();
         });
 
         await sut.trackAppStartTTD(transaction,
@@ -207,7 +210,7 @@ void main() {
         final sut = fixture.getSut();
         final transaction = fixture.getTransaction() as SentryTracer;
 
-        Future.delayed(const Duration(seconds: 1), () {
+        Future.delayed(const Duration(milliseconds: 100), () {
           sut.reportFullyDisplayed();
         });
 
@@ -251,6 +254,7 @@ void main() {
         expect(ttfdSpan.finished, isTrue);
         expect(ttfdSpan.status, SpanStatus.deadlineExceeded());
         expect(ttfdSpan.endTimestamp, ttidSpan.endTimestamp);
+        expect(ttfdSpan.endTimestamp, ttidSpan.startTimestamp);
       });
     });
   });
