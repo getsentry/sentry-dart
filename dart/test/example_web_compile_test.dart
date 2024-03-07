@@ -38,7 +38,7 @@ void main() {
                 'build_web_compilers:entrypoint on web/main.dart:Compiled'));
       },
       timeout: Timeout(const Duration(minutes: 1)), // double of detault timeout
-    ); 
+    );
   });
 }
 
