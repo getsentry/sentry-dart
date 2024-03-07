@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
-import 'package:sentry/sentry.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/integrations/integrations.dart';
 import 'package:sentry_flutter/src/native/sentry_native.dart';
@@ -390,8 +389,8 @@ void main() {
       when(span.context).thenReturn(SentrySpanContext(operation: 'op'));
       when(span.status).thenReturn(null);
       when(span.startChild('ui.load.initial_display',
-          description: anyNamed('description'),
-          startTimestamp: anyNamed('startTimestamp')))
+              description: anyNamed('description'),
+              startTimestamp: anyNamed('startTimestamp')))
           .thenReturn(NoOpSentrySpan());
       _whenAnyStart(hub, span);
 
@@ -410,41 +409,40 @@ void main() {
     });
 
     test('unfinished children will be finished with cancelled on didPop',
-            () async {
-          final currentRoute = route(RouteSettings(name: 'Current Route'));
+        () async {
+      final currentRoute = route(RouteSettings(name: 'Current Route'));
 
-          final hub = _MockHub();
-          final span = getMockSentryTracer(finished: false) as SentryTracer;
-          final mockChildA = MockSentrySpan();
-          final mockChildB = MockSentrySpan();
-          when(span.children).thenReturn([
-            mockChildB,
-            mockChildA,
-          ]);
-          when(mockChildA.finished).thenReturn(false);
-          when(mockChildB.finished).thenReturn(false);
-          when(span.context).thenReturn(SentrySpanContext(operation: 'op'));
-          when(span.status).thenReturn(null);
-          when(span.startChild('ui.load.initial_display',
+      final hub = _MockHub();
+      final span = getMockSentryTracer(finished: false) as SentryTracer;
+      final mockChildA = MockSentrySpan();
+      final mockChildB = MockSentrySpan();
+      when(span.children).thenReturn([
+        mockChildB,
+        mockChildA,
+      ]);
+      when(mockChildA.finished).thenReturn(false);
+      when(mockChildB.finished).thenReturn(false);
+      when(span.context).thenReturn(SentrySpanContext(operation: 'op'));
+      when(span.status).thenReturn(null);
+      when(span.startChild('ui.load.initial_display',
               description: anyNamed('description'),
               startTimestamp: anyNamed('startTimestamp')))
-              .thenReturn(NoOpSentrySpan());
-          _whenAnyStart(hub, span);
+          .thenReturn(NoOpSentrySpan());
+      _whenAnyStart(hub, span);
 
-          final sut = fixture.getSut(hub: hub);
+      final sut = fixture.getSut(hub: hub);
 
-          // Push to new screen, e.g root to user screen
-          sut.didPush(currentRoute, null);
-          await sut.completedDisplayTracking?.future;
+      // Push to new screen, e.g root to user screen
+      sut.didPush(currentRoute, null);
+      await sut.completedDisplayTracking?.future;
 
-          // Pop back e.g user to root screen
-          sut.didPop(currentRoute, null);
-          await Future<void>.delayed(const Duration(milliseconds: 100));
+      // Pop back e.g user to root screen
+      sut.didPop(currentRoute, null);
+      await Future<void>.delayed(const Duration(milliseconds: 100));
 
-          verify(mockChildA.finish(status: SpanStatus.cancelled())).called(1);
-          verify(mockChildB.finish(status: SpanStatus.cancelled())).called(1);
-        });
-
+      verify(mockChildA.finish(status: SpanStatus.cancelled())).called(1);
+      verify(mockChildB.finish(status: SpanStatus.cancelled())).called(1);
+    });
 
     test('route arguments are set on transaction', () async {
       final arguments = {'foo': 'bar'};
