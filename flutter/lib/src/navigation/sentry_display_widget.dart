@@ -9,7 +9,7 @@ import '../frame_callback_handler.dart';
 /// for the child widget to be initially displayed on the screen. This method
 /// allows a more accurate measurement than what the default TTID implementation
 /// provides. The TTID measurement begins when the route to the widget is pushed and ends
-/// when [WidgetsBinding.instance.addPostFrameCallback] is triggered.
+/// when `addPostFramecallback` is triggered.
 ///
 /// Wrap the widget you want to measure with [SentryDisplayWidget], and ensure that you
 /// have set up Sentry's routing instrumentation according to the Sentry documentation.
