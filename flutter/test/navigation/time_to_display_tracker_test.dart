@@ -3,6 +3,7 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_flutter/src/frame_callback_handler.dart';
 import 'package:sentry_flutter/src/navigation/time_to_display_tracker.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry_flutter/src/navigation/time_to_initial_display_tracker.dart';
@@ -19,7 +20,7 @@ void main() {
   });
 
   tearDown(() {
-    fixture.ttidTracker.clear();
+    fixture.ttidTracker?.clear();
   });
 
   group('time to initial display', () {
@@ -27,35 +28,48 @@ void main() {
       test('matches startTimestamp of transaction', () async {
         final sut = fixture.getSut();
 
-        await sut.trackRegularRouteTTD(fixture.getTransaction(name: '/'),
+        final transaction = fixture.getTransaction(name: '/') as SentryTracer;
+        await sut.trackRegularRouteTTD(transaction,
             startTimestamp: fixture.startTimestamp);
 
-        final transaction = fixture.hub.getSpan() as SentryTracer;
-
-        final spans = transaction.children;
-        final ttidSpan = spans
+        final ttidSpan = transaction.children
             .where((element) =>
-                element.context.operation ==
-                SentrySpanOperations.uiTimeToInitialDisplay)
+        element.context.operation ==
+            SentrySpanOperations.uiTimeToInitialDisplay)
             .first;
-
         expect(transaction, isNotNull);
         expect(transaction.context.operation, SentrySpanOperations.uiLoad);
         expect(transaction.startTimestamp, ttidSpan.startTimestamp);
       });
 
-      test('startMeasurement finishes ttid span', () async {
+      test('trackAppStartTTD finishes ttid span', () async {
         SentryFlutter.native = TestMockSentryNative();
         final sut = fixture.getSut();
         final endTimestamp =
             fixture.startTimestamp.add(const Duration(milliseconds: 10));
 
-        await sut.trackAppStartTTD(fixture.getTransaction(name: '/'),
+        final transaction = fixture.getTransaction(name: '/') as SentryTracer;
+        await sut.trackAppStartTTD(transaction,
             startTimestamp: fixture.startTimestamp, endTimestamp: endTimestamp);
 
-        await Future.delayed(const Duration(milliseconds: 100));
+        final ttidSpan = transaction.children
+            .where((element) =>
+        element.context.operation ==
+            SentrySpanOperations.uiTimeToInitialDisplay)
+            .first;
+        expect(ttidSpan.context.operation,
+            SentrySpanOperations.uiTimeToInitialDisplay);
+        expect(ttidSpan.finished, isTrue);
+        expect(ttidSpan.origin, SentryTraceOrigins.autoUiTimeToDisplay);
+      });
 
-        final transaction = fixture.hub.getSpan() as SentryTracer;
+      test('trackRegularRoute finishes ttid span', () async {
+        SentryFlutter.native = TestMockSentryNative();
+        final sut = fixture.getSut();
+
+        final transaction = fixture.getTransaction() as SentryTracer;
+        await sut.trackRegularRouteTTD(transaction,
+            startTimestamp: fixture.startTimestamp);
 
         final spans = transaction.children;
         expect(transaction.children, hasLength(1));
@@ -69,38 +83,47 @@ void main() {
       test('matches startTimestamp of transaction', () async {
         final sut = fixture.getSut();
 
-        await sut.trackRegularRouteTTD(fixture.getTransaction(),
+        final transaction = fixture.getTransaction() as SentryTracer;
+        await sut.trackRegularRouteTTD(transaction,
             startTimestamp: fixture.startTimestamp);
 
-        final transaction = fixture.hub.getSpan() as SentryTracer;
-
-        final spans = transaction.children;
-        final ttidSpan = spans
+        final ttidSpan = transaction.children
             .where((element) =>
-                element.context.operation ==
-                SentrySpanOperations.uiTimeToInitialDisplay)
+        element.context.operation ==
+            SentrySpanOperations.uiTimeToInitialDisplay)
             .first;
-
         expect(transaction, isNotNull);
         expect(transaction.context.operation, SentrySpanOperations.uiLoad);
         expect(transaction.startTimestamp, ttidSpan.startTimestamp);
       });
 
       group('with approximation strategy', () {
-        test('startMeasurement finishes ttid span', () async {
+        test('trackRegularRouteTTD finishes ttid span', () async {
           final sut = fixture.getSut();
 
-          await sut.trackRegularRouteTTD(fixture.getTransaction(),
+          final transaction = fixture.getTransaction() as SentryTracer;
+          await sut.trackRegularRouteTTD(transaction,
               startTimestamp: fixture.startTimestamp);
 
-          final transaction = fixture.hub.getSpan() as SentryTracer;
-          await Future.delayed(const Duration(milliseconds: 2000));
-
-          final spans = transaction.children;
-          expect(transaction.children, hasLength(1));
-          expect(spans[0].context.operation,
+          final ttidSpan = transaction.children
+              .where((element) =>
+          element.context.operation ==
+              SentrySpanOperations.uiTimeToInitialDisplay)
+              .first;
+          expect(ttidSpan.context.operation,
               SentrySpanOperations.uiTimeToInitialDisplay);
-          expect(spans[0].finished, isTrue);
+          expect(ttidSpan.finished, isTrue);
+          expect(ttidSpan.origin, SentryTraceOrigins.autoUiTimeToDisplay);
+        });
+
+        test('timeout triggered when not completing the tracking', () async {
+          final sut = fixture.getSut(triggerApproximationTimeout: true);
+
+          final transaction = fixture.getTransaction() as SentryTracer;
+          await sut.trackRegularRouteTTD(transaction,
+              startTimestamp: fixture.startTimestamp);
+
+          expect(transaction.children, hasLength(0));
         });
       });
 
@@ -108,16 +131,13 @@ void main() {
         test('finishes ttid span after reporting with manual api', () async {
           final sut = fixture.getSut();
 
-          Future.delayed(const Duration(milliseconds: 100), () {
-            fixture.ttidTracker.markAsManual();
-            fixture.ttidTracker.completeTracking();
+          Future.delayed(const Duration(milliseconds: 1), () {
+            fixture.ttidTracker?.markAsManual();
+            fixture.ttidTracker?.completeTracking();
           });
-          await sut.trackRegularRouteTTD(fixture.getTransaction(),
+          final transaction = fixture.getTransaction() as SentryTracer;
+          await sut.trackRegularRouteTTD(transaction,
               startTimestamp: fixture.startTimestamp);
-
-          final transaction = fixture.hub.getSpan() as SentryTracer;
-
-          await Future.delayed(const Duration(milliseconds: 100));
 
           final ttidSpan = transaction.children
               .where((element) =>
@@ -125,10 +145,21 @@ void main() {
                   SentrySpanOperations.uiTimeToInitialDisplay)
               .first;
           expect(ttidSpan, isNotNull);
-
-          await Future.delayed(const Duration(milliseconds: 100));
-
           expect(ttidSpan.finished, isTrue);
+          expect(ttidSpan.origin, SentryTraceOrigins.manualUiTimeToDisplay);
+        });
+
+        test('timeout triggered when not completing the tracking', () async {
+          final sut = fixture.getSut();
+
+          fixture.ttidTracker?.markAsManual();
+          // Not calling completeTracking() triggers the manual timeout
+
+          final transaction = fixture.getTransaction() as SentryTracer;
+          await sut.trackRegularRouteTTD(transaction,
+              startTimestamp: fixture.startTimestamp);
+
+          expect(transaction.children, hasLength(0));
         });
       });
     });
@@ -139,12 +170,11 @@ void main() {
     final startTimestamp =
         getUtcDateTime().add(const Duration(milliseconds: 100));
 
-    await sut.trackRegularRouteTTD(fixture.getTransaction(),
-        startTimestamp: startTimestamp);
+    final transaction = fixture.getTransaction() as SentryTracer;
+    await sut.trackRegularRouteTTD(transaction, startTimestamp: startTimestamp);
 
-    final transaction = fixture.hub.getSpan();
     expect(transaction, isNotNull);
-    expect(transaction?.context.operation, SentrySpanOperations.uiLoad);
+    expect(transaction.context.operation, SentrySpanOperations.uiLoad);
   });
 }
 
@@ -155,17 +185,18 @@ class Fixture {
     ..tracesSampleRate = 1.0;
 
   late final hub = Hub(options);
-
-  final frameCallbackHandler = FakeFrameCallbackHandler();
-  late final ttidTracker =
-      TimeToInitialDisplayTracker(frameCallbackHandler: frameCallbackHandler);
+  TimeToInitialDisplayTracker? ttidTracker;
 
   ISentrySpan getTransaction({String? name = "Current route"}) {
     return hub.startTransaction(name!, 'ui.load',
         bindToScope: true, startTimestamp: startTimestamp);
   }
 
-  TimeToDisplayTracker getSut() {
+  TimeToDisplayTracker getSut({bool triggerApproximationTimeout = false}) {
+    ttidTracker = TimeToInitialDisplayTracker(
+        frameCallbackHandler: triggerApproximationTimeout
+            ? DefaultFrameCallbackHandler()
+            : FakeFrameCallbackHandler());
     return TimeToDisplayTracker(
       ttidTracker: ttidTracker,
     );

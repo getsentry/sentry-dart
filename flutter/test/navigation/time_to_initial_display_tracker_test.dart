@@ -25,11 +25,11 @@ void main() {
   group('app start', () {
     test('tracking creates and finishes ttid span with correct measurements',
         () async {
-      final transaction =
-          fixture.getTransaction(name: 'root ("/")') as SentryTracer;
       final endTimestamp =
           fixture.startTimestamp.add(const Duration(milliseconds: 10));
 
+      final transaction =
+          fixture.getTransaction(name: 'root ("/")') as SentryTracer;
       await sut.trackAppStart(transaction,
           startTimestamp: fixture.startTimestamp, endTimestamp: endTimestamp);
 
@@ -58,7 +58,6 @@ void main() {
         'approximation tracking creates and finishes ttid span with correct measurements',
         () async {
       final transaction = fixture.getTransaction() as SentryTracer;
-
       await sut.trackRegularRoute(transaction, fixture.startTimestamp);
 
       final children = transaction.children;
@@ -84,12 +83,12 @@ void main() {
     test(
         'manual tracking creates and finishes ttid span with correct measurements',
         () async {
-      final transaction = fixture.getTransaction() as SentryTracer;
-
       sut.markAsManual();
       Future.delayed(fixture.finishFrameAfterDuration, () {
         sut.completeTracking();
       });
+
+      final transaction = fixture.getTransaction() as SentryTracer;
       await sut.trackRegularRoute(transaction, fixture.startTimestamp);
 
       final children = transaction.children;
@@ -113,53 +112,55 @@ void main() {
   });
 
   group('determineEndtime', () {
-    test('can complete with null in approximation mode with timeout', () async {
-      // this test will trigger the timeout
+    test('can complete as null in approximation mode with timeout', () async {
       final futureEndTime = await fixture
-          .getSut(frameCallbackHandler: DefaultFrameCallbackHandler())
+          .getSut(triggerApproximationTimeout: true)
           .determineEndTime();
 
       expect(futureEndTime, null);
     });
 
-    test('can complete automatically in approximation mode', () async {
-      final futureEndTime = sut.determineEndTime();
+    test('can complete as null in manual mode with timeout', () async {
+      final sut = fixture.getSut();
+      sut.markAsManual();
+      // Not calling completeTracking() triggers the manual timeout
 
-      expect(futureEndTime, completes);
+      final futureEndTime = await sut.determineEndTime();
+
+      expect(futureEndTime, null);
     });
 
-    test('prevents automatic completion in manual mode', () async {
-      sut.markAsManual();
-      final futureEndTime = sut.determineEndTime();
+    test('can complete automatically in approximation mode', () async {
+      final futureEndTime = await sut.determineEndTime();
 
-      expect(futureEndTime, doesNotComplete);
+      expect(futureEndTime, isNotNull);
     });
 
     test('can complete manually in manual mode', () async {
       sut.markAsManual();
-      final futureEndTime = sut.determineEndTime();
+      Future<void>.delayed(Duration(milliseconds: 1), () {
+        sut.completeTracking();
+      });
+      final futureEndTime = await sut.determineEndTime();
 
-      sut.completeTracking();
-      expect(futureEndTime, completes);
+      expect(futureEndTime, isNotNull);
     });
 
     test('returns the correct approximation end time', () async {
-      final futureEndTime = sut.determineEndTime();
+      final endTme = await sut.determineEndTime();
 
-      final endTime = await futureEndTime;
-      expect(endTime?.difference(fixture.startTimestamp).inSeconds,
+      expect(endTme?.difference(fixture.startTimestamp).inSeconds,
           fixture.finishFrameAfterDuration.inSeconds);
     });
 
     test('returns the correct manual end time', () async {
       sut.markAsManual();
-      final futureEndTime = sut.determineEndTime();
-
       Future.delayed(fixture.finishFrameAfterDuration, () {
         sut.completeTracking();
       });
 
-      final endTime = await futureEndTime;
+      final endTime = await sut.determineEndTime();
+
       expect(endTime?.difference(fixture.startTimestamp).inSeconds,
           fixture.finishFrameAfterDuration.inSeconds);
     });
@@ -179,9 +180,10 @@ class Fixture {
   }
 
   TimeToInitialDisplayTracker getSut(
-      {FrameCallbackHandler? frameCallbackHandler}) {
-    frameCallbackHandler ??= fakeFrameCallbackHandler;
+      {bool triggerApproximationTimeout = false}) {
     return TimeToInitialDisplayTracker(
-        frameCallbackHandler: frameCallbackHandler);
+        frameCallbackHandler: triggerApproximationTimeout
+            ? DefaultFrameCallbackHandler()
+            : FakeFrameCallbackHandler());
   }
 }
