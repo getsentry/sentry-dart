@@ -12,6 +12,9 @@ import '../../sentry_flutter.dart';
 import '../event_processor/flutter_enricher_event_processor.dart';
 import '../native/sentry_native.dart';
 
+// ignore: implementation_imports
+import 'package:sentry/src/sentry_tracer.dart';
+
 /// This key must be used so that the web interface displays the events nicely
 /// See https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/
 const _navigationKey = 'navigation';
@@ -135,8 +138,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       to: route.settings,
     );
 
-    _finishTimeToDisplayTracking();
-    _startTimeToDisplayTracking(route);
+    _finishThenStartTimeToDisplayTracking(route);
   }
 
   @override
@@ -272,16 +274,27 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     if (transaction == null || transaction.finished) {
       return;
     }
+    for (final child in (transaction as SentryTracer).children) {
+      if (!child.finished) {
+        await child.finish(status: SpanStatus.cancelled());
+      }
+    }
+
     transaction.status ??= SpanStatus.ok();
     await transaction.finish();
   }
 
-  Future<void> _startTimeToDisplayTracking(Route<dynamic>? route) async {
+  Future<void> _finishThenStartTimeToDisplayTracking(Route<dynamic>? route) async {
+    _completedDisplayTracking = Completer<void>();
+
+    // We can await inside this function so we can make sure the previous
+    // tracking is finished before starting a new one.
+    await _finishTimeToDisplayTracking();
+
     if (!_enableAutoTransactions) {
       return;
     }
 
-    _completedDisplayTracking = Completer<void>();
     String? routeName = _currentRouteName;
     if (routeName == null) return;
 
