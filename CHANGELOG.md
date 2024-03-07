@@ -10,6 +10,16 @@
 
 ### Features
 
+- Add TTID (time to initial display), which allows you to measure the time it takes to render the first frame of your screen ([#1910](https://github.com/getsentry/sentry-dart/pull/1910))
+  - Requires using the [routing instrumentation](https://docs.sentry.io/platforms/flutter/integrations/routing-instrumentation/).
+  - Introduces two modes: 
+    - `automatic` mode is enabled by default for all screens and will yield only an approximation result.
+    - `manual` mode requires manual instrumentation and will yield a more accurate result.
+      - To use `manual` mode, you need to wrap your desired widget: `SentryDisplayWidget(child: MyScreen())`.
+    - You can mix and match both modes in your app.
+  - Other significant fixes
+    - `didPop` doesn't trigger a new transaction
+    - Change transaction operation name to `ui.load` instead of `navigation`
 - Use `recordHttpBreadcrumbs` to set iOS `enableNetworkBreadcrumbs` ([#1884](https://github.com/getsentry/sentry-dart/pull/1884))
 - Apply `beforeBreadcrumb` on native iOS crumbs ([#1914](https://github.com/getsentry/sentry-dart/pull/1914))
 - Add `maxQueueSize` to limit the number of unawaited events sent to Sentry ([#1868](https://github.com/getsentry/sentry-dart/pull/1868))

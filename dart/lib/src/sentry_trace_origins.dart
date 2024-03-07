@@ -27,4 +27,6 @@ class SentryTraceOrigins {
   static const autoDbDriftQueryExecutor = 'auto.db.drift.query.executor';
   static const autoDbDriftTransactionExecutor =
       'auto.db.drift.transaction.executor';
+  static const autoUiTimeToDisplay = 'auto.ui.time_to_display';
+  static const manualUiTimeToDisplay = 'manual.ui.time_to_display';
 }
