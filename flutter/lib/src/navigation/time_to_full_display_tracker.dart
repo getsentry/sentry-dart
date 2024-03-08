@@ -46,12 +46,12 @@ class TimeToFullDisplayTracker {
     _ttfdSpan?.origin = SentryTraceOrigins.manualUiTimeToDisplay;
     // Wait for TTFD to finish
     await _completedTTFDTracking.future
-        .timeout(_autoFinishAfter, onTimeout: _handleTimeToFullDisplayTimeout);
+        .timeout(_autoFinishAfter, onTimeout: handleTimeout);
 
     clear();
   }
 
-  void _handleTimeToFullDisplayTimeout() {
+  void handleTimeout() {
     final ttfdSpan = _ttfdSpan;
     final startTimestamp = _startTimestamp;
     final endTimestamp = _endTimestampProvider.endTimestamp;
