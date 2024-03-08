@@ -10,24 +10,12 @@ import 'package:sentry/src/sentry_tracer.dart';
 import '../../sentry_flutter.dart';
 import 'time_to_initial_display_tracker.dart';
 
-/// We need to retrieve the end time stamp in case TTFD timeout is triggered.
-/// In those cases TTFD end time should match TTID end time.
-/// This provider allows us to inject endTimestamps for testing as well.
-@internal
-abstract class EndTimestampProvider {
-  DateTime? get endTimestamp;
-}
-
-@internal
-class TTIDEndTimestampProvider implements EndTimestampProvider {
-  @override
-  DateTime? get endTimestamp => TimeToInitialDisplayTracker().endTimestamp;
-}
-
 @internal
 class TimeToFullDisplayTracker {
   static final TimeToFullDisplayTracker _instance =
       TimeToFullDisplayTracker._();
+
+  TimeToFullDisplayTracker._();
 
   factory TimeToFullDisplayTracker(
       {EndTimestampProvider? endTimestampProvider, Duration? autoFinishAfter}) {
@@ -40,13 +28,12 @@ class TimeToFullDisplayTracker {
     return _instance;
   }
 
-  TimeToFullDisplayTracker._();
-
   DateTime? _startTimestamp;
   ISentrySpan? _ttfdSpan;
-  Timer? _ttfdTimer;
   ISentrySpan? _transaction;
   Duration _autoFinishAfter = const Duration(seconds: 30);
+
+  // End timestamp provider is only needed when the TTFD timeout is triggered
   EndTimestampProvider _endTimestampProvider = TTIDEndTimestampProvider();
   Completer<void> _completedTTFDTracking = Completer<void>();
 
@@ -57,8 +44,9 @@ class TimeToFullDisplayTracker {
         description: '${transaction.name} full display',
         startTimestamp: startTimestamp);
     _ttfdSpan?.origin = SentryTraceOrigins.manualUiTimeToDisplay;
-    _ttfdTimer = Timer(_autoFinishAfter, handleTimeToFullDisplayTimeout);
-    await _completedTTFDTracking.future;
+    // Wait for TTFD to finish
+    await _completedTTFDTracking.future
+        .timeout(_autoFinishAfter, onTimeout: handleTimeToFullDisplayTimeout);
 
     clear();
   }
@@ -84,7 +72,6 @@ class TimeToFullDisplayTracker {
   }
 
   Future<void> reportFullyDisplayed() async {
-    _ttfdTimer?.cancel();
     final endTimestamp = getUtcDateTime();
     final startTimestamp = _startTimestamp;
     final ttfdSpan = _ttfdSpan;
@@ -110,8 +97,21 @@ class TimeToFullDisplayTracker {
   void clear() {
     _startTimestamp = null;
     _ttfdSpan = null;
-    _ttfdTimer = null;
     _transaction = null;
-    _completedTTFDTracking = Completer<void>();
+    _completedTTFDTracking = Completer();
   }
+}
+
+/// We need to retrieve the end time stamp in case TTFD timeout is triggered.
+/// In those cases TTFD end time should match TTID end time.
+/// This provider allows us to inject endTimestamps for testing as well.
+@internal
+abstract class EndTimestampProvider {
+  DateTime? get endTimestamp;
+}
+
+@internal
+class TTIDEndTimestampProvider implements EndTimestampProvider {
+  @override
+  DateTime? get endTimestamp => TimeToInitialDisplayTracker().endTimestamp;
 }

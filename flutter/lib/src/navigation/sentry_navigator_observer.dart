@@ -119,7 +119,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   @internal
   static String? get currentRouteName => _currentRouteName;
 
-  Completer<void>? _completedDisplayTracking;
+  Completer<void>? _completedDisplayTracking = Completer();
 
   // Since didPush does not have a future, we can keep track of when the display tracking has finished
   @visibleForTesting
@@ -273,6 +273,9 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       if (transaction == null || transaction.finished) {
         return;
       }
+
+      // Cancel unfinished child spans, e.g this might happen if the user navigates
+      // away from the current route before TTFD or TTID is finished.
       for (final child in (transaction as SentryTracer).children) {
         if (!child.finished) {
           await child.finish(status: SpanStatus.cancelled());
@@ -281,6 +284,13 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
 
       transaction.status ??= SpanStatus.ok();
       await transaction.finish();
+    } catch (exception, stacktrace) {
+      _hub.options.logger(
+        SentryLevel.error,
+        'Error while finishing time to display tracking',
+        exception: exception,
+        stackTrace: stacktrace,
+      );
     } finally {
       _clear();
     }
@@ -288,8 +298,6 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
 
   Future<void> _finishThenStartTimeToDisplayTracking(
       Route<dynamic>? route) async {
-    _completedDisplayTracking = Completer<void>();
-
     try {
       // We can await inside this function so we can make sure the previous
       // tracking is finished before starting a new one.
@@ -323,6 +331,13 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
         await _timeToDisplayTracker?.trackRegularRouteTTD(transaction,
             startTimestamp: startTimestamp);
       }
+    } catch (exception, stacktrace) {
+      _hub.options.logger(
+        SentryLevel.error,
+        'Error while tracking time to display',
+        exception: exception,
+        stackTrace: stacktrace,
+      );
     } finally {
       _clear();
     }
@@ -332,7 +347,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     if (_completedDisplayTracking?.isCompleted == false) {
       _completedDisplayTracking?.complete();
     }
-    _completedDisplayTracking = null;
+    _completedDisplayTracking = Completer();
     _timeToDisplayTracker?.clear();
   }
 }

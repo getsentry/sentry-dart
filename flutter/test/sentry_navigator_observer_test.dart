@@ -106,8 +106,7 @@ void main() {
         actualTransaction = scope.span as SentryTracer;
       });
 
-      await sut.completedDisplayTracking?.future;
-
+      // Wait for the transaction to finish the async native frame fetching
       await Future<void>.delayed(Duration(milliseconds: 1500));
 
       expect(mockNativeChannel.numberOfEndNativeFramesCalls, 1);

@@ -14,11 +14,12 @@ void main() {
     fixture = Fixture();
   });
 
-  test('reportFullyDisplayed() finishes TTFD span', () async {
+  test('reportFullyDisplayed() finishes span', () async {
     final sut = fixture.getSut();
     final transaction = fixture.getTransaction() as SentryTracer;
+    const finishAfterDuration = Duration(seconds: 1);
 
-    Future<void>.delayed(const Duration(seconds: 1), () {
+    Future<void>.delayed(finishAfterDuration, () {
       sut.reportFullyDisplayed();
     });
 
@@ -31,10 +32,14 @@ void main() {
     expect(ttfdSpan.finished, isTrue);
     expect(ttfdSpan.context.description, equals('Current route full display'));
     expect(ttfdSpan.origin, equals(SentryTraceOrigins.manualUiTimeToDisplay));
+    expect(ttfdSpan.startTimestamp, equals(fixture.startTimestamp));
+    // asserting milliseconds won't work so we only care that it's within `finishAfterDuration` second
+    expect(ttfdSpan.endTimestamp?.second,
+        fixture.startTimestamp.add(finishAfterDuration).second);
   });
 
   test(
-      'TTFD span finishes automatically after timeout with correct status and end time',
+      'span finishes automatically after timeout with deadline_exceeded status',
       () async {
     final sut =
         fixture.getSut(endTimestampProvider: fixture.endTimestampProvider);
