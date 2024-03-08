@@ -172,7 +172,8 @@ void main() {
           'finishes span after timeout with deadline exceeded and ttid matching end time',
           () async {
         final sut = fixture.getSut();
-        final transaction = fixture.getTransaction() as SentryTracer;
+        final transaction =
+            fixture.getTransaction(name: 'root ("/")') as SentryTracer;
         final endTimestamp =
             fixture.startTimestamp.add(const Duration(milliseconds: 10));
 

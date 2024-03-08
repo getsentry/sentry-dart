@@ -313,9 +313,11 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
         return;
       }
 
+      bool isAppStart = routeName == '/';
       DateTime startTimestamp = _hub.options.clock();
       DateTime? endTimestamp;
-      if (routeName == '/') {
+
+      if (isAppStart) {
         final appStartInfo = await NativeAppStartIntegration.getAppStartInfo();
         if (appStartInfo == null) return;
 
@@ -329,7 +331,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
         return;
       }
 
-      if (routeName == '/' && endTimestamp != null) {
+      if (isAppStart && endTimestamp != null) {
         await _timeToDisplayTracker?.trackAppStartTTD(transaction,
             startTimestamp: startTimestamp, endTimestamp: endTimestamp);
       } else {

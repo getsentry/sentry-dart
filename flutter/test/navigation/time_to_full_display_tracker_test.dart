@@ -35,9 +35,11 @@ void main() {
     expect(ttfdSpan.startTimestamp, equals(fixture.startTimestamp));
 
     // Ensure endTimestamp is within an acceptable range
-    final expectedEndTimestamp = fixture.startTimestamp.add(finishAfterDuration);
+    final expectedEndTimestamp =
+        fixture.startTimestamp.add(finishAfterDuration);
     final actualEndTimestamp = ttfdSpan.endTimestamp!;
-    final differenceInSeconds = actualEndTimestamp.difference(expectedEndTimestamp).inSeconds.abs();
+    final differenceInSeconds =
+        actualEndTimestamp.difference(expectedEndTimestamp).inSeconds.abs();
     expect(differenceInSeconds, lessThanOrEqualTo(1));
   });
 
