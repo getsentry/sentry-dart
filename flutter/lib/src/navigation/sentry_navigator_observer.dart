@@ -286,47 +286,50 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
 
   Future<void> _finishThenStartTimeToDisplayTracking(
       Route<dynamic>? route) async {
-    // We can await inside this function so we can make sure the previous
-    // tracking is finished before starting a new one.
-    await _finishTimeToDisplayTracking();
-
-    if (!_enableAutoTransactions) {
-      return;
-    }
-
     _completedDisplayTracking = Completer<void>();
-    String? routeName = _currentRouteName;
-    if (routeName == null) return;
 
-    DateTime startTimestamp = _hub.options.clock();
-    DateTime? endTimestamp;
+    try {
+      // We can await inside this function so we can make sure the previous
+      // tracking is finished before starting a new one.
+      await _finishTimeToDisplayTracking();
 
-    if (routeName == '/') {
-      final appStartInfo = await NativeAppStartIntegration.getAppStartInfo();
-      if (appStartInfo == null) {
+      final routeName = _getRouteName(route);
+      if (!_enableAutoTransactions || routeName == null) {
         return;
       }
 
-      startTimestamp = appStartInfo.start;
-      endTimestamp = appStartInfo.end;
-    }
+      DateTime startTimestamp = _hub.options.clock();
+      DateTime? endTimestamp;
+      if (routeName == '/') {
+        final appStartInfo = await NativeAppStartIntegration.getAppStartInfo();
+        if (appStartInfo == null) return;
 
-    await _startTransaction(route, startTimestamp);
-    final transaction = _transaction;
-    if (transaction == null) {
-      return;
-    }
+        startTimestamp = appStartInfo.start;
+        endTimestamp = appStartInfo.end;
+      }
 
-    if (routeName == '/' && endTimestamp != null) {
-      await _timeToDisplayTracker?.trackAppStartTTD(transaction,
-          startTimestamp: startTimestamp, endTimestamp: endTimestamp);
-    } else {
-      await _timeToDisplayTracker?.trackRegularRouteTTD(transaction,
-          startTimestamp: startTimestamp);
-    }
+      await _startTransaction(route, startTimestamp);
+      final transaction = _transaction;
+      if (transaction == null) {
+        return;
+      }
 
-    // Mark the tracking as completed and clear any temporary state.
-    _completedDisplayTracking?.complete();
+      if (routeName == '/' && endTimestamp != null) {
+        await _timeToDisplayTracker?.trackAppStartTTD(transaction,
+            startTimestamp: startTimestamp, endTimestamp: endTimestamp);
+      } else {
+        await _timeToDisplayTracker?.trackRegularRouteTTD(transaction,
+            startTimestamp: startTimestamp);
+      }
+    } finally {
+      _clear();
+    }
+  }
+
+  void _clear() {
+    if (_completedDisplayTracking?.isCompleted == false) {
+      _completedDisplayTracking?.complete();
+    }
     _completedDisplayTracking = null;
     _timeToDisplayTracker?.clear();
   }
