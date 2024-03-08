@@ -267,21 +267,23 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   }
 
   Future<void> _finishTimeToDisplayTracking() async {
-    _timeToDisplayTracker?.clear();
-
-    final transaction = _transaction;
-    _transaction = null;
-    if (transaction == null || transaction.finished) {
-      return;
-    }
-    for (final child in (transaction as SentryTracer).children) {
-      if (!child.finished) {
-        await child.finish(status: SpanStatus.cancelled());
+    try {
+      final transaction = _transaction;
+      _transaction = null;
+      if (transaction == null || transaction.finished) {
+        return;
       }
-    }
+      for (final child in (transaction as SentryTracer).children) {
+        if (!child.finished) {
+          await child.finish(status: SpanStatus.cancelled());
+        }
+      }
 
-    transaction.status ??= SpanStatus.ok();
-    await transaction.finish();
+      transaction.status ??= SpanStatus.ok();
+      await transaction.finish();
+    } finally {
+      _clear();
+    }
   }
 
   Future<void> _finishThenStartTimeToDisplayTracking(
