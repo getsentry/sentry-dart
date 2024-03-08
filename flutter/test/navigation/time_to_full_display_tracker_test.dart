@@ -33,9 +33,12 @@ void main() {
     expect(ttfdSpan.context.description, equals('Current route full display'));
     expect(ttfdSpan.origin, equals(SentryTraceOrigins.manualUiTimeToDisplay));
     expect(ttfdSpan.startTimestamp, equals(fixture.startTimestamp));
-    // asserting milliseconds won't work so we only care that it's within `finishAfterDuration` second
-    expect(ttfdSpan.endTimestamp?.second,
-        fixture.startTimestamp.add(finishAfterDuration).second);
+
+    // Ensure endTimestamp is within an acceptable range
+    final expectedEndTimestamp = fixture.startTimestamp.add(finishAfterDuration);
+    final actualEndTimestamp = ttfdSpan.endTimestamp!;
+    final differenceInSeconds = actualEndTimestamp.difference(expectedEndTimestamp).inSeconds.abs();
+    expect(differenceInSeconds, lessThanOrEqualTo(1));
   });
 
   test(
