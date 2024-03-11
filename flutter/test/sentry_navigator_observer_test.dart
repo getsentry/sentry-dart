@@ -219,7 +219,7 @@ void main() {
       final sut = fixture.getSut(hub: hub);
 
       sut.didPush(currentRoute, null);
-      await sut.completedDisplayTracking?.future;
+      await Future<void>.delayed(const Duration(milliseconds: 100));
 
       verifyNever(hub.startTransactionWithContext(
         any,
