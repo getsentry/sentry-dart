@@ -70,10 +70,28 @@ void main() {
       expect(eventCall.contexts.response, isNull);
     });
 
-    test('event not reported if disabled', () async {
+    test('exception does not gets reported if client throws but override disables capture', () async {
+      fixture._hub.options.captureFailedRequests = true;
+      fixture._hub.options.sendDefaultPii = true;
+
       final sut = fixture.getSut(
         client: createThrowingClient(),
         captureFailedRequests: false,
+      );
+
+      await expectLater(
+            () async => await sut.get(requestUri, headers: {'Cookie': 'foo=bar'}),
+        throwsException,
+      );
+
+      expect(fixture.transport.calls, 0);
+    });
+
+    test('event not reported if disabled', () async {
+      fixture._hub.options.captureFailedRequests = false;
+
+      final sut = fixture.getSut(
+        client: createThrowingClient(),
       );
 
       await expectLater(
@@ -84,10 +102,27 @@ void main() {
       expect(fixture.transport.calls, 0);
     });
 
+    test('event reported if disabled but overridden', () async {
+      fixture._hub.options.captureFailedRequests = false;
+
+      final sut = fixture.getSut(
+        client: createThrowingClient(),
+        captureFailedRequests: true,
+      );
+
+      await expectLater(
+            () async => await sut.get(requestUri, headers: {'Cookie': 'foo=bar'}),
+        throwsException,
+      );
+
+      expect(fixture.transport.calls, 1);
+    });
+
     test('event not reported if not within the targets', () async {
+      fixture._hub.options.captureFailedRequests = true;
+
       final sut = fixture.getSut(
           client: fixture.getClient(statusCode: 500),
-          captureFailedRequests: true,
           failedRequestTargets: const ["myapi.com"]);
 
       final response = await sut.get(requestUri);
@@ -335,16 +370,16 @@ class Fixture {
     List<SentryStatusCode> failedRequestStatusCodes = const [
       SentryStatusCode.defaultRange()
     ],
-    bool captureFailedRequests = true,
     List<String> failedRequestTargets = const [".*"],
+    bool? captureFailedRequests,
   }) {
     final mc = client ?? getClient();
-    _hub.options.captureFailedRequests = captureFailedRequests;
     return FailedRequestClient(
       client: mc,
       hub: _hub,
       failedRequestStatusCodes: failedRequestStatusCodes,
       failedRequestTargets: failedRequestTargets,
+      captureFailedRequests: captureFailedRequests
     );
   }
 
