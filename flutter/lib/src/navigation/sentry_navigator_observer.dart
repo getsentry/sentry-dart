@@ -268,7 +268,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     }
 
     await _hub.configureScope((scope) {
-      scope.span = _transaction;
+      scope.span ??= _transaction;
     });
 
     await _native?.beginNativeFramesCollection();
@@ -279,7 +279,9 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     _transaction = null;
     try {
       _hub.configureScope((scope) {
-        scope.span = null;
+        if (scope.span == transaction) {
+          scope.span = null;
+        }
       });
 
       if (transaction == null || transaction.finished) {
