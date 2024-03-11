@@ -94,8 +94,8 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   }
 
   /// Initializes the TimeToDisplayTracker with the option to enable time to full display tracing.
-  TimeToDisplayTracker _initializeTimeToDisplayTracker(
-      {bool enableTimeToFullDisplayTracing = false}) {
+  TimeToDisplayTracker _initializeTimeToDisplayTracker() {
+    bool enableTimeToFullDisplayTracing = false;
     final options = _hub.options;
     if (options is SentryFlutterOptions) {
       enableTimeToFullDisplayTracing = options.enableTimeToFullDisplayTracing;
@@ -111,11 +111,11 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   final RouteNameExtractor? _routeNameExtractor;
   final AdditionalInfoExtractor? _additionalInfoProvider;
   final SentryNative? _native;
-  late final TimeToDisplayTracker? _timeToDisplayTracker;
+  static TimeToDisplayTracker? _timeToDisplayTracker;
 
   @internal
   static TimeToDisplayTracker? get timeToDisplayTracker =>
-      SentryNavigatorObserver()._timeToDisplayTracker;
+      _timeToDisplayTracker;
 
   ISentrySpan? _transaction;
 
@@ -274,21 +274,30 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   Future<void> _finishTimeToDisplayTracking() async {
     try {
       final transaction = _transaction;
-      _transaction = null;
       if (transaction == null || transaction.finished) {
         return;
       }
 
-      // Cancel unfinished child spans, e.g this might happen if the user navigates
+      print('haha');
+      // Cancel unfinished TTID/TTFD spans, e.g this might happen if the user navigates
       // away from the current route before TTFD or TTID is finished.
       for (final child in (transaction as SentryTracer).children) {
-        if (!child.finished) {
-          await child.finish(status: SpanStatus.cancelled());
+        final isTTIDSpan = child.context.operation ==
+            SentrySpanOperations.uiTimeToInitialDisplay;
+        final isTTFDSpan = child.context.operation ==
+            SentrySpanOperations.uiTimeToFullDisplay;
+        if (!child.finished && (isTTIDSpan || isTTFDSpan)) {
+          await child.finish(status: SpanStatus.deadlineExceeded());
         }
       }
 
-      transaction.status ??= SpanStatus.ok();
-      await transaction.finish();
+      print('ha');
+
+      // Let the transaction finish in the background
+      _hub.configureScope((scope) {
+        scope.span = null;
+      });
+      print('hlal');
     } catch (exception, stacktrace) {
       _hub.options.logger(
         SentryLevel.error,
@@ -351,6 +360,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   }
 
   void _clear() {
+    _transaction = null;
     if (_completedDisplayTracking?.isCompleted == false) {
       _completedDisplayTracking?.complete();
     }
