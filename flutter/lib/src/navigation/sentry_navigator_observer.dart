@@ -143,6 +143,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       to: route.settings,
     );
 
+    _finishTimeToDisplayTracking();
     _finishThenStartTimeToDisplayTracking(route);
   }
 
@@ -271,7 +272,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     await _native?.beginNativeFramesCollection();
   }
 
-  Future<void> _finishTimeToDisplayTracking() async {
+  void _finishTimeToDisplayTracking() {
     try {
       final transaction = _transaction;
       if (transaction == null || transaction.finished) {
@@ -286,7 +287,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
         final isTTFDSpan =
             child.context.operation == SentrySpanOperations.uiTimeToFullDisplay;
         if (!child.finished && (isTTIDSpan || isTTFDSpan)) {
-          await child.finish(status: SpanStatus.deadlineExceeded());
+          child.finish(status: SpanStatus.deadlineExceeded());
         }
       }
     } catch (exception, stacktrace) {
@@ -298,9 +299,10 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       );
     } finally {
       // Let the transaction finish in the background
-      await _hub.configureScope((scope) {
+      _hub.configureScope((scope) {
         scope.span = null;
       });
+      _transaction?.finish();
 
       _clear();
     }
@@ -309,10 +311,6 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   Future<void> _finishThenStartTimeToDisplayTracking(
       Route<dynamic>? route) async {
     try {
-      // We can await inside this function so we can make sure the previous
-      // tracking is finished before starting a new one.
-      await _finishTimeToDisplayTracking();
-
       final routeName = _getRouteName(route);
       if (!_enableAutoTransactions || routeName == null) {
         return;
