@@ -264,41 +264,6 @@ void main() {
       });
     });
 
-    test('do not bind to scope if already set', () async {
-      final currentRoute = route(RouteSettings(name: 'Current Route'));
-
-      final hub = _MockHub();
-      hub.scope.span = NoOpSentrySpan();
-
-      final span = getMockSentryTracer();
-      when(span.context).thenReturn(SentrySpanContext(operation: 'op'));
-      when(span.finished).thenReturn(false);
-      when(span.status).thenReturn(SpanStatus.ok());
-      when(span.startChild('ui.load.initial_display',
-              description: anyNamed('description'),
-              startTimestamp: anyNamed('startTimestamp')))
-          .thenReturn(NoOpSentrySpan());
-      _whenAnyStart(hub, span);
-
-      final sut = fixture.getSut(hub: hub);
-
-      sut.didPush(currentRoute, null);
-      await sut.completedDisplayTracking?.future;
-
-      verify(hub.startTransactionWithContext(
-        any,
-        startTimestamp: anyNamed('startTimestamp'),
-        waitForChildren: true,
-        autoFinishAfter: anyNamed('autoFinishAfter'),
-        trimEnd: true,
-        onFinish: anyNamed('onFinish'),
-      ));
-
-      hub.configureScope((scope) {
-        expect(scope.span, NoOpSentrySpan());
-      });
-    });
-
     test('didPush finishes previous transaction', () async {
       final firstRoute = route(RouteSettings(name: 'First Route'));
       final secondRoute = route(RouteSettings(name: 'Second Route'));
@@ -322,8 +287,9 @@ void main() {
 
       sut.didPush(secondRoute, firstRoute);
 
-      verify(span.status = SpanStatus.ok());
-      verify(span.finish());
+      hub.configureScope((scope) {
+        expect(scope.span, null);
+      });
     });
 
     test('didPop finishes transaction', () async {
@@ -347,12 +313,14 @@ void main() {
       await sut.completedDisplayTracking?.future;
 
       sut.didPop(currentRoute, null);
+      await sut.completedDisplayTracking?.future;
 
-      verify(span.status = SpanStatus.ok());
-      verify(span.finish());
+      hub.configureScope((scope) {
+        expect(scope.span, null);
+      });
     });
 
-    test('multiple didPop only finish transaction once', () async {
+    test('multiple didPop sets the transaction on scope to null', () async {
       final currentRoute = route(RouteSettings(name: 'Current Route'));
 
       final hub = _MockHub();
@@ -374,10 +342,13 @@ void main() {
       sut.didPop(currentRoute, null);
       sut.didPop(currentRoute, null);
 
-      verify(span.finish()).called(1);
+      hub.configureScope((scope) {
+        expect(scope.span, null);
+      });
     });
 
-    test('unfinished children will be finished with cancelled on didPush',
+    test(
+        'unfinished children will be finished with deadline_exceeded on didPush',
         () async {
       final currentRoute = route(RouteSettings(name: 'Current Route'));
 
@@ -391,6 +362,10 @@ void main() {
       ]);
       when(mockChildA.finished).thenReturn(false);
       when(mockChildB.finished).thenReturn(false);
+      when(mockChildA.context).thenReturn(SentrySpanContext(
+          operation: SentrySpanOperations.uiTimeToInitialDisplay));
+      when(mockChildB.context).thenReturn(SentrySpanContext(
+          operation: SentrySpanOperations.uiTimeToFullDisplay));
       when(span.context).thenReturn(SentrySpanContext(operation: 'op'));
       when(span.status).thenReturn(null);
       when(span.startChild('ui.load.initial_display',
@@ -409,11 +384,14 @@ void main() {
       sut.didPush(currentRoute, null);
       await sut.completedDisplayTracking?.future;
 
-      verify(mockChildA.finish(status: SpanStatus.cancelled())).called(1);
-      verify(mockChildB.finish(status: SpanStatus.cancelled())).called(1);
+      verify(mockChildA.finish(status: SpanStatus.deadlineExceeded()))
+          .called(1);
+      verify(mockChildB.finish(status: SpanStatus.deadlineExceeded()))
+          .called(1);
     });
 
-    test('unfinished children will be finished with cancelled on didPop',
+    test(
+        'unfinished children will be finished with deadline_exceeded on didPop',
         () async {
       final currentRoute = route(RouteSettings(name: 'Current Route'));
 
@@ -427,6 +405,10 @@ void main() {
       ]);
       when(mockChildA.finished).thenReturn(false);
       when(mockChildB.finished).thenReturn(false);
+      when(mockChildA.context).thenReturn(SentrySpanContext(
+          operation: SentrySpanOperations.uiTimeToInitialDisplay));
+      when(mockChildB.context).thenReturn(SentrySpanContext(
+          operation: SentrySpanOperations.uiTimeToFullDisplay));
       when(span.context).thenReturn(SentrySpanContext(operation: 'op'));
       when(span.status).thenReturn(null);
       when(span.startChild('ui.load.initial_display',
@@ -445,8 +427,10 @@ void main() {
       sut.didPop(currentRoute, null);
       await sut.completedDisplayTracking?.future;
 
-      verify(mockChildA.finish(status: SpanStatus.cancelled())).called(1);
-      verify(mockChildB.finish(status: SpanStatus.cancelled())).called(1);
+      verify(mockChildA.finish(status: SpanStatus.deadlineExceeded()))
+          .called(1);
+      verify(mockChildB.finish(status: SpanStatus.deadlineExceeded()))
+          .called(1);
     });
 
     test('route arguments are set on transaction', () async {

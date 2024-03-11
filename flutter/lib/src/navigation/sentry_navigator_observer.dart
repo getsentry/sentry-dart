@@ -278,26 +278,17 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
         return;
       }
 
-      print('haha');
       // Cancel unfinished TTID/TTFD spans, e.g this might happen if the user navigates
       // away from the current route before TTFD or TTID is finished.
       for (final child in (transaction as SentryTracer).children) {
         final isTTIDSpan = child.context.operation ==
             SentrySpanOperations.uiTimeToInitialDisplay;
-        final isTTFDSpan = child.context.operation ==
-            SentrySpanOperations.uiTimeToFullDisplay;
+        final isTTFDSpan =
+            child.context.operation == SentrySpanOperations.uiTimeToFullDisplay;
         if (!child.finished && (isTTIDSpan || isTTFDSpan)) {
           await child.finish(status: SpanStatus.deadlineExceeded());
         }
       }
-
-      print('ha');
-
-      // Let the transaction finish in the background
-      _hub.configureScope((scope) {
-        scope.span = null;
-      });
-      print('hlal');
     } catch (exception, stacktrace) {
       _hub.options.logger(
         SentryLevel.error,
@@ -306,6 +297,11 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
         stackTrace: stacktrace,
       );
     } finally {
+      // Let the transaction finish in the background
+      await _hub.configureScope((scope) {
+        scope.span = null;
+      });
+
       _clear();
     }
   }
