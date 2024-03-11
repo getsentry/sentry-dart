@@ -272,7 +272,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     await _native?.beginNativeFramesCollection();
   }
 
-  void _finishTimeToDisplayTracking() {
+  Future<void> _finishTimeToDisplayTracking() async {
     try {
       final transaction = _transaction;
       if (transaction == null || transaction.finished) {
@@ -287,7 +287,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
         final isTTFDSpan =
             child.context.operation == SentrySpanOperations.uiTimeToFullDisplay;
         if (!child.finished && (isTTIDSpan || isTTFDSpan)) {
-          child.finish(status: SpanStatus.deadlineExceeded());
+          await child.finish(status: SpanStatus.deadlineExceeded());
         }
       }
     } catch (exception, stacktrace) {
@@ -302,7 +302,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       _hub.configureScope((scope) {
         scope.span = null;
       });
-      _transaction?.finish();
+      await _transaction?.finish();
 
       _clear();
     }
