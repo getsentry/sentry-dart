@@ -49,7 +49,7 @@ void main() {
 
       final sut = fixture.getSut(
         client: createThrowingClient(),
-          captureFailedRequests: true,
+        captureFailedRequests: true,
       );
 
       await expectLater(() async => await sut.get(requestUri), throwsException);
@@ -75,7 +75,9 @@ void main() {
       expect(fixture.hub.addBreadcrumbCalls.length, 1);
     });
 
-    test('no captured event with when enabling $FailedRequestClient with override', () async {
+    test(
+        'no captured event with when enabling $FailedRequestClient with override',
+        () async {
       fixture.hub.options.captureFailedRequests = true;
       final sut = fixture.getSut(
         client: createThrowingClient(),

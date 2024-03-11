@@ -70,7 +70,9 @@ void main() {
       expect(eventCall.contexts.response, isNull);
     });
 
-    test('exception does not gets reported if client throws but override disables capture', () async {
+    test(
+        'exception does not gets reported if client throws but override disables capture',
+        () async {
       fixture._hub.options.captureFailedRequests = true;
       fixture._hub.options.sendDefaultPii = true;
 
@@ -80,7 +82,7 @@ void main() {
       );
 
       await expectLater(
-            () async => await sut.get(requestUri, headers: {'Cookie': 'foo=bar'}),
+        () async => await sut.get(requestUri, headers: {'Cookie': 'foo=bar'}),
         throwsException,
       );
 
@@ -111,7 +113,7 @@ void main() {
       );
 
       await expectLater(
-            () async => await sut.get(requestUri, headers: {'Cookie': 'foo=bar'}),
+        () async => await sut.get(requestUri, headers: {'Cookie': 'foo=bar'}),
         throwsException,
       );
 
@@ -375,12 +377,11 @@ class Fixture {
   }) {
     final mc = client ?? getClient();
     return FailedRequestClient(
-      client: mc,
-      hub: _hub,
-      failedRequestStatusCodes: failedRequestStatusCodes,
-      failedRequestTargets: failedRequestTargets,
-      captureFailedRequests: captureFailedRequests
-    );
+        client: mc,
+        hub: _hub,
+        failedRequestStatusCodes: failedRequestStatusCodes,
+        failedRequestTargets: failedRequestTargets,
+        captureFailedRequests: captureFailedRequests);
   }
 
   MockClient getClient(

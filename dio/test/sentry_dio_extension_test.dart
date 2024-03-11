@@ -49,7 +49,9 @@ void main() {
       );
     });
 
-    test('addSentry adds $FailedRequestInterceptor if captureFailedRequests true', () {
+    test(
+        'addSentry adds $FailedRequestInterceptor if captureFailedRequests true',
+        () {
       final dio = fixture.getSut();
 
       fixture.hub.options.captureFailedRequests = true;
@@ -57,14 +59,14 @@ void main() {
       dio.addSentry(hub: fixture.hub);
 
       expect(
-        dio.interceptors
-            .whereType<FailedRequestInterceptor>()
-            .length,
+        dio.interceptors.whereType<FailedRequestInterceptor>().length,
         1,
       );
     });
 
-    test('addSentry does not add $FailedRequestInterceptor if captureFailedRequests false', () {
+    test(
+        'addSentry does not add $FailedRequestInterceptor if captureFailedRequests false',
+        () {
       final dio = fixture.getSut();
 
       fixture.hub.options.captureFailedRequests = false;
@@ -72,9 +74,7 @@ void main() {
       dio.addSentry(hub: fixture.hub);
 
       expect(
-        dio.interceptors
-            .whereType<FailedRequestInterceptor>()
-            .length,
+        dio.interceptors.whereType<FailedRequestInterceptor>().length,
         0,
       );
     });
@@ -87,14 +87,13 @@ void main() {
       dio.addSentry(hub: fixture.hub, captureFailedRequests: true);
 
       expect(
-        dio.interceptors
-            .whereType<FailedRequestInterceptor>()
-            .length,
+        dio.interceptors.whereType<FailedRequestInterceptor>().length,
         1,
       );
     });
 
-    test('addSentry does not add $FailedRequestInterceptor if override false', () {
+    test('addSentry does not add $FailedRequestInterceptor if override false',
+        () {
       final dio = fixture.getSut();
 
       fixture.hub.options.captureFailedRequests = true;
@@ -102,9 +101,7 @@ void main() {
       dio.addSentry(hub: fixture.hub, captureFailedRequests: false);
 
       expect(
-        dio.interceptors
-            .whereType<FailedRequestInterceptor>()
-            .length,
+        dio.interceptors.whereType<FailedRequestInterceptor>().length,
         0,
       );
     });

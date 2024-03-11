@@ -27,7 +27,8 @@ class FailedRequestInterceptor extends Interceptor {
     ErrorInterceptorHandler handler,
   ) async {
     // ignore: invalid_use_of_internal_member
-    final captureFailedRequests = _captureFailedRequests ?? _hub.options.captureFailedRequests;
+    final captureFailedRequests =
+        _captureFailedRequests ?? _hub.options.captureFailedRequests;
     final containsStatusCode =
         _failedRequestStatusCodes.containsStatusCode(err.response?.statusCode);
     final containsRequestTarget = containsTargetOrMatchesRegExp(
