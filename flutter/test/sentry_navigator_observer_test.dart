@@ -248,7 +248,6 @@ void main() {
       final sut = fixture.getSut(hub: hub, enableAutoTransactions: false);
 
       sut.didPush(currentRoute, null);
-      await sut.completedDisplayTracking?.future;
 
       verifyNever(hub.startTransactionWithContext(
         any,
@@ -283,13 +282,14 @@ void main() {
       final sut = fixture.getSut(hub: hub);
 
       sut.didPush(firstRoute, null);
-      await sut.completedDisplayTracking?.future;
-
       sut.didPush(secondRoute, firstRoute);
+      sut.didPop(secondRoute, null);
 
       hub.configureScope((scope) {
         expect(scope.span, null);
       });
+
+      verify(span.finish()).called(2);
     });
 
     test('didPop finishes transaction', () async {
@@ -310,17 +310,16 @@ void main() {
       final sut = fixture.getSut(hub: hub);
 
       sut.didPush(currentRoute, null);
-      await sut.completedDisplayTracking?.future;
-
       sut.didPop(currentRoute, null);
-      await sut.completedDisplayTracking?.future;
 
       hub.configureScope((scope) {
         expect(scope.span, null);
       });
+
+      verify(span.finish()).called(1);
     });
 
-    test('multiple didPop sets the transaction on scope to null', () async {
+    test('multiple didPop only finish transaction once', () async {
       final currentRoute = route(RouteSettings(name: 'Current Route'));
 
       final hub = _MockHub();
@@ -345,6 +344,8 @@ void main() {
       hub.configureScope((scope) {
         expect(scope.span, null);
       });
+
+      verify(span.finish()).called(1);
     });
 
     test(
@@ -378,11 +379,11 @@ void main() {
 
       // Push to new screen, e.g app start / root screen
       sut.didPush(currentRoute, null);
-      await sut.completedDisplayTracking?.future;
 
       // Push to screen e.g root to user screen
       sut.didPush(currentRoute, null);
-      await sut.completedDisplayTracking?.future;
+
+      await Future<void>.delayed(const Duration(milliseconds: 100));
 
       verify(mockChildA.finish(status: SpanStatus.deadlineExceeded()))
           .called(1);
@@ -421,11 +422,11 @@ void main() {
 
       // Push to new screen, e.g root to user screen
       sut.didPush(currentRoute, null);
-      await sut.completedDisplayTracking?.future;
 
       // Pop back e.g user to root screen
       sut.didPop(currentRoute, null);
-      await sut.completedDisplayTracking?.future;
+
+      await Future<void>.delayed(const Duration(milliseconds: 100));
 
       verify(mockChildA.finish(status: SpanStatus.deadlineExceeded()))
           .called(1);

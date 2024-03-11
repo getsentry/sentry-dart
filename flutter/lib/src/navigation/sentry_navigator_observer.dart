@@ -144,7 +144,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     );
 
     _finishTimeToDisplayTracking();
-    _finishThenStartTimeToDisplayTracking(route);
+    _startTimeToDisplayTracking(route);
   }
 
   @override
@@ -273,8 +273,13 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   }
 
   Future<void> _finishTimeToDisplayTracking() async {
+    final transaction = _transaction;
+    _transaction = null;
     try {
-      final transaction = _transaction;
+      _hub.configureScope((scope) {
+        scope.span = null;
+      });
+
       if (transaction == null || transaction.finished) {
         return;
       }
@@ -298,18 +303,12 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
         stackTrace: stacktrace,
       );
     } finally {
-      // Let the transaction finish in the background
-      _hub.configureScope((scope) {
-        scope.span = null;
-      });
-      await _transaction?.finish();
-
+      await transaction?.finish();
       _clear();
     }
   }
 
-  Future<void> _finishThenStartTimeToDisplayTracking(
-      Route<dynamic>? route) async {
+  Future<void> _startTimeToDisplayTracking(Route<dynamic>? route) async {
     try {
       final routeName = _getRouteName(route);
       if (!_enableAutoTransactions || routeName == null) {
@@ -329,6 +328,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       }
 
       await _startTransaction(route, startTimestamp);
+
       final transaction = _transaction;
       if (transaction == null) {
         return;
@@ -354,7 +354,6 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   }
 
   void _clear() {
-    _transaction = null;
     if (_completedDisplayTracking?.isCompleted == false) {
       _completedDisplayTracking?.complete();
     }
