@@ -17,6 +17,11 @@
   - Other significant fixes
     - `didPop` doesn't trigger a new transaction
     - Change transaction operation name to `ui.load` instead of `navigation`
+### Dependencies
+
+- Bump Android SDK from v7.5.0 to v7.6.0 ([#1927](https://github.com/getsentry/sentry-dart/pull/1927))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#760)
+  - [diff](https://github.com/getsentry/sentry-java/compare/7.5.0...7.6.0)
 
 ## 7.17.0
 
