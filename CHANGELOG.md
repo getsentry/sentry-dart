@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## Features
+
+- Add override `captureFailedRequests` option ([#1931](https://github.com/getsentry/sentry-dart/pull/1931))
+
 ### Dependencies
 
 - Bump Android SDK from v7.5.0 to v7.6.0 ([#1927](https://github.com/getsentry/sentry-dart/pull/1927))
@@ -29,7 +33,6 @@
     - `didPop` doesn't trigger a new transaction
     - Change transaction operation name to `ui.load` instead of `navigation`
 - Use `recordHttpBreadcrumbs` to set iOS `enableNetworkBreadcrumbs` ([#1884](https://github.com/getsentry/sentry-dart/pull/1884))
-- Add override `captureFailedRequests` option ([#1931](https://github.com/getsentry/sentry-dart/pull/1931))
 - Apply `beforeBreadcrumb` on native iOS crumbs ([#1914](https://github.com/getsentry/sentry-dart/pull/1914))
 - Add `maxQueueSize` to limit the number of unawaited events sent to Sentry ([#1868](https://github.com/getsentry/sentry-dart/pull/1868))
 
