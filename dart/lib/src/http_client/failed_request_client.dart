@@ -77,11 +77,7 @@ class FailedRequestClient extends BaseClient {
   })  : _hub = hub ?? HubAdapter(),
         _client = client ?? Client(),
         _captureFailedRequests = captureFailedRequests {
-    if (captureFailedRequests == null) {
-      if (_hub.options.captureFailedRequests) {
-        _hub.options.sdk.addIntegration('HTTPClientError');
-      }
-    } else if (captureFailedRequests) {
+    if (captureFailedRequests ?? _hub.options.captureFailedRequests) {
       _hub.options.sdk.addIntegration('HTTPClientError');
     }
   }
@@ -136,11 +132,7 @@ class FailedRequestClient extends BaseClient {
       StackTrace? stackTrace,
       StreamedResponse? response,
       Duration duration) async {
-
-    if (_captureFailedRequests == false) {
-      return;
-    }
-    if (_captureFailedRequests != true && !_hub.options.captureFailedRequests) {
+    if (!(_captureFailedRequests ?? _hub.options.captureFailedRequests)) {
       return;
     }
 

@@ -5,6 +5,7 @@
 ### Features
 
 - Use `recordHttpBreadcrumbs` to set iOS `enableNetworkBreadcrumbs` ([#1884](https://github.com/getsentry/sentry-dart/pull/1884))
+- Add override `captureFailedRequests` option ([#1931](https://github.com/getsentry/sentry-dart/pull/1931))
 
 ### Improvements
 
