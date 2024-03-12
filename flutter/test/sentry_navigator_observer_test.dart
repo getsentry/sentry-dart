@@ -263,6 +263,40 @@ void main() {
       });
     });
 
+    test('do not bind to scope if already set', () {
+      final currentRoute = route(RouteSettings(name: 'Current Route'));
+
+      final hub = _MockHub();
+      hub.scope.span = NoOpSentrySpan();
+
+      final span = getMockSentryTracer();
+      when(span.context).thenReturn(SentrySpanContext(operation: 'op'));
+      when(span.finished).thenReturn(false);
+      when(span.status).thenReturn(SpanStatus.ok());
+      when(span.startChild('ui.load.initial_display',
+              description: anyNamed('description'),
+              startTimestamp: anyNamed('startTimestamp')))
+          .thenReturn(NoOpSentrySpan());
+      _whenAnyStart(hub, span);
+
+      final sut = fixture.getSut(hub: hub);
+
+      sut.didPush(currentRoute, null);
+
+      verify(hub.startTransactionWithContext(
+        any,
+        startTimestamp: anyNamed('startTimestamp'),
+        waitForChildren: true,
+        autoFinishAfter: anyNamed('autoFinishAfter'),
+        trimEnd: true,
+        onFinish: anyNamed('onFinish'),
+      ));
+
+      hub.configureScope((scope) {
+        expect(scope.span, NoOpSentrySpan());
+      });
+    });
+
     test('didPush finishes previous transaction', () async {
       final firstRoute = route(RouteSettings(name: 'First Route'));
       final secondRoute = route(RouteSettings(name: 'Second Route'));

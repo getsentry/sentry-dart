@@ -260,7 +260,7 @@ class Fixture {
   final options = SentryFlutterOptions()
     ..dsn = fakeDsn
     ..tracesSampleRate = 1.0;
-  late final endTimeProvider = TTIDEndTimestampProvider();
+  late final endTimeProvider = ttidEndTimestampProvider();
   late final hub = Hub(options);
 
   TimeToInitialDisplayTracker? ttidTracker;

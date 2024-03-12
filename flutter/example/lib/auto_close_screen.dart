@@ -25,7 +25,6 @@ class AutoCloseScreenState extends State<AutoCloseScreen> {
   }
 
   Future<void> _doComplexOperationThenClose() async {
-    final activeSpan = Sentry.getSpan();
     final dio = Dio();
     dio.addSentry();
     try {

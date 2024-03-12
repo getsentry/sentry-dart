@@ -46,16 +46,14 @@ void main() {
   test(
       'span finishes automatically after timeout with deadline_exceeded status',
       () async {
-    final sut =
-        fixture.getSut(endTimestampProvider: fixture.endTimestampProvider);
+    final sut = fixture.getSut();
     final transaction = fixture.getTransaction() as SentryTracer;
 
     await sut.track(transaction, fixture.startTimestamp);
 
     final ttfdSpan = transaction.children.first;
     expect(transaction.children, hasLength(1));
-    expect(ttfdSpan.endTimestamp,
-        equals(fixture.endTimestampProvider.endTimestamp));
+    expect(ttfdSpan.endTimestamp, equals(fixture.endTimestampProvider()));
     expect(ttfdSpan.context.operation,
         equals(SentrySpanOperations.uiTimeToFullDisplay));
     expect(ttfdSpan.finished, isTrue);
@@ -69,28 +67,21 @@ class Fixture {
   final startTimestamp = getUtcDateTime();
   final hub = Hub(SentryFlutterOptions(dsn: fakeDsn)..tracesSampleRate = 1.0);
   final autoFinishAfter = const Duration(seconds: 2);
-  late final endTimestampProvider =
-      FakeTTIDEndTimeStampProvider(startTimestamp);
+  late final endTimestampProvider = fakeTTIDEndTimestampProvider();
 
   ISentrySpan getTransaction({String? name = "Current route"}) {
     return hub.startTransaction(name!, SentrySpanOperations.uiLoad,
         bindToScope: true, startTimestamp: startTimestamp);
   }
 
+  EndTimestampProvider fakeTTIDEndTimestampProvider() =>
+      () => startTimestamp.add(const Duration(seconds: 1));
+
   TimeToFullDisplayTracker getSut(
       {EndTimestampProvider? endTimestampProvider}) {
+    endTimestampProvider ??= this.endTimestampProvider;
     return TimeToFullDisplayTracker(
         endTimestampProvider: endTimestampProvider,
         autoFinishAfter: autoFinishAfter);
   }
-}
-
-class FakeTTIDEndTimeStampProvider implements EndTimestampProvider {
-  final DateTime _endTimestamp;
-
-  FakeTTIDEndTimeStampProvider(DateTime startTimestamp)
-      : _endTimestamp = startTimestamp.add(const Duration(seconds: 1)).toUtc();
-
-  @override
-  DateTime? get endTimestamp => _endTimestamp;
 }

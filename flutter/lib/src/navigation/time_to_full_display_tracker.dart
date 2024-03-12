@@ -34,7 +34,7 @@ class TimeToFullDisplayTracker {
   Duration _autoFinishAfter = const Duration(seconds: 30);
 
   // End timestamp provider is only needed when the TTFD timeout is triggered
-  EndTimestampProvider _endTimestampProvider = TTIDEndTimestampProvider();
+  EndTimestampProvider _endTimestampProvider = ttidEndTimestampProvider();
   Completer<void> _completedTTFDTracking = Completer<void>();
 
   Future<void> track(ISentrySpan transaction, DateTime startTimestamp) async {
@@ -54,7 +54,7 @@ class TimeToFullDisplayTracker {
   void handleTimeout() {
     final ttfdSpan = _ttfdSpan;
     final startTimestamp = _startTimestamp;
-    final endTimestamp = _endTimestampProvider.endTimestamp;
+    final endTimestamp = _endTimestampProvider();
 
     if (ttfdSpan == null ||
         ttfdSpan.finished == true ||
@@ -106,12 +106,8 @@ class TimeToFullDisplayTracker {
 /// In those cases TTFD end time should match TTID end time.
 /// This provider allows us to inject endTimestamps for testing as well.
 @internal
-abstract class EndTimestampProvider {
-  DateTime? get endTimestamp;
-}
+typedef EndTimestampProvider = DateTime? Function();
 
 @internal
-class TTIDEndTimestampProvider implements EndTimestampProvider {
-  @override
-  DateTime? get endTimestamp => TimeToInitialDisplayTracker().endTimestamp;
-}
+EndTimestampProvider ttidEndTimestampProvider() =>
+    () => TimeToInitialDisplayTracker().endTimestamp;
