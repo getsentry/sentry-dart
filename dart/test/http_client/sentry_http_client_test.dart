@@ -32,15 +32,29 @@ void main() {
     });
 
     test('no captured event with default config', () async {
+      fixture.hub.options.captureFailedRequests = false;
+
       final sut = fixture.getSut(
         client: createThrowingClient(),
-        captureFailedRequests: false,
       );
 
       await expectLater(() async => await sut.get(requestUri), throwsException);
 
       expect(fixture.hub.captureEventCalls.length, 0);
       expect(fixture.hub.addBreadcrumbCalls.length, 1);
+    });
+
+    test('captured event with override', () async {
+      fixture.hub.options.captureFailedRequests = false;
+
+      final sut = fixture.getSut(
+        client: createThrowingClient(),
+        captureFailedRequests: true,
+      );
+
+      await expectLater(() async => await sut.get(requestUri), throwsException);
+
+      expect(fixture.hub.captureEventCalls.length, 1);
     });
 
     test('one captured event with when enabling $FailedRequestClient',
@@ -59,6 +73,20 @@ void main() {
       // The breadcrumb for the request should still be added for every
       // following event.
       expect(fixture.hub.addBreadcrumbCalls.length, 1);
+    });
+
+    test(
+        'no captured event with when enabling $FailedRequestClient with override',
+        () async {
+      fixture.hub.options.captureFailedRequests = true;
+      final sut = fixture.getSut(
+        client: createThrowingClient(),
+        captureFailedRequests: false,
+      );
+
+      await expectLater(() async => await sut.get(requestUri), throwsException);
+
+      expect(fixture.hub.captureEventCalls.length, 0);
     });
 
     test('close does get called for user defined client', () async {
@@ -116,14 +144,14 @@ class Fixture {
   SentryHttpClient getSut({
     MockClient? client,
     List<SentryStatusCode> badStatusCodes = const [],
-    bool captureFailedRequests = true,
+    bool? captureFailedRequests,
   }) {
     final mc = client ?? getClient();
-    hub.options.captureFailedRequests = captureFailedRequests;
     return SentryHttpClient(
       client: mc,
       hub: hub,
       failedRequestStatusCodes: badStatusCodes,
+      captureFailedRequests: captureFailedRequests,
     );
   }
 

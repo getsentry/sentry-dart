@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## Features
+
+- Add override `captureFailedRequests` option ([#1931](https://github.com/getsentry/sentry-dart/pull/1931))
+  - The `dio` integration and `SentryHttpClient` now take an additional `captureFailedRequests` option.
+  - This is useful if you want to disable this option on native and only enable it on `dio` for example.
+
 ### Dependencies
 
 - Bump Android SDK from v7.5.0 to v7.6.0 ([#1927](https://github.com/getsentry/sentry-dart/pull/1927))

@@ -73,15 +73,18 @@ class FailedRequestClient extends BaseClient {
     this.failedRequestTargets = SentryHttpClient.defaultFailedRequestTargets,
     Client? client,
     Hub? hub,
+    bool? captureFailedRequests,
   })  : _hub = hub ?? HubAdapter(),
-        _client = client ?? Client() {
-    if (_hub.options.captureFailedRequests) {
+        _client = client ?? Client(),
+        _captureFailedRequests = captureFailedRequests {
+    if (captureFailedRequests ?? _hub.options.captureFailedRequests) {
       _hub.options.sdk.addIntegration('HTTPClientError');
     }
   }
 
   final Client _client;
   final Hub _hub;
+  final bool? _captureFailedRequests;
 
   /// Describes which HTTP status codes should be considered as a failed
   /// requests.
@@ -129,7 +132,7 @@ class FailedRequestClient extends BaseClient {
       StackTrace? stackTrace,
       StreamedResponse? response,
       Duration duration) async {
-    if (!_hub.options.captureFailedRequests) {
+    if (!(_captureFailedRequests ?? _hub.options.captureFailedRequests)) {
       return;
     }
 
