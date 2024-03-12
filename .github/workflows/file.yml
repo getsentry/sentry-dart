@@ -58,7 +58,7 @@ jobs:
           name: sentry_file
           files: ./file/coverage/lcov.info
 
-      - uses: VeryGoodOpenSource/very_good_coverage@3b475421464c564c0714d92ce02742bd81fa9eda # pin@v2.2.0
+      - uses: VeryGoodOpenSource/very_good_coverage@c953fca3e24a915e111cc6f55f03f756dcb3964c # pin@v3.0.0
         if: runner.os == 'Linux' && matrix.sdk == 'stable'
         with:
           path: "./file/coverage/lcov.info"
