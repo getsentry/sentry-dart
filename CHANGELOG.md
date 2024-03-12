@@ -2,14 +2,49 @@
 
 ## Unreleased
 
+### Dependencies
+
+- Bump Android SDK from v7.5.0 to v7.6.0 ([#1927](https://github.com/getsentry/sentry-dart/pull/1927))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#760)
+  - [diff](https://github.com/getsentry/sentry-java/compare/7.5.0...7.6.0)
+
+## 7.17.0
+
+### Fixes
+
+- Fix transaction end timestamp trimming ([#1916](https://github.com/getsentry/sentry-dart/pull/1916))
+  - Transaction end timestamps are now correctly trimmed to the latest child span end timestamp
+- remove transitive dart:io reference for web ([#1898](https://github.com/getsentry/sentry-dart/pull/1898))  
+
 ### Features
 
+- Add TTID (time to initial display), which allows you to measure the time it takes to render the first frame of your screen ([#1910](https://github.com/getsentry/sentry-dart/pull/1910))
+  - Requires using the [routing instrumentation](https://docs.sentry.io/platforms/flutter/integrations/routing-instrumentation/).
+  - Introduces two modes: 
+    - `automatic` mode is enabled by default for all screens and will yield only an approximation result.
+    - `manual` mode requires manual instrumentation and will yield a more accurate result.
+      - To use `manual` mode, you need to wrap your desired widget: `SentryDisplayWidget(child: MyScreen())`.
+    - You can mix and match both modes in your app.
+  - Other significant fixes
+    - `didPop` doesn't trigger a new transaction
+    - Change transaction operation name to `ui.load` instead of `navigation`
 - Use `recordHttpBreadcrumbs` to set iOS `enableNetworkBreadcrumbs` ([#1884](https://github.com/getsentry/sentry-dart/pull/1884))
 - Add textScale(r) value to Flutter context ([#1886](https://github.com/getsentry/sentry-dart/pull/1886))
+- Apply `beforeBreadcrumb` on native iOS crumbs ([#1914](https://github.com/getsentry/sentry-dart/pull/1914))
+- Add `maxQueueSize` to limit the number of unawaited events sent to Sentry ([#1868](https://github.com/getsentry/sentry-dart/pull/1868))
 
 ### Improvements
 
 - App start is now fetched within integration instead of event processor ([#1905](https://github.com/getsentry/sentry-dart/pull/1905))
+
+### Dependencies
+
+- Bump Cocoa SDK from v8.20.0 to v8.21.0 ([#1909](https://github.com/getsentry/sentry-dart/pull/1909))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8210)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.20.0...8.21.0)
+- Bump Android SDK from v7.3.0 to v7.5.0 ([#1907](https://github.com/getsentry/sentry-dart/pull/1907))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#750)
+  - [diff](https://github.com/getsentry/sentry-java/compare/7.3.0...7.5.0)
 
 ## 7.16.1
 
