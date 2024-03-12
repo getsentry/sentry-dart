@@ -1,7 +1,9 @@
 import 'package:http/http.dart';
 
-import '../../sentry_io.dart';
 import '../client_reports/discard_reason.dart';
+import '../protocol.dart';
+import '../sentry_envelope.dart';
+import '../sentry_options.dart';
 import '../transport/data_category.dart';
 
 class TransportUtils {

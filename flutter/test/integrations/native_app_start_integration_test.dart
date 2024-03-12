@@ -1,5 +1,4 @@
 @TestOn('vm')
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -7,6 +6,7 @@ import 'package:sentry_flutter/src/integrations/native_app_start_integration.dar
 import 'package:sentry_flutter/src/native/sentry_native.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 
+import '../fake_frame_callback_handler.dart';
 import '../mocks.dart';
 import '../mocks.mocks.dart';
 
@@ -18,10 +18,10 @@ void main() {
       TestWidgetsFlutterBinding.ensureInitialized();
 
       fixture = Fixture();
+      NativeAppStartIntegration.clearAppStartInfo();
     });
 
     test('native app start measurement added to first transaction', () async {
-      fixture.options.autoAppStart = false;
       fixture.native.appStartEnd = DateTime.fromMillisecondsSinceEpoch(10);
       fixture.binding.nativeAppStart = NativeAppStart(0, true);
 
@@ -40,7 +40,6 @@ void main() {
 
     test('native app start measurement not added to following transactions',
         () async {
-      fixture.options.autoAppStart = false;
       fixture.native.appStartEnd = DateTime.fromMillisecondsSinceEpoch(10);
       fixture.binding.nativeAppStart = NativeAppStart(0, true);
 
@@ -58,7 +57,6 @@ void main() {
     });
 
     test('measurements appended', () async {
-      fixture.options.autoAppStart = false;
       fixture.native.appStartEnd = DateTime.fromMillisecondsSinceEpoch(10);
       fixture.binding.nativeAppStart = NativeAppStart(0, true);
       final measurement = SentryMeasurement.warmAppStart(Duration(seconds: 1));
@@ -79,7 +77,6 @@ void main() {
     });
 
     test('native app start measurement not added if more than 60s', () async {
-      fixture.options.autoAppStart = false;
       fixture.native.appStartEnd = DateTime.fromMillisecondsSinceEpoch(60001);
       fixture.binding.nativeAppStart = NativeAppStart(0, true);
 
@@ -92,6 +89,18 @@ void main() {
       final enriched = await processor.apply(transaction) as SentryTransaction;
 
       expect(enriched.measurements.isEmpty, true);
+    });
+
+    test('native app start integration is called and sets app start info',
+        () async {
+      fixture.native.appStartEnd = DateTime.fromMillisecondsSinceEpoch(10);
+      fixture.binding.nativeAppStart = NativeAppStart(0, true);
+
+      fixture.getNativeAppStartIntegration().call(fixture.hub, fixture.options);
+
+      final appStartInfo = await NativeAppStartIntegration.getAppStartInfo();
+      expect(appStartInfo?.start, DateTime.fromMillisecondsSinceEpoch(0));
+      expect(appStartInfo?.end, DateTime.fromMillisecondsSinceEpoch(10));
     });
   });
 }
@@ -110,9 +119,7 @@ class Fixture {
   NativeAppStartIntegration getNativeAppStartIntegration() {
     return NativeAppStartIntegration(
       native,
-      () {
-        return TestWidgetsFlutterBinding.ensureInitialized();
-      },
+      FakeFrameCallbackHandler(),
     );
   }
 

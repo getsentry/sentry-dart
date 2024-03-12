@@ -43,7 +43,7 @@ jobs:
           distribution: "adopt"
           java-version: "11"
 
-      - uses: subosito/flutter-action@2783a3f08e1baf891508463f8c6653c258246225 # pin@v2.12.0
+      - uses: subosito/flutter-action@62f096cacda5168a3bd7b95793373be14fa4fbaf # pin@v2.13.0
         with:
           channel: ${{ matrix.sdk }}
 
@@ -111,7 +111,7 @@ jobs:
 
   cocoa:
     name: "${{ matrix.target }} | ${{ matrix.sdk }}"
-    runs-on: macos-13
+    runs-on: macos-latest-xlarge
     timeout-minutes: 30
     defaults:
       run:
@@ -126,7 +126,7 @@ jobs:
       - name: checkout
         uses: actions/checkout@v4
 
-      - uses: subosito/flutter-action@2783a3f08e1baf891508463f8c6653c258246225 # pin@v2.12.0
+      - uses: subosito/flutter-action@62f096cacda5168a3bd7b95793373be14fa4fbaf # pin@v2.13.0
         with:
           channel: ${{ matrix.sdk }}
 

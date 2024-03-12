@@ -81,6 +81,20 @@ class SentryOptions {
     _maxSpans = maxSpans;
   }
 
+  int _maxQueueSize = 30;
+
+  /// Returns the max number of events Sentry will send when calling capture
+  /// methods in a tight loop. Default is 30.
+  int get maxQueueSize => _maxQueueSize;
+
+  /// Sets how many unawaited events can be sent by Sentry. (e.g. capturing
+  /// events in a tight loop) at once. If you need to send more, please use the
+  /// await keyword.
+  set maxQueueSize(int count) {
+    assert(count > 0);
+    _maxQueueSize = count;
+  }
+
   /// Configures up to which size request bodies should be included in events.
   /// This does not change whether an event is captured.
   MaxRequestBodySize maxRequestBodySize = MaxRequestBodySize.never;
