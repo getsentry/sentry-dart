@@ -1,7 +1,7 @@
 # Changelog
 
-## Unreleased
-    
+## 7.18.0
+
 ### Features
 
 - Add TTFD (time to full display), which allows you to measure the time it takes to render the full screen ([#1920](https://github.com/getsentry/sentry-dart/pull/1920))
