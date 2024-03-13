@@ -224,7 +224,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     }
 
     if (name == '/') {
-      name = 'root ("/")';
+      name = 'root /';
     }
     final transactionContext = SentryTransactionContext(
       name,
