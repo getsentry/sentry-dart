@@ -530,7 +530,7 @@ void main() {
         onFinish: anyNamed('onFinish'),
       )).captured.single as SentryTransactionContext;
 
-      expect(context.name, 'root ("/")');
+      expect(context.name, 'root /');
 
       hub.configureScope((scope) {
         expect(scope.span, span);
