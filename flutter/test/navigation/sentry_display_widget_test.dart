@@ -81,7 +81,7 @@ void main() {
     expect(ttidSpan.context.operation,
         SentrySpanOperations.uiTimeToInitialDisplay);
     expect(ttidSpan.finished, isTrue);
-    expect(ttidSpan.context.description, 'root ("/") initial display');
+    expect(ttidSpan.context.description, 'root / initial display');
     expect(ttidSpan.origin, SentryTraceOrigins.autoUiTimeToDisplay);
 
     expect(ttidSpan.startTimestamp, appStartInfo.start);
