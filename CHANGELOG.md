@@ -2,7 +2,7 @@
 
 ## Unreleased
     
-## Features
+### Features
 
 - Add TTFD (time to full display), which allows you to measure the time it takes to render the full screen ([#1920](https://github.com/getsentry/sentry-dart/pull/1920))
   - Requires using the [routing instrumentation](https://docs.sentry.io/platforms/flutter/integrations/routing-instrumentation/).
@@ -22,6 +22,11 @@
 - Add override `captureFailedRequests` option ([#1931](https://github.com/getsentry/sentry-dart/pull/1931))
   - The `dio` integration and `SentryHttpClient` now take an additional `captureFailedRequests` option.
   - This is useful if you want to disable this option on native and only enable it on `dio` for example.
+
+### Improvements
+
+- Update root name for navigator observer ([#1934](https://github.com/getsentry/sentry-dart/pull/1934))
+  - The root name for transactions is now `root /` instead of `root ("/")`.
 
 ### Dependencies
 
