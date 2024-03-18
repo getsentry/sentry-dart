@@ -1,0 +1,56 @@
+name: Upload to Testflight
+on:
+  push:
+    branches:
+      - main
+      - release/**
+  pull_request:
+#    paths:
+#      - '.github/workflows/testflight.yml'
+jobs:
+  upload_to_testflight:
+    name: Build and Upload to Testflight
+    runs-on: macos-13
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@48cafc24713cca54bbe03cdc3a423187d413aafa # pin@v2.10.0
+      - run: ./scripts/ci-select-xcode.sh
+      - uses: ruby/setup-ruby@250fcd6a742febb1123a77a841497ccaa8b9e939 # pin@v1.152.0
+        with:
+          ruby-version: '2.7.5'
+          bundler-cache: true
+
+      - name: flutter
+        working-directory: ./flutter/example
+        run: |
+          flutter upgrade
+          flutter pub get
+          flutter build ios --no-codesign
+
+      - name: Install Fastlane
+        working-directory: ./flutter/example/ios
+        run: bundle install
+
+      - name: Bump, Build & Upload App to TestFlight
+        working-directory: ./flutter/example/ios
+        env:
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_KEY: ${{ secrets.APP_STORE_CONNECT_KEY }}
+          FASTLANE_BUNDLE_VERSION: ${{ github.run_number }}
+          FASTLANE_KEYCHAIN_PASSWORD: ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }}
+          MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_LOG_LEVEL: DEBUG
+        run: |
+          bundle exec fastlane bump_build_number
+          bundle exec fastlane build_release
+          bundle exec fastlane upload_testflight
+
+      - name: Upload Symbols to Sentry
+        working-directory: ./flutter/example
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+        run: flutter packages pub run sentry_dart_plugin
