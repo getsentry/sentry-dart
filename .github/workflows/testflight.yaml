@@ -5,8 +5,9 @@ on:
       - main
       - release/**
   pull_request:
-#    paths:
-#      - '.github/workflows/testflight.yml'
+    paths:
+      - '.github/workflows/testflight.yml'
+
 jobs:
   upload_to_testflight:
     name: Build and Upload to Testflight
