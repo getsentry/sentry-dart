@@ -5,6 +5,21 @@ platform :ios do
   desc "Bump Build Number"
   lane :bump_build_number do
     fetch_api_key()
+
+    version_string = get_version_number(xcodeproj: "./Runner.xcodeproj")
+    version_parts = version_string.split(".")
+
+    # Remove last digit if necessary
+    if version_parts.length > 3
+      version_parts.pop
+    end
+
+    new_version = version_parts.join(".")
+
+    increment_version_number(
+      version_number: new_version,
+      xcodeproj: "./Runner.xcodeproj"
+    )
     increment_build_number(
       build_number: latest_testflight_build_number + 1,
       xcodeproj: "./Runner.xcodeproj"
