@@ -1,8 +1,12 @@
 name: Upload to Testflight
 on:
-  workflow_dispatch:
-  pull_request: #TODO: Remove before merging
-
+  push:
+    branches:
+      - main
+      - release/**
+  pull_request:
+    paths:
+      - '.github/workflows/testflight.yml'
 jobs:
   upload_to_testflight:
     name: Build and Upload to Testflight
