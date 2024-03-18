@@ -1,12 +1,13 @@
 name: Upload to Testflight
 on:
-  push:
-    branches:
-      - main
-      - release/**
-  pull_request:
-    paths:
-      - '.github/workflows/testflight.yml'
+  pull_request: # TODO: Remove after running once...
+#  push:
+#    branches:
+#      - main
+#      - release/**
+#  pull_request:
+#    paths:
+#      - '.github/workflows/testflight.yml'
 
 jobs:
   upload_to_testflight:
