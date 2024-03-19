@@ -17,7 +17,9 @@ class WidgetEventProcessor implements EventProcessor {
     if (context == null) {
       return event;
     }
-    final textScale = MediaQuery.maybeTextScalerOf(context)?.scale(1);
+
+    // ignore: deprecated_member_use
+    final textScale = MediaQuery.maybeTextScaleFactorOf(context);
     if (textScale == null) {
       return event;
     }
