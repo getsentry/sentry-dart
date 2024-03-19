@@ -83,6 +83,7 @@ Future<void> setupSentry(
       options.debug = true;
       options.spotlight = Spotlight(enabled: true);
       options.enableTimeToFullDisplayTracing = true;
+      options.enableMetrics = true;
 
       options.maxRequestBodySize = MaxRequestBodySize.always;
       options.maxResponseBodySize = MaxResponseBodySize.always;
@@ -526,6 +527,18 @@ class MainScaffold extends StatelessWidget {
               text:
                   'Demonstrates the logging integration. log.info() will create an info event send it to Sentry.',
               buttonTitle: 'Logging',
+            ),
+            TooltipButton(
+              onPressed: () async {
+                Sentry.metrics().increment('key1');
+                Sentry.metrics().increment('key3',
+                    unit: DurationSentryMeasurementUnit.minute);
+                Sentry.metrics().increment('key1',
+                    value: 2, tags: {'myTag': 'myValue', 'myTag2': 'myValue2'});
+              },
+              text:
+                  'Demonstrates the metrics. It creates 3 counter metrics and send them to Sentry.',
+              buttonTitle: 'Counter Metric',
             ),
             if (UniversalPlatform.isIOS || UniversalPlatform.isMacOS)
               const CocoaExample(),
