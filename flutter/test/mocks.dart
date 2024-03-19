@@ -46,6 +46,7 @@ ISentrySpan startTransactionShim(
   // ignore: invalid_use_of_internal_member
   SentryTracer,
   SentryTransaction,
+  SentrySpan,
   MethodChannel,
 ], customMocks: [
   MockSpec<Hub>(fallbackGenerators: {#startTransaction: startTransactionShim})

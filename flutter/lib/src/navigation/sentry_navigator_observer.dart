@@ -12,6 +12,9 @@ import '../../sentry_flutter.dart';
 import '../event_processor/flutter_enricher_event_processor.dart';
 import '../native/sentry_native.dart';
 
+// ignore: implementation_imports
+import 'package:sentry/src/sentry_tracer.dart';
+
 /// This key must be used so that the web interface displays the events nicely
 /// See https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/
 const _navigationKey = 'navigation';
@@ -82,11 +85,23 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
         _setRouteNameAsTransaction = setRouteNameAsTransaction,
         _routeNameExtractor = routeNameExtractor,
         _additionalInfoProvider = additionalInfoProvider,
-        _native = SentryFlutter.native,
-        _timeToDisplayTracker = timeToDisplayTracker ?? TimeToDisplayTracker() {
+        _native = SentryFlutter.native {
     if (enableAutoTransactions) {
       _hub.options.sdk.addIntegration('UINavigationTracing');
     }
+    _timeToDisplayTracker =
+        timeToDisplayTracker ?? _initializeTimeToDisplayTracker();
+  }
+
+  /// Initializes the TimeToDisplayTracker with the option to enable time to full display tracing.
+  TimeToDisplayTracker _initializeTimeToDisplayTracker() {
+    bool enableTimeToFullDisplayTracing = false;
+    final options = _hub.options;
+    if (options is SentryFlutterOptions) {
+      enableTimeToFullDisplayTracing = options.enableTimeToFullDisplayTracing;
+    }
+    return TimeToDisplayTracker(
+        enableTimeToFullDisplayTracing: enableTimeToFullDisplayTracing);
   }
 
   final Hub _hub;
@@ -96,7 +111,11 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   final RouteNameExtractor? _routeNameExtractor;
   final AdditionalInfoExtractor? _additionalInfoProvider;
   final SentryNative? _native;
-  final TimeToDisplayTracker? _timeToDisplayTracker;
+  static TimeToDisplayTracker? _timeToDisplayTracker;
+
+  @internal
+  static TimeToDisplayTracker? get timeToDisplayTracker =>
+      _timeToDisplayTracker;
 
   ISentrySpan? _transaction;
 
@@ -105,7 +124,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   @internal
   static String? get currentRouteName => _currentRouteName;
 
-  Completer<void>? _completedDisplayTracking;
+  Completer<void>? _completedDisplayTracking = Completer();
 
   // Since didPush does not have a future, we can keep track of when the display tracking has finished
   @visibleForTesting
@@ -124,6 +143,8 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       to: route.settings,
     );
 
+    // Clearing the display tracker here is safe since didPush happens before the Widget is built
+    _timeToDisplayTracker?.clear();
     _finishTimeToDisplayTracking();
     _startTimeToDisplayTracking(route);
   }
@@ -155,7 +176,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       to: previousRoute?.settings,
     );
 
-    _finishTimeToDisplayTracking();
+    _finishTimeToDisplayTracking(clearAfter: true);
   }
 
   void _addBreadcrumb({
@@ -203,7 +224,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     }
 
     if (name == '/') {
-      name = 'root ("/")';
+      name = 'root /';
     }
     final transactionContext = SentryTransactionContext(
       name,
@@ -253,56 +274,96 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     await _native?.beginNativeFramesCollection();
   }
 
-  Future<void> _finishTimeToDisplayTracking() async {
-    _timeToDisplayTracker?.clear();
-
+  Future<void> _finishTimeToDisplayTracking({bool clearAfter = false}) async {
     final transaction = _transaction;
     _transaction = null;
-    if (transaction == null || transaction.finished) {
-      return;
-    }
-    transaction.status ??= SpanStatus.ok();
-    await transaction.finish();
-  }
+    try {
+      _hub.configureScope((scope) {
+        if (scope.span == transaction) {
+          scope.span = null;
+        }
+      });
 
-  Future<void> _startTimeToDisplayTracking(Route<dynamic>? route) async {
-    if (!_enableAutoTransactions) {
-      return;
-    }
-
-    _completedDisplayTracking = Completer<void>();
-    String? routeName = _currentRouteName;
-    if (routeName == null) return;
-
-    DateTime startTimestamp = _hub.options.clock();
-    DateTime? endTimestamp;
-
-    if (routeName == '/') {
-      final appStartInfo = await NativeAppStartIntegration.getAppStartInfo();
-      if (appStartInfo == null) {
+      if (transaction == null || transaction.finished) {
         return;
       }
 
-      startTimestamp = appStartInfo.start;
-      endTimestamp = appStartInfo.end;
+      // Cancel unfinished TTID/TTFD spans, e.g this might happen if the user navigates
+      // away from the current route before TTFD or TTID is finished.
+      for (final child in (transaction as SentryTracer).children) {
+        final isTTIDSpan = child.context.operation ==
+            SentrySpanOperations.uiTimeToInitialDisplay;
+        final isTTFDSpan =
+            child.context.operation == SentrySpanOperations.uiTimeToFullDisplay;
+        if (!child.finished && (isTTIDSpan || isTTFDSpan)) {
+          await child.finish(status: SpanStatus.deadlineExceeded());
+        }
+      }
+    } catch (exception, stacktrace) {
+      _hub.options.logger(
+        SentryLevel.error,
+        'Error while finishing time to display tracking',
+        exception: exception,
+        stackTrace: stacktrace,
+      );
+    } finally {
+      await transaction?.finish();
+      if (clearAfter) {
+        _clear();
+      }
     }
+  }
 
-    await _startTransaction(route, startTimestamp);
-    final transaction = _transaction;
-    if (transaction == null) {
-      return;
+  Future<void> _startTimeToDisplayTracking(Route<dynamic>? route) async {
+    try {
+      final routeName = _getRouteName(route) ?? _currentRouteName;
+      if (!_enableAutoTransactions || routeName == null) {
+        return;
+      }
+
+      bool isAppStart = routeName == '/';
+      DateTime startTimestamp = _hub.options.clock();
+      DateTime? endTimestamp;
+
+      if (isAppStart) {
+        final appStartInfo = await NativeAppStartIntegration.getAppStartInfo();
+        if (appStartInfo == null) return;
+
+        startTimestamp = appStartInfo.start;
+        endTimestamp = appStartInfo.end;
+      }
+
+      await _startTransaction(route, startTimestamp);
+
+      final transaction = _transaction;
+      if (transaction == null) {
+        return;
+      }
+
+      if (isAppStart && endTimestamp != null) {
+        await _timeToDisplayTracker?.trackAppStartTTD(transaction,
+            startTimestamp: startTimestamp, endTimestamp: endTimestamp);
+      } else {
+        await _timeToDisplayTracker?.trackRegularRouteTTD(transaction,
+            startTimestamp: startTimestamp);
+      }
+    } catch (exception, stacktrace) {
+      _hub.options.logger(
+        SentryLevel.error,
+        'Error while tracking time to display',
+        exception: exception,
+        stackTrace: stacktrace,
+      );
+    } finally {
+      _clear();
     }
+  }
 
-    if (routeName == '/' && endTimestamp != null) {
-      await _timeToDisplayTracker?.trackAppStartTTD(transaction,
-          startTimestamp: startTimestamp, endTimestamp: endTimestamp);
-    } else {
-      await _timeToDisplayTracker?.trackRegularRouteTTD(transaction,
-          startTimestamp: startTimestamp);
+  void _clear() {
+    if (_completedDisplayTracking?.isCompleted == false) {
+      _completedDisplayTracking?.complete();
     }
-
-    // Mark the tracking as completed and clear any temporary state.
-    _completedDisplayTracking?.complete();
+    _completedDisplayTracking = Completer();
     _timeToDisplayTracker?.clear();
   }
 }
