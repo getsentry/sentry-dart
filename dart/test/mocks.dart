@@ -1,5 +1,6 @@
 import 'package:mockito/annotations.dart';
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/metrics/metric.dart';
 import 'package:sentry/src/profiling.dart';
 import 'package:sentry/src/transport/rate_limiter.dart';
 
@@ -96,6 +97,17 @@ final fakeEvent = SentryEvent(
     ),
   ),
 );
+
+final fakeMetric = CounterMetric(value: 4, key: 'key', unit: DurationSentryMeasurementUnit.hour, tags: {'tag1': 'value1', 'tag2': 'value2'});
+final fakeMetric2 = CounterMetric(value: 2, key: 'key', unit: SentryMeasurementUnit.none, tags: {'tag1': 'value1', 'tag2': 'value2'});
+final fakeMetric3 = CounterMetric(value: 2, key: 'key', unit: SentryMeasurementUnit.none, tags: {'tag1': 'value1'});
+final fakeMetric4 = CounterMetric(value: 2, key: 'key2', unit: SentryMeasurementUnit.none, tags: {'tag1': 'value1'});
+
+final Map<int, Iterable<Metric>> fakeMetrics = {
+  10: [fakeMetric],
+  20: [fakeMetric, fakeMetric2],
+  30: [fakeMetric, fakeMetric3, fakeMetric4],
+};
 
 /// Always returns null and thus drops all events
 class DropAllEventProcessor implements EventProcessor {

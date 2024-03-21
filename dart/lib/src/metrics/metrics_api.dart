@@ -13,11 +13,11 @@ class MetricsApi {
       final SentryMeasurementUnit? unit,
       final Map<String, String>? tags}) {
     _hub.metricsAggregator?.increment(
-        key,
-        value,
-        unit ?? SentryMeasurementUnit.none,
-        _enrichWithDefaultTags(tags),
-        _hub.options.clock());
+      key,
+      value,
+      unit ?? SentryMeasurementUnit.none,
+      _enrichWithDefaultTags(tags),
+    );
   }
 
   /// Enrich user tags adding <a href=https://develop.sentry.dev/delightful-developer-metrics/sending-metrics-sdk/#automatic-tags-extraction>default tags</a>

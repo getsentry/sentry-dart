@@ -18,14 +18,12 @@ abstract class Metric {
   final String key;
   final SentryMeasurementUnit unit;
   final Map<String, String> tags;
-  final DateTime timestamp;
 
   Metric({
     required this.type,
     required this.key,
     required this.unit,
     required this.tags,
-    required this.timestamp,
   });
 
   /// Add a value to the metric.
@@ -62,16 +60,15 @@ abstract class Metric {
 
     if (tags.isNotEmpty) {
       buffer.write("|#");
-      String? serializedTags = tags.entries
+      String serializedTags = tags.entries
           .map((tag) =>
               '${_normalizeKey(tag.key)}:${_normalizeTagValue(tag.value)}')
           .join(',');
-      buffer.write(serializedTags ?? '');
+      buffer.write(serializedTags);
     }
 
     buffer.write("|T");
     buffer.write(bucketKey);
-    buffer.write("\n");
 
     return buffer.toString();
   }
@@ -109,13 +106,12 @@ abstract class Metric {
 class CounterMetric extends Metric {
   double value;
 
-  CounterMetric(
-      {required this.value,
-      required super.key,
-      required super.unit,
-      required super.tags,
-      required super.timestamp})
-      : super(type: MetricType.counter);
+  CounterMetric({
+    required this.value,
+    required super.key,
+    required super.unit,
+    required super.tags,
+  }) : super(type: MetricType.counter);
 
   @override
   add(double value) => this.value += value;

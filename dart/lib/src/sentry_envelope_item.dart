@@ -92,7 +92,7 @@ class SentryEnvelopeItem {
       for (MapEntry<int, Iterable<Metric>> bucket in buckets.entries) {
         final Iterable<String> encodedMetrics =
             bucket.value.map((metric) => metric.encodeToStatsd(bucket.key));
-        statsd.write(encodedMetrics.join(''));
+        statsd.write(encodedMetrics.join('\n'));
       }
       return utf8.encode(statsd.toString());
     });

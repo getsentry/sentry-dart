@@ -402,8 +402,8 @@ class SentryClient {
   }
 
   void close() {
-    _options.httpClient.close();
     _metricsAggregator?.close();
+    _options.httpClient.close();
   }
 
   Future<SentryEvent?> _runBeforeSend(
