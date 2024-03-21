@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'client_reports/client_report.dart';
 import 'metrics/metric.dart';
@@ -28,7 +29,7 @@ class SentryEnvelopeItem {
   }
 
   factory SentryEnvelopeItem.fromAttachment(SentryAttachment attachment) {
-    final cachedItem = _CachedItem(() => attachment.bytes);
+    final cachedItem = _CachedItem(() async => attachment.bytes);
 
     final header = SentryEnvelopeItemHeader(
       SentryItemType.attachment,
@@ -132,16 +133,11 @@ class SentryEnvelopeItem {
 class _CachedItem {
   _CachedItem(this._dataFactory);
 
-  final FutureOr<List<int>> Function() _dataFactory;
+  final Future<List<int>> Function() _dataFactory;
   List<int>? _data;
 
   Future<List<int>> getData() async {
-    final data = _dataFactory;
-    if (data is Future<List<int>> Function()) {
-      _data ??= await data();
-    } else {
-      _data ??= (data as List<int> Function())();
-    }
+    _data ??= await _dataFactory();
     return _data!;
   }
 
