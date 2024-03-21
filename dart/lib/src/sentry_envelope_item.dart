@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'client_reports/client_report.dart';
 import 'metrics/metric.dart';
