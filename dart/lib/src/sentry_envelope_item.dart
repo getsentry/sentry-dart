@@ -140,7 +140,7 @@ class _CachedItem {
     if (data is Future<List<int>> Function()) {
       _data ??= await data();
     } else {
-      _data ??= data() as List<int>;
+      _data ??= (data as List<int> Function())();
     }
     return _data!;
   }
