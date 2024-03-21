@@ -42,9 +42,9 @@ class MockTransport implements Transport {
     final RegExp statSdRegex = RegExp('^(?!{).+@.+:.+\\|.+', multiLine: true);
     envelopeItemData.addAll(await envelope.items.first.envelopeItemStream());
 
-    final envelopeItem = utf8.decode(envelopeItemData).split('\n{').last;
+    final envelopeItem = utf8.decode(envelopeItemData).split('\n').last;
     if (statSdRegex.hasMatch(envelopeItem)) {
-      statsdItems.addAll(envelopeItem.split('\n').skip(1));
+      statsdItems.add(envelopeItem);
     } else {
       final envelopeItemJson = jsonDecode(envelopeItem) as Map<String, dynamic>;
       events.add(SentryEvent.fromJson(envelopeItemJson));

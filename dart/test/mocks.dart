@@ -98,10 +98,26 @@ final fakeEvent = SentryEvent(
   ),
 );
 
-final fakeMetric = CounterMetric(value: 4, key: 'key', unit: DurationSentryMeasurementUnit.hour, tags: {'tag1': 'value1', 'tag2': 'value2'});
-final fakeMetric2 = CounterMetric(value: 2, key: 'key', unit: SentryMeasurementUnit.none, tags: {'tag1': 'value1', 'tag2': 'value2'});
-final fakeMetric3 = CounterMetric(value: 2, key: 'key', unit: SentryMeasurementUnit.none, tags: {'tag1': 'value1'});
-final fakeMetric4 = CounterMetric(value: 2, key: 'key2', unit: SentryMeasurementUnit.none, tags: {'tag1': 'value1'});
+final fakeMetric = CounterMetric(
+    value: 4,
+    key: 'key',
+    unit: DurationSentryMeasurementUnit.hour,
+    tags: {'tag1': 'value1', 'tag2': 'value2'});
+final fakeMetric2 = CounterMetric(
+    value: 2,
+    key: 'key',
+    unit: SentryMeasurementUnit.none,
+    tags: {'tag1': 'value1', 'tag2': 'value2'});
+final fakeMetric3 = CounterMetric(
+    value: 2,
+    key: 'key',
+    unit: SentryMeasurementUnit.none,
+    tags: {'tag1': 'value1'});
+final fakeMetric4 = CounterMetric(
+    value: 2,
+    key: 'key2',
+    unit: SentryMeasurementUnit.none,
+    tags: {'tag1': 'value1'});
 
 final Map<int, Iterable<Metric>> fakeMetrics = {
   10: [fakeMetric],

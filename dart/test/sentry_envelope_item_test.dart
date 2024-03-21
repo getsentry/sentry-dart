@@ -114,7 +114,11 @@ void main() {
     });
 
     test('fromUserFeedback', () async {
-      final userFeedback = SentryUserFeedback(eventId: SentryId.newId(), name: 'name', comments: 'comments', email: 'email');
+      final userFeedback = SentryUserFeedback(
+          eventId: SentryId.newId(),
+          name: 'name',
+          comments: 'comments',
+          email: 'email');
       final sut = SentryEnvelopeItem.fromUserFeedback(userFeedback);
 
       final expectedData = utf8.encode(jsonEncode(
@@ -138,7 +142,7 @@ void main() {
       final StringBuffer statsd = StringBuffer();
       for (MapEntry<int, Iterable<Metric>> bucket in fakeMetrics.entries) {
         final Iterable<String> encodedMetrics =
-        bucket.value.map((metric) => metric.encodeToStatsd(bucket.key));
+            bucket.value.map((metric) => metric.encodeToStatsd(bucket.key));
         statsd.write(encodedMetrics.join('\n'));
       }
       final expectedData = utf8.encode(statsd.toString());

@@ -736,7 +736,7 @@ void main() {
       expect(fixture.loggedMessage,
           'Metrics are empty and this \'captureMetrics\' call is a no-op.');
 
-      expect(fixture.client.captureMetricsCalls ,isEmpty);
+      expect(fixture.client.captureMetricsCalls, isEmpty);
     });
   });
 }
