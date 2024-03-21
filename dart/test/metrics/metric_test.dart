@@ -14,7 +14,7 @@ void main() {
     test('encode CounterMetric', () async {
       final int bucketKey = 10;
       final String expectedStatsd =
-          'key_metric_@hour:2.0|c|#tag1:tag value 1,key_2:@13/-d_s|T10';
+          'key_metric_@hour:2.1|c|#tag1:tag value 1,key_2:@13/-d_s|T10';
       final String actualStatsd =
           fixture.counterMetric.encodeToStatsd(bucketKey);
       expect(actualStatsd, expectedStatsd);
@@ -53,8 +53,10 @@ void main() {
 }
 
 class Fixture {
+  // We use a fractional number because on some platforms converting '2' to
+  //  string return '2', while others '2.0', and we'd have issues testing.
   final CounterMetric counterMetric = CounterMetric(
-    value: 2,
+    value: 2.1,
     key: 'key metric!',
     unit: DurationSentryMeasurementUnit.hour,
     tags: {'tag1': 'tag, value 1', 'key 2': '&@"13/-d_s'},

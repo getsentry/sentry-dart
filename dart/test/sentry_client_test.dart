@@ -13,7 +13,6 @@ import 'package:sentry/src/sentry_stack_trace_factory.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry/src/transport/data_category.dart';
 import 'package:sentry/src/transport/spotlight_http_transport.dart';
-import 'package:test/expect.dart';
 import 'package:test/test.dart';
 
 import 'mocks.dart';

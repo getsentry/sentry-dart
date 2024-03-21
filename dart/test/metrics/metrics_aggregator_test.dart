@@ -1,8 +1,6 @@
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/metrics/metric.dart';
 import 'package:sentry/src/metrics/metrics_aggregator.dart';
-import 'package:test/expect.dart';
-import 'package:test/scaffolding.dart';
 import 'package:test/test.dart';
 
 import '../mocks.dart';
