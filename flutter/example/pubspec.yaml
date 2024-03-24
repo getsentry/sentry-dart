@@ -21,14 +21,14 @@ dependencies:
   sentry_drift:
   sentry_isar:
   universal_platform: ^1.0.0
-  feedback: ^2.0.0
+  feedback: ^3.0.1
   provider: ^6.0.0
   dio: any # This gets constrained by `sentry_dio`
   sqflite: any # This gets constrained by `sentry_sqflite`
   logging: any # This gets constrained by `sentry_logging`
   drift: any # This gets constrained by `sentry_drift`
   isar: any # This gets constrained by `sentry_isar`
-  package_info_plus: ^4.0.0
+  package_info_plus: ^6.0.0
   path_provider: ^2.0.0
   #sqflite_common_ffi: ^2.0.0
   #sqflite_common_ffi_web: ^0.3.0
@@ -37,7 +37,7 @@ dependencies:
   sqlite3_flutter_libs: ^0.5.0
 
 dev_dependencies:
-  flutter_lints: ^2.0.0
+  flutter_lints: ^3.0.1
   sentry_dart_plugin: ^1.1.0
   integration_test:
     sdk: flutter
