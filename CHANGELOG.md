@@ -5,6 +5,9 @@
 ### Features
 
 - Add textScale(r) value to Flutter context ([#1886](https://github.com/getsentry/sentry-dart/pull/1886))
+### Improvements
+
+- Set `sentry_flutter.podspec` version from `pubspec.yaml` ([#1941](https://github.com/getsentry/sentry-dart/pull/1941))
 
 ## 7.18.0
 
