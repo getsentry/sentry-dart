@@ -14,7 +14,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: subosito/flutter-action@62f096cacda5168a3bd7b95793373be14fa4fbaf # pin@v2.13.0
+      - uses: subosito/flutter-action@1c5eb12d812966ca84680edc38353a0851c8fd56 # pin@v2.14.0
       - uses: bluefireteam/flutter-gh-pages@57815b17b371455ec1a98f075b71b4c6ba0a938c # pin@v8
         with:
           workingDir: flutter/example
