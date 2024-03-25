@@ -22,7 +22,8 @@ class MockHub with NoSuchMethodProvider implements Hub {
   int getSpanCalls = 0;
 
   final _options = SentryOptions(dsn: fakeDsn);
-  late final MetricsAggregator _metricsAggregator = MetricsAggregator(options: _options, hub: this);
+  late final MetricsAggregator _metricsAggregator =
+      MetricsAggregator(options: _options, hub: this);
 
   @override
   @internal
