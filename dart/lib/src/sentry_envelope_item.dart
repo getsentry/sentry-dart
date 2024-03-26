@@ -86,11 +86,11 @@ class SentryEnvelopeItem {
   /// Creates a [SentryEnvelopeItem] which holds several [Metric] data.
   factory SentryEnvelopeItem.fromMetrics(Map<int, Iterable<Metric>> buckets) {
     final cachedItem = _CachedItem(() async {
-      final StringBuffer statsd = StringBuffer();
+      final statsd = StringBuffer();
       // Encode all metrics of a bucket in statsd format, using the bucket key,
       //  which is the timestamp of the bucket.
-      for (MapEntry<int, Iterable<Metric>> bucket in buckets.entries) {
-        final Iterable<String> encodedMetrics =
+      for (final bucket in buckets.entries) {
+        final encodedMetrics =
             bucket.value.map((metric) => metric.encodeToStatsd(bucket.key));
         statsd.write(encodedMetrics.join('\n'));
       }

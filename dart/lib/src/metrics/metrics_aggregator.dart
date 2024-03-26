@@ -50,10 +50,9 @@ class MetricsAggregator {
       return;
     }
 
-    final int bucketKey = _getBucketKey(_options.clock());
-    final Map<String, Metric> bucket =
-        _buckets.putIfAbsent(bucketKey, () => {});
-    final Metric metric =
+    final bucketKey = _getBucketKey(_options.clock());
+    final bucket = _buckets.putIfAbsent(bucketKey, () => {});
+    final metric =
         CounterMetric(value: value, key: key, unit: unit, tags: tags);
 
     // Update the existing metric in the bucket.
@@ -90,7 +89,7 @@ class MetricsAggregator {
 
   /// Flush and sends metrics.
   Future<void> _flush() async {
-    final Iterable<int> flushableBucketKeys = _getFlushableBucketKeys();
+    final flushableBucketKeys = _getFlushableBucketKeys();
     if (flushableBucketKeys.isEmpty) {
       _options.logger(SentryLevel.debug, 'Metrics: nothing to flush');
       return;
@@ -100,7 +99,7 @@ class MetricsAggregator {
     int numMetrics = 0;
 
     for (int flushableBucketKey in flushableBucketKeys) {
-      final Map<String, Metric>? bucket = _buckets.remove(flushableBucketKey);
+      final bucket = _buckets.remove(flushableBucketKey);
       if (bucket != null) {
         numMetrics += bucket.length;
         bucketsToFlush[flushableBucketKey] = bucket.values;
@@ -120,11 +119,11 @@ class MetricsAggregator {
   List<int> _getFlushableBucketKeys() {
     // Flushable buckets are all buckets with timestamp lower than the current
     // one (so now - rollupInSeconds), minus a random duration (flushShiftMs).
-    final DateTime maxTimestampToFlush = _options.clock().subtract(Duration(
+    final maxTimestampToFlush = _options.clock().subtract(Duration(
           seconds: _rollupInSeconds,
           milliseconds: _flushShiftMs,
         ));
-    final int maxKeyToFlush = _getBucketKey(maxTimestampToFlush);
+    final maxKeyToFlush = _getBucketKey(maxTimestampToFlush);
 
     // takeWhile works because we use a SplayTreeMap and keys are ordered.
     // toList() is needed because takeWhile is lazy and we want to remove items
@@ -134,7 +133,7 @@ class MetricsAggregator {
 
   /// The timestamp of the bucket, rounded down to the nearest RollupInSeconds.
   int _getBucketKey(DateTime timestamp) {
-    final int seconds = timestamp.millisecondsSinceEpoch ~/ 1000;
+    final seconds = timestamp.millisecondsSinceEpoch ~/ 1000;
     return (seconds ~/ _rollupInSeconds) * _rollupInSeconds;
   }
 
