@@ -68,14 +68,14 @@ abstract class Metric {
   /// [bucketKey] is the key of the metric bucket that will be sent to Sentry,
   ///  and it's appended at the end of the encoded metric.
   String encodeToStatsd(int bucketKey) {
-    final StringBuffer buffer = StringBuffer();
+    final buffer = StringBuffer();
     buffer.write(_normalizeKey(key));
     buffer.write("@");
 
-    final String sanitizeUnitName = _sanitizeUnit(unit.name);
+    final sanitizeUnitName = _sanitizeUnit(unit.name);
     buffer.write(sanitizeUnitName);
 
-    for (Object value in _serializeValue()) {
+    for (final value in _serializeValue()) {
       buffer.write(":");
       buffer.write(value.toString());
     }
@@ -85,7 +85,7 @@ abstract class Metric {
 
     if (tags.isNotEmpty) {
       buffer.write("|#");
-      String serializedTags = tags.entries
+      final serializedTags = tags.entries
           .map((tag) =>
               '${_normalizeKey(tag.key)}:${_normalizeTagValue(tag.value)}')
           .join(',');
@@ -125,7 +125,7 @@ abstract class Metric {
       input.replaceAll(forbiddenUnitCharsRegex, '_');
 }
 
-/// Metric [MetricType.counter] that track a value that can only be incremented.
+/// Metric [MetricType.counter] that tracks a value that can only be incremented.
 @internal
 class CounterMetric extends Metric {
   num value;

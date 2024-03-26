@@ -718,7 +718,7 @@ void main() {
           'Metrics are disabled and this \'captureMetrics\' call is a no-op.');
     });
 
-    test('should not capture metrics if enableMetric is false', () async {
+    test('should not capture metrics if hub is closed', () async {
       final hub = fixture.getSut(debug: true);
       await hub.close();
 
