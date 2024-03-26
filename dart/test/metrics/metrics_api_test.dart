@@ -58,8 +58,10 @@ void main() {
       api.set('key', value: 2);
       // This adds both an int and a crc32 of the string to the metric
       api.set('key', value: 4, stringValue: 'value');
-      // This does nothing
+      // No value provided. This does nothing
       api.set('key');
+      // Empty String provided. This does nothing
+      api.set('key', stringValue: '');
 
       Iterable<Metric> sentMetrics =
           fixture.mockHub.metricsAggregator!.buckets.values.first.values;

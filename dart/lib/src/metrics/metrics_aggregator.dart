@@ -60,8 +60,7 @@ class MetricsAggregator {
     }
 
     final bucketKey = _getBucketKey(_options.clock());
-    final bucket =
-        _buckets.putIfAbsent(bucketKey, () => {});
+    final bucket = _buckets.putIfAbsent(bucketKey, () => {});
     final metric = Metric.fromType(
         type: metricType, key: key, value: value, unit: unit, tags: tags);
 
@@ -99,8 +98,8 @@ class MetricsAggregator {
 
   int getBucketWeight(final Map<String, Metric> bucket) {
     int weight = 0;
-    for (Metric value in bucket.values) {
-      weight += value.getWeight();
+    for (final metric in bucket.values) {
+      weight += metric.getWeight();
     }
     return weight;
   }
@@ -113,13 +112,13 @@ class MetricsAggregator {
       force = true;
     }
 
-    final Iterable<int> flushableBucketKeys = _getFlushableBucketKeys(force);
+    final flushableBucketKeys = _getFlushableBucketKeys(force);
     if (flushableBucketKeys.isEmpty) {
       _options.logger(SentryLevel.debug, 'Metrics: nothing to flush');
     } else {
       final Map<int, Iterable<Metric>> bucketsToFlush = {};
 
-      for (int flushableBucketKey in flushableBucketKeys) {
+      for (final flushableBucketKey in flushableBucketKeys) {
         final bucket = _buckets.remove(flushableBucketKey);
         if (bucket != null && bucket.isNotEmpty) {
           _totalWeight -= getBucketWeight(bucket);

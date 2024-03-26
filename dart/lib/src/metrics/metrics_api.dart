@@ -67,23 +67,23 @@ class MetricsApi {
       _hub.metricsAggregator?.emit(
         MetricType.set,
         key,
-        value.toDouble(),
+        value,
         unit ?? SentryMeasurementUnit.none,
         _enrichWithDefaultTags(tags),
       );
     }
-    if (stringValue != null) {
-      final int intValue = Crc32Utils.getCrc32(utf8.encode(stringValue));
+    if (stringValue != null && stringValue.isNotEmpty) {
+      final intValue = Crc32Utils.getCrc32(utf8.encode(stringValue));
 
       _hub.metricsAggregator?.emit(
         MetricType.set,
         key,
-        intValue.toDouble(),
+        intValue,
         unit ?? SentryMeasurementUnit.none,
         _enrichWithDefaultTags(tags),
       );
     }
-    if (value == null && stringValue == null) {
+    if (value == null && (stringValue == null || stringValue.isEmpty)) {
       _hub.options.logger(
           SentryLevel.info, 'No value provided. No metric will be emitted.');
     }
