@@ -7,28 +7,56 @@ import '../mocks.dart';
 import '../mocks/mock_hub.dart';
 
 void main() {
-  group('apis', () {
+  group('emit', () {
     late Fixture fixture;
 
     setUp(() {
       fixture = Fixture();
     });
 
-    test('increment emits counter metric', () async {
+    test('counter', () async {
       final MetricsAggregator sut = fixture.getSut();
       final String key = 'metric key';
       final double value = 5;
       final SentryMeasurementUnit unit = DurationSentryMeasurementUnit.minute;
       final Map<String, String> tags = {'tag1': 'val1', 'tag2': 'val2'};
-      sut.increment(key, value, unit, tags);
+      sut.emit(MetricType.counter, key, value, unit, tags);
 
       final metricsCaptured = sut.buckets.values.first.values;
       expect(metricsCaptured.length, 1);
+      expect(metricsCaptured.first, isA<CounterMetric>());
       expect(metricsCaptured.first.type, MetricType.counter);
       expect(metricsCaptured.first.key, key);
       expect((metricsCaptured.first as CounterMetric).value, value);
       expect(metricsCaptured.first.unit, unit);
       expect(metricsCaptured.first.tags, tags);
+    });
+
+    test('gauge', () async {
+      final MetricsAggregator sut = fixture.getSut();
+      sut.testEmit(type: MetricType.gauge);
+
+      final metricsCaptured = sut.buckets.values.first.values;
+      expect(metricsCaptured.first, isA<GaugeMetric>());
+      expect(metricsCaptured.first.type, MetricType.gauge);
+    });
+
+    test('distribution', () async {
+      final MetricsAggregator sut = fixture.getSut();
+      sut.testEmit(type: MetricType.distribution);
+
+      final metricsCaptured = sut.buckets.values.first.values;
+      expect(metricsCaptured.first, isA<DistributionMetric>());
+      expect(metricsCaptured.first.type, MetricType.distribution);
+    });
+
+    test('set', () async {
+      final MetricsAggregator sut = fixture.getSut();
+      sut.testEmit(type: MetricType.set);
+
+      final metricsCaptured = sut.buckets.values.first.values;
+      expect(metricsCaptured.first, isA<SetMetric>());
+      expect(metricsCaptured.first.type, MetricType.set);
     });
   });
 
@@ -41,8 +69,8 @@ void main() {
 
     test('same metric with different keys emit different metrics', () async {
       final MetricsAggregator sut = fixture.getSut();
-      sut.testIncrement(key: mockKey);
-      sut.testIncrement(key: mockKey2);
+      sut.testEmit(key: mockKey);
+      sut.testEmit(key: mockKey2);
 
       final timeBuckets = sut.buckets;
       final bucket = timeBuckets.values.first;
@@ -54,8 +82,8 @@ void main() {
 
     test('same metric with different units emit different metrics', () async {
       final MetricsAggregator sut = fixture.getSut();
-      sut.testIncrement(unit: mockUnit);
-      sut.testIncrement(unit: mockUnit2);
+      sut.testEmit(unit: mockUnit);
+      sut.testEmit(unit: mockUnit2);
 
       final timeBuckets = sut.buckets;
       final bucket = timeBuckets.values.first;
@@ -67,8 +95,8 @@ void main() {
 
     test('same metric with different tags emit different metrics', () async {
       final MetricsAggregator sut = fixture.getSut();
-      sut.testIncrement(tags: mockTags);
-      sut.testIncrement(tags: mockTags2);
+      sut.testEmit(tags: mockTags);
+      sut.testEmit(tags: mockTags2);
 
       final timeBuckets = sut.buckets;
       final bucket = timeBuckets.values.first;
@@ -80,8 +108,8 @@ void main() {
 
     test('increment same metric emit only one counter', () async {
       final MetricsAggregator sut = fixture.getSut();
-      sut.testIncrement(value: 1);
-      sut.testIncrement(value: 2);
+      sut.testEmit(type: MetricType.counter, value: 1);
+      sut.testEmit(type: MetricType.counter, value: 2);
 
       final timeBuckets = sut.buckets;
       final bucket = timeBuckets.values.first;
@@ -101,9 +129,9 @@ void main() {
     test('same metric in < 10 seconds interval emit only one metric', () async {
       final MetricsAggregator sut = fixture.getSut();
       fixture.options.clock = () => DateTime.fromMillisecondsSinceEpoch(0);
-      sut.testIncrement();
+      sut.testEmit();
       fixture.options.clock = () => DateTime.fromMillisecondsSinceEpoch(9999);
-      sut.testIncrement();
+      sut.testEmit();
 
       final timeBuckets = sut.buckets;
       expect(timeBuckets.length, 1);
@@ -112,11 +140,11 @@ void main() {
     test('same metric in >= 10 seconds interval emit two metrics', () async {
       final MetricsAggregator sut = fixture.getSut();
       fixture.options.clock = () => DateTime.fromMillisecondsSinceEpoch(0);
-      sut.testIncrement();
+      sut.testEmit();
       fixture.options.clock = () => DateTime.fromMillisecondsSinceEpoch(10000);
-      sut.testIncrement();
+      sut.testEmit();
       fixture.options.clock = () => DateTime.fromMillisecondsSinceEpoch(20000);
-      sut.testIncrement();
+      sut.testEmit();
 
       final timeBuckets = sut.buckets;
       expect(timeBuckets.length, 3);
@@ -134,16 +162,16 @@ void main() {
       final MetricsAggregator sut = fixture.getSut();
 
       expect(sut.flushCompleter, isNull);
-      sut.testIncrement();
+      sut.testEmit();
       expect(sut.flushCompleter, isNotNull);
     });
 
     test('flush calls hub captureMetrics', () async {
       final MetricsAggregator sut = fixture.getSut();
 
-      // emit a counter metric
+      // emit a metric
       fixture.options.clock = () => DateTime.fromMillisecondsSinceEpoch(0);
-      sut.testIncrement();
+      sut.testEmit();
       expect(fixture.mockHub.captureMetricsCalls, isEmpty);
 
       // mock clock to allow metric time aggregation
@@ -162,7 +190,7 @@ void main() {
       final MetricsAggregator sut = fixture.getSut();
 
       fixture.options.clock = () => DateTime.fromMillisecondsSinceEpoch(0);
-      sut.testIncrement();
+      sut.testEmit();
       fixture.options.clock = () => DateTime.fromMillisecondsSinceEpoch(10000);
       expect(sut.flushCompleter, isNotNull);
       await sut.flushCompleter!.future;
@@ -173,9 +201,9 @@ void main() {
       final MetricsAggregator sut = fixture.getSut();
 
       fixture.options.clock = () => DateTime.fromMillisecondsSinceEpoch(0);
-      sut.testIncrement();
+      sut.testEmit();
       fixture.options.clock = () => DateTime.fromMillisecondsSinceEpoch(10000);
-      sut.testIncrement();
+      sut.testEmit();
       expect(sut.flushCompleter, isNotNull);
       await sut.flushCompleter!.future;
       // we expect the aggregator flushed metrics and schedules flushing again
@@ -188,7 +216,7 @@ void main() {
           fixture.getSut(flushInterval: Duration(milliseconds: 100));
 
       fixture.options.clock = () => DateTime.fromMillisecondsSinceEpoch(10000);
-      sut.testIncrement();
+      sut.testEmit();
       fixture.options.clock = () => DateTime.fromMillisecondsSinceEpoch(10050);
 
       expect(sut.flushCompleter, isNotNull);
@@ -202,7 +230,7 @@ void main() {
       final MetricsAggregator sut = fixture.getSut();
 
       fixture.options.clock = () => DateTime.fromMillisecondsSinceEpoch(10000);
-      sut.testIncrement();
+      sut.testEmit();
 
       // The 10 second bucket is not finished, so it shouldn't capture anything
       fixture.options.clock = () => DateTime.fromMillisecondsSinceEpoch(19999);
@@ -219,7 +247,7 @@ void main() {
       final MetricsAggregator sut = fixture.getSut(flushShiftMs: 4000);
 
       fixture.options.clock = () => DateTime.fromMillisecondsSinceEpoch(10000);
-      sut.testIncrement();
+      sut.testEmit();
 
       // The 10 second bucket is not finished, so it shouldn't capture anything
       fixture.options.clock = () => DateTime.fromMillisecondsSinceEpoch(19999);
@@ -235,6 +263,51 @@ void main() {
       fixture.options.clock = () => DateTime.fromMillisecondsSinceEpoch(24000);
       await sut.flushCompleter!.future;
       expect(fixture.mockHub.captureMetricsCalls, isNotEmpty);
+    });
+
+    test('close flushes everything', () async {
+      final MetricsAggregator sut = fixture.getSut();
+      sut.testEmit();
+      sut.testEmit(type: MetricType.gauge);
+      // We have some metrics, but we don't flush them, yet
+      await sut.flushCompleter!.future;
+      expect(fixture.mockHub.captureMetricsCalls, isEmpty);
+
+      // Closing the aggregator. Flush everything
+      sut.close();
+      expect(fixture.mockHub.captureMetricsCalls, isNotEmpty);
+      expect(sut.buckets, isEmpty);
+    });
+  });
+
+  group('overweight', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    test('flush if exceeds maxWeight', () async {
+      final MetricsAggregator sut = fixture.getSut(maxWeight: 4);
+      sut.testEmit(type: MetricType.counter, key: 'key1');
+      sut.testEmit(type: MetricType.counter, key: 'key2');
+      sut.testEmit(type: MetricType.counter, key: 'key3');
+      await sut.flushCompleter!.future;
+      expect(fixture.mockHub.captureMetricsCalls, isEmpty);
+      // After the 4th metric is emitted, the aggregator flushes immediately
+      sut.testEmit(type: MetricType.counter, key: 'key4');
+      expect(fixture.mockHub.captureMetricsCalls, isNotEmpty);
+    });
+
+    test('does not flush if not exceeds maxWeight', () async {
+      final MetricsAggregator sut = fixture.getSut(maxWeight: 2);
+      // We are emitting the same metric, so no weight is added
+      sut.testEmit(type: MetricType.counter);
+      sut.testEmit(type: MetricType.counter);
+      sut.testEmit(type: MetricType.counter);
+      sut.testEmit(type: MetricType.counter);
+      await sut.flushCompleter!.future;
+      expect(fixture.mockHub.captureMetricsCalls, isEmpty);
     });
   });
 }
@@ -255,22 +328,25 @@ class Fixture {
   MetricsAggregator getSut({
     Duration flushInterval = const Duration(milliseconds: 1),
     int flushShiftMs = 0,
+    int maxWeight = 100000,
   }) {
     return MetricsAggregator(
         hub: mockHub,
         options: options,
         flushInterval: flushInterval,
-        flushShiftMs: flushShiftMs);
+        flushShiftMs: flushShiftMs,
+        maxWeight: maxWeight);
   }
 }
 
 extension _MetricsAggregatorUtils on MetricsAggregator {
-  testIncrement({
+  testEmit({
+    MetricType type = MetricType.counter,
     String key = mockKey,
     double value = mockValue,
     SentryMeasurementUnit unit = mockUnit,
     Map<String, String> tags = mockTags,
   }) {
-    increment(key, value, unit, tags);
+    emit(type, key, value, unit, tags);
   }
 }

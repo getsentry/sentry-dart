@@ -8,6 +8,7 @@ import 'package:sentry/src/client_reports/client_report.dart';
 import 'package:sentry/src/client_reports/discard_reason.dart';
 import 'package:sentry/src/client_reports/discarded_event.dart';
 import 'package:sentry/src/client_reports/noop_client_report_recorder.dart';
+import 'package:sentry/src/metrics/metric.dart';
 import 'package:sentry/src/sentry_item_type.dart';
 import 'package:sentry/src/sentry_stack_trace_factory.dart';
 import 'package:sentry/src/sentry_tracer.dart';
@@ -1726,7 +1727,7 @@ void main() {
       client.close();
       expect(client.metricsAggregator, isNotNull);
       client.metricsAggregator!
-          .increment('key', 1, SentryMeasurementUnit.none, {});
+          .emit(MetricType.counter, 'key', 1, SentryMeasurementUnit.none, {});
       // metricsAggregator is closed, so no metrics should be recorded
       expect(client.metricsAggregator!.buckets, isEmpty);
     });

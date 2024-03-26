@@ -98,22 +98,26 @@ final fakeEvent = SentryEvent(
   ),
 );
 
-final fakeMetric = CounterMetric(
+final fakeMetric = Metric.fromType(
+    type: MetricType.counter,
     value: 4,
     key: 'key',
     unit: DurationSentryMeasurementUnit.hour,
     tags: {'tag1': 'value1', 'tag2': 'value2'});
-final fakeMetric2 = CounterMetric(
+final fakeMetric2 = Metric.fromType(
+    type: MetricType.counter,
     value: 2,
     key: 'key',
     unit: SentryMeasurementUnit.none,
     tags: {'tag1': 'value1', 'tag2': 'value2'});
-final fakeMetric3 = CounterMetric(
+final fakeMetric3 = Metric.fromType(
+    type: MetricType.counter,
     value: 2,
     key: 'key',
     unit: SentryMeasurementUnit.none,
     tags: {'tag1': 'value1'});
-final fakeMetric4 = CounterMetric(
+final fakeMetric4 = Metric.fromType(
+    type: MetricType.counter,
     value: 2,
     key: 'key2',
     unit: SentryMeasurementUnit.none,
