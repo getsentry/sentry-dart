@@ -129,6 +129,10 @@ void main() {
 
       expect(Sentry.getSpan(), isNull);
     });
+
+    test('should provide metrics API', () async {
+      expect(Sentry.metrics(), Sentry.currentHub.metricsApi);
+    });
   });
 
   group('Sentry is enabled or disabled', () {
@@ -412,29 +416,7 @@ void main() {
     expect(sentryOptions.logger, isNot(dartLogger));
   });
 
-  group("Sentry init optionsConfiguration", () {
-    final fixture = Fixture();
-
-    test('throw is handled and logged', () async {
-      final sentryOptions = SentryOptions(dsn: fakeDsn)
-        ..automatedTestMode = false
-        ..debug = true
-        ..logger = fixture.mockLogger;
-
-      final exception = Exception("Exception in options callback");
-      await Sentry.init(
-        (options) async {
-          throw exception;
-        },
-        options: sentryOptions,
-      );
-
-      expect(fixture.loggedException, exception);
-      expect(fixture.loggedLevel, SentryLevel.error);
-    });
-  });
-
-  group("Sentry init optionsConfiguration", () {
+  group('Sentry init optionsConfiguration', () {
     final fixture = Fixture();
 
     test('throw is handled and logged', () async {

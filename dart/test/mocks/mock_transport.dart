@@ -6,6 +6,7 @@ import 'package:test/expect.dart';
 class MockTransport implements Transport {
   List<SentryEnvelope> envelopes = [];
   List<SentryEvent> events = [];
+  List<String> statsdItems = [];
 
   int _calls = 0;
   String _exceptions = '';
@@ -27,8 +28,7 @@ class MockTransport implements Transport {
     // failure causes. Instead, we log them and check on access to [calls].
     try {
       envelopes.add(envelope);
-      final event = await _eventFromEnvelope(envelope);
-      events.add(event);
+      await _eventFromEnvelope(envelope);
     } catch (e, stack) {
       _exceptions += '$e\n$stack\n\n';
       rethrow;
@@ -37,13 +37,18 @@ class MockTransport implements Transport {
     return envelope.header.eventId ?? SentryId.empty();
   }
 
-  Future<SentryEvent> _eventFromEnvelope(SentryEnvelope envelope) async {
+  Future<void> _eventFromEnvelope(SentryEnvelope envelope) async {
     final envelopeItemData = <int>[];
+    final RegExp statSdRegex = RegExp('^(?!{).+@.+:.+\\|.+', multiLine: true);
     envelopeItemData.addAll(await envelope.items.first.envelopeItemStream());
 
     final envelopeItem = utf8.decode(envelopeItemData).split('\n').last;
-    final envelopeItemJson = jsonDecode(envelopeItem) as Map<String, dynamic>;
-    return SentryEvent.fromJson(envelopeItemJson);
+    if (statSdRegex.hasMatch(envelopeItem)) {
+      statsdItems.add(envelopeItem);
+    } else {
+      final envelopeItemJson = jsonDecode(envelopeItem) as Map<String, dynamic>;
+      events.add(SentryEvent.fromJson(envelopeItemJson));
+    }
   }
 
   void reset() {

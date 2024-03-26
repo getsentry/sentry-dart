@@ -380,6 +380,32 @@ class SentryOptions {
   /// are set.
   bool? enableTracing;
 
+  /// Enables sending developer metrics to Sentry.
+  /// More on https://develop.sentry.dev/delightful-developer-metrics/.
+  /// Example:
+  /// ```dart
+  /// Sentry.metrics.counter('myMetric');
+  /// ```
+  @experimental
+  bool enableMetrics = false;
+
+  @experimental
+  bool _enableDefaultTagsForMetrics = false;
+
+  /// Enables enriching metrics with default tags. Requires [enableMetrics].
+  /// More on https://develop.sentry.dev/delightful-developer-metrics/sending-metrics-sdk/#automatic-tags-extraction
+  /// Currently adds release, environment and transaction name.
+  @experimental
+  bool get enableDefaultTagsForMetrics =>
+      enableMetrics && _enableDefaultTagsForMetrics;
+
+  /// Enables enriching metrics with default tags. Requires [enableMetrics].
+  /// More on https://develop.sentry.dev/delightful-developer-metrics/sending-metrics-sdk/#automatic-tags-extraction
+  /// Currently adds release, environment and transaction name.
+  @experimental
+  set enableDefaultTagsForMetrics(final bool enableDefaultTagsForMetrics) =>
+      _enableDefaultTagsForMetrics = enableDefaultTagsForMetrics;
+
   /// Only for internal use. Changed SDK behaviour when set to true:
   /// - Rethrow exceptions that occur in user provided closures
   @internal

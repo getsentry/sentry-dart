@@ -2,6 +2,9 @@ import 'dart:async';
 import 'dart:collection';
 
 import 'package:meta/meta.dart';
+import 'metrics/metric.dart';
+import 'metrics/metrics_aggregator.dart';
+import 'metrics/metrics_api.dart';
 import 'profiling.dart';
 import 'propagation_context.dart';
 import 'transport/data_category.dart';
@@ -38,6 +41,14 @@ class Hub {
 
   late final _WeakMap _throwableToSpan;
 
+  late final MetricsApi _metricsApi;
+
+  @internal
+  MetricsApi get metricsApi => _metricsApi;
+
+  @internal
+  MetricsAggregator? get metricsAggregator => _peek().client.metricsAggregator;
+
   factory Hub(SentryOptions options) {
     _validateOptions(options);
 
@@ -49,6 +60,7 @@ class Hub {
     _stack.add(_StackItem(_getClient(_options), Scope(_options)));
     _isEnabled = true;
     _throwableToSpan = _WeakMap(_options);
+    _metricsApi = MetricsApi(hub: this);
   }
 
   static void _validateOptions(SentryOptions options) {
@@ -549,6 +561,42 @@ class Hub {
             stackTrace: stackTrace,
           );
         }
+      }
+    }
+    return sentryId;
+  }
+
+  @internal
+  Future<SentryId> captureMetrics(
+      Map<int, Iterable<Metric>> metricsBuckets) async {
+    var sentryId = SentryId.empty();
+
+    if (!_isEnabled) {
+      _options.logger(
+        SentryLevel.warning,
+        "Instance is disabled and this 'captureMetrics' call is a no-op.",
+      );
+    } else if (!_options.enableMetrics) {
+      _options.logger(
+        SentryLevel.info,
+        "Metrics are disabled and this 'captureMetrics' call is a no-op.",
+      );
+    } else if (metricsBuckets.isEmpty) {
+      _options.logger(
+        SentryLevel.info,
+        "Metrics are empty and this 'captureMetrics' call is a no-op.",
+      );
+    } else {
+      final item = _peek();
+      try {
+        sentryId = await item.client.captureMetrics(metricsBuckets);
+      } catch (exception, stackTrace) {
+        _options.logger(
+          SentryLevel.error,
+          'Error while capturing metrics.',
+          exception: exception,
+          stackTrace: stackTrace,
+        );
       }
     }
     return sentryId;

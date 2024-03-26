@@ -1,4 +1,5 @@
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/metrics/metric.dart';
 
 import 'no_such_method_provider.dart';
 
@@ -9,6 +10,7 @@ class MockSentryClient with NoSuchMethodProvider implements SentryClient {
   List<CaptureEnvelopeCall> captureEnvelopeCalls = [];
   List<CaptureTransactionCall> captureTransactionCalls = [];
   List<SentryUserFeedback> userFeedbackCalls = [];
+  List<Map<int, Iterable<Metric>>> captureMetricsCalls = [];
   int closeCalls = 0;
 
   @override
@@ -72,6 +74,12 @@ class MockSentryClient with NoSuchMethodProvider implements SentryClient {
   @override
   Future<void> captureUserFeedback(SentryUserFeedback userFeedback) async {
     userFeedbackCalls.add(userFeedback);
+  }
+
+  @override
+  Future<SentryId> captureMetrics(Map<int, Iterable<Metric>> metrics) async {
+    captureMetricsCalls.add(metrics);
+    return SentryId.newId();
   }
 
   @override
@@ -148,4 +156,10 @@ class CaptureTransactionCall {
   final SentryTraceContextHeader? traceContext;
 
   CaptureTransactionCall(this.transaction, this.traceContext);
+}
+
+class CaptureMetricsCall {
+  final Map<int, Iterable<Metric>> metricsBuckets;
+
+  CaptureMetricsCall(this.metricsBuckets);
 }
