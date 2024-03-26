@@ -147,7 +147,7 @@ class CounterMetric extends Metric {
   int getWeight() => 1;
 }
 
-/// Metric [MetricType.gauge] that track a value that can go up and down.
+/// Metric [MetricType.gauge] that tracks a value that can go up and down.
 @internal
 class GaugeMetric extends Metric {
   num _last;
@@ -196,7 +196,7 @@ class GaugeMetric extends Metric {
   int get count => _count;
 }
 
-/// Metric [MetricType.set] that track a set of values on which you can perform
+/// Metric [MetricType.set] that tracks a set of values on which you can perform
 /// aggregations such as count_unique.
 @internal
 class SetMetric extends Metric {
@@ -224,7 +224,7 @@ class SetMetric extends Metric {
   Set<num> get values => _values;
 }
 
-/// Metric [MetricType.distribution] that track a list of values.
+/// Metric [MetricType.distribution] that tracks a list of values.
 @internal
 class DistributionMetric extends Metric {
   final List<num> _values = [];
