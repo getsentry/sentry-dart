@@ -165,6 +165,10 @@ class SentryOptions {
   /// to the scope. When nothing is returned from the function, the breadcrumb is dropped
   BeforeBreadcrumbCallback? beforeBreadcrumb;
 
+  /// This function is called right before a metric is about to be emitted.
+  /// Can return true to emit the metric, or false to drop it.
+  BeforeMetricCallback? beforeMetricCallback;
+
   /// Sets the release. SDK will try to automatically configure a release out of the box
   /// See [docs for further information](https://docs.sentry.io/platforms/flutter/configuration/releases/)
   String? release;
@@ -524,6 +528,13 @@ typedef BeforeSendTransactionCallback = FutureOr<SentryTransaction?> Function(
 typedef BeforeBreadcrumbCallback = Breadcrumb? Function(
   Breadcrumb? breadcrumb, {
   Hint? hint,
+});
+
+/// This function is called right before a metric is about to be emitted.
+/// Can return true to emit the metric, or false to drop it.
+typedef BeforeMetricCallback = bool Function(
+  String key, {
+  Map<String, String>? tags,
 });
 
 /// Used to provide timestamp for logging.
