@@ -93,9 +93,9 @@ void main() {
       // The default unit is second
       expect(sentMetrics.first.unit, DurationSentryMeasurementUnit.second);
       // It awaits for the function completion, which means 100 milliseconds in
-      // this case. Since the unit is second, its value (duration) is > 0.1
+      // this case. Since the unit is second, its value (duration) is >= 0.1
       expect(
-          (sentMetrics.first as DistributionMetric).values.first > 0.1, true);
+          (sentMetrics.first as DistributionMetric).values.first >= 0.1, true);
     });
 
     test('timing starts a span', () async {
@@ -123,7 +123,8 @@ void main() {
       // Timing finishes the span when the function is finished, which takes 100 milliseconds
       await completer.future;
       expect(
-        span.endTimestamp!.difference(span.startTimestamp).inMilliseconds > 100,
+        span.endTimestamp!.difference(span.startTimestamp).inMilliseconds >=
+            100,
         true,
       );
       expect(span.finished, true);
