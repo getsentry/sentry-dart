@@ -280,6 +280,54 @@ void main() {
     });
   });
 
+  group('beforeMetric', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    test('emits if not set', () async {
+      final MetricsAggregator sut = fixture.getSut(maxWeight: 4);
+      sut.testEmit(key: 'key1');
+      final metricsCaptured = sut.buckets.values.first.values;
+      expect(metricsCaptured.length, 1);
+      expect(metricsCaptured.first.key, 'key1');
+    });
+
+    test('drops if it return false', () async {
+      final MetricsAggregator sut = fixture.getSut(maxWeight: 4);
+      fixture.options.beforeMetricCallback = (key, {tags}) => key != 'key2';
+      sut.testEmit(key: 'key1');
+      sut.testEmit(key: 'key2');
+      final metricsCaptured = sut.buckets.values.first.values;
+      expect(metricsCaptured.length, 1);
+      expect(metricsCaptured.first.key, 'key1');
+    });
+
+    test('emits if it return true', () async {
+      final MetricsAggregator sut = fixture.getSut(maxWeight: 4);
+      fixture.options.beforeMetricCallback = (key, {tags}) => true;
+      sut.testEmit(key: 'key1');
+      sut.testEmit(key: 'key2');
+      final metricsCaptured = sut.buckets.values.first.values;
+      expect(metricsCaptured.length, 2);
+      expect(metricsCaptured.first.key, 'key1');
+      expect(metricsCaptured.last.key, 'key2');
+    });
+
+    test('emits if it throws', () async {
+      final MetricsAggregator sut = fixture.getSut(maxWeight: 4);
+      fixture.options.beforeMetricCallback = (key, {tags}) => throw Exception();
+      sut.testEmit(key: 'key1');
+      sut.testEmit(key: 'key2');
+      final metricsCaptured = sut.buckets.values.first.values;
+      expect(metricsCaptured.length, 2);
+      expect(metricsCaptured.first.key, 'key1');
+      expect(metricsCaptured.last.key, 'key2');
+    });
+  });
+
   group('overweight', () {
     late Fixture fixture;
 

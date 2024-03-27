@@ -59,6 +59,30 @@ class MetricsAggregator {
       return;
     }
 
+    // run before metric callback if set
+    if (_options.beforeMetricCallback != null) {
+      try {
+        final shouldEmit = _options.beforeMetricCallback!(key, tags: tags);
+        if (!shouldEmit) {
+          _options.logger(
+            SentryLevel.info,
+            'Metric was dropped by beforeMetric',
+          );
+          return;
+        }
+      } catch (exception, stackTrace) {
+        _options.logger(
+          SentryLevel.error,
+          'The BeforeMetric callback threw an exception',
+          exception: exception,
+          stackTrace: stackTrace,
+        );
+        if (_options.automatedTestMode) {
+          rethrow;
+        }
+      }
+    }
+
     final bucketKey = _getBucketKey(_options.clock());
     final bucket = _buckets.putIfAbsent(bucketKey, () => {});
     final metric = Metric.fromType(
