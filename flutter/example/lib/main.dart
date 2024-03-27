@@ -543,7 +543,8 @@ class MainScaffold extends StatelessWidget {
                 Sentry.metrics()
                     .gauge('gauge key', value: Random().nextDouble() * 10);
                 Sentry.metrics().timing('timing key',
-                    function: () async => await Future.delayed(Duration(milliseconds: Random().nextInt(100))),
+                    function: () async => await Future.delayed(
+                        Duration(milliseconds: Random().nextInt(100))),
                     unit: DurationSentryMeasurementUnit.milliSecond);
               },
               text:
