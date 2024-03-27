@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/metrics/metric.dart';
 import 'package:sentry/src/metrics/metrics_api.dart';
@@ -73,15 +75,16 @@ void main() {
 
     test('timing emits distribution', () async {
       final delay = Duration(milliseconds: 100);
+      final completer = Completer<void>();
       MetricsApi api = fixture.getSut();
-      int count = 0;
 
       // The timing API tries to start a child span
       expect(fixture.mockHub.getSpanCalls, 0);
-      api.timing('key', function: () => Future.delayed(delay, () => count++));
+      api.timing('key',
+          function: () => Future.delayed(delay, () => completer.complete()));
       expect(fixture.mockHub.getSpanCalls, 1);
 
-      await Future.delayed(delay);
+      await completer.future;
       Iterable<Metric> sentMetrics =
           fixture.mockHub.metricsAggregator!.buckets.values.first.values;
 
@@ -97,6 +100,7 @@ void main() {
 
     test('timing starts a span', () async {
       final delay = Duration(milliseconds: 100);
+      final completer = Completer<void>();
       fixture._options.tracesSampleRate = 1;
       MetricsApi api = fixture.getSut(hub: fixture.hub);
 
@@ -109,14 +113,15 @@ void main() {
       expect(t.children, isEmpty);
 
       // Timing starts a span
-      api.timing('my key', function: () => Future.delayed(delay, () => {}));
+      api.timing('my key',
+          function: () => Future.delayed(delay, () => completer.complete()));
       final span = t.children.first;
       expect(span.finished, false);
       expect(span.context.operation, 'metric.timing');
       expect(span.context.description, 'my key');
 
       // Timing finishes the span when the function is finished, which takes 100 milliseconds
-      await Future.delayed(delay);
+      await completer.future;
       expect(
         span.endTimestamp!.difference(span.startTimestamp).inMilliseconds > 100,
         true,
