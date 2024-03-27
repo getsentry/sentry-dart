@@ -105,28 +105,25 @@ void main() {
       MetricsApi api = fixture.getSut(hub: fixture.hub);
 
       // Start a transaction so that timing api can start a child span
-      final t = fixture.hub.startTransaction(
+      final transaction = fixture.hub.startTransaction(
         'name',
         'operation',
         bindToScope: true,
       ) as SentryTracer;
-      expect(t.children, isEmpty);
+      expect(transaction.children, isEmpty);
 
       // Timing starts a span
       api.timing('my key',
           function: () => Future.delayed(delay, () => completer.complete()));
-      final span = t.children.first;
+      final span = transaction.children.first;
       expect(span.finished, false);
       expect(span.context.operation, 'metric.timing');
       expect(span.context.description, 'my key');
+      final spanDuration = span.endTimestamp!.difference(span.startTimestamp);
 
       // Timing finishes the span when the function is finished, which takes 100 milliseconds
       await completer.future;
-      expect(
-        span.endTimestamp!.difference(span.startTimestamp).inMilliseconds >=
-            100,
-        true,
-      );
+      expect(spanDuration.inMilliseconds >= 100, true);
       expect(span.finished, true);
     });
   });
