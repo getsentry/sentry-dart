@@ -138,13 +138,17 @@ class MetricsApi {
       }
     } finally {
       final after = _hub.options.clock();
-      final duration = after.difference(before);
+      Duration duration = after.difference(before);
+      // If we have a span, we use its duration as value for the emitted metric
+      if (span != null) {
+        await span.finish();
+        duration =
+            span.endTimestamp?.difference(span.startTimestamp) ?? duration;
+      }
       final value = _convertMicrosTo(unit, duration.inMicroseconds);
 
       _hub.metricsAggregator?.emit(MetricType.distribution, key, value, unit,
           _enrichWithDefaultTags(tags));
-
-      await span?.finish();
     }
   }
 
@@ -156,7 +160,7 @@ class MetricsApi {
       case DurationSentryMeasurementUnit.microSecond:
         return micros.toDouble();
       case DurationSentryMeasurementUnit.milliSecond:
-        return micros / 1000;
+        return micros / 1000.0;
       case DurationSentryMeasurementUnit.second:
         return micros / 1000000.0;
       case DurationSentryMeasurementUnit.minute:

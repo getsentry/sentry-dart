@@ -102,6 +102,7 @@ void main() {
       final delay = Duration(milliseconds: 100);
       final completer = Completer<void>();
       fixture._options.tracesSampleRate = 1;
+      fixture._options.enableMetrics = true;
       MetricsApi api = fixture.getSut(hub: fixture.hub);
 
       // Start a transaction so that timing api can start a child span
@@ -114,17 +115,28 @@ void main() {
 
       // Timing starts a span
       api.timing('my key',
+          unit: DurationSentryMeasurementUnit.milliSecond,
           function: () => Future.delayed(delay, () => completer.complete()));
       final span = transaction.children.first;
       expect(span.finished, false);
       expect(span.context.operation, 'metric.timing');
       expect(span.context.description, 'my key');
-      final spanDuration = span.endTimestamp!.difference(span.startTimestamp);
 
       // Timing finishes the span when the function is finished, which takes 100 milliseconds
       await completer.future;
-      expect(spanDuration.inMilliseconds >= 100, true);
       expect(span.finished, true);
+      final spanDuration = span.endTimestamp!.difference(span.startTimestamp);
+      expect(spanDuration.inMilliseconds >= 100, true);
+      await Future.delayed(Duration());
+
+      Iterable<Metric> sentMetrics =
+          fixture.hub.metricsAggregator!.buckets.values.first.values;
+
+      // The emitted metric value should match the span duration
+      expect(sentMetrics.first.unit, DurationSentryMeasurementUnit.milliSecond);
+      // Duration.inMilliseconds returns an int, so we have to assert it
+      expect((sentMetrics.first as DistributionMetric).values.first.toInt(),
+          spanDuration.inMilliseconds);
     });
   });
 }
