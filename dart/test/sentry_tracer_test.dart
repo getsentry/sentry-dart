@@ -468,6 +468,21 @@ void main() {
 
       expect(sut.measurements.isEmpty, true);
     });
+
+    test('localMetricsAggregator is set when option is enabled', () async {
+      fixture.hub.options.enableMetrics = true;
+      fixture.hub.options.enableSpanLocalMetricAggregation = true;
+      final sut = fixture.getSut();
+      expect(fixture.hub.options.enableSpanLocalMetricAggregation, true);
+      expect(sut.localMetricsAggregator, isNotNull);
+    });
+
+    test('localMetricsAggregator is null when option is disabled', () async {
+      fixture.hub.options.enableMetrics = false;
+      final sut = fixture.getSut();
+      expect(fixture.hub.options.enableSpanLocalMetricAggregation, false);
+      expect(sut.localMetricsAggregator, null);
+    });
   });
 
   group('$SentryBaggageHeader', () {
