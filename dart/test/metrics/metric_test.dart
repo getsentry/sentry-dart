@@ -57,10 +57,9 @@ void main() {
 
     test('encode CounterMetric', () async {
       final int bucketKey = 10;
-      final String expectedStatsd =
+      final expectedStatsd =
           'key_metric_@hour:2.1|c|#tag1:tag value 1,key_2:@13/-d_s|T10';
-      final String actualStatsd =
-          fixture.counterMetric.encodeToStatsd(bucketKey);
+      final actualStatsd = fixture.counterMetric.encodeToStatsd(bucketKey);
       expect(actualStatsd, expectedStatsd);
     });
   });
@@ -72,12 +71,12 @@ void main() {
       fixture = Fixture();
     });
 
-    test('getCompositeKey escapes commas from tags', () async {
+    test('escapes commas from tags', () async {
       final Iterable<String> tags = fixture.counterMetric.tags.values;
-      final String joinedTags = tags.join();
+      final joinedTags = tags.join();
       final Iterable<String> expectedTags =
           tags.map((e) => e.replaceAll(',', '\\,'));
-      final String actualKey = fixture.counterMetric.getCompositeKey();
+      final actualKey = fixture.counterMetric.getCompositeKey();
 
       expect(joinedTags.contains(','), true);
       expect(joinedTags.contains('\\,'), false);
@@ -87,31 +86,63 @@ void main() {
       }
     });
 
-    test('getCompositeKey CounterMetric', () async {
-      final String expectedKey =
+    test('CounterMetric', () async {
+      final expectedKey =
           'c_key metric!_hour_tag1=tag\\, value 1,key 2=&@"13/-d_s';
-      final String actualKey = fixture.counterMetric.getCompositeKey();
+      final actualKey = fixture.counterMetric.getCompositeKey();
       expect(actualKey, expectedKey);
     });
 
-    test('getCompositeKey GaugeMetric', () async {
-      final String expectedKey =
+    test('GaugeMetric', () async {
+      final expectedKey =
           'g_key metric!_hour_tag1=tag\\, value 1,key 2=&@"13/-d_s';
-      final String actualKey = fixture.gaugeMetric.getCompositeKey();
+      final actualKey = fixture.gaugeMetric.getCompositeKey();
       expect(actualKey, expectedKey);
     });
 
-    test('getCompositeKey DistributionMetric', () async {
-      final String expectedKey =
+    test('DistributionMetric', () async {
+      final expectedKey =
           'd_key metric!_hour_tag1=tag\\, value 1,key 2=&@"13/-d_s';
-      final String actualKey = fixture.distributionMetric.getCompositeKey();
+      final actualKey = fixture.distributionMetric.getCompositeKey();
       expect(actualKey, expectedKey);
     });
 
-    test('getCompositeKey SetMetric', () async {
-      final String expectedKey =
+    test('SetMetric', () async {
+      final expectedKey =
           's_key metric!_hour_tag1=tag\\, value 1,key 2=&@"13/-d_s';
-      final String actualKey = fixture.setMetric.getCompositeKey();
+      final actualKey = fixture.setMetric.getCompositeKey();
+      expect(actualKey, expectedKey);
+    });
+  });
+
+  group('getSpanAggregationKey', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    test('CounterMetric', () async {
+      final expectedKey = 'c:key metric!@hour';
+      final actualKey = fixture.counterMetric.getSpanAggregationKey();
+      expect(actualKey, expectedKey);
+    });
+
+    test('GaugeMetric', () async {
+      final expectedKey = 'g:key metric!@hour';
+      final actualKey = fixture.gaugeMetric.getSpanAggregationKey();
+      expect(actualKey, expectedKey);
+    });
+
+    test('DistributionMetric', () async {
+      final expectedKey = 'd:key metric!@hour';
+      final actualKey = fixture.distributionMetric.getSpanAggregationKey();
+      expect(actualKey, expectedKey);
+    });
+
+    test('SetMetric', () async {
+      final expectedKey = 's:key metric!@hour';
+      final actualKey = fixture.setMetric.getSpanAggregationKey();
       expect(actualKey, expectedKey);
     });
   });

@@ -531,6 +531,9 @@ class MainScaffold extends StatelessWidget {
             ),
             TooltipButton(
               onPressed: () async {
+                final span = Sentry.getSpan() ??
+                    Sentry.startTransaction(
+                        'testMetrics', 'span summary example', bindToScope: true);
                 Sentry.metrics().increment('increment key',
                     unit: DurationSentryMeasurementUnit.day);
                 Sentry.metrics().distribution('distribution key',
@@ -542,10 +545,13 @@ class MainScaffold extends StatelessWidget {
                     stringValue: 'Random n ${Random().nextInt(100)}');
                 Sentry.metrics()
                     .gauge('gauge key', value: Random().nextDouble() * 10);
-                Sentry.metrics().timing('timing key',
-                    function: () async => await Future.delayed(
-                        Duration(milliseconds: Random().nextInt(100))),
-                    unit: DurationSentryMeasurementUnit.milliSecond);
+                Sentry.metrics().timing(
+                  'timing key',
+                  function: () async => await Future.delayed(
+                      Duration(milliseconds: Random().nextInt(100)),
+                      () => span.finish()),
+                  unit: DurationSentryMeasurementUnit.milliSecond,
+                );
               },
               text:
                   'Demonstrates the metrics. It creates several metrics and send them to Sentry.',
