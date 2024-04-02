@@ -7,7 +7,6 @@ import '../protocol.dart';
 import '../sentry_tracer.dart';
 import '../tracing.dart';
 import '../utils.dart';
-import 'metric_summary.dart';
 
 typedef OnFinishedCallback = Future<void> Function({DateTime? endTimestamp});
 
