@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+
+- Set `sentry_flutter.podspec` version from `pubspec.yaml` ([#1941](https://github.com/getsentry/sentry-dart/pull/1941))
+
 ## 7.18.0
 
 ### Features
