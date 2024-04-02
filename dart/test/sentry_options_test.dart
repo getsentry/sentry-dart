@@ -176,7 +176,8 @@ void main() {
     expect(options.enableSpanLocalMetricAggregation, false);
   });
 
-  test('span local metric aggregation is enabled if metrics are enabled, too', () {
+  test('span local metric aggregation is enabled if metrics are enabled, too',
+      () {
     final options = SentryOptions(dsn: fakeDsn);
     options.enableMetrics = true;
     options.enableSpanLocalMetricAggregation = true;

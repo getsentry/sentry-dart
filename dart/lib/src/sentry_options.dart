@@ -422,7 +422,8 @@ class SentryOptions {
   /// Enables span metrics aggregation. Requires [enableMetrics].
   /// More on https://develop.sentry.dev/sdk/metrics/#span-aggregation
   @experimental
-  set enableSpanLocalMetricAggregation(final bool enableDefaultTagsForMetrics) =>
+  set enableSpanLocalMetricAggregation(
+          final bool enableDefaultTagsForMetrics) =>
       _enableSpanLocalMetricAggregation = enableDefaultTagsForMetrics;
 
   /// Only for internal use. Changed SDK behaviour when set to true:

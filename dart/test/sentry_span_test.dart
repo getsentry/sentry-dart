@@ -1,5 +1,4 @@
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/metrics/metric.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:test/test.dart';
 
@@ -306,6 +305,7 @@ void main() {
   });
 
   test('localMetricsAggregator is null when option is disabled', () async {
+    fixture.hub.options.enableSpanLocalMetricAggregation = false;
     final sut = fixture.getSut();
     expect(fixture.hub.options.enableSpanLocalMetricAggregation, false);
     expect(sut.localMetricsAggregator, null);

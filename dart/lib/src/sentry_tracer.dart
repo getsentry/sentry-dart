@@ -416,5 +416,6 @@ class SentryTracer extends ISentrySpan {
   }
 
   @override
-  LocalMetricsAggregator? get localMetricsAggregator => _rootSpan.localMetricsAggregator;
+  LocalMetricsAggregator? get localMetricsAggregator =>
+      _rootSpan.localMetricsAggregator;
 }

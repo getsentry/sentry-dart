@@ -16,19 +16,19 @@ class MetricSummary {
 
   const MetricSummary(
       {required this.min,
-        required this.max,
-        required this.sum,
-        required this.count,
-        required this.tags});
+      required this.max,
+      required this.sum,
+      required this.count,
+      required this.tags});
 
   /// Deserializes a [MetricSummary] from JSON [Map].
   factory MetricSummary.fromJson(Map<String, dynamic> data) => MetricSummary(
-    min: data['min'],
-    max: data['max'],
-    count: data['count'],
-    sum: data['sum'],
-    tags: data['tags']?.cast<String, String>(),
-  );
+        min: data['min'],
+        max: data['max'],
+        count: data['count'],
+        sum: data['sum'],
+        tags: data['tags']?.cast<String, String>(),
+      );
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
