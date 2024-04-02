@@ -533,7 +533,8 @@ class MainScaffold extends StatelessWidget {
               onPressed: () async {
                 final span = Sentry.getSpan() ??
                     Sentry.startTransaction(
-                        'testMetrics', 'span summary example', bindToScope: true);
+                        'testMetrics', 'span summary example',
+                        bindToScope: true);
                 Sentry.metrics().increment('increment key',
                     unit: DurationSentryMeasurementUnit.day);
                 Sentry.metrics().distribution('distribution key',
