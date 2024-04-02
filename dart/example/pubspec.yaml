@@ -12,4 +12,4 @@ dependencies:
     path: ../../dart
 
 dev_dependencies:
-  lints: ^3.0.0
+  lints: '>=2.0.0 <4.0.0'
