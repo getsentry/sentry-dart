@@ -80,7 +80,7 @@ class MetricsAggregator {
     _scheduleFlush();
   }
 
-  Future<void> _scheduleFlush() async {
+  void _scheduleFlush() {
     if (!_isClosed && _buckets.isNotEmpty) {
       if (_isOverWeight()) {
         _flushTimer?.cancel();
@@ -133,7 +133,7 @@ class MetricsAggregator {
     _flushTimer = null;
     flushCompleter?.complete(null);
     _flushCompleter = null;
-    await _scheduleFlush();
+    _scheduleFlush();
   }
 
   /// Return a list of bucket keys to flush.

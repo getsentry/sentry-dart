@@ -208,7 +208,7 @@ class SetMetric extends Metric {
       required super.unit,
       required super.tags})
       : super(type: MetricType.set) {
-    _values.add(value.toInt());
+    add(value);
   }
 
   @override
@@ -235,7 +235,7 @@ class DistributionMetric extends Metric {
       required super.unit,
       required super.tags})
       : super(type: MetricType.distribution) {
-    _values.add(value);
+    add(value);
   }
 
   @override

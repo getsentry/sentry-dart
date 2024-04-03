@@ -10,6 +10,7 @@ class MetricsApi {
   final Hub _hub;
 
   /// Emits a Counter metric, identified by [key], increasing it by [value].
+  /// Counters track a value that can only be incremented.
   /// You can set the [unit] and the optional [tags] to associate to the metric.
   void increment(final String key,
       {final double value = 1.0,
@@ -25,6 +26,7 @@ class MetricsApi {
   }
 
   /// Emits a Gauge metric, identified by [key], adding [value] to it.
+  /// Gauges track a value that can go up and down.
   /// You can set the [unit] and the optional [tags] to associate to the metric.
   void gauge(final String key,
       {required final double value,
@@ -39,7 +41,8 @@ class MetricsApi {
     );
   }
 
-  /// Emits a Gauge metric, identified by [key], adding [value] to it.
+  /// Emits a Distribution metric, identified by [key], adding [value] to it.
+  /// Distributions track a list of values.
   /// You can set the [unit] and the optional [tags] to associate to the metric.
   void distribution(final String key,
       {required final double value,
@@ -57,6 +60,7 @@ class MetricsApi {
   /// Emits a Set metric, identified by [key], adding [value] or the CRC32
   ///  checksum of [stringValue] to it.
   /// Providing both [value] and [stringValue] adds both values to the metric.
+  /// Sets track a set of values to perform aggregations such as count_unique.
   /// You can set the [unit] and the optional [tags] to associate to the metric.
   void set(final String key,
       {final int? value,
