@@ -8,7 +8,7 @@ buildscript {
 
     dependencies {
         classpath 'io.sentry:sentry-android-gradle-plugin:4.2.0'
-        classpath 'com.android.tools.build:gradle:7.2.2'
+        classpath 'com.android.tools.build:gradle:7.4.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath 'io.github.howardpang:androidNativeBundle:1.1.3'
     }
