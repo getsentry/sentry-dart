@@ -423,8 +423,8 @@ class SentryOptions {
   /// More on https://develop.sentry.dev/sdk/metrics/#span-aggregation
   @experimental
   set enableSpanLocalMetricAggregation(
-          final bool enableDefaultTagsForMetrics) =>
-      _enableSpanLocalMetricAggregation = enableDefaultTagsForMetrics;
+          final bool enableSpanLocalMetricAggregation) =>
+      _enableSpanLocalMetricAggregation = enableSpanLocalMetricAggregation;
 
   /// Only for internal use. Changed SDK behaviour when set to true:
   /// - Rethrow exceptions that occur in user provided closures
