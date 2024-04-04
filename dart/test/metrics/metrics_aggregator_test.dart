@@ -60,6 +60,91 @@ void main() {
     });
   });
 
+  group('span local aggregation', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    test('emit calls add', () async {
+      final MetricsAggregator sut = fixture.getSut(hub: fixture.hub);
+      final t = fixture.hub.startTransaction('test', 'op', bindToScope: true);
+
+      var spanSummary = t.localMetricsAggregator?.getSummaries().values;
+      expect(spanSummary, isEmpty);
+
+      sut.testEmit();
+
+      spanSummary = t.localMetricsAggregator?.getSummaries().values;
+      expect(spanSummary, isNotEmpty);
+    });
+
+    test('emit counter', () async {
+      final MetricsAggregator sut = fixture.getSut(hub: fixture.hub);
+      final t = fixture.hub.startTransaction('test', 'op', bindToScope: true);
+
+      sut.testEmit(type: MetricType.counter, value: 1);
+      sut.testEmit(type: MetricType.counter, value: 4);
+
+      final spanSummary = t.localMetricsAggregator?.getSummaries().values.first;
+      expect(spanSummary!.length, 1);
+      expect(spanSummary.first.sum, 5);
+      expect(spanSummary.first.min, 1);
+      expect(spanSummary.first.max, 4);
+      expect(spanSummary.first.count, 2);
+      expect(spanSummary.first.tags, mockTags);
+    });
+
+    test('emit distribution', () async {
+      final MetricsAggregator sut = fixture.getSut(hub: fixture.hub);
+      final t = fixture.hub.startTransaction('test', 'op', bindToScope: true);
+
+      sut.testEmit(type: MetricType.distribution, value: 1);
+      sut.testEmit(type: MetricType.distribution, value: 4);
+
+      final spanSummary = t.localMetricsAggregator?.getSummaries().values.first;
+      expect(spanSummary!.length, 1);
+      expect(spanSummary.first.sum, 5);
+      expect(spanSummary.first.min, 1);
+      expect(spanSummary.first.max, 4);
+      expect(spanSummary.first.count, 2);
+      expect(spanSummary.first.tags, mockTags);
+    });
+
+    test('emit gauge', () async {
+      final MetricsAggregator sut = fixture.getSut(hub: fixture.hub);
+      final t = fixture.hub.startTransaction('test', 'op', bindToScope: true);
+
+      sut.testEmit(type: MetricType.gauge, value: 1);
+      sut.testEmit(type: MetricType.gauge, value: 4);
+
+      final spanSummary = t.localMetricsAggregator?.getSummaries().values.first;
+      expect(spanSummary!.length, 1);
+      expect(spanSummary.first.sum, 5);
+      expect(spanSummary.first.min, 1);
+      expect(spanSummary.first.max, 4);
+      expect(spanSummary.first.count, 2);
+      expect(spanSummary.first.tags, mockTags);
+    });
+
+    test('emit set', () async {
+      final MetricsAggregator sut = fixture.getSut(hub: fixture.hub);
+      final t = fixture.hub.startTransaction('test', 'op', bindToScope: true);
+
+      sut.testEmit(type: MetricType.set, value: 1);
+      sut.testEmit(type: MetricType.set, value: 4);
+
+      final spanSummary = t.localMetricsAggregator?.getSummaries().values.first;
+      expect(spanSummary!.length, 1);
+      expect(spanSummary.first.sum, 2);
+      expect(spanSummary.first.min, 1);
+      expect(spanSummary.first.max, 1);
+      expect(spanSummary.first.count, 2);
+      expect(spanSummary.first.tags, mockTags);
+    });
+  });
+
   group('emit in same time bucket', () {
     late Fixture fixture;
 
@@ -280,6 +365,54 @@ void main() {
     });
   });
 
+  group('beforeMetric', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    test('emits if not set', () async {
+      final MetricsAggregator sut = fixture.getSut(maxWeight: 4);
+      sut.testEmit(key: 'key1');
+      final metricsCaptured = sut.buckets.values.first.values;
+      expect(metricsCaptured.length, 1);
+      expect(metricsCaptured.first.key, 'key1');
+    });
+
+    test('drops if it return false', () async {
+      final MetricsAggregator sut = fixture.getSut(maxWeight: 4);
+      fixture.options.beforeMetricCallback = (key, {tags}) => key != 'key2';
+      sut.testEmit(key: 'key1');
+      sut.testEmit(key: 'key2');
+      final metricsCaptured = sut.buckets.values.first.values;
+      expect(metricsCaptured.length, 1);
+      expect(metricsCaptured.first.key, 'key1');
+    });
+
+    test('emits if it return true', () async {
+      final MetricsAggregator sut = fixture.getSut(maxWeight: 4);
+      fixture.options.beforeMetricCallback = (key, {tags}) => true;
+      sut.testEmit(key: 'key1');
+      sut.testEmit(key: 'key2');
+      final metricsCaptured = sut.buckets.values.first.values;
+      expect(metricsCaptured.length, 2);
+      expect(metricsCaptured.first.key, 'key1');
+      expect(metricsCaptured.last.key, 'key2');
+    });
+
+    test('emits if it throws', () async {
+      final MetricsAggregator sut = fixture.getSut(maxWeight: 4);
+      fixture.options.beforeMetricCallback = (key, {tags}) => throw Exception();
+      sut.testEmit(key: 'key1');
+      sut.testEmit(key: 'key2');
+      final metricsCaptured = sut.buckets.values.first.values;
+      expect(metricsCaptured.length, 2);
+      expect(metricsCaptured.first.key, 'key1');
+      expect(metricsCaptured.last.key, 'key2');
+    });
+  });
+
   group('overweight', () {
     late Fixture fixture;
 
@@ -324,14 +457,22 @@ final DateTime mockTimestamp = DateTime.fromMillisecondsSinceEpoch(1);
 class Fixture {
   final options = SentryOptions(dsn: fakeDsn);
   final mockHub = MockHub();
+  late final hub = Hub(options);
+
+  Fixture() {
+    options.tracesSampleRate = 1;
+    options.enableMetrics = true;
+    options.enableSpanLocalMetricAggregation = true;
+  }
 
   MetricsAggregator getSut({
+    Hub? hub,
     Duration flushInterval = const Duration(milliseconds: 1),
     int flushShiftMs = 0,
     int maxWeight = 100000,
   }) {
     return MetricsAggregator(
-        hub: mockHub,
+        hub: hub ?? mockHub,
         options: options,
         flushInterval: flushInterval,
         flushShiftMs: flushShiftMs,

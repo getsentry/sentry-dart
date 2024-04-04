@@ -640,6 +640,7 @@ class MockSentryTransaction extends _i1.Mock implements _i3.SentryTransaction {
     List<_i3.SentryThread>? threads,
     String? type,
     Map<String, _i2.SentryMeasurement>? measurements,
+    Map<String, List<_i3.MetricSummary>>? metricSummaries,
     _i3.SentryTransactionInfo? transactionInfo,
   }) =>
       (super.noSuchMethod(
@@ -674,6 +675,7 @@ class MockSentryTransaction extends _i1.Mock implements _i3.SentryTransaction {
             #threads: threads,
             #type: type,
             #measurements: measurements,
+            #metricSummaries: metricSummaries,
             #transactionInfo: transactionInfo,
           },
         ),

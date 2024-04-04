@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import '../../sentry.dart';
 import '../utils/crc32_utils.dart';
@@ -113,6 +114,67 @@ class MetricsApi {
   _putIfAbsentIfNotNull<K, V>(Map<K, V> map, K key, V? value) {
     if (value != null) {
       map.putIfAbsent(key, () => value);
+    }
+  }
+
+  /// Emits a Distribution metric, identified by [key], with the time it takes
+  /// to run [function].
+  /// You can set the [unit] and the optional [tags] to associate to the metric.
+  void timing(final String key,
+      {required FutureOr<void> Function() function,
+      final DurationSentryMeasurementUnit unit =
+          DurationSentryMeasurementUnit.second,
+      final Map<String, String>? tags}) async {
+    // Start a span for the metric
+    final span = _hub.getSpan()?.startChild('metric.timing', description: key);
+    // Set the user tags to the span as well
+    if (span != null && tags != null) {
+      for (final entry in tags.entries) {
+        span.setTag(entry.key, entry.value);
+      }
+    }
+    final before = _hub.options.clock();
+    try {
+      if (function is Future<void> Function()) {
+        await function();
+      } else {
+        function();
+      }
+    } finally {
+      final after = _hub.options.clock();
+      Duration duration = after.difference(before);
+      // If we have a span, we use its duration as value for the emitted metric
+      if (span != null) {
+        await span.finish();
+        duration =
+            span.endTimestamp?.difference(span.startTimestamp) ?? duration;
+      }
+      final value = _convertMicrosTo(unit, duration.inMicroseconds);
+
+      _hub.metricsAggregator?.emit(MetricType.distribution, key, value, unit,
+          _enrichWithDefaultTags(tags));
+    }
+  }
+
+  double _convertMicrosTo(
+      final DurationSentryMeasurementUnit unit, final int micros) {
+    switch (unit) {
+      case DurationSentryMeasurementUnit.nanoSecond:
+        return micros * 1000;
+      case DurationSentryMeasurementUnit.microSecond:
+        return micros.toDouble();
+      case DurationSentryMeasurementUnit.milliSecond:
+        return micros / 1000.0;
+      case DurationSentryMeasurementUnit.second:
+        return micros / 1000000.0;
+      case DurationSentryMeasurementUnit.minute:
+        return micros / 60000000.0;
+      case DurationSentryMeasurementUnit.hour:
+        return micros / 3600000000.0;
+      case DurationSentryMeasurementUnit.day:
+        return micros / 86400000000.0;
+      case DurationSentryMeasurementUnit.week:
+        return micros / 86400000000.0 / 7.0;
     }
   }
 }
