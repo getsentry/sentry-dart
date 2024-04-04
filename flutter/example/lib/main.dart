@@ -2,6 +2,7 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -530,15 +531,32 @@ class MainScaffold extends StatelessWidget {
             ),
             TooltipButton(
               onPressed: () async {
-                Sentry.metrics().increment('key1');
-                Sentry.metrics().increment('key3',
-                    unit: DurationSentryMeasurementUnit.minute);
-                Sentry.metrics().increment('key1',
-                    value: 2, tags: {'myTag': 'myValue', 'myTag2': 'myValue2'});
+                final span = Sentry.getSpan() ??
+                    Sentry.startTransaction(
+                        'testMetrics', 'span summary example',
+                        bindToScope: true);
+                Sentry.metrics().increment('increment key',
+                    unit: DurationSentryMeasurementUnit.day);
+                Sentry.metrics().distribution('distribution key',
+                    value: Random().nextDouble() * 10);
+                Sentry.metrics().set('set int key',
+                    value: Random().nextInt(100),
+                    tags: {'myTag': 'myValue', 'myTag2': 'myValue2'});
+                Sentry.metrics().set('set string key',
+                    stringValue: 'Random n ${Random().nextInt(100)}');
+                Sentry.metrics()
+                    .gauge('gauge key', value: Random().nextDouble() * 10);
+                Sentry.metrics().timing(
+                  'timing key',
+                  function: () async => await Future.delayed(
+                      Duration(milliseconds: Random().nextInt(100)),
+                      () => span.finish()),
+                  unit: DurationSentryMeasurementUnit.milliSecond,
+                );
               },
               text:
-                  'Demonstrates the metrics. It creates 3 counter metrics and send them to Sentry.',
-              buttonTitle: 'Counter Metric',
+                  'Demonstrates the metrics. It creates several metrics and send them to Sentry.',
+              buttonTitle: 'Metrics',
             ),
             if (UniversalPlatform.isIOS || UniversalPlatform.isMacOS)
               const CocoaExample(),
