@@ -1,5 +1,5 @@
 buildscript {
-    ext.kotlin_version = '1.6.21'
+    ext.kotlin_version = '1.8.0'
     repositories {
         google()
         mavenCentral()
@@ -61,6 +61,8 @@ android {
 
 dependencies {
     api 'io.sentry:sentry-android:7.6.0'
+    implementation 'io.sentry:sentry-android-core:7.6.0'
+    implementation 'io.sentry:sentry-android-ndk:7.6.0'
     implementation 'io.sentry:sentry-replay:1.0.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 

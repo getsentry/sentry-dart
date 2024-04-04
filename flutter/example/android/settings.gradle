@@ -13,7 +13,9 @@ apply from: "$flutterSdkPath/packages/flutter_tools/gradle/app_plugin_loader.gra
 includeBuild("../../../../sentry-java") {
   dependencySubstitution {
     substitute(module("io.sentry:sentry")).using(project(":sentry"))
+    substitute(module("io.sentry:sentry-android")).using(project(":sentry-android"))
     substitute(module("io.sentry:sentry-android-core")).using(project(":sentry-android-core"))
+    substitute(module("io.sentry:sentry-android-ndk")).using(project(":sentry-android-ndk"))
     substitute(module("io.sentry:sentry-replay")).using(project(":sentry-android-replay"))
   }
 }
