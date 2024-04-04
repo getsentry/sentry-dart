@@ -10,7 +10,7 @@ def flutterSdkPath = properties.getProperty("flutter.sdk")
 assert flutterSdkPath != null, "flutter.sdk not set in local.properties"
 apply from: "$flutterSdkPath/packages/flutter_tools/gradle/app_plugin_loader.gradle"
 
-includeBuild("c:/dev/sentry-java") {
+includeBuild("../../../../sentry-java") {
   dependencySubstitution {
     substitute(module("io.sentry:sentry")).using(project(":sentry"))
     substitute(module("io.sentry:sentry-android-core")).using(project(":sentry-android-core"))
