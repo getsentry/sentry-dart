@@ -100,6 +100,13 @@ class MetricsAggregator {
       ifAbsent: () => metric,
     );
 
+    // For sets, we only record that a value has been added to the set but not which one.
+    // See develop docs: https://develop.sentry.dev/sdk/metrics/#sets
+    _hub
+        .getSpan()
+        ?.localMetricsAggregator
+        ?.add(metric, metricType == MetricType.set ? addedWeight : value);
+
     // Schedule the metrics flushing.
     _scheduleFlush();
   }

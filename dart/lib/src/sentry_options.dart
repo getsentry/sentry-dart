@@ -394,7 +394,7 @@ class SentryOptions {
   bool enableMetrics = false;
 
   @experimental
-  bool _enableDefaultTagsForMetrics = false;
+  bool _enableDefaultTagsForMetrics = true;
 
   /// Enables enriching metrics with default tags. Requires [enableMetrics].
   /// More on https://develop.sentry.dev/delightful-developer-metrics/sending-metrics-sdk/#automatic-tags-extraction
@@ -409,6 +409,22 @@ class SentryOptions {
   @experimental
   set enableDefaultTagsForMetrics(final bool enableDefaultTagsForMetrics) =>
       _enableDefaultTagsForMetrics = enableDefaultTagsForMetrics;
+
+  @experimental
+  bool _enableSpanLocalMetricAggregation = true;
+
+  /// Enables span metrics aggregation. Requires [enableMetrics].
+  /// More on https://develop.sentry.dev/sdk/metrics/#span-aggregation
+  @experimental
+  bool get enableSpanLocalMetricAggregation =>
+      enableMetrics && _enableSpanLocalMetricAggregation;
+
+  /// Enables span metrics aggregation. Requires [enableMetrics].
+  /// More on https://develop.sentry.dev/sdk/metrics/#span-aggregation
+  @experimental
+  set enableSpanLocalMetricAggregation(
+          final bool enableSpanLocalMetricAggregation) =>
+      _enableSpanLocalMetricAggregation = enableSpanLocalMetricAggregation;
 
   /// Only for internal use. Changed SDK behaviour when set to true:
   /// - Rethrow exceptions that occur in user provided closures

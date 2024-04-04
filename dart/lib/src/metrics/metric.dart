@@ -112,6 +112,10 @@ abstract class Metric {
     return ('${type.statsdType}_${key}_${unit.name}_$serializedTags');
   }
 
+  /// Return a key created by [key], [type] and [unit].
+  /// This key should be used to aggregate the metric locally in a span.
+  String getSpanAggregationKey() => '${type.statsdType}:$key@${unit.name}';
+
   /// Remove forbidden characters from the metric key and tag key.
   String _normalizeKey(String input) =>
       input.replaceAll(forbiddenKeyCharsRegex, '_');
@@ -186,13 +190,9 @@ class GaugeMetric extends Metric {
 
   @visibleForTesting
   num get last => _last;
-  @visibleForTesting
   num get minimum => _minimum;
-  @visibleForTesting
   num get maximum => _maximum;
-  @visibleForTesting
   num get sum => _sum;
-  @visibleForTesting
   int get count => _count;
 }
 
