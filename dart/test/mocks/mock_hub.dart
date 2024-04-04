@@ -1,6 +1,7 @@
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/metrics/metric.dart';
+import 'package:sentry/src/metrics/metrics_aggregator.dart';
 
 import '../mocks.dart';
 import 'mock_sentry_client.dart';
@@ -21,10 +22,15 @@ class MockHub with NoSuchMethodProvider implements Hub {
   int getSpanCalls = 0;
 
   final _options = SentryOptions(dsn: fakeDsn);
+  late final MetricsAggregator _metricsAggregator =
+      MetricsAggregator(options: _options, hub: this);
 
   @override
   @internal
   SentryOptions get options => _options;
+
+  @override
+  MetricsAggregator? get metricsAggregator => _metricsAggregator;
 
   /// Useful for tests.
   void reset() {
