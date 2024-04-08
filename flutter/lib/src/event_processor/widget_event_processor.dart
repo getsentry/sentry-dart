@@ -19,10 +19,7 @@ class WidgetEventProcessor implements EventProcessor {
     }
 
     // ignore: deprecated_member_use
-    final textScale = MediaQuery.maybeTextScaleFactorOf(context);
-    if (textScale == null) {
-      return event;
-    }
+    final textScale = MediaQuery.textScaleFactorOf(context);
     return event.copyWith(
       contexts: event.contexts.copyWith(
         app: event.contexts.app?.copyWith(
