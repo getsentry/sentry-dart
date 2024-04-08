@@ -53,7 +53,7 @@ class SentryApp {
   /// The names of the currently visible views.
   final List<String>? viewNames;
 
-  /// The text scale of the [SentryWidget] using fontSize == 1
+  /// The current text scale. Only available on Flutter.
   final double? textScale;
 
   /// Deserializes a [SentryApp] from JSON [Map].
