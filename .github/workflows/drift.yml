@@ -77,7 +77,7 @@ jobs:
           sudo apt install -y network-manager upower
         if: matrix.os == 'ubuntu-latest' && matrix.target == 'linux'
 
-      - uses: subosito/flutter-action@62f096cacda5168a3bd7b95793373be14fa4fbaf # pin@v2.13.0
+      - uses: subosito/flutter-action@3d804929922b667a63a229bc59037807f969e885 # pin@v2.15.0
         with:
           channel: ${{ matrix.sdk }}
 
@@ -93,7 +93,7 @@ jobs:
           cd drift
           flutter test --coverage --test-randomize-ordering-seed=random
 
-      - uses: codecov/codecov-action@54bcd8715eee62d40e33596ef5e8f0f48dbbccab # pin@v3
+      - uses: codecov/codecov-action@c16abc29c95fcf9174b58eb7e1abf4c866893bc8 # pin@v3
         if: runner.os == 'Linux' && matrix.sdk == 'stable' && matrix.target == 'linux'
         with:
           name: sentry_drift
