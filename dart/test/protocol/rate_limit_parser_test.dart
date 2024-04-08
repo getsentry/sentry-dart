@@ -75,6 +75,45 @@ void main() {
       expect(sut[0].duration.inMilliseconds,
           RateLimitParser.httpRetryAfterDefaultDelay.inMilliseconds);
     });
+
+    test('do not parse namespaces if not metric_bucket', () {
+      final sut =
+          RateLimitParser('1:transaction:organization:quota_exceeded:custom')
+              .parseRateLimitHeader();
+
+      expect(sut.length, 1);
+      expect(sut[0].category, DataCategory.transaction);
+      expect(sut[0].namespaces, isEmpty);
+    });
+
+    test('parse namespaces on metric_bucket', () {
+      final sut =
+          RateLimitParser('1:metric_bucket:organization:quota_exceeded:custom')
+              .parseRateLimitHeader();
+
+      expect(sut.length, 1);
+      expect(sut[0].category, DataCategory.metricBucket);
+      expect(sut[0].namespaces, isNotEmpty);
+      expect(sut[0].namespaces.first, 'custom');
+    });
+
+    test('parse empty namespaces on metric_bucket', () {
+      final sut =
+          RateLimitParser('1:metric_bucket:organization:quota_exceeded:')
+              .parseRateLimitHeader();
+
+      expect(sut.length, 1);
+      expect(sut[0].category, DataCategory.metricBucket);
+      expect(sut[0].namespaces, isEmpty);
+    });
+
+    test('parse missing namespaces on metric_bucket', () {
+      final sut = RateLimitParser('1:metric_bucket').parseRateLimitHeader();
+
+      expect(sut.length, 1);
+      expect(sut[0].category, DataCategory.metricBucket);
+      expect(sut[0].namespaces, isEmpty);
+    });
   });
 
   group('parseRetryAfterHeader', () {

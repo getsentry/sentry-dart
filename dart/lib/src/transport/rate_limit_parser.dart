@@ -14,6 +14,7 @@ class RateLimitParser {
     if (rateLimitHeader == null) {
       return [];
     }
+    // example: 2700:metric_bucket:organization:quota_exceeded:custom,...
     final rateLimits = <RateLimit>[];
     final rateLimitValues = rateLimitHeader.toLowerCase().split(',');
     for (final rateLimitValue in rateLimitValues) {
@@ -30,7 +31,17 @@ class RateLimitParser {
         final categoryValues = allCategories.split(';');
         for (final categoryValue in categoryValues) {
           final category = DataCategoryExtension.fromStringValue(categoryValue);
-          if (category != DataCategory.unknown) {
+          // Metric buckets rate limit can have namespaces
+          if (category == DataCategory.metricBucket) {
+            final namespaces = durationAndCategories.length > 4
+                ? durationAndCategories[4]
+                : null;
+            rateLimits.add(RateLimit(
+              category,
+              duration,
+              namespaces: namespaces?.trim().split(','),
+            ));
+          } else if (category != DataCategory.unknown) {
             rateLimits.add(RateLimit(category, duration));
           }
         }

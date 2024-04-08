@@ -58,9 +58,49 @@ void main() {
     test('encode CounterMetric', () async {
       final int bucketKey = 10;
       final expectedStatsd =
-          'key_metric_@hour:2.1|c|#tag1:tag value 1,key_2:@13/-d_s|T10';
+          'key_metric_@hour:2.1|c|#tag1:tag\\u{2c} value 1,key2:&@"13/-d_s|T10';
       final actualStatsd = fixture.counterMetric.encodeToStatsd(bucketKey);
       expect(actualStatsd, expectedStatsd);
+    });
+
+    test('sanitize name', () async {
+      final metric = Metric.fromType(
+        type: MetricType.counter,
+        value: 2.1,
+        key: 'key£ - @# metric!',
+        unit: DurationSentryMeasurementUnit.day,
+        tags: {},
+      );
+
+      final expectedStatsd = 'key_-_metric_@day:2.1|c|T10';
+      expect(metric.encodeToStatsd(10), expectedStatsd);
+    });
+
+    test('sanitize unit', () async {
+      final metric = Metric.fromType(
+        type: MetricType.counter,
+        value: 2.1,
+        key: 'key',
+        unit: CustomSentryMeasurementUnit('weird-measurement name!'),
+        tags: {},
+      );
+
+      final expectedStatsd = 'key@weirdmeasurementname:2.1|c|T10';
+      expect(metric.encodeToStatsd(10), expectedStatsd);
+    });
+
+    test('sanitize tags', () async {
+      final metric = Metric.fromType(
+        type: MetricType.counter,
+        value: 2.1,
+        key: 'key',
+        unit: DurationSentryMeasurementUnit.day,
+        tags: {'tag1': 'tag, value 1', 'key 2': '&@"13/-d_s'},
+      );
+
+      final expectedStatsd =
+          'key@day:2.1|c|#tag1:tag\\u{2c} value 1,key2:&@"13/-d_s|T10';
+      expect(metric.encodeToStatsd(10), expectedStatsd);
     });
   });
 
