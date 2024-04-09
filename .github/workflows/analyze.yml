@@ -34,7 +34,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: dart-lang/setup-dart@fedb1266e91cf51be2fdb382869461a434b920a3 # pin@v1
         if: ${{ inputs.sdk == 'dart' }}
-      - uses: subosito/flutter-action@3d804929922b667a63a229bc59037807f969e885 # pin@v2.15.0
+      - uses: subosito/flutter-action@44ac965b96f18d999802d4b807e3256d5a3f9fa1 # pin@v2.16.0
         if: ${{ inputs.sdk == 'flutter' }}
 
       - run: ${{ inputs.sdk }} pub get
