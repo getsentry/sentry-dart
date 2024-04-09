@@ -2,16 +2,7 @@ name: SDK metrics
 
 on:
   push:
-    paths:
-      - .github/workflows/metrics.yml
-      - dart/**
-      - flutter/**
-      - metrics/**
-      - "!**/*.md"
-    branches-ignore:
-      - deps/**
-      - dependabot/**
-    tags-ignore: ["**"]
+    # TODO: this is only temporary for testing purposes
 
 jobs:
   cancel-previous-workflow:
@@ -60,7 +51,7 @@ jobs:
       - uses: actions/setup-java@v4
         if: ${{ matrix.platform == 'android' }}
         with:
-          java-version: "11"
+          java-version: "17"
           distribution: "adopt"
 
       - run: ./metrics/prepare.sh
