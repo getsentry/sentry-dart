@@ -4,10 +4,9 @@ import 'package:meta/meta.dart';
 
 import '../../sentry.dart';
 
-final RegExp forbiddenKeyCharsRegex = RegExp('[^a-zA-Z0-9_/.-]+');
-final RegExp forbiddenValueCharsRegex =
-    RegExp('[^\\w\\d\\s_:/@\\.\\{\\}\\[\\]\$-]+');
-final RegExp forbiddenUnitCharsRegex = RegExp('[^a-zA-Z0-9_/.]+');
+final RegExp unitRegex = RegExp('[^\\w]+');
+final RegExp nameRegex = RegExp('[^\\w-.]+');
+final RegExp tagKeyRegex = RegExp('[^\\w-./]+');
 
 /// Base class for metrics.
 /// Each metric is identified by a [key]. Its [type] describes its behaviour.
@@ -69,7 +68,7 @@ abstract class Metric {
   ///  and it's appended at the end of the encoded metric.
   String encodeToStatsd(int bucketKey) {
     final buffer = StringBuffer();
-    buffer.write(_normalizeKey(key));
+    buffer.write(_sanitizeName(key));
     buffer.write("@");
 
     final sanitizeUnitName = _sanitizeUnit(unit.name);
@@ -87,7 +86,7 @@ abstract class Metric {
       buffer.write("|#");
       final serializedTags = tags.entries
           .map((tag) =>
-              '${_normalizeKey(tag.key)}:${_normalizeTagValue(tag.value)}')
+              '${_sanitizeTagKey(tag.key)}:${_sanitizeTagValue(tag.value)}')
           .join(',');
       buffer.write(serializedTags);
     }
@@ -117,16 +116,43 @@ abstract class Metric {
   String getSpanAggregationKey() => '${type.statsdType}:$key@${unit.name}';
 
   /// Remove forbidden characters from the metric key and tag key.
-  String _normalizeKey(String input) =>
-      input.replaceAll(forbiddenKeyCharsRegex, '_');
+  String _sanitizeName(String input) => input.replaceAll(nameRegex, '_');
 
   /// Remove forbidden characters from the tag value.
-  String _normalizeTagValue(String input) =>
-      input.replaceAll(forbiddenValueCharsRegex, '');
+  String _sanitizeTagKey(String input) => input.replaceAll(tagKeyRegex, '');
 
   /// Remove forbidden characters from the metric unit.
-  String _sanitizeUnit(String input) =>
-      input.replaceAll(forbiddenUnitCharsRegex, '_');
+  String _sanitizeUnit(String input) => input.replaceAll(unitRegex, '');
+
+  String _sanitizeTagValue(String input) {
+    // see https://develop.sentry.dev/sdk/metrics/#tag-values-replacement-map
+    // Line feed       -> \n
+    // Carriage return -> \r
+    // Tab             -> \t
+    // Backslash       -> \\
+    // Pipe            -> \\u{7c}
+    // Comma           -> \\u{2c}
+    final buffer = StringBuffer();
+    for (int i = 0; i < input.length; i++) {
+      final ch = input[i];
+      if (ch == '\n') {
+        buffer.write("\\n");
+      } else if (ch == '\r') {
+        buffer.write("\\r");
+      } else if (ch == '\t') {
+        buffer.write("\\t");
+      } else if (ch == '\\') {
+        buffer.write("\\\\");
+      } else if (ch == '|') {
+        buffer.write("\\u{7c}");
+      } else if (ch == ',') {
+        buffer.write("\\u{2c}");
+      } else {
+        buffer.write(ch);
+      }
+    }
+    return buffer.toString();
+  }
 }
 
 /// Metric [MetricType.counter] that tracks a value that can only be incremented.
