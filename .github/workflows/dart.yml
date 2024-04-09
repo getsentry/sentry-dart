@@ -68,7 +68,7 @@ jobs:
           dart pub get
           webdev build
 
-      - uses: codecov/codecov-action@c16abc29c95fcf9174b58eb7e1abf4c866893bc8 # pin@v3
+      - uses: codecov/codecov-action@7afa10ed9b269c561c2336fd862446844e0cbf71 # pin@v3
         if: runner.os == 'Linux' && matrix.sdk == 'stable'
         with:
           name: sentry

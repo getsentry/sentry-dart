@@ -17,6 +17,10 @@
   ```
   To learn more about Sentry Developer Metrics, head over to our [Dart](https://docs.sentry.io/platforms/dart/metrics/) and [Flutter](https://docs.sentry.io/platforms/flutter/metrics/) docs page.
 
+### Dependencies
+
+- Expand `package_info_plus` version range to `6.0.0` ([#1948](https://github.com/getsentry/sentry-dart/pull/1948))
+
 ### Improvements
 
 - Set `sentry_flutter.podspec` version from `pubspec.yaml` ([#1941](https://github.com/getsentry/sentry-dart/pull/1941))
