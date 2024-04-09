@@ -478,7 +478,7 @@ class MainScaffold extends StatelessWidget {
             TooltipButton(
               onPressed: () async {
                 final id = await Sentry.captureMessage('UserFeedback');
-                if (!context.isMounted) return;
+                if (!context.mounted) return;
                 await showDialog(
                   context: context,
                   builder: (context) {
@@ -901,7 +901,7 @@ Future<void> makeWebRequest(BuildContext context) async {
 
   await transaction.finish(status: const SpanStatus.ok());
 
-  if (!context.isMounted) return;
+  if (!context.mounted) return;
   await showDialog<void>(
     context: context,
     builder: (context) {
@@ -947,7 +947,7 @@ Future<void> makeWebRequestWithDio(BuildContext context) async {
     await span.finish();
   }
 
-  if (!context.isMounted) return;
+  if (!context.mounted) return;
   await showDialog<void>(
     context: context,
     builder: (context) {
@@ -977,7 +977,7 @@ Future<void> showDialogWithTextAndImage(BuildContext context) async {
   final text =
       await DefaultAssetBundle.of(context).loadString('assets/lorem-ipsum.txt');
 
-  if (!context.isMounted) return;
+  if (!context.mounted) return;
   await showDialog<void>(
     context: context,
     // gets tracked if using SentryNavigatorObserver
