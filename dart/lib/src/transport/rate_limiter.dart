@@ -64,6 +64,11 @@ class RateLimiter {
     }
 
     for (final rateLimit in rateLimits) {
+      if (rateLimit.category == DataCategory.metricBucket &&
+          rateLimit.namespaces.isNotEmpty &&
+          !rateLimit.namespaces.contains('custom')) {
+        continue;
+      }
       _applyRetryAfterOnlyIfLonger(
         rateLimit.category,
         DateTime.fromMillisecondsSinceEpoch(
@@ -111,6 +116,10 @@ class RateLimiter {
         return DataCategory.attachment;
       case 'transaction':
         return DataCategory.transaction;
+      // The envelope item type used for metrics is statsd,
+      // whereas the client report category is metric_bucket
+      case 'statsd':
+        return DataCategory.metricBucket;
       default:
         return DataCategory.unknown;
     }
