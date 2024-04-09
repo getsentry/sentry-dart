@@ -6,6 +6,12 @@
 
 - Set `sentry_flutter.podspec` version from `pubspec.yaml` ([#1941](https://github.com/getsentry/sentry-dart/pull/1941))
 
+### Dependencies
+
+- Bump Android SDK from v7.6.0 to v7.7.0 ([#1967](https://github.com/getsentry/sentry-dart/pull/1967))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#770)
+  - [diff](https://github.com/getsentry/sentry-java/compare/7.6.0...7.7.0)
+
 ## 7.18.0
 
 ### Features
