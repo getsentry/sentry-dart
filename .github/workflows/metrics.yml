@@ -2,7 +2,16 @@ name: SDK metrics
 
 on:
   push:
-    # TODO: this is only temporary for testing purposes
+    paths:
+      - .github/workflows/metrics.yml
+      - dart/**
+      - flutter/**
+      - metrics/**
+      - "!**/*.md"
+    branches-ignore:
+      - deps/**
+      - dependabot/**
+    tags-ignore: ["**"]
 
 jobs:
   cancel-previous-workflow:
