@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Add textScale(r) value to Flutter context ([#1886](https://github.com/getsentry/sentry-dart/pull/1886))
+
 ## 7.19.0
 
 ### Features
@@ -20,10 +26,6 @@
 ### Dependencies
 
 - Expand `package_info_plus` version range to `6.0.0` ([#1948](https://github.com/getsentry/sentry-dart/pull/1948))
-
-### Features
-
-- Add textScale(r) value to Flutter context ([#1886](https://github.com/getsentry/sentry-dart/pull/1886))
 
 ### Improvements
 
