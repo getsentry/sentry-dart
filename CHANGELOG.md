@@ -2,10 +2,13 @@
 
 ## Unreleased
 
-
 ### Build
 
 - Bump compileSdkVersion to 34 in Gradle buildscripts ([#1980](https://github.com/getsentry/sentry-dart/pull/1980))
+
+### Features
+
+- Add textScale(r) value to Flutter context ([#1886](https://github.com/getsentry/sentry-dart/pull/1886))
 
 ### Dependencies
 
