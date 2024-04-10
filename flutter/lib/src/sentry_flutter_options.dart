@@ -10,6 +10,7 @@ import 'screenshot/sentry_screenshot_quality.dart';
 import 'event_processor/screenshot_event_processor.dart';
 import 'screenshot/sentry_screenshot_widget.dart';
 import 'sentry_flutter.dart';
+import 'sentry_replay_options.dart';
 import 'user_interaction/sentry_user_interaction_widget.dart';
 
 /// This class adds options which are only available in a Flutter environment.
@@ -305,6 +306,10 @@ class SentryFlutterOptions extends SentryOptions {
 
   /// The [navigatorKey] is used to add information of the currently used locale to the contexts.
   GlobalKey<NavigatorState>? navigatorKey;
+
+  /// Configuration of the experimental replay feature.
+  @experimental
+  final SentryReplayOptions replay = SentryReplayOptions();
 }
 
 /// Callback being executed in [ScreenshotEventProcessor], deciding if a

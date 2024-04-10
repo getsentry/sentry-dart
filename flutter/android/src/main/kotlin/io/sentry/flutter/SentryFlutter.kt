@@ -3,6 +3,7 @@ package io.sentry.flutter
 import io.sentry.SentryLevel
 import io.sentry.android.core.BuildConfig
 import io.sentry.android.core.SentryAndroidOptions
+import io.sentry.SentryReplayOptions
 import io.sentry.protocol.SdkVersion
 import java.util.Locale
 
@@ -117,6 +118,32 @@ class SentryFlutter(
     data.getIfNotNull<Int>("readTimeoutMillis") {
       options.readTimeoutMillis = it
     }
+
+    data.getIfNotNull<Map<String, Any>>("replay") {
+      updateReplayOptions(options.experimental.sessionReplay, it)
+    }
+  }
+
+  fun updateReplayOptions(options: SentryReplayOptions, data: Map<String, Any>) {
+    options.sessionSampleRate = data["sessionSampleRate"] as? Double
+    options.errorSampleRate = data["errorSampleRate"] as? Double
+
+    // Currently, these are read-only options
+    // data.getIfNotNull<Int>("bitRate") {
+    //   options.bitRate = it
+    // }
+    // data.getIfNotNull<Int>("frameRate") {
+    //   options.frameRate = it
+    // }
+    // data.getIfNotNull<Long>("errorReplayDurationMillis") {
+    //   options.errorReplayDuration = it
+    // }
+    // data.getIfNotNull<Long>("sessionSegmentDurationMillis") {
+    //   options.replayCacheDefaultLowerBound = it
+    // }
+    // data.getIfNotNull<Long>("sessionDurationMillis") {
+    //   options.sessionDuration = it
+    // }
   }
 }
 

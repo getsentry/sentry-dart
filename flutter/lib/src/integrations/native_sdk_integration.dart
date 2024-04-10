@@ -54,6 +54,17 @@ class NativeSdkIntegration implements Integration<SentryFlutterOptions> {
         'readTimeoutMillis': options.readTimeout.inMilliseconds,
         'appHangTimeoutIntervalMillis':
             options.appHangTimeoutInterval.inMilliseconds,
+        'replay': <String, dynamic>{
+          'sessionSampleRate': options.replay.sessionSampleRate,
+          'errorSampleRate': options.replay.errorSampleRate,
+          'bitRate': options.replay.bitRate,
+          'frameRate': options.replay.frameRate,
+          'errorReplayDurationMillis':
+              options.replay.errorReplayDuration.inMilliseconds,
+          'sessionSegmentDurationMillis':
+              options.replay.sessionSegmentDuration.inMilliseconds,
+          'sessionDuration': options.replay.sessionDuration.inMilliseconds
+        },
       });
 
       options.sdk.addIntegration('nativeSdkIntegration');
