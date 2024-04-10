@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Add textScale(r) value to Flutter context ([#1886](https://github.com/getsentry/sentry-dart/pull/1886))
+
 ### Dependencies
 
 - Bump Android SDK from v7.6.0 to v7.8.0 ([#1977](https://github.com/getsentry/sentry-dart/pull/1977))
