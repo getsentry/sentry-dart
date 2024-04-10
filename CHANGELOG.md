@@ -2,6 +2,33 @@
 
 ## Unreleased
 
+### Dependencies
+
+- Bump Android SDK from v7.6.0 to v7.8.0 ([#1977](https://github.com/getsentry/sentry-dart/pull/1977))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#780)
+  - [diff](https://github.com/getsentry/sentry-java/compare/7.6.0...7.8.0)
+
+## 7.19.0
+
+### Features
+
+- Experimental: Add support for Sentry Developer Metrics ([#1940](https://github.com/getsentry/sentry-dart/pull/1940), [#1949](https://github.com/getsentry/sentry-dart/pull/1949), [#1954](https://github.com/getsentry/sentry-dart/pull/1954), [#1958](https://github.com/getsentry/sentry-dart/pull/1958))  
+  Use the Metrics API to track processing time, download sizes, user signups, and conversion rates and correlate them back to tracing data in order to get deeper insights and solve issues faster. Our API supports counters, distributions, sets, gauges and timers, and it's easy to get started:
+  ```dart
+  Sentry.metrics()
+      .increment(
+      'button_login_click', // key
+      value: 1.0,
+      unit: null,
+      tags: {"provider": "e-mail"}
+  );
+  ```
+  To learn more about Sentry Developer Metrics, head over to our [Dart](https://docs.sentry.io/platforms/dart/metrics/) and [Flutter](https://docs.sentry.io/platforms/flutter/metrics/) docs page.
+
+### Dependencies
+
+- Expand `package_info_plus` version range to `6.0.0` ([#1948](https://github.com/getsentry/sentry-dart/pull/1948))
+
 ### Improvements
 
 - Set `sentry_flutter.podspec` version from `pubspec.yaml` ([#1941](https://github.com/getsentry/sentry-dart/pull/1941))

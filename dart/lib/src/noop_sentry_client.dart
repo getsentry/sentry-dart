@@ -1,6 +1,10 @@
 import 'dart:async';
 
+import 'package:meta/meta.dart';
+
 import 'hint.dart';
+import 'metrics/metric.dart';
+import 'metrics/metrics_aggregator.dart';
 import 'protocol.dart';
 import 'scope.dart';
 import 'sentry_client.dart';
@@ -63,4 +67,14 @@ class NoOpSentryClient implements SentryClient {
     SentryTraceContextHeader? traceContext,
   }) async =>
       SentryId.empty();
+
+  @override
+  @internal
+  Future<SentryId> captureMetrics(
+          Map<int, Iterable<Metric>> metricsBuckets) async =>
+      SentryId.empty();
+
+  @override
+  @internal
+  MetricsAggregator? get metricsAggregator => null;
 }

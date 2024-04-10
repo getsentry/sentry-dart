@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:meta/meta.dart';
 
+import 'metrics/metrics_api.dart';
 import 'run_zoned_guarded_integration.dart';
 import 'event_processor/enricher/enricher_event_processor.dart';
 import 'environment/environment_variables.dart';
@@ -305,6 +306,9 @@ class Sentry {
 
   /// Gets the current active transaction or span bound to the scope.
   static ISentrySpan? getSpan() => _hub.getSpan();
+
+  /// Gets access to the metrics API for the current hub.
+  static MetricsApi metrics() => _hub.metricsApi;
 
   @internal
   static Hub get currentHub => _hub;

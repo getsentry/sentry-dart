@@ -8,6 +8,7 @@ export 'protocol/sentry_device.dart';
 export 'protocol/dsn.dart';
 export 'protocol/sentry_gpu.dart';
 export 'protocol/mechanism.dart';
+export 'protocol/metric_summary.dart';
 export 'protocol/sentry_message.dart';
 export 'protocol/sentry_operating_system.dart';
 export 'protocol/sentry_request.dart';
