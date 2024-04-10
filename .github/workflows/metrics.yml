@@ -60,7 +60,7 @@ jobs:
       - uses: actions/setup-java@v4
         if: ${{ matrix.platform == 'android' }}
         with:
-          java-version: "11"
+          java-version: "17"
           distribution: "adopt"
 
       - run: ./metrics/prepare.sh

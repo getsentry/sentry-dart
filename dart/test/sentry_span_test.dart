@@ -2,6 +2,7 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:test/test.dart';
 
+import 'mocks.dart';
 import 'mocks/mock_hub.dart';
 
 void main() {
@@ -125,11 +126,14 @@ void main() {
   });
 
   test('span serializes', () async {
+    fixture.hub.options.enableMetrics = true;
+    fixture.hub.options.enableSpanLocalMetricAggregation = true;
     final sut = fixture.getSut();
 
     sut.setTag('test', 'test');
     sut.setData('test', 'test');
     sut.origin = 'manual';
+    sut.localMetricsAggregator?.add(fakeMetric, 0);
 
     await sut.finish(status: SpanStatus.aborted());
 
@@ -141,6 +145,26 @@ void main() {
     expect(map['tags']['test'], 'test');
     expect(map['status'], 'aborted');
     expect(map['origin'], 'manual');
+    expect(map['_metrics_summary'], isNotNull);
+  });
+
+  test('adding a metric after span finish does not serialize', () async {
+    fixture.hub.options.enableMetrics = true;
+    fixture.hub.options.enableSpanLocalMetricAggregation = true;
+    final sut = fixture.getSut();
+    await sut.finish(status: SpanStatus.aborted());
+    sut.localMetricsAggregator?.add(fakeMetric, 0);
+
+    expect(sut.toJson()['_metrics_summary'], isNull);
+  });
+
+  test('adding a metric when option is disabled does not serialize', () async {
+    fixture.hub.options.enableMetrics = false;
+    final sut = fixture.getSut();
+    sut.localMetricsAggregator?.add(fakeMetric, 0);
+    await sut.finish(status: SpanStatus.aborted());
+
+    expect(sut.toJson()['_metrics_summary'], isNull);
   });
 
   test('finished returns false if not yet', () {
@@ -270,6 +294,21 @@ void main() {
   test('takes origin from context', () async {
     final sut = fixture.getSut();
     expect(sut.origin, 'manual');
+  });
+
+  test('localMetricsAggregator is set when option is enabled', () async {
+    fixture.hub.options.enableMetrics = true;
+    fixture.hub.options.enableSpanLocalMetricAggregation = true;
+    final sut = fixture.getSut();
+    expect(fixture.hub.options.enableSpanLocalMetricAggregation, true);
+    expect(sut.localMetricsAggregator, isNotNull);
+  });
+
+  test('localMetricsAggregator is null when option is disabled', () async {
+    fixture.hub.options.enableSpanLocalMetricAggregation = false;
+    final sut = fixture.getSut();
+    expect(fixture.hub.options.enableSpanLocalMetricAggregation, false);
+    expect(sut.localMetricsAggregator, null);
   });
 }
 

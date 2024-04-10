@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import '../hub.dart';
+import '../metrics/local_metrics_aggregator.dart';
 import '../protocol.dart';
 
 import '../sentry_tracer.dart';
@@ -12,6 +13,7 @@ typedef OnFinishedCallback = Future<void> Function({DateTime? endTimestamp});
 class SentrySpan extends ISentrySpan {
   final SentrySpanContext _context;
   DateTime? _endTimestamp;
+  Map<String, List<MetricSummary>>? _metricSummaries;
   late final DateTime _startTimestamp;
   final Hub _hub;
 
@@ -22,6 +24,7 @@ class SentrySpan extends ISentrySpan {
   SpanStatus? _status;
   final Map<String, String> _tags = {};
   OnFinishedCallback? _finishedCallback;
+  late final LocalMetricsAggregator? _localMetricsAggregator;
 
   @override
   final SentryTracesSamplingDecision? samplingDecision;
@@ -37,6 +40,9 @@ class SentrySpan extends ISentrySpan {
     _startTimestamp = startTimestamp?.toUtc() ?? _hub.options.clock();
     _finishedCallback = finishedCallback;
     _origin = _context.origin;
+    _localMetricsAggregator = _hub.options.enableSpanLocalMetricAggregation
+        ? LocalMetricsAggregator()
+        : null;
   }
 
   @override
@@ -65,6 +71,7 @@ class SentrySpan extends ISentrySpan {
     if (_throwable != null) {
       _hub.setSpanContext(_throwable, this, _tracer.name);
     }
+    _metricSummaries = _localMetricsAggregator?.getSummaries();
     await _finishedCallback?.call(endTimestamp: _endTimestamp);
     return super.finish(status: status, endTimestamp: _endTimestamp);
   }
@@ -154,6 +161,9 @@ class SentrySpan extends ISentrySpan {
   @override
   set origin(String? origin) => _origin = origin;
 
+  @override
+  LocalMetricsAggregator? get localMetricsAggregator => _localMetricsAggregator;
+
   Map<String, dynamic> toJson() {
     final json = _context.toJson();
     json['start_timestamp'] =
@@ -173,6 +183,16 @@ class SentrySpan extends ISentrySpan {
     }
     if (_origin != null) {
       json['origin'] = _origin;
+    }
+
+    final metricSummariesMap = _metricSummaries?.entries ?? Iterable.empty();
+    if (metricSummariesMap.isNotEmpty) {
+      final map = <String, dynamic>{};
+      for (final entry in metricSummariesMap) {
+        final summary = entry.value.map((e) => e.toJson());
+        map[entry.key] = summary.toList(growable: false);
+      }
+      json['_metrics_summary'] = map;
     }
     return json;
   }
