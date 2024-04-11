@@ -7,6 +7,7 @@ enum DataCategory {
   transaction,
   attachment,
   security,
+  metricBucket,
   unknown
 }
 
@@ -27,6 +28,8 @@ extension DataCategoryExtension on DataCategory {
         return DataCategory.attachment;
       case 'security':
         return DataCategory.security;
+      case 'metric_bucket':
+        return DataCategory.metricBucket;
     }
     return DataCategory.unknown;
   }
@@ -47,6 +50,8 @@ extension DataCategoryExtension on DataCategory {
         return 'attachment';
       case DataCategory.security:
         return 'security';
+      case DataCategory.metricBucket:
+        return 'metric_bucket';
       case DataCategory.unknown:
         return 'unknown';
     }

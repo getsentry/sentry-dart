@@ -8,6 +8,7 @@ import '../sentry_flutter.dart';
 import 'event_processor/android_platform_exception_event_processor.dart';
 import 'event_processor/flutter_exception_event_processor.dart';
 import 'event_processor/platform_exception_event_processor.dart';
+import 'event_processor/widget_event_processor.dart';
 import 'frame_callback_handler.dart';
 import 'integrations/connectivity/connectivity_integration.dart';
 import 'integrations/screenshot_integration.dart';
@@ -110,12 +111,13 @@ mixin SentryFlutter {
       options.addScopeObserver(NativeScopeObserver(_native!));
     }
 
-    var flutterEventProcessor = FlutterEnricherEventProcessor(options);
-    options.addEventProcessor(flutterEventProcessor);
+    options.addEventProcessor(FlutterEnricherEventProcessor(options));
+    options.addEventProcessor(WidgetEventProcessor());
 
     if (options.platformChecker.platform.isAndroid) {
-      options
-          .addEventProcessor(AndroidPlatformExceptionEventProcessor(options));
+      options.addEventProcessor(
+        AndroidPlatformExceptionEventProcessor(options),
+      );
     }
 
     options.addEventProcessor(PlatformExceptionEventProcessor());
