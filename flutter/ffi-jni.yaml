@@ -1,0 +1,19 @@
+android_sdk_config:
+  add_gradle_deps: true
+  android_example: 'example/'
+
+# summarizer:
+#   backend: asm
+
+output:
+  c:
+    library_name: sentry_android_binding
+    path: android/src/main/cpp/
+  dart:
+    path: lib/src/native/jni/binding.dart
+    structure: single_file
+
+log_level: all
+
+classes:
+  - io.sentry.Sentry
