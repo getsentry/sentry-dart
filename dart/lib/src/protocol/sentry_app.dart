@@ -19,6 +19,7 @@ class SentryApp {
     this.appMemory,
     this.inForeground,
     this.viewNames,
+    this.textScale,
   });
 
   /// Human readable application name, as it appears on the platform.
@@ -52,6 +53,9 @@ class SentryApp {
   /// The names of the currently visible views.
   final List<String>? viewNames;
 
+  /// The current text scale. Only available on Flutter.
+  final double? textScale;
+
   /// Deserializes a [SentryApp] from JSON [Map].
   factory SentryApp.fromJson(Map<String, dynamic> data) {
     final viewNamesJson = data['view_names'] as List<dynamic>?;
@@ -68,6 +72,7 @@ class SentryApp {
       appMemory: data['app_memory'],
       inForeground: data['in_foreground'],
       viewNames: viewNamesJson?.map((e) => e as String).toList(),
+      textScale: data['text_scale'],
     );
   }
 
@@ -84,6 +89,7 @@ class SentryApp {
       if (appMemory != null) 'app_memory': appMemory!,
       if (inForeground != null) 'in_foreground': inForeground!,
       if (viewNames != null && viewNames!.isNotEmpty) 'view_names': viewNames!,
+      if (textScale != null) 'text_scale': textScale!,
     };
   }
 
@@ -98,6 +104,7 @@ class SentryApp {
         appMemory: appMemory,
         inForeground: inForeground,
         viewNames: viewNames,
+        textScale: textScale,
       );
 
   SentryApp copyWith({
@@ -111,6 +118,7 @@ class SentryApp {
     int? appMemory,
     bool? inForeground,
     List<String>? viewNames,
+    double? textScale,
   }) =>
       SentryApp(
         name: name ?? this.name,
@@ -123,5 +131,6 @@ class SentryApp {
         appMemory: appMemory ?? this.appMemory,
         inForeground: inForeground ?? this.inForeground,
         viewNames: viewNames ?? this.viewNames,
+        textScale: textScale ?? this.textScale,
       );
 }
