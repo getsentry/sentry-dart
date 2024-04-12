@@ -12,6 +12,7 @@
 
 ### Dependencies
 
+- Expand dependency range of `package_info_plus` to include major version 7 ([#1984](https://github.com/getsentry/sentry-dart/pull/1984))
 - Bump Android SDK from v7.6.0 to v7.8.0 ([#1977](https://github.com/getsentry/sentry-dart/pull/1977))
   - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#780)
   - [diff](https://github.com/getsentry/sentry-java/compare/7.6.0...7.8.0)
