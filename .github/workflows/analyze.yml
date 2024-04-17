@@ -32,7 +32,7 @@ jobs:
         working-directory: ${{ inputs.package }}
     steps:
       - uses: actions/checkout@v4
-      - uses: dart-lang/setup-dart@fedb1266e91cf51be2fdb382869461a434b920a3 # pin@v1
+      - uses: dart-lang/setup-dart@f0ead981b4d9a35b37f30d36160575d60931ec30 # pin@v1
         if: ${{ inputs.sdk == 'dart' }}
       - uses: subosito/flutter-action@44ac965b96f18d999802d4b807e3256d5a3f9fa1 # pin@v2.16.0
         if: ${{ inputs.sdk == 'flutter' }}
