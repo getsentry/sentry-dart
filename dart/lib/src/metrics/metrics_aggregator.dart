@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:meta/meta.dart';
 
 import '../../sentry.dart';
+import 'local_metrics_aggregator.dart';
 import 'metric.dart';
 
 /// Class that aggregates all metrics into time buckets and sends them.
@@ -53,8 +54,9 @@ class MetricsAggregator {
     String key,
     num value,
     SentryMeasurementUnit unit,
-    Map<String, String> tags,
-  ) {
+    Map<String, String> tags, {
+    LocalMetricsAggregator? localMetricsAggregator,
+  }) {
     if (_isClosed) {
       return;
     }
@@ -102,10 +104,10 @@ class MetricsAggregator {
 
     // For sets, we only record that a value has been added to the set but not which one.
     // See develop docs: https://develop.sentry.dev/sdk/metrics/#sets
-    _hub
-        .getSpan()
-        ?.localMetricsAggregator
-        ?.add(metric, metricType == MetricType.set ? addedWeight : value);
+    final localAggregator =
+        localMetricsAggregator ?? (_hub.getSpan()?.localMetricsAggregator);
+    localAggregator?.add(
+        metric, metricType == MetricType.set ? addedWeight : value);
 
     // Schedule the metrics flushing.
     _scheduleFlush();
