@@ -10,10 +10,11 @@ output:
     library_name: sentry_android_binding
     path: android/src/main/cpp/
   dart:
-    path: lib/src/native/jni/binding.dart
+    path: lib/src/native/java/binding.dart
     structure: single_file
 
 log_level: all
 
 classes:
-  - io.sentry.Sentry
+  - io.sentry.android.replay.Recorder
+  - io.sentry.android.replay.ScreenshotRecorderConfig
