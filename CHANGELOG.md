@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Timing metric aggregates metrics in the created span ([#1994](https://github.com/getsentry/sentry-dart/pull/1994))
+
 ## 7.20.0
 
 ### Build
