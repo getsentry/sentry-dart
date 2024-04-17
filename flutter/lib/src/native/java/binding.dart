@@ -372,3 +372,98 @@ class $ScreenshotRecorderConfigType
         other is $ScreenshotRecorderConfigType;
   }
 }
+
+/// from: io.sentry.flutter.SentryFlutterReplay
+class SentryFlutterReplay extends jni.JObject {
+  @override
+  late final jni.JObjType<SentryFlutterReplay> $type = type;
+
+  SentryFlutterReplay.fromRef(
+    jni.JObjectPtr ref,
+  ) : super.fromRef(ref);
+
+  /// The type which includes information such as the signature of this class.
+  static const type = $SentryFlutterReplayType();
+  static final _get_INSTANCE =
+      jniLookup<ffi.NativeFunction<jni.JniResult Function()>>(
+              "get_SentryFlutterReplay__INSTANCE")
+          .asFunction<jni.JniResult Function()>();
+
+  /// from: static public final io.sentry.flutter.SentryFlutterReplay INSTANCE
+  /// The returned object must be deleted after use, by calling the `delete` method.
+  static SentryFlutterReplay get INSTANCE =>
+      const $SentryFlutterReplayType().fromRef(_get_INSTANCE().object);
+
+  static final _get_recorder =
+      jniLookup<ffi.NativeFunction<jni.JniResult Function()>>(
+              "get_SentryFlutterReplay__recorder")
+          .asFunction<jni.JniResult Function()>();
+
+  static final _set_recorder = jniLookup<
+              ffi
+              .NativeFunction<jni.JniResult Function(ffi.Pointer<ffi.Void>)>>(
+          "set_SentryFlutterReplay__recorder")
+      .asFunction<jni.JniResult Function(ffi.Pointer<ffi.Void>)>();
+
+  /// from: static public io.sentry.android.replay.Recorder recorder
+  /// The returned object must be deleted after use, by calling the `delete` method.
+  static Recorder get recorder =>
+      const $RecorderType().fromRef(_get_recorder().object);
+
+  /// from: static public io.sentry.android.replay.Recorder recorder
+  /// The returned object must be deleted after use, by calling the `delete` method.
+  static set recorder(Recorder value) => _set_recorder(value.reference).check();
+
+  static final _getRecorder = jniLookup<
+              ffi
+              .NativeFunction<jni.JniResult Function(ffi.Pointer<ffi.Void>)>>(
+          "SentryFlutterReplay__getRecorder")
+      .asFunction<jni.JniResult Function(ffi.Pointer<ffi.Void>)>();
+
+  /// from: public final io.sentry.android.replay.Recorder getRecorder()
+  /// The returned object must be deleted after use, by calling the `delete` method.
+  Recorder getRecorder() {
+    return const $RecorderType().fromRef(_getRecorder(reference).object);
+  }
+
+  static final _setRecorder = jniLookup<
+          ffi.NativeFunction<
+              jni.JniResult Function(ffi.Pointer<ffi.Void>,
+                  ffi.Pointer<ffi.Void>)>>("SentryFlutterReplay__setRecorder")
+      .asFunction<
+          jni.JniResult Function(
+              ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>)>();
+
+  /// from: public final void setRecorder(io.sentry.android.replay.Recorder recorder)
+  void setRecorder(
+    Recorder recorder,
+  ) {
+    return _setRecorder(reference, recorder.reference).check();
+  }
+}
+
+class $SentryFlutterReplayType extends jni.JObjType<SentryFlutterReplay> {
+  const $SentryFlutterReplayType();
+
+  @override
+  String get signature => r"Lio/sentry/flutter/SentryFlutterReplay;";
+
+  @override
+  SentryFlutterReplay fromRef(jni.JObjectPtr ref) =>
+      SentryFlutterReplay.fromRef(ref);
+
+  @override
+  jni.JObjType get superType => const jni.JObjectType();
+
+  @override
+  final superCount = 1;
+
+  @override
+  int get hashCode => ($SentryFlutterReplayType).hashCode;
+
+  @override
+  bool operator ==(Object other) {
+    return other.runtimeType == ($SentryFlutterReplayType) &&
+        other is $SentryFlutterReplayType;
+  }
+}

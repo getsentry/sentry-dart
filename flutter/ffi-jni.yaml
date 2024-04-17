@@ -18,3 +18,4 @@ log_level: all
 classes:
   - io.sentry.android.replay.Recorder
   - io.sentry.android.replay.ScreenshotRecorderConfig
+  - io.sentry.flutter.SentryFlutterReplay
