@@ -1,6 +1,22 @@
 # Changelog
 
-## Unreleased 
+## 8.0.0
+
+### Breaking Changes
+
+- Bump iOS minimum deployment target from **11** to **12** ([#1821](https://github.com/getsentry/sentry-dart/pull/1821))
+- Mark exceptions not handled by the user as `handled: false` ([#1535](https://github.com/getsentry/sentry-dart/pull/1535))
+  - This will affect your release health data, and is therefore considered a breaking change.
+- Refrain from overwriting the span status for unfinished spans ([#1577](https://github.com/getsentry/sentry-dart/pull/1577))
+  - Older self-hosted sentry instances will drop transactions containing unfinished spans.
+    - This change was introduced in [relay/#1690](https://github.com/getsentry/relay/pull/1690) and released with [22.12.0](https://github.com/getsentry/relay/releases/tag/22.12.0)
+- Do not leak extensions of external classes ([#1576](https://github.com/getsentry/sentry-dart/pull/1576))
+- Make `hint` non-nullable in `BeforeSendCallback`, `BeforeBreadcrumbCall` and `EventProcessor` ([#1574](https://github.com/getsentry/sentry-dart/pull/1574))
+  - This will affect your callbacks, making this a breaking change.
+- Load Device Contexts from Sentry Java ([#1616](https://github.com/getsentry/sentry-dart/pull/1616))
+  - Now the device context from Android is available in `BeforeSendCallback`
+- Set ip_address to {{auto}} by default, even if sendDefaultPII is disabled ([#1665](https://github.com/getsentry/sentry-dart/pull/1665))
+  - Instead use the "Prevent Storing of IP Addresses" option in the "Security & Privacy" project settings on sentry.io
 
 ## 7.20.0
 
