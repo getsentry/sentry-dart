@@ -44,6 +44,38 @@ class Mechanism {
   /// This may be because they are created at a central place (like a crash handler), and are all called the same: Error, Segfault etc. When the flag is set, Sentry will then try to use other information (top in-app frame function) rather than exception type and value in the UI for the primary event display. This flag should be set for all "segfaults" for instance as every single error group would look very similar otherwise.
   final bool? synthetic;
 
+  /// An optional boolean value, set `true` when the exception is the exception
+  /// group type specific to the platform or language.
+  /// The default is false when omitted.
+  /// For example, exceptions of type [PlatformException](https://api.flutter.dev/flutter/services/PlatformException-class.html)
+  /// have set it to `true`, others are set to `false`.
+  final bool? isExceptionGroup;
+
+  /// An optional string value describing the source of the exception.
+  ///
+  /// The SDK should populate this with the name of the property or attribute of
+  /// the parent exception that this exception was acquired from.
+  /// In the case of an array, it should include the zero-based array index as
+  /// well.
+  final String? source;
+
+  /// An optional numeric value providing an ID for the exception relative to
+  /// this specific event.
+  ///
+  /// The SDK should assign simple incrementing integers to each exception in
+  /// the tree, starting with 0 for the root of the tree.
+  /// In other words, when flattened into the list provided in the exception
+  /// values on the event, the last exception in the list should have ID 0,
+  /// the previous one should have ID 1, the next previous should have ID 2, etc.
+  final int? exceptionId;
+
+  /// An optional numeric value pointing at the [exceptionId] that is the parent
+  /// of this exception.
+  ///
+  /// The SDK should assign this to all exceptions except the root exception
+  /// (the last to be listed in the exception values).
+  final int? parentId;
+
   Mechanism({
     required this.type,
     this.description,
@@ -52,6 +84,10 @@ class Mechanism {
     this.synthetic,
     Map<String, dynamic>? meta,
     Map<String, dynamic>? data,
+    this.isExceptionGroup,
+    this.source,
+    this.exceptionId,
+    this.parentId,
   })  : _meta = meta != null ? Map.from(meta) : null,
         _data = data != null ? Map.from(data) : null;
 
@@ -63,6 +99,10 @@ class Mechanism {
     Map<String, dynamic>? meta,
     Map<String, dynamic>? data,
     bool? synthetic,
+    bool? isExceptionGroup,
+    String? source,
+    int? exceptionId,
+    int? parentId,
   }) =>
       Mechanism(
         type: type ?? this.type,
@@ -72,6 +112,10 @@ class Mechanism {
         meta: meta ?? this.meta,
         data: data ?? this.data,
         synthetic: synthetic ?? this.synthetic,
+        isExceptionGroup: isExceptionGroup ?? this.isExceptionGroup,
+        source: source ?? this.source,
+        exceptionId: exceptionId ?? this.exceptionId,
+        parentId: parentId ?? this.parentId,
       );
 
   /// Deserializes a [Mechanism] from JSON [Map].
@@ -94,6 +138,10 @@ class Mechanism {
       meta: meta,
       data: data,
       synthetic: json['synthetic'],
+      isExceptionGroup: json['is_exception_group'],
+      source: json['source'],
+      exceptionId: json['exception_id'],
+      parentId: json['parent_id'],
     );
   }
 
@@ -107,6 +155,10 @@ class Mechanism {
       if (_meta?.isNotEmpty ?? false) 'meta': _meta,
       if (_data?.isNotEmpty ?? false) 'data': _data,
       if (synthetic != null) 'synthetic': synthetic,
+      if (isExceptionGroup != null) 'is_exception_group': isExceptionGroup,
+      if (source != null) 'source': source,
+      if (exceptionId != null) 'exception_id': exceptionId,
+      if (parentId != null) 'parent_id': parentId,
     };
   }
 }
