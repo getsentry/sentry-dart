@@ -454,6 +454,50 @@ JniResult get_ScreenshotRecorderConfig__Companion() {
   return to_global_ref_result(_result);
 }
 
+// io.sentry.android.replay.ScreenshotRecorderCallback
+jclass _c_ScreenshotRecorderCallback = NULL;
+
+jmethodID _m_ScreenshotRecorderCallback__onScreenshotRecorded = NULL;
+FFI_PLUGIN_EXPORT
+JniResult ScreenshotRecorderCallback__onScreenshotRecorded(jobject self_,
+                                                           jobject bitmap) {
+  load_env();
+  load_class_global_ref(&_c_ScreenshotRecorderCallback,
+                        "io/sentry/android/replay/ScreenshotRecorderCallback");
+  if (_c_ScreenshotRecorderCallback == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_ScreenshotRecorderCallback,
+              &_m_ScreenshotRecorderCallback__onScreenshotRecorded,
+              "onScreenshotRecorded", "(Landroid/graphics/Bitmap;)V");
+  if (_m_ScreenshotRecorderCallback__onScreenshotRecorded == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  (*jniEnv)->CallVoidMethod(jniEnv, self_,
+                            _m_ScreenshotRecorderCallback__onScreenshotRecorded,
+                            bitmap);
+  return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+}
+
+jmethodID _m_ScreenshotRecorderCallback__onScreenshotRecorded1 = NULL;
+FFI_PLUGIN_EXPORT
+JniResult ScreenshotRecorderCallback__onScreenshotRecorded1(jobject self_,
+                                                            jobject file,
+                                                            int64_t j) {
+  load_env();
+  load_class_global_ref(&_c_ScreenshotRecorderCallback,
+                        "io/sentry/android/replay/ScreenshotRecorderCallback");
+  if (_c_ScreenshotRecorderCallback == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_ScreenshotRecorderCallback,
+              &_m_ScreenshotRecorderCallback__onScreenshotRecorded1,
+              "onScreenshotRecorded", "(Ljava/io/File;J)V");
+  if (_m_ScreenshotRecorderCallback__onScreenshotRecorded1 == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  (*jniEnv)->CallVoidMethod(
+      jniEnv, self_, _m_ScreenshotRecorderCallback__onScreenshotRecorded1, file,
+      j);
+  return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+}
+
 // io.sentry.flutter.SentryFlutterReplay
 jclass _c_SentryFlutterReplay = NULL;
 
@@ -488,6 +532,77 @@ JniResult SentryFlutterReplay__setRecorder(jobject self_, jobject recorder) {
     return (JniResult){.value = {.j = 0}, .exception = check_exception()};
   (*jniEnv)->CallVoidMethod(jniEnv, self_, _m_SentryFlutterReplay__setRecorder,
                             recorder);
+  return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+}
+
+jmethodID _m_SentryFlutterReplay__getCacheDir = NULL;
+FFI_PLUGIN_EXPORT
+JniResult SentryFlutterReplay__getCacheDir(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_SentryFlutterReplay,
+                        "io/sentry/flutter/SentryFlutterReplay");
+  if (_c_SentryFlutterReplay == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_SentryFlutterReplay, &_m_SentryFlutterReplay__getCacheDir,
+              "getCacheDir", "()Ljava/lang/String;");
+  if (_m_SentryFlutterReplay__getCacheDir == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  jobject _result = (*jniEnv)->CallObjectMethod(
+      jniEnv, self_, _m_SentryFlutterReplay__getCacheDir);
+  return to_global_ref_result(_result);
+}
+
+jmethodID _m_SentryFlutterReplay__setCacheDir = NULL;
+FFI_PLUGIN_EXPORT
+JniResult SentryFlutterReplay__setCacheDir(jobject self_, jobject string) {
+  load_env();
+  load_class_global_ref(&_c_SentryFlutterReplay,
+                        "io/sentry/flutter/SentryFlutterReplay");
+  if (_c_SentryFlutterReplay == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_SentryFlutterReplay, &_m_SentryFlutterReplay__setCacheDir,
+              "setCacheDir", "(Ljava/lang/String;)V");
+  if (_m_SentryFlutterReplay__setCacheDir == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  (*jniEnv)->CallVoidMethod(jniEnv, self_, _m_SentryFlutterReplay__setCacheDir,
+                            string);
+  return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+}
+
+jmethodID _m_SentryFlutterReplay__getCallback = NULL;
+FFI_PLUGIN_EXPORT
+JniResult SentryFlutterReplay__getCallback(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_SentryFlutterReplay,
+                        "io/sentry/flutter/SentryFlutterReplay");
+  if (_c_SentryFlutterReplay == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_SentryFlutterReplay, &_m_SentryFlutterReplay__getCallback,
+              "getCallback",
+              "()Lio/sentry/android/replay/ScreenshotRecorderCallback;");
+  if (_m_SentryFlutterReplay__getCallback == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  jobject _result = (*jniEnv)->CallObjectMethod(
+      jniEnv, self_, _m_SentryFlutterReplay__getCallback);
+  return to_global_ref_result(_result);
+}
+
+jmethodID _m_SentryFlutterReplay__setCallback = NULL;
+FFI_PLUGIN_EXPORT
+JniResult SentryFlutterReplay__setCallback(jobject self_,
+                                           jobject screenshotRecorderCallback) {
+  load_env();
+  load_class_global_ref(&_c_SentryFlutterReplay,
+                        "io/sentry/flutter/SentryFlutterReplay");
+  if (_c_SentryFlutterReplay == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_SentryFlutterReplay, &_m_SentryFlutterReplay__setCallback,
+              "setCallback",
+              "(Lio/sentry/android/replay/ScreenshotRecorderCallback;)V");
+  if (_m_SentryFlutterReplay__setCallback == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  (*jniEnv)->CallVoidMethod(jniEnv, self_, _m_SentryFlutterReplay__setCallback,
+                            screenshotRecorderCallback);
   return (JniResult){.value = {.j = 0}, .exception = check_exception()};
 }
 
@@ -533,4 +648,954 @@ JniResult set_SentryFlutterReplay__recorder(jobject value) {
   (*jniEnv)->SetStaticObjectField(jniEnv, _c_SentryFlutterReplay,
                                   _f_SentryFlutterReplay__recorder, value);
   return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+}
+
+jfieldID _f_SentryFlutterReplay__cacheDir = NULL;
+FFI_PLUGIN_EXPORT
+JniResult get_SentryFlutterReplay__cacheDir() {
+  load_env();
+  load_class_global_ref(&_c_SentryFlutterReplay,
+                        "io/sentry/flutter/SentryFlutterReplay");
+  if (_c_SentryFlutterReplay == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_static_field(_c_SentryFlutterReplay, &_f_SentryFlutterReplay__cacheDir,
+                    "cacheDir", "Ljava/lang/String;");
+  jobject _result = (*jniEnv)->GetStaticObjectField(
+      jniEnv, _c_SentryFlutterReplay, _f_SentryFlutterReplay__cacheDir);
+  return to_global_ref_result(_result);
+}
+
+FFI_PLUGIN_EXPORT
+JniResult set_SentryFlutterReplay__cacheDir(jobject value) {
+  load_env();
+  load_class_global_ref(&_c_SentryFlutterReplay,
+                        "io/sentry/flutter/SentryFlutterReplay");
+  if (_c_SentryFlutterReplay == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_static_field(_c_SentryFlutterReplay, &_f_SentryFlutterReplay__cacheDir,
+                    "cacheDir", "Ljava/lang/String;");
+  (*jniEnv)->SetStaticObjectField(jniEnv, _c_SentryFlutterReplay,
+                                  _f_SentryFlutterReplay__cacheDir, value);
+  return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+}
+
+jfieldID _f_SentryFlutterReplay__callback = NULL;
+FFI_PLUGIN_EXPORT
+JniResult get_SentryFlutterReplay__callback() {
+  load_env();
+  load_class_global_ref(&_c_SentryFlutterReplay,
+                        "io/sentry/flutter/SentryFlutterReplay");
+  if (_c_SentryFlutterReplay == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_static_field(_c_SentryFlutterReplay, &_f_SentryFlutterReplay__callback,
+                    "callback",
+                    "Lio/sentry/android/replay/ScreenshotRecorderCallback;");
+  jobject _result = (*jniEnv)->GetStaticObjectField(
+      jniEnv, _c_SentryFlutterReplay, _f_SentryFlutterReplay__callback);
+  return to_global_ref_result(_result);
+}
+
+FFI_PLUGIN_EXPORT
+JniResult set_SentryFlutterReplay__callback(jobject value) {
+  load_env();
+  load_class_global_ref(&_c_SentryFlutterReplay,
+                        "io/sentry/flutter/SentryFlutterReplay");
+  if (_c_SentryFlutterReplay == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_static_field(_c_SentryFlutterReplay, &_f_SentryFlutterReplay__callback,
+                    "callback",
+                    "Lio/sentry/android/replay/ScreenshotRecorderCallback;");
+  (*jniEnv)->SetStaticObjectField(jniEnv, _c_SentryFlutterReplay,
+                                  _f_SentryFlutterReplay__callback, value);
+  return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+}
+
+// java.io.File
+jclass _c_File = NULL;
+
+jmethodID _m_File__new0 = NULL;
+FFI_PLUGIN_EXPORT
+JniResult File__new0(jobject string) {
+  load_env();
+  load_class_global_ref(&_c_File, "java/io/File");
+  if (_c_File == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_File, &_m_File__new0, "<init>", "(Ljava/lang/String;)V");
+  if (_m_File__new0 == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  jobject _result =
+      (*jniEnv)->NewObject(jniEnv, _c_File, _m_File__new0, string);
+  return to_global_ref_result(_result);
+}
+
+jmethodID _m_File__new1 = NULL;
+FFI_PLUGIN_EXPORT
+JniResult File__new1(jobject string, jobject string1) {
+  load_env();
+  load_class_global_ref(&_c_File, "java/io/File");
+  if (_c_File == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_File, &_m_File__new1, "<init>",
+              "(Ljava/lang/String;Ljava/lang/String;)V");
+  if (_m_File__new1 == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  jobject _result =
+      (*jniEnv)->NewObject(jniEnv, _c_File, _m_File__new1, string, string1);
+  return to_global_ref_result(_result);
+}
+
+jmethodID _m_File__new2 = NULL;
+FFI_PLUGIN_EXPORT
+JniResult File__new2(jobject file, jobject string) {
+  load_env();
+  load_class_global_ref(&_c_File, "java/io/File");
+  if (_c_File == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_File, &_m_File__new2, "<init>",
+              "(Ljava/io/File;Ljava/lang/String;)V");
+  if (_m_File__new2 == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  jobject _result =
+      (*jniEnv)->NewObject(jniEnv, _c_File, _m_File__new2, file, string);
+  return to_global_ref_result(_result);
+}
+
+jmethodID _m_File__new3 = NULL;
+FFI_PLUGIN_EXPORT
+JniResult File__new3(jobject uRI) {
+  load_env();
+  load_class_global_ref(&_c_File, "java/io/File");
+  if (_c_File == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_File, &_m_File__new3, "<init>", "(Ljava/net/URI;)V");
+  if (_m_File__new3 == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  jobject _result = (*jniEnv)->NewObject(jniEnv, _c_File, _m_File__new3, uRI);
+  return to_global_ref_result(_result);
+}
+
+jmethodID _m_File__getName = NULL;
+FFI_PLUGIN_EXPORT
+JniResult File__getName(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_File, "java/io/File");
+  if (_c_File == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_File, &_m_File__getName, "getName", "()Ljava/lang/String;");
+  if (_m_File__getName == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  jobject _result =
+      (*jniEnv)->CallObjectMethod(jniEnv, self_, _m_File__getName);
+  return to_global_ref_result(_result);
+}
+
+jmethodID _m_File__getParent = NULL;
+FFI_PLUGIN_EXPORT
+JniResult File__getParent(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_File, "java/io/File");
+  if (_c_File == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_File, &_m_File__getParent, "getParent",
+              "()Ljava/lang/String;");
+  if (_m_File__getParent == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  jobject _result =
+      (*jniEnv)->CallObjectMethod(jniEnv, self_, _m_File__getParent);
+  return to_global_ref_result(_result);
+}
+
+jmethodID _m_File__getParentFile = NULL;
+FFI_PLUGIN_EXPORT
+JniResult File__getParentFile(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_File, "java/io/File");
+  if (_c_File == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_File, &_m_File__getParentFile, "getParentFile",
+              "()Ljava/io/File;");
+  if (_m_File__getParentFile == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  jobject _result =
+      (*jniEnv)->CallObjectMethod(jniEnv, self_, _m_File__getParentFile);
+  return to_global_ref_result(_result);
+}
+
+jmethodID _m_File__getPath = NULL;
+FFI_PLUGIN_EXPORT
+JniResult File__getPath(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_File, "java/io/File");
+  if (_c_File == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_File, &_m_File__getPath, "getPath", "()Ljava/lang/String;");
+  if (_m_File__getPath == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  jobject _result =
+      (*jniEnv)->CallObjectMethod(jniEnv, self_, _m_File__getPath);
+  return to_global_ref_result(_result);
+}
+
+jmethodID _m_File__isAbsolute = NULL;
+FFI_PLUGIN_EXPORT
+JniResult File__isAbsolute(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_File, "java/io/File");
+  if (_c_File == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_File, &_m_File__isAbsolute, "isAbsolute", "()Z");
+  if (_m_File__isAbsolute == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  uint8_t _result =
+      (*jniEnv)->CallBooleanMethod(jniEnv, self_, _m_File__isAbsolute);
+  return (JniResult){.value = {.z = _result}, .exception = check_exception()};
+}
+
+jmethodID _m_File__getAbsolutePath = NULL;
+FFI_PLUGIN_EXPORT
+JniResult File__getAbsolutePath(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_File, "java/io/File");
+  if (_c_File == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_File, &_m_File__getAbsolutePath, "getAbsolutePath",
+              "()Ljava/lang/String;");
+  if (_m_File__getAbsolutePath == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  jobject _result =
+      (*jniEnv)->CallObjectMethod(jniEnv, self_, _m_File__getAbsolutePath);
+  return to_global_ref_result(_result);
+}
+
+jmethodID _m_File__getAbsoluteFile = NULL;
+FFI_PLUGIN_EXPORT
+JniResult File__getAbsoluteFile(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_File, "java/io/File");
+  if (_c_File == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_File, &_m_File__getAbsoluteFile, "getAbsoluteFile",
+              "()Ljava/io/File;");
+  if (_m_File__getAbsoluteFile == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  jobject _result =
+      (*jniEnv)->CallObjectMethod(jniEnv, self_, _m_File__getAbsoluteFile);
+  return to_global_ref_result(_result);
+}
+
+jmethodID _m_File__getCanonicalPath = NULL;
+FFI_PLUGIN_EXPORT
+JniResult File__getCanonicalPath(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_File, "java/io/File");
+  if (_c_File == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_File, &_m_File__getCanonicalPath, "getCanonicalPath",
+              "()Ljava/lang/String;");
+  if (_m_File__getCanonicalPath == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  jobject _result =
+      (*jniEnv)->CallObjectMethod(jniEnv, self_, _m_File__getCanonicalPath);
+  return to_global_ref_result(_result);
+}
+
+jmethodID _m_File__getCanonicalFile = NULL;
+FFI_PLUGIN_EXPORT
+JniResult File__getCanonicalFile(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_File, "java/io/File");
+  if (_c_File == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_File, &_m_File__getCanonicalFile, "getCanonicalFile",
+              "()Ljava/io/File;");
+  if (_m_File__getCanonicalFile == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  jobject _result =
+      (*jniEnv)->CallObjectMethod(jniEnv, self_, _m_File__getCanonicalFile);
+  return to_global_ref_result(_result);
+}
+
+jmethodID _m_File__toURL = NULL;
+FFI_PLUGIN_EXPORT
+JniResult File__toURL(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_File, "java/io/File");
+  if (_c_File == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_File, &_m_File__toURL, "toURL", "()Ljava/net/URL;");
+  if (_m_File__toURL == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  jobject _result = (*jniEnv)->CallObjectMethod(jniEnv, self_, _m_File__toURL);
+  return to_global_ref_result(_result);
+}
+
+jmethodID _m_File__toURI = NULL;
+FFI_PLUGIN_EXPORT
+JniResult File__toURI(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_File, "java/io/File");
+  if (_c_File == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_File, &_m_File__toURI, "toURI", "()Ljava/net/URI;");
+  if (_m_File__toURI == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  jobject _result = (*jniEnv)->CallObjectMethod(jniEnv, self_, _m_File__toURI);
+  return to_global_ref_result(_result);
+}
+
+jmethodID _m_File__canRead = NULL;
+FFI_PLUGIN_EXPORT
+JniResult File__canRead(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_File, "java/io/File");
+  if (_c_File == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_File, &_m_File__canRead, "canRead", "()Z");
+  if (_m_File__canRead == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  uint8_t _result =
+      (*jniEnv)->CallBooleanMethod(jniEnv, self_, _m_File__canRead);
+  return (JniResult){.value = {.z = _result}, .exception = check_exception()};
+}
+
+jmethodID _m_File__canWrite = NULL;
+FFI_PLUGIN_EXPORT
+JniResult File__canWrite(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_File, "java/io/File");
+  if (_c_File == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_File, &_m_File__canWrite, "canWrite", "()Z");
+  if (_m_File__canWrite == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  uint8_t _result =
+      (*jniEnv)->CallBooleanMethod(jniEnv, self_, _m_File__canWrite);
+  return (JniResult){.value = {.z = _result}, .exception = check_exception()};
+}
+
+jmethodID _m_File__exists = NULL;
+FFI_PLUGIN_EXPORT
+JniResult File__exists(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_File, "java/io/File");
+  if (_c_File == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_File, &_m_File__exists, "exists", "()Z");
+  if (_m_File__exists == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  uint8_t _result =
+      (*jniEnv)->CallBooleanMethod(jniEnv, self_, _m_File__exists);
+  return (JniResult){.value = {.z = _result}, .exception = check_exception()};
+}
+
+jmethodID _m_File__isDirectory = NULL;
+FFI_PLUGIN_EXPORT
+JniResult File__isDirectory(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_File, "java/io/File");
+  if (_c_File == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_File, &_m_File__isDirectory, "isDirectory", "()Z");
+  if (_m_File__isDirectory == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  uint8_t _result =
+      (*jniEnv)->CallBooleanMethod(jniEnv, self_, _m_File__isDirectory);
+  return (JniResult){.value = {.z = _result}, .exception = check_exception()};
+}
+
+jmethodID _m_File__isFile = NULL;
+FFI_PLUGIN_EXPORT
+JniResult File__isFile(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_File, "java/io/File");
+  if (_c_File == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_File, &_m_File__isFile, "isFile", "()Z");
+  if (_m_File__isFile == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  uint8_t _result =
+      (*jniEnv)->CallBooleanMethod(jniEnv, self_, _m_File__isFile);
+  return (JniResult){.value = {.z = _result}, .exception = check_exception()};
+}
+
+jmethodID _m_File__isHidden = NULL;
+FFI_PLUGIN_EXPORT
+JniResult File__isHidden(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_File, "java/io/File");
+  if (_c_File == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_File, &_m_File__isHidden, "isHidden", "()Z");
+  if (_m_File__isHidden == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  uint8_t _result =
+      (*jniEnv)->CallBooleanMethod(jniEnv, self_, _m_File__isHidden);
+  return (JniResult){.value = {.z = _result}, .exception = check_exception()};
+}
+
+jmethodID _m_File__lastModified = NULL;
+FFI_PLUGIN_EXPORT
+JniResult File__lastModified(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_File, "java/io/File");
+  if (_c_File == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_File, &_m_File__lastModified, "lastModified", "()J");
+  if (_m_File__lastModified == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  int64_t _result =
+      (*jniEnv)->CallLongMethod(jniEnv, self_, _m_File__lastModified);
+  return (JniResult){.value = {.j = _result}, .exception = check_exception()};
+}
+
+jmethodID _m_File__length = NULL;
+FFI_PLUGIN_EXPORT
+JniResult File__length(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_File, "java/io/File");
+  if (_c_File == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_File, &_m_File__length, "length", "()J");
+  if (_m_File__length == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  int64_t _result = (*jniEnv)->CallLongMethod(jniEnv, self_, _m_File__length);
+  return (JniResult){.value = {.j = _result}, .exception = check_exception()};
+}
+
+jmethodID _m_File__createNewFile = NULL;
+FFI_PLUGIN_EXPORT
+JniResult File__createNewFile(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_File, "java/io/File");
+  if (_c_File == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_File, &_m_File__createNewFile, "createNewFile", "()Z");
+  if (_m_File__createNewFile == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  uint8_t _result =
+      (*jniEnv)->CallBooleanMethod(jniEnv, self_, _m_File__createNewFile);
+  return (JniResult){.value = {.z = _result}, .exception = check_exception()};
+}
+
+jmethodID _m_File__delete = NULL;
+FFI_PLUGIN_EXPORT
+JniResult File__delete(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_File, "java/io/File");
+  if (_c_File == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_File, &_m_File__delete, "delete", "()Z");
+  if (_m_File__delete == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  uint8_t _result =
+      (*jniEnv)->CallBooleanMethod(jniEnv, self_, _m_File__delete);
+  return (JniResult){.value = {.z = _result}, .exception = check_exception()};
+}
+
+jmethodID _m_File__deleteOnExit = NULL;
+FFI_PLUGIN_EXPORT
+JniResult File__deleteOnExit(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_File, "java/io/File");
+  if (_c_File == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_File, &_m_File__deleteOnExit, "deleteOnExit", "()V");
+  if (_m_File__deleteOnExit == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  (*jniEnv)->CallVoidMethod(jniEnv, self_, _m_File__deleteOnExit);
+  return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+}
+
+jmethodID _m_File__list = NULL;
+FFI_PLUGIN_EXPORT
+JniResult File__list(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_File, "java/io/File");
+  if (_c_File == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_File, &_m_File__list, "list", "()[Ljava/lang/String;");
+  if (_m_File__list == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  jobject _result = (*jniEnv)->CallObjectMethod(jniEnv, self_, _m_File__list);
+  return to_global_ref_result(_result);
+}
+
+jmethodID _m_File__list1 = NULL;
+FFI_PLUGIN_EXPORT
+JniResult File__list1(jobject self_, jobject filenameFilter) {
+  load_env();
+  load_class_global_ref(&_c_File, "java/io/File");
+  if (_c_File == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_File, &_m_File__list1, "list",
+              "(Ljava/io/FilenameFilter;)[Ljava/lang/String;");
+  if (_m_File__list1 == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  jobject _result = (*jniEnv)->CallObjectMethod(jniEnv, self_, _m_File__list1,
+                                                filenameFilter);
+  return to_global_ref_result(_result);
+}
+
+jmethodID _m_File__listFiles = NULL;
+FFI_PLUGIN_EXPORT
+JniResult File__listFiles(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_File, "java/io/File");
+  if (_c_File == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_File, &_m_File__listFiles, "listFiles", "()[Ljava/io/File;");
+  if (_m_File__listFiles == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  jobject _result =
+      (*jniEnv)->CallObjectMethod(jniEnv, self_, _m_File__listFiles);
+  return to_global_ref_result(_result);
+}
+
+jmethodID _m_File__listFiles1 = NULL;
+FFI_PLUGIN_EXPORT
+JniResult File__listFiles1(jobject self_, jobject filenameFilter) {
+  load_env();
+  load_class_global_ref(&_c_File, "java/io/File");
+  if (_c_File == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_File, &_m_File__listFiles1, "listFiles",
+              "(Ljava/io/FilenameFilter;)[Ljava/io/File;");
+  if (_m_File__listFiles1 == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  jobject _result = (*jniEnv)->CallObjectMethod(
+      jniEnv, self_, _m_File__listFiles1, filenameFilter);
+  return to_global_ref_result(_result);
+}
+
+jmethodID _m_File__listFiles2 = NULL;
+FFI_PLUGIN_EXPORT
+JniResult File__listFiles2(jobject self_, jobject fileFilter) {
+  load_env();
+  load_class_global_ref(&_c_File, "java/io/File");
+  if (_c_File == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_File, &_m_File__listFiles2, "listFiles",
+              "(Ljava/io/FileFilter;)[Ljava/io/File;");
+  if (_m_File__listFiles2 == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  jobject _result = (*jniEnv)->CallObjectMethod(
+      jniEnv, self_, _m_File__listFiles2, fileFilter);
+  return to_global_ref_result(_result);
+}
+
+jmethodID _m_File__mkdir = NULL;
+FFI_PLUGIN_EXPORT
+JniResult File__mkdir(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_File, "java/io/File");
+  if (_c_File == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_File, &_m_File__mkdir, "mkdir", "()Z");
+  if (_m_File__mkdir == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  uint8_t _result = (*jniEnv)->CallBooleanMethod(jniEnv, self_, _m_File__mkdir);
+  return (JniResult){.value = {.z = _result}, .exception = check_exception()};
+}
+
+jmethodID _m_File__mkdirs = NULL;
+FFI_PLUGIN_EXPORT
+JniResult File__mkdirs(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_File, "java/io/File");
+  if (_c_File == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_File, &_m_File__mkdirs, "mkdirs", "()Z");
+  if (_m_File__mkdirs == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  uint8_t _result =
+      (*jniEnv)->CallBooleanMethod(jniEnv, self_, _m_File__mkdirs);
+  return (JniResult){.value = {.z = _result}, .exception = check_exception()};
+}
+
+jmethodID _m_File__renameTo = NULL;
+FFI_PLUGIN_EXPORT
+JniResult File__renameTo(jobject self_, jobject file) {
+  load_env();
+  load_class_global_ref(&_c_File, "java/io/File");
+  if (_c_File == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_File, &_m_File__renameTo, "renameTo", "(Ljava/io/File;)Z");
+  if (_m_File__renameTo == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  uint8_t _result =
+      (*jniEnv)->CallBooleanMethod(jniEnv, self_, _m_File__renameTo, file);
+  return (JniResult){.value = {.z = _result}, .exception = check_exception()};
+}
+
+jmethodID _m_File__setLastModified = NULL;
+FFI_PLUGIN_EXPORT
+JniResult File__setLastModified(jobject self_, int64_t j) {
+  load_env();
+  load_class_global_ref(&_c_File, "java/io/File");
+  if (_c_File == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_File, &_m_File__setLastModified, "setLastModified", "(J)Z");
+  if (_m_File__setLastModified == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  uint8_t _result =
+      (*jniEnv)->CallBooleanMethod(jniEnv, self_, _m_File__setLastModified, j);
+  return (JniResult){.value = {.z = _result}, .exception = check_exception()};
+}
+
+jmethodID _m_File__setReadOnly = NULL;
+FFI_PLUGIN_EXPORT
+JniResult File__setReadOnly(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_File, "java/io/File");
+  if (_c_File == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_File, &_m_File__setReadOnly, "setReadOnly", "()Z");
+  if (_m_File__setReadOnly == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  uint8_t _result =
+      (*jniEnv)->CallBooleanMethod(jniEnv, self_, _m_File__setReadOnly);
+  return (JniResult){.value = {.z = _result}, .exception = check_exception()};
+}
+
+jmethodID _m_File__setWritable = NULL;
+FFI_PLUGIN_EXPORT
+JniResult File__setWritable(jobject self_, uint8_t z, uint8_t z1) {
+  load_env();
+  load_class_global_ref(&_c_File, "java/io/File");
+  if (_c_File == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_File, &_m_File__setWritable, "setWritable", "(ZZ)Z");
+  if (_m_File__setWritable == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  uint8_t _result =
+      (*jniEnv)->CallBooleanMethod(jniEnv, self_, _m_File__setWritable, z, z1);
+  return (JniResult){.value = {.z = _result}, .exception = check_exception()};
+}
+
+jmethodID _m_File__setWritable1 = NULL;
+FFI_PLUGIN_EXPORT
+JniResult File__setWritable1(jobject self_, uint8_t z) {
+  load_env();
+  load_class_global_ref(&_c_File, "java/io/File");
+  if (_c_File == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_File, &_m_File__setWritable1, "setWritable", "(Z)Z");
+  if (_m_File__setWritable1 == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  uint8_t _result =
+      (*jniEnv)->CallBooleanMethod(jniEnv, self_, _m_File__setWritable1, z);
+  return (JniResult){.value = {.z = _result}, .exception = check_exception()};
+}
+
+jmethodID _m_File__setReadable = NULL;
+FFI_PLUGIN_EXPORT
+JniResult File__setReadable(jobject self_, uint8_t z, uint8_t z1) {
+  load_env();
+  load_class_global_ref(&_c_File, "java/io/File");
+  if (_c_File == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_File, &_m_File__setReadable, "setReadable", "(ZZ)Z");
+  if (_m_File__setReadable == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  uint8_t _result =
+      (*jniEnv)->CallBooleanMethod(jniEnv, self_, _m_File__setReadable, z, z1);
+  return (JniResult){.value = {.z = _result}, .exception = check_exception()};
+}
+
+jmethodID _m_File__setReadable1 = NULL;
+FFI_PLUGIN_EXPORT
+JniResult File__setReadable1(jobject self_, uint8_t z) {
+  load_env();
+  load_class_global_ref(&_c_File, "java/io/File");
+  if (_c_File == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_File, &_m_File__setReadable1, "setReadable", "(Z)Z");
+  if (_m_File__setReadable1 == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  uint8_t _result =
+      (*jniEnv)->CallBooleanMethod(jniEnv, self_, _m_File__setReadable1, z);
+  return (JniResult){.value = {.z = _result}, .exception = check_exception()};
+}
+
+jmethodID _m_File__setExecutable = NULL;
+FFI_PLUGIN_EXPORT
+JniResult File__setExecutable(jobject self_, uint8_t z, uint8_t z1) {
+  load_env();
+  load_class_global_ref(&_c_File, "java/io/File");
+  if (_c_File == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_File, &_m_File__setExecutable, "setExecutable", "(ZZ)Z");
+  if (_m_File__setExecutable == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  uint8_t _result = (*jniEnv)->CallBooleanMethod(jniEnv, self_,
+                                                 _m_File__setExecutable, z, z1);
+  return (JniResult){.value = {.z = _result}, .exception = check_exception()};
+}
+
+jmethodID _m_File__setExecutable1 = NULL;
+FFI_PLUGIN_EXPORT
+JniResult File__setExecutable1(jobject self_, uint8_t z) {
+  load_env();
+  load_class_global_ref(&_c_File, "java/io/File");
+  if (_c_File == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_File, &_m_File__setExecutable1, "setExecutable", "(Z)Z");
+  if (_m_File__setExecutable1 == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  uint8_t _result =
+      (*jniEnv)->CallBooleanMethod(jniEnv, self_, _m_File__setExecutable1, z);
+  return (JniResult){.value = {.z = _result}, .exception = check_exception()};
+}
+
+jmethodID _m_File__canExecute = NULL;
+FFI_PLUGIN_EXPORT
+JniResult File__canExecute(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_File, "java/io/File");
+  if (_c_File == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_File, &_m_File__canExecute, "canExecute", "()Z");
+  if (_m_File__canExecute == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  uint8_t _result =
+      (*jniEnv)->CallBooleanMethod(jniEnv, self_, _m_File__canExecute);
+  return (JniResult){.value = {.z = _result}, .exception = check_exception()};
+}
+
+jmethodID _m_File__listRoots = NULL;
+FFI_PLUGIN_EXPORT
+JniResult File__listRoots() {
+  load_env();
+  load_class_global_ref(&_c_File, "java/io/File");
+  if (_c_File == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_static_method(_c_File, &_m_File__listRoots, "listRoots",
+                     "()[Ljava/io/File;");
+  if (_m_File__listRoots == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  jobject _result =
+      (*jniEnv)->CallStaticObjectMethod(jniEnv, _c_File, _m_File__listRoots);
+  return to_global_ref_result(_result);
+}
+
+jmethodID _m_File__getTotalSpace = NULL;
+FFI_PLUGIN_EXPORT
+JniResult File__getTotalSpace(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_File, "java/io/File");
+  if (_c_File == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_File, &_m_File__getTotalSpace, "getTotalSpace", "()J");
+  if (_m_File__getTotalSpace == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  int64_t _result =
+      (*jniEnv)->CallLongMethod(jniEnv, self_, _m_File__getTotalSpace);
+  return (JniResult){.value = {.j = _result}, .exception = check_exception()};
+}
+
+jmethodID _m_File__getFreeSpace = NULL;
+FFI_PLUGIN_EXPORT
+JniResult File__getFreeSpace(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_File, "java/io/File");
+  if (_c_File == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_File, &_m_File__getFreeSpace, "getFreeSpace", "()J");
+  if (_m_File__getFreeSpace == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  int64_t _result =
+      (*jniEnv)->CallLongMethod(jniEnv, self_, _m_File__getFreeSpace);
+  return (JniResult){.value = {.j = _result}, .exception = check_exception()};
+}
+
+jmethodID _m_File__getUsableSpace = NULL;
+FFI_PLUGIN_EXPORT
+JniResult File__getUsableSpace(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_File, "java/io/File");
+  if (_c_File == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_File, &_m_File__getUsableSpace, "getUsableSpace", "()J");
+  if (_m_File__getUsableSpace == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  int64_t _result =
+      (*jniEnv)->CallLongMethod(jniEnv, self_, _m_File__getUsableSpace);
+  return (JniResult){.value = {.j = _result}, .exception = check_exception()};
+}
+
+jmethodID _m_File__createTempFile = NULL;
+FFI_PLUGIN_EXPORT
+JniResult File__createTempFile(jobject string, jobject string1, jobject file) {
+  load_env();
+  load_class_global_ref(&_c_File, "java/io/File");
+  if (_c_File == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_static_method(
+      _c_File, &_m_File__createTempFile, "createTempFile",
+      "(Ljava/lang/String;Ljava/lang/String;Ljava/io/File;)Ljava/io/File;");
+  if (_m_File__createTempFile == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  jobject _result = (*jniEnv)->CallStaticObjectMethod(
+      jniEnv, _c_File, _m_File__createTempFile, string, string1, file);
+  return to_global_ref_result(_result);
+}
+
+jmethodID _m_File__createTempFile1 = NULL;
+FFI_PLUGIN_EXPORT
+JniResult File__createTempFile1(jobject string, jobject string1) {
+  load_env();
+  load_class_global_ref(&_c_File, "java/io/File");
+  if (_c_File == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_static_method(_c_File, &_m_File__createTempFile1, "createTempFile",
+                     "(Ljava/lang/String;Ljava/lang/String;)Ljava/io/File;");
+  if (_m_File__createTempFile1 == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  jobject _result = (*jniEnv)->CallStaticObjectMethod(
+      jniEnv, _c_File, _m_File__createTempFile1, string, string1);
+  return to_global_ref_result(_result);
+}
+
+jmethodID _m_File__compareTo = NULL;
+FFI_PLUGIN_EXPORT
+JniResult File__compareTo(jobject self_, jobject file) {
+  load_env();
+  load_class_global_ref(&_c_File, "java/io/File");
+  if (_c_File == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_File, &_m_File__compareTo, "compareTo", "(Ljava/io/File;)I");
+  if (_m_File__compareTo == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  int32_t _result =
+      (*jniEnv)->CallIntMethod(jniEnv, self_, _m_File__compareTo, file);
+  return (JniResult){.value = {.i = _result}, .exception = check_exception()};
+}
+
+jmethodID _m_File__equals1 = NULL;
+FFI_PLUGIN_EXPORT
+JniResult File__equals1(jobject self_, jobject object) {
+  load_env();
+  load_class_global_ref(&_c_File, "java/io/File");
+  if (_c_File == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_File, &_m_File__equals1, "equals", "(Ljava/lang/Object;)Z");
+  if (_m_File__equals1 == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  uint8_t _result =
+      (*jniEnv)->CallBooleanMethod(jniEnv, self_, _m_File__equals1, object);
+  return (JniResult){.value = {.z = _result}, .exception = check_exception()};
+}
+
+jmethodID _m_File__hashCode1 = NULL;
+FFI_PLUGIN_EXPORT
+JniResult File__hashCode1(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_File, "java/io/File");
+  if (_c_File == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_File, &_m_File__hashCode1, "hashCode", "()I");
+  if (_m_File__hashCode1 == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  int32_t _result = (*jniEnv)->CallIntMethod(jniEnv, self_, _m_File__hashCode1);
+  return (JniResult){.value = {.i = _result}, .exception = check_exception()};
+}
+
+jmethodID _m_File__toString1 = NULL;
+FFI_PLUGIN_EXPORT
+JniResult File__toString1(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_File, "java/io/File");
+  if (_c_File == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_File, &_m_File__toString1, "toString", "()Ljava/lang/String;");
+  if (_m_File__toString1 == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  jobject _result =
+      (*jniEnv)->CallObjectMethod(jniEnv, self_, _m_File__toString1);
+  return to_global_ref_result(_result);
+}
+
+jmethodID _m_File__toPath = NULL;
+FFI_PLUGIN_EXPORT
+JniResult File__toPath(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_File, "java/io/File");
+  if (_c_File == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_File, &_m_File__toPath, "toPath", "()Ljava/nio/file/Path;");
+  if (_m_File__toPath == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  jobject _result = (*jniEnv)->CallObjectMethod(jniEnv, self_, _m_File__toPath);
+  return to_global_ref_result(_result);
+}
+
+jmethodID _m_File__compareTo1 = NULL;
+FFI_PLUGIN_EXPORT
+JniResult File__compareTo1(jobject self_, jobject object) {
+  load_env();
+  load_class_global_ref(&_c_File, "java/io/File");
+  if (_c_File == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_File, &_m_File__compareTo1, "compareTo",
+              "(Ljava/lang/Object;)I");
+  if (_m_File__compareTo1 == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  int32_t _result =
+      (*jniEnv)->CallIntMethod(jniEnv, self_, _m_File__compareTo1, object);
+  return (JniResult){.value = {.i = _result}, .exception = check_exception()};
+}
+
+jfieldID _f_File__pathSeparator = NULL;
+FFI_PLUGIN_EXPORT
+JniResult get_File__pathSeparator() {
+  load_env();
+  load_class_global_ref(&_c_File, "java/io/File");
+  if (_c_File == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_static_field(_c_File, &_f_File__pathSeparator, "pathSeparator",
+                    "Ljava/lang/String;");
+  jobject _result =
+      (*jniEnv)->GetStaticObjectField(jniEnv, _c_File, _f_File__pathSeparator);
+  return to_global_ref_result(_result);
+}
+
+jfieldID _f_File__pathSeparatorChar = NULL;
+FFI_PLUGIN_EXPORT
+JniResult get_File__pathSeparatorChar() {
+  load_env();
+  load_class_global_ref(&_c_File, "java/io/File");
+  if (_c_File == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_static_field(_c_File, &_f_File__pathSeparatorChar, "pathSeparatorChar",
+                    "C");
+  uint16_t _result = (*jniEnv)->GetStaticCharField(jniEnv, _c_File,
+                                                   _f_File__pathSeparatorChar);
+  return (JniResult){.value = {.c = _result}, .exception = check_exception()};
+}
+
+jfieldID _f_File__separator = NULL;
+FFI_PLUGIN_EXPORT
+JniResult get_File__separator() {
+  load_env();
+  load_class_global_ref(&_c_File, "java/io/File");
+  if (_c_File == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_static_field(_c_File, &_f_File__separator, "separator",
+                    "Ljava/lang/String;");
+  jobject _result =
+      (*jniEnv)->GetStaticObjectField(jniEnv, _c_File, _f_File__separator);
+  return to_global_ref_result(_result);
+}
+
+jfieldID _f_File__separatorChar = NULL;
+FFI_PLUGIN_EXPORT
+JniResult get_File__separatorChar() {
+  load_env();
+  load_class_global_ref(&_c_File, "java/io/File");
+  if (_c_File == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_static_field(_c_File, &_f_File__separatorChar, "separatorChar", "C");
+  uint16_t _result =
+      (*jniEnv)->GetStaticCharField(jniEnv, _c_File, _f_File__separatorChar);
+  return (JniResult){.value = {.c = _result}, .exception = check_exception()};
 }

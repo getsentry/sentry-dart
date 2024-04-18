@@ -1,6 +1,7 @@
 package io.sentry.flutter
 
 import io.sentry.android.replay.Recorder
+import io.sentry.android.replay.ScreenshotRecorderCallback
 
 object SentryFlutterReplay {
   // Set by the Flutter side, read during SentryAndroid.init()

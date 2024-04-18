@@ -152,7 +152,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         )
 
         // FIXME temporary
-        SentryFlutterReplay.cacheDir = File(options.cacheDirPath!!, "replay_0")
+        SentryFlutterReplay.cacheDir = File(options.cacheDirPath!!, "replay_0").path
 
         options.addIntegration(replay)
         options.setReplayController(replay)
