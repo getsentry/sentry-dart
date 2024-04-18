@@ -30,8 +30,8 @@ class RateLimitParser {
       if (allCategories.isNotEmpty) {
         final categoryValues = allCategories.split(';');
         for (final categoryValue in categoryValues) {
-          final category = DataCategoryExtension.fromStringValue(categoryValue);
-          // Metric buckets rate limit can have namespaces
+          final category = _DataCategoryExtension._fromStringValue(
+              categoryValue); // Metric buckets rate limit can have namespaces
           if (category == DataCategory.metricBucket) {
             final namespaces = durationAndCategories.length > 4
                 ? durationAndCategories[4]
@@ -85,6 +85,8 @@ extension _DataCategoryExtension on DataCategory {
         return DataCategory.attachment;
       case 'security':
         return DataCategory.security;
+      case 'metric_bucket':
+        return DataCategory.metricBucket;
     }
     return DataCategory.unknown;
   }
