@@ -73,6 +73,9 @@ import 'failed_request_client.dart';
 /// Remarks:
 /// HTTP traffic can contain PII (personal identifiable information).
 /// Read more on data scrubbing [here](https://docs.sentry.io/product/data-management-settings/advanced-datascrubbing/).
+///
+/// The constructor parameter `captureFailedRequests` will override what you
+/// have configured in options.
 /// ```
 class SentryHttpClient extends BaseClient {
   static const defaultFailedRequestStatusCodes = [
@@ -86,6 +89,7 @@ class SentryHttpClient extends BaseClient {
     List<SentryStatusCode> failedRequestStatusCodes =
         defaultFailedRequestStatusCodes,
     List<String> failedRequestTargets = defaultFailedRequestTargets,
+    bool? captureFailedRequests,
   }) {
     _hub = hub ?? HubAdapter();
 
@@ -96,6 +100,7 @@ class SentryHttpClient extends BaseClient {
       failedRequestTargets: failedRequestTargets,
       hub: _hub,
       client: innerClient,
+      captureFailedRequests: captureFailedRequests,
     );
 
     if (_hub.options.isTracingEnabled()) {

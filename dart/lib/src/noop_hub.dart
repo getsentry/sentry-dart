@@ -4,6 +4,9 @@ import 'package:meta/meta.dart';
 
 import 'hint.dart';
 import 'hub.dart';
+import 'metrics/metric.dart';
+import 'metrics/metrics_aggregator.dart';
+import 'metrics/metrics_api.dart';
 import 'profiling.dart';
 import 'protocol.dart';
 import 'scope.dart';
@@ -13,15 +16,23 @@ import 'sentry_user_feedback.dart';
 import 'tracing.dart';
 
 class NoOpHub implements Hub {
-  NoOpHub._();
+  NoOpHub._() {
+    _metricsApi = MetricsApi(hub: this);
+  }
 
   static final NoOpHub _instance = NoOpHub._();
 
   final _options = SentryOptions.empty();
 
+  late final MetricsApi _metricsApi;
+
   @override
   @internal
   SentryOptions get options => _options;
+
+  @override
+  @internal
+  MetricsApi get metricsApi => _metricsApi;
 
   factory NoOpHub() {
     return _instance;
@@ -131,4 +142,14 @@ class NoOpHub implements Hub {
 
   @override
   Scope get scope => Scope(_options);
+
+  @override
+  @internal
+  Future<SentryId> captureMetrics(
+          Map<int, Iterable<Metric>> metricsBuckets) async =>
+      SentryId.empty();
+
+  @override
+  @internal
+  MetricsAggregator? get metricsAggregator => null;
 }

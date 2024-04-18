@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:meta/meta.dart';
 
 import '../sentry.dart';
+import 'metrics/local_metrics_aggregator.dart';
 import 'profiling.dart';
 import 'sentry_tracer_finish_status.dart';
 import 'utils/sample_rate_format.dart';
@@ -49,9 +50,9 @@ class SentryTracer extends ISentrySpan {
   /// highest timestamp of child spans, trimming the duration of the
   /// transaction. This is useful to discard extra time in the transaction that
   /// is not accounted for in child spans, like what happens in the
-  /// [SentryNavigatorObserver] idle transactions, where we finish the
-  /// transaction after a given "idle time" and we don't want this "idle time"
-  /// to be part of the transaction.
+  /// [SentryNavigatorObserver](https://pub.dev/documentation/sentry_flutter/latest/sentry_flutter/SentryNavigatorObserver-class.html)
+  /// idle transactions, where we finish the transaction after a given
+  /// "idle time" and we don't want this "idle time" to be part of the transaction.
   SentryTracer(
     SentryTransactionContext transactionContext,
     this._hub, {
@@ -100,17 +101,23 @@ class SentryTracer extends ISentrySpan {
           (span) => !_hasSpanSuitableTimestamps(span, commonEndTimestamp));
 
       var _rootEndTimestamp = commonEndTimestamp;
-      if (_trimEnd && children.isNotEmpty) {
-        final childEndTimestamps = children
-            .where((child) => child.endTimestamp != null)
-            .map((child) => child.endTimestamp!);
 
-        if (childEndTimestamps.isNotEmpty) {
-          final oldestChildEndTimestamp =
-              childEndTimestamps.reduce((a, b) => a.isAfter(b) ? a : b);
-          if (_rootEndTimestamp.isAfter(oldestChildEndTimestamp)) {
-            _rootEndTimestamp = oldestChildEndTimestamp;
+      // Trim the end timestamp of the transaction to the very last timestamp of child spans
+      if (_trimEnd && children.isNotEmpty) {
+        DateTime? latestEndTime;
+
+        for (final child in children) {
+          final childEndTimestamp = child.endTimestamp;
+          if (childEndTimestamp != null) {
+            if (latestEndTime == null ||
+                childEndTimestamp.isAfter(latestEndTime)) {
+              latestEndTime = child.endTimestamp;
+            }
           }
+        }
+
+        if (latestEndTime != null) {
+          _rootEndTimestamp = latestEndTime;
         }
       }
 
@@ -398,4 +405,8 @@ class SentryTracer extends ISentrySpan {
       });
     }
   }
+
+  @override
+  LocalMetricsAggregator? get localMetricsAggregator =>
+      _rootSpan.localMetricsAggregator;
 }

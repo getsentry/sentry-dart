@@ -8,6 +8,7 @@ import 'package:sentry/src/client_reports/client_report.dart';
 import 'package:sentry/src/client_reports/discard_reason.dart';
 import 'package:sentry/src/client_reports/discarded_event.dart';
 import 'package:sentry/src/client_reports/noop_client_report_recorder.dart';
+import 'package:sentry/src/metrics/metric.dart';
 import 'package:sentry/src/sentry_item_type.dart';
 import 'package:sentry/src/sentry_stack_trace_factory.dart';
 import 'package:sentry/src/sentry_tracer.dart';
@@ -406,6 +407,8 @@ void main() {
 
     Error error;
 
+    dynamic exception;
+
     final stacktrace = '''
 #0      baz (file:///pathto/test.dart:50:3)
 <asynchronous suspension>
@@ -437,16 +440,6 @@ void main() {
           capturedEvent.exceptions?.first.stackTrace!.frames.first.lineNo, 46);
       expect(capturedEvent.exceptions?.first.stackTrace!.frames.first.colNo, 9);
     });
-  });
-
-  group('SentryClient captures exception and stacktrace', () {
-    late Fixture fixture;
-
-    dynamic exception;
-
-    setUp(() {
-      fixture = Fixture();
-    });
 
     test('should capture exception', () async {
       try {
@@ -454,12 +447,6 @@ void main() {
       } catch (err) {
         exception = err;
       }
-
-      final stacktrace = '''
-#0      baz (file:///pathto/test.dart:50:3)
-<asynchronous suspension>
-#1      bar (file:///pathto/test.dart:46:9)
-      ''';
 
       final client = fixture.getSut();
       await client.captureException(exception, stackTrace: stacktrace);
@@ -513,13 +500,6 @@ void main() {
       } catch (err) {
         exception = err;
       }
-
-      final stacktrace = '''
-#0      init (package:sentry/sentry.dart:46:9)
-#1      bar (file:///pathto/test.dart:46:9)
-<asynchronous suspension>
-#2      capture (package:sentry/sentry.dart:46:9)
-      ''';
 
       final client = fixture.getSut();
       await client.captureException(exception, stackTrace: stacktrace);
@@ -1511,6 +1491,42 @@ void main() {
       expect(fixture.options.transport is SpotlightHttpTransport, true);
     });
   });
+
+  group('Capture metrics', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    test('metricsAggregator is set if metrics are enabled', () async {
+      final client = fixture.getSut(enableMetrics: true);
+      expect(client.metricsAggregator, isNotNull);
+    });
+
+    test('metricsAggregator is null if metrics are disabled', () async {
+      final client = fixture.getSut(enableMetrics: false);
+      expect(client.metricsAggregator, isNull);
+    });
+
+    test('captureMetrics send statsd envelope', () async {
+      final client = fixture.getSut();
+      await client.captureMetrics(fakeMetrics);
+
+      final capturedStatsd = (fixture.transport).statsdItems.first;
+      expect(capturedStatsd, isNotNull);
+    });
+
+    test('close closes metricsAggregator', () async {
+      final client = fixture.getSut();
+      client.close();
+      expect(client.metricsAggregator, isNotNull);
+      client.metricsAggregator!
+          .emit(MetricType.counter, 'key', 1, SentryMeasurementUnit.none, {});
+      // metricsAggregator is closed, so no metrics should be recorded
+      expect(client.metricsAggregator!.buckets, isEmpty);
+    });
+  });
 }
 
 Future<SentryEvent> eventFromEnvelope(SentryEnvelope envelope) async {
@@ -1597,6 +1613,7 @@ class Fixture {
     bool sendDefaultPii = false,
     bool attachStacktrace = true,
     bool attachThreads = false,
+    bool enableMetrics = true,
     double? sampleRate,
     BeforeSendCallback? beforeSend,
     BeforeSendTransactionCallback? beforeSendTransaction,
@@ -1613,6 +1630,7 @@ class Fixture {
 
     options.tracesSampleRate = 1.0;
     options.sendDefaultPii = sendDefaultPii;
+    options.enableMetrics = enableMetrics;
     options.attachStacktrace = attachStacktrace;
     options.attachThreads = attachThreads;
     options.sampleRate = sampleRate;

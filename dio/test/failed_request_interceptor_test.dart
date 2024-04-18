@@ -50,6 +50,38 @@ void main() {
     expect(fixture.hub.captureExceptionCalls.length, 0);
   });
 
+  test('do capture if captureFailedRequests override is true', () async {
+    final requestOptions = RequestOptions(path: 'https://example.com');
+    final error = DioError(
+      requestOptions: requestOptions,
+      response: Response(statusCode: 500, requestOptions: requestOptions),
+    );
+
+    fixture.hub.options.captureFailedRequests = false;
+
+    final sut = fixture.getSut(captureFailedRequests: true);
+    await sut.onError(error, fixture.errorInterceptorHandler);
+
+    expect(fixture.errorInterceptorHandler.nextWasCalled, true);
+    expect(fixture.hub.captureExceptionCalls.length, 1);
+  });
+
+  test('do not capture if captureFailedRequests override false', () async {
+    final requestOptions = RequestOptions(path: 'https://example.com');
+    final error = DioError(
+      requestOptions: requestOptions,
+      response: Response(statusCode: 500, requestOptions: requestOptions),
+    );
+
+    fixture.hub.options.captureFailedRequests = true;
+
+    final sut = fixture.getSut(captureFailedRequests: false);
+    await sut.onError(error, fixture.errorInterceptorHandler);
+
+    expect(fixture.errorInterceptorHandler.nextWasCalled, true);
+    expect(fixture.hub.captureExceptionCalls.length, 0);
+  });
+
   test('capture in range failedRequestStatusCodes', () async {
     final requestOptions = RequestOptions(path: 'https://example.com');
     final error = DioError(
@@ -116,11 +148,13 @@ class Fixture {
       SentryStatusCode.defaultRange(),
     ],
     List<String> failedRequestTargets = const ['.*'],
+    bool? captureFailedRequests,
   }) {
     return FailedRequestInterceptor(
       hub: hub,
       failedRequestStatusCodes: failedRequestStatusCodes,
       failedRequestTargets: failedRequestTargets,
+      captureFailedRequests: captureFailedRequests,
     );
   }
 }

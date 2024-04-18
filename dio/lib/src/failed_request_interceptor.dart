@@ -10,13 +10,16 @@ class FailedRequestInterceptor extends Interceptor {
         SentryHttpClient.defaultFailedRequestStatusCodes,
     List<String> failedRequestTargets =
         SentryHttpClient.defaultFailedRequestTargets,
+    bool? captureFailedRequests,
   })  : _hub = hub ?? HubAdapter(),
         _failedRequestStatusCodes = failedRequestStatusCodes,
-        _failedRequestTargets = failedRequestTargets;
+        _failedRequestTargets = failedRequestTargets,
+        _captureFailedRequests = captureFailedRequests;
 
   final Hub _hub;
   final List<SentryStatusCode> _failedRequestStatusCodes;
   final List<String> _failedRequestTargets;
+  final bool? _captureFailedRequests;
 
   @override
   Future<void> onError(
@@ -24,7 +27,7 @@ class FailedRequestInterceptor extends Interceptor {
     ErrorInterceptorHandler handler,
   ) async {
     // ignore: invalid_use_of_internal_member
-    final captureFailedRequests = _hub.options.captureFailedRequests;
+    final cfr = _captureFailedRequests ?? _hub.options.captureFailedRequests;
 
     final containsStatusCode =
         _failedRequestStatusCodes._containsStatusCode(err.response?.statusCode);
@@ -33,7 +36,7 @@ class FailedRequestInterceptor extends Interceptor {
       err.requestOptions.path,
     );
 
-    if (captureFailedRequests && containsStatusCode && containsRequestTarget) {
+    if (cfr && containsStatusCode && containsRequestTarget) {
       final mechanism = Mechanism(type: 'SentryDioClientAdapter');
       final throwableMechanism = ThrowableMechanism(mechanism, err);
 

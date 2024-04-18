@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:meta/meta.dart';
+import 'metrics/metric.dart';
+import 'metrics/metrics_aggregator.dart';
 import 'sentry_baggage.dart';
 import 'sentry_attachment/sentry_attachment.dart';
 
@@ -17,6 +19,7 @@ import 'sentry_stack_trace_factory.dart';
 import 'transport/http_transport.dart';
 import 'transport/noop_transport.dart';
 import 'transport/spotlight_http_transport.dart';
+import 'transport/task_queue.dart';
 import 'utils/isolate_utils.dart';
 import 'version.dart';
 import 'sentry_envelope.dart';
@@ -24,15 +27,22 @@ import 'client_reports/client_report_recorder.dart';
 import 'client_reports/discard_reason.dart';
 import 'transport/data_category.dart';
 
-/// Default value for [User.ipAddress]. It gets set when an event does not have
-/// a user and IP address.
+/// Default value for [SentryUser.ipAddress]. It gets set when an event does not have
+/// a user and IP address. Only applies if [SentryOptions.sendDefaultPii] is set
+/// to true.
 const _defaultIpAddress = '{{auto}}';
 
 /// Logs crash reports and events to the Sentry.io service.
 class SentryClient {
   final SentryOptions _options;
+  late final _taskQueue = TaskQueue<SentryId?>(
+    _options.maxQueueSize,
+    _options.logger,
+  );
 
   final Random? _random;
+
+  late final MetricsAggregator? _metricsAggregator;
 
   static final _sentryId = Future.value(SentryId.empty());
 
@@ -57,7 +67,13 @@ class SentryClient {
 
   /// Instantiates a client using [SentryOptions]
   SentryClient._(this._options)
-      : _random = _options.sampleRate == null ? null : Random();
+      : _random = _options.sampleRate == null ? null : Random(),
+        _metricsAggregator = _options.enableMetrics
+            ? MetricsAggregator(options: _options)
+            : null;
+
+  @internal
+  MetricsAggregator? get metricsAggregator => _metricsAggregator;
 
   /// Reports an [event] to Sentry.io.
   Future<SentryId> captureEvent(
@@ -365,7 +381,22 @@ class SentryClient {
     return _attachClientReportsAndSend(envelope);
   }
 
-  void close() => _options.httpClient.close();
+  /// Reports the [metricsBuckets] to Sentry.io.
+  Future<SentryId> captureMetrics(
+      Map<int, Iterable<Metric>> metricsBuckets) async {
+    final envelope = SentryEnvelope.fromMetrics(
+      metricsBuckets,
+      _options.sdk,
+      dsn: _options.dsn,
+    );
+    final id = await _attachClientReportsAndSend(envelope);
+    return id ?? SentryId.empty();
+  }
+
+  void close() {
+    _metricsAggregator?.close();
+    _options.httpClient.close();
+  }
 
   Future<SentryEvent?> _runBeforeSend(
     SentryEvent event,
@@ -471,6 +502,9 @@ class SentryClient {
   Future<SentryId?> _attachClientReportsAndSend(SentryEnvelope envelope) {
     final clientReport = _options.recorder.flush();
     envelope.addClientReport(clientReport);
-    return _options.transport.send(envelope);
+    return _taskQueue.enqueue(
+      () => _options.transport.send(envelope),
+      SentryId.empty(),
+    );
   }
 }

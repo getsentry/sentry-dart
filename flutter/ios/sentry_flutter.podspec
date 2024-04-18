@@ -1,6 +1,10 @@
+require 'yaml'
+pubspec = YAML.load_file('./../pubspec.yaml')
+version = pubspec['version'].to_s
+
 Pod::Spec.new do |s|
   s.name             = 'sentry_flutter'
-  s.version          = '0.0.1'
+  s.version          = version
   s.summary          = 'Sentry SDK for Flutter.'
   s.description      = <<-DESC
 Sentry SDK for Flutter with support to native through sentry-cocoa.
@@ -12,7 +16,7 @@ Sentry SDK for Flutter with support to native through sentry-cocoa.
                          :tag => s.version.to_s }
   s.source_files     = 'Classes/**/*'
   s.public_header_files = 'Classes/**/*.h'
-  s.dependency 'Sentry/HybridSDK', '8.20.0'
+  s.dependency 'Sentry/HybridSDK', '8.21.0'
   s.ios.dependency 'Flutter'
   s.osx.dependency 'FlutterMacOS'
   s.ios.deployment_target = '12.0'
