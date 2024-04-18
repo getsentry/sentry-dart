@@ -160,6 +160,7 @@
 ### Features
 
 - Add support for exception aggregates ([#1866](https://github.com/getsentry/sentry-dart/pull/1866))
+- Add support for exception aggregates for PlatformExceptions from Android ([#1998](https://github.com/getsentry/sentry-dart/pull/1998))
  
 ### Fixes 
 
