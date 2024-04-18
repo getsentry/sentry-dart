@@ -119,7 +119,6 @@
   - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8200)
   - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.19.0...8.20.0)
 
-
 ## 8.0.0-beta.2
 
 ### Breaking Changes
