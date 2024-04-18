@@ -19,3 +19,6 @@ classes:
   - io.sentry.android.replay.Recorder
   - io.sentry.android.replay.ScreenshotRecorderConfig
   - io.sentry.flutter.SentryFlutterReplay
+
+enable_experiment:
+  - interface_implementation

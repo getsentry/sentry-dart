@@ -57,6 +57,12 @@ android {
         jvmTarget = JavaVersion.VERSION_1_8
         languageVersion = "1.4"
     }
+
+    externalNativeBuild {
+        cmake {
+            path "src/main/cpp/CMakeLists.txt"
+        }
+    }
 }
 
 dependencies {

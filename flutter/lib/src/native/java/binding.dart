@@ -12,6 +12,7 @@
 // ignore_for_file: unused_element
 // ignore_for_file: unused_field
 // ignore_for_file: unused_import
+// ignore_for_file: unused_local_variable
 // ignore_for_file: unused_shown_name
 
 import "dart:isolate" show ReceivePort;
@@ -80,6 +81,139 @@ class Recorder extends jni.JObject {
   void stop() {
     return _stop(reference).check();
   }
+
+  /// Maps a specific port to the implemented interface.
+  static final Map<int, $RecorderImpl> _$impls = {};
+  ReceivePort? _$p;
+
+  static jni.JObjectPtr _$invoke(
+    int port,
+    jni.JObjectPtr descriptor,
+    jni.JObjectPtr args,
+  ) {
+    return _$invokeMethod(
+      port,
+      $MethodInvocation.fromAddresses(
+        0,
+        descriptor.address,
+        args.address,
+      ),
+    );
+  }
+
+  static final ffi.Pointer<
+          ffi.NativeFunction<
+              jni.JObjectPtr Function(
+                  ffi.Uint64, jni.JObjectPtr, jni.JObjectPtr)>>
+      _$invokePointer = ffi.Pointer.fromFunction(_$invoke);
+
+  static ffi.Pointer<ffi.Void> _$invokeMethod(
+    int $p,
+    $MethodInvocation $i,
+  ) {
+    try {
+      final $d = $i.methodDescriptor.toDartString(releaseOriginal: true);
+      final $a = $i.args;
+      if ($d ==
+          r"start(Lio/sentry/android/replay/ScreenshotRecorderConfig;)V") {
+        _$impls[$p]!.start(
+          $a[0].castTo(const $ScreenshotRecorderConfigType(),
+              releaseOriginal: true),
+        );
+        return jni.nullptr;
+      }
+      if ($d == r"resume()V") {
+        _$impls[$p]!.resume();
+        return jni.nullptr;
+      }
+      if ($d == r"pause()V") {
+        _$impls[$p]!.pause();
+        return jni.nullptr;
+      }
+      if ($d == r"stop()V") {
+        _$impls[$p]!.stop();
+        return jni.nullptr;
+      }
+    } catch (e) {
+      return ProtectedJniExtensions.newDartException(e.toString());
+    }
+    return jni.nullptr;
+  }
+
+  factory Recorder.implement(
+    $RecorderImpl $impl,
+  ) {
+    final $p = ReceivePort();
+    final $x = Recorder.fromRef(
+      ProtectedJniExtensions.newPortProxy(
+        r"io.sentry.android.replay.Recorder",
+        $p,
+        _$invokePointer,
+      ),
+    ).._$p = $p;
+    final $a = $p.sendPort.nativePort;
+    _$impls[$a] = $impl;
+    $p.listen(($m) {
+      if ($m == null) {
+        _$impls.remove($p.sendPort.nativePort);
+        $p.close();
+        return;
+      }
+      final $i = $MethodInvocation.fromMessage($m);
+      final $r = _$invokeMethod($p.sendPort.nativePort, $i);
+      ProtectedJniExtensions.returnResult($i.result, $r);
+    });
+    return $x;
+  }
+}
+
+abstract class $RecorderImpl {
+  factory $RecorderImpl({
+    required void Function(ScreenshotRecorderConfig screenshotRecorderConfig)
+        start,
+    required void Function() resume,
+    required void Function() pause,
+    required void Function() stop,
+  }) = _$RecorderImpl;
+
+  void start(ScreenshotRecorderConfig screenshotRecorderConfig);
+  void resume();
+  void pause();
+  void stop();
+}
+
+class _$RecorderImpl implements $RecorderImpl {
+  _$RecorderImpl({
+    required void Function(ScreenshotRecorderConfig screenshotRecorderConfig)
+        start,
+    required void Function() resume,
+    required void Function() pause,
+    required void Function() stop,
+  })  : _start = start,
+        _resume = resume,
+        _pause = pause,
+        _stop = stop;
+
+  final void Function(ScreenshotRecorderConfig screenshotRecorderConfig) _start;
+  final void Function() _resume;
+  final void Function() _pause;
+  final void Function() _stop;
+
+  void start(ScreenshotRecorderConfig screenshotRecorderConfig) {
+    return _start(screenshotRecorderConfig);
+  }
+
+  void resume() {
+    return _resume();
+  }
+
+  void pause() {
+    return _pause();
+  }
+
+  void stop() {
+    return _stop();
+  }
 }
 
 class $RecorderType extends jni.JObjType<Recorder> {
@@ -106,6 +240,81 @@ class $RecorderType extends jni.JObjType<Recorder> {
   }
 }
 
+/// from: io.sentry.android.replay.ScreenshotRecorderConfig$Companion
+class ScreenshotRecorderConfig_Companion extends jni.JObject {
+  @override
+  late final jni.JObjType<ScreenshotRecorderConfig_Companion> $type = type;
+
+  ScreenshotRecorderConfig_Companion.fromRef(
+    jni.JObjectPtr ref,
+  ) : super.fromRef(ref);
+
+  /// The type which includes information such as the signature of this class.
+  static const type = $ScreenshotRecorderConfig_CompanionType();
+  static final _from = jniLookup<
+              ffi.NativeFunction<
+                  jni.JniResult Function(ffi.Pointer<ffi.Void>,
+                      ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>)>>(
+          "ScreenshotRecorderConfig_Companion__from")
+      .asFunction<
+          jni.JniResult Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>,
+              ffi.Pointer<ffi.Void>)>();
+
+  /// from: public final io.sentry.android.replay.ScreenshotRecorderConfig from(android.content.Context context, io.sentry.SentryReplayOptions sentryReplayOptions)
+  /// The returned object must be released after use, by calling the [release] method.
+  ScreenshotRecorderConfig from(
+    jni.JObject context,
+    jni.JObject sentryReplayOptions,
+  ) {
+    return const $ScreenshotRecorderConfigType().fromRef(
+        _from(reference, context.reference, sentryReplayOptions.reference)
+            .object);
+  }
+
+  static final _new0 = jniLookup<
+              ffi
+              .NativeFunction<jni.JniResult Function(ffi.Pointer<ffi.Void>)>>(
+          "ScreenshotRecorderConfig_Companion__new0")
+      .asFunction<jni.JniResult Function(ffi.Pointer<ffi.Void>)>();
+
+  /// from: public void <init>(kotlin.jvm.internal.DefaultConstructorMarker defaultConstructorMarker)
+  /// The returned object must be released after use, by calling the [release] method.
+  factory ScreenshotRecorderConfig_Companion(
+    jni.JObject defaultConstructorMarker,
+  ) {
+    return ScreenshotRecorderConfig_Companion.fromRef(
+        _new0(defaultConstructorMarker.reference).object);
+  }
+}
+
+class $ScreenshotRecorderConfig_CompanionType
+    extends jni.JObjType<ScreenshotRecorderConfig_Companion> {
+  const $ScreenshotRecorderConfig_CompanionType();
+
+  @override
+  String get signature =>
+      r"Lio/sentry/android/replay/ScreenshotRecorderConfig$Companion;";
+
+  @override
+  ScreenshotRecorderConfig_Companion fromRef(jni.JObjectPtr ref) =>
+      ScreenshotRecorderConfig_Companion.fromRef(ref);
+
+  @override
+  jni.JObjType get superType => const jni.JObjectType();
+
+  @override
+  final superCount = 1;
+
+  @override
+  int get hashCode => ($ScreenshotRecorderConfig_CompanionType).hashCode;
+
+  @override
+  bool operator ==(Object other) {
+    return other.runtimeType == ($ScreenshotRecorderConfig_CompanionType) &&
+        other is $ScreenshotRecorderConfig_CompanionType;
+  }
+}
+
 /// from: io.sentry.android.replay.ScreenshotRecorderConfig
 class ScreenshotRecorderConfig extends jni.JObject {
   @override
@@ -123,18 +332,19 @@ class ScreenshotRecorderConfig extends jni.JObject {
           .asFunction<jni.JniResult Function()>();
 
   /// from: static public final io.sentry.android.replay.ScreenshotRecorderConfig$Companion Companion
-  /// The returned object must be deleted after use, by calling the `delete` method.
-  static jni.JObject get Companion =>
-      const jni.JObjectType().fromRef(_get_Companion().object);
+  /// The returned object must be released after use, by calling the [release] method.
+  static ScreenshotRecorderConfig_Companion get Companion =>
+      const $ScreenshotRecorderConfig_CompanionType()
+          .fromRef(_get_Companion().object);
 
-  static final _ctor = jniLookup<
+  static final _new0 = jniLookup<
           ffi.NativeFunction<
               jni.JniResult Function(ffi.Int32, ffi.Int32, ffi.Float, ffi.Float,
-                  ffi.Int32, ffi.Int32)>>("ScreenshotRecorderConfig__ctor")
+                  ffi.Int32, ffi.Int32)>>("ScreenshotRecorderConfig__new0")
       .asFunction<jni.JniResult Function(int, int, double, double, int, int)>();
 
   /// from: public void <init>(int i, int i1, float f, float f1, int i2, int i3)
-  /// The returned object must be deleted after use, by calling the `delete` method.
+  /// The returned object must be released after use, by calling the [release] method.
   factory ScreenshotRecorderConfig(
     int i,
     int i1,
@@ -143,7 +353,7 @@ class ScreenshotRecorderConfig extends jni.JObject {
     int i2,
     int i3,
   ) {
-    return ScreenshotRecorderConfig.fromRef(_ctor(i, i1, f, f1, i2, i3).object);
+    return ScreenshotRecorderConfig.fromRef(_new0(i, i1, f, f1, i2, i3).object);
   }
 
   static final _getRecordingWidth = jniLookup<
@@ -293,7 +503,7 @@ class ScreenshotRecorderConfig extends jni.JObject {
               ffi.Pointer<ffi.Void>, int, int, double, double, int, int)>();
 
   /// from: public final io.sentry.android.replay.ScreenshotRecorderConfig copy(int i, int i1, float f, float f1, int i2, int i3)
-  /// The returned object must be deleted after use, by calling the `delete` method.
+  /// The returned object must be released after use, by calling the [release] method.
   ScreenshotRecorderConfig copy(
     int i,
     int i1,
@@ -313,7 +523,7 @@ class ScreenshotRecorderConfig extends jni.JObject {
       .asFunction<jni.JniResult Function(ffi.Pointer<ffi.Void>)>();
 
   /// from: public java.lang.String toString()
-  /// The returned object must be deleted after use, by calling the `delete` method.
+  /// The returned object must be released after use, by calling the [release] method.
   jni.JString toString1() {
     return const jni.JStringType().fromRef(_toString1(reference).object);
   }
@@ -390,7 +600,7 @@ class SentryFlutterReplay extends jni.JObject {
           .asFunction<jni.JniResult Function()>();
 
   /// from: static public final io.sentry.flutter.SentryFlutterReplay INSTANCE
-  /// The returned object must be deleted after use, by calling the `delete` method.
+  /// The returned object must be released after use, by calling the [release] method.
   static SentryFlutterReplay get INSTANCE =>
       const $SentryFlutterReplayType().fromRef(_get_INSTANCE().object);
 
@@ -406,12 +616,12 @@ class SentryFlutterReplay extends jni.JObject {
       .asFunction<jni.JniResult Function(ffi.Pointer<ffi.Void>)>();
 
   /// from: static public io.sentry.android.replay.Recorder recorder
-  /// The returned object must be deleted after use, by calling the `delete` method.
+  /// The returned object must be released after use, by calling the [release] method.
   static Recorder get recorder =>
       const $RecorderType().fromRef(_get_recorder().object);
 
   /// from: static public io.sentry.android.replay.Recorder recorder
-  /// The returned object must be deleted after use, by calling the `delete` method.
+  /// The returned object must be released after use, by calling the [release] method.
   static set recorder(Recorder value) => _set_recorder(value.reference).check();
 
   static final _getRecorder = jniLookup<
@@ -421,7 +631,7 @@ class SentryFlutterReplay extends jni.JObject {
       .asFunction<jni.JniResult Function(ffi.Pointer<ffi.Void>)>();
 
   /// from: public final io.sentry.android.replay.Recorder getRecorder()
-  /// The returned object must be deleted after use, by calling the `delete` method.
+  /// The returned object must be released after use, by calling the [release] method.
   Recorder getRecorder() {
     return const $RecorderType().fromRef(_getRecorder(reference).object);
   }
