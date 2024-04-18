@@ -1,6 +1,7 @@
 # Changelog
 
-## 8.0.0-beta.2
+## Unreleased 
+
 ## 7.20.0
 
 ### Build
@@ -105,6 +106,21 @@
   - [diff](https://github.com/getsentry/sentry-java/compare/7.3.0...7.5.0)
 
 ## 7.16.1
+
+### Fixes
+
+- Remove Flutter dependency from Drift integration ([#1867](https://github.com/getsentry/sentry-dart/pull/1867))
+- Remove dead code, cold start bool is now always present ([#1861](https://github.com/getsentry/sentry-dart/pull/1861))
+- Fix iOS "Arithmetic Overflow" ([#1874](https://github.com/getsentry/sentry-dart/pull/1874))
+
+### Dependencies
+
+- Bump Cocoa SDK from v8.19.0 to v8.20.0 ([#1856](https://github.com/getsentry/sentry-dart/pull/1856))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8200)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.19.0...8.20.0)
+
+
+## 8.0.0-beta.2
 
 ### Breaking Changes
 
