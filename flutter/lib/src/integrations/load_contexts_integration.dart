@@ -150,13 +150,23 @@ class _LoadContextsIntegrationEventProcessor implements EventProcessor {
         final breadcrumbsJson =
             List<Map<dynamic, dynamic>>.from(breadcrumbsList);
         final breadcrumbs = <Breadcrumb>[];
+        final beforeBreadcrumb = _options.beforeBreadcrumb;
 
         for (final breadcrumbJson in breadcrumbsJson) {
           final breadcrumb = Breadcrumb.fromJson(
             Map<String, dynamic>.from(breadcrumbJson),
           );
-          breadcrumbs.add(breadcrumb);
+
+          if (beforeBreadcrumb != null) {
+            final processedBreadcrumb = beforeBreadcrumb(breadcrumb, Hint());
+            if (processedBreadcrumb != null) {
+              breadcrumbs.add(processedBreadcrumb);
+            }
+          } else {
+            breadcrumbs.add(breadcrumb);
+          }
         }
+
         event = event.copyWith(breadcrumbs: breadcrumbs);
       }
 

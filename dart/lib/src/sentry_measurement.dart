@@ -39,6 +39,20 @@ class SentryMeasurement {
         value = duration.inMilliseconds,
         unit = DurationSentryMeasurementUnit.milliSecond;
 
+  /// Duration of the time to initial display in milliseconds
+  SentryMeasurement.timeToInitialDisplay(Duration duration)
+      : assert(!duration.isNegative),
+        name = 'time_to_initial_display',
+        value = duration.inMilliseconds,
+        unit = DurationSentryMeasurementUnit.milliSecond;
+
+  /// Duration of the time to full display in milliseconds
+  SentryMeasurement.timeToFullDisplay(Duration duration)
+      : assert(!duration.isNegative),
+        name = 'time_to_full_display',
+        value = duration.inMilliseconds,
+        unit = DurationSentryMeasurementUnit.milliSecond;
+
   final String name;
   final num value;
   final SentryMeasurementUnit? unit;

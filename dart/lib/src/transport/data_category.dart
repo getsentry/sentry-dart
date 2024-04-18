@@ -7,5 +7,6 @@ enum DataCategory {
   transaction,
   attachment,
   security,
+  metricBucket,
   unknown
 }

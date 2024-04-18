@@ -27,6 +27,9 @@ class SentryNative {
   /// Flag indicating if app start was already fetched.
   bool get didFetchAppStart => _didFetchAppStart;
 
+  /// Flag indicating if app start measurement was added to the first transaction.
+  bool didAddAppStartMeasurement = false;
+
   /// Fetch [NativeAppStart] from native channels. Can only be called once.
   Future<NativeAppStart?> fetchNativeAppStart() async {
     _didFetchAppStart = true;

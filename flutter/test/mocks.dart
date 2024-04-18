@@ -46,6 +46,7 @@ ISentrySpan startTransactionShim(
   // ignore: invalid_use_of_internal_member
   SentryTracer,
   SentryTransaction,
+  SentrySpan,
   MethodChannel,
 ], customMocks: [
   MockSpec<Hub>(fallbackGenerators: {#startTransaction: startTransactionShim})
@@ -170,6 +171,9 @@ class TestMockSentryNative implements SentryNative {
 
   @override
   bool get didFetchAppStart => _didFetchAppStart;
+
+  @override
+  bool didAddAppStartMeasurement = false;
 
   Breadcrumb? breadcrumb;
   var numberOfAddBreadcrumbCalls = 0;

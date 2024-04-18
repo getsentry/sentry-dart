@@ -2,57 +2,29 @@ import 'dart:async';
 
 import 'package:sentry/sentry.dart';
 
+import '../integrations/integrations.dart';
 import '../native/sentry_native.dart';
 
 /// EventProcessor that enriches [SentryTransaction] objects with app start
 /// measurement.
 class NativeAppStartEventProcessor implements EventProcessor {
-  /// We filter out App starts more than 60s
-  static const _maxAppStartMillis = 60000;
-
-  NativeAppStartEventProcessor(
-    this._native,
-  );
-
   final SentryNative _native;
+
+  NativeAppStartEventProcessor(this._native);
 
   @override
   Future<SentryEvent?> apply(SentryEvent event, Hint hint) async {
-    final appStartEnd = _native.appStartEnd;
+    if (_native.didAddAppStartMeasurement || event is! SentryTransaction) {
+      return event;
+    }
 
-    if (appStartEnd != null &&
-        event is SentryTransaction &&
-        !_native.didFetchAppStart) {
-      final nativeAppStart = await _native.fetchNativeAppStart();
-      if (nativeAppStart == null) {
-        return event;
-      }
-      final measurement = nativeAppStart.toMeasurement(appStartEnd);
-      // We filter out app start more than 60s.
-      // This could be due to many different reasons.
-      // If you do the manual init and init the SDK too late and it does not
-      // compute the app start end in the very first Screen.
-      // If the process starts but the App isn't in the foreground.
-      // If the system forked the process earlier to accelerate the app start.
-      // And some unknown reasons that could not be reproduced.
-      // We've seen app starts with hours, days and even months.
-      if (measurement.value >= _maxAppStartMillis) {
-        return event;
-      }
+    final appStartInfo = await NativeAppStartIntegration.getAppStartInfo();
+    final measurement = appStartInfo?.toMeasurement();
+
+    if (measurement != null) {
       event.measurements[measurement.name] = measurement;
+      _native.didAddAppStartMeasurement = true;
     }
     return event;
-  }
-}
-
-extension NativeAppStartMeasurement on NativeAppStart {
-  SentryMeasurement toMeasurement(DateTime appStartEnd) {
-    final appStartDateTime =
-        DateTime.fromMillisecondsSinceEpoch(appStartTime.toInt());
-    final duration = appStartEnd.difference(appStartDateTime);
-
-    return isColdStart
-        ? SentryMeasurement.coldAppStart(duration)
-        : SentryMeasurement.warmAppStart(duration);
   }
 }
