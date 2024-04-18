@@ -67,4 +67,8 @@ class SentryReplayOptions {
   /// The maximum duration of a full session replay, defaults to 1h.
   @internal
   Duration sessionDuration = Duration(hours: 1);
+
+  @internal
+  bool get isEnabled =>
+      ((sessionSampleRate ?? 0) > 0) || ((errorSampleRate ?? 0) > 0);
 }

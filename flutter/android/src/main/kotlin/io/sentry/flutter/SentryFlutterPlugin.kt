@@ -24,10 +24,12 @@ import io.sentry.android.core.LoadClass
 import io.sentry.android.core.SentryAndroid
 import io.sentry.android.core.SentryAndroidOptions
 import io.sentry.android.core.performance.AppStartMetrics
+import io.sentry.android.replay.ReplayIntegration
 import io.sentry.protocol.DebugImage
 import io.sentry.protocol.SdkVersion
 import io.sentry.protocol.SentryId
 import io.sentry.protocol.User
+import io.sentry.transport.CurrentDateProvider
 import java.io.File
 import java.lang.ref.WeakReference
 import java.util.Locale
@@ -131,6 +133,33 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       }
 
       options.beforeSend = BeforeSendCallbackImpl(options.sdkVersion)
+
+      // Replace the default ReplayIntegration with a custom one that uses a Flutter-specific recorder.
+      options.integrations.removeAll { it is ReplayIntegration }
+      val recorder = SentryFlutterReplay.recorder
+      if (recorder != null && options.cacheDirPath != null) {
+        var replay = ReplayIntegration(
+            context,
+            dateProvider = CurrentDateProvider.getInstance(),
+            recorderProvider = { recorder },
+            recorderConfigProvider = null, // TODO implement in dart
+            replayCacheProvider = null
+            // TODO we only do this to have a cache dir path where to save stuff.
+            // replayCacheProvider = { replayId ->
+            //     SentryFlutterReplay.replayCacheDir = File(options.cacheDirPath!!, "replay_$replayId")
+            //     ReplayCache(options, replayId, recorderConfig)
+            // },
+        )
+
+        // FIXME temporary
+        SentryFlutterReplay.cacheDir = File(options.cacheDirPath!!, "replay_0")
+
+        options.addIntegration(replay)
+        options.setReplayController(replay)
+        SentryFlutterReplay.callback = replay
+      } else {
+        options.setReplayController(null)
+      }
     }
     result.success("")
   }
