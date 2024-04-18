@@ -81,6 +81,20 @@ class SentryOptions {
     _maxSpans = maxSpans;
   }
 
+  int _maxQueueSize = 30;
+
+  /// Returns the max number of events Sentry will send when calling capture
+  /// methods in a tight loop. Default is 30.
+  int get maxQueueSize => _maxQueueSize;
+
+  /// Sets how many unawaited events can be sent by Sentry. (e.g. capturing
+  /// events in a tight loop) at once. If you need to send more, please use the
+  /// await keyword.
+  set maxQueueSize(int count) {
+    assert(count > 0);
+    _maxQueueSize = count;
+  }
+
   /// Configures up to which size request bodies should be included in events.
   /// This does not change whether an event is captured.
   MaxRequestBodySize maxRequestBodySize = MaxRequestBodySize.never;
@@ -150,6 +164,10 @@ class SentryOptions {
   /// This function is called with an SDK specific breadcrumb object before the breadcrumb is added
   /// to the scope. When nothing is returned from the function, the breadcrumb is dropped
   BeforeBreadcrumbCallback? beforeBreadcrumb;
+
+  /// This function is called right before a metric is about to be emitted.
+  /// Can return true to emit the metric, or false to drop it.
+  BeforeMetricCallback? beforeMetricCallback;
 
   /// Sets the release. SDK will try to automatically configure a release out of the box
   /// See [docs for further information](https://docs.sentry.io/platforms/flutter/configuration/releases/)
@@ -248,11 +266,13 @@ class SentryOptions {
   /// - In an browser environment this can be requests which fail because of CORS.
   /// - In an mobile or desktop application this can be requests which failed
   ///   because the connection was interrupted.
-  /// Use with [SentryHttpClient] or `sentry_dio` integration for this to work
+  /// Use with [SentryHttpClient] or `sentry_dio` integration for this to work,
+  /// or iOS native where it sets the value to `enableCaptureFailedRequests`.
   bool captureFailedRequests = true;
 
   /// Whether to records requests as breadcrumbs. This is on by default.
-  /// It only has an effect when the SentryHttpClient or dio integration is in use
+  /// It only has an effect when the SentryHttpClient or dio integration is in
+  /// use, or iOS native where it sets the value to `enableNetworkBreadcrumbs`.
   bool recordHttpBreadcrumbs = true;
 
   /// Whether [SentryEvent] deduplication is enabled.
@@ -363,6 +383,48 @@ class SentryOptions {
   /// to null, tracing might be enabled if [tracesSampleRate] or [tracesSampler]
   /// are set.
   bool? enableTracing;
+
+  /// Enables sending developer metrics to Sentry.
+  /// More on https://develop.sentry.dev/delightful-developer-metrics/.
+  /// Example:
+  /// ```dart
+  /// Sentry.metrics.counter('myMetric');
+  /// ```
+  @experimental
+  bool enableMetrics = false;
+
+  @experimental
+  bool _enableDefaultTagsForMetrics = true;
+
+  /// Enables enriching metrics with default tags. Requires [enableMetrics].
+  /// More on https://develop.sentry.dev/delightful-developer-metrics/sending-metrics-sdk/#automatic-tags-extraction
+  /// Currently adds release, environment and transaction name.
+  @experimental
+  bool get enableDefaultTagsForMetrics =>
+      enableMetrics && _enableDefaultTagsForMetrics;
+
+  /// Enables enriching metrics with default tags. Requires [enableMetrics].
+  /// More on https://develop.sentry.dev/delightful-developer-metrics/sending-metrics-sdk/#automatic-tags-extraction
+  /// Currently adds release, environment and transaction name.
+  @experimental
+  set enableDefaultTagsForMetrics(final bool enableDefaultTagsForMetrics) =>
+      _enableDefaultTagsForMetrics = enableDefaultTagsForMetrics;
+
+  @experimental
+  bool _enableSpanLocalMetricAggregation = true;
+
+  /// Enables span metrics aggregation. Requires [enableMetrics].
+  /// More on https://develop.sentry.dev/sdk/metrics/#span-aggregation
+  @experimental
+  bool get enableSpanLocalMetricAggregation =>
+      enableMetrics && _enableSpanLocalMetricAggregation;
+
+  /// Enables span metrics aggregation. Requires [enableMetrics].
+  /// More on https://develop.sentry.dev/sdk/metrics/#span-aggregation
+  @experimental
+  set enableSpanLocalMetricAggregation(
+          final bool enableSpanLocalMetricAggregation) =>
+      _enableSpanLocalMetricAggregation = enableSpanLocalMetricAggregation;
 
   /// Only for internal use. Changed SDK behaviour when set to true:
   /// - Rethrow exceptions that occur in user provided closures
@@ -483,6 +545,13 @@ typedef BeforeBreadcrumbCallback = Breadcrumb? Function(
   Breadcrumb? breadcrumb,
   Hint hint,
 );
+
+/// This function is called right before a metric is about to be emitted.
+/// Can return true to emit the metric, or false to drop it.
+typedef BeforeMetricCallback = bool Function(
+  String key, {
+  Map<String, String>? tags,
+});
 
 /// Used to provide timestamp for logging.
 typedef ClockProvider = DateTime Function();

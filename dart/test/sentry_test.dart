@@ -21,9 +21,9 @@ void main() {
       final options = SentryOptions(dsn: fakeDsn)..automatedTestMode = true;
       await Sentry.init(
         options: options,
-        (options) => {
-          options.dsn = fakeDsn,
-          options.tracesSampleRate = 1.0,
+        (options) {
+          options.dsn = fakeDsn;
+          options.tracesSampleRate = 1.0;
         },
       );
       anException = Exception('anException');
@@ -128,6 +128,10 @@ void main() {
       Sentry.startTransaction('name', 'op');
 
       expect(Sentry.getSpan(), isNull);
+    });
+
+    test('should provide metrics API', () async {
+      expect(Sentry.metrics(), Sentry.currentHub.metricsApi);
     });
   });
 
@@ -412,29 +416,7 @@ void main() {
     expect(sentryOptions.logger, isNot(dartLogger));
   });
 
-  group("Sentry init optionsConfiguration", () {
-    final fixture = Fixture();
-
-    test('throw is handled and logged', () async {
-      final sentryOptions = SentryOptions(dsn: fakeDsn)
-        ..automatedTestMode = false
-        ..debug = true
-        ..logger = fixture.mockLogger;
-
-      final exception = Exception("Exception in options callback");
-      await Sentry.init(
-        (options) async {
-          throw exception;
-        },
-        options: sentryOptions,
-      );
-
-      expect(fixture.loggedException, exception);
-      expect(fixture.loggedLevel, SentryLevel.error);
-    });
-  });
-
-  group("Sentry init optionsConfiguration", () {
+  group('Sentry init optionsConfiguration', () {
     final fixture = Fixture();
 
     test('throw is handled and logged', () async {

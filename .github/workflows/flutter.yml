@@ -82,7 +82,7 @@ jobs:
           sudo apt install -y network-manager upower
         if: matrix.os == 'ubuntu-latest' && matrix.target == 'linux'
 
-      - uses: subosito/flutter-action@2783a3f08e1baf891508463f8c6653c258246225 # pin@v2.12.0
+      - uses: subosito/flutter-action@44ac965b96f18d999802d4b807e3256d5a3f9fa1 # pin@v2.16.0
         with:
           channel: ${{ matrix.sdk }}
 
@@ -98,7 +98,7 @@ jobs:
         run: |
           cd flutter
           flutter test --platform chrome --test-randomize-ordering-seed=random --exclude-tags canvasKit
-          flutter test --platform chrome --test-randomize-ordering-seed=random --tags canvasKit --web-renderer canvaskit
+          flutter test --platform chrome --test-randomize-ordering-seed=random --tags canvasKit --web-renderer canvaskit          
 
       - name: Test VM with coverage
         run: |
@@ -106,14 +106,14 @@ jobs:
           flutter test --coverage --test-randomize-ordering-seed=random
           dart run remove_from_coverage -f coverage/lcov.info -r 'binding.dart'
 
-      - uses: codecov/codecov-action@e0b68c6749509c5f83f984dd99a76a1c1a231044 # pin@v3
+      - uses: codecov/codecov-action@7afa10ed9b269c561c2336fd862446844e0cbf71 # pin@v3
         if: runner.os == 'Linux' && matrix.sdk == 'stable' && matrix.target == 'linux'
         with:
           name: sentry_flutter
           file: ./flutter/coverage/lcov.info
           functionalities: "search" # remove after https://github.com/codecov/codecov-action/issues/600
 
-      - uses: VeryGoodOpenSource/very_good_coverage@3b475421464c564c0714d92ce02742bd81fa9eda # pin@v2.2.0
+      - uses: VeryGoodOpenSource/very_good_coverage@c953fca3e24a915e111cc6f55f03f756dcb3964c # pin@v3.0.0
         if: runner.os == 'Linux' && matrix.sdk == 'stable' && matrix.target == 'linux'
         with:
           path: "./flutter/coverage/lcov.info"
@@ -188,7 +188,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: ktlint
-        uses: ScaCap/action-ktlint@0ff81efa49425bd0df46caabd8005aafdc8f2cf2 # pin@1.8.0
+        uses: ScaCap/action-ktlint@38262d0fb8bff43ddafc8b3c04bce6e6c7263319 # pin@1.8.1
         with:
           github_token: ${{ secrets.github_token }}
           reporter: github-pr-review
@@ -201,6 +201,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       # To recreate baseline run: detekt -i flutter/android,flutter/example/android -b flutter/config/detekt-bl.xml -cb
-      - uses: natiginfo/action-detekt-all@60495f27089d3432d83335c1f14e46ba61de5637 # pin@1.23.5
+      - uses: natiginfo/action-detekt-all@b9daaf58ff7a4885ff92ba612c3ea72bf1abeadb # pin@1.23.6
         with:
           args: -i flutter/android,flutter/example/android --baseline flutter/config/detekt-bl.xml --jvm-target 1.8 --build-upon-default-config --all-rules

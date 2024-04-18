@@ -49,6 +49,8 @@ export 'src/utils/http_header_utils.dart';
 // ignore: invalid_export_of_internal_element
 export 'src/sentry_trace_origins.dart';
 // ignore: invalid_export_of_internal_element
+export 'src/sentry_span_operations.dart';
+// ignore: invalid_export_of_internal_element
 export 'src/utils.dart';
 // spotlight debugging
 export 'src/spotlight.dart';

@@ -32,16 +32,16 @@ jobs:
         working-directory: ${{ inputs.package }}
     steps:
       - uses: actions/checkout@v4
-      - uses: dart-lang/setup-dart@fedb1266e91cf51be2fdb382869461a434b920a3 # pin@v1
+      - uses: dart-lang/setup-dart@f0ead981b4d9a35b37f30d36160575d60931ec30 # pin@v1
         if: ${{ inputs.sdk == 'dart' }}
-      - uses: subosito/flutter-action@2783a3f08e1baf891508463f8c6653c258246225 # pin@v2.12.0
+      - uses: subosito/flutter-action@44ac965b96f18d999802d4b807e3256d5a3f9fa1 # pin@v2.16.0
         if: ${{ inputs.sdk == 'flutter' }}
 
       - run: ${{ inputs.sdk }} pub get
       - run: dart format --set-exit-if-changed ./
         
       - name: dart analyze
-        uses: invertase/github-action-dart-analyzer@1cda5922c6369263b1c7e2fbe281f69704f4d63e # pin@v2.0.0
+        uses: invertase/github-action-dart-analyzer@e981b01a458d0bab71ee5da182e5b26687b7101b # pin@v3.0.0
         with:
           annotate: true
           fatal-infos: true
@@ -56,7 +56,7 @@ jobs:
     # which ignores pubspec.yaml `dependency_overrides`. Because of that, all `release/*` branches are failing,
     # because the package cannot find the "about to be released" version of our sentry-dart package that it depends on.
     if: ${{ !startsWith(github.ref, 'refs/heads/release/') && inputs.panaThreshold > 0 }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
@@ -65,7 +65,7 @@ jobs:
         working-directory: ${{ inputs.package }}
         run: |
           sed -i.bak 's|sentry:.*|sentry:\n    path: /github/workspace/dart|g' pubspec.yaml
-      - uses: axel-op/dart-package-analyzer@7a6c3c66bce78d82b729a1ffef2d9458fde6c8d2 # pin@v3
+      - uses: axel-op/dart-package-analyzer@56afb7e6737bd2b7cee05382ae7f0e8111138080 # pin@v3
         id: analysis
         with:
           githubToken: ${{ secrets.GITHUB_TOKEN }}

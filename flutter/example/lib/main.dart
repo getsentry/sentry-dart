@@ -2,6 +2,7 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +14,7 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_isar/sentry_isar.dart';
 import 'package:sentry_sqflite/sentry_sqflite.dart';
 import 'package:sqflite/sqflite.dart';
+
 // import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 // import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 import 'package:universal_platform/universal_platform.dart';
@@ -42,52 +44,62 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {
   await setupSentry(
-      () => runApp(
-            SentryWidget(
-              child: DefaultAssetBundle(
-                bundle: SentryAssetBundle(),
-                child: const MyApp(),
-              ),
-            ),
-          ),
-      exampleDsn);
+    () => runApp(
+      SentryWidget(
+        child: DefaultAssetBundle(
+          bundle: SentryAssetBundle(),
+          child: const MyApp(),
+        ),
+      ),
+    ),
+    exampleDsn,
+  );
 }
 
-Future<void> setupSentry(AppRunner appRunner, String dsn,
-    {bool isIntegrationTest = false,
-    BeforeSendCallback? beforeSendCallback}) async {
-  await SentryFlutter.init((options) {
-    options.dsn = exampleDsn;
-    options.tracesSampleRate = 1.0;
-    options.profilesSampleRate = 1.0;
-    options.reportPackages = false;
-    options.addInAppInclude('sentry_flutter_example');
-    options.considerInAppFramesByDefault = false;
-    options.attachThreads = true;
-    options.enableWindowMetricBreadcrumbs = true;
-    options.addIntegration(LoggingIntegration(minEventLevel: Level.INFO));
-    options.sendDefaultPii = true;
-    options.reportSilentFlutterErrors = true;
-    options.attachScreenshot = true;
-    options.screenshotQuality = SentryScreenshotQuality.low;
-    options.attachViewHierarchy = true;
-    // We can enable Sentry debug logging during development. This is likely
-    // going to log too much for your app, but can be useful when figuring out
-    // configuration issues, e.g. finding out why your events are not uploaded.
-    options.debug = true;
+Future<void> setupSentry(
+  AppRunner appRunner,
+  String dsn, {
+  bool isIntegrationTest = false,
+  BeforeSendCallback? beforeSendCallback,
+}) async {
+  await SentryFlutter.init(
+    (options) {
+      options.dsn = exampleDsn;
+      options.tracesSampleRate = 1.0;
+      options.profilesSampleRate = 1.0;
+      options.reportPackages = false;
+      options.addInAppInclude('sentry_flutter_example');
+      options.considerInAppFramesByDefault = false;
+      options.attachThreads = true;
+      options.enableWindowMetricBreadcrumbs = true;
+      options.addIntegration(LoggingIntegration(minEventLevel: Level.INFO));
+      options.sendDefaultPii = true;
+      options.reportSilentFlutterErrors = true;
+      options.attachScreenshot = true;
+      options.screenshotQuality = SentryScreenshotQuality.low;
+      options.attachViewHierarchy = true;
+      // We can enable Sentry debug logging during development. This is likely
+      // going to log too much for your app, but can be useful when figuring out
+      // configuration issues, e.g. finding out why your events are not uploaded.
+      options.debug = true;
+      options.spotlight = Spotlight(enabled: true);
+      options.enableTimeToFullDisplayTracing = true;
+      options.enableMetrics = true;
 
-    options.maxRequestBodySize = MaxRequestBodySize.always;
-    options.maxResponseBodySize = MaxResponseBodySize.always;
+      options.maxRequestBodySize = MaxRequestBodySize.always;
+      options.maxResponseBodySize = MaxResponseBodySize.always;
+      options.navigatorKey = navigatorKey;
 
-    _isIntegrationTest = isIntegrationTest;
-    if (_isIntegrationTest) {
-      options.dist = '1';
-      options.environment = 'integration';
-      options.beforeSend = beforeSendCallback;
-    }
-  },
-      // Init your App.
-      appRunner: appRunner);
+      _isIntegrationTest = isIntegrationTest;
+      if (_isIntegrationTest) {
+        options.dist = '1';
+        options.environment = 'integration';
+        options.beforeSend = beforeSendCallback;
+      }
+    },
+    // Init your App.
+    appRunner: appRunner,
+  );
 }
 
 class MyApp extends StatefulWidget {
@@ -123,22 +135,23 @@ class TooltipButton extends StatelessWidget {
   final String buttonTitle;
   final void Function()? onPressed;
 
-  const TooltipButton(
-      {required this.onPressed,
-      required this.buttonTitle,
-      required this.text,
-      Key? key})
-      : super(key: key);
+  const TooltipButton({
+    required this.onPressed,
+    required this.buttonTitle,
+    required this.text,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Tooltip(
-        message: text,
-        child: ElevatedButton(
-          onPressed: onPressed,
-          key: key,
-          child: Text(buttonTitle),
-        ));
+      message: text,
+      child: ElevatedButton(
+        onPressed: onPressed,
+        key: key,
+        child: Text(buttonTitle),
+      ),
+    );
   }
 }
 
@@ -188,8 +201,9 @@ class MainScaffold extends StatelessWidget {
             const Padding(
               padding: EdgeInsets.all(15), //apply padding to all four sides
               child: Center(
-                  child: Text(
-                      'Long press a button to see more information. (hover on web)')),
+                child: Text(
+                    'Long press a button to see more information. (hover on web)'),
+              ),
             ),
             TooltipButton(
               onPressed: () => navigateToAutoCloseScreen(context),
@@ -301,20 +315,23 @@ class MainScaffold extends StatelessWidget {
             TooltipButton(
               onPressed: () {
                 // modeled after a real exception
-                FlutterError.onError?.call(FlutterErrorDetails(
-                  exception: Exception('A really bad exception'),
-                  silent: false,
-                  context: DiagnosticsNode.message('while handling a gesture'),
-                  library: 'gesture',
-                  informationCollector: () => [
-                    DiagnosticsNode.message(
-                        'Handler: "onTap" Recognizer: TapGestureRecognizer'),
-                    DiagnosticsNode.message(
-                        'Handler: "onTap" Recognizer: TapGestureRecognizer'),
-                    DiagnosticsNode.message(
-                        'Handler: "onTap" Recognizer: TapGestureRecognizer'),
-                  ],
-                ));
+                FlutterError.onError?.call(
+                  FlutterErrorDetails(
+                    exception: Exception('A really bad exception'),
+                    silent: false,
+                    context:
+                        DiagnosticsNode.message('while handling a gesture'),
+                    library: 'gesture',
+                    informationCollector: () => [
+                      DiagnosticsNode.message(
+                          'Handler: "onTap" Recognizer: TapGestureRecognizer'),
+                      DiagnosticsNode.message(
+                          'Handler: "onTap" Recognizer: TapGestureRecognizer'),
+                      DiagnosticsNode.message(
+                          'Handler: "onTap" Recognizer: TapGestureRecognizer'),
+                    ],
+                  ),
+                );
               },
               text:
                   'Creates a FlutterError and passes it to FlutterError.onError callback. This demonstrates how our flutter error integration catches unhandled exceptions.',
@@ -449,27 +466,28 @@ class MainScaffold extends StatelessWidget {
             ),
             TooltipButton(
               onPressed: () {
-                feedback.BetterFeedback.of(context)
-                    .show((feedback.UserFeedback feedback) {
-                  Sentry.captureMessage(
-                    feedback.text,
-                    withScope: (scope) {
-                      final entries = feedback.extra?.entries;
-                      if (entries != null) {
-                        for (final extra in entries) {
-                          scope.setExtra(extra.key, extra.value);
+                feedback.BetterFeedback.of(context).show(
+                  (feedback.UserFeedback feedback) {
+                    Sentry.captureMessage(
+                      feedback.text,
+                      withScope: (scope) {
+                        final entries = feedback.extra?.entries;
+                        if (entries != null) {
+                          for (final extra in entries) {
+                            scope.setExtra(extra.key, extra.value);
+                          }
                         }
-                      }
-                      scope.addAttachment(
-                        SentryAttachment.fromUint8List(
-                          feedback.screenshot,
-                          'feedback.png',
-                          contentType: 'image/png',
-                        ),
-                      );
-                    },
-                  );
-                });
+                        scope.addAttachment(
+                          SentryAttachment.fromUint8List(
+                            feedback.screenshot,
+                            'feedback.png',
+                            contentType: 'image/png',
+                          ),
+                        );
+                      },
+                    );
+                  },
+                );
               },
               text:
                   'Sends the capture message with an image attachment to Sentry.',
@@ -478,12 +496,7 @@ class MainScaffold extends StatelessWidget {
             TooltipButton(
               onPressed: () async {
                 final id = await Sentry.captureMessage('UserFeedback');
-                // ignore: use_build_context_synchronously
-                if (!context.isMounted) {
-                  return;
-                }
-
-                // ignore: use_build_context_synchronously
+                if (!context.mounted) return;
                 await showDialog(
                   context: context,
                   builder: (context) {
@@ -515,6 +528,35 @@ class MainScaffold extends StatelessWidget {
               text:
                   'Demonstrates the logging integration. log.info() will create an info event send it to Sentry.',
               buttonTitle: 'Logging',
+            ),
+            TooltipButton(
+              onPressed: () async {
+                final span = Sentry.getSpan() ??
+                    Sentry.startTransaction(
+                        'testMetrics', 'span summary example',
+                        bindToScope: true);
+                Sentry.metrics().increment('increment key',
+                    unit: DurationSentryMeasurementUnit.day);
+                Sentry.metrics().distribution('distribution key',
+                    value: Random().nextDouble() * 10);
+                Sentry.metrics().set('set int key',
+                    value: Random().nextInt(100),
+                    tags: {'myTag': 'myValue', 'myTag2': 'myValue2'});
+                Sentry.metrics().set('set string key',
+                    stringValue: 'Random n ${Random().nextInt(100)}');
+                Sentry.metrics()
+                    .gauge('gauge key', value: Random().nextDouble() * 10);
+                Sentry.metrics().timing(
+                  'timing key',
+                  function: () async => await Future.delayed(
+                      Duration(milliseconds: Random().nextInt(100)),
+                      () => span.finish()),
+                  unit: DurationSentryMeasurementUnit.milliSecond,
+                );
+              },
+              text:
+                  'Demonstrates the metrics. It creates several metrics and send them to Sentry.',
+              buttonTitle: 'Metrics',
             ),
             if (UniversalPlatform.isIOS || UniversalPlatform.isMacOS)
               const CocoaExample(),
@@ -724,7 +766,7 @@ void navigateToAutoCloseScreen(BuildContext context) {
     context,
     MaterialPageRoute(
       settings: const RouteSettings(name: 'AutoCloseScreen'),
-      builder: (context) => const AutoCloseScreen(),
+      builder: (context) => SentryDisplayWidget(child: const AutoCloseScreen()),
     ),
   );
 }
@@ -758,18 +800,20 @@ class _IntegrationTestWidgetState extends State<IntegrationTestWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(children: [
-      Text(
-        _output,
-        key: const Key('output'),
-      ),
-      _isLoading
-          ? const CircularProgressIndicator()
-          : ElevatedButton(
-              onPressed: () async => await _captureException(),
-              child: const Text('captureException'),
-            )
-    ]);
+    return Column(
+      children: [
+        Text(
+          _output,
+          key: const Key('output'),
+        ),
+        _isLoading
+            ? const CircularProgressIndicator()
+            : ElevatedButton(
+                onPressed: () async => await _captureException(),
+                child: const Text('captureException'),
+              )
+      ],
+    );
   }
 
   Future<void> _captureException() async {
@@ -906,12 +950,7 @@ Future<void> makeWebRequest(BuildContext context) async {
 
   await transaction.finish(status: const SpanStatus.ok());
 
-  // ignore: use_build_context_synchronously
-  if (!context.isMounted) {
-    return;
-  }
-
-  // ignore: use_build_context_synchronously
+  if (!context.mounted) return;
   await showDialog<void>(
     context: context,
     builder: (context) {
@@ -957,12 +996,7 @@ Future<void> makeWebRequestWithDio(BuildContext context) async {
     await span.finish();
   }
 
-  // ignore: use_build_context_synchronously
-  if (!context.isMounted) {
-    return;
-  }
-
-  // ignore: use_build_context_synchronously
+  if (!context.mounted) return;
   await showDialog<void>(
     context: context,
     builder: (context) {
@@ -992,12 +1026,7 @@ Future<void> showDialogWithTextAndImage(BuildContext context) async {
   final text =
       await DefaultAssetBundle.of(context).loadString('assets/lorem-ipsum.txt');
 
-  // ignore: use_build_context_synchronously
-  if (!context.isMounted) {
-    return;
-  }
-
-  // ignore: use_build_context_synchronously
+  if (!context.mounted) return;
   await showDialog<void>(
     context: context,
     // gets tracked if using SentryNavigatorObserver
