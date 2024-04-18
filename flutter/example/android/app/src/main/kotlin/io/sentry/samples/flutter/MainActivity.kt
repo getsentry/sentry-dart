@@ -11,6 +11,7 @@ class MainActivity : FlutterActivity() {
 
   override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
     super.configureFlutterEngine(flutterEngine)
+    println("aaa configured engine")
     MethodChannel(
       flutterEngine.dartExecutor.binaryMessenger,
       _channel,

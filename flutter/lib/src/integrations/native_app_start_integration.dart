@@ -53,7 +53,8 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
     if (isIntegrationTest) {
       final appStartInfo = AppStartInfo(AppStartType.cold,
           start: DateTime.now(),
-          end: DateTime.now().add(const Duration(milliseconds: 100)));
+          end: DateTime.now().add(const Duration(milliseconds: 100)),
+          engineEnd: DateTime.now().add(const Duration(milliseconds: 50)));
       setAppStartInfo(appStartInfo);
       return;
     }
@@ -69,14 +70,19 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
         _native.appStartEnd ??= options.clock();
         final appStartEnd = _native.appStartEnd;
         final nativeAppStart = await _native.fetchNativeAppStart();
+        final engineEndtime = await _native.fetchEngineEndtime();
 
-        if (nativeAppStart == null || appStartEnd == null) {
+        if (nativeAppStart == null ||
+            appStartEnd == null ||
+            engineEndtime == null) {
           return;
         }
 
         final appStartDateTime = DateTime.fromMillisecondsSinceEpoch(
             nativeAppStart.appStartTime.toInt());
         final duration = appStartEnd.difference(appStartDateTime);
+        final engineEndDatetime =
+            DateTime.fromMillisecondsSinceEpoch(engineEndtime);
 
         // We filter out app start more than 60s.
         // This could be due to many different reasons.
@@ -95,8 +101,63 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
             nativeAppStart.isColdStart ? AppStartType.cold : AppStartType.warm,
             start: DateTime.fromMillisecondsSinceEpoch(
                 nativeAppStart.appStartTime.toInt()),
-            end: appStartEnd);
+            end: appStartEnd,
+            engineEnd: engineEndDatetime);
         setAppStartInfo(appStartInfo);
+
+        final routeName = SentryNavigatorObserver.currentRouteName;
+
+        // null means there is no navigator observer
+        if (routeName == null) {
+          final transaction = hub.startTransaction(
+            'App Start',
+            'ui.load',
+            startTimestamp: appStartInfo.start,
+            description: 'root /',
+          );
+
+          final op = 'app.start.${appStartInfo.type.name}';
+
+          final coldStartSpan = transaction.startChild(
+            op,
+            description: 'Cold start',
+            startTimestamp: appStartInfo.start,
+          );
+
+          final ttidSpan = transaction.startChild(
+            SentrySpanOperations.uiTimeToInitialDisplay,
+            description: 'Time to initial display',
+            startTimestamp: appStartInfo.start,
+          );
+
+          final engineInitSpan = coldStartSpan.startChild(
+            op,
+            description: 'Engine init and ready',
+            startTimestamp: appStartInfo.start,
+          );
+
+          final dartLoadingSpan = coldStartSpan.startChild(
+            op,
+            description: 'Dart isolate loading',
+            startTimestamp: appStartInfo.engineEnd,
+          );
+
+          final firstFrameRenderSpan = coldStartSpan.startChild(
+            op,
+            description: 'First frame render',
+            startTimestamp: SentryFlutter.dartLoadingEnd,
+          );
+
+          await engineInitSpan.finish(endTimestamp: appStartInfo.engineEnd);
+          await dartLoadingSpan.finish(endTimestamp: SentryFlutter.dartLoadingEnd);
+          await firstFrameRenderSpan.finish(endTimestamp: appStartInfo.end);
+          await coldStartSpan.finish(endTimestamp: appStartInfo.end);
+          await ttidSpan.finish(endTimestamp: appStartInfo.end);
+          await transaction.finish(endTimestamp: appStartInfo.end);
+        }
+
+        print('route name: ${SentryNavigatorObserver.currentRouteName}');
+
       });
     }
 
@@ -109,11 +170,14 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
 enum AppStartType { cold, warm }
 
 class AppStartInfo {
-  AppStartInfo(this.type, {required this.start, required this.end});
+  AppStartInfo(this.type,
+      {required this.start, required this.end, required this.engineEnd});
 
   final AppStartType type;
   final DateTime start;
   final DateTime end;
+  final DateTime engineEnd;
+
   Duration get duration => end.difference(start);
 
   SentryMeasurement toMeasurement() {

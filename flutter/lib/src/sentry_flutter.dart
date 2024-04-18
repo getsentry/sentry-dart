@@ -34,6 +34,8 @@ typedef FlutterOptionsConfiguration = FutureOr<void> Function(
 mixin SentryFlutter {
   static const _channel = MethodChannel('sentry_flutter');
 
+  static DateTime? dartLoadingEnd;
+
   static Future<void> init(
     FlutterOptionsConfiguration optionsConfiguration, {
     AppRunner? appRunner,
@@ -42,6 +44,8 @@ mixin SentryFlutter {
     @internal RendererWrapper? rendererWrapper,
   }) async {
     final flutterOptions = SentryFlutterOptions();
+
+    dartLoadingEnd = flutterOptions.clock();
 
     if (platformChecker != null) {
       flutterOptions.platformChecker = platformChecker;

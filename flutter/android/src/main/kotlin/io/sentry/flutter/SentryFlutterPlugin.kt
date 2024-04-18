@@ -40,8 +40,11 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
   private var activity: WeakReference<Activity>? = null
   private var framesTracker: ActivityFramesTracker? = null
+  private var engineEndTime: Long? = null
 
   override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
+    engineEndTime = System.currentTimeMillis()
+
     context = flutterPluginBinding.applicationContext
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, "sentry_flutter")
     channel.setMethodCallHandler(this)
@@ -70,6 +73,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       "removeExtra" -> removeExtra(call.argument("key"), result)
       "setTag" -> setTag(call.argument("key"), call.argument("value"), result)
       "removeTag" -> removeTag(call.argument("key"), result)
+      "fetchEngineEndtime" -> fetchEngineEndtime(result)
       else -> result.notImplemented()
     }
   }
@@ -142,7 +146,8 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     }
 
     val appStartTime = AppStartMetrics.getInstance().appStartTimeSpan.startTimestamp
-    val isColdStart = AppStartMetrics.getInstance().appStartType == AppStartMetrics.AppStartType.COLD
+    val isColdStart =
+      AppStartMetrics.getInstance().appStartType == AppStartMetrics.AppStartType.COLD
 
     if (appStartTime == null) {
       Log.w("Sentry", "App start won't be sent due to missing appStartTime")
@@ -155,6 +160,10 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       )
       result.success(item)
     }
+  }
+
+  private fun fetchEngineEndtime(result: Result) {
+    result.success(engineEndTime)
   }
 
   private fun beginNativeFrames(result: Result) {

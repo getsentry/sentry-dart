@@ -12,6 +12,8 @@ abstract class SentryNativeBinding {
 
   Future<NativeAppStart?> fetchNativeAppStart();
 
+  Future<int?> fetchEngineEndtime();
+
   Future<void> beginNativeFrames();
 
   Future<NativeFrames?> endNativeFrames(SentryId id);
