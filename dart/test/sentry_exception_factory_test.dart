@@ -189,8 +189,20 @@ void main() {
     expect(sentryException.value, isNull);
   });
 
-  test('set snapshot to true when no stracktrace is present', () {
-    final sentryException = fixture.getSut().getSentryException(Object());
+  test(
+      'set snapshot to true when no stracktrace is present & attachStacktrace == true',
+      () {
+    final sentryException =
+        fixture.getSut(attachStacktrace: true).getSentryException(Object());
+
+    expect(sentryException.stackTrace!.snapshot, true);
+  });
+
+  test(
+      'set snapshot to false when no stracktrace is present & attachStacktrace == false',
+      () {
+    final sentryException =
+        fixture.getSut(attachStacktrace: false).getSentryException(Object());
 
     expect(sentryException.stackTrace!.snapshot, true);
   });
