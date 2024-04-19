@@ -26,8 +26,8 @@ void main() {
 
   group(AndroidPlatformExceptionEventProcessor, () {
     test('exception is correctly parsed', () async {
-      final platformExceptionEvent =
-          await fixture.processor.apply(fixture.eventWithPlatformStackTrace);
+      final platformExceptionEvent = await fixture.processor
+          .apply(fixture.eventWithPlatformStackTrace, Hint());
 
       final exceptions = platformExceptionEvent!.exceptions!;
       expect(exceptions.length, 3);
@@ -54,8 +54,8 @@ void main() {
     test(
         'Dart thread is current and not crashed if Android exception is present',
         () async {
-      final platformExceptionEvent =
-          await fixture.processor.apply(fixture.eventWithPlatformStackTrace);
+      final platformExceptionEvent = await fixture.processor
+          .apply(fixture.eventWithPlatformStackTrace, Hint());
 
       final exceptions = platformExceptionEvent!.exceptions!;
       expect(exceptions.length, 3);
@@ -65,8 +65,8 @@ void main() {
     });
 
     test('platformexception has Android thread attached', () async {
-      final platformExceptionEvent =
-          await fixture.processor.apply(fixture.eventWithPlatformStackTrace);
+      final platformExceptionEvent = await fixture.processor
+          .apply(fixture.eventWithPlatformStackTrace, Hint());
 
       final exceptions = platformExceptionEvent!.exceptions!;
       expect(exceptions.length, 3);
@@ -85,8 +85,8 @@ void main() {
       fixture.options.attachThreads = false;
       final threadCount = fixture.eventWithPlatformStackTrace.threads?.length;
 
-      final platformExceptionEvent =
-          await fixture.processor.apply(fixture.eventWithPlatformStackTrace);
+      final platformExceptionEvent = await fixture.processor
+          .apply(fixture.eventWithPlatformStackTrace, Hint());
 
       final exceptions = platformExceptionEvent!.exceptions!;
       expect(exceptions.length, 3);
@@ -103,14 +103,15 @@ void main() {
         throwable: null,
       );
 
-      final platformExceptionEvent = await fixture.processor.apply(event);
+      final platformExceptionEvent =
+          await fixture.processor.apply(event, Hint());
 
       expect(event, platformExceptionEvent);
     });
 
     test('does nothing if PlatformException has no stackTrace', () async {
-      final platformExceptionEvent =
-          await fixture.processor.apply(fixture.eventWithoutPlatformStackTrace);
+      final platformExceptionEvent = await fixture.processor
+          .apply(fixture.eventWithoutPlatformStackTrace, Hint());
 
       expect(fixture.eventWithoutPlatformStackTrace, platformExceptionEvent);
     });

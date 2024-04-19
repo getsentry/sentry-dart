@@ -20,6 +20,7 @@ void main() {
             uri: Uri.parse('https://example.org/foo/bar?foo=bar'),
           ),
         ),
+        Hint(),
       );
 
       expect(event?.request, isNotNull);

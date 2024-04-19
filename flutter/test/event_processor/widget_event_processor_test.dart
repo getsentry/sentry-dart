@@ -30,7 +30,7 @@ void main() {
           app: SentryApp(),
         ),
       );
-      event = await sut.apply(event);
+      event = await sut.apply(event, Hint());
 
       expect(event?.contexts.app?.textScale, 1.0);
     });

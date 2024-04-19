@@ -4,21 +4,16 @@ import 'package:flutter/services.dart';
 import 'package:sentry/sentry.dart';
 import '../sentry_flutter_options.dart';
 
-/// Load Device's Contexts from the iOS SDK.
+/// Load Device's Contexts from the iOS & Android SDKs.
 ///
-/// This integration calls the iOS SDK via Message channel to load the
-/// Device's contexts before sending the event back to the iOS SDK via
+/// This integration calls the iOS & Android SDKs via Message channel to load
+/// the Device's contexts before sending the event back to the SDK via
 /// Message channel (already enriched with all the information).
 ///
 /// The Device's contexts are:
 /// App, Device and OS.
 ///
-/// ps. This integration won't be run on Android because the Device's Contexts
-/// is set on Android when the event is sent to the Android SDK via
-/// the Message channel.
-/// We intend to unify this behaviour in the future.
-///
-/// This integration is only executed on iOS & MacOS Apps.
+/// This integration is only executed on iOS, macOS & Android Apps.
 class LoadContextsIntegration extends Integration<SentryFlutterOptions> {
   final MethodChannel _channel;
 
@@ -40,7 +35,7 @@ class _LoadContextsIntegrationEventProcessor implements EventProcessor {
   final SentryFlutterOptions _options;
 
   @override
-  Future<SentryEvent?> apply(SentryEvent event, {Hint? hint}) async {
+  Future<SentryEvent?> apply(SentryEvent event, Hint hint) async {
     try {
       final loadContexts = await _channel.invokeMethod('loadContexts');
 
@@ -163,7 +158,7 @@ class _LoadContextsIntegrationEventProcessor implements EventProcessor {
           );
 
           if (beforeBreadcrumb != null) {
-            final processedBreadcrumb = beforeBreadcrumb(breadcrumb);
+            final processedBreadcrumb = beforeBreadcrumb(breadcrumb, Hint());
             if (processedBreadcrumb != null) {
               breadcrumbs.add(processedBreadcrumb);
             }
@@ -204,8 +199,8 @@ class _LoadContextsIntegrationEventProcessor implements EventProcessor {
         event = event.copyWith(sdk: sdk);
       }
 
-      // on iOS, captureEnvelope does not call the beforeSend callback,
-      // hence we need to add these tags here.
+      // captureEnvelope does not call the beforeSend callback, hence we need to
+      // add these tags here.
       if (event.sdk?.name == 'sentry.dart.flutter') {
         final tags = event.tags ?? {};
         tags['event.origin'] = 'flutter';

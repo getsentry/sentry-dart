@@ -11,6 +11,10 @@ void main() {
     synthetic: true,
     meta: {'key': 'value'},
     data: {'keyb': 'valueb'},
+    isExceptionGroup: false,
+    exceptionId: 0,
+    parentId: 0,
+    source: 'source',
   );
 
   final mechanismJson = <String, dynamic>{
@@ -21,6 +25,10 @@ void main() {
     'meta': {'key': 'value'},
     'data': {'keyb': 'valueb'},
     'synthetic': true,
+    'is_exception_group': false,
+    'source': 'source',
+    'exception_id': 0,
+    'parent_id': 0,
   };
 
   group('json', () {
@@ -51,6 +59,7 @@ void main() {
 
       expect(data.toJson(), copy.toJson());
     });
+
     test('copyWith takes new values', () {
       final data = mechanism;
 
@@ -62,6 +71,10 @@ void main() {
         synthetic: false,
         meta: {'key1': 'value1'},
         data: {'keyb1': 'valueb1'},
+        exceptionId: 1,
+        parentId: 1,
+        isExceptionGroup: false,
+        source: 'foo',
       );
 
       expect('type1', copy.type);
@@ -71,6 +84,10 @@ void main() {
       expect(false, copy.synthetic);
       expect({'key1': 'value1'}, copy.meta);
       expect({'keyb1': 'valueb1'}, copy.data);
+      expect(1, copy.exceptionId);
+      expect(1, copy.parentId);
+      expect(false, copy.isExceptionGroup);
+      expect('foo', copy.source);
     });
   });
 }
