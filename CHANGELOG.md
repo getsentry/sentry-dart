@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+This release contains breaking changes, please read the changelog carefully.
+
+*Changes from the latest v7 release are included in this major release*
+
 ### Breaking Changes
 
 - Bump iOS minimum deployment target from **11** to **12** ([#1821](https://github.com/getsentry/sentry-dart/pull/1821))
