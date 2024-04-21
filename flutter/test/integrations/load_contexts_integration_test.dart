@@ -58,7 +58,8 @@ void main() {
 
       final integration = LoadContextsIntegration(fixture.methodChannel);
       integration.call(fixture.hub, fixture.options);
-      event = (await fixture.options.eventProcessors.first.apply(event))!;
+      event =
+          (await fixture.options.eventProcessors.first.apply(event, Hint()))!;
 
       expect(event.breadcrumbs!.length, 1);
       expect(event.breadcrumbs!.first.message, 'native');
@@ -83,7 +84,8 @@ void main() {
 
       final integration = LoadContextsIntegration(fixture.methodChannel);
       integration.call(fixture.hub, fixture.options);
-      event = (await fixture.options.eventProcessors.first.apply(event))!;
+      event =
+          (await fixture.options.eventProcessors.first.apply(event, Hint()))!;
 
       expect(event.breadcrumbs!.length, 1);
       expect(event.breadcrumbs!.first.message, 'event');
@@ -91,7 +93,7 @@ void main() {
 
     test('apply beforeBreadcrumb to native breadcrumbs', () async {
       fixture.options.enableScopeSync = true;
-      fixture.options.beforeBreadcrumb = (breadcrumb, {hint}) {
+      fixture.options.beforeBreadcrumb = (breadcrumb, hint) {
         if (breadcrumb?.message == 'native-mutated') {
           return breadcrumb?.copyWith(message: 'native-mutated-applied');
         } else {
@@ -119,7 +121,8 @@ void main() {
 
       final integration = LoadContextsIntegration(fixture.methodChannel);
       integration.call(fixture.hub, fixture.options);
-      event = (await fixture.options.eventProcessors.first.apply(event))!;
+      event =
+          (await fixture.options.eventProcessors.first.apply(event, Hint()))!;
 
       expect(event.breadcrumbs!.length, 1);
       expect(event.breadcrumbs!.first.message, 'native-mutated-applied');

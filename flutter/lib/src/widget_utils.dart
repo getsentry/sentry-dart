@@ -1,8 +1,12 @@
 import 'package:flutter/widgets.dart';
+import 'package:meta/meta.dart';
 
-extension WidgetExtension on Key {
-  String? toStringValue() {
-    final key = this;
+@internal
+class WidgetUtils {
+  static String? toStringValue(Key? key) {
+    if (key == null) {
+      return null;
+    }
     if (key is ValueKey<String>) {
       return key.value;
     } else if (key is ValueKey) {

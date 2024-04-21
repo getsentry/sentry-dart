@@ -32,9 +32,10 @@ final nonWebIntegrations = [
   OnErrorIntegration,
 ];
 
-// These should only be added to Android
+// These should be added to Android
 final androidIntegrations = [
   LoadImageListIntegration,
+  LoadContextsIntegration,
 ];
 
 // These should be added to iOS and macOS

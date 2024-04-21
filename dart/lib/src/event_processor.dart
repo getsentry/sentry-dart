@@ -8,7 +8,7 @@ import 'protocol.dart';
 /// null in case the event will be dropped and not sent.
 abstract class EventProcessor {
   FutureOr<SentryEvent?> apply(
-    SentryEvent event, {
-    Hint? hint,
-  });
+    SentryEvent event,
+    Hint hint,
+  );
 }

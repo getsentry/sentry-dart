@@ -70,7 +70,7 @@ void main() {
 
       final throwableMechanism = event.throwableMechanism as ThrowableMechanism;
       expect(throwableMechanism.mechanism.type, 'FlutterError');
-      expect(throwableMechanism.mechanism.handled, true);
+      expect(throwableMechanism.mechanism.handled, false);
       expect(throwableMechanism.throwable, exception);
 
       expect(event.contexts['flutter_error_details']['library'], 'sentry');
@@ -102,7 +102,7 @@ void main() {
 
       final throwableMechanism = event.throwableMechanism as ThrowableMechanism;
       expect(throwableMechanism.mechanism.type, 'FlutterError');
-      expect(throwableMechanism.mechanism.handled, true);
+      expect(throwableMechanism.mechanism.handled, false);
 
       expect(event.contexts['flutter_error_details']['library'], 'sentry');
       expect(event.contexts['flutter_error_details']['context'],
@@ -126,7 +126,7 @@ void main() {
 
       final throwableMechanism = event.throwableMechanism as ThrowableMechanism;
       expect(throwableMechanism.mechanism.type, 'FlutterError');
-      expect(throwableMechanism.mechanism.handled, true);
+      expect(throwableMechanism.mechanism.handled, false);
       expect(throwableMechanism.mechanism.data['hint'], isNull);
 
       expect(event.contexts['flutter_error_details'], isNull);

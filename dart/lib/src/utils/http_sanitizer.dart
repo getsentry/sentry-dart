@@ -60,7 +60,7 @@ class HttpSanitizer {
   }
 }
 
-extension UriPath on Uri {
+extension _UriPath on Uri {
   String _urlWithRedactedAuth() {
     var buffer = '';
     if (scheme.isNotEmpty) {
@@ -78,6 +78,7 @@ extension UriPath on Uri {
   }
 }
 
+@internal
 extension SanitizedSentryRequest on SentryRequest {
   SentryRequest sanitized() {
     final urlDetails = HttpSanitizer.sanitizeUrl(url) ?? UrlDetails();

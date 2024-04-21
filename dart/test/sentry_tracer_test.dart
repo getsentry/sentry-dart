@@ -68,24 +68,7 @@ void main() {
       expect(sut.endTimestamp, endTimestamp);
     });
 
-    test(
-        'tracer finish sets given end timestamp to all children while finishing them',
-        () async {
-      final sut = fixture.getSut();
-
-      final childA = sut.startChild('operation-a', description: 'description');
-      final childB = sut.startChild('operation-b', description: 'description');
-      final endTimestamp = getUtcDateTime();
-
-      await sut.finish(endTimestamp: endTimestamp);
-      await childA.finish();
-      await childB.finish();
-
-      expect(childA.endTimestamp, endTimestamp);
-      expect(childB.endTimestamp, endTimestamp);
-    });
-
-    test('tracer finishes unfinished spans', () async {
+    test('tracer does not finish unfinished spans', () async {
       final sut = fixture.getSut();
       sut.startChild('child');
 
@@ -94,7 +77,8 @@ void main() {
       final tr = fixture.hub.captureTransactionCalls.first;
       final child = tr.transaction.spans.first;
 
-      expect(child.status.toString(), 'deadline_exceeded');
+      expect(child.status, isNull);
+      expect(child.endTimestamp, isNull);
     });
 
     test('tracer sets data to extra', () async {
@@ -467,6 +451,21 @@ void main() {
       sut.setMeasurement('key', 1.0);
 
       expect(sut.measurements.isEmpty, true);
+    });
+
+    test('localMetricsAggregator is set when option is enabled', () async {
+      fixture.hub.options.enableMetrics = true;
+      fixture.hub.options.enableSpanLocalMetricAggregation = true;
+      final sut = fixture.getSut();
+      expect(fixture.hub.options.enableSpanLocalMetricAggregation, true);
+      expect(sut.localMetricsAggregator, isNotNull);
+    });
+
+    test('localMetricsAggregator is null when option is disabled', () async {
+      fixture.hub.options.enableMetrics = false;
+      final sut = fixture.getSut();
+      expect(fixture.hub.options.enableSpanLocalMetricAggregation, false);
+      expect(sut.localMetricsAggregator, null);
     });
   });
 

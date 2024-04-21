@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'client_reports/client_report.dart';
+import 'metrics/metric.dart';
 import 'protocol.dart';
 import 'utils.dart';
 import 'sentry_attachment/sentry_attachment.dart';
@@ -13,7 +14,7 @@ import 'sentry_user_feedback.dart';
 class SentryEnvelopeItem {
   SentryEnvelopeItem(this.header, this.dataFactory);
 
-  /// Creates an [SentryEnvelopeItem] which sends [SentryTransaction].
+  /// Creates a [SentryEnvelopeItem] which sends [SentryTransaction].
   factory SentryEnvelopeItem.fromTransaction(SentryTransaction transaction) {
     final cachedItem =
         _CachedItem(() async => utf8JsonEncoder.convert(transaction.toJson()));
@@ -27,7 +28,7 @@ class SentryEnvelopeItem {
   }
 
   factory SentryEnvelopeItem.fromAttachment(SentryAttachment attachment) {
-    final cachedItem = _CachedItem(() => attachment.bytes);
+    final cachedItem = _CachedItem(() async => attachment.bytes);
 
     final header = SentryEnvelopeItemHeader(
       SentryItemType.attachment,
@@ -39,7 +40,7 @@ class SentryEnvelopeItem {
     return SentryEnvelopeItem(header, cachedItem.getData);
   }
 
-  /// Create an [SentryEnvelopeItem] which sends [SentryUserFeedback].
+  /// Create a [SentryEnvelopeItem] which sends [SentryUserFeedback].
   factory SentryEnvelopeItem.fromUserFeedback(SentryUserFeedback feedback) {
     final cachedItem =
         _CachedItem(() async => utf8JsonEncoder.convert(feedback.toJson()));
@@ -52,7 +53,7 @@ class SentryEnvelopeItem {
     return SentryEnvelopeItem(header, cachedItem.getData);
   }
 
-  /// Create an [SentryEnvelopeItem] which holds the [SentryEvent] data.
+  /// Create a [SentryEnvelopeItem] which holds the [SentryEvent] data.
   factory SentryEnvelopeItem.fromEvent(SentryEvent event) {
     final cachedItem =
         _CachedItem(() async => utf8JsonEncoder.convert(event.toJson()));
@@ -67,7 +68,7 @@ class SentryEnvelopeItem {
     );
   }
 
-  /// Create an [SentryEnvelopeItem] which holds the [ClientReport] data.
+  /// Create a [SentryEnvelopeItem] which holds the [ClientReport] data.
   factory SentryEnvelopeItem.fromClientReport(ClientReport clientReport) {
     final cachedItem =
         _CachedItem(() async => utf8JsonEncoder.convert(clientReport.toJson()));
@@ -80,6 +81,28 @@ class SentryEnvelopeItem {
       ),
       cachedItem.getData,
     );
+  }
+
+  /// Creates a [SentryEnvelopeItem] which holds several [Metric] data.
+  factory SentryEnvelopeItem.fromMetrics(Map<int, Iterable<Metric>> buckets) {
+    final cachedItem = _CachedItem(() async {
+      final statsd = StringBuffer();
+      // Encode all metrics of a bucket in statsd format, using the bucket key,
+      //  which is the timestamp of the bucket.
+      for (final bucket in buckets.entries) {
+        final encodedMetrics =
+            bucket.value.map((metric) => metric.encodeToStatsd(bucket.key));
+        statsd.write(encodedMetrics.join('\n'));
+      }
+      return utf8.encode(statsd.toString());
+    });
+
+    final header = SentryEnvelopeItemHeader(
+      SentryItemType.statsd,
+      cachedItem.getDataLength,
+      contentType: 'application/octet-stream',
+    );
+    return SentryEnvelopeItem(header, cachedItem.getData);
   }
 
   /// Header with info about type and length of data in bytes.
@@ -109,16 +132,11 @@ class SentryEnvelopeItem {
 class _CachedItem {
   _CachedItem(this._dataFactory);
 
-  final FutureOr<List<int>> Function() _dataFactory;
+  final Future<List<int>> Function() _dataFactory;
   List<int>? _data;
 
   Future<List<int>> getData() async {
-    final data = _dataFactory();
-    if (data is Future<List<int>>) {
-      _data ??= await data;
-    } else {
-      _data ??= data;
-    }
+    _data ??= await _dataFactory();
     return _data!;
   }
 

@@ -203,7 +203,7 @@ void main() {
 class Fixture {
   SentryEvent? sentEvent;
 
-  FutureOr<SentryEvent?> beforeSend(SentryEvent event, {Hint? hint}) async {
+  FutureOr<SentryEvent?> beforeSend(SentryEvent event, Hint hint) async {
     sentEvent = event;
     return event;
   }

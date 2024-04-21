@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:meta/meta.dart';
+import 'metrics/metric.dart';
+import 'metrics/metrics_aggregator.dart';
 import 'sentry_baggage.dart';
 import 'sentry_attachment/sentry_attachment.dart';
 
@@ -40,6 +42,8 @@ class SentryClient {
 
   final Random? _random;
 
+  late final MetricsAggregator? _metricsAggregator;
+
   static final _sentryId = Future.value(SentryId.empty());
 
   SentryExceptionFactory get _exceptionFactory => _options.exceptionFactory;
@@ -63,7 +67,13 @@ class SentryClient {
 
   /// Instantiates a client using [SentryOptions]
   SentryClient._(this._options)
-      : _random = _options.sampleRate == null ? null : Random();
+      : _random = _options.sampleRate == null ? null : Random(),
+        _metricsAggregator = _options.enableMetrics
+            ? MetricsAggregator(options: _options)
+            : null;
+
+  @internal
+  MetricsAggregator? get metricsAggregator => _metricsAggregator;
 
   /// Reports an [event] to Sentry.io.
   Future<SentryId> captureEvent(
@@ -86,7 +96,7 @@ class SentryClient {
     hint ??= Hint();
 
     if (scope != null) {
-      preparedEvent = await scope.applyToEvent(preparedEvent, hint: hint);
+      preparedEvent = await scope.applyToEvent(preparedEvent, hint);
     } else {
       _options.logger(
           SentryLevel.debug, 'No scope to apply on event was provided');
@@ -99,8 +109,8 @@ class SentryClient {
 
     preparedEvent = await _runEventProcessors(
       preparedEvent,
+      hint,
       eventProcessors: _options.eventProcessors,
-      hint: hint,
     );
 
     // dropped by event processors
@@ -110,15 +120,13 @@ class SentryClient {
 
     preparedEvent = await _runBeforeSend(
       preparedEvent,
-      hint: hint,
+      hint,
     );
 
     // dropped by beforeSend
     if (preparedEvent == null) {
       return _sentryId;
     }
-
-    preparedEvent = _eventWithoutBreadcrumbsIfNeeded(preparedEvent);
 
     var attachments = List<SentryAttachment>.from(scope?.attachments ?? []);
     attachments.addAll(hint.attachments);
@@ -167,7 +175,7 @@ class SentryClient {
       platform: event.platform ?? sdkPlatform(_options.platformChecker.isWeb),
     );
 
-    event = _applyDefaultPii(event);
+    event = _createUserOrSetDefaultIpAddress(event);
 
     if (event is SentryTransaction) {
       return event;
@@ -247,20 +255,13 @@ class SentryClient {
     return event;
   }
 
-  /// This modifies the users IP address according
-  /// to [SentryOptions.sendDefaultPii].
-  SentryEvent _applyDefaultPii(SentryEvent event) {
-    if (!_options.sendDefaultPii) {
-      return event;
-    }
+  SentryEvent _createUserOrSetDefaultIpAddress(SentryEvent event) {
     var user = event.user;
     if (user == null) {
-      user = SentryUser(ipAddress: _defaultIpAddress);
-      return event.copyWith(user: user);
+      return event.copyWith(user: SentryUser(ipAddress: _defaultIpAddress));
     } else if (event.user?.ipAddress == null) {
       return event.copyWith(user: user.copyWith(ipAddress: _defaultIpAddress));
     }
-
     return event;
   }
 
@@ -311,9 +312,11 @@ class SentryClient {
     SentryTransaction? preparedTransaction =
         _prepareEvent(transaction) as SentryTransaction;
 
+    final hint = Hint();
+
     if (scope != null) {
-      preparedTransaction =
-          await scope.applyToEvent(preparedTransaction) as SentryTransaction?;
+      preparedTransaction = await scope.applyToEvent(preparedTransaction, hint)
+          as SentryTransaction?;
     } else {
       _options.logger(
           SentryLevel.debug, 'No scope to apply on transaction was provided');
@@ -326,6 +329,7 @@ class SentryClient {
 
     preparedTransaction = await _runEventProcessors(
       preparedTransaction,
+      hint,
       eventProcessors: _options.eventProcessors,
     ) as SentryTransaction?;
 
@@ -335,14 +339,12 @@ class SentryClient {
     }
 
     preparedTransaction =
-        await _runBeforeSend(preparedTransaction) as SentryTransaction?;
+        await _runBeforeSend(preparedTransaction, hint) as SentryTransaction?;
 
     // dropped by beforeSendTransaction
     if (preparedTransaction == null) {
       return _sentryId;
     }
-
-    preparedTransaction = _eventWithoutBreadcrumbsIfNeeded(preparedTransaction);
 
     final attachments = scope?.attachments
         .where((element) => element.addToTransactions)
@@ -379,12 +381,27 @@ class SentryClient {
     return _attachClientReportsAndSend(envelope);
   }
 
-  void close() => _options.httpClient.close();
+  /// Reports the [metricsBuckets] to Sentry.io.
+  Future<SentryId> captureMetrics(
+      Map<int, Iterable<Metric>> metricsBuckets) async {
+    final envelope = SentryEnvelope.fromMetrics(
+      metricsBuckets,
+      _options.sdk,
+      dsn: _options.dsn,
+    );
+    final id = await _attachClientReportsAndSend(envelope);
+    return id ?? SentryId.empty();
+  }
+
+  void close() {
+    _metricsAggregator?.close();
+    _options.httpClient.close();
+  }
 
   Future<SentryEvent?> _runBeforeSend(
-    SentryEvent event, {
-    Hint? hint,
-  }) async {
+    SentryEvent event,
+    Hint hint,
+  ) async {
     SentryEvent? eventOrTransaction = event;
 
     final beforeSend = _options.beforeSend;
@@ -401,7 +418,7 @@ class SentryClient {
           eventOrTransaction = e;
         }
       } else if (beforeSend != null) {
-        final e = beforeSend(event, hint: hint);
+        final e = beforeSend(event, hint);
         if (e is Future<SentryEvent?>) {
           eventOrTransaction = await e;
         } else {
@@ -432,14 +449,14 @@ class SentryClient {
   }
 
   Future<SentryEvent?> _runEventProcessors(
-    SentryEvent event, {
-    Hint? hint,
+    SentryEvent event,
+    Hint hint, {
     required List<EventProcessor> eventProcessors,
   }) async {
     SentryEvent? processedEvent = event;
     for (final processor in eventProcessors) {
       try {
-        final e = processor.apply(processedEvent!, hint: hint);
+        final e = processor.apply(processedEvent!, hint);
         if (e is Future<SentryEvent?>) {
           processedEvent = await e;
         } else {
@@ -480,40 +497,6 @@ class SentryClient {
       category = DataCategory.error;
     }
     _options.recorder.recordLostEvent(reason, category);
-  }
-
-  T _eventWithoutBreadcrumbsIfNeeded<T extends SentryEvent>(T event) {
-    if (_shouldRemoveBreadcrumbs(event)) {
-      return event.copyWith(breadcrumbs: []) as T;
-    } else {
-      return event;
-    }
-  }
-
-  /// We do this to avoid duplicate breadcrumbs on Android as sentry-android applies the breadcrumbs
-  /// from the native scope onto every envelope sent through it. This scope will contain the breadcrumbs
-  /// sent through the scope sync feature. This causes duplicate breadcrumbs.
-  /// We then remove the breadcrumbs in all cases but if it is handled == false,
-  /// this is a signal that the app would crash and android would lose the breadcrumbs by the time the app is restarted to read
-  /// the envelope.
-  bool _shouldRemoveBreadcrumbs(SentryEvent event) {
-    if (_options.platformChecker.isWeb) {
-      return false;
-    }
-
-    final isAndroid = _options.platformChecker.platform.isAndroid;
-    final enableScopeSync = _options.enableScopeSync;
-
-    if (!isAndroid || !enableScopeSync) {
-      return false;
-    }
-
-    final mechanisms =
-        (event.exceptions ?? []).map((e) => e.mechanism).whereType<Mechanism>();
-    final hasNoMechanism = mechanisms.isEmpty;
-    final hasOnlyHandledMechanism =
-        mechanisms.every((e) => (e.handled ?? true));
-    return hasNoMechanism || hasOnlyHandledMechanism;
   }
 
   Future<SentryId?> _attachClientReportsAndSend(SentryEnvelope envelope) {

@@ -43,7 +43,7 @@ jobs:
           distribution: "adopt"
           java-version: "11"
 
-      - uses: subosito/flutter-action@3d804929922b667a63a229bc59037807f969e885 # pin@v2.15.0
+      - uses: subosito/flutter-action@44ac965b96f18d999802d4b807e3256d5a3f9fa1 # pin@v2.16.0
         with:
           channel: ${{ matrix.sdk }}
 
@@ -54,7 +54,7 @@ jobs:
         run: flutter pub get
 
       - name: Gradle cache
-        uses: gradle/gradle-build-action@29c0906b64b8fc82467890bfb7a0a7ef34bda89e
+        uses: gradle/gradle-build-action@8baac4c8ef753599f92eeb509c246d09d6250fa6 # pin@v3.0.0
 
       - name: AVD cache
         uses: actions/cache@v4
@@ -120,13 +120,12 @@ jobs:
       fail-fast: false
       matrix:
         sdk: ["stable", "beta"]
-        # TODO: remove ios for now, will be fixed in v8
-        target: ["macos"]
+        target: ["ios", "macos"]
     steps:
       - name: checkout
         uses: actions/checkout@v4
 
-      - uses: subosito/flutter-action@3d804929922b667a63a229bc59037807f969e885 # pin@v2.15.0
+      - uses: subosito/flutter-action@44ac965b96f18d999802d4b807e3256d5a3f9fa1 # pin@v2.16.0
         with:
           channel: ${{ matrix.sdk }}
 

@@ -24,7 +24,7 @@ void main() {
       throwable: Exception(),
       exceptions: [fixture.sentryError(throwable)],
     );
-    final processedEvent = sut.apply(event) as SentryEvent;
+    final processedEvent = sut.apply(event, Hint()) as SentryEvent;
 
     expect(event, processedEvent);
   });
@@ -42,7 +42,7 @@ void main() {
       request: SentryRequest(),
       exceptions: [fixture.sentryError(dioError)],
     );
-    final processedEvent = sut.apply(event) as SentryEvent;
+    final processedEvent = sut.apply(event, Hint()) as SentryEvent;
 
     expect(event.throwable, processedEvent.throwable);
     expect(event.request, processedEvent.request);
@@ -70,7 +70,7 @@ void main() {
           fixture.sentryError(dioError),
         ],
       );
-      final processedEvent = sut.apply(event) as SentryEvent;
+      final processedEvent = sut.apply(event, Hint()) as SentryEvent;
 
       expect(processedEvent.throwable, event.throwable);
       expect(processedEvent.request?.method, 'POST');
@@ -99,7 +99,7 @@ void main() {
           fixture.sentryError(dioError),
         ],
       );
-      final processedEvent = sut.apply(event) as SentryEvent;
+      final processedEvent = sut.apply(event, Hint()) as SentryEvent;
 
       expect(processedEvent.throwable, event.throwable);
       expect(processedEvent.request?.method, 'GET');
@@ -128,7 +128,7 @@ void main() {
           fixture.sentryError(dioError),
         ],
       );
-      final processedEvent = sut.apply(event) as SentryEvent;
+      final processedEvent = sut.apply(event, Hint()) as SentryEvent;
 
       expect(processedEvent.request?.headers, <String, String>{});
     });
@@ -180,7 +180,7 @@ void main() {
             fixture.sentryError(dioError),
           ],
         );
-        final processedEvent = sut.apply(event) as SentryEvent;
+        final processedEvent = sut.apply(event, Hint()) as SentryEvent;
         final capturedRequest = processedEvent.request;
 
         expect(capturedRequest, isNotNull);
@@ -222,7 +222,7 @@ void main() {
           fixture.sentryError(dioError),
         ],
       );
-      final processedEvent = sut.apply(event) as SentryEvent;
+      final processedEvent = sut.apply(event, Hint()) as SentryEvent;
 
       expect(processedEvent.throwable, event.throwable);
       expect(processedEvent.contexts.response, isNotNull);
@@ -263,7 +263,7 @@ void main() {
           fixture.sentryError(dioError),
         ],
       );
-      final processedEvent = sut.apply(event) as SentryEvent;
+      final processedEvent = sut.apply(event, Hint()) as SentryEvent;
 
       expect(processedEvent.throwable, event.throwable);
       expect(processedEvent.contexts.response, isNotNull);
@@ -323,7 +323,7 @@ void main() {
             fixture.sentryError(dioError),
           ],
         );
-        final processedEvent = sut.apply(event) as SentryEvent;
+        final processedEvent = sut.apply(event, Hint()) as SentryEvent;
         final capturedResponse = processedEvent.contexts.response;
 
         expect(capturedResponse, isNotNull);
@@ -378,7 +378,7 @@ void main() {
               fixture.sentryError(dioError),
             ],
           );
-          final processedEvent = sut.apply(event) as SentryEvent;
+          final processedEvent = sut.apply(event, Hint()) as SentryEvent;
           final capturedResponse = processedEvent.contexts.response;
 
           expect(capturedResponse, isNotNull);
@@ -413,7 +413,7 @@ void main() {
       exceptions: exceptions,
     );
 
-    final processedEvent = sut.apply(event) as SentryEvent;
+    final processedEvent = sut.apply(event, Hint()) as SentryEvent;
 
     expect(processedEvent.exceptions?.length, 2);
 
