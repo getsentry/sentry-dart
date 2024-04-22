@@ -583,27 +583,237 @@ class $ScreenshotRecorderConfigType
   }
 }
 
-/// from: io.sentry.android.replay.ScreenshotRecorderCallback
-class ScreenshotRecorderCallback extends jni.JObject {
+/// from: io.sentry.android.replay.ReplayIntegration
+class ReplayIntegration extends jni.JObject {
   @override
-  late final jni.JObjType<ScreenshotRecorderCallback> $type = type;
+  late final jni.JObjType<ReplayIntegration> $type = type;
 
-  ScreenshotRecorderCallback.fromRef(
+  ReplayIntegration.fromRef(
     jni.JObjectPtr ref,
   ) : super.fromRef(ref);
 
   /// The type which includes information such as the signature of this class.
-  static const type = $ScreenshotRecorderCallbackType();
-  static final _onScreenshotRecorded = jniLookup<
-              ffi.NativeFunction<
-                  jni.JniResult Function(
-                      ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>)>>(
-          "ScreenshotRecorderCallback__onScreenshotRecorded")
+  static const type = $ReplayIntegrationType();
+  static final _new0 = jniLookup<
+          ffi.NativeFunction<
+              jni.JniResult Function(
+                  ffi.Pointer<ffi.Void>,
+                  ffi.Pointer<ffi.Void>,
+                  ffi.Pointer<ffi.Void>,
+                  ffi.Pointer<ffi.Void>,
+                  ffi.Pointer<ffi.Void>)>>("ReplayIntegration__new0")
+      .asFunction<
+          jni.JniResult Function(
+              ffi.Pointer<ffi.Void>,
+              ffi.Pointer<ffi.Void>,
+              ffi.Pointer<ffi.Void>,
+              ffi.Pointer<ffi.Void>,
+              ffi.Pointer<ffi.Void>)>();
+
+  /// from: public void <init>(android.content.Context context, io.sentry.transport.ICurrentDateProvider iCurrentDateProvider, kotlin.jvm.functions.Function0 function0, kotlin.jvm.functions.Function1 function1, kotlin.jvm.functions.Function1 function11)
+  /// The returned object must be released after use, by calling the [release] method.
+  factory ReplayIntegration(
+    jni.JObject context,
+    jni.JObject iCurrentDateProvider,
+    jni.JObject function0,
+    jni.JObject function1,
+    jni.JObject function11,
+  ) {
+    return ReplayIntegration.fromRef(_new0(
+            context.reference,
+            iCurrentDateProvider.reference,
+            function0.reference,
+            function1.reference,
+            function11.reference)
+        .object);
+  }
+
+  static final _new1 = jniLookup<
+          ffi.NativeFunction<
+              jni.JniResult Function(
+                  ffi.Pointer<ffi.Void>,
+                  ffi.Pointer<ffi.Void>,
+                  ffi.Pointer<ffi.Void>,
+                  ffi.Pointer<ffi.Void>,
+                  ffi.Pointer<ffi.Void>,
+                  ffi.Int32,
+                  ffi.Pointer<ffi.Void>)>>("ReplayIntegration__new1")
+      .asFunction<
+          jni.JniResult Function(
+              ffi.Pointer<ffi.Void>,
+              ffi.Pointer<ffi.Void>,
+              ffi.Pointer<ffi.Void>,
+              ffi.Pointer<ffi.Void>,
+              ffi.Pointer<ffi.Void>,
+              int,
+              ffi.Pointer<ffi.Void>)>();
+
+  /// from: public void <init>(android.content.Context context, io.sentry.transport.ICurrentDateProvider iCurrentDateProvider, kotlin.jvm.functions.Function0 function0, kotlin.jvm.functions.Function1 function1, kotlin.jvm.functions.Function1 function11, int i, kotlin.jvm.internal.DefaultConstructorMarker defaultConstructorMarker)
+  /// The returned object must be released after use, by calling the [release] method.
+  factory ReplayIntegration.new1(
+    jni.JObject context,
+    jni.JObject iCurrentDateProvider,
+    jni.JObject function0,
+    jni.JObject function1,
+    jni.JObject function11,
+    int i,
+    jni.JObject defaultConstructorMarker,
+  ) {
+    return ReplayIntegration.fromRef(_new1(
+            context.reference,
+            iCurrentDateProvider.reference,
+            function0.reference,
+            function1.reference,
+            function11.reference,
+            i,
+            defaultConstructorMarker.reference)
+        .object);
+  }
+
+  static final _new2 = jniLookup<
+          ffi.NativeFunction<
+              jni.JniResult Function(ffi.Pointer<ffi.Void>,
+                  ffi.Pointer<ffi.Void>)>>("ReplayIntegration__new2")
       .asFunction<
           jni.JniResult Function(
               ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>)>();
 
-  /// from: public abstract void onScreenshotRecorded(android.graphics.Bitmap bitmap)
+  /// from: public void <init>(android.content.Context context, io.sentry.transport.ICurrentDateProvider iCurrentDateProvider)
+  /// The returned object must be released after use, by calling the [release] method.
+  factory ReplayIntegration.new2(
+    jni.JObject context,
+    jni.JObject iCurrentDateProvider,
+  ) {
+    return ReplayIntegration.fromRef(
+        _new2(context.reference, iCurrentDateProvider.reference).object);
+  }
+
+  static final _getReplayCacheDir = jniLookup<
+              ffi
+              .NativeFunction<jni.JniResult Function(ffi.Pointer<ffi.Void>)>>(
+          "ReplayIntegration__getReplayCacheDir")
+      .asFunction<jni.JniResult Function(ffi.Pointer<ffi.Void>)>();
+
+  /// from: public final java.io.File getReplayCacheDir()
+  /// The returned object must be released after use, by calling the [release] method.
+  File getReplayCacheDir() {
+    return const $FileType().fromRef(_getReplayCacheDir(reference).object);
+  }
+
+  static final _register = jniLookup<
+          ffi.NativeFunction<
+              jni.JniResult Function(
+                  ffi.Pointer<ffi.Void>,
+                  ffi.Pointer<ffi.Void>,
+                  ffi.Pointer<ffi.Void>)>>("ReplayIntegration__register")
+      .asFunction<
+          jni.JniResult Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>,
+              ffi.Pointer<ffi.Void>)>();
+
+  /// from: public void register(io.sentry.IHub iHub, io.sentry.SentryOptions sentryOptions)
+  void register(
+    jni.JObject iHub,
+    jni.JObject sentryOptions,
+  ) {
+    return _register(reference, iHub.reference, sentryOptions.reference)
+        .check();
+  }
+
+  static final _isRecording = jniLookup<
+              ffi
+              .NativeFunction<jni.JniResult Function(ffi.Pointer<ffi.Void>)>>(
+          "ReplayIntegration__isRecording")
+      .asFunction<jni.JniResult Function(ffi.Pointer<ffi.Void>)>();
+
+  /// from: public boolean isRecording()
+  bool isRecording() {
+    return _isRecording(reference).boolean;
+  }
+
+  static final _start = jniLookup<
+              ffi
+              .NativeFunction<jni.JniResult Function(ffi.Pointer<ffi.Void>)>>(
+          "ReplayIntegration__start")
+      .asFunction<jni.JniResult Function(ffi.Pointer<ffi.Void>)>();
+
+  /// from: public void start()
+  void start() {
+    return _start(reference).check();
+  }
+
+  static final _resume = jniLookup<
+              ffi
+              .NativeFunction<jni.JniResult Function(ffi.Pointer<ffi.Void>)>>(
+          "ReplayIntegration__resume")
+      .asFunction<jni.JniResult Function(ffi.Pointer<ffi.Void>)>();
+
+  /// from: public void resume()
+  void resume() {
+    return _resume(reference).check();
+  }
+
+  static final _sendReplayForEvent = jniLookup<
+              ffi.NativeFunction<
+                  jni.JniResult Function(ffi.Pointer<ffi.Void>,
+                      ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>)>>(
+          "ReplayIntegration__sendReplayForEvent")
+      .asFunction<
+          jni.JniResult Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>,
+              ffi.Pointer<ffi.Void>)>();
+
+  /// from: public void sendReplayForEvent(io.sentry.SentryEvent sentryEvent, io.sentry.Hint hint)
+  void sendReplayForEvent(
+    jni.JObject sentryEvent,
+    jni.JObject hint,
+  ) {
+    return _sendReplayForEvent(reference, sentryEvent.reference, hint.reference)
+        .check();
+  }
+
+  static final _getReplayId = jniLookup<
+              ffi
+              .NativeFunction<jni.JniResult Function(ffi.Pointer<ffi.Void>)>>(
+          "ReplayIntegration__getReplayId")
+      .asFunction<jni.JniResult Function(ffi.Pointer<ffi.Void>)>();
+
+  /// from: public io.sentry.protocol.SentryId getReplayId()
+  /// The returned object must be released after use, by calling the [release] method.
+  jni.JObject getReplayId() {
+    return const jni.JObjectType().fromRef(_getReplayId(reference).object);
+  }
+
+  static final _pause = jniLookup<
+              ffi
+              .NativeFunction<jni.JniResult Function(ffi.Pointer<ffi.Void>)>>(
+          "ReplayIntegration__pause")
+      .asFunction<jni.JniResult Function(ffi.Pointer<ffi.Void>)>();
+
+  /// from: public void pause()
+  void pause() {
+    return _pause(reference).check();
+  }
+
+  static final _stop = jniLookup<
+              ffi
+              .NativeFunction<jni.JniResult Function(ffi.Pointer<ffi.Void>)>>(
+          "ReplayIntegration__stop")
+      .asFunction<jni.JniResult Function(ffi.Pointer<ffi.Void>)>();
+
+  /// from: public void stop()
+  void stop() {
+    return _stop(reference).check();
+  }
+
+  static final _onScreenshotRecorded = jniLookup<
+              ffi.NativeFunction<
+                  jni.JniResult Function(
+                      ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>)>>(
+          "ReplayIntegration__onScreenshotRecorded")
+      .asFunction<
+          jni.JniResult Function(
+              ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>)>();
+
+  /// from: public void onScreenshotRecorded(android.graphics.Bitmap bitmap)
   void onScreenshotRecorded(
     jni.JObject bitmap,
   ) {
@@ -611,15 +821,16 @@ class ScreenshotRecorderCallback extends jni.JObject {
   }
 
   static final _onScreenshotRecorded1 = jniLookup<
-              ffi.NativeFunction<
-                  jni.JniResult Function(ffi.Pointer<ffi.Void>,
-                      ffi.Pointer<ffi.Void>, ffi.Int64)>>(
-          "ScreenshotRecorderCallback__onScreenshotRecorded1")
+          ffi.NativeFunction<
+              jni.JniResult Function(
+                  ffi.Pointer<ffi.Void>,
+                  ffi.Pointer<ffi.Void>,
+                  ffi.Int64)>>("ReplayIntegration__onScreenshotRecorded1")
       .asFunction<
           jni.JniResult Function(
               ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>, int)>();
 
-  /// from: public abstract void onScreenshotRecorded(java.io.File file, long j)
+  /// from: public void onScreenshotRecorded(java.io.File file, long j)
   void onScreenshotRecorded1(
     File file,
     int j,
@@ -627,127 +838,54 @@ class ScreenshotRecorderCallback extends jni.JObject {
     return _onScreenshotRecorded1(reference, file.reference, j).check();
   }
 
-  /// Maps a specific port to the implemented interface.
-  static final Map<int, $ScreenshotRecorderCallbackImpl> _$impls = {};
-  ReceivePort? _$p;
+  static final _close = jniLookup<
+              ffi
+              .NativeFunction<jni.JniResult Function(ffi.Pointer<ffi.Void>)>>(
+          "ReplayIntegration__close")
+      .asFunction<jni.JniResult Function(ffi.Pointer<ffi.Void>)>();
 
-  static jni.JObjectPtr _$invoke(
-    int port,
-    jni.JObjectPtr descriptor,
-    jni.JObjectPtr args,
-  ) {
-    return _$invokeMethod(
-      port,
-      $MethodInvocation.fromAddresses(
-        0,
-        descriptor.address,
-        args.address,
-      ),
-    );
+  /// from: public void close()
+  void close() {
+    return _close(reference).check();
   }
 
-  static final ffi.Pointer<
-          ffi.NativeFunction<
-              jni.JObjectPtr Function(
-                  ffi.Uint64, jni.JObjectPtr, jni.JObjectPtr)>>
-      _$invokePointer = ffi.Pointer.fromFunction(_$invoke);
+  static final _onConfigurationChanged = jniLookup<
+              ffi.NativeFunction<
+                  jni.JniResult Function(
+                      ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>)>>(
+          "ReplayIntegration__onConfigurationChanged")
+      .asFunction<
+          jni.JniResult Function(
+              ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>)>();
 
-  static ffi.Pointer<ffi.Void> _$invokeMethod(
-    int $p,
-    $MethodInvocation $i,
+  /// from: public void onConfigurationChanged(android.content.res.Configuration configuration)
+  void onConfigurationChanged(
+    jni.JObject configuration,
   ) {
-    try {
-      final $d = $i.methodDescriptor.toDartString(releaseOriginal: true);
-      final $a = $i.args;
-      if ($d == r"onScreenshotRecorded(Landroid/graphics/Bitmap;)V") {
-        _$impls[$p]!.onScreenshotRecorded(
-          $a[0].castTo(const jni.JObjectType(), releaseOriginal: true),
-        );
-        return jni.nullptr;
-      }
-      if ($d == r"onScreenshotRecorded(Ljava/io/File;J)V") {
-        _$impls[$p]!.onScreenshotRecorded1(
-          $a[0].castTo(const $FileType(), releaseOriginal: true),
-          $a[1]
-              .castTo(const jni.JLongType(), releaseOriginal: true)
-              .longValue(releaseOriginal: true),
-        );
-        return jni.nullptr;
-      }
-    } catch (e) {
-      return ProtectedJniExtensions.newDartException(e.toString());
-    }
-    return jni.nullptr;
+    return _onConfigurationChanged(reference, configuration.reference).check();
   }
 
-  factory ScreenshotRecorderCallback.implement(
-    $ScreenshotRecorderCallbackImpl $impl,
-  ) {
-    final $p = ReceivePort();
-    final $x = ScreenshotRecorderCallback.fromRef(
-      ProtectedJniExtensions.newPortProxy(
-        r"io.sentry.android.replay.ScreenshotRecorderCallback",
-        $p,
-        _$invokePointer,
-      ),
-    ).._$p = $p;
-    final $a = $p.sendPort.nativePort;
-    _$impls[$a] = $impl;
-    $p.listen(($m) {
-      if ($m == null) {
-        _$impls.remove($p.sendPort.nativePort);
-        $p.close();
-        return;
-      }
-      final $i = $MethodInvocation.fromMessage($m);
-      final $r = _$invokeMethod($p.sendPort.nativePort, $i);
-      ProtectedJniExtensions.returnResult($i.result, $r);
-    });
-    return $x;
+  static final _onLowMemory = jniLookup<
+              ffi
+              .NativeFunction<jni.JniResult Function(ffi.Pointer<ffi.Void>)>>(
+          "ReplayIntegration__onLowMemory")
+      .asFunction<jni.JniResult Function(ffi.Pointer<ffi.Void>)>();
+
+  /// from: public void onLowMemory()
+  void onLowMemory() {
+    return _onLowMemory(reference).check();
   }
 }
 
-abstract class $ScreenshotRecorderCallbackImpl {
-  factory $ScreenshotRecorderCallbackImpl({
-    required void Function(jni.JObject bitmap) onScreenshotRecorded,
-    required void Function(File file, int j) onScreenshotRecorded1,
-  }) = _$ScreenshotRecorderCallbackImpl;
-
-  void onScreenshotRecorded(jni.JObject bitmap);
-  void onScreenshotRecorded1(File file, int j);
-}
-
-class _$ScreenshotRecorderCallbackImpl
-    implements $ScreenshotRecorderCallbackImpl {
-  _$ScreenshotRecorderCallbackImpl({
-    required void Function(jni.JObject bitmap) onScreenshotRecorded,
-    required void Function(File file, int j) onScreenshotRecorded1,
-  })  : _onScreenshotRecorded = onScreenshotRecorded,
-        _onScreenshotRecorded1 = onScreenshotRecorded1;
-
-  final void Function(jni.JObject bitmap) _onScreenshotRecorded;
-  final void Function(File file, int j) _onScreenshotRecorded1;
-
-  void onScreenshotRecorded(jni.JObject bitmap) {
-    return _onScreenshotRecorded(bitmap);
-  }
-
-  void onScreenshotRecorded1(File file, int j) {
-    return _onScreenshotRecorded1(file, j);
-  }
-}
-
-class $ScreenshotRecorderCallbackType
-    extends jni.JObjType<ScreenshotRecorderCallback> {
-  const $ScreenshotRecorderCallbackType();
+class $ReplayIntegrationType extends jni.JObjType<ReplayIntegration> {
+  const $ReplayIntegrationType();
 
   @override
-  String get signature =>
-      r"Lio/sentry/android/replay/ScreenshotRecorderCallback;";
+  String get signature => r"Lio/sentry/android/replay/ReplayIntegration;";
 
   @override
-  ScreenshotRecorderCallback fromRef(jni.JObjectPtr ref) =>
-      ScreenshotRecorderCallback.fromRef(ref);
+  ReplayIntegration fromRef(jni.JObjectPtr ref) =>
+      ReplayIntegration.fromRef(ref);
 
   @override
   jni.JObjType get superType => const jni.JObjectType();
@@ -756,12 +894,12 @@ class $ScreenshotRecorderCallbackType
   final superCount = 1;
 
   @override
-  int get hashCode => ($ScreenshotRecorderCallbackType).hashCode;
+  int get hashCode => ($ReplayIntegrationType).hashCode;
 
   @override
   bool operator ==(Object other) {
-    return other.runtimeType == ($ScreenshotRecorderCallbackType) &&
-        other is $ScreenshotRecorderCallbackType;
+    return other.runtimeType == ($ReplayIntegrationType) &&
+        other is $ReplayIntegrationType;
   }
 }
 
@@ -806,47 +944,26 @@ class SentryFlutterReplay extends jni.JObject {
   /// The returned object must be released after use, by calling the [release] method.
   static set recorder(Recorder value) => _set_recorder(value.reference).check();
 
-  static final _get_cacheDir =
+  static final _get_integration =
       jniLookup<ffi.NativeFunction<jni.JniResult Function()>>(
-              "get_SentryFlutterReplay__cacheDir")
+              "get_SentryFlutterReplay__integration")
           .asFunction<jni.JniResult Function()>();
 
-  static final _set_cacheDir = jniLookup<
+  static final _set_integration = jniLookup<
               ffi
               .NativeFunction<jni.JniResult Function(ffi.Pointer<ffi.Void>)>>(
-          "set_SentryFlutterReplay__cacheDir")
+          "set_SentryFlutterReplay__integration")
       .asFunction<jni.JniResult Function(ffi.Pointer<ffi.Void>)>();
 
-  /// from: static public java.lang.String cacheDir
+  /// from: static public io.sentry.android.replay.ReplayIntegration integration
   /// The returned object must be released after use, by calling the [release] method.
-  static jni.JString get cacheDir =>
-      const jni.JStringType().fromRef(_get_cacheDir().object);
+  static ReplayIntegration get integration =>
+      const $ReplayIntegrationType().fromRef(_get_integration().object);
 
-  /// from: static public java.lang.String cacheDir
+  /// from: static public io.sentry.android.replay.ReplayIntegration integration
   /// The returned object must be released after use, by calling the [release] method.
-  static set cacheDir(jni.JString value) =>
-      _set_cacheDir(value.reference).check();
-
-  static final _get_callback =
-      jniLookup<ffi.NativeFunction<jni.JniResult Function()>>(
-              "get_SentryFlutterReplay__callback")
-          .asFunction<jni.JniResult Function()>();
-
-  static final _set_callback = jniLookup<
-              ffi
-              .NativeFunction<jni.JniResult Function(ffi.Pointer<ffi.Void>)>>(
-          "set_SentryFlutterReplay__callback")
-      .asFunction<jni.JniResult Function(ffi.Pointer<ffi.Void>)>();
-
-  /// from: static public io.sentry.android.replay.ScreenshotRecorderCallback callback
-  /// The returned object must be released after use, by calling the [release] method.
-  static ScreenshotRecorderCallback get callback =>
-      const $ScreenshotRecorderCallbackType().fromRef(_get_callback().object);
-
-  /// from: static public io.sentry.android.replay.ScreenshotRecorderCallback callback
-  /// The returned object must be released after use, by calling the [release] method.
-  static set callback(ScreenshotRecorderCallback value) =>
-      _set_callback(value.reference).check();
+  static set integration(ReplayIntegration value) =>
+      _set_integration(value.reference).check();
 
   static final _getRecorder = jniLookup<
               ffi
@@ -887,48 +1004,17 @@ class SentryFlutterReplay extends jni.JObject {
     return const jni.JStringType().fromRef(_getCacheDir(reference).object);
   }
 
-  static final _setCacheDir = jniLookup<
-          ffi.NativeFunction<
-              jni.JniResult Function(ffi.Pointer<ffi.Void>,
-                  ffi.Pointer<ffi.Void>)>>("SentryFlutterReplay__setCacheDir")
-      .asFunction<
-          jni.JniResult Function(
-              ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>)>();
-
-  /// from: public final void setCacheDir(java.lang.String string)
-  void setCacheDir(
-    jni.JString string,
-  ) {
-    return _setCacheDir(reference, string.reference).check();
-  }
-
-  static final _getCallback = jniLookup<
+  static final _getCallbackObject = jniLookup<
               ffi
               .NativeFunction<jni.JniResult Function(ffi.Pointer<ffi.Void>)>>(
-          "SentryFlutterReplay__getCallback")
+          "SentryFlutterReplay__getCallbackObject")
       .asFunction<jni.JniResult Function(ffi.Pointer<ffi.Void>)>();
 
-  /// from: public final io.sentry.android.replay.ScreenshotRecorderCallback getCallback()
+  /// from: public final io.sentry.android.replay.ScreenshotRecorderCallback getCallbackObject()
   /// The returned object must be released after use, by calling the [release] method.
-  ScreenshotRecorderCallback getCallback() {
-    return const $ScreenshotRecorderCallbackType()
-        .fromRef(_getCallback(reference).object);
-  }
-
-  static final _setCallback = jniLookup<
-          ffi.NativeFunction<
-              jni.JniResult Function(ffi.Pointer<ffi.Void>,
-                  ffi.Pointer<ffi.Void>)>>("SentryFlutterReplay__setCallback")
-      .asFunction<
-          jni.JniResult Function(
-              ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>)>();
-
-  /// from: public final void setCallback(io.sentry.android.replay.ScreenshotRecorderCallback screenshotRecorderCallback)
-  void setCallback(
-    ScreenshotRecorderCallback screenshotRecorderCallback,
-  ) {
-    return _setCallback(reference, screenshotRecorderCallback.reference)
-        .check();
+  jni.JObject getCallbackObject() {
+    return const jni.JObjectType()
+        .fromRef(_getCallbackObject(reference).object);
   }
 }
 

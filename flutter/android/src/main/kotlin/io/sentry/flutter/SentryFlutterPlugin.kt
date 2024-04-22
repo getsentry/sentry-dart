@@ -138,25 +138,18 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       options.integrations.removeAll { it is ReplayIntegration }
       val recorder = SentryFlutterReplay.recorder
       if (recorder != null && options.cacheDirPath != null) {
-        var replay = ReplayIntegration(
+        val replay = ReplayIntegration(
             context,
             dateProvider = CurrentDateProvider.getInstance(),
             recorderProvider = { recorder },
             recorderConfigProvider = null, // TODO implement in dart
             replayCacheProvider = null
-            // TODO we only do this to have a cache dir path where to save stuff.
-            // replayCacheProvider = { replayId ->
-            //     SentryFlutterReplay.replayCacheDir = File(options.cacheDirPath!!, "replay_$replayId")
-            //     ReplayCache(options, replayId, recorderConfig)
-            // },
         )
-
-        // FIXME temporary
-        SentryFlutterReplay.cacheDir = File(options.cacheDirPath!!, "replay_0").path
 
         options.addIntegration(replay)
         options.setReplayController(replay)
-        SentryFlutterReplay.callback = replay
+
+        SentryFlutterReplay.integration = replay
       } else {
         options.setReplayController(null)
       }

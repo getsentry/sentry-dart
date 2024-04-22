@@ -12,7 +12,7 @@ import 'binding.dart' as java;
 @internal
 class AndroidReplayRecorder implements java.$RecorderImpl {
   late ScreenshotRecorder _recorder;
-  late java.ScreenshotRecorderCallback? _callback;
+  late java.ReplayIntegration? _integration;
 
   AndroidReplayRecorder._();
 
@@ -27,9 +27,13 @@ class AndroidReplayRecorder implements java.$RecorderImpl {
 
   @override
   void start(java.ScreenshotRecorderConfig config) {
+    _integration = java.SentryFlutterReplay.integration;
+
+    var jniCacheDir = _integration!.getReplayCacheDir();
     var cacheDir =
-        java.SentryFlutterReplay.cacheDir.toDartString(releaseOriginal: true);
-    _callback = java.SentryFlutterReplay.callback;
+        jniCacheDir.getAbsolutePath().toDartString(releaseOriginal: true);
+    jniCacheDir.release();
+
     _recorder = ScreenshotRecorder(
         ScreenshotRecorderConfig(
           config.getRecordingWidth(),
@@ -46,7 +50,7 @@ class AndroidReplayRecorder implements java.$RecorderImpl {
         var jFilePath = filePath.toJString();
         var jFile = java.File(jFilePath);
         try {
-          _callback?.onScreenshotRecorded1(jFile, timestamp);
+          _integration?.onScreenshotRecorded1(jFile, timestamp);
         } finally {
           jFile.release();
           jFilePath.release();
@@ -59,8 +63,8 @@ class AndroidReplayRecorder implements java.$RecorderImpl {
   @override
   void stop() {
     _recorder.stop();
-    var callback = _callback;
-    _callback = null;
-    callback?.release();
+    var integration = _integration;
+    _integration = null;
+    integration?.release();
   }
 }
