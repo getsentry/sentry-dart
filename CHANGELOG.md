@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 8.0.0
 
 This release contains breaking changes, please read the changelog carefully.
 
