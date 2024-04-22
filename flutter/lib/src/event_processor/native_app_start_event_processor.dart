@@ -13,7 +13,7 @@ class NativeAppStartEventProcessor implements EventProcessor {
   NativeAppStartEventProcessor(this._native);
 
   @override
-  Future<SentryEvent?> apply(SentryEvent event, {Hint? hint}) async {
+  Future<SentryEvent?> apply(SentryEvent event, Hint hint) async {
     if (_native.didAddAppStartMeasurement || event is! SentryTransaction) {
       return event;
     }

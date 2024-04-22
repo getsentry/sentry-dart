@@ -16,7 +16,7 @@ class AndroidPlatformExceptionEventProcessor implements EventProcessor {
   final SentryFlutterOptions _options;
 
   @override
-  Future<SentryEvent?> apply(SentryEvent event, {Hint? hint}) async {
+  Future<SentryEvent?> apply(SentryEvent event, Hint hint) async {
     if (event is SentryTransaction) {
       return event;
     }

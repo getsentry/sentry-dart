@@ -12,8 +12,8 @@ import 'sentry_options.dart';
 /// Example:
 ///
 /// ```dart
-/// options.beforeSend = (event, {hint}) {
-///     final syntheticException = hint?.get(TypeCheckHint.syntheticException);
+/// options.beforeSend = (event, hint) {
+///     final syntheticException = hint.get(TypeCheckHint.syntheticException);
 ///     if (syntheticException is FlutterErrorDetails) {
 ///       // Do something with hint data
 ///     }
@@ -29,14 +29,14 @@ import 'sentry_options.dart';
 /// ```dart
 /// import 'dart:convert';
 ///
-/// options.beforeSend = (event, {hint}) {
+/// options.beforeSend = (event, hint) {
 ///   final text = 'This event should not be sent happen in prod. Investigate.';
 ///   final textAttachment = SentryAttachment.fromIntList(
 ///     utf8.encode(text),
 ///     'event_info.txt',
 ///     contentType: 'text/plain',
 ///   );
-///   hint?.attachments.add(textAttachment);
+///   hint.attachments.add(textAttachment);
 ///   return event;
 /// };
 /// ```

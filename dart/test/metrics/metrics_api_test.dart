@@ -132,6 +132,8 @@ void main() {
       Iterable<Metric> sentMetrics =
           fixture.hub.metricsAggregator!.buckets.values.first.values;
 
+      // The emitted metric value should be aggregated in the span
+      expect(span.localMetricsAggregator?.getSummaries(), isNotEmpty);
       // The emitted metric value should match the span duration
       expect(sentMetrics.first.unit, DurationSentryMeasurementUnit.milliSecond);
       // Duration.inMilliseconds returns an int, so we have to assert it

@@ -6,7 +6,7 @@ import '../../sentry_flutter.dart';
 
 class WidgetEventProcessor implements EventProcessor {
   @override
-  FutureOr<SentryEvent?> apply(SentryEvent event, {Hint? hint}) {
+  FutureOr<SentryEvent?> apply(SentryEvent event, Hint hint) {
     if (event is SentryTransaction) {
       return event;
     }
