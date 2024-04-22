@@ -138,7 +138,7 @@ class FailedRequestClient extends BaseClient {
 
     // Only check `failedRequestStatusCodes` & `failedRequestTargets` if no exception was thrown.
     if (exception == null) {
-      if (!failedRequestStatusCodes.containsStatusCode(statusCode)) {
+      if (!failedRequestStatusCodes._containsStatusCode(statusCode)) {
         return;
       }
       if (!containsTargetOrMatchesRegExp(
@@ -249,7 +249,7 @@ class FailedRequestClient extends BaseClient {
 }
 
 extension _ListX on List<SentryStatusCode> {
-  bool containsStatusCode(int? statusCode) {
+  bool _containsStatusCode(int? statusCode) {
     if (statusCode == null) {
       return false;
     }

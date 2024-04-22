@@ -129,7 +129,7 @@ Future<void> parseData() async {
 
 class TagEventProcessor implements EventProcessor {
   @override
-  SentryEvent? apply(SentryEvent event, {hint}) {
+  SentryEvent? apply(SentryEvent event, Hint hint) {
     return event..tags?.addAll({'page-locale': 'en-us'});
   }
 }

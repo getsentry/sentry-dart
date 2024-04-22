@@ -150,7 +150,7 @@ class Scope {
 
   Scope(this._options);
 
-  Breadcrumb? _addBreadCrumbSync(Breadcrumb breadcrumb, {Hint? hint}) {
+  Breadcrumb? _addBreadCrumbSync(Breadcrumb breadcrumb, Hint hint) {
     // bail out if maxBreadcrumbs is zero
     if (_options.maxBreadcrumbs == 0) {
       return null;
@@ -162,7 +162,7 @@ class Scope {
       try {
         processedBreadcrumb = _options.beforeBreadcrumb!(
           processedBreadcrumb,
-          hint: hint,
+          hint,
         );
         if (processedBreadcrumb == null) {
           _options.logger(
@@ -196,7 +196,7 @@ class Scope {
 
   /// Adds a breadcrumb to the breadcrumbs queue
   Future<void> addBreadcrumb(Breadcrumb breadcrumb, {Hint? hint}) async {
-    final addedBreadcrumb = _addBreadCrumbSync(breadcrumb, hint: hint);
+    final addedBreadcrumb = _addBreadCrumbSync(breadcrumb, hint ?? Hint());
     if (addedBreadcrumb != null) {
       await _callScopeObservers((scopeObserver) async =>
           await scopeObserver.addBreadcrumb(addedBreadcrumb));
@@ -282,9 +282,9 @@ class Scope {
   }
 
   Future<SentryEvent?> applyToEvent(
-    SentryEvent event, {
-    Hint? hint,
-  }) async {
+    SentryEvent event,
+    Hint hint,
+  ) async {
     event = event.copyWith(
       transaction: event.transaction ?? transaction,
       user: _mergeUsers(user, event.user),
@@ -332,7 +332,7 @@ class Scope {
     SentryEvent? processedEvent = event;
     for (final processor in _eventProcessors) {
       try {
-        final e = processor.apply(processedEvent!, hint: hint);
+        final e = processor.apply(processedEvent!, hint);
         if (e is Future<SentryEvent?>) {
           processedEvent = await e;
         } else {
@@ -442,7 +442,7 @@ class Scope {
     }
 
     for (final breadcrumb in List.from(_breadcrumbs)) {
-      clone._addBreadCrumbSync(breadcrumb);
+      clone._addBreadCrumbSync(breadcrumb, Hint());
     }
 
     for (final eventProcessor in List.from(_eventProcessors)) {

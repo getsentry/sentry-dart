@@ -20,7 +20,7 @@ class ScreenshotEventProcessor implements EventProcessor {
       sentryScreenshotWidgetGlobalKey.currentContext != null;
 
   @override
-  Future<SentryEvent?> apply(SentryEvent event, {Hint? hint}) async {
+  Future<SentryEvent?> apply(SentryEvent event, Hint hint) async {
     if (event is SentryTransaction) {
       return event;
     }
@@ -78,7 +78,7 @@ class ScreenshotEventProcessor implements EventProcessor {
 
     final bytes = await _createScreenshot();
     if (bytes != null) {
-      hint?.screenshot = SentryAttachment.fromScreenshotData(bytes);
+      hint.screenshot = SentryAttachment.fromScreenshotData(bytes);
     }
     return event;
   }
