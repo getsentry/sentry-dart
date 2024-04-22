@@ -48,3 +48,10 @@ For detailed usage, check out the inner [dart](https://github.com/getsentry/sent
 * [![Discord Chat](https://img.shields.io/discord/621778831602221064?logo=discord&logoColor=ffffff&color=7389D8)](https://discord.gg/PXa5Apfe7K)  
 * [![Stack Overflow](https://img.shields.io/badge/stack%20overflow-sentry-green.svg)](https://stackoverflow.com/questions/tagged/sentry)
 * [![Twitter Follow](https://img.shields.io/twitter/follow/getsentry?label=getsentry&style=social)](https://twitter.com/intent/follow?screen_name=getsentry)
+
+#### Apple Privacy Manifest
+
+Starting with [May 1st 2024](https://developer.apple.com/news/?id=3d8a9yyh), iOS apps are required to declare approved reasons to access certain APIs. This also includes third-party SDKs.
+If you are using `sentry-flutter`, update to at least version `7.17.0` to get the updated `sentry-cocoa` native iOS/macOS SDK, supporting the privacy manifest.
+All other used dependencies with file declarations are supported by Sentry packages.
+Please run `flutter pub upgrade` to get the latest dependency versions.
