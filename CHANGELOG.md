@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Feature
+
+- Set snapshot to `true` when Sentry attaches a stacktrace ([#2000](https://github.com/getsentry/sentry-dart/pull/2000)) 
+  - This may change grouping
+
 ### Fixes
 
 - Timing metric aggregates metrics in the created span ([#1994](https://github.com/getsentry/sentry-dart/pull/1994))
