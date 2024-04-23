@@ -34,6 +34,7 @@ typedef FlutterOptionsConfiguration = FutureOr<void> Function(
 mixin SentryFlutter {
   static const _channel = MethodChannel('sentry_flutter');
 
+  @internal
   static DateTime? dartLoadingEnd;
 
   static Future<void> init(

@@ -54,7 +54,8 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
       final appStartInfo = AppStartInfo(AppStartType.cold,
           start: DateTime.now(),
           end: DateTime.now().add(const Duration(milliseconds: 100)),
-          engineEnd: DateTime.now().add(const Duration(milliseconds: 50)));
+          engineEnd: DateTime.now().add(const Duration(milliseconds: 50)),
+          dartLoadingEnd: DateTime.now().add(const Duration(milliseconds: 60)));
       setAppStartInfo(appStartInfo);
       return;
     }
@@ -102,62 +103,9 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
             start: DateTime.fromMillisecondsSinceEpoch(
                 nativeAppStart.appStartTime.toInt()),
             end: appStartEnd,
-            engineEnd: engineEndDatetime);
+            engineEnd: engineEndDatetime,
+            dartLoadingEnd: SentryFlutter.dartLoadingEnd!);
         setAppStartInfo(appStartInfo);
-
-        final routeName = SentryNavigatorObserver.currentRouteName;
-
-        // null means there is no navigator observer
-        if (routeName == null) {
-          final transaction = hub.startTransaction(
-            'App Start',
-            'ui.load',
-            startTimestamp: appStartInfo.start,
-            description: 'root /',
-          );
-
-          final op = 'app.start.${appStartInfo.type.name}';
-
-          final coldStartSpan = transaction.startChild(
-            op,
-            description: 'Cold start',
-            startTimestamp: appStartInfo.start,
-          );
-
-          final ttidSpan = transaction.startChild(
-            SentrySpanOperations.uiTimeToInitialDisplay,
-            description: 'Time to initial display',
-            startTimestamp: appStartInfo.start,
-          );
-
-          final engineInitSpan = coldStartSpan.startChild(
-            op,
-            description: 'Engine init and ready',
-            startTimestamp: appStartInfo.start,
-          );
-
-          final dartLoadingSpan = coldStartSpan.startChild(
-            op,
-            description: 'Dart isolate loading',
-            startTimestamp: appStartInfo.engineEnd,
-          );
-
-          final firstFrameRenderSpan = coldStartSpan.startChild(
-            op,
-            description: 'First frame render',
-            startTimestamp: SentryFlutter.dartLoadingEnd,
-          );
-
-          await engineInitSpan.finish(endTimestamp: appStartInfo.engineEnd);
-          await dartLoadingSpan.finish(endTimestamp: SentryFlutter.dartLoadingEnd);
-          await firstFrameRenderSpan.finish(endTimestamp: appStartInfo.end);
-          await coldStartSpan.finish(endTimestamp: appStartInfo.end);
-          await ttidSpan.finish(endTimestamp: appStartInfo.end);
-          await transaction.finish(endTimestamp: appStartInfo.end);
-        }
-
-        print('route name: ${SentryNavigatorObserver.currentRouteName}');
-
       });
     }
 
@@ -171,12 +119,16 @@ enum AppStartType { cold, warm }
 
 class AppStartInfo {
   AppStartInfo(this.type,
-      {required this.start, required this.end, required this.engineEnd});
+      {required this.start,
+      required this.end,
+      required this.engineEnd,
+      required this.dartLoadingEnd});
 
   final AppStartType type;
   final DateTime start;
   final DateTime end;
   final DateTime engineEnd;
+  final DateTime dartLoadingEnd;
 
   Duration get duration => end.difference(start);
 

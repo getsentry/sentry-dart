@@ -1,17 +1,22 @@
 import 'dart:async';
 
-import 'package:sentry/sentry.dart';
-
 import '../../sentry_flutter.dart';
 import '../integrations/integrations.dart';
 import '../native/sentry_native.dart';
+
+// ignore: implementation_imports
+import 'package:sentry/src/sentry_tracer.dart';
 
 /// EventProcessor that enriches [SentryTransaction] objects with app start
 /// measurement.
 class NativeAppStartEventProcessor implements EventProcessor {
   final SentryNative _native;
+  final Hub _hub;
 
-  NativeAppStartEventProcessor(this._native);
+  NativeAppStartEventProcessor(
+    this._native, {
+    Hub? hub,
+  }) : _hub = hub ?? HubAdapter();
 
   @override
   Future<SentryEvent?> apply(SentryEvent event, Hint hint) async {
@@ -27,66 +32,89 @@ class NativeAppStartEventProcessor implements EventProcessor {
       _native.didAddAppStartMeasurement = true;
     }
 
-    final op = 'app.start.${appStartInfo?.type.name}';
-
-    print('NativeAppStartEventProcessor.apply: ${event.tracer}');
-
-    final tracer = event.tracer;
-
-    // final spanParent = SentrySpan(
-    //     tracer,
-    //     SentrySpanContext(
-    //       operation: op,
-    //       description: 'Cold start',
-    //       parentSpanId: tracer.context.spanId,
-    //       traceId: tracer.context.traceId,
-    //     ),
-    //     Sentry.currentHub,
-    //     startTimestamp: appStartInfo?.start);
-    //
-    // final span = SentrySpan(
-    //     tracer,
-    //     SentrySpanContext(
-    //       operation: op,
-    //       description: 'Engine init',
-    //       parentSpanId: spanParent.context.spanId,
-    //       traceId: tracer.context.traceId,
-    //     ),
-    //     Sentry.currentHub,
-    //     startTimestamp: appStartInfo?.start);
-    // await span.finish(endTimestamp: appStartInfo?.engineEnd);
-    //
-    // final span2 = SentrySpan(
-    //     tracer,
-    //     SentrySpanContext(
-    //       operation: op,
-    //       description: 'Dart loading',
-    //       parentSpanId: spanParent.context.spanId,
-    //       traceId: tracer.context.traceId,
-    //     ),
-    //     Sentry.currentHub,
-    //     startTimestamp: appStartInfo?.engineEnd);
-    // await span2.finish(endTimestamp: SentryFlutter.dartLoadingEnd);
-    //
-    // final span3 = SentrySpan(
-    //     tracer,
-    //     SentrySpanContext(
-    //       operation: op,
-    //       description: 'First frame loading',
-    //       parentSpanId: spanParent.context.spanId,
-    //       traceId: tracer.context.traceId,
-    //     ),
-    //     Sentry.currentHub,
-    //     startTimestamp: SentryFlutter.dartLoadingEnd);
-    // await span3.finish(endTimestamp: appStartInfo?.end);
-    //
-    // await spanParent.finish(endTimestamp: appStartInfo?.end);
-    //
-    // tracer.children.add(spanParent);
-    // tracer.children.add(span);
-    // tracer.children.add(span2);
-    // tracer.children.add(span3);
+    final transaction = event.tracer;
+    if (appStartInfo != null) {
+      await _attachAppStartSpans(appStartInfo, transaction);
+    }
 
     return event;
+  }
+
+  Future<void> _attachAppStartSpans(
+      AppStartInfo appStartInfo, SentryTracer transaction) async {
+    final op = 'app.start.${appStartInfo.type.name}';
+    final transactionTraceId = transaction.context.traceId;
+
+    final appStartSpan = await _createAndFinishSpan(
+        tracer: transaction,
+        operation: op,
+        description: '${appStartInfo.type.name.capitalize()} start',
+        parentSpanId: transaction.context.spanId,
+        traceId: transactionTraceId,
+        startTimestamp: appStartInfo.start,
+        endTimestamp: appStartInfo.end);
+
+    final engineReadySpan = await _createAndFinishSpan(
+        tracer: transaction,
+        operation: op,
+        description: 'Engine init and ready',
+        parentSpanId: appStartSpan.context.spanId,
+        traceId: transactionTraceId,
+        startTimestamp: appStartInfo.start,
+        endTimestamp: appStartInfo.engineEnd);
+
+    final dartIsolateLoadingSpan = await _createAndFinishSpan(
+        tracer: transaction,
+        operation: op,
+        description: 'Dart isolate loading',
+        parentSpanId: appStartSpan.context.spanId,
+        traceId: transactionTraceId,
+        startTimestamp: appStartInfo.engineEnd,
+        endTimestamp: appStartInfo.dartLoadingEnd);
+
+    final firstFrameRenderSpan = await _createAndFinishSpan(
+        tracer: transaction,
+        operation: op,
+        description: 'First frame render',
+        parentSpanId: appStartSpan.context.spanId,
+        traceId: transactionTraceId,
+        startTimestamp: SentryFlutter.dartLoadingEnd!,
+        endTimestamp: appStartInfo.end);
+
+    transaction.children.addAll([
+      appStartSpan,
+      engineReadySpan,
+      dartIsolateLoadingSpan,
+      firstFrameRenderSpan
+    ]);
+  }
+
+  Future<SentrySpan> _createAndFinishSpan({
+    required SentryTracer tracer,
+    required String operation,
+    required String description,
+    required SpanId? parentSpanId,
+    required SentryId? traceId,
+    required DateTime startTimestamp,
+    required DateTime endTimestamp,
+  }) async {
+    final span = SentrySpan(
+        tracer,
+        SentrySpanContext(
+          operation: operation,
+          description: description,
+          parentSpanId: parentSpanId,
+          traceId: traceId,
+        ),
+        _hub,
+        startTimestamp: startTimestamp);
+    await span.finish(endTimestamp: endTimestamp);
+    return span;
+  }
+}
+
+extension _StringExtension on String {
+  String capitalize() {
+    return "${this[0].toUpperCase()}${substring(1).toLowerCase()}";
   }
 }
