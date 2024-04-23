@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+### Fixes
+
+- Timing metric aggregates metrics in the created span ([#1994](https://github.com/getsentry/sentry-dart/pull/1994))
+
+### Dependencies
+
+- Bump Cocoa SDK from v8.21.0 to v8.24.0 ([#1986](https://github.com/getsentry/sentry-dart/pull/1986))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8240)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.21.0...8.24.0)
+
+## 8.0.0
+
 This release contains breaking changes, please read the changelog carefully.
 
 *Changes from the latest v7 release are included in this major release*
