@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:meta/meta.dart';
 
 import '../sentry.dart';
+import 'metrics/local_metrics_aggregator.dart';
 import 'profiling.dart';
 import 'sentry_tracer_finish_status.dart';
 import 'utils/sample_rate_format.dart';
@@ -98,15 +99,6 @@ class SentryTracer extends ISentrySpan {
       // remove span where its endTimestamp is before startTimestamp
       _children.removeWhere(
           (span) => !_hasSpanSuitableTimestamps(span, commonEndTimestamp));
-
-      // finish unfinished spans otherwise transaction gets dropped
-      final spansToBeFinished = _children.where((span) => !span.finished);
-      for (final span in spansToBeFinished) {
-        await span.finish(
-          status: SpanStatus.deadlineExceeded(),
-          endTimestamp: commonEndTimestamp,
-        );
-      }
 
       var _rootEndTimestamp = commonEndTimestamp;
 
@@ -413,4 +405,8 @@ class SentryTracer extends ISentrySpan {
       });
     }
   }
+
+  @override
+  LocalMetricsAggregator? get localMetricsAggregator =>
+      _rootSpan.localMetricsAggregator;
 }

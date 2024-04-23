@@ -133,4 +133,55 @@ void main() {
 
     expect(options.spotlight.enabled, false);
   });
+
+  test('metrics are disabled by default', () {
+    final options = SentryOptions(dsn: fakeDsn);
+
+    expect(options.enableMetrics, false);
+  });
+
+  test('default tags for metrics are enabled by default', () {
+    final options = SentryOptions(dsn: fakeDsn);
+    options.enableMetrics = true;
+
+    expect(options.enableDefaultTagsForMetrics, true);
+  });
+
+  test('default tags for metrics are disabled if metrics are disabled', () {
+    final options = SentryOptions(dsn: fakeDsn);
+    options.enableMetrics = false;
+
+    expect(options.enableDefaultTagsForMetrics, false);
+  });
+
+  test('default tags for metrics are enabled if metrics are enabled, too', () {
+    final options = SentryOptions(dsn: fakeDsn);
+    options.enableMetrics = true;
+    options.enableDefaultTagsForMetrics = true;
+
+    expect(options.enableDefaultTagsForMetrics, true);
+  });
+
+  test('span local metric aggregation is enabled by default', () {
+    final options = SentryOptions(dsn: fakeDsn);
+    options.enableMetrics = true;
+
+    expect(options.enableSpanLocalMetricAggregation, true);
+  });
+
+  test('span local metric aggregation is disabled if metrics are disabled', () {
+    final options = SentryOptions(dsn: fakeDsn);
+    options.enableMetrics = false;
+
+    expect(options.enableSpanLocalMetricAggregation, false);
+  });
+
+  test('span local metric aggregation is enabled if metrics are enabled, too',
+      () {
+    final options = SentryOptions(dsn: fakeDsn);
+    options.enableMetrics = true;
+    options.enableSpanLocalMetricAggregation = true;
+
+    expect(options.enableSpanLocalMetricAggregation, true);
+  });
 }

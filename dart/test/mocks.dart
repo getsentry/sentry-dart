@@ -1,5 +1,6 @@
 import 'package:mockito/annotations.dart';
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/metrics/metric.dart';
 import 'package:sentry/src/profiling.dart';
 import 'package:sentry/src/transport/rate_limiter.dart';
 
@@ -97,10 +98,41 @@ final fakeEvent = SentryEvent(
   ),
 );
 
+final fakeMetric = Metric.fromType(
+    type: MetricType.counter,
+    value: 4,
+    key: 'key',
+    unit: DurationSentryMeasurementUnit.hour,
+    tags: {'tag1': 'value1', 'tag2': 'value2'});
+final fakeMetric2 = Metric.fromType(
+    type: MetricType.counter,
+    value: 2,
+    key: 'key',
+    unit: SentryMeasurementUnit.none,
+    tags: {'tag1': 'value1', 'tag2': 'value2'});
+final fakeMetric3 = Metric.fromType(
+    type: MetricType.counter,
+    value: 2,
+    key: 'key',
+    unit: SentryMeasurementUnit.none,
+    tags: {'tag1': 'value1'});
+final fakeMetric4 = Metric.fromType(
+    type: MetricType.counter,
+    value: 2,
+    key: 'key2',
+    unit: SentryMeasurementUnit.none,
+    tags: {'tag1': 'value1'});
+
+final Map<int, Iterable<Metric>> fakeMetrics = {
+  10: [fakeMetric],
+  20: [fakeMetric, fakeMetric2],
+  30: [fakeMetric, fakeMetric3, fakeMetric4],
+};
+
 /// Always returns null and thus drops all events
 class DropAllEventProcessor implements EventProcessor {
   @override
-  SentryEvent? apply(SentryEvent event, {hint}) {
+  SentryEvent? apply(SentryEvent event, Hint hint) {
     return null;
   }
 }
@@ -111,13 +143,13 @@ class FunctionEventProcessor implements EventProcessor {
   final EventProcessorFunction applyFunction;
 
   @override
-  SentryEvent? apply(SentryEvent event, {hint}) {
-    return applyFunction(event, hint: hint);
+  SentryEvent? apply(SentryEvent event, Hint hint) {
+    return applyFunction(event, hint);
   }
 }
 
-typedef EventProcessorFunction = SentryEvent? Function(SentryEvent event,
-    {Hint? hint});
+typedef EventProcessorFunction = SentryEvent? Function(
+    SentryEvent event, Hint hint);
 
 var fakeEnvelope = SentryEnvelope.fromEvent(
   fakeEvent,

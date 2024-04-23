@@ -8,7 +8,6 @@ import org.junit.Before
 import org.junit.Test
 
 class SentryFlutterTest {
-
   private lateinit var fixture: Fixture
 
   @Before
@@ -53,7 +52,7 @@ class SentryFlutterTest {
     assertEquals(BuildConfig.VERSION_NAME, fixture.options.sdkVersion?.version)
     assertEquals(
       "sentry.java.android.flutter/${BuildConfig.VERSION_NAME}",
-      fixture.options.sentryClientName
+      fixture.options.sentryClientName,
     )
     assertEquals("fixture-nativeSdk", fixture.options.nativeSdkName)
 
@@ -73,8 +72,8 @@ class SentryFlutterTest {
     sut.updateOptions(
       fixture.options,
       mapOf(
-        "diagnosticLevel" to "warning"
-      )
+        "diagnosticLevel" to "warning",
+      ),
     )
 
     // Then
@@ -90,8 +89,8 @@ class SentryFlutterTest {
     sut.updateOptions(
       fixture.options,
       mapOf(
-        "enableNativeCrashHandling" to false
-      )
+        "enableNativeCrashHandling" to false,
+      ),
     )
 
     // Then
@@ -101,39 +100,39 @@ class SentryFlutterTest {
 }
 
 class Fixture {
-
   var options = SentryAndroidOptions()
 
-  val data = mapOf(
-    "dsn" to "fixture-dsn",
-    "debug" to true,
-    "environment" to "fixture-environment",
-    "release" to "fixture-release",
-    "dist" to "fixture-dist",
-    "enableAutoSessionTracking" to false,
-    "autoSessionTrackingIntervalMillis" to 9001L,
-    "anrTimeoutIntervalMillis" to 9002L,
-    "attachThreads" to true,
-    "attachStacktrace" to false,
-    "enableAutoNativeBreadcrumbs" to false,
-    "maxBreadcrumbs" to 9003,
-    "maxCacheItems" to 9004,
-    "anrEnabled" to false,
-    "sendDefaultPii" to true,
-    "enableNdkScopeSync" to false,
-    "proguardUuid" to "fixture-proguardUuid",
-    "enableNativeCrashHandling" to false,
-    "sendClientReports" to false,
-    "maxAttachmentSize" to 9005L,
-    "enableAutoPerformanceTracing" to true,
-    "connectionTimeoutMillis" to 9006,
-    "readTimeoutMillis" to 9007
-  )
+  val data =
+    mapOf(
+      "dsn" to "fixture-dsn",
+      "debug" to true,
+      "environment" to "fixture-environment",
+      "release" to "fixture-release",
+      "dist" to "fixture-dist",
+      "enableAutoSessionTracking" to false,
+      "autoSessionTrackingIntervalMillis" to 9001L,
+      "anrTimeoutIntervalMillis" to 9002L,
+      "attachThreads" to true,
+      "attachStacktrace" to false,
+      "enableAutoNativeBreadcrumbs" to false,
+      "maxBreadcrumbs" to 9003,
+      "maxCacheItems" to 9004,
+      "anrEnabled" to false,
+      "sendDefaultPii" to true,
+      "enableNdkScopeSync" to false,
+      "proguardUuid" to "fixture-proguardUuid",
+      "enableNativeCrashHandling" to false,
+      "sendClientReports" to false,
+      "maxAttachmentSize" to 9005L,
+      "enableAutoPerformanceTracing" to true,
+      "connectionTimeoutMillis" to 9006,
+      "readTimeoutMillis" to 9007,
+    )
 
   fun getSut(): SentryFlutter {
     return SentryFlutter(
       androidSdk = "sentry.java.android.flutter",
-      nativeSdk = "fixture-nativeSdk"
+      nativeSdk = "fixture-nativeSdk",
     )
   }
 }

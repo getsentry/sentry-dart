@@ -165,6 +165,10 @@ class SentryOptions {
   /// to the scope. When nothing is returned from the function, the breadcrumb is dropped
   BeforeBreadcrumbCallback? beforeBreadcrumb;
 
+  /// This function is called right before a metric is about to be emitted.
+  /// Can return true to emit the metric, or false to drop it.
+  BeforeMetricCallback? beforeMetricCallback;
+
   /// Sets the release. SDK will try to automatically configure a release out of the box
   /// See [docs for further information](https://docs.sentry.io/platforms/flutter/configuration/releases/)
   String? release;
@@ -380,6 +384,48 @@ class SentryOptions {
   /// are set.
   bool? enableTracing;
 
+  /// Enables sending developer metrics to Sentry.
+  /// More on https://develop.sentry.dev/delightful-developer-metrics/.
+  /// Example:
+  /// ```dart
+  /// Sentry.metrics.counter('myMetric');
+  /// ```
+  @experimental
+  bool enableMetrics = false;
+
+  @experimental
+  bool _enableDefaultTagsForMetrics = true;
+
+  /// Enables enriching metrics with default tags. Requires [enableMetrics].
+  /// More on https://develop.sentry.dev/delightful-developer-metrics/sending-metrics-sdk/#automatic-tags-extraction
+  /// Currently adds release, environment and transaction name.
+  @experimental
+  bool get enableDefaultTagsForMetrics =>
+      enableMetrics && _enableDefaultTagsForMetrics;
+
+  /// Enables enriching metrics with default tags. Requires [enableMetrics].
+  /// More on https://develop.sentry.dev/delightful-developer-metrics/sending-metrics-sdk/#automatic-tags-extraction
+  /// Currently adds release, environment and transaction name.
+  @experimental
+  set enableDefaultTagsForMetrics(final bool enableDefaultTagsForMetrics) =>
+      _enableDefaultTagsForMetrics = enableDefaultTagsForMetrics;
+
+  @experimental
+  bool _enableSpanLocalMetricAggregation = true;
+
+  /// Enables span metrics aggregation. Requires [enableMetrics].
+  /// More on https://develop.sentry.dev/sdk/metrics/#span-aggregation
+  @experimental
+  bool get enableSpanLocalMetricAggregation =>
+      enableMetrics && _enableSpanLocalMetricAggregation;
+
+  /// Enables span metrics aggregation. Requires [enableMetrics].
+  /// More on https://develop.sentry.dev/sdk/metrics/#span-aggregation
+  @experimental
+  set enableSpanLocalMetricAggregation(
+          final bool enableSpanLocalMetricAggregation) =>
+      _enableSpanLocalMetricAggregation = enableSpanLocalMetricAggregation;
+
   /// Only for internal use. Changed SDK behaviour when set to true:
   /// - Rethrow exceptions that occur in user provided closures
   @internal
@@ -483,9 +529,9 @@ class SentryOptions {
 /// This function is called with an SDK specific event object and can return a modified event
 /// object or nothing to skip reporting the event
 typedef BeforeSendCallback = FutureOr<SentryEvent?> Function(
-  SentryEvent event, {
-  Hint? hint,
-});
+  SentryEvent event,
+  Hint hint,
+);
 
 /// This function is called with an SDK specific transaction object and can return a modified transaction
 /// object or nothing to skip reporting the transaction
@@ -496,8 +542,15 @@ typedef BeforeSendTransactionCallback = FutureOr<SentryTransaction?> Function(
 /// This function is called with an SDK specific breadcrumb object before the breadcrumb is added
 /// to the scope. When nothing is returned from the function, the breadcrumb is dropped
 typedef BeforeBreadcrumbCallback = Breadcrumb? Function(
-  Breadcrumb? breadcrumb, {
-  Hint? hint,
+  Breadcrumb? breadcrumb,
+  Hint hint,
+);
+
+/// This function is called right before a metric is about to be emitted.
+/// Can return true to emit the metric, or false to drop it.
+typedef BeforeMetricCallback = bool Function(
+  String key, {
+  Map<String, String>? tags,
 });
 
 /// Used to provide timestamp for logging.

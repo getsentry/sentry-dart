@@ -8,12 +8,14 @@ import java.util.Locale
 
 class SentryFlutter(
   private val androidSdk: String,
-  private val nativeSdk: String
+  private val nativeSdk: String,
 ) {
-
   var autoPerformanceTracingEnabled = false
 
-  fun updateOptions(options: SentryAndroidOptions, data: Map<String, Any>) {
+  fun updateOptions(
+    options: SentryAndroidOptions,
+    data: Map<String, Any>,
+  ) {
     data.getIfNotNull<String>("dsn") {
       options.dsn = it
     }
@@ -122,7 +124,10 @@ class SentryFlutter(
 
 // Call the `completion` closure if cast to map value with `key` and type `T` is successful.
 @Suppress("UNCHECKED_CAST")
-private fun <T> Map<String, Any>.getIfNotNull(key: String, callback: (T) -> Unit) {
+private fun <T> Map<String, Any>.getIfNotNull(
+  key: String,
+  callback: (T) -> Unit,
+) {
   (get(key) as? T)?.let {
     callback(it)
   }

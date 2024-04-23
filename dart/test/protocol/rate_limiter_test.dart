@@ -228,6 +228,118 @@ void main() {
     expect(fixture.mockRecorder.category, DataCategory.transaction);
     expect(fixture.mockRecorder.reason, DiscardReason.rateLimitBackoff);
   });
+
+  test('dropping of metrics recorded', () {
+    final rateLimiter = fixture.getSut();
+
+    final metricsItem = SentryEnvelopeItem.fromMetrics({});
+    final eventEnvelope = SentryEnvelope(
+      SentryEnvelopeHeader.newEventId(),
+      [metricsItem],
+    );
+
+    rateLimiter.updateRetryAfterLimits(
+        '1:metric_bucket:key, 5:metric_bucket:organization', null, 1);
+
+    final result = rateLimiter.filter(eventEnvelope);
+    expect(result, isNull);
+
+    expect(fixture.mockRecorder.category, DataCategory.metricBucket);
+    expect(fixture.mockRecorder.reason, DiscardReason.rateLimitBackoff);
+  });
+
+  group('apply rateLimit', () {
+    test('error', () {
+      final rateLimiter = fixture.getSut();
+      fixture.dateTimeToReturn = 0;
+
+      final eventItem = SentryEnvelopeItem.fromEvent(SentryEvent());
+      final envelope = SentryEnvelope(
+        SentryEnvelopeHeader.newEventId(),
+        [eventItem],
+      );
+
+      rateLimiter.updateRetryAfterLimits(
+          '1:error:key, 5:error:organization', null, 1);
+
+      expect(rateLimiter.filter(envelope), isNull);
+    });
+
+    test('transaction', () {
+      final rateLimiter = fixture.getSut();
+      fixture.dateTimeToReturn = 0;
+
+      final transaction = fixture.getTransaction();
+      final eventItem = SentryEnvelopeItem.fromTransaction(transaction);
+      final envelope = SentryEnvelope(
+        SentryEnvelopeHeader.newEventId(),
+        [eventItem],
+      );
+
+      rateLimiter.updateRetryAfterLimits(
+          '1:transaction:key, 5:transaction:organization', null, 1);
+
+      final result = rateLimiter.filter(envelope);
+      expect(result, isNull);
+    });
+
+    test('metrics', () {
+      final rateLimiter = fixture.getSut();
+      fixture.dateTimeToReturn = 0;
+
+      final metricsItem = SentryEnvelopeItem.fromMetrics({});
+      final envelope = SentryEnvelope(
+        SentryEnvelopeHeader.newEventId(),
+        [metricsItem],
+      );
+
+      rateLimiter.updateRetryAfterLimits(
+          '1:metric_bucket:key, 5:metric_bucket:organization', null, 1);
+
+      final result = rateLimiter.filter(envelope);
+      expect(result, isNull);
+    });
+
+    test('metrics with empty namespaces', () {
+      final rateLimiter = fixture.getSut();
+      fixture.dateTimeToReturn = 0;
+
+      final eventItem = SentryEnvelopeItem.fromEvent(SentryEvent());
+      final metricsItem = SentryEnvelopeItem.fromMetrics({});
+      final envelope = SentryEnvelope(
+        SentryEnvelopeHeader.newEventId(),
+        [eventItem, metricsItem],
+      );
+
+      rateLimiter.updateRetryAfterLimits(
+          '10:metric_bucket:key:quota_exceeded:', null, 1);
+
+      final result = rateLimiter.filter(envelope);
+      expect(result, isNotNull);
+      expect(result!.items.length, 1);
+      expect(result.items.first.header.type, 'event');
+    });
+
+    test('metrics with custom namespace', () {
+      final rateLimiter = fixture.getSut();
+      fixture.dateTimeToReturn = 0;
+
+      final eventItem = SentryEnvelopeItem.fromEvent(SentryEvent());
+      final metricsItem = SentryEnvelopeItem.fromMetrics({});
+      final envelope = SentryEnvelope(
+        SentryEnvelopeHeader.newEventId(),
+        [eventItem, metricsItem],
+      );
+
+      rateLimiter.updateRetryAfterLimits(
+          '10:metric_bucket:key:quota_exceeded:custom', null, 1);
+
+      final result = rateLimiter.filter(envelope);
+      expect(result, isNotNull);
+      expect(result!.items.length, 1);
+      expect(result.items.first.header.type, 'event');
+    });
+  });
 }
 
 class Fixture {
