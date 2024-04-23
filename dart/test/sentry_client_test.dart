@@ -13,6 +13,7 @@ import 'package:sentry/src/sentry_item_type.dart';
 import 'package:sentry/src/sentry_stack_trace_factory.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry/src/transport/data_category.dart';
+import 'package:sentry/src/utils/iterable_utils.dart';
 import 'package:sentry/src/transport/spotlight_http_transport.dart';
 import 'package:test/test.dart';
 
@@ -937,25 +938,14 @@ void main() {
     });
   });
 
-  group('SentryClient: apply default pii', () {
+  group('SentryClient: sets user & user ip', () {
     late Fixture fixture;
 
     setUp(() {
       fixture = Fixture();
     });
 
-    test('sendDefaultPii is disabled', () async {
-      final client = fixture.getSut(sendDefaultPii: false);
-
-      await client.captureEvent(fakeEvent);
-
-      final capturedEnvelope = fixture.transport.envelopes.first;
-      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
-
-      expect(capturedEvent.user?.toJson(), fakeEvent.user?.toJson());
-    });
-
-    test('sendDefaultPii is enabled and event has no user', () async {
+    test('event has no user', () async {
       final client = fixture.getSut(sendDefaultPii: true);
       var fakeEvent = SentryEvent();
 
@@ -969,8 +959,7 @@ void main() {
       expect(capturedEvent.user?.ipAddress, '{{auto}}');
     });
 
-    test('sendDefaultPii is enabled and event has a user with IP address',
-        () async {
+    test('event has a user with IP address', () async {
       final client = fixture.getSut(sendDefaultPii: true);
 
       await client.captureEvent(fakeEvent);
@@ -986,8 +975,7 @@ void main() {
       expect(capturedEvent.user?.email, fakeEvent.user!.email);
     });
 
-    test('sendDefaultPii is enabled and event has a user without IP address',
-        () async {
+    test('event has a user without IP address', () async {
       final client = fixture.getSut(sendDefaultPii: true);
 
       final event = fakeEvent.copyWith(user: fakeUser);
@@ -1150,7 +1138,7 @@ void main() {
 
     test('thrown error is handled', () async {
       final exception = Exception("before send exception");
-      final beforeSendCallback = (SentryEvent event, {Hint? hint}) {
+      final beforeSendCallback = (SentryEvent event, Hint hint) {
         throw exception;
       };
 
@@ -1170,7 +1158,7 @@ void main() {
     setUp(() {
       fixture = Fixture();
       fixture.options.addEventProcessor(FunctionEventProcessor(
-        (event, {hint}) => event
+        (event, hint) => event
           ..tags!.addAll({'theme': 'material'})
           // ignore: deprecated_member_use_from_same_package
           ..extra!['host'] = '0.0.0.1'
@@ -1212,8 +1200,8 @@ void main() {
 
       var executed = false;
 
-      final client = fixture.getSut(
-          eventProcessor: FunctionEventProcessor((event, {hint}) {
+      final client =
+          fixture.getSut(eventProcessor: FunctionEventProcessor((event, hint) {
         expect(myHint, hint);
         executed = true;
         return event;
@@ -1227,8 +1215,8 @@ void main() {
     test('should create hint when none was provided', () async {
       var executed = false;
 
-      final client = fixture.getSut(
-          eventProcessor: FunctionEventProcessor((event, {hint}) {
+      final client =
+          fixture.getSut(eventProcessor: FunctionEventProcessor((event, hint) {
         expect(hint, isNotNull);
         executed = true;
         return event;
@@ -1261,201 +1249,6 @@ void main() {
       final capturedEnvelope = (fixture.transport).envelopes.first;
 
       expect(capturedEnvelope, fakeEnvelope);
-    });
-  });
-
-  group('Breadcrumbs', () {
-    late Fixture fixture;
-
-    setUp(() {
-      fixture = Fixture();
-    });
-
-    test('Clears breadcrumbs on Android for transaction', () async {
-      fixture.options.enableScopeSync = true;
-      fixture.options.platformChecker =
-          MockPlatformChecker(platform: MockPlatform.android());
-
-      final client = fixture.getSut();
-      final transaction = SentryTransaction(
-        fixture.tracer,
-        breadcrumbs: [
-          Breadcrumb(),
-        ],
-      );
-      await client.captureTransaction(transaction);
-
-      final capturedEnvelope = (fixture.transport).envelopes.first;
-      final capturedTransaction =
-          await transactionFromEnvelope(capturedEnvelope);
-
-      expect((capturedTransaction['breadcrumbs'] ?? []).isEmpty, true);
-    });
-
-    test('Clears breadcrumbs on Android if mechanism.handled is true for event',
-        () async {
-      fixture.options.enableScopeSync = true;
-      fixture.options.platformChecker =
-          MockPlatformChecker(platform: MockPlatform.android());
-
-      final client = fixture.getSut();
-      final event = SentryEvent(exceptions: [
-        SentryException(
-          type: "type",
-          value: "value",
-          mechanism: Mechanism(
-            type: 'type',
-            handled: true,
-          ),
-        )
-      ], breadcrumbs: [
-        Breadcrumb()
-      ]);
-      await client.captureEvent(event);
-
-      final capturedEnvelope = (fixture.transport).envelopes.first;
-      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
-
-      expect((capturedEvent.breadcrumbs ?? []).isEmpty, true);
-    });
-
-    test('Clears breadcrumbs on Android if mechanism.handled is null for event',
-        () async {
-      fixture.options.enableScopeSync = true;
-      fixture.options.platformChecker =
-          MockPlatformChecker(platform: MockPlatform.android());
-
-      final client = fixture.getSut();
-      final event = SentryEvent(exceptions: [
-        SentryException(
-          type: "type",
-          value: "value",
-          mechanism: Mechanism(type: 'type'),
-        )
-      ], breadcrumbs: [
-        Breadcrumb()
-      ]);
-      await client.captureEvent(event);
-
-      final capturedEnvelope = (fixture.transport).envelopes.first;
-      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
-
-      expect((capturedEvent.breadcrumbs ?? []).isEmpty, true);
-    });
-
-    test('Clears breadcrumbs on Android if theres no mechanism for event',
-        () async {
-      fixture.options.enableScopeSync = true;
-      fixture.options.platformChecker =
-          MockPlatformChecker(platform: MockPlatform.android());
-
-      final client = fixture.getSut();
-      final event = SentryEvent(exceptions: [
-        SentryException(
-          type: "type",
-          value: "value",
-        )
-      ], breadcrumbs: [
-        Breadcrumb()
-      ]);
-      await client.captureEvent(event);
-
-      final capturedEnvelope = (fixture.transport).envelopes.first;
-      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
-
-      expect((capturedEvent.breadcrumbs ?? []).isEmpty, true);
-    });
-
-    test(
-        'Does not clear breadcrumbs on Android if mechanism.handled is false for event',
-        () async {
-      fixture.options.enableScopeSync = true;
-      fixture.options.platformChecker =
-          MockPlatformChecker(platform: MockPlatform.android());
-
-      final client = fixture.getSut();
-      final event = SentryEvent(exceptions: [
-        SentryException(
-          type: "type",
-          value: "value",
-          mechanism: Mechanism(
-            type: 'type',
-            handled: false,
-          ),
-        )
-      ], breadcrumbs: [
-        Breadcrumb()
-      ]);
-      await client.captureEvent(event);
-
-      final capturedEnvelope = (fixture.transport).envelopes.first;
-      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
-
-      expect((capturedEvent.breadcrumbs ?? []).isNotEmpty, true);
-    });
-
-    test(
-        'Does not clear breadcrumbs on Android if any mechanism.handled is false for event',
-        () async {
-      fixture.options.enableScopeSync = true;
-      fixture.options.platformChecker =
-          MockPlatformChecker(platform: MockPlatform.android());
-
-      final client = fixture.getSut();
-      final event = SentryEvent(exceptions: [
-        SentryException(
-          type: "type",
-          value: "value",
-          mechanism: Mechanism(
-            type: 'type',
-            handled: true,
-          ),
-        ),
-        SentryException(
-          type: "type",
-          value: "value",
-          mechanism: Mechanism(
-            type: 'type',
-            handled: false,
-          ),
-        )
-      ], breadcrumbs: [
-        Breadcrumb()
-      ]);
-      await client.captureEvent(event);
-
-      final capturedEnvelope = (fixture.transport).envelopes.first;
-      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
-
-      expect((capturedEvent.breadcrumbs ?? []).isNotEmpty, true);
-    });
-
-    test('web breadcrumbs exist on web Android devices', () async {
-      fixture.options.enableScopeSync = true;
-      fixture.options.platformChecker = MockPlatformChecker(
-        platform: MockPlatform.android(),
-        isWebValue: true,
-      );
-
-      final client = fixture.getSut();
-      final event = SentryEvent(exceptions: [
-        SentryException(
-          type: "type",
-          value: "value",
-          mechanism: Mechanism(
-            type: 'type',
-            handled: true,
-          ),
-        ),
-      ], breadcrumbs: [
-        Breadcrumb(),
-      ]);
-      await client.captureEvent(event);
-
-      final capturedEnvelope = (fixture.transport).envelopes.first;
-      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
-
-      expect((capturedEvent.breadcrumbs ?? []).isNotEmpty, true);
     });
   });
 
@@ -1538,8 +1331,10 @@ void main() {
       await sut.captureEvent(fakeEvent, hint: hint);
 
       final capturedEnvelope = (fixture.transport).envelopes.first;
-      final attachmentItem = capturedEnvelope.items.firstWhereOrNull(
-          (element) => element.header.type == SentryItemType.attachment);
+      final attachmentItem = IterableUtils.firstWhereOrNull(
+        capturedEnvelope.items,
+        (SentryEnvelopeItem e) => e.header.type == SentryItemType.attachment,
+      );
       expect(attachmentItem?.header.attachmentType,
           SentryAttachment.typeAttachmentDefault);
     });
@@ -1754,9 +1549,9 @@ Future<Map<String, dynamic>> transactionFromEnvelope(
 }
 
 SentryEvent? beforeSendCallbackDropEvent(
-  SentryEvent event, {
-  Hint? hint,
-}) =>
+  SentryEvent event,
+  Hint hint,
+) =>
     null;
 
 SentryTransaction? beforeSendTransactionCallbackDropEvent(
@@ -1765,9 +1560,9 @@ SentryTransaction? beforeSendTransactionCallbackDropEvent(
     null;
 
 Future<SentryEvent?> asyncBeforeSendCallbackDropEvent(
-  SentryEvent event, {
-  Hint? hint,
-}) async {
+  SentryEvent event,
+  Hint hint,
+) async {
   await Future.delayed(Duration(milliseconds: 200));
   return null;
 }
@@ -1778,7 +1573,7 @@ Future<SentryTransaction?> asyncBeforeSendTransactionCallbackDropEvent(
   return null;
 }
 
-SentryEvent? beforeSendCallback(SentryEvent event, {Hint? hint}) {
+SentryEvent? beforeSendCallback(SentryEvent event, Hint hint) {
   return event
     ..tags!.addAll({'theme': 'material'})
     // ignore: deprecated_member_use_from_same_package
@@ -1856,8 +1651,7 @@ class Fixture {
     return client;
   }
 
-  Future<SentryEvent?> droppingBeforeSend(SentryEvent event,
-      {Hint? hint}) async {
+  Future<SentryEvent?> droppingBeforeSend(SentryEvent event, Hint hint) async {
     return null;
   }
 

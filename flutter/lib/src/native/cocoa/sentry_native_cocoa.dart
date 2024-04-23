@@ -14,7 +14,7 @@ class SentryNativeCocoa extends SentryNativeChannel {
 
   @override
   int? startProfiler(SentryId traceId) {
-    final cSentryId = cocoa.SentryId.alloc(_lib)
+    final cSentryId = cocoa.SentryId1.alloc(_lib)
       ..initWithUUIDString_(cocoa.NSString(_lib, traceId.toString()));
     final startTime =
         cocoa.PrivateSentrySDKOnly.startProfilerForTrace_(_lib, cSentryId);

@@ -8,7 +8,6 @@ import org.junit.Before
 import org.junit.Test
 
 class SentryFlutterTest {
-
   private lateinit var fixture: Fixture
 
   @Before
@@ -53,7 +52,7 @@ class SentryFlutterTest {
     assertEquals(BuildConfig.VERSION_NAME, fixture.options.sdkVersion?.version)
     assertEquals(
       "sentry.java.android.flutter/${BuildConfig.VERSION_NAME}",
-      fixture.options.sentryClientName
+      fixture.options.sentryClientName,
     )
     assertEquals("fixture-nativeSdk", fixture.options.nativeSdkName)
 
@@ -88,8 +87,8 @@ class SentryFlutterTest {
     sut.updateOptions(
       fixture.options,
       mapOf(
-        "diagnosticLevel" to "warning"
-      )
+        "diagnosticLevel" to "warning",
+      ),
     )
 
     // Then
@@ -105,8 +104,8 @@ class SentryFlutterTest {
     sut.updateOptions(
       fixture.options,
       mapOf(
-        "enableNativeCrashHandling" to false
-      )
+        "enableNativeCrashHandling" to false,
+      ),
     )
 
     // Then
@@ -116,7 +115,6 @@ class SentryFlutterTest {
 }
 
 class Fixture {
-
   var options = SentryAndroidOptions()
 
   val data = mapOf(
@@ -157,7 +155,7 @@ class Fixture {
   fun getSut(): SentryFlutter {
     return SentryFlutter(
       androidSdk = "sentry.java.android.flutter",
-      nativeSdk = "fixture-nativeSdk"
+      nativeSdk = "fixture-nativeSdk",
     )
   }
 }

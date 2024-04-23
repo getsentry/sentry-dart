@@ -498,7 +498,6 @@ class MainScaffold extends StatelessWidget {
             TooltipButton(
               onPressed: () async {
                 final id = await Sentry.captureMessage('UserFeedback');
-
                 if (!context.mounted) return;
                 await showDialog(
                   context: context,

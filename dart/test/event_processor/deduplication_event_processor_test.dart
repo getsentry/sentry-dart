@@ -15,16 +15,16 @@ void main() {
       final sut = fixture.getSut(true);
       var ogEvent = _createEvent('foo');
 
-      expect(sut.apply(ogEvent), isNotNull);
-      expect(sut.apply(ogEvent), isNull);
+      expect(sut.apply(ogEvent, Hint()), isNotNull);
+      expect(sut.apply(ogEvent, Hint()), isNull);
     });
 
     test('does not deduplicate if disabled', () {
       final sut = fixture.getSut(false);
       var ogEvent = _createEvent('foo');
 
-      expect(sut.apply(ogEvent), isNotNull);
-      expect(sut.apply(ogEvent), isNotNull);
+      expect(sut.apply(ogEvent, Hint()), isNotNull);
+      expect(sut.apply(ogEvent, Hint()), isNotNull);
     });
 
     test('does not deduplicate if different events', () {
@@ -32,16 +32,16 @@ void main() {
       var fooEvent = _createEvent('foo');
       var barEvent = _createEvent('bar');
 
-      expect(sut.apply(fooEvent), isNotNull);
-      expect(sut.apply(barEvent), isNotNull);
+      expect(sut.apply(fooEvent, Hint()), isNotNull);
+      expect(sut.apply(barEvent, Hint()), isNotNull);
     });
 
     test('does not deduplicate transaction', () {
       final sut = fixture.getSut(true);
       final transaction = _createTransaction(fixture.hub);
 
-      expect(sut.apply(transaction), isNotNull);
-      expect(sut.apply(transaction), isNotNull);
+      expect(sut.apply(transaction, Hint()), isNotNull);
+      expect(sut.apply(transaction, Hint()), isNotNull);
     });
 
     test('exceptions to keep for deduplication', () {
@@ -51,10 +51,10 @@ void main() {
       var barEvent = _createEvent('bar');
       var fooBarEvent = _createEvent('foo bar');
 
-      expect(sut.apply(fooEvent), isNotNull);
-      expect(sut.apply(barEvent), isNotNull);
-      expect(sut.apply(fooBarEvent), isNotNull);
-      expect(sut.apply(fooEvent), isNotNull);
+      expect(sut.apply(fooEvent, Hint()), isNotNull);
+      expect(sut.apply(barEvent, Hint()), isNotNull);
+      expect(sut.apply(fooBarEvent, Hint()), isNotNull);
+      expect(sut.apply(fooEvent, Hint()), isNotNull);
     });
 
     test('integration test', () async {

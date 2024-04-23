@@ -30,7 +30,7 @@ class FailedRequestInterceptor extends Interceptor {
     final cfr = _captureFailedRequests ?? _hub.options.captureFailedRequests;
 
     final containsStatusCode =
-        _failedRequestStatusCodes.containsStatusCode(err.response?.statusCode);
+        _failedRequestStatusCodes._containsStatusCode(err.response?.statusCode);
     final containsRequestTarget = containsTargetOrMatchesRegExp(
       _failedRequestTargets,
       err.requestOptions.path,
@@ -49,7 +49,7 @@ class FailedRequestInterceptor extends Interceptor {
 }
 
 extension _ListX on List<SentryStatusCode> {
-  bool containsStatusCode(int? statusCode) {
+  bool _containsStatusCode(int? statusCode) {
     if (statusCode == null) {
       return false;
     }

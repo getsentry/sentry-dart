@@ -25,5 +25,4 @@ targets:
       pub:sentry_sqflite:
       pub:sentry_drift:
       pub:sentry_hive:
-      # Initial release on pub.dev needed first before uncommenting
-      # pub:sentry_isar:
+      pub:sentry_isar:
