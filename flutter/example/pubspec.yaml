@@ -28,7 +28,7 @@ dependencies:
   logging: any # This gets constrained by `sentry_logging`
   drift: any # This gets constrained by `sentry_drift`
   isar: any # This gets constrained by `sentry_isar`
-  package_info_plus: '>=1.0.0 <8.0.0'
+  package_info_plus: '>=1.0.0 <9.0.0'
   path_provider: ^2.0.0
   #sqflite_common_ffi: ^2.0.0
   #sqflite_common_ffi_web: ^0.3.0
