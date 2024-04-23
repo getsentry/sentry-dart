@@ -31,7 +31,8 @@ void main() {
       final transaction = SentryTransaction(tracer);
 
       final processor = fixture.options.eventProcessors.first;
-      final enriched = await processor.apply(transaction) as SentryTransaction;
+      final enriched =
+          await processor.apply(transaction, Hint()) as SentryTransaction;
 
       final measurement = enriched.measurements['app_start_cold']!;
       expect(measurement.value, 10);
@@ -50,8 +51,10 @@ void main() {
 
       final processor = fixture.options.eventProcessors.first;
 
-      var enriched = await processor.apply(transaction) as SentryTransaction;
-      var secondEnriched = await processor.apply(enriched) as SentryTransaction;
+      var enriched =
+          await processor.apply(transaction, Hint()) as SentryTransaction;
+      var secondEnriched =
+          await processor.apply(enriched, Hint()) as SentryTransaction;
 
       expect(secondEnriched.measurements.length, 1);
     });
@@ -69,8 +72,10 @@ void main() {
 
       final processor = fixture.options.eventProcessors.first;
 
-      var enriched = await processor.apply(transaction) as SentryTransaction;
-      var secondEnriched = await processor.apply(enriched) as SentryTransaction;
+      var enriched =
+          await processor.apply(transaction, Hint()) as SentryTransaction;
+      var secondEnriched =
+          await processor.apply(enriched, Hint()) as SentryTransaction;
 
       expect(secondEnriched.measurements.length, 2);
       expect(secondEnriched.measurements.containsKey(measurement.name), true);
@@ -86,7 +91,8 @@ void main() {
       final transaction = SentryTransaction(tracer);
 
       final processor = fixture.options.eventProcessors.first;
-      final enriched = await processor.apply(transaction) as SentryTransaction;
+      final enriched =
+          await processor.apply(transaction, Hint()) as SentryTransaction;
 
       expect(enriched.measurements.isEmpty, true);
     });

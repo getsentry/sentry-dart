@@ -26,7 +26,7 @@ void main() {
       var event = SentryEvent(exceptions: [sentryException]);
 
       final sut = fixture.getSut();
-      event = (sut.apply(event))!;
+      event = (sut.apply(event, Hint()))!;
 
       expect(event.exceptions?.first.mechanism?.data["code"], "fixture-code");
       expect(event.exceptions?.first.mechanism?.data["message"],
@@ -46,7 +46,7 @@ void main() {
       var event = SentryEvent(exceptions: [sentryException]);
 
       final sut = fixture.getSut();
-      event = (sut.apply(event))!;
+      event = (sut.apply(event, Hint()))!;
 
       expect(event.exceptions?.first.mechanism?.type, "platformException");
     });

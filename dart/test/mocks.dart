@@ -132,7 +132,7 @@ final Map<int, Iterable<Metric>> fakeMetrics = {
 /// Always returns null and thus drops all events
 class DropAllEventProcessor implements EventProcessor {
   @override
-  SentryEvent? apply(SentryEvent event, {hint}) {
+  SentryEvent? apply(SentryEvent event, Hint hint) {
     return null;
   }
 }
@@ -143,13 +143,13 @@ class FunctionEventProcessor implements EventProcessor {
   final EventProcessorFunction applyFunction;
 
   @override
-  SentryEvent? apply(SentryEvent event, {hint}) {
-    return applyFunction(event, hint: hint);
+  SentryEvent? apply(SentryEvent event, Hint hint) {
+    return applyFunction(event, hint);
   }
 }
 
-typedef EventProcessorFunction = SentryEvent? Function(SentryEvent event,
-    {Hint? hint});
+typedef EventProcessorFunction = SentryEvent? Function(
+    SentryEvent event, Hint hint);
 
 var fakeEnvelope = SentryEnvelope.fromEvent(
   fakeEvent,

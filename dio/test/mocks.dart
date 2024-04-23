@@ -98,7 +98,7 @@ final fakeEvent = SentryEvent(
 /// Doesn't do anything with the events
 class NoOpEventProcessor implements EventProcessor {
   @override
-  SentryEvent? apply(SentryEvent event, {Hint? hint}) {
+  SentryEvent? apply(SentryEvent event, Hint hint) {
     return event;
   }
 }
@@ -106,7 +106,7 @@ class NoOpEventProcessor implements EventProcessor {
 /// Always returns null and thus drops all events
 class DropAllEventProcessor implements EventProcessor {
   @override
-  SentryEvent? apply(SentryEvent event, {Hint? hint}) {
+  SentryEvent? apply(SentryEvent event, Hint hint) {
     return null;
   }
 }
@@ -117,15 +117,15 @@ class FunctionEventProcessor implements EventProcessor {
   final EventProcessorFunction applyFunction;
 
   @override
-  SentryEvent? apply(SentryEvent event, {Hint? hint}) {
-    return applyFunction(event, hint: hint);
+  SentryEvent? apply(SentryEvent event, Hint hint) {
+    return applyFunction(event, hint);
   }
 }
 
 typedef EventProcessorFunction = SentryEvent? Function(
-  SentryEvent event, {
-  Hint? hint,
-});
+  SentryEvent event,
+  Hint hint,
+);
 
 var fakeEnvelope = SentryEnvelope.fromEvent(
   fakeEvent,

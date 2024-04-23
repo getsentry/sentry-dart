@@ -14,7 +14,7 @@ class IoExceptionEventProcessor implements ExceptionEventProcessor {
   final SentryOptions _options;
 
   @override
-  SentryEvent? apply(SentryEvent event, {Hint? hint}) {
+  SentryEvent? apply(SentryEvent event, Hint hint) {
     final throwable = event.throwable;
     if (throwable is HttpException) {
       return _applyHttpException(throwable, event);

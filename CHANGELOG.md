@@ -2,6 +2,38 @@
 
 ## Unreleased
 
+### Fixes
+
+- Timing metric aggregates metrics in the created span ([#1994](https://github.com/getsentry/sentry-dart/pull/1994))
+
+## 8.0.0
+
+This release contains breaking changes, please read the changelog carefully.
+
+*Changes from the latest v7 release are included in this major release*
+
+### Breaking Changes
+
+- Bump iOS minimum deployment target from **11** to **12** ([#1821](https://github.com/getsentry/sentry-dart/pull/1821))
+- Mark exceptions not handled by the user as `handled: false` ([#1535](https://github.com/getsentry/sentry-dart/pull/1535))
+  - This will affect your release health data, and is therefore considered a breaking change.
+- Refrain from overwriting the span status for unfinished spans ([#1577](https://github.com/getsentry/sentry-dart/pull/1577))
+  - Older self-hosted sentry instances will drop transactions containing unfinished spans.
+    - This change was introduced in [relay/#1690](https://github.com/getsentry/relay/pull/1690) and released with [22.12.0](https://github.com/getsentry/relay/releases/tag/22.12.0)
+- Do not leak extensions of external classes ([#1576](https://github.com/getsentry/sentry-dart/pull/1576))
+- Make `hint` non-nullable in `BeforeSendCallback`, `BeforeBreadcrumbCall` and `EventProcessor` ([#1574](https://github.com/getsentry/sentry-dart/pull/1574))
+  - This will affect your callbacks, making this a breaking change.
+- Load Device Contexts from Sentry Java ([#1616](https://github.com/getsentry/sentry-dart/pull/1616))
+  - Now the device context from Android is available in `BeforeSendCallback`
+- Set ip_address to {{auto}} by default, even if sendDefaultPII is disabled ([#1665](https://github.com/getsentry/sentry-dart/pull/1665))
+  - Instead use the "Prevent Storing of IP Addresses" option in the "Security & Privacy" project settings on sentry.io
+
+### Features
+
+- Add support for exception aggregates ([#1866](https://github.com/getsentry/sentry-dart/pull/1866))
+
+## 7.20.0
+
 ### Build
 
 - Bump compileSdkVersion to 34 in Gradle buildscripts ([#1980](https://github.com/getsentry/sentry-dart/pull/1980))
@@ -116,6 +148,40 @@
 - Bump Cocoa SDK from v8.19.0 to v8.20.0 ([#1856](https://github.com/getsentry/sentry-dart/pull/1856))
   - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8200)
   - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.19.0...8.20.0)
+
+## 8.0.0-beta.2
+
+### Breaking Changes
+
+- Bump iOS minimum deployment target from **11** to **12** ([#1821](https://github.com/getsentry/sentry-dart/pull/1821))
+- Mark exceptions not handled by the user as `handled: false` ([#1535](https://github.com/getsentry/sentry-dart/pull/1535))
+  - This will affect your release health data, and is therefore considered a breaking change.
+- Refrain from overwriting the span status for unfinished spans ([#1577](https://github.com/getsentry/sentry-dart/pull/1577))
+  - Older self-hosted sentry instances will drop transactions containing unfinished spans.
+    - This change was introduced in [relay/#1690](https://github.com/getsentry/relay/pull/1690) and released with [22.12.0](https://github.com/getsentry/relay/releases/tag/22.12.0)
+- Do not leak extensions of external classes ([#1576](https://github.com/getsentry/sentry-dart/pull/1576))
+- Make `hint` non-nullable in `BeforeSendCallback`, `BeforeBreadcrumbCall` and `EventProcessor` ([#1574](https://github.com/getsentry/sentry-dart/pull/1574))
+  - This will affect your callbacks, making this a breaking change.
+- Load Device Contexts from Sentry Java ([#1616](https://github.com/getsentry/sentry-dart/pull/1616))
+  - Now the device context from Android is available in `BeforeSendCallback`
+- Set ip_address to {{auto}} by default, even if sendDefaultPII is disabled ([#1665](https://github.com/getsentry/sentry-dart/pull/1665))
+  - Instead use the "Prevent Storing of IP Addresses" option in the "Security & Privacy" project settings on sentry.io
+ 
+### Fixes 
+
+- Remove Flutter dependency from Drift integration ([#1867](https://github.com/getsentry/sentry-dart/pull/1867))
+- Remove dead code, cold start bool is now always present ([#1861](https://github.com/getsentry/sentry-dart/pull/1861))
+- Fix iOS "Arithmetic Overflow" ([#1874](https://github.com/getsentry/sentry-dart/pull/1874))
+
+### Dependencies 
+
+- Bump Cocoa SDK from v8.19.0 to v8.20.0 ([#1856](https://github.com/getsentry/sentry-dart/pull/1856))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8200)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.19.0...8.20.0)
+
+## 8.0.0-beta.1
+
+This release is replaced by `8.0.0-beta.2`
 
 ## 7.16.0
 
