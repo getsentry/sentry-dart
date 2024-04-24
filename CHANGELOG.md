@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Adds app start spans when using `SentryNavigatorObserver` ([#2009](https://github.com/getsentry/sentry-dart/pull/2009))
+
 ### Fixes
 
 - Timing metric aggregates metrics in the created span ([#1994](https://github.com/getsentry/sentry-dart/pull/1994))
