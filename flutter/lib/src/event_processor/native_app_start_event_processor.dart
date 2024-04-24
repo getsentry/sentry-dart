@@ -77,7 +77,7 @@ class NativeAppStartEventProcessor implements EventProcessor {
     final firstFrameRenderSpan = await _createAndFinishSpan(
         tracer: transaction,
         operation: op,
-        description: 'First frame render',
+        description: 'Initial frame render',
         parentSpanId: appStartSpan.context.spanId,
         traceId: transactionTraceId,
         startTimestamp: SentryFlutter.dartLoadingEnd,
