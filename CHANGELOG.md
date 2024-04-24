@@ -16,7 +16,7 @@
 - Bump Cocoa SDK from v8.21.0 to v8.24.0 ([#1986](https://github.com/getsentry/sentry-dart/pull/1986))
   - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8240)
   - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.21.0...8.24.0)
-- Expand dependency range of `package_info_plus` to include major version 8 ([#2010](https://github.com/getsentry/sentry-dart/pull/2010))
+- Expand dependency range of `package_info_plus` to allow an open range starting from version 1 ([#2010](https://github.com/getsentry/sentry-dart/pull/2010))
 
 ## 8.0.0
 
