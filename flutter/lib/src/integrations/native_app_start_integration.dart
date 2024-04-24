@@ -108,6 +108,19 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
             dartLoadingEnd: dartLoadingEnd);
 
         setAppStartInfo(appStartInfo);
+
+        if (SentryNavigatorObserver.currentRouteName == null) {
+          const screenName = 'root /';
+          // ignore: invalid_use_of_internal_member
+          final transaction = hub.startTransaction(screenName, SentrySpanOperations.uiLoad,
+              startTimestamp: appStartInfo.start);
+          // ignore: invalid_use_of_internal_member
+          final ttidSpan = transaction.startChild(SentrySpanOperations.uiTimeToInitialDisplay,
+              description: '$screenName initial display',
+              startTimestamp: appStartInfo.start);
+          await ttidSpan.finish(endTimestamp: appStartInfo.end);
+          await transaction.finish(endTimestamp: appStartInfo.end);
+        }
       });
     }
 
