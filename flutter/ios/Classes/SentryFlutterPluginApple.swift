@@ -264,9 +264,9 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 
             if arguments["enableAutoPerformanceTracing"] as? Bool ?? false {
                 PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode = true
-                #if os(iOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || targetEnvironment(macCatalyst)
                 PrivateSentrySDKOnly.framesTrackingMeasurementHybridSDKMode = true
-                #endif
+#endif
             }
 
             let version = PrivateSentrySDKOnly.getSdkVersionString()
@@ -297,17 +297,29 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 
                 return event
             }
+
+            // Remove the default replay integration, we'll replace it with a custom, flutter-specific one.
+            var integrations = options.integrations!.filter { (name) -> Bool in
+                return name != "SentrySessionReplayIntegration"
+            }
+            integrations.append(String(describing: SentryFlutterReplayIntegration.self))
+            options.integrations = integrations
         }
 
-       if didReceiveDidBecomeActiveNotification &&
+        // let hub = PrivateSentrySDKOnly.inst
+        // var replayIntegration = SentryFlutterReplayIntegration()
+        // if (replayIntegration.install(with: hub.))
+        //     SentrySDK.currentHub().addInstalledIntegration(SentryIntegrationProtocol, name: <#T##String#>)
+
+        if didReceiveDidBecomeActiveNotification &&
             (PrivateSentrySDKOnly.options.enableAutoSessionTracking ||
              PrivateSentrySDKOnly.options.enableWatchdogTerminationTracking) {
             // We send a SentryHybridSdkDidBecomeActive to the Sentry Cocoa SDK, so the SDK will mimics
             // the didBecomeActiveNotification notification. This is needed for session and OOM tracking.
-           NotificationCenter.default.post(name: Notification.Name("SentryHybridSdkDidBecomeActive"), object: nil)
-           // we reset the flag for the sake of correctness
-           didReceiveDidBecomeActiveNotification = false
-       }
+            NotificationCenter.default.post(name: Notification.Name("SentryHybridSdkDidBecomeActive"), object: nil)
+            // we reset the flag for the sake of correctness
+            didReceiveDidBecomeActiveNotification = false
+        }
 
         result("")
     }
