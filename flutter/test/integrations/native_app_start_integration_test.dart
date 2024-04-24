@@ -146,7 +146,7 @@ void main() {
       dartIsolateLoadingSpan = enriched.spans.firstWhereOrNull(
           (element) => element.context.description == 'Dart isolate loading');
       firstFrameRenderSpan = enriched.spans.firstWhereOrNull(
-          (element) => element.context.description == 'First frame render');
+          (element) => element.context.description == 'Initial frame render');
     });
 
     test('are added by event processor', () async {
