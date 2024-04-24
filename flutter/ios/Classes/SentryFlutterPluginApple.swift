@@ -85,7 +85,6 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         ?? iso8601Formatter.date(from: iso8601String) // Parse date with low precision formatter for backward compatible
     }
 
-
     private func fetchEngineEndtime(result: @escaping FlutterResult) {
         result(SentryFlutterPluginApple.engineEndtime)
     }
