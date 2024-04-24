@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_use_of_internal_member
+
 import 'dart:async';
 
 import '../../sentry_flutter.dart';
@@ -78,7 +80,7 @@ class NativeAppStartEventProcessor implements EventProcessor {
         description: 'First frame render',
         parentSpanId: appStartSpan.context.spanId,
         traceId: transactionTraceId,
-        startTimestamp: SentryFlutter.dartLoadingEnd!,
+        startTimestamp: SentryFlutter.dartLoadingEnd,
         endTimestamp: appStartInfo.end);
 
     transaction.children.addAll([

@@ -294,6 +294,11 @@ class TestMockSentryNative implements SentryNative {
     numberOfDiscardProfilerCalls++;
     return Future.value(null);
   }
+
+  @override
+  Future<int?> fetchEngineEndtime() {
+    return Future.value(10);
+  }
 }
 
 // TODO can this be replaced with https://pub.dev/packages/mockito#verifying-exact-number-of-invocations--at-least-x--never
@@ -394,6 +399,11 @@ class MockNativeChannel implements SentryNativeBinding {
   Future<int?> discardProfiler(SentryId traceId) {
     numberOfDiscardProfilerCalls++;
     return Future.value(null);
+  }
+
+  @override
+  Future<int?> fetchEngineEndtime() {
+    return Future.value(10);
   }
 }
 

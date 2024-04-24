@@ -72,6 +72,7 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
         final appStartEnd = _native.appStartEnd;
         final nativeAppStart = await _native.fetchNativeAppStart();
         final engineEndtime = await _native.fetchEngineEndtime();
+        final dartLoadingEnd = SentryFlutter.dartLoadingEnd;
 
         if (nativeAppStart == null ||
             appStartEnd == null ||
@@ -104,7 +105,8 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
                 nativeAppStart.appStartTime.toInt()),
             end: appStartEnd,
             engineEnd: engineEndDatetime,
-            dartLoadingEnd: SentryFlutter.dartLoadingEnd!);
+            dartLoadingEnd: dartLoadingEnd);
+
         setAppStartInfo(appStartInfo);
       });
     }

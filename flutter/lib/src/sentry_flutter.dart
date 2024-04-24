@@ -34,8 +34,10 @@ typedef FlutterOptionsConfiguration = FutureOr<void> Function(
 mixin SentryFlutter {
   static const _channel = MethodChannel('sentry_flutter');
 
+  /// Represents the time when the dart isolate stopped loading and is ready to execute.
   @internal
-  static DateTime? dartLoadingEnd;
+  // ignore: invalid_use_of_internal_member
+  static DateTime dartLoadingEnd = getUtcDateTime();
 
   static Future<void> init(
     FlutterOptionsConfiguration optionsConfiguration, {
@@ -46,6 +48,7 @@ mixin SentryFlutter {
   }) async {
     final flutterOptions = SentryFlutterOptions();
 
+    // ignore: invalid_use_of_internal_member
     dartLoadingEnd = flutterOptions.clock();
 
     if (platformChecker != null) {
