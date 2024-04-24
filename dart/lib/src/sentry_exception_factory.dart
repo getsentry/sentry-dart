@@ -38,9 +38,8 @@ class SentryExceptionFactory {
     // hence we check again if stackTrace is null and if not, read the current stack trace
     // but only if attachStacktrace is enabled
     if (_options.attachStacktrace) {
-      // TODO: snapshot=true if stackTrace is null
-      // Requires a major breaking change because of grouping
       if (stackTrace == null || stackTrace == StackTrace.empty) {
+        snapshot = true;
         stackTrace = StackTrace.current;
       }
     }
