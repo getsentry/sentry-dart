@@ -302,14 +302,9 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
             var integrations = options.integrations!.filter { (name) -> Bool in
                 return name != "SentrySessionReplayIntegration"
             }
-            integrations.append(String(describing: SentryFlutterReplayIntegration.self))
+            integrations.append(NSStringFromClass(SentryFlutterReplayIntegration.self))
             options.integrations = integrations
         }
-
-        // let hub = PrivateSentrySDKOnly.inst
-        // var replayIntegration = SentryFlutterReplayIntegration()
-        // if (replayIntegration.install(with: hub.))
-        //     SentrySDK.currentHub().addInstalledIntegration(SentryIntegrationProtocol, name: <#T##String#>)
 
         if didReceiveDidBecomeActiveNotification &&
             (PrivateSentrySDKOnly.options.enableAutoSessionTracking ||
