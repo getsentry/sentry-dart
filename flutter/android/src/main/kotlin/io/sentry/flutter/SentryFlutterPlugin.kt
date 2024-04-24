@@ -70,7 +70,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       "removeExtra" -> removeExtra(call.argument("key"), result)
       "setTag" -> setTag(call.argument("key"), call.argument("value"), result)
       "removeTag" -> removeTag(call.argument("key"), result)
-      "fetchEngineEndtime" -> fetchEngineEndtime(result)
+      "fetchEngineReadyEndtime" -> fetchEngineReadyEndtime(result)
       "loadContexts" -> loadContexts(result)
       else -> result.notImplemented()
     }
@@ -148,7 +148,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     }
   }
 
-  private fun fetchEngineEndtime(result: Result) {
+  private fun fetchEngineReadyEndtime(result: Result) {
     result.success(engineEndTime)
   }
 

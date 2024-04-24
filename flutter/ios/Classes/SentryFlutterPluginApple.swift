@@ -85,7 +85,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         ?? iso8601Formatter.date(from: iso8601String) // Parse date with low precision formatter for backward compatible
     }
 
-    private func fetchEngineEndtime(result: @escaping FlutterResult) {
+    private func fetchEngineReadyEndtime(result: @escaping FlutterResult) {
         result(SentryFlutterPluginApple.engineEndtime)
     }
 
@@ -162,8 +162,8 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
             let key = arguments?["key"] as? String
             removeTag(key: key, result: result)
 
-        case "fetchEngineEndtime":
-            fetchEngineEndtime(result: result)
+        case "fetchEngineReadyEndtime":
+            fetchEngineReadyEndtime(result: result)
 
         #if !os(tvOS) && !os(watchOS)
         case "discardProfiler":

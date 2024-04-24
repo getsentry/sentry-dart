@@ -195,7 +195,7 @@ void main() {
     });
 
     test('have correct endTimestamp', () async {
-      final engineEndtime = await fixture.native.fetchEngineEndtime();
+      final engineEndtime = await fixture.native.fetchEngineReadyEndtime();
       expect(coldStartSpan?.endTimestamp, fixture.native.appStartEnd?.toUtc());
       expect(engineReadySpan?.endTimestamp,
           DateTime.fromMillisecondsSinceEpoch(engineEndtime!).toUtc());

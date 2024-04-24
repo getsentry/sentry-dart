@@ -296,7 +296,7 @@ class TestMockSentryNative implements SentryNative {
   }
 
   @override
-  Future<int?> fetchEngineEndtime() {
+  Future<int?> fetchEngineReadyEndtime() {
     return Future.value(10);
   }
 }
@@ -402,7 +402,7 @@ class MockNativeChannel implements SentryNativeBinding {
   }
 
   @override
-  Future<int?> fetchEngineEndtime() {
+  Future<int?> fetchEngineReadyEndtime() {
     return Future.value(10);
   }
 }

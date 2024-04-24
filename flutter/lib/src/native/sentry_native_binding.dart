@@ -12,7 +12,7 @@ abstract class SentryNativeBinding {
 
   Future<NativeAppStart?> fetchNativeAppStart();
 
-  Future<int?> fetchEngineEndtime();
+  Future<int?> fetchEngineReadyEndtime();
 
   Future<void> beginNativeFrames();
 

@@ -71,7 +71,7 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
         _native.appStartEnd ??= options.clock();
         final appStartEnd = _native.appStartEnd;
         final nativeAppStart = await _native.fetchNativeAppStart();
-        final engineEndtime = await _native.fetchEngineEndtime();
+        final engineEndtime = await _native.fetchEngineReadyEndtime();
         final dartLoadingEnd = SentryFlutter.dartLoadingEnd;
 
         if (nativeAppStart == null ||
