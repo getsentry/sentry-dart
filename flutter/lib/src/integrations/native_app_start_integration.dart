@@ -71,12 +71,12 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
         _native.appStartEnd ??= options.clock();
         final appStartEnd = _native.appStartEnd;
         final nativeAppStart = await _native.fetchNativeAppStart();
-        final engineEndtime = await _native.fetchEngineReadyEndtime();
+        final engineReadyEndtime = await _native.fetchEngineReadyEndtime();
         final dartLoadingEnd = SentryFlutter.dartLoadingEnd;
 
         if (nativeAppStart == null ||
             appStartEnd == null ||
-            engineEndtime == null) {
+            engineReadyEndtime == null) {
           return;
         }
 
@@ -84,7 +84,7 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
             nativeAppStart.appStartTime.toInt());
         final duration = appStartEnd.difference(appStartDateTime);
         final engineEndDatetime =
-            DateTime.fromMillisecondsSinceEpoch(engineEndtime);
+            DateTime.fromMillisecondsSinceEpoch(engineReadyEndtime);
 
         // We filter out app start more than 60s.
         // This could be due to many different reasons.

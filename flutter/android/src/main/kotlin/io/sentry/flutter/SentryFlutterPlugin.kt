@@ -36,10 +36,10 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
   private var activity: WeakReference<Activity>? = null
   private var framesTracker: ActivityFramesTracker? = null
-  private var engineEndTime: Long? = null
+  private var engineReadyEndtime: Long? = null
 
   override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
-    engineEndTime = System.currentTimeMillis()
+    engineReadyEndtime = System.currentTimeMillis()
 
     context = flutterPluginBinding.applicationContext
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, "sentry_flutter")
@@ -149,7 +149,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
   }
 
   private fun fetchEngineReadyEndtime(result: Result) {
-    result.success(engineEndTime)
+    result.success(engineReadyEndtime)
   }
 
   private fun beginNativeFrames(result: Result) {

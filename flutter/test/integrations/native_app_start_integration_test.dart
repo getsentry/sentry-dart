@@ -195,10 +195,10 @@ void main() {
     });
 
     test('have correct endTimestamp', () async {
-      final engineEndtime = await fixture.native.fetchEngineReadyEndtime();
+      final engineReadyEndtime = await fixture.native.fetchEngineReadyEndtime();
       expect(coldStartSpan?.endTimestamp, fixture.native.appStartEnd?.toUtc());
       expect(engineReadySpan?.endTimestamp,
-          DateTime.fromMillisecondsSinceEpoch(engineEndtime!).toUtc());
+          DateTime.fromMillisecondsSinceEpoch(engineReadyEndtime!).toUtc());
       expect(dartIsolateLoadingSpan?.endTimestamp,
           SentryFlutter.dartLoadingEnd.toUtc());
       expect(firstFrameRenderSpan?.endTimestamp, coldStartSpan?.endTimestamp);

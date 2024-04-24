@@ -26,12 +26,12 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 #endif
     }
 
-    private static var engineEndtime: Int64 = 0
+    private static var engineReadyEndtime: Int64 = 0
 
     public static func register(with registrar: FlutterPluginRegistrar) {
         let currentDate = Date()
         let timeInterval = currentDate.timeIntervalSince1970
-        engineEndtime = Int64(timeInterval * 1000)
+        engineReadyEndtime = Int64(timeInterval * 1000)
 
 #if os(iOS)
         let channel = FlutterMethodChannel(name: "sentry_flutter", binaryMessenger: registrar.messenger())
@@ -86,7 +86,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
     }
 
     private func fetchEngineReadyEndtime(result: @escaping FlutterResult) {
-        result(SentryFlutterPluginApple.engineEndtime)
+        result(SentryFlutterPluginApple.engineReadyEndtime)
     }
 
     // swiftlint:disable:next cyclomatic_complexity
