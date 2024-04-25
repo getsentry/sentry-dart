@@ -54,7 +54,9 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
       final appStartInfo = AppStartInfo(AppStartType.cold,
           start: DateTime.now(),
           end: DateTime.now().add(const Duration(milliseconds: 100)),
-          nativeSpanTimes: {});
+          nativeSpanTimes: {},
+          engineEnd: DateTime.now().add(const Duration(milliseconds: 50)),
+          dartLoadingEnd: DateTime.now().add(const Duration(milliseconds: 60)));
       setAppStartInfo(appStartInfo);
       return;
     }
@@ -70,14 +72,20 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
         _native.appStartEnd ??= options.clock();
         final appStartEnd = _native.appStartEnd;
         final nativeAppStart = await _native.fetchNativeAppStart();
+        final engineReadyEndtime = await _native.fetchEngineReadyEndtime();
+        final dartLoadingEnd = SentryFlutter.dartLoadingEnd;
 
-        if (nativeAppStart == null || appStartEnd == null) {
+        if (nativeAppStart == null ||
+            appStartEnd == null ||
+            engineReadyEndtime == null) {
           return;
         }
 
         final appStartDateTime = DateTime.fromMillisecondsSinceEpoch(
             nativeAppStart.appStartTime.toInt());
         final duration = appStartEnd.difference(appStartDateTime);
+        final engineEndDatetime =
+            DateTime.fromMillisecondsSinceEpoch(engineReadyEndtime);
 
         // We filter out app start more than 60s.
         // This could be due to many different reasons.
@@ -97,7 +105,9 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
             start: DateTime.fromMillisecondsSinceEpoch(
                 nativeAppStart.appStartTime.toInt()),
             end: appStartEnd,
-            nativeSpanTimes: nativeAppStart.nativeSpanTimes);
+            nativeSpanTimes: nativeAppStart.nativeSpanTimes,
+            engineEnd: engineEndDatetime,
+            dartLoadingEnd: dartLoadingEnd);
         setAppStartInfo(appStartInfo);
       });
     }
@@ -112,12 +122,18 @@ enum AppStartType { cold, warm }
 
 class AppStartInfo {
   AppStartInfo(this.type,
-      {required this.start, required this.end, required this.nativeSpanTimes});
+      {required this.start,
+      required this.end,
+      required this.engineEnd,
+      required this.dartLoadingEnd,
+      required this.nativeSpanTimes});
 
   final AppStartType type;
   final DateTime start;
   final DateTime end;
   final Map<dynamic, dynamic> nativeSpanTimes;
+  final DateTime engineEnd;
+  final DateTime dartLoadingEnd;
 
   Duration get duration => end.difference(start);
 

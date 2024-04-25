@@ -1,4 +1,5 @@
 @TestOn('vm')
+import 'package:collection/collection.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -107,6 +108,100 @@ void main() {
       final appStartInfo = await NativeAppStartIntegration.getAppStartInfo();
       expect(appStartInfo?.start, DateTime.fromMillisecondsSinceEpoch(0));
       expect(appStartInfo?.end, DateTime.fromMillisecondsSinceEpoch(10));
+    });
+  });
+
+  group('App start spans', () {
+    late SentrySpan? coldStartSpan,
+        engineReadySpan,
+        dartIsolateLoadingSpan,
+        firstFrameRenderSpan;
+    // ignore: invalid_use_of_internal_member
+    late SentryTracer tracer;
+    late Fixture fixture;
+
+    setUp(() async {
+      TestWidgetsFlutterBinding.ensureInitialized();
+
+      fixture = Fixture();
+      NativeAppStartIntegration.clearAppStartInfo();
+
+      fixture.native.appStartEnd = DateTime.fromMillisecondsSinceEpoch(50);
+      fixture.binding.nativeAppStart = NativeAppStart(0, true);
+      // dartLoadingEnd needs to be set after engine end (see MockNativeChannel)
+      SentryFlutter.dartLoadingEnd = DateTime.fromMillisecondsSinceEpoch(15);
+
+      fixture.getNativeAppStartIntegration().call(fixture.hub, fixture.options);
+
+      final processor = fixture.options.eventProcessors.first;
+      tracer = fixture.createTracer();
+      final transaction = SentryTransaction(tracer);
+      final enriched =
+          await processor.apply(transaction, Hint()) as SentryTransaction;
+
+      coldStartSpan = enriched.spans.firstWhereOrNull(
+          (element) => element.context.description == 'Cold start');
+      engineReadySpan = enriched.spans.firstWhereOrNull(
+          (element) => element.context.description == 'Engine init and ready');
+      dartIsolateLoadingSpan = enriched.spans.firstWhereOrNull(
+          (element) => element.context.description == 'Dart isolate loading');
+      firstFrameRenderSpan = enriched.spans.firstWhereOrNull(
+          (element) => element.context.description == 'Initial frame render');
+    });
+
+    test('are added by event processor', () async {
+      expect(coldStartSpan, isNotNull);
+      expect(engineReadySpan, isNotNull);
+      expect(dartIsolateLoadingSpan, isNotNull);
+      expect(firstFrameRenderSpan, isNotNull);
+    });
+
+    test('have correct op', () async {
+      const op = 'app.start.cold';
+      expect(coldStartSpan?.context.operation, op);
+      expect(engineReadySpan?.context.operation, op);
+      expect(dartIsolateLoadingSpan?.context.operation, op);
+      expect(firstFrameRenderSpan?.context.operation, op);
+    });
+
+    test('have correct parents', () async {
+      expect(coldStartSpan?.context.parentSpanId, tracer.context.spanId);
+      expect(
+          engineReadySpan?.context.parentSpanId, coldStartSpan?.context.spanId);
+      expect(dartIsolateLoadingSpan?.context.parentSpanId,
+          coldStartSpan?.context.spanId);
+      expect(firstFrameRenderSpan?.context.parentSpanId,
+          coldStartSpan?.context.spanId);
+    });
+
+    test('have correct traceId', () async {
+      final traceId = tracer.context.traceId;
+      expect(coldStartSpan?.context.traceId, traceId);
+      expect(engineReadySpan?.context.traceId, traceId);
+      expect(dartIsolateLoadingSpan?.context.traceId, traceId);
+      expect(firstFrameRenderSpan?.context.traceId, traceId);
+    });
+
+    test('have correct startTimestamp', () async {
+      final appStartTime = DateTime.fromMillisecondsSinceEpoch(
+              fixture.binding.nativeAppStart!.appStartTime.toInt())
+          .toUtc();
+      expect(coldStartSpan?.startTimestamp, appStartTime);
+      expect(engineReadySpan?.startTimestamp, appStartTime);
+      expect(dartIsolateLoadingSpan?.startTimestamp,
+          engineReadySpan?.endTimestamp);
+      expect(firstFrameRenderSpan?.startTimestamp,
+          dartIsolateLoadingSpan?.endTimestamp);
+    });
+
+    test('have correct endTimestamp', () async {
+      final engineReadyEndtime = await fixture.native.fetchEngineReadyEndtime();
+      expect(coldStartSpan?.endTimestamp, fixture.native.appStartEnd?.toUtc());
+      expect(engineReadySpan?.endTimestamp,
+          DateTime.fromMillisecondsSinceEpoch(engineReadyEndtime!).toUtc());
+      expect(dartIsolateLoadingSpan?.endTimestamp,
+          SentryFlutter.dartLoadingEnd.toUtc());
+      expect(firstFrameRenderSpan?.endTimestamp, coldStartSpan?.endTimestamp);
     });
   });
 }

@@ -501,6 +501,8 @@ void main() {
           AppStartType.cold,
           start: DateTime.now().add(const Duration(seconds: 1)),
           end: DateTime.now().add(const Duration(seconds: 2)),
+          engineEnd: DateTime.now().add(const Duration(seconds: 3)),
+          dartLoadingEnd: DateTime.now().add(const Duration(seconds: 4)),
         ),
       );
 

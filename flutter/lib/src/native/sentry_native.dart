@@ -36,6 +36,10 @@ class SentryNative {
     return _invoke("fetchNativeAppStart", _binding.fetchNativeAppStart);
   }
 
+  Future<int?> fetchEngineReadyEndtime() async {
+    return _invoke("fetchEngineReadyEndtime", _binding.fetchEngineReadyEndtime);
+  }
+
   // NativeFrames
 
   Future<void> beginNativeFramesCollection() =>

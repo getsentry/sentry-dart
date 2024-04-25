@@ -61,6 +61,8 @@ void main() {
       AppStartType.cold,
       start: getUtcDateTime().add(Duration(seconds: 1)),
       end: getUtcDateTime().add(Duration(seconds: 2)),
+      engineEnd: getUtcDateTime().add(Duration(seconds: 3)),
+      dartLoadingEnd: getUtcDateTime().add(Duration(seconds: 4)),
     );
     NativeAppStartIntegration.setAppStartInfo(appStartInfo);
 

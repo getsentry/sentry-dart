@@ -1,7 +1,8 @@
+// ignore_for_file: invalid_use_of_internal_member
+
 import 'dart:async';
 
-import 'package:sentry/sentry.dart';
-
+import '../../sentry_flutter.dart';
 import '../integrations/integrations.dart';
 import '../native/sentry_native.dart';
 
@@ -36,61 +37,96 @@ class NativeAppStartEventProcessor implements EventProcessor {
     final transaction = event.tracer;
 
     if (appStartInfo == null) {
+      print('app start is null');
       return event;
     }
 
-    final classInitUptimeMs =
-        appStartInfo.nativeSpanTimes['classInitUptimeMs'] as int?;
-    final appStartUptimeMs =
-        appStartInfo.nativeSpanTimes['appStartUptimeMs'] as int?;
+    // if (classInitUptimeMs != null && appStartUptimeMs != null) {
+    //   final duration = classInitUptimeMs - appStartUptimeMs;
+    //
+    //   final classInitSpan = await _createAndFinishSpan(
+    //       tracer: transaction,
+    //       operation: 'ui.load',
+    //       description: 'Class init',
+    //       parentSpanId: transaction.context.spanId,
+    //       traceId: transaction.context.traceId,
+    //       startTimestamp: appStartInfo.start,
+    //       endTimestamp:
+    //       appStartInfo.start.add(Duration(milliseconds: duration)));
+    //
+    //   transaction.children.addAll([
+    //     classInitSpan,
+    //   ]);
+    //   // await _attachAppStartSpans(appStartInfo, transaction);
+    //
+    //   return event;
+    // }
+
+    await _attachAppStartSpans(appStartInfo, transaction);
+
+    return event;
+  }
+
+  Future<void> _attachNativeSpans(
+      AppStartInfo appStartInfo, SentryTracer transaction, SentrySpan parent) async {
     final runTimeInitTimestamp =
         appStartInfo.nativeSpanTimes['runtimeInitTimestamp'] as double?;
     final moduleInitTimestamp =
-    appStartInfo.nativeSpanTimes['moduleInitTimestamp'] as double?;
-    final sdkStartTimestamp = appStartInfo.nativeSpanTimes['sdkStartTimestamp'] as double?;
-    final didFinishLaunchingTimestamp = appStartInfo.nativeSpanTimes['didFinishLaunchingTimestamp'] as double?;
+        appStartInfo.nativeSpanTimes['moduleInitTimestamp'] as double?;
+    final sdkStartTimestamp =
+        appStartInfo.nativeSpanTimes['sdkStartTimestamp'] as double?;
+    final didFinishLaunchingTimestamp =
+        appStartInfo.nativeSpanTimes['didFinishLaunchingTimestamp'] as double?;
 
-    if (runTimeInitTimestamp != null && moduleInitTimestamp != null && sdkStartTimestamp != null && didFinishLaunchingTimestamp != null) {
-      final aa = DateTime.fromMillisecondsSinceEpoch(runTimeInitTimestamp.toInt());
-      final bb = DateTime.fromMillisecondsSinceEpoch(moduleInitTimestamp.toInt());
-      final sdkStart = DateTime.fromMillisecondsSinceEpoch(sdkStartTimestamp.toInt());
-      // final didFinishLaunching = DateTime.fromMillisecondsSinceEpoch(didFinishLaunchingTimestamp.toInt());
+    if (runTimeInitTimestamp != null &&
+        moduleInitTimestamp != null &&
+        sdkStartTimestamp != null &&
+        didFinishLaunchingTimestamp != null) {
+      final aa =
+          DateTime.fromMillisecondsSinceEpoch(runTimeInitTimestamp.toInt());
+      final bb =
+          DateTime.fromMillisecondsSinceEpoch(moduleInitTimestamp.toInt());
+      final sdkStart =
+          DateTime.fromMillisecondsSinceEpoch(sdkStartTimestamp.toInt());
+      final didFinishLaunching = DateTime.fromMillisecondsSinceEpoch(didFinishLaunchingTimestamp.toInt());
+
+      final op = 'app.start.${appStartInfo.type.name}';
 
       final preRuntimeInitSpan = await _createAndFinishSpan(
           tracer: transaction,
-          operation: 'ui.load',
+          operation: op,
           description: 'Pre runtime init',
-          parentSpanId: transaction.context.spanId,
+          parentSpanId: parent.context.spanId,
           traceId: transaction.context.traceId,
           startTimestamp: appStartInfo.start,
           endTimestamp: aa);
 
       final runtimeInitSpan = await _createAndFinishSpan(
           tracer: transaction,
-          operation: 'ui.load',
+          operation: op,
           description: 'Runtime init',
-          parentSpanId: transaction.context.spanId,
+          parentSpanId: parent.context.spanId,
           traceId: transaction.context.traceId,
           startTimestamp: aa,
           endTimestamp: bb);
 
       final appInitSpan = await _createAndFinishSpan(
           tracer: transaction,
-          operation: 'ui.load',
+          operation: op,
           description: 'UIKit init',
-          parentSpanId: transaction.context.spanId,
+          parentSpanId: parent.context.spanId,
           traceId: transaction.context.traceId,
           startTimestamp: bb,
           endTimestamp: sdkStart);
 
       final didFinishLaunchingSpan = await _createAndFinishSpan(
           tracer: transaction,
-          operation: 'ui.load',
+          operation: op,
           description: 'Application init',
-          parentSpanId: transaction.context.spanId,
+          parentSpanId: parent.context.spanId,
           traceId: transaction.context.traceId,
           startTimestamp: sdkStart,
-          endTimestamp: appStartInfo.end);
+          endTimestamp: didFinishLaunching);
 
       transaction.children.addAll([
         preRuntimeInitSpan,
@@ -99,28 +135,57 @@ class NativeAppStartEventProcessor implements EventProcessor {
         didFinishLaunchingSpan,
       ]);
     }
+  }
 
-    print('classInitUptimeMs: $classInitUptimeMs');
+  Future<void> _attachAppStartSpans(
+      AppStartInfo appStartInfo, SentryTracer transaction) async {
+    final op = 'app.start.${appStartInfo.type.name}';
+    final transactionTraceId = transaction.context.traceId;
 
-    if (classInitUptimeMs != null && appStartUptimeMs != null) {
-      final duration = classInitUptimeMs - appStartUptimeMs;
+    final appStartSpan = await _createAndFinishSpan(
+        tracer: transaction,
+        operation: op,
+        description: '${appStartInfo.type.name.capitalize()} start',
+        parentSpanId: transaction.context.spanId,
+        traceId: transactionTraceId,
+        startTimestamp: appStartInfo.start,
+        endTimestamp: appStartInfo.end);
 
-      final classInitSpan = await _createAndFinishSpan(
-          tracer: transaction,
-          operation: 'ui.load',
-          description: 'Class init',
-          parentSpanId: transaction.context.spanId,
-          traceId: transaction.context.traceId,
-          startTimestamp: appStartInfo.start,
-          endTimestamp:
-              appStartInfo.start.add(Duration(milliseconds: duration)));
+    await _attachNativeSpans(appStartInfo, transaction, appStartSpan);
 
-      transaction.children.addAll([
-        classInitSpan,
-      ]);
-    }
+    final engineReadySpan = await _createAndFinishSpan(
+        tracer: transaction,
+        operation: op,
+        description: 'Engine init and ready',
+        parentSpanId: appStartSpan.context.spanId,
+        traceId: transactionTraceId,
+        startTimestamp: appStartInfo.start,
+        endTimestamp: appStartInfo.engineEnd);
 
-    return event;
+    final dartIsolateLoadingSpan = await _createAndFinishSpan(
+        tracer: transaction,
+        operation: op,
+        description: 'Dart isolate loading',
+        parentSpanId: appStartSpan.context.spanId,
+        traceId: transactionTraceId,
+        startTimestamp: appStartInfo.engineEnd,
+        endTimestamp: appStartInfo.dartLoadingEnd);
+
+    final firstFrameRenderSpan = await _createAndFinishSpan(
+        tracer: transaction,
+        operation: op,
+        description: 'Initial frame render',
+        parentSpanId: appStartSpan.context.spanId,
+        traceId: transactionTraceId,
+        startTimestamp: SentryFlutter.dartLoadingEnd,
+        endTimestamp: appStartInfo.end);
+
+    transaction.children.addAll([
+      appStartSpan,
+      engineReadySpan,
+      dartIsolateLoadingSpan,
+      firstFrameRenderSpan
+    ]);
   }
 
   Future<SentrySpan> _createAndFinishSpan({
@@ -144,5 +209,11 @@ class NativeAppStartEventProcessor implements EventProcessor {
         startTimestamp: startTimestamp);
     await span.finish(endTimestamp: endTimestamp);
     return span;
+  }
+}
+
+extension _StringExtension on String {
+  String capitalize() {
+    return "${this[0].toUpperCase()}${substring(1).toLowerCase()}";
   }
 }
