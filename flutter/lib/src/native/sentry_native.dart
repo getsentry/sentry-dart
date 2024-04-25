@@ -129,15 +129,17 @@ class SentryNative {
 }
 
 class NativeAppStart {
-  NativeAppStart(this.appStartTime, this.isColdStart);
+  NativeAppStart(this.appStartTime, this.isColdStart, this.nativeSpanTimes);
 
   double appStartTime;
   bool isColdStart;
+  Map<dynamic, dynamic> nativeSpanTimes;
 
   factory NativeAppStart.fromJson(Map<String, dynamic> json) {
     return NativeAppStart(
       json['appStartTime'] as double,
       json['isColdStart'] as bool,
+      json['nativeSpanTimes'] as Map<dynamic, dynamic>,
     );
   }
 }

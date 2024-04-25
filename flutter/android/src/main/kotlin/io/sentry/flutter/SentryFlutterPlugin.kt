@@ -127,7 +127,25 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       return
     }
 
-    val appStartTime = AppStartMetrics.getInstance().appStartTimeSpan.startTimestamp
+    val appStartMetrics = AppStartMetrics.getInstance()
+
+    val applicationOnCreateStartTime = appStartMetrics.applicationOnCreateTimeSpan.startTimestamp
+    println("ok?: ${appStartMetrics.appStartTimeSpan.startUptimeMs}")
+
+    val classInitUptimeMs = appStartMetrics.classLoadedUptimeMs
+    val appStartUptimeMs = appStartMetrics.appStartTimeSpan.startUptimeMs
+    val appStartTime = appStartMetrics.appStartTimeSpan.startTimestamp
+    val contentProviderOnCreates = appStartMetrics.contentProviderOnCreateTimeSpans
+    println(contentProviderOnCreates.isEmpty())
+    println("haha");
+    contentProviderOnCreates.forEach {
+      println("contentProviderOnCreates: ${it.startTimestamp}")
+      println("contentProviderOnCreates: ${it.projectedStopTimestamp}")
+      println("")
+    }
+    val appl = appStartMetrics.applicationOnCreateTimeSpan
+//    AppStartMetrics.onApplicationPostCreate()
+    print("appl: ${appl.startTimestamp} ${appl.startTimestampMs} ${appl.hasStopped()}")
     val isColdStart =
       AppStartMetrics.getInstance().appStartType == AppStartMetrics.AppStartType.COLD
 
@@ -136,10 +154,23 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       result.success(null)
     } else {
       val appStartTimeMillis = DateUtils.nanosToMillis(appStartTime.nanoTimestamp().toDouble())
-      val item = mapOf<String, Any?>(
+      val item = mutableMapOf<String, Any?>(
         "appStartTime" to appStartTimeMillis,
         "isColdStart" to isColdStart,
       )
+      println("ok?: ${classInitUptimeMs - appStartMetrics.appStartTimeSpan.startUptimeMs}");
+//      if (applicationOnCreateStartTime != null) {
+//        println("is not null");
+//        val applicationOnCreateTimeMillis =
+//          DateUtils.nanosToMillis(applicationOnCreateStartTime.nanoTimestamp().toDouble())
+//        item["applicationOnCreateTime"] = mapOf("test" to "test")
+//      }
+      item["nativeSpanTimes"] = mapOf<String, Any?>(
+        "classInitUptimeMs" to classInitUptimeMs,
+        "appStartUptimeMs" to appStartUptimeMs,
+      )
+
+
       result.success(item)
     }
   }

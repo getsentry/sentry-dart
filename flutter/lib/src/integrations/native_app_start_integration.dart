@@ -53,7 +53,8 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
     if (isIntegrationTest) {
       final appStartInfo = AppStartInfo(AppStartType.cold,
           start: DateTime.now(),
-          end: DateTime.now().add(const Duration(milliseconds: 100)));
+          end: DateTime.now().add(const Duration(milliseconds: 100)),
+          nativeSpanTimes: {});
       setAppStartInfo(appStartInfo);
       return;
     }
@@ -95,7 +96,8 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
             nativeAppStart.isColdStart ? AppStartType.cold : AppStartType.warm,
             start: DateTime.fromMillisecondsSinceEpoch(
                 nativeAppStart.appStartTime.toInt()),
-            end: appStartEnd);
+            end: appStartEnd,
+            nativeSpanTimes: nativeAppStart.nativeSpanTimes);
         setAppStartInfo(appStartInfo);
       });
     }
@@ -109,11 +111,14 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
 enum AppStartType { cold, warm }
 
 class AppStartInfo {
-  AppStartInfo(this.type, {required this.start, required this.end});
+  AppStartInfo(this.type,
+      {required this.start, required this.end, required this.nativeSpanTimes});
 
   final AppStartType type;
   final DateTime start;
   final DateTime end;
+  final Map<dynamic, dynamic> nativeSpanTimes;
+
   Duration get duration => end.difference(start);
 
   SentryMeasurement toMeasurement() {

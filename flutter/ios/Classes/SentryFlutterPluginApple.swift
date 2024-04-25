@@ -382,13 +382,26 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
             result(nil)
             return
         }
+        
+        let runtimeInitTimestamp = appStartMeasurement.runtimeInitTimestamp.timeIntervalSince1970 * 1000
+        let moduleInitTimestamp = appStartMeasurement.moduleInitializationTimestamp.timeIntervalSince1970 * 1000
+        let sdkStartTimestamp = appStartMeasurement.sdkStartTimestamp.timeIntervalSince1970 * 1000
+        let didFinishLaunchingTimestamp = appStartMeasurement.didFinishLaunchingTimestamp.timeIntervalSince1970 * 1000
+        
+        let nativeSpanTimes: [String: Any] = [
+            "runtimeInitTimestamp": runtimeInitTimestamp,
+            "moduleInitTimestamp": moduleInitTimestamp,
+            "sdkStartTimestamp": sdkStartTimestamp,
+            "didFinishLaunchingTimestamp": didFinishLaunchingTimestamp
+        ]
 
         let appStartTime = appStartMeasurement.appStartTimestamp.timeIntervalSince1970 * 1000
         let isColdStart = appStartMeasurement.type == .cold
 
         let item: [String: Any] = [
             "appStartTime": appStartTime,
-            "isColdStart": isColdStart
+            "isColdStart": isColdStart,
+            "nativeSpanTimes": nativeSpanTimes
         ]
 
         result(item)
