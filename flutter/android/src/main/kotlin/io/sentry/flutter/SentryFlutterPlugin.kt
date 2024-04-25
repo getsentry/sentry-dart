@@ -45,10 +45,10 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     channel.setMethodCallHandler(this)
 
     sentryFlutter =
-      SentryFlutter(
-        androidSdk = androidSdk,
-        nativeSdk = nativeSdk,
-      )
+        SentryFlutter(
+            androidSdk = androidSdk,
+            nativeSdk = nativeSdk,
+        )
   }
 
   override fun onMethodCall(call: MethodCall, result: Result) {
@@ -124,13 +124,13 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       options.integrations.removeAll { it is ReplayIntegration }
       val recorder = SentryFlutterReplay.recorder
       if (recorder != null && options.cacheDirPath != null) {
-        val replay = ReplayIntegration(
-            context,
-            dateProvider = CurrentDateProvider.getInstance(),
-            recorderProvider = { recorder },
-            recorderConfigProvider = null, // TODO implement in dart
-            replayCacheProvider = null
-        )
+        val replay =
+            ReplayIntegration(
+                context,
+                dateProvider = CurrentDateProvider.getInstance(),
+                recorderProvider = { recorder },
+                recorderConfigProvider = null, // TODO implement in dart
+                replayCacheProvider = null)
 
         options.addIntegration(replay)
         options.setReplayController(replay)
@@ -151,7 +151,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
     val appStartTime = AppStartMetrics.getInstance().appStartTimeSpan.startTimestamp
     val isColdStart =
-      AppStartMetrics.getInstance().appStartType == AppStartMetrics.AppStartType.COLD
+        AppStartMetrics.getInstance().appStartType == AppStartMetrics.AppStartType.COLD
 
     if (appStartTime == null) {
       Log.w("Sentry", "App start won't be sent due to missing appStartTime")
@@ -159,9 +159,9 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     } else {
       val appStartTimeMillis = DateUtils.nanosToMillis(appStartTime.nanoTimestamp().toDouble())
       val item = mapOf<String, Any?>(
-        "appStartTime" to appStartTimeMillis,
-        "isColdStart" to isColdStart,
-      )
+              "appStartTime" to appStartTimeMillis,
+              "isColdStart" to isColdStart,
+          )
       result.success(item)
     }
   }
@@ -199,10 +199,10 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       result.success(null)
     } else {
       val frames = mapOf<String, Any?>(
-        "totalFrames" to total,
-        "slowFrames" to slow,
-        "frozenFrames" to frozen,
-      )
+              "totalFrames" to total,
+              "slowFrames" to slow,
+              "frozenFrames" to frozen,
+          )
       result.success(frames)
     }
   }
@@ -352,7 +352,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
   }
 
   private class BeforeSendCallbackImpl(
-    private val sdkVersion: SdkVersion?,
+      private val sdkVersion: SdkVersion?,
   ) : SentryOptions.BeforeSendCallback {
     override fun execute(event: SentryEvent, hint: Hint): SentryEvent {
       setEventOriginTag(event)
@@ -366,6 +366,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     private const val flutterSdk = "sentry.dart.flutter"
     private const val androidSdk = "sentry.java.android.flutter"
     private const val nativeSdk = "sentry.native.android.flutter"
+
     private fun setEventOriginTag(event: SentryEvent) {
       event.sdk?.let {
         when (it.name) {
@@ -378,9 +379,9 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     }
 
     private fun setEventEnvironmentTag(
-      event: SentryEvent,
-      origin: String = "android",
-      environment: String,
+        event: SentryEvent,
+        origin: String = "android",
+        environment: String,
     ) {
       event.setTag("event.origin", origin)
       event.setTag("event.environment", environment)
@@ -408,11 +409,11 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     }
     val currentScope = InternalSentrySdk.getCurrentScope()
     val serializedScope =
-      InternalSentrySdk.serializeScope(
-        context,
-        options,
-        currentScope,
-      )
+        InternalSentrySdk.serializeScope(
+            context,
+            options,
+            currentScope,
+        )
     result.success(serializedScope)
   }
 }
