@@ -46,28 +46,6 @@ class SentryReplayOptions {
   // /// Default is enabled.
   // bool redactAllImages = true;
 
-  /// Defines the quality of the session replay. Higher bit rates have better replay quality, but
-  /// also affect the final payload size to transfer, defaults to 100kbps.
-  @internal
-  int bitRate = 100000;
-
-  /// Number of frames per second of the replay. The bigger the number, the more accurate the replay
-  /// will be, but also more data to transfer and more CPU load, defaults to 1fps.
-  @internal
-  int frameRate = 1;
-
-  /// The maximum duration of replays for error events.
-  @internal
-  Duration errorReplayDuration = Duration(seconds: 30);
-
-  /// The maximum duration of the segment of a session replay, defaults to 5s.
-  @internal
-  Duration sessionSegmentDuration = Duration(seconds: 5);
-
-  /// The maximum duration of a full session replay, defaults to 1h.
-  @internal
-  Duration sessionDuration = Duration(hours: 1);
-
   @internal
   bool get isEnabled =>
       ((sessionSampleRate ?? 0) > 0) || ((errorSampleRate ?? 0) > 0);

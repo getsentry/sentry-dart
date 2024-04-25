@@ -129,23 +129,6 @@ class SentryFlutter(
   fun updateReplayOptions(options: SentryReplayOptions, data: Map<String, Any>) {
     options.sessionSampleRate = data["sessionSampleRate"] as? Double
     options.errorSampleRate = data["errorSampleRate"] as? Double
-
-    // Currently, these are read-only options
-    // data.getIfNotNull<Int>("bitRate") {
-    //   options.bitRate = it
-    // }
-    // data.getIfNotNull<Int>("frameRate") {
-    //   options.frameRate = it
-    // }
-    // data.getIfNotNull<Long>("errorReplayDurationMillis") {
-    //   options.errorReplayDuration = it
-    // }
-    // data.getIfNotNull<Long>("sessionSegmentDurationMillis") {
-    //   options.replayCacheDefaultLowerBound = it
-    // }
-    // data.getIfNotNull<Long>("sessionDurationMillis") {
-    //   options.sessionDuration = it
-    // }
   }
 }
 

@@ -64,12 +64,8 @@ class SentryFlutterTest {
     assertEquals(0.5, fixture.options.experimental.sessionReplay.sessionSampleRate)
     assertEquals(0.6, fixture.options.experimental.sessionReplay.errorSampleRate)
 
-    // TODO, these are currently read-only in SentryReplayOptions so we're testing the default values instead.
-    // assertEquals(10, fixture.options.experimental.sessionReplay.bitRate)
-    // assertEquals(20, fixture.options.experimental.sessionReplay.frameRate)
-    // assertEquals(1000L, fixture.options.experimental.sessionReplay.errorReplayDuration)
-    // assertEquals(500L, fixture.options.experimental.sessionReplay.sessionSegmentDuration)
-    // assertEquals(10_000L, fixture.options.experimental.sessionReplay.sessionDuration)
+    // Note: these are currently read-only in SentryReplayOptions so we're only asserting the default values here to
+    // know when there's a change in the native SDK, as it may require a manual change in the Flutter implementation.
     assertEquals(100_000, fixture.options.experimental.sessionReplay.bitRate)
     assertEquals(1, fixture.options.experimental.sessionReplay.frameRate)
     assertEquals(30_000L, fixture.options.experimental.sessionReplay.errorReplayDuration)
@@ -144,11 +140,6 @@ class Fixture {
     "replay" to mapOf(
       "sessionSampleRate" to 0.5,
       "errorSampleRate" to 0.6,
-      "bitRate" to 10,
-      "frameRate" to 20,
-      "errorReplayDurationMillis" to 1000L,
-      "sessionSegmentDurationMillis" to 500L,
-      "sessionDurationMillis" to 10_000L,
     )
   )
 

@@ -34,13 +34,7 @@ class AndroidReplayRecorder implements java.$RecorderImpl {
         jniCacheDir.getAbsolutePath().toDartString(releaseOriginal: true);
     jniCacheDir.release();
 
-    _recorder = ScreenshotRecorder(
-        ScreenshotRecorderConfig(
-          config.getRecordingWidth(),
-          config.getRecordingHeight(),
-          config.getFrameRate(),
-          config.getBitRate(),
-        ), (image) async {
+    ScreenshotRecorderCallback callback = (image) async {
       var imageData = await image.toByteData(format: ImageByteFormat.png);
       if (imageData != null) {
         var timestamp = DateTime.now().millisecondsSinceEpoch;
@@ -56,7 +50,16 @@ class AndroidReplayRecorder implements java.$RecorderImpl {
           jFilePath.release();
         }
       }
-    });
+    };
+
+    _recorder = ScreenshotRecorder(
+      ScreenshotRecorderConfig(
+        config.getRecordingWidth(),
+        config.getRecordingHeight(),
+        config.getFrameRate(),
+      ),
+      callback,
+    );
     _recorder.start();
   }
 
