@@ -1,7 +1,9 @@
 name: flutter integration tests
 on:
   # Currently broken, enable after fixing
-  workflow_dispatch
+#  workflow_dispatch
+  # TODO: this is only for testing
+  push:
   # push:
   #   branches:
   #     - main
