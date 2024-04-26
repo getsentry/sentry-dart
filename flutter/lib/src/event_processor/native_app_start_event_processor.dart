@@ -59,7 +59,7 @@ class NativeAppStartEventProcessor implements EventProcessor {
     final pluginRegistrationSpan = await _createAndFinishSpan(
         tracer: transaction,
         operation: op,
-        description: AppStartSpanDescriptions.pluginRegistration,
+        description: _AppStartSpanDescriptions.pluginRegistration,
         parentSpanId: appStartSpan.context.spanId,
         traceId: transactionTraceId,
         startTimestamp: appStartInfo.start,
@@ -68,7 +68,7 @@ class NativeAppStartEventProcessor implements EventProcessor {
     final mainIsolateSetupSpan = await _createAndFinishSpan(
         tracer: transaction,
         operation: op,
-        description: AppStartSpanDescriptions.mainIsolateSetup,
+        description: _AppStartSpanDescriptions.mainIsolateSetup,
         parentSpanId: appStartSpan.context.spanId,
         traceId: transactionTraceId,
         startTimestamp: appStartInfo.pluginRegistration,
@@ -77,7 +77,7 @@ class NativeAppStartEventProcessor implements EventProcessor {
     final firstFrameRenderSpan = await _createAndFinishSpan(
         tracer: transaction,
         operation: op,
-        description: AppStartSpanDescriptions.firstFrameRender,
+        description: _AppStartSpanDescriptions.firstFrameRender,
         parentSpanId: appStartSpan.context.spanId,
         traceId: transactionTraceId,
         startTimestamp: SentryFlutter.mainIsolateStartTime,
@@ -121,7 +121,7 @@ extension _StringExtension on String {
   }
 }
 
-class AppStartSpanDescriptions {
+class _AppStartSpanDescriptions {
   static const String pluginRegistration = 'App start to plugin registration';
   static const String mainIsolateSetup = 'Main isolate setup';
   static const String firstFrameRender = 'First frame render';
