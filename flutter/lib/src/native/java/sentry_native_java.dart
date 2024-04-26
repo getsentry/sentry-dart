@@ -8,7 +8,10 @@ import 'binding.dart' as java;
 @internal
 class SentryNativeJava extends SentryNativeChannel {
   SentryNativeJava(super.channel) {
+    // Necessary for the generated binding to work as of jnigen v0.6.0
+    // This may change in the future.
     Jni.initDLApi();
+
     java.SentryFlutterReplay.recorder = AndroidReplayRecorder.create();
   }
 }

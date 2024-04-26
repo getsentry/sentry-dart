@@ -27,7 +27,7 @@ dependencies:
   package_info_plus: '>=1.0.0'
   meta: ^1.3.0
   ffi: ^2.0.0
-  jni: ^0.6.0
+  jni: 0.6.0
   path: ^1.8.0
 
 dev_dependencies:
@@ -41,7 +41,7 @@ dev_dependencies:
   remove_from_coverage: ^2.0.0
   flutter_localizations:
     sdk: flutter
-  jnigen: ^0.6.0
+  jnigen: 0.6.0
 
 flutter:
   plugin:

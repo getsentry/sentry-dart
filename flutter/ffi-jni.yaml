@@ -15,12 +15,13 @@ output:
 
 log_level: all
 
+# Make sure to keep this list up to date with android/proguard-rules.pro
 classes:
+  - java.io.File
+  - io.sentry.flutter.SentryFlutterReplay
   - io.sentry.android.replay.Recorder
   - io.sentry.android.replay.ScreenshotRecorderConfig
   - io.sentry.android.replay.ReplayIntegration
-  - io.sentry.flutter.SentryFlutterReplay
-  - java.io.File
 
 enable_experiment:
   - interface_implementation

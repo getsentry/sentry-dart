@@ -15,911 +15,6 @@ void setJniGetters(JniContext* (*cg)(void), JNIEnv* (*eg)(void)) {
   env_getter = eg;
 }
 
-// io.sentry.android.replay.Recorder
-jclass _c_Recorder = NULL;
-
-jmethodID _m_Recorder__start = NULL;
-FFI_PLUGIN_EXPORT
-JniResult Recorder__start(jobject self_, jobject screenshotRecorderConfig) {
-  load_env();
-  load_class_global_ref(&_c_Recorder, "io/sentry/android/replay/Recorder");
-  if (_c_Recorder == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  load_method(_c_Recorder, &_m_Recorder__start, "start",
-              "(Lio/sentry/android/replay/ScreenshotRecorderConfig;)V");
-  if (_m_Recorder__start == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  (*jniEnv)->CallVoidMethod(jniEnv, self_, _m_Recorder__start,
-                            screenshotRecorderConfig);
-  return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-}
-
-jmethodID _m_Recorder__resume = NULL;
-FFI_PLUGIN_EXPORT
-JniResult Recorder__resume(jobject self_) {
-  load_env();
-  load_class_global_ref(&_c_Recorder, "io/sentry/android/replay/Recorder");
-  if (_c_Recorder == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  load_method(_c_Recorder, &_m_Recorder__resume, "resume", "()V");
-  if (_m_Recorder__resume == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  (*jniEnv)->CallVoidMethod(jniEnv, self_, _m_Recorder__resume);
-  return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-}
-
-jmethodID _m_Recorder__pause = NULL;
-FFI_PLUGIN_EXPORT
-JniResult Recorder__pause(jobject self_) {
-  load_env();
-  load_class_global_ref(&_c_Recorder, "io/sentry/android/replay/Recorder");
-  if (_c_Recorder == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  load_method(_c_Recorder, &_m_Recorder__pause, "pause", "()V");
-  if (_m_Recorder__pause == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  (*jniEnv)->CallVoidMethod(jniEnv, self_, _m_Recorder__pause);
-  return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-}
-
-jmethodID _m_Recorder__stop = NULL;
-FFI_PLUGIN_EXPORT
-JniResult Recorder__stop(jobject self_) {
-  load_env();
-  load_class_global_ref(&_c_Recorder, "io/sentry/android/replay/Recorder");
-  if (_c_Recorder == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  load_method(_c_Recorder, &_m_Recorder__stop, "stop", "()V");
-  if (_m_Recorder__stop == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  (*jniEnv)->CallVoidMethod(jniEnv, self_, _m_Recorder__stop);
-  return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-}
-
-// io.sentry.android.replay.ScreenshotRecorderConfig$Companion
-jclass _c_ScreenshotRecorderConfig_Companion = NULL;
-
-jmethodID _m_ScreenshotRecorderConfig_Companion__from = NULL;
-FFI_PLUGIN_EXPORT
-JniResult ScreenshotRecorderConfig_Companion__from(
-    jobject self_,
-    jobject context,
-    jobject sentryReplayOptions) {
-  load_env();
-  load_class_global_ref(
-      &_c_ScreenshotRecorderConfig_Companion,
-      "io/sentry/android/replay/ScreenshotRecorderConfig$Companion");
-  if (_c_ScreenshotRecorderConfig_Companion == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  load_method(_c_ScreenshotRecorderConfig_Companion,
-              &_m_ScreenshotRecorderConfig_Companion__from, "from",
-              "(Landroid/content/Context;Lio/sentry/SentryReplayOptions;)Lio/"
-              "sentry/android/replay/ScreenshotRecorderConfig;");
-  if (_m_ScreenshotRecorderConfig_Companion__from == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  jobject _result = (*jniEnv)->CallObjectMethod(
-      jniEnv, self_, _m_ScreenshotRecorderConfig_Companion__from, context,
-      sentryReplayOptions);
-  return to_global_ref_result(_result);
-}
-
-jmethodID _m_ScreenshotRecorderConfig_Companion__new0 = NULL;
-FFI_PLUGIN_EXPORT
-JniResult ScreenshotRecorderConfig_Companion__new0(
-    jobject defaultConstructorMarker) {
-  load_env();
-  load_class_global_ref(
-      &_c_ScreenshotRecorderConfig_Companion,
-      "io/sentry/android/replay/ScreenshotRecorderConfig$Companion");
-  if (_c_ScreenshotRecorderConfig_Companion == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  load_method(_c_ScreenshotRecorderConfig_Companion,
-              &_m_ScreenshotRecorderConfig_Companion__new0, "<init>",
-              "(Lkotlin/jvm/internal/DefaultConstructorMarker;)V");
-  if (_m_ScreenshotRecorderConfig_Companion__new0 == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  jobject _result = (*jniEnv)->NewObject(
-      jniEnv, _c_ScreenshotRecorderConfig_Companion,
-      _m_ScreenshotRecorderConfig_Companion__new0, defaultConstructorMarker);
-  return to_global_ref_result(_result);
-}
-
-// io.sentry.android.replay.ScreenshotRecorderConfig
-jclass _c_ScreenshotRecorderConfig = NULL;
-
-jmethodID _m_ScreenshotRecorderConfig__new0 = NULL;
-FFI_PLUGIN_EXPORT
-JniResult ScreenshotRecorderConfig__new0(int32_t i,
-                                         int32_t i1,
-                                         float f,
-                                         float f1,
-                                         int32_t i2,
-                                         int32_t i3) {
-  load_env();
-  load_class_global_ref(&_c_ScreenshotRecorderConfig,
-                        "io/sentry/android/replay/ScreenshotRecorderConfig");
-  if (_c_ScreenshotRecorderConfig == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  load_method(_c_ScreenshotRecorderConfig, &_m_ScreenshotRecorderConfig__new0,
-              "<init>", "(IIFFII)V");
-  if (_m_ScreenshotRecorderConfig__new0 == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  jobject _result = (*jniEnv)->NewObject(jniEnv, _c_ScreenshotRecorderConfig,
-                                         _m_ScreenshotRecorderConfig__new0, i,
-                                         i1, f, f1, i2, i3);
-  return to_global_ref_result(_result);
-}
-
-jmethodID _m_ScreenshotRecorderConfig__getRecordingWidth = NULL;
-FFI_PLUGIN_EXPORT
-JniResult ScreenshotRecorderConfig__getRecordingWidth(jobject self_) {
-  load_env();
-  load_class_global_ref(&_c_ScreenshotRecorderConfig,
-                        "io/sentry/android/replay/ScreenshotRecorderConfig");
-  if (_c_ScreenshotRecorderConfig == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  load_method(_c_ScreenshotRecorderConfig,
-              &_m_ScreenshotRecorderConfig__getRecordingWidth,
-              "getRecordingWidth", "()I");
-  if (_m_ScreenshotRecorderConfig__getRecordingWidth == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  int32_t _result = (*jniEnv)->CallIntMethod(
-      jniEnv, self_, _m_ScreenshotRecorderConfig__getRecordingWidth);
-  return (JniResult){.value = {.i = _result}, .exception = check_exception()};
-}
-
-jmethodID _m_ScreenshotRecorderConfig__getRecordingHeight = NULL;
-FFI_PLUGIN_EXPORT
-JniResult ScreenshotRecorderConfig__getRecordingHeight(jobject self_) {
-  load_env();
-  load_class_global_ref(&_c_ScreenshotRecorderConfig,
-                        "io/sentry/android/replay/ScreenshotRecorderConfig");
-  if (_c_ScreenshotRecorderConfig == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  load_method(_c_ScreenshotRecorderConfig,
-              &_m_ScreenshotRecorderConfig__getRecordingHeight,
-              "getRecordingHeight", "()I");
-  if (_m_ScreenshotRecorderConfig__getRecordingHeight == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  int32_t _result = (*jniEnv)->CallIntMethod(
-      jniEnv, self_, _m_ScreenshotRecorderConfig__getRecordingHeight);
-  return (JniResult){.value = {.i = _result}, .exception = check_exception()};
-}
-
-jmethodID _m_ScreenshotRecorderConfig__getScaleFactorX = NULL;
-FFI_PLUGIN_EXPORT
-JniResult ScreenshotRecorderConfig__getScaleFactorX(jobject self_) {
-  load_env();
-  load_class_global_ref(&_c_ScreenshotRecorderConfig,
-                        "io/sentry/android/replay/ScreenshotRecorderConfig");
-  if (_c_ScreenshotRecorderConfig == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  load_method(_c_ScreenshotRecorderConfig,
-              &_m_ScreenshotRecorderConfig__getScaleFactorX, "getScaleFactorX",
-              "()F");
-  if (_m_ScreenshotRecorderConfig__getScaleFactorX == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  float _result = (*jniEnv)->CallFloatMethod(
-      jniEnv, self_, _m_ScreenshotRecorderConfig__getScaleFactorX);
-  return (JniResult){.value = {.f = _result}, .exception = check_exception()};
-}
-
-jmethodID _m_ScreenshotRecorderConfig__getScaleFactorY = NULL;
-FFI_PLUGIN_EXPORT
-JniResult ScreenshotRecorderConfig__getScaleFactorY(jobject self_) {
-  load_env();
-  load_class_global_ref(&_c_ScreenshotRecorderConfig,
-                        "io/sentry/android/replay/ScreenshotRecorderConfig");
-  if (_c_ScreenshotRecorderConfig == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  load_method(_c_ScreenshotRecorderConfig,
-              &_m_ScreenshotRecorderConfig__getScaleFactorY, "getScaleFactorY",
-              "()F");
-  if (_m_ScreenshotRecorderConfig__getScaleFactorY == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  float _result = (*jniEnv)->CallFloatMethod(
-      jniEnv, self_, _m_ScreenshotRecorderConfig__getScaleFactorY);
-  return (JniResult){.value = {.f = _result}, .exception = check_exception()};
-}
-
-jmethodID _m_ScreenshotRecorderConfig__getFrameRate = NULL;
-FFI_PLUGIN_EXPORT
-JniResult ScreenshotRecorderConfig__getFrameRate(jobject self_) {
-  load_env();
-  load_class_global_ref(&_c_ScreenshotRecorderConfig,
-                        "io/sentry/android/replay/ScreenshotRecorderConfig");
-  if (_c_ScreenshotRecorderConfig == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  load_method(_c_ScreenshotRecorderConfig,
-              &_m_ScreenshotRecorderConfig__getFrameRate, "getFrameRate",
-              "()I");
-  if (_m_ScreenshotRecorderConfig__getFrameRate == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  int32_t _result = (*jniEnv)->CallIntMethod(
-      jniEnv, self_, _m_ScreenshotRecorderConfig__getFrameRate);
-  return (JniResult){.value = {.i = _result}, .exception = check_exception()};
-}
-
-jmethodID _m_ScreenshotRecorderConfig__getBitRate = NULL;
-FFI_PLUGIN_EXPORT
-JniResult ScreenshotRecorderConfig__getBitRate(jobject self_) {
-  load_env();
-  load_class_global_ref(&_c_ScreenshotRecorderConfig,
-                        "io/sentry/android/replay/ScreenshotRecorderConfig");
-  if (_c_ScreenshotRecorderConfig == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  load_method(_c_ScreenshotRecorderConfig,
-              &_m_ScreenshotRecorderConfig__getBitRate, "getBitRate", "()I");
-  if (_m_ScreenshotRecorderConfig__getBitRate == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  int32_t _result = (*jniEnv)->CallIntMethod(
-      jniEnv, self_, _m_ScreenshotRecorderConfig__getBitRate);
-  return (JniResult){.value = {.i = _result}, .exception = check_exception()};
-}
-
-jmethodID _m_ScreenshotRecorderConfig__component1 = NULL;
-FFI_PLUGIN_EXPORT
-JniResult ScreenshotRecorderConfig__component1(jobject self_) {
-  load_env();
-  load_class_global_ref(&_c_ScreenshotRecorderConfig,
-                        "io/sentry/android/replay/ScreenshotRecorderConfig");
-  if (_c_ScreenshotRecorderConfig == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  load_method(_c_ScreenshotRecorderConfig,
-              &_m_ScreenshotRecorderConfig__component1, "component1", "()I");
-  if (_m_ScreenshotRecorderConfig__component1 == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  int32_t _result = (*jniEnv)->CallIntMethod(
-      jniEnv, self_, _m_ScreenshotRecorderConfig__component1);
-  return (JniResult){.value = {.i = _result}, .exception = check_exception()};
-}
-
-jmethodID _m_ScreenshotRecorderConfig__component2 = NULL;
-FFI_PLUGIN_EXPORT
-JniResult ScreenshotRecorderConfig__component2(jobject self_) {
-  load_env();
-  load_class_global_ref(&_c_ScreenshotRecorderConfig,
-                        "io/sentry/android/replay/ScreenshotRecorderConfig");
-  if (_c_ScreenshotRecorderConfig == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  load_method(_c_ScreenshotRecorderConfig,
-              &_m_ScreenshotRecorderConfig__component2, "component2", "()I");
-  if (_m_ScreenshotRecorderConfig__component2 == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  int32_t _result = (*jniEnv)->CallIntMethod(
-      jniEnv, self_, _m_ScreenshotRecorderConfig__component2);
-  return (JniResult){.value = {.i = _result}, .exception = check_exception()};
-}
-
-jmethodID _m_ScreenshotRecorderConfig__component3 = NULL;
-FFI_PLUGIN_EXPORT
-JniResult ScreenshotRecorderConfig__component3(jobject self_) {
-  load_env();
-  load_class_global_ref(&_c_ScreenshotRecorderConfig,
-                        "io/sentry/android/replay/ScreenshotRecorderConfig");
-  if (_c_ScreenshotRecorderConfig == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  load_method(_c_ScreenshotRecorderConfig,
-              &_m_ScreenshotRecorderConfig__component3, "component3", "()F");
-  if (_m_ScreenshotRecorderConfig__component3 == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  float _result = (*jniEnv)->CallFloatMethod(
-      jniEnv, self_, _m_ScreenshotRecorderConfig__component3);
-  return (JniResult){.value = {.f = _result}, .exception = check_exception()};
-}
-
-jmethodID _m_ScreenshotRecorderConfig__component4 = NULL;
-FFI_PLUGIN_EXPORT
-JniResult ScreenshotRecorderConfig__component4(jobject self_) {
-  load_env();
-  load_class_global_ref(&_c_ScreenshotRecorderConfig,
-                        "io/sentry/android/replay/ScreenshotRecorderConfig");
-  if (_c_ScreenshotRecorderConfig == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  load_method(_c_ScreenshotRecorderConfig,
-              &_m_ScreenshotRecorderConfig__component4, "component4", "()F");
-  if (_m_ScreenshotRecorderConfig__component4 == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  float _result = (*jniEnv)->CallFloatMethod(
-      jniEnv, self_, _m_ScreenshotRecorderConfig__component4);
-  return (JniResult){.value = {.f = _result}, .exception = check_exception()};
-}
-
-jmethodID _m_ScreenshotRecorderConfig__component5 = NULL;
-FFI_PLUGIN_EXPORT
-JniResult ScreenshotRecorderConfig__component5(jobject self_) {
-  load_env();
-  load_class_global_ref(&_c_ScreenshotRecorderConfig,
-                        "io/sentry/android/replay/ScreenshotRecorderConfig");
-  if (_c_ScreenshotRecorderConfig == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  load_method(_c_ScreenshotRecorderConfig,
-              &_m_ScreenshotRecorderConfig__component5, "component5", "()I");
-  if (_m_ScreenshotRecorderConfig__component5 == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  int32_t _result = (*jniEnv)->CallIntMethod(
-      jniEnv, self_, _m_ScreenshotRecorderConfig__component5);
-  return (JniResult){.value = {.i = _result}, .exception = check_exception()};
-}
-
-jmethodID _m_ScreenshotRecorderConfig__component6 = NULL;
-FFI_PLUGIN_EXPORT
-JniResult ScreenshotRecorderConfig__component6(jobject self_) {
-  load_env();
-  load_class_global_ref(&_c_ScreenshotRecorderConfig,
-                        "io/sentry/android/replay/ScreenshotRecorderConfig");
-  if (_c_ScreenshotRecorderConfig == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  load_method(_c_ScreenshotRecorderConfig,
-              &_m_ScreenshotRecorderConfig__component6, "component6", "()I");
-  if (_m_ScreenshotRecorderConfig__component6 == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  int32_t _result = (*jniEnv)->CallIntMethod(
-      jniEnv, self_, _m_ScreenshotRecorderConfig__component6);
-  return (JniResult){.value = {.i = _result}, .exception = check_exception()};
-}
-
-jmethodID _m_ScreenshotRecorderConfig__copy = NULL;
-FFI_PLUGIN_EXPORT
-JniResult ScreenshotRecorderConfig__copy(jobject self_,
-                                         int32_t i,
-                                         int32_t i1,
-                                         float f,
-                                         float f1,
-                                         int32_t i2,
-                                         int32_t i3) {
-  load_env();
-  load_class_global_ref(&_c_ScreenshotRecorderConfig,
-                        "io/sentry/android/replay/ScreenshotRecorderConfig");
-  if (_c_ScreenshotRecorderConfig == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  load_method(_c_ScreenshotRecorderConfig, &_m_ScreenshotRecorderConfig__copy,
-              "copy",
-              "(IIFFII)Lio/sentry/android/replay/ScreenshotRecorderConfig;");
-  if (_m_ScreenshotRecorderConfig__copy == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  jobject _result = (*jniEnv)->CallObjectMethod(
-      jniEnv, self_, _m_ScreenshotRecorderConfig__copy, i, i1, f, f1, i2, i3);
-  return to_global_ref_result(_result);
-}
-
-jmethodID _m_ScreenshotRecorderConfig__toString1 = NULL;
-FFI_PLUGIN_EXPORT
-JniResult ScreenshotRecorderConfig__toString1(jobject self_) {
-  load_env();
-  load_class_global_ref(&_c_ScreenshotRecorderConfig,
-                        "io/sentry/android/replay/ScreenshotRecorderConfig");
-  if (_c_ScreenshotRecorderConfig == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  load_method(_c_ScreenshotRecorderConfig,
-              &_m_ScreenshotRecorderConfig__toString1, "toString",
-              "()Ljava/lang/String;");
-  if (_m_ScreenshotRecorderConfig__toString1 == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  jobject _result = (*jniEnv)->CallObjectMethod(
-      jniEnv, self_, _m_ScreenshotRecorderConfig__toString1);
-  return to_global_ref_result(_result);
-}
-
-jmethodID _m_ScreenshotRecorderConfig__hashCode1 = NULL;
-FFI_PLUGIN_EXPORT
-JniResult ScreenshotRecorderConfig__hashCode1(jobject self_) {
-  load_env();
-  load_class_global_ref(&_c_ScreenshotRecorderConfig,
-                        "io/sentry/android/replay/ScreenshotRecorderConfig");
-  if (_c_ScreenshotRecorderConfig == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  load_method(_c_ScreenshotRecorderConfig,
-              &_m_ScreenshotRecorderConfig__hashCode1, "hashCode", "()I");
-  if (_m_ScreenshotRecorderConfig__hashCode1 == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  int32_t _result = (*jniEnv)->CallIntMethod(
-      jniEnv, self_, _m_ScreenshotRecorderConfig__hashCode1);
-  return (JniResult){.value = {.i = _result}, .exception = check_exception()};
-}
-
-jmethodID _m_ScreenshotRecorderConfig__equals1 = NULL;
-FFI_PLUGIN_EXPORT
-JniResult ScreenshotRecorderConfig__equals1(jobject self_, jobject object) {
-  load_env();
-  load_class_global_ref(&_c_ScreenshotRecorderConfig,
-                        "io/sentry/android/replay/ScreenshotRecorderConfig");
-  if (_c_ScreenshotRecorderConfig == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  load_method(_c_ScreenshotRecorderConfig,
-              &_m_ScreenshotRecorderConfig__equals1, "equals",
-              "(Ljava/lang/Object;)Z");
-  if (_m_ScreenshotRecorderConfig__equals1 == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  uint8_t _result = (*jniEnv)->CallBooleanMethod(
-      jniEnv, self_, _m_ScreenshotRecorderConfig__equals1, object);
-  return (JniResult){.value = {.z = _result}, .exception = check_exception()};
-}
-
-jfieldID _f_ScreenshotRecorderConfig__Companion = NULL;
-FFI_PLUGIN_EXPORT
-JniResult get_ScreenshotRecorderConfig__Companion() {
-  load_env();
-  load_class_global_ref(&_c_ScreenshotRecorderConfig,
-                        "io/sentry/android/replay/ScreenshotRecorderConfig");
-  if (_c_ScreenshotRecorderConfig == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  load_static_field(
-      _c_ScreenshotRecorderConfig, &_f_ScreenshotRecorderConfig__Companion,
-      "Companion",
-      "Lio/sentry/android/replay/ScreenshotRecorderConfig$Companion;");
-  jobject _result =
-      (*jniEnv)->GetStaticObjectField(jniEnv, _c_ScreenshotRecorderConfig,
-                                      _f_ScreenshotRecorderConfig__Companion);
-  return to_global_ref_result(_result);
-}
-
-// io.sentry.android.replay.ReplayIntegration
-jclass _c_ReplayIntegration = NULL;
-
-jmethodID _m_ReplayIntegration__new0 = NULL;
-FFI_PLUGIN_EXPORT
-JniResult ReplayIntegration__new0(jobject context,
-                                  jobject iCurrentDateProvider,
-                                  jobject function0,
-                                  jobject function1,
-                                  jobject function11) {
-  load_env();
-  load_class_global_ref(&_c_ReplayIntegration,
-                        "io/sentry/android/replay/ReplayIntegration");
-  if (_c_ReplayIntegration == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  load_method(_c_ReplayIntegration, &_m_ReplayIntegration__new0, "<init>",
-              "(Landroid/content/Context;Lio/sentry/transport/"
-              "ICurrentDateProvider;Lkotlin/jvm/functions/Function0;Lkotlin/"
-              "jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V");
-  if (_m_ReplayIntegration__new0 == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  jobject _result = (*jniEnv)->NewObject(
-      jniEnv, _c_ReplayIntegration, _m_ReplayIntegration__new0, context,
-      iCurrentDateProvider, function0, function1, function11);
-  return to_global_ref_result(_result);
-}
-
-jmethodID _m_ReplayIntegration__new1 = NULL;
-FFI_PLUGIN_EXPORT
-JniResult ReplayIntegration__new1(jobject context,
-                                  jobject iCurrentDateProvider,
-                                  jobject function0,
-                                  jobject function1,
-                                  jobject function11,
-                                  int32_t i,
-                                  jobject defaultConstructorMarker) {
-  load_env();
-  load_class_global_ref(&_c_ReplayIntegration,
-                        "io/sentry/android/replay/ReplayIntegration");
-  if (_c_ReplayIntegration == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  load_method(_c_ReplayIntegration, &_m_ReplayIntegration__new1, "<init>",
-              "(Landroid/content/Context;Lio/sentry/transport/"
-              "ICurrentDateProvider;Lkotlin/jvm/functions/Function0;Lkotlin/"
-              "jvm/functions/Function1;Lkotlin/jvm/functions/"
-              "Function1;ILkotlin/jvm/internal/DefaultConstructorMarker;)V");
-  if (_m_ReplayIntegration__new1 == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  jobject _result = (*jniEnv)->NewObject(
-      jniEnv, _c_ReplayIntegration, _m_ReplayIntegration__new1, context,
-      iCurrentDateProvider, function0, function1, function11, i,
-      defaultConstructorMarker);
-  return to_global_ref_result(_result);
-}
-
-jmethodID _m_ReplayIntegration__new2 = NULL;
-FFI_PLUGIN_EXPORT
-JniResult ReplayIntegration__new2(jobject context,
-                                  jobject iCurrentDateProvider) {
-  load_env();
-  load_class_global_ref(&_c_ReplayIntegration,
-                        "io/sentry/android/replay/ReplayIntegration");
-  if (_c_ReplayIntegration == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  load_method(
-      _c_ReplayIntegration, &_m_ReplayIntegration__new2, "<init>",
-      "(Landroid/content/Context;Lio/sentry/transport/ICurrentDateProvider;)V");
-  if (_m_ReplayIntegration__new2 == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  jobject _result = (*jniEnv)->NewObject(jniEnv, _c_ReplayIntegration,
-                                         _m_ReplayIntegration__new2, context,
-                                         iCurrentDateProvider);
-  return to_global_ref_result(_result);
-}
-
-jmethodID _m_ReplayIntegration__getReplayCacheDir = NULL;
-FFI_PLUGIN_EXPORT
-JniResult ReplayIntegration__getReplayCacheDir(jobject self_) {
-  load_env();
-  load_class_global_ref(&_c_ReplayIntegration,
-                        "io/sentry/android/replay/ReplayIntegration");
-  if (_c_ReplayIntegration == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  load_method(_c_ReplayIntegration, &_m_ReplayIntegration__getReplayCacheDir,
-              "getReplayCacheDir", "()Ljava/io/File;");
-  if (_m_ReplayIntegration__getReplayCacheDir == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  jobject _result = (*jniEnv)->CallObjectMethod(
-      jniEnv, self_, _m_ReplayIntegration__getReplayCacheDir);
-  return to_global_ref_result(_result);
-}
-
-jmethodID _m_ReplayIntegration__register = NULL;
-FFI_PLUGIN_EXPORT
-JniResult ReplayIntegration__register(jobject self_,
-                                      jobject iHub,
-                                      jobject sentryOptions) {
-  load_env();
-  load_class_global_ref(&_c_ReplayIntegration,
-                        "io/sentry/android/replay/ReplayIntegration");
-  if (_c_ReplayIntegration == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  load_method(_c_ReplayIntegration, &_m_ReplayIntegration__register, "register",
-              "(Lio/sentry/IHub;Lio/sentry/SentryOptions;)V");
-  if (_m_ReplayIntegration__register == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  (*jniEnv)->CallVoidMethod(jniEnv, self_, _m_ReplayIntegration__register, iHub,
-                            sentryOptions);
-  return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-}
-
-jmethodID _m_ReplayIntegration__isRecording = NULL;
-FFI_PLUGIN_EXPORT
-JniResult ReplayIntegration__isRecording(jobject self_) {
-  load_env();
-  load_class_global_ref(&_c_ReplayIntegration,
-                        "io/sentry/android/replay/ReplayIntegration");
-  if (_c_ReplayIntegration == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  load_method(_c_ReplayIntegration, &_m_ReplayIntegration__isRecording,
-              "isRecording", "()Z");
-  if (_m_ReplayIntegration__isRecording == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  uint8_t _result = (*jniEnv)->CallBooleanMethod(
-      jniEnv, self_, _m_ReplayIntegration__isRecording);
-  return (JniResult){.value = {.z = _result}, .exception = check_exception()};
-}
-
-jmethodID _m_ReplayIntegration__start = NULL;
-FFI_PLUGIN_EXPORT
-JniResult ReplayIntegration__start(jobject self_) {
-  load_env();
-  load_class_global_ref(&_c_ReplayIntegration,
-                        "io/sentry/android/replay/ReplayIntegration");
-  if (_c_ReplayIntegration == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  load_method(_c_ReplayIntegration, &_m_ReplayIntegration__start, "start",
-              "()V");
-  if (_m_ReplayIntegration__start == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  (*jniEnv)->CallVoidMethod(jniEnv, self_, _m_ReplayIntegration__start);
-  return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-}
-
-jmethodID _m_ReplayIntegration__resume = NULL;
-FFI_PLUGIN_EXPORT
-JniResult ReplayIntegration__resume(jobject self_) {
-  load_env();
-  load_class_global_ref(&_c_ReplayIntegration,
-                        "io/sentry/android/replay/ReplayIntegration");
-  if (_c_ReplayIntegration == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  load_method(_c_ReplayIntegration, &_m_ReplayIntegration__resume, "resume",
-              "()V");
-  if (_m_ReplayIntegration__resume == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  (*jniEnv)->CallVoidMethod(jniEnv, self_, _m_ReplayIntegration__resume);
-  return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-}
-
-jmethodID _m_ReplayIntegration__sendReplayForEvent = NULL;
-FFI_PLUGIN_EXPORT
-JniResult ReplayIntegration__sendReplayForEvent(jobject self_,
-                                                jobject sentryEvent,
-                                                jobject hint) {
-  load_env();
-  load_class_global_ref(&_c_ReplayIntegration,
-                        "io/sentry/android/replay/ReplayIntegration");
-  if (_c_ReplayIntegration == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  load_method(_c_ReplayIntegration, &_m_ReplayIntegration__sendReplayForEvent,
-              "sendReplayForEvent",
-              "(Lio/sentry/SentryEvent;Lio/sentry/Hint;)V");
-  if (_m_ReplayIntegration__sendReplayForEvent == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  (*jniEnv)->CallVoidMethod(jniEnv, self_,
-                            _m_ReplayIntegration__sendReplayForEvent,
-                            sentryEvent, hint);
-  return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-}
-
-jmethodID _m_ReplayIntegration__getReplayId = NULL;
-FFI_PLUGIN_EXPORT
-JniResult ReplayIntegration__getReplayId(jobject self_) {
-  load_env();
-  load_class_global_ref(&_c_ReplayIntegration,
-                        "io/sentry/android/replay/ReplayIntegration");
-  if (_c_ReplayIntegration == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  load_method(_c_ReplayIntegration, &_m_ReplayIntegration__getReplayId,
-              "getReplayId", "()Lio/sentry/protocol/SentryId;");
-  if (_m_ReplayIntegration__getReplayId == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  jobject _result = (*jniEnv)->CallObjectMethod(
-      jniEnv, self_, _m_ReplayIntegration__getReplayId);
-  return to_global_ref_result(_result);
-}
-
-jmethodID _m_ReplayIntegration__pause = NULL;
-FFI_PLUGIN_EXPORT
-JniResult ReplayIntegration__pause(jobject self_) {
-  load_env();
-  load_class_global_ref(&_c_ReplayIntegration,
-                        "io/sentry/android/replay/ReplayIntegration");
-  if (_c_ReplayIntegration == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  load_method(_c_ReplayIntegration, &_m_ReplayIntegration__pause, "pause",
-              "()V");
-  if (_m_ReplayIntegration__pause == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  (*jniEnv)->CallVoidMethod(jniEnv, self_, _m_ReplayIntegration__pause);
-  return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-}
-
-jmethodID _m_ReplayIntegration__stop = NULL;
-FFI_PLUGIN_EXPORT
-JniResult ReplayIntegration__stop(jobject self_) {
-  load_env();
-  load_class_global_ref(&_c_ReplayIntegration,
-                        "io/sentry/android/replay/ReplayIntegration");
-  if (_c_ReplayIntegration == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  load_method(_c_ReplayIntegration, &_m_ReplayIntegration__stop, "stop", "()V");
-  if (_m_ReplayIntegration__stop == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  (*jniEnv)->CallVoidMethod(jniEnv, self_, _m_ReplayIntegration__stop);
-  return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-}
-
-jmethodID _m_ReplayIntegration__onScreenshotRecorded = NULL;
-FFI_PLUGIN_EXPORT
-JniResult ReplayIntegration__onScreenshotRecorded(jobject self_,
-                                                  jobject bitmap) {
-  load_env();
-  load_class_global_ref(&_c_ReplayIntegration,
-                        "io/sentry/android/replay/ReplayIntegration");
-  if (_c_ReplayIntegration == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  load_method(_c_ReplayIntegration, &_m_ReplayIntegration__onScreenshotRecorded,
-              "onScreenshotRecorded", "(Landroid/graphics/Bitmap;)V");
-  if (_m_ReplayIntegration__onScreenshotRecorded == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  (*jniEnv)->CallVoidMethod(jniEnv, self_,
-                            _m_ReplayIntegration__onScreenshotRecorded, bitmap);
-  return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-}
-
-jmethodID _m_ReplayIntegration__onScreenshotRecorded1 = NULL;
-FFI_PLUGIN_EXPORT
-JniResult ReplayIntegration__onScreenshotRecorded1(jobject self_,
-                                                   jobject file,
-                                                   int64_t j) {
-  load_env();
-  load_class_global_ref(&_c_ReplayIntegration,
-                        "io/sentry/android/replay/ReplayIntegration");
-  if (_c_ReplayIntegration == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  load_method(_c_ReplayIntegration,
-              &_m_ReplayIntegration__onScreenshotRecorded1,
-              "onScreenshotRecorded", "(Ljava/io/File;J)V");
-  if (_m_ReplayIntegration__onScreenshotRecorded1 == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  (*jniEnv)->CallVoidMethod(
-      jniEnv, self_, _m_ReplayIntegration__onScreenshotRecorded1, file, j);
-  return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-}
-
-jmethodID _m_ReplayIntegration__close = NULL;
-FFI_PLUGIN_EXPORT
-JniResult ReplayIntegration__close(jobject self_) {
-  load_env();
-  load_class_global_ref(&_c_ReplayIntegration,
-                        "io/sentry/android/replay/ReplayIntegration");
-  if (_c_ReplayIntegration == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  load_method(_c_ReplayIntegration, &_m_ReplayIntegration__close, "close",
-              "()V");
-  if (_m_ReplayIntegration__close == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  (*jniEnv)->CallVoidMethod(jniEnv, self_, _m_ReplayIntegration__close);
-  return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-}
-
-jmethodID _m_ReplayIntegration__onConfigurationChanged = NULL;
-FFI_PLUGIN_EXPORT
-JniResult ReplayIntegration__onConfigurationChanged(jobject self_,
-                                                    jobject configuration) {
-  load_env();
-  load_class_global_ref(&_c_ReplayIntegration,
-                        "io/sentry/android/replay/ReplayIntegration");
-  if (_c_ReplayIntegration == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  load_method(
-      _c_ReplayIntegration, &_m_ReplayIntegration__onConfigurationChanged,
-      "onConfigurationChanged", "(Landroid/content/res/Configuration;)V");
-  if (_m_ReplayIntegration__onConfigurationChanged == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  (*jniEnv)->CallVoidMethod(jniEnv, self_,
-                            _m_ReplayIntegration__onConfigurationChanged,
-                            configuration);
-  return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-}
-
-jmethodID _m_ReplayIntegration__onLowMemory = NULL;
-FFI_PLUGIN_EXPORT
-JniResult ReplayIntegration__onLowMemory(jobject self_) {
-  load_env();
-  load_class_global_ref(&_c_ReplayIntegration,
-                        "io/sentry/android/replay/ReplayIntegration");
-  if (_c_ReplayIntegration == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  load_method(_c_ReplayIntegration, &_m_ReplayIntegration__onLowMemory,
-              "onLowMemory", "()V");
-  if (_m_ReplayIntegration__onLowMemory == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  (*jniEnv)->CallVoidMethod(jniEnv, self_, _m_ReplayIntegration__onLowMemory);
-  return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-}
-
-// io.sentry.flutter.SentryFlutterReplay
-jclass _c_SentryFlutterReplay = NULL;
-
-jmethodID _m_SentryFlutterReplay__getRecorder = NULL;
-FFI_PLUGIN_EXPORT
-JniResult SentryFlutterReplay__getRecorder(jobject self_) {
-  load_env();
-  load_class_global_ref(&_c_SentryFlutterReplay,
-                        "io/sentry/flutter/SentryFlutterReplay");
-  if (_c_SentryFlutterReplay == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  load_method(_c_SentryFlutterReplay, &_m_SentryFlutterReplay__getRecorder,
-              "getRecorder", "()Lio/sentry/android/replay/Recorder;");
-  if (_m_SentryFlutterReplay__getRecorder == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  jobject _result = (*jniEnv)->CallObjectMethod(
-      jniEnv, self_, _m_SentryFlutterReplay__getRecorder);
-  return to_global_ref_result(_result);
-}
-
-jmethodID _m_SentryFlutterReplay__setRecorder = NULL;
-FFI_PLUGIN_EXPORT
-JniResult SentryFlutterReplay__setRecorder(jobject self_, jobject recorder) {
-  load_env();
-  load_class_global_ref(&_c_SentryFlutterReplay,
-                        "io/sentry/flutter/SentryFlutterReplay");
-  if (_c_SentryFlutterReplay == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  load_method(_c_SentryFlutterReplay, &_m_SentryFlutterReplay__setRecorder,
-              "setRecorder", "(Lio/sentry/android/replay/Recorder;)V");
-  if (_m_SentryFlutterReplay__setRecorder == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  (*jniEnv)->CallVoidMethod(jniEnv, self_, _m_SentryFlutterReplay__setRecorder,
-                            recorder);
-  return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-}
-
-jmethodID _m_SentryFlutterReplay__getCacheDir = NULL;
-FFI_PLUGIN_EXPORT
-JniResult SentryFlutterReplay__getCacheDir(jobject self_) {
-  load_env();
-  load_class_global_ref(&_c_SentryFlutterReplay,
-                        "io/sentry/flutter/SentryFlutterReplay");
-  if (_c_SentryFlutterReplay == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  load_method(_c_SentryFlutterReplay, &_m_SentryFlutterReplay__getCacheDir,
-              "getCacheDir", "()Ljava/lang/String;");
-  if (_m_SentryFlutterReplay__getCacheDir == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  jobject _result = (*jniEnv)->CallObjectMethod(
-      jniEnv, self_, _m_SentryFlutterReplay__getCacheDir);
-  return to_global_ref_result(_result);
-}
-
-jmethodID _m_SentryFlutterReplay__getCallbackObject = NULL;
-FFI_PLUGIN_EXPORT
-JniResult SentryFlutterReplay__getCallbackObject(jobject self_) {
-  load_env();
-  load_class_global_ref(&_c_SentryFlutterReplay,
-                        "io/sentry/flutter/SentryFlutterReplay");
-  if (_c_SentryFlutterReplay == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  load_method(_c_SentryFlutterReplay,
-              &_m_SentryFlutterReplay__getCallbackObject, "getCallbackObject",
-              "()Lio/sentry/android/replay/ScreenshotRecorderCallback;");
-  if (_m_SentryFlutterReplay__getCallbackObject == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  jobject _result = (*jniEnv)->CallObjectMethod(
-      jniEnv, self_, _m_SentryFlutterReplay__getCallbackObject);
-  return to_global_ref_result(_result);
-}
-
-jfieldID _f_SentryFlutterReplay__INSTANCE = NULL;
-FFI_PLUGIN_EXPORT
-JniResult get_SentryFlutterReplay__INSTANCE() {
-  load_env();
-  load_class_global_ref(&_c_SentryFlutterReplay,
-                        "io/sentry/flutter/SentryFlutterReplay");
-  if (_c_SentryFlutterReplay == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  load_static_field(_c_SentryFlutterReplay, &_f_SentryFlutterReplay__INSTANCE,
-                    "INSTANCE", "Lio/sentry/flutter/SentryFlutterReplay;");
-  jobject _result = (*jniEnv)->GetStaticObjectField(
-      jniEnv, _c_SentryFlutterReplay, _f_SentryFlutterReplay__INSTANCE);
-  return to_global_ref_result(_result);
-}
-
-jfieldID _f_SentryFlutterReplay__recorder = NULL;
-FFI_PLUGIN_EXPORT
-JniResult get_SentryFlutterReplay__recorder() {
-  load_env();
-  load_class_global_ref(&_c_SentryFlutterReplay,
-                        "io/sentry/flutter/SentryFlutterReplay");
-  if (_c_SentryFlutterReplay == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  load_static_field(_c_SentryFlutterReplay, &_f_SentryFlutterReplay__recorder,
-                    "recorder", "Lio/sentry/android/replay/Recorder;");
-  jobject _result = (*jniEnv)->GetStaticObjectField(
-      jniEnv, _c_SentryFlutterReplay, _f_SentryFlutterReplay__recorder);
-  return to_global_ref_result(_result);
-}
-
-FFI_PLUGIN_EXPORT
-JniResult set_SentryFlutterReplay__recorder(jobject value) {
-  load_env();
-  load_class_global_ref(&_c_SentryFlutterReplay,
-                        "io/sentry/flutter/SentryFlutterReplay");
-  if (_c_SentryFlutterReplay == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  load_static_field(_c_SentryFlutterReplay, &_f_SentryFlutterReplay__recorder,
-                    "recorder", "Lio/sentry/android/replay/Recorder;");
-  (*jniEnv)->SetStaticObjectField(jniEnv, _c_SentryFlutterReplay,
-                                  _f_SentryFlutterReplay__recorder, value);
-  return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-}
-
-jfieldID _f_SentryFlutterReplay__integration = NULL;
-FFI_PLUGIN_EXPORT
-JniResult get_SentryFlutterReplay__integration() {
-  load_env();
-  load_class_global_ref(&_c_SentryFlutterReplay,
-                        "io/sentry/flutter/SentryFlutterReplay");
-  if (_c_SentryFlutterReplay == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  load_static_field(_c_SentryFlutterReplay,
-                    &_f_SentryFlutterReplay__integration, "integration",
-                    "Lio/sentry/android/replay/ReplayIntegration;");
-  jobject _result = (*jniEnv)->GetStaticObjectField(
-      jniEnv, _c_SentryFlutterReplay, _f_SentryFlutterReplay__integration);
-  return to_global_ref_result(_result);
-}
-
-FFI_PLUGIN_EXPORT
-JniResult set_SentryFlutterReplay__integration(jobject value) {
-  load_env();
-  load_class_global_ref(&_c_SentryFlutterReplay,
-                        "io/sentry/flutter/SentryFlutterReplay");
-  if (_c_SentryFlutterReplay == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  load_static_field(_c_SentryFlutterReplay,
-                    &_f_SentryFlutterReplay__integration, "integration",
-                    "Lio/sentry/android/replay/ReplayIntegration;");
-  (*jniEnv)->SetStaticObjectField(jniEnv, _c_SentryFlutterReplay,
-                                  _f_SentryFlutterReplay__integration, value);
-  return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-}
-
 // java.io.File
 jclass _c_File = NULL;
 
@@ -1808,4 +903,932 @@ JniResult get_File__separatorChar() {
   uint16_t _result =
       (*jniEnv)->GetStaticCharField(jniEnv, _c_File, _f_File__separatorChar);
   return (JniResult){.value = {.c = _result}, .exception = check_exception()};
+}
+
+// io.sentry.flutter.SentryFlutterReplay
+jclass _c_SentryFlutterReplay = NULL;
+
+jmethodID _m_SentryFlutterReplay__getRecorder = NULL;
+FFI_PLUGIN_EXPORT
+JniResult SentryFlutterReplay__getRecorder(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_SentryFlutterReplay,
+                        "io/sentry/flutter/SentryFlutterReplay");
+  if (_c_SentryFlutterReplay == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_SentryFlutterReplay, &_m_SentryFlutterReplay__getRecorder,
+              "getRecorder", "()Lio/sentry/android/replay/Recorder;");
+  if (_m_SentryFlutterReplay__getRecorder == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  jobject _result = (*jniEnv)->CallObjectMethod(
+      jniEnv, self_, _m_SentryFlutterReplay__getRecorder);
+  return to_global_ref_result(_result);
+}
+
+jmethodID _m_SentryFlutterReplay__setRecorder = NULL;
+FFI_PLUGIN_EXPORT
+JniResult SentryFlutterReplay__setRecorder(jobject self_, jobject recorder) {
+  load_env();
+  load_class_global_ref(&_c_SentryFlutterReplay,
+                        "io/sentry/flutter/SentryFlutterReplay");
+  if (_c_SentryFlutterReplay == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_SentryFlutterReplay, &_m_SentryFlutterReplay__setRecorder,
+              "setRecorder", "(Lio/sentry/android/replay/Recorder;)V");
+  if (_m_SentryFlutterReplay__setRecorder == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  (*jniEnv)->CallVoidMethod(jniEnv, self_, _m_SentryFlutterReplay__setRecorder,
+                            recorder);
+  return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+}
+
+jmethodID _m_SentryFlutterReplay__getIntegration = NULL;
+FFI_PLUGIN_EXPORT
+JniResult SentryFlutterReplay__getIntegration(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_SentryFlutterReplay,
+                        "io/sentry/flutter/SentryFlutterReplay");
+  if (_c_SentryFlutterReplay == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_SentryFlutterReplay, &_m_SentryFlutterReplay__getIntegration,
+              "getIntegration",
+              "()Lio/sentry/android/replay/ReplayIntegration;");
+  if (_m_SentryFlutterReplay__getIntegration == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  jobject _result = (*jniEnv)->CallObjectMethod(
+      jniEnv, self_, _m_SentryFlutterReplay__getIntegration);
+  return to_global_ref_result(_result);
+}
+
+jmethodID _m_SentryFlutterReplay__setIntegration = NULL;
+FFI_PLUGIN_EXPORT
+JniResult SentryFlutterReplay__setIntegration(jobject self_,
+                                              jobject replayIntegration) {
+  load_env();
+  load_class_global_ref(&_c_SentryFlutterReplay,
+                        "io/sentry/flutter/SentryFlutterReplay");
+  if (_c_SentryFlutterReplay == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_SentryFlutterReplay, &_m_SentryFlutterReplay__setIntegration,
+              "setIntegration",
+              "(Lio/sentry/android/replay/ReplayIntegration;)V");
+  if (_m_SentryFlutterReplay__setIntegration == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  (*jniEnv)->CallVoidMethod(
+      jniEnv, self_, _m_SentryFlutterReplay__setIntegration, replayIntegration);
+  return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+}
+
+jfieldID _f_SentryFlutterReplay__INSTANCE = NULL;
+FFI_PLUGIN_EXPORT
+JniResult get_SentryFlutterReplay__INSTANCE() {
+  load_env();
+  load_class_global_ref(&_c_SentryFlutterReplay,
+                        "io/sentry/flutter/SentryFlutterReplay");
+  if (_c_SentryFlutterReplay == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_static_field(_c_SentryFlutterReplay, &_f_SentryFlutterReplay__INSTANCE,
+                    "INSTANCE", "Lio/sentry/flutter/SentryFlutterReplay;");
+  jobject _result = (*jniEnv)->GetStaticObjectField(
+      jniEnv, _c_SentryFlutterReplay, _f_SentryFlutterReplay__INSTANCE);
+  return to_global_ref_result(_result);
+}
+
+jfieldID _f_SentryFlutterReplay__recorder = NULL;
+FFI_PLUGIN_EXPORT
+JniResult get_SentryFlutterReplay__recorder() {
+  load_env();
+  load_class_global_ref(&_c_SentryFlutterReplay,
+                        "io/sentry/flutter/SentryFlutterReplay");
+  if (_c_SentryFlutterReplay == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_static_field(_c_SentryFlutterReplay, &_f_SentryFlutterReplay__recorder,
+                    "recorder", "Lio/sentry/android/replay/Recorder;");
+  jobject _result = (*jniEnv)->GetStaticObjectField(
+      jniEnv, _c_SentryFlutterReplay, _f_SentryFlutterReplay__recorder);
+  return to_global_ref_result(_result);
+}
+
+FFI_PLUGIN_EXPORT
+JniResult set_SentryFlutterReplay__recorder(jobject value) {
+  load_env();
+  load_class_global_ref(&_c_SentryFlutterReplay,
+                        "io/sentry/flutter/SentryFlutterReplay");
+  if (_c_SentryFlutterReplay == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_static_field(_c_SentryFlutterReplay, &_f_SentryFlutterReplay__recorder,
+                    "recorder", "Lio/sentry/android/replay/Recorder;");
+  (*jniEnv)->SetStaticObjectField(jniEnv, _c_SentryFlutterReplay,
+                                  _f_SentryFlutterReplay__recorder, value);
+  return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+}
+
+jfieldID _f_SentryFlutterReplay__integration = NULL;
+FFI_PLUGIN_EXPORT
+JniResult get_SentryFlutterReplay__integration() {
+  load_env();
+  load_class_global_ref(&_c_SentryFlutterReplay,
+                        "io/sentry/flutter/SentryFlutterReplay");
+  if (_c_SentryFlutterReplay == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_static_field(_c_SentryFlutterReplay,
+                    &_f_SentryFlutterReplay__integration, "integration",
+                    "Lio/sentry/android/replay/ReplayIntegration;");
+  jobject _result = (*jniEnv)->GetStaticObjectField(
+      jniEnv, _c_SentryFlutterReplay, _f_SentryFlutterReplay__integration);
+  return to_global_ref_result(_result);
+}
+
+FFI_PLUGIN_EXPORT
+JniResult set_SentryFlutterReplay__integration(jobject value) {
+  load_env();
+  load_class_global_ref(&_c_SentryFlutterReplay,
+                        "io/sentry/flutter/SentryFlutterReplay");
+  if (_c_SentryFlutterReplay == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_static_field(_c_SentryFlutterReplay,
+                    &_f_SentryFlutterReplay__integration, "integration",
+                    "Lio/sentry/android/replay/ReplayIntegration;");
+  (*jniEnv)->SetStaticObjectField(jniEnv, _c_SentryFlutterReplay,
+                                  _f_SentryFlutterReplay__integration, value);
+  return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+}
+
+// io.sentry.android.replay.Recorder
+jclass _c_Recorder = NULL;
+
+jmethodID _m_Recorder__start = NULL;
+FFI_PLUGIN_EXPORT
+JniResult Recorder__start(jobject self_, jobject screenshotRecorderConfig) {
+  load_env();
+  load_class_global_ref(&_c_Recorder, "io/sentry/android/replay/Recorder");
+  if (_c_Recorder == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_Recorder, &_m_Recorder__start, "start",
+              "(Lio/sentry/android/replay/ScreenshotRecorderConfig;)V");
+  if (_m_Recorder__start == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  (*jniEnv)->CallVoidMethod(jniEnv, self_, _m_Recorder__start,
+                            screenshotRecorderConfig);
+  return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+}
+
+jmethodID _m_Recorder__resume = NULL;
+FFI_PLUGIN_EXPORT
+JniResult Recorder__resume(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_Recorder, "io/sentry/android/replay/Recorder");
+  if (_c_Recorder == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_Recorder, &_m_Recorder__resume, "resume", "()V");
+  if (_m_Recorder__resume == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  (*jniEnv)->CallVoidMethod(jniEnv, self_, _m_Recorder__resume);
+  return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+}
+
+jmethodID _m_Recorder__pause = NULL;
+FFI_PLUGIN_EXPORT
+JniResult Recorder__pause(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_Recorder, "io/sentry/android/replay/Recorder");
+  if (_c_Recorder == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_Recorder, &_m_Recorder__pause, "pause", "()V");
+  if (_m_Recorder__pause == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  (*jniEnv)->CallVoidMethod(jniEnv, self_, _m_Recorder__pause);
+  return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+}
+
+jmethodID _m_Recorder__stop = NULL;
+FFI_PLUGIN_EXPORT
+JniResult Recorder__stop(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_Recorder, "io/sentry/android/replay/Recorder");
+  if (_c_Recorder == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_Recorder, &_m_Recorder__stop, "stop", "()V");
+  if (_m_Recorder__stop == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  (*jniEnv)->CallVoidMethod(jniEnv, self_, _m_Recorder__stop);
+  return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+}
+
+// io.sentry.android.replay.ScreenshotRecorderConfig$Companion
+jclass _c_ScreenshotRecorderConfig_Companion = NULL;
+
+jmethodID _m_ScreenshotRecorderConfig_Companion__from = NULL;
+FFI_PLUGIN_EXPORT
+JniResult ScreenshotRecorderConfig_Companion__from(
+    jobject self_,
+    jobject context,
+    jobject sentryReplayOptions) {
+  load_env();
+  load_class_global_ref(
+      &_c_ScreenshotRecorderConfig_Companion,
+      "io/sentry/android/replay/ScreenshotRecorderConfig$Companion");
+  if (_c_ScreenshotRecorderConfig_Companion == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_ScreenshotRecorderConfig_Companion,
+              &_m_ScreenshotRecorderConfig_Companion__from, "from",
+              "(Landroid/content/Context;Lio/sentry/SentryReplayOptions;)Lio/"
+              "sentry/android/replay/ScreenshotRecorderConfig;");
+  if (_m_ScreenshotRecorderConfig_Companion__from == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  jobject _result = (*jniEnv)->CallObjectMethod(
+      jniEnv, self_, _m_ScreenshotRecorderConfig_Companion__from, context,
+      sentryReplayOptions);
+  return to_global_ref_result(_result);
+}
+
+jmethodID _m_ScreenshotRecorderConfig_Companion__new0 = NULL;
+FFI_PLUGIN_EXPORT
+JniResult ScreenshotRecorderConfig_Companion__new0(
+    jobject defaultConstructorMarker) {
+  load_env();
+  load_class_global_ref(
+      &_c_ScreenshotRecorderConfig_Companion,
+      "io/sentry/android/replay/ScreenshotRecorderConfig$Companion");
+  if (_c_ScreenshotRecorderConfig_Companion == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_ScreenshotRecorderConfig_Companion,
+              &_m_ScreenshotRecorderConfig_Companion__new0, "<init>",
+              "(Lkotlin/jvm/internal/DefaultConstructorMarker;)V");
+  if (_m_ScreenshotRecorderConfig_Companion__new0 == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  jobject _result = (*jniEnv)->NewObject(
+      jniEnv, _c_ScreenshotRecorderConfig_Companion,
+      _m_ScreenshotRecorderConfig_Companion__new0, defaultConstructorMarker);
+  return to_global_ref_result(_result);
+}
+
+// io.sentry.android.replay.ScreenshotRecorderConfig
+jclass _c_ScreenshotRecorderConfig = NULL;
+
+jmethodID _m_ScreenshotRecorderConfig__new0 = NULL;
+FFI_PLUGIN_EXPORT
+JniResult ScreenshotRecorderConfig__new0(int32_t i,
+                                         int32_t i1,
+                                         float f,
+                                         float f1,
+                                         int32_t i2,
+                                         int32_t i3) {
+  load_env();
+  load_class_global_ref(&_c_ScreenshotRecorderConfig,
+                        "io/sentry/android/replay/ScreenshotRecorderConfig");
+  if (_c_ScreenshotRecorderConfig == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_ScreenshotRecorderConfig, &_m_ScreenshotRecorderConfig__new0,
+              "<init>", "(IIFFII)V");
+  if (_m_ScreenshotRecorderConfig__new0 == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  jobject _result = (*jniEnv)->NewObject(jniEnv, _c_ScreenshotRecorderConfig,
+                                         _m_ScreenshotRecorderConfig__new0, i,
+                                         i1, f, f1, i2, i3);
+  return to_global_ref_result(_result);
+}
+
+jmethodID _m_ScreenshotRecorderConfig__getRecordingWidth = NULL;
+FFI_PLUGIN_EXPORT
+JniResult ScreenshotRecorderConfig__getRecordingWidth(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_ScreenshotRecorderConfig,
+                        "io/sentry/android/replay/ScreenshotRecorderConfig");
+  if (_c_ScreenshotRecorderConfig == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_ScreenshotRecorderConfig,
+              &_m_ScreenshotRecorderConfig__getRecordingWidth,
+              "getRecordingWidth", "()I");
+  if (_m_ScreenshotRecorderConfig__getRecordingWidth == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  int32_t _result = (*jniEnv)->CallIntMethod(
+      jniEnv, self_, _m_ScreenshotRecorderConfig__getRecordingWidth);
+  return (JniResult){.value = {.i = _result}, .exception = check_exception()};
+}
+
+jmethodID _m_ScreenshotRecorderConfig__getRecordingHeight = NULL;
+FFI_PLUGIN_EXPORT
+JniResult ScreenshotRecorderConfig__getRecordingHeight(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_ScreenshotRecorderConfig,
+                        "io/sentry/android/replay/ScreenshotRecorderConfig");
+  if (_c_ScreenshotRecorderConfig == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_ScreenshotRecorderConfig,
+              &_m_ScreenshotRecorderConfig__getRecordingHeight,
+              "getRecordingHeight", "()I");
+  if (_m_ScreenshotRecorderConfig__getRecordingHeight == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  int32_t _result = (*jniEnv)->CallIntMethod(
+      jniEnv, self_, _m_ScreenshotRecorderConfig__getRecordingHeight);
+  return (JniResult){.value = {.i = _result}, .exception = check_exception()};
+}
+
+jmethodID _m_ScreenshotRecorderConfig__getScaleFactorX = NULL;
+FFI_PLUGIN_EXPORT
+JniResult ScreenshotRecorderConfig__getScaleFactorX(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_ScreenshotRecorderConfig,
+                        "io/sentry/android/replay/ScreenshotRecorderConfig");
+  if (_c_ScreenshotRecorderConfig == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_ScreenshotRecorderConfig,
+              &_m_ScreenshotRecorderConfig__getScaleFactorX, "getScaleFactorX",
+              "()F");
+  if (_m_ScreenshotRecorderConfig__getScaleFactorX == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  float _result = (*jniEnv)->CallFloatMethod(
+      jniEnv, self_, _m_ScreenshotRecorderConfig__getScaleFactorX);
+  return (JniResult){.value = {.f = _result}, .exception = check_exception()};
+}
+
+jmethodID _m_ScreenshotRecorderConfig__getScaleFactorY = NULL;
+FFI_PLUGIN_EXPORT
+JniResult ScreenshotRecorderConfig__getScaleFactorY(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_ScreenshotRecorderConfig,
+                        "io/sentry/android/replay/ScreenshotRecorderConfig");
+  if (_c_ScreenshotRecorderConfig == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_ScreenshotRecorderConfig,
+              &_m_ScreenshotRecorderConfig__getScaleFactorY, "getScaleFactorY",
+              "()F");
+  if (_m_ScreenshotRecorderConfig__getScaleFactorY == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  float _result = (*jniEnv)->CallFloatMethod(
+      jniEnv, self_, _m_ScreenshotRecorderConfig__getScaleFactorY);
+  return (JniResult){.value = {.f = _result}, .exception = check_exception()};
+}
+
+jmethodID _m_ScreenshotRecorderConfig__getFrameRate = NULL;
+FFI_PLUGIN_EXPORT
+JniResult ScreenshotRecorderConfig__getFrameRate(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_ScreenshotRecorderConfig,
+                        "io/sentry/android/replay/ScreenshotRecorderConfig");
+  if (_c_ScreenshotRecorderConfig == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_ScreenshotRecorderConfig,
+              &_m_ScreenshotRecorderConfig__getFrameRate, "getFrameRate",
+              "()I");
+  if (_m_ScreenshotRecorderConfig__getFrameRate == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  int32_t _result = (*jniEnv)->CallIntMethod(
+      jniEnv, self_, _m_ScreenshotRecorderConfig__getFrameRate);
+  return (JniResult){.value = {.i = _result}, .exception = check_exception()};
+}
+
+jmethodID _m_ScreenshotRecorderConfig__getBitRate = NULL;
+FFI_PLUGIN_EXPORT
+JniResult ScreenshotRecorderConfig__getBitRate(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_ScreenshotRecorderConfig,
+                        "io/sentry/android/replay/ScreenshotRecorderConfig");
+  if (_c_ScreenshotRecorderConfig == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_ScreenshotRecorderConfig,
+              &_m_ScreenshotRecorderConfig__getBitRate, "getBitRate", "()I");
+  if (_m_ScreenshotRecorderConfig__getBitRate == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  int32_t _result = (*jniEnv)->CallIntMethod(
+      jniEnv, self_, _m_ScreenshotRecorderConfig__getBitRate);
+  return (JniResult){.value = {.i = _result}, .exception = check_exception()};
+}
+
+jmethodID _m_ScreenshotRecorderConfig__component1 = NULL;
+FFI_PLUGIN_EXPORT
+JniResult ScreenshotRecorderConfig__component1(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_ScreenshotRecorderConfig,
+                        "io/sentry/android/replay/ScreenshotRecorderConfig");
+  if (_c_ScreenshotRecorderConfig == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_ScreenshotRecorderConfig,
+              &_m_ScreenshotRecorderConfig__component1, "component1", "()I");
+  if (_m_ScreenshotRecorderConfig__component1 == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  int32_t _result = (*jniEnv)->CallIntMethod(
+      jniEnv, self_, _m_ScreenshotRecorderConfig__component1);
+  return (JniResult){.value = {.i = _result}, .exception = check_exception()};
+}
+
+jmethodID _m_ScreenshotRecorderConfig__component2 = NULL;
+FFI_PLUGIN_EXPORT
+JniResult ScreenshotRecorderConfig__component2(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_ScreenshotRecorderConfig,
+                        "io/sentry/android/replay/ScreenshotRecorderConfig");
+  if (_c_ScreenshotRecorderConfig == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_ScreenshotRecorderConfig,
+              &_m_ScreenshotRecorderConfig__component2, "component2", "()I");
+  if (_m_ScreenshotRecorderConfig__component2 == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  int32_t _result = (*jniEnv)->CallIntMethod(
+      jniEnv, self_, _m_ScreenshotRecorderConfig__component2);
+  return (JniResult){.value = {.i = _result}, .exception = check_exception()};
+}
+
+jmethodID _m_ScreenshotRecorderConfig__component3 = NULL;
+FFI_PLUGIN_EXPORT
+JniResult ScreenshotRecorderConfig__component3(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_ScreenshotRecorderConfig,
+                        "io/sentry/android/replay/ScreenshotRecorderConfig");
+  if (_c_ScreenshotRecorderConfig == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_ScreenshotRecorderConfig,
+              &_m_ScreenshotRecorderConfig__component3, "component3", "()F");
+  if (_m_ScreenshotRecorderConfig__component3 == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  float _result = (*jniEnv)->CallFloatMethod(
+      jniEnv, self_, _m_ScreenshotRecorderConfig__component3);
+  return (JniResult){.value = {.f = _result}, .exception = check_exception()};
+}
+
+jmethodID _m_ScreenshotRecorderConfig__component4 = NULL;
+FFI_PLUGIN_EXPORT
+JniResult ScreenshotRecorderConfig__component4(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_ScreenshotRecorderConfig,
+                        "io/sentry/android/replay/ScreenshotRecorderConfig");
+  if (_c_ScreenshotRecorderConfig == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_ScreenshotRecorderConfig,
+              &_m_ScreenshotRecorderConfig__component4, "component4", "()F");
+  if (_m_ScreenshotRecorderConfig__component4 == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  float _result = (*jniEnv)->CallFloatMethod(
+      jniEnv, self_, _m_ScreenshotRecorderConfig__component4);
+  return (JniResult){.value = {.f = _result}, .exception = check_exception()};
+}
+
+jmethodID _m_ScreenshotRecorderConfig__component5 = NULL;
+FFI_PLUGIN_EXPORT
+JniResult ScreenshotRecorderConfig__component5(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_ScreenshotRecorderConfig,
+                        "io/sentry/android/replay/ScreenshotRecorderConfig");
+  if (_c_ScreenshotRecorderConfig == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_ScreenshotRecorderConfig,
+              &_m_ScreenshotRecorderConfig__component5, "component5", "()I");
+  if (_m_ScreenshotRecorderConfig__component5 == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  int32_t _result = (*jniEnv)->CallIntMethod(
+      jniEnv, self_, _m_ScreenshotRecorderConfig__component5);
+  return (JniResult){.value = {.i = _result}, .exception = check_exception()};
+}
+
+jmethodID _m_ScreenshotRecorderConfig__component6 = NULL;
+FFI_PLUGIN_EXPORT
+JniResult ScreenshotRecorderConfig__component6(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_ScreenshotRecorderConfig,
+                        "io/sentry/android/replay/ScreenshotRecorderConfig");
+  if (_c_ScreenshotRecorderConfig == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_ScreenshotRecorderConfig,
+              &_m_ScreenshotRecorderConfig__component6, "component6", "()I");
+  if (_m_ScreenshotRecorderConfig__component6 == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  int32_t _result = (*jniEnv)->CallIntMethod(
+      jniEnv, self_, _m_ScreenshotRecorderConfig__component6);
+  return (JniResult){.value = {.i = _result}, .exception = check_exception()};
+}
+
+jmethodID _m_ScreenshotRecorderConfig__copy = NULL;
+FFI_PLUGIN_EXPORT
+JniResult ScreenshotRecorderConfig__copy(jobject self_,
+                                         int32_t i,
+                                         int32_t i1,
+                                         float f,
+                                         float f1,
+                                         int32_t i2,
+                                         int32_t i3) {
+  load_env();
+  load_class_global_ref(&_c_ScreenshotRecorderConfig,
+                        "io/sentry/android/replay/ScreenshotRecorderConfig");
+  if (_c_ScreenshotRecorderConfig == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_ScreenshotRecorderConfig, &_m_ScreenshotRecorderConfig__copy,
+              "copy",
+              "(IIFFII)Lio/sentry/android/replay/ScreenshotRecorderConfig;");
+  if (_m_ScreenshotRecorderConfig__copy == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  jobject _result = (*jniEnv)->CallObjectMethod(
+      jniEnv, self_, _m_ScreenshotRecorderConfig__copy, i, i1, f, f1, i2, i3);
+  return to_global_ref_result(_result);
+}
+
+jmethodID _m_ScreenshotRecorderConfig__toString1 = NULL;
+FFI_PLUGIN_EXPORT
+JniResult ScreenshotRecorderConfig__toString1(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_ScreenshotRecorderConfig,
+                        "io/sentry/android/replay/ScreenshotRecorderConfig");
+  if (_c_ScreenshotRecorderConfig == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_ScreenshotRecorderConfig,
+              &_m_ScreenshotRecorderConfig__toString1, "toString",
+              "()Ljava/lang/String;");
+  if (_m_ScreenshotRecorderConfig__toString1 == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  jobject _result = (*jniEnv)->CallObjectMethod(
+      jniEnv, self_, _m_ScreenshotRecorderConfig__toString1);
+  return to_global_ref_result(_result);
+}
+
+jmethodID _m_ScreenshotRecorderConfig__hashCode1 = NULL;
+FFI_PLUGIN_EXPORT
+JniResult ScreenshotRecorderConfig__hashCode1(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_ScreenshotRecorderConfig,
+                        "io/sentry/android/replay/ScreenshotRecorderConfig");
+  if (_c_ScreenshotRecorderConfig == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_ScreenshotRecorderConfig,
+              &_m_ScreenshotRecorderConfig__hashCode1, "hashCode", "()I");
+  if (_m_ScreenshotRecorderConfig__hashCode1 == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  int32_t _result = (*jniEnv)->CallIntMethod(
+      jniEnv, self_, _m_ScreenshotRecorderConfig__hashCode1);
+  return (JniResult){.value = {.i = _result}, .exception = check_exception()};
+}
+
+jmethodID _m_ScreenshotRecorderConfig__equals1 = NULL;
+FFI_PLUGIN_EXPORT
+JniResult ScreenshotRecorderConfig__equals1(jobject self_, jobject object) {
+  load_env();
+  load_class_global_ref(&_c_ScreenshotRecorderConfig,
+                        "io/sentry/android/replay/ScreenshotRecorderConfig");
+  if (_c_ScreenshotRecorderConfig == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_ScreenshotRecorderConfig,
+              &_m_ScreenshotRecorderConfig__equals1, "equals",
+              "(Ljava/lang/Object;)Z");
+  if (_m_ScreenshotRecorderConfig__equals1 == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  uint8_t _result = (*jniEnv)->CallBooleanMethod(
+      jniEnv, self_, _m_ScreenshotRecorderConfig__equals1, object);
+  return (JniResult){.value = {.z = _result}, .exception = check_exception()};
+}
+
+jfieldID _f_ScreenshotRecorderConfig__Companion = NULL;
+FFI_PLUGIN_EXPORT
+JniResult get_ScreenshotRecorderConfig__Companion() {
+  load_env();
+  load_class_global_ref(&_c_ScreenshotRecorderConfig,
+                        "io/sentry/android/replay/ScreenshotRecorderConfig");
+  if (_c_ScreenshotRecorderConfig == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_static_field(
+      _c_ScreenshotRecorderConfig, &_f_ScreenshotRecorderConfig__Companion,
+      "Companion",
+      "Lio/sentry/android/replay/ScreenshotRecorderConfig$Companion;");
+  jobject _result =
+      (*jniEnv)->GetStaticObjectField(jniEnv, _c_ScreenshotRecorderConfig,
+                                      _f_ScreenshotRecorderConfig__Companion);
+  return to_global_ref_result(_result);
+}
+
+// io.sentry.android.replay.ReplayIntegration
+jclass _c_ReplayIntegration = NULL;
+
+jmethodID _m_ReplayIntegration__new0 = NULL;
+FFI_PLUGIN_EXPORT
+JniResult ReplayIntegration__new0(jobject context,
+                                  jobject iCurrentDateProvider,
+                                  jobject function0,
+                                  jobject function1,
+                                  jobject function11) {
+  load_env();
+  load_class_global_ref(&_c_ReplayIntegration,
+                        "io/sentry/android/replay/ReplayIntegration");
+  if (_c_ReplayIntegration == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_ReplayIntegration, &_m_ReplayIntegration__new0, "<init>",
+              "(Landroid/content/Context;Lio/sentry/transport/"
+              "ICurrentDateProvider;Lkotlin/jvm/functions/Function0;Lkotlin/"
+              "jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V");
+  if (_m_ReplayIntegration__new0 == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  jobject _result = (*jniEnv)->NewObject(
+      jniEnv, _c_ReplayIntegration, _m_ReplayIntegration__new0, context,
+      iCurrentDateProvider, function0, function1, function11);
+  return to_global_ref_result(_result);
+}
+
+jmethodID _m_ReplayIntegration__new1 = NULL;
+FFI_PLUGIN_EXPORT
+JniResult ReplayIntegration__new1(jobject context,
+                                  jobject iCurrentDateProvider,
+                                  jobject function0,
+                                  jobject function1,
+                                  jobject function11,
+                                  int32_t i,
+                                  jobject defaultConstructorMarker) {
+  load_env();
+  load_class_global_ref(&_c_ReplayIntegration,
+                        "io/sentry/android/replay/ReplayIntegration");
+  if (_c_ReplayIntegration == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_ReplayIntegration, &_m_ReplayIntegration__new1, "<init>",
+              "(Landroid/content/Context;Lio/sentry/transport/"
+              "ICurrentDateProvider;Lkotlin/jvm/functions/Function0;Lkotlin/"
+              "jvm/functions/Function1;Lkotlin/jvm/functions/"
+              "Function1;ILkotlin/jvm/internal/DefaultConstructorMarker;)V");
+  if (_m_ReplayIntegration__new1 == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  jobject _result = (*jniEnv)->NewObject(
+      jniEnv, _c_ReplayIntegration, _m_ReplayIntegration__new1, context,
+      iCurrentDateProvider, function0, function1, function11, i,
+      defaultConstructorMarker);
+  return to_global_ref_result(_result);
+}
+
+jmethodID _m_ReplayIntegration__new2 = NULL;
+FFI_PLUGIN_EXPORT
+JniResult ReplayIntegration__new2(jobject context,
+                                  jobject iCurrentDateProvider) {
+  load_env();
+  load_class_global_ref(&_c_ReplayIntegration,
+                        "io/sentry/android/replay/ReplayIntegration");
+  if (_c_ReplayIntegration == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(
+      _c_ReplayIntegration, &_m_ReplayIntegration__new2, "<init>",
+      "(Landroid/content/Context;Lio/sentry/transport/ICurrentDateProvider;)V");
+  if (_m_ReplayIntegration__new2 == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  jobject _result = (*jniEnv)->NewObject(jniEnv, _c_ReplayIntegration,
+                                         _m_ReplayIntegration__new2, context,
+                                         iCurrentDateProvider);
+  return to_global_ref_result(_result);
+}
+
+jmethodID _m_ReplayIntegration__getReplayCacheDir = NULL;
+FFI_PLUGIN_EXPORT
+JniResult ReplayIntegration__getReplayCacheDir(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_ReplayIntegration,
+                        "io/sentry/android/replay/ReplayIntegration");
+  if (_c_ReplayIntegration == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_ReplayIntegration, &_m_ReplayIntegration__getReplayCacheDir,
+              "getReplayCacheDir", "()Ljava/io/File;");
+  if (_m_ReplayIntegration__getReplayCacheDir == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  jobject _result = (*jniEnv)->CallObjectMethod(
+      jniEnv, self_, _m_ReplayIntegration__getReplayCacheDir);
+  return to_global_ref_result(_result);
+}
+
+jmethodID _m_ReplayIntegration__register = NULL;
+FFI_PLUGIN_EXPORT
+JniResult ReplayIntegration__register(jobject self_,
+                                      jobject iHub,
+                                      jobject sentryOptions) {
+  load_env();
+  load_class_global_ref(&_c_ReplayIntegration,
+                        "io/sentry/android/replay/ReplayIntegration");
+  if (_c_ReplayIntegration == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_ReplayIntegration, &_m_ReplayIntegration__register, "register",
+              "(Lio/sentry/IHub;Lio/sentry/SentryOptions;)V");
+  if (_m_ReplayIntegration__register == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  (*jniEnv)->CallVoidMethod(jniEnv, self_, _m_ReplayIntegration__register, iHub,
+                            sentryOptions);
+  return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+}
+
+jmethodID _m_ReplayIntegration__isRecording = NULL;
+FFI_PLUGIN_EXPORT
+JniResult ReplayIntegration__isRecording(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_ReplayIntegration,
+                        "io/sentry/android/replay/ReplayIntegration");
+  if (_c_ReplayIntegration == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_ReplayIntegration, &_m_ReplayIntegration__isRecording,
+              "isRecording", "()Z");
+  if (_m_ReplayIntegration__isRecording == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  uint8_t _result = (*jniEnv)->CallBooleanMethod(
+      jniEnv, self_, _m_ReplayIntegration__isRecording);
+  return (JniResult){.value = {.z = _result}, .exception = check_exception()};
+}
+
+jmethodID _m_ReplayIntegration__start = NULL;
+FFI_PLUGIN_EXPORT
+JniResult ReplayIntegration__start(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_ReplayIntegration,
+                        "io/sentry/android/replay/ReplayIntegration");
+  if (_c_ReplayIntegration == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_ReplayIntegration, &_m_ReplayIntegration__start, "start",
+              "()V");
+  if (_m_ReplayIntegration__start == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  (*jniEnv)->CallVoidMethod(jniEnv, self_, _m_ReplayIntegration__start);
+  return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+}
+
+jmethodID _m_ReplayIntegration__resume = NULL;
+FFI_PLUGIN_EXPORT
+JniResult ReplayIntegration__resume(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_ReplayIntegration,
+                        "io/sentry/android/replay/ReplayIntegration");
+  if (_c_ReplayIntegration == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_ReplayIntegration, &_m_ReplayIntegration__resume, "resume",
+              "()V");
+  if (_m_ReplayIntegration__resume == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  (*jniEnv)->CallVoidMethod(jniEnv, self_, _m_ReplayIntegration__resume);
+  return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+}
+
+jmethodID _m_ReplayIntegration__sendReplayForEvent = NULL;
+FFI_PLUGIN_EXPORT
+JniResult ReplayIntegration__sendReplayForEvent(jobject self_,
+                                                jobject sentryEvent,
+                                                jobject hint) {
+  load_env();
+  load_class_global_ref(&_c_ReplayIntegration,
+                        "io/sentry/android/replay/ReplayIntegration");
+  if (_c_ReplayIntegration == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_ReplayIntegration, &_m_ReplayIntegration__sendReplayForEvent,
+              "sendReplayForEvent",
+              "(Lio/sentry/SentryEvent;Lio/sentry/Hint;)V");
+  if (_m_ReplayIntegration__sendReplayForEvent == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  (*jniEnv)->CallVoidMethod(jniEnv, self_,
+                            _m_ReplayIntegration__sendReplayForEvent,
+                            sentryEvent, hint);
+  return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+}
+
+jmethodID _m_ReplayIntegration__sendReplay = NULL;
+FFI_PLUGIN_EXPORT
+JniResult ReplayIntegration__sendReplay(jobject self_,
+                                        jobject boolean,
+                                        jobject string,
+                                        jobject hint) {
+  load_env();
+  load_class_global_ref(&_c_ReplayIntegration,
+                        "io/sentry/android/replay/ReplayIntegration");
+  if (_c_ReplayIntegration == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_ReplayIntegration, &_m_ReplayIntegration__sendReplay,
+              "sendReplay",
+              "(Ljava/lang/Boolean;Ljava/lang/String;Lio/sentry/Hint;)V");
+  if (_m_ReplayIntegration__sendReplay == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  (*jniEnv)->CallVoidMethod(jniEnv, self_, _m_ReplayIntegration__sendReplay,
+                            boolean, string, hint);
+  return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+}
+
+jmethodID _m_ReplayIntegration__getReplayId = NULL;
+FFI_PLUGIN_EXPORT
+JniResult ReplayIntegration__getReplayId(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_ReplayIntegration,
+                        "io/sentry/android/replay/ReplayIntegration");
+  if (_c_ReplayIntegration == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_ReplayIntegration, &_m_ReplayIntegration__getReplayId,
+              "getReplayId", "()Lio/sentry/protocol/SentryId;");
+  if (_m_ReplayIntegration__getReplayId == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  jobject _result = (*jniEnv)->CallObjectMethod(
+      jniEnv, self_, _m_ReplayIntegration__getReplayId);
+  return to_global_ref_result(_result);
+}
+
+jmethodID _m_ReplayIntegration__pause = NULL;
+FFI_PLUGIN_EXPORT
+JniResult ReplayIntegration__pause(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_ReplayIntegration,
+                        "io/sentry/android/replay/ReplayIntegration");
+  if (_c_ReplayIntegration == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_ReplayIntegration, &_m_ReplayIntegration__pause, "pause",
+              "()V");
+  if (_m_ReplayIntegration__pause == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  (*jniEnv)->CallVoidMethod(jniEnv, self_, _m_ReplayIntegration__pause);
+  return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+}
+
+jmethodID _m_ReplayIntegration__stop = NULL;
+FFI_PLUGIN_EXPORT
+JniResult ReplayIntegration__stop(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_ReplayIntegration,
+                        "io/sentry/android/replay/ReplayIntegration");
+  if (_c_ReplayIntegration == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_ReplayIntegration, &_m_ReplayIntegration__stop, "stop", "()V");
+  if (_m_ReplayIntegration__stop == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  (*jniEnv)->CallVoidMethod(jniEnv, self_, _m_ReplayIntegration__stop);
+  return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+}
+
+jmethodID _m_ReplayIntegration__onScreenshotRecorded = NULL;
+FFI_PLUGIN_EXPORT
+JniResult ReplayIntegration__onScreenshotRecorded(jobject self_,
+                                                  jobject bitmap) {
+  load_env();
+  load_class_global_ref(&_c_ReplayIntegration,
+                        "io/sentry/android/replay/ReplayIntegration");
+  if (_c_ReplayIntegration == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_ReplayIntegration, &_m_ReplayIntegration__onScreenshotRecorded,
+              "onScreenshotRecorded", "(Landroid/graphics/Bitmap;)V");
+  if (_m_ReplayIntegration__onScreenshotRecorded == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  (*jniEnv)->CallVoidMethod(jniEnv, self_,
+                            _m_ReplayIntegration__onScreenshotRecorded, bitmap);
+  return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+}
+
+jmethodID _m_ReplayIntegration__onScreenshotRecorded1 = NULL;
+FFI_PLUGIN_EXPORT
+JniResult ReplayIntegration__onScreenshotRecorded1(jobject self_,
+                                                   jobject file,
+                                                   int64_t j) {
+  load_env();
+  load_class_global_ref(&_c_ReplayIntegration,
+                        "io/sentry/android/replay/ReplayIntegration");
+  if (_c_ReplayIntegration == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_ReplayIntegration,
+              &_m_ReplayIntegration__onScreenshotRecorded1,
+              "onScreenshotRecorded", "(Ljava/io/File;J)V");
+  if (_m_ReplayIntegration__onScreenshotRecorded1 == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  (*jniEnv)->CallVoidMethod(
+      jniEnv, self_, _m_ReplayIntegration__onScreenshotRecorded1, file, j);
+  return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+}
+
+jmethodID _m_ReplayIntegration__close = NULL;
+FFI_PLUGIN_EXPORT
+JniResult ReplayIntegration__close(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_ReplayIntegration,
+                        "io/sentry/android/replay/ReplayIntegration");
+  if (_c_ReplayIntegration == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_ReplayIntegration, &_m_ReplayIntegration__close, "close",
+              "()V");
+  if (_m_ReplayIntegration__close == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  (*jniEnv)->CallVoidMethod(jniEnv, self_, _m_ReplayIntegration__close);
+  return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+}
+
+jmethodID _m_ReplayIntegration__onConfigurationChanged = NULL;
+FFI_PLUGIN_EXPORT
+JniResult ReplayIntegration__onConfigurationChanged(jobject self_,
+                                                    jobject configuration) {
+  load_env();
+  load_class_global_ref(&_c_ReplayIntegration,
+                        "io/sentry/android/replay/ReplayIntegration");
+  if (_c_ReplayIntegration == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(
+      _c_ReplayIntegration, &_m_ReplayIntegration__onConfigurationChanged,
+      "onConfigurationChanged", "(Landroid/content/res/Configuration;)V");
+  if (_m_ReplayIntegration__onConfigurationChanged == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  (*jniEnv)->CallVoidMethod(jniEnv, self_,
+                            _m_ReplayIntegration__onConfigurationChanged,
+                            configuration);
+  return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+}
+
+jmethodID _m_ReplayIntegration__onLowMemory = NULL;
+FFI_PLUGIN_EXPORT
+JniResult ReplayIntegration__onLowMemory(jobject self_) {
+  load_env();
+  load_class_global_ref(&_c_ReplayIntegration,
+                        "io/sentry/android/replay/ReplayIntegration");
+  if (_c_ReplayIntegration == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  load_method(_c_ReplayIntegration, &_m_ReplayIntegration__onLowMemory,
+              "onLowMemory", "()V");
+  if (_m_ReplayIntegration__onLowMemory == NULL)
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
+  (*jniEnv)->CallVoidMethod(jniEnv, self_, _m_ReplayIntegration__onLowMemory);
+  return (JniResult){.value = {.j = 0}, .exception = check_exception()};
 }
