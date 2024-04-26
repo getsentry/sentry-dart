@@ -83,7 +83,7 @@ Future<void> setupSentry(
       // configuration issues, e.g. finding out why your events are not uploaded.
       options.debug = true;
       options.spotlight = Spotlight(enabled: true);
-      options.enableTimeToFullDisplayTracing = true;
+      // options.enableTimeToFullDisplayTracing = true;
       options.enableMetrics = true;
 
       options.maxRequestBodySize = MaxRequestBodySize.always;

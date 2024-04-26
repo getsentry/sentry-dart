@@ -36,10 +36,6 @@ class SentryNative {
     return _invoke("fetchNativeAppStart", _binding.fetchNativeAppStart);
   }
 
-  Future<int?> fetchEngineReadyEndtime() async {
-    return _invoke("fetchEngineReadyEndtime", _binding.fetchEngineReadyEndtime);
-  }
-
   // NativeFrames
 
   Future<void> beginNativeFramesCollection() =>
@@ -133,15 +129,20 @@ class SentryNative {
 }
 
 class NativeAppStart {
-  NativeAppStart(this.appStartTime, this.isColdStart);
+  NativeAppStart(
+      {required this.pluginRegistrationTime,
+      required this.appStartTime,
+      required this.isColdStart});
 
+  int pluginRegistrationTime;
   double appStartTime;
   bool isColdStart;
 
   factory NativeAppStart.fromJson(Map<String, dynamic> json) {
     return NativeAppStart(
-      json['appStartTime'] as double,
-      json['isColdStart'] as bool,
+      pluginRegistrationTime: json['pluginRegistrationTime'] as int,
+      appStartTime: json['appStartTime'] as double,
+      isColdStart: json['isColdStart'] as bool,
     );
   }
 }

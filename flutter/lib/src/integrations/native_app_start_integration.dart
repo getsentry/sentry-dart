@@ -54,8 +54,10 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
       final appStartInfo = AppStartInfo(AppStartType.cold,
           start: DateTime.now(),
           end: DateTime.now().add(const Duration(milliseconds: 100)),
-          engineEnd: DateTime.now().add(const Duration(milliseconds: 50)),
-          dartLoadingEnd: DateTime.now().add(const Duration(milliseconds: 60)));
+          pluginRegistration:
+              DateTime.now().add(const Duration(milliseconds: 50)),
+          mainIsolateStart:
+              DateTime.now().add(const Duration(milliseconds: 60)));
       setAppStartInfo(appStartInfo);
       return;
     }
@@ -71,20 +73,20 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
         _native.appStartEnd ??= options.clock();
         final appStartEnd = _native.appStartEnd;
         final nativeAppStart = await _native.fetchNativeAppStart();
-        final engineReadyEndtime = await _native.fetchEngineReadyEndtime();
-        final dartLoadingEnd = SentryFlutter.dartLoadingEnd;
+        final pluginRegistrationTime = nativeAppStart?.pluginRegistrationTime;
+        final mainIsolateStartTime = SentryFlutter.mainIsolateStartTime;
 
         if (nativeAppStart == null ||
             appStartEnd == null ||
-            engineReadyEndtime == null) {
+            pluginRegistrationTime == null) {
           return;
         }
 
         final appStartDateTime = DateTime.fromMillisecondsSinceEpoch(
             nativeAppStart.appStartTime.toInt());
         final duration = appStartEnd.difference(appStartDateTime);
-        final engineEndDatetime =
-            DateTime.fromMillisecondsSinceEpoch(engineReadyEndtime);
+        final pluginRegistrationDateTime =
+            DateTime.fromMillisecondsSinceEpoch(pluginRegistrationTime);
 
         // We filter out app start more than 60s.
         // This could be due to many different reasons.
@@ -104,8 +106,8 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
             start: DateTime.fromMillisecondsSinceEpoch(
                 nativeAppStart.appStartTime.toInt()),
             end: appStartEnd,
-            engineEnd: engineEndDatetime,
-            dartLoadingEnd: dartLoadingEnd);
+            pluginRegistration: pluginRegistrationDateTime,
+            mainIsolateStart: mainIsolateStartTime);
 
         setAppStartInfo(appStartInfo);
       });
@@ -123,14 +125,14 @@ class AppStartInfo {
   AppStartInfo(this.type,
       {required this.start,
       required this.end,
-      required this.engineEnd,
-      required this.dartLoadingEnd});
+      required this.pluginRegistration,
+      required this.mainIsolateStart});
 
   final AppStartType type;
   final DateTime start;
   final DateTime end;
-  final DateTime engineEnd;
-  final DateTime dartLoadingEnd;
+  final DateTime pluginRegistration;
+  final DateTime mainIsolateStart;
 
   Duration get duration => end.difference(start);
 

@@ -56,37 +56,37 @@ class NativeAppStartEventProcessor implements EventProcessor {
         startTimestamp: appStartInfo.start,
         endTimestamp: appStartInfo.end);
 
-    final engineReadySpan = await _createAndFinishSpan(
+    final pluginRegistrationSpan = await _createAndFinishSpan(
         tracer: transaction,
         operation: op,
-        description: 'Engine init and ready',
+        description: AppStartSpanDescriptions.pluginRegistration,
         parentSpanId: appStartSpan.context.spanId,
         traceId: transactionTraceId,
         startTimestamp: appStartInfo.start,
-        endTimestamp: appStartInfo.engineEnd);
+        endTimestamp: appStartInfo.pluginRegistration);
 
-    final dartIsolateLoadingSpan = await _createAndFinishSpan(
+    final mainIsolateSetupSpan = await _createAndFinishSpan(
         tracer: transaction,
         operation: op,
-        description: 'Dart isolate loading',
+        description: AppStartSpanDescriptions.mainIsolateSetup,
         parentSpanId: appStartSpan.context.spanId,
         traceId: transactionTraceId,
-        startTimestamp: appStartInfo.engineEnd,
-        endTimestamp: appStartInfo.dartLoadingEnd);
+        startTimestamp: appStartInfo.pluginRegistration,
+        endTimestamp: appStartInfo.mainIsolateStart);
 
     final firstFrameRenderSpan = await _createAndFinishSpan(
         tracer: transaction,
         operation: op,
-        description: 'Initial frame render',
+        description: AppStartSpanDescriptions.firstFrameRender,
         parentSpanId: appStartSpan.context.spanId,
         traceId: transactionTraceId,
-        startTimestamp: SentryFlutter.dartLoadingEnd,
+        startTimestamp: SentryFlutter.mainIsolateStartTime,
         endTimestamp: appStartInfo.end);
 
     transaction.children.addAll([
       appStartSpan,
-      engineReadySpan,
-      dartIsolateLoadingSpan,
+      pluginRegistrationSpan,
+      mainIsolateSetupSpan,
       firstFrameRenderSpan
     ]);
   }
@@ -119,4 +119,11 @@ extension _StringExtension on String {
   String capitalize() {
     return "${this[0].toUpperCase()}${substring(1).toLowerCase()}";
   }
+}
+
+class AppStartSpanDescriptions {
+  static const String pluginRegistration = 'App start to plugin registration';
+  static const String mainIsolateSetup = 'Main isolate setup';
+  static const String firstFrameRender = 'First frame render';
+  // TODO: Add iOS and Android specific descriptions when implementing native spans
 }
