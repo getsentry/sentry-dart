@@ -173,8 +173,8 @@ void main() {
 
     test('have correct parents', () async {
       expect(coldStartSpan?.context.parentSpanId, tracer.context.spanId);
-      expect(
-          pluginRegistrationSpan?.context.parentSpanId, coldStartSpan?.context.spanId);
+      expect(pluginRegistrationSpan?.context.parentSpanId,
+          coldStartSpan?.context.spanId);
       expect(mainIsolateSetupSpan?.context.parentSpanId,
           coldStartSpan?.context.spanId);
       expect(firstFrameRenderSpan?.context.parentSpanId,
