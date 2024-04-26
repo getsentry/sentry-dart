@@ -34,9 +34,8 @@ class NativeAppStartEventProcessor implements EventProcessor {
       _native.didAddAppStartMeasurement = true;
     }
 
-    final transaction = event.tracer;
     if (appStartInfo != null) {
-      await _attachAppStartSpans(appStartInfo, transaction);
+      await _attachAppStartSpans(appStartInfo, event.tracer);
     }
 
     return event;
