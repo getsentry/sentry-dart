@@ -10,7 +10,6 @@ import Sentry
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
-      print(Date().timeIntervalSince1970)
     GeneratedPluginRegistrant.register(with: self)
 
     guard let controller = window?.rootViewController as? FlutterViewController else {

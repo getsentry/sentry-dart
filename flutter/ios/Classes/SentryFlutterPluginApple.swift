@@ -25,13 +25,11 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         return NSApplication.didBecomeActiveNotification
 #endif
     }
-    
+
     private static var pluginRegistrationTime: Int64 = 0
 
     public static func register(with registrar: FlutterPluginRegistrar) {
-        let currentDate = Date()
-        let timeInterval = currentDate.timeIntervalSince1970
-        pluginRegistrationTime = Int64(timeInterval * 1000)
+        pluginRegistrationTime = Int64(Date().timeIntervalSince1970 * 1000)
 
 #if os(iOS)
         let channel = FlutterMethodChannel(name: "sentry_flutter", binaryMessenger: registrar.messenger())
@@ -388,7 +386,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
             result(nil)
             return
         }
-        
+
         let appStartTime = appStartMeasurement.appStartTimestamp.timeIntervalSince1970 * 1000
         let isColdStart = appStartMeasurement.type == .cold
 
