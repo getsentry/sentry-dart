@@ -36,7 +36,7 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: "adopt"
-          java-version: "11"
+          java-version: "17"
 
       - uses: subosito/flutter-action@48cafc24713cca54bbe03cdc3a423187d413aafa # pin@v2.10.0
         with:
