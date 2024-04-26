@@ -71,20 +71,20 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
         // We only assign the current time if it's not already set - this is useful in tests
         // ignore: invalid_use_of_internal_member
         _native.appStartEnd ??= options.clock();
-        final appStartEnd = _native.appStartEnd;
+        final appStartEndDateTime = _native.appStartEnd;
         final nativeAppStart = await _native.fetchNativeAppStart();
         final pluginRegistrationTime = nativeAppStart?.pluginRegistrationTime;
-        final mainIsolateStartTime = SentryFlutter.mainIsolateStartTime;
+        final mainIsolateStartDateTime = SentryFlutter.mainIsolateStartTime;
 
         if (nativeAppStart == null ||
-            appStartEnd == null ||
+            appStartEndDateTime == null ||
             pluginRegistrationTime == null) {
           return;
         }
 
         final appStartDateTime = DateTime.fromMillisecondsSinceEpoch(
             nativeAppStart.appStartTime.toInt());
-        final duration = appStartEnd.difference(appStartDateTime);
+        final duration = appStartEndDateTime.difference(appStartDateTime);
         final pluginRegistrationDateTime =
             DateTime.fromMillisecondsSinceEpoch(pluginRegistrationTime);
 
@@ -103,11 +103,10 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
 
         final appStartInfo = AppStartInfo(
             nativeAppStart.isColdStart ? AppStartType.cold : AppStartType.warm,
-            start: DateTime.fromMillisecondsSinceEpoch(
-                nativeAppStart.appStartTime.toInt()),
-            end: appStartEnd,
+            start: appStartDateTime,
+            end: appStartEndDateTime,
             pluginRegistration: pluginRegistrationDateTime,
-            mainIsolateStart: mainIsolateStartTime);
+            mainIsolateStart: mainIsolateStartDateTime);
 
         setAppStartInfo(appStartInfo);
       });
