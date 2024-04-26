@@ -12,7 +12,6 @@ import 'event_processor/widget_event_processor.dart';
 import 'frame_callback_handler.dart';
 import 'integrations/connectivity/connectivity_integration.dart';
 import 'integrations/screenshot_integration.dart';
-import 'native/factory.dart';
 import 'native/native_scope_observer.dart';
 import 'profiling.dart';
 import 'renderer/renderer.dart';
@@ -48,11 +47,6 @@ mixin SentryFlutter {
     }
     if (rendererWrapper != null) {
       flutterOptions.rendererWrapper = rendererWrapper;
-    }
-
-    if (flutterOptions.platformChecker.hasNativeIntegration) {
-      final binding = createBinding(flutterOptions.platformChecker, channel);
-      _native = SentryNative(flutterOptions, binding);
     }
 
     final platformDispatcher = PlatformDispatcher.instance;

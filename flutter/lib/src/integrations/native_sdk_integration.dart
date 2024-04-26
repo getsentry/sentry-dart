@@ -2,6 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 import 'package:sentry/sentry.dart';
+import '../native/factory.dart';
+import '../native/sentry_native.dart';
+import '../sentry_flutter.dart';
 import '../sentry_flutter_options.dart';
 
 /// Enables Sentry's native SDKs (Android and iOS) with options.
@@ -14,9 +17,14 @@ class NativeSdkIntegration implements Integration<SentryFlutterOptions> {
   @override
   Future<void> call(Hub hub, SentryFlutterOptions options) async {
     _options = options;
+
     if (!options.autoInitializeNativeSdk) {
       return;
     }
+
+    final binding = createBinding(options.platformChecker, _channel, options);
+    SentryFlutter.native = SentryNative(options, binding);
+
     try {
       await _channel.invokeMethod('initNativeSdk', <String, dynamic>{
         'dsn': options.dsn,

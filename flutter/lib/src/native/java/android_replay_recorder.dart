@@ -7,17 +7,19 @@ import 'package:path/path.dart' as path;
 
 import '../../replay/recorder.dart';
 import '../../replay/recorder_config.dart';
+import '../../sentry_flutter_options.dart';
 import 'binding.dart' as java;
 
 @internal
 class AndroidReplayRecorder implements java.$RecorderImpl {
+  final SentryFlutterOptions _options;
   late ScreenshotRecorder _recorder;
   late java.ReplayIntegration? _integration;
 
-  AndroidReplayRecorder._();
+  AndroidReplayRecorder._(this._options);
 
-  static java.Recorder create() =>
-      java.Recorder.implement(AndroidReplayRecorder._());
+  static java.Recorder create(SentryFlutterOptions options) =>
+      java.Recorder.implement(AndroidReplayRecorder._(options));
 
   @override
   void pause() => _recorder.stop();
@@ -59,7 +61,9 @@ class AndroidReplayRecorder implements java.$RecorderImpl {
         config.getFrameRate(),
       ),
       callback,
+      _options.logger,
     );
+
     _recorder.start();
   }
 
