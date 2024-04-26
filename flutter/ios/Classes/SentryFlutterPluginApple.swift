@@ -26,13 +26,11 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 #endif
     }
     
-    // Represents the time when the flutter engine starts to register plugins
     private static var pluginRegistrationTime: Int64 = 0
 
     public static func register(with registrar: FlutterPluginRegistrar) {
         let currentDate = Date()
         let timeInterval = currentDate.timeIntervalSince1970
-        engineReadyEndtime = Int64(timeInterval * 1000)
         pluginRegistrationTime = Int64(timeInterval * 1000)
 
 #if os(iOS)
