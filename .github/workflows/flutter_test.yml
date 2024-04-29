@@ -25,7 +25,7 @@ jobs:
           access_token: ${{ github.token }}
 
   test-android:
-    runs-on: macos-latest
+    runs-on: macos-13
     timeout-minutes: 30
     defaults:
       run:
@@ -41,7 +41,7 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: "adopt"
-          java-version: "11"
+          java-version: "17"
 
       - uses: subosito/flutter-action@44ac965b96f18d999802d4b807e3256d5a3f9fa1 # pin@v2.16.0
         with:
