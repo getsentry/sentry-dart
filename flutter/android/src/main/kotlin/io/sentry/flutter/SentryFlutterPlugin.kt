@@ -36,10 +36,10 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
   private var activity: WeakReference<Activity>? = null
   private var framesTracker: ActivityFramesTracker? = null
-  private var engineReadyEndtime: Long? = null
+  private var pluginRegistrationTime: Long? = null
 
   override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
-    engineReadyEndtime = System.currentTimeMillis()
+    pluginRegistrationTime = System.currentTimeMillis()
 
     context = flutterPluginBinding.applicationContext
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, "sentry_flutter")
@@ -70,7 +70,6 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       "removeExtra" -> removeExtra(call.argument("key"), result)
       "setTag" -> setTag(call.argument("key"), call.argument("value"), result)
       "removeTag" -> removeTag(call.argument("key"), result)
-      "fetchEngineReadyEndtime" -> fetchEngineReadyEndtime(result)
       "loadContexts" -> loadContexts(result)
       else -> result.notImplemented()
     }
@@ -141,15 +140,12 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     } else {
       val appStartTimeMillis = DateUtils.nanosToMillis(appStartTime.nanoTimestamp().toDouble())
       val item = mapOf<String, Any?>(
+        "pluginRegistrationTime" to pluginRegistrationTime,
         "appStartTime" to appStartTimeMillis,
         "isColdStart" to isColdStart,
       )
       result.success(item)
     }
-  }
-
-  private fun fetchEngineReadyEndtime(result: Result) {
-    result.success(engineReadyEndtime)
   }
 
   private fun beginNativeFrames(result: Result) {

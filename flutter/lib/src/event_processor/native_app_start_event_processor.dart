@@ -34,9 +34,8 @@ class NativeAppStartEventProcessor implements EventProcessor {
       _native.didAddAppStartMeasurement = true;
     }
 
-    final transaction = event.tracer;
     if (appStartInfo != null) {
-      await _attachAppStartSpans(appStartInfo, transaction);
+      await _attachAppStartSpans(appStartInfo, event.tracer);
     }
 
     return event;
@@ -44,49 +43,48 @@ class NativeAppStartEventProcessor implements EventProcessor {
 
   Future<void> _attachAppStartSpans(
       AppStartInfo appStartInfo, SentryTracer transaction) async {
-    final op = 'app.start.${appStartInfo.type.name}';
     final transactionTraceId = transaction.context.traceId;
 
     final appStartSpan = await _createAndFinishSpan(
         tracer: transaction,
-        operation: op,
-        description: '${appStartInfo.type.name.capitalize()} start',
+        operation: appStartInfo.appStartTypeOperation,
+        description: appStartInfo.appStartTypeDescription,
         parentSpanId: transaction.context.spanId,
         traceId: transactionTraceId,
         startTimestamp: appStartInfo.start,
         endTimestamp: appStartInfo.end);
 
-    final engineReadySpan = await _createAndFinishSpan(
+    final pluginRegistrationSpan = await _createAndFinishSpan(
         tracer: transaction,
-        operation: op,
-        description: 'Engine init and ready',
+        operation: appStartInfo.appStartTypeOperation,
+        description: appStartInfo.pluginRegistrationDescription,
         parentSpanId: appStartSpan.context.spanId,
         traceId: transactionTraceId,
         startTimestamp: appStartInfo.start,
-        endTimestamp: appStartInfo.engineEnd);
+        endTimestamp: appStartInfo.pluginRegistration);
 
-    final dartIsolateLoadingSpan = await _createAndFinishSpan(
+    final mainIsolateSetupSpan = await _createAndFinishSpan(
         tracer: transaction,
-        operation: op,
-        description: 'Dart isolate loading',
+        operation: appStartInfo.appStartTypeOperation,
+        description: appStartInfo.mainIsolateSetupDescription,
         parentSpanId: appStartSpan.context.spanId,
         traceId: transactionTraceId,
-        startTimestamp: appStartInfo.engineEnd,
-        endTimestamp: appStartInfo.dartLoadingEnd);
+        startTimestamp: appStartInfo.pluginRegistration,
+        endTimestamp: appStartInfo.mainIsolateStart);
 
     final firstFrameRenderSpan = await _createAndFinishSpan(
         tracer: transaction,
-        operation: op,
-        description: 'Initial frame render',
+        operation: appStartInfo.appStartTypeOperation,
+        description: appStartInfo.firstFrameRenderDescription,
         parentSpanId: appStartSpan.context.spanId,
         traceId: transactionTraceId,
-        startTimestamp: SentryFlutter.dartLoadingEnd,
+        startTimestamp: SentryFlutter.mainIsolateStartTime,
         endTimestamp: appStartInfo.end);
 
     transaction.children.addAll([
       appStartSpan,
-      engineReadySpan,
-      dartIsolateLoadingSpan,
+      pluginRegistrationSpan,
+      mainIsolateSetupSpan,
       firstFrameRenderSpan
     ]);
   }
@@ -112,11 +110,5 @@ class NativeAppStartEventProcessor implements EventProcessor {
         startTimestamp: startTimestamp);
     await span.finish(endTimestamp: endTimestamp);
     return span;
-  }
-}
-
-extension _StringExtension on String {
-  String capitalize() {
-    return "${this[0].toUpperCase()}${substring(1).toLowerCase()}";
   }
 }
