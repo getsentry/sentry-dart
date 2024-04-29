@@ -51,12 +51,15 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
   @override
   void call(Hub hub, SentryFlutterOptions options) {
     if (isIntegrationTest) {
-      final appStartInfo = AppStartInfo(AppStartType.cold,
-          start: DateTime.now(),
-          end: DateTime.now().add(const Duration(milliseconds: 100)),
-          nativeSpanTimes: {},
-          engineEnd: DateTime.now().add(const Duration(milliseconds: 50)),
-          dartLoadingEnd: DateTime.now().add(const Duration(milliseconds: 60)));
+      final appStartInfo = AppStartInfo(
+        AppStartType.cold,
+        start: DateTime.now(),
+        end: DateTime.now().add(const Duration(milliseconds: 100)),
+        pluginRegistration:
+            DateTime.now().add(const Duration(milliseconds: 50)),
+        mainIsolateStart: DateTime.now().add(const Duration(milliseconds: 60)),
+        nativeSpanTimes: {},
+      );
       setAppStartInfo(appStartInfo);
       return;
     }
@@ -70,22 +73,22 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
         // We only assign the current time if it's not already set - this is useful in tests
         // ignore: invalid_use_of_internal_member
         _native.appStartEnd ??= options.clock();
-        final appStartEnd = _native.appStartEnd;
+        final appStartEndDateTime = _native.appStartEnd;
         final nativeAppStart = await _native.fetchNativeAppStart();
-        final engineReadyEndtime = await _native.fetchEngineReadyEndtime();
-        final dartLoadingEnd = SentryFlutter.dartLoadingEnd;
+        final pluginRegistrationTime = nativeAppStart?.pluginRegistrationTime;
+        final mainIsolateStartDateTime = SentryFlutter.mainIsolateStartTime;
 
         if (nativeAppStart == null ||
-            appStartEnd == null ||
-            engineReadyEndtime == null) {
+            appStartEndDateTime == null ||
+            pluginRegistrationTime == null) {
           return;
         }
 
         final appStartDateTime = DateTime.fromMillisecondsSinceEpoch(
             nativeAppStart.appStartTime.toInt());
-        final duration = appStartEnd.difference(appStartDateTime);
-        final engineEndDatetime =
-            DateTime.fromMillisecondsSinceEpoch(engineReadyEndtime);
+        final duration = appStartEndDateTime.difference(appStartDateTime);
+        final pluginRegistrationDateTime =
+            DateTime.fromMillisecondsSinceEpoch(pluginRegistrationTime);
 
         // We filter out app start more than 60s.
         // This could be due to many different reasons.
@@ -102,12 +105,12 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
 
         final appStartInfo = AppStartInfo(
             nativeAppStart.isColdStart ? AppStartType.cold : AppStartType.warm,
-            start: DateTime.fromMillisecondsSinceEpoch(
-                nativeAppStart.appStartTime.toInt()),
-            end: appStartEnd,
-            nativeSpanTimes: nativeAppStart.nativeSpanTimes,
-            engineEnd: engineEndDatetime,
-            dartLoadingEnd: dartLoadingEnd);
+            start: appStartDateTime,
+            end: appStartEndDateTime,
+            pluginRegistration: pluginRegistrationDateTime,
+            mainIsolateStart: mainIsolateStartDateTime,
+            nativeSpanTimes: nativeAppStart.nativeSpanTimes);
+
         setAppStartInfo(appStartInfo);
       });
     }
@@ -124,16 +127,16 @@ class AppStartInfo {
   AppStartInfo(this.type,
       {required this.start,
       required this.end,
-      required this.engineEnd,
-      required this.dartLoadingEnd,
+      required this.pluginRegistration,
+      required this.mainIsolateStart,
       required this.nativeSpanTimes});
 
   final AppStartType type;
   final DateTime start;
   final DateTime end;
   final Map<dynamic, dynamic> nativeSpanTimes;
-  final DateTime engineEnd;
-  final DateTime dartLoadingEnd;
+  final DateTime pluginRegistration;
+  final DateTime mainIsolateStart;
 
   Duration get duration => end.difference(start);
 
@@ -142,4 +145,12 @@ class AppStartInfo {
         ? SentryMeasurement.coldAppStart(duration)
         : SentryMeasurement.warmAppStart(duration);
   }
+
+  String get appStartTypeOperation => 'app.start.${type.name}';
+
+  String get appStartTypeDescription =>
+      type == AppStartType.cold ? 'Cold start' : 'Warm start';
+  final pluginRegistrationDescription = 'App start to plugin registration';
+  final mainIsolateSetupDescription = 'Main isolate setup';
+  final firstFrameRenderDescription = 'First frame render';
 }

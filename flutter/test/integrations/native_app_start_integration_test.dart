@@ -24,7 +24,8 @@ void main() {
 
     test('native app start measurement added to first transaction', () async {
       fixture.native.appStartEnd = DateTime.fromMillisecondsSinceEpoch(10);
-      fixture.binding.nativeAppStart = NativeAppStart(0, true);
+      fixture.binding.nativeAppStart = NativeAppStart(
+          appStartTime: 0, pluginRegistrationTime: 10, isColdStart: true);
 
       fixture.getNativeAppStartIntegration().call(fixture.hub, fixture.options);
 
@@ -43,7 +44,8 @@ void main() {
     test('native app start measurement not added to following transactions',
         () async {
       fixture.native.appStartEnd = DateTime.fromMillisecondsSinceEpoch(10);
-      fixture.binding.nativeAppStart = NativeAppStart(0, true);
+      fixture.binding.nativeAppStart = NativeAppStart(
+          appStartTime: 0, pluginRegistrationTime: 10, isColdStart: true);
 
       fixture.getNativeAppStartIntegration().call(fixture.hub, fixture.options);
 
@@ -62,7 +64,8 @@ void main() {
 
     test('measurements appended', () async {
       fixture.native.appStartEnd = DateTime.fromMillisecondsSinceEpoch(10);
-      fixture.binding.nativeAppStart = NativeAppStart(0, true);
+      fixture.binding.nativeAppStart = NativeAppStart(
+          appStartTime: 0, pluginRegistrationTime: 10, isColdStart: true);
       final measurement = SentryMeasurement.warmAppStart(Duration(seconds: 1));
 
       fixture.getNativeAppStartIntegration().call(fixture.hub, fixture.options);
@@ -84,7 +87,8 @@ void main() {
 
     test('native app start measurement not added if more than 60s', () async {
       fixture.native.appStartEnd = DateTime.fromMillisecondsSinceEpoch(60001);
-      fixture.binding.nativeAppStart = NativeAppStart(0, true);
+      fixture.binding.nativeAppStart = NativeAppStart(
+          appStartTime: 0, pluginRegistrationTime: 10, isColdStart: true);
 
       fixture.getNativeAppStartIntegration().call(fixture.hub, fixture.options);
 
@@ -101,7 +105,8 @@ void main() {
     test('native app start integration is called and sets app start info',
         () async {
       fixture.native.appStartEnd = DateTime.fromMillisecondsSinceEpoch(10);
-      fixture.binding.nativeAppStart = NativeAppStart(0, true);
+      fixture.binding.nativeAppStart = NativeAppStart(
+          appStartTime: 0, pluginRegistrationTime: 10, isColdStart: true);
 
       fixture.getNativeAppStartIntegration().call(fixture.hub, fixture.options);
 
@@ -113,8 +118,8 @@ void main() {
 
   group('App start spans', () {
     late SentrySpan? coldStartSpan,
-        engineReadySpan,
-        dartIsolateLoadingSpan,
+        pluginRegistrationSpan,
+        mainIsolateSetupSpan,
         firstFrameRenderSpan;
     // ignore: invalid_use_of_internal_member
     late SentryTracer tracer;
@@ -127,9 +132,11 @@ void main() {
       NativeAppStartIntegration.clearAppStartInfo();
 
       fixture.native.appStartEnd = DateTime.fromMillisecondsSinceEpoch(50);
-      fixture.binding.nativeAppStart = NativeAppStart(0, true);
+      fixture.binding.nativeAppStart = NativeAppStart(
+          appStartTime: 0, pluginRegistrationTime: 10, isColdStart: true);
       // dartLoadingEnd needs to be set after engine end (see MockNativeChannel)
-      SentryFlutter.dartLoadingEnd = DateTime.fromMillisecondsSinceEpoch(15);
+      SentryFlutter.mainIsolateStartTime =
+          DateTime.fromMillisecondsSinceEpoch(15);
 
       fixture.getNativeAppStartIntegration().call(fixture.hub, fixture.options);
 
@@ -139,36 +146,41 @@ void main() {
       final enriched =
           await processor.apply(transaction, Hint()) as SentryTransaction;
 
-      coldStartSpan = enriched.spans.firstWhereOrNull(
-          (element) => element.context.description == 'Cold start');
-      engineReadySpan = enriched.spans.firstWhereOrNull(
-          (element) => element.context.description == 'Engine init and ready');
-      dartIsolateLoadingSpan = enriched.spans.firstWhereOrNull(
-          (element) => element.context.description == 'Dart isolate loading');
-      firstFrameRenderSpan = enriched.spans.firstWhereOrNull(
-          (element) => element.context.description == 'Initial frame render');
+      final appStartInfo = await NativeAppStartIntegration.getAppStartInfo();
+
+      coldStartSpan = enriched.spans.firstWhereOrNull((element) =>
+          element.context.description == appStartInfo?.appStartTypeDescription);
+      pluginRegistrationSpan = enriched.spans.firstWhereOrNull((element) =>
+          element.context.description ==
+          appStartInfo?.pluginRegistrationDescription);
+      mainIsolateSetupSpan = enriched.spans.firstWhereOrNull((element) =>
+          element.context.description ==
+          appStartInfo?.mainIsolateSetupDescription);
+      firstFrameRenderSpan = enriched.spans.firstWhereOrNull((element) =>
+          element.context.description ==
+          appStartInfo?.firstFrameRenderDescription);
     });
 
     test('are added by event processor', () async {
       expect(coldStartSpan, isNotNull);
-      expect(engineReadySpan, isNotNull);
-      expect(dartIsolateLoadingSpan, isNotNull);
+      expect(pluginRegistrationSpan, isNotNull);
+      expect(mainIsolateSetupSpan, isNotNull);
       expect(firstFrameRenderSpan, isNotNull);
     });
 
     test('have correct op', () async {
       const op = 'app.start.cold';
       expect(coldStartSpan?.context.operation, op);
-      expect(engineReadySpan?.context.operation, op);
-      expect(dartIsolateLoadingSpan?.context.operation, op);
+      expect(pluginRegistrationSpan?.context.operation, op);
+      expect(mainIsolateSetupSpan?.context.operation, op);
       expect(firstFrameRenderSpan?.context.operation, op);
     });
 
     test('have correct parents', () async {
       expect(coldStartSpan?.context.parentSpanId, tracer.context.spanId);
-      expect(
-          engineReadySpan?.context.parentSpanId, coldStartSpan?.context.spanId);
-      expect(dartIsolateLoadingSpan?.context.parentSpanId,
+      expect(pluginRegistrationSpan?.context.parentSpanId,
+          coldStartSpan?.context.spanId);
+      expect(mainIsolateSetupSpan?.context.parentSpanId,
           coldStartSpan?.context.spanId);
       expect(firstFrameRenderSpan?.context.parentSpanId,
           coldStartSpan?.context.spanId);
@@ -177,8 +189,8 @@ void main() {
     test('have correct traceId', () async {
       final traceId = tracer.context.traceId;
       expect(coldStartSpan?.context.traceId, traceId);
-      expect(engineReadySpan?.context.traceId, traceId);
-      expect(dartIsolateLoadingSpan?.context.traceId, traceId);
+      expect(pluginRegistrationSpan?.context.traceId, traceId);
+      expect(mainIsolateSetupSpan?.context.traceId, traceId);
       expect(firstFrameRenderSpan?.context.traceId, traceId);
     });
 
@@ -187,20 +199,21 @@ void main() {
               fixture.binding.nativeAppStart!.appStartTime.toInt())
           .toUtc();
       expect(coldStartSpan?.startTimestamp, appStartTime);
-      expect(engineReadySpan?.startTimestamp, appStartTime);
-      expect(dartIsolateLoadingSpan?.startTimestamp,
-          engineReadySpan?.endTimestamp);
+      expect(pluginRegistrationSpan?.startTimestamp, appStartTime);
+      expect(mainIsolateSetupSpan?.startTimestamp,
+          pluginRegistrationSpan?.endTimestamp);
       expect(firstFrameRenderSpan?.startTimestamp,
-          dartIsolateLoadingSpan?.endTimestamp);
+          mainIsolateSetupSpan?.endTimestamp);
     });
 
     test('have correct endTimestamp', () async {
-      final engineReadyEndtime = await fixture.native.fetchEngineReadyEndtime();
+      final engineReadyEndtime = DateTime.fromMillisecondsSinceEpoch(
+              fixture.binding.nativeAppStart!.pluginRegistrationTime.toInt())
+          .toUtc();
       expect(coldStartSpan?.endTimestamp, fixture.native.appStartEnd?.toUtc());
-      expect(engineReadySpan?.endTimestamp,
-          DateTime.fromMillisecondsSinceEpoch(engineReadyEndtime!).toUtc());
-      expect(dartIsolateLoadingSpan?.endTimestamp,
-          SentryFlutter.dartLoadingEnd.toUtc());
+      expect(pluginRegistrationSpan?.endTimestamp, engineReadyEndtime);
+      expect(mainIsolateSetupSpan?.endTimestamp,
+          SentryFlutter.mainIsolateStartTime.toUtc());
       expect(firstFrameRenderSpan?.endTimestamp, coldStartSpan?.endTimestamp);
     });
   });

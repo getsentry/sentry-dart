@@ -26,12 +26,10 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 #endif
     }
 
-    private static var engineReadyEndtime: Int64 = 0
+    private static var pluginRegistrationTime: Int64 = 0
 
     public static func register(with registrar: FlutterPluginRegistrar) {
-        let currentDate = Date()
-        let timeInterval = currentDate.timeIntervalSince1970
-        engineReadyEndtime = Int64(timeInterval * 1000)
+        pluginRegistrationTime = Int64(Date().timeIntervalSince1970 * 1000)
 
 #if os(iOS)
         let channel = FlutterMethodChannel(name: "sentry_flutter", binaryMessenger: registrar.messenger())
@@ -83,10 +81,6 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
     private func dateFrom(iso8601String: String) -> Date? {
       return iso8601FormatterWithMillisecondPrecision.date(from: iso8601String)
         ?? iso8601Formatter.date(from: iso8601String) // Parse date with low precision formatter for backward compatible
-    }
-
-    private func fetchEngineReadyEndtime(result: @escaping FlutterResult) {
-        result(SentryFlutterPluginApple.engineReadyEndtime)
     }
 
     // swiftlint:disable:next cyclomatic_complexity
@@ -161,9 +155,6 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
             let arguments = call.arguments as? [String: Any?]
             let key = arguments?["key"] as? String
             removeTag(key: key, result: result)
-
-        case "fetchEngineReadyEndtime":
-            fetchEngineReadyEndtime(result: result)
 
         #if !os(tvOS) && !os(watchOS)
         case "discardProfiler":
@@ -412,6 +403,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         let isColdStart = appStartMeasurement.type == .cold
 
         let item: [String: Any] = [
+            "pluginRegistrationTime": SentryFlutterPluginApple.pluginRegistrationTime,
             "appStartTime": appStartTime,
             "isColdStart": isColdStart,
             "nativeSpanTimes": nativeSpanTimes

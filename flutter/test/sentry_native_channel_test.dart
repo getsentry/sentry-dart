@@ -20,6 +20,7 @@ void main() {
 
     test('fetchNativeAppStart', () async {
       final map = <String, dynamic>{
+        'pluginRegistrationTime': 1,
         'appStartTime': 0.1,
         'isColdStart': true,
       };

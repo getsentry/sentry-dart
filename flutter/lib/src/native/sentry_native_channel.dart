@@ -25,11 +25,6 @@ class SentryNativeChannel implements SentryNativeBinding {
   }
 
   @override
-  Future<int?> fetchEngineReadyEndtime() async {
-    return _channel.invokeMethod('fetchEngineReadyEndtime');
-  }
-
-  @override
   Future<void> beginNativeFrames() =>
       _channel.invokeMethod('beginNativeFrames');
 

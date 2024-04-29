@@ -36,10 +36,10 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
   private var activity: WeakReference<Activity>? = null
   private var framesTracker: ActivityFramesTracker? = null
-  private var engineReadyEndtime: Long? = null
+  private var pluginRegistrationTime: Long? = null
 
   override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
-    engineReadyEndtime = System.currentTimeMillis()
+    pluginRegistrationTime = System.currentTimeMillis()
 
     context = flutterPluginBinding.applicationContext
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, "sentry_flutter")
@@ -70,7 +70,6 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       "removeExtra" -> removeExtra(call.argument("key"), result)
       "setTag" -> setTag(call.argument("key"), call.argument("value"), result)
       "removeTag" -> removeTag(call.argument("key"), result)
-      "fetchEngineReadyEndtime" -> fetchEngineReadyEndtime(result)
       "loadContexts" -> loadContexts(result)
       else -> result.notImplemented()
     }
@@ -134,22 +133,10 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     val appStartMetrics = AppStartMetrics.getInstance()
 
     val applicationOnCreateStartTime = appStartMetrics.applicationOnCreateTimeSpan.startTimestamp
-    println("ok?: ${appStartMetrics.appStartTimeSpan.startUptimeMs}")
-
     val classInitUptimeMs = appStartMetrics.classLoadedUptimeMs
     val appStartUptimeMs = appStartMetrics.appStartTimeSpan.startUptimeMs
     val appStartTime = appStartMetrics.appStartTimeSpan.startTimestamp
-    val contentProviderOnCreates = appStartMetrics.contentProviderOnCreateTimeSpans
-    println(contentProviderOnCreates.isEmpty())
-    println("haha");
-    contentProviderOnCreates.forEach {
-      println("contentProviderOnCreates: ${it.startTimestamp}")
-      println("contentProviderOnCreates: ${it.projectedStopTimestamp}")
-      println("")
-    }
-    val appl = appStartMetrics.applicationOnCreateTimeSpan
-//    AppStartMetrics.onApplicationPostCreate()
-    print("appl: ${appl.startTimestamp} ${appl.startTimestampMs} ${appl.hasStopped()}")
+
     val isColdStart =
       AppStartMetrics.getInstance().appStartType == AppStartMetrics.AppStartType.COLD
 
@@ -159,16 +146,10 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     } else {
       val appStartTimeMillis = DateUtils.nanosToMillis(appStartTime.nanoTimestamp().toDouble())
       val item = mutableMapOf<String, Any?>(
+        "pluginRegistrationTime" to pluginRegistrationTime,
         "appStartTime" to appStartTimeMillis,
         "isColdStart" to isColdStart,
       )
-      println("ok?: ${classInitUptimeMs - appStartMetrics.appStartTimeSpan.startUptimeMs}");
-//      if (applicationOnCreateStartTime != null) {
-//        println("is not null");
-//        val applicationOnCreateTimeMillis =
-//          DateUtils.nanosToMillis(applicationOnCreateStartTime.nanoTimestamp().toDouble())
-//        item["applicationOnCreateTime"] = mapOf("test" to "test")
-//      }
       item["nativeSpanTimes"] = mapOf<String, Any?>(
         "classInitUptimeMs" to classInitUptimeMs,
         "appStartUptimeMs" to appStartUptimeMs,
@@ -176,10 +157,6 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
       result.success(item)
     }
-  }
-
-  private fun fetchEngineReadyEndtime(result: Result) {
-    result.success(engineReadyEndtime)
   }
 
   private fun beginNativeFrames(result: Result) {
