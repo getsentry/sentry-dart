@@ -140,4 +140,12 @@ class AppStartInfo {
         ? SentryMeasurement.coldAppStart(duration)
         : SentryMeasurement.warmAppStart(duration);
   }
+
+  String get appStartTypeOperation => 'app.start.${type.name}';
+
+  String get appStartTypeDescription =>
+      type == AppStartType.cold ? 'Cold start' : 'Warm start';
+  final pluginRegistrationDescription = 'App start to plugin registration';
+  final mainIsolateSetupDescription = 'Main isolate setup';
+  final firstFrameRenderDescription = 'First frame render';
 }

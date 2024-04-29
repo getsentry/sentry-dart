@@ -391,7 +391,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         let isColdStart = appStartMeasurement.type == .cold
 
         let item: [String: Any] = [
-            "pluginRegistrationTime" : SentryFlutterPluginApple.pluginRegistrationTime,
+            "pluginRegistrationTime": SentryFlutterPluginApple.pluginRegistrationTime,
             "appStartTime": appStartTime,
             "isColdStart": isColdStart
         ]

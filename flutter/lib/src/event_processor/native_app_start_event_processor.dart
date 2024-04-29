@@ -43,13 +43,12 @@ class NativeAppStartEventProcessor implements EventProcessor {
 
   Future<void> _attachAppStartSpans(
       AppStartInfo appStartInfo, SentryTracer transaction) async {
-    final op = 'app.start.${appStartInfo.type.name}';
     final transactionTraceId = transaction.context.traceId;
 
     final appStartSpan = await _createAndFinishSpan(
         tracer: transaction,
-        operation: op,
-        description: '${appStartInfo.type.name.capitalize()} start',
+        operation: appStartInfo.appStartTypeOperation,
+        description: appStartInfo.appStartTypeDescription,
         parentSpanId: transaction.context.spanId,
         traceId: transactionTraceId,
         startTimestamp: appStartInfo.start,
@@ -57,8 +56,8 @@ class NativeAppStartEventProcessor implements EventProcessor {
 
     final pluginRegistrationSpan = await _createAndFinishSpan(
         tracer: transaction,
-        operation: op,
-        description: _AppStartSpanDescriptions.pluginRegistration,
+        operation: appStartInfo.appStartTypeOperation,
+        description: appStartInfo.pluginRegistrationDescription,
         parentSpanId: appStartSpan.context.spanId,
         traceId: transactionTraceId,
         startTimestamp: appStartInfo.start,
@@ -66,8 +65,8 @@ class NativeAppStartEventProcessor implements EventProcessor {
 
     final mainIsolateSetupSpan = await _createAndFinishSpan(
         tracer: transaction,
-        operation: op,
-        description: _AppStartSpanDescriptions.mainIsolateSetup,
+        operation: appStartInfo.appStartTypeOperation,
+        description: appStartInfo.mainIsolateSetupDescription,
         parentSpanId: appStartSpan.context.spanId,
         traceId: transactionTraceId,
         startTimestamp: appStartInfo.pluginRegistration,
@@ -75,8 +74,8 @@ class NativeAppStartEventProcessor implements EventProcessor {
 
     final firstFrameRenderSpan = await _createAndFinishSpan(
         tracer: transaction,
-        operation: op,
-        description: _AppStartSpanDescriptions.firstFrameRender,
+        operation: appStartInfo.appStartTypeOperation,
+        description: appStartInfo.firstFrameRenderDescription,
         parentSpanId: appStartSpan.context.spanId,
         traceId: transactionTraceId,
         startTimestamp: SentryFlutter.mainIsolateStartTime,
@@ -112,17 +111,4 @@ class NativeAppStartEventProcessor implements EventProcessor {
     await span.finish(endTimestamp: endTimestamp);
     return span;
   }
-}
-
-extension _StringExtension on String {
-  String capitalize() {
-    return "${this[0].toUpperCase()}${substring(1).toLowerCase()}";
-  }
-}
-
-class _AppStartSpanDescriptions {
-  static const String pluginRegistration = 'App start to plugin registration';
-  static const String mainIsolateSetup = 'Main isolate setup';
-  static const String firstFrameRender = 'First frame render';
-  // TODO: Add iOS and Android specific descriptions when implementing native spans
 }

@@ -3,6 +3,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_flutter/src/event_processor/native_app_start_event_processor.dart';
 import 'package:sentry_flutter/src/integrations/native_app_start_integration.dart';
 import 'package:sentry_flutter/src/native/sentry_native.dart';
 import 'package:sentry/src/sentry_tracer.dart';
@@ -146,14 +147,19 @@ void main() {
       final enriched =
           await processor.apply(transaction, Hint()) as SentryTransaction;
 
-      coldStartSpan = enriched.spans.firstWhereOrNull(
-          (element) => element.context.description == 'Cold start');
-      pluginRegistrationSpan = enriched.spans.firstWhereOrNull(
-          (element) => element.context.description == 'Engine init and ready');
-      mainIsolateSetupSpan = enriched.spans.firstWhereOrNull(
-          (element) => element.context.description == 'Dart isolate loading');
-      firstFrameRenderSpan = enriched.spans.firstWhereOrNull(
-          (element) => element.context.description == 'Initial frame render');
+      final appStartInfo = await NativeAppStartIntegration.getAppStartInfo();
+
+      coldStartSpan = enriched.spans.firstWhereOrNull((element) =>
+          element.context.description == appStartInfo?.appStartTypeDescription);
+      pluginRegistrationSpan = enriched.spans.firstWhereOrNull((element) =>
+          element.context.description ==
+          appStartInfo?.pluginRegistrationDescription);
+      mainIsolateSetupSpan = enriched.spans.firstWhereOrNull((element) =>
+          element.context.description ==
+          appStartInfo?.mainIsolateSetupDescription);
+      firstFrameRenderSpan = enriched.spans.firstWhereOrNull((element) =>
+          element.context.description ==
+          appStartInfo?.firstFrameRenderDescription);
     });
 
     test('are added by event processor', () async {
