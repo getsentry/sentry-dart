@@ -6,6 +6,7 @@ import 'package:flutter/rendering.dart';
 import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
+import '../sentry_replay_options.dart';
 import 'recorder_config.dart';
 import 'recorder_widget_filter.dart';
 import 'scheduler.dart';
@@ -13,19 +14,28 @@ import 'scheduler.dart';
 @internal
 typedef ScreenshotRecorderCallback = Future<void> Function(Image);
 
+// TODO evaluate [notifications](https://api.flutter.dev/flutter/widgets/Notification-class.html)
+// to only collect screenshots when there are changes.
+// We probably can't use build() because inner repaintboundaries won't propagate up?
 @internal
 class ScreenshotRecorder {
   final ScreenshotRecorderConfig _config;
   final ScreenshotRecorderCallback _callback;
   final SentryLogger _logger;
+  final SentryReplayOptions _options;
+  WidgetFilter? _widgetFilter;
   late final Scheduler _scheduler;
-  final Paint _widgetObscurePaint = Paint()
-    ..color = Color.fromARGB(255, 0, 0, 0);
   bool warningLogged = false;
 
-  ScreenshotRecorder(this._config, this._callback, this._logger) {
+  ScreenshotRecorder(
+      this._config, this._callback, this._logger, this._options) {
     final frameDuration = Duration(milliseconds: 1000 ~/ _config.frameRate);
     _scheduler = Scheduler(frameDuration, _capture);
+    if (_options.redactAllText || _options.redactAllImages) {
+      _widgetFilter = WidgetFilter(
+          redactText: _options.redactAllText,
+          redactImages: _options.redactAllImages);
+    }
   }
 
   void start() {
@@ -38,7 +48,6 @@ class ScreenshotRecorder {
     _logger(SentryLevel.debug, "Replay: replay capture stopped.");
   }
 
-  // TODO try-catch
   Future<void> _capture(Duration sinceSchedulerEpoch) async {
     final context = sentryScreenshotWidgetGlobalKey.currentContext;
     final renderObject = context?.findRenderObject() as RenderRepaintBoundary?;
@@ -61,20 +70,27 @@ class ScreenshotRecorder {
 
       // We may scale here already if the desired resolution is lower than the actual one.
       // On the other hand, if it's higher, we scale up in picture.toImage().
-      final srcWidth = renderObject.size.width.round();
-      final srcHeight = renderObject.size.height.round();
+      final srcWidth = renderObject.size.width;
+      final srcHeight = renderObject.size.height;
       final pixelRatioX = _config.width / srcWidth;
       final pixelRatioY = _config.height / srcHeight;
       final outputPixelRatio = min(pixelRatioY, pixelRatioX);
       final pixelRatio = min(1.0, outputPixelRatio);
 
-      // Note: we capture the image first and visit children synchronously on the main UI loop.
+      // First, we synchronously capture the image and enumarete widgets on the main UI loop.
       final futureImage = renderObject.toImage(pixelRatio: pixelRatio);
       watch.printAndReset("renderObject.toImage($pixelRatio)");
 
-      final filter = WidgetFilter(pixelRatio);
-      context.visitChildElements(filter.obscure);
-      watch.printAndReset("collect widget boundaries");
+      final filter = _widgetFilter;
+      if (filter != null) {
+        filter.setupAndClear(
+          pixelRatio,
+          Rect.fromLTWH(0, 0, srcWidth * pixelRatio, srcHeight * pixelRatio),
+        );
+        context.visitChildElements(filter.obscure);
+        watch.printAndReset("collect widget boundaries");
+      }
+
       final blockingTime = watch2.elapsedMilliseconds;
 
       // Then we draw the image and obscure collected coordinates asynchronously.
@@ -89,8 +105,10 @@ class ScreenshotRecorder {
         image.dispose();
       }
 
-      _obscureWidgets(canvas, filter.bounds);
-      watch.printAndReset("obscureWidgets()");
+      if (filter != null) {
+        _obscureWidgets(canvas, filter.items);
+        watch.printAndReset("obscureWidgets(${filter.items.length} items)");
+      }
 
       final picture = recorder.endRecording();
       watch.printAndReset("endRecording()");
@@ -120,9 +138,11 @@ class ScreenshotRecorder {
     }
   }
 
-  void _obscureWidgets(Canvas canvas, List<Rect> widgetBounds) {
-    for (var bounds in widgetBounds) {
-      canvas.drawRect(bounds, _widgetObscurePaint);
+  void _obscureWidgets(Canvas canvas, List<WidgetFilterItem> items) {
+    final paint = Paint()..style = PaintingStyle.fill;
+    for (var item in items) {
+      paint.color = item.color;
+      canvas.drawRect(item.bounds, paint);
     }
   }
 }

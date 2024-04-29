@@ -32,19 +32,15 @@ class SentryReplayOptions {
     _errorSampleRate = value;
   }
 
-  // TODO implement in flutter
-  // /// Redact all text content. Draws a rectangle of text bounds with text color on top. By default
-  // /// only views extending TextView are redacted.
-  // /// Default is enabled.
-  // bool redactAllText = true;
+  /// Redact all text content. Draws a rectangle of text bounds with text color
+  /// on top. Currently, only [Text] and [EditableText] Widgets are redacted.
+  /// Default is enabled.
+  var redactAllText = true;
 
-  // TODO implement in flutter
-  // /// Redact all image content. Draws a rectangle of image bounds with image's dominant color on top.
-  // /// By default only views extending ImageView with BitmapDrawable or custom Drawable type are
-  // /// redacted. ColorDrawable, InsetDrawable, VectorDrawable are all considered non-PII, as they come
-  // /// from the apk.
-  // /// Default is enabled.
-  // bool redactAllImages = true;
+  /// Redact all image content. Draws a rectangle of image bounds with image's
+  /// dominant color on top. Currently, only [Image] widgets are redacted.
+  /// Default is enabled.
+  var redactAllImages = true;
 
   @internal
   bool get isEnabled =>

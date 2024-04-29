@@ -70,6 +70,7 @@ class AndroidReplayRecorder implements java.$RecorderImpl {
       ),
       callback,
       _options.logger,
+      _options.replay,
     );
 
     _recorder.start();
