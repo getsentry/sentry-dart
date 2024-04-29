@@ -908,40 +908,6 @@ JniResult get_File__separatorChar() {
 // io.sentry.flutter.SentryFlutterReplay
 jclass _c_SentryFlutterReplay = NULL;
 
-jmethodID _m_SentryFlutterReplay__getRecorder = NULL;
-FFI_PLUGIN_EXPORT
-JniResult SentryFlutterReplay__getRecorder(jobject self_) {
-  load_env();
-  load_class_global_ref(&_c_SentryFlutterReplay,
-                        "io/sentry/flutter/SentryFlutterReplay");
-  if (_c_SentryFlutterReplay == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  load_method(_c_SentryFlutterReplay, &_m_SentryFlutterReplay__getRecorder,
-              "getRecorder", "()Lio/sentry/android/replay/Recorder;");
-  if (_m_SentryFlutterReplay__getRecorder == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  jobject _result = (*jniEnv)->CallObjectMethod(
-      jniEnv, self_, _m_SentryFlutterReplay__getRecorder);
-  return to_global_ref_result(_result);
-}
-
-jmethodID _m_SentryFlutterReplay__setRecorder = NULL;
-FFI_PLUGIN_EXPORT
-JniResult SentryFlutterReplay__setRecorder(jobject self_, jobject recorder) {
-  load_env();
-  load_class_global_ref(&_c_SentryFlutterReplay,
-                        "io/sentry/flutter/SentryFlutterReplay");
-  if (_c_SentryFlutterReplay == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  load_method(_c_SentryFlutterReplay, &_m_SentryFlutterReplay__setRecorder,
-              "setRecorder", "(Lio/sentry/android/replay/Recorder;)V");
-  if (_m_SentryFlutterReplay__setRecorder == NULL)
-    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-  (*jniEnv)->CallVoidMethod(jniEnv, self_, _m_SentryFlutterReplay__setRecorder,
-                            recorder);
-  return (JniResult){.value = {.j = 0}, .exception = check_exception()};
-}
-
 jmethodID _m_SentryFlutterReplay__getIntegration = NULL;
 FFI_PLUGIN_EXPORT
 JniResult SentryFlutterReplay__getIntegration(jobject self_) {

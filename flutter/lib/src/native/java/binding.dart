@@ -845,33 +845,6 @@ class SentryFlutterReplay extends jni.JObject {
   static set integration(ReplayIntegration value) =>
       _set_integration(value.reference).check();
 
-  static final _getRecorder = jniLookup<
-              ffi
-              .NativeFunction<jni.JniResult Function(ffi.Pointer<ffi.Void>)>>(
-          "SentryFlutterReplay__getRecorder")
-      .asFunction<jni.JniResult Function(ffi.Pointer<ffi.Void>)>();
-
-  /// from: public final io.sentry.android.replay.Recorder getRecorder()
-  /// The returned object must be released after use, by calling the [release] method.
-  Recorder getRecorder() {
-    return const $RecorderType().fromRef(_getRecorder(reference).object);
-  }
-
-  static final _setRecorder = jniLookup<
-          ffi.NativeFunction<
-              jni.JniResult Function(ffi.Pointer<ffi.Void>,
-                  ffi.Pointer<ffi.Void>)>>("SentryFlutterReplay__setRecorder")
-      .asFunction<
-          jni.JniResult Function(
-              ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>)>();
-
-  /// from: public final void setRecorder(io.sentry.android.replay.Recorder recorder)
-  void setRecorder(
-    Recorder recorder,
-  ) {
-    return _setRecorder(reference, recorder.reference).check();
-  }
-
   static final _getIntegration = jniLookup<
               ffi
               .NativeFunction<jni.JniResult Function(ffi.Pointer<ffi.Void>)>>(

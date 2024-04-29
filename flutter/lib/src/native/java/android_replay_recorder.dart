@@ -36,6 +36,14 @@ class AndroidReplayRecorder implements java.$RecorderImpl {
         jniCacheDir.getAbsolutePath().toDartString(releaseOriginal: true);
     jniCacheDir.release();
 
+    // Note: time measurements using a Stopwatch in a debug build:
+    //     save as rawRgba (1230876 bytes): 0.257 ms  -- discarded
+    //     save as PNG (25401 bytes): 43.110 ms  -- used for the final image
+    //     image size: 25401 bytes
+    //     save to file: 3.677 ms
+    //     new jfile: 0.400 ms
+    //     onScreenshotRecorded1: 1.237 ms
+    //     released and exiting callback: 0.021 ms
     ScreenshotRecorderCallback callback = (image) async {
       var imageData = await image.toByteData(format: ImageByteFormat.png);
       if (imageData != null) {

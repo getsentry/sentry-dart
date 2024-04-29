@@ -129,7 +129,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                 context,
                 dateProvider = CurrentDateProvider.getInstance(),
                 recorderProvider = { recorder },
-                recorderConfigProvider = null, // TODO implement in dart
+                recorderConfigProvider = null,
                 replayCacheProvider = null)
 
         options.addIntegration(replay)

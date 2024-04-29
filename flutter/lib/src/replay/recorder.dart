@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/rendering.dart';
@@ -58,9 +59,14 @@ class ScreenshotRecorder {
       final watch = Stopwatch()..start();
       final watch2 = Stopwatch()..start();
 
-      final width = renderObject.size.width.round();
-      final height = renderObject.size.height.round();
-      final pixelRatio = 1.0;
+      // We may scale here already if the desired resolution is lower than the actual one.
+      // On the other hand, if it's higher, we scale up in picture.toImage().
+      final srcWidth = renderObject.size.width.round();
+      final srcHeight = renderObject.size.height.round();
+      final pixelRatioX = _config.width / srcWidth;
+      final pixelRatioY = _config.height / srcHeight;
+      final outputPixelRatio = min(pixelRatioY, pixelRatioX);
+      final pixelRatio = min(1.0, outputPixelRatio);
 
       // Note: we capture the image first and visit children synchronously on the main UI loop.
       final futureImage = renderObject.toImage(pixelRatio: pixelRatio);
@@ -69,12 +75,13 @@ class ScreenshotRecorder {
       final filter = WidgetFilter(pixelRatio);
       context.visitChildElements(filter.obscure);
       watch.printAndReset("collect widget boundaries");
+      final blockingTime = watch2.elapsedMilliseconds;
 
       // Then we draw the image and obscure collected coordinates asynchronously.
       final recorder = PictureRecorder();
       final canvas = Canvas(recorder);
       final image = await futureImage;
-      watch.printAndReset("await image");
+      watch.printAndReset("await image (${image.width}x${image.height})");
       try {
         canvas.drawImage(image, Offset.zero, Paint());
         watch.printAndReset("drawImage()");
@@ -89,8 +96,11 @@ class ScreenshotRecorder {
       watch.printAndReset("endRecording()");
 
       try {
-        final finalImage = await picture.toImage(width, height);
-        watch.printAndReset("picture.toImage()");
+        final finalImage = await picture.toImage(
+            (srcWidth * outputPixelRatio).round(),
+            (srcHeight * outputPixelRatio).round());
+        watch.printAndReset(
+            "picture.toImage(${finalImage.width}x${finalImage.height})");
         try {
           await _callback(finalImage);
           watch.printAndReset("callback()");
@@ -102,7 +112,7 @@ class ScreenshotRecorder {
       }
 
       _logger(SentryLevel.debug,
-          "Replay: captured a screenshot in ${watch2.elapsedMilliseconds} ms.");
+          "Replay: captured a screenshot in ${watch2.elapsedMilliseconds} ms ($blockingTime ms blocking).");
       watch2.printAndReset("complete capture");
     } catch (e, stackTrace) {
       _logger(SentryLevel.error, "Replay: failed to capture screenshot.",
