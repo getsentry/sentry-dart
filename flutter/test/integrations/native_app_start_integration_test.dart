@@ -138,6 +138,14 @@ void main() {
       SentryFlutter.mainIsolateStartTime =
           DateTime.fromMillisecondsSinceEpoch(15);
 
+      when(fixture.hub.startTransaction('root /', 'ui.load',
+              description: null, startTimestamp: anyNamed('startTimestamp')))
+          .thenReturn(fixture.createTracer());
+      when(fixture.hub.configureScope(captureAny)).thenAnswer((_) {});
+      when(fixture.hub
+              .captureTransaction(any, traceContext: anyNamed('traceContext')))
+          .thenAnswer((_) async => SentryId.empty());
+
       fixture.getNativeAppStartIntegration().call(fixture.hub, fixture.options);
 
       final processor = fixture.options.eventProcessors.first;

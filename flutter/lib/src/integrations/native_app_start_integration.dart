@@ -119,10 +119,12 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
         if (SentryNavigatorObserver.currentRouteName == null) {
           const screenName = SentryNavigatorObserver.rootScreenName;
           // ignore: invalid_use_of_internal_member
-          final transaction = hub.startTransaction(screenName, SentrySpanOperations.uiLoad,
+          final transaction = hub.startTransaction(
+              screenName, SentrySpanOperations.uiLoad,
               startTimestamp: appStartInfo.start);
           // ignore: invalid_use_of_internal_member
-          final ttidSpan = transaction.startChild(SentrySpanOperations.uiTimeToInitialDisplay,
+          final ttidSpan = transaction.startChild(
+              SentrySpanOperations.uiTimeToInitialDisplay,
               description: '$screenName initial display',
               startTimestamp: appStartInfo.start);
           await ttidSpan.finish(endTimestamp: appStartInfo.end);
