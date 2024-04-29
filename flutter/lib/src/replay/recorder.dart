@@ -68,14 +68,13 @@ class ScreenshotRecorder {
       final watch = Stopwatch()..start();
       final watch2 = Stopwatch()..start();
 
-      // We may scale here already if the desired resolution is lower than the actual one.
-      // On the other hand, if it's higher, we scale up in picture.toImage().
+      // The desired resolution (coming from the configuration) is usually
+      // rounded to next multitude of 16. Therefore, we scale the image.
       final srcWidth = renderObject.size.width;
       final srcHeight = renderObject.size.height;
       final pixelRatioX = _config.width / srcWidth;
       final pixelRatioY = _config.height / srcHeight;
-      final outputPixelRatio = min(pixelRatioY, pixelRatioX);
-      final pixelRatio = min(1.0, outputPixelRatio);
+      final pixelRatio = min(pixelRatioY, pixelRatioX);
 
       // First, we synchronously capture the image and enumarete widgets on the main UI loop.
       final futureImage = renderObject.toImage(pixelRatio: pixelRatio);
@@ -115,8 +114,7 @@ class ScreenshotRecorder {
 
       try {
         final finalImage = await picture.toImage(
-            (srcWidth * outputPixelRatio).round(),
-            (srcHeight * outputPixelRatio).round());
+            (srcWidth * pixelRatio).round(), (srcHeight * pixelRatio).round());
         watch.printAndReset(
             "picture.toImage(${finalImage.width}x${finalImage.height})");
         try {
