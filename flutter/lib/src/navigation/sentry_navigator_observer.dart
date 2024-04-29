@@ -224,7 +224,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     }
 
     if (name == '/') {
-      name = 'root /';
+      name = rootScreenName;
     }
     final transactionContext = SentryTransactionContext(
       name,
@@ -366,6 +366,10 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     _completedDisplayTracking = Completer();
     _timeToDisplayTracker?.clear();
   }
+
+  /// The name of the rootScreen
+  @internal
+  static const String rootScreenName = 'root /';
 }
 
 /// This class makes it easier to record breadcrumbs for events of Flutters
