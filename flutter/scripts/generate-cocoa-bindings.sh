@@ -28,11 +28,12 @@ dart pub add 'dev:ffigen:{"git":{"url":"https://github.com/getsentry/ffigen","re
 temp="cocoa_bindings_temp"
 rm -rf $temp
 mkdir -p $temp
-curl -Lv https://github.com/getsentry/sentry-cocoa/releases/download/$cocoa_version/Sentry.xcframework.zip -o $temp/Sentry.xcframework.zip
+curl -Lv --fail-with-body https://github.com/getsentry/sentry-cocoa/releases/download/$cocoa_version/Sentry.xcframework.zip -o $temp/Sentry.xcframework.zip
 subdir="Sentry.xcframework/macos-arm64_x86_64/Sentry.framework"
 unzip -q $temp/Sentry.xcframework.zip "$subdir/*" -d $temp
 mv "$temp/$subdir" $temp/Sentry.framework
 
 dart run ffigen --config ffi-cocoa.yaml
 sed -i.bak 's|final class|class|g' lib/src/native/cocoa/binding.dart
+sed -i.bak 's|static int startProfilerForTrace_(SentryCocoa _lib, SentryId? traceId)|static int startProfilerForTrace_(SentryCocoa _lib, SentryId1? traceId)|g' lib/src/native/cocoa/binding.dart
 rm lib/src/native/cocoa/binding.dart.bak
