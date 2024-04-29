@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Dependencies
+
+- Expand dependency range of `package_info_plus` to allow an open range starting from version 1 ([#2024](https://github.com/getsentry/sentry-dart/pull/2024))
+
 ## 7.20.0
 
 ### Build
