@@ -14,11 +14,11 @@ import '../mocks.mocks.dart';
 void main() {
   void setupMocks(Fixture fixture) {
     when(fixture.hub.startTransaction('root /', 'ui.load',
-        description: null, startTimestamp: anyNamed('startTimestamp')))
+            description: null, startTimestamp: anyNamed('startTimestamp')))
         .thenReturn(fixture.createTracer());
     when(fixture.hub.configureScope(captureAny)).thenAnswer((_) {});
     when(fixture.hub
-        .captureTransaction(any, traceContext: anyNamed('traceContext')))
+            .captureTransaction(any, traceContext: anyNamed('traceContext')))
         .thenAnswer((_) async => SentryId.empty());
   }
 

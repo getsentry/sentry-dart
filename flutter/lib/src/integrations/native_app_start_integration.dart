@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_use_of_internal_member
+
 import 'dart:async';
 
 import 'package:meta/meta.dart';
@@ -69,7 +71,6 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
         }
 
         // We only assign the current time if it's not already set - this is useful in tests
-        // ignore: invalid_use_of_internal_member
         _native.appStartEnd ??= options.clock();
         final appStartEndDateTime = _native.appStartEnd;
         final nativeAppStart = await _native.fetchNativeAppStart();
@@ -118,11 +119,9 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
         // set during a didPush triggered by the navigator observer.
         if (SentryNavigatorObserver.currentRouteName == null) {
           const screenName = SentryNavigatorObserver.rootScreenName;
-          // ignore: invalid_use_of_internal_member
           final transaction = hub.startTransaction(
               screenName, SentrySpanOperations.uiLoad,
               startTimestamp: appStartInfo.start);
-          // ignore: invalid_use_of_internal_member
           final ttidSpan = transaction.startChild(
               SentrySpanOperations.uiTimeToInitialDisplay,
               description: '$screenName initial display',
