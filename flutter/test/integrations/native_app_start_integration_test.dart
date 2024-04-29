@@ -25,7 +25,7 @@ void main() {
     test('native app start measurement added to first transaction', () async {
       fixture.native.appStartEnd = DateTime.fromMillisecondsSinceEpoch(10);
       fixture.binding.nativeAppStart = NativeAppStart(
-          appStartTime: 0, pluginRegistrationTime: 10, isColdStart: true);
+          appStartTime: 0, pluginRegistrationTime: 10, isColdStart: true, nativeSpanTimes: {});
 
       fixture.getNativeAppStartIntegration().call(fixture.hub, fixture.options);
 
@@ -45,7 +45,7 @@ void main() {
         () async {
       fixture.native.appStartEnd = DateTime.fromMillisecondsSinceEpoch(10);
       fixture.binding.nativeAppStart = NativeAppStart(
-          appStartTime: 0, pluginRegistrationTime: 10, isColdStart: true);
+          appStartTime: 0, pluginRegistrationTime: 10, isColdStart: true, nativeSpanTimes: {});
 
       fixture.getNativeAppStartIntegration().call(fixture.hub, fixture.options);
 
@@ -65,7 +65,7 @@ void main() {
     test('measurements appended', () async {
       fixture.native.appStartEnd = DateTime.fromMillisecondsSinceEpoch(10);
       fixture.binding.nativeAppStart = NativeAppStart(
-          appStartTime: 0, pluginRegistrationTime: 10, isColdStart: true);
+          appStartTime: 0, pluginRegistrationTime: 10, isColdStart: true, nativeSpanTimes: {});
       final measurement = SentryMeasurement.warmAppStart(Duration(seconds: 1));
 
       fixture.getNativeAppStartIntegration().call(fixture.hub, fixture.options);
@@ -88,7 +88,7 @@ void main() {
     test('native app start measurement not added if more than 60s', () async {
       fixture.native.appStartEnd = DateTime.fromMillisecondsSinceEpoch(60001);
       fixture.binding.nativeAppStart = NativeAppStart(
-          appStartTime: 0, pluginRegistrationTime: 10, isColdStart: true);
+          appStartTime: 0, pluginRegistrationTime: 10, isColdStart: true, nativeSpanTimes: {});
 
       fixture.getNativeAppStartIntegration().call(fixture.hub, fixture.options);
 
@@ -106,7 +106,7 @@ void main() {
         () async {
       fixture.native.appStartEnd = DateTime.fromMillisecondsSinceEpoch(10);
       fixture.binding.nativeAppStart = NativeAppStart(
-          appStartTime: 0, pluginRegistrationTime: 10, isColdStart: true);
+          appStartTime: 0, pluginRegistrationTime: 10, isColdStart: true, nativeSpanTimes: {});
 
       fixture.getNativeAppStartIntegration().call(fixture.hub, fixture.options);
 
@@ -133,7 +133,7 @@ void main() {
 
       fixture.native.appStartEnd = DateTime.fromMillisecondsSinceEpoch(50);
       fixture.binding.nativeAppStart = NativeAppStart(
-          appStartTime: 0, pluginRegistrationTime: 10, isColdStart: true);
+          appStartTime: 0, pluginRegistrationTime: 10, isColdStart: true, nativeSpanTimes: {});
       // dartLoadingEnd needs to be set after engine end (see MockNativeChannel)
       SentryFlutter.mainIsolateStartTime =
           DateTime.fromMillisecondsSinceEpoch(15);
