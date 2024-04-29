@@ -38,7 +38,7 @@ jobs:
           distribution: "adopt"
           java-version: "11"
 
-      - uses: subosito/flutter-action@48cafc24713cca54bbe03cdc3a423187d413aafa # pin@v2.10.0
+      - uses: subosito/flutter-action@44ac965b96f18d999802d4b807e3256d5a3f9fa1 # pin@v2.16.0
         with:
           channel: ${{ matrix.sdk }}
 
@@ -100,7 +100,7 @@ jobs:
       - name: checkout
         uses: actions/checkout@v4
 
-      - uses: subosito/flutter-action@48cafc24713cca54bbe03cdc3a423187d413aafa # pin@v2.10.0
+      - uses: subosito/flutter-action@44ac965b96f18d999802d4b807e3256d5a3f9fa1 # pin@v2.16.0
         with:
           channel: ${{ matrix.sdk }}
 
