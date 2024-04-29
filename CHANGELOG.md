@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Dependencies
+
+- Bump Cocoa SDK from v8.24.0 to v8.25.0 ([#1986](https://github.com/getsentry/sentry-dart/pull/1986))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8250)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.24.0...8.25.0)
+
 ### Feature
 
 - Set snapshot to `true` when Sentry attaches a stacktrace ([#2000](https://github.com/getsentry/sentry-dart/pull/2000)) 
