@@ -5,7 +5,8 @@
 ### Feature
 
 - Set snapshot to `true` when Sentry attaches a stacktrace ([#2000](https://github.com/getsentry/sentry-dart/pull/2000)) 
-  - This may change grouping
+  - `snapshot = true` means it's a synthetic exception, meaning the current state of the thread rather than the stack trace of a real exception
+  - This may change the grouping behavior.
 
 ### Fixes
 
