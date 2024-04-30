@@ -1,5 +1,14 @@
 # Changelog
 
+## 7.20.1
+
+### Dependencies
+
+- Bump Cocoa SDK from v8.21.0 to v8.25.0 ([#2018](https://github.com/getsentry/sentry-dart/pull/2018))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8250)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.21.0...8.25.0)
+- Expand dependency range of `package_info_plus` to allow an open range starting from version 1 ([#2024](https://github.com/getsentry/sentry-dart/pull/2024))
+
 ## 7.20.0
 
 ### Build
