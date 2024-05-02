@@ -51,6 +51,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       )
   }
 
+  @Suppress("CyclomaticComplexMethod")
   override fun onMethodCall(
     call: MethodCall,
     result: Result,
