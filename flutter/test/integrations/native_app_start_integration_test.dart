@@ -139,6 +139,21 @@ void main() {
     // ignore: invalid_use_of_internal_member
     late SentryTracer tracer;
     late Fixture fixture;
+    late SentryTransaction enrichedTransaction;
+    final nativeSpanTimes = {
+      'correct span description': {
+        'startTimestampMsSinceEpoch': 1,
+        'stopTimestampMsSinceEpoch': 2,
+      },
+      'failing span with null timestamp': {
+        'startTimestampMsSinceEpoch': null,
+        'stopTimestampMsSinceEpoch': 3,
+      },
+      'failing span with string timestamp': {
+        'startTimestampMsSinceEpoch': '1',
+        'stopTimestampMsSinceEpoch': 3,
+      },
+    };
 
     setUp(() async {
       TestWidgetsFlutterBinding.ensureInitialized();
@@ -151,7 +166,7 @@ void main() {
           appStartTime: 0,
           pluginRegistrationTime: 10,
           isColdStart: true,
-          nativeSpanTimes: {});
+          nativeSpanTimes: nativeSpanTimes);
       // dartLoadingEnd needs to be set after engine end (see MockNativeChannel)
       SentryFlutter.mainIsolateStartTime =
           DateTime.fromMillisecondsSinceEpoch(15);
@@ -161,22 +176,46 @@ void main() {
       final processor = fixture.options.eventProcessors.first;
       tracer = fixture.createTracer();
       final transaction = SentryTransaction(tracer);
-      final enriched =
+      enrichedTransaction =
           await processor.apply(transaction, Hint()) as SentryTransaction;
 
       final appStartInfo = await NativeAppStartIntegration.getAppStartInfo();
 
-      coldStartSpan = enriched.spans.firstWhereOrNull((element) =>
+      coldStartSpan = enrichedTransaction.spans.firstWhereOrNull((element) =>
           element.context.description == appStartInfo?.appStartTypeDescription);
-      pluginRegistrationSpan = enriched.spans.firstWhereOrNull((element) =>
-          element.context.description ==
-          appStartInfo?.pluginRegistrationDescription);
-      mainIsolateSetupSpan = enriched.spans.firstWhereOrNull((element) =>
-          element.context.description ==
-          appStartInfo?.mainIsolateSetupDescription);
-      firstFrameRenderSpan = enriched.spans.firstWhereOrNull((element) =>
-          element.context.description ==
-          appStartInfo?.firstFrameRenderDescription);
+      pluginRegistrationSpan = enrichedTransaction.spans.firstWhereOrNull(
+          (element) =>
+              element.context.description ==
+              appStartInfo?.pluginRegistrationDescription);
+      mainIsolateSetupSpan = enrichedTransaction.spans.firstWhereOrNull(
+          (element) =>
+              element.context.description ==
+              appStartInfo?.mainIsolateSetupDescription);
+      firstFrameRenderSpan = enrichedTransaction.spans.firstWhereOrNull(
+          (element) =>
+              element.context.description ==
+              appStartInfo?.firstFrameRenderDescription);
+    });
+
+    test('properly includes native spans with valid timestamps', () async {
+      final spans = enrichedTransaction.spans
+          .where((element) => element.data['native'] == true);
+
+      expect(spans.length, 1,
+          reason: 'Should only include spans with valid timestamps');
+      final nativeSpan = spans.first;
+
+      expect(nativeSpan.context.description, 'correct span description');
+      expect(nativeSpan.startTimestamp, isNotNull);
+      expect(nativeSpan.endTimestamp, isNotNull);
+    });
+
+    test('ignores spans with invalid start timestamps', () async {
+      final spans = enrichedTransaction.spans
+          .where((element) => element.data['native'] == true);
+
+      expect(spans, isNot(contains('failing span')),
+          reason: 'Should not include spans with invalid start timestamps');
     });
 
     test('are added by event processor', () async {

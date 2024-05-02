@@ -136,6 +136,7 @@ class NativeAppStartEventProcessor implements EventProcessor {
             traceId: transaction.context.traceId,
             startTimestamp: startTimestamp,
             endTimestamp: endTimestamp);
+        span.data.putIfAbsent('native', () => true);
         transaction.children.add(span);
       } catch (e) {
         _hub.options.logger(SentryLevel.warning,

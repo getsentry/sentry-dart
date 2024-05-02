@@ -1,6 +1,6 @@
-plugins {
-    id 'io.sentry.android.gradle'
-}
+//plugins {
+//    id 'io.sentry.android.gradle'
+//}
 
 def localProperties = new Properties()
 def localPropertiesFile = rootProject.file('local.properties')
@@ -104,6 +104,6 @@ dependencies {
     implementation "androidx.annotation:annotation:1.1.0"
 }
 
-sentry {
-    autoInstallation.enabled = false
-}
+//sentry {
+//    autoInstallation.enabled = false
+//}
