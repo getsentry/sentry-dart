@@ -116,73 +116,32 @@ class NativeAppStartEventProcessor implements EventProcessor {
 
   Future<void> _attachNativeSpans(AppStartInfo appStartInfo,
       SentryTracer transaction, SentrySpan parent) async {
-    final runTimeInitTimestamp =
-        appStartInfo.nativeSpanTimes['runtimeInitTimestamp'] as double?;
-    final moduleInitTimestamp =
-        appStartInfo.nativeSpanTimes['moduleInitTimestamp'] as double?;
-    final sdkStartTimestamp =
-        appStartInfo.nativeSpanTimes['sdkStartTimestamp'] as double?;
-    final didFinishLaunchingTimestamp =
-        appStartInfo.nativeSpanTimes['didFinishLaunchingTimestamp'] as double?;
-
-    if (runTimeInitTimestamp != null &&
-        moduleInitTimestamp != null &&
-        sdkStartTimestamp != null &&
-        didFinishLaunchingTimestamp != null) {
-      final aa =
-          DateTime.fromMillisecondsSinceEpoch(runTimeInitTimestamp.toInt());
-      final bb =
-          DateTime.fromMillisecondsSinceEpoch(moduleInitTimestamp.toInt());
-      final sdkStart =
-          DateTime.fromMillisecondsSinceEpoch(sdkStartTimestamp.toInt());
-      final didFinishLaunching = DateTime.fromMillisecondsSinceEpoch(
-          didFinishLaunchingTimestamp.toInt());
-
-      final op = 'app.start.${appStartInfo.type.name}';
-
-      final preRuntimeInitSpan = await _createAndFinishSpan(
-          tracer: transaction,
-          operation: op,
-          description: 'Pre runtime init',
-          parentSpanId: parent.context.spanId,
-          traceId: transaction.context.traceId,
-          startTimestamp: appStartInfo.start,
-          endTimestamp: aa);
-
-      final runtimeInitSpan = await _createAndFinishSpan(
-          tracer: transaction,
-          operation: op,
-          description: 'Runtime init',
-          parentSpanId: parent.context.spanId,
-          traceId: transaction.context.traceId,
-          startTimestamp: aa,
-          endTimestamp: bb);
-
-      final appInitSpan = await _createAndFinishSpan(
-          tracer: transaction,
-          operation: op,
-          description: 'UIKit init',
-          parentSpanId: parent.context.spanId,
-          traceId: transaction.context.traceId,
-          startTimestamp: bb,
-          endTimestamp: sdkStart);
-
-      final didFinishLaunchingSpan = await _createAndFinishSpan(
-          tracer: transaction,
-          operation: op,
-          description: 'Application init',
-          parentSpanId: parent.context.spanId,
-          traceId: transaction.context.traceId,
-          startTimestamp: sdkStart,
-          endTimestamp: didFinishLaunching);
-
-      transaction.children.addAll([
-        preRuntimeInitSpan,
-        runtimeInitSpan,
-        appInitSpan,
-        didFinishLaunchingSpan,
-      ]);
-    }
+    await Future.forEach(appStartInfo.nativeSpanTimes.keys, (key) async {
+      try {
+        final description = key as String;
+        final spanContent =
+            appStartInfo.nativeSpanTimes[key] as Map<dynamic, dynamic>;
+        final startTimestampMs =
+            spanContent['startTimestampMsSinceEpoch'] as int;
+        final endTimestampMs = spanContent['stopTimestampMsSinceEpoch'] as int;
+        final startTimestamp =
+            DateTime.fromMillisecondsSinceEpoch(startTimestampMs.toInt());
+        final endTimestamp =
+            DateTime.fromMillisecondsSinceEpoch(endTimestampMs.toInt());
+        final span = await _createAndFinishSpan(
+            tracer: transaction,
+            operation: appStartInfo.appStartTypeOperation,
+            description: description,
+            parentSpanId: parent.context.spanId,
+            traceId: transaction.context.traceId,
+            startTimestamp: startTimestamp,
+            endTimestamp: endTimestamp);
+        transaction.children.add(span);
+      } catch (e) {
+        _hub.options.logger(SentryLevel.warning,
+            'Failed to attach native span to app start transaction: $e');
+      }
+    });
   }
 
   Future<SentrySpan> _createAndFinishSpan({

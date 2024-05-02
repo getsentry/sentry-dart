@@ -23,6 +23,7 @@ import io.sentry.android.core.LoadClass
 import io.sentry.android.core.SentryAndroid
 import io.sentry.android.core.SentryAndroidOptions
 import io.sentry.android.core.performance.AppStartMetrics
+import io.sentry.android.core.performance.TimeSpan
 import io.sentry.protocol.DebugImage
 import io.sentry.protocol.SdkVersion
 import io.sentry.protocol.SentryId
@@ -71,7 +72,16 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       "setTag" -> setTag(call.argument("key"), call.argument("value"), result)
       "removeTag" -> removeTag(call.argument("key"), result)
       "loadContexts" -> loadContexts(result)
+      "loadNativeData" -> loadNativeData()
       else -> result.notImplemented()
+    }
+  }
+
+  private fun loadNativeData() {
+    val appStartMetrics = AppStartMetrics.getInstance()
+
+    appStartMetrics.contentProviderOnCreateTimeSpans.forEach {
+      Log.d("noob", it.description.toString())
     }
   }
 
@@ -132,13 +142,9 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
     val appStartMetrics = AppStartMetrics.getInstance()
 
-    val applicationOnCreateStartTime = appStartMetrics.applicationOnCreateTimeSpan.startTimestamp
-    val classInitUptimeMs = appStartMetrics.classLoadedUptimeMs
-    val appStartUptimeMs = appStartMetrics.appStartTimeSpan.startUptimeMs
-    val appStartTime = appStartMetrics.appStartTimeSpan.startTimestamp
-
-    val isColdStart =
-      AppStartMetrics.getInstance().appStartType == AppStartMetrics.AppStartType.COLD
+    val appStartTimeSpan = appStartMetrics.appStartTimeSpan
+    val appStartTime = appStartTimeSpan.startTimestamp
+    val isColdStart = appStartMetrics.appStartType == AppStartMetrics.AppStartType.COLD
 
     if (appStartTime == null) {
       Log.w("Sentry", "App start won't be sent due to missing appStartTime")
@@ -150,12 +156,44 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         "appStartTime" to appStartTimeMillis,
         "isColdStart" to isColdStart,
       )
-      item["nativeSpanTimes"] = mapOf<String, Any?>(
-        "classInitUptimeMs" to classInitUptimeMs,
-        "appStartUptimeMs" to appStartUptimeMs,
-      )
+
+      val androidNativeSpans = mutableMapOf<String, Any?>()
+
+      val processInitSpan = TimeSpan().apply {
+        description = "Process Initialization"
+        setStartUnixTimeMs(appStartTimeSpan.startTimestampMs)
+        setStartedAt(appStartTimeSpan.startUptimeMs)
+        setStoppedAt(appStartMetrics.classLoadedUptimeMs)
+      }
+      processInitSpan.addToMap(androidNativeSpans)
+
+      val applicationOnCreateSpan = appStartMetrics.applicationOnCreateTimeSpan
+      applicationOnCreateSpan.addToMap(androidNativeSpans)
+
+      val contentProviderSpans = appStartMetrics.contentProviderOnCreateTimeSpans
+      contentProviderSpans.forEach { span ->
+        span.addToMap(androidNativeSpans)
+      }
+
+      appStartMetrics.activityLifecycleTimeSpans.forEach { span ->
+        span.onStart.addToMap(androidNativeSpans)
+        span.onCreate.addToMap(androidNativeSpans)
+      }
+
+      item["nativeSpanTimes"] = androidNativeSpans
 
       result.success(item)
+    }
+  }
+
+  private fun TimeSpan.addToMap(map: MutableMap<String, Any?>) {
+    if (startTimestamp == null) return
+
+    description?.let { description ->
+      map[description] = mapOf<String, Any?>(
+        "startTimestampMsSinceEpoch" to startTimestampMs,
+        "stopTimestampMsSinceEpoch" to projectedStopTimestampMs,
+      )
     }
   }
 

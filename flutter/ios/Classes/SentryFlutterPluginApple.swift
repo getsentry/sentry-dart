@@ -379,6 +379,19 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         return
     }
 
+    struct TimeSpan {
+        var startTimestampMsSinceEpoch: NSNumber
+        var stopTimestampMsSinceEpoch: NSNumber
+        var description: String
+
+        func addToMap(_ map: inout [String: Any]) {
+            map[description] = [
+                "startTimestampMsSinceEpoch": startTimestampMsSinceEpoch,
+                "stopTimestampMsSinceEpoch": stopTimestampMsSinceEpoch
+            ]
+        }
+    }
+
     private func fetchNativeAppStart(result: @escaping FlutterResult) {
         #if os(iOS) || os(tvOS)
         guard let appStartMeasurement = PrivateSentrySDKOnly.appStartMeasurement else {
@@ -386,19 +399,45 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
             result(nil)
             return
         }
-        
-        let runtimeInitTimestamp = appStartMeasurement.runtimeInitTimestamp.timeIntervalSince1970 * 1000
-        let moduleInitTimestamp = appStartMeasurement.moduleInitializationTimestamp.timeIntervalSince1970 * 1000
-        let sdkStartTimestamp = appStartMeasurement.sdkStartTimestamp.timeIntervalSince1970 * 1000
-        let didFinishLaunchingTimestamp = appStartMeasurement.didFinishLaunchingTimestamp.timeIntervalSince1970 * 1000
-        
-        let nativeSpanTimes: [String: Any] = [
-            "runtimeInitTimestamp": runtimeInitTimestamp,
-            "moduleInitTimestamp": moduleInitTimestamp,
-            "sdkStartTimestamp": sdkStartTimestamp,
-            "didFinishLaunchingTimestamp": didFinishLaunchingTimestamp
-        ]
 
+        var nativeSpanTimes: [String: Any] = [:]
+
+        let appStartTimeMs = appStartMeasurement.appStartTimestamp.timeIntervalSince1970.toMilliseconds()
+        let runtimeInitTimeMs = appStartMeasurement.runtimeInitTimestamp.timeIntervalSince1970.toMilliseconds()
+        let moduleInitializationTimeMs =
+            appStartMeasurement.moduleInitializationTimestamp.timeIntervalSince1970.toMilliseconds()
+        let sdkStartTimeMs = appStartMeasurement.sdkStartTimestamp.timeIntervalSince1970.toMilliseconds()
+
+        if !appStartMeasurement.isPreWarmed {
+            let preRuntimeInitDescription = "Pre Runtime Init"
+            let preRuntimeInitSpan = TimeSpan(
+                startTimestampMsSinceEpoch: NSNumber(value: appStartTimeMs),
+                stopTimestampMsSinceEpoch: NSNumber(value: runtimeInitTimeMs),
+                description: preRuntimeInitDescription
+            )
+            preRuntimeInitSpan.addToMap(&nativeSpanTimes)
+
+            let moduleInitializationDescription = "Runtime init to Pre Main initializers"
+            let moduleInitializationSpan = TimeSpan(
+                startTimestampMsSinceEpoch: NSNumber(value: runtimeInitTimeMs),
+                stopTimestampMsSinceEpoch: NSNumber(value: moduleInitializationTimeMs),
+                description: moduleInitializationDescription
+            )
+            moduleInitializationSpan.addToMap(&nativeSpanTimes)
+        }
+
+        let uiKitInitDescription = "UIKit init"
+        let uiKitInitSpan = TimeSpan(
+            startTimestampMsSinceEpoch: NSNumber(value: moduleInitializationTimeMs),
+            stopTimestampMsSinceEpoch: NSNumber(value: sdkStartTimeMs),
+            description: uiKitInitDescription
+        )
+        uiKitInitSpan.addToMap(&nativeSpanTimes)
+
+        // Info: We don't have access to didFinishLaunchingTimestamp,
+        // On HybridSDKs, the Cocoa SDK misses the didFinishLaunchNotification and the
+        // didBecomeVisibleNotification. Therefore, we can't set the
+        // didFinishLaunchingTimestamp
         let appStartTime = appStartMeasurement.appStartTimestamp.timeIntervalSince1970 * 1000
         let isColdStart = appStartMeasurement.type == .cold
 
@@ -614,3 +653,9 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 }
 
 // swiftlint:enable function_body_length
+
+private extension TimeInterval {
+    func toMilliseconds() -> Int64 {
+        return Int64(self * 1000)
+    }
+}
