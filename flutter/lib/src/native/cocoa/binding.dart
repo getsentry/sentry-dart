@@ -3625,7 +3625,7 @@ class SentryCocoa {
     ffi.Pointer<ObjCObject> obj,
     ffi.Pointer<ObjCSel> sel,
     ffi.Pointer<ObjCObject> predicateFormat,
-    ffi.Pointer<ffi.Char> argList,
+    ffi.Pointer<__va_list_tag> argList,
   ) {
     return __objc_msgSend_135(
       obj,
@@ -3641,13 +3641,13 @@ class SentryCocoa {
               ffi.Pointer<ObjCObject>,
               ffi.Pointer<ObjCSel>,
               ffi.Pointer<ObjCObject>,
-              ffi.Pointer<ffi.Char>)>>('objc_msgSend');
+              ffi.Pointer<__va_list_tag>)>>('objc_msgSend');
   late final __objc_msgSend_135 = __objc_msgSend_135Ptr.asFunction<
       ffi.Pointer<ObjCObject> Function(
           ffi.Pointer<ObjCObject>,
           ffi.Pointer<ObjCSel>,
           ffi.Pointer<ObjCObject>,
-          ffi.Pointer<ffi.Char>)>();
+          ffi.Pointer<__va_list_tag>)>();
 
   late final _sel_predicateFromMetadataQueryString_1 =
       _registerName1("predicateFromMetadataQueryString:");
@@ -9537,7 +9537,7 @@ class SentryCocoa {
     ffi.Pointer<ObjCObject> obj,
     ffi.Pointer<ObjCSel> sel,
     ffi.Pointer<ObjCObject> format,
-    ffi.Pointer<ffi.Char> argList,
+    ffi.Pointer<__va_list_tag> argList,
   ) {
     return __objc_msgSend_348(
       obj,
@@ -9549,11 +9549,14 @@ class SentryCocoa {
 
   late final __objc_msgSend_348Ptr = _lookup<
       ffi.NativeFunction<
-          instancetype Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
-              ffi.Pointer<ObjCObject>, ffi.Pointer<ffi.Char>)>>('objc_msgSend');
+          instancetype Function(
+              ffi.Pointer<ObjCObject>,
+              ffi.Pointer<ObjCSel>,
+              ffi.Pointer<ObjCObject>,
+              ffi.Pointer<__va_list_tag>)>>('objc_msgSend');
   late final __objc_msgSend_348 = __objc_msgSend_348Ptr.asFunction<
       instancetype Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
-          ffi.Pointer<ObjCObject>, ffi.Pointer<ffi.Char>)>();
+          ffi.Pointer<ObjCObject>, ffi.Pointer<__va_list_tag>)>();
 
   late final _sel_initWithFormat_locale_1 =
       _registerName1("initWithFormat:locale:");
@@ -9564,7 +9567,7 @@ class SentryCocoa {
     ffi.Pointer<ObjCSel> sel,
     ffi.Pointer<ObjCObject> format,
     ffi.Pointer<ObjCObject> locale,
-    ffi.Pointer<ffi.Char> argList,
+    ffi.Pointer<__va_list_tag> argList,
   ) {
     return __objc_msgSend_349(
       obj,
@@ -9582,14 +9585,14 @@ class SentryCocoa {
               ffi.Pointer<ObjCSel>,
               ffi.Pointer<ObjCObject>,
               ffi.Pointer<ObjCObject>,
-              ffi.Pointer<ffi.Char>)>>('objc_msgSend');
+              ffi.Pointer<__va_list_tag>)>>('objc_msgSend');
   late final __objc_msgSend_349 = __objc_msgSend_349Ptr.asFunction<
       instancetype Function(
           ffi.Pointer<ObjCObject>,
           ffi.Pointer<ObjCSel>,
           ffi.Pointer<ObjCObject>,
           ffi.Pointer<ObjCObject>,
-          ffi.Pointer<ffi.Char>)>();
+          ffi.Pointer<__va_list_tag>)>();
 
   late final _sel_initWithValidatedFormat_validFormatSpecifiers_error_1 =
       _registerName1("initWithValidatedFormat:validFormatSpecifiers:error:");
@@ -9672,7 +9675,7 @@ class SentryCocoa {
     ffi.Pointer<ObjCSel> sel,
     ffi.Pointer<ObjCObject> format,
     ffi.Pointer<ObjCObject> validFormatSpecifiers,
-    ffi.Pointer<ffi.Char> argList,
+    ffi.Pointer<__va_list_tag> argList,
     ffi.Pointer<ffi.Pointer<ObjCObject>> error,
   ) {
     return __objc_msgSend_352(
@@ -9692,7 +9695,7 @@ class SentryCocoa {
               ffi.Pointer<ObjCSel>,
               ffi.Pointer<ObjCObject>,
               ffi.Pointer<ObjCObject>,
-              ffi.Pointer<ffi.Char>,
+              ffi.Pointer<__va_list_tag>,
               ffi.Pointer<ffi.Pointer<ObjCObject>>)>>('objc_msgSend');
   late final __objc_msgSend_352 = __objc_msgSend_352Ptr.asFunction<
       instancetype Function(
@@ -9700,7 +9703,7 @@ class SentryCocoa {
           ffi.Pointer<ObjCSel>,
           ffi.Pointer<ObjCObject>,
           ffi.Pointer<ObjCObject>,
-          ffi.Pointer<ffi.Char>,
+          ffi.Pointer<__va_list_tag>,
           ffi.Pointer<ffi.Pointer<ObjCObject>>)>();
 
   late final _sel_initWithValidatedFormat_validFormatSpecifiers_locale_arguments_error_1 =
@@ -9712,7 +9715,7 @@ class SentryCocoa {
     ffi.Pointer<ObjCObject> format,
     ffi.Pointer<ObjCObject> validFormatSpecifiers,
     ffi.Pointer<ObjCObject> locale,
-    ffi.Pointer<ffi.Char> argList,
+    ffi.Pointer<__va_list_tag> argList,
     ffi.Pointer<ffi.Pointer<ObjCObject>> error,
   ) {
     return __objc_msgSend_353(
@@ -9734,7 +9737,7 @@ class SentryCocoa {
               ffi.Pointer<ObjCObject>,
               ffi.Pointer<ObjCObject>,
               ffi.Pointer<ObjCObject>,
-              ffi.Pointer<ffi.Char>,
+              ffi.Pointer<__va_list_tag>,
               ffi.Pointer<ffi.Pointer<ObjCObject>>)>>('objc_msgSend');
   late final __objc_msgSend_353 = __objc_msgSend_353Ptr.asFunction<
       instancetype Function(
@@ -9743,7 +9746,7 @@ class SentryCocoa {
           ffi.Pointer<ObjCObject>,
           ffi.Pointer<ObjCObject>,
           ffi.Pointer<ObjCObject>,
-          ffi.Pointer<ffi.Char>,
+          ffi.Pointer<__va_list_tag>,
           ffi.Pointer<ffi.Pointer<ObjCObject>>)>();
 
   late final _sel_initWithData_encoding_1 =
@@ -19017,7 +19020,7 @@ class SentryCocoa {
     ffi.Pointer<ObjCObject> format,
     int options,
     ffi.Pointer<ObjCObject> locale,
-    ffi.Pointer<ffi.Char> arguments,
+    ffi.Pointer<__va_list_tag> arguments,
   ) {
     return __objc_msgSend_673(
       obj,
@@ -19037,7 +19040,7 @@ class SentryCocoa {
               ffi.Pointer<ObjCObject>,
               ffi.Int32,
               ffi.Pointer<ObjCObject>,
-              ffi.Pointer<ffi.Char>)>>('objc_msgSend');
+              ffi.Pointer<__va_list_tag>)>>('objc_msgSend');
   late final __objc_msgSend_673 = __objc_msgSend_673Ptr.asFunction<
       instancetype Function(
           ffi.Pointer<ObjCObject>,
@@ -19045,7 +19048,7 @@ class SentryCocoa {
           ffi.Pointer<ObjCObject>,
           int,
           ffi.Pointer<ObjCObject>,
-          ffi.Pointer<ffi.Char>)>();
+          ffi.Pointer<__va_list_tag>)>();
 
   late final _sel_localizedAttributedStringWithFormat_1 =
       _registerName1("localizedAttributedStringWithFormat:");
@@ -19120,7 +19123,7 @@ class SentryCocoa {
     int options,
     ffi.Pointer<ObjCObject> locale,
     ffi.Pointer<ObjCObject> context,
-    ffi.Pointer<ffi.Char> arguments,
+    ffi.Pointer<__va_list_tag> arguments,
   ) {
     return __objc_msgSend_676(
       obj,
@@ -19142,7 +19145,7 @@ class SentryCocoa {
               ffi.Int32,
               ffi.Pointer<ObjCObject>,
               ffi.Pointer<ObjCObject>,
-              ffi.Pointer<ffi.Char>)>>('objc_msgSend');
+              ffi.Pointer<__va_list_tag>)>>('objc_msgSend');
   late final __objc_msgSend_676 = __objc_msgSend_676Ptr.asFunction<
       instancetype Function(
           ffi.Pointer<ObjCObject>,
@@ -19151,7 +19154,7 @@ class SentryCocoa {
           int,
           ffi.Pointer<ObjCObject>,
           ffi.Pointer<ObjCObject>,
-          ffi.Pointer<ffi.Char>)>();
+          ffi.Pointer<__va_list_tag>)>();
 
   late final _sel_localizedAttributedStringWithFormat_context_1 =
       _registerName1("localizedAttributedStringWithFormat:context:");
@@ -21856,7 +21859,7 @@ class SentryCocoa {
     ffi.Pointer<ObjCSel> sel,
     ffi.Pointer<ObjCObject> name,
     ffi.Pointer<ObjCObject> format,
-    ffi.Pointer<ffi.Char> argList,
+    ffi.Pointer<__va_list_tag> argList,
   ) {
     return __objc_msgSend_764(
       obj,
@@ -21874,14 +21877,14 @@ class SentryCocoa {
               ffi.Pointer<ObjCSel>,
               ffi.Pointer<ObjCObject>,
               ffi.Pointer<ObjCObject>,
-              ffi.Pointer<ffi.Char>)>>('objc_msgSend');
+              ffi.Pointer<__va_list_tag>)>>('objc_msgSend');
   late final __objc_msgSend_764 = __objc_msgSend_764Ptr.asFunction<
       void Function(
           ffi.Pointer<ObjCObject>,
           ffi.Pointer<ObjCSel>,
           ffi.Pointer<ObjCObject>,
           ffi.Pointer<ObjCObject>,
-          ffi.Pointer<ffi.Char>)>();
+          ffi.Pointer<__va_list_tag>)>();
 
   late final _class_NSFileHandle1 = _getClass1("NSFileHandle");
   late final _sel_availableData1 = _registerName1("availableData");
@@ -30111,6 +30114,12 @@ class SentryCocoa {
       ffi.Pointer<ObjCObject> Function(ffi.Pointer<ObjCObject>,
           ffi.Pointer<ObjCSel>, ffi.Pointer<ObjCObject>)>();
 
+  late final _sel_captureReplay1 = _registerName1("captureReplay");
+  late final _sel_getReplayId1 = _registerName1("getReplayId");
+  late final _sel_addReplayIgnoreClasses_1 =
+      _registerName1("addReplayIgnoreClasses:");
+  late final _sel_addReplayRedactClasses_1 =
+      _registerName1("addReplayRedactClasses:");
   late final _class_SentryCurrentDateProvider1 =
       _getClass1("SentryCurrentDateProvider");
   late final _sel_timezoneOffset1 = _registerName1("timezoneOffset");
@@ -32795,7 +32804,7 @@ class NSString extends NSObject {
   }
 
   NSString initWithFormat_arguments_(
-      NSString? format, ffi.Pointer<ffi.Char> argList) {
+      NSString? format, ffi.Pointer<__va_list_tag> argList) {
     final _ret = _lib._objc_msgSend_348(
         _id,
         _lib._sel_initWithFormat_arguments_1,
@@ -32811,7 +32820,7 @@ class NSString extends NSObject {
   }
 
   NSString initWithFormat_locale_arguments_(
-      NSString? format, NSObject locale, ffi.Pointer<ffi.Char> argList) {
+      NSString? format, NSObject locale, ffi.Pointer<__va_list_tag> argList) {
     final _ret = _lib._objc_msgSend_349(
         _id,
         _lib._sel_initWithFormat_locale_arguments_1,
@@ -32852,7 +32861,7 @@ class NSString extends NSObject {
   NSString initWithValidatedFormat_validFormatSpecifiers_arguments_error_(
       NSString? format,
       NSString? validFormatSpecifiers,
-      ffi.Pointer<ffi.Char> argList,
+      ffi.Pointer<__va_list_tag> argList,
       ffi.Pointer<ffi.Pointer<ObjCObject>> error) {
     final _ret = _lib._objc_msgSend_352(
         _id,
@@ -32869,7 +32878,7 @@ class NSString extends NSObject {
           NSString? format,
           NSString? validFormatSpecifiers,
           NSObject locale,
-          ffi.Pointer<ffi.Char> argList,
+          ffi.Pointer<__va_list_tag> argList,
           ffi.Pointer<ffi.Pointer<ObjCObject>> error) {
     final _ret = _lib._objc_msgSend_353(
         _id,
@@ -37988,7 +37997,7 @@ class NSPredicate extends NSObject {
   }
 
   static NSPredicate predicateWithFormat_arguments_(SentryCocoa _lib,
-      NSString? predicateFormat, ffi.Pointer<ffi.Char> argList) {
+      NSString? predicateFormat, ffi.Pointer<__va_list_tag> argList) {
     final _ret = _lib._objc_msgSend_135(
         _lib._class_NSPredicate1,
         _lib._sel_predicateWithFormat_arguments_1,
@@ -38142,6 +38151,18 @@ class NSPredicate extends NSObject {
         _lib._class_NSPredicate1, _lib._sel_classForKeyedUnarchiver1);
     return NSObject._(_ret, _lib, retain: true, release: true);
   }
+}
+
+class __va_list_tag extends ffi.Struct {
+  @ffi.UnsignedInt()
+  external int gp_offset;
+
+  @ffi.UnsignedInt()
+  external int fp_offset;
+
+  external ffi.Pointer<ffi.Void> overflow_arg_area;
+
+  external ffi.Pointer<ffi.Void> reg_save_area;
 }
 
 bool _ObjCBlock_bool_ObjCObject_NSDictionary_fnPtrTrampoline(
@@ -51429,7 +51450,7 @@ class NSMutableString extends NSString {
 
   @override
   NSMutableString initWithFormat_arguments_(
-      NSString? format, ffi.Pointer<ffi.Char> argList) {
+      NSString? format, ffi.Pointer<__va_list_tag> argList) {
     final _ret = _lib._objc_msgSend_348(
         _id,
         _lib._sel_initWithFormat_arguments_1,
@@ -51447,7 +51468,7 @@ class NSMutableString extends NSString {
 
   @override
   NSMutableString initWithFormat_locale_arguments_(
-      NSString? format, NSObject locale, ffi.Pointer<ffi.Char> argList) {
+      NSString? format, NSObject locale, ffi.Pointer<__va_list_tag> argList) {
     final _ret = _lib._objc_msgSend_349(
         _id,
         _lib._sel_initWithFormat_locale_arguments_1,
@@ -51492,7 +51513,7 @@ class NSMutableString extends NSString {
       initWithValidatedFormat_validFormatSpecifiers_arguments_error_(
           NSString? format,
           NSString? validFormatSpecifiers,
-          ffi.Pointer<ffi.Char> argList,
+          ffi.Pointer<__va_list_tag> argList,
           ffi.Pointer<ffi.Pointer<ObjCObject>> error) {
     final _ret = _lib._objc_msgSend_352(
         _id,
@@ -51510,7 +51531,7 @@ class NSMutableString extends NSString {
           NSString? format,
           NSString? validFormatSpecifiers,
           NSObject locale,
-          ffi.Pointer<ffi.Char> argList,
+          ffi.Pointer<__va_list_tag> argList,
           ffi.Pointer<ffi.Pointer<ObjCObject>> error) {
     final _ret = _lib._objc_msgSend_353(
         _id,
@@ -52820,7 +52841,7 @@ class NSAttributedString extends NSObject {
       NSAttributedString? format,
       int options,
       NSLocale? locale,
-      ffi.Pointer<ffi.Char> arguments) {
+      ffi.Pointer<__va_list_tag> arguments) {
     final _ret = _lib._objc_msgSend_673(
         _id,
         _lib._sel_initWithFormat_options_locale_arguments_1,
@@ -52870,7 +52891,7 @@ class NSAttributedString extends NSObject {
       int options,
       NSLocale? locale,
       NSDictionary? context,
-      ffi.Pointer<ffi.Char> arguments) {
+      ffi.Pointer<__va_list_tag> arguments) {
     final _ret = _lib._objc_msgSend_676(
         _id,
         _lib._sel_initWithFormat_options_locale_context_arguments_1,
@@ -53605,7 +53626,7 @@ class NSMutableAttributedString extends NSAttributedString {
       NSAttributedString? format,
       int options,
       NSLocale? locale,
-      ffi.Pointer<ffi.Char> arguments) {
+      ffi.Pointer<__va_list_tag> arguments) {
     final _ret = _lib._objc_msgSend_673(
         _id,
         _lib._sel_initWithFormat_options_locale_arguments_1,
@@ -53657,7 +53678,7 @@ class NSMutableAttributedString extends NSAttributedString {
       int options,
       NSLocale? locale,
       NSDictionary? context,
-      ffi.Pointer<ffi.Char> arguments) {
+      ffi.Pointer<__va_list_tag> arguments) {
     final _ret = _lib._objc_msgSend_676(
         _id,
         _lib._sel_initWithFormat_options_locale_context_arguments_1,
@@ -57163,7 +57184,7 @@ class NSException extends NSObject {
   }
 
   static void raise_format_arguments_(SentryCocoa _lib, NSString name,
-      NSString? format, ffi.Pointer<ffi.Char> argList) {
+      NSString? format, ffi.Pointer<__va_list_tag> argList) {
     _lib._objc_msgSend_764(
         _lib._class_NSException1,
         _lib._sel_raise_format_arguments_1,
@@ -70882,6 +70903,27 @@ class PrivateSentrySDKOnly extends NSObject {
     final _ret = _lib._objc_msgSend_1061(_lib._class_PrivateSentrySDKOnly1,
         _lib._sel_breadcrumbWithDictionary_1, dictionary?._id ?? ffi.nullptr);
     return SentryBreadcrumb._(_ret, _lib, retain: true, release: true);
+  }
+
+  static void captureReplay(SentryCocoa _lib) {
+    _lib._objc_msgSend_1(
+        _lib._class_PrivateSentrySDKOnly1, _lib._sel_captureReplay1);
+  }
+
+  static NSString getReplayId(SentryCocoa _lib) {
+    final _ret = _lib._objc_msgSend_20(
+        _lib._class_PrivateSentrySDKOnly1, _lib._sel_getReplayId1);
+    return NSString._(_ret, _lib, retain: true, release: true);
+  }
+
+  static void addReplayIgnoreClasses_(SentryCocoa _lib, NSArray? classes) {
+    _lib._objc_msgSend_441(_lib._class_PrivateSentrySDKOnly1,
+        _lib._sel_addReplayIgnoreClasses_1, classes?._id ?? ffi.nullptr);
+  }
+
+  static void addReplayRedactClasses_(SentryCocoa _lib, NSArray? classes) {
+    _lib._objc_msgSend_441(_lib._class_PrivateSentrySDKOnly1,
+        _lib._sel_addReplayRedactClasses_1, classes?._id ?? ffi.nullptr);
   }
 
   @override
