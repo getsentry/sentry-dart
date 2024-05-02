@@ -64,6 +64,10 @@ void main() {
         'connectionTimeoutMillis': 5000,
         'readTimeoutMillis': 5000,
         'appHangTimeoutIntervalMillis': 2000,
+        'replay': <String, dynamic>{
+          'sessionSampleRate': null,
+          'errorSampleRate': null,
+        },
       });
     });
 
@@ -104,7 +108,9 @@ void main() {
         ..enableAppHangTracking = false
         ..connectionTimeout = Duration(milliseconds: 9001)
         ..readTimeout = Duration(milliseconds: 9002)
-        ..appHangTimeoutInterval = Duration(milliseconds: 9003);
+        ..appHangTimeoutInterval = Duration(milliseconds: 9003)
+        ..replay.sessionSampleRate = 0.1
+        ..replay.errorSampleRate = 0.2;
 
       options.sdk.addIntegration('foo');
       options.sdk.addPackage('bar', '1');
@@ -149,6 +155,10 @@ void main() {
         'connectionTimeoutMillis': 9001,
         'readTimeoutMillis': 9002,
         'appHangTimeoutIntervalMillis': 9003,
+        'replay': <String, dynamic>{
+          'sessionSampleRate': 0.1,
+          'errorSampleRate': 0.2,
+        },
       });
     });
 
