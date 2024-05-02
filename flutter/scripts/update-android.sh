@@ -4,7 +4,7 @@ set -euo pipefail
 cd $(dirname "$0")/../android
 file='build.gradle'
 content=$(cat $file)
-regex='(io\.sentry:sentry-android:)([0-9\.]+)'
+regex='(io\.sentry:sentry-android:)([0-9\.]+(\-[a-z0-9\.]+)?)'
 if ! [[ $content =~ $regex ]]; then
     echo "Failed to find the android plugin version in $file"
     exit 1

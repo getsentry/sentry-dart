@@ -10,12 +10,12 @@ def flutterSdkPath = properties.getProperty("flutter.sdk")
 assert flutterSdkPath != null, "flutter.sdk not set in local.properties"
 apply from: "$flutterSdkPath/packages/flutter_tools/gradle/app_plugin_loader.gradle"
 
-includeBuild("../../../../sentry-java") {
-  dependencySubstitution {
-    substitute(module("io.sentry:sentry")).using(project(":sentry"))
-    substitute(module("io.sentry:sentry-android")).using(project(":sentry-android"))
-    substitute(module("io.sentry:sentry-android-core")).using(project(":sentry-android-core"))
-    substitute(module("io.sentry:sentry-android-ndk")).using(project(":sentry-android-ndk"))
-    substitute(module("io.sentry:sentry-replay")).using(project(":sentry-android-replay"))
-  }
-}
+// includeBuild("../../../../sentry-java") {
+//   dependencySubstitution {
+//     substitute(module("io.sentry:sentry")).using(project(":sentry"))
+//     substitute(module("io.sentry:sentry-android")).using(project(":sentry-android"))
+//     substitute(module("io.sentry:sentry-android-core")).using(project(":sentry-android-core"))
+//     substitute(module("io.sentry:sentry-android-ndk")).using(project(":sentry-android-ndk"))
+//     substitute(module("io.sentry:sentry-replay")).using(project(":sentry-android-replay"))
+//   }
+// }

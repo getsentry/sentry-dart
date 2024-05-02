@@ -11,6 +11,7 @@ if [[ -n ${CI:+x} ]]; then
 fi
 
 # jnigen requires building the app first
+cd $(dirname "$0")/../
 pushd example
 flutter build apk
 popd
