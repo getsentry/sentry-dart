@@ -1,18 +1,15 @@
 import 'dart:async';
 
-import 'package:flutter/services.dart';
 import 'package:sentry/sentry.dart';
-import '../native/factory.dart';
 import '../native/sentry_native.dart';
-import '../sentry_flutter.dart';
 import '../sentry_flutter_options.dart';
 
 /// Enables Sentry's native SDKs (Android and iOS) with options.
 class NativeSdkIntegration implements Integration<SentryFlutterOptions> {
-  NativeSdkIntegration(this._channel);
+  NativeSdkIntegration(this._native);
 
-  final MethodChannel _channel;
   SentryFlutterOptions? _options;
+  final SentryNative _native;
 
   @override
   Future<void> call(Hub hub, SentryFlutterOptions options) async {
@@ -22,52 +19,8 @@ class NativeSdkIntegration implements Integration<SentryFlutterOptions> {
       return;
     }
 
-    final binding = createBinding(options.platformChecker, _channel, options);
-    SentryFlutter.native = SentryNative(options, binding);
-
     try {
-      await _channel.invokeMethod('initNativeSdk', <String, dynamic>{
-        'dsn': options.dsn,
-        'debug': options.debug,
-        'environment': options.environment,
-        'release': options.release,
-        'enableAutoSessionTracking': options.enableAutoSessionTracking,
-        'enableNativeCrashHandling': options.enableNativeCrashHandling,
-        'attachStacktrace': options.attachStacktrace,
-        'attachThreads': options.attachThreads,
-        'autoSessionTrackingIntervalMillis':
-            options.autoSessionTrackingInterval.inMilliseconds,
-        'dist': options.dist,
-        'integrations': options.sdk.integrations,
-        'packages':
-            options.sdk.packages.map((e) => e.toJson()).toList(growable: false),
-        'diagnosticLevel': options.diagnosticLevel.name,
-        'maxBreadcrumbs': options.maxBreadcrumbs,
-        'anrEnabled': options.anrEnabled,
-        'anrTimeoutIntervalMillis': options.anrTimeoutInterval.inMilliseconds,
-        'enableAutoNativeBreadcrumbs': options.enableAutoNativeBreadcrumbs,
-        'maxCacheItems': options.maxCacheItems,
-        'sendDefaultPii': options.sendDefaultPii,
-        'enableWatchdogTerminationTracking':
-            options.enableWatchdogTerminationTracking,
-        'enableNdkScopeSync': options.enableNdkScopeSync,
-        'enableAutoPerformanceTracing': options.enableAutoPerformanceTracing,
-        'sendClientReports': options.sendClientReports,
-        'proguardUuid': options.proguardUuid,
-        'maxAttachmentSize': options.maxAttachmentSize,
-        'recordHttpBreadcrumbs': options.recordHttpBreadcrumbs,
-        'captureFailedRequests': options.captureFailedRequests,
-        'enableAppHangTracking': options.enableAppHangTracking,
-        'connectionTimeoutMillis': options.connectionTimeout.inMilliseconds,
-        'readTimeoutMillis': options.readTimeout.inMilliseconds,
-        'appHangTimeoutIntervalMillis':
-            options.appHangTimeoutInterval.inMilliseconds,
-        'replay': <String, dynamic>{
-          'sessionSampleRate': options.replay.sessionSampleRate,
-          'errorSampleRate': options.replay.errorSampleRate,
-        },
-      });
-
+      await _native.init(options);
       options.sdk.addIntegration('nativeSdkIntegration');
     } catch (exception, stackTrace) {
       options.logger(
@@ -81,19 +34,17 @@ class NativeSdkIntegration implements Integration<SentryFlutterOptions> {
 
   @override
   Future<void> close() async {
-    final options = _options;
-    if (options != null && !options.autoInitializeNativeSdk) {
-      return;
-    }
-    try {
-      await _channel.invokeMethod('closeNativeSdk');
-    } catch (exception, stackTrace) {
-      _options?.logger(
-        SentryLevel.fatal,
-        'nativeSdkIntegration failed to be closed',
-        exception: exception,
-        stackTrace: stackTrace,
-      );
+    if (_options?.autoInitializeNativeSdk == true) {
+      try {
+        await _native.close();
+      } catch (exception, stackTrace) {
+        _options?.logger(
+          SentryLevel.fatal,
+          'nativeSdkIntegration failed to be closed',
+          exception: exception,
+          stackTrace: stackTrace,
+        );
+      }
     }
   }
 }

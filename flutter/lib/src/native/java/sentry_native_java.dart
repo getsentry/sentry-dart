@@ -8,7 +8,10 @@ import 'binding.dart' as java;
 
 @internal
 class SentryNativeJava extends SentryNativeChannel {
-  SentryNativeJava(super.channel, SentryFlutterOptions options) {
+  SentryNativeJava(super.channel);
+
+  @override
+  Future<void> init(SentryFlutterOptions options) async {
     if (options.replay.isEnabled) {
       // Necessary for the generated binding to work as of jnigen v0.6.0
       // This may change in the future.
@@ -16,5 +19,6 @@ class SentryNativeJava extends SentryNativeChannel {
 
       java.SentryFlutterReplay.recorder = AndroidReplayRecorder.create(options);
     }
+    return super.init(options);
   }
 }

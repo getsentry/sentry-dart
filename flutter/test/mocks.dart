@@ -199,6 +199,9 @@ class TestMockSentryNative implements SentryNative {
   var numberOfStartProfilerCalls = 0;
   var numberOfDiscardProfilerCalls = 0;
   var numberOfCollectProfileCalls = 0;
+  var numberOfInitCalls = 0;
+  SentryFlutterOptions? initOptions;
+  var numberOfCloseCalls = 0;
 
   @override
   Future<void> addBreadcrumb(Breadcrumb breadcrumb) async {
@@ -294,6 +297,19 @@ class TestMockSentryNative implements SentryNative {
     numberOfDiscardProfilerCalls++;
     return Future.value(null);
   }
+
+  @override
+  Future<void> init(SentryFlutterOptions options) {
+    numberOfInitCalls++;
+    initOptions = options;
+    return Future.value(null);
+  }
+
+  @override
+  Future<void> close() {
+    numberOfCloseCalls++;
+    return Future.value(null);
+  }
 }
 
 // TODO can this be replaced with https://pub.dev/packages/mockito#verifying-exact-number-of-invocations--at-least-x--never
@@ -316,6 +332,8 @@ class MockNativeChannel implements SentryNativeBinding {
   int numberOfStartProfilerCalls = 0;
   int numberOfDiscardProfilerCalls = 0;
   int numberOfCollectProfileCalls = 0;
+  int numberOfInitCalls = 0;
+  int numberOfCloseCalls = 0;
 
   @override
   Future<NativeAppStart?> fetchNativeAppStart() async => nativeAppStart;
@@ -393,6 +411,18 @@ class MockNativeChannel implements SentryNativeBinding {
   @override
   Future<int?> discardProfiler(SentryId traceId) {
     numberOfDiscardProfilerCalls++;
+    return Future.value(null);
+  }
+
+  @override
+  Future<void> init(SentryFlutterOptions options) {
+    numberOfInitCalls++;
+    return Future.value(null);
+  }
+
+  @override
+  Future<void> close() {
+    numberOfCloseCalls++;
     return Future.value(null);
   }
 }
