@@ -8,14 +8,14 @@ import io.sentry.protocol.SdkVersion
 import java.util.Locale
 
 class SentryFlutter(
-    private val androidSdk: String,
-    private val nativeSdk: String,
+  private val androidSdk: String,
+  private val nativeSdk: String,
 ) {
   var autoPerformanceTracingEnabled = false
 
   fun updateOptions(
-      options: SentryAndroidOptions,
-      data: Map<String, Any>,
+    options: SentryAndroidOptions,
+    data: Map<String, Any>,
   ) {
     data.getIfNotNull<String>("dsn") {
       options.dsn = it
@@ -126,7 +126,10 @@ class SentryFlutter(
     }
   }
 
-  fun updateReplayOptions(options: SentryReplayOptions, data: Map<String, Any>) {
+  fun updateReplayOptions(
+    options: SentryReplayOptions,
+    data: Map<String, Any>,
+  ) {
     options.sessionSampleRate = data["sessionSampleRate"] as? Double
     options.errorSampleRate = data["errorSampleRate"] as? Double
   }
@@ -135,8 +138,8 @@ class SentryFlutter(
 // Call the `completion` closure if cast to map value with `key` and type `T` is successful.
 @Suppress("UNCHECKED_CAST")
 private fun <T> Map<String, Any>.getIfNotNull(
-    key: String,
-    callback: (T) -> Unit,
+  key: String,
+  callback: (T) -> Unit,
 ) {
   (get(key) as? T)?.let {
     callback(it)
