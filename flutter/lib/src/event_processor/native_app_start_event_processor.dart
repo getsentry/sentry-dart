@@ -78,7 +78,7 @@ class NativeAppStartEventProcessor implements EventProcessor {
         description: appStartInfo.firstFrameRenderDescription,
         parentSpanId: appStartSpan.context.spanId,
         traceId: transactionTraceId,
-        startTimestamp: SentryFlutter.mainIsolateStartTime,
+        startTimestamp: appStartInfo.mainIsolateStart,
         endTimestamp: appStartInfo.end);
 
     transaction.children.addAll([
@@ -93,8 +93,8 @@ class NativeAppStartEventProcessor implements EventProcessor {
     required SentryTracer tracer,
     required String operation,
     required String description,
-    required SpanId? parentSpanId,
-    required SentryId? traceId,
+    required SpanId parentSpanId,
+    required SentryId traceId,
     required DateTime startTimestamp,
     required DateTime endTimestamp,
   }) async {
