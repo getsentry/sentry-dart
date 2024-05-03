@@ -16,7 +16,8 @@ void main() {
     });
 
     test('fetchNativeAppStart sets didFetchAppStart', () async {
-      final nativeAppStart = NativeAppStart(0.0, true);
+      final nativeAppStart = NativeAppStart(
+          appStartTime: 0.0, pluginRegistrationTime: 10, isColdStart: true);
       channel.nativeAppStart = nativeAppStart;
 
       expect(sut.didFetchAppStart, false);
