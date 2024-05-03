@@ -40,27 +40,6 @@ class NativeAppStartEventProcessor implements EventProcessor {
 
     await _attachAppStartSpans(appStartInfo, event.tracer);
 
-    // if (classInitUptimeMs != null && appStartUptimeMs != null) {
-    //   final duration = classInitUptimeMs - appStartUptimeMs;
-    //
-    //   final classInitSpan = await _createAndFinishSpan(
-    //       tracer: transaction,
-    //       operation: 'ui.load',
-    //       description: 'Class init',
-    //       parentSpanId: transaction.context.spanId,
-    //       traceId: transaction.context.traceId,
-    //       startTimestamp: appStartInfo.start,
-    //       endTimestamp:
-    //       appStartInfo.start.add(Duration(milliseconds: duration)));
-    //
-    //   transaction.children.addAll([
-    //     classInitSpan,
-    //   ]);
-    //   // await _attachAppStartSpans(appStartInfo, transaction);
-    //
-    //   return event;
-    // }
-
     return event;
   }
 
@@ -116,26 +95,17 @@ class NativeAppStartEventProcessor implements EventProcessor {
 
   Future<void> _attachNativeSpans(AppStartInfo appStartInfo,
       SentryTracer transaction, SentrySpan parent) async {
-    await Future.forEach(appStartInfo.nativeSpanTimes.keys, (key) async {
+    await Future.forEach<TimeSpan>(appStartInfo.nativeSpanTimes,
+        (timeSpan) async {
       try {
-        final description = key as String;
-        final spanContent =
-            appStartInfo.nativeSpanTimes[key] as Map<dynamic, dynamic>;
-        final startTimestampMs =
-            spanContent['startTimestampMsSinceEpoch'] as int;
-        final endTimestampMs = spanContent['stopTimestampMsSinceEpoch'] as int;
-        final startTimestamp =
-            DateTime.fromMillisecondsSinceEpoch(startTimestampMs.toInt());
-        final endTimestamp =
-            DateTime.fromMillisecondsSinceEpoch(endTimestampMs.toInt());
         final span = await _createAndFinishSpan(
             tracer: transaction,
             operation: appStartInfo.appStartTypeOperation,
-            description: description,
+            description: timeSpan.description,
             parentSpanId: parent.context.spanId,
             traceId: transaction.context.traceId,
-            startTimestamp: startTimestamp,
-            endTimestamp: endTimestamp);
+            startTimestamp: timeSpan.start,
+            endTimestamp: timeSpan.end);
         span.data.putIfAbsent('native', () => true);
         transaction.children.add(span);
       } catch (e) {

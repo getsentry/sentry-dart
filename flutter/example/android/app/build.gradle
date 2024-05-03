@@ -1,7 +1,3 @@
-//plugins {
-//    id 'io.sentry.android.gradle'
-//}
-
 def localProperties = new Properties()
 def localPropertiesFile = rootProject.file('local.properties')
 if (localPropertiesFile.exists()) {
@@ -104,6 +100,8 @@ dependencies {
     implementation "androidx.annotation:annotation:1.1.0"
 }
 
-//sentry {
-//    autoInstallation.enabled = false
-//}
+// uncomment this to upload debug symbols to Sentry
+// sentry {
+//     uploadNativeSymbols = true
+//     includeNativeSources = true
+// }

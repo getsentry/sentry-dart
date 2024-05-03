@@ -63,7 +63,7 @@ void main() {
       end: getUtcDateTime().add(Duration(seconds: 2)),
       pluginRegistration: getUtcDateTime().add(Duration(seconds: 3)),
       mainIsolateStart: getUtcDateTime().add(Duration(seconds: 4)),
-      nativeSpanTimes: {},
+      nativeSpanTimes: [],
     );
     NativeAppStartIntegration.setAppStartInfo(appStartInfo);
 

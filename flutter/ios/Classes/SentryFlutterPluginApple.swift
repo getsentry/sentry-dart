@@ -438,6 +438,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         // On HybridSDKs, the Cocoa SDK misses the didFinishLaunchNotification and the
         // didBecomeVisibleNotification. Therefore, we can't set the
         // didFinishLaunchingTimestamp
+
         let appStartTime = appStartMeasurement.appStartTimestamp.timeIntervalSince1970 * 1000
         let isColdStart = appStartMeasurement.type == .cold
 

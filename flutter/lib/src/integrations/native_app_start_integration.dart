@@ -10,10 +10,13 @@ import '../event_processor/native_app_start_event_processor.dart';
 /// Integration which handles communication with native frameworks in order to
 /// enrich [SentryTransaction] objects with app start data for mobile vitals.
 class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
-  NativeAppStartIntegration(this._native, this._frameCallbackHandler);
+  NativeAppStartIntegration(this._native, this._frameCallbackHandler,
+      {Hub? hub})
+      : _hub = hub ?? HubAdapter();
 
   final SentryNative _native;
   final FrameCallbackHandler _frameCallbackHandler;
+  final Hub _hub;
 
   /// We filter out App starts more than 60s
   static const _maxAppStartMillis = 60000;
@@ -58,7 +61,7 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
         pluginRegistration:
             DateTime.now().add(const Duration(milliseconds: 50)),
         mainIsolateStart: DateTime.now().add(const Duration(milliseconds: 60)),
-        nativeSpanTimes: {},
+        nativeSpanTimes: [],
       );
       setAppStartInfo(appStartInfo);
       return;
@@ -103,13 +106,37 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
           return;
         }
 
+        List<TimeSpan> nativeSpanTimes = [];
+        for (final entry in nativeAppStart.nativeSpanTimes.entries) {
+          try {
+            final startTimestampMs =
+                entry.value['startTimestampMsSinceEpoch'] as int;
+            final endTimestampMs =
+                entry.value['stopTimestampMsSinceEpoch'] as int;
+            nativeSpanTimes.add(TimeSpan(
+              start: DateTime.fromMillisecondsSinceEpoch(startTimestampMs),
+              end: DateTime.fromMillisecondsSinceEpoch(endTimestampMs),
+              description: entry.key as String,
+            ));
+          } catch (e) {
+            // ignore: invalid_use_of_internal_member
+            _hub.options.logger(
+                SentryLevel.warning, 'Failed to parse native span times: $e');
+            continue;
+          }
+        }
+
+        // We want to sort because the native spans are not guaranteed to be in order.
+        // Performance wise this won't affect us since the native span amount is very low.
+        nativeSpanTimes.sort((a, b) => a.start.compareTo(b.start));
+
         final appStartInfo = AppStartInfo(
             nativeAppStart.isColdStart ? AppStartType.cold : AppStartType.warm,
             start: appStartDateTime,
             end: appStartEndDateTime,
             pluginRegistration: pluginRegistrationDateTime,
             mainIsolateStart: mainIsolateStartDateTime,
-            nativeSpanTimes: nativeAppStart.nativeSpanTimes);
+            nativeSpanTimes: nativeSpanTimes);
 
         setAppStartInfo(appStartInfo);
       });
@@ -134,7 +161,7 @@ class AppStartInfo {
   final AppStartType type;
   final DateTime start;
   final DateTime end;
-  final Map<dynamic, dynamic> nativeSpanTimes;
+  final List<TimeSpan> nativeSpanTimes;
   final DateTime pluginRegistration;
   final DateTime mainIsolateStart;
 
@@ -153,4 +180,12 @@ class AppStartInfo {
   final pluginRegistrationDescription = 'App start to plugin registration';
   final mainIsolateSetupDescription = 'Main isolate setup';
   final firstFrameRenderDescription = 'First frame render';
+}
+
+class TimeSpan {
+  TimeSpan({required this.start, required this.end, required this.description});
+
+  final DateTime start;
+  final DateTime end;
+  final String description;
 }

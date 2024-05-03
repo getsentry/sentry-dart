@@ -503,7 +503,7 @@ void main() {
           end: DateTime.now().add(const Duration(seconds: 2)),
           pluginRegistration: DateTime.now().add(const Duration(seconds: 3)),
           mainIsolateStart: DateTime.now().add(const Duration(seconds: 4)),
-          nativeSpanTimes: {},
+          nativeSpanTimes: [],
         ),
       );
 

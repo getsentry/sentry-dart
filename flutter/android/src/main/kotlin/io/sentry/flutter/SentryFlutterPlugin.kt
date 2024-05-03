@@ -176,8 +176,8 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       }
 
       appStartMetrics.activityLifecycleTimeSpans.forEach { span ->
-        span.onStart.addToMap(androidNativeSpans)
         span.onCreate.addToMap(androidNativeSpans)
+        span.onStart.addToMap(androidNativeSpans)
       }
 
       item["nativeSpanTimes"] = androidNativeSpans

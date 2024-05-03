@@ -140,11 +140,23 @@ void main() {
     late SentryTracer tracer;
     late Fixture fixture;
     late SentryTransaction enrichedTransaction;
-    final nativeSpanTimes = {
+
+    final validNativeSpanTimes = {
       'correct span description': {
         'startTimestampMsSinceEpoch': 1,
         'stopTimestampMsSinceEpoch': 2,
       },
+      'correct span description 2': {
+        'startTimestampMsSinceEpoch': 4,
+        'stopTimestampMsSinceEpoch': 6,
+      },
+      'correct span description 3': {
+        'startTimestampMsSinceEpoch': 3,
+        'stopTimestampMsSinceEpoch': 4,
+      },
+    };
+
+    final invalidNativeSpanTimes = {
       'failing span with null timestamp': {
         'startTimestampMsSinceEpoch': null,
         'stopTimestampMsSinceEpoch': 3,
@@ -153,6 +165,11 @@ void main() {
         'startTimestampMsSinceEpoch': '1',
         'stopTimestampMsSinceEpoch': 3,
       },
+    };
+
+    final allNativeSpanTimes = {
+      ...validNativeSpanTimes,
+      ...invalidNativeSpanTimes,
     };
 
     setUp(() async {
@@ -166,7 +183,7 @@ void main() {
           appStartTime: 0,
           pluginRegistrationTime: 10,
           isColdStart: true,
-          nativeSpanTimes: nativeSpanTimes);
+          nativeSpanTimes: allNativeSpanTimes);
       // dartLoadingEnd needs to be set after engine end (see MockNativeChannel)
       SentryFlutter.mainIsolateStartTime =
           DateTime.fromMillisecondsSinceEpoch(15);
@@ -197,20 +214,42 @@ void main() {
               appStartInfo?.firstFrameRenderDescription);
     });
 
-    test('properly includes native spans with valid timestamps', () async {
+    test('includes only valid native spans', () async {
       final spans = enrichedTransaction.spans
           .where((element) => element.data['native'] == true);
 
-      expect(spans.length, 1,
-          reason: 'Should only include spans with valid timestamps');
-      final nativeSpan = spans.first;
+      expect(spans.length, validNativeSpanTimes.length);
 
-      expect(nativeSpan.context.description, 'correct span description');
-      expect(nativeSpan.startTimestamp, isNotNull);
-      expect(nativeSpan.endTimestamp, isNotNull);
+      for (final span in spans) {
+        final validSpan = validNativeSpanTimes[span.context.description];
+        expect(validSpan, isNotNull);
+        expect(
+            span.startTimestamp,
+            DateTime.fromMillisecondsSinceEpoch(
+                    validSpan!['startTimestampMsSinceEpoch']!)
+                .toUtc(),
+            reason: 'Should only include spans with valid start timestamps');
+        expect(
+            span.endTimestamp,
+            DateTime.fromMillisecondsSinceEpoch(
+                    validSpan['stopTimestampMsSinceEpoch']!)
+                .toUtc(),
+            reason: 'Should only include spans with valid end timestamps');
+      }
     });
 
-    test('ignores spans with invalid start timestamps', () async {
+    test('are correctly ordered', () async {
+      final spans = enrichedTransaction.spans
+          .where((element) => element.data['native'] == true);
+
+      final orderedSpans = spans.toList()
+        ..sort((a, b) => a.startTimestamp.compareTo(b.startTimestamp));
+
+      expect(spans, orderedEquals(orderedSpans),
+          reason: 'Should be ordered by start timestamp');
+    });
+
+    test('ignores invalid spans', () async {
       final spans = enrichedTransaction.spans
           .where((element) => element.data['native'] == true);
 
