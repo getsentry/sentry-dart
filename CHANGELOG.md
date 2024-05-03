@@ -1,10 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- Adds app start spans to first transaction ([#2009](https://github.com/getsentry/sentry-dart/pull/2009))
+
 ## 8.1.0
 
 ### Features
 
-- Adds app start spans to first transaction ([#2009](https://github.com/getsentry/sentry-dart/pull/2009))
 - Set snapshot to `true` if stacktrace is not provided ([#2000](https://github.com/getsentry/sentry-dart/pull/2000))
   - If the stacktrace is not provided, the Sentry SDK will fetch the current stacktrace via `StackTrace.current` and the snapshot will be set to `true` - **this may change the grouping behavior**
   - `snapshot = true` means it's a synthetic exception, reflecting the current state of the thread rather than the stack trace of a real exception
