@@ -48,9 +48,6 @@ mixin SentryFlutter {
   }) async {
     final flutterOptions = SentryFlutterOptions();
 
-    // ignore: invalid_use_of_internal_member
-    mainIsolateStartTime = flutterOptions.clock();
-
     if (platformChecker != null) {
       flutterOptions.platformChecker = platformChecker;
     }
