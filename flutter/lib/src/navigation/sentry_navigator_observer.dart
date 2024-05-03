@@ -367,7 +367,6 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     _timeToDisplayTracker?.clear();
   }
 
-  /// The name of the rootScreen
   @internal
   static const String rootScreenName = 'root /';
 }
