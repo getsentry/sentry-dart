@@ -22,11 +22,25 @@ class NativeAppStartEventProcessor implements EventProcessor {
 
   @override
   Future<SentryEvent?> apply(SentryEvent event, Hint hint) async {
-    if (_native.didAddAppStartMeasurement || event is! SentryTransaction) {
+    final options = _hub.options;
+    if (_native.didAddAppStartMeasurement ||
+        event is! SentryTransaction ||
+        options is! SentryFlutterOptions) {
       return event;
     }
 
     final appStartInfo = await NativeAppStartIntegration.getAppStartInfo();
+
+    final appStartEnd = _native.appStartEnd;
+    if (!options.autoAppStart) {
+      if (appStartEnd != null) {
+        appStartInfo?.setEnd(appStartEnd);
+      } else {
+        // If autoAppStart is disabled and appStartEnd is not set, we can't add app starts
+        return event;
+      }
+    }
+
     final measurement = appStartInfo?.toMeasurement();
 
     if (measurement != null) {
@@ -44,6 +58,10 @@ class NativeAppStartEventProcessor implements EventProcessor {
   Future<void> _attachAppStartSpans(
       AppStartInfo appStartInfo, SentryTracer transaction) async {
     final transactionTraceId = transaction.context.traceId;
+    final appStartEnd = appStartInfo.end;
+    if (appStartEnd == null) {
+      return;
+    }
 
     final appStartSpan = await _createAndFinishSpan(
         tracer: transaction,
@@ -52,7 +70,7 @@ class NativeAppStartEventProcessor implements EventProcessor {
         parentSpanId: transaction.context.spanId,
         traceId: transactionTraceId,
         startTimestamp: appStartInfo.start,
-        endTimestamp: appStartInfo.end);
+        endTimestamp: appStartEnd);
 
     final pluginRegistrationSpan = await _createAndFinishSpan(
         tracer: transaction,
@@ -79,7 +97,7 @@ class NativeAppStartEventProcessor implements EventProcessor {
         parentSpanId: appStartSpan.context.spanId,
         traceId: transactionTraceId,
         startTimestamp: appStartInfo.mainIsolateStart,
-        endTimestamp: appStartInfo.end);
+        endTimestamp: appStartEnd);
 
     transaction.children.addAll([
       appStartSpan,
