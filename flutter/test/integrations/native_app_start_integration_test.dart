@@ -27,9 +27,7 @@ void main() {
       fixture.binding.nativeAppStart = NativeAppStart(
           appStartTime: 0, pluginRegistrationTime: 10, isColdStart: true);
 
-      await fixture
-          .getNativeAppStartIntegration()
-          .call(fixture.hub, fixture.options);
+      fixture.getNativeAppStartIntegration().call(fixture.hub, fixture.options);
 
       final tracer = fixture.createTracer();
       final transaction = SentryTransaction(tracer);
@@ -49,9 +47,7 @@ void main() {
       fixture.binding.nativeAppStart = NativeAppStart(
           appStartTime: 0, pluginRegistrationTime: 10, isColdStart: true);
 
-      await fixture
-          .getNativeAppStartIntegration()
-          .call(fixture.hub, fixture.options);
+      fixture.getNativeAppStartIntegration().call(fixture.hub, fixture.options);
 
       final tracer = fixture.createTracer();
       final transaction = SentryTransaction(tracer);
@@ -72,9 +68,7 @@ void main() {
           appStartTime: 0, pluginRegistrationTime: 10, isColdStart: true);
       final measurement = SentryMeasurement.warmAppStart(Duration(seconds: 1));
 
-      await fixture
-          .getNativeAppStartIntegration()
-          .call(fixture.hub, fixture.options);
+      fixture.getNativeAppStartIntegration().call(fixture.hub, fixture.options);
 
       final tracer = fixture.createTracer();
       final transaction = SentryTransaction(tracer).copyWith();
@@ -96,9 +90,7 @@ void main() {
       fixture.binding.nativeAppStart = NativeAppStart(
           appStartTime: 0, pluginRegistrationTime: 10, isColdStart: true);
 
-      await fixture
-          .getNativeAppStartIntegration()
-          .call(fixture.hub, fixture.options);
+      fixture.getNativeAppStartIntegration().call(fixture.hub, fixture.options);
 
       final tracer = fixture.createTracer();
       final transaction = SentryTransaction(tracer);
@@ -116,9 +108,7 @@ void main() {
       fixture.binding.nativeAppStart = NativeAppStart(
           appStartTime: 0, pluginRegistrationTime: 10, isColdStart: true);
 
-      await fixture
-          .getNativeAppStartIntegration()
-          .call(fixture.hub, fixture.options);
+      fixture.getNativeAppStartIntegration().call(fixture.hub, fixture.options);
 
       final appStartInfo = await NativeAppStartIntegration.getAppStartInfo();
       expect(appStartInfo?.start, DateTime.fromMillisecondsSinceEpoch(0));
@@ -132,9 +122,7 @@ void main() {
       fixture.binding.nativeAppStart = NativeAppStart(
           appStartTime: 0, pluginRegistrationTime: 10, isColdStart: true);
 
-      await fixture
-          .getNativeAppStartIntegration()
-          .call(fixture.hub, fixture.options);
+      fixture.getNativeAppStartIntegration().call(fixture.hub, fixture.options);
 
       final tracer = fixture.createTracer();
       final transaction = SentryTransaction(tracer);
@@ -155,9 +143,7 @@ void main() {
           appStartTime: 0, pluginRegistrationTime: 10, isColdStart: true);
       SentryFlutter.native = fixture.native;
 
-      await fixture
-          .getNativeAppStartIntegration()
-          .call(fixture.hub, fixture.options);
+      fixture.getNativeAppStartIntegration().call(fixture.hub, fixture.options);
 
       SentryFlutter.setAppStartEnd(DateTime.fromMillisecondsSinceEpoch(10));
 
@@ -216,9 +202,7 @@ void main() {
       SentryFlutter.mainIsolateStartTime =
           DateTime.fromMillisecondsSinceEpoch(15);
 
-      await fixture
-          .getNativeAppStartIntegration()
-          .call(fixture.hub, fixture.options);
+      fixture.getNativeAppStartIntegration().call(fixture.hub, fixture.options);
 
       final processor = fixture.options.eventProcessors.first;
       tracer = fixture.createTracer();
