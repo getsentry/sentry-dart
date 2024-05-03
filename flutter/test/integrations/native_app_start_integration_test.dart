@@ -227,14 +227,12 @@ void main() {
             span.startTimestamp,
             DateTime.fromMillisecondsSinceEpoch(
                     validSpan!['startTimestampMsSinceEpoch']!)
-                .toUtc(),
-            reason: 'Should only include spans with valid start timestamps');
+                .toUtc());
         expect(
             span.endTimestamp,
             DateTime.fromMillisecondsSinceEpoch(
                     validSpan['stopTimestampMsSinceEpoch']!)
-                .toUtc(),
-            reason: 'Should only include spans with valid end timestamps');
+                .toUtc());
       }
     });
 
@@ -245,16 +243,14 @@ void main() {
       final orderedSpans = spans.toList()
         ..sort((a, b) => a.startTimestamp.compareTo(b.startTimestamp));
 
-      expect(spans, orderedEquals(orderedSpans),
-          reason: 'Should be ordered by start timestamp');
+      expect(spans, orderedEquals(orderedSpans));
     });
 
     test('ignores invalid spans', () async {
       final spans = enrichedTransaction.spans
           .where((element) => element.data['native'] == true);
 
-      expect(spans, isNot(contains('failing span')),
-          reason: 'Should not include spans with invalid start timestamps');
+      expect(spans, isNot(contains('failing span')));
     });
 
     test('are added by event processor', () async {
