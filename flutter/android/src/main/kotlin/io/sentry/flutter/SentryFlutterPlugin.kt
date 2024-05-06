@@ -30,11 +30,13 @@ import io.sentry.protocol.SentryId
 import io.sentry.protocol.User
 import io.sentry.transport.CurrentDateProvider
 import java.lang.ref.WeakReference
+import java.io.File
 
 class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
   private lateinit var channel: MethodChannel
   private lateinit var context: Context
   private lateinit var sentryFlutter: SentryFlutter
+  private lateinit var replay: ReplayIntegration
 
   private var activity: WeakReference<Activity>? = null
   private var framesTracker: ActivityFramesTracker? = null
@@ -77,6 +79,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       "setTag" -> setTag(call.argument("key"), call.argument("value"), result)
       "removeTag" -> removeTag(call.argument("key"), result)
       "loadContexts" -> loadContexts(result)
+      "addReplayScreenshot" -> addReplayScreenshot(call.argument("path"), call.argument("timestamp"), result)
       else -> result.notImplemented()
     }
   }
@@ -130,13 +133,13 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
       options.beforeSend = BeforeSendCallbackImpl(options.sdkVersion)
 
-      // Replace the default ReplayIntegration with a custom one that uses a Flutter-specific recorder.
+      // Replace the default ReplayIntegration with a Flutter-specific recorder.
       options.integrations.removeAll { it is ReplayIntegration }
       val cacheDirPath = options.cacheDirPath
       if (cacheDirPath != null &&
           (options.experimental.sessionReplay.isSessionReplayEnabled ||
               options.experimental.sessionReplay.isSessionReplayForErrorsEnabled)) {
-        val replay =
+        replay =
             ReplayIntegration(
                 context,
                 dateProvider = CurrentDateProvider.getInstance(),
@@ -468,4 +471,18 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       )
     result.success(serializedScope)
   }
+
+  private fun addReplayScreenshot(
+    path: String?,
+    timestamp: Long?,
+    result: Result,
+  ) {
+    if (path == null || timestamp == null) {
+      result.error("5", "Arguments are null", null)
+      return
+    }
+    replay.onScreenshotRecorded(File(path), timestamp)
+    result.success("")
+  }
+
 }

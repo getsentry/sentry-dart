@@ -66,13 +66,13 @@ class SentryNativeJava extends SentryNativeChannel {
 
         try {
           await channel.invokeMethod(
-            'ReplayRecorder.onScreenshotRecorded',
+            'addReplayScreenshot',
             {'path': filePath, 'timestamp': timestamp},
           );
         } catch (error, stackTrace) {
           _options.logger(
             SentryLevel.error,
-            'Native call `ReplayRecorder.onScreenshotRecorded` failed',
+            'Native call `addReplayScreenshot` failed',
             exception: error,
             stackTrace: stackTrace,
           );
