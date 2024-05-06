@@ -6,7 +6,6 @@ import 'package:flutter/rendering.dart';
 import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
-import '../sentry_replay_options.dart';
 import 'recorder_config.dart';
 import 'recorder_widget_filter.dart';
 import 'scheduler.dart';

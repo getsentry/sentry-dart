@@ -132,21 +132,21 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
       // Replace the default ReplayIntegration with a custom one that uses a Flutter-specific recorder.
       options.integrations.removeAll { it is ReplayIntegration }
-      val recorder = SentryFlutterReplay.recorder
-      if (recorder != null && options.cacheDirPath != null) {
+      val cacheDirPath = options.cacheDirPath
+      if (cacheDirPath != null &&
+          (options.experimental.sessionReplay.isSessionReplayEnabled ||
+              options.experimental.sessionReplay.isSessionReplayForErrorsEnabled)) {
         val replay =
-          ReplayIntegration(
-            context,
-            dateProvider = CurrentDateProvider.getInstance(),
-            recorderProvider = { recorder },
-            recorderConfigProvider = null,
-            replayCacheProvider = null,
-          )
+            ReplayIntegration(
+                context,
+                dateProvider = CurrentDateProvider.getInstance(),
+                recorderProvider = { SentryFlutterReplayRecorder(channel, cacheDirPath) },
+                recorderConfigProvider = null,
+                replayCacheProvider = null,
+            )
 
         options.addIntegration(replay)
         options.setReplayController(replay)
-
-        SentryFlutterReplay.integration = replay
       } else {
         options.setReplayController(null)
       }

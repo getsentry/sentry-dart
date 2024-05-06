@@ -11,15 +11,16 @@ import 'sentry_native_binding.dart';
 /// Provide typed methods to access native layer via MethodChannel.
 @internal
 class SentryNativeChannel implements SentryNativeBinding {
-  SentryNativeChannel(this._channel);
+  SentryNativeChannel(this.channel);
 
-  final MethodChannel _channel;
+  @protected
+  final MethodChannel channel;
 
   // TODO Move other native calls here.
 
   @override
   Future<void> init(SentryFlutterOptions options) async =>
-      _channel.invokeMethod('initNativeSdk', <String, dynamic>{
+      channel.invokeMethod('initNativeSdk', <String, dynamic>{
         'dsn': options.dsn,
         'debug': options.debug,
         'environment': options.environment,
@@ -62,22 +63,21 @@ class SentryNativeChannel implements SentryNativeBinding {
       });
 
   @override
-  Future<void> close() async => _channel.invokeMethod('closeNativeSdk');
+  Future<void> close() async => channel.invokeMethod('closeNativeSdk');
 
   @override
   Future<NativeAppStart?> fetchNativeAppStart() async {
     final json =
-        await _channel.invokeMapMethod<String, dynamic>('fetchNativeAppStart');
+        await channel.invokeMapMethod<String, dynamic>('fetchNativeAppStart');
     return (json != null) ? NativeAppStart.fromJson(json) : null;
   }
 
   @override
-  Future<void> beginNativeFrames() =>
-      _channel.invokeMethod('beginNativeFrames');
+  Future<void> beginNativeFrames() => channel.invokeMethod('beginNativeFrames');
 
   @override
   Future<NativeFrames?> endNativeFrames(SentryId id) async {
-    final json = await _channel.invokeMapMethod<String, dynamic>(
+    final json = await channel.invokeMapMethod<String, dynamic>(
         'endNativeFrames', {'id': id.toString()});
     return (json != null) ? NativeFrames.fromJson(json) : null;
   }
@@ -87,7 +87,7 @@ class SentryNativeChannel implements SentryNativeBinding {
     final normalizedUser = user?.copyWith(
       data: MethodChannelHelper.normalizeMap(user.data),
     );
-    await _channel.invokeMethod(
+    await channel.invokeMethod(
       'setUser',
       {'user': normalizedUser?.toJson()},
     );
@@ -98,42 +98,42 @@ class SentryNativeChannel implements SentryNativeBinding {
     final normalizedBreadcrumb = breadcrumb.copyWith(
       data: MethodChannelHelper.normalizeMap(breadcrumb.data),
     );
-    await _channel.invokeMethod(
+    await channel.invokeMethod(
       'addBreadcrumb',
       {'breadcrumb': normalizedBreadcrumb.toJson()},
     );
   }
 
   @override
-  Future<void> clearBreadcrumbs() => _channel.invokeMethod('clearBreadcrumbs');
+  Future<void> clearBreadcrumbs() => channel.invokeMethod('clearBreadcrumbs');
 
   @override
-  Future<void> setContexts(String key, dynamic value) => _channel.invokeMethod(
+  Future<void> setContexts(String key, dynamic value) => channel.invokeMethod(
         'setContexts',
         {'key': key, 'value': MethodChannelHelper.normalize(value)},
       );
 
   @override
   Future<void> removeContexts(String key) =>
-      _channel.invokeMethod('removeContexts', {'key': key});
+      channel.invokeMethod('removeContexts', {'key': key});
 
   @override
-  Future<void> setExtra(String key, dynamic value) => _channel.invokeMethod(
+  Future<void> setExtra(String key, dynamic value) => channel.invokeMethod(
         'setExtra',
         {'key': key, 'value': MethodChannelHelper.normalize(value)},
       );
 
   @override
   Future<void> removeExtra(String key) =>
-      _channel.invokeMethod('removeExtra', {'key': key});
+      channel.invokeMethod('removeExtra', {'key': key});
 
   @override
   Future<void> setTag(String key, String value) =>
-      _channel.invokeMethod('setTag', {'key': key, 'value': value});
+      channel.invokeMethod('setTag', {'key': key, 'value': value});
 
   @override
   Future<void> removeTag(String key) =>
-      _channel.invokeMethod('removeTag', {'key': key});
+      channel.invokeMethod('removeTag', {'key': key});
 
   @override
   int? startProfiler(SentryId traceId) =>
@@ -141,12 +141,12 @@ class SentryNativeChannel implements SentryNativeBinding {
 
   @override
   Future<void> discardProfiler(SentryId traceId) =>
-      _channel.invokeMethod('discardProfiler', traceId.toString());
+      channel.invokeMethod('discardProfiler', traceId.toString());
 
   @override
   Future<Map<String, dynamic>?> collectProfile(
           SentryId traceId, int startTimeNs, int endTimeNs) =>
-      _channel.invokeMapMethod<String, dynamic>('collectProfile', {
+      channel.invokeMapMethod<String, dynamic>('collectProfile', {
         'traceId': traceId.toString(),
         'startTime': startTimeNs,
         'endTime': endTimeNs,
