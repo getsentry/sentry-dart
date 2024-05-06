@@ -4,6 +4,7 @@
 
 ### Features
 
+- Adds native spans to app start transaction ([#2027](https://github.com/getsentry/sentry-dart/pull/2027))
 - Adds app start spans to first transaction ([#2009](https://github.com/getsentry/sentry-dart/pull/2009))
 
 ## 8.1.0
