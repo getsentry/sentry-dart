@@ -151,11 +151,12 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       result.success(null)
     } else {
       val appStartTimeMillis = DateUtils.nanosToMillis(appStartTime.nanoTimestamp().toDouble())
-      val item = mutableMapOf<String, Any?>(
-        "pluginRegistrationTime" to pluginRegistrationTime,
-        "appStartTime" to appStartTimeMillis,
-        "isColdStart" to isColdStart,
-      )
+      val item =
+        mutableMapOf<String, Any?>(
+          "pluginRegistrationTime" to pluginRegistrationTime,
+          "appStartTime" to appStartTimeMillis,
+          "isColdStart" to isColdStart,
+        )
 
       val androidNativeSpans = mutableMapOf<String, Any?>()
 
