@@ -10,30 +10,30 @@ internal class SentryFlutterReplayRecorder(
   private val channel: MethodChannel,
   private val cacheDirPath: String,
 ) : Recorder {
-  override fun start(recorderConfig: ScreenshotRecorderConfig) {
+  override fun start(config: ScreenshotRecorderConfig) {
     Handler(Looper.getMainLooper()).post {
       channel.invokeMethod(
-        "start",
+        "ReplayRecorder.start",
         mapOf(
           "directory" to cacheDirPath,
-          "width" to recorderConfig.recordingWidth,
-          "height" to recorderConfig.recordingHeight,
-          "frameRate" to recorderConfig.frameRate,
+          "width" to config.recordingWidth,
+          "height" to config.recordingHeight,
+          "frameRate" to config.frameRate,
         ),
       )
     }
   }
 
   override fun resume() {
-    Handler(Looper.getMainLooper()).post { channel.invokeMethod("resume", null) }
+    Handler(Looper.getMainLooper()).post { channel.invokeMethod("ReplayRecorder.resume", null) }
   }
 
   override fun pause() {
-    Handler(Looper.getMainLooper()).post { channel.invokeMethod("pause", null) }
+    Handler(Looper.getMainLooper()).post { channel.invokeMethod("ReplayRecorder.pause", null) }
   }
 
   override fun stop() {
-    Handler(Looper.getMainLooper()).post { channel.invokeMethod("stop", null) }
+    Handler(Looper.getMainLooper()).post { channel.invokeMethod("ReplayRecorder.stop", null) }
   }
 
   override fun close() {

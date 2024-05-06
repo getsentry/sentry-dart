@@ -6,5 +6,6 @@ class ScreenshotRecorderConfig {
   final int height;
   final int frameRate;
 
-  ScreenshotRecorderConfig(this.width, this.height, this.frameRate);
+  ScreenshotRecorderConfig(
+      {required this.width, required this.height, required this.frameRate});
 }
