@@ -8,15 +8,24 @@
 - Set snapshot to `true` when Sentry attaches a stacktrace ([#2000](https://github.com/getsentry/sentry-dart/pull/2000)) 
   - This may change grouping
 
+## 8.1.0
+
+### Features
+
+- Set snapshot to `true` if stacktrace is not provided ([#2000](https://github.com/getsentry/sentry-dart/pull/2000))
+  - If the stacktrace is not provided, the Sentry SDK will fetch the current stacktrace via `StackTrace.current` and the snapshot will be set to `true` - **this may change the grouping behavior**
+  - `snapshot = true` means it's a synthetic exception, reflecting the current state of the thread rather than the stack trace of a real exception
+
 ### Fixes
 
 - Timing metric aggregates metrics in the created span ([#1994](https://github.com/getsentry/sentry-dart/pull/1994))
 
 ### Dependencies
 
-- Bump Cocoa SDK from v8.21.0 to v8.24.0 ([#1986](https://github.com/getsentry/sentry-dart/pull/1986))
-  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8240)
-  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.21.0...8.24.0)
+- Bump Cocoa SDK from v8.21.0 to v8.25.0 ([#2018](https://github.com/getsentry/sentry-dart/pull/2018))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8250)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.21.0...8.25.0)
+- Expand dependency range of `package_info_plus` to allow an open range starting from version 1 ([#2010](https://github.com/getsentry/sentry-dart/pull/2010))
 
 ## 8.0.0
 

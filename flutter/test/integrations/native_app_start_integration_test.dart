@@ -139,7 +139,7 @@ void main() {
     // ignore: invalid_use_of_internal_member
     late SentryTracer tracer;
     late Fixture fixture;
-    late SentryTransaction enrichedTransaction;
+    late SentryTransaction enriched;
 
     final validNativeSpanTimes = {
       'correct span description': {
@@ -193,29 +193,29 @@ void main() {
       final processor = fixture.options.eventProcessors.first;
       tracer = fixture.createTracer();
       final transaction = SentryTransaction(tracer);
-      enrichedTransaction =
+      enriched =
           await processor.apply(transaction, Hint()) as SentryTransaction;
 
       final appStartInfo = await NativeAppStartIntegration.getAppStartInfo();
 
-      coldStartSpan = enrichedTransaction.spans.firstWhereOrNull((element) =>
+      coldStartSpan = enriched.spans.firstWhereOrNull((element) =>
           element.context.description == appStartInfo?.appStartTypeDescription);
-      pluginRegistrationSpan = enrichedTransaction.spans.firstWhereOrNull(
+      pluginRegistrationSpan = enriched.spans.firstWhereOrNull(
           (element) =>
               element.context.description ==
               appStartInfo?.pluginRegistrationDescription);
-      mainIsolateSetupSpan = enrichedTransaction.spans.firstWhereOrNull(
+      mainIsolateSetupSpan = enriched.spans.firstWhereOrNull(
           (element) =>
               element.context.description ==
               appStartInfo?.mainIsolateSetupDescription);
-      firstFrameRenderSpan = enrichedTransaction.spans.firstWhereOrNull(
+      firstFrameRenderSpan = enriched.spans.firstWhereOrNull(
           (element) =>
               element.context.description ==
               appStartInfo?.firstFrameRenderDescription);
     });
 
     test('includes only valid native spans', () async {
-      final spans = enrichedTransaction.spans
+      final spans = enriched.spans
           .where((element) => element.data['native'] == true);
 
       expect(spans.length, validNativeSpanTimes.length);
@@ -237,7 +237,7 @@ void main() {
     });
 
     test('are correctly ordered', () async {
-      final spans = enrichedTransaction.spans
+      final spans = enriched.spans
           .where((element) => element.data['native'] == true);
 
       final orderedSpans = spans.toList()
@@ -247,7 +247,7 @@ void main() {
     });
 
     test('ignores invalid spans', () async {
-      final spans = enrichedTransaction.spans
+      final spans = enriched.spans
           .where((element) => element.data['native'] == true);
 
       expect(spans, isNot(contains('failing span')));
