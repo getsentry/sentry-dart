@@ -34,6 +34,11 @@ typedef FlutterOptionsConfiguration = FutureOr<void> Function(
 mixin SentryFlutter {
   static const _channel = MethodChannel('sentry_flutter');
 
+  /// Represents the time when the main isolate is set up and ready to execute.
+  @internal
+  // ignore: invalid_use_of_internal_member
+  static DateTime mainIsolateStartTime = getUtcDateTime();
+
   static Future<void> init(
     FlutterOptionsConfiguration optionsConfiguration, {
     AppRunner? appRunner,
@@ -153,8 +158,8 @@ mixin SentryFlutter {
     // The ordering here matters, as we'd like to first start the native integration.
     // That allow us to send events to the network and then the Flutter integrations.
     // Flutter Web doesn't need that, only Android and iOS.
-    if (platformChecker.hasNativeIntegration) {
-      integrations.add(NativeSdkIntegration(channel));
+    if (_native != null) {
+      integrations.add(NativeSdkIntegration(_native!));
     }
 
     // Will enrich events with device context, native packages and integrations
