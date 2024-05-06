@@ -51,6 +51,32 @@ void main() {
       expect(platformException_2.stackTrace!.frames.length, 18);
     });
 
+    test('platform exception is correctly parsed', () async {
+      final platformExceptionEvent = await fixture.processor
+          .apply(fixture.eventWithFailingPlatformStackTrace, Hint());
+
+      final exceptions = platformExceptionEvent!.exceptions!;
+      expect(exceptions.length, 3);
+
+      final platformException = exceptions[1];
+
+      expect(platformException.type, 'PlatformException');
+      expect(
+        platformException.value,
+        "PlatformException(getNotificationChannelsError, Unable to find resource ID #0x7f14000d, android.content.res.Resources\$NotFoundException: Unable to find resource ID #0x7f14000d",
+      );
+      expect(platformException.stackTrace!.frames.length, 20);
+
+      final platformException_2 = exceptions[2];
+
+      expect(platformException_2.type, 'PlatformException');
+      expect(
+        platformException_2.value,
+        "PlatformException(getNotificationChannelsError, Unable to find resource ID #0x7f14000d, android.content.res.Resources\$NotFoundException: Unable to find resource ID #0x7f14000d",
+      );
+      expect(platformException_2.stackTrace!.frames.length, 20);
+    });
+
     test(
         'Dart thread is current and not crashed if Android exception is present',
         () async {
@@ -142,6 +168,16 @@ class Fixture {
     threads: [dartThread],
   );
 
+  late SentryException withFailingPlatformStackTrace = options.exceptionFactory
+      .getSentryException(failingPlatformException)
+      .copyWith(threadId: 1);
+
+  late SentryEvent eventWithFailingPlatformStackTrace = SentryEvent(
+    exceptions: [withFailingPlatformStackTrace],
+    throwable: failingPlatformException,
+    threads: [dartThread],
+  );
+
   late SentryThread dartThread = SentryThread(
     crashed: true,
     current: true,
@@ -169,6 +205,14 @@ final emptyPlatformException = PlatformException(
   stacktrace: null,
 );
 
+final failingPlatformException = PlatformException(
+  code: 'error',
+  details:
+      "PlatformException: PlatformException(getNotificationChannelsError, Unable to find resource ID #0x7f14000d, android.content.res.Resources\$NotFoundException: Unable to find resource ID #0x7f14000d",
+  message: _failingStackTrace,
+  stacktrace: _failingStackTrace,
+);
+
 const _jvmStackTrace =
     """java.lang.IllegalArgumentException: Unsupported value: '[Ljava.lang.StackTraceElement;@ba6feed' of type 'class [Ljava.lang.StackTraceElement;'
 	at io.flutter.plugin.common.StandardMessageCodec.writeValue(StandardMessageCodec.java:292)
@@ -189,3 +233,26 @@ const _jvmStackTrace =
 	at java.lang.reflect.Method.invoke(Native Method)
 	at com.android.internal.os.RuntimeInit\$MethodAndArgsCaller.run(RuntimeInit.java:556)
 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:1037)""";
+
+const _failingStackTrace =
+    """PlatformException: PlatformException(getNotificationChannelsError, Unable to find resource ID #0x7f14000d, android.content.res.Resources\$NotFoundException: Unable to find resource ID #0x7f14000d
+	at android.content.res.ResourcesImpl.getResourceEntryName(ResourcesImpl.java:493)
+	at android.content.res.Resources.getResourceEntryName(Resources.java:2441)
+	at com.dexterous.flutterlocalnotifications.FlutterLocalNotificationsPlugin.getMappedNotificationChannel(FlutterLocalNotificationsPlugin.java:170)
+	at com.dexterous.flutterlocalnotifications.FlutterLocalNotificationsPlugin.getNotificationChannels(FlutterLocalNotificationsPlugin.java:32)
+	at com.dexterous.flutterlocalnotifications.FlutterLocalNotificationsPlugin.onMethodCall(FlutterLocalNotificationsPlugin.java:399)
+	at be.j\$a.a(MethodChannel.java:18)
+	at pd.c.l(DartMessenger.java:19)
+	at pd.c.m(DartMessenger.java:42)
+	at pd.c.h(Unknown Source:0)
+	at pd.b.run(Unknown Source:12)
+	at android.os.Handler.handleCallback(Handler.java:966)
+	at android.os.Handler.dispatchMessage(Handler.java:110)
+	at android.os.Looper.loopOnce(Looper.java:205)
+	at android.os.Looper.loop(Looper.java:293)
+	at android.app.ActivityThread.loopProcess(ActivityThread.java:9832)
+	at android.app.ActivityThread.main(ActivityThread.java:9821)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit\$MethodAndArgsCaller.run(RuntimeInit.java:586)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:1201)
+, null)""";
