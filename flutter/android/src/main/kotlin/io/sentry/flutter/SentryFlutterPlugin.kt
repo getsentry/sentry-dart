@@ -75,7 +75,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       else -> result.notImplemented()
     }
   }
-  
+
   override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
     if (!this::channel.isInitialized) {
       return
