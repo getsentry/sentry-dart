@@ -9,89 +9,90 @@ import '../mocks.dart';
 import '../mocks.mocks.dart';
 
 void main() {
-  const _channel = MethodChannel('sentry_flutter');
+  group(NativeSdkIntegration, () {
+    const _channel = MethodChannel('sentry_flutter');
 
-  TestWidgetsFlutterBinding.ensureInitialized();
+    TestWidgetsFlutterBinding.ensureInitialized();
 
-  late Fixture fixture;
+    late Fixture fixture;
 
-  setUp(() {
-    fixture = Fixture();
-  });
+    setUp(() {
+      fixture = Fixture();
+    });
 
-  tearDown(() {
-    // ignore: deprecated_member_use
-    _channel.setMockMethodCallHandler(null);
-  });
+    tearDown(() {
+      // ignore: deprecated_member_use
+      _channel.setMockMethodCallHandler(null);
+    });
 
-  test('nativeSdkIntegration adds integration', () async {
-    // ignore: deprecated_member_use
-    _channel.setMockMethodCallHandler((MethodCall methodCall) async {});
-    final mock = TestMockSentryNative();
-    final integration = NativeSdkIntegration(mock);
+    test('adds integration', () async {
+      // ignore: deprecated_member_use
+      _channel.setMockMethodCallHandler((MethodCall methodCall) async {});
+      final mock = TestMockSentryNative();
+      final integration = NativeSdkIntegration(mock);
 
-    await integration(fixture.hub, fixture.options);
+      await integration(fixture.hub, fixture.options);
 
-    expect(fixture.options.sdk.integrations, contains('nativeSdkIntegration'));
-    expect(mock.numberOfInitCalls, 1);
-  });
+      expect(
+          fixture.options.sdk.integrations, contains('nativeSdkIntegration'));
+      expect(mock.numberOfInitCalls, 1);
+    });
 
-  test('nativeSdkIntegration do not throw', () async {
-    final integration = NativeSdkIntegration(_ThrowingMockSentryNative());
+    test('do not throw', () async {
+      final integration = NativeSdkIntegration(_ThrowingMockSentryNative());
 
-    await integration(fixture.hub, fixture.options);
+      await integration(fixture.hub, fixture.options);
 
-    expect(fixture.options.sdk.integrations.contains('nativeSdkIntegration'),
-        false);
-  });
+      expect(fixture.options.sdk.integrations.contains('nativeSdkIntegration'),
+          false);
+    });
 
-  test('nativeSdkIntegration closes native SDK', () async {
-    final mock = TestMockSentryNative();
-    final integration = NativeSdkIntegration(mock);
+    test('closes native SDK', () async {
+      final mock = TestMockSentryNative();
+      final integration = NativeSdkIntegration(mock);
 
-    await integration.call(fixture.hub, fixture.options);
-    await integration.close();
+      await integration.call(fixture.hub, fixture.options);
+      await integration.close();
 
-    expect(mock.numberOfCloseCalls, 1);
-  });
+      expect(mock.numberOfCloseCalls, 1);
+    });
 
-  test('nativeSdkIntegration does not call native sdk when auto init disabled',
-      () async {
-    final mock = TestMockSentryNative();
-    final integration = NativeSdkIntegration(mock);
-    fixture.options.autoInitializeNativeSdk = false;
+    test('does not call native sdk when auto init disabled', () async {
+      final mock = TestMockSentryNative();
+      final integration = NativeSdkIntegration(mock);
+      fixture.options.autoInitializeNativeSdk = false;
 
-    await integration.call(fixture.hub, fixture.options);
+      await integration.call(fixture.hub, fixture.options);
 
-    expect(mock.numberOfInitCalls, 0);
-  });
+      expect(mock.numberOfInitCalls, 0);
+    });
 
-  test('nativeSdkIntegration does not close native when auto init disabled',
-      () async {
-    final mock = TestMockSentryNative();
-    final integration = NativeSdkIntegration(mock);
-    fixture.options.autoInitializeNativeSdk = false;
+    test('does not close native when auto init disabled', () async {
+      final mock = TestMockSentryNative();
+      final integration = NativeSdkIntegration(mock);
+      fixture.options.autoInitializeNativeSdk = false;
 
-    await integration(fixture.hub, fixture.options);
-    await integration.close();
+      await integration(fixture.hub, fixture.options);
+      await integration.close();
 
-    expect(mock.numberOfCloseCalls, 0);
-  });
+      expect(mock.numberOfCloseCalls, 0);
+    });
 
-  test('adds integration', () async {
-    final mock = TestMockSentryNative();
-    final integration = NativeSdkIntegration(mock);
+    test('adds integration', () async {
+      final mock = TestMockSentryNative();
+      final integration = NativeSdkIntegration(mock);
 
-    await integration.call(fixture.hub, fixture.options);
+      await integration.call(fixture.hub, fixture.options);
 
-    expect(fixture.options.sdk.integrations, ['nativeSdkIntegration']);
-  });
+      expect(fixture.options.sdk.integrations, ['nativeSdkIntegration']);
+    });
 
-  test('integration is not added in case of an exception', () async {
-    final integration = NativeSdkIntegration(_ThrowingMockSentryNative());
+    test(' is not added in case of an exception', () async {
+      final integration = NativeSdkIntegration(_ThrowingMockSentryNative());
 
-    await integration.call(fixture.hub, fixture.options);
-    expect(fixture.options.sdk.integrations, <String>[]);
+      await integration.call(fixture.hub, fixture.options);
+      expect(fixture.options.sdk.integrations, <String>[]);
+    });
   });
 }
 

@@ -9,147 +9,145 @@ import 'package:sentry_flutter/src/version.dart';
 import '../mocks.dart';
 
 void main() {
-  group('initNativeSdk', () {
-    late Fixture fixture;
-    setUp(() {
-      fixture = Fixture();
-      TestWidgetsFlutterBinding.ensureInitialized();
+  late Fixture fixture;
+  setUp(() {
+    fixture = Fixture();
+    TestWidgetsFlutterBinding.ensureInitialized();
+  });
+
+  test('test default values', () async {
+    String? methodName;
+    dynamic arguments;
+    final channel = createChannelWithCallback((call) async {
+      methodName = call.method;
+      arguments = call.arguments;
     });
+    var sut = fixture.getSut(channel);
 
-    test('test default values', () async {
-      String? methodName;
-      dynamic arguments;
-      final channel = createChannelWithCallback((call) async {
-        methodName = call.method;
-        arguments = call.arguments;
-      });
-      var sut = fixture.getSut(channel);
+    await sut.init(createOptions());
 
-      await sut.init(createOptions());
+    channel.setMethodCallHandler(null);
 
-      channel.setMethodCallHandler(null);
-
-      expect(methodName, 'initNativeSdk');
-      expect(arguments, <String, dynamic>{
-        'dsn': fakeDsn,
-        'debug': false,
-        'environment': null,
-        'release': null,
-        'enableAutoSessionTracking': true,
-        'enableNativeCrashHandling': true,
-        'attachStacktrace': true,
-        'attachThreads': false,
-        'autoSessionTrackingIntervalMillis': 30000,
-        'dist': null,
-        'integrations': <String>[],
-        'packages': [
-          {'name': 'pub:sentry_flutter', 'version': sdkVersion}
-        ],
-        'diagnosticLevel': 'debug',
-        'maxBreadcrumbs': 100,
-        'anrEnabled': false,
-        'anrTimeoutIntervalMillis': 5000,
-        'enableAutoNativeBreadcrumbs': true,
-        'maxCacheItems': 30,
-        'sendDefaultPii': false,
-        'enableWatchdogTerminationTracking': true,
-        'enableNdkScopeSync': true,
-        'enableAutoPerformanceTracing': true,
-        'sendClientReports': true,
-        'proguardUuid': null,
-        'maxAttachmentSize': 20 * 1024 * 1024,
-        'recordHttpBreadcrumbs': true,
-        'captureFailedRequests': true,
-        'enableAppHangTracking': true,
-        'connectionTimeoutMillis': 5000,
-        'readTimeoutMillis': 5000,
-        'appHangTimeoutIntervalMillis': 2000,
-      });
+    expect(methodName, 'initNativeSdk');
+    expect(arguments, <String, dynamic>{
+      'dsn': fakeDsn,
+      'debug': false,
+      'environment': null,
+      'release': null,
+      'enableAutoSessionTracking': true,
+      'enableNativeCrashHandling': true,
+      'attachStacktrace': true,
+      'attachThreads': false,
+      'autoSessionTrackingIntervalMillis': 30000,
+      'dist': null,
+      'integrations': <String>[],
+      'packages': [
+        {'name': 'pub:sentry_flutter', 'version': sdkVersion}
+      ],
+      'diagnosticLevel': 'debug',
+      'maxBreadcrumbs': 100,
+      'anrEnabled': false,
+      'anrTimeoutIntervalMillis': 5000,
+      'enableAutoNativeBreadcrumbs': true,
+      'maxCacheItems': 30,
+      'sendDefaultPii': false,
+      'enableWatchdogTerminationTracking': true,
+      'enableNdkScopeSync': true,
+      'enableAutoPerformanceTracing': true,
+      'sendClientReports': true,
+      'proguardUuid': null,
+      'maxAttachmentSize': 20 * 1024 * 1024,
+      'recordHttpBreadcrumbs': true,
+      'captureFailedRequests': true,
+      'enableAppHangTracking': true,
+      'connectionTimeoutMillis': 5000,
+      'readTimeoutMillis': 5000,
+      'appHangTimeoutIntervalMillis': 2000,
     });
+  });
 
-    test('test custom values', () async {
-      String? methodName;
-      dynamic arguments;
-      final channel = createChannelWithCallback((call) async {
-        methodName = call.method;
-        arguments = call.arguments;
-      });
-      var sut = fixture.getSut(channel);
+  test('test custom values', () async {
+    String? methodName;
+    dynamic arguments;
+    final channel = createChannelWithCallback((call) async {
+      methodName = call.method;
+      arguments = call.arguments;
+    });
+    var sut = fixture.getSut(channel);
 
-      final options = createOptions()
-        ..debug = false
-        ..environment = 'foo'
-        ..release = 'foo@bar+1'
-        ..enableAutoSessionTracking = false
-        ..enableNativeCrashHandling = false
-        ..attachStacktrace = false
-        ..attachThreads = true
-        ..autoSessionTrackingInterval = Duration(milliseconds: 240000)
-        ..dist = 'distfoo'
-        ..diagnosticLevel = SentryLevel.error
-        ..maxBreadcrumbs = 0
-        ..anrEnabled = false
-        ..anrTimeoutInterval = Duration(seconds: 1)
-        ..enableAutoNativeBreadcrumbs = false
-        ..maxCacheItems = 0
-        ..sendDefaultPii = true
-        ..enableWatchdogTerminationTracking = false
-        ..enableAutoPerformanceTracing = false
-        ..sendClientReports = false
-        ..enableNdkScopeSync = true
-        ..proguardUuid = fakeProguardUuid
-        ..maxAttachmentSize = 10
-        ..recordHttpBreadcrumbs = false
-        ..captureFailedRequests = false
-        ..enableAppHangTracking = false
-        ..connectionTimeout = Duration(milliseconds: 9001)
-        ..readTimeout = Duration(milliseconds: 9002)
-        ..appHangTimeoutInterval = Duration(milliseconds: 9003);
+    final options = createOptions()
+      ..debug = false
+      ..environment = 'foo'
+      ..release = 'foo@bar+1'
+      ..enableAutoSessionTracking = false
+      ..enableNativeCrashHandling = false
+      ..attachStacktrace = false
+      ..attachThreads = true
+      ..autoSessionTrackingInterval = Duration(milliseconds: 240000)
+      ..dist = 'distfoo'
+      ..diagnosticLevel = SentryLevel.error
+      ..maxBreadcrumbs = 0
+      ..anrEnabled = false
+      ..anrTimeoutInterval = Duration(seconds: 1)
+      ..enableAutoNativeBreadcrumbs = false
+      ..maxCacheItems = 0
+      ..sendDefaultPii = true
+      ..enableWatchdogTerminationTracking = false
+      ..enableAutoPerformanceTracing = false
+      ..sendClientReports = false
+      ..enableNdkScopeSync = true
+      ..proguardUuid = fakeProguardUuid
+      ..maxAttachmentSize = 10
+      ..recordHttpBreadcrumbs = false
+      ..captureFailedRequests = false
+      ..enableAppHangTracking = false
+      ..connectionTimeout = Duration(milliseconds: 9001)
+      ..readTimeout = Duration(milliseconds: 9002)
+      ..appHangTimeoutInterval = Duration(milliseconds: 9003);
 
-      options.sdk.addIntegration('foo');
-      options.sdk.addPackage('bar', '1');
+    options.sdk.addIntegration('foo');
+    options.sdk.addPackage('bar', '1');
 
-      await sut.init(options);
+    await sut.init(options);
 
-      channel.setMethodCallHandler(null);
+    channel.setMethodCallHandler(null);
 
-      expect(methodName, 'initNativeSdk');
-      expect(arguments, <String, dynamic>{
-        'dsn': fakeDsn,
-        'debug': false,
-        'environment': 'foo',
-        'release': 'foo@bar+1',
-        'enableAutoSessionTracking': false,
-        'enableNativeCrashHandling': false,
-        'attachStacktrace': false,
-        'attachThreads': true,
-        'autoSessionTrackingIntervalMillis': 240000,
-        'dist': 'distfoo',
-        'integrations': ['foo'],
-        'packages': [
-          {'name': 'pub:sentry_flutter', 'version': sdkVersion},
-          {'name': 'bar', 'version': '1'},
-        ],
-        'diagnosticLevel': 'error',
-        'maxBreadcrumbs': 0,
-        'anrEnabled': false,
-        'anrTimeoutIntervalMillis': 1000,
-        'enableAutoNativeBreadcrumbs': false,
-        'maxCacheItems': 0,
-        'sendDefaultPii': true,
-        'enableWatchdogTerminationTracking': false,
-        'enableNdkScopeSync': true,
-        'enableAutoPerformanceTracing': false,
-        'sendClientReports': false,
-        'proguardUuid': fakeProguardUuid,
-        'maxAttachmentSize': 10,
-        'recordHttpBreadcrumbs': false,
-        'captureFailedRequests': false,
-        'enableAppHangTracking': false,
-        'connectionTimeoutMillis': 9001,
-        'readTimeoutMillis': 9002,
-        'appHangTimeoutIntervalMillis': 9003,
-      });
+    expect(methodName, 'initNativeSdk');
+    expect(arguments, <String, dynamic>{
+      'dsn': fakeDsn,
+      'debug': false,
+      'environment': 'foo',
+      'release': 'foo@bar+1',
+      'enableAutoSessionTracking': false,
+      'enableNativeCrashHandling': false,
+      'attachStacktrace': false,
+      'attachThreads': true,
+      'autoSessionTrackingIntervalMillis': 240000,
+      'dist': 'distfoo',
+      'integrations': ['foo'],
+      'packages': [
+        {'name': 'pub:sentry_flutter', 'version': sdkVersion},
+        {'name': 'bar', 'version': '1'},
+      ],
+      'diagnosticLevel': 'error',
+      'maxBreadcrumbs': 0,
+      'anrEnabled': false,
+      'anrTimeoutIntervalMillis': 1000,
+      'enableAutoNativeBreadcrumbs': false,
+      'maxCacheItems': 0,
+      'sendDefaultPii': true,
+      'enableWatchdogTerminationTracking': false,
+      'enableNdkScopeSync': true,
+      'enableAutoPerformanceTracing': false,
+      'sendClientReports': false,
+      'proguardUuid': fakeProguardUuid,
+      'maxAttachmentSize': 10,
+      'recordHttpBreadcrumbs': false,
+      'captureFailedRequests': false,
+      'enableAppHangTracking': false,
+      'connectionTimeoutMillis': 9001,
+      'readTimeoutMillis': 9002,
+      'appHangTimeoutIntervalMillis': 9003,
     });
   });
 }
