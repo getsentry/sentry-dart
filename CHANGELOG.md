@@ -5,8 +5,6 @@
 ### Features
 
 - Adds app start spans to first transaction ([#2009](https://github.com/getsentry/sentry-dart/pull/2009))
-- Set snapshot to `true` when Sentry attaches a stacktrace ([#2000](https://github.com/getsentry/sentry-dart/pull/2000)) 
-  - This may change grouping
 
 ## 8.1.0
 
