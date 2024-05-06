@@ -29,8 +29,8 @@ import io.sentry.protocol.SdkVersion
 import io.sentry.protocol.SentryId
 import io.sentry.protocol.User
 import io.sentry.transport.CurrentDateProvider
-import java.lang.ref.WeakReference
 import java.io.File
+import java.lang.ref.WeakReference
 
 class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
   private lateinit var channel: MethodChannel
@@ -136,17 +136,16 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       // Replace the default ReplayIntegration with a Flutter-specific recorder.
       options.integrations.removeAll { it is ReplayIntegration }
       val cacheDirPath = options.cacheDirPath
-      if (cacheDirPath != null &&
-          (options.experimental.sessionReplay.isSessionReplayEnabled ||
-              options.experimental.sessionReplay.isSessionReplayForErrorsEnabled)) {
+      val isReplayEnabled = options.experimental.sessionReplay.isSessionReplayEnabled || options.experimental.sessionReplay.isSessionReplayForErrorsEnabled
+      if (cacheDirPath != null && isReplayEnabled) {
         replay =
-            ReplayIntegration(
-                context,
-                dateProvider = CurrentDateProvider.getInstance(),
-                recorderProvider = { SentryFlutterReplayRecorder(channel, cacheDirPath) },
-                recorderConfigProvider = null,
-                replayCacheProvider = null,
-            )
+          ReplayIntegration(
+            context,
+            dateProvider = CurrentDateProvider.getInstance(),
+            recorderProvider = { SentryFlutterReplayRecorder(channel, cacheDirPath) },
+            recorderConfigProvider = null,
+            replayCacheProvider = null,
+          )
 
         options.addIntegration(replay)
         options.setReplayController(replay)
@@ -484,5 +483,4 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     replay.onScreenshotRecorded(File(path), timestamp)
     result.success("")
   }
-
 }
