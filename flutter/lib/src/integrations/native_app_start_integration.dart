@@ -15,7 +15,7 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
   final SentryNative _native;
   final FrameCallbackHandler _frameCallbackHandler;
 
-  /// Duration to wait for the app start info to be fetched.
+  /// Timeout duration to wait for the app start info to be fetched.
   static const _timeoutDuration = Duration(seconds: 30);
 
   /// We filter out App starts more than 60s
