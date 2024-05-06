@@ -200,23 +200,20 @@ void main() {
 
       coldStartSpan = enriched.spans.firstWhereOrNull((element) =>
           element.context.description == appStartInfo?.appStartTypeDescription);
-      pluginRegistrationSpan = enriched.spans.firstWhereOrNull(
-          (element) =>
-              element.context.description ==
-              appStartInfo?.pluginRegistrationDescription);
-      mainIsolateSetupSpan = enriched.spans.firstWhereOrNull(
-          (element) =>
-              element.context.description ==
-              appStartInfo?.mainIsolateSetupDescription);
-      firstFrameRenderSpan = enriched.spans.firstWhereOrNull(
-          (element) =>
-              element.context.description ==
-              appStartInfo?.firstFrameRenderDescription);
+      pluginRegistrationSpan = enriched.spans.firstWhereOrNull((element) =>
+          element.context.description ==
+          appStartInfo?.pluginRegistrationDescription);
+      mainIsolateSetupSpan = enriched.spans.firstWhereOrNull((element) =>
+          element.context.description ==
+          appStartInfo?.mainIsolateSetupDescription);
+      firstFrameRenderSpan = enriched.spans.firstWhereOrNull((element) =>
+          element.context.description ==
+          appStartInfo?.firstFrameRenderDescription);
     });
 
     test('includes only valid native spans', () async {
-      final spans = enriched.spans
-          .where((element) => element.data['native'] == true);
+      final spans =
+          enriched.spans.where((element) => element.data['native'] == true);
 
       expect(spans.length, validNativeSpanTimes.length);
 
@@ -237,8 +234,8 @@ void main() {
     });
 
     test('are correctly ordered', () async {
-      final spans = enriched.spans
-          .where((element) => element.data['native'] == true);
+      final spans =
+          enriched.spans.where((element) => element.data['native'] == true);
 
       final orderedSpans = spans.toList()
         ..sort((a, b) => a.startTimestamp.compareTo(b.startTimestamp));
@@ -247,8 +244,8 @@ void main() {
     });
 
     test('ignores invalid spans', () async {
-      final spans = enriched.spans
-          .where((element) => element.data['native'] == true);
+      final spans =
+          enriched.spans.where((element) => element.data['native'] == true);
 
       expect(spans, isNot(contains('failing span')));
     });
