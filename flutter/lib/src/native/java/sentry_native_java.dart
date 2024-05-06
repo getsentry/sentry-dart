@@ -62,6 +62,12 @@ class SentryNativeJava extends SentryNativeChannel {
       if (imageData != null) {
         var timestamp = DateTime.now().millisecondsSinceEpoch;
         var filePath = path.join(cacheDir, "$timestamp.png");
+
+        _options.logger(
+            SentryLevel.debug,
+            'Replay: Saving screenshot to $filePath ('
+            '${image.width}x${image.height} pixels, '
+            '${imageData.lengthInBytes} bytes)');
         await File(filePath).writeAsBytes(imageData.buffer.asUint8List());
 
         try {

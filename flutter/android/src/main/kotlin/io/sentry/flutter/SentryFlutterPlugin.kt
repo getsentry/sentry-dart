@@ -142,7 +142,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
           ReplayIntegration(
             context,
             dateProvider = CurrentDateProvider.getInstance(),
-            recorderProvider = { SentryFlutterReplayRecorder(channel, cacheDirPath) },
+            recorderProvider = { SentryFlutterReplayRecorder(channel, replay) },
             recorderConfigProvider = null,
             replayCacheProvider = null,
           )
