@@ -1,5 +1,8 @@
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
+import 'package:sentry/sentry.dart';
+
+import '../../sentry_flutter.dart';
 
 @internal
 class WidgetFilter {
@@ -9,11 +12,14 @@ class WidgetFilter {
   late double _pixelRatio;
   late Rect _bounds;
   final List<WidgetFilterItem> items = [];
+  final SentryLogger logger;
 
-  WidgetFilter({required this.redactText, required this.redactImages});
+  WidgetFilter(
+      {required this.redactText,
+      required this.redactImages,
+      required this.logger});
 
   void setupAndClear(double pixelRatio, Rect bounds) {
-    print("WidgetFilter setupAndClear()");
     _pixelRatio = pixelRatio;
     _bounds = bounds;
     items.clear();
@@ -23,7 +29,7 @@ class WidgetFilter {
     final widget = element.widget;
 
     if (!_isVisible(widget)) {
-      print("WidgetFilter skipping invisible: $widget");
+      _devlog("WidgetFilter skipping invisible: $widget");
       return;
     }
 
@@ -50,14 +56,14 @@ class WidgetFilter {
 
     final renderObject = element.renderObject;
     if (renderObject is! RenderBox) {
-      print(
+      _devlog(
           "WidgetFilter cannot obscure widget $widget, it's renderObject is not a RenderBox");
       return false;
     }
 
     final size = element.size;
     if (size == null) {
-      print(
+      _devlog(
           "WidgetFilter cannot obscure widget $widget, it's renderObject has a null size");
       return false;
     }
@@ -72,12 +78,12 @@ class WidgetFilter {
     );
 
     if (!rect.overlaps(_bounds)) {
-      print("WidgetFilter skipping offscreen: $widget");
+      _devlog("WidgetFilter skipping offscreen: $widget");
       return false;
     }
 
     items.add(WidgetFilterItem(color ?? _defaultColor, rect));
-    print("WidgetFilter obscuring: $widget");
+    _devlog("WidgetFilter obscuring: $widget");
 
     return true;
   }
@@ -94,6 +100,15 @@ class WidgetFilter {
       return !widget.offstage;
     }
     return true;
+  }
+
+  // Should be completely trimmed out in production builds.
+  @pragma('vm:prefer-inline')
+  void _devlog(String message) {
+    assert(() {
+      logger(SentryLevel.debug, message);
+      return true;
+    }());
   }
 }
 
