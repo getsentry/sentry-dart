@@ -13,6 +13,7 @@ class WidgetFilter {
   late Rect _bounds;
   final List<WidgetFilterItem> items = [];
   final SentryLogger logger;
+  final Set<Widget> _warnedWidgets = {};
 
   WidgetFilter(
       {required this.redactText,
@@ -56,15 +57,13 @@ class WidgetFilter {
 
     final renderObject = element.renderObject;
     if (renderObject is! RenderBox) {
-      _devlog(
-          "WidgetFilter cannot obscure widget $widget, it's renderObject is not a RenderBox");
+      _cantObscure(widget, "it's renderObject is not a RenderBox");
       return false;
     }
 
     final size = element.size;
     if (size == null) {
-      _devlog(
-          "WidgetFilter cannot obscure widget $widget, it's renderObject has a null size");
+      _cantObscure(widget, "it's renderObject has a null size");
       return false;
     }
 
@@ -109,6 +108,15 @@ class WidgetFilter {
       logger(SentryLevel.debug, message);
       return true;
     }());
+  }
+
+  @pragma('vm:prefer-inline')
+  void _cantObscure(Widget widget, String message) {
+    if (!_warnedWidgets.contains(widget)) {
+      _warnedWidgets.add(widget);
+      logger(SentryLevel.warning,
+          "WidgetFilter cannot obscure widget $widget: $message");
+    }
   }
 }
 
