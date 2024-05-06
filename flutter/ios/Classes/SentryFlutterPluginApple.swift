@@ -26,7 +26,11 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 #endif
     }
 
+    private static var pluginRegistrationTime: Int64 = 0
+
     public static func register(with registrar: FlutterPluginRegistrar) {
+        pluginRegistrationTime = Int64(Date().timeIntervalSince1970 * 1000)
+
 #if os(iOS)
         let channel = FlutterMethodChannel(name: "sentry_flutter", binaryMessenger: registrar.messenger())
 #elseif os(macOS)
@@ -394,6 +398,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         let isColdStart = appStartMeasurement.type == .cold
 
         let item: [String: Any] = [
+            "pluginRegistrationTime": SentryFlutterPluginApple.pluginRegistrationTime,
             "appStartTime": appStartTime,
             "isColdStart": isColdStart
         ]
