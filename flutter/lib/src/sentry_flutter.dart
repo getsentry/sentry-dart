@@ -55,13 +55,13 @@ mixin SentryFlutter {
       flutterOptions.rendererWrapper = rendererWrapper;
     }
 
-    final platformDispatcher = PlatformDispatcher.instance;
-    final wrapper = PlatformDispatcherWrapper(platformDispatcher);
-
-    if (platformChecker?.hasNativeIntegration == true) {
+    if (flutterOptions.platformChecker.hasNativeIntegration) {
       final binding = createBinding(flutterOptions.platformChecker, channel);
       _native = SentryNative(flutterOptions, binding);
     }
+
+    final platformDispatcher = PlatformDispatcher.instance;
+    final wrapper = PlatformDispatcherWrapper(platformDispatcher);
 
     // Flutter Web don't capture [Future] errors if using [PlatformDispatcher.onError] and not
     // the [runZonedGuarded].
