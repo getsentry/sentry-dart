@@ -34,7 +34,7 @@ class NativeAppStartEventProcessor implements EventProcessor {
     final appStartEnd = _native.appStartEnd;
     if (!options.autoAppStart) {
       if (appStartEnd != null) {
-        appStartInfo?.setEnd(appStartEnd);
+        appStartInfo?.end = appStartEnd;
       } else {
         // If autoAppStart is disabled and appStartEnd is not set, we can't add app starts
         return event;

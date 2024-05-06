@@ -82,12 +82,13 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
           nativeAppStart.appStartTime.toInt());
       final pluginRegistrationDateTime = DateTime.fromMillisecondsSinceEpoch(
           nativeAppStart.pluginRegistrationTime);
+      DateTime? appStartEndDateTime;
 
       if (options.autoAppStart) {
         // We only assign the current time if it's not already set - this is useful in tests
         // ignore: invalid_use_of_internal_member
         _native.appStartEnd ??= options.clock();
-        final appStartEndDateTime = _native.appStartEnd;
+        appStartEndDateTime = _native.appStartEnd;
 
         final duration = appStartEndDateTime?.difference(appStartDateTime);
 
@@ -103,26 +104,16 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
           setAppStartInfo(null);
           return;
         }
-
-        final appStartInfo = AppStartInfo(
-            nativeAppStart.isColdStart ? AppStartType.cold : AppStartType.warm,
-            start: appStartDateTime,
-            end: appStartEndDateTime,
-            pluginRegistration: pluginRegistrationDateTime,
-            mainIsolateStart: mainIsolateStartDateTime);
-
-        setAppStartInfo(appStartInfo);
-      } else {
-        // We are not adding the app start end time, since it might be set later by the user
-        // through SentryFlutter.setAppStartEnd and is going to be queried in the event processor
-        final appStartInfo = AppStartInfo(
-            nativeAppStart.isColdStart ? AppStartType.cold : AppStartType.warm,
-            start: appStartDateTime,
-            pluginRegistration: pluginRegistrationDateTime,
-            mainIsolateStart: mainIsolateStartDateTime);
-
-        setAppStartInfo(appStartInfo);
       }
+
+      final appStartInfo = AppStartInfo(
+          nativeAppStart.isColdStart ? AppStartType.cold : AppStartType.warm,
+          start: appStartDateTime,
+          end: appStartEndDateTime,
+          pluginRegistration: pluginRegistrationDateTime,
+          mainIsolateStart: mainIsolateStartDateTime);
+
+      setAppStartInfo(appStartInfo);
     });
 
     options.addEventProcessor(NativeAppStartEventProcessor(_native, hub: hub));
@@ -139,25 +130,20 @@ class AppStartInfo {
     required this.start,
     required this.pluginRegistration,
     required this.mainIsolateStart,
-    DateTime? end,
-  }) : _end = end;
+    this.end,
+  });
 
   final AppStartType type;
   final DateTime start;
 
-  // We allow the end to be null, since it might be retrieved later with autoAppStart off
-  DateTime? _end;
-
-  DateTime? get end => _end;
+  // We allow the end to be null, since it might be set at a later time
+  // with setAppStartEnd when autoAppStart is disabled
+  DateTime? end;
 
   final DateTime pluginRegistration;
   final DateTime mainIsolateStart;
 
   Duration? get duration => end?.difference(start);
-
-  void setEnd(DateTime end) {
-    _end = end;
-  }
 
   SentryMeasurement? toMeasurement() {
     final duration = this.duration;
