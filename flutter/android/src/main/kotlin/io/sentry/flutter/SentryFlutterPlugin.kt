@@ -159,12 +159,13 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
       val androidNativeSpans = mutableMapOf<String, Any?>()
 
-      val processInitSpan = TimeSpan().apply {
-        description = "Process Initialization"
-        setStartUnixTimeMs(appStartTimeSpan.startTimestampMs)
-        setStartedAt(appStartTimeSpan.startUptimeMs)
-        setStoppedAt(appStartMetrics.classLoadedUptimeMs)
-      }
+      val processInitSpan =
+        TimeSpan().apply {
+          description = "Process Initialization"
+          setStartUnixTimeMs(appStartTimeSpan.startTimestampMs)
+          setStartedAt(appStartTimeSpan.startUptimeMs)
+          setStoppedAt(appStartMetrics.classLoadedUptimeMs)
+        }
       processInitSpan.addToMap(androidNativeSpans)
 
       val applicationOnCreateSpan = appStartMetrics.applicationOnCreateTimeSpan
@@ -190,10 +191,11 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     if (startTimestamp == null) return
 
     description?.let { description ->
-      map[description] = mapOf<String, Any?>(
-        "startTimestampMsSinceEpoch" to startTimestampMs,
-        "stopTimestampMsSinceEpoch" to projectedStopTimestampMs,
-      )
+      map[description] =
+        mapOf<String, Any?>(
+          "startTimestampMsSinceEpoch" to startTimestampMs,
+          "stopTimestampMsSinceEpoch" to projectedStopTimestampMs,
+        )
     }
   }
 
