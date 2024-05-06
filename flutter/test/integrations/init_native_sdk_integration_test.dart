@@ -3,13 +3,13 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:sentry_flutter/src/integrations/native_sdk_integration.dart';
+import 'package:sentry_flutter/src/native/sentry_native_channel.dart';
 import 'package:sentry_flutter/src/version.dart';
 
 import '../mocks.dart';
 
 void main() {
-  group(NativeSdkIntegration, () {
+  group('initNativeSdk', () {
     late Fixture fixture;
     setUp(() {
       fixture = Fixture();
@@ -25,7 +25,7 @@ void main() {
       });
       var sut = fixture.getSut(channel);
 
-      await sut.call(HubAdapter(), createOptions());
+      await sut.init(createOptions());
 
       channel.setMethodCallHandler(null);
 
@@ -109,7 +109,7 @@ void main() {
       options.sdk.addIntegration('foo');
       options.sdk.addPackage('bar', '1');
 
-      await sut.call(HubAdapter(), options);
+      await sut.init(options);
 
       channel.setMethodCallHandler(null);
 
@@ -151,32 +151,6 @@ void main() {
         'appHangTimeoutIntervalMillis': 9003,
       });
     });
-
-    test('adds integration', () async {
-      final channel = createChannelWithCallback((call) async {});
-      var sut = fixture.getSut(channel);
-
-      final options = createOptions();
-      await sut.call(HubAdapter(), options);
-
-      expect(options.sdk.integrations, ['nativeSdkIntegration']);
-
-      channel.setMethodCallHandler(null);
-    });
-
-    test('integration is not added in case of an exception', () async {
-      final channel = createChannelWithCallback((call) async {
-        throw Exception('foo');
-      });
-      var sut = fixture.getSut(channel);
-
-      final options = createOptions();
-      await sut.call(NoOpHub(), options);
-
-      expect(options.sdk.integrations, <String>[]);
-
-      channel.setMethodCallHandler(null);
-    });
   });
 }
 
@@ -204,7 +178,7 @@ SentryFlutterOptions createOptions() {
 }
 
 class Fixture {
-  NativeSdkIntegration getSut(MethodChannel channel) {
-    return NativeSdkIntegration(channel);
+  SentryNativeChannel getSut(MethodChannel native) {
+    return SentryNativeChannel(native);
   }
 }

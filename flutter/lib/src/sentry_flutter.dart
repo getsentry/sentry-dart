@@ -55,13 +55,13 @@ mixin SentryFlutter {
       flutterOptions.rendererWrapper = rendererWrapper;
     }
 
-    if (flutterOptions.platformChecker.hasNativeIntegration) {
+    final platformDispatcher = PlatformDispatcher.instance;
+    final wrapper = PlatformDispatcherWrapper(platformDispatcher);
+
+    if (platformChecker?.hasNativeIntegration == true) {
       final binding = createBinding(flutterOptions.platformChecker, channel);
       _native = SentryNative(flutterOptions, binding);
     }
-
-    final platformDispatcher = PlatformDispatcher.instance;
-    final wrapper = PlatformDispatcherWrapper(platformDispatcher);
 
     // Flutter Web don't capture [Future] errors if using [PlatformDispatcher.onError] and not
     // the [runZonedGuarded].
@@ -158,8 +158,8 @@ mixin SentryFlutter {
     // The ordering here matters, as we'd like to first start the native integration.
     // That allow us to send events to the network and then the Flutter integrations.
     // Flutter Web doesn't need that, only Android and iOS.
-    if (platformChecker.hasNativeIntegration) {
-      integrations.add(NativeSdkIntegration(channel));
+    if (_native != null) {
+      integrations.add(NativeSdkIntegration(_native!));
     }
 
     // Will enrich events with device context, native packages and integrations
