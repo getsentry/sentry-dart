@@ -30,6 +30,11 @@ class SentryNative {
   /// Flag indicating if app start measurement was added to the first transaction.
   bool didAddAppStartMeasurement = false;
 
+  Future<void> init(SentryFlutterOptions options) async =>
+      _invoke("init", () => _binding.init(options));
+
+  Future<void> close() async => _invoke("close", _binding.close);
+
   /// Fetch [NativeAppStart] from native channels. Can only be called once.
   Future<NativeAppStart?> fetchNativeAppStart() async {
     _didFetchAppStart = true;
