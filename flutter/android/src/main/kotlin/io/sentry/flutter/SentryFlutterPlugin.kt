@@ -72,19 +72,10 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       "setTag" -> setTag(call.argument("key"), call.argument("value"), result)
       "removeTag" -> removeTag(call.argument("key"), result)
       "loadContexts" -> loadContexts(result)
-      "loadNativeData" -> loadNativeData()
       else -> result.notImplemented()
     }
   }
-
-  private fun loadNativeData() {
-    val appStartMetrics = AppStartMetrics.getInstance()
-
-    appStartMetrics.contentProviderOnCreateTimeSpans.forEach {
-      Log.d("noob", it.description.toString())
-    }
-  }
-
+  
   override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
     if (!this::channel.isInitialized) {
       return
