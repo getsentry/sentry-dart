@@ -105,6 +105,10 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   }
 
   final Hub _hub;
+
+  SentryFlutterOptions? get _options => _hub.options is SentryFlutterOptions
+      ? _hub.options as SentryFlutterOptions
+      : null;
   final bool _enableAutoTransactions;
   final Duration _autoFinishAfter;
   final bool _setRouteNameAsTransaction;
@@ -143,10 +147,12 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       to: route.settings,
     );
 
-    // Clearing the display tracker here is safe since didPush happens before the Widget is built
-    _timeToDisplayTracker?.clear();
-    _finishTimeToDisplayTracking();
-    _startTimeToDisplayTracking(route);
+    if (_options?.autoAppStart == true) {
+      // Clearing the display tracker here is safe since didPush happens before the Widget is built
+      _timeToDisplayTracker?.clear();
+      _finishTimeToDisplayTracking();
+      _startTimeToDisplayTracking(route);
+    }
   }
 
   @override
@@ -176,7 +182,9 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       to: previousRoute?.settings,
     );
 
-    _finishTimeToDisplayTracking(clearAfter: true);
+    if (_options?.autoAppStart == true) {
+      _finishTimeToDisplayTracking(clearAfter: true);
+    }
   }
 
   void _addBreadcrumb({
