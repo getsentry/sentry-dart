@@ -7,48 +7,48 @@ void main() {
     var fixture = _Fixture.started();
 
     expect(fixture.calls, 0);
-    await Future.delayed(const Duration(milliseconds: 100), () async {});
+    await Future.delayed(const Duration(milliseconds: 100), () {});
     expect(fixture.calls, 0);
   });
 
-  test('triggers callback after a frame', () {
+  test('triggers callback after a frame', () async {
     var fixture = _Fixture();
     fixture.sut.start();
 
     expect(fixture.calls, 0);
-    fixture.drawFrame();
+    await fixture.drawFrame();
     expect(fixture.calls, 1);
-    fixture.drawFrame();
-    fixture.drawFrame();
-    fixture.drawFrame();
+    await fixture.drawFrame();
+    await fixture.drawFrame();
+    await fixture.drawFrame();
     expect(fixture.calls, 4);
   });
 
-  test('does not trigger when stopped', () {
+  test('does not trigger when stopped', () async {
     var fixture = _Fixture();
     fixture.sut.start();
 
     expect(fixture.calls, 0);
-    fixture.drawFrame();
+    await fixture.drawFrame();
     expect(fixture.calls, 1);
-    fixture.drawFrame();
+    await fixture.drawFrame();
     fixture.sut.stop();
-    fixture.drawFrame();
+    await fixture.drawFrame();
     expect(fixture.calls, 2);
   });
 
-  test('triggers after a restart', () {
+  test('triggers after a restart', () async {
     var fixture = _Fixture();
     fixture.sut.start();
 
     expect(fixture.calls, 0);
-    fixture.drawFrame();
+    await fixture.drawFrame();
     expect(fixture.calls, 1);
     fixture.sut.stop();
-    fixture.drawFrame();
+    await fixture.drawFrame();
     expect(fixture.calls, 1);
     fixture.sut.start();
-    fixture.drawFrame();
+    await fixture.drawFrame();
     expect(fixture.calls, 2);
   });
 }
@@ -56,7 +56,7 @@ void main() {
 class _Fixture {
   var calls = 0;
   late final Scheduler sut;
-  late FrameCallback registeredCallback;
+  FrameCallback? registeredCallback;
   var _frames = 0;
 
   _Fixture() {
@@ -73,8 +73,10 @@ class _Fixture {
     return _Fixture()..sut.start();
   }
 
-  void drawFrame() {
+  Future<void> drawFrame() async {
+    await Future.delayed(const Duration(milliseconds: 8), () {});
     _frames++;
-    registeredCallback(Duration(milliseconds: _frames));
+    registeredCallback!(Duration(milliseconds: _frames));
+    registeredCallback = null;
   }
 }
