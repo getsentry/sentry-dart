@@ -3,6 +3,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/src/replay/scheduler.dart';
 
 void main() {
+  test('defaults to the correct binding', () async {
+    var factory = () => Scheduler(const Duration(seconds: 1), (_) async {});
+    expect(factory, throwsAssertionError);
+    TestWidgetsFlutterBinding.ensureInitialized();
+    expect(factory, isNotNull);
+  });
+
   test('does not trigger callback between frames', () async {
     var fixture = _Fixture.started();
 
