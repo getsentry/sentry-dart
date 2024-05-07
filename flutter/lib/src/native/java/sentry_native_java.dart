@@ -19,33 +19,38 @@ class SentryNativeJava extends SentryNativeChannel {
 
   @override
   Future<void> init(SentryFlutterOptions options) async {
-    _options = options;
-    channel.setMethodCallHandler((call) async {
-      switch (call.method) {
-        case 'ReplayRecorder.start':
-          _startRecorder(
-            call.arguments['directory'] as String,
-            ScreenshotRecorderConfig(
-              width: call.arguments['width'] as int,
-              height: call.arguments['height'] as int,
-              frameRate: call.arguments['frameRate'] as int,
-            ),
-          );
-          break;
-        case 'ReplayRecorder.stop':
-          _replayRecorder?.stop();
-          _replayRecorder = null;
-          break;
-        case 'ReplayRecorder.pause':
-          _replayRecorder?.stop();
-          break;
-        case 'ReplayRecorder.resume':
-          _replayRecorder?.start();
-          break;
-        default:
-          throw UnimplementedError('Method ${call.method} not implemented');
-      }
-    });
+    // We only need these when replay is enabled so let's set it up
+    // conditionally. This allows Dart to trim the code.
+    if (options.experimental.replay.isEnabled) {
+      _options = options;
+      channel.setMethodCallHandler((call) async {
+        switch (call.method) {
+          case 'ReplayRecorder.start':
+            _startRecorder(
+              call.arguments['directory'] as String,
+              ScreenshotRecorderConfig(
+                width: call.arguments['width'] as int,
+                height: call.arguments['height'] as int,
+                frameRate: call.arguments['frameRate'] as int,
+              ),
+            );
+            break;
+          case 'ReplayRecorder.stop':
+            _replayRecorder?.stop();
+            _replayRecorder = null;
+            break;
+          case 'ReplayRecorder.pause':
+            _replayRecorder?.stop();
+            break;
+          case 'ReplayRecorder.resume':
+            _replayRecorder?.start();
+            break;
+          default:
+            throw UnimplementedError('Method ${call.method} not implemented');
+        }
+      });
+    }
+
     return super.init(options);
   }
 
