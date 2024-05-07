@@ -105,10 +105,6 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   }
 
   final Hub _hub;
-
-  SentryFlutterOptions? get _options => _hub.options is SentryFlutterOptions
-      ? _hub.options as SentryFlutterOptions
-      : null;
   final bool _enableAutoTransactions;
   final Duration _autoFinishAfter;
   final bool _setRouteNameAsTransaction;
