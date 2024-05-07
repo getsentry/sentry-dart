@@ -114,6 +114,70 @@ void main() {
       expect(appStartInfo?.start, DateTime.fromMillisecondsSinceEpoch(0));
       expect(appStartInfo?.end, DateTime.fromMillisecondsSinceEpoch(10));
     });
+
+    test(
+        'autoAppStart is false and appStartEnd is not set does not add app start measurement',
+        () async {
+      fixture.options.autoAppStart = false;
+      fixture.binding.nativeAppStart = NativeAppStart(
+          appStartTime: 0, pluginRegistrationTime: 10, isColdStart: true);
+
+      fixture.getNativeAppStartIntegration().call(fixture.hub, fixture.options);
+
+      final tracer = fixture.createTracer();
+      final transaction = SentryTransaction(tracer);
+
+      final processor = fixture.options.eventProcessors.first;
+      final enriched =
+          await processor.apply(transaction, Hint()) as SentryTransaction;
+
+      expect(enriched.measurements.isEmpty, true);
+      expect(enriched.spans.isEmpty, true);
+    });
+
+    test(
+        'autoAppStart is false and appStartEnd is set adds app start measurement',
+        () async {
+      fixture.options.autoAppStart = false;
+      fixture.binding.nativeAppStart = NativeAppStart(
+          appStartTime: 0, pluginRegistrationTime: 10, isColdStart: true);
+      SentryFlutter.native = fixture.native;
+
+      fixture.getNativeAppStartIntegration().call(fixture.hub, fixture.options);
+
+      SentryFlutter.setAppStartEnd(DateTime.fromMillisecondsSinceEpoch(10));
+
+      final tracer = fixture.createTracer();
+      final transaction = SentryTransaction(tracer);
+
+      final processor = fixture.options.eventProcessors.first;
+      final enriched =
+          await processor.apply(transaction, Hint()) as SentryTransaction;
+
+      final measurement = enriched.measurements['app_start_cold']!;
+      expect(measurement.value, 10);
+      expect(measurement.unit, DurationSentryMeasurementUnit.milliSecond);
+
+      final appStartInfo = await NativeAppStartIntegration.getAppStartInfo();
+
+      final appStartSpan = enriched.spans.firstWhereOrNull((element) =>
+          element.context.description == appStartInfo!.appStartTypeDescription);
+      final pluginRegistrationSpan = enriched.spans.firstWhereOrNull(
+          (element) =>
+              element.context.description ==
+              appStartInfo!.pluginRegistrationDescription);
+      final mainIsolateSetupSpan = enriched.spans.firstWhereOrNull((element) =>
+          element.context.description ==
+          appStartInfo!.mainIsolateSetupDescription);
+      final firstFrameRenderSpan = enriched.spans.firstWhereOrNull((element) =>
+          element.context.description ==
+          appStartInfo!.firstFrameRenderDescription);
+
+      expect(appStartSpan, isNotNull);
+      expect(pluginRegistrationSpan, isNotNull);
+      expect(mainIsolateSetupSpan, isNotNull);
+      expect(firstFrameRenderSpan, isNotNull);
+    });
   });
 
   group('App start spans', () {
