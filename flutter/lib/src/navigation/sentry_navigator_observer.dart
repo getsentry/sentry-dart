@@ -147,12 +147,10 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       to: route.settings,
     );
 
-    if (_options?.autoAppStart == true) {
-      // Clearing the display tracker here is safe since didPush happens before the Widget is built
-      _timeToDisplayTracker?.clear();
-      _finishTimeToDisplayTracking();
-      _startTimeToDisplayTracking(route);
-    }
+    // Clearing the display tracker here is safe since didPush happens before the Widget is built
+    _timeToDisplayTracker?.clear();
+    _finishTimeToDisplayTracking();
+    _startTimeToDisplayTracking(route);
   }
 
   @override
@@ -182,9 +180,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       to: previousRoute?.settings,
     );
 
-    if (_options?.autoAppStart == true) {
-      _finishTimeToDisplayTracking(clearAfter: true);
-    }
+    _finishTimeToDisplayTracking(clearAfter: true);
   }
 
   void _addBreadcrumb({
