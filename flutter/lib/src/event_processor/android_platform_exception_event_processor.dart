@@ -153,11 +153,14 @@ extension on JvmException {
     String? module;
     final typeParts = type?.split('.');
     if (typeParts != null) {
-      if (typeParts.length > 1) {
+      if (typeParts.isNotEmpty) {
         exceptionType = typeParts.last;
       }
       typeParts.remove(typeParts.last);
-      module = typeParts.join('.');
+
+      if (typeParts.isNotEmpty) {
+        module = typeParts.join('.');
+      }
     }
     final stackFrames = stackTrace.asMap().entries.map((entry) {
       return entry.value.toSentryStackFrame(entry.key, nativePackageName);
