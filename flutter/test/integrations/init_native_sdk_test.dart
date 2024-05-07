@@ -108,8 +108,8 @@ void main() {
       ..connectionTimeout = Duration(milliseconds: 9001)
       ..readTimeout = Duration(milliseconds: 9002)
       ..appHangTimeoutInterval = Duration(milliseconds: 9003)
-      ..replay.sessionSampleRate = 0.1
-      ..replay.errorSampleRate = 0.2;
+      ..experimental.replay.sessionSampleRate = 0.1
+      ..experimental.replay.errorSampleRate = 0.2;
 
     options.sdk.addIntegration('foo');
     options.sdk.addPackage('bar', '1');

@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:meta/meta.dart';
+import 'package:meta/meta.dart' as meta;
 import 'package:sentry/sentry.dart';
 import 'package:flutter/widgets.dart';
 
@@ -204,14 +204,14 @@ class SentryFlutterOptions extends SentryOptions {
   /// Sets the Proguard uuid for Android platform.
   String? proguardUuid;
 
-  @internal
+  @meta.internal
   late RendererWrapper rendererWrapper = RendererWrapper();
 
   /// Enables the View Hierarchy feature.
   ///
   /// Renders an ASCII represention of the entire view hierarchy of the
   /// application when an error happens and includes it as an attachment.
-  @experimental
+  @meta.experimental
   bool attachViewHierarchy = false;
 
   /// When enabled, the SDK tracks when the application stops responding for a
@@ -281,14 +281,14 @@ class SentryFlutterOptions extends SentryOptions {
   }
 
   /// Setting this to a custom [BindingWrapper] allows you to use a custom [WidgetsBinding].
-  @experimental
+  @meta.experimental
   BindingWrapper bindingUtils = BindingWrapper();
 
   /// The sample rate for profiling traces in the range of 0.0 to 1.0.
   /// This is relative to tracesSampleRate - it is a ratio of profiled traces out of all sampled traces.
   /// At the moment, only apps targeting iOS and macOS are supported.
   @override
-  @experimental
+  @meta.experimental
   double? get profilesSampleRate {
     // ignore: invalid_use_of_internal_member
     return super.profilesSampleRate;
@@ -298,7 +298,7 @@ class SentryFlutterOptions extends SentryOptions {
   /// This is relative to tracesSampleRate - it is a ratio of profiled traces out of all sampled traces.
   /// At the moment, only apps targeting iOS and macOS are supported.
   @override
-  @experimental
+  @meta.experimental
   set profilesSampleRate(double? value) {
     // ignore: invalid_use_of_internal_member
     super.profilesSampleRate = value;
@@ -307,9 +307,16 @@ class SentryFlutterOptions extends SentryOptions {
   /// The [navigatorKey] is used to add information of the currently used locale to the contexts.
   GlobalKey<NavigatorState>? navigatorKey;
 
-  /// Configuration of the experimental replay feature.
-  @experimental
-  final SentryReplayOptions replay = SentryReplayOptions();
+  /// Configuration of experimental features that may change or be removed
+  /// without prior notice. Additionally, these features may not be ready for
+  /// production use yet.
+  @meta.experimental
+  final experimental = _SentryFlutterExperimentalOptions();
+}
+
+class _SentryFlutterExperimentalOptions {
+  /// Replay recording configuration.
+  final replay = SentryReplayOptions();
 }
 
 /// Callback being executed in [ScreenshotEventProcessor], deciding if a

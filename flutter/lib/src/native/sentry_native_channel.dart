@@ -57,8 +57,8 @@ class SentryNativeChannel implements SentryNativeBinding {
         'appHangTimeoutIntervalMillis':
             options.appHangTimeoutInterval.inMilliseconds,
         'replay': <String, dynamic>{
-          'sessionSampleRate': options.replay.sessionSampleRate,
-          'errorSampleRate': options.replay.errorSampleRate,
+          'sessionSampleRate': options.experimental.replay.sessionSampleRate,
+          'errorSampleRate': options.experimental.replay.errorSampleRate,
         },
       });
 
