@@ -30,7 +30,10 @@ class WidgetFilter {
     final widget = element.widget;
 
     if (!_isVisible(widget)) {
-      _devlog("WidgetFilter skipping invisible: $widget");
+      assert(() {
+        logger(SentryLevel.debug, "WidgetFilter skipping invisible: $widget");
+        return true;
+      }());
       return;
     }
 
@@ -77,12 +80,18 @@ class WidgetFilter {
     );
 
     if (!rect.overlaps(_bounds)) {
-      _devlog("WidgetFilter skipping offscreen: $widget");
+      assert(() {
+        logger(SentryLevel.debug, "WidgetFilter skipping offscreen: $widget");
+        return true;
+      }());
       return false;
     }
 
     items.add(WidgetFilterItem(color ?? _defaultColor, rect));
-    _devlog("WidgetFilter obscuring: $widget");
+    assert(() {
+      logger(SentryLevel.debug, "WidgetFilter obscuring: $widget");
+      return true;
+    }());
 
     return true;
   }
@@ -99,15 +108,6 @@ class WidgetFilter {
       return !widget.offstage;
     }
     return true;
-  }
-
-  // Should be completely trimmed out in production builds.
-  @pragma('vm:prefer-inline')
-  void _devlog(String message) {
-    assert(() {
-      logger(SentryLevel.debug, message);
-      return true;
-    }());
   }
 
   @pragma('vm:prefer-inline')

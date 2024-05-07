@@ -7,7 +7,7 @@ import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
 import 'recorder_config.dart';
-import 'recorder_widget_filter.dart';
+import 'widget_filter.dart';
 import 'scheduler.dart';
 
 @internal
