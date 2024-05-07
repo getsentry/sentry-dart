@@ -6,11 +6,11 @@ import 'package:sentry_flutter/src/replay/scheduler.dart';
 
 void main() {
   group('$Scheduler', () {
-    test('does not trigger callback between frames', () {
+    test('does not trigger callback between frames', () async {
       var fixture = _Fixture.started();
 
       expect(fixture.calls, 0);
-      sleep(const Duration(milliseconds: 100));
+      await Future.delayed(const Duration(milliseconds: 100), () async {});
       expect(fixture.calls, 0);
     });
 
