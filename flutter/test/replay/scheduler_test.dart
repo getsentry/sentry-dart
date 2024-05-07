@@ -3,55 +3,53 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/src/replay/scheduler.dart';
 
 void main() {
-  group('$Scheduler', () {
-    test('does not trigger callback between frames', () async {
-      var fixture = _Fixture.started();
+  test('does not trigger callback between frames', () async {
+    var fixture = _Fixture.started();
 
-      expect(fixture.calls, 0);
-      await Future.delayed(const Duration(milliseconds: 100), () async {});
-      expect(fixture.calls, 0);
-    });
+    expect(fixture.calls, 0);
+    await Future.delayed(const Duration(milliseconds: 100), () async {});
+    expect(fixture.calls, 0);
+  });
 
-    test('triggers callback after a frame', () {
-      var fixture = _Fixture();
-      fixture.sut.start();
+  test('triggers callback after a frame', () {
+    var fixture = _Fixture();
+    fixture.sut.start();
 
-      expect(fixture.calls, 0);
-      fixture.drawFrame();
-      expect(fixture.calls, 1);
-      fixture.drawFrame();
-      fixture.drawFrame();
-      fixture.drawFrame();
-      expect(fixture.calls, 4);
-    });
+    expect(fixture.calls, 0);
+    fixture.drawFrame();
+    expect(fixture.calls, 1);
+    fixture.drawFrame();
+    fixture.drawFrame();
+    fixture.drawFrame();
+    expect(fixture.calls, 4);
+  });
 
-    test('does not trigger when stopped', () {
-      var fixture = _Fixture();
-      fixture.sut.start();
+  test('does not trigger when stopped', () {
+    var fixture = _Fixture();
+    fixture.sut.start();
 
-      expect(fixture.calls, 0);
-      fixture.drawFrame();
-      expect(fixture.calls, 1);
-      fixture.drawFrame();
-      fixture.sut.stop();
-      fixture.drawFrame();
-      expect(fixture.calls, 2);
-    });
+    expect(fixture.calls, 0);
+    fixture.drawFrame();
+    expect(fixture.calls, 1);
+    fixture.drawFrame();
+    fixture.sut.stop();
+    fixture.drawFrame();
+    expect(fixture.calls, 2);
+  });
 
-    test('triggers after a restart', () {
-      var fixture = _Fixture();
-      fixture.sut.start();
+  test('triggers after a restart', () {
+    var fixture = _Fixture();
+    fixture.sut.start();
 
-      expect(fixture.calls, 0);
-      fixture.drawFrame();
-      expect(fixture.calls, 1);
-      fixture.sut.stop();
-      fixture.drawFrame();
-      expect(fixture.calls, 1);
-      fixture.sut.start();
-      fixture.drawFrame();
-      expect(fixture.calls, 2);
-    });
+    expect(fixture.calls, 0);
+    fixture.drawFrame();
+    expect(fixture.calls, 1);
+    fixture.sut.stop();
+    fixture.drawFrame();
+    expect(fixture.calls, 1);
+    fixture.sut.start();
+    fixture.drawFrame();
+    expect(fixture.calls, 2);
   });
 }
 
