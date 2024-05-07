@@ -1,4 +1,5 @@
 import 'package:flutter/rendering.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:meta/meta.dart';
 
 @internal
@@ -17,7 +18,15 @@ class Scheduler {
   bool _running = false;
   bool _scheduled = false;
 
-  Scheduler(this._interval, this._callback);
+  final void Function(FrameCallback callback, {String debugLabel})
+      _addPostFrameCallback;
+
+  Scheduler(this._interval, this._callback)
+      : _addPostFrameCallback = RendererBinding.instance.addPostFrameCallback;
+
+  @visibleForTesting
+  Scheduler.withCustomFrameTiming(
+      this._interval, this._callback, this._addPostFrameCallback);
 
   void start() {
     _running = true;
@@ -30,6 +39,7 @@ class Scheduler {
     _running = false;
   }
 
+  @pragma('vm:prefer-inline')
   void _scheduleNext() {
     if (!_scheduled) {
       _scheduled = true;
@@ -37,8 +47,9 @@ class Scheduler {
     }
   }
 
+  @pragma('vm:prefer-inline')
   void _runAfterNextFrame() {
-    RendererBinding.instance.addPostFrameCallback(_run);
+    _addPostFrameCallback(_run);
   }
 
   void _run(Duration sinceSchedulerEpoch) {
