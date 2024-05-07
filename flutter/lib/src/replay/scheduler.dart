@@ -18,8 +18,7 @@ class Scheduler {
   bool _running = false;
   bool _scheduled = false;
 
-  final void Function(FrameCallback callback, {String debugLabel})
-      _addPostFrameCallback;
+  final void Function(FrameCallback callback) _addPostFrameCallback;
 
   Scheduler(this._interval, this._callback)
       : _addPostFrameCallback = RendererBinding.instance.addPostFrameCallback;

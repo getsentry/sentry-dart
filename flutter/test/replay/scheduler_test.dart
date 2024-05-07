@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/src/replay/scheduler.dart';
