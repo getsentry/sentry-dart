@@ -4,7 +4,7 @@ set -euo pipefail
 cd $(dirname "$0")/../ios
 file='sentry_flutter.podspec'
 content=$(cat $file)
-regex="('Sentry/HybridSDK', *)'([0-9\.]+)'"
+regex="('Sentry/HybridSDK', *)'([0-9\.]+(\-[a-z0-9\.]+)?)'"
 if ! [[ $content =~ $regex ]]; then
     echo "Failed to find the plugin version in $file"
     exit 1
