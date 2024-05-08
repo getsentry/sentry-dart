@@ -63,7 +63,6 @@ class Fixture {
     hub = Hub(_options);
 
     return SentryScreenshotWidget(
-      hub: hub,
       child: MaterialApp(home: MyApp()),
     );
   }
