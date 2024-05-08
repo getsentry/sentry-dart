@@ -6,12 +6,12 @@ on:
       - release/**
   pull_request:
     paths:
-      - ".github/workflows/flutter.yml"
-      - "!**/*.md"
-      - "!**/class-diagram.svg"
-      - "dart/**"
-      - "flutter/**"
-      - "metrics/flutter.properties"
+      - '.github/workflows/flutter.yml'
+      - '!**/*.md'
+      - '!**/class-diagram.svg'
+      - 'dart/**'
+      - 'flutter/**'
+      - 'metrics/flutter.properties'
 
 jobs:
   cancel-previous-workflow:
@@ -23,8 +23,8 @@ jobs:
           access_token: ${{ github.token }}
 
   build:
-    name: "${{ matrix.target }} | ${{ matrix.os }} | ${{ matrix.sdk }}"
-    runs-on: ${{ matrix.os }}
+    name: '${{ matrix.target }} | ${{ matrix.os }} | ${{ matrix.sdk }}'
+    runs-on: ${{ matrix.os }}-latest
     timeout-minutes: 30
     defaults:
       run:
@@ -32,38 +32,21 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        target: ["ios", "android", "web", "macos", "linux", "windows"]
-        sdk: ["stable", "beta"]
-        exclude:
-          - os: ubuntu-latest
-            target: ios
-          - os: ubuntu-latest
-            target: macos
-          - os: ubuntu-latest
-            target: windows
-          - os: windows-latest
-            target: ios
-          - os: windows-latest
-            target: android
-          - os: windows-latest
-            target: web
-          - os: windows-latest
-            target: macos
-          - os: windows-latest
+        os: [ubuntu, windows, macos]
+        sdk: [stable, beta]
+        include:
+          - os: ubuntu
             target: linux
-          # macos-latest is taking hours due to limited resources
-          - os: macos-latest
-            target: android
-          - os: macos-latest
+          - os: ubuntu
             target: web
-          - os: macos-latest
-            target: linux
-          - os: macos-latest
+          - os: ubuntu
+            target: android
+          - os: windows
             target: windows
-          # Bad CPU type in executable
-          - os: macos-latest
-            sdk: beta
+          - os: macos
+            target: macos
+          - os: macos
+            target: ios
 
     steps:
       - uses: actions/checkout@v4
@@ -71,16 +54,16 @@ jobs:
       - uses: actions/setup-java@v4
         if: ${{ matrix.target == 'android' }}
         with:
-          java-version: "11"
-          distribution: "adopt"
+          java-version: '11'
+          distribution: 'adopt'
 
       # Install required dependencies for Flutter on Linux on Ubuntu
-      - name: "Setup Linux"
+      - name: 'Setup Linux'
         run: |
           sudo apt update
           sudo apt install -y cmake dbus libblkid-dev libgtk-3-dev liblzma-dev ninja-build pkg-config xvfb
           sudo apt install -y network-manager upower
-        if: matrix.os == 'ubuntu-latest' && matrix.target == 'linux'
+        if: matrix.target == 'linux'
 
       - uses: subosito/flutter-action@44ac965b96f18d999802d4b807e3256d5a3f9fa1 # pin@v2.16.0
         with:
@@ -94,11 +77,11 @@ jobs:
           flutter pub get
 
       - name: Test chrome
-        if: runner.os == 'Linux'
+        if: matrix.target == 'web'
         run: |
           cd flutter
           flutter test --platform chrome --test-randomize-ordering-seed=random --exclude-tags canvasKit
-          flutter test --platform chrome --test-randomize-ordering-seed=random --tags canvasKit --web-renderer canvaskit          
+          flutter test --platform chrome --test-randomize-ordering-seed=random --tags canvasKit --web-renderer canvaskit
 
       - name: Test VM with coverage
         run: |
@@ -107,18 +90,18 @@ jobs:
           dart run remove_from_coverage -f coverage/lcov.info -r 'binding.dart'
 
       - uses: codecov/codecov-action@5ecb98a3c6b747ed38dc09f787459979aebb39be # pin@v3
-        if: runner.os == 'Linux' && matrix.sdk == 'stable' && matrix.target == 'linux'
+        if: matrix.sdk == 'stable' && matrix.target == 'linux'
         with:
           name: sentry_flutter
           file: ./flutter/coverage/lcov.info
-          functionalities: "search" # remove after https://github.com/codecov/codecov-action/issues/600
+          functionalities: 'search' # remove after https://github.com/codecov/codecov-action/issues/600
 
       - uses: VeryGoodOpenSource/very_good_coverage@c953fca3e24a915e111cc6f55f03f756dcb3964c # pin@v3.0.0
-        if: runner.os == 'Linux' && matrix.sdk == 'stable' && matrix.target == 'linux'
+        if: matrix.sdk == 'stable' && matrix.target == 'linux'
         with:
-          path: "./flutter/coverage/lcov.info"
+          path: './flutter/coverage/lcov.info'
           min_coverage: 90
-          exclude: "lib/src/native/cocoa/binding.dart"
+          exclude: 'lib/src/native/cocoa/binding.dart'
 
       - name: Build ${{ matrix.target }}
         run: |
