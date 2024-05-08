@@ -4,7 +4,7 @@
 
 ### Fixes
 
-- Event processor blocking transactions from being sent if `autoAppStart` is false ([#2028](https://github.com/getsentry/sentry-dart/pull/2028))
+- Event processor blocking transactions from being sent if `autoAppStart` is false ([#2045](https://github.com/getsentry/sentry-dart/pull/2045))
 
 ## 7.20.1
 
