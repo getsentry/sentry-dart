@@ -85,6 +85,7 @@ jobs:
           flutter test --platform chrome --test-randomize-ordering-seed=random --tags canvasKit --web-renderer canvaskit
 
       - name: Test VM with coverage
+        if: matrix.target == 'linux' || matrix.target == 'macos' || matrix.target == 'windows'
         run: |
           cd flutter
           flutter test --coverage --test-randomize-ordering-seed=random
