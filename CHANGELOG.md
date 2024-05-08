@@ -6,25 +6,7 @@
 
 - Event processor blocking transactions from being sent if `autoAppStart` is false ([#2028](https://github.com/getsentry/sentry-dart/pull/2028))
 
-### Features
-
-- Adds app start spans to first transaction ([#2009](https://github.com/getsentry/sentry-dart/pull/2009))
-
-### Fixes
-
-- Fix `PlatformException` title parsing ([#2033](https://github.com/getsentry/sentry-dart/pull/2033))
-
-## 8.1.0
-
-### Features
-
-- Set snapshot to `true` if stacktrace is not provided ([#2000](https://github.com/getsentry/sentry-dart/pull/2000))
-  - If the stacktrace is not provided, the Sentry SDK will fetch the current stacktrace via `StackTrace.current` and the snapshot will be set to `true` - **this may change the grouping behavior**
-  - `snapshot = true` means it's a synthetic exception, reflecting the current state of the thread rather than the stack trace of a real exception
-
-### Fixes
-
-- Timing metric aggregates metrics in the created span ([#1994](https://github.com/getsentry/sentry-dart/pull/1994))
+## 7.20.1
 
 ### Dependencies
 
