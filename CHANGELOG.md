@@ -2,10 +2,18 @@
 
 ## Unreleased
 
+### Fixes
+
+- Event processor blocking transactions from being sent if `autoAppStart` is false ([#2028](https://github.com/getsentry/sentry-dart/pull/2028))
+
 ### Features
 
 - Adds native spans to app start transaction ([#2027](https://github.com/getsentry/sentry-dart/pull/2027))
 - Adds app start spans to first transaction ([#2009](https://github.com/getsentry/sentry-dart/pull/2009))
+
+### Fixes
+
+- Fix `PlatformException` title parsing ([#2033](https://github.com/getsentry/sentry-dart/pull/2033))
 
 ## 8.1.0
 
