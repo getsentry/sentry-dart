@@ -399,6 +399,7 @@ class Fixture {
   Fixture() {
     native.reset();
     when(hub.options).thenReturn(options);
+    SentryFlutter.sentrySetupStartTime = DateTime.now().toUtc();
   }
 
   NativeAppStartIntegration getNativeAppStartIntegration() {
