@@ -82,14 +82,14 @@ class NativeAppStartEventProcessor implements EventProcessor {
         startTimestamp: appStartInfo.start,
         endTimestamp: appStartInfo.pluginRegistration);
 
-    final mainIsolateSetupSpan = await _createAndFinishSpan(
+    final sentrySetupSpan = await _createAndFinishSpan(
         tracer: transaction,
         operation: appStartInfo.appStartTypeOperation,
-        description: appStartInfo.mainIsolateSetupDescription,
+        description: appStartInfo.sentrySetupDescription,
         parentSpanId: appStartSpan.context.spanId,
         traceId: transactionTraceId,
         startTimestamp: appStartInfo.pluginRegistration,
-        endTimestamp: appStartInfo.mainIsolateStart);
+        endTimestamp: appStartInfo.sentrySetupStart);
 
     final firstFrameRenderSpan = await _createAndFinishSpan(
         tracer: transaction,
@@ -97,13 +97,13 @@ class NativeAppStartEventProcessor implements EventProcessor {
         description: appStartInfo.firstFrameRenderDescription,
         parentSpanId: appStartSpan.context.spanId,
         traceId: transactionTraceId,
-        startTimestamp: appStartInfo.mainIsolateStart,
+        startTimestamp: appStartInfo.sentrySetupStart,
         endTimestamp: appStartEnd);
 
     transaction.children.addAll([
       appStartSpan,
       pluginRegistrationSpan,
-      mainIsolateSetupSpan,
+      sentrySetupSpan,
       firstFrameRenderSpan
     ]);
   }

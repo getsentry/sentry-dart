@@ -64,7 +64,7 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
         end: DateTime.now().add(const Duration(milliseconds: 100)),
         pluginRegistration:
             DateTime.now().add(const Duration(milliseconds: 50)),
-        mainIsolateStart: DateTime.now().add(const Duration(milliseconds: 60)),
+        sentrySetupStart: DateTime.now().add(const Duration(milliseconds: 60)),
         nativeSpanTimes: [],
       );
       setAppStartInfo(appStartInfo);
@@ -82,7 +82,12 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
         return;
       }
 
-      final mainIsolateStartDateTime = SentryFlutter.mainIsolateStartTime;
+      final sentrySetupStartDateTime = SentryFlutter.sentrySetupStartTime;
+      if (sentrySetupStartDateTime == null) {
+        setAppStartInfo(null);
+        return;
+      }
+
       final appStartDateTime = DateTime.fromMillisecondsSinceEpoch(
           nativeAppStart.appStartTime.toInt());
       final pluginRegistrationDateTime = DateTime.fromMillisecondsSinceEpoch(
@@ -140,7 +145,7 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
           start: appStartDateTime,
           end: appStartEndDateTime,
           pluginRegistration: pluginRegistrationDateTime,
-          mainIsolateStart: mainIsolateStartDateTime,
+          sentrySetupStart: sentrySetupStartDateTime,
           nativeSpanTimes: nativeSpanTimes);
 
       setAppStartInfo(appStartInfo);
@@ -159,7 +164,7 @@ class AppStartInfo {
     this.type, {
     required this.start,
     required this.pluginRegistration,
-    required this.mainIsolateStart,
+    required this.sentrySetupStart,
     required this.nativeSpanTimes,
     this.end,
   });
@@ -173,7 +178,7 @@ class AppStartInfo {
   DateTime? end;
 
   final DateTime pluginRegistration;
-  final DateTime mainIsolateStart;
+  final DateTime sentrySetupStart;
 
   Duration? get duration => end?.difference(start);
 
@@ -192,7 +197,7 @@ class AppStartInfo {
   String get appStartTypeDescription =>
       type == AppStartType.cold ? 'Cold start' : 'Warm start';
   final pluginRegistrationDescription = 'App start to plugin registration';
-  final mainIsolateSetupDescription = 'Main isolate setup';
+  final sentrySetupDescription = 'Before Sentry Init Setup';
   final firstFrameRenderDescription = 'First frame render';
 }
 

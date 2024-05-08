@@ -187,16 +187,16 @@ void main() {
           (element) =>
               element.context.description ==
               appStartInfo!.pluginRegistrationDescription);
-      final mainIsolateSetupSpan = enriched.spans.firstWhereOrNull((element) =>
+      final sentrySetupSpan = enriched.spans.firstWhereOrNull((element) =>
           element.context.description ==
-          appStartInfo!.mainIsolateSetupDescription);
+          appStartInfo!.sentrySetupDescription);
       final firstFrameRenderSpan = enriched.spans.firstWhereOrNull((element) =>
           element.context.description ==
           appStartInfo!.firstFrameRenderDescription);
 
       expect(appStartSpan, isNotNull);
       expect(pluginRegistrationSpan, isNotNull);
-      expect(mainIsolateSetupSpan, isNotNull);
+      expect(sentrySetupSpan, isNotNull);
       expect(firstFrameRenderSpan, isNotNull);
     });
   });
@@ -204,7 +204,7 @@ void main() {
   group('App start spans', () {
     late SentrySpan? coldStartSpan,
         pluginRegistrationSpan,
-        mainIsolateSetupSpan,
+        sentrySetupSpan,
         firstFrameRenderSpan;
     // ignore: invalid_use_of_internal_member
     late SentryTracer tracer;
@@ -255,7 +255,7 @@ void main() {
           isColdStart: true,
           nativeSpanTimes: allNativeSpanTimes);
       // dartLoadingEnd needs to be set after engine end (see MockNativeChannel)
-      SentryFlutter.mainIsolateStartTime =
+      SentryFlutter.sentrySetupStartTime =
           DateTime.fromMillisecondsSinceEpoch(15);
 
       fixture.getNativeAppStartIntegration().call(fixture.hub, fixture.options);
@@ -273,9 +273,9 @@ void main() {
       pluginRegistrationSpan = enriched.spans.firstWhereOrNull((element) =>
           element.context.description ==
           appStartInfo?.pluginRegistrationDescription);
-      mainIsolateSetupSpan = enriched.spans.firstWhereOrNull((element) =>
+      sentrySetupSpan = enriched.spans.firstWhereOrNull((element) =>
           element.context.description ==
-          appStartInfo?.mainIsolateSetupDescription);
+          appStartInfo?.sentrySetupDescription);
       firstFrameRenderSpan = enriched.spans.firstWhereOrNull((element) =>
           element.context.description ==
           appStartInfo?.firstFrameRenderDescription);
@@ -335,7 +335,7 @@ void main() {
     test('are added by event processor', () async {
       expect(coldStartSpan, isNotNull);
       expect(pluginRegistrationSpan, isNotNull);
-      expect(mainIsolateSetupSpan, isNotNull);
+      expect(sentrySetupSpan, isNotNull);
       expect(firstFrameRenderSpan, isNotNull);
     });
 
@@ -343,7 +343,7 @@ void main() {
       const op = 'app.start.cold';
       expect(coldStartSpan?.context.operation, op);
       expect(pluginRegistrationSpan?.context.operation, op);
-      expect(mainIsolateSetupSpan?.context.operation, op);
+      expect(sentrySetupSpan?.context.operation, op);
       expect(firstFrameRenderSpan?.context.operation, op);
     });
 
@@ -351,7 +351,7 @@ void main() {
       expect(coldStartSpan?.context.parentSpanId, tracer.context.spanId);
       expect(pluginRegistrationSpan?.context.parentSpanId,
           coldStartSpan?.context.spanId);
-      expect(mainIsolateSetupSpan?.context.parentSpanId,
+      expect(sentrySetupSpan?.context.parentSpanId,
           coldStartSpan?.context.spanId);
       expect(firstFrameRenderSpan?.context.parentSpanId,
           coldStartSpan?.context.spanId);
@@ -361,7 +361,7 @@ void main() {
       final traceId = tracer.context.traceId;
       expect(coldStartSpan?.context.traceId, traceId);
       expect(pluginRegistrationSpan?.context.traceId, traceId);
-      expect(mainIsolateSetupSpan?.context.traceId, traceId);
+      expect(sentrySetupSpan?.context.traceId, traceId);
       expect(firstFrameRenderSpan?.context.traceId, traceId);
     });
 
@@ -371,10 +371,10 @@ void main() {
           .toUtc();
       expect(coldStartSpan?.startTimestamp, appStartTime);
       expect(pluginRegistrationSpan?.startTimestamp, appStartTime);
-      expect(mainIsolateSetupSpan?.startTimestamp,
+      expect(sentrySetupSpan?.startTimestamp,
           pluginRegistrationSpan?.endTimestamp);
       expect(firstFrameRenderSpan?.startTimestamp,
-          mainIsolateSetupSpan?.endTimestamp);
+          sentrySetupSpan?.endTimestamp);
     });
 
     test('have correct endTimestamp', () async {
@@ -383,8 +383,8 @@ void main() {
           .toUtc();
       expect(coldStartSpan?.endTimestamp, fixture.native.appStartEnd?.toUtc());
       expect(pluginRegistrationSpan?.endTimestamp, engineReadyEndtime);
-      expect(mainIsolateSetupSpan?.endTimestamp,
-          SentryFlutter.mainIsolateStartTime.toUtc());
+      expect(sentrySetupSpan?.endTimestamp,
+          SentryFlutter.sentrySetupStartTime?.toUtc());
       expect(firstFrameRenderSpan?.endTimestamp, coldStartSpan?.endTimestamp);
     });
   });
