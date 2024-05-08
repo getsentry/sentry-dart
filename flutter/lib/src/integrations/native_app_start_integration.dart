@@ -87,7 +87,6 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
       DateTime? appStartEndDateTime;
 
       if (options.autoAppStart) {
-        print('in here: ${_native.appStartEnd}');
         // We only assign the current time if it's not already set - this is useful in tests
         _native.appStartEnd ??= options.clock();
         appStartEndDateTime = _native.appStartEnd;
