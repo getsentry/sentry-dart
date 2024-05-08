@@ -1,4 +1,3 @@
-import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:meta/meta.dart';
 
@@ -20,12 +19,7 @@ class Scheduler {
 
   final void Function(FrameCallback callback) _addPostFrameCallback;
 
-  Scheduler(this._interval, this._callback)
-      : _addPostFrameCallback = RendererBinding.instance.addPostFrameCallback;
-
-  @visibleForTesting
-  Scheduler.withCustomFrameTiming(
-      this._interval, this._callback, this._addPostFrameCallback);
+  Scheduler(this._interval, this._callback, this._addPostFrameCallback);
 
   void start() {
     _running = true;

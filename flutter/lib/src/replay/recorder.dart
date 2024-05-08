@@ -23,10 +23,13 @@ class ScreenshotRecorder {
   late final Scheduler _scheduler;
   bool warningLogged = false;
 
-  ScreenshotRecorder(
-      this._config, this._callback, this._logger, this._options) {
+  ScreenshotRecorder(this._config, this._callback, SentryFlutterOptions options)
+      : _logger = options.logger,
+        _options = options.experimental.replay {
     final frameDuration = Duration(milliseconds: 1000 ~/ _config.frameRate);
-    _scheduler = Scheduler(frameDuration, _capture);
+    _scheduler = Scheduler(frameDuration, _capture,
+        options.bindingUtils.instance!.addPostFrameCallback);
+
     if (_options.redactAllText || _options.redactAllImages) {
       _widgetFilter = WidgetFilter(
           redactText: _options.redactAllText,

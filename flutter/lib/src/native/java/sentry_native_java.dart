@@ -94,8 +94,7 @@ class SentryNativeJava extends SentryNativeChannel {
     _replayRecorder = ScreenshotRecorder(
       config,
       callback,
-      _options.logger,
-      _options.experimental.replay,
+      _options,
     )..start();
   }
 }

@@ -2,13 +2,16 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 Future<Element> getTestElement(WidgetTester tester) async {
-  await tester.pumpWidget(MaterialApp(
-    home: SingleChildScrollView(
-      child: Visibility(
-          visible: true,
-          child: Opacity(
+  await tester.pumpWidget(
+    MaterialApp(
+      home: SentryWidget(
+        child: SingleChildScrollView(
+          child: Visibility(
+            visible: true,
+            child: Opacity(
               opacity: 0.5,
               child: Column(
                 children: <Widget>[
@@ -30,9 +33,13 @@ Future<Element> getTestElement(WidgetTester tester) async {
                   Offstage(offstage: true, child: Text('Offstage text')),
                   Offstage(offstage: true, child: newImage()),
                 ],
-              ))),
+              ),
+            ),
+          ),
+        ),
+      ),
     ),
-  ));
+  );
   return TestWidgetsFlutterBinding.instance.rootElement!;
 }
 
