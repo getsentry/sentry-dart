@@ -188,8 +188,7 @@ void main() {
               element.context.description ==
               appStartInfo!.pluginRegistrationDescription);
       final sentrySetupSpan = enriched.spans.firstWhereOrNull((element) =>
-          element.context.description ==
-          appStartInfo!.sentrySetupDescription);
+          element.context.description == appStartInfo!.sentrySetupDescription);
       final firstFrameRenderSpan = enriched.spans.firstWhereOrNull((element) =>
           element.context.description ==
           appStartInfo!.firstFrameRenderDescription);
@@ -274,8 +273,7 @@ void main() {
           element.context.description ==
           appStartInfo?.pluginRegistrationDescription);
       sentrySetupSpan = enriched.spans.firstWhereOrNull((element) =>
-          element.context.description ==
-          appStartInfo?.sentrySetupDescription);
+          element.context.description == appStartInfo?.sentrySetupDescription);
       firstFrameRenderSpan = enriched.spans.firstWhereOrNull((element) =>
           element.context.description ==
           appStartInfo?.firstFrameRenderDescription);
@@ -351,8 +349,8 @@ void main() {
       expect(coldStartSpan?.context.parentSpanId, tracer.context.spanId);
       expect(pluginRegistrationSpan?.context.parentSpanId,
           coldStartSpan?.context.spanId);
-      expect(sentrySetupSpan?.context.parentSpanId,
-          coldStartSpan?.context.spanId);
+      expect(
+          sentrySetupSpan?.context.parentSpanId, coldStartSpan?.context.spanId);
       expect(firstFrameRenderSpan?.context.parentSpanId,
           coldStartSpan?.context.spanId);
     });
@@ -373,8 +371,8 @@ void main() {
       expect(pluginRegistrationSpan?.startTimestamp, appStartTime);
       expect(sentrySetupSpan?.startTimestamp,
           pluginRegistrationSpan?.endTimestamp);
-      expect(firstFrameRenderSpan?.startTimestamp,
-          sentrySetupSpan?.endTimestamp);
+      expect(
+          firstFrameRenderSpan?.startTimestamp, sentrySetupSpan?.endTimestamp);
     });
 
     test('have correct endTimestamp', () async {
