@@ -65,22 +65,35 @@ void main() async {
 }
 
 Future<Element> _getTestElement(WidgetTester tester) async {
+  final newImage = () =>
+      Image.memory(Uint8List.fromList(_sampleBitmap), width: 1, height: 1);
   await tester.pumpWidget(MaterialApp(
     home: SingleChildScrollView(
-      child: Column(
-        children: <Widget>[
-          Image.memory(Uint8List.fromList(_sampleBitmap), width: 1, height: 1),
-          const Padding(
-            padding: EdgeInsets.all(15),
-            child: Center(child: Text('Centered text')),
-          ),
-          ElevatedButton(
-            onPressed: () {},
-            child: Text('Button title'),
-          ),
-          Image.memory(Uint8List.fromList(_sampleBitmap), width: 1, height: 1),
-        ],
-      ),
+      child: Visibility(
+          visible: true,
+          child: Opacity(
+              opacity: 0.5,
+              child: Column(
+                children: <Widget>[
+                  newImage(),
+                  const Padding(
+                    padding: EdgeInsets.all(15),
+                    child: Center(child: Text('Centered text')),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {},
+                    child: Text('Button title'),
+                  ),
+                  newImage(),
+                  // Invisible widgets won't be obscured.
+                  Visibility(visible: false, child: Text('Invisible text')),
+                  Visibility(visible: false, child: newImage()),
+                  Opacity(opacity: 0, child: Text('Invisible text')),
+                  Opacity(opacity: 0, child: newImage()),
+                  Offstage(offstage: true, child: Text('Offstage text')),
+                  Offstage(offstage: true, child: newImage()),
+                ],
+              ))),
     ),
   ));
   return TestWidgetsFlutterBinding.instance.rootElement!;
