@@ -32,21 +32,22 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu, windows, macos]
+        target: [android, ios, macos, linux, windows, web]
         sdk: [stable, beta]
+        # Specify which platform to run on for each target:
         include:
-          - os: ubuntu
-            target: linux
-          - os: ubuntu
-            target: web
-          - os: ubuntu
-            target: android
-          - os: windows
-            target: windows
-          - os: macos
-            target: macos
-          - os: macos
-            target: ios
+          - target: android
+            os: ubuntu
+          - target: ios
+            os: macos
+          - target: macos
+            os: macos
+          - target: linux
+            os: ubuntu
+          - target: windows
+            os: windows
+          - target: web
+            os: ubuntu
 
     steps:
       - uses: actions/checkout@v4
