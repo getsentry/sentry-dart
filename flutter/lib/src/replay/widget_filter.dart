@@ -6,14 +6,14 @@ import '../../sentry_flutter.dart';
 
 @internal
 class WidgetFilter {
-  static const _defaultColor = Color.fromARGB(255, 0, 0, 0);
+  final items = <WidgetFilterItem>[];
+  final SentryLogger logger;
   final bool redactText;
   final bool redactImages;
+  static const _defaultColor = Color.fromARGB(255, 0, 0, 0);
   late double _pixelRatio;
   late Rect _bounds;
-  final List<WidgetFilterItem> items = [];
-  final SentryLogger logger;
-  final Set<Widget> _warnedWidgets = {};
+  final _warnedWidgets = <int>{};
 
   WidgetFilter(
       {required this.redactText,
@@ -117,8 +117,8 @@ class WidgetFilter {
 
   @pragma('vm:prefer-inline')
   void _cantObscure(Widget widget, String message) {
-    if (!_warnedWidgets.contains(widget)) {
-      _warnedWidgets.add(widget);
+    if (!_warnedWidgets.contains(widget.hashCode)) {
+      _warnedWidgets.add(widget.hashCode);
       logger(SentryLevel.warning,
           "WidgetFilter cannot obscure widget $widget: $message");
     }
