@@ -135,7 +135,7 @@ void main() {
         () async {
       fixture.options.autoAppStart = false;
       fixture.binding.nativeAppStart = NativeAppStart(
-          appStartTime: 0, pluginRegistrationTime: 10, isColdStart: true);
+          appStartTime: 0, pluginRegistrationTime: 10, isColdStart: true, nativeSpanTimes: {});
 
       fixture.getNativeAppStartIntegration().call(fixture.hub, fixture.options);
 
@@ -155,7 +155,7 @@ void main() {
         () async {
       fixture.options.autoAppStart = false;
       fixture.binding.nativeAppStart = NativeAppStart(
-          appStartTime: 0, pluginRegistrationTime: 10, isColdStart: true);
+          appStartTime: 0, pluginRegistrationTime: 10, isColdStart: true, nativeSpanTimes: {});
       SentryFlutter.native = fixture.native;
 
       fixture.getNativeAppStartIntegration().call(fixture.hub, fixture.options);
