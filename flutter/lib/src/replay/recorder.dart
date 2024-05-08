@@ -76,11 +76,11 @@ class ScreenshotRecorder {
 
       final filter = _widgetFilter;
       if (filter != null) {
-        filter.setupAndClear(
+        filter.obscure(
+          context,
           pixelRatio,
           Rect.fromLTWH(0, 0, srcWidth * pixelRatio, srcHeight * pixelRatio),
         );
-        context.visitChildElements(filter.obscure);
       }
 
       final blockingTime = watch.elapsedMilliseconds;

@@ -20,13 +20,18 @@ class WidgetFilter {
       required this.redactImages,
       required this.logger});
 
-  void setupAndClear(double pixelRatio, Rect bounds) {
+  void obscure(BuildContext context, double pixelRatio, Rect bounds) {
     _pixelRatio = pixelRatio;
     _bounds = bounds;
     items.clear();
+    if (context is Element) {
+      _obscure(context);
+    } else {
+      context.visitChildElements(_obscure);
+    }
   }
 
-  void obscure(Element element) {
+  void _obscure(Element element) {
     final widget = element.widget;
 
     if (!_isVisible(widget)) {
@@ -39,7 +44,7 @@ class WidgetFilter {
 
     final obscured = _obscureIfNeeded(element, widget);
     if (!obscured) {
-      element.visitChildElements(obscure);
+      element.visitChildElements(_obscure);
     }
   }
 
