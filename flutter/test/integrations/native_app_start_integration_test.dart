@@ -135,7 +135,10 @@ void main() {
         () async {
       fixture.options.autoAppStart = false;
       fixture.binding.nativeAppStart = NativeAppStart(
-          appStartTime: 0, pluginRegistrationTime: 10, isColdStart: true, nativeSpanTimes: {});
+          appStartTime: 0,
+          pluginRegistrationTime: 10,
+          isColdStart: true,
+          nativeSpanTimes: {});
 
       fixture.getNativeAppStartIntegration().call(fixture.hub, fixture.options);
 
@@ -155,7 +158,10 @@ void main() {
         () async {
       fixture.options.autoAppStart = false;
       fixture.binding.nativeAppStart = NativeAppStart(
-          appStartTime: 0, pluginRegistrationTime: 10, isColdStart: true, nativeSpanTimes: {});
+          appStartTime: 0,
+          pluginRegistrationTime: 10,
+          isColdStart: true,
+          nativeSpanTimes: {});
       SentryFlutter.native = fixture.native;
 
       fixture.getNativeAppStartIntegration().call(fixture.hub, fixture.options);
@@ -273,6 +279,18 @@ void main() {
       firstFrameRenderSpan = enriched.spans.firstWhereOrNull((element) =>
           element.context.description ==
           appStartInfo?.firstFrameRenderDescription);
+    });
+
+    test('native app start spans not added to following transactions',
+        () async {
+      final processor = fixture.options.eventProcessors.first;
+
+      final transaction = SentryTransaction(fixture.createTracer());
+
+      final secondEnriched =
+          await processor.apply(transaction, Hint()) as SentryTransaction;
+
+      expect(secondEnriched.spans.length, 0);
     });
 
     test('includes only valid native spans', () async {

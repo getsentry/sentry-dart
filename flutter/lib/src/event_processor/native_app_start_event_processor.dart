@@ -42,7 +42,6 @@ class NativeAppStartEventProcessor implements EventProcessor {
     }
 
     final measurement = appStartInfo?.toMeasurement();
-
     if (measurement != null) {
       event.measurements[measurement.name] = measurement;
       _native.didAddAppStartMeasurement = true;
