@@ -15,6 +15,12 @@
 
 - Fix `PlatformException` title parsing ([#2033](https://github.com/getsentry/sentry-dart/pull/2033))
 
+### Dependencies
+
+- Bump Cocoa SDK from v8.25.0 to v8.25.2 ([#2042](https://github.com/getsentry/sentry-dart/pull/2042))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8252)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.25.0...8.25.2)
+
 ## 8.1.0
 
 ### Features
