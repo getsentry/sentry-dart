@@ -49,7 +49,7 @@ mixin SentryFlutter {
     final flutterOptions = SentryFlutterOptions();
 
     // ignore: invalid_use_of_internal_member
-    sentrySetupStartTime = flutterOptions.clock();
+    sentrySetupStartTime ??= flutterOptions.clock();
 
     if (platformChecker != null) {
       flutterOptions.platformChecker = platformChecker;
