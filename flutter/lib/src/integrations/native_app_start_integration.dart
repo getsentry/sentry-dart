@@ -154,9 +154,13 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
       // is not created therefore we need to create a transaction ourselves.
       // We detect this by checking if the currentRouteName is null.
       // This is a workaround since there is no api that tells us if
-      // the navigator observer exists or not. The currentRouteName is always
-      // set during a didPush triggered by the navigator observer.
-      if (SentryNavigatorObserver.currentRouteName == null) {
+      // the navigator observer exists and has been attached.
+      // The navigator observer also triggers much earlier so if it was attached
+      // it would have already set the routeName and the isCreated flag.
+      // The currentRouteName is always set during a didPush triggered
+      // by the navigator observer.
+      if (!SentryNavigatorObserver.isCreated &&
+          SentryNavigatorObserver.currentRouteName == null) {
         const screenName = SentryNavigatorObserver.rootScreenName;
         final transaction = hub.startTransaction(
             screenName, SentrySpanOperations.uiLoad,

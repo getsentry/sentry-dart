@@ -86,6 +86,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
         _routeNameExtractor = routeNameExtractor,
         _additionalInfoProvider = additionalInfoProvider,
         _native = SentryFlutter.native {
+    _isCreated = true;
     if (enableAutoTransactions) {
       _hub.options.sdk.addIntegration('UINavigationTracing');
     }
@@ -120,6 +121,11 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   ISentrySpan? _transaction;
 
   static String? _currentRouteName;
+
+  static bool _isCreated = false;
+
+  @internal
+  static bool get isCreated => _isCreated;
 
   @internal
   static String? get currentRouteName => _currentRouteName;
