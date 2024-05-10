@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_use_of_internal_member
+
 import 'dart:async';
 
 import 'package:meta/meta.dart';
@@ -96,7 +98,6 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
 
       if (options.autoAppStart) {
         // We only assign the current time if it's not already set - this is useful in tests
-        // ignore: invalid_use_of_internal_member
         _native.appStartEnd ??= options.clock();
         appStartEndDateTime = _native.appStartEnd;
 
@@ -129,7 +130,6 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
             description: entry.key as String,
           ));
         } catch (e) {
-          // ignore: invalid_use_of_internal_member
           _hub.options.logger(
               SentryLevel.warning, 'Failed to parse native span times: $e');
           continue;
@@ -149,6 +149,29 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
           nativeSpanTimes: nativeSpanTimes);
 
       setAppStartInfo(appStartInfo);
+
+      // When we don't have a SentryNavigatorObserver, a TTID transaction
+      // is not created therefore we need to create a transaction ourselves.
+      // We detect this by checking if the currentRouteName is null.
+      // This is a workaround since there is no api that tells us if
+      // the navigator observer exists and has been attached.
+      // The navigator observer also triggers much earlier so if it was attached
+      // it would have already set the routeName and the isCreated flag.
+      // The currentRouteName is always set during a didPush triggered
+      // by the navigator observer.
+      if (!SentryNavigatorObserver.isCreated &&
+          SentryNavigatorObserver.currentRouteName == null) {
+        const screenName = SentryNavigatorObserver.rootScreenName;
+        final transaction = hub.startTransaction(
+            screenName, SentrySpanOperations.uiLoad,
+            startTimestamp: appStartInfo.start);
+        final ttidSpan = transaction.startChild(
+            SentrySpanOperations.uiTimeToInitialDisplay,
+            description: '$screenName initial display',
+            startTimestamp: appStartInfo.start);
+        await ttidSpan.finish(endTimestamp: appStartInfo.end);
+        await transaction.finish(endTimestamp: appStartInfo.end);
+      }
     });
 
     options.addEventProcessor(NativeAppStartEventProcessor(_native, hub: hub));

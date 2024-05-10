@@ -12,6 +12,16 @@ import '../mocks.dart';
 import '../mocks.mocks.dart';
 
 void main() {
+  void setupMocks(Fixture fixture) {
+    when(fixture.hub.startTransaction('root /', 'ui.load',
+            description: null, startTimestamp: anyNamed('startTimestamp')))
+        .thenReturn(fixture.createTracer());
+    when(fixture.hub.configureScope(captureAny)).thenAnswer((_) {});
+    when(fixture.hub
+            .captureTransaction(any, traceContext: anyNamed('traceContext')))
+        .thenAnswer((_) async => SentryId.empty());
+  }
+
   group('$NativeAppStartIntegration', () {
     late Fixture fixture;
 
@@ -19,6 +29,8 @@ void main() {
       TestWidgetsFlutterBinding.ensureInitialized();
 
       fixture = Fixture();
+      setupMocks(fixture);
+
       NativeAppStartIntegration.clearAppStartInfo();
     });
 
@@ -257,6 +269,7 @@ void main() {
       SentryFlutter.sentrySetupStartTime =
           DateTime.fromMillisecondsSinceEpoch(15);
 
+      setupMocks(fixture);
       fixture.getNativeAppStartIntegration().call(fixture.hub, fixture.options);
 
       final processor = fixture.options.eventProcessors.first;
