@@ -22996,6 +22996,8 @@ class SentryCocoa {
       _registerName1("prefersIncrementalDelivery");
   late final _sel_setPrefersIncrementalDelivery_1 =
       _registerName1("setPrefersIncrementalDelivery:");
+  late final _sel_getGraphQLOperationName1 =
+      _registerName1("getGraphQLOperationName");
   late final _sel_storeCookies_forTask_1 =
       _registerName1("storeCookies:forTask:");
   void _objc_msgSend_804(
@@ -58356,6 +58358,11 @@ class NSURLSessionTask extends NSObject {
     final _ret =
         _lib._objc_msgSend_2(_lib._class_NSURLSessionTask1, _lib._sel_new1);
     return NSURLSessionTask._(_ret, _lib, retain: false, release: true);
+  }
+
+  NSString getGraphQLOperationName() {
+    final _ret = _lib._objc_msgSend_20(_id, _lib._sel_getGraphQLOperationName1);
+    return NSString._(_ret, _lib, retain: true, release: true);
   }
 
   static NSURLSessionTask allocWithZone_(

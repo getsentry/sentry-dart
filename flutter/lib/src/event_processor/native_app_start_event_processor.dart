@@ -42,7 +42,6 @@ class NativeAppStartEventProcessor implements EventProcessor {
     }
 
     final measurement = appStartInfo?.toMeasurement();
-
     if (measurement != null) {
       event.measurements[measurement.name] = measurement;
       _native.didAddAppStartMeasurement = true;
@@ -72,6 +71,8 @@ class NativeAppStartEventProcessor implements EventProcessor {
         startTimestamp: appStartInfo.start,
         endTimestamp: appStartEnd);
 
+    await _attachNativeSpans(appStartInfo, transaction, appStartSpan);
+
     final pluginRegistrationSpan = await _createAndFinishSpan(
         tracer: transaction,
         operation: appStartInfo.appStartTypeOperation,
@@ -81,14 +82,14 @@ class NativeAppStartEventProcessor implements EventProcessor {
         startTimestamp: appStartInfo.start,
         endTimestamp: appStartInfo.pluginRegistration);
 
-    final mainIsolateSetupSpan = await _createAndFinishSpan(
+    final sentrySetupSpan = await _createAndFinishSpan(
         tracer: transaction,
         operation: appStartInfo.appStartTypeOperation,
-        description: appStartInfo.mainIsolateSetupDescription,
+        description: appStartInfo.sentrySetupDescription,
         parentSpanId: appStartSpan.context.spanId,
         traceId: transactionTraceId,
         startTimestamp: appStartInfo.pluginRegistration,
-        endTimestamp: appStartInfo.mainIsolateStart);
+        endTimestamp: appStartInfo.sentrySetupStart);
 
     final firstFrameRenderSpan = await _createAndFinishSpan(
         tracer: transaction,
@@ -96,15 +97,37 @@ class NativeAppStartEventProcessor implements EventProcessor {
         description: appStartInfo.firstFrameRenderDescription,
         parentSpanId: appStartSpan.context.spanId,
         traceId: transactionTraceId,
-        startTimestamp: appStartInfo.mainIsolateStart,
+        startTimestamp: appStartInfo.sentrySetupStart,
         endTimestamp: appStartEnd);
 
     transaction.children.addAll([
       appStartSpan,
       pluginRegistrationSpan,
-      mainIsolateSetupSpan,
+      sentrySetupSpan,
       firstFrameRenderSpan
     ]);
+  }
+
+  Future<void> _attachNativeSpans(AppStartInfo appStartInfo,
+      SentryTracer transaction, SentrySpan parent) async {
+    await Future.forEach<TimeSpan>(appStartInfo.nativeSpanTimes,
+        (timeSpan) async {
+      try {
+        final span = await _createAndFinishSpan(
+            tracer: transaction,
+            operation: appStartInfo.appStartTypeOperation,
+            description: timeSpan.description,
+            parentSpanId: parent.context.spanId,
+            traceId: transaction.context.traceId,
+            startTimestamp: timeSpan.start,
+            endTimestamp: timeSpan.end);
+        span.data.putIfAbsent('native', () => true);
+        transaction.children.add(span);
+      } catch (e) {
+        _hub.options.logger(SentryLevel.warning,
+            'Failed to attach native span to app start transaction: $e');
+      }
+    });
   }
 
   Future<SentrySpan> _createAndFinishSpan({

@@ -8,11 +8,19 @@
 
 ### Features
 
+- Create app start transaction when no `SentryNavigatorObserver` is present ([#2017](https://github.com/getsentry/sentry-dart/pull/2017))
+- Adds native spans to app start transaction ([#2027](https://github.com/getsentry/sentry-dart/pull/2027))
 - Adds app start spans to first transaction ([#2009](https://github.com/getsentry/sentry-dart/pull/2009))
 
 ### Fixes
 
 - Fix `PlatformException` title parsing ([#2033](https://github.com/getsentry/sentry-dart/pull/2033))
+
+### Dependencies
+
+- Bump Cocoa SDK from v8.25.0 to v8.25.2 ([#2042](https://github.com/getsentry/sentry-dart/pull/2042))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8252)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.25.0...8.25.2)
 
 ## 8.1.0
 

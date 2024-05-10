@@ -96,7 +96,8 @@ jobs:
         with:
           name: sentry_flutter
           file: ./flutter/coverage/lcov.info
-          functionalities: 'search' # remove after https://github.com/codecov/codecov-action/issues/600
+          functionalities: "search" # remove after https://github.com/codecov/codecov-action/issues/600
+          token: ${{ secrets.CODECOV_TOKEN }}
 
       - uses: VeryGoodOpenSource/very_good_coverage@c953fca3e24a915e111cc6f55f03f756dcb3964c # pin@v3.0.0
         if: matrix.sdk == 'stable' && matrix.target == 'linux'
