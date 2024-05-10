@@ -102,6 +102,45 @@ void main() {
       expect(appStartInfo?.start, DateTime.fromMillisecondsSinceEpoch(0));
       expect(appStartInfo?.end, DateTime.fromMillisecondsSinceEpoch(10));
     });
+
+    test(
+        'autoAppStart is false and appStartEnd is not set does not add app start measurement',
+        () async {
+      fixture.options.autoAppStart = false;
+      fixture.binding.nativeAppStart = NativeAppStart(0, true);
+
+      fixture.getNativeAppStartIntegration().call(fixture.hub, fixture.options);
+
+      final tracer = fixture.createTracer();
+      final transaction = SentryTransaction(tracer);
+
+      final processor = fixture.options.eventProcessors.first;
+      final enriched = await processor.apply(transaction) as SentryTransaction;
+
+      expect(enriched.measurements.isEmpty, true);
+    });
+
+    test(
+        'autoAppStart is false and appStartEnd is set adds app start measurement',
+        () async {
+      fixture.options.autoAppStart = false;
+      fixture.binding.nativeAppStart = NativeAppStart(0, true);
+      SentryFlutter.native = fixture.native;
+
+      fixture.getNativeAppStartIntegration().call(fixture.hub, fixture.options);
+
+      SentryFlutter.setAppStartEnd(DateTime.fromMillisecondsSinceEpoch(10));
+
+      final tracer = fixture.createTracer();
+      final transaction = SentryTransaction(tracer);
+
+      final processor = fixture.options.eventProcessors.first;
+      final enriched = await processor.apply(transaction) as SentryTransaction;
+
+      final measurement = enriched.measurements['app_start_cold']!;
+      expect(measurement.value, 10);
+      expect(measurement.unit, DurationSentryMeasurementUnit.milliSecond);
+    });
   });
 }
 
