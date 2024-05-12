@@ -9,8 +9,8 @@ import io.sentry.android.replay.ReplayIntegration
 import io.sentry.android.replay.ScreenshotRecorderConfig
 
 internal class SentryFlutterReplayRecorder(
-    private val channel: MethodChannel,
-    private val integration: ReplayIntegration,
+  private val channel: MethodChannel,
+  private val integration: ReplayIntegration,
 ) : Recorder {
   override fun start(config: ScreenshotRecorderConfig) {
     val cacheDirPath = integration.replayCacheDir?.absolutePath
@@ -21,13 +21,13 @@ internal class SentryFlutterReplayRecorder(
     Handler(Looper.getMainLooper()).post {
       try {
         channel.invokeMethod(
-            "ReplayRecorder.start",
-            mapOf(
-                "directory" to cacheDirPath,
-                "width" to config.recordingWidth,
-                "height" to config.recordingHeight,
-                "frameRate" to config.frameRate,
-            ),
+          "ReplayRecorder.start",
+          mapOf(
+            "directory" to cacheDirPath,
+            "width" to config.recordingWidth,
+            "height" to config.recordingHeight,
+            "frameRate" to config.frameRate,
+          ),
         )
       } catch (e: Exception) {
         Log.w("Sentry", "Failed to start replay recorder", e)
