@@ -36,11 +36,11 @@ class SentryNativeJava extends SentryNativeChannel {
             );
             break;
           case 'ReplayRecorder.stop':
-            _replayRecorder?.stop();
+            await _replayRecorder?.stop();
             _replayRecorder = null;
             break;
           case 'ReplayRecorder.pause':
-            _replayRecorder?.stop();
+            await _replayRecorder?.stop();
             break;
           case 'ReplayRecorder.resume':
             _replayRecorder?.start();

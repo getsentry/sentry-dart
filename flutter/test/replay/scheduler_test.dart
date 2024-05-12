@@ -32,7 +32,7 @@ void main() {
     await fixture.drawFrame();
     expect(fixture.calls, 1);
     await fixture.drawFrame();
-    fixture.sut.stop();
+    await fixture.sut.stop();
     await fixture.drawFrame();
     expect(fixture.calls, 2);
   });
@@ -44,7 +44,7 @@ void main() {
     expect(fixture.calls, 0);
     await fixture.drawFrame();
     expect(fixture.calls, 1);
-    fixture.sut.stop();
+    await fixture.sut.stop();
     await fixture.drawFrame();
     expect(fixture.calls, 1);
     fixture.sut.start();

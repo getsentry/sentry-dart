@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
-Future<Element> getTestElement(WidgetTester tester) async {
+Future<Element> pumpTestElement(WidgetTester tester) async {
   await tester.pumpWidget(
     MaterialApp(
       home: SentryWidget(

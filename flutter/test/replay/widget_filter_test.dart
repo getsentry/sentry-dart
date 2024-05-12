@@ -18,14 +18,14 @@ void main() async {
   group('redact text', () {
     testWidgets('redacts the correct number of elements', (tester) async {
       final sut = createSut(redactText: true);
-      final element = await getTestElement(tester);
+      final element = await pumpTestElement(tester);
       sut.obscure(element, 1.0, defaultBounds);
       expect(sut.items.length, 2);
     });
 
     testWidgets('does not redact text when disabled', (tester) async {
       final sut = createSut(redactText: false);
-      final element = await getTestElement(tester);
+      final element = await pumpTestElement(tester);
       sut.obscure(element, 1.0, defaultBounds);
       expect(sut.items.length, 0);
     });
@@ -33,7 +33,7 @@ void main() async {
     testWidgets('does not redact elements that are outside the screen',
         (tester) async {
       final sut = createSut(redactText: true);
-      final element = await getTestElement(tester);
+      final element = await pumpTestElement(tester);
       sut.obscure(element, 1.0, Rect.fromLTRB(0, 0, 100, 100));
       expect(sut.items.length, 1);
     });
@@ -42,14 +42,14 @@ void main() async {
   group('redact images', () {
     testWidgets('redacts the correct number of elements', (tester) async {
       final sut = createSut(redactImages: true);
-      final element = await getTestElement(tester);
+      final element = await pumpTestElement(tester);
       sut.obscure(element, 1.0, defaultBounds);
       expect(sut.items.length, 2);
     });
 
     testWidgets('does not redact text when disabled', (tester) async {
       final sut = createSut(redactImages: false);
-      final element = await getTestElement(tester);
+      final element = await pumpTestElement(tester);
       sut.obscure(element, 1.0, defaultBounds);
       expect(sut.items.length, 0);
     });
@@ -57,7 +57,7 @@ void main() async {
     testWidgets('does not redact elements that are outside the screen',
         (tester) async {
       final sut = createSut(redactImages: true);
-      final element = await getTestElement(tester);
+      final element = await pumpTestElement(tester);
       sut.obscure(element, 1.0, Rect.fromLTRB(0, 0, 500, 100));
       expect(sut.items.length, 1);
     });

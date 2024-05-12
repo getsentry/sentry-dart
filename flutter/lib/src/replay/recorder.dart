@@ -43,15 +43,14 @@ class ScreenshotRecorder {
     _scheduler.start();
   }
 
-  void stop() {
-    _scheduler.stop();
+  Future<void> stop() async {
+    await _scheduler.stop();
     _logger(SentryLevel.debug, "Replay: replay capture stopped.");
   }
 
   Future<void> _capture(Duration sinceSchedulerEpoch) async {
     final context = sentryScreenshotWidgetGlobalKey.currentContext;
     final renderObject = context?.findRenderObject() as RenderRepaintBoundary?;
-
     if (context == null || renderObject == null) {
       if (!warningLogged) {
         _logger(
@@ -70,9 +69,8 @@ class ScreenshotRecorder {
       // rounded to next multitude of 16. Therefore, we scale the image.
       final srcWidth = renderObject.size.width;
       final srcHeight = renderObject.size.height;
-      final pixelRatioX = _config.width / srcWidth;
-      final pixelRatioY = _config.height / srcHeight;
-      final pixelRatio = min(pixelRatioY, pixelRatioX);
+      final pixelRatio =
+          min(_config.width / srcWidth, _config.height / srcHeight);
 
       // First, we synchronously capture the image and enumarete widgets on the main UI loop.
       final futureImage = renderObject.toImage(pixelRatio: pixelRatio);

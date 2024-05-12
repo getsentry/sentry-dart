@@ -16,21 +16,25 @@ void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   testWidgets('captures images', (tester) async {
-    await tester.runAsync(() async {
-      await getTestElement(tester);
-      final fixture = _Fixture();
-      expect(fixture.capturedImages, isEmpty);
-      await tester.pumpAndSettle(const Duration(seconds: 1));
-      expect(fixture.capturedImages, ['1000x750']);
-    });
+    final fixture = await _Fixture.create(tester);
+    expect(fixture.capturedImages, isEmpty);
+    await fixture.nextFrame();
+    expect(fixture.capturedImages, ['1000x750']);
+    await fixture.nextFrame();
+    expect(fixture.capturedImages, ['1000x750', '1000x750']);
+    final stopFuture = fixture.sut.stop();
+    await fixture.nextFrame();
+    await stopFuture;
+    expect(fixture.capturedImages, ['1000x750', '1000x750']);
   });
 }
 
 class _Fixture {
+  final WidgetTester _tester;
   late final ScreenshotRecorder sut;
   final capturedImages = <String>[];
 
-  _Fixture() {
+  _Fixture._(this._tester) {
     sut = ScreenshotRecorder(
       ScreenshotRecorderConfig(
         width: 1000,
@@ -42,6 +46,17 @@ class _Fixture {
       },
       SentryFlutterOptions()..bindingUtils = TestBindingWrapper(),
     );
-    sut.start();
+  }
+
+  static Future<_Fixture> create(WidgetTester tester) async {
+    final fixture = _Fixture._(tester);
+    await pumpTestElement(tester);
+    fixture.sut.start();
+    return fixture;
+  }
+
+  Future<void> nextFrame() async {
+    _tester.binding.scheduleFrame();
+    await _tester.pumpAndSettle(const Duration(seconds: 1));
   }
 }
