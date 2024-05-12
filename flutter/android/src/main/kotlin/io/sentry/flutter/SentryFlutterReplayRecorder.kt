@@ -8,6 +8,7 @@ import io.sentry.android.replay.Recorder
 import io.sentry.android.replay.ReplayIntegration
 import io.sentry.android.replay.ScreenshotRecorderConfig
 
+@Suppress("TooGenericExceptionThrown")
 internal class SentryFlutterReplayRecorder(
   private val channel: MethodChannel,
   private val integration: ReplayIntegration,
