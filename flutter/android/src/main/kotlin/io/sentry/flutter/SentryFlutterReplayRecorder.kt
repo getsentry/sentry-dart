@@ -8,7 +8,6 @@ import io.sentry.android.replay.Recorder
 import io.sentry.android.replay.ReplayIntegration
 import io.sentry.android.replay.ScreenshotRecorderConfig
 
-@Suppress("TooGenericExceptionThrown")
 internal class SentryFlutterReplayRecorder(
   private val channel: MethodChannel,
   private val integration: ReplayIntegration,
@@ -30,8 +29,8 @@ internal class SentryFlutterReplayRecorder(
             "frameRate" to config.frameRate,
           ),
         )
-      } catch (e: Exception) {
-        Log.w("Sentry", "Failed to start replay recorder", e)
+      } catch (ignored: Exception) {
+        Log.w("Sentry", "Failed to start replay recorder", ignored)
       }
     }
   }
@@ -40,8 +39,8 @@ internal class SentryFlutterReplayRecorder(
     Handler(Looper.getMainLooper()).post {
       try {
         channel.invokeMethod("ReplayRecorder.resume", null)
-      } catch (e: Exception) {
-        Log.w("Sentry", "Failed to resume replay recorder", e)
+      } catch (ignored: Exception) {
+        Log.w("Sentry", "Failed to resume replay recorder", ignored)
       }
     }
   }
@@ -50,8 +49,8 @@ internal class SentryFlutterReplayRecorder(
     Handler(Looper.getMainLooper()).post {
       try {
         channel.invokeMethod("ReplayRecorder.pause", null)
-      } catch (e: Exception) {
-        Log.w("Sentry", "Failed to pause replay recorder", e)
+      } catch (ignored: Exception) {
+        Log.w("Sentry", "Failed to pause replay recorder", ignored)
       }
     }
   }
@@ -60,8 +59,8 @@ internal class SentryFlutterReplayRecorder(
     Handler(Looper.getMainLooper()).post {
       try {
         channel.invokeMethod("ReplayRecorder.stop", null)
-      } catch (e: Exception) {
-        Log.w("Sentry", "Failed to stop replay recorder", e)
+      } catch (ignored: Exception) {
+        Log.w("Sentry", "Failed to stop replay recorder", ignored)
       }
     }
   }
