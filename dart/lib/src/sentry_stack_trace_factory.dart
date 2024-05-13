@@ -15,18 +15,6 @@ class SentryStackTraceFactory {
   static final SentryStackFrame _asynchronousGapFrameJson =
       SentryStackFrame(absPath: '<asynchronous suspension>');
 
-  static const _sentryPackagesIdentifier = <String>[
-    'sentry',
-    'sentry_flutter',
-    'sentry_logging',
-    'sentry_dio',
-    'sentry_file',
-    'sentry_hive',
-    'sentry_isar',
-    'sentry_sqflite',
-    'sentry_drift',
-  ];
-
   SentryStackTraceFactory(this._options);
 
   /// returns the [SentryStackFrame] list from a stackTrace ([StackTrace] or [String])
@@ -38,13 +26,9 @@ class SentryStackTraceFactory {
     for (var t = 0; t < chain.traces.length; t += 1) {
       final trace = chain.traces[t];
 
+      // NOTE: We want to keep the Sentry frames for crash detection
+      // this does not affect grouping since they're not marked as inApp
       for (final frame in trace.frames) {
-        // we don't want to add our own frames
-        if (frame.package != null &&
-            _sentryPackagesIdentifier.contains(frame.package)) {
-          continue;
-        }
-
         final stackTraceFrame = encodeStackTraceFrame(frame);
         if (stackTraceFrame != null) {
           frames.add(stackTraceFrame);
