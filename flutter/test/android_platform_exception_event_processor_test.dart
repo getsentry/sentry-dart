@@ -32,14 +32,14 @@ void main() {
       final exceptions = platformExceptionEvent!.exceptions!;
       expect(exceptions.length, 3);
 
-      final platformException = exceptions[1];
+      final platformException_1 = exceptions[1];
 
-      expect(platformException.type, 'IllegalArgumentException');
+      expect(platformException_1.type, 'IllegalArgumentException');
       expect(
-        platformException.value,
+        platformException_1.value,
         "Unsupported value: '[Ljava.lang.StackTraceElement;@ba6feed' of type 'class [Ljava.lang.StackTraceElement;'",
       );
-      expect(platformException.stackTrace!.frames.length, 18);
+      expect(platformException_1.stackTrace!.frames.length, 18);
 
       final platformException_2 = exceptions[2];
 
@@ -56,25 +56,17 @@ void main() {
           .apply(fixture.eventWithFailingPlatformStackTrace, Hint());
 
       final exceptions = platformExceptionEvent!.exceptions!;
-      expect(exceptions.length, 3);
+      expect(exceptions.length, 2);
 
-      final platformException = exceptions[1];
+      final platformException_1 = exceptions[1];
 
-      expect(platformException.type, 'PlatformException');
+      expect(platformException_1.type, 'Resources\$NotFoundException');
+      expect(platformException_1.module, 'android.content.res');
       expect(
-        platformException.value,
-        "PlatformException(getNotificationChannelsError, Unable to find resource ID #0x7f14000d, android.content.res.Resources\$NotFoundException: Unable to find resource ID #0x7f14000d",
+        platformException_1.value,
+        "Unable to find resource ID #0x7f14000d",
       );
-      expect(platformException.stackTrace!.frames.length, 20);
-
-      final platformException_2 = exceptions[2];
-
-      expect(platformException_2.type, 'PlatformException');
-      expect(
-        platformException_2.value,
-        "PlatformException(getNotificationChannelsError, Unable to find resource ID #0x7f14000d, android.content.res.Resources\$NotFoundException: Unable to find resource ID #0x7f14000d",
-      );
-      expect(platformException_2.stackTrace!.frames.length, 20);
+      expect(platformException_1.stackTrace!.frames.length, 19);
     });
 
     test(
@@ -191,26 +183,25 @@ class Fixture {
 
 final testPlatformException = PlatformException(
   code: 'error',
-  details:
+  message:
       "Unsupported value: '[Ljava.lang.StackTraceElement;@fa902f1' of type 'class [Ljava.lang.StackTraceElement;'",
-  message: _jvmStackTrace,
+  details: _jvmStackTrace,
   stacktrace: _jvmStackTrace,
+);
+
+final failingPlatformException = PlatformException(
+  code: 'getNotificationChannelsError',
+  message: 'Unable to find resource ID #0x7f14000d',
+  details: _failingStackTrace,
+  stacktrace: null,
 );
 
 final emptyPlatformException = PlatformException(
   code: 'error',
-  details:
+  message:
       "Unsupported value: '[Ljava.lang.StackTraceElement;@fa902f1' of type 'class [Ljava.lang.StackTraceElement;'",
-  message: null,
+  details: null,
   stacktrace: null,
-);
-
-final failingPlatformException = PlatformException(
-  code: 'error',
-  details:
-      "PlatformException: PlatformException(getNotificationChannelsError, Unable to find resource ID #0x7f14000d, android.content.res.Resources\$NotFoundException: Unable to find resource ID #0x7f14000d",
-  message: _failingStackTrace,
-  stacktrace: _failingStackTrace,
 );
 
 const _jvmStackTrace =
@@ -235,7 +226,7 @@ const _jvmStackTrace =
 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:1037)""";
 
 const _failingStackTrace =
-    """PlatformException: PlatformException(getNotificationChannelsError, Unable to find resource ID #0x7f14000d, android.content.res.Resources\$NotFoundException: Unable to find resource ID #0x7f14000d
+    """android.content.res.Resources\$NotFoundException: Unable to find resource ID #0x7f14000d
 	at android.content.res.ResourcesImpl.getResourceEntryName(ResourcesImpl.java:493)
 	at android.content.res.Resources.getResourceEntryName(Resources.java:2441)
 	at com.dexterous.flutterlocalnotifications.FlutterLocalNotificationsPlugin.getMappedNotificationChannel(FlutterLocalNotificationsPlugin.java:170)
@@ -254,5 +245,4 @@ const _failingStackTrace =
 	at android.app.ActivityThread.main(ActivityThread.java:9821)
 	at java.lang.reflect.Method.invoke(Native Method)
 	at com.android.internal.os.RuntimeInit\$MethodAndArgsCaller.run(RuntimeInit.java:586)
-	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:1201)
-, null)""";
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:1201)""";
