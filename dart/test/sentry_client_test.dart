@@ -1684,7 +1684,6 @@ class Fixture {
 
 class ExceptionWithCause {
   ExceptionWithCause(this.cause, this.stackTrace);
-
   final dynamic cause;
   final dynamic stackTrace;
 }
@@ -1699,7 +1698,6 @@ class ExceptionWithCauseExtractor
 
 class ExceptionWithStackTrace {
   ExceptionWithStackTrace(this.stackTrace);
-
   final StackTrace stackTrace;
 }
 
