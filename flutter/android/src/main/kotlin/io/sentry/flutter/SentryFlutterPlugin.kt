@@ -81,6 +81,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       "removeTag" -> removeTag(call.argument("key"), result)
       "loadContexts" -> loadContexts(result)
       "addReplayScreenshot" -> addReplayScreenshot(call.argument("path"), call.argument("timestamp"), result)
+      "sendReplayForEvent" -> sendReplayForEvent(call.argument("eventId"), call.argument("isCrash"), result)
       else -> result.notImplemented()
     }
   }
@@ -526,5 +527,18 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     }
     replay.onScreenshotRecorded(File(path), timestamp)
     result.success("")
+  }
+
+  private fun sendReplayForEvent(
+    eventId: String?,
+    isCrash: Boolean?,
+    result: Result,
+  ) {
+    if (eventId == null || isCrash == null) {
+      result.error("5", "Arguments are null", null)
+      return
+    }
+    replay.sendReplay(isCrash, eventId, null)
+    result.success(replay.getReplayId().toString())
   }
 }

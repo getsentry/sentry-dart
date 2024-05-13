@@ -334,6 +334,7 @@ class MockNativeChannel implements SentryNativeBinding {
   int numberOfCollectProfileCalls = 0;
   int numberOfInitCalls = 0;
   int numberOfCloseCalls = 0;
+  int numberOfSendReplayForEventCalls = 0;
 
   @override
   Future<NativeAppStart?> fetchNativeAppStart() async => nativeAppStart;
@@ -424,6 +425,12 @@ class MockNativeChannel implements SentryNativeBinding {
   Future<void> close() {
     numberOfCloseCalls++;
     return Future.value(null);
+  }
+
+  @override
+  Future<SentryId> sendReplayForEvent(SentryId eventId, bool isCrash) {
+    numberOfSendReplayForEventCalls++;
+    return Future.value(SentryId.newId());
   }
 }
 

@@ -5,6 +5,7 @@ import 'package:meta/meta.dart';
 import 'package:path/path.dart' as path;
 
 import '../../../sentry_flutter.dart';
+import '../../event_processor/replay_event_processor.dart';
 import '../../replay/recorder.dart';
 import '../../replay/recorder_config.dart';
 import '../sentry_native_channel.dart';
@@ -23,6 +24,9 @@ class SentryNativeJava extends SentryNativeChannel {
     // conditionally. This allows Dart to trim the code.
     if (options.experimental.replay.isEnabled) {
       _options = options;
+      if ((options.experimental.replay.errorSampleRate ?? 0) > 0) {
+        options.addEventProcessor(ReplayEventProcessor(this));
+      }
       channel.setMethodCallHandler((call) async {
         switch (call.method) {
           case 'ReplayRecorder.start':

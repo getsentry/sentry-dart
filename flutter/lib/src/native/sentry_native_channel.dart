@@ -151,4 +151,11 @@ class SentryNativeChannel implements SentryNativeBinding {
         'startTime': startTimeNs,
         'endTime': endTimeNs,
       });
+
+  @override
+  Future<SentryId> sendReplayForEvent(SentryId eventId, bool isCrash) =>
+      channel.invokeMethod('sendReplayForEvent', {
+        'eventId': eventId.toString(),
+        'isCrash': isCrash,
+      }).then((value) => SentryId.fromId(value as String));
 }

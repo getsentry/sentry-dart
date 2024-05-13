@@ -43,4 +43,6 @@ abstract class SentryNativeBinding {
 
   Future<Map<String, dynamic>?> collectProfile(
       SentryId traceId, int startTimeNs, int endTimeNs);
+
+  Future<SentryId> sendReplayForEvent(SentryId eventId, bool isCrash);
 }
