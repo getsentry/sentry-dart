@@ -15,18 +15,6 @@ class SentryStackTraceFactory {
   static final SentryStackFrame _asynchronousGapFrameJson =
       SentryStackFrame(absPath: '<asynchronous suspension>');
 
-  static const _sentryPackagesIdentifier = <String>[
-    'sentry',
-    'sentry_flutter',
-    'sentry_logging',
-    'sentry_dio',
-    'sentry_file',
-    'sentry_hive',
-    'sentry_isar',
-    'sentry_sqflite',
-    'sentry_drift',
-  ];
-
   SentryStackTraceFactory(this._options);
 
   /// returns the [SentryStackFrame] list from a stackTrace ([StackTrace] or [String])
