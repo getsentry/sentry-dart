@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Enhancements
+
+- Include sentry frames in stacktraces to enable SDK crash detection ([#2050](https://github.com/getsentry/sentry-dart/pull/2050))
+
 ### Fixes
 
 - Event processor blocking transactions from being sent if `autoAppStart` is false ([#2028](https://github.com/getsentry/sentry-dart/pull/2028))
@@ -21,6 +25,9 @@
 - Bump Cocoa SDK from v8.25.0 to v8.25.2 ([#2042](https://github.com/getsentry/sentry-dart/pull/2042))
   - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8252)
   - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.25.0...8.25.2)
+- Bump Android SDK from v7.8.0 to v7.9.0 ([#2049](https://github.com/getsentry/sentry-dart/pull/2049))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#790)
+  - [diff](https://github.com/getsentry/sentry-java/compare/7.8.0...7.9.0)
 
 ## 8.1.0
 
