@@ -374,7 +374,7 @@ void main() {
       expect(capturedEvent.exceptions?[1].stackTrace, isNotNull);
     });
 
-    test('should not capture sentry frames exception', () async {
+    test('should capture sentry frames exception', () async {
       fixture.options.addExceptionCauseExtractor(
         ExceptionWithCauseExtractor(),
       );
@@ -394,11 +394,11 @@ void main() {
       final capturedEnvelope = (fixture.transport).envelopes.first;
       final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
-      expect(
-        capturedEvent.exceptions?[1].stackTrace!.frames
-            .every((frame) => frame.package != 'sentry'),
-        true,
-      );
+      final sentryFramesCount = capturedEvent.exceptions?[1].stackTrace!.frames
+          .where((frame) => frame.package == 'sentry')
+          .length;
+
+      expect(sentryFramesCount, 2);
     });
   });
 
@@ -494,22 +494,29 @@ void main() {
       expect(capturedEvent.exceptions?.first.stackTrace, isNull);
     });
 
-    test('should not capture sentry frames exception', () async {
+    test('should capture sentry frames exception', () async {
       try {
         throw Exception('Error');
       } catch (err) {
         exception = err;
       }
 
+      final stackTrace = '''
+#0      init (package:sentry/sentry.dart:46:9)
+#1      bar (file:///pathto/test.dart:46:9)
+<asynchronous suspension>
+#2      capture (package:sentry/sentry.dart:46:9)
+      ''';
+
       final client = fixture.getSut();
-      await client.captureException(exception, stackTrace: stacktrace);
+      await client.captureException(exception, stackTrace: stackTrace);
 
       final capturedEnvelope = (fixture.transport).envelopes.first;
       final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
       expect(
         capturedEvent.exceptions?.first.stackTrace!.frames
-            .every((frame) => frame.package != 'sentry'),
+            .any((frame) => frame.package == 'sentry'),
         true,
       );
     });
@@ -1677,6 +1684,7 @@ class Fixture {
 
 class ExceptionWithCause {
   ExceptionWithCause(this.cause, this.stackTrace);
+
   final dynamic cause;
   final dynamic stackTrace;
 }
@@ -1691,6 +1699,7 @@ class ExceptionWithCauseExtractor
 
 class ExceptionWithStackTrace {
   ExceptionWithStackTrace(this.stackTrace);
+
   final StackTrace stackTrace;
 }
 
