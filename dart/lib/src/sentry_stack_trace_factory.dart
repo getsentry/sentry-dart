@@ -38,13 +38,9 @@ class SentryStackTraceFactory {
     for (var t = 0; t < chain.traces.length; t += 1) {
       final trace = chain.traces[t];
 
+      // NOTE: We want to keep the Sentry frames for crash detection
+      // this does not affect grouping since they're not marked as inApp
       for (final frame in trace.frames) {
-        // we don't want to add our own frames
-        if (frame.package != null &&
-            _sentryPackagesIdentifier.contains(frame.package)) {
-          continue;
-        }
-
         final stackTraceFrame = encodeStackTraceFrame(frame);
         if (stackTraceFrame != null) {
           frames.add(stackTraceFrame);
