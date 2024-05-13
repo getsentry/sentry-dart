@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Enhancements
+
+- Include sentry frames in stacktraces to enable SDK crash detection ([#2050](https://github.com/getsentry/sentry-dart/pull/2050))
+
 ### Fixes
 
 - Event processor blocking transactions from being sent if `autoAppStart` is false ([#2028](https://github.com/getsentry/sentry-dart/pull/2028))
