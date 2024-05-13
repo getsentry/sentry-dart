@@ -502,9 +502,9 @@ void main() {
       }
 
       final stackTrace = '''
-#0      init (package:sentry/sentry.dart:46:9)
-#1      bar (file:///pathto/test.dart:46:9)
+#0      baz (file:///pathto/test.dart:50:3)
 <asynchronous suspension>
+#1      bar (file:///pathto/test.dart:46:9)
 #2      capture (package:sentry/sentry.dart:46:9)
       ''';
 
