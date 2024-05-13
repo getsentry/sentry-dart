@@ -98,8 +98,6 @@ void main() {
     expect(exception.causes, null);
     expect(exception.suppressed, null);
 
-    // at android.content.res.ResourcesImpl.getResourceEntryName(ResourcesImpl.java:493)
-
     expect(
         exception.stackTrace[0].className, 'android.content.res.ResourcesImpl');
     expect(exception.stackTrace[0].method, 'getResourceEntryName');
