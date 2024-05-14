@@ -20,13 +20,16 @@ class SentryNativeJava extends SentryNativeChannel {
 
   @override
   Future<void> init(SentryFlutterOptions options) async {
-    // We only need these when replay is enabled so let's set it up
-    // conditionally. This allows Dart to trim the code.
+    // We only need these when replay is enabled (session or error capture)
+    // so let's set it up conditionally. This allows Dart to trim the code.
     if (options.experimental.replay.isEnabled) {
       _options = options;
+
+      // We only need the integration when error-replay capture is enabled.
       if ((options.experimental.replay.errorSampleRate ?? 0) > 0) {
         options.addEventProcessor(ReplayEventProcessor(this));
       }
+
       channel.setMethodCallHandler((call) async {
         switch (call.method) {
           case 'ReplayRecorder.start':

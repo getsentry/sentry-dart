@@ -4,14 +4,10 @@ import 'package:meta/meta.dart';
 class SentryReplayOptions {
   double? _sessionSampleRate;
 
-  /// Indicates the percentage in which the replay for the session will be created. Specifying 0
-  /// means never, 1.0 means always. The value needs to be >= 0.0 and <= 1.0 The default is null
-  /// (disabled).
+  /// A percentage of sessions in which a replay will be created.
+  /// The value needs to be >= 0.0 and <= 1.0.
+  /// Specifying 0 means none, 1.0 means 100 %. Defaults to null (disabled).
   double? get sessionSampleRate => _sessionSampleRate;
-
-  /// Indicates the percentage in which the replay for the session will be created. Specifying 0
-  /// means never, 1.0 means always. The value needs to be >= 0.0 and <= 1.0 The default is null
-  /// (disabled).
   set sessionSampleRate(double? value) {
     assert(value == null || (value >= 0 && value <= 1));
     _sessionSampleRate = value;
@@ -19,14 +15,10 @@ class SentryReplayOptions {
 
   double? _errorSampleRate;
 
-  /// Indicates the percentage in which a 30 seconds replay will be send with error events.
-  /// Specifying 0 means never, 1.0 means always. The value needs to be >= 0.0 and <= 1.0. The
-  /// default is null (disabled).
+  /// A percentage of errors that will be accompanied by a 30 seconds replay.
+  /// The value needs to be >= 0.0 and <= 1.0.
+  /// Specifying 0 means none, 1.0 means 100 %. Defaults to null (disabled).
   double? get errorSampleRate => _errorSampleRate;
-
-  /// Indicates the percentage in which a 30 seconds replay will be send with error events.
-  /// Specifying 0 means never, 1.0 means always. The value needs to be >= 0.0 and <= 1.0. The
-  /// default is null (disabled).
   set errorSampleRate(double? value) {
     assert(value == null || (value >= 0 && value <= 1));
     _errorSampleRate = value;
