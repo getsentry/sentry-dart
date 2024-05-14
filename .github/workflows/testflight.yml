@@ -26,7 +26,7 @@ jobs:
         run: |
           flutter upgrade
           flutter pub get
-          flutter build ios --no-codesign
+          flutter build ios --no-codesign --obfuscate --split-debug-info=.
 
       - name: Install Fastlane
         working-directory: ./flutter/example/ios
