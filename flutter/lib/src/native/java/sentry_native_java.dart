@@ -69,8 +69,8 @@ class SentryNativeJava extends SentryNativeChannel {
     ScreenshotRecorderCallback callback = (image) async {
       var imageData = await image.toByteData(format: ImageByteFormat.png);
       if (imageData != null) {
-        var timestamp = DateTime.now().millisecondsSinceEpoch;
-        var filePath = path.join(cacheDir, "$timestamp.png");
+        final timestamp = DateTime.now().millisecondsSinceEpoch;
+        final filePath = path.join(cacheDir, "$timestamp.png");
 
         _options.logger(
             SentryLevel.debug,
