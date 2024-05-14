@@ -72,7 +72,7 @@ class ScreenshotRecorder {
       final pixelRatio =
           min(_config.width / srcWidth, _config.height / srcHeight);
 
-      // First, we synchronously capture the image and enumarete widgets on the main UI loop.
+      // First, we synchronously capture the image and enumerate widgets on the main UI loop.
       final futureImage = renderObject.toImage(pixelRatio: pixelRatio);
 
       final filter = _widgetFilter;
