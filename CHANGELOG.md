@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Add support for exception aggregates for PlatformExceptions from Android ([#1998](https://github.com/getsentry/sentry-dart/pull/1998))
+- Add support for exception aggregates for PlatformExceptions from Android ([#1999](https://github.com/getsentry/sentry-dart/pull/1999))
 
 ## 8.2.0
 
