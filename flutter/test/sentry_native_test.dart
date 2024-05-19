@@ -1,5 +1,4 @@
 @TestOn('vm')
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/native/sentry_native.dart';
@@ -16,7 +15,11 @@ void main() {
     });
 
     test('fetchNativeAppStart sets didFetchAppStart', () async {
-      final nativeAppStart = NativeAppStart(0.0, true);
+      final nativeAppStart = NativeAppStart(
+          appStartTime: 0.0,
+          pluginRegistrationTime: 10,
+          isColdStart: true,
+          nativeSpanTimes: {});
       channel.nativeAppStart = nativeAppStart;
 
       expect(sut.didFetchAppStart, false);

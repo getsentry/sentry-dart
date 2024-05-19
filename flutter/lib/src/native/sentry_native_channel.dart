@@ -18,6 +18,49 @@ class SentryNativeChannel implements SentryNativeBinding {
   // TODO Move other native calls here.
 
   @override
+  Future<void> init(SentryFlutterOptions options) async =>
+      _channel.invokeMethod('initNativeSdk', <String, dynamic>{
+        'dsn': options.dsn,
+        'debug': options.debug,
+        'environment': options.environment,
+        'release': options.release,
+        'enableAutoSessionTracking': options.enableAutoSessionTracking,
+        'enableNativeCrashHandling': options.enableNativeCrashHandling,
+        'attachStacktrace': options.attachStacktrace,
+        'attachThreads': options.attachThreads,
+        'autoSessionTrackingIntervalMillis':
+            options.autoSessionTrackingInterval.inMilliseconds,
+        'dist': options.dist,
+        'integrations': options.sdk.integrations,
+        'packages':
+            options.sdk.packages.map((e) => e.toJson()).toList(growable: false),
+        'diagnosticLevel': options.diagnosticLevel.name,
+        'maxBreadcrumbs': options.maxBreadcrumbs,
+        'anrEnabled': options.anrEnabled,
+        'anrTimeoutIntervalMillis': options.anrTimeoutInterval.inMilliseconds,
+        'enableAutoNativeBreadcrumbs': options.enableAutoNativeBreadcrumbs,
+        'maxCacheItems': options.maxCacheItems,
+        'sendDefaultPii': options.sendDefaultPii,
+        'enableWatchdogTerminationTracking':
+            options.enableWatchdogTerminationTracking,
+        'enableNdkScopeSync': options.enableNdkScopeSync,
+        'enableAutoPerformanceTracing': options.enableAutoPerformanceTracing,
+        'sendClientReports': options.sendClientReports,
+        'proguardUuid': options.proguardUuid,
+        'maxAttachmentSize': options.maxAttachmentSize,
+        'recordHttpBreadcrumbs': options.recordHttpBreadcrumbs,
+        'captureFailedRequests': options.captureFailedRequests,
+        'enableAppHangTracking': options.enableAppHangTracking,
+        'connectionTimeoutMillis': options.connectionTimeout.inMilliseconds,
+        'readTimeoutMillis': options.readTimeout.inMilliseconds,
+        'appHangTimeoutIntervalMillis':
+            options.appHangTimeoutInterval.inMilliseconds,
+      });
+
+  @override
+  Future<void> close() async => _channel.invokeMethod('closeNativeSdk');
+
+  @override
   Future<NativeAppStart?> fetchNativeAppStart() async {
     final json =
         await _channel.invokeMapMethod<String, dynamic>('fetchNativeAppStart');

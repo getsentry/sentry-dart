@@ -188,6 +188,24 @@ void main() {
 
     expect(sentryException.value, isNull);
   });
+
+  test(
+      'set snapshot to true when no stracktrace is present & attachStacktrace == true',
+      () {
+    final sentryException =
+        fixture.getSut(attachStacktrace: true).getSentryException(Object());
+
+    expect(sentryException.stackTrace!.snapshot, true);
+  });
+
+  test(
+      'set snapshot to false when no stracktrace is present & attachStacktrace == false',
+      () {
+    final sentryException =
+        fixture.getSut(attachStacktrace: false).getSentryException(Object());
+
+    expect(sentryException.stackTrace!.snapshot, true);
+  });
 }
 
 class CustomError extends Error {}
@@ -268,7 +286,8 @@ isolate_instructions: 7526344980, vm_instructions: 752633f000
 class Fixture {
   final options = SentryOptions(dsn: fakeDsn);
 
-  SentryExceptionFactory getSut() {
+  SentryExceptionFactory getSut({bool attachStacktrace = true}) {
+    options.attachStacktrace = true;
     return SentryExceptionFactory(options);
   }
 }

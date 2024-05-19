@@ -30,6 +30,11 @@ class SentryNative {
   /// Flag indicating if app start measurement was added to the first transaction.
   bool didAddAppStartMeasurement = false;
 
+  Future<void> init(SentryFlutterOptions options) async =>
+      _invoke("init", () => _binding.init(options));
+
+  Future<void> close() async => _invoke("close", _binding.close);
+
   /// Fetch [NativeAppStart] from native channels. Can only be called once.
   Future<NativeAppStart?> fetchNativeAppStart() async {
     _didFetchAppStart = true;
@@ -129,15 +134,23 @@ class SentryNative {
 }
 
 class NativeAppStart {
-  NativeAppStart(this.appStartTime, this.isColdStart);
+  NativeAppStart(
+      {required this.appStartTime,
+      required this.pluginRegistrationTime,
+      required this.isColdStart,
+      required this.nativeSpanTimes});
 
   double appStartTime;
+  int pluginRegistrationTime;
   bool isColdStart;
+  Map<dynamic, dynamic> nativeSpanTimes;
 
   factory NativeAppStart.fromJson(Map<String, dynamic> json) {
     return NativeAppStart(
-      json['appStartTime'] as double,
-      json['isColdStart'] as bool,
+      appStartTime: json['appStartTime'] as double,
+      pluginRegistrationTime: json['pluginRegistrationTime'] as int,
+      isColdStart: json['isColdStart'] as bool,
+      nativeSpanTimes: json['nativeSpanTimes'] as Map<dynamic, dynamic>,
     );
   }
 }

@@ -1,6 +1,54 @@
 # Changelog
 
-## Unreleased
+## 8.2.0
+
+### Enhancements
+
+- Include sentry frames in stacktraces to enable SDK crash detection ([#2050](https://github.com/getsentry/sentry-dart/pull/2050))
+
+### Fixes
+
+- Event processor blocking transactions from being sent if `autoAppStart` is false ([#2028](https://github.com/getsentry/sentry-dart/pull/2028))
+
+### Features
+
+- Create app start transaction when no `SentryNavigatorObserver` is present ([#2017](https://github.com/getsentry/sentry-dart/pull/2017))
+- Adds native spans to app start transaction ([#2027](https://github.com/getsentry/sentry-dart/pull/2027))
+- Adds app start spans to first transaction ([#2009](https://github.com/getsentry/sentry-dart/pull/2009))
+
+### Fixes
+
+- Fix `PlatformException` title parsing ([#2033](https://github.com/getsentry/sentry-dart/pull/2033))
+
+### Dependencies
+
+- Bump Cocoa SDK from v8.25.0 to v8.25.2 ([#2042](https://github.com/getsentry/sentry-dart/pull/2042))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8252)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.25.0...8.25.2)
+- Bump Android SDK from v7.8.0 to v7.9.0 ([#2049](https://github.com/getsentry/sentry-dart/pull/2049))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#790)
+  - [diff](https://github.com/getsentry/sentry-java/compare/7.8.0...7.9.0)
+
+## 8.1.0
+
+### Features
+
+- Set snapshot to `true` if stacktrace is not provided ([#2000](https://github.com/getsentry/sentry-dart/pull/2000))
+  - If the stacktrace is not provided, the Sentry SDK will fetch the current stacktrace via `StackTrace.current` and the snapshot will be set to `true` - **this may change the grouping behavior**
+  - `snapshot = true` means it's a synthetic exception, reflecting the current state of the thread rather than the stack trace of a real exception
+
+### Fixes
+
+- Timing metric aggregates metrics in the created span ([#1994](https://github.com/getsentry/sentry-dart/pull/1994))
+
+### Dependencies
+
+- Bump Cocoa SDK from v8.21.0 to v8.25.0 ([#2018](https://github.com/getsentry/sentry-dart/pull/2018))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8250)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.21.0...8.25.0)
+- Expand dependency range of `package_info_plus` to allow an open range starting from version 1 ([#2010](https://github.com/getsentry/sentry-dart/pull/2010))
+
+## 8.0.0
 
 This release contains breaking changes, please read the changelog carefully.
 

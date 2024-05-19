@@ -5,7 +5,7 @@ output: lib/src/native/cocoa/binding.dart
 headers:
   entry-points:
     - ./cocoa_bindings_temp/Sentry.framework/Versions/A/PrivateHeaders/PrivateSentrySDKOnly.h
-    - ./cocoa_bindings_temp/Sentry.framework/Versions/A/Headers/SentryId.h
+    - ./cocoa_bindings_temp/Sentry.framework/Versions/A/Headers/Sentry-Swift.h
 compiler-opts:
   - -DSENTRY_TARGET_PROFILING_SUPPORTED=1
   - -DCOCOAPODS=1
@@ -16,3 +16,5 @@ objc-interfaces:
   include:
     - PrivateSentrySDKOnly
     - SentryId
+  module:
+    'SentryId': 'Sentry'

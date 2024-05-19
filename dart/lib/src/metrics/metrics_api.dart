@@ -151,8 +151,14 @@ class MetricsApi {
       }
       final value = _convertMicrosTo(unit, duration.inMicroseconds);
 
-      _hub.metricsAggregator?.emit(MetricType.distribution, key, value, unit,
-          _enrichWithDefaultTags(tags));
+      _hub.metricsAggregator?.emit(
+        MetricType.distribution,
+        key,
+        value,
+        unit,
+        _enrichWithDefaultTags(tags),
+        localMetricsAggregator: span?.localMetricsAggregator,
+      );
     }
   }
 

@@ -61,6 +61,9 @@ void main() {
       AppStartType.cold,
       start: getUtcDateTime().add(Duration(seconds: 1)),
       end: getUtcDateTime().add(Duration(seconds: 2)),
+      pluginRegistration: getUtcDateTime().add(Duration(seconds: 3)),
+      sentrySetupStart: getUtcDateTime().add(Duration(seconds: 4)),
+      nativeSpanTimes: [],
     );
     NativeAppStartIntegration.setAppStartInfo(appStartInfo);
 
@@ -92,7 +95,7 @@ void main() {
     expect(tracer.measurements, hasLength(1));
     final measurement = tracer.measurements['time_to_initial_display'];
     expect(measurement, isNotNull);
-    expect(measurement?.value, appStartInfo.duration.inMilliseconds);
+    expect(measurement?.value, appStartInfo.duration?.inMilliseconds);
     expect(measurement?.value, ttidSpanDuration.inMilliseconds);
     expect(measurement?.unit, DurationSentryMeasurementUnit.milliSecond);
   });

@@ -9,6 +9,9 @@ import 'sentry_native.dart';
 @internal
 abstract class SentryNativeBinding {
   // TODO Move other native calls here.
+  Future<void> init(SentryFlutterOptions options);
+
+  Future<void> close();
 
   Future<NativeAppStart?> fetchNativeAppStart();
 
