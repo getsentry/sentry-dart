@@ -1,5 +1,11 @@
 # Changelog
 
+## [UNRELEASED]
+
+### Features
+
+- Add support for exception aggregates for PlatformExceptions from Android ([#1998](https://github.com/getsentry/sentry-dart/pull/1998))
+
 ## 8.2.0
 
 ### Enhancements
@@ -208,11 +214,6 @@ This release contains breaking changes, please read the changelog carefully.
   - Now the device context from Android is available in `BeforeSendCallback`
 - Set ip_address to {{auto}} by default, even if sendDefaultPII is disabled ([#1665](https://github.com/getsentry/sentry-dart/pull/1665))
   - Instead use the "Prevent Storing of IP Addresses" option in the "Security & Privacy" project settings on sentry.io
-
-### Features
-
-- Add support for exception aggregates ([#1866](https://github.com/getsentry/sentry-dart/pull/1866))
-- Add support for exception aggregates for PlatformExceptions from Android ([#1998](https://github.com/getsentry/sentry-dart/pull/1998))
  
 ### Fixes 
 
