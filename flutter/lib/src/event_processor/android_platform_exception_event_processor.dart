@@ -96,9 +96,7 @@ class AndroidPlatformExceptionEventProcessor implements EventProcessor {
     }
 
     final eventExceptions = event.exceptions?.map((e) {
-      if (event.throwable is! PlatformException) {
-        return e;
-      }
+      // TODO: Maybe this shouldn't be applied to all exceptions?
       return e.copyWith(
         mechanism: Mechanism(
           type: 'chained',
