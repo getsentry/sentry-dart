@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:min_version_test/transaction/transaction_locator.dart'
-    if (dart.library.html) 'package:min_version_test/transaction/file_transaction.dart'
+    if (dart.library.js_interop) 'package:min_version_test/transaction/file_transaction.dart'
     if (dart.library.io) 'package:min_version_test/transaction/web_transaction.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_logging/sentry_logging.dart';

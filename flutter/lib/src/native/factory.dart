@@ -1,1 +1,1 @@
-export 'factory_real.dart' if (dart.library.html) 'factory_web.dart';
+export 'factory_real.dart' if (dart.library.js_interop) 'factory_web.dart';

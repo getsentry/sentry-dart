@@ -1,7 +1,7 @@
 @TestOn('browser')
 library dart_test;
 
-import 'dart:html' as html;
+import 'package:web/web.dart' as web;
 
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/event_processor/enricher/web_enricher_event_processor.dart';
@@ -208,7 +208,7 @@ class Fixture {
         checker: MockPlatformChecker(hasNativeIntegration: false));
 
     return WebEnricherEventProcessor(
-      html.window,
+      web.window,
       options,
     );
   }

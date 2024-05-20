@@ -1,4 +1,4 @@
-import 'dart:js' as js;
+import 'dart:js_interop';
 
 import 'renderer.dart';
 
@@ -7,6 +7,9 @@ FlutterRenderer? getRenderer() {
 }
 
 bool get isCanvasKitRenderer {
-  final flutterCanvasKit = js.context['flutterCanvasKit'];
-  return flutterCanvasKit != null;
+  return _windowFlutterCanvasKit != null;
 }
+
+// See https://github.com/flutter/flutter/blob/414d9238720a3cde85475f49ce0ba313f95046f7/packages/flutter/lib/src/foundation/_capabilities_web.dart#L10
+@JS('window.flutterCanvasKit')
+external JSAny? get _windowFlutterCanvasKit;

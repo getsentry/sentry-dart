@@ -1,9 +1,10 @@
-import 'dart:html' as html;
+import 'package:web/web.dart' as web;
+
 import 'platform.dart';
 
 const Platform instance = WebPlatform();
 
-/// [Platform] implementation that delegates to `dart:html`.
+/// [Platform] implementation that delegates to `dart:js_interop`.
 class WebPlatform extends Platform {
   /// Creates a new [Platform].
   const WebPlatform();
@@ -15,11 +16,11 @@ class WebPlatform extends Platform {
   String get operatingSystemVersion => 'unknown';
 
   @override
-  String get localHostname => html.window.location.hostname ?? 'unknown';
+  String get localHostname => web.window.location.hostname;
 
   String _browserPlatform() {
     final navigatorPlatform =
-        html.window.navigator.platform?.toLowerCase() ?? '';
+        web.window.navigator.platform.toLowerCase();
     if (navigatorPlatform.startsWith('mac')) {
       return 'macos';
     }
@@ -43,7 +44,7 @@ class WebPlatform extends Platform {
     // indicates that a device has a "fine pointer" (mouse) as the primary
     // pointing device, then we'll assume desktop linux, and otherwise we'll
     // assume Android.
-    if (html.window.matchMedia('only screen and (pointer: fine)').matches) {
+    if (web.window.matchMedia('only screen and (pointer: fine)').matches) {
       return 'linux';
     }
     return 'android';
