@@ -225,6 +225,23 @@ void main() {
         expect(crumb?.data?['view.class'], 'PopupMenuItem');
       });
     });
+
+    testWidgets('Add crumb for GestureDetector', (tester) async {
+      await tester.runAsync(() async {
+        final sut = fixture.getSut();
+
+        await tapMe(tester, sut, 'gesture_detector');
+        await tester.pumpAndSettle();
+
+        Breadcrumb? crumb;
+        fixture.hub.configureScope((scope) {
+          crumb = scope.breadcrumbs.last;
+        });
+        expect(crumb?.category, 'ui.click');
+        expect(crumb?.data?['view.id'], 'gesture_detector');
+        expect(crumb?.data?['view.class'], 'GestureDetector');
+      });
+    });
   });
 
   group('$SentryUserInteractionWidget performance', () {
@@ -477,6 +494,13 @@ class Page1 extends StatelessWidget {
                 ),
               ],
             ),
+            GestureDetector(
+              key: ValueKey('gesture_detector'),
+              onTap: () => {
+                // print('gesture_detector'),
+              },
+              child: Text('gesture detector'),
+            )
           ],
         ),
       ),
