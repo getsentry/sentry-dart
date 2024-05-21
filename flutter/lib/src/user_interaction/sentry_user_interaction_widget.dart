@@ -565,6 +565,15 @@ class _SentryUserInteractionWidgetState
           eventType: 'onTap',
         );
       }
+    } else if (widget is GestureDetector) {
+      if (widget.onTap != null) {
+        return UserInteractionWidget(
+          element: element,
+          description: _findDescriptionOf(element, false),
+          type: 'GestureDetector',
+          eventType: 'onTap',
+        );
+      }
     }
 
     return null;

@@ -561,6 +561,11 @@ class MainScaffold extends StatelessWidget {
             if (UniversalPlatform.isIOS || UniversalPlatform.isMacOS)
               const CocoaExample(),
             if (UniversalPlatform.isAndroid) const AndroidExample(),
+            GestureDetector(
+              key: const Key('GestureDetector'),
+              onTap: () {},
+              child: const Text("GestureDetector onTap:"),
+            )
           ].map((widget) {
             if (kIsWeb) {
               // Add vertical padding to web so the tooltip doesn't obstruct the clicking of the button below.
