@@ -27,7 +27,7 @@ internal class SentryFlutterReplayRecorder(
             "width" to config.recordingWidth,
             "height" to config.recordingHeight,
             "frameRate" to config.frameRate,
-            "replayId" to integration.getReplayId().toString()
+            "replayId" to integration.getReplayId().toString(),
           ),
         )
       } catch (ignored: Exception) {
