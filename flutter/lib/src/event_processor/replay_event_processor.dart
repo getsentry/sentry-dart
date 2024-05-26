@@ -13,11 +13,9 @@ class ReplayEventProcessor implements EventProcessor {
   Future<SentryEvent?> apply(SentryEvent event, Hint hint) async {
     if (event.eventId != SentryId.empty() &&
         event.exceptions?.isNotEmpty == true) {
-      final isCrash = event.exceptions!
-          .any((element) => element.mechanism?.handled == false);
-      // ignore: unused_local_variable
-      final replayId =
-          await _binding.sendReplayForEvent(event.eventId, isCrash);
+      final isCrash =
+          event.exceptions!.any((e) => e.mechanism?.handled == false);
+      await _binding.sendReplayForEvent(event.eventId, isCrash);
     }
     return event;
   }
