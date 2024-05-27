@@ -14,7 +14,7 @@ jobs:
     runs-on: macos-13
     steps:
       - uses: actions/checkout@v4
-      - uses: subosito/flutter-action@48cafc24713cca54bbe03cdc3a423187d413aafa # pin@v2.10.0
+      - uses: subosito/flutter-action@44ac965b96f18d999802d4b807e3256d5a3f9fa1 # pin@v2.16.0
       - run: xcodes select 15.0.1
       - uses: ruby/setup-ruby@cacc9f1c0b3f4eb8a16a6bb0ed10897b43b9de49 # pin@v1.176.0
         with:

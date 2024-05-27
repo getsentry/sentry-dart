@@ -23,6 +23,8 @@ void main() {
         'pluginRegistrationTime': 1,
         'appStartTime': 0.1,
         'isColdStart': true,
+        // ignore: inference_failure_on_collection_literal
+        'nativeSpanTimes': {},
       };
       final future = Future.value(map);
 
