@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixes
+
+- Change app start span description from `Cold start` to `Cold Start` and `Warm start` to `Warm Start` ([#2076](https://github.com/getsentry/sentry-dart/pull/2076))
+
 ### Dependencies
 
 - Bump Cocoa SDK from v8.25.2 to v8.26.0 ([#2060](https://github.com/getsentry/sentry-dart/pull/2060))
