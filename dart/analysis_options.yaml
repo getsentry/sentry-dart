@@ -23,4 +23,3 @@ linter:
     no_leading_underscores_for_local_identifiers: false
     avoid_renaming_method_parameters: false
     unawaited_futures: true
-    library_annotations: false
