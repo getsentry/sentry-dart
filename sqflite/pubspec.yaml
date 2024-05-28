@@ -16,8 +16,8 @@ platforms:
 
 dependencies:
   sentry: 8.2.0
-  sqflite: ^2.3.3+1
-  sqflite_common: ^2.5.4
+  sqflite: ^2.2.2
+  sqflite_common: ^2.4.1
   meta: ^1.3.0
   path: ^1.8.3
 
