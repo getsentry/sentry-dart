@@ -1,4 +1,6 @@
 @TestOn('vm')
+library dart_test;
+
 import 'dart:isolate';
 
 import 'package:sentry/src/sentry_isolate_extension.dart';
