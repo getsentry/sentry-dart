@@ -4,6 +4,9 @@
 
 ### Dependencies
 
+- Bump `sqflite_common` minimum version from `^2.0.0` to `^2.3.0` and `sqflite` from `^2.0.0` to `^2.1.0`
+  - This is not a breaking change since the minimum version should have been set like this in the first place.
+  - The API that is being used internally is only available starting from these new minimum versions.
 - Bump Cocoa SDK from v8.25.2 to v8.26.0 ([#2060](https://github.com/getsentry/sentry-dart/pull/2060))
   - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8260)
   - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.25.2...8.26.0)
