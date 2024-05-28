@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:meta/meta.dart';
+import 'utils/stacktrace_utils.dart';
 import 'metrics/metric.dart';
 import 'metrics/metrics_aggregator.dart';
 import 'sentry_baggage.dart';
@@ -235,7 +236,7 @@ class SentryClient {
     // therefore add it to the threads.
     // https://develop.sentry.dev/sdk/event-payloads/stacktrace/
     if (stackTrace != null || _options.attachStacktrace) {
-      stackTrace ??= StackTrace.current;
+      stackTrace ??= getCurrentStackTrace();
       final frames = _stackTraceFactory.getStackFrames(stackTrace);
 
       if (frames.isNotEmpty) {
