@@ -1,4 +1,4 @@
-import 'package:sentry/src/utils/stacktrace_utils.dart';
+import 'utils/stacktrace_utils.dart';
 
 import 'recursive_exception_cause_extractor.dart';
 import 'protocol.dart';
