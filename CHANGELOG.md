@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixes
+
+- Parse `PlatformException` from details instead of message ([#2052](https://github.com/getsentry/sentry-dart/pull/2052))
+
 ### Dependencies
 
 - Bump Cocoa SDK from v8.25.2 to v8.26.0 ([#2060](https://github.com/getsentry/sentry-dart/pull/2060))
@@ -27,7 +31,6 @@
 ### Fixes
 
 - Fix `PlatformException` title parsing ([#2033](https://github.com/getsentry/sentry-dart/pull/2033))
-- Parse `PlatformException` from details instead of message ([#2052](https://github.com/getsentry/sentry-dart/pull/2052))
 
 ### Dependencies
 
