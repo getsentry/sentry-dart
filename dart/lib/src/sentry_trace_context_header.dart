@@ -43,7 +43,8 @@ class SentryTraceContextHeader {
       transaction: json['transaction'],
       sampleRate: json['sample_rate'],
       sampled: json['sampled'],
-      replayId: json['replay_id'],
+      replayId:
+          json['replay_id'] == null ? null : SentryId.fromId(json['replay_id']),
     );
   }
 
