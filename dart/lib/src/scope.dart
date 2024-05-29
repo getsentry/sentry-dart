@@ -97,15 +97,12 @@ class Scope {
   /// they must be JSON-serializable.
   Map<String, dynamic> get extra => Map.unmodifiable(_extra);
 
-  SentryId? _replayId;
-
-  /// Get the active replay recording.
+  /// Active replay recording.
   @internal
   SentryId? get replayId => _replayId;
-
-  /// Set the active replay recording id.
   @internal
   set replayId(SentryId? value) => _replayId = value;
+  SentryId? _replayId;
 
   final Contexts _contexts = Contexts();
 
