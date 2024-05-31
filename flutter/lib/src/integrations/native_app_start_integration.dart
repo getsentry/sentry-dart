@@ -218,7 +218,7 @@ class AppStartInfo {
   String get appStartTypeOperation => 'app.start.${type.name}';
 
   String get appStartTypeDescription =>
-      type == AppStartType.cold ? 'Cold start' : 'Warm start';
+      type == AppStartType.cold ? 'Cold Start' : 'Warm Start';
   final pluginRegistrationDescription = 'App start to plugin registration';
   final sentrySetupDescription = 'Before Sentry Init Setup';
   final firstFrameRenderDescription = 'First frame render';
