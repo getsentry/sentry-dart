@@ -1,4 +1,5 @@
 @TestOn('vm')
+library dart_test;
 
 import 'package:sentry/src/hub.dart';
 import 'package:sentry/src/protocol/sentry_level.dart';

@@ -1,3 +1,5 @@
+import 'utils/stacktrace_utils.dart';
+
 import 'recursive_exception_cause_extractor.dart';
 import 'protocol.dart';
 import 'sentry_options.dart';
@@ -40,7 +42,7 @@ class SentryExceptionFactory {
     if (_options.attachStacktrace) {
       if (stackTrace == null || stackTrace == StackTrace.empty) {
         snapshot = true;
-        stackTrace = StackTrace.current;
+        stackTrace = getCurrentStackTrace();
       }
     }
 

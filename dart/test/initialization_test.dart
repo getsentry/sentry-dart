@@ -1,4 +1,5 @@
 @TestOn('vm')
+library dart_test;
 
 import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';

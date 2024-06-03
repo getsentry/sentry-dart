@@ -86,6 +86,25 @@ void main() {
     expect(exception.stackTrace[0].lineNumber, 292);
   });
 
+  test('parse other Flutter Android PlatformException', () {
+    final exception = JvmException.parse(otherFlutterAndroidPlatformException);
+    expect(
+      exception.description,
+      "Unable to find resource ID #0x7f14000d",
+    );
+    expect(exception.thread, null);
+    expect(exception.type, 'android.content.res.Resources\$NotFoundException');
+    expect(exception.stackTrace.length, 19);
+    expect(exception.causes, null);
+    expect(exception.suppressed, null);
+
+    expect(
+        exception.stackTrace[0].className, 'android.content.res.ResourcesImpl');
+    expect(exception.stackTrace[0].method, 'getResourceEntryName');
+    expect(exception.stackTrace[0].fileName, 'ResourcesImpl.java');
+    expect(exception.stackTrace[0].lineNumber, 493);
+  });
+
   test('parse drops empty frames', () {
     final exception = JvmException.parse(platformExceptionWithEmptyStackFrames);
     expect(exception.stackTrace.length, 13);
@@ -204,6 +223,28 @@ java.lang.IllegalArgumentException: Unsupported value: '[Ljava.lang.StackTraceEl
 	at java.lang.reflect.Method.invoke(Native Method)
 	at com.android.internal.os.RuntimeInit\$MethodAndArgsCaller.run(RuntimeInit.java:556)
 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:1037)''';
+
+const otherFlutterAndroidPlatformException = '''
+android.content.res.Resources\$NotFoundException: Unable to find resource ID #0x7f14000d
+	at android.content.res.ResourcesImpl.getResourceEntryName(ResourcesImpl.java:493)
+	at android.content.res.Resources.getResourceEntryName(Resources.java:2441)
+	at com.dexterous.flutterlocalnotifications.FlutterLocalNotificationsPlugin.getMappedNotificationChannel(FlutterLocalNotificationsPlugin.java:170)
+	at com.dexterous.flutterlocalnotifications.FlutterLocalNotificationsPlugin.getNotificationChannels(FlutterLocalNotificationsPlugin.java:32)
+	at com.dexterous.flutterlocalnotifications.FlutterLocalNotificationsPlugin.onMethodCall(FlutterLocalNotificationsPlugin.java:399)
+	at be.j\$a.a(MethodChannel.java:18)
+	at pd.c.l(DartMessenger.java:19)
+	at pd.c.m(DartMessenger.java:42)
+	at pd.c.h(Unknown Source:0)
+	at pd.b.run(Unknown Source:12)
+	at android.os.Handler.handleCallback(Handler.java:966)
+	at android.os.Handler.dispatchMessage(Handler.java:110)
+	at android.os.Looper.loopOnce(Looper.java:205)
+	at android.os.Looper.loop(Looper.java:293)
+	at android.app.ActivityThread.loopProcess(ActivityThread.java:9832)
+	at android.app.ActivityThread.main(ActivityThread.java:9821)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit\$MethodAndArgsCaller.run(RuntimeInit.java:586)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:1201)''';
 
 const platformExceptionWithEmptyStackFrames = '''
 java.lang.RuntimeException: Catch this platform exception!
