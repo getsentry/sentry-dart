@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 @TestOn('vm')
+library dart_test;
 
 import 'dart:io';
 

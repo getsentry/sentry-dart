@@ -1,4 +1,6 @@
 @TestOn('vm')
+library dart_test;
+
 import 'dart:convert';
 import 'dart:io';
 
