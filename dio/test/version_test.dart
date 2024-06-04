@@ -1,4 +1,5 @@
 @TestOn('vm')
+library dio_test;
 
 import 'dart:io';
 
