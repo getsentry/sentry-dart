@@ -57,12 +57,20 @@ Future<void> runApp() async {
     );
   });
 
-  document.querySelector('#btEvent')
+  document
+      .querySelector('#btEvent')
       ?.onClick
       .listen((event) => captureCompleteExampleEvent());
-  document.querySelector('#btMessage')?.onClick.listen((event) => captureMessage());
-  document.querySelector('#btException')?.onClick.listen((event) => captureException());
-  document.querySelector('#btUnhandledException')
+  document
+      .querySelector('#btMessage')
+      ?.onClick
+      .listen((event) => captureMessage());
+  document
+      .querySelector('#btException')
+      ?.onClick
+      .listen((event) => captureException());
+  document
+      .querySelector('#btUnhandledException')
       ?.onClick
       .listen((event) => captureUnhandledException());
 }
@@ -76,7 +84,8 @@ Future<void> captureMessage() async {
   );
   print('capture message result : $sentryId');
   if (sentryId != SentryId.empty()) {
-    (document.querySelector('#messageResult') as HTMLElement?)?.style.display = 'block';
+    (document.querySelector('#messageResult') as HTMLElement?)?.style.display =
+        'block';
   }
 }
 
@@ -93,13 +102,16 @@ Future<void> captureException() async {
     print('Capture exception : SentryId: $sentryId');
 
     if (sentryId != SentryId.empty()) {
-      (document.querySelector('#exceptionResult') as HTMLElement?)?.style.display = 'block';
+      (document.querySelector('#exceptionResult') as HTMLElement?)
+          ?.style
+          .display = 'block';
     }
   }
 }
 
 Future<void> captureUnhandledException() async {
-  (document.querySelector('#unhandledResult') as HTMLElement?)?.style.display = 'block';
+  (document.querySelector('#unhandledResult') as HTMLElement?)?.style.display =
+      'block';
 
   await buildCard();
 }
@@ -111,7 +123,8 @@ Future<void> captureCompleteExampleEvent() async {
   print('Response SentryId: $sentryId');
 
   if (sentryId != SentryId.empty()) {
-    (document.querySelector('#eventResult') as HTMLElement?)?.style.display = 'block';
+    (document.querySelector('#eventResult') as HTMLElement?)?.style.display =
+        'block';
   }
 }
 

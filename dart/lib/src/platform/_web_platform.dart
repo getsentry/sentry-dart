@@ -19,8 +19,7 @@ class WebPlatform extends Platform {
   String get localHostname => web.window.location.hostname;
 
   String _browserPlatform() {
-    final navigatorPlatform =
-        web.window.navigator.platform.toLowerCase();
+    final navigatorPlatform = web.window.navigator.platform.toLowerCase();
     if (navigatorPlatform.startsWith('mac')) {
       return 'macos';
     }

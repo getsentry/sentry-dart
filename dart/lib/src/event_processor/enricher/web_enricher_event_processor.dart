@@ -42,12 +42,16 @@ class WebEnricherEventProcessor implements EnricherEventProcessor {
   // https://github.com/getsentry/sentry-javascript/blob/a6f8dc26a4c7ae2146ae64995a2018c8578896a6/packages/browser/src/integrations/useragent.ts
   SentryRequest _getRequest(SentryRequest? request) {
     final requestHeader = request?.headers;
-    final header = requestHeader == null ? <String, String>{} : Map<String, String>.from(requestHeader);
+    final header = requestHeader == null
+        ? <String, String>{}
+        : Map<String, String>.from(requestHeader);
 
     header.putIfAbsent('User-Agent', () => _window.navigator.userAgent);
 
     final url = request?.url ?? _window.location.toString();
-    return (request ?? SentryRequest(url: url)).copyWith(headers: header).sanitized();
+    return (request ?? SentryRequest(url: url))
+        .copyWith(headers: header)
+        .sanitized();
   }
 
   SentryDevice _getDevice(SentryDevice? device) {
@@ -55,9 +59,11 @@ class WebEnricherEventProcessor implements EnricherEventProcessor {
       online: device?.online ?? _window.navigator.onLine,
       memorySize: device?.memorySize ?? _getMemorySize(),
       orientation: device?.orientation ?? _getScreenOrientation(),
-      screenHeightPixels: device?.screenHeightPixels ?? _window.screen.availHeight,
+      screenHeightPixels:
+          device?.screenHeightPixels ?? _window.screen.availHeight,
       screenWidthPixels: device?.screenWidthPixels ?? _window.screen.availWidth,
-      screenDensity: device?.screenDensity ?? _window.devicePixelRatio.toDouble(),
+      screenDensity:
+          device?.screenDensity ?? _window.devicePixelRatio.toDouble(),
     );
   }
 
