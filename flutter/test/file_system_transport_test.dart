@@ -1,4 +1,5 @@
 @TestOn('vm')
+library flutter_test;
 
 import 'dart:convert';
 // backcompatibility for Flutter < 3.3

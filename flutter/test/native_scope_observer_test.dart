@@ -1,4 +1,5 @@
 @TestOn('vm')
+library flutter_test;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry/sentry.dart';

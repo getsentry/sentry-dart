@@ -1,6 +1,7 @@
 // ignore_for_file: inference_failure_on_function_invocation
 
 @TestOn('vm')
+library flutter_test;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
