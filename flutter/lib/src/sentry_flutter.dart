@@ -46,8 +46,6 @@ mixin SentryFlutter {
     @internal PlatformChecker? platformChecker,
     @internal RendererWrapper? rendererWrapper,
   }) async {
-    print('init zone: ${Zone.current == SentryFlutter.globalZone}');
-
     final flutterOptions = SentryFlutterOptions();
 
     // ignore: invalid_use_of_internal_member
@@ -106,7 +104,7 @@ mixin SentryFlutter {
       // ignore: invalid_use_of_internal_member
       options: flutterOptions,
       // ignore: invalid_use_of_internal_member
-      callAppRunnerInRunZonedGuarded: callAppRunnerInRunZonedGuarded,
+      callAppRunnerInRunZonedGuarded: useRunZonedGuarded,
       // ignore: invalid_use_of_internal_member
       runZonedGuardedOnError: runZonedGuardedOnError,
     );
@@ -143,8 +141,6 @@ mixin SentryFlutter {
     _setSdk(options);
   }
 
-  static Zone? globalZone;
-
   /// Install default integrations
   /// https://medium.com/flutter-community/error-handling-in-flutter-98fce88a34f0
   static List<Integration> _createDefaultIntegrations(
@@ -155,9 +151,6 @@ mixin SentryFlutter {
     final integrations = <Integration>[];
     final platformChecker = options.platformChecker;
     final platform = platformChecker.platform;
-
-    print(
-        'default integrations zone: ${Zone.current == SentryFlutter.globalZone}');
 
     // Will call WidgetsFlutterBinding.ensureInitialized() before all other integrations.
     integrations.add(WidgetsFlutterBindingIntegration());
