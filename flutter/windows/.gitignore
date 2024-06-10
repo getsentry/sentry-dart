@@ -15,6 +15,3 @@ x86/
 *.[Cc]ache
 # but keep track of directories ending in .cache
 !*.[Cc]ache/
-
-flutter/example/windows/flutter/generated_plugins.cmake
-flutter/example/windows/flutter/generated_plugin_registrant.*
