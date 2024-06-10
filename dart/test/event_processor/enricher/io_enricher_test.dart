@@ -1,4 +1,5 @@
 @TestOn('vm')
+library dart_test;
 
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/event_processor/enricher/io_enricher_event_processor.dart';

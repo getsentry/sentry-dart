@@ -1,4 +1,6 @@
 @TestOn('browser')
+library dart_test;
+
 import 'dart:html' as html;
 
 import 'package:sentry/sentry.dart';
