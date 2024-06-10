@@ -97,7 +97,7 @@ class SentryEvent with SentryEventLike<SentryEvent> {
   /// If this behavior is undesirable, consider using a custom formatted
   /// [message] instead.
   dynamic get throwable => (_throwable is ThrowableMechanism)
-      ? (_throwable as ThrowableMechanism).throwable
+      ? (_throwable).throwable
       : _throwable;
 
   /// A throwable decorator that holds a [Mechanism] related to the decorated
