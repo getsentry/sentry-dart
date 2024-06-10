@@ -484,8 +484,10 @@ class SentryClient {
   }
 
   bool _sampleRate() {
-    if (_options.sampleRate != null && _random != null) {
-      return (_options.sampleRate! < _random.nextDouble());
+    final sampleRate = _options.sampleRate;
+    final random = _random;
+    if (sampleRate != null && random != null) {
+      return (sampleRate < random.nextDouble());
     }
     return false;
   }
