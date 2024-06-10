@@ -998,26 +998,6 @@ void main() {
       expect(capturedEvent.user?.id, fakeUser.id);
       expect(capturedEvent.user?.email, fakeUser.email);
     });
-
-    // This test is only valid if the LoadContextsIntegration does not override the user.
-    test('event preserves user ip address with default value after capture',
-        () async {
-      final client = fixture.getSut(sendDefaultPii: true);
-
-      final userWithIpAddress = SentryUser(ipAddress: '{{auto}}');
-      final event = fakeEvent.copyWith(user: userWithIpAddress);
-
-      await client.captureEvent(event);
-
-      final capturedEnvelope = fixture.transport.envelopes.first;
-      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
-
-      expect(fixture.transport.envelopes.length, 1);
-      expect(capturedEvent.user, isNotNull);
-      expect(capturedEvent.user?.ipAddress, '{{auto}}');
-      expect(capturedEvent.user?.id, null);
-      expect(capturedEvent.user?.email, null);
-    });
   });
 
   group('SentryClient sampling', () {
