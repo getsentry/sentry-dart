@@ -129,7 +129,8 @@ void main() {
       expect(event.breadcrumbs!.first.message, 'native-mutated-applied');
     });
 
-    test('apply default IP to user during captureEvent after loading context', () async {
+    test('apply default IP to user during captureEvent after loading context',
+        () async {
       fixture.options.enableScopeSync = true;
 
       const expectedIp = '{{auto}}';
@@ -147,9 +148,7 @@ void main() {
       final options = fixture.options;
 
       final user = SentryUser(id: expectedId);
-      Map<String, dynamic> loadContexts = {
-        'user': user.toJson()
-      };
+      Map<String, dynamic> loadContexts = {'user': user.toJson()};
       final future = Future.value(loadContexts);
       when(fixture.methodChannel.invokeMethod<dynamic>('loadContexts'))
           .thenAnswer((_) => future);
