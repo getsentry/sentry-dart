@@ -38,6 +38,10 @@ jobs:
         with:
           flutter-version: "3.13.0"
 
+      - uses: dart-lang/setup-dart@df9bf852db8b63ccd81f547b7cf6dd8592b3efdd # pin@1.6.4
+        with:
+          sdk: "3.3.0"
+
       - name: Build Android
         run: |
           cd min_version_test
