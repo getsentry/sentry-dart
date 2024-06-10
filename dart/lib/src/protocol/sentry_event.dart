@@ -96,9 +96,8 @@ class SentryEvent with SentryEventLike<SentryEvent> {
   /// If it's an Error, with a stackTrace, the stackTrace is logged.
   /// If this behavior is undesirable, consider using a custom formatted
   /// [message] instead.
-  dynamic get throwable => (_throwable is ThrowableMechanism)
-      ? (_throwable).throwable
-      : _throwable;
+  dynamic get throwable =>
+      (_throwable is ThrowableMechanism) ? (_throwable).throwable : _throwable;
 
   /// A throwable decorator that holds a [Mechanism] related to the decorated
   /// [throwable]
