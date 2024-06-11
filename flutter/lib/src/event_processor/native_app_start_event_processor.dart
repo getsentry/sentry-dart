@@ -23,6 +23,12 @@ class NativeAppStartEventProcessor implements EventProcessor {
   @override
   Future<SentryEvent?> apply(SentryEvent event, Hint hint) async {
     final options = _hub.options;
+    if (event is SentryTransaction) {
+      print('event is SentryTransaction: ${event.measurements}');
+      event.spans.forEach((element) {
+        print('span: ${element.data}');
+      });
+    }
     if (_native.didAddAppStartMeasurement ||
         event is! SentryTransaction ||
         options is! SentryFlutterOptions) {

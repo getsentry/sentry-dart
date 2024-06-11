@@ -52,7 +52,7 @@ Future<void> main() async {
         ),
       ),
     ),
-    exampleDsn,
+    exampleDsn
   );
 }
 
@@ -96,6 +96,7 @@ Future<void> setupSentry(
         options.environment = 'integration';
         options.beforeSend = beforeSendCallback;
       }
+      options.beforeSend = beforeSendCallback;
     },
     // Init your App.
     appRunner: appRunner,
@@ -119,7 +120,7 @@ class _MyAppState extends State<MyApp> {
           builder: (context) => MaterialApp(
             navigatorKey: navigatorKey,
             navigatorObservers: [
-              SentryNavigatorObserver(),
+              // SentryNavigatorObserver(),
             ],
             theme: Provider.of<ThemeProvider>(context).theme,
             home: const MainScaffold(),

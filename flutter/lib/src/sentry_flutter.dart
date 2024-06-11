@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
+import 'span_frame_metrics_collector.dart';
 import '../sentry_flutter.dart';
 import 'event_processor/android_platform_exception_event_processor.dart';
 import 'event_processor/flutter_exception_event_processor.dart';
@@ -89,6 +90,9 @@ mixin SentryFlutter {
     }
 
     await _initDefaultValues(flutterOptions, channel);
+
+    flutterOptions
+        .addPerformanceCollector(SpanFrameMetricsCollector(flutterOptions));
 
     await Sentry.init(
       (options) => optionsConfiguration(options as SentryFlutterOptions),
