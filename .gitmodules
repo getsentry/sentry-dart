@@ -1,0 +1,3 @@
+[submodule "flutter/modules/sentry-native"]
+	path = flutter/modules/sentry-native
+	url = https://github.com/getsentry/sentry-native.git
