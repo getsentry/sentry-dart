@@ -9,7 +9,7 @@ issue_tracker: https://github.com/getsentry/sentry-dart/issues
 documentation: https://docs.sentry.io/platforms/dart/
 
 environment:
-  sdk: '>=2.17.0 <4.0.0'
+  sdk: '>=3.3.0 <4.0.0'
 
 platforms:
   android:
