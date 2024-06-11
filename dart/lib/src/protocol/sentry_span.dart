@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import '../../sentry.dart';
 import '../hub.dart';
 import '../metrics/local_metrics_aggregator.dart';
 import '../protocol.dart';
@@ -47,6 +48,12 @@ class SentrySpan extends ISentrySpan {
 
   @override
   Future<void> finish({SpanStatus? status, DateTime? endTimestamp}) async {
+    for (final collector in _hub.options.performanceCollectors) {
+      if (collector is PerformanceContinuousCollector) {
+        collector.onSpanFinished(this);
+      }
+    }
+
     if (finished) {
       return;
     }
@@ -72,6 +79,8 @@ class SentrySpan extends ISentrySpan {
       _hub.setSpanContext(_throwable, this, _tracer.name);
     }
     _metricSummaries = _localMetricsAggregator?.getSummaries();
+    print('still here for span: ${_context.description}');
+
     await _finishedCallback?.call(endTimestamp: _endTimestamp);
     return super.finish(status: status, endTimestamp: _endTimestamp);
   }

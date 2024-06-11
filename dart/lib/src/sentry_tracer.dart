@@ -80,11 +80,22 @@ class SentryTracer extends ISentrySpan {
         SentryTransactionNameSource.custom;
     _trimEnd = trimEnd;
     _onFinish = onFinish;
+
+    for (final collector in _hub.options.performanceCollectors) {
+      if (collector is PerformanceContinuousCollector) {
+        collector.onSpanStarted(this);
+      }
+    }
   }
 
   @override
   Future<void> finish({SpanStatus? status, DateTime? endTimestamp}) async {
     final commonEndTimestamp = endTimestamp ?? _hub.options.clock();
+    for (final collector in _hub.options.performanceCollectors) {
+      if (collector is PerformanceContinuousCollector) {
+        collector.onSpanFinished(this);
+      }
+    }
     _autoFinishAfterTimer?.cancel();
     _finishStatus = SentryTracerFinishStatus.finishing(status);
     if (_rootSpan.finished) {
@@ -211,11 +222,19 @@ class SentryTracer extends ISentrySpan {
       return NoOpSentrySpan();
     }
 
-    return _rootSpan.startChild(
+    final child = _rootSpan.startChild(
       operation,
       description: description,
       startTimestamp: startTimestamp,
     );
+
+    for (final collector in _hub.options.performanceCollectors) {
+      if (collector is PerformanceContinuousCollector) {
+        collector.onSpanStarted(child);
+      }
+    }
+
+    return child;
   }
 
   ISentrySpan startChildWithParentSpanId(
@@ -255,6 +274,12 @@ class SentryTracer extends ISentrySpan {
     );
 
     _children.add(child);
+
+    for (final collector in _hub.options.performanceCollectors) {
+      if (collector is PerformanceContinuousCollector) {
+        collector.onSpanStarted(child);
+      }
+    }
 
     return child;
   }
