@@ -3,7 +3,6 @@ library flutter_test;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:sentry_flutter/src/native/sentry_native.dart';
 import 'mocks.dart';
 
 void main() {
@@ -32,17 +31,17 @@ void main() {
       expect(sut.didFetchAppStart, true);
     });
 
-    test('beginNativeFramesCollection', () async {
-      await sut.beginNativeFramesCollection();
+    test('beginNativeFrames', () async {
+      await sut.beginNativeFrames();
       expect(channel.numberOfBeginNativeFramesCalls, 1);
     });
 
-    test('endNativeFramesCollection', () async {
+    test('endNativeFrames', () async {
       final nativeFrames = NativeFrames(3, 2, 1);
       final traceId = SentryId.empty();
       channel.nativeFrames = nativeFrames;
 
-      final actual = await sut.endNativeFramesCollection(traceId);
+      final actual = await sut.endNativeFrames(traceId);
 
       expect(actual, nativeFrames);
       expect(channel.id, traceId);

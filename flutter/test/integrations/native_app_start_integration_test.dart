@@ -6,8 +6,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/integrations/native_app_start_integration.dart';
-import 'package:sentry_flutter/src/native/sentry_native.dart';
 import 'package:sentry/src/sentry_tracer.dart';
+import 'package:sentry_flutter/src/native/native_app_start.dart';
 
 import '../fake_frame_callback_handler.dart';
 import '../mocks.dart';
@@ -37,7 +37,8 @@ void main() {
     });
 
     test('native app start measurement added to first transaction', () async {
-      fixture.native.appStartEnd = DateTime.fromMillisecondsSinceEpoch(10);
+      NativeAppStartIntegration.appStartEnd =
+          DateTime.fromMillisecondsSinceEpoch(10);
       fixture.binding.nativeAppStart = NativeAppStart(
           appStartTime: 0,
           pluginRegistrationTime: 10,
@@ -60,7 +61,8 @@ void main() {
 
     test('native app start measurement not added to following transactions',
         () async {
-      fixture.native.appStartEnd = DateTime.fromMillisecondsSinceEpoch(10);
+      NativeAppStartIntegration.appStartEnd =
+          DateTime.fromMillisecondsSinceEpoch(10);
       fixture.binding.nativeAppStart = NativeAppStart(
           appStartTime: 0,
           pluginRegistrationTime: 10,
@@ -83,7 +85,8 @@ void main() {
     });
 
     test('measurements appended', () async {
-      fixture.native.appStartEnd = DateTime.fromMillisecondsSinceEpoch(10);
+      NativeAppStartIntegration.appStartEnd =
+          DateTime.fromMillisecondsSinceEpoch(10);
       fixture.binding.nativeAppStart = NativeAppStart(
           appStartTime: 0,
           pluginRegistrationTime: 10,
@@ -109,7 +112,8 @@ void main() {
     });
 
     test('native app start measurement not added if more than 60s', () async {
-      fixture.native.appStartEnd = DateTime.fromMillisecondsSinceEpoch(60001);
+      NativeAppStartIntegration.appStartEnd =
+          DateTime.fromMillisecondsSinceEpoch(60001);
       fixture.binding.nativeAppStart = NativeAppStart(
           appStartTime: 0,
           pluginRegistrationTime: 10,
@@ -130,7 +134,8 @@ void main() {
 
     test('native app start integration is called and sets app start info',
         () async {
-      fixture.native.appStartEnd = DateTime.fromMillisecondsSinceEpoch(10);
+      NativeAppStartIntegration.appStartEnd =
+          DateTime.fromMillisecondsSinceEpoch(10);
       fixture.binding.nativeAppStart = NativeAppStart(
           appStartTime: 0,
           pluginRegistrationTime: 10,
@@ -176,7 +181,7 @@ void main() {
           pluginRegistrationTime: 10,
           isColdStart: true,
           nativeSpanTimes: {});
-      SentryFlutter.native = fixture.native;
+      SentryFlutter.native = NativeAppStartIntegration;
 
       fixture.getNativeAppStartIntegration().call(fixture.hub, fixture.options);
 
@@ -261,7 +266,8 @@ void main() {
       fixture = Fixture();
       NativeAppStartIntegration.clearAppStartInfo();
 
-      fixture.native.appStartEnd = DateTime.fromMillisecondsSinceEpoch(50);
+      NativeAppStartIntegration.appStartEnd =
+          DateTime.fromMillisecondsSinceEpoch(50);
       fixture.binding.nativeAppStart = NativeAppStart(
           appStartTime: 0,
           pluginRegistrationTime: 10,
@@ -394,7 +400,8 @@ void main() {
       final engineReadyEndtime = DateTime.fromMillisecondsSinceEpoch(
               fixture.binding.nativeAppStart!.pluginRegistrationTime.toInt())
           .toUtc();
-      expect(coldStartSpan?.endTimestamp, fixture.native.appStartEnd?.toUtc());
+      expect(coldStartSpan?.endTimestamp,
+          NativeAppStartIntegration.appStartEnd?.toUtc());
       expect(pluginRegistrationSpan?.endTimestamp, engineReadyEndtime);
       expect(sentrySetupSpan?.endTimestamp,
           SentryFlutter.sentrySetupStartTime?.toUtc());
@@ -410,7 +417,7 @@ class Fixture {
   late final native = SentryNative(options, binding);
 
   Fixture() {
-    native.reset();
+    NativeAppStartIntegration.reset();
     when(hub.options).thenReturn(options);
     SentryFlutter.sentrySetupStartTime = DateTime.now().toUtc();
   }

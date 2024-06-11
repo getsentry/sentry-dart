@@ -7,7 +7,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/native/method_channel_helper.dart';
-import 'package:sentry_flutter/src/native/sentry_native.dart';
 import 'package:sentry_flutter/src/native/sentry_native_channel.dart';
 import 'mocks.mocks.dart';
 

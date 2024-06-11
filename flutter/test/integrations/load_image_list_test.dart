@@ -5,6 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/integrations/load_image_list_integration.dart';
+import 'package:sentry_flutter/src/native/factory.dart';
+import 'package:sentry_flutter/src/native/sentry_native_binding.dart';
 
 import '../mocks.dart';
 import '../sentry_flutter_test.dart';
@@ -12,12 +14,6 @@ import '../sentry_flutter_test.dart';
 void main() {
   group(LoadImageListIntegration, () {
     TestWidgetsFlutterBinding.ensureInitialized();
-    late Fixture fixture;
-
-    tearDown(() {
-      // ignore: deprecated_member_use
-      fixture.channel.setMockMethodCallHandler(null);
-    });
 
     for (var platform in [
       MockPlatform.android(),
@@ -37,6 +33,8 @@ void main() {
           }
         ];
 
+        late Fixture fixture;
+
         setUp(() {
           fixture = Fixture(platform);
           fixture.channel
@@ -44,6 +42,11 @@ void main() {
               .setMockMethodCallHandler((MethodCall methodCall) async {
             return imageList;
           });
+        });
+
+        tearDown(() {
+          // ignore: deprecated_member_use
+          fixture.channel.setMockMethodCallHandler(null);
         });
 
         test('$LoadImageListIntegration adds itself to sdk.integrations',
@@ -135,6 +138,8 @@ void main() {
           sut.call(fixture.hub, fixture.options);
 
           final ep = fixture.options.eventProcessors.first;
+          expect(ep.runtimeType.toString(),
+              "_LoadImageListIntegrationEventProcessor");
           SentryEvent? event = _getEvent();
           event = await ep.apply(event, Hint());
 
@@ -194,15 +199,19 @@ SentryEvent _getEvent() {
 class Fixture {
   late final Hub hub;
   late final SentryFlutterOptions options;
+  late final SentryNativeBinding binding;
   final channel = MethodChannel('sentry_flutter');
 
   Fixture(MockPlatform platform) {
     options = SentryFlutterOptions(
-        dsn: fakeDsn, checker: getPlatformChecker(platform: platform));
+        dsn: fakeDsn, checker: getPlatformChecker(platform: platform))
+      // ignore: invalid_use_of_internal_member
+      ..automatedTestMode = true;
     hub = Hub(options);
+    binding = createBinding(options, channel: channel);
   }
 
   LoadImageListIntegration getSut() {
-    return LoadImageListIntegration(channel);
+    return LoadImageListIntegration(binding);
   }
 }

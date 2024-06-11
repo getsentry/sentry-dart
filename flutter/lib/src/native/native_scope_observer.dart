@@ -2,55 +2,55 @@ import 'dart:async';
 
 import 'package:sentry/sentry.dart';
 
-import 'sentry_native.dart';
+import 'sentry_native_binding.dart';
 
 class NativeScopeObserver implements ScopeObserver {
-  NativeScopeObserver(this._sentryNative);
+  NativeScopeObserver(this._native);
 
-  final SentryNative _sentryNative;
+  final SentryNativeBinding _native;
 
   @override
   Future<void> setContexts(String key, value) async {
-    await _sentryNative.setContexts(key, value);
+    await _native.setContexts(key, value);
   }
 
   @override
   Future<void> removeContexts(String key) async {
-    await _sentryNative.removeContexts(key);
+    await _native.removeContexts(key);
   }
 
   @override
   Future<void> setUser(SentryUser? user) async {
-    await _sentryNative.setUser(user);
+    await _native.setUser(user);
   }
 
   @override
   Future<void> addBreadcrumb(Breadcrumb breadcrumb) async {
-    await _sentryNative.addBreadcrumb(breadcrumb);
+    await _native.addBreadcrumb(breadcrumb);
   }
 
   @override
   Future<void> clearBreadcrumbs() async {
-    await _sentryNative.clearBreadcrumbs();
+    await _native.clearBreadcrumbs();
   }
 
   @override
   Future<void> setExtra(String key, dynamic value) async {
-    await _sentryNative.setExtra(key, value);
+    await _native.setExtra(key, value);
   }
 
   @override
   Future<void> removeExtra(String key) async {
-    await _sentryNative.removeExtra(key);
+    await _native.removeExtra(key);
   }
 
   @override
   Future<void> setTag(String key, String value) async {
-    await _sentryNative.setTag(key, value);
+    await _native.setTag(key, value);
   }
 
   @override
   Future<void> removeTag(String key) async {
-    await _sentryNative.removeTag(key);
+    await _native.removeTag(key);
   }
 }
