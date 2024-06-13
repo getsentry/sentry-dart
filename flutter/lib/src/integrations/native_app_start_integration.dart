@@ -68,6 +68,14 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
   static void clearAppStartInfo() {
     _appStartInfo = null;
     _appStartCompleter = Completer<AppStartInfo?>();
+    didAddAppStartMeasurement = false;
+  }
+
+  /// Reset state
+  @visibleForTesting
+  static void reset() {
+    appStartEnd = null;
+    _didFetchAppStart = false;
   }
 
   @override
@@ -189,12 +197,6 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
     options.addEventProcessor(NativeAppStartEventProcessor(hub: hub));
 
     options.sdk.addIntegration('nativeAppStartIntegration');
-  }
-
-  /// Reset state
-  static void reset() {
-    appStartEnd = null;
-    _didFetchAppStart = false;
   }
 }
 
