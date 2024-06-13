@@ -109,6 +109,9 @@ class SentryBaggage {
     if (scope.user?.segment != null) {
       setUserSegment(scope.user!.segment!);
     }
+    if (scope.replayId != null && scope.replayId != SentryId.empty()) {
+      setReplayId(scope.replayId.toString());
+    }
   }
 
   static Map<String, String> _extractKeyValuesFromBaggageString(
@@ -199,6 +202,13 @@ class SentryBaggage {
     }
 
     return double.tryParse(sampleRate);
+  }
+
+  void setReplayId(String value) => set('sentry-replay_id', value);
+
+  SentryId? getReplayId() {
+    final replayId = get('sentry-replay_id');
+    return replayId == null ? null : SentryId.fromId(replayId);
   }
 
   Map<String, String> get keyValues => Map.unmodifiable(_keyValues);

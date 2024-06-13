@@ -91,6 +91,7 @@ Future<void> setupSentry(
       options.navigatorKey = navigatorKey;
 
       options.experimental.replay.sessionSampleRate = 1.0;
+      options.experimental.replay.errorSampleRate = 1.0;
 
       _isIntegrationTest = isIntegrationTest;
       if (_isIntegrationTest) {

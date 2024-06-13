@@ -33,6 +33,9 @@ class SentryNativeJava extends SentryNativeChannel {
       channel.setMethodCallHandler((call) async {
         switch (call.method) {
           case 'ReplayRecorder.start':
+            final replayId =
+                SentryId.fromId(call.arguments['replayId'] as String);
+
             _startRecorder(
               call.arguments['directory'] as String,
               ScreenshotRecorderConfig(
@@ -41,10 +44,22 @@ class SentryNativeJava extends SentryNativeChannel {
                 frameRate: call.arguments['frameRate'] as int,
               ),
             );
+
+            Sentry.configureScope((s) {
+              // ignore: invalid_use_of_internal_member
+              s.replayId = replayId;
+            });
+
             break;
           case 'ReplayRecorder.stop':
             await _replayRecorder?.stop();
             _replayRecorder = null;
+
+            Sentry.configureScope((s) {
+              // ignore: invalid_use_of_internal_member
+              s.replayId = null;
+            });
+
             break;
           case 'ReplayRecorder.pause':
             await _replayRecorder?.stop();

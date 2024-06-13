@@ -809,7 +809,8 @@ void main() {
         ..fingerprint = fingerprint
         ..addBreadcrumb(crumb)
         ..setTag(scopeTagKey, scopeTagValue)
-        ..setExtra(scopeExtraKey, scopeExtraValue);
+        ..setExtra(scopeExtraKey, scopeExtraValue)
+        ..replayId = SentryId.fromId('1');
 
       scope.setUser(user);
     });
@@ -835,6 +836,8 @@ void main() {
         scopeExtraKey: scopeExtraValue,
         eventExtraKey: eventExtraValue,
       });
+      expect(
+          capturedEnvelope.header.traceContext?.replayId, SentryId.fromId('1'));
     });
   });
 
@@ -1321,6 +1324,7 @@ void main() {
       final client = fixture.getSut();
 
       final scope = Scope(fixture.options);
+      scope.replayId = SentryId.newId();
       scope.span =
           SentrySpan(fixture.tracer, fixture.tracer.context, MockHub());
 
@@ -1328,6 +1332,7 @@ void main() {
 
       final envelope = fixture.transport.envelopes.first;
       expect(envelope.header.traceContext, isNotNull);
+      expect(envelope.header.traceContext?.replayId, scope.replayId);
     });
 
     test('captureEvent adds attachments from hint', () async {
@@ -1384,12 +1389,14 @@ void main() {
       final context = SentryTraceContextHeader.fromJson(<String, dynamic>{
         'trace_id': '${tr.eventId}',
         'public_key': '123',
+        'replay_id': '456',
       });
 
       await client.captureTransaction(tr, traceContext: context);
 
       final envelope = fixture.transport.envelopes.first;
       expect(envelope.header.traceContext, isNotNull);
+      expect(envelope.header.traceContext?.replayId, SentryId.fromId('456'));
     });
 
     test('captureUserFeedback calls flush', () async {
