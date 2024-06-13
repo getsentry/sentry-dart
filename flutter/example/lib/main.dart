@@ -44,16 +44,15 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {
   await setupSentry(
-    () => runApp(
-      SentryWidget(
-        child: DefaultAssetBundle(
-          bundle: SentryAssetBundle(),
-          child: const MyApp(),
-        ),
-      ),
-    ),
-    exampleDsn
-  );
+      () => runApp(
+            SentryWidget(
+              child: DefaultAssetBundle(
+                bundle: SentryAssetBundle(),
+                child: const MyApp(),
+              ),
+            ),
+          ),
+      exampleDsn);
 }
 
 Future<void> setupSentry(

@@ -514,7 +514,6 @@ class Hub {
     return span;
   }
 
-
   @internal
   Future<SentryId> captureTransaction(
     SentryTransaction transaction, {
