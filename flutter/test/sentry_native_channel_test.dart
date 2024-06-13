@@ -250,7 +250,6 @@ void main() {
       });
 
       test('loadContexts', () async {
-        late Map<String, dynamic> captured;
         when(channel.invokeMethod('loadContexts'))
             .thenAnswer((invocation) async => {
                   'foo': [1, 2, 3],
@@ -263,6 +262,27 @@ void main() {
           'foo': [1, 2, 3],
           'bar': {'a': 'b'},
         });
+      });
+
+      test('loadDebugImages', () async {
+        final json = [
+          {
+            'code_file': '/apex/com.android.art/javalib/arm64/boot.oat',
+            'code_id': '13577ce71153c228ecf0eb73fc39f45010d487f8',
+            'image_addr': '0x6f80b000',
+            'image_size': 3092480,
+            'type': 'elf',
+            'debug_id': 'e77c5713-5311-28c2-ecf0-eb73fc39f450',
+            'debug_file': 'test'
+          }
+        ];
+
+        when(channel.invokeMethod('loadImageList'))
+            .thenAnswer((invocation) async => json);
+
+        final data = await sut.loadDebugImages();
+
+        expect(data?.map((v) => v.toJson()), json);
       });
     });
   }
