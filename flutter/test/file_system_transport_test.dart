@@ -22,7 +22,7 @@ void main() {
     fixture = Fixture();
   });
 
-  test('$FileSystemTransport wont throw', () async {
+  test("$FileSystemTransport won't throw", () async {
     final transport = fixture.getSut();
     final event = SentryEvent();
     final sdkVersion =

@@ -9,25 +9,7 @@ import 'native_frames.dart';
 import 'method_channel_helper.dart';
 import 'sentry_native_binding.dart';
 import 'sentry_native_invoker.dart';
-
-class SentrySafeNativeChannel with SentryNativeSafeInvoker {
-  @override
-  final SentryFlutterOptions options;
-
-  final MethodChannel _channel;
-
-  SentrySafeNativeChannel(this._channel, this.options);
-
-  @optionalTypeArgs
-  Future<T?> invokeMethod<T>(String method, [dynamic args]) =>
-      tryCatchAsync(method, () => _channel.invokeMethod<T>(method, args));
-
-  Future<List<T>?> invokeListMethod<T>(String method, [dynamic args]) =>
-      tryCatchAsync(method, () => _channel.invokeListMethod(method, args));
-
-  Future<Map<K, V>?> invokeMapMethod<K, V>(String method, [dynamic args]) =>
-      tryCatchAsync(method, () => _channel.invokeMapMethod(method, args));
-}
+import 'sentry_safe_method_channel.dart';
 
 /// Provide typed methods to access native layer via MethodChannel.
 @internal
@@ -37,10 +19,10 @@ class SentryNativeChannel
   @override
   final SentryFlutterOptions options;
 
-  final SentrySafeNativeChannel _channel;
+  final SentrySafeMethodChannel _channel;
 
   SentryNativeChannel(this.options, MethodChannel channel)
-      : _channel = SentrySafeNativeChannel(channel, options);
+      : _channel = SentrySafeMethodChannel(channel, options);
 
   @override
   Future<void> init(SentryFlutterOptions options) async {
