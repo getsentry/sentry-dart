@@ -3,6 +3,8 @@
 @TestOn('vm')
 library flutter_test;
 
+import 'dart:typed_data';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -36,17 +38,14 @@ void main() {
       // TODO move other methods here, e.g. init_native_sdk_test.dart
 
       test('fetchNativeAppStart', () async {
-        final map = <String, dynamic>{
-          'pluginRegistrationTime': 1,
-          'appStartTime': 0.1,
-          'isColdStart': true,
-          // ignore: inference_failure_on_collection_literal
-          'nativeSpanTimes': {},
-        };
-        final future = Future.value(map);
-
-        when(channel.invokeMapMethod<String, dynamic>('fetchNativeAppStart'))
-            .thenAnswer((_) => future);
+        when(channel.invokeMethod('fetchNativeAppStart'))
+            .thenAnswer((_) async => {
+                  'pluginRegistrationTime': 1,
+                  'appStartTime': 0.1,
+                  'isColdStart': true,
+                  // ignore: inference_failure_on_collection_literal
+                  'nativeSpanTimes': {},
+                });
 
         final actual = await sut.fetchNativeAppStart();
 
@@ -64,16 +63,14 @@ void main() {
 
       test('endNativeFrames', () async {
         final sentryId = SentryId.empty();
-        final map = <String, dynamic>{
-          'totalFrames': 3,
-          'slowFrames': 2,
-          'frozenFrames': 1
-        };
-        final future = Future.value(map);
 
-        when(channel.invokeMapMethod<String, dynamic>(
-                'endNativeFrames', {'id': sentryId.toString()}))
-            .thenAnswer((_) => future);
+        when(channel
+                .invokeMethod('endNativeFrames', {'id': sentryId.toString()}))
+            .thenAnswer((_) async => {
+                  'totalFrames': 3,
+                  'slowFrames': 2,
+                  'frozenFrames': 1,
+                });
 
         final actual = await sut.endNativeFrames(sentryId);
 
@@ -224,19 +221,48 @@ void main() {
         final traceId = SentryId.newId();
         const startTime = 42;
         const endTime = 50;
-        when(channel.invokeMapMethod<String, dynamic>('collectProfile', {
+        when(channel.invokeMethod('collectProfile', {
           'traceId': traceId.toString(),
           'startTime': startTime,
           'endTime': endTime,
-        })).thenAnswer((_) => Future.value());
+        })).thenAnswer((_) async => {});
 
         await sut.collectProfile(traceId, startTime, endTime);
 
-        verify(channel.invokeMapMethod('collectProfile', {
+        verify(channel.invokeMethod('collectProfile', {
           'traceId': traceId.toString(),
           'startTime': startTime,
           'endTime': endTime,
         }));
+      });
+
+      test('captureEnvelope', () async {
+        final data = Uint8List.fromList([1, 2, 3]);
+
+        late Uint8List captured;
+        when(channel.invokeMethod('captureEnvelope', any)).thenAnswer(
+            (invocation) async =>
+                {captured = invocation.positionalArguments[1][0] as Uint8List});
+
+        await sut.captureEnvelope(data);
+
+        expect(captured, data);
+      });
+
+      test('loadContexts', () async {
+        late Map<String, dynamic> captured;
+        when(channel.invokeMethod('loadContexts'))
+            .thenAnswer((invocation) async => {
+                  'foo': [1, 2, 3],
+                  'bar': {'a': 'b'},
+                });
+
+        final data = await sut.loadContexts();
+
+        expect(data, {
+          'foo': [1, 2, 3],
+          'bar': {'a': 'b'},
+        });
       });
     });
   }
