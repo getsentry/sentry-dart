@@ -9,12 +9,13 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/native/factory.dart';
 import 'package:sentry_flutter/src/native/method_channel_helper.dart';
 import 'package:sentry_flutter/src/native/sentry_native_binding.dart';
+import 'package:sentry/src/platform/platform.dart' as platform;
 import 'mocks.dart';
 import 'mocks.mocks.dart';
 import 'sentry_flutter_test.dart';
 
 void main() {
-  for (var platform in [
+  for (var mockPlatform in [
     MockPlatform.android(),
     MockPlatform.iOs(),
     MockPlatform.macOs()
@@ -25,7 +26,7 @@ void main() {
 
       setUp(() {
         final options = SentryFlutterOptions(
-            dsn: fakeDsn, checker: getPlatformChecker(platform: platform))
+            dsn: fakeDsn, checker: getPlatformChecker(platform: mockPlatform))
           // ignore: invalid_use_of_internal_member
           ..automatedTestMode = true;
         channel = MockMethodChannel();
@@ -190,13 +191,22 @@ void main() {
       });
 
       test('startProfiler', () {
-        if (platform.isMacOS || platform.isIOS) {
-          expect(
-              () => sut.startProfiler(SentryId.newId()), throwsArgumentError);
-        } else {
-          expect(() => sut.startProfiler(SentryId.newId()),
-              throwsUnsupportedError);
+        late Matcher matcher;
+        if (mockPlatform.isAndroid) {
+          matcher = throwsUnsupportedError;
+        } else if (mockPlatform.isIOS || mockPlatform.isMacOS) {
+          if (platform.instance.isMacOS) {
+            matcher = throwsA(predicate((e) =>
+                e is Exception &&
+                e.toString().contains('Failed to load Objective-C class')));
+          } else {
+            matcher = throwsA(predicate((e) =>
+                e is ArgumentError &&
+                e.toString().contains('Failed to lookup symbol')));
+          }
         }
+        expect(() => sut.startProfiler(SentryId.newId()), matcher);
+
         verifyZeroInteractions(channel);
       });
 
