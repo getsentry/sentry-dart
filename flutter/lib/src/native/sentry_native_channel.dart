@@ -11,8 +11,10 @@ import 'sentry_native_binding.dart';
 import 'sentry_native_invoker.dart';
 
 class SentrySafeNativeChannel with SentryNativeSafeInvoker {
-  final MethodChannel _channel;
+  @override
   final SentryFlutterOptions options;
+
+  final MethodChannel _channel;
 
   SentrySafeNativeChannel(this._channel, this.options);
 
@@ -32,6 +34,7 @@ class SentrySafeNativeChannel with SentryNativeSafeInvoker {
 class SentryNativeChannel
     with SentryNativeSafeInvoker
     implements SentryNativeBinding {
+  @override
   final SentryFlutterOptions options;
 
   final SentrySafeNativeChannel _channel;
