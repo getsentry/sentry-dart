@@ -1,13 +1,9 @@
 import 'dart:async';
 
 import '../../sentry.dart';
-import '../hub.dart';
 import '../metrics/local_metrics_aggregator.dart';
-import '../protocol.dart';
 
 import '../sentry_tracer.dart';
-import '../tracing.dart';
-import '../utils.dart';
 
 typedef OnFinishedCallback = Future<void> Function({DateTime? endTimestamp});
 
@@ -17,6 +13,9 @@ class SentrySpan extends ISentrySpan {
   Map<String, List<MetricSummary>>? _metricSummaries;
   late final DateTime _startTimestamp;
   final Hub _hub;
+  bool _isRootSpan = false;
+
+  bool get isRootSpan => _isRootSpan;
 
   final SentryTracer _tracer;
   final Map<String, dynamic> _data = {};
@@ -37,6 +36,7 @@ class SentrySpan extends ISentrySpan {
     DateTime? startTimestamp,
     this.samplingDecision,
     OnFinishedCallback? finishedCallback,
+    isRootSpan = false,
   }) {
     _startTimestamp = startTimestamp?.toUtc() ?? _hub.options.clock();
     _finishedCallback = finishedCallback;
@@ -44,6 +44,7 @@ class SentrySpan extends ISentrySpan {
     _localMetricsAggregator = _hub.options.enableSpanLocalMetricAggregation
         ? LocalMetricsAggregator()
         : null;
+    _isRootSpan = isRootSpan;
   }
 
   @override
@@ -71,7 +72,10 @@ class SentrySpan extends ISentrySpan {
     // We need the timestamp so we can finish here
     for (final collector in _hub.options.performanceCollectors) {
       if (collector is PerformanceContinuousCollector) {
-        collector.onSpanFinished(this);
+        final _timestamp = _endTimestamp;
+        if (_timestamp != null) {
+          collector.onSpanFinished(this, _timestamp);
+        }
       }
     }
 

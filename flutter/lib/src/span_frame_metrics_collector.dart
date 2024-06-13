@@ -15,6 +15,7 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
   final frames = SplayTreeMap<DateTime, int>();
   final runningSpans = <ISentrySpan>[];
 
+  bool get isFrameTrackingPaused => _isFrameTrackingPaused;
   bool _isFrameTrackingPaused = true;
   bool _isFrameTrackingRegistered = false;
 
@@ -40,12 +41,14 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
   }
 
   @override
-  void onSpanFinished(ISentrySpan span) {
-    if (span is NoOpSentrySpan || !options.enableFramesTracking) {
+  void onSpanFinished(ISentrySpan span, DateTime endTimestamp) {
+    if ((span is SentrySpan) && span.isRootSpan ||
+        span is NoOpSentrySpan ||
+        !options.enableFramesTracking) {
       return;
     }
 
-    captureFrameMetrics(span);
+    captureFrameMetrics(span, endTimestamp);
 
     if (runningSpans.isEmpty) {
       clear();
@@ -54,11 +57,10 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
     }
   }
 
-  void captureFrameMetrics(ISentrySpan span) {
+  void captureFrameMetrics(ISentrySpan span, DateTime endTimestamp) {
     runningSpans.removeWhere(
         (element) => element.context.spanId == span.context.spanId);
 
-    final endTimestamp = span.endTimestamp;
     if (endTimestamp == null) {
       // todo: log
       return;

@@ -36,14 +36,14 @@ void main() {
             .map((duration) => _isWithinRange(duration.inMilliseconds))));
   });
 
-  test('captureFrameMetrics calculates frame metrics correctly', () async {
+  test('captureFrameMetrics calculates frame metrics correctly for trace',
+      () async {
     final sut = fixture.sut;
     fixture.options.tracesSampleRate = 1.0;
     fixture.options.addPerformanceCollector(sut);
 
     final tracer =
         SentryTracer(SentryTransactionContext('name', 'op'), fixture.hub);
-
     final child = tracer.startChild('child') as SentrySpan;
 
     await Future<void>.delayed(Duration(milliseconds: 800));
@@ -57,10 +57,39 @@ void main() {
 
     // The expected total frames is based on the span duration and the slow and frozen frames
     const expectedTotalFrames = 4;
+
+    expect(tracer.data['frames.slow'], 2);
+    expect(tracer.data['frames.frozen'], 1);
+    expect(
+        tracer.data['frames.delay'], _isWithinRange(expectedFramesDelay, 10));
+    expect(tracer.data['frames.total'], _isWithinRange(expectedTotalFrames, 2));
+
+    expect(tracer.measurements['frames_delay']!.value,
+        _isWithinRange(expectedFramesDelay, 10));
+    expect(tracer.measurements['frames_total']!.value,
+        _isWithinRange(expectedTotalFrames, 2));
+    expect(tracer.measurements['frames_slow']!.value, 2);
+    expect(tracer.measurements['frames_frozen']!.value, 1);
+
     expect(child.data['frames.slow'], 2);
     expect(child.data['frames.frozen'], 1);
     expect(child.data['frames.delay'], _isWithinRange(expectedFramesDelay, 10));
-    expect(child.data['frames.total'], _isWithinRange(expectedTotalFrames, 1));
+    expect(child.data['frames.total'], _isWithinRange(expectedTotalFrames, 2));
+  });
+
+  test('frame tracker is paused after finishing a span', () async {
+    final sut = fixture.sut;
+    fixture.options.tracesSampleRate = 1.0;
+    fixture.options.addPerformanceCollector(sut);
+
+    final tracer =
+        SentryTracer(SentryTransactionContext('name', 'op'), fixture.hub);
+
+    await Future<void>.delayed(Duration(milliseconds: 800));
+
+    await tracer.finish();
+
+    expect(sut.isFrameTrackingPaused, isTrue);
   });
 }
 

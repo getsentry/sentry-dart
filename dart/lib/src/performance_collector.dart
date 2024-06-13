@@ -7,7 +7,7 @@ abstract class PerformanceCollector {}
 abstract class PerformanceContinuousCollector extends PerformanceCollector {
   void onSpanStarted(ISentrySpan span);
 
-  void onSpanFinished(ISentrySpan span);
+  void onSpanFinished(ISentrySpan span, DateTime endTimestamp);
 
   void clear();
 }

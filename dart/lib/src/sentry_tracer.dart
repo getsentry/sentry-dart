@@ -69,6 +69,7 @@ class SentryTracer extends ISentrySpan {
       _hub,
       samplingDecision: transactionContext.samplingDecision,
       startTimestamp: startTimestamp,
+      isRootSpan: true,
     );
     _waitForChildren = waitForChildren;
     _autoFinishAfter = autoFinishAfter;
@@ -124,6 +125,12 @@ class SentryTracer extends ISentrySpan {
 
         if (latestEndTime != null) {
           _rootEndTimestamp = latestEndTime;
+        }
+      }
+
+      for (final collector in _hub.options.performanceCollectors) {
+        if (collector is PerformanceContinuousCollector) {
+          collector.onSpanFinished(this, _rootEndTimestamp);
         }
       }
 
