@@ -48,12 +48,6 @@ class SentrySpan extends ISentrySpan {
 
   @override
   Future<void> finish({SpanStatus? status, DateTime? endTimestamp}) async {
-    for (final collector in _hub.options.performanceCollectors) {
-      if (collector is PerformanceContinuousCollector) {
-        collector.onSpanFinished(this);
-      }
-    }
-
     if (finished) {
       return;
     }
@@ -74,14 +68,20 @@ class SentrySpan extends ISentrySpan {
       _endTimestamp = endTimestamp.toUtc();
     }
 
+    // We need the timestamp so we can finish here
+    for (final collector in _hub.options.performanceCollectors) {
+      if (collector is PerformanceContinuousCollector) {
+        collector.onSpanFinished(this);
+      }
+    }
+
     // associate error
     if (_throwable != null) {
       _hub.setSpanContext(_throwable, this, _tracer.name);
     }
     _metricSummaries = _localMetricsAggregator?.getSummaries();
-    print('still here for span: ${_context.description}');
-
     await _finishedCallback?.call(endTimestamp: _endTimestamp);
+    _finished = true;
     return super.finish(status: status, endTimestamp: _endTimestamp);
   }
 
@@ -206,8 +206,10 @@ class SentrySpan extends ISentrySpan {
     return json;
   }
 
+  bool _finished = false;
+
   @override
-  bool get finished => _endTimestamp != null;
+  bool get finished => _finished;
 
   @override
   dynamic get throwable => _throwable;

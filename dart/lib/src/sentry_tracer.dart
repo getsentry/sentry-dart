@@ -91,11 +91,6 @@ class SentryTracer extends ISentrySpan {
   @override
   Future<void> finish({SpanStatus? status, DateTime? endTimestamp}) async {
     final commonEndTimestamp = endTimestamp ?? _hub.options.clock();
-    for (final collector in _hub.options.performanceCollectors) {
-      if (collector is PerformanceContinuousCollector) {
-        collector.onSpanFinished(this);
-      }
-    }
     _autoFinishAfterTimer?.cancel();
     _finishStatus = SentryTracerFinishStatus.finishing(status);
     if (_rootSpan.finished) {
@@ -227,12 +222,6 @@ class SentryTracer extends ISentrySpan {
       description: description,
       startTimestamp: startTimestamp,
     );
-
-    for (final collector in _hub.options.performanceCollectors) {
-      if (collector is PerformanceContinuousCollector) {
-        collector.onSpanStarted(child);
-      }
-    }
 
     return child;
   }
