@@ -3,7 +3,7 @@ set -euo pipefail
 
 if [[ -n ${CI:+x} ]]; then
     echo "Running in CI so we need to set up Flutter SDK first"
-    curl -Lv https://storage.googleapis.com/flutter_infra_release/releases/stable/macos/flutter_macos_3.13.3-stable.zip --output /tmp/flutter.zip
+    curl -Lv https://storage.googleapis.com/flutter_infra_release/releases/stable/macos/flutter_macos_3.19.0-stable.zip --output /tmp/flutter.zip
     unzip -q /tmp/flutter.zip -d /tmp
     export PATH=":/tmp/flutter/bin:$PATH"
     which flutter
@@ -16,13 +16,7 @@ cd "$(dirname "$0")/../"
 
 # Remove dependency on script exit (even in case of an error).
 trap "dart pub remove ffigen" EXIT
-
-# Currently we add the dependency only when the code needs to be generated because it depends
-# on Dart SDK 3.2.0 which isn't available on with Flutter stable yet.
-# Leaving the dependency in pubspec would block all contributors.
-# As for why this is coming from a fork - because we need a specific version of ffigen including PR 607 but not PR 601
-# which starts generating code not compatible with Dart SDK 2.17. The problem is they were merged in the wrong order...
-dart pub add 'dev:ffigen:{"git":{"url":"https://github.com/getsentry/ffigen","ref":"6aa2c2642f507eab3df83373189170797a9fa5e7"}}'
+dart pub add 'dev:ffigen:12.0.0'
 
 # Download Cocoa SDK (we need the headers)
 temp="cocoa_bindings_temp"
