@@ -456,3 +456,19 @@ class TestBindingWrapper implements BindingWrapper {
 }
 
 class MockSentryClient with NoSuchMethodProvider implements SentryClient {}
+
+/// The expected delay is based on [fakeFrameDurations]
+/// If the values in the fake frame callback handler change, this value will need to be updated
+const expectedFramesDelay = 722;
+
+/// The expected total frames is based on the span duration and the slow and frozen frames
+/// If the values in the frame durations, this value might need to be updated
+const expectedTotalFrames = 4;
+
+final fakeFrameDurations = [
+  Duration(milliseconds: 0),
+  Duration(milliseconds: 10),
+  Duration(milliseconds: 20),
+  Duration(milliseconds: 40),
+  Duration(milliseconds: 710),
+];

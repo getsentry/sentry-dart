@@ -119,7 +119,7 @@ class _MyAppState extends State<MyApp> {
           builder: (context) => MaterialApp(
             navigatorKey: navigatorKey,
             navigatorObservers: [
-              // SentryNavigatorObserver(),
+              SentryNavigatorObserver(),
             ],
             theme: Provider.of<ThemeProvider>(context).theme,
             home: const MainScaffold(),
@@ -420,24 +420,24 @@ class MainScaffold extends StatelessWidget {
 
                 await span.finish(status: const SpanStatus.resourceExhausted());
 
-                await Future.delayed(const Duration(milliseconds: 90));
-
-                final spanChild = span.startChild(
-                  'childOfChildOfMyOp',
-                  description: 'childOfChildOfMyOp span',
-                );
-
-                await Future.delayed(const Duration(milliseconds: 110));
-
-                spanChild.startChild(
-                  'unfinishedChild',
-                  description: 'I wont finish',
-                );
-
-                await spanChild.finish(
-                    status: const SpanStatus.internalError());
-
-                await Future.delayed(const Duration(milliseconds: 50));
+                // await Future.delayed(const Duration(milliseconds: 90));
+                //
+                // final spanChild = span.startChild(
+                //   'childOfChildOfMyOp',
+                //   description: 'childOfChildOfMyOp span',
+                // );
+                //
+                // await Future.delayed(const Duration(milliseconds: 110));
+                //
+                // spanChild.startChild(
+                //   'unfinishedChild',
+                //   description: 'I wont finish',
+                // );
+                //
+                // await spanChild.finish(
+                //     status: const SpanStatus.internalError());
+                //
+                // await Future.delayed(const Duration(milliseconds: 50));
                 // findPrimeNumber(1000000); // Uncomment to see it with profiling
                 await transaction.finish(status: const SpanStatus.ok());
               },

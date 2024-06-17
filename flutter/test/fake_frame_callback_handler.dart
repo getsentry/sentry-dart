@@ -1,6 +1,8 @@
 import 'package:flutter/scheduler.dart';
 import 'package:sentry_flutter/src/frame_callback_handler.dart';
 
+import 'mocks.dart';
+
 class FakeFrameCallbackHandler implements FrameCallbackHandler {
   final Duration finishAfterDuration;
 
@@ -14,20 +16,13 @@ class FakeFrameCallbackHandler implements FrameCallbackHandler {
     callback(Duration.zero);
   }
 
-  // Should lead to 2 slow and 1 frozen frame
-  final frameDurations = [
-    Duration(milliseconds: 10),
-    Duration(milliseconds: 20),
-    Duration(milliseconds: 40),
-    Duration(milliseconds: 710),
-  ];
-
   @override
   void addPersistentFrameCallback(FrameCallback callback) async {
-    // In tests the first frame will duration is always 0 because it's less accurate
-    callback(Duration.zero);
-
-    for (final duration in frameDurations) {
+    // In tests, the duration of the first frame is always reported as 0.
+    // This is because the first frame of the callback is generally less accurate
+    // compared to the subsequent frames. Since we cannot track the time since the
+    // previous frame (for the initial frame), we cannot determine the full duration of it.
+    for (final duration in fakeFrameDurations) {
       await Future<void>.delayed(duration);
       callback(Duration.zero);
     }
@@ -37,5 +32,5 @@ class FakeFrameCallbackHandler implements FrameCallbackHandler {
   bool hasScheduledFrame = true;
 
   @override
-  Future<void> get endOfFrame => Future<void>.delayed(Duration.zero);
+  Future<void> get endOfFrame => Future<void>.value();
 }

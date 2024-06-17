@@ -17,6 +17,8 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
 
   bool get isFrameTrackingPaused => _isFrameTrackingPaused;
   bool _isFrameTrackingPaused = true;
+
+  bool get isFrameTrackingRegistered => _isFrameTrackingRegistered;
   bool _isFrameTrackingRegistered = false;
 
   final _stopwatch = Stopwatch();
@@ -42,7 +44,7 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
 
   @override
   void onSpanFinished(ISentrySpan span, DateTime endTimestamp) {
-    if ((span is SentrySpan) && span.isRootSpan ||
+    if (span is SentrySpan && span.isRootSpan ||
         span is NoOpSentrySpan ||
         !options.enableFramesTracking) {
       return;
@@ -53,19 +55,15 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
     if (runningSpans.isEmpty) {
       clear();
     } else {
-      // remove irrelevant frames
+      final oldestSpan = runningSpans.first;
+      frames.removeWhere((key, value) {
+        return key.isBefore(oldestSpan.startTimestamp);
+      });
     }
   }
 
-  void captureFrameMetrics(ISentrySpan span, DateTime endTimestamp) {
-    runningSpans.removeWhere(
-        (element) => element.context.spanId == span.context.spanId);
-
-    if (endTimestamp == null) {
-      // todo: log
-      return;
-    }
-
+  Map<String, int> calculateFrameMetrics(
+      ISentrySpan span, DateTime endTimestamp) {
     final durations = frames.keys
         .takeWhile((value) =>
             value.isBefore(endTimestamp) && value.isAfter(span.startTimestamp))
@@ -102,17 +100,33 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
             slowFrames.length +
             frozenFrames.length;
 
-    span.setData("frames.total", totalFramesCount);
-    span.setData("frames.delay", frameDelay);
-    span.setData("frames.slow", slowFrames.length);
-    span.setData("frames.frozen", frozenFrames.length);
+    if (totalFramesCount < 0 || frameDelay < 0) {
+      // todo: log
+      return {};
+    }
+
+    return {
+      "frames.total": totalFramesCount.toInt(),
+      "frames.delay": frameDelay,
+      "frames.slow": slowFrames.length,
+      "frames.frozen": frozenFrames.length,
+    };
+  }
+
+  void captureFrameMetrics(ISentrySpan span, DateTime endTimestamp) {
+    runningSpans.removeWhere(
+        (element) => element.context.spanId == span.context.spanId);
+
+    final frameMetrics = calculateFrameMetrics(span, endTimestamp);
+    frameMetrics.forEach((key, value) {
+      span.setData(key, value);
+    });
 
     // ignore: invalid_use_of_internal_member
     if (span is SentryTracer) {
-      span.setMeasurement("frames_total", totalFramesCount);
-      span.setMeasurement("frames_delay", frameDelay);
-      span.setMeasurement("frames_slow", slowFrames.length);
-      span.setMeasurement("frames_frozen", frozenFrames.length);
+      frameMetrics.forEach((key, value) {
+        span.setMeasurement(key.replaceAll('.', '_'), value);
+      });
     }
   }
 
@@ -134,6 +148,7 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
       _stopwatch.start();
     }
 
+    // ignore: invalid_use_of_internal_member
     frames[getUtcDateTime()] = elapsedMilliseconds;
   }
 
