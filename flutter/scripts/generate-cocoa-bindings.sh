@@ -28,6 +28,6 @@ unzip -q $temp/Sentry.xcframework.zip "$subdir/*" -d $temp
 mv "$temp/$subdir" $temp/Sentry.framework
 
 dart run ffigen --config ffi-cocoa.yaml
-#sed -i.bak 's|final class|class|g' lib/src/native/cocoa/binding.dart
 sed -i.bak 's|static int startProfilerForTrace_(SentryId traceId)|static int startProfilerForTrace_(SentryId1 traceId)|g' lib/src/native/cocoa/binding.dart
+sed -i.bak 's|objc.NSString descriptionWithLocale_(objc.NSObject? locale)|objc.NSString descriptionWithLocale_(objc.ObjCObjectBase? locale)|g' lib/src/native/cocoa/binding.dart
 rm lib/src/native/cocoa/binding.dart.bak

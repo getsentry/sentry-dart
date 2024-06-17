@@ -16658,7 +16658,7 @@ class NSOrderedSet extends objc.NSObject {
     return objc.NSString.castFromPointer(_ret, retain: true, release: true);
   }
 
-  objc.NSString descriptionWithLocale_(objc.NSObject? locale) {
+  objc.NSString descriptionWithLocale_(objc.ObjCObjectBase? locale) {
     final _ret = _objc_msgSend_385(this.pointer, _sel_descriptionWithLocale_,
         locale?.pointer ?? ffi.nullptr);
     return objc.NSString.castFromPointer(_ret, retain: true, release: true);
@@ -38282,7 +38282,7 @@ class NSCalendarDate extends objc.NSDate {
     return objc.NSString.castFromPointer(_ret, retain: true, release: true);
   }
 
-  objc.NSString descriptionWithLocale_(objc.NSObject? locale) {
+  objc.NSString descriptionWithLocale_(objc.ObjCObjectBase? locale) {
     final _ret = _objc_msgSend_385(this.pointer, _sel_descriptionWithLocale_,
         locale?.pointer ?? ffi.nullptr);
     return objc.NSString.castFromPointer(_ret, retain: true, release: true);
