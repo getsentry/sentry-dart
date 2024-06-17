@@ -10,9 +10,14 @@
 
 ### Dependencies
 
-- Bump Cocoa SDK from v8.25.2 to v8.26.0 ([#2060](https://github.com/getsentry/sentry-dart/pull/2060))
-  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8260)
-  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.25.2...8.26.0)
+- Bump `sqflite` minimum version from `^2.0.0` to `^2.2.8` ([#2075](https://github.com/getsentry/sentry-dart/pull/2075))
+  - This is not a breaking change since we are using api internally that is only valid from that version.
+- Bump Cocoa SDK from v8.25.2 to v8.28.0 ([#2060](https://github.com/getsentry/sentry-dart/pull/2060), [#2092](https://github.com/getsentry/sentry-dart/pull/2092))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8280)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.25.2...8.28.0)
+- Bump Android SDK from v7.9.0 to v7.10.0 ([#2090](https://github.com/getsentry/sentry-dart/pull/2090))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#7100)
+  - [diff](https://github.com/getsentry/sentry-java/compare/7.9.0...7.10.0)
 
 ## 8.2.0
 

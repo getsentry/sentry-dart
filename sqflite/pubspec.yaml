@@ -16,13 +16,13 @@ platforms:
 
 dependencies:
   sentry: 8.2.0
-  sqflite: ^2.0.0
+  sqflite: ^2.2.8
   sqflite_common: ^2.0.0
   meta: ^1.3.0
   path: ^1.8.3
 
 dev_dependencies:
-  lints: ^3.0.0
+  lints: ^4.0.0
   flutter_test:
     sdk: flutter
   coverage: ^1.3.0
