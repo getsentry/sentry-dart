@@ -35,6 +35,7 @@ dependencies:
   dio: any # This gets constrained by `sentry_dio`
   logging: any # This gets constrained by `sentry_logging`
 
+  flutter: any
 dev_dependencies:
   flutter_test:
     sdk: flutter
