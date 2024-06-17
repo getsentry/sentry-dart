@@ -2,10 +2,6 @@
 
 ## Unreleased
 
-### Features
-
-- Migrates to package:web and js_interop ([#2064](https://github.com/getsentry/sentry-dart/pull/2064))
-
 ### Fixes
 
 - Load contexts integration not setting `SentryUser` ([#2089](https://github.com/getsentry/sentry-dart/pull/2089))
@@ -23,6 +19,12 @@
   - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#7100)
   - [diff](https://github.com/getsentry/sentry-java/compare/7.9.0...7.10.0)
 
+### Breaking Changes
+
+- Migrates to package:web and js_interop ([#2104](https://github.com/getsentry/sentry-dart/pull/2104))
+  - Bumps minimum Dart SDK to 3.3.0
+  - Bumps minimum Flutter SDK to 3.19.0
+  
 ## 8.2.0
 
 ### Enhancements
