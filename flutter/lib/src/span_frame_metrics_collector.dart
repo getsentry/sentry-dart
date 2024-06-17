@@ -5,9 +5,6 @@ import 'package:meta/meta.dart';
 
 import '../sentry_flutter.dart';
 
-// ignore: implementation_imports
-import 'package:sentry/src/sentry_tracer.dart';
-
 import 'frame_callback_handler.dart';
 
 @internal
@@ -122,8 +119,7 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
       span.setData(key, value);
     });
 
-    // ignore: invalid_use_of_internal_member
-    if (span is SentryTracer) {
+    if (span is SentrySpan && span.isRootSpan) {
       frameMetrics.forEach((key, value) {
         span.setMeasurement(key.replaceAll('.', '_'), value);
       });
