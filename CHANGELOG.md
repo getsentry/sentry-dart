@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Capture total frames, frame delay, slow & frozen frames and attach to spans ([#2106](https://github.com/getsentry/sentry-dart/pull/2106))
+
 ### Fixes
 
 - Load contexts integration not setting `SentryUser` ([#2089](https://github.com/getsentry/sentry-dart/pull/2089))
