@@ -36568,7 +36568,7 @@ class PrivateSentrySDKOnly extends objc.NSObject {
 
   /// Start a profiler session associated with the given @c SentryId.
   /// @return The system time when the profiler session started.
-  static int startProfilerForTrace_(SentryId traceId) {
+  static int startProfilerForTrace_(SentryId1 traceId) {
     return _objc_msgSend_754(_class_PrivateSentrySDKOnly,
         _sel_startProfilerForTrace_, traceId.pointer);
   }
