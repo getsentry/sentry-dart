@@ -119,6 +119,8 @@ class SentryClient {
       return _sentryId;
     }
 
+    preparedEvent = _createUserOrSetDefaultIpAddress(preparedEvent);
+
     preparedEvent = await _runBeforeSend(
       preparedEvent,
       hint,
@@ -175,8 +177,6 @@ class SentryClient {
       sdk: event.sdk ?? _options.sdk,
       platform: event.platform ?? sdkPlatform(_options.platformChecker.isWeb),
     );
-
-    event = _createUserOrSetDefaultIpAddress(event);
 
     if (event is SentryTransaction) {
       return event;
