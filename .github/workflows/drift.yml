@@ -59,6 +59,9 @@ jobs:
           # Bad CPU type in executable
           - os: macos-latest
             sdk: beta
+            # Exclude beta for windows for now until the flutter set up action does not fail anymore
+          - os: windows-latest
+            sdk: beta
 
     steps:
       - uses: actions/checkout@v4

@@ -4,6 +4,7 @@
 
 ### Fixes
 
+- Load contexts integration not setting `SentryUser` ([#2089](https://github.com/getsentry/sentry-dart/pull/2089))
 - Change app start span description from `Cold start` to `Cold Start` and `Warm start` to `Warm Start` ([#2076](https://github.com/getsentry/sentry-dart/pull/2076))
 - Parse `PlatformException` from details instead of message ([#2052](https://github.com/getsentry/sentry-dart/pull/2052))
 
