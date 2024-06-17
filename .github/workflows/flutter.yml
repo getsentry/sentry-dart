@@ -48,6 +48,10 @@ jobs:
             os: windows
           - target: web
             os: ubuntu
+        # Exclude beta for windows for now until the flutter set up action does not fail anymore
+        exclude:
+          - target: windows
+            sdk: beta
 
     steps:
       - uses: actions/checkout@v4
