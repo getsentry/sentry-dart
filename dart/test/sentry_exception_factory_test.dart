@@ -256,7 +256,7 @@ isolate_instructions: 7526344980, vm_instructions: 752633f000
   }
 }
 
-class StackTraceErrorStackTrace extends StackTrace {
+class StackTraceErrorStackTrace implements StackTrace {
   @override
   String toString() {
     return '''
