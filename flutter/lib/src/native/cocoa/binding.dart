@@ -1395,7 +1395,7 @@ class NSAttributedString extends objc.NSObject {
 late final _class_NSAttributedString = objc.getClass("NSAttributedString");
 late final _sel_string = objc.registerName("string");
 
-class _NSRange extends ffi.Struct {
+final class _NSRange extends ffi.Struct {
   @ffi.UnsignedLong()
   external int location;
 
@@ -2111,7 +2111,7 @@ late final _sel_setAppliesSourcePositionAttributes_ =
     objc.registerName("setAppliesSourcePositionAttributes:");
 late final _sel_new = objc.registerName("new");
 
-class _NSZone extends ffi.Opaque {}
+final class _NSZone extends ffi.Opaque {}
 
 late final _sel_allocWithZone_ = objc.registerName("allocWithZone:");
 final _objc_msgSend_47 = objc.msgSendPointer
@@ -8356,7 +8356,7 @@ late final _sel_scannerWithString_ = objc.registerName("scannerWithString:");
 late final _sel_localizedScannerWithString_ =
     objc.registerName("localizedScannerWithString:");
 
-class NSDecimal extends ffi.Opaque {}
+final class NSDecimal extends ffi.Opaque {}
 
 late final _sel_scanDecimal_ = objc.registerName("scanDecimal:");
 final _objc_msgSend_198 = objc.msgSendPointer
@@ -8829,7 +8829,7 @@ final _objc_msgSend_203 = objc.msgSendPointer
 late final _sel_mainRunLoop = objc.registerName("mainRunLoop");
 late final _sel_currentMode = objc.registerName("currentMode");
 
-class __CFRunLoop extends ffi.Opaque {}
+final class __CFRunLoop extends ffi.Opaque {}
 
 late final _sel_getCFRunLoop = objc.registerName("getCFRunLoop");
 final _objc_msgSend_204 = objc.msgSendPointer
@@ -21685,7 +21685,7 @@ late final _sel_operatingSystemName = objc.registerName("operatingSystemName");
 late final _sel_operatingSystemVersionString =
     objc.registerName("operatingSystemVersionString");
 
-class NSOperatingSystemVersion extends ffi.Struct {
+final class NSOperatingSystemVersion extends ffi.Struct {
   @ffi.Long()
   external int majorVersion;
 
@@ -24744,7 +24744,7 @@ late final _sel_user = objc.registerName("user");
 late final _sel_password = objc.registerName("password");
 late final _sel_hasPassword = objc.registerName("hasPassword");
 
-class __SecIdentity extends ffi.Opaque {}
+final class __SecIdentity extends ffi.Opaque {}
 
 late final _sel_initWithIdentity_certificates_persistence_ =
     objc.registerName("initWithIdentity:certificates:persistence:");
@@ -24793,7 +24793,7 @@ final _objc_msgSend_547 = objc.msgSendPointer
             ffi.Pointer<objc.ObjCObject>, ffi.Pointer<objc.ObjCSelector>)>();
 late final _sel_certificates = objc.registerName("certificates");
 
-class __SecTrust extends ffi.Opaque {}
+final class __SecTrust extends ffi.Opaque {}
 
 late final _sel_initWithTrust_ = objc.registerName("initWithTrust:");
 final _objc_msgSend_548 = objc.msgSendPointer
@@ -35965,14 +35965,14 @@ late final _sel_descriptorWithApplicationURL_ =
     objc.registerName("descriptorWithApplicationURL:");
 
 @ffi.Packed(2)
-class AEDesc extends ffi.Struct {
+final class AEDesc extends ffi.Struct {
   @ffi.UnsignedInt()
   external int descriptorType;
 
   external ffi.Pointer<ffi.Pointer<OpaqueAEDataStorageType>> dataHandle;
 }
 
-class OpaqueAEDataStorageType extends ffi.Opaque {}
+final class OpaqueAEDataStorageType extends ffi.Opaque {}
 
 late final _sel_initWithAEDescNoCopy_ =
     objc.registerName("initWithAEDescNoCopy:");
@@ -37182,7 +37182,7 @@ late final _sel_addReplayIgnoreClasses_ =
 late final _sel_addReplayRedactClasses_ =
     objc.registerName("addReplayRedactClasses:");
 
-class CGPoint extends ffi.Struct {
+final class CGPoint extends ffi.Struct {
   @ffi.Double()
   external double x;
 
@@ -37190,7 +37190,7 @@ class CGPoint extends ffi.Struct {
   external double y;
 }
 
-class CGSize extends ffi.Struct {
+final class CGSize extends ffi.Struct {
   @ffi.Double()
   external double width;
 
@@ -37198,13 +37198,13 @@ class CGSize extends ffi.Struct {
   external double height;
 }
 
-class CGRect extends ffi.Struct {
+final class CGRect extends ffi.Struct {
   external CGPoint origin;
 
   external CGSize size;
 }
 
-class NSFastEnumerationState extends ffi.Struct {
+final class NSFastEnumerationState extends ffi.Struct {
   @ffi.UnsignedLong()
   external int state;
 
@@ -37323,7 +37323,7 @@ abstract class NSPropertyListFormat {
   static const int NSPropertyListBinaryFormat_v1_0 = 200;
 }
 
-class NSEdgeInsets extends ffi.Struct {
+final class NSEdgeInsets extends ffi.Struct {
   @ffi.Double()
   external double top;
 
