@@ -84,7 +84,7 @@ class SentryTracer extends ISentrySpan {
 
     for (final collector in _hub.options.performanceCollectors) {
       if (collector is PerformanceContinuousCollector) {
-        collector.onSpanStarted(this);
+        collector.onSpanStarted(_rootSpan);
       }
     }
   }
@@ -125,12 +125,6 @@ class SentryTracer extends ISentrySpan {
 
         if (latestEndTime != null) {
           _rootEndTimestamp = latestEndTime;
-        }
-      }
-
-      for (final collector in _hub.options.performanceCollectors) {
-        if (collector is PerformanceContinuousCollector) {
-          collector.onSpanFinished(this, _rootEndTimestamp);
         }
       }
 

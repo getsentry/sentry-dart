@@ -69,6 +69,7 @@ class SentrySpan extends ISentrySpan {
       _endTimestamp = endTimestamp.toUtc();
     }
 
+    print('finishing: ${_context.description}');
     // We need the timestamp so we can finish here
     for (final collector in _hub.options.performanceCollectors) {
       if (collector is PerformanceContinuousCollector) {
