@@ -96,9 +96,11 @@ void main() {
     fixture.options.tracesSampleRate = 1.0;
     fixture.options.addPerformanceCollector(sut);
 
-    final tracer =
-        SentryTracer(SentryTransactionContext('name', 'op'), fixture.hub);
-    final child = tracer.startChild('child') as SentrySpan;
+    final tracer = SentryTracer(
+        SentryTransactionContext('name', 'op', description: 'tracerDesc'),
+        fixture.hub);
+    final child =
+        tracer.startChild('child', description: 'description') as SentrySpan;
 
     await Future<void>.delayed(Duration(milliseconds: 800));
 

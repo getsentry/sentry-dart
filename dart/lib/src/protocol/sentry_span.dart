@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:meta/meta.dart';
+
 import '../../sentry.dart';
 import '../metrics/local_metrics_aggregator.dart';
 
@@ -13,11 +15,16 @@ class SentrySpan extends ISentrySpan {
   Map<String, List<MetricSummary>>? _metricSummaries;
   late final DateTime _startTimestamp;
   final Hub _hub;
+
   bool _isRootSpan = false;
 
   bool get isRootSpan => _isRootSpan;
 
+  @internal
+  SentryTracer get tracer => _tracer;
+
   final SentryTracer _tracer;
+
   final Map<String, dynamic> _data = {};
   dynamic _throwable;
 
@@ -58,26 +65,26 @@ class SentrySpan extends ISentrySpan {
     }
 
     if (endTimestamp == null) {
-      _endTimestamp = _hub.options.clock();
+      endTimestamp = _hub.options.clock();
     } else if (endTimestamp.isBefore(_startTimestamp)) {
       _hub.options.logger(
         SentryLevel.warning,
         'End timestamp ($endTimestamp) cannot be before start timestamp ($_startTimestamp)',
       );
-      _endTimestamp = _hub.options.clock();
+      endTimestamp = _hub.options.clock();
     } else {
-      _endTimestamp = endTimestamp.toUtc();
+      endTimestamp = endTimestamp.toUtc();
     }
 
-    // We need the timestamp so we can finish here
     for (final collector in _hub.options.performanceCollectors) {
       if (collector is PerformanceContinuousCollector) {
-        final _timestamp = _endTimestamp;
-        if (_timestamp != null) {
-          collector.onSpanFinished(this, _timestamp);
-        }
+        collector.onSpanFinished(this, endTimestamp);
       }
     }
+
+    // The finished flag depends on the _endTimestamp
+    // If we set this earlier then finished is true and then we cannot use setData etc...
+    _endTimestamp = endTimestamp;
 
     // associate error
     if (_throwable != null) {
@@ -213,7 +220,7 @@ class SentrySpan extends ISentrySpan {
   bool _finished = false;
 
   @override
-  bool get finished => _finished;
+  bool get finished => _endTimestamp != null;
 
   @override
   dynamic get throwable => _throwable;

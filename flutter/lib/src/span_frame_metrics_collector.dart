@@ -96,7 +96,8 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
             frozenFrames.length;
 
     if (totalFramesCount < 0 || frameDelay < 0) {
-      // todo: log
+      options.logger(SentryLevel.warning,
+          'Negative frame metrics detected. Dropping the frame metrics');
       return {};
     }
 
@@ -117,7 +118,12 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
       span.setData(key, value);
     });
 
+    // This will call the methods on the tracer, not on the span directly
     if (span is SentrySpan && span.isRootSpan) {
+      frameMetrics.forEach((key, value) {
+        // ignore: invalid_use_of_internal_member
+        span.tracer.setData(key, value);
+      });
       frameMetrics.forEach((key, value) {
         span.setMeasurement(key.replaceAll('.', '_'), value);
       });
