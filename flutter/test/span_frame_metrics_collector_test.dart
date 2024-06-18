@@ -59,7 +59,7 @@ void main() {
     expect(tracer.data, isEmpty);
   });
 
-  test('startFrameCollector collects frame durations within expected range',
+  test('frame tracking collects frame durations within expected range',
       () async {
     final sut = fixture.sut;
 
