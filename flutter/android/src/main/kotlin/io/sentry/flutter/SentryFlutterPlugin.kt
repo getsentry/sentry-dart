@@ -31,7 +31,6 @@ import io.sentry.protocol.SentryId
 import io.sentry.protocol.User
 import java.lang.ref.WeakReference
 
-
 class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
   private lateinit var channel: MethodChannel
   private lateinit var context: Context
