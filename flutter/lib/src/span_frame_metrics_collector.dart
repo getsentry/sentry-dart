@@ -41,13 +41,9 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
 
   @override
   void onSpanFinished(ISentrySpan span, DateTime endTimestamp) {
-    print('hello: ${span.context.description}');
-    print(span is SentrySpan && span.isRootSpan);
-    print(span is NoOpSentrySpan);
     if (span is NoOpSentrySpan || !options.enableFramesTracking) {
       return;
     }
-    print('hello after: ${span.context.description}');
 
     captureFrameMetrics(span, endTimestamp);
 
@@ -121,8 +117,6 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
       span.setData(key, value);
     });
 
-    print('is sentryspan: ${span is SentrySpan} ${span.context.description}');
-    print('is root span: ${span is SentrySpan && span.isRootSpan}');
     if (span is SentrySpan && span.isRootSpan) {
       frameMetrics.forEach((key, value) {
         span.setMeasurement(key.replaceAll('.', '_'), value);

@@ -409,24 +409,22 @@ class Hub {
     bool? trimEnd,
     OnTransactionFinish? onFinish,
     Map<String, dynamic>? customSamplingContext,
-  }) {
-    final tx = startTransactionWithContext(
-      SentryTransactionContext(
-        name,
-        operation,
-        description: description,
-        origin: SentryTraceOrigins.manual,
-      ),
-      startTimestamp: startTimestamp,
-      bindToScope: bindToScope,
-      waitForChildren: waitForChildren,
-      autoFinishAfter: autoFinishAfter,
-      trimEnd: trimEnd,
-      onFinish: onFinish,
-      customSamplingContext: customSamplingContext,
-    );
-    return tx;
-  }
+  }) =>
+      startTransactionWithContext(
+        SentryTransactionContext(
+          name,
+          operation,
+          description: description,
+          origin: SentryTraceOrigins.manual,
+        ),
+        startTimestamp: startTimestamp,
+        bindToScope: bindToScope,
+        waitForChildren: waitForChildren,
+        autoFinishAfter: autoFinishAfter,
+        trimEnd: trimEnd,
+        onFinish: onFinish,
+        customSamplingContext: customSamplingContext,
+      );
 
   /// Creates a Transaction and returns the instance.
   ISentrySpan startTransactionWithContext(
