@@ -3,19 +3,19 @@ dependency_overrides:
     path: ../../dart
   sentry_flutter:
     path: ../
-  sentry_dio:
-    path: ../../dio
-  sentry_logging:
-    path: ../../logging
-  sentry_sqflite:
-    path: ../../sqflite
-  sentry_file:
-    path: ../../file
-  sentry_hive:
-    path: ../../hive
-  sentry_drift:
-    path: ../../drift
-  sentry_isar:
-    path: ../../isar
+#  sentry_dio:
+#    path: ../../dio
+#  sentry_logging:
+#    path: ../../logging
+#  sentry_sqflite:
+#    path: ../../sqflite
+#  sentry_file:
+#    path: ../../file
+#  sentry_hive:
+#    path: ../../hive
+#  sentry_drift:
+#    path: ../../drift
+#  sentry_isar:
+#    path: ../../isar
   sentry_web:
     path: ../../web

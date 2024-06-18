@@ -7,13 +7,13 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:logging/logging.dart';
+// import 'package:logging/logging.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:sentry_drift/sentry_drift.dart';
+// import 'package:sentry_drift/sentry_drift.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:sentry_isar/sentry_isar.dart';
-import 'package:sentry_sqflite/sentry_sqflite.dart';
-import 'package:sqflite/sqflite.dart';
+// import 'package:sentry_isar/sentry_isar.dart';
+// import 'package:sentry_sqflite/sentry_sqflite.dart';
+// import 'package:sqflite/sqflite.dart';
 
 // import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 // import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
@@ -25,10 +25,10 @@ import 'drift/database.dart';
 import 'drift/connection/connection.dart';
 import 'isar/user.dart';
 import 'user_feedback_dialog.dart';
-import 'package:dio/dio.dart';
-import 'package:sentry_dio/sentry_dio.dart';
-import 'package:sentry_logging/sentry_logging.dart';
-import 'package:sentry_hive/sentry_hive.dart';
+// import 'package:dio/dio.dart';
+// import 'package:sentry_dio/sentry_dio.dart';
+// import 'package:sentry_logging/sentry_logging.dart';
+// import 'package:sentry_hive/sentry_hive.dart';
 
 import 'package:sentry_web/sentry_web.dart' as sentry_web;
 
@@ -76,7 +76,7 @@ Future<void> setupSentry(
       options.considerInAppFramesByDefault = false;
       options.attachThreads = true;
       options.enableWindowMetricBreadcrumbs = true;
-      options.addIntegration(LoggingIntegration(minEventLevel: Level.INFO));
+      // options.addIntegration(LoggingIntegration(minEventLevel: Level.INFO));
       options.sendDefaultPii = true;
       options.reportSilentFlutterErrors = true;
       options.attachScreenshot = true;
@@ -215,33 +215,33 @@ class MainScaffold extends StatelessWidget {
                   'Pushes a screen and creates a transaction named \'AutoCloseScreen\' with a child span that finishes after 3 seconds. \nAfter the screen has popped the transaction can then be seen on the performance page.',
               buttonTitle: 'Route Navigation Observer',
             ),
-            if (!UniversalPlatform.isWeb)
-              TooltipButton(
-                onPressed: driftTest,
-                text:
-                    'Executes CRUD operations on an in-memory with Drift and sends the created transaction to Sentry.',
-                buttonTitle: 'drift',
-              ),
-            if (!UniversalPlatform.isWeb)
-              TooltipButton(
-                onPressed: hiveTest,
-                text:
-                    'Executes CRUD operations on an in-memory with Hive and sends the created transaction to Sentry.',
-                buttonTitle: 'hive',
-              ),
-            if (!UniversalPlatform.isWeb)
-              TooltipButton(
-                onPressed: isarTest,
-                text:
-                    'Executes CRUD operations on an in-memory with Isart and sends the created transaction to Sentry.',
-                buttonTitle: 'isar',
-              ),
-            TooltipButton(
-              onPressed: sqfliteTest,
-              text:
-                  'Executes CRUD operations on an in-memory with Hive and sends the created transaction to Sentry.',
-              buttonTitle: 'sqflite',
-            ),
+            // if (!UniversalPlatform.isWeb)
+            //   TooltipButton(
+            //     onPressed: driftTest,
+            //     text:
+            //         'Executes CRUD operations on an in-memory with Drift and sends the created transaction to Sentry.',
+            //     buttonTitle: 'drift',
+            //   ),
+            // if (!UniversalPlatform.isWeb)
+            //   TooltipButton(
+            //     onPressed: hiveTest,
+            //     text:
+            //         'Executes CRUD operations on an in-memory with Hive and sends the created transaction to Sentry.',
+            //     buttonTitle: 'hive',
+            //   ),
+            // if (!UniversalPlatform.isWeb)
+            //   TooltipButton(
+            //     onPressed: isarTest,
+            //     text:
+            //         'Executes CRUD operations on an in-memory with Isart and sends the created transaction to Sentry.',
+            //     buttonTitle: 'isar',
+            //   ),
+            // TooltipButton(
+            //   onPressed: sqfliteTest,
+            //   text:
+            //       'Executes CRUD operations on an in-memory with Hive and sends the created transaction to Sentry.',
+            //   buttonTitle: 'sqflite',
+            // ),
             TooltipButton(
               onPressed: () => SecondaryScaffold.openSecondaryScaffold(context),
               text:
@@ -363,13 +363,13 @@ class MainScaffold extends StatelessWidget {
                   'Attaches web request related spans to the transaction and send it to Sentry.',
               buttonTitle: 'Dart: Web request',
             ),
-            TooltipButton(
-              onPressed: () => makeWebRequestWithDio(context),
-              key: const Key('dio_web_request'),
-              text:
-                  'Attaches web request related spans to the transaction and send it to Sentry.',
-              buttonTitle: 'Dio: Web request',
-            ),
+            // TooltipButton(
+            //   onPressed: () => makeWebRequestWithDio(context),
+            //   key: const Key('dio_web_request'),
+            //   text:
+            //       'Attaches web request related spans to the transaction and send it to Sentry.',
+            //   buttonTitle: 'Dio: Web request',
+            // ),
 
             TooltipButton(
               onPressed: () => showDialogWithTextAndImage(context),
@@ -526,8 +526,8 @@ class MainScaffold extends StatelessWidget {
             ),
             TooltipButton(
               onPressed: () {
-                final log = Logger('Logging');
-                log.info('My Logging test');
+                // final log = Logger('Logging');
+                // log.info('My Logging test');
               },
               text:
                   'Demonstrates the logging integration. log.info() will create an info event send it to Sentry.',
@@ -580,131 +580,131 @@ class MainScaffold extends StatelessWidget {
     );
   }
 
-  Future<void> isarTest() async {
-    final tr = Sentry.startTransaction(
-      'isarTest',
-      'db',
-      bindToScope: true,
-    );
+  // Future<void> isarTest() async {
+  //   final tr = Sentry.startTransaction(
+  //     'isarTest',
+  //     'db',
+  //     bindToScope: true,
+  //   );
+  //
+  //   final dir = await getApplicationDocumentsDirectory();
+  //
+  //   final isar = await SentryIsar.open(
+  //     [UserSchema],
+  //     directory: dir.path,
+  //   );
+  //
+  //   final newUser = User()
+  //     ..name = 'Joe Dirt'
+  //     ..age = 36;
+  //
+  //   await isar.writeTxn(() async {
+  //     await isar.users.put(newUser); // insert & update
+  //   });
+  //
+  //   final existingUser = await isar.users.get(newUser.id); // get
+  //
+  //   await isar.writeTxn(() async {
+  //     await isar.users.delete(existingUser!.id); // delete
+  //   });
+  //
+  //   await tr.finish(status: const SpanStatus.ok());
+  // }
 
-    final dir = await getApplicationDocumentsDirectory();
+  // Future<void> hiveTest() async {
+  //   final tr = Sentry.startTransaction(
+  //     'hiveTest',
+  //     'db',
+  //     bindToScope: true,
+  //   );
+  //
+  //   final appDir = await getApplicationDocumentsDirectory();
+  //   SentryHive.init(appDir.path);
+  //
+  //   final catsBox = await SentryHive.openBox<Map>('cats');
+  //   await catsBox.put('fluffy', {'name': 'Fluffy', 'age': 4});
+  //   await catsBox.put('loki', {'name': 'Loki', 'age': 2});
+  //   await catsBox.clear();
+  //   await catsBox.close();
+  //
+  //   SentryHive.close();
+  //
+  //   await tr.finish(status: const SpanStatus.ok());
+  // }
 
-    final isar = await SentryIsar.open(
-      [UserSchema],
-      directory: dir.path,
-    );
+  // Future<void> sqfliteTest() async {
+  //   final tr = Sentry.startTransaction(
+  //     'sqfliteTest',
+  //     'db',
+  //     bindToScope: true,
+  //   );
+  //
+  //   // databaseFactory = databaseFactoryFfiWeb; // or databaseFactoryFfi // or SentrySqfliteDatabaseFactory()
+  //
+  //   // final sqfDb = await openDatabase(inMemoryDatabasePath);
+  //   final db = await openDatabaseWithSentry(inMemoryDatabasePath);
+  //   // final db = SentryDatabase(sqfDb);
+  //   // final batch = db.batch();
+  //   await db.execute('''
+  //     CREATE TABLE Product (
+  //       id INTEGER PRIMARY KEY,
+  //       title TEXT
+  //     )
+  // ''');
+  //   final dbTitles = <String>[];
+  //   for (int i = 1; i <= 20; i++) {
+  //     final title = 'Product $i';
+  //     dbTitles.add(title);
+  //     await db.insert('Product', <String, Object?>{'title': title});
+  //   }
+  //
+  //   await db.query('Product');
+  //
+  //   await db.transaction((txn) async {
+  //     await txn
+  //         .insert('Product', <String, Object?>{'title': 'Product Another one'});
+  //     await txn.delete('Product',
+  //         where: 'title = ?', whereArgs: ['Product Another one']);
+  //   });
+  //
+  //   await db.delete('Product', where: 'title = ?', whereArgs: ['Product 1']);
+  //
+  //   // final batch = db.batch();
+  //   // batch.delete('Product', where: 'title = ?', whereArgs: dbTitles);
+  //   // await batch.commit();
+  //
+  //   await db.close();
+  //
+  //   await tr.finish(status: const SpanStatus.ok());
+  // }
 
-    final newUser = User()
-      ..name = 'Joe Dirt'
-      ..age = 36;
-
-    await isar.writeTxn(() async {
-      await isar.users.put(newUser); // insert & update
-    });
-
-    final existingUser = await isar.users.get(newUser.id); // get
-
-    await isar.writeTxn(() async {
-      await isar.users.delete(existingUser!.id); // delete
-    });
-
-    await tr.finish(status: const SpanStatus.ok());
-  }
-
-  Future<void> hiveTest() async {
-    final tr = Sentry.startTransaction(
-      'hiveTest',
-      'db',
-      bindToScope: true,
-    );
-
-    final appDir = await getApplicationDocumentsDirectory();
-    SentryHive.init(appDir.path);
-
-    final catsBox = await SentryHive.openBox<Map>('cats');
-    await catsBox.put('fluffy', {'name': 'Fluffy', 'age': 4});
-    await catsBox.put('loki', {'name': 'Loki', 'age': 2});
-    await catsBox.clear();
-    await catsBox.close();
-
-    SentryHive.close();
-
-    await tr.finish(status: const SpanStatus.ok());
-  }
-
-  Future<void> sqfliteTest() async {
-    final tr = Sentry.startTransaction(
-      'sqfliteTest',
-      'db',
-      bindToScope: true,
-    );
-
-    // databaseFactory = databaseFactoryFfiWeb; // or databaseFactoryFfi // or SentrySqfliteDatabaseFactory()
-
-    // final sqfDb = await openDatabase(inMemoryDatabasePath);
-    final db = await openDatabaseWithSentry(inMemoryDatabasePath);
-    // final db = SentryDatabase(sqfDb);
-    // final batch = db.batch();
-    await db.execute('''
-      CREATE TABLE Product (
-        id INTEGER PRIMARY KEY,
-        title TEXT
-      )
-  ''');
-    final dbTitles = <String>[];
-    for (int i = 1; i <= 20; i++) {
-      final title = 'Product $i';
-      dbTitles.add(title);
-      await db.insert('Product', <String, Object?>{'title': title});
-    }
-
-    await db.query('Product');
-
-    await db.transaction((txn) async {
-      await txn
-          .insert('Product', <String, Object?>{'title': 'Product Another one'});
-      await txn.delete('Product',
-          where: 'title = ?', whereArgs: ['Product Another one']);
-    });
-
-    await db.delete('Product', where: 'title = ?', whereArgs: ['Product 1']);
-
-    // final batch = db.batch();
-    // batch.delete('Product', where: 'title = ?', whereArgs: dbTitles);
-    // await batch.commit();
-
-    await db.close();
-
-    await tr.finish(status: const SpanStatus.ok());
-  }
-
-  Future<void> driftTest() async {
-    final tr = Sentry.startTransaction(
-      'driftTest',
-      'db',
-      bindToScope: true,
-    );
-
-    final executor = SentryQueryExecutor(
-      () async => inMemoryExecutor(),
-      databaseName: 'sentry_in_memory_db',
-    );
-
-    final db = AppDatabase(executor);
-
-    await db.into(db.todoItems).insert(
-          TodoItemsCompanion.insert(
-            title: 'This is a test thing',
-            content: 'test',
-          ),
-        );
-
-    await db.select(db.todoItems).get();
-
-    await db.close();
-
-    await tr.finish(status: const SpanStatus.ok());
-  }
+  // Future<void> driftTest() async {
+  //   final tr = Sentry.startTransaction(
+  //     'driftTest',
+  //     'db',
+  //     bindToScope: true,
+  //   );
+  //
+  //   final executor = SentryQueryExecutor(
+  //     () async => inMemoryExecutor(),
+  //     databaseName: 'sentry_in_memory_db',
+  //   );
+  //
+  //   final db = AppDatabase(executor);
+  //
+  //   await db.into(db.todoItems).insert(
+  //         TodoItemsCompanion.insert(
+  //           title: 'This is a test thing',
+  //           content: 'test',
+  //         ),
+  //       );
+  //
+  //   await db.select(db.todoItems).get();
+  //
+  //   await db.close();
+  //
+  //   await tr.finish(status: const SpanStatus.ok());
+  // }
 }
 
 extension BuildContextExtension on BuildContext {
@@ -974,51 +974,51 @@ Future<void> makeWebRequest(BuildContext context) async {
   );
 }
 
-Future<void> makeWebRequestWithDio(BuildContext context) async {
-  final dio = Dio();
-  dio.addSentry();
-
-  final transaction = Sentry.getSpan() ??
-      Sentry.startTransaction(
-        'dio-web-request',
-        'request',
-        bindToScope: true,
-      );
-  final span = transaction.startChild(
-    'dio',
-    description: 'desc',
-  );
-  Response<String>? response;
-  try {
-    response = await dio.get<String>(exampleUrl);
-    span.status = const SpanStatus.ok();
-  } catch (exception, stackTrace) {
-    span.throwable = exception;
-    span.status = const SpanStatus.internalError();
-    await Sentry.captureException(exception, stackTrace: stackTrace);
-  } finally {
-    await span.finish();
-  }
-
-  if (!context.mounted) return;
-  await showDialog<void>(
-    context: context,
-    builder: (context) {
-      return AlertDialog(
-        title: Text('Response ${response?.statusCode}'),
-        content: SingleChildScrollView(
-          child: Text(response?.data ?? 'failed request'),
-        ),
-        actions: [
-          MaterialButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
-          )
-        ],
-      );
-    },
-  );
-}
+// Future<void> makeWebRequestWithDio(BuildContext context) async {
+//   final dio = Dio();
+//   dio.addSentry();
+//
+//   final transaction = Sentry.getSpan() ??
+//       Sentry.startTransaction(
+//         'dio-web-request',
+//         'request',
+//         bindToScope: true,
+//       );
+//   final span = transaction.startChild(
+//     'dio',
+//     description: 'desc',
+//   );
+//   Response<String>? response;
+//   try {
+//     response = await dio.get<String>(exampleUrl);
+//     span.status = const SpanStatus.ok();
+//   } catch (exception, stackTrace) {
+//     span.throwable = exception;
+//     span.status = const SpanStatus.internalError();
+//     await Sentry.captureException(exception, stackTrace: stackTrace);
+//   } finally {
+//     await span.finish();
+//   }
+//
+//   if (!context.mounted) return;
+//   await showDialog<void>(
+//     context: context,
+//     builder: (context) {
+//       return AlertDialog(
+//         title: Text('Response ${response?.statusCode}'),
+//         content: SingleChildScrollView(
+//           child: Text(response?.data ?? 'failed request'),
+//         ),
+//         actions: [
+//           MaterialButton(
+//             onPressed: () => Navigator.pop(context),
+//             child: const Text('Close'),
+//           )
+//         ],
+//       );
+//     },
+//   );
+// }
 
 Future<void> showDialogWithTextAndImage(BuildContext context) async {
   final transaction = Sentry.getSpan() ??

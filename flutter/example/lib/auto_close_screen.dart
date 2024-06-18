@@ -1,6 +1,6 @@
-import 'package:dio/dio.dart';
+// import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:sentry_dio/sentry_dio.dart';
+// import 'package:sentry_dio/sentry_dio.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 import 'main.dart';
@@ -25,13 +25,13 @@ class AutoCloseScreenState extends State<AutoCloseScreen> {
   }
 
   Future<void> _doComplexOperationThenClose() async {
-    final dio = Dio();
-    dio.addSentry();
-    try {
-      await dio.get<String>(exampleUrl);
-    } catch (exception, stackTrace) {
-      await Sentry.captureException(exception, stackTrace: stackTrace);
-    }
+    // final dio = Dio();
+    // dio.addSentry();
+    // try {
+    //   await dio.get<String>(exampleUrl);
+    // } catch (exception, stackTrace) {
+    //   await Sentry.captureException(exception, stackTrace: stackTrace);
+    // }
     SentryFlutter.reportFullyDisplayed();
     // ignore: use_build_context_synchronously
     Navigator.of(context).pop();
