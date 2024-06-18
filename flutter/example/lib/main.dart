@@ -44,7 +44,7 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {
   await setupSentry(
-        () => runApp(
+    () => runApp(
       SentryWidget(
         child: DefaultAssetBundle(
           bundle: SentryAssetBundle(),
@@ -57,13 +57,13 @@ Future<void> main() async {
 }
 
 Future<void> setupSentry(
-    AppRunner appRunner,
-    String dsn, {
-      bool isIntegrationTest = false,
-      BeforeSendCallback? beforeSendCallback,
-    }) async {
+  AppRunner appRunner,
+  String dsn, {
+  bool isIntegrationTest = false,
+  BeforeSendCallback? beforeSendCallback,
+}) async {
   await SentryFlutter.init(
-        (options) {
+    (options) {
       options.dsn = exampleDsn;
       options.tracesSampleRate = 1.0;
       options.profilesSampleRate = 1.0;
@@ -208,40 +208,40 @@ class MainScaffold extends StatelessWidget {
             TooltipButton(
               onPressed: () => navigateToAutoCloseScreen(context),
               text:
-              'Pushes a screen and creates a transaction named \'AutoCloseScreen\' with a child span that finishes after 3 seconds. \nAfter the screen has popped the transaction can then be seen on the performance page.',
+                  'Pushes a screen and creates a transaction named \'AutoCloseScreen\' with a child span that finishes after 3 seconds. \nAfter the screen has popped the transaction can then be seen on the performance page.',
               buttonTitle: 'Route Navigation Observer',
             ),
             if (!UniversalPlatform.isWeb)
               TooltipButton(
                 onPressed: driftTest,
                 text:
-                'Executes CRUD operations on an in-memory with Drift and sends the created transaction to Sentry.',
+                    'Executes CRUD operations on an in-memory with Drift and sends the created transaction to Sentry.',
                 buttonTitle: 'drift',
               ),
             if (!UniversalPlatform.isWeb)
               TooltipButton(
                 onPressed: hiveTest,
                 text:
-                'Executes CRUD operations on an in-memory with Hive and sends the created transaction to Sentry.',
+                    'Executes CRUD operations on an in-memory with Hive and sends the created transaction to Sentry.',
                 buttonTitle: 'hive',
               ),
             if (!UniversalPlatform.isWeb)
               TooltipButton(
                 onPressed: isarTest,
                 text:
-                'Executes CRUD operations on an in-memory with Isart and sends the created transaction to Sentry.',
+                    'Executes CRUD operations on an in-memory with Isart and sends the created transaction to Sentry.',
                 buttonTitle: 'isar',
               ),
             TooltipButton(
               onPressed: sqfliteTest,
               text:
-              'Executes CRUD operations on an in-memory with Hive and sends the created transaction to Sentry.',
+                  'Executes CRUD operations on an in-memory with Hive and sends the created transaction to Sentry.',
               buttonTitle: 'sqflite',
             ),
             TooltipButton(
               onPressed: () => SecondaryScaffold.openSecondaryScaffold(context),
               text:
-              'Demonstrates how the router integration adds a navigation event to the breadcrumbs that can be seen when throwing an exception for example.',
+                  'Demonstrates how the router integration adds a navigation event to the breadcrumbs that can be seen when throwing an exception for example.',
               buttonTitle: 'Open another Scaffold',
             ),
             const TooltipButton(
@@ -254,7 +254,7 @@ class MainScaffold extends StatelessWidget {
               onPressed: () => Scaffold.of(context)
                   .showBottomSheet((context) => const Text('Scaffold error')),
               text:
-              'Creates an uncaught exception and sends it to Sentry. This demonstrates how our flutter error integration catches unhandled exceptions.',
+                  'Creates an uncaught exception and sends it to Sentry. This demonstrates how our flutter error integration catches unhandled exceptions.',
               buttonTitle: 'Flutter error : Scaffold.of()',
             ),
             TooltipButton(
@@ -262,7 +262,7 @@ class MainScaffold extends StatelessWidget {
               // https://github.com/flutter/flutter/issues/48972
               onPressed: () => throw Exception('Throws onPressed'),
               text:
-              'Creates an uncaught exception and sends it to Sentry. This demonstrates how our flutter error integration catches unhandled exceptions.',
+                  'Creates an uncaught exception and sends it to Sentry. This demonstrates how our flutter error integration catches unhandled exceptions.',
               buttonTitle: 'Dart: throw onPressed',
             ),
             TooltipButton(
@@ -272,7 +272,7 @@ class MainScaffold extends StatelessWidget {
                 assert(false, 'assert failure');
               },
               text:
-              'Creates an uncaught exception and sends it to Sentry. This demonstrates how our flutter error integration catches unhandled exceptions.',
+                  'Creates an uncaught exception and sends it to Sentry. This demonstrates how our flutter error integration catches unhandled exceptions.',
               buttonTitle: 'Dart: assert',
             ),
             // Calling the SDK with an appRunner will handle errors from Futures
@@ -280,17 +280,17 @@ class MainScaffold extends StatelessWidget {
             TooltipButton(
               onPressed: () async => asyncThrows(),
               text:
-              'Creates an async uncaught exception and sends it to Sentry. This demonstrates how our flutter error integration catches unhandled exceptions.',
+                  'Creates an async uncaught exception and sends it to Sentry. This demonstrates how our flutter error integration catches unhandled exceptions.',
               buttonTitle: 'Dart: async throws',
             ),
             TooltipButton(
               onPressed: () async => {
                 await Future.microtask(
-                      () => throw StateError('Failure in a microtask'),
+                  () => throw StateError('Failure in a microtask'),
                 )
               },
               text:
-              'Creates an uncaught exception in a microtask and sends it to Sentry. This demonstrates how our flutter error integration catches unhandled exceptions.',
+                  'Creates an uncaught exception in a microtask and sends it to Sentry. This demonstrates how our flutter error integration catches unhandled exceptions.',
               buttonTitle: 'Dart: Fail in microtask',
             ),
             TooltipButton(
@@ -298,18 +298,18 @@ class MainScaffold extends StatelessWidget {
                 await compute(loop, 10),
               },
               text:
-              'Creates an uncaught exception in a compute isolate and sends it to Sentry. This demonstrates how our flutter error integration catches unhandled exceptions.',
+                  'Creates an uncaught exception in a compute isolate and sends it to Sentry. This demonstrates how our flutter error integration catches unhandled exceptions.',
               buttonTitle: 'Dart: Fail in compute',
             ),
             TooltipButton(
               onPressed: () async => {
                 await Future.delayed(
                   const Duration(milliseconds: 100),
-                      () => throw StateError('Failure in a Future.delayed'),
+                  () => throw StateError('Failure in a Future.delayed'),
                 ),
               },
               text:
-              'Creates an uncaught exception in a Future.delayed and sends it to Sentry. This demonstrates how our flutter error integration catches unhandled exceptions.',
+                  'Creates an uncaught exception in a Future.delayed and sends it to Sentry. This demonstrates how our flutter error integration catches unhandled exceptions.',
               buttonTitle: 'Throws in Future.delayed',
             ),
             TooltipButton(
@@ -320,7 +320,7 @@ class MainScaffold extends StatelessWidget {
                     exception: Exception('A really bad exception'),
                     silent: false,
                     context:
-                    DiagnosticsNode.message('while handling a gesture'),
+                        DiagnosticsNode.message('while handling a gesture'),
                     library: 'gesture',
                     informationCollector: () => [
                       DiagnosticsNode.message(
@@ -334,7 +334,7 @@ class MainScaffold extends StatelessWidget {
                 );
               },
               text:
-              'Creates a FlutterError and passes it to FlutterError.onError callback. This demonstrates how our flutter error integration catches unhandled exceptions.',
+                  'Creates a FlutterError and passes it to FlutterError.onError callback. This demonstrates how our flutter error integration catches unhandled exceptions.',
               buttonTitle: 'Capture from FlutterError.onError',
             ),
             TooltipButton(
@@ -345,32 +345,32 @@ class MainScaffold extends StatelessWidget {
                 (WidgetsBinding.instance.platformDispatcher as dynamic)
                     .onError
                     ?.call(
-                  Exception('PlatformDispatcher.onError'),
-                  StackTrace.current,
-                );
+                      Exception('PlatformDispatcher.onError'),
+                      StackTrace.current,
+                    );
               },
               text:
-              'This is only usable on Flutter >= 3.3 and requires additional setup: options.addIntegration(OnErrorIntegration());',
+                  'This is only usable on Flutter >= 3.3 and requires additional setup: options.addIntegration(OnErrorIntegration());',
               buttonTitle: 'Capture from PlatformDispatcher.onError',
             ),
             TooltipButton(
               onPressed: () => makeWebRequest(context),
               text:
-              'Attaches web request related spans to the transaction and send it to Sentry.',
+                  'Attaches web request related spans to the transaction and send it to Sentry.',
               buttonTitle: 'Dart: Web request',
             ),
             TooltipButton(
               onPressed: () => makeWebRequestWithDio(context),
               key: const Key('dio_web_request'),
               text:
-              'Attaches web request related spans to the transaction and send it to Sentry.',
+                  'Attaches web request related spans to the transaction and send it to Sentry.',
               buttonTitle: 'Dio: Web request',
             ),
 
             TooltipButton(
               onPressed: () => showDialogWithTextAndImage(context),
               text:
-              'Attaches asset bundle related spans to the transaction and send it to Sentry.',
+                  'Attaches asset bundle related spans to the transaction and send it to Sentry.',
               buttonTitle: 'Flutter: Load assets',
             ),
             TooltipButton(
@@ -380,7 +380,7 @@ class MainScaffold extends StatelessWidget {
                 Sentry.captureMessage('A message with a print() Breadcrumb');
               },
               text:
-              'Sends a captureMessage to Sentry with a breadcrumb created by a print() statement.',
+                  'Sends a captureMessage to Sentry with a breadcrumb created by a print() statement.',
               buttonTitle: 'Record print() as breadcrumb',
             ),
             TooltipButton(
@@ -393,7 +393,7 @@ class MainScaffold extends StatelessWidget {
                 );
               },
               text:
-              'Sends the capture message event with additional Tag to Sentry.',
+                  'Sends the capture message event with additional Tag to Sentry.',
               buttonTitle: 'Capture message with scope with additional tag',
             ),
             TooltipButton(
@@ -442,7 +442,7 @@ class MainScaffold extends StatelessWidget {
                 await transaction.finish(status: const SpanStatus.ok());
               },
               text:
-              'Creates a custom transaction, adds child spans and send them to Sentry.',
+                  'Creates a custom transaction, adds child spans and send them to Sentry.',
               buttonTitle: 'Capture transaction',
             ),
             TooltipButton(
@@ -467,7 +467,7 @@ class MainScaffold extends StatelessWidget {
             TooltipButton(
               onPressed: () {
                 feedback.BetterFeedback.of(context).show(
-                      (feedback.UserFeedback feedback) {
+                  (feedback.UserFeedback feedback) {
                     Sentry.captureMessage(
                       feedback.text,
                       withScope: (scope) {
@@ -490,7 +490,7 @@ class MainScaffold extends StatelessWidget {
                 );
               },
               text:
-              'Sends the capture message with an image attachment to Sentry.',
+                  'Sends the capture message with an image attachment to Sentry.',
               buttonTitle: 'Capture message with image attachment',
             ),
             TooltipButton(
@@ -505,7 +505,7 @@ class MainScaffold extends StatelessWidget {
                 );
               },
               text:
-              'Shows a custom user feedback dialog without an ongoing event that captures and sends user feedback data to Sentry.',
+                  'Shows a custom user feedback dialog without an ongoing event that captures and sends user feedback data to Sentry.',
               buttonTitle: 'Capture User Feedback',
             ),
             TooltipButton(
@@ -526,7 +526,7 @@ class MainScaffold extends StatelessWidget {
                 log.info('My Logging test');
               },
               text:
-              'Demonstrates the logging integration. log.info() will create an info event send it to Sentry.',
+                  'Demonstrates the logging integration. log.info() will create an info event send it to Sentry.',
               buttonTitle: 'Logging',
             ),
             TooltipButton(
@@ -550,12 +550,12 @@ class MainScaffold extends StatelessWidget {
                   'timing key',
                   function: () async => await Future.delayed(
                       Duration(milliseconds: Random().nextInt(100)),
-                          () => span.finish()),
+                      () => span.finish()),
                   unit: DurationSentryMeasurementUnit.milliSecond,
                 );
               },
               text:
-              'Demonstrates the metrics. It creates several metrics and send them to Sentry.',
+                  'Demonstrates the metrics. It creates several metrics and send them to Sentry.',
               buttonTitle: 'Metrics',
             ),
             if (UniversalPlatform.isIOS || UniversalPlatform.isMacOS)
@@ -682,18 +682,18 @@ class MainScaffold extends StatelessWidget {
     );
 
     final executor = SentryQueryExecutor(
-          () async => inMemoryExecutor(),
+      () async => inMemoryExecutor(),
       databaseName: 'sentry_in_memory_db',
     );
 
     final db = AppDatabase(executor);
 
     await db.into(db.todoItems).insert(
-      TodoItemsCompanion.insert(
-        title: 'This is a test thing',
-        content: 'test',
-      ),
-    );
+          TodoItemsCompanion.insert(
+            title: 'This is a test thing',
+            content: 'test',
+          ),
+        );
 
     await db.select(db.todoItems).get();
 
@@ -809,9 +809,9 @@ class _IntegrationTestWidgetState extends State<IntegrationTestWidget> {
         _isLoading
             ? const CircularProgressIndicator()
             : ElevatedButton(
-          onPressed: () async => await _captureException(),
-          child: const Text('captureException'),
-        )
+                onPressed: () async => await _captureException(),
+                child: const Text('captureException'),
+              )
       ],
     );
   }
@@ -893,7 +893,7 @@ class SecondaryScaffold extends StatelessWidget {
       context,
       MaterialPageRoute<void>(
         settings:
-        const RouteSettings(name: 'SecondaryScaffold', arguments: 'foobar'),
+            const RouteSettings(name: 'SecondaryScaffold', arguments: 'foobar'),
         builder: (context) {
           return const SecondaryScaffold();
         },
@@ -912,7 +912,7 @@ class SecondaryScaffold extends StatelessWidget {
           children: [
             const Text(
               'You have added a navigation event '
-                  'to the crash reports breadcrumbs.',
+              'to the crash reports breadcrumbs.',
             ),
             MaterialButton(
               onPressed: () {
@@ -1024,7 +1024,7 @@ Future<void> showDialogWithTextAndImage(BuildContext context) async {
         bindToScope: true,
       );
   final text =
-  await DefaultAssetBundle.of(context).loadString('assets/lorem-ipsum.txt');
+      await DefaultAssetBundle.of(context).loadString('assets/lorem-ipsum.txt');
 
   if (!context.mounted) return;
   await showDialog<void>(
