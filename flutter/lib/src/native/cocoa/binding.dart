@@ -71270,6 +71270,10 @@ class SentryCurrentDateProvider extends NSObject {
     return _lib._objc_msgSend_1062(_id, _lib._sel_systemTime1);
   }
 
+  double systemUptime() {
+    return _lib._objc_msgSend_155(_id, _lib._sel_systemUptime1);
+  }
+
   @override
   SentryCurrentDateProvider init() {
     final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
