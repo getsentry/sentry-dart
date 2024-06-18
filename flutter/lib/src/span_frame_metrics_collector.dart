@@ -67,16 +67,20 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
             value.isBefore(endTimestamp) && value.isAfter(span.startTimestamp))
         .toList();
 
-    final slowFrames = durations.where((element) =>
-        frames[element]! > expectedFrameDuration && frames[element]! < 700);
+    final slowFrames = durations.where((element) {
+      final frame = frames[element];
+      return frame != null && frame > expectedFrameDuration && frame < 700;
+    });
     final slowFramesDuration =
         slowFrames.fold<int>(0, (previousValue, element) {
       final frameDuration = frames[element] ?? 0;
       return previousValue + frameDuration;
     });
 
-    final frozenFrames =
-        durations.where((element) => frames[element]! > 700).toList();
+    final frozenFrames = durations.where((element) {
+      final frame = frames[element];
+      return frame != null && frame > 700;
+    });
     final frozenFramesDuration =
         frozenFrames.fold<int>(0, (previousValue, element) {
       final frameDuration = frames[element] ?? 0;
@@ -159,7 +163,7 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
     final elapsedMilliseconds = _stopwatch.elapsedMilliseconds;
     _stopwatch.reset();
 
-    if (_frameCallbackHandler!.hasScheduledFrame) {
+    if (_frameCallbackHandler?.hasScheduledFrame == true) {
       _stopwatch.start();
     }
 
