@@ -14,7 +14,11 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
   final FrameCallbackHandler? _frameCallbackHandler;
   final SentryNative? _native;
 
+  /// Stores the DateTime when a frame happened and the duration of that frame in milliseconds.
   final frames = SplayTreeMap<DateTime, int>();
+
+  /// Stores the running spans that are being tracked.
+  /// After the frames are computed and stored in the span the span is removed from this list.
   final runningSpans = <ISentrySpan>[];
 
   bool get isFrameTrackingPaused => _isFrameTrackingPaused;
