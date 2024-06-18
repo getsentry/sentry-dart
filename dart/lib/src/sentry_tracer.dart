@@ -218,13 +218,11 @@ class SentryTracer extends ISentrySpan {
       return NoOpSentrySpan();
     }
 
-    final child = _rootSpan.startChild(
+    return _rootSpan.startChild(
       operation,
       description: description,
       startTimestamp: startTimestamp,
     );
-
-    return child;
   }
 
   ISentrySpan startChildWithParentSpanId(
