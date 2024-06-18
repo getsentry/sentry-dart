@@ -1,4 +1,5 @@
 @TestOn('vm')
+library sqflite_test;
 
 import 'dart:io';
 
