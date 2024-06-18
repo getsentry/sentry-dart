@@ -42,7 +42,8 @@ void main() {
     expect(sut.isFrameTrackingRegistered, isFalse);
   });
 
-  test('does not capture frame metrics if refresh rate is not available', () async {
+  test('does not capture frame metrics if refresh rate is not available',
+      () async {
     final sut = fixture.sut;
     fixture.options.tracesSampleRate = 1.0;
     fixture.options.addPerformanceCollector(sut);
@@ -74,7 +75,8 @@ void main() {
             .map((duration) => _isWithinRange(duration.inMilliseconds))));
   });
 
-  test('onSpanFinished removes frames older than span start timestamp', () async {
+  test('onSpanFinished removes frames older than span start timestamp',
+      () async {
     // We add 2 spans here because onSpanFinished also removes the span from the
     // internal list and if that is empty then we just clear the whole tracker
     // So we need multiple spans to test the removal of frames
@@ -157,8 +159,8 @@ void main() {
 
     sut.frames[startTimestamp.add(Duration(milliseconds: 1))] = 500;
 
-    final frameMetrics = sut.computeFrameMetrics(
-        tracer, startTimestamp.add(Duration(milliseconds: 10)), displayRefreshRate);
+    final frameMetrics = sut.computeFrameMetrics(tracer,
+        startTimestamp.add(Duration(milliseconds: 10)), displayRefreshRate);
 
     expect(frameMetrics.isEmpty, isTrue);
   });
