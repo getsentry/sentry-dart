@@ -42,6 +42,23 @@ void main() {
     expect(sut.isFrameTrackingRegistered, isFalse);
   });
 
+  test('does not capture frame metrics if refresh rate is not available', () async {
+    final sut = fixture.sut;
+    fixture.options.tracesSampleRate = 1.0;
+    fixture.options.addPerformanceCollector(sut);
+    fixture.mockSentryNative.refreshRate = null;
+
+    final tracer = SentryTracer(
+        SentryTransactionContext('name', 'op', description: 'tracerDesc'),
+        fixture.hub);
+
+    await Future<void>.delayed(Duration(milliseconds: 800));
+
+    await tracer.finish();
+
+    expect(tracer.data, isEmpty);
+  });
+
   test('startFrameCollector collects frame durations within expected range',
       () async {
     final sut = fixture.sut;
@@ -216,7 +233,8 @@ class Fixture {
   final options = SentryFlutterOptions(dsn: fakeDsn);
   late final hub = Hub(options);
   final fakeFrameCallbackHandler = FakeFrameCallbackHandler();
+  final mockSentryNative = TestMockSentryNative();
 
   SpanFrameMetricsCollector get sut => SpanFrameMetricsCollector(options,
-      frameCallbackHandler: fakeFrameCallbackHandler, native: TestMockSentryNative());
+      frameCallbackHandler: fakeFrameCallbackHandler, native: mockSentryNative);
 }

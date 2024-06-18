@@ -202,6 +202,7 @@ class TestMockSentryNative implements SentryNative {
   var numberOfInitCalls = 0;
   SentryFlutterOptions? initOptions;
   var numberOfCloseCalls = 0;
+  int? refreshRate = 60;
 
   @override
   Future<void> addBreadcrumb(Breadcrumb breadcrumb) async {
@@ -313,7 +314,7 @@ class TestMockSentryNative implements SentryNative {
 
   @override
   Future<int?> displayRefreshRate() {
-    return Future.value(60);
+    return Future.value(refreshRate);
   }
 }
 

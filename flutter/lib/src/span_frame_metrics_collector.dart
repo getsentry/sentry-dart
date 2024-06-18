@@ -67,6 +67,11 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
             value.isBefore(endTimestamp) && value.isAfter(span.startTimestamp))
         .toList();
 
+    if (durations.isEmpty) {
+      options.logger(SentryLevel.info, 'No frame durations available in frame tracker.');
+      return {};
+    }
+
     final slowFrames = durations.where((element) {
       final frame = frames[element];
       return frame != null && frame > expectedFrameDuration && frame < 700;
