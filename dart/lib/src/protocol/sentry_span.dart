@@ -92,7 +92,6 @@ class SentrySpan extends ISentrySpan {
     }
     _metricSummaries = _localMetricsAggregator?.getSummaries();
     await _finishedCallback?.call(endTimestamp: _endTimestamp);
-    _finished = true;
     return super.finish(status: status, endTimestamp: _endTimestamp);
   }
 
@@ -216,8 +215,6 @@ class SentrySpan extends ISentrySpan {
     }
     return json;
   }
-
-  bool _finished = false;
 
   @override
   bool get finished => _endTimestamp != null;

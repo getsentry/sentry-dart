@@ -4,6 +4,7 @@ artifactProvider:
   name: none
 targets:
   - name: pub-dev
+
     packages:
       dart:
       flutter:
