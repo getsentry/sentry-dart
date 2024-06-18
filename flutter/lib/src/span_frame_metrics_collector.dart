@@ -10,6 +10,10 @@ import 'native/sentry_native.dart';
 
 @internal
 class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
+  final SentryFlutterOptions options;
+  final FrameCallbackHandler? _frameCallbackHandler;
+  final SentryNative? _native;
+
   final frames = SplayTreeMap<DateTime, int>();
   final runningSpans = <ISentrySpan>[];
 
@@ -20,9 +24,6 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
   bool _isFrameTrackingRegistered = false;
 
   final _stopwatch = Stopwatch();
-  final SentryFlutterOptions options;
-  final FrameCallbackHandler? _frameCallbackHandler;
-  final SentryNative? _native;
 
   SpanFrameMetricsCollector(this.options,
       {FrameCallbackHandler? frameCallbackHandler, SentryNative? native})
@@ -37,7 +38,7 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
     }
 
     runningSpans.add(span);
-    startFrameCollector();
+    startFrameTracking();
   }
 
   @override
@@ -46,7 +47,7 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
       return Future.value();
     }
 
-    await captureFrameMetrics(span, endTimestamp);
+    await recordSpanFrameMetrics(span, endTimestamp);
 
     if (runningSpans.isEmpty) {
       clear();
@@ -58,7 +59,75 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
     }
   }
 
-  Map<String, int> calculateFrameMetrics(
+  /// Calls [WidgetsBinding.instance.addPersistentFrameCallback] which cannot be unregistered
+  /// and exists for the duration of the application's lifetime.
+  ///
+  /// Stopping the frame tracking means setting `isFrameTrackingPaused = true`
+  /// to prevent actions being done when the frame callback is triggered.
+  void startFrameTracking() {
+    _isFrameTrackingPaused = false;
+
+    if (!_isFrameTrackingRegistered) {
+      _frameCallbackHandler?.addPersistentFrameCallback(frameCallback);
+      _isFrameTrackingRegistered = true;
+    }
+  }
+
+  void frameCallback(Duration duration) async {
+    if (_isFrameTrackingPaused) {
+      return;
+    }
+
+    if (_stopwatch.elapsedMilliseconds == 0) {
+      _stopwatch.start();
+    }
+
+    await _frameCallbackHandler?.endOfFrame;
+    _stopwatch.stop();
+
+    // ignore: invalid_use_of_internal_member
+    frames[getUtcDateTime()] = _stopwatch.elapsedMilliseconds;
+
+    _stopwatch.reset();
+    if (_frameCallbackHandler?.hasScheduledFrame == true) {
+      _stopwatch.start();
+    }
+  }
+
+  Future<void> recordSpanFrameMetrics(
+      ISentrySpan span, DateTime endTimestamp) async {
+    final displayRefreshRate = await _native?.displayRefreshRate();
+    if (displayRefreshRate == null) {
+      options.logger(SentryLevel.warning,
+          'Display refresh rate is not available. Dropping the frame metrics');
+      clear();
+      return;
+    }
+
+    runningSpans.removeWhere(
+        (element) => element.context.spanId == span.context.spanId);
+
+    final frameMetrics =
+        computeFrameMetrics(span, endTimestamp, displayRefreshRate);
+
+    frameMetrics.forEach((key, value) {
+      span.setData(key, value);
+    });
+
+    // This will call the methods on the tracer, not on the span directly
+    if (span is SentrySpan && span.isRootSpan) {
+      frameMetrics.forEach((key, value) {
+        // ignore: invalid_use_of_internal_member
+        span.tracer.setData(key, value);
+      });
+      frameMetrics.forEach((key, value) {
+        // In measurements we change e.g frames.total to frames_total
+        span.setMeasurement(key.replaceAll('.', '_'), value);
+      });
+    }
+  }
+
+  Map<String, int> computeFrameMetrics(
       ISentrySpan span, DateTime endTimestamp, int displayRefreshRate) {
     final expectedFrameDuration = ((1 / displayRefreshRate) * 1000).toInt();
 
@@ -68,7 +137,8 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
         .toList();
 
     if (durations.isEmpty) {
-      options.logger(SentryLevel.info, 'No frame durations available in frame tracker.');
+      options.logger(
+          SentryLevel.info, 'No frame durations available in frame tracker.');
       return {};
     }
 
@@ -120,74 +190,6 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
       "frames.slow": slowFrames.length,
       "frames.frozen": frozenFrames.length,
     };
-  }
-
-  Future<void> captureFrameMetrics(
-      ISentrySpan span, DateTime endTimestamp) async {
-    final displayRefreshRate = await _native?.displayRefreshRate();
-    if (displayRefreshRate == null) {
-      options.logger(SentryLevel.warning,
-          'Display refresh rate is not available. Dropping the frame metrics');
-      clear();
-      return;
-    }
-
-    runningSpans.removeWhere(
-        (element) => element.context.spanId == span.context.spanId);
-
-    final frameMetrics =
-        calculateFrameMetrics(span, endTimestamp, displayRefreshRate);
-
-    frameMetrics.forEach((key, value) {
-      span.setData(key, value);
-    });
-
-    // This will call the methods on the tracer, not on the span directly
-    if (span is SentrySpan && span.isRootSpan) {
-      frameMetrics.forEach((key, value) {
-        // ignore: invalid_use_of_internal_member
-        span.tracer.setData(key, value);
-      });
-      frameMetrics.forEach((key, value) {
-        span.setMeasurement(key.replaceAll('.', '_'), value);
-      });
-    }
-  }
-
-  void frameCallback(Duration duration) async {
-    if (_isFrameTrackingPaused) {
-      return;
-    }
-
-    if (_stopwatch.elapsedMilliseconds == 0) {
-      _stopwatch.start();
-    }
-    await _frameCallbackHandler?.endOfFrame;
-
-    _stopwatch.stop();
-    final elapsedMilliseconds = _stopwatch.elapsedMilliseconds;
-    _stopwatch.reset();
-
-    if (_frameCallbackHandler?.hasScheduledFrame == true) {
-      _stopwatch.start();
-    }
-
-    // ignore: invalid_use_of_internal_member
-    frames[getUtcDateTime()] = elapsedMilliseconds;
-  }
-
-  /// Calls [WidgetsBinding.instance.addPersistentFrameCallback] which cannot be unregistered
-  /// and exists for the duration of the application's lifetime.
-  ///
-  /// Stopping the frame tracking means setting `isFrameTrackingPaused = true`
-  /// to prevent actions being done when the frame callback is triggered.
-  void startFrameCollector() {
-    _isFrameTrackingPaused = false;
-
-    if (!_isFrameTrackingRegistered) {
-      _frameCallbackHandler?.addPersistentFrameCallback(frameCallback);
-      _isFrameTrackingRegistered = true;
-    }
   }
 
   @override

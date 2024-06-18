@@ -63,7 +63,7 @@ void main() {
       () async {
     final sut = fixture.sut;
 
-    sut.startFrameCollector();
+    sut.startFrameTracking();
     await Future<void>.delayed(Duration(seconds: 1));
 
     final expectedDurations = fakeFrameDurations;
@@ -157,7 +157,7 @@ void main() {
 
     sut.frames[startTimestamp.add(Duration(milliseconds: 1))] = 500;
 
-    final frameMetrics = sut.calculateFrameMetrics(
+    final frameMetrics = sut.computeFrameMetrics(
         tracer, startTimestamp.add(Duration(milliseconds: 10)), displayRefreshRate);
 
     expect(frameMetrics.isEmpty, isTrue);
