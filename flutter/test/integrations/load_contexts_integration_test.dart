@@ -103,16 +103,8 @@ void main() {
       final options = fixture.options;
 
       final user = SentryUser(id: expectedId);
-      Map<String, dynamic> loadContexts = {'user': user.toJson()};
-      final future = Future.value(loadContexts);
-      when(fixture.methodChannel.invokeMethod<dynamic>('loadContexts'))
-          .thenAnswer((_) => future);
-      // ignore: deprecated_member_use
-      _channel.setMockMethodCallHandler((MethodCall methodCall) async {});
-
-      final integration = LoadContextsIntegration(fixture.methodChannel);
-      options.addIntegration(integration);
-      options.integrations.first.call(fixture.hub, options);
+      when(fixture.binding.loadContexts())
+          .thenAnswer((_) async => {'user': user.toJson()});
 
       final client = SentryClient(options);
       final event = SentryEvent();
