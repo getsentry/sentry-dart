@@ -195,7 +195,7 @@ class FlutterEnricherEventProcessor implements EventProcessor {
   SentryOperatingSystem _getOperatingSystem(SentryOperatingSystem? os) {
     return (os ?? SentryOperatingSystem()).copyWith(
       // ignore: deprecated_member_use
-      theme: os?.theme ?? describeEnum(window.platformBrightness),
+      theme: os?.theme /*?? describeEnum(window.platformBrightness)*/, // TODO
     );
   }
 

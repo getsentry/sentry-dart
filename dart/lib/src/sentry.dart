@@ -45,13 +45,14 @@ class Sentry {
   }) async {
     final sentryOptions = options ?? SentryOptions();
 
-    await _initDefaultValues(sentryOptions);
+    _setEnvironmentVariables(sentryOptions);
 
     try {
       final config = optionsConfiguration(sentryOptions);
       if (config is Future) {
         await config;
       }
+      await _initDefaultValues(sentryOptions);
     } catch (exception, stackTrace) {
       sentryOptions.logger(
         SentryLevel.error,
@@ -73,7 +74,6 @@ class Sentry {
   }
 
   static Future<void> _initDefaultValues(SentryOptions options) async {
-    _setEnvironmentVariables(options);
 
     // Throws when running on the browser
     if (!options.platformChecker.isWeb) {

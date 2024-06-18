@@ -1,0 +1,16 @@
+name: sentry_web
+description: A starting point for Dart libraries or applications.
+version: 1.0.0
+# repository: https://github.com/my_org/my_repo
+
+environment:
+  sdk: ^3.4.3
+
+# Add regular dependencies here.
+dependencies:
+  sentry: 8.2.0
+  web: ^0.5.1
+
+dev_dependencies:
+  lints: ^3.0.0
+  test: ^1.24.0

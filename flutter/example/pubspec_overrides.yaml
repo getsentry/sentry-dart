@@ -17,3 +17,5 @@ dependency_overrides:
     path: ../../drift
   sentry_isar:
     path: ../../isar
+  sentry_web:
+    path: ../../web

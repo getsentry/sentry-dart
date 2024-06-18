@@ -443,6 +443,8 @@ class SentryOptions {
   /// ```
   Spotlight spotlight = Spotlight(enabled: false);
 
+  Window? Function() window = () { return null; };
+
   SentryOptions({this.dsn, PlatformChecker? checker}) {
     if (checker != null) {
       platformChecker = checker;

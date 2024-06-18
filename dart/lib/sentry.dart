@@ -54,3 +54,5 @@ export 'src/sentry_span_operations.dart';
 export 'src/utils.dart';
 // spotlight debugging
 export 'src/spotlight.dart';
+// Window wrappers
+export 'src/web/window.dart';

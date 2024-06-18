@@ -30,6 +30,8 @@ import 'package:sentry_dio/sentry_dio.dart';
 import 'package:sentry_logging/sentry_logging.dart';
 import 'package:sentry_hive/sentry_hive.dart';
 
+import 'package:sentry_web/sentry_web.dart' as sentry_web;
+
 // ATTENTION: Change the DSN below with your own to see the events in Sentry. Get one at sentry.io
 const String exampleDsn =
     'https://e85b375ffb9f43cf8bdf9787768149e0@o447951.ingest.sentry.io/5428562';
@@ -43,6 +45,7 @@ var _isIntegrationTest = false;
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {
+
   await setupSentry(
     () => runApp(
       SentryWidget(
@@ -64,6 +67,7 @@ Future<void> setupSentry(
 }) async {
   await SentryFlutter.init(
     (options) {
+      options.window = sentry_web.SentryWeb.createWindow;
       options.dsn = exampleDsn;
       options.tracesSampleRate = 1.0;
       options.profilesSampleRate = 1.0;
