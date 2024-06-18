@@ -6,6 +6,7 @@ import 'package:meta/meta.dart';
 import '../sentry_flutter.dart';
 
 import 'frame_callback_handler.dart';
+import 'native/sentry_native.dart';
 
 @internal
 class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
@@ -19,15 +20,15 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
   bool _isFrameTrackingRegistered = false;
 
   final _stopwatch = Stopwatch();
-
   final SentryFlutterOptions options;
-
   final FrameCallbackHandler? _frameCallbackHandler;
+  final SentryNative? _native;
 
   SpanFrameMetricsCollector(this.options,
-      {FrameCallbackHandler? frameCallbackHandler})
+      {FrameCallbackHandler? frameCallbackHandler, SentryNative? native})
       : _frameCallbackHandler =
-            frameCallbackHandler ?? DefaultFrameCallbackHandler();
+            frameCallbackHandler ?? DefaultFrameCallbackHandler(),
+        _native = native ?? SentryFlutter.native;
 
   @override
   void onSpanStarted(ISentrySpan span) {
@@ -40,12 +41,12 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
   }
 
   @override
-  void onSpanFinished(ISentrySpan span, DateTime endTimestamp) {
+  Future<void> onSpanFinished(ISentrySpan span, DateTime endTimestamp) async {
     if (span is NoOpSentrySpan || !options.enableFramesTracking) {
-      return;
+      return Future.value();
     }
 
-    captureFrameMetrics(span, endTimestamp);
+    await captureFrameMetrics(span, endTimestamp);
 
     if (runningSpans.isEmpty) {
       clear();
@@ -58,14 +59,16 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
   }
 
   Map<String, int> calculateFrameMetrics(
-      ISentrySpan span, DateTime endTimestamp) {
+      ISentrySpan span, DateTime endTimestamp, int displayRefreshRate) {
+    final expectedFrameDuration = ((1 / displayRefreshRate) * 1000).toInt();
+
     final durations = frames.keys
         .takeWhile((value) =>
             value.isBefore(endTimestamp) && value.isAfter(span.startTimestamp))
         .toList();
 
-    final slowFrames = durations
-        .where((element) => frames[element]! > 16 && frames[element]! < 700);
+    final slowFrames = durations.where((element) =>
+        frames[element]! > expectedFrameDuration && frames[element]! < 700);
     final slowFramesDuration =
         slowFrames.fold<int>(0, (previousValue, element) {
       final frameDuration = frames[element] ?? 0;
@@ -82,8 +85,8 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
 
     final frameDelay = durations.fold<int>(0, (previousValue, element) {
       final frameDuration = frames[element];
-      if (frameDuration != null && frameDuration > 16) {
-        return previousValue + (frameDuration - 16);
+      if (frameDuration != null && frameDuration > expectedFrameDuration) {
+        return previousValue + (frameDuration - expectedFrameDuration);
       }
       return previousValue;
     });
@@ -91,7 +94,8 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
     final spanDuration =
         endTimestamp.difference(span.startTimestamp).inMilliseconds;
     final totalFramesCount =
-        ((spanDuration - (slowFramesDuration + frozenFramesDuration)) / 16) +
+        ((spanDuration - (slowFramesDuration + frozenFramesDuration)) /
+                expectedFrameDuration) +
             slowFrames.length +
             frozenFrames.length;
 
@@ -109,11 +113,22 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
     };
   }
 
-  void captureFrameMetrics(ISentrySpan span, DateTime endTimestamp) {
+  Future<void> captureFrameMetrics(
+      ISentrySpan span, DateTime endTimestamp) async {
+    final displayRefreshRate = await _native?.displayRefreshRate();
+    if (displayRefreshRate == null) {
+      options.logger(SentryLevel.warning,
+          'Display refresh rate is not available. Dropping the frame metrics');
+      clear();
+      return;
+    }
+
     runningSpans.removeWhere(
         (element) => element.context.spanId == span.context.spanId);
 
-    final frameMetrics = calculateFrameMetrics(span, endTimestamp);
+    final frameMetrics =
+        calculateFrameMetrics(span, endTimestamp, displayRefreshRate);
+
     frameMetrics.forEach((key, value) {
       span.setData(key, value);
     });

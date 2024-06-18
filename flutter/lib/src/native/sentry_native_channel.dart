@@ -147,4 +147,8 @@ class SentryNativeChannel implements SentryNativeBinding {
         'startTime': startTimeNs,
         'endTime': endTimeNs,
       });
+
+  @override
+  Future<int?> displayRefreshRate() =>
+      _channel.invokeMethod('displayRefreshRate');
 }

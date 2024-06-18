@@ -757,6 +757,15 @@ class MockSentrySpan extends _i1.Mock implements _i3.SentrySpan {
       ) as bool);
 
   @override
+  _i4.SentryTracer get tracer => (super.noSuchMethod(
+        Invocation.getter(#tracer),
+        returnValue: _FakeSentryTracer_4(
+          this,
+          Invocation.getter(#tracer),
+        ),
+      ) as _i4.SentryTracer);
+
+  @override
   set status(_i3.SpanStatus? status) => super.noSuchMethod(
         Invocation.setter(
           #status,

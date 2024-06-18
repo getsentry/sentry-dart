@@ -89,6 +89,11 @@ class SentryNative {
       _invoke("collectProfile",
           () => _binding.collectProfile(traceId, startTimeNs, endTimeNs));
 
+  // Refresh Rates
+
+  Future<int?> displayRefreshRate() =>
+      _invoke("displayRefreshRate", () => _binding.displayRefreshRate());
+
   /// Reset state
   void reset() {
     appStartEnd = null;

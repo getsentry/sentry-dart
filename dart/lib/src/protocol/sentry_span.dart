@@ -78,7 +78,7 @@ class SentrySpan extends ISentrySpan {
 
     for (final collector in _hub.options.performanceCollectors) {
       if (collector is PerformanceContinuousCollector) {
-        collector.onSpanFinished(this, endTimestamp);
+        await collector.onSpanFinished(this, endTimestamp);
       }
     }
 

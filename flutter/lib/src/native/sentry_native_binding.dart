@@ -41,6 +41,8 @@ abstract class SentryNativeBinding {
 
   Future<void> discardProfiler(SentryId traceId);
 
+  Future<int?> displayRefreshRate();
+
   Future<Map<String, dynamic>?> collectProfile(
       SentryId traceId, int startTimeNs, int endTimeNs);
 }

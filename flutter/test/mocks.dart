@@ -310,6 +310,11 @@ class TestMockSentryNative implements SentryNative {
     numberOfCloseCalls++;
     return Future.value(null);
   }
+
+  @override
+  Future<int?> displayRefreshRate() {
+    return Future.value(60);
+  }
 }
 
 // TODO can this be replaced with https://pub.dev/packages/mockito#verifying-exact-number-of-invocations--at-least-x--never
@@ -424,6 +429,11 @@ class MockNativeChannel implements SentryNativeBinding {
   Future<void> close() {
     numberOfCloseCalls++;
     return Future.value(null);
+  }
+
+  @override
+  Future<int?> displayRefreshRate() {
+    return Future.value(60);
   }
 }
 
