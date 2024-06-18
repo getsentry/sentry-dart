@@ -5,7 +5,7 @@ abstract class FrameCallbackHandler {
   void addPostFrameCallback(FrameCallback callback);
   void addPersistentFrameCallback(FrameCallback callback);
   Future<void> get endOfFrame;
-  late bool hasScheduledFrame;
+  bool get hasScheduledFrame;
 }
 
 class DefaultFrameCallbackHandler implements FrameCallbackHandler {
@@ -32,5 +32,5 @@ class DefaultFrameCallbackHandler implements FrameCallbackHandler {
   }
 
   @override
-  bool hasScheduledFrame = true;
+  bool get hasScheduledFrame => WidgetsBinding.instance.hasScheduledFrame;
 }
