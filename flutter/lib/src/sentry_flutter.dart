@@ -36,6 +36,17 @@ mixin SentryFlutter {
   // ignore: invalid_use_of_internal_member
   static DateTime? sentrySetupStartTime;
 
+  /// Initializes the Sentry Flutter SDK.
+  ///
+  /// Unlike [Sentry.init], this method creates the Flutter default integrations.
+  ///
+  /// [optionsConfiguration] is a callback that allows you to configure the Sentry
+  /// options. The [SentryFlutterOptions] should not be adjusted anywhere else than
+  /// during [init], so that's why they're not directly exposed outside of this method.
+  ///
+  /// You can use the static members of [Sentry] from within other packages without the
+  /// need of initializing it in the package; as long as they have been already properly
+  /// initialized in the application package.
   static Future<void> init(
     FlutterOptionsConfiguration optionsConfiguration, {
     AppRunner? appRunner,
