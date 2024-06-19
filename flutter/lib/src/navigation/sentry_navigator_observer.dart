@@ -6,11 +6,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 import '../integrations/integrations.dart';
+import '../native/native_frames.dart';
+import '../native/sentry_native_binding.dart';
 import 'time_to_display_tracker.dart';
 
 import '../../sentry_flutter.dart';
 import '../event_processor/flutter_enricher_event_processor.dart';
-import '../native/sentry_native.dart';
 
 // ignore: implementation_imports
 import 'package:sentry/src/sentry_tracer.dart';
@@ -111,7 +112,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   final bool _setRouteNameAsTransaction;
   final RouteNameExtractor? _routeNameExtractor;
   final AdditionalInfoExtractor? _additionalInfoProvider;
-  final SentryNative? _native;
+  final SentryNativeBinding? _native;
   static TimeToDisplayTracker? _timeToDisplayTracker;
 
   @internal
@@ -247,8 +248,8 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       trimEnd: true,
       onFinish: (transaction) async {
         _transaction = null;
-        final nativeFrames = await _native
-            ?.endNativeFramesCollection(transaction.context.traceId);
+        final nativeFrames =
+            await _native?.endNativeFrames(transaction.context.traceId);
         if (nativeFrames != null) {
           final measurements = nativeFrames.toMeasurements();
           for (final item in measurements.entries) {
@@ -277,7 +278,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       scope.span ??= _transaction;
     });
 
-    await _native?.beginNativeFramesCollection();
+    await _native?.beginNativeFrames();
   }
 
   Future<void> _finishTimeToDisplayTracking({bool clearAfter = false}) async {

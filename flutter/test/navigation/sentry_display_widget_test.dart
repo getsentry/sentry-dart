@@ -108,7 +108,6 @@ class Fixture {
   final fakeFrameCallbackHandler = FakeFrameCallbackHandler();
 
   Fixture() {
-    SentryFlutter.native = TestMockSentryNative();
     navigatorObserver = SentryNavigatorObserver(hub: hub);
   }
 

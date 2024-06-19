@@ -6,5 +6,5 @@ import '../sentry_native_channel.dart';
 // generated JNI bindings. See https://github.com/getsentry/sentry-dart/issues/1444
 @internal
 class SentryNativeJava extends SentryNativeChannel {
-  SentryNativeJava(super.channel);
+  SentryNativeJava(super.options, super.channel);
 }

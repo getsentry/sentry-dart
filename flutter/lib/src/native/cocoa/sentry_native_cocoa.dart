@@ -10,14 +10,14 @@ import 'binding.dart' as cocoa;
 class SentryNativeCocoa extends SentryNativeChannel {
   late final _lib = cocoa.SentryCocoa(DynamicLibrary.process());
 
-  SentryNativeCocoa(super.channel);
+  SentryNativeCocoa(super.options, super.channel);
 
   @override
-  int? startProfiler(SentryId traceId) {
-    final cSentryId = cocoa.SentryId1.alloc(_lib)
-      ..initWithUUIDString_(cocoa.NSString(_lib, traceId.toString()));
-    final startTime =
-        cocoa.PrivateSentrySDKOnly.startProfilerForTrace_(_lib, cSentryId);
-    return startTime;
-  }
+  int? startProfiler(SentryId traceId) => tryCatchSync('startProfiler', () {
+        final cSentryId = cocoa.SentryId1.alloc(_lib)
+          ..initWithUUIDString_(cocoa.NSString(_lib, traceId.toString()));
+        final startTime =
+            cocoa.PrivateSentrySDKOnly.startProfilerForTrace_(_lib, cSentryId);
+        return startTime;
+      });
 }
