@@ -74,7 +74,6 @@ class Sentry {
   }
 
   static Future<void> _initDefaultValues(SentryOptions options) async {
-
     // Throws when running on the browser
     if (!options.platformChecker.isWeb) {
       // catch any errors that may occur within the entry function, main()

@@ -5,7 +5,6 @@ Window createWebWindow() {
 }
 
 class NoopWindow implements Window {
-
   @override
   WindowScreen get screen => NoopScreen();
 

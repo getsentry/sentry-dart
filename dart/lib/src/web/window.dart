@@ -1,5 +1,4 @@
 abstract class Window {
-
   WindowScreen get screen;
   WindowNavigator get navigator;
   WindowLocation get location;

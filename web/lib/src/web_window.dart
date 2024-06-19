@@ -39,11 +39,11 @@ class WebScreen implements WindowScreen {
       _window.screen.orientation.type == "portrait"
           ? ScreenOrientation.portrait
           : _window.screen.orientation.type == "landscape"
-          ? ScreenOrientation.landscape
-          : null;
+              ? ScreenOrientation.landscape
+              : null;
 }
 
-class WebWindowNavigator implements WindowNavigator  {
+class WebWindowNavigator implements WindowNavigator {
   WebWindowNavigator(this._window);
 
   final web.Window _window;

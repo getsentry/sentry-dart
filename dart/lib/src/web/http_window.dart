@@ -41,11 +41,11 @@ class HttpWindowScreen implements WindowScreen {
       _window.screen?.orientation?.type == "portrait"
           ? ScreenOrientation.portrait
           : _window.screen?.orientation?.type == "landscape"
-          ? ScreenOrientation.landscape
-          : null;
+              ? ScreenOrientation.landscape
+              : null;
 }
 
-class HttpWindowNavigator implements WindowNavigator  {
+class HttpWindowNavigator implements WindowNavigator {
   HttpWindowNavigator(this._window);
 
   final html.Window _window;

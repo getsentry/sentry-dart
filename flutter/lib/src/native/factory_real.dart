@@ -6,7 +6,7 @@ import 'sentry_native_binding.dart';
 import 'sentry_native_channel.dart';
 
 import 'cocoa/sentry_native_cocoa.dart'
-  if (dart.library.js_interop) 'cocoa/noop_sentry_native_cocoa.dart';
+    if (dart.library.js_interop) 'cocoa/noop_sentry_native_cocoa.dart';
 
 // import 'cocoa/noop_sentry_native_cocoa.dart'
 //   if (dart.library.ffi) 'cocoa/sentry_native_cocoa.dart';

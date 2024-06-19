@@ -1,4 +1,3 @@
-
 import '../sentry_options.dart';
 import 'window.dart';
 
@@ -7,7 +6,6 @@ Window createWindow(SentryOptions options) {
 }
 
 class NoopWindow implements Window {
-
   @override
   WindowScreen get screen => NoopWindowScreen();
 

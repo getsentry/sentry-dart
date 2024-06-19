@@ -2,8 +2,8 @@ import '../../../sentry.dart';
 import 'enricher_event_processor.dart';
 
 import '../../web/noop_window.dart'
-  if (dart.library.html) '../../web/http_window.dart'
-  if (dart.library.js_interop) '../../web/web_window.dart';
+    if (dart.library.html) '../../web/http_window.dart'
+    if (dart.library.js_interop) '../../web/web_window.dart';
 
 EnricherEventProcessor enricherEventProcessor(SentryOptions options) {
   return WebEnricherEventProcessor(
@@ -61,12 +61,11 @@ class WebEnricherEventProcessor implements EnricherEventProcessor {
       online: device?.online ?? _window.navigator.onLine,
       memorySize: device?.memorySize ?? _getMemorySize(),
       orientation: device?.orientation ?? _getScreenOrientation(),
-      screenHeightPixels: device?.screenHeightPixels ??
-          _window.screen.availableHeight,
+      screenHeightPixels:
+          device?.screenHeightPixels ?? _window.screen.availableHeight,
       screenWidthPixels:
           device?.screenWidthPixels ?? _window.screen.availableWidth,
-      screenDensity:
-          device?.screenDensity ?? _window.devicePixelRatio,
+      screenDensity: device?.screenDensity ?? _window.devicePixelRatio,
     );
   }
 
