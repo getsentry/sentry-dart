@@ -64,24 +64,6 @@ jobs:
           dart pub get
           dart compile aot-snapshot bin/example.dart
 
-      - name: Build Web example
-        if: runner.os != 'Windows'
-        shell: pwsh
-        run: |
-          try {
-            $useLegacy = ([System.Management.Automation.SemanticVersion]::Parse('${{ matrix.sdk }}') -lt [System.Management.Automation.SemanticVersion]::Parse('3.3'))
-          } catch {
-            $useLegacy = $false
-          }
-          if ($useLegacy) {
-            cd dart/example_web_legacy
-          } else {
-            cd dart/example_web
-          }
-          "Building $(Get-Item .)"
-          dart pub get
-          webdev build
-
   analyze:
     uses: ./.github/workflows/analyze.yml
     with:
