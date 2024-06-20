@@ -6,11 +6,11 @@ on:
       - release/**
   pull_request:
     paths:
-      - "!**/*.md"
-      - "!**/class-diagram.svg"
-      - ".github/workflows/dio.yml"
-      - "dart/**"
-      - "dio/**"
+      - '!**/*.md'
+      - '!**/class-diagram.svg'
+      - '.github/workflows/dio.yml'
+      - 'dart/**'
+      - 'dio/**'
 
 jobs:
   cancel-previous-workflow:
@@ -25,10 +25,6 @@ jobs:
     name: Build ${{matrix.sdk}} on ${{matrix.os}}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
-    defaults:
-      run:
-        shell: bash
-        working-directory: ./dio
     strategy:
       fail-fast: false
       matrix:
@@ -40,29 +36,16 @@ jobs:
           - os: macos-latest
             sdk: beta
     steps:
-      - uses: dart-lang/setup-dart@f0ead981b4d9a35b37f30d36160575d60931ec30 # pin@v1
+      - uses: ./.github/actions/dart-test
         with:
-          sdk: ${{ matrix.sdk }}
-      - uses: actions/checkout@v4
+          directory: dio
 
-      - name: Test (VM and browser)
-        run: |
-          dart pub get
-          dart test -p chrome --test-randomize-ordering-seed=random --chain-stack-traces
-          dart test -p vm --coverage=coverage --test-randomize-ordering-seed=random --chain-stack-traces
-          dart pub run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.dart_tool/package_config.json --report-on=lib
-
-      - uses: codecov/codecov-action@e28ff129e5465c2c0dcc6f003fc735cb6ae0c673 # pin@v3
+      - uses: ./.github/actions/coverage
         if: runner.os == 'Linux' && matrix.sdk == 'stable'
         with:
-          name: sentry_dio
-          files: ./dio/coverage/lcov.info
-
-      - uses: VeryGoodOpenSource/very_good_coverage@c953fca3e24a915e111cc6f55f03f756dcb3964c # pin@v3.0.0
-        if: runner.os == 'Linux' && matrix.sdk == 'stable'
-        with:
-          path: "./dio/coverage/lcov.info"
-          min_coverage: 81
+          directory: dio
+          coverage: sentry_dio
+          min-coverage: 81
 
   analyze:
     uses: ./.github/workflows/analyze.yml
