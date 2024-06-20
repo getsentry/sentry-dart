@@ -14,8 +14,6 @@ runs:
       with:
         sdk: ${{ matrix.sdk }}
 
-    - uses: actions/checkout@v4
-
     - run: dart pub get
       shell: bash
       working-directory: ${{ inputs.directory }}

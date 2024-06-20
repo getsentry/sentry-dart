@@ -37,6 +37,8 @@ jobs:
           - os: macos-latest
             sdk: beta
     steps:
+      - uses: actions/checkout@v4
+
       - uses: ./.github/actions/dart-test
         with:
           directory: file
