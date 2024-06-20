@@ -12,9 +12,8 @@ import 'package:test/test.dart';
 // https://github.com/getsentry/sentry-dart/issues/1893
 void main() {
   final dartVersion = Version.parse(Platform.version.split(' ')[0]);
-  final exampleAppDir = dartVersion < Version.parse('3.3.0')
-      ? 'example_web_legacy'
-      : 'example_web';
+  final isLegacy = dartVersion < Version.parse('3.3.0');
+  final exampleAppDir = isLegacy ? 'example_web_legacy' : 'example_web';
   final exampleAppWorkingDir =
       '${Directory.current.path}${Platform.pathSeparator}$exampleAppDir';
   group('Compile $exampleAppDir', () {
@@ -43,8 +42,9 @@ void main() {
                 'Could not compile main.dart, likely because of dart:io import.');
         expect(
             compileResult.stdout,
-            contains(
-                'build_web_compilers:entrypoint on web/main.dart:Compiled'));
+            contains(isLegacy
+                ? 'Succeeded after '
+                : 'build_web_compilers:entrypoint on web/main.dart:Compiled'));
       },
       timeout: Timeout(const Duration(minutes: 1)), // double of detault timeout
     );
