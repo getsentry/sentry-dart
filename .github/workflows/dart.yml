@@ -58,10 +58,6 @@ jobs:
           coverage: sentry
           min-coverage: 85
 
-      - name: Install webdev
-        if: runner.os != 'Windows'
-        run: dart pub global activate webdev
-
       - name: Build example
         working-directory: dart/example
         run: |
@@ -82,6 +78,7 @@ jobs:
           } else {
             cd dart/example_web
           }
+          "Building $(Get-Item .)"
           dart pub get
           webdev build
 
