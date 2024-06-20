@@ -106,7 +106,9 @@ class SentryBaggage {
     if (scope.user?.id != null) {
       setUserId(scope.user!.id!);
     }
+    // ignore: deprecated_member_use_from_same_package
     if (scope.user?.segment != null) {
+      // ignore: deprecated_member_use_from_same_package
       setUserSegment(scope.user!.segment!);
     }
   }
