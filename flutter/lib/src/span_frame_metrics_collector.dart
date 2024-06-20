@@ -72,27 +72,29 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
     _isFrameTrackingPaused = false;
 
     if (!_isFrameTrackingRegistered) {
-      _frameCallbackHandler?.addPersistentFrameCallback(frameCallback);
+      _frameCallbackHandler?.addPersistentFrameCallback(recordFrameDuration);
       _isFrameTrackingRegistered = true;
     }
   }
 
-  void frameCallback(Duration duration) async {
-    if (_isFrameTrackingPaused) {
-      return;
-    }
+  /// Records the duration of a single frame and stores it in [frames].
+  ///
+  /// This method is called for each frame when frame tracking is active.
+  void recordFrameDuration(Duration duration) async {
+    if (_isFrameTrackingPaused) return;
 
-    if (_stopwatch.elapsedMilliseconds == 0) {
+    if (!_stopwatch.isRunning) {
       _stopwatch.start();
     }
 
     await _frameCallbackHandler?.endOfFrame;
-    _stopwatch.stop();
 
+    final frameDuration = _stopwatch.elapsedMilliseconds;
     // ignore: invalid_use_of_internal_member
-    frames[getUtcDateTime()] = _stopwatch.elapsedMilliseconds;
+    frames[getUtcDateTime()] = frameDuration;
 
     _stopwatch.reset();
+
     if (_frameCallbackHandler?.hasScheduledFrame == true) {
       _stopwatch.start();
     }
