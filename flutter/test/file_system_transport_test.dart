@@ -8,32 +8,22 @@ import 'dart:typed_data';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry_flutter/src/file_system_transport.dart';
 
 import 'mocks.dart';
+import 'mocks.mocks.dart';
 
 void main() {
-  const _channel = MethodChannel('sentry_flutter');
-
-  TestWidgetsFlutterBinding.ensureInitialized();
-
   late Fixture fixture;
 
   setUp(() {
     fixture = Fixture();
   });
 
-  tearDown(() {
-    // ignore: deprecated_member_use
-    _channel.setMockMethodCallHandler(null);
-  });
-
-  test('FileSystemTransport wont throw', () async {
-    // ignore: deprecated_member_use
-    _channel.setMockMethodCallHandler((MethodCall methodCall) async {});
-
-    final transport = fixture.getSut(_channel);
+  test("$FileSystemTransport won't throw", () async {
+    final transport = fixture.getSut();
     final event = SentryEvent();
     final sdkVersion =
         SdkVersion(name: 'fixture-sdkName', version: 'fixture-sdkVersion');
@@ -48,13 +38,10 @@ void main() {
     expect(sentryId, sentryId);
   });
 
-  test('FileSystemTransport returns emptyId if channel throws', () async {
-    // ignore: deprecated_member_use
-    _channel.setMockMethodCallHandler((MethodCall methodCall) async {
-      throw Exception();
-    });
+  test('$FileSystemTransport returns emptyId if channel throws', () async {
+    when(fixture.binding.captureEnvelope(any)).thenThrow(Exception());
 
-    final transport = fixture.getSut(_channel);
+    final transport = fixture.getSut();
     final event = SentryEvent();
     final sdkVersion =
         SdkVersion(name: 'fixture-sdkName', version: 'fixture-sdkVersion');
@@ -69,14 +56,8 @@ void main() {
     expect(SentryId.empty(), sentryId);
   });
 
-  test('FileSystemTransport asserts the event', () async {
-    dynamic arguments;
-    // ignore: deprecated_member_use
-    _channel.setMockMethodCallHandler((MethodCall methodCall) async {
-      arguments = methodCall.arguments;
-    });
-
-    final transport = fixture.getSut(_channel);
+  test('$FileSystemTransport asserts the event', () async {
+    final transport = fixture.getSut();
 
     final event =
         SentryEvent(message: SentryMessage('hi I am a special char ◤'));
@@ -89,8 +70,9 @@ void main() {
     );
     await transport.send(envelope);
 
-    final envelopeList = arguments as List;
-    final envelopeData = envelopeList.first as Uint8List;
+    final envelopeData = verify(fixture.binding.captureEnvelope(captureAny))
+        .captured
+        .single as Uint8List;
     final envelopeString = utf8.decode(envelopeData);
     final lines = envelopeString.split('\n');
     final envelopeHeader = lines.first;
@@ -120,8 +102,9 @@ void main() {
 
 class Fixture {
   final options = SentryOptions(dsn: fakeDsn);
+  final binding = MockSentryNativeBinding();
 
-  FileSystemTransport getSut(MethodChannel channel) {
-    return FileSystemTransport(channel, options);
+  FileSystemTransport getSut() {
+    return FileSystemTransport(binding, options);
   }
 }
