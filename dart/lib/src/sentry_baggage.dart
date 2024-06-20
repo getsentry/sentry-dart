@@ -178,6 +178,8 @@ class SentryBaggage {
     set('sentry-user_id', value);
   }
 
+  @Deprecated(
+      'Will be removed in v9 since functionality has been removed from Sentry')
   void setUserSegment(String value) {
     set('sentry-user_segment', value);
   }

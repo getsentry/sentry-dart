@@ -17,6 +17,7 @@ void main() {
       baggage.setRelease('release');
       baggage.setEnvironment('environment');
       baggage.setUserId('userId');
+      // ignore: deprecated_member_use_from_same_package
       baggage.setUserSegment('userSegment');
       baggage.setTransaction('transaction');
       baggage.setSampleRate('1.0');

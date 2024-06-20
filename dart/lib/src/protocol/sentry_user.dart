@@ -68,7 +68,8 @@ class SentryUser {
   final String? ipAddress;
 
   /// The user segment, for apps that divide users in user segments.
-  @Deprecated('Will be removed in v9. Use a custom tag or context instead to capture this information.')
+  @Deprecated(
+      'Will be removed in v9. Use a custom tag or context instead to capture this information.')
   final String? segment;
 
   /// Any other user context information that may be helpful.
