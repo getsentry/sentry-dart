@@ -1,14 +1,7 @@
-@TestOn('vm')
-library dart_test;
-
-import 'dart:io';
-
 import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
-import 'package:version/version.dart';
 
 void main() {
-  final dartVersion = Version.parse(Platform.version.split(' ')[0]);
   group('$SentryMeasurementUnit', () {
     group('DurationUnit', () {
       test('nanosecond', () {
@@ -133,5 +126,5 @@ void main() {
         expect(CustomSentryMeasurementUnit('custom').toStringValue(), 'custom');
       });
     });
-  }, skip: dartVersion < Version.parse('2.18.0'));
+  });
 }
