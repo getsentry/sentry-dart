@@ -39,3 +39,4 @@ runs:
       with:
         path: './${{ inputs.directory }}/coverage/lcov.info'
         min_coverage: ${{ inputs.min-coverage }}
+        codecov_token: ${{ inputs.codecov-token }}
