@@ -13,6 +13,10 @@ inputs:
     description: Minimum coverage percentage
     required: false
     default: '0'
+  codecov-token:
+    description: Codecov token
+    required: false
+    default: ${{ secrets.CODECOV_TOKEN }}
 
 runs:
   using: composite
@@ -29,7 +33,6 @@ runs:
       with:
         name: ${{ inputs.coverage != '' }}
         files: ./${{ inputs.directory }}/coverage/lcov.info
-        token: ${{ secrets.CODECOV_TOKEN }}
 
     - uses: VeryGoodOpenSource/very_good_coverage@c953fca3e24a915e111cc6f55f03f756dcb3964c # pin@v3.0.0
       if: ${{ inputs.coverage != '' }}
