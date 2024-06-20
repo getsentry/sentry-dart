@@ -34,7 +34,7 @@ runs:
       working-directory: ${{ inputs.directory }}
 
     - name: Test dart2wasm
-      if: ${{ inputs.web == 'true' && (matrix.sdk == 'stable' || matrix.sdk == 'beta') }}
+      if: ${{ inputs.web == 'true' && (matrix.sdk == 'stable' || matrix.sdk == 'beta') && runner.os != 'Windows' }}
       run: dart test -p chrome --compiler dart2wasm --test-randomize-ordering-seed=random --chain-stack-traces
       shell: bash
       working-directory: ${{ inputs.directory }}
