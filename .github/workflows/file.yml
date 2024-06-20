@@ -47,6 +47,7 @@ jobs:
       - uses: ./.github/actions/coverage
         if: runner.os == 'Linux' && matrix.sdk == 'stable'
         with:
+          token: ${{ secrets.CODECOV_TOKEN }}
           directory: file
           coverage: sentry_file
           min-coverage: 55

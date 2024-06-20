@@ -45,6 +45,7 @@ jobs:
       - uses: ./.github/actions/coverage
         if: runner.os == 'Linux' && matrix.sdk == 'stable'
         with:
+          token: ${{ secrets.CODECOV_TOKEN }}
           directory: logging
           coverage: sentry_logging
           min-coverage: 90
