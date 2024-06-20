@@ -15,23 +15,24 @@ void main() {
   final exampleAppDir = dartVersion < Version.parse('3.3.0')
       ? 'example_web_legacy'
       : 'example_web';
-
+  final exampleAppWorkingDir =
+      '${Directory.current.path}${Platform.pathSeparator}$exampleAppDir';
   group('Compile $exampleAppDir', () {
     test(
       'dart pub get and compilation should run successfully',
       () async {
         final result = await _runProcess('dart pub get',
-            workingDirectory: _exampleWebWorkingDir);
+            workingDirectory: exampleAppWorkingDir);
         expect(result.exitCode, 0,
             reason: 'Could run `dart pub get` for $exampleAppDir. '
                 'Likely caused by outdated dependencies');
         // running this test locally require clean working directory
         final cleanResult = await _runProcess('dart run build_runner clean',
-            workingDirectory: _exampleWebWorkingDir);
+            workingDirectory: exampleAppWorkingDir);
         expect(cleanResult.exitCode, 0);
         final compileResult = await _runProcess(
             'dart run build_runner build -r web -o build --delete-conflicting-outputs',
-            workingDirectory: _exampleWebWorkingDir);
+            workingDirectory: exampleAppWorkingDir);
         expect(compileResult.exitCode, 0,
             reason: 'Could not compile $exampleAppDir project');
         expect(
@@ -80,10 +81,6 @@ Future<_CommandResult> _runProcess(String command,
   final processOut = utf8.decode(buffer);
   int exitCode = await process.exitCode;
   return _CommandResult(exitCode: exitCode, stdout: processOut);
-}
-
-String get _exampleWebWorkingDir {
-  return '${Directory.current.path}${Platform.pathSeparator}$exampleAppDir';
 }
 
 class _CommandResult {
