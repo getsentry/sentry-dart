@@ -70,7 +70,7 @@ jobs:
 
       - name: Build Web example
         if: runner.os != 'Windows'
-        shell: powershell
+        shell: pwsh
         run: |
           try {
             $useLegacy = ([System.Management.Automation.SemanticVersion]::Parse('${{ matrix.sdk }}') -lt [System.Management.Automation.SemanticVersion]::Parse('3.3'))

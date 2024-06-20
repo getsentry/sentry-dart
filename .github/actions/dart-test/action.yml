@@ -23,7 +23,7 @@ runs:
       working-directory: ${{ inputs.directory }}
 
     - name: Test VM
-      run: dart test -p vm --coverage=coverage --test-randomize-ordering-seed=random --chain-stack-traces
+      run: dart test -p vm ${{ (runner.os == 'Linux' && matrix.sdk == 'stable' && '--coverage=coverage') || '' }} --test-randomize-ordering-seed=random --chain-stack-traces
       shell: bash
       working-directory: ${{ inputs.directory }}
 
