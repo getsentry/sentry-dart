@@ -71,8 +71,18 @@ jobs:
 
       - name: Build Web example
         if: runner.os != 'Windows'
-        working-directory: dart/example_web
+        shell: powershell
         run: |
+          try {
+            $useLegacy = ([System.Management.Automation.SemanticVersion]::Parse('${{ matrix.sdk }}') -lt [System.Management.Automation.SemanticVersion]::Parse('3.3'))
+          } catch {
+            $useLegacy = $false
+          }
+          if ($useLegacy) {
+            cd dart/example_web_legacy
+          } else {
+            cd dart/example_web
+          }
           dart pub get
           webdev build
 
