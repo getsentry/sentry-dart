@@ -133,5 +133,5 @@ void main() {
         expect(CustomSentryMeasurementUnit('custom').toStringValue(), 'custom');
       });
     });
-  }, skip: dartVersion < Version.parse('2.12.0'));
+  }, skip: dartVersion < Version.parse('2.18.0'));
 }

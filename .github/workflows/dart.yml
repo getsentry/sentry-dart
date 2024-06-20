@@ -21,13 +21,13 @@ jobs:
           access_token: ${{ github.token }}
 
   build:
-    name: Build ${{matrix.sdk}} on ${{matrix.os}}
-    runs-on: ${{ matrix.os }}
+    name: Dart ${{matrix.sdk}} on ${{matrix.os}}
+    runs-on: ${{ matrix.os }}-latest
     timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu]
         sdk:
           - '2.17'
           - '2.18'
@@ -39,10 +39,10 @@ jobs:
           - '3.4'
           - stable
           - beta
-        exclude:
-          - os: windows-latest
+        include:
+          - os: windows
             sdk: stable
-          - os: macos-latest
+          - os: macos
             sdk: stable
     steps:
       - uses: actions/checkout@v4

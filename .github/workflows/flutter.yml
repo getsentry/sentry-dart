@@ -144,6 +144,7 @@ jobs:
     with:
       package: flutter
       sdk: flutter
+      panaThreshold: 87
 
   pod-lint:
     runs-on: macos-latest
