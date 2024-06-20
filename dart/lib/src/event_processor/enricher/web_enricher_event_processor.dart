@@ -1,4 +1,4 @@
-import 'package:web/web.dart' as web show window, Window, Navigator;
+import 'web_html.dart' if (dart.library.js_interop) 'web_web.dart' as web;
 
 import '../../../sentry.dart';
 import 'enricher_event_processor.dart';
@@ -59,9 +59,10 @@ class WebEnricherEventProcessor implements EnricherEventProcessor {
       online: device?.online ?? _window.navigator.onLine,
       memorySize: device?.memorySize ?? _getMemorySize(),
       orientation: device?.orientation ?? _getScreenOrientation(),
-      screenHeightPixels:
-          device?.screenHeightPixels ?? _window.screen.availHeight,
-      screenWidthPixels: device?.screenWidthPixels ?? _window.screen.availWidth,
+      screenHeightPixels: device?.screenHeightPixels ??
+          _window.screen?.available.height.toInt(),
+      screenWidthPixels:
+          device?.screenWidthPixels ?? _window.screen?.available.width.toInt(),
       screenDensity:
           device?.screenDensity ?? _window.devicePixelRatio.toDouble(),
     );
@@ -76,12 +77,14 @@ class WebEnricherEventProcessor implements EnricherEventProcessor {
 
   SentryOrientation? _getScreenOrientation() {
     // https://developer.mozilla.org/en-US/docs/Web/API/ScreenOrientation
-    final screenOrientation = _window.screen.orientation;
-    if (screenOrientation.type.startsWith('portrait')) {
-      return SentryOrientation.portrait;
-    }
-    if (screenOrientation.type.startsWith('landscape')) {
-      return SentryOrientation.landscape;
+    final screenOrientation = _window.screen?.orientation;
+    if (screenOrientation != null) {
+      if (screenOrientation.type?.startsWith('portrait') ?? false) {
+        return SentryOrientation.portrait;
+      }
+      if (screenOrientation.type?.startsWith('landscape') ?? false) {
+        return SentryOrientation.landscape;
+      }
     }
     return null;
   }

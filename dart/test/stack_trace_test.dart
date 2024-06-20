@@ -3,8 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/noop_origin.dart'
-    if (dart.library.js_interop) 'package:sentry/src/origin.dart';
+import 'package:sentry/src/origin.dart';
 import 'package:sentry/src/sentry_stack_trace_factory.dart';
 import 'package:stack_trace/stack_trace.dart';
 import 'package:test/test.dart';

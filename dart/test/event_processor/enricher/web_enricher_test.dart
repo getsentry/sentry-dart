@@ -1,10 +1,11 @@
 @TestOn('browser')
 library dart_test;
 
-import 'package:web/web.dart' as web;
-
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/event_processor/enricher/web_enricher_event_processor.dart';
+import 'package:sentry/src/event_processor/enricher/web_html.dart'
+    if (dart.library.js_interop) 'package:sentry/src/event_processor/enricher/web_web.dart'
+    as web;
 import 'package:test/test.dart';
 
 import '../../mocks.dart';
