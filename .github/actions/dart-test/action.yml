@@ -5,6 +5,10 @@ inputs:
     description: The directory to run tests in
     required: false
     default: ''
+  web:
+    description: Whether to run tests for web
+    required: false
+    default: 'true'
 
 runs:
   using: composite
@@ -24,6 +28,7 @@ runs:
       working-directory: ${{ inputs.directory }}
 
     - name: Test dart2js
+      if: ${{ inputs.web == 'true' }}
       run: dart test -p chrome --test-randomize-ordering-seed=random --chain-stack-traces
       shell: bash
       working-directory: ${{ inputs.directory }}

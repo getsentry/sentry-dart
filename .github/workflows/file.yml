@@ -42,6 +42,7 @@ jobs:
       - uses: ./.github/actions/dart-test
         with:
           directory: file
+          web: false
 
       - uses: ./.github/actions/coverage
         if: runner.os == 'Linux' && matrix.sdk == 'stable'
