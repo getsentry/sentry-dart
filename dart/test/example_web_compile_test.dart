@@ -5,19 +5,25 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:version/version.dart';
 import 'package:test/test.dart';
 
 // Tests for the following issue
 // https://github.com/getsentry/sentry-dart/issues/1893
 void main() {
-  group('Compile example_web', () {
+  final dartVersion = Version.parse(Platform.version.split(' ')[0]);
+  final exampleAppDir = dartVersion < Version.parse('3.3.0')
+      ? 'example_web_legacy'
+      : 'example_web';
+
+  group('Compile $exampleAppDir', () {
     test(
       'dart pub get and compilation should run successfully',
       () async {
         final result = await _runProcess('dart pub get',
             workingDirectory: _exampleWebWorkingDir);
         expect(result.exitCode, 0,
-            reason: 'Could run `dart pub get` for example_web. '
+            reason: 'Could run `dart pub get` for $exampleAppDir. '
                 'Likely caused by outdated dependencies');
         // running this test locally require clean working directory
         final cleanResult = await _runProcess('dart run build_runner clean',
@@ -27,7 +33,7 @@ void main() {
             'dart run build_runner build -r web -o build --delete-conflicting-outputs',
             workingDirectory: _exampleWebWorkingDir);
         expect(compileResult.exitCode, 0,
-            reason: 'Could not compile example_web project');
+            reason: 'Could not compile $exampleAppDir project');
         expect(
             compileResult.stdout,
             isNot(contains(
@@ -77,7 +83,7 @@ Future<_CommandResult> _runProcess(String command,
 }
 
 String get _exampleWebWorkingDir {
-  return '${Directory.current.path}${Platform.pathSeparator}example_web';
+  return '${Directory.current.path}${Platform.pathSeparator}$exampleAppDir';
 }
 
 class _CommandResult {
