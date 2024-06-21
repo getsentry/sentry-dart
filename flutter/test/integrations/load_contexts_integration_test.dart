@@ -1,40 +1,23 @@
 @TestOn('vm')
 library flutter_test;
 
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/integrations/load_contexts_integration.dart';
 
-import '../mocks.dart';
-import '../mocks.mocks.dart';
+import 'fixture.dart';
 
 void main() {
   group(LoadContextsIntegration, () {
-    const _channel = MethodChannel('sentry_flutter');
+    late IntegrationTestFixture<LoadContextsIntegration> fixture;
 
-    TestWidgetsFlutterBinding.ensureInitialized();
-
-    late Fixture fixture;
-
-    setUp(() {
-      fixture = Fixture();
-    });
-
-    tearDown(() {
-      // ignore: deprecated_member_use
-      _channel.setMockMethodCallHandler(null);
+    setUp(() async {
+      fixture = IntegrationTestFixture(LoadContextsIntegration.new);
+      await fixture.registerIntegration();
     });
 
     test('loadContextsIntegration adds integration', () {
-      // ignore: deprecated_member_use
-      _channel.setMockMethodCallHandler((MethodCall methodCall) async {});
-
-      final integration = LoadContextsIntegration(_channel);
-
-      integration(fixture.hub, fixture.options);
-
       expect(
           fixture.options.sdk.integrations.contains('loadContextsIntegration'),
           true);
@@ -46,19 +29,10 @@ void main() {
       final eventBreadcrumb = Breadcrumb(message: 'event');
       var event = SentryEvent(breadcrumbs: [eventBreadcrumb]);
 
-      final nativeBreadcrumb = Breadcrumb(message: 'native');
-      Map<String, dynamic> loadContexts = {
-        'breadcrumbs': [nativeBreadcrumb.toJson()]
-      };
+      when(fixture.binding.loadContexts()).thenAnswer((_) async => {
+            'breadcrumbs': [Breadcrumb(message: 'native').toJson()]
+          });
 
-      final future = Future.value(loadContexts);
-      when(fixture.methodChannel.invokeMethod<dynamic>('loadContexts'))
-          .thenAnswer((_) => future);
-      // ignore: deprecated_member_use
-      _channel.setMockMethodCallHandler((MethodCall methodCall) async {});
-
-      final integration = LoadContextsIntegration(fixture.methodChannel);
-      integration.call(fixture.hub, fixture.options);
       event =
           (await fixture.options.eventProcessors.first.apply(event, Hint()))!;
 
@@ -72,19 +46,10 @@ void main() {
       final eventBreadcrumb = Breadcrumb(message: 'event');
       var event = SentryEvent(breadcrumbs: [eventBreadcrumb]);
 
-      final nativeBreadcrumb = Breadcrumb(message: 'native');
-      Map<String, dynamic> loadContexts = {
-        'breadcrumbs': [nativeBreadcrumb.toJson()]
-      };
+      when(fixture.binding.loadContexts()).thenAnswer((_) async => {
+            'breadcrumbs': [Breadcrumb(message: 'native').toJson()]
+          });
 
-      final future = Future.value(loadContexts);
-      when(fixture.methodChannel.invokeMethod<dynamic>('loadContexts'))
-          .thenAnswer((_) => future);
-      // ignore: deprecated_member_use
-      _channel.setMockMethodCallHandler((MethodCall methodCall) async {});
-
-      final integration = LoadContextsIntegration(fixture.methodChannel);
-      integration.call(fixture.hub, fixture.options);
       event =
           (await fixture.options.eventProcessors.first.apply(event, Hint()))!;
 
@@ -105,23 +70,13 @@ void main() {
       final eventBreadcrumb = Breadcrumb(message: 'event');
       var event = SentryEvent(breadcrumbs: [eventBreadcrumb]);
 
-      final nativeMutatedBreadcrumb = Breadcrumb(message: 'native-mutated');
-      final nativeDeletedBreadcrumb = Breadcrumb(message: 'native-deleted');
-      Map<String, dynamic> loadContexts = {
-        'breadcrumbs': [
-          nativeMutatedBreadcrumb.toJson(),
-          nativeDeletedBreadcrumb.toJson(),
-        ]
-      };
+      when(fixture.binding.loadContexts()).thenAnswer((_) async => {
+            'breadcrumbs': [
+              Breadcrumb(message: 'native-mutated').toJson(),
+              Breadcrumb(message: 'native-deleted').toJson(),
+            ]
+          });
 
-      final future = Future.value(loadContexts);
-      when(fixture.methodChannel.invokeMethod<dynamic>('loadContexts'))
-          .thenAnswer((_) => future);
-      // ignore: deprecated_member_use
-      _channel.setMockMethodCallHandler((MethodCall methodCall) async {});
-
-      final integration = LoadContextsIntegration(fixture.methodChannel);
-      integration.call(fixture.hub, fixture.options);
       event =
           (await fixture.options.eventProcessors.first.apply(event, Hint()))!;
 
@@ -148,16 +103,8 @@ void main() {
       final options = fixture.options;
 
       final user = SentryUser(id: expectedId);
-      Map<String, dynamic> loadContexts = {'user': user.toJson()};
-      final future = Future.value(loadContexts);
-      when(fixture.methodChannel.invokeMethod<dynamic>('loadContexts'))
-          .thenAnswer((_) => future);
-      // ignore: deprecated_member_use
-      _channel.setMockMethodCallHandler((MethodCall methodCall) async {});
-
-      final integration = LoadContextsIntegration(fixture.methodChannel);
-      options.addIntegration(integration);
-      options.integrations.first.call(fixture.hub, options);
+      when(fixture.binding.loadContexts())
+          .thenAnswer((_) async => {'user': user.toJson()});
 
       final client = SentryClient(options);
       final event = SentryEvent();
@@ -168,11 +115,4 @@ void main() {
       expect(expectedId, actualId);
     });
   });
-}
-
-class Fixture {
-  final hub = MockHub();
-  final options = SentryFlutterOptions(dsn: fakeDsn);
-
-  final methodChannel = MockMethodChannel();
 }

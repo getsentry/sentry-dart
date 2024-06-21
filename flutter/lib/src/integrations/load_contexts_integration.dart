@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:flutter/services.dart';
 import 'package:sentry/sentry.dart';
+import '../native/sentry_native_binding.dart';
 import '../sentry_flutter_options.dart';
 
 /// Load Device's Contexts from the iOS & Android SDKs.
@@ -15,32 +15,30 @@ import '../sentry_flutter_options.dart';
 ///
 /// This integration is only executed on iOS, macOS & Android Apps.
 class LoadContextsIntegration extends Integration<SentryFlutterOptions> {
-  final MethodChannel _channel;
+  final SentryNativeBinding _native;
 
-  LoadContextsIntegration(this._channel);
+  LoadContextsIntegration(this._native);
 
   @override
   void call(Hub hub, SentryFlutterOptions options) {
     options.addEventProcessor(
-      _LoadContextsIntegrationEventProcessor(_channel, options),
+      _LoadContextsIntegrationEventProcessor(_native, options),
     );
     options.sdk.addIntegration('loadContextsIntegration');
   }
 }
 
 class _LoadContextsIntegrationEventProcessor implements EventProcessor {
-  _LoadContextsIntegrationEventProcessor(this._channel, this._options);
+  _LoadContextsIntegrationEventProcessor(this._native, this._options);
 
-  final MethodChannel _channel;
+  final SentryNativeBinding _native;
   final SentryFlutterOptions _options;
 
   @override
   Future<SentryEvent?> apply(SentryEvent event, Hint hint) async {
+    // TODO don't copy everything (i.e. avoid unnecessary Map.from())
     try {
-      final loadContexts = await _channel.invokeMethod('loadContexts');
-
-      final infos =
-          Map<String, dynamic>.from(loadContexts is Map ? loadContexts : {});
+      final infos = await _native.loadContexts() ?? {};
       final contextsMap = infos['contexts'] as Map?;
       if (contextsMap != null && contextsMap.isNotEmpty) {
         final contexts = Contexts.fromJson(

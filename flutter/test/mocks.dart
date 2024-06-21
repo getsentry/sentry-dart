@@ -26,17 +26,17 @@ SentryFlutterOptions defaultTestOptions() {
 
 // https://github.com/dart-lang/mockito/blob/master/NULL_SAFETY_README.md#fallback-generators
 ISentrySpan startTransactionShim(
-    String? name,
-    String? operation, {
-      String? description,
-      DateTime? startTimestamp,
-      bool? bindToScope,
-      bool? waitForChildren,
-      Duration? autoFinishAfter,
-      bool? trimEnd,
-      Function(ISentrySpan)? onFinish,
-      Map<String, dynamic>? customSamplingContext,
-    }) {
+  String? name,
+  String? operation, {
+  String? description,
+  DateTime? startTimestamp,
+  bool? bindToScope,
+  bool? waitForChildren,
+  Duration? autoFinishAfter,
+  bool? trimEnd,
+  Function(ISentrySpan)? onFinish,
+  Map<String, dynamic>? customSamplingContext,
+}) {
   return MockSentryTracer();
 }
 
