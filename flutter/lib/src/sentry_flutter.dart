@@ -91,9 +91,6 @@ mixin SentryFlutter {
 
     await _initDefaultValues(flutterOptions, channel);
 
-    flutterOptions
-        .addPerformanceCollector(SpanFrameMetricsCollector(flutterOptions));
-
     await Sentry.init(
       (options) => optionsConfiguration(options as SentryFlutterOptions),
       appRunner: appRunner,
@@ -133,6 +130,8 @@ mixin SentryFlutter {
     }
 
     options.addEventProcessor(PlatformExceptionEventProcessor());
+
+    options.addPerformanceCollector(SpanFrameMetricsCollector(options));
 
     _setSdk(options);
   }
