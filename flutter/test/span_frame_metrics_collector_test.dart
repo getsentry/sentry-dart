@@ -115,6 +115,7 @@ void main() {
     final sut = fixture.sut;
     fixture.options.tracesSampleRate = 1.0;
     fixture.options.addPerformanceCollector(sut);
+    fixture.options.debug = true;
 
     final tracer = SentryTracer(
         SentryTransactionContext('name', 'op', description: 'tracerDesc'),
@@ -122,10 +123,14 @@ void main() {
     final child =
         tracer.startChild('child', description: 'description') as SentrySpan;
 
-    await Future<void>.delayed(Duration(milliseconds: 2000));
+    await Future<void>.delayed(Duration(milliseconds: 800));
+
+    print(sut.frameDurations);
 
     await child.finish();
     await tracer.finish();
+
+    print(tracer is NoOpSentrySpan);
 
     expect(tracer.data['frames.slow'], 2);
     expect(tracer.data['frames.frozen'], 1);
