@@ -14,18 +14,19 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
   final FrameCallbackHandler? _frameCallbackHandler;
   final SentryNative? _native;
 
-  /// Stores the DateTime when a frame happened and the duration of that frame in milliseconds.
-  final frames = SplayTreeMap<DateTime, int>();
+  /// Stores frame timestamps and their durations in milliseconds.
+  /// Keys are frame timestamps, values are frame durations.
+  final frameDurations = SplayTreeMap<DateTime, int>();
 
-  /// Stores the running spans that are being tracked.
-  /// After the frames are computed and stored in the span the span is removed from this list.
-  final runningSpans = <ISentrySpan>[];
+  /// Stores the spans that are actively being tracked.
+  /// After the frames are calculated and stored in the span the span is removed from this list.
+  final activeSpans = <ISentrySpan>[];
 
-  bool get isFrameTrackingPaused => _isFrameTrackingPaused;
-  bool _isFrameTrackingPaused = true;
+  bool get isTrackingPaused => _isTrackingPaused;
+  bool _isTrackingPaused = true;
 
-  bool get isFrameTrackingRegistered => _isFrameTrackingRegistered;
-  bool _isFrameTrackingRegistered = false;
+  bool get isTrackingRegistered => _isTrackingRegistered;
+  bool _isTrackingRegistered = false;
 
   final _stopwatch = Stopwatch();
 
@@ -41,7 +42,7 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
       return;
     }
 
-    runningSpans.add(span);
+    activeSpans.add(span);
     startFrameTracking();
   }
 
@@ -53,11 +54,11 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
 
     await recordSpanFrameMetrics(span, endTimestamp);
 
-    if (runningSpans.isEmpty) {
+    if (activeSpans.isEmpty) {
       clear();
     } else {
-      final oldestSpan = runningSpans.first;
-      frames.removeWhere((key, value) {
+      final oldestSpan = activeSpans.first;
+      frameDurations.removeWhere((key, value) {
         return key.isBefore(oldestSpan.startTimestamp);
       });
     }
@@ -66,22 +67,22 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
   /// Calls [WidgetsBinding.instance.addPersistentFrameCallback] which cannot be unregistered
   /// and exists for the duration of the application's lifetime.
   ///
-  /// Stopping the frame tracking means setting `isFrameTrackingPaused = true`
+  /// Stopping the frame tracking means setting [isTrackingPaused] is `true`
   /// to prevent actions being done when the frame callback is triggered.
   void startFrameTracking() {
-    _isFrameTrackingPaused = false;
+    _isTrackingPaused = false;
 
-    if (!_isFrameTrackingRegistered) {
-      _frameCallbackHandler?.addPersistentFrameCallback(recordFrameDuration);
-      _isFrameTrackingRegistered = true;
+    if (!_isTrackingRegistered) {
+      _frameCallbackHandler?.addPersistentFrameCallback(measureFrameDuration);
+      _isTrackingRegistered = true;
     }
   }
 
-  /// Records the duration of a single frame and stores it in [frames].
+  /// Records the duration of a single frame and stores it in [frameDurations].
   ///
   /// This method is called for each frame when frame tracking is active.
-  void recordFrameDuration(Duration duration) async {
-    if (_isFrameTrackingPaused) return;
+  void measureFrameDuration(Duration duration) async {
+    if (_isTrackingPaused) return;
 
     if (!_stopwatch.isRunning) {
       _stopwatch.start();
@@ -91,7 +92,7 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
 
     final frameDuration = _stopwatch.elapsedMilliseconds;
     // ignore: invalid_use_of_internal_member
-    frames[getUtcDateTime()] = frameDuration;
+    frameDurations[getUtcDateTime()] = frameDuration;
 
     _stopwatch.reset();
 
@@ -110,11 +111,11 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
       return;
     }
 
-    runningSpans.removeWhere(
+    activeSpans.removeWhere(
         (element) => element.context.spanId == span.context.spanId);
 
     final frameMetrics =
-        computeFrameMetrics(span, endTimestamp, displayRefreshRate);
+        calculateFrameMetrics(span, endTimestamp, displayRefreshRate);
 
     frameMetrics.forEach((key, value) {
       span.setData(key, value);
@@ -133,43 +134,47 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
     }
   }
 
-  Map<String, int> computeFrameMetrics(
+  Map<String, int> calculateFrameMetrics(
       ISentrySpan span, DateTime endTimestamp, int displayRefreshRate) {
+    const frozenFrameThresholdMs = 700;
     final expectedFrameDuration = ((1 / displayRefreshRate) * 1000).toInt();
 
-    final durations = frames.keys
+    // Filter frame durations within the span's time range
+    final timestamps = frameDurations.keys
         .takeWhile((value) =>
             value.isBefore(endTimestamp) && value.isAfter(span.startTimestamp))
         .toList();
 
-    if (durations.isEmpty) {
+    if (timestamps.isEmpty) {
       options.logger(
           SentryLevel.info, 'No frame durations available in frame tracker.');
       return {};
     }
 
-    final slowFrames = durations.where((element) {
-      final frame = frames[element];
-      return frame != null && frame > expectedFrameDuration && frame < 700;
+    final slowFrames = timestamps.where((timestamp) {
+      final frameDuration = frameDurations[timestamp];
+      return frameDuration != null &&
+          frameDuration > expectedFrameDuration &&
+          frameDuration < frozenFrameThresholdMs;
     });
     final slowFramesDuration =
-        slowFrames.fold<int>(0, (previousValue, element) {
-      final frameDuration = frames[element] ?? 0;
+        slowFrames.fold<int>(0, (previousValue, timestamp) {
+      final frameDuration = frameDurations[timestamp] ?? 0;
       return previousValue + frameDuration;
     });
 
-    final frozenFrames = durations.where((element) {
-      final frame = frames[element];
-      return frame != null && frame > 700;
+    final frozenFrames = timestamps.where((timestamp) {
+      final frameDuration = frameDurations[timestamp];
+      return frameDuration != null && frameDuration > frozenFrameThresholdMs;
     });
     final frozenFramesDuration =
-        frozenFrames.fold<int>(0, (previousValue, element) {
-      final frameDuration = frames[element] ?? 0;
+        frozenFrames.fold<int>(0, (previousValue, timestamp) {
+      final frameDuration = frameDurations[timestamp] ?? 0;
       return previousValue + frameDuration;
     });
 
-    final frameDelay = durations.fold<int>(0, (previousValue, element) {
-      final frameDuration = frames[element];
+    final frameDelay = timestamps.fold<int>(0, (previousValue, timestamp) {
+      final frameDuration = frameDurations[timestamp];
       if (frameDuration != null && frameDuration > expectedFrameDuration) {
         return previousValue + (frameDuration - expectedFrameDuration);
       }
@@ -200,8 +205,8 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
 
   @override
   void clear() {
-    _isFrameTrackingPaused = true;
-    frames.clear();
-    runningSpans.clear();
+    _isTrackingPaused = true;
+    frameDurations.clear();
+    activeSpans.clear();
   }
 }

@@ -22,14 +22,14 @@ void main() {
 
   test('clear() clears frames, running spans and pauses frame tracking', () {
     final sut = fixture.sut;
-    sut.frames[DateTime.now()] = 1;
+    sut.frameDurations[DateTime.now()] = 1;
 
     sut.onSpanStarted(MockSentrySpan());
     sut.clear();
 
-    expect(sut.frames, isEmpty);
-    expect(sut.runningSpans, isEmpty);
-    expect(sut.isFrameTrackingPaused, isTrue);
+    expect(sut.frameDurations, isEmpty);
+    expect(sut.activeSpans, isEmpty);
+    expect(sut.isTrackingPaused, isTrue);
   });
 
   test('does not start frame tracking if frames tracking is disabled', () {
@@ -39,7 +39,7 @@ void main() {
     final span = MockSentrySpan();
     sut.onSpanStarted(span);
 
-    expect(sut.isFrameTrackingRegistered, isFalse);
+    expect(sut.isTrackingRegistered, isFalse);
   });
 
   test('does not capture frame metrics if refresh rate is not available',
@@ -68,7 +68,7 @@ void main() {
     await Future<void>.delayed(Duration(seconds: 1));
 
     final expectedDurations = fakeFrameDurations;
-    final actualDurations = sut.frames.values.toList();
+    final actualDurations = sut.frameDurations.values.toList();
     expect(
         actualDurations,
         containsAllInOrder(expectedDurations
@@ -95,17 +95,17 @@ void main() {
         .thenReturn(spanStartTimestamp.add(Duration(seconds: 2)));
     when(span2.context).thenReturn(SentrySpanContext(operation: 'op'));
 
-    sut.runningSpans.add(span1);
-    sut.runningSpans.add(span2);
+    sut.activeSpans.add(span1);
+    sut.activeSpans.add(span2);
 
-    sut.frames[spanStartTimestamp.subtract(Duration(seconds: 5))] = 1;
-    sut.frames[spanStartTimestamp.subtract(Duration(seconds: 3))] = 1;
-    sut.frames[spanStartTimestamp.add(Duration(seconds: 4))] = 1;
+    sut.frameDurations[spanStartTimestamp.subtract(Duration(seconds: 5))] = 1;
+    sut.frameDurations[spanStartTimestamp.subtract(Duration(seconds: 3))] = 1;
+    sut.frameDurations[spanStartTimestamp.add(Duration(seconds: 4))] = 1;
 
     await sut.onSpanFinished(span1, spanEndTimestamp);
 
-    expect(sut.frames, hasLength(1));
-    expect(sut.frames.keys.first, spanStartTimestamp.add(Duration(seconds: 4)));
+    expect(sut.frameDurations, hasLength(1));
+    expect(sut.frameDurations.keys.first, spanStartTimestamp.add(Duration(seconds: 4)));
   });
 
   test(
@@ -157,9 +157,9 @@ void main() {
     when(tracer.startTimestamp).thenReturn(startTimestamp);
     when(tracer.context).thenReturn(SentryTransactionContext('name', 'op'));
 
-    sut.frames[startTimestamp.add(Duration(milliseconds: 1))] = 500;
+    sut.frameDurations[startTimestamp.add(Duration(milliseconds: 1))] = 500;
 
-    final frameMetrics = sut.computeFrameMetrics(tracer,
+    final frameMetrics = sut.calculateFrameMetrics(tracer,
         startTimestamp.add(Duration(milliseconds: 10)), displayRefreshRate);
 
     expect(frameMetrics.isEmpty, isTrue);
@@ -222,7 +222,7 @@ void main() {
 
     await tracer.finish();
 
-    expect(sut.isFrameTrackingPaused, isTrue);
+    expect(sut.isTrackingPaused, isTrue);
   });
 }
 
