@@ -11,14 +11,17 @@ import 'package:flutter/src/services/platform_channel.dart' as _i12;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i10;
 import 'package:sentry/sentry.dart' as _i2;
-import 'package:sentry/src/metrics/metric.dart' as _i14;
+import 'package:sentry/src/metrics/metric.dart' as _i17;
 import 'package:sentry/src/metrics/metrics_api.dart' as _i7;
 import 'package:sentry/src/profiling.dart' as _i11;
 import 'package:sentry/src/protocol.dart' as _i3;
 import 'package:sentry/src/sentry_envelope.dart' as _i9;
 import 'package:sentry/src/sentry_tracer.dart' as _i4;
+import 'package:sentry_flutter/sentry_flutter.dart' as _i14;
+import 'package:sentry_flutter/src/native/sentry_native.dart' as _i15;
+import 'package:sentry_flutter/src/native/sentry_native_binding.dart' as _i13;
 
-import 'mocks.dart' as _i13;
+import 'mocks.dart' as _i16;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -1071,6 +1074,223 @@ class MockMethodChannel extends _i1.Mock implements _i12.MethodChannel {
       );
 }
 
+/// A class which mocks [SentryNativeBinding].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockSentryNativeBinding extends _i1.Mock
+    implements _i13.SentryNativeBinding {
+  MockSentryNativeBinding() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i8.Future<void> init(_i14.SentryFlutterOptions? options) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #init,
+          [options],
+        ),
+        returnValue: _i8.Future<void>.value(),
+        returnValueForMissingStub: _i8.Future<void>.value(),
+      ) as _i8.Future<void>);
+
+  @override
+  _i8.Future<void> close() => (super.noSuchMethod(
+        Invocation.method(
+          #close,
+          [],
+        ),
+        returnValue: _i8.Future<void>.value(),
+        returnValueForMissingStub: _i8.Future<void>.value(),
+      ) as _i8.Future<void>);
+
+  @override
+  _i8.Future<_i15.NativeAppStart?> fetchNativeAppStart() => (super.noSuchMethod(
+        Invocation.method(
+          #fetchNativeAppStart,
+          [],
+        ),
+        returnValue: _i8.Future<_i15.NativeAppStart?>.value(),
+      ) as _i8.Future<_i15.NativeAppStart?>);
+
+  @override
+  _i8.Future<void> beginNativeFrames() => (super.noSuchMethod(
+        Invocation.method(
+          #beginNativeFrames,
+          [],
+        ),
+        returnValue: _i8.Future<void>.value(),
+        returnValueForMissingStub: _i8.Future<void>.value(),
+      ) as _i8.Future<void>);
+
+  @override
+  _i8.Future<_i15.NativeFrames?> endNativeFrames(_i3.SentryId? id) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #endNativeFrames,
+          [id],
+        ),
+        returnValue: _i8.Future<_i15.NativeFrames?>.value(),
+      ) as _i8.Future<_i15.NativeFrames?>);
+
+  @override
+  _i8.Future<void> setUser(_i3.SentryUser? user) => (super.noSuchMethod(
+        Invocation.method(
+          #setUser,
+          [user],
+        ),
+        returnValue: _i8.Future<void>.value(),
+        returnValueForMissingStub: _i8.Future<void>.value(),
+      ) as _i8.Future<void>);
+
+  @override
+  _i8.Future<void> addBreadcrumb(_i3.Breadcrumb? breadcrumb) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #addBreadcrumb,
+          [breadcrumb],
+        ),
+        returnValue: _i8.Future<void>.value(),
+        returnValueForMissingStub: _i8.Future<void>.value(),
+      ) as _i8.Future<void>);
+
+  @override
+  _i8.Future<void> clearBreadcrumbs() => (super.noSuchMethod(
+        Invocation.method(
+          #clearBreadcrumbs,
+          [],
+        ),
+        returnValue: _i8.Future<void>.value(),
+        returnValueForMissingStub: _i8.Future<void>.value(),
+      ) as _i8.Future<void>);
+
+  @override
+  _i8.Future<void> setContexts(
+    String? key,
+    dynamic value,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #setContexts,
+          [
+            key,
+            value,
+          ],
+        ),
+        returnValue: _i8.Future<void>.value(),
+        returnValueForMissingStub: _i8.Future<void>.value(),
+      ) as _i8.Future<void>);
+
+  @override
+  _i8.Future<void> removeContexts(String? key) => (super.noSuchMethod(
+        Invocation.method(
+          #removeContexts,
+          [key],
+        ),
+        returnValue: _i8.Future<void>.value(),
+        returnValueForMissingStub: _i8.Future<void>.value(),
+      ) as _i8.Future<void>);
+
+  @override
+  _i8.Future<void> setExtra(
+    String? key,
+    dynamic value,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #setExtra,
+          [
+            key,
+            value,
+          ],
+        ),
+        returnValue: _i8.Future<void>.value(),
+        returnValueForMissingStub: _i8.Future<void>.value(),
+      ) as _i8.Future<void>);
+
+  @override
+  _i8.Future<void> removeExtra(String? key) => (super.noSuchMethod(
+        Invocation.method(
+          #removeExtra,
+          [key],
+        ),
+        returnValue: _i8.Future<void>.value(),
+        returnValueForMissingStub: _i8.Future<void>.value(),
+      ) as _i8.Future<void>);
+
+  @override
+  _i8.Future<void> setTag(
+    String? key,
+    String? value,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #setTag,
+          [
+            key,
+            value,
+          ],
+        ),
+        returnValue: _i8.Future<void>.value(),
+        returnValueForMissingStub: _i8.Future<void>.value(),
+      ) as _i8.Future<void>);
+
+  @override
+  _i8.Future<void> removeTag(String? key) => (super.noSuchMethod(
+        Invocation.method(
+          #removeTag,
+          [key],
+        ),
+        returnValue: _i8.Future<void>.value(),
+        returnValueForMissingStub: _i8.Future<void>.value(),
+      ) as _i8.Future<void>);
+
+  @override
+  int? startProfiler(_i3.SentryId? traceId) =>
+      (super.noSuchMethod(Invocation.method(
+        #startProfiler,
+        [traceId],
+      )) as int?);
+
+  @override
+  _i8.Future<void> discardProfiler(_i3.SentryId? traceId) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #discardProfiler,
+          [traceId],
+        ),
+        returnValue: _i8.Future<void>.value(),
+        returnValueForMissingStub: _i8.Future<void>.value(),
+      ) as _i8.Future<void>);
+
+  @override
+  _i8.Future<int?> displayRefreshRate() => (super.noSuchMethod(
+        Invocation.method(
+          #displayRefreshRate,
+          [],
+        ),
+        returnValue: _i8.Future<int?>.value(),
+      ) as _i8.Future<int?>);
+
+  @override
+  _i8.Future<Map<String, dynamic>?> collectProfile(
+    _i3.SentryId? traceId,
+    int? startTimeNs,
+    int? endTimeNs,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #collectProfile,
+          [
+            traceId,
+            startTimeNs,
+            endTimeNs,
+          ],
+        ),
+        returnValue: _i8.Future<Map<String, dynamic>?>.value(),
+      ) as _i8.Future<Map<String, dynamic>?>);
+}
+
 /// A class which mocks [Hub].
 ///
 /// See the documentation for Mockito's code generation for more information.
@@ -1327,7 +1547,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
             #customSamplingContext: customSamplingContext,
           },
         ),
-        returnValue: _i13.startTransactionShim(
+        returnValue: _i16.startTransactionShim(
           name,
           operation,
           description: description,
@@ -1407,7 +1627,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
 
   @override
   _i8.Future<_i3.SentryId> captureMetrics(
-          Map<int, Iterable<_i14.Metric>>? metricsBuckets) =>
+          Map<int, Iterable<_i17.Metric>>? metricsBuckets) =>
       (super.noSuchMethod(
         Invocation.method(
           #captureMetrics,
