@@ -122,7 +122,8 @@ void main() {
     final child =
         tracer.startChild('child', description: 'description') as SentrySpan;
 
-    await Future<void>.delayed(Duration(milliseconds: 800));
+    // TODO: check if this fixes windows tests
+    await Future<void>.delayed(Duration(milliseconds: 1000));
 
     await child.finish();
     await tracer.finish();
