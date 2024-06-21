@@ -23,8 +23,10 @@ void main() {
   test('clear() clears frames, running spans and pauses frame tracking', () {
     final sut = fixture.sut;
     sut.frameDurations[DateTime.now()] = 1;
+    final mockSpan = MockSentrySpan();
+    when(mockSpan.startTimestamp).thenReturn(DateTime.now());
 
-    sut.onSpanStarted(MockSentrySpan());
+    sut.onSpanStarted(mockSpan);
     sut.clear();
 
     expect(sut.frameDurations, isEmpty);
@@ -42,7 +44,8 @@ void main() {
     expect(sut.isTrackingRegistered, isFalse);
   });
 
-  test('does not capture frame metrics if refresh rate is not available',
+  test(
+      'captures metrics with display refresh rate of 60 if native refresh rate is null',
       () async {
     final sut = fixture.sut;
     fixture.options.tracesSampleRate = 1.0;
@@ -57,7 +60,11 @@ void main() {
 
     await tracer.finish();
 
-    expect(tracer.data, isEmpty);
+    expect(tracer.data['frames.slow'], 2);
+    expect(tracer.data['frames.frozen'], 1);
+    expect(
+        tracer.data['frames.delay'], _isWithinRange(expectedFramesDelay, 10));
+    expect(tracer.data['frames.total'], _isWithinRange(expectedTotalFrames, 2));
   });
 
   test('frame tracking collects frame durations within expected range',
@@ -105,7 +112,8 @@ void main() {
     await sut.onSpanFinished(span1, spanEndTimestamp);
 
     expect(sut.frameDurations, hasLength(1));
-    expect(sut.frameDurations.keys.first, spanStartTimestamp.add(Duration(seconds: 4)));
+    expect(sut.frameDurations.keys.first,
+        spanStartTimestamp.add(Duration(seconds: 4)));
   });
 
   test(

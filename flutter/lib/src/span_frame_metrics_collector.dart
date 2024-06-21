@@ -20,13 +20,16 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
 
   /// Stores the spans that are actively being tracked.
   /// After the frames are calculated and stored in the span the span is removed from this list.
-  final activeSpans = <ISentrySpan>[];
+  final activeSpans = SplayTreeSet<ISentrySpan>(
+      (a, b) => a.startTimestamp.compareTo(b.startTimestamp));
 
   bool get isTrackingPaused => _isTrackingPaused;
   bool _isTrackingPaused = true;
 
   bool get isTrackingRegistered => _isTrackingRegistered;
   bool _isTrackingRegistered = false;
+
+  int displayRefreshRate = 60;
 
   final _stopwatch = Stopwatch();
 
@@ -37,9 +40,16 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
         _native = native ?? SentryFlutter.native;
 
   @override
-  void onSpanStarted(ISentrySpan span) {
+  Future<void> onSpanStarted(ISentrySpan span) async {
     if (span is NoOpSentrySpan || !options.enableFramesTracking) {
       return;
+    }
+
+    final fetchedDisplayRefreshRate = await _native?.displayRefreshRate();
+    if (fetchedDisplayRefreshRate != null) {
+      options.logger(SentryLevel.info,
+          'Retrieved display refresh rate at $fetchedDisplayRefreshRate');
+      displayRefreshRate = fetchedDisplayRefreshRate;
     }
 
     activeSpans.add(span);
@@ -103,14 +113,6 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
 
   Future<void> recordSpanFrameMetrics(
       ISentrySpan span, DateTime endTimestamp) async {
-    final displayRefreshRate = await _native?.displayRefreshRate();
-    if (displayRefreshRate == null) {
-      options.logger(SentryLevel.warning,
-          'Display refresh rate is not available. Dropping the frame metrics');
-      clear();
-      return;
-    }
-
     activeSpans.removeWhere(
         (element) => element.context.spanId == span.context.spanId);
 
@@ -151,55 +153,50 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
       return {};
     }
 
-    final slowFrames = timestamps.where((timestamp) {
-      final frameDuration = frameDurations[timestamp];
-      return frameDuration != null &&
-          frameDuration > expectedFrameDuration &&
-          frameDuration < frozenFrameThresholdMs;
-    });
-    final slowFramesDuration =
-        slowFrames.fold<int>(0, (previousValue, timestamp) {
-      final frameDuration = frameDurations[timestamp] ?? 0;
-      return previousValue + frameDuration;
-    });
+    int slowFramesCount = 0;
+    int frozenFramesCount = 0;
+    int slowFramesDuration = 0;
+    int frozenFramesDuration = 0;
+    int framesDelay = 0;
 
-    final frozenFrames = timestamps.where((timestamp) {
-      final frameDuration = frameDurations[timestamp];
-      return frameDuration != null && frameDuration > frozenFrameThresholdMs;
-    });
-    final frozenFramesDuration =
-        frozenFrames.fold<int>(0, (previousValue, timestamp) {
+    for (final timestamp in timestamps) {
       final frameDuration = frameDurations[timestamp] ?? 0;
-      return previousValue + frameDuration;
-    });
 
-    final frameDelay = timestamps.fold<int>(0, (previousValue, timestamp) {
-      final frameDuration = frameDurations[timestamp];
-      if (frameDuration != null && frameDuration > expectedFrameDuration) {
-        return previousValue + (frameDuration - expectedFrameDuration);
+      if (frameDuration > frozenFrameThresholdMs) {
+        frozenFramesCount += 1;
+        frozenFramesDuration += frameDuration;
+      } else if (frameDuration > expectedFrameDuration) {
+        slowFramesCount += 1;
+        slowFramesDuration += frameDuration;
       }
-      return previousValue;
-    });
+
+      if (frameDuration > expectedFrameDuration) {
+        framesDelay += frameDuration - expectedFrameDuration;
+      }
+    }
 
     final spanDuration =
         endTimestamp.difference(span.startTimestamp).inMilliseconds;
     final totalFramesCount =
         ((spanDuration - (slowFramesDuration + frozenFramesDuration)) /
                 expectedFrameDuration) +
-            slowFrames.length +
-            frozenFrames.length;
+            slowFramesCount +
+            frozenFramesCount;
 
-    if (totalFramesCount < 0 || frameDelay < 0) {
+    if (totalFramesCount < 0 ||
+        framesDelay < 0 ||
+        slowFramesCount < 0 ||
+        frozenFramesCount < 0) {
       options.logger(SentryLevel.warning,
-          'Negative frame metrics detected. Dropping the frame metrics');
+          'Negative frame metrics calculated. Dropping frame metrics.');
       return {};
     }
 
     return {
       "frames.total": totalFramesCount.toInt(),
-      "frames.delay": frameDelay,
-      "frames.slow": slowFrames.length,
-      "frames.frozen": frozenFrames.length,
+      "frames.delay": framesDelay,
+      "frames.slow": slowFramesCount,
+      "frames.frozen": frozenFramesCount,
     };
   }
 
@@ -208,5 +205,6 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
     _isTrackingPaused = true;
     frameDurations.clear();
     activeSpans.clear();
+    displayRefreshRate = 60;
   }
 }
