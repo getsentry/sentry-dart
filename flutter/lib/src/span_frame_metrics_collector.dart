@@ -113,8 +113,7 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
 
   Future<void> recordSpanFrameMetrics(
       ISentrySpan span, DateTime endTimestamp) async {
-    activeSpans.removeWhere(
-        (element) => element.context.spanId == span.context.spanId);
+    activeSpans.remove(span);
 
     final frameMetrics =
         calculateFrameMetrics(span, endTimestamp, displayRefreshRate);
