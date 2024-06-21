@@ -102,7 +102,7 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
 
     final frameDuration = _stopwatch.elapsedMilliseconds;
     // ignore: invalid_use_of_internal_member
-    frameDurations[getUtcDateTime()] = frameDuration;
+    frameDurations[options.clock()] = frameDuration;
 
     _stopwatch.reset();
 
