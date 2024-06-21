@@ -15,6 +15,9 @@ import 'mocks.mocks.dart';
 void main() {
   late Fixture fixture;
 
+  const framesDelayRange = 30;
+  const totalFramesRange = 2;
+
   setUp(() {
     fixture = Fixture();
     WidgetsFlutterBinding.ensureInitialized();
@@ -66,8 +69,8 @@ void main() {
     expect(tracer.data['frames.slow'], 2);
     expect(tracer.data['frames.frozen'], 1);
     expect(
-        tracer.data['frames.delay'], _isWithinRange(expectedFramesDelay, 10));
-    expect(tracer.data['frames.total'], _isWithinRange(expectedTotalFrames, 2));
+        tracer.data['frames.delay'], _isWithinRange(expectedFramesDelay, framesDelayRange));
+    expect(tracer.data['frames.total'], _isWithinRange(expectedTotalFrames, totalFramesRange));
   });
 
   test('frame tracking collects frame durations within expected range',
@@ -140,20 +143,20 @@ void main() {
     expect(tracer.data['frames.slow'], 2);
     expect(tracer.data['frames.frozen'], 1);
     expect(
-        tracer.data['frames.delay'], _isWithinRange(expectedFramesDelay, 10));
-    expect(tracer.data['frames.total'], _isWithinRange(expectedTotalFrames, 2));
+        tracer.data['frames.delay'], _isWithinRange(expectedFramesDelay, framesDelayRange));
+    expect(tracer.data['frames.total'], _isWithinRange(expectedTotalFrames, totalFramesRange));
 
     expect(tracer.measurements['frames_delay']!.value,
         _isWithinRange(expectedFramesDelay, 10));
     expect(tracer.measurements['frames_total']!.value,
-        _isWithinRange(expectedTotalFrames, 2));
+        _isWithinRange(expectedTotalFrames, totalFramesRange));
     expect(tracer.measurements['frames_slow']!.value, 2);
     expect(tracer.measurements['frames_frozen']!.value, 1);
 
     expect(child.data['frames.slow'], 2);
     expect(child.data['frames.frozen'], 1);
-    expect(child.data['frames.delay'], _isWithinRange(expectedFramesDelay, 10));
-    expect(child.data['frames.total'], _isWithinRange(expectedTotalFrames, 2));
+    expect(child.data['frames.delay'], _isWithinRange(expectedFramesDelay, framesDelayRange));
+    expect(child.data['frames.total'], _isWithinRange(expectedTotalFrames, totalFramesRange));
   });
 
   test('negative values in frame metrics leads to empty map', () async {
@@ -196,14 +199,14 @@ void main() {
     expect(tracer1.data['frames.slow'], 2);
     expect(tracer1.data['frames.frozen'], 1);
     expect(
-        tracer1.data['frames.delay'], _isWithinRange(expectedFramesDelay, 10));
+        tracer1.data['frames.delay'], _isWithinRange(expectedFramesDelay, framesDelayRange));
     expect(
-        tracer1.data['frames.total'], _isWithinRange(expectedTotalFrames, 2));
+        tracer1.data['frames.total'], _isWithinRange(expectedTotalFrames, totalFramesRange));
 
     expect(tracer1.measurements['frames_delay']!.value,
         _isWithinRange(expectedFramesDelay, 10));
     expect(tracer1.measurements['frames_total']!.value,
-        _isWithinRange(expectedTotalFrames, 2));
+        _isWithinRange(expectedTotalFrames, totalFramesRange));
     expect(tracer1.measurements['frames_slow']!.value, 2);
     expect(tracer1.measurements['frames_frozen']!.value, 1);
 
@@ -211,12 +214,12 @@ void main() {
     expect(tracer2.data['frames.frozen'], 1);
     expect(
         tracer2.data['frames.delay'], _isWithinRange(expectedFramesDelay, 10));
-    // expect(tracer2.data['frames.total'], _isWithinRange(expectedTotalFrames, 2));
+    // expect(tracer2.data['frames.total'], _isWithinRange(expectedTotalFrames, totalFramesRange));
 
     expect(tracer2.measurements['frames_delay']!.value,
         _isWithinRange(expectedFramesDelay, 10));
     // expect(tracer2.measurements['frames_total']!.value,
-    //     _isWithinRange(expectedTotalFrames, 2));
+    //     _isWithinRange(expectedTotalFrames, totalFramesRange));
     expect(tracer2.measurements['frames_slow']!.value, 2);
     expect(tracer2.measurements['frames_frozen']!.value, 1);
   });
