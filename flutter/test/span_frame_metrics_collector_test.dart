@@ -18,6 +18,8 @@ void main() {
   setUp(() {
     fixture = Fixture();
     WidgetsFlutterBinding.ensureInitialized();
+
+    when(fixture.mockSentryNative.displayRefreshRate()).thenAnswer((_) async => 60);
   });
 
   test('clear() clears frames, running spans and pauses frame tracking', () {
@@ -50,7 +52,8 @@ void main() {
     final sut = fixture.sut;
     fixture.options.tracesSampleRate = 1.0;
     fixture.options.addPerformanceCollector(sut);
-    fixture.mockSentryNative.refreshRate = null;
+
+    when(fixture.mockSentryNative.displayRefreshRate()).thenAnswer((_) async => null);
 
     final tracer = SentryTracer(
         SentryTransactionContext('name', 'op', description: 'tracerDesc'),
@@ -243,7 +246,7 @@ class Fixture {
   final options = SentryFlutterOptions(dsn: fakeDsn);
   late final hub = Hub(options);
   final fakeFrameCallbackHandler = FakeFrameCallbackHandler();
-  final mockSentryNative = TestMockSentryNative();
+  final mockSentryNative = MockSentryNativeBinding();
 
   SpanFrameMetricsCollector get sut => SpanFrameMetricsCollector(options,
       frameCallbackHandler: fakeFrameCallbackHandler, native: mockSentryNative);

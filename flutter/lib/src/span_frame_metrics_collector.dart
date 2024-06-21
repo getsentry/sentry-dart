@@ -6,13 +6,13 @@ import 'package:meta/meta.dart';
 import '../sentry_flutter.dart';
 
 import 'frame_callback_handler.dart';
-import 'native/sentry_native.dart';
+import 'native/sentry_native_binding.dart';
 
 @internal
 class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
   final SentryFlutterOptions options;
   final FrameCallbackHandler? _frameCallbackHandler;
-  final SentryNative? _native;
+  final SentryNativeBinding? _native;
 
   /// Stores frame timestamps and their durations in milliseconds.
   /// Keys are frame timestamps, values are frame durations.
@@ -34,7 +34,7 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
   final _stopwatch = Stopwatch();
 
   SpanFrameMetricsCollector(this.options,
-      {FrameCallbackHandler? frameCallbackHandler, SentryNative? native})
+      {FrameCallbackHandler? frameCallbackHandler, SentryNativeBinding? native})
       : _frameCallbackHandler =
             frameCallbackHandler ?? DefaultFrameCallbackHandler(),
         _native = native ?? SentryFlutter.native;

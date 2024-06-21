@@ -4,6 +4,7 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _i8;
+import 'dart:typed_data' as _i16;
 
 import 'package:flutter/src/services/binary_messenger.dart' as _i6;
 import 'package:flutter/src/services/message_codec.dart' as _i5;
@@ -11,17 +12,18 @@ import 'package:flutter/src/services/platform_channel.dart' as _i12;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i10;
 import 'package:sentry/sentry.dart' as _i2;
-import 'package:sentry/src/metrics/metric.dart' as _i17;
+import 'package:sentry/src/metrics/metric.dart' as _i19;
 import 'package:sentry/src/metrics/metrics_api.dart' as _i7;
 import 'package:sentry/src/profiling.dart' as _i11;
 import 'package:sentry/src/protocol.dart' as _i3;
 import 'package:sentry/src/sentry_envelope.dart' as _i9;
 import 'package:sentry/src/sentry_tracer.dart' as _i4;
 import 'package:sentry_flutter/sentry_flutter.dart' as _i14;
-import 'package:sentry_flutter/src/native/sentry_native.dart' as _i15;
+import 'package:sentry_flutter/src/native/native_app_start.dart' as _i15;
+import 'package:sentry_flutter/src/native/native_frames.dart' as _i17;
 import 'package:sentry_flutter/src/native/sentry_native_binding.dart' as _i13;
 
-import 'mocks.dart' as _i16;
+import 'mocks.dart' as _i18;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -1114,6 +1116,17 @@ class MockSentryNativeBinding extends _i1.Mock
       ) as _i8.Future<_i15.NativeAppStart?>);
 
   @override
+  _i8.Future<void> captureEnvelope(_i16.Uint8List? envelopeData) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #captureEnvelope,
+          [envelopeData],
+        ),
+        returnValue: _i8.Future<void>.value(),
+        returnValueForMissingStub: _i8.Future<void>.value(),
+      ) as _i8.Future<void>);
+
+  @override
   _i8.Future<void> beginNativeFrames() => (super.noSuchMethod(
         Invocation.method(
           #beginNativeFrames,
@@ -1124,14 +1137,14 @@ class MockSentryNativeBinding extends _i1.Mock
       ) as _i8.Future<void>);
 
   @override
-  _i8.Future<_i15.NativeFrames?> endNativeFrames(_i3.SentryId? id) =>
+  _i8.Future<_i17.NativeFrames?> endNativeFrames(_i3.SentryId? id) =>
       (super.noSuchMethod(
         Invocation.method(
           #endNativeFrames,
           [id],
         ),
-        returnValue: _i8.Future<_i15.NativeFrames?>.value(),
-      ) as _i8.Future<_i15.NativeFrames?>);
+        returnValue: _i8.Future<_i17.NativeFrames?>.value(),
+      ) as _i8.Future<_i17.NativeFrames?>);
 
   @override
   _i8.Future<void> setUser(_i3.SentryUser? user) => (super.noSuchMethod(
@@ -1163,6 +1176,15 @@ class MockSentryNativeBinding extends _i1.Mock
         returnValue: _i8.Future<void>.value(),
         returnValueForMissingStub: _i8.Future<void>.value(),
       ) as _i8.Future<void>);
+
+  @override
+  _i8.Future<Map<String, dynamic>?> loadContexts() => (super.noSuchMethod(
+        Invocation.method(
+          #loadContexts,
+          [],
+        ),
+        returnValue: _i8.Future<Map<String, dynamic>?>.value(),
+      ) as _i8.Future<Map<String, dynamic>?>);
 
   @override
   _i8.Future<void> setContexts(
@@ -1289,6 +1311,15 @@ class MockSentryNativeBinding extends _i1.Mock
         ),
         returnValue: _i8.Future<Map<String, dynamic>?>.value(),
       ) as _i8.Future<Map<String, dynamic>?>);
+
+  @override
+  _i8.Future<List<_i3.DebugImage>?> loadDebugImages() => (super.noSuchMethod(
+        Invocation.method(
+          #loadDebugImages,
+          [],
+        ),
+        returnValue: _i8.Future<List<_i3.DebugImage>?>.value(),
+      ) as _i8.Future<List<_i3.DebugImage>?>);
 }
 
 /// A class which mocks [Hub].
@@ -1547,7 +1578,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
             #customSamplingContext: customSamplingContext,
           },
         ),
-        returnValue: _i16.startTransactionShim(
+        returnValue: _i18.startTransactionShim(
           name,
           operation,
           description: description,
@@ -1627,7 +1658,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
 
   @override
   _i8.Future<_i3.SentryId> captureMetrics(
-          Map<int, Iterable<_i17.Metric>>? metricsBuckets) =>
+          Map<int, Iterable<_i19.Metric>>? metricsBuckets) =>
       (super.noSuchMethod(
         Invocation.method(
           #captureMetrics,

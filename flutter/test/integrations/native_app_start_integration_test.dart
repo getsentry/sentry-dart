@@ -17,11 +17,11 @@ import 'fixture.dart';
 void main() {
   void setupMocks(Fixture fixture) {
     when(fixture.hub.startTransaction('root /', 'ui.load',
-            description: null, startTimestamp: anyNamed('startTimestamp')))
+        description: null, startTimestamp: anyNamed('startTimestamp')))
         .thenReturn(fixture.createTracer());
     when(fixture.hub.configureScope(captureAny)).thenAnswer((_) {});
     when(fixture.hub
-            .captureTransaction(any, traceContext: anyNamed('traceContext')))
+        .captureTransaction(any, traceContext: anyNamed('traceContext')))
         .thenAnswer((_) async => SentryId.empty());
   }
 
@@ -51,7 +51,7 @@ void main() {
 
       final processor = fixture.options.eventProcessors.first;
       final enriched =
-          await processor.apply(transaction, Hint()) as SentryTransaction;
+      await processor.apply(transaction, Hint()) as SentryTransaction;
 
       final measurement = enriched.measurements['app_start_cold']!;
       expect(measurement.value, 10);
@@ -59,24 +59,24 @@ void main() {
     });
 
     test('native app start measurement not added to following transactions',
-        () async {
-      NativeAppStartIntegration.appStartEnd =
-          DateTime.fromMillisecondsSinceEpoch(10);
+            () async {
+          NativeAppStartIntegration.appStartEnd =
+              DateTime.fromMillisecondsSinceEpoch(10);
 
-      await fixture.registerIntegration();
+          await fixture.registerIntegration();
 
-      final tracer = fixture.createTracer();
-      final transaction = SentryTransaction(tracer);
+          final tracer = fixture.createTracer();
+          final transaction = SentryTransaction(tracer);
 
-      final processor = fixture.options.eventProcessors.first;
+          final processor = fixture.options.eventProcessors.first;
 
-      var enriched =
+          var enriched =
           await processor.apply(transaction, Hint()) as SentryTransaction;
-      var secondEnriched =
+          var secondEnriched =
           await processor.apply(enriched, Hint()) as SentryTransaction;
 
-      expect(secondEnriched.measurements.length, 1);
-    });
+          expect(secondEnriched.measurements.length, 1);
+        });
 
     test('measurements appended', () async {
       NativeAppStartIntegration.appStartEnd =
@@ -92,9 +92,9 @@ void main() {
       final processor = fixture.options.eventProcessors.first;
 
       var enriched =
-          await processor.apply(transaction, Hint()) as SentryTransaction;
+      await processor.apply(transaction, Hint()) as SentryTransaction;
       var secondEnriched =
-          await processor.apply(enriched, Hint()) as SentryTransaction;
+      await processor.apply(enriched, Hint()) as SentryTransaction;
 
       expect(secondEnriched.measurements.length, 2);
       expect(secondEnriched.measurements.containsKey(measurement.name), true);
@@ -111,80 +111,80 @@ void main() {
 
       final processor = fixture.options.eventProcessors.first;
       final enriched =
-          await processor.apply(transaction, Hint()) as SentryTransaction;
+      await processor.apply(transaction, Hint()) as SentryTransaction;
 
       expect(enriched.measurements.isEmpty, true);
     });
 
     test('native app start integration is called and sets app start info',
-        () async {
-      NativeAppStartIntegration.appStartEnd =
-          DateTime.fromMillisecondsSinceEpoch(10);
+            () async {
+          NativeAppStartIntegration.appStartEnd =
+              DateTime.fromMillisecondsSinceEpoch(10);
 
-      await fixture.registerIntegration();
+          await fixture.registerIntegration();
 
-      final appStartInfo = await NativeAppStartIntegration.getAppStartInfo();
-      expect(appStartInfo?.start, DateTime.fromMillisecondsSinceEpoch(0));
-      expect(appStartInfo?.end, DateTime.fromMillisecondsSinceEpoch(10));
-    });
+          final appStartInfo = await NativeAppStartIntegration.getAppStartInfo();
+          expect(appStartInfo?.start, DateTime.fromMillisecondsSinceEpoch(0));
+          expect(appStartInfo?.end, DateTime.fromMillisecondsSinceEpoch(10));
+        });
 
     test(
         'autoAppStart is false and appStartEnd is not set does not add app start measurement',
-        () async {
-      fixture.options.autoAppStart = false;
+            () async {
+          fixture.options.autoAppStart = false;
 
-      await fixture.registerIntegration();
+          await fixture.registerIntegration();
 
-      final tracer = fixture.createTracer();
-      final transaction = SentryTransaction(tracer);
+          final tracer = fixture.createTracer();
+          final transaction = SentryTransaction(tracer);
 
-      final processor = fixture.options.eventProcessors.first;
-      final enriched =
+          final processor = fixture.options.eventProcessors.first;
+          final enriched =
           await processor.apply(transaction, Hint()) as SentryTransaction;
 
-      expect(enriched.measurements.isEmpty, true);
-      expect(enriched.spans.isEmpty, true);
-    });
+          expect(enriched.measurements.isEmpty, true);
+          expect(enriched.spans.isEmpty, true);
+        });
 
     test(
         'autoAppStart is false and appStartEnd is set adds app start measurement',
-        () async {
-      fixture.options.autoAppStart = false;
+            () async {
+          fixture.options.autoAppStart = false;
 
-      await fixture.registerIntegration();
+          await fixture.registerIntegration();
 
-      SentryFlutter.setAppStartEnd(DateTime.fromMillisecondsSinceEpoch(10));
+          SentryFlutter.setAppStartEnd(DateTime.fromMillisecondsSinceEpoch(10));
 
-      final tracer = fixture.createTracer();
-      final transaction = SentryTransaction(tracer);
+          final tracer = fixture.createTracer();
+          final transaction = SentryTransaction(tracer);
 
-      final processor = fixture.options.eventProcessors.first;
-      final enriched =
+          final processor = fixture.options.eventProcessors.first;
+          final enriched =
           await processor.apply(transaction, Hint()) as SentryTransaction;
 
-      final measurement = enriched.measurements['app_start_cold']!;
-      expect(measurement.value, 10);
-      expect(measurement.unit, DurationSentryMeasurementUnit.milliSecond);
+          final measurement = enriched.measurements['app_start_cold']!;
+          expect(measurement.value, 10);
+          expect(measurement.unit, DurationSentryMeasurementUnit.milliSecond);
 
-      final appStartInfo = await NativeAppStartIntegration.getAppStartInfo();
+          final appStartInfo = await NativeAppStartIntegration.getAppStartInfo();
 
-      final appStartSpan = enriched.spans.firstWhereOrNull((element) =>
+          final appStartSpan = enriched.spans.firstWhereOrNull((element) =>
           element.context.description == appStartInfo!.appStartTypeDescription);
-      final pluginRegistrationSpan = enriched.spans.firstWhereOrNull(
-          (element) =>
+          final pluginRegistrationSpan = enriched.spans.firstWhereOrNull(
+                  (element) =>
               element.context.description ==
-              appStartInfo!.pluginRegistrationDescription);
-      final sentrySetupSpan = enriched.spans.firstWhereOrNull((element) =>
+                  appStartInfo!.pluginRegistrationDescription);
+          final sentrySetupSpan = enriched.spans.firstWhereOrNull((element) =>
           element.context.description == appStartInfo!.sentrySetupDescription);
-      final firstFrameRenderSpan = enriched.spans.firstWhereOrNull((element) =>
+          final firstFrameRenderSpan = enriched.spans.firstWhereOrNull((element) =>
           element.context.description ==
-          appStartInfo!.firstFrameRenderDescription);
+              appStartInfo!.firstFrameRenderDescription);
 
-      expect(appStartSpan, isNotNull);
-      expect(pluginRegistrationSpan, isNotNull);
-      expect(sentrySetupSpan, isNotNull);
-      expect(firstFrameRenderSpan, isNotNull);
-    });
+          expect(appStartSpan, isNotNull);
+          expect(pluginRegistrationSpan, isNotNull);
+          expect(sentrySetupSpan, isNotNull);
+          expect(firstFrameRenderSpan, isNotNull);
+        });
   });
 
   group('App start spans', () {
@@ -254,37 +254,37 @@ void main() {
       tracer = fixture.createTracer();
       final transaction = SentryTransaction(tracer);
       enriched =
-          await processor.apply(transaction, Hint()) as SentryTransaction;
+      await processor.apply(transaction, Hint()) as SentryTransaction;
 
       final appStartInfo = await NativeAppStartIntegration.getAppStartInfo();
 
       coldStartSpan = enriched.spans.firstWhereOrNull((element) =>
-          element.context.description == appStartInfo?.appStartTypeDescription);
+      element.context.description == appStartInfo?.appStartTypeDescription);
       pluginRegistrationSpan = enriched.spans.firstWhereOrNull((element) =>
-          element.context.description ==
+      element.context.description ==
           appStartInfo?.pluginRegistrationDescription);
       sentrySetupSpan = enriched.spans.firstWhereOrNull((element) =>
-          element.context.description == appStartInfo?.sentrySetupDescription);
+      element.context.description == appStartInfo?.sentrySetupDescription);
       firstFrameRenderSpan = enriched.spans.firstWhereOrNull((element) =>
-          element.context.description ==
+      element.context.description ==
           appStartInfo?.firstFrameRenderDescription);
     });
 
     test('native app start spans not added to following transactions',
-        () async {
-      final processor = fixture.options.eventProcessors.first;
+            () async {
+          final processor = fixture.options.eventProcessors.first;
 
-      final transaction = SentryTransaction(fixture.createTracer());
+          final transaction = SentryTransaction(fixture.createTracer());
 
-      final secondEnriched =
+          final secondEnriched =
           await processor.apply(transaction, Hint()) as SentryTransaction;
 
-      expect(secondEnriched.spans.length, 0);
-    });
+          expect(secondEnriched.spans.length, 0);
+        });
 
     test('includes only valid native spans', () async {
       final spans =
-          enriched.spans.where((element) => element.data['native'] == true);
+      enriched.spans.where((element) => element.data['native'] == true);
 
       expect(spans.length, validNativeSpanTimes.length);
 
@@ -294,19 +294,19 @@ void main() {
         expect(
             span.startTimestamp,
             DateTime.fromMillisecondsSinceEpoch(
-                    validSpan!['startTimestampMsSinceEpoch']!)
+                validSpan!['startTimestampMsSinceEpoch']!)
                 .toUtc());
         expect(
             span.endTimestamp,
             DateTime.fromMillisecondsSinceEpoch(
-                    validSpan['stopTimestampMsSinceEpoch']!)
+                validSpan['stopTimestampMsSinceEpoch']!)
                 .toUtc());
       }
     });
 
     test('are correctly ordered', () async {
       final spans =
-          enriched.spans.where((element) => element.data['native'] == true);
+      enriched.spans.where((element) => element.data['native'] == true);
 
       final orderedSpans = spans.toList()
         ..sort((a, b) => a.startTimestamp.compareTo(b.startTimestamp));
@@ -316,7 +316,7 @@ void main() {
 
     test('ignores invalid spans', () async {
       final spans =
-          enriched.spans.where((element) => element.data['native'] == true);
+      enriched.spans.where((element) => element.data['native'] == true);
 
       expect(spans, isNot(contains('failing span')));
     });
@@ -356,7 +356,7 @@ void main() {
 
     test('have correct startTimestamp', () async {
       final appStartTime = DateTime.fromMillisecondsSinceEpoch(
-              appStartInfoSrc.appStartTime.toInt())
+          appStartInfoSrc.appStartTime.toInt())
           .toUtc();
       expect(coldStartSpan?.startTimestamp, appStartTime);
       expect(pluginRegistrationSpan?.startTimestamp, appStartTime);
@@ -368,7 +368,7 @@ void main() {
 
     test('have correct endTimestamp', () async {
       final engineReadyEndtime = DateTime.fromMillisecondsSinceEpoch(
-              appStartInfoSrc.pluginRegistrationTime.toInt())
+          appStartInfoSrc.pluginRegistrationTime.toInt())
           .toUtc();
       expect(coldStartSpan?.endTimestamp,
           NativeAppStartIntegration.appStartEnd?.toUtc());
@@ -386,7 +386,7 @@ class Fixture extends IntegrationTestFixture<NativeAppStartIntegration> {
 
   Fixture()
       : super((binding) =>
-            NativeAppStartIntegration(binding, FakeFrameCallbackHandler())) {
+      NativeAppStartIntegration(binding, FakeFrameCallbackHandler())) {
     NativeAppStartIntegration.reset();
     hub = MockHub();
     // ignore: invalid_use_of_internal_member
