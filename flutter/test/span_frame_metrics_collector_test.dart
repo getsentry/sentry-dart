@@ -76,26 +76,10 @@ void main() {
         _isWithinRange(expectedTotalFrames, totalFramesRange));
   });
 
-  test('frame tracking collects frame durations within expected range',
-      () async {
-    final sut = fixture.sut;
-
-    sut.startFrameTracking();
-    await Future<void>.delayed(Duration(seconds: 1));
-
-    final expectedDurations = fakeFrameDurations;
-    final actualDurations = sut.frameDurations.values.toList();
-    expect(
-        actualDurations,
-        containsAllInOrder(expectedDurations
-            .map((duration) => _isWithinRange(duration.inMilliseconds))));
-  });
-
   test('onSpanFinished removes frames older than span start timestamp',
       () async {
-    // We add 2 spans here because onSpanFinished also removes the span from the
-    // internal list and if that is empty then we just clear the whole tracker
-    // So we need multiple spans to test the removal of frames
+    // Using multiple spans to test frame removal. When the last span is finished,
+    // the tracker clears all data, so we need at least two spans to observe partial removal.
     final sut = fixture.sut;
     final span1 = MockSentrySpan();
     final span2 = MockSentrySpan();

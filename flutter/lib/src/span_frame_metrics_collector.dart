@@ -10,6 +10,12 @@ import 'native/sentry_native_binding.dart';
 
 @internal
 class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
+  static const _frozenFrameThresholdMs = 700;
+  static const totalFramesKey = 'frames.total';
+  static const framesDelayKey = 'frames.delay';
+  static const slowFramesKey = 'frames.slow';
+  static const frozenFramesKey = 'frames.frozen';
+
   final SentryFlutterOptions options;
   final FrameCallbackHandler? _frameCallbackHandler;
   final SentryNativeBinding? _native;
@@ -58,19 +64,18 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
 
   @override
   Future<void> onSpanFinished(ISentrySpan span, DateTime endTimestamp) async {
-    if (span is NoOpSentrySpan || !options.enableFramesTracking) {
-      return Future.value();
-    }
+    if (span is NoOpSentrySpan || !options.enableFramesTracking) return;
 
-    await recordSpanFrameMetrics(span, endTimestamp);
+    final frameMetrics =
+        calculateFrameMetrics(span, endTimestamp, displayRefreshRate);
+    _applyFrameMetricsToSpan(span, frameMetrics);
 
+    activeSpans.remove(span);
     if (activeSpans.isEmpty) {
       clear();
     } else {
-      final oldestSpan = activeSpans.first;
-      frameDurations.removeWhere((key, value) {
-        return key.isBefore(oldestSpan.startTimestamp);
-      });
+      frameDurations.removeWhere(
+          (key, _) => key.isBefore(activeSpans.first.startTimestamp));
     }
   }
 
@@ -111,13 +116,8 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
     }
   }
 
-  Future<void> recordSpanFrameMetrics(
-      ISentrySpan span, DateTime endTimestamp) async {
-    activeSpans.remove(span);
-
-    final frameMetrics =
-        calculateFrameMetrics(span, endTimestamp, displayRefreshRate);
-
+  void _applyFrameMetricsToSpan(
+      ISentrySpan span, Map<String, int> frameMetrics) {
     frameMetrics.forEach((key, value) {
       span.setData(key, value);
     });
@@ -130,14 +130,16 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
       });
       frameMetrics.forEach((key, value) {
         // In measurements we change e.g frames.total to frames_total
+        // We don't do span.tracer.setMeasurement because setMeasurement in SentrySpan
+        // uses the tracer internally
         span.setMeasurement(key.replaceAll('.', '_'), value);
       });
     }
   }
 
+  @visibleForTesting
   Map<String, int> calculateFrameMetrics(
       ISentrySpan span, DateTime endTimestamp, int displayRefreshRate) {
-    const frozenFrameThresholdMs = 700;
     final expectedFrameDuration = ((1 / displayRefreshRate) * 1000).toInt();
 
     // Filter frame durations within the span's time range
@@ -161,7 +163,7 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
     for (final timestamp in timestamps) {
       final frameDuration = frameDurations[timestamp] ?? 0;
 
-      if (frameDuration > frozenFrameThresholdMs) {
+      if (frameDuration > _frozenFrameThresholdMs) {
         frozenFramesCount += 1;
         frozenFramesDuration += frameDuration;
       } else if (frameDuration > expectedFrameDuration) {
@@ -192,10 +194,10 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
     }
 
     return {
-      "frames.total": totalFramesCount.toInt(),
-      "frames.delay": framesDelay,
-      "frames.slow": slowFramesCount,
-      "frames.frozen": frozenFramesCount,
+      SpanFrameMetricsCollector.totalFramesKey: totalFramesCount.toInt(),
+      SpanFrameMetricsCollector.framesDelayKey: framesDelay,
+      SpanFrameMetricsCollector.slowFramesKey: slowFramesCount,
+      SpanFrameMetricsCollector.frozenFramesKey: frozenFramesCount,
     };
   }
 
