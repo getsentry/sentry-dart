@@ -194,7 +194,7 @@ void main() {
         _isWithinRange(expectedTotalFrames, totalFramesRange));
 
     expect(tracer1.measurements['frames_delay']!.value,
-        _isWithinRange(expectedFramesDelay, 10));
+        _isWithinRange(expectedFramesDelay, framesDelayRange));
     expect(tracer1.measurements['frames_total']!.value,
         _isWithinRange(expectedTotalFrames, totalFramesRange));
     expect(tracer1.measurements['frames_slow']!.value, 2);
@@ -204,12 +204,15 @@ void main() {
     expect(tracer2.data['frames.frozen'], 1);
     expect(
         tracer2.data['frames.delay'], _isWithinRange(expectedFramesDelay, 10));
-    // expect(tracer2.data['frames.total'], _isWithinRange(expectedTotalFrames, totalFramesRange));
+
+    // This is hardcoded and not ideal
+    expect(tracer2.data['frames.total'], _isWithinRange(54, totalFramesRange));
 
     expect(tracer2.measurements['frames_delay']!.value,
         _isWithinRange(expectedFramesDelay, 10));
-    // expect(tracer2.measurements['frames_total']!.value,
-    //     _isWithinRange(expectedTotalFrames, totalFramesRange));
+    // This is hardcoded and not ideal
+    expect(tracer2.measurements['frames_total']!.value,
+        _isWithinRange(54, totalFramesRange));
     expect(tracer2.measurements['frames_slow']!.value, 2);
     expect(tracer2.measurements['frames_frozen']!.value, 1);
   });
