@@ -189,6 +189,11 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       if (display != null) {
         refreshRate = display.refreshRate.toInt()
       }
+    } else {
+      val display = activity?.get()?.window?.windowManager?.defaultDisplay
+      if (display != null) {
+        refreshRate = display.refreshRate.toInt()
+      }
     }
 
     result.success(refreshRate)
