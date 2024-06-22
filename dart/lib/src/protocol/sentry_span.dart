@@ -76,11 +76,11 @@ class SentrySpan extends ISentrySpan {
       endTimestamp = endTimestamp.toUtc();
     }
 
-    await Future.forEach(_hub.options.performanceCollectors, (collector) {
+    for (final collector in _hub.options.performanceCollectors) {
       if (collector is PerformanceContinuousCollector) {
-        return collector.onSpanFinished(this, endTimestamp!);
+        await collector.onSpanFinished(this, endTimestamp!);
       }
-    });
+    }
 
     // The finished flag depends on the _endTimestamp
     // If we set this earlier then finished is true and then we cannot use setData etc...
