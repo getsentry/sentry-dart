@@ -166,7 +166,8 @@ void main() {
         SentryTransactionContext('name1', 'op1'), fixture.hub,
         startTimestamp: startTimestamp);
 
-    final child = tracer.startChild('child') as SentrySpan;
+    final child = tracer.startChild('child', startTimestamp: startTimestamp)
+        as SentrySpan;
 
     await Future<void>.delayed(Duration(milliseconds: 500));
     await child.finish(endTimestamp: endTimestamp);
