@@ -119,7 +119,7 @@ void main() {
         SentryTransactionContext('name1', 'op1'), fixture.hub,
         startTimestamp: startTimestamp);
 
-    await Future<void>.delayed(Duration(milliseconds: 100));
+    await Future<void>.delayed(Duration(milliseconds: 500));
     await tracer.finish(endTimestamp: endTimestamp);
 
     expect(tracer.data['frames.slow'], expectedSlowFrames);
