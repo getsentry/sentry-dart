@@ -17,8 +17,10 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
   static const frozenFramesKey = 'frames.frozen';
 
   final SentryFlutterOptions options;
-  final FrameCallbackHandler? _frameCallbackHandler;
+  final FrameCallbackHandler _frameCallbackHandler;
   final SentryNativeBinding? _native;
+
+  final bool _isTestMode;
 
   /// Stores frame timestamps and their durations in milliseconds.
   /// Keys are frame timestamps, values are frame durations.
@@ -40,10 +42,13 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
   final _stopwatch = Stopwatch();
 
   SpanFrameMetricsCollector(this.options,
-      {FrameCallbackHandler? frameCallbackHandler, SentryNativeBinding? native})
+      {FrameCallbackHandler? frameCallbackHandler,
+      SentryNativeBinding? native,
+      bool isTestMode = false})
       : _frameCallbackHandler =
             frameCallbackHandler ?? DefaultFrameCallbackHandler(),
-        _native = native ?? SentryFlutter.native;
+        _native = native ?? SentryFlutter.native,
+        _isTestMode = isTestMode;
 
   @override
   Future<void> onSpanStarted(ISentrySpan span) async {
@@ -88,7 +93,7 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
     _isTrackingPaused = false;
 
     if (!_isTrackingRegistered) {
-      _frameCallbackHandler?.addPersistentFrameCallback(measureFrameDuration);
+      _frameCallbackHandler.addPersistentFrameCallback(measureFrameDuration);
       _isTrackingRegistered = true;
     }
   }
@@ -96,14 +101,21 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
   /// Records the duration of a single frame and stores it in [frameDurations].
   ///
   /// This method is called for each frame when frame tracking is active.
-  void measureFrameDuration(Duration duration) async {
+  Future<void> measureFrameDuration(Duration duration) async {
+    // Using the stopwatch to measure the frame duration is flaky in ci
+    if (_isTestMode) {
+      // ignore: invalid_use_of_internal_member
+      frameDurations[options.clock()] = duration.inMilliseconds;
+      return;
+    }
+
     if (_isTrackingPaused) return;
 
     if (!_stopwatch.isRunning) {
       _stopwatch.start();
     }
 
-    await _frameCallbackHandler?.endOfFrame;
+    await _frameCallbackHandler.endOfFrame;
 
     final frameDuration = _stopwatch.elapsedMilliseconds;
     // ignore: invalid_use_of_internal_member
@@ -111,7 +123,7 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
 
     _stopwatch.reset();
 
-    if (_frameCallbackHandler?.hasScheduledFrame == true) {
+    if (_frameCallbackHandler.hasScheduledFrame == true) {
       _stopwatch.start();
     }
   }

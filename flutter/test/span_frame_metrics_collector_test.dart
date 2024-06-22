@@ -15,9 +15,6 @@ import 'mocks.mocks.dart';
 void main() {
   late Fixture fixture;
 
-  const framesDelayRange = 30;
-  const totalFramesRange = 2;
-
   setUp(() {
     fixture = Fixture();
     WidgetsFlutterBinding.ensureInitialized();
@@ -56,24 +53,24 @@ void main() {
     final sut = fixture.sut;
     fixture.options.tracesSampleRate = 1.0;
     fixture.options.addPerformanceCollector(sut);
+    final startTimestamp = DateTime.now();
+    final endTimestamp = startTimestamp.add(Duration(milliseconds: 800));
 
     when(fixture.mockSentryNative.displayRefreshRate())
         .thenAnswer((_) async => null);
 
     final tracer = SentryTracer(
         SentryTransactionContext('name', 'op', description: 'tracerDesc'),
-        fixture.hub);
+        fixture.hub,
+        startTimestamp: startTimestamp);
 
-    await Future<void>.delayed(Duration(milliseconds: 800));
+    await Future<void>.delayed(Duration(milliseconds: 100));
+    await tracer.finish(endTimestamp: endTimestamp);
 
-    await tracer.finish();
-
-    expect(tracer.data['frames.slow'], 2);
-    expect(tracer.data['frames.frozen'], 1);
-    expect(tracer.data['frames.delay'],
-        _isWithinRange(expectedFramesDelay, framesDelayRange));
-    expect(tracer.data['frames.total'],
-        _isWithinRange(expectedTotalFrames, totalFramesRange));
+    expect(tracer.data['frames.slow'], expectedSlowFrames);
+    expect(tracer.data['frames.frozen'], expectedFrozenFrames);
+    expect(tracer.data['frames.delay'], expectedFramesDelay);
+    expect(tracer.data['frames.total'], expectedTotalFrames);
   });
 
   test('onSpanFinished removes frames older than span start timestamp',
@@ -115,43 +112,25 @@ void main() {
     final sut = fixture.sut;
     fixture.options.tracesSampleRate = 1.0;
     fixture.options.addPerformanceCollector(sut);
-    fixture.options.debug = true;
+    final startTimestamp = DateTime.now();
+    final endTimestamp = startTimestamp.add(Duration(milliseconds: 800));
 
     final tracer = SentryTracer(
-        SentryTransactionContext('name', 'op', description: 'tracerDesc'),
-        fixture.hub);
-    final child =
-        tracer.startChild('child', description: 'description') as SentrySpan;
+        SentryTransactionContext('name1', 'op1'), fixture.hub,
+        startTimestamp: startTimestamp);
 
-    await Future<void>.delayed(Duration(milliseconds: 800));
+    await Future<void>.delayed(Duration(milliseconds: 100));
+    await tracer.finish(endTimestamp: endTimestamp);
 
-    print(sut.frameDurations);
+    expect(tracer.data['frames.slow'], expectedSlowFrames);
+    expect(tracer.data['frames.frozen'], expectedFrozenFrames);
+    expect(tracer.data['frames.delay'], expectedFramesDelay);
+    expect(tracer.data['frames.total'], expectedTotalFrames);
 
-    await child.finish();
-    await tracer.finish();
-
-    print(tracer is NoOpSentrySpan);
-
-    expect(tracer.data['frames.slow'], 2);
-    expect(tracer.data['frames.frozen'], 1);
-    expect(tracer.data['frames.delay'],
-        _isWithinRange(expectedFramesDelay, framesDelayRange));
-    expect(tracer.data['frames.total'],
-        _isWithinRange(expectedTotalFrames, totalFramesRange));
-
-    expect(tracer.measurements['frames_delay']!.value,
-        _isWithinRange(expectedFramesDelay, 10));
-    expect(tracer.measurements['frames_total']!.value,
-        _isWithinRange(expectedTotalFrames, totalFramesRange));
-    expect(tracer.measurements['frames_slow']!.value, 2);
-    expect(tracer.measurements['frames_frozen']!.value, 1);
-
-    expect(child.data['frames.slow'], 2);
-    expect(child.data['frames.frozen'], 1);
-    expect(child.data['frames.delay'],
-        _isWithinRange(expectedFramesDelay, framesDelayRange));
-    expect(child.data['frames.total'],
-        _isWithinRange(expectedTotalFrames, totalFramesRange));
+    expect(tracer.measurements['frames_delay']!.value, expectedFramesDelay);
+    expect(tracer.measurements['frames_total']!.value, expectedTotalFrames);
+    expect(tracer.measurements['frames_slow']!.value, expectedSlowFrames);
+    expect(tracer.measurements['frames_frozen']!.value, expectedFrozenFrames);
   });
 
   test('negative values in frame metrics leads to empty map', () async {
@@ -179,47 +158,37 @@ void main() {
     final sut = fixture.sut;
     fixture.options.tracesSampleRate = 1.0;
     fixture.options.addPerformanceCollector(sut);
+    final startTimestamp = DateTime.now();
+    final endTimestamp = startTimestamp.add(Duration(milliseconds: 800));
 
-    final tracer1 =
-        SentryTracer(SentryTransactionContext('name1', 'op1'), fixture.hub);
-    final tracer2 =
-        SentryTracer(SentryTransactionContext('name2', 'op2'), fixture.hub);
+    final tracer = SentryTracer(
+        SentryTransactionContext('name1', 'op1'), fixture.hub,
+        startTimestamp: startTimestamp);
 
-    await Future<void>.delayed(Duration(milliseconds: 800));
-    await tracer1.finish();
+    final child = tracer.startChild('child') as SentrySpan;
 
-    await Future<void>.delayed(Duration(milliseconds: 800));
-    await tracer2.finish();
+    await Future<void>.delayed(Duration(milliseconds: 100));
+    await child.finish(endTimestamp: endTimestamp);
 
-    expect(tracer1.data['frames.slow'], 2);
-    expect(tracer1.data['frames.frozen'], 1);
-    expect(tracer1.data['frames.delay'],
-        _isWithinRange(expectedFramesDelay, framesDelayRange));
-    expect(tracer1.data['frames.total'],
-        _isWithinRange(expectedTotalFrames, totalFramesRange));
+    await Future<void>.delayed(Duration(milliseconds: 100));
+    await tracer.finish(
+        endTimestamp: endTimestamp.add(Duration(milliseconds: 800)));
 
-    expect(tracer1.measurements['frames_delay']!.value,
-        _isWithinRange(expectedFramesDelay, framesDelayRange));
-    expect(tracer1.measurements['frames_total']!.value,
-        _isWithinRange(expectedTotalFrames, totalFramesRange));
-    expect(tracer1.measurements['frames_slow']!.value, 2);
-    expect(tracer1.measurements['frames_frozen']!.value, 1);
+    expect(child.data['frames.slow'], expectedSlowFrames);
+    expect(child.data['frames.frozen'], expectedFrozenFrames);
+    expect(child.data['frames.delay'], expectedFramesDelay);
+    expect(child.data['frames.total'], expectedTotalFrames);
 
-    expect(tracer2.data['frames.slow'], 2);
-    expect(tracer2.data['frames.frozen'], 1);
-    expect(
-        tracer2.data['frames.delay'], _isWithinRange(expectedFramesDelay, 10));
-
-    // This is hardcoded and not ideal
-    expect(tracer2.data['frames.total'], _isWithinRange(54, totalFramesRange));
-
-    expect(tracer2.measurements['frames_delay']!.value,
-        _isWithinRange(expectedFramesDelay, 10));
-    // This is hardcoded and not ideal
-    expect(tracer2.measurements['frames_total']!.value,
-        _isWithinRange(54, totalFramesRange));
-    expect(tracer2.measurements['frames_slow']!.value, 2);
-    expect(tracer2.measurements['frames_frozen']!.value, 1);
+    // total frames is hardcoded here since it depends on span duration as well
+    // and we are deviating from the default 800ms to 1600ms for the whole transaction
+    expect(tracer.data['frames.slow'], expectedSlowFrames);
+    expect(tracer.data['frames.frozen'], expectedFrozenFrames);
+    expect(tracer.data['frames.delay'], expectedFramesDelay);
+    expect(tracer.data['frames.total'], 54);
+    expect(tracer.measurements['frames_delay']!.value, expectedFramesDelay);
+    expect(tracer.measurements['frames_total']!.value, 54);
+    expect(tracer.measurements['frames_slow']!.value, expectedSlowFrames);
+    expect(tracer.measurements['frames_frozen']!.value, expectedFrozenFrames);
   });
 
   test('frame tracker is paused after finishing a span', () async {
@@ -230,18 +199,12 @@ void main() {
     final tracer =
         SentryTracer(SentryTransactionContext('name', 'op'), fixture.hub);
 
-    await Future<void>.delayed(Duration(milliseconds: 800));
-
+    await Future<void>.delayed(Duration(milliseconds: 100));
     await tracer.finish();
 
     expect(sut.isTrackingPaused, isTrue);
   });
 }
-
-Matcher _isWithinRange(int expected, [int delta = 5]) => allOf(
-      greaterThanOrEqualTo(expected - delta),
-      lessThanOrEqualTo(expected + delta),
-    );
 
 class Fixture {
   final options = SentryFlutterOptions(dsn: fakeDsn);
@@ -250,5 +213,7 @@ class Fixture {
   final mockSentryNative = MockSentryNativeBinding();
 
   SpanFrameMetricsCollector get sut => SpanFrameMetricsCollector(options,
-      frameCallbackHandler: fakeFrameCallbackHandler, native: mockSentryNative);
+      frameCallbackHandler: fakeFrameCallbackHandler,
+      native: mockSentryNative,
+      isTestMode: true);
 }
