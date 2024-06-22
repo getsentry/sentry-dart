@@ -19,6 +19,8 @@ class FakeFrameCallbackHandler implements FrameCallbackHandler {
   @override
   Future<void> addPersistentFrameCallback(FrameCallback callback) async {
     for (final duration in fakeFrameDurations) {
+      // Let's wait a bit so the timestamp intervals are large enough
+      await Future<void>.delayed(Duration(milliseconds: 20));
       callback(duration);
     }
   }

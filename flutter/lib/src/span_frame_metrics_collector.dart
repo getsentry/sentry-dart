@@ -7,6 +7,7 @@ import '../sentry_flutter.dart';
 
 import 'frame_callback_handler.dart';
 import 'native/sentry_native_binding.dart';
+import 'package:clock/clock.dart';
 
 @internal
 class SpanFrameMetricsCollector implements PerformanceContinuousCollector {

@@ -53,8 +53,9 @@ void main() {
     final sut = fixture.sut;
     fixture.options.tracesSampleRate = 1.0;
     fixture.options.addPerformanceCollector(sut);
-    final startTimestamp = DateTime.now();
-    final endTimestamp = startTimestamp.add(Duration(milliseconds: 800));
+    final startTimestamp = DateTime.now().toUtc();
+    final endTimestamp =
+        startTimestamp.add(Duration(milliseconds: 800)).toUtc();
 
     when(fixture.mockSentryNative.displayRefreshRate())
         .thenAnswer((_) async => null);
@@ -119,7 +120,7 @@ void main() {
         SentryTransactionContext('name1', 'op1'), fixture.hub,
         startTimestamp: startTimestamp);
 
-    await Future<void>.delayed(Duration(milliseconds: 500));
+    await Future<void>.delayed(Duration(milliseconds: 100));
     await tracer.finish(endTimestamp: endTimestamp);
 
     expect(tracer.data['frames.slow'], expectedSlowFrames);
