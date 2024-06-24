@@ -25,14 +25,14 @@ void main() {
 
   test('clear() clears frames, running spans and pauses frame tracking', () {
     final sut = fixture.sut;
-    sut.frameDurations[DateTime.now()] = 1;
+    sut.frames[DateTime.now()] = 1;
     final mockSpan = MockSentrySpan();
     when(mockSpan.startTimestamp).thenReturn(DateTime.now());
 
     sut.onSpanStarted(mockSpan);
     sut.clear();
 
-    expect(sut.frameDurations, isEmpty);
+    expect(sut.frames, isEmpty);
     expect(sut.activeSpans, isEmpty);
     expect(sut.isTrackingPaused, isTrue);
   });
@@ -53,9 +53,9 @@ void main() {
     final sut = fixture.sut;
     fixture.options.tracesSampleRate = 1.0;
     fixture.options.addPerformanceCollector(sut);
-    final startTimestamp = DateTime.now().toUtc();
+    final startTimestamp = DateTime.now();
     final endTimestamp =
-        startTimestamp.add(Duration(milliseconds: 800)).toUtc();
+        startTimestamp.add(Duration(milliseconds: 1000)).toUtc();
 
     when(fixture.mockSentryNative.displayRefreshRate())
         .thenAnswer((_) async => null);
@@ -96,15 +96,14 @@ void main() {
     sut.activeSpans.add(span1);
     sut.activeSpans.add(span2);
 
-    sut.frameDurations[spanStartTimestamp.subtract(Duration(seconds: 5))] = 1;
-    sut.frameDurations[spanStartTimestamp.subtract(Duration(seconds: 3))] = 1;
-    sut.frameDurations[spanStartTimestamp.add(Duration(seconds: 4))] = 1;
+    sut.frames[spanStartTimestamp.subtract(Duration(seconds: 5))] = 1;
+    sut.frames[spanStartTimestamp.subtract(Duration(seconds: 3))] = 1;
+    sut.frames[spanStartTimestamp.add(Duration(seconds: 4))] = 1;
 
     await sut.onSpanFinished(span1, spanEndTimestamp);
 
-    expect(sut.frameDurations, hasLength(1));
-    expect(sut.frameDurations.keys.first,
-        spanStartTimestamp.add(Duration(seconds: 4)));
+    expect(sut.frames, hasLength(1));
+    expect(sut.frames.keys.first, spanStartTimestamp.add(Duration(seconds: 4)));
   });
 
   test(
@@ -114,7 +113,7 @@ void main() {
     fixture.options.tracesSampleRate = 1.0;
     fixture.options.addPerformanceCollector(sut);
     final startTimestamp = DateTime.now();
-    final endTimestamp = startTimestamp.add(Duration(milliseconds: 800));
+    final endTimestamp = startTimestamp.add(Duration(milliseconds: 1000));
 
     final tracer = SentryTracer(
         SentryTransactionContext('name1', 'op1'), fixture.hub,
@@ -134,24 +133,78 @@ void main() {
     expect(tracer.measurements['frames_frozen']!.value, expectedFrozenFrames);
   });
 
-  test('negative values in frame metrics leads to empty map', () async {
+  test('frame fully contained in span should contribute to frame metrics', () {
     final sut = fixture.sut;
-    fixture.options.tracesSampleRate = 1.0;
-    fixture.options.addPerformanceCollector(sut);
-    const displayRefreshRate = 60;
+    final span = MockSentrySpan();
 
-    final tracer = MockSentryTracer();
+    final now = DateTime.now();
+    when(span.startTimestamp).thenReturn(now);
+    when(span.endTimestamp).thenReturn(now.add(Duration(milliseconds: 500)));
+    sut.frames[now.add(Duration(milliseconds: 200))] = 100;
 
-    final startTimestamp = DateTime.now();
-    when(tracer.startTimestamp).thenReturn(startTimestamp);
-    when(tracer.context).thenReturn(SentryTransactionContext('name', 'op'));
+    final metrics = sut.calculateFrameMetrics(span, span.endTimestamp!, 60);
 
-    sut.frameDurations[startTimestamp.add(Duration(milliseconds: 1))] = 500;
+    expect(metrics['frames.total'], 26);
+    expect(metrics['frames.slow'], 1);
+    expect(metrics['frames.delay'], 84);
+    expect(metrics['frames.frozen'], 0);
+  });
 
-    final frameMetrics = sut.calculateFrameMetrics(tracer,
-        startTimestamp.add(Duration(milliseconds: 10)), displayRefreshRate);
+  test('frame fully outside of span should not contribute to frame metrics',
+      () {
+    final sut = fixture.sut;
+    final span = MockSentrySpan();
 
-    expect(frameMetrics.isEmpty, isTrue);
+    final now = DateTime.now();
+    when(span.startTimestamp).thenReturn(now);
+    when(span.endTimestamp).thenReturn(now.add(Duration(milliseconds: 500)));
+    sut.frames[now.subtract(Duration(milliseconds: 200))] = 100;
+
+    final metrics = sut.calculateFrameMetrics(span, span.endTimestamp!, 60);
+
+    expect(metrics['frames.total'], 31);
+    expect(metrics['frames.slow'], 0);
+    expect(metrics['frames.delay'], 0);
+    expect(metrics['frames.frozen'], 0);
+  });
+
+  test(
+      'frame partially contained in span (starts before span and ends within span) should contribute to frame metrics',
+      () {
+    final sut = fixture.sut;
+    final span = MockSentrySpan();
+
+    final now = DateTime.now();
+    when(span.startTimestamp).thenReturn(now);
+    when(span.endTimestamp).thenReturn(now.add(Duration(milliseconds: 500)));
+    // 50ms before span starts and ends 50ms after span starts
+    sut.frames[now.add(Duration(milliseconds: 50))] = 100;
+
+    final metrics = sut.calculateFrameMetrics(span, span.endTimestamp!, 60);
+
+    expect(metrics['frames.total'], 29);
+    expect(metrics['frames.slow'], 1);
+    expect(metrics['frames.delay'], 42);
+    expect(metrics['frames.frozen'], 0);
+  });
+
+  test(
+      'frame partially contained in span (starts withing span and ends after span end) should contribute to frame metrics',
+      () {
+    final sut = fixture.sut;
+    final span = MockSentrySpan();
+
+    final now = DateTime.now();
+    when(span.startTimestamp).thenReturn(now);
+    when(span.endTimestamp).thenReturn(now.add(Duration(milliseconds: 500)));
+    sut.frames[now.add(Duration(milliseconds: 550))] = 100;
+
+    final metrics = sut.calculateFrameMetrics(span, span.endTimestamp!, 60);
+
+    expect(metrics['frames.total'], 29);
+    expect(metrics['frames.slow'], 1);
+    expect(metrics['frames.delay'], 42);
+    expect(metrics['frames.frozen'], 0);
   });
 
   test('calculates frame metrics correctly for multiple simultaneous spans',
@@ -160,7 +213,7 @@ void main() {
     fixture.options.tracesSampleRate = 1.0;
     fixture.options.addPerformanceCollector(sut);
     final startTimestamp = DateTime.now();
-    final endTimestamp = startTimestamp.add(Duration(milliseconds: 800));
+    final endTimestamp = startTimestamp.add(Duration(milliseconds: 1000));
 
     final tracer = SentryTracer(
         SentryTransactionContext('name1', 'op1'), fixture.hub,

@@ -193,8 +193,8 @@ class TestBindingWrapper implements BindingWrapper {
 class MockSentryClient with NoSuchMethodProvider implements SentryClient {}
 
 // All these values are based on the fakeFrameDurations list.
-// The expected total frames is also based on the span duration of 800 and the slow and frozen frames.
-const expectedTotalFrames = 4;
+// The expected total frames is also based on the span duration of 1000ms and the slow and frozen frames.
+const expectedTotalFrames = 17;
 const expectedFramesDelay = 722;
 const expectedSlowFrames = 2;
 const expectedFrozenFrames = 1;
