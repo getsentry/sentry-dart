@@ -70,7 +70,7 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
 
   @override
   Future<void> onSpanFinished(ISentrySpan span, DateTime endTimestamp) async {
-    if (span is NoOpSentrySpan || !options.enableFramesTracking) return;
+    if (span is NoOpSentrySpan || !activeSpans.contains(span)) return;
 
     final frameMetrics =
         calculateFrameMetrics(span, endTimestamp, displayRefreshRate);
