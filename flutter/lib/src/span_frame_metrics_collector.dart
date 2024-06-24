@@ -202,6 +202,9 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
         final fullFrameDelay = max(0, frameDuration - expectedFrameDuration);
         final intersectionRatio = effectiveDuration / frameDuration;
         effectiveDelay = (fullFrameDelay * intersectionRatio).round();
+      } else if (frameStartMs > spanEndMs) {
+        // Other frames will be newer than this span, as frames are ordered
+        break;
       } else {
         // Frame is completely outside the span, skip it
         continue;
