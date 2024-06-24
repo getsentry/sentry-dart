@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:ui';
 
-import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 import '../sentry_flutter.dart';
@@ -14,9 +13,9 @@ import 'integrations/connectivity/connectivity_integration.dart';
 import 'integrations/screenshot_integration.dart';
 import 'native/factory.dart';
 import 'native/native_scope_observer.dart';
+import 'native/sentry_native_binding.dart';
 import 'profiling.dart';
 import 'renderer/renderer.dart';
-import 'native/sentry_native.dart';
 
 import 'integrations/integrations.dart';
 import 'event_processor/flutter_enricher_event_processor.dart';
@@ -32,17 +31,25 @@ typedef FlutterOptionsConfiguration = FutureOr<void> Function(
 
 /// Sentry Flutter SDK main entry point
 mixin SentryFlutter {
-  static const _channel = MethodChannel('sentry_flutter');
-
   /// Represents the time when the Sentry init set up has started.
   @internal
   // ignore: invalid_use_of_internal_member
   static DateTime? sentrySetupStartTime;
 
+  /// Initializes the Sentry Flutter SDK.
+  ///
+  /// Unlike [Sentry.init], this method creates the Flutter default integrations.
+  ///
+  /// [optionsConfiguration] is a callback that allows you to configure the Sentry
+  /// options. The [SentryFlutterOptions] should not be adjusted anywhere else than
+  /// during [init], so that's why they're not directly exposed outside of this method.
+  ///
+  /// You can use the static members of [Sentry] from within other packages without the
+  /// need of initializing it in the package; as long as they have been already properly
+  /// initialized in the application package.
   static Future<void> init(
     FlutterOptionsConfiguration optionsConfiguration, {
     AppRunner? appRunner,
-    @internal MethodChannel channel = _channel,
     @internal PlatformChecker? platformChecker,
     @internal RendererWrapper? rendererWrapper,
   }) async {
@@ -59,8 +66,7 @@ mixin SentryFlutter {
     }
 
     if (flutterOptions.platformChecker.hasNativeIntegration) {
-      final binding = createBinding(flutterOptions.platformChecker, channel);
-      _native = SentryNative(flutterOptions, binding);
+      _native = createBinding(flutterOptions);
     }
 
     final platformDispatcher = PlatformDispatcher.instance;
@@ -88,7 +94,6 @@ mixin SentryFlutter {
     // first step is to install the native integration and set default values,
     // so we are able to capture future errors.
     final defaultIntegrations = _createDefaultIntegrations(
-      channel,
       flutterOptions,
       isOnErrorSupported,
     );
@@ -96,10 +101,13 @@ mixin SentryFlutter {
       flutterOptions.addIntegration(defaultIntegration);
     }
 
-    await _initDefaultValues(flutterOptions, channel);
+    await _initDefaultValues(flutterOptions);
 
     await Sentry.init(
-      (options) => optionsConfiguration(options as SentryFlutterOptions),
+      (options) {
+        assert(options == flutterOptions);
+        return optionsConfiguration(options as SentryFlutterOptions);
+      },
       appRunner: appRunner,
       // ignore: invalid_use_of_internal_member
       options: flutterOptions,
@@ -115,15 +123,12 @@ mixin SentryFlutter {
     }
   }
 
-  static Future<void> _initDefaultValues(
-    SentryFlutterOptions options,
-    MethodChannel channel,
-  ) async {
+  static Future<void> _initDefaultValues(SentryFlutterOptions options) async {
     options.addEventProcessor(FlutterExceptionEventProcessor());
 
     // Not all platforms have a native integration.
     if (_native != null) {
-      options.transport = FileSystemTransport(channel, options);
+      options.transport = FileSystemTransport(_native!, options);
       options.addScopeObserver(NativeScopeObserver(_native!));
     }
 
@@ -144,13 +149,11 @@ mixin SentryFlutter {
   /// Install default integrations
   /// https://medium.com/flutter-community/error-handling-in-flutter-98fce88a34f0
   static List<Integration> _createDefaultIntegrations(
-    MethodChannel channel,
     SentryFlutterOptions options,
     bool isOnErrorSupported,
   ) {
     final integrations = <Integration>[];
     final platformChecker = options.platformChecker;
-    final platform = platformChecker.platform;
 
     // Will call WidgetsFlutterBinding.ensureInitialized() before all other integrations.
     integrations.add(WidgetsFlutterBindingIntegration());
@@ -169,22 +172,13 @@ mixin SentryFlutter {
     // The ordering here matters, as we'd like to first start the native integration.
     // That allow us to send events to the network and then the Flutter integrations.
     // Flutter Web doesn't need that, only Android and iOS.
-    if (_native != null) {
-      integrations.add(NativeSdkIntegration(_native!));
+    final native = _native;
+    if (native != null) {
+      integrations.add(NativeSdkIntegration(native));
+      integrations.add(LoadContextsIntegration(native));
+      integrations.add(LoadImageListIntegration(native));
     }
 
-    // Will enrich events with device context, native packages and integrations
-    if (platformChecker.hasNativeIntegration &&
-        !platformChecker.isWeb &&
-        (platform.isIOS || platform.isMacOS || platform.isAndroid)) {
-      integrations.add(LoadContextsIntegration(channel));
-    }
-
-    if (platformChecker.hasNativeIntegration &&
-        !platformChecker.isWeb &&
-        (platform.isAndroid || platform.isIOS || platform.isMacOS)) {
-      integrations.add(LoadImageListIntegration(channel));
-    }
     final renderer = options.rendererWrapper.getRenderer();
     if (!platformChecker.isWeb || renderer == FlutterRenderer.canvasKit) {
       integrations.add(ScreenshotIntegration());
@@ -204,9 +198,9 @@ mixin SentryFlutter {
     // in errors.
     integrations.add(LoadReleaseIntegration());
 
-    if (_native != null) {
+    if (native != null) {
       integrations.add(NativeAppStartIntegration(
-        _native!,
+        native,
         DefaultFrameCallbackHandler(),
       ));
     }
@@ -232,7 +226,7 @@ mixin SentryFlutter {
   /// Manually set when your app finished startup. Make sure to set
   /// [SentryFlutterOptions.autoAppStart] to false on init.
   static void setAppStartEnd(DateTime appStartEnd) {
-    _native?.appStartEnd = appStartEnd;
+    NativeAppStartIntegration.appStartEnd = appStartEnd;
   }
 
   static void _setSdk(SentryFlutterOptions options) {
@@ -254,9 +248,10 @@ mixin SentryFlutter {
   }
 
   @internal
-  static SentryNative? get native => _native;
+  static SentryNativeBinding? get native => _native;
 
   @internal
-  static set native(SentryNative? value) => _native = value;
-  static SentryNative? _native;
+  static set native(SentryNativeBinding? value) => _native = value;
+
+  static SentryNativeBinding? _native;
 }

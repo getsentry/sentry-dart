@@ -5,20 +5,21 @@ import 'dart:typed_data';
 import 'package:flutter/services.dart';
 import 'package:sentry/sentry.dart';
 
-class FileSystemTransport implements Transport {
-  FileSystemTransport(this._channel, this._options);
+import 'native/sentry_native_binding.dart';
 
-  final MethodChannel _channel;
+class FileSystemTransport implements Transport {
+  FileSystemTransport(this._native, this._options);
+
+  final SentryNativeBinding _native;
   final SentryOptions _options;
 
   @override
   Future<SentryId?> send(SentryEnvelope envelope) async {
     final envelopeData = <int>[];
     await envelope.envelopeStream(_options).forEach(envelopeData.addAll);
-    // https://flutter.dev/docs/development/platform-integration/platform-channels#codec
-    final args = [Uint8List.fromList(envelopeData)];
     try {
-      await _channel.invokeMethod('captureEnvelope', args);
+      // TODO avoid copy
+      await _native.captureEnvelope(Uint8List.fromList(envelopeData));
     } catch (exception, stackTrace) {
       _options.logger(
         SentryLevel.error,

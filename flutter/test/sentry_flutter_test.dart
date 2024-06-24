@@ -2,6 +2,7 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:sentry/src/platform/platform.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/integrations/connectivity/connectivity_integration.dart';
 import 'package:sentry_flutter/src/integrations/integrations.dart';
@@ -639,7 +640,7 @@ void loadTestPackage() {
 }
 
 PlatformChecker getPlatformChecker({
-  required MockPlatform platform,
+  required Platform platform,
   bool isWeb = false,
 }) {
   final platformChecker = PlatformChecker(
