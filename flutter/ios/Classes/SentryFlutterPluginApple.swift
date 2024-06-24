@@ -5,6 +5,7 @@ import UIKit
 #elseif os(macOS)
 import FlutterMacOS
 import AppKit
+import CoreVideo
 #endif
 
 // swiftlint:disable file_length function_body_length
@@ -655,6 +656,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         result(nil)
     }
 
+    #if os(iOS)
     // Taken from the Flutter engine:
     // https://github.com/flutter/engine/blob/main/shell/platform/darwin/ios/framework/Source/vsync_waiter_ios.mm#L150
     private func displayRefreshRate(_ result: @escaping FlutterResult) {
@@ -672,7 +674,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 
         if #available(iOS 13.0, *) {
             guard let windowScene = UIApplication.shared.windows.first?.windowScene else {
-                result(60) // Default value if window scene is not available
+                result(nil)
                 return
             }
             result(windowScene.screen.maximumFramesPerSecond)
@@ -684,6 +686,27 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
     @objc private func onDisplayLink(_ displayLink: CADisplayLink) {
         // No-op
     }
+    #elseif os(macOS)
+    private func displayRefreshRate(_ result: @escaping FlutterResult) {
+        let displayID: CGDirectDisplayID = CGMainDisplayID()
+        var displayLink: CVDisplayLink?
+
+        if CVDisplayLinkCreateWithCGDisplay(displayID, &displayLink) != kCVReturnSuccess {
+            result(nil)
+            return
+        }
+
+        guard let link = displayLink else {
+            result(nil)
+            return
+        }
+
+        let period = CVDisplayLinkGetNominalOutputVideoRefreshPeriod(link)
+        let refreshRate = Int(round(Double(period.timeScale) / Double(period.timeValue)))
+
+        result(refreshRate)
+    }
+    #endif
 }
 
 // swiftlint:enable function_body_length

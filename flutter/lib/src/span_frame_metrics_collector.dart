@@ -62,6 +62,9 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
       options.logger(SentryLevel.info,
           'Retrieved display refresh rate at $fetchedDisplayRefreshRate');
       displayRefreshRate = fetchedDisplayRefreshRate;
+    } else {
+      options.logger(SentryLevel.info,
+          'Could not fetch display refresh rate, keeping at 60hz by default');
     }
 
     activeSpans.add(span);
