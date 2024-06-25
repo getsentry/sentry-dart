@@ -688,23 +688,13 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
     }
     #elseif os(macOS)
     private func displayRefreshRate(_ result: @escaping FlutterResult) {
-        let displayID: CGDirectDisplayID = CGMainDisplayID()
-        var displayLink: CVDisplayLink?
-
-        if CVDisplayLinkCreateWithCGDisplay(displayID, &displayLink) != kCVReturnSuccess {
+        // TODO: This only grabs the main display refresh rate, ideally we would fetch the refresh rate of the display the app is running
+        let displayID = CGMainDisplayID()
+        guard let mode = CGDisplayCopyDisplayMode(displayID) else {
             result(nil)
             return
         }
-
-        guard let link = displayLink else {
-            result(nil)
-            return
-        }
-
-        let period = CVDisplayLinkGetNominalOutputVideoRefreshPeriod(link)
-        let refreshRate = Int(round(Double(period.timeScale) / Double(period.timeValue)))
-
-        result(refreshRate)
+        result(Int(mode.refreshRate))
     }
     #endif
 }
