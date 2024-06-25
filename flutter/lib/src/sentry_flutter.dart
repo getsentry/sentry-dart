@@ -247,7 +247,7 @@ mixin SentryFlutter {
       );
       return Future<void>.value();
     }
-    return native!.pauseAppHangTracking();
+    return _native!.pauseAppHangTracking();
   }
 
   /// Resumes the app hang tracking.
@@ -261,7 +261,7 @@ mixin SentryFlutter {
       );
       return Future<void>.value();
     }
-    return native!.pauseAppHangTracking();
+    return _native!.pauseAppHangTracking();
   }
 
   @internal
