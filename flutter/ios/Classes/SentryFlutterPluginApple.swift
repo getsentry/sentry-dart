@@ -688,12 +688,26 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
     }
     #elseif os(macOS)
     private func displayRefreshRate(_ result: @escaping FlutterResult) {
-        // TODO: This only grabs the main display refresh rate, ideally we would fetch the refresh rate of the display the app is running
-        let displayID = CGMainDisplayID()
+        guard let window = NSApplication.shared.keyWindow else {
+            result(nil)
+            return
+        }
+
+        guard let screen = window.screen else {
+            result(nil)
+            return
+        }
+
+        guard let displayID = screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? CGDirectDisplayID else {
+            result(nil)
+            return
+        }
+
         guard let mode = CGDisplayCopyDisplayMode(displayID) else {
             result(nil)
             return
         }
+
         result(Int(mode.refreshRate))
     }
     #endif
