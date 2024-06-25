@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 
 import '../../../sentry.dart';
 import 'enricher_event_processor.dart';
@@ -40,6 +41,10 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
     );
 
     contexts['dart_context'] = _getDartContext();
+    contexts['process_info'] = <String, dynamic>{
+      'currentResidentSetSize': _bytesToHumanReadableFileSize(ProcessInfo.currentRss),
+      'maxResidentSetSize': _bytesToHumanReadableFileSize(ProcessInfo.maxRss),
+    };
 
     return event.copyWith(
       contexts: contexts,
@@ -115,5 +120,31 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
       locale: culture?.locale ?? Platform.localeName,
       timezone: culture?.timezone ?? DateTime.now().timeZoneName,
     );
+  }
+
+  // Reference:
+  // https://github.com/erdbeerschnitzel/filesize.dart/blob/4f7c54dc06647b8368078f6febb83149494698c1/lib/filesize.dart
+  String _bytesToHumanReadableFileSize(num size) {
+    const List<String> affixes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
+
+    int round = 2;
+    num divider = 1024;
+
+    num runningDivider = divider;
+    num runningPreviousDivider = 0;
+    int affix = 0;
+
+    while (size >= runningDivider && affix < affixes.length - 1) {
+      runningPreviousDivider = runningDivider;
+      runningDivider *= divider;
+      affix++;
+    }
+
+    String result = (runningPreviousDivider == 0 ? size : size / runningPreviousDivider).toStringAsFixed(round);
+
+    // Remove trailing zeros if needed
+    if (result.endsWith("0" * round)) result = result.substring(0, result.length - round - 1);
+
+    return "$result ${affixes[affix]}";
   }
 }
