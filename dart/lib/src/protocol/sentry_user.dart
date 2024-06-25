@@ -68,6 +68,8 @@ class SentryUser {
   final String? ipAddress;
 
   /// The user segment, for apps that divide users in user segments.
+  @Deprecated(
+      'Will be removed in v9. Use a custom tag or context instead to capture this information.')
   final String? segment;
 
   /// Any other user context information that may be helpful.
@@ -129,6 +131,7 @@ class SentryUser {
       if (username != null) 'username': username,
       if (email != null) 'email': email,
       if (ipAddress != null) 'ip_address': ipAddress,
+      // ignore: deprecated_member_use_from_same_package
       if (segment != null) 'segment': segment,
       if (data?.isNotEmpty ?? false) 'data': data,
       // ignore: deprecated_member_use_from_same_package
@@ -155,6 +158,7 @@ class SentryUser {
       username: username ?? this.username,
       email: email ?? this.email,
       ipAddress: ipAddress ?? this.ipAddress,
+      // ignore: deprecated_member_use_from_same_package
       segment: segment ?? this.segment,
       data: data ?? this.data,
       // ignore: deprecated_member_use_from_same_package

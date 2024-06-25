@@ -374,6 +374,7 @@ class SentryTracer extends ISentrySpan {
       release: _hub.options.release,
       environment: _hub.options.environment,
       userId: null, // because of PII not sending it for now
+      // ignore: deprecated_member_use_from_same_package
       userSegment: user?.segment,
       transaction:
           _isHighQualityTransactionName(transactionNameSource) ? name : null,
