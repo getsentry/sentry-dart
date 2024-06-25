@@ -1,4 +1,4 @@
-import 'package:min_version_test/transaction/transaction.dart';
+import 'transaction.dart';
 
 Transaction getTransaction() =>
     throw UnsupportedError('Cannot create sample transaction.');

@@ -4,7 +4,9 @@
 
 ### Features
 
-- Capture total frames, frame delay, slow & frozen frames and attach to spans ([#2106](https://github.com/getsentry/sentry-dart/pull/2106))
+- Capture total frames, frames delay, slow & frozen frames and attach to spans ([#2106](https://github.com/getsentry/sentry-dart/pull/2106))
+- Support WebAssembly compilation (dart2wasm) ([#2113](https://github.com/getsentry/sentry-dart/pull/2113))
+
 ### Dependencies
 
 - Bump Cocoa SDK from v8.29.0 to v8.29.1 ([#2109](https://github.com/getsentry/sentry-dart/pull/2109))
@@ -125,7 +127,7 @@ This release contains breaking changes, please read the changelog carefully.
 
 ### Features
 
-- Experimental: Add support for Sentry Developer Metrics ([#1940](https://github.com/getsentry/sentry-dart/pull/1940), [#1949](https://github.com/getsentry/sentry-dart/pull/1949), [#1954](https://github.com/getsentry/sentry-dart/pull/1954), [#1958](https://github.com/getsentry/sentry-dart/pull/1958))  
+- Experimental: Add support for Sentry Developer Metrics ([#1940](https://github.com/getsentry/sentry-dart/pull/1940), [#1949](https://github.com/getsentry/sentry-dart/pull/1949), [#1954](https://github.com/getsentry/sentry-dart/pull/1954), [#1958](https://github.com/getsentry/sentry-dart/pull/1958))
   Use the Metrics API to track processing time, download sizes, user signups, and conversion rates and correlate them back to tracing data in order to get deeper insights and solve issues faster. Our API supports counters, distributions, sets, gauges and timers, and it's easy to get started:
   ```dart
   Sentry.metrics()
@@ -238,14 +240,14 @@ This release contains breaking changes, please read the changelog carefully.
   - Now the device context from Android is available in `BeforeSendCallback`
 - Set ip_address to {{auto}} by default, even if sendDefaultPII is disabled ([#1665](https://github.com/getsentry/sentry-dart/pull/1665))
   - Instead use the "Prevent Storing of IP Addresses" option in the "Security & Privacy" project settings on sentry.io
- 
-### Fixes 
+
+### Fixes
 
 - Remove Flutter dependency from Drift integration ([#1867](https://github.com/getsentry/sentry-dart/pull/1867))
 - Remove dead code, cold start bool is now always present ([#1861](https://github.com/getsentry/sentry-dart/pull/1861))
 - Fix iOS "Arithmetic Overflow" ([#1874](https://github.com/getsentry/sentry-dart/pull/1874))
 
-### Dependencies 
+### Dependencies
 
 - Bump Cocoa SDK from v8.19.0 to v8.20.0 ([#1856](https://github.com/getsentry/sentry-dart/pull/1856))
   - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8200)

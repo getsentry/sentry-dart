@@ -1,7 +1,7 @@
 import 'package:meta/meta.dart';
 import 'package:stack_trace/stack_trace.dart';
 
-import 'noop_origin.dart' if (dart.library.html) 'origin.dart';
+import 'origin.dart';
 import 'protocol.dart';
 import 'sentry_options.dart';
 
