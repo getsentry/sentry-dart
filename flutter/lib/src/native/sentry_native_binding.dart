@@ -52,4 +52,8 @@ abstract class SentryNativeBinding {
       SentryId traceId, int startTimeNs, int endTimeNs);
 
   Future<List<DebugImage>?> loadDebugImages();
+
+  Future<void> pauseAppHangTracking();
+
+  Future<void> resumeAppHangTracking();
 }
