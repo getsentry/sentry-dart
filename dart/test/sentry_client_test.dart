@@ -139,7 +139,10 @@ void main() {
           capturedEvent.threads?.first.id,
         );
       },
-      onPlatform: {'js': Skip("Isolates don't exist on the web")},
+      onPlatform: {
+        'js': Skip("Isolates don't exist on the web"),
+        'wasm': Skip("Isolates don't exist on the web")
+      },
     );
 
     test(
