@@ -688,6 +688,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
     }
     #elseif os(macOS)
     private func displayRefreshRate(_ result: @escaping FlutterResult) {
+        // We don't use CADisplayLink for macOS because it's only available starting with macOS 14
         guard let window = NSApplication.shared.keyWindow else {
             result(nil)
             return
@@ -698,7 +699,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
             return
         }
 
-        guard let displayID = 
+        guard let displayID =
                 screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? CGDirectDisplayID else {
             result(nil)
             return
