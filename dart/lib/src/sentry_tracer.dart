@@ -69,6 +69,7 @@ class SentryTracer extends ISentrySpan {
       _hub,
       samplingDecision: transactionContext.samplingDecision,
       startTimestamp: startTimestamp,
+      isRootSpan: true,
     );
     _waitForChildren = waitForChildren;
     _autoFinishAfter = autoFinishAfter;
@@ -80,6 +81,12 @@ class SentryTracer extends ISentrySpan {
         SentryTransactionNameSource.custom;
     _trimEnd = trimEnd;
     _onFinish = onFinish;
+
+    for (final collector in _hub.options.performanceCollectors) {
+      if (collector is PerformanceContinuousCollector) {
+        collector.onSpanStarted(_rootSpan);
+      }
+    }
   }
 
   @override
@@ -255,6 +262,12 @@ class SentryTracer extends ISentrySpan {
     );
 
     _children.add(child);
+
+    for (final collector in _hub.options.performanceCollectors) {
+      if (collector is PerformanceContinuousCollector) {
+        collector.onSpanStarted(child);
+      }
+    }
 
     return child;
   }

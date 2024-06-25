@@ -4,6 +4,7 @@
 
 ### Features
 
+- Capture total frames, frames delay, slow & frozen frames and attach to spans ([#2106](https://github.com/getsentry/sentry-dart/pull/2106))
 - Support WebAssembly compilation (dart2wasm) ([#2113](https://github.com/getsentry/sentry-dart/pull/2113))
 
 ### Dependencies

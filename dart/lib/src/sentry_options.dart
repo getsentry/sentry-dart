@@ -501,6 +501,14 @@ class SentryOptions {
     return tracesSampleRate != null || tracesSampler != null;
   }
 
+  List<PerformanceCollector> get performanceCollectors =>
+      _performanceCollectors;
+  final List<PerformanceCollector> _performanceCollectors = [];
+
+  void addPerformanceCollector(PerformanceCollector collector) {
+    _performanceCollectors.add(collector);
+  }
+
   @internal
   late SentryExceptionFactory exceptionFactory = SentryExceptionFactory(this);
 

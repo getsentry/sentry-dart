@@ -756,6 +756,21 @@ class MockSentrySpan extends _i1.Mock implements _i3.SentrySpan {
   }
 
   @override
+  bool get isRootSpan => (super.noSuchMethod(
+        Invocation.getter(#isRootSpan),
+        returnValue: false,
+      ) as bool);
+
+  @override
+  _i4.SentryTracer get tracer => (super.noSuchMethod(
+        Invocation.getter(#tracer),
+        returnValue: _FakeSentryTracer_4(
+          this,
+          Invocation.getter(#tracer),
+        ),
+      ) as _i4.SentryTracer);
+
+  @override
   set status(_i3.SpanStatus? status) => super.noSuchMethod(
         Invocation.setter(
           #status,
@@ -1269,6 +1284,15 @@ class MockSentryNativeBinding extends _i1.Mock
         returnValue: _i8.Future<void>.value(),
         returnValueForMissingStub: _i8.Future<void>.value(),
       ) as _i8.Future<void>);
+
+  @override
+  _i8.Future<int?> displayRefreshRate() => (super.noSuchMethod(
+        Invocation.method(
+          #displayRefreshRate,
+          [],
+        ),
+        returnValue: _i8.Future<int?>.value(),
+      ) as _i8.Future<int?>);
 
   @override
   _i8.Future<Map<String, dynamic>?> collectProfile(

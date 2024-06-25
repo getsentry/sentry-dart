@@ -178,4 +178,8 @@ class SentryNativeChannel
             .map(DebugImage.fromJson)
             .toList();
       });
+
+  @override
+  Future<int?> displayRefreshRate() =>
+      _channel.invokeMethod('displayRefreshRate');
 }
