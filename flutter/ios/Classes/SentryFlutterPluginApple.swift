@@ -698,7 +698,8 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
             return
         }
 
-        guard let displayID = screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? CGDirectDisplayID else {
+        guard let displayID = 
+                screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? CGDirectDisplayID else {
             result(nil)
             return
         }
