@@ -236,6 +236,8 @@ mixin SentryFlutter {
     return SentryNavigatorObserver.timeToDisplayTracker?.reportFullyDisplayed();
   }
 
+  /// Pauses the app hang tracking.
+  /// Only for iOS and macOS.
   static Future<void> pauseAppHangTracking() {
     if (_native == null) {
       // ignore: invalid_use_of_internal_member
@@ -248,6 +250,8 @@ mixin SentryFlutter {
     return native!.pauseAppHangTracking();
   }
 
+  /// Resumes the app hang tracking.
+  /// Only for iOS and macOS
   static Future<void> resumeAppHangTracking() {
     if (_native == null) {
       // ignore: invalid_use_of_internal_member
