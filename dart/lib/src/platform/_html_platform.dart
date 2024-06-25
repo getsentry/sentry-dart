@@ -1,12 +1,9 @@
-// We would lose compatibility with old dart versions by adding web to pubspec.
-// ignore: depend_on_referenced_packages
-import 'package:web/web.dart' as web;
-
+import 'dart:html' as html;
 import 'platform.dart';
 
 const Platform instance = WebPlatform();
 
-/// [Platform] implementation that delegates to `dart:web`.
+/// [Platform] implementation that delegates to `dart:html`.
 class WebPlatform extends Platform {
   /// Creates a new [Platform].
   const WebPlatform();
@@ -18,10 +15,11 @@ class WebPlatform extends Platform {
   String get operatingSystemVersion => 'unknown';
 
   @override
-  String get localHostname => web.window.location.hostname;
+  String get localHostname => html.window.location.hostname ?? 'unknown';
 
   String _browserPlatform() {
-    final navigatorPlatform = web.window.navigator.platform.toLowerCase();
+    final navigatorPlatform =
+        html.window.navigator.platform?.toLowerCase() ?? '';
     if (navigatorPlatform.startsWith('mac')) {
       return 'macos';
     }
@@ -45,7 +43,7 @@ class WebPlatform extends Platform {
     // indicates that a device has a "fine pointer" (mouse) as the primary
     // pointing device, then we'll assume desktop linux, and otherwise we'll
     // assume Android.
-    if (web.window.matchMedia('only screen and (pointer: fine)').matches) {
+    if (html.window.matchMedia('only screen and (pointer: fine)').matches) {
       return 'linux';
     }
     return 'android';

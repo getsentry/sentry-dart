@@ -1,13 +1,11 @@
-// We would lose compatibility with old dart versions by adding web to pubspec.
-// ignore: depend_on_referenced_packages
-import 'package:web/web.dart' as web show window, Window, Navigator;
+import 'dart:html' as html show window, Window;
 
 import '../../../sentry.dart';
 import 'enricher_event_processor.dart';
 
 EnricherEventProcessor enricherEventProcessor(SentryOptions options) {
   return WebEnricherEventProcessor(
-    web.window,
+    html.window,
     options,
   );
 }
@@ -18,7 +16,7 @@ class WebEnricherEventProcessor implements EnricherEventProcessor {
     this._options,
   );
 
-  final web.Window _window;
+  final html.Window _window;
 
   final SentryOptions _options;
 
@@ -61,9 +59,10 @@ class WebEnricherEventProcessor implements EnricherEventProcessor {
       online: device?.online ?? _window.navigator.onLine,
       memorySize: device?.memorySize ?? _getMemorySize(),
       orientation: device?.orientation ?? _getScreenOrientation(),
-      screenHeightPixels:
-          device?.screenHeightPixels ?? _window.screen.availHeight,
-      screenWidthPixels: device?.screenWidthPixels ?? _window.screen.availWidth,
+      screenHeightPixels: device?.screenHeightPixels ??
+          _window.screen?.available.height.toInt(),
+      screenWidthPixels:
+          device?.screenWidthPixels ?? _window.screen?.available.width.toInt(),
       screenDensity:
           device?.screenDensity ?? _window.devicePixelRatio.toDouble(),
     );
@@ -78,12 +77,14 @@ class WebEnricherEventProcessor implements EnricherEventProcessor {
 
   SentryOrientation? _getScreenOrientation() {
     // https://developer.mozilla.org/en-US/docs/Web/API/ScreenOrientation
-    final screenOrientation = _window.screen.orientation;
-    if (screenOrientation.type.startsWith('portrait')) {
-      return SentryOrientation.portrait;
-    }
-    if (screenOrientation.type.startsWith('landscape')) {
-      return SentryOrientation.landscape;
+    final screenOrientation = _window.screen?.orientation;
+    if (screenOrientation != null) {
+      if (screenOrientation.type?.startsWith('portrait') ?? false) {
+        return SentryOrientation.portrait;
+      }
+      if (screenOrientation.type?.startsWith('landscape') ?? false) {
+        return SentryOrientation.landscape;
+      }
     }
     return null;
   }
@@ -99,8 +100,4 @@ class WebEnricherEventProcessor implements EnricherEventProcessor {
       timezone: culture?.timezone ?? DateTime.now().timeZoneName,
     );
   }
-}
-
-extension on web.Navigator {
-  external double? get deviceMemory;
 }

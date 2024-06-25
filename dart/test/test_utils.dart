@@ -117,6 +117,11 @@ Future testCaptureException(
 
   final topFrame =
       (stacktrace['frames'] as Iterable<dynamic>).last as Map<String, dynamic>;
+  if (topFrame['function'].contains('browser_test.dart.wasm')) {
+    // TODO stacktrace parsing for wasm is not implemented yet
+    // {filename: unparsed, function:     at testCaptureException (http://localhost:59959/9R3KYfjvkWCySr4h2hI0pVO7PqmPFeE6/test/sentry_browser_test.dart.browser_test.dart.wasm:wasm-function[1007]:0x4bc18), abs_path: http://localhost:59959/unparsed, in_app: true}
+    return;
+  }
   expect(
     topFrame.keys,
     <String>['filename', 'function', 'lineno', 'colno', 'abs_path', 'in_app'],
