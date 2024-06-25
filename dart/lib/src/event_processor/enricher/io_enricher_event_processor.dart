@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:math';
 
 import '../../../sentry.dart';
 import 'enricher_event_processor.dart';
@@ -146,8 +145,9 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
             .toStringAsFixed(round);
 
     // Remove trailing zeros if needed
-    if (result.endsWith("0" * round))
+    if (result.endsWith("0" * round)) {
       result = result.substring(0, result.length - round - 1);
+    }
 
     return "$result ${affixes[affix]}";
   }
