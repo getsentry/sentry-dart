@@ -6,12 +6,14 @@ import 'java/sentry_native_java.dart';
 import 'sentry_native_binding.dart';
 import 'sentry_native_channel.dart';
 
-SentryNativeBinding createBinding(PlatformChecker pc, MethodChannel channel) {
-  if (pc.platform.isIOS || pc.platform.isMacOS) {
-    return SentryNativeCocoa(channel);
-  } else if (pc.platform.isAndroid) {
-    return SentryNativeJava(channel);
+SentryNativeBinding createBinding(SentryFlutterOptions options,
+    {MethodChannel channel = const MethodChannel('sentry_flutter')}) {
+  final platform = options.platformChecker.platform;
+  if (platform.isIOS || platform.isMacOS) {
+    return SentryNativeCocoa(options, channel);
+  } else if (platform.isAndroid) {
+    return SentryNativeJava(options, channel);
   } else {
-    return SentryNativeChannel(channel);
+    return SentryNativeChannel(options, channel);
   }
 }

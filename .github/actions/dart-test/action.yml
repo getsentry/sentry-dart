@@ -1,0 +1,40 @@
+name: Dart tests
+description: Run Dart tests
+inputs:
+  directory:
+    description: The directory to run tests in
+    required: false
+    default: ''
+  web:
+    description: Whether to run tests for web
+    required: false
+    default: 'true'
+
+runs:
+  using: composite
+
+  steps:
+    - uses: dart-lang/setup-dart@f0ead981b4d9a35b37f30d36160575d60931ec30 # pin@v1
+      with:
+        sdk: ${{ matrix.sdk }}
+
+    - run: dart pub get
+      shell: bash
+      working-directory: ${{ inputs.directory }}
+
+    - name: Test VM
+      run: dart test -p vm ${{ (runner.os == 'Linux' && matrix.sdk == 'stable' && '--coverage=coverage') || '' }} --test-randomize-ordering-seed=random --chain-stack-traces
+      shell: bash
+      working-directory: ${{ inputs.directory }}
+
+    - name: Test dart2js
+      if: ${{ inputs.web == 'true' }}
+      run: dart test -p chrome --test-randomize-ordering-seed=random --chain-stack-traces
+      shell: bash
+      working-directory: ${{ inputs.directory }}
+
+    - name: Test dart2wasm
+      if: ${{ inputs.web == 'true' && (matrix.sdk == 'stable' || matrix.sdk == 'beta') && runner.os != 'Windows' }}
+      run: dart test -p chrome --compiler dart2wasm --test-randomize-ordering-seed=random --chain-stack-traces
+      shell: bash
+      working-directory: ${{ inputs.directory }}

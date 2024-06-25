@@ -16,7 +16,7 @@ import '../sentry_native_channel.dart';
 class SentryNativeJava extends SentryNativeChannel {
   ScreenshotRecorder? _replayRecorder;
   late final SentryFlutterOptions _options;
-  SentryNativeJava(super.channel);
+  SentryNativeJava(super.options, super.channel);
 
   @override
   Future<void> init(SentryFlutterOptions options) async {

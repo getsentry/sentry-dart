@@ -1,6 +1,7 @@
 // For some reason, this test is not working in the browser but that's OK, we
 // don't support video recording anyway.
 @TestOn('vm')
+library dart_test;
 
 import 'dart:ui';
 

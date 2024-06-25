@@ -139,7 +139,10 @@ void main() {
           capturedEvent.threads?.first.id,
         );
       },
-      onPlatform: {'js': Skip("Isolates don't exist on the web")},
+      onPlatform: {
+        'js': Skip("Isolates don't exist on the web"),
+        'wasm': Skip("Isolates don't exist on the web")
+      },
     );
 
     test(
@@ -1691,6 +1694,7 @@ class Fixture {
 
 class ExceptionWithCause {
   ExceptionWithCause(this.cause, this.stackTrace);
+
   final dynamic cause;
   final dynamic stackTrace;
 }
@@ -1705,6 +1709,7 @@ class ExceptionWithCauseExtractor
 
 class ExceptionWithStackTrace {
   ExceptionWithStackTrace(this.stackTrace);
+
   final StackTrace stackTrace;
 }
 

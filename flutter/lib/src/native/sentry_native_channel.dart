@@ -1,66 +1,78 @@
 import 'dart:async';
+// backcompatibility for Flutter < 3.3
+// ignore: unnecessary_import
+import 'dart:typed_data';
 
 import 'package:flutter/services.dart';
 import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
-import 'sentry_native.dart';
+import 'native_app_start.dart';
+import 'native_frames.dart';
 import 'method_channel_helper.dart';
 import 'sentry_native_binding.dart';
+import 'sentry_native_invoker.dart';
+import 'sentry_safe_method_channel.dart';
 
 /// Provide typed methods to access native layer via MethodChannel.
 @internal
-class SentryNativeChannel implements SentryNativeBinding {
-  SentryNativeChannel(this.channel);
+class SentryNativeChannel
+    with SentryNativeSafeInvoker
+    implements SentryNativeBinding {
+  @override
+  final SentryFlutterOptions options;
 
   @protected
-  final MethodChannel channel;
+  final SentrySafeMethodChannel channel;
 
-  // TODO Move other native calls here.
+  SentryNativeChannel(this.options, MethodChannel channel)
+      : channel = SentrySafeMethodChannel(channel, options);
 
   @override
-  Future<void> init(SentryFlutterOptions options) async =>
-      channel.invokeMethod('initNativeSdk', <String, dynamic>{
-        'dsn': options.dsn,
-        'debug': options.debug,
-        'environment': options.environment,
-        'release': options.release,
-        'enableAutoSessionTracking': options.enableAutoSessionTracking,
-        'enableNativeCrashHandling': options.enableNativeCrashHandling,
-        'attachStacktrace': options.attachStacktrace,
-        'attachThreads': options.attachThreads,
-        'autoSessionTrackingIntervalMillis':
-            options.autoSessionTrackingInterval.inMilliseconds,
-        'dist': options.dist,
-        'integrations': options.sdk.integrations,
-        'packages':
-            options.sdk.packages.map((e) => e.toJson()).toList(growable: false),
-        'diagnosticLevel': options.diagnosticLevel.name,
-        'maxBreadcrumbs': options.maxBreadcrumbs,
-        'anrEnabled': options.anrEnabled,
-        'anrTimeoutIntervalMillis': options.anrTimeoutInterval.inMilliseconds,
-        'enableAutoNativeBreadcrumbs': options.enableAutoNativeBreadcrumbs,
-        'maxCacheItems': options.maxCacheItems,
-        'sendDefaultPii': options.sendDefaultPii,
-        'enableWatchdogTerminationTracking':
-            options.enableWatchdogTerminationTracking,
-        'enableNdkScopeSync': options.enableNdkScopeSync,
-        'enableAutoPerformanceTracing': options.enableAutoPerformanceTracing,
-        'sendClientReports': options.sendClientReports,
-        'proguardUuid': options.proguardUuid,
-        'maxAttachmentSize': options.maxAttachmentSize,
-        'recordHttpBreadcrumbs': options.recordHttpBreadcrumbs,
-        'captureFailedRequests': options.captureFailedRequests,
-        'enableAppHangTracking': options.enableAppHangTracking,
-        'connectionTimeoutMillis': options.connectionTimeout.inMilliseconds,
-        'readTimeoutMillis': options.readTimeout.inMilliseconds,
-        'appHangTimeoutIntervalMillis':
-            options.appHangTimeoutInterval.inMilliseconds,
-        'replay': <String, dynamic>{
-          'sessionSampleRate': options.experimental.replay.sessionSampleRate,
-          'errorSampleRate': options.experimental.replay.errorSampleRate,
-        },
-      });
+  Future<void> init(SentryFlutterOptions options) async {
+    assert(this.options == options);
+    return channel.invokeMethod('initNativeSdk', <String, dynamic>{
+      'dsn': options.dsn,
+      'debug': options.debug,
+      'environment': options.environment,
+      'release': options.release,
+      'enableAutoSessionTracking': options.enableAutoSessionTracking,
+      'enableNativeCrashHandling': options.enableNativeCrashHandling,
+      'attachStacktrace': options.attachStacktrace,
+      'attachThreads': options.attachThreads,
+      'autoSessionTrackingIntervalMillis':
+          options.autoSessionTrackingInterval.inMilliseconds,
+      'dist': options.dist,
+      'integrations': options.sdk.integrations,
+      'packages':
+          options.sdk.packages.map((e) => e.toJson()).toList(growable: false),
+      'diagnosticLevel': options.diagnosticLevel.name,
+      'maxBreadcrumbs': options.maxBreadcrumbs,
+      'anrEnabled': options.anrEnabled,
+      'anrTimeoutIntervalMillis': options.anrTimeoutInterval.inMilliseconds,
+      'enableAutoNativeBreadcrumbs': options.enableAutoNativeBreadcrumbs,
+      'maxCacheItems': options.maxCacheItems,
+      'sendDefaultPii': options.sendDefaultPii,
+      'enableWatchdogTerminationTracking':
+          options.enableWatchdogTerminationTracking,
+      'enableNdkScopeSync': options.enableNdkScopeSync,
+      'enableAutoPerformanceTracing': options.enableAutoPerformanceTracing,
+      'sendClientReports': options.sendClientReports,
+      'proguardUuid': options.proguardUuid,
+      'maxAttachmentSize': options.maxAttachmentSize,
+      'recordHttpBreadcrumbs': options.recordHttpBreadcrumbs,
+      'captureFailedRequests': options.captureFailedRequests,
+      'enableAppHangTracking': options.enableAppHangTracking,
+      'connectionTimeoutMillis': options.connectionTimeout.inMilliseconds,
+      'readTimeoutMillis': options.readTimeout.inMilliseconds,
+      'appHangTimeoutIntervalMillis':
+          options.appHangTimeoutInterval.inMilliseconds,
+      'replay': <String, dynamic>{
+        'sessionSampleRate': options.experimental.replay.sessionSampleRate,
+        'errorSampleRate': options.experimental.replay.errorSampleRate,
+      },
+    });
+  }
 
   @override
   Future<void> close() async => channel.invokeMethod('closeNativeSdk');
@@ -71,6 +83,14 @@ class SentryNativeChannel implements SentryNativeBinding {
         await channel.invokeMapMethod<String, dynamic>('fetchNativeAppStart');
     return (json != null) ? NativeAppStart.fromJson(json) : null;
   }
+
+  @override
+  Future<void> captureEnvelope(Uint8List envelopeData) =>
+      channel.invokeMethod('captureEnvelope', [envelopeData]);
+
+  @override
+  Future<Map<String, dynamic>?> loadContexts() =>
+      channel.invokeMapMethod<String, dynamic>('loadContexts');
 
   @override
   Future<void> beginNativeFrames() => channel.invokeMethod('beginNativeFrames');
@@ -150,6 +170,17 @@ class SentryNativeChannel implements SentryNativeBinding {
         'traceId': traceId.toString(),
         'startTime': startTimeNs,
         'endTime': endTimeNs,
+      });
+
+  @override
+  Future<List<DebugImage>?> loadDebugImages() =>
+      tryCatchAsync('loadDebugImages', () async {
+        final images = await channel
+            .invokeListMethod<Map<dynamic, dynamic>>('loadImageList');
+        return images
+            ?.map((e) => e.cast<String, dynamic>())
+            .map(DebugImage.fromJson)
+            .toList();
       });
 
   @override

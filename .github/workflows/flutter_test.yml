@@ -54,7 +54,7 @@ jobs:
         run: flutter pub get
 
       - name: Gradle cache
-        uses: gradle/gradle-build-action@4c39dd82cd5e1ec7c6fa0173bb41b4b6bb3b86ff # pin@v3.0.0
+        uses: gradle/gradle-build-action@66535aaf56f831b35e3a8481c9c99b665b84dd45 # pin@v3.0.0
 
       - name: AVD cache
         uses: actions/cache@v4

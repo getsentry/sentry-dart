@@ -1,4 +1,5 @@
 @TestOn('vm')
+library flutter_test;
 // ignore_for_file: invalid_use_of_internal_member
 
 import 'package:flutter/services.dart';
@@ -25,21 +26,22 @@ void main() {
   });
 
   group(AndroidPlatformExceptionEventProcessor, () {
-    test('exception is correctly parsed', () async {
+    test('platform exception with details and stackTrace is correctly parsed',
+        () async {
       final platformExceptionEvent = await fixture.processor
-          .apply(fixture.eventWithPlatformStackTrace, Hint());
+          .apply(fixture.eventWithPlatformDetailsAndStackTrace, Hint());
 
       final exceptions = platformExceptionEvent!.exceptions!;
       expect(exceptions.length, 3);
 
-      final platformException = exceptions[1];
+      final platformException_1 = exceptions[1];
 
-      expect(platformException.type, 'IllegalArgumentException');
+      expect(platformException_1.type, 'IllegalArgumentException');
       expect(
-        platformException.value,
+        platformException_1.value,
         "Unsupported value: '[Ljava.lang.StackTraceElement;@ba6feed' of type 'class [Ljava.lang.StackTraceElement;'",
       );
-      expect(platformException.stackTrace!.frames.length, 18);
+      expect(platformException_1.stackTrace!.frames.length, 18);
 
       final platformException_2 = exceptions[2];
 
@@ -51,37 +53,47 @@ void main() {
       expect(platformException_2.stackTrace!.frames.length, 18);
     });
 
-    test('platform exception is correctly parsed', () async {
+    test('platform exception with details correctly parsed', () async {
       final platformExceptionEvent = await fixture.processor
-          .apply(fixture.eventWithFailingPlatformStackTrace, Hint());
+          .apply(fixture.eventWithPlatformDetails, Hint());
 
       final exceptions = platformExceptionEvent!.exceptions!;
-      expect(exceptions.length, 3);
+      expect(exceptions.length, 2);
 
-      final platformException = exceptions[1];
+      final platformException_1 = exceptions[1];
 
-      expect(platformException.type, 'PlatformException');
+      expect(platformException_1.type, 'Resources\$NotFoundException');
+      expect(platformException_1.module, 'android.content.res');
       expect(
-        platformException.value,
-        "PlatformException(getNotificationChannelsError, Unable to find resource ID #0x7f14000d, android.content.res.Resources\$NotFoundException: Unable to find resource ID #0x7f14000d",
+        platformException_1.value,
+        "Unable to find resource ID #0x7f14000d",
       );
-      expect(platformException.stackTrace!.frames.length, 20);
+      expect(platformException_1.stackTrace!.frames.length, 19);
+    });
 
-      final platformException_2 = exceptions[2];
+    test('platform exception with stackTrace correctly parsed', () async {
+      final platformExceptionEvent = await fixture.processor
+          .apply(fixture.eventWithPlatformStackTrace, Hint());
 
-      expect(platformException_2.type, 'PlatformException');
+      final exceptions = platformExceptionEvent!.exceptions!;
+      expect(exceptions.length, 2);
+
+      final platformException_1 = exceptions[1];
+
+      expect(platformException_1.type, 'IllegalArgumentException');
+      expect(platformException_1.module, 'java.lang');
       expect(
-        platformException_2.value,
-        "PlatformException(getNotificationChannelsError, Unable to find resource ID #0x7f14000d, android.content.res.Resources\$NotFoundException: Unable to find resource ID #0x7f14000d",
+        platformException_1.value,
+        "Not supported, use openfile",
       );
-      expect(platformException_2.stackTrace!.frames.length, 20);
+      expect(platformException_1.stackTrace!.frames.length, 22);
     });
 
     test(
         'Dart thread is current and not crashed if Android exception is present',
         () async {
       final platformExceptionEvent = await fixture.processor
-          .apply(fixture.eventWithPlatformStackTrace, Hint());
+          .apply(fixture.eventWithPlatformDetailsAndStackTrace, Hint());
 
       final exceptions = platformExceptionEvent!.exceptions!;
       expect(exceptions.length, 3);
@@ -92,7 +104,7 @@ void main() {
 
     test('platformexception has Android thread attached', () async {
       final platformExceptionEvent = await fixture.processor
-          .apply(fixture.eventWithPlatformStackTrace, Hint());
+          .apply(fixture.eventWithPlatformDetailsAndStackTrace, Hint());
 
       final exceptions = platformExceptionEvent!.exceptions!;
       expect(exceptions.length, 3);
@@ -109,10 +121,11 @@ void main() {
     test('platformexception has no Android thread attached if disabled',
         () async {
       fixture.options.attachThreads = false;
-      final threadCount = fixture.eventWithPlatformStackTrace.threads?.length;
+      final threadCount =
+          fixture.eventWithPlatformDetailsAndStackTrace.threads?.length;
 
       final platformExceptionEvent = await fixture.processor
-          .apply(fixture.eventWithPlatformStackTrace, Hint());
+          .apply(fixture.eventWithPlatformDetailsAndStackTrace, Hint());
 
       final exceptions = platformExceptionEvent!.exceptions!;
       expect(exceptions.length, 3);
@@ -122,7 +135,7 @@ void main() {
 
     test('does nothing if no PlatformException is there', () async {
       final exception = fixture.options.exceptionFactory
-          .getSentryException(testPlatformException);
+          .getSentryException(detailsAndStackTracePlatformException);
 
       final event = SentryEvent(
         exceptions: [exception],
@@ -136,10 +149,10 @@ void main() {
     });
 
     test('does nothing if PlatformException has no stackTrace', () async {
-      final platformExceptionEvent = await fixture.processor
-          .apply(fixture.eventWithoutPlatformStackTrace, Hint());
+      final platformExceptionEvent =
+          await fixture.processor.apply(fixture.eventWithPlatformEmpty, Hint());
 
-      expect(fixture.eventWithoutPlatformStackTrace, platformExceptionEvent);
+      expect(fixture.eventWithPlatformEmpty, platformExceptionEvent);
     });
   });
 }
@@ -148,33 +161,44 @@ class Fixture {
   late AndroidPlatformExceptionEventProcessor processor =
       AndroidPlatformExceptionEventProcessor(options);
 
-  late SentryException withPlatformStackTrace = options.exceptionFactory
-      .getSentryException(testPlatformException)
+  late SentryException withPlatformDetailsAndStackTrace = options
+      .exceptionFactory
+      .getSentryException(detailsAndStackTracePlatformException)
       .copyWith(threadId: 1);
 
-  late SentryException withoutPlatformStackTrace = options.exceptionFactory
-      .getSentryException(emptyPlatformException)
+  late SentryEvent eventWithPlatformDetailsAndStackTrace = SentryEvent(
+    exceptions: [withPlatformDetailsAndStackTrace],
+    throwable: detailsAndStackTracePlatformException,
+    threads: [dartThread],
+  );
+
+  late SentryException withPlatformDetails = options.exceptionFactory
+      .getSentryException(detailsPlatformException)
+      .copyWith(threadId: 1);
+
+  late SentryEvent eventWithPlatformDetails = SentryEvent(
+    exceptions: [withPlatformDetails],
+    throwable: detailsPlatformException,
+    threads: [dartThread],
+  );
+
+  late SentryException withPlatformStackTrace = options.exceptionFactory
+      .getSentryException(stackTracePlatformException)
       .copyWith(threadId: 1);
 
   late SentryEvent eventWithPlatformStackTrace = SentryEvent(
-    exceptions: [withPlatformStackTrace],
-    throwable: testPlatformException,
+    exceptions: [withPlatformDetails],
+    throwable: stackTracePlatformException,
     threads: [dartThread],
   );
 
-  late SentryEvent eventWithoutPlatformStackTrace = SentryEvent(
-    exceptions: [withoutPlatformStackTrace],
-    throwable: emptyPlatformException,
-    threads: [dartThread],
-  );
-
-  late SentryException withFailingPlatformStackTrace = options.exceptionFactory
-      .getSentryException(failingPlatformException)
+  late SentryException withPlatformEmpty = options.exceptionFactory
+      .getSentryException(emptyPlatformException)
       .copyWith(threadId: 1);
 
-  late SentryEvent eventWithFailingPlatformStackTrace = SentryEvent(
-    exceptions: [withFailingPlatformStackTrace],
-    throwable: failingPlatformException,
+  late SentryEvent eventWithPlatformEmpty = SentryEvent(
+    exceptions: [withPlatformEmpty],
+    throwable: emptyPlatformException,
     threads: [dartThread],
   );
 
@@ -189,28 +213,12 @@ class Fixture {
     ..attachThreads = true;
 }
 
-final testPlatformException = PlatformException(
+final detailsAndStackTracePlatformException = PlatformException(
   code: 'error',
-  details:
+  message:
       "Unsupported value: '[Ljava.lang.StackTraceElement;@fa902f1' of type 'class [Ljava.lang.StackTraceElement;'",
-  message: _jvmStackTrace,
+  details: _jvmStackTrace,
   stacktrace: _jvmStackTrace,
-);
-
-final emptyPlatformException = PlatformException(
-  code: 'error',
-  details:
-      "Unsupported value: '[Ljava.lang.StackTraceElement;@fa902f1' of type 'class [Ljava.lang.StackTraceElement;'",
-  message: null,
-  stacktrace: null,
-);
-
-final failingPlatformException = PlatformException(
-  code: 'error',
-  details:
-      "PlatformException: PlatformException(getNotificationChannelsError, Unable to find resource ID #0x7f14000d, android.content.res.Resources\$NotFoundException: Unable to find resource ID #0x7f14000d",
-  message: _failingStackTrace,
-  stacktrace: _failingStackTrace,
 );
 
 const _jvmStackTrace =
@@ -234,8 +242,11 @@ const _jvmStackTrace =
 	at com.android.internal.os.RuntimeInit\$MethodAndArgsCaller.run(RuntimeInit.java:556)
 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:1037)""";
 
-const _failingStackTrace =
-    """PlatformException: PlatformException(getNotificationChannelsError, Unable to find resource ID #0x7f14000d, android.content.res.Resources\$NotFoundException: Unable to find resource ID #0x7f14000d
+final detailsPlatformException = PlatformException(
+  code: 'getNotificationChannelsError',
+  message: 'Unable to find resource ID #0x7f14000d',
+  details:
+      """android.content.res.Resources\$NotFoundException: Unable to find resource ID #0x7f14000d
 	at android.content.res.ResourcesImpl.getResourceEntryName(ResourcesImpl.java:493)
 	at android.content.res.Resources.getResourceEntryName(Resources.java:2441)
 	at com.dexterous.flutterlocalnotifications.FlutterLocalNotificationsPlugin.getMappedNotificationChannel(FlutterLocalNotificationsPlugin.java:170)
@@ -254,5 +265,43 @@ const _failingStackTrace =
 	at android.app.ActivityThread.main(ActivityThread.java:9821)
 	at java.lang.reflect.Method.invoke(Native Method)
 	at com.android.internal.os.RuntimeInit\$MethodAndArgsCaller.run(RuntimeInit.java:586)
-	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:1201)
-, null)""";
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:1201)""",
+  stacktrace: null,
+);
+
+final stackTracePlatformException = PlatformException(
+  code: "error",
+  message: "Not supported, use openfile",
+  details: null,
+  stacktrace: """java.lang.IllegalArgumentException: Not supported, use openfile
+	at android.database.DatabaseUtils.readExceptionFromParcel(DatabaseUtils.java:172)
+	at android.database.DatabaseUtils.readExceptionWithFileNotFoundExceptionFromParcel(DatabaseUtils.java:153)
+	at android.content.ContentProviderProxy.openTypedAssetFile(ContentProviderNative.java:814)
+	at android.content.ContentResolver.openTypedAssetFileDescriptor(ContentResolver.java:2043)
+	at android.content.ContentResolver.openTypedAssetFileDescriptor(ContentResolver.java:1981)
+	at io.flutter.plugin.platform.f.q(PlatformPlugin.java:57)
+	at io.flutter.plugin.platform.f.c(PlatformPlugin.java:1)
+	at io.flutter.plugin.platform.f\$a.g(PlatformPlugin.java:3)
+	at lb.j\$a.onMethodCall(PlatformChannel.java:294)
+	at mb.j\$a.a(MethodChannel.java:18)
+	at za.c.l(DartMessenger.java:19)
+	at za.c.m(DartMessenger.java:41)
+	at za.c.i(Unknown Source:0)
+	at za.b.run(Unknown Source:12)
+	at android.os.Handler.handleCallback(Handler.java:958)
+	at android.os.Handler.dispatchMessage(Handler.java:99)
+	at android.os.Looper.loopOnce(Looper.java:230)
+	at android.os.Looper.loop(Looper.java:319)
+	at android.app.ActivityThread.main(ActivityThread.java:8893)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit\$MethodAndArgsCaller.run(RuntimeInit.java:608)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:1103)""",
+);
+
+final emptyPlatformException = PlatformException(
+  code: 'error',
+  message:
+      "Unsupported value: '[Ljava.lang.StackTraceElement;@fa902f1' of type 'class [Ljava.lang.StackTraceElement;'",
+  details: null,
+  stacktrace: null,
+);

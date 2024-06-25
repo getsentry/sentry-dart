@@ -1,19 +1,22 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
-import 'sentry_native.dart';
+import 'native_app_start.dart';
+import 'native_frames.dart';
 
 /// Provide typed methods to access native layer.
 @internal
 abstract class SentryNativeBinding {
-  // TODO Move other native calls here.
   Future<void> init(SentryFlutterOptions options);
 
   Future<void> close();
 
   Future<NativeAppStart?> fetchNativeAppStart();
+
+  Future<void> captureEnvelope(Uint8List envelopeData);
 
   Future<void> beginNativeFrames();
 
@@ -24,6 +27,8 @@ abstract class SentryNativeBinding {
   Future<void> addBreadcrumb(Breadcrumb breadcrumb);
 
   Future<void> clearBreadcrumbs();
+
+  Future<Map<String, dynamic>?> loadContexts();
 
   Future<void> setContexts(String key, dynamic value);
 
@@ -43,6 +48,8 @@ abstract class SentryNativeBinding {
 
   Future<Map<String, dynamic>?> collectProfile(
       SentryId traceId, int startTimeNs, int endTimeNs);
+
+  Future<List<DebugImage>?> loadDebugImages();
 
   Future<SentryId> sendReplayForEvent(SentryId eventId, bool isCrash);
 }

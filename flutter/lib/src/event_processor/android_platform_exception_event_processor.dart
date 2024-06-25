@@ -21,8 +21,8 @@ class AndroidPlatformExceptionEventProcessor implements EventProcessor {
       return event;
     }
 
-    final plaformException = event.throwable;
-    if (plaformException is! PlatformException) {
+    final platformException = event.throwable;
+    if (platformException is! PlatformException) {
       return event;
     }
 
@@ -31,18 +31,24 @@ class AndroidPlatformExceptionEventProcessor implements EventProcessor {
       final packageInfo = await PackageInfo.fromPlatform();
 
       final nativeStackTrace =
-          _tryParse(plaformException.stacktrace, packageInfo.packageName);
-      final messageStackTrace =
-          _tryParse(plaformException.message, packageInfo.packageName);
+          _tryParse(platformException.stacktrace, packageInfo.packageName);
 
-      if (nativeStackTrace == null && messageStackTrace == null) {
+      final details = platformException.details;
+      String? detailsString;
+      if (details is String) {
+        detailsString = details;
+      }
+      final detailsStackTrace =
+          _tryParse(detailsString, packageInfo.packageName);
+
+      if (nativeStackTrace == null && detailsStackTrace == null) {
         return event;
       }
 
       return _processPlatformException(
         event,
         nativeStackTrace,
-        messageStackTrace,
+        detailsStackTrace,
       );
     } catch (e, stackTrace) {
       _options.logger(
@@ -71,18 +77,18 @@ class AndroidPlatformExceptionEventProcessor implements EventProcessor {
   SentryEvent _processPlatformException(
     SentryEvent event,
     List<MapEntry<SentryException, SentryThread>>? nativeStackTrace,
-    List<MapEntry<SentryException, SentryThread>>? messageStackTrace,
+    List<MapEntry<SentryException, SentryThread>>? detailsStackTrace,
   ) {
     final threads = _markDartThreadsAsNonCrashed(event.threads);
 
     final jvmExceptions = [
       ...?nativeStackTrace?.map((e) => e.key),
-      ...?messageStackTrace?.map((e) => e.key)
+      ...?detailsStackTrace?.map((e) => e.key)
     ];
 
     var jvmThreads = [
       ...?nativeStackTrace?.map((e) => e.value),
-      ...?messageStackTrace?.map((e) => e.value),
+      ...?detailsStackTrace?.map((e) => e.value),
     ];
 
     if (jvmThreads.isNotEmpty) {

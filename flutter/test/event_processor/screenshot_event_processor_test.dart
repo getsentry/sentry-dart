@@ -1,4 +1,5 @@
 @Tags(['canvasKit']) // Web renderer where this test can run
+library flutter_test;
 
 import 'dart:math';
 import 'dart:ui';

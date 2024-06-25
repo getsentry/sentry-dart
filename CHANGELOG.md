@@ -2,11 +2,34 @@
 
 ## Unreleased
 
+### Features
+
+- Support WebAssembly compilation (dart2wasm) ([#2113](https://github.com/getsentry/sentry-dart/pull/2113))
+
 ### Dependencies
 
-- Bump Cocoa SDK from v8.25.2 to v8.26.0 ([#2060](https://github.com/getsentry/sentry-dart/pull/2060))
-  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8260)
-  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.25.2...8.26.0)
+- Bump Cocoa SDK from v8.29.0 to v8.29.1 ([#2109](https://github.com/getsentry/sentry-dart/pull/2109))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8291)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.29.0...8.29.1)
+
+## 8.3.0
+
+### Fixes
+
+- Load contexts integration not setting `SentryUser` ([#2089](https://github.com/getsentry/sentry-dart/pull/2089))
+- Change app start span description from `Cold start` to `Cold Start` and `Warm start` to `Warm Start` ([#2076](https://github.com/getsentry/sentry-dart/pull/2076))
+- Parse `PlatformException` from details instead of message ([#2052](https://github.com/getsentry/sentry-dart/pull/2052))
+
+### Dependencies
+
+- Bump `sqflite` minimum version from `^2.0.0` to `^2.2.8` ([#2075](https://github.com/getsentry/sentry-dart/pull/2075))
+  - This is not a breaking change since we are using api internally that is only valid from that version.
+- Bump Cocoa SDK from v8.25.2 to v8.29.0 ([#2060](https://github.com/getsentry/sentry-dart/pull/2060), [#2092](https://github.com/getsentry/sentry-dart/pull/2092), [#2100](https://github.com/getsentry/sentry-dart/pull/2100))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8290)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.25.2...8.29.0)
+- Bump Android SDK from v7.9.0 to v7.10.0 ([#2090](https://github.com/getsentry/sentry-dart/pull/2090))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#7100)
+  - [diff](https://github.com/getsentry/sentry-java/compare/7.9.0...7.10.0)
 
 ## 8.2.0
 
@@ -103,7 +126,7 @@ This release contains breaking changes, please read the changelog carefully.
 
 ### Features
 
-- Experimental: Add support for Sentry Developer Metrics ([#1940](https://github.com/getsentry/sentry-dart/pull/1940), [#1949](https://github.com/getsentry/sentry-dart/pull/1949), [#1954](https://github.com/getsentry/sentry-dart/pull/1954), [#1958](https://github.com/getsentry/sentry-dart/pull/1958))  
+- Experimental: Add support for Sentry Developer Metrics ([#1940](https://github.com/getsentry/sentry-dart/pull/1940), [#1949](https://github.com/getsentry/sentry-dart/pull/1949), [#1954](https://github.com/getsentry/sentry-dart/pull/1954), [#1958](https://github.com/getsentry/sentry-dart/pull/1958))
   Use the Metrics API to track processing time, download sizes, user signups, and conversion rates and correlate them back to tracing data in order to get deeper insights and solve issues faster. Our API supports counters, distributions, sets, gauges and timers, and it's easy to get started:
   ```dart
   Sentry.metrics()
@@ -216,14 +239,14 @@ This release contains breaking changes, please read the changelog carefully.
   - Now the device context from Android is available in `BeforeSendCallback`
 - Set ip_address to {{auto}} by default, even if sendDefaultPII is disabled ([#1665](https://github.com/getsentry/sentry-dart/pull/1665))
   - Instead use the "Prevent Storing of IP Addresses" option in the "Security & Privacy" project settings on sentry.io
- 
-### Fixes 
+
+### Fixes
 
 - Remove Flutter dependency from Drift integration ([#1867](https://github.com/getsentry/sentry-dart/pull/1867))
 - Remove dead code, cold start bool is now always present ([#1861](https://github.com/getsentry/sentry-dart/pull/1861))
 - Fix iOS "Arithmetic Overflow" ([#1874](https://github.com/getsentry/sentry-dart/pull/1874))
 
-### Dependencies 
+### Dependencies
 
 - Bump Cocoa SDK from v8.19.0 to v8.20.0 ([#1856](https://github.com/getsentry/sentry-dart/pull/1856))
   - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8200)

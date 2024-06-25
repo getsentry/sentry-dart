@@ -1,4 +1,5 @@
 @TestOn('vm')
+library flutter_test;
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -24,7 +25,7 @@ void main() {
     });
     var sut = fixture.getSut(channel);
 
-    await sut.init(createOptions());
+    await sut.init(fixture.options);
 
     channel.setMethodCallHandler(null);
 
@@ -79,7 +80,7 @@ void main() {
     });
     var sut = fixture.getSut(channel);
 
-    final options = createOptions()
+    fixture.options
       ..debug = false
       ..environment = 'foo'
       ..release = 'foo@bar+1'
@@ -111,10 +112,10 @@ void main() {
       ..experimental.replay.sessionSampleRate = 0.1
       ..experimental.replay.errorSampleRate = 0.2;
 
-    options.sdk.addIntegration('foo');
-    options.sdk.addPackage('bar', '1');
+    fixture.options.sdk.addIntegration('foo');
+    fixture.options.sdk.addPackage('bar', '1');
 
-    await sut.init(options);
+    await sut.init(fixture.options);
 
     channel.setMethodCallHandler(null);
 
@@ -186,7 +187,9 @@ SentryFlutterOptions createOptions() {
 }
 
 class Fixture {
+  late SentryFlutterOptions options;
   SentryNativeChannel getSut(MethodChannel native) {
-    return SentryNativeChannel(native);
+    options = createOptions();
+    return SentryNativeChannel(options, native);
   }
 }

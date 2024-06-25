@@ -39,7 +39,7 @@ jobs:
 
       - run: ${{ inputs.sdk }} pub get
       - run: dart format --set-exit-if-changed ./
-        
+
       - name: dart analyze
         uses: invertase/github-action-dart-analyzer@e981b01a458d0bab71ee5da182e5b26687b7101b # pin@v3.0.0
         with:
@@ -78,6 +78,6 @@ jobs:
           PERCENTAGE=$(( $TOTAL * 100 / $TOTAL_MAX ))
           if (( $PERCENTAGE < ${{ inputs.panaThreshold }} ))
           then
-            echo Score too low!
+            echo "Score too low ($PERCENTAGE % is less than the expected ${{ inputs.panaThreshold }} %)!"
             exit 1
           fi

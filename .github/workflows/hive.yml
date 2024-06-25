@@ -6,11 +6,11 @@ on:
       - release/**
   pull_request:
     paths:
-      - "!**/*.md"
-      - "!**/class-diagram.svg"
-      - ".github/workflows/hive.yml"
-      - "dart/**"
-      - "hive/**"
+      - '!**/*.md'
+      - '!**/class-diagram.svg'
+      - '.github/workflows/hive.yml'
+      - 'dart/**'
+      - 'hive/**'
 
 jobs:
   cancel-previous-workflow:
@@ -25,10 +25,6 @@ jobs:
     name: Build ${{matrix.sdk}} on ${{matrix.os}}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
-    defaults:
-      run:
-        shell: bash
-        working-directory: ./hive
     strategy:
       fail-fast: false
       matrix:
@@ -40,28 +36,20 @@ jobs:
           - os: macos-latest
             sdk: beta
     steps:
-      - uses: dart-lang/setup-dart@f0ead981b4d9a35b37f30d36160575d60931ec30 # pin@v1
-        with:
-          sdk: ${{ matrix.sdk }}
       - uses: actions/checkout@v4
 
-      - name: Test VM
-        run: |
-          dart pub get
-          dart test -p vm --coverage=coverage --test-randomize-ordering-seed=random --chain-stack-traces
-          dart pub run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.dart_tool/package_config.json --report-on=lib
+      - uses: ./.github/actions/dart-test
+        with:
+          directory: hive
+          web: false
 
-      - uses: codecov/codecov-action@125fc84a9a348dbcf27191600683ec096ec9021c # pin@v3
+      - uses: ./.github/actions/coverage
         if: runner.os == 'Linux' && matrix.sdk == 'stable'
         with:
-          name: sentry_hive
-          files: ./hive/coverage/lcov.info
-
-      - uses: VeryGoodOpenSource/very_good_coverage@c953fca3e24a915e111cc6f55f03f756dcb3964c # pin@v3.0.0
-        if: runner.os == 'Linux' && matrix.sdk == 'stable'
-        with:
-          path: "./hive/coverage/lcov.info"
-          min_coverage: 55
+          token: ${{ secrets.CODECOV_TOKEN }}
+          directory: hive
+          coverage: sentry_hive
+          min-coverage: 55
 
   analyze:
     uses: ./.github/workflows/analyze.yml
