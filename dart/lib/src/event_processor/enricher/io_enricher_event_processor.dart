@@ -42,7 +42,8 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
 
     contexts['dart_context'] = _getDartContext();
     contexts['process_info'] = <String, dynamic>{
-      'currentResidentSetSize': _bytesToHumanReadableFileSize(ProcessInfo.currentRss),
+      'currentResidentSetSize':
+          _bytesToHumanReadableFileSize(ProcessInfo.currentRss),
       'maxResidentSetSize': _bytesToHumanReadableFileSize(ProcessInfo.maxRss),
     };
 
@@ -140,10 +141,13 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
       affix++;
     }
 
-    String result = (runningPreviousDivider == 0 ? size : size / runningPreviousDivider).toStringAsFixed(round);
+    String result =
+        (runningPreviousDivider == 0 ? size : size / runningPreviousDivider)
+            .toStringAsFixed(round);
 
     // Remove trailing zeros if needed
-    if (result.endsWith("0" * round)) result = result.substring(0, result.length - round - 1);
+    if (result.endsWith("0" * round))
+      result = result.substring(0, result.length - round - 1);
 
     return "$result ${affixes[affix]}";
   }
