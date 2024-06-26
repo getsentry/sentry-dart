@@ -636,6 +636,13 @@ void main() {
     verify(SentryFlutter.native?.resumeAppHangTracking()).called(1);
   });
 
+  test('resumeAppHangTracking does nothing when native is null', () async {
+    SentryFlutter.native = null;
+
+    // This should complete without throwing an error
+    await expectLater(SentryFlutter.resumeAppHangTracking(), completes);
+  });
+
   test('pauseAppHangTracking calls native method when available', () async {
     SentryFlutter.native = MockSentryNativeBinding();
     when(SentryFlutter.native?.pauseAppHangTracking())
@@ -644,6 +651,13 @@ void main() {
     await SentryFlutter.pauseAppHangTracking();
 
     verify(SentryFlutter.native?.pauseAppHangTracking()).called(1);
+  });
+
+  test('pauseAppHangTracking does nothing when native is null', () async {
+    SentryFlutter.native = null;
+
+    // This should complete without throwing an error
+    await expectLater(SentryFlutter.pauseAppHangTracking(), completes);
   });
 }
 
