@@ -167,10 +167,10 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 
         case "displayRefreshRate":
             displayRefreshRate(result)
-            
+
         case "pauseAppHangTracking":
             pauseAppHangTracking(result)
-            
+
         case "resumeAppHangTracking":
             resumeAppHangTracking(result)
 
@@ -719,14 +719,14 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         result(Int(mode.refreshRate))
     }
     #endif
-    
+
     private func pauseAppHangTracking(_ result: @escaping FlutterResult) {
-        SentrySDK.pauseAppHangTracking();
+        SentrySDK.pauseAppHangTracking()
         result("")
     }
-    
+
     private func resumeAppHangTracking(_ result: @escaping FlutterResult) {
-        SentrySDK.resumeAppHangTracking();
+        SentrySDK.resumeAppHangTracking()
         result("")
     }
 }
