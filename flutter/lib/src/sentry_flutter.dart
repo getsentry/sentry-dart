@@ -261,7 +261,7 @@ mixin SentryFlutter {
       );
       return Future<void>.value();
     }
-    return _native!.pauseAppHangTracking();
+    return _native!.resumeAppHangTracking();
   }
 
   @internal

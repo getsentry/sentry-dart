@@ -1,6 +1,7 @@
 // ignore_for_file: invalid_use_of_internal_member
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mockito/mockito.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry/src/platform/platform.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -623,6 +624,26 @@ void main() {
 
       await Sentry.close();
     });
+  });
+
+  test('resumeAppHangTracking calls native method when available', () async {
+    SentryFlutter.native = MockSentryNativeBinding();
+    when(SentryFlutter.native?.resumeAppHangTracking())
+        .thenAnswer((_) => Future.value());
+
+    await SentryFlutter.resumeAppHangTracking();
+
+    verify(SentryFlutter.native?.resumeAppHangTracking()).called(1);
+  });
+
+  test('pauseAppHangTracking calls native method when available', () async {
+    SentryFlutter.native = MockSentryNativeBinding();
+    when(SentryFlutter.native?.pauseAppHangTracking())
+        .thenAnswer((_) => Future.value());
+
+    await SentryFlutter.pauseAppHangTracking();
+
+    verify(SentryFlutter.native?.pauseAppHangTracking()).called(1);
   });
 }
 
