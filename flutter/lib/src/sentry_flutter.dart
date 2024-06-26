@@ -243,7 +243,7 @@ mixin SentryFlutter {
       // ignore: invalid_use_of_internal_member
       Sentry.currentHub.options.logger(
         SentryLevel.debug,
-        'Native integration is not available. Make sure SentryFlutter is initialized before accessing this API.',
+        'Native integration is not available. Make sure SentryFlutter is initialized before accessing the pauseAppHangTracking API.',
       );
       return Future<void>.value();
     }
@@ -257,7 +257,7 @@ mixin SentryFlutter {
       // ignore: invalid_use_of_internal_member
       Sentry.currentHub.options.logger(
         SentryLevel.debug,
-        'Native integration is not available. Make sure SentryFlutter is initialized before accessing this API.',
+        'Native integration is not available. Make sure SentryFlutter is initialized before accessing the resumeAppHangTracking API.',
       );
       return Future<void>.value();
     }
