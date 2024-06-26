@@ -236,6 +236,34 @@ mixin SentryFlutter {
     return SentryNavigatorObserver.timeToDisplayTracker?.reportFullyDisplayed();
   }
 
+  /// Pauses the app hang tracking.
+  /// Only for iOS and macOS.
+  static Future<void> pauseAppHangTracking() {
+    if (_native == null) {
+      // ignore: invalid_use_of_internal_member
+      Sentry.currentHub.options.logger(
+        SentryLevel.debug,
+        'Native integration is not available. Make sure SentryFlutter is initialized before accessing the pauseAppHangTracking API.',
+      );
+      return Future<void>.value();
+    }
+    return _native!.pauseAppHangTracking();
+  }
+
+  /// Resumes the app hang tracking.
+  /// Only for iOS and macOS
+  static Future<void> resumeAppHangTracking() {
+    if (_native == null) {
+      // ignore: invalid_use_of_internal_member
+      Sentry.currentHub.options.logger(
+        SentryLevel.debug,
+        'Native integration is not available. Make sure SentryFlutter is initialized before accessing the resumeAppHangTracking API.',
+      );
+      return Future<void>.value();
+    }
+    return _native!.resumeAppHangTracking();
+  }
+
   @internal
   static SentryNativeBinding? get native => _native;
 
