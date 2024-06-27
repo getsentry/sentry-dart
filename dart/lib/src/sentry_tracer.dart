@@ -69,6 +69,7 @@ class SentryTracer extends ISentrySpan {
       _hub,
       samplingDecision: transactionContext.samplingDecision,
       startTimestamp: startTimestamp,
+      isRootSpan: true,
     );
     _waitForChildren = waitForChildren;
     _autoFinishAfter = autoFinishAfter;
@@ -80,6 +81,12 @@ class SentryTracer extends ISentrySpan {
         SentryTransactionNameSource.custom;
     _trimEnd = trimEnd;
     _onFinish = onFinish;
+
+    for (final collector in _hub.options.performanceCollectors) {
+      if (collector is PerformanceContinuousCollector) {
+        collector.onSpanStarted(_rootSpan);
+      }
+    }
   }
 
   @override
@@ -256,6 +263,12 @@ class SentryTracer extends ISentrySpan {
 
     _children.add(child);
 
+    for (final collector in _hub.options.performanceCollectors) {
+      if (collector is PerformanceContinuousCollector) {
+        collector.onSpanStarted(child);
+      }
+    }
+
     return child;
   }
 
@@ -361,6 +374,7 @@ class SentryTracer extends ISentrySpan {
       release: _hub.options.release,
       environment: _hub.options.environment,
       userId: null, // because of PII not sending it for now
+      // ignore: deprecated_member_use_from_same_package
       userSegment: user?.segment,
       transaction:
           _isHighQualityTransactionName(transactionNameSource) ? name : null,

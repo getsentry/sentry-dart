@@ -5,6 +5,7 @@ import UIKit
 #elseif os(macOS)
 import FlutterMacOS
 import AppKit
+import CoreVideo
 #endif
 
 // swiftlint:disable file_length function_body_length
@@ -163,6 +164,15 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         case "collectProfile":
             collectProfile(call, result)
         #endif
+
+        case "displayRefreshRate":
+            displayRefreshRate(result)
+
+        case "pauseAppHangTracking":
+            pauseAppHangTracking(result)
+
+        case "resumeAppHangTracking":
+            resumeAppHangTracking(result)
 
         default:
             result(FlutterMethodNotImplemented)
@@ -650,6 +660,74 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 
         PrivateSentrySDKOnly.discardProfiler(forTrace: SentryId(uuidString: traceId))
         result(nil)
+    }
+
+    #if os(iOS)
+    // Taken from the Flutter engine:
+    // https://github.com/flutter/engine/blob/main/shell/platform/darwin/ios/framework/Source/vsync_waiter_ios.mm#L150
+    private func displayRefreshRate(_ result: @escaping FlutterResult) {
+        let displayLink = CADisplayLink(target: self, selector: #selector(onDisplayLink(_:)))
+        displayLink.add(to: .main, forMode: .common)
+        displayLink.isPaused = true
+
+        let preferredFPS = displayLink.preferredFramesPerSecond
+        displayLink.invalidate()
+
+        if preferredFPS != 0 {
+            result(preferredFPS)
+            return
+        }
+
+        if #available(iOS 13.0, *) {
+            guard let windowScene = UIApplication.shared.windows.first?.windowScene else {
+                result(nil)
+                return
+            }
+            result(windowScene.screen.maximumFramesPerSecond)
+        } else {
+            result(UIScreen.main.maximumFramesPerSecond)
+        }
+    }
+
+    @objc private func onDisplayLink(_ displayLink: CADisplayLink) {
+        // No-op
+    }
+    #elseif os(macOS)
+    private func displayRefreshRate(_ result: @escaping FlutterResult) {
+        // We don't use CADisplayLink for macOS because it's only available starting with macOS 14
+        guard let window = NSApplication.shared.keyWindow else {
+            result(nil)
+            return
+        }
+
+        guard let screen = window.screen else {
+            result(nil)
+            return
+        }
+
+        guard let displayID =
+                screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? CGDirectDisplayID else {
+            result(nil)
+            return
+        }
+
+        guard let mode = CGDisplayCopyDisplayMode(displayID) else {
+            result(nil)
+            return
+        }
+
+        result(Int(mode.refreshRate))
+    }
+    #endif
+
+    private func pauseAppHangTracking(_ result: @escaping FlutterResult) {
+        SentrySDK.pauseAppHangTracking()
+        result("")
+    }
+
+    private func resumeAppHangTracking(_ result: @escaping FlutterResult) {
+        SentrySDK.resumeAppHangTracking()
+        result("")
     }
 }
 

@@ -1,9 +1,9 @@
 import 'package:flutter/scheduler.dart';
 import 'package:sentry_flutter/src/frame_callback_handler.dart';
 
-class FakeFrameCallbackHandler implements FrameCallbackHandler {
-  FrameCallback? storedCallback;
+import 'mocks.dart';
 
+class FakeFrameCallbackHandler implements FrameCallbackHandler {
   final Duration finishAfterDuration;
 
   FakeFrameCallbackHandler(
@@ -15,4 +15,19 @@ class FakeFrameCallbackHandler implements FrameCallbackHandler {
     await Future.delayed(finishAfterDuration);
     callback(Duration.zero);
   }
+
+  @override
+  Future<void> addPersistentFrameCallback(FrameCallback callback) async {
+    for (final duration in fakeFrameDurations) {
+      // Let's wait a bit so the timestamp intervals are large enough
+      await Future<void>.delayed(Duration(milliseconds: 20));
+      callback(duration);
+    }
+  }
+
+  @override
+  bool hasScheduledFrame = true;
+
+  @override
+  Future<void> get endOfFrame => Future<void>.value();
 }

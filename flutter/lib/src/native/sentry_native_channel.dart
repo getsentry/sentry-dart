@@ -184,6 +184,18 @@ class SentryNativeChannel
       });
 
   @override
+  Future<int?> displayRefreshRate() =>
+      channel.invokeMethod('displayRefreshRate');
+
+  @override
+  Future<void> pauseAppHangTracking() =>
+      channel.invokeMethod('pauseAppHangTracking');
+
+  @override
+  Future<void> resumeAppHangTracking() =>
+      channel.invokeMethod('resumeAppHangTracking');
+
+  @override
   Future<SentryId> sendReplayForEvent(SentryId eventId, bool isCrash) =>
       channel.invokeMethod('sendReplayForEvent', {
         'eventId': eventId.toString(),

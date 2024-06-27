@@ -284,6 +284,24 @@ void main() {
 
         expect(data?.map((v) => v.toJson()), json);
       });
+
+      test('pauseAppHangTracking', () async {
+        when(channel.invokeMethod('pauseAppHangTracking'))
+            .thenAnswer((_) => Future.value());
+
+        await sut.pauseAppHangTracking();
+
+        verify(channel.invokeMethod('pauseAppHangTracking'));
+      });
+
+      test('resumeAppHangTracking', () async {
+        when(channel.invokeMethod('resumeAppHangTracking'))
+            .thenAnswer((_) => Future.value());
+
+        await sut.resumeAppHangTracking();
+
+        verify(channel.invokeMethod('resumeAppHangTracking'));
+      });
     });
   }
 }

@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
+import 'span_frame_metrics_collector.dart';
 import '../sentry_flutter.dart';
 import 'event_processor/android_platform_exception_event_processor.dart';
 import 'event_processor/flutter_exception_event_processor.dart';
@@ -135,6 +136,8 @@ mixin SentryFlutter {
 
     options.addEventProcessor(PlatformExceptionEventProcessor());
 
+    options.addPerformanceCollector(SpanFrameMetricsCollector(options));
+
     _setSdk(options);
   }
 
@@ -231,6 +234,34 @@ mixin SentryFlutter {
   /// This requires the [SentryFlutterOptions.enableTimeToFullDisplayTracing] option to be set to `true`.
   static Future<void> reportFullyDisplayed() async {
     return SentryNavigatorObserver.timeToDisplayTracker?.reportFullyDisplayed();
+  }
+
+  /// Pauses the app hang tracking.
+  /// Only for iOS and macOS.
+  static Future<void> pauseAppHangTracking() {
+    if (_native == null) {
+      // ignore: invalid_use_of_internal_member
+      Sentry.currentHub.options.logger(
+        SentryLevel.debug,
+        'Native integration is not available. Make sure SentryFlutter is initialized before accessing the pauseAppHangTracking API.',
+      );
+      return Future<void>.value();
+    }
+    return _native!.pauseAppHangTracking();
+  }
+
+  /// Resumes the app hang tracking.
+  /// Only for iOS and macOS
+  static Future<void> resumeAppHangTracking() {
+    if (_native == null) {
+      // ignore: invalid_use_of_internal_member
+      Sentry.currentHub.options.logger(
+        SentryLevel.debug,
+        'Native integration is not available. Make sure SentryFlutter is initialized before accessing the resumeAppHangTracking API.',
+      );
+      return Future<void>.value();
+    }
+    return _native!.resumeAppHangTracking();
   }
 
   @internal
