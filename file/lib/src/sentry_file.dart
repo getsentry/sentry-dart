@@ -490,6 +490,9 @@ class SentryFile implements File {
     span?.origin = SentryTraceOrigins.autoFile;
     span?.setData('file.async', false);
 
+    final isMainIsolate = _hub.options.isMainIsolate();
+    span?.setData('blocked_main_thread', isMainIsolate);
+
     final Map<String, dynamic> breadcrumbData = {};
     breadcrumbData['file.async'] = false;
 
