@@ -2,7 +2,6 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:meta/meta.dart';
-import 'package:path/path.dart' as path;
 
 import '../../../sentry_flutter.dart';
 import '../../event_processor/replay_event_processor.dart';
@@ -88,7 +87,7 @@ class SentryNativeJava extends SentryNativeChannel {
       var imageData = await image.toByteData(format: ImageByteFormat.png);
       if (imageData != null) {
         final timestamp = DateTime.now().millisecondsSinceEpoch;
-        final filePath = path.join(cacheDir, "$timestamp.png");
+        final filePath = "$cacheDir/$timestamp.png";
 
         _options.logger(
             SentryLevel.debug,
