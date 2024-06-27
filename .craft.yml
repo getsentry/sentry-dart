@@ -4,6 +4,8 @@ artifactProvider:
   name: none
 targets:
   - name: pub-dev
+    # This is temporarily needed because we keep the package:web dependency implicit
+    # See https://github.com/getsentry/sentry-dart/pull/2113 for more context
     skipValidation: true
     packages:
       dart:
