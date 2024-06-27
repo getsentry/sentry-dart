@@ -1,6 +1,7 @@
 package io.sentry.flutter
 
 import io.sentry.SentryLevel
+import io.sentry.SentryReplayOptions
 import io.sentry.android.core.BuildConfig
 import io.sentry.android.core.SentryAndroidOptions
 import io.sentry.protocol.SdkVersion
@@ -119,6 +120,18 @@ class SentryFlutter(
     data.getIfNotNull<Int>("readTimeoutMillis") {
       options.readTimeoutMillis = it
     }
+
+    data.getIfNotNull<Map<String, Any>>("replay") {
+      updateReplayOptions(options.experimental.sessionReplay, it)
+    }
+  }
+
+  fun updateReplayOptions(
+    options: SentryReplayOptions,
+    data: Map<String, Any>,
+  ) {
+    options.sessionSampleRate = data["sessionSampleRate"] as? Double
+    options.errorSampleRate = data["errorSampleRate"] as? Double
   }
 }
 

@@ -34,7 +34,6 @@ void main() {
       final sut = fixture.getSut(renderer, isWeb);
 
       await tester.pumpWidget(SentryScreenshotWidget(
-          hub: fixture.hub,
           child: Text('Catching Pokémon is a snap!',
               textDirection: TextDirection.ltr)));
 

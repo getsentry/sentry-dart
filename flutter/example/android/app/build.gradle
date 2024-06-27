@@ -65,8 +65,6 @@ android {
         }
     }
 
-    // TODO: we need to fix CI as the version 21.1 (default) is not installed by default on
-    // GH Actions.
     ndkVersion "25.1.8937393"
 
     externalNativeBuild {
