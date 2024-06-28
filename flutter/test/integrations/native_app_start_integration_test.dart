@@ -149,8 +149,10 @@ void main() {
     test(
         'does not trigger timeout if autoAppStart is false and setAppStartEnd is not called',
         () async {
-      // for testing purposes let's set a frame callback bigger timeout so our app start timeout is triggered
-      fixture = Fixture(frameCallbackTimeout: const Duration(seconds: 20));
+      // setting a frame callback with a bigger timeout than our app start timeout so the timeout would theoretically be triggered
+      fixture = Fixture(
+          frameCallbackTimeout: NativeAppStartIntegration.timeoutDuration +
+              const Duration(seconds: 5));
       fixture.options.autoAppStart = false;
 
       await fixture.registerIntegration();
