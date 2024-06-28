@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Fixes
+
+- App starts hanging for 30s ([#2140](https://github.com/getsentry/sentry-dart/pull/2140))
+  - Time out for app start info retrieval has been reduced to 10s
+  - If `autoAppStarts` is `false` and `setAppStartEnd` has not been called, the app start event processor will now return early instead of waiting for `getAppStartInfo` to finish
+
 ### Features
 
 - Add API for pausing/resuming **iOS** and **macOS** app hang tracking ([#2134](https://github.com/getsentry/sentry-dart/pull/2134))
