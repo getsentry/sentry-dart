@@ -36,6 +36,9 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
   /// Timeout duration to wait for the app start info to be fetched.
   static const _timeoutDuration = Duration(seconds: 10);
 
+  @visibleForTesting
+  static Duration get timeoutDuration => _timeoutDuration;
+
   /// We filter out App starts more than 60s
   static const _maxAppStartMillis = 60000;
 
