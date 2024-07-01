@@ -37,7 +37,7 @@ jobs:
       matrix:
         sdk: [stable, beta]
     steps:
-      - uses: dart-lang/setup-dart@f0ead981b4d9a35b37f30d36160575d60931ec30 # pin@v1
+      - uses: dart-lang/setup-dart@0a8a0fc875eb934c15d08629302413c671d3f672 # pin@v1
         with:
           sdk: ${{ matrix.sdk }}
       - uses: actions/checkout@v4
