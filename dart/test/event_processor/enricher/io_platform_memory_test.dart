@@ -1,3 +1,6 @@
+@TestOn('vm')
+library dart_test;
+
 import 'dart:io';
 
 import 'package:sentry/src/event_processor/enricher/io_platform_memory.dart';
