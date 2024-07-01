@@ -105,6 +105,7 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
     return (device ?? SentryDevice()).copyWith(
       name: device?.name ?? Platform.localHostname,
       processorCount: device?.processorCount ?? Platform.numberOfProcessors,
+      usableMemory: ProcessInfo.maxRss,
     );
   }
 
