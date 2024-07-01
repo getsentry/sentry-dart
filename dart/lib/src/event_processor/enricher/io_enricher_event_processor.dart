@@ -2,6 +2,7 @@ import 'dart:io';
 
 import '../../../sentry.dart';
 import 'enricher_event_processor.dart';
+import 'io_platform_memory.dart';
 
 EnricherEventProcessor enricherEventProcessor(SentryOptions options) {
   return IoEnricherEventProcessor(options);
@@ -102,10 +103,12 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
   }
 
   SentryDevice _getDevice(SentryDevice? device) {
+    final platformMemory = PlatformMemory(Platform.operatingSystem);
     return (device ?? SentryDevice()).copyWith(
       name: device?.name ?? Platform.localHostname,
       processorCount: device?.processorCount ?? Platform.numberOfProcessors,
-      usableMemory: ProcessInfo.maxRss,
+      memorySize: platformMemory.getTotalPhysicalMemory() ?? device?.memorySize,
+      freeMemory: platformMemory.getFreePhysicalMemory() ?? device?.freeMemory,
     );
   }
 
