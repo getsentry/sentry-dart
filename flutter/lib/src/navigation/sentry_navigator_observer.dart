@@ -97,11 +97,8 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
 
   /// Initializes the TimeToDisplayTracker with the option to enable time to full display tracing.
   TimeToDisplayTracker _initializeTimeToDisplayTracker() {
-    bool enableTimeToFullDisplayTracing = false;
-    final options = _hub.options;
-    if (options is SentryFlutterOptions) {
-      enableTimeToFullDisplayTracing = options.enableTimeToFullDisplayTracing;
-    }
+    final enableTimeToFullDisplayTracing =
+        _options?.enableTimeToFullDisplayTracing ?? false;
     return TimeToDisplayTracker(
         enableTimeToFullDisplayTracing: enableTimeToFullDisplayTracing);
   }
@@ -114,6 +111,11 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   final AdditionalInfoExtractor? _additionalInfoProvider;
   final SentryNativeBinding? _native;
   static TimeToDisplayTracker? _timeToDisplayTracker;
+
+  SentryFlutterOptions? get _options {
+    final options = _hub.options;
+    return (options is SentryFlutterOptions) ? options : null;
+  }
 
   @internal
   static TimeToDisplayTracker? get timeToDisplayTracker =>
@@ -248,6 +250,9 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       trimEnd: true,
       onFinish: (transaction) async {
         _transaction = null;
+        if (_options?.enableFramesTracking == false) {
+          return;
+        }
         final nativeFrames =
             await _native?.endNativeFrames(transaction.context.traceId);
         if (nativeFrames != null) {
@@ -278,7 +283,9 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       scope.span ??= _transaction;
     });
 
-    await _native?.beginNativeFrames();
+    if (_options?.enableFramesTracking == true) {
+      await _native?.beginNativeFrames();
+    }
   }
 
   Future<void> _finishTimeToDisplayTracking({bool clearAfter = false}) async {
