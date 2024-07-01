@@ -12,7 +12,7 @@ class PlatformMemory {
       case 'linux':
         return _getLinuxMemInfoValue('MemTotal');
       case 'windows':
-        return _getWindowsWmicValue('TotalPhysicalMemory');
+        return _getWindowsWmicValue('ComputerSystem', 'TotalPhysicalMemory');
       default:
         return null;
     }
@@ -23,14 +23,14 @@ class PlatformMemory {
       case 'linux':
         return _getLinuxMemInfoValue('MemFree');
       case 'windows':
-        return _getWindowsWmicValue('FreePhysicalMemory');
+        return _getWindowsWmicValue('OS', 'FreePhysicalMemory');
       default:
         return null;
     }
   }
 
-  int? _getWindowsWmicValue(String key) {
-    final os = _wmicGetValueAsMap('OS', [key]);
+  int? _getWindowsWmicValue(String section, String key) {
+    final os = _wmicGetValueAsMap(section, [key]);
     final totalPhysicalMemoryValue = os?[key];
     if (totalPhysicalMemoryValue == null) {
       return null;
