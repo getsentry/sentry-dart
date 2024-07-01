@@ -20,31 +20,31 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
     // If there's a native integration available, it probably has better
     // information available than Flutter.
 
+    final device = _options.platformChecker.hasNativeIntegration
+        ? null
+        : _getDevice(event.contexts.device);
+
     final os = _options.platformChecker.hasNativeIntegration
         ? null
         : _getOperatingSystem(event.contexts.operatingSystem);
 
-    final device = _options.platformChecker.hasNativeIntegration
+    final app = _options.platformChecker.hasNativeIntegration
         ? null
-        : _getDevice(event.contexts.device);
+        : _getApp(event.contexts.app);
 
     final culture = _options.platformChecker.hasNativeIntegration
         ? null
         : _getSentryCulture(event.contexts.culture);
 
     final contexts = event.contexts.copyWith(
-      operatingSystem: os,
       device: device,
+      operatingSystem: os,
       runtimes: _getRuntimes(event.contexts.runtimes),
+      app: app,
       culture: culture,
     );
 
     contexts['dart_context'] = _getDartContext();
-    contexts['process_info'] = <String, dynamic>{
-      'currentResidentSetSize':
-          _bytesToHumanReadableFileSize(ProcessInfo.currentRss),
-      'maxResidentSetSize': _bytesToHumanReadableFileSize(ProcessInfo.maxRss),
-    };
 
     return event.copyWith(
       contexts: contexts,
@@ -108,6 +108,12 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
     );
   }
 
+  SentryApp _getApp(SentryApp? app) {
+    return (app ?? SentryApp()).copyWith(
+      appMemory: ProcessInfo.currentRss,
+    );
+  }
+
   SentryOperatingSystem _getOperatingSystem(SentryOperatingSystem? os) {
     return (os ?? SentryOperatingSystem()).copyWith(
       name: os?.name ?? Platform.operatingSystem,
@@ -120,35 +126,5 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
       locale: culture?.locale ?? Platform.localeName,
       timezone: culture?.timezone ?? DateTime.now().timeZoneName,
     );
-  }
-
-  // Reference:
-  // https://github.com/erdbeerschnitzel/filesize.dart/blob/4f7c54dc06647b8368078f6febb83149494698c1/lib/filesize.dart
-  String _bytesToHumanReadableFileSize(num size) {
-    const List<String> affixes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
-
-    int round = 2;
-    num divider = 1024;
-
-    num runningDivider = divider;
-    num runningPreviousDivider = 0;
-    int affix = 0;
-
-    while (size >= runningDivider && affix < affixes.length - 1) {
-      runningPreviousDivider = runningDivider;
-      runningDivider *= divider;
-      affix++;
-    }
-
-    String result =
-        (runningPreviousDivider == 0 ? size : size / runningPreviousDivider)
-            .toStringAsFixed(round);
-
-    // Remove trailing zeros if needed
-    if (result.endsWith("0" * round)) {
-      result = result.substring(0, result.length - round - 1);
-    }
-
-    return "$result ${affixes[affix]}";
   }
 }
