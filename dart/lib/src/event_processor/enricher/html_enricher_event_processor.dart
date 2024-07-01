@@ -26,7 +26,6 @@ class WebEnricherEventProcessor implements EnricherEventProcessor {
 
     final contexts = event.contexts.copyWith(
       device: _getDevice(event.contexts.device),
-      app: _getApp(event.contexts.app),
       culture: _getSentryCulture(event.contexts.culture),
     );
 
@@ -53,16 +52,6 @@ class WebEnricherEventProcessor implements EnricherEventProcessor {
     return (request ?? SentryRequest(url: url))
         .copyWith(headers: header)
         .sanitized();
-  }
-
-  SentryApp? _getApp(SentryApp? app) {
-    final memoryInfo = html.window.performance.memory;
-    if (memoryInfo == null) {
-      return app;
-    }
-    return (app ?? SentryApp()).copyWith(
-      appMemory: memoryInfo.usedJSHeapSize,
-    );
   }
 
   SentryDevice _getDevice(SentryDevice? device) {
