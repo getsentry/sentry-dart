@@ -18,7 +18,6 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
 
   @override
   SentryEvent? apply(SentryEvent event, Hint hint) {
-
     // Amend app with current memory usage, as this is not available on native.
     final app = _getApp(event.contexts.app);
 
