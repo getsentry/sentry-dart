@@ -12,6 +12,7 @@ import CoreVideo
 
 // swiftlint:disable:next type_body_length
 public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
+    private let channel: FlutterMethodChannel;
 
     private static let nativeClientName = "sentry.cocoa.flutter"
 
@@ -38,10 +39,14 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         let channel = FlutterMethodChannel(name: "sentry_flutter", binaryMessenger: registrar.messenger)
 #endif
 
-        let instance = SentryFlutterPluginApple()
+        let instance = SentryFlutterPluginApple(channel: channel)
         instance.registerObserver()
-
         registrar.addMethodCallDelegate(instance, channel: channel)
+    }
+
+    private init(channel: FlutterMethodChannel) {
+        self.channel = channel
+        super.init()
     }
 
     private lazy var sentryFlutter = SentryFlutter()
@@ -322,6 +327,14 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
            // we reset the flag for the sake of correctness
            didReceiveDidBecomeActiveNotification = false
        }
+
+#if canImport(UIKit) && !SENTRY_NO_UIKIT
+#if os(iOS) || os(tvOS)
+        let breadcrumbConverter = SentryFlutterReplayBreadcrumbConverter();
+        let screenshotProvider = SentryFlutterReplayScreenshotProvider(channel: self.channel);
+        PrivateSentrySDKOnly.configureSessionReplay(with: breadcrumbConverter, screenshotProvider: screenshotProvider);
+#endif
+#endif
 
         result("")
     }

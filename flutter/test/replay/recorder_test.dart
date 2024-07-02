@@ -7,7 +7,7 @@ import 'dart:ui';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:sentry_flutter/src/replay/recorder.dart';
+import 'package:sentry_flutter/src/replay/scheduled_recorder.dart';
 import 'package:sentry_flutter/src/replay/recorder_config.dart';
 
 import '../mocks.dart';
@@ -32,11 +32,11 @@ void main() async {
 
 class _Fixture {
   final WidgetTester _tester;
-  late final ScreenshotRecorder sut;
+  late final ScheduledScreenshotRecorder sut;
   final capturedImages = <String>[];
 
   _Fixture._(this._tester) {
-    sut = ScreenshotRecorder(
+    sut = ScheduledScreenshotRecorder(
       ScreenshotRecorderConfig(
         width: 1000,
         height: 1000,

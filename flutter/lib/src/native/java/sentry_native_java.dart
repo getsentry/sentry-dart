@@ -5,7 +5,7 @@ import 'package:meta/meta.dart';
 
 import '../../../sentry_flutter.dart';
 import '../../event_processor/replay_event_processor.dart';
-import '../../replay/recorder.dart';
+import '../../replay/scheduled_recorder.dart';
 import '../../replay/recorder_config.dart';
 import '../sentry_native_channel.dart';
 
@@ -13,7 +13,7 @@ import '../sentry_native_channel.dart';
 // generated JNI bindings. See https://github.com/getsentry/sentry-dart/issues/1444
 @internal
 class SentryNativeJava extends SentryNativeChannel {
-  ScreenshotRecorder? _replayRecorder;
+  ScheduledScreenshotRecorder? _replayRecorder;
   late final SentryFlutterOptions _options;
   SentryNativeJava(super.options, super.channel);
 
@@ -112,7 +112,7 @@ class SentryNativeJava extends SentryNativeChannel {
       }
     };
 
-    _replayRecorder = ScreenshotRecorder(
+    _replayRecorder = ScheduledScreenshotRecorder(
       config,
       callback,
       _options,
