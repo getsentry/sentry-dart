@@ -18,6 +18,10 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
 
   @override
   SentryEvent? apply(SentryEvent event, Hint hint) {
+
+    // Amend app with current memory usage, as this is not available on native.
+    final app = _getApp(event.contexts.app);
+
     // If there's a native integration available, it probably has better
     // information available than Flutter.
 
@@ -28,10 +32,6 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
     final os = _options.platformChecker.hasNativeIntegration
         ? null
         : _getOperatingSystem(event.contexts.operatingSystem);
-
-    final app = _options.platformChecker.hasNativeIntegration
-        ? null
-        : _getApp(event.contexts.app);
 
     final culture = _options.platformChecker.hasNativeIntegration
         ? null
@@ -114,7 +114,7 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
 
   SentryApp _getApp(SentryApp? app) {
     return (app ?? SentryApp()).copyWith(
-      appMemory: ProcessInfo.currentRss,
+      appMemory: app?.appMemory ?? ProcessInfo.currentRss,
     );
   }
 
