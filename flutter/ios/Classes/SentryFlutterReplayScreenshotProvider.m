@@ -21,24 +21,27 @@
               options:(id<SentryRedactOptions> _Nonnull)options
            onComplete:(void (^_Nonnull)(UIImage *_Nonnull))onComplete {
   NSLog(@"SentryFlutterReplayScreenshotProvider.image() called");
-    dispatch_async(dispatch_get_main_queue(), ^{
   [self->channel
       invokeMethod:@"captureReplayScreenshot"
          arguments:nil
-            result:^(FlutterResult _Nullable flutterResult) {
-              if (flutterResult == nil) {
+            result:^(id value) {
+              if (value == nil) {
                 NSLog(@"SentryFlutterReplayScreenshotProvider received null "
-                      @"result. Cannot capture a replay screenshot.");
-              } else if ([flutterResult isKindOfClass:[FlutterStandardTypedData class]]) {
-                FlutterStandardTypedData* typedData = (FlutterStandardTypedData*)flutterResult;
+                      @"result. "
+                      @"Cannot capture a replay screenshot.");
+              } else if ([value
+                             isKindOfClass:[FlutterStandardTypedData class]]) {
+                // TODO verify performance and reduce copying.
+                FlutterStandardTypedData *typedData =
+                    (FlutterStandardTypedData *)value;
                 UIImage *image = [UIImage imageWithData:typedData.data];
                 onComplete(image);
               } else {
                 NSLog(@"SentryFlutterReplayScreenshotProvider received an "
-                      @"unexpected result. Cannot capture a replay screenshot.");
+                      @"unexpected result. "
+                      @"Cannot capture a replay screenshot.");
               }
             }];
-    });
 }
 
 @end
