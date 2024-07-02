@@ -7,8 +7,7 @@
 - Capture total frames, frames delay, slow & frozen frames and attach to spans ([#2106](https://github.com/getsentry/sentry-dart/pull/2106))
 - Support WebAssembly compilation (dart2wasm) ([#2113](https://github.com/getsentry/sentry-dart/pull/2113))
 - Add memory usage to contexts ([#2133](https://github.com/getsentry/sentry-dart/pull/2133))
-  - Only for Linux/Windows applications, as iOS/Android use native SDKs
-  - No web support, more info: https://developer.mozilla.org/en-US/docs/Web/API/Performance/memory#usedjsheapsize
+  - Only for Linux/Windows applications, as iOS/Android/macOS use native SDKs
 
 ### Deprecated
 
