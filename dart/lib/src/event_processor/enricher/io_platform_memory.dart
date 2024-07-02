@@ -6,30 +6,27 @@ import '../../sentry_options.dart';
 // Get total & free platform memory (in bytes) for linux and windows operating systems.
 // Source: https://github.com/onepub-dev/system_info/blob/8a9bf6b8eb7c86a09b3c3df4bf6d7fa5a6b50732/lib/src/platform/memory.dart
 class PlatformMemory {
-  PlatformMemory(this.operatingSystem, this.options);
+  PlatformMemory(this.options);
 
-  final String operatingSystem;
   final SentryOptions options;
 
   int? getTotalPhysicalMemory() {
-    switch (operatingSystem) {
-      case 'linux':
-        return _getLinuxMemInfoValue('MemTotal');
-      case 'windows':
-        return _getWindowsWmicValue('ComputerSystem', 'TotalPhysicalMemory');
-      default:
-        return null;
+    if (options.platformChecker.platform.isLinux) {
+      return _getLinuxMemInfoValue('MemTotal');
+    } else if (options.platformChecker.platform.isWindows) {
+      return _getWindowsWmicValue('ComputerSystem', 'TotalPhysicalMemory');
+    } else {
+      return null;
     }
   }
 
   int? getFreePhysicalMemory() {
-    switch (operatingSystem) {
-      case 'linux':
-        return _getLinuxMemInfoValue('MemFree');
-      case 'windows':
-        return _getWindowsWmicValue('OS', 'FreePhysicalMemory');
-      default:
-        return null;
+    if (options.platformChecker.platform.isLinux) {
+      return _getLinuxMemInfoValue('MemFree');
+    } else if (options.platformChecker.platform.isWindows) {
+      return _getWindowsWmicValue('OS', 'FreePhysicalMemory');
+    } else {
+      return null;
     }
   }
 

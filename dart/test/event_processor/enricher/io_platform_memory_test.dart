@@ -55,6 +55,6 @@ class Fixture {
   var options = SentryOptions();
 
   PlatformMemory getSut() {
-    return PlatformMemory(Platform.operatingSystem, options);
+    return PlatformMemory(options);
   }
 }
