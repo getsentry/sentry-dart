@@ -3,6 +3,7 @@ library dart_test;
 
 import 'dart:io';
 
+import 'package:sentry/sentry.dart';
 import 'package:sentry/src/event_processor/enricher/io_platform_memory.dart';
 import 'package:test/test.dart';
 
@@ -51,7 +52,9 @@ void main() {
 }
 
 class Fixture {
+  var options = SentryOptions();
+
   PlatformMemory getSut() {
-    return PlatformMemory(Platform.operatingSystem);
+    return PlatformMemory(Platform.operatingSystem, options);
   }
 }
