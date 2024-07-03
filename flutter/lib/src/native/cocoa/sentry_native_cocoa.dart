@@ -31,14 +31,8 @@ class SentryNativeCocoa extends SentryNativeChannel {
       channel.setMethodCallHandler((call) async {
         switch (call.method) {
           case 'captureReplayScreenshot':
-            _replayRecorder ??= ScreenshotRecorder(
-              ScreenshotRecorderConfig(
-                width: 200, // TODO call.arguments['width'] as int,
-                height: 400, // TODO call.arguments['height'] as int,
-                frameRate: 0,
-              ),
-              options,
-            );
+            _replayRecorder ??=
+                ScreenshotRecorder(ScreenshotRecorderConfig(), options);
 
             Uint8List? imageBytes;
             await _replayRecorder?.capture((image) async {

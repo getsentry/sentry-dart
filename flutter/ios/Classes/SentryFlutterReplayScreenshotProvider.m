@@ -20,7 +20,6 @@
 - (void)imageWithView:(UIView *_Nonnull)view
               options:(id<SentryRedactOptions> _Nonnull)options
            onComplete:(void (^_Nonnull)(UIImage *_Nonnull))onComplete {
-  NSLog(@"SentryFlutterReplayScreenshotProvider.image() called");
   [self->channel
       invokeMethod:@"captureReplayScreenshot"
          arguments:nil
@@ -31,7 +30,6 @@
                       @"Cannot capture a replay screenshot.");
               } else if ([value
                              isKindOfClass:[FlutterStandardTypedData class]]) {
-                // TODO verify performance and reduce copying.
                 FlutterStandardTypedData *typedData =
                     (FlutterStandardTypedData *)value;
                 UIImage *image = [UIImage imageWithData:typedData.data];

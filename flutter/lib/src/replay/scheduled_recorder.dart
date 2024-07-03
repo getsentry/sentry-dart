@@ -5,6 +5,7 @@ import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
 import 'recorder.dart';
+import 'recorder_config.dart';
 import 'scheduler.dart';
 
 @internal
@@ -15,7 +16,10 @@ class ScheduledScreenshotRecorder extends ScreenshotRecorder {
   late final Scheduler _scheduler;
   final ScreenshotRecorderCallback _callback;
 
-  ScheduledScreenshotRecorder(super.config, this._callback, super.options) {
+  ScheduledScreenshotRecorder(ScheduledScreenshotRecorderConfig config,
+      this._callback, SentryFlutterOptions options)
+      : super(config, options) {
+    assert(config.frameRate > 0);
     final frameDuration = Duration(milliseconds: 1000 ~/ config.frameRate);
     _scheduler = Scheduler(frameDuration, _capture,
         options.bindingUtils.instance!.addPostFrameCallback);

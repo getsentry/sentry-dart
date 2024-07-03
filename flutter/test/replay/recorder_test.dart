@@ -7,7 +7,7 @@ import 'dart:ui';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:sentry_flutter/src/replay/scheduled_recorder.dart';
+import 'package:sentry_flutter/src/replay/recorder.dart';
 import 'package:sentry_flutter/src/replay/recorder_config.dart';
 
 import '../mocks.dart';
@@ -18,46 +18,31 @@ void main() async {
 
   testWidgets('captures images', (tester) async {
     final fixture = await _Fixture.create(tester);
-    expect(fixture.capturedImages, isEmpty);
-    await fixture.nextFrame();
-    expect(fixture.capturedImages, ['1000x750']);
-    await fixture.nextFrame();
-    expect(fixture.capturedImages, ['1000x750', '1000x750']);
-    final stopFuture = fixture.sut.stop();
-    await fixture.nextFrame();
-    await stopFuture;
-    expect(fixture.capturedImages, ['1000x750', '1000x750']);
+    expect(fixture.capture(), completion('800x600'));
   });
 }
 
 class _Fixture {
-  final WidgetTester _tester;
-  late final ScheduledScreenshotRecorder sut;
-  final capturedImages = <String>[];
+  late final ScreenshotRecorder sut;
 
-  _Fixture._(this._tester) {
-    sut = ScheduledScreenshotRecorder(
-      ScreenshotRecorderConfig(
-        width: 1000,
-        height: 1000,
-        frameRate: 1000,
-      ),
-      (Image image) async {
-        capturedImages.add("${image.width}x${image.height}");
-      },
+  _Fixture._() {
+    sut = ScreenshotRecorder(
+      ScreenshotRecorderConfig(),
       SentryFlutterOptions()..bindingUtils = TestBindingWrapper(),
     );
   }
 
   static Future<_Fixture> create(WidgetTester tester) async {
-    final fixture = _Fixture._(tester);
+    final fixture = _Fixture._();
     await pumpTestElement(tester);
-    fixture.sut.start();
     return fixture;
   }
 
-  Future<void> nextFrame() async {
-    _tester.binding.scheduleFrame();
-    await _tester.pumpAndSettle(const Duration(seconds: 1));
+  Future<String?> capture() async {
+    String? captured;
+    await sut.capture((Image image) async {
+      captured = "${image.width}x${image.height}";
+    });
+    return captured;
   }
 }

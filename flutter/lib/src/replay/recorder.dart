@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/rendering.dart';
@@ -48,12 +47,12 @@ class ScreenshotRecorder {
     try {
       final watch = Stopwatch()..start();
 
-      // The desired resolution (coming from the configuration) is usually
-      // rounded to next multitude of 16. Therefore, we scale the image.
+      // On Android, the desired resolution (coming from the configuration)
+      // is rounded to next multitude of 16 . Therefore, we scale the image.
+      // On iOS, the screenshot resolution is not adjusted.
       final srcWidth = renderObject.size.width;
       final srcHeight = renderObject.size.height;
-      final pixelRatio =
-          min(config.width / srcWidth, config.height / srcHeight);
+      final pixelRatio = config.getPixelRatio(srcWidth, srcHeight);
 
       // First, we synchronously capture the image and enumerate widgets on the main UI loop.
       final futureImage = renderObject.toImage(pixelRatio: pixelRatio);

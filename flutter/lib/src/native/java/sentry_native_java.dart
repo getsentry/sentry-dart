@@ -37,7 +37,7 @@ class SentryNativeJava extends SentryNativeChannel {
 
             _startRecorder(
               call.arguments['directory'] as String,
-              ScreenshotRecorderConfig(
+              ScheduledScreenshotRecorderConfig(
                 width: call.arguments['width'] as int,
                 height: call.arguments['height'] as int,
                 frameRate: call.arguments['frameRate'] as int,
@@ -75,7 +75,7 @@ class SentryNativeJava extends SentryNativeChannel {
     return super.init(options);
   }
 
-  void _startRecorder(String cacheDir, ScreenshotRecorderConfig config) {
+  void _startRecorder(String cacheDir, ScheduledScreenshotRecorderConfig config) {
     // Note: time measurements using a Stopwatch in a debug build:
     //     save as rawRgba (1230876 bytes): 0.257 ms  -- discarded
     //     save as PNG (25401 bytes): 43.110 ms  -- used for the final image
