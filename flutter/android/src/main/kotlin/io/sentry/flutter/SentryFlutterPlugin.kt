@@ -356,7 +356,9 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     if (args.isNotEmpty()) {
       val event = args.first() as ByteArray?
       if (event != null && event.isNotEmpty()) {
-        val id = InternalSentrySdk.captureEnvelope(event)
+        // Flutter event do not crash the application, we always want a new session to start
+        // after event with exception.handled = false
+        val id = InternalSentrySdk.captureEnvelope(event, true)
         if (id != null) {
           result.success("")
         } else {
