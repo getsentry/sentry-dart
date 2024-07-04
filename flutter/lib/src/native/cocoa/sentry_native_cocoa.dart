@@ -45,6 +45,9 @@ class SentryNativeCocoa extends SentryNativeChannel {
                     '${image.width}x${image.height} pixels, '
                     '${imageData.lengthInBytes} bytes)');
                 imageBytes = imageData.buffer.asUint8List();
+              } else {
+                options.logger(SentryLevel.warning,
+                    'Replay: failed to convert screenshot to PNG');
               }
             });
             return imageBytes;
