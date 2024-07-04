@@ -1,3 +1,5 @@
 dependency_overrides:
   sentry:
     path: ../dart
+  # Temporary, see https://github.com/cfug/dio/issues/2266
+  dio: 5.4.3+1
