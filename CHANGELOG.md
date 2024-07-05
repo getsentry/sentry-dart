@@ -278,6 +278,7 @@ This release is replaced by `8.0.0-beta.2`
     - Method `hint.addAll(Map<String, dynamic> keysAndValues)` now takes `Map<String, dynamic>` instead of `Map<String, Object>`
     - Method `set(String key, dynamic value)` now takes value of `dynamic` instead of `Object`
     - Method `hint.get(String key)` now returns `dynamic` instead of `Object?`
+- Add `blocked_main_thread` to sync file spans ([#1801](https://github.com/getsentry/sentry-dart/pull/1801))
 
 ### Dependencies
 
