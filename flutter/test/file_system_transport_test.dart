@@ -39,7 +39,7 @@ void main() {
   });
 
   test('$FileSystemTransport returns emptyId if channel throws', () async {
-    when(fixture.binding.captureEnvelope(any)).thenThrow(Exception());
+    when(fixture.binding.captureEnvelope(any, false)).thenThrow(Exception());
 
     final transport = fixture.getSut();
     final event = SentryEvent();
@@ -70,7 +70,7 @@ void main() {
     );
     await transport.send(envelope);
 
-    final envelopeData = verify(fixture.binding.captureEnvelope(captureAny))
+    final envelopeData = verify(fixture.binding.captureEnvelope(captureAny, false))
         .captured
         .single as Uint8List;
     final envelopeString = utf8.decode(envelopeData);
