@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Support `ignoredExceptionsForType` ([#2150](https://github.com/getsentry/sentry-dart/pull/2150))
+
 ### Fixes
 
 - App starts hanging for 30s ([#2140](https://github.com/getsentry/sentry-dart/pull/2140))
