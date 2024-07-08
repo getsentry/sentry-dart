@@ -16,7 +16,7 @@ abstract class SentryNativeBinding {
 
   Future<NativeAppStart?> fetchNativeAppStart();
 
-  Future<void> captureEnvelope(Uint8List envelopeData, bool isUnhandledException);
+  Future<void> captureEnvelope(Uint8List envelopeData, bool containsUnhandledException);
 
   Future<void> beginNativeFrames();
 
