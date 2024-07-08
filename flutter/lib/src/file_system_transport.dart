@@ -19,7 +19,7 @@ class FileSystemTransport implements Transport {
     await envelope.envelopeStream(_options).forEach(envelopeData.addAll);
     try {
       // TODO avoid copy
-      await _native.captureEnvelope(Uint8List.fromList(envelopeData));
+      await _native.captureEnvelope(Uint8List.fromList(envelopeData), envelope.containsUnhandledException);
     } catch (exception, stackTrace) {
       _options.logger(
         SentryLevel.error,
