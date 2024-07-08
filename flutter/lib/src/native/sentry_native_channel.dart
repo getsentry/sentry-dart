@@ -182,4 +182,12 @@ class SentryNativeChannel
   @override
   Future<int?> displayRefreshRate() =>
       _channel.invokeMethod('displayRefreshRate');
+
+  @override
+  Future<void> pauseAppHangTracking() =>
+      _channel.invokeMethod('pauseAppHangTracking');
+
+  @override
+  Future<void> resumeAppHangTracking() =>
+      _channel.invokeMethod('resumeAppHangTracking');
 }
