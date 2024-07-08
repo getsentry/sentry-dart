@@ -83,6 +83,16 @@ class SentryClient {
     dynamic stackTrace,
     Hint? hint,
   }) async {
+    if (_options.containsIgnoredExceptionForType(event.throwable)) {
+      _options.logger(
+        SentryLevel.debug,
+        'Event was dropped as the exception ${event.throwable.runtimeType.toString()} is ignored.',
+      );
+
+      _recordLostEvent(event, DiscardReason.eventProcessor);
+      return _sentryId;
+    }
+
     if (_sampleRate()) {
       _recordLostEvent(event, DiscardReason.sampleRate);
       _options.logger(

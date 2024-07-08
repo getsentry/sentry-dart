@@ -1032,6 +1032,40 @@ void main() {
     });
   });
 
+  group('SentryClient ignored exceptions', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    test('addExceptionFilterForType drops matching error event throwable',
+        () async {
+      fixture.options.addExceptionFilterForType(ExceptionWithCause);
+
+      final throwable = ExceptionWithCause(Error(), StackTrace.current);
+      final event = SentryEvent(throwable: throwable);
+
+      final client = fixture.getSut();
+      await client.captureEvent(event);
+
+      expect((fixture.transport).called(0), true);
+    });
+
+    test('record ignored exceptions dropping event', () async {
+      fixture.options.addExceptionFilterForType(ExceptionWithCause);
+
+      final throwable = ExceptionWithCause(Error(), StackTrace.current);
+      final event = SentryEvent(throwable: throwable);
+
+      final client = fixture.getSut();
+      await client.captureEvent(event);
+
+      expect(fixture.recorder.reason, DiscardReason.eventProcessor);
+      expect(fixture.recorder.category, DataCategory.error);
+    });
+  });
+
   group('SentryClient before send transaction', () {
     late Fixture fixture;
 
