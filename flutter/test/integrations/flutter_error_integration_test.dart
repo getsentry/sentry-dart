@@ -18,7 +18,8 @@ void main() {
     void _mockValues() {
       when(fixture.hub.configureScope(captureAny)).thenAnswer((_) {});
 
-      when(fixture.hub.captureEvent(captureAny, hint: anyNamed('hint')))
+      when(fixture.hub.captureEvent(captureAny,
+              hint: anyNamed('hint'), stackTrace: anyNamed('stackTrace')))
           .thenAnswer((_) => Future.value(SentryId.empty()));
 
       when(fixture.hub.options).thenReturn(fixture.options);
@@ -63,7 +64,11 @@ void main() {
       _reportError(exception: exception);
 
       final event = verify(
-        await fixture.hub.captureEvent(captureAny, hint: anyNamed('hint')),
+        await fixture.hub.captureEvent(
+          captureAny,
+          hint: anyNamed('hint'),
+          stackTrace: anyNamed('stackTrace'),
+        ),
       ).captured.first as SentryEvent;
 
       expect(event.level, SentryLevel.fatal);
@@ -95,7 +100,8 @@ void main() {
       _reportError(exception: StateError('error'), optionalDetails: details);
 
       final event = verify(
-        await fixture.hub.captureEvent(captureAny, hint: anyNamed('hint')),
+        await fixture.hub.captureEvent(captureAny,
+            hint: anyNamed('hint'), stackTrace: anyNamed('stackTrace')),
       ).captured.first as SentryEvent;
 
       expect(event.level, SentryLevel.fatal);
@@ -119,7 +125,8 @@ void main() {
       _reportError(exception: StateError('error'), optionalDetails: details);
 
       final event = verify(
-        await fixture.hub.captureEvent(captureAny, hint: anyNamed('hint')),
+        await fixture.hub.captureEvent(captureAny,
+            hint: anyNamed('hint'), stackTrace: anyNamed('stackTrace')),
       ).captured.first as SentryEvent;
 
       expect(event.level, SentryLevel.fatal);
@@ -141,7 +148,9 @@ void main() {
       _reportError(handler: defaultError);
 
       verify(
-          await fixture.hub.captureEvent(captureAny, hint: anyNamed('hint')));
+        await await fixture.hub.captureEvent(captureAny,
+            hint: anyNamed('hint'), stackTrace: anyNamed('stackTrace')),
+      );
 
       expect(called, true);
     });
@@ -166,8 +175,10 @@ void main() {
 
       FlutterError.reportError(details);
 
-      verify(await fixture.hub.captureEvent(captureAny, hint: anyNamed('hint')))
-          .called(1);
+      verify(
+        await await fixture.hub.captureEvent(captureAny,
+            hint: anyNamed('hint'), stackTrace: anyNamed('stackTrace')),
+      ).called(1);
 
       expect(numberOfDefaultCalls, 1);
     });
@@ -211,7 +222,9 @@ void main() {
       _reportError(silent: true);
 
       verify(
-          await fixture.hub.captureEvent(captureAny, hint: anyNamed('hint')));
+        await await fixture.hub.captureEvent(captureAny,
+            hint: anyNamed('hint'), stackTrace: anyNamed('stackTrace')),
+      );
     });
 
     test('adds integration', () {
@@ -255,7 +268,8 @@ void main() {
       _reportError(exception: exception);
 
       final event = verify(
-        await fixture.hub.captureEvent(captureAny, hint: anyNamed('hint')),
+        await fixture.hub.captureEvent(captureAny,
+            hint: anyNamed('hint'), stackTrace: anyNamed('stackTrace')),
       ).captured.first as SentryEvent;
 
       expect(event.level, SentryLevel.error);
