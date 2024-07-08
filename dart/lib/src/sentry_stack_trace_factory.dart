@@ -4,7 +4,7 @@ import 'package:stack_trace/stack_trace.dart';
 import 'origin.dart';
 import 'protocol.dart';
 import 'sentry_options.dart';
-
+O
 /// converts [StackTrace] to [SentryStackFrame]s
 class SentryStackTraceFactory {
   final SentryOptions _options;
