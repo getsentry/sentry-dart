@@ -13,7 +13,8 @@ import 'sentry_user_feedback.dart';
 
 /// Class representation of `Envelope` file.
 class SentryEnvelope {
-  SentryEnvelope(this.header, this.items, {this.containsUnhandledException = false});
+  SentryEnvelope(this.header, this.items,
+      {this.containsUnhandledException = false});
 
   /// Header describing envelope content.
   final SentryEnvelopeHeader header;

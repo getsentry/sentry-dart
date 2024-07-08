@@ -70,9 +70,10 @@ void main() {
     );
     await transport.send(envelope);
 
-    final envelopeData = verify(fixture.binding.captureEnvelope(captureAny, false))
-        .captured
-        .single as Uint8List;
+    final envelopeData =
+        verify(fixture.binding.captureEnvelope(captureAny, false))
+            .captured
+            .single as Uint8List;
     final envelopeString = utf8.decode(envelopeData);
     final lines = envelopeString.split('\n');
     final envelopeHeader = lines.first;
