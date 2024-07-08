@@ -33,8 +33,15 @@ class SentryEnvelope {
     SentryTraceContextHeader? traceContext,
     List<SentryAttachment>? attachments,
   }) {
-    final isUnhandledException =
-        event.exceptions?.first.mechanism?.handled == false;
+    bool containsUnhandledException = false;
+
+    if (event.exceptions != null && event.exceptions!.isNotEmpty) {
+      // Check all exceptions for any unhandled ones
+      containsUnhandledException = event.exceptions!.any((exception) {
+        return exception.mechanism?.handled == false;
+      });
+    }
+
     return SentryEnvelope(
       SentryEnvelopeHeader(
         event.eventId,
@@ -47,7 +54,7 @@ class SentryEnvelope {
         if (attachments != null)
           ...attachments.map((e) => SentryEnvelopeItem.fromAttachment(e))
       ],
-      containsUnhandledException: isUnhandledException,
+      containsUnhandledException: containsUnhandledException,
     );
   }
 
