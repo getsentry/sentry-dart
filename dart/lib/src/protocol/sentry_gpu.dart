@@ -12,6 +12,8 @@
 
 import 'package:meta/meta.dart';
 
+import 'unknown.dart';
+
 /// GPU context describes the GPU of the device.
 @immutable
 class SentryGpu {
@@ -65,6 +67,9 @@ class SentryGpu {
   /// Whether ray tracing is available on the device.
   final bool? supportsRayTracing;
 
+  @internal
+  final Map<String, dynamic>? unknown;
+
   const SentryGpu({
     this.name,
     this.id,
@@ -81,6 +86,7 @@ class SentryGpu {
     this.supportsDrawCallInstancing,
     this.supportsGeometryShaders,
     this.supportsRayTracing,
+    this.unknown,
   });
 
   /// Deserializes a [SentryGpu] from JSON [Map].
@@ -100,6 +106,23 @@ class SentryGpu {
         supportsDrawCallInstancing: data['supports_draw_call_instancing'],
         supportsGeometryShaders: data['supports_geometry_shaders'],
         supportsRayTracing: data['supports_ray_tracing'],
+        unknown: unknownFrom(data, {
+          'name',
+          'id',
+          'vendor_id',
+          'vendor_name',
+          'memory_size',
+          'api_type',
+          'multi_threaded_rendering',
+          'version',
+          'npot_support',
+          'graphics_shader_level',
+          'max_texture_size',
+          'supports_compute_shaders',
+          'supports_draw_call_instancing',
+          'supports_geometry_shaders',
+          'supports_ray_tracing',
+        }),
       );
 
   SentryGpu clone() => SentryGpu(
@@ -118,11 +141,12 @@ class SentryGpu {
         supportsDrawCallInstancing: supportsDrawCallInstancing,
         supportsGeometryShaders: supportsGeometryShaders,
         supportsRayTracing: supportsRayTracing,
+        unknown: unknown,
       );
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
-    return <String, dynamic>{
+    final json = <String, dynamic>{
       if (name != null) 'name': name,
       if (id != null) 'id': id,
       if (vendorId != null) 'vendor_id': vendorId,
@@ -145,6 +169,8 @@ class SentryGpu {
       if (supportsRayTracing != null)
         'supports_ray_tracing': supportsRayTracing,
     };
+    json.addAll(unknown ?? {});
+    return json;
   }
 
   SentryGpu copyWith({
@@ -184,5 +210,6 @@ class SentryGpu {
         supportsGeometryShaders:
             supportsGeometryShaders ?? this.supportsGeometryShaders,
         supportsRayTracing: supportsRayTracing ?? this.supportsRayTracing,
+        unknown: unknown,
       );
 }
