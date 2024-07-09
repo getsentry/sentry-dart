@@ -404,7 +404,7 @@ class SentryClient {
     SentryEvent event,
     Hint hint,
   ) async {
-    SentryEvent? eventOrTransaction = event;
+    SentryEvent? processedEvent = event;
     final spanCountBeforeCallback =
         event is SentryTransaction ? event.spans.length : 0;
 
@@ -415,18 +415,18 @@ class SentryClient {
     try {
       if (event is SentryTransaction && beforeSendTransaction != null) {
         beforeSendName = 'beforeSendTransaction';
-        final e = beforeSendTransaction(event);
-        if (e is Future<SentryTransaction?>) {
-          eventOrTransaction = await e;
+        final callbackResult = beforeSendTransaction(event);
+        if (callbackResult is Future<SentryTransaction?>) {
+          processedEvent = await callbackResult;
         } else {
-          eventOrTransaction = e;
+          processedEvent = callbackResult;
         }
       } else if (beforeSend != null) {
-        final e = beforeSend(event, hint);
-        if (e is Future<SentryEvent?>) {
-          eventOrTransaction = await e;
+        final callbackResult = beforeSend(event, hint);
+        if (callbackResult is Future<SentryEvent?>) {
+          processedEvent = await callbackResult;
         } else {
-          eventOrTransaction = e;
+          processedEvent = callbackResult;
         }
       }
     } catch (exception, stackTrace) {
@@ -441,7 +441,7 @@ class SentryClient {
       }
     }
 
-    if (eventOrTransaction == null) {
+    if (processedEvent == null) {
       _options.recorder
           .recordLostEvent(DiscardReason.beforeSend, _getCategory(event));
       if (event is SentryTransaction) {
@@ -455,9 +455,9 @@ class SentryClient {
         '${event.runtimeType} was dropped by $beforeSendName callback',
       );
     } else if (event is SentryTransaction &&
-        eventOrTransaction is SentryTransaction) {
-      // If beforeSend removed spans but not all we still record them as lost
-      final spanCountAfterCallback = eventOrTransaction.spans.length;
+        processedEvent is SentryTransaction) {
+      // If beforeSend removed only some spans we still report them as dropped
+      final spanCountAfterCallback = processedEvent.spans.length;
       final droppedSpanCount = spanCountBeforeCallback - spanCountAfterCallback;
       if (droppedSpanCount > 0) {
         _options.recorder.recordLostEvent(
@@ -466,7 +466,7 @@ class SentryClient {
       }
     }
 
-    return eventOrTransaction;
+    return processedEvent;
   }
 
   Future<SentryEvent?> _runEventProcessors(
