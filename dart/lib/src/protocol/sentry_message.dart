@@ -1,5 +1,7 @@
 import 'package:meta/meta.dart';
 
+import 'unknown.dart';
+
 /// The Message Interface carries a log message that describes an event or error.
 /// Optionally, it can carry a format string and structured parameters. This can help to group similar messages into the same issue.
 /// example of a serialized message:
@@ -23,24 +25,33 @@ class SentryMessage {
   /// A list of formatting parameters, preferably strings. Non-strings will be coerced to strings.
   final List<dynamic>? params;
 
-  const SentryMessage(this.formatted, {this.template, this.params});
+  @internal
+  final Map<String, dynamic>? unknown;
+
+  const SentryMessage(
+    this.formatted, {
+    this.template,
+    this.params,
+    this.unknown,
+  });
 
   /// Deserializes a [SentryMessage] from JSON [Map].
   factory SentryMessage.fromJson(Map<String, dynamic> json) {
-    return SentryMessage(
-      json['formatted'],
-      template: json['message'],
-      params: json['params'],
-    );
+    return SentryMessage(json['formatted'],
+        template: json['message'],
+        params: json['params'],
+        unknown: unknownFrom(json, {'formatted', 'message', 'params'}));
   }
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
-    return {
+    final json = <String, dynamic>{
       'formatted': formatted,
       if (template != null) 'message': template,
       if (params?.isNotEmpty ?? false) 'params': params,
     };
+    json.addAll(unknown ?? {});
+    return json;
   }
 
   SentryMessage copyWith({
@@ -52,5 +63,6 @@ class SentryMessage {
         formatted ?? this.formatted,
         template: template ?? this.template,
         params: params ?? this.params,
+        unknown: unknown,
       );
 }
