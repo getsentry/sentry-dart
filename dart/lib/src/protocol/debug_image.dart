@@ -1,5 +1,7 @@
 import 'package:meta/meta.dart';
 
+import 'unknown.dart';
+
 /// The list of debug images contains all dynamic libraries loaded into
 /// the process and their memory addresses.
 /// Instruction addresses in the Stack Trace are mapped into the list of debug
@@ -51,6 +53,9 @@ class DebugImage {
   /// MachO CPU type identifier.
   final int? cpuType;
 
+  @internal
+  final Map<String, dynamic>? unknown;
+
   const DebugImage({
     required this.type,
     this.name,
@@ -65,6 +70,7 @@ class DebugImage {
     this.codeId,
     this.cpuType,
     this.cpuSubtype,
+    this.unknown,
   });
 
   /// Deserializes a [DebugImage] from JSON [Map].
@@ -83,12 +89,27 @@ class DebugImage {
       codeId: json['code_id'],
       cpuType: json['cpu_type'],
       cpuSubtype: json['cpu_subtype'],
+      unknown: unknownFrom(json, {
+        'type',
+        'name',
+        'image_addr',
+        'image_vmaddr',
+        'debug_id',
+        'debug_file',
+        'image_size',
+        'uuid',
+        'code_file',
+        'arch',
+        'code_id',
+        'cpu_type',
+        'cpu_subtype',
+      }),
     );
   }
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
-    return {
+    final json = {
       'type': type,
       if (uuid != null) 'uuid': uuid,
       if (debugId != null) 'debug_id': debugId,
@@ -103,6 +124,8 @@ class DebugImage {
       if (cpuType != null) 'cpu_type': cpuType,
       if (cpuSubtype != null) 'cpu_subtype': cpuSubtype,
     };
+    json.addAll(unknown ?? {});
+    return json;
   }
 
   DebugImage copyWith({
@@ -134,5 +157,6 @@ class DebugImage {
         codeId: codeId ?? this.codeId,
         cpuType: cpuType ?? this.cpuType,
         cpuSubtype: cpuSubtype ?? this.cpuSubtype,
+        unknown: unknown,
       );
 }
