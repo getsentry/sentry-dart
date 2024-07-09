@@ -1,5 +1,6 @@
 import 'package:meta/meta.dart';
 import '../sentry_options.dart';
+import 'unknown.dart';
 
 /// If a device is on portrait or landscape mode
 enum SentryOrientation { portrait, landscape }
@@ -46,6 +47,7 @@ class SentryDevice {
     this.supportsGyroscope,
     this.supportsAudio,
     this.supportsLocationService,
+    this.unknown,
   }) : assert(
           batteryLevel == null || (batteryLevel >= 0 && batteryLevel <= 100),
         );
@@ -171,6 +173,9 @@ class SentryDevice {
   /// Optional. Is the device capable of reporting its location?
   final bool? supportsLocationService;
 
+  @internal
+  final Map<String, dynamic>? unknown;
+
   /// Deserializes a [SentryDevice] from JSON [Map].
   factory SentryDevice.fromJson(Map<String, dynamic> data) => SentryDevice(
         name: data['name'],
@@ -217,11 +222,49 @@ class SentryDevice {
         supportsGyroscope: data['supports_gyroscope'],
         supportsAudio: data['supports_audio'],
         supportsLocationService: data['supports_location_service'],
+        unknown: unknownFrom(data, {
+          'name',
+          'family',
+          'model',
+          'model_id',
+          'arch',
+          'battery_level',
+          'orientation',
+          'manufacturer',
+          'brand',
+          'screen_height_pixels',
+          'screen_width_pixels',
+          'screen_density',
+          'screen_dpi',
+          'online',
+          'charging',
+          'low_memory',
+          'simulator',
+          'memory_size',
+          'free_memory',
+          'usable_memory',
+          'storage_size',
+          'free_storage',
+          'external_storage_size',
+          'external_free_storage',
+          'boot_time',
+          'processor_count',
+          'cpu_description',
+          'processor_frequency',
+          'device_type',
+          'battery_status',
+          'device_unique_identifier',
+          'supports_vibration',
+          'supports_accelerometer',
+          'supports_gyroscope',
+          'supports_audio',
+          'supports_location_service',
+        }),
       );
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
-    return <String, dynamic>{
+    final json = <String, dynamic>{
       if (name != null) 'name': name,
       if (family != null) 'family': family,
       if (model != null) 'model': model,
@@ -265,6 +308,8 @@ class SentryDevice {
       if (supportsLocationService != null)
         'supports_location_service': supportsLocationService,
     };
+    json.addAll(unknown ?? {});
+    return json;
   }
 
   SentryDevice clone() => SentryDevice(
@@ -304,6 +349,7 @@ class SentryDevice {
         supportsGyroscope: supportsGyroscope,
         supportsAudio: supportsAudio,
         supportsLocationService: supportsLocationService,
+        unknown: unknown,
       );
 
   SentryDevice copyWith({
@@ -384,5 +430,6 @@ class SentryDevice {
         supportsAudio: supportsAudio ?? this.supportsAudio,
         supportsLocationService:
             supportsLocationService ?? this.supportsLocationService,
+        unknown: unknown,
       );
 }
