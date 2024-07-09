@@ -2,6 +2,7 @@ import 'package:meta/meta.dart';
 
 import '../utils.dart';
 import '../protocol.dart';
+import 'unknown.dart';
 
 /// Structured data to describe more information prior to the event captured.
 /// See `Sentry.captureEvent()`.
@@ -162,15 +163,6 @@ class Breadcrumb {
 
   /// Deserializes a [Breadcrumb] from JSON [Map].
   factory Breadcrumb.fromJson(Map<String, dynamic> json) {
-    final knownKeys = <String>{
-      'level',
-      'timestamp',
-      'data',
-      'message',
-      'category',
-      'type',
-    };
-
     final levelName = json['level'];
     final timestamp = json['timestamp'];
 
@@ -178,14 +170,6 @@ class Breadcrumb {
     if (data != null) {
       data = Map<String, dynamic>.from(data as Map);
     }
-
-    final unknown = json.keys
-        .where((key) => !knownKeys.contains(key))
-        .fold<Map<String, dynamic>>({}, (map, key) {
-      map[key] = json[key];
-      return map;
-    });
-
     return Breadcrumb(
       timestamp: timestamp != null ? DateTime.tryParse(timestamp) : null,
       message: json['message'],
@@ -193,7 +177,14 @@ class Breadcrumb {
       data: data,
       level: levelName != null ? SentryLevel.fromName(levelName) : null,
       type: json['type'],
-      unknown: unknown.isNotEmpty ? unknown : null,
+      unknown: unknownFrom(json, {
+        'level',
+        'timestamp',
+        'data',
+        'message',
+        'category',
+        'type',
+      }),
     );
   }
 
