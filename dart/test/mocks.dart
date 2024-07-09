@@ -184,6 +184,12 @@ class MockRateLimiter implements RateLimiter {
   }
 }
 
+final Map<String, dynamic> testUnknown = {
+  'unknown-string': 'foo',
+  'unknown-bool': true,
+  'unknown-num': 9001,
+};
+
 @GenerateMocks([
   SentryProfilerFactory,
   SentryProfiler,

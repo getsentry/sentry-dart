@@ -2,23 +2,20 @@ import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 
+import '../mocks.dart';
+
 void main() {
   final timestamp = DateTime.now();
 
-  final Map<String, dynamic> unknown = {
-    'unknown-string': 'foo',
-    'unknown-bool': true,
-    'unknown-num': 9001,
-  };
-
   final breadcrumb = Breadcrumb(
-      message: 'message',
-      timestamp: timestamp,
-      data: {'key': 'value'},
-      level: SentryLevel.warning,
-      category: 'category',
-      type: 'type',
-      unknown: unknown);
+    message: 'message',
+    timestamp: timestamp,
+    data: {'key': 'value'},
+    level: SentryLevel.warning,
+    category: 'category',
+    type: 'type',
+    unknown: testUnknown,
+  );
 
   final breadcrumbJson = <String, dynamic>{
     'timestamp': formatDateAsIso8601WithMillisPrecision(timestamp),
@@ -28,7 +25,7 @@ void main() {
     'level': 'warning',
     'type': 'type',
   };
-  breadcrumbJson.addAll(unknown);
+  breadcrumbJson.addAll(testUnknown);
 
   group('json', () {
     test('toJson', () {
