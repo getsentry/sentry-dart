@@ -1,6 +1,7 @@
 import 'package:meta/meta.dart';
 
 import '../protocol.dart';
+import 'unknown.dart';
 
 /// The debug meta interface carries debug information for processing errors and crash reports.
 @immutable
@@ -16,7 +17,11 @@ class DebugMeta {
   /// images in order to retrieve debug files for symbolication.
   List<DebugImage> get images => List.unmodifiable(_images ?? const []);
 
-  DebugMeta({this.sdk, List<DebugImage>? images}) : _images = images;
+  DebugMeta({this.sdk, List<DebugImage>? images, this.unknown})
+      : _images = images;
+
+  @internal
+  final Map<String, dynamic>? unknown;
 
   /// Deserializes a [DebugMeta] from JSON [Map].
   factory DebugMeta.fromJson(Map<String, dynamic> json) {
@@ -28,13 +33,14 @@ class DebugMeta {
           ?.map((debugImageJson) =>
               DebugImage.fromJson(debugImageJson as Map<String, dynamic>))
           .toList(),
+      unknown: unknownFrom(json, {'sdk_info', 'images'}),
     );
   }
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
     final sdkInfo = sdk?.toJson();
-    return {
+    final json = {
       if (sdkInfo?.isNotEmpty ?? false) 'sdk_info': sdkInfo,
       if (_images?.isNotEmpty ?? false)
         'images': _images!
@@ -42,6 +48,8 @@ class DebugMeta {
             .where((element) => element.isNotEmpty)
             .toList(growable: false)
     };
+    json.addAll(unknown ?? {});
+    return json;
   }
 
   DebugMeta copyWith({
@@ -51,5 +59,6 @@ class DebugMeta {
       DebugMeta(
         sdk: sdk ?? this.sdk,
         images: images ?? _images,
+        unknown: unknown,
       );
 }
