@@ -7,6 +7,8 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry/src/version.dart';
 import 'package:test/test.dart';
 
+import 'mocks.dart';
+
 void main() {
   group('deserialize', () {
     final sentryId = SentryId.empty();
@@ -60,6 +62,7 @@ void main() {
       },
       'type': 'type',
     };
+    sentryEventJson.addAll(testUnknown);
 
     final emptyFieldsSentryEventJson = <String, dynamic>{
       'event_id': sentryId.toString(),
@@ -105,6 +108,7 @@ void main() {
       expect(sentryEvent.request, isNull);
       expect(sentryEvent.debugMeta, isNull);
       expect(sentryEvent.type, isNull);
+      expect(sentryEvent.unknown, isNull);
     });
   });
 
@@ -184,52 +188,56 @@ void main() {
 
       expect(
         SentryEvent(
-          eventId: SentryId.empty(),
-          timestamp: timestamp,
-          platform: sdkPlatform(platformChecker.isWeb),
-          message: SentryMessage(
-            'test-message 1 2',
-            template: 'test-message %d %d',
-            params: ['1', '2'],
-          ),
-          transaction: '/test/1',
-          level: SentryLevel.debug,
-          culprit: 'Professor Moriarty',
-          tags: const <String, String>{
-            'a': 'b',
-            'c': 'd',
-          },
-          // ignore: deprecated_member_use_from_same_package
-          extra: const <String, dynamic>{
-            'e': 'f',
-            'g': 2,
-          },
-          fingerprint: const <String>[SentryEvent.defaultFingerprint, 'foo'],
-          user: user,
-          breadcrumbs: breadcrumbs,
-          request: request,
-          debugMeta: DebugMeta(
-            sdk: SdkInfo(
-              sdkName: 'sentry.dart',
-              versionMajor: 4,
-              versionMinor: 1,
-              versionPatchlevel: 2,
-            ),
-            images: const <DebugImage>[
-              DebugImage(
-                type: 'macho',
-                debugId: '84a04d24-0e60-3810-a8c0-90a65e2df61a',
-                debugFile: 'libDiagnosticMessagesClient.dylib',
-                codeFile: '/usr/lib/libDiagnosticMessagesClient.dylib',
-                imageAddr: '0x7fffe668e000',
-                imageSize: 8192,
-                arch: 'x86_64',
-                codeId: '123',
-              )
-            ],
-          ),
-          type: 'type',
-        ).toJson(),
+                eventId: SentryId.empty(),
+                timestamp: timestamp,
+                platform: sdkPlatform(platformChecker.isWeb),
+                message: SentryMessage(
+                  'test-message 1 2',
+                  template: 'test-message %d %d',
+                  params: ['1', '2'],
+                ),
+                transaction: '/test/1',
+                level: SentryLevel.debug,
+                culprit: 'Professor Moriarty',
+                tags: const <String, String>{
+                  'a': 'b',
+                  'c': 'd',
+                },
+                // ignore: deprecated_member_use_from_same_package
+                extra: const <String, dynamic>{
+                  'e': 'f',
+                  'g': 2,
+                },
+                fingerprint: const <String>[
+                  SentryEvent.defaultFingerprint,
+                  'foo'
+                ],
+                user: user,
+                breadcrumbs: breadcrumbs,
+                request: request,
+                debugMeta: DebugMeta(
+                  sdk: SdkInfo(
+                    sdkName: 'sentry.dart',
+                    versionMajor: 4,
+                    versionMinor: 1,
+                    versionPatchlevel: 2,
+                  ),
+                  images: const <DebugImage>[
+                    DebugImage(
+                      type: 'macho',
+                      debugId: '84a04d24-0e60-3810-a8c0-90a65e2df61a',
+                      debugFile: 'libDiagnosticMessagesClient.dylib',
+                      codeFile: '/usr/lib/libDiagnosticMessagesClient.dylib',
+                      imageAddr: '0x7fffe668e000',
+                      imageSize: 8192,
+                      arch: 'x86_64',
+                      codeId: '123',
+                    )
+                  ],
+                ),
+                type: 'type',
+                unknown: testUnknown)
+            .toJson(),
         <String, dynamic>{
           'platform': platformChecker.isWeb ? 'javascript' : 'other',
           'event_id': '00000000000000000000000000000000',
@@ -286,7 +294,7 @@ void main() {
             ]
           },
           'type': 'type',
-        },
+        }..addAll(testUnknown),
       );
     });
 
