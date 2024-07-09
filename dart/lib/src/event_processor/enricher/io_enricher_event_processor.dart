@@ -51,21 +51,29 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
     );
   }
 
+  /// Extracts the version from the full version string.
+  /// Example of full version string:
+  /// 3.5.0-180.3.beta (beta) (Wed Jun 5 15:06:15 2024 +0000) on "android_arm64"
+  String _extractVersionWithChannel(String fullVersion) {
+    List<String> parts = fullVersion.split(') ');
+
+    // If there's at least one ')', return the first part plus ')'
+    if (parts.length > 1) {
+      return '${parts[0]})';
+    }
+
+    // If there's no ')', return the whole string (shouldn't happen with given format)
+    return fullVersion;
+  }
+
   List<SentryRuntime> _getRuntimes(List<SentryRuntime>? runtimes) {
     // Pure Dart doesn't have specific runtimes per build mode
     // like Flutter: https://flutter.dev/docs/testing/build-modes
 
-    // Regex taken from semver package
-    final versionRegex = RegExp(r'^' // Start at beginning.
-        r'(\d+)\.(\d+)\.(\d+)' // Version number.
-        r'(-([0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*))?' // Pre-release.
-        r'(\+([0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*))?' // Build.
-        r' \((beta|stable)\)'); // Channel.
-    final version = versionRegex.stringMatch(Platform.version);
-
+    final version = _extractVersionWithChannel(Platform.version);
     SentryRuntime dartRuntime = SentryRuntime(
       name: 'Dart',
-      version: version ?? Platform.version,
+      version: version,
       rawDescription: Platform.version,
     );
     if (runtimes == null) {
