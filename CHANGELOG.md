@@ -5,6 +5,8 @@
 ### Features
 
 - Support `ignoredExceptionsForType` ([#2150](https://github.com/getsentry/sentry-dart/pull/2150))
+- Add memory usage to contexts ([#2133](https://github.com/getsentry/sentry-dart/pull/2133))
+  - Only for Linux/Windows applications, as iOS/Android/macOS use native SDKs
 
 ### Fixes
 
