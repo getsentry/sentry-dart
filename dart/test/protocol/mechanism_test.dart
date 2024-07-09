@@ -2,6 +2,8 @@ import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 
+import '../mocks.dart';
+
 void main() {
   final mechanism = Mechanism(
     type: 'type',
@@ -15,6 +17,7 @@ void main() {
     exceptionId: 0,
     parentId: 0,
     source: 'source',
+    unknown: testUnknown,
   );
 
   final mechanismJson = <String, dynamic>{
@@ -30,6 +33,7 @@ void main() {
     'exception_id': 0,
     'parent_id': 0,
   };
+  mechanismJson.addAll(testUnknown);
 
   group('json', () {
     test('toJson', () {
