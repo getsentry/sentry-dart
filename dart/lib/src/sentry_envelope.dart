@@ -13,13 +13,18 @@ import 'sentry_user_feedback.dart';
 
 /// Class representation of `Envelope` file.
 class SentryEnvelope {
-  SentryEnvelope(this.header, this.items);
+  SentryEnvelope(this.header, this.items,
+      {this.containsUnhandledException = false});
 
   /// Header describing envelope content.
   final SentryEnvelopeHeader header;
 
   /// All items contained in the envelope.
   final List<SentryEnvelopeItem> items;
+
+  /// Whether the envelope contains an unhandled exception.
+  /// This is used to determine if the native SDK should start a new session.
+  final bool containsUnhandledException;
 
   /// Create a [SentryEnvelope] containing one [SentryEnvelopeItem] which holds the [SentryEvent] data.
   factory SentryEnvelope.fromEvent(
@@ -29,6 +34,15 @@ class SentryEnvelope {
     SentryTraceContextHeader? traceContext,
     List<SentryAttachment>? attachments,
   }) {
+    bool containsUnhandledException = false;
+
+    if (event.exceptions != null && event.exceptions!.isNotEmpty) {
+      // Check all exceptions for any unhandled ones
+      containsUnhandledException = event.exceptions!.any((exception) {
+        return exception.mechanism?.handled == false;
+      });
+    }
+
     return SentryEnvelope(
       SentryEnvelopeHeader(
         event.eventId,
@@ -41,6 +55,7 @@ class SentryEnvelope {
         if (attachments != null)
           ...attachments.map((e) => SentryEnvelopeItem.fromAttachment(e))
       ],
+      containsUnhandledException: containsUnhandledException,
     );
   }
 
