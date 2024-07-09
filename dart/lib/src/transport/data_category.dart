@@ -5,6 +5,7 @@ enum DataCategory {
   error,
   session,
   transaction,
+  span,
   attachment,
   security,
   metricBucket,

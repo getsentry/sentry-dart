@@ -1444,6 +1444,67 @@ void main() {
       expect(fixture.recorder.category, DataCategory.error);
     });
 
+    test('transaction dropped by beforeSendTransaction is recorded', () async {
+      final sut = fixture.getSut();
+      final transaction = SentryTransaction(fixture.tracer);
+      fixture.tracer.startChild('child1');
+      fixture.tracer.startChild('child2');
+      fixture.tracer.startChild('child3');
+
+      fixture.options.beforeSendTransaction = (transaction) {
+        if (transaction.tracer == fixture.tracer) {
+          return null;
+        }
+        return transaction;
+      };
+
+      await sut.captureTransaction(transaction);
+
+      // 1 for the transaction and 1 for the spans
+      expect(fixture.recorder.discardedEvents.length, 2);
+
+      // we dropped the whole tracer and it has 3 span children so the span count should be 4
+      // 3 children + 1 root span
+      final spanCount = fixture.recorder.discardedEvents
+          .firstWhere((element) =>
+              element.category == DataCategory.span &&
+              element.reason == DiscardReason.beforeSend)
+          .quantity;
+      expect(spanCount, 4);
+    });
+
+    test(
+        'transaction dropped partial spans by beforeSendTransaction is recorded',
+        () async {
+      final sut = fixture.getSut();
+      final transaction = SentryTransaction(fixture.tracer);
+      fixture.tracer.startChild('child1');
+      fixture.tracer.startChild('child2');
+      fixture.tracer.startChild('child3');
+
+      fixture.options.beforeSendTransaction = (transaction) {
+        if (transaction.tracer == fixture.tracer) {
+          transaction.spans
+              .removeWhere((element) => element.context.operation == 'child2');
+          return transaction;
+        }
+        return transaction;
+      };
+
+      await sut.captureTransaction(transaction);
+
+      // we didn't drop the whole transaction, we only have 1 event for the dropped spans
+      expect(fixture.recorder.discardedEvents.length, 1);
+
+      // tracer has 3 span children and we dropped 1 of them
+      final spanCount = fixture.recorder.discardedEvents
+          .firstWhere((element) =>
+              element.category == DataCategory.span &&
+              element.reason == DiscardReason.beforeSend)
+          .quantity;
+      expect(spanCount, 1);
+    });
+
     test('record event processor dropping transaction', () async {
       final client = fixture.getSut(eventProcessor: DropAllEventProcessor());
 
