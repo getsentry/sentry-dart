@@ -54,8 +54,18 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
   List<SentryRuntime> _getRuntimes(List<SentryRuntime>? runtimes) {
     // Pure Dart doesn't have specific runtimes per build mode
     // like Flutter: https://flutter.dev/docs/testing/build-modes
-    final dartRuntime = SentryRuntime(
+
+    // Regex taken from semver package
+    final versionRegex = RegExp(r'^' // Start at beginning.
+        r'(\d+)\.(\d+)\.(\d+)' // Version number.
+        r'(-([0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*))?' // Pre-release.
+        r'(\+([0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*))?' // Build.
+        r' \((beta|stable)\)'); // Channel.
+    final version = versionRegex.stringMatch(Platform.version);
+
+    SentryRuntime dartRuntime = SentryRuntime(
       name: 'Dart',
+      version: version ?? Platform.version,
       rawDescription: Platform.version,
     );
     if (runtimes == null) {
