@@ -1,6 +1,7 @@
 import 'package:meta/meta.dart';
 
 import '../protocol.dart';
+import 'unknown.dart';
 
 /// The Exception Interface specifies an exception or error that occurred in a program.
 @immutable
@@ -25,6 +26,9 @@ class SentryException {
 
   final dynamic throwable;
 
+  @internal
+  final Map<String, dynamic>? unknown;
+
   const SentryException({
     required this.type,
     required this.value,
@@ -33,6 +37,7 @@ class SentryException {
     this.mechanism,
     this.threadId,
     this.throwable,
+    this.unknown,
   });
 
   /// Deserializes a [SentryException] from JSON [Map].
@@ -49,12 +54,20 @@ class SentryException {
       mechanism:
           mechanismJson != null ? Mechanism.fromJson(mechanismJson) : null,
       threadId: json['thread_id'],
+      unknown: unknownFrom(json, {
+        'stacktrace',
+        'mechanism',
+        'type',
+        'value',
+        'module',
+        'thread_id',
+      }),
     );
   }
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
-    return <String, dynamic>{
+    final json = <String, dynamic>{
       if (type != null) 'type': type,
       if (value != null) 'value': value,
       if (module != null) 'module': module,
@@ -62,6 +75,8 @@ class SentryException {
       if (mechanism != null) 'mechanism': mechanism!.toJson(),
       if (threadId != null) 'thread_id': threadId,
     };
+    json.addAll(unknown ?? {});
+    return json;
   }
 
   SentryException copyWith({
@@ -81,5 +96,6 @@ class SentryException {
         mechanism: mechanism ?? this.mechanism,
         threadId: threadId ?? this.threadId,
         throwable: throwable ?? this.throwable,
+        unknown: unknown,
       );
 }
