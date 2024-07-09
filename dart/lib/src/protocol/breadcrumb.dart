@@ -30,6 +30,7 @@ class Breadcrumb {
     this.data,
     SentryLevel? level,
     this.type,
+    this.unknown,
   })  : timestamp = timestamp ?? getUtcDateTime(),
         level = level ?? SentryLevel.info;
 
@@ -156,8 +157,20 @@ class Breadcrumb {
   /// The value is submitted to Sentry with second precision.
   final DateTime timestamp;
 
+  @internal
+  final Map<String, dynamic>? unknown;
+
   /// Deserializes a [Breadcrumb] from JSON [Map].
   factory Breadcrumb.fromJson(Map<String, dynamic> json) {
+    final knownKeys = <String>{
+      'level',
+      'timestamp',
+      'data',
+      'message',
+      'category',
+      'type',
+    };
+
     final levelName = json['level'];
     final timestamp = json['timestamp'];
 
@@ -166,6 +179,13 @@ class Breadcrumb {
       data = Map<String, dynamic>.from(data as Map);
     }
 
+    final unknown = json.keys
+        .where((key) => !knownKeys.contains(key))
+        .fold<Map<String, dynamic>>({}, (map, key) {
+      map[key] = json[key];
+      return map;
+    });
+
     return Breadcrumb(
       timestamp: timestamp != null ? DateTime.tryParse(timestamp) : null,
       message: json['message'],
@@ -173,13 +193,14 @@ class Breadcrumb {
       data: data,
       level: levelName != null ? SentryLevel.fromName(levelName) : null,
       type: json['type'],
+      unknown: unknown.isNotEmpty ? unknown : null,
     );
   }
 
   /// Converts this breadcrumb to a map that can be serialized to JSON according
   /// to the Sentry protocol.
   Map<String, dynamic> toJson() {
-    return {
+    final json = {
       'timestamp': formatDateAsIso8601WithMillisPrecision(timestamp),
       if (message != null) 'message': message,
       if (category != null) 'category': category,
@@ -187,6 +208,8 @@ class Breadcrumb {
       if (level != null) 'level': level!.name,
       if (type != null) 'type': type,
     };
+    json.addAll(unknown ?? {});
+    return json;
   }
 
   Breadcrumb copyWith({
@@ -204,5 +227,6 @@ class Breadcrumb {
         level: level ?? this.level,
         type: type ?? this.type,
         timestamp: timestamp ?? this.timestamp,
+        unknown: unknown,
       );
 }

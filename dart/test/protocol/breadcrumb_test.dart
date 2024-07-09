@@ -5,14 +5,20 @@ import 'package:test/test.dart';
 void main() {
   final timestamp = DateTime.now();
 
+  final Map<String, dynamic> unknown = {
+    'unknown-string': 'foo',
+    'unknown-bool': true,
+    'unknown-num': 9001,
+  };
+
   final breadcrumb = Breadcrumb(
-    message: 'message',
-    timestamp: timestamp,
-    data: {'key': 'value'},
-    level: SentryLevel.warning,
-    category: 'category',
-    type: 'type',
-  );
+      message: 'message',
+      timestamp: timestamp,
+      data: {'key': 'value'},
+      level: SentryLevel.warning,
+      category: 'category',
+      type: 'type',
+      unknown: unknown);
 
   final breadcrumbJson = <String, dynamic>{
     'timestamp': formatDateAsIso8601WithMillisPrecision(timestamp),
@@ -22,6 +28,7 @@ void main() {
     'level': 'warning',
     'type': 'type',
   };
+  breadcrumbJson.addAll(unknown);
 
   group('json', () {
     test('toJson', () {
