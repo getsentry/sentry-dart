@@ -1,5 +1,7 @@
 import 'package:meta/meta.dart';
 
+import 'unknown.dart';
+
 /// Culture Context describes certain properties of the culture in which the
 /// software is used.
 @immutable
@@ -12,6 +14,7 @@ class SentryCulture {
     this.locale,
     this.is24HourFormat,
     this.timezone,
+    this.unknown,
   });
 
   factory SentryCulture.fromJson(Map<String, dynamic> data) => SentryCulture(
@@ -20,6 +23,13 @@ class SentryCulture {
         locale: data['locale'],
         is24HourFormat: data['is_24_hour_format'],
         timezone: data['timezone'],
+        unknown: unknownFrom(data, {
+          'calendar',
+          'display_name',
+          'locale',
+          'is_24_hour_format',
+          'timezone',
+        }),
       );
 
   /// Optional: For example `GregorianCalendar`. Free form string.
@@ -39,15 +49,20 @@ class SentryCulture {
   /// Optional. The timezone of the locale. For example, `Europe/Vienna`.
   final String? timezone;
 
+  @internal
+  final Map<String, dynamic>? unknown;
+
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
-    return <String, dynamic>{
+    final json = <String, dynamic>{
       if (calendar != null) 'calendar': calendar!,
       if (displayName != null) 'display_name': displayName!,
       if (locale != null) 'locale': locale!,
       if (is24HourFormat != null) 'is_24_hour_format': is24HourFormat!,
       if (timezone != null) 'timezone': timezone!,
     };
+    json.addAll(unknown ?? {});
+    return json;
   }
 
   SentryCulture clone() => SentryCulture(
@@ -56,6 +71,7 @@ class SentryCulture {
         locale: locale,
         is24HourFormat: is24HourFormat,
         timezone: timezone,
+        unknown: unknown,
       );
 
   SentryCulture copyWith({
@@ -71,5 +87,6 @@ class SentryCulture {
         locale: locale ?? this.locale,
         is24HourFormat: is24HourFormat ?? this.is24HourFormat,
         timezone: timezone ?? this.timezone,
+        unknown: unknown,
       );
 }
