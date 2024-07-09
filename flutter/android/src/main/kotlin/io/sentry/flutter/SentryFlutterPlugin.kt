@@ -355,8 +355,9 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     val args = call.arguments() as List<Any>? ?: listOf()
     if (args.isNotEmpty()) {
       val event = args.first() as ByteArray?
-      if (event != null && event.isNotEmpty()) {
-        val id = InternalSentrySdk.captureEnvelope(event)
+      val containsUnhandledException = args[1] as Boolean
+      if (event != null && event.isNotEmpty() && containsUnhandledException != null) {
+        val id = InternalSentrySdk.captureEnvelope(event, containsUnhandledException)
         if (id != null) {
           result.success("")
         } else {
