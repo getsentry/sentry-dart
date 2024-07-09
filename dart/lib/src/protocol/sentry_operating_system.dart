@@ -1,5 +1,7 @@
 import 'package:meta/meta.dart';
 
+import 'unknown.dart';
+
 /// Describes the operating system on which the event was created.
 ///
 /// In web contexts, this is the operating system of the browse
@@ -16,6 +18,7 @@ class SentryOperatingSystem {
     this.rooted,
     this.rawDescription,
     this.theme,
+    this.unknown,
   });
 
   /// The name of the operating system.
@@ -45,6 +48,9 @@ class SentryOperatingSystem {
   /// Describes whether the OS runs in dark mode or not.
   final String? theme;
 
+  @internal
+  final Map<String, dynamic>? unknown;
+
   /// Deserializes a [SentryOperatingSystem] from JSON [Map].
   factory SentryOperatingSystem.fromJson(Map<String, dynamic> data) =>
       SentryOperatingSystem(
@@ -55,11 +61,20 @@ class SentryOperatingSystem {
         rooted: data['rooted'],
         rawDescription: data['raw_description'],
         theme: data['theme'],
+        unknown: unknownFrom(data, {
+          'name',
+          'version',
+          'build',
+          'kernel_version',
+          'rooted',
+          'raw_description',
+          'theme',
+        }),
       );
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
-    return <String, dynamic>{
+    final json = <String, dynamic>{
       if (name != null) 'name': name,
       if (version != null) 'version': version,
       if (build != null) 'build': build,
@@ -68,6 +83,8 @@ class SentryOperatingSystem {
       if (rawDescription != null) 'raw_description': rawDescription,
       if (theme != null) 'theme': theme,
     };
+    json.addAll(unknown ?? {});
+    return json;
   }
 
   SentryOperatingSystem clone() => SentryOperatingSystem(
@@ -78,6 +95,7 @@ class SentryOperatingSystem {
         rooted: rooted,
         rawDescription: rawDescription,
         theme: theme,
+        unknown: unknown,
       );
 
   SentryOperatingSystem copyWith({
@@ -97,5 +115,6 @@ class SentryOperatingSystem {
         rooted: rooted ?? this.rooted,
         rawDescription: rawDescription ?? this.rawDescription,
         theme: theme ?? this.theme,
+        unknown: unknown,
       );
 }
