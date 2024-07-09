@@ -57,7 +57,7 @@ void main() {
     expect(SentryId.empty(), sentryId);
   });
 
-  test('sets unhandled exception flag to true for unhandled exception',
+  test('sets unhandled exception flag in captureEnvelope to true for unhandled exception',
       () async {
     final transport = fixture.getSut();
 
@@ -82,7 +82,7 @@ void main() {
         as Uint8List;
   });
 
-  test('sets unhandled exception flag to false for handled exception',
+  test('sets unhandled exception flag in captureEnvelope to false for handled exception',
       () async {
     final transport = fixture.getSut();
 
