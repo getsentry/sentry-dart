@@ -1,6 +1,7 @@
 import 'package:meta/meta.dart';
 
 import 'sentry_package.dart';
+import 'unknown.dart';
 
 /// Describes the SDK that is submitting events to Sentry.
 ///
@@ -40,6 +41,7 @@ class SdkVersion {
     required this.version,
     List<String>? integrations,
     List<SentryPackage>? packages,
+    this.unknown,
   })  :
         // List.from prevents from having immutable lists
         _integrations = List.from(integrations ?? []),
@@ -61,29 +63,39 @@ class SdkVersion {
   /// An immutable list of packages that compose this SDK.
   List<SentryPackage> get packages => List.unmodifiable(_packages);
 
+  @internal
+  final Map<String, dynamic>? unknown;
+
   /// Deserializes a [SdkVersion] from JSON [Map].
   factory SdkVersion.fromJson(Map<String, dynamic> json) {
     final packagesJson = json['packages'] as List<dynamic>?;
     final integrationsJson = json['integrations'] as List<dynamic>?;
     return SdkVersion(
-      name: json['name'],
-      version: json['version'],
-      packages: packagesJson
-          ?.map((e) => SentryPackage.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      integrations: integrationsJson?.map((e) => e as String).toList(),
-    );
+        name: json['name'],
+        version: json['version'],
+        packages: packagesJson
+            ?.map((e) => SentryPackage.fromJson(e as Map<String, dynamic>))
+            .toList(),
+        integrations: integrationsJson?.map((e) => e as String).toList(),
+        unknown: unknownFrom(json, {
+          'name',
+          'version'
+              'packages',
+          'integrations',
+        }));
   }
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
-    return {
+    final Map<String, dynamic> json = {
       'name': name,
       'version': version,
       if (packages.isNotEmpty)
         'packages': packages.map((p) => p.toJson()).toList(growable: false),
       if (integrations.isNotEmpty) 'integrations': integrations,
     };
+    json.addAll(unknown ?? {});
+    return json;
   }
 
   /// Adds a package
@@ -117,5 +129,6 @@ class SdkVersion {
         version: version ?? this.version,
         integrations: integrations ?? _integrations,
         packages: packages ?? _packages,
+        unknown: unknown,
       );
 }
