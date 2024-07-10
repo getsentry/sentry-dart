@@ -148,7 +148,7 @@ void main() {
       _reportError(handler: defaultError);
 
       verify(
-        await await fixture.hub.captureEvent(captureAny,
+        await fixture.hub.captureEvent(captureAny,
             hint: anyNamed('hint'), stackTrace: anyNamed('stackTrace')),
       );
 
