@@ -27,8 +27,8 @@ void main() {
           .firstWhere((element) => element.name == 'Dart');
       expect(dartRuntime?.name, 'Dart');
       expect(dartRuntime?.rawDescription, isNotNull);
-      expect(dartRuntime!.version.toString() != Platform.version, true);
-      expect(Platform.version.contains(dartRuntime.version.toString()), true);
+      expect(dartRuntime!.version.toString(), isNot(Platform.version));
+      expect(Platform.version, contains(dartRuntime.version.toString()));
     });
 
     test('does add to existing runtimes', () {

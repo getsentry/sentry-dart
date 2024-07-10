@@ -12,9 +12,26 @@ EnricherEventProcessor enricherEventProcessor(SentryOptions options) {
 /// Uses Darts [Platform](https://api.dart.dev/stable/dart-io/Platform-class.html)
 /// class to read information.
 class IoEnricherEventProcessor implements EnricherEventProcessor {
-  IoEnricherEventProcessor(this._options);
+  IoEnricherEventProcessor(this._options) {
+    dartVersion = _extractDartVersion(Platform.version);
+  }
 
   final SentryOptions _options;
+  late final String dartVersion;
+
+  /// Extracts the semantic version and channel from the full version string.
+  ///
+  /// Example:
+  /// Input: "3.5.0-180.3.beta (beta) (Wed Jun 5 15:06:15 2024 +0000) on "android_arm64""
+  /// Output: "3.5.0-180.3.beta (beta)"
+  ///
+  /// Falls back to the full version if the matching fails.
+  static String _extractDartVersion(String fullVersion) {
+    RegExp channelRegex = RegExp(r'\((stable|beta|dev)\)');
+    Match? match = channelRegex.firstMatch(fullVersion);
+    // if match is null this will return the full version
+    return fullVersion.substring(0, match?.end);
+  }
 
   @override
   SentryEvent? apply(SentryEvent event, Hint hint) {
@@ -55,20 +72,9 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
     // Pure Dart doesn't have specific runtimes per build mode
     // like Flutter: https://flutter.dev/docs/testing/build-modes
 
-    // Extracts the semantic version and channel from the full version string.
-    // 3.5.0-180.3.beta (beta) (Wed Jun 5 15:06:15 2024 +0000) on "android_arm64"
-    // turns into 3.5.0-180.3.beta (beta)
-    String version = Platform.version;
-    RegExp channelRegex = RegExp(r'\((stable|beta|dev)\)');
-    Match? match = channelRegex.firstMatch(version);
-
-    if (match != null) {
-      version = version.substring(0, match.end);
-    }
-
     SentryRuntime dartRuntime = SentryRuntime(
       name: 'Dart',
-      version: version,
+      version: dartVersion,
       rawDescription: Platform.version,
     );
     if (runtimes == null) {
