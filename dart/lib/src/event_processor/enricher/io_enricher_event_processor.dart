@@ -12,12 +12,10 @@ EnricherEventProcessor enricherEventProcessor(SentryOptions options) {
 /// Uses Darts [Platform](https://api.dart.dev/stable/dart-io/Platform-class.html)
 /// class to read information.
 class IoEnricherEventProcessor implements EnricherEventProcessor {
-  IoEnricherEventProcessor(this._options) {
-    dartVersion = _extractDartVersion(Platform.version);
-  }
+  IoEnricherEventProcessor(this._options);
 
   final SentryOptions _options;
-  late final String dartVersion;
+  late final String _dartVersion = _extractDartVersion(Platform.version);
 
   /// Extracts the semantic version and channel from the full version string.
   ///
@@ -73,7 +71,7 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
     // like Flutter: https://flutter.dev/docs/testing/build-modes
     final dartRuntime = SentryRuntime(
       name: 'Dart',
-      version: dartVersion,
+      version: _dartVersion,
       rawDescription: Platform.version,
     );
     if (runtimes == null) {
