@@ -4,6 +4,8 @@
 
 ### Fixes
 
+- Now captures meaningful stack traces when unhandled errors have empty or missing stack traces ([#2152](https://github.com/getsentry/sentry-dart/pull/2152))
+  - This will affect grouping for unhandled errors that have empty or missing stack traces.
 - App starts hanging for 30s ([#2140](https://github.com/getsentry/sentry-dart/pull/2140))
   - Time out for app start info retrieval has been reduced to 10s
   - If `autoAppStarts` is `false` and `setAppStartEnd` has not been called, the app start event processor will now return early instead of waiting for `getAppStartInfo` to finish
