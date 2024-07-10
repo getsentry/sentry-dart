@@ -4,7 +4,7 @@
 
 ### Features
 
-- Record dropped spans in client reports for Web, Linux and Windows ([#2154](https://github.com/getsentry/sentry-dart/pull/2154))
+- Record dropped spans in client reports ([#2154](https://github.com/getsentry/sentry-dart/pull/2154))
 - Add memory usage to contexts ([#2133](https://github.com/getsentry/sentry-dart/pull/2133))
   - Only for Linux/Windows applications, as iOS/Android/macOS use native SDKs
 
