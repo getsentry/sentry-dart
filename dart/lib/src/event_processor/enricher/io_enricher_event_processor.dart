@@ -26,7 +26,7 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
   /// Output: "3.5.0-180.3.beta (beta)"
   ///
   /// Falls back to the full version if the matching fails.
-  static String _extractDartVersion(String fullVersion) {
+  String _extractDartVersion(String fullVersion) {
     RegExp channelRegex = RegExp(r'\((stable|beta|dev)\)');
     Match? match = channelRegex.firstMatch(fullVersion);
     // if match is null this will return the full version
