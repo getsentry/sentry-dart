@@ -1440,8 +1440,10 @@ void main() {
 
       await client.captureEvent(fakeEvent);
 
-      expect(fixture.recorder.reason, DiscardReason.eventProcessor);
-      expect(fixture.recorder.category, DataCategory.error);
+      expect(fixture.recorder.discardedEvents.first.reason,
+          DiscardReason.eventProcessor);
+      expect(
+          fixture.recorder.discardedEvents.first.category, DataCategory.error);
     });
 
     test('transaction dropped by beforeSendTransaction is recorded', () async {
@@ -1514,8 +1516,10 @@ void main() {
 
       await client.captureTransaction(transaction);
 
-      expect(fixture.recorder.reason, DiscardReason.eventProcessor);
-      expect(fixture.recorder.category, DataCategory.transaction);
+      expect(fixture.recorder.discardedEvents.first.reason,
+          DiscardReason.eventProcessor);
+      expect(fixture.recorder.discardedEvents.first.category,
+          DataCategory.transaction);
     });
 
     test('record beforeSend dropping event', () async {
@@ -1525,8 +1529,10 @@ void main() {
 
       await client.captureEvent(fakeEvent);
 
-      expect(fixture.recorder.reason, DiscardReason.beforeSend);
-      expect(fixture.recorder.category, DataCategory.error);
+      expect(fixture.recorder.discardedEvents.first.reason,
+          DiscardReason.beforeSend);
+      expect(
+          fixture.recorder.discardedEvents.first.category, DataCategory.error);
     });
 
     test('record sample rate dropping event', () async {
@@ -1536,8 +1542,10 @@ void main() {
 
       await client.captureEvent(fakeEvent);
 
-      expect(fixture.recorder.reason, DiscardReason.sampleRate);
-      expect(fixture.recorder.category, DataCategory.error);
+      expect(fixture.recorder.discardedEvents.first.reason,
+          DiscardReason.sampleRate);
+      expect(
+          fixture.recorder.discardedEvents.first.category, DataCategory.error);
     });
 
     test('user feedback envelope contains dsn', () async {

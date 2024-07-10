@@ -34,8 +34,6 @@ class TransportUtils {
             );
           }
         }
-        options.recorder
-            .recordLostEvent(DiscardReason.networkError, DataCategory.error);
       }
     } else {
       options.logger(
