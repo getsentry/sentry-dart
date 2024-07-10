@@ -1460,7 +1460,7 @@ void main() {
       final spanCount = fixture.recorder.discardedEvents
           .firstWhere((element) =>
               element.category == DataCategory.span &&
-              element.reason == DiscardReason.beforeSend)
+              element.reason == DiscardReason.eventProcessor)
           .quantity;
       expect(spanCount, 4);
     });
@@ -1481,7 +1481,7 @@ void main() {
       final spanCount = fixture.recorder.discardedEvents
           .firstWhere((element) =>
               element.category == DataCategory.span &&
-              element.reason == DiscardReason.beforeSend)
+              element.reason == DiscardReason.eventProcessor)
           .quantity;
       expect(spanCount, numberOfSpansDropped);
     });

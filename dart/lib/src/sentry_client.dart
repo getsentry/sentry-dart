@@ -441,13 +441,12 @@ class SentryClient {
       }
     }
 
+    final discardReason = DiscardReason.beforeSend;
     if (processedEvent == null) {
-      _options.recorder
-          .recordLostEvent(DiscardReason.beforeSend, _getCategory(event));
+      _options.recorder.recordLostEvent(discardReason, _getCategory(event));
       if (event is SentryTransaction) {
         // We dropped the whole transaction, the dropped count includes all child spans + 1 root span
-        _options.recorder.recordLostEvent(
-            DiscardReason.beforeSend, DataCategory.span,
+        _options.recorder.recordLostEvent(discardReason, DataCategory.span,
             count: spanCountBeforeCallback + 1);
       }
       _options.logger(
@@ -460,8 +459,7 @@ class SentryClient {
       final spanCountAfterCallback = processedEvent.spans.length;
       final droppedSpanCount = spanCountBeforeCallback - spanCountAfterCallback;
       if (droppedSpanCount > 0) {
-        _options.recorder.recordLostEvent(
-            DiscardReason.beforeSend, DataCategory.span,
+        _options.recorder.recordLostEvent(discardReason, DataCategory.span,
             count: droppedSpanCount);
       }
     }
@@ -497,13 +495,13 @@ class SentryClient {
           rethrow;
         }
       }
+
+      final discardReason = DiscardReason.eventProcessor;
       if (processedEvent == null) {
-        _options.recorder
-            .recordLostEvent(DiscardReason.beforeSend, _getCategory(event));
+        _options.recorder.recordLostEvent(discardReason, _getCategory(event));
         if (event is SentryTransaction) {
           // We dropped the whole transaction, the dropped count includes all child spans + 1 root span
-          _options.recorder.recordLostEvent(
-              DiscardReason.beforeSend, DataCategory.span,
+          _options.recorder.recordLostEvent(discardReason, DataCategory.span,
               count: spanCountBeforeEventProcessors + 1);
         }
         _options.logger(SentryLevel.debug, 'Event was dropped by a processor');
@@ -514,8 +512,7 @@ class SentryClient {
         final droppedSpanCount =
             spanCountBeforeEventProcessors - spanCountAfterEventProcessors;
         if (droppedSpanCount > 0) {
-          _options.recorder.recordLostEvent(
-              DiscardReason.beforeSend, DataCategory.span,
+          _options.recorder.recordLostEvent(discardReason, DataCategory.span,
               count: droppedSpanCount);
         }
       }
