@@ -260,8 +260,8 @@ void main() {
       );
       await sut.send(envelope);
 
-      expect(fixture.clientReportRecorder.discardedEvents.first.reason, null);
-      expect(fixture.clientReportRecorder.discardedEvents.first.category, null);
+      expect(fixture.clientReportRecorder.discardedEvents.isEmpty, isTrue);
+      expect(fixture.clientReportRecorder.discardedEvents.isEmpty, isTrue);
     });
 
     test('does record lost event for error >= 500', () async {
