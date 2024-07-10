@@ -213,6 +213,10 @@ class SentryFlutterOptions extends SentryOptions {
   @experimental
   bool attachViewHierarchy = false;
 
+  /// Enables reporting information of identifiers of the view hierarchy.
+  /// This might contain sensitive information.
+  bool reportViewHierarchyIdentifiers = true;
+
   /// When enabled, the SDK tracks when the application stops responding for a
   /// specific amount of time, See [appHangTimeoutInterval].
   /// Only available on iOS and macOS.
