@@ -17,6 +17,12 @@
 
 - Set dart runtime version with parsed `Platform.version` ([#2156](https://github.com/getsentry/sentry-dart/pull/2156))
 
+### Dependencies
+
+- Bump Cocoa SDK from v8.30.0 to v8.30.1 ([#2155](https://github.com/getsentry/sentry-dart/pull/2155))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8301)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.30.0...8.30.1)
+
 ## 8.4.0-beta.1
 
 ### Features
@@ -36,6 +42,9 @@
 - Bump Cocoa SDK from v8.29.0 to v8.30.0 ([#2132](https://github.com/getsentry/sentry-dart/pull/2132))
   - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8300)
   - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.29.0...8.30.0)
+- Bump Android SDK from v7.10.0 to v7.11.0 ([#2144](https://github.com/getsentry/sentry-dart/pull/2144))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#7110)
+  - [diff](https://github.com/getsentry/sentry-java/compare/7.10.0...7.11.0)
 
 ## 8.3.0
 
