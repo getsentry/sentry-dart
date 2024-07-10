@@ -176,7 +176,7 @@ void main() {
       FlutterError.reportError(details);
 
       verify(
-        await await fixture.hub.captureEvent(captureAny,
+        await fixture.hub.captureEvent(captureAny,
             hint: anyNamed('hint'), stackTrace: anyNamed('stackTrace')),
       ).called(1);
 
