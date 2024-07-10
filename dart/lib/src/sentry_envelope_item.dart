@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:meta/meta.dart';
+
 import 'client_reports/client_report.dart';
 import 'metrics/metric.dart';
 import 'protocol.dart';
@@ -12,7 +14,10 @@ import 'sentry_user_feedback.dart';
 
 /// Item holding header information and JSON encoded data.
 class SentryEnvelopeItem {
-  SentryEnvelopeItem(this.header, this.dataFactory);
+  /// The original, non-encoded object, used when direct access to the source data is needed.
+  Object? originalObject;
+
+  SentryEnvelopeItem(this.header, this.dataFactory, {this.originalObject});
 
   /// Creates a [SentryEnvelopeItem] which sends [SentryTransaction].
   factory SentryEnvelopeItem.fromTransaction(SentryTransaction transaction) {
@@ -24,7 +29,8 @@ class SentryEnvelopeItem {
       cachedItem.getDataLength,
       contentType: 'application/json',
     );
-    return SentryEnvelopeItem(header, cachedItem.getData);
+    return SentryEnvelopeItem(header, cachedItem.getData,
+        originalObject: transaction);
   }
 
   factory SentryEnvelopeItem.fromAttachment(SentryAttachment attachment) {
@@ -37,7 +43,8 @@ class SentryEnvelopeItem {
       fileName: attachment.filename,
       attachmentType: attachment.attachmentType,
     );
-    return SentryEnvelopeItem(header, cachedItem.getData);
+    return SentryEnvelopeItem(header, cachedItem.getData,
+        originalObject: attachment);
   }
 
   /// Create a [SentryEnvelopeItem] which sends [SentryUserFeedback].
@@ -50,7 +57,8 @@ class SentryEnvelopeItem {
       cachedItem.getDataLength,
       contentType: 'application/json',
     );
-    return SentryEnvelopeItem(header, cachedItem.getData);
+    return SentryEnvelopeItem(header, cachedItem.getData,
+        originalObject: feedback);
   }
 
   /// Create a [SentryEnvelopeItem] which holds the [SentryEvent] data.
@@ -59,13 +67,13 @@ class SentryEnvelopeItem {
         _CachedItem(() async => utf8JsonEncoder.convert(event.toJson()));
 
     return SentryEnvelopeItem(
-      SentryEnvelopeItemHeader(
-        SentryItemType.event,
-        cachedItem.getDataLength,
-        contentType: 'application/json',
-      ),
-      cachedItem.getData,
-    );
+        SentryEnvelopeItemHeader(
+          SentryItemType.event,
+          cachedItem.getDataLength,
+          contentType: 'application/json',
+        ),
+        cachedItem.getData,
+        originalObject: event);
   }
 
   /// Create a [SentryEnvelopeItem] which holds the [ClientReport] data.
@@ -80,6 +88,7 @@ class SentryEnvelopeItem {
         contentType: 'application/json',
       ),
       cachedItem.getData,
+      originalObject: clientReport,
     );
   }
 
@@ -102,7 +111,8 @@ class SentryEnvelopeItem {
       cachedItem.getDataLength,
       contentType: 'application/octet-stream',
     );
-    return SentryEnvelopeItem(header, cachedItem.getData);
+    return SentryEnvelopeItem(header, cachedItem.getData,
+        originalObject: buckets);
   }
 
   /// Header with info about type and length of data in bytes.
