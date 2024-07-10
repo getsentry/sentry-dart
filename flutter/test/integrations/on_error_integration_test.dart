@@ -95,6 +95,25 @@ void main() {
       expect(throwableMechanism.mechanism.handled, false);
     });
 
+    test('captureEvent never uses an empty or null stack trace', () async {
+      final exception = StateError('error');
+      _reportError(
+        exception: exception,
+        stackTrace: StackTrace.current,
+        onErrorReturnValue: false,
+      );
+
+      final captured = verify(
+        await fixture.hub.captureEvent(captureAny,
+            hint: anyNamed('hint'), stackTrace: captureAnyNamed('stackTrace')),
+      ).captured;
+
+      final stackTrace = captured[1] as StackTrace?;
+
+      expect(stackTrace, isNotNull);
+      expect(stackTrace.toString(), isNotEmpty);
+    });
+
     test('calls default error', () async {
       var called = false;
       final defaultError = (_, __) {

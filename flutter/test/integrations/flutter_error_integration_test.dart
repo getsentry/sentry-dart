@@ -211,6 +211,28 @@ void main() {
       expect(FlutterError.onError, afterIntegrationOnError);
     });
 
+    test(
+        'captureEvent never uses an empty or null stack trace',
+        () async {
+      final exception = StateError('error');
+      final details = FlutterErrorDetails(
+        exception: exception,
+        stack: null, // Explicitly set stack to null
+      );
+
+      _reportError(optionalDetails: details);
+
+      final captured = verify(
+        await fixture.hub.captureEvent(captureAny,
+            hint: anyNamed('hint'), stackTrace: captureAnyNamed('stackTrace')),
+      ).captured;
+
+      final stackTrace = captured[1] as StackTrace?;
+
+      expect(stackTrace, isNotNull);
+      expect(stackTrace.toString(), isNotEmpty);
+    });
+
     test('do not capture if silent error', () async {
       _reportError(silent: true);
 
@@ -222,7 +244,7 @@ void main() {
       _reportError(silent: true);
 
       verify(
-        await await fixture.hub.captureEvent(captureAny,
+        await fixture.hub.captureEvent(captureAny,
             hint: anyNamed('hint'), stackTrace: anyNamed('stackTrace')),
       );
     });
