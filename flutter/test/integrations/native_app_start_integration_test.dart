@@ -147,6 +147,30 @@ void main() {
     });
 
     test(
+        'does not trigger timeout if autoAppStart is false and setAppStartEnd is not called',
+        () async {
+      // setting a frame callback with a bigger timeout than our app start timeout so the timeout would theoretically be triggered
+      fixture = Fixture(
+          frameCallbackTimeout: NativeAppStartIntegration.timeoutDuration +
+              const Duration(seconds: 5));
+      fixture.options.autoAppStart = false;
+
+      await fixture.registerIntegration();
+
+      final tracer = fixture.createTracer();
+      final transaction = SentryTransaction(tracer);
+
+      final processor = fixture.options.eventProcessors.first;
+
+      final stopwatch = Stopwatch()..start();
+      await processor.apply(transaction, Hint()) as SentryTransaction;
+      stopwatch.stop();
+
+      expect(stopwatch.elapsed < NativeAppStartIntegration.timeoutDuration,
+          isTrue);
+    });
+
+    test(
         'autoAppStart is false and appStartEnd is set adds app start measurement',
         () async {
       fixture.options.autoAppStart = false;
@@ -384,9 +408,12 @@ class Fixture extends IntegrationTestFixture<NativeAppStartIntegration> {
   @override
   MockHub get hub => super.hub as MockHub;
 
-  Fixture()
-      : super((binding) =>
-            NativeAppStartIntegration(binding, FakeFrameCallbackHandler())) {
+  Fixture({Duration? frameCallbackTimeout})
+      : super((binding) => NativeAppStartIntegration(
+            binding,
+            FakeFrameCallbackHandler(
+                finishAfterDuration: frameCallbackTimeout ??
+                    const Duration(milliseconds: 50)))) {
     NativeAppStartIntegration.reset();
     hub = MockHub();
     // ignore: invalid_use_of_internal_member

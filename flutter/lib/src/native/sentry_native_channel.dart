@@ -85,8 +85,11 @@ class SentryNativeChannel
   }
 
   @override
-  Future<void> captureEnvelope(Uint8List envelopeData) =>
-      channel.invokeMethod('captureEnvelope', [envelopeData]);
+  Future<void> captureEnvelope(
+      Uint8List envelopeData, bool containsUnhandledException) {
+    return channel.invokeMethod(
+        'captureEnvelope', [envelopeData, containsUnhandledException]);
+  }
 
   @override
   Future<Map<String, dynamic>?> loadContexts() =>
