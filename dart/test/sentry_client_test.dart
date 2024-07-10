@@ -1462,11 +1462,8 @@ void main() {
 
       await sut.captureTransaction(transaction);
 
-      // 1 for the transaction and 1 for the spans
       expect(fixture.recorder.discardedEvents.length, 2);
 
-      // we dropped the whole tracer and it has 3 span children so the span count should be 4
-      // 3 children + 1 root span
       final spanCount = fixture.recorder.discardedEvents
           .firstWhere((element) =>
               element.category == DataCategory.span &&
@@ -1475,8 +1472,7 @@ void main() {
       expect(spanCount, 4);
     });
 
-    test(
-        'transaction dropped partial spans by beforeSendTransaction is recorded',
+    test('partially dropped spans by beforeSendTransaction is recorded',
         () async {
       final sut = fixture.getSut();
       final transaction = SentryTransaction(fixture.tracer);
