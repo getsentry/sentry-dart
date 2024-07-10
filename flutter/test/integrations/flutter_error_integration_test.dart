@@ -211,9 +211,7 @@ void main() {
       expect(FlutterError.onError, afterIntegrationOnError);
     });
 
-    test(
-        'captureEvent never uses an empty or null stack trace',
-        () async {
+    test('captureEvent never uses an empty or null stack trace', () async {
       final exception = StateError('error');
       final details = FlutterErrorDetails(
         exception: exception,
