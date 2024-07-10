@@ -9,6 +9,7 @@ abstract class ScopeObserver {
   Future<void> setUser(SentryUser? user);
   Future<void> addBreadcrumb(Breadcrumb breadcrumb);
   Future<void> clearBreadcrumbs();
+  @Deprecated('Use setContexts instead')
   Future<void> setExtra(String key, dynamic value);
   Future<void> removeExtra(String key);
   Future<void> setTag(String key, String value);

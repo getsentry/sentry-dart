@@ -268,6 +268,7 @@ class Scope {
   }
 
   /// Sets an extra to the Scope
+  @Deprecated('Use setContexts instead')
   Future<void> setExtra(String key, dynamic value) async {
     _setExtraSync(key, value);
     await _callScopeObservers(
