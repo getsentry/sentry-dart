@@ -51,25 +51,21 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
     );
   }
 
-  /// Extracts the semantic version and channel from the full version string.
-  /// 3.5.0-180.3.beta (beta) (Wed Jun 5 15:06:15 2024 +0000) on "android_arm64"
-  /// turns into 3.5.0-180.3.beta (beta)
-  String _extractVersionWithChannel(String fullVersion) {
-    RegExp channelRegex = RegExp(r'\((stable|beta|dev)\)');
-    Match? match = channelRegex.firstMatch(fullVersion);
-
-    if (match != null) {
-      return fullVersion.substring(0, match.end);
-    }
-
-    return fullVersion;
-  }
-
   List<SentryRuntime> _getRuntimes(List<SentryRuntime>? runtimes) {
     // Pure Dart doesn't have specific runtimes per build mode
     // like Flutter: https://flutter.dev/docs/testing/build-modes
 
-    final version = _extractVersionWithChannel(Platform.version);
+    // Extracts the semantic version and channel from the full version string.
+    // 3.5.0-180.3.beta (beta) (Wed Jun 5 15:06:15 2024 +0000) on "android_arm64"
+    // turns into 3.5.0-180.3.beta (beta)
+    String version = Platform.version;
+    RegExp channelRegex = RegExp(r'\((stable|beta|dev)\)');
+    Match? match = channelRegex.firstMatch(version);
+
+    if (match != null) {
+      version = version.substring(0, match.end);
+    }
+
     SentryRuntime dartRuntime = SentryRuntime(
       name: 'Dart',
       version: version,
