@@ -136,6 +136,7 @@ class SentryNativeChannel
   Future<void> removeContexts(String key) =>
       _channel.invokeMethod('removeContexts', {'key': key});
 
+  @Deprecated('Use setContexts instead')
   @override
   Future<void> setExtra(String key, dynamic value) => _channel.invokeMethod(
         'setExtra',

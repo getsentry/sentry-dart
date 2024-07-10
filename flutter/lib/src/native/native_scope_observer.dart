@@ -34,6 +34,7 @@ class NativeScopeObserver implements ScopeObserver {
     await _native.clearBreadcrumbs();
   }
 
+  @Deprecated('Use setContexts instead')
   @override
   Future<void> setExtra(String key, dynamic value) async {
     await _native.setExtra(key, value);

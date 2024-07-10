@@ -35,6 +35,7 @@ abstract class SentryNativeBinding {
 
   Future<void> removeContexts(String key);
 
+  @Deprecated('Use setContexts instead')
   Future<void> setExtra(String key, dynamic value);
 
   Future<void> removeExtra(String key);
