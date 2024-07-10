@@ -1,10 +1,5 @@
-import 'dart:convert';
-
 import '../../sentry.dart';
 import '../transport/rate_limit_parser.dart';
-import '../sentry_options.dart';
-import '../sentry_envelope.dart';
-import '../sentry_envelope_item.dart';
 import 'rate_limit.dart';
 import 'data_category.dart';
 import '../client_reports/discard_reason.dart';

@@ -1,7 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/client_reports/discard_reason.dart';
-import 'package:sentry/src/client_reports/discarded_event.dart';
 import 'package:sentry/src/transport/data_category.dart';
 import 'package:test/test.dart';
 
@@ -11,7 +10,6 @@ import 'package:sentry/src/sentry_envelope_header.dart';
 
 import '../mocks/mock_client_report_recorder.dart';
 import '../mocks/mock_hub.dart';
-import 'breadcrumb_test.dart';
 
 void main() {
   var fixture = Fixture();
