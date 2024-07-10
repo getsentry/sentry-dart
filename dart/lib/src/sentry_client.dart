@@ -517,6 +517,7 @@ class SentryClient {
         }
       }
     }
+
     return processedEvent;
   }
 
