@@ -72,7 +72,7 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
     // Pure Dart doesn't have specific runtimes per build mode
     // like Flutter: https://flutter.dev/docs/testing/build-modes
 
-    SentryRuntime dartRuntime = SentryRuntime(
+    final dartRuntime = SentryRuntime(
       name: 'Dart',
       version: dartVersion,
       rawDescription: Platform.version,
