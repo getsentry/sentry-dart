@@ -51,18 +51,17 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
     );
   }
 
-  /// Extracts the version from the full version string.
-  /// Example of full version string:
+  /// Extracts the semantic version and channel from the full version string.
   /// 3.5.0-180.3.beta (beta) (Wed Jun 5 15:06:15 2024 +0000) on "android_arm64"
+  /// turns into 3.5.0-180.3.beta (beta)
   String _extractVersionWithChannel(String fullVersion) {
-    List<String> parts = fullVersion.split(') ');
+    RegExp channelRegex = RegExp(r'\((stable|beta|dev)\)');
+    Match? match = channelRegex.firstMatch(fullVersion);
 
-    // If there's at least one ')', return the first part plus ')'
-    if (parts.length > 1) {
-      return '${parts[0]})';
+    if (match != null) {
+      return fullVersion.substring(0, match.end);
     }
 
-    // If there's no ')', return the whole string (shouldn't happen with given format)
     return fullVersion;
   }
 
