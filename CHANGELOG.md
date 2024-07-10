@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Features
+
+- Add memory usage to contexts ([#2133](https://github.com/getsentry/sentry-dart/pull/2133))
+  - Only for Linux/Windows applications, as iOS/Android/macOS use native SDKs
+
 ### Fixes
 
 - Now captures meaningful stack traces when unhandled errors have empty or missing stack traces ([#2152](https://github.com/getsentry/sentry-dart/pull/2152))
@@ -29,6 +34,9 @@
 - Bump Cocoa SDK from v8.29.0 to v8.30.0 ([#2132](https://github.com/getsentry/sentry-dart/pull/2132))
   - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8300)
   - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.29.0...8.30.0)
+- Bump Android SDK from v7.10.0 to v7.11.0 ([#2144](https://github.com/getsentry/sentry-dart/pull/2144))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#7110)
+  - [diff](https://github.com/getsentry/sentry-java/compare/7.10.0...7.11.0)
 
 ## 8.3.0
 

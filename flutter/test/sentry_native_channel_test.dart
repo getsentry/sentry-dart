@@ -244,7 +244,7 @@ void main() {
             (invocation) async =>
                 {captured = invocation.positionalArguments[1][0] as Uint8List});
 
-        await sut.captureEnvelope(data);
+        await sut.captureEnvelope(data, false);
 
         expect(captured, data);
       });
