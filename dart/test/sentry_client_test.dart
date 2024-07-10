@@ -1446,7 +1446,8 @@ void main() {
           fixture.recorder.discardedEvents.first.category, DataCategory.error);
     });
 
-    test('transaction dropped by beforeSendTransaction is recorded', () async {
+    test('beforeSendTransaction correctly records dropped transaction',
+        () async {
       final sut = fixture.getSut();
       final transaction = SentryTransaction(fixture.tracer);
       fixture.tracer.startChild('child1');
@@ -1472,7 +1473,7 @@ void main() {
       expect(spanCount, 4);
     });
 
-    test('partially dropped spans by beforeSendTransaction is recorded',
+    test('beforeSendTransaction correctly records partially dropped spans',
         () async {
       final sut = fixture.getSut();
       final transaction = SentryTransaction(fixture.tracer);
