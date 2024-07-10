@@ -16,7 +16,8 @@ void main() {
       await tester.runAsync(() async {
         await tester.pumpWidget(MyApp());
 
-        final sentryViewHierarchy = walkWidgetTree(instance, SentryFlutterOptions());
+        final sentryViewHierarchy =
+            walkWidgetTree(instance, SentryFlutterOptions());
 
         expect(sentryViewHierarchy!.renderingSystem, 'flutter');
       });
