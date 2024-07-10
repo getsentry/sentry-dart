@@ -137,8 +137,8 @@ class DropAllEventProcessor implements EventProcessor {
   }
 }
 
-class DropNumberOfSpans implements EventProcessor {
-  DropNumberOfSpans(this.numberOfSpansToDrop);
+class DropSpansEventProcessor implements EventProcessor {
+  DropSpansEventProcessor(this.numberOfSpansToDrop);
 
   final int numberOfSpansToDrop;
 

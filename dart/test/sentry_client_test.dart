@@ -1468,7 +1468,7 @@ void main() {
     test('record event processor dropping partially spans', () async {
       final numberOfSpansDropped = 2;
       final sut = fixture.getSut(
-          eventProcessor: DropNumberOfSpans(numberOfSpansDropped));
+          eventProcessor: DropSpansEventProcessor(numberOfSpansDropped));
       final transaction = SentryTransaction(fixture.tracer);
       fixture.tracer.startChild('child1');
       fixture.tracer.startChild('child2');
