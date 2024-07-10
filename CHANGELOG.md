@@ -13,6 +13,12 @@
   - Time out for app start info retrieval has been reduced to 10s
   - If `autoAppStarts` is `false` and `setAppStartEnd` has not been called, the app start event processor will now return early instead of waiting for `getAppStartInfo` to finish
 
+### Dependencies
+
+- Bump Cocoa SDK from v8.30.0 to v8.30.1 ([#2155](https://github.com/getsentry/sentry-dart/pull/2155))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8301)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.30.0...8.30.1)
+
 ## 8.4.0-beta.1
 
 ### Features
