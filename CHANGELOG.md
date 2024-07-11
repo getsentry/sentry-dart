@@ -4,16 +4,28 @@
 
 ### Features
 
+- Record dropped spans in client reports ([#2154](https://github.com/getsentry/sentry-dart/pull/2154))
 - Add memory usage to contexts ([#2133](https://github.com/getsentry/sentry-dart/pull/2133))
   - Only for Linux/Windows applications, as iOS/Android/macOS use native SDKs
 
 ### Fixes
 
-- Now captures meaningful stack traces when unhandled errors have empty or missing stack traces ([#2152](https://github.com/getsentry/sentry-dart/pull/2152))
+- Capture meaningful stack traces when unhandled errors have empty or missing stack traces ([#2152](https://github.com/getsentry/sentry-dart/pull/2152))
   - This will affect grouping for unhandled errors that have empty or missing stack traces.
+- Fix sentry_drift compatibility with Drift 2.19.0 ([#2162](https://github.com/getsentry/sentry-dart/pull/2162))
 - App starts hanging for 30s ([#2140](https://github.com/getsentry/sentry-dart/pull/2140))
   - Time out for app start info retrieval has been reduced to 10s
   - If `autoAppStarts` is `false` and `setAppStartEnd` has not been called, the app start event processor will now return early instead of waiting for `getAppStartInfo` to finish
+
+### Improvements
+
+- Set dart runtime version with parsed `Platform.version` ([#2156](https://github.com/getsentry/sentry-dart/pull/2156))
+
+### Dependencies
+
+- Bump Cocoa SDK from v8.30.0 to v8.30.1 ([#2155](https://github.com/getsentry/sentry-dart/pull/2155))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8301)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.30.0...8.30.1)
 
 ## 8.4.0-beta.1
 
