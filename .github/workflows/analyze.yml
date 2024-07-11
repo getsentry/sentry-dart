@@ -53,7 +53,7 @@ jobs:
 
       - name: Run publish validation
         run: |
-          ${{ inputs.sdk }} pub get
+          dart pub get --directory ../scripts/publish_validation
           ${{ inputs.sdk }} pub run ../scripts/publish_validation/bin/publish_validation.dart --executable ${{ inputs.sdk }}
 
   package-analysis:
