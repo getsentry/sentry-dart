@@ -17,7 +17,7 @@ void main(List<String> arguments) async {
   } on FormatException catch (e) {
     print('Error: ${e.message}');
     print('Usage: dart script.dart [--executable <dart|flutter>]');
-    return;
+    exit(1);
   }
 
   final executable = args['executable'] as String;
