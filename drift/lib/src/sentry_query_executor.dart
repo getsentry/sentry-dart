@@ -169,6 +169,7 @@ class SentryQueryExecutor extends QueryExecutor {
   }
 
   @override
+  // ignore: override_on_non_overriding_member, public_member_api_docs
   QueryExecutor beginExclusive() {
     final dynamic uncheckedExecutor = _executor;
     try {

@@ -1,6 +1,7 @@
 import 'package:drift/backends.dart';
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
+
 import 'sentry_span_helper.dart';
 
 /// @nodoc
@@ -135,6 +136,7 @@ class SentryTransactionExecutor extends TransactionExecutor {
   }
 
   @override
+  // ignore: override_on_non_overriding_member, public_member_api_docs
   QueryExecutor beginExclusive() {
     final dynamic uncheckedExecutor = _executor;
     try {
