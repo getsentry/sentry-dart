@@ -54,7 +54,7 @@ jobs:
       - name: Run publish validation
         run: |
           ${{ inputs.sdk }} pub get
-          ${{ inputs.sdk }} pub run ../scripts/publish_validation --executable ${{ inputs.sdk }}
+          ${{ inputs.sdk }} pub run ../scripts/publish_validation/bin/publish_validation.dart --executable ${{ inputs.sdk }}
 
   package-analysis:
     # `axel-op/dart-package-analyzer` is using `flutter pub upgrade` instead of `get`,
