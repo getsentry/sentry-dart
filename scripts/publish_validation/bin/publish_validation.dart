@@ -37,7 +37,7 @@ void main(List<String> arguments) async {
     'lib/src/platform/_web_platform.dart: This package does not have web in the `dependencies` section of `pubspec.yaml`'
   ];
 
-  // So far the expected errors all start with * line
+  // So far the expected errors all start with `* line`
   final errorLines = publishOutput
       .split('\n')
       .where((line) => line.startsWith('* line'))
