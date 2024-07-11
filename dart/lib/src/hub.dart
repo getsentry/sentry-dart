@@ -542,6 +542,11 @@ class Hub {
           DiscardReason.sampleRate,
           DataCategory.transaction,
         );
+        _options.recorder.recordLostEvent(
+          DiscardReason.sampleRate,
+          DataCategory.span,
+          count: transaction.spans.length + 1,
+        );
         _options.logger(
           SentryLevel.warning,
           'Transaction ${transaction.eventId} was dropped due to sampling decision.',
