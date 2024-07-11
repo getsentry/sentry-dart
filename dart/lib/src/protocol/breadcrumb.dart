@@ -50,6 +50,10 @@ class Breadcrumb {
     String? httpQuery,
     String? httpFragment,
   }) {
+    // The timestamp is used as the request-end time, so we need to set it right
+    // now and not rely on the default constructor.
+    timestamp ??= getUtcDateTime();
+
     return Breadcrumb(
       type: 'http',
       category: 'http',
@@ -65,6 +69,10 @@ class Breadcrumb {
         if (responseBodySize != null) 'response_body_size': responseBodySize,
         if (httpQuery != null) 'http.query': httpQuery,
         if (httpFragment != null) 'http.fragment': httpFragment,
+        if (requestDuration != null)
+          'start_timestamp':
+              timestamp.millisecondsSinceEpoch - requestDuration.inMilliseconds,
+        'end_timestamp': timestamp.millisecondsSinceEpoch,
       },
     );
   }
