@@ -1,5 +1,6 @@
 import 'package:sentry/src/protocol.dart';
 
+// TODO: this triggers ci
 final event = SentryEvent(
   logger: 'main',
   serverName: 'server.dart',
