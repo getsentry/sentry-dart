@@ -5,11 +5,13 @@
 ### Features
 
 - Add flag to disable reporting of view hierarchy identifiers which may contain sensitive information ([#2158](https://github.com/getsentry/sentry-dart/pull/2158))
+- Record dropped spans in client reports ([#2154](https://github.com/getsentry/sentry-dart/pull/2154))
 - Add memory usage to contexts ([#2133](https://github.com/getsentry/sentry-dart/pull/2133))
   - Only for Linux/Windows applications, as iOS/Android/macOS use native SDKs
 
 ### Fixes
 
+- Fix sentry_drift compatibility with Drift 2.19.0 ([#2162](https://github.com/getsentry/sentry-dart/pull/2162))
 - App starts hanging for 30s ([#2140](https://github.com/getsentry/sentry-dart/pull/2140))
   - Time out for app start info retrieval has been reduced to 10s
   - If `autoAppStarts` is `false` and `setAppStartEnd` has not been called, the app start event processor will now return early instead of waiting for `getAppStartInfo` to finish
