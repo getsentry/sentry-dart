@@ -136,10 +136,10 @@ class SentryTransactionExecutor extends TransactionExecutor {
 
   @override
   QueryExecutor beginExclusive() {
-    final dynamic exec = _executor;
+    final dynamic uncheckedExecutor = _executor;
     try {
-      return exec.beginExclusive() as QueryExecutor;
-    } catch (e) {
+      return uncheckedExecutor.beginExclusive() as QueryExecutor;
+    } on NoSuchMethodError catch (_) {
       throw Exception('This method is not supported in Drift versions <2.19.0');
     }
   }
