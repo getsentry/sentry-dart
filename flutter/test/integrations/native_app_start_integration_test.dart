@@ -25,6 +25,15 @@ void main() {
         .thenAnswer((_) async => SentryId.empty());
   }
 
+  Future<void> registerIntegration(Fixture fixture) async {
+    await fixture.registerIntegration();
+    // Wait for the app start info to be fetched
+    // This ensures that setAppStartInfo has been called, which happens asynchronously
+    // in a post-frame callback. Waiting here prevents race conditions in subsequent tests
+    // that might depend on or modify the app start info.
+    await NativeAppStartIntegration.getAppStartInfo();
+  }
+
   group('$NativeAppStartIntegration', () {
     late Fixture fixture;
 
@@ -44,8 +53,7 @@ void main() {
       NativeAppStartIntegration.appStartEnd =
           DateTime.fromMillisecondsSinceEpoch(10);
 
-      await fixture.registerIntegration();
-
+      await registerIntegration(fixture);
       final tracer = fixture.createTracer();
       final transaction = SentryTransaction(tracer);
 
@@ -63,8 +71,7 @@ void main() {
       NativeAppStartIntegration.appStartEnd =
           DateTime.fromMillisecondsSinceEpoch(10);
 
-      await fixture.registerIntegration();
-
+      await registerIntegration(fixture);
       final tracer = fixture.createTracer();
       final transaction = SentryTransaction(tracer);
 
@@ -83,8 +90,7 @@ void main() {
           DateTime.fromMillisecondsSinceEpoch(10);
       final measurement = SentryMeasurement.warmAppStart(Duration(seconds: 1));
 
-      await fixture.registerIntegration();
-
+      await registerIntegration(fixture);
       final tracer = fixture.createTracer();
       final transaction = SentryTransaction(tracer).copyWith();
       transaction.measurements[measurement.name] = measurement;
@@ -104,8 +110,7 @@ void main() {
       NativeAppStartIntegration.appStartEnd =
           DateTime.fromMillisecondsSinceEpoch(60001);
 
-      await fixture.registerIntegration();
-
+      await registerIntegration(fixture);
       final tracer = fixture.createTracer();
       final transaction = SentryTransaction(tracer);
 
@@ -121,8 +126,7 @@ void main() {
       NativeAppStartIntegration.appStartEnd =
           DateTime.fromMillisecondsSinceEpoch(10);
 
-      await fixture.registerIntegration();
-
+      await registerIntegration(fixture);
       final appStartInfo = await NativeAppStartIntegration.getAppStartInfo();
       expect(appStartInfo?.start, DateTime.fromMillisecondsSinceEpoch(0));
       expect(appStartInfo?.end, DateTime.fromMillisecondsSinceEpoch(10));
@@ -133,7 +137,7 @@ void main() {
         () async {
       fixture.options.autoAppStart = false;
 
-      await fixture.registerIntegration();
+      await registerIntegration(fixture);
 
       final tracer = fixture.createTracer();
       final transaction = SentryTransaction(tracer);
@@ -155,8 +159,7 @@ void main() {
               const Duration(seconds: 5));
       fixture.options.autoAppStart = false;
 
-      await fixture.registerIntegration();
-
+      await registerIntegration(fixture);
       final tracer = fixture.createTracer();
       final transaction = SentryTransaction(tracer);
 
@@ -175,8 +178,7 @@ void main() {
         () async {
       fixture.options.autoAppStart = false;
 
-      await fixture.registerIntegration();
-
+      await registerIntegration(fixture);
       SentryFlutter.setAppStartEnd(DateTime.fromMillisecondsSinceEpoch(10));
 
       final tracer = fixture.createTracer();
@@ -272,8 +274,7 @@ void main() {
       when(fixture.binding.fetchNativeAppStart())
           .thenAnswer((_) async => appStartInfoSrc);
 
-      await fixture.registerIntegration();
-
+      await registerIntegration(fixture);
       final processor = fixture.options.eventProcessors.first;
       tracer = fixture.createTracer();
       final transaction = SentryTransaction(tracer);
