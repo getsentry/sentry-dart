@@ -15,6 +15,21 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
   IoEnricherEventProcessor(this._options);
 
   final SentryOptions _options;
+  late final String _dartVersion = _extractDartVersion(Platform.version);
+
+  /// Extracts the semantic version and channel from the full version string.
+  ///
+  /// Example:
+  /// Input: "3.5.0-180.3.beta (beta) (Wed Jun 5 15:06:15 2024 +0000) on "android_arm64""
+  /// Output: "3.5.0-180.3.beta (beta)"
+  ///
+  /// Falls back to the full version if the matching fails.
+  String _extractDartVersion(String fullVersion) {
+    RegExp channelRegex = RegExp(r'\((stable|beta|dev)\)');
+    Match? match = channelRegex.firstMatch(fullVersion);
+    // if match is null this will return the full version
+    return fullVersion.substring(0, match?.end);
+  }
 
   @override
   SentryEvent? apply(SentryEvent event, Hint hint) {
@@ -56,6 +71,7 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
     // like Flutter: https://flutter.dev/docs/testing/build-modes
     final dartRuntime = SentryRuntime(
       name: 'Dart',
+      version: _dartVersion,
       rawDescription: Platform.version,
     );
     if (runtimes == null) {

@@ -1116,11 +1116,17 @@ class MockSentryNativeBinding extends _i1.Mock
       ) as _i8.Future<_i15.NativeAppStart?>);
 
   @override
-  _i8.Future<void> captureEnvelope(_i16.Uint8List? envelopeData) =>
+  _i8.Future<void> captureEnvelope(
+    _i16.Uint8List? envelopeData,
+    bool? containsUnhandledException,
+  ) =>
       (super.noSuchMethod(
         Invocation.method(
           #captureEnvelope,
-          [envelopeData],
+          [
+            envelopeData,
+            containsUnhandledException,
+          ],
         ),
         returnValue: _i8.Future<void>.value(),
         returnValueForMissingStub: _i8.Future<void>.value(),
