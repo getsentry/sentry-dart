@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/client_reports/discard_reason.dart';
 import 'package:sentry/src/transport/data_category.dart';
@@ -205,14 +206,18 @@ void main() {
     final result = rateLimiter.filter(eventEnvelope);
     expect(result, isNull);
 
-    expect(fixture.mockRecorder.category, DataCategory.error);
-    expect(fixture.mockRecorder.reason, DiscardReason.rateLimitBackoff);
+    expect(fixture.mockRecorder.discardedEvents.first.category,
+        DataCategory.error);
+    expect(fixture.mockRecorder.discardedEvents.first.reason,
+        DiscardReason.rateLimitBackoff);
   });
 
   test('dropping of transaction recorded', () {
     final rateLimiter = fixture.getSut();
 
     final transaction = fixture.getTransaction();
+    transaction.tracer.startChild('child1');
+    transaction.tracer.startChild('child2');
     final eventItem = SentryEnvelopeItem.fromTransaction(transaction);
     final eventEnvelope = SentryEnvelope(
       SentryEnvelopeHeader.newEventId(),
@@ -225,8 +230,21 @@ void main() {
     final result = rateLimiter.filter(eventEnvelope);
     expect(result, isNull);
 
-    expect(fixture.mockRecorder.category, DataCategory.transaction);
-    expect(fixture.mockRecorder.reason, DiscardReason.rateLimitBackoff);
+    expect(fixture.mockRecorder.discardedEvents.length, 2);
+
+    final transactionDiscardedEvent = fixture.mockRecorder.discardedEvents
+        .firstWhereOrNull((element) =>
+            element.category == DataCategory.transaction &&
+            element.reason == DiscardReason.rateLimitBackoff);
+
+    final spanDiscardedEvent = fixture.mockRecorder.discardedEvents
+        .firstWhereOrNull((element) =>
+            element.category == DataCategory.span &&
+            element.reason == DiscardReason.rateLimitBackoff);
+
+    expect(transactionDiscardedEvent, isNotNull);
+    expect(spanDiscardedEvent, isNotNull);
+    expect(spanDiscardedEvent!.quantity, 3);
   });
 
   test('dropping of metrics recorded', () {
@@ -244,8 +262,10 @@ void main() {
     final result = rateLimiter.filter(eventEnvelope);
     expect(result, isNull);
 
-    expect(fixture.mockRecorder.category, DataCategory.metricBucket);
-    expect(fixture.mockRecorder.reason, DiscardReason.rateLimitBackoff);
+    expect(fixture.mockRecorder.discardedEvents.first.category,
+        DataCategory.metricBucket);
+    expect(fixture.mockRecorder.discardedEvents.first.reason,
+        DiscardReason.rateLimitBackoff);
   });
 
   group('apply rateLimit', () {
