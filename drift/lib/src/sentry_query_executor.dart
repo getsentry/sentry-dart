@@ -168,6 +168,16 @@ class SentryQueryExecutor extends QueryExecutor {
   }
 
   @override
+  QueryExecutor beginExclusive() {
+    final dynamic exec = _executor;
+    try {
+      return exec.beginExclusive() as QueryExecutor;
+    } catch (e) {
+      throw Exception('This method is not supported in Drift versions <2.19.0');
+    }
+  }
+
+  @override
   Future<void> close() {
     return _spanHelper.asyncWrapInSpan(
       'Close DB: $_dbName',
