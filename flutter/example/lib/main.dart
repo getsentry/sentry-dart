@@ -83,7 +83,8 @@ Future<void> setupSentry(
       // configuration issues, e.g. finding out why your events are not uploaded.
       options.debug = true;
       options.spotlight = Spotlight(enabled: true);
-      options.enableTimeToFullDisplayTracing = true;
+      options.autoAppStart = false;
+      // options.enableTimeToFullDisplayTracing = true;
       options.enableMetrics = true;
 
       options.maxRequestBodySize = MaxRequestBodySize.always;
@@ -772,11 +773,12 @@ void navigateToAutoCloseScreen(BuildContext context) {
 }
 
 Future<void> tryCatch() async {
-  try {
-    throw StateError('try catch');
-  } catch (error, stackTrace) {
-    await Sentry.captureException(error, stackTrace: stackTrace);
-  }
+  StateError('hello').toString();
+  // try {
+  //   throw StateError('try catch');
+  // } catch (error, stackTrace) {
+  //   await Sentry.captureException(error, stackTrace: stackTrace);
+  // }
 }
 
 Future<void> asyncThrows() async {
