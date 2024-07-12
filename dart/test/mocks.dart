@@ -137,6 +137,25 @@ class DropAllEventProcessor implements EventProcessor {
   }
 }
 
+class DropSpansEventProcessor implements EventProcessor {
+  DropSpansEventProcessor(this.numberOfSpansToDrop);
+
+  final int numberOfSpansToDrop;
+
+  @override
+  SentryEvent? apply(SentryEvent event, Hint hint) {
+    if (event is SentryTransaction) {
+      if (numberOfSpansToDrop > event.spans.length) {
+        throw ArgumentError(
+            'numberOfSpansToDrop must be less than the number of spans in the transaction');
+      }
+      final droppedSpans = event.spans.take(numberOfSpansToDrop).toList();
+      event.spans.removeWhere((element) => droppedSpans.contains(element));
+    }
+    return event;
+  }
+}
+
 class FunctionEventProcessor implements EventProcessor {
   FunctionEventProcessor(this.applyFunction);
 

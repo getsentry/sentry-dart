@@ -6,10 +6,10 @@ import 'dart:convert';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:sentry_flutter_example/main.dart';
 import 'package:http/http.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/integrations/native_app_start_integration.dart';
+import 'package:sentry_flutter_example/main.dart';
 
 void main() {
   // const org = 'sentry-sdks';
@@ -121,7 +121,9 @@ void main() {
       await scope.addBreadcrumb(breadcrumb);
       await scope.clearBreadcrumbs();
 
+      // ignore: deprecated_member_use
       await scope.setExtra('extra-key', 'extra-value');
+      // ignore: deprecated_member_use
       await scope.removeExtra('extra-key');
 
       await scope.setTag('tag-key', 'tag-value');

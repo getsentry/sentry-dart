@@ -84,7 +84,8 @@ class SentryClient {
     Hint? hint,
   }) async {
     if (_sampleRate()) {
-      _recordLostEvent(event, DiscardReason.sampleRate);
+      _options.recorder
+          .recordLostEvent(DiscardReason.sampleRate, _getCategory(event));
       _options.logger(
         SentryLevel.debug,
         'Event ${event.eventId.toString()} was dropped due to sampling decision.',
@@ -403,7 +404,9 @@ class SentryClient {
     SentryEvent event,
     Hint hint,
   ) async {
-    SentryEvent? eventOrTransaction = event;
+    SentryEvent? processedEvent = event;
+    final spanCountBeforeCallback =
+        event is SentryTransaction ? event.spans.length : 0;
 
     final beforeSend = _options.beforeSend;
     final beforeSendTransaction = _options.beforeSendTransaction;
@@ -412,18 +415,18 @@ class SentryClient {
     try {
       if (event is SentryTransaction && beforeSendTransaction != null) {
         beforeSendName = 'beforeSendTransaction';
-        final e = beforeSendTransaction(event);
-        if (e is Future<SentryTransaction?>) {
-          eventOrTransaction = await e;
+        final callbackResult = beforeSendTransaction(event);
+        if (callbackResult is Future<SentryTransaction?>) {
+          processedEvent = await callbackResult;
         } else {
-          eventOrTransaction = e;
+          processedEvent = callbackResult;
         }
       } else if (beforeSend != null) {
-        final e = beforeSend(event, hint);
-        if (e is Future<SentryEvent?>) {
-          eventOrTransaction = await e;
+        final callbackResult = beforeSend(event, hint);
+        if (callbackResult is Future<SentryEvent?>) {
+          processedEvent = await callbackResult;
         } else {
-          eventOrTransaction = e;
+          processedEvent = callbackResult;
         }
       }
     } catch (exception, stackTrace) {
@@ -438,15 +441,30 @@ class SentryClient {
       }
     }
 
-    if (eventOrTransaction == null) {
-      _recordLostEvent(event, DiscardReason.beforeSend);
+    final discardReason = DiscardReason.beforeSend;
+    if (processedEvent == null) {
+      _options.recorder.recordLostEvent(discardReason, _getCategory(event));
+      if (event is SentryTransaction) {
+        // We dropped the whole transaction, the dropped count includes all child spans + 1 root span
+        _options.recorder.recordLostEvent(discardReason, DataCategory.span,
+            count: spanCountBeforeCallback + 1);
+      }
       _options.logger(
         SentryLevel.debug,
         '${event.runtimeType} was dropped by $beforeSendName callback',
       );
+    } else if (event is SentryTransaction &&
+        processedEvent is SentryTransaction) {
+      // If beforeSend removed only some spans we still report them as dropped
+      final spanCountAfterCallback = processedEvent.spans.length;
+      final droppedSpanCount = spanCountBeforeCallback - spanCountAfterCallback;
+      if (droppedSpanCount > 0) {
+        _options.recorder.recordLostEvent(discardReason, DataCategory.span,
+            count: droppedSpanCount);
+      }
     }
 
-    return eventOrTransaction;
+    return processedEvent;
   }
 
   Future<SentryEvent?> _runEventProcessors(
@@ -455,6 +473,9 @@ class SentryClient {
     required List<EventProcessor> eventProcessors,
   }) async {
     SentryEvent? processedEvent = event;
+    int spanCountBeforeEventProcessors =
+        event is SentryTransaction ? event.spans.length : 0;
+
     for (final processor in eventProcessors) {
       try {
         final e = processor.apply(processedEvent!, hint);
@@ -474,12 +495,29 @@ class SentryClient {
           rethrow;
         }
       }
+
+      final discardReason = DiscardReason.eventProcessor;
       if (processedEvent == null) {
-        _recordLostEvent(event, DiscardReason.eventProcessor);
+        _options.recorder.recordLostEvent(discardReason, _getCategory(event));
+        if (event is SentryTransaction) {
+          // We dropped the whole transaction, the dropped count includes all child spans + 1 root span
+          _options.recorder.recordLostEvent(discardReason, DataCategory.span,
+              count: spanCountBeforeEventProcessors + 1);
+        }
         _options.logger(SentryLevel.debug, 'Event was dropped by a processor');
-        break;
+      } else if (event is SentryTransaction &&
+          processedEvent is SentryTransaction) {
+        // If event processor removed only some spans we still report them as dropped
+        final spanCountAfterEventProcessors = processedEvent.spans.length;
+        final droppedSpanCount =
+            spanCountBeforeEventProcessors - spanCountAfterEventProcessors;
+        if (droppedSpanCount > 0) {
+          _options.recorder.recordLostEvent(discardReason, DataCategory.span,
+              count: droppedSpanCount);
+        }
       }
     }
+
     return processedEvent;
   }
 
@@ -490,14 +528,11 @@ class SentryClient {
     return false;
   }
 
-  void _recordLostEvent(SentryEvent event, DiscardReason reason) {
-    DataCategory category;
+  DataCategory _getCategory(SentryEvent event) {
     if (event is SentryTransaction) {
-      category = DataCategory.transaction;
-    } else {
-      category = DataCategory.error;
+      return DataCategory.transaction;
     }
-    _options.recorder.recordLostEvent(reason, category);
+    return DataCategory.error;
   }
 
   Future<SentryId?> _attachClientReportsAndSend(SentryEnvelope envelope) {

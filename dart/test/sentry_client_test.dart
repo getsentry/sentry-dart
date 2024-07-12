@@ -812,6 +812,7 @@ void main() {
         ..fingerprint = fingerprint
         ..addBreadcrumb(crumb)
         ..setTag(scopeTagKey, scopeTagValue)
+        // ignore: deprecated_member_use_from_same_package
         ..setExtra(scopeExtraKey, scopeExtraValue)
         ..replayId = SentryId.fromId('1');
 
@@ -1447,8 +1448,108 @@ void main() {
 
       await client.captureEvent(fakeEvent);
 
-      expect(fixture.recorder.reason, DiscardReason.eventProcessor);
-      expect(fixture.recorder.category, DataCategory.error);
+      expect(fixture.recorder.discardedEvents.first.reason,
+          DiscardReason.eventProcessor);
+      expect(
+          fixture.recorder.discardedEvents.first.category, DataCategory.error);
+    });
+
+    test('record event processor dropping transaction', () async {
+      final sut = fixture.getSut(eventProcessor: DropAllEventProcessor());
+      final transaction = SentryTransaction(fixture.tracer);
+      fixture.tracer.startChild('child1');
+      fixture.tracer.startChild('child2');
+      fixture.tracer.startChild('child3');
+
+      await sut.captureTransaction(transaction);
+
+      expect(fixture.recorder.discardedEvents.length, 2);
+
+      final spanCount = fixture.recorder.discardedEvents
+          .firstWhere((element) =>
+              element.category == DataCategory.span &&
+              element.reason == DiscardReason.eventProcessor)
+          .quantity;
+      expect(spanCount, 4);
+    });
+
+    test('record event processor dropping partially spans', () async {
+      final numberOfSpansDropped = 2;
+      final sut = fixture.getSut(
+          eventProcessor: DropSpansEventProcessor(numberOfSpansDropped));
+      final transaction = SentryTransaction(fixture.tracer);
+      fixture.tracer.startChild('child1');
+      fixture.tracer.startChild('child2');
+      fixture.tracer.startChild('child3');
+
+      await sut.captureTransaction(transaction);
+
+      expect(fixture.recorder.discardedEvents.length, 1);
+
+      final spanCount = fixture.recorder.discardedEvents
+          .firstWhere((element) =>
+              element.category == DataCategory.span &&
+              element.reason == DiscardReason.eventProcessor)
+          .quantity;
+      expect(spanCount, numberOfSpansDropped);
+    });
+
+    test('beforeSendTransaction correctly records partially dropped spans',
+        () async {
+      final sut = fixture.getSut();
+      final transaction = SentryTransaction(fixture.tracer);
+      fixture.tracer.startChild('child1');
+      fixture.tracer.startChild('child2');
+      fixture.tracer.startChild('child3');
+
+      fixture.options.beforeSendTransaction = (transaction) {
+        if (transaction.tracer == fixture.tracer) {
+          return null;
+        }
+        return transaction;
+      };
+
+      await sut.captureTransaction(transaction);
+
+      expect(fixture.recorder.discardedEvents.length, 2);
+
+      final spanCount = fixture.recorder.discardedEvents
+          .firstWhere((element) =>
+              element.category == DataCategory.span &&
+              element.reason == DiscardReason.beforeSend)
+          .quantity;
+      expect(spanCount, 4);
+    });
+
+    test('beforeSendTransaction correctly records partially dropped spans',
+        () async {
+      final sut = fixture.getSut();
+      final transaction = SentryTransaction(fixture.tracer);
+      fixture.tracer.startChild('child1');
+      fixture.tracer.startChild('child2');
+      fixture.tracer.startChild('child3');
+
+      fixture.options.beforeSendTransaction = (transaction) {
+        if (transaction.tracer == fixture.tracer) {
+          transaction.spans
+              .removeWhere((element) => element.context.operation == 'child2');
+          return transaction;
+        }
+        return transaction;
+      };
+
+      await sut.captureTransaction(transaction);
+
+      // we didn't drop the whole transaction, we only have 1 event for the dropped spans
+      expect(fixture.recorder.discardedEvents.length, 1);
+
+      // tracer has 3 span children and we dropped 1 of them
+      final spanCount = fixture.recorder.discardedEvents
+          .firstWhere((element) =>
+              element.category == DataCategory.span &&
+              element.reason == DiscardReason.beforeSend)
+          .quantity;
+      expect(spanCount, 1);
     });
 
     test('record event processor dropping transaction', () async {
@@ -1460,8 +1561,10 @@ void main() {
 
       await client.captureTransaction(transaction);
 
-      expect(fixture.recorder.reason, DiscardReason.eventProcessor);
-      expect(fixture.recorder.category, DataCategory.transaction);
+      expect(fixture.recorder.discardedEvents.first.reason,
+          DiscardReason.eventProcessor);
+      expect(fixture.recorder.discardedEvents.first.category,
+          DataCategory.transaction);
     });
 
     test('record beforeSend dropping event', () async {
@@ -1471,8 +1574,10 @@ void main() {
 
       await client.captureEvent(fakeEvent);
 
-      expect(fixture.recorder.reason, DiscardReason.beforeSend);
-      expect(fixture.recorder.category, DataCategory.error);
+      expect(fixture.recorder.discardedEvents.first.reason,
+          DiscardReason.beforeSend);
+      expect(
+          fixture.recorder.discardedEvents.first.category, DataCategory.error);
     });
 
     test('record sample rate dropping event', () async {
@@ -1482,8 +1587,10 @@ void main() {
 
       await client.captureEvent(fakeEvent);
 
-      expect(fixture.recorder.reason, DiscardReason.sampleRate);
-      expect(fixture.recorder.category, DataCategory.error);
+      expect(fixture.recorder.discardedEvents.first.reason,
+          DiscardReason.sampleRate);
+      expect(
+          fixture.recorder.discardedEvents.first.category, DataCategory.error);
     });
 
     test('user feedback envelope contains dsn', () async {
