@@ -5,6 +5,7 @@ import io.sentry.android.replay.DefaultReplayBreadcrumbConverter
 import io.sentry.rrweb.RRWebBreadcrumbEvent
 import io.sentry.rrweb.RRWebEvent
 import io.sentry.rrweb.RRWebSpanEvent
+import java.util.Date
 import kotlin.LazyThreadSafetyMode.NONE
 
 class SentryFlutterReplayBreadcrumbConverter : DefaultReplayBreadcrumbConverter() {
@@ -53,9 +54,13 @@ class SentryFlutterReplayBreadcrumbConverter : DefaultReplayBreadcrumbConverter(
       level = breadcrumb.level
       data = breadcrumb.data
       timestamp = breadcrumb.timestamp.time
-      breadcrumbTimestamp = breadcrumb.timestamp.time / 1000.0
+      breadcrumbTimestamp = doubleTimestamp(breadcrumb.timestamp)
       breadcrumbType = "default"
     }
+
+  private fun doubleTimestamp(date: Date) = doubleTimestamp(date.time)
+
+  private fun doubleTimestamp(timestamp: Long) = timestamp / 1000.0
 
   private fun getTouchPathMessage(data: Map<String, Any?>): String {
     var message = data["view.id"] as String? ?: ""
@@ -86,8 +91,8 @@ class SentryFlutterReplayBreadcrumbConverter : DefaultReplayBreadcrumbConverter(
           op = "resource.http"
           timestamp = breadcrumb.timestamp.time
           description = breadcrumb.data["url"] as String
-          startTimestamp = (breadcrumb.data["start_timestamp"] as Long) / 1000.0
-          endTimestamp = (breadcrumb.data["end_timestamp"] as Long) / 1000.0
+          startTimestamp = doubleTimestamp(breadcrumb.data["start_timestamp"] as Long)
+          endTimestamp = doubleTimestamp(breadcrumb.data["end_timestamp"] as Long)
           data =
             breadcrumb.data
               .filterKeys { key -> supportedNetworkData.contains(key) }
