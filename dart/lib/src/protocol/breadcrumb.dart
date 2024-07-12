@@ -72,7 +72,8 @@ class Breadcrumb {
         if (requestDuration != null)
           'start_timestamp':
               timestamp.millisecondsSinceEpoch - requestDuration.inMilliseconds,
-        'end_timestamp': timestamp.millisecondsSinceEpoch,
+        if (requestDuration != null)
+          'end_timestamp': timestamp.millisecondsSinceEpoch,
       },
     );
   }
