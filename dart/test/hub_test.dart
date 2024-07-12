@@ -694,11 +694,22 @@ void main() {
     test('record sample rate dropping transaction', () async {
       final hub = fixture.getSut(sampled: false);
       var transaction = SentryTransaction(fixture.tracer);
+      fixture.tracer.startChild('child1');
+      fixture.tracer.startChild('child2');
+      fixture.tracer.startChild('child3');
 
       await hub.captureTransaction(transaction);
 
-      expect(fixture.recorder.reason, DiscardReason.sampleRate);
-      expect(fixture.recorder.category, DataCategory.transaction);
+      expect(fixture.recorder.discardedEvents.length, 2);
+
+      // we dropped the whole tracer and it has 3 span children so the span count should be 4
+      // 3 children + 1 root span
+      final spanCount = fixture.recorder.discardedEvents
+          .firstWhere((element) =>
+              element.category == DataCategory.span &&
+              element.reason == DiscardReason.sampleRate)
+          .quantity;
+      expect(spanCount, 4);
     });
   });
 

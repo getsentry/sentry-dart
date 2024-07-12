@@ -24,16 +24,18 @@ class NativeAppStartEventProcessor implements EventProcessor {
       return event;
     }
 
-    final appStartInfo = await NativeAppStartIntegration.getAppStartInfo();
-
+    AppStartInfo? appStartInfo;
     if (!options.autoAppStart) {
       final appStartEnd = NativeAppStartIntegration.appStartEnd;
       if (appStartEnd != null) {
+        appStartInfo = await NativeAppStartIntegration.getAppStartInfo();
         appStartInfo?.end = appStartEnd;
       } else {
         // If autoAppStart is disabled and appStartEnd is not set, we can't add app starts
         return event;
       }
+    } else {
+      appStartInfo = await NativeAppStartIntegration.getAppStartInfo();
     }
 
     final measurement = appStartInfo?.toMeasurement();

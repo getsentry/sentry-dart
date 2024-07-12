@@ -276,6 +276,8 @@ class Scope {
   }
 
   /// Sets an extra to the Scope
+  @Deprecated(
+      'Use Contexts instead. Additional data is deprecated in favor of structured Contexts and should be avoided when possible')
   Future<void> setExtra(String key, dynamic value) async {
     _setExtraSync(key, value);
     await _callScopeObservers(
@@ -283,6 +285,8 @@ class Scope {
   }
 
   /// Removes an extra from the Scope
+  @Deprecated(
+      'Use Contexts instead. Additional data is deprecated in favor of structured Contexts and should be avoided when possible')
   Future<void> removeExtra(String key) async {
     _extra.remove(key);
     await _callScopeObservers(
