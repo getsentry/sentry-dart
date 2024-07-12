@@ -5,7 +5,6 @@ import io.sentry.android.replay.DefaultReplayBreadcrumbConverter
 import io.sentry.rrweb.RRWebBreadcrumbEvent
 import io.sentry.rrweb.RRWebEvent
 import io.sentry.rrweb.RRWebSpanEvent
-import org.jetbrains.annotations.TestOnly
 import kotlin.LazyThreadSafetyMode.NONE
 
 class SentryFlutterReplayBreadcrumbConverter : DefaultReplayBreadcrumbConverter() {
@@ -26,11 +25,11 @@ class SentryFlutterReplayBreadcrumbConverter : DefaultReplayBreadcrumbConverter(
       "sentry.event" -> null
       "sentry.transaction" -> null
       "http" -> convertNetworkBreadcrumb(breadcrumb)
-      "ui.click" -> convertTouchBreadcrumb(breadcrumb)
-      "navigation" ->
-        RRWebBreadcrumbEvent().apply {
-          category = breadcrumb.category
-          data = breadcrumb.data
+      "navigation" -> newRRWebBreadcrumb(breadcrumb)
+      "ui.click" ->
+        newRRWebBreadcrumb(breadcrumb).apply {
+          category = "ui.tap"
+          message = getTouchPathMessage(breadcrumb.data)
         }
 
       else -> {
@@ -48,20 +47,17 @@ class SentryFlutterReplayBreadcrumbConverter : DefaultReplayBreadcrumbConverter(
     }
   }
 
-  private fun convertTouchBreadcrumb(breadcrumb: Breadcrumb): RRWebEvent {
-    val rrWebEvent = RRWebBreadcrumbEvent()
-    rrWebEvent.category = "ui.tap"
-    rrWebEvent.message = getTouchPathMessage(breadcrumb.data)
-    rrWebEvent.level = breadcrumb.level
-    rrWebEvent.data = breadcrumb.data
-    rrWebEvent.timestamp = breadcrumb.timestamp.time
-    rrWebEvent.breadcrumbTimestamp = breadcrumb.timestamp.time / 1000.0
-    rrWebEvent.breadcrumbType = "default"
-    return rrWebEvent
-  }
+  private fun newRRWebBreadcrumb(breadcrumb: Breadcrumb): RRWebBreadcrumbEvent =
+    RRWebBreadcrumbEvent().apply {
+      category = breadcrumb.category
+      level = breadcrumb.level
+      data = breadcrumb.data
+      timestamp = breadcrumb.timestamp.time
+      breadcrumbTimestamp = breadcrumb.timestamp.time / 1000.0
+      breadcrumbType = "default"
+    }
 
-  @TestOnly
-  fun getTouchPathMessage(data: Map<String, Any?>): String {
+  private fun getTouchPathMessage(data: Map<String, Any?>): String {
     var message = data["view.id"] as String? ?: ""
     if (data.containsKey("label")) {
       message =
