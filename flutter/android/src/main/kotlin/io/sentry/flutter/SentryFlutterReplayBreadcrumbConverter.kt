@@ -1,24 +1,23 @@
 package io.sentry.flutter
 
-import io.sentry.android.replay.DefaultReplayBreadcrumbConverter
 import io.sentry.Breadcrumb
-import io.sentry.rrweb.RRWebEvent
+import io.sentry.android.replay.DefaultReplayBreadcrumbConverter
 import io.sentry.rrweb.RRWebBreadcrumbEvent
+import io.sentry.rrweb.RRWebEvent
 import io.sentry.rrweb.RRWebSpanEvent
 import org.jetbrains.annotations.TestOnly
 import kotlin.LazyThreadSafetyMode.NONE
 
-class SentryFlutterReplayBreadcrumbConverter :
-  DefaultReplayBreadcrumbConverter() {
-
+class SentryFlutterReplayBreadcrumbConverter : DefaultReplayBreadcrumbConverter() {
   internal companion object {
     private val snakecasePattern by lazy(NONE) { "_[a-z]".toRegex() }
-    private val supportedNetworkData = setOf(
-      "status_code",
-      "method",
-      "response_body_size",
-      "request_body_size",
-    )
+    private val supportedNetworkData =
+      setOf(
+        "status_code",
+        "method",
+        "response_body_size",
+        "request_body_size",
+      )
   }
 
   override fun convert(breadcrumb: Breadcrumb): RRWebEvent? {
@@ -28,10 +27,11 @@ class SentryFlutterReplayBreadcrumbConverter :
       "sentry.transaction" -> null
       "http" -> convertNetworkBreadcrumb(breadcrumb)
       "ui.click" -> convertTouchBreadcrumb(breadcrumb)
-      "navigation" -> RRWebBreadcrumbEvent().apply {
-        category = breadcrumb.category
-        data = breadcrumb.data
-      }
+      "navigation" ->
+        RRWebBreadcrumbEvent().apply {
+          category = breadcrumb.category
+          data = breadcrumb.data
+        }
 
       else -> {
         val nativeBreadcrumb = super.convert(breadcrumb)
@@ -64,11 +64,12 @@ class SentryFlutterReplayBreadcrumbConverter :
   fun getTouchPathMessage(data: Map<String, Any?>): String {
     var message = data["view.id"] as String? ?: ""
     if (data.containsKey("label")) {
-      message = if (message.isNotEmpty()) {
-        "$message, label: ${data["label"]}"
-      } else {
-        data["label"] as String
-      }
+      message =
+        if (message.isNotEmpty()) {
+          "$message, label: ${data["label"]}"
+        } else {
+          data["label"] as String
+        }
     }
 
     if (data.containsKey("view.class")) {
@@ -81,22 +82,24 @@ class SentryFlutterReplayBreadcrumbConverter :
   private fun convertNetworkBreadcrumb(breadcrumb: Breadcrumb): RRWebEvent? {
     var rrWebEvent = super.convert(breadcrumb)
     if (rrWebEvent == null &&
-      breadcrumb.data.containsKey("start_timestamp") && breadcrumb.data.containsKey("end_timestamp")
+      breadcrumb.data.containsKey("start_timestamp") &&
+      breadcrumb.data.containsKey("end_timestamp")
     ) {
-      rrWebEvent = RRWebSpanEvent().apply {
-        op = "resource.http"
-        timestamp = breadcrumb.timestamp.time
-        description = breadcrumb.data["url"] as String
-        startTimestamp = (breadcrumb.data["start_timestamp"] as Long) / 1000.0
-        endTimestamp = (breadcrumb.data["end_timestamp"] as Long) / 1000.0
-        data = breadcrumb.data.filterKeys { key -> supportedNetworkData.contains(key) }
-          .mapKeys { (key, _) -> key.snakeToCamelCase() }
-      }
+      rrWebEvent =
+        RRWebSpanEvent().apply {
+          op = "resource.http"
+          timestamp = breadcrumb.timestamp.time
+          description = breadcrumb.data["url"] as String
+          startTimestamp = (breadcrumb.data["start_timestamp"] as Long) / 1000.0
+          endTimestamp = (breadcrumb.data["end_timestamp"] as Long) / 1000.0
+          data =
+            breadcrumb.data
+              .filterKeys { key -> supportedNetworkData.contains(key) }
+              .mapKeys { (key, _) -> key.snakeToCamelCase() }
+        }
     }
     return rrWebEvent
   }
 
-  private fun String.snakeToCamelCase(): String {
-    return replace(snakecasePattern) { it.value.last().uppercase() }
-  }
+  private fun String.snakeToCamelCase(): String = replace(snakecasePattern) { it.value.last().uppercase() }
 }
