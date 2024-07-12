@@ -179,7 +179,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: ktlint
-        uses: ScaCap/action-ktlint@7bfa4928cf705b83700c91fecc0e1a3a4c0e99ad # pin@1.8.3
+        uses: ScaCap/action-ktlint@26c5e9b625966139d9956cbbb6217375480d4e14 # pin@1.9.0
         with:
           github_token: ${{ secrets.github_token }}
           reporter: github-pr-review
