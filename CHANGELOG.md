@@ -25,6 +25,11 @@
   - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8301)
   - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.30.0...8.30.1)
 
+### Deprecated
+
+- Deprecate `setExtra` and `removeExtra` ([#2159](https://github.com/getsentry/sentry-dart/pull/2159))
+  - Use the `Contexts` structure via `setContexts` instead
+
 ## 8.4.0-beta.1
 
 ### Features
