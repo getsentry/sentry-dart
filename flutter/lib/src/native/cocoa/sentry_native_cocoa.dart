@@ -15,6 +15,7 @@ import 'binding.dart' as cocoa;
 class SentryNativeCocoa extends SentryNativeChannel {
   late final _lib = cocoa.SentryCocoa(DynamicLibrary.process());
   ScreenshotRecorder? _replayRecorder;
+  SentryId? _replayId;
 
   SentryNativeCocoa(super.options, super.channel);
 
@@ -22,7 +23,8 @@ class SentryNativeCocoa extends SentryNativeChannel {
   Future<void> init(SentryFlutterOptions options) async {
     // We only need these when replay is enabled (session or error capture)
     // so let's set it up conditionally. This allows Dart to trim the code.
-    if (options.experimental.replay.isEnabled) {
+    if (options.experimental.replay.isEnabled &&
+        options.platformChecker.platform.isIOS) {
       // We only need the integration when error-replay capture is enabled.
       if ((options.experimental.replay.errorSampleRate ?? 0) > 0) {
         options.addEventProcessor(ReplayEventProcessor(this));
@@ -33,6 +35,15 @@ class SentryNativeCocoa extends SentryNativeChannel {
           case 'captureReplayScreenshot':
             _replayRecorder ??=
                 ScreenshotRecorder(ScreenshotRecorderConfig(), options);
+            final replayId =
+                SentryId.fromId(call.arguments['replayId'] as String);
+            if (_replayId != replayId) {
+              _replayId = replayId;
+              Sentry.configureScope((s) {
+                // ignore: invalid_use_of_internal_member
+                s.replayId = replayId;
+              });
+            }
 
             Uint8List? imageBytes;
             await _replayRecorder?.capture((image) async {

@@ -22,7 +22,7 @@
            onComplete:(void (^_Nonnull)(UIImage *_Nonnull))onComplete {
   [self->channel
       invokeMethod:@"captureReplayScreenshot"
-         arguments:nil
+         arguments:@{@"replayId" : [PrivateSentrySDKOnly getReplayId]}
             result:^(id value) {
               if (value == nil) {
                 NSLog(@"SentryFlutterReplayScreenshotProvider received null "
