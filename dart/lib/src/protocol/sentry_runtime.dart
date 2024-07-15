@@ -88,6 +88,7 @@ class SentryRuntime {
         compiler: compiler,
         rawDescription: rawDescription,
         build: build,
+        unknown: unknown,
       );
 
   SentryRuntime copyWith({
