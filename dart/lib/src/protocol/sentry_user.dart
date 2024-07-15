@@ -1,6 +1,7 @@
 import 'package:meta/meta.dart';
 
 import '../../sentry.dart';
+import 'unknown.dart';
 
 /// Describes the current user associated with the application, such as the
 /// currently signed in user.
@@ -44,6 +45,7 @@ class SentryUser {
     Map<String, dynamic>? data,
     @Deprecated('Will be removed in v8. Use [data] instead')
     Map<String, dynamic>? extras,
+    this.unknown,
   })  : assert(
           id != null ||
               username != null ||
@@ -92,6 +94,9 @@ class SentryUser {
   /// Human readable name of the user.
   final String? name;
 
+  @internal
+  final Map<String, dynamic>? unknown;
+
   /// Deserializes a [SentryUser] from JSON [Map].
   factory SentryUser.fromJson(Map<String, dynamic> json) {
     var extras = json['extras'];
@@ -120,13 +125,24 @@ class SentryUser {
       name: json['name'],
       // ignore: deprecated_member_use_from_same_package
       extras: extras,
+      unknown: unknownFrom(json, {
+        'id',
+        'username',
+        'email',
+        'ip_address',
+        'segment',
+        'data',
+        'geo',
+        'name',
+        'extras',
+      }),
     );
   }
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
     final geoJson = geo?.toJson();
-    return <String, dynamic>{
+    final json = <String, dynamic>{
       if (id != null) 'id': id,
       if (username != null) 'username': username,
       if (email != null) 'email': email,
@@ -139,6 +155,10 @@ class SentryUser {
       if (name != null) 'name': name,
       if (geoJson != null && geoJson.isNotEmpty) 'geo': geoJson,
     };
+    if (unknown != null) {
+      json.addAll(unknown ?? {});
+    }
+    return json;
   }
 
   SentryUser copyWith({
@@ -165,6 +185,7 @@ class SentryUser {
       extras: extras ?? this.extras,
       geo: geo ?? this.geo,
       name: name ?? this.name,
+      unknown: unknown,
     );
   }
 }
