@@ -1,4 +1,5 @@
 import 'package:meta/meta.dart';
+import 'package:sentry/src/protocol/unknown.dart';
 
 import '../utils/iterable_utils.dart';
 import '../utils/http_sanitizer.dart';
@@ -69,6 +70,9 @@ class SentryRequest {
   /// its target specification.
   final String? apiTarget;
 
+  @internal
+  final Map<String, dynamic>? unknown;
+
   SentryRequest({
     this.url,
     this.method,
@@ -81,6 +85,7 @@ class SentryRequest {
     Map<String, String>? env,
     @Deprecated('Will be removed in v8. Use [data] instead')
     Map<String, String>? other,
+    this.unknown,
   })  : _data = data,
         _headers = headers != null ? Map.from(headers) : null,
         // Look for a 'Set-Cookie' header (case insensitive) if not given.
@@ -132,12 +137,24 @@ class SentryRequest {
       other: json.containsKey('other') ? Map.from(json['other']) : null,
       fragment: json['fragment'],
       apiTarget: json['api_target'],
+      unknown: unknownFrom(json, {
+        'url',
+        'method',
+        'query_string',
+        'cookies',
+        'data',
+        'headers',
+        'env',
+        'other',
+        'fragment',
+        'api_target',
+      }),
     );
   }
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
-    return <String, dynamic>{
+    final json = <String, dynamic>{
       if (url != null) 'url': url,
       if (method != null) 'method': method,
       if (queryString != null) 'query_string': queryString,
@@ -150,6 +167,10 @@ class SentryRequest {
       if (fragment != null) 'fragment': fragment,
       if (apiTarget != null) 'api_target': apiTarget,
     };
+    if (unknown != null) {
+      json.addAll(unknown ?? {});
+    }
+    return json;
   }
 
   SentryRequest copyWith({
@@ -178,5 +199,6 @@ class SentryRequest {
         apiTarget: apiTarget ?? this.apiTarget,
         // ignore: deprecated_member_use_from_same_package
         other: other ?? _other,
+        unknown: unknown,
       );
 }
