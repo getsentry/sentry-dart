@@ -4,7 +4,8 @@
 
 ### Features
 
-- Add flag to disable reporting of view hierarchy identifiers which may contain sensitive information ([#2158](https://github.com/getsentry/sentry-dart/pull/2158))
+- Add flag to disable reporting of view hierarchy identifiers ([#2158](https://github.com/getsentry/sentry-dart/pull/2158))
+  - Use `reportViewHierarchyIdentifiers` to enable or disable the option
 - Record dropped spans in client reports ([#2154](https://github.com/getsentry/sentry-dart/pull/2154))
 - Add memory usage to contexts ([#2133](https://github.com/getsentry/sentry-dart/pull/2133))
   - Only for Linux/Windows applications, as iOS/Android/macOS use native SDKs
