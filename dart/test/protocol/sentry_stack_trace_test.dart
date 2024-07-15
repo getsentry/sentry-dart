@@ -8,6 +8,8 @@ void main() {
   final sentryStackTrace = SentryStackTrace(
     frames: [SentryStackFrame(absPath: 'abs')],
     registers: {'key': 'value'},
+    lang: 'de',
+    snapshot: true,
     unknown: testUnknown,
   );
 
@@ -16,6 +18,8 @@ void main() {
       {'abs_path': 'abs'}
     ],
     'registers': {'key': 'value'},
+    'lang': 'de',
+    'snapshot': true,
   };
   sentryStackTraceJson.addAll(testUnknown);
 
