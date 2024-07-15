@@ -1,5 +1,5 @@
 import 'package:meta/meta.dart';
-import 'package:sentry/src/protocol/unknown.dart';
+import 'unknown.dart';
 
 import '../utils/iterable_utils.dart';
 import '../utils/http_sanitizer.dart';

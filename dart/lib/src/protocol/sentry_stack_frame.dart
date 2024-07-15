@@ -1,5 +1,5 @@
 import 'package:meta/meta.dart';
-import 'package:sentry/src/protocol/unknown.dart';
+import 'unknown.dart';
 
 /// Frames belong to a StackTrace
 /// It should contain at least a filename, function or instruction_addr
