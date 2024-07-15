@@ -173,6 +173,7 @@ void main() {
         MapEquality().equals(
           contexts.app!.toJson(),
           {
+            'app_id': 'D533244D-985D-3996-9FC2-9FA353D28586',
             'app_name': 'sentry_flutter_example',
             'app_version': '0.1.2',
             'app_identifier': 'io.sentry.flutter.example',
