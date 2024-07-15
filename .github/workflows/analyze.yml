@@ -51,6 +51,11 @@ jobs:
 
       - run: dart doc --dry-run
 
+      - name: Run publish validation
+        run: |
+          dart pub get --directory ../scripts/publish_validation
+          dart run ../scripts/publish_validation/bin/publish_validation.dart --executable ${{ inputs.sdk }}
+
   package-analysis:
     # `axel-op/dart-package-analyzer` is using `flutter pub upgrade` instead of `get`,
     # which ignores pubspec.yaml `dependency_overrides`. Because of that, all `release/*` branches are failing,

@@ -44,6 +44,7 @@ Future<void> runApp() async {
       ..transaction = '/example/app'
       ..level = SentryLevel.warning;
     await scope.setTag('build', '579');
+    // ignore: deprecated_member_use
     await scope.setExtra('company-name', 'Dart Inc');
 
     await scope.setUser(

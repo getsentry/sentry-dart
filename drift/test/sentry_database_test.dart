@@ -324,9 +324,14 @@ void main() {
         });
       } catch (_) {}
 
+      final spans = fixture.tracer.children
+          .where((child) => child.status == SpanStatus.aborted());
+      expect(spans.length, 1);
+      final abortedSpan = spans.first;
+
       verifySpan(
         expectedTransactionStatement,
-        fixture.getCreatedSpan(),
+        abortedSpan,
         origin: SentryTraceOrigins.autoDbDriftTransactionExecutor,
         status: SpanStatus.aborted(),
       );

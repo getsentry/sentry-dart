@@ -54,6 +54,8 @@ extension _DataCategoryExtension on DataCategory {
         return 'session';
       case DataCategory.transaction:
         return 'transaction';
+      case DataCategory.span:
+        return 'span';
       case DataCategory.attachment:
         return 'attachment';
       case DataCategory.security:

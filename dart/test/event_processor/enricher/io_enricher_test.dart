@@ -1,6 +1,8 @@
 @TestOn('vm')
 library dart_test;
 
+import 'dart:io';
+
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/event_processor/enricher/io_enricher_event_processor.dart';
 import 'package:test/test.dart';
@@ -25,6 +27,8 @@ void main() {
           .firstWhere((element) => element.name == 'Dart');
       expect(dartRuntime?.name, 'Dart');
       expect(dartRuntime?.rawDescription, isNotNull);
+      expect(dartRuntime!.version.toString(), isNot(Platform.version));
+      expect(Platform.version, contains(dartRuntime.version.toString()));
     });
 
     test('does add to existing runtimes', () {

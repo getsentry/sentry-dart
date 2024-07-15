@@ -2,6 +2,7 @@
 library flutter_test;
 
 import 'dart:convert';
+
 // backcompatibility for Flutter < 3.3
 // ignore: unnecessary_import
 import 'dart:typed_data';
@@ -39,7 +40,7 @@ void main() {
   });
 
   test('$FileSystemTransport returns emptyId if channel throws', () async {
-    when(fixture.binding.captureEnvelope(any)).thenThrow(Exception());
+    when(fixture.binding.captureEnvelope(any, false)).thenThrow(Exception());
 
     final transport = fixture.getSut();
     final event = SentryEvent();
@@ -56,6 +57,58 @@ void main() {
     expect(SentryId.empty(), sentryId);
   });
 
+  test(
+      'sets unhandled exception flag in captureEnvelope to true for unhandled exception',
+      () async {
+    final transport = fixture.getSut();
+
+    final unhandledException = SentryException(
+      mechanism: Mechanism(type: 'UnhandledException', handled: false),
+      threadId: 99,
+      type: 'Exception',
+      value: 'Unhandled exception',
+    );
+    final event = SentryEvent(exceptions: [unhandledException]);
+    final sdkVersion =
+        SdkVersion(name: 'fixture-sdkName', version: 'fixture-sdkVersion');
+    final envelope = SentryEnvelope.fromEvent(
+      event,
+      sdkVersion,
+      dsn: fixture.options.dsn,
+    );
+
+    await transport.send(envelope);
+
+    verify(fixture.binding.captureEnvelope(captureAny, true)).captured.single
+        as Uint8List;
+  });
+
+  test(
+      'sets unhandled exception flag in captureEnvelope to false for handled exception',
+      () async {
+    final transport = fixture.getSut();
+
+    final unhandledException = SentryException(
+      mechanism: Mechanism(type: 'UnhandledException', handled: true),
+      threadId: 99,
+      type: 'Exception',
+      value: 'Unhandled exception',
+    );
+    final event = SentryEvent(exceptions: [unhandledException]);
+    final sdkVersion =
+        SdkVersion(name: 'fixture-sdkName', version: 'fixture-sdkVersion');
+    final envelope = SentryEnvelope.fromEvent(
+      event,
+      sdkVersion,
+      dsn: fixture.options.dsn,
+    );
+
+    await transport.send(envelope);
+
+    verify(fixture.binding.captureEnvelope(captureAny, false)).captured.single
+        as Uint8List;
+  });
+
   test('$FileSystemTransport asserts the event', () async {
     final transport = fixture.getSut();
 
@@ -70,9 +123,10 @@ void main() {
     );
     await transport.send(envelope);
 
-    final envelopeData = verify(fixture.binding.captureEnvelope(captureAny))
-        .captured
-        .single as Uint8List;
+    final envelopeData =
+        verify(fixture.binding.captureEnvelope(captureAny, false))
+            .captured
+            .single as Uint8List;
     final envelopeString = utf8.decode(envelopeData);
     final lines = envelopeString.split('\n');
     final envelopeHeader = lines.first;
