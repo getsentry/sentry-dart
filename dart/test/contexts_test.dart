@@ -224,7 +224,6 @@ const jsonContexts = '''
     "memory_size": 17179869184,
     "storage_size": 1023683072000,
     "boot_time": "2020-11-18T13:28:11Z",
-    "timezone": "GMT+1",
     "usable_memory": 17114120192
   },
   "app": {

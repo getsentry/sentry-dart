@@ -204,9 +204,7 @@ class SentryStackFrame {
       if (symbol != null) 'symbol': symbol,
       if (stackStart != null) 'stack_start': stackStart,
     };
-    if (unknown != null) {
-      json.addAll(unknown ?? {});
-    }
+    json.addAll(unknown ?? {});
     return json;
   }
 

@@ -65,9 +65,7 @@ class SentryThread {
       if (current != null) 'current': current,
       if (stacktrace != null) 'stacktrace': stacktrace.toJson(),
     };
-    if (unknown != null) {
-      json.addAll(unknown ?? {});
-    }
+    json.addAll(unknown ?? {});
     return json;
   }
 

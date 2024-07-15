@@ -167,9 +167,7 @@ class SentryRequest {
       if (fragment != null) 'fragment': fragment,
       if (apiTarget != null) 'api_target': apiTarget,
     };
-    if (unknown != null) {
-      json.addAll(unknown ?? {});
-    }
+    json.addAll(unknown ?? {});
     return json;
   }
 

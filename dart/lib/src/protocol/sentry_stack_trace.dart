@@ -75,9 +75,7 @@ class SentryStackTrace {
       if (lang != null) 'lang': lang,
       if (snapshot != null) 'snapshot': snapshot,
     };
-    if (unknown != null) {
-      json.addAll(unknown ?? {});
-    }
+    json.addAll(unknown ?? {});
     return json;
   }
 

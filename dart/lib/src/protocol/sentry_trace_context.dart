@@ -78,9 +78,7 @@ class SentryTraceContext {
       if (status != null) 'status': status!.toString(),
       if (origin != null) 'origin': origin,
     };
-    if (unknown != null) {
-      json.addAll(unknown ?? {});
-    }
+    json.addAll(unknown ?? {});
     return json;
   }
 

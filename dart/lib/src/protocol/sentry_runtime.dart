@@ -75,9 +75,7 @@ class SentryRuntime {
       if (rawDescription != null) 'raw_description': rawDescription,
       if (build != null) 'build': build,
     };
-    if (unknown != null) {
-      json.addAll(unknown ?? {});
-    }
+    json.addAll(unknown ?? {});
     return json;
   }
 

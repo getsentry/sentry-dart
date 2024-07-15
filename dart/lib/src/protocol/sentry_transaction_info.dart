@@ -14,9 +14,7 @@ class SentryTransactionInfo {
     final json = <String, dynamic>{
       'source': source,
     };
-    if (unknown != null) {
-      json.addAll(unknown ?? {});
-    }
+    json.addAll(unknown ?? {});
     return json;
   }
 

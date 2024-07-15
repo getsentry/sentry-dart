@@ -52,9 +52,7 @@ class SentryUserFeedback {
       if (email != null) 'email': email,
       if (comments != null) 'comments': comments,
     };
-    if (unknown != null) {
-      json.addAll(unknown ?? {});
-    }
+    json.addAll(unknown ?? {});
     return json;
   }
 

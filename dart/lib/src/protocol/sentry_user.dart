@@ -155,9 +155,7 @@ class SentryUser {
       if (name != null) 'name': name,
       if (geoJson != null && geoJson.isNotEmpty) 'geo': geoJson,
     };
-    if (unknown != null) {
-      json.addAll(unknown ?? {});
-    }
+    json.addAll(unknown ?? {});
     return json;
   }
 

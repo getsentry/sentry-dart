@@ -74,9 +74,7 @@ class SentryTraceContextHeader {
       if (sampleRate != null) 'sample_rate': sampleRate,
       if (sampled != null) 'sampled': sampled,
     };
-    if (unknown != null) {
-      json.addAll(unknown ?? {});
-    }
+    json.addAll(unknown ?? {});
     return json;
   }
 
