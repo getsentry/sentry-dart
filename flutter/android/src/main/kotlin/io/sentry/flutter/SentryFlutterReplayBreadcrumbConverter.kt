@@ -12,13 +12,12 @@ private const val MILLIS_PER_SECOND = 1000.0
 
 class SentryFlutterReplayBreadcrumbConverter : DefaultReplayBreadcrumbConverter() {
   internal companion object {
-    private val snakecasePattern by lazy(NONE) { "_[a-z]".toRegex() }
     private val supportedNetworkData =
-      setOf(
-        "status_code",
-        "method",
-        "response_body_size",
-        "request_body_size",
+      mapOf(
+        "status_code" to "statusCode",
+        "method" to "method",
+        "response_body_size" to "responseBodySize",
+        "request_body_size" to "requestBodySize",
       )
   }
 
@@ -79,12 +78,10 @@ class SentryFlutterReplayBreadcrumbConverter : DefaultReplayBreadcrumbConverter(
           endTimestamp = doubleTimestamp(breadcrumb.data["end_timestamp"] as Long)
           data =
             breadcrumb.data
-              .filterKeys { key -> supportedNetworkData.contains(key) }
-              .mapKeys { (key, _) -> key.snakeToCamelCase() }
+              .filterKeys { key -> supportedNetworkData.containsKey(key) }
+              .mapKeys { (key, _) -> supportedNetworkData[key] }
         }
     }
     return rrWebEvent
   }
-
-  private fun String.snakeToCamelCase(): String = replace(snakecasePattern) { it.value.last().uppercase() }
 }
