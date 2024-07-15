@@ -1,4 +1,5 @@
 import 'package:meta/meta.dart';
+import 'package:sentry/src/protocol/unknown.dart';
 
 /// Frames belong to a StackTrace
 /// It should contain at least a filename, function or instruction_addr
@@ -26,6 +27,7 @@ class SentryStackFrame {
     List<String>? preContext,
     List<String>? postContext,
     Map<String, dynamic>? vars,
+    this.unknown,
   })  : _framesOmitted =
             framesOmitted != null ? List.from(framesOmitted) : null,
         _preContext = preContext != null ? List.from(preContext) : null,
@@ -124,6 +126,9 @@ class SentryStackFrame {
   /// This is relevant for languages like Swift, C++ or Rust.
   final String? symbol;
 
+  @internal
+  final Map<String, dynamic>? unknown;
+
   /// Deserializes a [SentryStackFrame] from JSON [Map].
   factory SentryStackFrame.fromJson(Map<String, dynamic> json) {
     return SentryStackFrame(
@@ -148,12 +153,35 @@ class SentryStackFrame {
       vars: json['vars'],
       symbol: json['symbol'],
       stackStart: json['stack_start'],
+      unknown: unknownFrom(json, {
+        'abs_path',
+        'filename',
+        'function',
+        'module',
+        'lineno',
+        'colno',
+        'context_line',
+        'in_app',
+        'package',
+        'native',
+        'platform',
+        'image_addr',
+        'symbol_addr',
+        'instruction_addr',
+        'raw_function',
+        'frames_omitted',
+        'pre_context',
+        'post_context',
+        'vars',
+        'symbol',
+        'stack_start',
+      }),
     );
   }
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
-    return <String, dynamic>{
+    final json = <String, dynamic>{
       if (_preContext?.isNotEmpty ?? false) 'pre_context': _preContext,
       if (_postContext?.isNotEmpty ?? false) 'post_context': _postContext,
       if (_vars?.isNotEmpty ?? false) 'vars': _vars,
@@ -176,6 +204,10 @@ class SentryStackFrame {
       if (symbol != null) 'symbol': symbol,
       if (stackStart != null) 'stack_start': stackStart,
     };
+    if (unknown != null) {
+      json.addAll(unknown ?? {});
+    }
+    return json;
   }
 
   SentryStackFrame copyWith({
@@ -223,5 +255,6 @@ class SentryStackFrame {
         vars: vars ?? _vars,
         symbol: symbol ?? symbol,
         stackStart: stackStart ?? stackStart,
+        unknown: unknown,
       );
 }
