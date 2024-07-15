@@ -20,37 +20,25 @@
     (SentryBreadcrumb *_Nonnull)breadcrumb {
   assert(breadcrumb.timestamp != nil);
 
-  if ([breadcrumb.category isEqualToString:@"sentry.event"] ||
+  if (breadcrumb.category == nil
+      // Do not add Sentry Event breadcrumbs to replay
+      || [breadcrumb.category isEqualToString:@"sentry.event"] ||
       [breadcrumb.category isEqualToString:@"sentry.transaction"]) {
-    // Do not add Sentry Event breadcrumbs to replay
     return nil;
   }
 
   if ([breadcrumb.category isEqualToString:@"http"]) {
-    // Drop native network breadcrumbs to avoid duplicates
-    return nil;
-  }
-  if ([breadcrumb.type isEqualToString:@"navigation"] &&
-      ![breadcrumb.category isEqualToString:@"navigation"]) {
-    // Drop native navigation breadcrumbs to avoid duplicates
-    return nil;
-  }
-
-  if ([breadcrumb.category isEqualToString:@"touch"]) {
-    return [self convertTouch:breadcrumb];
+    return [self convertNetwork:breadcrumb];
   }
 
   if ([breadcrumb.category isEqualToString:@"navigation"]) {
-    return [SentrySessionReplayIntegration
-        createBreadcrumbwithTimestamp:breadcrumb.timestamp
-                             category:breadcrumb.category
-                              message:nil
-                                level:breadcrumb.level
-                                 data:breadcrumb.data];
+    return [self convertFrom:breadcrumb withCategory:nil andMessage:nil];
   }
 
-  if ([breadcrumb.category isEqualToString:@"xhr"]) {
-    return [self convertNavigation:breadcrumb];
+  if ([breadcrumb.category isEqualToString:@"ui.click"]) {
+    return [self convertFrom:breadcrumb
+                withCategory:@"ui.tap"
+                  andMessage:breadcrumb.data[@"path"]];
   }
 
   SentryRRWebEvent *nativeBreadcrumb =
@@ -68,23 +56,19 @@
   return nativeBreadcrumb;
 }
 
-- (id<SentryRRWebEvent> _Nullable)convertTouch:
-    (SentryBreadcrumb *_Nonnull)breadcrumb {
-  if (breadcrumb.data == nil) {
-    return nil;
-  }
-
-  NSString *message = @""; // TODO
-
+- (id<SentryRRWebEvent> _Nullable)convertFrom:
+                                      (SentryBreadcrumb *_Nonnull)breadcrumb
+                                 withCategory:(NSString *)category
+                                   andMessage:(NSString *)message {
   return [SentrySessionReplayIntegration
       createBreadcrumbwithTimestamp:breadcrumb.timestamp
-                           category:@"ui.tap"
-                            message:message
+                           category:category ?: breadcrumb.category
+                            message:message ?: breadcrumb.message
                               level:breadcrumb.level
                                data:breadcrumb.data];
 }
 
-- (id<SentryRRWebEvent> _Nullable)convertNavigation:
+- (id<SentryRRWebEvent> _Nullable)convertNetwork:
     (SentryBreadcrumb *_Nonnull)breadcrumb {
   NSNumber *startTimestamp =
       [breadcrumb.data[@"start_timestamp"] isKindOfClass:[NSNumber class]]
@@ -117,16 +101,15 @@
   }
 
   return [SentrySessionReplayIntegration
-      createNetworkBreadcrumbWithTimestamp:
-          [NSDate
-              dateWithTimeIntervalSince1970:(startTimestamp.doubleValue / 1000)]
-                              endTimestamp:[NSDate
-                                               dateWithTimeIntervalSince1970:
-                                                   (endTimestamp.doubleValue /
-                                                    1000)]
+      createNetworkBreadcrumbWithTimestamp:[self dateFrom:startTimestamp]
+                              endTimestamp:[self dateFrom:endTimestamp]
                                  operation:@"resource.http"
                                description:url
                                       data:data];
+}
+
+- (NSDate *_Nonnull)dateFrom:(NSNumber *_Nonnull)timestamp {
+  return [NSDate dateWithTimeIntervalSince1970:(timestamp.doubleValue / 1000)];
 }
 
 @end
