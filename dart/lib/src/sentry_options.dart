@@ -1,17 +1,18 @@
 import 'dart:async';
 import 'dart:developer';
 
-import 'package:meta/meta.dart';
 import 'package:http/http.dart';
+import 'package:meta/meta.dart';
 
 import '../sentry.dart';
 import 'client_reports/client_report_recorder.dart';
 import 'client_reports/noop_client_report_recorder.dart';
-import 'sentry_exception_factory.dart';
-import 'sentry_stack_trace_factory.dart';
+import 'dart_error_type_identifier.dart';
 import 'diagnostic_logger.dart';
 import 'environment/environment_variables.dart';
 import 'noop_client.dart';
+import 'sentry_exception_factory.dart';
+import 'sentry_stack_trace_factory.dart';
 import 'transport/noop_transport.dart';
 import 'version.dart';
 
@@ -435,6 +436,16 @@ class SentryOptions {
   /// [SentryIsolate], have `level` [SentryLevel.fatal] set per default.
   /// Settings this to `false` will set the `level` to [SentryLevel.error].
   bool markAutomaticallyCollectedErrorsAsFatal = true;
+
+  final List<ErrorTypeIdentifier> _errorTypeIdentifiers = [
+    DartErrorIdentifier(),
+  ];
+
+  List<ErrorTypeIdentifier> get errorTypeIdentifiers => _errorTypeIdentifiers;
+
+  void addErrorTypeIdentifier(ErrorTypeIdentifier errorTypeIdentifier) {
+    _errorTypeIdentifiers.add(errorTypeIdentifier);
+  }
 
   /// The Spotlight configuration.
   /// Disabled by default.
