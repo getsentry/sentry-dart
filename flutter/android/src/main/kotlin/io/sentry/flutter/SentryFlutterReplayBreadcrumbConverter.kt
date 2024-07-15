@@ -32,7 +32,7 @@ class SentryFlutterReplayBreadcrumbConverter : DefaultReplayBreadcrumbConverter(
       "ui.click" ->
         newRRWebBreadcrumb(breadcrumb).apply {
           category = "ui.tap"
-          message = getTouchPathMessage(breadcrumb.data)
+          message = breadcrumb.data["path"] as String?
         }
 
       else -> {
@@ -63,24 +63,6 @@ class SentryFlutterReplayBreadcrumbConverter : DefaultReplayBreadcrumbConverter(
   private fun doubleTimestamp(date: Date) = doubleTimestamp(date.time)
 
   private fun doubleTimestamp(timestamp: Long) = timestamp / MILLIS_PER_SECOND
-
-  private fun getTouchPathMessage(data: Map<String, Any?>): String {
-    var message = data["view.id"] as String? ?: ""
-    if (data.containsKey("label")) {
-      message =
-        if (message.isNotEmpty()) {
-          "$message, label: ${data["label"]}"
-        } else {
-          data["label"] as String
-        }
-    }
-
-    if (data.containsKey("view.class")) {
-      message = "${data["view.class"]}($message)"
-    }
-
-    return message
-  }
 
   private fun convertNetworkBreadcrumb(breadcrumb: Breadcrumb): RRWebEvent? {
     var rrWebEvent = super.convert(breadcrumb)

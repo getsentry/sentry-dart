@@ -104,11 +104,32 @@ class Breadcrumb {
     String? viewClass,
   }) {
     final newData = data ?? {};
+    var path = '';
+
     if (viewId != null) {
       newData['view.id'] = viewId;
+      path = viewId;
     }
+
+    if (newData.containsKey('label')) {
+      if (path.isEmpty) {
+        path = newData['label'];
+      } else {
+        path = "$path, label: ${newData['label']}";
+      }
+    }
+
     if (viewClass != null) {
       newData['view.class'] = viewClass;
+      if (path.isEmpty) {
+        path = viewClass;
+      } else {
+        path = "$viewClass($path)";
+      }
+    }
+
+    if (path.isNotEmpty && !newData.containsKey('path')) {
+      newData['path'] = path;
     }
 
     return Breadcrumb(
