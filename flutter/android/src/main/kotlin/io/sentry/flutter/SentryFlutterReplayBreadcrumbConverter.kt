@@ -6,7 +6,6 @@ import io.sentry.rrweb.RRWebBreadcrumbEvent
 import io.sentry.rrweb.RRWebEvent
 import io.sentry.rrweb.RRWebSpanEvent
 import java.util.Date
-import kotlin.LazyThreadSafetyMode.NONE
 
 private const val MILLIS_PER_SECOND = 1000.0
 
