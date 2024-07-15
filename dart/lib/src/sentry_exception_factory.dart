@@ -61,11 +61,11 @@ class SentryExceptionFactory {
     final stackTraceString = stackTrace.toString();
     final value = throwableString.replaceAll(stackTraceString, '').trim();
 
-    String type = throwable.runtimeType.toString();
-    for (final identifier in _options.errorTypeIdentifiers) {
-      final typeName = identifier.getTypeName(throwable);
-      if (typeName != null) {
-        type = typeName;
+    String errorTypeName = throwable.runtimeType.toString();
+    for (final errorTypeIdentifier in _options.errorTypeIdentifiers) {
+      final identifiedErrorType = errorTypeIdentifier.getTypeName(throwable);
+      if (identifiedErrorType != null) {
+        errorTypeName = identifiedErrorType;
         break;
       }
     }
@@ -73,7 +73,7 @@ class SentryExceptionFactory {
     // if --obfuscate feature is enabled, 'type' won't be human readable.
     // https://flutter.dev/docs/deployment/obfuscate#caveat
     return SentryException(
-      type: type,
+      type: errorTypeName,
       value: value.isNotEmpty ? value : null,
       mechanism: mechanism,
       stackTrace: sentryStackTrace,
