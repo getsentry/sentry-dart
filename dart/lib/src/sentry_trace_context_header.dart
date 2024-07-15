@@ -1,4 +1,7 @@
+import 'package:meta/meta.dart';
+
 import 'protocol/sentry_id.dart';
+import 'protocol/unknown.dart';
 import 'sentry_baggage.dart';
 import 'sentry_options.dart';
 
@@ -13,6 +16,7 @@ class SentryTraceContextHeader {
     this.transaction,
     this.sampleRate,
     this.sampled,
+    this.unknown,
   });
 
   final SentryId traceId;
@@ -27,6 +31,9 @@ class SentryTraceContextHeader {
   final String? sampleRate;
   final String? sampled;
 
+  @internal
+  final Map<String, dynamic>? unknown;
+
   /// Deserializes a [SentryTraceContextHeader] from JSON [Map].
   factory SentryTraceContextHeader.fromJson(Map<String, dynamic> json) {
     return SentryTraceContextHeader(
@@ -39,12 +46,23 @@ class SentryTraceContextHeader {
       transaction: json['transaction'],
       sampleRate: json['sample_rate'],
       sampled: json['sampled'],
+      unknown: unknownFrom(json, {
+        'trace_id',
+        'public_key',
+        'release',
+        'environment',
+        'user_id',
+        'user_segment',
+        'transaction',
+        'sample_rate',
+        'sampled',
+      }),
     );
   }
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
-    return {
+    final json = <String, dynamic>{
       'trace_id': traceId.toString(),
       'public_key': publicKey,
       if (release != null) 'release': release,
@@ -56,6 +74,10 @@ class SentryTraceContextHeader {
       if (sampleRate != null) 'sample_rate': sampleRate,
       if (sampled != null) 'sampled': sampled,
     };
+    if (unknown != null) {
+      json.addAll(unknown ?? {});
+    }
+    return json;
   }
 
   SentryBaggage toBaggage({
