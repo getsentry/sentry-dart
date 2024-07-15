@@ -1,6 +1,7 @@
 import 'package:meta/meta.dart';
 
 import 'sentry_stack_frame.dart';
+import 'unknown.dart';
 
 /// Stacktrace holds information about the frames of the stack.
 @immutable
@@ -10,6 +11,7 @@ class SentryStackTrace {
     Map<String, String>? registers,
     this.lang,
     this.snapshot,
+    this.unknown,
   })  : _frames = frames,
         _registers = Map.from(registers ?? {});
 
@@ -44,6 +46,9 @@ class SentryStackTrace {
   /// signal.
   final bool? snapshot;
 
+  @internal
+  final Map<String, dynamic>? unknown;
+
   /// Deserializes a [SentryStackTrace] from JSON [Map].
   factory SentryStackTrace.fromJson(Map<String, dynamic> json) {
     final framesJson = json['frames'] as List<dynamic>?;
@@ -56,12 +61,13 @@ class SentryStackTrace {
       registers: json['registers'],
       lang: json['lang'],
       snapshot: json['snapshot'],
+      unknown: unknownFrom(json, {'frames', 'registers', 'lang', 'snapshot'}),
     );
   }
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
-    return <String, dynamic>{
+    final json = <String, dynamic>{
       if (_frames?.isNotEmpty ?? false)
         'frames':
             _frames?.map((frame) => frame.toJson()).toList(growable: false),
@@ -69,6 +75,10 @@ class SentryStackTrace {
       if (lang != null) 'lang': lang,
       if (snapshot != null) 'snapshot': snapshot,
     };
+    if (unknown != null) {
+      json.addAll(unknown ?? {});
+    }
+    return json;
   }
 
   SentryStackTrace copyWith({
@@ -78,5 +88,6 @@ class SentryStackTrace {
       SentryStackTrace(
         frames: frames ?? this.frames,
         registers: registers ?? this.registers,
+        unknown: unknown,
       );
 }

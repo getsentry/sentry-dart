@@ -2,10 +2,13 @@ import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 
+import '../mocks.dart';
+
 void main() {
   final sentryStackTrace = SentryStackTrace(
     frames: [SentryStackFrame(absPath: 'abs')],
     registers: {'key': 'value'},
+    unknown: testUnknown,
   );
 
   final sentryStackTraceJson = <String, dynamic>{
@@ -14,6 +17,7 @@ void main() {
     ],
     'registers': {'key': 'value'},
   };
+  sentryStackTraceJson.addAll(testUnknown);
 
   group('json', () {
     test('toJson', () {
