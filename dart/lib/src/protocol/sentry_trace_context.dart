@@ -3,6 +3,7 @@ import 'package:meta/meta.dart';
 import '../../sentry.dart';
 import '../propagation_context.dart';
 import '../protocol.dart';
+import 'unknown.dart';
 
 @immutable
 class SentryTraceContext {
@@ -37,6 +38,9 @@ class SentryTraceContext {
   /// @see <https://develop.sentry.dev/sdk/performance/trace-origin>
   final String? origin;
 
+  @internal
+  final Map<String, dynamic>? unknown;
+
   factory SentryTraceContext.fromJson(Map<String, dynamic> json) {
     return SentryTraceContext(
       operation: json['op'] as String,
@@ -51,12 +55,21 @@ class SentryTraceContext {
           : SpanStatus.fromString(json['status'] as String),
       sampled: true,
       origin: json['origin'] == null ? null : json['origin'] as String?,
+      unknown: unknownFrom(json, {
+        'op',
+        'span_id',
+        'parent_span_id',
+        'trace_id',
+        'description',
+        'status',
+        'origin',
+      }),
     );
   }
 
   /// Item encoded as JSON
   Map<String, dynamic> toJson() {
-    return {
+    final json = <String, dynamic>{
       'span_id': spanId.toString(),
       'trace_id': traceId.toString(),
       'op': operation,
@@ -65,6 +78,10 @@ class SentryTraceContext {
       if (status != null) 'status': status!.toString(),
       if (origin != null) 'origin': origin,
     };
+    if (unknown != null) {
+      json.addAll(unknown ?? {});
+    }
+    return json;
   }
 
   SentryTraceContext clone() => SentryTraceContext(
@@ -76,6 +93,7 @@ class SentryTraceContext {
         parentSpanId: parentSpanId,
         sampled: sampled,
         origin: origin,
+        unknown: unknown,
       );
 
   SentryTraceContext({
@@ -87,6 +105,7 @@ class SentryTraceContext {
     this.description,
     this.status,
     this.origin,
+    this.unknown,
   })  : traceId = traceId ?? SentryId.newId(),
         spanId = spanId ?? SpanId.newId();
 

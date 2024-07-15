@@ -1,6 +1,8 @@
 import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 
+import 'mocks.dart';
+
 void main() {
   final fixture = Fixture();
 
@@ -19,7 +21,7 @@ void main() {
   });
 
   test('fromJson deserializes', () {
-    final map = {
+    final map = <String, dynamic>{
       'op': 'op',
       'span_id': '0000000000000000',
       'trace_id': '00000000000000000000000000000000',
@@ -28,6 +30,7 @@ void main() {
       'status': 'aborted',
       'origin': 'auto.ui'
     };
+    map.addAll(testUnknown);
     final traceContext = SentryTraceContext.fromJson(map);
 
     expect(traceContext.description, 'desc');
@@ -43,11 +46,13 @@ void main() {
 class Fixture {
   SentryTraceContext getSut() {
     return SentryTraceContext(
-        operation: 'op',
-        parentSpanId: SpanId.newId(),
-        description: 'desc',
-        sampled: true,
-        status: SpanStatus.aborted(),
-        origin: 'auto.ui');
+      operation: 'op',
+      parentSpanId: SpanId.newId(),
+      description: 'desc',
+      sampled: true,
+      status: SpanStatus.aborted(),
+      origin: 'auto.ui',
+      unknown: testUnknown,
+    );
   }
 }
