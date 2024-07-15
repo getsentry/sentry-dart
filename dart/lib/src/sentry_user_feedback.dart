@@ -1,4 +1,7 @@
+import 'package:meta/meta.dart';
+
 import 'protocol.dart';
+import 'protocol/unknown.dart';
 
 class SentryUserFeedback {
   SentryUserFeedback({
@@ -6,6 +9,7 @@ class SentryUserFeedback {
     this.name,
     this.email,
     this.comments,
+    this.unknown,
   }) : assert(eventId != SentryId.empty() &&
             (name?.isNotEmpty == true ||
                 email?.isNotEmpty == true ||
@@ -17,6 +21,12 @@ class SentryUserFeedback {
       name: json['name'],
       email: json['email'],
       comments: json['comments'],
+      unknown: unknownFrom(json, {
+        'event_id',
+        'name',
+        'email',
+        'comments',
+      }),
     );
   }
 
@@ -32,13 +42,20 @@ class SentryUserFeedback {
   /// Recommended: Comments of the user about what happened.
   final String? comments;
 
+  @internal
+  final Map<String, dynamic>? unknown;
+
   Map<String, dynamic> toJson() {
-    return <String, dynamic>{
+    final json = <String, dynamic>{
       'event_id': eventId.toString(),
       if (name != null) 'name': name,
       if (email != null) 'email': email,
       if (comments != null) 'comments': comments,
     };
+    if (unknown != null) {
+      json.addAll(unknown ?? {});
+    }
+    return json;
   }
 
   SentryUserFeedback copyWith({
@@ -52,6 +69,7 @@ class SentryUserFeedback {
       name: name ?? this.name,
       email: email ?? this.email,
       comments: comments ?? this.comments,
+      unknown: unknown,
     );
   }
 }
