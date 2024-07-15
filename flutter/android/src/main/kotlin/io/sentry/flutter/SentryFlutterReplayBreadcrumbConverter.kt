@@ -8,6 +8,8 @@ import io.sentry.rrweb.RRWebSpanEvent
 import java.util.Date
 import kotlin.LazyThreadSafetyMode.NONE
 
+private const val MILLIS_PER_SECOND = 1000.0
+
 class SentryFlutterReplayBreadcrumbConverter : DefaultReplayBreadcrumbConverter() {
   internal companion object {
     private val snakecasePattern by lazy(NONE) { "_[a-z]".toRegex() }
@@ -60,7 +62,7 @@ class SentryFlutterReplayBreadcrumbConverter : DefaultReplayBreadcrumbConverter(
 
   private fun doubleTimestamp(date: Date) = doubleTimestamp(date.time)
 
-  private fun doubleTimestamp(timestamp: Long) = timestamp / 1000.0
+  private fun doubleTimestamp(timestamp: Long) = timestamp / MILLIS_PER_SECOND
 
   private fun getTouchPathMessage(data: Map<String, Any?>): String {
     var message = data["view.id"] as String? ?: ""
