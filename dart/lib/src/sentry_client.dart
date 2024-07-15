@@ -184,8 +184,6 @@ class SentryClient {
       return event;
     }
 
-    print('omgg2');
-    print(event.exceptions);
     if (event.exceptions?.isNotEmpty ?? false) {
       return event;
     }
@@ -195,12 +193,8 @@ class SentryClient {
     final isolateId = isolateName?.hashCode;
 
     if (event.throwableMechanism != null) {
-      print('omgghallo');
       final extractedExceptions = _exceptionFactory.extractor
           .flatten(event.throwableMechanism, stackTrace);
-
-      print('extractedExceptions');
-      print(extractedExceptions.first.exception);
 
       final sentryExceptions = <SentryException>[];
       final sentryThreads = <SentryThread>[];
