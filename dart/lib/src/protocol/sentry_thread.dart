@@ -1,6 +1,7 @@
 import 'package:meta/meta.dart';
 
 import 'sentry_stack_trace.dart';
+import 'unknown.dart';
 
 /// The Threads Interface specifies threads that were running at the time an
 /// event happened. These threads can also contain stack traces.
@@ -13,6 +14,7 @@ class SentryThread {
     this.crashed,
     this.current,
     this.stacktrace,
+    this.unknown,
   });
 
   factory SentryThread.fromJson(Map<String, dynamic> json) {
@@ -23,6 +25,13 @@ class SentryThread {
       current: json['current'] as bool?,
       stacktrace:
           json['stacktrace'] == null ? null : SentryStackTrace.fromJson(json),
+      unknown: unknownFrom(json, {
+        'id',
+        'name',
+        'crashed',
+        'current',
+        'stacktrace',
+      }),
     );
   }
 
@@ -44,15 +53,22 @@ class SentryThread {
   /// See https://develop.sentry.dev/sdk/event-payloads/stacktrace/
   final SentryStackTrace? stacktrace;
 
+  @internal
+  final Map<String, dynamic>? unknown;
+
   Map<String, dynamic> toJson() {
     final stacktrace = this.stacktrace;
-    return {
+    final json = <String, dynamic>{
       if (id != null) 'id': id,
       if (name != null) 'name': name,
       if (crashed != null) 'crashed': crashed,
       if (current != null) 'current': current,
       if (stacktrace != null) 'stacktrace': stacktrace.toJson(),
     };
+    if (unknown != null) {
+      json.addAll(unknown ?? {});
+    }
+    return json;
   }
 
   SentryThread copyWith({
@@ -68,6 +84,7 @@ class SentryThread {
       crashed: crashed ?? this.crashed,
       current: current ?? this.current,
       stacktrace: stacktrace ?? this.stacktrace,
+      unknown: unknown,
     );
   }
 }
