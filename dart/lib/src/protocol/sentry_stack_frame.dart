@@ -1,5 +1,5 @@
 import 'package:meta/meta.dart';
-import 'unknown.dart';
+import 'access_aware_map.dart';
 
 /// Frames belong to a StackTrace
 /// It should contain at least a filename, function or instruction_addr
@@ -130,7 +130,8 @@ class SentryStackFrame {
   final Map<String, dynamic>? unknown;
 
   /// Deserializes a [SentryStackFrame] from JSON [Map].
-  factory SentryStackFrame.fromJson(Map<String, dynamic> json) {
+  factory SentryStackFrame.fromJson(Map<String, dynamic> data) {
+    final json = AccessAwareMap(data);
     return SentryStackFrame(
       absPath: json['abs_path'],
       fileName: json['filename'],
@@ -153,29 +154,7 @@ class SentryStackFrame {
       vars: json['vars'],
       symbol: json['symbol'],
       stackStart: json['stack_start'],
-      unknown: unknownFrom(json, {
-        'abs_path',
-        'filename',
-        'function',
-        'module',
-        'lineno',
-        'colno',
-        'context_line',
-        'in_app',
-        'package',
-        'native',
-        'platform',
-        'image_addr',
-        'symbol_addr',
-        'instruction_addr',
-        'raw_function',
-        'frames_omitted',
-        'pre_context',
-        'post_context',
-        'vars',
-        'symbol',
-        'stack_start',
-      }),
+      unknown: json.notAccessed(),
     );
   }
 

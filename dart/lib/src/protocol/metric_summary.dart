@@ -1,7 +1,7 @@
 import 'package:meta/meta.dart';
 
 import '../metrics/metric.dart';
-import 'unknown.dart';
+import 'access_aware_map.dart';
 
 class MetricSummary {
   final num min;
@@ -29,20 +29,17 @@ class MetricSummary {
       this.unknown});
 
   /// Deserializes a [MetricSummary] from JSON [Map].
-  factory MetricSummary.fromJson(Map<String, dynamic> data) => MetricSummary(
-        min: data['min'],
-        max: data['max'],
-        count: data['count'],
-        sum: data['sum'],
-        tags: data['tags']?.cast<String, String>(),
-        unknown: unknownFrom(data, {
-          'min',
-          'max',
-          'count',
-          'sum',
-          'tags',
-        }),
-      );
+  factory MetricSummary.fromJson(Map<String, dynamic> data) {
+    final json = AccessAwareMap(data);
+    return MetricSummary(
+      min: json['min'],
+      max: json['max'],
+      count: json['count'],
+      sum: json['sum'],
+      tags: json['tags']?.cast<String, String>(),
+      unknown: json.notAccessed(),
+    );
+  }
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {

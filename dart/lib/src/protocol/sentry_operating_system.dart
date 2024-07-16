@@ -1,6 +1,6 @@
 import 'package:meta/meta.dart';
 
-import 'unknown.dart';
+import 'access_aware_map.dart';
 
 /// Describes the operating system on which the event was created.
 ///
@@ -52,25 +52,19 @@ class SentryOperatingSystem {
   final Map<String, dynamic>? unknown;
 
   /// Deserializes a [SentryOperatingSystem] from JSON [Map].
-  factory SentryOperatingSystem.fromJson(Map<String, dynamic> data) =>
-      SentryOperatingSystem(
-        name: data['name'],
-        version: data['version'],
-        build: data['build'],
-        kernelVersion: data['kernel_version'],
-        rooted: data['rooted'],
-        rawDescription: data['raw_description'],
-        theme: data['theme'],
-        unknown: unknownFrom(data, {
-          'name',
-          'version',
-          'build',
-          'kernel_version',
-          'rooted',
-          'raw_description',
-          'theme',
-        }),
-      );
+  factory SentryOperatingSystem.fromJson(Map<String, dynamic> data) {
+    final json = AccessAwareMap(data);
+    return SentryOperatingSystem(
+      name: json['name'],
+      version: json['version'],
+      build: json['build'],
+      kernelVersion: json['kernel_version'],
+      rooted: json['rooted'],
+      rawDescription: json['raw_description'],
+      theme: json['theme'],
+      unknown: json.notAccessed(),
+    );
+  }
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {

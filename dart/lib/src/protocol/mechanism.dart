@@ -1,6 +1,6 @@
 import 'package:meta/meta.dart';
 
-import 'unknown.dart';
+import 'access_aware_map.dart';
 
 /// Sentry Exception Mechanism
 /// The exception mechanism is an optional field residing
@@ -126,7 +126,8 @@ class Mechanism {
       );
 
   /// Deserializes a [Mechanism] from JSON [Map].
-  factory Mechanism.fromJson(Map<String, dynamic> json) {
+  factory Mechanism.fromJson(Map<String, dynamic> jsonData) {
+    final json = AccessAwareMap(jsonData);
     var data = json['data'];
     if (data != null) {
       data = Map<String, dynamic>.from(data as Map);
@@ -149,19 +150,7 @@ class Mechanism {
       source: json['source'],
       exceptionId: json['exception_id'],
       parentId: json['parent_id'],
-      unknown: unknownFrom(json, {
-        'data',
-        'meta',
-        'type',
-        'description',
-        'help_link',
-        'handled',
-        'synthetic',
-        'is_exception_group',
-        'source',
-        'exception_id',
-        'parent_id',
-      }),
+      unknown: json.notAccessed(),
     );
   }
 

@@ -1,6 +1,6 @@
 import 'package:meta/meta.dart';
 
-import 'unknown.dart';
+import 'access_aware_map.dart';
 
 /// The Message Interface carries a log message that describes an event or error.
 /// Optionally, it can carry a format string and structured parameters. This can help to group similar messages into the same issue.
@@ -36,11 +36,14 @@ class SentryMessage {
   });
 
   /// Deserializes a [SentryMessage] from JSON [Map].
-  factory SentryMessage.fromJson(Map<String, dynamic> json) {
-    return SentryMessage(json['formatted'],
-        template: json['message'],
-        params: json['params'],
-        unknown: unknownFrom(json, {'formatted', 'message', 'params'}));
+  factory SentryMessage.fromJson(Map<String, dynamic> data) {
+    final json = AccessAwareMap(data);
+    return SentryMessage(
+      json['formatted'],
+      template: json['message'],
+      params: json['params'],
+      unknown: json.notAccessed(),
+    );
   }
 
   /// Produces a [Map] that can be serialized to JSON.

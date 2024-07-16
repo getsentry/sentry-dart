@@ -1,6 +1,6 @@
 import 'package:meta/meta.dart';
 
-import 'unknown.dart';
+import 'access_aware_map.dart';
 
 /// App context describes the application.
 ///
@@ -64,34 +64,24 @@ class SentryApp {
 
   /// Deserializes a [SentryApp] from JSON [Map].
   factory SentryApp.fromJson(Map<String, dynamic> data) {
-    final viewNamesJson = data['view_names'] as List<dynamic>?;
+    final json = AccessAwareMap(data);
+    final viewNamesJson = json['view_names'] as List<dynamic>?;
     return SentryApp(
-        name: data['app_name'],
-        version: data['app_version'],
-        identifier: data['app_identifier'],
-        build: data['app_build'],
-        buildType: data['build_type'],
-        startTime: data['app_start_time'] != null
-            ? DateTime.tryParse(data['app_start_time'])
-            : null,
-        deviceAppHash: data['device_app_hash'],
-        appMemory: data['app_memory'],
-        inForeground: data['in_foreground'],
-        viewNames: viewNamesJson?.map((e) => e as String).toList(),
-        textScale: data['text_scale'],
-        unknown: unknownFrom(data, {
-          'app_name',
-          'app_version',
-          'app_identifier',
-          'app_build',
-          'build_type',
-          'app_start_time',
-          'device_app_hash',
-          'app_memory',
-          'in_foreground',
-          'view_names',
-          'text_scale',
-        }));
+      name: json['app_name'],
+      version: json['app_version'],
+      identifier: json['app_identifier'],
+      build: json['app_build'],
+      buildType: json['build_type'],
+      startTime: json['app_start_time'] != null
+          ? DateTime.tryParse(json['app_start_time'])
+          : null,
+      deviceAppHash: json['device_app_hash'],
+      appMemory: json['app_memory'],
+      inForeground: json['in_foreground'],
+      viewNames: viewNamesJson?.map((e) => e as String).toList(),
+      textScale: json['text_scale'],
+      unknown: json.notAccessed(),
+    );
   }
 
   /// Produces a [Map] that can be serialized to JSON.

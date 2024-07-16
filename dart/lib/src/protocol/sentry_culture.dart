@@ -1,6 +1,6 @@
 import 'package:meta/meta.dart';
 
-import 'unknown.dart';
+import 'access_aware_map.dart';
 
 /// Culture Context describes certain properties of the culture in which the
 /// software is used.
@@ -17,20 +17,17 @@ class SentryCulture {
     this.unknown,
   });
 
-  factory SentryCulture.fromJson(Map<String, dynamic> data) => SentryCulture(
-        calendar: data['calendar'],
-        displayName: data['display_name'],
-        locale: data['locale'],
-        is24HourFormat: data['is_24_hour_format'],
-        timezone: data['timezone'],
-        unknown: unknownFrom(data, {
-          'calendar',
-          'display_name',
-          'locale',
-          'is_24_hour_format',
-          'timezone',
-        }),
-      );
+  factory SentryCulture.fromJson(Map<String, dynamic> data) {
+    final json = AccessAwareMap(data);
+    return SentryCulture(
+      calendar: json['calendar'],
+      displayName: json['display_name'],
+      locale: json['locale'],
+      is24HourFormat: json['is_24_hour_format'],
+      timezone: json['timezone'],
+      unknown: json.notAccessed(),
+    );
+  }
 
   /// Optional: For example `GregorianCalendar`. Free form string.
   final String? calendar;

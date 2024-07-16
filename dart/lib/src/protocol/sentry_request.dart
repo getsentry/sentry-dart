@@ -1,5 +1,5 @@
 import 'package:meta/meta.dart';
-import 'unknown.dart';
+import 'access_aware_map.dart';
 
 import '../utils/iterable_utils.dart';
 import '../utils/http_sanitizer.dart';
@@ -124,7 +124,8 @@ class SentryRequest {
   }
 
   /// Deserializes a [SentryRequest] from JSON [Map].
-  factory SentryRequest.fromJson(Map<String, dynamic> json) {
+  factory SentryRequest.fromJson(Map<String, dynamic> data) {
+    final json = AccessAwareMap(data);
     return SentryRequest(
       url: json['url'],
       method: json['method'],
@@ -137,18 +138,7 @@ class SentryRequest {
       other: json.containsKey('other') ? Map.from(json['other']) : null,
       fragment: json['fragment'],
       apiTarget: json['api_target'],
-      unknown: unknownFrom(json, {
-        'url',
-        'method',
-        'query_string',
-        'cookies',
-        'data',
-        'headers',
-        'env',
-        'other',
-        'fragment',
-        'api_target',
-      }),
+      unknown: json.notAccessed(),
     );
   }
 

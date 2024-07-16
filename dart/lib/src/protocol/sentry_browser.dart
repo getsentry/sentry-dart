@@ -1,6 +1,6 @@
 import 'package:meta/meta.dart';
 
-import 'unknown.dart';
+import 'access_aware_map.dart';
 
 /// Carries information about the browser or user agent for web-related errors.
 ///
@@ -23,10 +23,14 @@ class SentryBrowser {
   final Map<String, dynamic>? unknown;
 
   /// Deserializes a [SentryBrowser] from JSON [Map].
-  factory SentryBrowser.fromJson(Map<String, dynamic> data) => SentryBrowser(
-      name: data['name'],
-      version: data['version'],
-      unknown: unknownFrom(data, {'name', 'version'}));
+  factory SentryBrowser.fromJson(Map<String, dynamic> data) {
+    final json = AccessAwareMap(data);
+    return SentryBrowser(
+      name: json['name'],
+      version: json['version'],
+      unknown: json.notAccessed(),
+    );
+  }
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {

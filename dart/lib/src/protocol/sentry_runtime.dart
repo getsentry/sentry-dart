@@ -1,6 +1,6 @@
 import 'package:meta/meta.dart';
 
-import 'unknown.dart';
+import 'access_aware_map.dart';
 
 /// Describes a runtime in more detail.
 ///
@@ -51,20 +51,17 @@ class SentryRuntime {
   final Map<String, dynamic>? unknown;
 
   /// Deserializes a [SentryRuntime] from JSON [Map].
-  factory SentryRuntime.fromJson(Map<String, dynamic> data) => SentryRuntime(
-        name: data['name'],
-        version: data['version'],
-        compiler: data['compiler'],
-        rawDescription: data['raw_description'],
-        build: data['build'],
-        unknown: unknownFrom(data, {
-          'name',
-          'version',
-          'compiler',
-          'raw_description',
-          'build',
-        }),
-      );
+  factory SentryRuntime.fromJson(Map<String, dynamic> data) {
+    final json = AccessAwareMap(data);
+    return SentryRuntime(
+      name: json['name'],
+      version: json['version'],
+      compiler: json['compiler'],
+      rawDescription: json['raw_description'],
+      build: json['build'],
+      unknown: json.notAccessed(),
+    );
+  }
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {

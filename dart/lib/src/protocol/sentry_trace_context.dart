@@ -3,7 +3,7 @@ import 'package:meta/meta.dart';
 import '../../sentry.dart';
 import '../propagation_context.dart';
 import '../protocol.dart';
-import 'unknown.dart';
+import 'access_aware_map.dart';
 
 @immutable
 class SentryTraceContext {
@@ -41,7 +41,8 @@ class SentryTraceContext {
   @internal
   final Map<String, dynamic>? unknown;
 
-  factory SentryTraceContext.fromJson(Map<String, dynamic> json) {
+  factory SentryTraceContext.fromJson(Map<String, dynamic> data) {
+    final json = AccessAwareMap(data);
     return SentryTraceContext(
       operation: json['op'] as String,
       spanId: SpanId.fromId(json['span_id'] as String),
@@ -55,15 +56,7 @@ class SentryTraceContext {
           : SpanStatus.fromString(json['status'] as String),
       sampled: true,
       origin: json['origin'] == null ? null : json['origin'] as String?,
-      unknown: unknownFrom(json, {
-        'op',
-        'span_id',
-        'parent_span_id',
-        'trace_id',
-        'description',
-        'status',
-        'origin',
-      }),
+      unknown: json.notAccessed(),
     );
   }
 

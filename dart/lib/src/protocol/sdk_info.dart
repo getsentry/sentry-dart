@@ -1,6 +1,6 @@
 import 'package:meta/meta.dart';
 
-import 'unknown.dart';
+import 'access_aware_map.dart';
 
 /// An object describing the system SDK.
 @immutable
@@ -22,18 +22,14 @@ class SdkInfo {
   });
 
   /// Deserializes a [SdkInfo] from JSON [Map].
-  factory SdkInfo.fromJson(Map<String, dynamic> json) {
+  factory SdkInfo.fromJson(Map<String, dynamic> data) {
+    final json = AccessAwareMap(data);
     return SdkInfo(
       sdkName: json['sdk_name'],
       versionMajor: json['version_major'],
       versionMinor: json['version_minor'],
       versionPatchlevel: json['version_patchlevel'],
-      unknown: unknownFrom(json, {
-        'sdk_name',
-        'version_major',
-        'version_minor',
-        'version_patchlevel',
-      }),
+      unknown: json.notAccessed(),
     );
   }
 

@@ -1,6 +1,6 @@
 import 'package:meta/meta.dart';
 
-import 'unknown.dart';
+import 'access_aware_map.dart';
 
 class SentryTransactionInfo {
   SentryTransactionInfo(this.source, {this.unknown});
@@ -26,10 +26,11 @@ class SentryTransactionInfo {
     );
   }
 
-  factory SentryTransactionInfo.fromJson(Map<String, dynamic> json) {
+  factory SentryTransactionInfo.fromJson(Map<String, dynamic> data) {
+    final json = AccessAwareMap(data);
     return SentryTransactionInfo(
       json['source'],
-      unknown: unknownFrom(json, {'source'}),
+      unknown: json.notAccessed(),
     );
   }
 }

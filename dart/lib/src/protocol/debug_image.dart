@@ -1,6 +1,6 @@
 import 'package:meta/meta.dart';
 
-import 'unknown.dart';
+import 'access_aware_map.dart';
 
 /// The list of debug images contains all dynamic libraries loaded into
 /// the process and their memory addresses.
@@ -74,7 +74,8 @@ class DebugImage {
   });
 
   /// Deserializes a [DebugImage] from JSON [Map].
-  factory DebugImage.fromJson(Map<String, dynamic> json) {
+  factory DebugImage.fromJson(Map<String, dynamic> data) {
+    final json = AccessAwareMap(data);
     return DebugImage(
       type: json['type'],
       name: json['name'],
@@ -89,21 +90,7 @@ class DebugImage {
       codeId: json['code_id'],
       cpuType: json['cpu_type'],
       cpuSubtype: json['cpu_subtype'],
-      unknown: unknownFrom(json, {
-        'type',
-        'name',
-        'image_addr',
-        'image_vmaddr',
-        'debug_id',
-        'debug_file',
-        'image_size',
-        'uuid',
-        'code_file',
-        'arch',
-        'code_id',
-        'cpu_type',
-        'cpu_subtype',
-      }),
+      unknown: json.notAccessed(),
     );
   }
 

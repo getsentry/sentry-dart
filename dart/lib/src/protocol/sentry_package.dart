@@ -1,6 +1,6 @@
 import 'package:meta/meta.dart';
 
-import 'unknown.dart';
+import 'access_aware_map.dart';
 
 /// A [SentryPackage] part of the SDK.
 @immutable
@@ -18,11 +18,12 @@ class SentryPackage {
   final Map<String, dynamic>? unknown;
 
   /// Deserializes a [SentryPackage] from JSON [Map].
-  factory SentryPackage.fromJson(Map<String, dynamic> json) {
+  factory SentryPackage.fromJson(Map<String, dynamic> data) {
+    final json = AccessAwareMap(data);
     return SentryPackage(
       json['name'],
       json['version'],
-      unknown: unknownFrom(json, {'name', 'version'}),
+      unknown: json.notAccessed(),
     );
   }
 

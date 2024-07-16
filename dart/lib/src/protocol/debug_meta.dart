@@ -1,7 +1,7 @@
 import 'package:meta/meta.dart';
 
 import '../protocol.dart';
-import 'unknown.dart';
+import 'access_aware_map.dart';
 
 /// The debug meta interface carries debug information for processing errors and crash reports.
 @immutable
@@ -24,7 +24,8 @@ class DebugMeta {
   final Map<String, dynamic>? unknown;
 
   /// Deserializes a [DebugMeta] from JSON [Map].
-  factory DebugMeta.fromJson(Map<String, dynamic> json) {
+  factory DebugMeta.fromJson(Map<String, dynamic> data) {
+    final json = AccessAwareMap(data);
     final sdkInfoJson = json['sdk_info'];
     final debugImagesJson = json['images'] as List<dynamic>?;
     return DebugMeta(
@@ -33,7 +34,7 @@ class DebugMeta {
           ?.map((debugImageJson) =>
               DebugImage.fromJson(debugImageJson as Map<String, dynamic>))
           .toList(),
-      unknown: unknownFrom(json, {'sdk_info', 'images'}),
+      unknown: json.notAccessed(),
     );
   }
 
