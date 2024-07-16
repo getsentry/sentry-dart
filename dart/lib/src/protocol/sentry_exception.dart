@@ -67,16 +67,15 @@ class SentryException {
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
-    final json = <String, dynamic>{
+    return {
       if (type != null) 'type': type,
       if (value != null) 'value': value,
       if (module != null) 'module': module,
       if (stackTrace != null) 'stacktrace': stackTrace!.toJson(),
       if (mechanism != null) 'mechanism': mechanism!.toJson(),
       if (threadId != null) 'thread_id': threadId,
+      ...?unknown,
     };
-    json.addAll(unknown ?? {});
-    return json;
   }
 
   SentryException copyWith({

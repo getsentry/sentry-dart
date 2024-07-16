@@ -58,15 +58,14 @@ class SentryThread {
 
   Map<String, dynamic> toJson() {
     final stacktrace = this.stacktrace;
-    final json = <String, dynamic>{
+    return {
       if (id != null) 'id': id,
       if (name != null) 'name': name,
       if (crashed != null) 'crashed': crashed,
       if (current != null) 'current': current,
       if (stacktrace != null) 'stacktrace': stacktrace.toJson(),
+      ...?unknown,
     };
-    json.addAll(unknown ?? {});
-    return json;
   }
 
   SentryThread copyWith({

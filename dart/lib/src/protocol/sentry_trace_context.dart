@@ -69,7 +69,7 @@ class SentryTraceContext {
 
   /// Item encoded as JSON
   Map<String, dynamic> toJson() {
-    final json = <String, dynamic>{
+    return {
       'span_id': spanId.toString(),
       'trace_id': traceId.toString(),
       'op': operation,
@@ -77,9 +77,8 @@ class SentryTraceContext {
       if (description != null) 'description': description,
       if (status != null) 'status': status!.toString(),
       if (origin != null) 'origin': origin,
+      ...?unknown,
     };
-    json.addAll(unknown ?? {});
-    return json;
   }
 
   SentryTraceContext clone() => SentryTraceContext(

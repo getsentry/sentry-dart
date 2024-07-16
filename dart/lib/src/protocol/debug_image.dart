@@ -109,7 +109,7 @@ class DebugImage {
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
-    final json = {
+    return {
       'type': type,
       if (uuid != null) 'uuid': uuid,
       if (debugId != null) 'debug_id': debugId,
@@ -123,9 +123,8 @@ class DebugImage {
       if (codeId != null) 'code_id': codeId,
       if (cpuType != null) 'cpu_type': cpuType,
       if (cpuSubtype != null) 'cpu_subtype': cpuSubtype,
+      ...?unknown,
     };
-    json.addAll(unknown ?? {});
-    return json;
   }
 
   DebugImage copyWith({

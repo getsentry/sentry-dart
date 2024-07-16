@@ -46,14 +46,13 @@ class SentryUserFeedback {
   final Map<String, dynamic>? unknown;
 
   Map<String, dynamic> toJson() {
-    final json = <String, dynamic>{
+    return {
       'event_id': eventId.toString(),
       if (name != null) 'name': name,
       if (email != null) 'email': email,
       if (comments != null) 'comments': comments,
+      ...?unknown,
     };
-    json.addAll(unknown ?? {});
-    return json;
   }
 
   SentryUserFeedback copyWith({

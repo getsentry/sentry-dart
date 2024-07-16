@@ -191,16 +191,15 @@ class Breadcrumb {
   /// Converts this breadcrumb to a map that can be serialized to JSON according
   /// to the Sentry protocol.
   Map<String, dynamic> toJson() {
-    final json = {
+    return {
       'timestamp': formatDateAsIso8601WithMillisPrecision(timestamp),
       if (message != null) 'message': message,
       if (category != null) 'category': category,
       if (data?.isNotEmpty ?? false) 'data': data,
       if (level != null) 'level': level!.name,
       if (type != null) 'type': type,
+      ...?unknown,
     };
-    json.addAll(unknown ?? {});
-    return json;
   }
 
   Breadcrumb copyWith({

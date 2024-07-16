@@ -68,15 +68,14 @@ class SentryRuntime {
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
-    final json = <String, dynamic>{
+    return {
       if (name != null) 'name': name,
       if (compiler != null) 'compiler': compiler,
       if (version != null) 'version': version,
       if (rawDescription != null) 'raw_description': rawDescription,
       if (build != null) 'build': build,
+      ...?unknown,
     };
-    json.addAll(unknown ?? {});
-    return json;
   }
 
   SentryRuntime clone() => SentryRuntime(

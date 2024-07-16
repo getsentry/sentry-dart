@@ -146,7 +146,7 @@ class SentryGpu {
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
-    final json = <String, dynamic>{
+    return {
       if (name != null) 'name': name,
       if (id != null) 'id': id,
       if (vendorId != null) 'vendor_id': vendorId,
@@ -168,9 +168,8 @@ class SentryGpu {
         'supports_geometry_shaders': supportsGeometryShaders,
       if (supportsRayTracing != null)
         'supports_ray_tracing': supportsRayTracing,
+      ...?unknown,
     };
-    json.addAll(unknown ?? {});
-    return json;
   }
 
   SentryGpu copyWith({

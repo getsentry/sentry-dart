@@ -45,13 +45,12 @@ class SentryMessage {
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
-    final json = <String, dynamic>{
+    return {
       'formatted': formatted,
       if (template != null) 'message': template,
       if (params?.isNotEmpty ?? false) 'params': params,
+      ...?unknown,
     };
-    json.addAll(unknown ?? {});
-    return json;
   }
 
   SentryMessage copyWith({

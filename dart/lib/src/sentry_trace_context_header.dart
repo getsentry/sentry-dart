@@ -62,7 +62,7 @@ class SentryTraceContextHeader {
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
-    final json = <String, dynamic>{
+    return {
       'trace_id': traceId.toString(),
       'public_key': publicKey,
       if (release != null) 'release': release,
@@ -73,9 +73,8 @@ class SentryTraceContextHeader {
       if (transaction != null) 'transaction': transaction,
       if (sampleRate != null) 'sample_rate': sampleRate,
       if (sampled != null) 'sampled': sampled,
+      ...?unknown,
     };
-    json.addAll(unknown ?? {});
-    return json;
   }
 
   SentryBaggage toBaggage({

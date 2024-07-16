@@ -264,7 +264,7 @@ class SentryDevice {
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
-    final json = <String, dynamic>{
+    return {
       if (name != null) 'name': name,
       if (family != null) 'family': family,
       if (model != null) 'model': model,
@@ -307,9 +307,8 @@ class SentryDevice {
       if (supportsAudio != null) 'supports_audio': supportsAudio,
       if (supportsLocationService != null)
         'supports_location_service': supportsLocationService,
+      ...?unknown,
     };
-    json.addAll(unknown ?? {});
-    return json;
   }
 
   SentryDevice clone() => SentryDevice(

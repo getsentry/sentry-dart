@@ -142,7 +142,7 @@ class SentryUser {
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
     final geoJson = geo?.toJson();
-    final json = <String, dynamic>{
+    return {
       if (id != null) 'id': id,
       if (username != null) 'username': username,
       if (email != null) 'email': email,
@@ -154,9 +154,8 @@ class SentryUser {
       if (extras?.isNotEmpty ?? false) 'extras': extras,
       if (name != null) 'name': name,
       if (geoJson != null && geoJson.isNotEmpty) 'geo': geoJson,
+      ...?unknown,
     };
-    json.addAll(unknown ?? {});
-    return json;
   }
 
   SentryUser copyWith({

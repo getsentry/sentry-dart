@@ -46,14 +46,13 @@ class MetricSummary {
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
-    final json = <String, dynamic>{
+    return {
       'min': min,
       'max': max,
       'count': count,
       'sum': sum,
       if (tags?.isNotEmpty ?? false) 'tags': tags,
+      ...?unknown,
     };
-    json.addAll(unknown ?? {});
-    return json;
   }
 }

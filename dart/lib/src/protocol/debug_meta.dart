@@ -40,16 +40,15 @@ class DebugMeta {
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
     final sdkInfo = sdk?.toJson();
-    final json = {
+    return {
       if (sdkInfo?.isNotEmpty ?? false) 'sdk_info': sdkInfo,
       if (_images?.isNotEmpty ?? false)
         'images': _images!
             .map((e) => e.toJson())
             .where((element) => element.isNotEmpty)
-            .toList(growable: false)
+            .toList(growable: false),
+      ...?unknown,
     };
-    json.addAll(unknown ?? {});
-    return json;
   }
 
   DebugMeta copyWith({

@@ -11,11 +11,10 @@ class SentryTransactionInfo {
   final Map<String, dynamic>? unknown;
 
   Map<String, dynamic> toJson() {
-    final json = <String, dynamic>{
+    return {
       'source': source,
+      ...?unknown,
     };
-    json.addAll(unknown ?? {});
-    return json;
   }
 
   SentryTransactionInfo copyWith({

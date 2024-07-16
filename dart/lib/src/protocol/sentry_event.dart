@@ -401,7 +401,7 @@ class SentryEvent with SentryEventLike<SentryEvent> {
         .where((e) => e.isNotEmpty)
         .toList(growable: false);
 
-    final json = <String, dynamic>{
+    return {
       'event_id': eventId.toString(),
       if (timestamp != null)
         'timestamp': formatDateAsIso8601WithMillisPrecision(timestamp!),
@@ -432,8 +432,7 @@ class SentryEvent with SentryEventLike<SentryEvent> {
       if (exceptionsJson?.isNotEmpty ?? false)
         'exception': {'values': exceptionsJson},
       if (threadJson?.isNotEmpty ?? false) 'threads': {'values': threadJson},
+      ...?unknown,
     };
-    json.addAll(unknown ?? {});
-    return json;
   }
 }
