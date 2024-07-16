@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+
+- Deserialize and serialize unknown fields ([#2153](https://github.com/getsentry/sentry-dart/pull/2153))
+
 ## 8.4.0
 
 ### Features
@@ -25,7 +31,6 @@
 ### Improvements
 
 - Set dart runtime version with parsed `Platform.version` ([#2156](https://github.com/getsentry/sentry-dart/pull/2156))
-- Deserialize and serialize unknown fields ([#2153](https://github.com/getsentry/sentry-dart/pull/2153))
 
 ### Dependencies
 
