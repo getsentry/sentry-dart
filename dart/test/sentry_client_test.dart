@@ -812,6 +812,7 @@ void main() {
         ..fingerprint = fingerprint
         ..addBreadcrumb(crumb)
         ..setTag(scopeTagKey, scopeTagValue)
+        // ignore: deprecated_member_use_from_same_package
         ..setExtra(scopeExtraKey, scopeExtraValue);
 
       scope.setUser(user);
