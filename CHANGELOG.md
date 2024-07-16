@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Support `ignoredExceptionsForType` ([#2150](https://github.com/getsentry/sentry-dart/pull/2150))
+
 ## 8.4.0
 
 ### Features
@@ -14,7 +20,6 @@
 - Record dropped spans in client reports ([#2154](https://github.com/getsentry/sentry-dart/pull/2154))
 - Add memory usage to contexts ([#2133](https://github.com/getsentry/sentry-dart/pull/2133))
   - Only for Linux/Windows applications, as iOS/Android/macOS use native SDKs
-- Support `ignoredExceptionsForType` ([#2150](https://github.com/getsentry/sentry-dart/pull/2150))
 
 ### Fixes
 
