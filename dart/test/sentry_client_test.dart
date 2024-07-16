@@ -1062,8 +1062,10 @@ void main() {
       final client = fixture.getSut();
       await client.captureEvent(event);
 
-      expect(fixture.recorder.reason, DiscardReason.eventProcessor);
-      expect(fixture.recorder.category, DataCategory.error);
+      expect(fixture.recorder.discardedEvents.first.reason,
+          DiscardReason.eventProcessor);
+      expect(
+          fixture.recorder.discardedEvents.first.category, DataCategory.error);
     });
   });
 
