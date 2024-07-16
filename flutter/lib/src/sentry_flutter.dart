@@ -137,7 +137,7 @@ mixin SentryFlutter {
 
     options.addPerformanceCollector(SpanFrameMetricsCollector(options));
 
-    options.addErrorTypeIdentifier(FlutterErrorIdentifier());
+    options.addExceptionTypeIdentifier(FlutterExceptionTypeIdentifier());
 
     _setSdk(options);
   }

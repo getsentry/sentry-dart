@@ -7,7 +7,7 @@ import 'package:meta/meta.dart';
 import '../sentry.dart';
 import 'client_reports/client_report_recorder.dart';
 import 'client_reports/noop_client_report_recorder.dart';
-import 'dart_error_type_identifier.dart';
+import 'dart_exception_type_identifier.dart';
 import 'diagnostic_logger.dart';
 import 'environment/environment_variables.dart';
 import 'noop_client.dart';
@@ -437,14 +437,16 @@ class SentryOptions {
   /// Settings this to `false` will set the `level` to [SentryLevel.error].
   bool markAutomaticallyCollectedErrorsAsFatal = true;
 
-  final List<ErrorTypeIdentifier> _errorTypeIdentifiers = [
-    DartErrorIdentifier(),
+  final List<ExceptionTypeIdentifier> _exceptionTypeIdentifiers = [
+    DartExceptionTypeIdentifier(),
   ];
 
-  List<ErrorTypeIdentifier> get errorTypeIdentifiers => _errorTypeIdentifiers;
+  List<ExceptionTypeIdentifier> get exceptionTypeIdentifiers =>
+      _exceptionTypeIdentifiers;
 
-  void addErrorTypeIdentifier(ErrorTypeIdentifier errorTypeIdentifier) {
-    _errorTypeIdentifiers.add(errorTypeIdentifier);
+  void addExceptionTypeIdentifier(
+      ExceptionTypeIdentifier exceptionTypeIdentifier) {
+    _exceptionTypeIdentifiers.insert(0, exceptionTypeIdentifier);
   }
 
   /// The Spotlight configuration.
