@@ -21,3 +21,30 @@
 abstract class ExceptionTypeIdentifier {
   String? identifyType(dynamic throwable);
 }
+
+extension CacheableExceptionIdentifier on ExceptionTypeIdentifier {
+  ExceptionTypeIdentifier withCache() => _CachingExceptionTypeIdentifier(this);
+}
+
+class _CachingExceptionTypeIdentifier implements ExceptionTypeIdentifier {
+  final ExceptionTypeIdentifier _identifier;
+  final Map<Type, String?> _knownExceptionTypes = {};
+
+  _CachingExceptionTypeIdentifier(this._identifier);
+
+  @override
+  String? identifyType(dynamic throwable) {
+    final runtimeType = throwable.runtimeType;
+    if (_knownExceptionTypes.containsKey(runtimeType)) {
+      return _knownExceptionTypes[runtimeType];
+    }
+
+    final identifiedType = _identifier.identifyType(throwable);
+
+    if (identifiedType != null) {
+      _knownExceptionTypes[runtimeType] = identifiedType;
+    }
+
+    return identifiedType;
+  }
+}

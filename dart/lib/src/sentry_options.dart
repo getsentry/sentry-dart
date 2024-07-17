@@ -437,16 +437,20 @@ class SentryOptions {
   /// Settings this to `false` will set the `level` to [SentryLevel.error].
   bool markAutomaticallyCollectedErrorsAsFatal = true;
 
-  final List<ExceptionTypeIdentifier> _exceptionTypeIdentifiers = [
-    DartExceptionTypeIdentifier(),
-  ];
+  final List<ExceptionTypeIdentifier> _exceptionTypeIdentifiers = [];
 
   List<ExceptionTypeIdentifier> get exceptionTypeIdentifiers =>
       _exceptionTypeIdentifiers;
 
+  void addExceptionTypeIdentifierByIndex(
+      int index, ExceptionTypeIdentifier exceptionTypeIdentifier) {
+    _exceptionTypeIdentifiers.insert(
+        index, exceptionTypeIdentifier.withCache());
+  }
+
   void addExceptionTypeIdentifier(
       ExceptionTypeIdentifier exceptionTypeIdentifier) {
-    _exceptionTypeIdentifiers.insert(0, exceptionTypeIdentifier);
+    _exceptionTypeIdentifiers.add(exceptionTypeIdentifier.withCache());
   }
 
   /// The Spotlight configuration.

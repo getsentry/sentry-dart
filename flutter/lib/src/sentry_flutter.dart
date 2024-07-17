@@ -11,7 +11,7 @@ import 'event_processor/flutter_exception_event_processor.dart';
 import 'event_processor/platform_exception_event_processor.dart';
 import 'event_processor/widget_event_processor.dart';
 import 'file_system_transport.dart';
-import 'flutter_error_type_identifier.dart';
+import 'flutter_exception_type_identifier.dart';
 import 'frame_callback_handler.dart';
 import 'integrations/connectivity/connectivity_integration.dart';
 import 'integrations/integrations.dart';
@@ -137,7 +137,10 @@ mixin SentryFlutter {
 
     options.addPerformanceCollector(SpanFrameMetricsCollector(options));
 
-    options.addExceptionTypeIdentifier(FlutterExceptionTypeIdentifier());
+    // Insert it before the Dart Exceptions that are set in Sentry.init
+    // so we can identify Flutter exceptions first.
+    options.addExceptionTypeIdentifierByIndex(
+        0, FlutterExceptionTypeIdentifier());
 
     _setSdk(options);
   }
