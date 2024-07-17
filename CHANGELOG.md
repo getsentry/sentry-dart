@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Improvements
+
+- Capture meaningful stack traces when unhandled errors have empty or missing stack traces ([#2152](https://github.com/getsentry/sentry-dart/pull/2152))
+  - This will affect grouping for unhandled errors that have empty or missing stack traces.
+
 ### Dependencies
 
 - Bump Android SDK from v7.11.0 to v7.12.0 ([#2173](https://github.com/getsentry/sentry-dart/pull/2173))
@@ -30,8 +35,6 @@
 
 ### Fixes
 
-- Capture meaningful stack traces when unhandled errors have empty or missing stack traces ([#2152](https://github.com/getsentry/sentry-dart/pull/2152))
-  - This will affect grouping for unhandled errors that have empty or missing stack traces.
 - Fix sentry_drift compatibility with Drift 2.19.0 ([#2162](https://github.com/getsentry/sentry-dart/pull/2162))
 - App starts hanging for 30s ([#2140](https://github.com/getsentry/sentry-dart/pull/2140))
   - Time out for app start info retrieval has been reduced to 10s
