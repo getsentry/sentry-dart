@@ -6,6 +6,17 @@
 
 - Support `ignoredExceptionsForType` ([#2150](https://github.com/getsentry/sentry-dart/pull/2150))
 
+### Dependencies
+
+- Bump Android SDK from v7.11.0 to v7.12.0 ([#2173](https://github.com/getsentry/sentry-dart/pull/2173))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#7120)
+  - [diff](https://github.com/getsentry/sentry-java/compare/7.11.0...7.12.0)
+  - updates AGP to v7.4.2
+  - updates Kotlin to v1.8.0
+- Bump Cocoa SDK from v8.30.1 to v8.31.1 ([#2174](https://github.com/getsentry/sentry-dart/pull/2174))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8311)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.30.1...8.31.1)
+
 ## 8.4.0
 
 ### Features
