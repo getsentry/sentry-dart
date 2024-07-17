@@ -151,7 +151,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             recorderConfigProvider = null,
             replayCacheProvider = null,
           )
-
+        replay.breadcrumbConverter = SentryFlutterReplayBreadcrumbConverter()
         options.addIntegration(replay)
         options.setReplayController(replay)
       } else {
@@ -425,7 +425,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     if (args.isNotEmpty()) {
       val event = args.first() as ByteArray?
       val containsUnhandledException = args[1] as Boolean
-      if (event != null && event.isNotEmpty() && containsUnhandledException != null) {
+      if (event != null && event.isNotEmpty()) {
         val id = InternalSentrySdk.captureEnvelope(event, containsUnhandledException)
         if (id != null) {
           result.success("")
