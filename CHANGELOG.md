@@ -2,8 +2,26 @@
 
 ## Unreleased
 
+### Dependencies
+
+- Bump Android SDK from v7.11.0 to v7.12.0 ([#2173](https://github.com/getsentry/sentry-dart/pull/2173))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#7120)
+  - [diff](https://github.com/getsentry/sentry-java/compare/7.11.0...7.12.0)
+  - updates AGP to v7.4.2
+  - updates Kotlin to v1.8.0
+- Bump Cocoa SDK from v8.30.1 to v8.31.1 ([#2174](https://github.com/getsentry/sentry-dart/pull/2174))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8311)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.30.1...8.31.1)
+
+## 8.4.0
+
 ### Features
 
+- Add API for pausing/resuming **iOS** and **macOS** app hang tracking ([#2134](https://github.com/getsentry/sentry-dart/pull/2134))
+  - This is useful to prevent the Cocoa SDK from reporting wrongly detected app hangs when the OS shows a system dialog for asking specific permissions.
+  - Use `SentryFlutter.pauseAppHangTracking()` and `SentryFlutter.resumeAppHangTracking()`
+- Capture total frames, frames delay, slow & frozen frames and attach to spans ([#2106](https://github.com/getsentry/sentry-dart/pull/2106))
+- Support WebAssembly compilation (dart2wasm) ([#2113](https://github.com/getsentry/sentry-dart/pull/2113))
 - Add flag to disable reporting of view hierarchy identifiers ([#2158](https://github.com/getsentry/sentry-dart/pull/2158))
   - Use `reportViewHierarchyIdentifiers` to enable or disable the option
 - Record dropped spans in client reports ([#2154](https://github.com/getsentry/sentry-dart/pull/2154))
@@ -26,9 +44,13 @@
 - Bump Cocoa SDK from v8.30.0 to v8.30.1 ([#2155](https://github.com/getsentry/sentry-dart/pull/2155))
   - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8301)
   - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.30.0...8.30.1)
+- Bump Android SDK from v7.10.0 to v7.11.0 ([#2144](https://github.com/getsentry/sentry-dart/pull/2144))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#7110)
+  - [diff](https://github.com/getsentry/sentry-java/compare/7.10.0...7.11.0)
 
 ### Deprecated
 
+- User segment is now deprecated and will be removed in version 9.0.0. Use a custom tag or context instead. ([#2119](https://github.com/getsentry/sentry-dart/pull/2119))
 - Deprecate `setExtra` and `removeExtra` ([#2159](https://github.com/getsentry/sentry-dart/pull/2159))
   - Use the `Contexts` structure via `setContexts` instead
 
@@ -51,9 +73,6 @@
 - Bump Cocoa SDK from v8.29.0 to v8.30.0 ([#2132](https://github.com/getsentry/sentry-dart/pull/2132))
   - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8300)
   - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.29.0...8.30.0)
-- Bump Android SDK from v7.10.0 to v7.11.0 ([#2144](https://github.com/getsentry/sentry-dart/pull/2144))
-  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#7110)
-  - [diff](https://github.com/getsentry/sentry-java/compare/7.10.0...7.11.0)
 
 ## 8.3.0
 
