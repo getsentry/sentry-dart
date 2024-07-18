@@ -12,8 +12,9 @@ class DartExceptionTypeIdentifier implements ExceptionTypeIdentifier {
     // dart:core
     if (throwable is ArgumentError) return 'ArgumentError';
     if (throwable is AssertionError) return 'AssertionError';
-    if (throwable is ConcurrentModificationError)
+    if (throwable is ConcurrentModificationError) {
       return 'ConcurrentModificationError';
+    }
     if (throwable is FormatException) return 'FormatException';
     if (throwable is IndexError) return 'IndexError';
     if (throwable is NoSuchMethodError) return 'NoSuchMethodError';

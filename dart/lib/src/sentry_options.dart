@@ -7,7 +7,6 @@ import 'package:meta/meta.dart';
 import '../sentry.dart';
 import 'client_reports/client_report_recorder.dart';
 import 'client_reports/noop_client_report_recorder.dart';
-import 'dart_exception_type_identifier.dart';
 import 'diagnostic_logger.dart';
 import 'environment/environment_variables.dart';
 import 'noop_client.dart';
