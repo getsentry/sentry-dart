@@ -4,6 +4,29 @@
 
 ### Improvements
 
+- Add error type identifier to improve obfuscated Flutter issue titles ([#2170](https://github.com/getsentry/sentry-dart/pull/2170))
+  - Example: transforms issue titles from `GA` to `FlutterError` or `minified:nE` to `FlutterError`
+  - This is enabled automatically and will change grouping if you already have issues with obfuscated titles
+  - You can add your custom exception identifier if there are exceptions that we do not identify out of the box
+  - If you want to disable this feature, set `enableExceptionTypeIdentification` to `false` in your Sentry options
+```dart
+// How to add your own custom exception identifier
+class MyCustomExceptionIdentifier implements ExceptionIdentifier {
+  @override
+  String identify(Exception exception) {
+    if (exception is MyCustomException) {
+      return 'MyCustomException';
+    }
+    if (exception is MyOtherCustomException) {
+      return 'MyOtherCustomException';
+    }
+    return null;
+  }
+}
+
+SentryFlutter.init((options) =>
+  options..prependExceptionTypeIdentifier(MyCustomExceptionIdentifier()));
+```
 - Capture meaningful stack traces when unhandled errors have empty or missing stack traces ([#2152](https://github.com/getsentry/sentry-dart/pull/2152))
   - This will affect grouping for unhandled errors that have empty or missing stack traces.
 
