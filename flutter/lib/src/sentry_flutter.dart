@@ -136,7 +136,11 @@ mixin SentryFlutter {
 
     options.addEventProcessor(PlatformExceptionEventProcessor());
 
-    options.addPerformanceCollector(SpanFrameMetricsCollector(options));
+    if (options.platformChecker.platform.isAndroid ||
+        options.platformChecker.platform.isIOS ||
+        options.platformChecker.platform.isMacOS) {
+      options.addPerformanceCollector(SpanFrameMetricsCollector(options));
+    }
 
     _setSdk(options);
   }
