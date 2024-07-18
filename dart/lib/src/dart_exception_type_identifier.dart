@@ -1,9 +1,10 @@
-import 'dart:io';
-
 import 'package:http/http.dart';
 import 'dart:async';
 
 import '../sentry.dart';
+
+import 'dart_exception_type_identifier_io.dart'
+    if (dart.library.html) 'dart_exception_type_identifier_web.dart';
 
 class DartExceptionTypeIdentifier implements ExceptionTypeIdentifier {
   @override
@@ -31,18 +32,10 @@ class DartExceptionTypeIdentifier implements ExceptionTypeIdentifier {
     if (throwable is DeferredLoadException) return 'DeferredLoadException';
     // not adding ParallelWaitError because it's not supported in dart 2.17.0
 
-    // dart:io
-    if (throwable is FileSystemException) return 'FileSystemException';
-    if (throwable is HttpException) return 'HttpException';
-    if (throwable is SocketException) return 'SocketException';
-    if (throwable is HandshakeException) return 'HandshakeException';
-    if (throwable is CertificateException) return 'CertificateException';
-    if (throwable is TlsException) return 'TlsException';
-    // not adding IOException because it's too generic
-
     // dart http package
     if (throwable is ClientException) return 'ClientException';
 
-    return null;
+    // platform specific exceptions
+    return identifyPlatformSpecificException(throwable);
   }
 }
