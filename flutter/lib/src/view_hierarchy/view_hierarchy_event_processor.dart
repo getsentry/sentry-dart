@@ -23,7 +23,7 @@ class SentryViewHierarchyEventProcessor implements EventProcessor {
     if (instance == null) {
       return event;
     }
-    final sentryViewHierarchy = walkWidgetTree(instance);
+    final sentryViewHierarchy = walkWidgetTree(instance, _options);
 
     if (sentryViewHierarchy == null) {
       return event;

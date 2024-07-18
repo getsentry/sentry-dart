@@ -4,6 +4,9 @@ import 'package:flutter/widgets.dart';
 import 'package:sentry/sentry.dart';
 import '../sentry_flutter_options.dart';
 
+// ignore: implementation_imports
+import 'package:sentry/src/utils/stacktrace_utils.dart';
+
 typedef ErrorCallback = bool Function(Object exception, StackTrace stackTrace);
 
 /// Integration which captures `PlatformDispatcher.onError`
@@ -73,6 +76,11 @@ class OnErrorIntegration implements Integration<SentryFlutterOptions> {
       hub.configureScope(
         (scope) => scope.span?.status ??= const SpanStatus.internalError(),
       );
+
+      if (stackTrace == StackTrace.empty) {
+        // ignore: invalid_use_of_internal_member
+        stackTrace = getCurrentStackTrace();
+      }
 
       // unawaited future
       hub.captureEvent(event, stackTrace: stackTrace);

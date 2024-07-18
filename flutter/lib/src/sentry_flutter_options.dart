@@ -213,6 +213,14 @@ class SentryFlutterOptions extends SentryOptions {
   @experimental
   bool attachViewHierarchy = false;
 
+  /// Enables collection of view hierarchy element identifiers.
+  ///
+  /// Identifiers are extracted from widget keys.
+  /// Disable this flag if your widget keys contain sensitive data.
+  ///
+  /// Default: `true`
+  bool reportViewHierarchyIdentifiers = true;
+
   /// When enabled, the SDK tracks when the application stops responding for a
   /// specific amount of time, See [appHangTimeoutInterval].
   /// Only available on iOS and macOS.

@@ -33,7 +33,9 @@ subdir="Sentry.xcframework/macos-arm64_x86_64/Sentry.framework"
 unzip -q $temp/Sentry.xcframework.zip "$subdir/*" -d $temp
 mv "$temp/$subdir" $temp/Sentry.framework
 
+binding="lib/src/native/cocoa/binding.dart"
 dart run ffigen --config ffi-cocoa.yaml
-sed -i.bak 's|final class|class|g' lib/src/native/cocoa/binding.dart
-sed -i.bak 's|static int startProfilerForTrace_(SentryCocoa _lib, SentryId? traceId)|static int startProfilerForTrace_(SentryCocoa _lib, SentryId1? traceId)|g' lib/src/native/cocoa/binding.dart
-rm lib/src/native/cocoa/binding.dart.bak
+sed -i.bak 's|final class|class|g' $binding
+sed -i.bak 's|static int startProfilerForTrace_(SentryCocoa _lib, SentryId? traceId)|static int startProfilerForTrace_(SentryCocoa _lib, SentryId1? traceId)|g' $binding
+rm $binding.bak
+dart format $binding
