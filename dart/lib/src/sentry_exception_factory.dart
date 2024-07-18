@@ -62,11 +62,14 @@ class SentryExceptionFactory {
     final value = throwableString.replaceAll(stackTraceString, '').trim();
 
     String errorTypeName = throwable.runtimeType.toString();
-    for (final errorTypeIdentifier in _options.exceptionTypeIdentifiers) {
-      final identifiedErrorType = errorTypeIdentifier.identifyType(throwable);
-      if (identifiedErrorType != null) {
-        errorTypeName = identifiedErrorType;
-        break;
+
+    if (_options.enableExceptionTypeIdentification) {
+      for (final errorTypeIdentifier in _options.exceptionTypeIdentifiers) {
+        final identifiedErrorType = errorTypeIdentifier.identifyType(throwable);
+        if (identifiedErrorType != null) {
+          errorTypeName = identifiedErrorType;
+          break;
+        }
       }
     }
 

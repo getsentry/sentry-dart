@@ -437,10 +437,19 @@ class SentryOptions {
   /// Settings this to `false` will set the `level` to [SentryLevel.error].
   bool markAutomaticallyCollectedErrorsAsFatal = true;
 
+  /// Enables identification of exception types in obfuscated builds.
+  /// When true, the SDK will attempt to identify common exception types
+  /// to improve readability of obfuscated issue titles.
+  ///
+  /// If you already have issues with obfuscated issue titles this will change grouping.
+  ///
+  /// Default: `true`
+  bool enableExceptionTypeIdentification = true;
+
   final List<ExceptionTypeIdentifier> _exceptionTypeIdentifiers = [];
 
   List<ExceptionTypeIdentifier> get exceptionTypeIdentifiers =>
-      _exceptionTypeIdentifiers;
+      List.unmodifiable(_exceptionTypeIdentifiers);
 
   void addExceptionTypeIdentifierByIndex(
       int index, ExceptionTypeIdentifier exceptionTypeIdentifier) {
@@ -448,9 +457,11 @@ class SentryOptions {
         index, exceptionTypeIdentifier.withCache());
   }
 
-  void addExceptionTypeIdentifier(
+  /// Adds an exception type identifier to the beginning of the list.
+  /// This ensures it is processed first and takes precedence over existing identifiers.
+  void prependExceptionTypeIdentifier(
       ExceptionTypeIdentifier exceptionTypeIdentifier) {
-    _exceptionTypeIdentifiers.add(exceptionTypeIdentifier.withCache());
+    addExceptionTypeIdentifierByIndex(0, exceptionTypeIdentifier);
   }
 
   /// The Spotlight configuration.

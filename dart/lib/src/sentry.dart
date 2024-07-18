@@ -87,7 +87,7 @@ class Sentry {
     options.addEventProcessor(ExceptionEventProcessor(options));
     options.addEventProcessor(DeduplicationEventProcessor(options));
 
-    options.addExceptionTypeIdentifier(DartExceptionTypeIdentifier());
+    options.prependExceptionTypeIdentifier(DartExceptionTypeIdentifier());
   }
 
   /// This method reads available environment variables and uses them
