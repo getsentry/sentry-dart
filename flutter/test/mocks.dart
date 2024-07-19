@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/src/widgets/binding.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
 import 'package:sentry/src/platform/platform.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 
@@ -206,3 +207,32 @@ final fakeFrameDurations = [
   Duration(milliseconds: 40),
   Duration(milliseconds: 710),
 ];
+
+@GenerateMocks([Callbacks])
+abstract class Callbacks {
+  Future<Object?>? methodCallHandler(MethodCall message);
+}
+
+class NativeChannelFixture {
+  late final MethodChannel channel;
+  late final Future<Object?>? Function(MethodCall?) handler;
+
+  NativeChannelFixture() {
+    TestWidgetsFlutterBinding.ensureInitialized();
+    channel = MockMethodChannel();
+    when(channel.name).thenReturn('test.channel');
+    when(channel.binaryMessenger).thenReturn(
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger);
+    handler = MockCallbacks().methodCallHandler;
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, handler);
+  }
+
+  // Mock this call as if it was invoked by the native side.
+  Future<ByteData?> invokeFromNative(String method, [dynamic arguments]) async {
+    final call =
+        StandardMethodCodec().encodeMethodCall(MethodCall(method, arguments));
+    return TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .handlePlatformMessage(channel.name, call, (ByteData? data) {});
+  }
+}

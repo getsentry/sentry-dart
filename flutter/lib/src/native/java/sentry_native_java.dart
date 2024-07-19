@@ -14,7 +14,6 @@ import '../sentry_native_channel.dart';
 @internal
 class SentryNativeJava extends SentryNativeChannel {
   ScreenshotRecorder? _replayRecorder;
-  late final SentryFlutterOptions _options;
   SentryNativeJava(super.options, super.channel);
 
   @override
@@ -22,8 +21,6 @@ class SentryNativeJava extends SentryNativeChannel {
     // We only need these when replay is enabled (session or error capture)
     // so let's set it up conditionally. This allows Dart to trim the code.
     if (options.experimental.replay.isEnabled) {
-      _options = options;
-
       // We only need the integration when error-replay capture is enabled.
       if ((options.experimental.replay.errorSampleRate ?? 0) > 0) {
         options.addEventProcessor(ReplayEventProcessor(this));
@@ -89,7 +86,7 @@ class SentryNativeJava extends SentryNativeChannel {
         final timestamp = DateTime.now().millisecondsSinceEpoch;
         final filePath = "$cacheDir/$timestamp.png";
 
-        _options.logger(
+        options.logger(
             SentryLevel.debug,
             'Replay: Saving screenshot to $filePath ('
             '${image.width}x${image.height} pixels, '
@@ -102,7 +99,7 @@ class SentryNativeJava extends SentryNativeChannel {
             {'path': filePath, 'timestamp': timestamp},
           );
         } catch (error, stackTrace) {
-          _options.logger(
+          options.logger(
             SentryLevel.error,
             'Native call `addReplayScreenshot` failed',
             exception: error,
@@ -112,10 +109,6 @@ class SentryNativeJava extends SentryNativeChannel {
       }
     };
 
-    _replayRecorder = ScreenshotRecorder(
-      config,
-      callback,
-      _options,
-    )..start();
+    _replayRecorder = ScreenshotRecorder(config, callback, options)..start();
   }
 }
