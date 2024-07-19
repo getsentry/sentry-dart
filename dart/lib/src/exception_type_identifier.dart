@@ -8,8 +8,6 @@ import 'package:meta/meta.dart';
 /// Implement this class to create custom error type identifiers for errors or exceptions.
 /// that we do not support out of the box.
 ///
-/// Add the implementation using [SentryOptions.prependExceptionTypeIdentifier].
-///
 /// Example:
 /// ```dart
 /// class MyExceptionTypeIdentifier implements ExceptionTypeIdentifier {
@@ -33,6 +31,7 @@ class CachingExceptionTypeIdentifier implements ExceptionTypeIdentifier {
   @visibleForTesting
   ExceptionTypeIdentifier get identifier => _identifier;
   final ExceptionTypeIdentifier _identifier;
+
   final Map<Type, String?> _knownExceptionTypes = {};
 
   CachingExceptionTypeIdentifier(this._identifier);
