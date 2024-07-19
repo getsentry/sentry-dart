@@ -30,6 +30,8 @@ extension CacheableExceptionIdentifier on ExceptionTypeIdentifier {
 
 @visibleForTesting
 class CachingExceptionTypeIdentifier implements ExceptionTypeIdentifier {
+  @visibleForTesting
+  ExceptionTypeIdentifier get identifier => _identifier;
   final ExceptionTypeIdentifier _identifier;
   final Map<Type, String?> _knownExceptionTypes = {};
 

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/dart_exception_type_identifier.dart';
 import 'package:sentry/src/event_processor/deduplication_event_processor.dart';
 import 'package:test/test.dart';
 
@@ -317,6 +318,28 @@ void main() {
       await init;
 
       expect(completed, true);
+    });
+
+    test('should add DartExceptionTypeIdentifier by default', () async {
+      final options = SentryOptions(dsn: fakeDsn)..automatedTestMode = true;
+      await Sentry.init(
+        options: options,
+        (options) {
+          options.dsn = fakeDsn;
+        },
+      );
+
+      expect(options.exceptionTypeIdentifiers.length, 1);
+      final cachingIdentifier = options.exceptionTypeIdentifiers.first
+          as CachingExceptionTypeIdentifier;
+      expect(
+        cachingIdentifier,
+        isA<CachingExceptionTypeIdentifier>().having(
+          (c) => c.identifier,
+          'wrapped identifier',
+          isA<DartExceptionTypeIdentifier>(),
+        ),
+      );
     });
   });
 

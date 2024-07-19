@@ -11,8 +11,9 @@ class FlutterExceptionTypeIdentifier implements ExceptionTypeIdentifier {
     if (throwable is FlutterError) return 'FlutterError';
     if (throwable is PlatformException) return 'PlatformException';
     if (throwable is MissingPluginException) return 'MissingPluginException';
-    if (throwable is NetworkImageLoadException)
+    if (throwable is NetworkImageLoadException) {
       return 'NetworkImageLoadException';
+    }
     if (throwable is TickerCanceled) return 'TickerCanceled';
     return null;
   }

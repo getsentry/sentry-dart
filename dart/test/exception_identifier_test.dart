@@ -17,7 +17,7 @@ void main() {
   });
 
   group('ExceptionTypeIdentifiers', () {
-    test('first in the list will be processed first', () {
+    test('should be processed based on order in the list', () {
       fixture.options
           .prependExceptionTypeIdentifier(DartExceptionTypeIdentifier());
       fixture.options
@@ -27,6 +27,36 @@ void main() {
       final sentryException = factory.getSentryException(ObfuscatedException());
 
       expect(sentryException.type, equals('ObfuscatedException'));
+    });
+
+    test('should return null if exception is not identified', () {
+      final identifier = DartExceptionTypeIdentifier();
+      expect(identifier.identifyType(ObfuscatedException()), isNull);
+    });
+  });
+
+  group('SentryExceptionFactory', () {
+    test('should process identifiers based on order in the list', () {
+      fixture.options
+          .prependExceptionTypeIdentifier(DartExceptionTypeIdentifier());
+      fixture.options
+          .prependExceptionTypeIdentifier(ObfuscatedExceptionIdentifier());
+
+      final factory = SentryExceptionFactory(fixture.options);
+      final sentryException = factory.getSentryException(ObfuscatedException());
+
+      expect(sentryException.type, equals('ObfuscatedException'));
+    });
+
+    test('should use runtime type when identification is disabled', () {
+      fixture.options.enableExceptionTypeIdentification = false;
+      fixture.options
+          .prependExceptionTypeIdentifier(ObfuscatedExceptionIdentifier());
+
+      final factory = SentryExceptionFactory(fixture.options);
+      final sentryException = factory.getSentryException(ObfuscatedException());
+
+      expect(sentryException.type, equals('PlaceHolderException'));
     });
   });
 

@@ -113,6 +113,11 @@ mixin SentryFlutter {
       // ignore: invalid_use_of_internal_member
       SentryNativeProfilerFactory.attachTo(Sentry.currentHub, _native!);
     }
+
+    // Insert it at the start of the list, before the Dart Exceptions that are set in Sentry.init
+    // so we can identify Flutter exceptions first.
+    flutterOptions
+        .prependExceptionTypeIdentifier(FlutterExceptionTypeIdentifier());
   }
 
   static Future<void> _initDefaultValues(SentryFlutterOptions options) async {
@@ -136,11 +141,6 @@ mixin SentryFlutter {
     options.addEventProcessor(PlatformExceptionEventProcessor());
 
     options.addPerformanceCollector(SpanFrameMetricsCollector(options));
-
-    // Insert it before the Dart Exceptions that are set in Sentry.init
-    // so we can identify Flutter exceptions first.
-    options.addExceptionTypeIdentifierByIndex(
-        0, FlutterExceptionTypeIdentifier());
 
     _setSdk(options);
   }
