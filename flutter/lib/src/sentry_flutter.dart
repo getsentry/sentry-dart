@@ -136,6 +136,7 @@ mixin SentryFlutter {
 
     options.addEventProcessor(PlatformExceptionEventProcessor());
 
+    // Disabled for web, linux and windows until we can reliably get the display refresh rate
     if (options.platformChecker.platform.isAndroid ||
         options.platformChecker.platform.isIOS ||
         options.platformChecker.platform.isMacOS) {
