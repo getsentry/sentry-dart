@@ -440,7 +440,7 @@ class SentryOptions {
   /// When true, the SDK will attempt to identify common exception types
   /// to improve readability of obfuscated issue titles.
   ///
-  /// If you already have issues with obfuscated issue titles this will change grouping.
+  /// If you already have events with obfuscated issue titles this will change grouping.
   ///
   /// Default: `true`
   bool enableExceptionTypeIdentification = true;
