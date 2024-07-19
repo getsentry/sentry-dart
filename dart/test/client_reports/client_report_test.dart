@@ -21,7 +21,6 @@ void main() {
     });
 
     test('toJson', () {
-      print(CustomException().runtimeType.toString());
       final sut = fixture.getSut();
       final json = sut.toJson();
 
