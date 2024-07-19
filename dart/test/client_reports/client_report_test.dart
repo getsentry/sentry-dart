@@ -6,12 +6,6 @@ import 'package:sentry/src/transport/data_category.dart';
 import 'package:test/test.dart';
 import 'package:sentry/src/utils.dart';
 
-class CustomException implements Exception {
-  message() {
-    return 'This is a custom exception';
-  }
-}
-
 void main() {
   group('json', () {
     late Fixture fixture;
