@@ -19,13 +19,16 @@ class ScreenshotRecorder {
   final ScreenshotRecorderCallback _callback;
   final SentryLogger _logger;
   final SentryReplayOptions _options;
+  final bool rethrowExceptions;
   WidgetFilter? _widgetFilter;
   late final Scheduler _scheduler;
   bool warningLogged = false;
 
   ScreenshotRecorder(this._config, this._callback, SentryFlutterOptions options)
       : _logger = options.logger,
-        _options = options.experimental.replay {
+        _options = options.experimental.replay,
+        // ignore: invalid_use_of_internal_member
+        rethrowExceptions = options.automatedTestMode {
     final frameDuration = Duration(milliseconds: 1000 ~/ _config.frameRate);
     _scheduler = Scheduler(frameDuration, _capture,
         options.bindingUtils.instance!.addPostFrameCallback);
@@ -121,6 +124,9 @@ class ScreenshotRecorder {
     } catch (e, stackTrace) {
       _logger(SentryLevel.error, "Replay: failed to capture screenshot.",
           exception: e, stackTrace: stackTrace);
+      if (rethrowExceptions) {
+        rethrow;
+      }
     }
   }
 

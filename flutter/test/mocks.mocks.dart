@@ -186,10 +186,16 @@ class MockCallbacks extends _i1.Mock implements _i6.Callbacks {
   }
 
   @override
-  _i7.Future<Object?>? methodCallHandler(_i4.MethodCall? message) =>
+  _i7.Future<Object?>? methodCallHandler(
+    String? method, [
+    dynamic arguments,
+  ]) =>
       (super.noSuchMethod(Invocation.method(
         #methodCallHandler,
-        [message],
+        [
+          method,
+          arguments,
+        ],
       )) as _i7.Future<Object?>?);
 }
 
@@ -1097,11 +1103,10 @@ class MockSentryNativeBinding extends _i1.Mock
   }
 
   @override
-  _i7.Future<void> init(_i2.SentryFlutterOptions? options) =>
-      (super.noSuchMethod(
+  _i7.Future<void> init(_i2.Hub? hub) => (super.noSuchMethod(
         Invocation.method(
           #init,
-          [options],
+          [hub],
         ),
         returnValue: _i7.Future<void>.value(),
         returnValueForMissingStub: _i7.Future<void>.value(),

@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter/src/widgets/binding.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
-import 'package:mockito/mockito.dart';
 import 'package:sentry/src/platform/platform.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 
@@ -210,29 +209,36 @@ final fakeFrameDurations = [
 
 @GenerateMocks([Callbacks])
 abstract class Callbacks {
-  Future<Object?>? methodCallHandler(MethodCall message);
+  Future<Object?>? methodCallHandler(String method, [dynamic arguments]);
 }
 
 class NativeChannelFixture {
   late final MethodChannel channel;
-  late final Future<Object?>? Function(MethodCall?) handler;
+  late final Future<Object?>? Function(String method, [dynamic arguments])
+      handler;
+  static TestDefaultBinaryMessenger get _messenger =>
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
 
   NativeChannelFixture() {
     TestWidgetsFlutterBinding.ensureInitialized();
-    channel = MockMethodChannel();
-    when(channel.name).thenReturn('test.channel');
-    when(channel.binaryMessenger).thenReturn(
-        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger);
+    channel = MethodChannel('test.channel', StandardMethodCodec(), _messenger);
+    // channel = MockMethodChannel();
+    // when(channel.name).thenReturn('test.channel');
+    // when(channel.binaryMessenger).thenReturn(_messenger);
     handler = MockCallbacks().methodCallHandler;
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(channel, handler);
+    // _messenger.setMessageHandler(channel.name, (ByteData? data) async {
+    //   final call = StandardMethodCodec().decodeMethodCall(data);
+    //   await handler(call);
+    // });
+    _messenger.setMockMethodCallHandler(
+        channel, (call) => handler(call.method, call.arguments));
   }
 
   // Mock this call as if it was invoked by the native side.
   Future<ByteData?> invokeFromNative(String method, [dynamic arguments]) async {
     final call =
         StandardMethodCodec().encodeMethodCall(MethodCall(method, arguments));
-    return TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .handlePlatformMessage(channel.name, call, (ByteData? data) {});
+    return _messenger.handlePlatformMessage(
+        channel.name, call, (ByteData? data) {});
   }
 }
