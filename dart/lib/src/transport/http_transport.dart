@@ -11,6 +11,8 @@ import '../sentry_options.dart';
 import '../sentry_envelope.dart';
 import 'transport.dart';
 import 'rate_limiter.dart';
+import '../http_client/proxy_client.dart'
+    if (dart.library.io) '../http_client/io_proxy_client.dart' as proxy;
 
 /// A transport is in charge of sending the event to the Sentry server.
 class HttpTransport implements Transport {
@@ -21,10 +23,12 @@ class HttpTransport implements Transport {
   final HttpTransportRequestHandler _requestHandler;
 
   factory HttpTransport(SentryOptions options, RateLimiter rateLimiter) {
-    if (options.httpClient is NoOpClient) {
+    final httpProxy = options.httpProxy;
+    if (httpProxy != null) {
+      options.httpClient = proxy.proxyClient(httpProxy, options);
+    } else if (options.httpClient is NoOpClient) {
       options.httpClient = Client();
     }
-
     return HttpTransport._(options, rateLimiter);
   }
 

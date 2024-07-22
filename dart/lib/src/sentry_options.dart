@@ -443,6 +443,10 @@ class SentryOptions {
   /// ```
   Spotlight spotlight = Spotlight(enabled: false);
 
+  /// Set an http proxy during options configuration with format "PROXY xxxx:xxxx"
+  /// This is only supported on io platforms without native integrations (dart, linux, windows).
+  String? httpProxy;
+
   SentryOptions({this.dsn, PlatformChecker? checker}) {
     if (checker != null) {
       platformChecker = checker;
