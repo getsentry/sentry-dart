@@ -18,7 +18,8 @@ void main() {
     void _mockValues() {
       when(fixture.hub.configureScope(captureAny)).thenAnswer((_) {});
 
-      when(fixture.hub.captureEvent(captureAny, hint: anyNamed('hint')))
+      when(fixture.hub.captureEvent(captureAny,
+              hint: anyNamed('hint'), stackTrace: anyNamed('stackTrace')))
           .thenAnswer((_) => Future.value(SentryId.empty()));
 
       when(fixture.hub.options).thenReturn(fixture.options);
@@ -63,7 +64,11 @@ void main() {
       _reportError(exception: exception);
 
       final event = verify(
-        await fixture.hub.captureEvent(captureAny, hint: anyNamed('hint')),
+        await fixture.hub.captureEvent(
+          captureAny,
+          hint: anyNamed('hint'),
+          stackTrace: anyNamed('stackTrace'),
+        ),
       ).captured.first as SentryEvent;
 
       expect(event.level, SentryLevel.fatal);
@@ -95,7 +100,8 @@ void main() {
       _reportError(exception: StateError('error'), optionalDetails: details);
 
       final event = verify(
-        await fixture.hub.captureEvent(captureAny, hint: anyNamed('hint')),
+        await fixture.hub.captureEvent(captureAny,
+            hint: anyNamed('hint'), stackTrace: anyNamed('stackTrace')),
       ).captured.first as SentryEvent;
 
       expect(event.level, SentryLevel.fatal);
@@ -119,7 +125,8 @@ void main() {
       _reportError(exception: StateError('error'), optionalDetails: details);
 
       final event = verify(
-        await fixture.hub.captureEvent(captureAny, hint: anyNamed('hint')),
+        await fixture.hub.captureEvent(captureAny,
+            hint: anyNamed('hint'), stackTrace: anyNamed('stackTrace')),
       ).captured.first as SentryEvent;
 
       expect(event.level, SentryLevel.fatal);
@@ -141,7 +148,9 @@ void main() {
       _reportError(handler: defaultError);
 
       verify(
-          await fixture.hub.captureEvent(captureAny, hint: anyNamed('hint')));
+        await fixture.hub.captureEvent(captureAny,
+            hint: anyNamed('hint'), stackTrace: anyNamed('stackTrace')),
+      );
 
       expect(called, true);
     });
@@ -166,8 +175,10 @@ void main() {
 
       FlutterError.reportError(details);
 
-      verify(await fixture.hub.captureEvent(captureAny, hint: anyNamed('hint')))
-          .called(1);
+      verify(
+        await fixture.hub.captureEvent(captureAny,
+            hint: anyNamed('hint'), stackTrace: anyNamed('stackTrace')),
+      ).called(1);
 
       expect(numberOfDefaultCalls, 1);
     });
@@ -200,6 +211,26 @@ void main() {
       expect(FlutterError.onError, afterIntegrationOnError);
     });
 
+    test('captureEvent never uses an empty or null stack trace', () async {
+      final exception = StateError('error');
+      final details = FlutterErrorDetails(
+        exception: exception,
+        stack: null, // Explicitly set stack to null
+      );
+
+      _reportError(optionalDetails: details);
+
+      final captured = verify(
+        await fixture.hub.captureEvent(captureAny,
+            hint: anyNamed('hint'), stackTrace: captureAnyNamed('stackTrace')),
+      ).captured;
+
+      final stackTrace = captured[1] as StackTrace?;
+
+      expect(stackTrace, isNotNull);
+      expect(stackTrace.toString(), isNotEmpty);
+    });
+
     test('do not capture if silent error', () async {
       _reportError(silent: true);
 
@@ -211,7 +242,9 @@ void main() {
       _reportError(silent: true);
 
       verify(
-          await fixture.hub.captureEvent(captureAny, hint: anyNamed('hint')));
+        await fixture.hub.captureEvent(captureAny,
+            hint: anyNamed('hint'), stackTrace: anyNamed('stackTrace')),
+      );
     });
 
     test('adds integration', () {
@@ -255,7 +288,8 @@ void main() {
       _reportError(exception: exception);
 
       final event = verify(
-        await fixture.hub.captureEvent(captureAny, hint: anyNamed('hint')),
+        await fixture.hub.captureEvent(captureAny,
+            hint: anyNamed('hint'), stackTrace: anyNamed('stackTrace')),
       ).captured.first as SentryEvent;
 
       expect(event.level, SentryLevel.error);

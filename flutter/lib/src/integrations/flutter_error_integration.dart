@@ -2,6 +2,9 @@ import 'package:flutter/foundation.dart';
 import 'package:sentry/sentry.dart';
 import '../sentry_flutter_options.dart';
 
+// ignore: implementation_imports
+import 'package:sentry/src/utils/stacktrace_utils.dart';
+
 /// Integration that capture errors on the [FlutterError.onError] handler.
 ///
 /// Remarks:
@@ -77,7 +80,8 @@ class FlutterErrorIntegration implements Integration<SentryFlutterOptions> {
         );
 
         await hub.captureEvent(event,
-            stackTrace: errorDetails.stack,
+            // ignore: invalid_use_of_internal_member
+            stackTrace: errorDetails.stack ?? getCurrentStackTrace(),
             hint:
                 Hint.withMap({TypeCheckHint.syntheticException: errorDetails}));
         // we don't call Zone.current.handleUncaughtError because we'd like
