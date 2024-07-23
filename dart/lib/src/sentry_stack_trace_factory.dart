@@ -125,6 +125,12 @@ class SentryStackTraceFactory {
     if (column != null && column >= 0) {
       sentryStackFrame = sentryStackFrame.copyWith(colNo: frame.column);
     }
+
+    if (sentryStackFrame.platform == null) {
+      sentryStackFrame = sentryStackFrame.copyWith(
+          platform: sentryStackFrame.platform ??
+              (_options.platformChecker.isWeb ? 'javascript' : 'dart'));
+    }
     return sentryStackFrame;
   }
 

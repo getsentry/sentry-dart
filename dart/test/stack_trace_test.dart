@@ -9,6 +9,7 @@ import 'package:stack_trace/stack_trace.dart';
 import 'package:test/test.dart';
 
 import 'mocks.dart';
+import 'mocks/mock_platform_checker.dart';
 
 void main() {
   group('encodeStackTraceFrame', () {
@@ -258,6 +259,29 @@ isolate_instructions: 10fa27070, vm_instructions: 10fa21e20
           .map((frame) => frame.toJson());
       expect(frames.isEmpty, true);
     });
+
+    test('sets platform to javascript for web and dart for non-web', () {
+      final frame = Frame(Uri.parse('file://foo/bar/baz.dart'), 1, 2, 'buzz');
+      final fixture = Fixture();
+
+      // Test for web platform
+      final webSut = fixture.getSut(isWeb: true);
+      var webFrame = webSut.encodeStackTraceFrame(frame)!;
+      expect(webFrame.platform, 'javascript');
+
+      // Test for non-web platform
+      final nativeFrameBeforeSut = fixture.getSut(isWeb: false);
+      var nativeFrameBefore =
+          nativeFrameBeforeSut.encodeStackTraceFrame(frame)!;
+      expect(nativeFrameBefore.platform, 'dart');
+
+      // Test when platform is already set
+      final frameWithPlatform = fixture
+          .getSut()
+          .encodeStackTraceFrame(frame)!
+          .copyWith(platform: 'native');
+      expect(frameWithPlatform.platform, 'native');
+    });
   });
 }
 
@@ -266,8 +290,10 @@ class Fixture {
     List<String> inAppIncludes = const [],
     List<String> inAppExcludes = const [],
     bool considerInAppFramesByDefault = true,
+    bool isWeb = false,
   }) {
-    final options = SentryOptions(dsn: fakeDsn);
+    final options = SentryOptions(
+        dsn: fakeDsn, checker: MockPlatformChecker(isWebValue: isWeb));
     inAppIncludes.forEach(options.addInAppInclude);
     inAppExcludes.forEach(options.addInAppExclude);
     options.considerInAppFramesByDefault = considerInAppFramesByDefault;
