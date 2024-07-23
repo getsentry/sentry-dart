@@ -1,5 +1,6 @@
 package io.sentry.flutter
 
+import android.util.Log
 import io.sentry.SentryLevel
 import io.sentry.SentryOptions.Proxy
 import io.sentry.android.core.BuildConfig
