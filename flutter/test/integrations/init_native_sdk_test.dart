@@ -107,7 +107,7 @@ void main() {
       ..appHangTimeoutInterval = Duration(milliseconds: 9003)
       ..proxy = Proxy(
           host: "localhost",
-          port: '8080',
+          port: 8080,
           type: ProxyType.http,
           user: 'admin',
           pass: '0000',
@@ -158,7 +158,7 @@ void main() {
       'appHangTimeoutIntervalMillis': 9003,
       'proxy': {
         'host': 'localhost',
-        'port': '8080',
+        'port': 8080,
         'type': 'HTTP',
         'user': 'admin',
         'pass': '0000',
