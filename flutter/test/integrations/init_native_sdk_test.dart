@@ -106,11 +106,11 @@ void main() {
       ..readTimeout = Duration(milliseconds: 9002)
       ..appHangTimeoutInterval = Duration(milliseconds: 9003)
       ..proxy = Proxy(
-          host: "localhost",
-          port: 8080,
-          type: ProxyType.http,
-          user: 'admin',
-          pass: '0000',
+        host: "localhost",
+        port: 8080,
+        type: ProxyType.http,
+        user: 'admin',
+        pass: '0000',
       );
 
     fixture.options.sdk.addIntegration('foo');
