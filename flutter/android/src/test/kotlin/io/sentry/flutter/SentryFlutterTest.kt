@@ -141,13 +141,12 @@ class Fixture {
           "type" to "http", // lowercase to check enum mapping
           "user" to "admin",
           "pass" to "0000",
-        )
+        ),
     )
 
-  fun getSut(): SentryFlutter {
-    return SentryFlutter(
+  fun getSut(): SentryFlutter =
+    SentryFlutter(
       androidSdk = "sentry.java.android.flutter",
       nativeSdk = "fixture-nativeSdk",
     )
-  }
 }
