@@ -4,7 +4,7 @@ library dart_test;
 import 'dart:io';
 
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/http_client/io_proxy_client_provider.dart';
+import 'package:sentry/src/http_client/io_client_provider.dart';
 import 'package:test/test.dart';
 
 import '../mocks.dart';
