@@ -133,7 +133,8 @@ class SentryFlutter(
             ?.let {
               type = try {
                 Type.valueOf(it.toUpperCase(Locale.ROOT))
-              } catch (e: IllegalArgumentException) {
+              } catch (_: IllegalArgumentException) {
+                Log.w("Sentry", "Could not parse `type` from proxy json: $proxyJson")
                 null
               }
             }
