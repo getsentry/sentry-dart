@@ -122,23 +122,24 @@ class SentryFlutter(
       options.readTimeoutMillis = it
     }
     data.getIfNotNull<Map<String, Any>>("proxy") { proxyJson ->
-      options.proxy = Proxy().apply {
-        host = proxyJson["host"] as? String
-        port = (proxyJson["port"] as? Int)
-          ?.let {
-            "$it"
-          }
-        (proxyJson["type"] as? String)
-          ?.let {
-            type = try {
-              Type.valueOf(it.toUpperCase(Locale.ROOT))
-            } catch (e: IllegalArgumentException) {
-              null
+      options.proxy = Proxy()
+        .apply {
+          host = proxyJson["host"] as? String
+          port = (proxyJson["port"] as? Int)
+            ?.let {
+              "$it"
             }
-          }
-        user = proxyJson["user"] as? String
-        pass = proxyJson["pass"] as? String
-      }
+          (proxyJson["type"] as? String)
+            ?.let {
+              type = try {
+                Type.valueOf(it.toUpperCase(Locale.ROOT))
+              } catch (e: IllegalArgumentException) {
+                null
+              }
+            }
+          user = proxyJson["user"] as? String
+          pass = proxyJson["pass"] as? String
+        }
     }
   }
 }
