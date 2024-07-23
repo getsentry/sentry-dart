@@ -18,9 +18,9 @@ void main() {
     });
 
     test('options.httpProxy should set client to IoClient', () async {
-      fixture.options.httpProxy = "PROXY xxxx:xxxx";
+      fixture.options.proxy =
+          Proxy(type: ProxyType.http, host: 'localhost', port: '8080');
       fixture.getSut();
-
       expect(fixture.options.httpClient is IOClient, true);
     });
   });

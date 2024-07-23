@@ -1,10 +1,12 @@
 package io.sentry.flutter
 
 import io.sentry.SentryLevel
+import io.sentry.SentryOptions.Proxy
 import io.sentry.android.core.BuildConfig
 import io.sentry.android.core.SentryAndroidOptions
 import io.sentry.protocol.SdkVersion
 import java.util.Locale
+import java.net.Proxy.Type;
 
 class SentryFlutter(
   private val androidSdk: String,
@@ -118,6 +120,21 @@ class SentryFlutter(
     }
     data.getIfNotNull<Int>("readTimeoutMillis") {
       options.readTimeoutMillis = it
+    }
+    data.getIfNotNull<Map<String, Any>>("proxy") { proxyJson ->
+      options.proxy = Proxy().apply {
+        host = proxyJson["host"] as? String
+        port = proxyJson["port"] as? String
+        (proxyJson["type"] as? String)?.let {
+          type = try {
+            Type.valueOf(it.uppercase())
+          } catch (e: IllegalArgumentException) {
+            null
+          }
+        }
+        user = proxyJson["user"] as? String
+        pass = proxyJson["pass"] as? String
+      }
     }
   }
 }
