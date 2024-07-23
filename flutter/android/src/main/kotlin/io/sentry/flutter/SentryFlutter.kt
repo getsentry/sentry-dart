@@ -124,7 +124,9 @@ class SentryFlutter(
     data.getIfNotNull<Map<String, Any>>("proxy") { proxyJson ->
       options.proxy = Proxy().apply {
         host = proxyJson["host"] as? String
-        port = proxyJson["port"] as? String
+        port = (proxyJson["port"] as? Int)?.let {
+          "$it"
+        }
         (proxyJson["type"] as? String)?.let {
           type = try {
             Type.valueOf(it.uppercase())
