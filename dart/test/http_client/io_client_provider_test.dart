@@ -71,6 +71,7 @@ void main() {
       expect(fixture.mockHttpClient.addProxyCredentialsRealm, '');
       expect(fixture.mockUser, fixture.options.proxy?.user);
       expect(fixture.mockPass, fixture.options.proxy?.pass);
+      expect(fixture.mockHttpClient.addProxyCredentialsBasic, isNotNull);
     });
   });
 }
