@@ -5,7 +5,7 @@ import 'http_transport_request_handler.dart';
 import '../../sentry.dart';
 import '../noop_client.dart';
 import '../http_client/client_provider.dart'
-if (dart.library.io) '../http_client/io_client_provider.dart';
+    if (dart.library.io) '../http_client/io_client_provider.dart';
 
 /// Spotlight HTTP transport decorator that sends Sentry envelopes to both Sentry and Spotlight.
 class SpotlightHttpTransport extends Transport {
