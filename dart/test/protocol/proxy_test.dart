@@ -5,7 +5,7 @@ import 'package:test/test.dart';
 void main() {
   final proxy = Proxy(
     host: 'localhost',
-    port: '8080',
+    port: 8080,
     type: ProxyType.http,
     user: 'admin',
     pass: '0000',
@@ -13,7 +13,7 @@ void main() {
 
   final proxyJson = <String, dynamic>{
     'host': 'localhost',
-    'port': '8080',
+    'port': 8080,
     'type': 'HTTP',
     'user': 'admin',
     'pass': '0000',
@@ -26,8 +26,7 @@ void main() {
     });
 
     test('returns "PROXY host:port" for ProxyType.http with host and port', () {
-      Proxy proxy =
-          Proxy(type: ProxyType.http, host: 'localhost', port: '8080');
+      Proxy proxy = Proxy(type: ProxyType.http, host: 'localhost', port: 8080);
       expect(proxy.toPacString(), equals('PROXY localhost:8080'));
     });
 
@@ -38,9 +37,8 @@ void main() {
 
     test('returns "SOCKS host:port" for ProxyType.socks with host and port',
         () {
-      Proxy proxy =
-          Proxy(type: ProxyType.socks, host: 'localhost', port: '1080');
-      expect(proxy.toPacString(), equals('SOCKS localhost:1080'));
+      Proxy proxy = Proxy(type: ProxyType.socks, host: 'localhost', port: 8080);
+      expect(proxy.toPacString(), equals('SOCKS localhost:8080'));
     });
 
     test('returns "SOCKS host" for ProxyType.socks with host only', () {
@@ -84,14 +82,14 @@ void main() {
 
       final copy = data.copyWith(
         host: 'localhost-2',
-        port: '8000',
+        port: 9001,
         type: ProxyType.socks,
         user: 'user',
         pass: '1234',
       );
 
       expect('localhost-2', copy.host);
-      expect('8000', copy.port);
+      expect(9001, copy.port);
       expect(ProxyType.socks, copy.type);
       expect('user', copy.user);
       expect('1234', copy.pass);

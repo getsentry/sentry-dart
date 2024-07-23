@@ -1,7 +1,7 @@
 class Proxy {
   final ProxyType type;
   final String? host;
-  final String? port;
+  final int? port;
   final String? user;
   final String? pass;
 
@@ -41,7 +41,7 @@ class Proxy {
 
   Proxy copyWith({
     String? host,
-    String? port,
+    int? port,
     ProxyType? type,
     String? user,
     String? pass,

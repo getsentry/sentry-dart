@@ -443,8 +443,16 @@ class SentryOptions {
   /// ```
   Spotlight spotlight = Spotlight(enabled: false);
 
-  /// Set proxy during options configuration.
-  /// This is supported on io platforms without native integrations (dart, linux, windows) and Android.
+  /// Configure a proxy to use for SDK API calls.
+  ///
+  /// On io platforms (dart, linux, windows), this will use an 'HTTPClient' for
+  /// http communication. A http proxy will be set in returned for
+  /// 'HttpClient.findProxy' in the form 'PROXY <your_host>:<your_port>'.
+  /// When setting 'user' and 'pass', the 'HttpClient.addProxyCredentials'
+  /// method will be called wit empty 'realm'.
+  ///
+  /// On Android, the proxy settings are handled by the native SDK.
+  /// iOS and macOS native SDKs do not support proxy settings.
   Proxy? proxy;
 
   SentryOptions({this.dsn, PlatformChecker? checker}) {
