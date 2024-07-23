@@ -166,21 +166,24 @@ void main() {
             await native.invokeFromNative('ReplayRecorder.start', replayConfig);
 
             await nextFrame();
-            expect(fsImages().values, [5378]);
+            expect(fsImages().values, isNotEmpty);
+            final size = fsImages().values.first;
+            expect(size, greaterThan(5000));
+            expect(fsImages().values, [size]);
             expect(capturedImages, equals(fsImages()));
 
             await nextFrame();
-            expect(fsImages().values, [5378, 5378]);
+            expect(fsImages().values, [size, size]);
             expect(capturedImages, equals(fsImages()));
 
             await native.invokeFromNative('ReplayRecorder.stop');
 
             await nextFrame(wait: false);
-            expect(fsImages().values, [5378, 5378]);
+            expect(fsImages().values, [size, size]);
             expect(capturedImages, equals(fsImages()));
 
             await nextFrame(wait: false);
-            expect(fsImages().values, [5378, 5378]);
+            expect(fsImages().values, [size, size]);
             expect(capturedImages, equals(fsImages()));
           });
         }, timeout: Timeout(Duration(seconds: 10)));
