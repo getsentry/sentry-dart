@@ -6,6 +6,9 @@
 
 - Add proxy support ([#2192](https://github.com/getsentry/sentry-dart/pull/2192))
 
+- Support `ignoredExceptionsForType` ([#2150](https://github.com/getsentry/sentry-dart/pull/2150))
+  - Filter out exception types by calling `SentryOptions.addExceptionFilterForType(Type exceptionType)`
+  
 ### Fixes
 
 - Disable sff & frame delay detection on web, linux and windows ([#2182](https://github.com/getsentry/sentry-dart/pull/2182))
