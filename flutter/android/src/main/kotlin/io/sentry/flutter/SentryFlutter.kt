@@ -129,7 +129,7 @@ class SentryFlutter(
         }
         (proxyJson["type"] as? String)?.let {
           type = try {
-            Type.valueOf(it.uppercase())
+            Type.valueOf(it.toUpperCase(Locale.ROOT))
           } catch (e: IllegalArgumentException) {
             null
           }
