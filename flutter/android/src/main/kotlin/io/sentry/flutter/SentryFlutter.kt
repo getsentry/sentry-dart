@@ -6,7 +6,7 @@ import io.sentry.android.core.BuildConfig
 import io.sentry.android.core.SentryAndroidOptions
 import io.sentry.protocol.SdkVersion
 import java.util.Locale
-import java.net.Proxy.Type;
+import java.net.Proxy.Type
 
 class SentryFlutter(
   private val androidSdk: String,
@@ -122,21 +122,22 @@ class SentryFlutter(
       options.readTimeoutMillis = it
     }
     data.getIfNotNull<Map<String, Any>>("proxy") { proxyJson ->
-      options.proxy = Proxy().apply {
-        host = proxyJson["host"] as? String
-        port = (proxyJson["port"] as? Int)?.let {
-          "$it"
-        }
-        (proxyJson["type"] as? String)?.let {
-          type = try {
-            Type.valueOf(it.uppercase())
-          } catch (e: IllegalArgumentException) {
-            null
+      options.proxy = Proxy()
+        .apply {
+          host = proxyJson["host"] as? String
+          port = (proxyJson["port"] as? Int)?.let {
+            "$it"
           }
+          (proxyJson["type"] as? String)?.let {
+            type = try {
+              Type.valueOf(it.uppercase())
+            } catch (e: IllegalArgumentException) {
+              null
+            }
+          }
+          user = proxyJson["user"] as? String
+          pass = proxyJson["pass"] as? String
         }
-        user = proxyJson["user"] as? String
-        pass = proxyJson["pass"] as? String
-      }
     }
   }
 }

@@ -134,13 +134,14 @@ class Fixture {
       "enableAutoPerformanceTracing" to true,
       "connectionTimeoutMillis" to 9006,
       "readTimeoutMillis" to 9007,
-      "proxy" to mapOf(
-        "host" to "localhost",
-        "port" to 8080,
-        "type" to "http", // lowercase to check enum mapping
-        "user" to "admin",
-        "pass" to "0000",
-      )
+      "proxy" to
+        mapOf(
+          "host" to "localhost",
+          "port" to 8080,
+          "type" to "http", // lowercase to check enum mapping
+          "user" to "admin",
+          "pass" to "0000",
+        )
     )
 
   fun getSut(): SentryFlutter {

@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Add proxy support ([#2192](https://github.com/getsentry/sentry-dart/pull/2192))
+
 ### Fixes
 
 - Disable sff & frame delay detection on web, linux and windows ([#2182](https://github.com/getsentry/sentry-dart/pull/2182))
