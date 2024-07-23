@@ -445,9 +445,10 @@ class SentryOptions {
 
   /// Configure a proxy to use for SDK API calls.
   ///
-  /// On io platforms (dart, linux, windows), this will use an 'HTTPClient' for
-  /// http communication. A http proxy will be set in returned for
-  /// 'HttpClient.findProxy' in the form 'PROXY <your_host>:<your_port>'.
+  /// On io platforms without native SDKs (dart, linux, windows), this will use
+  /// an 'IOClient' with inner 'HTTPClient' for http communication.
+  /// A http proxy will be set in returned for 'HttpClient.findProxy' in the
+  /// form 'PROXY <your_host>:<your_port>'.
   /// When setting 'user' and 'pass', the 'HttpClient.addProxyCredentials'
   /// method will be called wit empty 'realm'.
   ///
