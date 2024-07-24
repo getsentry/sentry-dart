@@ -4,6 +4,8 @@
 
 ### Features
 
+- Add dart platform to sentry frames ([#2193](https://github.com/getsentry/sentry-dart/pull/2193))
+  - This allows viewing the correct dart formatted raw stacktrace in the Sentry UI
 - Support `ignoredExceptionsForType` ([#2150](https://github.com/getsentry/sentry-dart/pull/2150))
   - Filter out exception types by calling `SentryOptions.addExceptionFilterForType(Type exceptionType)`
   
