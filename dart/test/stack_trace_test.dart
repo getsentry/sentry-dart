@@ -24,7 +24,8 @@ void main() {
           'lineno': 1,
           'colno': 2,
           'in_app': false,
-          'filename': 'core'
+          'filename': 'core',
+          'platform': 'dart',
         },
       );
     });
@@ -124,7 +125,8 @@ void main() {
           'lineno': 46,
           'colno': 9,
           'in_app': true,
-          'filename': 'test.dart'
+          'filename': 'test.dart',
+          'platform': 'dart',
         },
         {
           'abs_path': '${eventOrigin}test.dart',
@@ -132,7 +134,8 @@ void main() {
           'lineno': 50,
           'colno': 3,
           'in_app': true,
-          'filename': 'test.dart'
+          'filename': 'test.dart',
+          'platform': 'dart',
         },
       ]);
     });
@@ -153,7 +156,8 @@ void main() {
           'lineno': 46,
           'colno': 9,
           'in_app': true,
-          'filename': 'test.dart'
+          'filename': 'test.dart',
+          'platform': 'dart',
         },
         {
           'abs_path': '<asynchronous suspension>',
@@ -164,7 +168,8 @@ void main() {
           'lineno': 50,
           'colno': 3,
           'in_app': true,
-          'filename': 'test.dart'
+          'filename': 'test.dart',
+          'platform': 'dart',
         },
       ]);
     });
@@ -230,7 +235,8 @@ isolate_instructions: 10fa27070, vm_instructions: 10fa21e20
           'function': 'PlatformDispatcher._dispatchPointerDataPacket',
           'lineno': 341,
           'abs_path': '${eventOrigin}dart:ui/platform_dispatcher.dart',
-          'in_app': false
+          'in_app': false,
+          'platform': 'dart',
         },
         {
           'filename': 'main.dart',
@@ -238,14 +244,16 @@ isolate_instructions: 10fa27070, vm_instructions: 10fa21e20
           'function': 'MainScaffold.build.<fn>',
           'lineno': 131,
           'abs_path': '${eventOrigin}package:example/main.dart',
-          'in_app': true
+          'in_app': true,
+          'platform': 'dart',
         },
         {
           'filename': 'main.dart',
           'function': 'asyncThrows',
           'lineno': 404,
           'abs_path': '${eventOrigin}main.dart',
-          'in_app': true
+          'in_app': true,
+          'platform': 'dart',
         }
       ]);
     });
