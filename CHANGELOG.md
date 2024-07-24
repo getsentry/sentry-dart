@@ -26,9 +26,9 @@
   - [diff](https://github.com/getsentry/sentry-java/compare/7.11.0...7.12.0)
   - updates AGP to v7.4.2
   - updates Kotlin to v1.8.0
-- Bump Cocoa SDK from v8.30.1 to v8.31.1 ([#2174](https://github.com/getsentry/sentry-dart/pull/2174))
-  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8311)
-  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.30.1...8.31.1)
+- Bump Cocoa SDK from v8.30.1 to v8.32.0 ([#2174](https://github.com/getsentry/sentry-dart/pull/2174), [#2195](https://github.com/getsentry/sentry-dart/pull/2195))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8320)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.30.1...8.32.0)
 
 ## 8.4.0
 
