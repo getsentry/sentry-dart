@@ -665,17 +665,20 @@ void main() {
   test(
       'should add DartExceptionTypeIdentifier and FlutterExceptionTypeIdentifier by default',
       () async {
-    await SentryFlutter.init((options) {
-      options.dsn = fakeDsn;
-      options.automatedTestMode = true;
-    });
+    SentryOptions? actualOptions = null;
+    await SentryFlutter.init(
+      (options) {
+        options.dsn = fakeDsn;
+        options.automatedTestMode = true;
+        actualOptions = options;
+      },
+      appRunner: appRunner,
+    );
 
-    final options = HubAdapter().options;
-
-    expect(options.exceptionTypeIdentifiers.length, 2);
+    expect(actualOptions!.exceptionTypeIdentifiers.length, 2);
     // Flutter identifier should be first as it's more specific
     expect(
-      options.exceptionTypeIdentifiers.first,
+      actualOptions!.exceptionTypeIdentifiers.first,
       isA<CachingExceptionTypeIdentifier>().having(
         (c) => c.identifier,
         'wrapped identifier',
@@ -683,13 +686,15 @@ void main() {
       ),
     );
     expect(
-      options.exceptionTypeIdentifiers[1],
+      actualOptions!.exceptionTypeIdentifiers[1],
       isA<CachingExceptionTypeIdentifier>().having(
         (c) => c.identifier,
         'wrapped identifier',
         isA<DartExceptionTypeIdentifier>(),
       ),
     );
+
+    await Sentry.close();
   });
 }
 
