@@ -29,8 +29,7 @@ class SentryNativeChannel
       : channel = SentrySafeMethodChannel(channel, options);
 
   @override
-  Future<void> init(SentryFlutterOptions options) async {
-    assert(this.options == options);
+  Future<void> init(Hub hub) async {
     return channel.invokeMethod('initNativeSdk', <String, dynamic>{
       'dsn': options.dsn,
       'debug': options.debug,

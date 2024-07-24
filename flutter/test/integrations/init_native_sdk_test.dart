@@ -8,6 +8,7 @@ import 'package:sentry_flutter/src/native/sentry_native_channel.dart';
 import 'package:sentry_flutter/src/version.dart';
 
 import '../mocks.dart';
+import '../mocks.mocks.dart';
 
 void main() {
   late Fixture fixture;
@@ -25,7 +26,7 @@ void main() {
     });
     var sut = fixture.getSut(channel);
 
-    await sut.init(fixture.options);
+    await sut.init(MockHub());
 
     channel.setMethodCallHandler(null);
 
@@ -115,7 +116,7 @@ void main() {
     fixture.options.sdk.addIntegration('foo');
     fixture.options.sdk.addPackage('bar', '1');
 
-    await sut.init(fixture.options);
+    await sut.init(MockHub());
 
     channel.setMethodCallHandler(null);
 
