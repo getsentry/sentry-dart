@@ -334,6 +334,22 @@ class SentryOptions {
     _scopeObservers.add(scopeObserver);
   }
 
+  final List<Type> _ignoredExceptionsForType = [];
+
+  /// Ignored exception types.
+  List<Type> get ignoredExceptionsForType => _ignoredExceptionsForType;
+
+  /// Adds exception type to the list of ignored exceptions.
+  void addExceptionFilterForType(Type exceptionType) {
+    _ignoredExceptionsForType.add(exceptionType);
+  }
+
+  /// Check if [ignoredExceptionsForType] contains an exception.
+  bool containsIgnoredExceptionForType(dynamic exception) {
+    return exception != null &&
+        _ignoredExceptionsForType.contains(exception.runtimeType);
+  }
+
   @internal
   late ClientReportRecorder recorder = NoOpClientReportRecorder();
 
