@@ -1,6 +1,5 @@
-import 'package:http/http.dart';
-import 'dart:async';
-
+import 'package:http/http.dart' show ClientException;
+import 'dart:async' show TimeoutException, AsyncError, DeferredLoadException;
 import '../sentry.dart';
 
 import 'dart_exception_type_identifier_io.dart'

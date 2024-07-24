@@ -1,5 +1,7 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter/cupertino.dart'
+    show FlutterError, NetworkImageLoadException, TickerCanceled;
+import 'package:flutter/services.dart'
+    show PlatformException, MissingPluginException;
 
 import '../sentry_flutter.dart';
 
