@@ -9,6 +9,7 @@ import 'package:stack_trace/stack_trace.dart';
 import 'package:test/test.dart';
 
 import 'mocks.dart';
+import 'mocks/mock_platform_checker.dart';
 
 void main() {
   group('encodeStackTraceFrame', () {
@@ -23,7 +24,8 @@ void main() {
           'lineno': 1,
           'colno': 2,
           'in_app': false,
-          'filename': 'core'
+          'filename': 'core',
+          'platform': 'dart',
         },
       );
     });
@@ -123,7 +125,8 @@ void main() {
           'lineno': 46,
           'colno': 9,
           'in_app': true,
-          'filename': 'test.dart'
+          'filename': 'test.dart',
+          'platform': 'dart',
         },
         {
           'abs_path': '${eventOrigin}test.dart',
@@ -131,7 +134,8 @@ void main() {
           'lineno': 50,
           'colno': 3,
           'in_app': true,
-          'filename': 'test.dart'
+          'filename': 'test.dart',
+          'platform': 'dart',
         },
       ]);
     });
@@ -152,7 +156,8 @@ void main() {
           'lineno': 46,
           'colno': 9,
           'in_app': true,
-          'filename': 'test.dart'
+          'filename': 'test.dart',
+          'platform': 'dart',
         },
         {
           'abs_path': '<asynchronous suspension>',
@@ -163,7 +168,8 @@ void main() {
           'lineno': 50,
           'colno': 3,
           'in_app': true,
-          'filename': 'test.dart'
+          'filename': 'test.dart',
+          'platform': 'dart',
         },
       ]);
     });
@@ -229,7 +235,8 @@ isolate_instructions: 10fa27070, vm_instructions: 10fa21e20
           'function': 'PlatformDispatcher._dispatchPointerDataPacket',
           'lineno': 341,
           'abs_path': '${eventOrigin}dart:ui/platform_dispatcher.dart',
-          'in_app': false
+          'in_app': false,
+          'platform': 'dart',
         },
         {
           'filename': 'main.dart',
@@ -237,14 +244,16 @@ isolate_instructions: 10fa27070, vm_instructions: 10fa21e20
           'function': 'MainScaffold.build.<fn>',
           'lineno': 131,
           'abs_path': '${eventOrigin}package:example/main.dart',
-          'in_app': true
+          'in_app': true,
+          'platform': 'dart',
         },
         {
           'filename': 'main.dart',
           'function': 'asyncThrows',
           'lineno': 404,
           'abs_path': '${eventOrigin}main.dart',
-          'in_app': true
+          'in_app': true,
+          'platform': 'dart',
         }
       ]);
     });
@@ -258,6 +267,29 @@ isolate_instructions: 10fa27070, vm_instructions: 10fa21e20
           .map((frame) => frame.toJson());
       expect(frames.isEmpty, true);
     });
+
+    test('sets platform to javascript for web and dart for non-web', () {
+      final frame = Frame(Uri.parse('file://foo/bar/baz.dart'), 1, 2, 'buzz');
+      final fixture = Fixture();
+
+      // Test for web platform
+      final webSut = fixture.getSut(isWeb: true);
+      var webFrame = webSut.encodeStackTraceFrame(frame)!;
+      expect(webFrame.platform, 'javascript');
+
+      // Test for non-web platform
+      final nativeFrameBeforeSut = fixture.getSut(isWeb: false);
+      var nativeFrameBefore =
+          nativeFrameBeforeSut.encodeStackTraceFrame(frame)!;
+      expect(nativeFrameBefore.platform, 'dart');
+
+      // Test when platform is already set
+      final frameWithPlatform = fixture
+          .getSut()
+          .encodeStackTraceFrame(frame)!
+          .copyWith(platform: 'native');
+      expect(frameWithPlatform.platform, 'native');
+    });
   });
 }
 
@@ -266,8 +298,10 @@ class Fixture {
     List<String> inAppIncludes = const [],
     List<String> inAppExcludes = const [],
     bool considerInAppFramesByDefault = true,
+    bool isWeb = false,
   }) {
-    final options = SentryOptions(dsn: fakeDsn);
+    final options = SentryOptions(
+        dsn: fakeDsn, checker: MockPlatformChecker(isWebValue: isWeb));
     inAppIncludes.forEach(options.addInAppInclude);
     inAppExcludes.forEach(options.addInAppExclude);
     options.considerInAppFramesByDefault = considerInAppFramesByDefault;
