@@ -222,14 +222,7 @@ class NativeChannelFixture {
   NativeChannelFixture() {
     TestWidgetsFlutterBinding.ensureInitialized();
     channel = MethodChannel('test.channel', StandardMethodCodec(), _messenger);
-    // channel = MockMethodChannel();
-    // when(channel.name).thenReturn('test.channel');
-    // when(channel.binaryMessenger).thenReturn(_messenger);
     handler = MockCallbacks().methodCallHandler;
-    // _messenger.setMessageHandler(channel.name, (ByteData? data) async {
-    //   final call = StandardMethodCodec().decodeMethodCall(data);
-    //   await handler(call);
-    // });
     _messenger.setMockMethodCallHandler(
         channel, (call) => handler(call.method, call.arguments));
   }
