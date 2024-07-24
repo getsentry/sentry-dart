@@ -1,5 +1,26 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Android Session Replay Alpha ([#2032](https://github.com/getsentry/sentry-dart/pull/2032))
+
+  To try out replay, you can set following options:
+
+  ```dart
+  await SentryFlutter.init(
+    (options) {
+      ...
+      options.experimental.replay.sessionSampleRate = 1.0;
+      options.experimental.replay.errorSampleRate = 1.0;
+    },
+    appRunner: () => runApp(MyApp()),
+  );
+  ```
+
+  Access is limited to early access orgs on Sentry. If you're interested, [sign up for the waitlist](https://sentry.io/lp/mobile-replay-beta/)
+
 ## 8.5.0
 
 ### Features
@@ -8,11 +29,11 @@
   - This allows viewing the correct dart formatted raw stacktrace in the Sentry UI
 - Support `ignoredExceptionsForType` ([#2150](https://github.com/getsentry/sentry-dart/pull/2150))
   - Filter out exception types by calling `SentryOptions.addExceptionFilterForType(Type exceptionType)`
-  
+
 ### Fixes
 
 - Disable sff & frame delay detection on web, linux and windows ([#2182](https://github.com/getsentry/sentry-dart/pull/2182))
-  - Display refresh rate is locked at 60 for these platforms which can lead to inaccurate metrics 
+  - Display refresh rate is locked at 60 for these platforms which can lead to inaccurate metrics
 
 ### Improvements
 
