@@ -13,7 +13,7 @@
 // How to add your own custom exception identifier
 class MyCustomExceptionIdentifier implements ExceptionIdentifier {
   @override
-  String identify(Exception exception) {
+  String? identifyType(Exception exception) {
     if (exception is MyCustomException) {
       return 'MyCustomException';
     }
