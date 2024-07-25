@@ -59,6 +59,7 @@ class SentryTracesSampler {
 
     double? optionsRate = _options.tracesSampleRate;
     double? defaultRate =
+        // ignore: deprecated_member_use_from_same_package
         _options.enableTracing == true ? _defaultSampleRate : null;
     double? optionsOrDefaultRate = optionsRate ?? defaultRate;
 
