@@ -28,6 +28,12 @@ SentryFlutter.init((options) =>
   options..prependExceptionTypeIdentifier(MyCustomExceptionIdentifier()));
 ```
 
+### Dependencies
+
+- Bump Android SDK from v7.12.0 to v7.12.1 ([#2198](https://github.com/getsentry/sentry-dart/pull/2198))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#7121)
+  - [diff](https://github.com/getsentry/sentry-java/compare/7.12.0...7.12.1)
+
 ## 8.5.0
 
 ### Features
