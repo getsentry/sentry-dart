@@ -636,6 +636,8 @@ void main() {
     await SentryFlutter.resumeAppHangTracking();
 
     verify(SentryFlutter.native?.resumeAppHangTracking()).called(1);
+
+    SentryFlutter.native = null;
   });
 
   test('resumeAppHangTracking does nothing when native is null', () async {
@@ -653,6 +655,8 @@ void main() {
     await SentryFlutter.pauseAppHangTracking();
 
     verify(SentryFlutter.native?.pauseAppHangTracking()).called(1);
+
+    SentryFlutter.native = null;
   });
 
   test('pauseAppHangTracking does nothing when native is null', () async {
