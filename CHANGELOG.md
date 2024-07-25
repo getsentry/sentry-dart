@@ -1,18 +1,6 @@
 # Changelog
 
-## 8.5.0
-
-### Features
-
-- Add dart platform to sentry frames ([#2193](https://github.com/getsentry/sentry-dart/pull/2193))
-  - This allows viewing the correct dart formatted raw stacktrace in the Sentry UI
-- Support `ignoredExceptionsForType` ([#2150](https://github.com/getsentry/sentry-dart/pull/2150))
-  - Filter out exception types by calling `SentryOptions.addExceptionFilterForType(Type exceptionType)`
-  
-### Fixes
-
-- Disable sff & frame delay detection on web, linux and windows ([#2182](https://github.com/getsentry/sentry-dart/pull/2182))
-  - Display refresh rate is locked at 60 for these platforms which can lead to inaccurate metrics 
+## Unreleased 
 
 ### Improvements
 
@@ -39,6 +27,23 @@ class MyCustomExceptionIdentifier implements ExceptionIdentifier {
 SentryFlutter.init((options) =>
   options..prependExceptionTypeIdentifier(MyCustomExceptionIdentifier()));
 ```
+
+## 8.5.0
+
+### Features
+
+- Add dart platform to sentry frames ([#2193](https://github.com/getsentry/sentry-dart/pull/2193))
+  - This allows viewing the correct dart formatted raw stacktrace in the Sentry UI
+- Support `ignoredExceptionsForType` ([#2150](https://github.com/getsentry/sentry-dart/pull/2150))
+  - Filter out exception types by calling `SentryOptions.addExceptionFilterForType(Type exceptionType)`
+  
+### Fixes
+
+- Disable sff & frame delay detection on web, linux and windows ([#2182](https://github.com/getsentry/sentry-dart/pull/2182))
+  - Display refresh rate is locked at 60 for these platforms which can lead to inaccurate metrics 
+
+### Improvements
+
 - Capture meaningful stack traces when unhandled errors have empty or missing stack traces ([#2152](https://github.com/getsentry/sentry-dart/pull/2152))
   - This will affect grouping for unhandled errors that have empty or missing stack traces.
 
