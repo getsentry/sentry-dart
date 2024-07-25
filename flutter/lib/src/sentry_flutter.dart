@@ -3,26 +3,25 @@ import 'dart:ui';
 
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
-import 'span_frame_metrics_collector.dart';
+
 import '../sentry_flutter.dart';
 import 'event_processor/android_platform_exception_event_processor.dart';
+import 'event_processor/flutter_enricher_event_processor.dart';
 import 'event_processor/flutter_exception_event_processor.dart';
 import 'event_processor/platform_exception_event_processor.dart';
 import 'event_processor/widget_event_processor.dart';
+import 'file_system_transport.dart';
+import 'flutter_exception_type_identifier.dart';
 import 'frame_callback_handler.dart';
 import 'integrations/connectivity/connectivity_integration.dart';
+import 'integrations/integrations.dart';
 import 'integrations/screenshot_integration.dart';
 import 'native/factory.dart';
 import 'native/native_scope_observer.dart';
 import 'native/sentry_native_binding.dart';
 import 'profiling.dart';
 import 'renderer/renderer.dart';
-
-import 'integrations/integrations.dart';
-import 'event_processor/flutter_enricher_event_processor.dart';
-
-import 'file_system_transport.dart';
-
+import 'span_frame_metrics_collector.dart';
 import 'version.dart';
 import 'view_hierarchy/view_hierarchy_integration.dart';
 
@@ -114,6 +113,11 @@ mixin SentryFlutter {
       // ignore: invalid_use_of_internal_member
       SentryNativeProfilerFactory.attachTo(Sentry.currentHub, _native!);
     }
+
+    // Insert it at the start of the list, before the Dart Exceptions that are set in Sentry.init
+    // so we can identify Flutter exceptions first.
+    flutterOptions
+        .prependExceptionTypeIdentifier(FlutterExceptionTypeIdentifier());
   }
 
   static Future<void> _initDefaultValues(SentryFlutterOptions options) async {

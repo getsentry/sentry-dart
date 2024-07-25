@@ -1,17 +1,17 @@
 import 'dart:async';
 import 'dart:developer';
 
-import 'package:meta/meta.dart';
 import 'package:http/http.dart';
+import 'package:meta/meta.dart';
 
 import '../sentry.dart';
 import 'client_reports/client_report_recorder.dart';
 import 'client_reports/noop_client_report_recorder.dart';
-import 'sentry_exception_factory.dart';
-import 'sentry_stack_trace_factory.dart';
 import 'diagnostic_logger.dart';
 import 'environment/environment_variables.dart';
 import 'noop_client.dart';
+import 'sentry_exception_factory.dart';
+import 'sentry_stack_trace_factory.dart';
 import 'transport/noop_transport.dart';
 import 'version.dart';
 
@@ -451,6 +451,33 @@ class SentryOptions {
   /// [SentryIsolate], have `level` [SentryLevel.fatal] set per default.
   /// Settings this to `false` will set the `level` to [SentryLevel.error].
   bool markAutomaticallyCollectedErrorsAsFatal = true;
+
+  /// Enables identification of exception types in obfuscated builds.
+  /// When true, the SDK will attempt to identify common exception types
+  /// to improve readability of obfuscated issue titles.
+  ///
+  /// If you already have events with obfuscated issue titles this will change grouping.
+  ///
+  /// Default: `true`
+  bool enableExceptionTypeIdentification = true;
+
+  final List<ExceptionTypeIdentifier> _exceptionTypeIdentifiers = [];
+
+  List<ExceptionTypeIdentifier> get exceptionTypeIdentifiers =>
+      List.unmodifiable(_exceptionTypeIdentifiers);
+
+  void addExceptionTypeIdentifierByIndex(
+      int index, ExceptionTypeIdentifier exceptionTypeIdentifier) {
+    _exceptionTypeIdentifiers.insert(
+        index, exceptionTypeIdentifier.withCache());
+  }
+
+  /// Adds an exception type identifier to the beginning of the list.
+  /// This ensures it is processed first and takes precedence over existing identifiers.
+  void prependExceptionTypeIdentifier(
+      ExceptionTypeIdentifier exceptionTypeIdentifier) {
+    addExceptionTypeIdentifierByIndex(0, exceptionTypeIdentifier);
+  }
 
   /// The Spotlight configuration.
   /// Disabled by default.

@@ -4,7 +4,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry/src/platform/platform.dart';
+import 'package:sentry/src/dart_exception_type_identifier.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_flutter/src/flutter_exception_type_identifier.dart';
 import 'package:sentry_flutter/src/integrations/connectivity/connectivity_integration.dart';
 import 'package:sentry_flutter/src/integrations/integrations.dart';
 import 'package:sentry_flutter/src/integrations/screenshot_integration.dart';
@@ -634,6 +636,8 @@ void main() {
     await SentryFlutter.resumeAppHangTracking();
 
     verify(SentryFlutter.native?.resumeAppHangTracking()).called(1);
+
+    SentryFlutter.native = null;
   });
 
   test('resumeAppHangTracking does nothing when native is null', () async {
@@ -651,6 +655,8 @@ void main() {
     await SentryFlutter.pauseAppHangTracking();
 
     verify(SentryFlutter.native?.pauseAppHangTracking()).called(1);
+
+    SentryFlutter.native = null;
   });
 
   test('pauseAppHangTracking does nothing when native is null', () async {
@@ -658,6 +664,41 @@ void main() {
 
     // This should complete without throwing an error
     await expectLater(SentryFlutter.pauseAppHangTracking(), completes);
+  });
+
+  test(
+      'should add DartExceptionTypeIdentifier and FlutterExceptionTypeIdentifier by default',
+      () async {
+    SentryOptions? actualOptions;
+    await SentryFlutter.init(
+      (options) {
+        options.dsn = fakeDsn;
+        options.automatedTestMode = true;
+        actualOptions = options;
+      },
+      appRunner: appRunner,
+    );
+
+    expect(actualOptions!.exceptionTypeIdentifiers.length, 2);
+    // Flutter identifier should be first as it's more specific
+    expect(
+      actualOptions!.exceptionTypeIdentifiers.first,
+      isA<CachingExceptionTypeIdentifier>().having(
+        (c) => c.identifier,
+        'wrapped identifier',
+        isA<FlutterExceptionTypeIdentifier>(),
+      ),
+    );
+    expect(
+      actualOptions!.exceptionTypeIdentifiers[1],
+      isA<CachingExceptionTypeIdentifier>().having(
+        (c) => c.identifier,
+        'wrapped identifier',
+        isA<DartExceptionTypeIdentifier>(),
+      ),
+    );
+
+    await Sentry.close();
   });
 }
 

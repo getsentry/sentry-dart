@@ -140,6 +140,12 @@ void main() {
     expect(options.enableMetrics, false);
   });
 
+  test('enableExceptionTypeIdentification is enabled by default', () {
+    final options = SentryOptions(dsn: fakeDsn);
+
+    expect(options.enableExceptionTypeIdentification, true);
+  });
+
   test('default tags for metrics are enabled by default', () {
     final options = SentryOptions(dsn: fakeDsn);
     options.enableMetrics = true;

@@ -207,5 +207,6 @@ class MockRateLimiter implements RateLimiter {
   SentryProfilerFactory,
   SentryProfiler,
   SentryProfileInfo,
+  ExceptionTypeIdentifier,
 ])
 void main() {}
