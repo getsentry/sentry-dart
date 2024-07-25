@@ -665,7 +665,7 @@ void main() {
   test(
       'should add DartExceptionTypeIdentifier and FlutterExceptionTypeIdentifier by default',
       () async {
-    SentryOptions? actualOptions = null;
+    SentryOptions? actualOptions;
     await SentryFlutter.init(
       (options) {
         options.dsn = fakeDsn;
