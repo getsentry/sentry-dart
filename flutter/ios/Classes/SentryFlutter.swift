@@ -73,7 +73,7 @@ public final class SentryFlutter {
         if let sampleRate = data["sampleRate"] as? NSNumber? {
             options.sampleRate = sampleRate
         }
-        if let tracesSampleRate = data["tracingSampleRate"] as? NSNumber? {
+        if let tracesSampleRate = data["tracesSampleRate"] as? NSNumber? {
             options.tracesSampleRate = tracesSampleRate
         }
     }
