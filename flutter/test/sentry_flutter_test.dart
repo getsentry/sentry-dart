@@ -677,6 +677,10 @@ void main() {
         actualOptions = options;
       },
       appRunner: appRunner,
+      platformChecker: getPlatformChecker(
+        platform: MockPlatform.android(),
+        isWeb: true,
+      ),
     );
 
     expect(actualOptions!.exceptionTypeIdentifiers.length, 2);
