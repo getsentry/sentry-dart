@@ -28,6 +28,14 @@ SentryFlutter.init((options) =>
   options..prependExceptionTypeIdentifier(MyCustomExceptionIdentifier()));
 ```
 
+### Deprecated
+
+- Deprecate `enableTracing` ([#2199](https://github.com/getsentry/sentry-dart/pull/2199))
+  - The `enableTracing` option has been deprecated and will be removed in the next major version. We recommend removing it
+    in favor of the `tracesSampleRate` and `tracesSampler` options. If you want to enable performance monitoring, please set
+    the `tracesSampleRate` to a sample rate of your choice, or provide a sampling function as `tracesSampler` option
+    instead. If you want to disable performance monitoring, remove the `tracesSampler` and `tracesSampleRate` options.
+
 ### Dependencies
 
 - Bump Android SDK from v7.12.0 to v7.12.1 ([#2198](https://github.com/getsentry/sentry-dart/pull/2198))

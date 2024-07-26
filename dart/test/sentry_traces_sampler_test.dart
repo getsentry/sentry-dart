@@ -166,6 +166,7 @@ class Fixture {
     options.tracesSampler = tracesSampler;
     options.debug = debug;
     options.logger = mockLogger;
+    // ignore: deprecated_member_use_from_same_package
     options.enableTracing = enableTracing;
     return SentryTracesSampler(options);
   }
