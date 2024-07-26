@@ -119,6 +119,12 @@ class SentryFlutter(
     data.getIfNotNull<Int>("readTimeoutMillis") {
       options.readTimeoutMillis = it
     }
+    data.getIfNotNull<Double>("sampleRate") {
+      options.sampleRate = it
+    }
+    data.getIfNotNull<Double>("tracesSampleRate") {
+      options.tracesSampleRate = it
+    }
   }
 }
 
@@ -128,7 +134,5 @@ private fun <T> Map<String, Any>.getIfNotNull(
   key: String,
   callback: (T) -> Unit,
 ) {
-  (get(key) as? T)?.let {
-    callback(it)
-  }
+  (get(key) as? T)?.let(callback)
 }
