@@ -70,6 +70,12 @@ public final class SentryFlutter {
         if let appHangTimeoutIntervalMillis = data["appHangTimeoutIntervalMillis"] as? NSNumber {
             options.appHangTimeoutInterval = appHangTimeoutIntervalMillis.doubleValue / 1000
         }
+        if let sampleRate = data["sampleRate"] as? NSNumber? {
+            options.sampleRate = sampleRate
+        }
+        if let tracesSampleRate = data["tracingSampleRate"] as? NSNumber? {
+            options.tracesSampleRate = tracesSampleRate
+        }
     }
 
     private func logLevelFrom(diagnosticLevel: String) -> SentryLevel {
