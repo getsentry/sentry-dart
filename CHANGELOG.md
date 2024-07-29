@@ -2,6 +2,10 @@
 
 ## Unreleased 
 
+### Features
+
+- Add proxy support ([#2192](https://github.com/getsentry/sentry-dart/pull/2192))
+
 ### Improvements
 
 - Add error type identifier to improve obfuscated Flutter issue titles ([#2170](https://github.com/getsentry/sentry-dart/pull/2170))
@@ -50,7 +54,6 @@ SentryFlutter.init((options) =>
   - This allows viewing the correct dart formatted raw stacktrace in the Sentry UI
 - Support `ignoredExceptionsForType` ([#2150](https://github.com/getsentry/sentry-dart/pull/2150))
   - Filter out exception types by calling `SentryOptions.addExceptionFilterForType(Type exceptionType)`
-- Add proxy support ([#2192](https://github.com/getsentry/sentry-dart/pull/2192))
 
 ### Fixes
 
