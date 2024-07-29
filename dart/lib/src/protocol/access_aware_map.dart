@@ -39,6 +39,9 @@ class AccessAwareMap<String, V> extends MapBase<String, V> {
   }
 
   Map<String, dynamic>? notAccessed() {
+    if (accessedKeys.length == _map.length) {
+      return null;
+    }
     Map<String, dynamic> unknown = _map.keys
         .where((key) => !accessedKeys.contains(key))
         .fold<Map<String, dynamic>>({}, (map, key) {
