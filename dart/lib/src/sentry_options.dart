@@ -495,7 +495,7 @@ class SentryOptions {
   /// A http proxy will be set in returned for 'HttpClient.findProxy' in the
   /// form 'PROXY <your_host>:<your_port>'.
   /// When setting 'user' and 'pass', the 'HttpClient.addProxyCredentials'
-  /// method will be called wit empty 'realm'.
+  /// method will be called with empty 'realm'.
   ///
   /// On Android, the proxy settings are handled by the native SDK.
   /// iOS and macOS native SDKs do not support proxy settings.
