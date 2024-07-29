@@ -2,12 +2,14 @@ import 'dart:io';
 
 import 'package:http/http.dart';
 import 'package:http/io_client.dart';
+import 'package:meta/meta.dart';
 
 import '../protocol.dart';
 import '../proxy.dart';
 import '../sentry_options.dart';
 import 'client_provider.dart';
 
+@internal
 ClientProvider getClientProvider() {
   return IoClientProvider(
     () {
@@ -19,6 +21,7 @@ ClientProvider getClientProvider() {
   );
 }
 
+@internal
 class IoClientProvider implements ClientProvider {
   final HttpClient Function() _httpClient;
   final HttpClientCredentials Function(String, String) _httpClientCredentials;
