@@ -195,11 +195,11 @@ class SentryUserFeedbackWithoutAssert implements SentryUserFeedback {
   @override
   Map<String, dynamic> toJson() {
     return {
+      ...?unknown,
       'event_id': eventId.toString(),
       if (name != null) 'name': name,
       if (email != null) 'email': email,
       if (comments != null) 'comments': comments,
-      ...?unknown,
     };
   }
 

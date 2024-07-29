@@ -12,8 +12,8 @@ class SentryTransactionInfo {
 
   Map<String, dynamic> toJson() {
     return {
-      'source': source,
       ...?unknown,
+      'source': source,
     };
   }
 

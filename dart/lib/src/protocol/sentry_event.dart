@@ -378,6 +378,7 @@ class SentryEvent with SentryEventLike<SentryEvent> {
         .toList(growable: false);
 
     return {
+      ...?unknown,
       'event_id': eventId.toString(),
       if (timestamp != null)
         'timestamp': formatDateAsIso8601WithMillisPrecision(timestamp!),
@@ -408,7 +409,6 @@ class SentryEvent with SentryEventLike<SentryEvent> {
       if (exceptionsJson?.isNotEmpty ?? false)
         'exception': {'values': exceptionsJson},
       if (threadJson?.isNotEmpty ?? false) 'threads': {'values': threadJson},
-      ...?unknown,
     };
   }
 }

@@ -42,13 +42,13 @@ class DebugMeta {
   Map<String, dynamic> toJson() {
     final sdkInfo = sdk?.toJson();
     return {
+      ...?unknown,
       if (sdkInfo?.isNotEmpty ?? false) 'sdk_info': sdkInfo,
       if (_images?.isNotEmpty ?? false)
         'images': _images!
             .map((e) => e.toJson())
             .where((element) => element.isNotEmpty)
             .toList(growable: false),
-      ...?unknown,
     };
   }
 

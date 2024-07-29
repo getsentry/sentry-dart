@@ -34,6 +34,9 @@ void main() {
       final sdkInfo = SdkInfo.fromJson(sdkInfoJson);
       final json = sdkInfo.toJson();
 
+      print(sdkInfo);
+      print(json);
+
       expect(
         MapEquality().equals(sdkInfoJson, json),
         true,

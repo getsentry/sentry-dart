@@ -87,6 +87,7 @@ class SentryApp {
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
     return {
+      ...?unknown,
       if (name != null) 'app_name': name!,
       if (version != null) 'app_version': version!,
       if (identifier != null) 'app_identifier': identifier!,
@@ -98,7 +99,6 @@ class SentryApp {
       if (inForeground != null) 'in_foreground': inForeground!,
       if (viewNames != null && viewNames!.isNotEmpty) 'view_names': viewNames!,
       if (textScale != null) 'text_scale': textScale!,
-      ...?unknown
     };
   }
 

@@ -57,7 +57,7 @@ void main() {
       sut['bar'];
       sut['baz'];
 
-      expect(sut.accessedKeys, {'foo', 'bar', 'baz'});
+      expect(sut.accessedKeysWithValues, {'foo', 'bar', 'baz'});
     });
 
     test('returns notAccessed data', () {
@@ -95,7 +95,7 @@ void main() {
 
       sut.clear();
 
-      expect(sut.accessedKeys.isEmpty, true);
+      expect(sut.accessedKeysWithValues.isEmpty, true);
       expect(sut.isEmpty, true);
     });
 

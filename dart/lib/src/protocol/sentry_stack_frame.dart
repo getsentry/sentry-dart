@@ -161,6 +161,7 @@ class SentryStackFrame {
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
     return {
+      ...?unknown,
       if (_preContext?.isNotEmpty ?? false) 'pre_context': _preContext,
       if (_postContext?.isNotEmpty ?? false) 'post_context': _postContext,
       if (_vars?.isNotEmpty ?? false) 'vars': _vars,
@@ -182,7 +183,6 @@ class SentryStackFrame {
       if (rawFunction != null) 'raw_function': rawFunction,
       if (symbol != null) 'symbol': symbol,
       if (stackStart != null) 'stack_start': stackStart,
-      ...?unknown,
     };
   }
 

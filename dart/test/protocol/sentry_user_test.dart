@@ -29,6 +29,8 @@ void main() {
     test('toJson', () {
       final json = sentryUser.toJson();
 
+      print("$json");
+
       expect(
         DeepCollectionEquality().equals(sentryUserJson, json),
         true,

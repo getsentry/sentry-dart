@@ -7,14 +7,14 @@ class AccessAwareMap<String, V> extends MapBase<String, V> {
   AccessAwareMap(this._map);
 
   final Map<String, V> _map;
-  final Set<String> _accessedKeys = {};
+  final Set<String> _accessedKeysWithValues = {};
 
-  Set<String> get accessedKeys => _accessedKeys;
+  Set<String> get accessedKeysWithValues => _accessedKeysWithValues;
 
   @override
   V? operator [](Object? key) {
-    if (key is String) {
-      _accessedKeys.add(key);
+    if (key is String && _map.containsKey(key)) {
+      _accessedKeysWithValues.add(key);
     }
     return _map[key];
   }
@@ -27,7 +27,7 @@ class AccessAwareMap<String, V> extends MapBase<String, V> {
   @override
   void clear() {
     _map.clear();
-    _accessedKeys.clear();
+    _accessedKeysWithValues.clear();
   }
 
   @override
@@ -39,11 +39,11 @@ class AccessAwareMap<String, V> extends MapBase<String, V> {
   }
 
   Map<String, dynamic>? notAccessed() {
-    if (accessedKeys.length == _map.length) {
+    if (_accessedKeysWithValues.length == _map.length) {
       return null;
     }
     Map<String, dynamic> unknown = _map.keys
-        .where((key) => !accessedKeys.contains(key))
+        .where((key) => !_accessedKeysWithValues.contains(key))
         .fold<Map<String, dynamic>>({}, (map, key) {
       map[key] = _map[key];
       return map;

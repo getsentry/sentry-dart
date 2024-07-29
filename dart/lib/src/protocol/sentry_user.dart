@@ -135,6 +135,7 @@ class SentryUser {
   Map<String, dynamic> toJson() {
     final geoJson = geo?.toJson();
     return {
+      ...?unknown,
       if (id != null) 'id': id,
       if (username != null) 'username': username,
       if (email != null) 'email': email,
@@ -146,7 +147,6 @@ class SentryUser {
       if (extras?.isNotEmpty ?? false) 'extras': extras,
       if (name != null) 'name': name,
       if (geoJson != null && geoJson.isNotEmpty) 'geo': geoJson,
-      ...?unknown,
     };
   }
 

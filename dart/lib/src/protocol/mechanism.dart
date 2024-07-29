@@ -157,6 +157,7 @@ class Mechanism {
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
     return {
+      ...?unknown,
       'type': type,
       if (description != null) 'description': description,
       if (helpLink != null) 'help_link': helpLink,
@@ -168,7 +169,6 @@ class Mechanism {
       if (source != null) 'source': source,
       if (exceptionId != null) 'exception_id': exceptionId,
       if (parentId != null) 'parent_id': parentId,
-      ...?unknown,
     };
   }
 }

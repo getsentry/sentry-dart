@@ -49,10 +49,10 @@ class SentryMessage {
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
     return {
+      ...?unknown,
       'formatted': formatted,
       if (template != null) 'message': template,
       if (params?.isNotEmpty ?? false) 'params': params,
-      ...?unknown,
     };
   }
 

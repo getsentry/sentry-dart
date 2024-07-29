@@ -145,6 +145,7 @@ class SentryRequest {
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
     return {
+      ...?unknown,
       if (url != null) 'url': url,
       if (method != null) 'method': method,
       if (queryString != null) 'query_string': queryString,
@@ -156,7 +157,6 @@ class SentryRequest {
       if (other.isNotEmpty) 'other': other,
       if (fragment != null) 'fragment': fragment,
       if (apiTarget != null) 'api_target': apiTarget,
-      ...?unknown,
     };
   }
 

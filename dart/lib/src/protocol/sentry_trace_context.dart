@@ -63,6 +63,7 @@ class SentryTraceContext {
   /// Item encoded as JSON
   Map<String, dynamic> toJson() {
     return {
+      ...?unknown,
       'span_id': spanId.toString(),
       'trace_id': traceId.toString(),
       'op': operation,
@@ -70,7 +71,6 @@ class SentryTraceContext {
       if (description != null) 'description': description,
       if (status != null) 'status': status!.toString(),
       if (origin != null) 'origin': origin,
-      ...?unknown,
     };
   }
 

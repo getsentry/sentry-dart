@@ -52,12 +52,12 @@ class SentryCulture {
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
     return {
+      ...?unknown,
       if (calendar != null) 'calendar': calendar!,
       if (displayName != null) 'display_name': displayName!,
       if (locale != null) 'locale': locale!,
       if (is24HourFormat != null) 'is_24_hour_format': is24HourFormat!,
       if (timezone != null) 'timezone': timezone!,
-      ...?unknown,
     };
   }
 

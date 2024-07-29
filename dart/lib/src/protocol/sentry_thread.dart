@@ -54,12 +54,12 @@ class SentryThread {
   Map<String, dynamic> toJson() {
     final stacktrace = this.stacktrace;
     return {
+      ...?unknown,
       if (id != null) 'id': id,
       if (name != null) 'name': name,
       if (crashed != null) 'crashed': crashed,
       if (current != null) 'current': current,
       if (stacktrace != null) 'stacktrace': stacktrace.toJson(),
-      ...?unknown,
     };
   }
 

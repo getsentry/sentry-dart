@@ -35,9 +35,9 @@ class SentryBrowser {
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
     return {
+      ...?unknown,
       if (name != null) 'name': name,
       if (version != null) 'version': version,
-      ...?unknown,
     };
   }
 

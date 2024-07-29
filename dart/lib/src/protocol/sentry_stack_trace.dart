@@ -69,13 +69,13 @@ class SentryStackTrace {
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
     return {
+      ...?unknown,
       if (_frames?.isNotEmpty ?? false)
         'frames':
             _frames?.map((frame) => frame.toJson()).toList(growable: false),
       if (_registers?.isNotEmpty ?? false) 'registers': _registers,
       if (lang != null) 'lang': lang,
       if (snapshot != null) 'snapshot': snapshot,
-      ...?unknown,
     };
   }
 

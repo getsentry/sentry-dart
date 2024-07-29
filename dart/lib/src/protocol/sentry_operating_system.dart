@@ -69,6 +69,7 @@ class SentryOperatingSystem {
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
     return {
+      ...?unknown,
       if (name != null) 'name': name,
       if (version != null) 'version': version,
       if (build != null) 'build': build,
@@ -76,7 +77,6 @@ class SentryOperatingSystem {
       if (rooted != null) 'rooted': rooted,
       if (rawDescription != null) 'raw_description': rawDescription,
       if (theme != null) 'theme': theme,
-      ...?unknown,
     };
   }
 

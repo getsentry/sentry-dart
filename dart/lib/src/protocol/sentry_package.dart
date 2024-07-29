@@ -30,9 +30,9 @@ class SentryPackage {
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
     return {
+      ...?unknown,
       'name': name,
       'version': version,
-      ...?unknown,
     };
   }
 
