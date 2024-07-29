@@ -108,7 +108,7 @@ void main() {
       ..proxy = SentryProxy(
         host: "localhost",
         port: 8080,
-        type: ProxyType.http,
+        type: SentryProxyType.http,
         user: 'admin',
         pass: '0000',
       );

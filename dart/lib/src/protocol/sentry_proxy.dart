@@ -1,5 +1,5 @@
 class SentryProxy {
-  final ProxyType type;
+  final SentryProxyType type;
   final String? host;
   final int? port;
   final String? user;
@@ -10,12 +10,12 @@ class SentryProxy {
   String toPacString() {
     String type = 'DIRECT';
     switch (this.type) {
-      case ProxyType.direct:
+      case SentryProxyType.direct:
         return 'DIRECT';
-      case ProxyType.http:
+      case SentryProxyType.http:
         type = 'PROXY';
         break;
-      case ProxyType.socks:
+      case SentryProxyType.socks:
         type = 'SOCKS';
         break;
     }
@@ -42,7 +42,7 @@ class SentryProxy {
   SentryProxy copyWith({
     String? host,
     int? port,
-    ProxyType? type,
+    SentryProxyType? type,
     String? user,
     String? pass,
   }) =>
@@ -55,7 +55,7 @@ class SentryProxy {
       );
 }
 
-enum ProxyType {
+enum SentryProxyType {
   direct,
   http,
   socks;

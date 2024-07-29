@@ -19,7 +19,7 @@ void main() {
 
     test('http proxy should call findProxyResult', () async {
       fixture.options.proxy = SentryProxy(
-        type: ProxyType.http,
+        type: SentryProxyType.http,
         host: 'localhost',
         port: 8080,
       );
@@ -32,7 +32,7 @@ void main() {
     });
 
     test('direct proxy should call findProxyResult', () async {
-      fixture.options.proxy = SentryProxy(type: ProxyType.direct);
+      fixture.options.proxy = SentryProxy(type: SentryProxyType.direct);
 
       final sut = fixture.getSut();
       sut.getClient(fixture.options);
@@ -43,7 +43,7 @@ void main() {
 
     test('socks proxy should not call findProxyResult', () async {
       fixture.options.proxy =
-          SentryProxy(type: ProxyType.socks, host: 'localhost', port: 8080);
+          SentryProxy(type: SentryProxyType.socks, host: 'localhost', port: 8080);
 
       final sut = fixture.getSut();
       sut.getClient(fixture.options);
@@ -53,7 +53,7 @@ void main() {
 
     test('authenticated proxy http should call addProxyCredentials', () async {
       fixture.options.proxy = SentryProxy(
-        type: ProxyType.http,
+        type: SentryProxyType.http,
         host: 'localhost',
         port: 8080,
         user: 'admin',

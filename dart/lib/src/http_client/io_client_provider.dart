@@ -35,7 +35,7 @@ class IoClientProvider implements ClientProvider {
       return Client();
     }
     final pac = proxy.toPacString();
-    if (proxy.type == ProxyType.socks) {
+    if (proxy.type == SentryProxyType.socks) {
       options.logger(
         SentryLevel.warning,
         "Setting proxy '$pac' is not supported.",
