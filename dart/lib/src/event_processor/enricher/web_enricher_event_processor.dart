@@ -71,6 +71,7 @@ class WebEnricherEventProcessor implements EnricherEventProcessor {
 
   int? _getMemorySize() {
     // https://developer.mozilla.org/en-US/docs/Web/API/Navigator/deviceMemory
+    // ignore: invalid_null_aware_operator
     final size = _window.navigator.deviceMemory?.toDouble();
     final memoryByteSize = size != null ? size * 1024 * 1024 * 1024 : null;
     return memoryByteSize?.toInt();
@@ -102,5 +103,6 @@ class WebEnricherEventProcessor implements EnricherEventProcessor {
 }
 
 extension on web.Navigator {
+  // ignore: unused_element
   external double? get deviceMemory;
 }

@@ -213,5 +213,6 @@ final Map<String, dynamic> testUnknown = {
   SentryProfilerFactory,
   SentryProfiler,
   SentryProfileInfo,
+  ExceptionTypeIdentifier,
 ])
 void main() {}

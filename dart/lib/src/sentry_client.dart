@@ -1,32 +1,33 @@
 import 'dart:async';
 import 'dart:math';
-import 'package:meta/meta.dart';
-import 'utils/stacktrace_utils.dart';
-import 'metrics/metric.dart';
-import 'metrics/metrics_aggregator.dart';
-import 'sentry_baggage.dart';
-import 'sentry_attachment/sentry_attachment.dart';
 
+import 'package:meta/meta.dart';
+
+import 'client_reports/client_report_recorder.dart';
+import 'client_reports/discard_reason.dart';
 import 'event_processor.dart';
 import 'hint.dart';
-import 'sentry_trace_context_header.dart';
-import 'sentry_user_feedback.dart';
-import 'transport/rate_limiter.dart';
+import 'metrics/metric.dart';
+import 'metrics/metrics_aggregator.dart';
 import 'protocol.dart';
 import 'scope.dart';
+import 'sentry_attachment/sentry_attachment.dart';
+import 'sentry_baggage.dart';
+import 'sentry_envelope.dart';
 import 'sentry_exception_factory.dart';
 import 'sentry_options.dart';
 import 'sentry_stack_trace_factory.dart';
+import 'sentry_trace_context_header.dart';
+import 'sentry_user_feedback.dart';
+import 'transport/data_category.dart';
 import 'transport/http_transport.dart';
 import 'transport/noop_transport.dart';
+import 'transport/rate_limiter.dart';
 import 'transport/spotlight_http_transport.dart';
 import 'transport/task_queue.dart';
 import 'utils/isolate_utils.dart';
+import 'utils/stacktrace_utils.dart';
 import 'version.dart';
-import 'sentry_envelope.dart';
-import 'client_reports/client_report_recorder.dart';
-import 'client_reports/discard_reason.dart';
-import 'transport/data_category.dart';
 
 /// Default value for [SentryUser.ipAddress]. It gets set when an event does not have
 /// a user and IP address. Only applies if [SentryOptions.sendDefaultPii] is set
@@ -45,7 +46,7 @@ class SentryClient {
 
   late final MetricsAggregator? _metricsAggregator;
 
-  static final _sentryId = Future.value(SentryId.empty());
+  static final _emptySentryId = Future.value(SentryId.empty());
 
   SentryExceptionFactory get _exceptionFactory => _options.exceptionFactory;
 
@@ -83,6 +84,16 @@ class SentryClient {
     dynamic stackTrace,
     Hint? hint,
   }) async {
+    if (_options.containsIgnoredExceptionForType(event.throwable)) {
+      _options.logger(
+        SentryLevel.debug,
+        'Event was dropped as the exception ${event.throwable.runtimeType.toString()} is ignored.',
+      );
+      _options.recorder
+          .recordLostEvent(DiscardReason.eventProcessor, _getCategory(event));
+      return _emptySentryId;
+    }
+
     if (_sampleRate()) {
       _options.recorder
           .recordLostEvent(DiscardReason.sampleRate, _getCategory(event));
@@ -90,7 +101,7 @@ class SentryClient {
         SentryLevel.debug,
         'Event ${event.eventId.toString()} was dropped due to sampling decision.',
       );
-      return _sentryId;
+      return _emptySentryId;
     }
 
     SentryEvent? preparedEvent = _prepareEvent(event, stackTrace: stackTrace);
@@ -106,7 +117,7 @@ class SentryClient {
 
     // dropped by scope event processors
     if (preparedEvent == null) {
-      return _sentryId;
+      return _emptySentryId;
     }
 
     preparedEvent = await _runEventProcessors(
@@ -117,7 +128,7 @@ class SentryClient {
 
     // dropped by event processors
     if (preparedEvent == null) {
-      return _sentryId;
+      return _emptySentryId;
     }
 
     preparedEvent = _createUserOrSetDefaultIpAddress(preparedEvent);
@@ -129,7 +140,7 @@ class SentryClient {
 
     // dropped by beforeSend
     if (preparedEvent == null) {
-      return _sentryId;
+      return _emptySentryId;
     }
 
     var attachments = List<SentryAttachment>.from(scope?.attachments ?? []);
@@ -326,7 +337,7 @@ class SentryClient {
 
     // dropped by scope event processors
     if (preparedTransaction == null) {
-      return _sentryId;
+      return _emptySentryId;
     }
 
     preparedTransaction = await _runEventProcessors(
@@ -337,7 +348,7 @@ class SentryClient {
 
     // dropped by event processors
     if (preparedTransaction == null) {
-      return _sentryId;
+      return _emptySentryId;
     }
 
     preparedTransaction =
@@ -345,7 +356,7 @@ class SentryClient {
 
     // dropped by beforeSendTransaction
     if (preparedTransaction == null) {
-      return _sentryId;
+      return _emptySentryId;
     }
 
     final attachments = scope?.attachments
