@@ -3,7 +3,7 @@ import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 
 void main() {
-  final proxy = Proxy(
+  final proxy = SentryProxy(
     host: 'localhost',
     port: 8080,
     type: ProxyType.http,
@@ -21,38 +21,40 @@ void main() {
 
   group('toPacString', () {
     test('returns "DIRECT" for ProxyType.direct', () {
-      Proxy proxy = Proxy(type: ProxyType.direct);
+      SentryProxy proxy = SentryProxy(type: ProxyType.direct);
       expect(proxy.toPacString(), equals('DIRECT'));
     });
 
     test('returns "PROXY host:port" for ProxyType.http with host and port', () {
-      Proxy proxy = Proxy(type: ProxyType.http, host: 'localhost', port: 8080);
+      SentryProxy proxy =
+          SentryProxy(type: ProxyType.http, host: 'localhost', port: 8080);
       expect(proxy.toPacString(), equals('PROXY localhost:8080'));
     });
 
     test('returns "PROXY host" for ProxyType.http with host only', () {
-      Proxy proxy = Proxy(type: ProxyType.http, host: 'localhost');
+      SentryProxy proxy = SentryProxy(type: ProxyType.http, host: 'localhost');
       expect(proxy.toPacString(), equals('PROXY localhost'));
     });
 
     test('returns "SOCKS host:port" for ProxyType.socks with host and port',
         () {
-      Proxy proxy = Proxy(type: ProxyType.socks, host: 'localhost', port: 8080);
+      SentryProxy proxy =
+          SentryProxy(type: ProxyType.socks, host: 'localhost', port: 8080);
       expect(proxy.toPacString(), equals('SOCKS localhost:8080'));
     });
 
     test('returns "SOCKS host" for ProxyType.socks with host only', () {
-      Proxy proxy = Proxy(type: ProxyType.socks, host: 'localhost');
+      SentryProxy proxy = SentryProxy(type: ProxyType.socks, host: 'localhost');
       expect(proxy.toPacString(), equals('SOCKS localhost'));
     });
 
     test('falls back to "DIRECT" if http is missing host', () {
-      Proxy proxy = Proxy(type: ProxyType.http);
+      SentryProxy proxy = SentryProxy(type: ProxyType.http);
       expect(proxy.toPacString(), equals('DIRECT'));
     });
 
     test('falls back to "DIRECT" if socks is missing host', () {
-      Proxy proxy = Proxy(type: ProxyType.socks);
+      SentryProxy proxy = SentryProxy(type: ProxyType.socks);
       expect(proxy.toPacString(), equals('DIRECT'));
     });
   });

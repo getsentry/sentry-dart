@@ -1,11 +1,11 @@
-class Proxy {
+class SentryProxy {
   final ProxyType type;
   final String? host;
   final int? port;
   final String? user;
   final String? pass;
 
-  Proxy({required this.type, this.host, this.port, this.user, this.pass});
+  SentryProxy({required this.type, this.host, this.port, this.user, this.pass});
 
   String toPacString() {
     String type = 'DIRECT';
@@ -39,14 +39,14 @@ class Proxy {
     };
   }
 
-  Proxy copyWith({
+  SentryProxy copyWith({
     String? host,
     int? port,
     ProxyType? type,
     String? user,
     String? pass,
   }) =>
-      Proxy(
+      SentryProxy(
         host: host ?? this.host,
         port: port ?? this.port,
         type: type ?? this.type,

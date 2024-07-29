@@ -57,4 +57,4 @@ export 'src/utils.dart';
 // spotlight debugging
 export 'src/spotlight.dart';
 // proxy
-export 'src/proxy.dart';
+export 'src/protocol/sentry_proxy.dart';

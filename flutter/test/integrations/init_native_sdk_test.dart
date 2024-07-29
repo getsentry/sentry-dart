@@ -105,7 +105,7 @@ void main() {
       ..connectionTimeout = Duration(milliseconds: 9001)
       ..readTimeout = Duration(milliseconds: 9002)
       ..appHangTimeoutInterval = Duration(milliseconds: 9003)
-      ..proxy = Proxy(
+      ..proxy = SentryProxy(
         host: "localhost",
         port: 8080,
         type: ProxyType.http,

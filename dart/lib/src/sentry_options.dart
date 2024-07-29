@@ -499,7 +499,7 @@ class SentryOptions {
   ///
   /// On Android, the proxy settings are handled by the native SDK.
   /// iOS and macOS native SDKs do not support proxy settings.
-  Proxy? proxy;
+  SentryProxy? proxy;
 
   SentryOptions({this.dsn, PlatformChecker? checker}) {
     if (checker != null) {

@@ -5,7 +5,7 @@ import 'package:http/io_client.dart';
 import 'package:meta/meta.dart';
 
 import '../protocol.dart';
-import '../proxy.dart';
+import '../protocol/sentry_proxy.dart';
 import '../sentry_options.dart';
 import 'client_provider.dart';
 
