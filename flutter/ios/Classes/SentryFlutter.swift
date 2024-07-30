@@ -76,7 +76,7 @@ public final class SentryFlutter {
                   let type = proxy["type"] as? String else {
                 return
             }
-            
+
             var connectionProxyDictionary: [String: Any] = [:]
             if type.lowercased() == "http" {
                 connectionProxyDictionary[kCFNetworkProxiesHTTPEnable as String] = true
@@ -93,15 +93,15 @@ public final class SentryFlutter {
             } else {
                 return
             }
-            
+
             if let user = proxy["user"] as? String, let pass = proxy["pass"] {
                 connectionProxyDictionary[kCFProxyUsernameKey as String] = user
                 connectionProxyDictionary[kCFProxyPasswordKey as String] = pass
             }
-            
+
             let configuration = URLSessionConfiguration.default
             configuration.connectionProxyDictionary = connectionProxyDictionary
-            
+
             options.urlSession = URLSession(configuration: configuration)
         }
     }
