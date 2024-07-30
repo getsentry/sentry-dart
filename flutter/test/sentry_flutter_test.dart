@@ -667,6 +667,10 @@ void main() {
   });
 
   group('exception identifiers', () {
+    setUp(() async {
+      await Sentry.close();
+    });
+
     test(
         'should add DartExceptionTypeIdentifier and FlutterExceptionTypeIdentifier by default',
         () async {
