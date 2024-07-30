@@ -42,8 +42,8 @@ void main() {
     });
 
     test('socks proxy should not call findProxyResult', () async {
-      fixture.options.proxy =
-          SentryProxy(type: SentryProxyType.socks, host: 'localhost', port: 8080);
+      fixture.options.proxy = SentryProxy(
+          type: SentryProxyType.socks, host: 'localhost', port: 8080);
 
       final sut = fixture.getSut();
       sut.getClient(fixture.options);
