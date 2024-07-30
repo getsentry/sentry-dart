@@ -668,6 +668,7 @@ void main() {
 
   group('exception identifiers', () {
     setUp(() async {
+      loadTestPackage();
       await Sentry.close();
     });
 
