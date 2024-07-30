@@ -678,7 +678,6 @@ void main() {
       await SentryFlutter.init(
         (options) {
           options.dsn = fakeDsn;
-          options.automatedTestMode = true;
           actualOptions = options;
         },
         appRunner: appRunner,
