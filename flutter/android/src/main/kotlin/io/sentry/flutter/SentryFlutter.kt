@@ -122,9 +122,6 @@ class SentryFlutter(
     data.getIfNotNull<Double>("sampleRate") {
       options.sampleRate = it
     }
-    data.getIfNotNull<Double>("tracesSampleRate") {
-      options.tracesSampleRate = it
-    }
   }
 }
 
