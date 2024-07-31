@@ -67,7 +67,6 @@ class SentryNativeChannel
       'readTimeoutMillis': options.readTimeout.inMilliseconds,
       'appHangTimeoutIntervalMillis':
           options.appHangTimeoutInterval.inMilliseconds,
-      'tracesSampleRate': options.tracesSampleRate,
       'sampleRate': options.sampleRate
     });
   }
