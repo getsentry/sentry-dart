@@ -103,6 +103,7 @@ class SentryStackTraceFactory {
       // least we get an indication something's wrong and are able to fix it.
     }
 
+    final platform = _options.platformChecker.isWeb ? 'javascript' : 'dart';
     final fileName =
         frame.uri.pathSegments.isNotEmpty ? frame.uri.pathSegments.last : null;
     final abs = '$eventOrigin${_absolutePathForCrashReport(frame)}';
@@ -114,6 +115,7 @@ class SentryStackTraceFactory {
       inApp: _isInApp(frame),
       fileName: fileName,
       package: frame.package,
+      platform: platform,
     );
 
     final line = frame.line;

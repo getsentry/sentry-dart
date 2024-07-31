@@ -124,7 +124,15 @@ Future testCaptureException(
   }
   expect(
     topFrame.keys,
-    <String>['filename', 'function', 'lineno', 'colno', 'abs_path', 'in_app'],
+    <String>[
+      'filename',
+      'function',
+      'lineno',
+      'colno',
+      'abs_path',
+      'in_app',
+      'platform'
+    ],
   );
 
   if (isWeb) {

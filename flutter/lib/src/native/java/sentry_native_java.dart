@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:ui';
 
 import 'package:meta/meta.dart';
@@ -14,16 +13,13 @@ import '../sentry_native_channel.dart';
 @internal
 class SentryNativeJava extends SentryNativeChannel {
   ScheduledScreenshotRecorder? _replayRecorder;
-  late final SentryFlutterOptions _options;
   SentryNativeJava(super.options, super.channel);
 
   @override
-  Future<void> init(SentryFlutterOptions options) async {
+  Future<void> init(Hub hub) async {
     // We only need these when replay is enabled (session or error capture)
     // so let's set it up conditionally. This allows Dart to trim the code.
     if (options.experimental.replay.isEnabled) {
-      _options = options;
-
       // We only need the integration when error-replay capture is enabled.
       if ((options.experimental.replay.errorSampleRate ?? 0) > 0) {
         options.addEventProcessor(ReplayEventProcessor(this));
@@ -44,7 +40,7 @@ class SentryNativeJava extends SentryNativeChannel {
               ),
             );
 
-            Sentry.configureScope((s) {
+            hub.configureScope((s) {
               // ignore: invalid_use_of_internal_member
               s.replayId = replayId;
             });
@@ -54,7 +50,7 @@ class SentryNativeJava extends SentryNativeChannel {
             await _replayRecorder?.stop();
             _replayRecorder = null;
 
-            Sentry.configureScope((s) {
+            hub.configureScope((s) {
               // ignore: invalid_use_of_internal_member
               s.replayId = null;
             });
@@ -72,10 +68,18 @@ class SentryNativeJava extends SentryNativeChannel {
       });
     }
 
-    return super.init(options);
+    return super.init(hub);
   }
 
-  void _startRecorder(String cacheDir, ScheduledScreenshotRecorderConfig config) {
+  @override
+  Future<void> close() async {
+    await _replayRecorder?.stop();
+    _replayRecorder = null;
+    return super.close();
+  }
+
+  void _startRecorder(
+      String cacheDir, ScheduledScreenshotRecorderConfig config) {
     // Note: time measurements using a Stopwatch in a debug build:
     //     save as rawRgba (1230876 bytes): 0.257 ms  -- discarded
     //     save as PNG (25401 bytes): 43.110 ms  -- used for the final image
@@ -89,33 +93,36 @@ class SentryNativeJava extends SentryNativeChannel {
         final timestamp = DateTime.now().millisecondsSinceEpoch;
         final filePath = "$cacheDir/$timestamp.png";
 
-        _options.logger(
+        options.logger(
             SentryLevel.debug,
             'Replay: Saving screenshot to $filePath ('
             '${image.width}x${image.height} pixels, '
             '${imageData.lengthInBytes} bytes)');
-        await File(filePath).writeAsBytes(imageData.buffer.asUint8List());
-
         try {
+          await options.fileSystem
+              .file(filePath)
+              .writeAsBytes(imageData.buffer.asUint8List(), flush: true);
+
           await channel.invokeMethod(
             'addReplayScreenshot',
             {'path': filePath, 'timestamp': timestamp},
           );
         } catch (error, stackTrace) {
-          _options.logger(
+          options.logger(
             SentryLevel.error,
             'Native call `addReplayScreenshot` failed',
             exception: error,
             stackTrace: stackTrace,
           );
+          // ignore: invalid_use_of_internal_member
+          if (options.automatedTestMode) {
+            rethrow;
+          }
         }
       }
     };
 
-    _replayRecorder = ScheduledScreenshotRecorder(
-      config,
-      callback,
-      _options,
-    )..start();
+    _replayRecorder = ScheduledScreenshotRecorder(config, callback, options)
+      ..start();
   }
 }

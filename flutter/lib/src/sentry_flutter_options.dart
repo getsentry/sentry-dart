@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:file/file.dart';
+import 'package:file/local.dart';
 import 'package:meta/meta.dart' as meta;
 import 'package:sentry/sentry.dart';
 import 'package:flutter/widgets.dart';
@@ -214,6 +216,14 @@ class SentryFlutterOptions extends SentryOptions {
   @meta.experimental
   bool attachViewHierarchy = false;
 
+  /// Enables collection of view hierarchy element identifiers.
+  ///
+  /// Identifiers are extracted from widget keys.
+  /// Disable this flag if your widget keys contain sensitive data.
+  ///
+  /// Default: `true`
+  bool reportViewHierarchyIdentifiers = true;
+
   /// When enabled, the SDK tracks when the application stops responding for a
   /// specific amount of time, See [appHangTimeoutInterval].
   /// Only available on iOS and macOS.
@@ -320,6 +330,9 @@ class SentryFlutterOptions extends SentryOptions {
 
   /// The [navigatorKey] is used to add information of the currently used locale to the contexts.
   GlobalKey<NavigatorState>? navigatorKey;
+
+  @meta.internal
+  FileSystem fileSystem = LocalFileSystem();
 
   /// Configuration of experimental features that may change or be removed
   /// without prior notice. Additionally, these features may not be ready for

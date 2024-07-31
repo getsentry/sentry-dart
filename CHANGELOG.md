@@ -1,9 +1,67 @@
 # Changelog
 
-## Unreleased
+## 8.6.0-alpha.2
 
 ### Features
 
+- Android Session Replay Alpha ([#2032](https://github.com/getsentry/sentry-dart/pull/2032))
+
+  To try out replay, you can set following options:
+
+  ```dart
+  await SentryFlutter.init(
+    (options) {
+      ...
+      options.experimental.replay.sessionSampleRate = 1.0;
+      options.experimental.replay.errorSampleRate = 1.0;
+    },
+    appRunner: () => runApp(MyApp()),
+  );
+  ```
+
+  Access is limited to early access orgs on Sentry. If you're interested, [sign up for the waitlist](https://sentry.io/lp/mobile-replay-beta/)
+
+## 8.5.0
+
+### Features
+
+- Add dart platform to sentry frames ([#2193](https://github.com/getsentry/sentry-dart/pull/2193))
+  - This allows viewing the correct dart formatted raw stacktrace in the Sentry UI
+- Support `ignoredExceptionsForType` ([#2150](https://github.com/getsentry/sentry-dart/pull/2150))
+  - Filter out exception types by calling `SentryOptions.addExceptionFilterForType(Type exceptionType)`
+
+### Fixes
+
+- Disable sff & frame delay detection on web, linux and windows ([#2182](https://github.com/getsentry/sentry-dart/pull/2182))
+  - Display refresh rate is locked at 60 for these platforms which can lead to inaccurate metrics
+
+### Improvements
+
+- Capture meaningful stack traces when unhandled errors have empty or missing stack traces ([#2152](https://github.com/getsentry/sentry-dart/pull/2152))
+  - This will affect grouping for unhandled errors that have empty or missing stack traces.
+
+### Dependencies
+
+- Bump Android SDK from v7.11.0 to v7.12.0 ([#2173](https://github.com/getsentry/sentry-dart/pull/2173))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#7120)
+  - [diff](https://github.com/getsentry/sentry-java/compare/7.11.0...7.12.0)
+  - updates AGP to v7.4.2
+  - updates Kotlin to v1.8.0
+- Bump Cocoa SDK from v8.30.1 to v8.32.0 ([#2174](https://github.com/getsentry/sentry-dart/pull/2174), [#2195](https://github.com/getsentry/sentry-dart/pull/2195))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8320)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.30.1...8.32.0)
+
+## 8.4.0
+
+### Features
+
+- Add API for pausing/resuming **iOS** and **macOS** app hang tracking ([#2134](https://github.com/getsentry/sentry-dart/pull/2134))
+  - This is useful to prevent the Cocoa SDK from reporting wrongly detected app hangs when the OS shows a system dialog for asking specific permissions.
+  - Use `SentryFlutter.pauseAppHangTracking()` and `SentryFlutter.resumeAppHangTracking()`
+- Capture total frames, frames delay, slow & frozen frames and attach to spans ([#2106](https://github.com/getsentry/sentry-dart/pull/2106))
+- Support WebAssembly compilation (dart2wasm) ([#2113](https://github.com/getsentry/sentry-dart/pull/2113))
+- Add flag to disable reporting of view hierarchy identifiers ([#2158](https://github.com/getsentry/sentry-dart/pull/2158))
+  - Use `reportViewHierarchyIdentifiers` to enable or disable the option
 - Record dropped spans in client reports ([#2154](https://github.com/getsentry/sentry-dart/pull/2154))
 - Add memory usage to contexts ([#2133](https://github.com/getsentry/sentry-dart/pull/2133))
   - Only for Linux/Windows applications, as iOS/Android/macOS use native SDKs
@@ -24,9 +82,13 @@
 - Bump Cocoa SDK from v8.30.0 to v8.30.1 ([#2155](https://github.com/getsentry/sentry-dart/pull/2155))
   - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8301)
   - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.30.0...8.30.1)
+- Bump Android SDK from v7.10.0 to v7.11.0 ([#2144](https://github.com/getsentry/sentry-dart/pull/2144))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#7110)
+  - [diff](https://github.com/getsentry/sentry-java/compare/7.10.0...7.11.0)
 
 ### Deprecated
 
+- User segment is now deprecated and will be removed in version 9.0.0. Use a custom tag or context instead. ([#2119](https://github.com/getsentry/sentry-dart/pull/2119))
 - Deprecate `setExtra` and `removeExtra` ([#2159](https://github.com/getsentry/sentry-dart/pull/2159))
   - Use the `Contexts` structure via `setContexts` instead
 
@@ -49,9 +111,6 @@
 - Bump Cocoa SDK from v8.29.0 to v8.30.0 ([#2132](https://github.com/getsentry/sentry-dart/pull/2132))
   - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8300)
   - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.29.0...8.30.0)
-- Bump Android SDK from v7.10.0 to v7.11.0 ([#2144](https://github.com/getsentry/sentry-dart/pull/2144))
-  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#7110)
-  - [diff](https://github.com/getsentry/sentry-java/compare/7.10.0...7.11.0)
 
 ## 8.3.0
 

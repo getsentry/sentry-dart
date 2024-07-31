@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry/sentry.dart';
@@ -79,6 +81,27 @@ void main() {
         expect(hint.viewHierarchy, isNull);
       });
     });
+
+    testWidgets('does not add view hierarchy identifiers if opt out in options',
+        (tester) async {
+      await tester.runAsync(() async {
+        final sut =
+            fixture.getSut(instance, reportViewHierarchyIdentifiers: false);
+
+        await tester.pumpWidget(MyApp());
+
+        final event = SentryEvent(
+            exceptions: [SentryException(type: 'type', value: 'value')]);
+        final hint = Hint();
+
+        sut.apply(event, hint);
+
+        expect(hint.viewHierarchy, isNotNull);
+        final bytes = await hint.viewHierarchy!.bytes;
+        final jsonString = utf8.decode(bytes);
+        expect(jsonString, isNot(contains('identifier')));
+      });
+    });
   });
 }
 
@@ -99,9 +122,11 @@ class TestBindingWrapper implements BindingWrapper {
 }
 
 class Fixture {
-  SentryViewHierarchyEventProcessor getSut(WidgetsBinding instance) {
+  SentryViewHierarchyEventProcessor getSut(WidgetsBinding instance,
+      {bool reportViewHierarchyIdentifiers = true}) {
     final options = SentryFlutterOptions()
-      ..bindingUtils = TestBindingWrapper(instance);
+      ..bindingUtils = TestBindingWrapper(instance)
+      ..reportViewHierarchyIdentifiers = reportViewHierarchyIdentifiers;
     return SentryViewHierarchyEventProcessor(options);
   }
 }

@@ -20,7 +20,7 @@ class SentryNativeCocoa extends SentryNativeChannel {
   SentryNativeCocoa(super.options, super.channel);
 
   @override
-  Future<void> init(SentryFlutterOptions options) async {
+  Future<void> init(Hub hub) async {
     // We only need these when replay is enabled (session or error capture)
     // so let's set it up conditionally. This allows Dart to trim the code.
     if (options.experimental.replay.isEnabled &&
@@ -68,7 +68,7 @@ class SentryNativeCocoa extends SentryNativeChannel {
       });
     }
 
-    return super.init(options);
+    return super.init(hub);
   }
 
   @override

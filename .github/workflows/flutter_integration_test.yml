@@ -49,7 +49,7 @@ jobs:
         run: flutter pub get
 
       - name: Gradle cache
-        uses: gradle/gradle-build-action@66535aaf56f831b35e3a8481c9c99b665b84dd45 # pin@v3.4.2
+        uses: gradle/gradle-build-action@ac2d340dc04d9e1113182899e983b5400c17cda1 # pin@v3.5.0
 
       - name: AVD cache
         uses: actions/cache@v4
@@ -62,7 +62,7 @@ jobs:
 
       - name: create AVD and generate snapshot for caching
         if: steps.avd-cache.outputs.cache-hit != 'true'
-        uses: reactivecircus/android-emulator-runner@77986be26589807b8ebab3fde7bbf5c60dabec32 #pin@v2.31.0
+        uses: reactivecircus/android-emulator-runner@f0d1ed2dcad93c7479e8b2f2226c83af54494915 #pin@v2.32.0
         with:
           working-directory: ./flutter/example
           api-level: 21
@@ -74,7 +74,7 @@ jobs:
           script: echo 'Generated AVD snapshot for caching.'
 
       - name: launch android emulator & run android integration test
-        uses: reactivecircus/android-emulator-runner@77986be26589807b8ebab3fde7bbf5c60dabec32 #pin@v2.31.0
+        uses: reactivecircus/android-emulator-runner@f0d1ed2dcad93c7479e8b2f2226c83af54494915 #pin@v2.32.0
         with:
           working-directory: ./flutter/example
           api-level: 21
