@@ -73,9 +73,6 @@ public final class SentryFlutter {
         if let sampleRate = data["sampleRate"] as? NSNumber? {
             options.sampleRate = sampleRate
         }
-        if let tracesSampleRate = data["tracesSampleRate"] as? NSNumber? {
-            options.tracesSampleRate = tracesSampleRate
-        }
     }
 
     private func logLevelFrom(diagnosticLevel: String) -> SentryLevel {
