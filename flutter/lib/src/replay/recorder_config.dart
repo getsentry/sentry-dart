@@ -7,7 +7,7 @@ class ScreenshotRecorderConfig {
   final int? width;
   final int? height;
 
-  ScreenshotRecorderConfig({this.width, this.height});
+  const ScreenshotRecorderConfig({this.width, this.height});
 
   double getPixelRatio(double srcWidth, double srcHeight) {
     assert((width == null) == (height == null));
@@ -21,7 +21,7 @@ class ScreenshotRecorderConfig {
 class ScheduledScreenshotRecorderConfig extends ScreenshotRecorderConfig {
   final int frameRate;
 
-  ScheduledScreenshotRecorderConfig({
+  const ScheduledScreenshotRecorderConfig({
     super.width,
     super.height,
     required this.frameRate,
