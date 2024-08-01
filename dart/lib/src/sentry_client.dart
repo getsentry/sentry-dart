@@ -84,7 +84,7 @@ class SentryClient {
     dynamic stackTrace,
     Hint? hint,
   }) async {
-    if (_options.isIgnoredError(event)) {
+    if (_isIgnoredError(event)) {
       _options.logger(
         SentryLevel.debug,
         'Error was ignored as specified in the ignoredErrors options.',
@@ -188,6 +188,21 @@ class SentryClient {
 
     final id = await captureEnvelope(envelope);
     return id ?? SentryId.empty();
+  }
+
+  bool _isIgnoredError(SentryEvent event) {
+    if (_options.ignoreErrors == null ||
+        _options.ignoreErrors!.isEmpty ||
+        event.message == null) {
+      return false;
+    }
+    String combinedRegexPattern = _options.ignoreErrors!.join('|');
+
+    RegExp regExp = RegExp(combinedRegexPattern);
+
+    bool ignore = regExp.firstMatch(event.message!.formatted) != null;
+
+    return ignore;
   }
 
   SentryEvent _prepareEvent(SentryEvent event, {dynamic stackTrace}) {
@@ -361,7 +376,7 @@ class SentryClient {
       return _emptySentryId;
     }
 
-    if (_options.isIgnoredTransaction(preparedTransaction)) {
+    if (_isIgnoredTransaction(preparedTransaction)) {
       _options.logger(
         SentryLevel.debug,
         'Transaction was ignored as specified in the ignoredTransactions options.',
@@ -395,6 +410,21 @@ class SentryClient {
     final id = await captureEnvelope(envelope);
 
     return id ?? SentryId.empty();
+  }
+
+  bool _isIgnoredTransaction(SentryTransaction transaction) {
+    if (_options.ignoreTransactions == null ||
+        _options.ignoreTransactions!.isEmpty) {
+      return false;
+    }
+
+    String combinedRegexPattern = _options.ignoreTransactions!.join('|');
+
+    RegExp regExp = RegExp(combinedRegexPattern);
+
+    bool ignore = regExp.firstMatch(transaction.tracer.name) != null;
+
+    return ignore;
   }
 
   /// Reports the [envelope] to Sentry.io.

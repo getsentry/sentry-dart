@@ -188,38 +188,9 @@ class SentryOptions {
   /// If an null or an empty list is used, the SDK will send all transactions.
   Iterable<String>? ignoreErrors;
 
-  bool isIgnoredError(SentryEvent event) {
-    if (ignoreErrors == null ||
-        ignoreErrors!.isEmpty ||
-        event.message == null) {
-      return false;
-    }
-    String combinedRegexPattern = ignoreErrors!.join('|');
-
-    RegExp regExp = RegExp(combinedRegexPattern);
-
-    bool ignore = regExp.firstMatch(event.message!.formatted) != null;
-
-    return ignore;
-  }
-
   /// The ignoreTransactions tells the SDK which transactions should be not sent to the sentry server.
   /// If null or an empty list is used, the SDK will send all transactions.
   Iterable<String>? ignoreTransactions;
-
-  bool isIgnoredTransaction(SentryTransaction transaction) {
-    if (ignoreTransactions == null || ignoreTransactions!.isEmpty) {
-      return false;
-    }
-
-    String combinedRegexPattern = ignoreTransactions!.join('|');
-
-    RegExp regExp = RegExp(combinedRegexPattern);
-
-    bool ignore = regExp.firstMatch(transaction.tracer.name) != null;
-
-    return ignore;
-  }
 
   final List<String> _inAppExcludes = [];
 
