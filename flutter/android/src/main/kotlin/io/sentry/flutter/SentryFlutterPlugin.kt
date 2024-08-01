@@ -25,16 +25,20 @@ import io.sentry.android.core.SentryAndroid
 import io.sentry.android.core.SentryAndroidOptions
 import io.sentry.android.core.performance.AppStartMetrics
 import io.sentry.android.core.performance.TimeSpan
+import io.sentry.android.replay.ReplayIntegration
 import io.sentry.protocol.DebugImage
 import io.sentry.protocol.SdkVersion
 import io.sentry.protocol.SentryId
 import io.sentry.protocol.User
+import io.sentry.transport.CurrentDateProvider
+import java.io.File
 import java.lang.ref.WeakReference
 
 class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
   private lateinit var channel: MethodChannel
   private lateinit var context: Context
   private lateinit var sentryFlutter: SentryFlutter
+  private lateinit var replay: ReplayIntegration
 
   private var activity: WeakReference<Activity>? = null
   private var framesTracker: ActivityFramesTracker? = null
@@ -54,7 +58,11 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       )
   }
 
-  override fun onMethodCall(call: MethodCall, result: Result) {
+  @Suppress("CyclomaticComplexMethod")
+  override fun onMethodCall(
+    call: MethodCall,
+    result: Result,
+  ) {
     when (call.method) {
       "initNativeSdk" -> initNativeSdk(call, result)
       "captureEnvelope" -> captureEnvelope(call, result)
@@ -74,6 +82,8 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       "removeTag" -> removeTag(call.argument("key"), result)
       "loadContexts" -> loadContexts(result)
       "displayRefreshRate" -> displayRefreshRate(result)
+      "addReplayScreenshot" -> addReplayScreenshot(call.argument("path"), call.argument("timestamp"), result)
+      "sendReplayForEvent" -> sendReplayForEvent(call.argument("eventId"), call.argument("isCrash"), result)
       else -> result.notImplemented()
     }
   }
@@ -103,7 +113,10 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     // Stub
   }
 
-  private fun initNativeSdk(call: MethodCall, result: Result) {
+  private fun initNativeSdk(
+    call: MethodCall,
+    result: Result,
+  ) {
     if (!this::context.isInitialized) {
       result.error("1", "Context is null", null)
       return
@@ -123,6 +136,27 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       }
 
       options.beforeSend = BeforeSendCallbackImpl(options.sdkVersion)
+
+      // Replace the default ReplayIntegration with a Flutter-specific recorder.
+      options.integrations.removeAll { it is ReplayIntegration }
+      val cacheDirPath = options.cacheDirPath
+      val replayOptions = options.experimental.sessionReplay
+      val isReplayEnabled = replayOptions.isSessionReplayEnabled || replayOptions.isSessionReplayForErrorsEnabled
+      if (cacheDirPath != null && isReplayEnabled) {
+        replay =
+          ReplayIntegration(
+            context,
+            dateProvider = CurrentDateProvider.getInstance(),
+            recorderProvider = { SentryFlutterReplayRecorder(channel, replay) },
+            recorderConfigProvider = null,
+            replayCacheProvider = null,
+          )
+        replay.breadcrumbConverter = SentryFlutterReplayBreadcrumbConverter()
+        options.addIntegration(replay)
+        options.setReplayController(replay)
+      } else {
+        options.setReplayController(null)
+      }
     }
     result.success("")
   }
@@ -145,6 +179,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     } else {
       val appStartTimeMillis = DateUtils.nanosToMillis(appStartTime.nanoTimestamp().toDouble())
       val item =
+
         mutableMapOf<String, Any?>(
           "pluginRegistrationTime" to pluginRegistrationTime,
           "appStartTime" to appStartTimeMillis,
@@ -228,7 +263,10 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     result.success(null)
   }
 
-  private fun endNativeFrames(id: String?, result: Result) {
+  private fun endNativeFrames(
+    id: String?,
+    result: Result,
+  ) {
     val activity = activity?.get()
     if (!sentryFlutter.autoPerformanceTracingEnabled || activity == null || id == null) {
       if (id == null) {
@@ -248,16 +286,21 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     if (total == 0 && slow == 0 && frozen == 0) {
       result.success(null)
     } else {
-      val frames = mapOf<String, Any?>(
-        "totalFrames" to total,
-        "slowFrames" to slow,
-        "frozenFrames" to frozen,
-      )
+      val frames =
+        mapOf<String, Any?>(
+          "totalFrames" to total,
+          "slowFrames" to slow,
+          "frozenFrames" to frozen,
+        )
       result.success(frames)
     }
   }
 
-  private fun setContexts(key: String?, value: Any?, result: Result) {
+  private fun setContexts(
+    key: String?,
+    value: Any?,
+    result: Result,
+  ) {
     if (key == null || value == null) {
       result.success("")
       return
@@ -269,7 +312,10 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     }
   }
 
-  private fun removeContexts(key: String?, result: Result) {
+  private fun removeContexts(
+    key: String?,
+    result: Result,
+  ) {
     if (key == null) {
       result.success("")
       return
@@ -281,7 +327,10 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     }
   }
 
-  private fun setUser(user: Map<String, Any?>?, result: Result) {
+  private fun setUser(
+    user: Map<String, Any?>?,
+    result: Result,
+  ) {
     if (user != null) {
       val options = HubAdapter.getInstance().options
       val userInstance = User.fromMap(user, options)
@@ -292,7 +341,10 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     result.success("")
   }
 
-  private fun addBreadcrumb(breadcrumb: Map<String, Any?>?, result: Result) {
+  private fun addBreadcrumb(
+    breadcrumb: Map<String, Any?>?,
+    result: Result,
+  ) {
     if (breadcrumb != null) {
       val options = HubAdapter.getInstance().options
       val breadcrumbInstance = Breadcrumb.fromMap(breadcrumb, options)
@@ -307,7 +359,11 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     result.success("")
   }
 
-  private fun setExtra(key: String?, value: String?, result: Result) {
+  private fun setExtra(
+    key: String?,
+    value: String?,
+    result: Result,
+  ) {
     if (key == null || value == null) {
       result.success("")
       return
@@ -317,7 +373,10 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     result.success("")
   }
 
-  private fun removeExtra(key: String?, result: Result) {
+  private fun removeExtra(
+    key: String?,
+    result: Result,
+  ) {
     if (key == null) {
       result.success("")
       return
@@ -327,7 +386,11 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     result.success("")
   }
 
-  private fun setTag(key: String?, value: String?, result: Result) {
+  private fun setTag(
+    key: String?,
+    value: String?,
+    result: Result,
+  ) {
     if (key == null || value == null) {
       result.success("")
       return
@@ -337,7 +400,10 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     result.success("")
   }
 
-  private fun removeTag(key: String?, result: Result) {
+  private fun removeTag(
+    key: String?,
+    result: Result,
+  ) {
     if (key == null) {
       result.success("")
       return
@@ -347,7 +413,10 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     result.success("")
   }
 
-  private fun captureEnvelope(call: MethodCall, result: Result) {
+  private fun captureEnvelope(
+    call: MethodCall,
+    result: Result,
+  ) {
     if (!Sentry.isEnabled()) {
       result.error("1", "The Sentry Android SDK is disabled", null)
       return
@@ -356,7 +425,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     if (args.isNotEmpty()) {
       val event = args.first() as ByteArray?
       val containsUnhandledException = args[1] as Boolean
-      if (event != null && event.isNotEmpty() && containsUnhandledException != null) {
+      if (event != null && event.isNotEmpty()) {
         val id = InternalSentrySdk.captureEnvelope(event, containsUnhandledException)
         if (id != null) {
           result.success("")
@@ -405,7 +474,10 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
   private class BeforeSendCallbackImpl(
     private val sdkVersion: SdkVersion?,
   ) : SentryOptions.BeforeSendCallback {
-    override fun execute(event: SentryEvent, hint: Hint): SentryEvent {
+    override fun execute(
+      event: SentryEvent,
+      hint: Hint,
+    ): SentryEvent {
       setEventOriginTag(event)
       addPackages(event, sdkVersion)
       return event
@@ -413,10 +485,10 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
   }
 
   companion object {
-
     private const val flutterSdk = "sentry.dart.flutter"
     private const val androidSdk = "sentry.java.android.flutter"
     private const val nativeSdk = "sentry.native.android.flutter"
+
     private fun setEventOriginTag(event: SentryEvent) {
       event.sdk?.let {
         when (it.name) {
@@ -437,7 +509,10 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       event.setTag("event.environment", environment)
     }
 
-    private fun addPackages(event: SentryEvent, sdk: SdkVersion?) {
+    private fun addPackages(
+      event: SentryEvent,
+      sdk: SdkVersion?,
+    ) {
       event.sdk?.let {
         if (it.name == flutterSdk) {
           sdk?.packageSet?.forEach { sentryPackage ->
@@ -465,5 +540,31 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         currentScope,
       )
     result.success(serializedScope)
+  }
+
+  private fun addReplayScreenshot(
+    path: String?,
+    timestamp: Long?,
+    result: Result,
+  ) {
+    if (path == null || timestamp == null) {
+      result.error("5", "Arguments are null", null)
+      return
+    }
+    replay.onScreenshotRecorded(File(path), timestamp)
+    result.success("")
+  }
+
+  private fun sendReplayForEvent(
+    eventId: String?,
+    isCrash: Boolean?,
+    result: Result,
+  ) {
+    if (eventId == null || isCrash == null) {
+      result.error("5", "Arguments are null", null)
+      return
+    }
+    replay.sendReplay(isCrash, eventId, null)
+    result.success(replay.getReplayId().toString())
   }
 }

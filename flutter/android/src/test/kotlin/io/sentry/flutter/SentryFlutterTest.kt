@@ -60,6 +60,16 @@ class SentryFlutterTest {
 
     assertEquals(9006, fixture.options.connectionTimeoutMillis)
     assertEquals(9007, fixture.options.readTimeoutMillis)
+
+    assertEquals(0.5, fixture.options.experimental.sessionReplay.sessionSampleRate)
+    assertEquals(0.6, fixture.options.experimental.sessionReplay.errorSampleRate)
+
+    // Note: these are currently read-only in SentryReplayOptions so we're only asserting the default values here to
+    // know when there's a change in the native SDK, as it may require a manual change in the Flutter implementation.
+    assertEquals(1, fixture.options.experimental.sessionReplay.frameRate)
+    assertEquals(30_000L, fixture.options.experimental.sessionReplay.errorReplayDuration)
+    assertEquals(5000L, fixture.options.experimental.sessionReplay.sessionSegmentDuration)
+    assertEquals(60 * 60 * 1000L, fixture.options.experimental.sessionReplay.sessionDuration)
   }
 
   @Test
@@ -127,6 +137,11 @@ class Fixture {
       "enableAutoPerformanceTracing" to true,
       "connectionTimeoutMillis" to 9006,
       "readTimeoutMillis" to 9007,
+      "replay" to
+        mapOf(
+          "sessionSampleRate" to 0.5,
+          "errorSampleRate" to 0.6,
+        ),
     )
 
   fun getSut(): SentryFlutter {
