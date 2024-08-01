@@ -421,11 +421,11 @@ class SentryClient {
       return false;
     }
 
-    String combinedRegexPattern = _options.ignoreTransactions!.join('|');
+    final combinedRegexPattern = _options.ignoreTransactions!.join('|');
 
-    RegExp regExp = RegExp(combinedRegexPattern);
+    final regExp = RegExp(combinedRegexPattern);
 
-    bool ignore = regExp.firstMatch(transaction.tracer.name) != null;
+    final ignore = regExp.firstMatch(transaction.tracer.name) != null;
 
     return ignore;
   }
