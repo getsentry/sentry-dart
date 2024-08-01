@@ -381,6 +381,9 @@ class SentryClient {
         SentryLevel.debug,
         'Transaction was ignored as specified in the ignoredTransactions options.',
       );
+
+      _options.recorder.recordLostEvent(
+          DiscardReason.ignored, _getCategory(preparedTransaction));
       return _emptySentryId;
     }
 
