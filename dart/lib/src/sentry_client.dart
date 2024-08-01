@@ -90,7 +90,7 @@ class SentryClient {
         'Error was ignored as specified in the ignoredErrors options.',
       );
       _options.recorder
-          .recordLostEvent(DiscardReason.beforeSend, _getCategory(event));
+          .recordLostEvent(DiscardReason.ignored, _getCategory(event));
       return _emptySentryId;
     }
 
