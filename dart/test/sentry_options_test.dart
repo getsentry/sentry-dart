@@ -112,6 +112,7 @@ void main() {
 
   test('when enableTracing is set to true tracing is considered enabled', () {
     final options = SentryOptions.empty();
+    // ignore: deprecated_member_use_from_same_package
     options.enableTracing = true;
 
     expect(options.isTracingEnabled(), true);
@@ -119,6 +120,7 @@ void main() {
 
   test('when enableTracing is set to false tracing is considered disabled', () {
     final options = SentryOptions.empty();
+    // ignore: deprecated_member_use_from_same_package
     options.enableTracing = false;
     options.tracesSampleRate = 1.0;
     options.tracesSampler = (_) {
@@ -138,6 +140,12 @@ void main() {
     final options = SentryOptions(dsn: fakeDsn);
 
     expect(options.enableMetrics, false);
+  });
+
+  test('enableExceptionTypeIdentification is enabled by default', () {
+    final options = SentryOptions(dsn: fakeDsn);
+
+    expect(options.enableExceptionTypeIdentification, true);
   });
 
   test('default tags for metrics are enabled by default', () {

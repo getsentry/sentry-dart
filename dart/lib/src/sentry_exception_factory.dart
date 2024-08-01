@@ -1,10 +1,9 @@
-import 'utils/stacktrace_utils.dart';
-
-import 'recursive_exception_cause_extractor.dart';
 import 'protocol.dart';
+import 'recursive_exception_cause_extractor.dart';
 import 'sentry_options.dart';
 import 'sentry_stack_trace_factory.dart';
 import 'throwable_mechanism.dart';
+import 'utils/stacktrace_utils.dart';
 
 /// class to convert Dart Error and exception to SentryException
 class SentryExceptionFactory {
@@ -62,10 +61,22 @@ class SentryExceptionFactory {
     final stackTraceString = stackTrace.toString();
     final value = throwableString.replaceAll(stackTraceString, '').trim();
 
+    String errorTypeName = throwable.runtimeType.toString();
+
+    if (_options.enableExceptionTypeIdentification) {
+      for (final errorTypeIdentifier in _options.exceptionTypeIdentifiers) {
+        final identifiedErrorType = errorTypeIdentifier.identifyType(throwable);
+        if (identifiedErrorType != null) {
+          errorTypeName = identifiedErrorType;
+          break;
+        }
+      }
+    }
+
     // if --obfuscate feature is enabled, 'type' won't be human readable.
     // https://flutter.dev/docs/deployment/obfuscate#caveat
     return SentryException(
-      type: (throwable.runtimeType).toString(),
+      type: errorTypeName,
       value: value.isNotEmpty ? value : null,
       mechanism: mechanism,
       stackTrace: sentryStackTrace,

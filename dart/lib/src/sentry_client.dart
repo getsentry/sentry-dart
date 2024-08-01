@@ -1,32 +1,33 @@
 import 'dart:async';
 import 'dart:math';
-import 'package:meta/meta.dart';
-import 'utils/stacktrace_utils.dart';
-import 'metrics/metric.dart';
-import 'metrics/metrics_aggregator.dart';
-import 'sentry_baggage.dart';
-import 'sentry_attachment/sentry_attachment.dart';
 
+import 'package:meta/meta.dart';
+
+import 'client_reports/client_report_recorder.dart';
+import 'client_reports/discard_reason.dart';
 import 'event_processor.dart';
 import 'hint.dart';
-import 'sentry_trace_context_header.dart';
-import 'sentry_user_feedback.dart';
-import 'transport/rate_limiter.dart';
+import 'metrics/metric.dart';
+import 'metrics/metrics_aggregator.dart';
 import 'protocol.dart';
 import 'scope.dart';
+import 'sentry_attachment/sentry_attachment.dart';
+import 'sentry_baggage.dart';
+import 'sentry_envelope.dart';
 import 'sentry_exception_factory.dart';
 import 'sentry_options.dart';
 import 'sentry_stack_trace_factory.dart';
+import 'sentry_trace_context_header.dart';
+import 'sentry_user_feedback.dart';
+import 'transport/data_category.dart';
 import 'transport/http_transport.dart';
 import 'transport/noop_transport.dart';
+import 'transport/rate_limiter.dart';
 import 'transport/spotlight_http_transport.dart';
 import 'transport/task_queue.dart';
 import 'utils/isolate_utils.dart';
+import 'utils/stacktrace_utils.dart';
 import 'version.dart';
-import 'sentry_envelope.dart';
-import 'client_reports/client_report_recorder.dart';
-import 'client_reports/discard_reason.dart';
-import 'transport/data_category.dart';
 
 /// Default value for [SentryUser.ipAddress]. It gets set when an event does not have
 /// a user and IP address. Only applies if [SentryOptions.sendDefaultPii] is set
