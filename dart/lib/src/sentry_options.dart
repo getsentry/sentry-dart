@@ -186,11 +186,11 @@ class SentryOptions {
 
   /// The ignoreErrors tells the SDK which errors should be not sent to the sentry server.
   /// If an null or an empty list is used, the SDK will send all transactions.
-  Iterable<String>? ignoreErrors;
+  List<String>? ignoreErrors;
 
   /// The ignoreTransactions tells the SDK which transactions should be not sent to the sentry server.
   /// If null or an empty list is used, the SDK will send all transactions.
-  Iterable<String>? ignoreTransactions;
+  List<String>? ignoreTransactions;
 
   final List<String> _inAppExcludes = [];
 
