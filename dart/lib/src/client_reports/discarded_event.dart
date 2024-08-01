@@ -37,6 +37,8 @@ extension _OutcomeExtension on DiscardReason {
         return 'cache_overflow';
       case DiscardReason.rateLimitBackoff:
         return 'ratelimit_backoff';
+      case DiscardReason.ignored:
+        return 'ignored';
     }
   }
 }
