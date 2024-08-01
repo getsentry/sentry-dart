@@ -1067,6 +1067,61 @@ void main() {
 
       expect((fixture.transport).called(1), true);
     });
+
+    test('allow Error "partially matching my-error"', () async {
+      final event =
+          SentryEvent(message: SentryMessage("partially matching my-error"));
+
+      final client = fixture.getSut();
+      await client.captureEvent(event);
+
+      expect((fixture.transport).called(1), true);
+    });
+  });
+
+  group('SentryClient ignored transactions', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+      fixture.options.ignoreTransactions = ["my-transaction", "transaction-.*"];
+    });
+
+    test('ignore Transaction "my-transaction"', () async {
+      final client = fixture.getSut();
+      final fakeTransaction = fixture.fakeTransaction();
+      fakeTransaction.tracer.name = "my-transaction";
+      await client.captureTransaction(fakeTransaction);
+
+      expect((fixture.transport).called(0), true);
+    });
+
+    test('ignore Transaction "transaction-foo"', () async {
+      final client = fixture.getSut();
+      final fakeTransaction = fixture.fakeTransaction();
+      fakeTransaction.tracer.name = "transaction-foo";
+      await client.captureTransaction(fakeTransaction);
+
+      expect((fixture.transport).called(0), true);
+    });
+
+    test('allow Transaction "capture"', () async {
+      final client = fixture.getSut();
+      final fakeTransaction = fixture.fakeTransaction();
+      fakeTransaction.tracer.name = "capture";
+      await client.captureTransaction(fakeTransaction);
+
+      expect((fixture.transport).called(1), true);
+    });
+
+    test('allow Transaction "partially matching my-transaction"', () async {
+      final client = fixture.getSut();
+      final fakeTransaction = fixture.fakeTransaction();
+      fakeTransaction.tracer.name = "partially matching my-transaction";
+      await client.captureTransaction(fakeTransaction);
+
+      expect((fixture.transport).called(1), true);
+    });
   });
 
   group('SentryClient ignored exceptions', () {
