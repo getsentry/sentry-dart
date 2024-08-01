@@ -1364,26 +1364,16 @@ class MockSentryNativeBinding extends _i1.Mock
       ) as _i7.Future<void>);
 
   @override
-  _i7.Future<_i2.SentryId> sendReplayForEvent(
-    _i2.SentryId? eventId,
-    bool? isCrash,
-  ) =>
-      (super.noSuchMethod(
+  _i7.Future<_i2.SentryId> captureReplay(bool? isCrash) => (super.noSuchMethod(
         Invocation.method(
-          #sendReplayForEvent,
-          [
-            eventId,
-            isCrash,
-          ],
+          #captureReplay,
+          [isCrash],
         ),
         returnValue: _i7.Future<_i2.SentryId>.value(_FakeSentryId_5(
           this,
           Invocation.method(
-            #sendReplayForEvent,
-            [
-              eventId,
-              isCrash,
-            ],
+            #captureReplay,
+            [isCrash],
           ),
         )),
       ) as _i7.Future<_i2.SentryId>);

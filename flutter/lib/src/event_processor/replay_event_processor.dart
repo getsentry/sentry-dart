@@ -15,7 +15,7 @@ class ReplayEventProcessor implements EventProcessor {
         event.exceptions?.isNotEmpty == true) {
       final isCrash =
           event.exceptions!.any((e) => e.mechanism?.handled == false);
-      await _binding.sendReplayForEvent(event.eventId, isCrash);
+      await _binding.captureReplay(isCrash);
     }
     return event;
   }

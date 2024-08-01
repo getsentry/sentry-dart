@@ -198,9 +198,8 @@ class SentryNativeChannel
       channel.invokeMethod('resumeAppHangTracking');
 
   @override
-  Future<SentryId> sendReplayForEvent(SentryId eventId, bool isCrash) =>
-      channel.invokeMethod('sendReplayForEvent', {
-        'eventId': eventId.toString(),
+  Future<SentryId> captureReplay(bool isCrash) =>
+      channel.invokeMethod('captureReplay', {
         'isCrash': isCrash,
       }).then((value) => SentryId.fromId(value as String));
 }
