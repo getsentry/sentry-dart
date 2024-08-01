@@ -555,7 +555,10 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     result.success("")
   }
 
-  private fun captureReplay(isCrash: Boolean?, result: Result) {
+  private fun captureReplay(
+    isCrash: Boolean?,
+    result: Result,
+  ) {
     if (isCrash == null) {
       result.error("5", "Arguments are null", null)
       return
