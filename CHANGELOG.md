@@ -20,8 +20,8 @@
   ```
 
   Access is limited to early access orgs on Sentry. If you're interested, [sign up for the waitlist](https://sentry.io/lp/mobile-replay-beta/)
-  
-## Unreleased 
+
+## 8.6.0
 
 ### Improvements
 
