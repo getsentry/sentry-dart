@@ -84,6 +84,16 @@ class SentryClient {
     dynamic stackTrace,
     Hint? hint,
   }) async {
+    if (_options.isIgnoredError(event)) {
+      _options.logger(
+        SentryLevel.debug,
+        'Error was ignored as specified in the ignoredErrors options.',
+      );
+      _options.recorder
+          .recordLostEvent(DiscardReason.beforeSend, _getCategory(event));
+      return _emptySentryId;
+    }
+
     if (_options.containsIgnoredExceptionForType(event.throwable)) {
       _options.logger(
         SentryLevel.debug,
@@ -348,6 +358,14 @@ class SentryClient {
 
     // dropped by event processors
     if (preparedTransaction == null) {
+      return _emptySentryId;
+    }
+
+    if (_options.isIgnoredTransaction(preparedTransaction)) {
+      _options.logger(
+        SentryLevel.debug,
+        'Transaction was ignored as specified in the ignoredTransactions options.',
+      );
       return _emptySentryId;
     }
 

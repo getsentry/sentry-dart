@@ -1033,6 +1033,42 @@ void main() {
     });
   });
 
+  group('SentryClient ignored errors', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+      fixture.options.ignoreErrors = ["my-error", "error-.*"];
+    });
+
+    test('ignore Error "my-error"', () async {
+      final event = SentryEvent(message: SentryMessage("my-error"));
+
+      final client = fixture.getSut();
+      await client.captureEvent(event);
+
+      expect((fixture.transport).called(0), true);
+    });
+
+    test('ignore Error "error-foo"', () async {
+      final event = SentryEvent(message: SentryMessage("error-foo"));
+
+      final client = fixture.getSut();
+      await client.captureEvent(event);
+
+      expect((fixture.transport).called(0), true);
+    });
+
+    test('allow Error "warning"', () async {
+      final event = SentryEvent(message: SentryMessage("warning"));
+
+      final client = fixture.getSut();
+      await client.captureEvent(event);
+
+      expect((fixture.transport).called(1), true);
+    });
+  });
+
   group('SentryClient ignored exceptions', () {
     late Fixture fixture;
 
