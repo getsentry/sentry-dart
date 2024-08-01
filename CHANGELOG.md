@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased 
+- Add ignoreTransactions and ignoreErrors to options ([#1391](https://github.com/getsentry/sentry-dart/issues/1391)) ([#2207](https://github.com/getsentry/sentry-dart/pull/2207))
 
 ### Improvements
 
