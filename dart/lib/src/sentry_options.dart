@@ -190,7 +190,7 @@ class SentryOptions {
 
   /// The ignoreTransactions tells the SDK which transactions should be not sent to the sentry server.
   /// If null or an empty list is used, the SDK will send all transactions.
-  List<String>? ignoreTransactions;
+  List<String> ignoreTransactions = [];
 
   final List<String> _inAppExcludes = [];
 

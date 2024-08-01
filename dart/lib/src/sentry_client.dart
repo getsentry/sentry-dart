@@ -191,16 +191,14 @@ class SentryClient {
   }
 
   bool _isIgnoredError(SentryEvent event) {
-    if (_options.ignoreErrors == null ||
-        _options.ignoreErrors!.isEmpty ||
-        event.message == null) {
+    if (event.message == null) {
       return false;
     }
-    String combinedRegexPattern = _options.ignoreErrors!.join('|');
+    final combinedRegexPattern = _options.ignoreErrors.join('|');
 
-    RegExp regExp = RegExp(combinedRegexPattern);
+    final regExp = RegExp(combinedRegexPattern);
 
-    bool ignore = regExp.firstMatch(event.message!.formatted) != null;
+    final ignore = regExp.firstMatch(event.message!.formatted) != null;
 
     return ignore;
   }
@@ -416,12 +414,7 @@ class SentryClient {
   }
 
   bool _isIgnoredTransaction(SentryTransaction transaction) {
-    if (_options.ignoreTransactions == null ||
-        _options.ignoreTransactions!.isEmpty) {
-      return false;
-    }
-
-    final combinedRegexPattern = _options.ignoreTransactions!.join('|');
+    final combinedRegexPattern = _options.ignoreTransactions.join('|');
 
     final regExp = RegExp(combinedRegexPattern);
 
