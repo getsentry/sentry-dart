@@ -20,6 +20,48 @@
   ```
 
   Access is limited to early access orgs on Sentry. If you're interested, [sign up for the waitlist](https://sentry.io/lp/mobile-replay-beta/)
+  
+## Unreleased 
+
+### Improvements
+
+- Add error type identifier to improve obfuscated Flutter issue titles ([#2170](https://github.com/getsentry/sentry-dart/pull/2170))
+  - Example: transforms issue titles from `GA` to `FlutterError` or `minified:nE` to `FlutterError`
+  - This is enabled automatically and will change grouping if you already have issues with obfuscated titles
+  - If you want to disable this feature, set `enableExceptionTypeIdentification` to `false` in your Sentry options
+  - You can add your custom exception identifier if there are exceptions that we do not identify out of the box
+```dart
+// How to add your own custom exception identifier
+class MyCustomExceptionIdentifier implements ExceptionIdentifier {
+  @override
+  String? identifyType(Exception exception) {
+    if (exception is MyCustomException) {
+      return 'MyCustomException';
+    }
+    if (exception is MyOtherCustomException) {
+      return 'MyOtherCustomException';
+    }
+    return null;
+  }
+}
+
+SentryFlutter.init((options) =>
+  options..prependExceptionTypeIdentifier(MyCustomExceptionIdentifier()));
+```
+
+### Deprecated
+
+- Deprecate `enableTracing` ([#2199](https://github.com/getsentry/sentry-dart/pull/2199))
+  - The `enableTracing` option has been deprecated and will be removed in the next major version. We recommend removing it
+    in favor of the `tracesSampleRate` and `tracesSampler` options. If you want to enable performance monitoring, please set
+    the `tracesSampleRate` to a sample rate of your choice, or provide a sampling function as `tracesSampler` option
+    instead. If you want to disable performance monitoring, remove the `tracesSampler` and `tracesSampleRate` options.
+
+### Dependencies
+
+- Bump Android SDK from v7.12.0 to v7.13.0 ([#2198](https://github.com/getsentry/sentry-dart/pull/2198), [#2206](https://github.com/getsentry/sentry-dart/pull/2206))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#7130)
+  - [diff](https://github.com/getsentry/sentry-java/compare/7.12.0...7.13.0)
 
 ## 8.5.0
 
