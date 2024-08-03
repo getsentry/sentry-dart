@@ -58,5 +58,5 @@ abstract class SentryNativeBinding {
 
   Future<void> resumeAppHangTracking();
 
-  Future<SentryId> sendReplayForEvent(SentryId eventId, bool isCrash);
+  Future<SentryId> captureReplay(bool isCrash);
 }
