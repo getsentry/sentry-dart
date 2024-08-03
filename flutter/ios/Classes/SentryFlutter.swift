@@ -70,10 +70,12 @@ public final class SentryFlutter {
         if let appHangTimeoutIntervalMillis = data["appHangTimeoutIntervalMillis"] as? NSNumber {
             options.appHangTimeoutInterval = appHangTimeoutIntervalMillis.doubleValue / 1000
         }
+#if canImport(UIKit) && !SENTRY_NO_UIKIT && (os(iOS) || os(tvOS))
         if let replayOptions = data["replay"] as? [String: Any] {
             options.experimental.sessionReplay.sessionSampleRate = (replayOptions["sessionSampleRate"] as? NSNumber)?.floatValue ?? 0
             options.experimental.sessionReplay.errorSampleRate = (replayOptions["errorSampleRate"] as? NSNumber)?.floatValue ?? 0
         }
+#endif
     }
 
     private func logLevelFrom(diagnosticLevel: String) -> SentryLevel {

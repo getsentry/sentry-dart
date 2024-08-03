@@ -180,14 +180,12 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
             resumeAppHangTracking(result)
 
         case "sendReplayForEvent":
-            var replayId: String? = nil
-#if canImport(UIKit) && !SENTRY_NO_UIKIT
-#if os(iOS) || os(tvOS)
+#if canImport(UIKit) && !SENTRY_NO_UIKIT && (os(iOS) || os(tvOS))
             PrivateSentrySDKOnly.captureReplay()
-            replayId = PrivateSentrySDKOnly.getReplayId()
+            result(PrivateSentrySDKOnly.getReplayId())
+#else
+            result(nil)
 #endif
-#endif
-            result(replayId)
 
         default:
             result(FlutterMethodNotImplemented)
