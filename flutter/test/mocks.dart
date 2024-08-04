@@ -54,46 +54,24 @@ ISentrySpan startTransactionShim(
 void main() {}
 
 class MockPlatform with NoSuchMethodProvider implements Platform {
-  MockPlatform({
-    String? os,
-    String? osVersion,
-    String? hostname,
-  })  : operatingSystem = os ?? '',
-        operatingSystemVersion = osVersion ?? '',
-        localHostname = hostname ?? '';
+  const MockPlatform(this.operatingSystem,
+      {this.operatingSystemVersion = '', this.localHostname = ''});
 
-  factory MockPlatform.android() {
-    return MockPlatform(os: 'android');
-  }
-
-  factory MockPlatform.iOs() {
-    return MockPlatform(os: 'ios');
-  }
-
-  factory MockPlatform.macOs() {
-    return MockPlatform(os: 'macos');
-  }
-
-  factory MockPlatform.windows() {
-    return MockPlatform(os: 'windows');
-  }
-
-  factory MockPlatform.linux() {
-    return MockPlatform(os: 'linux');
-  }
-
-  factory MockPlatform.fuchsia() {
-    return MockPlatform(os: 'fuchsia');
-  }
+  const MockPlatform.android() : this('android');
+  const MockPlatform.iOs() : this('ios');
+  const MockPlatform.macOs() : this('macos');
+  const MockPlatform.windows() : this('windows');
+  const MockPlatform.linux() : this('linux');
+  const MockPlatform.fuchsia() : this('fuchsia');
 
   @override
-  String operatingSystem;
+  final String operatingSystem;
 
   @override
-  String operatingSystemVersion;
+  final String operatingSystemVersion;
 
   @override
-  String localHostname;
+  final String localHostname;
 
   @override
   bool get isLinux => (operatingSystem == 'linux');
@@ -122,7 +100,7 @@ class MockPlatformChecker with NoSuchMethodProvider implements PlatformChecker {
     this.isWebValue = false,
     this.hasNativeIntegration = false,
     Platform? mockPlatform,
-  }) : _mockPlatform = mockPlatform ?? MockPlatform();
+  }) : _mockPlatform = mockPlatform ?? MockPlatform('');
 
   final bool isDebug;
   final bool isProfile;

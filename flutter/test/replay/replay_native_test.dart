@@ -4,6 +4,7 @@
 library flutter_test;
 
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:file/file.dart';
 import 'package:file/memory.dart';
@@ -21,8 +22,9 @@ import 'test_widget.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  for (var mockPlatform in [
+  for (final mockPlatform in [
     MockPlatform.android(),
+    MockPlatform.iOs(),
   ]) {
     group('$SentryNativeBinding ($mockPlatform)', () {
       late SentryNativeBinding sut;
@@ -31,13 +33,22 @@ void main() {
       late MockHub hub;
       late FileSystem fs;
       late Directory replayDir;
-      final replayConfig = {
-        'replayId': '123',
-        'directory': 'dir',
-        'width': 1000,
-        'height': 1000,
-        'frameRate': 1000,
-      };
+      late final Map<String, dynamic> replayConfig;
+
+      if (mockPlatform.isIOS) {
+        replayConfig = {
+          'replayId': '123',
+          'directory': 'dir',
+        };
+      } else if (mockPlatform.isAndroid) {
+        replayConfig = {
+          'replayId': '123',
+          'directory': 'dir',
+          'width': 800,
+          'height': 600,
+          'frameRate': 1000,
+        };
+      }
 
       setUp(() {
         hub = MockHub();
@@ -88,12 +99,16 @@ void main() {
           await sut.init(hub);
         });
 
-        test('start() sets replay ID to context', () async {
+        test('sets replay ID to context', () async {
           // verify there was no scope configured before
           verifyNever(hub.configureScope(any));
 
           // emulate the native platform invoking the method
-          await native.invokeFromNative('ReplayRecorder.start', replayConfig);
+          await native.invokeFromNative(
+              mockPlatform.isAndroid
+                  ? 'ReplayRecorder.start'
+                  : 'captureReplayScreenshot',
+              replayConfig);
 
           // verify the replay ID was set
           final closure =
@@ -104,7 +119,7 @@ void main() {
           expect(scope.replayId.toString(), replayConfig['replayId']);
         });
 
-        test('stop() clears replay ID from context', () async {
+        test('clears replay ID from context', () async {
           // verify there was no scope configured before
           verifyNever(hub.configureScope(any));
 
@@ -119,72 +134,96 @@ void main() {
           expect(scope.replayId, isNotNull);
           await closure(scope);
           expect(scope.replayId, isNull);
-        });
+        }, skip: mockPlatform.isIOS ? 'iOS does not clear replay ID' : false);
 
         testWidgets('captures images', (tester) async {
           await tester.runAsync(() async {
-            var callbackFinished = Completer<void>();
+            if (mockPlatform.isAndroid) {
+              var callbackFinished = Completer<void>();
 
-            nextFrame({bool wait = true}) async {
-              tester.binding.scheduleFrame();
-              await Future<void>.delayed(const Duration(milliseconds: 100));
-              await tester.pumpAndSettle(const Duration(seconds: 1));
-              await callbackFinished.future.timeout(
-                  Duration(milliseconds: wait ? 1000 : 100), onTimeout: () {
-                if (wait) {
-                  fail('native callback not called');
-                }
+              nextFrame({bool wait = true}) async {
+                tester.binding.scheduleFrame();
+                await Future<void>.delayed(const Duration(milliseconds: 100));
+                await tester.pumpAndSettle(const Duration(seconds: 1));
+                await callbackFinished.future.timeout(
+                    Duration(milliseconds: wait ? 1000 : 100), onTimeout: () {
+                  if (wait) {
+                    fail('native callback not called');
+                  }
+                });
+                callbackFinished = Completer<void>();
+              }
+
+              imageInfo(File file) => file.readAsBytesSync().length;
+
+              fileToImageMap(Iterable<File> files) =>
+                  {for (var file in files) file.path: imageInfo(file)};
+
+              final capturedImages = <String, int>{};
+              when(native.handler('addReplayScreenshot', any))
+                  .thenAnswer((invocation) async {
+                callbackFinished.complete();
+                final path =
+                    invocation.positionalArguments[1]["path"] as String;
+                capturedImages[path] = imageInfo(fs.file(path));
+                return null;
               });
-              callbackFinished = Completer<void>();
+
+              fsImages() {
+                final files = replayDir.listSync().map((f) => f as File);
+                return fileToImageMap(files);
+              }
+
+              await pumpTestElement(tester);
+
+              await nextFrame(wait: false);
+              expect(fsImages(), isEmpty);
+              verifyNever(native.handler('addReplayScreenshot', any));
+
+              await native.invokeFromNative(
+                  'ReplayRecorder.start', replayConfig);
+
+              await nextFrame();
+              expect(fsImages().values, isNotEmpty);
+              final size = fsImages().values.first;
+              expect(size, greaterThan(3000));
+              expect(fsImages().values, [size]);
+              expect(capturedImages, equals(fsImages()));
+
+              await nextFrame();
+              expect(fsImages().values, [size, size]);
+              expect(capturedImages, equals(fsImages()));
+
+              await native.invokeFromNative('ReplayRecorder.stop');
+
+              await nextFrame(wait: false);
+              expect(fsImages().values, [size, size]);
+              expect(capturedImages, equals(fsImages()));
+
+              await nextFrame(wait: false);
+              expect(fsImages().values, [size, size]);
+              expect(capturedImages, equals(fsImages()));
+            } else if (mockPlatform.isIOS) {
+              // configureScope() is called on iOS
+              when(hub.configureScope(captureAny)).thenReturn(null);
+
+              nextFrame() async {
+                tester.binding.scheduleFrame();
+                await Future<void>.delayed(const Duration(milliseconds: 100));
+                await tester.pumpAndSettle(const Duration(seconds: 1));
+              }
+
+              await pumpTestElement(tester);
+              await nextFrame();
+
+              final imagaData = await native.invokeFromNative(
+                  'captureReplayScreenshot', replayConfig) as ByteData;
+
+              expect(imagaData, isNotNull);
+              expect(imagaData?.lengthInBytes, greaterThan(3000));
+            } else {
+              fail('unsupported platform');
             }
-
-            imageInfo(File file) => file.readAsBytesSync().length;
-
-            fileToImageMap(Iterable<File> files) =>
-                {for (var file in files) file.path: imageInfo(file)};
-
-            final capturedImages = <String, int>{};
-            when(native.handler('addReplayScreenshot', any))
-                .thenAnswer((invocation) async {
-              callbackFinished.complete();
-              final path = invocation.positionalArguments[1]["path"] as String;
-              capturedImages[path] = imageInfo(fs.file(path));
-              return null;
-            });
-
-            fsImages() {
-              final files = replayDir.listSync().map((f) => f as File);
-              return fileToImageMap(files);
-            }
-
-            await pumpTestElement(tester);
-
-            await nextFrame(wait: false);
-            expect(fsImages(), isEmpty);
-            verifyNever(native.handler('addReplayScreenshot', any));
-
-            await native.invokeFromNative('ReplayRecorder.start', replayConfig);
-
-            await nextFrame();
-            expect(fsImages().values, isNotEmpty);
-            final size = fsImages().values.first;
-            expect(size, greaterThan(5000));
-            expect(fsImages().values, [size]);
-            expect(capturedImages, equals(fsImages()));
-
-            await nextFrame();
-            expect(fsImages().values, [size, size]);
-            expect(capturedImages, equals(fsImages()));
-
-            await native.invokeFromNative('ReplayRecorder.stop');
-
-            await nextFrame(wait: false);
-            expect(fsImages().values, [size, size]);
-            expect(capturedImages, equals(fsImages()));
-
-            await nextFrame(wait: false);
-            expect(fsImages().values, [size, size]);
-            expect(capturedImages, equals(fsImages()));
           });
         }, timeout: Timeout(Duration(seconds: 10)));
       });

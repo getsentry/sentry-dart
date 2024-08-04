@@ -39,7 +39,7 @@ class SentryNativeCocoa extends SentryNativeChannel {
                 SentryId.fromId(call.arguments['replayId'] as String);
             if (_replayId != replayId) {
               _replayId = replayId;
-              Sentry.configureScope((s) {
+              hub.configureScope((s) {
                 // ignore: invalid_use_of_internal_member
                 s.replayId = replayId;
               });
