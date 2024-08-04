@@ -1,9 +1,8 @@
-#import "SentryFlutterReplayScreenshotProvider.h"
-#import <Flutter/Flutter.h>
-
 @import Sentry;
 
 #if SENTRY_TARGET_REPLAY_SUPPORTED
+#import "SentryFlutterReplayScreenshotProvider.h"
+#import <Flutter/Flutter.h>
 
 @implementation SentryFlutterReplayScreenshotProvider {
   FlutterMethodChannel *channel;

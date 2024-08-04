@@ -218,9 +218,7 @@ void main() {
 
               final imagaData = await native.invokeFromNative(
                   'captureReplayScreenshot', replayConfig) as ByteData;
-
-              expect(imagaData, isNotNull);
-              expect(imagaData?.lengthInBytes, greaterThan(3000));
+              expect(imagaData.lengthInBytes, greaterThan(3000));
             } else {
               fail('unsupported platform');
             }
