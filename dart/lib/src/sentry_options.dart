@@ -497,8 +497,8 @@ class SentryOptions {
   /// When setting 'user' and 'pass', the 'HttpClient.addProxyCredentials'
   /// method will be called with empty 'realm'.
   ///
-  /// On Android, the proxy settings are handled by the native SDK.
-  /// iOS and macOS native SDKs do not support proxy settings.
+  /// On Android & iOS, the proxy settings are handled by the native SDK.
+  /// iOS only supports http proxies, while macOS also supports socks.
   SentryProxy? proxy;
 
   SentryOptions({this.dsn, PlatformChecker? checker}) {
