@@ -78,7 +78,6 @@ abstract class ISentrySpan {
     SentryMeasurementUnit? unit,
   });
 
-
   /// Returns the baggage that can be sent as "baggage" header.
   SentryBaggageHeader? toBaggageHeader();
 

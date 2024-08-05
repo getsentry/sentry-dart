@@ -325,7 +325,6 @@ void main() {
     sut.setMeasurement("test", 1);
     expect(sut.tracer.measurements.isEmpty, true);
   });
-
 }
 
 class Fixture {
