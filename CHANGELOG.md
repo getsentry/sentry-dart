@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased 
+## 8.6.0
 
 ### Features
 
@@ -62,9 +62,9 @@ SentryFlutter.init((options) =>
 
 ### Dependencies
 
-- Bump Android SDK from v7.12.0 to v7.12.1 ([#2198](https://github.com/getsentry/sentry-dart/pull/2198))
-  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#7121)
-  - [diff](https://github.com/getsentry/sentry-java/compare/7.12.0...7.12.1)
+- Bump Android SDK from v7.12.0 to v7.13.0 ([#2198](https://github.com/getsentry/sentry-dart/pull/2198), [#2206](https://github.com/getsentry/sentry-dart/pull/2206))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#7130)
+  - [diff](https://github.com/getsentry/sentry-java/compare/7.12.0...7.13.0)
 
 ## 8.5.0
 
