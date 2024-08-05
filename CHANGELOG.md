@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+
+- Deserialize and serialize unknown fields ([#2153](https://github.com/getsentry/sentry-dart/pull/2153))
+
 ## 8.6.0
 
 ### Improvements
@@ -27,7 +33,6 @@ class MyCustomExceptionIdentifier implements ExceptionIdentifier {
 SentryFlutter.init((options) =>
   options..prependExceptionTypeIdentifier(MyCustomExceptionIdentifier()));
 ```
-- Deserialize and serialize unknown fields ([#2153](https://github.com/getsentry/sentry-dart/pull/2153))
 
 ### Deprecated
 
