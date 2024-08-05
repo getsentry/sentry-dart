@@ -4,7 +4,7 @@
 
 ### Improvements
 
-- Add support for span level measurements.
+- Add support for span level measurements. ([#1855](https://github.com/getsentry/sentry-dart/issues/1855))
 - Add error type identifier to improve obfuscated Flutter issue titles ([#2170](https://github.com/getsentry/sentry-dart/pull/2170))
   - Example: transforms issue titles from `GA` to `FlutterError` or `minified:nE` to `FlutterError`
   - This is enabled automatically and will change grouping if you already have issues with obfuscated titles
