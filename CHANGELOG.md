@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- iOS Session Replay Alpha ([#2209](https://github.com/getsentry/sentry-dart/pull/2209))
+
 ## 8.6.0
 
 ### Improvements
