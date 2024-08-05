@@ -26,7 +26,6 @@ class SentrySpan extends ISentrySpan {
   final SentryTracer _tracer;
 
   final Map<String, dynamic> _data = {};
-  final Map<String, SentryMeasurement> _measurements = {};
   dynamic _throwable;
 
   SpanStatus? _status;
@@ -229,8 +228,6 @@ class SentrySpan extends ISentrySpan {
   Map<String, String> get tags => _tags;
 
   Map<String, dynamic> get data => _data;
-  @override
-  Map<String, SentryMeasurement> get measurements => _measurements;
 
   @override
   SentryTraceHeader toSentryTrace() => SentryTraceHeader(
@@ -250,12 +247,7 @@ class SentrySpan extends ISentrySpan {
           "The span is already finished. Measurement $name cannot be set");
       return;
     }
-    _measurements[name] = SentryMeasurement(name, value, unit: unit);
-    // We set the measurement in the transaction, too, but we have to check if this is the root span
-    // of the transaction, to avoid an infinite recursion
-    if (!_isRootSpan) {
-      _tracer.setMeasurementFromChild(name, value, unit: unit);
-    }
+    _tracer.setMeasurementFromChild(name, value, unit: unit);
   }
 
   @override

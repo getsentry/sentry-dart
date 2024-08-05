@@ -78,8 +78,6 @@ abstract class ISentrySpan {
     SentryMeasurementUnit? unit,
   });
 
-  /// Returns the measurements for a span or transaction.
-  Map<String, SentryMeasurement> get measurements;
 
   /// Returns the baggage that can be sent as "baggage" header.
   SentryBaggageHeader? toBaggageHeader();

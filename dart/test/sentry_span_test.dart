@@ -314,8 +314,8 @@ void main() {
   test('setMeasurement sets a measurement', () async {
     final sut = fixture.getSut();
     sut.setMeasurement("test", 1);
-    expect(sut.measurements.containsKey("test"), true);
-    expect(sut.measurements["test"]!.value, 1);
+    expect(sut.tracer.measurements.containsKey("test"), true);
+    expect(sut.tracer.measurements["test"]!.value, 1);
   });
 
   test('setMeasurement does not set a measurement if a span is finished',
@@ -323,19 +323,9 @@ void main() {
     final sut = fixture.getSut();
     await sut.finish();
     sut.setMeasurement("test", 1);
-    expect(sut.measurements.isEmpty, true);
+    expect(sut.tracer.measurements.isEmpty, true);
   });
 
-  test('setMeasurement also set a measurement to the transaction root span',
-      () async {
-    final sut = fixture.getSut();
-    final child = sut.tracer.startChild("child");
-    child.setMeasurement("child", 2);
-    expect(child.measurements.containsKey("child"), true);
-    expect(child.measurements["child"]!.value, 2);
-    expect(sut.measurements.containsKey("child"), true);
-    expect(sut.measurements["child"]!.value, 2);
-  });
 }
 
 class Fixture {
