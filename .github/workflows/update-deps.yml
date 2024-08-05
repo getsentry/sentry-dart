@@ -33,6 +33,7 @@ jobs:
       path: metrics/flutter.properties
       name: Flutter SDK (metrics)
       changelog-entry: false
+      pr-strategy: update
     secrets:
       api-token: ${{ secrets.CI_DEPLOY_KEY }}
 
@@ -42,5 +43,6 @@ jobs:
       path: scripts/update-symbol-collector.sh
       name: Symbol collector CLI
       changelog-entry: false
+      pr-strategy: update
     secrets:
       api-token: ${{ secrets.CI_DEPLOY_KEY }}

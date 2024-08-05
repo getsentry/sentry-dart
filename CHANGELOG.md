@@ -1,26 +1,5 @@
 # Changelog
 
-## 8.6.0-alpha.2
-
-### Features
-
-- Android Session Replay Alpha ([#2032](https://github.com/getsentry/sentry-dart/pull/2032))
-
-  To try out replay, you can set following options:
-
-  ```dart
-  await SentryFlutter.init(
-    (options) {
-      ...
-      options.experimental.replay.sessionSampleRate = 1.0;
-      options.experimental.replay.errorSampleRate = 1.0;
-    },
-    appRunner: () => runApp(MyApp()),
-  );
-  ```
-
-  Access is limited to early access orgs on Sentry. If you're interested, [sign up for the waitlist](https://sentry.io/lp/mobile-replay-beta/)
-
 ## 8.6.0
 
 ### Improvements
@@ -62,6 +41,27 @@ SentryFlutter.init((options) =>
 - Bump Android SDK from v7.12.0 to v7.13.0 ([#2198](https://github.com/getsentry/sentry-dart/pull/2198), [#2206](https://github.com/getsentry/sentry-dart/pull/2206))
   - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#7130)
   - [diff](https://github.com/getsentry/sentry-java/compare/7.12.0...7.13.0)
+
+## 8.6.0-alpha.2
+
+### Features
+
+- Android Session Replay Alpha ([#2032](https://github.com/getsentry/sentry-dart/pull/2032))
+
+  To try out replay, you can set following options:
+
+  ```dart
+  await SentryFlutter.init(
+    (options) {
+      ...
+      options.experimental.replay.sessionSampleRate = 1.0;
+      options.experimental.replay.errorSampleRate = 1.0;
+    },
+    appRunner: () => runApp(MyApp()),
+  );
+  ```
+
+  Access is limited to early access orgs on Sentry. If you're interested, [sign up for the waitlist](https://sentry.io/lp/mobile-replay-beta/)
 
 ## 8.5.0
 
