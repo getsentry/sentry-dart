@@ -99,4 +99,8 @@ class NoOpSentrySpan extends ISentrySpan {
 
   @override
   LocalMetricsAggregator? get localMetricsAggregator => null;
+
+  @override
+  // TODO: implement measurements
+  Map<String, SentryMeasurement> get measurements => throw UnimplementedError();
 }

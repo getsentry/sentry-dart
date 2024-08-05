@@ -17,7 +17,8 @@ class SentryTracer extends ISentrySpan {
   late final SentrySpan _rootSpan;
   final List<SentrySpan> _children = [];
   final Map<String, dynamic> _extra = {};
-  final Map<String, SentryMeasurement> _measurements = {};
+  @override
+  Map<String, SentryMeasurement> get measurements => _rootSpan.measurements;
 
   Timer? _autoFinishAfterTimer;
   Duration? _autoFinishAfter;
@@ -149,7 +150,7 @@ class SentryTracer extends ISentrySpan {
       }
 
       final transaction = SentryTransaction(this);
-      transaction.measurements.addAll(_measurements);
+      transaction.measurements.addAll(_rootSpan.measurements);
 
       profileInfo = (status == null || status == SpanStatus.ok())
           ? await profiler?.finishFor(transaction)
@@ -320,9 +321,6 @@ class SentryTracer extends ISentrySpan {
   @override
   SentryTraceHeader toSentryTrace() => _rootSpan.toSentryTrace();
 
-  @visibleForTesting
-  Map<String, SentryMeasurement> get measurements =>
-      Map.unmodifiable(_measurements);
 
   bool _haveAllChildrenFinished() {
     for (final child in children) {
@@ -340,11 +338,15 @@ class SentryTracer extends ISentrySpan {
 
   @override
   void setMeasurement(String name, num value, {SentryMeasurementUnit? unit}) {
-    if (finished) {
-      return;
+    _rootSpan.setMeasurement(name, value, unit: unit);
+  }
+
+  void setMeasurementFromChild(String name, num value,
+      {SentryMeasurementUnit? unit}) {
+    // We don't want to overwrite the root span measurement, if it comes from a child.
+    if (!_rootSpan.measurements.containsKey(name)) {
+      setMeasurement(name, value, unit: unit);
     }
-    final measurement = SentryMeasurement(name, value, unit: unit);
-    _measurements[name] = measurement;
   }
 
   @override
