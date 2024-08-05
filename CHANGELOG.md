@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Add support for span level measurements. ([#1855](https://github.com/getsentry/sentry-dart/issues/1855))
+- Add support for span level measurements. ([#2214](https://github.com/getsentry/sentry-dart/pull/2214))
 
 ## 8.6.0
 
