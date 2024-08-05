@@ -1,6 +1,6 @@
 # Changelog
 
-## 8.6.0
+## Unreleased
 
 ### Features
 
@@ -25,6 +25,8 @@ Future<void> main() async {
   );
 }
 ```
+
+## 8.6.0
 
 ### Improvements
 

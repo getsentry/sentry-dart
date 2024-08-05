@@ -74,6 +74,7 @@ public final class SentryFlutter {
             guard let host = proxy["host"] as? String,
                   let port = proxy["port"] as? Int,
                   let type = proxy["type"] as? String else {
+                print("Could not read proxy data")
                 return
             }
 
