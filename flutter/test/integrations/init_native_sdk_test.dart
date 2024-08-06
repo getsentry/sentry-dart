@@ -104,7 +104,14 @@ void main() {
       ..enableAppHangTracking = false
       ..connectionTimeout = Duration(milliseconds: 9001)
       ..readTimeout = Duration(milliseconds: 9002)
-      ..appHangTimeoutInterval = Duration(milliseconds: 9003);
+      ..appHangTimeoutInterval = Duration(milliseconds: 9003)
+      ..proxy = SentryProxy(
+        host: "localhost",
+        port: 8080,
+        type: SentryProxyType.http,
+        user: 'admin',
+        pass: '0000',
+      );
 
     fixture.options.sdk.addIntegration('foo');
     fixture.options.sdk.addPackage('bar', '1');
@@ -149,6 +156,13 @@ void main() {
       'connectionTimeoutMillis': 9001,
       'readTimeoutMillis': 9002,
       'appHangTimeoutIntervalMillis': 9003,
+      'proxy': {
+        'host': 'localhost',
+        'port': 8080,
+        'type': 'HTTP',
+        'user': 'admin',
+        'pass': '0000',
+      }
     });
   });
 }

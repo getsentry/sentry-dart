@@ -17,6 +17,27 @@
     appRunner: () => runApp(MyApp()),
   );
   ```
+- Add proxy support ([#2192](https://github.com/getsentry/sentry-dart/pull/2192))
+  - Configure a `SentryProxy` object and set it on `SentryFlutter.init`
+  ```dart
+  import 'package:flutter/widgets.dart';
+  import 'package:sentry_flutter/sentry_flutter.dart';
+
+  Future<void> main() async {
+    await SentryFlutter.init(
+      (options) {
+        options.dsn = 'https://example@sentry.io/add-your-dsn-here';
+        options.proxy = SentryProxy(
+          type: SenryProxyType.http,
+          host: 'localhost',
+          port: 8080,
+        );
+      },
+      // Init your App.
+      appRunner: () => runApp(MyApp()),
+    );
+  }
+  ```
 
 ### Improvements
 
@@ -72,7 +93,7 @@ SentryFlutter.init((options) =>
   - This allows viewing the correct dart formatted raw stacktrace in the Sentry UI
 - Support `ignoredExceptionsForType` ([#2150](https://github.com/getsentry/sentry-dart/pull/2150))
   - Filter out exception types by calling `SentryOptions.addExceptionFilterForType(Type exceptionType)`
-  
+
 ### Fixes
 
 - Disable sff & frame delay detection on web, linux and windows ([#2182](https://github.com/getsentry/sentry-dart/pull/2182))
