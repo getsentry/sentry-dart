@@ -4,6 +4,7 @@
 
 ### Features
 
+- Add support for span level measurements. ([#2214](https://github.com/getsentry/sentry-dart/pull/2214))
 - Add proxy support ([#2192](https://github.com/getsentry/sentry-dart/pull/2192))
   - Configure a `SentryProxy` object and set it on `SentryFlutter.init`
 ```dart

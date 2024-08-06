@@ -242,7 +242,12 @@ class SentrySpan extends ISentrySpan {
     num value, {
     SentryMeasurementUnit? unit,
   }) {
-    _tracer.setMeasurement(name, value, unit: unit);
+    if (finished) {
+      _hub.options.logger(SentryLevel.debug,
+          "The span is already finished. Measurement $name cannot be set");
+      return;
+    }
+    _tracer.setMeasurementFromChild(name, value, unit: unit);
   }
 
   @override
