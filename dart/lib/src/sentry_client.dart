@@ -84,6 +84,16 @@ class SentryClient {
     dynamic stackTrace,
     Hint? hint,
   }) async {
+    if (_isIgnoredError(event)) {
+      _options.logger(
+        SentryLevel.debug,
+        'Error was ignored as specified in the ignoredErrors options.',
+      );
+      _options.recorder
+          .recordLostEvent(DiscardReason.ignored, _getCategory(event));
+      return _emptySentryId;
+    }
+
     if (_options.containsIgnoredExceptionForType(event.throwable)) {
       _options.logger(
         SentryLevel.debug,
@@ -178,6 +188,15 @@ class SentryClient {
 
     final id = await captureEnvelope(envelope);
     return id ?? SentryId.empty();
+  }
+
+  bool _isIgnoredError(SentryEvent event) {
+    if (event.message == null || _options.ignoreErrors.isEmpty) {
+      return false;
+    }
+
+    var message = event.message!.formatted;
+    return _isMatchingRegexPattern(message, _options.ignoreErrors);
   }
 
   SentryEvent _prepareEvent(SentryEvent event, {dynamic stackTrace}) {
@@ -351,6 +370,17 @@ class SentryClient {
       return _emptySentryId;
     }
 
+    if (_isIgnoredTransaction(preparedTransaction)) {
+      _options.logger(
+        SentryLevel.debug,
+        'Transaction was ignored as specified in the ignoredTransactions options.',
+      );
+
+      _options.recorder.recordLostEvent(
+          DiscardReason.ignored, _getCategory(preparedTransaction));
+      return _emptySentryId;
+    }
+
     preparedTransaction =
         await _runBeforeSend(preparedTransaction, hint) as SentryTransaction?;
 
@@ -377,6 +407,15 @@ class SentryClient {
     final id = await captureEnvelope(envelope);
 
     return id ?? SentryId.empty();
+  }
+
+  bool _isIgnoredTransaction(SentryTransaction transaction) {
+    if (_options.ignoreTransactions.isEmpty) {
+      return false;
+    }
+
+    var name = transaction.tracer.name;
+    return _isMatchingRegexPattern(name, _options.ignoreTransactions);
   }
 
   /// Reports the [envelope] to Sentry.io.
@@ -553,5 +592,12 @@ class SentryClient {
       () => _options.transport.send(envelope),
       SentryId.empty(),
     );
+  }
+
+  bool _isMatchingRegexPattern(String value, List<String> regexPattern,
+      {bool caseSensitive = false}) {
+    final combinedRegexPattern = regexPattern.join('|');
+    final regExp = RegExp(combinedRegexPattern, caseSensitive: caseSensitive);
+    return regExp.hasMatch(value);
   }
 }

@@ -5,6 +5,18 @@
 ### Features
 
 - Add support for span level measurements. ([#2214](https://github.com/getsentry/sentry-dart/pull/2214))
+- Add `ignoreTransactions` and `ignoreErrors` to options ([#2207](https://github.com/getsentry/sentry-dart/pull/2207))
+  ```dart
+  await SentryFlutter.init(
+    (options) {
+      options.dsn = 'https://examplePublicKey@o0.ingest.sentry.io/0';
+      options.ignoreErrors = ["my-error", "^error-.*\$"];
+      options.ignoreTransactions = ["my-transaction", "^transaction-.*\$"];
+      ...
+    },
+    appRunner: () => runApp(MyApp()),
+  );
+  ```
 
 ## 8.6.0
 
