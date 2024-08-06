@@ -184,6 +184,14 @@ class SentryOptions {
   /// sent. Events are picked randomly. Default is null (disabled)
   double? sampleRate;
 
+  /// The ignoreErrors tells the SDK which errors should be not sent to the sentry server.
+  /// If an null or an empty list is used, the SDK will send all transactions.
+  List<String> ignoreErrors = [];
+
+  /// The ignoreTransactions tells the SDK which transactions should be not sent to the sentry server.
+  /// If null or an empty list is used, the SDK will send all transactions.
+  List<String> ignoreTransactions = [];
+
   final List<String> _inAppExcludes = [];
 
   /// A list of string prefixes of packages names that do not belong to the app, but rather third-party

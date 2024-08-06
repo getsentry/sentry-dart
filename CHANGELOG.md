@@ -5,27 +5,39 @@
 ### Features
 
 - Add support for span level measurements. ([#2214](https://github.com/getsentry/sentry-dart/pull/2214))
-- Add proxy support ([#2192](https://github.com/getsentry/sentry-dart/pull/2192))
-  - Configure a `SentryProxy` object and set it on `SentryFlutter.init`
-```dart
-import 'package:flutter/widgets.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
-
-Future<void> main() async {
+- Add `ignoreTransactions` and `ignoreErrors` to options ([#2207](https://github.com/getsentry/sentry-dart/pull/2207))
+  ```dart
   await SentryFlutter.init(
     (options) {
-      options.dsn = 'https://example@sentry.io/add-your-dsn-here';
-      options.proxy = SentryProxy(
-        type: SenryProxyType.http,
-        host: 'localhost',
-        port: 8080,
-      );
+      options.dsn = 'https://examplePublicKey@o0.ingest.sentry.io/0';
+      options.ignoreErrors = ["my-error", "^error-.*\$"];
+      options.ignoreTransactions = ["my-transaction", "^transaction-.*\$"];
+      ...
     },
-    // Init your App.
     appRunner: () => runApp(MyApp()),
   );
-}
-```
+  ```
+- Add proxy support ([#2192](https://github.com/getsentry/sentry-dart/pull/2192))
+  - Configure a `SentryProxy` object and set it on `SentryFlutter.init`
+  ```dart
+  import 'package:flutter/widgets.dart';
+  import 'package:sentry_flutter/sentry_flutter.dart';
+
+  Future<void> main() async {
+    await SentryFlutter.init(
+      (options) {
+        options.dsn = 'https://example@sentry.io/add-your-dsn-here';
+        options.proxy = SentryProxy(
+          type: SenryProxyType.http,
+          host: 'localhost',
+          port: 8080,
+        );
+      },
+      // Init your App.
+      appRunner: () => runApp(MyApp()),
+    );
+  }
+  ```
 
 ## 8.6.0
 
