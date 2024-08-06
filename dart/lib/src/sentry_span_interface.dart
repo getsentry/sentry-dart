@@ -71,7 +71,7 @@ abstract class ISentrySpan {
   /// Returns the trace information that could be sent as a sentry-trace header.
   SentryTraceHeader toSentryTrace();
 
-  /// Set observed measurement for this transaction.
+  /// Set observed measurement for this span or transaction.
   void setMeasurement(
     String name,
     num value, {
