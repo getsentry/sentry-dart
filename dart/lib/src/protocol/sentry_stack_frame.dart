@@ -1,4 +1,5 @@
 import 'package:meta/meta.dart';
+import 'access_aware_map.dart';
 
 /// Frames belong to a StackTrace
 /// It should contain at least a filename, function or instruction_addr
@@ -26,6 +27,7 @@ class SentryStackFrame {
     List<String>? preContext,
     List<String>? postContext,
     Map<String, dynamic>? vars,
+    this.unknown,
   })  : _framesOmitted =
             framesOmitted != null ? List.from(framesOmitted) : null,
         _preContext = preContext != null ? List.from(preContext) : null,
@@ -124,8 +126,12 @@ class SentryStackFrame {
   /// This is relevant for languages like Swift, C++ or Rust.
   final String? symbol;
 
+  @internal
+  final Map<String, dynamic>? unknown;
+
   /// Deserializes a [SentryStackFrame] from JSON [Map].
-  factory SentryStackFrame.fromJson(Map<String, dynamic> json) {
+  factory SentryStackFrame.fromJson(Map<String, dynamic> data) {
+    final json = AccessAwareMap(data);
     return SentryStackFrame(
       absPath: json['abs_path'],
       fileName: json['filename'],
@@ -148,12 +154,14 @@ class SentryStackFrame {
       vars: json['vars'],
       symbol: json['symbol'],
       stackStart: json['stack_start'],
+      unknown: json.notAccessed(),
     );
   }
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
-    return <String, dynamic>{
+    return {
+      ...?unknown,
       if (_preContext?.isNotEmpty ?? false) 'pre_context': _preContext,
       if (_postContext?.isNotEmpty ?? false) 'post_context': _postContext,
       if (_vars?.isNotEmpty ?? false) 'vars': _vars,
@@ -223,5 +231,6 @@ class SentryStackFrame {
         vars: vars ?? _vars,
         symbol: symbol ?? symbol,
         stackStart: stackStart ?? stackStart,
+        unknown: unknown,
       );
 }

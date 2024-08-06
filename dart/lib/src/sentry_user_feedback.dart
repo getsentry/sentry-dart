@@ -1,4 +1,7 @@
+import 'package:meta/meta.dart';
+
 import 'protocol.dart';
+import 'protocol/access_aware_map.dart';
 
 class SentryUserFeedback {
   SentryUserFeedback({
@@ -6,17 +9,20 @@ class SentryUserFeedback {
     this.name,
     this.email,
     this.comments,
+    this.unknown,
   }) : assert(eventId != SentryId.empty() &&
             (name?.isNotEmpty == true ||
                 email?.isNotEmpty == true ||
                 comments?.isNotEmpty == true));
 
-  factory SentryUserFeedback.fromJson(Map<String, dynamic> json) {
+  factory SentryUserFeedback.fromJson(Map<String, dynamic> data) {
+    final json = AccessAwareMap(data);
     return SentryUserFeedback(
       eventId: SentryId.fromId(json['event_id']),
       name: json['name'],
       email: json['email'],
       comments: json['comments'],
+      unknown: json.notAccessed(),
     );
   }
 
@@ -32,8 +38,12 @@ class SentryUserFeedback {
   /// Recommended: Comments of the user about what happened.
   final String? comments;
 
+  @internal
+  final Map<String, dynamic>? unknown;
+
   Map<String, dynamic> toJson() {
-    return <String, dynamic>{
+    return {
+      ...?unknown,
       'event_id': eventId.toString(),
       if (name != null) 'name': name,
       if (email != null) 'email': email,
@@ -52,6 +62,7 @@ class SentryUserFeedback {
       name: name ?? this.name,
       email: email ?? this.email,
       comments: comments ?? this.comments,
+      unknown: unknown,
     );
   }
 }
