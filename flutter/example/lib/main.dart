@@ -20,6 +20,7 @@ import 'package:sentry_isar/sentry_isar.dart';
 import 'package:sentry_logging/sentry_logging.dart';
 import 'package:sentry_sqflite/sentry_sqflite.dart';
 import 'package:sqflite/sqflite.dart';
+
 // import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 // import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 import 'package:universal_platform/universal_platform.dart';
@@ -54,6 +55,14 @@ Future<void> main() async {
     ),
     exampleDsn,
   );
+
+  loadSentryJS();
+
+  Future.delayed(const Duration(seconds: 2), () async {
+    await initSentryJS((options) {
+      options.dsn = exampleDsn;
+    });
+  });
 }
 
 Future<void> setupSentry(
@@ -774,9 +783,10 @@ void navigateToAutoCloseScreen(BuildContext context) {
 
 Future<void> tryCatch() async {
   try {
-    throw StateError('try catch');
-  } catch (error, stackTrace) {
-    await Sentry.captureException(error, stackTrace: stackTrace);
+    // Some code that might throw
+    throw Exception('Test exception');
+  } catch (e, stackTrace) {
+    SentryJS.captureException(e);
   }
 }
 
