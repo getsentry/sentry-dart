@@ -1,13 +1,11 @@
 import Sentry
 
-// swiftlint:disable file_length function_body_length line_length
-
 public final class SentryFlutter {
 
     public init() {
     }
 
-    // swiftlint:disable:next cyclomatic_complexity
+    // swiftlint:disable:next function_body_length cyclomatic_complexity
     public func update(options: Options, with data: [String: Any]) {
         if let dsn = data["dsn"] as? String {
             options.dsn = dsn
@@ -126,5 +124,3 @@ public final class SentryFlutter {
         }
     }
 }
-
-// swiftlint:enable file_length function_body_length line_length

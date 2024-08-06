@@ -9,6 +9,8 @@ import XCTest
 import sentry_flutter
 import Sentry
 
+// swiftlint:disable function_body_length line_length
+
 final class SentryFlutterTests: XCTestCase {
 
     private var fixture: Fixture!
@@ -123,3 +125,5 @@ extension SentryFlutterTests {
         }
     }
 }
+
+// swiftlint:enable function_body_length line_length
