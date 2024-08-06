@@ -47,7 +47,7 @@ class SentryNativeCocoa extends SentryNativeChannel {
 
             Uint8List? imageBytes;
             await _replayRecorder?.capture((image) async {
-              var imageData =
+              final imageData =
                   await image.toByteData(format: ImageByteFormat.png);
               if (imageData != null) {
                 options.logger(
