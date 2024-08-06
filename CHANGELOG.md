@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Add support for span level measurements. ([#2214](https://github.com/getsentry/sentry-dart/pull/2214))
+
 ## 8.6.0
 
 ### Improvements
