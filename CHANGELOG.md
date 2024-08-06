@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased 
+## 8.6.0
 
 ### Features 
 - Add `ignoreTransactions` and `ignoreErrors` to options ([#2207](https://github.com/getsentry/sentry-dart/pull/2207))
