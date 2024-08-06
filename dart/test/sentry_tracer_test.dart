@@ -467,6 +467,22 @@ void main() {
       expect(fixture.hub.options.enableSpanLocalMetricAggregation, false);
       expect(sut.localMetricsAggregator, null);
     });
+
+    test('setMeasurement sets a measurement', () async {
+      final sut = fixture.getSut();
+      sut.setMeasurement("test", 1);
+      expect(sut.measurements.containsKey("test"), true);
+      expect(sut.measurements["test"]!.value, 1);
+    });
+
+    test('setMeasurementFromChild does not override existing measurements',
+        () async {
+      final sut = fixture.getSut();
+      sut.setMeasurement("test", 1);
+      sut.setMeasurementFromChild("test", 5);
+      expect(sut.measurements.containsKey("test"), true);
+      expect(sut.measurements["test"]!.value, 1);
+    });
   });
 
   group('$SentryBaggageHeader', () {
