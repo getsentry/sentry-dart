@@ -194,13 +194,9 @@ class SentryClient {
     if (event.message == null || _options.ignoreErrors.isEmpty) {
       return false;
     }
-    final combinedRegexPattern = _options.ignoreErrors.join('|');
 
-    final regExp = RegExp(combinedRegexPattern);
-
-    final ignore = regExp.firstMatch(event.message!.formatted) != null;
-
-    return ignore;
+    var message = event.message!.formatted;
+    return _isMatchingRegexPattern(message, _options.ignoreErrors);
   }
 
   SentryEvent _prepareEvent(SentryEvent event, {dynamic stackTrace}) {
@@ -417,13 +413,9 @@ class SentryClient {
     if (_options.ignoreTransactions.isEmpty) {
       return false;
     }
-    final combinedRegexPattern = _options.ignoreTransactions.join('|');
 
-    final regExp = RegExp(combinedRegexPattern);
-
-    final ignore = regExp.firstMatch(transaction.tracer.name) != null;
-
-    return ignore;
+    var name = transaction.tracer.name;
+    return _isMatchingRegexPattern(name, _options.ignoreTransactions);
   }
 
   /// Reports the [envelope] to Sentry.io.
@@ -600,5 +592,12 @@ class SentryClient {
       () => _options.transport.send(envelope),
       SentryId.empty(),
     );
+  }
+
+  bool _isMatchingRegexPattern(String value, List<String> regexPattern,
+      {bool caseSensitive = false}) {
+    final combinedRegexPattern = regexPattern.join('|');
+    final regExp = RegExp(combinedRegexPattern, caseSensitive: caseSensitive);
+    return regExp.hasMatch(value);
   }
 }

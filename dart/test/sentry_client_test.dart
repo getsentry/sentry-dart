@@ -1038,7 +1038,7 @@ void main() {
 
     setUp(() {
       fixture = Fixture();
-      fixture.options.ignoreErrors = ["my-error", "error-.*"];
+      fixture.options.ignoreErrors = ["my-error", "^error\-.*\$"];
     });
 
     test('drop event if error message fully matches ignoreErrors value',
@@ -1053,7 +1053,18 @@ void main() {
 
     test('drop event if error message partially matches ignoreErrors value',
         () async {
-      final event = SentryEvent(message: SentryMessage("error-foo"));
+      final event = SentryEvent(message: SentryMessage("this is my-error-foo"));
+
+      final client = fixture.getSut();
+      await client.captureEvent(event);
+
+      expect((fixture.transport).called(0), true);
+    });
+
+    test(
+        'drop event if error message partially matches ignoreErrors regex value',
+        () async {
+      final event = SentryEvent(message: SentryMessage("error-test message"));
 
       final client = fixture.getSut();
       await client.captureEvent(event);
@@ -1064,18 +1075,6 @@ void main() {
     test('send event if error message does not match ignoreErrors value',
         () async {
       final event = SentryEvent(message: SentryMessage("warning"));
-
-      final client = fixture.getSut();
-      await client.captureEvent(event);
-
-      expect((fixture.transport).called(1), true);
-    });
-
-    test(
-        'send event if error message does only partially match ignoreErrors value',
-        () async {
-      final event =
-          SentryEvent(message: SentryMessage("partially matching my-error"));
 
       final client = fixture.getSut();
       await client.captureEvent(event);
@@ -1099,7 +1098,10 @@ void main() {
 
     setUp(() {
       fixture = Fixture();
-      fixture.options.ignoreTransactions = ["my-transaction", "transaction-.*"];
+      fixture.options.ignoreTransactions = [
+        "my-transaction",
+        "^transaction\-.*\$"
+      ];
     });
 
     test('drop transaction if name fully matches ignoreTransaction value',
@@ -1112,11 +1114,22 @@ void main() {
       expect((fixture.transport).called(0), true);
     });
 
-    test('drop event if name partially matches ignoreTransaction value',
+    test('drop transaction if name partially matches ignoreTransaction value',
         () async {
       final client = fixture.getSut();
       final fakeTransaction = fixture.fakeTransaction();
-      fakeTransaction.tracer.name = "transaction-foo";
+      fakeTransaction.tracer.name = "this is a transaction-test";
+      await client.captureTransaction(fakeTransaction);
+
+      expect((fixture.transport).called(0), true);
+    });
+
+    test(
+        'drop transaction if name partially matches ignoreTransaction regex value',
+        () async {
+      final client = fixture.getSut();
+      final fakeTransaction = fixture.fakeTransaction();
+      fakeTransaction.tracer.name = "transaction-test message";
       await client.captureTransaction(fakeTransaction);
 
       expect((fixture.transport).called(0), true);
@@ -1127,17 +1140,6 @@ void main() {
       final client = fixture.getSut();
       final fakeTransaction = fixture.fakeTransaction();
       fakeTransaction.tracer.name = "capture";
-      await client.captureTransaction(fakeTransaction);
-
-      expect((fixture.transport).called(1), true);
-    });
-
-    test(
-        'send transaction if name does only partially match ignoreTransaction value',
-        () async {
-      final client = fixture.getSut();
-      final fakeTransaction = fixture.fakeTransaction();
-      fakeTransaction.tracer.name = "partially matching my-transaction";
       await client.captureTransaction(fakeTransaction);
 
       expect((fixture.transport).called(1), true);
