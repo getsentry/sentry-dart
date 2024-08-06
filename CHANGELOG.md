@@ -10,8 +10,8 @@
   await SentryFlutter.init(
     (options) {
       options.dsn = 'https://examplePublicKey@o0.ingest.sentry.io/0';
-      options.ignoreErrors = ["my-error", "^error\-.*\$"];
-      options.ignoreTransactions = ["my-transaction", "^transaction\-.*\$"];
+      options.ignoreErrors = ["my-error", "^error-.*\$"];
+      options.ignoreTransactions = ["my-transaction", "^transaction-.*\$"];
       ...
     },
     appRunner: () => runApp(MyApp()),

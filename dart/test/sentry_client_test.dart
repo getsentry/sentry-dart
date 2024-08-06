@@ -1038,7 +1038,7 @@ void main() {
 
     setUp(() {
       fixture = Fixture();
-      fixture.options.ignoreErrors = ["my-error", "^error\-.*\$"];
+      fixture.options.ignoreErrors = ["my-error", "^error-.*\$"];
     });
 
     test('drop event if error message fully matches ignoreErrors value',
@@ -1100,7 +1100,7 @@ void main() {
       fixture = Fixture();
       fixture.options.ignoreTransactions = [
         "my-transaction",
-        "^transaction\-.*\$"
+        "^transaction-.*\$"
       ];
     });
 
