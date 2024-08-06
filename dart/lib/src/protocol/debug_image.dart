@@ -1,5 +1,7 @@
 import 'package:meta/meta.dart';
 
+import 'access_aware_map.dart';
+
 /// The list of debug images contains all dynamic libraries loaded into
 /// the process and their memory addresses.
 /// Instruction addresses in the Stack Trace are mapped into the list of debug
@@ -51,6 +53,9 @@ class DebugImage {
   /// MachO CPU type identifier.
   final int? cpuType;
 
+  @internal
+  final Map<String, dynamic>? unknown;
+
   const DebugImage({
     required this.type,
     this.name,
@@ -65,10 +70,12 @@ class DebugImage {
     this.codeId,
     this.cpuType,
     this.cpuSubtype,
+    this.unknown,
   });
 
   /// Deserializes a [DebugImage] from JSON [Map].
-  factory DebugImage.fromJson(Map<String, dynamic> json) {
+  factory DebugImage.fromJson(Map<String, dynamic> data) {
+    final json = AccessAwareMap(data);
     return DebugImage(
       type: json['type'],
       name: json['name'],
@@ -83,12 +90,14 @@ class DebugImage {
       codeId: json['code_id'],
       cpuType: json['cpu_type'],
       cpuSubtype: json['cpu_subtype'],
+      unknown: json.notAccessed(),
     );
   }
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
     return {
+      ...?unknown,
       'type': type,
       if (uuid != null) 'uuid': uuid,
       if (debugId != null) 'debug_id': debugId,
@@ -134,5 +143,6 @@ class DebugImage {
         codeId: codeId ?? this.codeId,
         cpuType: cpuType ?? this.cpuType,
         cpuSubtype: cpuSubtype ?? this.cpuSubtype,
+        unknown: unknown,
       );
 }

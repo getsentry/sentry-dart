@@ -2,6 +2,8 @@ import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 
+import '../mocks.dart';
+
 void main() {
   group('json', () {
     final fixture = Fixture();
@@ -95,10 +97,15 @@ class Fixture {
     ],
   };
 
+  Fixture() {
+    sdkVersionJson.addAll(testUnknown);
+  }
+
   SdkVersion getSut() => SdkVersion(
         name: 'name',
         version: 'version',
         integrations: ['test'],
         packages: [SentryPackage('name', 'version')],
+        unknown: testUnknown,
       );
 }

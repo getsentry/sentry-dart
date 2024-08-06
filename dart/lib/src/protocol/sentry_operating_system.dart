@@ -1,5 +1,7 @@
 import 'package:meta/meta.dart';
 
+import 'access_aware_map.dart';
+
 /// Describes the operating system on which the event was created.
 ///
 /// In web contexts, this is the operating system of the browse
@@ -16,6 +18,7 @@ class SentryOperatingSystem {
     this.rooted,
     this.rawDescription,
     this.theme,
+    this.unknown,
   });
 
   /// The name of the operating system.
@@ -45,21 +48,28 @@ class SentryOperatingSystem {
   /// Describes whether the OS runs in dark mode or not.
   final String? theme;
 
+  @internal
+  final Map<String, dynamic>? unknown;
+
   /// Deserializes a [SentryOperatingSystem] from JSON [Map].
-  factory SentryOperatingSystem.fromJson(Map<String, dynamic> data) =>
-      SentryOperatingSystem(
-        name: data['name'],
-        version: data['version'],
-        build: data['build'],
-        kernelVersion: data['kernel_version'],
-        rooted: data['rooted'],
-        rawDescription: data['raw_description'],
-        theme: data['theme'],
-      );
+  factory SentryOperatingSystem.fromJson(Map<String, dynamic> data) {
+    final json = AccessAwareMap(data);
+    return SentryOperatingSystem(
+      name: json['name'],
+      version: json['version'],
+      build: json['build'],
+      kernelVersion: json['kernel_version'],
+      rooted: json['rooted'],
+      rawDescription: json['raw_description'],
+      theme: json['theme'],
+      unknown: json.notAccessed(),
+    );
+  }
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
-    return <String, dynamic>{
+    return {
+      ...?unknown,
       if (name != null) 'name': name,
       if (version != null) 'version': version,
       if (build != null) 'build': build,
@@ -78,6 +88,7 @@ class SentryOperatingSystem {
         rooted: rooted,
         rawDescription: rawDescription,
         theme: theme,
+        unknown: unknown,
       );
 
   SentryOperatingSystem copyWith({
@@ -97,5 +108,6 @@ class SentryOperatingSystem {
         rooted: rooted ?? this.rooted,
         rawDescription: rawDescription ?? this.rawDescription,
         theme: theme ?? this.theme,
+        unknown: unknown,
       );
 }

@@ -12,6 +12,8 @@
 
 import 'package:meta/meta.dart';
 
+import 'access_aware_map.dart';
+
 /// GPU context describes the GPU of the device.
 @immutable
 class SentryGpu {
@@ -65,6 +67,9 @@ class SentryGpu {
   /// Whether ray tracing is available on the device.
   final bool? supportsRayTracing;
 
+  @internal
+  final Map<String, dynamic>? unknown;
+
   const SentryGpu({
     this.name,
     this.id,
@@ -81,26 +86,31 @@ class SentryGpu {
     this.supportsDrawCallInstancing,
     this.supportsGeometryShaders,
     this.supportsRayTracing,
+    this.unknown,
   });
 
   /// Deserializes a [SentryGpu] from JSON [Map].
-  factory SentryGpu.fromJson(Map<String, dynamic> data) => SentryGpu(
-        name: data['name'],
-        id: data['id'],
-        vendorId: data['vendor_id'],
-        vendorName: data['vendor_name'],
-        memorySize: data['memory_size'],
-        apiType: data['api_type'],
-        multiThreadedRendering: data['multi_threaded_rendering'],
-        version: data['version'],
-        npotSupport: data['npot_support'],
-        graphicsShaderLevel: data['graphics_shader_level'],
-        maxTextureSize: data['max_texture_size'],
-        supportsComputeShaders: data['supports_compute_shaders'],
-        supportsDrawCallInstancing: data['supports_draw_call_instancing'],
-        supportsGeometryShaders: data['supports_geometry_shaders'],
-        supportsRayTracing: data['supports_ray_tracing'],
-      );
+  factory SentryGpu.fromJson(Map<String, dynamic> data) {
+    final json = AccessAwareMap(data);
+    return SentryGpu(
+      name: json['name'],
+      id: json['id'],
+      vendorId: json['vendor_id'],
+      vendorName: json['vendor_name'],
+      memorySize: json['memory_size'],
+      apiType: json['api_type'],
+      multiThreadedRendering: json['multi_threaded_rendering'],
+      version: json['version'],
+      npotSupport: json['npot_support'],
+      graphicsShaderLevel: json['graphics_shader_level'],
+      maxTextureSize: json['max_texture_size'],
+      supportsComputeShaders: json['supports_compute_shaders'],
+      supportsDrawCallInstancing: json['supports_draw_call_instancing'],
+      supportsGeometryShaders: json['supports_geometry_shaders'],
+      supportsRayTracing: json['supports_ray_tracing'],
+      unknown: json.notAccessed(),
+    );
+  }
 
   SentryGpu clone() => SentryGpu(
         name: name,
@@ -118,11 +128,13 @@ class SentryGpu {
         supportsDrawCallInstancing: supportsDrawCallInstancing,
         supportsGeometryShaders: supportsGeometryShaders,
         supportsRayTracing: supportsRayTracing,
+        unknown: unknown,
       );
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
-    return <String, dynamic>{
+    return {
+      ...?unknown,
       if (name != null) 'name': name,
       if (id != null) 'id': id,
       if (vendorId != null) 'vendor_id': vendorId,
@@ -184,5 +196,6 @@ class SentryGpu {
         supportsGeometryShaders:
             supportsGeometryShaders ?? this.supportsGeometryShaders,
         supportsRayTracing: supportsRayTracing ?? this.supportsRayTracing,
+        unknown: unknown,
       );
 }
