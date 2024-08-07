@@ -975,6 +975,25 @@ void main() {
       observer.didReplace(newRoute: route(to), oldRoute: route(previous));
       expect(hub.scope.transaction, 'to_test');
     });
+
+    test('ignores Route and prevents recognition of this route', () async {
+      final firstRoute = route(RouteSettings(name: 'default'));
+      final secondRoute = route(RouteSettings(name: 'testRoute'));
+
+      final hub = _MockHub();
+
+      final sut = fixture.getSut(hub: hub, ignoreRoutes: ["testRoute"]);
+
+      sut.didPush(firstRoute, null);
+      expect(
+          SentryNavigatorObserver.currentRouteName, firstRoute.settings.name);
+      sut.didPush(secondRoute, firstRoute);
+      expect(
+          SentryNavigatorObserver.currentRouteName, firstRoute.settings.name);
+      sut.didPop(firstRoute, secondRoute);
+      expect(
+          SentryNavigatorObserver.currentRouteName, firstRoute.settings.name);
+    });
   });
 }
 
@@ -987,6 +1006,7 @@ class Fixture {
     RouteNameExtractor? routeNameExtractor,
     AdditionalInfoExtractor? additionalInfoProvider,
     bool enableTimeToFullDisplayTracing = false,
+    List<String>? ignoreRoutes,
   }) {
     final frameCallbackHandler = FakeFrameCallbackHandler();
     final timeToInitialDisplayTracker =
@@ -1003,6 +1023,7 @@ class Fixture {
       routeNameExtractor: routeNameExtractor,
       additionalInfoProvider: additionalInfoProvider,
       timeToDisplayTracker: timeToDisplayTracker,
+      ignoreRoutes: ignoreRoutes,
     );
   }
 
