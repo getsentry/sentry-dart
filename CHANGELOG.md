@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Add `ignoreRoutes` parameter to `SentryNavigatorObserver`. ([#2218](https://github.com/getsentry/sentry-dart/pull/2218))
+  - This will ignore the Routes and prevent the Route from being pushed to the Sentry server.
+```dart
+SentryNavigatorObserver(ignoreRoutes: ["/ignoreThisRoute"]),
+```
+
 ## 8.6.0
 
 ### Improvements
