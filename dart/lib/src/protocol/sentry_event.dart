@@ -3,6 +3,7 @@ import 'package:meta/meta.dart';
 import '../protocol.dart';
 import '../throwable_mechanism.dart';
 import '../utils.dart';
+import 'access_aware_map.dart';
 
 /// An event to be reported to Sentry.io.
 @immutable
@@ -37,6 +38,7 @@ class SentryEvent with SentryEventLike<SentryEvent> {
     this.request,
     this.debugMeta,
     this.type,
+    this.unknown,
   })  : eventId = eventId ?? SentryId.newId(),
         timestamp = timestamp ?? getUtcDateTime(),
         contexts = contexts ?? Contexts(),
@@ -189,6 +191,9 @@ class SentryEvent with SentryEventLike<SentryEvent> {
   /// defaults to 'default'
   final String? type;
 
+  @internal
+  final Map<String, dynamic>? unknown;
+
   @override
   SentryEvent copyWith({
     SentryId? eventId,
@@ -251,10 +256,13 @@ class SentryEvent with SentryEventLike<SentryEvent> {
             this.exceptions,
         threads: (threads != null ? List.from(threads) : null) ?? this.threads,
         type: type ?? this.type,
+        unknown: unknown,
       );
 
   /// Deserializes a [SentryEvent] from JSON [Map].
-  factory SentryEvent.fromJson(Map<String, dynamic> json) {
+  factory SentryEvent.fromJson(Map<String, dynamic> data) {
+    final json = AccessAwareMap(data);
+
     final breadcrumbsJson = json['breadcrumbs'] as List<dynamic>?;
     final breadcrumbs = breadcrumbsJson
         ?.map((e) => Breadcrumb.fromJson(e))
@@ -329,6 +337,7 @@ class SentryEvent with SentryEventLike<SentryEvent> {
           : null,
       exceptions: exceptions,
       type: json['type'],
+      unknown: json.notAccessed(),
     );
   }
 
@@ -368,7 +377,8 @@ class SentryEvent with SentryEventLike<SentryEvent> {
         .where((e) => e.isNotEmpty)
         .toList(growable: false);
 
-    return <String, dynamic>{
+    return {
+      ...?unknown,
       'event_id': eventId.toString(),
       if (timestamp != null)
         'timestamp': formatDateAsIso8601WithMillisPrecision(timestamp!),

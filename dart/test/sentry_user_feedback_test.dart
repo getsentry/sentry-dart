@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/sentry_item_type.dart';
 import 'package:test/test.dart';
@@ -7,35 +8,39 @@ import 'mocks/mock_transport.dart';
 
 void main() {
   group('$SentryUserFeedback', () {
+    final id = SentryId.newId();
+
+    final feedback = SentryUserFeedback(
+      eventId: id,
+      comments: 'this is awesome',
+      email: 'sentry@example.com',
+      name: 'Rockstar Developer',
+      unknown: testUnknown,
+    );
+    final feedbackJson = <String, dynamic>{
+      'event_id': id.toString(),
+      'comments': 'this is awesome',
+      'email': 'sentry@example.com',
+      'name': 'Rockstar Developer',
+    };
+    feedbackJson.addAll(testUnknown);
+
     test('toJson', () {
-      final id = SentryId.newId();
-      final feedback = SentryUserFeedback(
-        eventId: id,
-        comments: 'this is awesome',
-        email: 'sentry@example.com',
-        name: 'Rockstar Developer',
+      final json = feedback.toJson();
+      expect(
+        MapEquality().equals(feedbackJson, json),
+        true,
       );
-      expect(feedback.toJson(), {
-        'event_id': id.toString(),
-        'comments': 'this is awesome',
-        'email': 'sentry@example.com',
-        'name': 'Rockstar Developer',
-      });
     });
 
     test('fromJson', () {
-      final id = SentryId.newId();
-      final feedback = SentryUserFeedback.fromJson({
-        'event_id': id.toString(),
-        'comments': 'this is awesome',
-        'email': 'sentry@example.com',
-        'name': 'Rockstar Developer',
-      });
+      final feedback = SentryRuntime.fromJson(feedbackJson);
+      final json = feedback.toJson();
 
-      expect(feedback.eventId.toString(), id.toString());
-      expect(feedback.comments, 'this is awesome');
-      expect(feedback.email, 'sentry@example.com');
-      expect(feedback.name, 'Rockstar Developer');
+      expect(
+        MapEquality().equals(feedbackJson, json),
+        true,
+      );
     });
 
     test('copyWith', () {
@@ -169,6 +174,7 @@ class SentryUserFeedbackWithoutAssert implements SentryUserFeedback {
     this.name,
     this.email,
     this.comments,
+    this.unknown,
   });
 
   @override
@@ -184,8 +190,12 @@ class SentryUserFeedbackWithoutAssert implements SentryUserFeedback {
   final String? comments;
 
   @override
+  Map<String, dynamic>? unknown;
+
+  @override
   Map<String, dynamic> toJson() {
-    return <String, dynamic>{
+    return {
+      ...?unknown,
       'event_id': eventId.toString(),
       if (name != null) 'name': name,
       if (email != null) 'email': email,
@@ -205,6 +215,7 @@ class SentryUserFeedbackWithoutAssert implements SentryUserFeedback {
       name: name ?? this.name,
       email: email ?? this.email,
       comments: comments ?? this.comments,
+      unknown: unknown,
     );
   }
 }

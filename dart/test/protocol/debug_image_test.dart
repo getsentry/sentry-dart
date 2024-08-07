@@ -2,6 +2,8 @@ import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 
+import '../mocks.dart';
+
 void main() {
   final debugImage = DebugImage(
     type: 'type',
@@ -13,6 +15,7 @@ void main() {
     codeFile: 'codeFile',
     arch: 'arch',
     codeId: 'codeId',
+    unknown: testUnknown,
   );
 
   final debugImageJson = <String, dynamic>{
@@ -26,6 +29,7 @@ void main() {
     'arch': 'arch',
     'code_id': 'codeId',
   };
+  debugImageJson.addAll(testUnknown);
 
   group('json', () {
     test('toJson', () {

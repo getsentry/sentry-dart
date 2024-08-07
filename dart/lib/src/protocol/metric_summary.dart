@@ -1,4 +1,7 @@
+import 'package:meta/meta.dart';
+
 import '../metrics/metric.dart';
+import 'access_aware_map.dart';
 
 class MetricSummary {
   final num min;
@@ -7,7 +10,10 @@ class MetricSummary {
   final int count;
   final Map<String, String>? tags;
 
-  MetricSummary.fromGauge(GaugeMetric gauge)
+  @internal
+  final Map<String, dynamic>? unknown;
+
+  MetricSummary.fromGauge(GaugeMetric gauge, {this.unknown})
       : min = gauge.minimum,
         max = gauge.maximum,
         sum = gauge.sum,
@@ -19,20 +25,26 @@ class MetricSummary {
       required this.max,
       required this.sum,
       required this.count,
-      required this.tags});
+      required this.tags,
+      this.unknown});
 
   /// Deserializes a [MetricSummary] from JSON [Map].
-  factory MetricSummary.fromJson(Map<String, dynamic> data) => MetricSummary(
-        min: data['min'],
-        max: data['max'],
-        count: data['count'],
-        sum: data['sum'],
-        tags: data['tags']?.cast<String, String>(),
-      );
+  factory MetricSummary.fromJson(Map<String, dynamic> data) {
+    final json = AccessAwareMap(data);
+    return MetricSummary(
+      min: json['min'],
+      max: json['max'],
+      count: json['count'],
+      sum: json['sum'],
+      tags: json['tags']?.cast<String, String>(),
+      unknown: json.notAccessed(),
+    );
+  }
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
-    return <String, dynamic>{
+    return {
+      ...?unknown,
       'min': min,
       'max': max,
       'count': count,

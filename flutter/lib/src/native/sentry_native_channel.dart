@@ -66,6 +66,7 @@ class SentryNativeChannel
       'readTimeoutMillis': options.readTimeout.inMilliseconds,
       'appHangTimeoutIntervalMillis':
           options.appHangTimeoutInterval.inMilliseconds,
+      if (options.proxy != null) 'proxy': options.proxy?.toJson(),
     });
   }
 

@@ -1,4 +1,7 @@
+import 'package:meta/meta.dart';
+
 import 'protocol/sentry_id.dart';
+import 'protocol/access_aware_map.dart';
 import 'sentry_baggage.dart';
 import 'sentry_options.dart';
 
@@ -13,6 +16,7 @@ class SentryTraceContextHeader {
     this.transaction,
     this.sampleRate,
     this.sampled,
+    this.unknown,
   });
 
   final SentryId traceId;
@@ -27,8 +31,12 @@ class SentryTraceContextHeader {
   final String? sampleRate;
   final String? sampled;
 
+  @internal
+  final Map<String, dynamic>? unknown;
+
   /// Deserializes a [SentryTraceContextHeader] from JSON [Map].
-  factory SentryTraceContextHeader.fromJson(Map<String, dynamic> json) {
+  factory SentryTraceContextHeader.fromJson(Map<String, dynamic> data) {
+    final json = AccessAwareMap(data);
     return SentryTraceContextHeader(
       SentryId.fromId(json['trace_id']),
       json['public_key'],
@@ -39,12 +47,14 @@ class SentryTraceContextHeader {
       transaction: json['transaction'],
       sampleRate: json['sample_rate'],
       sampled: json['sampled'],
+      unknown: json.notAccessed(),
     );
   }
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
     return {
+      ...?unknown,
       'trace_id': traceId.toString(),
       'public_key': publicKey,
       if (release != null) 'release': release,

@@ -184,6 +184,14 @@ class SentryOptions {
   /// sent. Events are picked randomly. Default is null (disabled)
   double? sampleRate;
 
+  /// The ignoreErrors tells the SDK which errors should be not sent to the sentry server.
+  /// If an null or an empty list is used, the SDK will send all transactions.
+  List<String> ignoreErrors = [];
+
+  /// The ignoreTransactions tells the SDK which transactions should be not sent to the sentry server.
+  /// If null or an empty list is used, the SDK will send all transactions.
+  List<String> ignoreTransactions = [];
+
   final List<String> _inAppExcludes = [];
 
   /// A list of string prefixes of packages names that do not belong to the app, but rather third-party
@@ -487,6 +495,19 @@ class SentryOptions {
   /// spotlight = Spotlight(enabled: true)
   /// ```
   Spotlight spotlight = Spotlight(enabled: false);
+
+  /// Configure a proxy to use for SDK API calls.
+  ///
+  /// On io platforms without native SDKs (dart, linux, windows), this will use
+  /// an 'IOClient' with inner 'HTTPClient' for http communication.
+  /// A http proxy will be set in returned for 'HttpClient.findProxy' in the
+  /// form 'PROXY <your_host>:<your_port>'.
+  /// When setting 'user' and 'pass', the 'HttpClient.addProxyCredentials'
+  /// method will be called with empty 'realm'.
+  ///
+  /// On Android & iOS, the proxy settings are handled by the native SDK.
+  /// iOS only supports http proxies, while macOS also supports socks.
+  SentryProxy? proxy;
 
   SentryOptions({this.dsn, PlatformChecker? checker}) {
     if (checker != null) {

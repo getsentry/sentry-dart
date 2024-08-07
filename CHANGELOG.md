@@ -9,6 +9,44 @@
 ```dart
 SentryNavigatorObserver(ignoreRoutes: ["/ignoreThisRoute"]),
 ```
+- Add support for span level measurements. ([#2214](https://github.com/getsentry/sentry-dart/pull/2214))
+- Add `ignoreTransactions` and `ignoreErrors` to options ([#2207](https://github.com/getsentry/sentry-dart/pull/2207))
+  ```dart
+  await SentryFlutter.init(
+    (options) {
+      options.dsn = 'https://examplePublicKey@o0.ingest.sentry.io/0';
+      options.ignoreErrors = ["my-error", "^error-.*\$"];
+      options.ignoreTransactions = ["my-transaction", "^transaction-.*\$"];
+      ...
+    },
+    appRunner: () => runApp(MyApp()),
+  );
+  ```
+- Add proxy support ([#2192](https://github.com/getsentry/sentry-dart/pull/2192))
+  - Configure a `SentryProxy` object and set it on `SentryFlutter.init`
+  ```dart
+  import 'package:flutter/widgets.dart';
+  import 'package:sentry_flutter/sentry_flutter.dart';
+
+  Future<void> main() async {
+    await SentryFlutter.init(
+      (options) {
+        options.dsn = 'https://example@sentry.io/add-your-dsn-here';
+        options.proxy = SentryProxy(
+          type: SenryProxyType.http,
+          host: 'localhost',
+          port: 8080,
+        );
+      },
+      // Init your App.
+      appRunner: () => runApp(MyApp()),
+    );
+  }
+  ```
+
+### Improvements
+
+- Deserialize and serialize unknown fields ([#2153](https://github.com/getsentry/sentry-dart/pull/2153))
 
 ## 8.6.0
 
@@ -60,7 +98,7 @@ SentryFlutter.init((options) =>
   - This allows viewing the correct dart formatted raw stacktrace in the Sentry UI
 - Support `ignoredExceptionsForType` ([#2150](https://github.com/getsentry/sentry-dart/pull/2150))
   - Filter out exception types by calling `SentryOptions.addExceptionFilterForType(Type exceptionType)`
-  
+
 ### Fixes
 
 - Disable sff & frame delay detection on web, linux and windows ([#2182](https://github.com/getsentry/sentry-dart/pull/2182))
