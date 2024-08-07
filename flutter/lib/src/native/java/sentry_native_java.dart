@@ -4,7 +4,7 @@ import 'package:meta/meta.dart';
 
 import '../../../sentry_flutter.dart';
 import '../../event_processor/replay_event_processor.dart';
-import '../../replay/recorder.dart';
+import '../../replay/scheduled_recorder.dart';
 import '../../replay/recorder_config.dart';
 import '../sentry_native_channel.dart';
 
@@ -12,7 +12,7 @@ import '../sentry_native_channel.dart';
 // generated JNI bindings. See https://github.com/getsentry/sentry-dart/issues/1444
 @internal
 class SentryNativeJava extends SentryNativeChannel {
-  ScreenshotRecorder? _replayRecorder;
+  ScheduledScreenshotRecorder? _replayRecorder;
   SentryNativeJava(super.options, super.channel);
 
   @override
@@ -33,7 +33,7 @@ class SentryNativeJava extends SentryNativeChannel {
 
             _startRecorder(
               call.arguments['directory'] as String,
-              ScreenshotRecorderConfig(
+              ScheduledScreenshotRecorderConfig(
                 width: call.arguments['width'] as int,
                 height: call.arguments['height'] as int,
                 frameRate: call.arguments['frameRate'] as int,
@@ -78,7 +78,8 @@ class SentryNativeJava extends SentryNativeChannel {
     return super.close();
   }
 
-  void _startRecorder(String cacheDir, ScreenshotRecorderConfig config) {
+  void _startRecorder(
+      String cacheDir, ScheduledScreenshotRecorderConfig config) {
     // Note: time measurements using a Stopwatch in a debug build:
     //     save as rawRgba (1230876 bytes): 0.257 ms  -- discarded
     //     save as PNG (25401 bytes): 43.110 ms  -- used for the final image
@@ -121,6 +122,7 @@ class SentryNativeJava extends SentryNativeChannel {
       }
     };
 
-    _replayRecorder = ScreenshotRecorder(config, callback, options)..start();
+    _replayRecorder = ScheduledScreenshotRecorder(config, callback, options)
+      ..start();
   }
 }

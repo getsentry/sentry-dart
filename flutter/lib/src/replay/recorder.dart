@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/rendering.dart';
@@ -8,55 +7,35 @@ import 'package:meta/meta.dart';
 import '../../sentry_flutter.dart';
 import 'recorder_config.dart';
 import 'widget_filter.dart';
-import 'scheduler.dart';
 
 @internal
 typedef ScreenshotRecorderCallback = Future<void> Function(Image);
 
 @internal
 class ScreenshotRecorder {
-  final ScreenshotRecorderConfig _config;
-  final ScreenshotRecorderCallback _callback;
-  final SentryLogger _logger;
-  final SentryReplayOptions _options;
-  final bool rethrowExceptions;
+  @protected
+  final ScreenshotRecorderConfig config;
+  @protected
+  final SentryFlutterOptions options;
   WidgetFilter? _widgetFilter;
-  late final Scheduler _scheduler;
   bool warningLogged = false;
 
-  ScreenshotRecorder(this._config, this._callback, SentryFlutterOptions options)
-      : _logger = options.logger,
-        _options = options.experimental.replay,
-        // ignore: invalid_use_of_internal_member
-        rethrowExceptions = options.automatedTestMode {
-    final frameDuration = Duration(milliseconds: 1000 ~/ _config.frameRate);
-    _scheduler = Scheduler(frameDuration, _capture,
-        options.bindingUtils.instance!.addPostFrameCallback);
-
-    if (_options.redactAllText || _options.redactAllImages) {
+  ScreenshotRecorder(this.config, this.options) {
+    final replayOptions = options.experimental.replay;
+    if (replayOptions.redactAllText || replayOptions.redactAllImages) {
       _widgetFilter = WidgetFilter(
-          redactText: _options.redactAllText,
-          redactImages: _options.redactAllImages,
-          logger: _logger);
+          redactText: replayOptions.redactAllText,
+          redactImages: replayOptions.redactAllImages,
+          logger: options.logger);
     }
   }
 
-  void start() {
-    _logger(SentryLevel.debug, "Replay: starting replay capture.");
-    _scheduler.start();
-  }
-
-  Future<void> stop() async {
-    await _scheduler.stop();
-    _logger(SentryLevel.debug, "Replay: replay capture stopped.");
-  }
-
-  Future<void> _capture(Duration sinceSchedulerEpoch) async {
+  Future<void> capture(ScreenshotRecorderCallback callback) async {
     final context = sentryScreenshotWidgetGlobalKey.currentContext;
     final renderObject = context?.findRenderObject() as RenderRepaintBoundary?;
     if (context == null || renderObject == null) {
       if (!warningLogged) {
-        _logger(
+        options.logger(
             SentryLevel.warning,
             "Replay: SentryScreenshotWidget is not attached. "
             "Skipping replay capture.");
@@ -68,12 +47,12 @@ class ScreenshotRecorder {
     try {
       final watch = Stopwatch()..start();
 
-      // The desired resolution (coming from the configuration) is usually
-      // rounded to next multitude of 16. Therefore, we scale the image.
+      // On Android, the desired resolution (coming from the configuration)
+      // is rounded to next multitude of 16 . Therefore, we scale the image.
+      // On iOS, the screenshot resolution is not adjusted.
       final srcWidth = renderObject.size.width;
       final srcHeight = renderObject.size.height;
-      final pixelRatio =
-          min(_config.width / srcWidth, _config.height / srcHeight);
+      final pixelRatio = config.getPixelRatio(srcWidth, srcHeight);
 
       // First, we synchronously capture the image and enumerate widgets on the main UI loop.
       final futureImage = renderObject.toImage(pixelRatio: pixelRatio);
@@ -109,7 +88,7 @@ class ScreenshotRecorder {
         final finalImage = await picture.toImage(
             (srcWidth * pixelRatio).round(), (srcHeight * pixelRatio).round());
         try {
-          await _callback(finalImage);
+          await callback(finalImage);
         } finally {
           finalImage.dispose();
         }
@@ -117,14 +96,15 @@ class ScreenshotRecorder {
         picture.dispose();
       }
 
-      _logger(
+      options.logger(
           SentryLevel.debug,
           "Replay: captured a screenshot in ${watch.elapsedMilliseconds}"
           " ms ($blockingTime ms blocking).");
     } catch (e, stackTrace) {
-      _logger(SentryLevel.error, "Replay: failed to capture screenshot.",
+      options.logger(SentryLevel.error, "Replay: failed to capture screenshot.",
           exception: e, stackTrace: stackTrace);
-      if (rethrowExceptions) {
+      // ignore: invalid_use_of_internal_member
+      if (options.automatedTestMode) {
         rethrow;
       }
     }
