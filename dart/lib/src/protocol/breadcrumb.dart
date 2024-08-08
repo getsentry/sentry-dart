@@ -2,6 +2,7 @@ import 'package:meta/meta.dart';
 
 import '../utils.dart';
 import '../protocol.dart';
+import 'access_aware_map.dart';
 
 /// Structured data to describe more information prior to the event captured.
 /// See `Sentry.captureEvent()`.
@@ -30,6 +31,7 @@ class Breadcrumb {
     this.data,
     SentryLevel? level,
     this.type,
+    this.unknown,
   })  : timestamp = timestamp ?? getUtcDateTime(),
         level = level ?? SentryLevel.info;
 
@@ -186,8 +188,13 @@ class Breadcrumb {
   /// The value is submitted to Sentry with second precision.
   final DateTime timestamp;
 
+  @internal
+  final Map<String, dynamic>? unknown;
+
   /// Deserializes a [Breadcrumb] from JSON [Map].
-  factory Breadcrumb.fromJson(Map<String, dynamic> json) {
+  factory Breadcrumb.fromJson(Map<String, dynamic> jsonData) {
+    final json = AccessAwareMap(jsonData);
+
     final levelName = json['level'];
     final timestamp = json['timestamp'];
 
@@ -195,7 +202,6 @@ class Breadcrumb {
     if (data != null) {
       data = Map<String, dynamic>.from(data as Map);
     }
-
     return Breadcrumb(
       timestamp: timestamp != null ? DateTime.tryParse(timestamp) : null,
       message: json['message'],
@@ -203,6 +209,7 @@ class Breadcrumb {
       data: data,
       level: levelName != null ? SentryLevel.fromName(levelName) : null,
       type: json['type'],
+      unknown: json.notAccessed(),
     );
   }
 
@@ -210,6 +217,7 @@ class Breadcrumb {
   /// to the Sentry protocol.
   Map<String, dynamic> toJson() {
     return {
+      ...?unknown,
       'timestamp': formatDateAsIso8601WithMillisPrecision(timestamp),
       if (message != null) 'message': message,
       if (category != null) 'category': category,
@@ -234,5 +242,6 @@ class Breadcrumb {
         level: level ?? this.level,
         type: type ?? this.type,
         timestamp: timestamp ?? this.timestamp,
+        unknown: unknown,
       );
 }

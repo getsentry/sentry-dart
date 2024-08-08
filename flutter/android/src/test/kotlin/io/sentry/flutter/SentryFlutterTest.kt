@@ -6,6 +6,7 @@ import io.sentry.android.core.SentryAndroidOptions
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
+import java.net.Proxy
 
 class SentryFlutterTest {
   private lateinit var fixture: Fixture
@@ -60,6 +61,12 @@ class SentryFlutterTest {
 
     assertEquals(9006, fixture.options.connectionTimeoutMillis)
     assertEquals(9007, fixture.options.readTimeoutMillis)
+
+    assertEquals("localhost", fixture.options.proxy?.host)
+    assertEquals("8080", fixture.options.proxy?.port)
+    assertEquals(Proxy.Type.HTTP, fixture.options.proxy?.type)
+    assertEquals("admin", fixture.options.proxy?.user)
+    assertEquals("0000", fixture.options.proxy?.pass)
 
     assertEquals(0.5, fixture.options.experimental.sessionReplay.sessionSampleRate)
     assertEquals(0.6, fixture.options.experimental.sessionReplay.errorSampleRate)
@@ -137,6 +144,14 @@ class Fixture {
       "enableAutoPerformanceTracing" to true,
       "connectionTimeoutMillis" to 9006,
       "readTimeoutMillis" to 9007,
+      "proxy" to
+        mapOf(
+          "host" to "localhost",
+          "port" to 8080,
+          "type" to "http", // lowercase to check enum mapping
+          "user" to "admin",
+          "pass" to "0000",
+        ),
       "replay" to
         mapOf(
           "sessionSampleRate" to 0.5,
@@ -144,10 +159,9 @@ class Fixture {
         ),
     )
 
-  fun getSut(): SentryFlutter {
-    return SentryFlutter(
+  fun getSut(): SentryFlutter =
+    SentryFlutter(
       androidSdk = "sentry.java.android.flutter",
       nativeSdk = "fixture-nativeSdk",
     )
-  }
 }

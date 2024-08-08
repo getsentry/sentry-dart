@@ -2,11 +2,28 @@ import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 
+import 'mocks.dart';
+
 void main() {
   group('$SentryTraceContextHeader', () {
-    final id = SentryId.newId();
+    final traceId = SentryId.newId();
+
+    final context = SentryTraceContextHeader(
+      traceId,
+      '123',
+      release: 'release',
+      environment: 'environment',
+      userId: 'user_id',
+      userSegment: 'user_segment',
+      transaction: 'transaction',
+      sampleRate: '1.0',
+      sampled: 'false',
+      replayId: SentryId.fromId('456'),
+      unknown: testUnknown,
+    );
+
     final mapJson = <String, dynamic>{
-      'trace_id': '$id',
+      'trace_id': '$traceId',
       'public_key': '123',
       'release': 'release',
       'environment': 'environment',
@@ -17,10 +34,10 @@ void main() {
       'sampled': 'false',
       'replay_id': '456',
     };
-    final context = SentryTraceContextHeader.fromJson(mapJson);
+    mapJson.addAll(testUnknown);
 
     test('fromJson', () {
-      expect(context.traceId.toString(), id.toString());
+      expect(context.traceId.toString(), traceId.toString());
       expect(context.publicKey, '123');
       expect(context.release, 'release');
       expect(context.environment, 'environment');
@@ -44,7 +61,7 @@ void main() {
 
       expect(
         baggage.toHeaderString(),
-        'sentry-trace_id=${id.toString()},'
+        'sentry-trace_id=${traceId.toString()},'
         'sentry-public_key=123,'
         'sentry-release=release,'
         'sentry-environment=environment,'

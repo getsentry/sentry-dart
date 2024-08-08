@@ -70,6 +70,41 @@ public final class SentryFlutter {
         if let appHangTimeoutIntervalMillis = data["appHangTimeoutIntervalMillis"] as? NSNumber {
             options.appHangTimeoutInterval = appHangTimeoutIntervalMillis.doubleValue / 1000
         }
+        if let proxy = data["proxy"] as? [String: Any] {
+            guard let host = proxy["host"] as? String,
+                  let port = proxy["port"] as? Int,
+                  let type = proxy["type"] as? String else {
+                print("Could not read proxy data")
+                return
+            }
+
+            var connectionProxyDictionary: [String: Any] = [:]
+            if type.lowercased() == "http" {
+                connectionProxyDictionary[kCFNetworkProxiesHTTPEnable as String] = true
+                connectionProxyDictionary[kCFNetworkProxiesHTTPProxy as String] = host
+                connectionProxyDictionary[kCFNetworkProxiesHTTPPort as String] = port
+            } else if type.lowercased() == "socks" {
+                #if os(macOS)
+                connectionProxyDictionary[kCFNetworkProxiesSOCKSEnable as String] = true
+                connectionProxyDictionary[kCFNetworkProxiesSOCKSProxy as String] = host
+                connectionProxyDictionary[kCFNetworkProxiesSOCKSPort as String] = port
+                #else
+                return
+                #endif
+            } else {
+                return
+            }
+
+            if let user = proxy["user"] as? String, let pass = proxy["pass"] {
+                connectionProxyDictionary[kCFProxyUsernameKey as String] = user
+                connectionProxyDictionary[kCFProxyPasswordKey as String] = pass
+            }
+
+            let configuration = URLSessionConfiguration.default
+            configuration.connectionProxyDictionary = connectionProxyDictionary
+
+            options.urlSession = URLSession(configuration: configuration)
+        }
 #if canImport(UIKit) && !SENTRY_NO_UIKIT && (os(iOS) || os(tvOS))
         if let replayOptions = data["replay"] as? [String: Any] {
             options.experimental.sessionReplay.sessionSampleRate =

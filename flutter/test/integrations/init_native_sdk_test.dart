@@ -110,6 +110,13 @@ void main() {
       ..connectionTimeout = Duration(milliseconds: 9001)
       ..readTimeout = Duration(milliseconds: 9002)
       ..appHangTimeoutInterval = Duration(milliseconds: 9003)
+      ..proxy = SentryProxy(
+        host: "localhost",
+        port: 8080,
+        type: SentryProxyType.http,
+        user: 'admin',
+        pass: '0000',
+      )
       ..experimental.replay.sessionSampleRate = 0.1
       ..experimental.replay.errorSampleRate = 0.2;
 
@@ -156,6 +163,13 @@ void main() {
       'connectionTimeoutMillis': 9001,
       'readTimeoutMillis': 9002,
       'appHangTimeoutIntervalMillis': 9003,
+      'proxy': {
+        'host': 'localhost',
+        'port': 8080,
+        'type': 'HTTP',
+        'user': 'admin',
+        'pass': '0000',
+      },
       'replay': <String, dynamic>{
         'sessionSampleRate': 0.1,
         'errorSampleRate': 0.2,

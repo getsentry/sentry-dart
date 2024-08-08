@@ -2,6 +2,8 @@ import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 
+import '../mocks.dart';
+
 void main() {
   final sentryStackFrame = SentryStackFrame(
     absPath: 'absPath',
@@ -23,6 +25,7 @@ void main() {
     preContext: ['a'],
     postContext: ['b'],
     vars: {'key': 'value'},
+    unknown: testUnknown,
   );
 
   final sentryStackFrameJson = <String, dynamic>{
@@ -46,6 +49,7 @@ void main() {
     'instruction_addr': 'instructionAddr',
     'raw_function': 'rawFunction',
   };
+  sentryStackFrameJson.addAll(testUnknown);
 
   group('json', () {
     test('toJson', () {

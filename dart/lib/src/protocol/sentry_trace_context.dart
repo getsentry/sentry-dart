@@ -3,6 +3,7 @@ import 'package:meta/meta.dart';
 import '../../sentry.dart';
 import '../propagation_context.dart';
 import '../protocol.dart';
+import 'access_aware_map.dart';
 
 @immutable
 class SentryTraceContext {
@@ -40,7 +41,11 @@ class SentryTraceContext {
   /// @see <https://develop.sentry.dev/sdk/performance/trace-origin>
   final String? origin;
 
-  factory SentryTraceContext.fromJson(Map<String, dynamic> json) {
+  @internal
+  final Map<String, dynamic>? unknown;
+
+  factory SentryTraceContext.fromJson(Map<String, dynamic> data) {
+    final json = AccessAwareMap(data);
     return SentryTraceContext(
       operation: json['op'] as String,
       spanId: SpanId.fromId(json['span_id'] as String),
@@ -57,12 +62,14 @@ class SentryTraceContext {
           : SpanStatus.fromString(json['status'] as String),
       sampled: true,
       origin: json['origin'] == null ? null : json['origin'] as String?,
+      unknown: json.notAccessed(),
     );
   }
 
   /// Item encoded as JSON
   Map<String, dynamic> toJson() {
     return {
+      ...?unknown,
       'span_id': spanId.toString(),
       'trace_id': traceId.toString(),
       'op': operation,
@@ -83,6 +90,7 @@ class SentryTraceContext {
         parentSpanId: parentSpanId,
         sampled: sampled,
         origin: origin,
+        unknown: unknown,
         replayId: replayId,
       );
 
@@ -95,6 +103,7 @@ class SentryTraceContext {
     this.description,
     this.status,
     this.origin,
+    this.unknown,
     this.replayId,
   })  : traceId = traceId ?? SentryId.newId(),
         spanId = spanId ?? SpanId.newId();

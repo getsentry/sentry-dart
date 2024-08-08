@@ -2,6 +2,8 @@ import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 
+import '../mocks.dart';
+
 void main() {
   final timestamp = DateTime.now();
 
@@ -12,6 +14,7 @@ void main() {
     level: SentryLevel.warning,
     category: 'category',
     type: 'type',
+    unknown: testUnknown,
   );
 
   final breadcrumbJson = <String, dynamic>{
@@ -22,6 +25,7 @@ void main() {
     'level': 'warning',
     'type': 'type',
   };
+  breadcrumbJson.addAll(testUnknown);
 
   group('json', () {
     test('toJson', () {

@@ -1036,6 +1036,130 @@ void main() {
     });
   });
 
+  group('SentryClient ignored errors', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+      fixture.options.ignoreErrors = ["my-error", "^error-.*\$"];
+    });
+
+    test('drop event if error message fully matches ignoreErrors value',
+        () async {
+      final event = SentryEvent(message: SentryMessage("my-error"));
+
+      final client = fixture.getSut();
+      await client.captureEvent(event);
+
+      expect((fixture.transport).called(0), true);
+    });
+
+    test('drop event if error message partially matches ignoreErrors value',
+        () async {
+      final event = SentryEvent(message: SentryMessage("this is my-error-foo"));
+
+      final client = fixture.getSut();
+      await client.captureEvent(event);
+
+      expect((fixture.transport).called(0), true);
+    });
+
+    test(
+        'drop event if error message partially matches ignoreErrors regex value',
+        () async {
+      final event = SentryEvent(message: SentryMessage("error-test message"));
+
+      final client = fixture.getSut();
+      await client.captureEvent(event);
+
+      expect((fixture.transport).called(0), true);
+    });
+
+    test('send event if error message does not match ignoreErrors value',
+        () async {
+      final event = SentryEvent(message: SentryMessage("warning"));
+
+      final client = fixture.getSut();
+      await client.captureEvent(event);
+
+      expect((fixture.transport).called(1), true);
+    });
+
+    test('send event if no values are set for ignoreErrors', () async {
+      fixture.options.ignoreErrors = [];
+      final event = SentryEvent(message: SentryMessage("this is a test event"));
+
+      final client = fixture.getSut();
+      await client.captureEvent(event);
+
+      expect((fixture.transport).called(1), true);
+    });
+  });
+
+  group('SentryClient ignored transactions', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+      fixture.options.ignoreTransactions = [
+        "my-transaction",
+        "^transaction-.*\$"
+      ];
+    });
+
+    test('drop transaction if name fully matches ignoreTransaction value',
+        () async {
+      final client = fixture.getSut();
+      final fakeTransaction = fixture.fakeTransaction();
+      fakeTransaction.tracer.name = "my-transaction";
+      await client.captureTransaction(fakeTransaction);
+
+      expect((fixture.transport).called(0), true);
+    });
+
+    test('drop transaction if name partially matches ignoreTransaction value',
+        () async {
+      final client = fixture.getSut();
+      final fakeTransaction = fixture.fakeTransaction();
+      fakeTransaction.tracer.name = "this is a transaction-test";
+      await client.captureTransaction(fakeTransaction);
+
+      expect((fixture.transport).called(0), true);
+    });
+
+    test(
+        'drop transaction if name partially matches ignoreTransaction regex value',
+        () async {
+      final client = fixture.getSut();
+      final fakeTransaction = fixture.fakeTransaction();
+      fakeTransaction.tracer.name = "transaction-test message";
+      await client.captureTransaction(fakeTransaction);
+
+      expect((fixture.transport).called(0), true);
+    });
+
+    test('send transaction if name does not match ignoreTransaction value',
+        () async {
+      final client = fixture.getSut();
+      final fakeTransaction = fixture.fakeTransaction();
+      fakeTransaction.tracer.name = "capture";
+      await client.captureTransaction(fakeTransaction);
+
+      expect((fixture.transport).called(1), true);
+    });
+
+    test('send transaction if no values are set for ignoreTransaction',
+        () async {
+      fixture.options.ignoreTransactions = [];
+      final client = fixture.getSut();
+      final fakeTransaction = fixture.fakeTransaction();
+      fakeTransaction.tracer.name = "this is a test transaction";
+      await client.captureTransaction(fakeTransaction);
+
+      expect((fixture.transport).called(1), true);
+    });
+  });
+
   group('SentryClient ignored exceptions', () {
     late Fixture fixture;
 
