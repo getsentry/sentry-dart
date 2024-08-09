@@ -80,12 +80,14 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     RouteNameExtractor? routeNameExtractor,
     AdditionalInfoExtractor? additionalInfoProvider,
     @visibleForTesting TimeToDisplayTracker? timeToDisplayTracker,
+    List<String>? ignoreRoutes,
   })  : _hub = hub ?? HubAdapter(),
         _enableAutoTransactions = enableAutoTransactions,
         _autoFinishAfter = autoFinishAfter,
         _setRouteNameAsTransaction = setRouteNameAsTransaction,
         _routeNameExtractor = routeNameExtractor,
         _additionalInfoProvider = additionalInfoProvider,
+        _ignoreRoutes = ignoreRoutes ?? [],
         _native = SentryFlutter.native {
     _isCreated = true;
     if (enableAutoTransactions) {
@@ -113,6 +115,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   final RouteNameExtractor? _routeNameExtractor;
   final AdditionalInfoExtractor? _additionalInfoProvider;
   final SentryNativeBinding? _native;
+  final List<String> _ignoreRoutes;
   static TimeToDisplayTracker? _timeToDisplayTracker;
 
   @internal
@@ -141,6 +144,11 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
     super.didPush(route, previousRoute);
 
+    if (_isRouteIgnored(route) ||
+        previousRoute != null && _isRouteIgnored(previousRoute)) {
+      return;
+    }
+
     _setCurrentRouteName(route);
     _setCurrentRouteNameAsTransaction(route);
 
@@ -160,6 +168,11 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   void didReplace({Route<dynamic>? newRoute, Route<dynamic>? oldRoute}) {
     super.didReplace(newRoute: newRoute, oldRoute: oldRoute);
 
+    if (newRoute != null && _isRouteIgnored(newRoute) ||
+        oldRoute != null && _isRouteIgnored(oldRoute)) {
+      return;
+    }
+
     _setCurrentRouteName(newRoute);
     _setCurrentRouteNameAsTransaction(newRoute);
 
@@ -173,6 +186,11 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   @override
   void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
     super.didPop(route, previousRoute);
+
+    if (_isRouteIgnored(route) ||
+        previousRoute != null && _isRouteIgnored(previousRoute)) {
+      return;
+    }
 
     _setCurrentRouteName(previousRoute);
     _setCurrentRouteNameAsTransaction(previousRoute);
@@ -376,6 +394,11 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
 
   @internal
   static const String rootScreenName = 'root /';
+
+  bool _isRouteIgnored(Route<dynamic> route) {
+    return _ignoreRoutes.isNotEmpty &&
+        _ignoreRoutes.contains(_getRouteName(route));
+  }
 }
 
 /// This class makes it easier to record breadcrumbs for events of Flutters

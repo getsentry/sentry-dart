@@ -4,6 +4,11 @@
 
 ### Features
 
+- Add `ignoreRoutes` parameter to `SentryNavigatorObserver`. ([#2218](https://github.com/getsentry/sentry-dart/pull/2218))
+  - This will ignore the Routes and prevent the Route from being pushed to the Sentry server.
+```dart
+SentryNavigatorObserver(ignoreRoutes: ["/ignoreThisRoute"]),
+```
 - Add support for span level measurements. ([#2214](https://github.com/getsentry/sentry-dart/pull/2214))
 - Add `ignoreTransactions` and `ignoreErrors` to options ([#2207](https://github.com/getsentry/sentry-dart/pull/2207))
   ```dart
