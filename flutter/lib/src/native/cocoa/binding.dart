@@ -6038,41 +6038,19 @@ class SentryCocoa {
       _registerName1("fileSystemRepresentation");
   late final _sel_isFileURL1 = _registerName1("isFileURL");
   late final _sel_standardizedURL1 = _registerName1("standardizedURL");
-  late final _sel_checkResourceIsReachableAndReturnError_1 =
-      _registerName1("checkResourceIsReachableAndReturnError:");
-  bool _objc_msgSend_225(
-    ffi.Pointer<ObjCObject> obj,
-    ffi.Pointer<ObjCSel> sel,
-    ffi.Pointer<ffi.Pointer<ObjCObject>> error,
-  ) {
-    return __objc_msgSend_225(
-      obj,
-      sel,
-      error,
-    );
-  }
-
-  late final __objc_msgSend_225Ptr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
-              ffi.Pointer<ffi.Pointer<ObjCObject>>)>>('objc_msgSend');
-  late final __objc_msgSend_225 = __objc_msgSend_225Ptr.asFunction<
-      bool Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
-          ffi.Pointer<ffi.Pointer<ObjCObject>>)>();
-
   late final _sel_isFileReferenceURL1 = _registerName1("isFileReferenceURL");
   late final _sel_fileReferenceURL1 = _registerName1("fileReferenceURL");
   late final _sel_filePathURL1 = _registerName1("filePathURL");
   late final _sel_getResourceValue_forKey_error_1 =
       _registerName1("getResourceValue:forKey:error:");
-  bool _objc_msgSend_226(
+  bool _objc_msgSend_225(
     ffi.Pointer<ObjCObject> obj,
     ffi.Pointer<ObjCSel> sel,
     ffi.Pointer<ffi.Pointer<ObjCObject>> value,
     ffi.Pointer<ObjCObject> key,
     ffi.Pointer<ffi.Pointer<ObjCObject>> error,
   ) {
-    return __objc_msgSend_226(
+    return __objc_msgSend_225(
       obj,
       sel,
       value,
@@ -6081,7 +6059,7 @@ class SentryCocoa {
     );
   }
 
-  late final __objc_msgSend_226Ptr = _lookup<
+  late final __objc_msgSend_225Ptr = _lookup<
       ffi.NativeFunction<
           ffi.Bool Function(
               ffi.Pointer<ObjCObject>,
@@ -6089,7 +6067,7 @@ class SentryCocoa {
               ffi.Pointer<ffi.Pointer<ObjCObject>>,
               ffi.Pointer<ObjCObject>,
               ffi.Pointer<ffi.Pointer<ObjCObject>>)>>('objc_msgSend');
-  late final __objc_msgSend_226 = __objc_msgSend_226Ptr.asFunction<
+  late final __objc_msgSend_225 = __objc_msgSend_225Ptr.asFunction<
       bool Function(
           ffi.Pointer<ObjCObject>,
           ffi.Pointer<ObjCSel>,
@@ -6099,13 +6077,13 @@ class SentryCocoa {
 
   late final _sel_resourceValuesForKeys_error_1 =
       _registerName1("resourceValuesForKeys:error:");
-  ffi.Pointer<ObjCObject> _objc_msgSend_227(
+  ffi.Pointer<ObjCObject> _objc_msgSend_226(
     ffi.Pointer<ObjCObject> obj,
     ffi.Pointer<ObjCSel> sel,
     ffi.Pointer<ObjCObject> keys,
     ffi.Pointer<ffi.Pointer<ObjCObject>> error,
   ) {
-    return __objc_msgSend_227(
+    return __objc_msgSend_226(
       obj,
       sel,
       keys,
@@ -6113,14 +6091,14 @@ class SentryCocoa {
     );
   }
 
-  late final __objc_msgSend_227Ptr = _lookup<
+  late final __objc_msgSend_226Ptr = _lookup<
       ffi.NativeFunction<
           ffi.Pointer<ObjCObject> Function(
               ffi.Pointer<ObjCObject>,
               ffi.Pointer<ObjCSel>,
               ffi.Pointer<ObjCObject>,
               ffi.Pointer<ffi.Pointer<ObjCObject>>)>>('objc_msgSend');
-  late final __objc_msgSend_227 = __objc_msgSend_227Ptr.asFunction<
+  late final __objc_msgSend_226 = __objc_msgSend_226Ptr.asFunction<
       ffi.Pointer<ObjCObject> Function(
           ffi.Pointer<ObjCObject>,
           ffi.Pointer<ObjCSel>,
@@ -6129,18 +6107,50 @@ class SentryCocoa {
 
   late final _sel_setResourceValue_forKey_error_1 =
       _registerName1("setResourceValue:forKey:error:");
-  bool _objc_msgSend_228(
+  bool _objc_msgSend_227(
     ffi.Pointer<ObjCObject> obj,
     ffi.Pointer<ObjCSel> sel,
     ffi.Pointer<ObjCObject> value,
     ffi.Pointer<ObjCObject> key,
     ffi.Pointer<ffi.Pointer<ObjCObject>> error,
   ) {
-    return __objc_msgSend_228(
+    return __objc_msgSend_227(
       obj,
       sel,
       value,
       key,
+      error,
+    );
+  }
+
+  late final __objc_msgSend_227Ptr = _lookup<
+      ffi.NativeFunction<
+          ffi.Bool Function(
+              ffi.Pointer<ObjCObject>,
+              ffi.Pointer<ObjCSel>,
+              ffi.Pointer<ObjCObject>,
+              ffi.Pointer<ObjCObject>,
+              ffi.Pointer<ffi.Pointer<ObjCObject>>)>>('objc_msgSend');
+  late final __objc_msgSend_227 = __objc_msgSend_227Ptr.asFunction<
+      bool Function(
+          ffi.Pointer<ObjCObject>,
+          ffi.Pointer<ObjCSel>,
+          ffi.Pointer<ObjCObject>,
+          ffi.Pointer<ObjCObject>,
+          ffi.Pointer<ffi.Pointer<ObjCObject>>)>();
+
+  late final _sel_setResourceValues_error_1 =
+      _registerName1("setResourceValues:error:");
+  bool _objc_msgSend_228(
+    ffi.Pointer<ObjCObject> obj,
+    ffi.Pointer<ObjCSel> sel,
+    ffi.Pointer<ObjCObject> keyedValues,
+    ffi.Pointer<ffi.Pointer<ObjCObject>> error,
+  ) {
+    return __objc_msgSend_228(
+      obj,
+      sel,
+      keyedValues,
       error,
     );
   }
@@ -6151,40 +6161,8 @@ class SentryCocoa {
               ffi.Pointer<ObjCObject>,
               ffi.Pointer<ObjCSel>,
               ffi.Pointer<ObjCObject>,
-              ffi.Pointer<ObjCObject>,
               ffi.Pointer<ffi.Pointer<ObjCObject>>)>>('objc_msgSend');
   late final __objc_msgSend_228 = __objc_msgSend_228Ptr.asFunction<
-      bool Function(
-          ffi.Pointer<ObjCObject>,
-          ffi.Pointer<ObjCSel>,
-          ffi.Pointer<ObjCObject>,
-          ffi.Pointer<ObjCObject>,
-          ffi.Pointer<ffi.Pointer<ObjCObject>>)>();
-
-  late final _sel_setResourceValues_error_1 =
-      _registerName1("setResourceValues:error:");
-  bool _objc_msgSend_229(
-    ffi.Pointer<ObjCObject> obj,
-    ffi.Pointer<ObjCSel> sel,
-    ffi.Pointer<ObjCObject> keyedValues,
-    ffi.Pointer<ffi.Pointer<ObjCObject>> error,
-  ) {
-    return __objc_msgSend_229(
-      obj,
-      sel,
-      keyedValues,
-      error,
-    );
-  }
-
-  late final __objc_msgSend_229Ptr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(
-              ffi.Pointer<ObjCObject>,
-              ffi.Pointer<ObjCSel>,
-              ffi.Pointer<ObjCObject>,
-              ffi.Pointer<ffi.Pointer<ObjCObject>>)>>('objc_msgSend');
-  late final __objc_msgSend_229 = __objc_msgSend_229Ptr.asFunction<
       bool Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
           ffi.Pointer<ObjCObject>, ffi.Pointer<ffi.Pointer<ObjCObject>>)>();
 
@@ -6197,7 +6175,7 @@ class SentryCocoa {
   late final _sel_bookmarkDataWithOptions_includingResourceValuesForKeys_relativeToURL_error_1 =
       _registerName1(
           "bookmarkDataWithOptions:includingResourceValuesForKeys:relativeToURL:error:");
-  ffi.Pointer<ObjCObject> _objc_msgSend_230(
+  ffi.Pointer<ObjCObject> _objc_msgSend_229(
     ffi.Pointer<ObjCObject> obj,
     ffi.Pointer<ObjCSel> sel,
     int options,
@@ -6205,7 +6183,7 @@ class SentryCocoa {
     ffi.Pointer<ObjCObject> relativeURL,
     ffi.Pointer<ffi.Pointer<ObjCObject>> error,
   ) {
-    return __objc_msgSend_230(
+    return __objc_msgSend_229(
       obj,
       sel,
       options,
@@ -6215,7 +6193,7 @@ class SentryCocoa {
     );
   }
 
-  late final __objc_msgSend_230Ptr = _lookup<
+  late final __objc_msgSend_229Ptr = _lookup<
       ffi.NativeFunction<
           ffi.Pointer<ObjCObject> Function(
               ffi.Pointer<ObjCObject>,
@@ -6224,7 +6202,7 @@ class SentryCocoa {
               ffi.Pointer<ObjCObject>,
               ffi.Pointer<ObjCObject>,
               ffi.Pointer<ffi.Pointer<ObjCObject>>)>>('objc_msgSend');
-  late final __objc_msgSend_230 = __objc_msgSend_230Ptr.asFunction<
+  late final __objc_msgSend_229 = __objc_msgSend_229Ptr.asFunction<
       ffi.Pointer<ObjCObject> Function(
           ffi.Pointer<ObjCObject>,
           ffi.Pointer<ObjCSel>,
@@ -6236,7 +6214,7 @@ class SentryCocoa {
   late final _sel_initByResolvingBookmarkData_options_relativeToURL_bookmarkDataIsStale_error_1 =
       _registerName1(
           "initByResolvingBookmarkData:options:relativeToURL:bookmarkDataIsStale:error:");
-  instancetype _objc_msgSend_231(
+  instancetype _objc_msgSend_230(
     ffi.Pointer<ObjCObject> obj,
     ffi.Pointer<ObjCSel> sel,
     ffi.Pointer<ObjCObject> bookmarkData,
@@ -6245,7 +6223,7 @@ class SentryCocoa {
     ffi.Pointer<ffi.Bool> isStale,
     ffi.Pointer<ffi.Pointer<ObjCObject>> error,
   ) {
-    return __objc_msgSend_231(
+    return __objc_msgSend_230(
       obj,
       sel,
       bookmarkData,
@@ -6256,7 +6234,7 @@ class SentryCocoa {
     );
   }
 
-  late final __objc_msgSend_231Ptr = _lookup<
+  late final __objc_msgSend_230Ptr = _lookup<
       ffi.NativeFunction<
           instancetype Function(
               ffi.Pointer<ObjCObject>,
@@ -6266,7 +6244,7 @@ class SentryCocoa {
               ffi.Pointer<ObjCObject>,
               ffi.Pointer<ffi.Bool>,
               ffi.Pointer<ffi.Pointer<ObjCObject>>)>>('objc_msgSend');
-  late final __objc_msgSend_231 = __objc_msgSend_231Ptr.asFunction<
+  late final __objc_msgSend_230 = __objc_msgSend_230Ptr.asFunction<
       instancetype Function(
           ffi.Pointer<ObjCObject>,
           ffi.Pointer<ObjCSel>,
@@ -6281,13 +6259,13 @@ class SentryCocoa {
           "URLByResolvingBookmarkData:options:relativeToURL:bookmarkDataIsStale:error:");
   late final _sel_resourceValuesForKeys_fromBookmarkData_1 =
       _registerName1("resourceValuesForKeys:fromBookmarkData:");
-  ffi.Pointer<ObjCObject> _objc_msgSend_232(
+  ffi.Pointer<ObjCObject> _objc_msgSend_231(
     ffi.Pointer<ObjCObject> obj,
     ffi.Pointer<ObjCSel> sel,
     ffi.Pointer<ObjCObject> keys,
     ffi.Pointer<ObjCObject> bookmarkData,
   ) {
-    return __objc_msgSend_232(
+    return __objc_msgSend_231(
       obj,
       sel,
       keys,
@@ -6295,14 +6273,14 @@ class SentryCocoa {
     );
   }
 
-  late final __objc_msgSend_232Ptr = _lookup<
+  late final __objc_msgSend_231Ptr = _lookup<
       ffi.NativeFunction<
           ffi.Pointer<ObjCObject> Function(
               ffi.Pointer<ObjCObject>,
               ffi.Pointer<ObjCSel>,
               ffi.Pointer<ObjCObject>,
               ffi.Pointer<ObjCObject>)>>('objc_msgSend');
-  late final __objc_msgSend_232 = __objc_msgSend_232Ptr.asFunction<
+  late final __objc_msgSend_231 = __objc_msgSend_231Ptr.asFunction<
       ffi.Pointer<ObjCObject> Function(
           ffi.Pointer<ObjCObject>,
           ffi.Pointer<ObjCSel>,
@@ -6311,7 +6289,7 @@ class SentryCocoa {
 
   late final _sel_writeBookmarkData_toURL_options_error_1 =
       _registerName1("writeBookmarkData:toURL:options:error:");
-  bool _objc_msgSend_233(
+  bool _objc_msgSend_232(
     ffi.Pointer<ObjCObject> obj,
     ffi.Pointer<ObjCSel> sel,
     ffi.Pointer<ObjCObject> bookmarkData,
@@ -6319,7 +6297,7 @@ class SentryCocoa {
     int options,
     ffi.Pointer<ffi.Pointer<ObjCObject>> error,
   ) {
-    return __objc_msgSend_233(
+    return __objc_msgSend_232(
       obj,
       sel,
       bookmarkData,
@@ -6329,7 +6307,7 @@ class SentryCocoa {
     );
   }
 
-  late final __objc_msgSend_233Ptr = _lookup<
+  late final __objc_msgSend_232Ptr = _lookup<
       ffi.NativeFunction<
           ffi.Bool Function(
               ffi.Pointer<ObjCObject>,
@@ -6338,7 +6316,7 @@ class SentryCocoa {
               ffi.Pointer<ObjCObject>,
               ffi.UnsignedLong,
               ffi.Pointer<ffi.Pointer<ObjCObject>>)>>('objc_msgSend');
-  late final __objc_msgSend_233 = __objc_msgSend_233Ptr.asFunction<
+  late final __objc_msgSend_232 = __objc_msgSend_232Ptr.asFunction<
       bool Function(
           ffi.Pointer<ObjCObject>,
           ffi.Pointer<ObjCSel>,
@@ -6349,13 +6327,13 @@ class SentryCocoa {
 
   late final _sel_bookmarkDataWithContentsOfURL_error_1 =
       _registerName1("bookmarkDataWithContentsOfURL:error:");
-  ffi.Pointer<ObjCObject> _objc_msgSend_234(
+  ffi.Pointer<ObjCObject> _objc_msgSend_233(
     ffi.Pointer<ObjCObject> obj,
     ffi.Pointer<ObjCSel> sel,
     ffi.Pointer<ObjCObject> bookmarkFileURL,
     ffi.Pointer<ffi.Pointer<ObjCObject>> error,
   ) {
-    return __objc_msgSend_234(
+    return __objc_msgSend_233(
       obj,
       sel,
       bookmarkFileURL,
@@ -6363,14 +6341,14 @@ class SentryCocoa {
     );
   }
 
-  late final __objc_msgSend_234Ptr = _lookup<
+  late final __objc_msgSend_233Ptr = _lookup<
       ffi.NativeFunction<
           ffi.Pointer<ObjCObject> Function(
               ffi.Pointer<ObjCObject>,
               ffi.Pointer<ObjCSel>,
               ffi.Pointer<ObjCObject>,
               ffi.Pointer<ffi.Pointer<ObjCObject>>)>>('objc_msgSend');
-  late final __objc_msgSend_234 = __objc_msgSend_234Ptr.asFunction<
+  late final __objc_msgSend_233 = __objc_msgSend_233Ptr.asFunction<
       ffi.Pointer<ObjCObject> Function(
           ffi.Pointer<ObjCObject>,
           ffi.Pointer<ObjCSel>,
@@ -6379,14 +6357,14 @@ class SentryCocoa {
 
   late final _sel_URLByResolvingAliasFileAtURL_options_error_1 =
       _registerName1("URLByResolvingAliasFileAtURL:options:error:");
-  instancetype _objc_msgSend_235(
+  instancetype _objc_msgSend_234(
     ffi.Pointer<ObjCObject> obj,
     ffi.Pointer<ObjCSel> sel,
     ffi.Pointer<ObjCObject> url,
     int options,
     ffi.Pointer<ffi.Pointer<ObjCObject>> error,
   ) {
-    return __objc_msgSend_235(
+    return __objc_msgSend_234(
       obj,
       sel,
       url,
@@ -6395,7 +6373,7 @@ class SentryCocoa {
     );
   }
 
-  late final __objc_msgSend_235Ptr = _lookup<
+  late final __objc_msgSend_234Ptr = _lookup<
       ffi.NativeFunction<
           instancetype Function(
               ffi.Pointer<ObjCObject>,
@@ -6403,7 +6381,7 @@ class SentryCocoa {
               ffi.Pointer<ObjCObject>,
               ffi.Int32,
               ffi.Pointer<ffi.Pointer<ObjCObject>>)>>('objc_msgSend');
-  late final __objc_msgSend_235 = __objc_msgSend_235Ptr.asFunction<
+  late final __objc_msgSend_234 = __objc_msgSend_234Ptr.asFunction<
       instancetype Function(
           ffi.Pointer<ObjCObject>,
           ffi.Pointer<ObjCSel>,
@@ -6419,13 +6397,13 @@ class SentryCocoa {
       _registerName1("getPromisedItemResourceValue:forKey:error:");
   late final _sel_promisedItemResourceValuesForKeys_error_1 =
       _registerName1("promisedItemResourceValuesForKeys:error:");
-  ffi.Pointer<ObjCObject> _objc_msgSend_236(
+  ffi.Pointer<ObjCObject> _objc_msgSend_235(
     ffi.Pointer<ObjCObject> obj,
     ffi.Pointer<ObjCSel> sel,
     ffi.Pointer<ObjCObject> keys,
     ffi.Pointer<ffi.Pointer<ObjCObject>> error,
   ) {
-    return __objc_msgSend_236(
+    return __objc_msgSend_235(
       obj,
       sel,
       keys,
@@ -6433,14 +6411,14 @@ class SentryCocoa {
     );
   }
 
-  late final __objc_msgSend_236Ptr = _lookup<
+  late final __objc_msgSend_235Ptr = _lookup<
       ffi.NativeFunction<
           ffi.Pointer<ObjCObject> Function(
               ffi.Pointer<ObjCObject>,
               ffi.Pointer<ObjCSel>,
               ffi.Pointer<ObjCObject>,
               ffi.Pointer<ffi.Pointer<ObjCObject>>)>>('objc_msgSend');
-  late final __objc_msgSend_236 = __objc_msgSend_236Ptr.asFunction<
+  late final __objc_msgSend_235 = __objc_msgSend_235Ptr.asFunction<
       ffi.Pointer<ObjCObject> Function(
           ffi.Pointer<ObjCObject>,
           ffi.Pointer<ObjCSel>,
@@ -6449,6 +6427,26 @@ class SentryCocoa {
 
   late final _sel_checkPromisedItemIsReachableAndReturnError_1 =
       _registerName1("checkPromisedItemIsReachableAndReturnError:");
+  bool _objc_msgSend_236(
+    ffi.Pointer<ObjCObject> obj,
+    ffi.Pointer<ObjCSel> sel,
+    ffi.Pointer<ffi.Pointer<ObjCObject>> error,
+  ) {
+    return __objc_msgSend_236(
+      obj,
+      sel,
+      error,
+    );
+  }
+
+  late final __objc_msgSend_236Ptr = _lookup<
+      ffi.NativeFunction<
+          ffi.Bool Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
+              ffi.Pointer<ffi.Pointer<ObjCObject>>)>>('objc_msgSend');
+  late final __objc_msgSend_236 = __objc_msgSend_236Ptr.asFunction<
+      bool Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
+          ffi.Pointer<ffi.Pointer<ObjCObject>>)>();
+
   late final _sel_fileURLWithPathComponents_1 =
       _registerName1("fileURLWithPathComponents:");
   ffi.Pointer<ObjCObject> _objc_msgSend_237(
@@ -6484,6 +6482,8 @@ class SentryCocoa {
       _registerName1("URLByAppendingPathExtension:");
   late final _sel_URLByDeletingPathExtension1 =
       _registerName1("URLByDeletingPathExtension");
+  late final _sel_checkResourceIsReachableAndReturnError_1 =
+      _registerName1("checkResourceIsReachableAndReturnError:");
   late final _sel_URLByStandardizingPath1 =
       _registerName1("URLByStandardizingPath");
   late final _sel_URLByResolvingSymlinksInPath1 =
@@ -28721,6 +28721,10 @@ class SentryCocoa {
   late final _sel_currentDirectoryURL1 = _registerName1("currentDirectoryURL");
   late final _sel_setCurrentDirectoryURL_1 =
       _registerName1("setCurrentDirectoryURL:");
+  late final _sel_launchRequirementData1 =
+      _registerName1("launchRequirementData");
+  late final _sel_setLaunchRequirementData_1 =
+      _registerName1("setLaunchRequirementData:");
   late final _sel_standardInput1 = _registerName1("standardInput");
   late final _sel_setStandardInput_1 = _registerName1("setStandardInput:");
   late final _sel_standardOutput1 = _registerName1("standardOutput");
@@ -30654,7 +30658,7 @@ class NSObject extends _ObjCWrapper {
 
   bool validateValue_forKey_error_(ffi.Pointer<ffi.Pointer<ObjCObject>> ioValue,
       NSString? inKey, ffi.Pointer<ffi.Pointer<ObjCObject>> outError) {
-    return _lib._objc_msgSend_226(_id, _lib._sel_validateValue_forKey_error_1,
+    return _lib._objc_msgSend_225(_id, _lib._sel_validateValue_forKey_error_1,
         ioValue, inKey?._id ?? ffi.nullptr, outError);
   }
 
@@ -30691,7 +30695,7 @@ class NSObject extends _ObjCWrapper {
       ffi.Pointer<ffi.Pointer<ObjCObject>> ioValue,
       NSString? inKeyPath,
       ffi.Pointer<ffi.Pointer<ObjCObject>> outError) {
-    return _lib._objc_msgSend_226(
+    return _lib._objc_msgSend_225(
         _id,
         _lib._sel_validateValue_forKeyPath_error_1,
         ioValue,
@@ -34803,12 +34807,6 @@ class NSURL extends NSObject {
         : NSURL._(_ret, _lib, retain: true, release: true);
   }
 
-  bool checkResourceIsReachableAndReturnError_(
-      ffi.Pointer<ffi.Pointer<ObjCObject>> error) {
-    return _lib._objc_msgSend_225(
-        _id, _lib._sel_checkResourceIsReachableAndReturnError_1, error);
-  }
-
   bool isFileReferenceURL() {
     return _lib._objc_msgSend_12(_id, _lib._sel_isFileReferenceURL1);
   }
@@ -34829,13 +34827,13 @@ class NSURL extends NSObject {
       ffi.Pointer<ffi.Pointer<ObjCObject>> value,
       NSString key,
       ffi.Pointer<ffi.Pointer<ObjCObject>> error) {
-    return _lib._objc_msgSend_226(
+    return _lib._objc_msgSend_225(
         _id, _lib._sel_getResourceValue_forKey_error_1, value, key._id, error);
   }
 
   NSObject resourceValuesForKeys_error_(
       NSArray? keys, ffi.Pointer<ffi.Pointer<ObjCObject>> error) {
-    final _ret = _lib._objc_msgSend_227(
+    final _ret = _lib._objc_msgSend_226(
         _id,
         _lib._sel_resourceValuesForKeys_error_1,
         keys?._id ?? ffi.nullptr,
@@ -34845,13 +34843,13 @@ class NSURL extends NSObject {
 
   bool setResourceValue_forKey_error_(NSObject value, NSString key,
       ffi.Pointer<ffi.Pointer<ObjCObject>> error) {
-    return _lib._objc_msgSend_228(_id,
+    return _lib._objc_msgSend_227(_id,
         _lib._sel_setResourceValue_forKey_error_1, value._id, key._id, error);
   }
 
   bool setResourceValues_error_(
       NSObject? keyedValues, ffi.Pointer<ffi.Pointer<ObjCObject>> error) {
-    return _lib._objc_msgSend_229(_id, _lib._sel_setResourceValues_error_1,
+    return _lib._objc_msgSend_228(_id, _lib._sel_setResourceValues_error_1,
         keyedValues?._id ?? ffi.nullptr, error);
   }
 
@@ -34875,7 +34873,7 @@ class NSURL extends NSObject {
           NSArray? keys,
           NSURL? relativeURL,
           ffi.Pointer<ffi.Pointer<ObjCObject>> error) {
-    final _ret = _lib._objc_msgSend_230(
+    final _ret = _lib._objc_msgSend_229(
         _id,
         _lib._sel_bookmarkDataWithOptions_includingResourceValuesForKeys_relativeToURL_error_1,
         options,
@@ -34892,7 +34890,7 @@ class NSURL extends NSObject {
           NSURL? relativeURL,
           ffi.Pointer<ffi.Bool> isStale,
           ffi.Pointer<ffi.Pointer<ObjCObject>> error) {
-    final _ret = _lib._objc_msgSend_231(
+    final _ret = _lib._objc_msgSend_230(
         _id,
         _lib._sel_initByResolvingBookmarkData_options_relativeToURL_bookmarkDataIsStale_error_1,
         bookmarkData?._id ?? ffi.nullptr,
@@ -34911,7 +34909,7 @@ class NSURL extends NSObject {
           NSURL? relativeURL,
           ffi.Pointer<ffi.Bool> isStale,
           ffi.Pointer<ffi.Pointer<ObjCObject>> error) {
-    final _ret = _lib._objc_msgSend_231(
+    final _ret = _lib._objc_msgSend_230(
         _lib._class_NSURL1,
         _lib._sel_URLByResolvingBookmarkData_options_relativeToURL_bookmarkDataIsStale_error_1,
         bookmarkData?._id ?? ffi.nullptr,
@@ -34924,7 +34922,7 @@ class NSURL extends NSObject {
 
   static NSObject resourceValuesForKeys_fromBookmarkData_(
       SentryCocoa _lib, NSArray? keys, NSData? bookmarkData) {
-    final _ret = _lib._objc_msgSend_232(
+    final _ret = _lib._objc_msgSend_231(
         _lib._class_NSURL1,
         _lib._sel_resourceValuesForKeys_fromBookmarkData_1,
         keys?._id ?? ffi.nullptr,
@@ -34938,7 +34936,7 @@ class NSURL extends NSObject {
       NSURL? bookmarkFileURL,
       int options,
       ffi.Pointer<ffi.Pointer<ObjCObject>> error) {
-    return _lib._objc_msgSend_233(
+    return _lib._objc_msgSend_232(
         _lib._class_NSURL1,
         _lib._sel_writeBookmarkData_toURL_options_error_1,
         bookmarkData?._id ?? ffi.nullptr,
@@ -34949,7 +34947,7 @@ class NSURL extends NSObject {
 
   static NSData bookmarkDataWithContentsOfURL_error_(SentryCocoa _lib,
       NSURL? bookmarkFileURL, ffi.Pointer<ffi.Pointer<ObjCObject>> error) {
-    final _ret = _lib._objc_msgSend_234(
+    final _ret = _lib._objc_msgSend_233(
         _lib._class_NSURL1,
         _lib._sel_bookmarkDataWithContentsOfURL_error_1,
         bookmarkFileURL?._id ?? ffi.nullptr,
@@ -34959,7 +34957,7 @@ class NSURL extends NSObject {
 
   static NSURL URLByResolvingAliasFileAtURL_options_error_(SentryCocoa _lib,
       NSURL? url, int options, ffi.Pointer<ffi.Pointer<ObjCObject>> error) {
-    final _ret = _lib._objc_msgSend_235(
+    final _ret = _lib._objc_msgSend_234(
         _lib._class_NSURL1,
         _lib._sel_URLByResolvingAliasFileAtURL_options_error_1,
         url?._id ?? ffi.nullptr,
@@ -34981,7 +34979,7 @@ class NSURL extends NSObject {
       ffi.Pointer<ffi.Pointer<ObjCObject>> value,
       NSString key,
       ffi.Pointer<ffi.Pointer<ObjCObject>> error) {
-    return _lib._objc_msgSend_226(
+    return _lib._objc_msgSend_225(
         _id,
         _lib._sel_getPromisedItemResourceValue_forKey_error_1,
         value,
@@ -34991,7 +34989,7 @@ class NSURL extends NSObject {
 
   NSDictionary promisedItemResourceValuesForKeys_error_(
       NSArray? keys, ffi.Pointer<ffi.Pointer<ObjCObject>> error) {
-    final _ret = _lib._objc_msgSend_236(
+    final _ret = _lib._objc_msgSend_235(
         _id,
         _lib._sel_promisedItemResourceValuesForKeys_error_1,
         keys?._id ?? ffi.nullptr,
@@ -35001,7 +34999,7 @@ class NSURL extends NSObject {
 
   bool checkPromisedItemIsReachableAndReturnError_(
       ffi.Pointer<ffi.Pointer<ObjCObject>> error) {
-    return _lib._objc_msgSend_225(
+    return _lib._objc_msgSend_236(
         _id, _lib._sel_checkPromisedItemIsReachableAndReturnError_1, error);
   }
 
@@ -35073,6 +35071,12 @@ class NSURL extends NSObject {
     return _ret.address == 0
         ? null
         : NSURL._(_ret, _lib, retain: true, release: true);
+  }
+
+  bool checkResourceIsReachableAndReturnError_(
+      ffi.Pointer<ffi.Pointer<ObjCObject>> error) {
+    return _lib._objc_msgSend_236(
+        _id, _lib._sel_checkResourceIsReachableAndReturnError_1, error);
   }
 
   NSURL? get URLByStandardizingPath {
@@ -37663,7 +37667,8 @@ class ObjCBlock_bool_ObjCObject_ffiUnsignedLong_bool extends _ObjCBlockBase {
   ObjCBlock_bool_ObjCObject_ffiUnsignedLong_bool.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
-              ffi.NativeFunction<
+              ffi
+              .NativeFunction<
                   ffi.Bool Function(ffi.Pointer<ObjCObject> arg0,
                       ffi.UnsignedLong arg1, ffi.Pointer<ffi.Bool> arg2)>>
           ptr)
@@ -42107,15 +42112,17 @@ class ObjCBlock_bool_ObjCObject_bool extends _ObjCBlockBase {
                       ffi.Pointer<ffi.Bool> arg1)>>
           ptr)
       : this._(
-            lib._newBlock1(
-                _cFuncTrampoline ??= ffi.Pointer.fromFunction<
-                            ffi.Bool Function(
-                                ffi.Pointer<_ObjCBlock> block,
-                                ffi.Pointer<ObjCObject> arg0,
-                                ffi.Pointer<ffi.Bool> arg1)>(
-                        _ObjCBlock_bool_ObjCObject_bool_fnPtrTrampoline, false)
-                    .cast(),
-                ptr.cast()),
+            lib
+                ._newBlock1(
+                    _cFuncTrampoline ??= ffi.Pointer.fromFunction<
+                                ffi.Bool Function(
+                                    ffi.Pointer<_ObjCBlock> block,
+                                    ffi.Pointer<ObjCObject> arg0,
+                                    ffi.Pointer<ffi.Bool> arg1)>(
+                            _ObjCBlock_bool_ObjCObject_bool_fnPtrTrampoline,
+                            false)
+                        .cast(),
+                    ptr.cast()),
             lib);
   static ffi.Pointer<ffi.Void>? _cFuncTrampoline;
 
@@ -52171,12 +52178,12 @@ class NSBundle extends NSObject {
   }
 
   bool preflightAndReturnError_(ffi.Pointer<ffi.Pointer<ObjCObject>> error) {
-    return _lib._objc_msgSend_225(
+    return _lib._objc_msgSend_236(
         _id, _lib._sel_preflightAndReturnError_1, error);
   }
 
   bool loadAndReturnError_(ffi.Pointer<ffi.Pointer<ObjCObject>> error) {
-    return _lib._objc_msgSend_225(_id, _lib._sel_loadAndReturnError_1, error);
+    return _lib._objc_msgSend_236(_id, _lib._sel_loadAndReturnError_1, error);
   }
 
   NSURL? get bundleURL {
@@ -57365,12 +57372,12 @@ class NSFileHandle extends NSObject {
   }
 
   bool synchronizeAndReturnError_(ffi.Pointer<ffi.Pointer<ObjCObject>> error) {
-    return _lib._objc_msgSend_225(
+    return _lib._objc_msgSend_236(
         _id, _lib._sel_synchronizeAndReturnError_1, error);
   }
 
   bool closeAndReturnError_(ffi.Pointer<ffi.Pointer<ObjCObject>> error) {
-    return _lib._objc_msgSend_225(_id, _lib._sel_closeAndReturnError_1, error);
+    return _lib._objc_msgSend_236(_id, _lib._sel_closeAndReturnError_1, error);
   }
 
   static NSFileHandle? getFileHandleWithStandardInput(SentryCocoa _lib) {
@@ -68281,6 +68288,18 @@ class NSTask extends NSObject {
         _id, _lib._sel_setCurrentDirectoryURL_1, value?._id ?? ffi.nullptr);
   }
 
+  NSData? get launchRequirementData {
+    final _ret = _lib._objc_msgSend_39(_id, _lib._sel_launchRequirementData1);
+    return _ret.address == 0
+        ? null
+        : NSData._(_ret, _lib, retain: true, release: true);
+  }
+
+  set launchRequirementData(NSData? value) {
+    return _lib._objc_msgSend_939(
+        _id, _lib._sel_setLaunchRequirementData_1, value?._id ?? ffi.nullptr);
+  }
+
   NSObject get standardInput {
     final _ret = _lib._objc_msgSend_2(_id, _lib._sel_standardInput1);
     return NSObject._(_ret, _lib, retain: true, release: true);
@@ -68310,7 +68329,7 @@ class NSTask extends NSObject {
   }
 
   bool launchAndReturnError_(ffi.Pointer<ffi.Pointer<ObjCObject>> error) {
-    return _lib._objc_msgSend_225(_id, _lib._sel_launchAndReturnError_1, error);
+    return _lib._objc_msgSend_236(_id, _lib._sel_launchAndReturnError_1, error);
   }
 
   void interrupt() {
@@ -69727,7 +69746,7 @@ class NSXMLDocument extends NSXMLNode {
   }
 
   bool validateAndReturnError_(ffi.Pointer<ffi.Pointer<ObjCObject>> error) {
-    return _lib._objc_msgSend_225(
+    return _lib._objc_msgSend_236(
         _id, _lib._sel_validateAndReturnError_1, error);
   }
 
