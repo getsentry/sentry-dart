@@ -3,6 +3,7 @@ package io.sentry.flutter
 import android.util.Log
 import io.sentry.SentryLevel
 import io.sentry.SentryOptions.Proxy
+import io.sentry.SentryReplayOptions
 import io.sentry.android.core.BuildConfig
 import io.sentry.android.core.SentryAndroidOptions
 import io.sentry.protocol.SdkVersion
@@ -146,6 +147,18 @@ class SentryFlutter(
             pass = proxyJson["pass"] as? String
           }
     }
+
+    data.getIfNotNull<Map<String, Any>>("replay") {
+      updateReplayOptions(options.experimental.sessionReplay, it)
+    }
+  }
+
+  fun updateReplayOptions(
+    options: SentryReplayOptions,
+    data: Map<String, Any>,
+  ) {
+    options.sessionSampleRate = data["sessionSampleRate"] as? Double
+    options.errorSampleRate = data["errorSampleRate"] as? Double
   }
 }
 

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 
-import '../../sentry_flutter.dart';
-
 /// Key which is used to identify the [RepaintBoundary]
 @internal
 final sentryScreenshotWidgetGlobalKey =
@@ -25,36 +23,19 @@ final sentryScreenshotWidgetGlobalKey =
 ///   times.
 class SentryScreenshotWidget extends StatefulWidget {
   final Widget child;
-  late final Hub _hub;
 
-  SentryFlutterOptions? get _options =>
-      // ignore: invalid_use_of_internal_member
-      _hub.options is SentryFlutterOptions
-          // ignore: invalid_use_of_internal_member
-          ? _hub.options as SentryFlutterOptions
-          : null;
-
-  SentryScreenshotWidget({
-    super.key,
-    required this.child,
-    @internal Hub? hub,
-  }) : _hub = hub ?? HubAdapter();
+  const SentryScreenshotWidget({super.key, required this.child});
 
   @override
   _SentryScreenshotWidgetState createState() => _SentryScreenshotWidgetState();
 }
 
 class _SentryScreenshotWidgetState extends State<SentryScreenshotWidget> {
-  SentryFlutterOptions? get _options => widget._options;
-
   @override
   Widget build(BuildContext context) {
-    if (_options?.attachScreenshot ?? false) {
-      return RepaintBoundary(
-        key: sentryScreenshotWidgetGlobalKey,
-        child: widget.child,
-      );
-    }
-    return widget.child;
+    return RepaintBoundary(
+      key: sentryScreenshotWidgetGlobalKey,
+      child: widget.child,
+    );
   }
 }

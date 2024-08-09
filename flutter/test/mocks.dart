@@ -54,46 +54,24 @@ ISentrySpan startTransactionShim(
 void main() {}
 
 class MockPlatform with NoSuchMethodProvider implements Platform {
-  MockPlatform({
-    String? os,
-    String? osVersion,
-    String? hostname,
-  })  : operatingSystem = os ?? '',
-        operatingSystemVersion = osVersion ?? '',
-        localHostname = hostname ?? '';
+  const MockPlatform(this.operatingSystem,
+      {this.operatingSystemVersion = '', this.localHostname = ''});
 
-  factory MockPlatform.android() {
-    return MockPlatform(os: 'android');
-  }
-
-  factory MockPlatform.iOs() {
-    return MockPlatform(os: 'ios');
-  }
-
-  factory MockPlatform.macOs() {
-    return MockPlatform(os: 'macos');
-  }
-
-  factory MockPlatform.windows() {
-    return MockPlatform(os: 'windows');
-  }
-
-  factory MockPlatform.linux() {
-    return MockPlatform(os: 'linux');
-  }
-
-  factory MockPlatform.fuchsia() {
-    return MockPlatform(os: 'fuchsia');
-  }
+  const MockPlatform.android() : this('android');
+  const MockPlatform.iOs() : this('ios');
+  const MockPlatform.macOs() : this('macos');
+  const MockPlatform.windows() : this('windows');
+  const MockPlatform.linux() : this('linux');
+  const MockPlatform.fuchsia() : this('fuchsia');
 
   @override
-  String operatingSystem;
+  final String operatingSystem;
 
   @override
-  String operatingSystemVersion;
+  final String operatingSystemVersion;
 
   @override
-  String localHostname;
+  final String localHostname;
 
   @override
   bool get isLinux => (operatingSystem == 'linux');
@@ -122,7 +100,7 @@ class MockPlatformChecker with NoSuchMethodProvider implements PlatformChecker {
     this.isWebValue = false,
     this.hasNativeIntegration = false,
     Platform? mockPlatform,
-  }) : _mockPlatform = mockPlatform ?? MockPlatform();
+  }) : _mockPlatform = mockPlatform ?? MockPlatform('');
 
   final bool isDebug;
   final bool isProfile;
@@ -206,3 +184,32 @@ final fakeFrameDurations = [
   Duration(milliseconds: 40),
   Duration(milliseconds: 710),
 ];
+
+@GenerateMocks([Callbacks])
+abstract class Callbacks {
+  Future<Object?>? methodCallHandler(String method, [dynamic arguments]);
+}
+
+class NativeChannelFixture {
+  late final MethodChannel channel;
+  late final Future<Object?>? Function(String method, [dynamic arguments])
+      handler;
+  static TestDefaultBinaryMessenger get _messenger =>
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+
+  NativeChannelFixture() {
+    TestWidgetsFlutterBinding.ensureInitialized();
+    channel = MethodChannel('test.channel', StandardMethodCodec(), _messenger);
+    handler = MockCallbacks().methodCallHandler;
+    _messenger.setMockMethodCallHandler(
+        channel, (call) => handler(call.method, call.arguments));
+  }
+
+  // Mock this call as if it was invoked by the native side.
+  Future<ByteData?> invokeFromNative(String method, [dynamic arguments]) async {
+    final call =
+        StandardMethodCodec().encodeMethodCall(MethodCall(method, arguments));
+    return _messenger.handlePlatformMessage(
+        channel.name, call, (ByteData? data) {});
+  }
+}

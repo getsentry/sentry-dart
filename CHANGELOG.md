@@ -4,6 +4,7 @@
 
 ### Features
 
+- iOS Session Replay Alpha ([#2209](https://github.com/getsentry/sentry-dart/pull/2209))
 - Add support for span level measurements. ([#2214](https://github.com/getsentry/sentry-dart/pull/2214))
 - Add `ignoreTransactions` and `ignoreErrors` to options ([#2207](https://github.com/getsentry/sentry-dart/pull/2207))
   ```dart
@@ -91,6 +92,27 @@ SentryFlutter.init((options) =>
   - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#7130)
   - [diff](https://github.com/getsentry/sentry-java/compare/7.12.0...7.13.0)
 
+## 8.6.0-alpha.2
+
+### Features
+
+- Android Session Replay Alpha ([#2032](https://github.com/getsentry/sentry-dart/pull/2032))
+
+  To try out replay, you can set following options:
+
+  ```dart
+  await SentryFlutter.init(
+    (options) {
+      ...
+      options.experimental.replay.sessionSampleRate = 1.0;
+      options.experimental.replay.errorSampleRate = 1.0;
+    },
+    appRunner: () => runApp(MyApp()),
+  );
+  ```
+
+  Access is limited to early access orgs on Sentry. If you're interested, [sign up for the waitlist](https://sentry.io/lp/mobile-replay-beta/)
+
 ## 8.5.0
 
 ### Features
@@ -103,7 +125,7 @@ SentryFlutter.init((options) =>
 ### Fixes
 
 - Disable sff & frame delay detection on web, linux and windows ([#2182](https://github.com/getsentry/sentry-dart/pull/2182))
-  - Display refresh rate is locked at 60 for these platforms which can lead to inaccurate metrics 
+  - Display refresh rate is locked at 60 for these platforms which can lead to inaccurate metrics
 
 ### Improvements
 

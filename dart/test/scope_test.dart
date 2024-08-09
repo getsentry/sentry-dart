@@ -88,6 +88,14 @@ void main() {
     expect(sut.fingerprint, fingerprints);
   });
 
+  test('sets replay ID', () {
+    final sut = fixture.getSut();
+
+    sut.replayId = SentryId.fromId('1');
+
+    expect(sut.replayId, SentryId.fromId('1'));
+  });
+
   test('adds $Breadcrumb', () {
     final sut = fixture.getSut();
 
@@ -307,6 +315,7 @@ void main() {
     sut.level = SentryLevel.debug;
     sut.transaction = 'test';
     sut.span = null;
+    sut.replayId = SentryId.newId();
 
     final user = SentryUser(id: 'test');
     sut.setUser(user);
@@ -322,21 +331,15 @@ void main() {
     sut.clear();
 
     expect(sut.breadcrumbs.length, 0);
-
     expect(sut.level, null);
-
     expect(sut.transaction, null);
     expect(sut.span, null);
-
     expect(sut.user, null);
-
     expect(sut.fingerprint.length, 0);
-
     expect(sut.tags.length, 0);
-
     expect(sut.extra.length, 0);
-
     expect(sut.eventProcessors.length, 0);
+    expect(sut.replayId, isNull);
   });
 
   test('clones', () async {
@@ -349,6 +352,7 @@ void main() {
     sut.addAttachment(SentryAttachment.fromIntList([0, 0, 0, 0], 'test.txt'));
     sut.span = NoOpSentrySpan();
     sut.level = SentryLevel.warning;
+    sut.replayId = SentryId.newId();
     await sut.setUser(SentryUser(id: 'id'));
     await sut.setTag('key', 'vakye');
     await sut.setExtra('key', 'vakye');
@@ -369,6 +373,7 @@ void main() {
       true,
     );
     expect(sut.span, clone.span);
+    expect(sut.replayId, clone.replayId);
   });
 
   test('clone does not additionally call observers', () async {
