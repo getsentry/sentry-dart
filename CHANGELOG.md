@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 8.7.0
 
 ### Features
 
@@ -47,6 +47,12 @@ SentryNavigatorObserver(ignoreRoutes: ["/ignoreThisRoute"]),
 ### Improvements
 
 - Deserialize and serialize unknown fields ([#2153](https://github.com/getsentry/sentry-dart/pull/2153))
+
+### Dependencies
+
+- Bump Cocoa SDK from v8.32.0 to v8.33.0 ([#2223](https://github.com/getsentry/sentry-dart/pull/2223))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8330)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.32.0...8.33.0)
 
 ## 8.6.0
 
