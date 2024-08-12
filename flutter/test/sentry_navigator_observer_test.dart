@@ -976,7 +976,28 @@ void main() {
       expect(hub.scope.transaction, 'to_test');
     });
 
-    test('ignores Route and prevents recognition of this route', () async {
+    test('ignores Route and prevents recognition of this route for didPush',
+        () async {
+      final firstRoute = route(RouteSettings(name: 'default'));
+      final secondRoute = route(RouteSettings(name: 'testRoute'));
+
+      final hub = _MockHub();
+
+      final sut = fixture.getSut(hub: hub, ignoreRoutes: ["testRoute"]);
+
+      sut.didPush(firstRoute, null);
+      expect(
+          SentryNavigatorObserver.currentRouteName, firstRoute.settings.name);
+      sut.didPush(secondRoute, firstRoute);
+      expect(
+          SentryNavigatorObserver.currentRouteName, firstRoute.settings.name);
+      sut.didPush(firstRoute, secondRoute);
+      expect(
+          SentryNavigatorObserver.currentRouteName, firstRoute.settings.name);
+    });
+
+    test('ignores Route and prevents recognition of this route for didPop',
+        () async {
       final firstRoute = route(RouteSettings(name: 'default'));
       final secondRoute = route(RouteSettings(name: 'testRoute'));
 
@@ -991,6 +1012,26 @@ void main() {
       expect(
           SentryNavigatorObserver.currentRouteName, firstRoute.settings.name);
       sut.didPop(firstRoute, secondRoute);
+      expect(
+          SentryNavigatorObserver.currentRouteName, firstRoute.settings.name);
+    });
+
+    test('ignores Route and prevents recognition of this route for didReplace',
+        () async {
+      final firstRoute = route(RouteSettings(name: 'default'));
+      final secondRoute = route(RouteSettings(name: 'testRoute'));
+
+      final hub = _MockHub();
+
+      final sut = fixture.getSut(hub: hub, ignoreRoutes: ["testRoute"]);
+
+      sut.didReplace(newRoute: firstRoute);
+      expect(
+          SentryNavigatorObserver.currentRouteName, firstRoute.settings.name);
+      sut.didReplace(newRoute: secondRoute, oldRoute: firstRoute);
+      expect(
+          SentryNavigatorObserver.currentRouteName, firstRoute.settings.name);
+      sut.didReplace(newRoute: firstRoute, oldRoute: secondRoute);
       expect(
           SentryNavigatorObserver.currentRouteName, firstRoute.settings.name);
     });
