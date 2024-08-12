@@ -6,6 +6,7 @@
 
 - Add `ignoreRoutes` parameter to `SentryNavigatorObserver`. ([#2218](https://github.com/getsentry/sentry-dart/pull/2218))
   - This will ignore the Routes and prevent the Route from being pushed to the Sentry server.
+  - Ignored routes will also create no TTID and TTFD spans.
 ```dart
 SentryNavigatorObserver(ignoreRoutes: ["/ignoreThisRoute"]),
 ```
