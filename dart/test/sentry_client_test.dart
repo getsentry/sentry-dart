@@ -818,7 +818,7 @@ void main() {
       scope.setUser(user);
     });
 
-    test('should apply the scope', () async {
+    test('should apply the scope to event', () async {
       final client = fixture.getSut();
       await client.captureEvent(event, scope: scope);
 
@@ -838,6 +838,28 @@ void main() {
       expect(capturedEvent.extra, {
         scopeExtraKey: scopeExtraValue,
         eventExtraKey: eventExtraValue,
+      });
+    });
+
+    test('should apply the scope to feedback event', () async {
+      final client = fixture.getSut();
+      final feedback = fixture.fakeFeedback();
+      await client.captureFeedback(feedback, scope: scope);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
+
+      expect(capturedEvent.user?.id, user.id);
+      expect(capturedEvent.level!.name, SentryLevel.error.name);
+      expect(capturedEvent.transaction, transaction);
+      expect(capturedEvent.fingerprint, fingerprint);
+      expect(capturedEvent.breadcrumbs?.first.toJson(), crumb.toJson());
+      expect(capturedEvent.tags, {
+        scopeTagKey: scopeTagValue,
+      });
+      // ignore: deprecated_member_use_from_same_package
+      expect(capturedEvent.extra, {
+        scopeExtraKey: scopeExtraValue,
       });
     });
   });
