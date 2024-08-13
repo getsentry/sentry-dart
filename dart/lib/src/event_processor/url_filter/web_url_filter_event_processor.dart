@@ -7,7 +7,7 @@ import '../../utils/regex_utils.dart';
 import 'url_filter_event_processor.dart';
 
 UrlFilterEventProcessor urlFilterEventProcessor(SentryOptions options) =>
-    UrlFilterEventProcessor(options);
+    WebUrlFilterEventProcessor(options);
 
 class WebUrlFilterEventProcessor implements UrlFilterEventProcessor {
   WebUrlFilterEventProcessor(
