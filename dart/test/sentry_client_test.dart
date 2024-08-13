@@ -1384,19 +1384,18 @@ void main() {
     setUp(() {
       fixture = Fixture();
       fixture.options.addEventProcessor(FunctionEventProcessor(
-        (event, hint) => event
-          ..tags!.addAll({'theme': 'material'})
+        (event, hint) => event.copyWith(tags: {'theme': 'material'})
           // ignore: deprecated_member_use_from_same_package
-          ..extra!['host'] = '0.0.0.1'
-          ..modules!.addAll({'core': '1.0'})
-          ..breadcrumbs!.add(Breadcrumb(message: 'processor crumb'))
-          ..fingerprint!.add('process')
-          ..sdk!.addIntegration('testIntegration')
-          ..sdk!.addPackage('test-pkg', '1.0'),
+          ..extra?['host'] = '0.0.0.1'
+          ..modules?.addAll({'core': '1.0'})
+          ..breadcrumbs?.add(Breadcrumb(message: 'processor crumb'))
+          ..fingerprint?.add('process')
+          ..sdk?.addIntegration('testIntegration')
+          ..sdk?.addPackage('test-pkg', '1.0'),
       ));
     });
 
-    test('should execute eventProcessors', () async {
+    test('should execute eventProcessors for event', () async {
       final client = fixture.getSut();
       await client.captureEvent(fakeEvent);
 
@@ -1420,7 +1419,18 @@ void main() {
       expect(event.fingerprint!.contains('process'), true);
     });
 
-    test('should pass hint to eventProcessors', () async {
+    test('should execute eventProcessors for feedback', () async {
+      final client = fixture.getSut();
+      final fakeFeedback = fixture.fakeFeedback();
+      await client.captureFeedback(fakeFeedback);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final event = await eventFromEnvelope(capturedEnvelope);
+
+      expect(event.tags?.containsKey('theme'), true);
+    });
+
+    test('should pass hint to eventProcessors for event', () async {
       final myHint = Hint();
       myHint.set('string', 'hint');
 
@@ -1438,7 +1448,26 @@ void main() {
       expect(executed, true);
     });
 
-    test('should create hint when none was provided', () async {
+    test('should pass hint to eventProcessors for feedback', () async {
+      final myHint = Hint();
+      myHint.set('string', 'hint');
+
+      var executed = false;
+
+      final client =
+          fixture.getSut(eventProcessor: FunctionEventProcessor((event, hint) {
+        expect(myHint, hint);
+        executed = true;
+        return event;
+      }));
+
+      final fakeFeedback = fixture.fakeFeedback();
+      await client.captureFeedback(fakeFeedback, hint: myHint);
+
+      expect(executed, true);
+    });
+
+    test('should create hint when none was provided for event', () async {
       var executed = false;
 
       final client =
@@ -1453,9 +1482,36 @@ void main() {
       expect(executed, true);
     });
 
+    test('should create hint when none was provided for feedback event',
+        () async {
+      var executed = false;
+
+      final client =
+          fixture.getSut(eventProcessor: FunctionEventProcessor((event, hint) {
+        expect(hint, isNotNull);
+        executed = true;
+        return event;
+      }));
+
+      final fakeFeedback = fixture.fakeFeedback();
+      await client.captureFeedback(fakeFeedback);
+
+      expect(executed, true);
+    });
+
     test('event processor drops the event', () async {
       final client = fixture.getSut(eventProcessor: DropAllEventProcessor());
+
       await client.captureEvent(fakeEvent);
+
+      expect((fixture.transport).called(0), true);
+    });
+
+    test('event processor drops the feedback event', () async {
+      final client = fixture.getSut(eventProcessor: DropAllEventProcessor());
+
+      final fakeFeedback = fixture.fakeFeedback();
+      await client.captureFeedback(fakeFeedback);
 
       expect((fixture.transport).called(0), true);
     });
