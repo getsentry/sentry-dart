@@ -1037,21 +1037,30 @@ void main() {
       final client = fixture.getSut(sampleRate: 1.0);
       await client.captureEvent(fakeEvent);
 
-      expect((fixture.transport).called(1), true);
+      expect(fixture.transport.called(1), true);
     });
 
     test('do not capture event, sample rate is 0% disabled', () async {
       final client = fixture.getSut(sampleRate: 0.0);
       await client.captureEvent(fakeEvent);
 
-      expect((fixture.transport).called(0), true);
+      expect(fixture.transport.called(0), true);
     });
 
     test('captures event, sample rate is null, disabled', () async {
       final client = fixture.getSut();
       await client.captureEvent(fakeEvent);
 
-      expect((fixture.transport).called(1), true);
+      expect(fixture.transport.called(1), true);
+    });
+
+    test('capture feedback event, sample rate is 0% disabled', () async {
+      final client = fixture.getSut(sampleRate: 0.0);
+
+      final fakeFeedback = fixture.fakeFeedback();
+      await client.captureFeedback(fakeFeedback);
+
+      expect(fixture.transport.called(1), true);
     });
   });
 

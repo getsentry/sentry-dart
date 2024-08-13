@@ -105,7 +105,7 @@ class SentryClient {
       return _emptySentryId;
     }
 
-    if (_sampleRate()) {
+    if (_sampleRate() && event.type != 'feedback') {
       _options.recorder
           .recordLostEvent(DiscardReason.sampleRate, _getCategory(event));
       _options.logger(

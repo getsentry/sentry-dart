@@ -17,7 +17,7 @@ class MockTransport implements Transport {
   }
 
   bool called(int calls) {
-    return calls == calls;
+    return _calls == calls;
   }
 
   @override
