@@ -5,7 +5,7 @@ import 'package:test/test.dart';
 import '../mocks.dart';
 
 void main() {
-  final associatedEventId = SentryId.newId();
+  final associatedEventId = SentryId.fromId('8a32c0f9be1d34a5efb2c4a10d80de9a');
 
   final feedback = SentryFeedback(
     message: 'fixture-message',
@@ -23,7 +23,7 @@ void main() {
     'name': 'fixture-name',
     'replay_id': 'fixture-replayId',
     'url': 'https://fixture-url.com',
-    'associated_event_id': associatedEventId.toString(),
+    'associated_event_id': '8a32c0f9be1d34a5efb2c4a10d80de9a',
   };
   feedbackJson.addAll(testUnknown);
 
@@ -64,14 +64,13 @@ void main() {
     test('copyWith takes new values', () {
       final data = feedback;
 
-      final newAssociatedEventId = SentryId.newId();
       final copy = data.copyWith(
         message: 'fixture-2-message',
         contactEmail: 'fixture-2-contactEmail',
         name: 'fixture-2-name',
         replayId: 'fixture-2-replayId',
         url: "https://fixture-2-url.com",
-        associatedEventId: newAssociatedEventId,
+        associatedEventId: SentryId.fromId('1d49af08b6e2c437f9052b1ecfd83dca'),
       );
 
       expect(copy.message, 'fixture-2-message');
@@ -79,7 +78,7 @@ void main() {
       expect(copy.name, 'fixture-2-name');
       expect(copy.replayId, 'fixture-2-replayId');
       expect(copy.url, "https://fixture-2-url.com");
-      expect(copy.associatedEventId, newAssociatedEventId);
+      expect(copy.associatedEventId, '1d49af08b6e2c437f9052b1ecfd83dca');
     });
   });
 }

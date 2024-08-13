@@ -6,6 +6,8 @@ void main() {
   final _traceId = SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea');
   final _spanId = SpanId.fromId('976e0cd945864f60');
   final _parentSpanId = SpanId.fromId('c9c9fc3f9d4346df');
+  final _associatedEventId =
+      SentryId.fromId('8a32c0f9be1d34a5efb2c4a10d80de9a');
 
   final _trace = SentryTraceContext(
     traceId: _traceId,
@@ -17,6 +19,15 @@ void main() {
     status: SpanStatus.ok(),
   );
 
+  final _feedback = SentryFeedback(
+    message: 'fixture-message',
+    contactEmail: 'fixture-contactEmail',
+    name: 'fixture-name',
+    replayId: 'fixture-replayId',
+    url: "https://fixture-url.com",
+    associatedEventId: _associatedEventId,
+  );
+
   final _contexts = Contexts(
     device: SentryDevice(batteryLevel: 90.0),
     operatingSystem: SentryOperatingSystem(name: 'name'),
@@ -26,6 +37,7 @@ void main() {
     gpu: SentryGpu(id: 1),
     culture: SentryCulture(locale: 'foo-bar'),
     trace: _trace,
+    feedback: _feedback,
   );
 
   final _contextsJson = <String, dynamic>{
@@ -44,6 +56,14 @@ void main() {
       'description': 'desc',
       'status': 'ok'
     },
+    'feedback': {
+      'message': 'fixture-message',
+      'contact_email': 'fixture-contactEmail',
+      'name': 'fixture-name',
+      'replay_id': 'fixture-replayId',
+      'url': 'https://fixture-url.com',
+      'associated_event_id': '8a32c0f9be1d34a5efb2c4a10d80de9a',
+    }
   };
 
   final _contextsMutlipleRuntimes = Contexts(
@@ -129,6 +149,14 @@ void main() {
         description: 'desc',
         status: SpanStatus.ok(),
       );
+      final feedback = SentryFeedback(
+        message: 'fixture-2-message',
+        contactEmail: 'fixture-2-contactEmail',
+        name: 'fixture-2-name',
+        replayId: 'fixture-2-replayId',
+        url: "https://fixture-2-url.com",
+        associatedEventId: SentryId.fromId('1d49af08b6e2c437f9052b1ecfd83dca'),
+      );
 
       final copy = data.copyWith(
         device: device,
@@ -138,7 +166,8 @@ void main() {
         browser: browser,
         gpu: gpu,
         culture: culture,
-        trace: _trace,
+        trace: trace,
+        feedback: feedback,
       );
 
       expect(device.toJson(), copy.device!.toJson());
@@ -153,6 +182,7 @@ void main() {
       expect(gpu.toJson(), copy.gpu!.toJson());
       expect(trace.toJson(), copy.trace!.toJson());
       expect('value', copy['extra']);
+      expect(feedback.toJson(), copy.feedback!.toJson());
     });
   });
 }

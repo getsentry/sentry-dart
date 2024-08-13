@@ -65,6 +65,9 @@ class Contexts extends MapView<String, dynamic> {
       response: data[SentryResponse.type] != null
           ? SentryResponse.fromJson(Map.from(data[SentryResponse.type]))
           : null,
+      feedback: data[SentryFeedback.type] != null
+          ? SentryFeedback.fromJson(Map.from(data[SentryFeedback.type]))
+          : null,
     );
 
     data.keys
