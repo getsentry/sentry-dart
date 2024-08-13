@@ -447,6 +447,7 @@ class SentryClient {
     final feedbackEvent = SentryEvent(
       type: 'feedback',
       contexts: Contexts(feedback: feedback),
+      level: SentryLevel.info,
     );
 
     return captureEvent(

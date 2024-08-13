@@ -1406,6 +1406,42 @@ void main() {
     });
   });
 
+  group('SentryClient captures feedback', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    test('should capture feedback as event', () async {
+      final client = fixture.getSut();
+
+      final associatedEventId = SentryId.newId();
+      final feedback = SentryFeedback(
+        message: 'fixture-message',
+        contactEmail: 'fixture-contactEmail',
+        name: 'fixture-name',
+        replayId: 'fixture-replayId',
+        url: "https://fixture-url.com",
+        associatedEventId: associatedEventId,
+      );
+      await client.captureFeedback(feedback);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final envelopeItem = capturedEnvelope.items.first;
+      final envelopeEvent = envelopeItem.originalObject as SentryEvent?;
+
+      expect(envelopeItem, isNotNull);
+      expect(envelopeEvent, isNotNull);
+
+      expect(envelopeItem.header.type, 'feedback');
+
+      expect(envelopeEvent?.type, 'feedback');
+      expect(envelopeEvent?.contexts.feedback?.toJson(), feedback.toJson());
+      expect(envelopeEvent?.level, SentryLevel.info);
+    });
+  });
+
   group('SentryClient captures envelope', () {
     late Fixture fixture;
 
