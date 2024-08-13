@@ -82,7 +82,7 @@ jobs:
 
       - name: Test web (JS)
         if: matrix.target == 'web'
-        working-directory: flutter`
+        working-directory: flutter
         run: |
           flutter test --platform chrome --test-randomize-ordering-seed=random --exclude-tags canvasKit
           flutter test --platform chrome --test-randomize-ordering-seed=random --tags canvasKit --web-renderer canvaskit
