@@ -1,3 +1,4 @@
+@internal
 bool isMatchingRegexPattern(String value, List<String> regexPattern,
     {bool caseSensitive = false}) {
   final combinedRegexPattern = regexPattern.join('|');
