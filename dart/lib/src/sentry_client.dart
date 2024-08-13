@@ -162,7 +162,7 @@ class SentryClient {
     }
 
     var viewHierarchy = hint.viewHierarchy;
-    if (viewHierarchy != null) {
+    if (viewHierarchy != null && event.type != 'feedback') {
       attachments.add(viewHierarchy);
     }
 

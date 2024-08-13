@@ -1642,81 +1642,6 @@ void main() {
       expect(envelope.clientReport, clientReport);
     });
 
-    test('captureEvent adds trace context', () async {
-      final client = fixture.getSut();
-
-      final scope = Scope(fixture.options);
-      scope.span =
-          SentrySpan(fixture.tracer, fixture.tracer.context, MockHub());
-
-      await client.captureEvent(fakeEvent, scope: scope);
-
-      final envelope = fixture.transport.envelopes.first;
-      expect(envelope.header.traceContext, isNotNull);
-    });
-
-    test('captureEvent adds attachments from hint', () async {
-      final attachment = SentryAttachment.fromIntList([], "fixture-fileName");
-      final hint = Hint.withAttachment(attachment);
-
-      final sut = fixture.getSut();
-      await sut.captureEvent(fakeEvent, hint: hint);
-
-      final capturedEnvelope = (fixture.transport).envelopes.first;
-      final attachmentItem = IterableUtils.firstWhereOrNull(
-        capturedEnvelope.items,
-        (SentryEnvelopeItem e) => e.header.type == SentryItemType.attachment,
-      );
-      expect(attachmentItem?.header.attachmentType,
-          SentryAttachment.typeAttachmentDefault);
-    });
-
-    test('captureEvent adds screenshot from hint', () async {
-      final client = fixture.getSut();
-      final screenshot =
-          SentryAttachment.fromScreenshotData(Uint8List.fromList([0, 0, 0, 0]));
-      final hint = Hint.withScreenshot(screenshot);
-
-      await client.captureEvent(fakeEvent, hint: hint);
-
-      final capturedEnvelope = (fixture.transport).envelopes.first;
-      final attachmentItem = capturedEnvelope.items.firstWhereOrNull(
-          (element) => element.header.type == SentryItemType.attachment);
-      expect(attachmentItem?.header.fileName, 'screenshot.png');
-    });
-
-    test('captureEvent adds viewHierarchy from hint', () async {
-      final client = fixture.getSut();
-      final view = SentryViewHierarchy('flutter');
-      final attachment = SentryAttachment.fromViewHierarchy(view);
-      final hint = Hint.withViewHierarchy(attachment);
-
-      await client.captureEvent(fakeEvent, hint: hint);
-
-      final capturedEnvelope = (fixture.transport).envelopes.first;
-      final attachmentItem = capturedEnvelope.items.firstWhereOrNull(
-          (element) => element.header.type == SentryItemType.attachment);
-
-      expect(attachmentItem?.header.attachmentType,
-          SentryAttachment.typeViewHierarchy);
-    });
-
-    test('captureTransaction adds trace context', () async {
-      final client = fixture.getSut();
-
-      final tr = SentryTransaction(fixture.tracer);
-
-      final context = SentryTraceContextHeader.fromJson(<String, dynamic>{
-        'trace_id': '${tr.eventId}',
-        'public_key': '123',
-      });
-
-      await client.captureTransaction(tr, traceContext: context);
-
-      final envelope = fixture.transport.envelopes.first;
-      expect(envelope.header.traceContext, isNotNull);
-    });
-
     test('captureUserFeedback calls flush', () async {
       final client = fixture.getSut(eventProcessor: DropAllEventProcessor());
 
@@ -1927,6 +1852,158 @@ void main() {
       fixture.getSut();
 
       expect(fixture.options.transport is SpotlightHttpTransport, true);
+    });
+  });
+
+  group('trace context', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    test('captureEvent adds trace context', () async {
+      final client = fixture.getSut();
+
+      final scope = Scope(fixture.options);
+      scope.span =
+          SentrySpan(fixture.tracer, fixture.tracer.context, MockHub());
+
+      await client.captureEvent(fakeEvent, scope: scope);
+
+      final envelope = fixture.transport.envelopes.first;
+      expect(envelope.header.traceContext, isNotNull);
+    });
+
+    test('captureTransaction adds trace context', () async {
+      final client = fixture.getSut();
+
+      final tr = SentryTransaction(fixture.tracer);
+
+      final context = SentryTraceContextHeader.fromJson(<String, dynamic>{
+        'trace_id': '${tr.eventId}',
+        'public_key': '123',
+      });
+
+      await client.captureTransaction(tr, traceContext: context);
+
+      final envelope = fixture.transport.envelopes.first;
+      expect(envelope.header.traceContext, isNotNull);
+    });
+
+    test('captureFeedback adds trace context', () async {
+      final client = fixture.getSut();
+
+      final scope = Scope(fixture.options);
+      scope.span =
+          SentrySpan(fixture.tracer, fixture.tracer.context, MockHub());
+
+      await client.captureFeedback(fixture.fakeFeedback(), scope: scope);
+
+      final envelope = fixture.transport.envelopes.first;
+      expect(envelope.header.traceContext, isNotNull);
+    });
+  });
+
+  group('Hint', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    test('captureEvent adds attachments from hint', () async {
+      final attachment = SentryAttachment.fromIntList([], "fixture-fileName");
+      final hint = Hint.withAttachment(attachment);
+
+      final sut = fixture.getSut();
+      await sut.captureEvent(fakeEvent, hint: hint);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final attachmentItem = IterableUtils.firstWhereOrNull(
+        capturedEnvelope.items,
+        (SentryEnvelopeItem e) => e.header.type == SentryItemType.attachment,
+      );
+      expect(attachmentItem?.header.attachmentType,
+          SentryAttachment.typeAttachmentDefault);
+    });
+
+    test('captureFeedback adds attachments from hint', () async {
+      final attachment = SentryAttachment.fromIntList([], "fixture-fileName");
+      final hint = Hint.withAttachment(attachment);
+
+      final sut = fixture.getSut();
+      final fakeFeedback = fixture.fakeFeedback();
+      await sut.captureFeedback(fakeFeedback, hint: hint);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final attachmentItem = IterableUtils.firstWhereOrNull(
+        capturedEnvelope.items,
+        (SentryEnvelopeItem e) => e.header.type == SentryItemType.attachment,
+      );
+      expect(attachmentItem?.header.attachmentType,
+          SentryAttachment.typeAttachmentDefault);
+    });
+
+    test('captureEvent adds screenshot from hint', () async {
+      final client = fixture.getSut();
+      final screenshot =
+          SentryAttachment.fromScreenshotData(Uint8List.fromList([0, 0, 0, 0]));
+      final hint = Hint.withScreenshot(screenshot);
+
+      await client.captureEvent(fakeEvent, hint: hint);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final attachmentItem = capturedEnvelope.items.firstWhereOrNull(
+          (element) => element.header.type == SentryItemType.attachment);
+      expect(attachmentItem?.header.fileName, 'screenshot.png');
+    });
+
+    test('captureFeedback adds screenshot from hint', () async {
+      final client = fixture.getSut();
+      final screenshot =
+          SentryAttachment.fromScreenshotData(Uint8List.fromList([0, 0, 0, 0]));
+      final hint = Hint.withScreenshot(screenshot);
+
+      final fakeFeedback = fixture.fakeFeedback();
+      await client.captureFeedback(fakeFeedback, hint: hint);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final attachmentItem = capturedEnvelope.items.firstWhereOrNull(
+          (element) => element.header.type == SentryItemType.attachment);
+      expect(attachmentItem?.header.fileName, 'screenshot.png');
+    });
+
+    test('captureEvent adds viewHierarchy from hint', () async {
+      final client = fixture.getSut();
+      final view = SentryViewHierarchy('flutter');
+      final attachment = SentryAttachment.fromViewHierarchy(view);
+      final hint = Hint.withViewHierarchy(attachment);
+
+      await client.captureEvent(fakeEvent, hint: hint);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final attachmentItem = capturedEnvelope.items.firstWhereOrNull(
+          (element) => element.header.type == SentryItemType.attachment);
+
+      expect(attachmentItem?.header.attachmentType,
+          SentryAttachment.typeViewHierarchy);
+    });
+
+    test('captureFeedback does not add viewHierarchy from hint', () async {
+      final client = fixture.getSut();
+      final view = SentryViewHierarchy('flutter');
+      final attachment = SentryAttachment.fromViewHierarchy(view);
+      final hint = Hint.withViewHierarchy(attachment);
+
+      final fakeFeedback = fixture.fakeFeedback();
+      await client.captureFeedback(fakeFeedback, hint: hint);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final attachmentItem = capturedEnvelope.items.firstWhereOrNull(
+          (element) => element.header.type == SentryItemType.attachment);
+
+      expect(attachmentItem, isNull);
     });
   });
 
