@@ -77,21 +77,27 @@ jobs:
       - run: flutter upgrade
 
       - name: Pub Get
-        run: |
-          cd flutter
-          flutter pub get
+        working-directory: flutter
+        run: flutter pub get
 
-      - name: Test chrome
+      - name: Test web (JS)
         if: matrix.target == 'web'
+        working-directory: flutter`
         run: |
-          cd flutter
           flutter test --platform chrome --test-randomize-ordering-seed=random --exclude-tags canvasKit
           flutter test --platform chrome --test-randomize-ordering-seed=random --tags canvasKit --web-renderer canvaskit
 
+      - name: Test web (WASM)
+        if: matrix.target == 'web'
+        working-directory: flutter
+        run: |
+          flutter test --platform chrome --wasm --test-randomize-ordering-seed=random --exclude-tags canvasKit
+          flutter test --platform chrome --wasm --test-randomize-ordering-seed=random --tags canvasKit --web-renderer canvaskit
+
       - name: Test VM with coverage
         if: matrix.target == 'linux' || matrix.target == 'macos' || matrix.target == 'windows'
+        working-directory: flutter
         run: |
-          cd flutter
           flutter test --coverage --test-randomize-ordering-seed=random
           dart run remove_from_coverage -f coverage/lcov.info -r 'binding.dart'
 
