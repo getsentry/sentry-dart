@@ -1193,6 +1193,61 @@ void main() {
     });
   });
 
+  group('SentryClient before send feedback', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    test('before send feedback drops event', () async {
+      final client = fixture.getSut(
+          beforeSendFeedback: beforeSendFeedbackCallbackDropEvent);
+      final fakeFeedback = fixture.fakeFeedback();
+      await client.captureFeedback(fakeFeedback);
+
+      expect((fixture.transport).called(0), true);
+    });
+
+    test('async before send feedback drops event', () async {
+      final client = fixture.getSut(
+          beforeSendFeedback: asyncBeforeSendFeedbackCallbackDropEvent);
+      final fakeFeedback = fixture.fakeFeedback();
+      await client.captureFeedback(fakeFeedback);
+
+      expect((fixture.transport).called(0), true);
+    });
+
+    test(
+        'before send feedback returns an feedback event and feedback event is captured',
+        () async {
+      final client =
+          fixture.getSut(beforeSendFeedback: beforeSendFeedbackCallback);
+      final fakeFeedback = fixture.fakeFeedback();
+      await client.captureFeedback(fakeFeedback);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final feedbackEvent = await eventFromEnvelope(capturedEnvelope);
+
+      expect(feedbackEvent.tags!.containsKey('theme'), true);
+    });
+
+    test('thrown error is handled', () async {
+      final exception = Exception("before send exception");
+      final beforeSendFeedbackCallback = (SentryEvent event, Hint hint) {
+        throw exception;
+      };
+
+      final client = fixture.getSut(
+          beforeSendFeedback: beforeSendFeedbackCallback, debug: true);
+      final fakeFeedback = fixture.fakeFeedback();
+      await client.captureFeedback(fakeFeedback);
+
+      expect(fixture.loggedException, exception);
+      expect(fixture.loggedLevel, SentryLevel.error);
+    });
+  });
+
   group('SentryClient before send transaction', () {
     late Fixture fixture;
 
@@ -1416,15 +1471,7 @@ void main() {
     test('should capture feedback as event', () async {
       final client = fixture.getSut();
 
-      final associatedEventId = SentryId.newId();
-      final feedback = SentryFeedback(
-        message: 'fixture-message',
-        contactEmail: 'fixture-contactEmail',
-        name: 'fixture-name',
-        replayId: 'fixture-replayId',
-        url: "https://fixture-url.com",
-        associatedEventId: associatedEventId,
-      );
+      final feedback = fixture.fakeFeedback();
       await client.captureFeedback(feedback);
 
       final capturedEnvelope = (fixture.transport).envelopes.first;
@@ -1867,6 +1914,20 @@ SentryEvent? beforeSendCallbackDropEvent(
 ) =>
     null;
 
+SentryTransaction? beforeSendFeedbackCallbackDropEvent(
+  SentryEvent feedbackEvent,
+  Hint hint,
+) =>
+    null;
+
+Future<SentryEvent?> asyncBeforeSendFeedbackCallbackDropEvent(
+  SentryEvent feedbackEvent,
+  Hint hint,
+) async {
+  await Future.delayed(Duration(milliseconds: 200));
+  return null;
+}
+
 SentryTransaction? beforeSendTransactionCallbackDropEvent(
   SentryTransaction event,
 ) =>
@@ -1884,6 +1945,10 @@ Future<SentryTransaction?> asyncBeforeSendTransactionCallbackDropEvent(
     SentryEvent event) async {
   await Future.delayed(Duration(milliseconds: 200));
   return null;
+}
+
+SentryEvent? beforeSendFeedbackCallback(SentryEvent event, Hint hint) {
+  return event.copyWith(tags: {'theme': 'material'});
 }
 
 SentryEvent? beforeSendCallback(SentryEvent event, Hint hint) {
@@ -1930,6 +1995,7 @@ class Fixture {
     double? sampleRate,
     BeforeSendCallback? beforeSend,
     BeforeSendTransactionCallback? beforeSendTransaction,
+    BeforeSendFeedbackCallback? beforeSendFeedback,
     EventProcessor? eventProcessor,
     bool provideMockRecorder = true,
     bool debug = false,
@@ -1949,6 +2015,7 @@ class Fixture {
     options.sampleRate = sampleRate;
     options.beforeSend = beforeSend;
     options.beforeSendTransaction = beforeSendTransaction;
+    options.beforeSendFeedback = beforeSendFeedback;
     options.debug = debug;
     options.logger = mockLogger;
 
@@ -1973,6 +2040,25 @@ class Fixture {
       tracer,
       sdk: SdkVersion(name: 'sdk1', version: '1.0.0'),
       breadcrumbs: [],
+    );
+  }
+
+  SentryEvent fakeFeedbackEvent() {
+    return SentryEvent(
+      type: 'feedback',
+      contexts: Contexts(feedback: fakeFeedback()),
+      level: SentryLevel.info,
+    );
+  }
+
+  SentryFeedback fakeFeedback() {
+    return SentryFeedback(
+      message: 'fixture-message',
+      contactEmail: 'fixture-contactEmail',
+      name: 'fixture-name',
+      replayId: 'fixture-replayId',
+      url: "https://fixture-url.com",
+      associatedEventId: SentryId.fromId('1d49af08b6e2c437f9052b1ecfd83dca'),
     );
   }
 

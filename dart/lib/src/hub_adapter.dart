@@ -199,6 +199,14 @@ class HubAdapter implements Hub {
       Sentry.currentHub.metricsAggregator;
 
   @override
-  Future<SentryId> captureFeedback(SentryFeedback feedback) =>
-      Sentry.currentHub.captureFeedback(feedback);
+  Future<SentryId> captureFeedback(
+    SentryFeedback feedback, {
+    Hint? hint,
+    ScopeCallback? withScope,
+  }) =>
+      Sentry.currentHub.captureFeedback(
+        feedback,
+        hint: hint,
+        withScope: withScope,
+      );
 }

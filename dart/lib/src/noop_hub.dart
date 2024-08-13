@@ -100,7 +100,11 @@ class NoOpHub implements Hub {
   Future<void> captureUserFeedback(SentryUserFeedback userFeedback) async {}
 
   @override
-  Future<SentryId> captureFeedback(SentryFeedback feedback) async =>
+  Future<SentryId> captureFeedback(
+    SentryFeedback feedback, {
+    Hint? hint,
+    ScopeCallback? withScope,
+  }) async =>
       SentryId.empty();
 
   @override

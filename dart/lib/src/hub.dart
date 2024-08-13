@@ -274,7 +274,11 @@ class Hub {
     }
   }
 
-  Future<SentryId> captureFeedback(SentryFeedback feedback) async {
+  Future<SentryId> captureFeedback(
+    SentryFeedback feedback, {
+    Hint? hint,
+    ScopeCallback? withScope,
+  }) async {
     var sentryId = SentryId.empty();
 
     if (!_isEnabled) {
@@ -284,10 +288,22 @@ class Hub {
       );
       return sentryId;
     }
-    try {
-      final item = _peek();
 
-      sentryId = await item.client.captureFeedback(feedback);
+    final item = _peek();
+    late Scope scope;
+    final s = _cloneAndRunWithScope(item.scope, withScope);
+    if (s is Future<Scope>) {
+      scope = await s;
+    } else {
+      scope = s;
+    }
+
+    try {
+      sentryId = await item.client.captureFeedback(
+        feedback,
+        hint: hint,
+        scope: scope,
+      );
     } catch (exception, stacktrace) {
       _options.logger(
         SentryLevel.error,
