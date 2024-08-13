@@ -1,7 +1,7 @@
-import '../../../sentry.dart';
+import '../../../sentry_flutter.dart';
 import 'url_filter_event_processor.dart';
 
-UrlFilterEventProcessor urlFilterEventProcessor(SentryOptions _) =>
+UrlFilterEventProcessor urlFilterEventProcessor(SentryFlutterOptions _) =>
     IoUrlFilterEventProcessor();
 
 class IoUrlFilterEventProcessor implements UrlFilterEventProcessor {
