@@ -192,7 +192,7 @@ class SentryOptions {
   List<String> allowUrls = [];
 
   /// (Web only) Events occurring on these Urls will be ignored and are not sent to sentry.
-  /// If an null or an empty list is used, the SDK will send all errors.
+  /// If an empty list is used, the SDK will send all errors.
   /// In combination with `allowUrls` you can block subdomains of the domains listed in `allowUrls`.
   /// To use regex add the `^` and the `$` to the string.
   ///
