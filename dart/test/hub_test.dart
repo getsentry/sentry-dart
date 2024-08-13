@@ -54,6 +54,24 @@ void main() {
       },
     );
 
+    test(
+      'should capture feedback with the default scope',
+      () async {
+        final hub = fixture.getSut();
+        final feedback = SentryFeedback(message: 'message');
+        await hub.captureFeedback(feedback);
+
+        var scope = fixture.client.captureFeedbackCalls.first.scope;
+
+        expect(
+          fixture.client.captureFeedbackCalls.first.feedback,
+          feedback,
+        );
+
+        expect(scopeEquals(scope, Scope(fixture.options)), true);
+      },
+    );
+
     test('should capture exception', () async {
       final hub = fixture.getSut();
       await hub.captureException(fakeException);
@@ -555,6 +573,22 @@ void main() {
       expect(fixture.loggedLevel, SentryLevel.error);
     });
 
+    test('captureFeedback should handle thrown error in scope callback',
+        () async {
+      final hub = fixture.getSut(debug: true);
+      final scopeCallbackException = Exception('error in scope callback');
+
+      ScopeCallback scopeCallback = (Scope scope) {
+        throw scopeCallbackException;
+      };
+
+      final feedback = SentryFeedback(message: 'message');
+      await hub.captureFeedback(feedback, withScope: scopeCallback);
+
+      expect(fixture.loggedException, scopeCallbackException);
+      expect(fixture.loggedLevel, SentryLevel.error);
+    });
+
     test('captureException should handle thrown error in scope callback',
         () async {
       final hub = fixture.getSut(debug: true);
@@ -637,6 +671,22 @@ void main() {
       await hub.captureEvent(SentryEvent());
 
       var calls = fixture.client.captureEventCalls;
+      expect(calls.length, 3);
+      expect(calls[0].scope?.user, isNull);
+      expect(calls[1].scope?.user?.id, 'foo bar');
+      expect(calls[2].scope?.user, isNull);
+    });
+
+    test('captureFeedback should create a new scope', () async {
+      final hub = fixture.getSut();
+      await hub.captureFeedback(SentryFeedback(message: 'message'));
+      await hub.captureFeedback(SentryFeedback(message: 'message'),
+          withScope: (scope) async {
+        await scope.setUser(SentryUser(id: 'foo bar'));
+      });
+      await hub.captureFeedback(SentryFeedback(message: 'message'));
+
+      var calls = fixture.client.captureFeedbackCalls;
       expect(calls.length, 3);
       expect(calls[0].scope?.user, isNull);
       expect(calls[1].scope?.user?.id, 'foo bar');
