@@ -185,7 +185,7 @@ class SentryOptions {
   double? sampleRate;
 
   /// (Web only) Events only occurring on these Urls will be handled and sent to sentry.
-  /// If an null or an empty list is used, the SDK will send all errors.
+  /// If an empty list is used, the SDK will send all errors.
   /// To use regex add the `^` and the `$` to the string.
   ///
   /// If used on a platform other than Web, this setting will be ignored.
