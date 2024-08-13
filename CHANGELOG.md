@@ -10,6 +10,7 @@
 ```dart
 SentryNavigatorObserver(ignoreRoutes: ["/ignoreThisRoute"]),
 ```
+- Support `captureFeedback` ([#2230](https://github.com/getsentry/sentry-dart/pull/2230))
 
 ### Dependencies
 
