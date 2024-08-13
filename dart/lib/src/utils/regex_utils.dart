@@ -1,3 +1,5 @@
+import 'package:meta/meta.dart';
+
 @internal
 bool isMatchingRegexPattern(String value, List<String> regexPattern,
     {bool caseSensitive = false}) {

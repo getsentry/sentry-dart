@@ -22,15 +22,16 @@ class WebUrlFilterEventProcessor implements UrlFilterEventProcessor {
   SentryEvent? apply(SentryEvent event, Hint hint) {
     final url = event.request?.url ?? _window.location.toString();
 
-    if (isMatchingRegexPattern(url, _options.allowUrls)) {
-      if (_options.denyUrls.isNotEmpty &&
-          isMatchingRegexPattern(url, _options.denyUrls)) {
-        return null;
-      } else {
-        return event;
-      }
-    } else {
+    if (_options.allowUrls.isNotEmpty &&
+        !isMatchingRegexPattern(url, _options.allowUrls)) {
       return null;
     }
+
+    if (_options.denyUrls.isNotEmpty &&
+        isMatchingRegexPattern(url, _options.denyUrls)) {
+      return null;
+    }
+
+    return event;
   }
 }
