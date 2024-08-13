@@ -2,10 +2,14 @@
 // ignore: depend_on_referenced_packages
 import 'package:web/web.dart' as web show window, Window;
 
-import '../../sentry.dart';
-import '../utils/regex_utils.dart';
+import '../../../sentry.dart';
+import '../../utils/regex_utils.dart';
+import 'url_filter_event_processor.dart';
 
-class WebUrlFilterEventProcessor implements EventProcessor {
+UrlFilterEventProcessor urlFilterEventProcessor(SentryOptions options) =>
+    UrlFilterEventProcessor(options);
+
+class WebUrlFilterEventProcessor implements UrlFilterEventProcessor {
   WebUrlFilterEventProcessor(
     this._options,
   );
@@ -16,9 +20,6 @@ class WebUrlFilterEventProcessor implements EventProcessor {
 
   @override
   SentryEvent? apply(SentryEvent event, Hint hint) {
-    if (!_options.platformChecker.isWeb) {
-      return event;
-    }
     final url = event.request?.url ?? _window.location.toString();
 
     if (isMatchingRegexPattern(url, _options.allowUrls)) {

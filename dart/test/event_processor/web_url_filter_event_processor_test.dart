@@ -3,7 +3,7 @@ library dart_test;
 
 import 'package:sentry/sentry.dart';
 import 'package:sentry/sentry_io.dart';
-import 'package:sentry/src/event_processor/web_url_filter_event_processor.dart';
+import 'package:sentry/src/event_processor/url_filter/web_url_filter_event_processor.dart';
 import 'package:test/test.dart';
 
 import '../mocks.dart';

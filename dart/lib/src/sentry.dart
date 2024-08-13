@@ -8,7 +8,7 @@ import 'run_zoned_guarded_integration.dart';
 import 'event_processor/enricher/enricher_event_processor.dart';
 import 'environment/environment_variables.dart';
 import 'event_processor/deduplication_event_processor.dart';
-import 'event_processor/web_url_filter_event_processor.dart';
+import 'event_processor/url_filter/url_filter_event_processor.dart';
 import 'hint.dart';
 import 'event_processor/exception/exception_event_processor.dart';
 import 'hub.dart';
@@ -87,7 +87,7 @@ class Sentry {
     options.addEventProcessor(EnricherEventProcessor(options));
     options.addEventProcessor(ExceptionEventProcessor(options));
     options.addEventProcessor(DeduplicationEventProcessor(options));
-    options.addEventProcessor(WebUrlFilterEventProcessor(options));
+    options.addEventProcessor(UrlFilterEventProcessor(options));
 
     options.prependExceptionTypeIdentifier(DartExceptionTypeIdentifier());
   }
