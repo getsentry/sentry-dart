@@ -1,5 +1,22 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Add `ignoreRoutes` parameter to `SentryNavigatorObserver`. ([#2218](https://github.com/getsentry/sentry-dart/pull/2218))
+    - This will ignore the Routes and prevent the Route from being pushed to the Sentry server.
+    - Ignored routes will also create no TTID and TTFD spans.
+```dart
+SentryNavigatorObserver(ignoreRoutes: ["/ignoreThisRoute"]),
+```
+
+### Dependencies
+
+- Bump Android SDK from v7.13.0 to v7.14.0 ([#2228](https://github.com/getsentry/sentry-dart/pull/2228))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#7140)
+  - [diff](https://github.com/getsentry/sentry-java/compare/7.13.0...7.14.0)
+
 ## 8.7.0
 
 ### Features
