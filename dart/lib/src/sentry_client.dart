@@ -440,10 +440,10 @@ class SentryClient {
 
   /// Reports the [SentryFeedback] and to Sentry.io.
   Future<SentryId> captureFeedback(
-      SentryFeedback feedback, {
-        Scope? scope,
-        Hint? hint,
-      }) {
+    SentryFeedback feedback, {
+    Scope? scope,
+    Hint? hint,
+  }) {
     final feedbackEvent = SentryEvent(
       type: 'feedback',
       contexts: Contexts(feedback: feedback),

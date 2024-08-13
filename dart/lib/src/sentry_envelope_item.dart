@@ -65,13 +65,13 @@ class SentryEnvelopeItem {
         _CachedItem(() async => utf8JsonEncoder.convert(event.toJson()));
 
     return SentryEnvelopeItem(
-        SentryEnvelopeItemHeader(
-          event.type ?? SentryItemType.event,
-          cachedItem.getDataLength,
-          contentType: 'application/json',
-        ),
-        cachedItem.getData,
-        originalObject: event,
+      SentryEnvelopeItemHeader(
+        event.type ?? SentryItemType.event,
+        cachedItem.getDataLength,
+        contentType: 'application/json',
+      ),
+      cachedItem.getData,
+      originalObject: event,
     );
   }
 

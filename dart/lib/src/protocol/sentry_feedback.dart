@@ -39,9 +39,8 @@ class SentryFeedback {
       name: json['name'],
       replayId: json['replay_id'],
       url: json['url'],
-      associatedEventId: associatedEventId != null
-          ? SentryId.fromId(associatedEventId)
-          : null,
+      associatedEventId:
+          associatedEventId != null ? SentryId.fromId(associatedEventId) : null,
       unknown: json.notAccessed(),
     );
   }
@@ -54,7 +53,8 @@ class SentryFeedback {
       if (name != null) 'name': name,
       if (replayId != null) 'replay_id': replayId,
       if (url != null) 'url': url,
-      if (associatedEventId != null) 'associated_event_id': associatedEventId,
+      if (associatedEventId != null)
+        'associated_event_id': associatedEventId.toString(),
     };
   }
 

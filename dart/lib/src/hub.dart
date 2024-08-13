@@ -7,7 +7,6 @@ import 'metrics/metrics_aggregator.dart';
 import 'metrics/metrics_api.dart';
 import 'profiling.dart';
 import 'propagation_context.dart';
-import 'protocol/sentry_feedback.dart';
 import 'transport/data_category.dart';
 
 import '../sentry.dart';
