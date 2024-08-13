@@ -1,5 +1,20 @@
 # Changelog
 
+## Unreleased
+
+- Support allowUrls and denyUrls for Flutter Web ([#2227](https://github.com/getsentry/sentry-dart/pull/2227))
+  ```dart
+  await SentryFlutter.init(
+    (options) {
+      options.dsn = 'https://examplePublicKey@o0.ingest.sentry.io/0';
+      options.allowUrls = ["^https://sentry.com.*\$", "my-custom-domain"];
+      options.denyUrls = ["^.*ends-with-this\$", "denied-url"];
+      ...
+    },
+    appRunner: () => runApp(MyApp()),
+  );
+  ```
+
 ## 8.7.0
 
 ### Features
