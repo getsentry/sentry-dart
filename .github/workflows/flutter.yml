@@ -29,6 +29,7 @@ jobs:
     defaults:
       run:
         shell: bash
+        working-directory: flutter
     strategy:
       fail-fast: false
       matrix:
@@ -77,26 +78,22 @@ jobs:
       - run: flutter upgrade
 
       - name: Pub Get
-        working-directory: flutter
         run: flutter pub get
 
       - name: Test web (JS)
         if: matrix.target == 'web'
-        working-directory: flutter
         run: |
           flutter test --platform chrome --test-randomize-ordering-seed=random --exclude-tags canvasKit
           flutter test --platform chrome --test-randomize-ordering-seed=random --tags canvasKit --web-renderer canvaskit
 
       - name: Test web (WASM)
         if: matrix.target == 'web'
-        working-directory: flutter
         run: |
           flutter test --platform chrome --wasm --test-randomize-ordering-seed=random --exclude-tags canvasKit
           flutter test --platform chrome --wasm --test-randomize-ordering-seed=random --tags canvasKit --web-renderer canvaskit
 
       - name: Test VM with coverage
         if: matrix.target == 'linux' || matrix.target == 'macos' || matrix.target == 'windows'
-        working-directory: flutter
         run: |
           flutter test --coverage --test-randomize-ordering-seed=random
           dart run remove_from_coverage -f coverage/lcov.info -r 'binding.dart'
@@ -117,11 +114,11 @@ jobs:
           exclude: 'lib/src/native/cocoa/binding.dart'
 
       - name: Build ${{ matrix.target }}
+        working-directory: flutter/example
         run: |
           flutter config --enable-windows-desktop
           flutter config --enable-macos-desktop
           flutter config --enable-linux-desktop
-          cd flutter/example
           TARGET=${{ matrix.target }}
           flutter pub get
           case $TARGET in
