@@ -1,6 +1,7 @@
 import 'dart:collection';
 
 import '../protocol.dart';
+import 'sentry_feedback.dart';
 
 /// The context interfaces provide additional context data.
 ///
@@ -19,6 +20,7 @@ class Contexts extends MapView<String, dynamic> {
     SentryCulture? culture,
     SentryTraceContext? trace,
     SentryResponse? response,
+    SentryFeedback? feedback,
   }) : super({
           SentryDevice.type: device,
           SentryOperatingSystem.type: operatingSystem,
@@ -29,6 +31,7 @@ class Contexts extends MapView<String, dynamic> {
           SentryCulture.type: culture,
           SentryTraceContext.type: trace,
           SentryResponse.type: response,
+          SentryFeedback.type: feedback,
         });
 
   /// Deserializes [Contexts] from JSON [Map].
@@ -136,6 +139,11 @@ class Contexts extends MapView<String, dynamic> {
 
   set response(SentryResponse? value) => this[SentryResponse.type] = value;
 
+  /// Feedback context for a FeedbackEvent.
+  SentryFeedback? get feedback => this[SentryFeedback.type];
+
+  set feedback(SentryFeedback? value) => this[SentryFeedback.type] = value;
+
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
@@ -198,6 +206,13 @@ class Contexts extends MapView<String, dynamic> {
           }
           break;
 
+        case SentryFeedback.type:
+          final feedbackMap = feedback?.toJson();
+          if (feedbackMap?.isNotEmpty ?? false) {
+            json[SentryFeedback.type] = feedbackMap;
+          }
+          break;
+
         case SentryRuntime.listType:
           if (runtimes.length == 1) {
             final runtime = runtimes[0];
@@ -249,6 +264,7 @@ class Contexts extends MapView<String, dynamic> {
       trace: trace?.clone(),
       response: response?.clone(),
       runtimes: runtimes.map((runtime) => runtime.clone()).toList(),
+      feedback: feedback?.clone(),
     )..addEntries(
         entries.where((element) => !_defaultFields.contains(element.key)),
       );
@@ -266,6 +282,7 @@ class Contexts extends MapView<String, dynamic> {
     SentryGpu? gpu,
     SentryTraceContext? trace,
     SentryResponse? response,
+    SentryFeedback? feedback,
   }) =>
       Contexts(
         device: device ?? this.device,
@@ -277,6 +294,7 @@ class Contexts extends MapView<String, dynamic> {
         culture: culture ?? this.culture,
         trace: trace ?? this.trace,
         response: response ?? this.response,
+        feedback: feedback ?? this.feedback,
       )..addEntries(
           entries.where((element) => !_defaultFields.contains(element.key)),
         );
@@ -292,5 +310,6 @@ class Contexts extends MapView<String, dynamic> {
     SentryCulture.type,
     SentryTraceContext.type,
     SentryResponse.type,
+    SentryFeedback.type,
   ];
 }

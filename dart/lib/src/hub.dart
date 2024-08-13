@@ -7,6 +7,7 @@ import 'metrics/metrics_aggregator.dart';
 import 'metrics/metrics_api.dart';
 import 'profiling.dart';
 import 'propagation_context.dart';
+import 'protocol/sentry_feedback.dart';
 import 'transport/data_category.dart';
 
 import '../sentry.dart';
@@ -272,6 +273,32 @@ class Hub {
         stackTrace: stacktrace,
       );
     }
+  }
+
+  Future<SentryId> captureFeedback(SentryFeedback feedback) async {
+    var sentryId = SentryId.empty();
+
+    if (!_isEnabled) {
+      _options.logger(
+        SentryLevel.warning,
+        "Instance is disabled and this 'captureFeedback' call is a no-op.",
+      );
+      return sentryId;
+    }
+    try {
+      final item = _peek();
+
+      sentryId = await item.client.captureFeedback(feedback);
+    } catch (exception, stacktrace) {
+      _options.logger(
+        SentryLevel.error,
+        'Error while capturing user feedback',
+        exception: exception,
+        stackTrace: stacktrace,
+      );
+    }
+
+    return sentryId;
   }
 
   FutureOr<Scope> _cloneAndRunWithScope(

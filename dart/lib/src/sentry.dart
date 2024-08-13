@@ -4,6 +4,7 @@ import 'package:meta/meta.dart';
 
 import 'dart_exception_type_identifier.dart';
 import 'metrics/metrics_api.dart';
+import 'protocol/sentry_feedback.dart';
 import 'run_zoned_guarded_integration.dart';
 import 'event_processor/enricher/enricher_event_processor.dart';
 import 'environment/environment_variables.dart';
@@ -218,6 +219,9 @@ class Sentry {
   /// First capture an event and use the [SentryId] to create a [SentryUserFeedback]
   static Future<void> captureUserFeedback(SentryUserFeedback userFeedback) =>
       _hub.captureUserFeedback(userFeedback);
+
+  static Future<void> captureFeedback(SentryFeedback feedback) =>
+      _hub.captureFeedback(feedback);
 
   /// Close the client SDK
   static Future<void> close() async {

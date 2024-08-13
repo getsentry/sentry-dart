@@ -66,12 +66,13 @@ class SentryEnvelopeItem {
 
     return SentryEnvelopeItem(
         SentryEnvelopeItemHeader(
-          SentryItemType.event,
+          event.type ?? SentryItemType.event,
           cachedItem.getDataLength,
           contentType: 'application/json',
         ),
         cachedItem.getData,
-        originalObject: event);
+        originalObject: event,
+    );
   }
 
   /// Create a [SentryEnvelopeItem] which holds the [ClientReport] data.

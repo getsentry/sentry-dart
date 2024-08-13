@@ -9,6 +9,7 @@ import 'metrics/metrics_aggregator.dart';
 import 'metrics/metrics_api.dart';
 import 'profiling.dart';
 import 'protocol.dart';
+import 'protocol/sentry_feedback.dart';
 import 'scope.dart';
 import 'sentry.dart';
 import 'sentry_client.dart';
@@ -196,4 +197,8 @@ class HubAdapter implements Hub {
   @override
   MetricsAggregator? get metricsAggregator =>
       Sentry.currentHub.metricsAggregator;
+
+  @override
+  Future<SentryId> captureFeedback(SentryFeedback feedback) =>
+      Sentry.currentHub.captureFeedback(feedback);
 }

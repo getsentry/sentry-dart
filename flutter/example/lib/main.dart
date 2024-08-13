@@ -522,6 +522,21 @@ class MainScaffold extends StatelessWidget {
               buttonTitle: 'Show UserFeedback Dialog without event',
             ),
             TooltipButton(
+              onPressed: () async {
+                final associatedEventId = await Sentry.captureMessage('Associated Event');
+                await Sentry.captureFeedback(
+                    SentryFeedback(
+                      message: 'message',
+                      contactEmail: 'john.appleseed@apple.com',
+                      name: 'John Appleseed',
+                      associatedEventId: associatedEventId,
+                    ),
+                );
+              },
+              text: '',
+              buttonTitle: 'Capture Feedback',
+            ),
+            TooltipButton(
               onPressed: () {
                 final log = Logger('Logging');
                 log.info('My Logging test');

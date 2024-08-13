@@ -10,6 +10,7 @@ import 'hint.dart';
 import 'metrics/metric.dart';
 import 'metrics/metrics_aggregator.dart';
 import 'protocol.dart';
+import 'protocol/sentry_feedback.dart';
 import 'scope.dart';
 import 'sentry_attachment/sentry_attachment.dart';
 import 'sentry_baggage.dart';
@@ -210,6 +211,10 @@ class SentryClient {
     );
 
     if (event is SentryTransaction) {
+      return event;
+    }
+
+    if (event.type == 'feedback') {
       return event;
     }
 
@@ -433,6 +438,24 @@ class SentryClient {
     return _attachClientReportsAndSend(envelope);
   }
 
+  /// Reports the [SentryFeedback] and to Sentry.io.
+  Future<SentryId> captureFeedback(
+      SentryFeedback feedback, {
+        Scope? scope,
+        Hint? hint,
+      }) {
+    final feedbackEvent = SentryEvent(
+      type: 'feedback',
+      contexts: Contexts(feedback: feedback),
+    );
+
+    return captureEvent(
+      feedbackEvent,
+      scope: scope,
+      hint: hint,
+    );
+  }
+
   /// Reports the [metricsBuckets] to Sentry.io.
   Future<SentryId> captureMetrics(
       Map<int, Iterable<Metric>> metricsBuckets) async {
@@ -460,6 +483,7 @@ class SentryClient {
 
     final beforeSend = _options.beforeSend;
     final beforeSendTransaction = _options.beforeSendTransaction;
+    final beforeSendFeedback = _options.beforeSendFeedback;
     String beforeSendName = 'beforeSend';
 
     try {
@@ -467,6 +491,13 @@ class SentryClient {
         beforeSendName = 'beforeSendTransaction';
         final callbackResult = beforeSendTransaction(event);
         if (callbackResult is Future<SentryTransaction?>) {
+          processedEvent = await callbackResult;
+        } else {
+          processedEvent = callbackResult;
+        }
+      } else if (event.type == 'feedback' && beforeSendFeedback != null) {
+        final callbackResult = beforeSendFeedback(event, hint);
+        if (callbackResult is Future<SentryEvent?>) {
           processedEvent = await callbackResult;
         } else {
           processedEvent = callbackResult;
