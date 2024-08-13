@@ -220,8 +220,12 @@ class Sentry {
   static Future<void> captureUserFeedback(SentryUserFeedback userFeedback) =>
       _hub.captureUserFeedback(userFeedback);
 
-  static Future<void> captureFeedback(SentryFeedback feedback) =>
-      _hub.captureFeedback(feedback);
+  static Future<void> captureFeedback(
+    SentryFeedback feedback, {
+    Hint? hint,
+    ScopeCallback? withScope,
+  }) =>
+      _hub.captureFeedback(feedback, hint: hint, withScope: withScope);
 
   /// Close the client SDK
   static Future<void> close() async {

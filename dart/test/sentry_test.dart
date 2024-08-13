@@ -45,6 +45,15 @@ void main() {
       expect(client.captureEventCalls.first.scope, isNotNull);
     });
 
+    test('should capture the feedback event', () async {
+      final fakeFeedback = SentryFeedback(message: 'message');
+      await Sentry.captureFeedback(fakeFeedback);
+
+      expect(client.captureFeedbackCalls.length, 1);
+      expect(client.captureFeedbackCalls.first.feedback, fakeFeedback);
+      expect(client.captureFeedbackCalls.first.scope, isNotNull);
+    });
+
     test('should capture the event withScope', () async {
       await Sentry.captureEvent(
         fakeEvent,
@@ -56,6 +65,19 @@ void main() {
       expect(client.captureEventCalls.length, 1);
       expect(client.captureEventCalls.first.event, fakeEvent);
       expect(client.captureEventCalls.first.scope?.user?.id, 'foo bar');
+    });
+
+    test('should capture the feedback event withScope', () async {
+      final fakeFeedback = SentryFeedback(message: 'message');
+      await Sentry.captureFeedback(
+        fakeFeedback,
+        withScope: (scope) {
+          scope.setUser(SentryUser(id: 'foo bar'));
+        },
+      );
+
+      expect(client.captureFeedbackCalls.length, 1);
+      expect(client.captureFeedbackCalls.first.scope?.user?.id, 'foo bar');
     });
 
     test('should not capture a null exception', () async {
