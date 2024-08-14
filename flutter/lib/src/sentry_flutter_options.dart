@@ -145,15 +145,15 @@ class SentryFlutterOptions extends SentryOptions {
 
   /// (Web only) Events only occurring on these Urls will be handled and sent to sentry.
   /// If an empty list is used, the SDK will send all errors.
-  /// To use regex add the `^` and the `$` to the string.
+  /// `allowUrls` uses regex for the matching.
   ///
   /// If used on a platform other than Web, this setting will be ignored.
   List<String> allowUrls = [];
 
   /// (Web only) Events occurring on these Urls will be ignored and are not sent to sentry.
   /// If an empty list is used, the SDK will send all errors.
+  /// `denyUrls` uses regex for the matching.
   /// In combination with `allowUrls` you can block subdomains of the domains listed in `allowUrls`.
-  /// To use regex add the `^` and the `$` to the string.
   ///
   /// If used on a platform other than Web, this setting will be ignored.
   List<String> denyUrls = [];
