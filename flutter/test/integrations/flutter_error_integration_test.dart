@@ -82,6 +82,10 @@ void main() {
       expect(event.contexts['flutter_error_details']['context'],
           'thrown while handling a gesture');
       expect(event.contexts['flutter_error_details']['information'], 'foo bar');
+    }, onPlatform: {
+      // TODO stacktrace parsing for wasm is not implemented yet
+      //      https://github.com/getsentry/sentry-dart/issues/1480
+      'wasm': Skip('WASM stack trace parsing not implemented yet'),
     });
 
     test('captures error with long FlutterErrorDetails.information', () async {
@@ -115,6 +119,10 @@ void main() {
           'thrown while handling a gesture');
       expect(event.contexts['flutter_error_details']['information'],
           'foo bar\nHello World!');
+    }, onPlatform: {
+      // TODO stacktrace parsing for wasm is not implemented yet
+      //      https://github.com/getsentry/sentry-dart/issues/1480
+      'wasm': Skip('WASM stack trace parsing not implemented yet'),
     });
 
     test('captures error with no FlutterErrorDetails', () async {
