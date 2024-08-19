@@ -71,7 +71,7 @@ class SentryWebInterop
 
   @override
   Future<void> captureEnvelope(SentryEnvelope envelope) async {
-    await tryCatchAsync('captureEnvelope', () async {
+    return tryCatchAsync('captureEnvelope', () async {
       final List<dynamic> jsItems = [];
 
       for (final item in envelope.items) {
@@ -90,7 +90,7 @@ class SentryWebInterop
 
   @override
   Future<void> close() async {
-    tryCatchSync('close', () {
+    return tryCatchSync('close', () {
       SentryJsBridge.close();
     });
   }
@@ -102,6 +102,7 @@ Future<void> _loadSentryScripts(SentryFlutterOptions options,
     {bool useIntegrity = true}) async {
   if (_scriptLoaded) return;
 
+  // todo: put this somewhere else so we can auto-update it as well
   final scripts = [
     {
       'url':
