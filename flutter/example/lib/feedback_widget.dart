@@ -3,24 +3,24 @@
 import 'package:flutter/material.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
-class UserFeedbackDialog extends StatefulWidget {
-  const UserFeedbackDialog({
+class FeedbackWidget extends StatefulWidget {
+  const FeedbackWidget({
     super.key,
-    required this.eventId,
+    required this.associatedEventId,
     this.hub,
-  }) : assert(eventId != const SentryId.empty());
+  }) : assert(associatedEventId != const SentryId.empty());
 
-  final SentryId eventId;
+  final SentryId? associatedEventId;
   final Hub? hub;
 
   @override
-  _UserFeedbackDialogState createState() => _UserFeedbackDialogState();
+  _FeedbackWidgetState createState() => _FeedbackWidgetState();
 }
 
-class _UserFeedbackDialogState extends State<UserFeedbackDialog> {
+class _FeedbackWidgetState extends State<FeedbackWidget> {
   TextEditingController nameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
-  TextEditingController commentController = TextEditingController();
+  TextEditingController messageController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -66,14 +66,14 @@ class _UserFeedbackDialogState extends State<UserFeedbackDialog> {
             ),
             const SizedBox(height: 8),
             TextField(
-              key: const ValueKey('sentry_comment_textfield'),
+              key: const ValueKey('sentry_message_textfield'),
               minLines: 5,
               maxLines: null,
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
                 hintText: 'What happened?',
               ),
-              controller: commentController,
+              controller: messageController,
               keyboardType: TextInputType.multiline,
             ),
             const SizedBox(height: 8),
@@ -85,14 +85,14 @@ class _UserFeedbackDialogState extends State<UserFeedbackDialog> {
         ElevatedButton(
             key: const ValueKey('sentry_submit_feedback_button'),
             onPressed: () async {
-              // ignore: deprecated_member_use
-              final feedback = SentryUserFeedback(
-                eventId: widget.eventId,
-                comments: commentController.text,
-                email: emailController.text,
+
+              final feedback = SentryFeedback(
+                message: messageController.text,
+                contactEmail: emailController.text,
                 name: nameController.text,
+                associatedEventId: widget.associatedEventId,
               );
-              await _submitUserFeedback(feedback);
+              await _captureFeedback(feedback);
               // ignore: use_build_context_synchronously
               Navigator.pop(context);
             },
@@ -108,10 +108,9 @@ class _UserFeedbackDialogState extends State<UserFeedbackDialog> {
     );
   }
 
-  // ignore: deprecated_member_use
-  Future<void> _submitUserFeedback(SentryUserFeedback feedback) {
+  Future<void> _captureFeedback(SentryFeedback feedback) {
     // ignore: deprecated_member_use
-    return (widget.hub ?? HubAdapter()).captureUserFeedback(feedback);
+    return (widget.hub ?? HubAdapter()).captureFeedback(feedback);
   }
 }
 

@@ -28,7 +28,7 @@ import 'auto_close_screen.dart';
 import 'drift/connection/connection.dart';
 import 'drift/database.dart';
 import 'isar/user.dart';
-import 'user_feedback_dialog.dart';
+import 'feedback_widget.dart';
 
 // ATTENTION: Change the DSN below with your own to see the events in Sentry. Get one at sentry.io
 const String exampleDsn =
@@ -82,7 +82,7 @@ Future<void> setupSentry(
       // going to log too much for your app, but can be useful when figuring out
       // configuration issues, e.g. finding out why your events are not uploaded.
       options.debug = true;
-      options.spotlight = Spotlight(enabled: true);
+      // options.spotlight = Spotlight(enabled: true);
       options.enableTimeToFullDisplayTracing = true;
       options.enableMetrics = true;
 
@@ -450,7 +450,7 @@ class MainScaffold extends StatelessWidget {
                 Sentry.captureMessage(
                   'This message has an attachment',
                   withScope: (scope) {
-                    const txt = 'Lorem Ipsum dolar sit amet';
+                    const txt = 'Lorem Ipsum dolor sit amet';
                     scope.addAttachment(
                       SentryAttachment.fromIntList(
                         utf8.encode(txt),
@@ -501,40 +501,12 @@ class MainScaffold extends StatelessWidget {
                 await showDialog(
                   context: context,
                   builder: (context) {
-                    return UserFeedbackDialog(eventId: id);
+                    return FeedbackWidget(associatedEventId: id);
                   },
                 );
               },
               text:
-                  'Shows a custom user feedback dialog without an ongoing event that captures and sends user feedback data to Sentry.',
-              buttonTitle: 'Capture User Feedback',
-            ),
-            TooltipButton(
-              onPressed: () async {
-                await showDialog(
-                  context: context,
-                  builder: (context) {
-                    return UserFeedbackDialog(eventId: SentryId.newId());
-                  },
-                );
-              },
-              text: '',
-              buttonTitle: 'Show UserFeedback Dialog without event',
-            ),
-            TooltipButton(
-              onPressed: () async {
-                final associatedEventId =
-                    await Sentry.captureMessage('Associated Event');
-                await Sentry.captureFeedback(
-                  SentryFeedback(
-                    message: 'message',
-                    contactEmail: 'john.appleseed@apple.com',
-                    name: 'John Appleseed',
-                    associatedEventId: associatedEventId,
-                  ),
-                );
-              },
-              text: '',
+                  'Shows a custom feedback dialog without an ongoing event that captures and sends user feedback data to Sentry.',
               buttonTitle: 'Capture Feedback',
             ),
             TooltipButton(
