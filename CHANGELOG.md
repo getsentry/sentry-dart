@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+
+- Debouncing of SentryWidgetsBindingObserver.didChangeMetrics with delay of 100ms. ([#2232](https://github.com/getsentry/sentry-dart/pull/2232))
+
 ## 8.8.0-alpha.1
 
 ### Features
