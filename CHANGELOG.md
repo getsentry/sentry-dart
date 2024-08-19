@@ -11,10 +11,10 @@
 SentryNavigatorObserver(ignoreRoutes: ["/ignoreThisRoute"]),
 ```
 - Support `captureFeedback` ([#2230](https://github.com/getsentry/sentry-dart/pull/2230))
-
-### Deprecated
-
-- The function `captureUserFeedback` is deprecated. Use `captureFeedback` instead. ([#2230](https://github.com/getsentry/sentry-dart/pull/2230))
+  - Deprecated `Sentry.captureUserFeedback`, use `captureFeedback` instead.
+  - Deprecated `Hub.captureUserFeedback`, use `captureFeedback` instead.
+  - Deprecated `SentryClient.captureUserFeedback`, use `captureFeedback` instead.
+  - Deprecated `SentryUserFeedback`, use `SentryFeedback` instead.
 
 ### Improvements
 
