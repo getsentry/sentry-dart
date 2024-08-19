@@ -55,14 +55,6 @@ Future<void> main() async {
     ),
     exampleDsn,
   );
-
-  loadSentryJS();
-
-  Future.delayed(const Duration(seconds: 2), () async {
-    await initSentryJS((options) {
-      options.dsn = exampleDsn;
-    });
-  });
 }
 
 Future<void> setupSentry(
@@ -92,12 +84,15 @@ Future<void> setupSentry(
       // configuration issues, e.g. finding out why your events are not uploaded.
       options.debug = true;
       options.spotlight = Spotlight(enabled: true);
-      options.enableTimeToFullDisplayTracing = true;
+      // options.enableTimeToFullDisplayTracing = true;
       options.enableMetrics = true;
 
       options.maxRequestBodySize = MaxRequestBodySize.always;
       options.maxResponseBodySize = MaxResponseBodySize.always;
       options.navigatorKey = navigatorKey;
+
+      options.experimental.replay.sessionSampleRate = 1.0;
+      options.experimental.replay.errorSampleRate = 1.0;
 
       _isIntegrationTest = isIntegrationTest;
       if (_isIntegrationTest) {
@@ -786,7 +781,8 @@ Future<void> tryCatch() async {
     // Some code that might throw
     throw Exception('Test exception');
   } catch (e, stackTrace) {
-    SentryJS.captureException(e);
+    Sentry.captureException(e, stackTrace: stackTrace);
+    // SentryJS.captureException(e);
   }
 }
 

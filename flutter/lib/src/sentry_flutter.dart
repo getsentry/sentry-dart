@@ -16,6 +16,7 @@ import 'frame_callback_handler.dart';
 import 'integrations/connectivity/connectivity_integration.dart';
 import 'integrations/integrations.dart';
 import 'integrations/screenshot_integration.dart';
+import 'integrations/web_sdk_integration.dart';
 import 'native/factory.dart';
 import 'native/native_scope_observer.dart';
 import 'native/sentry_native_binding.dart';
@@ -24,6 +25,13 @@ import 'renderer/renderer.dart';
 import 'span_frame_metrics_collector.dart';
 import 'version.dart';
 import 'view_hierarchy/view_hierarchy_integration.dart';
+// ignore: implementation_imports
+import 'package:sentry/src/transport/http_transport.dart';
+// ignore: implementation_imports
+import 'package:sentry/src/transport/rate_limiter.dart';
+
+import 'web/sentry_web_binding.dart';
+import 'web/sentry_web_interop.dart';
 
 /// Configuration options callback
 typedef FlutterOptionsConfiguration = FutureOr<void> Function(
@@ -67,6 +75,10 @@ mixin SentryFlutter {
 
     if (flutterOptions.platformChecker.hasNativeIntegration) {
       _native = createBinding(flutterOptions);
+    }
+
+    if (flutterOptions.platformChecker.isWeb) {
+      _webBinding = SentryWebInterop(flutterOptions);
     }
 
     final platformDispatcher = PlatformDispatcher.instance;
@@ -127,6 +139,13 @@ mixin SentryFlutter {
     if (_native != null) {
       options.transport = FileSystemTransport(_native!, options);
       options.addScopeObserver(NativeScopeObserver(_native!));
+    }
+
+    if (options.platformChecker.isWeb) {
+      final eventTransport = JavascriptEventTransport(_webBinding!);
+      final envelopeTransport = JavascriptEnvelopeTransport(_webBinding!);
+      options.transport =
+          EventTransportAdapter(eventTransport, envelopeTransport);
     }
 
     options.addEventProcessor(FlutterEnricherEventProcessor(options));
@@ -190,6 +209,7 @@ mixin SentryFlutter {
 
     if (platformChecker.isWeb) {
       integrations.add(ConnectivityIntegration());
+      integrations.add(WebSdkIntegration(_webBinding!));
     }
 
     // works with Skia, CanvasKit and HTML renderer
@@ -280,4 +300,6 @@ mixin SentryFlutter {
   static set native(SentryNativeBinding? value) => _native = value;
 
   static SentryNativeBinding? _native;
+
+  static SentryWebBinding? _webBinding;
 }
