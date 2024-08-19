@@ -4,6 +4,23 @@
 
 ### Features
 
+- Add `ignoreRoutes` parameter to `SentryNavigatorObserver`. ([#2218](https://github.com/getsentry/sentry-dart/pull/2218))
+    - This will ignore the Routes and prevent the Route from being pushed to the Sentry server.
+    - Ignored routes will also create no TTID and TTFD spans.
+```dart
+SentryNavigatorObserver(ignoreRoutes: ["/ignoreThisRoute"]),
+```
+
+### Dependencies
+
+- Bump Android SDK from v7.13.0 to v7.14.0 ([#2228](https://github.com/getsentry/sentry-dart/pull/2228))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#7140)
+  - [diff](https://github.com/getsentry/sentry-java/compare/7.13.0...7.14.0)
+
+## 8.7.0
+
+### Features
+
 - Add support for span level measurements. ([#2214](https://github.com/getsentry/sentry-dart/pull/2214))
 - Add `ignoreTransactions` and `ignoreErrors` to options ([#2207](https://github.com/getsentry/sentry-dart/pull/2207))
   ```dart
@@ -42,6 +59,12 @@
 ### Improvements
 
 - Deserialize and serialize unknown fields ([#2153](https://github.com/getsentry/sentry-dart/pull/2153))
+
+### Dependencies
+
+- Bump Cocoa SDK from v8.32.0 to v8.33.0 ([#2223](https://github.com/getsentry/sentry-dart/pull/2223))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8330)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.32.0...8.33.0)
 
 ## 8.6.0
 

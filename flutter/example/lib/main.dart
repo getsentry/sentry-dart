@@ -112,7 +112,7 @@ Future<void> setupSentry(
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   _MyAppState createState() => _MyAppState();
@@ -148,8 +148,8 @@ class TooltipButton extends StatelessWidget {
     required this.onPressed,
     required this.buttonTitle,
     required this.text,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -166,8 +166,8 @@ class TooltipButton extends StatelessWidget {
 
 class MainScaffold extends StatelessWidget {
   const MainScaffold({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -725,7 +725,7 @@ extension BuildContextExtension on BuildContext {
 }
 
 class AndroidExample extends StatelessWidget {
-  const AndroidExample({Key? key}) : super(key: key);
+  const AndroidExample({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -844,7 +844,7 @@ class _IntegrationTestWidgetState extends State<IntegrationTestWidget> {
 }
 
 class CocoaExample extends StatelessWidget {
-  const CocoaExample({Key? key}) : super(key: key);
+  const CocoaExample({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -897,7 +897,7 @@ int loop(int val) {
 }
 
 class SecondaryScaffold extends StatelessWidget {
-  const SecondaryScaffold({Key? key}) : super(key: key);
+  const SecondaryScaffold({super.key});
 
   static Future<void> openSecondaryScaffold(BuildContext context) {
     return Navigator.push(
