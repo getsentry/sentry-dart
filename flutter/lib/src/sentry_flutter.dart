@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
+import 'transport/javascript_transport.dart';
 
 import '../sentry_flutter.dart';
 import 'event_processor/android_platform_exception_event_processor.dart';
@@ -10,7 +11,7 @@ import 'event_processor/flutter_enricher_event_processor.dart';
 import 'event_processor/flutter_exception_event_processor.dart';
 import 'event_processor/platform_exception_event_processor.dart';
 import 'event_processor/widget_event_processor.dart';
-import 'file_system_transport.dart';
+import 'transport/file_system_transport.dart';
 import 'flutter_exception_type_identifier.dart';
 import 'frame_callback_handler.dart';
 import 'integrations/connectivity/connectivity_integration.dart';
@@ -25,10 +26,6 @@ import 'renderer/renderer.dart';
 import 'span_frame_metrics_collector.dart';
 import 'version.dart';
 import 'view_hierarchy/view_hierarchy_integration.dart';
-// ignore: implementation_imports
-import 'package:sentry/src/transport/http_transport.dart';
-// ignore: implementation_imports
-import 'package:sentry/src/transport/rate_limiter.dart';
 
 import 'web/sentry_web_binding.dart';
 import 'web/sentry_web_interop.dart';

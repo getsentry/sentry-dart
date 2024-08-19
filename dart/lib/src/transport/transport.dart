@@ -8,3 +8,7 @@ import '../protocol.dart';
 abstract class Transport {
   Future<SentryId?> send(SentryEnvelope envelope);
 }
+
+abstract class EventTransport {
+  Future<SentryId?> sendEvent(SentryEvent event);
+}

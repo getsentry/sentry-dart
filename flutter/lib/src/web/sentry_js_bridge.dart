@@ -1,30 +1,36 @@
-import 'package:js/js.dart';
+import 'dart:js_interop';
 import 'package:meta/meta.dart';
 
 @internal
+@JS('Spotlight')
+@staticInterop
+class SpotlightBridge {
+  external static void init();
+}
+
+@internal
 @JS('Sentry')
+@staticInterop
 class SentryJsBridge {
-  external static void init(dynamic options);
+  external static void init(JSAny? options);
 
   external static void close();
 
-  external static dynamic captureException(dynamic exception);
+  external static JSAny? captureMessage(JSString message);
 
-  external static dynamic captureMessage(String message);
+  external static JSString captureEvent(JSAny? event);
 
-  external static dynamic captureEvent(dynamic event);
+  external static JSAny? replayIntegration(JSAny? configuration);
 
-  external static dynamic replayIntegration(dynamic configuration);
+  external static JSAny? replayCanvasIntegration();
 
-  external static dynamic replayCanvasIntegration();
-
-  external static SentryJsClient getClient();
+  external static _SentryJsClient getClient();
 }
 
 @JS('Client')
 @staticInterop
-class SentryJsClient {}
+class _SentryJsClient {}
 
-extension SentryJsClientExtension on SentryJsClient {
-  external dynamic sendEnvelope(dynamic envelope);
+extension SentryJsClientExtension on _SentryJsClient {
+  external JSAny? sendEnvelope(JSAny? envelope);
 }

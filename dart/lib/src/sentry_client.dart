@@ -187,7 +187,7 @@ class SentryClient {
     );
 
     final id = await captureEnvelope(envelope);
-    return id ?? SentryId.empty();
+    return SentryId.empty();
   }
 
   bool _isIgnoredError(SentryEvent event) {
