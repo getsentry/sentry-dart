@@ -132,10 +132,12 @@ void main() {
 
     test('fromUserFeedback', () async {
       final eventId = SentryId.newId();
+      // ignore: deprecated_member_use_from_same_package
       final userFeedback = SentryUserFeedback(
           eventId: eventId, name: 'name', email: 'email', comments: 'comments');
       final sdkVersion =
           SdkVersion(name: 'fixture-name', version: 'fixture-version');
+      // ignore: deprecated_member_use_from_same_package
       final sut = SentryEnvelope.fromUserFeedback(
         userFeedback,
         sdkVersion,
@@ -143,6 +145,7 @@ void main() {
       );
 
       final expectedEnvelopeItem =
+          // ignore: deprecated_member_use_from_same_package
           SentryEnvelopeItem.fromUserFeedback(userFeedback);
 
       expect(sut.header.eventId, eventId);

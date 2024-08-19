@@ -4,11 +4,11 @@ import 'dart:convert';
 import 'client_reports/client_report.dart';
 import 'metrics/metric.dart';
 import 'protocol.dart';
-import 'utils.dart';
 import 'sentry_attachment/sentry_attachment.dart';
-import 'sentry_item_type.dart';
 import 'sentry_envelope_item_header.dart';
+import 'sentry_item_type.dart';
 import 'sentry_user_feedback.dart';
+import 'utils.dart';
 
 /// Item holding header information and JSON encoded data.
 class SentryEnvelopeItem {
@@ -46,6 +46,7 @@ class SentryEnvelopeItem {
   }
 
   /// Create a [SentryEnvelopeItem] which sends [SentryUserFeedback].
+  @Deprecated('Will be removed in a future version.')
   factory SentryEnvelopeItem.fromUserFeedback(SentryUserFeedback feedback) {
     final cachedItem =
         _CachedItem(() async => utf8JsonEncoder.convert(feedback.toJson()));

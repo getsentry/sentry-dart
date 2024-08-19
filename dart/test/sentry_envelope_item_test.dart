@@ -139,11 +139,13 @@ void main() {
     });
 
     test('fromUserFeedback', () async {
+      // ignore: deprecated_member_use_from_same_package
       final userFeedback = SentryUserFeedback(
           eventId: SentryId.newId(),
           name: 'name',
           comments: 'comments',
           email: 'email');
+      // ignore: deprecated_member_use_from_same_package
       final sut = SentryEnvelopeItem.fromUserFeedback(userFeedback);
 
       final expectedData = utf8.encode(jsonEncode(

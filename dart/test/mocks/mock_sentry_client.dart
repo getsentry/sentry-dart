@@ -9,6 +9,8 @@ class MockSentryClient with NoSuchMethodProvider implements SentryClient {
   List<CaptureMessageCall> captureMessageCalls = [];
   List<CaptureEnvelopeCall> captureEnvelopeCalls = [];
   List<CaptureTransactionCall> captureTransactionCalls = [];
+
+  // ignore: deprecated_member_use_from_same_package
   List<SentryUserFeedback> userFeedbackCalls = [];
   List<CaptureFeedbackCall> captureFeedbackCalls = [];
   List<Map<int, Iterable<Metric>>> captureMetricsCalls = [];
@@ -73,6 +75,7 @@ class MockSentryClient with NoSuchMethodProvider implements SentryClient {
   }
 
   @override
+  // ignore: deprecated_member_use_from_same_package
   Future<void> captureUserFeedback(SentryUserFeedback userFeedback) async {
     userFeedbackCalls.add(userFeedback);
   }

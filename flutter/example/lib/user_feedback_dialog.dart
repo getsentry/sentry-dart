@@ -1,7 +1,6 @@
 // ignore_for_file: library_private_types_in_public_api
 
 import 'package:flutter/material.dart';
-
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 class UserFeedbackDialog extends StatefulWidget {
@@ -86,6 +85,7 @@ class _UserFeedbackDialogState extends State<UserFeedbackDialog> {
         ElevatedButton(
             key: const ValueKey('sentry_submit_feedback_button'),
             onPressed: () async {
+              // ignore: deprecated_member_use
               final feedback = SentryUserFeedback(
                 eventId: widget.eventId,
                 comments: commentController.text,
@@ -108,7 +108,9 @@ class _UserFeedbackDialogState extends State<UserFeedbackDialog> {
     );
   }
 
+  // ignore: deprecated_member_use
   Future<void> _submitUserFeedback(SentryUserFeedback feedback) {
+    // ignore: deprecated_member_use
     return (widget.hub ?? HubAdapter()).captureUserFeedback(feedback);
   }
 }

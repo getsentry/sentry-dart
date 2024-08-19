@@ -85,6 +85,7 @@ void main() {
   testWidgets('setup sentry and capture user feedback', (tester) async {
     await setupSentryAndApp(tester);
 
+    // ignore: deprecated_member_use_from_same_package
     final feedback = SentryUserFeedback(
         eventId: SentryId.newId(),
         name: 'fixture-name',

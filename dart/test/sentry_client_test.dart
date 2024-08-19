@@ -1655,12 +1655,14 @@ void main() {
       final client = fixture.getSut(eventProcessor: DropAllEventProcessor());
 
       final id = SentryId.newId();
+      // ignore: deprecated_member_use_from_same_package
       final feedback = SentryUserFeedback(
         eventId: id,
         comments: 'this is awesome',
         email: 'sentry@example.com',
         name: 'Rockstar Developer',
       );
+      // ignore: deprecated_member_use_from_same_package
       await client.captureUserFeedback(feedback);
 
       expect(fixture.recorder.flushCalled, true);
@@ -1676,12 +1678,14 @@ void main() {
       final client = fixture.getSut(eventProcessor: DropAllEventProcessor());
 
       final id = SentryId.newId();
+      // ignore: deprecated_member_use_from_same_package
       final feedback = SentryUserFeedback(
         eventId: id,
         comments: 'this is awesome',
         email: 'sentry@example.com',
         name: 'Rockstar Developer',
       );
+      // ignore: deprecated_member_use_from_same_package
       await client.captureUserFeedback(feedback);
 
       final envelope = fixture.transport.envelopes.first;
@@ -1844,10 +1848,12 @@ void main() {
     test('user feedback envelope contains dsn', () async {
       final client = fixture.getSut();
       final event = SentryEvent();
+      // ignore: deprecated_member_use_from_same_package
       final feedback = SentryUserFeedback(
         eventId: event.eventId,
         name: 'test',
       );
+      // ignore: deprecated_member_use_from_same_package
       await client.captureUserFeedback(feedback);
 
       final capturedEnvelope = (fixture.transport).envelopes.first;

@@ -56,6 +56,7 @@ class NoOpSentryClient implements SentryClient {
       SentryId.empty();
 
   @override
+  // ignore: deprecated_member_use_from_same_package
   Future<void> captureUserFeedback(SentryUserFeedback userFeedback) async {}
 
   @override
