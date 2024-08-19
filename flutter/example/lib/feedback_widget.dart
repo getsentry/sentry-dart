@@ -18,9 +18,13 @@ class FeedbackWidget extends StatefulWidget {
 }
 
 class _FeedbackWidgetState extends State<FeedbackWidget> {
-  TextEditingController nameController = TextEditingController();
-  TextEditingController emailController = TextEditingController();
-  TextEditingController messageController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _messageController = TextEditingController();
+
+  String? _name;
+  String? _email;
+  String? _message;
 
   @override
   Widget build(BuildContext context) {
@@ -47,34 +51,40 @@ class _FeedbackWidgetState extends State<FeedbackWidget> {
             const Divider(height: 24),
             TextField(
               key: const ValueKey('sentry_name_textfield'),
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                border: const OutlineInputBorder(),
                 hintText: 'Name',
+                errorText: _errorText(_name),
               ),
-              controller: nameController,
+              controller: _nameController,
               keyboardType: TextInputType.text,
+              onChanged: (text) => setState(() => _name = text ),
             ),
             const SizedBox(height: 8),
             TextField(
               key: const ValueKey('sentry_email_textfield'),
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                border: const OutlineInputBorder(),
                 hintText: 'E-Mail',
+                errorText: _errorText(_email),
               ),
-              controller: emailController,
+              controller: _emailController,
               keyboardType: TextInputType.emailAddress,
+              onChanged: (text) => setState(() => _email = text ),
             ),
             const SizedBox(height: 8),
             TextField(
               key: const ValueKey('sentry_message_textfield'),
               minLines: 5,
               maxLines: null,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                border: const OutlineInputBorder(),
                 hintText: 'What happened?',
+                errorText: _errorText(_message),
               ),
-              controller: messageController,
+              controller: _messageController,
               keyboardType: TextInputType.multiline,
+              onChanged: (text) => setState(() => _message = text ),
             ),
             const SizedBox(height: 8),
             const _PoweredBySentryMessage(),
@@ -86,10 +96,22 @@ class _FeedbackWidgetState extends State<FeedbackWidget> {
             key: const ValueKey('sentry_submit_feedback_button'),
             onPressed: () async {
 
+              if (_name == null || _email == null || _message == null) {
+                setState(() {
+                  _name ??= '';
+                  _email ??= '';
+                  _message ??= '';
+                });
+              }
+
+              if (!_valid(_name) || !_valid(_email) || !_valid(_message)) {
+                return;
+              }
+
               final feedback = SentryFeedback(
-                message: messageController.text,
-                contactEmail: emailController.text,
-                name: nameController.text,
+                message: _messageController.text,
+                contactEmail: _emailController.text,
+                name: _nameController.text,
                 associatedEventId: widget.associatedEventId,
               );
               await _captureFeedback(feedback);
@@ -108,9 +130,29 @@ class _FeedbackWidgetState extends State<FeedbackWidget> {
     );
   }
 
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _messageController.dispose();
+    super.dispose();
+  }
+
   Future<void> _captureFeedback(SentryFeedback feedback) {
     // ignore: deprecated_member_use
     return (widget.hub ?? HubAdapter()).captureFeedback(feedback);
+  }
+
+  String? _errorText(String? text) {
+    if (text != null && text.isEmpty) {
+      return 'Can\'t be empty';
+    } else {
+      return null;
+    }
+  }
+
+  bool _valid(String? text) {
+    return text != null && text.isNotEmpty;
   }
 }
 
