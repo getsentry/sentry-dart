@@ -1,15 +1,16 @@
 import 'dart:convert';
+
 import 'client_reports/client_report.dart';
 import 'metrics/metric.dart';
 import 'protocol.dart';
-import 'sentry_item_type.dart';
-import 'sentry_options.dart';
-import 'sentry_trace_context_header.dart';
-import 'utils.dart';
 import 'sentry_attachment/sentry_attachment.dart';
 import 'sentry_envelope_header.dart';
 import 'sentry_envelope_item.dart';
+import 'sentry_item_type.dart';
+import 'sentry_options.dart';
+import 'sentry_trace_context_header.dart';
 import 'sentry_user_feedback.dart';
+import 'utils.dart';
 
 /// Class representation of `Envelope` file.
 class SentryEnvelope {
