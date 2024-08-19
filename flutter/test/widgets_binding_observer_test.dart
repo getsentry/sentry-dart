@@ -436,7 +436,7 @@ void main() {
 
       verifyNever(hub.addBreadcrumb(captureAny));
 
-      //waiting for debouncing with 100ms added https://github.com/getsentry/sentry-dart/issues/400
+      // waiting for debouncing with 100ms added https://github.com/getsentry/sentry-dart/issues/400
       await tester.pump(Duration(milliseconds: 150));
 
       verify(hub.addBreadcrumb(captureAny));
