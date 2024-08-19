@@ -44,12 +44,12 @@ class SentryWebInterop
         'replaysOnErrorSampleRate': options.experimental.replay.errorSampleRate,
         // using defaultIntegrations ensures the we can control which integrations are added
         'defaultIntegrations': [
-          // SentryJsBridge.replayIntegration({
-          //   'maskAllText': options.experimental.replay.redactAllText,
-          //   // todo: is redactAllImages the same as blockAllMedia?
-          //   'blockAllMedia': options.experimental.replay.redactAllImages,
-          // }.jsify()),
-          // SentryJsBridge.replayCanvasIntegration(),
+          SentryJsBridge.replayIntegration({
+            'maskAllText': options.experimental.replay.redactAllText,
+            // todo: is redactAllImages the same as blockAllMedia?
+            'blockAllMedia': options.experimental.replay.redactAllImages,
+          }.jsify()),
+          SentryJsBridge.replayCanvasIntegration(),
         ],
       };
 
@@ -104,20 +104,16 @@ Future<void> _loadSentryScripts(SentryFlutterOptions options,
 
   final scripts = [
     {
-      'url': 'http://localhost:3000/local_bundle.js',
-      // 'integrity':
-      //     'sha384-eEn/WSvcP5C2h5g0AGe5LCsheNNlNkn/iV8y5zOylmPoOfSyvZ23HBDnOhoB0sdL'
+      'url':
+          'https://browser.sentry-cdn.com/8.24.0/bundle.tracing.replay.min.js',
+      'integrity':
+          'sha384-eEn/WSvcP5C2h5g0AGe5LCsheNNlNkn/iV8y5zOylmPoOfSyvZ23HBDnOhoB0sdL'
     },
-    // {
-    //   'url': 'https://browser.sentry-cdn.com/8.24.0/replay-canvas.js',
-    //   'integrity':
-    //       'sha384-gSFCG8IdZobb6PWs7SwuaES/R5PPt+gw4y6N/Kkwlic+1Hzf21EUm5Dg/WbYMxTE'
-    // },
-    // {
-    //   // todo: fix double events from spotlight
-    //   'url':
-    //       'https://unpkg.com/@spotlightjs/overlay@latest/dist/sentry-spotlight.iife.js',
-    // },
+    {
+      'url': 'https://browser.sentry-cdn.com/8.24.0/replay-canvas.min.js',
+      'integrity':
+          'sha384-gSFCG8IdZobb6PWs7SwuaES/R5PPt+gw4y6N/Kkwlic+1Hzf21EUm5Dg/WbYMxTE'
+    },
   ];
 
   try {
