@@ -1149,7 +1149,7 @@ void main() {
         () async {
       final client = fixture.getSut();
       final fakeTransaction = fixture.fakeTransaction();
-      fakeTransaction.tracer.name = "this is a transaction-test";
+      fakeTransaction.tracer.name = "this is a my-transaction-test";
       await client.captureTransaction(fakeTransaction);
 
       expect(fixture.transport.called(0), true);
