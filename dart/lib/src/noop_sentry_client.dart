@@ -6,6 +6,7 @@ import 'hint.dart';
 import 'metrics/metric.dart';
 import 'metrics/metrics_aggregator.dart';
 import 'protocol.dart';
+import 'protocol/sentry_feedback.dart';
 import 'scope.dart';
 import 'sentry_client.dart';
 import 'sentry_envelope.dart';
@@ -77,4 +78,9 @@ class NoOpSentryClient implements SentryClient {
   @override
   @internal
   MetricsAggregator? get metricsAggregator => null;
+
+  @override
+  Future<SentryId> captureFeedback(SentryFeedback feedback,
+          {Scope? scope, Hint? hint}) async =>
+      SentryId.empty();
 }
