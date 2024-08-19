@@ -12,6 +12,10 @@ SentryNavigatorObserver(ignoreRoutes: ["/ignoreThisRoute"]),
 ```
 - Support `captureFeedback` ([#2230](https://github.com/getsentry/sentry-dart/pull/2230))
 
+### Improvements
+
+- Debouncing of SentryWidgetsBindingObserver.didChangeMetrics with delay of 100ms. ([#2232](https://github.com/getsentry/sentry-dart/pull/2232))
+
 ### Dependencies
 
 - Bump Android SDK from v7.13.0 to v7.14.0 ([#2228](https://github.com/getsentry/sentry-dart/pull/2228))
