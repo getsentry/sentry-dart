@@ -18,7 +18,8 @@ import 'integrations/connectivity/connectivity_integration.dart';
 import 'integrations/integrations.dart';
 import 'integrations/screenshot_integration.dart';
 import 'integrations/web_sdk_integration.dart';
-import 'native/factory.dart';
+import 'web/factory.dart' as webFactory;
+import 'native/factory.dart' as nativeFactory;
 import 'native/native_scope_observer.dart';
 import 'native/sentry_native_binding.dart';
 import 'profiling.dart';
@@ -28,7 +29,6 @@ import 'version.dart';
 import 'view_hierarchy/view_hierarchy_integration.dart';
 
 import 'web/sentry_web_binding.dart';
-import 'web/sentry_web_interop.dart';
 
 /// Configuration options callback
 typedef FlutterOptionsConfiguration = FutureOr<void> Function(
@@ -71,11 +71,11 @@ mixin SentryFlutter {
     }
 
     if (flutterOptions.platformChecker.hasNativeIntegration) {
-      _native = createBinding(flutterOptions);
+      _native = nativeFactory.createBinding(flutterOptions);
     }
 
     if (flutterOptions.platformChecker.isWeb) {
-      _webBinding = SentryWebInterop(flutterOptions);
+      _webBinding = webFactory.createBinding(flutterOptions);
     }
 
     final platformDispatcher = PlatformDispatcher.instance;
