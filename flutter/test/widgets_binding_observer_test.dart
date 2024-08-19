@@ -193,7 +193,7 @@ void main() {
       // ignore: deprecated_member_use
       window.physicalSizeTestValue = Size(newWidth, newHeight);
 
-      //waiting for debouncing with 100ms added https://github.com/getsentry/sentry-dart/issues/400
+      // waiting for debouncing with 100ms added https://github.com/getsentry/sentry-dart/issues/400
       await tester.pump(Duration(milliseconds: 150));
 
       final breadcrumb =
@@ -233,7 +233,7 @@ void main() {
       // ignore: deprecated_member_use
       window.devicePixelRatioTestValue = newPixelRatio;
 
-      //waiting for debouncing with 100ms added https://github.com/getsentry/sentry-dart/issues/400
+      // waiting for debouncing with 100ms added https://github.com/getsentry/sentry-dart/issues/400
       await tester.pump(Duration(milliseconds: 150));
 
       final breadcrumb =
@@ -271,7 +271,7 @@ void main() {
       // ignore: deprecated_member_use
       window.viewInsetsTestValue = WindowPadding.zero;
 
-      //waiting for debouncing with 100ms added https://github.com/getsentry/sentry-dart/issues/400
+      // waiting for debouncing with 100ms added https://github.com/getsentry/sentry-dart/issues/400
       await tester.pump(Duration(milliseconds: 150));
 
       verifyNever(hub.addBreadcrumb(captureAny));
@@ -295,7 +295,7 @@ void main() {
 
       window.onMetricsChanged!();
 
-      //waiting for debouncing with 100ms added https://github.com/getsentry/sentry-dart/issues/400
+      // waiting for debouncing with 100ms added https://github.com/getsentry/sentry-dart/issues/400
       await tester.pump(Duration(milliseconds: 150));
 
       verifyNever(hub.addBreadcrumb(captureAny));
@@ -470,7 +470,7 @@ void main() {
 
       verifyNever(hub.addBreadcrumb(captureAny));
 
-      //waiting for debouncing with 100ms added https://github.com/getsentry/sentry-dart/issues/400
+      // waiting for debouncing with 100ms added https://github.com/getsentry/sentry-dart/issues/400
       await tester.pump(Duration(milliseconds: 150));
 
       verify(hub.addBreadcrumb(captureAny)).called(1);
