@@ -78,7 +78,7 @@ void main() {
       expect(copy.name, 'fixture-2-name');
       expect(copy.replayId, 'fixture-2-replayId');
       expect(copy.url, "https://fixture-2-url.com");
-      expect(copy.associatedEventId, '1d49af08b6e2c437f9052b1ecfd83dca');
+      expect(copy.associatedEventId.toString(), '1d49af08b6e2c437f9052b1ecfd83dca');
     });
   });
 }
