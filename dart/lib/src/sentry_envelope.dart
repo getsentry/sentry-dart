@@ -59,6 +59,7 @@ class SentryEnvelope {
     );
   }
 
+  @Deprecated('Will be removed in a future version.')
   factory SentryEnvelope.fromUserFeedback(
     SentryUserFeedback feedback,
     SdkVersion sdkVersion, {

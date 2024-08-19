@@ -218,6 +218,8 @@ class Sentry {
   /// Reports a [userFeedback] to Sentry.io.
   ///
   /// First capture an event and use the [SentryId] to create a [SentryUserFeedback]
+  @Deprecated(
+      'Will be removed in a future version. Use [captureFeedback] instead')
   static Future<void> captureUserFeedback(SentryUserFeedback userFeedback) =>
       _hub.captureUserFeedback(userFeedback);
 

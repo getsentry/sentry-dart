@@ -245,6 +245,8 @@ class Hub {
     return sentryId;
   }
 
+  @Deprecated(
+      'Will be removed in a future version. Use [captureFeedback] instead')
   Future<void> captureUserFeedback(SentryUserFeedback userFeedback) async {
     if (!_isEnabled) {
       _options.logger(

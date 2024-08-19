@@ -12,6 +12,10 @@ SentryNavigatorObserver(ignoreRoutes: ["/ignoreThisRoute"]),
 ```
 - Support `captureFeedback` ([#2230](https://github.com/getsentry/sentry-dart/pull/2230))
 
+### Deprecated
+
+- The function `captureUserFeedback` is deprecated. Use `captureFeedback` instead. ([#2230](https://github.com/getsentry/sentry-dart/pull/2230))
+
 ### Improvements
 
 - Debouncing of SentryWidgetsBindingObserver.didChangeMetrics with delay of 100ms. ([#2232](https://github.com/getsentry/sentry-dart/pull/2232))

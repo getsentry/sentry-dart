@@ -429,6 +429,8 @@ class SentryClient {
   }
 
   /// Reports the [userFeedback] to Sentry.io.
+  @Deprecated(
+      'Will be removed in a future version. Use [captureFeedback] instead')
   Future<void> captureUserFeedback(SentryUserFeedback userFeedback) {
     final envelope = SentryEnvelope.fromUserFeedback(
       userFeedback,
