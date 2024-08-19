@@ -49,6 +49,7 @@ class EventTransportAdapter implements Transport {
       if (item.header.type == 'event' && object is SentryEvent) {
         return _eventTransport.sendEvent(object);
       } else {
+        print('Sending envelope');
         return _envelopeTransport.send(envelope);
       }
     }
