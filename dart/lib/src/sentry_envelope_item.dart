@@ -66,7 +66,7 @@ class SentryEnvelopeItem {
 
     return SentryEnvelopeItem(
       SentryEnvelopeItemHeader(
-        event.type ?? SentryItemType.event,
+        event.type == 'feedback' ? 'feedback' : SentryItemType.event,
         cachedItem.getDataLength,
         contentType: 'application/json',
       ),

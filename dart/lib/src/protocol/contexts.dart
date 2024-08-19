@@ -142,7 +142,7 @@ class Contexts extends MapView<String, dynamic> {
 
   set response(SentryResponse? value) => this[SentryResponse.type] = value;
 
-  /// Feedback context for a FeedbackEvent.
+  /// Feedback context for a feedback event.
   SentryFeedback? get feedback => this[SentryFeedback.type];
 
   set feedback(SentryFeedback? value) => this[SentryFeedback.type] = value;

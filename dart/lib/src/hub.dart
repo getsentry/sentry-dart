@@ -274,6 +274,7 @@ class Hub {
     }
   }
 
+  /// Captures the feedback.
   Future<SentryId> captureFeedback(
     SentryFeedback feedback, {
     Hint? hint,
@@ -305,7 +306,7 @@ class Hub {
       } catch (exception, stacktrace) {
         _options.logger(
           SentryLevel.error,
-          'Error while capturing user feedback',
+          'Error while capturing feedback',
           exception: exception,
           stackTrace: stacktrace,
         );

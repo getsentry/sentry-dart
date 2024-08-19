@@ -27,7 +27,7 @@ class SentryFeedback {
   @internal
   final Map<String, dynamic>? unknown;
 
-  /// Deserializes a [SentryOperatingSystem] from JSON [Map].
+  /// Deserializes a [SentryFeedback] from JSON [Map].
   factory SentryFeedback.fromJson(Map<String, dynamic> data) {
     final json = AccessAwareMap(data);
 

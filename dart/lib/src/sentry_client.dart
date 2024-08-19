@@ -438,7 +438,7 @@ class SentryClient {
     return _attachClientReportsAndSend(envelope);
   }
 
-  /// Reports the [SentryFeedback] and to Sentry.io.
+  /// Reports the [feedback] to Sentry.io.
   Future<SentryId> captureFeedback(
     SentryFeedback feedback, {
     Scope? scope,

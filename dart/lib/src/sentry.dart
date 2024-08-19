@@ -22,6 +22,7 @@ import 'sentry_client.dart';
 import 'sentry_options.dart';
 import 'sentry_user_feedback.dart';
 import 'tracing.dart';
+import 'sentry_attachment/sentry_attachment.dart';
 
 /// Configuration options callback
 typedef OptionsConfiguration = FutureOr<void> Function(SentryOptions);
@@ -220,6 +221,9 @@ class Sentry {
   static Future<void> captureUserFeedback(SentryUserFeedback userFeedback) =>
       _hub.captureUserFeedback(userFeedback);
 
+  /// Reports [SentryFeedback] to Sentry.io.
+  ///
+  /// Use [withScope] to add [SentryAttachment] to the feedback.
   static Future<void> captureFeedback(
     SentryFeedback feedback, {
     Hint? hint,
