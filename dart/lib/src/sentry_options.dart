@@ -163,7 +163,7 @@ class SentryOptions {
 
   /// This function is called with an SDK specific feedback event object and can return a modified
   /// feedback event object or nothing to skip reporting the feedback event
-  BeforeSendFeedbackCallback? beforeSendFeedback;
+  BeforeSendCallback? beforeSendFeedback;
 
   /// This function is called with an SDK specific breadcrumb object before the breadcrumb is added
   /// to the scope. When nothing is returned from the function, the breadcrumb is dropped
@@ -616,13 +616,6 @@ typedef BeforeSendCallback = FutureOr<SentryEvent?> Function(
 /// object or nothing to skip reporting the transaction
 typedef BeforeSendTransactionCallback = FutureOr<SentryTransaction?> Function(
   SentryTransaction transaction,
-);
-
-/// This function is called with an SDK specific feedback event object and can
-/// return a modified feedback event object or nothing to skip reporting the feedback event
-typedef BeforeSendFeedbackCallback = FutureOr<SentryEvent?> Function(
-  SentryEvent event,
-  Hint hint,
 );
 
 /// This function is called with an SDK specific breadcrumb object before the breadcrumb is added

@@ -2159,7 +2159,7 @@ class Fixture {
     double? sampleRate,
     BeforeSendCallback? beforeSend,
     BeforeSendTransactionCallback? beforeSendTransaction,
-    BeforeSendFeedbackCallback? beforeSendFeedback,
+    BeforeSendCallback? beforeSendFeedback,
     EventProcessor? eventProcessor,
     bool provideMockRecorder = true,
     bool debug = false,
