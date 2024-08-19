@@ -1070,6 +1070,7 @@ void main() {
     setUp(() {
       fixture = Fixture();
       fixture.options.ignoreErrors = ["my-error", "^error-.*\$"];
+      fixture.options.ignoreTransactions = ["my-transaction", "^transaction-.*\$"];
     });
 
     test('drop event if error message fully matches ignoreErrors value',
@@ -1079,7 +1080,7 @@ void main() {
       final client = fixture.getSut();
       await client.captureEvent(event);
 
-      expect((fixture.transport).called(0), true);
+      expect(fixture.transport.called(0), true);
     });
 
     test('drop event if error message partially matches ignoreErrors value',
@@ -1089,7 +1090,7 @@ void main() {
       final client = fixture.getSut();
       await client.captureEvent(event);
 
-      expect((fixture.transport).called(0), true);
+      expect(fixture.transport.called(0), true);
     });
 
     test(
@@ -1100,7 +1101,7 @@ void main() {
       final client = fixture.getSut();
       await client.captureEvent(event);
 
-      expect((fixture.transport).called(0), true);
+      expect(fixture.transport.called(0), true);
     });
 
     test('send event if error message does not match ignoreErrors value',
@@ -1110,7 +1111,7 @@ void main() {
       final client = fixture.getSut();
       await client.captureEvent(event);
 
-      expect((fixture.transport).called(1), true);
+      expect(fixture.transport.called(1), true);
     });
 
     test('send event if no values are set for ignoreErrors', () async {
@@ -1120,7 +1121,7 @@ void main() {
       final client = fixture.getSut();
       await client.captureEvent(event);
 
-      expect((fixture.transport).called(1), true);
+      expect(fixture.transport.called(1), true);
     });
   });
 
@@ -1142,7 +1143,7 @@ void main() {
       fakeTransaction.tracer.name = "my-transaction";
       await client.captureTransaction(fakeTransaction);
 
-      expect((fixture.transport).called(0), true);
+      expect(fixture.transport.called(0), true);
     });
 
     test('drop transaction if name partially matches ignoreTransaction value',
@@ -1152,7 +1153,7 @@ void main() {
       fakeTransaction.tracer.name = "this is a transaction-test";
       await client.captureTransaction(fakeTransaction);
 
-      expect((fixture.transport).called(0), true);
+      expect(fixture.transport.called(0), true);
     });
 
     test(
@@ -1163,7 +1164,7 @@ void main() {
       fakeTransaction.tracer.name = "transaction-test message";
       await client.captureTransaction(fakeTransaction);
 
-      expect((fixture.transport).called(0), true);
+      expect(fixture.transport.called(0), true);
     });
 
     test('send transaction if name does not match ignoreTransaction value',
@@ -1173,7 +1174,7 @@ void main() {
       fakeTransaction.tracer.name = "capture";
       await client.captureTransaction(fakeTransaction);
 
-      expect((fixture.transport).called(1), true);
+      expect(fixture.transport.called(1), true);
     });
 
     test('send transaction if no values are set for ignoreTransaction',
@@ -1184,7 +1185,7 @@ void main() {
       fakeTransaction.tracer.name = "this is a test transaction";
       await client.captureTransaction(fakeTransaction);
 
-      expect((fixture.transport).called(1), true);
+      expect(fixture.transport.called(1), true);
     });
   });
 
@@ -1205,7 +1206,7 @@ void main() {
       final client = fixture.getSut();
       await client.captureEvent(event);
 
-      expect((fixture.transport).called(0), true);
+      expect(fixture.transport.called(0), true);
     });
 
     test('record ignored exceptions dropping event', () async {
@@ -1237,7 +1238,7 @@ void main() {
       final fakeFeedback = fixture.fakeFeedback();
       await client.captureFeedback(fakeFeedback);
 
-      expect((fixture.transport).called(0), true);
+      expect(fixture.transport.called(0), true);
     });
 
     test('async before send feedback drops event', () async {
@@ -1246,7 +1247,7 @@ void main() {
       final fakeFeedback = fixture.fakeFeedback();
       await client.captureFeedback(fakeFeedback);
 
-      expect((fixture.transport).called(0), true);
+      expect(fixture.transport.called(0), true);
     });
 
     test(
@@ -1292,7 +1293,7 @@ void main() {
       final fakeTransaction = fixture.fakeTransaction();
       await client.captureTransaction(fakeTransaction);
 
-      expect((fixture.transport).called(0), true);
+      expect(fixture.transport.called(0), true);
     });
 
     test('async before send transaction drops event', () async {
@@ -1301,7 +1302,7 @@ void main() {
       final fakeTransaction = fixture.fakeTransaction();
       await client.captureTransaction(fakeTransaction);
 
-      expect((fixture.transport).called(0), true);
+      expect(fixture.transport.called(0), true);
     });
 
     test(
@@ -1358,7 +1359,7 @@ void main() {
       final client = fixture.getSut(beforeSend: beforeSendCallbackDropEvent);
       await client.captureEvent(fakeEvent);
 
-      expect((fixture.transport).called(0), true);
+      expect(fixture.transport.called(0), true);
     });
 
     test('async before send drops event', () async {
@@ -1366,7 +1367,7 @@ void main() {
           fixture.getSut(beforeSend: asyncBeforeSendCallbackDropEvent);
       await client.captureEvent(fakeEvent);
 
-      expect((fixture.transport).called(0), true);
+      expect(fixture.transport.called(0), true);
     });
 
     test('before send returns an event and event is captured', () async {
@@ -1535,7 +1536,7 @@ void main() {
 
       await client.captureEvent(fakeEvent);
 
-      expect((fixture.transport).called(0), true);
+      expect(fixture.transport.called(0), true);
     });
 
     test('event processor drops the feedback event', () async {
@@ -1544,7 +1545,7 @@ void main() {
       final fakeFeedback = fixture.fakeFeedback();
       await client.captureFeedback(fakeFeedback);
 
-      expect((fixture.transport).called(0), true);
+      expect(fixture.transport.called(0), true);
     });
   });
 
