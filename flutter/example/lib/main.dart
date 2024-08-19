@@ -523,14 +523,15 @@ class MainScaffold extends StatelessWidget {
             ),
             TooltipButton(
               onPressed: () async {
-                final associatedEventId = await Sentry.captureMessage('Associated Event');
+                final associatedEventId =
+                    await Sentry.captureMessage('Associated Event');
                 await Sentry.captureFeedback(
-                    SentryFeedback(
-                      message: 'message',
-                      contactEmail: 'john.appleseed@apple.com',
-                      name: 'John Appleseed',
-                      associatedEventId: associatedEventId,
-                    ),
+                  SentryFeedback(
+                    message: 'message',
+                    contactEmail: 'john.appleseed@apple.com',
+                    name: 'John Appleseed',
+                    associatedEventId: associatedEventId,
+                  ),
                 );
               },
               text: '',
