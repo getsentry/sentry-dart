@@ -226,7 +226,7 @@ class Sentry {
   /// Reports [SentryFeedback] to Sentry.io.
   ///
   /// Use [withScope] to add [SentryAttachment] to the feedback.
-  static Future<void> captureFeedback(
+  static Future<SentryId> captureFeedback(
     SentryFeedback feedback, {
     Hint? hint,
     ScopeCallback? withScope,

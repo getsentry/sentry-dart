@@ -286,6 +286,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
       ) as _i3.Future<_i2.SentryId>);
 
   @override
+  // ignore: deprecated_member_use
   _i3.Future<void> captureUserFeedback(_i2.SentryUserFeedback? userFeedback) =>
       (super.noSuchMethod(
         Invocation.method(

@@ -86,12 +86,29 @@ void main() {
     await setupSentryAndApp(tester);
 
     // ignore: deprecated_member_use_from_same_package
+    // ignore: deprecated_member_use
     final feedback = SentryUserFeedback(
         eventId: SentryId.newId(),
         name: 'fixture-name',
         email: 'fixture@email.com',
         comments: 'fixture-comments');
+    // ignore: deprecated_member_use
     await Sentry.captureUserFeedback(feedback);
+  });
+
+  testWidgets('setup sentry and capture feedback', (tester) async {
+    await setupSentryAndApp(tester);
+
+    // ignore: deprecated_member_use_from_same_package
+    // ignore: deprecated_member_use
+    final associatedEventId = await Sentry.captureMessage("Associated");
+    final feedback = SentryFeedback(
+      message: 'message',
+      contactEmail: 'john.appleseed@apple.com',
+      name: 'John Appleseed',
+      associatedEventId: associatedEventId,
+    );
+    await Sentry.captureFeedback(feedback);
   });
 
   testWidgets('setup sentry and close', (tester) async {
