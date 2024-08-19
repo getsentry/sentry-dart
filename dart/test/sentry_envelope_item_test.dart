@@ -59,6 +59,32 @@ void main() {
       expect(actualData, expectedData);
     });
 
+    test('fromEvent feedback', () async {
+      final feedback = SentryFeedback(
+        message: 'fixture-message',
+      );
+      final feedbackEvent = SentryEvent(
+        type: 'feedback',
+        contexts: Contexts(feedback: feedback),
+        level: SentryLevel.info,
+      );
+      final sut = SentryEnvelopeItem.fromEvent(feedbackEvent);
+
+      final expectedData = utf8.encode(jsonEncode(
+        feedbackEvent.toJson(),
+        toEncodable: jsonSerializationFallback,
+      ));
+      final actualData = await sut.dataFactory();
+
+      final expectedLength = expectedData.length;
+      final actualLength = await sut.header.length();
+
+      expect(sut.header.contentType, 'application/json');
+      expect(sut.header.type, 'feedback');
+      expect(actualLength, expectedLength);
+      expect(actualData, expectedData);
+    });
+
     test('fromTransaction', () async {
       final context = SentryTransactionContext(
         'name',
