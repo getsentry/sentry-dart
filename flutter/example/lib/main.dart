@@ -20,6 +20,7 @@ import 'package:sentry_isar/sentry_isar.dart';
 import 'package:sentry_logging/sentry_logging.dart';
 import 'package:sentry_sqflite/sentry_sqflite.dart';
 import 'package:sqflite/sqflite.dart';
+
 // import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 // import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 import 'package:universal_platform/universal_platform.dart';
@@ -83,12 +84,15 @@ Future<void> setupSentry(
       // configuration issues, e.g. finding out why your events are not uploaded.
       options.debug = true;
       options.spotlight = Spotlight(enabled: true);
-      options.enableTimeToFullDisplayTracing = true;
+      // options.enableTimeToFullDisplayTracing = true;
       options.enableMetrics = true;
 
       options.maxRequestBodySize = MaxRequestBodySize.always;
       options.maxResponseBodySize = MaxResponseBodySize.always;
       options.navigatorKey = navigatorKey;
+
+      options.experimental.replay.sessionSampleRate = 0;
+      options.experimental.replay.errorSampleRate = 0;
 
       _isIntegrationTest = isIntegrationTest;
       if (_isIntegrationTest) {

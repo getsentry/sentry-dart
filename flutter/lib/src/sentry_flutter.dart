@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
+import 'transport/javascript_transport.dart';
 
 import '../sentry_flutter.dart';
 import 'event_processor/android_platform_exception_event_processor.dart';
@@ -10,13 +11,15 @@ import 'event_processor/flutter_enricher_event_processor.dart';
 import 'event_processor/flutter_exception_event_processor.dart';
 import 'event_processor/platform_exception_event_processor.dart';
 import 'event_processor/widget_event_processor.dart';
-import 'file_system_transport.dart';
+import 'transport/file_system_transport.dart';
 import 'flutter_exception_type_identifier.dart';
 import 'frame_callback_handler.dart';
 import 'integrations/connectivity/connectivity_integration.dart';
 import 'integrations/integrations.dart';
 import 'integrations/screenshot_integration.dart';
-import 'native/factory.dart';
+import 'integrations/web_sdk_integration.dart';
+import 'web/factory.dart' as webFactory;
+import 'native/factory.dart' as nativeFactory;
 import 'native/native_scope_observer.dart';
 import 'native/sentry_native_binding.dart';
 import 'profiling.dart';
@@ -24,6 +27,9 @@ import 'renderer/renderer.dart';
 import 'span_frame_metrics_collector.dart';
 import 'version.dart';
 import 'view_hierarchy/view_hierarchy_integration.dart';
+
+import 'web/sentry_web_binding.dart';
+import 'web_replay_event_processor.dart';
 
 /// Configuration options callback
 typedef FlutterOptionsConfiguration = FutureOr<void> Function(
@@ -66,7 +72,12 @@ mixin SentryFlutter {
     }
 
     if (flutterOptions.platformChecker.hasNativeIntegration) {
-      _native = createBinding(flutterOptions);
+      _native = nativeFactory.createBinding(flutterOptions);
+    }
+
+    // todo: maybe makes sense to combine the bindings into a single interface
+    if (flutterOptions.platformChecker.isWeb) {
+      _webBinding = webFactory.createBinding(flutterOptions);
     }
 
     final platformDispatcher = PlatformDispatcher.instance;
@@ -127,6 +138,13 @@ mixin SentryFlutter {
     if (_native != null) {
       options.transport = FileSystemTransport(_native!, options);
       options.addScopeObserver(NativeScopeObserver(_native!));
+    }
+
+    if (options.platformChecker.isWeb) {
+      options.transport = JavascriptEnvelopeTransport(_webBinding!);
+
+      // todo: only if replay enabled
+      options.addEventProcessor(WebReplayEventProcessor(_webBinding!));
     }
 
     options.addEventProcessor(FlutterEnricherEventProcessor(options));
@@ -190,6 +208,7 @@ mixin SentryFlutter {
 
     if (platformChecker.isWeb) {
       integrations.add(ConnectivityIntegration());
+      integrations.add(WebSdkIntegration(_webBinding!));
     }
 
     // works with Skia, CanvasKit and HTML renderer
@@ -280,4 +299,9 @@ mixin SentryFlutter {
   static set native(SentryNativeBinding? value) => _native = value;
 
   static SentryNativeBinding? _native;
+
+  @internal
+  static SentryWebBinding? get webBinding => _webBinding;
+
+  static SentryWebBinding? _webBinding;
 }
