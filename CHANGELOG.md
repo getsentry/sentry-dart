@@ -26,7 +26,7 @@
     (options) {
       ...
       options.experimental.replay.sessionSampleRate = 1.0;
-      options.experimental.replay.errorSampleRate = 1.0;
+      options.experimental.replay.onErrorSampleRate = 1.0;
     },
     appRunner: () => runApp(MyApp()),
   );
@@ -198,7 +198,7 @@ SentryNavigatorObserver(ignoreRoutes: ["/ignoreThisRoute"]),
     (options) {
       ...
       options.experimental.replay.sessionSampleRate = 1.0;
-      options.experimental.replay.errorSampleRate = 1.0;
+      options.experimental.replay.onErrorSampleRate = 1.0;
     },
     appRunner: () => runApp(MyApp()),
   );

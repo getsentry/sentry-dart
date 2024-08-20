@@ -76,7 +76,7 @@ void main() {
 
       test('init sets $ReplayEventProcessor when error replay is enabled',
           () async {
-        options.experimental.replay.errorSampleRate = 0.1;
+        options.experimental.replay.onErrorSampleRate = 0.1;
         await sut.init(hub);
 
         expect(options.eventProcessors.map((e) => e.runtimeType.toString()),
@@ -95,7 +95,7 @@ void main() {
       group('replay recorder', () {
         setUp(() async {
           options.experimental.replay.sessionSampleRate = 0.1;
-          options.experimental.replay.errorSampleRate = 0.1;
+          options.experimental.replay.onErrorSampleRate = 0.1;
           await sut.init(hub);
         });
 

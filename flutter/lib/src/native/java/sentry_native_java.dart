@@ -21,7 +21,7 @@ class SentryNativeJava extends SentryNativeChannel {
     // so let's set it up conditionally. This allows Dart to trim the code.
     if (options.experimental.replay.isEnabled) {
       // We only need the integration when error-replay capture is enabled.
-      if ((options.experimental.replay.errorSampleRate ?? 0) > 0) {
+      if ((options.experimental.replay.onErrorSampleRate ?? 0) > 0) {
         options.addEventProcessor(ReplayEventProcessor(this));
       }
 
