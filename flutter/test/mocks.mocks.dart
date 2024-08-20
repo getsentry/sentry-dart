@@ -264,6 +264,12 @@ class MockSentryTracer extends _i1.Mock implements _i4.SentryTracer {
       );
 
   @override
+  Map<String, _i2.SentryMeasurement> get measurements => (super.noSuchMethod(
+        Invocation.getter(#measurements),
+        returnValue: <String, _i2.SentryMeasurement>{},
+      ) as Map<String, _i2.SentryMeasurement>);
+
+  @override
   _i2.SentrySpanContext get context => (super.noSuchMethod(
         Invocation.getter(#context),
         returnValue: _FakeSentrySpanContext_0(
@@ -331,12 +337,6 @@ class MockSentryTracer extends _i1.Mock implements _i4.SentryTracer {
         Invocation.getter(#tags),
         returnValue: <String, String>{},
       ) as Map<String, String>);
-
-  @override
-  Map<String, _i2.SentryMeasurement> get measurements => (super.noSuchMethod(
-        Invocation.getter(#measurements),
-        returnValue: <String, _i2.SentryMeasurement>{},
-      ) as Map<String, _i2.SentryMeasurement>);
 
   @override
   _i8.Future<void> finish({
@@ -493,6 +493,24 @@ class MockSentryTracer extends _i1.Mock implements _i4.SentryTracer {
       super.noSuchMethod(
         Invocation.method(
           #setMeasurement,
+          [
+            name,
+            value,
+          ],
+          {#unit: unit},
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void setMeasurementFromChild(
+    String? name,
+    num? value, {
+    _i2.SentryMeasurementUnit? unit,
+  }) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #setMeasurementFromChild,
           [
             name,
             value,
@@ -1516,6 +1534,34 @@ class MockHub extends _i1.Mock implements _i2.Hub {
         returnValue: _i8.Future<void>.value(),
         returnValueForMissingStub: _i8.Future<void>.value(),
       ) as _i8.Future<void>);
+
+  @override
+  _i8.Future<_i3.SentryId> captureFeedback(
+    _i2.SentryFeedback? feedback, {
+    _i2.Hint? hint,
+    _i2.ScopeCallback? withScope,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #captureFeedback,
+          [feedback],
+          {
+            #hint: hint,
+            #withScope: withScope,
+          },
+        ),
+        returnValue: _i8.Future<_i3.SentryId>.value(_FakeSentryId_5(
+          this,
+          Invocation.method(
+            #captureFeedback,
+            [feedback],
+            {
+              #hint: hint,
+              #withScope: withScope,
+            },
+          ),
+        )),
+      ) as _i8.Future<_i3.SentryId>);
 
   @override
   _i8.Future<void> addBreadcrumb(

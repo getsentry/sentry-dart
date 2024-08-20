@@ -504,8 +504,7 @@ class MainScaffold extends StatelessWidget {
                         return SentryFeedbackWidget(associatedEventId: id);
                       },
                       fullscreenDialog: true,
-                    )
-                );
+                    ));
               },
               text:
                   'Shows a custom feedback dialog without an ongoing event that captures and sends user feedback data to Sentry.',
