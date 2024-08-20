@@ -498,11 +498,14 @@ class MainScaffold extends StatelessWidget {
               onPressed: () async {
                 final id = await Sentry.captureMessage('UserFeedback');
                 if (!context.mounted) return;
-                await showDialog(
-                  context: context,
-                  builder: (context) {
-                    return FeedbackWidget(associatedEventId: id);
-                  },
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return FeedbackWidget(associatedEventId: id);
+                      },
+                      fullscreenDialog: true,
+                    )
                 );
               },
               text:
