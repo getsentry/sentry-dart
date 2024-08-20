@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 class SentryFeedbackWidget extends StatefulWidget {
-  const SentryFeedbackWidget({
+  SentryFeedbackWidget({
     super.key,
     this.associatedEventId,
-    this.hub,
+    Hub? hub,
     this.title = 'Report a Bug',
     this.nameLabel = 'Name',
     this.namePlaceholder = 'Your Name',
@@ -21,10 +21,11 @@ class SentryFeedbackWidget extends StatefulWidget {
     this.isRequiredLabel = '(required)',
     this.isNameRequired = false,
     this.isEmailRequired = false,
-  }) : assert(associatedEventId != const SentryId.empty());
+  })  : assert(associatedEventId != const SentryId.empty()),
+        _hub = hub ?? HubAdapter();
 
   final SentryId? associatedEventId;
-  final Hub? hub;
+  final Hub _hub;
 
   final String title;
 
@@ -246,9 +247,8 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
     super.dispose();
   }
 
-  Future<void> _captureFeedback(SentryFeedback feedback) {
-    // ignore: deprecated_member_use
-    return (widget.hub ?? HubAdapter()).captureFeedback(feedback);
+  Future<SentryId> _captureFeedback(SentryFeedback feedback) {
+    return widget._hub.captureFeedback(feedback);
   }
 
   String? _errorText(String? text) {
