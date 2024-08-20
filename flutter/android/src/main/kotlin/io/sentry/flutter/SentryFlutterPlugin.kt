@@ -476,5 +476,4 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       )
     result.success(serializedScope)
   }
-
 }
