@@ -107,7 +107,10 @@ void main() {
     testWidgets('does call hub captureFeedback on submit', (tester) async {
       await fixture.pumpFeedbackWidget(
         tester,
-        (hub) => SentryFeedbackWidget(hub: hub),
+        (hub) => SentryFeedbackWidget(
+          hub: hub,
+          associatedEventId: SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea'),
+        ),
       );
 
       when(fixture.hub.captureFeedback(
@@ -133,7 +136,8 @@ void main() {
         argThat(predicate<SentryFeedback>((feedback) =>
             feedback.name == 'fixture-name' &&
             feedback.contactEmail == 'fixture-email' &&
-            feedback.message == 'fixture-message')),
+            feedback.message == 'fixture-message' &&
+            feedback.associatedEventId == SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea'))),
         hint: anyNamed('hint'),
         withScope: anyNamed('withScope'),
       )).called(1);
