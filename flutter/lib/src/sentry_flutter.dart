@@ -29,6 +29,7 @@ import 'version.dart';
 import 'view_hierarchy/view_hierarchy_integration.dart';
 
 import 'web/sentry_web_binding.dart';
+import 'web_replay_event_processor.dart';
 
 /// Configuration options callback
 typedef FlutterOptionsConfiguration = FutureOr<void> Function(
@@ -74,6 +75,7 @@ mixin SentryFlutter {
       _native = nativeFactory.createBinding(flutterOptions);
     }
 
+    // todo: maybe makes sense to combine the bindings into a single interface
     if (flutterOptions.platformChecker.isWeb) {
       _webBinding = webFactory.createBinding(flutterOptions);
     }
@@ -139,10 +141,10 @@ mixin SentryFlutter {
     }
 
     if (options.platformChecker.isWeb) {
-      final eventTransport = JavascriptEventTransport(_webBinding!);
-      final envelopeTransport = JavascriptEnvelopeTransport(_webBinding!);
-      options.transport =
-          EventTransportAdapter(eventTransport, envelopeTransport);
+      options.transport = JavascriptEnvelopeTransport(_webBinding!);
+
+      // todo: only if replay enabled
+      options.addEventProcessor(WebReplayEventProcessor(_webBinding!));
     }
 
     options.addEventProcessor(FlutterEnricherEventProcessor(options));
@@ -297,6 +299,9 @@ mixin SentryFlutter {
   static set native(SentryNativeBinding? value) => _native = value;
 
   static SentryNativeBinding? _native;
+
+  @internal
+  static SentryWebBinding? get webBinding => _webBinding;
 
   static SentryWebBinding? _webBinding;
 }

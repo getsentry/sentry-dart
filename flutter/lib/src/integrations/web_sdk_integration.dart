@@ -16,6 +16,7 @@ class WebSdkIntegration implements Integration<SentryFlutterOptions> {
 
     try {
       _webBinding.init(options);
+
       options.sdk.addIntegration('WebSdkIntegration');
     } catch (exception, stackTrace) {
       options.logger(

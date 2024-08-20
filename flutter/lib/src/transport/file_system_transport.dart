@@ -35,25 +35,3 @@ class FileSystemTransport implements Transport {
     return envelope.header.eventId;
   }
 }
-
-class EventTransportAdapter implements Transport {
-  final EventTransport _eventTransport;
-  final Transport _envelopeTransport;
-
-  EventTransportAdapter(this._eventTransport, this._envelopeTransport);
-
-  @override
-  Future<SentryId?> send(SentryEnvelope envelope) async {
-    for (final item in envelope.items) {
-      final object = item.originalObject;
-      if (item.header.type == 'event' && object is SentryEvent) {
-        return _eventTransport.sendEvent(object);
-      } else {
-        print('Sending envelope');
-        return _envelopeTransport.send(envelope);
-      }
-    }
-    // If no event is found in the envelope, return an empty ID
-    return SentryId.empty();
-  }
-}

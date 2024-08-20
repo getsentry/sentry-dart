@@ -20,6 +20,8 @@ class SentryWebInterop
 
   SentryWebInterop(this._options);
 
+  dynamic replay;
+
   @override
   Future<void> init(SentryFlutterOptions options) async {
     return tryCatchAsync('init', () async {
@@ -30,6 +32,12 @@ class SentryWebInterop
             'Sentry scripts are not loaded, cannot initialize Sentry JS SDK.');
       }
 
+      replay = SentryJsBridge.replayIntegration({
+        'maskAllText': options.experimental.replay.redactAllText,
+        // todo: is redactAllImages the same as blockAllMedia?
+        'blockAllMedia': options.experimental.replay.redactAllImages,
+      }.jsify());
+
       final Map<String, dynamic> config = {
         'dsn': options.dsn,
         'debug': options.debug,
@@ -39,16 +47,11 @@ class SentryWebInterop
         'autoSessionTracking': options.enableAutoSessionTracking,
         'attachStacktrace': options.attachStacktrace,
         'maxBreadcrumbs': options.maxBreadcrumbs,
-        'replaysSessionSampleRate':
-            options.experimental.replay.sessionSampleRate,
-        'replaysOnErrorSampleRate': options.experimental.replay.errorSampleRate,
+        'replaysSessionSampleRate': 0,
+        'replaysOnErrorSampleRate': 0,
         // using defaultIntegrations ensures the we can control which integrations are added
         'defaultIntegrations': [
-          SentryJsBridge.replayIntegration({
-            'maskAllText': options.experimental.replay.redactAllText,
-            // todo: is redactAllImages the same as blockAllMedia?
-            'blockAllMedia': options.experimental.replay.redactAllImages,
-          }.jsify()),
+          replay,
           SentryJsBridge.replayCanvasIntegration(),
         ],
       };
@@ -58,13 +61,14 @@ class SentryWebInterop
 
       SentryJsBridge.init(config.jsify());
 
-      // SpotlightBridge.init();
+      await startReplay();
     });
   }
 
   @override
   Future<void> captureEvent(SentryEvent event) async {
     tryCatchSync('captureEvent', () {
+      print(event.toJson());
       SentryJsBridge.captureEvent(event.toJson().jsify());
     });
   }
@@ -76,15 +80,24 @@ class SentryWebInterop
 
       for (final item in envelope.items) {
         // todo: add support for different type of items
-        final jsItem = [
-          (await item.header.toJson()).jsify(),
-          (item.originalObject as SentryTransaction).toJson().jsify()
-        ];
+        // maybe add a generic to sentryenvelope?
+        final originalObject = item.originalObject;
+        final List<dynamic> jsItem = [(await item.header.toJson())];
+        if (originalObject is SentryTransaction) {
+          jsItem.add(originalObject.toJson().jsify());
+        }
+        if (originalObject is SentryEvent) {
+          jsItem.add(originalObject.toJson().jsify());
+        }
+        if (originalObject is SentryAttachment) {
+          jsItem.add(await originalObject.bytes);
+        }
         jsItems.add(jsItem);
       }
 
-      SentryJsBridge.getClient()
-          .sendEnvelope([envelope.header.toJson().jsify(), jsItems].jsify());
+      final jsEnvelope = [envelope.header.toJson(), jsItems].jsify();
+
+      SentryJsBridge.getClient().sendEnvelope(jsEnvelope);
     });
   }
 
@@ -94,6 +107,22 @@ class SentryWebInterop
       SentryJsBridge.close();
     });
   }
+
+  @override
+  Future<void> startReplay() async {
+    replay.startBuffering();
+  }
+
+  @override
+  Future<void> flushReplay() async {
+    replay.flush();
+  }
+
+  @override
+  Future<SentryId> getReplayId() async {
+    final sentryIdString = replay.getReplayId() as String;
+    return SentryId.fromId(sentryIdString);
+  }
 }
 
 bool _scriptLoaded = false;
@@ -102,18 +131,17 @@ Future<void> _loadSentryScripts(SentryFlutterOptions options,
     {bool useIntegrity = true}) async {
   if (_scriptLoaded) return;
 
-  // todo: put this somewhere else so we can auto-update it as well
+  // todo: put this somewhere else so we can auto-update it as well and only enable non minified bundles in dev mode
   final scripts = [
     {
-      'url':
-          'https://browser.sentry-cdn.com/8.24.0/bundle.tracing.replay.min.js',
-      'integrity':
-          'sha384-eEn/WSvcP5C2h5g0AGe5LCsheNNlNkn/iV8y5zOylmPoOfSyvZ23HBDnOhoB0sdL'
+      'url': 'https://browser.sentry-cdn.com/8.24.0/bundle.tracing.replay.js',
+      // 'integrity':
+      //     'sha384-eEn/WSvcP5C2h5g0AGe5LCsheNNlNkn/iV8y5zOylmPoOfSyvZ23HBDnOhoB0sdL'
     },
     {
-      'url': 'https://browser.sentry-cdn.com/8.24.0/replay-canvas.min.js',
-      'integrity':
-          'sha384-gSFCG8IdZobb6PWs7SwuaES/R5PPt+gw4y6N/Kkwlic+1Hzf21EUm5Dg/WbYMxTE'
+      'url': 'https://browser.sentry-cdn.com/8.24.0/replay-canvas.js',
+      // 'integrity':
+      //     'sha384-gSFCG8IdZobb6PWs7SwuaES/R5PPt+gw4y6N/Kkwlic+1Hzf21EUm5Dg/WbYMxTE'
     },
   ];
 

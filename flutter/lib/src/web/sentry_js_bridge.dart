@@ -1,6 +1,8 @@
 import 'dart:js_interop';
 import 'package:meta/meta.dart';
 
+import '../sentry_replay_options.dart';
+
 @internal
 @JS('Spotlight')
 @staticInterop
@@ -25,6 +27,24 @@ class SentryJsBridge {
   external static JSAny? replayCanvasIntegration();
 
   external static _SentryJsClient getClient();
+
+  external static JSAny? getReplay();
+}
+
+@JS('Replay')
+@staticInterop
+class _SentryReplay {}
+
+extension SentryReplayExtension on JSAny? {
+  external void start();
+
+  external void startBuffering();
+
+  external void stop();
+
+  external void flush();
+
+  external JSString getReplayId();
 }
 
 @JS('Client')
