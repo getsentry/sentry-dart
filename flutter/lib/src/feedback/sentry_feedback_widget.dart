@@ -54,6 +54,8 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _messageController = TextEditingController();
 
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
   String? _name;
   String? _email;
   String? _message;
@@ -69,7 +71,8 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
         child: Column(
           children: [
             Expanded(
-              child: SingleChildScrollView(
+              child: Form(
+                key: _formKey,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
@@ -92,17 +95,19 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
                       ],
                     ),
                     const SizedBox(height: 4),
-                    TextField(
+                    TextFormField(
                       key: const ValueKey('sentry_feedback_name_textfield'),
                       style: Theme.of(context).textTheme.bodyLarge,
+                      controller: _nameController,
                       decoration: InputDecoration(
                         border: const OutlineInputBorder(),
                         hintText: widget.namePlaceholder,
-                        errorText: _errorText(_name),
                       ),
-                      controller: _nameController,
                       keyboardType: TextInputType.text,
-                      onChanged: (text) => setState(() => _name = text),
+                      validator: (String? value) {
+                        return _errorText(value, widget.isNameRequired);
+                      },
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
                     ),
                     const SizedBox(height: 16),
                     Row(
@@ -123,17 +128,19 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
                       ],
                     ),
                     const SizedBox(height: 4),
-                    TextField(
+                    TextFormField(
                       key: const ValueKey('sentry_feedback_email_textfield'),
+                      controller: _emailController,
                       style: Theme.of(context).textTheme.bodyLarge,
                       decoration: InputDecoration(
                         border: const OutlineInputBorder(),
                         hintText: widget.emailPlaceholder,
-                        errorText: _errorText(_email),
                       ),
-                      controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
-                      onChanged: (text) => setState(() => _email = text),
+                      validator: (String? value) {
+                        return _errorText(value, widget.isEmailRequired);
+                      },
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
                     ),
                     const SizedBox(height: 16),
                     Row(
@@ -153,19 +160,21 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
                       ],
                     ),
                     const SizedBox(height: 4),
-                    TextField(
+                    TextFormField(
                       key: const ValueKey('sentry_feedback_message_textfield'),
+                      controller: _messageController,
                       style: Theme.of(context).textTheme.bodyLarge,
                       minLines: 5,
                       maxLines: null,
                       decoration: InputDecoration(
                         border: const OutlineInputBorder(),
                         hintText: widget.messagePlaceholder,
-                        errorText: _errorText(_message),
                       ),
-                      controller: _messageController,
                       keyboardType: TextInputType.multiline,
-                      onChanged: (text) => setState(() => _message = text),
+                      validator: (String? value) {
+                        return _errorText(value, true);
+                      },
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
                     ),
                   ],
                 ),
@@ -178,36 +187,9 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
                   child: ElevatedButton(
                     key: const ValueKey('sentry_feedback_submit_button'),
                     onPressed: () async {
-                      if (_name == null && widget.isNameRequired) {
-                        setState(() {
-                          _name ??= '';
-                        });
-                      }
-
-                      if (_email == null && widget.isEmailRequired) {
-                        setState(() {
-                          _email ??= '';
-                        });
-                      }
-
-                      if (_message == null) {
-                        setState(() {
-                          _message ??= '';
-                        });
-                      }
-
-                      if (!_valid(_name, widget.isNameRequired)) {
+                      if (!_formKey.currentState!.validate()) {
                         return;
                       }
-
-                      if (!_valid(_email, widget.isEmailRequired)) {
-                        return;
-                      }
-
-                      if (!_valid(_message, true)) {
-                        return;
-                      }
-
                       final feedback = SentryFeedback(
                         message: _messageController.text,
                         contactEmail: _emailController.text,
@@ -247,22 +229,14 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
     super.dispose();
   }
 
+  String? _errorText(String? value, bool isRequired) {
+    if (isRequired && (value == null || value.isEmpty)) {
+      return widget.validationErrorLabel;
+    }
+    return null;
+  }
+
   Future<SentryId> _captureFeedback(SentryFeedback feedback) {
     return widget._hub.captureFeedback(feedback);
-  }
-
-  String? _errorText(String? text) {
-    if (text != null && text.isEmpty) {
-      return widget.validationErrorLabel;
-    } else {
-      return null;
-    }
-  }
-
-  bool _valid(String? text, bool required) {
-    if (!required) {
-      return true;
-    }
-    return text != null && text.isNotEmpty;
   }
 }
