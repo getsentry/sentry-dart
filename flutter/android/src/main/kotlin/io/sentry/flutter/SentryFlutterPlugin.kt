@@ -74,6 +74,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       "removeTag" -> removeTag(call.argument("key"), result)
       "loadContexts" -> loadContexts(result)
       "displayRefreshRate" -> displayRefreshRate(result)
+      "nativeCrash" -> crash(result)
       else -> result.notImplemented()
     }
   }
@@ -465,5 +466,9 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         currentScope,
       )
     result.success(serializedScope)
+  }
+
+  private fun crash(result: Result) {
+    error("This is a fatal error caused by SentryFlutter.nativeCrash.")
   }
 }
