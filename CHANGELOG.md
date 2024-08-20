@@ -5,6 +5,7 @@
 ### Features
 
 - Add `SentryFlutter.nativeCrash()` using MethodChannels for Android and iOS ([#2239](https://github.com/getsentry/sentry-dart/pull/2239))
+  - This can be used to test if native crash reporting works  
 - Add `ignoreRoutes` parameter to `SentryNavigatorObserver`. ([#2218](https://github.com/getsentry/sentry-dart/pull/2218))
     - This will ignore the Routes and prevent the Route from being pushed to the Sentry server.
     - Ignored routes will also create no TTID and TTFD spans.
