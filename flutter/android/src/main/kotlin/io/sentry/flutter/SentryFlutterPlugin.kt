@@ -3,6 +3,7 @@ package io.sentry.flutter
 import android.app.Activity
 import android.content.Context
 import android.os.Build
+import android.os.Looper
 import android.util.Log
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
@@ -469,6 +470,9 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
   }
 
   private fun crash(result: Result) {
-    error("This is a fatal error caused by SentryFlutter.nativeCrash.")
+    val exception = RuntimeException("FlutterSentry Native Integration: Sample RuntimeException")
+    val mainThread = Looper.getMainLooper().thread
+    mainThread.uncaughtExceptionHandler.uncaughtException(mainThread, exception)
+    mainThread.join(500)
   }
 }
