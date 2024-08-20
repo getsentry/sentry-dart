@@ -369,7 +369,6 @@ class _SentryUserInteractionWidgetState
       if (_isElementMounted(lastElement) &&
           _isElementMounted(element) &&
           lastElement?.widget == element.widget &&
-          _lastTappedWidget?.eventType == info.eventType &&
           !activeTransaction.finished) {
         // ignore: invalid_use_of_internal_member
         activeTransaction.scheduleFinish();
@@ -417,7 +416,11 @@ class _SentryUserInteractionWidgetState
     });
   }
 
-  String _findDescriptionOf(Element element, bool allowText) {
+  String _findDescriptionOf(Element element) {
+    final widget = element.widget;
+    final allowText = widget is ButtonStyleButton ||
+        widget is MaterialButton ||
+        widget is CupertinoButton;
     var description = '';
 
     // traverse tree to find a suiting element
@@ -489,7 +492,14 @@ class _SentryUserInteractionWidgetState
         return;
       }
 
-      tappedWidget = _getDescriptionFrom(element);
+      final type = _getElementType(element);
+      if (type != null) {
+        tappedWidget = UserInteractionInfo(
+          element: element,
+          description: _findDescriptionOf(element),
+          type: type,
+        );
+      }
 
       if (tappedWidget == null || !hitFound) {
         element.visitChildElements(elementFinder);
@@ -501,71 +511,36 @@ class _SentryUserInteractionWidgetState
     return tappedWidget;
   }
 
-  UserInteractionInfo? _getDescriptionFrom(Element element) {
+  String? _getElementType(Element element) {
     final widget = element.widget;
     // Used by ElevatedButton, TextButton, OutlinedButton.
     if (widget is ButtonStyleButton) {
       if (widget.enabled) {
-        return UserInteractionInfo(
-          element: element,
-          description: _findDescriptionOf(element, true),
-          type: 'ButtonStyleButton',
-          eventType: 'onClick',
-        );
+        return 'ButtonStyleButton';
       }
     } else if (widget is MaterialButton) {
       if (widget.enabled) {
-        return UserInteractionInfo(
-          element: element,
-          description: _findDescriptionOf(element, true),
-          type: 'MaterialButton',
-          eventType: 'onClick',
-        );
+        return 'MaterialButton';
       }
     } else if (widget is CupertinoButton) {
       if (widget.enabled) {
-        return UserInteractionInfo(
-          element: element,
-          description: _findDescriptionOf(element, true),
-          type: 'CupertinoButton',
-          eventType: 'onPressed',
-        );
+        return 'CupertinoButton';
       }
     } else if (widget is InkWell) {
       if (widget.onTap != null) {
-        return UserInteractionInfo(
-          element: element,
-          description: _findDescriptionOf(element, false),
-          type: 'InkWell',
-          eventType: 'onTap',
-        );
+        return 'InkWell';
       }
     } else if (widget is IconButton) {
       if (widget.onPressed != null) {
-        return UserInteractionInfo(
-          element: element,
-          description: _findDescriptionOf(element, false),
-          type: 'IconButton',
-          eventType: 'onPressed',
-        );
+        return 'IconButton';
       }
     } else if (widget is PopupMenuButton) {
       if (widget.enabled) {
-        return UserInteractionInfo(
-          element: element,
-          description: _findDescriptionOf(element, false),
-          type: 'PopupMenuButton',
-          eventType: 'onTap',
-        );
+        return 'PopupMenuButton';
       }
     } else if (widget is PopupMenuItem) {
       if (widget.enabled) {
-        return UserInteractionInfo(
-          element: element,
-          description: _findDescriptionOf(element, false),
-          type: 'PopupMenuItem',
-          eventType: 'onTap',
-        );
+        return 'PopupMenuItem';
       }
     }
 
