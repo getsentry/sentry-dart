@@ -331,10 +331,10 @@ class _SentryUserInteractionWidgetState
       return;
     }
 
-    Map<String, dynamic>? data;
-    if ((_options?.sendDefaultPii ?? false) && info.description.isNotEmpty) {
-      data = {};
-      data['label'] = info.description;
+    Map<String, dynamic>? data = {};
+    final description = _findDescriptionOf(info.element);
+    if (description.isNotEmpty) {
+      data['label'] = description;
     }
 
     final crumb = Breadcrumb.userInteraction(
@@ -417,41 +417,44 @@ class _SentryUserInteractionWidgetState
   }
 
   String _findDescriptionOf(Element element) {
-    final widget = element.widget;
-    final allowText = widget is ButtonStyleButton ||
-        widget is MaterialButton ||
-        widget is CupertinoButton;
     var description = '';
 
-    // traverse tree to find a suiting element
-    void descriptionFinder(Element element) {
-      bool foundDescription = false;
-
+    if (_options?.sendDefaultPii ?? false) {
       final widget = element.widget;
-      if (allowText && widget is Text) {
-        final data = widget.data;
-        if (data != null && data.isNotEmpty) {
-          description = data;
-          foundDescription = true;
+      final allowText = widget is ButtonStyleButton ||
+          widget is MaterialButton ||
+          widget is CupertinoButton;
+
+      // traverse tree to find a suiting element
+      void descriptionFinder(Element element) {
+        bool foundDescription = false;
+
+        final widget = element.widget;
+        if (allowText && widget is Text) {
+          final data = widget.data;
+          if (data != null && data.isNotEmpty) {
+            description = data;
+            foundDescription = true;
+          }
+        } else if (widget is Semantics) {
+          if (widget.properties.label?.isNotEmpty ?? false) {
+            description = widget.properties.label!;
+            foundDescription = true;
+          }
+        } else if (widget is Icon) {
+          if (widget.semanticLabel?.isNotEmpty ?? false) {
+            description = widget.semanticLabel!;
+            foundDescription = true;
+          }
         }
-      } else if (widget is Semantics) {
-        if (widget.properties.label?.isNotEmpty ?? false) {
-          description = widget.properties.label!;
-          foundDescription = true;
-        }
-      } else if (widget is Icon) {
-        if (widget.semanticLabel?.isNotEmpty ?? false) {
-          description = widget.semanticLabel!;
-          foundDescription = true;
+
+        if (!foundDescription) {
+          element.visitChildren(descriptionFinder);
         }
       }
 
-      if (!foundDescription) {
-        element.visitChildren(descriptionFinder);
-      }
+      element.visitChildren(descriptionFinder);
     }
-
-    element.visitChildren(descriptionFinder);
 
     return description;
   }
@@ -496,7 +499,6 @@ class _SentryUserInteractionWidgetState
       if (type != null) {
         tappedWidget = UserInteractionInfo(
           element: element,
-          description: _findDescriptionOf(element),
           type: type,
         );
       }
