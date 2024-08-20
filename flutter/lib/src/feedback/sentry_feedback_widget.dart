@@ -17,6 +17,7 @@ class SentryFeedbackWidget extends StatefulWidget {
     this.messagePlaceholder = 'What\'s the bug? What did you expect?',
     this.submitButtonLabel = 'Send Bug Report',
     this.cancelButtonLabel = 'Cancel',
+    this.validationErrorLabel = 'Can\'t be empty',
     this.isRequiredLabel = '(required)',
     this.isNameRequired = false,
     this.isEmailRequired = false,
@@ -36,6 +37,7 @@ class SentryFeedbackWidget extends StatefulWidget {
 
   final String submitButtonLabel;
   final String cancelButtonLabel;
+  final String validationErrorLabel;
 
   final String isRequiredLabel;
 
@@ -251,7 +253,7 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
 
   String? _errorText(String? text) {
     if (text != null && text.isEmpty) {
-      return 'Can\'t be empty';
+      return widget.validationErrorLabel;
     } else {
       return null;
     }

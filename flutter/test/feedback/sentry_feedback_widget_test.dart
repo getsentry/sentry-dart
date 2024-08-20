@@ -166,6 +166,7 @@ void main() {
           submitButtonLabel: 'fixture-submitButtonLabel',
           cancelButtonLabel: 'fixture-cancelButtonLabel',
           isRequiredLabel: 'fixture-isRequiredLabel',
+          validationErrorLabel: 'fixture-validationErrorLabel',
         ),
       );
 
@@ -179,6 +180,11 @@ void main() {
       expect(find.text('fixture-submitButtonLabel'), findsOne);
       expect(find.text('fixture-cancelButtonLabel'), findsOne);
       expect(find.text('fixture-isRequiredLabel'), findsOne);
+
+      await tester.tap(find.text('fixture-submitButtonLabel'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('fixture-validationErrorLabel'), findsOne);
     });
   });
 }
