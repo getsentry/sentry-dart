@@ -75,7 +75,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       "removeTag" -> removeTag(call.argument("key"), result)
       "loadContexts" -> loadContexts(result)
       "displayRefreshRate" -> displayRefreshRate(result)
-      "nativeCrash" -> crash(result)
+      "nativeCrash" -> crash()
       else -> result.notImplemented()
     }
   }
@@ -469,10 +469,11 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     result.success(serializedScope)
   }
 
-  private fun crash(result: Result) {
+  private fun crash() {
     val exception = RuntimeException("FlutterSentry Native Integration: Sample RuntimeException")
     val mainThread = Looper.getMainLooper().thread
     mainThread.uncaughtExceptionHandler.uncaughtException(mainThread, exception)
-    mainThread.join(500)
+    private const val waitTime = 500
+    mainThread.join(waitTime)
   }
 }
