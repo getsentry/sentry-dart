@@ -327,28 +327,27 @@ class _SentryUserInteractionWidgetState
   }
 
   void _createBreadcrumbOnTap(UserInteractionInfo info, String? widgetKey) {
-    // ignore: invalid_use_of_internal_member
-    if (_options?.enableUserInteractionBreadcrumbs ?? false) {
-      Map<String, dynamic>? data;
-      // ignore: invalid_use_of_internal_member
-      if ((_options?.sendDefaultPii ?? false) && info.description.isNotEmpty) {
-        data = {};
-        data['label'] = info.description;
-      }
-
-      final crumb = Breadcrumb.userInteraction(
-        subCategory: 'click',
-        viewId: widgetKey,
-        viewClass: info.type, // to avoid minification
-        data: data,
-      );
-      final hint = Hint.withMap({TypeCheckHint.widget: info.element.widget});
-      _hub.addBreadcrumb(crumb, hint: hint);
+    if (!(_options?.enableUserInteractionBreadcrumbs ?? false)) {
+      return;
     }
+
+    Map<String, dynamic>? data;
+    if ((_options?.sendDefaultPii ?? false) && info.description.isNotEmpty) {
+      data = {};
+      data['label'] = info.description;
+    }
+
+    final crumb = Breadcrumb.userInteraction(
+      subCategory: 'click',
+      viewId: widgetKey,
+      viewClass: info.type, // to avoid minification
+      data: data,
+    );
+    final hint = Hint.withMap({TypeCheckHint.widget: info.element.widget});
+    _hub.addBreadcrumb(crumb, hint: hint);
   }
 
   void _startTransactionOnTap(UserInteractionInfo info, String? widgetKey) {
-    // ignore: invalid_use_of_internal_member
     if (widgetKey == null ||
         !(_options?.isTracingEnabled() ?? false) ||
         !(_options?.enableUserInteractionTracing ?? false)) {
@@ -404,9 +403,7 @@ class _SentryUserInteractionWidgetState
     _activeTransaction = _hub.startTransactionWithContext(
       transactionContext,
       waitForChildren: true,
-      autoFinishAfter:
-          // ignore: invalid_use_of_internal_member
-          _options?.idleTimeout,
+      autoFinishAfter: _options?.idleTimeout,
       trimEnd: true,
     );
 
