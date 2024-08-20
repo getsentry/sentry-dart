@@ -273,6 +273,9 @@ mixin SentryFlutter {
 
   static SentryNativeBinding? _native;
 
+  /// Use `nativeCrash()` to crash the native implementation and test/debug the crash reporting for native code.
+  /// This should not be used in production code.
+  /// Only for Android and iOS
   static Future<void> nativeCrash() {
     if (_native == null) {
       _logNativeIntegrationNotAvailable("nativeCrash");
