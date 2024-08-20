@@ -275,7 +275,6 @@ mixin SentryFlutter {
   static SentryNativeBinding? _native;
 
   static Future<void> nativeCrash() {
-    const _channel = MethodChannel('example.flutter.sentry.io');
     if (_native == null) {
       _logNativeIntegrationNotAvailable("nativeCrash");
       return Future<void>.value();
