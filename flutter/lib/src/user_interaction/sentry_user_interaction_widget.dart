@@ -208,7 +208,7 @@ import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
 import '../widget_utils.dart';
-import 'user_interaction_widget.dart';
+import 'user_interaction_info.dart';
 
 const _tapDeltaArea = 20 * 20;
 Element? _clickTrackerElement;
@@ -272,7 +272,7 @@ class _SentryUserInteractionWidgetState
     extends State<SentryUserInteractionWidget> {
   int? _lastPointerId;
   Offset? _lastPointerDownLocation;
-  UserInteractionWidget? _lastTappedWidget;
+  UserInteractionInfo? _lastTappedWidget;
   ISentrySpan? _activeTransaction;
 
   Hub get _hub => widget._hub;
@@ -316,41 +316,38 @@ class _SentryUserInteractionWidgetState
   }
 
   void _onTappedAt(Offset position) {
-    final tappedWidget = _getElementAt(position);
-    if (tappedWidget == null) {
+    final tapInfo = _getElementAt(position);
+    if (tapInfo == null) {
       return;
     }
 
-    final widgetKey =
-        WidgetUtils.toStringValue(tappedWidget.element.widget.key);
-
-    _createBreadcrumbOnTap(tappedWidget, widgetKey);
-    _startTransactionOnTap(tappedWidget, widgetKey);
+    final widgetKey = WidgetUtils.toStringValue(tapInfo.element.widget.key);
+    _createBreadcrumbOnTap(tapInfo, widgetKey);
+    _startTransactionOnTap(tapInfo, widgetKey);
   }
 
-  void _createBreadcrumbOnTap(UserInteractionWidget widget, String? widgetKey) {
+  void _createBreadcrumbOnTap(UserInteractionInfo info, String? widgetKey) {
     // ignore: invalid_use_of_internal_member
     if (_options?.enableUserInteractionBreadcrumbs ?? false) {
       Map<String, dynamic>? data;
       // ignore: invalid_use_of_internal_member
-      if ((_options?.sendDefaultPii ?? false) &&
-          widget.description.isNotEmpty) {
+      if ((_options?.sendDefaultPii ?? false) && info.description.isNotEmpty) {
         data = {};
-        data['label'] = widget.description;
+        data['label'] = info.description;
       }
 
       final crumb = Breadcrumb.userInteraction(
         subCategory: 'click',
         viewId: widgetKey,
-        viewClass: widget.type, // to avoid minification
+        viewClass: info.type, // to avoid minification
         data: data,
       );
-      final hint = Hint.withMap({TypeCheckHint.widget: widget.element.widget});
+      final hint = Hint.withMap({TypeCheckHint.widget: info.element.widget});
       _hub.addBreadcrumb(crumb, hint: hint);
     }
   }
 
-  void _startTransactionOnTap(UserInteractionWidget widget, String? widgetKey) {
+  void _startTransactionOnTap(UserInteractionInfo info, String? widgetKey) {
     // ignore: invalid_use_of_internal_member
     if (widgetKey == null ||
         !(_options?.isTracingEnabled() ?? false) ||
@@ -358,7 +355,7 @@ class _SentryUserInteractionWidgetState
       return;
     }
 
-    final element = widget.element;
+    final element = info.element;
     // getting the name of the screen using ModalRoute.of(context).settings.name
     // is expensive, so we expect that the keys are unique across the app
     final transactionContext = SentryTransactionContext(
@@ -373,7 +370,7 @@ class _SentryUserInteractionWidgetState
       if (_isElementMounted(lastElement) &&
           _isElementMounted(element) &&
           lastElement?.widget == element.widget &&
-          _lastTappedWidget?.eventType == widget.eventType &&
+          _lastTappedWidget?.eventType == info.eventType &&
           !activeTransaction.finished) {
         // ignore: invalid_use_of_internal_member
         activeTransaction.scheduleFinish();
@@ -390,7 +387,7 @@ class _SentryUserInteractionWidgetState
       }
     }
 
-    _lastTappedWidget = widget;
+    _lastTappedWidget = info;
 
     bool hasRunningTransaction = false;
     _hub.configureScope((scope) {
@@ -459,7 +456,7 @@ class _SentryUserInteractionWidgetState
     return description;
   }
 
-  UserInteractionWidget? _getElementAt(Offset position) {
+  UserInteractionInfo? _getElementAt(Offset position) {
     // WidgetsBinding.instance.renderViewElement does not work, so using
     // the element from createElement
     final rootElement = _clickTrackerElement;
@@ -467,7 +464,7 @@ class _SentryUserInteractionWidgetState
       return null;
     }
 
-    UserInteractionWidget? tappedWidget;
+    UserInteractionInfo? tappedWidget;
 
     void elementFinder(Element element) {
       if (tappedWidget != null) {
@@ -507,12 +504,12 @@ class _SentryUserInteractionWidgetState
     return tappedWidget;
   }
 
-  UserInteractionWidget? _getDescriptionFrom(Element element) {
+  UserInteractionInfo? _getDescriptionFrom(Element element) {
     final widget = element.widget;
     // Used by ElevatedButton, TextButton, OutlinedButton.
     if (widget is ButtonStyleButton) {
       if (widget.enabled) {
-        return UserInteractionWidget(
+        return UserInteractionInfo(
           element: element,
           description: _findDescriptionOf(element, true),
           type: 'ButtonStyleButton',
@@ -521,7 +518,7 @@ class _SentryUserInteractionWidgetState
       }
     } else if (widget is MaterialButton) {
       if (widget.enabled) {
-        return UserInteractionWidget(
+        return UserInteractionInfo(
           element: element,
           description: _findDescriptionOf(element, true),
           type: 'MaterialButton',
@@ -530,7 +527,7 @@ class _SentryUserInteractionWidgetState
       }
     } else if (widget is CupertinoButton) {
       if (widget.enabled) {
-        return UserInteractionWidget(
+        return UserInteractionInfo(
           element: element,
           description: _findDescriptionOf(element, true),
           type: 'CupertinoButton',
@@ -539,7 +536,7 @@ class _SentryUserInteractionWidgetState
       }
     } else if (widget is InkWell) {
       if (widget.onTap != null) {
-        return UserInteractionWidget(
+        return UserInteractionInfo(
           element: element,
           description: _findDescriptionOf(element, false),
           type: 'InkWell',
@@ -548,7 +545,7 @@ class _SentryUserInteractionWidgetState
       }
     } else if (widget is IconButton) {
       if (widget.onPressed != null) {
-        return UserInteractionWidget(
+        return UserInteractionInfo(
           element: element,
           description: _findDescriptionOf(element, false),
           type: 'IconButton',
@@ -557,7 +554,7 @@ class _SentryUserInteractionWidgetState
       }
     } else if (widget is PopupMenuButton) {
       if (widget.enabled) {
-        return UserInteractionWidget(
+        return UserInteractionInfo(
           element: element,
           description: _findDescriptionOf(element, false),
           type: 'PopupMenuButton',
@@ -566,7 +563,7 @@ class _SentryUserInteractionWidgetState
       }
     } else if (widget is PopupMenuItem) {
       if (widget.enabled) {
-        return UserInteractionWidget(
+        return UserInteractionInfo(
           element: element,
           description: _findDescriptionOf(element, false),
           type: 'PopupMenuItem',
