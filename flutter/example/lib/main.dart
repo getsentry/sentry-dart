@@ -81,7 +81,7 @@ Future<void> setupSentry(
       // going to log too much for your app, but can be useful when figuring out
       // configuration issues, e.g. finding out why your events are not uploaded.
       options.debug = true;
-      // options.spotlight = Spotlight(enabled: true);
+      options.spotlight = Spotlight(enabled: true);
       options.enableTimeToFullDisplayTracing = true;
       options.enableMetrics = true;
 
@@ -498,13 +498,13 @@ class MainScaffold extends StatelessWidget {
                 final id = await Sentry.captureMessage('UserFeedback');
                 if (!context.mounted) return;
                 Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) {
-                        return SentryFeedbackWidget(associatedEventId: id);
-                      },
-                      fullscreenDialog: true,
-                    ));
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        SentryFeedbackWidget(associatedEventId: id),
+                    fullscreenDialog: true,
+                  ),
+                );
               },
               text:
                   'Shows a custom feedback dialog without an ongoing event that captures and sends user feedback data to Sentry.',

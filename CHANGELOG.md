@@ -15,6 +15,16 @@ SentryNavigatorObserver(ignoreRoutes: ["/ignoreThisRoute"]),
   - Deprecated `Hub.captureUserFeedback`, use `captureFeedback` instead.
   - Deprecated `SentryClient.captureUserFeedback`, use `captureFeedback` instead.
   - Deprecated `SentryUserFeedback`, use `SentryFeedback` instead.
+- Add `SentryFeedbackWidget` ([#2240](https://github.com/getsentry/sentry-dart/pull/2240))
+```dart
+Navigator.push(
+  context,
+  MaterialPageRoute(
+    builder: (context) => SentryFeedbackWidget(associatedEventId: id),
+    fullscreenDialog: true,
+  ),
+);
+```
 
 ### Improvements
 
