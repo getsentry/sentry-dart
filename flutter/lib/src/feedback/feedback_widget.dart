@@ -3,10 +3,10 @@
 import 'package:flutter/material.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
-class FeedbackWidget extends StatefulWidget {
-  const FeedbackWidget({
+class SentryFeedbackWidget extends StatefulWidget {
+  const SentryFeedbackWidget({
     super.key,
-    required this.associatedEventId,
+    this.associatedEventId,
     this.hub,
     this.title = 'Report a Bug',
     this.nameLabel = 'Name',
@@ -43,10 +43,10 @@ class FeedbackWidget extends StatefulWidget {
   final bool isEmailRequired;
 
   @override
-  _FeedbackWidgetState createState() => _FeedbackWidgetState();
+  _SentryFeedbackWidgetState createState() => _SentryFeedbackWidgetState();
 }
 
-class _FeedbackWidgetState extends State<FeedbackWidget> {
+class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
 
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();

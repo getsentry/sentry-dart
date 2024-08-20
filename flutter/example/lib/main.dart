@@ -28,7 +28,6 @@ import 'auto_close_screen.dart';
 import 'drift/connection/connection.dart';
 import 'drift/database.dart';
 import 'isar/user.dart';
-import 'feedback_widget.dart';
 
 // ATTENTION: Change the DSN below with your own to see the events in Sentry. Get one at sentry.io
 const String exampleDsn =
@@ -502,7 +501,7 @@ class MainScaffold extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (context) {
-                        return FeedbackWidget(associatedEventId: id);
+                        return SentryFeedbackWidget(associatedEventId: id);
                       },
                       fullscreenDialog: true,
                     )
