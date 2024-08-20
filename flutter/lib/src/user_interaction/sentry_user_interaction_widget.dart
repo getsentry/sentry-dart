@@ -317,45 +317,53 @@ class _SentryUserInteractionWidgetState
 
   void _onTappedAt(Offset position) {
     final tappedWidget = _getElementAt(position);
-    final keyValue =
-        WidgetUtils.toStringValue(tappedWidget?.element.widget.key);
-    if (tappedWidget == null || keyValue == null) {
+    if (tappedWidget == null) {
       return;
     }
-    final element = tappedWidget.element;
 
-    Map<String, dynamic>? data;
-    // ignore: invalid_use_of_internal_member
-    if ((_options?.sendDefaultPii ?? false) &&
-        tappedWidget.description.isNotEmpty) {
-      data = {};
-      data['label'] = tappedWidget.description;
-    }
+    final widgetKey =
+        WidgetUtils.toStringValue(tappedWidget.element.widget.key);
 
-    const category = 'click';
+    _createBreadcrumbOnTap(tappedWidget, widgetKey);
+    _startTransactionOnTap(tappedWidget, widgetKey);
+  }
+
+  void _createBreadcrumbOnTap(UserInteractionWidget widget, String? widgetKey) {
     // ignore: invalid_use_of_internal_member
     if (_options?.enableUserInteractionBreadcrumbs ?? false) {
+      Map<String, dynamic>? data;
+      // ignore: invalid_use_of_internal_member
+      if ((_options?.sendDefaultPii ?? false) &&
+          widget.description.isNotEmpty) {
+        data = {};
+        data['label'] = widget.description;
+      }
+
       final crumb = Breadcrumb.userInteraction(
-        subCategory: category,
-        viewId: keyValue,
-        viewClass: tappedWidget.type, // to avoid minification
+        subCategory: 'click',
+        viewId: widgetKey,
+        viewClass: widget.type, // to avoid minification
         data: data,
       );
-      final hint = Hint.withMap({TypeCheckHint.widget: element.widget});
+      final hint = Hint.withMap({TypeCheckHint.widget: widget.element.widget});
       _hub.addBreadcrumb(crumb, hint: hint);
     }
+  }
 
+  void _startTransactionOnTap(UserInteractionWidget widget, String? widgetKey) {
     // ignore: invalid_use_of_internal_member
-    if (!(_options?.isTracingEnabled() ?? false) ||
+    if (widgetKey == null ||
+        !(_options?.isTracingEnabled() ?? false) ||
         !(_options?.enableUserInteractionTracing ?? false)) {
       return;
     }
 
+    final element = widget.element;
     // getting the name of the screen using ModalRoute.of(context).settings.name
     // is expensive, so we expect that the keys are unique across the app
     final transactionContext = SentryTransactionContext(
-      keyValue,
-      'ui.action.$category',
+      widgetKey,
+      'ui.action.click',
       transactionNameSource: SentryTransactionNameSource.component,
     );
 
@@ -365,7 +373,7 @@ class _SentryUserInteractionWidgetState
       if (_isElementMounted(lastElement) &&
           _isElementMounted(element) &&
           lastElement?.widget == element.widget &&
-          _lastTappedWidget?.eventType == tappedWidget.eventType &&
+          _lastTappedWidget?.eventType == widget.eventType &&
           !activeTransaction.finished) {
         // ignore: invalid_use_of_internal_member
         activeTransaction.scheduleFinish();
@@ -382,7 +390,7 @@ class _SentryUserInteractionWidgetState
       }
     }
 
-    _lastTappedWidget = tappedWidget;
+    _lastTappedWidget = widget;
 
     bool hasRunningTransaction = false;
     _hub.configureScope((scope) {
