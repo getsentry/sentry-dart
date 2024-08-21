@@ -174,6 +174,9 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         case "resumeAppHangTracking":
             resumeAppHangTracking(result)
 
+        case "nativeCrash":
+            crash()
+
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -728,6 +731,10 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
     private func resumeAppHangTracking(_ result: @escaping FlutterResult) {
         SentrySDK.resumeAppHangTracking()
         result("")
+    }
+
+    private func crash() {
+        SentrySDK.crash()
     }
 }
 
