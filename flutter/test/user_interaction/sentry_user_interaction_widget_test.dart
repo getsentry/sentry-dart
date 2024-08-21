@@ -347,6 +347,40 @@ void main() {
             }));
       });
     });
+
+    testWidgets('Add crumb for button without key', (tester) async {
+      await tester.runAsync(() async {
+        final sut = fixture.getSut(sendDefaultPii: true);
+
+        await tester.pumpWidget(sut);
+        await tester.tap(find.byElementPredicate((element) {
+          final widget = element.widget;
+          if (widget is MaterialButton) {
+            return (widget.child as Text).data == 'Button 5';
+          }
+          return false;
+        }));
+
+        expect(
+            fixture.getBreadcrumb().data?.replaceHashCodes(),
+            equals({
+              'path': [
+                {'element': 'MaterialButton'},
+                {'element': 'Column'},
+                {'element': 'Center'},
+                {'name': '[GlobalKey#00000]', 'element': 'KeyedSubtree'},
+                {'element': 'MediaQuery'},
+                {'name': '_ScaffoldSlot.body', 'element': 'LayoutId'},
+                {'element': 'CustomMultiChildLayout'},
+                {'element': 'Actions'},
+                {'element': 'AnimatedBuilder'},
+                {'element': 'DefaultTextStyle'}
+              ],
+              'label': 'Button 5',
+              'view.class': 'MaterialButton'
+            }));
+      });
+    });
   });
 
   group('$SentryUserInteractionWidget performance', () {
@@ -486,7 +520,6 @@ Future<void> tapMe(
   if (pumpWidget) {
     await tester.pumpWidget(widget);
   }
-
   await tester.tap(find.byKey(Key(key)));
 }
 
@@ -604,7 +637,11 @@ class Page1 extends StatelessWidget {
                 onPressed: () {},
                 child: Text('Button text'),
               ),
-            )
+            ),
+            MaterialButton(
+              onPressed: () {},
+              child: const Text('Button 5'),
+            ),
           ],
         ),
       ),
