@@ -42,6 +42,7 @@
 ### Improvements
 
 - Debouncing of SentryWidgetsBindingObserver.didChangeMetrics with delay of 100ms. ([#2232](https://github.com/getsentry/sentry-dart/pull/2232))
+- Collect touch breadcrumbs for all buttons, not just those with `key` specified. ([#2242](https://github.com/getsentry/sentry-dart/pull/2242))
 
 ### Dependencies
 
