@@ -1,0 +1,18 @@
+# Run with `dart ffigen --config ffi-native.yaml`.
+name: SentryNative
+description: Sentry Native SDK FFI binding.
+output: lib/src/native/c/binding.dart
+headers:
+  entry-points:
+    - ./temp/sentry-native.h
+exclude-all-by-default: true
+functions:
+  include:
+    - sentry_init
+structs:
+  dependency-only: opaque
+unions:
+  dependency-only: opaque
+comments:
+  style: any
+  length: full

@@ -39,6 +39,10 @@ dev_dependencies:
   remove_from_coverage: ^2.0.0
   flutter_localizations:
     sdk: flutter
+  ffigen:
+    git:
+      url: https://github.com/getsentry/ffigen
+      ref: 6aa2c2642f507eab3df83373189170797a9fa5e7
 
 flutter:
   plugin:
