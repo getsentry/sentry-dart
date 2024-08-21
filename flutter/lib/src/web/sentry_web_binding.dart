@@ -13,8 +13,6 @@ abstract class SentryWebBinding {
 
   Future<void> flushReplay();
 
-  Future<void> startReplay();
-
   Future<SentryId> getReplayId();
 
   Future<void> close();

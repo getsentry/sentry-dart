@@ -143,8 +143,8 @@ mixin SentryFlutter {
     if (options.platformChecker.isWeb) {
       options.transport = JavascriptEnvelopeTransport(_webBinding!);
 
-      // todo: only if replay enabled
-      options.addEventProcessor(WebReplayEventProcessor(_webBinding!));
+      options.addEventProcessor(
+          WebReplayEventProcessor(_webBinding!, options.experimental.replay));
     }
 
     options.addEventProcessor(FlutterEnricherEventProcessor(options));

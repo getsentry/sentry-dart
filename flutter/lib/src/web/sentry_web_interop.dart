@@ -47,8 +47,9 @@ class SentryWebInterop
         'autoSessionTracking': options.enableAutoSessionTracking,
         'attachStacktrace': options.attachStacktrace,
         'maxBreadcrumbs': options.maxBreadcrumbs,
-        'replaysSessionSampleRate': 0,
-        'replaysOnErrorSampleRate': 0,
+        'replaysSessionSampleRate':
+            options.experimental.replay.sessionSampleRate,
+        'replaysOnErrorSampleRate': options.experimental.replay.errorSampleRate,
         // using defaultIntegrations ensures the we can control which integrations are added
         'defaultIntegrations': [
           replay,
@@ -61,17 +62,14 @@ class SentryWebInterop
 
       SentryJsBridge.init(config.jsify());
 
-      await startReplay();
+      // SpotlightBridge.init();
+
+      // await startReplay();
     });
   }
 
   @override
-  Future<void> captureEvent(SentryEvent event) async {
-    tryCatchSync('captureEvent', () {
-      print(event.toJson());
-      SentryJsBridge.captureEvent(event.toJson().jsify());
-    });
-  }
+  Future<void> captureEvent(SentryEvent event) async {}
 
   @override
   Future<void> captureEnvelope(SentryEnvelope envelope) async {
@@ -79,20 +77,20 @@ class SentryWebInterop
       final List<dynamic> jsItems = [];
 
       for (final item in envelope.items) {
-        // todo: add support for different type of items
-        // maybe add a generic to sentryenvelope?
         final originalObject = item.originalObject;
-        final List<dynamic> jsItem = [(await item.header.toJson())];
-        if (originalObject is SentryTransaction) {
-          jsItem.add(originalObject.toJson().jsify());
-        }
+        jsItems.add([
+          (await item.header.toJson()),
+          (await originalObject?.getPayload())
+        ]);
+
         if (originalObject is SentryEvent) {
-          jsItem.add(originalObject.toJson().jsify());
+          final session = SentryJsBridge.getSession();
+          if (envelope.containsUnhandledException) {
+            session?.status = 'crashed'.toJS;
+          }
+          session?.errors = originalObject.exceptions?.length.toJS ?? 0.toJS;
+          SentryJsBridge.captureSession();
         }
-        if (originalObject is SentryAttachment) {
-          jsItem.add(await originalObject.bytes);
-        }
-        jsItems.add(jsItem);
       }
 
       final jsEnvelope = [envelope.header.toJson(), jsItems].jsify();
@@ -106,11 +104,6 @@ class SentryWebInterop
     return tryCatchSync('close', () {
       SentryJsBridge.close();
     });
-  }
-
-  @override
-  Future<void> startReplay() async {
-    replay.startBuffering();
   }
 
   @override
@@ -133,6 +126,10 @@ Future<void> _loadSentryScripts(SentryFlutterOptions options,
 
   // todo: put this somewhere else so we can auto-update it as well and only enable non minified bundles in dev mode
   final scripts = [
+    // {
+    //   'url':
+    //       'https://unpkg.com/@spotlightjs/overlay@latest/dist/sentry-spotlight.iife.js',
+    // },
     {
       'url': 'https://browser.sentry-cdn.com/8.24.0/bundle.tracing.replay.js',
       // 'integrity':

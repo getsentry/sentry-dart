@@ -29,11 +29,35 @@ class SentryJsBridge {
   external static _SentryJsClient getClient();
 
   external static JSAny? getReplay();
+
+  external static void captureSession();
+
+  external static _Scope? getCurrentScope();
+
+  external static _Scope? getIsolationScope();
+
+  static SentryJsSession? getSession() {
+    return getCurrentScope()?.getSession() ?? getIsolationScope()?.getSession();
+  }
 }
 
-@JS('Replay')
+@JS('Session')
 @staticInterop
-class _SentryReplay {}
+class SentryJsSession {}
+
+extension SentryJsSessionExtension on SentryJsSession {
+  external JSString status;
+
+  external JSNumber errors;
+}
+
+@JS('Scope')
+@staticInterop
+class _Scope {}
+
+extension SentryScopeExtension on _Scope {
+  external SentryJsSession? getSession();
+}
 
 extension SentryReplayExtension on JSAny? {
   external void start();
@@ -44,7 +68,7 @@ extension SentryReplayExtension on JSAny? {
 
   external void flush();
 
-  external JSString getReplayId();
+  external JSString? getReplayId();
 }
 
 @JS('Client')
