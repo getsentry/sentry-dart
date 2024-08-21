@@ -382,7 +382,7 @@ class _SentryUserInteractionWidgetState
         return false;
       }
 
-      final widgetName = element.widget.toStringShort();
+      final widgetName = element.widget.runtimeType.toString();
       if (!widgetName.startsWith('_')) {
         final info = {
           'name': WidgetUtils.toStringValue(element.widget.key),
