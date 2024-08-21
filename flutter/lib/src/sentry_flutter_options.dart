@@ -187,14 +187,14 @@ class SentryFlutterOptions extends SentryOptions {
   ///
   /// Requires adding the [SentryUserInteractionWidget] to the widget tree.
   /// Example:
-  /// runApp(SentryUserInteractionWidget(child: App()));
+  /// runApp(SentryWidget(child: App()));
   bool enableUserInteractionBreadcrumbs = true;
 
   /// Enables the Auto instrumentation for user interaction tracing.
   ///
   /// Requires adding the [SentryUserInteractionWidget] to the widget tree.
   /// Example:
-  /// runApp(SentryUserInteractionWidget(child: App()));
+  /// runApp(SentryWidget(child: App()));
   bool enableUserInteractionTracing = true;
 
   /// Enable or disable the tracing of time to full display (TTFD).

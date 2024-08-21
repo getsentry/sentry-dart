@@ -223,7 +223,7 @@ Element? _clickTrackerElement;
 /// Mostly for onPressed, onTap, and onLongPress events
 ///
 /// Example on how to set up:
-/// runApp(SentryUserInteractionWidget(child: App()));
+/// runApp(SentryWidget(child: App()));
 ///
 /// For transactions, enable it in the [SentryFlutterOptions.enableUserInteractionTracing].
 /// The idle timeout can be configured in the [SentryOptions.idleTimeout].
