@@ -71,115 +71,120 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
         child: Column(
           children: [
             Expanded(
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                          key: const ValueKey('sentry_feedback_name_label'),
-                          widget.nameLabel,
-                          style: Theme.of(context).textTheme.labelMedium,
+              child: SingleChildScrollView(
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            key: const ValueKey('sentry_feedback_name_label'),
+                            widget.nameLabel,
+                            style: Theme.of(context).textTheme.labelMedium,
+                          ),
+                          const SizedBox(width: 4),
+                          if (widget.isNameRequired)
+                            Text(
+                              key: const ValueKey(
+                                  'sentry_feedback_name_required_label'),
+                              widget.isRequiredLabel,
+                              style: Theme.of(context).textTheme.labelMedium,
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      TextFormField(
+                        key: const ValueKey('sentry_feedback_name_textfield'),
+                        style: Theme.of(context).textTheme.bodyLarge,
+                        controller: _nameController,
+                        decoration: InputDecoration(
+                          border: const OutlineInputBorder(),
+                          hintText: widget.namePlaceholder,
                         ),
-                        const SizedBox(width: 4),
-                        if (widget.isNameRequired)
+                        keyboardType: TextInputType.text,
+                        validator: (String? value) {
+                          return _errorText(value, widget.isNameRequired);
+                        },
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          Text(
+                            key: const ValueKey('sentry_feedback_email_label'),
+                            widget.emailLabel,
+                            style: Theme.of(context).textTheme.labelMedium,
+                          ),
+                          const SizedBox(width: 4),
+                          if (widget.isEmailRequired)
+                            Text(
+                              key: const ValueKey(
+                                  'sentry_feedback_email_required_label'),
+                              widget.isRequiredLabel,
+                              style: Theme.of(context).textTheme.labelMedium,
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      TextFormField(
+                        key: const ValueKey('sentry_feedback_email_textfield'),
+                        controller: _emailController,
+                        style: Theme.of(context).textTheme.bodyLarge,
+                        decoration: InputDecoration(
+                          border: const OutlineInputBorder(),
+                          hintText: widget.emailPlaceholder,
+                        ),
+                        keyboardType: TextInputType.emailAddress,
+                        validator: (String? value) {
+                          return _errorText(value, widget.isEmailRequired);
+                        },
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          Text(
+                            key:
+                                const ValueKey('sentry_feedback_message_label'),
+                            widget.messageLabel,
+                            style: Theme.of(context).textTheme.labelMedium,
+                          ),
+                          const SizedBox(width: 4),
                           Text(
                             key: const ValueKey(
-                                'sentry_feedback_name_required_label'),
+                                'sentry_feedback_message_required_label'),
                             widget.isRequiredLabel,
                             style: Theme.of(context).textTheme.labelMedium,
                           ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    TextFormField(
-                      key: const ValueKey('sentry_feedback_name_textfield'),
-                      style: Theme.of(context).textTheme.bodyLarge,
-                      controller: _nameController,
-                      decoration: InputDecoration(
-                        border: const OutlineInputBorder(),
-                        hintText: widget.namePlaceholder,
+                        ],
                       ),
-                      keyboardType: TextInputType.text,
-                      validator: (String? value) {
-                        return _errorText(value, widget.isNameRequired);
-                      },
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Text(
-                          key: const ValueKey('sentry_feedback_email_label'),
-                          widget.emailLabel,
-                          style: Theme.of(context).textTheme.labelMedium,
+                      const SizedBox(height: 4),
+                      TextFormField(
+                        key:
+                            const ValueKey('sentry_feedback_message_textfield'),
+                        controller: _messageController,
+                        style: Theme.of(context).textTheme.bodyLarge,
+                        minLines: 5,
+                        maxLines: null,
+                        decoration: InputDecoration(
+                          border: const OutlineInputBorder(),
+                          hintText: widget.messagePlaceholder,
                         ),
-                        const SizedBox(width: 4),
-                        if (widget.isEmailRequired)
-                          Text(
-                            key: const ValueKey(
-                                'sentry_feedback_email_required_label'),
-                            widget.isRequiredLabel,
-                            style: Theme.of(context).textTheme.labelMedium,
-                          ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    TextFormField(
-                      key: const ValueKey('sentry_feedback_email_textfield'),
-                      controller: _emailController,
-                      style: Theme.of(context).textTheme.bodyLarge,
-                      decoration: InputDecoration(
-                        border: const OutlineInputBorder(),
-                        hintText: widget.emailPlaceholder,
+                        keyboardType: TextInputType.multiline,
+                        validator: (String? value) {
+                          return _errorText(value, true);
+                        },
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
                       ),
-                      keyboardType: TextInputType.emailAddress,
-                      validator: (String? value) {
-                        return _errorText(value, widget.isEmailRequired);
-                      },
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Text(
-                          key: const ValueKey('sentry_feedback_message_label'),
-                          widget.messageLabel,
-                          style: Theme.of(context).textTheme.labelMedium,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          key: const ValueKey(
-                              'sentry_feedback_message_required_label'),
-                          widget.isRequiredLabel,
-                          style: Theme.of(context).textTheme.labelMedium,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    TextFormField(
-                      key: const ValueKey('sentry_feedback_message_textfield'),
-                      controller: _messageController,
-                      style: Theme.of(context).textTheme.bodyLarge,
-                      minLines: 5,
-                      maxLines: null,
-                      decoration: InputDecoration(
-                        border: const OutlineInputBorder(),
-                        hintText: widget.messagePlaceholder,
-                      ),
-                      keyboardType: TextInputType.multiline,
-                      validator: (String? value) {
-                        return _errorText(value, true);
-                      },
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
+            const SizedBox(height: 8),
             Column(
               children: [
                 SizedBox(
@@ -197,8 +202,8 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
                         associatedEventId: widget.associatedEventId,
                       );
                       await _captureFeedback(feedback);
-                      // ignore: use_build_context_synchronously
-                      Navigator.pop(context);
+
+                      Navigator.maybePop(context);
                     },
                     child: Text(widget.submitButtonLabel),
                   ),
