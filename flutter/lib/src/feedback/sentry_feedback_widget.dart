@@ -1,7 +1,7 @@
 // ignore_for_file: library_private_types_in_public_api
 
 import 'package:flutter/material.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
+import '../../sentry_flutter.dart';
 
 class SentryFeedbackWidget extends StatefulWidget {
   SentryFeedbackWidget({
