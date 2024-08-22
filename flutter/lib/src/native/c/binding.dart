@@ -32,6 +32,21 @@ class SentryNative {
   late final _options_new =
       _options_newPtr.asFunction<ffi.Pointer<sentry_options_s> Function()>();
 
+  /// Deallocates previously allocated sentry options.
+  void options_free(
+    ffi.Pointer<sentry_options_s> opts,
+  ) {
+    return _options_free(
+      opts,
+    );
+  }
+
+  late final _options_freePtr = _lookup<
+          ffi.NativeFunction<ffi.Void Function(ffi.Pointer<sentry_options_s>)>>(
+      'sentry_options_free');
+  late final _options_free = _options_freePtr
+      .asFunction<void Function(ffi.Pointer<sentry_options_s>)>();
+
   /// Sets the DSN.
   void options_set_dsn(
     ffi.Pointer<sentry_options_s> opts,
@@ -49,6 +64,22 @@ class SentryNative {
               ffi.Pointer<ffi.Char>)>>('sentry_options_set_dsn');
   late final _options_set_dsn = _options_set_dsnPtr.asFunction<
       void Function(ffi.Pointer<sentry_options_s>, ffi.Pointer<ffi.Char>)>();
+
+  /// Gets the DSN.
+  ffi.Pointer<ffi.Char> options_get_dsn(
+    ffi.Pointer<sentry_options_s> opts,
+  ) {
+    return _options_get_dsn(
+      opts,
+    );
+  }
+
+  late final _options_get_dsnPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<ffi.Char> Function(
+              ffi.Pointer<sentry_options_s>)>>('sentry_options_get_dsn');
+  late final _options_get_dsn = _options_get_dsnPtr.asFunction<
+      ffi.Pointer<ffi.Char> Function(ffi.Pointer<sentry_options_s>)>();
 
   /// Sets the release.
   void options_set_release(
@@ -68,6 +99,22 @@ class SentryNative {
   late final _options_set_release = _options_set_releasePtr.asFunction<
       void Function(ffi.Pointer<sentry_options_s>, ffi.Pointer<ffi.Char>)>();
 
+  /// Gets the release.
+  ffi.Pointer<ffi.Char> options_get_release(
+    ffi.Pointer<sentry_options_s> opts,
+  ) {
+    return _options_get_release(
+      opts,
+    );
+  }
+
+  late final _options_get_releasePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<ffi.Char> Function(
+              ffi.Pointer<sentry_options_s>)>>('sentry_options_get_release');
+  late final _options_get_release = _options_get_releasePtr.asFunction<
+      ffi.Pointer<ffi.Char> Function(ffi.Pointer<sentry_options_s>)>();
+
   /// Sets the environment.
   void options_set_environment(
     ffi.Pointer<sentry_options_s> opts,
@@ -85,6 +132,22 @@ class SentryNative {
               ffi.Pointer<ffi.Char>)>>('sentry_options_set_environment');
   late final _options_set_environment = _options_set_environmentPtr.asFunction<
       void Function(ffi.Pointer<sentry_options_s>, ffi.Pointer<ffi.Char>)>();
+
+  /// Gets the environment.
+  ffi.Pointer<ffi.Char> options_get_environment(
+    ffi.Pointer<sentry_options_s> opts,
+  ) {
+    return _options_get_environment(
+      opts,
+    );
+  }
+
+  late final _options_get_environmentPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Pointer<ffi.Char> Function(ffi.Pointer<sentry_options_s>)>>(
+      'sentry_options_get_environment');
+  late final _options_get_environment = _options_get_environmentPtr.asFunction<
+      ffi.Pointer<ffi.Char> Function(ffi.Pointer<sentry_options_s>)>();
 
   /// Sets the dist.
   void options_set_dist(
@@ -104,6 +167,22 @@ class SentryNative {
   late final _options_set_dist = _options_set_distPtr.asFunction<
       void Function(ffi.Pointer<sentry_options_s>, ffi.Pointer<ffi.Char>)>();
 
+  /// Gets the dist.
+  ffi.Pointer<ffi.Char> options_get_dist(
+    ffi.Pointer<sentry_options_s> opts,
+  ) {
+    return _options_get_dist(
+      opts,
+    );
+  }
+
+  late final _options_get_distPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<ffi.Char> Function(
+              ffi.Pointer<sentry_options_s>)>>('sentry_options_get_dist');
+  late final _options_get_dist = _options_get_distPtr.asFunction<
+      ffi.Pointer<ffi.Char> Function(ffi.Pointer<sentry_options_s>)>();
+
   /// Enables or disables debug printing mode.
   void options_set_debug(
     ffi.Pointer<sentry_options_s> opts,
@@ -121,6 +200,21 @@ class SentryNative {
               ffi.Int)>>('sentry_options_set_debug');
   late final _options_set_debug = _options_set_debugPtr
       .asFunction<void Function(ffi.Pointer<sentry_options_s>, int)>();
+
+  /// Returns the current value of the debug flag.
+  int options_get_debug(
+    ffi.Pointer<sentry_options_s> opts,
+  ) {
+    return _options_get_debug(
+      opts,
+    );
+  }
+
+  late final _options_get_debugPtr = _lookup<
+          ffi.NativeFunction<ffi.Int Function(ffi.Pointer<sentry_options_s>)>>(
+      'sentry_options_get_debug');
+  late final _options_get_debug = _options_get_debugPtr
+      .asFunction<int Function(ffi.Pointer<sentry_options_s>)>();
 
   /// Sets the number of breadcrumbs being tracked and attached to events.
   ///
@@ -141,6 +235,21 @@ class SentryNative {
               ffi.Size)>>('sentry_options_set_max_breadcrumbs');
   late final _options_set_max_breadcrumbs = _options_set_max_breadcrumbsPtr
       .asFunction<void Function(ffi.Pointer<sentry_options_s>, int)>();
+
+  /// Gets the number of breadcrumbs being tracked and attached to events.
+  int options_get_max_breadcrumbs(
+    ffi.Pointer<sentry_options_s> opts,
+  ) {
+    return _options_get_max_breadcrumbs(
+      opts,
+    );
+  }
+
+  late final _options_get_max_breadcrumbsPtr = _lookup<
+          ffi.NativeFunction<ffi.Size Function(ffi.Pointer<sentry_options_s>)>>(
+      'sentry_options_get_max_breadcrumbs');
+  late final _options_get_max_breadcrumbs = _options_get_max_breadcrumbsPtr
+      .asFunction<int Function(ffi.Pointer<sentry_options_s>)>();
 
   /// Enables or disables automatic session tracking.
   ///
@@ -166,6 +275,22 @@ class SentryNative {
   late final _options_set_auto_session_tracking =
       _options_set_auto_session_trackingPtr
           .asFunction<void Function(ffi.Pointer<sentry_options_s>, int)>();
+
+  /// Returns true if automatic session tracking is enabled.
+  int options_get_auto_session_tracking(
+    ffi.Pointer<sentry_options_s> opts,
+  ) {
+    return _options_get_auto_session_tracking(
+      opts,
+    );
+  }
+
+  late final _options_get_auto_session_trackingPtr = _lookup<
+          ffi.NativeFunction<ffi.Int Function(ffi.Pointer<sentry_options_s>)>>(
+      'sentry_options_get_auto_session_tracking');
+  late final _options_get_auto_session_tracking =
+      _options_get_auto_session_trackingPtr
+          .asFunction<int Function(ffi.Pointer<sentry_options_s>)>();
 
   /// Initializes the Sentry SDK with the specified options.
   ///

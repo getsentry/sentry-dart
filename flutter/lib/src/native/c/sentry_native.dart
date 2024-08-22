@@ -14,7 +14,9 @@ import 'utils.dart';
 @internal
 class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   final SentryFlutterOptions options;
-  late final _native = binding.SentryNative(DynamicLibrary.open('sentry.dll'));
+
+  @visibleForTesting
+  late final native = binding.SentryNative(DynamicLibrary.open('sentry.dll'));
 
   SentryNative(this.options);
 
@@ -27,23 +29,35 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
       return;
     }
 
+    tryCatchSync("init", () {
+      final cOptions = createOptions(options);
+      final code = native.init(cOptions);
+      if (code != 0) {
+        throw StateError(
+            "Failed to initialize native SDK - init() exit code: $code");
+      }
+    });
+  }
+
+  Pointer<binding.sentry_options_s> createOptions(
+      SentryFlutterOptions options) {
     final c = FreeableFactory();
     try {
-      final cOptions = _native.options_new();
-      _native.options_set_dsn(cOptions, c.str(options.dsn));
-      _native.options_set_debug(cOptions, options.debug ? 1 : 0);
-      _native.options_set_environment(cOptions, c.str(options.environment));
-      _native.options_set_release(cOptions, c.str(options.release));
-      _native.options_set_auto_session_tracking(
+      final cOptions = native.options_new();
+      native.options_set_dsn(cOptions, c.str(options.dsn));
+      native.options_set_debug(cOptions, options.debug ? 1 : 0);
+      native.options_set_environment(cOptions, c.str(options.environment));
+      native.options_set_release(cOptions, c.str(options.release));
+      native.options_set_auto_session_tracking(
           cOptions, options.enableAutoSessionTracking ? 1 : 0);
-      _native.options_set_dist(cOptions, c.str(options.dist));
-      _native.options_set_max_breadcrumbs(cOptions, options.maxBreadcrumbs);
+      native.options_set_dist(cOptions, c.str(options.dist));
+      native.options_set_max_breadcrumbs(cOptions, options.maxBreadcrumbs);
       if (options.proxy != null) {
         // sentry-native expects a single string and it doesn't support different types or authentication
         options.logger(SentryLevel.warning,
             'SentryNative: setting a proxy is currently not supported');
       }
-      _native.init(nullptr);
+      return cOptions;
     } finally {
       c.freeAll();
     }

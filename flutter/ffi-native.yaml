@@ -17,6 +17,15 @@ functions:
     - sentry_options_set_auto_session_tracking
     - sentry_options_set_dist
     - sentry_options_set_max_breadcrumbs
+    # For tests only:
+    - sentry_options_free
+    - sentry_options_get_dsn
+    - sentry_options_get_debug
+    - sentry_options_get_environment
+    - sentry_options_get_release
+    - sentry_options_get_auto_session_tracking
+    - sentry_options_get_dist
+    - sentry_options_get_max_breadcrumbs
   rename:
     'sentry_(.*)': '$1'
 structs:
