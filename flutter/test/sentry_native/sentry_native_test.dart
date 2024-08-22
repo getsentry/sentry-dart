@@ -4,6 +4,7 @@ library flutter_test;
 import 'dart:async';
 import 'dart:io';
 
+import 'package:ffi/ffi.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry/src/platform/platform.dart' as platform;
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -40,7 +41,6 @@ void main() {
     // Compile sentry-native using CMake, as if it was part of a Flutter app.
     final cmakeBuildDir = '$nativeTestRoot/build';
     final cmakeConfDir = '$nativeTestRoot/conf';
-    final cmakeOutputDir = '$nativeTestRoot/out';
     Directory(cmakeConfDir).createSync(recursive: true);
     File('$cmakeConfDir/CMakeLists.txt').writeAsStringSync('''
 cmake_minimum_required(VERSION 3.14)
@@ -64,6 +64,8 @@ target_link_libraries(\${CMAKE_PROJECT_NAME} INTERFACE \${sentry_flutter_bundled
     sut = createBinding(options) as SentryNative;
   });
 
+  tearDown(() => sut.close());
+
   test('options', () {
     options
       ..debug = true
@@ -71,14 +73,33 @@ target_link_libraries(\${CMAKE_PROJECT_NAME} INTERFACE \${sentry_flutter_bundled
       ..release = 'foo@bar+1'
       ..enableAutoSessionTracking = true
       ..dist = 'distfoo'
-      ..diagnosticLevel = SentryLevel.error
       ..maxBreadcrumbs = 42;
 
     final cOptions = sut.createOptions(options);
     try {
-      // sut.native.options_get_dsn(cOptions)
+      expect(
+          SentryNative.native
+              .options_get_dsn(cOptions)
+              .cast<Utf8>()
+              .toDartString(),
+          fakeDsn);
+      expect(
+          SentryNative.native
+              .options_get_environment(cOptions)
+              .cast<Utf8>()
+              .toDartString(),
+          'foo');
+      expect(
+          SentryNative.native
+              .options_get_release(cOptions)
+              .cast<Utf8>()
+              .toDartString(),
+          'foo@bar+1');
+      expect(
+          SentryNative.native.options_get_auto_session_tracking(cOptions), 1);
+      expect(SentryNative.native.options_get_max_breadcrumbs(cOptions), 42);
     } finally {
-      sut.native.options_free(cOptions);
+      SentryNative.native.options_free(cOptions);
     }
   });
 
@@ -87,48 +108,30 @@ target_link_libraries(\${CMAKE_PROJECT_NAME} INTERFACE \${sentry_flutter_bundled
     await sut.init(options);
   });
 
-  //   test('beginNativeFrames', () async {
-  //     when(channel.invokeMethod('beginNativeFrames'))
-  //         .thenAnswer((realInvocation) async {});
-  //     await sut.beginNativeFrames();
+  test('app start', () {
+    expect(sut.fetchNativeAppStart(), null);
+  });
 
-  //     verify(channel.invokeMethod('beginNativeFrames'));
-  //   });
+  test('frames tracking', () {
+    sut.beginNativeFrames();
+    expect(sut.endNativeFrames(SentryId.newId()), null);
+  });
 
-  //   test('endNativeFrames', () async {
-  //     final sentryId = SentryId.empty();
+  test('hang tracking', () {
+    sut.pauseAppHangTracking();
+    sut.resumeAppHangTracking();
+  });
 
-  //     when(channel
-  //             .invokeMethod('endNativeFrames', {'id': sentryId.toString()}))
-  //         .thenAnswer((_) async => {
-  //               'totalFrames': 3,
-  //               'slowFrames': 2,
-  //               'frozenFrames': 1,
-  //             });
+  // test('setUser', () async {
+  //   final user = SentryUser(
+  //     id: "fixture-id",
+  //     data: {'object': Object()},
+  //   );
 
-  //     final actual = await sut.endNativeFrames(sentryId);
+  //   await sut.setUser(user);
 
-  //     expect(actual?.totalFrames, 3);
-  //     expect(actual?.slowFrames, 2);
-  //     expect(actual?.frozenFrames, 1);
-  //   });
-
-  //   test('setUser', () async {
-  //     final user = SentryUser(
-  //       id: "fixture-id",
-  //       data: {'object': Object()},
-  //     );
-  //     final normalizedUser = user.copyWith(
-  //       data: MethodChannelHelper.normalizeMap(user.data),
-  //     );
-  //     when(channel.invokeMethod('setUser', {'user': normalizedUser.toJson()}))
-  //         .thenAnswer((_) => Future.value());
-
-  //     await sut.setUser(user);
-
-  //     verify(
-  //         channel.invokeMethod('setUser', {'user': normalizedUser.toJson()}));
-  //   });
+  //   verify(channel.invokeMethod('setUser', {'user': normalizedUser.toJson()}));
+  // });
 
   //   test('addBreadcrumb', () async {
   //     final breadcrumb = Breadcrumb(
@@ -317,23 +320,5 @@ target_link_libraries(\${CMAKE_PROJECT_NAME} INTERFACE \${sentry_flutter_bundled
   //     final data = await sut.loadDebugImages();
 
   //     expect(data?.map((v) => v.toJson()), json);
-  //   });
-
-  //   test('pauseAppHangTracking', () async {
-  //     when(channel.invokeMethod('pauseAppHangTracking'))
-  //         .thenAnswer((_) => Future.value());
-
-  //     await sut.pauseAppHangTracking();
-
-  //     verify(channel.invokeMethod('pauseAppHangTracking'));
-  //   });
-
-  //   test('resumeAppHangTracking', () async {
-  //     when(channel.invokeMethod('resumeAppHangTracking'))
-  //         .thenAnswer((_) => Future.value());
-
-  //     await sut.resumeAppHangTracking();
-
-  //     verify(channel.invokeMethod('resumeAppHangTracking'));
   //   });
 }

@@ -20,6 +20,1512 @@ class SentryNative {
           lookup)
       : _lookup = lookup;
 
+  /// Allocates memory with the underlying allocator.
+  ffi.Pointer<ffi.Void> malloc(
+    int size,
+  ) {
+    return _malloc(
+      size,
+    );
+  }
+
+  late final _mallocPtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Void> Function(ffi.Size)>>(
+          'sentry_malloc');
+  late final _malloc =
+      _mallocPtr.asFunction<ffi.Pointer<ffi.Void> Function(int)>();
+
+  /// Releases memory allocated from the underlying allocator.
+  void free(
+    ffi.Pointer<ffi.Void> ptr,
+  ) {
+    return _free(
+      ptr,
+    );
+  }
+
+  late final _freePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>(
+          'sentry_free');
+  late final _free =
+      _freePtr.asFunction<void Function(ffi.Pointer<ffi.Void>)>();
+
+  /// Increments the reference count on the value.
+  void value_incref(
+    sentry_value_u value,
+  ) {
+    return _value_incref(
+      value,
+    );
+  }
+
+  late final _value_increfPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(sentry_value_u)>>(
+          'sentry_value_incref');
+  late final _value_incref =
+      _value_increfPtr.asFunction<void Function(sentry_value_u)>();
+
+  /// Decrements the reference count on the value.
+  void value_decref(
+    sentry_value_u value,
+  ) {
+    return _value_decref(
+      value,
+    );
+  }
+
+  late final _value_decrefPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(sentry_value_u)>>(
+          'sentry_value_decref');
+  late final _value_decref =
+      _value_decrefPtr.asFunction<void Function(sentry_value_u)>();
+
+  /// Returns the refcount of a value.
+  int value_refcount(
+    sentry_value_u value,
+  ) {
+    return _value_refcount(
+      value,
+    );
+  }
+
+  late final _value_refcountPtr =
+      _lookup<ffi.NativeFunction<ffi.Size Function(sentry_value_u)>>(
+          'sentry_value_refcount');
+  late final _value_refcount =
+      _value_refcountPtr.asFunction<int Function(sentry_value_u)>();
+
+  /// Freezes a value.
+  void value_freeze(
+    sentry_value_u value,
+  ) {
+    return _value_freeze(
+      value,
+    );
+  }
+
+  late final _value_freezePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(sentry_value_u)>>(
+          'sentry_value_freeze');
+  late final _value_freeze =
+      _value_freezePtr.asFunction<void Function(sentry_value_u)>();
+
+  /// Checks if a value is frozen.
+  int value_is_frozen(
+    sentry_value_u value,
+  ) {
+    return _value_is_frozen(
+      value,
+    );
+  }
+
+  late final _value_is_frozenPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(sentry_value_u)>>(
+          'sentry_value_is_frozen');
+  late final _value_is_frozen =
+      _value_is_frozenPtr.asFunction<int Function(sentry_value_u)>();
+
+  /// Creates a null value.
+  sentry_value_u value_new_null() {
+    return _value_new_null();
+  }
+
+  late final _value_new_nullPtr =
+      _lookup<ffi.NativeFunction<sentry_value_u Function()>>(
+          'sentry_value_new_null');
+  late final _value_new_null =
+      _value_new_nullPtr.asFunction<sentry_value_u Function()>();
+
+  /// Creates a new 32-bit signed integer value.
+  sentry_value_u value_new_int32(
+    int value,
+  ) {
+    return _value_new_int32(
+      value,
+    );
+  }
+
+  late final _value_new_int32Ptr =
+      _lookup<ffi.NativeFunction<sentry_value_u Function(ffi.Int32)>>(
+          'sentry_value_new_int32');
+  late final _value_new_int32 =
+      _value_new_int32Ptr.asFunction<sentry_value_u Function(int)>();
+
+  /// Creates a new double value.
+  sentry_value_u value_new_double(
+    double value,
+  ) {
+    return _value_new_double(
+      value,
+    );
+  }
+
+  late final _value_new_doublePtr =
+      _lookup<ffi.NativeFunction<sentry_value_u Function(ffi.Double)>>(
+          'sentry_value_new_double');
+  late final _value_new_double =
+      _value_new_doublePtr.asFunction<sentry_value_u Function(double)>();
+
+  /// Creates a new boolean value.
+  sentry_value_u value_new_bool(
+    int value,
+  ) {
+    return _value_new_bool(
+      value,
+    );
+  }
+
+  late final _value_new_boolPtr =
+      _lookup<ffi.NativeFunction<sentry_value_u Function(ffi.Int)>>(
+          'sentry_value_new_bool');
+  late final _value_new_bool =
+      _value_new_boolPtr.asFunction<sentry_value_u Function(int)>();
+
+  /// Creates a new null terminated string.
+  sentry_value_u value_new_string(
+    ffi.Pointer<ffi.Char> value,
+  ) {
+    return _value_new_string(
+      value,
+    );
+  }
+
+  late final _value_new_stringPtr = _lookup<
+          ffi.NativeFunction<sentry_value_u Function(ffi.Pointer<ffi.Char>)>>(
+      'sentry_value_new_string');
+  late final _value_new_string = _value_new_stringPtr
+      .asFunction<sentry_value_u Function(ffi.Pointer<ffi.Char>)>();
+
+  sentry_value_u value_new_string_n(
+    ffi.Pointer<ffi.Char> value,
+    int value_len,
+  ) {
+    return _value_new_string_n(
+      value,
+      value_len,
+    );
+  }
+
+  late final _value_new_string_nPtr = _lookup<
+      ffi.NativeFunction<
+          sentry_value_u Function(
+              ffi.Pointer<ffi.Char>, ffi.Size)>>('sentry_value_new_string_n');
+  late final _value_new_string_n = _value_new_string_nPtr
+      .asFunction<sentry_value_u Function(ffi.Pointer<ffi.Char>, int)>();
+
+  /// Creates a new list value.
+  sentry_value_u value_new_list() {
+    return _value_new_list();
+  }
+
+  late final _value_new_listPtr =
+      _lookup<ffi.NativeFunction<sentry_value_u Function()>>(
+          'sentry_value_new_list');
+  late final _value_new_list =
+      _value_new_listPtr.asFunction<sentry_value_u Function()>();
+
+  /// Creates a new object.
+  sentry_value_u value_new_object() {
+    return _value_new_object();
+  }
+
+  late final _value_new_objectPtr =
+      _lookup<ffi.NativeFunction<sentry_value_u Function()>>(
+          'sentry_value_new_object');
+  late final _value_new_object =
+      _value_new_objectPtr.asFunction<sentry_value_u Function()>();
+
+  /// Returns the type of the value passed.
+  int value_get_type(
+    sentry_value_u value,
+  ) {
+    return _value_get_type(
+      value,
+    );
+  }
+
+  late final _value_get_typePtr =
+      _lookup<ffi.NativeFunction<ffi.Int32 Function(sentry_value_u)>>(
+          'sentry_value_get_type');
+  late final _value_get_type =
+      _value_get_typePtr.asFunction<int Function(sentry_value_u)>();
+
+  /// Sets a key to a value in the map.
+  ///
+  /// This moves the ownership of the value into the map.  The caller does not
+  /// have to call `sentry_value_decref` on it.
+  int value_set_by_key(
+    sentry_value_u value,
+    ffi.Pointer<ffi.Char> k,
+    sentry_value_u v,
+  ) {
+    return _value_set_by_key(
+      value,
+      k,
+      v,
+    );
+  }
+
+  late final _value_set_by_keyPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Int Function(sentry_value_u, ffi.Pointer<ffi.Char>,
+              sentry_value_u)>>('sentry_value_set_by_key');
+  late final _value_set_by_key = _value_set_by_keyPtr.asFunction<
+      int Function(sentry_value_u, ffi.Pointer<ffi.Char>, sentry_value_u)>();
+
+  int value_set_by_key_n(
+    sentry_value_u value,
+    ffi.Pointer<ffi.Char> k,
+    int k_len,
+    sentry_value_u v,
+  ) {
+    return _value_set_by_key_n(
+      value,
+      k,
+      k_len,
+      v,
+    );
+  }
+
+  late final _value_set_by_key_nPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Int Function(sentry_value_u, ffi.Pointer<ffi.Char>, ffi.Size,
+              sentry_value_u)>>('sentry_value_set_by_key_n');
+  late final _value_set_by_key_n = _value_set_by_key_nPtr.asFunction<
+      int Function(
+          sentry_value_u, ffi.Pointer<ffi.Char>, int, sentry_value_u)>();
+
+  /// This removes a value from the map by key.
+  int value_remove_by_key(
+    sentry_value_u value,
+    ffi.Pointer<ffi.Char> k,
+  ) {
+    return _value_remove_by_key(
+      value,
+      k,
+    );
+  }
+
+  late final _value_remove_by_keyPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Int Function(sentry_value_u,
+              ffi.Pointer<ffi.Char>)>>('sentry_value_remove_by_key');
+  late final _value_remove_by_key = _value_remove_by_keyPtr
+      .asFunction<int Function(sentry_value_u, ffi.Pointer<ffi.Char>)>();
+
+  int value_remove_by_key_n(
+    sentry_value_u value,
+    ffi.Pointer<ffi.Char> k,
+    int k_len,
+  ) {
+    return _value_remove_by_key_n(
+      value,
+      k,
+      k_len,
+    );
+  }
+
+  late final _value_remove_by_key_nPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Int Function(sentry_value_u, ffi.Pointer<ffi.Char>,
+              ffi.Size)>>('sentry_value_remove_by_key_n');
+  late final _value_remove_by_key_n = _value_remove_by_key_nPtr
+      .asFunction<int Function(sentry_value_u, ffi.Pointer<ffi.Char>, int)>();
+
+  /// Appends a value to a list.
+  ///
+  /// This moves the ownership of the value into the list.  The caller does not
+  /// have to call `sentry_value_decref` on it.
+  int value_append(
+    sentry_value_u value,
+    sentry_value_u v,
+  ) {
+    return _value_append(
+      value,
+      v,
+    );
+  }
+
+  late final _value_appendPtr = _lookup<
+          ffi.NativeFunction<ffi.Int Function(sentry_value_u, sentry_value_u)>>(
+      'sentry_value_append');
+  late final _value_append = _value_appendPtr
+      .asFunction<int Function(sentry_value_u, sentry_value_u)>();
+
+  /// Inserts a value into the list at a certain position.
+  ///
+  /// This moves the ownership of the value into the list.  The caller does not
+  /// have to call `sentry_value_decref` on it.
+  ///
+  /// If the list is shorter than the given index it's automatically extended
+  /// and filled with `null` values.
+  int value_set_by_index(
+    sentry_value_u value,
+    int index,
+    sentry_value_u v,
+  ) {
+    return _value_set_by_index(
+      value,
+      index,
+      v,
+    );
+  }
+
+  late final _value_set_by_indexPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Int Function(sentry_value_u, ffi.Size,
+              sentry_value_u)>>('sentry_value_set_by_index');
+  late final _value_set_by_index = _value_set_by_indexPtr
+      .asFunction<int Function(sentry_value_u, int, sentry_value_u)>();
+
+  /// This removes a value from the list by index.
+  int value_remove_by_index(
+    sentry_value_u value,
+    int index,
+  ) {
+    return _value_remove_by_index(
+      value,
+      index,
+    );
+  }
+
+  late final _value_remove_by_indexPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(sentry_value_u, ffi.Size)>>(
+          'sentry_value_remove_by_index');
+  late final _value_remove_by_index =
+      _value_remove_by_indexPtr.asFunction<int Function(sentry_value_u, int)>();
+
+  /// Looks up a value in a map by key.  If missing a null value is returned.
+  /// The returned value is borrowed.
+  sentry_value_u value_get_by_key(
+    sentry_value_u value,
+    ffi.Pointer<ffi.Char> k,
+  ) {
+    return _value_get_by_key(
+      value,
+      k,
+    );
+  }
+
+  late final _value_get_by_keyPtr = _lookup<
+      ffi.NativeFunction<
+          sentry_value_u Function(sentry_value_u,
+              ffi.Pointer<ffi.Char>)>>('sentry_value_get_by_key');
+  late final _value_get_by_key = _value_get_by_keyPtr.asFunction<
+      sentry_value_u Function(sentry_value_u, ffi.Pointer<ffi.Char>)>();
+
+  sentry_value_u value_get_by_key_n(
+    sentry_value_u value,
+    ffi.Pointer<ffi.Char> k,
+    int k_len,
+  ) {
+    return _value_get_by_key_n(
+      value,
+      k,
+      k_len,
+    );
+  }
+
+  late final _value_get_by_key_nPtr = _lookup<
+      ffi.NativeFunction<
+          sentry_value_u Function(sentry_value_u, ffi.Pointer<ffi.Char>,
+              ffi.Size)>>('sentry_value_get_by_key_n');
+  late final _value_get_by_key_n = _value_get_by_key_nPtr.asFunction<
+      sentry_value_u Function(sentry_value_u, ffi.Pointer<ffi.Char>, int)>();
+
+  /// Looks up a value in a map by key.  If missing a null value is returned.
+  /// The returned value is owned.
+  ///
+  /// If the caller no longer needs the value it must be released with
+  /// `sentry_value_decref`.
+  sentry_value_u value_get_by_key_owned(
+    sentry_value_u value,
+    ffi.Pointer<ffi.Char> k,
+  ) {
+    return _value_get_by_key_owned(
+      value,
+      k,
+    );
+  }
+
+  late final _value_get_by_key_ownedPtr = _lookup<
+      ffi.NativeFunction<
+          sentry_value_u Function(sentry_value_u,
+              ffi.Pointer<ffi.Char>)>>('sentry_value_get_by_key_owned');
+  late final _value_get_by_key_owned = _value_get_by_key_ownedPtr.asFunction<
+      sentry_value_u Function(sentry_value_u, ffi.Pointer<ffi.Char>)>();
+
+  sentry_value_u value_get_by_key_owned_n(
+    sentry_value_u value,
+    ffi.Pointer<ffi.Char> k,
+    int k_len,
+  ) {
+    return _value_get_by_key_owned_n(
+      value,
+      k,
+      k_len,
+    );
+  }
+
+  late final _value_get_by_key_owned_nPtr = _lookup<
+      ffi.NativeFunction<
+          sentry_value_u Function(sentry_value_u, ffi.Pointer<ffi.Char>,
+              ffi.Size)>>('sentry_value_get_by_key_owned_n');
+  late final _value_get_by_key_owned_n =
+      _value_get_by_key_owned_nPtr.asFunction<
+          sentry_value_u Function(
+              sentry_value_u, ffi.Pointer<ffi.Char>, int)>();
+
+  /// Looks up a value in a list by index.  If missing a null value is returned.
+  /// The returned value is borrowed.
+  sentry_value_u value_get_by_index(
+    sentry_value_u value,
+    int index,
+  ) {
+    return _value_get_by_index(
+      value,
+      index,
+    );
+  }
+
+  late final _value_get_by_indexPtr = _lookup<
+          ffi
+          .NativeFunction<sentry_value_u Function(sentry_value_u, ffi.Size)>>(
+      'sentry_value_get_by_index');
+  late final _value_get_by_index = _value_get_by_indexPtr
+      .asFunction<sentry_value_u Function(sentry_value_u, int)>();
+
+  /// Looks up a value in a list by index.  If missing a null value is
+  /// returned. The returned value is owned.
+  ///
+  /// If the caller no longer needs the value it must be released with
+  /// `sentry_value_decref`.
+  sentry_value_u value_get_by_index_owned(
+    sentry_value_u value,
+    int index,
+  ) {
+    return _value_get_by_index_owned(
+      value,
+      index,
+    );
+  }
+
+  late final _value_get_by_index_ownedPtr = _lookup<
+          ffi
+          .NativeFunction<sentry_value_u Function(sentry_value_u, ffi.Size)>>(
+      'sentry_value_get_by_index_owned');
+  late final _value_get_by_index_owned = _value_get_by_index_ownedPtr
+      .asFunction<sentry_value_u Function(sentry_value_u, int)>();
+
+  /// Returns the length of the given map or list.
+  ///
+  /// If an item is not a list or map the return value is 0.
+  int value_get_length(
+    sentry_value_u value,
+  ) {
+    return _value_get_length(
+      value,
+    );
+  }
+
+  late final _value_get_lengthPtr =
+      _lookup<ffi.NativeFunction<ffi.Size Function(sentry_value_u)>>(
+          'sentry_value_get_length');
+  late final _value_get_length =
+      _value_get_lengthPtr.asFunction<int Function(sentry_value_u)>();
+
+  /// Converts a value into a 32bit signed integer.
+  int value_as_int32(
+    sentry_value_u value,
+  ) {
+    return _value_as_int32(
+      value,
+    );
+  }
+
+  late final _value_as_int32Ptr =
+      _lookup<ffi.NativeFunction<ffi.Int32 Function(sentry_value_u)>>(
+          'sentry_value_as_int32');
+  late final _value_as_int32 =
+      _value_as_int32Ptr.asFunction<int Function(sentry_value_u)>();
+
+  /// Converts a value into a double value.
+  double value_as_double(
+    sentry_value_u value,
+  ) {
+    return _value_as_double(
+      value,
+    );
+  }
+
+  late final _value_as_doublePtr =
+      _lookup<ffi.NativeFunction<ffi.Double Function(sentry_value_u)>>(
+          'sentry_value_as_double');
+  late final _value_as_double =
+      _value_as_doublePtr.asFunction<double Function(sentry_value_u)>();
+
+  /// Returns the value as c string.
+  ffi.Pointer<ffi.Char> value_as_string(
+    sentry_value_u value,
+  ) {
+    return _value_as_string(
+      value,
+    );
+  }
+
+  late final _value_as_stringPtr = _lookup<
+          ffi.NativeFunction<ffi.Pointer<ffi.Char> Function(sentry_value_u)>>(
+      'sentry_value_as_string');
+  late final _value_as_string = _value_as_stringPtr
+      .asFunction<ffi.Pointer<ffi.Char> Function(sentry_value_u)>();
+
+  /// Returns `true` if the value is boolean true.
+  int value_is_true(
+    sentry_value_u value,
+  ) {
+    return _value_is_true(
+      value,
+    );
+  }
+
+  late final _value_is_truePtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(sentry_value_u)>>(
+          'sentry_value_is_true');
+  late final _value_is_true =
+      _value_is_truePtr.asFunction<int Function(sentry_value_u)>();
+
+  /// Returns `true` if the value is null.
+  int value_is_null(
+    sentry_value_u value,
+  ) {
+    return _value_is_null(
+      value,
+    );
+  }
+
+  late final _value_is_nullPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(sentry_value_u)>>(
+          'sentry_value_is_null');
+  late final _value_is_null =
+      _value_is_nullPtr.asFunction<int Function(sentry_value_u)>();
+
+  /// Serialize a sentry value to JSON.
+  ///
+  /// The string is freshly allocated and must be freed with
+  /// `sentry_string_free`.
+  ffi.Pointer<ffi.Char> value_to_json(
+    sentry_value_u value,
+  ) {
+    return _value_to_json(
+      value,
+    );
+  }
+
+  late final _value_to_jsonPtr = _lookup<
+          ffi.NativeFunction<ffi.Pointer<ffi.Char> Function(sentry_value_u)>>(
+      'sentry_value_to_json');
+  late final _value_to_json = _value_to_jsonPtr
+      .asFunction<ffi.Pointer<ffi.Char> Function(sentry_value_u)>();
+
+  /// Creates a new empty Event value.
+  ///
+  /// See https://docs.sentry.io/platforms/native/enriching-events/ for how to
+  /// further work with events, and https://develop.sentry.dev/sdk/event-payloads/
+  /// for a detailed overview of the possible properties of an Event.
+  sentry_value_u value_new_event() {
+    return _value_new_event();
+  }
+
+  late final _value_new_eventPtr =
+      _lookup<ffi.NativeFunction<sentry_value_u Function()>>(
+          'sentry_value_new_event');
+  late final _value_new_event =
+      _value_new_eventPtr.asFunction<sentry_value_u Function()>();
+
+  /// Creates a new Message Event value.
+  ///
+  /// See https://develop.sentry.dev/sdk/event-payloads/message/
+  ///
+  /// `logger` can be NULL to omit the logger value.
+  sentry_value_u value_new_message_event(
+    int level,
+    ffi.Pointer<ffi.Char> logger,
+    ffi.Pointer<ffi.Char> text,
+  ) {
+    return _value_new_message_event(
+      level,
+      logger,
+      text,
+    );
+  }
+
+  late final _value_new_message_eventPtr = _lookup<
+      ffi.NativeFunction<
+          sentry_value_u Function(ffi.Int32, ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>)>>('sentry_value_new_message_event');
+  late final _value_new_message_event = _value_new_message_eventPtr.asFunction<
+      sentry_value_u Function(
+          int, ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Char>)>();
+
+  sentry_value_u value_new_message_event_n(
+    int level,
+    ffi.Pointer<ffi.Char> logger,
+    int logger_len,
+    ffi.Pointer<ffi.Char> text,
+    int text_len,
+  ) {
+    return _value_new_message_event_n(
+      level,
+      logger,
+      logger_len,
+      text,
+      text_len,
+    );
+  }
+
+  late final _value_new_message_event_nPtr = _lookup<
+      ffi.NativeFunction<
+          sentry_value_u Function(
+              ffi.Int32,
+              ffi.Pointer<ffi.Char>,
+              ffi.Size,
+              ffi.Pointer<ffi.Char>,
+              ffi.Size)>>('sentry_value_new_message_event_n');
+  late final _value_new_message_event_n =
+      _value_new_message_event_nPtr.asFunction<
+          sentry_value_u Function(
+              int, ffi.Pointer<ffi.Char>, int, ffi.Pointer<ffi.Char>, int)>();
+
+  /// Creates a new Breadcrumb with a specific type and message.
+  ///
+  /// See https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/
+  ///
+  /// Either parameter can be NULL in which case no such attributes is created.
+  sentry_value_u value_new_breadcrumb(
+    ffi.Pointer<ffi.Char> type,
+    ffi.Pointer<ffi.Char> message,
+  ) {
+    return _value_new_breadcrumb(
+      type,
+      message,
+    );
+  }
+
+  late final _value_new_breadcrumbPtr = _lookup<
+      ffi.NativeFunction<
+          sentry_value_u Function(ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>)>>('sentry_value_new_breadcrumb');
+  late final _value_new_breadcrumb = _value_new_breadcrumbPtr.asFunction<
+      sentry_value_u Function(ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Char>)>();
+
+  sentry_value_u value_new_breadcrumb_n(
+    ffi.Pointer<ffi.Char> type,
+    int type_len,
+    ffi.Pointer<ffi.Char> message,
+    int message_len,
+  ) {
+    return _value_new_breadcrumb_n(
+      type,
+      type_len,
+      message,
+      message_len,
+    );
+  }
+
+  late final _value_new_breadcrumb_nPtr = _lookup<
+      ffi.NativeFunction<
+          sentry_value_u Function(
+              ffi.Pointer<ffi.Char>,
+              ffi.Size,
+              ffi.Pointer<ffi.Char>,
+              ffi.Size)>>('sentry_value_new_breadcrumb_n');
+  late final _value_new_breadcrumb_n = _value_new_breadcrumb_nPtr.asFunction<
+      sentry_value_u Function(
+          ffi.Pointer<ffi.Char>, int, ffi.Pointer<ffi.Char>, int)>();
+
+  /// Creates a new Exception value.
+  ///
+  /// This is intended for capturing language-level exception, such as from a
+  /// try-catch block. `type` and `value` here refer to the exception class and
+  /// a possible description.
+  ///
+  /// See https://develop.sentry.dev/sdk/event-payloads/exception/
+  ///
+  /// The returned value needs to be attached to an event via
+  /// `sentry_event_add_exception`.
+  sentry_value_u value_new_exception(
+    ffi.Pointer<ffi.Char> type,
+    ffi.Pointer<ffi.Char> value,
+  ) {
+    return _value_new_exception(
+      type,
+      value,
+    );
+  }
+
+  late final _value_new_exceptionPtr = _lookup<
+      ffi.NativeFunction<
+          sentry_value_u Function(ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>)>>('sentry_value_new_exception');
+  late final _value_new_exception = _value_new_exceptionPtr.asFunction<
+      sentry_value_u Function(ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Char>)>();
+
+  sentry_value_u value_new_exception_n(
+    ffi.Pointer<ffi.Char> type,
+    int type_len,
+    ffi.Pointer<ffi.Char> value,
+    int value_len,
+  ) {
+    return _value_new_exception_n(
+      type,
+      type_len,
+      value,
+      value_len,
+    );
+  }
+
+  late final _value_new_exception_nPtr = _lookup<
+      ffi.NativeFunction<
+          sentry_value_u Function(
+              ffi.Pointer<ffi.Char>,
+              ffi.Size,
+              ffi.Pointer<ffi.Char>,
+              ffi.Size)>>('sentry_value_new_exception_n');
+  late final _value_new_exception_n = _value_new_exception_nPtr.asFunction<
+      sentry_value_u Function(
+          ffi.Pointer<ffi.Char>, int, ffi.Pointer<ffi.Char>, int)>();
+
+  /// Creates a new Thread value.
+  ///
+  /// See https://develop.sentry.dev/sdk/event-payloads/threads/
+  ///
+  /// The returned value needs to be attached to an event via
+  /// `sentry_event_add_thread`.
+  ///
+  /// `name` can be NULL.
+  sentry_value_u value_new_thread(
+    int id,
+    ffi.Pointer<ffi.Char> name,
+  ) {
+    return _value_new_thread(
+      id,
+      name,
+    );
+  }
+
+  late final _value_new_threadPtr = _lookup<
+      ffi.NativeFunction<
+          sentry_value_u Function(
+              ffi.Uint64, ffi.Pointer<ffi.Char>)>>('sentry_value_new_thread');
+  late final _value_new_thread = _value_new_threadPtr
+      .asFunction<sentry_value_u Function(int, ffi.Pointer<ffi.Char>)>();
+
+  sentry_value_u value_new_thread_n(
+    int id,
+    ffi.Pointer<ffi.Char> name,
+    int name_len,
+  ) {
+    return _value_new_thread_n(
+      id,
+      name,
+      name_len,
+    );
+  }
+
+  late final _value_new_thread_nPtr = _lookup<
+      ffi.NativeFunction<
+          sentry_value_u Function(ffi.Uint64, ffi.Pointer<ffi.Char>,
+              ffi.Size)>>('sentry_value_new_thread_n');
+  late final _value_new_thread_n = _value_new_thread_nPtr
+      .asFunction<sentry_value_u Function(int, ffi.Pointer<ffi.Char>, int)>();
+
+  /// Creates a new Stack Trace conforming to the Stack Trace Interface.
+  ///
+  /// See https://develop.sentry.dev/sdk/event-payloads/stacktrace/
+  ///
+  /// The returned object must be attached to either an exception or thread
+  /// object.
+  ///
+  /// If `ips` is NULL the current stack trace is captured, otherwise `len`
+  /// stack trace instruction pointers are attached to the event.
+  sentry_value_u value_new_stacktrace(
+    ffi.Pointer<ffi.Pointer<ffi.Void>> ips,
+    int len,
+  ) {
+    return _value_new_stacktrace(
+      ips,
+      len,
+    );
+  }
+
+  late final _value_new_stacktracePtr = _lookup<
+      ffi.NativeFunction<
+          sentry_value_u Function(ffi.Pointer<ffi.Pointer<ffi.Void>>,
+              ffi.Size)>>('sentry_value_new_stacktrace');
+  late final _value_new_stacktrace = _value_new_stacktracePtr.asFunction<
+      sentry_value_u Function(ffi.Pointer<ffi.Pointer<ffi.Void>>, int)>();
+
+  /// Sets the Stack Trace conforming to the Stack Trace Interface in a value.
+  ///
+  /// The value argument must be either an exception or thread object.
+  ///
+  /// If `ips` is NULL the current stack trace is captured, otherwise `len` stack
+  /// trace instruction pointers are attached to the event.
+  void value_set_stacktrace(
+    sentry_value_u value,
+    ffi.Pointer<ffi.Pointer<ffi.Void>> ips,
+    int len,
+  ) {
+    return _value_set_stacktrace(
+      value,
+      ips,
+      len,
+    );
+  }
+
+  late final _value_set_stacktracePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(sentry_value_u, ffi.Pointer<ffi.Pointer<ffi.Void>>,
+              ffi.Size)>>('sentry_value_set_stacktrace');
+  late final _value_set_stacktrace = _value_set_stacktracePtr.asFunction<
+      void Function(sentry_value_u, ffi.Pointer<ffi.Pointer<ffi.Void>>, int)>();
+
+  /// Adds an Exception to an Event value.
+  ///
+  /// This takes ownership of the `exception`.
+  void event_add_exception(
+    sentry_value_u event,
+    sentry_value_u exception,
+  ) {
+    return _event_add_exception(
+      event,
+      exception,
+    );
+  }
+
+  late final _event_add_exceptionPtr = _lookup<
+          ffi
+          .NativeFunction<ffi.Void Function(sentry_value_u, sentry_value_u)>>(
+      'sentry_event_add_exception');
+  late final _event_add_exception = _event_add_exceptionPtr
+      .asFunction<void Function(sentry_value_u, sentry_value_u)>();
+
+  /// Adds a Thread to an Event value.
+  ///
+  /// This takes ownership of the `thread`.
+  void event_add_thread(
+    sentry_value_u event,
+    sentry_value_u thread,
+  ) {
+    return _event_add_thread(
+      event,
+      thread,
+    );
+  }
+
+  late final _event_add_threadPtr = _lookup<
+          ffi
+          .NativeFunction<ffi.Void Function(sentry_value_u, sentry_value_u)>>(
+      'sentry_event_add_thread');
+  late final _event_add_thread = _event_add_threadPtr
+      .asFunction<void Function(sentry_value_u, sentry_value_u)>();
+
+  /// Serialize a sentry value to msgpack.
+  ///
+  /// The string is freshly allocated and must be freed with
+  /// `sentry_string_free`.  Since msgpack is not zero terminated
+  /// the size is written to the `size_out` parameter.
+  ffi.Pointer<ffi.Char> value_to_msgpack(
+    sentry_value_u value,
+    ffi.Pointer<ffi.Size> size_out,
+  ) {
+    return _value_to_msgpack(
+      value,
+      size_out,
+    );
+  }
+
+  late final _value_to_msgpackPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<ffi.Char> Function(sentry_value_u,
+              ffi.Pointer<ffi.Size>)>>('sentry_value_to_msgpack');
+  late final _value_to_msgpack = _value_to_msgpackPtr.asFunction<
+      ffi.Pointer<ffi.Char> Function(sentry_value_u, ffi.Pointer<ffi.Size>)>();
+
+  /// Adds a stack trace to an event.
+  ///
+  /// The stack trace is added as part of a new thread object.
+  /// This function is **deprecated** in favor of using
+  /// `sentry_value_new_stacktrace` in combination with `sentry_value_new_thread`
+  /// and `sentry_event_add_thread`.
+  ///
+  /// If `ips` is NULL the current stack trace is captured, otherwise `len`
+  /// stack trace instruction pointers are attached to the event.
+  void event_value_add_stacktrace(
+    sentry_value_u event,
+    ffi.Pointer<ffi.Pointer<ffi.Void>> ips,
+    int len,
+  ) {
+    return _event_value_add_stacktrace(
+      event,
+      ips,
+      len,
+    );
+  }
+
+  late final _event_value_add_stacktracePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(sentry_value_u, ffi.Pointer<ffi.Pointer<ffi.Void>>,
+              ffi.Size)>>('sentry_event_value_add_stacktrace');
+  late final _event_value_add_stacktrace =
+      _event_value_add_stacktracePtr.asFunction<
+          void Function(
+              sentry_value_u, ffi.Pointer<ffi.Pointer<ffi.Void>>, int)>();
+
+  /// Unwinds the stack from the given address.
+  ///
+  /// If the address is given in `addr` the stack is unwound form there.
+  /// Otherwise (NULL is passed) the current instruction pointer is used as
+  /// start address.
+  /// Unwinding with a given `addr` is not supported on all platforms.
+  ///
+  /// The stack trace in the form of instruction-addresses, is written to the
+  /// caller allocated `stacktrace_out`, with up to `max_len` frames being written.
+  /// The actual number of unwound stackframes is returned.
+  int unwind_stack(
+    ffi.Pointer<ffi.Void> addr,
+    ffi.Pointer<ffi.Pointer<ffi.Void>> stacktrace_out,
+    int max_len,
+  ) {
+    return _unwind_stack(
+      addr,
+      stacktrace_out,
+      max_len,
+    );
+  }
+
+  late final _unwind_stackPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Size Function(
+              ffi.Pointer<ffi.Void>,
+              ffi.Pointer<ffi.Pointer<ffi.Void>>,
+              ffi.Size)>>('sentry_unwind_stack');
+  late final _unwind_stack = _unwind_stackPtr.asFunction<
+      int Function(
+          ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Pointer<ffi.Void>>, int)>();
+
+  /// Unwinds the stack from the given context.
+  ///
+  /// The caller is responsible to construct an appropriate `sentry_ucontext_t`.
+  /// Unwinding from a user context is not supported on all platforms.
+  ///
+  /// The stack trace in the form of instruction-addresses, is written to the
+  /// caller allocated `stacktrace_out`, with up to `max_len` frames being written.
+  /// The actual number of unwound stackframes is returned.
+  int unwind_stack_from_ucontext(
+    ffi.Pointer<sentry_ucontext_s> uctx,
+    ffi.Pointer<ffi.Pointer<ffi.Void>> stacktrace_out,
+    int max_len,
+  ) {
+    return _unwind_stack_from_ucontext(
+      uctx,
+      stacktrace_out,
+      max_len,
+    );
+  }
+
+  late final _unwind_stack_from_ucontextPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Size Function(
+              ffi.Pointer<sentry_ucontext_s>,
+              ffi.Pointer<ffi.Pointer<ffi.Void>>,
+              ffi.Size)>>('sentry_unwind_stack_from_ucontext');
+  late final _unwind_stack_from_ucontext =
+      _unwind_stack_from_ucontextPtr.asFunction<
+          int Function(ffi.Pointer<sentry_ucontext_s>,
+              ffi.Pointer<ffi.Pointer<ffi.Void>>, int)>();
+
+  /// Creates the nil uuid.
+  sentry_uuid_s uuid_nil() {
+    return _uuid_nil();
+  }
+
+  late final _uuid_nilPtr =
+      _lookup<ffi.NativeFunction<sentry_uuid_s Function()>>('sentry_uuid_nil');
+  late final _uuid_nil = _uuid_nilPtr.asFunction<sentry_uuid_s Function()>();
+
+  /// Creates a new uuid4.
+  sentry_uuid_s uuid_new_v4() {
+    return _uuid_new_v4();
+  }
+
+  late final _uuid_new_v4Ptr =
+      _lookup<ffi.NativeFunction<sentry_uuid_s Function()>>(
+          'sentry_uuid_new_v4');
+  late final _uuid_new_v4 =
+      _uuid_new_v4Ptr.asFunction<sentry_uuid_s Function()>();
+
+  /// Parses a uuid from a string.
+  sentry_uuid_s uuid_from_string(
+    ffi.Pointer<ffi.Char> str,
+  ) {
+    return _uuid_from_string(
+      str,
+    );
+  }
+
+  late final _uuid_from_stringPtr = _lookup<
+          ffi.NativeFunction<sentry_uuid_s Function(ffi.Pointer<ffi.Char>)>>(
+      'sentry_uuid_from_string');
+  late final _uuid_from_string = _uuid_from_stringPtr
+      .asFunction<sentry_uuid_s Function(ffi.Pointer<ffi.Char>)>();
+
+  sentry_uuid_s uuid_from_string_n(
+    ffi.Pointer<ffi.Char> str,
+    int str_len,
+  ) {
+    return _uuid_from_string_n(
+      str,
+      str_len,
+    );
+  }
+
+  late final _uuid_from_string_nPtr = _lookup<
+      ffi.NativeFunction<
+          sentry_uuid_s Function(
+              ffi.Pointer<ffi.Char>, ffi.Size)>>('sentry_uuid_from_string_n');
+  late final _uuid_from_string_n = _uuid_from_string_nPtr
+      .asFunction<sentry_uuid_s Function(ffi.Pointer<ffi.Char>, int)>();
+
+  /// Creates a uuid from bytes.
+  sentry_uuid_s uuid_from_bytes(
+    ffi.Pointer<ffi.Char> bytes,
+  ) {
+    return _uuid_from_bytes(
+      bytes,
+    );
+  }
+
+  late final _uuid_from_bytesPtr = _lookup<
+          ffi.NativeFunction<sentry_uuid_s Function(ffi.Pointer<ffi.Char>)>>(
+      'sentry_uuid_from_bytes');
+  late final _uuid_from_bytes = _uuid_from_bytesPtr
+      .asFunction<sentry_uuid_s Function(ffi.Pointer<ffi.Char>)>();
+
+  /// Checks if the uuid is nil.
+  int uuid_is_nil(
+    ffi.Pointer<sentry_uuid_s> uuid,
+  ) {
+    return _uuid_is_nil(
+      uuid,
+    );
+  }
+
+  late final _uuid_is_nilPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(ffi.Pointer<sentry_uuid_s>)>>(
+          'sentry_uuid_is_nil');
+  late final _uuid_is_nil =
+      _uuid_is_nilPtr.asFunction<int Function(ffi.Pointer<sentry_uuid_s>)>();
+
+  /// Returns the bytes of the uuid.
+  void uuid_as_bytes(
+    ffi.Pointer<sentry_uuid_s> uuid,
+    ffi.Pointer<ffi.Char> bytes,
+  ) {
+    return _uuid_as_bytes(
+      uuid,
+      bytes,
+    );
+  }
+
+  late final _uuid_as_bytesPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<sentry_uuid_s>,
+              ffi.Pointer<ffi.Char>)>>('sentry_uuid_as_bytes');
+  late final _uuid_as_bytes = _uuid_as_bytesPtr.asFunction<
+      void Function(ffi.Pointer<sentry_uuid_s>, ffi.Pointer<ffi.Char>)>();
+
+  /// Formats the uuid into a string buffer.
+  void uuid_as_string(
+    ffi.Pointer<sentry_uuid_s> uuid,
+    ffi.Pointer<ffi.Char> str,
+  ) {
+    return _uuid_as_string(
+      uuid,
+      str,
+    );
+  }
+
+  late final _uuid_as_stringPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<sentry_uuid_s>,
+              ffi.Pointer<ffi.Char>)>>('sentry_uuid_as_string');
+  late final _uuid_as_string = _uuid_as_stringPtr.asFunction<
+      void Function(ffi.Pointer<sentry_uuid_s>, ffi.Pointer<ffi.Char>)>();
+
+  /// Frees an envelope.
+  void envelope_free(
+    ffi.Pointer<sentry_envelope_s> envelope,
+  ) {
+    return _envelope_free(
+      envelope,
+    );
+  }
+
+  late final _envelope_freePtr = _lookup<
+          ffi
+          .NativeFunction<ffi.Void Function(ffi.Pointer<sentry_envelope_s>)>>(
+      'sentry_envelope_free');
+  late final _envelope_free = _envelope_freePtr
+      .asFunction<void Function(ffi.Pointer<sentry_envelope_s>)>();
+
+  /// Given an Envelope, returns the embedded Event if there is one.
+  ///
+  /// This returns a borrowed value to the Event in the Envelope.
+  sentry_value_u envelope_get_event(
+    ffi.Pointer<sentry_envelope_s> envelope,
+  ) {
+    return _envelope_get_event(
+      envelope,
+    );
+  }
+
+  late final _envelope_get_eventPtr = _lookup<
+      ffi.NativeFunction<
+          sentry_value_u Function(
+              ffi.Pointer<sentry_envelope_s>)>>('sentry_envelope_get_event');
+  late final _envelope_get_event = _envelope_get_eventPtr
+      .asFunction<sentry_value_u Function(ffi.Pointer<sentry_envelope_s>)>();
+
+  /// Given an Envelope, returns the embedded Transaction if there is one.
+  ///
+  /// This returns a borrowed value to the Transaction in the Envelope.
+  sentry_value_u envelope_get_transaction(
+    ffi.Pointer<sentry_envelope_s> envelope,
+  ) {
+    return _envelope_get_transaction(
+      envelope,
+    );
+  }
+
+  late final _envelope_get_transactionPtr = _lookup<
+          ffi.NativeFunction<
+              sentry_value_u Function(ffi.Pointer<sentry_envelope_s>)>>(
+      'sentry_envelope_get_transaction');
+  late final _envelope_get_transaction = _envelope_get_transactionPtr
+      .asFunction<sentry_value_u Function(ffi.Pointer<sentry_envelope_s>)>();
+
+  /// Serializes the envelope.
+  ///
+  /// The return value needs to be freed with sentry_string_free().
+  ffi.Pointer<ffi.Char> envelope_serialize(
+    ffi.Pointer<sentry_envelope_s> envelope,
+    ffi.Pointer<ffi.Size> size_out,
+  ) {
+    return _envelope_serialize(
+      envelope,
+      size_out,
+    );
+  }
+
+  late final _envelope_serializePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<ffi.Char> Function(ffi.Pointer<sentry_envelope_s>,
+              ffi.Pointer<ffi.Size>)>>('sentry_envelope_serialize');
+  late final _envelope_serialize = _envelope_serializePtr.asFunction<
+      ffi.Pointer<ffi.Char> Function(
+          ffi.Pointer<sentry_envelope_s>, ffi.Pointer<ffi.Size>)>();
+
+  /// Serializes the envelope into a file.
+  ///
+  /// `path` is assumed to be in platform-specific filesystem path encoding.
+  ///
+  /// Returns 0 on success.
+  int envelope_write_to_file(
+    ffi.Pointer<sentry_envelope_s> envelope,
+    ffi.Pointer<ffi.Char> path,
+  ) {
+    return _envelope_write_to_file(
+      envelope,
+      path,
+    );
+  }
+
+  late final _envelope_write_to_filePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Int Function(ffi.Pointer<sentry_envelope_s>,
+              ffi.Pointer<ffi.Char>)>>('sentry_envelope_write_to_file');
+  late final _envelope_write_to_file = _envelope_write_to_filePtr.asFunction<
+      int Function(ffi.Pointer<sentry_envelope_s>, ffi.Pointer<ffi.Char>)>();
+
+  int envelope_write_to_file_n(
+    ffi.Pointer<sentry_envelope_s> envelope,
+    ffi.Pointer<ffi.Char> path,
+    int path_len,
+  ) {
+    return _envelope_write_to_file_n(
+      envelope,
+      path,
+      path_len,
+    );
+  }
+
+  late final _envelope_write_to_file_nPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Int Function(
+              ffi.Pointer<sentry_envelope_s>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Size)>>('sentry_envelope_write_to_file_n');
+  late final _envelope_write_to_file_n =
+      _envelope_write_to_file_nPtr.asFunction<
+          int Function(
+              ffi.Pointer<sentry_envelope_s>, ffi.Pointer<ffi.Char>, int)>();
+
+  /// Creates a new transport with an initial `send_func`.
+  ffi.Pointer<sentry_transport_s> transport_new(
+    ffi.Pointer<
+            ffi.NativeFunction<
+                ffi.Void Function(ffi.Pointer<sentry_envelope_s> envelope,
+                    ffi.Pointer<ffi.Void> state)>>
+        send_func,
+  ) {
+    return _transport_new(
+      send_func,
+    );
+  }
+
+  late final _transport_newPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Pointer<sentry_transport_s> Function(
+                  ffi.Pointer<
+                      ffi.NativeFunction<
+                          ffi.Void Function(
+                              ffi.Pointer<sentry_envelope_s> envelope,
+                              ffi.Pointer<ffi.Void> state)>>)>>(
+      'sentry_transport_new');
+  late final _transport_new = _transport_newPtr.asFunction<
+      ffi.Pointer<sentry_transport_s> Function(
+          ffi.Pointer<
+              ffi.NativeFunction<
+                  ffi.Void Function(ffi.Pointer<sentry_envelope_s> envelope,
+                      ffi.Pointer<ffi.Void> state)>>)>();
+
+  /// Sets the transport `state`.
+  ///
+  /// If the state is owned by the transport and needs to be freed, use
+  /// `sentry_transport_set_free_func` to set an appropriate hook.
+  void transport_set_state(
+    ffi.Pointer<sentry_transport_s> transport,
+    ffi.Pointer<ffi.Void> state,
+  ) {
+    return _transport_set_state(
+      transport,
+      state,
+    );
+  }
+
+  late final _transport_set_statePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<sentry_transport_s>,
+              ffi.Pointer<ffi.Void>)>>('sentry_transport_set_state');
+  late final _transport_set_state = _transport_set_statePtr.asFunction<
+      void Function(ffi.Pointer<sentry_transport_s>, ffi.Pointer<ffi.Void>)>();
+
+  /// Sets the transport hook to free the transport `state`.
+  void transport_set_free_func(
+    ffi.Pointer<sentry_transport_s> transport,
+    ffi.Pointer<
+            ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void> state)>>
+        free_func,
+  ) {
+    return _transport_set_free_func(
+      transport,
+      free_func,
+    );
+  }
+
+  late final _transport_set_free_funcPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Void Function(
+                  ffi.Pointer<sentry_transport_s>,
+                  ffi.Pointer<
+                      ffi.NativeFunction<
+                          ffi.Void Function(ffi.Pointer<ffi.Void> state)>>)>>(
+      'sentry_transport_set_free_func');
+  late final _transport_set_free_func = _transport_set_free_funcPtr.asFunction<
+      void Function(
+          ffi.Pointer<sentry_transport_s>,
+          ffi.Pointer<
+              ffi.NativeFunction<
+                  ffi.Void Function(ffi.Pointer<ffi.Void> state)>>)>();
+
+  /// Sets the transport startup hook.
+  ///
+  /// This hook is called from within `sentry_init` and will get a reference to the
+  /// options which can be used to initialize a transports internal state.
+  /// It should return `0` on success. A failure will bubble up to `sentry_init`.
+  void transport_set_startup_func(
+    ffi.Pointer<sentry_transport_s> transport,
+    ffi.Pointer<
+            ffi.NativeFunction<
+                ffi.Int Function(ffi.Pointer<sentry_options_s> options,
+                    ffi.Pointer<ffi.Void> state)>>
+        startup_func,
+  ) {
+    return _transport_set_startup_func(
+      transport,
+      startup_func,
+    );
+  }
+
+  late final _transport_set_startup_funcPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Void Function(
+                  ffi.Pointer<sentry_transport_s>,
+                  ffi.Pointer<
+                      ffi.NativeFunction<
+                          ffi.Int Function(
+                              ffi.Pointer<sentry_options_s> options,
+                              ffi.Pointer<ffi.Void> state)>>)>>(
+      'sentry_transport_set_startup_func');
+  late final _transport_set_startup_func =
+      _transport_set_startup_funcPtr.asFunction<
+          void Function(
+              ffi.Pointer<sentry_transport_s>,
+              ffi.Pointer<
+                  ffi.NativeFunction<
+                      ffi.Int Function(ffi.Pointer<sentry_options_s> options,
+                          ffi.Pointer<ffi.Void> state)>>)>();
+
+  /// Sets the transport flush hook.
+  ///
+  /// This hook will receive a millisecond-resolution timeout.
+  /// It should return `0` if all the pending envelopes are
+  /// sent within the timeout, or `1` if the timeout is hit.
+  void transport_set_flush_func(
+    ffi.Pointer<sentry_transport_s> transport,
+    ffi.Pointer<
+            ffi.NativeFunction<
+                ffi.Int Function(
+                    ffi.Uint64 timeout, ffi.Pointer<ffi.Void> state)>>
+        flush_func,
+  ) {
+    return _transport_set_flush_func(
+      transport,
+      flush_func,
+    );
+  }
+
+  late final _transport_set_flush_funcPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Void Function(
+                  ffi.Pointer<sentry_transport_s>,
+                  ffi.Pointer<
+                      ffi.NativeFunction<
+                          ffi.Int Function(ffi.Uint64 timeout,
+                              ffi.Pointer<ffi.Void> state)>>)>>(
+      'sentry_transport_set_flush_func');
+  late final _transport_set_flush_func =
+      _transport_set_flush_funcPtr.asFunction<
+          void Function(
+              ffi.Pointer<sentry_transport_s>,
+              ffi.Pointer<
+                  ffi.NativeFunction<
+                      ffi.Int Function(ffi.Uint64 timeout,
+                          ffi.Pointer<ffi.Void> state)>>)>();
+
+  /// Sets the transport shutdown hook.
+  ///
+  /// This hook will receive a millisecond-resolution timeout.
+  /// It should return `0` on success in case all the pending envelopes have been
+  /// sent within the timeout, or `1` if the timeout was hit.
+  void transport_set_shutdown_func(
+    ffi.Pointer<sentry_transport_s> transport,
+    ffi.Pointer<
+            ffi.NativeFunction<
+                ffi.Int Function(
+                    ffi.Uint64 timeout, ffi.Pointer<ffi.Void> state)>>
+        shutdown_func,
+  ) {
+    return _transport_set_shutdown_func(
+      transport,
+      shutdown_func,
+    );
+  }
+
+  late final _transport_set_shutdown_funcPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Void Function(
+                  ffi.Pointer<sentry_transport_s>,
+                  ffi.Pointer<
+                      ffi.NativeFunction<
+                          ffi.Int Function(ffi.Uint64 timeout,
+                              ffi.Pointer<ffi.Void> state)>>)>>(
+      'sentry_transport_set_shutdown_func');
+  late final _transport_set_shutdown_func =
+      _transport_set_shutdown_funcPtr.asFunction<
+          void Function(
+              ffi.Pointer<sentry_transport_s>,
+              ffi.Pointer<
+                  ffi.NativeFunction<
+                      ffi.Int Function(ffi.Uint64 timeout,
+                          ffi.Pointer<ffi.Void> state)>>)>();
+
+  /// Generic way to free a transport.
+  void transport_free(
+    ffi.Pointer<sentry_transport_s> transport,
+  ) {
+    return _transport_free(
+      transport,
+    );
+  }
+
+  late final _transport_freePtr = _lookup<
+          ffi
+          .NativeFunction<ffi.Void Function(ffi.Pointer<sentry_transport_s>)>>(
+      'sentry_transport_free');
+  late final _transport_free = _transport_freePtr
+      .asFunction<void Function(ffi.Pointer<sentry_transport_s>)>();
+
+  /// Create a new function transport.
+  ///
+  /// It is a convenience function which works with a borrowed `data`, and will
+  /// automatically free the envelope, so the user provided function does not need
+  /// to do that.
+  ///
+  /// This function is *deprecated* and will be removed in a future version.
+  /// It is here for backwards compatibility. Users should migrate to the
+  /// `sentry_transport_new` API.
+  ffi.Pointer<sentry_transport_s> new_function_transport(
+    ffi.Pointer<
+            ffi.NativeFunction<
+                ffi.Void Function(ffi.Pointer<sentry_envelope_s> envelope,
+                    ffi.Pointer<ffi.Void> data)>>
+        func,
+    ffi.Pointer<ffi.Void> data,
+  ) {
+    return _new_function_transport(
+      func,
+      data,
+    );
+  }
+
+  late final _new_function_transportPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<sentry_transport_s> Function(
+              ffi.Pointer<
+                  ffi.NativeFunction<
+                      ffi.Void Function(ffi.Pointer<sentry_envelope_s> envelope,
+                          ffi.Pointer<ffi.Void> data)>>,
+              ffi.Pointer<ffi.Void>)>>('sentry_new_function_transport');
+  late final _new_function_transport = _new_function_transportPtr.asFunction<
+      ffi.Pointer<sentry_transport_s> Function(
+          ffi.Pointer<
+              ffi.NativeFunction<
+                  ffi.Void Function(ffi.Pointer<sentry_envelope_s> envelope,
+                      ffi.Pointer<ffi.Void> data)>>,
+          ffi.Pointer<ffi.Void>)>();
+
   /// Creates a new options struct.
   /// Can be freed with `sentry_options_free`.
   ffi.Pointer<sentry_options_s> options_new() {
@@ -47,6 +1553,100 @@ class SentryNative {
   late final _options_free = _options_freePtr
       .asFunction<void Function(ffi.Pointer<sentry_options_s>)>();
 
+  /// Sets a transport.
+  void options_set_transport(
+    ffi.Pointer<sentry_options_s> opts,
+    ffi.Pointer<sentry_transport_s> transport,
+  ) {
+    return _options_set_transport(
+      opts,
+      transport,
+    );
+  }
+
+  late final _options_set_transportPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Void Function(ffi.Pointer<sentry_options_s>,
+                  ffi.Pointer<sentry_transport_s>)>>(
+      'sentry_options_set_transport');
+  late final _options_set_transport = _options_set_transportPtr.asFunction<
+      void Function(
+          ffi.Pointer<sentry_options_s>, ffi.Pointer<sentry_transport_s>)>();
+
+  /// Sets the `before_send` callback.
+  ///
+  /// See the `sentry_event_function_t` typedef above for more information.
+  void options_set_before_send(
+    ffi.Pointer<sentry_options_s> opts,
+    ffi.Pointer<
+            ffi.NativeFunction<
+                sentry_value_u Function(sentry_value_u, ffi.Pointer<ffi.Void>,
+                    ffi.Pointer<ffi.Void>)>>
+        func,
+    ffi.Pointer<ffi.Void> data,
+  ) {
+    return _options_set_before_send(
+      opts,
+      func,
+      data,
+    );
+  }
+
+  late final _options_set_before_sendPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Pointer<sentry_options_s>,
+              ffi.Pointer<
+                  ffi.NativeFunction<
+                      sentry_value_u Function(sentry_value_u,
+                          ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>)>>,
+              ffi.Pointer<ffi.Void>)>>('sentry_options_set_before_send');
+  late final _options_set_before_send = _options_set_before_sendPtr.asFunction<
+      void Function(
+          ffi.Pointer<sentry_options_s>,
+          ffi.Pointer<
+              ffi.NativeFunction<
+                  sentry_value_u Function(sentry_value_u, ffi.Pointer<ffi.Void>,
+                      ffi.Pointer<ffi.Void>)>>,
+          ffi.Pointer<ffi.Void>)>();
+
+  /// Sets the `on_crash` callback.
+  ///
+  /// See the `sentry_crash_function_t` typedef above for more information.
+  void options_set_on_crash(
+    ffi.Pointer<sentry_options_s> opts,
+    ffi.Pointer<
+            ffi.NativeFunction<
+                sentry_value_u Function(ffi.Pointer<sentry_ucontext_s>,
+                    sentry_value_u, ffi.Pointer<ffi.Void>)>>
+        func,
+    ffi.Pointer<ffi.Void> data,
+  ) {
+    return _options_set_on_crash(
+      opts,
+      func,
+      data,
+    );
+  }
+
+  late final _options_set_on_crashPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Pointer<sentry_options_s>,
+              ffi.Pointer<
+                  ffi.NativeFunction<
+                      sentry_value_u Function(ffi.Pointer<sentry_ucontext_s>,
+                          sentry_value_u, ffi.Pointer<ffi.Void>)>>,
+              ffi.Pointer<ffi.Void>)>>('sentry_options_set_on_crash');
+  late final _options_set_on_crash = _options_set_on_crashPtr.asFunction<
+      void Function(
+          ffi.Pointer<sentry_options_s>,
+          ffi.Pointer<
+              ffi.NativeFunction<
+                  sentry_value_u Function(ffi.Pointer<sentry_ucontext_s>,
+                      sentry_value_u, ffi.Pointer<ffi.Void>)>>,
+          ffi.Pointer<ffi.Void>)>();
+
   /// Sets the DSN.
   void options_set_dsn(
     ffi.Pointer<sentry_options_s> opts,
@@ -65,6 +1665,26 @@ class SentryNative {
   late final _options_set_dsn = _options_set_dsnPtr.asFunction<
       void Function(ffi.Pointer<sentry_options_s>, ffi.Pointer<ffi.Char>)>();
 
+  void options_set_dsn_n(
+    ffi.Pointer<sentry_options_s> opts,
+    ffi.Pointer<ffi.Char> dsn,
+    int dsn_len,
+  ) {
+    return _options_set_dsn_n(
+      opts,
+      dsn,
+      dsn_len,
+    );
+  }
+
+  late final _options_set_dsn_nPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<sentry_options_s>,
+              ffi.Pointer<ffi.Char>, ffi.Size)>>('sentry_options_set_dsn_n');
+  late final _options_set_dsn_n = _options_set_dsn_nPtr.asFunction<
+      void Function(
+          ffi.Pointer<sentry_options_s>, ffi.Pointer<ffi.Char>, int)>();
+
   /// Gets the DSN.
   ffi.Pointer<ffi.Char> options_get_dsn(
     ffi.Pointer<sentry_options_s> opts,
@@ -80,6 +1700,55 @@ class SentryNative {
               ffi.Pointer<sentry_options_s>)>>('sentry_options_get_dsn');
   late final _options_get_dsn = _options_get_dsnPtr.asFunction<
       ffi.Pointer<ffi.Char> Function(ffi.Pointer<sentry_options_s>)>();
+
+  /// Sets the sample rate, which should be a double between `0.0` and `1.0`.
+  /// Sentry will randomly discard any event that is captured using
+  /// `sentry_capture_event` when a sample rate < 1 is set.
+  ///
+  /// The sampling happens at the end of the event processing according to the
+  /// following order:
+  ///
+  /// https://develop.sentry.dev/sdk/sessions/#filter-order
+  ///
+  /// Only items 3. to 6. are currently applicable to sentry-native. This means
+  /// each processing step is executed even if the sampling discards the event
+  /// before sending it to the backend. This is particularly relevant to users of
+  /// the `before_send` callback.
+  ///
+  /// The above is in contrast to versions up to 0.4.18 where the sampling happened
+  /// at the beginning of the processing/filter sequence.
+  void options_set_sample_rate(
+    ffi.Pointer<sentry_options_s> opts,
+    double sample_rate,
+  ) {
+    return _options_set_sample_rate(
+      opts,
+      sample_rate,
+    );
+  }
+
+  late final _options_set_sample_ratePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<sentry_options_s>,
+              ffi.Double)>>('sentry_options_set_sample_rate');
+  late final _options_set_sample_rate = _options_set_sample_ratePtr
+      .asFunction<void Function(ffi.Pointer<sentry_options_s>, double)>();
+
+  /// Gets the sample rate.
+  double options_get_sample_rate(
+    ffi.Pointer<sentry_options_s> opts,
+  ) {
+    return _options_get_sample_rate(
+      opts,
+    );
+  }
+
+  late final _options_get_sample_ratePtr = _lookup<
+          ffi
+          .NativeFunction<ffi.Double Function(ffi.Pointer<sentry_options_s>)>>(
+      'sentry_options_get_sample_rate');
+  late final _options_get_sample_rate = _options_get_sample_ratePtr
+      .asFunction<double Function(ffi.Pointer<sentry_options_s>)>();
 
   /// Sets the release.
   void options_set_release(
@@ -98,6 +1767,28 @@ class SentryNative {
               ffi.Pointer<ffi.Char>)>>('sentry_options_set_release');
   late final _options_set_release = _options_set_releasePtr.asFunction<
       void Function(ffi.Pointer<sentry_options_s>, ffi.Pointer<ffi.Char>)>();
+
+  void options_set_release_n(
+    ffi.Pointer<sentry_options_s> opts,
+    ffi.Pointer<ffi.Char> release,
+    int release_len,
+  ) {
+    return _options_set_release_n(
+      opts,
+      release,
+      release_len,
+    );
+  }
+
+  late final _options_set_release_nPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Pointer<sentry_options_s>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Size)>>('sentry_options_set_release_n');
+  late final _options_set_release_n = _options_set_release_nPtr.asFunction<
+      void Function(
+          ffi.Pointer<sentry_options_s>, ffi.Pointer<ffi.Char>, int)>();
 
   /// Gets the release.
   ffi.Pointer<ffi.Char> options_get_release(
@@ -133,6 +1824,29 @@ class SentryNative {
   late final _options_set_environment = _options_set_environmentPtr.asFunction<
       void Function(ffi.Pointer<sentry_options_s>, ffi.Pointer<ffi.Char>)>();
 
+  void options_set_environment_n(
+    ffi.Pointer<sentry_options_s> opts,
+    ffi.Pointer<ffi.Char> environment,
+    int environment_len,
+  ) {
+    return _options_set_environment_n(
+      opts,
+      environment,
+      environment_len,
+    );
+  }
+
+  late final _options_set_environment_nPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Pointer<sentry_options_s>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Size)>>('sentry_options_set_environment_n');
+  late final _options_set_environment_n =
+      _options_set_environment_nPtr.asFunction<
+          void Function(
+              ffi.Pointer<sentry_options_s>, ffi.Pointer<ffi.Char>, int)>();
+
   /// Gets the environment.
   ffi.Pointer<ffi.Char> options_get_environment(
     ffi.Pointer<sentry_options_s> opts,
@@ -167,6 +1881,26 @@ class SentryNative {
   late final _options_set_dist = _options_set_distPtr.asFunction<
       void Function(ffi.Pointer<sentry_options_s>, ffi.Pointer<ffi.Char>)>();
 
+  void options_set_dist_n(
+    ffi.Pointer<sentry_options_s> opts,
+    ffi.Pointer<ffi.Char> dist,
+    int dist_len,
+  ) {
+    return _options_set_dist_n(
+      opts,
+      dist,
+      dist_len,
+    );
+  }
+
+  late final _options_set_dist_nPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<sentry_options_s>,
+              ffi.Pointer<ffi.Char>, ffi.Size)>>('sentry_options_set_dist_n');
+  late final _options_set_dist_n = _options_set_dist_nPtr.asFunction<
+      void Function(
+          ffi.Pointer<sentry_options_s>, ffi.Pointer<ffi.Char>, int)>();
+
   /// Gets the dist.
   ffi.Pointer<ffi.Char> options_get_dist(
     ffi.Pointer<sentry_options_s> opts,
@@ -181,6 +1915,256 @@ class SentryNative {
           ffi.Pointer<ffi.Char> Function(
               ffi.Pointer<sentry_options_s>)>>('sentry_options_get_dist');
   late final _options_get_dist = _options_get_distPtr.asFunction<
+      ffi.Pointer<ffi.Char> Function(ffi.Pointer<sentry_options_s>)>();
+
+  /// Configures the http proxy.
+  ///
+  /// The given proxy has to include the full scheme, eg. `http://some.proxy/`.
+  void options_set_http_proxy(
+    ffi.Pointer<sentry_options_s> opts,
+    ffi.Pointer<ffi.Char> proxy,
+  ) {
+    return _options_set_http_proxy(
+      opts,
+      proxy,
+    );
+  }
+
+  late final _options_set_http_proxyPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<sentry_options_s>,
+              ffi.Pointer<ffi.Char>)>>('sentry_options_set_http_proxy');
+  late final _options_set_http_proxy = _options_set_http_proxyPtr.asFunction<
+      void Function(ffi.Pointer<sentry_options_s>, ffi.Pointer<ffi.Char>)>();
+
+  void options_set_http_proxy_n(
+    ffi.Pointer<sentry_options_s> opts,
+    ffi.Pointer<ffi.Char> proxy,
+    int proxy_len,
+  ) {
+    return _options_set_http_proxy_n(
+      opts,
+      proxy,
+      proxy_len,
+    );
+  }
+
+  late final _options_set_http_proxy_nPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Pointer<sentry_options_s>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Size)>>('sentry_options_set_http_proxy_n');
+  late final _options_set_http_proxy_n =
+      _options_set_http_proxy_nPtr.asFunction<
+          void Function(
+              ffi.Pointer<sentry_options_s>, ffi.Pointer<ffi.Char>, int)>();
+
+  /// Returns the configured http proxy.
+  ffi.Pointer<ffi.Char> options_get_http_proxy(
+    ffi.Pointer<sentry_options_s> opts,
+  ) {
+    return _options_get_http_proxy(
+      opts,
+    );
+  }
+
+  late final _options_get_http_proxyPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<ffi.Char> Function(
+              ffi.Pointer<sentry_options_s>)>>('sentry_options_get_http_proxy');
+  late final _options_get_http_proxy = _options_get_http_proxyPtr.asFunction<
+      ffi.Pointer<ffi.Char> Function(ffi.Pointer<sentry_options_s>)>();
+
+  /// Configures the path to a file containing ssl certificates for
+  /// verification.
+  void options_set_ca_certs(
+    ffi.Pointer<sentry_options_s> opts,
+    ffi.Pointer<ffi.Char> path,
+  ) {
+    return _options_set_ca_certs(
+      opts,
+      path,
+    );
+  }
+
+  late final _options_set_ca_certsPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<sentry_options_s>,
+              ffi.Pointer<ffi.Char>)>>('sentry_options_set_ca_certs');
+  late final _options_set_ca_certs = _options_set_ca_certsPtr.asFunction<
+      void Function(ffi.Pointer<sentry_options_s>, ffi.Pointer<ffi.Char>)>();
+
+  void options_set_ca_certs_n(
+    ffi.Pointer<sentry_options_s> opts,
+    ffi.Pointer<ffi.Char> path,
+    int path_len,
+  ) {
+    return _options_set_ca_certs_n(
+      opts,
+      path,
+      path_len,
+    );
+  }
+
+  late final _options_set_ca_certs_nPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Pointer<sentry_options_s>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Size)>>('sentry_options_set_ca_certs_n');
+  late final _options_set_ca_certs_n = _options_set_ca_certs_nPtr.asFunction<
+      void Function(
+          ffi.Pointer<sentry_options_s>, ffi.Pointer<ffi.Char>, int)>();
+
+  /// Returns the configured path for ca certificates.
+  ffi.Pointer<ffi.Char> options_get_ca_certs(
+    ffi.Pointer<sentry_options_s> opts,
+  ) {
+    return _options_get_ca_certs(
+      opts,
+    );
+  }
+
+  late final _options_get_ca_certsPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<ffi.Char> Function(
+              ffi.Pointer<sentry_options_s>)>>('sentry_options_get_ca_certs');
+  late final _options_get_ca_certs = _options_get_ca_certsPtr.asFunction<
+      ffi.Pointer<ffi.Char> Function(ffi.Pointer<sentry_options_s>)>();
+
+  /// Configures the name of the http transport thread.
+  void options_set_transport_thread_name(
+    ffi.Pointer<sentry_options_s> opts,
+    ffi.Pointer<ffi.Char> name,
+  ) {
+    return _options_set_transport_thread_name(
+      opts,
+      name,
+    );
+  }
+
+  late final _options_set_transport_thread_namePtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Void Function(
+                  ffi.Pointer<sentry_options_s>, ffi.Pointer<ffi.Char>)>>(
+      'sentry_options_set_transport_thread_name');
+  late final _options_set_transport_thread_name =
+      _options_set_transport_thread_namePtr.asFunction<
+          void Function(
+              ffi.Pointer<sentry_options_s>, ffi.Pointer<ffi.Char>)>();
+
+  void options_set_transport_thread_name_n(
+    ffi.Pointer<sentry_options_s> opts,
+    ffi.Pointer<ffi.Char> name,
+    int name_len,
+  ) {
+    return _options_set_transport_thread_name_n(
+      opts,
+      name,
+      name_len,
+    );
+  }
+
+  late final _options_set_transport_thread_name_nPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Pointer<sentry_options_s>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Size)>>('sentry_options_set_transport_thread_name_n');
+  late final _options_set_transport_thread_name_n =
+      _options_set_transport_thread_name_nPtr.asFunction<
+          void Function(
+              ffi.Pointer<sentry_options_s>, ffi.Pointer<ffi.Char>, int)>();
+
+  /// Returns the configured http transport thread name.
+  ffi.Pointer<ffi.Char> options_get_transport_thread_name(
+    ffi.Pointer<sentry_options_s> opts,
+  ) {
+    return _options_get_transport_thread_name(
+      opts,
+    );
+  }
+
+  late final _options_get_transport_thread_namePtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Pointer<ffi.Char> Function(ffi.Pointer<sentry_options_s>)>>(
+      'sentry_options_get_transport_thread_name');
+  late final _options_get_transport_thread_name =
+      _options_get_transport_thread_namePtr.asFunction<
+          ffi.Pointer<ffi.Char> Function(ffi.Pointer<sentry_options_s>)>();
+
+  /// Configures the name of the sentry SDK. Returns 0 on success.
+  int options_set_sdk_name(
+    ffi.Pointer<sentry_options_s> opts,
+    ffi.Pointer<ffi.Char> sdk_name,
+  ) {
+    return _options_set_sdk_name(
+      opts,
+      sdk_name,
+    );
+  }
+
+  late final _options_set_sdk_namePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Int Function(ffi.Pointer<sentry_options_s>,
+              ffi.Pointer<ffi.Char>)>>('sentry_options_set_sdk_name');
+  late final _options_set_sdk_name = _options_set_sdk_namePtr.asFunction<
+      int Function(ffi.Pointer<sentry_options_s>, ffi.Pointer<ffi.Char>)>();
+
+  /// Configures the name of the sentry SDK. Returns 0 on success.
+  int options_set_sdk_name_n(
+    ffi.Pointer<sentry_options_s> opts,
+    ffi.Pointer<ffi.Char> sdk_name,
+    int sdk_name_len,
+  ) {
+    return _options_set_sdk_name_n(
+      opts,
+      sdk_name,
+      sdk_name_len,
+    );
+  }
+
+  late final _options_set_sdk_name_nPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Int Function(ffi.Pointer<sentry_options_s>, ffi.Pointer<ffi.Char>,
+              ffi.Size)>>('sentry_options_set_sdk_name_n');
+  late final _options_set_sdk_name_n = _options_set_sdk_name_nPtr.asFunction<
+      int Function(
+          ffi.Pointer<sentry_options_s>, ffi.Pointer<ffi.Char>, int)>();
+
+  /// Returns the configured sentry SDK name. Unless overwritten this defaults to
+  /// SENTRY_SDK_NAME.
+  ffi.Pointer<ffi.Char> options_get_sdk_name(
+    ffi.Pointer<sentry_options_s> opts,
+  ) {
+    return _options_get_sdk_name(
+      opts,
+    );
+  }
+
+  late final _options_get_sdk_namePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<ffi.Char> Function(
+              ffi.Pointer<sentry_options_s>)>>('sentry_options_get_sdk_name');
+  late final _options_get_sdk_name = _options_get_sdk_namePtr.asFunction<
+      ffi.Pointer<ffi.Char> Function(ffi.Pointer<sentry_options_s>)>();
+
+  /// Returns the user agent. Unless overwritten this defaults to
+  /// "SENTRY_SDK_NAME / SENTRY_SDK_VERSION".
+  ffi.Pointer<ffi.Char> options_get_user_agent(
+    ffi.Pointer<sentry_options_s> opts,
+  ) {
+    return _options_get_user_agent(
+      opts,
+    );
+  }
+
+  late final _options_get_user_agentPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<ffi.Char> Function(
+              ffi.Pointer<sentry_options_s>)>>('sentry_options_get_user_agent');
+  late final _options_get_user_agent = _options_get_user_agentPtr.asFunction<
       ffi.Pointer<ffi.Char> Function(ffi.Pointer<sentry_options_s>)>();
 
   /// Enables or disables debug printing mode.
@@ -251,6 +2235,47 @@ class SentryNative {
   late final _options_get_max_breadcrumbs = _options_get_max_breadcrumbsPtr
       .asFunction<int Function(ffi.Pointer<sentry_options_s>)>();
 
+  /// Sets the sentry-native logger function.
+  ///
+  /// Used for logging debug events when the `debug` option is set to true.
+  ///
+  /// Note: Multiple threads may invoke your `func`. If you plan to mutate any data
+  /// inside the `userdata` argument after initialization, you must ensure proper
+  /// synchronization inside the logger function.
+  void options_set_logger(
+    ffi.Pointer<sentry_options_s> opts,
+    ffi.Pointer<
+            ffi.NativeFunction<
+                ffi.Void Function(ffi.Int32, ffi.Pointer<ffi.Char>,
+                    ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Void>)>>
+        func,
+    ffi.Pointer<ffi.Void> userdata,
+  ) {
+    return _options_set_logger(
+      opts,
+      func,
+      userdata,
+    );
+  }
+
+  late final _options_set_loggerPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Pointer<sentry_options_s>,
+              ffi.Pointer<
+                  ffi.NativeFunction<
+                      ffi.Void Function(ffi.Int32, ffi.Pointer<ffi.Char>,
+                          ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Void>)>>,
+              ffi.Pointer<ffi.Void>)>>('sentry_options_set_logger');
+  late final _options_set_logger = _options_set_loggerPtr.asFunction<
+      void Function(
+          ffi.Pointer<sentry_options_s>,
+          ffi.Pointer<
+              ffi.NativeFunction<
+                  ffi.Void Function(ffi.Int32, ffi.Pointer<ffi.Char>,
+                      ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Void>)>>,
+          ffi.Pointer<ffi.Void>)>();
+
   /// Enables or disables automatic session tracking.
   ///
   /// Automatic session tracking is enabled by default and is equivalent to calling
@@ -292,6 +2317,463 @@ class SentryNative {
       _options_get_auto_session_trackingPtr
           .asFunction<int Function(ffi.Pointer<sentry_options_s>)>();
 
+  /// Enables or disables user consent requirements for uploads.
+  ///
+  /// This disables uploads until the user has given the consent to the SDK.
+  /// Consent itself is given with `sentry_user_consent_give` and
+  /// `sentry_user_consent_revoke`.
+  void options_set_require_user_consent(
+    ffi.Pointer<sentry_options_s> opts,
+    int val,
+  ) {
+    return _options_set_require_user_consent(
+      opts,
+      val,
+    );
+  }
+
+  late final _options_set_require_user_consentPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<sentry_options_s>,
+              ffi.Int)>>('sentry_options_set_require_user_consent');
+  late final _options_set_require_user_consent =
+      _options_set_require_user_consentPtr
+          .asFunction<void Function(ffi.Pointer<sentry_options_s>, int)>();
+
+  /// Returns true if user consent is required.
+  int options_get_require_user_consent(
+    ffi.Pointer<sentry_options_s> opts,
+  ) {
+    return _options_get_require_user_consent(
+      opts,
+    );
+  }
+
+  late final _options_get_require_user_consentPtr = _lookup<
+          ffi.NativeFunction<ffi.Int Function(ffi.Pointer<sentry_options_s>)>>(
+      'sentry_options_get_require_user_consent');
+  late final _options_get_require_user_consent =
+      _options_get_require_user_consentPtr
+          .asFunction<int Function(ffi.Pointer<sentry_options_s>)>();
+
+  /// Enables or disables on-device symbolication of stack traces.
+  ///
+  /// This feature can have a performance impact, and is enabled by default on
+  /// Android. It is usually only needed when it is not possible to provide debug
+  /// information files for system libraries which are needed for serverside
+  /// symbolication.
+  void options_set_symbolize_stacktraces(
+    ffi.Pointer<sentry_options_s> opts,
+    int val,
+  ) {
+    return _options_set_symbolize_stacktraces(
+      opts,
+      val,
+    );
+  }
+
+  late final _options_set_symbolize_stacktracesPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<sentry_options_s>,
+              ffi.Int)>>('sentry_options_set_symbolize_stacktraces');
+  late final _options_set_symbolize_stacktraces =
+      _options_set_symbolize_stacktracesPtr
+          .asFunction<void Function(ffi.Pointer<sentry_options_s>, int)>();
+
+  /// Returns true if on-device symbolication of stack traces is enabled.
+  int options_get_symbolize_stacktraces(
+    ffi.Pointer<sentry_options_s> opts,
+  ) {
+    return _options_get_symbolize_stacktraces(
+      opts,
+    );
+  }
+
+  late final _options_get_symbolize_stacktracesPtr = _lookup<
+          ffi.NativeFunction<ffi.Int Function(ffi.Pointer<sentry_options_s>)>>(
+      'sentry_options_get_symbolize_stacktraces');
+  late final _options_get_symbolize_stacktraces =
+      _options_get_symbolize_stacktracesPtr
+          .asFunction<int Function(ffi.Pointer<sentry_options_s>)>();
+
+  /// Adds a new attachment to be sent along.
+  ///
+  /// `path` is assumed to be in platform-specific filesystem path encoding.
+  /// API Users on windows are encouraged to use `sentry_options_add_attachmentw`
+  /// instead.
+  void options_add_attachment(
+    ffi.Pointer<sentry_options_s> opts,
+    ffi.Pointer<ffi.Char> path,
+  ) {
+    return _options_add_attachment(
+      opts,
+      path,
+    );
+  }
+
+  late final _options_add_attachmentPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<sentry_options_s>,
+              ffi.Pointer<ffi.Char>)>>('sentry_options_add_attachment');
+  late final _options_add_attachment = _options_add_attachmentPtr.asFunction<
+      void Function(ffi.Pointer<sentry_options_s>, ffi.Pointer<ffi.Char>)>();
+
+  void options_add_attachment_n(
+    ffi.Pointer<sentry_options_s> opts,
+    ffi.Pointer<ffi.Char> path,
+    int path_len,
+  ) {
+    return _options_add_attachment_n(
+      opts,
+      path,
+      path_len,
+    );
+  }
+
+  late final _options_add_attachment_nPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Pointer<sentry_options_s>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Size)>>('sentry_options_add_attachment_n');
+  late final _options_add_attachment_n =
+      _options_add_attachment_nPtr.asFunction<
+          void Function(
+              ffi.Pointer<sentry_options_s>, ffi.Pointer<ffi.Char>, int)>();
+
+  /// Sets the path to the crashpad handler if the crashpad backend is used.
+  ///
+  /// The path defaults to the `crashpad_handler`/`crashpad_handler.exe`
+  /// executable, depending on platform, which is expected to be present in the
+  /// same directory as the app executable.
+  ///
+  /// It is recommended that library users set an explicit handler path, depending
+  /// on the directory/executable structure of their app.
+  ///
+  /// `path` is assumed to be in platform-specific filesystem path encoding.
+  /// API Users on windows are encouraged to use `sentry_options_set_handler_pathw`
+  /// instead.
+  void options_set_handler_path(
+    ffi.Pointer<sentry_options_s> opts,
+    ffi.Pointer<ffi.Char> path,
+  ) {
+    return _options_set_handler_path(
+      opts,
+      path,
+    );
+  }
+
+  late final _options_set_handler_pathPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<sentry_options_s>,
+              ffi.Pointer<ffi.Char>)>>('sentry_options_set_handler_path');
+  late final _options_set_handler_path =
+      _options_set_handler_pathPtr.asFunction<
+          void Function(
+              ffi.Pointer<sentry_options_s>, ffi.Pointer<ffi.Char>)>();
+
+  void options_set_handler_path_n(
+    ffi.Pointer<sentry_options_s> opts,
+    ffi.Pointer<ffi.Char> path,
+    int path_len,
+  ) {
+    return _options_set_handler_path_n(
+      opts,
+      path,
+      path_len,
+    );
+  }
+
+  late final _options_set_handler_path_nPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Pointer<sentry_options_s>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Size)>>('sentry_options_set_handler_path_n');
+  late final _options_set_handler_path_n =
+      _options_set_handler_path_nPtr.asFunction<
+          void Function(
+              ffi.Pointer<sentry_options_s>, ffi.Pointer<ffi.Char>, int)>();
+
+  /// Sets the path to the Sentry Database Directory.
+  ///
+  /// Sentry will use this path to persist user consent, sessions, and other
+  /// artifacts in case of a crash. This will also be used by the crashpad backend
+  /// if it is configured.
+  ///
+  /// The directory is used for "cached" data, which needs to persist across
+  /// application restarts to ensure proper flagging of release-health sessions,
+  /// but might otherwise be safely purged regularly.
+  ///
+  /// It is roughly equivalent to the type of `AppData/Local` on Windows and
+  /// `XDG_CACHE_HOME` on Linux, and equivalent runtime directories on other
+  /// platforms.
+  ///
+  /// It is recommended that users set an explicit absolute path, depending
+  /// on their apps runtime directory. The path will be created if it does not
+  /// exist, and will be resolved to an absolute path inside of `sentry_init`. The
+  /// directory should not be shared with other application data/configuration, as
+  /// sentry-native will enumerate and possibly delete files in that directory. An
+  /// example might be `$XDG_CACHE_HOME/your-app/sentry`
+  ///
+  /// If no explicit path it set, sentry-native will default to `.sentry-native` in
+  /// the current working directory, with no specific platform-specific handling.
+  ///
+  /// `path` is assumed to be in platform-specific filesystem path encoding.
+  /// API Users on windows are encouraged to use
+  /// `sentry_options_set_database_pathw` instead.
+  void options_set_database_path(
+    ffi.Pointer<sentry_options_s> opts,
+    ffi.Pointer<ffi.Char> path,
+  ) {
+    return _options_set_database_path(
+      opts,
+      path,
+    );
+  }
+
+  late final _options_set_database_pathPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<sentry_options_s>,
+              ffi.Pointer<ffi.Char>)>>('sentry_options_set_database_path');
+  late final _options_set_database_path =
+      _options_set_database_pathPtr.asFunction<
+          void Function(
+              ffi.Pointer<sentry_options_s>, ffi.Pointer<ffi.Char>)>();
+
+  void options_set_database_path_n(
+    ffi.Pointer<sentry_options_s> opts,
+    ffi.Pointer<ffi.Char> path,
+    int path_len,
+  ) {
+    return _options_set_database_path_n(
+      opts,
+      path,
+      path_len,
+    );
+  }
+
+  late final _options_set_database_path_nPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Pointer<sentry_options_s>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Size)>>('sentry_options_set_database_path_n');
+  late final _options_set_database_path_n =
+      _options_set_database_path_nPtr.asFunction<
+          void Function(
+              ffi.Pointer<sentry_options_s>, ffi.Pointer<ffi.Char>, int)>();
+
+  /// Wide char version of `sentry_options_add_attachment`.
+  void options_add_attachmentw(
+    ffi.Pointer<sentry_options_s> opts,
+    ffi.Pointer<ffi.WChar> path,
+  ) {
+    return _options_add_attachmentw(
+      opts,
+      path,
+    );
+  }
+
+  late final _options_add_attachmentwPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<sentry_options_s>,
+              ffi.Pointer<ffi.WChar>)>>('sentry_options_add_attachmentw');
+  late final _options_add_attachmentw = _options_add_attachmentwPtr.asFunction<
+      void Function(ffi.Pointer<sentry_options_s>, ffi.Pointer<ffi.WChar>)>();
+
+  void options_add_attachmentw_n(
+    ffi.Pointer<sentry_options_s> opts,
+    ffi.Pointer<ffi.WChar> path,
+    int path_len,
+  ) {
+    return _options_add_attachmentw_n(
+      opts,
+      path,
+      path_len,
+    );
+  }
+
+  late final _options_add_attachmentw_nPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Pointer<sentry_options_s>,
+              ffi.Pointer<ffi.WChar>,
+              ffi.Size)>>('sentry_options_add_attachmentw_n');
+  late final _options_add_attachmentw_n =
+      _options_add_attachmentw_nPtr.asFunction<
+          void Function(
+              ffi.Pointer<sentry_options_s>, ffi.Pointer<ffi.WChar>, int)>();
+
+  /// Wide char version of `sentry_options_set_handler_path`.
+  void options_set_handler_pathw(
+    ffi.Pointer<sentry_options_s> opts,
+    ffi.Pointer<ffi.WChar> path,
+  ) {
+    return _options_set_handler_pathw(
+      opts,
+      path,
+    );
+  }
+
+  late final _options_set_handler_pathwPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<sentry_options_s>,
+              ffi.Pointer<ffi.WChar>)>>('sentry_options_set_handler_pathw');
+  late final _options_set_handler_pathw =
+      _options_set_handler_pathwPtr.asFunction<
+          void Function(
+              ffi.Pointer<sentry_options_s>, ffi.Pointer<ffi.WChar>)>();
+
+  void options_set_handler_pathw_n(
+    ffi.Pointer<sentry_options_s> opts,
+    ffi.Pointer<ffi.WChar> path,
+    int path_len,
+  ) {
+    return _options_set_handler_pathw_n(
+      opts,
+      path,
+      path_len,
+    );
+  }
+
+  late final _options_set_handler_pathw_nPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Pointer<sentry_options_s>,
+              ffi.Pointer<ffi.WChar>,
+              ffi.Size)>>('sentry_options_set_handler_pathw_n');
+  late final _options_set_handler_pathw_n =
+      _options_set_handler_pathw_nPtr.asFunction<
+          void Function(
+              ffi.Pointer<sentry_options_s>, ffi.Pointer<ffi.WChar>, int)>();
+
+  /// Wide char version of `sentry_options_set_database_path`.
+  void options_set_database_pathw(
+    ffi.Pointer<sentry_options_s> opts,
+    ffi.Pointer<ffi.WChar> path,
+  ) {
+    return _options_set_database_pathw(
+      opts,
+      path,
+    );
+  }
+
+  late final _options_set_database_pathwPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<sentry_options_s>,
+              ffi.Pointer<ffi.WChar>)>>('sentry_options_set_database_pathw');
+  late final _options_set_database_pathw =
+      _options_set_database_pathwPtr.asFunction<
+          void Function(
+              ffi.Pointer<sentry_options_s>, ffi.Pointer<ffi.WChar>)>();
+
+  void options_set_database_pathw_n(
+    ffi.Pointer<sentry_options_s> opts,
+    ffi.Pointer<ffi.WChar> path,
+    int path_len,
+  ) {
+    return _options_set_database_pathw_n(
+      opts,
+      path,
+      path_len,
+    );
+  }
+
+  late final _options_set_database_pathw_nPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Pointer<sentry_options_s>,
+              ffi.Pointer<ffi.WChar>,
+              ffi.Size)>>('sentry_options_set_database_pathw_n');
+  late final _options_set_database_pathw_n =
+      _options_set_database_pathw_nPtr.asFunction<
+          void Function(
+              ffi.Pointer<sentry_options_s>, ffi.Pointer<ffi.WChar>, int)>();
+
+  /// Enables forwarding to the system crash reporter. Disabled by default.
+  ///
+  /// This setting only has an effect when using Crashpad on macOS. If enabled,
+  /// Crashpad forwards crashes to the macOS system crash reporter. Depending
+  /// on the crash, this may impact the crash time. Even if enabled, Crashpad
+  /// may choose not to forward certain crashes.
+  void options_set_system_crash_reporter_enabled(
+    ffi.Pointer<sentry_options_s> opts,
+    int enabled,
+  ) {
+    return _options_set_system_crash_reporter_enabled(
+      opts,
+      enabled,
+    );
+  }
+
+  late final _options_set_system_crash_reporter_enabledPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<sentry_options_s>,
+              ffi.Int)>>('sentry_options_set_system_crash_reporter_enabled');
+  late final _options_set_system_crash_reporter_enabled =
+      _options_set_system_crash_reporter_enabledPtr
+          .asFunction<void Function(ffi.Pointer<sentry_options_s>, int)>();
+
+  /// Sets the maximum time (in milliseconds) to wait for the asynchronous tasks to
+  /// end on shutdown, before attempting a forced termination.
+  void options_set_shutdown_timeout(
+    ffi.Pointer<sentry_options_s> opts,
+    int shutdown_timeout,
+  ) {
+    return _options_set_shutdown_timeout(
+      opts,
+      shutdown_timeout,
+    );
+  }
+
+  late final _options_set_shutdown_timeoutPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<sentry_options_s>,
+              ffi.Uint64)>>('sentry_options_set_shutdown_timeout');
+  late final _options_set_shutdown_timeout = _options_set_shutdown_timeoutPtr
+      .asFunction<void Function(ffi.Pointer<sentry_options_s>, int)>();
+
+  /// Gets the maximum time (in milliseconds) to wait for the asynchronous tasks to
+  /// end on shutdown, before attempting a forced termination.
+  int options_get_shutdown_timeout(
+    ffi.Pointer<sentry_options_s> opts,
+  ) {
+    return _options_get_shutdown_timeout(
+      opts,
+    );
+  }
+
+  late final _options_get_shutdown_timeoutPtr = _lookup<
+          ffi
+          .NativeFunction<ffi.Uint64 Function(ffi.Pointer<sentry_options_s>)>>(
+      'sentry_options_get_shutdown_timeout');
+  late final _options_get_shutdown_timeout = _options_get_shutdown_timeoutPtr
+      .asFunction<int Function(ffi.Pointer<sentry_options_s>)>();
+
+  /// Sets a user-defined backend.
+  ///
+  /// Since creation and destruction of backends is not exposed in the API, this
+  /// can only be used to set the backend to `NULL`, which disables the backend in
+  /// the initialization.
+  void options_set_backend(
+    ffi.Pointer<sentry_options_s> opts,
+    ffi.Pointer<sentry_backend_s> backend,
+  ) {
+    return _options_set_backend(
+      opts,
+      backend,
+    );
+  }
+
+  late final _options_set_backendPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<sentry_options_s>,
+              ffi.Pointer<sentry_backend_s>)>>('sentry_options_set_backend');
+  late final _options_set_backend = _options_set_backendPtr.asFunction<
+      void Function(
+          ffi.Pointer<sentry_options_s>, ffi.Pointer<sentry_backend_s>)>();
+
   /// Initializes the Sentry SDK with the specified options.
   ///
   /// This takes ownership of the options.  After the options have been set
@@ -312,9 +2794,2108 @@ class SentryNative {
       'sentry_init');
   late final _init =
       _initPtr.asFunction<int Function(ffi.Pointer<sentry_options_s>)>();
+
+  /// Instructs the transport to flush its send queue.
+  ///
+  /// The `timeout` parameter is in milliseconds.
+  ///
+  /// Returns 0 on success, or a non-zero return value in case the timeout is hit.
+  ///
+  /// Note that this function will block the thread it was called from until the
+  /// sentry background worker has finished its work or it timed out, whichever
+  /// comes first.
+  int flush(
+    int timeout,
+  ) {
+    return _flush(
+      timeout,
+    );
+  }
+
+  late final _flushPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(ffi.Uint64)>>('sentry_flush');
+  late final _flush = _flushPtr.asFunction<int Function(int)>();
+
+  /// Shuts down the sentry client and forces transports to flush out.
+  ///
+  /// Returns 0 on success.
+  ///
+  /// Note that this does not uninstall any crash handler installed by our
+  /// backends, which will still process crashes after `sentry_close()`, except
+  /// when using `crashpad` on Linux or the `inproc` backend.
+  ///
+  /// Further note that this function will block the thread it was called from
+  /// until the sentry background worker has finished its work or it timed out,
+  /// whichever comes first.
+  int close() {
+    return _close();
+  }
+
+  late final _closePtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function()>>('sentry_close');
+  late final _close = _closePtr.asFunction<int Function()>();
+
+  /// Shuts down the sentry client and forces transports to flush out.
+  ///
+  /// This is a **deprecated** alias for `sentry_close`.
+  ///
+  /// Returns 0 on success.
+  int shutdown() {
+    return _shutdown();
+  }
+
+  late final _shutdownPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function()>>('sentry_shutdown');
+  late final _shutdown = _shutdownPtr.asFunction<int Function()>();
+
+  /// This will lazily load and cache a list of all the loaded libraries.
+  ///
+  /// Returns a new reference to an immutable, frozen list.
+  /// The reference must be released with `sentry_value_decref`.
+  sentry_value_u get_modules_list() {
+    return _get_modules_list();
+  }
+
+  late final _get_modules_listPtr =
+      _lookup<ffi.NativeFunction<sentry_value_u Function()>>(
+          'sentry_get_modules_list');
+  late final _get_modules_list =
+      _get_modules_listPtr.asFunction<sentry_value_u Function()>();
+
+  /// Clears the internal module cache.
+  ///
+  /// For performance reasons, sentry will cache the list of loaded libraries when
+  /// capturing events. This cache can get out-of-date when loading or unloading
+  /// libraries at runtime. It is therefore recommended to call
+  /// `sentry_clear_modulecache` when doing so, to make sure that the next call to
+  /// `sentry_capture_event` will have an up-to-date module list.
+  void clear_modulecache() {
+    return _clear_modulecache();
+  }
+
+  late final _clear_modulecachePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function()>>(
+          'sentry_clear_modulecache');
+  late final _clear_modulecache =
+      _clear_modulecachePtr.asFunction<void Function()>();
+
+  /// Re-initializes the Sentry backend.
+  ///
+  /// This is needed if a third-party library overrides the previously installed
+  /// signal handler. Calling this function can be potentially dangerous and should
+  /// only be done when necessary.
+  ///
+  /// Returns 0 on success.
+  int reinstall_backend() {
+    return _reinstall_backend();
+  }
+
+  late final _reinstall_backendPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function()>>(
+          'sentry_reinstall_backend');
+  late final _reinstall_backend =
+      _reinstall_backendPtr.asFunction<int Function()>();
+
+  /// Gives user consent.
+  void user_consent_give() {
+    return _user_consent_give();
+  }
+
+  late final _user_consent_givePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function()>>(
+          'sentry_user_consent_give');
+  late final _user_consent_give =
+      _user_consent_givePtr.asFunction<void Function()>();
+
+  /// Revokes user consent.
+  void user_consent_revoke() {
+    return _user_consent_revoke();
+  }
+
+  late final _user_consent_revokePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function()>>(
+          'sentry_user_consent_revoke');
+  late final _user_consent_revoke =
+      _user_consent_revokePtr.asFunction<void Function()>();
+
+  /// Resets the user consent (back to unknown).
+  void user_consent_reset() {
+    return _user_consent_reset();
+  }
+
+  late final _user_consent_resetPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function()>>(
+          'sentry_user_consent_reset');
+  late final _user_consent_reset =
+      _user_consent_resetPtr.asFunction<void Function()>();
+
+  /// Checks the current state of user consent.
+  int user_consent_get() {
+    return _user_consent_get();
+  }
+
+  late final _user_consent_getPtr =
+      _lookup<ffi.NativeFunction<ffi.Int32 Function()>>(
+          'sentry_user_consent_get');
+  late final _user_consent_get =
+      _user_consent_getPtr.asFunction<int Function()>();
+
+  /// Sends a sentry event.
+  ///
+  /// If returns a nil UUID if the event being passed in is a transaction, and the
+  /// transaction will not be sent nor consumed. `sentry_transaction_finish` should
+  /// be used to send transactions.
+  sentry_uuid_s capture_event(
+    sentry_value_u event,
+  ) {
+    return _capture_event(
+      event,
+    );
+  }
+
+  late final _capture_eventPtr =
+      _lookup<ffi.NativeFunction<sentry_uuid_s Function(sentry_value_u)>>(
+          'sentry_capture_event');
+  late final _capture_event =
+      _capture_eventPtr.asFunction<sentry_uuid_s Function(sentry_value_u)>();
+
+  /// Captures an exception to be handled by the backend.
+  ///
+  /// This is safe to be called from a crashing thread and may not return.
+  void handle_exception(
+    ffi.Pointer<sentry_ucontext_s> uctx,
+  ) {
+    return _handle_exception(
+      uctx,
+    );
+  }
+
+  late final _handle_exceptionPtr = _lookup<
+          ffi
+          .NativeFunction<ffi.Void Function(ffi.Pointer<sentry_ucontext_s>)>>(
+      'sentry_handle_exception');
+  late final _handle_exception = _handle_exceptionPtr
+      .asFunction<void Function(ffi.Pointer<sentry_ucontext_s>)>();
+
+  /// Adds the breadcrumb to be sent in case of an event.
+  void add_breadcrumb(
+    sentry_value_u breadcrumb,
+  ) {
+    return _add_breadcrumb(
+      breadcrumb,
+    );
+  }
+
+  late final _add_breadcrumbPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(sentry_value_u)>>(
+          'sentry_add_breadcrumb');
+  late final _add_breadcrumb =
+      _add_breadcrumbPtr.asFunction<void Function(sentry_value_u)>();
+
+  /// Sets the specified user.
+  void set_user(
+    sentry_value_u user,
+  ) {
+    return _set_user(
+      user,
+    );
+  }
+
+  late final _set_userPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(sentry_value_u)>>(
+          'sentry_set_user');
+  late final _set_user =
+      _set_userPtr.asFunction<void Function(sentry_value_u)>();
+
+  /// Removes a user.
+  void remove_user() {
+    return _remove_user();
+  }
+
+  late final _remove_userPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function()>>('sentry_remove_user');
+  late final _remove_user = _remove_userPtr.asFunction<void Function()>();
+
+  /// Sets a tag.
+  void set_tag(
+    ffi.Pointer<ffi.Char> key,
+    ffi.Pointer<ffi.Char> value,
+  ) {
+    return _set_tag(
+      key,
+      value,
+    );
+  }
+
+  late final _set_tagPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Char>)>>('sentry_set_tag');
+  late final _set_tag = _set_tagPtr.asFunction<
+      void Function(ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Char>)>();
+
+  void set_tag_n(
+    ffi.Pointer<ffi.Char> key,
+    int key_len,
+    ffi.Pointer<ffi.Char> value,
+    int value_len,
+  ) {
+    return _set_tag_n(
+      key,
+      key_len,
+      value,
+      value_len,
+    );
+  }
+
+  late final _set_tag_nPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<ffi.Char>, ffi.Size,
+              ffi.Pointer<ffi.Char>, ffi.Size)>>('sentry_set_tag_n');
+  late final _set_tag_n = _set_tag_nPtr.asFunction<
+      void Function(ffi.Pointer<ffi.Char>, int, ffi.Pointer<ffi.Char>, int)>();
+
+  /// Removes the tag with the specified key.
+  void remove_tag(
+    ffi.Pointer<ffi.Char> key,
+  ) {
+    return _remove_tag(
+      key,
+    );
+  }
+
+  late final _remove_tagPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Char>)>>(
+          'sentry_remove_tag');
+  late final _remove_tag =
+      _remove_tagPtr.asFunction<void Function(ffi.Pointer<ffi.Char>)>();
+
+  void remove_tag_n(
+    ffi.Pointer<ffi.Char> key,
+    int key_len,
+  ) {
+    return _remove_tag_n(
+      key,
+      key_len,
+    );
+  }
+
+  late final _remove_tag_nPtr = _lookup<
+          ffi
+          .NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Char>, ffi.Size)>>(
+      'sentry_remove_tag_n');
+  late final _remove_tag_n =
+      _remove_tag_nPtr.asFunction<void Function(ffi.Pointer<ffi.Char>, int)>();
+
+  /// Sets extra information.
+  void set_extra(
+    ffi.Pointer<ffi.Char> key,
+    sentry_value_u value,
+  ) {
+    return _set_extra(
+      key,
+      value,
+    );
+  }
+
+  late final _set_extraPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Pointer<ffi.Char>, sentry_value_u)>>('sentry_set_extra');
+  late final _set_extra = _set_extraPtr
+      .asFunction<void Function(ffi.Pointer<ffi.Char>, sentry_value_u)>();
+
+  void set_extra_n(
+    ffi.Pointer<ffi.Char> key,
+    int key_len,
+    sentry_value_u value,
+  ) {
+    return _set_extra_n(
+      key,
+      key_len,
+      value,
+    );
+  }
+
+  late final _set_extra_nPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<ffi.Char>, ffi.Size,
+              sentry_value_u)>>('sentry_set_extra_n');
+  late final _set_extra_n = _set_extra_nPtr
+      .asFunction<void Function(ffi.Pointer<ffi.Char>, int, sentry_value_u)>();
+
+  /// Removes the extra with the specified key.
+  void remove_extra(
+    ffi.Pointer<ffi.Char> key,
+  ) {
+    return _remove_extra(
+      key,
+    );
+  }
+
+  late final _remove_extraPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Char>)>>(
+          'sentry_remove_extra');
+  late final _remove_extra =
+      _remove_extraPtr.asFunction<void Function(ffi.Pointer<ffi.Char>)>();
+
+  void remove_extra_n(
+    ffi.Pointer<ffi.Char> key,
+    int key_len,
+  ) {
+    return _remove_extra_n(
+      key,
+      key_len,
+    );
+  }
+
+  late final _remove_extra_nPtr = _lookup<
+          ffi
+          .NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Char>, ffi.Size)>>(
+      'sentry_remove_extra_n');
+  late final _remove_extra_n = _remove_extra_nPtr
+      .asFunction<void Function(ffi.Pointer<ffi.Char>, int)>();
+
+  /// Sets a context object.
+  void set_context(
+    ffi.Pointer<ffi.Char> key,
+    sentry_value_u value,
+  ) {
+    return _set_context(
+      key,
+      value,
+    );
+  }
+
+  late final _set_contextPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Pointer<ffi.Char>, sentry_value_u)>>('sentry_set_context');
+  late final _set_context = _set_contextPtr
+      .asFunction<void Function(ffi.Pointer<ffi.Char>, sentry_value_u)>();
+
+  void set_context_n(
+    ffi.Pointer<ffi.Char> key,
+    int key_len,
+    sentry_value_u value,
+  ) {
+    return _set_context_n(
+      key,
+      key_len,
+      value,
+    );
+  }
+
+  late final _set_context_nPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<ffi.Char>, ffi.Size,
+              sentry_value_u)>>('sentry_set_context_n');
+  late final _set_context_n = _set_context_nPtr
+      .asFunction<void Function(ffi.Pointer<ffi.Char>, int, sentry_value_u)>();
+
+  /// Removes the context object with the specified key.
+  void remove_context(
+    ffi.Pointer<ffi.Char> key,
+  ) {
+    return _remove_context(
+      key,
+    );
+  }
+
+  late final _remove_contextPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Char>)>>(
+          'sentry_remove_context');
+  late final _remove_context =
+      _remove_contextPtr.asFunction<void Function(ffi.Pointer<ffi.Char>)>();
+
+  void remove_context_n(
+    ffi.Pointer<ffi.Char> key,
+    int key_len,
+  ) {
+    return _remove_context_n(
+      key,
+      key_len,
+    );
+  }
+
+  late final _remove_context_nPtr = _lookup<
+          ffi
+          .NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Char>, ffi.Size)>>(
+      'sentry_remove_context_n');
+  late final _remove_context_n = _remove_context_nPtr
+      .asFunction<void Function(ffi.Pointer<ffi.Char>, int)>();
+
+  /// Sets the event fingerprint.
+  ///
+  /// This accepts a variable number of arguments, and needs to be terminated by a
+  /// trailing `NULL`.
+  void set_fingerprint(
+    ffi.Pointer<ffi.Char> fingerprint,
+  ) {
+    return _set_fingerprint(
+      fingerprint,
+    );
+  }
+
+  late final _set_fingerprintPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Char>)>>(
+          'sentry_set_fingerprint');
+  late final _set_fingerprint =
+      _set_fingerprintPtr.asFunction<void Function(ffi.Pointer<ffi.Char>)>();
+
+  void set_fingerprint_n(
+    ffi.Pointer<ffi.Char> fingerprint,
+    int fingerprint_len,
+  ) {
+    return _set_fingerprint_n(
+      fingerprint,
+      fingerprint_len,
+    );
+  }
+
+  late final _set_fingerprint_nPtr = _lookup<
+          ffi
+          .NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Char>, ffi.Size)>>(
+      'sentry_set_fingerprint_n');
+  late final _set_fingerprint_n = _set_fingerprint_nPtr
+      .asFunction<void Function(ffi.Pointer<ffi.Char>, int)>();
+
+  /// Removes the fingerprint.
+  void remove_fingerprint() {
+    return _remove_fingerprint();
+  }
+
+  late final _remove_fingerprintPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function()>>(
+          'sentry_remove_fingerprint');
+  late final _remove_fingerprint =
+      _remove_fingerprintPtr.asFunction<void Function()>();
+
+  /// Sets the transaction.
+  void set_transaction(
+    ffi.Pointer<ffi.Char> transaction,
+  ) {
+    return _set_transaction(
+      transaction,
+    );
+  }
+
+  late final _set_transactionPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Char>)>>(
+          'sentry_set_transaction');
+  late final _set_transaction =
+      _set_transactionPtr.asFunction<void Function(ffi.Pointer<ffi.Char>)>();
+
+  void set_transaction_n(
+    ffi.Pointer<ffi.Char> transaction,
+    int transaction_len,
+  ) {
+    return _set_transaction_n(
+      transaction,
+      transaction_len,
+    );
+  }
+
+  late final _set_transaction_nPtr = _lookup<
+          ffi
+          .NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Char>, ffi.Size)>>(
+      'sentry_set_transaction_n');
+  late final _set_transaction_n = _set_transaction_nPtr
+      .asFunction<void Function(ffi.Pointer<ffi.Char>, int)>();
+
+  /// Sets the event level.
+  void set_level(
+    int level,
+  ) {
+    return _set_level(
+      level,
+    );
+  }
+
+  late final _set_levelPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int32)>>(
+          'sentry_set_level');
+  late final _set_level = _set_levelPtr.asFunction<void Function(int)>();
+
+  /// Sets the maximum number of spans that can be attached to a
+  /// transaction.
+  void options_set_max_spans(
+    ffi.Pointer<sentry_options_s> opts,
+    int max_spans,
+  ) {
+    return _options_set_max_spans(
+      opts,
+      max_spans,
+    );
+  }
+
+  late final _options_set_max_spansPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<sentry_options_s>,
+              ffi.Size)>>('sentry_options_set_max_spans');
+  late final _options_set_max_spans = _options_set_max_spansPtr
+      .asFunction<void Function(ffi.Pointer<sentry_options_s>, int)>();
+
+  /// Gets the maximum number of spans that can be attached to a
+  /// transaction.
+  int options_get_max_spans(
+    ffi.Pointer<sentry_options_s> opts,
+  ) {
+    return _options_get_max_spans(
+      opts,
+    );
+  }
+
+  late final _options_get_max_spansPtr = _lookup<
+          ffi.NativeFunction<ffi.Size Function(ffi.Pointer<sentry_options_s>)>>(
+      'sentry_options_get_max_spans');
+  late final _options_get_max_spans = _options_get_max_spansPtr
+      .asFunction<int Function(ffi.Pointer<sentry_options_s>)>();
+
+  /// Sets the sample rate for transactions. Should be a double between
+  /// `0.0` and `1.0`. Transactions will be randomly discarded during
+  /// `sentry_transaction_finish` when the sample rate is < 1.0.
+  void options_set_traces_sample_rate(
+    ffi.Pointer<sentry_options_s> opts,
+    double sample_rate,
+  ) {
+    return _options_set_traces_sample_rate(
+      opts,
+      sample_rate,
+    );
+  }
+
+  late final _options_set_traces_sample_ratePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<sentry_options_s>,
+              ffi.Double)>>('sentry_options_set_traces_sample_rate');
+  late final _options_set_traces_sample_rate =
+      _options_set_traces_sample_ratePtr
+          .asFunction<void Function(ffi.Pointer<sentry_options_s>, double)>();
+
+  /// Returns the sample rate for transactions.
+  double options_get_traces_sample_rate(
+    ffi.Pointer<sentry_options_s> opts,
+  ) {
+    return _options_get_traces_sample_rate(
+      opts,
+    );
+  }
+
+  late final _options_get_traces_sample_ratePtr = _lookup<
+          ffi
+          .NativeFunction<ffi.Double Function(ffi.Pointer<sentry_options_s>)>>(
+      'sentry_options_get_traces_sample_rate');
+  late final _options_get_traces_sample_rate =
+      _options_get_traces_sample_ratePtr
+          .asFunction<double Function(ffi.Pointer<sentry_options_s>)>();
+
+  /// Starts a new session.
+  void start_session() {
+    return _start_session();
+  }
+
+  late final _start_sessionPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function()>>('sentry_start_session');
+  late final _start_session = _start_sessionPtr.asFunction<void Function()>();
+
+  /// Ends a session.
+  void end_session() {
+    return _end_session();
+  }
+
+  late final _end_sessionPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function()>>('sentry_end_session');
+  late final _end_session = _end_sessionPtr.asFunction<void Function()>();
+
+  /// Ends a session with an explicit `status` code.
+  void end_session_with_status(
+    int status,
+  ) {
+    return _end_session_with_status(
+      status,
+    );
+  }
+
+  late final _end_session_with_statusPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int32)>>(
+          'sentry_end_session_with_status');
+  late final _end_session_with_status =
+      _end_session_with_statusPtr.asFunction<void Function(int)>();
+
+  /// Constructs a new Transaction Context. The returned value needs to be passed
+  /// into `sentry_transaction_start` in order to be recorded and sent to sentry.
+  ///
+  /// See
+  /// https://docs.sentry.io/platforms/native/enriching-events/transaction-name/
+  /// for an explanation of a Transaction's `name`, and
+  /// https://develop.sentry.dev/sdk/performance/span-operations/ for conventions
+  /// around an `operation`'s value.
+  ///
+  /// Also see https://develop.sentry.dev/sdk/event-payloads/transaction/#anatomy
+  /// for an explanation of `operation`, in addition to other properties and
+  /// actions that can be performed on a Transaction.
+  ///
+  /// The returned value is not thread-safe. Users are expected to ensure that
+  /// appropriate locking mechanisms are implemented over the Transaction Context
+  /// if it needs to be mutated across threads. Methods operating on the
+  /// Transaction Context will mention what kind of expectations they carry if they
+  /// need to mutate or access the object in a thread-safe way.
+  ffi.Pointer<sentry_transaction_context_s> transaction_context_new(
+    ffi.Pointer<ffi.Char> name,
+    ffi.Pointer<ffi.Char> operation,
+  ) {
+    return _transaction_context_new(
+      name,
+      operation,
+    );
+  }
+
+  late final _transaction_context_newPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<sentry_transaction_context_s> Function(
+              ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>)>>('sentry_transaction_context_new');
+  late final _transaction_context_new = _transaction_context_newPtr.asFunction<
+      ffi.Pointer<sentry_transaction_context_s> Function(
+          ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Char>)>();
+
+  ffi.Pointer<sentry_transaction_context_s> transaction_context_new_n(
+    ffi.Pointer<ffi.Char> name,
+    int name_len,
+    ffi.Pointer<ffi.Char> operation,
+    int operation_len,
+  ) {
+    return _transaction_context_new_n(
+      name,
+      name_len,
+      operation,
+      operation_len,
+    );
+  }
+
+  late final _transaction_context_new_nPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<sentry_transaction_context_s> Function(
+              ffi.Pointer<ffi.Char>,
+              ffi.Size,
+              ffi.Pointer<ffi.Char>,
+              ffi.Size)>>('sentry_transaction_context_new_n');
+  late final _transaction_context_new_n =
+      _transaction_context_new_nPtr.asFunction<
+          ffi.Pointer<sentry_transaction_context_s> Function(
+              ffi.Pointer<ffi.Char>, int, ffi.Pointer<ffi.Char>, int)>();
+
+  /// Sets the `name` on a Transaction Context, which will be used in the
+  /// Transaction constructed off of the context.
+  ///
+  /// The Transaction Context should not be mutated by other functions while
+  /// setting a name on it.
+  void transaction_context_set_name(
+    ffi.Pointer<sentry_transaction_context_s> tx_cxt,
+    ffi.Pointer<ffi.Char> name,
+  ) {
+    return _transaction_context_set_name(
+      tx_cxt,
+      name,
+    );
+  }
+
+  late final _transaction_context_set_namePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<sentry_transaction_context_s>,
+              ffi.Pointer<ffi.Char>)>>('sentry_transaction_context_set_name');
+  late final _transaction_context_set_name =
+      _transaction_context_set_namePtr.asFunction<
+          void Function(ffi.Pointer<sentry_transaction_context_s>,
+              ffi.Pointer<ffi.Char>)>();
+
+  void transaction_context_set_name_n(
+    ffi.Pointer<sentry_transaction_context_s> tx_cxt,
+    ffi.Pointer<ffi.Char> name,
+    int name_len,
+  ) {
+    return _transaction_context_set_name_n(
+      tx_cxt,
+      name,
+      name_len,
+    );
+  }
+
+  late final _transaction_context_set_name_nPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Pointer<sentry_transaction_context_s>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Size)>>('sentry_transaction_context_set_name_n');
+  late final _transaction_context_set_name_n =
+      _transaction_context_set_name_nPtr.asFunction<
+          void Function(ffi.Pointer<sentry_transaction_context_s>,
+              ffi.Pointer<ffi.Char>, int)>();
+
+  /// Sets the `operation` on a Transaction Context, which will be used in the
+  /// Transaction constructed off of the context
+  ///
+  /// See https://develop.sentry.dev/sdk/performance/span-operations/ for
+  /// conventions on `operation`s.
+  ///
+  /// The Transaction Context should not be mutated by other functions while
+  /// setting an operation on it.
+  void transaction_context_set_operation(
+    ffi.Pointer<sentry_transaction_context_s> tx_cxt,
+    ffi.Pointer<ffi.Char> operation,
+  ) {
+    return _transaction_context_set_operation(
+      tx_cxt,
+      operation,
+    );
+  }
+
+  late final _transaction_context_set_operationPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Void Function(ffi.Pointer<sentry_transaction_context_s>,
+                  ffi.Pointer<ffi.Char>)>>(
+      'sentry_transaction_context_set_operation');
+  late final _transaction_context_set_operation =
+      _transaction_context_set_operationPtr.asFunction<
+          void Function(ffi.Pointer<sentry_transaction_context_s>,
+              ffi.Pointer<ffi.Char>)>();
+
+  void transaction_context_set_operation_n(
+    ffi.Pointer<sentry_transaction_context_s> tx_cxt,
+    ffi.Pointer<ffi.Char> operation,
+    int operation_len,
+  ) {
+    return _transaction_context_set_operation_n(
+      tx_cxt,
+      operation,
+      operation_len,
+    );
+  }
+
+  late final _transaction_context_set_operation_nPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Pointer<sentry_transaction_context_s>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Size)>>('sentry_transaction_context_set_operation_n');
+  late final _transaction_context_set_operation_n =
+      _transaction_context_set_operation_nPtr.asFunction<
+          void Function(ffi.Pointer<sentry_transaction_context_s>,
+              ffi.Pointer<ffi.Char>, int)>();
+
+  /// Sets the `sampled` field on a Transaction Context, which will be used in the
+  /// Transaction constructed off of the context.
+  ///
+  /// When passed any value above 0, the Transaction will bypass all sampling
+  /// options and always be sent to sentry. If passed 0, this Transaction and its
+  /// child spans will never be sent to sentry.
+  ///
+  /// The Transaction Context should not be mutated by other functions while
+  /// setting `sampled` on it.
+  void transaction_context_set_sampled(
+    ffi.Pointer<sentry_transaction_context_s> tx_cxt,
+    int sampled,
+  ) {
+    return _transaction_context_set_sampled(
+      tx_cxt,
+      sampled,
+    );
+  }
+
+  late final _transaction_context_set_sampledPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<sentry_transaction_context_s>,
+              ffi.Int)>>('sentry_transaction_context_set_sampled');
+  late final _transaction_context_set_sampled =
+      _transaction_context_set_sampledPtr.asFunction<
+          void Function(ffi.Pointer<sentry_transaction_context_s>, int)>();
+
+  /// Removes the `sampled` field on a Transaction Context, which will be used in
+  /// the Transaction constructed off of the context.
+  ///
+  /// The Transaction will use the sampling rate as defined in `sentry_options`.
+  ///
+  /// The Transaction Context should not be mutated by other functions while
+  /// removing `sampled`.
+  void transaction_context_remove_sampled(
+    ffi.Pointer<sentry_transaction_context_s> tx_cxt,
+  ) {
+    return _transaction_context_remove_sampled(
+      tx_cxt,
+    );
+  }
+
+  late final _transaction_context_remove_sampledPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Void Function(ffi.Pointer<sentry_transaction_context_s>)>>(
+      'sentry_transaction_context_remove_sampled');
+  late final _transaction_context_remove_sampled =
+      _transaction_context_remove_sampledPtr.asFunction<
+          void Function(ffi.Pointer<sentry_transaction_context_s>)>();
+
+  /// Update the Transaction Context with the given HTTP header key/value pair.
+  ///
+  /// This is used to propagate distributed tracing metadata from upstream
+  /// services. Therefore, the headers of incoming requests should be fed into this
+  /// function so that sentry is able to continue a trace that was started by an
+  /// upstream service.
+  void transaction_context_update_from_header(
+    ffi.Pointer<sentry_transaction_context_s> tx_cxt,
+    ffi.Pointer<ffi.Char> key,
+    ffi.Pointer<ffi.Char> value,
+  ) {
+    return _transaction_context_update_from_header(
+      tx_cxt,
+      key,
+      value,
+    );
+  }
+
+  late final _transaction_context_update_from_headerPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Void Function(ffi.Pointer<sentry_transaction_context_s>,
+                  ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Char>)>>(
+      'sentry_transaction_context_update_from_header');
+  late final _transaction_context_update_from_header =
+      _transaction_context_update_from_headerPtr.asFunction<
+          void Function(ffi.Pointer<sentry_transaction_context_s>,
+              ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Char>)>();
+
+  void transaction_context_update_from_header_n(
+    ffi.Pointer<sentry_transaction_context_s> tx_cxt,
+    ffi.Pointer<ffi.Char> key,
+    int key_len,
+    ffi.Pointer<ffi.Char> value,
+    int value_len,
+  ) {
+    return _transaction_context_update_from_header_n(
+      tx_cxt,
+      key,
+      key_len,
+      value,
+      value_len,
+    );
+  }
+
+  late final _transaction_context_update_from_header_nPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Pointer<sentry_transaction_context_s>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Size,
+              ffi.Pointer<ffi.Char>,
+              ffi.Size)>>('sentry_transaction_context_update_from_header_n');
+  late final _transaction_context_update_from_header_n =
+      _transaction_context_update_from_header_nPtr.asFunction<
+          void Function(ffi.Pointer<sentry_transaction_context_s>,
+              ffi.Pointer<ffi.Char>, int, ffi.Pointer<ffi.Char>, int)>();
+
+  /// Starts a new Transaction based on the provided context, restored from an
+  /// external integration (i.e. a span from a different SDK) or manually
+  /// constructed by a user.
+  ///
+  /// The second parameter is a custom Sampling Context to be used with a Traces
+  /// Sampler to make a more informed sampling decision. The SDK does not currently
+  /// support a custom Traces Sampler and this parameter is ignored for the time
+  /// being but needs to be provided.
+  ///
+  /// Returns a Transaction, which is expected to be manually managed by the
+  /// caller. Manual management involves ensuring that `sentry_transaction_finish`
+  /// is invoked for the Transaction, and that the caller manually starts and
+  /// finishes any child Spans as needed on the Transaction.
+  ///
+  /// Not invoking `sentry_transaction_finish` with the returned Transaction means
+  /// it will be discarded, and will not be sent to sentry.
+  ///
+  /// To ensure that any Events or Message Events are associated with this
+  /// Transaction while it is active, invoke and pass in the Transaction returned
+  /// by this function to `sentry_set_transaction_object`. Further documentation on
+  /// this can be found in `sentry_set_transaction_object`'s docstring.
+  ///
+  /// Takes ownership of `transaction_context`. A Transaction Context cannot be
+  /// modified or re-used after it is used to start a Transaction.
+  ///
+  /// The returned value is not thread-safe. Users are expected to ensure that
+  /// appropriate locking mechanisms are implemented over the Transaction if it
+  /// needs to be mutated across threads. Methods operating on the Transaction will
+  /// mention what kind of expectations they carry if they need to mutate or access
+  /// the object in a thread-safe way.
+  ffi.Pointer<sentry_transaction_s> transaction_start(
+    ffi.Pointer<sentry_transaction_context_s> tx_cxt,
+    sentry_value_u sampling_ctx,
+  ) {
+    return _transaction_start(
+      tx_cxt,
+      sampling_ctx,
+    );
+  }
+
+  late final _transaction_startPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<sentry_transaction_s> Function(
+              ffi.Pointer<sentry_transaction_context_s>,
+              sentry_value_u)>>('sentry_transaction_start');
+  late final _transaction_start = _transaction_startPtr.asFunction<
+      ffi.Pointer<sentry_transaction_s> Function(
+          ffi.Pointer<sentry_transaction_context_s>, sentry_value_u)>();
+
+  /// Finishes and sends a Transaction to sentry. The event ID of the Transaction
+  /// will be returned if this was successful; A nil UUID will be returned
+  /// otherwise.
+  ///
+  /// Always takes ownership of `transaction`, regardless of whether the operation
+  /// was successful or not. A Transaction cannot be modified or re-used after it
+  /// is finished.
+  sentry_uuid_s transaction_finish(
+    ffi.Pointer<sentry_transaction_s> tx,
+  ) {
+    return _transaction_finish(
+      tx,
+    );
+  }
+
+  late final _transaction_finishPtr = _lookup<
+      ffi.NativeFunction<
+          sentry_uuid_s Function(
+              ffi.Pointer<sentry_transaction_s>)>>('sentry_transaction_finish');
+  late final _transaction_finish = _transaction_finishPtr
+      .asFunction<sentry_uuid_s Function(ffi.Pointer<sentry_transaction_s>)>();
+
+  /// Sets the Transaction so any Events sent while the Transaction
+  /// is active will be associated with the Transaction.
+  ///
+  /// If the Transaction being passed in is unsampled, it will still be associated
+  /// with any new Events. This will lead to some Events pointing to orphan or
+  /// missing traces in sentry, see
+  /// https://docs.sentry.io/product/sentry-basics/tracing/trace-view/#orphan-traces-and-broken-subtraces
+  ///
+  /// This increases the number of references pointing to the Transaction. Invoke
+  /// `sentry_transaction_finish` to remove the Transaction set by this function as
+  /// well as its reference by passing in the same Transaction as the one passed
+  /// into this function.
+  void set_transaction_object(
+    ffi.Pointer<sentry_transaction_s> tx,
+  ) {
+    return _set_transaction_object(
+      tx,
+    );
+  }
+
+  late final _set_transaction_objectPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Void Function(ffi.Pointer<sentry_transaction_s>)>>(
+      'sentry_set_transaction_object');
+  late final _set_transaction_object = _set_transaction_objectPtr
+      .asFunction<void Function(ffi.Pointer<sentry_transaction_s>)>();
+
+  /// Sets the Span so any Events sent while the Span
+  /// is active will be associated with the Span.
+  ///
+  /// This increases the number of references pointing to the Span. Invoke
+  /// `sentry_span_finish` to remove the Span set by this function as well
+  /// as its reference by passing in the same Span as the one passed into
+  /// this function.
+  void set_span(
+    ffi.Pointer<sentry_span_s> span,
+  ) {
+    return _set_span(
+      span,
+    );
+  }
+
+  late final _set_spanPtr = _lookup<
+          ffi.NativeFunction<ffi.Void Function(ffi.Pointer<sentry_span_s>)>>(
+      'sentry_set_span');
+  late final _set_span =
+      _set_spanPtr.asFunction<void Function(ffi.Pointer<sentry_span_s>)>();
+
+  /// Starts a new Span.
+  ///
+  /// The return value of `sentry_transaction_start` should be passed in as
+  /// `parent`.
+  ///
+  /// Both `operation` and `description` can be null, but it is recommended to
+  /// supply the former. See
+  /// https://develop.sentry.dev/sdk/performance/span-operations/ for conventions
+  /// around operations.
+  ///
+  /// See https://develop.sentry.dev/sdk/event-payloads/span/ for a description of
+  /// the created Span's properties and expectations for `operation` and
+  /// `description`.
+  ///
+  /// Returns a value that should be passed into `sentry_span_finish`. Not
+  /// finishing the Span means it will be discarded, and will not be sent to
+  /// sentry. `sentry_value_null` will be returned if the child Span could not be
+  /// created.
+  ///
+  /// To ensure that any Events or Message Events are associated with this
+  /// Span while it is active, invoke and pass in the Span returned
+  /// by this function to `sentry_set_span`. Further documentation on this can be
+  /// found in `sentry_set_span`'s docstring.
+  ///
+  /// This increases the number of references pointing to the Transaction.
+  ///
+  /// The returned value is not thread-safe. Users are expected to ensure that
+  /// appropriate locking mechanisms are implemented over the Span if it needs
+  /// to be mutated across threads. Methods operating on the Span will mention what
+  /// kind of expectations they carry if they need to mutate or access the object
+  /// in a thread-safe way.
+  ffi.Pointer<sentry_span_s> transaction_start_child(
+    ffi.Pointer<sentry_transaction_s> parent,
+    ffi.Pointer<ffi.Char> operation,
+    ffi.Pointer<ffi.Char> description,
+  ) {
+    return _transaction_start_child(
+      parent,
+      operation,
+      description,
+    );
+  }
+
+  late final _transaction_start_childPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<sentry_span_s> Function(
+              ffi.Pointer<sentry_transaction_s>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>)>>('sentry_transaction_start_child');
+  late final _transaction_start_child = _transaction_start_childPtr.asFunction<
+      ffi.Pointer<sentry_span_s> Function(ffi.Pointer<sentry_transaction_s>,
+          ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Char>)>();
+
+  ffi.Pointer<sentry_span_s> transaction_start_child_n(
+    ffi.Pointer<sentry_transaction_s> parent,
+    ffi.Pointer<ffi.Char> operation,
+    int operation_len,
+    ffi.Pointer<ffi.Char> description,
+    int description_len,
+  ) {
+    return _transaction_start_child_n(
+      parent,
+      operation,
+      operation_len,
+      description,
+      description_len,
+    );
+  }
+
+  late final _transaction_start_child_nPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<sentry_span_s> Function(
+              ffi.Pointer<sentry_transaction_s>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Size,
+              ffi.Pointer<ffi.Char>,
+              ffi.Size)>>('sentry_transaction_start_child_n');
+  late final _transaction_start_child_n =
+      _transaction_start_child_nPtr.asFunction<
+          ffi.Pointer<sentry_span_s> Function(ffi.Pointer<sentry_transaction_s>,
+              ffi.Pointer<ffi.Char>, int, ffi.Pointer<ffi.Char>, int)>();
+
+  /// Starts a new Span.
+  ///
+  /// The return value of `sentry_span_start_child` may be passed in as `parent`.
+  ///
+  /// Both `operation` and `description` can be null, but it is recommended to
+  /// supply the former. See
+  /// https://develop.sentry.dev/sdk/performance/span-operations/ for conventions
+  /// around operations.
+  ///
+  /// See https://develop.sentry.dev/sdk/event-payloads/span/ for a description of
+  /// the created Span's properties and expectations for `operation` and
+  /// `description`.
+  ///
+  /// Returns a value that should be passed into `sentry_span_finish`. Not
+  /// finishing the Span means it will be discarded, and will not be sent to
+  /// sentry. `sentry_value_null` will be returned if the child Span could not be
+  /// created.
+  ///
+  /// To ensure that any Events or Message Events are associated with this
+  /// Span while it is active, invoke and pass in the Span returned
+  /// by this function to `sentry_set_span`. Further documentation on this can be
+  /// found in `sentry_set_span`'s docstring.
+  ///
+  /// The returned value is not thread-safe. Users are expected to ensure that
+  /// appropriate locking mechanisms are implemented over the Span if it needs
+  /// to be mutated across threads. Methods operating on the Span will mention what
+  /// kind of expectations they carry if they need to mutate or access the object
+  /// in a thread-safe way.
+  ffi.Pointer<sentry_span_s> span_start_child(
+    ffi.Pointer<sentry_span_s> parent,
+    ffi.Pointer<ffi.Char> operation,
+    ffi.Pointer<ffi.Char> description,
+  ) {
+    return _span_start_child(
+      parent,
+      operation,
+      description,
+    );
+  }
+
+  late final _span_start_childPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<sentry_span_s> Function(
+              ffi.Pointer<sentry_span_s>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>)>>('sentry_span_start_child');
+  late final _span_start_child = _span_start_childPtr.asFunction<
+      ffi.Pointer<sentry_span_s> Function(ffi.Pointer<sentry_span_s>,
+          ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Char>)>();
+
+  ffi.Pointer<sentry_span_s> span_start_child_n(
+    ffi.Pointer<sentry_span_s> parent,
+    ffi.Pointer<ffi.Char> operation,
+    int operation_len,
+    ffi.Pointer<ffi.Char> description,
+    int description_len,
+  ) {
+    return _span_start_child_n(
+      parent,
+      operation,
+      operation_len,
+      description,
+      description_len,
+    );
+  }
+
+  late final _span_start_child_nPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<sentry_span_s> Function(
+              ffi.Pointer<sentry_span_s>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Size,
+              ffi.Pointer<ffi.Char>,
+              ffi.Size)>>('sentry_span_start_child_n');
+  late final _span_start_child_n = _span_start_child_nPtr.asFunction<
+      ffi.Pointer<sentry_span_s> Function(ffi.Pointer<sentry_span_s>,
+          ffi.Pointer<ffi.Char>, int, ffi.Pointer<ffi.Char>, int)>();
+
+  /// Finishes a Span.
+  ///
+  /// This takes ownership of `span`. A Span cannot be modified or re-used after it
+  /// is finished.
+  ///
+  /// This will mutate the `span`'s containing Transaction, so the containing
+  /// Transaction should also not be mutated by other functions when finishing a
+  /// span.
+  void span_finish(
+    ffi.Pointer<sentry_span_s> span,
+  ) {
+    return _span_finish(
+      span,
+    );
+  }
+
+  late final _span_finishPtr = _lookup<
+          ffi.NativeFunction<ffi.Void Function(ffi.Pointer<sentry_span_s>)>>(
+      'sentry_span_finish');
+  late final _span_finish =
+      _span_finishPtr.asFunction<void Function(ffi.Pointer<sentry_span_s>)>();
+
+  /// Sets a tag on a Transaction to the given string value.
+  ///
+  /// Tags longer than 200 bytes will be truncated.
+  ///
+  /// The Transaction should not be mutated by other functions while a tag is being
+  /// set on it.
+  void transaction_set_tag(
+    ffi.Pointer<sentry_transaction_s> transaction,
+    ffi.Pointer<ffi.Char> tag,
+    ffi.Pointer<ffi.Char> value,
+  ) {
+    return _transaction_set_tag(
+      transaction,
+      tag,
+      value,
+    );
+  }
+
+  late final _transaction_set_tagPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Pointer<sentry_transaction_s>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>)>>('sentry_transaction_set_tag');
+  late final _transaction_set_tag = _transaction_set_tagPtr.asFunction<
+      void Function(ffi.Pointer<sentry_transaction_s>, ffi.Pointer<ffi.Char>,
+          ffi.Pointer<ffi.Char>)>();
+
+  void transaction_set_tag_n(
+    ffi.Pointer<sentry_transaction_s> transaction,
+    ffi.Pointer<ffi.Char> tag,
+    int tag_len,
+    ffi.Pointer<ffi.Char> value,
+    int value_len,
+  ) {
+    return _transaction_set_tag_n(
+      transaction,
+      tag,
+      tag_len,
+      value,
+      value_len,
+    );
+  }
+
+  late final _transaction_set_tag_nPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Pointer<sentry_transaction_s>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Size,
+              ffi.Pointer<ffi.Char>,
+              ffi.Size)>>('sentry_transaction_set_tag_n');
+  late final _transaction_set_tag_n = _transaction_set_tag_nPtr.asFunction<
+      void Function(ffi.Pointer<sentry_transaction_s>, ffi.Pointer<ffi.Char>,
+          int, ffi.Pointer<ffi.Char>, int)>();
+
+  /// Removes a tag from a Transaction.
+  ///
+  /// The Transaction should not be mutated by other functions while a tag is being
+  /// removed from it.
+  void transaction_remove_tag(
+    ffi.Pointer<sentry_transaction_s> transaction,
+    ffi.Pointer<ffi.Char> tag,
+  ) {
+    return _transaction_remove_tag(
+      transaction,
+      tag,
+    );
+  }
+
+  late final _transaction_remove_tagPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<sentry_transaction_s>,
+              ffi.Pointer<ffi.Char>)>>('sentry_transaction_remove_tag');
+  late final _transaction_remove_tag = _transaction_remove_tagPtr.asFunction<
+      void Function(
+          ffi.Pointer<sentry_transaction_s>, ffi.Pointer<ffi.Char>)>();
+
+  void transaction_remove_tag_n(
+    ffi.Pointer<sentry_transaction_s> transaction,
+    ffi.Pointer<ffi.Char> tag,
+    int tag_len,
+  ) {
+    return _transaction_remove_tag_n(
+      transaction,
+      tag,
+      tag_len,
+    );
+  }
+
+  late final _transaction_remove_tag_nPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Pointer<sentry_transaction_s>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Size)>>('sentry_transaction_remove_tag_n');
+  late final _transaction_remove_tag_n =
+      _transaction_remove_tag_nPtr.asFunction<
+          void Function(
+              ffi.Pointer<sentry_transaction_s>, ffi.Pointer<ffi.Char>, int)>();
+
+  /// Sets the given key in a Transaction's "data" section to the given value.
+  ///
+  /// The Transaction should not be mutated by other functions while data is being
+  /// set on it.
+  void transaction_set_data(
+    ffi.Pointer<sentry_transaction_s> transaction,
+    ffi.Pointer<ffi.Char> key,
+    sentry_value_u value,
+  ) {
+    return _transaction_set_data(
+      transaction,
+      key,
+      value,
+    );
+  }
+
+  late final _transaction_set_dataPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Pointer<sentry_transaction_s>,
+              ffi.Pointer<ffi.Char>,
+              sentry_value_u)>>('sentry_transaction_set_data');
+  late final _transaction_set_data = _transaction_set_dataPtr.asFunction<
+      void Function(ffi.Pointer<sentry_transaction_s>, ffi.Pointer<ffi.Char>,
+          sentry_value_u)>();
+
+  void transaction_set_data_n(
+    ffi.Pointer<sentry_transaction_s> transaction,
+    ffi.Pointer<ffi.Char> key,
+    int key_len,
+    sentry_value_u value,
+  ) {
+    return _transaction_set_data_n(
+      transaction,
+      key,
+      key_len,
+      value,
+    );
+  }
+
+  late final _transaction_set_data_nPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Pointer<sentry_transaction_s>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Size,
+              sentry_value_u)>>('sentry_transaction_set_data_n');
+  late final _transaction_set_data_n = _transaction_set_data_nPtr.asFunction<
+      void Function(ffi.Pointer<sentry_transaction_s>, ffi.Pointer<ffi.Char>,
+          int, sentry_value_u)>();
+
+  /// Removes a key from a Transaction's "data" section.
+  ///
+  /// The Transaction should not be mutated by other functions while data is being
+  /// removed from it.
+  void transaction_remove_data(
+    ffi.Pointer<sentry_transaction_s> transaction,
+    ffi.Pointer<ffi.Char> key,
+  ) {
+    return _transaction_remove_data(
+      transaction,
+      key,
+    );
+  }
+
+  late final _transaction_remove_dataPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<sentry_transaction_s>,
+              ffi.Pointer<ffi.Char>)>>('sentry_transaction_remove_data');
+  late final _transaction_remove_data = _transaction_remove_dataPtr.asFunction<
+      void Function(
+          ffi.Pointer<sentry_transaction_s>, ffi.Pointer<ffi.Char>)>();
+
+  void transaction_remove_data_n(
+    ffi.Pointer<sentry_transaction_s> transaction,
+    ffi.Pointer<ffi.Char> key,
+    int key_len,
+  ) {
+    return _transaction_remove_data_n(
+      transaction,
+      key,
+      key_len,
+    );
+  }
+
+  late final _transaction_remove_data_nPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Pointer<sentry_transaction_s>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Size)>>('sentry_transaction_remove_data_n');
+  late final _transaction_remove_data_n =
+      _transaction_remove_data_nPtr.asFunction<
+          void Function(
+              ffi.Pointer<sentry_transaction_s>, ffi.Pointer<ffi.Char>, int)>();
+
+  /// Sets a tag on a Span to the given string value.
+  ///
+  /// Tags longer than 200 bytes will be truncated.
+  ///
+  /// The Span should not be mutated by other functions while a tag is being set on
+  /// it.
+  void span_set_tag(
+    ffi.Pointer<sentry_span_s> span,
+    ffi.Pointer<ffi.Char> tag,
+    ffi.Pointer<ffi.Char> value,
+  ) {
+    return _span_set_tag(
+      span,
+      tag,
+      value,
+    );
+  }
+
+  late final _span_set_tagPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<sentry_span_s>, ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>)>>('sentry_span_set_tag');
+  late final _span_set_tag = _span_set_tagPtr.asFunction<
+      void Function(ffi.Pointer<sentry_span_s>, ffi.Pointer<ffi.Char>,
+          ffi.Pointer<ffi.Char>)>();
+
+  void span_set_tag_n(
+    ffi.Pointer<sentry_span_s> span,
+    ffi.Pointer<ffi.Char> tag,
+    int tag_len,
+    ffi.Pointer<ffi.Char> value,
+    int value_len,
+  ) {
+    return _span_set_tag_n(
+      span,
+      tag,
+      tag_len,
+      value,
+      value_len,
+    );
+  }
+
+  late final _span_set_tag_nPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Pointer<sentry_span_s>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Size,
+              ffi.Pointer<ffi.Char>,
+              ffi.Size)>>('sentry_span_set_tag_n');
+  late final _span_set_tag_n = _span_set_tag_nPtr.asFunction<
+      void Function(ffi.Pointer<sentry_span_s>, ffi.Pointer<ffi.Char>, int,
+          ffi.Pointer<ffi.Char>, int)>();
+
+  /// Removes a tag from a Span.
+  ///
+  /// The Span should not be mutated by other functions while a tag is being
+  /// removed from it.
+  void span_remove_tag(
+    ffi.Pointer<sentry_span_s> span,
+    ffi.Pointer<ffi.Char> tag,
+  ) {
+    return _span_remove_tag(
+      span,
+      tag,
+    );
+  }
+
+  late final _span_remove_tagPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<sentry_span_s>,
+              ffi.Pointer<ffi.Char>)>>('sentry_span_remove_tag');
+  late final _span_remove_tag = _span_remove_tagPtr.asFunction<
+      void Function(ffi.Pointer<sentry_span_s>, ffi.Pointer<ffi.Char>)>();
+
+  void span_remove_tag_n(
+    ffi.Pointer<sentry_span_s> span,
+    ffi.Pointer<ffi.Char> tag,
+    int tag_len,
+  ) {
+    return _span_remove_tag_n(
+      span,
+      tag,
+      tag_len,
+    );
+  }
+
+  late final _span_remove_tag_nPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<sentry_span_s>, ffi.Pointer<ffi.Char>,
+              ffi.Size)>>('sentry_span_remove_tag_n');
+  late final _span_remove_tag_n = _span_remove_tag_nPtr.asFunction<
+      void Function(ffi.Pointer<sentry_span_s>, ffi.Pointer<ffi.Char>, int)>();
+
+  /// Sets the given key in a Span's "data" section to the given value.
+  ///
+  /// The Span should not be mutated by other functions while data is being set on
+  /// it.
+  void span_set_data(
+    ffi.Pointer<sentry_span_s> span,
+    ffi.Pointer<ffi.Char> key,
+    sentry_value_u value,
+  ) {
+    return _span_set_data(
+      span,
+      key,
+      value,
+    );
+  }
+
+  late final _span_set_dataPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<sentry_span_s>, ffi.Pointer<ffi.Char>,
+              sentry_value_u)>>('sentry_span_set_data');
+  late final _span_set_data = _span_set_dataPtr.asFunction<
+      void Function(
+          ffi.Pointer<sentry_span_s>, ffi.Pointer<ffi.Char>, sentry_value_u)>();
+
+  void span_set_data_n(
+    ffi.Pointer<sentry_span_s> span,
+    ffi.Pointer<ffi.Char> key,
+    int key_len,
+    sentry_value_u value,
+  ) {
+    return _span_set_data_n(
+      span,
+      key,
+      key_len,
+      value,
+    );
+  }
+
+  late final _span_set_data_nPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<sentry_span_s>, ffi.Pointer<ffi.Char>,
+              ffi.Size, sentry_value_u)>>('sentry_span_set_data_n');
+  late final _span_set_data_n = _span_set_data_nPtr.asFunction<
+      void Function(ffi.Pointer<sentry_span_s>, ffi.Pointer<ffi.Char>, int,
+          sentry_value_u)>();
+
+  /// Removes a key from a Span's "data" section.
+  ///
+  /// The Span should not be mutated by other functions while data is being removed
+  /// from it.
+  void span_remove_data(
+    ffi.Pointer<sentry_span_s> span,
+    ffi.Pointer<ffi.Char> key,
+  ) {
+    return _span_remove_data(
+      span,
+      key,
+    );
+  }
+
+  late final _span_remove_dataPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<sentry_span_s>,
+              ffi.Pointer<ffi.Char>)>>('sentry_span_remove_data');
+  late final _span_remove_data = _span_remove_dataPtr.asFunction<
+      void Function(ffi.Pointer<sentry_span_s>, ffi.Pointer<ffi.Char>)>();
+
+  void span_remove_data_n(
+    ffi.Pointer<sentry_span_s> span,
+    ffi.Pointer<ffi.Char> key,
+    int key_len,
+  ) {
+    return _span_remove_data_n(
+      span,
+      key,
+      key_len,
+    );
+  }
+
+  late final _span_remove_data_nPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<sentry_span_s>, ffi.Pointer<ffi.Char>,
+              ffi.Size)>>('sentry_span_remove_data_n');
+  late final _span_remove_data_n = _span_remove_data_nPtr.asFunction<
+      void Function(ffi.Pointer<sentry_span_s>, ffi.Pointer<ffi.Char>, int)>();
+
+  /// Sets a Transaction's name.
+  ///
+  /// The Transaction should not be mutated by other functions while setting its
+  /// name.
+  void transaction_set_name(
+    ffi.Pointer<sentry_transaction_s> transaction,
+    ffi.Pointer<ffi.Char> name,
+  ) {
+    return _transaction_set_name(
+      transaction,
+      name,
+    );
+  }
+
+  late final _transaction_set_namePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<sentry_transaction_s>,
+              ffi.Pointer<ffi.Char>)>>('sentry_transaction_set_name');
+  late final _transaction_set_name = _transaction_set_namePtr.asFunction<
+      void Function(
+          ffi.Pointer<sentry_transaction_s>, ffi.Pointer<ffi.Char>)>();
+
+  void transaction_set_name_n(
+    ffi.Pointer<sentry_transaction_s> transaction,
+    ffi.Pointer<ffi.Char> name,
+    int name_len,
+  ) {
+    return _transaction_set_name_n(
+      transaction,
+      name,
+      name_len,
+    );
+  }
+
+  late final _transaction_set_name_nPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Pointer<sentry_transaction_s>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Size)>>('sentry_transaction_set_name_n');
+  late final _transaction_set_name_n = _transaction_set_name_nPtr.asFunction<
+      void Function(
+          ffi.Pointer<sentry_transaction_s>, ffi.Pointer<ffi.Char>, int)>();
+
+  /// Creates a new User Feedback with a specific name, email and comments.
+  ///
+  /// See https://develop.sentry.dev/sdk/envelopes/#user-feedback
+  ///
+  /// User Feedback has to be associated with a specific event that has been
+  /// sent to Sentry earlier.
+  sentry_value_u value_new_user_feedback(
+    ffi.Pointer<sentry_uuid_s> uuid,
+    ffi.Pointer<ffi.Char> name,
+    ffi.Pointer<ffi.Char> email,
+    ffi.Pointer<ffi.Char> comments,
+  ) {
+    return _value_new_user_feedback(
+      uuid,
+      name,
+      email,
+      comments,
+    );
+  }
+
+  late final _value_new_user_feedbackPtr = _lookup<
+      ffi.NativeFunction<
+          sentry_value_u Function(
+              ffi.Pointer<sentry_uuid_s>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>)>>('sentry_value_new_user_feedback');
+  late final _value_new_user_feedback = _value_new_user_feedbackPtr.asFunction<
+      sentry_value_u Function(ffi.Pointer<sentry_uuid_s>, ffi.Pointer<ffi.Char>,
+          ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Char>)>();
+
+  sentry_value_u value_new_user_feedback_n(
+    ffi.Pointer<sentry_uuid_s> uuid,
+    ffi.Pointer<ffi.Char> name,
+    int name_len,
+    ffi.Pointer<ffi.Char> email,
+    int email_len,
+    ffi.Pointer<ffi.Char> comments,
+    int comments_len,
+  ) {
+    return _value_new_user_feedback_n(
+      uuid,
+      name,
+      name_len,
+      email,
+      email_len,
+      comments,
+      comments_len,
+    );
+  }
+
+  late final _value_new_user_feedback_nPtr = _lookup<
+      ffi.NativeFunction<
+          sentry_value_u Function(
+              ffi.Pointer<sentry_uuid_s>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Size,
+              ffi.Pointer<ffi.Char>,
+              ffi.Size,
+              ffi.Pointer<ffi.Char>,
+              ffi.Size)>>('sentry_value_new_user_feedback_n');
+  late final _value_new_user_feedback_n =
+      _value_new_user_feedback_nPtr.asFunction<
+          sentry_value_u Function(
+              ffi.Pointer<sentry_uuid_s>,
+              ffi.Pointer<ffi.Char>,
+              int,
+              ffi.Pointer<ffi.Char>,
+              int,
+              ffi.Pointer<ffi.Char>,
+              int)>();
+
+  /// Captures a manually created User Feedback and sends it to Sentry.
+  void capture_user_feedback(
+    sentry_value_u user_feedback,
+  ) {
+    return _capture_user_feedback(
+      user_feedback,
+    );
+  }
+
+  late final _capture_user_feedbackPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(sentry_value_u)>>(
+          'sentry_capture_user_feedback');
+  late final _capture_user_feedback =
+      _capture_user_feedbackPtr.asFunction<void Function(sentry_value_u)>();
+
+  /// Sets a Span's status.
+  ///
+  /// The Span should not be mutated by other functions while setting its status.
+  void span_set_status(
+    ffi.Pointer<sentry_span_s> span,
+    int status,
+  ) {
+    return _span_set_status(
+      span,
+      status,
+    );
+  }
+
+  late final _span_set_statusPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<sentry_span_s>,
+              ffi.Int32)>>('sentry_span_set_status');
+  late final _span_set_status = _span_set_statusPtr
+      .asFunction<void Function(ffi.Pointer<sentry_span_s>, int)>();
+
+  /// Sets a Transaction's status.
+  ///
+  /// The Transaction should not be mutated by other functions while setting its
+  /// status.
+  void transaction_set_status(
+    ffi.Pointer<sentry_transaction_s> tx,
+    int status,
+  ) {
+    return _transaction_set_status(
+      tx,
+      status,
+    );
+  }
+
+  late final _transaction_set_statusPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<sentry_transaction_s>,
+              ffi.Int32)>>('sentry_transaction_set_status');
+  late final _transaction_set_status = _transaction_set_statusPtr
+      .asFunction<void Function(ffi.Pointer<sentry_transaction_s>, int)>();
+
+  /// Iterates the distributed tracing HTTP headers for the given span.
+  void span_iter_headers(
+    ffi.Pointer<sentry_span_s> span,
+    ffi.Pointer<
+            ffi.NativeFunction<
+                ffi.Void Function(ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Char>,
+                    ffi.Pointer<ffi.Void>)>>
+        callback,
+    ffi.Pointer<ffi.Void> userdata,
+  ) {
+    return _span_iter_headers(
+      span,
+      callback,
+      userdata,
+    );
+  }
+
+  late final _span_iter_headersPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Pointer<sentry_span_s>,
+              ffi.Pointer<
+                  ffi.NativeFunction<
+                      ffi.Void Function(ffi.Pointer<ffi.Char>,
+                          ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Void>)>>,
+              ffi.Pointer<ffi.Void>)>>('sentry_span_iter_headers');
+  late final _span_iter_headers = _span_iter_headersPtr.asFunction<
+      void Function(
+          ffi.Pointer<sentry_span_s>,
+          ffi.Pointer<
+              ffi.NativeFunction<
+                  ffi.Void Function(ffi.Pointer<ffi.Char>,
+                      ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Void>)>>,
+          ffi.Pointer<ffi.Void>)>();
+
+  /// Iterates the distributed tracing HTTP headers for the given transaction.
+  void transaction_iter_headers(
+    ffi.Pointer<sentry_transaction_s> tx,
+    ffi.Pointer<
+            ffi.NativeFunction<
+                ffi.Void Function(ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Char>,
+                    ffi.Pointer<ffi.Void>)>>
+        callback,
+    ffi.Pointer<ffi.Void> userdata,
+  ) {
+    return _transaction_iter_headers(
+      tx,
+      callback,
+      userdata,
+    );
+  }
+
+  late final _transaction_iter_headersPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Pointer<sentry_transaction_s>,
+              ffi.Pointer<
+                  ffi.NativeFunction<
+                      ffi.Void Function(ffi.Pointer<ffi.Char>,
+                          ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Void>)>>,
+              ffi.Pointer<ffi.Void>)>>('sentry_transaction_iter_headers');
+  late final _transaction_iter_headers =
+      _transaction_iter_headersPtr.asFunction<
+          void Function(
+              ffi.Pointer<sentry_transaction_s>,
+              ffi.Pointer<
+                  ffi.NativeFunction<
+                      ffi.Void Function(ffi.Pointer<ffi.Char>,
+                          ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Void>)>>,
+              ffi.Pointer<ffi.Void>)>();
+
+  /// Returns whether the application has crashed on the last run.
+  ///
+  /// Notes:
+  /// * The underlying value is set by sentry_init() - it must be called first.
+  /// * Call sentry_clear_crashed_last_run() to reset for the next app run.
+  ///
+  /// Possible return values:
+  /// 1 = the last run was a crash
+  /// 0 = no crash recognized
+  /// -1 = sentry_init() hasn't been called yet
+  int get_crashed_last_run() {
+    return _get_crashed_last_run();
+  }
+
+  late final _get_crashed_last_runPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function()>>(
+          'sentry_get_crashed_last_run');
+  late final _get_crashed_last_run =
+      _get_crashed_last_runPtr.asFunction<int Function()>();
+
+  /// Clear the status of the "crashed-last-run". You should explicitly call
+  /// this after sentry_init() if you're using sentry_get_crashed_last_run().
+  /// Otherwise, the same information is reported on any subsequent runs.
+  ///
+  /// Notes:
+  /// * This doesn't change the value of sentry_get_crashed_last_run() yet.
+  /// However, if sentry_init() is called again, the value will change.
+  /// * This may only be called after sentry_init() and before sentry_close().
+  ///
+  /// Returns 0 on success, 1 on error.
+  int clear_crashed_last_run() {
+    return _clear_crashed_last_run();
+  }
+
+  late final _clear_crashed_last_runPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function()>>(
+          'sentry_clear_crashed_last_run');
+  late final _clear_crashed_last_run =
+      _clear_crashed_last_runPtr.asFunction<int Function()>();
+
+  /// Sentry SDK version.
+  ffi.Pointer<ffi.Char> sdk_version() {
+    return _sdk_version();
+  }
+
+  late final _sdk_versionPtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>(
+          'sentry_sdk_version');
+  late final _sdk_version =
+      _sdk_versionPtr.asFunction<ffi.Pointer<ffi.Char> Function()>();
+
+  /// Sentry SDK name set during build time.
+  /// Deprecated: Please use sentry_options_get_sdk_name instead.
+  ffi.Pointer<ffi.Char> sdk_name() {
+    return _sdk_name();
+  }
+
+  late final _sdk_namePtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>(
+          'sentry_sdk_name');
+  late final _sdk_name =
+      _sdk_namePtr.asFunction<ffi.Pointer<ffi.Char> Function()>();
+
+  /// Sentry SDK User-Agent set during build time.
+  /// Deprecated: Please use sentry_options_get_user_agent instead.
+  ffi.Pointer<ffi.Char> sdk_user_agent() {
+    return _sdk_user_agent();
+  }
+
+  late final _sdk_user_agentPtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>(
+          'sentry_sdk_user_agent');
+  late final _sdk_user_agent =
+      _sdk_user_agentPtr.asFunction<ffi.Pointer<ffi.Char> Function()>();
 }
+
+/// Represents a sentry protocol value.
+///
+/// The members of this type should never be accessed.  They are only here
+/// so that alignment for the type can be properly determined.
+///
+/// Values must be released with `sentry_value_decref`.  This lowers the
+/// internal refcount by one.  If the refcount hits zero it's freed.  Some
+/// values like primitives have no refcount (like null) so operations on
+/// those are no-ops.
+///
+/// In addition values can be frozen.  Some values like primitives are always
+/// frozen but lists and dicts are not and can be frozen on demand.  This
+/// automatically happens for some shared values in the event payload like
+/// the module list.
+class sentry_value_u extends ffi.Union {
+  @ffi.Uint64()
+  external int _bits;
+
+  @ffi.Double()
+  external double _double;
+}
+
+/// Type of a sentry value.
+abstract class sentry_value_type_t {
+  static const int SENTRY_VALUE_TYPE_NULL = 0;
+  static const int SENTRY_VALUE_TYPE_BOOL = 1;
+  static const int SENTRY_VALUE_TYPE_INT32 = 2;
+  static const int SENTRY_VALUE_TYPE_DOUBLE = 3;
+  static const int SENTRY_VALUE_TYPE_STRING = 4;
+  static const int SENTRY_VALUE_TYPE_LIST = 5;
+  static const int SENTRY_VALUE_TYPE_OBJECT = 6;
+}
+
+/// Sentry levels for events and breadcrumbs.
+abstract class sentry_level_e {
+  static const int SENTRY_LEVEL_DEBUG = -1;
+  static const int SENTRY_LEVEL_INFO = 0;
+  static const int SENTRY_LEVEL_WARNING = 1;
+  static const int SENTRY_LEVEL_ERROR = 2;
+  static const int SENTRY_LEVEL_FATAL = 3;
+}
+
+/// This represents the OS dependent user context in the case of a crash, and can
+/// be used to manually capture a crash.
+class sentry_ucontext_s extends ffi.Opaque {}
+
+/// A UUID
+class sentry_uuid_s extends ffi.Struct {
+  @ffi.Array.multi([16])
+  external ffi.Array<ffi.Char> bytes;
+}
+
+/// A Sentry Envelope.
+///
+/// The Envelope is an abstract type which represents a payload being sent to
+/// sentry. It can contain one or more items, typically an Event.
+/// See https://develop.sentry.dev/sdk/envelopes/
+class sentry_envelope_s extends ffi.Opaque {}
+
+/// This represents an interface for user-defined transports.
+///
+/// Transports are responsible for sending envelopes to sentry and are the last
+/// step in the event pipeline.
+///
+/// Envelopes will be submitted to the transport in a _fire and forget_ fashion,
+/// and the transport must send those envelopes _in order_.
+///
+/// A transport has the following hooks, all of which
+/// take the user provided `state` as last parameter. The transport state needs
+/// to be set with `sentry_transport_set_state` and typically holds handles and
+/// other information that can be reused across requests.
+///
+/// * `send_func`: This function will take ownership of an envelope, and is
+/// responsible for freeing it via `sentry_envelope_free`.
+/// * `startup_func`: This hook will be called by sentry inside of `sentry_init`
+/// and instructs the transport to initialize itself. Failures will bubble up
+/// to `sentry_init`.
+/// * `flush_func`: Instructs the transport to flush its queue.
+/// This hook receives a millisecond-resolution `timeout` parameter and should
+/// return `0` if the transport queue is flushed within the timeout.
+/// * `shutdown_func`: Instructs the transport to flush its queue and shut down.
+/// This hook receives a millisecond-resolution `timeout` parameter and should
+/// return `0` if the transport is flushed and shut down successfully.
+/// In case of a non-zero return value, sentry will log an error, but continue
+/// with freeing the transport.
+/// * `free_func`: Frees the transports `state`. This hook might be called even
+/// though `shutdown_func` returned a failure code previously.
+///
+/// The transport interface might be extended in the future with hooks to flush
+/// its internal queue without shutting down, and to dump its internal queue to
+/// disk in case of a hard crash.
+class sentry_transport_s extends ffi.Opaque {}
 
 /// The Sentry Client Options.
 ///
 /// See https://docs.sentry.io/platforms/native/configuration/
 class sentry_options_s extends ffi.Opaque {}
+
+/// This represents an interface for user-defined backends.
+///
+/// Backends are responsible to handle crashes. They are maintained at runtime
+/// via various life-cycle hooks from the sentry-core.
+///
+/// At this point none of those interfaces are exposed in the API including
+/// creation and destruction. The main use-case of the backend in the API at this
+/// point is to disable it via `sentry_options_set_backend` at runtime before it
+/// is initialized.
+class sentry_backend_s extends ffi.Opaque {}
+
+/// The state of user consent.
+abstract class sentry_user_consent_t {
+  static const int SENTRY_USER_CONSENT_UNKNOWN = -1;
+  static const int SENTRY_USER_CONSENT_GIVEN = 1;
+  static const int SENTRY_USER_CONSENT_REVOKED = 0;
+}
+
+/// -- Session APIs --
+abstract class sentry_session_status_t {
+  static const int SENTRY_SESSION_STATUS_OK = 0;
+  static const int SENTRY_SESSION_STATUS_CRASHED = 1;
+  static const int SENTRY_SESSION_STATUS_ABNORMAL = 2;
+  static const int SENTRY_SESSION_STATUS_EXITED = 3;
+}
+
+/// A sentry Transaction Context.
+///
+/// See Transaction Interface under
+/// https://develop.sentry.dev/sdk/performance/#new-span-and-transaction-classes
+class sentry_transaction_context_s extends ffi.Opaque {}
+
+/// A sentry Transaction.
+///
+/// See https://develop.sentry.dev/sdk/event-payloads/transaction/
+class sentry_transaction_s extends ffi.Opaque {}
+
+/// A sentry Span.
+///
+/// See https://develop.sentry.dev/sdk/event-payloads/span/
+class sentry_span_s extends ffi.Opaque {}
+
+/// The status of a Span or Transaction.
+///
+/// See https://develop.sentry.dev/sdk/event-payloads/span/ for documentation.
+abstract class sentry_span_status_t {
+  /// The operation completed successfully.
+  /// HTTP status 100..299 + successful redirects from the 3xx range.
+  static const int SENTRY_SPAN_STATUS_OK = 0;
+
+  /// The operation was cancelled (typically by the user).
+  static const int SENTRY_SPAN_STATUS_CANCELLED = 1;
+
+  /// Unknown. Any non-standard HTTP status code.
+  /// "We do not know whether the transaction failed or succeeded."
+  static const int SENTRY_SPAN_STATUS_UNKNOWN = 2;
+
+  /// Client specified an invalid argument. 4xx.
+  /// Note that this differs from FailedPrecondition. InvalidArgument
+  /// indicates arguments that are problematic regardless of the
+  /// state of the system.
+  static const int SENTRY_SPAN_STATUS_INVALID_ARGUMENT = 3;
+
+  /// Deadline expired before operation could complete.
+  /// For operations that change the state of the system, this error may be
+  /// returned even if the operation has been completed successfully.
+  /// HTTP redirect loops and 504 Gateway Timeout.
+  static const int SENTRY_SPAN_STATUS_DEADLINE_EXCEEDED = 4;
+
+  /// 404 Not Found. Some requested entity (file or directory) was not found.
+  static const int SENTRY_SPAN_STATUS_NOT_FOUND = 5;
+
+  /// Already exists (409)
+  /// Some entity that we attempted to create already exists.
+  static const int SENTRY_SPAN_STATUS_ALREADY_EXISTS = 6;
+
+  /// 403 Forbidden
+  /// The caller does not have permission to execute the specified operation.
+  static const int SENTRY_SPAN_STATUS_PERMISSION_DENIED = 7;
+
+  /// 429 Too Many Requests
+  /// Some resource has been exhausted, perhaps a per-user quota or perhaps
+  /// the entire file system is out of space.
+  static const int SENTRY_SPAN_STATUS_RESOURCE_EXHAUSTED = 8;
+
+  /// Operation was rejected because the system is not in a state required for
+  /// the operation's execution.
+  static const int SENTRY_SPAN_STATUS_FAILED_PRECONDITION = 9;
+
+  /// The operation was aborted, typically due to a concurrency issue.
+  static const int SENTRY_SPAN_STATUS_ABORTED = 10;
+
+  /// Operation was attempted past the valid range.
+  static const int SENTRY_SPAN_STATUS_OUT_OF_RANGE = 11;
+
+  /// 501 Not Implemented
+  /// Operation is not implemented or not enabled.
+  static const int SENTRY_SPAN_STATUS_UNIMPLEMENTED = 12;
+
+  /// Other/generic 5xx
+  static const int SENTRY_SPAN_STATUS_INTERNAL_ERROR = 13;
+
+  /// 503 Service Unavailable
+  static const int SENTRY_SPAN_STATUS_UNAVAILABLE = 14;
+
+  /// Unrecoverable data loss or corruption
+  static const int SENTRY_SPAN_STATUS_DATA_LOSS = 15;
+
+  /// 401 Unauthorized (actually does mean unauthenticated according to RFC
+  /// 7235)
+  /// Prefer PermissionDenied if a user is logged in.
+  static const int SENTRY_SPAN_STATUS_UNAUTHENTICATED = 16;
+}

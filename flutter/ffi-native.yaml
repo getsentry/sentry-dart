@@ -8,6 +8,7 @@ headers:
 exclude-all-by-default: true
 functions:
   include:
+    - sentry_.*
     - sentry_init
     - sentry_options_new
     - sentry_options_set_dsn

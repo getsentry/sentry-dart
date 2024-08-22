@@ -10,51 +10,51 @@ import 'native_frames.dart';
 /// Provide typed methods to access native layer.
 @internal
 abstract class SentryNativeBinding {
-  Future<void> init(SentryFlutterOptions options);
+  FutureOr<void> init(SentryFlutterOptions options);
 
-  Future<void> close();
+  FutureOr<void> close();
 
-  Future<NativeAppStart?> fetchNativeAppStart();
+  FutureOr<NativeAppStart?> fetchNativeAppStart();
 
-  Future<void> captureEnvelope(
+  FutureOr<void> captureEnvelope(
       Uint8List envelopeData, bool containsUnhandledException);
 
-  Future<void> beginNativeFrames();
+  FutureOr<void> beginNativeFrames();
 
-  Future<NativeFrames?> endNativeFrames(SentryId id);
+  FutureOr<NativeFrames?> endNativeFrames(SentryId id);
 
-  Future<void> setUser(SentryUser? user);
+  FutureOr<void> setUser(SentryUser? user);
 
-  Future<void> addBreadcrumb(Breadcrumb breadcrumb);
+  FutureOr<void> addBreadcrumb(Breadcrumb breadcrumb);
 
-  Future<void> clearBreadcrumbs();
+  FutureOr<void> clearBreadcrumbs();
 
-  Future<Map<String, dynamic>?> loadContexts();
+  FutureOr<Map<String, dynamic>?> loadContexts();
 
-  Future<void> setContexts(String key, dynamic value);
+  FutureOr<void> setContexts(String key, dynamic value);
 
-  Future<void> removeContexts(String key);
+  FutureOr<void> removeContexts(String key);
 
-  Future<void> setExtra(String key, dynamic value);
+  FutureOr<void> setExtra(String key, dynamic value);
 
-  Future<void> removeExtra(String key);
+  FutureOr<void> removeExtra(String key);
 
-  Future<void> setTag(String key, String value);
+  FutureOr<void> setTag(String key, String value);
 
-  Future<void> removeTag(String key);
+  FutureOr<void> removeTag(String key);
 
   int? startProfiler(SentryId traceId);
 
-  Future<void> discardProfiler(SentryId traceId);
+  FutureOr<void> discardProfiler(SentryId traceId);
 
-  Future<int?> displayRefreshRate();
+  FutureOr<int?> displayRefreshRate();
 
-  Future<Map<String, dynamic>?> collectProfile(
+  FutureOr<Map<String, dynamic>?> collectProfile(
       SentryId traceId, int startTimeNs, int endTimeNs);
 
-  Future<List<DebugImage>?> loadDebugImages();
+  FutureOr<List<DebugImage>?> loadDebugImages();
 
-  Future<void> pauseAppHangTracking();
+  FutureOr<void> pauseAppHangTracking();
 
-  Future<void> resumeAppHangTracking();
+  FutureOr<void> resumeAppHangTracking();
 }

@@ -247,30 +247,30 @@ mixin SentryFlutter {
 
   /// Pauses the app hang tracking.
   /// Only for iOS and macOS.
-  static Future<void> pauseAppHangTracking() {
+  static Future<void> pauseAppHangTracking() async {
     if (_native == null) {
       // ignore: invalid_use_of_internal_member
       Sentry.currentHub.options.logger(
         SentryLevel.debug,
         'Native integration is not available. Make sure SentryFlutter is initialized before accessing the pauseAppHangTracking API.',
       );
-      return Future<void>.value();
+    } else {
+      await _native!.pauseAppHangTracking();
     }
-    return _native!.pauseAppHangTracking();
   }
 
   /// Resumes the app hang tracking.
   /// Only for iOS and macOS
-  static Future<void> resumeAppHangTracking() {
+  static Future<void> resumeAppHangTracking() async {
     if (_native == null) {
       // ignore: invalid_use_of_internal_member
       Sentry.currentHub.options.logger(
         SentryLevel.debug,
         'Native integration is not available. Make sure SentryFlutter is initialized before accessing the resumeAppHangTracking API.',
       );
-      return Future<void>.value();
+    } else {
+      await _native!.resumeAppHangTracking();
     }
-    return _native!.resumeAppHangTracking();
   }
 
   @internal
