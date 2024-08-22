@@ -92,7 +92,7 @@ Future<void> setupSentry(
       options.maxResponseBodySize = MaxResponseBodySize.always;
       options.navigatorKey = navigatorKey;
 
-      options.experimental.replay.sessionSampleRate = 0.5;
+      options.experimental.replay.sessionSampleRate = 1;
       options.experimental.replay.errorSampleRate = 1;
 
       _isIntegrationTest = isIntegrationTest;

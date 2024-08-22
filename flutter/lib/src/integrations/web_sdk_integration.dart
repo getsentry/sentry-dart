@@ -5,10 +5,10 @@ import '../web/sentry_web_binding.dart';
 
 /// Initializes the Javascript SDK with the given options.
 class WebSdkIntegration implements Integration<SentryFlutterOptions> {
+  WebSdkIntegration(this._webBinding);
+
   final SentryWebBinding _webBinding;
   SentryFlutterOptions? _options;
-
-  WebSdkIntegration(this._webBinding);
 
   @override
   FutureOr<void> call(Hub hub, SentryFlutterOptions options) {

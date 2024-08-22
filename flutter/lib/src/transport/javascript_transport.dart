@@ -2,14 +2,25 @@ import '../../sentry_flutter.dart';
 import '../web/sentry_web_binding.dart';
 
 class JavascriptEnvelopeTransport implements Transport {
-  final SentryWebBinding _binding;
+  JavascriptEnvelopeTransport(this._binding, this._options);
 
-  JavascriptEnvelopeTransport(this._binding);
+  final SentryFlutterOptions _options;
+  final SentryWebBinding _binding;
 
   @override
   Future<SentryId?> send(SentryEnvelope envelope) {
-    _binding.captureEnvelope(envelope);
+    try {
+      _binding.captureEnvelope(envelope);
 
-    return Future.value(SentryId.empty());
+      return Future.value(SentryId.empty());
+    } catch (exception, stackTrace) {
+      _options.logger(
+        SentryLevel.error,
+        'Failed to send envelope',
+        exception: exception,
+        stackTrace: stackTrace,
+      );
+      return Future.value(SentryId.empty());
+    }
   }
 }

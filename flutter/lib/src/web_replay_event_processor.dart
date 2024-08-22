@@ -1,38 +1,47 @@
 import 'dart:async';
 
 import '../sentry_flutter.dart';
-import 'sentry_replay_options.dart';
 import 'web/sentry_web_binding.dart';
 
 class WebReplayEventProcessor implements EventProcessor {
-  WebReplayEventProcessor(this._binding, this._replayOptions);
+  WebReplayEventProcessor(this._binding, this._options);
 
   final SentryWebBinding _binding;
-  final SentryReplayOptions _replayOptions;
-  bool hasFlushedReplay = false;
+  final SentryFlutterOptions _options;
+  bool _hasFlushedReplay = false;
 
   @override
   FutureOr<SentryEvent?> apply(SentryEvent event, Hint hint) async {
     try {
-      if (!_replayOptions.isEnabled) {
+      if (!_options.experimental.replay.isEnabled) {
         return event;
       }
 
-      if (event.exceptions?.isNotEmpty == true && !hasFlushedReplay) {
+      // flush the first occurrence of a replay event
+      // converts buffer to session mode (if the session is set as buffer)
+      // captures the replay immediately for session mode
+      if (event.exceptions?.isNotEmpty == true && !_hasFlushedReplay) {
         await _binding.flushReplay();
-        hasFlushedReplay = true;
+        _hasFlushedReplay = true;
       }
 
       final sentryId = await _binding.getReplayId();
+      if (sentryId == null) {
+        return event;
+      }
 
       event = event.copyWith(tags: {
         ...?event.tags,
         'replayId': sentryId.toString(),
       });
     } catch (exception, stackTrace) {
-      // todo: log
+      _options.logger(
+        SentryLevel.error,
+        'Failed to apply $WebReplayEventProcessor',
+        exception: exception,
+        stackTrace: stackTrace,
+      );
     }
-
     return event;
   }
 }

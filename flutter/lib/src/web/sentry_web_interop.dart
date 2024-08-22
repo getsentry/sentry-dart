@@ -2,10 +2,11 @@ import 'dart:async';
 import 'dart:js_interop';
 
 import 'package:meta/meta.dart';
+import 'sentry_js_bridge.dart';
 import '../../sentry_flutter.dart';
 import '../native/sentry_native_invoker.dart';
-import 'sentry_js_bridge.dart';
 import 'dart:html';
+import 'dart:js_util' as js_util;
 
 import 'sentry_web_binding.dart';
 
@@ -14,13 +15,14 @@ import 'sentry_web_binding.dart';
 class SentryWebInterop
     with SentryNativeSafeInvoker
     implements SentryWebBinding {
+  SentryWebInterop(this._jsBridge, this._options);
+
   @override
   SentryFlutterOptions get options => _options;
   final SentryFlutterOptions _options;
+  final SentryJsApi _jsBridge;
 
-  SentryWebInterop(this._options);
-
-  dynamic replay;
+  SentryJsReplay? _replay;
 
   @override
   Future<void> init(SentryFlutterOptions options) async {
@@ -32,9 +34,8 @@ class SentryWebInterop
             'Sentry scripts are not loaded, cannot initialize Sentry JS SDK.');
       }
 
-      replay = SentryJsBridge.replayIntegration({
+      _replay = _jsBridge.replayIntegration({
         'maskAllText': options.experimental.replay.redactAllText,
-        // todo: is redactAllImages the same as blockAllMedia?
         'blockAllMedia': options.experimental.replay.redactAllImages,
       }.jsify());
 
@@ -44,6 +45,8 @@ class SentryWebInterop
         'environment': options.environment,
         'release': options.release,
         'dist': options.dist,
+        'sampleRate': options.sampleRate,
+        // 'tracesSampleRate': 1.0, needed if we want to enable some auto performance tracing of JS SDK
         'autoSessionTracking': options.enableAutoSessionTracking,
         'attachStacktrace': options.attachStacktrace,
         'maxBreadcrumbs': options.maxBreadcrumbs,
@@ -52,24 +55,22 @@ class SentryWebInterop
         'replaysOnErrorSampleRate': options.experimental.replay.errorSampleRate,
         // using defaultIntegrations ensures the we can control which integrations are added
         'defaultIntegrations': [
-          replay,
-          SentryJsBridge.replayCanvasIntegration(),
+          _replay,
+          _jsBridge.replayCanvasIntegration(),
+          // todo: check which default browser integrations make sense
+          // todo: test if the breadcrumbs make sense
+          _jsBridge.breadcrumbsIntegration(),
+          // not sure if web vitals are correct, needs more testing
+          // _jsBridge.browserTracingIntegration()
         ],
       };
 
       // Remove null values to avoid unnecessary properties in the JS object
       config.removeWhere((key, value) => value == null);
 
-      SentryJsBridge.init(config.jsify());
-
-      // SpotlightBridge.init();
-
-      // await startReplay();
+      _jsBridge.init(config.jsify());
     });
   }
-
-  @override
-  Future<void> captureEvent(SentryEvent event) async {}
 
   @override
   Future<void> captureEnvelope(SentryEnvelope envelope) async {
@@ -83,64 +84,83 @@ class SentryWebInterop
           (await originalObject?.getPayload())
         ]);
 
-        if (originalObject is SentryEvent) {
-          final session = SentryJsBridge.getSession();
+        // We use `sendEnvelope` where sessions are not managed in the JS SDK
+        // so we have to do it manually
+        if (originalObject is SentryEvent &&
+            originalObject.exceptions?.isEmpty == false) {
+          final session = _jsBridge.getSession();
           if (envelope.containsUnhandledException) {
             session?.status = 'crashed'.toJS;
           }
           session?.errors = originalObject.exceptions?.length.toJS ?? 0.toJS;
-          SentryJsBridge.captureSession();
+          _jsBridge.captureSession();
         }
       }
 
       final jsEnvelope = [envelope.header.toJson(), jsItems].jsify();
 
-      SentryJsBridge.getClient().sendEnvelope(jsEnvelope);
+      _jsBridge.getClient().sendEnvelope(jsEnvelope);
     });
   }
 
   @override
   Future<void> close() async {
     return tryCatchSync('close', () {
-      SentryJsBridge.close();
+      _jsBridge.close();
     });
   }
 
   @override
   Future<void> flushReplay() async {
-    replay.flush();
+    return tryCatchAsync('flushReplay', () async {
+      if (_replay == null) {
+        return;
+      }
+      await js_util.promiseToFuture<void>(_replay!.flush());
+    });
   }
 
   @override
-  Future<SentryId> getReplayId() async {
-    final sentryIdString = replay.getReplayId() as String;
-    return SentryId.fromId(sentryIdString);
+  Future<SentryId?> getReplayId() async {
+    return tryCatchAsync('getReplayId', () async {
+      final id = await _replay?.getReplayId()?.toDart;
+      return id == null ? null : SentryId.fromId(id);
+    });
   }
 }
 
 bool _scriptLoaded = false;
-
 Future<void> _loadSentryScripts(SentryFlutterOptions options,
     {bool useIntegrity = true}) async {
   if (_scriptLoaded) return;
 
-  // todo: put this somewhere else so we can auto-update it as well and only enable non minified bundles in dev mode
-  final scripts = [
-    // {
-    //   'url':
-    //       'https://unpkg.com/@spotlightjs/overlay@latest/dist/sentry-spotlight.iife.js',
-    // },
+  // todo: put this somewhere else so we can auto-update it through CI
+  List<Map<String, String>> scripts = [
     {
-      'url': 'https://browser.sentry-cdn.com/8.24.0/bundle.tracing.replay.js',
-      // 'integrity':
-      //     'sha384-eEn/WSvcP5C2h5g0AGe5LCsheNNlNkn/iV8y5zOylmPoOfSyvZ23HBDnOhoB0sdL'
+      'url':
+          'https://browser.sentry-cdn.com/8.24.0/bundle.tracing.replay.min.js',
+      'integrity':
+          'sha384-eEn/WSvcP5C2h5g0AGe5LCsheNNlNkn/iV8y5zOylmPoOfSyvZ23HBDnOhoB0sdL'
     },
     {
-      'url': 'https://browser.sentry-cdn.com/8.24.0/replay-canvas.js',
-      // 'integrity':
-      //     'sha384-gSFCG8IdZobb6PWs7SwuaES/R5PPt+gw4y6N/Kkwlic+1Hzf21EUm5Dg/WbYMxTE'
+      'url': 'https://browser.sentry-cdn.com/8.24.0/replay-canvas.min.js',
+      'integrity':
+          'sha384-gSFCG8IdZobb6PWs7SwuaES/R5PPt+gw4y6N/Kkwlic+1Hzf21EUm5Dg/WbYMxTE'
     },
   ];
+
+  if (options.debug) {
+    options.logger(SentryLevel.debug,
+        'Option `debug` is enabled, loading non-minified Sentry scripts.');
+    scripts = [
+      {
+        'url': 'https://browser.sentry-cdn.com/8.24.0/bundle.tracing.replay.js',
+      },
+      {
+        'url': 'https://browser.sentry-cdn.com/8.24.0/replay-canvas.js',
+      },
+    ];
+  }
 
   try {
     await Future.wait(scripts.map((script) => _loadScript(

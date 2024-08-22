@@ -141,10 +141,8 @@ mixin SentryFlutter {
     }
 
     if (options.platformChecker.isWeb) {
-      options.transport = JavascriptEnvelopeTransport(_webBinding!);
-
-      options.addEventProcessor(
-          WebReplayEventProcessor(_webBinding!, options.experimental.replay));
+      options.transport = JavascriptEnvelopeTransport(_webBinding!, options);
+      options.addEventProcessor(WebReplayEventProcessor(_webBinding!, options));
     }
 
     options.addEventProcessor(FlutterEnricherEventProcessor(options));

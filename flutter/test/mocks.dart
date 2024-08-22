@@ -11,6 +11,7 @@ import 'package:meta/meta.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/renderer/renderer.dart';
 import 'package:sentry_flutter/src/native/sentry_native_binding.dart';
+import 'package:sentry_flutter/src/web/sentry_js_bridge.dart';
 
 import 'mocks.mocks.dart';
 import 'no_such_method_provider.dart';
@@ -47,7 +48,8 @@ ISentrySpan startTransactionShim(
   SentryTransaction,
   SentrySpan,
   MethodChannel,
-  SentryNativeBinding
+  SentryNativeBinding,
+  SentryJsApi,
 ], customMocks: [
   MockSpec<Hub>(fallbackGenerators: {#startTransaction: startTransactionShim})
 ])
