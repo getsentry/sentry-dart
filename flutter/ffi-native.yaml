@@ -9,6 +9,16 @@ exclude-all-by-default: true
 functions:
   include:
     - sentry_init
+    - sentry_options_new
+    - sentry_options_set_dsn
+    - sentry_options_set_debug
+    - sentry_options_set_environment
+    - sentry_options_set_release
+    - sentry_options_set_auto_session_tracking
+    - sentry_options_set_dist
+    - sentry_options_set_max_breadcrumbs
+  rename:
+    'sentry_(.*)': '$1'
 structs:
   dependency-only: opaque
 unions:

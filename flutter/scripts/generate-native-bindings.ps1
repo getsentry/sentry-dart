@@ -13,6 +13,7 @@ try
     $content = $content -replace 'final class', 'class'
     $content | Set-Content -NoNewline -Encoding utf8 $binding
     dart format $binding
+    Get-Item $binding
 }
 finally
 {

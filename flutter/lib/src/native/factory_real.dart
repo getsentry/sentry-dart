@@ -1,6 +1,7 @@
 import 'package:flutter/services.dart';
 
 import '../../sentry_flutter.dart';
+import 'c/sentry_native.dart';
 import 'cocoa/sentry_native_cocoa.dart';
 import 'java/sentry_native_java.dart';
 import 'sentry_native_binding.dart';
@@ -13,6 +14,8 @@ SentryNativeBinding createBinding(SentryFlutterOptions options,
     return SentryNativeCocoa(options, channel);
   } else if (platform.isAndroid) {
     return SentryNativeJava(options, channel);
+  } else if (platform.isWindows) {
+    return SentryNative(options);
   } else {
     return SentryNativeChannel(options, channel);
   }
