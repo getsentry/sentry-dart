@@ -1,9 +1,10 @@
 import 'package:meta/meta.dart';
 
+import '../sentry.dart';
 import 'protocol.dart';
 import 'protocol/access_aware_map.dart';
 
-class SentryUserFeedback {
+class SentryUserFeedback implements SentryEnvelopeItemPayload {
   SentryUserFeedback({
     required this.eventId,
     this.name,
@@ -64,5 +65,10 @@ class SentryUserFeedback {
       comments: comments ?? this.comments,
       unknown: unknown,
     );
+  }
+
+  @override
+  Future<dynamic> getPayload() {
+    return Future.value(toJson());
   }
 }

@@ -216,9 +216,13 @@ class GaugeMetric extends Metric {
 
   @visibleForTesting
   num get last => _last;
+
   num get minimum => _minimum;
+
   num get maximum => _maximum;
+
   num get sum => _sum;
+
   int get count => _count;
 }
 
@@ -288,4 +292,19 @@ enum MetricType {
   final String statsdType;
 
   const MetricType(this.statsdType);
+}
+
+@internal
+class MetricsData implements SentryEnvelopeItemPayload {
+  final Map<int, Iterable<Metric>> buckets;
+
+  MetricsData(this.buckets);
+
+  @override
+  Future<dynamic> getPayload() {
+    return Future.value(buckets.map((key, value) {
+      final metrics = value.map((metric) => metric.encodeToStatsd(key));
+      return MapEntry(key.toString(), metrics.toList());
+    }));
+  }
 }

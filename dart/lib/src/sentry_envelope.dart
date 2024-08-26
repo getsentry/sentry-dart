@@ -110,7 +110,7 @@ class SentryEnvelope {
         sdkVersion,
         dsn: dsn,
       ),
-      [SentryEnvelopeItem.fromMetrics(metricsBuckets)],
+      [SentryEnvelopeItem.fromMetrics(MetricsData(metricsBuckets))],
     );
   }
 

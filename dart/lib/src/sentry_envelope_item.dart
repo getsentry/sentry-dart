@@ -10,11 +10,12 @@ import 'sentry_item_type.dart';
 import 'sentry_envelope_item_header.dart';
 import 'sentry_user_feedback.dart';
 
+abstract class SentryEnvelopeItemPayload {
+  Future<dynamic> getPayload();
+}
+
 /// Item holding header information and JSON encoded data.
 class SentryEnvelopeItem {
-  /// The original, non-encoded object, used when direct access to the source data is needed.
-  Object? originalObject;
-
   SentryEnvelopeItem(this.header, this.dataFactory, {this.originalObject});
 
   /// Creates a [SentryEnvelopeItem] which sends [SentryTransaction].
@@ -91,12 +92,12 @@ class SentryEnvelopeItem {
   }
 
   /// Creates a [SentryEnvelopeItem] which holds several [Metric] data.
-  factory SentryEnvelopeItem.fromMetrics(Map<int, Iterable<Metric>> buckets) {
+  factory SentryEnvelopeItem.fromMetrics(MetricsData metricsData) {
     final cachedItem = _CachedItem(() async {
       final statsd = StringBuffer();
       // Encode all metrics of a bucket in statsd format, using the bucket key,
       //  which is the timestamp of the bucket.
-      for (final bucket in buckets.entries) {
+      for (final bucket in metricsData.buckets.entries) {
         final encodedMetrics =
             bucket.value.map((metric) => metric.encodeToStatsd(bucket.key));
         statsd.write(encodedMetrics.join('\n'));
@@ -110,8 +111,11 @@ class SentryEnvelopeItem {
       contentType: 'application/octet-stream',
     );
     return SentryEnvelopeItem(header, cachedItem.getData,
-        originalObject: buckets);
+        originalObject: metricsData);
   }
+
+  /// The original, non-encoded object, used when direct access to the source data is needed.
+  SentryEnvelopeItemPayload? originalObject;
 
   /// Header with info about type and length of data in bytes.
   final SentryEnvelopeItemHeader header;
