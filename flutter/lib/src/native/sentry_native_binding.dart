@@ -16,6 +16,8 @@ abstract class SentryNativeBinding {
 
   FutureOr<NativeAppStart?> fetchNativeAppStart();
 
+  bool get supportsCaptureEnvelope;
+
   FutureOr<void> captureEnvelope(
       Uint8List envelopeData, bool containsUnhandledException);
 
@@ -28,6 +30,8 @@ abstract class SentryNativeBinding {
   FutureOr<void> addBreadcrumb(Breadcrumb breadcrumb);
 
   FutureOr<void> clearBreadcrumbs();
+
+  bool get supportsLoadContexts;
 
   FutureOr<Map<String, dynamic>?> loadContexts();
 

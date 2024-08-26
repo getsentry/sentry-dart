@@ -73,9 +73,11 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
 
   FutureOr<NativeAppStart?> fetchNativeAppStart() => null;
 
+  bool get supportsCaptureEnvelope => false;
+
   FutureOr<void> captureEnvelope(
       Uint8List envelopeData, bool containsUnhandledException) {
-    throw UnimplementedError();
+    throw UnsupportedError('$SentryNative.captureEnvelope() is not suppurted');
   }
 
   FutureOr<void> beginNativeFrames() {}
@@ -103,6 +105,8 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   FutureOr<void> clearBreadcrumbs() {
     _logNotSupported('clearing breadcrumbs');
   }
+
+  bool get supportsLoadContexts => false;
 
   FutureOr<Map<String, dynamic>?> loadContexts() {
     _logNotSupported('loading contexts');

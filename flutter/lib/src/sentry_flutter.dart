@@ -125,7 +125,9 @@ mixin SentryFlutter {
 
     // Not all platforms have a native integration.
     if (_native != null) {
-      options.transport = FileSystemTransport(_native!, options);
+      if (_native!.supportsCaptureEnvelope) {
+        options.transport = FileSystemTransport(_native!, options);
+      }
       options.addScopeObserver(NativeScopeObserver(_native!));
     }
 
@@ -179,7 +181,9 @@ mixin SentryFlutter {
     final native = _native;
     if (native != null) {
       integrations.add(NativeSdkIntegration(native));
-      integrations.add(LoadContextsIntegration(native));
+      if (native.supportsLoadContexts) {
+        integrations.add(LoadContextsIntegration(native));
+      }
       integrations.add(LoadImageListIntegration(native));
     }
 

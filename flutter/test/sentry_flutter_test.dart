@@ -243,7 +243,7 @@ void main() {
 
       testScopeObserver(
           options: sentryFlutterOptions!,
-          expectedHasNativeScopeObserver: false);
+          expectedHasNativeScopeObserver: true);
 
       testConfiguration(
         integrations: integrations,
@@ -264,7 +264,7 @@ void main() {
           beforeIntegration: WidgetsFlutterBindingIntegration,
           afterIntegration: OnErrorIntegration);
 
-      expect(SentryFlutter.native, isNull);
+      expect(SentryFlutter.native, isNotNull);
       expect(Sentry.currentHub.profilerFactory, isNull);
 
       await Sentry.close();

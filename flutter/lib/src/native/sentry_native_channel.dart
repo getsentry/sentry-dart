@@ -80,12 +80,16 @@ class SentryNativeChannel
     return (json != null) ? NativeAppStart.fromJson(json) : null;
   }
 
+  bool get supportsCaptureEnvelope => true;
+
   @override
   Future<void> captureEnvelope(
       Uint8List envelopeData, bool containsUnhandledException) {
     return _channel.invokeMethod(
         'captureEnvelope', [envelopeData, containsUnhandledException]);
   }
+
+  bool get supportsLoadContexts => true;
 
   @override
   Future<Map<String, dynamic>?> loadContexts() =>
