@@ -101,156 +101,85 @@ void main() {
     sut.resumeAppHangTracking();
   });
 
-  // test('setUser', () async {
-  //   final user = SentryUser(
-  //     id: "fixture-id",
-  //     data: {'object': Object()},
-  //   );
+  test('setUser', () async {
+    final user = SentryUser(
+      id: "fixture-id",
+      username: 'username',
+      email: 'mail@domain.tld',
+      ipAddress: '1.2.3.4',
+      name: 'User Name',
+      data: {
+        'str': 'foo-bar',
+        'double': 1.0,
+        'int': 1,
+        'int64': 0x7FFFFFFF + 1,
+        'boo': true,
+        'inner-map': {'str': 'inner'},
+        'unsupported': Object()
+      },
+    );
 
-  //   await sut.setUser(user);
+    await sut.setUser(user);
+  });
 
-  //   verify(channel.invokeMethod('setUser', {'user': normalizedUser.toJson()}));
-  // });
+  test('addBreadcrumb', () async {
+    final breadcrumb = Breadcrumb(
+      type: 'type',
+      message: 'message',
+      category: 'category',
+    );
+    await sut.addBreadcrumb(breadcrumb);
+  });
 
-  //   test('addBreadcrumb', () async {
-  //     final breadcrumb = Breadcrumb(
-  //       data: {'object': Object()},
-  //     );
-  //     final normalizedBreadcrumb = breadcrumb.copyWith(
-  //         data: MethodChannelHelper.normalizeMap(breadcrumb.data));
+  test('clearBreadcrumbs', () async {
+    await sut.clearBreadcrumbs();
+  });
 
-  //     when(channel.invokeMethod(
-  //             'addBreadcrumb', {'breadcrumb': normalizedBreadcrumb.toJson()}))
-  //         .thenAnswer((_) => Future.value());
+  test('displayRefreshRate', () async {
+    expect(sut.displayRefreshRate(), isNull);
+  });
 
-  //     await sut.addBreadcrumb(breadcrumb);
+  test('setContexts', () async {
+    final value = {'object': Object()};
+    await sut.setContexts('fixture-key', value);
+  });
 
-  //     verify(channel.invokeMethod(
-  //         'addBreadcrumb', {'breadcrumb': normalizedBreadcrumb.toJson()}));
-  //   });
+  test('removeContexts', () async {
+    await sut.removeContexts('fixture-key');
+  });
 
-  //   test('clearBreadcrumbs', () async {
-  //     when(channel.invokeMethod('clearBreadcrumbs'))
-  //         .thenAnswer((_) => Future.value());
+  test('setExtra', () async {
+    final value = {'object': Object()};
+    await sut.setExtra('fixture-key', value);
+  });
 
-  //     await sut.clearBreadcrumbs();
+  test('removeExtra', () async {
+    await sut.removeExtra('fixture-key');
+  });
 
-  //     verify(channel.invokeMethod('clearBreadcrumbs'));
-  //   });
+  test('setTag', () async {
+    await sut.setTag('fixture-key', 'fixture-value');
+  });
 
-  //   test('setContexts', () async {
-  //     final value = {'object': Object()};
-  //     final normalizedValue = MethodChannelHelper.normalize(value);
-  //     when(channel.invokeMethod('setContexts', {
-  //       'key': 'fixture-key',
-  //       'value': normalizedValue
-  //     })).thenAnswer((_) => Future.value());
+  test('removeTag', () async {
+    await sut.removeTag('fixture-key');
+  });
 
-  //     await sut.setContexts('fixture-key', value);
+  test('startProfiler', () {
+    expect(() => sut.startProfiler(SentryId.newId()), throwsUnsupportedError);
+  });
 
-  //     verify(channel.invokeMethod(
-  //         'setContexts', {'key': 'fixture-key', 'value': normalizedValue}));
-  //   });
+  test('discardProfiler', () async {
+    expect(() => sut.discardProfiler(SentryId.newId()), throwsUnsupportedError);
+  });
 
-  //   test('removeContexts', () async {
-  //     when(channel.invokeMethod('removeContexts', {'key': 'fixture-key'}))
-  //         .thenAnswer((_) => Future.value());
-
-  //     await sut.removeContexts('fixture-key');
-
-  //     verify(channel.invokeMethod('removeContexts', {'key': 'fixture-key'}));
-  //   });
-
-  //   test('setExtra', () async {
-  //     final value = {'object': Object()};
-  //     final normalizedValue = MethodChannelHelper.normalize(value);
-  //     when(channel.invokeMethod(
-  //             'setExtra', {'key': 'fixture-key', 'value': normalizedValue}))
-  //         .thenAnswer((_) => Future.value());
-
-  //     await sut.setExtra('fixture-key', value);
-
-  //     verify(channel.invokeMethod(
-  //         'setExtra', {'key': 'fixture-key', 'value': normalizedValue}));
-  //   });
-
-  //   test('removeExtra', () async {
-  //     when(channel.invokeMethod('removeExtra', {'key': 'fixture-key'}))
-  //         .thenAnswer((_) => Future.value());
-
-  //     await sut.removeExtra('fixture-key');
-
-  //     verify(channel.invokeMethod('removeExtra', {'key': 'fixture-key'}));
-  //   });
-
-  //   test('setTag', () async {
-  //     when(channel.invokeMethod(
-  //             'setTag', {'key': 'fixture-key', 'value': 'fixture-value'}))
-  //         .thenAnswer((_) => Future.value());
-
-  //     await sut.setTag('fixture-key', 'fixture-value');
-
-  //     verify(channel.invokeMethod(
-  //         'setTag', {'key': 'fixture-key', 'value': 'fixture-value'}));
-  //   });
-
-  //   test('removeTag', () async {
-  //     when(channel.invokeMethod('removeTag', {'key': 'fixture-key'}))
-  //         .thenAnswer((_) => Future.value());
-
-  //     await sut.removeTag('fixture-key');
-
-  //     verify(channel.invokeMethod('removeTag', {'key': 'fixture-key'}));
-  //   });
-
-  //   test('startProfiler', () {
-  //     late Matcher matcher;
-  //     if (mockPlatform.isAndroid) {
-  //       matcher = throwsUnsupportedError;
-  //     } else if (mockPlatform.isIOS || mockPlatform.isMacOS) {
-  //       if (platform.instance.isMacOS) {
-  //         matcher = throwsA(predicate((e) =>
-  //             e is Exception &&
-  //             e.toString().contains('Failed to load Objective-C class')));
-  //       } else {
-  //         matcher = throwsA(predicate((e) =>
-  //             e is ArgumentError &&
-  //             e.toString().contains('Failed to lookup symbol')));
-  //       }
-  //     }
-  //     expect(() => sut.startProfiler(SentryId.newId()), matcher);
-
-  //     verifyZeroInteractions(channel);
-  //   });
-
-  //   test('discardProfiler', () async {
-  //     final traceId = SentryId.newId();
-  //     when(channel.invokeMethod('discardProfiler', traceId.toString()))
-  //         .thenAnswer((_) async {});
-
-  //     await sut.discardProfiler(traceId);
-
-  //     verify(channel.invokeMethod('discardProfiler', traceId.toString()));
-  //   });
-
-  //   test('collectProfile', () async {
-  //     final traceId = SentryId.newId();
-  //     const startTime = 42;
-  //     const endTime = 50;
-  //     when(channel.invokeMethod('collectProfile', {
-  //       'traceId': traceId.toString(),
-  //       'startTime': startTime,
-  //       'endTime': endTime,
-  //     })).thenAnswer((_) async => {});
-
-  //     await sut.collectProfile(traceId, startTime, endTime);
-
-  //     verify(channel.invokeMethod('collectProfile', {
-  //       'traceId': traceId.toString(),
-  //       'startTime': startTime,
-  //       'endTime': endTime,
-  //     }));
-  //   });
+  test('collectProfile', () async {
+    final traceId = SentryId.newId();
+    const startTime = 42;
+    const endTime = 50;
+    expect(() => sut.collectProfile(traceId, startTime, endTime),
+        throwsUnsupportedError);
+  });
 
   //   test('captureEnvelope', () async {
   //     final data = Uint8List.fromList([1, 2, 3]);
@@ -265,20 +194,9 @@ void main() {
   //     expect(captured, data);
   //   });
 
-  //   test('loadContexts', () async {
-  //     when(channel.invokeMethod('loadContexts'))
-  //         .thenAnswer((invocation) async => {
-  //               'foo': [1, 2, 3],
-  //               'bar': {'a': 'b'},
-  //             });
-
-  //     final data = await sut.loadContexts();
-
-  //     expect(data, {
-  //       'foo': [1, 2, 3],
-  //       'bar': {'a': 'b'},
-  //     });
-  //   });
+  test('loadContexts', () async {
+    expect(await sut.loadContexts(), isNull);
+  });
 
   //   test('loadDebugImages', () async {
   //     final json = [

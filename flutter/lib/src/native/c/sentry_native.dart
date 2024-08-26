@@ -23,6 +23,9 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
 
   SentryNative(this.options);
 
+  void _logNotSupported(String operation) => options.logger(
+      SentryLevel.debug, 'SentryNative: $operation is not supported');
+
   FutureOr<void> init(SentryFlutterOptions options) {
     assert(this.options == options);
 
@@ -84,72 +87,101 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
       tryCatchSync('remove_user', native.remove_user);
     } else {
       tryCatchSync('set_user', () {
-        // see https://develop.sentry.dev/sdk/event-payloads/user/
-        var cUser = native.value_new_object();
-        user.id?.toNativeValue(cUser, "id");
-        user.username?.toNativeValue(cUser, "username");
-        user.email?.toNativeValue(cUser, "email");
-        user.ipAddress?.toNativeValue(cUser, "ip_address");
-        user.name?.toNativeValue(cUser, "name");
-        // TODO
-        // user.data
-        // user.geo
+        var cUser = user.toJson().toNativeValue(options.logger);
         native.set_user(cUser);
       });
     }
   }
 
   FutureOr<void> addBreadcrumb(Breadcrumb breadcrumb) {
-    throw UnimplementedError();
+    tryCatchSync('add_breadcrumb', () {
+      var cBreadcrumb = breadcrumb.toJson().toNativeValue(options.logger);
+      native.add_breadcrumb(cBreadcrumb);
+    });
   }
 
   FutureOr<void> clearBreadcrumbs() {
-    throw UnimplementedError();
+    _logNotSupported('clearing breadcrumbs');
   }
 
   FutureOr<Map<String, dynamic>?> loadContexts() {
-    throw UnimplementedError();
+    _logNotSupported('loading contexts');
+    return null;
   }
 
   FutureOr<void> setContexts(String key, dynamic value) {
-    throw UnimplementedError();
+    tryCatchSync('set_context', () {
+      final cValue = dynamicToNativeValue(value, options.logger);
+      if (cValue != null) {
+        final cKey = key.toNativeUtf8();
+        native.set_context(cKey.cast(), cValue);
+        malloc.free(cKey);
+      } else {
+        options.logger(SentryLevel.warning,
+            'SentryNative: failed to set context $key - value couldn\'t be converted to native');
+      }
+    });
   }
 
   FutureOr<void> removeContexts(String key) {
-    throw UnimplementedError();
+    tryCatchSync('remove_context', () {
+      final cKey = key.toNativeUtf8();
+      native.remove_context(cKey.cast());
+      malloc.free(cKey);
+    });
   }
 
   FutureOr<void> setExtra(String key, dynamic value) {
-    throw UnimplementedError();
+    tryCatchSync('set_extra', () {
+      final cValue = dynamicToNativeValue(value, options.logger);
+      if (cValue != null) {
+        final cKey = key.toNativeUtf8();
+        native.set_extra(cKey.cast(), cValue);
+        malloc.free(cKey);
+      } else {
+        options.logger(SentryLevel.warning,
+            'SentryNative: failed to set extra $key - value couldn\'t be converted to native');
+      }
+    });
   }
 
   FutureOr<void> removeExtra(String key) {
-    throw UnimplementedError();
+    tryCatchSync('remove_extra', () {
+      final cKey = key.toNativeUtf8();
+      native.remove_extra(cKey.cast());
+      malloc.free(cKey);
+    });
   }
 
   FutureOr<void> setTag(String key, String value) {
-    throw UnimplementedError();
+    tryCatchSync('set_tag', () {
+      final c = FreeableFactory();
+      native.set_tag(c.str(key), c.str(value));
+      c.freeAll();
+    });
   }
 
   FutureOr<void> removeTag(String key) {
-    throw UnimplementedError();
+    tryCatchSync('set_tag', () {
+      final cKey = key.toNativeUtf8();
+      native.remove_tag(cKey.cast());
+      malloc.free(cKey);
+    });
   }
 
-  int? startProfiler(SentryId traceId) {
-    throw UnimplementedError();
-  }
+  int? startProfiler(SentryId traceId) =>
+      throw UnsupportedError("Not supported on this platform");
 
-  FutureOr<void> discardProfiler(SentryId traceId) {
-    throw UnimplementedError();
-  }
-
-  FutureOr<int?> displayRefreshRate() {
-    throw UnimplementedError();
-  }
+  FutureOr<void> discardProfiler(SentryId traceId) =>
+      throw UnsupportedError("Not supported on this platform");
 
   FutureOr<Map<String, dynamic>?> collectProfile(
-      SentryId traceId, int startTimeNs, int endTimeNs) {
-    throw UnimplementedError();
+          SentryId traceId, int startTimeNs, int endTimeNs) =>
+      throw UnsupportedError("Not supported on this platform");
+
+  FutureOr<int?> displayRefreshRate() {
+    _logNotSupported('collecting display refresh rate');
+    return null;
   }
 
   FutureOr<List<DebugImage>?> loadDebugImages() {
@@ -161,13 +193,90 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   FutureOr<void> resumeAppHangTracking() {}
 }
 
-extension on String {
-  void toNativeValue(binding.sentry_value_u obj, String key) {
+extension on binding.sentry_value_u {
+  void setNativeValue(String key, binding.sentry_value_u? value) {
     final cKey = key.toNativeUtf8();
-    final cValue = this.toNativeUtf8();
-    SentryNative.native.value_set_by_key(
-        obj, cKey.cast(), SentryNative.native.value_new_string(cValue.cast()));
+    if (value == null) {
+      SentryNative.native.value_remove_by_key(this, cKey.cast());
+    } else {
+      SentryNative.native.value_set_by_key(this, cKey.cast(), value);
+    }
     malloc.free(cKey);
+  }
+}
+
+binding.sentry_value_u? dynamicToNativeValue(
+    dynamic value, SentryLogger logger) {
+  if (value is String) {
+    return value.toNativeValue();
+  } else if (value is int) {
+    return value.toNativeValue();
+  } else if (value is double) {
+    return value.toNativeValue();
+  } else if (value is bool) {
+    return value.toNativeValue();
+  } else if (value is Map<String, dynamic>) {
+    return value.toNativeValue(logger);
+  } else if (value is List) {
+    return value.toNativeValue(logger);
+  } else if (value == null) {
+    return SentryNative.native.value_new_null();
+  } else {
+    logger(SentryLevel.warning,
+        'SentryNative: unsupported data for for conversion: ${value.runtimeType} ($value)');
+    return null;
+  }
+}
+
+extension on String {
+  binding.sentry_value_u toNativeValue() {
+    final cValue = this.toNativeUtf8();
+    final result = SentryNative.native.value_new_string(cValue.cast());
     malloc.free(cValue);
+    return result;
+  }
+}
+
+extension on int {
+  binding.sentry_value_u toNativeValue() {
+    if (this > 0x7FFFFFFF) {
+      return this.toString().toNativeValue();
+    } else {
+      return SentryNative.native.value_new_int32(this);
+    }
+  }
+}
+
+extension on double {
+  binding.sentry_value_u toNativeValue() =>
+      SentryNative.native.value_new_double(this);
+}
+
+extension on bool {
+  binding.sentry_value_u toNativeValue() =>
+      SentryNative.native.value_new_bool(this ? 1 : 0);
+}
+
+extension on Map<String, dynamic> {
+  binding.sentry_value_u toNativeValue(SentryLogger logger) {
+    final cObject = SentryNative.native.value_new_object();
+    for (final entry in entries) {
+      final cValue = dynamicToNativeValue(entry.value, logger);
+      cObject.setNativeValue(entry.key, cValue);
+    }
+    return cObject;
+  }
+}
+
+extension on List<dynamic> {
+  binding.sentry_value_u toNativeValue(SentryLogger logger) {
+    final cObject = SentryNative.native.value_new_list();
+    for (final value in this) {
+      final cValue = dynamicToNativeValue(value, logger);
+      if (cValue != null) {
+        SentryNative.native.value_append(cObject, cValue);
+      }
+    }
+    return cObject;
   }
 }
