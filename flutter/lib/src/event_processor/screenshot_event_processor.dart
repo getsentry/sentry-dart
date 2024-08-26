@@ -88,8 +88,9 @@ class ScreenshotEventProcessor implements EventProcessor {
       final renderObject =
           sentryScreenshotWidgetGlobalKey.currentContext?.findRenderObject();
       if (renderObject is RenderRepaintBoundary) {
-        // ignore: deprecated_member_use
-        final pixelRatio = window.devicePixelRatio;
+        final pixelRatio =
+            widget.View.of(sentryScreenshotWidgetGlobalKey.currentContext!)
+                .devicePixelRatio;
         var imageResult = _getImage(renderObject, pixelRatio);
         Image image;
         if (imageResult is Future<Image>) {
