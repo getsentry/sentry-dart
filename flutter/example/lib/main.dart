@@ -562,6 +562,14 @@ class MainScaffold extends StatelessWidget {
             if (UniversalPlatform.isIOS || UniversalPlatform.isMacOS)
               const CocoaExample(),
             if (UniversalPlatform.isAndroid) const AndroidExample(),
+            // ignore: invalid_use_of_internal_member
+            if (SentryFlutter.native != null)
+              ElevatedButton(
+                onPressed: () async {
+                  SentryFlutter.nativeCrash();
+                },
+                child: const Text('Sentry.nativeCrash'),
+              ),
           ].map((widget) {
             if (kIsWeb) {
               // Add vertical padding to web so the tooltip doesn't obstruct the clicking of the button below.
@@ -758,12 +766,6 @@ class AndroidExample extends StatelessWidget {
         },
         child: const Text('Platform exception'),
       ),
-      ElevatedButton(
-        onPressed: () async {
-          SentryFlutter.nativeCrash();
-        },
-        child: const Text('Sentry.nativeCrash'),
-      ),
     ]);
   }
 }
@@ -875,12 +877,6 @@ class CocoaExample extends StatelessWidget {
             await execute('crash');
           },
           child: const Text('Objective-C SEGFAULT'),
-        ),
-        ElevatedButton(
-          onPressed: () async {
-            SentryFlutter.nativeCrash();
-          },
-          child: const Text('Sentry.nativeCrash'),
         ),
       ],
     );

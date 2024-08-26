@@ -218,6 +218,10 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   FutureOr<void> pauseAppHangTracking() {}
 
   FutureOr<void> resumeAppHangTracking() {}
+
+  FutureOr<void> nativeCrash() {
+    Pointer.fromAddress(1).cast<Utf8>().toDartString();
+  }
 }
 
 extension on binding.sentry_value_u {
