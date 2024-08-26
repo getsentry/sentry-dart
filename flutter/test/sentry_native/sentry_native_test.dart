@@ -13,45 +13,13 @@ import 'package:sentry_flutter/src/native/factory.dart';
 
 import '../mocks.dart';
 
-/// Runs [command] with command's stdout and stderr being forwrarded to
-/// test runner's respective streams. It buffers stdout and returns it.
-///
-/// Returns [_CommandResult] with exitCode and stdout as a single sting
-Future<void> _exec(String executable, List<String> arguments) async {
-  final process = await Process.start(executable, arguments);
-
-  // forward standard streams
-  unawaited(stderr.addStream(process.stderr));
-  unawaited(stdout.addStream(process.stdout));
-
-  int exitCode = await process.exitCode;
-  if (exitCode != 0) {
-    throw Exception(
-        "$executable ${arguments.join(' ')} failed with exit code $exitCode");
-  }
-}
-
 void main() {
-  const nativeTestRoot = 'temp/native-test';
   if (Directory.current.path.endsWith('/test')) {
     Directory.current = Directory.current.parent;
   }
 
   setUpAll(() async {
-    // Compile sentry-native using CMake, as if it was part of a Flutter app.
-    final cmakeBuildDir = '$nativeTestRoot/build';
-    final cmakeConfDir = '$nativeTestRoot/conf';
-    Directory(cmakeConfDir).createSync(recursive: true);
-    File('$cmakeConfDir/CMakeLists.txt').writeAsStringSync('''
-cmake_minimum_required(VERSION 3.14)
-project(sentry-native-flutter-test)
-add_subdirectory(../../../${platform.instance.operatingSystem} plugin)
-add_library(\${CMAKE_PROJECT_NAME} INTERFACE)
-target_link_libraries(\${CMAKE_PROJECT_NAME} INTERFACE \${sentry_flutter_bundled_libraries})
-''');
-    await _exec('cmake', ['-B', cmakeBuildDir, cmakeConfDir]);
-    await _exec('cmake', ['--build', cmakeBuildDir]);
-    Directory.current = '$cmakeBuildDir/_deps/sentry-native-build/Debug/';
+    Directory.current = await _buildSentryNative('temp/native-test');
   });
 
   late SentryNative sut;
@@ -101,6 +69,17 @@ target_link_libraries(\${CMAKE_PROJECT_NAME} INTERFACE \${sentry_flutter_bundled
     } finally {
       SentryNative.native.options_free(cOptions);
     }
+  });
+
+  test('SDK version', () {
+    expect(_configuredSentryNativeVersion.length, greaterThanOrEqualTo(5));
+    expect(SentryNative.native.sdk_version().cast<Utf8>().toDartString(),
+        _configuredSentryNativeVersion);
+  });
+
+  test('SDK name', () {
+    expect(SentryNative.native.sdk_name().cast<Utf8>().toDartString(),
+        'sentry.native.flutter');
   });
 
   test('init', () async {
@@ -322,3 +301,61 @@ target_link_libraries(\${CMAKE_PROJECT_NAME} INTERFACE \${sentry_flutter_bundled
   //     expect(data?.map((v) => v.toJson()), json);
   //   });
 }
+
+/// Runs [command] with command's stdout and stderr being forwrarded to
+/// test runner's respective streams. It buffers stdout and returns it.
+///
+/// Returns [_CommandResult] with exitCode and stdout as a single sting
+Future<void> _exec(String executable, List<String> arguments) async {
+  final process = await Process.start(executable, arguments);
+
+  // forward standard streams
+  unawaited(stderr.addStream(process.stderr));
+  unawaited(stdout.addStream(process.stdout));
+
+  int exitCode = await process.exitCode;
+  if (exitCode != 0) {
+    throw Exception(
+        "$executable ${arguments.join(' ')} failed with exit code $exitCode");
+  }
+}
+
+/// Compile sentry-native using CMake, as if it was part of a Flutter app.
+/// Returns the directory containing built libraries
+Future<String> _buildSentryNative(String nativeTestRoot) async {
+  final cmakeBuildDir = '$nativeTestRoot/build';
+  final cmakeConfDir = '$nativeTestRoot/conf';
+  final buildOutputDir = '$cmakeBuildDir/_deps/sentry-native-build/Debug/';
+
+  if (!_builtVersionIsExpected(buildOutputDir)) {
+    Directory(cmakeConfDir).createSync(recursive: true);
+    File('$cmakeConfDir/CMakeLists.txt').writeAsStringSync('''
+cmake_minimum_required(VERSION 3.14)
+project(sentry-native-flutter-test)
+add_subdirectory(../../../${platform.instance.operatingSystem} plugin)
+add_library(\${CMAKE_PROJECT_NAME} INTERFACE)
+target_link_libraries(\${CMAKE_PROJECT_NAME} INTERFACE \${sentry_flutter_bundled_libraries})
+''');
+    await _exec('cmake', ['-B', cmakeBuildDir, cmakeConfDir]);
+    await _exec('cmake', ['--build', cmakeBuildDir]);
+  }
+  return buildOutputDir;
+}
+
+bool _builtVersionIsExpected(String buildOutputDir) {
+  final buildCmake = File('$buildOutputDir/../sentry-config-version.cmake');
+  if (!buildCmake.existsSync()) return false;
+
+  if (!buildCmake
+      .readAsStringSync()
+      .contains('set(PACKAGE_VERSION "$_configuredSentryNativeVersion")')) {
+    return false;
+  }
+
+  return File('$buildOutputDir/sentry.dll').existsSync();
+}
+
+late final _configuredSentryNativeVersion = File('sentry-native/CMakeCache.txt')
+    .readAsLinesSync()
+    .map((line) => line.startsWith('version=') ? line.substring(8) : null)
+    .firstWhere((line) => line != null)!;

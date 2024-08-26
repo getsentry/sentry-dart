@@ -19,6 +19,8 @@ functions:
     - sentry_options_set_dist
     - sentry_options_set_max_breadcrumbs
     # For tests only:
+    - sentry_sdk_version
+    - sentry_sdk_name
     - sentry_options_free
     - sentry_options_get_dsn
     - sentry_options_get_debug
