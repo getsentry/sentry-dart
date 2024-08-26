@@ -198,26 +198,22 @@ void main() {
     expect(await sut.loadContexts(), isNull);
   });
 
-  //   test('loadDebugImages', () async {
-  //     final json = [
-  //       {
-  //         'code_file': '/apex/com.android.art/javalib/arm64/boot.oat',
-  //         'code_id': '13577ce71153c228ecf0eb73fc39f45010d487f8',
-  //         'image_addr': '0x6f80b000',
-  //         'image_size': 3092480,
-  //         'type': 'elf',
-  //         'debug_id': 'e77c5713-5311-28c2-ecf0-eb73fc39f450',
-  //         'debug_file': 'test'
-  //       }
-  //     ];
-
-  //     when(channel.invokeMethod('loadImageList'))
-  //         .thenAnswer((invocation) async => json);
-
-  //     final data = await sut.loadDebugImages();
-
-  //     expect(data?.map((v) => v.toJson()), json);
-  //   });
+  test('loadDebugImages', () async {
+    final list = await sut.loadDebugImages();
+    expect(list, isNotEmpty);
+    expect(list![0].type, 'pe');
+    expect(list[0].debugId!.length, greaterThan(30));
+    expect(list[0].debugFile, isNotEmpty);
+    expect(list[0].imageSize, greaterThan(0));
+    expect(list[0].imageAddr, startsWith('0x'));
+    expect(list[0].imageAddr?.length, greaterThan(2));
+    expect(list[0].codeId!.length, greaterThan(10));
+    expect(list[0].codeFile, isNotEmpty);
+    expect(
+      File(list[0].codeFile!),
+      (File file) => file.existsSync(),
+    );
+  });
 }
 
 /// Runs [command] with command's stdout and stderr being forwrarded to

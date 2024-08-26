@@ -184,9 +184,32 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
     return null;
   }
 
-  FutureOr<List<DebugImage>?> loadDebugImages() {
-    throw UnimplementedError();
-  }
+  FutureOr<List<DebugImage>?> loadDebugImages() =>
+      tryCatchSync('get_module_list', () {
+        final cImages = native.get_modules_list();
+        try {
+          if (native.value_get_type(cImages) !=
+              binding.sentry_value_type_t.SENTRY_VALUE_TYPE_LIST) {
+            return null;
+          }
+
+          return List<DebugImage>.generate(native.value_get_length(cImages),
+              (index) {
+            final cImage = native.value_get_by_index(cImages, index);
+            return DebugImage(
+              type: cImage.get('type').castPrimitive(options.logger) ?? '',
+              imageAddr: cImage.get('image_addr').castPrimitive(options.logger),
+              imageSize: cImage.get('image_size').castPrimitive(options.logger),
+              codeFile: cImage.get('code_file').castPrimitive(options.logger),
+              debugId: cImage.get('debug_id').castPrimitive(options.logger),
+              debugFile: cImage.get('debug_file').castPrimitive(options.logger),
+              codeId: cImage.get('code_id').castPrimitive(options.logger),
+            );
+          });
+        } finally {
+          native.value_decref(cImages);
+        }
+      });
 
   FutureOr<void> pauseAppHangTracking() {}
 
@@ -202,6 +225,41 @@ extension on binding.sentry_value_u {
       SentryNative.native.value_set_by_key(this, cKey.cast(), value);
     }
     malloc.free(cKey);
+  }
+
+  binding.sentry_value_u get(String key) {
+    final cKey = key.toNativeUtf8();
+    try {
+      return SentryNative.native.value_get_by_key(this, cKey.cast());
+    } finally {
+      malloc.free(cKey);
+    }
+  }
+
+  T? castPrimitive<T>(SentryLogger logger) {
+    if (SentryNative.native.value_is_null(this) == 1) {
+      return null;
+    }
+    final type = SentryNative.native.value_get_type(this);
+    switch (type) {
+      case binding.sentry_value_type_t.SENTRY_VALUE_TYPE_NULL:
+        return null;
+      case binding.sentry_value_type_t.SENTRY_VALUE_TYPE_BOOL:
+        return (SentryNative.native.value_is_true(this) == 1) as T;
+      case binding.sentry_value_type_t.SENTRY_VALUE_TYPE_INT32:
+        return SentryNative.native.value_as_int32(this) as T;
+      case binding.sentry_value_type_t.SENTRY_VALUE_TYPE_DOUBLE:
+        return SentryNative.native.value_as_double(this) as T;
+      case binding.sentry_value_type_t.SENTRY_VALUE_TYPE_STRING:
+        return SentryNative.native
+            .value_as_string(this)
+            .cast<Utf8>()
+            .toDartString() as T;
+      default:
+        logger(SentryLevel.warning,
+            'SentryNative: cannot read native value type: $type');
+        return null;
+    }
   }
 }
 
