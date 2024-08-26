@@ -11,3 +11,7 @@ build/
 
 .vscode/launch.json
 cocoa_bindings_temp
+
+# ignore FVM - Flutter Version Management(https://fvm.app/)
+.fvm
+.fvmrc
