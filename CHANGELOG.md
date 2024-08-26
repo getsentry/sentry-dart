@@ -19,6 +19,9 @@ SentryNavigatorObserver(ignoreRoutes: ["/ignoreThisRoute"]),
 
 ### Dependencies
 
+- Bump Cocoa SDK from v8.33.0 to v8.35.1 ([#2247](https://github.com/getsentry/sentry-dart/pull/2247))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8351)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.33.0...8.35.1)
 - Bump Android SDK from v7.13.0 to v7.14.0 ([#2228](https://github.com/getsentry/sentry-dart/pull/2228))
   - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#7140)
   - [diff](https://github.com/getsentry/sentry-java/compare/7.13.0...7.14.0)
