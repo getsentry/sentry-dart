@@ -53,13 +53,14 @@ class SentryWebInterop
         'replaysSessionSampleRate':
             options.experimental.replay.sessionSampleRate,
         'replaysOnErrorSampleRate': options.experimental.replay.errorSampleRate,
-        // using defaultIntegrations ensures the we can control which integrations are added
+        // using defaultIntegrations ensures that we can control which integrations are added
         'defaultIntegrations': [
           _replay,
           _jsBridge.replayCanvasIntegration(),
-          // todo: check which default browser integrations make sense
-          // todo: test if the breadcrumbs make sense
-          _jsBridge.breadcrumbsIntegration(),
+          // todo: check which browser integrations make sense
+          // todo: we have to figure out out how to hook the integration event processing
+          // from JS to the Flutter layer
+          // _jsBridge.breadcrumbsIntegration()
           // not sure if web vitals are correct, needs more testing
           // _jsBridge.browserTracingIntegration()
         ],
@@ -75,11 +76,11 @@ class SentryWebInterop
   @override
   Future<void> captureEnvelope(SentryEnvelope envelope) async {
     return tryCatchAsync('captureEnvelope', () async {
-      final List<dynamic> jsItems = [];
+      final List<dynamic> envelopeItems = [];
 
       for (final item in envelope.items) {
         final originalObject = item.originalObject;
-        jsItems.add([
+        envelopeItems.add([
           (await item.header.toJson()),
           (await originalObject?.getPayload())
         ]);
@@ -97,7 +98,7 @@ class SentryWebInterop
         }
       }
 
-      final jsEnvelope = [envelope.header.toJson(), jsItems].jsify();
+      final jsEnvelope = [envelope.header.toJson(), envelopeItems].jsify();
 
       _jsBridge.getClient().sendEnvelope(jsEnvelope);
     });

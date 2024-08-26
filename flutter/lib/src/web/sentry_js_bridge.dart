@@ -15,50 +15,48 @@ abstract class SentryJsApi {
 
 class SentryJsWrapper implements SentryJsApi {
   @override
-  void init(JSAny? options) => SentryJsBridge.init(options);
+  void init(JSAny? options) => _SentryJsBridge.init(options);
 
   @override
-  void close() => SentryJsBridge.close();
+  void close() => _SentryJsBridge.close();
 
   @override
-  SentryJsClient getClient() => SentryJsBridge.getClient();
+  SentryJsClient getClient() => _SentryJsBridge.getClient();
 
   @override
   SentryJsReplay replayIntegration(JSAny? configuration) =>
-      SentryJsBridge.replayIntegration(configuration);
+      _SentryJsBridge.replayIntegration(configuration);
 
   @override
-  JSAny? replayCanvasIntegration() => SentryJsBridge.replayCanvasIntegration();
+  JSAny? replayCanvasIntegration() => _SentryJsBridge.replayCanvasIntegration();
 
   @override
   JSAny? browserTracingIntegration() =>
-      SentryJsBridge.browserTracingIntegration();
+      _SentryJsBridge.browserTracingIntegration();
 
   @override
-  SentryJsSession? getSession() => SentryJsBridge.getSession();
+  SentryJsSession? getSession() => _SentryJsBridge.getSession();
 
   @override
-  void captureSession() => SentryJsBridge.captureSession();
+  void captureSession() => _SentryJsBridge.captureSession();
 
   @override
-  JSAny? breadcrumbsIntegration() => SentryJsBridge.breadcrumbsIntegration();
+  JSAny? breadcrumbsIntegration() => _SentryJsBridge.breadcrumbsIntegration();
 }
 
 @internal
 @JS('Sentry')
 @staticInterop
-class SentryJsBridge {
+class _SentryJsBridge {
   external static void init(JSAny? options);
 
-  external static void close();
-
-  external static SentryJsReplay replayIntegration(JSAny? configuration);
+  external static JSAny? replayIntegration(JSAny? configuration);
 
   external static JSAny? replayCanvasIntegration();
 
-  external static SentryJsClient getClient();
+  external static void close();
 
-  external static JSAny? getReplay();
+  external static SentryJsClient getClient();
 
   external static void captureSession();
 
