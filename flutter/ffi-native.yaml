@@ -8,8 +8,8 @@ headers:
 exclude-all-by-default: true
 functions:
   include:
-    - sentry_.*
     - sentry_init
+    - sentry_close
     - sentry_options_new
     - sentry_options_set_dsn
     - sentry_options_set_debug
@@ -18,6 +18,38 @@ functions:
     - sentry_options_set_auto_session_tracking
     - sentry_options_set_dist
     - sentry_options_set_max_breadcrumbs
+    - sentry_set_user
+    - sentry_remove_user
+    - sentry_add_breadcrumb
+    - sentry_set_context
+    - sentry_remove_context
+    - sentry_set_extra
+    - sentry_remove_extra
+    - sentry_set_tag
+    - sentry_remove_tag
+    - sentry_get_modules_list
+    - sentry_value_get_type
+    - sentry_value_get_length
+    - sentry_value_get_by_index
+    - sentry_value_decref
+    - sentry_value_set_by_key
+    - sentry_value_get_by_key
+    - sentry_value_remove_by_key
+    - sentry_value_is_null
+    - sentry_value_is_true
+    - sentry_value_new_null
+    - sentry_value_new_int32
+    - sentry_value_new_double
+    - sentry_value_new_string
+    - sentry_value_new_list
+    - sentry_value_new_object
+    - sentry_value_new_bool
+    - sentry_value_append
+    - sentry_value_as_int32
+    - sentry_value_as_double
+    - sentry_value_as_string
+    - sentry_value_as_list
+    - sentry_value_as_object
     # For tests only:
     - sentry_sdk_version
     - sentry_sdk_name
