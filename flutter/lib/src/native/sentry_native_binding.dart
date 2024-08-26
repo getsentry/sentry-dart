@@ -61,4 +61,6 @@ abstract class SentryNativeBinding {
   FutureOr<void> pauseAppHangTracking();
 
   FutureOr<void> resumeAppHangTracking();
+
+  FutureOr<void> nativeCrash();
 }

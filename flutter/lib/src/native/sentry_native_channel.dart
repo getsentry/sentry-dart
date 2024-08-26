@@ -198,4 +198,7 @@ class SentryNativeChannel
   @override
   Future<void> resumeAppHangTracking() =>
       _channel.invokeMethod('resumeAppHangTracking');
+
+  @override
+  Future<void> nativeCrash() => _channel.invokeMethod('nativeCrash');
 }

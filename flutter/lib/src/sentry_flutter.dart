@@ -253,11 +253,7 @@ mixin SentryFlutter {
   /// Only for iOS and macOS.
   static Future<void> pauseAppHangTracking() async {
     if (_native == null) {
-      // ignore: invalid_use_of_internal_member
-      Sentry.currentHub.options.logger(
-        SentryLevel.debug,
-        'Native integration is not available. Make sure SentryFlutter is initialized before accessing the pauseAppHangTracking API.',
-      );
+      _logNativeIntegrationNotAvailable("pauseAppHangTracking");
     } else {
       await _native!.pauseAppHangTracking();
     }
@@ -267,11 +263,7 @@ mixin SentryFlutter {
   /// Only for iOS and macOS
   static Future<void> resumeAppHangTracking() async {
     if (_native == null) {
-      // ignore: invalid_use_of_internal_member
-      Sentry.currentHub.options.logger(
-        SentryLevel.debug,
-        'Native integration is not available. Make sure SentryFlutter is initialized before accessing the resumeAppHangTracking API.',
-      );
+      _logNativeIntegrationNotAvailable("resumeAppHangTracking");
     } else {
       await _native!.resumeAppHangTracking();
     }
@@ -284,4 +276,23 @@ mixin SentryFlutter {
   static set native(SentryNativeBinding? value) => _native = value;
 
   static SentryNativeBinding? _native;
+
+  /// Use `nativeCrash()` to crash the native implementation and test/debug the crash reporting for native code.
+  /// This should not be used in production code.
+  /// Only for Android, iOS and macOS
+  static Future<void> nativeCrash() async {
+    if (_native == null) {
+      _logNativeIntegrationNotAvailable("nativeCrash");
+      return Future<void>.value();
+    }
+    return _native!.nativeCrash();
+  }
+
+  static void _logNativeIntegrationNotAvailable(String methodName) {
+    // ignore: invalid_use_of_internal_member
+    Sentry.currentHub.options.logger(
+      SentryLevel.debug,
+      'Native integration is not available. Make sure SentryFlutter is initialized before accessing the $methodName API.',
+    );
+  }
 }
