@@ -66,9 +66,12 @@ void main() {
       );
       final tracer = SentryTracer(context, MockHub());
       final tr = SentryTransaction(tracer);
-      tr.contexts.device = SentryDevice(
-        orientation: SentryOrientation.landscape,
-      );
+      tr.contexts.device = SentryDevice(views: [
+        SentryView(
+          0,
+          orientation: SentryOrientation.landscape,
+        )
+      ]);
 
       final sut = SentryEnvelopeItem.fromTransaction(tr);
 

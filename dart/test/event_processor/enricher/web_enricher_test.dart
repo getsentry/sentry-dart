@@ -112,7 +112,7 @@ void main() {
       var enricher = fixture.getSut();
       final event = enricher.apply(SentryEvent(), Hint());
 
-      expect(event?.contexts.device?.screenDensity, isNotNull);
+      expect(event?.contexts.device!.views.first.screenDensity, isNotNull);
     });
 
     test('culture has timezone', () {
@@ -128,10 +128,15 @@ void main() {
           device: SentryDevice(
             online: false,
             memorySize: 200,
-            orientation: SentryOrientation.landscape,
-            screenHeightPixels: 1080,
-            screenWidthPixels: 1920,
-            screenDensity: 2,
+            views: [
+              SentryView(
+                0,
+                orientation: SentryOrientation.landscape,
+                screenHeightPixels: 1080,
+                screenWidthPixels: 1920,
+                screenDensity: 2,
+              ),
+            ],
           ),
           operatingSystem: SentryOperatingSystem(
             name: 'sentry_os',
@@ -156,20 +161,20 @@ void main() {
         fakeEvent.contexts.device?.memorySize,
       );
       expect(
-        event?.contexts.device?.orientation,
-        fakeEvent.contexts.device?.orientation,
+        event?.contexts.device?.views.first.orientation,
+        fakeEvent.contexts.device?.views.first.orientation,
       );
       expect(
-        event?.contexts.device?.screenHeightPixels,
-        fakeEvent.contexts.device?.screenHeightPixels,
+        event?.contexts.device?.views.first.screenHeightPixels,
+        fakeEvent.contexts.device?.views.first.screenHeightPixels,
       );
       expect(
-        event?.contexts.device?.screenWidthPixels,
-        fakeEvent.contexts.device?.screenWidthPixels,
+        event?.contexts.device?.views.first.screenWidthPixels,
+        fakeEvent.contexts.device?.views.first.screenWidthPixels,
       );
       expect(
-        event?.contexts.device?.screenDensity,
-        fakeEvent.contexts.device?.screenDensity,
+        event?.contexts.device?.views.first.screenDensity,
+        fakeEvent.contexts.device?.views.first.screenDensity,
       );
       // contexts.culture
       expect(

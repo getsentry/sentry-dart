@@ -8,8 +8,19 @@ void main() {
 
     final copy = data.copyWith();
 
+    final dataJson = data.toJson();
+    final copyJson = copy.toJson();
+
     expect(
-      MapEquality().equals(data.toJson(), copy.toJson()),
+      MapEquality().equals(dataJson['views'][0], copyJson['views'][0]),
+      true,
+    );
+
+    dataJson.remove('views');
+    copyJson.remove('views');
+
+    expect(
+      MapEquality().equals(dataJson, copyJson),
       true,
     );
   });
@@ -26,13 +37,19 @@ void main() {
       modelId: 'modelId1',
       arch: 'arch1',
       batteryLevel: 2,
-      orientation: SentryOrientation.portrait,
       manufacturer: 'manufacturer1',
       brand: 'brand1',
-      screenHeightPixels: 900,
-      screenWidthPixels: 700,
-      screenDensity: 99.2,
-      screenDpi: 99,
+      views: data.views
+          .map(
+            (view) => view.copyWith(
+              orientation: SentryOrientation.portrait,
+              screenHeightPixels: 900,
+              screenWidthPixels: 700,
+              screenDensity: 99.2,
+              screenDpi: 99,
+            ),
+          )
+          .toList(),
       online: true,
       charging: false,
       lowMemory: true,
@@ -53,13 +70,17 @@ void main() {
     expect('modelId1', copy.modelId);
     expect('arch1', copy.arch);
     expect(2, copy.batteryLevel);
-    expect(SentryOrientation.portrait, copy.orientation);
     expect('manufacturer1', copy.manufacturer);
     expect('brand1', copy.brand);
-    expect(900, copy.screenHeightPixels);
-    expect(700, copy.screenWidthPixels);
-    expect(99.2, copy.screenDensity);
-    expect(99, copy.screenDpi);
+
+    expect(1, copy.views.length);
+    expect(0, copy.views.first.viewId);
+    expect(SentryOrientation.portrait, copy.views.first.orientation);
+    expect(900, copy.views.first.screenHeightPixels);
+    expect(700, copy.views.first.screenWidthPixels);
+    expect(99.2, copy.views.first.screenDensity);
+    expect(99, copy.views.first.screenDpi);
+
     expect(true, copy.online);
     expect(false, copy.charging);
     expect(true, copy.lowMemory);
@@ -82,13 +103,16 @@ SentryDevice _generate({DateTime? testBootTime}) => SentryDevice(
       modelId: 'modelId',
       arch: 'arch',
       batteryLevel: 1,
-      orientation: SentryOrientation.landscape,
       manufacturer: 'manufacturer',
       brand: 'brand',
-      screenHeightPixels: 600,
-      screenWidthPixels: 800,
-      screenDensity: 99.1,
-      screenDpi: 100,
+      views: [
+        SentryView(0,
+            orientation: SentryOrientation.landscape,
+            screenHeightPixels: 600,
+            screenWidthPixels: 800,
+            screenDensity: 99.1,
+            screenDpi: 100)
+      ],
       online: false,
       charging: true,
       lowMemory: false,

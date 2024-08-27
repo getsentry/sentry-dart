@@ -5,6 +5,98 @@ import 'access_aware_map.dart';
 /// If a device is on portrait or landscape mode
 enum SentryOrientation { portrait, landscape }
 
+class SentryView {
+  /// The id of this view. For single view application it is always 1.
+  final int viewId;
+
+  /// Defines the orientation of a device.
+  final SentryOrientation? orientation;
+
+  /// The screen height in pixels. (e.g.: `600`, `1080`).
+  final int? screenHeightPixels;
+
+  /// The screen width in pixels. (e.g.: `800`, `1920`).
+  final int? screenWidthPixels;
+
+  /// A floating point denoting the screen density.
+  final double? screenDensity;
+
+  /// A decimal value reflecting the DPI (dots-per-inch) density.
+  final int? screenDpi;
+
+  @internal
+  final Map<String, dynamic>? unknown;
+
+  SentryView(
+    this.viewId, {
+    this.orientation,
+    this.screenHeightPixels,
+    this.screenWidthPixels,
+    this.screenDensity,
+    this.screenDpi,
+    this.unknown,
+  });
+
+  SentryView clone() => SentryView(
+        viewId,
+        orientation: orientation,
+        screenHeightPixels: screenHeightPixels,
+        screenWidthPixels: screenWidthPixels,
+        screenDensity: screenDensity,
+        screenDpi: screenDpi,
+        unknown: unknown,
+      );
+
+  SentryView copyWith({
+    int? viewId,
+    SentryOrientation? orientation,
+    int? screenHeightPixels,
+    int? screenWidthPixels,
+    double? screenDensity,
+    int? screenDpi,
+  }) =>
+      SentryView(
+        viewId ?? this.viewId,
+        orientation: orientation ?? this.orientation,
+        screenHeightPixels: screenHeightPixels ?? this.screenHeightPixels,
+        screenWidthPixels: screenWidthPixels ?? this.screenWidthPixels,
+        screenDensity: screenDensity ?? this.screenDensity,
+        screenDpi: screenDpi ?? this.screenDpi,
+        unknown: unknown,
+      );
+
+  /// Produces a [Map] that can be serialized to JSON.
+  Map<String, dynamic> toJson() {
+    return {
+      ...?unknown,
+      'view_id': viewId,
+      if (orientation != null) 'orientation': orientation!.name,
+      if (screenWidthPixels != null) 'screen_width_pixels': screenWidthPixels,
+      if (screenHeightPixels != null)
+        'screen_height_pixels': screenHeightPixels,
+      if (screenDensity != null) 'screen_density': screenDensity,
+      if (screenDpi != null) 'screen_dpi': screenDpi,
+    };
+  }
+
+  factory SentryView.fromJson(Map<String, dynamic> data) {
+    final json = AccessAwareMap(data);
+    return SentryView(
+      json['view_id'],
+      orientation: json['orientation'] == 'portrait'
+          ? SentryOrientation.portrait
+          : json['orientation'] == 'landscape'
+              ? SentryOrientation.landscape
+              : null,
+      screenHeightPixels: json['screen_height_pixels']?.toInt(),
+      screenWidthPixels: json['screen_width_pixels']?.toInt(),
+      screenDensity: json['screen_density'],
+      screenDpi: json['screen_dpi'],
+      unknown: json.notAccessed(),
+    );
+  }
+}
+
 /// This describes the device that caused the event.
 @immutable
 class SentryDevice {
@@ -17,13 +109,9 @@ class SentryDevice {
     this.modelId,
     this.arch,
     this.batteryLevel,
-    this.orientation,
     this.manufacturer,
     this.brand,
-    this.screenHeightPixels,
-    this.screenWidthPixels,
-    this.screenDensity,
-    this.screenDpi,
+    this.views = const [],
     this.online,
     this.charging,
     this.lowMemory,
@@ -75,26 +163,14 @@ class SentryDevice {
   /// defining the battery level (in the range 0-100).
   final double? batteryLevel;
 
-  /// Defines the orientation of a device.
-  final SentryOrientation? orientation;
-
   /// The manufacturer of the device.
   final String? manufacturer;
 
   /// The brand of the device.
   final String? brand;
 
-  /// The screen height in pixels. (e.g.: `600`, `1080`).
-  final int? screenHeightPixels;
-
-  /// The screen width in pixels. (e.g.: `800`, `1920`).
-  final int? screenWidthPixels;
-
-  /// A floating point denoting the screen density.
-  final double? screenDensity;
-
-  /// A decimal value reflecting the DPI (dots-per-inch) density.
-  final int? screenDpi;
+  /// The collection of views, which are rendered and shown to the user
+  final List<SentryView> views;
 
   /// Whether the device was online or not.
   final bool? online;
@@ -188,17 +264,13 @@ class SentryDevice {
       batteryLevel:
           (json['battery_level'] is num ? json['battery_level'] as num : null)
               ?.toDouble(),
-      orientation: json['orientation'] == 'portrait'
-          ? SentryOrientation.portrait
-          : json['orientation'] == 'landscape'
-              ? SentryOrientation.landscape
-              : null,
       manufacturer: json['manufacturer'],
       brand: json['brand'],
-      screenHeightPixels: json['screen_height_pixels']?.toInt(),
-      screenWidthPixels: json['screen_width_pixels']?.toInt(),
-      screenDensity: json['screen_density'],
-      screenDpi: json['screen_dpi'],
+      views: json['views'] == null
+          ? []
+          : (json['views'] as List)
+              .map((view) => SentryView.fromJson(view))
+              .toList(),
       online: json['online'],
       charging: json['charging'],
       lowMemory: json['low_memory'],
@@ -238,14 +310,10 @@ class SentryDevice {
       if (modelId != null) 'model_id': modelId,
       if (arch != null) 'arch': arch,
       if (batteryLevel != null) 'battery_level': batteryLevel,
-      if (orientation != null) 'orientation': orientation!.name,
       if (manufacturer != null) 'manufacturer': manufacturer,
       if (brand != null) 'brand': brand,
-      if (screenWidthPixels != null) 'screen_width_pixels': screenWidthPixels,
-      if (screenHeightPixels != null)
-        'screen_height_pixels': screenHeightPixels,
-      if (screenDensity != null) 'screen_density': screenDensity,
-      if (screenDpi != null) 'screen_dpi': screenDpi,
+      if (views.isNotEmpty)
+        'views': views.map((view) => view.toJson()).toList(),
       if (online != null) 'online': online,
       if (charging != null) 'charging': charging,
       if (lowMemory != null) 'low_memory': lowMemory,
@@ -284,13 +352,9 @@ class SentryDevice {
         modelId: modelId,
         arch: arch,
         batteryLevel: batteryLevel,
-        orientation: orientation,
         manufacturer: manufacturer,
         brand: brand,
-        screenHeightPixels: screenHeightPixels,
-        screenWidthPixels: screenWidthPixels,
-        screenDensity: screenDensity,
-        screenDpi: screenDpi,
+        views: views,
         online: online,
         charging: charging,
         lowMemory: lowMemory,
@@ -324,13 +388,9 @@ class SentryDevice {
     String? modelId,
     String? arch,
     double? batteryLevel,
-    SentryOrientation? orientation,
     String? manufacturer,
     String? brand,
-    int? screenHeightPixels,
-    int? screenWidthPixels,
-    double? screenDensity,
-    int? screenDpi,
+    List<SentryView>? views,
     bool? online,
     bool? charging,
     bool? lowMemory,
@@ -362,13 +422,9 @@ class SentryDevice {
         modelId: modelId ?? this.modelId,
         arch: arch ?? this.arch,
         batteryLevel: batteryLevel ?? this.batteryLevel,
-        orientation: orientation ?? this.orientation,
         manufacturer: manufacturer ?? this.manufacturer,
         brand: brand ?? this.brand,
-        screenHeightPixels: screenHeightPixels ?? this.screenHeightPixels,
-        screenWidthPixels: screenWidthPixels ?? this.screenWidthPixels,
-        screenDensity: screenDensity ?? this.screenDensity,
-        screenDpi: screenDpi ?? this.screenDpi,
+        views: views ?? this.views,
         online: online ?? this.online,
         charging: charging ?? this.charging,
         lowMemory: lowMemory ?? this.lowMemory,

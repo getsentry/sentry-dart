@@ -28,6 +28,7 @@ import 'auto_close_screen.dart';
 import 'drift/connection/connection.dart';
 import 'drift/database.dart';
 import 'isar/user.dart';
+import 'multi_view_app.dart';
 import 'user_feedback_dialog.dart';
 
 // ATTENTION: Change the DSN below with your own to see the events in Sentry. Get one at sentry.io
@@ -44,11 +45,13 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {
   await setupSentry(
-    () => runApp(
+    () => runWidget(
       SentryWidget(
         child: DefaultAssetBundle(
           bundle: SentryAssetBundle(),
-          child: const MyApp(),
+          child: MultiViewApp(
+            viewBuilder: (BuildContext context) => const MyApp(),
+          ),
         ),
       ),
     ),

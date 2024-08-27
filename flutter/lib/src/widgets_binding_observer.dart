@@ -29,27 +29,41 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
     if (_options.enableWindowMetricBreadcrumbs) {
       _screenSizeStreamController.stream
           .map(
-            (window) => {
-              'new_pixel_ratio': window?.devicePixelRatio,
-              'new_height': window?.physicalSize.height,
-              'new_width': window?.physicalSize.width,
-            },
+            (views) => views
+                .map(
+                  (view) => {
+                    'view_id': view?.viewId,
+                    'new_pixel_ratio': view?.devicePixelRatio,
+                    'new_height': view?.physicalSize.height,
+                    'new_width': view?.physicalSize.width,
+                  },
+                )
+                .toList(),
           )
-          .distinct(mapEquals)
+          .distinct((prev, next) {
+            if (prev.length != next.length) return false;
+
+            for (int i = 0; i < prev.length; i++) {
+              // Check each map for equality
+              if (!mapEquals(prev[i], next[i])) {
+                return false;
+              }
+            }
+            return true;
+          })
           .skip(1) // Skip initial event added below in constructor
           .listen(_onScreenSizeChanged);
 
-      // ignore: deprecated_member_use
-      final window = _options.bindingUtils.instance?.window;
-      _screenSizeStreamController.add(window);
+      final views =
+          _options.bindingUtils.instance!.platformDispatcher.views.toList();
+      _screenSizeStreamController.add(views);
     }
   }
 
   final Hub _hub;
   final SentryFlutterOptions _options;
 
-  // ignore: deprecated_member_use
-  final StreamController<SingletonFlutterWindow?> _screenSizeStreamController;
+  final StreamController<List<FlutterView?>> _screenSizeStreamController;
 
   final _didChangeMetricsDebouncer = Debouncer(milliseconds: 100);
 
@@ -93,21 +107,23 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
     }
 
     _didChangeMetricsDebouncer.run(() {
-      // ignore: deprecated_member_use
-      final window = _options.bindingUtils.instance?.window;
-      _screenSizeStreamController.add(window);
+      final views =
+          _options.bindingUtils.instance!.platformDispatcher.views.toList();
+      _screenSizeStreamController.add(views);
     });
   }
 
-  void _onScreenSizeChanged(Map<String, dynamic> data) {
-    _hub.addBreadcrumb(Breadcrumb(
-      message: 'Screen size changed',
-      category: 'device.screen',
-      type: 'navigation',
-      data: data,
-      // ignore: invalid_use_of_internal_member
-      timestamp: _options.clock(),
-    ));
+  void _onScreenSizeChanged(List<Map<String, dynamic>> views) {
+    for (var view in views) {
+      _hub.addBreadcrumb(Breadcrumb(
+        message: 'Screen size changed',
+        category: 'device.screen',
+        type: 'navigation',
+        data: view,
+        // ignore: invalid_use_of_internal_member
+        timestamp: _options.clock(),
+      ));
+    }
   }
 
   /// See also:
@@ -117,9 +133,9 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
     if (!_options.enableBrightnessChangeBreadcrumbs) {
       return;
     }
+
     final brightness =
-        // ignore: deprecated_member_use
-        _options.bindingUtils.instance?.window.platformBrightness;
+        _options.bindingUtils.instance?.platformDispatcher.platformBrightness;
     final brightnessDescription =
         brightness == Brightness.dark ? 'dark' : 'light';
 
@@ -142,9 +158,9 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
     if (!_options.enableTextScaleChangeBreadcrumbs) {
       return;
     }
+
     final newTextScaleFactor =
-        // ignore: deprecated_member_use
-        _options.bindingUtils.instance?.window.textScaleFactor;
+        _options.bindingUtils.instance?.platformDispatcher.textScaleFactor;
 
     _hub.addBreadcrumb(Breadcrumb(
       message: 'Text scale factor changed to $newTextScaleFactor.',

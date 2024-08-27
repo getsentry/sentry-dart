@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
@@ -204,6 +202,7 @@ void main() {
       expect(breadcrumb.type, 'navigation');
       expect(breadcrumb.level, SentryLevel.info);
       expect(breadcrumb.data, <String, dynamic>{
+        'view_id': 0,
         // ignore: deprecated_member_use
         'new_pixel_ratio': window.devicePixelRatio,
         'new_height': newHeight,
@@ -244,6 +243,7 @@ void main() {
       expect(breadcrumb.type, 'navigation');
       expect(breadcrumb.level, SentryLevel.info);
       expect(breadcrumb.data, <String, dynamic>{
+        'view_id': 0,
         'new_pixel_ratio': newPixelRatio,
         // ignore: deprecated_member_use
         'new_height': window.physicalSize.height,
@@ -265,16 +265,15 @@ void main() {
       final instance = tester.binding;
       instance.addObserver(observer);
 
-      // ignore: deprecated_member_use
-      final window = instance.window;
+      final view = tester.view;
 
-      // ignore: deprecated_member_use
-      window.viewInsetsTestValue = WindowPadding.zero;
+      view.padding = FakeViewPadding.zero;
 
       // waiting for debouncing with 100ms added https://github.com/getsentry/sentry-dart/issues/400
       await tester.pump(Duration(milliseconds: 150));
 
       verifyNever(hub.addBreadcrumb(captureAny));
+      // verify(hub.addBreadcrumb(captureAny)).called(1);
 
       instance.removeObserver(observer);
     });

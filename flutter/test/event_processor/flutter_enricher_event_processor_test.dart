@@ -325,10 +325,15 @@ void main() {
       final fakeEvent = SentryEvent(
         contexts: Contexts(
           device: SentryDevice(
-            orientation: SentryOrientation.landscape,
-            screenHeightPixels: 1080,
-            screenWidthPixels: 1920,
-            screenDensity: 2,
+            views: [
+              SentryView(
+                0,
+                orientation: SentryOrientation.landscape,
+                screenHeightPixels: 1080,
+                screenWidthPixels: 1920,
+                screenDensity: 2,
+              )
+            ],
           ),
           operatingSystem: SentryOperatingSystem(
             theme: 'dark',
@@ -345,20 +350,20 @@ void main() {
 
       // contexts.device
       expect(
-        event?.contexts.device?.orientation,
-        fakeEvent.contexts.device?.orientation,
+        event?.contexts.device?.views.first.orientation,
+        fakeEvent.contexts.device?.views.first.orientation,
       );
       expect(
-        event?.contexts.device?.screenHeightPixels,
-        fakeEvent.contexts.device?.screenHeightPixels,
+        event?.contexts.device?.views.first.screenHeightPixels,
+        fakeEvent.contexts.device?.views.first.screenHeightPixels,
       );
       expect(
-        event?.contexts.device?.screenWidthPixels,
-        fakeEvent.contexts.device?.screenWidthPixels,
+        event?.contexts.device?.views.first.screenWidthPixels,
+        fakeEvent.contexts.device?.views.first.screenWidthPixels,
       );
       expect(
-        event?.contexts.device?.screenDensity,
-        fakeEvent.contexts.device?.screenDensity,
+        event?.contexts.device?.views.first.screenDensity,
+        fakeEvent.contexts.device?.views.first.screenDensity,
       );
       expect(
         event?.contexts.operatingSystem?.theme,

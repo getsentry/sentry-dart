@@ -55,16 +55,25 @@ class WebEnricherEventProcessor implements EnricherEventProcessor {
   }
 
   SentryDevice _getDevice(SentryDevice? device) {
-    return (device ?? SentryDevice()).copyWith(
+    final currentDevice = device ?? SentryDevice();
+    final currentView = currentDevice.views.isNotEmpty
+        ? currentDevice.views.first
+        : SentryView(0);
+    return currentDevice.copyWith(
       online: device?.online ?? _window.navigator.onLine,
       memorySize: device?.memorySize ?? _getMemorySize(),
-      orientation: device?.orientation ?? _getScreenOrientation(),
-      screenHeightPixels: device?.screenHeightPixels ??
-          _window.screen?.available.height.toInt(),
-      screenWidthPixels:
-          device?.screenWidthPixels ?? _window.screen?.available.width.toInt(),
-      screenDensity:
-          device?.screenDensity ?? _window.devicePixelRatio.toDouble(),
+      views: [
+        currentView.copyWith(
+          orientation:
+              device?.views.first.orientation ?? _getScreenOrientation(),
+          screenHeightPixels: device?.views.first.screenHeightPixels ??
+              _window.screen?.available.height.toInt(),
+          screenWidthPixels: device?.views.first.screenWidthPixels ??
+              _window.screen?.available.width.toInt(),
+          screenDensity: device?.views.first.screenDensity ??
+              _window.devicePixelRatio.toDouble(),
+        )
+      ],
     );
   }
 

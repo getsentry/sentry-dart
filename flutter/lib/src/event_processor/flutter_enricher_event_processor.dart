@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -26,8 +25,6 @@ class FlutterEnricherEventProcessor implements EventProcessor {
   // Thus we call it on demand after all the initialization happened.
   WidgetsBinding? get _widgetsBinding => _options.bindingUtils.instance;
 
-  // ignore: deprecated_member_use
-  SingletonFlutterWindow? get _window => _widgetsBinding?.window;
   Map<String, String> _packages = {};
 
   @override
@@ -107,7 +104,8 @@ class FlutterEnricherEventProcessor implements EventProcessor {
   }
 
   SentryCulture _getCulture(SentryCulture? culture) {
-    final windowLanguageTag = _window?.locale.toLanguageTag();
+    final windowLanguageTag =
+        _widgetsBinding?.platformDispatcher.locale.toLanguageTag();
     final screenLocale = _retrieveWidgetLocale(_options.navigatorKey);
     final languageTag = screenLocale?.toLanguageTag() ?? windowLanguageTag;
 
@@ -115,7 +113,8 @@ class FlutterEnricherEventProcessor implements EventProcessor {
     // _window?.locales
 
     return (culture ?? SentryCulture()).copyWith(
-      is24HourFormat: culture?.is24HourFormat ?? _window?.alwaysUse24HourFormat,
+      is24HourFormat: culture?.is24HourFormat ??
+          _widgetsBinding?.platformDispatcher.alwaysUse24HourFormat,
       locale: culture?.locale ?? languageTag,
       timezone: culture?.timezone ?? DateTime.now().timeZoneName,
     );
@@ -125,8 +124,10 @@ class FlutterEnricherEventProcessor implements EventProcessor {
     final currentLifecycle = _widgetsBinding?.lifecycleState;
     final debugPlatformOverride = debugDefaultTargetPlatformOverride;
     final tempDebugBrightnessOverride = debugBrightnessOverride;
-    final initialLifecycleState = _window?.initialLifecycleState;
-    final defaultRouteName = _window?.defaultRouteName;
+    final initialLifecycleState =
+        _widgetsBinding?.platformDispatcher.initialLifecycleState;
+    final defaultRouteName =
+        _widgetsBinding?.platformDispatcher.defaultRouteName;
     // A FlutterEngine has no renderViewElement if it was started or is
     // accessed from an isolate different to the main isolate.
 
@@ -158,44 +159,63 @@ class FlutterEnricherEventProcessor implements EventProcessor {
   }
 
   Map<String, bool> _getAccessibilityContext() {
-    final window = _window;
-    if (window == null) {
+    final platformDispatcher = _widgetsBinding?.platformDispatcher;
+    if (platformDispatcher == null) {
       return {};
     }
     return <String, bool>{
       'accessible_navigation':
-          window.accessibilityFeatures.accessibleNavigation,
-      'bold_text': window.accessibilityFeatures.boldText,
-      'disable_animations': window.accessibilityFeatures.disableAnimations,
-      'high_contrast': window.accessibilityFeatures.highContrast,
-      'invert_colors': window.accessibilityFeatures.invertColors,
-      'reduce_motion': window.accessibilityFeatures.reduceMotion,
+          platformDispatcher.accessibilityFeatures.accessibleNavigation,
+      'bold_text': platformDispatcher.accessibilityFeatures.boldText,
+      'disable_animations':
+          platformDispatcher.accessibilityFeatures.disableAnimations,
+      'high_contrast': platformDispatcher.accessibilityFeatures.highContrast,
+      'invert_colors': platformDispatcher.accessibilityFeatures.invertColors,
+      'reduce_motion': platformDispatcher.accessibilityFeatures.reduceMotion,
     };
   }
 
   SentryDevice? _getDevice(SentryDevice? device) {
-    final window = _window;
-    if (window == null) {
+    final platformDispatcher = _widgetsBinding?.platformDispatcher;
+    if (platformDispatcher == null) {
       return device;
     }
-    final orientation = window.physicalSize.width > window.physicalSize.height
-        ? SentryOrientation.landscape
-        : SentryOrientation.portrait;
 
-    return (device ?? SentryDevice()).copyWith(
-      orientation: device?.orientation ?? orientation,
-      screenHeightPixels:
-          device?.screenHeightPixels ?? window.physicalSize.height.toInt(),
-      screenWidthPixels:
-          device?.screenWidthPixels ?? window.physicalSize.width.toInt(),
-      screenDensity: device?.screenDensity ?? window.devicePixelRatio,
+    final currentDevice = device ?? SentryDevice();
+    final List<SentryView> updatedViews = [];
+
+    for (var platformView in platformDispatcher.views) {
+      var currentViews = currentDevice.views
+          .where((view) => view.viewId == platformView.viewId)
+          .toList();
+
+      SentryView updatedView;
+      if (currentViews.isNotEmpty) {
+        updatedView = currentViews.single.copyWith(
+          screenWidthPixels: platformView.physicalSize.width.toInt(),
+          screenHeightPixels: platformView.physicalSize.height.toInt(),
+          screenDensity: platformView.devicePixelRatio.toDouble(),
+        );
+      } else {
+        updatedView = SentryView(
+          platformView.viewId,
+          screenWidthPixels: platformView.physicalSize.width.toInt(),
+          screenHeightPixels: platformView.physicalSize.height.toInt(),
+          screenDensity: platformView.devicePixelRatio.toDouble(),
+        );
+      }
+      updatedViews.add(updatedView);
+    }
+
+    return currentDevice.copyWith(
+      views: updatedViews,
     );
   }
 
   SentryOperatingSystem _getOperatingSystem(SentryOperatingSystem? os) {
     return (os ?? SentryOperatingSystem()).copyWith(
-      // ignore: deprecated_member_use
-      theme: os?.theme ?? describeEnum(window.platformBrightness),
+      theme: os?.theme ??
+          _widgetsBinding?.platformDispatcher.platformBrightness.name,
     );
   }
 

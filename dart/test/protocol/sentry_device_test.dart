@@ -14,11 +14,18 @@ void main() {
     modelId: 'testModelId',
     arch: 'testArch',
     batteryLevel: 23.0,
-    orientation: SentryOrientation.landscape,
     manufacturer: 'testOEM',
     brand: 'testBrand',
-    screenDensity: 99.1,
-    screenDpi: 100,
+    views: [
+      SentryView(
+        0,
+        orientation: SentryOrientation.landscape,
+        screenDensity: 99.1,
+        screenDpi: 100,
+        screenHeightPixels: 100,
+        screenWidthPixels: 100,
+      )
+    ],
     online: false,
     charging: true,
     lowMemory: false,
@@ -42,8 +49,6 @@ void main() {
     supportsAudio: true,
     supportsLocationService: true,
     supportsVibration: true,
-    screenHeightPixels: 100,
-    screenWidthPixels: 100,
     unknown: testUnknown,
   );
 
@@ -54,11 +59,18 @@ void main() {
     'model_id': 'testModelId',
     'arch': 'testArch',
     'battery_level': 23.0,
-    'orientation': 'landscape',
     'manufacturer': 'testOEM',
     'brand': 'testBrand',
-    'screen_density': 99.1,
-    'screen_dpi': 100,
+    'views': [
+      {
+        'view_id': 0,
+        'orientation': 'landscape',
+        'screen_density': 99.1,
+        'screen_dpi': 100,
+        'screen_height_pixels': 100,
+        'screen_width_pixels': 100,
+      }
+    ],
     'online': false,
     'charging': true,
     'low_memory': false,
@@ -82,14 +94,20 @@ void main() {
     'supports_audio': true,
     'supports_location_service': true,
     'supports_vibration': true,
-    'screen_height_pixels': 100,
-    'screen_width_pixels': 100,
   };
   sentryDeviceJson.addAll(testUnknown);
 
   group('json', () {
     test('toJson', () {
       final json = sentryDevice.toJson();
+
+      expect(
+        MapEquality().equals(sentryDeviceJson['views'][0], json['views'][0]),
+        true,
+      );
+
+      sentryDeviceJson.remove('views');
+      json.remove('views');
 
       expect(
         MapEquality().equals(sentryDeviceJson, json),
@@ -160,8 +178,19 @@ void main() {
 
       final copy = data.copyWith();
 
+      final dataJson = data.toJson();
+      final copyJson = copy.toJson();
+
       expect(
-        MapEquality().equals(data.toJson(), copy.toJson()),
+        MapEquality().equals(dataJson['views'][0], copyJson['views'][0]),
+        true,
+      );
+
+      dataJson.remove('views');
+      copyJson.remove('views');
+
+      expect(
+        MapEquality().equals(dataJson, copyJson),
         true,
       );
     });
@@ -178,11 +207,17 @@ void main() {
         modelId: 'modelId1',
         arch: 'arch1',
         batteryLevel: 2,
-        orientation: SentryOrientation.portrait,
         manufacturer: 'manufacturer1',
         brand: 'brand1',
-        screenDensity: 99.2,
-        screenDpi: 99,
+        views: [
+          data.views.first.copyWith(
+            orientation: SentryOrientation.portrait,
+            screenDensity: 99.2,
+            screenDpi: 99,
+            screenHeightPixels: 2,
+            screenWidthPixels: 2,
+          )
+        ],
         online: true,
         charging: false,
         lowMemory: true,
@@ -206,8 +241,6 @@ void main() {
         supportsAudio: false,
         supportsLocationService: false,
         supportsVibration: false,
-        screenHeightPixels: 2,
-        screenWidthPixels: 2,
       );
 
       expect('name1', copy.name);
@@ -216,11 +249,13 @@ void main() {
       expect('modelId1', copy.modelId);
       expect('arch1', copy.arch);
       expect(2, copy.batteryLevel);
-      expect(SentryOrientation.portrait, copy.orientation);
       expect('manufacturer1', copy.manufacturer);
       expect('brand1', copy.brand);
-      expect(99.2, copy.screenDensity);
-      expect(99, copy.screenDpi);
+      expect(SentryOrientation.portrait, copy.views.first.orientation);
+      expect(99.2, copy.views.first.screenDensity);
+      expect(99, copy.views.first.screenDpi);
+      expect(2, copy.views.first.screenHeightPixels);
+      expect(2, copy.views.first.screenWidthPixels);
       expect(true, copy.online);
       expect(false, copy.charging);
       expect(true, copy.lowMemory);
@@ -244,8 +279,6 @@ void main() {
       expect(false, copy.supportsAudio);
       expect(false, copy.supportsLocationService);
       expect(false, copy.supportsVibration);
-      expect(2, copy.screenHeightPixels);
-      expect(2, copy.screenWidthPixels);
     });
   });
 }
