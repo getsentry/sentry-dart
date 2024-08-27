@@ -48,6 +48,8 @@ android {
 
     defaultConfig {
         applicationId "io.sentry.samples.flutter"
+        namespace("io.sentry.samples.flutter")
+
         minSdkVersion flutter.minSdkVersion
         targetSdkVersion 34
         versionCode flutterVersionCode.toInteger()
@@ -89,6 +91,7 @@ android {
         // https://github.com/flutter/flutter/issues/58247
         checkReleaseBuilds false
     }
+    namespace 'io.sentry.samples.flutter'
 }
 
 flutter {
