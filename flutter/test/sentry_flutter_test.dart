@@ -621,7 +621,7 @@ void main() {
         appRunner: appRunner,
         platformChecker: getPlatformChecker(
           platform: MockPlatform.android(),
-          isWeb: true,
+          isWeb: false,
         ),
       );
 
