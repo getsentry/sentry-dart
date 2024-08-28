@@ -19,32 +19,6 @@ class LoadImageListIntegration extends Integration<SentryOptions> {
   }
 }
 
-extension _NeedsSymbolication on SentryEvent {
-  bool needsSymbolication() {
-    if (this is SentryTransaction) {
-      return false;
-    }
-    final frames = _getStacktraceFrames();
-    if (frames == null) {
-      return false;
-    }
-    return frames.any((frame) => 'native' == frame?.platform);
-  }
-
-  Iterable<SentryStackFrame?>? _getStacktraceFrames() {
-    if (exceptions?.isNotEmpty == true) {
-      return exceptions?.first.stackTrace?.frames;
-    }
-    if (threads?.isNotEmpty == true) {
-      var stacktraces = threads?.map((e) => e.stacktrace);
-      return stacktraces
-          ?.where((element) => element != null)
-          .expand((element) => element!.frames);
-    }
-    return null;
-  }
-}
-
 class _LoadImageListIntegrationEventProcessor implements EventProcessor {
   _LoadImageListIntegrationEventProcessor(this._native);
 

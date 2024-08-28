@@ -195,6 +195,9 @@ class SentryEvent with SentryEventLike<SentryEvent> {
   @internal
   final Map<String, dynamic>? unknown;
 
+  /// The stacktrace is only used internally for processing such as in [DartImageLoadingIntegration].
+  /// TODO: should be a better way than saving a reference to the stacktrace
+  @internal
   final StackTrace? stackTrace;
 
   @override
