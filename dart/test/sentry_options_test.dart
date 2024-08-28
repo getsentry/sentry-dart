@@ -192,4 +192,10 @@ void main() {
 
     expect(options.enableSpanLocalMetricAggregation, true);
   });
+
+  test('enablePureDartSymbolication is enabled by default', () {
+    final options = SentryOptions(dsn: fakeDsn);
+
+    expect(options.enablePureDartSymbolication, true);
+  });
 }

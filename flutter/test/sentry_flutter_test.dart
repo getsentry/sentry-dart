@@ -616,6 +616,7 @@ void main() {
           expect(sdkVersion, options.sdk.version);
           expect('pub:sentry_flutter', options.sdk.packages.last.name);
           expect(sdkVersion, options.sdk.packages.last.version);
+          expect(false, options.enablePureDartSymbolication);
         },
         appRunner: appRunner,
         platformChecker: getPlatformChecker(

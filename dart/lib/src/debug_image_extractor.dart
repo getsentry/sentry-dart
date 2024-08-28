@@ -3,14 +3,68 @@ import 'package:meta/meta.dart';
 
 import '../sentry.dart';
 
-@immutable
+// Regular expressions for parsing header lines
+const String _headerStartLine =
+    '*** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***';
+final RegExp _buildIdRegex = RegExp(r"build_id(?:=|: )'([\da-f]+)'");
+final RegExp _isolateDsoBaseLineRegex =
+    RegExp(r'isolate_dso_base(?:=|: )([\da-f]+)');
+
+/// Processes a stack trace by extracting debug information from its header.
 @internal
-class DebugInfo {
+class DebugImageExtractor {
+  DebugImageExtractor(this._options);
+
+  final SentryOptions _options;
+
+  DebugImage? extractDebugImageFrom(StackTrace stackTrace) {
+    return _extractDebugInfoFrom(stackTrace).toDebugImage();
+  }
+
+  _DebugInfo _extractDebugInfoFrom(StackTrace stackTrace) {
+    String? buildId;
+    String? isolateDsoBase;
+
+    final lines = stackTrace.toString().split('\n');
+
+    for (final line in lines) {
+      if (_isHeaderStartLine(line)) {
+        continue;
+      }
+
+      buildId ??= _extractBuildId(line);
+      isolateDsoBase ??= _extractIsolateDsoBase(line);
+
+      // Early return if all needed information is found
+      if (buildId != null && isolateDsoBase != null) {
+        return _DebugInfo(buildId, isolateDsoBase, _options);
+      }
+    }
+
+    return _DebugInfo(buildId, isolateDsoBase, _options);
+  }
+
+  bool _isHeaderStartLine(String line) {
+    return line.contains(_headerStartLine);
+  }
+
+  String? _extractBuildId(String line) {
+    final buildIdMatch = _buildIdRegex.firstMatch(line);
+    return buildIdMatch?.group(1);
+  }
+
+  String? _extractIsolateDsoBase(String line) {
+    final isolateMatch = _isolateDsoBaseLineRegex.firstMatch(line);
+    return isolateMatch?.group(1);
+  }
+}
+
+class _DebugInfo {
   final String? buildId;
   final String? isolateDsoBase;
   final SentryOptions _options;
 
-  DebugInfo(this.buildId, this.isolateDsoBase, this._options);
+  _DebugInfo(this.buildId, this.isolateDsoBase, this._options);
 
   DebugImage? toDebugImage() {
     if (buildId == null || isolateDsoBase == null) {
@@ -79,58 +133,5 @@ class DebugInfo {
         '${hex.substring(12, 16)}-'
         '${hex.substring(16, 20)}-'
         '${hex.substring(20)}';
-  }
-}
-
-// Regular expressions for parsing header lines
-const String _headerStartLine =
-    '*** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***';
-final RegExp _buildIdRegex = RegExp(r"build_id(?:=|: )'([\da-f]+)'");
-final RegExp _isolateDsoBaseLineRegex =
-    RegExp(r'isolate_dso_base(?:=|: )([\da-f]+)');
-
-/// Processes a stack trace by extracting debug information from its header.
-@internal
-@internal
-class DebugInfoExtractor {
-  DebugInfoExtractor(this._options);
-
-  final SentryOptions _options;
-
-  DebugInfo extractFrom(StackTrace stackTrace) {
-    String? buildId;
-    String? isolateDsoBase;
-
-    final lines = stackTrace.toString().split('\n');
-
-    for (final line in lines) {
-      if (_isHeaderStartLine(line)) {
-        continue;
-      }
-
-      buildId ??= _extractBuildId(line);
-      isolateDsoBase ??= _extractIsolateDsoBase(line);
-
-      // Early return if all needed information is found
-      if (buildId != null && isolateDsoBase != null) {
-        return DebugInfo(buildId, isolateDsoBase, _options);
-      }
-    }
-
-    return DebugInfo(buildId, isolateDsoBase, _options);
-  }
-
-  bool _isHeaderStartLine(String line) {
-    return line.contains(_headerStartLine);
-  }
-
-  String? _extractBuildId(String line) {
-    final buildIdMatch = _buildIdRegex.firstMatch(line);
-    return buildIdMatch?.group(1);
-  }
-
-  String? _extractIsolateDsoBase(String line) {
-    final isolateMatch = _isolateDsoBaseLineRegex.firstMatch(line);
-    return isolateMatch?.group(1);
   }
 }

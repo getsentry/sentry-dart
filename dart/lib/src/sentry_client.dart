@@ -3,7 +3,6 @@ import 'dart:math';
 
 import 'package:meta/meta.dart';
 
-import '../sentry.dart';
 import 'client_reports/client_report_recorder.dart';
 import 'client_reports/discard_reason.dart';
 import 'event_processor.dart';
@@ -208,7 +207,7 @@ class SentryClient {
       release: event.release ?? _options.release,
       sdk: event.sdk ?? _options.sdk,
       platform: event.platform ?? sdkPlatform(_options.platformChecker.isWeb),
-      stackTrace: stackTrace,
+      stackTrace: StackTrace.fromString(stackTrace.toString()),
     );
 
     if (event is SentryTransaction) {
