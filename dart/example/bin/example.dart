@@ -5,28 +5,23 @@
 import 'dart:async';
 
 import 'package:sentry/sentry.dart';
-import 'dart:typed_data';
-
-import 'package:uuid/uuid.dart';
 
 import 'event_example.dart';
 
 /// Sends a test exception report to Sentry.io using this Dart client.
 Future<void> main() async {
   // ATTENTION: Change the DSN below with your own to see the events in Sentry. Get one at sentry.io
-  // const dsn =
-  //     'https://e85b375ffb9f43cf8bdf9787768149e0@o447951.ingest.sentry.io/5428562';
-  //
-  // await Sentry.init(
-  //   (options) => options
-  //     ..dsn = dsn
-  //     ..debug = true
-  //     ..sendDefaultPii = true
-  //     ..addEventProcessor(TagEventProcessor()),
-  //   appRunner: runApp,
-  // );
+  const dsn =
+      'https://e85b375ffb9f43cf8bdf9787768149e0@o447951.ingest.sentry.io/5428562';
 
-  print(convertCodeIdToDebugId('63956a4567aaf99a10d24405cf6a48f3'));
+  await Sentry.init(
+    (options) => options
+      ..dsn = dsn
+      ..debug = true
+      ..sendDefaultPii = true
+      ..addEventProcessor(TagEventProcessor()),
+    appRunner: runApp,
+  );
 }
 
 Future<void> runApp() async {
