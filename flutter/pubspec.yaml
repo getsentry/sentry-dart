@@ -56,4 +56,4 @@ flutter:
       linux:
         pluginClass: SentryFlutterPlugin
       windows:
-        pluginClass: SentryFlutterPlugin
+        ffiPlugin: true
