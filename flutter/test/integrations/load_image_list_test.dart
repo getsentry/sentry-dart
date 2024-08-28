@@ -102,8 +102,6 @@ void main() {
       await fixture.hub.captureMessage('error');
       verifyNever(fixture.binding.loadDebugImages());
     });
-
-    test('')
   });
 }
 
