@@ -3,15 +3,6 @@ import 'package:meta/meta.dart';
 
 import '../sentry.dart';
 
-// Regular expressions for parsing header lines
-const String _headerStartLine =
-    '*** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***';
-final RegExp _osArchLineRegex = RegExp(
-    r'os(?:=|: )(\S+?),? arch(?:=|: )(\S+?),? comp(?:=|: )(yes|no),? sim(?:=|: )(yes|no)');
-final RegExp _buildIdRegex = RegExp(r"build_id(?:=|: )'([\da-f]+)'");
-final RegExp _isolateDsoBaseLineRegex =
-    RegExp(r'isolate_dso_base(?:=|: )([\da-f]+)');
-
 @immutable
 @internal
 class DebugInfo {
@@ -91,10 +82,20 @@ class DebugInfo {
   }
 }
 
-/// Processes a stack trace by extracting debug image information from its header.
+// Regular expressions for parsing header lines
+const String _headerStartLine =
+    '*** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***';
+final RegExp _osArchLineRegex = RegExp(
+    r'os(?:=|: )(\S+?),? arch(?:=|: )(\S+?),? comp(?:=|: )(yes|no),? sim(?:=|: )(yes|no)');
+final RegExp _buildIdRegex = RegExp(r"build_id(?:=|: )'([\da-f]+)'");
+final RegExp _isolateDsoBaseLineRegex =
+    RegExp(r'isolate_dso_base(?:=|: )([\da-f]+)');
+
+/// Processes a stack trace by extracting debug information from its header.
 @internal
-class DebugImageExtractor {
-  DebugImageExtractor(this._options);
+@internal
+class DebugInfoExtractor {
+  DebugInfoExtractor(this._options);
 
   final SentryOptions _options;
 
@@ -104,31 +105,46 @@ class DebugImageExtractor {
     String? isolateDsoBase;
 
     final lines = stackTrace.toString().split('\n');
+
     for (final line in lines) {
-      if (line.contains(_headerStartLine)) {
-        arch = buildId = isolateDsoBase = null;
+      if (_isHeaderStartLine(line)) {
         continue;
       }
 
-      final archMatch = _osArchLineRegex.firstMatch(line);
-      if (archMatch != null) {
-        arch = archMatch[2];
-        continue;
-      }
+      arch ??= _extractArch(line);
+      buildId ??= _extractBuildId(line);
+      isolateDsoBase ??= _extractIsolateDsoBase(line);
 
-      final buildIdMatch = _buildIdRegex.firstMatch(line);
-      if (buildIdMatch != null) {
-        buildId = buildIdMatch[1];
-        continue;
-      }
-
-      final isolateMatch = _isolateDsoBaseLineRegex.firstMatch(line);
-      if (isolateMatch != null) {
-        isolateDsoBase = isolateMatch[1];
-        continue;
+      // Early return if all needed information is found
+      if (arch != null && buildId != null && isolateDsoBase != null) {
+        return DebugInfo(arch, buildId, isolateDsoBase, _options);
       }
     }
 
+    if (arch == null || buildId == null || isolateDsoBase == null) {
+      _options.logger(SentryLevel.warning,
+          'Incomplete debug info extracted from stack trace.');
+    }
+
     return DebugInfo(arch, buildId, isolateDsoBase, _options);
+  }
+
+  bool _isHeaderStartLine(String line) {
+    return line.contains(_headerStartLine);
+  }
+
+  String? _extractArch(String line) {
+    final archMatch = _osArchLineRegex.firstMatch(line);
+    return archMatch?.group(2);
+  }
+
+  String? _extractBuildId(String line) {
+    final buildIdMatch = _buildIdRegex.firstMatch(line);
+    return buildIdMatch?.group(1);
+  }
+
+  String? _extractIsolateDsoBase(String line) {
+    final isolateMatch = _isolateDsoBaseLineRegex.firstMatch(line);
+    return isolateMatch?.group(1);
   }
 }

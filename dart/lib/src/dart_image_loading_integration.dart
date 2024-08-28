@@ -1,13 +1,13 @@
 import 'package:meta/meta.dart';
 
 import '../sentry.dart';
-import 'debug_image_extractor.dart';
+import 'debug_info_extractor.dart';
 
 class DartImageLoadingIntegration extends Integration<SentryOptions> {
   @override
   void call(Hub hub, SentryOptions options) {
     options.addEventProcessor(
-        _LoadImageIntegrationEventProcessor(DebugImageExtractor(options)));
+        _LoadImageIntegrationEventProcessor(DebugInfoExtractor(options)));
     options.sdk.addIntegration('loadImageIntegration');
   }
 
@@ -18,7 +18,7 @@ class DartImageLoadingIntegration extends Integration<SentryOptions> {
 class _LoadImageIntegrationEventProcessor implements EventProcessor {
   _LoadImageIntegrationEventProcessor(this._debugImageExtractor);
 
-  final DebugImageExtractor _debugImageExtractor;
+  final DebugInfoExtractor _debugImageExtractor;
 
   @override
   Future<SentryEvent?> apply(SentryEvent event, Hint hint) async {
