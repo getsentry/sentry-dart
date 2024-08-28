@@ -91,9 +91,7 @@ class DebugInfo {
   }
 }
 
-/// Processes a stack trace by extracting debug image information from it and
-/// creating a synthetic representation of a debug image.
-/// Currently working for iOS, macOS and Android.
+/// Processes a stack trace by extracting debug image information from its header.
 @internal
 class DebugImageExtractor {
   DebugImageExtractor(this._options);
