@@ -3,101 +3,43 @@ import 'package:meta/meta.dart';
 
 import '../sentry.dart';
 
-/// Processes a stack trace and extracts debug image information from it and
-/// creates a synthetic representation of the debug image.
-/// Currently working for iOS, macOS and Android.
+// Regular expressions for parsing header lines
+const String _headerStartLine =
+    '*** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***';
+final RegExp _osArchLineRegex = RegExp(
+    r'os(?:=|: )(\S+?),? arch(?:=|: )(\S+?),? comp(?:=|: )(yes|no),? sim(?:=|: )(yes|no)');
+final RegExp _buildIdRegex = RegExp(r"build_id(?:=|: )'([\da-f]+)'");
+final RegExp _isolateDsoBaseLineRegex =
+    RegExp(r'isolate_dso_base(?:=|: )([\da-f]+)');
+
+@immutable
 @internal
-class DebugImageExtractor {
-  final SentryOptions _options;
+class DebugInfo {
+  final String? arch;
+  final String? buildId;
+  final String? isolateDsoBase;
+  final SentryOptions options;
 
-  // Header information
-  String? _arch;
-  String? _buildId;
-  String? _isolateDsoBase;
+  DebugInfo(this.arch, this.buildId, this.isolateDsoBase, this.options);
 
-  // Regular expressions for parsing header lines
-  static const String _headerStartLine =
-      '*** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***';
-  static final RegExp _osArchLineRegex = RegExp(
-      r'os(?:=|: )(\S+?),? arch(?:=|: )(\S+?),? comp(?:=|: )(yes|no),? sim(?:=|: )(yes|no)');
-  static final RegExp _buildIdRegex = RegExp(r"build_id(?:=|: )'([\da-f]+)'");
-  static final RegExp _isolateDsoBaseLineRegex =
-      RegExp(r'isolate_dso_base(?:=|: )([\da-f]+)');
-
-  DebugImageExtractor(this._options);
-
-  DebugImage? toImage(StackTrace stackTrace) {
-    _parseStackTrace(stackTrace);
-    return _createDebugImage();
-  }
-
-  void _parseStackTrace(StackTrace stackTrace) {
-    final lines = stackTrace.toString().split('\n');
-    for (final line in lines) {
-      if (_tryParseHeaderLine(line)) continue;
-    }
-  }
-
-  bool _tryParseHeaderLine(String line) {
-    if (line.contains(_headerStartLine)) {
-      _arch = _buildId = _isolateDsoBase = null;
-      return true;
-    }
-
-    final parsers = <bool Function(String)>[
-      _parseOsArchLine,
-      _parseBuildIdLine,
-      _parseIsolateDsoBaseLine,
-    ];
-
-    return parsers.any((parser) => parser(line));
-  }
-
-  bool _parseOsArchLine(String line) {
-    final match = _osArchLineRegex.firstMatch(line);
-    if (match != null) {
-      _arch = match[2];
-      return true;
-    }
-    return false;
-  }
-
-  bool _parseBuildIdLine(String line) {
-    final match = _buildIdRegex.firstMatch(line);
-    if (match != null) {
-      _buildId = match[1];
-      return true;
-    }
-    return false;
-  }
-
-  bool _parseIsolateDsoBaseLine(String line) {
-    final match = _isolateDsoBaseLineRegex.firstMatch(line);
-    if (match != null) {
-      _isolateDsoBase = match[1];
-      return true;
-    }
-    return false;
-  }
-
-  DebugImage? _createDebugImage() {
-    if (_buildId == null || _isolateDsoBase == null) {
+  DebugImage? toDebugImage() {
+    if (buildId == null || isolateDsoBase == null) {
       // TODO: log
       return null;
     }
 
-    final type = _options.platformChecker.platform.isAndroid ? 'elf' : 'macho';
-    final debugId = _options.platformChecker.platform.isAndroid
-        ? _convertCodeIdToDebugId(_buildId!)
-        : _hexToUuid(_buildId!);
-    final codeId =
-        _options.platformChecker.platform.isAndroid ? _buildId! : null;
+    final type = options.platformChecker.platform.isAndroid ? 'elf' : 'macho';
+    final debugId = options.platformChecker.platform.isAndroid
+        ? _convertCodeIdToDebugId(buildId!)
+        : _hexToUuid(buildId!);
+    final codeId = options.platformChecker.platform.isAndroid ? buildId! : null;
+
     return DebugImage(
       type: type,
-      imageAddr: '0x$_isolateDsoBase',
+      imageAddr: '0x$isolateDsoBase',
       debugId: debugId,
       codeId: codeId,
-      arch: _arch,
+      arch: arch,
     );
   }
 
@@ -146,5 +88,49 @@ class DebugImageExtractor {
         '${hex.substring(12, 16)}-'
         '${hex.substring(16, 20)}-'
         '${hex.substring(20)}';
+  }
+}
+
+/// Processes a stack trace by extracting debug image information from it and
+/// creating a synthetic representation of a debug image.
+/// Currently working for iOS, macOS and Android.
+@internal
+class DebugImageExtractor {
+  DebugImageExtractor(this._options);
+
+  final SentryOptions _options;
+
+  DebugInfo extractFrom(StackTrace stackTrace) {
+    String? arch;
+    String? buildId;
+    String? isolateDsoBase;
+
+    final lines = stackTrace.toString().split('\n');
+    for (final line in lines) {
+      if (line.contains(_headerStartLine)) {
+        arch = buildId = isolateDsoBase = null;
+        continue;
+      }
+
+      final archMatch = _osArchLineRegex.firstMatch(line);
+      if (archMatch != null) {
+        arch = archMatch[2];
+        continue;
+      }
+
+      final buildIdMatch = _buildIdRegex.firstMatch(line);
+      if (buildIdMatch != null) {
+        buildId = buildIdMatch[1];
+        continue;
+      }
+
+      final isolateMatch = _isolateDsoBaseLineRegex.firstMatch(line);
+      if (isolateMatch != null) {
+        isolateDsoBase = isolateMatch[1];
+        continue;
+      }
+    }
+
+    return DebugInfo(arch, buildId, isolateDsoBase, _options);
   }
 }

@@ -58,5 +58,3 @@ export 'src/utils.dart';
 export 'src/spotlight.dart';
 // proxy
 export 'src/protocol/sentry_proxy.dart';
-export 'src/debug_image_extractor.dart';
-export 'src/dart_image_loading_integration.dart';
