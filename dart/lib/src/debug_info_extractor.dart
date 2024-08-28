@@ -6,12 +6,11 @@ import '../sentry.dart';
 @immutable
 @internal
 class DebugInfo {
-  final String? arch;
   final String? buildId;
   final String? isolateDsoBase;
   final SentryOptions options;
 
-  DebugInfo(this.arch, this.buildId, this.isolateDsoBase, this.options);
+  DebugInfo(this.buildId, this.isolateDsoBase, this.options);
 
   DebugImage? toDebugImage() {
     if (buildId == null || isolateDsoBase == null) {
@@ -30,7 +29,6 @@ class DebugInfo {
       imageAddr: '0x$isolateDsoBase',
       debugId: debugId,
       codeId: codeId,
-      arch: arch,
     );
   }
 
@@ -85,8 +83,6 @@ class DebugInfo {
 // Regular expressions for parsing header lines
 const String _headerStartLine =
     '*** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***';
-final RegExp _osArchLineRegex = RegExp(
-    r'os(?:=|: )(\S+?),? arch(?:=|: )(\S+?),? comp(?:=|: )(yes|no),? sim(?:=|: )(yes|no)');
 final RegExp _buildIdRegex = RegExp(r"build_id(?:=|: )'([\da-f]+)'");
 final RegExp _isolateDsoBaseLineRegex =
     RegExp(r'isolate_dso_base(?:=|: )([\da-f]+)');
@@ -111,7 +107,6 @@ class DebugInfoExtractor {
         continue;
       }
 
-      arch ??= _extractArch(line);
       buildId ??= _extractBuildId(line);
       isolateDsoBase ??= _extractIsolateDsoBase(line);
 
@@ -131,11 +126,6 @@ class DebugInfoExtractor {
 
   bool _isHeaderStartLine(String line) {
     return line.contains(_headerStartLine);
-  }
-
-  String? _extractArch(String line) {
-    final archMatch = _osArchLineRegex.firstMatch(line);
-    return archMatch?.group(2);
   }
 
   String? _extractBuildId(String line) {
