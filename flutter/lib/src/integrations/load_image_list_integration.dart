@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:sentry/sentry.dart';
+import '../../sentry_flutter.dart';
 import '../native/sentry_native_binding.dart';
 
 /// Loads the native debug image list for stack trace symbolication.
