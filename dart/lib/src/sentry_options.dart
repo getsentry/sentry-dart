@@ -359,8 +359,8 @@ class SentryOptions {
   }
 
   /// If enabled, the SDK will attempt to symbolicate pure Dart stack traces.
-  /// Default is `false`
-  bool symbolicateDartStacktrace = true;
+  /// Automatically set to false in `SentryFlutter.init`.
+  bool enablePureDartSymbolication = true;
 
   @internal
   late ClientReportRecorder recorder = NoOpClientReportRecorder();

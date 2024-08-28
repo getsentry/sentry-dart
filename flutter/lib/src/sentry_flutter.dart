@@ -180,10 +180,8 @@ mixin SentryFlutter {
     if (native != null) {
       integrations.add(NativeSdkIntegration(native));
       integrations.add(LoadContextsIntegration(native));
-
-      // Remove the dart only integration
-      integrations.removeWhere((element) => element is ImageLoadingIntegration);
       integrations.add(LoadImageListIntegration(native));
+      options.enablePureDartSymbolication = false;
     }
 
     final renderer = options.rendererWrapper.getRenderer();

@@ -62,7 +62,7 @@ Future<void> setupSentry(
   bool isIntegrationTest = false,
   BeforeSendCallback? beforeSendCallback,
 }) async {
-  await Sentry.init(
+  await SentryFlutter.init(
     (options) {
       options.dsn = exampleDsn;
       options.tracesSampleRate = 1.0;
@@ -560,6 +560,7 @@ class MainScaffold extends StatelessWidget {
                   'Demonstrates the metrics. It creates several metrics and send them to Sentry.',
               buttonTitle: 'Metrics',
             ),
+            SelectableText(StackTrace.current.toString()),
             if (UniversalPlatform.isIOS || UniversalPlatform.isMacOS)
               const CocoaExample(),
             if (UniversalPlatform.isAndroid) const AndroidExample(),

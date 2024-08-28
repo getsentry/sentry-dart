@@ -4,7 +4,7 @@ import 'package:sentry/sentry.dart';
 import '../native/sentry_native_binding.dart';
 
 /// Loads the native debug image list for stack trace symbolication.
-class LoadImageListIntegration extends ImageLoadingIntegration {
+class LoadImageListIntegration extends Integration<SentryOptions> {
   final SentryNativeBinding _native;
 
   LoadImageListIntegration(this._native);

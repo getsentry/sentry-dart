@@ -1,7 +1,13 @@
 import 'dart:typed_data';
+import 'package:meta/meta.dart';
+
 import '../sentry.dart';
 
-class DartSymbolizer {
+/// Processes a stack trace and extracts debug image information from it and
+/// creates a synthetic representation of the debug image.
+/// Currently working for iOS, macOS and Android.
+@internal
+class DebugImageExtractor {
   final SentryOptions _options;
 
   // Header information
@@ -18,7 +24,7 @@ class DartSymbolizer {
   static final RegExp _isolateDsoBaseLineRegex =
       RegExp(r'isolate_dso_base(?:=|: )([\da-f]+)');
 
-  DartSymbolizer(this._options);
+  DebugImageExtractor(this._options);
 
   DebugImage? toImage(StackTrace stackTrace) {
     _parseStackTrace(stackTrace);
@@ -81,17 +87,22 @@ class DartSymbolizer {
     }
 
     final type = _options.platformChecker.platform.isAndroid ? 'elf' : 'macho';
+    final debugId = _options.platformChecker.platform.isAndroid
+        ? _convertCodeIdToDebugId(_buildId!)
+        : _hexToUuid(_buildId!);
+    final codeId =
+        _options.platformChecker.platform.isAndroid ? _buildId! : null;
     return DebugImage(
       type: type,
       imageAddr: '0x$_isolateDsoBase',
-      debugId: _convertCodeIdToDebugId(_buildId!),
-      codeId: _buildId!,
+      debugId: debugId,
+      codeId: codeId,
       arch: _arch,
     );
   }
 
   // Debug identifier is the little-endian UUID representation of the first 16-bytes of
-  // the build ID.
+  // the build ID on Android
   String _convertCodeIdToDebugId(String codeId) {
     codeId = codeId.replaceAll(' ', '');
     if (codeId.length < 32) {
@@ -122,5 +133,18 @@ class DartSymbolizer {
           .map((b) => b.toRadixString(16).padLeft(2, '0'))
           .join()
     ].join('-');
+  }
+
+  String _hexToUuid(String hex) {
+    if (hex.length != 32) {
+      // todo: don't throw
+      throw FormatException('Input must be a 32-character hexadecimal string');
+    }
+
+    return '${hex.substring(0, 8)}-'
+        '${hex.substring(8, 12)}-'
+        '${hex.substring(12, 16)}-'
+        '${hex.substring(16, 20)}-'
+        '${hex.substring(20)}';
   }
 }
