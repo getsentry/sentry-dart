@@ -40,6 +40,7 @@ class SentryTransaction extends SentryEvent {
     Map<String, SentryMeasurement>? measurements,
     Map<String, List<MetricSummary>>? metricSummaries,
     SentryTransactionInfo? transactionInfo,
+    StackTrace? stackTrace,
   }) : super(
           timestamp: timestamp ?? tracer.endTimestamp,
           transaction: transaction ?? tracer.name,
@@ -139,6 +140,7 @@ class SentryTransaction extends SentryEvent {
     Map<String, SentryMeasurement>? measurements,
     Map<String, List<MetricSummary>>? metricSummaries,
     SentryTransactionInfo? transactionInfo,
+    StackTrace? stackTrace,
   }) =>
       SentryTransaction(
         tracer,
@@ -167,5 +169,6 @@ class SentryTransaction extends SentryEvent {
             (metricSummaries != null ? Map.from(metricSummaries) : null) ??
                 this.metricSummaries,
         transactionInfo: transactionInfo ?? this.transactionInfo,
+        stackTrace: stackTrace ?? this.stackTrace,
       );
 }

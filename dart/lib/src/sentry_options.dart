@@ -358,6 +358,10 @@ class SentryOptions {
         _ignoredExceptionsForType.contains(exception.runtimeType);
   }
 
+  /// If enabled, the SDK will attempt to symbolicate pure Dart stack traces.
+  /// Default is `false`
+  bool symbolicateDartStacktrace = true;
+
   @internal
   late ClientReportRecorder recorder = NoOpClientReportRecorder();
 

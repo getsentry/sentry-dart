@@ -16,7 +16,7 @@ import 'package:sentry_dio/sentry_dio.dart';
 import 'package:sentry_drift/sentry_drift.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_hive/sentry_hive.dart';
-import 'package:sentry_isar/sentry_isar.dart';
+// import 'package:sentry_isar/sentry_isar.dart';
 import 'package:sentry_logging/sentry_logging.dart';
 import 'package:sentry_sqflite/sentry_sqflite.dart';
 import 'package:sqflite/sqflite.dart';
@@ -27,7 +27,7 @@ import 'package:universal_platform/universal_platform.dart';
 import 'auto_close_screen.dart';
 import 'drift/connection/connection.dart';
 import 'drift/database.dart';
-import 'isar/user.dart';
+// import 'isar/user.dart';
 import 'user_feedback_dialog.dart';
 
 // ATTENTION: Change the DSN below with your own to see the events in Sentry. Get one at sentry.io
@@ -62,33 +62,33 @@ Future<void> setupSentry(
   bool isIntegrationTest = false,
   BeforeSendCallback? beforeSendCallback,
 }) async {
-  await SentryFlutter.init(
+  await Sentry.init(
     (options) {
       options.dsn = exampleDsn;
       options.tracesSampleRate = 1.0;
-      options.profilesSampleRate = 1.0;
-      options.reportPackages = false;
+      // options.profilesSampleRate = 1.0;
+      // options.reportPackages = false;
       options.addInAppInclude('sentry_flutter_example');
       options.considerInAppFramesByDefault = false;
       options.attachThreads = true;
-      options.enableWindowMetricBreadcrumbs = true;
+      // options.enableWindowMetricBreadcrumbs = true;
       options.addIntegration(LoggingIntegration(minEventLevel: Level.INFO));
       options.sendDefaultPii = true;
-      options.reportSilentFlutterErrors = true;
-      options.attachScreenshot = true;
-      options.screenshotQuality = SentryScreenshotQuality.low;
-      options.attachViewHierarchy = true;
+      // options.reportSilentFlutterErrors = true;
+      // options.attachScreenshot = true;
+      // options.screenshotQuality = SentryScreenshotQuality.low;
+      // options.attachViewHierarchy = true;
       // We can enable Sentry debug logging during development. This is likely
       // going to log too much for your app, but can be useful when figuring out
       // configuration issues, e.g. finding out why your events are not uploaded.
       options.debug = true;
       options.spotlight = Spotlight(enabled: true);
-      options.enableTimeToFullDisplayTracing = true;
+      // options.enableTimeToFullDisplayTracing = true;
       options.enableMetrics = true;
 
       options.maxRequestBodySize = MaxRequestBodySize.always;
       options.maxResponseBodySize = MaxResponseBodySize.always;
-      options.navigatorKey = navigatorKey;
+      // options.navigatorKey = navigatorKey;
 
       _isIntegrationTest = isIntegrationTest;
       if (_isIntegrationTest) {
@@ -205,6 +205,7 @@ class MainScaffold extends StatelessWidget {
                     'Long press a button to see more information. (hover on web)'),
               ),
             ),
+            // Text(StackTrace.current.toString()),
             TooltipButton(
               onPressed: () => navigateToAutoCloseScreen(context),
               text:
@@ -578,34 +579,34 @@ class MainScaffold extends StatelessWidget {
   }
 
   Future<void> isarTest() async {
-    final tr = Sentry.startTransaction(
-      'isarTest',
-      'db',
-      bindToScope: true,
-    );
-
-    final dir = await getApplicationDocumentsDirectory();
-
-    final isar = await SentryIsar.open(
-      [UserSchema],
-      directory: dir.path,
-    );
-
-    final newUser = User()
-      ..name = 'Joe Dirt'
-      ..age = 36;
-
-    await isar.writeTxn(() async {
-      await isar.users.put(newUser); // insert & update
-    });
-
-    final existingUser = await isar.users.get(newUser.id); // get
-
-    await isar.writeTxn(() async {
-      await isar.users.delete(existingUser!.id); // delete
-    });
-
-    await tr.finish(status: const SpanStatus.ok());
+    // final tr = Sentry.startTransaction(
+    //   'isarTest',
+    //   'db',
+    //   bindToScope: true,
+    // );
+    //
+    // final dir = await getApplicationDocumentsDirectory();
+    //
+    // final isar = await SentryIsar.open(
+    //   [UserSchema],
+    //   directory: dir.path,
+    // );
+    //
+    // final newUser = User()
+    //   ..name = 'Joe Dirt'
+    //   ..age = 36;
+    //
+    // await isar.writeTxn(() async {
+    //   await isar.users.put(newUser); // insert & update
+    // });
+    //
+    // final existingUser = await isar.users.get(newUser.id); // get
+    //
+    // await isar.writeTxn(() async {
+    //   await isar.users.delete(existingUser!.id); // delete
+    // });
+    //
+    // await tr.finish(status: const SpanStatus.ok());
   }
 
   Future<void> hiveTest() async {

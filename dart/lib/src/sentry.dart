@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:meta/meta.dart';
 
 import 'dart_exception_type_identifier.dart';
+import 'load_image_integration.dart';
 import 'metrics/metrics_api.dart';
 import 'run_zoned_guarded_integration.dart';
 import 'event_processor/enricher/enricher_event_processor.dart';
@@ -82,6 +83,8 @@ class Sentry {
       // in the ‘root zone’ where all Dart programs start
       options.addIntegrationByIndex(0, IsolateErrorIntegration());
     }
+
+    options.addIntegration(DartImageLoadingIntegration());
 
     options.addEventProcessor(EnricherEventProcessor(options));
     options.addEventProcessor(ExceptionEventProcessor(options));
