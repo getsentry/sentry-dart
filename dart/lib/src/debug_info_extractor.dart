@@ -8,21 +8,23 @@ import '../sentry.dart';
 class DebugInfo {
   final String? buildId;
   final String? isolateDsoBase;
-  final SentryOptions options;
+  final SentryOptions _options;
 
-  DebugInfo(this.buildId, this.isolateDsoBase, this.options);
+  DebugInfo(this.buildId, this.isolateDsoBase, this._options);
 
   DebugImage? toDebugImage() {
     if (buildId == null || isolateDsoBase == null) {
-      // TODO: log
+      _options.logger(SentryLevel.warning,
+          'Cannot create DebugImage without buildId and isolateDsoBase.');
       return null;
     }
 
-    final type = options.platformChecker.platform.isAndroid ? 'elf' : 'macho';
-    final debugId = options.platformChecker.platform.isAndroid
+    final type = _options.platformChecker.platform.isAndroid ? 'elf' : 'macho';
+    final debugId = _options.platformChecker.platform.isAndroid
         ? _convertCodeIdToDebugId(buildId!)
         : _hexToUuid(buildId!);
-    final codeId = options.platformChecker.platform.isAndroid ? buildId! : null;
+    final codeId =
+        _options.platformChecker.platform.isAndroid ? buildId! : null;
 
     return DebugImage(
       type: type,
@@ -96,7 +98,6 @@ class DebugInfoExtractor {
   final SentryOptions _options;
 
   DebugInfo extractFrom(StackTrace stackTrace) {
-    String? arch;
     String? buildId;
     String? isolateDsoBase;
 
@@ -111,17 +112,12 @@ class DebugInfoExtractor {
       isolateDsoBase ??= _extractIsolateDsoBase(line);
 
       // Early return if all needed information is found
-      if (arch != null && buildId != null && isolateDsoBase != null) {
-        return DebugInfo(arch, buildId, isolateDsoBase, _options);
+      if (buildId != null && isolateDsoBase != null) {
+        return DebugInfo(buildId, isolateDsoBase, _options);
       }
     }
 
-    if (arch == null || buildId == null || isolateDsoBase == null) {
-      _options.logger(SentryLevel.warning,
-          'Incomplete debug info extracted from stack trace.');
-    }
-
-    return DebugInfo(arch, buildId, isolateDsoBase, _options);
+    return DebugInfo(buildId, isolateDsoBase, _options);
   }
 
   bool _isHeaderStartLine(String line) {
