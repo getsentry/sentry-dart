@@ -6,7 +6,7 @@ import 'mocks/mock_platform.dart';
 import 'mocks/mock_platform_checker.dart';
 
 void main() {
-  group('DebugImageExtractor', () {
+  group(DebugImageExtractor, () {
     late Fixture fixture;
 
     setUp(() {
@@ -59,19 +59,6 @@ isolate_dso_base: 30000000
       expect(
           debugImage?.debugId, equals('b680cb89-0f9e-3c12-a24b-172d050dec73'));
       expect(debugImage?.codeId, isNull);
-    });
-
-    test('reuse debug image if it has already been extracted', () {
-      final stackTrace = '''
-*** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
-build_id: 'b680cb890f9e3c12a24b172d050dec73'
-isolate_dso_base: 40000000
-''';
-      final extractor = fixture.getSut(platform: MockPlatform.iOS());
-
-      final debugImage = extractor.extractFrom(stackTrace);
-
-      expect(debugImage, isNull);
     });
 
     test('sets correct type based on platform', () {

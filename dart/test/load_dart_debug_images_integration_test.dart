@@ -9,7 +9,7 @@ import 'mocks/mock_platform.dart';
 import 'mocks/mock_platform_checker.dart';
 
 void main() {
-  group(LoadDartDebugImagesIntegration(), () {
+  group(LoadDartDebugImagesIntegration, () {
     late Fixture fixture;
 
     final platforms = [
