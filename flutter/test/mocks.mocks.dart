@@ -264,12 +264,6 @@ class MockSentryTracer extends _i1.Mock implements _i4.SentryTracer {
       );
 
   @override
-  Map<String, _i2.SentryMeasurement> get measurements => (super.noSuchMethod(
-        Invocation.getter(#measurements),
-        returnValue: <String, _i2.SentryMeasurement>{},
-      ) as Map<String, _i2.SentryMeasurement>);
-
-  @override
   _i2.SentrySpanContext get context => (super.noSuchMethod(
         Invocation.getter(#context),
         returnValue: _FakeSentrySpanContext_0(
@@ -337,6 +331,12 @@ class MockSentryTracer extends _i1.Mock implements _i4.SentryTracer {
         Invocation.getter(#tags),
         returnValue: <String, String>{},
       ) as Map<String, String>);
+
+  @override
+  Map<String, _i2.SentryMeasurement> get measurements => (super.noSuchMethod(
+        Invocation.getter(#measurements),
+        returnValue: <String, _i2.SentryMeasurement>{},
+      ) as Map<String, _i2.SentryMeasurement>);
 
   @override
   _i8.Future<void> finish({
@@ -493,24 +493,6 @@ class MockSentryTracer extends _i1.Mock implements _i4.SentryTracer {
       super.noSuchMethod(
         Invocation.method(
           #setMeasurement,
-          [
-            name,
-            value,
-          ],
-          {#unit: unit},
-        ),
-        returnValueForMissingStub: null,
-      );
-
-  @override
-  void setMeasurementFromChild(
-    String? name,
-    num? value, {
-    _i2.SentryMeasurementUnit? unit,
-  }) =>
-      super.noSuchMethod(
-        Invocation.method(
-          #setMeasurementFromChild,
           [
             name,
             value,
@@ -687,7 +669,6 @@ class MockSentryTransaction extends _i1.Mock implements _i3.SentryTransaction {
     Map<String, _i2.SentryMeasurement>? measurements,
     Map<String, List<_i3.MetricSummary>>? metricSummaries,
     _i3.SentryTransactionInfo? transactionInfo,
-    StackTrace? stackTrace,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -723,7 +704,6 @@ class MockSentryTransaction extends _i1.Mock implements _i3.SentryTransaction {
             #measurements: measurements,
             #metricSummaries: metricSummaries,
             #transactionInfo: transactionInfo,
-            #stackTrace: stackTrace,
           },
         ),
         returnValue: _FakeSentryTransaction_7(
@@ -761,20 +741,10 @@ class MockSentryTransaction extends _i1.Mock implements _i3.SentryTransaction {
               #measurements: measurements,
               #metricSummaries: metricSummaries,
               #transactionInfo: transactionInfo,
-              #stackTrace: stackTrace,
             },
           ),
         ),
       ) as _i3.SentryTransaction);
-
-  @override
-  bool needsSymbolication() => (super.noSuchMethod(
-        Invocation.method(
-          #needsSymbolication,
-          [],
-        ),
-        returnValue: false,
-      ) as bool);
 }
 
 /// A class which mocks [SentrySpan].
@@ -1371,16 +1341,6 @@ class MockSentryNativeBinding extends _i1.Mock
   _i8.Future<void> resumeAppHangTracking() => (super.noSuchMethod(
         Invocation.method(
           #resumeAppHangTracking,
-          [],
-        ),
-        returnValue: _i8.Future<void>.value(),
-        returnValueForMissingStub: _i8.Future<void>.value(),
-      ) as _i8.Future<void>);
-
-  @override
-  _i8.Future<void> nativeCrash() => (super.noSuchMethod(
-        Invocation.method(
-          #nativeCrash,
           [],
         ),
         returnValue: _i8.Future<void>.value(),

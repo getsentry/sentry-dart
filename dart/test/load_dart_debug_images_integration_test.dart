@@ -48,16 +48,16 @@ void main() {
 
     test('Event processor adds debug image when symbolication is needed',
         () async {
-      final stackTrace = StackTrace.fromString('''
+      final stackTrace = '''
 *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
 build_id: 'b680cb890f9e3c12a24b172d050dec73'
 isolate_dso_base: 10000000
-''');
+''';
       SentryEvent event = _getEvent();
-      event = event.copyWith(stackTrace: stackTrace);
 
       final processor = fixture.options.eventProcessors.first;
-      final resultEvent = await processor.apply(event, Hint());
+      final resultEvent = await processor.apply(
+          event, Hint()..set(hintRawStackTraceKey, stackTrace));
 
       expect(resultEvent?.debugMeta?.images.length, 1);
       final debugImage = resultEvent?.debugMeta?.images.first;

@@ -7,6 +7,7 @@ import 'client_reports/client_report_recorder.dart';
 import 'client_reports/discard_reason.dart';
 import 'event_processor.dart';
 import 'hint.dart';
+import 'load_dart_debug_images_integration.dart';
 import 'metrics/metric.dart';
 import 'metrics/metrics_aggregator.dart';
 import 'protocol.dart';
@@ -117,6 +118,7 @@ class SentryClient {
     SentryEvent? preparedEvent = _prepareEvent(event, stackTrace: stackTrace);
 
     hint ??= Hint();
+    hint.set(hintRawStackTraceKey, stackTrace.toString());
 
     if (scope != null) {
       preparedEvent = await scope.applyToEvent(preparedEvent, hint);
@@ -207,7 +209,6 @@ class SentryClient {
       release: event.release ?? _options.release,
       sdk: event.sdk ?? _options.sdk,
       platform: event.platform ?? sdkPlatform(_options.platformChecker.isWeb),
-      stackTrace: StackTrace.fromString(stackTrace.toString()),
     );
 
     if (event is SentryTransaction) {

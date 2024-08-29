@@ -1,6 +1,5 @@
 import 'package:meta/meta.dart';
 
-import '../load_dart_debug_images_integration.dart';
 import '../protocol.dart';
 import '../throwable_mechanism.dart';
 import '../utils.dart';
@@ -40,7 +39,6 @@ class SentryEvent with SentryEventLike<SentryEvent> {
     this.debugMeta,
     this.type,
     this.unknown,
-    this.stackTrace,
   })  : eventId = eventId ?? SentryId.newId(),
         timestamp = timestamp ?? getUtcDateTime(),
         contexts = contexts ?? Contexts(),
@@ -196,11 +194,6 @@ class SentryEvent with SentryEventLike<SentryEvent> {
   @internal
   final Map<String, dynamic>? unknown;
 
-  /// The stacktrace is only used internally for processing such as in [LoadDartDebugImagesIntegration].
-  /// TODO: should be a better way than saving a reference to the stacktrace
-  @internal
-  final StackTrace? stackTrace;
-
   @override
   SentryEvent copyWith({
     SentryId? eventId,
@@ -231,7 +224,6 @@ class SentryEvent with SentryEventLike<SentryEvent> {
     List<SentryException>? exceptions,
     List<SentryThread>? threads,
     String? type,
-    StackTrace? stackTrace,
   }) =>
       SentryEvent(
         eventId: eventId ?? this.eventId,
@@ -265,7 +257,6 @@ class SentryEvent with SentryEventLike<SentryEvent> {
         threads: (threads != null ? List.from(threads) : null) ?? this.threads,
         type: type ?? this.type,
         unknown: unknown,
-        stackTrace: stackTrace ?? this.stackTrace,
       );
 
   /// Deserializes a [SentryEvent] from JSON [Map].

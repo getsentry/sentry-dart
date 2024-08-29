@@ -14,11 +14,11 @@ void main() {
     });
 
     test('extracts debug image from valid stack trace', () {
-      final stackTrace = StackTrace.fromString('''
+      final stackTrace = '''
 *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
 build_id: 'b680cb890f9e3c12a24b172d050dec73'
 isolate_dso_base: 10000000
-''');
+''';
       final extractor = fixture.getSut(platform: MockPlatform.android());
       final debugImage = extractor.extractDebugImageFrom(stackTrace);
 
@@ -28,7 +28,7 @@ isolate_dso_base: 10000000
     });
 
     test('returns null for invalid stack trace', () {
-      final stackTrace = StackTrace.fromString('Invalid stack trace');
+      final stackTrace = 'Invalid stack trace';
       final extractor = fixture.getSut(platform: MockPlatform.android());
       final debugImage = extractor.extractDebugImageFrom(stackTrace);
 
@@ -36,11 +36,11 @@ isolate_dso_base: 10000000
     });
 
     test('extracts correct debug ID for Android', () {
-      final stackTrace = StackTrace.fromString('''
+      final stackTrace = '''
 *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
 build_id: 'b680cb890f9e3c12a24b172d050dec73'
 isolate_dso_base: 20000000
-''');
+''';
       final extractor = fixture.getSut(platform: MockPlatform.android());
       final debugImage = extractor.extractDebugImageFrom(stackTrace);
 
@@ -49,11 +49,11 @@ isolate_dso_base: 20000000
     });
 
     test('extracts correct debug ID for iOS', () {
-      final stackTrace = StackTrace.fromString('''
+      final stackTrace = '''
 *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
 build_id: 'b680cb890f9e3c12a24b172d050dec73'
 isolate_dso_base: 30000000
-''');
+''';
       final extractor = fixture.getSut(platform: MockPlatform.iOS());
       final debugImage = extractor.extractDebugImageFrom(stackTrace);
 
@@ -63,11 +63,11 @@ isolate_dso_base: 30000000
     });
 
     test('sets correct type based on platform', () {
-      final stackTrace = StackTrace.fromString('''
+      final stackTrace = '''
 *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
 build_id: 'b680cb890f9e3c12a24b172d050dec73'
 isolate_dso_base: 40000000
-''');
+''';
       final androidExtractor = fixture.getSut(platform: MockPlatform.android());
       final iosExtractor = fixture.getSut(platform: MockPlatform.iOS());
 

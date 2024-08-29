@@ -17,15 +17,15 @@ class DebugImageExtractor {
 
   final SentryOptions _options;
 
-  DebugImage? extractDebugImageFrom(StackTrace stackTrace) {
-    return _extractDebugInfoFrom(stackTrace).toDebugImage();
+  DebugImage? extractDebugImageFrom(String stackTraceString) {
+    return _extractDebugInfoFrom(stackTraceString).toDebugImage();
   }
 
-  _DebugInfo _extractDebugInfoFrom(StackTrace stackTrace) {
+  _DebugInfo _extractDebugInfoFrom(String stackTraceString) {
     String? buildId;
     String? isolateDsoBase;
 
-    final lines = stackTrace.toString().split('\n');
+    final lines = stackTraceString.split('\n');
 
     for (final line in lines) {
       if (_isHeaderStartLine(line)) {
@@ -90,12 +90,12 @@ class _DebugInfo {
 
   // Debug identifier is the little-endian UUID representation of the first 16-bytes of
   // the build ID on Android
-  String _convertCodeIdToDebugId(String codeId) {
+  String? _convertCodeIdToDebugId(String codeId) {
     codeId = codeId.replaceAll(' ', '');
     if (codeId.length < 32) {
-      // todo: don't throw
-      throw ArgumentError(
+      _options.logger(SentryLevel.warning,
           'Code ID must be at least 32 hexadecimal characters long');
+      return null;
     }
 
     final first16Bytes = codeId.substring(0, 32);
@@ -122,10 +122,11 @@ class _DebugInfo {
     ].join('-');
   }
 
-  String _hexToUuid(String hex) {
+  String? _hexToUuid(String hex) {
     if (hex.length != 32) {
-      // todo: don't throw
-      throw FormatException('Input must be a 32-character hexadecimal string');
+      _options.logger(SentryLevel.warning,
+          'Hex input must be a 32-character hexadecimal string');
+      return null;
     }
 
     return '${hex.substring(0, 8)}-'

@@ -10,6 +10,8 @@ class LoadDartDebugImagesIntegration extends Integration<SentryOptions> {
   }
 }
 
+const hintRawStackTraceKey = 'raw_stacktrace';
+
 class _LoadImageIntegrationEventProcessor implements EventProcessor {
   _LoadImageIntegrationEventProcessor(this._debugImageExtractor);
 
@@ -17,12 +19,15 @@ class _LoadImageIntegrationEventProcessor implements EventProcessor {
 
   @override
   Future<SentryEvent?> apply(SentryEvent event, Hint hint) async {
-    if (!event.needsSymbolication() || event.stackTrace == null) {
+    final stackTrace = hint.get(hintRawStackTraceKey) as String?;
+    if (!event.needsSymbolication() || stackTrace == null) {
       return event;
     }
 
     final syntheticImage =
-        _debugImageExtractor.extractDebugImageFrom(event.stackTrace!);
+        _debugImageExtractor.extractDebugImageFrom(stackTrace);
+
+    print(syntheticImage);
     if (syntheticImage == null) {
       return event;
     }
