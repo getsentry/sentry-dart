@@ -616,12 +616,32 @@ void main() {
           expect(sdkVersion, options.sdk.version);
           expect('pub:sentry_flutter', options.sdk.packages.last.name);
           expect(sdkVersion, options.sdk.packages.last.version);
-          expect(false, options.enablePureDartSymbolication);
         },
         appRunner: appRunner,
         platformChecker: getPlatformChecker(
           platform: MockPlatform.android(),
-          isWeb: false,
+          isWeb: true,
+        ),
+      );
+
+      await Sentry.close();
+    });
+
+    test(
+        'enablePureDartSymbolication is set to false during SentryFlutter init',
+        () async {
+      SentryFlutter.native = MockSentryNativeBinding();
+      await SentryFlutter.init(
+        (options) {
+          options.dsn = fakeDsn;
+          options.automatedTestMode = true;
+
+          expect(options.enablePureDartSymbolication, false);
+        },
+        appRunner: appRunner,
+        platformChecker: getPlatformChecker(
+          platform: MockPlatform.android(),
+          isWeb: true,
         ),
       );
 

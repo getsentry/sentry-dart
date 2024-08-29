@@ -358,8 +358,10 @@ class SentryOptions {
         _ignoredExceptionsForType.contains(exception.runtimeType);
   }
 
-  /// If enabled, the SDK will attempt to symbolicate pure Dart stack traces.
-  /// Automatically set to false in `SentryFlutter.init`.
+  /// If enabled, the SDK will attempt to symbolicate pure Dart stack traces when
+  /// used in Flutter. This feature works on Flutter iOS, macOS and Android.
+  /// Due to automatic debug image loading from the native SDKs
+  /// this flag is automatically set to false in `SentryFlutter.init`.
   bool enablePureDartSymbolication = true;
 
   @internal
