@@ -157,11 +157,9 @@ class _DebugInfo {
   }
 
   String bigToLittleEndianUuid(String bigEndianUuid) {
-    // Remove hyphens and convert to a byte array
     final byteArray =
         Uuid.parse(bigEndianUuid, validationMode: ValidationMode.nonStrict);
 
-    // Reverse the necessary sections according to the UUID fields
     final reversedByteArray = Uint8List.fromList([
       ...byteArray.sublist(0, 4).reversed,
       ...byteArray.sublist(4, 6).reversed,
