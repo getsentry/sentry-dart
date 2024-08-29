@@ -110,6 +110,7 @@ class _DebugInfo {
       );
       return null;
     }
+
     return DebugImage(
       type: type,
       imageAddr: imageAddr,
