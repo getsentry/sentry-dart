@@ -636,7 +636,7 @@ void main() {
           options.dsn = fakeDsn;
           options.automatedTestMode = true;
 
-          expect(options.enablePureDartSymbolication, false);
+          expect(options.enableDartSymbolication, false);
         },
         appRunner: appRunner,
         platformChecker: getPlatformChecker(

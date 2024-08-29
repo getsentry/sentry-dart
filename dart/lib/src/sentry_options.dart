@@ -358,11 +358,15 @@ class SentryOptions {
         _ignoredExceptionsForType.contains(exception.runtimeType);
   }
 
-  /// If enabled, the SDK will attempt to symbolicate pure Dart stack traces when
-  /// used in Flutter. This feature works on Flutter iOS, macOS and Android.
-  /// Due to automatic debug image loading from the native SDKs
-  /// this flag is automatically set to false in `SentryFlutter.init`.
-  bool enablePureDartSymbolication = true;
+  /// Enables Dart symbolication for stack traces in Flutter.
+  ///
+  /// If true, the SDK will attempt to symbolicate Dart stack traces when
+  /// [Sentry.init] is used instead of `SentryFlutter.init`. This is useful
+  /// when native debug images are not available.
+  ///
+  /// Automatically set to `false` when using `SentryFlutter.init`, as it uses
+  /// native SDKs for setting up symbolication on iOS, macOS, and Android.
+  bool enableDartSymbolication = true;
 
   @internal
   late ClientReportRecorder recorder = NoOpClientReportRecorder();

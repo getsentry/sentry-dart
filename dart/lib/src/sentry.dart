@@ -84,7 +84,7 @@ class Sentry {
       options.addIntegrationByIndex(0, IsolateErrorIntegration());
     }
 
-    if (options.enablePureDartSymbolication) {
+    if (options.enableDartSymbolication) {
       options.addIntegration(LoadDartDebugImagesIntegration());
     }
 

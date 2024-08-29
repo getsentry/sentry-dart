@@ -196,6 +196,6 @@ void main() {
   test('enablePureDartSymbolication is enabled by default', () {
     final options = SentryOptions(dsn: fakeDsn);
 
-    expect(options.enablePureDartSymbolication, true);
+    expect(options.enableDartSymbolication, true);
   });
 }
