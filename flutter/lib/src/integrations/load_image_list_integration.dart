@@ -1,7 +1,8 @@
 import 'dart:async';
 
-import '../../sentry_flutter.dart';
+import 'package:sentry/sentry.dart';
 import '../native/sentry_native_binding.dart';
+import '../sentry_flutter_options.dart';
 
 // ignore: implementation_imports
 import 'package:sentry/src/load_dart_image_integration.dart'

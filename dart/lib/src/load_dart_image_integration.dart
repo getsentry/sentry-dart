@@ -1,5 +1,3 @@
-import 'package:meta/meta.dart';
-
 import '../sentry.dart';
 import 'debug_image_extractor.dart';
 
