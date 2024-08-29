@@ -9,6 +9,12 @@
     - Useful when using Sentry.init() instead of SentryFlutter.init() in Flutter projects for example due to size limitations.
     - `true` by default but automatically set to `false` when using SentryFlutter.init() because the SentryFlutter fetches debug images from the native SDK integrations.
 
+### Dependencies
+
+- Bump Cocoa SDK from v8.35.1 to v8.36.0 ([#2252](https://github.com/getsentry/sentry-dart/pull/2252))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8360)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.35.1...8.36.0)
+
 ## 8.8.0
 
 ### Features
