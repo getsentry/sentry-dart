@@ -20,16 +20,16 @@ class _LoadImageIntegrationEventProcessor implements EventProcessor {
 
   @override
   Future<SentryEvent?> apply(SentryEvent event, Hint hint) async {
-    final stackTrace = hint.get(hintRawStackTraceKey) as String?;
+    final rawStackTrace = hint.get(hintRawStackTraceKey) as String?;
     if (!_options.enableDartSymbolication ||
         !event.needsSymbolication() ||
-        stackTrace == null) {
+        rawStackTrace == null) {
       return event;
     }
 
     try {
       final syntheticImage =
-          _debugImageExtractor.extractDebugImageFrom(stackTrace);
+          _debugImageExtractor.extractDebugImageFrom(rawStackTrace);
       if (syntheticImage == null) {
         return event;
       }
