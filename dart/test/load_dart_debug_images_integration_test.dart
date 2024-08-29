@@ -28,7 +28,8 @@ void main() {
       );
     });
 
-    test('Event processor does not modify event if symbolication is not needed',
+    test(
+        'Event processor does not add debug image if symbolication is not needed',
         () async {
       final event = _getEvent(needsSymbolication: false);
       final processor = fixture.options.eventProcessors.first;
@@ -37,8 +38,19 @@ void main() {
       expect(resultEvent, equals(event));
     });
 
-    test('Event processor does not modify event if stackTrace is null',
+    test('Event processor does not add debug image if stackTrace is null',
         () async {
+      final event = _getEvent();
+      final processor = fixture.options.eventProcessors.first;
+      final resultEvent = await processor.apply(event, Hint());
+
+      expect(resultEvent, equals(event));
+    });
+
+    test(
+        'Event processor does not add debug image if enableDartSymbolication is false',
+        () async {
+      fixture.options.enableDartSymbolication = false;
       final event = _getEvent();
       final processor = fixture.options.eventProcessors.first;
       final resultEvent = await processor.apply(event, Hint());
