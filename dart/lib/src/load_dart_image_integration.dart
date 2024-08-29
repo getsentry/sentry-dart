@@ -1,3 +1,5 @@
+import 'package:meta/meta.dart';
+
 import '../sentry.dart';
 import 'debug_image_extractor.dart';
 
@@ -32,5 +34,31 @@ class _LoadImageIntegrationEventProcessor implements EventProcessor {
     debugMeta = debugMeta.copyWith(images: [...images, syntheticImage]);
 
     return event.copyWith(debugMeta: debugMeta);
+  }
+}
+
+extension NeedsSymbolication on SentryEvent {
+  bool needsSymbolication() {
+    if (this is SentryTransaction) {
+      return false;
+    }
+    final frames = _getStacktraceFrames();
+    if (frames == null) {
+      return false;
+    }
+    return frames.any((frame) => 'native' == frame?.platform);
+  }
+
+  Iterable<SentryStackFrame?>? _getStacktraceFrames() {
+    if (exceptions?.isNotEmpty == true) {
+      return exceptions?.first.stackTrace?.frames;
+    }
+    if (threads?.isNotEmpty == true) {
+      var stacktraces = threads?.map((e) => e.stacktrace);
+      return stacktraces
+          ?.where((element) => element != null)
+          .expand((element) => element!.frames);
+    }
+    return null;
   }
 }

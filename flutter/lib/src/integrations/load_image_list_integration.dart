@@ -3,6 +3,10 @@ import 'dart:async';
 import '../../sentry_flutter.dart';
 import '../native/sentry_native_binding.dart';
 
+// ignore: implementation_imports
+import 'package:sentry/src/load_dart_image_integration.dart'
+    show NeedsSymbolication;
+
 /// Loads the native debug image list for stack trace symbolication.
 class LoadImageListIntegration extends Integration<SentryFlutterOptions> {
   final SentryNativeBinding _native;
