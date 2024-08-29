@@ -66,7 +66,6 @@ build_id: 'b680cb890f9e3c12a24b172d050dec73'
 isolate_dso_base: 10000000
 ''';
       SentryEvent event = _getEvent();
-
       final processor = fixture.options.eventProcessors.first;
       final resultEvent = await processor.apply(
           event, Hint()..set(hintRawStackTraceKey, stackTrace));

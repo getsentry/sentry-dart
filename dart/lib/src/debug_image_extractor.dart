@@ -1,6 +1,5 @@
 import 'dart:typed_data';
 import 'package:meta/meta.dart';
-import 'package:uuid/parsing.dart';
 import 'package:uuid/uuid.dart';
 
 import '../sentry.dart';
@@ -120,7 +119,7 @@ class _DebugInfo {
     }
 
     final first16Bytes = codeId.substring(0, 32);
-    final byteData = UuidParsing.parseHexToBytes(first16Bytes);
+    final byteData = _parseHexToBytes(first16Bytes);
 
     if (byteData.isEmpty) {
       _options.logger(
@@ -129,6 +128,21 @@ class _DebugInfo {
     }
 
     return bigToLittleEndianUuid(UuidValue.fromByteList(byteData).uuid);
+  }
+
+  Uint8List _parseHexToBytes(String hex) {
+    if (hex.length % 2 != 0) {
+      throw ArgumentError('Invalid hex string');
+    }
+    if (hex.startsWith('0x')) {
+      hex = hex.substring(2);
+    }
+
+    var bytes = Uint8List(hex.length ~/ 2);
+    for (var i = 0; i < hex.length; i += 2) {
+      bytes[i ~/ 2] = int.parse(hex.substring(i, i + 2), radix: 16);
+    }
+    return bytes;
   }
 
   String bigToLittleEndianUuid(String bigEndianUuid) {
