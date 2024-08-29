@@ -28,8 +28,7 @@ class _LoadImageIntegrationEventProcessor implements EventProcessor {
     }
 
     try {
-      final syntheticImage =
-          _debugImageExtractor.extractDebugImageFrom(rawStackTrace);
+      final syntheticImage = _debugImageExtractor.extractFrom(rawStackTrace);
       if (syntheticImage == null) {
         return event;
       }

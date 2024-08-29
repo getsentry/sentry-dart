@@ -25,7 +25,7 @@ class DebugImageExtractor {
   @visibleForTesting
   DebugImage? get debugImageForTesting => _debugImage;
 
-  DebugImage? extractDebugImageFrom(String stackTraceString) {
+  DebugImage? extractFrom(String stackTraceString) {
     if (_debugImage != null) {
       return _debugImage;
     }

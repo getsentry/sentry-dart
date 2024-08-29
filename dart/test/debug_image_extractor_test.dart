@@ -16,7 +16,7 @@ void main() {
     test('returns null for invalid stack trace', () {
       final stackTrace = 'Invalid stack trace';
       final extractor = fixture.getSut(platform: MockPlatform.android());
-      final debugImage = extractor.extractDebugImageFrom(stackTrace);
+      final debugImage = extractor.extractFrom(stackTrace);
 
       expect(debugImage, isNull);
     });
@@ -28,7 +28,7 @@ build_id: 'b680cb890f9e3c12a24b172d050dec73'
 isolate_dso_base: 20000000
 ''';
       final extractor = fixture.getSut(platform: MockPlatform.android());
-      final debugImage = extractor.extractDebugImageFrom(stackTrace);
+      final debugImage = extractor.extractFrom(stackTrace);
 
       expect(
           debugImage?.debugId, equals('89cb80b6-9e0f-123c-a24b-172d050dec73'));
@@ -41,7 +41,7 @@ build_id: 'f1c3bcc0279865fe3058404b2831d9e64135386c'
 isolate_dso_base: 30000000
 ''';
       final extractor = fixture.getSut(platform: MockPlatform.android());
-      final debugImage = extractor.extractDebugImageFrom(stackTrace);
+      final debugImage = extractor.extractFrom(stackTrace);
 
       expect(
           debugImage?.debugId, equals('c0bcc3f1-9827-fe65-3058-404b2831d9e6'));
@@ -54,7 +54,7 @@ build_id: 'b680cb890f9e3c12a24b172d050dec73'
 isolate_dso_base: 30000000
 ''';
       final extractor = fixture.getSut(platform: MockPlatform.iOS());
-      final debugImage = extractor.extractDebugImageFrom(stackTrace);
+      final debugImage = extractor.extractFrom(stackTrace);
 
       expect(
           debugImage?.debugId, equals('b680cb89-0f9e-3c12-a24b-172d050dec73'));
@@ -69,7 +69,7 @@ isolate_dso_base: 40000000
 ''';
       final extractor = fixture.getSut(platform: MockPlatform.iOS());
 
-      final debugImage = extractor.extractDebugImageFrom(stackTrace);
+      final debugImage = extractor.extractFrom(stackTrace);
 
       expect(debugImage, isNull);
     });
@@ -83,9 +83,8 @@ isolate_dso_base: 40000000
       final androidExtractor = fixture.getSut(platform: MockPlatform.android());
       final iosExtractor = fixture.getSut(platform: MockPlatform.iOS());
 
-      final androidDebugImage =
-          androidExtractor.extractDebugImageFrom(stackTrace);
-      final iosDebugImage = iosExtractor.extractDebugImageFrom(stackTrace);
+      final androidDebugImage = androidExtractor.extractFrom(stackTrace);
+      final iosDebugImage = iosExtractor.extractFrom(stackTrace);
 
       expect(androidDebugImage?.type, equals('elf'));
       expect(iosDebugImage?.type, equals('macho'));
@@ -99,7 +98,7 @@ isolate_dso_base: 40000000
 ''';
       final extractor = fixture.getSut(platform: MockPlatform.linux());
 
-      final debugImage = extractor.extractDebugImageFrom(stackTrace);
+      final debugImage = extractor.extractFrom(stackTrace);
 
       expect(debugImage, isNull);
     });
@@ -113,12 +112,12 @@ isolate_dso_base: 10000000
       final extractor = fixture.getSut(platform: MockPlatform.android());
 
       // First extraction
-      final debugImage1 = extractor.extractDebugImageFrom(stackTrace);
+      final debugImage1 = extractor.extractFrom(stackTrace);
       expect(debugImage1, isNotNull);
       expect(extractor.debugImageForTesting, equals(debugImage1));
 
       // Second extraction
-      final debugImage2 = extractor.extractDebugImageFrom(stackTrace);
+      final debugImage2 = extractor.extractFrom(stackTrace);
       expect(debugImage2, equals(debugImage1));
     });
   });
