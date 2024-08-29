@@ -27,7 +27,7 @@ import 'package:universal_platform/universal_platform.dart';
 import 'auto_close_screen.dart';
 import 'drift/connection/connection.dart';
 import 'drift/database.dart';
-// import 'isar/user.dart';
+import 'isar/user.dart';
 import 'user_feedback_dialog.dart';
 
 // ATTENTION: Change the DSN below with your own to see the events in Sentry. Get one at sentry.io
@@ -66,29 +66,29 @@ Future<void> setupSentry(
     (options) {
       options.dsn = exampleDsn;
       options.tracesSampleRate = 1.0;
-      // options.profilesSampleRate = 1.0;
-      // options.reportPackages = false;
+      options.profilesSampleRate = 1.0;
+      options.reportPackages = false;
       options.addInAppInclude('sentry_flutter_example');
       options.considerInAppFramesByDefault = false;
       options.attachThreads = true;
-      // options.enableWindowMetricBreadcrumbs = true;
+      options.enableWindowMetricBreadcrumbs = true;
       options.addIntegration(LoggingIntegration(minEventLevel: Level.INFO));
       options.sendDefaultPii = true;
-      // options.reportSilentFlutterErrors = true;
-      // options.attachScreenshot = true;
-      // options.screenshotQuality = SentryScreenshotQuality.low;
-      // options.attachViewHierarchy = true;
+      options.reportSilentFlutterErrors = true;
+      options.attachScreenshot = true;
+      options.screenshotQuality = SentryScreenshotQuality.low;
+      options.attachViewHierarchy = true;
       // We can enable Sentry debug logging during development. This is likely
       // going to log too much for your app, but can be useful when figuring out
       // configuration issues, e.g. finding out why your events are not uploaded.
       options.debug = true;
       options.spotlight = Spotlight(enabled: true);
-      // options.enableTimeToFullDisplayTracing = true;
+      options.enableTimeToFullDisplayTracing = true;
       options.enableMetrics = true;
 
       options.maxRequestBodySize = MaxRequestBodySize.always;
       options.maxResponseBodySize = MaxResponseBodySize.always;
-      // options.navigatorKey = navigatorKey;
+      options.navigatorKey = navigatorKey;
 
       _isIntegrationTest = isIntegrationTest;
       if (_isIntegrationTest) {
@@ -205,7 +205,6 @@ class MainScaffold extends StatelessWidget {
                     'Long press a button to see more information. (hover on web)'),
               ),
             ),
-            // Text(StackTrace.current.toString()),
             TooltipButton(
               onPressed: () => navigateToAutoCloseScreen(context),
               text:
@@ -560,7 +559,6 @@ class MainScaffold extends StatelessWidget {
                   'Demonstrates the metrics. It creates several metrics and send them to Sentry.',
               buttonTitle: 'Metrics',
             ),
-            SelectableText(StackTrace.current.toString()),
             if (UniversalPlatform.isIOS || UniversalPlatform.isMacOS)
               const CocoaExample(),
             if (UniversalPlatform.isAndroid) const AndroidExample(),
