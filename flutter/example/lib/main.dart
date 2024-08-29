@@ -16,7 +16,7 @@ import 'package:sentry_dio/sentry_dio.dart';
 import 'package:sentry_drift/sentry_drift.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_hive/sentry_hive.dart';
-// import 'package:sentry_isar/sentry_isar.dart';
+import 'package:sentry_isar/sentry_isar.dart';
 import 'package:sentry_logging/sentry_logging.dart';
 import 'package:sentry_sqflite/sentry_sqflite.dart';
 import 'package:sqflite/sqflite.dart';
@@ -580,34 +580,34 @@ class MainScaffold extends StatelessWidget {
   }
 
   Future<void> isarTest() async {
-    // final tr = Sentry.startTransaction(
-    //   'isarTest',
-    //   'db',
-    //   bindToScope: true,
-    // );
-    //
-    // final dir = await getApplicationDocumentsDirectory();
-    //
-    // final isar = await SentryIsar.open(
-    //   [UserSchema],
-    //   directory: dir.path,
-    // );
-    //
-    // final newUser = User()
-    //   ..name = 'Joe Dirt'
-    //   ..age = 36;
-    //
-    // await isar.writeTxn(() async {
-    //   await isar.users.put(newUser); // insert & update
-    // });
-    //
-    // final existingUser = await isar.users.get(newUser.id); // get
-    //
-    // await isar.writeTxn(() async {
-    //   await isar.users.delete(existingUser!.id); // delete
-    // });
-    //
-    // await tr.finish(status: const SpanStatus.ok());
+    final tr = Sentry.startTransaction(
+      'isarTest',
+      'db',
+      bindToScope: true,
+    );
+
+    final dir = await getApplicationDocumentsDirectory();
+
+    final isar = await SentryIsar.open(
+      [UserSchema],
+      directory: dir.path,
+    );
+
+    final newUser = User()
+      ..name = 'Joe Dirt'
+      ..age = 36;
+
+    await isar.writeTxn(() async {
+      await isar.users.put(newUser); // insert & update
+    });
+
+    final existingUser = await isar.users.get(newUser.id); // get
+
+    await isar.writeTxn(() async {
+      await isar.users.delete(existingUser!.id); // delete
+    });
+
+    await tr.finish(status: const SpanStatus.ok());
   }
 
   Future<void> hiveTest() async {
