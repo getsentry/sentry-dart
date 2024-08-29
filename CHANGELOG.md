@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+ - Add `enableDartSymbolication` option to Sentry.init() for **Flutter iOS, macOS and Android** ([#2256](https://github.com/getsentry/sentry-dart/pull/2256))
+    - This flag enables symbolication of Dart stack traces when native debug images are not available.
+    - Useful when using Sentry.init() instead of SentryFlutter.init() in Flutter projects for example due to size limitations.
+    - `true` by default but automatically set to `false` when using SentryFlutter.init() because the SentryFlutter fetches debug images from the native SDK integrations.
+
 ## 8.8.0
 
 ### Features
