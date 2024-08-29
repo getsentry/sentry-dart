@@ -1,6 +1,6 @@
 import 'package:meta/meta.dart';
 
-import '../load_dart_image_integration.dart';
+import '../load_dart_debug_images_integration.dart';
 import '../protocol.dart';
 import '../throwable_mechanism.dart';
 import '../utils.dart';
@@ -196,7 +196,7 @@ class SentryEvent with SentryEventLike<SentryEvent> {
   @internal
   final Map<String, dynamic>? unknown;
 
-  /// The stacktrace is only used internally for processing such as in [LoadDartImageIntegration].
+  /// The stacktrace is only used internally for processing such as in [LoadDartDebugImagesIntegration].
   /// TODO: should be a better way than saving a reference to the stacktrace
   @internal
   final StackTrace? stackTrace;

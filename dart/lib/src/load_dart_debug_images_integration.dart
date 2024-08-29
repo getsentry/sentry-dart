@@ -1,7 +1,7 @@
 import '../sentry.dart';
 import 'debug_image_extractor.dart';
 
-class LoadDartImageIntegration extends Integration<SentryOptions> {
+class LoadDartDebugImagesIntegration extends Integration<SentryOptions> {
   @override
   void call(Hub hub, SentryOptions options) {
     options.addEventProcessor(
@@ -27,11 +27,7 @@ class _LoadImageIntegrationEventProcessor implements EventProcessor {
       return event;
     }
 
-    DebugMeta debugMeta = event.debugMeta ?? DebugMeta();
-    final images = debugMeta.images;
-    debugMeta = debugMeta.copyWith(images: [...images, syntheticImage]);
-
-    return event.copyWith(debugMeta: debugMeta);
+    return event.copyWith(debugMeta: DebugMeta(images: [syntheticImage]));
   }
 }
 

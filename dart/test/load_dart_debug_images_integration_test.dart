@@ -2,11 +2,11 @@
 library dart_test;
 
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/load_dart_image_integration.dart';
+import 'package:sentry/src/load_dart_debug_images_integration.dart';
 import 'package:test/test.dart';
 
 void main() {
-  group(LoadDartImageIntegration(), () {
+  group(LoadDartDebugImagesIntegration(), () {
     late Fixture fixture;
 
     setUp(() {
@@ -64,32 +64,6 @@ isolate_dso_base: 10000000
       expect(debugImage?.debugId, isNotEmpty);
       expect(debugImage?.imageAddr, equals('0x10000000'));
     });
-
-    test('Event processor adds debug image to existing debugMeta', () async {
-      final stackTrace = StackTrace.fromString('''
-*** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
-build_id: 'b680cb890f9e3c12a24b172d050dec73'
-isolate_dso_base: 10000000
-''');
-      final existingDebugImage = DebugImage(
-        type: 'macho',
-        debugId: 'existing-debug-id',
-        imageAddr: '0x2000',
-      );
-      SentryEvent event = _getEvent();
-      event = event.copyWith(
-        stackTrace: stackTrace,
-        debugMeta: DebugMeta(images: [existingDebugImage]),
-      );
-
-      final processor = fixture.options.eventProcessors.first;
-      final resultEvent = await processor.apply(event, Hint());
-
-      expect(resultEvent?.debugMeta?.images.length, 2);
-      expect(resultEvent?.debugMeta?.images, contains(existingDebugImage));
-      expect(
-          resultEvent?.debugMeta?.images.last.imageAddr, equals('0x10000000'));
-    });
   });
 }
 
@@ -97,7 +71,7 @@ class Fixture {
   final options = SentryOptions(dsn: 'https://public@sentry.example.com/1');
 
   Fixture() {
-    final integration = LoadDartImageIntegration();
+    final integration = LoadDartDebugImagesIntegration();
     integration.call(Hub(options), options);
   }
 }

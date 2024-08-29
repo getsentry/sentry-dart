@@ -4,12 +4,12 @@ library flutter_test;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:sentry_flutter/src/integrations/load_image_list_integration.dart';
+import 'package:sentry_flutter/src/integrations/load_native_debug_images_integration.dart';
 
 import 'fixture.dart';
 
 void main() {
-  group(LoadImageListIntegration, () {
+  group(LoadNativeDebugImagesIntegration, () {
     final imageList = [
       DebugImage.fromJson({
         'code_file': '/apex/com.android.art/javalib/arm64/boot.oat',
@@ -22,16 +22,17 @@ void main() {
       })
     ];
 
-    late IntegrationTestFixture<LoadImageListIntegration> fixture;
+    late IntegrationTestFixture<LoadNativeDebugImagesIntegration> fixture;
 
     setUp(() async {
-      fixture = IntegrationTestFixture(LoadImageListIntegration.new);
+      fixture = IntegrationTestFixture(LoadNativeDebugImagesIntegration.new);
       when(fixture.binding.loadDebugImages())
           .thenAnswer((_) async => imageList);
       await fixture.registerIntegration();
     });
 
-    test('$LoadImageListIntegration adds itself to sdk.integrations', () async {
+    test('$LoadNativeDebugImagesIntegration adds itself to sdk.integrations',
+        () async {
       expect(
         fixture.options.sdk.integrations.contains('loadImageListIntegration'),
         true,

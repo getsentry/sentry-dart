@@ -180,7 +180,7 @@ mixin SentryFlutter {
     if (native != null) {
       integrations.add(NativeSdkIntegration(native));
       integrations.add(LoadContextsIntegration(native));
-      integrations.add(LoadImageListIntegration(native));
+      integrations.add(LoadNativeDebugImagesIntegration(native));
       options.enablePureDartSymbolication = false;
     }
 
