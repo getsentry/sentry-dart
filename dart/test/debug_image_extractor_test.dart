@@ -13,20 +13,6 @@ void main() {
       fixture = Fixture();
     });
 
-    test('extracts debug image from valid stack trace', () {
-      final stackTrace = '''
-*** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
-build_id: 'b680cb890f9e3c12a24b172d050dec73'
-isolate_dso_base: 10000000
-''';
-      final extractor = fixture.getSut(platform: MockPlatform.android());
-      final debugImage = extractor.extractDebugImageFrom(stackTrace);
-
-      expect(debugImage, isNotNull);
-      expect(debugImage?.debugId, isNotEmpty);
-      expect(debugImage?.imageAddr, equals('0x10000000'));
-    });
-
     test('returns null for invalid stack trace', () {
       final stackTrace = 'Invalid stack trace';
       final extractor = fixture.getSut(platform: MockPlatform.android());
@@ -35,7 +21,7 @@ isolate_dso_base: 10000000
       expect(debugImage, isNull);
     });
 
-    test('extracts correct debug ID for Android', () {
+    test('extracts correct debug ID for Android with short debugId', () {
       final stackTrace = '''
 *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
 build_id: 'b680cb890f9e3c12a24b172d050dec73'
@@ -46,6 +32,19 @@ isolate_dso_base: 20000000
 
       expect(
           debugImage?.debugId, equals('89cb80b6-9e0f-123c-a24b-172d050dec73'));
+    });
+
+    test('extracts correct debug ID for Android with long debugId', () {
+      final stackTrace = '''
+*** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+build_id: 'f1c3bcc0279865fe3058404b2831d9e64135386c'
+isolate_dso_base: 30000000
+''';
+      final extractor = fixture.getSut(platform: MockPlatform.android());
+      final debugImage = extractor.extractDebugImageFrom(stackTrace);
+
+      expect(
+          debugImage?.debugId, equals('c0bcc3f1-9827-fe65-3058-404b2831d9e6'));
     });
 
     test('extracts correct debug ID for iOS', () {
@@ -77,6 +76,19 @@ isolate_dso_base: 40000000
 
       expect(androidDebugImage?.type, equals('elf'));
       expect(iosDebugImage?.type, equals('macho'));
+    });
+
+    test('debug image is null on unsupported platforms', () {
+      final stackTrace = '''
+*** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+build_id: 'b680cb890f9e3c12a24b172d050dec73'
+isolate_dso_base: 40000000
+''';
+      final extractor = fixture.getSut(platform: MockPlatform.linux());
+
+      final debugImage = extractor.extractDebugImageFrom(stackTrace);
+
+      expect(debugImage, isNull);
     });
   });
 }

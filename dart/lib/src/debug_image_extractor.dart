@@ -1,5 +1,7 @@
 import 'dart:typed_data';
 import 'package:meta/meta.dart';
+import 'package:uuid/parsing.dart';
+import 'package:uuid/uuid.dart';
 
 import '../sentry.dart';
 
@@ -10,7 +12,8 @@ final RegExp _buildIdRegex = RegExp(r"build_id(?:=|: )'([\da-f]+)'");
 final RegExp _isolateDsoBaseLineRegex =
     RegExp(r'isolate_dso_base(?:=|: )([\da-f]+)');
 
-/// Processes a stack trace by extracting debug information from its header.
+/// Extracts debug information from stack trace header.
+/// Needed for symbolication of Dart stack traces without native debug images.
 @internal
 class DebugImageExtractor {
   DebugImageExtractor(this._options);
@@ -73,23 +76,41 @@ class _DebugInfo {
       return null;
     }
 
-    final type = _options.platformChecker.platform.isAndroid ? 'elf' : 'macho';
-    final debugId = _options.platformChecker.platform.isAndroid
-        ? _convertCodeIdToDebugId(buildId!)
-        : _hexToUuid(buildId!);
-    final codeId =
-        _options.platformChecker.platform.isAndroid ? buildId! : null;
+    String type;
+    String? imageAddr;
+    String? debugId;
+    String? codeId;
 
+    final platform = _options.platformChecker.platform;
+
+    // Default values for all platforms
+    imageAddr = '0x$isolateDsoBase';
+
+    if (platform.isAndroid) {
+      type = 'elf';
+      debugId = _convertCodeIdToDebugId(buildId!);
+      codeId = buildId;
+    } else if (platform.isIOS || platform.isMacOS) {
+      type = 'macho';
+      debugId = _formatHexToUuid(buildId!);
+      // `codeId` is not needed for iOS/MacOS.
+    } else {
+      _options.logger(
+        SentryLevel.warning,
+        'Unsupported platform for creating Dart debug images.',
+      );
+      return null;
+    }
     return DebugImage(
       type: type,
-      imageAddr: '0x$isolateDsoBase',
+      imageAddr: imageAddr,
       debugId: debugId,
       codeId: codeId,
     );
   }
 
   // Debug identifier is the little-endian UUID representation of the first 16-bytes of
-  // the build ID on Android
+  // the build ID on ELF images.
   String? _convertCodeIdToDebugId(String codeId) {
     codeId = codeId.replaceAll(' ', '');
     if (codeId.length < 32) {
@@ -99,30 +120,35 @@ class _DebugInfo {
     }
 
     final first16Bytes = codeId.substring(0, 32);
-    final byteData = Uint8List.fromList(List.generate(16,
-        (i) => int.parse(first16Bytes.substring(i * 2, i * 2 + 2), radix: 16)));
+    final byteData = UuidParsing.parseHexToBytes(first16Bytes);
 
-    final buffer = byteData.buffer.asByteData();
-    final timeLow = buffer.getUint32(0, Endian.little);
-    final timeMid = buffer.getUint16(4, Endian.little);
-    final timeHiAndVersion = buffer.getUint16(6, Endian.little);
-    final clockSeqHiAndReserved = buffer.getUint8(8);
-    final clockSeqLow = buffer.getUint8(9);
+    if (byteData.isEmpty) {
+      _options.logger(
+          SentryLevel.warning, 'Failed to convert code ID to debug ID');
+      return null;
+    }
 
-    return [
-      timeLow.toRadixString(16).padLeft(8, '0'),
-      timeMid.toRadixString(16).padLeft(4, '0'),
-      timeHiAndVersion.toRadixString(16).padLeft(4, '0'),
-      clockSeqHiAndReserved.toRadixString(16).padLeft(2, '0') +
-          clockSeqLow.toRadixString(16).padLeft(2, '0'),
-      byteData
-          .sublist(10)
-          .map((b) => b.toRadixString(16).padLeft(2, '0'))
-          .join()
-    ].join('-');
+    return bigToLittleEndianUuid(UuidValue.fromByteList(byteData).uuid);
   }
 
-  String? _hexToUuid(String hex) {
+  String bigToLittleEndianUuid(String bigEndianUuid) {
+    // Remove hyphens and convert to a byte array
+    final byteArray =
+        Uuid.parse(bigEndianUuid, validationMode: ValidationMode.nonStrict);
+
+    // Reverse the necessary sections according to the UUID fields
+    final reversedByteArray = Uint8List.fromList([
+      ...byteArray.sublist(0, 4).reversed,
+      ...byteArray.sublist(4, 6).reversed,
+      ...byteArray.sublist(6, 8).reversed,
+      ...byteArray.sublist(8, 10),
+      ...byteArray.sublist(10),
+    ]);
+
+    return Uuid.unparse(reversedByteArray);
+  }
+
+  String? _formatHexToUuid(String hex) {
     if (hex.length != 32) {
       _options.logger(SentryLevel.warning,
           'Hex input must be a 32-character hexadecimal string');

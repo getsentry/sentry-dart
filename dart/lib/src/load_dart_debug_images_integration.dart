@@ -16,7 +16,6 @@ class _LoadImageIntegrationEventProcessor implements EventProcessor {
   _LoadImageIntegrationEventProcessor(this._debugImageExtractor, this._options);
 
   final SentryOptions _options;
-
   final DebugImageExtractor _debugImageExtractor;
 
   @override
