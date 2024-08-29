@@ -61,6 +61,19 @@ isolate_dso_base: 30000000
       expect(debugImage?.codeId, isNull);
     });
 
+    test('reuse debug image if it has already been extracted', () {
+      final stackTrace = '''
+*** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+build_id: 'b680cb890f9e3c12a24b172d050dec73'
+isolate_dso_base: 40000000
+''';
+      final extractor = fixture.getSut(platform: MockPlatform.iOS());
+
+      final debugImage = extractor.extractDebugImageFrom(stackTrace);
+
+      expect(debugImage, isNull);
+    });
+
     test('sets correct type based on platform', () {
       final stackTrace = '''
 *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
@@ -89,6 +102,24 @@ isolate_dso_base: 40000000
       final debugImage = extractor.extractDebugImageFrom(stackTrace);
 
       expect(debugImage, isNull);
+    });
+
+    test('debugImage is cached after first extraction', () {
+      final stackTrace = '''
+*** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+build_id: 'b680cb890f9e3c12a24b172d050dec73'
+isolate_dso_base: 10000000
+''';
+      final extractor = fixture.getSut(platform: MockPlatform.android());
+
+      // First extraction
+      final debugImage1 = extractor.extractDebugImageFrom(stackTrace);
+      expect(debugImage1, isNotNull);
+      expect(extractor.debugImageForTesting, equals(debugImage1));
+
+      // Second extraction
+      final debugImage2 = extractor.extractDebugImageFrom(stackTrace);
+      expect(debugImage2, equals(debugImage1));
     });
   });
 }

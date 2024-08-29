@@ -19,8 +19,18 @@ class DebugImageExtractor {
 
   final SentryOptions _options;
 
+  // We don't need to always parse the debug image, so we cache it here.
+  DebugImage? _debugImage;
+
+  @visibleForTesting
+  DebugImage? get debugImageForTesting => _debugImage;
+
   DebugImage? extractDebugImageFrom(String stackTraceString) {
-    return _extractDebugInfoFrom(stackTraceString).toDebugImage();
+    if (_debugImage != null) {
+      return _debugImage;
+    }
+    _debugImage = _extractDebugInfoFrom(stackTraceString).toDebugImage();
+    return _debugImage;
   }
 
   _DebugInfo _extractDebugInfoFrom(String stackTraceString) {
