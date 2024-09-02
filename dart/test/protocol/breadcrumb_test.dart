@@ -90,7 +90,7 @@ void main() {
           level: SentryLevel.fatal,
           reason: 'OK',
           statusCode: 200,
-          requestDuration: Duration.zero,
+          requestDuration: Duration(milliseconds: 55),
           timestamp: DateTime.now(),
           requestBodySize: 2,
           responseBodySize: 3,
@@ -107,13 +107,39 @@ void main() {
           'method': 'GET',
           'status_code': 200,
           'reason': 'OK',
-          'duration': '0:00:00.000000',
+          'duration': '0:00:00.055000',
           'request_body_size': 2,
           'response_body_size': 3,
           'http.query': 'foo=bar',
-          'http.fragment': 'baz'
+          'http.fragment': 'baz',
+          'start_timestamp': breadcrumb.timestamp.millisecondsSinceEpoch - 55,
+          'end_timestamp': breadcrumb.timestamp.millisecondsSinceEpoch
         },
         'level': 'fatal',
+        'type': 'http',
+      });
+    });
+
+    test('Breadcrumb http', () {
+      final breadcrumb = Breadcrumb.http(
+        url: Uri.parse('https://example.org'),
+        method: 'GET',
+        requestDuration: Duration(milliseconds: 10),
+      );
+      final json = breadcrumb.toJson();
+
+      expect(json, {
+        'timestamp':
+            formatDateAsIso8601WithMillisPrecision(breadcrumb.timestamp),
+        'category': 'http',
+        'data': {
+          'url': 'https://example.org',
+          'method': 'GET',
+          'duration': '0:00:00.010000',
+          'start_timestamp': breadcrumb.timestamp.millisecondsSinceEpoch - 10,
+          'end_timestamp': breadcrumb.timestamp.millisecondsSinceEpoch
+        },
+        'level': 'info',
         'type': 'http',
       });
     });
@@ -196,6 +222,7 @@ void main() {
           'foo': 'bar',
           'view.id': 'foo',
           'view.class': 'bar',
+          'path': 'bar(foo)',
         },
       });
     });

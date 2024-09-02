@@ -167,15 +167,15 @@ class SentryClient {
 
     var traceContext = scope?.span?.traceContext();
     if (traceContext == null) {
-      if (scope?.propagationContext.baggage == null) {
-        scope?.propagationContext.baggage =
-            SentryBaggage({}, logger: _options.logger);
-        scope?.propagationContext.baggage?.setValuesFromScope(scope, _options);
-      }
       if (scope != null) {
+        scope.propagationContext.baggage ??=
+            SentryBaggage({}, logger: _options.logger)
+              ..setValuesFromScope(scope, _options);
         traceContext = SentryTraceContextHeader.fromBaggage(
             scope.propagationContext.baggage!);
       }
+    } else {
+      traceContext.replayId = scope?.replayId;
     }
 
     final envelope = SentryEnvelope.fromEvent(
