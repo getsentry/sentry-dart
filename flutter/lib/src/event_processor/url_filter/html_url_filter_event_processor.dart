@@ -15,24 +15,40 @@ class WebUrlFilterEventProcessor implements UrlFilterEventProcessor {
     this._options,
   );
 
-  final html.Window _window = html.window;
-
   final SentryFlutterOptions _options;
 
   @override
   SentryEvent? apply(SentryEvent event, Hint hint) {
-    final url = event.request?.url ?? _window.location.toString();
+    final frames = _getStacktraceFrames(event);
+    final lastPath = frames?.first?.absPath;
+
+    if (lastPath == null) {
+      return event;
+    }
 
     if (_options.allowUrls.isNotEmpty &&
-        !isMatchingRegexPattern(url, _options.allowUrls)) {
+        !isMatchingRegexPattern(lastPath, _options.allowUrls)) {
       return null;
     }
 
     if (_options.denyUrls.isNotEmpty &&
-        isMatchingRegexPattern(url, _options.denyUrls)) {
+        isMatchingRegexPattern(lastPath, _options.denyUrls)) {
       return null;
     }
 
     return event;
+  }
+
+  Iterable<SentryStackFrame?>? _getStacktraceFrames(SentryEvent event) {
+    if (event.exceptions?.isNotEmpty == true) {
+      return event.exceptions?.first.stackTrace?.frames;
+    }
+    if (event.threads?.isNotEmpty == true) {
+      final stacktraces = event.threads?.map((e) => e.stacktrace);
+      return stacktraces
+          ?.where((element) => element != null)
+          .expand((element) => element!.frames);
+    }
+    return null;
   }
 }
