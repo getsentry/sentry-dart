@@ -199,6 +199,9 @@ class SentryNativeChannel
       channel.invokeMethod('resumeAppHangTracking');
 
   @override
+  Future<void> nativeCrash() => channel.invokeMethod('nativeCrash');
+
+  @override
   Future<SentryId> captureReplay(bool isCrash) =>
       channel.invokeMethod('captureReplay', {
         'isCrash': isCrash,

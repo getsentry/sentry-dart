@@ -3,6 +3,7 @@ package io.sentry.flutter
 import android.app.Activity
 import android.content.Context
 import android.os.Build
+import android.os.Looper
 import android.util.Log
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
@@ -53,8 +54,8 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
     sentryFlutter =
       SentryFlutter(
-        androidSdk = androidSdk,
-        nativeSdk = nativeSdk,
+        androidSdk = ANDROID_SDK,
+        nativeSdk = NATIVE_SDK,
       )
   }
 
@@ -82,6 +83,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       "removeTag" -> removeTag(call.argument("key"), result)
       "loadContexts" -> loadContexts(result)
       "displayRefreshRate" -> displayRefreshRate(result)
+      "nativeCrash" -> crash()
       "addReplayScreenshot" -> addReplayScreenshot(call.argument("path"), call.argument("timestamp"), result)
       "captureReplay" -> captureReplay(call.argument("isCrash"), result)
       else -> result.notImplemented()
@@ -485,16 +487,17 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
   }
 
   companion object {
-    private const val flutterSdk = "sentry.dart.flutter"
-    private const val androidSdk = "sentry.java.android.flutter"
-    private const val nativeSdk = "sentry.native.android.flutter"
+    private const val FLUTTER_SDK = "sentry.dart.flutter"
+    private const val ANDROID_SDK = "sentry.java.android.flutter"
+    private const val NATIVE_SDK = "sentry.native.android.flutter"
+    private const val NATIVE_CRASH_WAIT_TIME = 500L
 
     private fun setEventOriginTag(event: SentryEvent) {
       event.sdk?.let {
         when (it.name) {
-          flutterSdk -> setEventEnvironmentTag(event, "flutter", "dart")
-          androidSdk -> setEventEnvironmentTag(event, environment = "java")
-          nativeSdk -> setEventEnvironmentTag(event, environment = "native")
+          FLUTTER_SDK -> setEventEnvironmentTag(event, "flutter", "dart")
+          ANDROID_SDK -> setEventEnvironmentTag(event, environment = "java")
+          NATIVE_SDK -> setEventEnvironmentTag(event, environment = "native")
           else -> return
         }
       }
@@ -514,7 +517,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       sdk: SdkVersion?,
     ) {
       event.sdk?.let {
-        if (it.name == flutterSdk) {
+        if (it.name == FLUTTER_SDK) {
           sdk?.packageSet?.forEach { sentryPackage ->
             it.addPackage(sentryPackage.name, sentryPackage.version)
           }
@@ -523,6 +526,13 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
           }
         }
       }
+    }
+
+    private fun crash() {
+      val exception = RuntimeException("FlutterSentry Native Integration: Sample RuntimeException")
+      val mainThread = Looper.getMainLooper().thread
+      mainThread.uncaughtExceptionHandler.uncaughtException(mainThread, exception)
+      mainThread.join(NATIVE_CRASH_WAIT_TIME)
     }
   }
 

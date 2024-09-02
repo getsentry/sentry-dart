@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+### Improvements
+
+- Add permissions for `INTERNET` and `ACCESS_NETWORK_STATE` in the AndroidManifest.xml of the Flutter example app. ([#2255](https://github.com/getsentry/sentry-dart/pull/2255))
+
+### Dependencies
+
+- Bump Cocoa SDK from v8.35.1 to v8.36.0 ([#2252](https://github.com/getsentry/sentry-dart/pull/2252))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8360)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.35.1...8.36.0)
+
+## 8.8.0
+
 ### Features
 
 - Session replay Alpha for Android and iOS ([#2208](https://github.com/getsentry/sentry-dart/pull/2208)).
@@ -19,6 +31,8 @@
   );
   ```
 
+- Add `SentryFlutter.nativeCrash()` using MethodChannels for Android and iOS ([#2239](https://github.com/getsentry/sentry-dart/pull/2239))
+  - This can be used to test if native crash reporting works  
 - Add `ignoreRoutes` parameter to `SentryNavigatorObserver`. ([#2218](https://github.com/getsentry/sentry-dart/pull/2218))
   - This will ignore the Routes and prevent the Route from being pushed to the Sentry server.
   - Ignored routes will also create no TTID and TTFD spans.
@@ -33,6 +47,9 @@
 
 ### Dependencies
 
+- Bump Cocoa SDK from v8.33.0 to v8.35.1 ([#2247](https://github.com/getsentry/sentry-dart/pull/2247))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8351)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.33.0...8.35.1)
 - Bump Android SDK from v7.13.0 to v7.14.0 ([#2228](https://github.com/getsentry/sentry-dart/pull/2228))
   - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#7140)
   - [diff](https://github.com/getsentry/sentry-java/compare/7.13.0...7.14.0)

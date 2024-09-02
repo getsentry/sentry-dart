@@ -761,6 +761,12 @@ class AndroidExample extends StatelessWidget {
         },
         child: const Text('Platform exception'),
       ),
+      ElevatedButton(
+        onPressed: () async {
+          SentryFlutter.nativeCrash();
+        },
+        child: const Text('Sentry.nativeCrash'),
+      ),
     ]);
   }
 }
@@ -872,6 +878,12 @@ class CocoaExample extends StatelessWidget {
             await execute('crash');
           },
           child: const Text('Objective-C SEGFAULT'),
+        ),
+        ElevatedButton(
+          onPressed: () async {
+            SentryFlutter.nativeCrash();
+          },
+          child: const Text('Sentry.nativeCrash'),
         ),
       ],
     );
