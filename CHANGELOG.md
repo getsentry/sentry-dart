@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Improvements
+
+- Add permissions for `INTERNET` and `ACCESS_NETWORK_STATE` in the AndroidManifest.xml of the Flutter example app. ([#2255](https://github.com/getsentry/sentry-dart/pull/2255))
+
 ### Dependencies
 
 - Bump Cocoa SDK from v8.35.1 to v8.36.0 ([#2252](https://github.com/getsentry/sentry-dart/pull/2252))
