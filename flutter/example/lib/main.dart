@@ -41,7 +41,10 @@ const String exampleUrl = 'https://jsonplaceholder.typicode.com/todos/';
 const _channel = MethodChannel('example.flutter.sentry.io');
 var _isIntegrationTest = false;
 
-final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+final GlobalKey<NavigatorState> navigatorKey1 = GlobalKey<NavigatorState>();
+final GlobalKey<NavigatorState> navigatorKey2 = GlobalKey<NavigatorState>();
+
+final navigatorKeys = [navigatorKey1, navigatorKey2];
 
 Future<void> main() async {
   await setupSentry(
@@ -91,7 +94,7 @@ Future<void> setupSentry(
 
       options.maxRequestBodySize = MaxRequestBodySize.always;
       options.maxResponseBodySize = MaxResponseBodySize.always;
-      options.navigatorKey = navigatorKey;
+      options.navigatorKeys = navigatorKeys;
 
       _isIntegrationTest = isIntegrationTest;
       if (_isIntegrationTest) {
@@ -120,7 +123,7 @@ class _MyAppState extends State<MyApp> {
         create: (_) => ThemeProvider(),
         child: Builder(
           builder: (context) => MaterialApp(
-            navigatorKey: navigatorKey,
+            navigatorKey: navigatorKeys[View.of(context).viewId - 1],
             navigatorObservers: [
               SentryNavigatorObserver(),
             ],
