@@ -25,6 +25,10 @@
   - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8360)
   - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.35.1...8.36.0)
 
+### Fixes
+
+- Only access renderObject if `hasSize` is true ([#2263](https://github.com/getsentry/sentry-dart/pull/2263))
+
 ## 8.8.0
 
 ### Features
