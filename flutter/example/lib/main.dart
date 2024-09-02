@@ -90,6 +90,9 @@ Future<void> setupSentry(
       options.maxResponseBodySize = MaxResponseBodySize.always;
       options.navigatorKey = navigatorKey;
 
+      options.experimental.replay.sessionSampleRate = 1.0;
+      options.experimental.replay.errorSampleRate = 1.0;
+
       _isIntegrationTest = isIntegrationTest;
       if (_isIntegrationTest) {
         options.dist = '1';
@@ -758,6 +761,12 @@ class AndroidExample extends StatelessWidget {
         },
         child: const Text('Platform exception'),
       ),
+      ElevatedButton(
+        onPressed: () async {
+          SentryFlutter.nativeCrash();
+        },
+        child: const Text('Sentry.nativeCrash'),
+      ),
     ]);
   }
 }
@@ -869,6 +878,12 @@ class CocoaExample extends StatelessWidget {
             await execute('crash');
           },
           child: const Text('Objective-C SEGFAULT'),
+        ),
+        ElevatedButton(
+          onPressed: () async {
+            SentryFlutter.nativeCrash();
+          },
+          child: const Text('Sentry.nativeCrash'),
         ),
       ],
     );
