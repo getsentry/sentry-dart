@@ -19,6 +19,8 @@
   );
   ```
 
+- Collect touch breadcrumbs for all buttons, not just those with `key` specified. ([#2242](https://github.com/getsentry/sentry-dart/pull/2242))
+
 ### Dependencies
 
 - Bump Cocoa SDK from v8.35.1 to v8.36.0 ([#2252](https://github.com/getsentry/sentry-dart/pull/2252))
@@ -42,7 +44,6 @@
 ### Improvements
 
 - Debouncing of SentryWidgetsBindingObserver.didChangeMetrics with delay of 100ms. ([#2232](https://github.com/getsentry/sentry-dart/pull/2232))
-- Collect touch breadcrumbs for all buttons, not just those with `key` specified. ([#2242](https://github.com/getsentry/sentry-dart/pull/2242))
 
 ### Dependencies
 
