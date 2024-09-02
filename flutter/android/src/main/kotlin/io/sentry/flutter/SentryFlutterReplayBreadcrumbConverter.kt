@@ -30,7 +30,7 @@ class SentryFlutterReplayBreadcrumbConverter : DefaultReplayBreadcrumbConverter(
       "ui.click" ->
         newRRWebBreadcrumb(breadcrumb).apply {
           category = "ui.tap"
-          message = breadcrumb.data["path"] as String?
+          message = getTouchPathMessage(breadcrumb.data["path"])
         }
 
       else -> {
@@ -82,5 +82,39 @@ class SentryFlutterReplayBreadcrumbConverter : DefaultReplayBreadcrumbConverter(
         }
     }
     return rrWebEvent
+  }
+
+  private fun getTouchPathMessage(maybePath: Any?): String? {
+    if (maybePath !is List<*>) {
+      return null
+    }
+
+    if (maybePath.isEmpty()) {
+      return null
+    }
+
+    val message = StringBuilder()
+    for (i in Math.min(3, maybePath.size - 1) downTo 0) {
+      val item = maybePath[i]
+      if (item !is Map<*, *>) {
+        continue
+      }
+
+      message.append(item["element"] ?: "?")
+
+      var identifier = item["label"] ?: item["name"]
+      if (identifier is String && identifier.isNotEmpty()) {
+        if (identifier.length > 20) {
+          identifier = identifier.substring(0, 17) + "..."
+        }
+        message.append("(").append(identifier).append(")")
+      }
+
+      if (i > 0) {
+        message.append(" > ")
+      }
+    }
+
+    return message.toString()
   }
 }
