@@ -226,7 +226,11 @@ mixin SentryFlutter {
   /// Manually set when your app finished startup. Make sure to set
   /// [SentryFlutterOptions.autoAppStart] to false on init.
   static void setAppStartEnd(DateTime appStartEnd) {
-    NativeAppStartIntegration.appStartEnd = appStartEnd;
+    // ignore: invalid_use_of_internal_member
+    final integrations = Sentry.currentHub.options.integrations
+        .whereType<NativeAppStartIntegration>();
+    integrations
+        .forEach((integration) => integration.appStartEnd = appStartEnd);
   }
 
   static void _setSdk(SentryFlutterOptions options) {

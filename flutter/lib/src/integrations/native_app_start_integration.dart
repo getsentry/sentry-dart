@@ -24,14 +24,14 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
   /// [SentryFlutterOptions.autoAppStart] is true, or by calling
   /// [SentryFlutter.setAppStartEnd]
   @internal
-  static DateTime? appStartEnd;
+  DateTime? appStartEnd;
 
   /// Flag indicating if app start was already fetched.
-  static bool _didFetchAppStart = false;
+  bool _didFetchAppStart = false;
 
   /// Flag indicating if app start measurement was added to the first transaction.
   @internal
-  static bool didAddAppStartMeasurement = false;
+  bool didAddAppStartMeasurement = false;
 
   /// Timeout duration to wait for the app start info to be fetched.
   static const _timeoutDuration = Duration(seconds: 10);
@@ -42,15 +42,14 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
   /// We filter out App starts more than 60s
   static const _maxAppStartMillis = 60000;
 
-  static Completer<AppStartInfo?> _appStartCompleter =
-      Completer<AppStartInfo?>();
-  static AppStartInfo? _appStartInfo;
+  Completer<AppStartInfo?> _appStartCompleter = Completer<AppStartInfo?>();
+  AppStartInfo? _appStartInfo;
 
   @internal
-  static bool isIntegrationTest = false;
+  bool isIntegrationTest = false;
 
   @internal
-  static void setAppStartInfo(AppStartInfo? appStartInfo) {
+  void setAppStartInfo(AppStartInfo? appStartInfo) {
     _appStartInfo = appStartInfo;
     if (_appStartCompleter.isCompleted) {
       _appStartCompleter = Completer<AppStartInfo?>();
@@ -59,26 +58,12 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
   }
 
   @internal
-  static Future<AppStartInfo?> getAppStartInfo() {
+  Future<AppStartInfo?> getAppStartInfo() {
     if (_appStartInfo != null) {
       return Future.value(_appStartInfo);
     }
     return _appStartCompleter.future
         .timeout(_timeoutDuration, onTimeout: () => null);
-  }
-
-  @visibleForTesting
-  static void clearAppStartInfo() {
-    _appStartInfo = null;
-    _appStartCompleter = Completer<AppStartInfo?>();
-    didAddAppStartMeasurement = false;
-  }
-
-  /// Reset state
-  @visibleForTesting
-  static void reset() {
-    appStartEnd = null;
-    _didFetchAppStart = false;
   }
 
   @override

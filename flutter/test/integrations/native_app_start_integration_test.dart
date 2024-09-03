@@ -31,7 +31,7 @@ void main() {
     // This ensures that setAppStartInfo has been called, which happens asynchronously
     // in a post-frame callback. Waiting here prevents race conditions in subsequent tests
     // that might depend on or modify the app start info.
-    await NativeAppStartIntegration.getAppStartInfo();
+    await fixture.sut.getAppStartInfo();
   }
 
   group('$NativeAppStartIntegration', () {
@@ -39,6 +39,8 @@ void main() {
 
     setUp(() {
       fixture = Fixture();
+      fixture.options.addIntegration(fixture.sut);
+
       setupMocks(fixture);
       when(fixture.binding.fetchNativeAppStart()).thenAnswer((_) async =>
           NativeAppStart(
@@ -46,12 +48,10 @@ void main() {
               pluginRegistrationTime: 10,
               isColdStart: true,
               nativeSpanTimes: {}));
-      NativeAppStartIntegration.clearAppStartInfo();
     });
 
     test('native app start measurement added to first transaction', () async {
-      NativeAppStartIntegration.appStartEnd =
-          DateTime.fromMillisecondsSinceEpoch(10);
+      fixture.sut.appStartEnd = DateTime.fromMillisecondsSinceEpoch(10);
 
       await registerIntegration(fixture);
       final tracer = fixture.createTracer();
@@ -68,8 +68,7 @@ void main() {
 
     test('native app start measurement not added to following transactions',
         () async {
-      NativeAppStartIntegration.appStartEnd =
-          DateTime.fromMillisecondsSinceEpoch(10);
+      fixture.sut.appStartEnd = DateTime.fromMillisecondsSinceEpoch(10);
 
       await registerIntegration(fixture);
       final tracer = fixture.createTracer();
@@ -86,8 +85,7 @@ void main() {
     });
 
     test('measurements appended', () async {
-      NativeAppStartIntegration.appStartEnd =
-          DateTime.fromMillisecondsSinceEpoch(10);
+      fixture.sut.appStartEnd = DateTime.fromMillisecondsSinceEpoch(10);
       final measurement = SentryMeasurement.warmAppStart(Duration(seconds: 1));
 
       await registerIntegration(fixture);
@@ -107,8 +105,7 @@ void main() {
     });
 
     test('native app start measurement not added if more than 60s', () async {
-      NativeAppStartIntegration.appStartEnd =
-          DateTime.fromMillisecondsSinceEpoch(60001);
+      fixture.sut.appStartEnd = DateTime.fromMillisecondsSinceEpoch(60001);
 
       await registerIntegration(fixture);
       final tracer = fixture.createTracer();
@@ -123,11 +120,10 @@ void main() {
 
     test('native app start integration is called and sets app start info',
         () async {
-      NativeAppStartIntegration.appStartEnd =
-          DateTime.fromMillisecondsSinceEpoch(10);
+      fixture.sut.appStartEnd = DateTime.fromMillisecondsSinceEpoch(10);
 
       await registerIntegration(fixture);
-      final appStartInfo = await NativeAppStartIntegration.getAppStartInfo();
+      final appStartInfo = await fixture.sut.getAppStartInfo();
       expect(appStartInfo?.start, DateTime.fromMillisecondsSinceEpoch(0));
       expect(appStartInfo?.end, DateTime.fromMillisecondsSinceEpoch(10));
     });
@@ -157,6 +153,7 @@ void main() {
       fixture = Fixture(
           frameCallbackTimeout: NativeAppStartIntegration.timeoutDuration +
               const Duration(seconds: 5));
+      fixture.options.addIntegration(fixture.sut);
       fixture.options.autoAppStart = false;
 
       await registerIntegration(fixture);
@@ -179,7 +176,9 @@ void main() {
       fixture.options.autoAppStart = false;
 
       await registerIntegration(fixture);
-      SentryFlutter.setAppStartEnd(DateTime.fromMillisecondsSinceEpoch(10));
+
+      fixture.sut.appStartEnd = DateTime.fromMillisecondsSinceEpoch(10);
+      // SentryFlutter.setAppStartEnd(DateTime.fromMillisecondsSinceEpoch(10));
 
       final tracer = fixture.createTracer();
       final transaction = SentryTransaction(tracer);
@@ -192,7 +191,7 @@ void main() {
       expect(measurement.value, 10);
       expect(measurement.unit, DurationSentryMeasurementUnit.milliSecond);
 
-      final appStartInfo = await NativeAppStartIntegration.getAppStartInfo();
+      final appStartInfo = await fixture.sut.getAppStartInfo();
 
       final appStartSpan = enriched.spans.firstWhereOrNull((element) =>
           element.context.description == appStartInfo!.appStartTypeDescription);
@@ -260,10 +259,8 @@ void main() {
 
     setUp(() async {
       fixture = Fixture();
-      NativeAppStartIntegration.clearAppStartInfo();
-
-      NativeAppStartIntegration.appStartEnd =
-          DateTime.fromMillisecondsSinceEpoch(50);
+      fixture.options.addIntegration(fixture.sut);
+      fixture.sut.appStartEnd = DateTime.fromMillisecondsSinceEpoch(50);
 
       // dartLoadingEnd needs to be set after engine end (see MockNativeChannel)
       SentryFlutter.sentrySetupStartTime =
@@ -281,7 +278,7 @@ void main() {
       enriched =
           await processor.apply(transaction, Hint()) as SentryTransaction;
 
-      final appStartInfo = await NativeAppStartIntegration.getAppStartInfo();
+      final appStartInfo = await fixture.sut.getAppStartInfo();
 
       coldStartSpan = enriched.spans.firstWhereOrNull((element) =>
           element.context.description == appStartInfo?.appStartTypeDescription);
@@ -395,8 +392,7 @@ void main() {
       final engineReadyEndtime = DateTime.fromMillisecondsSinceEpoch(
               appStartInfoSrc.pluginRegistrationTime.toInt())
           .toUtc();
-      expect(coldStartSpan?.endTimestamp,
-          NativeAppStartIntegration.appStartEnd?.toUtc());
+      expect(coldStartSpan?.endTimestamp, fixture.sut.appStartEnd?.toUtc());
       expect(pluginRegistrationSpan?.endTimestamp, engineReadyEndtime);
       expect(sentrySetupSpan?.endTimestamp,
           SentryFlutter.sentrySetupStartTime?.toUtc());
@@ -415,7 +411,6 @@ class Fixture extends IntegrationTestFixture<NativeAppStartIntegration> {
             FakeFrameCallbackHandler(
                 finishAfterDuration: frameCallbackTimeout ??
                     const Duration(milliseconds: 50)))) {
-    NativeAppStartIntegration.reset();
     hub = MockHub();
     // ignore: invalid_use_of_internal_member
     when(hub.options).thenReturn(options);

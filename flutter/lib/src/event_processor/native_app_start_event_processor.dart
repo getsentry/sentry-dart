@@ -18,7 +18,15 @@ class NativeAppStartEventProcessor implements EventProcessor {
   @override
   Future<SentryEvent?> apply(SentryEvent event, Hint hint) async {
     final options = _hub.options;
-    if (NativeAppStartIntegration.didAddAppStartMeasurement ||
+
+    final integrations =
+        options.integrations.whereType<NativeAppStartIntegration>();
+    if (integrations.isEmpty) {
+      return event;
+    }
+    final nativeAppStartIntegration = integrations.first;
+
+    if (nativeAppStartIntegration.didAddAppStartMeasurement ||
         event is! SentryTransaction ||
         options is! SentryFlutterOptions) {
       return event;
@@ -26,22 +34,22 @@ class NativeAppStartEventProcessor implements EventProcessor {
 
     AppStartInfo? appStartInfo;
     if (!options.autoAppStart) {
-      final appStartEnd = NativeAppStartIntegration.appStartEnd;
+      final appStartEnd = nativeAppStartIntegration.appStartEnd;
       if (appStartEnd != null) {
-        appStartInfo = await NativeAppStartIntegration.getAppStartInfo();
+        appStartInfo = await nativeAppStartIntegration.getAppStartInfo();
         appStartInfo?.end = appStartEnd;
       } else {
         // If autoAppStart is disabled and appStartEnd is not set, we can't add app starts
         return event;
       }
     } else {
-      appStartInfo = await NativeAppStartIntegration.getAppStartInfo();
+      appStartInfo = await nativeAppStartIntegration.getAppStartInfo();
     }
 
     final measurement = appStartInfo?.toMeasurement();
     if (measurement != null) {
       event.measurements[measurement.name] = measurement;
-      NativeAppStartIntegration.didAddAppStartMeasurement = true;
+      nativeAppStartIntegration.didAddAppStartMeasurement = true;
     }
 
     if (appStartInfo != null) {

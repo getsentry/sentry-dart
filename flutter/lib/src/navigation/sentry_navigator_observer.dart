@@ -350,13 +350,14 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       DateTime startTimestamp = _hub.options.clock();
       DateTime? endTimestamp;
 
-      if (isAppStart) {
-        final appStartInfo = await NativeAppStartIntegration.getAppStartInfo();
-        if (appStartInfo == null) return;
-
-        startTimestamp = appStartInfo.start;
-        endTimestamp = appStartInfo.end;
-      }
+      // TODO: Handle in app_start_event_processor
+      // if (isAppStart) {
+      //   final appStartInfo = await NativeAppStartIntegration.getAppStartInfo();
+      //   if (appStartInfo == null) return;
+      //
+      //   startTimestamp = appStartInfo.start;
+      //   endTimestamp = appStartInfo.end;
+      // }
 
       await _startTransaction(route, startTimestamp);
 
