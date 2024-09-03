@@ -10,9 +10,9 @@ import 'package:sentry_flutter/src/integrations/native_app_start_integration.dar
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry_flutter/src/native/native_app_start.dart';
 
-import '../fake_frame_callback_handler.dart';
+import '../mock_frame_callback_handler.dart';
+import '../mocks.dart';
 import '../mocks.mocks.dart';
-import 'fixture.dart';
 
 void main() {
   void setupMocks(Fixture fixture) {
@@ -23,15 +23,6 @@ void main() {
     when(fixture.hub
             .captureTransaction(any, traceContext: anyNamed('traceContext')))
         .thenAnswer((_) async => SentryId.empty());
-  }
-
-  Future<void> registerIntegration(Fixture fixture) async {
-    await fixture.registerIntegration();
-    // Wait for the app start info to be fetched
-    // This ensures that setAppStartInfo has been called, which happens asynchronously
-    // in a post-frame callback. Waiting here prevents race conditions in subsequent tests
-    // that might depend on or modify the app start info.
-    await fixture.sut.getAppStartInfo();
   }
 
   group('$NativeAppStartIntegration', () {
@@ -53,7 +44,7 @@ void main() {
     test('native app start measurement added to first transaction', () async {
       fixture.sut.appStartEnd = DateTime.fromMillisecondsSinceEpoch(10);
 
-      await registerIntegration(fixture);
+      await fixture.registerIntegration();
       final tracer = fixture.createTracer();
       final transaction = SentryTransaction(tracer);
 
@@ -70,7 +61,7 @@ void main() {
         () async {
       fixture.sut.appStartEnd = DateTime.fromMillisecondsSinceEpoch(10);
 
-      await registerIntegration(fixture);
+      await fixture.registerIntegration();
       final tracer = fixture.createTracer();
       final transaction = SentryTransaction(tracer);
 
@@ -88,7 +79,7 @@ void main() {
       fixture.sut.appStartEnd = DateTime.fromMillisecondsSinceEpoch(10);
       final measurement = SentryMeasurement.warmAppStart(Duration(seconds: 1));
 
-      await registerIntegration(fixture);
+      await fixture.registerIntegration();
       final tracer = fixture.createTracer();
       final transaction = SentryTransaction(tracer).copyWith();
       transaction.measurements[measurement.name] = measurement;
@@ -107,7 +98,7 @@ void main() {
     test('native app start measurement not added if more than 60s', () async {
       fixture.sut.appStartEnd = DateTime.fromMillisecondsSinceEpoch(60001);
 
-      await registerIntegration(fixture);
+      await fixture.registerIntegration();
       final tracer = fixture.createTracer();
       final transaction = SentryTransaction(tracer);
 
@@ -122,8 +113,9 @@ void main() {
         () async {
       fixture.sut.appStartEnd = DateTime.fromMillisecondsSinceEpoch(10);
 
-      await registerIntegration(fixture);
-      final appStartInfo = await fixture.sut.getAppStartInfo();
+      await fixture.registerIntegration();
+      final appStartInfo = fixture.sut.appStartInfo;
+
       expect(appStartInfo?.start, DateTime.fromMillisecondsSinceEpoch(0));
       expect(appStartInfo?.end, DateTime.fromMillisecondsSinceEpoch(10));
     });
@@ -133,7 +125,7 @@ void main() {
         () async {
       fixture.options.autoAppStart = false;
 
-      await registerIntegration(fixture);
+      await fixture.registerIntegration();
 
       final tracer = fixture.createTracer();
       final transaction = SentryTransaction(tracer);
@@ -149,14 +141,12 @@ void main() {
     test(
         'does not trigger timeout if autoAppStart is false and setAppStartEnd is not called',
         () async {
-      // setting a frame callback with a bigger timeout than our app start timeout so the timeout would theoretically be triggered
-      fixture = Fixture(
-          frameCallbackTimeout: NativeAppStartIntegration.timeoutDuration +
-              const Duration(seconds: 5));
       fixture.options.addIntegration(fixture.sut);
       fixture.options.autoAppStart = false;
 
-      await registerIntegration(fixture);
+      fixture.sut.call(fixture.hub, fixture.options);
+
+      // await fixture.registerIntegration();
       final tracer = fixture.createTracer();
       final transaction = SentryTransaction(tracer);
 
@@ -175,7 +165,7 @@ void main() {
         () async {
       fixture.options.autoAppStart = false;
 
-      await registerIntegration(fixture);
+      await fixture.registerIntegration();
 
       fixture.sut.appStartEnd = DateTime.fromMillisecondsSinceEpoch(10);
       // SentryFlutter.setAppStartEnd(DateTime.fromMillisecondsSinceEpoch(10));
@@ -191,7 +181,7 @@ void main() {
       expect(measurement.value, 10);
       expect(measurement.unit, DurationSentryMeasurementUnit.milliSecond);
 
-      final appStartInfo = await fixture.sut.getAppStartInfo();
+      final appStartInfo = fixture.sut.appStartInfo;
 
       final appStartSpan = enriched.spans.firstWhereOrNull((element) =>
           element.context.description == appStartInfo!.appStartTypeDescription);
@@ -271,14 +261,15 @@ void main() {
       when(fixture.binding.fetchNativeAppStart())
           .thenAnswer((_) async => appStartInfoSrc);
 
-      await registerIntegration(fixture);
+      await fixture.registerIntegration();
+
       final processor = fixture.options.eventProcessors.first;
       tracer = fixture.createTracer();
       final transaction = SentryTransaction(tracer);
       enriched =
           await processor.apply(transaction, Hint()) as SentryTransaction;
 
-      final appStartInfo = await fixture.sut.getAppStartInfo();
+      final appStartInfo = fixture.sut.appStartInfo;
 
       coldStartSpan = enriched.spans.firstWhereOrNull((element) =>
           element.context.description == appStartInfo?.appStartTypeDescription);
@@ -401,20 +392,26 @@ void main() {
   });
 }
 
-class Fixture extends IntegrationTestFixture<NativeAppStartIntegration> {
-  @override
-  MockHub get hub => super.hub as MockHub;
+class Fixture {
+  final options = SentryFlutterOptions(dsn: fakeDsn);
+  final binding = MockSentryNativeBinding();
+  final callbackHandler = MockFrameCallbackHandler();
+  final hub = MockHub();
 
-  Fixture({Duration? frameCallbackTimeout})
-      : super((binding) => NativeAppStartIntegration(
-            binding,
-            FakeFrameCallbackHandler(
-                finishAfterDuration: frameCallbackTimeout ??
-                    const Duration(milliseconds: 50)))) {
-    hub = MockHub();
-    // ignore: invalid_use_of_internal_member
+  late NativeAppStartIntegration sut = NativeAppStartIntegration(
+    binding,
+    callbackHandler,
+    hub: hub,
+  );
+
+  Fixture() {
     when(hub.options).thenReturn(options);
     SentryFlutter.sentrySetupStartTime = DateTime.now().toUtc();
+  }
+
+  Future<void> registerIntegration() async {
+    sut.call(hub, options);
+    callbackHandler.postFrameCallback!(Duration(milliseconds: 0));
   }
 
   // ignore: invalid_use_of_internal_member
@@ -426,6 +423,7 @@ class Fixture extends IntegrationTestFixture<NativeAppStartIntegration> {
       'op',
       samplingDecision: SentryTracesSamplingDecision(sampled!),
     );
-    return SentryTracer(context, hub);
+    return SentryTracer(context, hub,
+        startTimestamp: DateTime.fromMillisecondsSinceEpoch(0));
   }
 }
