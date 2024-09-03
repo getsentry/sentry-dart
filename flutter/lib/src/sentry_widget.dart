@@ -2,16 +2,19 @@ import 'package:flutter/cupertino.dart';
 import 'package:meta/meta.dart';
 import '../sentry_flutter.dart';
 
-/// Key which is used to identify the [SentryWidget]
-@internal
-final sentryWidgetGlobalKey = GlobalKey(debugLabel: 'sentry_widget');
-
 /// This widget serves as a wrapper to include Sentry widgets such
 /// as [SentryScreenshotWidget] and [SentryUserInteractionWidget].
 class SentryWidget extends StatefulWidget {
   final Widget child;
+  final GlobalKey<State<StatefulWidget>> sentryWidgetGlobalKey;
+  final GlobalKey<State<StatefulWidget>> sentryScreenshotWidgetGlobalKey;
 
-  const SentryWidget({super.key, required this.child});
+  const SentryWidget({
+    super.key,
+    required this.child,
+    required this.sentryWidgetGlobalKey,
+    required this.sentryScreenshotWidgetGlobalKey,
+  });
 
   @override
   _SentryWidgetState createState() => _SentryWidgetState();
@@ -21,10 +24,13 @@ class _SentryWidgetState extends State<SentryWidget> {
   @override
   Widget build(BuildContext context) {
     Widget content = widget.child;
-    content = SentryScreenshotWidget(child: content);
+    content = SentryScreenshotWidget(
+      sentryScreenshotWidgetGlobalKey: widget.sentryScreenshotWidgetGlobalKey,
+      child: content,
+    );
     content = SentryUserInteractionWidget(child: content);
     return Container(
-      key: sentryWidgetGlobalKey,
+      key: widget.sentryWidgetGlobalKey,
       child: content,
     );
   }

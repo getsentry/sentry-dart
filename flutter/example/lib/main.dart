@@ -46,14 +46,30 @@ final GlobalKey<NavigatorState> navigatorKey2 = GlobalKey<NavigatorState>();
 
 final navigatorKeys = [navigatorKey1, navigatorKey2];
 
+final sentryWidgetKey1 = GlobalKey(debugLabel: 'sentry_widget_1');
+final sentryWidgetKey2 = GlobalKey(debugLabel: 'sentry_widget_2');
+final sentryWidgetKeys = [sentryWidgetKey1, sentryWidgetKey2];
+
+final sentryScreenshotWidgetKey1 =
+    GlobalKey(debugLabel: 'sentry_screenshot_widget_1');
+final sentryScreenshotWidgetKey2 =
+    GlobalKey(debugLabel: 'sentry_screenshot_widget_2');
+final sentryScreenshotWidgetKeys = [
+  sentryScreenshotWidgetKey1,
+  sentryScreenshotWidgetKey2
+];
+
 Future<void> main() async {
   await setupSentry(
     () => runWidget(
-      SentryWidget(
-        child: DefaultAssetBundle(
-          bundle: SentryAssetBundle(),
-          child: MultiViewApp(
-            viewBuilder: (BuildContext context) => const MyApp(),
+      MultiViewApp(
+        viewBuilder: (BuildContext context) => SentryWidget(
+          sentryWidgetGlobalKey: sentryWidgetKeys[View.of(context).viewId - 1],
+          sentryScreenshotWidgetGlobalKey:
+              sentryScreenshotWidgetKeys[View.of(context).viewId - 1],
+          child: DefaultAssetBundle(
+            bundle: SentryAssetBundle(),
+            child: const MyApp(),
           ),
         ),
       ),
