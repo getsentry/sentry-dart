@@ -46,7 +46,7 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
   AppStartInfo? _appStartInfo;
 
   @internal
-  bool isIntegrationTest = false;
+  static bool isIntegrationTest = false;
 
   @internal
   void setAppStartInfo(AppStartInfo? appStartInfo) {
