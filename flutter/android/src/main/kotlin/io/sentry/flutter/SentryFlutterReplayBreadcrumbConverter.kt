@@ -8,6 +8,8 @@ import io.sentry.rrweb.RRWebSpanEvent
 import java.util.Date
 
 private const val MILLIS_PER_SECOND = 1000.0
+private const val MAX_PATH_ITEMS = 4
+private const val MAX_PATH_IDENTIFIER_LENGTH = 20
 
 class SentryFlutterReplayBreadcrumbConverter : DefaultReplayBreadcrumbConverter() {
   internal companion object {
@@ -85,16 +87,12 @@ class SentryFlutterReplayBreadcrumbConverter : DefaultReplayBreadcrumbConverter(
   }
 
   private fun getTouchPathMessage(maybePath: Any?): String? {
-    if (maybePath !is List<*>) {
-      return null
-    }
-
-    if (maybePath.isEmpty()) {
+    if (maybePath !is List<*> || maybePath.isEmpty()) {
       return null
     }
 
     val message = StringBuilder()
-    for (i in Math.min(3, maybePath.size - 1) downTo 0) {
+    for (i in Math.min(MAX_PATH_ITEMS, maybePath.size) - 1 downTo 0) {
       val item = maybePath[i]
       if (item !is Map<*, *>) {
         continue
@@ -104,8 +102,8 @@ class SentryFlutterReplayBreadcrumbConverter : DefaultReplayBreadcrumbConverter(
 
       var identifier = item["label"] ?: item["name"]
       if (identifier is String && identifier.isNotEmpty()) {
-        if (identifier.length > 20) {
-          identifier = identifier.substring(0, 17) + "..."
+        if (identifier.length > MAX_PATH_IDENTIFIER_LENGTH) {
+          identifier = identifier.substring(0, MAX_PATH_IDENTIFIER_LENGTH - "...".length) + "..."
         }
         message.append("(").append(identifier).append(")")
       }
