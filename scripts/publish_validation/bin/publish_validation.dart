@@ -34,8 +34,7 @@ void main(List<String> arguments) async {
     'lib/src/integrations/connectivity/web_connectivity_provider.dart: This package does not have web in the `dependencies` section of `pubspec.yaml`',
     'lib/src/event_processor/enricher/web_enricher_event_processor.dart: This package does not have web in the `dependencies` section of `pubspec.yaml`',
     'lib/src/origin_web.dart: This package does not have web in the `dependencies` section of `pubspec.yaml`',
-    'lib/src/platform/_web_platform.dart: This package does not have web in the `dependencies` section of `pubspec.yaml`',
-    'lib/src/event_processor/url_filter/web_url_filter_event_processor.dart: This package does not have web in the `dependencies` section of `pubspec.yaml`',
+    'lib/src/platform/_web_platform.dart: This package does not have web in the `dependencies` section of `pubspec.yaml`'
   ];
 
   // So far the expected errors all start with `* line`

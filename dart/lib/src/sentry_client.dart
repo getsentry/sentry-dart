@@ -26,7 +26,6 @@ import 'transport/rate_limiter.dart';
 import 'transport/spotlight_http_transport.dart';
 import 'transport/task_queue.dart';
 import 'utils/isolate_utils.dart';
-import 'utils/regex_utils.dart';
 import 'utils/stacktrace_utils.dart';
 import 'version.dart';
 
@@ -197,7 +196,7 @@ class SentryClient {
     }
 
     var message = event.message!.formatted;
-    return isMatchingRegexPattern(message, _options.ignoreErrors);
+    return _isMatchingRegexPattern(message, _options.ignoreErrors);
   }
 
   SentryEvent _prepareEvent(SentryEvent event, {dynamic stackTrace}) {
@@ -416,7 +415,7 @@ class SentryClient {
     }
 
     var name = transaction.tracer.name;
-    return isMatchingRegexPattern(name, _options.ignoreTransactions);
+    return _isMatchingRegexPattern(name, _options.ignoreTransactions);
   }
 
   /// Reports the [envelope] to Sentry.io.
@@ -593,5 +592,12 @@ class SentryClient {
       () => _options.transport.send(envelope),
       SentryId.empty(),
     );
+  }
+
+  bool _isMatchingRegexPattern(String value, List<String> regexPattern,
+      {bool caseSensitive = false}) {
+    final combinedRegexPattern = regexPattern.join('|');
+    final regExp = RegExp(combinedRegexPattern, caseSensitive: caseSensitive);
+    return regExp.hasMatch(value);
   }
 }

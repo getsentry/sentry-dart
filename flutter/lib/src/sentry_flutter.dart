@@ -9,7 +9,6 @@ import 'event_processor/android_platform_exception_event_processor.dart';
 import 'event_processor/flutter_enricher_event_processor.dart';
 import 'event_processor/flutter_exception_event_processor.dart';
 import 'event_processor/platform_exception_event_processor.dart';
-import 'event_processor/url_filter/url_filter_event_processor.dart';
 import 'event_processor/widget_event_processor.dart';
 import 'file_system_transport.dart';
 import 'flutter_exception_type_identifier.dart';
@@ -132,7 +131,6 @@ mixin SentryFlutter {
 
     options.addEventProcessor(FlutterEnricherEventProcessor(options));
     options.addEventProcessor(WidgetEventProcessor());
-    options.addEventProcessor(UrlFilterEventProcessor(options));
 
     if (options.platformChecker.platform.isAndroid) {
       options.addEventProcessor(

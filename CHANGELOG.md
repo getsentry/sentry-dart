@@ -4,19 +4,6 @@
 
 ### Features
 
-- Support allowUrls and denyUrls for Flutter Web ([#2227](https://github.com/getsentry/sentry-dart/pull/2227))
-
-  ```dart
-  await SentryFlutter.init(
-    (options) {
-      ...
-      options.allowUrls = ["^https://sentry.com.*\$", "my-custom-domain"];
-      options.denyUrls = ["^.*ends-with-this\$", "denied-url"];      
-    },
-    appRunner: () => runApp(MyApp()),
-  );
-  ```
-
 - Session replay Alpha for Android and iOS ([#2208](https://github.com/getsentry/sentry-dart/pull/2208)).
 
   To try out replay, you can set following options (access is limited to early access orgs on Sentry. If you're interested, [sign up for the waitlist](https://sentry.io/lp/mobile-replay-beta/)):
@@ -44,7 +31,6 @@
 
 - Add `SentryFlutter.nativeCrash()` using MethodChannels for Android and iOS ([#2239](https://github.com/getsentry/sentry-dart/pull/2239))
   - This can be used to test if native crash reporting works
-
 - Add `ignoreRoutes` parameter to `SentryNavigatorObserver`. ([#2218](https://github.com/getsentry/sentry-dart/pull/2218))
   - This will ignore the Routes and prevent the Route from being pushed to the Sentry server.
   - Ignored routes will also create no TTID and TTFD spans.

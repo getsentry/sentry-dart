@@ -146,21 +146,6 @@ class SentryFlutterOptions extends SentryOptions {
   /// See https://api.flutter.dev/flutter/foundation/FlutterErrorDetails/silent.html
   bool reportSilentFlutterErrors = false;
 
-  /// (Web only) Events only occurring on these Urls will be handled and sent to sentry.
-  /// If an empty list is used, the SDK will send all errors.
-  /// `allowUrls` uses regex for the matching.
-  ///
-  /// If used on a platform other than Web, this setting will be ignored.
-  List<String> allowUrls = [];
-
-  /// (Web only) Events occurring on these Urls will be ignored and are not sent to sentry.
-  /// If an empty list is used, the SDK will send all errors.
-  /// `denyUrls` uses regex for the matching.
-  /// In combination with `allowUrls` you can block subdomains of the domains listed in `allowUrls`.
-  ///
-  /// If used on a platform other than Web, this setting will be ignored.
-  List<String> denyUrls = [];
-
   /// Enables Out of Memory Tracking for iOS and macCatalyst.
   /// See the following link for more information and possible restrictions:
   /// https://docs.sentry.io/platforms/apple/guides/ios/configuration/out-of-memory/
