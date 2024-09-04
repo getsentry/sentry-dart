@@ -19,11 +19,28 @@
   );
   ```
 
+- Support allowUrls and denyUrls for Flutter Web ([#2227](https://github.com/getsentry/sentry-dart/pull/2227))
+
+  ```dart
+  await SentryFlutter.init(
+    (options) {
+      ...
+      options.allowUrls = ["^https://sentry.com.*\$", "my-custom-domain"];
+      options.denyUrls = ["^.*ends-with-this\$", "denied-url"];      
+    },
+    appRunner: () => runApp(MyApp()),
+  );
+  ```
+
 ### Dependencies
 
 - Bump Cocoa SDK from v8.35.1 to v8.36.0 ([#2252](https://github.com/getsentry/sentry-dart/pull/2252))
   - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8360)
   - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.35.1...8.36.0)
+
+### Fixes
+
+- Only access renderObject if `hasSize` is true ([#2263](https://github.com/getsentry/sentry-dart/pull/2263))
 
 ## 8.8.0
 
@@ -31,6 +48,7 @@
 
 - Add `SentryFlutter.nativeCrash()` using MethodChannels for Android and iOS ([#2239](https://github.com/getsentry/sentry-dart/pull/2239))
   - This can be used to test if native crash reporting works
+
 - Add `ignoreRoutes` parameter to `SentryNavigatorObserver`. ([#2218](https://github.com/getsentry/sentry-dart/pull/2218))
   - This will ignore the Routes and prevent the Route from being pushed to the Sentry server.
   - Ignored routes will also create no TTID and TTFD spans.

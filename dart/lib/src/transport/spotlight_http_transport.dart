@@ -38,10 +38,6 @@ class SpotlightHttpTransport extends Transport {
   Future<void> _sendToSpotlight(SentryEnvelope envelope) async {
     envelope.header.sentAt = _options.clock();
 
-    // Screenshots do not work currently https://github.com/getsentry/spotlight/issues/274
-    envelope.items
-        .removeWhere((element) => element.header.contentType == 'image/png');
-
     final spotlightRequest = await _requestHandler.createRequest(envelope);
 
     final response = await _options.httpClient
