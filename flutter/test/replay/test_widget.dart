@@ -32,6 +32,19 @@ Future<Element> pumpTestElement(WidgetTester tester) async {
                   Opacity(opacity: 0, child: newImage()),
                   Offstage(offstage: true, child: Text('Offstage text')),
                   Offstage(offstage: true, child: newImage()),
+                  Text(dummyText),
+                  SizedBox(
+                      width: 100,
+                      height: 20,
+                      child: Stack(children: [
+                        Positioned(
+                            top: 0, left: 0, width: 50, child: Text(dummyText)),
+                        Positioned(
+                            top: 0,
+                            left: 0,
+                            width: 50,
+                            child: newImage(width: 500, height: 500)),
+                      ]))
                 ],
               ),
             ),
@@ -43,7 +56,7 @@ Future<Element> pumpTestElement(WidgetTester tester) async {
   return TestWidgetsFlutterBinding.instance.rootElement!;
 }
 
-Image newImage() => Image.memory(
+Image newImage({double width = 1, double height = 1}) => Image.memory(
       Uint8List.fromList([
         66, 77, 142, 0, 0, 0, 0, 0, 0, 0, 138, 0, 0, 0, 124, 0, 0, 0, 1, 0,
         0, 0, 255, 255, 255, 255, 1, 0, 32, 0, 3, 0, 0, 0, 4, 0, 0, 0, 19,
@@ -54,6 +67,8 @@ Image newImage() => Image.memory(
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 135, 135, 135, 255,
         // This comment prevents dartfmt reformatting this to single-item lines.
       ]),
-      width: 1,
-      height: 1,
+      width: width,
+      height: height,
     );
+
+const dummyText = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.';

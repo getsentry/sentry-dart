@@ -15,12 +15,15 @@ void main() async {
             redactText: redactText,
           );
 
+  boundsRect(WidgetFilterItem item) =>
+      '${item.bounds.width.floor()}x${item.bounds.height.floor()}';
+
   group('redact text', () {
     testWidgets('redacts the correct number of elements', (tester) async {
       final sut = createSut(redactText: true);
       final element = await pumpTestElement(tester);
       sut.obscure(element, 1.0, defaultBounds);
-      expect(sut.items.length, 2);
+      expect(sut.items.length, 4);
     });
 
     testWidgets('does not redact text when disabled', (tester) async {
@@ -37,6 +40,17 @@ void main() async {
       sut.obscure(element, 1.0, Rect.fromLTRB(0, 0, 100, 100));
       expect(sut.items.length, 1);
     });
+
+    testWidgets('correctly determines sizes', (tester) async {
+      final sut = createSut(redactText: true);
+      final element = await pumpTestElement(tester);
+      sut.obscure(element, 1.0, defaultBounds);
+      expect(sut.items.length, 4);
+      expect(boundsRect(sut.items[0]), '624x48');
+      expect(boundsRect(sut.items[1]), '169x20');
+      expect(boundsRect(sut.items[2]), '800x192');
+      expect(boundsRect(sut.items[3]), '50x20');
+    });
   });
 
   group('redact images', () {
@@ -44,7 +58,7 @@ void main() async {
       final sut = createSut(redactImages: true);
       final element = await pumpTestElement(tester);
       sut.obscure(element, 1.0, defaultBounds);
-      expect(sut.items.length, 2);
+      expect(sut.items.length, 3);
     });
 
     testWidgets('does not redact text when disabled', (tester) async {
@@ -60,6 +74,16 @@ void main() async {
       final element = await pumpTestElement(tester);
       sut.obscure(element, 1.0, Rect.fromLTRB(0, 0, 500, 100));
       expect(sut.items.length, 1);
+    });
+
+    testWidgets('correctly determines sizes', (tester) async {
+      final sut = createSut(redactImages: true);
+      final element = await pumpTestElement(tester);
+      sut.obscure(element, 1.0, defaultBounds);
+      expect(sut.items.length, 3);
+      expect(boundsRect(sut.items[0]), '1x1');
+      expect(boundsRect(sut.items[1]), '1x1');
+      expect(boundsRect(sut.items[2]), '50x20');
     });
   });
 }

@@ -66,7 +66,7 @@ class WidgetFilter {
 
     final renderObject = element.renderObject;
     if (renderObject is! RenderBox) {
-      _cantObscure(widget, "it's renderObject is not a RenderBox");
+      _cantObscure(widget, "its renderObject is not a RenderBox");
       return false;
     }
 
