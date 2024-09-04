@@ -1,9 +1,10 @@
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
-import 'package:sentry/sentry.dart';
 
 import '../../sentry_flutter.dart';
+import '../sentry_asset_bundle.dart';
 
 @internal
 class WidgetFilter {
@@ -15,11 +16,14 @@ class WidgetFilter {
   late double _pixelRatio;
   late Rect _bounds;
   final _warnedWidgets = <int>{};
+  final AssetBundle _rootAssetBundle;
 
   WidgetFilter(
       {required this.redactText,
       required this.redactImages,
-      required this.logger});
+      required this.logger,
+      @visibleForTesting AssetBundle? rootAssetBundle})
+      : _rootAssetBundle = rootAssetBundle ?? rootBundle;
 
   void obscure(BuildContext context, double pixelRatio, Rect bounds) {
     _pixelRatio = pixelRatio;
@@ -58,6 +62,14 @@ class WidgetFilter {
     } else if (redactText && widget is EditableText) {
       color = widget.style.color;
     } else if (redactImages && widget is Image) {
+      if (widget.image is AssetBundleImageProvider) {
+        final image = widget.image as AssetBundleImageProvider;
+        if (isBuiltInAssetImage(image)) {
+          logger(SentryLevel.debug,
+              "WidgetFilter skipping asset: $widget ($image).");
+          return false;
+        }
+      }
       color = widget.color;
     } else {
       // No other type is currently obscured.
@@ -114,6 +126,22 @@ class WidgetFilter {
       return !widget.offstage;
     }
     return true;
+  }
+
+  @visibleForTesting
+  @pragma('vm:prefer-inline')
+  bool isBuiltInAssetImage(AssetBundleImageProvider image) {
+    late final AssetBundle? bundle;
+    if (image is AssetImage) {
+      bundle = image.bundle;
+    } else if (image is ExactAssetImage) {
+      bundle = image.bundle;
+    } else {
+      return false;
+    }
+    return (bundle == null ||
+        bundle == _rootAssetBundle ||
+        (bundle is SentryAssetBundle && bundle.bundle == _rootAssetBundle));
   }
 
   @pragma('vm:prefer-inline')
