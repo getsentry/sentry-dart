@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 
+/// Key which is used to identify the [RepaintBoundary]
+@internal
+final sentryScreenshotWidgetGlobalKey =
+    GlobalKey(debugLabel: 'sentry_screenshot_widget');
+
 /// You can add screenshots of [child] to crash reports by adding this widget.
 /// Ideally you are adding it around your app widget like in the following
 /// example.
@@ -18,12 +23,8 @@ import 'package:meta/meta.dart';
 ///   times.
 class SentryScreenshotWidget extends StatefulWidget {
   final Widget child;
-  final GlobalKey<State<StatefulWidget>> sentryScreenshotWidgetGlobalKey;
 
-  const SentryScreenshotWidget(
-      {super.key,
-      required this.child,
-      required this.sentryScreenshotWidgetGlobalKey});
+  const SentryScreenshotWidget({super.key, required this.child});
 
   @override
   _SentryScreenshotWidgetState createState() => _SentryScreenshotWidgetState();
@@ -33,7 +34,7 @@ class _SentryScreenshotWidgetState extends State<SentryScreenshotWidget> {
   @override
   Widget build(BuildContext context) {
     return RepaintBoundary(
-      key: widget.sentryScreenshotWidgetGlobalKey,
+      key: sentryScreenshotWidgetGlobalKey,
       child: widget.child,
     );
   }

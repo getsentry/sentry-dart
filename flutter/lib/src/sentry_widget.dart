@@ -10,15 +10,8 @@ final sentryWidgetGlobalKey = GlobalKey(debugLabel: 'sentry_widget');
 /// as [SentryScreenshotWidget] and [SentryUserInteractionWidget].
 class SentryWidget extends StatefulWidget {
   final Widget child;
-  final GlobalKey<State<StatefulWidget>> sentryWidgetGlobalKey;
-  final GlobalKey<State<StatefulWidget>> sentryScreenshotWidgetGlobalKey;
 
-  const SentryWidget({
-    super.key,
-    required this.child,
-    required this.sentryWidgetGlobalKey,
-    required this.sentryScreenshotWidgetGlobalKey,
-  });
+  const SentryWidget({super.key, required this.child});
 
   @override
   _SentryWidgetState createState() => _SentryWidgetState();
@@ -29,12 +22,11 @@ class _SentryWidgetState extends State<SentryWidget> {
   Widget build(BuildContext context) {
     Widget content = widget.child;
     content = SentryScreenshotWidget(
-      sentryScreenshotWidgetGlobalKey: widget.sentryScreenshotWidgetGlobalKey,
       child: content,
     );
     content = SentryUserInteractionWidget(child: content);
     return Container(
-      key: widget.sentryWidgetGlobalKey,
+      key: sentryWidgetGlobalKey,
       child: content,
     );
   }
