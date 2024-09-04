@@ -38,13 +38,13 @@ final nonWebIntegrations = [
 
 // These should be added to Android
 final androidIntegrations = [
-  LoadNativeDebugImagesIntegration,
+  LoadImageListIntegration,
   LoadContextsIntegration,
 ];
 
 // These should be added to iOS and macOS
 final iOsAndMacOsIntegrations = [
-  LoadNativeDebugImagesIntegration,
+  LoadImageListIntegration,
   LoadContextsIntegration,
 ];
 
