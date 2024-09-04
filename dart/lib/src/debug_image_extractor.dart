@@ -43,6 +43,12 @@ class DebugImageExtractor {
       if (_isHeaderStartLine(line)) {
         continue;
       }
+      // Stop parsing as soon as we get to the stack frames
+      // This should never happen but is a safeguard to avoid looping
+      // through every line of the stack trace
+      if (line.contains("#00 abs")) {
+        break;
+      }
 
       buildId ??= _extractBuildId(line);
       isolateDsoBase ??= _extractIsolateDsoBase(line);
@@ -132,7 +138,7 @@ class _DebugInfo {
     final first16Bytes = codeId.substring(0, 32);
     final byteData = _parseHexToBytes(first16Bytes);
 
-    if (byteData.isEmpty) {
+    if (byteData == null || byteData.isEmpty) {
       _options.logger(
           SentryLevel.warning, 'Failed to convert code ID to debug ID');
       return null;
@@ -141,9 +147,11 @@ class _DebugInfo {
     return bigToLittleEndianUuid(UuidValue.fromByteList(byteData).uuid);
   }
 
-  Uint8List _parseHexToBytes(String hex) {
+  Uint8List? _parseHexToBytes(String hex) {
     if (hex.length % 2 != 0) {
-      throw ArgumentError('Invalid hex string');
+      _options.logger(
+          SentryLevel.warning, 'Invalid hex string during debug image parsing');
+      return null;
     }
     if (hex.startsWith('0x')) {
       hex = hex.substring(2);
