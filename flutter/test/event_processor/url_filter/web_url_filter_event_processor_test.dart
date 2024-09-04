@@ -8,6 +8,7 @@ import 'package:sentry_flutter/src/event_processor/url_filter/url_filter_event_p
 // can be tested on command line with
 // `flutter test --platform=chrome test/event_processor/url_filter/web_url_filter_event_processor_test.dart`
 // The URL looks something like this: http://localhost:58551/event_processor/url_filter/web_url_filter_event_processor_test.html
+
 void main() {
   group(UrlFilterEventProcessor, () {
     late Fixture fixture;
