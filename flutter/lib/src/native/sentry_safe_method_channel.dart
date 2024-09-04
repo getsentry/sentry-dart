@@ -14,6 +14,10 @@ class SentrySafeMethodChannel with SentryNativeSafeInvoker {
 
   SentrySafeMethodChannel(this._channel, this.options);
 
+  void setMethodCallHandler(
+          Future<dynamic> Function(MethodCall call)? handler) =>
+      _channel.setMethodCallHandler(handler);
+
   @optionalTypeArgs
   Future<T?> invokeMethod<T>(String method, [dynamic args]) =>
       tryCatchAsync(method, () => _channel.invokeMethod<T>(method, args));

@@ -8,6 +8,33 @@
     - This flag enables symbolication of Dart stack traces when native debug images are not available.
     - Useful when using Sentry.init() instead of SentryFlutter.init() in Flutter projects for example due to size limitations.
     - `true` by default but automatically set to `false` when using SentryFlutter.init() because the SentryFlutter fetches debug images from the native SDK integrations.
+- Support allowUrls and denyUrls for Flutter Web ([#2227](https://github.com/getsentry/sentry-dart/pull/2227))
+
+  ```dart
+  await SentryFlutter.init(
+    (options) {
+      ...
+      options.allowUrls = ["^https://sentry.com.*\$", "my-custom-domain"];
+      options.denyUrls = ["^.*ends-with-this\$", "denied-url"];      
+    },
+    appRunner: () => runApp(MyApp()),
+  );
+  ```
+
+- Session replay Alpha for Android and iOS ([#2208](https://github.com/getsentry/sentry-dart/pull/2208)).
+
+  To try out replay, you can set following options (access is limited to early access orgs on Sentry. If you're interested, [sign up for the waitlist](https://sentry.io/lp/mobile-replay-beta/)):
+
+  ```dart
+  await SentryFlutter.init(
+    (options) {
+      ...
+      options.experimental.replay.sessionSampleRate = 1.0;
+      options.experimental.replay.errorSampleRate = 1.0;
+    },
+    appRunner: () => runApp(MyApp()),
+  );
+  ```
 
 ### Dependencies
 
@@ -15,18 +42,24 @@
   - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8360)
   - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.35.1...8.36.0)
 
+### Fixes
+
+- Only access renderObject if `hasSize` is true ([#2263](https://github.com/getsentry/sentry-dart/pull/2263))
+
 ## 8.8.0
 
 ### Features
 
 - Add `SentryFlutter.nativeCrash()` using MethodChannels for Android and iOS ([#2239](https://github.com/getsentry/sentry-dart/pull/2239))
-  - This can be used to test if native crash reporting works  
+  - This can be used to test if native crash reporting works
+
 - Add `ignoreRoutes` parameter to `SentryNavigatorObserver`. ([#2218](https://github.com/getsentry/sentry-dart/pull/2218))
-    - This will ignore the Routes and prevent the Route from being pushed to the Sentry server.
-    - Ignored routes will also create no TTID and TTFD spans.
-```dart
-SentryNavigatorObserver(ignoreRoutes: ["/ignoreThisRoute"]),
-```
+  - This will ignore the Routes and prevent the Route from being pushed to the Sentry server.
+  - Ignored routes will also create no TTID and TTFD spans.
+
+  ```dart
+  SentryNavigatorObserver(ignoreRoutes: ["/ignoreThisRoute"]),
+  ```
 
 ### Improvements
 
@@ -41,12 +74,33 @@ SentryNavigatorObserver(ignoreRoutes: ["/ignoreThisRoute"]),
   - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#7140)
   - [diff](https://github.com/getsentry/sentry-java/compare/7.13.0...7.14.0)
 
+## 8.8.0-alpha.1
+
+### Features
+
+- iOS Session Replay Alpha ([#2209](https://github.com/getsentry/sentry-dart/pull/2209))
+- Android replay touch tracking support ([#2228](https://github.com/getsentry/sentry-dart/pull/2228))
+- Add `ignoreRoutes` parameter to `SentryNavigatorObserver`. ([#2218](https://github.com/getsentry/sentry-dart/pull/2218))
+  - This will ignore the Routes and prevent the Route from being pushed to the Sentry server.
+  - Ignored routes will also create no TTID and TTFD spans.
+
+```dart
+SentryNavigatorObserver(ignoreRoutes: ["/ignoreThisRoute"]),
+```
+
+### Dependencies
+
+- Bump Android SDK from v7.13.0 to v7.14.0 ([#2228](https://github.com/getsentry/sentry-dart/pull/2228))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#7140)
+  - [diff](https://github.com/getsentry/sentry-java/compare/7.13.0...7.14.0)
+
 ## 8.7.0
 
 ### Features
 
 - Add support for span level measurements. ([#2214](https://github.com/getsentry/sentry-dart/pull/2214))
 - Add `ignoreTransactions` and `ignoreErrors` to options ([#2207](https://github.com/getsentry/sentry-dart/pull/2207))
+
   ```dart
   await SentryFlutter.init(
     (options) {
@@ -58,8 +112,10 @@ SentryNavigatorObserver(ignoreRoutes: ["/ignoreThisRoute"]),
     appRunner: () => runApp(MyApp()),
   );
   ```
+
 - Add proxy support ([#2192](https://github.com/getsentry/sentry-dart/pull/2192))
   - Configure a `SentryProxy` object and set it on `SentryFlutter.init`
+
   ```dart
   import 'package:flutter/widgets.dart';
   import 'package:sentry_flutter/sentry_flutter.dart';
@@ -99,24 +155,25 @@ SentryNavigatorObserver(ignoreRoutes: ["/ignoreThisRoute"]),
   - This is enabled automatically and will change grouping if you already have issues with obfuscated titles
   - If you want to disable this feature, set `enableExceptionTypeIdentification` to `false` in your Sentry options
   - You can add your custom exception identifier if there are exceptions that we do not identify out of the box
-```dart
-// How to add your own custom exception identifier
-class MyCustomExceptionIdentifier implements ExceptionIdentifier {
-  @override
-  String? identifyType(Exception exception) {
-    if (exception is MyCustomException) {
-      return 'MyCustomException';
-    }
-    if (exception is MyOtherCustomException) {
-      return 'MyOtherCustomException';
-    }
-    return null;
-  }
-}
 
-SentryFlutter.init((options) =>
-  options..prependExceptionTypeIdentifier(MyCustomExceptionIdentifier()));
-```
+  ```dart
+  // How to add your own custom exception identifier
+  class MyCustomExceptionIdentifier implements ExceptionIdentifier {
+    @override
+    String? identifyType(Exception exception) {
+      if (exception is MyCustomException) {
+        return 'MyCustomException';
+      }
+      if (exception is MyOtherCustomException) {
+        return 'MyOtherCustomException';
+      }
+      return null;
+    }
+  }
+
+  SentryFlutter.init((options) =>
+    options..prependExceptionTypeIdentifier(MyCustomExceptionIdentifier()));
+  ```
 
 ### Deprecated
 
@@ -132,6 +189,27 @@ SentryFlutter.init((options) =>
   - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#7130)
   - [diff](https://github.com/getsentry/sentry-java/compare/7.12.0...7.13.0)
 
+## 8.6.0-alpha.2
+
+### Features
+
+- Android Session Replay Alpha ([#2032](https://github.com/getsentry/sentry-dart/pull/2032))
+
+  To try out replay, you can set following options:
+
+  ```dart
+  await SentryFlutter.init(
+    (options) {
+      ...
+      options.experimental.replay.sessionSampleRate = 1.0;
+      options.experimental.replay.errorSampleRate = 1.0;
+    },
+    appRunner: () => runApp(MyApp()),
+  );
+  ```
+
+  Access is limited to early access orgs on Sentry. If you're interested, [sign up for the waitlist](https://sentry.io/lp/mobile-replay-beta/)
+
 ## 8.5.0
 
 ### Features
@@ -144,7 +222,7 @@ SentryFlutter.init((options) =>
 ### Fixes
 
 - Disable sff & frame delay detection on web, linux and windows ([#2182](https://github.com/getsentry/sentry-dart/pull/2182))
-  - Display refresh rate is locked at 60 for these platforms which can lead to inaccurate metrics 
+  - Display refresh rate is locked at 60 for these platforms which can lead to inaccurate metrics
 
 ### Improvements
 
