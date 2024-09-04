@@ -10,7 +10,7 @@ import 'native_frames.dart';
 /// Provide typed methods to access native layer.
 @internal
 abstract class SentryNativeBinding {
-  FutureOr<void> init(SentryFlutterOptions options);
+  FutureOr<void> init(Hub hub);
 
   FutureOr<void> close();
 
@@ -63,4 +63,6 @@ abstract class SentryNativeBinding {
   FutureOr<void> resumeAppHangTracking();
 
   FutureOr<void> nativeCrash();
+
+  Future<SentryId> captureReplay(bool isCrash);
 }
