@@ -33,6 +33,22 @@ Future<Element> pumpTestElement(WidgetTester tester,
                       Opacity(opacity: 0, child: newImage()),
                       Offstage(offstage: true, child: Text('Offstage text')),
                       Offstage(offstage: true, child: newImage()),
+                      Text(dummyText),
+                      SizedBox(
+                          width: 100,
+                          height: 20,
+                          child: Stack(children: [
+                            Positioned(
+                                top: 0,
+                                left: 0,
+                                width: 50,
+                                child: Text(dummyText)),
+                            Positioned(
+                                top: 0,
+                                left: 0,
+                                width: 50,
+                                child: newImage(width: 500, height: 500)),
+                          ]))
                     ],
               ),
             ),
@@ -55,4 +71,10 @@ final testImageData = Uint8List.fromList([
   // This comment prevents dartfmt reformatting this to single-item lines.
 ]);
 
-Image newImage() => Image.memory(testImageData, width: 1, height: 1);
+Image newImage({double width = 1, double height = 1}) => Image.memory(
+      testImageData,
+      width: width,
+      height: height,
+    );
+
+const dummyText = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.';
