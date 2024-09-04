@@ -182,7 +182,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         case "nativeCrash":
             crash()
 
-        case "sendReplayForEvent":
+        case "captureReplay":
 #if canImport(UIKit) && !SENTRY_NO_UIKIT && (os(iOS) || os(tvOS))
             PrivateSentrySDKOnly.captureReplay()
             result(PrivateSentrySDKOnly.getReplayId())
