@@ -3,9 +3,7 @@ import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui';
 
-import 'package:sentry/sentry.dart';
-import '../screenshot/sentry_screenshot_widget.dart';
-import '../sentry_flutter_options.dart';
+import '../../sentry_flutter.dart';
 import 'package:flutter/rendering.dart';
 import '../renderer/renderer.dart';
 import 'package:flutter/widgets.dart' as widget;
@@ -17,7 +15,7 @@ class ScreenshotEventProcessor implements EventProcessor {
 
   /// This is true when the SentryWidget is in the view hierarchy
   bool get _hasSentryScreenshotWidget =>
-      sentryScreenshotWidgetGlobalKey.currentContext != null;
+      sentryWidgetGlobalKey.currentContext != null;
 
   @override
   Future<SentryEvent?> apply(SentryEvent event, Hint hint) async {
@@ -86,11 +84,10 @@ class ScreenshotEventProcessor implements EventProcessor {
   Future<Uint8List?> _createScreenshot() async {
     try {
       final renderObject =
-          sentryScreenshotWidgetGlobalKey.currentContext?.findRenderObject();
+          sentryWidgetGlobalKey.currentContext?.findRenderObject();
       if (renderObject is RenderRepaintBoundary) {
-        final pixelRatio =
-            widget.View.of(sentryScreenshotWidgetGlobalKey.currentContext!)
-                .devicePixelRatio;
+        final pixelRatio = widget.View.of(sentryWidgetGlobalKey.currentContext!)
+            .devicePixelRatio;
         var imageResult = _getImage(renderObject, pixelRatio);
         Image image;
         if (imageResult is Future<Image>) {

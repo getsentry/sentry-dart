@@ -345,7 +345,7 @@ class SentryFlutterOptions extends SentryOptions {
 
   /// The [navigatorKey] is used to add information of the currently used locale to the contexts.
   /// Keep the same order as with flutter views
-  List<GlobalKey<NavigatorState>> navigatorKeys = [];
+  GlobalKey<NavigatorState>? navigatorKey;
 
   @meta.internal
   FileSystem fileSystem = LocalFileSystem();

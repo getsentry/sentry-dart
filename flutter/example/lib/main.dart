@@ -41,36 +41,13 @@ const String exampleUrl = 'https://jsonplaceholder.typicode.com/todos/';
 const _channel = MethodChannel('example.flutter.sentry.io');
 var _isIntegrationTest = false;
 
-final GlobalKey<NavigatorState> navigatorKey1 = GlobalKey<NavigatorState>();
-final GlobalKey<NavigatorState> navigatorKey2 = GlobalKey<NavigatorState>();
-
-final navigatorKeys = [navigatorKey1, navigatorKey2];
-
-final sentryWidgetKey1 = GlobalKey(debugLabel: 'sentry_widget_1');
-final sentryWidgetKey2 = GlobalKey(debugLabel: 'sentry_widget_2');
-final sentryWidgetKeys = [sentryWidgetKey1, sentryWidgetKey2];
-
-final sentryScreenshotWidgetKey1 =
-    GlobalKey(debugLabel: 'sentry_screenshot_widget_1');
-final sentryScreenshotWidgetKey2 =
-    GlobalKey(debugLabel: 'sentry_screenshot_widget_2');
-final sentryScreenshotWidgetKeys = [
-  sentryScreenshotWidgetKey1,
-  sentryScreenshotWidgetKey2
-];
-
 Future<void> main() async {
   await setupSentry(
     () => runWidget(
       MultiViewApp(
-        viewBuilder: (BuildContext context) => SentryWidget(
-          sentryWidgetGlobalKey: sentryWidgetKeys[View.of(context).viewId - 1],
-          sentryScreenshotWidgetGlobalKey:
-              sentryScreenshotWidgetKeys[View.of(context).viewId - 1],
-          child: DefaultAssetBundle(
-            bundle: SentryAssetBundle(),
-            child: const MyApp(),
-          ),
+        viewBuilder: (BuildContext context) => DefaultAssetBundle(
+          bundle: SentryAssetBundle(),
+          child: const MyApp(),
         ),
       ),
     ),
@@ -110,7 +87,7 @@ Future<void> setupSentry(
 
       options.maxRequestBodySize = MaxRequestBodySize.always;
       options.maxResponseBodySize = MaxResponseBodySize.always;
-      options.navigatorKeys = navigatorKeys;
+      // options.navigatorKey = navigatorKeys;
 
       options.experimental.replay.sessionSampleRate = 1.0;
       options.experimental.replay.errorSampleRate = 1.0;
@@ -142,7 +119,6 @@ class _MyAppState extends State<MyApp> {
         create: (_) => ThemeProvider(),
         child: Builder(
           builder: (context) => MaterialApp(
-            navigatorKey: navigatorKeys[View.of(context).viewId - 1],
             navigatorObservers: [
               SentryNavigatorObserver(),
             ],
@@ -196,7 +172,8 @@ class MainScaffold extends StatelessWidget {
     }
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Sentry Flutter Example'),
+        title:
+            Text('Sentry Flutter Example (ViewId:${View.of(context).viewId})'),
         actions: [
           IconButton(
             onPressed: () {

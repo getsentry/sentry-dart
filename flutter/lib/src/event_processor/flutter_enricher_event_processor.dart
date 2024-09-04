@@ -103,11 +103,10 @@ class FlutterEnricherEventProcessor implements EventProcessor {
     return _packages;
   }
 
-  SentryCulture _getCulture(SentryCulture? culture, {int? viewId}) {
+  SentryCulture _getCulture(SentryCulture? culture) {
     final windowLanguageTag =
         _widgetsBinding?.platformDispatcher.locale.toLanguageTag();
-    final screenLocale =
-        _retrieveWidgetLocale(_options.navigatorKeys[viewId ?? 0]);
+    final screenLocale = _retrieveWidgetLocale(_options.navigatorKey);
     final languageTag = screenLocale?.toLanguageTag() ?? windowLanguageTag;
 
     // Future enhancement:
