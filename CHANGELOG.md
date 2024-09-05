@@ -33,6 +33,14 @@
   );
   ```
 
+- Support `captureFeedback` ([#2230](https://github.com/getsentry/sentry-dart/pull/2230))
+  - Deprecated `Sentry.captureUserFeedback`, use `captureFeedback` instead.
+  - Deprecated `Hub.captureUserFeedback`, use `captureFeedback` instead.
+  - Deprecated `SentryClient.captureUserFeedback`, use `captureFeedback` instead.
+  - Deprecated `SentryUserFeedback`, use `SentryFeedback` instead.
+  - This will ignore the Routes and prevent the Route from being pushed to the Sentry server.
+  - Ignored routes will also create no TTID and TTFD spans.
+
 ### Dependencies
 
 - Bump Cocoa SDK from v8.35.1 to v8.36.0 ([#2252](https://github.com/getsentry/sentry-dart/pull/2252))
@@ -56,17 +64,6 @@
 ```dart
 SentryNavigatorObserver(ignoreRoutes: ["/ignoreThisRoute"]),
 ```
-- Support `captureFeedback` ([#2230](https://github.com/getsentry/sentry-dart/pull/2230))
-  - Deprecated `Sentry.captureUserFeedback`, use `captureFeedback` instead.
-  - Deprecated `Hub.captureUserFeedback`, use `captureFeedback` instead.
-  - Deprecated `SentryClient.captureUserFeedback`, use `captureFeedback` instead.
-  - Deprecated `SentryUserFeedback`, use `SentryFeedback` instead.
-  - This will ignore the Routes and prevent the Route from being pushed to the Sentry server.
-  - Ignored routes will also create no TTID and TTFD spans.
-
-  ```dart
-  SentryNavigatorObserver(ignoreRoutes: ["/ignoreThisRoute"]),
-  ```
 
 ### Improvements
 
