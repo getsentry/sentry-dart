@@ -10,7 +10,7 @@ export 'src/sentry_flutter.dart';
 export 'src/sentry_flutter_options.dart';
 export 'src/sentry_replay_options.dart';
 export 'src/flutter_sentry_attachment.dart';
-export 'src/sentry_asset_bundle.dart';
+export 'src/sentry_asset_bundle.dart' show SentryAssetBundle;
 export 'src/integrations/on_error_integration.dart';
 export 'src/screenshot/sentry_screenshot_widget.dart';
 export 'src/screenshot/sentry_screenshot_quality.dart';
