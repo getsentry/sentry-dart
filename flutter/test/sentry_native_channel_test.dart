@@ -302,6 +302,15 @@ void main() {
 
         verify(channel.invokeMethod('resumeAppHangTracking'));
       });
+
+      test('nativeCrash', () async {
+        when(channel.invokeMethod('nativeCrash'))
+            .thenAnswer((_) => Future.value());
+
+        await sut.nativeCrash();
+
+        verify(channel.invokeMethod('nativeCrash'));
+      });
     });
   }
 }

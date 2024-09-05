@@ -9,6 +9,7 @@ import 'event_processor/android_platform_exception_event_processor.dart';
 import 'event_processor/flutter_enricher_event_processor.dart';
 import 'event_processor/flutter_exception_event_processor.dart';
 import 'event_processor/platform_exception_event_processor.dart';
+import 'event_processor/url_filter/url_filter_event_processor.dart';
 import 'event_processor/widget_event_processor.dart';
 import 'file_system_transport.dart';
 import 'flutter_exception_type_identifier.dart';
@@ -131,6 +132,7 @@ mixin SentryFlutter {
 
     options.addEventProcessor(FlutterEnricherEventProcessor(options));
     options.addEventProcessor(WidgetEventProcessor());
+    options.addEventProcessor(UrlFilterEventProcessor(options));
 
     if (options.platformChecker.platform.isAndroid) {
       options.addEventProcessor(
@@ -249,11 +251,7 @@ mixin SentryFlutter {
   /// Only for iOS and macOS.
   static Future<void> pauseAppHangTracking() {
     if (_native == null) {
-      // ignore: invalid_use_of_internal_member
-      Sentry.currentHub.options.logger(
-        SentryLevel.debug,
-        'Native integration is not available. Make sure SentryFlutter is initialized before accessing the pauseAppHangTracking API.',
-      );
+      _logNativeIntegrationNotAvailable("pauseAppHangTracking");
       return Future<void>.value();
     }
     return _native!.pauseAppHangTracking();
@@ -263,11 +261,7 @@ mixin SentryFlutter {
   /// Only for iOS and macOS
   static Future<void> resumeAppHangTracking() {
     if (_native == null) {
-      // ignore: invalid_use_of_internal_member
-      Sentry.currentHub.options.logger(
-        SentryLevel.debug,
-        'Native integration is not available. Make sure SentryFlutter is initialized before accessing the resumeAppHangTracking API.',
-      );
+      _logNativeIntegrationNotAvailable("resumeAppHangTracking");
       return Future<void>.value();
     }
     return _native!.resumeAppHangTracking();
@@ -280,4 +274,23 @@ mixin SentryFlutter {
   static set native(SentryNativeBinding? value) => _native = value;
 
   static SentryNativeBinding? _native;
+
+  /// Use `nativeCrash()` to crash the native implementation and test/debug the crash reporting for native code.
+  /// This should not be used in production code.
+  /// Only for Android, iOS and macOS
+  static Future<void> nativeCrash() {
+    if (_native == null) {
+      _logNativeIntegrationNotAvailable("nativeCrash");
+      return Future<void>.value();
+    }
+    return _native!.nativeCrash();
+  }
+
+  static void _logNativeIntegrationNotAvailable(String methodName) {
+    // ignore: invalid_use_of_internal_member
+    Sentry.currentHub.options.logger(
+      SentryLevel.debug,
+      'Native integration is not available. Make sure SentryFlutter is initialized before accessing the $methodName API.',
+    );
+  }
 }

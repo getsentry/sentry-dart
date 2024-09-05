@@ -60,7 +60,7 @@ void main() {
 
 class _ThrowingMockSentryNative extends MockSentryNativeBinding {
   @override
-  Future<void> init(SentryFlutterOptions? options) async {
+  Future<void> init(Hub? hub) async {
     throw Exception();
   }
 }

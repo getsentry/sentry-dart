@@ -1,6 +1,8 @@
 import 'dart:async';
 
-import 'package:meta/meta.dart';
+import 'package:file/file.dart';
+import 'package:file/local.dart';
+import 'package:meta/meta.dart' as meta;
 import 'package:sentry/sentry.dart';
 import 'package:flutter/widgets.dart';
 
@@ -10,6 +12,7 @@ import 'screenshot/sentry_screenshot_quality.dart';
 import 'event_processor/screenshot_event_processor.dart';
 import 'screenshot/sentry_screenshot_widget.dart';
 import 'sentry_flutter.dart';
+import 'sentry_replay_options.dart';
 import 'user_interaction/sentry_user_interaction_widget.dart';
 
 /// This class adds options which are only available in a Flutter environment.
@@ -143,6 +146,21 @@ class SentryFlutterOptions extends SentryOptions {
   /// See https://api.flutter.dev/flutter/foundation/FlutterErrorDetails/silent.html
   bool reportSilentFlutterErrors = false;
 
+  /// (Web only) Events only occurring on these Urls will be handled and sent to sentry.
+  /// If an empty list is used, the SDK will send all errors.
+  /// `allowUrls` uses regex for the matching.
+  ///
+  /// If used on a platform other than Web, this setting will be ignored.
+  List<String> allowUrls = [];
+
+  /// (Web only) Events occurring on these Urls will be ignored and are not sent to sentry.
+  /// If an empty list is used, the SDK will send all errors.
+  /// `denyUrls` uses regex for the matching.
+  /// In combination with `allowUrls` you can block subdomains of the domains listed in `allowUrls`.
+  ///
+  /// If used on a platform other than Web, this setting will be ignored.
+  List<String> denyUrls = [];
+
   /// Enables Out of Memory Tracking for iOS and macCatalyst.
   /// See the following link for more information and possible restrictions:
   /// https://docs.sentry.io/platforms/apple/guides/ios/configuration/out-of-memory/
@@ -203,14 +221,14 @@ class SentryFlutterOptions extends SentryOptions {
   /// Sets the Proguard uuid for Android platform.
   String? proguardUuid;
 
-  @internal
+  @meta.internal
   late RendererWrapper rendererWrapper = RendererWrapper();
 
   /// Enables the View Hierarchy feature.
   ///
   /// Renders an ASCII represention of the entire view hierarchy of the
   /// application when an error happens and includes it as an attachment.
-  @experimental
+  @meta.experimental
   bool attachViewHierarchy = false;
 
   /// Enables collection of view hierarchy element identifiers.
@@ -302,14 +320,14 @@ class SentryFlutterOptions extends SentryOptions {
   }
 
   /// Setting this to a custom [BindingWrapper] allows you to use a custom [WidgetsBinding].
-  @experimental
+  @meta.experimental
   BindingWrapper bindingUtils = BindingWrapper();
 
   /// The sample rate for profiling traces in the range of 0.0 to 1.0.
   /// This is relative to tracesSampleRate - it is a ratio of profiled traces out of all sampled traces.
   /// At the moment, only apps targeting iOS and macOS are supported.
   @override
-  @experimental
+  @meta.experimental
   double? get profilesSampleRate {
     // ignore: invalid_use_of_internal_member
     return super.profilesSampleRate;
@@ -319,7 +337,7 @@ class SentryFlutterOptions extends SentryOptions {
   /// This is relative to tracesSampleRate - it is a ratio of profiled traces out of all sampled traces.
   /// At the moment, only apps targeting iOS and macOS are supported.
   @override
-  @experimental
+  @meta.experimental
   set profilesSampleRate(double? value) {
     // ignore: invalid_use_of_internal_member
     super.profilesSampleRate = value;
@@ -327,6 +345,20 @@ class SentryFlutterOptions extends SentryOptions {
 
   /// The [navigatorKey] is used to add information of the currently used locale to the contexts.
   GlobalKey<NavigatorState>? navigatorKey;
+
+  @meta.internal
+  FileSystem fileSystem = LocalFileSystem();
+
+  /// Configuration of experimental features that may change or be removed
+  /// without prior notice. Additionally, these features may not be ready for
+  /// production use yet.
+  @meta.experimental
+  final experimental = _SentryFlutterExperimentalOptions();
+}
+
+class _SentryFlutterExperimentalOptions {
+  /// Replay recording configuration.
+  final replay = SentryReplayOptions();
 }
 
 /// Callback being executed in [ScreenshotEventProcessor], deciding if a

@@ -17,6 +17,7 @@ class SentryTraceContextHeader {
     this.sampleRate,
     this.sampled,
     this.unknown,
+    this.replayId,
   });
 
   final SentryId traceId;
@@ -34,6 +35,9 @@ class SentryTraceContextHeader {
   @internal
   final Map<String, dynamic>? unknown;
 
+  @internal
+  SentryId? replayId;
+
   /// Deserializes a [SentryTraceContextHeader] from JSON [Map].
   factory SentryTraceContextHeader.fromJson(Map<String, dynamic> data) {
     final json = AccessAwareMap(data);
@@ -47,6 +51,8 @@ class SentryTraceContextHeader {
       transaction: json['transaction'],
       sampleRate: json['sample_rate'],
       sampled: json['sampled'],
+      replayId:
+          json['replay_id'] == null ? null : SentryId.fromId(json['replay_id']),
       unknown: json.notAccessed(),
     );
   }
@@ -65,6 +71,7 @@ class SentryTraceContextHeader {
       if (transaction != null) 'transaction': transaction,
       if (sampleRate != null) 'sample_rate': sampleRate,
       if (sampled != null) 'sampled': sampled,
+      if (replayId != null) 'replay_id': replayId.toString(),
     };
   }
 
@@ -98,6 +105,9 @@ class SentryTraceContextHeader {
     if (sampled != null) {
       baggage.setSampled(sampled!);
     }
+    if (replayId != null) {
+      baggage.setReplayId(replayId.toString());
+    }
     return baggage;
   }
 
@@ -107,6 +117,7 @@ class SentryTraceContextHeader {
       baggage.get('sentry-public_key').toString(),
       release: baggage.get('sentry-release'),
       environment: baggage.get('sentry-environment'),
+      replayId: baggage.getReplayId(),
     );
   }
 }
