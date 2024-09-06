@@ -15,7 +15,7 @@ class ScreenshotEventProcessor implements EventProcessor {
 
   /// This is true when the SentryWidget is in the view hierarchy
   bool get _hasSentryScreenshotWidget =>
-      sentryWidgetGlobalKey.currentContext != null;
+      sentryScreenshotWidgetGlobalKey.currentContext != null;
 
   @override
   Future<SentryEvent?> apply(SentryEvent event, Hint hint) async {
@@ -84,10 +84,11 @@ class ScreenshotEventProcessor implements EventProcessor {
   Future<Uint8List?> _createScreenshot() async {
     try {
       final renderObject =
-          sentryWidgetGlobalKey.currentContext?.findRenderObject();
+          sentryScreenshotWidgetGlobalKey.currentContext?.findRenderObject();
       if (renderObject is RenderRepaintBoundary) {
-        final pixelRatio = widget.View.of(sentryWidgetGlobalKey.currentContext!)
-            .devicePixelRatio;
+        final pixelRatio =
+            widget.View.of(sentryScreenshotWidgetGlobalKey.currentContext!)
+                .devicePixelRatio;
         var imageResult = _getImage(renderObject, pixelRatio);
         Image image;
         if (imageResult is Future<Image>) {

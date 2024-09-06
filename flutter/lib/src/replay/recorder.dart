@@ -31,7 +31,7 @@ class ScreenshotRecorder {
   }
 
   Future<void> capture(ScreenshotRecorderCallback callback) async {
-    final context = sentryWidgetGlobalKey.currentContext;
+    final context = sentryScreenshotWidgetGlobalKey.currentContext;
     final renderObject = context?.findRenderObject() as RenderRepaintBoundary?;
     if (context == null || renderObject == null) {
       if (!warningLogged) {

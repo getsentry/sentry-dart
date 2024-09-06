@@ -185,16 +185,21 @@ class FlutterEnricherEventProcessor implements EventProcessor {
     final List<SentryView> updatedViews = [];
 
     for (var platformView in platformDispatcher.views) {
-      var currentViews = currentDevice.views
+      final currentDeviceView = device?.views
           .where((view) => view.viewId == platformView.viewId)
-          .toList();
+          .first;
 
       SentryView updatedView;
-      if (currentViews.isNotEmpty) {
-        updatedView = currentViews.single.copyWith(
-          screenWidthPixels: platformView.physicalSize.width.toInt(),
-          screenHeightPixels: platformView.physicalSize.height.toInt(),
-          screenDensity: platformView.devicePixelRatio.toDouble(),
+      if (currentDeviceView != null) {
+        updatedView = currentDeviceView.copyWith(
+          screenWidthPixels: currentDeviceView.screenWidthPixels ??
+              platformView.physicalSize.width.toInt(),
+          screenHeightPixels: currentDeviceView.screenHeightPixels ??
+              platformView.physicalSize.height.toInt(),
+          screenDensity: currentDeviceView.screenDensity ??
+              platformView.devicePixelRatio.toDouble(),
+          orientation: _getSentryOrientation(platformView.physicalSize.width,
+              platformView.physicalSize.height),
         );
       } else {
         updatedView = SentryView(
@@ -202,6 +207,8 @@ class FlutterEnricherEventProcessor implements EventProcessor {
           screenWidthPixels: platformView.physicalSize.width.toInt(),
           screenHeightPixels: platformView.physicalSize.height.toInt(),
           screenDensity: platformView.devicePixelRatio.toDouble(),
+          orientation: _getSentryOrientation(platformView.physicalSize.width,
+              platformView.physicalSize.height),
         );
       }
       updatedViews.add(updatedView);
@@ -210,6 +217,12 @@ class FlutterEnricherEventProcessor implements EventProcessor {
     return currentDevice.copyWith(
       views: updatedViews,
     );
+  }
+
+  SentryOrientation _getSentryOrientation(double width, double height) {
+    return width > height
+        ? SentryOrientation.landscape
+        : SentryOrientation.portrait;
   }
 
   SentryOperatingSystem _getOperatingSystem(SentryOperatingSystem? os) {
