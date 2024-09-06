@@ -26,9 +26,7 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   void _logNotSupported(String operation) => options.logger(
       SentryLevel.debug, 'SentryNative: $operation is not supported');
 
-  FutureOr<void> init(SentryFlutterOptions options) {
-    assert(this.options == options);
-
+  FutureOr<void> init(Hub hub) {
     if (!options.enableNativeCrashHandling) {
       options.logger(
           SentryLevel.info, 'SentryNative crash handling is disabled');
@@ -221,6 +219,11 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
 
   FutureOr<void> nativeCrash() {
     Pointer.fromAddress(1).cast<Utf8>().toDartString();
+  }
+
+  FutureOr<SentryId> captureReplay(bool isCrash) {
+    _logNotSupported('capturing replay');
+    return SentryId.empty();
   }
 }
 

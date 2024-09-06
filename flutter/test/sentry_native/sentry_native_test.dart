@@ -12,6 +12,7 @@ import 'package:sentry_flutter/src/native/c/sentry_native.dart';
 import 'package:sentry_flutter/src/native/factory.dart';
 
 import '../mocks.dart';
+import '../mocks.mocks.dart';
 
 void main() {
   if (Directory.current.path.endsWith('/test')) {
@@ -84,7 +85,7 @@ void main() {
 
   test('init', () async {
     // There's nothing we can check here - just that it doesn't crash.
-    await sut.init(options);
+    await sut.init(MockHub());
   });
 
   test('app start', () {

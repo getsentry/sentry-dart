@@ -64,5 +64,5 @@ abstract class SentryNativeBinding {
 
   FutureOr<void> nativeCrash();
 
-  Future<SentryId> captureReplay(bool isCrash);
+  FutureOr<SentryId> captureReplay(bool isCrash);
 }
