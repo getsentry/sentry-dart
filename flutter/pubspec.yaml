@@ -61,4 +61,6 @@ flutter:
       linux:
         pluginClass: SentryFlutterPlugin
       windows:
-        ffiPlugin: true
+        # Note, we cannot use `ffiPlugin: true` because flutter tooling won't add `target_link_libraries()`
+        # so sentry-native won't even build during the build process (since it doesn't need to).
+        pluginClass: SentryFlutterPlugin
