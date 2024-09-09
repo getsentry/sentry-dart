@@ -183,6 +183,7 @@ mixin SentryFlutter {
       integrations.add(NativeSdkIntegration(native));
       integrations.add(LoadContextsIntegration(native));
       integrations.add(LoadImageListIntegration(native));
+      options.enableDartSymbolication = false;
     }
 
     final renderer = options.rendererWrapper.getRenderer();

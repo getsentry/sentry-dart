@@ -13,15 +13,15 @@ class SentryReplayOptions {
     _sessionSampleRate = value;
   }
 
-  double? _errorSampleRate;
+  double? _onErrorSampleRate;
 
   /// A percentage of errors that will be accompanied by a 30 seconds replay.
   /// The value needs to be >= 0.0 and <= 1.0.
   /// Specifying 0 means none, 1.0 means 100 %. Defaults to null (disabled).
-  double? get errorSampleRate => _errorSampleRate;
-  set errorSampleRate(double? value) {
+  double? get onErrorSampleRate => _onErrorSampleRate;
+  set onErrorSampleRate(double? value) {
     assert(value == null || (value >= 0 && value <= 1));
-    _errorSampleRate = value;
+    _onErrorSampleRate = value;
   }
 
   /// Redact all text content. Draws a rectangle of text bounds with text color
@@ -36,5 +36,5 @@ class SentryReplayOptions {
 
   @internal
   bool get isEnabled =>
-      ((sessionSampleRate ?? 0) > 0) || ((errorSampleRate ?? 0) > 0);
+      ((sessionSampleRate ?? 0) > 0) || ((onErrorSampleRate ?? 0) > 0);
 }
