@@ -26,7 +26,6 @@
       ...
       options.allowUrls = ["^https://sentry.com.*\$", "my-custom-domain"];
       options.denyUrls = ["^.*ends-with-this\$", "denied-url"];
-      options.denyUrls = ["^.*ends-with-this\$", "denied-url"];
     },
     appRunner: () => runApp(MyApp()),
   );
