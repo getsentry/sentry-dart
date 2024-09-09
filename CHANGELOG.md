@@ -4,8 +4,7 @@
 
 ### Features
 
-- Session replay Alpha for Android and iOS ([#2208](https://github.com/getsentry/sentry-dart/pull/2208), [#2269](https://github.com/getsentry/sentry-dart/pull/2269), [#2236](https://github.com/getsentry/sentry-dart/pull/2236), [#2275](https://github.com/getsentry/sentry-dart/pull/2275).
-
+- Session replay Alpha for Android and iOS ([#2208](https://github.com/getsentry/sentry-dart/pull/2208), [#2269](https://github.com/getsentry/sentry-dart/pull/2269), [#2236](https://github.com/getsentry/sentry-dart/pull/2236), [#2275](https://github.com/getsentry/sentry-dart/pull/2275), [#2270](https://github.com/getsentry/sentry-dart/pull/2270)).
   To try out replay, you can set following options (access is limited to early access orgs on Sentry. If you're interested, [sign up for the waitlist](https://sentry.io/lp/mobile-replay-beta/)):
 
   ```dart
@@ -13,7 +12,7 @@
     (options) {
       ...
       options.experimental.replay.sessionSampleRate = 1.0;
-      options.experimental.replay.errorSampleRate = 1.0;
+      options.experimental.replay.onErrorSampleRate = 1.0;
     },
     appRunner: () => runApp(MyApp()),
   );
@@ -205,7 +204,7 @@ SentryNavigatorObserver(ignoreRoutes: ["/ignoreThisRoute"]),
     (options) {
       ...
       options.experimental.replay.sessionSampleRate = 1.0;
-      options.experimental.replay.errorSampleRate = 1.0;
+      options.experimental.replay.onErrorSampleRate = 1.0;
     },
     appRunner: () => runApp(MyApp()),
   );
