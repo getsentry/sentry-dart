@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 8.9.0
 
 ### Features
 
@@ -25,7 +25,6 @@
     (options) {
       ...
       options.allowUrls = ["^https://sentry.com.*\$", "my-custom-domain"];
-      options.denyUrls = ["^.*ends-with-this\$", "denied-url"];
       options.denyUrls = ["^.*ends-with-this\$", "denied-url"];
     },
     appRunner: () => runApp(MyApp()),
