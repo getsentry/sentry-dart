@@ -163,7 +163,7 @@ class _Screenshot {
 class _IdleFrameFiller {
   final Duration _interval;
   final Future<void> Function(_Screenshot screenshot) _callback;
-  bool running = true;
+  bool _running = true;
   Future<void>? _scheduled;
   _Screenshot? _mostRecent;
 
@@ -181,24 +181,24 @@ class _IdleFrameFiller {
   Future<void> stop() async {
     // Clearing [_mostRecent] stops the delayed callback from posting the image.
     _mostRecent = null;
-    running = false;
+    _running = false;
     await _scheduled;
     _scheduled = null;
   }
 
   Future<void> pause() async {
-    running = false;
+    _running = false;
   }
 
   Future<void> resume() async {
-    running = true;
+    _running = true;
   }
 
   void repostLater(Duration delay, _Screenshot screenshot) {
     _scheduled = Future.delayed(delay, () async {
       // Only repost if the screenshot haven't changed.
       if (screenshot == _mostRecent) {
-        if (running) {
+        if (_running) {
           await _callback(screenshot);
         }
         // On subsequent frames, we stick to the actual frame rate.
