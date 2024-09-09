@@ -1051,6 +1051,7 @@ Future<void> showDialogWithTextAndImage(BuildContext context) async {
     routeSettings: const RouteSettings(
       name: 'AssetBundle dialog',
     ),
+    // ignore: use_build_context_synchronously
     builder: (context) {
       return AlertDialog(
         title: const Text('Asset Example'),
