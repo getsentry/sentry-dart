@@ -56,6 +56,26 @@ class _LoadImageListIntegrationEventProcessor implements EventProcessor {
     if (event.needsSymbolication()) {
       final images = await _native.loadDebugImages();
       if (images != null) {
+        try {
+          final frames = event._getStacktraceFrames()!;
+          for (var frame in frames) {
+            print("Checking frame: ${frame?.instructionAddr}");
+            final frameAddr = int.parse(frame!.instructionAddr!);
+            print("frameAddr: $frameAddr");
+            for (var image in images) {
+              final imageStart = int.parse(image.imageAddr!);
+              final imageEnd = imageStart + image.imageSize!;
+              print(
+                  "  Checking against image: ${image.name}: $imageStart - $imageEnd");
+              if (frameAddr >= imageStart && frameAddr < imageEnd) {
+                print("  Found frame to match image: ${image.name}");
+                break;
+              }
+            }
+          }
+        } catch (e) {
+          print("Error: $e");
+        }
         return event.copyWith(debugMeta: DebugMeta(images: images));
       }
     }

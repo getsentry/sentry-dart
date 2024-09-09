@@ -61,6 +61,8 @@ class SentryExceptionFactory {
     final stackTraceString = stackTrace.toString();
     final value = throwableString.replaceAll(stackTraceString, '').trim();
 
+    print(stackTraceString);
+
     String errorTypeName = throwable.runtimeType.toString();
 
     if (_options.enableExceptionTypeIdentification) {
