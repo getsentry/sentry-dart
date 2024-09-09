@@ -4,12 +4,7 @@
 
 ### Features
 
- - Add `enableDartSymbolication` option to Sentry.init() for **Flutter iOS, macOS and Android** ([#2256](https://github.com/getsentry/sentry-dart/pull/2256))
-    - This flag enables symbolication of Dart stack traces when native debug images are not available.
-    - Useful when using Sentry.init() instead of SentryFlutter.init() in Flutter projects for example due to size limitations.
-    - `true` by default but automatically set to `false` when using SentryFlutter.init() because the SentryFlutter fetches debug images from the native SDK integrations.
-- Support allowUrls and denyUrls for Flutter Web ([#2227](https://github.com/getsentry/sentry-dart/pull/2227))
-- Session replay Alpha for Android and iOS ([#2208](https://github.com/getsentry/sentry-dart/pull/2208), [#2269](https://github.com/getsentry/sentry-dart/pull/2269), [#2236](https://github.com/getsentry/sentry-dart/pull/2236)).
+- Session replay Alpha for Android and iOS ([#2208](https://github.com/getsentry/sentry-dart/pull/2208), [#2269](https://github.com/getsentry/sentry-dart/pull/2269), [#2236](https://github.com/getsentry/sentry-dart/pull/2236), [#2275](https://github.com/getsentry/sentry-dart/pull/2275).
 
   To try out replay, you can set following options (access is limited to early access orgs on Sentry. If you're interested, [sign up for the waitlist](https://sentry.io/lp/mobile-replay-beta/)):
 
@@ -39,6 +34,10 @@
   ```
 
 - Collect touch breadcrumbs for all buttons, not just those with `key` specified. ([#2242](https://github.com/getsentry/sentry-dart/pull/2242))
+- Add `enableDartSymbolication` option to Sentry.init() for **Flutter iOS, macOS and Android** ([#2256](https://github.com/getsentry/sentry-dart/pull/2256))
+  - This flag enables symbolication of Dart stack traces when native debug images are not available.
+  - Useful when using Sentry.init() instead of SentryFlutter.init() in Flutter projects for example due to size limitations.
+  - `true` by default but automatically set to `false` when using SentryFlutter.init() because the SentryFlutter fetches debug images from the native SDK integrations.
 
 ### Dependencies
 
