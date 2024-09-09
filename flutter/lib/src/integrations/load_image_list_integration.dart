@@ -65,10 +65,9 @@ class _LoadImageListIntegrationEventProcessor implements EventProcessor {
             for (var image in images) {
               final imageStart = int.parse(image.imageAddr!);
               final imageEnd = imageStart + image.imageSize!;
-              print(
-                  "  Checking against image: ${image.name}: $imageStart - $imageEnd");
               if (frameAddr >= imageStart && frameAddr < imageEnd) {
-                print("  Found frame to match image: ${image.name}");
+                print(
+                    "  Found image: $imageStart - $imageEnd: ${image.toJson()}");
                 break;
               }
             }
