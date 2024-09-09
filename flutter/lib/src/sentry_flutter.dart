@@ -238,18 +238,6 @@ mixin SentryFlutter {
     }
   }
 
-  static DateTime? get appStatEnd {
-    // ignore: invalid_use_of_internal_member
-    final integrations = Sentry.currentHub.options.integrations
-        .whereType<NativeAppStartIntegration>();
-
-    if (integrations.isNotEmpty) {
-      return integrations.first.appStartEnd;
-    } else {
-      return null;
-    }
-  }
-
   static void _setSdk(SentryFlutterOptions options) {
     // overwrite sdk info with current flutter sdk
     final sdk = SdkVersion(
