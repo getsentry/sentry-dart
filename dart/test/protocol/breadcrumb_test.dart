@@ -222,7 +222,6 @@ void main() {
           'foo': 'bar',
           'view.id': 'foo',
           'view.class': 'bar',
-          'path': 'bar(foo)',
         },
       });
     });

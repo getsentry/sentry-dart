@@ -38,7 +38,7 @@
   if ([breadcrumb.category isEqualToString:@"ui.click"]) {
     return [self convertFrom:breadcrumb
                 withCategory:@"ui.tap"
-                  andMessage:breadcrumb.data[@"path"]];
+                  andMessage:[self getTouchPathMessage:breadcrumb.data[@"path"]]];
   }
 
   SentryRRWebEvent *nativeBreadcrumb =
@@ -112,6 +112,42 @@
   return [NSDate dateWithTimeIntervalSince1970:(timestamp.doubleValue / 1000)];
 }
 
+- (NSString * _Nullable)getTouchPathMessage:(id _Nullable)maybePath {
+    if (![maybePath isKindOfClass:[NSArray class]]) {
+        return nil;
+    }
+
+    NSArray *path = (NSArray *)maybePath;
+    if (path.count == 0) {
+        return nil;
+    }
+
+    NSMutableString *message = [NSMutableString string];
+    for (NSInteger i = MIN(3, path.count - 1); i >= 0; i--) {
+        id item = path[i];
+        if (![item isKindOfClass:[NSDictionary class]]) {
+            continue;
+        }
+
+        NSDictionary *itemDict = (NSDictionary *)item;
+        [message appendString:itemDict[@"element"] ?: @"?"];
+
+        id identifier = itemDict[@"label"] ?: itemDict[@"name"];
+        if ([identifier isKindOfClass:[NSString class]] && [(NSString *)identifier length] > 0) {
+            NSString *identifierStr = (NSString *)identifier;
+            if (identifierStr.length > 20) {
+                identifierStr = [[identifierStr substringToIndex:17] stringByAppendingString:@"..."];
+            }
+            [message appendFormat:@"(%@)", identifierStr];
+        }
+
+        if (i > 0) {
+            [message appendString:@" > "];
+        }
+    }
+
+    return message.length > 0 ? message : nil;
+}
 @end
 
 #endif

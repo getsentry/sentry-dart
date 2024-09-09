@@ -46,7 +46,7 @@ void main() {
           'directory': 'dir',
           'width': 800,
           'height': 600,
-          'frameRate': 1000,
+          'frameRate': 10,
         };
       }
 
@@ -142,16 +142,15 @@ void main() {
               var callbackFinished = Completer<void>();
 
               nextFrame({bool wait = true}) async {
+                final future = callbackFinished.future;
                 tester.binding.scheduleFrame();
-                await Future<void>.delayed(const Duration(milliseconds: 100));
                 await tester.pumpAndSettle(const Duration(seconds: 1));
-                await callbackFinished.future.timeout(
-                    Duration(milliseconds: wait ? 1000 : 100), onTimeout: () {
+                await future.timeout(Duration(milliseconds: wait ? 1000 : 100),
+                    onTimeout: () {
                   if (wait) {
                     fail('native callback not called');
                   }
                 });
-                callbackFinished = Completer<void>();
               }
 
               imageInfo(File file) => file.readAsBytesSync().length;
@@ -162,10 +161,11 @@ void main() {
               final capturedImages = <String, int>{};
               when(native.handler('addReplayScreenshot', any))
                   .thenAnswer((invocation) async {
-                callbackFinished.complete();
                 final path =
                     invocation.positionalArguments[1]["path"] as String;
                 capturedImages[path] = imageInfo(fs.file(path));
+                callbackFinished.complete();
+                callbackFinished = Completer<void>();
                 return null;
               });
 
@@ -191,18 +191,37 @@ void main() {
               expect(capturedImages, equals(fsImages()));
 
               await nextFrame();
-              expect(fsImages().values, [size, size]);
+              fsImages().values.forEach((s) => expect(s, size));
               expect(capturedImages, equals(fsImages()));
+
+              await native.invokeFromNative('ReplayRecorder.pause');
+              var count = capturedImages.length;
+
+              await nextFrame(wait: false);
+              await Future<void>.delayed(const Duration(milliseconds: 100));
+              fsImages().values.forEach((s) => expect(s, size));
+              expect(capturedImages, equals(fsImages()));
+              expect(capturedImages.length, count);
+
+              await nextFrame(wait: false);
+              fsImages().values.forEach((s) => expect(s, size));
+              expect(capturedImages, equals(fsImages()));
+              expect(capturedImages.length, count);
+
+              await native.invokeFromNative('ReplayRecorder.resume');
+
+              await nextFrame();
+              fsImages().values.forEach((s) => expect(s, size));
+              expect(capturedImages, equals(fsImages()));
+              expect(capturedImages.length, greaterThan(count));
 
               await native.invokeFromNative('ReplayRecorder.stop');
-
+              count = capturedImages.length;
+              await Future<void>.delayed(const Duration(milliseconds: 100));
               await nextFrame(wait: false);
-              expect(fsImages().values, [size, size]);
+              fsImages().values.forEach((s) => expect(s, size));
               expect(capturedImages, equals(fsImages()));
-
-              await nextFrame(wait: false);
-              expect(fsImages().values, [size, size]);
-              expect(capturedImages, equals(fsImages()));
+              expect(capturedImages.length, count);
             } else if (mockPlatform.isIOS) {
               // configureScope() is called on iOS
               when(hub.configureScope(captureAny)).thenReturn(null);
