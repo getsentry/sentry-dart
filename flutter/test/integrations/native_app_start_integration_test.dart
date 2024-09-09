@@ -76,7 +76,8 @@ class MockNativeAppStartHandler implements NativeAppStartHandler {
   var calls = 0;
 
   @override
-  Future<void> call({required DateTime? appStartEnd}) async {
+  Future<void> call(Hub hub, SentryFlutterOptions options,
+      {required DateTime? appStartEnd}) async {
     this.appStartEnd = appStartEnd;
     calls += 1;
   }
