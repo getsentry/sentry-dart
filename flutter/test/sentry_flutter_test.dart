@@ -626,6 +626,27 @@ void main() {
 
       await Sentry.close();
     });
+
+    test(
+        'enablePureDartSymbolication is set to false during SentryFlutter init',
+        () async {
+      SentryFlutter.native = MockSentryNativeBinding();
+      await SentryFlutter.init(
+        (options) {
+          options.dsn = fakeDsn;
+          options.automatedTestMode = true;
+
+          expect(options.enableDartSymbolication, false);
+        },
+        appRunner: appRunner,
+        platformChecker: getPlatformChecker(
+          platform: MockPlatform.android(),
+          isWeb: true,
+        ),
+      );
+
+      await Sentry.close();
+    });
   });
 
   test('resumeAppHangTracking calls native method when available', () async {
