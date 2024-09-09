@@ -72,6 +72,13 @@ class _LoadImageListIntegrationEventProcessor implements EventProcessor {
               }
             }
           }
+          print("--------------------");
+          for (var image in images) {
+            final imageStart = int.parse(image.imageAddr!);
+            final imageEnd = imageStart + image.imageSize!;
+            print("image: $imageStart - $imageEnd: ${image.toJson()}");
+          }
+          print("--------------------");
         } catch (e) {
           print("Error: $e");
         }
