@@ -55,7 +55,8 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
           .listen(_onScreenSizeChanged);
 
       final views =
-          _options.bindingUtils.instance!.platformDispatcher.views.toList();
+          _options.bindingUtils.instance?.platformDispatcher.views.toList() ??
+              [];
       _screenSizeStreamController.add(views);
     }
   }
