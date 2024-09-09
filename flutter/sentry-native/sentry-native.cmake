@@ -1,4 +1,3 @@
-cmake_minimum_required(VERSION 3.28)
 load_cache("${CMAKE_CURRENT_LIST_DIR}" READ_WITH_PREFIX SENTRY_NATIVE_ repo version)
 message(STATUS "Fetching Sentry native version: ${SENTRY_NATIVE_version} from ${SENTRY_NATIVE_repo}")
 
