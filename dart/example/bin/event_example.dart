@@ -55,11 +55,16 @@ final event = SentryEvent(
       modelId: 'LRX22G',
       arch: 'armeabi-v7a',
       batteryLevel: 99,
-      orientation: SentryOrientation.landscape,
       manufacturer: 'samsung',
       brand: 'samsung',
-      screenDensity: 2.1,
-      screenDpi: 320,
+      views: [
+        SentryView(
+          0,
+          screenDensity: 2.1,
+          screenDpi: 320,
+          orientation: SentryOrientation.landscape,
+        )
+      ],
       online: true,
       charging: true,
       lowMemory: true,
