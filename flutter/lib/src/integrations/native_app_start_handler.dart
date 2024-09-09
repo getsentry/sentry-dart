@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_use_of_internal_member
+
 import '../../sentry_flutter.dart';
 import '../native/native_app_start.dart';
 import '../native/sentry_native_binding.dart';
@@ -8,15 +10,21 @@ import 'package:sentry/src/sentry_tracer.dart';
 /// Handles communication with native frameworks in order to enrich
 /// root [SentryTransaction] with app start data for mobile vitals.
 class NativeAppStartHandler {
-  NativeAppStartHandler(this._native, {Hub? hub}) : _hub = hub ?? HubAdapter();
+  NativeAppStartHandler(this._native);
 
   final SentryNativeBinding _native;
-  final Hub _hub;
+
+  late final Hub _hub;
+  late final SentryFlutterOptions _options;
 
   /// We filter out App starts more than 60s
   static const _maxAppStartMillis = 60000;
 
-  Future<void> call({required DateTime? appStartEnd}) async {
+  Future<void> call(Hub hub, SentryFlutterOptions options,
+      {required DateTime? appStartEnd}) async {
+    _hub = hub;
+    _options = options;
+
     final nativeAppStart = await _native.fetchNativeAppStart();
     if (nativeAppStart == null) {
       return;
@@ -25,8 +33,6 @@ class NativeAppStartHandler {
     if (appStartInfo == null) {
       return;
     }
-
-    final flutterOptions = _hub.options as SentryFlutterOptions;
 
     // Create Transaction & Span
 
@@ -44,10 +50,15 @@ class NativeAppStartHandler {
 
     // Enrich Transaction
 
-    final sentryTracer = transaction as SentryTracer;
+    SentryTracer sentryTracer;
+    if (transaction is SentryTracer) {
+      sentryTracer = transaction;
+    } else {
+      return;
+    }
 
     SentryMeasurement? measurement;
-    if (flutterOptions.autoAppStart) {
+    if (options.autoAppStart) {
       measurement = appStartInfo.toMeasurement();
     } else if (appStartEnd != null) {
       appStartInfo.end = appStartEnd;
@@ -74,16 +85,14 @@ class NativeAppStartHandler {
       return null;
     }
 
-    final flutterOptions = _hub.options as SentryFlutterOptions;
-
     final appStartDateTime = DateTime.fromMillisecondsSinceEpoch(
         nativeAppStart.appStartTime.toInt());
     final pluginRegistrationDateTime = DateTime.fromMillisecondsSinceEpoch(
         nativeAppStart.pluginRegistrationTime);
 
-    if (flutterOptions.autoAppStart) {
+    if (_options.autoAppStart) {
       // We only assign the current time if it's not already set - this is useful in tests
-      appStartEnd ??= flutterOptions.clock();
+      appStartEnd ??= _options.clock();
 
       final duration = appStartEnd.difference(appStartDateTime);
 
@@ -112,7 +121,7 @@ class NativeAppStartHandler {
           description: entry.key as String,
         ));
       } catch (e) {
-        _hub.options.logger(
+        _options.logger(
             SentryLevel.warning, 'Failed to parse native span times: $e');
         continue;
       }
@@ -210,7 +219,7 @@ class NativeAppStartHandler {
         span.data.putIfAbsent('native', () => true);
         transaction.children.add(span);
       } catch (e) {
-        _hub.options.logger(SentryLevel.warning,
+        _options.logger(SentryLevel.warning,
             'Failed to attach native span to app start transaction: $e');
       }
     });

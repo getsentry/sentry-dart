@@ -327,7 +327,7 @@ class Fixture {
     nativeSpanTimes: {},
   );
 
-  late final sut = NativeAppStartHandler(nativeBinding, hub: hub);
+  late final sut = NativeAppStartHandler(nativeBinding);
 
   Fixture() {
     when(hub.options).thenReturn(options);
@@ -335,7 +335,7 @@ class Fixture {
   }
 
   Future<void> call({DateTime? appStartEnd}) async {
-    await sut.call(appStartEnd: appStartEnd);
+    await sut.call(hub, options, appStartEnd: appStartEnd);
   }
 
   SentryTransaction capturedTransaction() {
