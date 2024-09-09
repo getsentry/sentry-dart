@@ -9,19 +9,7 @@
     - Useful when using Sentry.init() instead of SentryFlutter.init() in Flutter projects for example due to size limitations.
     - `true` by default but automatically set to `false` when using SentryFlutter.init() because the SentryFlutter fetches debug images from the native SDK integrations.
 - Support allowUrls and denyUrls for Flutter Web ([#2227](https://github.com/getsentry/sentry-dart/pull/2227))
-
-  ```dart
-  await SentryFlutter.init(
-    (options) {
-      ...
-      options.allowUrls = ["^https://sentry.com.*\$", "my-custom-domain"];
-      options.denyUrls = ["^.*ends-with-this\$", "denied-url"];      
-    },
-    appRunner: () => runApp(MyApp()),
-  );
-  ```
-
-- Session replay Alpha for Android and iOS ([#2208](https://github.com/getsentry/sentry-dart/pull/2208)).
+- Session replay Alpha for Android and iOS ([#2208](https://github.com/getsentry/sentry-dart/pull/2208), [#2269](https://github.com/getsentry/sentry-dart/pull/2269), [#2236](https://github.com/getsentry/sentry-dart/pull/2236)).
 
   To try out replay, you can set following options (access is limited to early access orgs on Sentry. If you're interested, [sign up for the waitlist](https://sentry.io/lp/mobile-replay-beta/)):
 
@@ -31,6 +19,20 @@
       ...
       options.experimental.replay.sessionSampleRate = 1.0;
       options.experimental.replay.errorSampleRate = 1.0;
+    },
+    appRunner: () => runApp(MyApp()),
+  );
+  ```
+
+- Support allowUrls and denyUrls for Flutter Web ([#2227](https://github.com/getsentry/sentry-dart/pull/2227))
+
+  ```dart
+  await SentryFlutter.init(
+    (options) {
+      ...
+      options.allowUrls = ["^https://sentry.com.*\$", "my-custom-domain"];
+      options.denyUrls = ["^.*ends-with-this\$", "denied-url"];
+      options.denyUrls = ["^.*ends-with-this\$", "denied-url"];
     },
     appRunner: () => runApp(MyApp()),
   );
