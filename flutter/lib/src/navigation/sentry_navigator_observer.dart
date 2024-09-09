@@ -5,7 +5,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
-import '../integrations/integrations.dart';
 import '../native/native_frames.dart';
 import '../native/sentry_native_binding.dart';
 import 'time_to_display_tracker.dart';
@@ -348,16 +347,6 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
 
       bool isAppStart = routeName == '/';
       DateTime startTimestamp = _hub.options.clock();
-      DateTime? endTimestamp;
-
-      // TODO: Handle in app_start_event_processor
-      // if (isAppStart) {
-      //   final appStartInfo = await NativeAppStartIntegration.getAppStartInfo();
-      //   if (appStartInfo == null) return;
-      //
-      //   startTimestamp = appStartInfo.start;
-      //   endTimestamp = appStartInfo.end;
-      // }
 
       await _startTransaction(route, startTimestamp);
 
@@ -366,12 +355,11 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
         return;
       }
 
-      if (isAppStart && endTimestamp != null) {
-        await _timeToDisplayTracker?.trackAppStartTTD(transaction,
-            startTimestamp: startTimestamp, endTimestamp: endTimestamp);
-      } else {
-        await _timeToDisplayTracker?.trackRegularRouteTTD(transaction,
-            startTimestamp: startTimestamp);
+      if (!isAppStart) {
+        await _timeToDisplayTracker?.trackRegularRouteTTD(
+          transaction,
+          startTimestamp: startTimestamp,
+        );
       }
     } catch (exception, stacktrace) {
       _hub.options.logger(

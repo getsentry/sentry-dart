@@ -16,6 +16,7 @@ import 'flutter_exception_type_identifier.dart';
 import 'frame_callback_handler.dart';
 import 'integrations/connectivity/connectivity_integration.dart';
 import 'integrations/integrations.dart';
+import 'integrations/native_app_start_handler.dart';
 import 'integrations/screenshot_integration.dart';
 import 'native/factory.dart';
 import 'native/native_scope_observer.dart';
@@ -205,10 +206,12 @@ mixin SentryFlutter {
     integrations.add(LoadReleaseIntegration());
 
     if (native != null) {
-      integrations.add(NativeAppStartIntegration(
-        native,
-        DefaultFrameCallbackHandler(),
-      ));
+      integrations.add(
+        NativeAppStartIntegration(
+          DefaultFrameCallbackHandler(),
+          NativeAppStartHandler(native),
+        ),
+      );
     }
     return integrations;
   }
@@ -229,8 +232,9 @@ mixin SentryFlutter {
     // ignore: invalid_use_of_internal_member
     final integrations = Sentry.currentHub.options.integrations
         .whereType<NativeAppStartIntegration>();
-    integrations
-        .forEach((integration) => integration.appStartEnd = appStartEnd);
+    for (var integration in integrations) {
+      integration.appStartEnd = appStartEnd;
+    }
   }
 
   static DateTime? get appStatEnd {

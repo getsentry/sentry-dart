@@ -1,7 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/scheduler.dart';
 import 'package:sentry_flutter/src/frame_callback_handler.dart';
 
-import 'mocks.dart';
 
 class MockFrameCallbackHandler implements FrameCallbackHandler {
   FrameCallback? postFrameCallback;
@@ -9,12 +10,12 @@ class MockFrameCallbackHandler implements FrameCallbackHandler {
 
   @override
   void addPostFrameCallback(FrameCallback callback) {
-    this.postFrameCallback = callback;
+    postFrameCallback = callback;
   }
 
   @override
   void addPersistentFrameCallback(FrameCallback callback) {
-    this.persistentFrameCallback = persistentFrameCallback;
+    persistentFrameCallback = callback;
   }
 
   @override
