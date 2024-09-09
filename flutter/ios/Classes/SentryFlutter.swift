@@ -110,7 +110,7 @@ public final class SentryFlutter {
             options.experimental.sessionReplay.sessionSampleRate =
                 (replayOptions["sessionSampleRate"] as? NSNumber)?.floatValue ?? 0
             options.experimental.sessionReplay.onErrorSampleRate =
-                (replayOptions["errorSampleRate"] as? NSNumber)?.floatValue ?? 0
+                (replayOptions["onErrorSampleRate"] as? NSNumber)?.floatValue ?? 0
         }
 #endif
     }

@@ -158,7 +158,7 @@ class SentryFlutter(
     data: Map<String, Any>,
   ) {
     options.sessionSampleRate = data["sessionSampleRate"] as? Double
-    options.errorSampleRate = data["errorSampleRate"] as? Double
+    options.errorSampleRate = data["onErrorSampleRate"] as? Double
   }
 }
 

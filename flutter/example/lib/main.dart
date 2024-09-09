@@ -91,7 +91,7 @@ Future<void> setupSentry(
       options.navigatorKey = navigatorKey;
 
       options.experimental.replay.sessionSampleRate = 1.0;
-      options.experimental.replay.errorSampleRate = 1.0;
+      options.experimental.replay.onErrorSampleRate = 1.0;
 
       _isIntegrationTest = isIntegrationTest;
       if (_isIntegrationTest) {
@@ -1043,7 +1043,10 @@ Future<void> showDialogWithTextAndImage(BuildContext context) async {
       await DefaultAssetBundle.of(context).loadString('assets/lorem-ipsum.txt');
 
   if (!context.mounted) return;
+  final imageBytes =
+      await DefaultAssetBundle.of(context).load('assets/sentry-wordmark.png');
   await showDialog<void>(
+    // ignore: use_build_context_synchronously
     context: context,
     // gets tracked if using SentryNavigatorObserver
     routeSettings: const RouteSettings(
@@ -1056,7 +1059,15 @@ Future<void> showDialogWithTextAndImage(BuildContext context) async {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              // Use various ways an image is included in the app.
+              // Local asset images are not obscured in replay recording.
               Image.asset('assets/sentry-wordmark.png'),
+              Image.asset('assets/sentry-wordmark.png', bundle: rootBundle),
+              Image.asset('assets/sentry-wordmark.png',
+                  bundle: DefaultAssetBundle.of(context)),
+              Image.network(
+                  'https://www.gstatic.com/recaptcha/api2/logo_48.png'),
+              Image.memory(imageBytes.buffer.asUint8List()),
               Text(text),
             ],
           ),
