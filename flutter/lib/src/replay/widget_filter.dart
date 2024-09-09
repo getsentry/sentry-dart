@@ -1,3 +1,4 @@
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
@@ -77,24 +78,24 @@ class WidgetFilter {
 
     final renderObject = element.renderObject;
     if (renderObject is! RenderBox) {
-      _cantObscure(widget, "it's renderObject is not a RenderBox");
+      _cantObscure(widget, "its renderObject is not a RenderBox");
       return false;
     }
 
-    final size = element.size;
-    if (size == null) {
-      _cantObscure(widget, "it's renderObject has a null size");
-      return false;
+    var rect = _boundingBox(renderObject);
+
+    // If it's a clipped render object, use parent's offset and size.
+    // This helps with text fields which often have oversized render objects.
+    if (renderObject.parent is RenderStack) {
+      final renderStack = (renderObject.parent as RenderStack);
+      final clipBehavior = renderStack.clipBehavior;
+      if (clipBehavior == Clip.hardEdge ||
+          clipBehavior == Clip.antiAlias ||
+          clipBehavior == Clip.antiAliasWithSaveLayer) {
+        final clipRect = _boundingBox(renderStack);
+        rect = rect.intersect(clipRect);
+      }
     }
-
-    final offset = renderObject.localToGlobal(Offset.zero);
-
-    final rect = Rect.fromLTWH(
-      offset.dx * _pixelRatio,
-      offset.dy * _pixelRatio,
-      size.width * _pixelRatio,
-      size.height * _pixelRatio,
-    );
 
     if (!rect.overlaps(_bounds)) {
       assert(() {
@@ -150,6 +151,17 @@ class WidgetFilter {
       logger(SentryLevel.warning,
           "WidgetFilter cannot obscure widget $widget: $message");
     }
+  }
+
+  @pragma('vm:prefer-inline')
+  Rect _boundingBox(RenderBox box) {
+    final offset = box.localToGlobal(Offset.zero);
+    return Rect.fromLTWH(
+      offset.dx * _pixelRatio,
+      offset.dy * _pixelRatio,
+      box.size.width * _pixelRatio,
+      box.size.height * _pixelRatio,
+    );
   }
 }
 
