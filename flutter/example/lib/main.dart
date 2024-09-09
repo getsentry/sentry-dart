@@ -1046,12 +1046,12 @@ Future<void> showDialogWithTextAndImage(BuildContext context) async {
   final imageBytes =
       await DefaultAssetBundle.of(context).load('assets/sentry-wordmark.png');
   await showDialog<void>(
+    // ignore: use_build_context_synchronously
     context: context,
     // gets tracked if using SentryNavigatorObserver
     routeSettings: const RouteSettings(
       name: 'AssetBundle dialog',
     ),
-    // ignore: use_build_context_synchronously
     builder: (context) {
       return AlertDialog(
         title: const Text('Asset Example'),
