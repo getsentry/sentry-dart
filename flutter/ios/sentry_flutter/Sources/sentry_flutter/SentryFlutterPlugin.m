@@ -1,4 +1,4 @@
-#import "SentryFlutterPlugin.h"
+#import "include/SentryFlutterPlugin.h"
 #if __has_include(<sentry_flutter/sentry_flutter-Swift.h>)
 #import <sentry_flutter/sentry_flutter-Swift.h>
 #else

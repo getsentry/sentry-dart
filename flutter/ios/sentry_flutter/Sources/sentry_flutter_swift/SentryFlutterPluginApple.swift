@@ -341,9 +341,9 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 
 #if canImport(UIKit) && !SENTRY_NO_UIKIT
 #if os(iOS) || os(tvOS)
-        let breadcrumbConverter = SentryFlutterReplayBreadcrumbConverter()
-        let screenshotProvider = SentryFlutterReplayScreenshotProvider(channel: self.channel)
-        PrivateSentrySDKOnly.configureSessionReplay(with: breadcrumbConverter, screenshotProvider: screenshotProvider)
+       let breadcrumbConverter = SentryFlutterReplayBreadcrumbConverter()
+       let screenshotProvider = SentryFlutterReplayScreenshotProvider(channel: self.channel)
+       PrivateSentrySDKOnly.configureSessionReplay(with: breadcrumbConverter, screenshotProvider: screenshotProvider)
 #endif
 #endif
 
