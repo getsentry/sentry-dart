@@ -295,7 +295,8 @@ class _AppStartInfo {
 }
 
 class _TimeSpan {
-  _TimeSpan({required this.start, required this.end, required this.description});
+  _TimeSpan(
+      {required this.start, required this.end, required this.description});
 
   final DateTime start;
   final DateTime end;
