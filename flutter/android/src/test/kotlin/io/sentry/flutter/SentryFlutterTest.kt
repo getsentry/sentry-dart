@@ -155,7 +155,7 @@ class Fixture {
       "replay" to
         mapOf(
           "sessionSampleRate" to 0.5,
-          "errorSampleRate" to 0.6,
+          "onErrorSampleRate" to 0.6,
         ),
     )
 

@@ -8,6 +8,8 @@ import io.sentry.rrweb.RRWebSpanEvent
 import java.util.Date
 
 private const val MILLIS_PER_SECOND = 1000.0
+private const val MAX_PATH_ITEMS = 4
+private const val MAX_PATH_IDENTIFIER_LENGTH = 20
 
 class SentryFlutterReplayBreadcrumbConverter : DefaultReplayBreadcrumbConverter() {
   internal companion object {
@@ -30,7 +32,7 @@ class SentryFlutterReplayBreadcrumbConverter : DefaultReplayBreadcrumbConverter(
       "ui.click" ->
         newRRWebBreadcrumb(breadcrumb).apply {
           category = "ui.tap"
-          message = breadcrumb.data["path"] as String?
+          message = getTouchPathMessage(breadcrumb.data["path"])
         }
 
       else -> {
@@ -82,5 +84,35 @@ class SentryFlutterReplayBreadcrumbConverter : DefaultReplayBreadcrumbConverter(
         }
     }
     return rrWebEvent
+  }
+
+  private fun getTouchPathMessage(maybePath: Any?): String? {
+    if (maybePath !is List<*> || maybePath.isEmpty()) {
+      return null
+    }
+
+    val message = StringBuilder()
+    for (i in Math.min(MAX_PATH_ITEMS, maybePath.size) - 1 downTo 0) {
+      val item = maybePath[i]
+      if (item !is Map<*, *>) {
+        continue
+      }
+
+      message.append(item["element"] ?: "?")
+
+      var identifier = item["label"] ?: item["name"]
+      if (identifier is String && identifier.isNotEmpty()) {
+        if (identifier.length > MAX_PATH_IDENTIFIER_LENGTH) {
+          identifier = identifier.substring(0, MAX_PATH_IDENTIFIER_LENGTH - "...".length) + "..."
+        }
+        message.append("(").append(identifier).append(")")
+      }
+
+      if (i > 0) {
+        message.append(" > ")
+      }
+    }
+
+    return message.toString()
   }
 }
