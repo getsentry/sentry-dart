@@ -22,7 +22,16 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
   @override
   void call(Hub hub, SentryFlutterOptions options) {
     _frameCallbackHandler.addPostFrameCallback((timeStamp) async {
-      await _nativeAppStartHandler.call(hub, options, appStartEnd: appStartEnd);
+      try {
+        await _nativeAppStartHandler.call(hub, options, appStartEnd: appStartEnd);
+      } catch (exception, stackTrace) {
+        options.logger(
+          SentryLevel.error,
+          'Error while capturing native app start',
+          exception: exception,
+          stackTrace: stackTrace,
+        );
+      }
     });
     options.sdk.addIntegration('nativeAppStartIntegration');
   }
