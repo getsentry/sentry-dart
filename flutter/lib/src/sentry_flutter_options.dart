@@ -176,6 +176,7 @@ class SentryFlutterOptions extends SentryOptions {
   /// Automatically track app start measurement and send it with the
   /// first transaction. Set to false when configuring option to disable or if
   /// you want to set the end time of app startup manually using
+  // ignore: deprecated_member_use_from_same_package
   /// [SentryFlutter.setAppStartEnd].
   bool autoAppStart = true;
 

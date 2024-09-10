@@ -76,7 +76,7 @@ class NativeAppStartHandler {
     await transaction.finish(endTimestamp: appStartInfo.end);
   }
 
-  AppStartInfo? _infoNativeAppStart(
+  _AppStartInfo? _infoNativeAppStart(
     NativeAppStart nativeAppStart,
     DateTime? appStartEnd,
   ) {
@@ -109,13 +109,13 @@ class NativeAppStartHandler {
       }
     }
 
-    List<TimeSpan> nativeSpanTimes = [];
+    List<_TimeSpan> nativeSpanTimes = [];
     for (final entry in nativeAppStart.nativeSpanTimes.entries) {
       try {
         final startTimestampMs =
             entry.value['startTimestampMsSinceEpoch'] as int;
         final endTimestampMs = entry.value['stopTimestampMsSinceEpoch'] as int;
-        nativeSpanTimes.add(TimeSpan(
+        nativeSpanTimes.add(_TimeSpan(
           start: DateTime.fromMillisecondsSinceEpoch(startTimestampMs),
           end: DateTime.fromMillisecondsSinceEpoch(endTimestampMs),
           description: entry.key as String,
@@ -131,8 +131,8 @@ class NativeAppStartHandler {
     // Performance wise this won't affect us since the native span amount is very low.
     nativeSpanTimes.sort((a, b) => a.start.compareTo(b.start));
 
-    return AppStartInfo(
-      nativeAppStart.isColdStart ? AppStartType.cold : AppStartType.warm,
+    return _AppStartInfo(
+      nativeAppStart.isColdStart ? _AppStartType.cold : _AppStartType.warm,
       start: appStartDateTime,
       end: appStartEnd,
       pluginRegistration: pluginRegistrationDateTime,
@@ -142,7 +142,7 @@ class NativeAppStartHandler {
   }
 
   Future<void> _attachAppStartSpans(
-      AppStartInfo appStartInfo, SentryTracer transaction) async {
+      _AppStartInfo appStartInfo, SentryTracer transaction) async {
     final transactionTraceId = transaction.context.traceId;
     final appStartEnd = appStartInfo.end;
     if (appStartEnd == null) {
@@ -200,11 +200,11 @@ class NativeAppStartHandler {
   }
 
   Future<void> _attachNativeSpans(
-    AppStartInfo appStartInfo,
+    _AppStartInfo appStartInfo,
     SentryTracer transaction,
     SentrySpan parent,
   ) async {
-    await Future.forEach<TimeSpan>(appStartInfo.nativeSpanTimes,
+    await Future.forEach<_TimeSpan>(appStartInfo.nativeSpanTimes,
         (timeSpan) async {
       try {
         final span = await _createAndFinishSpan(
@@ -250,10 +250,10 @@ class NativeAppStartHandler {
   }
 }
 
-enum AppStartType { cold, warm }
+enum _AppStartType { cold, warm }
 
-class AppStartInfo {
-  AppStartInfo(
+class _AppStartInfo {
+  _AppStartInfo(
     this.type, {
     required this.start,
     required this.pluginRegistration,
@@ -262,9 +262,9 @@ class AppStartInfo {
     this.end,
   });
 
-  final AppStartType type;
+  final _AppStartType type;
   final DateTime start;
-  final List<TimeSpan> nativeSpanTimes;
+  final List<_TimeSpan> nativeSpanTimes;
 
   // We allow the end to be null, since it might be set at a later time
   // with setAppStartEnd when autoAppStart is disabled
@@ -280,7 +280,7 @@ class AppStartInfo {
     if (duration == null) {
       return null;
     }
-    return type == AppStartType.cold
+    return type == _AppStartType.cold
         ? SentryMeasurement.coldAppStart(duration)
         : SentryMeasurement.warmAppStart(duration);
   }
@@ -288,14 +288,14 @@ class AppStartInfo {
   String get appStartTypeOperation => 'app.start.${type.name}';
 
   String get appStartTypeDescription =>
-      type == AppStartType.cold ? 'Cold Start' : 'Warm Start';
+      type == _AppStartType.cold ? 'Cold Start' : 'Warm Start';
   final pluginRegistrationDescription = 'App start to plugin registration';
   final sentrySetupDescription = 'Before Sentry Init Setup';
   final firstFrameRenderDescription = 'First frame render';
 }
 
-class TimeSpan {
-  TimeSpan({required this.start, required this.end, required this.description});
+class _TimeSpan {
+  _TimeSpan({required this.start, required this.end, required this.description});
 
   final DateTime start;
   final DateTime end;

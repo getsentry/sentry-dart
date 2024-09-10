@@ -15,8 +15,9 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
   final FrameCallbackHandler _frameCallbackHandler;
   final NativeAppStartHandler _nativeAppStartHandler;
   DateTime? _appStartEnd;
-
+  
   /// This timestamp marks the end of app startup. Either set by calling
+  // ignore: deprecated_member_use_from_same_package
   /// [SentryFlutter.setAppStartEnd]. The [SentryFlutterOptions.autoAppStart]
   /// option needs to be false.
   @internal
