@@ -40,13 +40,49 @@ void main() {
       () async {
     fixture.callIntegration();
 
-    fixture.sut.appStartEnd = DateTime.fromMicrosecondsSinceEpoch(50);
+    final appStartEnd = DateTime.fromMicrosecondsSinceEpoch(50);
+    fixture.sut.appStartEnd = appStartEnd;
 
     final postFrameCallback = fixture.frameCallbackHandler.postFrameCallback!;
     postFrameCallback(Duration(seconds: 0));
 
     expect(fixture.nativeAppStartHandler.calls, 1);
-    expect(fixture.nativeAppStartHandler.appStartEnd, fixture.sut.appStartEnd);
+    expect(fixture.nativeAppStartHandler.appStartEnd, appStartEnd);
+  });
+
+  test(
+      '$NativeAppStartIntegration with disabled auto app start waits until appStartEnd is set',
+      () async {
+    fixture.options.autoAppStart = false;
+
+    fixture.callIntegration();
+
+    expect(fixture.nativeAppStartHandler.calls, 0);
+
+    final appStartEnd = DateTime.fromMicrosecondsSinceEpoch(50);
+    fixture.sut.appStartEnd = appStartEnd;
+
+    await Future<void>.delayed(Duration(milliseconds: 10));
+
+    expect(fixture.frameCallbackHandler.postFrameCallback, isNull);
+    expect(fixture.nativeAppStartHandler.calls, 1);
+    expect(fixture.nativeAppStartHandler.appStartEnd, appStartEnd);
+  });
+
+  test(
+      '$NativeAppStartIntegration with disabled auto app start waits until timeout',
+      () async {
+    fixture.options.autoAppStart = false;
+
+    fixture.callIntegration();
+
+    expect(fixture.nativeAppStartHandler.calls, 0);
+
+    await Future<void>.delayed(Duration(seconds: 11));
+
+    expect(fixture.frameCallbackHandler.postFrameCallback, isNull);
+    expect(fixture.nativeAppStartHandler.calls, 0);
+    expect(fixture.nativeAppStartHandler.appStartEnd, null);
   });
 }
 
