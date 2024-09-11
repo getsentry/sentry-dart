@@ -143,7 +143,7 @@ class _SentryLogo extends StatelessWidget {
     var color = Colors.white;
     final brightenss = Theme.of(context).brightness;
     if (brightenss == Brightness.light) {
-      color = const Color(0xff362d59).withOpacity(1.0);
+      color = const Color(0xff362d59).withValues(alpha: 1.0);
     }
 
     return FittedBox(
