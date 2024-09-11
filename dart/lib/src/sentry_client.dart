@@ -269,9 +269,8 @@ class SentryClient {
     // https://develop.sentry.dev/sdk/event-payloads/stacktrace/
     if (stackTrace != null || _options.attachStacktrace) {
       stackTrace ??= getCurrentStackTrace();
-      final frames = _stackTraceFactory.getStackFrames(stackTrace);
-
-      if (frames.isNotEmpty) {
+      final sentryStackTrace = _stackTraceFactory.create(stackTrace);
+      if (sentryStackTrace.frames.isNotEmpty) {
         event = event.copyWith(threads: [
           ...?event.threads,
           SentryThread(
@@ -279,7 +278,7 @@ class SentryClient {
             id: isolateId,
             crashed: false,
             current: true,
-            stacktrace: SentryStackTrace(frames: frames),
+            stacktrace: sentryStackTrace,
           ),
         ]);
       }

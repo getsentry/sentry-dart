@@ -3,9 +3,14 @@ import 'package:sentry/src/sentry_exception_factory.dart';
 import 'package:test/test.dart';
 
 import 'mocks.dart';
+import 'mocks/mock_platform.dart';
+import 'mocks/mock_platform_checker.dart';
 
 void main() {
-  final fixture = Fixture();
+  late Fixture fixture;
+  setUp(() {
+    fixture = Fixture();
+  });
 
   test('getSentryException with frames', () {
     SentryException sentryException;
@@ -206,6 +211,18 @@ void main() {
 
     expect(sentryException.stackTrace!.snapshot, true);
   });
+
+  test('sets native image start address on Windows', () {
+    fixture.options.platformChecker =
+        MockPlatformChecker(platform: MockPlatform.windows());
+    final sentryException = fixture
+        .getSut(attachStacktrace: false)
+        .getSentryException(Object(), stackTrace: StackTraceErrorStackTrace());
+
+    final sentryStackTrace = sentryException.stackTrace!;
+    expect(sentryStackTrace.nativeImageBaseAddr, '0x752602b000');
+    expect(sentryStackTrace.nativeBuildId, 'bca64abfdfcc84d231bb8f1ccdbfbd8d');
+  });
 }
 
 class CustomError extends Error {}
@@ -233,26 +250,7 @@ class StackTraceError extends Error {
     return '''
 $prefix
 
-pid: 9437, tid: 10069, name 1.ui
-os: android arch: arm64 comp: yes sim: no
-build_id: 'bca64abfdfcc84d231bb8f1ccdbfbd8d'
-isolate_dso_base: 752602b000, vm_dso_base: 752602b000
-isolate_instructions: 7526344980, vm_instructions: 752633f000
-#00 abs 00000075266c2fbf virt 0000000000697fbf _kDartIsolateSnapshotInstructions+0x37e63f
-#1 abs 000000752685211f virt 000000000082711f _kDartIsolateSnapshotInstructions+0x50d79f
-#2 abs 0000007526851cb3 virt 0000000000826cb3 _kDartIsolateSnapshotInstructions+0x50d333
-#3 abs 0000007526851c63 virt 0000000000826c63 _kDartIsolateSnapshotInstructions+0x50d2e3
-#4 abs 0000007526851bf3 virt 0000000000826bf3 _kDartIsolateSnapshotInstructions+0x50d273
-#5 abs 0000007526a0b44b virt 00000000009e044b _kDartIsolateSnapshotInstructions+0x6c6acb
-#6 abs 0000007526a068a7 virt 00000000009db8a7 _kDartIsolateSnapshotInstructions+0x6c1f27
-#7 abs 0000007526b57a2b virt 0000000000b2ca2b _kDartIsolateSnapshotInstructions+0x8130ab
-#8 abs 0000007526b5d93b virt 0000000000b3293b _kDartIsolateSnapshotInstructions+0x818fbb
-#9 abs 0000007526a2333b virt 00000000009f833b _kDartIsolateSnapshotInstructions+0x6de9bb
-#10 abs 0000007526937957 virt 000000000090c957 _kDartIsolateSnapshotInstructions+0x5f2fd7
-#11 abs 0000007526a243a3 virt 00000000009f93a3 _kDartIsolateSnapshotInstructions+0x6dfa23
-#12 abs 000000752636273b virt 000000000033773b _kDartIsolateSnapshotInstructions+0x1ddbb
-#13 abs 0000007526a36ac3 virt 0000000000a0bac3 _kDartIsolateSnapshotInstructions+0x6f2143
-#14 abs 00000075263626af virt 00000000003376af _kDartIsolateSnapshotInstructions+0x1dd2f''';
+${StackTraceErrorStackTrace()}''';
   }
 }
 

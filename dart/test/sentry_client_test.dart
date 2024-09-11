@@ -97,10 +97,8 @@ void main() {
       final exception = SentryException(
         type: 'Exception',
         value: 'an exception',
-        stackTrace: SentryStackTrace(
-          frames: SentryStackTraceFactory(fixture.options)
-              .getStackFrames('#0      baz (file:///pathto/test.dart:50:3)'),
-        ),
+        stackTrace: SentryStackTraceFactory(fixture.options)
+            .create('#0      baz (file:///pathto/test.dart:50:3)'),
       );
       final event = SentryEvent(exceptions: [exception]);
 

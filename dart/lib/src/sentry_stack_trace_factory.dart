@@ -9,22 +9,28 @@ import 'sentry_options.dart';
 class SentryStackTraceFactory {
   final SentryOptions _options;
 
-  final _absRegex = RegExp(r'^\s*#[0-9]+ +abs +([A-Fa-f0-9]+)');
-  final _frameRegex = RegExp(r'^\s*#', multiLine: true);
-
+  static final _absRegex = RegExp(r'^\s*#[0-9]+ +abs +([A-Fa-f0-9]+)');
+  static final _frameRegex = RegExp(r'^\s*#', multiLine: true);
+  static final _buildIdRegex = RegExp(r"build_id: '([A-Fa-f0-9]+)'");
+  static final _baseAddrRegex = RegExp(r'vm_dso_base: ([A-Fa-f0-9]+)');
   static final SentryStackFrame _asynchronousGapFrameJson =
       SentryStackFrame(absPath: '<asynchronous suspension>');
 
   SentryStackTraceFactory(this._options);
 
   /// returns the [SentryStackFrame] list from a stackTrace ([StackTrace] or [String])
+  @deprecated
   List<SentryStackFrame> getStackFrames(dynamic stackTrace) {
-    final chain = _parseStackTrace(stackTrace);
+    return create(stackTrace).frames;
+  }
+
+  SentryStackTrace create(dynamic stackTrace) {
+    final parsed = _parseStackTrace(stackTrace);
     final frames = <SentryStackFrame>[];
     var onlyAsyncGap = true;
 
-    for (var t = 0; t < chain.traces.length; t += 1) {
-      final trace = chain.traces[t];
+    for (var t = 0; t < parsed.traces.length; t += 1) {
+      final trace = parsed.traces[t];
 
       // NOTE: We want to keep the Sentry frames for crash detection
       // this does not affect grouping since they're not marked as inApp
@@ -37,17 +43,23 @@ class SentryStackTraceFactory {
       }
 
       // fill asynchronous gap
-      if (t < chain.traces.length - 1) {
+      if (t < parsed.traces.length - 1) {
         frames.add(_asynchronousGapFrameJson);
       }
     }
 
-    return onlyAsyncGap ? [] : frames.reversed.toList();
+    return SentryStackTrace(
+      frames: onlyAsyncGap ? [] : frames.reversed.toList(),
+      nativeImageBaseAddr: parsed.imageBaseAddr,
+      nativeBuildId: parsed.buildId,
+    );
   }
 
-  Chain _parseStackTrace(dynamic stackTrace) {
-    if (stackTrace is Chain || stackTrace is Trace) {
-      return Chain.forTrace(stackTrace);
+  _StackInfo _parseStackTrace(dynamic stackTrace) {
+    if (stackTrace is Chain) {
+      return _StackInfo(stackTrace.traces);
+    } else if (stackTrace is Trace) {
+      return _StackInfo([stackTrace]);
     }
 
     // We need to convert to string and split the headers manually, otherwise
@@ -62,16 +74,34 @@ class SentryStackTraceFactory {
       // *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
       // pid: 19226, tid: 6103134208, name io.flutter.ui
       // os: macos arch: arm64 comp: no sim: no
+      // build_id: 'bca64abfdfcc84d231bb8f1ccdbfbd8d'
       // isolate_dso_base: 10fa20000, vm_dso_base: 10fa20000
       // isolate_instructions: 10fa27070, vm_instructions: 10fa21e20
       //     #00 abs 000000723d6346d7 _kDartIsolateSnapshotInstructions+0x1e26d7
       //     #01 abs 000000723d637527 _kDartIsolateSnapshotInstructions+0x1e5527
 
       final startOffset = _frameRegex.firstMatch(stackTrace)?.start ?? 0;
-      return Chain.parse(
+      final chain = Chain.parse(
           startOffset == 0 ? stackTrace : stackTrace.substring(startOffset));
+      final info = _StackInfo(chain.traces);
+
+      // On Windows native, we need to provide the debug image address so that
+      // the LoadImageList integration can add a virtual image.
+      // This is because on Windows, dart uses ELF binaries for AOT code instead
+      // of standard windows-specific PE and it has a custom ELF image loader
+      // that loaads the "data/App.so". Therefore, sentry-native is unaware
+      // of this and won't pick list the image among native images.
+      // See https://github.com/flutter/flutter/issues/154840
+      if (_options.platformChecker.platform.isWindows) {
+        info.buildId = _buildIdRegex.firstMatch(stackTrace)?.group(1);
+        info.imageBaseAddr = _baseAddrRegex.firstMatch(stackTrace)?.group(1);
+        if (info.imageBaseAddr != null) {
+          info.imageBaseAddr = '0x${info.imageBaseAddr}';
+        }
+      }
+      return info;
     }
-    return Chain([]);
+    return _StackInfo([]);
   }
 
   /// converts [Frame] to [SentryStackFrame]
@@ -81,20 +111,15 @@ class SentryStackTraceFactory {
 
     if (frame is UnparsedFrame && member != null) {
       // if --split-debug-info is enabled, thats what we see:
-      // *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
-      // pid: 19226, tid: 6103134208, name io.flutter.ui
-      // os: macos arch: arm64 comp: no sim: no
-      // isolate_dso_base: 10fa20000, vm_dso_base: 10fa20000
-      // isolate_instructions: 10fa27070, vm_instructions: 10fa21e20
       //     #00 abs 000000723d6346d7 _kDartIsolateSnapshotInstructions+0x1e26d7
-      //     #01 abs 000000723d637527 _kDartIsolateSnapshotInstructions+0x1e5527
 
       // we are only interested on the #01, 02... items which contains the 'abs' addresses.
       final match = _absRegex.firstMatch(member);
       if (match != null) {
         return SentryStackFrame(
           instructionAddr: '0x${match.group(1)!}',
-          platform: 'native', // to trigger symbolication & native LoadImageList
+          // 'native' triggers the [LoadImageListIntegration] and server-side symbolication
+          platform: 'native',
         );
       }
 
@@ -181,4 +206,12 @@ class SentryStackTraceFactory {
 
     return _options.considerInAppFramesByDefault;
   }
+}
+
+class _StackInfo {
+  String? imageBaseAddr;
+  String? buildId;
+  final List<Trace> traces;
+
+  _StackInfo(this.traces);
 }

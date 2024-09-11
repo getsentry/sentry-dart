@@ -47,21 +47,16 @@ class SentryExceptionFactory {
 
     SentryStackTrace? sentryStackTrace;
     if (stackTrace != null) {
-      final frames = _stacktraceFactory.getStackFrames(stackTrace);
-
-      if (frames.isNotEmpty) {
-        sentryStackTrace = SentryStackTrace(
-          frames: frames,
-          snapshot: snapshot,
-        );
+      sentryStackTrace =
+          _stacktraceFactory.create(stackTrace).copyWith(snapshot: snapshot);
+      if (sentryStackTrace.frames.isEmpty) {
+        sentryStackTrace = null;
       }
     }
 
     final throwableString = throwable.toString();
     final stackTraceString = stackTrace.toString();
     final value = throwableString.replaceAll(stackTraceString, '').trim();
-
-    print(stackTraceString);
 
     String errorTypeName = throwable.runtimeType.toString();
 

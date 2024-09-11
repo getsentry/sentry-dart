@@ -1,6 +1,7 @@
 @TestOn('vm')
 library flutter_test;
 
+import 'package:file/memory.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -12,7 +13,7 @@ void main() {
   group(LoadImageListIntegration, () {
     final imageList = [
       DebugImage.fromJson({
-        'code_file': '/apex/com.android.art/javalib/arm64/boot.oat',
+        'code_file': '/path/to/app.exe',
         'code_id': '13577ce71153c228ecf0eb73fc39f45010d487f8',
         'image_addr': '0x6f80b000',
         'image_size': 3092480,
@@ -87,7 +88,7 @@ void main() {
 
       final image = event!.debugMeta!.images.first;
 
-      expect('/apex/com.android.art/javalib/arm64/boot.oat', image.codeFile);
+      expect('/path/to/app.exe', image.codeFile);
       expect('13577ce71153c228ecf0eb73fc39f45010d487f8', image.codeId);
       expect('0x6f80b000', image.imageAddr);
       expect(3092480, image.imageSize);
@@ -102,11 +103,32 @@ void main() {
       await fixture.hub.captureMessage('error');
       verifyNever(fixture.binding.loadDebugImages());
     });
+
+    test('ELF image is added on Windows for obfuscated stack trace', () async {
+      final ep = fixture.options.eventProcessors.first;
+
+      final fs = MemoryFileSystem.test();
+      (ep as dynamic).fs = fs;
+      await fs.directory('/path/to/data').create(recursive: true);
+      await fs.file('/path/to/data/app.so').writeAsString('12345');
+
+      final event = await ep.apply(_getEvent(), Hint());
+
+      final images = event!.debugMeta!.images;
+      expect(images.length, 2);
+
+      final image = images.last;
+      expect(image.codeFile, '/path/to/data/app.so');
+      expect(image.codeId, 'foo');
+      expect(image.imageAddr, '0x123');
+      expect(image.imageSize, 5);
+    });
   });
 }
 
 SentryEvent _getEvent() {
   final frame = SentryStackFrame(platform: 'native');
-  final st = SentryStackTrace(frames: [frame]);
+  final st = SentryStackTrace(
+      frames: [frame], nativeImageBaseAddr: '0x123', nativeBuildId: 'foo');
   return SentryEvent(threads: [SentryThread(stacktrace: st)]);
 }
