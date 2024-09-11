@@ -36,7 +36,7 @@ class NativeAppStartHandler {
 
     // Create Transaction & Span
 
-    const screenName = SentryNavigatorObserver.rootScreenName;
+    const screenName = 'root /';
     final transaction = _hub.startTransaction(
       screenName,
       SentrySpanOperations.uiLoad,

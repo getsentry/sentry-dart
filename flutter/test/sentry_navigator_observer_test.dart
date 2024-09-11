@@ -486,39 +486,32 @@ void main() {
       verify(span.setData('route_settings_arguments', arguments));
     });
 
-    test('flutter root name is replaced', () async {
+    test('root route does not start transaction', () async {
       final rootRoute = route(RouteSettings(name: '/'));
 
       final hub = _MockHub();
-      final span = getMockSentryTracer(name: '/');
+      final span = getMockSentryTracer();
       when(span.context).thenReturn(SentrySpanContext(operation: 'op'));
       when(span.finished).thenReturn(false);
       when(span.status).thenReturn(SpanStatus.ok());
-      when(span.startChild('ui.load.initial_display',
-              description: anyNamed('description'),
-              startTimestamp: anyNamed('startTimestamp')))
-          .thenReturn(NoOpSentrySpan());
       _whenAnyStart(hub, span);
 
       final sut = fixture.getSut(hub: hub);
 
       sut.didPush(rootRoute, null);
-
       await Future<void>.delayed(const Duration(milliseconds: 100));
 
-      final context = verify(hub.startTransactionWithContext(
-        captureAny,
-        waitForChildren: true,
+      verifyNever(hub.startTransactionWithContext(
+        any,
         startTimestamp: anyNamed('startTimestamp'),
+        waitForChildren: true,
         autoFinishAfter: anyNamed('autoFinishAfter'),
         trimEnd: true,
         onFinish: anyNamed('onFinish'),
-      )).captured.single as SentryTransactionContext;
-
-      expect(context.name, 'root /');
+      ));
 
       hub.configureScope((scope) {
-        expect(scope.span, span);
+        expect(scope.span, null);
       });
     });
 

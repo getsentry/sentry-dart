@@ -243,13 +243,10 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     String? name = _getRouteName(route);
     final arguments = route?.settings.arguments;
 
-    if (name == null) {
+    if (name == null || (name == '/')) {
       return;
     }
 
-    if (name == '/') {
-      name = rootScreenName;
-    }
     final transactionContext = SentryTransactionContext(
       name,
       SentrySpanOperations.uiLoad,
@@ -380,9 +377,6 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     _completedDisplayTracking = Completer();
     _timeToDisplayTracker?.clear();
   }
-
-  @internal
-  static const String rootScreenName = 'root /';
 
   bool _isRouteIgnored(Route<dynamic> route) {
     return _ignoreRoutes.isNotEmpty &&
