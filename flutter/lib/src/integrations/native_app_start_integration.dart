@@ -32,34 +32,26 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
 
   @override
   void call(Hub hub, SentryFlutterOptions options) async {
-    if (!options.autoAppStart && _appStartEnd == null) {
-      await _callThrowing(options, () async {
-        await _appStartEndCompleter.future.timeout(const Duration(seconds: 10));
-        await _nativeAppStartHandler.call(hub, options,
-            appStartEnd: _appStartEnd);
-      });
-    } else {
-      _frameCallbackHandler.addPostFrameCallback((timeStamp) async {
-        await _callThrowing(options, () async {
-          await _nativeAppStartHandler.call(hub, options,
-              appStartEnd: _appStartEnd);
-        });
-      });
-    }
+    _frameCallbackHandler.addPostFrameCallback((timeStamp) async {
+      try {
+        if (!options.autoAppStart && _appStartEnd == null) {
+          await _appStartEndCompleter.future
+              .timeout(const Duration(seconds: 10));
+        }
+        await _nativeAppStartHandler.call(
+          hub,
+          options,
+          appStartEnd: _appStartEnd,
+        );
+      } catch (exception, stackTrace) {
+        options.logger(
+          SentryLevel.error,
+          'Error while capturing native app start',
+          exception: exception,
+          stackTrace: stackTrace,
+        );
+      }
+    });
     options.sdk.addIntegration('nativeAppStartIntegration');
-  }
-
-  Future<void> _callThrowing(
-      SentryOptions options, Future<void> Function() callback) async {
-    try {
-      await callback();
-    } catch (exception, stackTrace) {
-      options.logger(
-        SentryLevel.error,
-        'Error while capturing native app start',
-        exception: exception,
-        stackTrace: stackTrace,
-      );
-    }
   }
 }

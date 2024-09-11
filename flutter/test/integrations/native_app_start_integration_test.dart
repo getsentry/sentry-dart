@@ -56,6 +56,8 @@ void main() {
     fixture.options.autoAppStart = false;
 
     fixture.callIntegration();
+    final postFrameCallback = fixture.frameCallbackHandler.postFrameCallback!;
+    postFrameCallback(Duration(seconds: 0));
 
     expect(fixture.nativeAppStartHandler.calls, 0);
 
@@ -64,7 +66,7 @@ void main() {
 
     await Future<void>.delayed(Duration(milliseconds: 10));
 
-    expect(fixture.frameCallbackHandler.postFrameCallback, isNull);
+    expect(fixture.frameCallbackHandler.postFrameCallback, isNotNull);
     expect(fixture.nativeAppStartHandler.calls, 1);
     expect(fixture.nativeAppStartHandler.appStartEnd, appStartEnd);
   });
@@ -75,12 +77,14 @@ void main() {
     fixture.options.autoAppStart = false;
 
     fixture.callIntegration();
+    final postFrameCallback = fixture.frameCallbackHandler.postFrameCallback!;
+    postFrameCallback(Duration(seconds: 0));
 
     expect(fixture.nativeAppStartHandler.calls, 0);
 
     await Future<void>.delayed(Duration(seconds: 11));
 
-    expect(fixture.frameCallbackHandler.postFrameCallback, isNull);
+    expect(fixture.frameCallbackHandler.postFrameCallback, isNotNull);
     expect(fixture.nativeAppStartHandler.calls, 0);
     expect(fixture.nativeAppStartHandler.appStartEnd, null);
   });
