@@ -16,10 +16,12 @@ import 'package:sentry_flutter/src/native/factory.dart';
 import '../mocks.dart';
 import '../mocks.mocks.dart';
 
+late final String repoRootDir;
+
 void main() {
-  if (Directory.current.path.endsWith('/test')) {
-    Directory.current = Directory.current.parent;
-  }
+  repoRootDir = Directory.current.path.endsWith('/test')
+      ? Directory.current.parent.path
+      : Directory.current.path;
 
   setUpAll(() async {
     Directory.current = await _buildSentryNative('temp/native-test');
@@ -269,19 +271,22 @@ Future<void> _exec(String executable, List<String> arguments) async {
 Future<String> _buildSentryNative(String nativeTestRoot) async {
   final cmakeBuildDir = '$nativeTestRoot/build';
   final cmakeConfDir = '$nativeTestRoot/conf';
-  final buildOutputDir = '$cmakeBuildDir/_deps/sentry-native-build/Debug/';
+  final buildOutputDir = '$cmakeBuildDir/_deps/sentry-native-build/Release/';
 
   if (!_builtVersionIsExpected(buildOutputDir)) {
     Directory(cmakeConfDir).createSync(recursive: true);
+    File('$cmakeConfDir/main.c').writeAsStringSync('''
+int main(int argc, char *argv[]) { return 0; }
+''');
     File('$cmakeConfDir/CMakeLists.txt').writeAsStringSync('''
 cmake_minimum_required(VERSION 3.14)
 project(sentry-native-flutter-test)
 add_subdirectory(../../../${platform.instance.operatingSystem} plugin)
-add_library(\${CMAKE_PROJECT_NAME} INTERFACE)
-target_link_libraries(\${CMAKE_PROJECT_NAME} INTERFACE \${sentry_flutter_bundled_libraries})
+add_executable(\${CMAKE_PROJECT_NAME} main.c)
+target_link_libraries(\${CMAKE_PROJECT_NAME} PRIVATE sentry_flutter_plugin)
 ''');
     await _exec('cmake', ['-B', cmakeBuildDir, cmakeConfDir]);
-    await _exec('cmake', ['--build', cmakeBuildDir]);
+    await _exec('cmake', ['--build', cmakeBuildDir, '--config', 'Release']);
   }
   return buildOutputDir;
 }
@@ -299,7 +304,8 @@ bool _builtVersionIsExpected(String buildOutputDir) {
   return File('$buildOutputDir/sentry.dll').existsSync();
 }
 
-late final _configuredSentryNativeVersion = File('sentry-native/CMakeCache.txt')
+late final _configuredSentryNativeVersion =
+    File('$repoRootDir/sentry-native/CMakeCache.txt')
     .readAsLinesSync()
     .map((line) => line.startsWith('version=') ? line.substring(8) : null)
     .firstWhere((line) => line != null)!;
