@@ -3,8 +3,10 @@ library flutter_test;
 
 import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:ffi/ffi.dart';
+import 'package:file/memory.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry/src/platform/platform.dart' as platform;
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -29,7 +31,8 @@ void main() {
   setUp(() {
     options = SentryFlutterOptions(dsn: fakeDsn)
       // ignore: invalid_use_of_internal_member
-      ..automatedTestMode = true;
+      ..automatedTestMode = true
+      ..fileSystem = MemoryFileSystem.test();
     sut = createBinding(options) as SentryNative;
   });
 
@@ -200,7 +203,7 @@ void main() {
   });
 
   test('loadDebugImages', () async {
-    final list = await sut.loadDebugImages();
+    final list = await sut.loadDebugImages(SentryStackTrace(frames: []));
     expect(list, isNotEmpty);
     expect(list![0].type, 'pe');
     expect(list[0].debugId!.length, greaterThan(30));
@@ -214,6 +217,32 @@ void main() {
       File(list[0].codeFile!),
       (File file) => file.existsSync(),
     );
+  });
+
+  test('loadDebugImages adds app.so on Windows for obfuscated stack trace',
+      () async {
+    final list = await sut.loadDebugImages(SentryStackTrace(
+      frames: [],
+      // ignore: invalid_use_of_internal_member
+      nativeBuildId: '4c6950bd9e9cc9839071742a7295c09e',
+      // ignore: invalid_use_of_internal_member
+      nativeImageBaseAddr: '0x123',
+    ));
+
+    await options.fileSystem.directory('/path/to/data').create(recursive: true);
+    await options.fileSystem
+        .file('/path/to/data/app.so')
+        .writeAsString('12345');
+
+    expect(list, isNotNull);
+    expect(list!.length, greaterThan(1));
+
+    final image = list.last;
+    expect(image.codeFile, '/path/to/data/app.so');
+    expect(image.codeId, '4c6950bd9e9cc9839071742a7295c09e');
+    expect(image.debugId, 'bd50694c-9c9e-83c9-9071-742a7295c09e');
+    expect(image.imageAddr, '0x123');
+    expect(image.imageSize, 5);
   });
 }
 

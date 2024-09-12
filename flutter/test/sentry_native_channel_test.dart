@@ -280,7 +280,7 @@ void main() {
         when(channel.invokeMethod('loadImageList'))
             .thenAnswer((invocation) async => json);
 
-        final data = await sut.loadDebugImages();
+        final data = await sut.loadDebugImages(SentryStackTrace(frames: []));
 
         expect(data?.map((v) => v.toJson()), json);
       });

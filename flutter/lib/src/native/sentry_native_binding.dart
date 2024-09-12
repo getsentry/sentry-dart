@@ -56,7 +56,7 @@ abstract class SentryNativeBinding {
   FutureOr<Map<String, dynamic>?> collectProfile(
       SentryId traceId, int startTimeNs, int endTimeNs);
 
-  FutureOr<List<DebugImage>?> loadDebugImages();
+  FutureOr<List<DebugImage>?> loadDebugImages(SentryStackTrace stackTrace);
 
   FutureOr<void> pauseAppHangTracking();
 

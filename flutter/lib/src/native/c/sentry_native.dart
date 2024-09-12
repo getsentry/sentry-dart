@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:ffi';
 import 'dart:typed_data';
 
+import 'package:collection/collection.dart';
 import 'package:ffi/ffi.dart';
 import 'package:meta/meta.dart';
 
@@ -15,6 +16,7 @@ import 'utils.dart';
 
 @internal
 class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
+  DebugImage? _appDebugImage;
   final SentryFlutterOptions options;
 
   @visibleForTesting
@@ -186,8 +188,8 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
     return null;
   }
 
-  FutureOr<List<DebugImage>?> loadDebugImages() =>
-      tryCatchSync('get_module_list', () {
+  FutureOr<List<DebugImage>?> loadDebugImages(SentryStackTrace stackTrace) =>
+      tryCatchAsync('get_module_list', () async {
         final cImages = native.get_modules_list();
         try {
           if (native.value_get_type(cImages) !=
@@ -195,8 +197,8 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
             return null;
           }
 
-          return List<DebugImage>.generate(native.value_get_length(cImages),
-              (index) {
+          final images = List<DebugImage>.generate(
+              native.value_get_length(cImages), (index) {
             final cImage = native.value_get_by_index(cImages, index);
             return DebugImage(
               type: cImage.get('type').castPrimitive(options.logger) ?? '',
@@ -208,10 +210,81 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
               codeId: cImage.get('code_id').castPrimitive(options.logger),
             );
           });
+
+          // On windows, we need to add the ELF debug image of the AOT code.
+          // See https://github.com/flutter/flutter/issues/154840
+          if (options.platformChecker.platform.isWindows) {
+            _appDebugImage ??= await _getAppDebugImage(stackTrace, images);
+            if (_appDebugImage != null) {
+              images.add(_appDebugImage!);
+            }
+          }
+
+          return images;
         } finally {
           native.value_decref(cImages);
         }
       });
+
+  Future<DebugImage?> _getAppDebugImage(
+      SentryStackTrace stackTrace, Iterable<DebugImage> nativeImages) async {
+    // ignore: invalid_use_of_internal_member
+    final buildId = stackTrace.nativeBuildId;
+    // ignore: invalid_use_of_internal_member
+    final imageAddr = stackTrace.nativeImageBaseAddr;
+
+    if (buildId == null || imageAddr == null) {
+      return null;
+    }
+
+    final exePath = nativeImages
+        .firstWhereOrNull(
+            (image) => image.codeFile?.toLowerCase().endsWith('.exe') ?? false)
+        ?.codeFile;
+    if (exePath == null) {
+      options.logger(
+          SentryLevel.debug,
+          "Couldn't add AOT ELF image for server-side symbolication because the "
+          "app executable is not among the debug images reported by native.");
+      return null;
+    }
+
+    final appSoFile = options.fileSystem
+        .file(exePath)
+        .parent
+        .childDirectory('data')
+        .childFile('app.so');
+    if (!await appSoFile.exists()) {
+      options.logger(SentryLevel.debug,
+          "Couldn't add AOT ELF image because ${appSoFile.path} doesn't exist.");
+      return null;
+    }
+
+    // Symbolicator requires Debug ID to find the debug image. We can construct
+    // it from the buildID: https://github.com/getsentry/symbolic/blob/7dc28dd04c06626489c7536cfe8c7be8f5c48804/symbolic-debuginfo/src/elf.rs#L709-L734
+    // For example
+    // Build ID: 4c6950bd9e9cc9839071742a7295c09e
+    // Debug ID: bd50694c-9c9e-83c9-9071-742a7295c09e
+    String? debugId;
+    if (buildId.length == 16) {
+      final p = _DwarfDebugIdBuilder(buildId);
+      debugId =
+          "${p.take(4)}-${p.take(2)}-${p.take(2)}-${p.take(2, false)}-${p.take(6, false)}";
+    } else {
+      options.logger(SentryLevel.debug,
+          "Couldn't construct AOT ELF image DebugID because ${appSoFile.path} doesn't exist.");
+    }
+
+    final stat = await appSoFile.stat();
+    return DebugImage(
+      type: 'elf',
+      imageAddr: imageAddr,
+      imageSize: stat.size,
+      codeFile: appSoFile.path,
+      codeId: buildId,
+      debugId: debugId,
+    );
+  }
 
   FutureOr<void> pauseAppHangTracking() {}
 
@@ -347,5 +420,21 @@ extension on List<dynamic> {
       }
     }
     return cObject;
+  }
+}
+
+// See https://github.com/getsentry/symbolic/blob/7dc28dd04c06626489c7536cfe8c7be8f5c48804/symbolic-debuginfo/src/elf.rs#L709-L734
+class _DwarfDebugIdBuilder {
+  Iterable<List<String>> _chunks;
+
+  _DwarfDebugIdBuilder(String buildId) : _chunks = buildId.split('').slices(2);
+
+  String take(int numChunks, [bool reversed = true]) {
+    var part = _chunks.take(numChunks);
+    _chunks = _chunks.skip(numChunks);
+    if (reversed) {
+      part = part.toList().reversed;
+    }
+    return part.map((chunk) => chunk.join()).join();
   }
 }

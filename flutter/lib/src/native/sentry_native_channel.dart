@@ -180,7 +180,7 @@ class SentryNativeChannel
       });
 
   @override
-  Future<List<DebugImage>?> loadDebugImages() =>
+  Future<List<DebugImage>?> loadDebugImages(SentryStackTrace stackTrace) =>
       tryCatchAsync('loadDebugImages', () async {
         final images = await channel
             .invokeListMethod<Map<dynamic, dynamic>>('loadImageList');
