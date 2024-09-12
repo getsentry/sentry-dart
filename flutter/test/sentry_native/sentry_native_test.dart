@@ -24,7 +24,8 @@ void main() {
       : Directory.current.path;
 
   setUpAll(() async {
-    Directory.current = await _buildSentryNative('temp/native-test');
+    Directory.current =
+        await _buildSentryNative('$repoRootDir/temp/native-test');
   });
 
   late SentryNative sut;
@@ -34,6 +35,7 @@ void main() {
     options = SentryFlutterOptions(dsn: fakeDsn)
       // ignore: invalid_use_of_internal_member
       ..automatedTestMode = true
+      ..debug = true
       ..fileSystem = MemoryFileSystem.test();
     sut = createBinding(options) as SentryNative;
   });
@@ -187,18 +189,10 @@ void main() {
         throwsUnsupportedError);
   });
 
-  //   test('captureEnvelope', () async {
-  //     final data = Uint8List.fromList([1, 2, 3]);
-
-  //     late Uint8List captured;
-  //     when(channel.invokeMethod('captureEnvelope', any)).thenAnswer(
-  //         (invocation) async =>
-  //             {captured = invocation.positionalArguments[1][0] as Uint8List});
-
-  //     await sut.captureEnvelope(data, false);
-
-  //     expect(captured, data);
-  //   });
+  test('captureEnvelope', () async {
+    final data = Uint8List.fromList([1, 2, 3]);
+    expect(() => sut.captureEnvelope(data, false), throwsUnsupportedError);
+  });
 
   test('loadContexts', () async {
     expect(await sut.loadContexts(), isNull);
@@ -271,10 +265,11 @@ Future<void> _exec(String executable, List<String> arguments) async {
 Future<String> _buildSentryNative(String nativeTestRoot) async {
   final cmakeBuildDir = '$nativeTestRoot/build';
   final cmakeConfDir = '$nativeTestRoot/conf';
-  final buildOutputDir = '$cmakeBuildDir/_deps/sentry-native-build/Release/';
+  final buildOutputDir = '$nativeTestRoot/dist/';
 
-  if (!_builtVersionIsExpected(buildOutputDir)) {
+  if (!_builtVersionIsExpected(cmakeBuildDir, buildOutputDir)) {
     Directory(cmakeConfDir).createSync(recursive: true);
+    Directory(buildOutputDir).createSync(recursive: true);
     File('$cmakeConfDir/main.c').writeAsStringSync('''
 int main(int argc, char *argv[]) { return 0; }
 ''');
@@ -284,15 +279,22 @@ project(sentry-native-flutter-test)
 add_subdirectory(../../../${platform.instance.operatingSystem} plugin)
 add_executable(\${CMAKE_PROJECT_NAME} main.c)
 target_link_libraries(\${CMAKE_PROJECT_NAME} PRIVATE sentry_flutter_plugin)
+
+# Same as generated_plugins.cmake
+list(APPEND PLUGIN_BUNDLED_LIBRARIES \$<TARGET_FILE:sentry_flutter_plugin>)
+list(APPEND PLUGIN_BUNDLED_LIBRARIES \${sentry_flutter_bundled_libraries})
+install(FILES "\${PLUGIN_BUNDLED_LIBRARIES}" DESTINATION "${buildOutputDir.replaceAll('\\', '/')}" COMPONENT Runtime)
 ''');
     await _exec('cmake', ['-B', cmakeBuildDir, cmakeConfDir]);
     await _exec('cmake', ['--build', cmakeBuildDir, '--config', 'Release']);
+    await _exec('cmake', ['--install', cmakeBuildDir, '--config', 'Release']);
   }
   return buildOutputDir;
 }
 
-bool _builtVersionIsExpected(String buildOutputDir) {
-  final buildCmake = File('$buildOutputDir/../sentry-config-version.cmake');
+bool _builtVersionIsExpected(String cmakeBuildDir, String buildOutputDir) {
+  final buildCmake = File(
+      '$cmakeBuildDir/_deps/sentry-native-build/sentry-config-version.cmake');
   if (!buildCmake.existsSync()) return false;
 
   if (!buildCmake
@@ -301,11 +303,12 @@ bool _builtVersionIsExpected(String buildOutputDir) {
     return false;
   }
 
-  return File('$buildOutputDir/sentry.dll').existsSync();
+  return File('$buildOutputDir/sentry.dll').existsSync() &&
+      File('$buildOutputDir/crashpad_handler.exe').existsSync();
 }
 
 late final _configuredSentryNativeVersion =
     File('$repoRootDir/sentry-native/CMakeCache.txt')
-    .readAsLinesSync()
-    .map((line) => line.startsWith('version=') ? line.substring(8) : null)
-    .firstWhere((line) => line != null)!;
+        .readAsLinesSync()
+        .map((line) => line.startsWith('version=') ? line.substring(8) : null)
+        .firstWhere((line) => line != null)!;
