@@ -242,8 +242,7 @@ void main() {
       );
 
       testScopeObserver(
-          options: sentryFlutterOptions!,
-          expectedHasNativeScopeObserver: true);
+          options: sentryFlutterOptions!, expectedHasNativeScopeObserver: true);
 
       testConfiguration(
         integrations: integrations,
@@ -630,7 +629,6 @@ void main() {
     test(
         'enablePureDartSymbolication is set to false during SentryFlutter init',
         () async {
-      SentryFlutter.native = MockSentryNativeBinding();
       await SentryFlutter.init(
         (options) {
           options.dsn = fakeDsn;
@@ -650,7 +648,7 @@ void main() {
   });
 
   test('resumeAppHangTracking calls native method when available', () async {
-    SentryFlutter.native = MockSentryNativeBinding();
+    SentryFlutter.native = mockNativeBinding();
     when(SentryFlutter.native?.resumeAppHangTracking())
         .thenAnswer((_) => Future.value());
 
@@ -669,7 +667,7 @@ void main() {
   });
 
   test('pauseAppHangTracking calls native method when available', () async {
-    SentryFlutter.native = MockSentryNativeBinding();
+    SentryFlutter.native = mockNativeBinding();
     when(SentryFlutter.native?.pauseAppHangTracking())
         .thenAnswer((_) => Future.value());
 
@@ -732,6 +730,12 @@ void main() {
       await Sentry.close();
     });
   });
+}
+
+MockSentryNativeBinding mockNativeBinding() {
+  final result = MockSentryNativeBinding();
+  when(result.supportsLoadContexts).thenReturn(true);
+  return result;
 }
 
 void appRunner() {}

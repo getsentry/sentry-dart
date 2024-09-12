@@ -26,7 +26,7 @@ void main() {
 
     setUp(() async {
       fixture = IntegrationTestFixture(LoadImageListIntegration.new);
-      when(fixture.binding.loadDebugImages())
+      when(fixture.binding.loadDebugImages(any))
           .thenAnswer((_) async => imageList);
       await fixture.registerIntegration();
     });
@@ -44,14 +44,14 @@ void main() {
       await fixture.hub.captureException(StateError('error'),
           stackTrace: StackTrace.current);
 
-      verifyNever(fixture.binding.loadDebugImages());
+      verifyNever(fixture.binding.loadDebugImages(any));
     });
 
     test('Native layer is not called if the event has no stack traces',
         () async {
       await fixture.hub.captureException(StateError('error'));
 
-      verifyNever(fixture.binding.loadDebugImages());
+      verifyNever(fixture.binding.loadDebugImages(any));
     });
 
     test('Native layer is called because stack traces are not symbolicated',
@@ -67,7 +67,7 @@ void main() {
           #01 abs 000000723d637527 virt 00000000001f0527 _kDartIsolateSnapshotInstructions+0x1e5527
       ''');
 
-      verify(fixture.binding.loadDebugImages()).called(1);
+      verify(fixture.binding.loadDebugImages(any)).called(1);
     });
 
     test('Event processor adds image list to the event', () async {
@@ -100,7 +100,7 @@ void main() {
       expect(fixture.options.eventProcessors.length, 1);
 
       await fixture.hub.captureMessage('error');
-      verifyNever(fixture.binding.loadDebugImages());
+      verifyNever(fixture.binding.loadDebugImages(any));
     });
   });
 }
@@ -110,4 +110,3 @@ SentryEvent _getEvent() {
   final st = SentryStackTrace(frames: [frame]);
   return SentryEvent(threads: [SentryThread(stacktrace: st)]);
 }
-  

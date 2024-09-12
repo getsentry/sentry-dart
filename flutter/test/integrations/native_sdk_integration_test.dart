@@ -15,6 +15,8 @@ void main() {
 
     setUp(() {
       fixture = IntegrationTestFixture(NativeSdkIntegration.new);
+      when(fixture.binding.init(any)).thenReturn(() {});
+      when(fixture.binding.close()).thenReturn(() {});
     });
 
     test('adds integration', () async {
@@ -25,6 +27,9 @@ void main() {
     });
 
     test('do not throw', () async {
+      // ignore: invalid_use_of_internal_member
+      fixture.options.automatedTestMode = false;
+
       fixture.sut = NativeSdkIntegration(_ThrowingMockSentryNative());
       await fixture.registerIntegration();
       expect(fixture.options.sdk.integrations.contains('nativeSdkIntegration'),
@@ -51,6 +56,9 @@ void main() {
     });
 
     test(' is not added in case of an exception', () async {
+      // ignore: invalid_use_of_internal_member
+      fixture.options.automatedTestMode = false;
+
       fixture.sut = NativeSdkIntegration(_ThrowingMockSentryNative());
       await fixture.registerIntegration();
       expect(fixture.options.sdk.integrations, <String>[]);

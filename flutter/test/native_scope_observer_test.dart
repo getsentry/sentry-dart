@@ -18,6 +18,7 @@ void main() {
   });
 
   test('addBreadcrumbCalls', () async {
+    when(mock.addBreadcrumb(any)).thenReturn(() {});
     final breadcrumb = Breadcrumb();
     await sut.addBreadcrumb(breadcrumb);
 
@@ -25,12 +26,14 @@ void main() {
   });
 
   test('clearBreadcrumbsCalls', () async {
+    when(mock.clearBreadcrumbs()).thenReturn(() {});
     await sut.clearBreadcrumbs();
 
     verify(mock.clearBreadcrumbs()).called(1);
   });
 
   test('removeContextsCalls', () async {
+    when(mock.removeContexts(any)).thenReturn(() {});
     await sut.removeContexts('fixture-key');
 
     expect(
@@ -38,36 +41,43 @@ void main() {
   });
 
   test('removeExtraCalls', () async {
+    when(mock.removeExtra(any)).thenReturn(() {});
     await sut.removeExtra('fixture-key');
 
     expect(verify(mock.removeExtra(captureAny)).captured.single, 'fixture-key');
   });
 
   test('removeTagCalls', () async {
+    when(mock.removeTag(any)).thenReturn(() {});
     await sut.removeTag('fixture-key');
 
     expect(verify(mock.removeTag(captureAny)).captured.single, 'fixture-key');
   });
 
   test('setContextsCalls', () async {
+    when(mock.setContexts(any, any)).thenReturn(() {});
     await sut.setContexts('fixture-key', 'fixture-value');
 
     verify(mock.setContexts('fixture-key', 'fixture-value')).called(1);
   });
 
   test('setExtraCalls', () async {
+    when(mock.setExtra(any, any)).thenReturn(() {});
     await sut.setExtra('fixture-key', 'fixture-value');
 
     verify(mock.setExtra('fixture-key', 'fixture-value')).called(1);
   });
 
   test('setTagCalls', () async {
+    when(mock.setTag(any, any)).thenReturn(() {});
     await sut.setTag('fixture-key', 'fixture-value');
 
     verify(mock.setTag('fixture-key', 'fixture-value')).called(1);
   });
 
   test('setUserCalls', () async {
+    when(mock.setUser(any)).thenReturn(() {});
+
     final user = SentryUser(id: 'foo bar');
     await sut.setUser(user);
 
