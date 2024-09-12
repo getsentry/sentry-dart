@@ -1,19 +1,23 @@
 import 'dart:async';
-import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:sentry/sentry.dart';
+import '../replay/recorder.dart';
+import '../replay/recorder_config.dart';
 import '../screenshot/sentry_screenshot_widget.dart';
 import '../sentry_flutter_options.dart';
-import 'package:flutter/rendering.dart';
 import '../renderer/renderer.dart';
 import 'package:flutter/widgets.dart' as widget;
 
 class ScreenshotEventProcessor implements EventProcessor {
   final SentryFlutterOptions _options;
+  late ScreenshotRecorder _screenshotRecorder;
 
-  ScreenshotEventProcessor(this._options);
+  ScreenshotEventProcessor(this._options) {
+    _screenshotRecorder =
+        ScreenshotRecorder(ScreenshotRecorderConfig(), _options);
+  }
 
   /// This is true when the SentryWidget is in the view hierarchy
   bool get _hasSentryScreenshotWidget =>
@@ -84,72 +88,31 @@ class ScreenshotEventProcessor implements EventProcessor {
   }
 
   Future<Uint8List?> _createScreenshot() async {
-    try {
-      final renderObject =
-          sentryScreenshotWidgetGlobalKey.currentContext?.findRenderObject();
-      if (renderObject is RenderRepaintBoundary) {
-        // ignore: deprecated_member_use
-        final pixelRatio = window.devicePixelRatio;
-        var imageResult = _getImage(renderObject, pixelRatio);
-        Image image;
-        if (imageResult is Future<Image>) {
-          image = await imageResult;
-        } else {
-          image = imageResult;
-        }
-        // At the time of writing there's no other image format available which
-        // Sentry understands.
+    Completer<Uint8List?> completer = Completer<Uint8List?>();
 
-        if (image.width == 0 || image.height == 0) {
-          _options.logger(SentryLevel.debug,
-              'View\'s width and height is zeroed, not taking screenshot.');
-          return null;
-        }
+    await _screenshotRecorder.capture((Image image) async {
+      final byteData = await image.toByteData(format: ImageByteFormat.png);
+      final bytes = byteData?.buffer.asUint8List();
 
-        final targetResolution = _options.screenshotQuality.targetResolution();
-        if (targetResolution != null) {
-          var ratioWidth = targetResolution / image.width;
-          var ratioHeight = targetResolution / image.height;
-          var ratio = min(ratioWidth, ratioHeight);
-          if (ratio > 0.0 && ratio < 1.0) {
-            imageResult = _getImage(renderObject, ratio * pixelRatio);
-            if (imageResult is Future<Image>) {
-              image = await imageResult;
-            } else {
-              image = imageResult;
-            }
-          }
-        }
-        final byteData = await image.toByteData(format: ImageByteFormat.png);
-
-        final bytes = byteData?.buffer.asUint8List();
-        if (bytes?.isNotEmpty == true) {
-          return bytes;
-        } else {
-          _options.logger(SentryLevel.debug,
-              'Screenshot is 0 bytes, not attaching the image.');
-          return null;
-        }
+      if (bytes?.isNotEmpty == true) {
+        completer.complete(bytes);
+      } else {
+        _options.logger(SentryLevel.debug,
+            'Screenshot is 0 bytes, not attaching the image.');
+        completer.complete(null);
       }
-    } catch (exception, stackTrace) {
-      _options.logger(
-        SentryLevel.error,
-        'Taking screenshot failed.',
-        exception: exception,
-        stackTrace: stackTrace,
-      );
-    }
-    return null;
-  }
+    });
 
-  FutureOr<Image> _getImage(
-      RenderRepaintBoundary repaintBoundary, double pixelRatio) {
-    // This one is a hack to use https://api.flutter.dev/flutter/rendering/RenderRepaintBoundary/toImage.html on versions older than 3.7 and https://api.flutter.dev/flutter/rendering/RenderRepaintBoundary/toImageSync.html on versions equal or newer than 3.7
-    try {
-      return (repaintBoundary as dynamic).toImageSync(pixelRatio: pixelRatio)
-          as Image;
-    } on NoSuchMethodError catch (_) {
-      return repaintBoundary.toImage(pixelRatio: pixelRatio);
-    }
+    final screenshotTimeout = Duration(seconds: 2);
+    return completer.future.timeout(
+      screenshotTimeout,
+      onTimeout: () {
+        _options.logger(
+          SentryLevel.warning,
+          'Screenshot took more than $screenshotTimeout seconds to capture.',
+        );
+        return null;
+      },
+    );
   }
 }
