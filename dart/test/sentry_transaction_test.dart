@@ -64,7 +64,7 @@ void main() {
     expect(sut.sampled, true);
   });
 
-  test('returns contexts.trace.data if data is set on the tracer', () async {
+  test('returns contexts.trace.data if data is set', () async {
     final tracer = _createTracer(sampled: true);
     tracer.setData('key', 'value');
     final child = tracer.startChild('child');
