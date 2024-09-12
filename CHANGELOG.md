@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Use native spotlight integrations on Flutter Android, iOS, macOS ([#2285](https://github.com/getsentry/sentry-dart/pull/2285))
+
 ## 8.9.0
 
 ### Features
