@@ -1,5 +1,3 @@
-import 'platform_checker.dart';
-
 /// Spotlight configuration class.
 class Spotlight {
   /// Whether to enable Spotlight for local development.
