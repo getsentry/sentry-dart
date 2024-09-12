@@ -81,6 +81,12 @@ class SentryFlutter(
     data.getIfNotNull<String>("proguardUuid") {
       options.proguardUuid = it
     }
+    data.getIfNotNull<Boolean>("enableSpotlight") {
+      options.isEnableSpotlight = it
+    }
+    data.getIfNotNull<String>("spotlightUrl") {
+      options.spotlightConnectionUrl = it
+    }
 
     val nativeCrashHandling = (data["enableNativeCrashHandling"] as? Boolean) ?: true
     // nativeCrashHandling has priority over anrEnabled

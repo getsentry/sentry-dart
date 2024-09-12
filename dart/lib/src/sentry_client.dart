@@ -63,7 +63,12 @@ class SentryClient {
       final rateLimiter = RateLimiter(options);
       options.transport = HttpTransport(options, rateLimiter);
     }
-    if (options.spotlight.enabled) {
+    // TODO: Web might change soon to use the JS SDK so we can remove it here later on
+    final enableSpotlight = (options.spotlight.enabled &&
+        (options.platformChecker.isWeb ||
+            options.platformChecker.platform.isLinux ||
+            options.platformChecker.platform.isWindows));
+    if (enableSpotlight) {
       options.transport = SpotlightHttpTransport(options, options.transport);
     }
     return SentryClient._(options);

@@ -8,7 +8,8 @@
         android:allowBackup="false"
         android:label="sentry_flutter_example"
         android:icon="@mipmap/ic_launcher"
-        android:extractNativeLibs="true">
+        android:extractNativeLibs="true"
+        android:networkSecurityConfig="@xml/network">
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"

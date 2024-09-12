@@ -71,6 +71,8 @@ class SentryNativeChannel
         'sessionSampleRate': options.experimental.replay.sessionSampleRate,
         'onErrorSampleRate': options.experimental.replay.onErrorSampleRate,
       },
+      'enableSpotlight': options.spotlight.enabled,
+      'spotlightUrl': options.spotlight.url,
     });
   }
 

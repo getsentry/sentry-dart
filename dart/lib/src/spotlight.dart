@@ -8,14 +8,7 @@ class Spotlight {
   /// The Spotlight Sidecar URL.
   /// Defaults to http://10.0.2.2:8969/stream due to Emulator on Android.
   /// Otherwise defaults to http://localhost:8969/stream.
-  String url;
+  String? url;
 
-  Spotlight({required this.enabled, String? url})
-      : url = url ?? _defaultSpotlightUrl();
-}
-
-String _defaultSpotlightUrl() {
-  return (PlatformChecker().platform.isAndroid
-      ? 'http://10.0.2.2:8969/stream'
-      : 'http://localhost:8969/stream');
+  Spotlight({required this.enabled, this.url});
 }
