@@ -21,6 +21,10 @@ class MockPlatform extends Platform with NoSuchMethodProvider {
     return MockPlatform(os: 'linux');
   }
 
+  factory MockPlatform.windows() {
+    return MockPlatform(os: 'windows');
+  }
+
   @override
   String operatingSystem;
 }
