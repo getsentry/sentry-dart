@@ -64,7 +64,7 @@ void main() {
     expect(sut.sampled, true);
   });
 
-  test('returns contexts.trace.data if data is set', () async {
+  test('returns contexts.trace.data if data is set on the tracer', () async {
     final tracer = _createTracer(sampled: true);
     tracer.setData('key', 'value');
     final child = tracer.startChild('child');
@@ -74,6 +74,17 @@ void main() {
     final sut = fixture.getSut(tracer);
 
     expect(sut.contexts.trace!.data, {'key': 'value'});
+  });
+
+  test('returns null contexts.trace.data if data is not set', () async {
+    final tracer = _createTracer(sampled: true);
+    final child = tracer.startChild('child');
+    await child.finish();
+    await tracer.finish();
+
+    final sut = fixture.getSut(tracer);
+
+    expect(sut.contexts.trace!.data, isNull);
   });
 
   test('returns sampled false if not sampled', () async {
