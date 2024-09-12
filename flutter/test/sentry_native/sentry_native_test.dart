@@ -215,28 +215,27 @@ void main() {
     );
   });
 
-  test('loadDebugImages adds app.so on Windows for obfuscated stack trace',
-      () async {
-    final list = await sut.loadDebugImages(SentryStackTrace(
-      frames: [],
-      // ignore: invalid_use_of_internal_member
-      nativeBuildId: '4c6950bd9e9cc9839071742a7295c09e',
-      // ignore: invalid_use_of_internal_member
-      nativeImageBaseAddr: '0x123',
-    ));
-
+  test('getAppDebugImage returns app.so debug image', () async {
     await options.fileSystem.directory('/path/to/data').create(recursive: true);
     await options.fileSystem
         .file('/path/to/data/app.so')
         .writeAsString('12345');
 
-    expect(list, isNotNull);
-    expect(list!.length, greaterThan(1));
+    final image = await sut.getAppDebugImage(
+      SentryStackTrace(
+        frames: [],
+        // ignore: invalid_use_of_internal_member
+        nativeBuildId: '4c6950bd9e9cc9839071742a7295c09e',
+        // ignore: invalid_use_of_internal_member
+        nativeImageBaseAddr: '0x123',
+      ),
+      [DebugImage(type: 'pe', codeFile: '/path/to/application.exe')],
+    );
 
-    final image = list.last;
-    expect(image.codeFile, '/path/to/data/app.so');
+    expect(image, isNotNull);
+    expect(image!.codeFile, '/path/to/data/app.so');
     expect(image.codeId, '4c6950bd9e9cc9839071742a7295c09e');
-    expect(image.debugId, 'bd50694c-9c9e-83c9-9071-742a7295c09e');
+    expect(image.debugId, 'bd50694c9c9e83c99071742a7295c09e');
     expect(image.imageAddr, '0x123');
     expect(image.imageSize, 5);
   });

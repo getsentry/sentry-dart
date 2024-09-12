@@ -214,7 +214,7 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
           // On windows, we need to add the ELF debug image of the AOT code.
           // See https://github.com/flutter/flutter/issues/154840
           if (options.platformChecker.platform.isWindows) {
-            _appDebugImage ??= await _getAppDebugImage(stackTrace, images);
+            _appDebugImage ??= await getAppDebugImage(stackTrace, images);
             if (_appDebugImage != null) {
               images.add(_appDebugImage!);
             }
@@ -226,7 +226,8 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
         }
       });
 
-  Future<DebugImage?> _getAppDebugImage(
+  @visibleForTesting
+  Future<DebugImage?> getAppDebugImage(
       SentryStackTrace stackTrace, Iterable<DebugImage> nativeImages) async {
     // ignore: invalid_use_of_internal_member
     final buildId = stackTrace.nativeBuildId;
@@ -260,21 +261,6 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
       return null;
     }
 
-    // Symbolicator requires Debug ID to find the debug image. We can construct
-    // it from the buildID: https://github.com/getsentry/symbolic/blob/7dc28dd04c06626489c7536cfe8c7be8f5c48804/symbolic-debuginfo/src/elf.rs#L709-L734
-    // For example
-    // Build ID: 4c6950bd9e9cc9839071742a7295c09e
-    // Debug ID: bd50694c-9c9e-83c9-9071-742a7295c09e
-    String? debugId;
-    if (buildId.length == 16) {
-      final p = _DwarfDebugIdBuilder(buildId);
-      debugId =
-          "${p.take(4)}-${p.take(2)}-${p.take(2)}-${p.take(2, false)}-${p.take(6, false)}";
-    } else {
-      options.logger(SentryLevel.debug,
-          "Couldn't construct AOT ELF image DebugID because ${appSoFile.path} doesn't exist.");
-    }
-
     final stat = await appSoFile.stat();
     return DebugImage(
       type: 'elf',
@@ -282,8 +268,37 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
       imageSize: stat.size,
       codeFile: appSoFile.path,
       codeId: buildId,
-      debugId: debugId,
+      debugId: _computeDebugId(buildId),
     );
+  }
+
+  /// See https://github.com/getsentry/symbolic/blob/7dc28dd04c06626489c7536cfe8c7be8f5c48804/symbolic-debuginfo/src/elf.rs#L709-L734
+  /// Converts an ELF object identifier into a `DebugId`.
+  ///
+  /// The identifier data is first truncated or extended to match 16 byte size of
+  /// Uuids. If the data is declared in little endian, the first three Uuid fields
+  /// are flipped to match the big endian expected by the breakpad processor.
+  ///
+  /// The `DebugId::appendix` field is always `0` for ELF.
+  String? _computeDebugId(String buildId) {
+    // Make sure that we have exactly UUID_SIZE bytes available
+    const uuidSize = 16 * 2;
+    final data = Uint8List(uuidSize);
+    final len = buildId.length.clamp(0, uuidSize);
+    data.setAll(0, buildId.codeUnits.take(len));
+
+    if (Endian.host == Endian.little) {
+      // The file ELF file targets a little endian architecture. Convert to
+      // network byte order (big endian) to match the Breakpad processor's
+      // expectations. For big endian object files, this is not needed.
+      // To manipulate this as hex, we create an Uint16 view.
+      final data16 = Uint16List.view(data.buffer);
+      data16.setRange(0, 4, data16.sublist(0, 4).reversed);
+      data16.setRange(4, 6, data16.sublist(4, 6).reversed);
+      data16.setRange(6, 8, data16.sublist(6, 8).reversed);
+    }
+
+    return String.fromCharCodes(data);
   }
 
   FutureOr<void> pauseAppHangTracking() {}
@@ -420,21 +435,5 @@ extension on List<dynamic> {
       }
     }
     return cObject;
-  }
-}
-
-// See https://github.com/getsentry/symbolic/blob/7dc28dd04c06626489c7536cfe8c7be8f5c48804/symbolic-debuginfo/src/elf.rs#L709-L734
-class _DwarfDebugIdBuilder {
-  Iterable<List<String>> _chunks;
-
-  _DwarfDebugIdBuilder(String buildId) : _chunks = buildId.split('').slices(2);
-
-  String take(int numChunks, [bool reversed = true]) {
-    var part = _chunks.take(numChunks);
-    _chunks = _chunks.skip(numChunks);
-    if (reversed) {
-      part = part.toList().reversed;
-    }
-    return part.map((chunk) => chunk.join()).join();
   }
 }
