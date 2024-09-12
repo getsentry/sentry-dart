@@ -606,6 +606,37 @@ class SentryNative {
       _options_get_auto_session_trackingPtr
           .asFunction<int Function(ffi.Pointer<sentry_options_s>)>();
 
+  /// Sets the path to the crashpad handler if the crashpad backend is used.
+  ///
+  /// The path defaults to the `crashpad_handler`/`crashpad_handler.exe`
+  /// executable, depending on platform, which is expected to be present in the
+  /// same directory as the app executable.
+  ///
+  /// It is recommended that library users set an explicit handler path, depending
+  /// on the directory/executable structure of their app.
+  ///
+  /// `path` is assumed to be in platform-specific filesystem path encoding.
+  /// API Users on windows are encouraged to use `sentry_options_set_handler_pathw`
+  /// instead.
+  void options_set_handler_path(
+    ffi.Pointer<sentry_options_s> opts,
+    ffi.Pointer<ffi.Char> path,
+  ) {
+    return _options_set_handler_path(
+      opts,
+      path,
+    );
+  }
+
+  late final _options_set_handler_pathPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<sentry_options_s>,
+              ffi.Pointer<ffi.Char>)>>('sentry_options_set_handler_path');
+  late final _options_set_handler_path =
+      _options_set_handler_pathPtr.asFunction<
+          void Function(
+              ffi.Pointer<sentry_options_s>, ffi.Pointer<ffi.Char>)>();
+
   /// Initializes the Sentry SDK with the specified options.
   ///
   /// This takes ownership of the options.  After the options have been set

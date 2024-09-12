@@ -18,6 +18,7 @@ functions:
     - sentry_options_set_auto_session_tracking
     - sentry_options_set_dist
     - sentry_options_set_max_breadcrumbs
+    - sentry_options_set_handler_path
     - sentry_set_user
     - sentry_remove_user
     - sentry_add_breadcrumb

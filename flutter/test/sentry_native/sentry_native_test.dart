@@ -26,6 +26,8 @@ void main() {
   setUpAll(() async {
     Directory.current =
         await _buildSentryNative('$repoRootDir/temp/native-test');
+    SentryNative.crashpadPath =
+        '${Directory.current.path}/crashpad_handler.exe';
   });
 
   late SentryNative sut;
@@ -39,8 +41,6 @@ void main() {
       ..fileSystem = MemoryFileSystem.test();
     sut = createBinding(options) as SentryNative;
   });
-
-  tearDown(() => sut.close());
 
   test('options', () {
     options
@@ -91,7 +91,7 @@ void main() {
   });
 
   test('init', () async {
-    // There's nothing we can check here - just that it doesn't crash.
+    addTearDown(sut.close);
     await sut.init(MockHub());
   });
 

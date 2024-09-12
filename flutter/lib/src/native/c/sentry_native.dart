@@ -23,6 +23,9 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   static late final native =
       binding.SentryNative(DynamicLibrary.open('sentry.dll'));
 
+  @visibleForTesting
+  static String? crashpadPath;
+
   SentryNative(this.options);
 
   void _logNotSupported(String operation) => options.logger(
@@ -63,13 +66,20 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
         options.logger(SentryLevel.warning,
             'SentryNative: setting a proxy is currently not supported');
       }
+
+      if (crashpadPath != null) {
+        native.options_set_handler_path(cOptions, c.str(crashpadPath));
+      }
+
       return cOptions;
     } finally {
       c.freeAll();
     }
   }
 
-  FutureOr<void> close() => native.close();
+  FutureOr<void> close() {
+    tryCatchSync('close', native.close);
+  }
 
   FutureOr<NativeAppStart?> fetchNativeAppStart() => null;
 
@@ -166,7 +176,7 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   }
 
   FutureOr<void> removeTag(String key) {
-    tryCatchSync('set_tag', () {
+    tryCatchSync('remove_tag', () {
       final cKey = key.toNativeUtf8();
       native.remove_tag(cKey.cast());
       malloc.free(cKey);
