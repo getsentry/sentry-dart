@@ -75,6 +75,9 @@ class PlatformMemory {
       }
     } catch (e) {
       options.logger(SentryLevel.warning, "Failed to run process: $e");
+      if (options.automatedTestMode) {
+        rethrow;
+      }
     }
     return null;
   }

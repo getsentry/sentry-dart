@@ -55,6 +55,7 @@ class SentryBaggage {
           exception: exception,
           stackTrace: stackTrace,
         );
+        // TODO rehtow in automatedTestMode
       }
     }
 

@@ -28,6 +28,10 @@ class FileSystemTransport implements Transport {
         exception: exception,
         stackTrace: stackTrace,
       );
+      // ignore: invalid_use_of_internal_member
+      if (_options.automatedTestMode) {
+        rethrow;
+      }
       return SentryId.empty();
     }
 

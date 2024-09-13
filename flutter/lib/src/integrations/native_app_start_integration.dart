@@ -155,6 +155,9 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
         } catch (e) {
           _hub.options.logger(
               SentryLevel.warning, 'Failed to parse native span times: $e');
+          if (_hub.options.automatedTestMode) {
+            rethrow;
+          }
           continue;
         }
       }
