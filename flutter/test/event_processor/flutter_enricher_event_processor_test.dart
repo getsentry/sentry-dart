@@ -368,18 +368,14 @@ void main() {
 
     testWidgets('$FlutterEnricherEventProcessor gets added on init',
         (tester) async {
-      late SentryFlutterOptions sentryOptions;
+      final sentryOptions = SentryFlutterOptions()
+        // use a mockplatform checker so that we don't need to mock platform channels
+        ..platformChecker = MockPlatformChecker(hasNativeIntegration: false);
+
       loadTestPackage();
       await SentryFlutter.init((options) {
         options.dsn = fakeDsn;
-        sentryOptions = options;
-      },
-          appRunner: () {},
-          // use a mockplatform checker so that
-          // we don't need to mock platform channels
-          platformChecker: MockPlatformChecker(
-            hasNativeIntegration: false,
-          ));
+      }, appRunner: () {}, options: sentryOptions);
       await Sentry.close();
 
       final ioEnricherCount = sentryOptions.eventProcessors

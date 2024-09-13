@@ -27,12 +27,13 @@ void main() {
       late MockMethodChannel channel;
 
       setUp(() {
+        channel = MockMethodChannel();
         final options = SentryFlutterOptions(
             dsn: fakeDsn, checker: getPlatformChecker(platform: mockPlatform))
           // ignore: invalid_use_of_internal_member
-          ..automatedTestMode = true;
-        channel = MockMethodChannel();
-        sut = createBinding(options, channel: channel);
+          ..automatedTestMode = true
+          ..methodChannel = channel;
+        sut = createBinding(options);
       });
 
       // TODO move other methods here, e.g. init_native_sdk_test.dart

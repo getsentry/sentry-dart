@@ -203,8 +203,8 @@ SentryFlutterOptions createOptions() {
 
 class Fixture {
   late SentryFlutterOptions options;
-  SentryNativeChannel getSut(MethodChannel native) {
-    options = createOptions();
-    return SentryNativeChannel(options, native);
+  SentryNativeChannel getSut(MethodChannel channel) {
+    options = createOptions()..methodChannel = channel;
+    return SentryNativeChannel(options);
   }
 }

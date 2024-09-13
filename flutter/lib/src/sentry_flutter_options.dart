@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:file/file.dart';
 import 'package:file/local.dart';
+import 'package:flutter/services.dart';
 import 'package:meta/meta.dart' as meta;
 import 'package:sentry/sentry.dart';
 import 'package:flutter/widgets.dart';
@@ -223,6 +224,9 @@ class SentryFlutterOptions extends SentryOptions {
 
   @meta.internal
   late RendererWrapper rendererWrapper = RendererWrapper();
+
+  @meta.internal
+  late MethodChannel methodChannel = const MethodChannel('sentry_flutter');
 
   /// Enables the View Hierarchy feature.
   ///
