@@ -307,7 +307,7 @@ void main() {
 
 class Fixture {
   final hub = MockHub();
-  final options = SentryFlutterOptions(dsn: fakeDsn)..tracesSampleRate = 1.0;
+  final options = defaultTestOptions()..tracesSampleRate = 1.0;
 
   FlutterErrorIntegration getSut() {
     return FlutterErrorIntegration();

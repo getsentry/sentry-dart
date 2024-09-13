@@ -10,6 +10,7 @@ import 'package:test/test.dart';
 
 import 'mocks.dart';
 import 'mocks/mock_hub.dart';
+import 'test_utils.dart';
 
 void main() {
   group('SentryEnvelope', () {
@@ -51,7 +52,9 @@ void main() {
           '$expectedHeaderJsonSerialized\n$expectedItemSerialized\n$expectedItemSerialized');
 
       final envelopeData = <int>[];
-      await sut.envelopeStream(SentryOptions()).forEach(envelopeData.addAll);
+      await sut
+          .envelopeStream(defaultTestOptions())
+          .forEach(envelopeData.addAll);
       expect(envelopeData, expected);
     });
 
@@ -213,12 +216,12 @@ void main() {
 
       final sutEnvelopeData = <int>[];
       await sut
-          .envelopeStream(SentryOptions()..maxAttachmentSize = 1)
+          .envelopeStream(defaultTestOptions()..maxAttachmentSize = 1)
           .forEach(sutEnvelopeData.addAll);
 
       final envelopeData = <int>[];
       await expectedEnvelopeItem
-          .envelopeStream(SentryOptions())
+          .envelopeStream(defaultTestOptions())
           .forEach(envelopeData.addAll);
 
       expect(sutEnvelopeData, envelopeData);
@@ -238,7 +241,7 @@ void main() {
         dsn: fakeDsn,
       );
 
-      final _ = sut.envelopeStream(SentryOptions()).map((e) => e);
+      final _ = sut.envelopeStream(defaultTestOptions()).map((e) => e);
     });
   });
 }

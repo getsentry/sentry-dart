@@ -2,9 +2,9 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:test/test.dart';
 
-import 'mocks.dart';
 import 'mocks/mock_hub.dart';
 import 'mocks/mock_sentry_client.dart';
+import 'test_utils.dart';
 
 void main() {
   group('$SentryTracer', () {
@@ -608,7 +608,7 @@ void main() {
 }
 
 class Fixture {
-  final options = SentryOptions(dsn: fakeDsn)
+  final options = defaultTestOptions()
     ..release = 'release'
     ..environment = 'environment';
 

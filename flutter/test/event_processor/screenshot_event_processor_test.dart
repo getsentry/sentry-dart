@@ -180,7 +180,7 @@ void main() {
 
 class Fixture {
   late Hub hub;
-  SentryFlutterOptions options = SentryFlutterOptions(dsn: fakeDsn);
+  SentryFlutterOptions options = defaultTestOptions();
 
   Fixture() {
     options.attachScreenshot = true;

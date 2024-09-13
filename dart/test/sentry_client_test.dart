@@ -24,6 +24,7 @@ import 'mocks/mock_hub.dart';
 import 'mocks/mock_platform.dart';
 import 'mocks/mock_platform_checker.dart';
 import 'mocks/mock_transport.dart';
+import 'test_utils.dart';
 
 void main() {
   group('SentryClient captures message', () {
@@ -1884,7 +1885,7 @@ class Fixture {
   final recorder = MockClientReportRecorder();
   final transport = MockTransport();
 
-  final options = SentryOptions(dsn: fakeDsn)
+  final options = defaultTestOptions()
     ..platformChecker = MockPlatformChecker(platform: MockPlatform.iOS());
 
   late SentryTransactionContext _context;

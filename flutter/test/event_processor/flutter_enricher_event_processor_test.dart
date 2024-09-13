@@ -368,7 +368,7 @@ void main() {
 
     testWidgets('$FlutterEnricherEventProcessor gets added on init',
         (tester) async {
-      final sentryOptions = SentryFlutterOptions()
+      final sentryOptions = defaultTestOptions()
         // use a mockplatform checker so that we don't need to mock platform channels
         ..platformChecker = MockPlatformChecker(hasNativeIntegration: false);
 
@@ -417,10 +417,9 @@ class Fixture {
           hasNativeIntegration: hasNativeIntegration,
         );
 
-    final options = SentryFlutterOptions(
-      dsn: fakeDsn,
-      checker: platformChecker,
-    )..reportPackages = reportPackages;
+    final options = defaultTestOptions()
+      ..platformChecker = platformChecker
+      ..reportPackages = reportPackages;
     final customizedOptions = optionsBuilder?.call(options) ?? options;
     return FlutterEnricherEventProcessor(customizedOptions);
   }

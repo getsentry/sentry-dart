@@ -1,9 +1,9 @@
 import 'package:test/test.dart';
-import 'package:sentry/sentry.dart';
 import 'package:sentry/src/debug_image_extractor.dart';
 
 import 'mocks/mock_platform.dart';
 import 'mocks/mock_platform_checker.dart';
+import 'test_utils.dart';
 
 void main() {
   group(DebugImageExtractor, () {
@@ -112,7 +112,7 @@ isolate_dso_base: 10000000
 
 class Fixture {
   DebugImageExtractor getSut({required MockPlatform platform}) {
-    final options = SentryOptions(dsn: 'https://public@sentry.example.com/1')
+    final options = defaultTestOptions()
       ..platformChecker = MockPlatformChecker(platform: platform);
     return DebugImageExtractor(options);
   }

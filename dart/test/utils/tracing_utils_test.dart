@@ -2,8 +2,8 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:test/test.dart';
 
-import '../mocks.dart';
 import '../mocks/mock_sentry_client.dart';
+import '../test_utils.dart';
 
 void main() {
   group('$containsTargetOrMatchesRegExp', () {
@@ -167,7 +167,7 @@ class Fixture {
     ),
   );
 
-  final _options = SentryOptions(dsn: fakeDsn)
+  final _options = defaultTestOptions()
     ..release = 'release'
     ..environment = 'environment';
 

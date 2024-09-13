@@ -2,14 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:sentry/sentry.dart';
 import 'package:sentry/src/origin.dart';
 import 'package:sentry/src/sentry_stack_trace_factory.dart';
 import 'package:stack_trace/stack_trace.dart';
 import 'package:test/test.dart';
 
-import 'mocks.dart';
 import 'mocks/mock_platform_checker.dart';
+import 'test_utils.dart';
 
 void main() {
   group('encodeStackTraceFrame', () {
@@ -300,8 +299,8 @@ class Fixture {
     bool considerInAppFramesByDefault = true,
     bool isWeb = false,
   }) {
-    final options = SentryOptions(
-        dsn: fakeDsn, checker: MockPlatformChecker(isWebValue: isWeb));
+    final options = defaultTestOptions()
+      ..platformChecker = MockPlatformChecker(isWebValue: isWeb);
     inAppIncludes.forEach(options.addInAppInclude);
     inAppExcludes.forEach(options.addInAppExclude);
     options.considerInAppFramesByDefault = considerInAppFramesByDefault;

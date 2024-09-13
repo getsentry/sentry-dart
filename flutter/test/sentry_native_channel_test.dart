@@ -28,10 +28,8 @@ void main() {
 
       setUp(() {
         channel = MockMethodChannel();
-        final options = SentryFlutterOptions(
-            dsn: fakeDsn, checker: getPlatformChecker(platform: mockPlatform))
-          // ignore: invalid_use_of_internal_member
-          ..automatedTestMode = true
+        final options = defaultTestOptions()
+          ..platformChecker = getPlatformChecker(platform: mockPlatform)
           ..methodChannel = channel;
         sut = createBinding(options);
       });
