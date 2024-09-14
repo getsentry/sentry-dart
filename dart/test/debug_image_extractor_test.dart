@@ -112,8 +112,7 @@ isolate_dso_base: 10000000
 
 class Fixture {
   DebugImageExtractor getSut({required MockPlatform platform}) {
-    final options = defaultTestOptions()
-      ..platformChecker = MockPlatformChecker(platform: platform);
+    final options = defaultTestOptions(MockPlatformChecker(platform: platform));
     return DebugImageExtractor(options);
   }
 }

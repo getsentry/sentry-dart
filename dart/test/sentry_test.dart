@@ -372,8 +372,7 @@ void main() {
   });
 
   test('options.environment debug', () async {
-    final sentryOptions = defaultTestOptions()
-      ..platformChecker = FakePlatformChecker.debugMode();
+    final sentryOptions = defaultTestOptions(FakePlatformChecker.debugMode());
     await Sentry.init(
       (options) {
         options.dsn = fakeDsn;
@@ -385,8 +384,7 @@ void main() {
   });
 
   test('options.environment profile', () async {
-    final sentryOptions = defaultTestOptions()
-      ..platformChecker = FakePlatformChecker.profileMode();
+    final sentryOptions = defaultTestOptions(FakePlatformChecker.profileMode());
 
     await Sentry.init(
       (options) {
@@ -399,8 +397,7 @@ void main() {
   });
 
   test('options.environment production (defaultEnvironment)', () async {
-    final sentryOptions = defaultTestOptions()
-      ..platformChecker = FakePlatformChecker.releaseMode();
+    final sentryOptions = defaultTestOptions(FakePlatformChecker.releaseMode());
     await Sentry.init(
       (options) {
         options.dsn = fakeDsn;
@@ -412,8 +409,7 @@ void main() {
   });
 
   test('options.logger is set by setting the debug flag', () async {
-    final sentryOptions = defaultTestOptions()
-      ..platformChecker = FakePlatformChecker.debugMode();
+    final sentryOptions = defaultTestOptions(FakePlatformChecker.debugMode());
 
     await Sentry.init(
       (options) {

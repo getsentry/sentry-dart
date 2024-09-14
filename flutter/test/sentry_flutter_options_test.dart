@@ -6,8 +6,8 @@ void main() {
   group('SentryFlutterOptions', () {
     testWidgets('auto breadcrumb tracking: has native integration',
         (WidgetTester tester) async {
-      final options = defaultTestOptions()
-        ..platformChecker = MockPlatformChecker(hasNativeIntegration: true);
+      final options =
+          defaultTestOptions(MockPlatformChecker(hasNativeIntegration: true));
 
       expect(options.enableAppLifecycleBreadcrumbs, isFalse);
       expect(options.enableWindowMetricBreadcrumbs, isFalse);
@@ -19,8 +19,8 @@ void main() {
 
     testWidgets('auto breadcrumb tracking: without native integration',
         (WidgetTester tester) async {
-      final options = defaultTestOptions()
-        ..platformChecker = MockPlatformChecker(hasNativeIntegration: false);
+      final options =
+          defaultTestOptions(MockPlatformChecker(hasNativeIntegration: false));
 
       expect(options.enableAppLifecycleBreadcrumbs, isTrue);
       expect(options.enableWindowMetricBreadcrumbs, isTrue);

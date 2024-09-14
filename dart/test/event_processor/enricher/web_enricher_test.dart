@@ -202,8 +202,8 @@ void main() {
 
 class Fixture {
   WebEnricherEventProcessor getSut() {
-    final options = defaultTestOptions()
-      ..platformChecker = MockPlatformChecker(hasNativeIntegration: false);
+    final options =
+        defaultTestOptions(MockPlatformChecker(hasNativeIntegration: false));
     return enricherEventProcessor(options) as WebEnricherEventProcessor;
   }
 }

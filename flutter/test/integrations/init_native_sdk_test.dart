@@ -189,7 +189,7 @@ MethodChannel createChannelWithCallback(
 
 SentryFlutterOptions createOptions() {
   final mockPlatformChecker = MockPlatformChecker(hasNativeIntegration: true);
-  final options = defaultTestOptions()..platformChecker = mockPlatformChecker;
+  final options = defaultTestOptions(mockPlatformChecker);
   options.sdk = SdkVersion(
     name: sdkName,
     version: sdkVersion,

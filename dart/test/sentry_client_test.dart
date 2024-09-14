@@ -1896,8 +1896,8 @@ class Fixture {
   final recorder = MockClientReportRecorder();
   final transport = MockTransport();
 
-  final options = defaultTestOptions()
-    ..platformChecker = MockPlatformChecker(platform: MockPlatform.iOS());
+  final options =
+      defaultTestOptions(MockPlatformChecker(platform: MockPlatform.iOS()));
 
   late SentryTransactionContext _context;
   late SentryTracer tracer;

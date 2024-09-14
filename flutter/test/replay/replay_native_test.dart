@@ -58,13 +58,8 @@ void main() {
           ..createSync(recursive: true);
 
         native = NativeChannelFixture();
-        when(native.handler('initNativeSdk', any))
-            .thenAnswer((_) => Future.value());
-        when(native.handler('closeNativeSdk', any))
-            .thenAnswer((_) => Future.value());
 
-        options = defaultTestOptions()
-          ..platformChecker = MockPlatformChecker(mockPlatform: mockPlatform)
+        options = defaultTestOptions(MockPlatformChecker(mockPlatform: mockPlatform))
           ..fileSystem = fs
           ..methodChannel = native.channel;
 

@@ -28,9 +28,9 @@ void main() {
 
       setUp(() {
         channel = MockMethodChannel();
-        final options = defaultTestOptions()
-          ..platformChecker = getPlatformChecker(platform: mockPlatform)
-          ..methodChannel = channel;
+        final options =
+            defaultTestOptions(getPlatformChecker(platform: mockPlatform))
+              ..methodChannel = channel;
         sut = createBinding(options);
       });
 

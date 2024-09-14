@@ -186,9 +186,8 @@ class Fixture {
     bool hasNativeIntegration = false,
     bool includePii = false,
   }) {
-    final options = defaultTestOptions()
-      ..platformChecker =
-          MockPlatformChecker(hasNativeIntegration: hasNativeIntegration)
+    final options = defaultTestOptions(
+        MockPlatformChecker(hasNativeIntegration: hasNativeIntegration))
       ..sendDefaultPii = includePii;
 
     return IoEnricherEventProcessor(options);

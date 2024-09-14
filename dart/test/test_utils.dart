@@ -18,8 +18,9 @@ const String _testDsnWithPath =
 const String _testDsnWithPort =
     'https://public:secret@sentry.example.com:8888/1';
 
-SentryOptions defaultTestOptions() {
-  return SentryOptions(dsn: testDsn)..automatedTestMode = true;
+SentryOptions defaultTestOptions([PlatformChecker? checker]) {
+  return SentryOptions(dsn: testDsn, checker: checker)
+    ..automatedTestMode = true;
 }
 
 void testHeaders(

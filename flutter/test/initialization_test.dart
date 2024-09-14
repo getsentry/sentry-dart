@@ -10,25 +10,22 @@ import 'mocks.dart';
 // https://github.com/getsentry/sentry-dart/issues/508
 // There are no asserts, test are succesfull if no exceptions are thrown.
 void main() {
-  setUp(() async {
-    await Sentry.close();
-  });
+  final native = NativeChannelFixture();
 
   void optionsInitializer(SentryFlutterOptions options) {
-    options.dsn = fakeDsn;
-    options.automatedTestMode = true;
-
     // LoadReleaseIntegration throws because package_info channel is not available
     options.removeIntegration(
         options.integrations.firstWhere((i) => i is LoadReleaseIntegration));
   }
 
   test('async re-initilization', () async {
-    await SentryFlutter.init(optionsInitializer);
+    await SentryFlutter.init(optionsInitializer,
+        options: defaultTestOptions()..methodChannel = native.channel);
 
     await Sentry.close();
 
-    await SentryFlutter.init(optionsInitializer);
+    await SentryFlutter.init(optionsInitializer,
+        options: defaultTestOptions()..methodChannel = native.channel);
 
     await Sentry.close();
   });

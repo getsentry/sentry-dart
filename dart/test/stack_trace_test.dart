@@ -299,8 +299,7 @@ class Fixture {
     bool considerInAppFramesByDefault = true,
     bool isWeb = false,
   }) {
-    final options = defaultTestOptions()
-      ..platformChecker = MockPlatformChecker(isWebValue: isWeb);
+    final options = defaultTestOptions(MockPlatformChecker(isWebValue: isWeb));
     inAppIncludes.forEach(options.addInAppInclude);
     inAppExcludes.forEach(options.addInAppExclude);
     options.considerInAppFramesByDefault = considerInAppFramesByDefault;
