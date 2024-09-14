@@ -59,9 +59,10 @@ void main() {
 
         native = NativeChannelFixture();
 
-        options = defaultTestOptions(MockPlatformChecker(mockPlatform: mockPlatform))
-          ..fileSystem = fs
-          ..methodChannel = native.channel;
+        options =
+            defaultTestOptions(MockPlatformChecker(mockPlatform: mockPlatform))
+              ..fileSystem = fs
+              ..methodChannel = native.channel;
 
         sut = createBinding(options);
       });
