@@ -73,15 +73,23 @@ mixin SentryFlutter {
     final platformDispatcher = PlatformDispatcher.instance;
     final wrapper = PlatformDispatcherWrapper(platformDispatcher);
 
-    // Flutter Web don't capture [Future] errors if using [PlatformDispatcher.onError] and not
+    // Flutter Web doesn't capture [Future] errors if using [PlatformDispatcher.onError] and not
     // the [runZonedGuarded].
     // likely due to https://github.com/flutter/flutter/issues/100277
-    final isOnErrorSupported = flutterOptions.platformChecker.isWeb
-        ? false
-        : wrapper.isOnErrorSupported(flutterOptions);
+    final bool isOnErrorSupported = !flutterOptions.platformChecker.isWeb &&
+        wrapper.isOnErrorSupported(flutterOptions);
 
-    final runZonedGuardedOnError = flutterOptions.platformChecker.isWeb
-        ? _createRunZonedGuardedOnError()
+    final bool customZoneExists = Zone.current != Zone.root;
+
+    // If onError is not supported and no custom zone exists, use runZonedGuarded to capture errors.
+    final bool useRunZonedGuarded = !isOnErrorSupported && !customZoneExists;
+
+    // Retrieve the onError callback set by the user if a custom zone exists.
+    final RunZonedGuardedOnError? additionalOnError =
+        customZoneExists ? Zone.current.handleUncaughtError : null;
+
+    RunZonedGuardedOnError? runZonedGuardedOnError = useRunZonedGuarded
+        ? _createRunZonedGuardedOnError(additionalOnError: additionalOnError)
         : null;
 
     // first step is to install the native integration and set default values,
@@ -105,7 +113,7 @@ mixin SentryFlutter {
       // ignore: invalid_use_of_internal_member
       options: flutterOptions,
       // ignore: invalid_use_of_internal_member
-      callAppRunnerInRunZonedGuarded: !isOnErrorSupported,
+      callAppRunnerInRunZonedGuarded: useRunZonedGuarded,
       // ignore: invalid_use_of_internal_member
       runZonedGuardedOnError: runZonedGuardedOnError,
     );
@@ -214,13 +222,19 @@ mixin SentryFlutter {
     return integrations;
   }
 
-  static RunZonedGuardedOnError _createRunZonedGuardedOnError() {
+  static RunZonedGuardedOnError _createRunZonedGuardedOnError({
+    RunZonedGuardedOnError? additionalOnError,
+  }) {
     return (Object error, StackTrace stackTrace) async {
       final errorDetails = FlutterErrorDetails(
         exception: error,
         stack: stackTrace,
       );
       FlutterError.dumpErrorToConsole(errorDetails, forceReport: true);
+
+      if (additionalOnError != null) {
+        additionalOnError(error, stackTrace);
+      }
     };
   }
 
