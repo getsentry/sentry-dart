@@ -543,6 +543,7 @@ void main() {
     });
 
     test('captureEvent should handle thrown error in scope callback', () async {
+      fixture.options.automatedTestMode = false;
       final hub = fixture.getSut(debug: true);
       final scopeCallbackException = Exception('error in scope callback');
 
@@ -558,6 +559,7 @@ void main() {
 
     test('captureException should handle thrown error in scope callback',
         () async {
+      fixture.options.automatedTestMode = false;
       final hub = fixture.getSut(debug: true);
       final scopeCallbackException = Exception('error in scope callback');
 
@@ -574,6 +576,7 @@ void main() {
 
     test('captureMessage should handle thrown error in scope callback',
         () async {
+      fixture.options.automatedTestMode = false;
       final hub = fixture.getSut(debug: true);
       final scopeCallbackException = Exception('error in scope callback');
 

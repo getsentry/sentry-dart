@@ -142,7 +142,7 @@ void main() {
   });
 
   test('captureUserFeedback does not throw', () async {
-    final options = defaultTestOptions();
+    final options = defaultTestOptions()..automatedTestMode = false;
     final transport = ThrowingTransport();
     options.transport = transport;
     final sut = Hub(options);

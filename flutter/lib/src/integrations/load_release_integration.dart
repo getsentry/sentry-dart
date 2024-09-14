@@ -46,7 +46,6 @@ class LoadReleaseIntegration extends Integration<SentryFlutterOptions> {
         exception: exception,
         stackTrace: stackTrace,
       );
-      // ignore: invalid_use_of_internal_member
       if (options.automatedTestMode) {
         rethrow;
       }

@@ -90,6 +90,7 @@ void main() {
       ExceptionBCauseExtractor(),
     );
 
+    fixture.options.automatedTestMode = false;
     final sut = fixture.getSut();
 
     final flattened = sut.flatten(errorA, null);

@@ -402,6 +402,7 @@ void main() {
     });
 
     test('emits if it throws', () async {
+      fixture.options.automatedTestMode = false;
       final MetricsAggregator sut = fixture.getSut(maxWeight: 4);
       fixture.options.beforeMetricCallback = (key, {tags}) => throw Exception();
       sut.testEmit(key: 'key1');

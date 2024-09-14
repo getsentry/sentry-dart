@@ -1255,6 +1255,7 @@ void main() {
         throw exception;
       };
 
+      fixture.options.automatedTestMode = false;
       final client = fixture.getSut(
           beforeSendTransaction: beforeSendTransactionCallback, debug: true);
       final fakeTransaction = fixture.fakeTransaction();
@@ -1317,6 +1318,7 @@ void main() {
         throw exception;
       };
 
+      fixture.options.automatedTestMode = false;
       final client =
           fixture.getSut(beforeSend: beforeSendCallback, debug: true);
 

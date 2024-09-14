@@ -143,7 +143,6 @@ class PlatformDispatcherWrapper {
         exception: exception,
         stackTrace: stacktrace,
       );
-      // ignore: invalid_use_of_internal_member
       if (options.automatedTestMode) {
         rethrow;
       }

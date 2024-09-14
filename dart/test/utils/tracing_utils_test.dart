@@ -125,7 +125,7 @@ void main() {
       addBaggageHeaderFromSpan(sut, headers);
 
       expect(headers[baggage!.name],
-          'other-vendor-value=foo,sentry-trace_id=${sut.context.traceId},sentry-public_key=abc,sentry-release=release,sentry-environment=environment,sentry-user_segment=segment,sentry-transaction=name,sentry-sample_rate=1,sentry-sampled=true');
+          'other-vendor-value=foo,sentry-trace_id=${sut.context.traceId},sentry-public_key=public,sentry-release=release,sentry-environment=environment,sentry-user_segment=segment,sentry-transaction=name,sentry-sample_rate=1,sentry-sampled=true');
     });
   });
 

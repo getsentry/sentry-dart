@@ -718,6 +718,7 @@ void main() {
     test("addBreadcrumb with beforeBreadcrumb error handled ", () async {
       final exception = Exception("before breadcrumb exception");
 
+      fixture.options.automatedTestMode = false;
       final sut = fixture.getSut(
           beforeBreadcrumbCallback: (
             Breadcrumb? breadcrumb,
@@ -742,6 +743,7 @@ void main() {
       var numberOfBeforeBreadcrumbCalls = 0;
       final exception = Exception("before breadcrumb exception");
 
+      fixture.options.automatedTestMode = false;
       final sut = fixture.getSut(
           beforeBreadcrumbCallback: (
             Breadcrumb? breadcrumb,

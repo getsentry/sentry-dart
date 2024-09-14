@@ -81,6 +81,7 @@ void main() {
   });
 
   test('tracesSampler exception is handled', () {
+    fixture.options.automatedTestMode = false;
     final sut = fixture.getSut(debug: true);
 
     final exception = Exception("tracesSampler exception");

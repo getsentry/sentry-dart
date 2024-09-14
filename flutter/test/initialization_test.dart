@@ -16,7 +16,6 @@ void main() {
 
   void optionsInitializer(SentryFlutterOptions options) {
     options.dsn = fakeDsn;
-    // ignore: invalid_use_of_internal_member
     options.automatedTestMode = true;
 
     // LoadReleaseIntegration throws because package_info channel is not available

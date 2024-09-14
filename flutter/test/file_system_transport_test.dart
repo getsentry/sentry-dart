@@ -40,6 +40,7 @@ void main() {
   });
 
   test('$FileSystemTransport returns emptyId if channel throws', () async {
+    fixture.options.automatedTestMode = false;
     when(fixture.binding.captureEnvelope(any, false)).thenThrow(Exception());
 
     final transport = fixture.getSut();

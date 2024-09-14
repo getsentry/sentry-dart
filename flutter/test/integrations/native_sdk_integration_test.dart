@@ -25,7 +25,6 @@ void main() {
     });
 
     test('does not throw', () async {
-      // ignore: invalid_use_of_internal_member
       fixture.options.automatedTestMode = false;
 
       fixture.sut = NativeSdkIntegration(_ThrowingMockSentryNative());

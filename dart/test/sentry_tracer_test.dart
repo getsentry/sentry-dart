@@ -521,7 +521,7 @@ void main() {
 
       final newBaggage = SentryBaggage.fromHeader(baggage.value);
       expect(newBaggage.get('sentry-trace_id'), sut.context.traceId.toString());
-      expect(newBaggage.get('sentry-public_key'), 'abc');
+      expect(newBaggage.get('sentry-public_key'), 'public');
       expect(newBaggage.get('sentry-release'), 'release');
       expect(newBaggage.get('sentry-environment'), 'environment');
       expect(newBaggage.get('sentry-user_segment'), 'segment');
@@ -595,7 +595,7 @@ void main() {
       final context = sut.traceContext();
 
       expect(context!.traceId, sut.context.traceId);
-      expect(context.publicKey, 'abc');
+      expect(context.publicKey, 'public');
       expect(context.release, 'release');
       expect(context.environment, 'environment');
       // ignore: deprecated_member_use_from_same_package

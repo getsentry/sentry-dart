@@ -212,7 +212,6 @@ class _LoadContextsIntegrationEventProcessor implements EventProcessor {
         exception: exception,
         stackTrace: stackTrace,
       );
-      // ignore: invalid_use_of_internal_member
       if (_options.automatedTestMode) {
         rethrow;
       }

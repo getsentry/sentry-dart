@@ -58,7 +58,6 @@ class AndroidPlatformExceptionEventProcessor implements EventProcessor {
         exception: e,
         stackTrace: stackTrace,
       );
-      // ignore: invalid_use_of_internal_member
       if (_options.automatedTestMode) {
         rethrow;
       }

@@ -30,14 +30,14 @@ void main() {
         options: options,
       );
 
-      expect(options.dsn, fakeDsn);
+      expect(options.dsn, testDsn);
       expect(options.environment, 'prod');
       expect(options.release, 'release-1.2.3');
       expect(options.dist, 'foo');
     });
 
     test('SentryOptions are overriden by environment', () async {
-      final options = defaultTestOptions();
+      final options = defaultTestOptions()..dsn = null;
       options.environmentVariables = MockEnvironmentVariables(
         dsn: fakeDsn,
         environment: 'staging',
