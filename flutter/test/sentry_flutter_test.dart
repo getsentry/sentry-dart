@@ -550,7 +550,9 @@ void main() {
 
       final sentryFlutterOptions = defaultTestOptions(
           getPlatformChecker(platform: MockPlatform.iOs(), isWeb: true))
-        ..rendererWrapper = MockRendererWrapper(FlutterRenderer.canvasKit);
+        ..rendererWrapper = MockRendererWrapper(FlutterRenderer.canvasKit)
+        ..release = ''
+        ..dist = '';
 
       await SentryFlutter.init(
         (options) async {
@@ -574,7 +576,9 @@ void main() {
 
       final sentryFlutterOptions = defaultTestOptions(
           getPlatformChecker(platform: MockPlatform.iOs(), isWeb: true))
-        ..rendererWrapper = MockRendererWrapper(FlutterRenderer.html);
+        ..rendererWrapper = MockRendererWrapper(FlutterRenderer.html)
+        ..release = ''
+        ..dist = '';
 
       await SentryFlutter.init(
         (options) async {
