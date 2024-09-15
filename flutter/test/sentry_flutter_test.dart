@@ -524,7 +524,9 @@ void main() {
       final sentryFlutterOptions = defaultTestOptions(
           getPlatformChecker(platform: MockPlatform.iOs(), isWeb: false))
         ..methodChannel = native.channel
-        ..rendererWrapper = MockRendererWrapper(FlutterRenderer.skia);
+        ..rendererWrapper = MockRendererWrapper(FlutterRenderer.skia)
+        ..release = ''
+        ..dist = '';
 
       await SentryFlutter.init(
         (options) async {
