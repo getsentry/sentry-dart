@@ -214,3 +214,17 @@ class NativeChannelFixture {
         channel.name, call, (ByteData? data) {});
   }
 }
+
+typedef EventProcessorFunction = SentryEvent? Function(
+    SentryEvent event, Hint hint);
+
+class FunctionEventProcessor implements EventProcessor {
+  FunctionEventProcessor(this.applyFunction);
+
+  final EventProcessorFunction applyFunction;
+
+  @override
+  SentryEvent? apply(SentryEvent event, Hint hint) {
+    return applyFunction(event, hint);
+  }
+}

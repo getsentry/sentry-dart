@@ -83,6 +83,8 @@ void main() {
 
       final options = defaultTestOptions();
       options.tracesSampleRate = 1;
+      // Drop events, otherwise sentry tries to send them to the test DSN.
+      options.addEventProcessor(FunctionEventProcessor((_, __) => null));
       final hub = Hub(options);
 
       when(mockBinding.endNativeFrames(any))
