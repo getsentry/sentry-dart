@@ -30,6 +30,25 @@ void main() {
       expect(fixture.transport.calls, 0);
     });
 
+    test('capture event with response body on error', () async {
+      fixture._hub.options.sendDefaultPii = true;
+      fixture._hub.options.maxResponseBodySize = MaxResponseBodySize.always;
+      String responseBody = "this is the response body";
+      int statusCode = 505;
+
+      final sut = fixture.getSut(
+        client: fixture.getClient(statusCode: statusCode, body: responseBody),
+      );
+      final response = await sut.get(requestUri);
+
+      expect(response.statusCode, statusCode);
+      expect(response.body, responseBody);
+      expect(fixture.transport.calls, 1);
+      expect(fixture.transport.events.length, 1);
+      expect(fixture.transport.events.first.contexts["response"].data,
+          responseBody);
+    });
+
     test('exception gets reported if client throws', () async {
       fixture._hub.options.captureFailedRequests = true;
       fixture._hub.options.sendDefaultPii = true;

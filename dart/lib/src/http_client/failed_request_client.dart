@@ -1,6 +1,7 @@
 import 'package:http/http.dart';
 import '../hint.dart';
 import '../type_check_hint.dart';
+import '../utils/http_deep_copy_streamed_response.dart';
 import '../utils/tracing_utils.dart';
 import 'sentry_http_client_error.dart';
 import '../protocol.dart';
@@ -100,14 +101,16 @@ class FailedRequestClient extends BaseClient {
     Object? exception;
     StackTrace? stackTrace;
     StreamedResponse? response;
+    List<StreamedResponse> copiedResponses = [];
 
     final stopwatch = Stopwatch();
     stopwatch.start();
 
     try {
       response = await _client.send(request);
-      statusCode = response.statusCode;
-      return response;
+      copiedResponses = await deepCopyStreamedResponse(response, 2);
+      statusCode = copiedResponses[0].statusCode;
+      return copiedResponses[0];
     } catch (e, st) {
       exception = e;
       stackTrace = st;
@@ -119,7 +122,7 @@ class FailedRequestClient extends BaseClient {
         statusCode,
         exception,
         stackTrace,
-        response,
+        copiedResponses.isNotEmpty ? copiedResponses[1] : null,
         stopwatch.elapsed,
       );
     }
@@ -209,10 +212,16 @@ class FailedRequestClient extends BaseClient {
     final hint = Hint.withMap({TypeCheckHint.httpRequest: request});
 
     if (response != null) {
+      final responseBody = await response.stream.bytesToString();
       event.contexts.response = SentryResponse(
         headers: _hub.options.sendDefaultPii ? response.headers : null,
         bodySize: response.contentLength,
         statusCode: response.statusCode,
+        data: _hub.options.sendDefaultPii &&
+                _hub.options.maxResponseBodySize
+                    .shouldAddBody(response.contentLength!)
+            ? responseBody
+            : null,
       );
       hint.set(TypeCheckHint.httpResponse, response);
     }
