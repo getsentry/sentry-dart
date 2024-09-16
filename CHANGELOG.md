@@ -134,7 +134,7 @@ SentryNavigatorObserver(ignoreRoutes: ["/ignoreThisRoute"]),
       (options) {
         options.dsn = 'https://example@sentry.io/add-your-dsn-here';
         options.proxy = SentryProxy(
-          type: SenryProxyType.http,
+          type: SentryProxyType.http,
           host: 'localhost',
           port: 8080,
         );
