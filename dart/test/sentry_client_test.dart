@@ -1816,7 +1816,8 @@ void main() {
     test(
         'Spotlight enabled should set transport to SpotlightHttpTransport on Linux',
         () async {
-      fixture.options.platformChecker = MockPlatformChecker(isWebValue: true);
+      fixture.options.platformChecker =
+          MockPlatformChecker(platform: MockPlatform.linux());
       fixture.options.spotlight = Spotlight(enabled: true);
       fixture.getSut();
 
