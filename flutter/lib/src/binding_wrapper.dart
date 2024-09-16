@@ -26,6 +26,9 @@ class BindingWrapper {
         stackTrace: s,
         logger: 'BindingWrapper',
       );
+      if (_hub.options.automatedTestMode) {
+        rethrow;
+      }
       return null;
     }
   }

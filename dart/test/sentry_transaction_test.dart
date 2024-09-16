@@ -4,6 +4,7 @@ import 'package:test/test.dart';
 
 import 'mocks.dart';
 import 'mocks/mock_hub.dart';
+import 'test_utils.dart';
 
 void main() {
   final fixture = Fixture();
@@ -108,7 +109,7 @@ void main() {
 }
 
 class Fixture {
-  final SentryOptions options = SentryOptions(dsn: fakeDsn);
+  final SentryOptions options = defaultTestOptions();
   late final Hub hub = Hub(options);
 
   SentryTransaction getSut(SentryTracer tracer) {

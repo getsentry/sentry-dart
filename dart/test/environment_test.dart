@@ -3,6 +3,7 @@ import 'package:test/test.dart';
 
 import 'mocks.dart';
 import 'mocks/mock_environment_variables.dart';
+import 'test_utils.dart';
 
 void main() {
   // See https://docs.sentry.io/platforms/dart/configuration/options/
@@ -13,7 +14,7 @@ void main() {
     });
 
     test('SentryOptions are not overriden by environment', () async {
-      final options = SentryOptions(dsn: fakeDsn);
+      final options = defaultTestOptions();
       options.release = 'release-1.2.3';
       options.dist = 'foo';
       options.environment = 'prod';
@@ -23,28 +24,26 @@ void main() {
         release: 'release-9.8.7',
         dist: 'bar',
       );
-      options.automatedTestMode = true;
 
       await Sentry.init(
         (options) => options,
         options: options,
       );
 
-      expect(options.dsn, fakeDsn);
+      expect(options.dsn, testDsn);
       expect(options.environment, 'prod');
       expect(options.release, 'release-1.2.3');
       expect(options.dist, 'foo');
     });
 
     test('SentryOptions are overriden by environment', () async {
-      final options = SentryOptions();
+      final options = defaultTestOptions()..dsn = null;
       options.environmentVariables = MockEnvironmentVariables(
         dsn: fakeDsn,
         environment: 'staging',
         release: 'release-9.8.7',
         dist: 'bar',
       );
-      options.automatedTestMode = true;
 
       await Sentry.init(
         (options) => options,

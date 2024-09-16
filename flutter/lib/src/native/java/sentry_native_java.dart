@@ -16,7 +16,7 @@ class SentryNativeJava extends SentryNativeChannel {
   ScheduledScreenshotRecorder? _replayRecorder;
   String? _replayCacheDir;
   _IdleFrameFiller? _idleFrameFiller;
-  SentryNativeJava(super.options, super.channel);
+  SentryNativeJava(super.options);
 
   @override
   Future<void> init(Hub hub) async {
@@ -139,7 +139,6 @@ class SentryNativeJava extends SentryNativeChannel {
         exception: error,
         stackTrace: stackTrace,
       );
-      // ignore: invalid_use_of_internal_member
       if (options.automatedTestMode) {
         rethrow;
       }
