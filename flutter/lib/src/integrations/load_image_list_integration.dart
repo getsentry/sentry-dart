@@ -5,10 +5,6 @@ import 'package:sentry/sentry.dart';
 import '../native/sentry_native_binding.dart';
 import '../sentry_flutter_options.dart';
 
-// ignore: implementation_imports
-import 'package:sentry/src/load_dart_debug_images_integration.dart'
-    show NeedsSymbolication;
-
 /// Loads the native debug image list for stack trace symbolication.
 class LoadImageListIntegration extends Integration<SentryFlutterOptions> {
   /// TODO: rename to LoadNativeDebugImagesIntegration in the next major version
