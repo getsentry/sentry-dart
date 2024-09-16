@@ -1,12 +1,9 @@
 import 'dart:typed_data';
 import 'package:meta/meta.dart';
-import 'package:uuid/uuid.dart';
 
 import '../sentry.dart';
 
 // Regular expressions for parsing header lines
-const String _headerStartLine =
-    '*** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***';
 final RegExp _buildIdRegex = RegExp(r"build_id(?:=|: )'([\da-f]+)'");
 final RegExp _isolateDsoBaseLineRegex =
     RegExp(r'isolate_dso_base(?:=|: )([\da-f]+)');
@@ -26,84 +23,42 @@ class DebugImageExtractor {
   DebugImage? get debugImageForTesting => _debugImage;
 
   DebugImage? extractFrom(String stackTraceString) {
-    if (_debugImage != null) {
-      return _debugImage;
-    }
-    _debugImage = _extractDebugInfoFrom(stackTraceString).toDebugImage();
+    _debugImage ??= _extractDebugInfoFrom(stackTraceString).toDebugImage();
     return _debugImage;
   }
 
   _DebugInfo _extractDebugInfoFrom(String stackTraceString) {
-    String? buildId;
-    String? isolateDsoBase;
+    final buildId = _buildIdRegex.firstMatch(stackTraceString)?.group(1);
+    final imageAddr =
+        _isolateDsoBaseLineRegex.firstMatch(stackTraceString)?.group(1);
 
-    final lines = stackTraceString.split('\n');
-
-    for (final line in lines) {
-      if (_isHeaderStartLine(line)) {
-        continue;
-      }
-      // Stop parsing as soon as we get to the stack frames
-      // This should never happen but is a safeguard to avoid looping
-      // through every line of the stack trace
-      if (line.contains("#00 abs")) {
-        break;
-      }
-
-      buildId ??= _extractBuildId(line);
-      isolateDsoBase ??= _extractIsolateDsoBase(line);
-
-      // Early return if all needed information is found
-      if (buildId != null && isolateDsoBase != null) {
-        return _DebugInfo(buildId, isolateDsoBase, _options);
-      }
-    }
-
-    return _DebugInfo(buildId, isolateDsoBase, _options);
-  }
-
-  bool _isHeaderStartLine(String line) {
-    return line.contains(_headerStartLine);
-  }
-
-  String? _extractBuildId(String line) {
-    final buildIdMatch = _buildIdRegex.firstMatch(line);
-    return buildIdMatch?.group(1);
-  }
-
-  String? _extractIsolateDsoBase(String line) {
-    final isolateMatch = _isolateDsoBaseLineRegex.firstMatch(line);
-    return isolateMatch?.group(1);
+    return _DebugInfo(buildId, imageAddr, _options);
   }
 }
 
 class _DebugInfo {
   final String? buildId;
-  final String? isolateDsoBase;
+  final String? imageAddr;
   final SentryOptions _options;
 
-  _DebugInfo(this.buildId, this.isolateDsoBase, this._options);
+  _DebugInfo(this.buildId, this.imageAddr, this._options);
 
   DebugImage? toDebugImage() {
-    if (buildId == null || isolateDsoBase == null) {
+    if (buildId == null || imageAddr == null) {
       _options.logger(SentryLevel.warning,
           'Cannot create DebugImage without buildId and isolateDsoBase.');
       return null;
     }
 
     String type;
-    String? imageAddr;
     String? debugId;
     String? codeId;
 
     final platform = _options.platformChecker.platform;
 
-    // Default values for all platforms
-    imageAddr = '0x$isolateDsoBase';
-
     if (platform.isAndroid) {
       type = 'elf';
-      debugId = _convertCodeIdToDebugId(buildId!);
+      debugId = _convertBuildIdToDebugId(buildId!);
       codeId = buildId;
     } else if (platform.isIOS || platform.isMacOS) {
       type = 'macho';
@@ -119,64 +74,39 @@ class _DebugInfo {
 
     return DebugImage(
       type: type,
-      imageAddr: imageAddr,
+      imageAddr: '0x$imageAddr',
       debugId: debugId,
       codeId: codeId,
     );
   }
 
-  // Debug identifier is the little-endian UUID representation of the first 16-bytes of
-  // the build ID on ELF images.
-  String? _convertCodeIdToDebugId(String codeId) {
-    codeId = codeId.replaceAll(' ', '');
-    if (codeId.length < 32) {
-      _options.logger(SentryLevel.warning,
-          'Code ID must be at least 32 hexadecimal characters long');
-      return null;
+  /// See https://github.com/getsentry/symbolic/blob/7dc28dd04c06626489c7536cfe8c7be8f5c48804/symbolic-debuginfo/src/elf.rs#L709-L734
+  /// Converts an ELF object identifier into a `DebugId`.
+  ///
+  /// The identifier data is first truncated or extended to match 16 byte size of
+  /// Uuids. If the data is declared in little endian, the first three Uuid fields
+  /// are flipped to match the big endian expected by the breakpad processor.
+  ///
+  /// The `DebugId::appendix` field is always `0` for ELF.
+  String? _convertBuildIdToDebugId(String buildId) {
+    // Make sure that we have exactly UUID_SIZE bytes available
+    const uuidSize = 16 * 2;
+    final data = Uint8List(uuidSize);
+    final len = buildId.length.clamp(0, uuidSize);
+    data.setAll(0, buildId.codeUnits.take(len));
+
+    if (Endian.host == Endian.little) {
+      // The file ELF file targets a little endian architecture. Convert to
+      // network byte order (big endian) to match the Breakpad processor's
+      // expectations. For big endian object files, this is not needed.
+      // To manipulate this as hex, we create an Uint16 view.
+      final data16 = Uint16List.view(data.buffer);
+      data16.setRange(0, 4, data16.sublist(0, 4).reversed);
+      data16.setRange(4, 6, data16.sublist(4, 6).reversed);
+      data16.setRange(6, 8, data16.sublist(6, 8).reversed);
     }
 
-    final first16Bytes = codeId.substring(0, 32);
-    final byteData = _parseHexToBytes(first16Bytes);
-
-    if (byteData == null || byteData.isEmpty) {
-      _options.logger(
-          SentryLevel.warning, 'Failed to convert code ID to debug ID');
-      return null;
-    }
-
-    return bigToLittleEndianUuid(UuidValue.fromByteList(byteData).uuid);
-  }
-
-  Uint8List? _parseHexToBytes(String hex) {
-    if (hex.length % 2 != 0) {
-      _options.logger(
-          SentryLevel.warning, 'Invalid hex string during debug image parsing');
-      return null;
-    }
-    if (hex.startsWith('0x')) {
-      hex = hex.substring(2);
-    }
-
-    var bytes = Uint8List(hex.length ~/ 2);
-    for (var i = 0; i < hex.length; i += 2) {
-      bytes[i ~/ 2] = int.parse(hex.substring(i, i + 2), radix: 16);
-    }
-    return bytes;
-  }
-
-  String bigToLittleEndianUuid(String bigEndianUuid) {
-    final byteArray =
-        Uuid.parse(bigEndianUuid, validationMode: ValidationMode.nonStrict);
-
-    final reversedByteArray = Uint8List.fromList([
-      ...byteArray.sublist(0, 4).reversed,
-      ...byteArray.sublist(4, 6).reversed,
-      ...byteArray.sublist(6, 8).reversed,
-      ...byteArray.sublist(8, 10),
-      ...byteArray.sublist(10),
-    ]);
-
-    return Uuid.unparse(reversedByteArray);
+    return _formatHexToUuid(String.fromCharCodes(data));
   }
 
   String? _formatHexToUuid(String hex) {
