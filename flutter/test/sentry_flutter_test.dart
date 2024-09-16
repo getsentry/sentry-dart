@@ -229,7 +229,8 @@ void main() {
       Transport transport = MockTransport();
       final sentryFlutterOptions = defaultTestOptions(
           getPlatformChecker(platform: MockPlatform.windows()))
-        ..methodChannel = native.channel;
+        // We need to disable native init because sentry.dll is not available here.
+        ..autoInitializeNativeSdk = false;
 
       await SentryFlutter.init(
         (options) async {
@@ -271,8 +272,6 @@ void main() {
 
       expect(SentryFlutter.native, isNotNull);
       expect(Sentry.currentHub.profilerFactory, isNull);
-
-      await Sentry.close();
     }, testOn: 'vm');
 
     test('Linux', () async {
@@ -629,7 +628,7 @@ void main() {
         () async {
       final sentryFlutterOptions = defaultTestOptions(
           getPlatformChecker(platform: MockPlatform.android(), isWeb: true));
-      SentryFlutter.native = MockSentryNativeBinding();
+      SentryFlutter.native = mockNativeBinding();
       await SentryFlutter.init(
         (options) {
           expect(options.enableDartSymbolication, false);
@@ -724,6 +723,10 @@ void main() {
 MockSentryNativeBinding mockNativeBinding() {
   final result = MockSentryNativeBinding();
   when(result.supportsLoadContexts).thenReturn(true);
+  when(result.supportsCaptureEnvelope).thenReturn(true);
+  when(result.captureEnvelope(any, any)).thenReturn(null);
+  when(result.init(any)).thenReturn(null);
+  when(result.close()).thenReturn(null);
   return result;
 }
 
