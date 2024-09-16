@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Blocking app starts if "appLaunchedInForeground" is false. ([#2291](https://github.com/getsentry/sentry-dart/pull/2291)
+
 ## 8.9.0
 
 ### Features
