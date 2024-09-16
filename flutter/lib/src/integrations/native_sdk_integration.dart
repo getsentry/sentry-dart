@@ -29,7 +29,6 @@ class NativeSdkIntegration implements Integration<SentryFlutterOptions> {
         exception: exception,
         stackTrace: stackTrace,
       );
-      // ignore: invalid_use_of_internal_member
       if (_options?.automatedTestMode ?? false) {
         rethrow;
       }
@@ -48,7 +47,6 @@ class NativeSdkIntegration implements Integration<SentryFlutterOptions> {
           exception: exception,
           stackTrace: stackTrace,
         );
-        // ignore: invalid_use_of_internal_member
         if (_options?.automatedTestMode ?? false) {
           rethrow;
         }

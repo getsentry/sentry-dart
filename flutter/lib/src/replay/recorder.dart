@@ -103,7 +103,6 @@ class ScreenshotRecorder {
     } catch (e, stackTrace) {
       options.logger(SentryLevel.error, "Replay: failed to capture screenshot.",
           exception: e, stackTrace: stackTrace);
-      // ignore: invalid_use_of_internal_member
       if (options.automatedTestMode) {
         rethrow;
       }

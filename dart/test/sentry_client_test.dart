@@ -24,6 +24,7 @@ import 'mocks/mock_hub.dart';
 import 'mocks/mock_platform.dart';
 import 'mocks/mock_platform_checker.dart';
 import 'mocks/mock_transport.dart';
+import 'test_utils.dart';
 
 void main() {
   group('SentryClient captures message', () {
@@ -1253,6 +1254,7 @@ void main() {
         throw exception;
       };
 
+      fixture.options.automatedTestMode = false;
       final client = fixture.getSut(
           beforeSendTransaction: beforeSendTransactionCallback, debug: true);
       final fakeTransaction = fixture.fakeTransaction();
@@ -1316,6 +1318,7 @@ void main() {
         throw exception;
       };
 
+      fixture.options.automatedTestMode = false;
       final client =
           fixture.getSut(beforeSend: beforeSendCallback, debug: true);
 
@@ -1891,9 +1894,8 @@ class Fixture {
   final recorder = MockClientReportRecorder();
   final transport = MockTransport();
 
-  final options = SentryOptions(dsn: fakeDsn)
-    ..platformChecker = MockPlatformChecker(platform: MockPlatform.iOS())
-    ..automatedTestMode = true;
+  final options =
+      defaultTestOptions(MockPlatformChecker(platform: MockPlatform.iOS()));
 
   late SentryTransactionContext _context;
   late SentryTracer tracer;

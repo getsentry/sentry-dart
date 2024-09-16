@@ -51,23 +51,15 @@ mixin SentryFlutter {
   static Future<void> init(
     FlutterOptionsConfiguration optionsConfiguration, {
     AppRunner? appRunner,
-    @internal PlatformChecker? platformChecker,
-    @internal RendererWrapper? rendererWrapper,
+    @internal SentryFlutterOptions? options,
   }) async {
-    final flutterOptions = SentryFlutterOptions();
+    options ??= SentryFlutterOptions();
 
     // ignore: invalid_use_of_internal_member
-    sentrySetupStartTime ??= flutterOptions.clock();
+    sentrySetupStartTime ??= options.clock();
 
-    if (platformChecker != null) {
-      flutterOptions.platformChecker = platformChecker;
-    }
-    if (rendererWrapper != null) {
-      flutterOptions.rendererWrapper = rendererWrapper;
-    }
-
-    if (flutterOptions.platformChecker.hasNativeIntegration) {
-      _native = createBinding(flutterOptions);
+    if (options.platformChecker.hasNativeIntegration) {
+      _native = createBinding(options);
     }
 
     final platformDispatcher = PlatformDispatcher.instance;
@@ -76,34 +68,31 @@ mixin SentryFlutter {
     // Flutter Web don't capture [Future] errors if using [PlatformDispatcher.onError] and not
     // the [runZonedGuarded].
     // likely due to https://github.com/flutter/flutter/issues/100277
-    final isOnErrorSupported = flutterOptions.platformChecker.isWeb
+    final isOnErrorSupported = options.platformChecker.isWeb
         ? false
-        : wrapper.isOnErrorSupported(flutterOptions);
+        : wrapper.isOnErrorSupported(options);
 
-    final runZonedGuardedOnError = flutterOptions.platformChecker.isWeb
-        ? _createRunZonedGuardedOnError()
-        : null;
+    final runZonedGuardedOnError =
+        options.platformChecker.isWeb ? _createRunZonedGuardedOnError() : null;
 
     // first step is to install the native integration and set default values,
     // so we are able to capture future errors.
-    final defaultIntegrations = _createDefaultIntegrations(
-      flutterOptions,
-      isOnErrorSupported,
-    );
+    final defaultIntegrations =
+        _createDefaultIntegrations(options, isOnErrorSupported);
     for (final defaultIntegration in defaultIntegrations) {
-      flutterOptions.addIntegration(defaultIntegration);
+      options.addIntegration(defaultIntegration);
     }
 
-    await _initDefaultValues(flutterOptions);
+    await _initDefaultValues(options);
 
     await Sentry.init(
-      (options) {
-        assert(options == flutterOptions);
-        return optionsConfiguration(options as SentryFlutterOptions);
+      (o) {
+        assert(options == o);
+        return optionsConfiguration(o as SentryFlutterOptions);
       },
       appRunner: appRunner,
       // ignore: invalid_use_of_internal_member
-      options: flutterOptions,
+      options: options,
       // ignore: invalid_use_of_internal_member
       callAppRunnerInRunZonedGuarded: !isOnErrorSupported,
       // ignore: invalid_use_of_internal_member
@@ -117,8 +106,7 @@ mixin SentryFlutter {
 
     // Insert it at the start of the list, before the Dart Exceptions that are set in Sentry.init
     // so we can identify Flutter exceptions first.
-    flutterOptions
-        .prependExceptionTypeIdentifier(FlutterExceptionTypeIdentifier());
+    options.prependExceptionTypeIdentifier(FlutterExceptionTypeIdentifier());
   }
 
   static Future<void> _initDefaultValues(SentryFlutterOptions options) async {

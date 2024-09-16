@@ -68,7 +68,7 @@ void main() {
 }
 
 class Fixture {
-  final options = SentryOptions(dsn: fakeDsn);
+  final options = defaultTestOptions();
   late final hub = Hub(options);
 
   SentryIOOverridesIntegration getSut() {

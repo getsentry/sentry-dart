@@ -1,5 +1,3 @@
-import 'package:flutter/services.dart';
-
 import '../../sentry_flutter.dart';
 import 'c/sentry_native.dart';
 import 'cocoa/sentry_native_cocoa.dart';
@@ -7,16 +5,15 @@ import 'java/sentry_native_java.dart';
 import 'sentry_native_binding.dart';
 import 'sentry_native_channel.dart';
 
-SentryNativeBinding createBinding(SentryFlutterOptions options,
-    {MethodChannel channel = const MethodChannel('sentry_flutter')}) {
+SentryNativeBinding createBinding(SentryFlutterOptions options) {
   final platform = options.platformChecker.platform;
   if (platform.isIOS || platform.isMacOS) {
-    return SentryNativeCocoa(options, channel);
+    return SentryNativeCocoa(options);
   } else if (platform.isAndroid) {
-    return SentryNativeJava(options, channel);
+    return SentryNativeJava(options);
   } else if (platform.isWindows) {
     return SentryNative(options);
   } else {
-    return SentryNativeChannel(options, channel);
+    return SentryNativeChannel(options);
   }
 }
