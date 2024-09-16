@@ -3,8 +3,8 @@ import 'dart:typed_data';
 import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 
-import 'mocks.dart';
 import 'mocks/mock_transport.dart';
+import 'test_utils.dart';
 
 void main() {
   group('$SentryAttachment ctor', () {
@@ -185,7 +185,7 @@ class Fixture {
   MockTransport transport = MockTransport();
 
   Hub getSut() {
-    final options = SentryOptions(dsn: fakeDsn);
+    final options = defaultTestOptions();
     options.transport = transport;
     return Hub(options);
   }

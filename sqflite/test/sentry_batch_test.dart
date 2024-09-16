@@ -668,7 +668,7 @@ SELECT * FROM Product''';
 
 class Fixture {
   final hub = MockHub();
-  final options = SentryOptions(dsn: fakeDsn);
+  final options = defaultTestOptions();
   final _context = SentryTransactionContext('name', 'operation');
   late final tracer = SentryTracer(_context, hub);
   final batch = MockBatch();

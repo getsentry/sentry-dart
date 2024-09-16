@@ -140,6 +140,7 @@ void main() {
 
     testWidgets('does add screenshot if beforeScreenshot throws',
         (tester) async {
+      fixture.options.automatedTestMode = false;
       fixture.options.beforeScreenshot = (SentryEvent event, {Hint? hint}) {
         throw Error();
       };
@@ -149,6 +150,7 @@ void main() {
 
     testWidgets('does add screenshot if async beforeScreenshot throws',
         (tester) async {
+      fixture.options.automatedTestMode = false;
       fixture.options.beforeScreenshot =
           (SentryEvent event, {Hint? hint}) async {
         await Future<void>.delayed(Duration(milliseconds: 1));
@@ -180,7 +182,7 @@ void main() {
 
 class Fixture {
   late Hub hub;
-  SentryFlutterOptions options = SentryFlutterOptions(dsn: fakeDsn);
+  SentryFlutterOptions options = defaultTestOptions();
 
   Fixture() {
     options.attachScreenshot = true;

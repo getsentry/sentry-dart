@@ -17,7 +17,7 @@ class SentryNativeCocoa extends SentryNativeChannel {
   ScreenshotRecorder? _replayRecorder;
   SentryId? _replayId;
 
-  SentryNativeCocoa(super.options, super.channel);
+  SentryNativeCocoa(super.options);
 
   @override
   Future<void> init(Hub hub) async {
