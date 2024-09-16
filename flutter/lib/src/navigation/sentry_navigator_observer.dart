@@ -331,6 +331,9 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
         exception: exception,
         stackTrace: stacktrace,
       );
+      if (_hub.options.automatedTestMode) {
+        rethrow;
+      }
     } finally {
       await transaction?.finish();
       if (clearAfter) {
@@ -379,6 +382,9 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
         exception: exception,
         stackTrace: stacktrace,
       );
+      if (_hub.options.automatedTestMode) {
+        rethrow;
+      }
     } finally {
       _clear();
     }

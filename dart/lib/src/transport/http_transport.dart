@@ -64,6 +64,9 @@ class HttpTransport implements Transport {
       return eventId != null ? SentryId.fromId(eventId) : null;
     } catch (e) {
       _options.logger(SentryLevel.error, 'Error parsing response: $e');
+      if (_options.automatedTestMode) {
+        rethrow;
+      }
       return null;
     }
   }

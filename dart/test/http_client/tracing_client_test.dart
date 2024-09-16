@@ -5,8 +5,8 @@ import 'package:sentry/src/http_client/tracing_client.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:test/test.dart';
 
-import '../mocks.dart';
 import '../mocks/mock_transport.dart';
+import '../test_utils.dart';
 
 final requestUri = Uri.parse('https://example.com?foo=bar#baz');
 
@@ -220,7 +220,7 @@ MockClient createThrowingClient() {
 }
 
 class Fixture {
-  final _options = SentryOptions(dsn: fakeDsn);
+  final _options = defaultTestOptions();
   late Hub _hub;
   final transport = MockTransport();
   Fixture() {

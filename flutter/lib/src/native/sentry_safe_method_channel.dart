@@ -12,7 +12,7 @@ class SentrySafeMethodChannel with SentryNativeSafeInvoker {
 
   final MethodChannel _channel;
 
-  SentrySafeMethodChannel(this._channel, this.options);
+  SentrySafeMethodChannel(this.options) : _channel = options.methodChannel;
 
   void setMethodCallHandler(
           Future<dynamic> Function(MethodCall call)? handler) =>

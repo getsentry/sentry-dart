@@ -6,7 +6,6 @@ library dart_test;
 import 'dart:ui';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/replay/recorder.dart';
 import 'package:sentry_flutter/src/replay/recorder_config.dart';
 
@@ -28,7 +27,7 @@ class _Fixture {
   _Fixture._() {
     sut = ScreenshotRecorder(
       ScreenshotRecorderConfig(),
-      SentryFlutterOptions()..bindingUtils = TestBindingWrapper(),
+      defaultTestOptions()..bindingUtils = TestBindingWrapper(),
     );
   }
 
