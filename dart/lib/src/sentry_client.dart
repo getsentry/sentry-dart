@@ -557,6 +557,7 @@ class SentryClient {
               count: spanCountBeforeEventProcessors + 1);
         }
         _options.logger(SentryLevel.debug, 'Event was dropped by a processor');
+        break;
       } else if (event is SentryTransaction &&
           processedEvent is SentryTransaction) {
         // If event processor removed only some spans we still report them as dropped

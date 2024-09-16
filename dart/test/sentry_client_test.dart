@@ -1247,6 +1247,7 @@ void main() {
     });
 
     test('thrown error is handled', () async {
+      fixture.options.automatedTestMode = false;
       final exception = Exception("before send exception");
       final beforeSendTransactionCallback = (SentryTransaction event) {
         throw exception;
@@ -1309,6 +1310,7 @@ void main() {
     });
 
     test('thrown error is handled', () async {
+      fixture.options.automatedTestMode = false;
       final exception = Exception("before send exception");
       final beforeSendCallback = (SentryEvent event, Hint hint) {
         throw exception;
@@ -1602,7 +1604,13 @@ void main() {
     });
 
     test('record event processor dropping event', () async {
-      final client = fixture.getSut(eventProcessor: DropAllEventProcessor());
+      bool secondProcessorCalled = false;
+      fixture.options.addEventProcessor(DropAllEventProcessor());
+      fixture.options.addEventProcessor(FunctionEventProcessor((event, hint) {
+        secondProcessorCalled = true;
+        return event;
+      }));
+      final client = fixture.getSut();
 
       await client.captureEvent(fakeEvent);
 
@@ -1610,6 +1618,7 @@ void main() {
           DiscardReason.eventProcessor);
       expect(
           fixture.recorder.discardedEvents.first.category, DataCategory.error);
+      expect(secondProcessorCalled, isFalse);
     });
 
     test('record event processor dropping transaction', () async {
@@ -1883,7 +1892,8 @@ class Fixture {
   final transport = MockTransport();
 
   final options = SentryOptions(dsn: fakeDsn)
-    ..platformChecker = MockPlatformChecker(platform: MockPlatform.iOS());
+    ..platformChecker = MockPlatformChecker(platform: MockPlatform.iOS())
+    ..automatedTestMode = true;
 
   late SentryTransactionContext _context;
   late SentryTracer tracer;
