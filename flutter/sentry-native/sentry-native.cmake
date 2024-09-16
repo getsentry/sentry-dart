@@ -20,6 +20,7 @@ FetchContent_MakeAvailable(sentry-native)
 # external build triggered from this build file.
 set(sentry_flutter_bundled_libraries
     $<TARGET_FILE:crashpad_handler>
+    $<TARGET_FILE:crashpad_wer>
     PARENT_SCOPE
 )
 

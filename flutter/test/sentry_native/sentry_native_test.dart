@@ -17,17 +17,24 @@ import '../mocks.dart';
 import '../mocks.mocks.dart';
 
 late final String repoRootDir;
+late final List<String> expectedDistFiles;
 
 void main() {
   repoRootDir = Directory.current.path.endsWith('/test')
       ? Directory.current.parent.path
       : Directory.current.path;
 
+  expectedDistFiles = [
+    'sentry.dll',
+    'crashpad_handler.exe',
+    'crashpad_wer.dll',
+  ];
+
   setUpAll(() async {
     Directory.current =
         await _buildSentryNative('$repoRootDir/temp/native-test');
     SentryNative.crashpadPath =
-        '${Directory.current.path}/crashpad_handler.exe';
+        '${Directory.current.path}/${expectedDistFiles.firstWhere((f) => f.startsWith('crashpad_handler'))}';
   });
 
   late SentryNative sut;
@@ -40,6 +47,14 @@ void main() {
       ..debug = true
       ..fileSystem = MemoryFileSystem.test();
     sut = createBinding(options) as SentryNative;
+  });
+
+  test('expected output files', () {
+    for (var name in expectedDistFiles) {
+      if (!File(name).existsSync()) {
+        fail('Native distribution file $name does not exist');
+      }
+    }
   });
 
   test('options', () {
@@ -303,8 +318,8 @@ bool _builtVersionIsExpected(String cmakeBuildDir, String buildOutputDir) {
     return false;
   }
 
-  return File('$buildOutputDir/sentry.dll').existsSync() &&
-      File('$buildOutputDir/crashpad_handler.exe').existsSync();
+  return !expectedDistFiles
+      .any((name) => !File('$buildOutputDir/$name').existsSync());
 }
 
 late final _configuredSentryNativeVersion =
