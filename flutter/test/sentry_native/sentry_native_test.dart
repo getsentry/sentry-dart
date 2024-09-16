@@ -285,7 +285,8 @@ list(APPEND PLUGIN_BUNDLED_LIBRARIES \${sentry_flutter_bundled_libraries})
 install(FILES "\${PLUGIN_BUNDLED_LIBRARIES}" DESTINATION "${buildOutputDir.replaceAll('\\', '/')}" COMPONENT Runtime)
 ''');
     await _exec('cmake', ['-B', cmakeBuildDir, cmakeConfDir]);
-    await _exec('cmake', ['--build', cmakeBuildDir, '--config', 'Release']);
+    await _exec('cmake',
+        ['--build', cmakeBuildDir, '--config', 'Release', '--parallel']);
     await _exec('cmake', ['--install', cmakeBuildDir, '--config', 'Release']);
   }
   return buildOutputDir;
