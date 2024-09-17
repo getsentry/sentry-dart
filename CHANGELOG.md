@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### Enhancements
+
+- Improve app start integration ([#2266](https://github.com/getsentry/sentry-dart/pull/2266))
+  - Fixes ([#2103](https://github.com/getsentry/sentry-dart/issues/2103))
+  - Fixes ([#2233](https://github.com/getsentry/sentry-dart/issues/2233))
+
 ## 8.9.0
 
 ### Features
