@@ -1,4 +1,5 @@
 import 'package:http/http.dart';
+import '../../sentry.dart';
 import '../hub.dart';
 import '../hub_adapter.dart';
 import '../protocol.dart';
@@ -22,6 +23,9 @@ class TracingClient extends BaseClient {
   @override
   Future<StreamedResponse> send(BaseRequest request) async {
     // see https://develop.sentry.dev/sdk/performance/#header-sentry-trace
+    int? statusCode;
+    final stopwatch = Stopwatch();
+    stopwatch.start();
 
     final urlDetails = HttpSanitizer.sanitizeUrl(request.url.toString());
 
@@ -75,6 +79,7 @@ class TracingClient extends BaseClient {
 
       response = await _client.send(request);
       copiedResponses = await deepCopyStreamedResponse(response, 2);
+      statusCode = copiedResponses[0].statusCode;
       span?.setData('http.response.status_code', copiedResponses[1].statusCode);
       span?.setData(
           'http.response_content_length', copiedResponses[1].contentLength);
@@ -93,6 +98,14 @@ class TracingClient extends BaseClient {
       rethrow;
     } finally {
       await span?.finish();
+      stopwatch.stop();
+      await captureEvent(
+        _hub,
+        request: request,
+        requestDuration: stopwatch.elapsed,
+        response: copiedResponses.isNotEmpty ? copiedResponses[1] : null,
+        reason: 'HTTP Client Event with status code: $statusCode',
+      );
     }
     return copiedResponses[0];
   }

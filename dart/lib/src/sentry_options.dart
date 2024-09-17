@@ -278,6 +278,8 @@ class SentryOptions {
   ///   because the connection was interrupted.
   /// Use with [SentryHttpClient] or `sentry_dio` integration for this to work,
   /// or iOS native where it sets the value to `enableCaptureFailedRequests`.
+  @Deprecated(
+      "All Request and Responses are now logged, if `sendDefaultPii` is `true` and `maxRequestBodySize` and `maxResponseBodySize` conditions are met.")
   bool captureFailedRequests = true;
 
   /// Whether to records requests as breadcrumbs. This is on by default.
