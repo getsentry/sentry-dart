@@ -222,7 +222,7 @@ mixin SentryFlutter {
     // ignore: invalid_use_of_internal_member
     final integrations = Sentry.currentHub.options.integrations
         .whereType<NativeAppStartIntegration>();
-    for (var integration in integrations) {
+    for (final integration in integrations) {
       integration.appStartEnd = appStartEnd;
     }
   }
