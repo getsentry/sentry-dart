@@ -240,9 +240,9 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   Future<DebugImage?> getAppDebugImage(
       SentryStackTrace stackTrace, Iterable<DebugImage> nativeImages) async {
     // ignore: invalid_use_of_internal_member
-    final buildId = stackTrace.nativeBuildId;
+    final buildId = stackTrace.buildId;
     // ignore: invalid_use_of_internal_member
-    final imageAddr = stackTrace.nativeImageBaseAddr;
+    final imageAddr = stackTrace.baseAddr;
 
     if (buildId == null || imageAddr == null) {
       return null;

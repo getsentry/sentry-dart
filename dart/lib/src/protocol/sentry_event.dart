@@ -1,4 +1,5 @@
 import 'package:meta/meta.dart';
+import 'package:collection/collection.dart';
 
 import '../protocol.dart';
 import '../throwable_mechanism.dart';
@@ -411,4 +412,10 @@ class SentryEvent with SentryEventLike<SentryEvent> {
       if (threadJson?.isNotEmpty ?? false) 'threads': {'values': threadJson},
     };
   }
+
+  // Returns first non-null stack trace of this event
+  @internal
+  SentryStackTrace? get stacktrace =>
+      exceptions?.firstWhereOrNull((e) => e.stackTrace != null)?.stackTrace ??
+      threads?.firstWhereOrNull((t) => t.stacktrace != null)?.stacktrace;
 }

@@ -12,8 +12,8 @@ class SentryStackTrace {
     this.lang,
     this.snapshot,
     this.unknown,
-    @internal this.nativeImageBaseAddr,
-    @internal this.nativeBuildId,
+    @internal this.baseAddr,
+    @internal this.buildId,
   })  : _frames = frames,
         _registers = Map.from(registers ?? {});
 
@@ -49,10 +49,10 @@ class SentryStackTrace {
   final bool? snapshot;
 
   @internal
-  final String? nativeImageBaseAddr;
+  final String? baseAddr;
 
   @internal
-  final String? nativeBuildId;
+  final String? buildId;
 
   @internal
   final Map<String, dynamic>? unknown;
@@ -99,7 +99,7 @@ class SentryStackTrace {
         lang: lang ?? this.lang,
         snapshot: snapshot ?? this.snapshot,
         unknown: unknown,
-        nativeImageBaseAddr: nativeImageBaseAddr,
-        nativeBuildId: nativeBuildId,
+        baseAddr: baseAddr,
+        buildId: buildId,
       );
 }

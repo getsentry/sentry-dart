@@ -11,8 +11,8 @@ class SentryStackTraceFactory {
 
   static final _absRegex = RegExp(r'^\s*#[0-9]+ +abs +([A-Fa-f0-9]+)');
   static final _frameRegex = RegExp(r'^\s*#', multiLine: true);
-  static final _buildIdRegex = RegExp(r"build_id: '([A-Fa-f0-9]+)'");
-  static final _baseAddrRegex = RegExp(r'vm_dso_base: ([A-Fa-f0-9]+)');
+  static final _buildIdRegex = RegExp(r"build_id[:=] *'([A-Fa-f0-9]+)'");
+  static final _baseAddrRegex = RegExp(r'isolate_dso_base[:=] *([A-Fa-f0-9]+)');
   static final SentryStackFrame _asynchronousGapFrameJson =
       SentryStackFrame(absPath: '<asynchronous suspension>');
 
@@ -50,8 +50,8 @@ class SentryStackTraceFactory {
 
     return SentryStackTrace(
       frames: onlyAsyncGap ? [] : frames.reversed.toList(),
-      nativeImageBaseAddr: parsed.imageBaseAddr,
-      nativeBuildId: parsed.buildId,
+      baseAddr: parsed.baseAddr,
+      buildId: parsed.buildId,
     );
   }
 
@@ -84,20 +84,10 @@ class SentryStackTraceFactory {
       final chain = Chain.parse(
           startOffset == 0 ? stackTrace : stackTrace.substring(startOffset));
       final info = _StackInfo(chain.traces);
-
-      // On Windows native, we need to provide the debug image address so that
-      // the LoadImageList integration can add a virtual image.
-      // This is because on Windows, dart uses ELF binaries for AOT code instead
-      // of standard windows-specific PE and it has a custom ELF image loader
-      // that loaads the "data/App.so". Therefore, sentry-native is unaware
-      // of this and won't pick list the image among native images.
-      // See https://github.com/flutter/flutter/issues/154840
-      if (_options.platformChecker.platform.isWindows) {
-        info.buildId = _buildIdRegex.firstMatch(stackTrace)?.group(1);
-        info.imageBaseAddr = _baseAddrRegex.firstMatch(stackTrace)?.group(1);
-        if (info.imageBaseAddr != null) {
-          info.imageBaseAddr = '0x${info.imageBaseAddr}';
-        }
+      info.buildId = _buildIdRegex.firstMatch(stackTrace)?.group(1);
+      info.baseAddr = _baseAddrRegex.firstMatch(stackTrace)?.group(1);
+      if (info.baseAddr != null) {
+        info.baseAddr = '0x${info.baseAddr}';
       }
       return info;
     }
@@ -126,6 +116,8 @@ class SentryStackTraceFactory {
       // We shouldn't get here. If we do, it means there's likely an issue in
       // the parsing so let's fall back and post a stack trace as is, so that at
       // least we get an indication something's wrong and are able to fix it.
+      _options.logger(
+          SentryLevel.debug, "Failed to parse stack frame: $member");
     }
 
     final platform = _options.platformChecker.isWeb ? 'javascript' : 'dart';
@@ -209,7 +201,7 @@ class SentryStackTraceFactory {
 }
 
 class _StackInfo {
-  String? imageBaseAddr;
+  String? baseAddr;
   String? buildId;
   final List<Trace> traces;
 

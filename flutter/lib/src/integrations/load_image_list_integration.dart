@@ -22,16 +22,6 @@ class LoadImageListIntegration extends Integration<SentryFlutterOptions> {
   }
 }
 
-extension on SentryEvent {
-  SentryStackTrace? _getStacktrace() {
-    var stackTrace =
-        exceptions?.firstWhereOrNull((e) => e.stackTrace != null)?.stackTrace;
-    stackTrace ??=
-        threads?.firstWhereOrNull((t) => t.stacktrace != null)?.stacktrace;
-    return stackTrace;
-  }
-}
-
 class _LoadImageListIntegrationEventProcessor implements EventProcessor {
   _LoadImageListIntegrationEventProcessor(this._native);
 
@@ -39,7 +29,7 @@ class _LoadImageListIntegrationEventProcessor implements EventProcessor {
 
   @override
   Future<SentryEvent?> apply(SentryEvent event, Hint hint) async {
-    final stackTrace = event._getStacktrace();
+    final stackTrace = event.stacktrace;
 
     // if the stacktrace has native frames, we load native debug images.
     if (stackTrace != null &&

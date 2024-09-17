@@ -366,8 +366,8 @@ class SentryOptions {
   /// [Sentry.init] is used instead of `SentryFlutter.init`. This is useful
   /// when native debug images are not available.
   ///
-  /// Automatically set to `false` when using `SentryFlutter.init`, as it uses
-  /// native SDKs for setting up symbolication on iOS, macOS, and Android.
+  /// Automatically set to `false` when using `SentryFlutter.init` on a platform
+  /// with a native integration (e.g. Android, iOS, ...x).
   bool enableDartSymbolication = true;
 
   @internal

@@ -2,12 +2,11 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry/src/sentry_exception_factory.dart';
 import 'package:test/test.dart';
 
-import 'mocks/mock_platform.dart';
-import 'mocks/mock_platform_checker.dart';
 import 'test_utils.dart';
 
 void main() {
   late Fixture fixture;
+
   setUp(() {
     fixture = Fixture();
   });
@@ -212,16 +211,24 @@ void main() {
     expect(sentryException.stackTrace!.snapshot, true);
   });
 
-  test('sets native image start address on Windows', () {
-    fixture.options.platformChecker =
-        MockPlatformChecker(platform: MockPlatform.windows());
+  test('sets stacktrace build id and image address', () {
     final sentryException = fixture
         .getSut(attachStacktrace: false)
         .getSentryException(Object(), stackTrace: StackTraceErrorStackTrace());
 
     final sentryStackTrace = sentryException.stackTrace!;
-    expect(sentryStackTrace.nativeImageBaseAddr, '0x752602b000');
-    expect(sentryStackTrace.nativeBuildId, 'bca64abfdfcc84d231bb8f1ccdbfbd8d');
+    expect(sentryStackTrace.baseAddr, '0x752602b000');
+    expect(sentryStackTrace.buildId, 'bca64abfdfcc84d231bb8f1ccdbfbd8d');
+  });
+
+  test('sets null build id and image address if not present', () {
+    final sentryException = fixture
+        .getSut(attachStacktrace: false)
+        .getSentryException(Object(), stackTrace: null);
+
+    final sentryStackTrace = sentryException.stackTrace!;
+    expect(sentryStackTrace.baseAddr, isNull);
+    expect(sentryStackTrace.buildId, isNull);
   });
 }
 

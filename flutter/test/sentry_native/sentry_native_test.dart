@@ -240,9 +240,9 @@ void main() {
       SentryStackTrace(
         frames: [],
         // ignore: invalid_use_of_internal_member
-        nativeBuildId: '4c6950bd9e9cc9839071742a7295c09e',
+        buildId: '4c6950bd9e9cc9839071742a7295c09e',
         // ignore: invalid_use_of_internal_member
-        nativeImageBaseAddr: '0x123',
+        baseAddr: '0x123',
       ),
       [DebugImage(type: 'pe', codeFile: '/path/to/application.exe')],
     );

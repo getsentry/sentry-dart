@@ -1,77 +1,129 @@
+import 'dart:typed_data';
+
+import 'package:meta/meta.dart';
+
 import '../sentry.dart';
-import 'debug_image_extractor.dart';
 
 class LoadDartDebugImagesIntegration extends Integration<SentryOptions> {
   @override
   void call(Hub hub, SentryOptions options) {
-    options.addEventProcessor(_LoadImageIntegrationEventProcessor(
-        DebugImageExtractor(options), options));
+    options.addEventProcessor(_LoadImageIntegrationEventProcessor(options));
     options.sdk.addIntegration('loadDartImageIntegration');
   }
 }
 
-const hintRawStackTraceKey = 'raw_stacktrace';
-
 class _LoadImageIntegrationEventProcessor implements EventProcessor {
-  _LoadImageIntegrationEventProcessor(this._debugImageExtractor, this._options);
+  _LoadImageIntegrationEventProcessor(this._options);
 
   final SentryOptions _options;
-  final DebugImageExtractor _debugImageExtractor;
+
+  // We don't need to always create the debug image, so we cache it here.
+  DebugImage? _debugImage;
 
   @override
   Future<SentryEvent?> apply(SentryEvent event, Hint hint) async {
-    final rawStackTrace = hint.get(hintRawStackTraceKey) as String?;
-    if (!_options.enableDartSymbolication ||
-        !event.needsSymbolication() ||
-        rawStackTrace == null) {
-      return event;
+    if (_options.enableDartSymbolication) {
+      final stackTrace = event.stacktrace;
+      if (stackTrace!.frames.any((f) => f.platform == 'native')) {
+        try {
+          _debugImage ??= createDebugImage(stackTrace);
+          if (_debugImage != null) {
+            return event.copyWith(debugMeta: DebugMeta(images: [_debugImage!]));
+          }
+        } catch (e, stack) {
+          _options.logger(
+            SentryLevel.info,
+            "Couldn't add Dart debug image to event. "
+            'The event will still be reported.',
+            exception: e,
+            stackTrace: stack,
+          );
+          if (_options.automatedTestMode) {
+            rethrow;
+          }
+        }
+      }
     }
 
-    try {
-      final syntheticImage = _debugImageExtractor.extractFrom(rawStackTrace);
-      if (syntheticImage == null) {
-        return event;
-      }
+    return event;
+  }
 
-      return event.copyWith(debugMeta: DebugMeta(images: [syntheticImage]));
-    } catch (e, stackTrace) {
+  @visibleForTesting
+  DebugImage? createDebugImage(SentryStackTrace stackTrace) {
+    if (stackTrace.buildId == null || stackTrace.baseAddr == null) {
+      _options.logger(SentryLevel.warning,
+          'Cannot create DebugImage without a build ID and image base address.');
+      return null;
+    }
+
+    late final String type;
+    late final String debugId;
+
+    final platform = _options.platformChecker.platform;
+
+    if (platform.isAndroid) {
+      type = 'elf';
+      debugId = _convertBuildIdToDebugId(stackTrace.buildId!, platform.endian);
+    } else if (platform.isIOS || platform.isMacOS) {
+      type = 'macho';
+      debugId = _formatHexToUuid(stackTrace.buildId!);
+    } else {
       _options.logger(
-        SentryLevel.info,
-        "Couldn't add Dart debug image to event. "
-        'The event will still be reported.',
-        exception: e,
-        stackTrace: stackTrace,
+        SentryLevel.warning,
+        'Unsupported platform for creating Dart debug images.',
       );
-      if (_options.automatedTestMode) {
-        rethrow;
-      }
-      return event;
+      return null;
     }
-  }
-}
 
-extension NeedsSymbolication on SentryEvent {
-  bool needsSymbolication() {
-    if (this is SentryTransaction) {
-      return false;
-    }
-    final frames = _getStacktraceFrames();
-    if (frames == null) {
-      return false;
-    }
-    return frames.any((frame) => 'native' == frame?.platform);
+    return DebugImage(
+      type: type,
+      imageAddr: stackTrace.baseAddr,
+      debugId: debugId,
+      codeId: stackTrace.buildId,
+    );
   }
 
-  Iterable<SentryStackFrame?>? _getStacktraceFrames() {
-    if (exceptions?.isNotEmpty == true) {
-      return exceptions?.first.stackTrace?.frames;
+  /// See https://github.com/getsentry/symbolic/blob/7dc28dd04c06626489c7536cfe8c7be8f5c48804/symbolic-debuginfo/src/elf.rs#L709-L734
+  /// Converts an ELF object identifier into a `DebugId`.
+  ///
+  /// The identifier data is first truncated or extended to match 16 byte size of
+  /// Uuids. If the data is declared in little endian, the first three Uuid fields
+  /// are flipped to match the big endian expected by the breakpad processor.
+  ///
+  /// The `DebugId::appendix` field is always `0` for ELF.
+  String _convertBuildIdToDebugId(String buildId, Endian endian) {
+    // Make sure that we have exactly UUID_SIZE bytes available
+    const uuidSize = 16 * 2;
+    final data = Uint8List(uuidSize);
+    final len = buildId.length.clamp(0, uuidSize);
+    data.setAll(0, buildId.codeUnits.take(len));
+
+    if (endian == Endian.little) {
+      // The file ELF file targets a little endian architecture. Convert to
+      // network byte order (big endian) to match the Breakpad processor's
+      // expectations. For big endian object files, this is not needed.
+      // To manipulate this as hex, we create an Uint16 view.
+      final data16 = Uint16List.view(data.buffer);
+      data16.setRange(0, 4, data16.sublist(0, 4).reversed);
+      data16.setRange(4, 6, data16.sublist(4, 6).reversed);
+      data16.setRange(6, 8, data16.sublist(6, 8).reversed);
     }
-    if (threads?.isNotEmpty == true) {
-      var stacktraces = threads?.map((e) => e.stacktrace);
-      return stacktraces
-          ?.where((element) => element != null)
-          .expand((element) => element!.frames);
+    return _formatHexToUuid(String.fromCharCodes(data));
+  }
+
+  String _formatHexToUuid(String hex) {
+    if (hex.length == 36) {
+      return hex;
     }
-    return null;
+    if (hex.length != 32) {
+      throw ArgumentError.value(hex, 'hexUUID',
+          'Hex input must be a 32-character hexadecimal string');
+    }
+
+    return '${hex.substring(0, 8)}-'
+        '${hex.substring(8, 12)}-'
+        '${hex.substring(12, 16)}-'
+        '${hex.substring(16, 20)}-'
+        '${hex.substring(20)}';
   }
 }
