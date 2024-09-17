@@ -189,10 +189,7 @@ MethodChannel createChannelWithCallback(
 
 SentryFlutterOptions createOptions() {
   final mockPlatformChecker = MockPlatformChecker(hasNativeIntegration: true);
-  final options = SentryFlutterOptions(
-    dsn: fakeDsn,
-    checker: mockPlatformChecker,
-  );
+  final options = defaultTestOptions(mockPlatformChecker);
   options.sdk = SdkVersion(
     name: sdkName,
     version: sdkVersion,
@@ -203,8 +200,8 @@ SentryFlutterOptions createOptions() {
 
 class Fixture {
   late SentryFlutterOptions options;
-  SentryNativeChannel getSut(MethodChannel native) {
-    options = createOptions();
-    return SentryNativeChannel(options, native);
+  SentryNativeChannel getSut(MethodChannel channel) {
+    options = createOptions()..methodChannel = channel;
+    return SentryNativeChannel(options);
   }
 }

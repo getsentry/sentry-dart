@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/src/widgets/binding.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
 import 'package:sentry/src/platform/platform.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 
@@ -18,10 +19,9 @@ import 'no_such_method_provider.dart';
 const fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
 const fakeProguardUuid = '3457d982-65ef-576d-a6ad-65b5f30f49a5';
 
-// TODO use this everywhere in tests so that we don't get exceptions swallowed.
-SentryFlutterOptions defaultTestOptions() {
-  // ignore: invalid_use_of_internal_member
-  return SentryFlutterOptions(dsn: fakeDsn)..automatedTestMode = true;
+SentryFlutterOptions defaultTestOptions([PlatformChecker? checker]) {
+  return SentryFlutterOptions(dsn: fakeDsn, checker: checker)
+    ..automatedTestMode = true;
 }
 
 // https://github.com/dart-lang/mockito/blob/master/NULL_SAFETY_README.md#fallback-generators
@@ -46,6 +46,7 @@ ISentrySpan startTransactionShim(
   SentryTracer,
   SentryTransaction,
   SentrySpan,
+  SentryClient,
   MethodChannel,
   SentryNativeBinding
 ], customMocks: [
@@ -168,8 +169,6 @@ class TestBindingWrapper implements BindingWrapper {
   }
 }
 
-class MockSentryClient with NoSuchMethodProvider implements SentryClient {}
-
 // All these values are based on the fakeFrameDurations list.
 // The expected total frames is also based on the span duration of 1000ms and the slow and frozen frames.
 const expectedTotalFrames = 17;
@@ -201,6 +200,8 @@ class NativeChannelFixture {
     TestWidgetsFlutterBinding.ensureInitialized();
     channel = MethodChannel('test.channel', StandardMethodCodec(), _messenger);
     handler = MockCallbacks().methodCallHandler;
+    when(handler('initNativeSdk', any)).thenAnswer((_) => Future.value());
+    when(handler('closeNativeSdk', any)).thenAnswer((_) => Future.value());
     _messenger.setMockMethodCallHandler(
         channel, (call) => handler(call.method, call.arguments));
   }
@@ -211,5 +212,19 @@ class NativeChannelFixture {
         StandardMethodCodec().encodeMethodCall(MethodCall(method, arguments));
     return _messenger.handlePlatformMessage(
         channel.name, call, (ByteData? data) {});
+  }
+}
+
+typedef EventProcessorFunction = SentryEvent? Function(
+    SentryEvent event, Hint hint);
+
+class FunctionEventProcessor implements EventProcessor {
+  FunctionEventProcessor(this.applyFunction);
+
+  final EventProcessorFunction applyFunction;
+
+  @override
+  SentryEvent? apply(SentryEvent event, Hint hint) {
+    return applyFunction(event, hint);
   }
 }

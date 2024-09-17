@@ -53,7 +53,7 @@ void main() {
 }
 
 class Fixture {
-  final _options = SentryFlutterOptions(dsn: fakeDsn);
+  final _options = defaultTestOptions();
   late Hub hub;
 
   SentryScreenshotWidget getSut({

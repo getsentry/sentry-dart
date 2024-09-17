@@ -213,7 +213,7 @@ void main() {
 
 class Fixture {
   final startTimestamp = getUtcDateTime();
-  final options = SentryFlutterOptions()
+  final options = defaultTestOptions()
     ..dsn = fakeDsn
     ..tracesSampleRate = 1.0;
   late final endTimeProvider = ttidEndTimestampProvider();

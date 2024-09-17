@@ -49,6 +49,9 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
           exception: exception,
           stackTrace: stackTrace,
         );
+        if (options.automatedTestMode) {
+          rethrow;
+        }
       }
     });
     options.sdk.addIntegration('nativeAppStartIntegration');

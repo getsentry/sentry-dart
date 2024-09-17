@@ -5,6 +5,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/event_processor/url_filter/url_filter_event_processor.dart';
 
+import '../../mocks.dart';
+
 void main() {
   group("ignore allowUrls and denyUrls for non Web", () {
     late Fixture fixture;
@@ -32,7 +34,7 @@ void main() {
 }
 
 class Fixture {
-  SentryFlutterOptions options = SentryFlutterOptions();
+  SentryFlutterOptions options = defaultTestOptions();
   UrlFilterEventProcessor getSut() {
     return UrlFilterEventProcessor(options);
   }

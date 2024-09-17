@@ -2,7 +2,7 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry/src/sentry_traces_sampler.dart';
 import 'package:test/test.dart';
 
-import 'mocks.dart';
+import 'test_utils.dart';
 
 void main() {
   late Fixture fixture;
@@ -81,6 +81,7 @@ void main() {
   });
 
   test('tracesSampler exception is handled', () {
+    fixture.options.automatedTestMode = false;
     final sut = fixture.getSut(debug: true);
 
     final exception = Exception("tracesSampler exception");
@@ -151,7 +152,7 @@ void main() {
 }
 
 class Fixture {
-  final options = SentryOptions(dsn: fakeDsn);
+  final options = defaultTestOptions();
 
   SentryLevel? loggedLevel;
   Object? loggedException;
