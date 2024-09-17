@@ -102,8 +102,7 @@ void main() {
 }
 
 class Fixture {
-  final Hub hub =
-      Hub(SentryFlutterOptions(dsn: fakeDsn)..tracesSampleRate = 1.0);
+  final Hub hub = Hub(defaultTestOptions()..tracesSampleRate = 1.0);
   late final SentryNavigatorObserver navigatorObserver;
   final fakeFrameCallbackHandler = FakeFrameCallbackHandler();
 

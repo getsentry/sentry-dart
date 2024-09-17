@@ -2,9 +2,9 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:test/test.dart';
 
-import 'mocks.dart';
 import 'mocks/mock_hub.dart';
 import 'mocks/mock_sentry_client.dart';
+import 'test_utils.dart';
 
 void main() {
   group('$SentryTracer', () {
@@ -521,7 +521,7 @@ void main() {
 
       final newBaggage = SentryBaggage.fromHeader(baggage.value);
       expect(newBaggage.get('sentry-trace_id'), sut.context.traceId.toString());
-      expect(newBaggage.get('sentry-public_key'), 'abc');
+      expect(newBaggage.get('sentry-public_key'), 'public');
       expect(newBaggage.get('sentry-release'), 'release');
       expect(newBaggage.get('sentry-environment'), 'environment');
       expect(newBaggage.get('sentry-user_segment'), 'segment');
@@ -595,7 +595,7 @@ void main() {
       final context = sut.traceContext();
 
       expect(context!.traceId, sut.context.traceId);
-      expect(context.publicKey, 'abc');
+      expect(context.publicKey, 'public');
       expect(context.release, 'release');
       expect(context.environment, 'environment');
       // ignore: deprecated_member_use_from_same_package
@@ -608,7 +608,7 @@ void main() {
 }
 
 class Fixture {
-  final options = SentryOptions(dsn: fakeDsn)
+  final options = defaultTestOptions()
     ..release = 'release'
     ..environment = 'environment';
 

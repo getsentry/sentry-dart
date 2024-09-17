@@ -179,7 +179,7 @@ void main() {
 
 class Fixture {
   final startTimestamp = getUtcDateTime();
-  final hub = Hub(SentryFlutterOptions(dsn: fakeDsn)..tracesSampleRate = 1.0);
+  final hub = Hub(defaultTestOptions()..tracesSampleRate = 1.0);
   late final fakeFrameCallbackHandler = FakeFrameCallbackHandler();
 
   ISentrySpan getTransaction({String? name = "Regular route"}) {

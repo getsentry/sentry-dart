@@ -124,6 +124,9 @@ class Hub {
           exception: exception,
           stackTrace: stackTrace,
         );
+        if (_options.automatedTestMode) {
+          rethrow;
+        }
       } finally {
         _lastEventId = sentryId;
       }
@@ -183,6 +186,9 @@ class Hub {
           exception: exception,
           stackTrace: stackTrace,
         );
+        if (_options.automatedTestMode) {
+          rethrow;
+        }
       } finally {
         _lastEventId = sentryId;
       }
@@ -238,6 +244,9 @@ class Hub {
           exception: exception,
           stackTrace: stackTrace,
         );
+        if (_options.automatedTestMode) {
+          rethrow;
+        }
       } finally {
         _lastEventId = sentryId;
       }
@@ -271,6 +280,9 @@ class Hub {
         exception: exception,
         stackTrace: stacktrace,
       );
+      if (_options.automatedTestMode) {
+        rethrow;
+      }
     }
   }
 
@@ -364,6 +376,9 @@ class Hub {
           exception: exception,
           stackTrace: stackTrace,
         );
+        if (_options.automatedTestMode) {
+          rethrow;
+        }
       }
 
       _isEnabled = false;
@@ -565,6 +580,9 @@ class Hub {
             exception: exception,
             stackTrace: stackTrace,
           );
+          if (_options.automatedTestMode) {
+            rethrow;
+          }
         }
       }
     }
@@ -602,6 +620,9 @@ class Hub {
           exception: exception,
           stackTrace: stackTrace,
         );
+        if (_options.automatedTestMode) {
+          rethrow;
+        }
       }
     }
     return sentryId;
@@ -682,6 +703,9 @@ class _WeakMap {
         exception: exception,
         stackTrace: stackTrace,
       );
+      if (_options.automatedTestMode) {
+        rethrow;
+      }
     }
   }
 
@@ -699,6 +723,9 @@ class _WeakMap {
         exception: exception,
         stackTrace: stackTrace,
       );
+      if (_options.automatedTestMode) {
+        rethrow;
+      }
     }
     return null;
   }

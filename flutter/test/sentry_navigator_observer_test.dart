@@ -83,6 +83,8 @@ void main() {
 
       final options = defaultTestOptions();
       options.tracesSampleRate = 1;
+      // Drop events, otherwise sentry tries to send them to the test DSN.
+      options.addEventProcessor(FunctionEventProcessor((_, __) => null));
       final hub = Hub(options);
 
       when(mockBinding.endNativeFrames(any))
@@ -598,6 +600,7 @@ void main() {
       const op = 'navigation';
       final hub = _MockHub();
       final span = getMockSentryTracer(name: oldRouteName);
+      when(span.children).thenReturn([]);
       when(span.context).thenReturn(SentrySpanContext(operation: op));
       when(span.status).thenReturn(null);
       when(span.finished).thenReturn(false);
@@ -982,6 +985,7 @@ void main() {
       final secondRoute = route(RouteSettings(name: 'testRoute'));
 
       final hub = _MockHub();
+      _whenAnyStart(hub, NoOpSentrySpan());
 
       final sut = fixture.getSut(hub: hub, ignoreRoutes: ["testRoute"]);
 
@@ -1002,6 +1006,7 @@ void main() {
       final secondRoute = route(RouteSettings(name: 'testRoute'));
 
       final hub = _MockHub();
+      _whenAnyStart(hub, NoOpSentrySpan());
 
       final sut = fixture.getSut(hub: hub, ignoreRoutes: ["testRoute"]);
 
@@ -1086,7 +1091,7 @@ class _MockHub extends MockHub {
   }
 }
 
-ISentrySpan getMockSentryTracer({String? name, bool? finished}) {
+MockSentryTracer getMockSentryTracer({String? name, bool? finished}) {
   final tracer = MockSentryTracer();
   when(tracer.name).thenReturn(name ?? 'name');
   when(tracer.finished).thenReturn(finished ?? true);

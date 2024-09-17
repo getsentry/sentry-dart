@@ -2,7 +2,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry_flutter/src/integrations/on_error_integration.dart';
-import 'package:sentry_flutter/src/sentry_flutter_options.dart';
 
 import '../mocks.dart';
 import '../mocks.mocks.dart';
@@ -165,6 +164,14 @@ void main() {
 
       final hub = Hub(fixture.options);
       final client = MockSentryClient();
+      when(client.captureEvent(any,
+              scope: anyNamed('scope'),
+              stackTrace: anyNamed('stackTrace'),
+              hint: anyNamed('hint')))
+          .thenAnswer((_) => Future.value(SentryId.newId()));
+      when(client.captureTransaction(any,
+              scope: anyNamed('scope'), traceContext: anyNamed('traceContext')))
+          .thenAnswer((_) => Future.value(SentryId.newId()));
       hub.bindClient(client);
 
       final sut = fixture.getSut();
@@ -187,7 +194,7 @@ void main() {
 
 class Fixture {
   final hub = MockHub();
-  final options = SentryFlutterOptions(dsn: fakeDsn)..tracesSampleRate = 1.0;
+  final options = defaultTestOptions()..tracesSampleRate = 1.0;
   final platformDispatcherWrapper =
       PlatformDispatcherWrapper(MockPlatformDispatcher());
 

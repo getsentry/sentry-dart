@@ -2,7 +2,7 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry/src/sentry_exception_factory.dart';
 import 'package:test/test.dart';
 
-import 'mocks.dart';
+import 'test_utils.dart';
 
 void main() {
   final fixture = Fixture();
@@ -284,7 +284,7 @@ isolate_instructions: 7526344980, vm_instructions: 752633f000
 }
 
 class Fixture {
-  final options = SentryOptions(dsn: fakeDsn);
+  final options = defaultTestOptions();
 
   SentryExceptionFactory getSut({bool attachStacktrace = true}) {
     options.attachStacktrace = true;

@@ -3,9 +3,10 @@ library dart_test;
 
 import 'dart:io';
 
-import 'package:sentry/sentry.dart';
 import 'package:sentry/src/event_processor/enricher/io_platform_memory.dart';
 import 'package:test/test.dart';
+
+import '../../test_utils.dart';
 
 void main() {
   late Fixture fixture;
@@ -52,7 +53,7 @@ void main() {
 }
 
 class Fixture {
-  var options = SentryOptions();
+  var options = defaultTestOptions();
 
   PlatformMemory getSut() {
     return PlatformMemory(options);

@@ -8,6 +8,7 @@ import 'package:test/test.dart';
 import '../mocks.dart';
 import '../mocks/mock_hub.dart';
 import '../mocks/mock_transport.dart';
+import '../test_utils.dart';
 
 final requestUri = Uri.parse('https://example.com?foo=bar#myFragment');
 
@@ -359,7 +360,7 @@ MockClient createThrowingClient() {
 class CloseableMockClient extends Mock implements BaseClient {}
 
 class Fixture {
-  final options = SentryOptions(dsn: fakeDsn);
+  final options = defaultTestOptions();
   late Hub _hub;
   final transport = MockTransport();
   Fixture() {

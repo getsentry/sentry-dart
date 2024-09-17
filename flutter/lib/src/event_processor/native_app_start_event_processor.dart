@@ -123,6 +123,9 @@ class NativeAppStartEventProcessor implements EventProcessor {
       } catch (e) {
         _hub.options.logger(SentryLevel.warning,
             'Failed to attach native span to app start transaction: $e');
+        if (_hub.options.automatedTestMode) {
+          rethrow;
+        }
       }
     });
   }
