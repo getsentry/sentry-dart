@@ -19,7 +19,7 @@ class SentryStackTraceFactory {
   SentryStackTraceFactory(this._options);
 
   /// returns the [SentryStackFrame] list from a stackTrace ([StackTrace] or [String])
-  @deprecated
+  @Deprecated('Use parse() instead')
   List<SentryStackFrame> getStackFrames(dynamic stackTrace) {
     return parse(stackTrace).frames;
   }
