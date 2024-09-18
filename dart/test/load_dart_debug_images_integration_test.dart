@@ -17,6 +17,7 @@ void main() {
     MockPlatform.iOS(),
     MockPlatform.macOS(),
     MockPlatform.android(),
+    MockPlatform.windows(),
   ];
 
   for (final platform in platforms) {
@@ -40,7 +41,7 @@ void main() {
         expect(fixture.options.eventProcessors.length, 1);
         expect(
           fixture.options.eventProcessors.first.runtimeType.toString(),
-          '_LoadImageIntegrationEventProcessor',
+          'LoadImageIntegrationEventProcessor',
         );
       });
 
@@ -98,10 +99,10 @@ isolate_dso_base: 20000000
     #00 abs 000000723d6346d7 _kDartIsolateSnapshotInstructions+0x1e26d7
 ''');
 
-        if (platform.isAndroid) {
-          expect(debugImage?.debugId, '89cb80b6-9e0f-123c-a24b-172d050dec73');
-        } else {
+        if (platform.isIOS || platform.isMacOS) {
           expect(debugImage?.debugId, 'b680cb89-0f9e-3c12-a24b-172d050dec73');
+        } else {
+          expect(debugImage?.debugId, '89cb80b6-9e0f-123c-a24b-172d050dec73');
         }
       });
 
@@ -125,10 +126,31 @@ isolate_dso_base: 40000000
     #00 abs 000000723d6346d7 _kDartIsolateSnapshotInstructions+0x1e26d7
 ''');
 
-        if (platform.isAndroid) {
+        if (platform.isAndroid || platform.isWindows) {
           expect(debugImage?.type, 'elf');
         } else if (platform.isIOS || platform.isMacOS) {
           expect(debugImage?.type, 'macho');
+        } else {
+          fail('missing case for platform $platform');
+        }
+      });
+
+      test('sets codeFile based on platform', () async {
+        final debugImage = await fixture.parseAndProcess('''
+*** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+build_id: 'b680cb890f9e3c12a24b172d050dec73'
+isolate_dso_base: 40000000
+    #00 abs 000000723d6346d7 _kDartIsolateSnapshotInstructions+0x1e26d7
+''');
+
+        if (platform.isAndroid) {
+          expect(debugImage?.codeFile, 'libapp.so');
+        } else if (platform.isWindows) {
+          expect(debugImage?.codeFile, 'data/app.so');
+        } else if (platform.isIOS || platform.isMacOS) {
+          expect(debugImage?.codeFile, 'App.Framework/App');
+        } else {
+          fail('missing case for platform $platform');
         }
       });
 

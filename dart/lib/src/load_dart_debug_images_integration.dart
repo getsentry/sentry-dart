@@ -7,13 +7,16 @@ import '../sentry.dart';
 class LoadDartDebugImagesIntegration extends Integration<SentryOptions> {
   @override
   void call(Hub hub, SentryOptions options) {
-    options.addEventProcessor(_LoadImageIntegrationEventProcessor(options));
-    options.sdk.addIntegration('loadDartImageIntegration');
+    if (options.enableDartSymbolication) {
+      options.addEventProcessor(LoadImageIntegrationEventProcessor(options));
+      options.sdk.addIntegration('loadDartImageIntegration');
+    }
   }
 }
 
-class _LoadImageIntegrationEventProcessor implements EventProcessor {
-  _LoadImageIntegrationEventProcessor(this._options);
+@internal
+class LoadImageIntegrationEventProcessor implements EventProcessor {
+  LoadImageIntegrationEventProcessor(this._options);
 
   final SentryOptions _options;
 
@@ -22,38 +25,40 @@ class _LoadImageIntegrationEventProcessor implements EventProcessor {
 
   @override
   Future<SentryEvent?> apply(SentryEvent event, Hint hint) async {
-    if (_options.enableDartSymbolication) {
-      final stackTrace = event.stacktrace;
-      if (stackTrace!.frames.any((f) => f.platform == 'native')) {
-        try {
-          _debugImage ??= createDebugImage(stackTrace);
-          if (_debugImage != null) {
-            late final DebugMeta debugMeta;
-            if (event.debugMeta != null) {
-              final images = List<DebugImage>.from(event.debugMeta!.images);
-              images.add(_debugImage!);
-              debugMeta = event.debugMeta!.copyWith(images: images);
-            } else {
-              debugMeta = DebugMeta(images: [_debugImage!]);
-            }
-            return event.copyWith(debugMeta: debugMeta);
-          }
-        } catch (e, stack) {
-          _options.logger(
-            SentryLevel.info,
-            "Couldn't add Dart debug image to event. "
-            'The event will still be reported.',
-            exception: e,
-            stackTrace: stack,
-          );
-          if (_options.automatedTestMode) {
-            rethrow;
-          }
+    final stackTrace = event.stacktrace;
+    if (stackTrace!.frames.any((f) => f.platform == 'native')) {
+      final debugImage = getAppDebugImage(stackTrace);
+      if (debugImage != null) {
+        late final DebugMeta debugMeta;
+        if (event.debugMeta != null) {
+          final images = List<DebugImage>.from(event.debugMeta!.images);
+          images.add(debugImage);
+          debugMeta = event.debugMeta!.copyWith(images: images);
+        } else {
+          debugMeta = DebugMeta(images: [debugImage]);
         }
+        return event.copyWith(debugMeta: debugMeta);
       }
     }
 
     return event;
+  }
+
+  DebugImage? getAppDebugImage(SentryStackTrace stackTrace) {
+    try {
+      _debugImage ??= createDebugImage(stackTrace);
+    } catch (e, stack) {
+      _options.logger(
+        SentryLevel.info,
+        "Couldn't add Dart debug image to event. The event will still be reported.",
+        exception: e,
+        stackTrace: stack,
+      );
+      if (_options.automatedTestMode) {
+        rethrow;
+      }
+    }
+    return _debugImage;
   }
 
   @visibleForTesting
@@ -74,10 +79,14 @@ class _LoadImageIntegrationEventProcessor implements EventProcessor {
 
     final platform = _options.platformChecker.platform;
 
-    if (platform.isAndroid) {
+    if (platform.isAndroid || platform.isWindows) {
       type = 'elf';
       debugId = _convertBuildIdToDebugId(stackTrace.buildId!, platform.endian);
-      codeFile = 'libapp.so';
+      if (platform.isAndroid) {
+        codeFile = 'libapp.so';
+      } else if (platform.isWindows) {
+        codeFile = 'data/app.so';
+      }
     } else if (platform.isIOS || platform.isMacOS) {
       type = 'macho';
       debugId = _formatHexToUuid(stackTrace.buildId!);
