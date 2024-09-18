@@ -367,7 +367,7 @@ class SentryOptions {
   /// when native debug images are not available.
   ///
   /// Automatically set to `false` when using `SentryFlutter.init` on a platform
-  /// with a native integration (e.g. Android, iOS, ...x).
+  /// with a native integration (e.g. Android, iOS, ...).
   bool enableDartSymbolication = true;
 
   @internal
