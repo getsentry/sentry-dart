@@ -138,6 +138,19 @@ void main() {
       ]);
     });
 
+    test('obsoleted getStackFrames works as expected', () {
+      final sut = Fixture().getSut(considerInAppFramesByDefault: true);
+      final trace = '''
+#0      baz (file:///pathto/test.dart:50:3)
+#1      bar (file:///pathto/test.dart:46:9)
+      ''';
+      final frames1 = sut.parse(trace).frames.map((frame) => frame.toJson());
+      // ignore: deprecated_member_use_from_same_package
+      final frames2 = sut.getStackFrames(trace).map((frame) => frame.toJson());
+
+      expect(frames1, equals(frames2));
+    });
+
     test('encodes an asynchronous stack trace', () {
       final frames =
           Fixture().getSut(considerInAppFramesByDefault: true).parse('''
