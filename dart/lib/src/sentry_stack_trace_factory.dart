@@ -21,10 +21,10 @@ class SentryStackTraceFactory {
   /// returns the [SentryStackFrame] list from a stackTrace ([StackTrace] or [String])
   @deprecated
   List<SentryStackFrame> getStackFrames(dynamic stackTrace) {
-    return create(stackTrace).frames;
+    return parse(stackTrace).frames;
   }
 
-  SentryStackTrace create(dynamic stackTrace) {
+  SentryStackTrace parse(dynamic stackTrace) {
     final parsed = _parseStackTrace(stackTrace);
     final frames = <SentryStackFrame>[];
     var onlyAsyncGap = true;

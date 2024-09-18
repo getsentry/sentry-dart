@@ -174,7 +174,7 @@ class Fixture {
     integration.call(Hub(options), options);
   }
 
-  SentryStackTrace parse(String stacktrace) => factory.create(stacktrace);
+  SentryStackTrace parse(String stacktrace) => factory.parse(stacktrace);
 
   SentryEvent newEvent(
       {bool needsSymbolication = true, SentryStackTrace? stackTrace}) {

@@ -48,7 +48,7 @@ class SentryExceptionFactory {
     SentryStackTrace? sentryStackTrace;
     if (stackTrace != null) {
       sentryStackTrace =
-          _stacktraceFactory.create(stackTrace).copyWith(snapshot: snapshot);
+          _stacktraceFactory.parse(stackTrace).copyWith(snapshot: snapshot);
       if (sentryStackTrace.frames.isEmpty) {
         sentryStackTrace = null;
       }

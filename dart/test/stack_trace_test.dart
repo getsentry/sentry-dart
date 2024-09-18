@@ -111,7 +111,7 @@ void main() {
   group('encodeStackTrace', () {
     test('encodes a simple stack trace', () {
       final frames =
-          Fixture().getSut(considerInAppFramesByDefault: true).create('''
+          Fixture().getSut(considerInAppFramesByDefault: true).parse('''
 #0      baz (file:///pathto/test.dart:50:3)
 #1      bar (file:///pathto/test.dart:46:9)
       ''').frames.map((frame) => frame.toJson());
@@ -140,7 +140,7 @@ void main() {
 
     test('encodes an asynchronous stack trace', () {
       final frames =
-          Fixture().getSut(considerInAppFramesByDefault: true).create('''
+          Fixture().getSut(considerInAppFramesByDefault: true).parse('''
 #0      baz (file:///pathto/test.dart:50:3)
 <asynchronous suspension>
 #1      bar (file:///pathto/test.dart:46:9)
@@ -199,7 +199,7 @@ isolate_instructions: 10fa27070, vm_instructions: 10fa21e20
       for (var traceString in stackTraces) {
         final frames = Fixture()
             .getSut(considerInAppFramesByDefault: true)
-            .create(traceString)
+            .parse(traceString)
             .frames
             .map((frame) => frame.toJson());
 
@@ -221,7 +221,7 @@ isolate_instructions: 10fa27070, vm_instructions: 10fa21e20
 
     test('parses normal stack trace', () {
       final frames =
-          Fixture().getSut(considerInAppFramesByDefault: true).create('''
+          Fixture().getSut(considerInAppFramesByDefault: true).parse('''
 #0 asyncThrows (file:/foo/bar/main.dart:404)
 #1 MainScaffold.build.<anonymous closure> (package:example/main.dart:131)
 #2 PlatformDispatcher._dispatchPointerDataPacket (dart:ui/platform_dispatcher.dart:341)
@@ -258,7 +258,7 @@ isolate_instructions: 10fa27070, vm_instructions: 10fa21e20
     test('remove frames if only async gap is left', () {
       final frames = Fixture()
           .getSut(considerInAppFramesByDefault: true)
-          .create(StackTrace.fromString('''
+          .parse(StackTrace.fromString('''
 <asynchronous suspension>
             '''))
           .frames
