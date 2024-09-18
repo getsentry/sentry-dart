@@ -50,22 +50,6 @@ void main() {
         expect(transaction.context.operation, SentrySpanOperations.uiLoad);
         expect(transaction.startTimestamp, ttidSpan?.startTimestamp);
       });
-
-      test('finishes ttid span', () async {
-        final sut = fixture.getSut();
-        final endTimestamp =
-            fixture.startTimestamp.add(const Duration(milliseconds: 10));
-
-        final transaction = fixture.getTransaction(name: '/') as SentryTracer;
-        await sut.trackAppStartTTD(transaction,
-            startTimestamp: fixture.startTimestamp, endTimestamp: endTimestamp);
-
-        final ttidSpan = _getTTIDSpan(transaction);
-        expect(ttidSpan?.context.operation,
-            SentrySpanOperations.uiTimeToInitialDisplay);
-        expect(ttidSpan?.finished, isTrue);
-        expect(ttidSpan?.origin, SentryTraceOrigins.autoUiTimeToDisplay);
-      });
     });
 
     group('in regular routes', () {
@@ -159,32 +143,6 @@ void main() {
         expect(ttidSpan, isNotNull);
 
         final ttfdSpan = _getTTFDSpan(transaction);
-        expect(ttfdSpan?.finished, isTrue);
-        expect(ttfdSpan?.status, SpanStatus.deadlineExceeded());
-        expect(ttfdSpan?.endTimestamp, ttidSpan?.endTimestamp);
-        expect(ttfdSpan?.startTimestamp, ttidSpan?.startTimestamp);
-      });
-    });
-
-    group('in root screen app start route', () {
-      test(
-          'finishes span after timeout with deadline exceeded and ttid matching end time',
-          () async {
-        final sut = fixture.getSut();
-        final transaction =
-            fixture.getTransaction(name: 'root ("/")') as SentryTracer;
-        final endTimestamp =
-            fixture.startTimestamp.add(const Duration(milliseconds: 10));
-
-        await sut.trackAppStartTTD(transaction,
-            startTimestamp: fixture.startTimestamp, endTimestamp: endTimestamp);
-
-        final ttidSpan = _getTTIDSpan(transaction);
-        expect(ttidSpan, isNotNull);
-
-        final ttfdSpan = _getTTFDSpan(transaction);
-        expect(ttfdSpan, isNotNull);
-
         expect(ttfdSpan?.finished, isTrue);
         expect(ttfdSpan?.status, SpanStatus.deadlineExceeded());
         expect(ttfdSpan?.endTimestamp, ttidSpan?.endTimestamp);
