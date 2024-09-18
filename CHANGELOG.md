@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Windows native error & obfuscation support ([#2286](https://github.com/getsentry/sentry-dart/pull/2286))
+
 ### Enhancements
 
 - Improve app start integration ([#2266](https://github.com/getsentry/sentry-dart/pull/2266))
