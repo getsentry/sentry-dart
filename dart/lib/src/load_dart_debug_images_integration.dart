@@ -28,7 +28,15 @@ class _LoadImageIntegrationEventProcessor implements EventProcessor {
         try {
           _debugImage ??= createDebugImage(stackTrace);
           if (_debugImage != null) {
-            return event.copyWith(debugMeta: DebugMeta(images: [_debugImage!]));
+            late final DebugMeta debugMeta;
+            if (event.debugMeta != null) {
+              final images = List<DebugImage>.from(event.debugMeta!.images);
+              images.add(_debugImage!);
+              debugMeta = event.debugMeta!.copyWith(images: images);
+            } else {
+              debugMeta = DebugMeta(images: [_debugImage!]);
+            }
+            return event.copyWith(debugMeta: debugMeta);
           }
         } catch (e, stack) {
           _options.logger(
@@ -56,17 +64,24 @@ class _LoadImageIntegrationEventProcessor implements EventProcessor {
       return null;
     }
 
+    // Type and DebugID are required for proper symbolication
     late final String type;
     late final String debugId;
+
+    // CodeFile is required so that the debug image shows up properly in the UI.
+    // It doesn't need to exist and is not used for symbolication.
+    late final String codeFile;
 
     final platform = _options.platformChecker.platform;
 
     if (platform.isAndroid) {
       type = 'elf';
       debugId = _convertBuildIdToDebugId(stackTrace.buildId!, platform.endian);
+      codeFile = 'libapp.so';
     } else if (platform.isIOS || platform.isMacOS) {
       type = 'macho';
       debugId = _formatHexToUuid(stackTrace.buildId!);
+      codeFile = 'App.Framework/App';
     } else {
       _options.logger(
         SentryLevel.warning,
@@ -80,6 +95,7 @@ class _LoadImageIntegrationEventProcessor implements EventProcessor {
       imageAddr: stackTrace.baseAddr,
       debugId: debugId,
       codeId: stackTrace.buildId,
+      codeFile: codeFile,
     );
   }
 

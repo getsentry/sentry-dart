@@ -84,13 +84,10 @@ isolate_dso_base: 10000000
       });
 
       test('returns null for invalid stack trace', () async {
-        final debugImage = await fixture.parseAndProcess('''
-*** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
-build_id: 'b680cb890f9e3c12a24b172d050dec73'
-isolate_dso_base: 10000000
-    #00 abs 000000723d6346d7 _kDartIsolateSnapshotInstructions+0x1e26d7
-''');
-        expect(debugImage, isNull);
+        final event =
+            fixture.newEvent(stackTrace: fixture.parse('Invalid stack trace'));
+        final resultEvent = await fixture.process(event);
+        expect(resultEvent?.debugMeta?.images, isEmpty);
       });
 
       test('extracts correct debug ID with short debugId', () async {
@@ -100,8 +97,12 @@ build_id: 'b680cb890f9e3c12a24b172d050dec73'
 isolate_dso_base: 20000000
     #00 abs 000000723d6346d7 _kDartIsolateSnapshotInstructions+0x1e26d7
 ''');
-        expect(debugImage?.debugId,
-            equals('89cb80b6-9e0f-123c-a24b-172d050dec73'));
+
+        if (platform.isAndroid) {
+          expect(debugImage?.debugId, '89cb80b6-9e0f-123c-a24b-172d050dec73');
+        } else {
+          expect(debugImage?.debugId, 'b680cb89-0f9e-3c12-a24b-172d050dec73');
+        }
       });
 
       test('extracts correct debug ID for Android with long debugId', () async {
@@ -114,7 +115,7 @@ isolate_dso_base: 30000000
 
         expect(debugImage?.debugId,
             equals('c0bcc3f1-9827-fe65-3058-404b2831d9e6'));
-      });
+      }, skip: !platform.isAndroid);
 
       test('sets correct type based on platform', () async {
         final debugImage = await fixture.parseAndProcess('''
