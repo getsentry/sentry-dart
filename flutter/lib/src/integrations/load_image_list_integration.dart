@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
 import '../native/sentry_native_binding.dart';
 import '../sentry_flutter_options.dart';
@@ -29,6 +28,7 @@ class _LoadImageListIntegrationEventProcessor implements EventProcessor {
 
   @override
   Future<SentryEvent?> apply(SentryEvent event, Hint hint) async {
+    // ignore: invalid_use_of_internal_member
     final stackTrace = event.stacktrace;
 
     // if the stacktrace has native frames, we load native debug images.
