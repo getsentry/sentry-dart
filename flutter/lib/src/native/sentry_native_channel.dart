@@ -84,6 +84,7 @@ class SentryNativeChannel
     return (json != null) ? NativeAppStart.fromJson(json) : null;
   }
 
+  @override
   bool get supportsCaptureEnvelope => true;
 
   @override
@@ -93,6 +94,7 @@ class SentryNativeChannel
         'captureEnvelope', [envelopeData, containsUnhandledException]);
   }
 
+  @override
   bool get supportsLoadContexts => true;
 
   @override

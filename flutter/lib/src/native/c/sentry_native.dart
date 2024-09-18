@@ -17,6 +17,7 @@ import 'utils.dart';
 @internal
 class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   DebugImage? _appDebugImage;
+  @override
   final SentryFlutterOptions options;
 
   @visibleForTesting
@@ -31,6 +32,7 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   void _logNotSupported(String operation) => options.logger(
       SentryLevel.debug, 'SentryNative: $operation is not supported');
 
+  @override
   FutureOr<void> init(Hub hub) {
     if (!options.enableNativeCrashHandling) {
       options.logger(
@@ -77,23 +79,30 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
     }
   }
 
+  @override
   FutureOr<void> close() {
     tryCatchSync('close', native.close);
   }
 
+  @override
   FutureOr<NativeAppStart?> fetchNativeAppStart() => null;
 
+  @override
   bool get supportsCaptureEnvelope => false;
 
+  @override
   FutureOr<void> captureEnvelope(
       Uint8List envelopeData, bool containsUnhandledException) {
     throw UnsupportedError('$SentryNative.captureEnvelope() is not suppurted');
   }
 
+  @override
   FutureOr<void> beginNativeFrames() {}
 
+  @override
   FutureOr<NativeFrames?> endNativeFrames(SentryId id) => null;
 
+  @override
   FutureOr<void> setUser(SentryUser? user) {
     if (user == null) {
       tryCatchSync('remove_user', native.remove_user);
@@ -105,6 +114,7 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
     }
   }
 
+  @override
   FutureOr<void> addBreadcrumb(Breadcrumb breadcrumb) {
     tryCatchSync('add_breadcrumb', () {
       var cBreadcrumb = breadcrumb.toJson().toNativeValue(options.logger);
@@ -112,17 +122,21 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
     });
   }
 
+  @override
   FutureOr<void> clearBreadcrumbs() {
     _logNotSupported('clearing breadcrumbs');
   }
 
+  @override
   bool get supportsLoadContexts => false;
 
+  @override
   FutureOr<Map<String, dynamic>?> loadContexts() {
     _logNotSupported('loading contexts');
     return null;
   }
 
+  @override
   FutureOr<void> setContexts(String key, dynamic value) {
     tryCatchSync('set_context', () {
       final cValue = dynamicToNativeValue(value, options.logger);
@@ -137,6 +151,7 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
     });
   }
 
+  @override
   FutureOr<void> removeContexts(String key) {
     tryCatchSync('remove_context', () {
       final cKey = key.toNativeUtf8();
@@ -145,6 +160,7 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
     });
   }
 
+  @override
   FutureOr<void> setExtra(String key, dynamic value) {
     tryCatchSync('set_extra', () {
       final cValue = dynamicToNativeValue(value, options.logger);
@@ -159,6 +175,7 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
     });
   }
 
+  @override
   FutureOr<void> removeExtra(String key) {
     tryCatchSync('remove_extra', () {
       final cKey = key.toNativeUtf8();
@@ -167,6 +184,7 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
     });
   }
 
+  @override
   FutureOr<void> setTag(String key, String value) {
     tryCatchSync('set_tag', () {
       final c = FreeableFactory();
@@ -175,6 +193,7 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
     });
   }
 
+  @override
   FutureOr<void> removeTag(String key) {
     tryCatchSync('remove_tag', () {
       final cKey = key.toNativeUtf8();
@@ -183,21 +202,26 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
     });
   }
 
+  @override
   int? startProfiler(SentryId traceId) =>
       throw UnsupportedError("Not supported on this platform");
 
+  @override
   FutureOr<void> discardProfiler(SentryId traceId) =>
       throw UnsupportedError("Not supported on this platform");
 
+  @override
   FutureOr<Map<String, dynamic>?> collectProfile(
           SentryId traceId, int startTimeNs, int endTimeNs) =>
       throw UnsupportedError("Not supported on this platform");
 
+  @override
   FutureOr<int?> displayRefreshRate() {
     _logNotSupported('collecting display refresh rate');
     return null;
   }
 
+  @override
   FutureOr<List<DebugImage>?> loadDebugImages(SentryStackTrace stackTrace) =>
       tryCatchAsync('get_module_list', () async {
         final cImages = native.get_modules_list();
@@ -311,14 +335,18 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
     return String.fromCharCodes(data);
   }
 
+  @override
   FutureOr<void> pauseAppHangTracking() {}
 
+  @override
   FutureOr<void> resumeAppHangTracking() {}
 
+  @override
   FutureOr<void> nativeCrash() {
     Pointer.fromAddress(1).cast<Utf8>().toDartString();
   }
 
+  @override
   FutureOr<SentryId> captureReplay(bool isCrash) {
     _logNotSupported('capturing replay');
     return SentryId.empty();
