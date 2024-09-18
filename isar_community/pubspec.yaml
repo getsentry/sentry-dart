@@ -1,0 +1,45 @@
+name: sentry_isar_community
+description: An integration which adds support for performance tracing for the isar (community fork) package.
+version: 8.9.0
+homepage: https://docs.sentry.io/platforms/flutter/
+repository: https://github.com/getsentry/sentry-dart
+issue_tracker: https://github.com/getsentry/sentry-dart/issues
+
+environment:
+  sdk: '>=2.17.0 <4.0.0'
+  flutter: '>=3.3.0'
+
+platforms:
+  android:
+  ios:
+  macos:
+  linux:
+  windows:
+  web:
+
+isar_version: &isar_version 3.1.8 # define the version to be used
+
+dependencies:
+  isar:
+    version: *isar_version
+    hosted: https://pub.isar-community.dev/
+  isar_flutter_libs: # contains Isar Core
+    version: *isar_version
+    hosted: https://pub.isar-community.dev/
+
+  sentry: 8.9.0
+  meta: ^1.3.0
+  path: ^1.8.3
+
+dev_dependencies:
+  isar_generator:
+    version: *isar_version
+    hosted: https://pub.isar-community.dev/
+  build_runner: ^2.4.6
+  lints: ^3.0.0
+  flutter_test:
+    sdk: flutter
+  coverage: ^1.3.0
+  mockito: ^5.1.0
+  yaml: ^3.1.0 # needed for version match (code and pubspec)
+  path_provider: ^2.1.1

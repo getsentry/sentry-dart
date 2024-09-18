@@ -51,6 +51,10 @@ jobs:
         working-directory: ./isar
         run: lakos . -i "{test/**,example/**}" | dot -Tsvg -o class-diagram.svg
 
+      - name: isar_community
+        working-directory: ./isar_community
+        run: lakos . -i "{test/**,example/**}" | dot -Tsvg -o class-diagram.svg
+
         # Source: https://stackoverflow.com/a/58035262
       - name: Extract branch name
         shell: bash

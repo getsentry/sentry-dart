@@ -17,6 +17,7 @@ targets:
       hive:
       drift:
       isar:
+      isar_community:
   - name: github
   - name: registry
     sdks:
@@ -29,3 +30,4 @@ targets:
       pub:sentry_drift:
       pub:sentry_hive:
       pub:sentry_isar:
+      pub:sentry_isar_community:
