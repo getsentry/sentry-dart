@@ -30,4 +30,3 @@ targets:
       pub:sentry_drift:
       pub:sentry_hive:
       pub:sentry_isar:
-      pub:sentry_isar_community:

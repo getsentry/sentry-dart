@@ -16,6 +16,8 @@ import 'package:sentry_dio/sentry_dio.dart';
 import 'package:sentry_drift/sentry_drift.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_hive/sentry_hive.dart';
+// If using the community fork of isar, use the following import instead:
+// import 'package:sentry_isar_community/sentry_isar_community.dart';
 import 'package:sentry_isar/sentry_isar.dart';
 import 'package:sentry_logging/sentry_logging.dart';
 import 'package:sentry_sqflite/sentry_sqflite.dart';
