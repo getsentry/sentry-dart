@@ -62,36 +62,36 @@ Future<void> setupSentry(
   bool isIntegrationTest = false,
   BeforeSendCallback? beforeSendCallback,
 }) async {
-  await SentryFlutter.init(
+  await Sentry.init(
     (options) {
       options.dsn = exampleDsn;
       options.tracesSampleRate = 1.0;
-      options.profilesSampleRate = 1.0;
-      options.reportPackages = false;
+      // options.profilesSampleRate = 1.0;
+      // options.reportPackages = false;
       options.addInAppInclude('sentry_flutter_example');
       options.considerInAppFramesByDefault = false;
       options.attachThreads = true;
-      options.enableWindowMetricBreadcrumbs = true;
+      // options.enableWindowMetricBreadcrumbs = true;
       options.addIntegration(LoggingIntegration(minEventLevel: Level.INFO));
       options.sendDefaultPii = true;
-      options.reportSilentFlutterErrors = true;
-      options.attachScreenshot = true;
-      options.screenshotQuality = SentryScreenshotQuality.low;
-      options.attachViewHierarchy = true;
+      // options.reportSilentFlutterErrors = true;
+      // options.attachScreenshot = true;
+      // options.screenshotQuality = SentryScreenshotQuality.low;
+      // options.attachViewHierarchy = true;
       // We can enable Sentry debug logging during development. This is likely
       // going to log too much for your app, but can be useful when figuring out
       // configuration issues, e.g. finding out why your events are not uploaded.
       options.debug = true;
       options.spotlight = Spotlight(enabled: true);
-      options.enableTimeToFullDisplayTracing = true;
+      // options.enableTimeToFullDisplayTracing = true;
       options.enableMetrics = true;
 
       options.maxRequestBodySize = MaxRequestBodySize.always;
       options.maxResponseBodySize = MaxResponseBodySize.always;
-      options.navigatorKey = navigatorKey;
+      // options.navigatorKey = navigatorKey;
 
-      options.experimental.replay.sessionSampleRate = 1.0;
-      options.experimental.replay.onErrorSampleRate = 1.0;
+      // options.experimental.replay.sessionSampleRate = 1.0;
+      // options.experimental.replay.onErrorSampleRate = 1.0;
 
       _isIntegrationTest = isIntegrationTest;
       if (_isIntegrationTest) {
