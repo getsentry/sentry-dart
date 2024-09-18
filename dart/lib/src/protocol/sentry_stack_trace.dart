@@ -1,6 +1,7 @@
 import 'package:meta/meta.dart';
 
 import 'sentry_stack_frame.dart';
+import 'access_aware_map.dart';
 
 /// Stacktrace holds information about the frames of the stack.
 @immutable
@@ -10,6 +11,7 @@ class SentryStackTrace {
     Map<String, String>? registers,
     this.lang,
     this.snapshot,
+    this.unknown,
   })  : _frames = frames,
         _registers = Map.from(registers ?? {});
 
@@ -44,8 +46,12 @@ class SentryStackTrace {
   /// signal.
   final bool? snapshot;
 
+  @internal
+  final Map<String, dynamic>? unknown;
+
   /// Deserializes a [SentryStackTrace] from JSON [Map].
-  factory SentryStackTrace.fromJson(Map<String, dynamic> json) {
+  factory SentryStackTrace.fromJson(Map<String, dynamic> data) {
+    final json = AccessAwareMap(data);
     final framesJson = json['frames'] as List<dynamic>?;
     return SentryStackTrace(
       frames: framesJson != null
@@ -56,12 +62,14 @@ class SentryStackTrace {
       registers: json['registers'],
       lang: json['lang'],
       snapshot: json['snapshot'],
+      unknown: json.notAccessed(),
     );
   }
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
-    return <String, dynamic>{
+    return {
+      ...?unknown,
       if (_frames?.isNotEmpty ?? false)
         'frames':
             _frames?.map((frame) => frame.toJson()).toList(growable: false),
@@ -74,9 +82,14 @@ class SentryStackTrace {
   SentryStackTrace copyWith({
     List<SentryStackFrame>? frames,
     Map<String, String>? registers,
+    String? lang,
+    bool? snapshot,
   }) =>
       SentryStackTrace(
         frames: frames ?? this.frames,
         registers: registers ?? this.registers,
+        lang: lang ?? this.lang,
+        snapshot: snapshot ?? this.snapshot,
+        unknown: unknown,
       );
 }

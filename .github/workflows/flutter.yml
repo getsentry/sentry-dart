@@ -29,6 +29,7 @@ jobs:
     defaults:
       run:
         shell: bash
+        working-directory: flutter
     strategy:
       fail-fast: false
       matrix:
@@ -77,21 +78,23 @@ jobs:
       - run: flutter upgrade
 
       - name: Pub Get
-        run: |
-          cd flutter
-          flutter pub get
+        run: flutter pub get
 
-      - name: Test chrome
+      - name: Test web (JS)
         if: matrix.target == 'web'
         run: |
-          cd flutter
           flutter test --platform chrome --test-randomize-ordering-seed=random --exclude-tags canvasKit
           flutter test --platform chrome --test-randomize-ordering-seed=random --tags canvasKit --web-renderer canvaskit
+
+      - name: Test web (WASM)
+        if: matrix.target == 'web'
+        run: |
+          flutter test --platform chrome --wasm --test-randomize-ordering-seed=random --exclude-tags canvasKit
+          flutter test --platform chrome --wasm --test-randomize-ordering-seed=random --tags canvasKit --web-renderer canvaskit
 
       - name: Test VM with coverage
         if: matrix.target == 'linux' || matrix.target == 'macos' || matrix.target == 'windows'
         run: |
-          cd flutter
           flutter test --coverage --test-randomize-ordering-seed=random
           dart run remove_from_coverage -f coverage/lcov.info -r 'binding.dart'
 
@@ -111,11 +114,11 @@ jobs:
           exclude: 'lib/src/native/cocoa/binding.dart'
 
       - name: Build ${{ matrix.target }}
+        working-directory: flutter/example
         run: |
           flutter config --enable-windows-desktop
           flutter config --enable-macos-desktop
           flutter config --enable-linux-desktop
-          cd flutter/example
           TARGET=${{ matrix.target }}
           flutter pub get
           case $TARGET in
@@ -192,6 +195,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       # To recreate baseline run: detekt -i flutter/android,flutter/example/android -b flutter/config/detekt-bl.xml -cb
-      - uses: natiginfo/action-detekt-all@b9daaf58ff7a4885ff92ba612c3ea72bf1abeadb # pin@1.23.6
+      - uses: natiginfo/action-detekt-all@6bf4342ea96f638ecced05cf7d7dc48acdecc854 # pin@1.23.7
         with:
           args: -i flutter/android,flutter/example/android --baseline flutter/config/detekt-bl.xml --jvm-target 1.8 --build-upon-default-config --all-rules

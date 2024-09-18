@@ -203,7 +203,7 @@ void main() {
 }
 
 class Fixture {
-  SentryOptions options = SentryOptions(dsn: fakeDsn);
+  SentryOptions options = defaultTestOptions();
   MockHub hub = MockHub();
 
   LoggingIntegration createSut({

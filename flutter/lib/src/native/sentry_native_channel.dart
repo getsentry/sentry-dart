@@ -23,15 +23,15 @@ class SentryNativeChannel
   @override
   final SentryFlutterOptions options;
 
-  final SentrySafeMethodChannel _channel;
+  @protected
+  final SentrySafeMethodChannel channel;
 
-  SentryNativeChannel(this.options, MethodChannel channel)
-      : _channel = SentrySafeMethodChannel(channel, options);
+  SentryNativeChannel(this.options)
+      : channel = SentrySafeMethodChannel(options);
 
   @override
-  Future<void> init(SentryFlutterOptions options) async {
-    assert(this.options == options);
-    return _channel.invokeMethod('initNativeSdk', <String, dynamic>{
+  Future<void> init(Hub hub) async {
+    return channel.invokeMethod('initNativeSdk', <String, dynamic>{
       'dsn': options.dsn,
       'debug': options.debug,
       'environment': options.environment,
@@ -67,38 +67,42 @@ class SentryNativeChannel
       'readTimeoutMillis': options.readTimeout.inMilliseconds,
       'appHangTimeoutIntervalMillis':
           options.appHangTimeoutInterval.inMilliseconds,
+      if (options.proxy != null) 'proxy': options.proxy?.toJson(),
+      'replay': <String, dynamic>{
+        'sessionSampleRate': options.experimental.replay.sessionSampleRate,
+        'onErrorSampleRate': options.experimental.replay.onErrorSampleRate,
+      },
       'sampleRate': options.sampleRate
     });
   }
 
   @override
-  Future<void> close() async => _channel.invokeMethod('closeNativeSdk');
+  Future<void> close() async => channel.invokeMethod('closeNativeSdk');
 
   @override
   Future<NativeAppStart?> fetchNativeAppStart() async {
     final json =
-        await _channel.invokeMapMethod<String, dynamic>('fetchNativeAppStart');
+        await channel.invokeMapMethod<String, dynamic>('fetchNativeAppStart');
     return (json != null) ? NativeAppStart.fromJson(json) : null;
   }
 
   @override
   Future<void> captureEnvelope(
       Uint8List envelopeData, bool containsUnhandledException) {
-    return _channel.invokeMethod(
+    return channel.invokeMethod(
         'captureEnvelope', [envelopeData, containsUnhandledException]);
   }
 
   @override
   Future<Map<String, dynamic>?> loadContexts() =>
-      _channel.invokeMapMethod<String, dynamic>('loadContexts');
+      channel.invokeMapMethod<String, dynamic>('loadContexts');
 
   @override
-  Future<void> beginNativeFrames() =>
-      _channel.invokeMethod('beginNativeFrames');
+  Future<void> beginNativeFrames() => channel.invokeMethod('beginNativeFrames');
 
   @override
   Future<NativeFrames?> endNativeFrames(SentryId id) async {
-    final json = await _channel.invokeMapMethod<String, dynamic>(
+    final json = await channel.invokeMapMethod<String, dynamic>(
         'endNativeFrames', {'id': id.toString()});
     return (json != null) ? NativeFrames.fromJson(json) : null;
   }
@@ -108,7 +112,7 @@ class SentryNativeChannel
     final normalizedUser = user?.copyWith(
       data: MethodChannelHelper.normalizeMap(user.data),
     );
-    await _channel.invokeMethod(
+    await channel.invokeMethod(
       'setUser',
       {'user': normalizedUser?.toJson()},
     );
@@ -119,42 +123,42 @@ class SentryNativeChannel
     final normalizedBreadcrumb = breadcrumb.copyWith(
       data: MethodChannelHelper.normalizeMap(breadcrumb.data),
     );
-    await _channel.invokeMethod(
+    await channel.invokeMethod(
       'addBreadcrumb',
       {'breadcrumb': normalizedBreadcrumb.toJson()},
     );
   }
 
   @override
-  Future<void> clearBreadcrumbs() => _channel.invokeMethod('clearBreadcrumbs');
+  Future<void> clearBreadcrumbs() => channel.invokeMethod('clearBreadcrumbs');
 
   @override
-  Future<void> setContexts(String key, dynamic value) => _channel.invokeMethod(
+  Future<void> setContexts(String key, dynamic value) => channel.invokeMethod(
         'setContexts',
         {'key': key, 'value': MethodChannelHelper.normalize(value)},
       );
 
   @override
   Future<void> removeContexts(String key) =>
-      _channel.invokeMethod('removeContexts', {'key': key});
+      channel.invokeMethod('removeContexts', {'key': key});
 
   @override
-  Future<void> setExtra(String key, dynamic value) => _channel.invokeMethod(
+  Future<void> setExtra(String key, dynamic value) => channel.invokeMethod(
         'setExtra',
         {'key': key, 'value': MethodChannelHelper.normalize(value)},
       );
 
   @override
   Future<void> removeExtra(String key) =>
-      _channel.invokeMethod('removeExtra', {'key': key});
+      channel.invokeMethod('removeExtra', {'key': key});
 
   @override
   Future<void> setTag(String key, String value) =>
-      _channel.invokeMethod('setTag', {'key': key, 'value': value});
+      channel.invokeMethod('setTag', {'key': key, 'value': value});
 
   @override
   Future<void> removeTag(String key) =>
-      _channel.invokeMethod('removeTag', {'key': key});
+      channel.invokeMethod('removeTag', {'key': key});
 
   @override
   int? startProfiler(SentryId traceId) =>
@@ -162,12 +166,12 @@ class SentryNativeChannel
 
   @override
   Future<void> discardProfiler(SentryId traceId) =>
-      _channel.invokeMethod('discardProfiler', traceId.toString());
+      channel.invokeMethod('discardProfiler', traceId.toString());
 
   @override
   Future<Map<String, dynamic>?> collectProfile(
           SentryId traceId, int startTimeNs, int endTimeNs) =>
-      _channel.invokeMapMethod<String, dynamic>('collectProfile', {
+      channel.invokeMapMethod<String, dynamic>('collectProfile', {
         'traceId': traceId.toString(),
         'startTime': startTimeNs,
         'endTime': endTimeNs,
@@ -176,7 +180,7 @@ class SentryNativeChannel
   @override
   Future<List<DebugImage>?> loadDebugImages() =>
       tryCatchAsync('loadDebugImages', () async {
-        final images = await _channel
+        final images = await channel
             .invokeListMethod<Map<dynamic, dynamic>>('loadImageList');
         return images
             ?.map((e) => e.cast<String, dynamic>())
@@ -186,13 +190,22 @@ class SentryNativeChannel
 
   @override
   Future<int?> displayRefreshRate() =>
-      _channel.invokeMethod('displayRefreshRate');
+      channel.invokeMethod('displayRefreshRate');
 
   @override
   Future<void> pauseAppHangTracking() =>
-      _channel.invokeMethod('pauseAppHangTracking');
+      channel.invokeMethod('pauseAppHangTracking');
 
   @override
   Future<void> resumeAppHangTracking() =>
-      _channel.invokeMethod('resumeAppHangTracking');
+      channel.invokeMethod('resumeAppHangTracking');
+
+  @override
+  Future<void> nativeCrash() => channel.invokeMethod('nativeCrash');
+
+  @override
+  Future<SentryId> captureReplay(bool isCrash) =>
+      channel.invokeMethod('captureReplay', {
+        'isCrash': isCrash,
+      }).then((value) => SentryId.fromId(value as String));
 }

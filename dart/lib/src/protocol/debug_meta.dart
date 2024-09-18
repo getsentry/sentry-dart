@@ -1,6 +1,7 @@
 import 'package:meta/meta.dart';
 
 import '../protocol.dart';
+import 'access_aware_map.dart';
 
 /// The debug meta interface carries debug information for processing errors and crash reports.
 @immutable
@@ -16,10 +17,15 @@ class DebugMeta {
   /// images in order to retrieve debug files for symbolication.
   List<DebugImage> get images => List.unmodifiable(_images ?? const []);
 
-  DebugMeta({this.sdk, List<DebugImage>? images}) : _images = images;
+  DebugMeta({this.sdk, List<DebugImage>? images, this.unknown})
+      : _images = images;
+
+  @internal
+  final Map<String, dynamic>? unknown;
 
   /// Deserializes a [DebugMeta] from JSON [Map].
-  factory DebugMeta.fromJson(Map<String, dynamic> json) {
+  factory DebugMeta.fromJson(Map<String, dynamic> data) {
+    final json = AccessAwareMap(data);
     final sdkInfoJson = json['sdk_info'];
     final debugImagesJson = json['images'] as List<dynamic>?;
     return DebugMeta(
@@ -28,6 +34,7 @@ class DebugMeta {
           ?.map((debugImageJson) =>
               DebugImage.fromJson(debugImageJson as Map<String, dynamic>))
           .toList(),
+      unknown: json.notAccessed(),
     );
   }
 
@@ -35,12 +42,13 @@ class DebugMeta {
   Map<String, dynamic> toJson() {
     final sdkInfo = sdk?.toJson();
     return {
+      ...?unknown,
       if (sdkInfo?.isNotEmpty ?? false) 'sdk_info': sdkInfo,
       if (_images?.isNotEmpty ?? false)
         'images': _images!
             .map((e) => e.toJson())
             .where((element) => element.isNotEmpty)
-            .toList(growable: false)
+            .toList(growable: false),
     };
   }
 
@@ -51,5 +59,6 @@ class DebugMeta {
       DebugMeta(
         sdk: sdk ?? this.sdk,
         images: images ?? _images,
+        unknown: unknown,
       );
 }

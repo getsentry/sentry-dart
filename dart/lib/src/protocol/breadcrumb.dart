@@ -2,6 +2,7 @@ import 'package:meta/meta.dart';
 
 import '../utils.dart';
 import '../protocol.dart';
+import 'access_aware_map.dart';
 
 /// Structured data to describe more information prior to the event captured.
 /// See `Sentry.captureEvent()`.
@@ -30,6 +31,7 @@ class Breadcrumb {
     this.data,
     SentryLevel? level,
     this.type,
+    this.unknown,
   })  : timestamp = timestamp ?? getUtcDateTime(),
         level = level ?? SentryLevel.info;
 
@@ -50,6 +52,10 @@ class Breadcrumb {
     String? httpQuery,
     String? httpFragment,
   }) {
+    // The timestamp is used as the request-end time, so we need to set it right
+    // now and not rely on the default constructor.
+    timestamp ??= getUtcDateTime();
+
     return Breadcrumb(
       type: 'http',
       category: 'http',
@@ -65,6 +71,11 @@ class Breadcrumb {
         if (responseBodySize != null) 'response_body_size': responseBodySize,
         if (httpQuery != null) 'http.query': httpQuery,
         if (httpFragment != null) 'http.fragment': httpFragment,
+        if (requestDuration != null)
+          'start_timestamp':
+              timestamp.millisecondsSinceEpoch - requestDuration.inMilliseconds,
+        if (requestDuration != null)
+          'end_timestamp': timestamp.millisecondsSinceEpoch,
       },
     );
   }
@@ -94,21 +105,17 @@ class Breadcrumb {
     String? viewId,
     String? viewClass,
   }) {
-    final newData = data ?? {};
-    if (viewId != null) {
-      newData['view.id'] = viewId;
-    }
-    if (viewClass != null) {
-      newData['view.class'] = viewClass;
-    }
-
     return Breadcrumb(
       message: message,
       level: level,
       category: 'ui.$subCategory',
       type: 'user',
       timestamp: timestamp,
-      data: newData,
+      data: {
+        if (viewId != null) 'view.id': viewId,
+        if (viewClass != null) 'view.class': viewClass,
+        if (data != null) ...data,
+      },
     );
   }
 
@@ -156,8 +163,13 @@ class Breadcrumb {
   /// The value is submitted to Sentry with second precision.
   final DateTime timestamp;
 
+  @internal
+  final Map<String, dynamic>? unknown;
+
   /// Deserializes a [Breadcrumb] from JSON [Map].
-  factory Breadcrumb.fromJson(Map<String, dynamic> json) {
+  factory Breadcrumb.fromJson(Map<String, dynamic> jsonData) {
+    final json = AccessAwareMap(jsonData);
+
     final levelName = json['level'];
     final timestamp = json['timestamp'];
 
@@ -165,7 +177,6 @@ class Breadcrumb {
     if (data != null) {
       data = Map<String, dynamic>.from(data as Map);
     }
-
     return Breadcrumb(
       timestamp: timestamp != null ? DateTime.tryParse(timestamp) : null,
       message: json['message'],
@@ -173,6 +184,7 @@ class Breadcrumb {
       data: data,
       level: levelName != null ? SentryLevel.fromName(levelName) : null,
       type: json['type'],
+      unknown: json.notAccessed(),
     );
   }
 
@@ -180,6 +192,7 @@ class Breadcrumb {
   /// to the Sentry protocol.
   Map<String, dynamic> toJson() {
     return {
+      ...?unknown,
       'timestamp': formatDateAsIso8601WithMillisPrecision(timestamp),
       if (message != null) 'message': message,
       if (category != null) 'category': category,
@@ -204,5 +217,6 @@ class Breadcrumb {
         level: level ?? this.level,
         type: type ?? this.type,
         timestamp: timestamp ?? this.timestamp,
+        unknown: unknown,
       );
 }

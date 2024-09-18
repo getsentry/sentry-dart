@@ -6,11 +6,10 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 
 class UserFeedbackDialog extends StatefulWidget {
   const UserFeedbackDialog({
-    Key? key,
+    super.key,
     required this.eventId,
     this.hub,
-  })  : assert(eventId != const SentryId.empty()),
-        super(key: key);
+  }) : assert(eventId != const SentryId.empty());
 
   final SentryId eventId;
   final Hub? hub;
@@ -115,7 +114,7 @@ class _UserFeedbackDialogState extends State<UserFeedbackDialog> {
 }
 
 class _PoweredBySentryMessage extends StatelessWidget {
-  const _PoweredBySentryMessage({Key? key}) : super(key: key);
+  const _PoweredBySentryMessage();
 
   @override
   Widget build(BuildContext context) {
@@ -144,7 +143,7 @@ class _SentryLogo extends StatelessWidget {
     var color = Colors.white;
     final brightenss = Theme.of(context).brightness;
     if (brightenss == Brightness.light) {
-      color = const Color(0xff362d59).withOpacity(1.0);
+      color = const Color(0xff362d59);
     }
 
     return FittedBox(

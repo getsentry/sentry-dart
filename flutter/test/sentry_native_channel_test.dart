@@ -27,12 +27,11 @@ void main() {
       late MockMethodChannel channel;
 
       setUp(() {
-        final options = SentryFlutterOptions(
-            dsn: fakeDsn, checker: getPlatformChecker(platform: mockPlatform))
-          // ignore: invalid_use_of_internal_member
-          ..automatedTestMode = true;
         channel = MockMethodChannel();
-        sut = createBinding(options, channel: channel);
+        final options =
+            defaultTestOptions(getPlatformChecker(platform: mockPlatform))
+              ..methodChannel = channel;
+        sut = createBinding(options);
       });
 
       // TODO move other methods here, e.g. init_native_sdk_test.dart
@@ -301,6 +300,15 @@ void main() {
         await sut.resumeAppHangTracking();
 
         verify(channel.invokeMethod('resumeAppHangTracking'));
+      });
+
+      test('nativeCrash', () async {
+        when(channel.invokeMethod('nativeCrash'))
+            .thenAnswer((_) => Future.value());
+
+        await sut.nativeCrash();
+
+        verify(channel.invokeMethod('nativeCrash'));
       });
     });
   }

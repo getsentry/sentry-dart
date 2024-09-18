@@ -9,12 +9,14 @@ import 'event_processor/android_platform_exception_event_processor.dart';
 import 'event_processor/flutter_enricher_event_processor.dart';
 import 'event_processor/flutter_exception_event_processor.dart';
 import 'event_processor/platform_exception_event_processor.dart';
+import 'event_processor/url_filter/url_filter_event_processor.dart';
 import 'event_processor/widget_event_processor.dart';
 import 'file_system_transport.dart';
 import 'flutter_exception_type_identifier.dart';
 import 'frame_callback_handler.dart';
 import 'integrations/connectivity/connectivity_integration.dart';
 import 'integrations/integrations.dart';
+import 'integrations/native_app_start_handler.dart';
 import 'integrations/screenshot_integration.dart';
 import 'native/factory.dart';
 import 'native/native_scope_observer.dart';
@@ -50,23 +52,15 @@ mixin SentryFlutter {
   static Future<void> init(
     FlutterOptionsConfiguration optionsConfiguration, {
     AppRunner? appRunner,
-    @internal PlatformChecker? platformChecker,
-    @internal RendererWrapper? rendererWrapper,
+    @internal SentryFlutterOptions? options,
   }) async {
-    final flutterOptions = SentryFlutterOptions();
+    options ??= SentryFlutterOptions();
 
     // ignore: invalid_use_of_internal_member
-    sentrySetupStartTime ??= flutterOptions.clock();
+    sentrySetupStartTime ??= options.clock();
 
-    if (platformChecker != null) {
-      flutterOptions.platformChecker = platformChecker;
-    }
-    if (rendererWrapper != null) {
-      flutterOptions.rendererWrapper = rendererWrapper;
-    }
-
-    if (flutterOptions.platformChecker.hasNativeIntegration) {
-      _native = createBinding(flutterOptions);
+    if (options.platformChecker.hasNativeIntegration) {
+      _native = createBinding(options);
     }
 
     final platformDispatcher = PlatformDispatcher.instance;
@@ -75,34 +69,31 @@ mixin SentryFlutter {
     // Flutter Web don't capture [Future] errors if using [PlatformDispatcher.onError] and not
     // the [runZonedGuarded].
     // likely due to https://github.com/flutter/flutter/issues/100277
-    final isOnErrorSupported = flutterOptions.platformChecker.isWeb
+    final isOnErrorSupported = options.platformChecker.isWeb
         ? false
-        : wrapper.isOnErrorSupported(flutterOptions);
+        : wrapper.isOnErrorSupported(options);
 
-    final runZonedGuardedOnError = flutterOptions.platformChecker.isWeb
-        ? _createRunZonedGuardedOnError()
-        : null;
+    final runZonedGuardedOnError =
+        options.platformChecker.isWeb ? _createRunZonedGuardedOnError() : null;
 
     // first step is to install the native integration and set default values,
     // so we are able to capture future errors.
-    final defaultIntegrations = _createDefaultIntegrations(
-      flutterOptions,
-      isOnErrorSupported,
-    );
+    final defaultIntegrations =
+        _createDefaultIntegrations(options, isOnErrorSupported);
     for (final defaultIntegration in defaultIntegrations) {
-      flutterOptions.addIntegration(defaultIntegration);
+      options.addIntegration(defaultIntegration);
     }
 
-    await _initDefaultValues(flutterOptions);
+    await _initDefaultValues(options);
 
     await Sentry.init(
-      (options) {
-        assert(options == flutterOptions);
-        return optionsConfiguration(options as SentryFlutterOptions);
+      (o) {
+        assert(options == o);
+        return optionsConfiguration(o as SentryFlutterOptions);
       },
       appRunner: appRunner,
       // ignore: invalid_use_of_internal_member
-      options: flutterOptions,
+      options: options,
       // ignore: invalid_use_of_internal_member
       callAppRunnerInRunZonedGuarded: !isOnErrorSupported,
       // ignore: invalid_use_of_internal_member
@@ -116,8 +107,7 @@ mixin SentryFlutter {
 
     // Insert it at the start of the list, before the Dart Exceptions that are set in Sentry.init
     // so we can identify Flutter exceptions first.
-    flutterOptions
-        .prependExceptionTypeIdentifier(FlutterExceptionTypeIdentifier());
+    options.prependExceptionTypeIdentifier(FlutterExceptionTypeIdentifier());
   }
 
   static Future<void> _initDefaultValues(SentryFlutterOptions options) async {
@@ -131,6 +121,7 @@ mixin SentryFlutter {
 
     options.addEventProcessor(FlutterEnricherEventProcessor(options));
     options.addEventProcessor(WidgetEventProcessor());
+    options.addEventProcessor(UrlFilterEventProcessor(options));
 
     if (options.platformChecker.platform.isAndroid) {
       options.addEventProcessor(
@@ -181,6 +172,7 @@ mixin SentryFlutter {
       integrations.add(NativeSdkIntegration(native));
       integrations.add(LoadContextsIntegration(native));
       integrations.add(LoadImageListIntegration(native));
+      options.enableDartSymbolication = false;
     }
 
     final renderer = options.rendererWrapper.getRenderer();
@@ -203,10 +195,12 @@ mixin SentryFlutter {
     integrations.add(LoadReleaseIntegration());
 
     if (native != null) {
-      integrations.add(NativeAppStartIntegration(
-        native,
-        DefaultFrameCallbackHandler(),
-      ));
+      integrations.add(
+        NativeAppStartIntegration(
+          DefaultFrameCallbackHandler(),
+          NativeAppStartHandler(native),
+        ),
+      );
     }
     return integrations;
   }
@@ -222,9 +216,15 @@ mixin SentryFlutter {
   }
 
   /// Manually set when your app finished startup. Make sure to set
-  /// [SentryFlutterOptions.autoAppStart] to false on init.
+  /// [SentryFlutterOptions.autoAppStart] to false on init. The timeout duration
+  /// for this to work is 10 seconds.
   static void setAppStartEnd(DateTime appStartEnd) {
-    NativeAppStartIntegration.appStartEnd = appStartEnd;
+    // ignore: invalid_use_of_internal_member
+    final integrations = Sentry.currentHub.options.integrations
+        .whereType<NativeAppStartIntegration>();
+    for (final integration in integrations) {
+      integration.appStartEnd = appStartEnd;
+    }
   }
 
   static void _setSdk(SentryFlutterOptions options) {
@@ -249,11 +249,7 @@ mixin SentryFlutter {
   /// Only for iOS and macOS.
   static Future<void> pauseAppHangTracking() {
     if (_native == null) {
-      // ignore: invalid_use_of_internal_member
-      Sentry.currentHub.options.logger(
-        SentryLevel.debug,
-        'Native integration is not available. Make sure SentryFlutter is initialized before accessing the pauseAppHangTracking API.',
-      );
+      _logNativeIntegrationNotAvailable("pauseAppHangTracking");
       return Future<void>.value();
     }
     return _native!.pauseAppHangTracking();
@@ -263,11 +259,7 @@ mixin SentryFlutter {
   /// Only for iOS and macOS
   static Future<void> resumeAppHangTracking() {
     if (_native == null) {
-      // ignore: invalid_use_of_internal_member
-      Sentry.currentHub.options.logger(
-        SentryLevel.debug,
-        'Native integration is not available. Make sure SentryFlutter is initialized before accessing the resumeAppHangTracking API.',
-      );
+      _logNativeIntegrationNotAvailable("resumeAppHangTracking");
       return Future<void>.value();
     }
     return _native!.resumeAppHangTracking();
@@ -280,4 +272,23 @@ mixin SentryFlutter {
   static set native(SentryNativeBinding? value) => _native = value;
 
   static SentryNativeBinding? _native;
+
+  /// Use `nativeCrash()` to crash the native implementation and test/debug the crash reporting for native code.
+  /// This should not be used in production code.
+  /// Only for Android, iOS and macOS
+  static Future<void> nativeCrash() {
+    if (_native == null) {
+      _logNativeIntegrationNotAvailable("nativeCrash");
+      return Future<void>.value();
+    }
+    return _native!.nativeCrash();
+  }
+
+  static void _logNativeIntegrationNotAvailable(String methodName) {
+    // ignore: invalid_use_of_internal_member
+    Sentry.currentHub.options.logger(
+      SentryLevel.debug,
+      'Native integration is not available. Make sure SentryFlutter is initialized before accessing the $methodName API.',
+    );
+  }
 }

@@ -82,6 +82,10 @@ void main() {
       expect(event.contexts['flutter_error_details']['context'],
           'thrown while handling a gesture');
       expect(event.contexts['flutter_error_details']['information'], 'foo bar');
+    }, onPlatform: {
+      // TODO stacktrace parsing for wasm is not implemented yet
+      //      https://github.com/getsentry/sentry-dart/issues/1480
+      'wasm': Skip('WASM stack trace parsing not implemented yet'),
     });
 
     test('captures error with long FlutterErrorDetails.information', () async {
@@ -115,6 +119,10 @@ void main() {
           'thrown while handling a gesture');
       expect(event.contexts['flutter_error_details']['information'],
           'foo bar\nHello World!');
+    }, onPlatform: {
+      // TODO stacktrace parsing for wasm is not implemented yet
+      //      https://github.com/getsentry/sentry-dart/issues/1480
+      'wasm': Skip('WASM stack trace parsing not implemented yet'),
     });
 
     test('captures error with no FlutterErrorDetails', () async {
@@ -261,6 +269,14 @@ void main() {
 
       final hub = Hub(fixture.options);
       final client = MockSentryClient();
+      when(client.captureEvent(any,
+              scope: anyNamed('scope'),
+              stackTrace: anyNamed('stackTrace'),
+              hint: anyNamed('hint')))
+          .thenAnswer((_) => Future.value(SentryId.newId()));
+      when(client.captureTransaction(any,
+              scope: anyNamed('scope'), traceContext: anyNamed('traceContext')))
+          .thenAnswer((_) => Future.value(SentryId.newId()));
       hub.bindClient(client);
 
       final sut = fixture.getSut();
@@ -299,7 +315,7 @@ void main() {
 
 class Fixture {
   final hub = MockHub();
-  final options = SentryFlutterOptions(dsn: fakeDsn)..tracesSampleRate = 1.0;
+  final options = defaultTestOptions()..tracesSampleRate = 1.0;
 
   FlutterErrorIntegration getSut() {
     return FlutterErrorIntegration();

@@ -4,6 +4,8 @@ import 'http_transport_request_handler.dart';
 
 import '../../sentry.dart';
 import '../noop_client.dart';
+import '../http_client/client_provider.dart'
+    if (dart.library.io) '../http_client/io_client_provider.dart';
 
 /// Spotlight HTTP transport decorator that sends Sentry envelopes to both Sentry and Spotlight.
 class SpotlightHttpTransport extends Transport {
@@ -13,7 +15,7 @@ class SpotlightHttpTransport extends Transport {
 
   factory SpotlightHttpTransport(SentryOptions options, Transport transport) {
     if (options.httpClient is NoOpClient) {
-      options.httpClient = Client();
+      options.httpClient = getClientProvider().getClient(options);
     }
     return SpotlightHttpTransport._(options, transport);
   }
@@ -29,16 +31,15 @@ class SpotlightHttpTransport extends Transport {
     } catch (e) {
       _options.logger(
           SentryLevel.warning, 'Failed to send envelope to Spotlight: $e');
+      if (_options.automatedTestMode) {
+        rethrow;
+      }
     }
     return _transport.send(envelope);
   }
 
   Future<void> _sendToSpotlight(SentryEnvelope envelope) async {
     envelope.header.sentAt = _options.clock();
-
-    // Screenshots do not work currently https://github.com/getsentry/spotlight/issues/274
-    envelope.items
-        .removeWhere((element) => element.header.contentType == 'image/png');
 
     final spotlightRequest = await _requestHandler.createRequest(envelope);
 

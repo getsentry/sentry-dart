@@ -11,6 +11,8 @@ import '../sentry_options.dart';
 import '../sentry_envelope.dart';
 import 'transport.dart';
 import 'rate_limiter.dart';
+import '../http_client/client_provider.dart'
+    if (dart.library.io) '../http_client/io_client_provider.dart';
 
 /// A transport is in charge of sending the event to the Sentry server.
 class HttpTransport implements Transport {
@@ -22,9 +24,8 @@ class HttpTransport implements Transport {
 
   factory HttpTransport(SentryOptions options, RateLimiter rateLimiter) {
     if (options.httpClient is NoOpClient) {
-      options.httpClient = Client();
+      options.httpClient = getClientProvider().getClient(options);
     }
-
     return HttpTransport._(options, rateLimiter);
   }
 
@@ -63,6 +64,9 @@ class HttpTransport implements Transport {
       return eventId != null ? SentryId.fromId(eventId) : null;
     } catch (e) {
       _options.logger(SentryLevel.error, 'Error parsing response: $e');
+      if (_options.automatedTestMode) {
+        rethrow;
+      }
       return null;
     }
   }

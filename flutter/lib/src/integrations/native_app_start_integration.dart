@@ -1,256 +1,59 @@
-// ignore_for_file: invalid_use_of_internal_member
-
 import 'dart:async';
 
 import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
 import '../frame_callback_handler.dart';
-import '../native/sentry_native_binding.dart';
-import '../event_processor/native_app_start_event_processor.dart';
+import 'native_app_start_handler.dart';
 
-/// Integration which handles communication with native frameworks in order to
-/// enrich [SentryTransaction] objects with app start data for mobile vitals.
+/// Integration which calls [NativeAppStartHandler] after
+/// [SchedulerBinding.instance.addPostFrameCallback] is called.
 class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
-  NativeAppStartIntegration(this._native, this._frameCallbackHandler,
-      {Hub? hub})
-      : _hub = hub ?? HubAdapter();
+  NativeAppStartIntegration(
+      this._frameCallbackHandler, this._nativeAppStartHandler);
 
-  final SentryNativeBinding _native;
   final FrameCallbackHandler _frameCallbackHandler;
-  final Hub _hub;
+  final NativeAppStartHandler _nativeAppStartHandler;
+  DateTime? _appStartEnd;
 
-  /// This timestamp marks the end of app startup. Either set automatically when
-  /// [SentryFlutterOptions.autoAppStart] is true, or by calling
-  /// [SentryFlutter.setAppStartEnd]
+  /// This timestamp marks the end of app startup. Either set by calling
+  /// [SentryFlutter.setAppStartEnd]. The [SentryFlutterOptions.autoAppStart]
+  /// option needs to be false.
   @internal
-  static DateTime? appStartEnd;
-
-  /// Flag indicating if app start was already fetched.
-  static bool _didFetchAppStart = false;
-
-  /// Flag indicating if app start measurement was added to the first transaction.
-  @internal
-  static bool didAddAppStartMeasurement = false;
-
-  /// Timeout duration to wait for the app start info to be fetched.
-  static const _timeoutDuration = Duration(seconds: 10);
-
-  @visibleForTesting
-  static Duration get timeoutDuration => _timeoutDuration;
-
-  /// We filter out App starts more than 60s
-  static const _maxAppStartMillis = 60000;
-
-  static Completer<AppStartInfo?> _appStartCompleter =
-      Completer<AppStartInfo?>();
-  static AppStartInfo? _appStartInfo;
-
-  @internal
-  static bool isIntegrationTest = false;
-
-  @internal
-  static void setAppStartInfo(AppStartInfo? appStartInfo) {
-    _appStartInfo = appStartInfo;
-    if (_appStartCompleter.isCompleted) {
-      _appStartCompleter = Completer<AppStartInfo?>();
+  set appStartEnd(DateTime appStartEnd) {
+    _appStartEnd = appStartEnd;
+    if (!_appStartEndCompleter.isCompleted) {
+      _appStartEndCompleter.complete();
     }
-    _appStartCompleter.complete(appStartInfo);
   }
 
-  @internal
-  static Future<AppStartInfo?> getAppStartInfo() {
-    if (_appStartInfo != null) {
-      return Future.value(_appStartInfo);
-    }
-    return _appStartCompleter.future
-        .timeout(_timeoutDuration, onTimeout: () => null);
-  }
-
-  @visibleForTesting
-  static void clearAppStartInfo() {
-    _appStartInfo = null;
-    _appStartCompleter = Completer<AppStartInfo?>();
-    didAddAppStartMeasurement = false;
-  }
-
-  /// Reset state
-  @visibleForTesting
-  static void reset() {
-    appStartEnd = null;
-    _didFetchAppStart = false;
-  }
+  final Completer<void> _appStartEndCompleter = Completer<void>();
 
   @override
-  void call(Hub hub, SentryFlutterOptions options) {
-    if (isIntegrationTest) {
-      final appStartInfo = AppStartInfo(
-        AppStartType.cold,
-        start: DateTime.now(),
-        end: DateTime.now().add(const Duration(milliseconds: 100)),
-        pluginRegistration:
-            DateTime.now().add(const Duration(milliseconds: 50)),
-        sentrySetupStart: DateTime.now().add(const Duration(milliseconds: 60)),
-        nativeSpanTimes: [],
-      );
-      setAppStartInfo(appStartInfo);
-      return;
-    }
-
-    if (_didFetchAppStart) {
-      return;
-    }
-
+  void call(Hub hub, SentryFlutterOptions options) async {
     _frameCallbackHandler.addPostFrameCallback((timeStamp) async {
-      _didFetchAppStart = true;
-      final nativeAppStart = await _native.fetchNativeAppStart();
-      if (nativeAppStart == null) {
-        setAppStartInfo(null);
-        return;
-      }
-
-      final sentrySetupStartDateTime = SentryFlutter.sentrySetupStartTime;
-      if (sentrySetupStartDateTime == null) {
-        setAppStartInfo(null);
-        return;
-      }
-
-      final appStartDateTime = DateTime.fromMillisecondsSinceEpoch(
-          nativeAppStart.appStartTime.toInt());
-      final pluginRegistrationDateTime = DateTime.fromMillisecondsSinceEpoch(
-          nativeAppStart.pluginRegistrationTime);
-
-      if (options.autoAppStart) {
-        // We only assign the current time if it's not already set - this is useful in tests
-        appStartEnd ??= options.clock();
-
-        final duration = appStartEnd?.difference(appStartDateTime);
-
-        // We filter out app start more than 60s.
-        // This could be due to many different reasons.
-        // If you do the manual init and init the SDK too late and it does not
-        // compute the app start end in the very first Screen.
-        // If the process starts but the App isn't in the foreground.
-        // If the system forked the process earlier to accelerate the app start.
-        // And some unknown reasons that could not be reproduced.
-        // We've seen app starts with hours, days and even months.
-        if (duration != null && duration.inMilliseconds > _maxAppStartMillis) {
-          setAppStartInfo(null);
-          return;
+      try {
+        if (!options.autoAppStart && _appStartEnd == null) {
+          await _appStartEndCompleter.future
+              .timeout(const Duration(seconds: 10));
         }
-      }
-
-      List<TimeSpan> nativeSpanTimes = [];
-      for (final entry in nativeAppStart.nativeSpanTimes.entries) {
-        try {
-          final startTimestampMs =
-              entry.value['startTimestampMsSinceEpoch'] as int;
-          final endTimestampMs =
-              entry.value['stopTimestampMsSinceEpoch'] as int;
-          nativeSpanTimes.add(TimeSpan(
-            start: DateTime.fromMillisecondsSinceEpoch(startTimestampMs),
-            end: DateTime.fromMillisecondsSinceEpoch(endTimestampMs),
-            description: entry.key as String,
-          ));
-        } catch (e) {
-          _hub.options.logger(
-              SentryLevel.warning, 'Failed to parse native span times: $e');
-          continue;
+        await _nativeAppStartHandler.call(
+          hub,
+          options,
+          appStartEnd: _appStartEnd,
+        );
+      } catch (exception, stackTrace) {
+        options.logger(
+          SentryLevel.error,
+          'Error while capturing native app start',
+          exception: exception,
+          stackTrace: stackTrace,
+        );
+        if (options.automatedTestMode) {
+          rethrow;
         }
-      }
-
-      // We want to sort because the native spans are not guaranteed to be in order.
-      // Performance wise this won't affect us since the native span amount is very low.
-      nativeSpanTimes.sort((a, b) => a.start.compareTo(b.start));
-
-      final appStartInfo = AppStartInfo(
-          nativeAppStart.isColdStart ? AppStartType.cold : AppStartType.warm,
-          start: appStartDateTime,
-          end: appStartEnd,
-          pluginRegistration: pluginRegistrationDateTime,
-          sentrySetupStart: sentrySetupStartDateTime,
-          nativeSpanTimes: nativeSpanTimes);
-
-      setAppStartInfo(appStartInfo);
-
-      // When we don't have a SentryNavigatorObserver, a TTID transaction
-      // is not created therefore we need to create a transaction ourselves.
-      // We detect this by checking if the currentRouteName is null.
-      // This is a workaround since there is no api that tells us if
-      // the navigator observer exists and has been attached.
-      // The navigator observer also triggers much earlier so if it was attached
-      // it would have already set the routeName and the isCreated flag.
-      // The currentRouteName is always set during a didPush triggered
-      // by the navigator observer.
-      if (!SentryNavigatorObserver.isCreated &&
-          SentryNavigatorObserver.currentRouteName == null) {
-        const screenName = SentryNavigatorObserver.rootScreenName;
-        final transaction = hub.startTransaction(
-            screenName, SentrySpanOperations.uiLoad,
-            startTimestamp: appStartInfo.start);
-        final ttidSpan = transaction.startChild(
-            SentrySpanOperations.uiTimeToInitialDisplay,
-            description: '$screenName initial display',
-            startTimestamp: appStartInfo.start);
-        await ttidSpan.finish(endTimestamp: appStartInfo.end);
-        await transaction.finish(endTimestamp: appStartInfo.end);
       }
     });
-
-    options.addEventProcessor(NativeAppStartEventProcessor(hub: hub));
-
     options.sdk.addIntegration('nativeAppStartIntegration');
   }
-}
-
-enum AppStartType { cold, warm }
-
-class AppStartInfo {
-  AppStartInfo(
-    this.type, {
-    required this.start,
-    required this.pluginRegistration,
-    required this.sentrySetupStart,
-    required this.nativeSpanTimes,
-    this.end,
-  });
-
-  final AppStartType type;
-  final DateTime start;
-  final List<TimeSpan> nativeSpanTimes;
-
-  // We allow the end to be null, since it might be set at a later time
-  // with setAppStartEnd when autoAppStart is disabled
-  DateTime? end;
-
-  final DateTime pluginRegistration;
-  final DateTime sentrySetupStart;
-
-  Duration? get duration => end?.difference(start);
-
-  SentryMeasurement? toMeasurement() {
-    final duration = this.duration;
-    if (duration == null) {
-      return null;
-    }
-    return type == AppStartType.cold
-        ? SentryMeasurement.coldAppStart(duration)
-        : SentryMeasurement.warmAppStart(duration);
-  }
-
-  String get appStartTypeOperation => 'app.start.${type.name}';
-
-  String get appStartTypeDescription =>
-      type == AppStartType.cold ? 'Cold Start' : 'Warm Start';
-  final pluginRegistrationDescription = 'App start to plugin registration';
-  final sentrySetupDescription = 'Before Sentry Init Setup';
-  final firstFrameRenderDescription = 'First frame render';
-}
-
-class TimeSpan {
-  TimeSpan({required this.start, required this.end, required this.description});
-
-  final DateTime start;
-  final DateTime end;
-  final String description;
 }

@@ -69,6 +69,9 @@ class IoExceptionEventProcessor implements ExceptionEventProcessor {
         exception: exception,
         stackTrace: stackTrace,
       );
+      if (_options.automatedTestMode) {
+        rethrow;
+      }
     }
 
     return event.copyWith(

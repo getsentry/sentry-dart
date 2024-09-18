@@ -6,6 +6,7 @@ import io.sentry.android.core.SentryAndroidOptions
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
+import java.net.Proxy
 
 class SentryFlutterTest {
   private lateinit var fixture: Fixture
@@ -60,6 +61,22 @@ class SentryFlutterTest {
 
     assertEquals(9006, fixture.options.connectionTimeoutMillis)
     assertEquals(9007, fixture.options.readTimeoutMillis)
+
+    assertEquals("localhost", fixture.options.proxy?.host)
+    assertEquals("8080", fixture.options.proxy?.port)
+    assertEquals(Proxy.Type.HTTP, fixture.options.proxy?.type)
+    assertEquals("admin", fixture.options.proxy?.user)
+    assertEquals("0000", fixture.options.proxy?.pass)
+
+    assertEquals(0.5, fixture.options.experimental.sessionReplay.sessionSampleRate)
+    assertEquals(0.6, fixture.options.experimental.sessionReplay.errorSampleRate)
+
+    // Note: these are currently read-only in SentryReplayOptions so we're only asserting the default values here to
+    // know when there's a change in the native SDK, as it may require a manual change in the Flutter implementation.
+    assertEquals(1, fixture.options.experimental.sessionReplay.frameRate)
+    assertEquals(30_000L, fixture.options.experimental.sessionReplay.errorReplayDuration)
+    assertEquals(5000L, fixture.options.experimental.sessionReplay.sessionSegmentDuration)
+    assertEquals(60 * 60 * 1000L, fixture.options.experimental.sessionReplay.sessionDuration)
   }
 
   @Test
@@ -127,12 +144,24 @@ class Fixture {
       "enableAutoPerformanceTracing" to true,
       "connectionTimeoutMillis" to 9006,
       "readTimeoutMillis" to 9007,
+      "proxy" to
+        mapOf(
+          "host" to "localhost",
+          "port" to 8080,
+          "type" to "http", // lowercase to check enum mapping
+          "user" to "admin",
+          "pass" to "0000",
+        ),
+      "replay" to
+        mapOf(
+          "sessionSampleRate" to 0.5,
+          "onErrorSampleRate" to 0.6,
+        ),
     )
 
-  fun getSut(): SentryFlutter {
-    return SentryFlutter(
+  fun getSut(): SentryFlutter =
+    SentryFlutter(
       androidSdk = "sentry.java.android.flutter",
       nativeSdk = "fixture-nativeSdk",
     )
-  }
 }

@@ -90,6 +90,9 @@ Future<void> setupSentry(
       options.maxResponseBodySize = MaxResponseBodySize.always;
       options.navigatorKey = navigatorKey;
 
+      options.experimental.replay.sessionSampleRate = 1.0;
+      options.experimental.replay.onErrorSampleRate = 1.0;
+
       _isIntegrationTest = isIntegrationTest;
       if (_isIntegrationTest) {
         options.dist = '1';
@@ -103,7 +106,7 @@ Future<void> setupSentry(
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   _MyAppState createState() => _MyAppState();
@@ -139,8 +142,8 @@ class TooltipButton extends StatelessWidget {
     required this.onPressed,
     required this.buttonTitle,
     required this.text,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -157,8 +160,8 @@ class TooltipButton extends StatelessWidget {
 
 class MainScaffold extends StatelessWidget {
   const MainScaffold({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -716,7 +719,7 @@ extension BuildContextExtension on BuildContext {
 }
 
 class AndroidExample extends StatelessWidget {
-  const AndroidExample({Key? key}) : super(key: key);
+  const AndroidExample({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -757,6 +760,12 @@ class AndroidExample extends StatelessWidget {
           await execute('platform_exception');
         },
         child: const Text('Platform exception'),
+      ),
+      ElevatedButton(
+        onPressed: () async {
+          SentryFlutter.nativeCrash();
+        },
+        child: const Text('Sentry.nativeCrash'),
       ),
     ]);
   }
@@ -834,7 +843,7 @@ class _IntegrationTestWidgetState extends State<IntegrationTestWidget> {
 }
 
 class CocoaExample extends StatelessWidget {
-  const CocoaExample({Key? key}) : super(key: key);
+  const CocoaExample({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -870,6 +879,12 @@ class CocoaExample extends StatelessWidget {
           },
           child: const Text('Objective-C SEGFAULT'),
         ),
+        ElevatedButton(
+          onPressed: () async {
+            SentryFlutter.nativeCrash();
+          },
+          child: const Text('Sentry.nativeCrash'),
+        ),
       ],
     );
   }
@@ -887,7 +902,7 @@ int loop(int val) {
 }
 
 class SecondaryScaffold extends StatelessWidget {
-  const SecondaryScaffold({Key? key}) : super(key: key);
+  const SecondaryScaffold({super.key});
 
   static Future<void> openSecondaryScaffold(BuildContext context) {
     return Navigator.push(
@@ -1028,7 +1043,10 @@ Future<void> showDialogWithTextAndImage(BuildContext context) async {
       await DefaultAssetBundle.of(context).loadString('assets/lorem-ipsum.txt');
 
   if (!context.mounted) return;
+  final imageBytes =
+      await DefaultAssetBundle.of(context).load('assets/sentry-wordmark.png');
   await showDialog<void>(
+    // ignore: use_build_context_synchronously
     context: context,
     // gets tracked if using SentryNavigatorObserver
     routeSettings: const RouteSettings(
@@ -1041,7 +1059,15 @@ Future<void> showDialogWithTextAndImage(BuildContext context) async {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              // Use various ways an image is included in the app.
+              // Local asset images are not obscured in replay recording.
               Image.asset('assets/sentry-wordmark.png'),
+              Image.asset('assets/sentry-wordmark.png', bundle: rootBundle),
+              Image.asset('assets/sentry-wordmark.png',
+                  bundle: DefaultAssetBundle.of(context)),
+              Image.network(
+                  'https://www.gstatic.com/recaptcha/api2/logo_48.png'),
+              Image.memory(imageBytes.buffer.asUint8List()),
               Text(text),
             ],
           ),

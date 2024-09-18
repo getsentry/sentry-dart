@@ -9,6 +9,8 @@ import XCTest
 import sentry_flutter
 import Sentry
 
+// swiftlint:disable function_body_length line_length
+
 final class SentryFlutterTests: XCTestCase {
 
     private var fixture: Fixture!
@@ -43,7 +45,14 @@ final class SentryFlutterTests: XCTestCase {
                 "maxAttachmentSize": NSNumber(value: 9004),
                 "captureFailedRequests": false,
                 "enableAppHangTracking": false,
-                "appHangTimeoutIntervalMillis": NSNumber(value: 10000)
+                "appHangTimeoutIntervalMillis": NSNumber(value: 10000),
+                "proxy": [
+                    "host": "localhost",
+                    "port": NSNumber(value: 8080),
+                    "type": "hTtP", // mixed case to check enum mapping
+                    "user": "admin",
+                    "pass": "0000"
+                ]
             ]
         )
 
@@ -68,6 +77,41 @@ final class SentryFlutterTests: XCTestCase {
         XCTAssertEqual(false, fixture.options.enableCaptureFailedRequests)
         XCTAssertEqual(false, fixture.options.enableAppHangTracking)
         XCTAssertEqual(10, fixture.options.appHangTimeoutInterval)
+
+        XCTAssertNotNil(fixture.options.urlSession)
+        XCTAssertEqual(true, fixture.options.urlSession?.configuration.connectionProxyDictionary?[kCFNetworkProxiesHTTPEnable as String] as? Bool)
+        XCTAssertEqual("localhost", fixture.options.urlSession?.configuration.connectionProxyDictionary?[kCFNetworkProxiesHTTPProxy as String] as? String)
+        XCTAssertEqual(8080, fixture.options.urlSession?.configuration.connectionProxyDictionary?[kCFNetworkProxiesHTTPPort as String] as? Int)
+        XCTAssertEqual("admin", fixture.options.urlSession?.configuration.connectionProxyDictionary?[kCFProxyUsernameKey as String] as? String)
+        XCTAssertEqual("0000", fixture.options.urlSession?.configuration.connectionProxyDictionary?[kCFProxyPasswordKey as String] as? String)
+    }
+
+    func testUpdateSocksProxy() {
+        let sut = fixture.getSut()
+
+        sut.update(
+            options: fixture.options,
+            with: [
+                "proxy": [
+                    "host": "localhost",
+                    "port": 8080,
+                    "type": "sOcKs", // mixed case to check enum mapping
+                    "user": "admin",
+                    "pass": "0000"
+                ]
+            ]
+        )
+
+        #if os(macOS)
+        XCTAssertNotNil(fixture.options.urlSession)
+        XCTAssertEqual(true, fixture.options.urlSession?.configuration.connectionProxyDictionary?[kCFNetworkProxiesSOCKSEnable as String] as? Bool)
+        XCTAssertEqual("localhost", fixture.options.urlSession?.configuration.connectionProxyDictionary?[kCFNetworkProxiesSOCKSProxy as String] as? String)
+        XCTAssertEqual(8080, fixture.options.urlSession?.configuration.connectionProxyDictionary?[kCFNetworkProxiesSOCKSPort as String] as? Int)
+        XCTAssertEqual("admin", fixture.options.urlSession?.configuration.connectionProxyDictionary?[kCFProxyUsernameKey as String] as? String)
+        XCTAssertEqual("0000", fixture.options.urlSession?.configuration.connectionProxyDictionary?[kCFProxyPasswordKey as String] as? String)
+        #else
+        XCTAssertNil(fixture.options.urlSession)
+        #endif
     }
 }
 
@@ -81,3 +125,5 @@ extension SentryFlutterTests {
         }
     }
 }
+
+// swiftlint:enable function_body_length line_length

@@ -21,15 +21,6 @@ class TimeToDisplayTracker {
             ? ttfdTracker ?? TimeToFullDisplayTracker()
             : null;
 
-  Future<void> trackAppStartTTD(ISentrySpan transaction,
-      {required DateTime startTimestamp,
-      required DateTime endTimestamp}) async {
-    // We start and immediately finish the spans since we cannot mutate the history of spans.
-    await _ttidTracker.trackAppStart(transaction,
-        startTimestamp: startTimestamp, endTimestamp: endTimestamp);
-    await _trackTTFDIfEnabled(transaction, startTimestamp);
-  }
-
   Future<void> trackRegularRouteTTD(ISentrySpan transaction,
       {required DateTime startTimestamp}) async {
     await _ttidTracker.trackRegularRoute(transaction, startTimestamp);
