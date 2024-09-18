@@ -19,8 +19,7 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   final SentryFlutterOptions options;
 
   @visibleForTesting
-  static late final native =
-      binding.SentryNative(DynamicLibrary.open('sentry.dll'));
+  static final native = binding.SentryNative(DynamicLibrary.open('sentry.dll'));
 
   @visibleForTesting
   static String? crashpadPath;
@@ -338,7 +337,7 @@ binding.sentry_value_u? dynamicToNativeValue(
 
 extension on String {
   binding.sentry_value_u toNativeValue() {
-    final cValue = this.toNativeUtf8();
+    final cValue = toNativeUtf8();
     final result = SentryNative.native.value_new_string(cValue.cast());
     malloc.free(cValue);
     return result;
@@ -348,7 +347,7 @@ extension on String {
 extension on int {
   binding.sentry_value_u toNativeValue() {
     if (this > 0x7FFFFFFF) {
-      return this.toString().toNativeValue();
+      return toString().toNativeValue();
     } else {
       return SentryNative.native.value_new_int32(this);
     }

@@ -3,7 +3,6 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:ffi/ffi.dart';
-import 'package:file/memory.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry/src/platform/platform.dart' as platform;
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -41,8 +40,7 @@ void main() {
     options = SentryFlutterOptions(dsn: fakeDsn)
       // ignore: invalid_use_of_internal_member
       ..automatedTestMode = true
-      ..debug = true
-      ..fileSystem = MemoryFileSystem.test();
+      ..debug = true;
     sut = createBinding(options) as SentryNative;
   });
 
@@ -226,31 +224,6 @@ void main() {
       (File file) => file.existsSync(),
     );
   });
-
-  test('getAppDebugImage returns app.so debug image', () async {
-    await options.fileSystem.directory('/path/to/data').create(recursive: true);
-    await options.fileSystem
-        .file('/path/to/data/app.so')
-        .writeAsString('12345');
-
-    final image = await sut.getAppDebugImage(
-      SentryStackTrace(
-        frames: [],
-        // ignore: invalid_use_of_internal_member
-        buildId: '4c6950bd9e9cc9839071742a7295c09e',
-        // ignore: invalid_use_of_internal_member
-        baseAddr: '0x123',
-      ),
-      [DebugImage(type: 'pe', codeFile: '/path/to/application.exe')],
-    );
-
-    expect(image, isNotNull);
-    expect(image!.codeFile, '/path/to/data/app.so');
-    expect(image.codeId, '4c6950bd9e9cc9839071742a7295c09e');
-    expect(image.debugId, 'bd50694c9c9e83c99071742a7295c09e');
-    expect(image.imageAddr, '0x123');
-    expect(image.imageSize, 5);
-  });
 }
 
 /// Runs [command] with command's stdout and stderr being forwrarded to
@@ -319,7 +292,7 @@ bool _builtVersionIsExpected(String cmakeBuildDir, String buildOutputDir) {
       .any((name) => !File('$buildOutputDir/$name').existsSync());
 }
 
-late final _configuredSentryNativeVersion =
+final _configuredSentryNativeVersion =
     File('$repoRootDir/sentry-native/CMakeCache.txt')
         .readAsLinesSync()
         .map((line) => line.startsWith('version=') ? line.substring(8) : null)

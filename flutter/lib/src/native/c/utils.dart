@@ -4,7 +4,7 @@ import 'package:ffi/ffi.dart';
 
 /// Creates and collects native pointers that need to be freed.
 class FreeableFactory {
-  List<Pointer> _allocated = [];
+  final _allocated = <Pointer>[];
 
   Pointer<Char> str(String? dartString) {
     if (dartString == null) {

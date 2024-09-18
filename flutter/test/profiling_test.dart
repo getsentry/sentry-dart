@@ -68,7 +68,7 @@ void main() {
     });
 
     test('dispose() calls native discard() exactly once', () async {
-      when(mock.discardProfiler(any)).thenReturn(() {});
+      when(mock.discardProfiler(any)).thenReturn(null);
 
       sut.dispose();
       sut.dispose(); // Additional calls must not have an effect.
