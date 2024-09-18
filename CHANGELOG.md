@@ -8,6 +8,10 @@
   - Fixes ([#2103](https://github.com/getsentry/sentry-dart/issues/2103))
   - Fixes ([#2233](https://github.com/getsentry/sentry-dart/issues/2233))
 
+### Fixes
+
+- Pass `sampleRate` to native SDKs ([#2200](https://github.com/getsentry/sentry-dart/pull/2200))
+
 ## 8.9.0
 
 ### Features

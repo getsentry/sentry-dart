@@ -113,8 +113,8 @@ public final class SentryFlutter {
                 (replayOptions["onErrorSampleRate"] as? NSNumber)?.floatValue ?? 0
         }
 #endif
-      data.getIfNotNull<Double>("sampleRate") {
-        options.sampleRate = it
+      if let sampleRate = data["sampleRate"] as? NSNumber {
+        options.sampleRate = sampleRate
       }
     }
 
