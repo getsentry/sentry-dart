@@ -12,6 +12,8 @@ import 'native/sentry_native_binding.dart';
 @internal
 class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
   static const _frozenFrameThresholdMs = 700;
+  static const _defaultRefreshRate = 60;
+
   static const totalFramesKey = 'frames.total';
   static const framesDelayKey = 'frames.delay';
   static const slowFramesKey = 'frames.slow';
@@ -39,7 +41,7 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
   bool get isTrackingRegistered => _isTrackingRegistered;
   bool _isTrackingRegistered = false;
 
-  int displayRefreshRate = 60;
+  int displayRefreshRate = _defaultRefreshRate;
 
   final _stopwatch = Stopwatch();
 
@@ -59,7 +61,7 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
     }
 
     final fetchedDisplayRefreshRate = await _native?.displayRefreshRate();
-    if (fetchedDisplayRefreshRate != null) {
+    if (fetchedDisplayRefreshRate != null && fetchedDisplayRefreshRate > 0) {
       options.logger(SentryLevel.debug,
           'Retrieved display refresh rate at $fetchedDisplayRefreshRate');
       displayRefreshRate = fetchedDisplayRefreshRate;
@@ -251,6 +253,6 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
     _isTrackingPaused = true;
     frames.clear();
     activeSpans.clear();
-    displayRefreshRate = 60;
+    displayRefreshRate = _defaultRefreshRate;
   }
 }
