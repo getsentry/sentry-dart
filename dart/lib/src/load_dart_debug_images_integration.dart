@@ -26,7 +26,7 @@ class LoadImageIntegrationEventProcessor implements EventProcessor {
   @override
   Future<SentryEvent?> apply(SentryEvent event, Hint hint) async {
     final stackTrace = event.stacktrace;
-    if (stackTrace!.frames.any((f) => f.platform == 'native')) {
+    if (stackTrace != null) {
       final debugImage = getAppDebugImage(stackTrace);
       if (debugImage != null) {
         late final DebugMeta debugMeta;
@@ -45,6 +45,12 @@ class LoadImageIntegrationEventProcessor implements EventProcessor {
   }
 
   DebugImage? getAppDebugImage(SentryStackTrace stackTrace) {
+    // Don't return the debug image if the stack trace doesn't have native info.
+    if (stackTrace.baseAddr == null ||
+        stackTrace.buildId == null ||
+        !stackTrace.frames.any((f) => f.platform == 'native')) {
+      return null;
+    }
     try {
       _debugImage ??= createDebugImage(stackTrace);
     } catch (e, stack) {

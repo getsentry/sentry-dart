@@ -27,7 +27,7 @@ void main() {
     setUp(() async {
       fixture = IntegrationTestFixture(LoadImageListIntegration.new);
       when(fixture.binding.loadDebugImages(any))
-          .thenAnswer((_) async => imageList);
+          .thenAnswer((_) async => imageList.toList());
       await fixture.registerIntegration();
     });
 

@@ -84,6 +84,26 @@ isolate_dso_base: 10000000
         expect(debugImage?.imageAddr, equals('0x10000000'));
       });
 
+      test(
+          'Event processor does not add debug image on second stack trace without image address',
+          () async {
+        final debugImage = await fixture.parseAndProcess('''
+*** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+build_id: 'b680cb890f9e3c12a24b172d050dec73'
+isolate_dso_base: 10000000
+    #00 abs 000000723d6346d7 _kDartIsolateSnapshotInstructions+0x1e26d7
+''');
+        expect(debugImage?.debugId, isNotEmpty);
+        expect(debugImage?.imageAddr, equals('0x10000000'));
+
+        final event = fixture.newEvent(stackTrace: fixture.parse('''
+*** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+    #00 abs 000000723d6346d7 _kDartIsolateSnapshotInstructions+0x1e26d7
+'''));
+        final resultEvent = await fixture.process(event);
+        expect(resultEvent?.debugMeta?.images, isEmpty);
+      });
+
       test('returns null for invalid stack trace', () async {
         final event =
             fixture.newEvent(stackTrace: fixture.parse('Invalid stack trace'));
