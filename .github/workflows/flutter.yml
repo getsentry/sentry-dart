@@ -111,7 +111,7 @@ jobs:
         with:
           path: './flutter/coverage/lcov.info'
           min_coverage: 90
-            # 'native/c' for now because we run coverage on Linux where these are not tested yet.
+          # 'native/c' for now because we run coverage on Linux where these are not tested yet.
           exclude: 'lib/src/native/cocoa/binding.dart lib/src/native/c/*'
 
       - name: Build ${{ matrix.target }}
