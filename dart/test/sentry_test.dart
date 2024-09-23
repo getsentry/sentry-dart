@@ -9,6 +9,7 @@ import 'fake_platform_checker.dart';
 import 'mocks.dart';
 import 'mocks/mock_integration.dart';
 import 'mocks/mock_sentry_client.dart';
+import 'test_utils.dart';
 
 AppRunner appRunner = () {};
 
@@ -19,7 +20,7 @@ void main() {
     var anException = Exception();
 
     setUp(() async {
-      final options = SentryOptions(dsn: fakeDsn)..automatedTestMode = true;
+      final options = defaultTestOptions();
       await Sentry.init(
         options: options,
         (options) {
@@ -164,7 +165,7 @@ void main() {
     });
 
     test('null DSN', () async {
-      final options = SentryOptions(dsn: fakeDsn)..automatedTestMode = true;
+      final options = defaultTestOptions();
       expect(
         () async => await Sentry.init(
           options: options,
@@ -177,7 +178,7 @@ void main() {
 
     test('appRunner should be optional', () async {
       expect(Sentry.isEnabled, false);
-      final options = SentryOptions(dsn: fakeDsn)..automatedTestMode = true;
+      final options = defaultTestOptions();
       await Sentry.init(
         options: options,
         (options) => options.dsn = fakeDsn,
@@ -186,7 +187,7 @@ void main() {
     });
 
     test('empty DSN', () async {
-      final options = SentryOptions(dsn: fakeDsn)..automatedTestMode = true;
+      final options = defaultTestOptions();
       await Sentry.init(
         options: options,
         (options) => options.dsn = '',
@@ -197,7 +198,7 @@ void main() {
     test('empty DSN disables the SDK but runs the integrations', () async {
       final integration = MockIntegration();
 
-      final options = SentryOptions(dsn: fakeDsn)..automatedTestMode = true;
+      final options = defaultTestOptions();
       await Sentry.init(
         options: options,
         (options) {
@@ -210,7 +211,7 @@ void main() {
     });
 
     test('close disables the SDK', () async {
-      final options = SentryOptions(dsn: fakeDsn)..automatedTestMode = true;
+      final options = defaultTestOptions();
       await Sentry.init(
         options: options,
         (options) => options.dsn = fakeDsn,
@@ -234,7 +235,7 @@ void main() {
     test('should install integrations', () async {
       final integration = MockIntegration();
 
-      final options = SentryOptions(dsn: fakeDsn)..automatedTestMode = true;
+      final options = defaultTestOptions();
       await Sentry.init(
         options: options,
         (options) {
@@ -248,7 +249,7 @@ void main() {
 
     test('should add default integrations', () async {
       late SentryOptions optionsReference;
-      final options = SentryOptions(dsn: fakeDsn)..automatedTestMode = true;
+      final options = defaultTestOptions();
       await Sentry.init(
         options: options,
         (options) {
@@ -272,7 +273,7 @@ void main() {
     }, onPlatform: {'browser': Skip()});
 
     test('should add only web compatible default integrations', () async {
-      final options = SentryOptions(dsn: fakeDsn)..automatedTestMode = true;
+      final options = defaultTestOptions();
       await Sentry.init(
         options: options,
         (options) {
@@ -288,7 +289,7 @@ void main() {
     test('should close integrations', () async {
       final integration = MockIntegration();
 
-      final options = SentryOptions(dsn: fakeDsn)..automatedTestMode = true;
+      final options = defaultTestOptions();
       await Sentry.init(
         options: options,
         (options) {
@@ -304,7 +305,7 @@ void main() {
     });
 
     test('$DeduplicationEventProcessor is added on init', () async {
-      final options = SentryOptions(dsn: fakeDsn)..automatedTestMode = true;
+      final options = defaultTestOptions();
       await Sentry.init(
         options: options,
         (options) {
@@ -321,7 +322,7 @@ void main() {
       final completer = Completer();
       var completed = false;
 
-      final options = SentryOptions(dsn: fakeDsn)..automatedTestMode = true;
+      final options = defaultTestOptions();
       final init = Sentry.init(
         options: options,
         (options) {
@@ -343,7 +344,7 @@ void main() {
     });
 
     test('should add DartExceptionTypeIdentifier by default', () async {
-      final options = SentryOptions(dsn: fakeDsn)..automatedTestMode = true;
+      final options = defaultTestOptions();
       await Sentry.init(
         options: options,
         (options) {
@@ -370,7 +371,7 @@ void main() {
     final completer = Completer();
     var completed = false;
 
-    final options = SentryOptions(dsn: fakeDsn)..automatedTestMode = true;
+    final options = defaultTestOptions();
     final init = Sentry.init(
       options: options,
       (options) {
@@ -393,12 +394,7 @@ void main() {
   });
 
   test('options.environment debug', () async {
-    final sentryOptions = SentryOptions(dsn: fakeDsn)
-      ..automatedTestMode = true
-      ..platformChecker = FakePlatformChecker.debugMode();
-
-    final options = SentryOptions();
-    options.automatedTestMode = true;
+    final sentryOptions = defaultTestOptions(FakePlatformChecker.debugMode());
     await Sentry.init(
       (options) {
         options.dsn = fakeDsn;
@@ -410,9 +406,7 @@ void main() {
   });
 
   test('options.environment profile', () async {
-    final sentryOptions =
-        SentryOptions(dsn: fakeDsn, checker: FakePlatformChecker.profileMode())
-          ..automatedTestMode = true;
+    final sentryOptions = defaultTestOptions(FakePlatformChecker.profileMode());
 
     await Sentry.init(
       (options) {
@@ -425,9 +419,7 @@ void main() {
   });
 
   test('options.environment production (defaultEnvironment)', () async {
-    final sentryOptions =
-        SentryOptions(dsn: fakeDsn, checker: FakePlatformChecker.releaseMode())
-          ..automatedTestMode = true;
+    final sentryOptions = defaultTestOptions(FakePlatformChecker.releaseMode());
     await Sentry.init(
       (options) {
         options.dsn = fakeDsn;
@@ -439,9 +431,7 @@ void main() {
   });
 
   test('options.logger is set by setting the debug flag', () async {
-    final sentryOptions =
-        SentryOptions(dsn: fakeDsn, checker: FakePlatformChecker.debugMode())
-          ..automatedTestMode = true;
+    final sentryOptions = defaultTestOptions(FakePlatformChecker.debugMode());
 
     await Sentry.init(
       (options) {
@@ -465,7 +455,7 @@ void main() {
     final fixture = Fixture();
 
     test('throw is handled and logged', () async {
-      final sentryOptions = SentryOptions(dsn: fakeDsn)
+      final sentryOptions = defaultTestOptions()
         ..automatedTestMode = false
         ..debug = true
         ..logger = fixture.mockLogger;

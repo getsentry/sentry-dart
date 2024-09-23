@@ -134,6 +134,7 @@ class SentryEnvelopeItem {
       // TODO the data copy could be avoided - this would be most significant with attachments.
       return [...itemHeader, ...newLine, ...data];
     } catch (e) {
+      // TODO rethrow in options.automatedTestMode (currently not available here to check)
       return [];
     }
   }

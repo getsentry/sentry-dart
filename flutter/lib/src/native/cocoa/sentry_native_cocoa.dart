@@ -17,7 +17,7 @@ class SentryNativeCocoa extends SentryNativeChannel {
   ScreenshotRecorder? _replayRecorder;
   SentryId? _replayId;
 
-  SentryNativeCocoa(super.options, super.channel);
+  SentryNativeCocoa(super.options);
 
   @override
   Future<void> init(Hub hub) async {
@@ -26,7 +26,7 @@ class SentryNativeCocoa extends SentryNativeChannel {
     if (options.experimental.replay.isEnabled &&
         options.platformChecker.platform.isIOS) {
       // We only need the integration when error-replay capture is enabled.
-      if ((options.experimental.replay.errorSampleRate ?? 0) > 0) {
+      if ((options.experimental.replay.onErrorSampleRate ?? 0) > 0) {
         options.addEventProcessor(ReplayEventProcessor(this));
       }
 

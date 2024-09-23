@@ -1,6 +1,7 @@
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 
+import '../mocks.dart';
 import 'no_such_method_provider.dart';
 
 class MockHub with NoSuchMethodProvider implements Hub {
@@ -18,7 +19,7 @@ class MockHub with NoSuchMethodProvider implements Hub {
   int spanContextCals = 0;
   int getSpanCalls = 0;
 
-  final _options = SentryOptions(dsn: 'fixture-dsn');
+  final _options = defaultTestOptions();
 
   @override
   @internal

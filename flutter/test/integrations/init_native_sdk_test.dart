@@ -67,7 +67,7 @@ void main() {
       'appHangTimeoutIntervalMillis': 2000,
       'replay': <String, dynamic>{
         'sessionSampleRate': null,
-        'errorSampleRate': null,
+        'onErrorSampleRate': null,
       },
     });
   });
@@ -118,7 +118,7 @@ void main() {
         pass: '0000',
       )
       ..experimental.replay.sessionSampleRate = 0.1
-      ..experimental.replay.errorSampleRate = 0.2;
+      ..experimental.replay.onErrorSampleRate = 0.2;
 
     fixture.options.sdk.addIntegration('foo');
     fixture.options.sdk.addPackage('bar', '1');
@@ -172,7 +172,7 @@ void main() {
       },
       'replay': <String, dynamic>{
         'sessionSampleRate': 0.1,
-        'errorSampleRate': 0.2,
+        'onErrorSampleRate': 0.2,
       },
     });
   });
@@ -189,10 +189,7 @@ MethodChannel createChannelWithCallback(
 
 SentryFlutterOptions createOptions() {
   final mockPlatformChecker = MockPlatformChecker(hasNativeIntegration: true);
-  final options = SentryFlutterOptions(
-    dsn: fakeDsn,
-    checker: mockPlatformChecker,
-  );
+  final options = defaultTestOptions(mockPlatformChecker);
   options.sdk = SdkVersion(
     name: sdkName,
     version: sdkVersion,
@@ -203,8 +200,8 @@ SentryFlutterOptions createOptions() {
 
 class Fixture {
   late SentryFlutterOptions options;
-  SentryNativeChannel getSut(MethodChannel native) {
-    options = createOptions();
-    return SentryNativeChannel(options, native);
+  SentryNativeChannel getSut(MethodChannel channel) {
+    options = createOptions()..methodChannel = channel;
+    return SentryNativeChannel(options);
   }
 }

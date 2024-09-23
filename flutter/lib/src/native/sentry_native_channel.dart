@@ -25,8 +25,8 @@ class SentryNativeChannel
   @protected
   final SentrySafeMethodChannel channel;
 
-  SentryNativeChannel(this.options, MethodChannel channel)
-      : channel = SentrySafeMethodChannel(channel, options);
+  SentryNativeChannel(this.options)
+      : channel = SentrySafeMethodChannel(options);
 
   @override
   Future<void> init(Hub hub) async {
@@ -69,7 +69,7 @@ class SentryNativeChannel
       if (options.proxy != null) 'proxy': options.proxy?.toJson(),
       'replay': <String, dynamic>{
         'sessionSampleRate': options.experimental.replay.sessionSampleRate,
-        'errorSampleRate': options.experimental.replay.errorSampleRate,
+        'onErrorSampleRate': options.experimental.replay.onErrorSampleRate,
       },
     });
   }

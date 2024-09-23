@@ -662,7 +662,7 @@ void main() {
 
 class Fixture {
   final client = MockSentryClient();
-  final options = SentryOptions(dsn: fakeDsn);
+  final options = defaultTestOptions();
   late Hub hub;
 
   SentryFile getSut(

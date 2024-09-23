@@ -91,7 +91,7 @@ Future<void> setupSentry(
       options.navigatorKey = navigatorKey;
 
       options.experimental.replay.sessionSampleRate = 1.0;
-      options.experimental.replay.errorSampleRate = 1.0;
+      options.experimental.replay.onErrorSampleRate = 1.0;
 
       _isIntegrationTest = isIntegrationTest;
       if (_isIntegrationTest) {
@@ -1062,6 +1062,7 @@ Future<void> showDialogWithTextAndImage(BuildContext context) async {
   final imageBytes =
       await DefaultAssetBundle.of(context).load('assets/sentry-wordmark.png');
   await showDialog<void>(
+    // ignore: use_build_context_synchronously
     context: context,
     // gets tracked if using SentryNavigatorObserver
     routeSettings: const RouteSettings(

@@ -2,10 +2,17 @@
 
 ## Unreleased
 
+### Enhancements
+
+- Improve app start integration ([#2266](https://github.com/getsentry/sentry-dart/pull/2266))
+  - Fixes ([#2103](https://github.com/getsentry/sentry-dart/issues/2103))
+  - Fixes ([#2233](https://github.com/getsentry/sentry-dart/issues/2233))
+
+## 8.9.0
+
 ### Features
 
-- Session replay Alpha for Android and iOS ([#2208](https://github.com/getsentry/sentry-dart/pull/2208), [#2269](https://github.com/getsentry/sentry-dart/pull/2269), [#2236](https://github.com/getsentry/sentry-dart/pull/2236)).
-
+- Session replay Alpha for Android and iOS ([#2208](https://github.com/getsentry/sentry-dart/pull/2208), [#2269](https://github.com/getsentry/sentry-dart/pull/2269), [#2236](https://github.com/getsentry/sentry-dart/pull/2236), [#2275](https://github.com/getsentry/sentry-dart/pull/2275), [#2270](https://github.com/getsentry/sentry-dart/pull/2270)).
   To try out replay, you can set following options (access is limited to early access orgs on Sentry. If you're interested, [sign up for the waitlist](https://sentry.io/lp/mobile-replay-beta/)):
 
   ```dart
@@ -13,7 +20,7 @@
     (options) {
       ...
       options.experimental.replay.sessionSampleRate = 1.0;
-      options.experimental.replay.errorSampleRate = 1.0;
+      options.experimental.replay.onErrorSampleRate = 1.0;
     },
     appRunner: () => runApp(MyApp()),
   );
@@ -27,7 +34,6 @@
       ...
       options.allowUrls = ["^https://sentry.com.*\$", "my-custom-domain"];
       options.denyUrls = ["^.*ends-with-this\$", "denied-url"];
-      options.denyUrls = ["^.*ends-with-this\$", "denied-url"];
     },
     appRunner: () => runApp(MyApp()),
   );
@@ -40,6 +46,11 @@
   - Deprecated `SentryUserFeedback`, use `SentryFeedback` instead.
   - This will ignore the Routes and prevent the Route from being pushed to the Sentry server.
   - Ignored routes will also create no TTID and TTFD spans.
+- Collect touch breadcrumbs for all buttons, not just those with `key` specified. ([#2242](https://github.com/getsentry/sentry-dart/pull/2242))
+- Add `enableDartSymbolication` option to Sentry.init() for **Flutter iOS, macOS and Android** ([#2256](https://github.com/getsentry/sentry-dart/pull/2256))
+  - This flag enables symbolication of Dart stack traces when native debug images are not available.
+  - Useful when using Sentry.init() instead of SentryFlutter.init() in Flutter projects for example due to size limitations.
+  - `true` by default but automatically set to `false` when using SentryFlutter.init() because the SentryFlutter fetches debug images from the native SDK integrations.
 
 ### Dependencies
 
@@ -129,7 +140,7 @@ SentryNavigatorObserver(ignoreRoutes: ["/ignoreThisRoute"]),
       (options) {
         options.dsn = 'https://example@sentry.io/add-your-dsn-here';
         options.proxy = SentryProxy(
-          type: SenryProxyType.http,
+          type: SentryProxyType.http,
           host: 'localhost',
           port: 8080,
         );
@@ -206,7 +217,7 @@ SentryNavigatorObserver(ignoreRoutes: ["/ignoreThisRoute"]),
     (options) {
       ...
       options.experimental.replay.sessionSampleRate = 1.0;
-      options.experimental.replay.errorSampleRate = 1.0;
+      options.experimental.replay.onErrorSampleRate = 1.0;
     },
     appRunner: () => runApp(MyApp()),
   );
