@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Blocking app starts if "appLaunchedInForeground" is false. (Android only) ([#2291](https://github.com/getsentry/sentry-dart/pull/2291)
+
 ### Enhancements
 
 - Improve app start integration ([#2266](https://github.com/getsentry/sentry-dart/pull/2266))
