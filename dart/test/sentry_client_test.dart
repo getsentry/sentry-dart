@@ -1268,6 +1268,7 @@ void main() {
     });
 
     test('thrown error is handled', () async {
+      fixture.options.automatedTestMode = false;
       final exception = Exception("before send exception");
       final beforeSendFeedbackCallback = (SentryEvent event, Hint hint) {
         throw exception;
