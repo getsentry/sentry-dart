@@ -1173,6 +1173,34 @@ class MockSentryClient extends _i1.Mock implements _i2.SentryClient {
       ) as _i7.Future<void>);
 
   @override
+  _i7.Future<_i2.SentryId> captureFeedback(
+    _i2.SentryFeedback? feedback, {
+    _i2.Scope? scope,
+    _i2.Hint? hint,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #captureFeedback,
+          [feedback],
+          {
+            #scope: scope,
+            #hint: hint,
+          },
+        ),
+        returnValue: _i7.Future<_i2.SentryId>.value(_FakeSentryId_5(
+          this,
+          Invocation.method(
+            #captureFeedback,
+            [feedback],
+            {
+              #scope: scope,
+              #hint: hint,
+            },
+          ),
+        )),
+      ) as _i7.Future<_i2.SentryId>);
+
+  @override
   _i7.Future<_i2.SentryId> captureMetrics(
           Map<int, Iterable<_i10.Metric>>? metricsBuckets) =>
       (super.noSuchMethod(
@@ -1758,6 +1786,34 @@ class MockHub extends _i1.Mock implements _i2.Hub {
         returnValue: _i7.Future<void>.value(),
         returnValueForMissingStub: _i7.Future<void>.value(),
       ) as _i7.Future<void>);
+
+  @override
+  _i7.Future<_i2.SentryId> captureFeedback(
+    _i2.SentryFeedback? feedback, {
+    _i2.Hint? hint,
+    _i2.ScopeCallback? withScope,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #captureFeedback,
+          [feedback],
+          {
+            #hint: hint,
+            #withScope: withScope,
+          },
+        ),
+        returnValue: _i7.Future<_i2.SentryId>.value(_FakeSentryId_5(
+          this,
+          Invocation.method(
+            #captureFeedback,
+            [feedback],
+            {
+              #hint: hint,
+              #withScope: withScope,
+            },
+          ),
+        )),
+      ) as _i7.Future<_i2.SentryId>);
 
   @override
   _i7.Future<void> addBreadcrumb(
