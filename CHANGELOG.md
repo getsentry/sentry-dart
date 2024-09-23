@@ -9,8 +9,6 @@
   - Deprecated `Hub.captureUserFeedback`, use `captureFeedback` instead.
   - Deprecated `SentryClient.captureUserFeedback`, use `captureFeedback` instead.
   - Deprecated `SentryUserFeedback`, use `SentryFeedback` instead.
-  - This will ignore the Routes and prevent the Route from being pushed to the Sentry server.
-  - Ignored routes will also create no TTID and TTFD spans.
 - Add `SentryFeedbackWidget` ([#2240](https://github.com/getsentry/sentry-dart/pull/2240))
 ```dart
 Navigator.push(
