@@ -173,8 +173,13 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
     val appStartMetrics = AppStartMetrics.getInstance()
 
-    if (!appStartMetrics.isAppLaunchedInForeground || appStartMetrics.appStartTimeSpan.durationMs > 1.toDuration(DurationUnit.MINUTES).inWholeMilliseconds) {
-      Log.w("Sentry", "Invalid app start data: app not launched in foreground or app start took too long (>60s)")
+    if (!appStartMetrics.isAppLaunchedInForeground ||
+      appStartMetrics.appStartTimeSpan.durationMs > 1.toDuration(DurationUnit.MINUTES).inWholeMilliseconds
+    ) {
+      Log.w(
+        "Sentry",
+        "Invalid app start data: app not launched in foreground or app start took too long (>60s)"
+      )
       result.success(null)
     }
 
