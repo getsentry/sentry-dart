@@ -34,6 +34,8 @@ import io.sentry.protocol.User
 import io.sentry.transport.CurrentDateProvider
 import java.io.File
 import java.lang.ref.WeakReference
+import kotlin.time.DurationUnit
+import kotlin.time.toDuration
 
 class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
   private lateinit var channel: MethodChannel
@@ -171,7 +173,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
     val appStartMetrics = AppStartMetrics.getInstance()
 
-    if (!appStartMetrics.isAppLaunchedInForeground || appStartMetrics.appStartTimeSpan.durationMs > 1.toDuration(DurationUnit.MINUTES)) {
+    if (!appStartMetrics.isAppLaunchedInForeground || appStartMetrics.appStartTimeSpan.durationMs > 1.toDuration(DurationUnit.MINUTES).inWholeMilliseconds) {
       Log.w("Sentry", "Invalid app start data: app not launched in foreground or app start took too long (>60s)")
       result.success(null)
     }
