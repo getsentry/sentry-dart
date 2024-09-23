@@ -1173,6 +1173,34 @@ class MockSentryClient extends _i1.Mock implements _i2.SentryClient {
       ) as _i7.Future<void>);
 
   @override
+  _i7.Future<_i2.SentryId> captureFeedback(
+    _i2.SentryFeedback? feedback, {
+    _i2.Scope? scope,
+    _i2.Hint? hint,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #captureFeedback,
+          [feedback],
+          {
+            #scope: scope,
+            #hint: hint,
+          },
+        ),
+        returnValue: _i7.Future<_i2.SentryId>.value(_FakeSentryId_5(
+          this,
+          Invocation.method(
+            #captureFeedback,
+            [feedback],
+            {
+              #scope: scope,
+              #hint: hint,
+            },
+          ),
+        )),
+      ) as _i7.Future<_i2.SentryId>);
+
+  @override
   _i7.Future<_i2.SentryId> captureMetrics(
           Map<int, Iterable<_i10.Metric>>? metricsBuckets) =>
       (super.noSuchMethod(
@@ -1760,8 +1788,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
       ) as _i7.Future<void>);
 
   @override
-<<<<<<< HEAD
-  _i8.Future<_i3.SentryId> captureFeedback(
+  _i7.Future<_i2.SentryId> captureFeedback(
     _i2.SentryFeedback? feedback, {
     _i2.Hint? hint,
     _i2.ScopeCallback? withScope,
@@ -1775,7 +1802,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
             #withScope: withScope,
           },
         ),
-        returnValue: _i8.Future<_i3.SentryId>.value(_FakeSentryId_5(
+        returnValue: _i7.Future<_i2.SentryId>.value(_FakeSentryId_5(
           this,
           Invocation.method(
             #captureFeedback,
@@ -1786,15 +1813,11 @@ class MockHub extends _i1.Mock implements _i2.Hub {
             },
           ),
         )),
-      ) as _i8.Future<_i3.SentryId>);
+      ) as _i7.Future<_i2.SentryId>);
 
   @override
-  _i8.Future<void> addBreadcrumb(
-    _i3.Breadcrumb? crumb, {
-=======
   _i7.Future<void> addBreadcrumb(
     _i2.Breadcrumb? crumb, {
->>>>>>> feat/capture-feedback
     _i2.Hint? hint,
   }) =>
       (super.noSuchMethod(
