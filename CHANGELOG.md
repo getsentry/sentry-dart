@@ -2,6 +2,26 @@
 
 ## Unreleased
 
+## Features
+
+- Support `captureFeedback` ([#2230](https://github.com/getsentry/sentry-dart/pull/2230))
+  - Deprecated `Sentry.captureUserFeedback`, use `captureFeedback` instead.
+  - Deprecated `Hub.captureUserFeedback`, use `captureFeedback` instead.
+  - Deprecated `SentryClient.captureUserFeedback`, use `captureFeedback` instead.
+  - Deprecated `SentryUserFeedback`, use `SentryFeedback` instead.
+  - This will ignore the Routes and prevent the Route from being pushed to the Sentry server.
+  - Ignored routes will also create no TTID and TTFD spans.
+- Add `SentryFeedbackWidget` ([#2240](https://github.com/getsentry/sentry-dart/pull/2240))
+```dart
+Navigator.push(
+  context,
+  MaterialPageRoute(
+    builder: (context) => SentryFeedbackWidget(associatedEventId: id),
+    fullscreenDialog: true,
+  ),
+);
+```
+
 ### Enhancements
 
 - Improve app start integration ([#2266](https://github.com/getsentry/sentry-dart/pull/2266))
@@ -38,14 +58,6 @@
     appRunner: () => runApp(MyApp()),
   );
   ```
-
-- Support `captureFeedback` ([#2230](https://github.com/getsentry/sentry-dart/pull/2230))
-  - Deprecated `Sentry.captureUserFeedback`, use `captureFeedback` instead.
-  - Deprecated `Hub.captureUserFeedback`, use `captureFeedback` instead.
-  - Deprecated `SentryClient.captureUserFeedback`, use `captureFeedback` instead.
-  - Deprecated `SentryUserFeedback`, use `SentryFeedback` instead.
-  - This will ignore the Routes and prevent the Route from being pushed to the Sentry server.
-  - Ignored routes will also create no TTID and TTFD spans.
 - Collect touch breadcrumbs for all buttons, not just those with `key` specified. ([#2242](https://github.com/getsentry/sentry-dart/pull/2242))
 - Add `enableDartSymbolication` option to Sentry.init() for **Flutter iOS, macOS and Android** ([#2256](https://github.com/getsentry/sentry-dart/pull/2256))
   - This flag enables symbolication of Dart stack traces when native debug images are not available.
@@ -74,21 +86,6 @@
     - Ignored routes will also create no TTID and TTFD spans.
 ```dart
 SentryNavigatorObserver(ignoreRoutes: ["/ignoreThisRoute"]),
-```
-- Support `captureFeedback` ([#2230](https://github.com/getsentry/sentry-dart/pull/2230))
-  - Deprecated `Sentry.captureUserFeedback`, use `captureFeedback` instead.
-  - Deprecated `Hub.captureUserFeedback`, use `captureFeedback` instead.
-  - Deprecated `SentryClient.captureUserFeedback`, use `captureFeedback` instead.
-  - Deprecated `SentryUserFeedback`, use `SentryFeedback` instead.
-- Add `SentryFeedbackWidget` ([#2240](https://github.com/getsentry/sentry-dart/pull/2240))
-```dart
-Navigator.push(
-  context,
-  MaterialPageRoute(
-    builder: (context) => SentryFeedbackWidget(associatedEventId: id),
-    fullscreenDialog: true,
-  ),
-);
 ```
 
 ### Improvements
