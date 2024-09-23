@@ -577,6 +577,7 @@ void main() {
 
     test('captureFeedback should handle thrown error in scope callback',
         () async {
+      fixture.options.automatedTestMode = false;
       final hub = fixture.getSut(debug: true);
       final scopeCallbackException = Exception('error in scope callback');
 
