@@ -53,7 +53,7 @@ void main() {
 }
 
 class Fixture {
-  final _options = SentryFlutterOptions(dsn: fakeDsn);
+  final _options = defaultTestOptions();
   late Hub hub;
 
   SentryScreenshotWidget getSut({
@@ -64,7 +64,6 @@ class Fixture {
     hub = Hub(_options);
 
     return SentryScreenshotWidget(
-      hub: hub,
       child: MaterialApp(home: MyApp()),
     );
   }

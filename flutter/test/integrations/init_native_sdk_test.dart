@@ -8,6 +8,7 @@ import 'package:sentry_flutter/src/native/sentry_native_channel.dart';
 import 'package:sentry_flutter/src/version.dart';
 
 import '../mocks.dart';
+import '../mocks.mocks.dart';
 
 void main() {
   late Fixture fixture;
@@ -25,7 +26,7 @@ void main() {
     });
     var sut = fixture.getSut(channel);
 
-    await sut.init(fixture.options);
+    await sut.init(MockHub());
 
     channel.setMethodCallHandler(null);
 
@@ -64,6 +65,10 @@ void main() {
       'connectionTimeoutMillis': 5000,
       'readTimeoutMillis': 5000,
       'appHangTimeoutIntervalMillis': 2000,
+      'replay': <String, dynamic>{
+        'sessionSampleRate': null,
+        'onErrorSampleRate': null,
+      },
     });
   });
 
@@ -111,12 +116,14 @@ void main() {
         type: SentryProxyType.http,
         user: 'admin',
         pass: '0000',
-      );
+      )
+      ..experimental.replay.sessionSampleRate = 0.1
+      ..experimental.replay.onErrorSampleRate = 0.2;
 
     fixture.options.sdk.addIntegration('foo');
     fixture.options.sdk.addPackage('bar', '1');
 
-    await sut.init(fixture.options);
+    await sut.init(MockHub());
 
     channel.setMethodCallHandler(null);
 
@@ -162,7 +169,11 @@ void main() {
         'type': 'HTTP',
         'user': 'admin',
         'pass': '0000',
-      }
+      },
+      'replay': <String, dynamic>{
+        'sessionSampleRate': 0.1,
+        'onErrorSampleRate': 0.2,
+      },
     });
   });
 }
@@ -178,10 +189,7 @@ MethodChannel createChannelWithCallback(
 
 SentryFlutterOptions createOptions() {
   final mockPlatformChecker = MockPlatformChecker(hasNativeIntegration: true);
-  final options = SentryFlutterOptions(
-    dsn: fakeDsn,
-    checker: mockPlatformChecker,
-  );
+  final options = defaultTestOptions(mockPlatformChecker);
   options.sdk = SdkVersion(
     name: sdkName,
     version: sdkVersion,
@@ -192,8 +200,8 @@ SentryFlutterOptions createOptions() {
 
 class Fixture {
   late SentryFlutterOptions options;
-  SentryNativeChannel getSut(MethodChannel native) {
-    options = createOptions();
-    return SentryNativeChannel(options, native);
+  SentryNativeChannel getSut(MethodChannel channel) {
+    options = createOptions()..methodChannel = channel;
+    return SentryNativeChannel(options);
   }
 }

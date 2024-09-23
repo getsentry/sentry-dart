@@ -7,6 +7,7 @@ import 'client_reports/client_report_recorder.dart';
 import 'client_reports/discard_reason.dart';
 import 'event_processor.dart';
 import 'hint.dart';
+import 'load_dart_debug_images_integration.dart';
 import 'metrics/metric.dart';
 import 'metrics/metrics_aggregator.dart';
 import 'protocol.dart';
@@ -27,6 +28,7 @@ import 'transport/rate_limiter.dart';
 import 'transport/spotlight_http_transport.dart';
 import 'transport/task_queue.dart';
 import 'utils/isolate_utils.dart';
+import 'utils/regex_utils.dart';
 import 'utils/stacktrace_utils.dart';
 import 'version.dart';
 
@@ -118,6 +120,7 @@ class SentryClient {
     SentryEvent? preparedEvent = _prepareEvent(event, stackTrace: stackTrace);
 
     hint ??= Hint();
+    hint.set(hintRawStackTraceKey, stackTrace.toString());
 
     if (scope != null) {
       preparedEvent = await scope.applyToEvent(preparedEvent, hint);
@@ -168,15 +171,15 @@ class SentryClient {
 
     var traceContext = scope?.span?.traceContext();
     if (traceContext == null) {
-      if (scope?.propagationContext.baggage == null) {
-        scope?.propagationContext.baggage =
-            SentryBaggage({}, logger: _options.logger);
-        scope?.propagationContext.baggage?.setValuesFromScope(scope, _options);
-      }
       if (scope != null) {
+        scope.propagationContext.baggage ??=
+            SentryBaggage({}, logger: _options.logger)
+              ..setValuesFromScope(scope, _options);
         traceContext = SentryTraceContextHeader.fromBaggage(
             scope.propagationContext.baggage!);
       }
+    } else {
+      traceContext.replayId = scope?.replayId;
     }
 
     final envelope = SentryEnvelope.fromEvent(
@@ -197,7 +200,7 @@ class SentryClient {
     }
 
     var message = event.message!.formatted;
-    return _isMatchingRegexPattern(message, _options.ignoreErrors);
+    return isMatchingRegexPattern(message, _options.ignoreErrors);
   }
 
   SentryEvent _prepareEvent(SentryEvent event, {dynamic stackTrace}) {
@@ -420,7 +423,7 @@ class SentryClient {
     }
 
     var name = transaction.tracer.name;
-    return _isMatchingRegexPattern(name, _options.ignoreTransactions);
+    return isMatchingRegexPattern(name, _options.ignoreTransactions);
   }
 
   /// Reports the [envelope] to Sentry.io.
@@ -589,6 +592,7 @@ class SentryClient {
               count: spanCountBeforeEventProcessors + 1);
         }
         _options.logger(SentryLevel.debug, 'Event was dropped by a processor');
+        break;
       } else if (event is SentryTransaction &&
           processedEvent is SentryTransaction) {
         // If event processor removed only some spans we still report them as dropped
@@ -626,12 +630,5 @@ class SentryClient {
       () => _options.transport.send(envelope),
       SentryId.empty(),
     );
-  }
-
-  bool _isMatchingRegexPattern(String value, List<String> regexPattern,
-      {bool caseSensitive = false}) {
-    final combinedRegexPattern = regexPattern.join('|');
-    final regExp = RegExp(combinedRegexPattern, caseSensitive: caseSensitive);
-    return regExp.hasMatch(value);
   }
 }

@@ -31,16 +31,15 @@ class SpotlightHttpTransport extends Transport {
     } catch (e) {
       _options.logger(
           SentryLevel.warning, 'Failed to send envelope to Spotlight: $e');
+      if (_options.automatedTestMode) {
+        rethrow;
+      }
     }
     return _transport.send(envelope);
   }
 
   Future<void> _sendToSpotlight(SentryEnvelope envelope) async {
     envelope.header.sentAt = _options.clock();
-
-    // Screenshots do not work currently https://github.com/getsentry/spotlight/issues/274
-    envelope.items
-        .removeWhere((element) => element.header.contentType == 'image/png');
 
     final spotlightRequest = await _requestHandler.createRequest(envelope);
 

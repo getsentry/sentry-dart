@@ -55,6 +55,7 @@ class SentryBaggage {
           exception: exception,
           stackTrace: stackTrace,
         );
+        // TODO rethrow in options.automatedTestMode (currently not available here to check)
       }
     }
 
@@ -110,6 +111,9 @@ class SentryBaggage {
     if (scope.user?.segment != null) {
       // ignore: deprecated_member_use_from_same_package
       setUserSegment(scope.user!.segment!);
+    }
+    if (scope.replayId != null && scope.replayId != SentryId.empty()) {
+      setReplayId(scope.replayId.toString());
     }
   }
 
@@ -203,6 +207,13 @@ class SentryBaggage {
     }
 
     return double.tryParse(sampleRate);
+  }
+
+  void setReplayId(String value) => set('sentry-replay_id', value);
+
+  SentryId? getReplayId() {
+    final replayId = get('sentry-replay_id');
+    return replayId == null ? null : SentryId.fromId(replayId);
   }
 
   Map<String, String> get keyValues => Map.unmodifiable(_keyValues);

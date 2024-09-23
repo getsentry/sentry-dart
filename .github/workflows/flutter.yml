@@ -195,6 +195,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       # To recreate baseline run: detekt -i flutter/android,flutter/example/android -b flutter/config/detekt-bl.xml -cb
-      - uses: natiginfo/action-detekt-all@b9daaf58ff7a4885ff92ba612c3ea72bf1abeadb # pin@1.23.6
+      - uses: natiginfo/action-detekt-all@6bf4342ea96f638ecced05cf7d7dc48acdecc854 # pin@1.23.7
         with:
           args: -i flutter/android,flutter/example/android --baseline flutter/config/detekt-bl.xml --jvm-target 1.8 --build-upon-default-config --all-rules

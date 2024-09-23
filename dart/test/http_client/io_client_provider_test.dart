@@ -7,7 +7,7 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry/src/http_client/io_client_provider.dart';
 import 'package:test/test.dart';
 
-import '../mocks.dart';
+import '../test_utils.dart';
 
 void main() {
   group('getClient', () {
@@ -77,7 +77,7 @@ void main() {
 }
 
 class Fixture {
-  final options = SentryOptions(dsn: fakeDsn);
+  final options = defaultTestOptions();
   final mockHttpClient = MockHttpClient();
 
   String? mockUser;

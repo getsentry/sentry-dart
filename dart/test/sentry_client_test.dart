@@ -24,6 +24,7 @@ import 'mocks/mock_hub.dart';
 import 'mocks/mock_platform.dart';
 import 'mocks/mock_platform_checker.dart';
 import 'mocks/mock_transport.dart';
+import 'test_utils.dart';
 
 void main() {
   group('SentryClient captures message', () {
@@ -813,7 +814,8 @@ void main() {
         ..addBreadcrumb(crumb)
         ..setTag(scopeTagKey, scopeTagValue)
         // ignore: deprecated_member_use_from_same_package
-        ..setExtra(scopeExtraKey, scopeExtraValue);
+        ..setExtra(scopeExtraKey, scopeExtraValue)
+        ..replayId = SentryId.fromId('1');
 
       scope.setUser(user);
     });
@@ -839,6 +841,8 @@ void main() {
         scopeExtraKey: scopeExtraValue,
         eventExtraKey: eventExtraValue,
       });
+      expect(
+          capturedEnvelope.header.traceContext?.replayId, SentryId.fromId('1'));
     });
 
     test('should apply the scope to feedback event', () async {
@@ -1332,11 +1336,13 @@ void main() {
     });
 
     test('thrown error is handled', () async {
+      fixture.options.automatedTestMode = false;
       final exception = Exception("before send exception");
       final beforeSendTransactionCallback = (SentryTransaction event) {
         throw exception;
       };
 
+      fixture.options.automatedTestMode = false;
       final client = fixture.getSut(
           beforeSendTransaction: beforeSendTransactionCallback, debug: true);
       final fakeTransaction = fixture.fakeTransaction();
@@ -1394,11 +1400,13 @@ void main() {
     });
 
     test('thrown error is handled', () async {
+      fixture.options.automatedTestMode = false;
       final exception = Exception("before send exception");
       final beforeSendCallback = (SentryEvent event, Hint hint) {
         throw exception;
       };
 
+      fixture.options.automatedTestMode = false;
       final client =
           fixture.getSut(beforeSend: beforeSendCallback, debug: true);
 
@@ -1651,6 +1659,85 @@ void main() {
       expect(envelope.clientReport, clientReport);
     });
 
+    test('captureEvent adds trace context', () async {
+      final client = fixture.getSut();
+
+      final scope = Scope(fixture.options);
+      scope.replayId = SentryId.newId();
+      scope.span =
+          SentrySpan(fixture.tracer, fixture.tracer.context, MockHub());
+
+      await client.captureEvent(fakeEvent, scope: scope);
+
+      final envelope = fixture.transport.envelopes.first;
+      expect(envelope.header.traceContext, isNotNull);
+      expect(envelope.header.traceContext?.replayId, scope.replayId);
+    });
+
+    test('captureEvent adds attachments from hint', () async {
+      final attachment = SentryAttachment.fromIntList([], "fixture-fileName");
+      final hint = Hint.withAttachment(attachment);
+
+      final sut = fixture.getSut();
+      await sut.captureEvent(fakeEvent, hint: hint);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final attachmentItem = IterableUtils.firstWhereOrNull(
+        capturedEnvelope.items,
+        (SentryEnvelopeItem e) => e.header.type == SentryItemType.attachment,
+      );
+      expect(attachmentItem?.header.attachmentType,
+          SentryAttachment.typeAttachmentDefault);
+    });
+
+    test('captureEvent adds screenshot from hint', () async {
+      final client = fixture.getSut();
+      final screenshot =
+          SentryAttachment.fromScreenshotData(Uint8List.fromList([0, 0, 0, 0]));
+      final hint = Hint.withScreenshot(screenshot);
+
+      await client.captureEvent(fakeEvent, hint: hint);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final attachmentItem = capturedEnvelope.items.firstWhereOrNull(
+          (element) => element.header.type == SentryItemType.attachment);
+      expect(attachmentItem?.header.fileName, 'screenshot.png');
+    });
+
+    test('captureEvent adds viewHierarchy from hint', () async {
+      final client = fixture.getSut();
+      final view = SentryViewHierarchy('flutter');
+      final attachment = SentryAttachment.fromViewHierarchy(view);
+      final hint = Hint.withViewHierarchy(attachment);
+
+      await client.captureEvent(fakeEvent, hint: hint);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final attachmentItem = capturedEnvelope.items.firstWhereOrNull(
+          (element) => element.header.type == SentryItemType.attachment);
+
+      expect(attachmentItem?.header.attachmentType,
+          SentryAttachment.typeViewHierarchy);
+    });
+
+    test('captureTransaction adds trace context', () async {
+      final client = fixture.getSut();
+
+      final tr = SentryTransaction(fixture.tracer);
+
+      final context = SentryTraceContextHeader.fromJson(<String, dynamic>{
+        'trace_id': '${tr.eventId}',
+        'public_key': '123',
+        'replay_id': '456',
+      });
+
+      await client.captureTransaction(tr, traceContext: context);
+
+      final envelope = fixture.transport.envelopes.first;
+      expect(envelope.header.traceContext, isNotNull);
+      expect(envelope.header.traceContext?.replayId, SentryId.fromId('456'));
+    });
+
     test('captureUserFeedback calls flush', () async {
       final client = fixture.getSut(eventProcessor: DropAllEventProcessor());
 
@@ -1696,7 +1783,13 @@ void main() {
     });
 
     test('record event processor dropping event', () async {
-      final client = fixture.getSut(eventProcessor: DropAllEventProcessor());
+      bool secondProcessorCalled = false;
+      fixture.options.addEventProcessor(DropAllEventProcessor());
+      fixture.options.addEventProcessor(FunctionEventProcessor((event, hint) {
+        secondProcessorCalled = true;
+        return event;
+      }));
+      final client = fixture.getSut();
 
       await client.captureEvent(fakeEvent);
 
@@ -1704,6 +1797,7 @@ void main() {
           DiscardReason.eventProcessor);
       expect(
           fixture.recorder.discardedEvents.first.category, DataCategory.error);
+      expect(secondProcessorCalled, isFalse);
     });
 
     test('record event processor dropping transaction', () async {
@@ -2148,8 +2242,8 @@ class Fixture {
   final recorder = MockClientReportRecorder();
   final transport = MockTransport();
 
-  final options = SentryOptions(dsn: fakeDsn)
-    ..platformChecker = MockPlatformChecker(platform: MockPlatform.iOS());
+  final options =
+      defaultTestOptions(MockPlatformChecker(platform: MockPlatform.iOS()));
 
   late SentryTransactionContext _context;
   late SentryTracer tracer;

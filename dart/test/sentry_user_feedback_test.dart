@@ -5,6 +5,7 @@ import 'package:test/test.dart';
 
 import 'mocks.dart';
 import 'mocks/mock_transport.dart';
+import 'test_utils.dart';
 
 void main() {
   // ignore: deprecated_member_use_from_same_package
@@ -157,7 +158,7 @@ void main() {
   });
 
   test('captureUserFeedback does not throw', () async {
-    final options = SentryOptions(dsn: fakeDsn);
+    final options = defaultTestOptions()..automatedTestMode = false;
     final transport = ThrowingTransport();
     options.transport = transport;
     final sut = Hub(options);
@@ -176,7 +177,7 @@ class Fixture {
   late MockTransport transport;
 
   Hub getSut() {
-    final options = SentryOptions(dsn: fakeDsn);
+    final options = defaultTestOptions();
     transport = MockTransport();
     options.transport = transport;
     return Hub(options);

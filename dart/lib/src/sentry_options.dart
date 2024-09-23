@@ -190,10 +190,12 @@ class SentryOptions {
 
   /// The ignoreErrors tells the SDK which errors should be not sent to the sentry server.
   /// If an null or an empty list is used, the SDK will send all transactions.
+  /// To use regex add the `^` and the `$` to the string.
   List<String> ignoreErrors = [];
 
   /// The ignoreTransactions tells the SDK which transactions should be not sent to the sentry server.
   /// If null or an empty list is used, the SDK will send all transactions.
+  /// To use regex add the `^` and the `$` to the string.
   List<String> ignoreTransactions = [];
 
   final List<String> _inAppExcludes = [];
@@ -361,6 +363,16 @@ class SentryOptions {
     return exception != null &&
         _ignoredExceptionsForType.contains(exception.runtimeType);
   }
+
+  /// Enables Dart symbolication for stack traces in Flutter.
+  ///
+  /// If true, the SDK will attempt to symbolicate Dart stack traces when
+  /// [Sentry.init] is used instead of `SentryFlutter.init`. This is useful
+  /// when native debug images are not available.
+  ///
+  /// Automatically set to `false` when using `SentryFlutter.init`, as it uses
+  /// native SDKs for setting up symbolication on iOS, macOS, and Android.
+  bool enableDartSymbolication = true;
 
   @internal
   late ClientReportRecorder recorder = NoOpClientReportRecorder();

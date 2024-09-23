@@ -4,10 +4,10 @@ import 'package:sentry/src/dart_exception_type_identifier.dart';
 import 'package:sentry/src/sentry_exception_factory.dart';
 import 'package:test/test.dart';
 
-import 'mocks.dart';
 import 'mocks.mocks.dart';
 import 'mocks/mock_transport.dart';
 import 'sentry_client_test.dart';
+import 'test_utils.dart';
 
 void main() {
   late Fixture fixture;
@@ -165,7 +165,7 @@ void main() {
 }
 
 class Fixture {
-  SentryOptions options = SentryOptions(dsn: fakeDsn);
+  SentryOptions options = defaultTestOptions();
 }
 
 // We use this PlaceHolder exception to mimic an obfuscated runtimeType
