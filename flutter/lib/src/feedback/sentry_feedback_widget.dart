@@ -199,7 +199,14 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
                       );
                       await _captureFeedback(feedback);
 
-                      if (context.mounted) {
+                      bool mounted;
+                      try {
+                        mounted = (this as dynamic).mounted as bool;
+                      } on NoSuchMethodError catch (_) {
+                        mounted = false;
+                      }
+                      if (mounted) {
+                        // ignore: use_build_context_synchronously
                         await Navigator.maybePop(context);
                       }
                     },
