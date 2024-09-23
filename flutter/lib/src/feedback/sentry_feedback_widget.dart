@@ -56,10 +56,6 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  String? _name;
-  String? _email;
-  String? _message;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -203,7 +199,9 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
                       );
                       await _captureFeedback(feedback);
 
-                      Navigator.maybePop(context);
+                      if (context.mounted) {
+                        await Navigator.maybePop(context);
+                      }
                     },
                     child: Text(widget.submitButtonLabel),
                   ),
