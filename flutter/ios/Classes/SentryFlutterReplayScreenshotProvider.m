@@ -19,6 +19,8 @@
 - (void)imageWithView:(UIView *_Nonnull)view
               options:(id<SentryRedactOptions> _Nonnull)options
            onComplete:(void (^_Nonnull)(UIImage *_Nonnull))onComplete {
+  // Replay ID may be null if session replay is disabled.
+  // Replay is still captured for on-error replays.
   NSString *replayId = [PrivateSentrySDKOnly getReplayId];
   [self->channel
       invokeMethod:@"captureReplayScreenshot"

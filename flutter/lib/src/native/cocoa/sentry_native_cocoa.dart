@@ -27,7 +27,7 @@ class SentryNativeCocoa extends SentryNativeChannel {
         options.platformChecker.platform.isIOS) {
       // We only need the integration when error-replay capture is enabled.
       if ((options.experimental.replay.onErrorSampleRate ?? 0) > 0) {
-        options.addEventProcessor(ReplayEventProcessor(this));
+        options.addEventProcessor(ReplayEventProcessor(hub, this));
       }
 
       channel.setMethodCallHandler((call) async {
