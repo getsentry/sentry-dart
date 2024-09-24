@@ -4,6 +4,7 @@
 
 ### Features
 
+- Blocking app starts if "appLaunchedInForeground" is false. (Android only) ([#2291](https://github.com/getsentry/sentry-dart/pull/2291)
 - Windows native error & obfuscation support ([#2286](https://github.com/getsentry/sentry-dart/pull/2286))
 
 ### Enhancements
