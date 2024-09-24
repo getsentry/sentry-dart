@@ -35,8 +35,9 @@ class SentryNativeCocoa extends SentryNativeChannel {
           case 'captureReplayScreenshot':
             _replayRecorder ??=
                 ScreenshotRecorder(ScreenshotRecorderConfig(), options);
-            final replayId =
-                SentryId.fromId(call.arguments['replayId'] as String);
+            final replayId = call.arguments['replayId'] == null
+                ? null
+                : SentryId.fromId(call.arguments['replayId'] as String);
             if (_replayId != replayId) {
               _replayId = replayId;
               hub.configureScope((s) {
