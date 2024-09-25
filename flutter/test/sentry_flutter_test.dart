@@ -59,6 +59,7 @@ void main() {
 
   setUp(() async {
     native = NativeChannelFixture();
+    SentryFlutter.native = null;
   });
 
   group('Test platform integrations', () {
