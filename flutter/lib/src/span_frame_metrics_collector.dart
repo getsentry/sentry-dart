@@ -39,7 +39,7 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
   bool get isTrackingRegistered => _isTrackingRegistered;
   bool _isTrackingRegistered = false;
 
-  int displayRefreshRate = 60;
+  int? displayRefreshRate;
 
   final _stopwatch = Stopwatch();
 
@@ -75,10 +75,12 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
 
   @override
   Future<void> onSpanFinished(ISentrySpan span, DateTime endTimestamp) async {
-    if (span is NoOpSentrySpan || !activeSpans.contains(span)) return;
+    if (span is NoOpSentrySpan ||
+        !activeSpans.contains(span) ||
+        displayRefreshRate == null) return;
 
     final frameMetrics =
-        calculateFrameMetrics(span, endTimestamp, displayRefreshRate);
+        calculateFrameMetrics(span, endTimestamp, displayRefreshRate!);
     _applyFrameMetricsToSpan(span, frameMetrics);
 
     activeSpans.remove(span);
@@ -252,6 +254,6 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
     _isTrackingPaused = true;
     frames.clear();
     activeSpans.clear();
-    displayRefreshRate = 60;
+    displayRefreshRate = null;
   }
 }
