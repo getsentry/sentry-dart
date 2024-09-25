@@ -16,7 +16,7 @@ class SentryNativeJava extends SentryNativeChannel {
   ScheduledScreenshotRecorder? _replayRecorder;
   String? _replayCacheDir;
   _IdleFrameFiller? _idleFrameFiller;
-  SentryNativeJava(super.options, super.channel);
+  SentryNativeJava(super.options);
 
   @override
   Future<void> init(Hub hub) async {
@@ -25,7 +25,7 @@ class SentryNativeJava extends SentryNativeChannel {
     if (options.experimental.replay.isEnabled) {
       // We only need the integration when error-replay capture is enabled.
       if ((options.experimental.replay.onErrorSampleRate ?? 0) > 0) {
-        options.addEventProcessor(ReplayEventProcessor(this));
+        options.addEventProcessor(ReplayEventProcessor(hub, this));
       }
 
       channel.setMethodCallHandler((call) async {
@@ -139,7 +139,6 @@ class SentryNativeJava extends SentryNativeChannel {
         exception: error,
         stackTrace: stackTrace,
       );
-      // ignore: invalid_use_of_internal_member
       if (options.automatedTestMode) {
         rethrow;
       }

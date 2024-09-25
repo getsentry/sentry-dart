@@ -24,6 +24,7 @@ import 'mocks/mock_hub.dart';
 import 'mocks/mock_platform.dart';
 import 'mocks/mock_platform_checker.dart';
 import 'mocks/mock_transport.dart';
+import 'test_utils.dart';
 
 void main() {
   group('SentryClient captures message', () {
@@ -1249,11 +1250,13 @@ void main() {
     });
 
     test('thrown error is handled', () async {
+      fixture.options.automatedTestMode = false;
       final exception = Exception("before send exception");
       final beforeSendTransactionCallback = (SentryTransaction event) {
         throw exception;
       };
 
+      fixture.options.automatedTestMode = false;
       final client = fixture.getSut(
           beforeSendTransaction: beforeSendTransactionCallback, debug: true);
       final fakeTransaction = fixture.fakeTransaction();
@@ -1311,11 +1314,13 @@ void main() {
     });
 
     test('thrown error is handled', () async {
+      fixture.options.automatedTestMode = false;
       final exception = Exception("before send exception");
       final beforeSendCallback = (SentryEvent event, Hint hint) {
         throw exception;
       };
 
+      fixture.options.automatedTestMode = false;
       final client =
           fixture.getSut(beforeSend: beforeSendCallback, debug: true);
 
@@ -1604,7 +1609,13 @@ void main() {
     });
 
     test('record event processor dropping event', () async {
-      final client = fixture.getSut(eventProcessor: DropAllEventProcessor());
+      bool secondProcessorCalled = false;
+      fixture.options.addEventProcessor(DropAllEventProcessor());
+      fixture.options.addEventProcessor(FunctionEventProcessor((event, hint) {
+        secondProcessorCalled = true;
+        return event;
+      }));
+      final client = fixture.getSut();
 
       await client.captureEvent(fakeEvent);
 
@@ -1612,6 +1623,7 @@ void main() {
           DiscardReason.eventProcessor);
       expect(
           fixture.recorder.discardedEvents.first.category, DataCategory.error);
+      expect(secondProcessorCalled, isFalse);
     });
 
     test('record event processor dropping transaction', () async {
@@ -1884,8 +1896,8 @@ class Fixture {
   final recorder = MockClientReportRecorder();
   final transport = MockTransport();
 
-  final options = SentryOptions(dsn: fakeDsn)
-    ..platformChecker = MockPlatformChecker(platform: MockPlatform.iOS());
+  final options =
+      defaultTestOptions(MockPlatformChecker(platform: MockPlatform.iOS()));
 
   late SentryTransactionContext _context;
   late SentryTracer tracer;

@@ -4,7 +4,6 @@
 library flutter_test;
 
 import 'dart:async';
-import 'dart:typed_data';
 
 import 'package:file/file.dart';
 import 'package:file/memory.dart';
@@ -33,41 +32,38 @@ void main() {
       late MockHub hub;
       late FileSystem fs;
       late Directory replayDir;
-      late final Map<String, dynamic> replayConfig;
-
-      if (mockPlatform.isIOS) {
-        replayConfig = {
-          'replayId': '123',
-          'directory': 'dir',
-        };
-      } else if (mockPlatform.isAndroid) {
-        replayConfig = {
-          'replayId': '123',
-          'directory': 'dir',
-          'width': 800,
-          'height': 600,
-          'frameRate': 10,
-        };
-      }
+      late Map<String, dynamic> replayConfig;
 
       setUp(() {
+        if (mockPlatform.isIOS) {
+          replayConfig = {
+            'replayId': '123',
+            'directory': 'dir',
+          };
+        } else if (mockPlatform.isAndroid) {
+          replayConfig = {
+            'replayId': '123',
+            'directory': 'dir',
+            'width': 800,
+            'height': 600,
+            'frameRate': 10,
+          };
+        }
+
         hub = MockHub();
 
         fs = MemoryFileSystem.test();
         replayDir = fs.directory(replayConfig['directory'])
           ..createSync(recursive: true);
 
-        options = defaultTestOptions()
-          ..platformChecker = MockPlatformChecker(mockPlatform: mockPlatform)
-          ..fileSystem = fs;
-
         native = NativeChannelFixture();
-        when(native.handler('initNativeSdk', any))
-            .thenAnswer((_) => Future.value());
-        when(native.handler('closeNativeSdk', any))
-            .thenAnswer((_) => Future.value());
 
-        sut = createBinding(options, channel: native.channel);
+        options =
+            defaultTestOptions(MockPlatformChecker(mockPlatform: mockPlatform))
+              ..fileSystem = fs
+              ..methodChannel = native.channel;
+
+        sut = createBinding(options);
       });
 
       tearDown(() async {
@@ -236,8 +232,14 @@ void main() {
               await nextFrame();
 
               final imagaData = await native.invokeFromNative(
-                  'captureReplayScreenshot', replayConfig) as ByteData;
-              expect(imagaData.lengthInBytes, greaterThan(3000));
+                  'captureReplayScreenshot', replayConfig);
+              expect(imagaData?.lengthInBytes, greaterThan(3000));
+
+              // Happens if the session-replay rate is 0.
+              replayConfig['replayId'] = null;
+              final imagaData2 = await native.invokeFromNative(
+                  'captureReplayScreenshot', replayConfig);
+              expect(imagaData2?.lengthInBytes, greaterThan(3000));
             } else {
               fail('unsupported platform');
             }

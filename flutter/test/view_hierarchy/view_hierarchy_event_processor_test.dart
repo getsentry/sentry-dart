@@ -4,8 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry_flutter/src/binding_wrapper.dart';
-import 'package:sentry_flutter/src/sentry_flutter_options.dart';
 import 'package:sentry_flutter/src/view_hierarchy/view_hierarchy_event_processor.dart';
+
+import '../mocks.dart';
 
 void main() {
   group(SentryViewHierarchyEventProcessor, () {
@@ -124,7 +125,7 @@ class TestBindingWrapper implements BindingWrapper {
 class Fixture {
   SentryViewHierarchyEventProcessor getSut(WidgetsBinding instance,
       {bool reportViewHierarchyIdentifiers = true}) {
-    final options = SentryFlutterOptions()
+    final options = defaultTestOptions()
       ..bindingUtils = TestBindingWrapper(instance)
       ..reportViewHierarchyIdentifiers = reportViewHierarchyIdentifiers;
     return SentryViewHierarchyEventProcessor(options);

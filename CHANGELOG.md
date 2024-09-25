@@ -5,6 +5,17 @@
 ### Features
 
 - Emit `transaction.data` inside `contexts.trace.data` ([#2284](https://github.com/getsentry/sentry-dart/pull/2284))
+- Blocking app starts if "appLaunchedInForeground" is false. (Android only) ([#2291](https://github.com/getsentry/sentry-dart/pull/2291)
+
+### Enhancements
+
+- Improve app start integration ([#2266](https://github.com/getsentry/sentry-dart/pull/2266))
+  - Fixes ([#2103](https://github.com/getsentry/sentry-dart/issues/2103))
+  - Fixes ([#2233](https://github.com/getsentry/sentry-dart/issues/2233))
+
+### Fixes
+
+- iOS replay integration when only `onErrorSampleRate` is specified ([#2306](https://github.com/getsentry/sentry-dart/pull/2306))
 
 ## 8.9.0
 
