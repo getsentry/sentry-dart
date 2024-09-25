@@ -229,11 +229,11 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
 
     final spanDuration =
         spanEndTimestamp.difference(span.startTimestamp).inMilliseconds;
+    final normalFramesCount =
+        (spanDuration - (slowFramesDuration + frozenFramesDuration)) /
+            expectedFrameDuration;
     final totalFramesCount =
-        ((spanDuration - (slowFramesDuration + frozenFramesDuration)) /
-                expectedFrameDuration) +
-            slowFramesCount +
-            frozenFramesCount;
+        (normalFramesCount + slowFramesCount + frozenFramesCount).ceil();
 
     if (totalFramesCount < 0 ||
         framesDelay < 0 ||
@@ -244,8 +244,15 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
       return {};
     }
 
+    if (totalFramesCount < slowFramesCount ||
+        totalFramesCount < frozenFramesCount) {
+      options.logger(SentryLevel.warning,
+          'Total frames count is less than slow or frozen frames count. Dropping frame metrics.');
+      return {};
+    }
+
     return {
-      SpanFrameMetricsCollector.totalFramesKey: totalFramesCount.toInt(),
+      SpanFrameMetricsCollector.totalFramesKey: totalFramesCount,
       SpanFrameMetricsCollector.framesDelayKey: framesDelay,
       SpanFrameMetricsCollector.slowFramesKey: slowFramesCount,
       SpanFrameMetricsCollector.frozenFramesKey: frozenFramesCount,
