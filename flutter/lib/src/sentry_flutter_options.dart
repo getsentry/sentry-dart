@@ -276,6 +276,13 @@ class SentryFlutterOptions extends SentryOptions {
   /// Defaults to `true`
   bool enableFramesTracking = true;
 
+  /// The period (in minutes) for which to retain frame information.
+  /// Used to calculate the maximum number of frames to store for active spans.
+  /// If the number of frames exceeds the maximum, the frame tracking is cancelled
+  /// and frame metrics are cleared for the current active spans.
+  /// Default value is 3 minutes.
+  int framesTrackingRetentionPeriod = 3;
+
   /// By using this, you are disabling native [Breadcrumb] tracking and instead
   /// you are just tracking [Breadcrumb]s which result from events available
   /// in the current Flutter environment.
