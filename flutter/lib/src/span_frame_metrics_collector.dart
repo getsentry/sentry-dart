@@ -115,17 +115,18 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
   ///
   /// This method is called for each frame when frame tracking is active.
   Future<void> measureFrameDuration(Duration duration) async {
+    if (frameLengthLimit != null && frames.length >= frameLengthLimit!) {
+      options.logger(
+          SentryLevel.debug, 'Frame tracking limit reached. Clearing frames.');
+      clear();
+      return;
+    }
+
     // Using the stopwatch to measure the frame duration is flaky in ci
     if (_isTestMode) {
       // ignore: invalid_use_of_internal_member
       frames[options.clock().add(duration)] = duration.inMilliseconds;
       return;
-    }
-
-    if (frameLengthLimit != null && frames.length >= frameLengthLimit!) {
-      options.logger(
-          SentryLevel.debug, 'Frame tracking limit reached. Clearing frames.');
-      clear();
     }
 
     if (_isTrackingPaused) return;
@@ -263,6 +264,7 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
   @override
   void clear() {
     _isTrackingPaused = true;
+    _stopwatch.reset();
     frames.clear();
     activeSpans.clear();
     displayRefreshRate = null;

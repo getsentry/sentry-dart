@@ -261,6 +261,28 @@ void main() {
 
     expect(sut.isTrackingPaused, isTrue);
   });
+
+  test(
+      'measureFrameDuration stops and removes all frames when reaching frame limit',
+      () async {
+    final sut = fixture.sut;
+    final span = MockSentrySpan();
+
+    when(span.startTimestamp).thenReturn(DateTime.now());
+
+    sut.activeSpans.add(span);
+    sut.frames[DateTime.now()] = 1;
+    sut.frameLengthLimit = 1000;
+
+    for (var i = 0; i < sut.frameLengthLimit!; i++) {
+      await sut.measureFrameDuration(Duration.zero);
+    }
+
+    expect(sut.frames, isEmpty);
+    expect(sut.activeSpans, isEmpty);
+    expect(sut.displayRefreshRate, isNull);
+    expect(sut.isTrackingPaused, isTrue);
+  });
 }
 
 class Fixture {
