@@ -238,6 +238,13 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
       return {};
     }
 
+    if (totalFramesCount < slowFramesCount ||
+        totalFramesCount < frozenFramesCount) {
+      options.logger(SentryLevel.warning,
+          'Total frames count is less than slow or frozen frames count. Dropping frame metrics.');
+      return {};
+    }
+
     return {
       SpanFrameMetricsCollector.totalFramesKey: totalFramesCount.toInt(),
       SpanFrameMetricsCollector.framesDelayKey: framesDelay,
