@@ -274,7 +274,10 @@ void main() {
     sut.frames[DateTime.now()] = 1;
     sut.frameLengthLimit = 1000;
 
-    for (var i = 0; i < sut.frameLengthLimit!; i++) {
+    for (var i = 1; i <= sut.frameLengthLimit!; i++) {
+      if (i == sut.frameLengthLimit! - 1) {
+        expect(sut.frames.length, sut.frameLengthLimit! - 1);
+      }
       await sut.measureFrameDuration(Duration.zero);
     }
 
