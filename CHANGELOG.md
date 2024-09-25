@@ -14,6 +14,7 @@
 
 ### Fixes
 
+- Only start frame tracking if we receive valid dispaly refresh data ([#2307](https://github.com/getsentry/sentry-dart/pull/2307))
 - iOS replay integration when only `onErrorSampleRate` is specified ([#2306](https://github.com/getsentry/sentry-dart/pull/2306))
 
 ## 8.9.0
