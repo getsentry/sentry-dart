@@ -39,7 +39,11 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
   bool get isTrackingRegistered => _isTrackingRegistered;
   bool _isTrackingRegistered = false;
 
-  int displayRefreshRate = 60;
+  @visibleForTesting
+  int? displayRefreshRate;
+
+  @visibleForTesting
+  int? frameLengthLimit;
 
   final _stopwatch = Stopwatch();
 
@@ -63,13 +67,17 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
       options.logger(SentryLevel.debug,
           'Retrieved display refresh rate at $fetchedDisplayRefreshRate');
       displayRefreshRate = fetchedDisplayRefreshRate;
+      frameLengthLimit = options.framesTrackingRetentionPeriod *
+          60 *
+          fetchedDisplayRefreshRate;
+
+      // Start tracking frames only when refresh rate is valid
+      activeSpans.add(span);
+      startFrameTracking();
     } else {
       options.logger(SentryLevel.debug,
           'Could not fetch display refresh rate, keeping at 60hz by default');
     }
-
-    activeSpans.add(span);
-    startFrameTracking();
   }
 
   @override
@@ -77,7 +85,7 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
     if (span is NoOpSentrySpan || !activeSpans.contains(span)) return;
 
     final frameMetrics =
-        calculateFrameMetrics(span, endTimestamp, displayRefreshRate);
+        calculateFrameMetrics(span, endTimestamp, displayRefreshRate!);
     _applyFrameMetricsToSpan(span, frameMetrics);
 
     activeSpans.remove(span);
@@ -112,6 +120,12 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
       // ignore: invalid_use_of_internal_member
       frames[options.clock().add(duration)] = duration.inMilliseconds;
       return;
+    }
+
+    if (frameLengthLimit != null && frames.length >= frameLengthLimit!) {
+      options.logger(
+          SentryLevel.debug, 'Frame tracking limit reached. Clearing frames.');
+      clear();
     }
 
     if (_isTrackingPaused) return;
