@@ -1777,12 +1777,72 @@ void main() {
       expect(capturedEnvelope.header.dsn, fixture.options.dsn);
     });
 
-    test('Spotlight enabled should set transport to SpotlightHttpTransport',
+    test(
+        'Spotlight enabled should not set transport to SpotlightHttpTransport on iOS',
         () async {
+      fixture.options.platformChecker = MockPlatformChecker(
+        platform: MockPlatform.iOS(),
+      );
       fixture.options.spotlight = Spotlight(enabled: true);
       fixture.getSut();
 
-      expect(fixture.options.transport is SpotlightHttpTransport, true);
+      expect(fixture.options.transport is SpotlightHttpTransport, isFalse);
+    });
+
+    test(
+        'Spotlight enabled should not set transport to SpotlightHttpTransport on macOS',
+        () async {
+      fixture.options.platformChecker = MockPlatformChecker(
+        platform: MockPlatform.macOS(),
+      );
+      fixture.options.spotlight = Spotlight(enabled: true);
+      fixture.getSut();
+
+      expect(fixture.options.transport is SpotlightHttpTransport, isFalse);
+    });
+
+    test(
+        'Spotlight enabled should not set transport to SpotlightHttpTransport on Android',
+        () async {
+      fixture.options.platformChecker = MockPlatformChecker(
+        platform: MockPlatform.android(),
+      );
+      fixture.options.spotlight = Spotlight(enabled: true);
+      fixture.getSut();
+
+      expect(fixture.options.transport is SpotlightHttpTransport, isFalse);
+    });
+
+    test(
+        'Spotlight enabled should set transport to SpotlightHttpTransport on Web',
+        () async {
+      fixture.options.platformChecker = MockPlatformChecker(isWebValue: true);
+      fixture.options.spotlight = Spotlight(enabled: true);
+      fixture.getSut();
+
+      expect(fixture.options.transport is SpotlightHttpTransport, isTrue);
+    });
+
+    test(
+        'Spotlight enabled should set transport to SpotlightHttpTransport on Linux',
+        () async {
+      fixture.options.platformChecker =
+          MockPlatformChecker(platform: MockPlatform.linux());
+      fixture.options.spotlight = Spotlight(enabled: true);
+      fixture.getSut();
+
+      expect(fixture.options.transport is SpotlightHttpTransport, isTrue);
+    });
+
+    test(
+        'Spotlight enabled should set transport to SpotlightHttpTransport on Windows',
+        () async {
+      fixture.options.platformChecker =
+          MockPlatformChecker(platform: MockPlatform.windows());
+      fixture.options.spotlight = Spotlight(enabled: true);
+      fixture.getSut();
+
+      expect(fixture.options.transport is SpotlightHttpTransport, isTrue);
     });
   });
 
