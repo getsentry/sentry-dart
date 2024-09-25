@@ -59,17 +59,18 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
     }
 
     final fetchedDisplayRefreshRate = await _native?.displayRefreshRate();
-    if (fetchedDisplayRefreshRate != null) {
+    if (fetchedDisplayRefreshRate != null && fetchedDisplayRefreshRate > 0) {
       options.logger(SentryLevel.debug,
           'Retrieved display refresh rate at $fetchedDisplayRefreshRate');
       displayRefreshRate = fetchedDisplayRefreshRate;
+
+      // Start tracking frames only when refresh rate is valid
+      activeSpans.add(span);
+      startFrameTracking();
     } else {
       options.logger(SentryLevel.debug,
-          'Could not fetch display refresh rate, keeping at 60hz by default');
+          'Fetched invalid refresh rate: $fetchedDisplayRefreshRate. Not starting frame tracking.');
     }
-
-    activeSpans.add(span);
-    startFrameTracking();
   }
 
   @override
