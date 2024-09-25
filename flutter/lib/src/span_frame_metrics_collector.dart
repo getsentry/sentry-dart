@@ -26,10 +26,12 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
   /// Stores frame timestamps and their durations in milliseconds.
   /// Keys are frame timestamps, values are frame durations.
   /// The timestamps mark the end of the frame.
+  @visibleForTesting
   final frames = SplayTreeMap<DateTime, int>();
 
   /// Stores the spans that are actively being tracked.
   /// After the frames are calculated and stored in the span the span is removed from this list.
+  @visibleForTesting
   final activeSpans = SplayTreeSet<ISentrySpan>(
       (a, b) => a.startTimestamp.compareTo(b.startTimestamp));
 
@@ -39,6 +41,7 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
   bool get isTrackingRegistered => _isTrackingRegistered;
   bool _isTrackingRegistered = false;
 
+  @visibleForTesting
   int? displayRefreshRate;
 
   final _stopwatch = Stopwatch();
@@ -75,6 +78,7 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
 
   @override
   Future<void> onSpanFinished(ISentrySpan span, DateTime endTimestamp) async {
+    print(displayRefreshRate);
     if (span is NoOpSentrySpan ||
         !activeSpans.contains(span) ||
         displayRefreshRate == null) return;

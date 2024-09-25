@@ -84,6 +84,7 @@ void main() {
     final span2 = MockSentrySpan();
     final spanStartTimestamp = DateTime.now();
     final spanEndTimestamp = spanStartTimestamp.add(Duration(seconds: 1));
+    sut.displayRefreshRate = 60;
 
     when(span1.isRootSpan).thenReturn(false);
     when(span1.startTimestamp).thenReturn(spanStartTimestamp);
