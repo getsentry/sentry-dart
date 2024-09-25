@@ -78,9 +78,14 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
 
   @override
   Future<void> onSpanFinished(ISentrySpan span, DateTime endTimestamp) async {
-    if (span is NoOpSentrySpan ||
-        !activeSpans.contains(span) ||
-        displayRefreshRate == null) return;
+    if (span is NoOpSentrySpan || !activeSpans.contains(span)) return;
+
+    if (displayRefreshRate == null || displayRefreshRate! <= 0) {
+      options.logger(SentryLevel.warning,
+          'Invalid display refresh rate. Skipping frame tracking for all active spans.');
+      clear();
+      return;
+    }
 
     final frameMetrics =
         calculateFrameMetrics(span, endTimestamp, displayRefreshRate!);
