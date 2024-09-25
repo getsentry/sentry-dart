@@ -74,6 +74,33 @@ void main() {
     expect(tracer.data['frames.total'], expectedTotalFrames);
   });
 
+  test(
+      'captures metrics with display refresh rate of 60 if native refresh rate is 0',
+          () async {
+        final sut = fixture.sut;
+        fixture.options.tracesSampleRate = 1.0;
+        fixture.options.addPerformanceCollector(sut);
+        final startTimestamp = DateTime.now();
+        final endTimestamp =
+        startTimestamp.add(Duration(milliseconds: 1000)).toUtc();
+
+        when(fixture.mockSentryNative.displayRefreshRate())
+            .thenAnswer((_) async => 0);
+
+        final tracer = SentryTracer(
+            SentryTransactionContext('name', 'op', description: 'tracerDesc'),
+            fixture.hub,
+            startTimestamp: startTimestamp);
+
+        await Future<void>.delayed(Duration(milliseconds: 500));
+        await tracer.finish(endTimestamp: endTimestamp);
+
+        expect(tracer.data['frames.slow'], expectedSlowFrames);
+        expect(tracer.data['frames.frozen'], expectedFrozenFrames);
+        expect(tracer.data['frames.delay'], expectedFramesDelay);
+        expect(tracer.data['frames.total'], expectedTotalFrames);
+      });
+
   test('onSpanFinished removes frames older than span start timestamp',
       () async {
     // Using multiple spans to test frame removal. When the last span is finished,
