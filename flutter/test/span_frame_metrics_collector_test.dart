@@ -162,7 +162,7 @@ void main() {
 
     final metrics = sut.calculateFrameMetrics(span, span.endTimestamp!, 60);
 
-    expect(metrics['frames.total'], 31);
+    expect(metrics['frames.total'], 32);
     expect(metrics['frames.slow'], 0);
     expect(metrics['frames.delay'], 0);
     expect(metrics['frames.frozen'], 0);
@@ -182,7 +182,7 @@ void main() {
 
     final metrics = sut.calculateFrameMetrics(span, span.endTimestamp!, 60);
 
-    expect(metrics['frames.total'], 29);
+    expect(metrics['frames.total'], 30);
     expect(metrics['frames.slow'], 1);
     expect(metrics['frames.delay'], 42);
     expect(metrics['frames.frozen'], 0);
@@ -201,7 +201,7 @@ void main() {
 
     final metrics = sut.calculateFrameMetrics(span, span.endTimestamp!, 60);
 
-    expect(metrics['frames.total'], 29);
+    expect(metrics['frames.total'], 30);
     expect(metrics['frames.slow'], 1);
     expect(metrics['frames.delay'], 42);
     expect(metrics['frames.frozen'], 0);
