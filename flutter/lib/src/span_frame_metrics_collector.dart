@@ -69,7 +69,7 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
       startFrameTracking();
     } else {
       options.logger(SentryLevel.debug,
-          'Fetched invalid refresh rate: $fetchedDisplayRefreshRate. Not starting frame tracking.');
+          'Retrieved invalid display refresh rate: $fetchedDisplayRefreshRate. Not starting frame tracking.');
     }
   }
 
