@@ -71,6 +71,8 @@ class SentryFlutterTest {
     assertEquals(0.5, fixture.options.experimental.sessionReplay.sessionSampleRate)
     assertEquals(0.6, fixture.options.experimental.sessionReplay.errorSampleRate)
 
+    assertEquals(0.751, fixture.options.sampleRate)
+
     // Note: these are currently read-only in SentryReplayOptions so we're only asserting the default values here to
     // know when there's a change in the native SDK, as it may require a manual change in the Flutter implementation.
     assertEquals(1, fixture.options.experimental.sessionReplay.frameRate)
@@ -157,6 +159,7 @@ class Fixture {
           "sessionSampleRate" to 0.5,
           "onErrorSampleRate" to 0.6,
         ),
+      "sampleRate" to 0.751
     )
 
   fun getSut(): SentryFlutter =

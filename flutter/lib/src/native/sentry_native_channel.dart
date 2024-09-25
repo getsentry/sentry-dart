@@ -1,4 +1,5 @@
 import 'dart:async';
+
 // backcompatibility for Flutter < 3.3
 // ignore: unnecessary_import
 import 'dart:typed_data';
@@ -71,6 +72,7 @@ class SentryNativeChannel
         'sessionSampleRate': options.experimental.replay.sessionSampleRate,
         'onErrorSampleRate': options.experimental.replay.onErrorSampleRate,
       },
+      'sampleRate': options.sampleRate
     });
   }
 

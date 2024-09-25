@@ -52,7 +52,8 @@ final class SentryFlutterTests: XCTestCase {
                     "type": "hTtP", // mixed case to check enum mapping
                     "user": "admin",
                     "pass": "0000"
-                ]
+                ],
+                "sampleRate": NSNumber(value: 0.5)
             ]
         )
 
@@ -84,6 +85,8 @@ final class SentryFlutterTests: XCTestCase {
         XCTAssertEqual(8080, fixture.options.urlSession?.configuration.connectionProxyDictionary?[kCFNetworkProxiesHTTPPort as String] as? Int)
         XCTAssertEqual("admin", fixture.options.urlSession?.configuration.connectionProxyDictionary?[kCFProxyUsernameKey as String] as? String)
         XCTAssertEqual("0000", fixture.options.urlSession?.configuration.connectionProxyDictionary?[kCFProxyPasswordKey as String] as? String)
+
+        XCTAssertEqual(0.5, fixture.options.sampleRate)
     }
 
     func testUpdateSocksProxy() {

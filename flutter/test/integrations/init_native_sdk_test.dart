@@ -69,6 +69,7 @@ void main() {
         'sessionSampleRate': null,
         'onErrorSampleRate': null,
       },
+      'sampleRate': null,
     });
   });
 
@@ -118,7 +119,8 @@ void main() {
         pass: '0000',
       )
       ..experimental.replay.sessionSampleRate = 0.1
-      ..experimental.replay.onErrorSampleRate = 0.2;
+      ..experimental.replay.onErrorSampleRate = 0.2
+      ..sampleRate = 0.751;
 
     fixture.options.sdk.addIntegration('foo');
     fixture.options.sdk.addPackage('bar', '1');
@@ -174,6 +176,7 @@ void main() {
         'sessionSampleRate': 0.1,
         'onErrorSampleRate': 0.2,
       },
+      'sampleRate': 0.751,
     });
   });
 }
@@ -200,6 +203,7 @@ SentryFlutterOptions createOptions() {
 
 class Fixture {
   late SentryFlutterOptions options;
+
   SentryNativeChannel getSut(MethodChannel channel) {
     options = createOptions()..methodChannel = channel;
     return SentryNativeChannel(options);

@@ -151,6 +151,10 @@ class SentryFlutter(
     data.getIfNotNull<Map<String, Any>>("replay") {
       updateReplayOptions(options.experimental.sessionReplay, it)
     }
+
+    data.getIfNotNull<Double>("sampleRate") {
+      options.sampleRate = it
+    }
   }
 
   fun updateReplayOptions(
@@ -168,7 +172,5 @@ private fun <T> Map<String, Any>.getIfNotNull(
   key: String,
   callback: (T) -> Unit,
 ) {
-  (get(key) as? T)?.let {
-    callback(it)
-  }
+  (get(key) as? T)?.let(callback)
 }

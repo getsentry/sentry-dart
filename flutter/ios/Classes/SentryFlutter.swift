@@ -113,6 +113,9 @@ public final class SentryFlutter {
                 (replayOptions["onErrorSampleRate"] as? NSNumber)?.floatValue ?? 0
         }
 #endif
+      if let sampleRate = data["sampleRate"] as? NSNumber {
+        options.sampleRate = sampleRate
+      }
     }
 
     private func logLevelFrom(diagnosticLevel: String) -> SentryLevel {
