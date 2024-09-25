@@ -78,7 +78,6 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
 
   @override
   Future<void> onSpanFinished(ISentrySpan span, DateTime endTimestamp) async {
-    print(displayRefreshRate);
     if (span is NoOpSentrySpan ||
         !activeSpans.contains(span) ||
         displayRefreshRate == null) return;
