@@ -63,7 +63,14 @@ class SentryClient {
       final rateLimiter = RateLimiter(options);
       options.transport = HttpTransport(options, rateLimiter);
     }
-    if (options.spotlight.enabled) {
+    // TODO: Web might change soon to use the JS SDK so we can remove it here later on
+    final enableFlutterSpotlight = (options.spotlight.enabled &&
+        (options.platformChecker.isWeb ||
+            options.platformChecker.platform.isLinux ||
+            options.platformChecker.platform.isWindows));
+    // Spotlight in the Flutter layer is only enabled for Web, Linux and Windows
+    // Other platforms use spotlight through their native SDKs
+    if (enableFlutterSpotlight) {
       options.transport = SpotlightHttpTransport(options, options.transport);
     }
     return SentryClient._(options);
