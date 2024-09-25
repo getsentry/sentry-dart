@@ -13,13 +13,13 @@ void main() async {
   final rootBundle = TestAssetBundle();
   final otherBundle = TestAssetBundle();
 
-  final createSut =
-      ({bool redactImages = false, bool redactText = false}) => WidgetFilter(
-            logger: (level, message, {exception, logger, stackTrace}) {},
-            redactImages: redactImages,
-            redactText: redactText,
-            rootAssetBundle: rootBundle,
-          );
+  final createSut = ({bool redactImages = false, bool redactText = false}) {
+    final replayOptions = SentryReplayOptions();
+    replayOptions.redactAllImages = redactImages;
+    replayOptions.redactAllText = redactText;
+    return WidgetFilter(replayOptions.maskingConfig,
+        (level, message, {exception, logger, stackTrace}) {});
+  };
 
   boundsRect(WidgetFilterItem item) =>
       '${item.bounds.width.floor()}x${item.bounds.height.floor()}';
@@ -75,20 +75,27 @@ void main() async {
       testWidgets(
           'recognizes ${newAssetImage('').runtimeType} from the root bundle',
           (tester) async {
-        final sut = createSut(redactImages: true);
-
-        expect(sut.isBuiltInAssetImage(newAssetImage('')), isTrue);
-        expect(sut.isBuiltInAssetImage(newAssetImage('', bundle: rootBundle)),
+        expect(WidgetFilter.isBuiltInAssetImage(newAssetImage(''), rootBundle),
             isTrue);
-        expect(sut.isBuiltInAssetImage(newAssetImage('', bundle: otherBundle)),
+        expect(
+            WidgetFilter.isBuiltInAssetImage(
+                newAssetImage('', bundle: rootBundle), rootBundle),
+            isTrue);
+        expect(
+            WidgetFilter.isBuiltInAssetImage(
+                newAssetImage('', bundle: otherBundle), rootBundle),
             isFalse);
         expect(
-            sut.isBuiltInAssetImage(newAssetImage('',
-                bundle: SentryAssetBundle(bundle: rootBundle))),
+            WidgetFilter.isBuiltInAssetImage(
+                newAssetImage('',
+                    bundle: SentryAssetBundle(bundle: rootBundle)),
+                rootBundle),
             isTrue);
         expect(
-            sut.isBuiltInAssetImage(newAssetImage('',
-                bundle: SentryAssetBundle(bundle: otherBundle))),
+            WidgetFilter.isBuiltInAssetImage(
+                newAssetImage('',
+                    bundle: SentryAssetBundle(bundle: otherBundle)),
+                rootBundle),
             isFalse);
       });
     }

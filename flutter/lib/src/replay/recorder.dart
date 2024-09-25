@@ -22,11 +22,8 @@ class ScreenshotRecorder {
 
   ScreenshotRecorder(this.config, this.options) {
     final replayOptions = options.experimental.replay;
-    if (replayOptions.redactAllText || replayOptions.redactAllImages) {
-      _widgetFilter = WidgetFilter(
-          redactText: replayOptions.redactAllText,
-          redactImages: replayOptions.redactAllImages,
-          logger: options.logger);
+    if (replayOptions.maskingConfig.isNotEmpty) {
+      _widgetFilter = WidgetFilter(replayOptions.maskingConfig, options.logger);
     }
   }
 

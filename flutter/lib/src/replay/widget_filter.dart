@@ -1,5 +1,4 @@
 import 'package:flutter/rendering.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
@@ -10,20 +9,13 @@ import '../sentry_asset_bundle.dart';
 class WidgetFilter {
   final items = <WidgetFilterItem>[];
   final SentryLogger logger;
-  final bool redactText;
-  final bool redactImages;
+  final Map<Type, WidgetFilterMaskingConfig> config;
   static const _defaultColor = Color.fromARGB(255, 0, 0, 0);
   late double _pixelRatio;
   late Rect _bounds;
   final _warnedWidgets = <int>{};
-  final AssetBundle _rootAssetBundle;
 
-  WidgetFilter(
-      {required this.redactText,
-      required this.redactImages,
-      required this.logger,
-      @visibleForTesting AssetBundle? rootAssetBundle})
-      : _rootAssetBundle = rootAssetBundle ?? rootBundle;
+  WidgetFilter(this.config, this.logger);
 
   void obscure(BuildContext context, double pixelRatio, Rect bounds) {
     _pixelRatio = pixelRatio;
@@ -55,21 +47,20 @@ class WidgetFilter {
 
   @pragma('vm:prefer-inline')
   bool _obscureIfNeeded(Element element, Widget widget) {
-    Color? color;
+    final maskingConfig = config[widget.runtimeType];
+    if (maskingConfig == null) {
+      return false;
+    } else if (!maskingConfig.shouldMask(element, widget)) {
+      logger(SentryLevel.debug, "WidgetFilter skipping: $widget");
+      return false;
+    }
 
-    if (redactText && widget is Text) {
+    Color? color;
+    if (widget is Text) {
       color = widget.style?.color;
-    } else if (redactText && widget is EditableText) {
+    } else if (widget is EditableText) {
       color = widget.style.color;
-    } else if (redactImages && widget is Image) {
-      if (widget.image is AssetBundleImageProvider) {
-        final image = widget.image as AssetBundleImageProvider;
-        if (isBuiltInAssetImage(image)) {
-          logger(SentryLevel.debug,
-              "WidgetFilter skipping asset: $widget ($image).");
-          return false;
-        }
-      }
+    } else if (widget is Image) {
       color = widget.color;
     } else {
       // No other type is currently obscured.
@@ -128,9 +119,10 @@ class WidgetFilter {
     return true;
   }
 
-  @visibleForTesting
+  @internal
   @pragma('vm:prefer-inline')
-  bool isBuiltInAssetImage(AssetBundleImageProvider image) {
+  static bool isBuiltInAssetImage(
+      AssetBundleImageProvider image, AssetBundle rootAssetBundle) {
     late final AssetBundle? bundle;
     if (image is AssetImage) {
       bundle = image.bundle;
@@ -140,8 +132,8 @@ class WidgetFilter {
       return false;
     }
     return (bundle == null ||
-        bundle == _rootAssetBundle ||
-        (bundle is SentryAssetBundle && bundle.bundle == _rootAssetBundle));
+        bundle == rootAssetBundle ||
+        (bundle is SentryAssetBundle && bundle.bundle == rootAssetBundle));
   }
 
   @pragma('vm:prefer-inline')
@@ -165,9 +157,40 @@ class WidgetFilter {
   }
 }
 
+@internal
 class WidgetFilterItem {
   final Color color;
   final Rect bounds;
 
   const WidgetFilterItem(this.color, this.bounds);
+}
+
+@internal
+class WidgetFilterMaskingConfig {
+  static const mask = WidgetFilterMaskingConfig._(1, 'mask');
+  static const show = WidgetFilterMaskingConfig._(2, 'mask');
+
+  final int index;
+  final String _name;
+  final bool Function(Element, Widget)? _shouldMask;
+
+  const WidgetFilterMaskingConfig._(this.index, this._name)
+      : _shouldMask = null;
+  const WidgetFilterMaskingConfig.custom(this._shouldMask)
+      : index = 3,
+        _name = 'custom';
+
+  @override
+  String toString() => "$WidgetFilterMaskingConfig.$_name";
+
+  bool shouldMask(Element element, Widget widget) {
+    switch (this) {
+      case mask:
+        return true;
+      case show:
+        return false;
+      default:
+        return _shouldMask!(element, widget);
+    }
+  }
 }
