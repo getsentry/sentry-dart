@@ -121,7 +121,7 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
   ///
   /// This method is called for each frame when frame tracking is active.
   Future<void> measureFrameDuration(Duration duration) async {
-    if (frames.length >= _maxFramesToTrack) {
+    if (frames.length >= maxFramesToTrack) {
       options.logger(SentryLevel.warning,
           'Frame tracking limit reached. Clearing frames and cancelling frame tracking for all active spans');
       clear();

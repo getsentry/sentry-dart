@@ -275,6 +275,8 @@ void main() {
     sut.maxFramesToTrack = maxFramesToTrack;
 
     for (var i = 1; i <= maxFramesToTrack; i++) {
+      await Future<void>.delayed(
+          Duration(milliseconds: 1)); // Add a small delay
       if (i == maxFramesToTrack - 1) {
         expect(sut.frames.length, maxFramesToTrack - 1);
       }
