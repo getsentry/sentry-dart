@@ -195,7 +195,6 @@ class WidgetFilterItem {
 @internal
 class WidgetFilterMaskingConfig {
   static const mask = WidgetFilterMaskingConfig._(1, 'mask');
-  static const show = WidgetFilterMaskingConfig._(2, 'mask');
 
   final int index;
   final String _name;
@@ -204,22 +203,15 @@ class WidgetFilterMaskingConfig {
   const WidgetFilterMaskingConfig._(this.index, this._name)
       : _shouldMask = null;
   const WidgetFilterMaskingConfig.custom(this._shouldMask)
-      : index = 3,
+      : index = 2,
         _name = 'custom';
 
   @override
   String toString() => "$WidgetFilterMaskingConfig.$_name";
 
-  bool shouldMask(Element element, Widget widget) {
-    switch (this) {
-      case mask:
-        return true;
-      case show:
-        return false;
-      default:
-        return _shouldMask!(element, widget);
-    }
-  }
+  @pragma('vm:prefer-inline')
+  bool shouldMask(Element element, Widget widget) =>
+      this == mask ? true : _shouldMask!(element, widget);
 }
 
 extension on Element {
