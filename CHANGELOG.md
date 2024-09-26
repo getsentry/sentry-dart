@@ -4,6 +4,7 @@
 
 ### Features
 
+- Emit `transaction.data` inside `contexts.trace.data` ([#2284](https://github.com/getsentry/sentry-dart/pull/2284))
 - Blocking app starts if "appLaunchedInForeground" is false. (Android only) ([#2291](https://github.com/getsentry/sentry-dart/pull/2291)
 
 ### Enhancements

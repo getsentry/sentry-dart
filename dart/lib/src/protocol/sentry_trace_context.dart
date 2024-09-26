@@ -41,6 +41,8 @@ class SentryTraceContext {
   /// @see <https://develop.sentry.dev/sdk/performance/trace-origin>
   final String? origin;
 
+  final Map<String, dynamic>? data;
+
   @internal
   final Map<String, dynamic>? unknown;
 
@@ -62,6 +64,7 @@ class SentryTraceContext {
           : SpanStatus.fromString(json['status'] as String),
       sampled: true,
       origin: json['origin'] == null ? null : json['origin'] as String?,
+      data: json['data'] == null ? null : json['data'] as Map<String, dynamic>,
       unknown: json.notAccessed(),
     );
   }
@@ -78,6 +81,7 @@ class SentryTraceContext {
       if (description != null) 'description': description,
       if (status != null) 'status': status!.toString(),
       if (origin != null) 'origin': origin,
+      if (data != null) 'data': data,
     };
   }
 
@@ -92,6 +96,7 @@ class SentryTraceContext {
         origin: origin,
         unknown: unknown,
         replayId: replayId,
+        data: data,
       );
 
   SentryTraceContext({
@@ -105,6 +110,7 @@ class SentryTraceContext {
     this.origin,
     this.unknown,
     this.replayId,
+    this.data,
   })  : traceId = traceId ?? SentryId.newId(),
         spanId = spanId ?? SpanId.newId();
 
