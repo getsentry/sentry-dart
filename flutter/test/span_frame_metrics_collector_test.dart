@@ -269,14 +269,14 @@ void main() {
     final span = MockSentrySpan();
 
     when(span.startTimestamp).thenReturn(DateTime.now());
-
     sut.activeSpans.add(span);
     sut.frames[DateTime.now()] = 1;
-    sut.frameLengthLimit = 1000;
+    const maxFramesToTrack = 1000;
+    fixture.options.maxFramesToTrack = maxFramesToTrack;
 
-    for (var i = 1; i <= sut.frameLengthLimit!; i++) {
-      if (i == sut.frameLengthLimit! - 1) {
-        expect(sut.frames.length, sut.frameLengthLimit! - 1);
+    for (var i = 1; i <= maxFramesToTrack; i++) {
+      if (i == maxFramesToTrack - 1) {
+        expect(sut.frames.length, maxFramesToTrack - 1);
       }
       await sut.measureFrameDuration(Duration.zero);
     }

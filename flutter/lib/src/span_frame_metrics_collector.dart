@@ -42,9 +42,6 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
   @visibleForTesting
   int? displayRefreshRate;
 
-  @visibleForTesting
-  int? frameLengthLimit;
-
   final _stopwatch = Stopwatch();
 
   SpanFrameMetricsCollector(this.options,
@@ -67,9 +64,6 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
       options.logger(SentryLevel.debug,
           'Retrieved display refresh rate at $fetchedDisplayRefreshRate');
       displayRefreshRate = fetchedDisplayRefreshRate;
-      frameLengthLimit = options.framesTrackingRetentionPeriod *
-          60 *
-          fetchedDisplayRefreshRate;
 
       // Start tracking frames only when refresh rate is valid
       activeSpans.add(span);
@@ -87,6 +81,10 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
     final frameMetrics =
         calculateFrameMetrics(span, endTimestamp, displayRefreshRate!);
     _applyFrameMetricsToSpan(span, frameMetrics);
+
+    for (var i = 0; i < 21000; i++) {
+      frames[DateTime.now().add(Duration(milliseconds: i))] = 14;
+    }
 
     activeSpans.remove(span);
     if (activeSpans.isEmpty) {
@@ -115,7 +113,7 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
   ///
   /// This method is called for each frame when frame tracking is active.
   Future<void> measureFrameDuration(Duration duration) async {
-    if (frameLengthLimit != null && frames.length >= frameLengthLimit!) {
+    if (frames.length >= options.maxFramesToTrack) {
       options.logger(
           SentryLevel.debug, 'Frame tracking limit reached. Clearing frames.');
       clear();
