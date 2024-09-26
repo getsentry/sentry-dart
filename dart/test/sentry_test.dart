@@ -131,11 +131,6 @@ void main() {
 
       expect(Sentry.getSpan(), isNull);
     });
-
-    test('should provide metrics API', () async {
-      // ignore: deprecated_member_use_from_same_package
-      expect(Sentry.metrics(), Sentry.currentHub.metricsApi);
-    });
   });
 
   group('Sentry is enabled or disabled', () {
