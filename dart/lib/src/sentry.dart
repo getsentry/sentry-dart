@@ -316,6 +316,8 @@ class Sentry {
   static ISentrySpan? getSpan() => _hub.getSpan();
 
   /// Gets access to the metrics API for the current hub.
+  @Deprecated(
+      'Metrics will be deprecated and removed in the next major release. Sentry will reject all metrics sent after October 7, 2024. Learn more: https://sentry.zendesk.com/hc/en-us/articles/26369339769883-Upcoming-API-Changes-to-Metrics')
   static MetricsApi metrics() => _hub.metricsApi;
 
   @internal
