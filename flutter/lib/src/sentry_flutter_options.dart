@@ -276,7 +276,8 @@ class SentryFlutterOptions extends SentryOptions {
   /// Defaults to `true`
   bool enableFramesTracking = true;
 
-  /// Maximum number of frames to track before clearing.
+  /// Maximum number of frames to track at a time before clearing.
+  /// Clearing cancels frame tracking for all active spans.
   /// Default is 10800 frames, this equals to 3 minutes of frames at 60fps.
   int maxFramesToTrack = 10800;
 
