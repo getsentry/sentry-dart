@@ -23,6 +23,12 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
 
   final bool _isTestMode;
 
+  int _totalFrames = 0;
+  int _slowFrames = 0;
+  int _frozenFrames = 0;
+  int _totalDelay = 0;
+  int? _expectedFrameDuration;
+
   /// Stores frame timestamps and their durations in milliseconds.
   /// Keys are frame timestamps, values are frame durations.
   /// The timestamps mark the end of the frame.
@@ -46,6 +52,8 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
 
   @visibleForTesting
   int maxFramesToTrack = 10800;
+
+  final Map<ISentrySpan, SpanMetrics> _spanMetrics = {};
 
   final _stopwatch = Stopwatch();
 
@@ -71,6 +79,7 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
       displayRefreshRate = fetchedDisplayRefreshRate;
 
       // Start tracking frames only when refresh rate is valid
+      _spanMetrics[span] = SpanMetrics();
       activeSpans.add(span);
       startFrameTracking();
     } else {
@@ -90,11 +99,19 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
       return;
     }
 
+    _expectedFrameDuration = 1000 ~/ displayRefreshRate!;
+
     final frameMetrics =
         calculateFrameMetrics(span, endTimestamp, displayRefreshRate!);
     _applyFrameMetricsToSpan(span, frameMetrics);
 
+    print('span total frames: ${_spanMetrics[span]!.totalFrames}');
+    print('span total delay: ${_spanMetrics[span]!.totalDelay}');
+    print('span slow frames: ${_spanMetrics[span]!.slowFrames}');
+    print('span frozen frames: ${_spanMetrics[span]!.frozenFrames}');
+
     activeSpans.remove(span);
+    _spanMetrics.remove(span);
     if (activeSpans.isEmpty) {
       clear();
     } else {
@@ -117,6 +134,8 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
     }
   }
 
+  DateTime? _lastFrameEnd;
+
   /// Records the duration of a single frame and stores it in [frames].
   ///
   /// This method is called for each frame when frame tracking is active.
@@ -135,6 +154,8 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
       return;
     }
 
+    print('measureFrameDuration');
+
     if (_isTrackingPaused) return;
 
     if (!_stopwatch.isRunning) {
@@ -145,13 +166,53 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
 
     final frameDuration = _stopwatch.elapsedMilliseconds;
     // ignore: invalid_use_of_internal_member
-    frames[options.clock()] = frameDuration;
+    final frameEnd = options.clock();
+    frames[frameEnd] = frameDuration;
+    final frameStart = _lastFrameEnd ?? frameEnd.subtract(duration);
+    _lastFrameEnd = frameEnd;
+
+    final frameStartMs = frameStart.millisecondsSinceEpoch;
+    final frameEndMs = frameEnd.millisecondsSinceEpoch;
+
+    for (final span in activeSpans) {
+      final spanStartMs = span.startTimestamp.millisecondsSinceEpoch;
+      final spanEndMs = (span.endTimestamp ?? frameEnd).millisecondsSinceEpoch;
+
+      final frameInfo = FrameInfo(
+        frameStartMs: frameStartMs,
+        frameEndMs: frameEndMs,
+        spanStartMs: spanStartMs,
+        spanEndMs: spanEndMs,
+        frameDuration: frameDuration,
+        expectedFrameDuration: _expectedFrameDuration!,
+      );
+
+      _spanMetrics[span]?.updateMetrics(
+          frameInfo, _expectedFrameDuration!, spanEndMs - spanStartMs);
+    }
+
+    // print('frameDuration: $frameDuration ${frames.length}');
+
+    // _updateMetrics(frameDuration);
 
     _stopwatch.reset();
 
     if (_frameCallbackHandler.hasScheduledFrame == true) {
       _stopwatch.start();
     }
+  }
+
+  void _updateMetrics(Duration frameDuration) {
+    _totalFrames++;
+
+    if (frameDuration.inMilliseconds > _frozenFrameThresholdMs) {
+      _frozenFrames++;
+    } else if (frameDuration.inMilliseconds > _expectedFrameDuration!) {
+      _slowFrames++;
+    }
+
+    _totalDelay +=
+        max(0, frameDuration.inMilliseconds - _expectedFrameDuration!);
   }
 
   void _applyFrameMetricsToSpan(
@@ -266,6 +327,11 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
       return {};
     }
 
+    print('totalFramesCount: $totalFramesCount');
+    print('framesDelay: $framesDelay');
+    print('slowFramesCount: $slowFramesCount');
+    print('frozenFramesCount: $frozenFramesCount');
+
     return {
       SpanFrameMetricsCollector.totalFramesKey: totalFramesCount,
       SpanFrameMetricsCollector.framesDelayKey: framesDelay,
@@ -281,5 +347,96 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
     frames.clear();
     activeSpans.clear();
     displayRefreshRate = null;
+  }
+}
+
+class FrameInfo {
+  final int effectiveDuration;
+  final int effectiveDelay;
+  final bool isRelevantForSpan;
+
+  FrameInfo._({
+    required this.effectiveDuration,
+    required this.effectiveDelay,
+    required this.isRelevantForSpan,
+  });
+
+  factory FrameInfo({
+    required int frameStartMs,
+    required int frameEndMs,
+    required int spanStartMs,
+    required int spanEndMs,
+    required int frameDuration,
+    required int expectedFrameDuration,
+  }) {
+    final frameFullyContainedInSpan =
+        frameEndMs <= spanEndMs && frameStartMs >= spanStartMs;
+    final frameStartsBeforeSpan =
+        frameStartMs < spanStartMs && frameEndMs > spanStartMs;
+    final frameEndsAfterSpan =
+        frameStartMs < spanEndMs && frameEndMs > spanEndMs;
+    final framePartiallyContainedInSpan =
+        frameStartsBeforeSpan || frameEndsAfterSpan;
+
+    int effectiveDuration = 0;
+    int effectiveDelay = 0;
+    bool isRelevantForSpan = true;
+
+    if (frameFullyContainedInSpan) {
+      effectiveDuration = frameDuration;
+      effectiveDelay = max(0, frameDuration - expectedFrameDuration);
+    } else if (framePartiallyContainedInSpan) {
+      final intersectionStart = max(frameStartMs, spanStartMs);
+      final intersectionEnd = min(frameEndMs, spanEndMs);
+      effectiveDuration = intersectionEnd - intersectionStart;
+
+      final fullFrameDelay = max(0, frameDuration - expectedFrameDuration);
+      final intersectionRatio = effectiveDuration / frameDuration;
+      effectiveDelay = (fullFrameDelay * intersectionRatio).round();
+    } else if (frameStartMs > spanEndMs) {
+      // Frame is after the span, not relevant
+      isRelevantForSpan = false;
+    } else {
+      // Frame is completely outside the span, not relevant
+      isRelevantForSpan = false;
+    }
+
+    return FrameInfo._(
+      effectiveDuration: effectiveDuration,
+      effectiveDelay: effectiveDelay,
+      isRelevantForSpan: isRelevantForSpan,
+    );
+  }
+}
+
+class SpanMetrics {
+  int totalFrames = 0;
+  int slowFrames = 0;
+  int frozenFrames = 0;
+  int totalDelay = 0;
+  double totalFrameDuration = 0.0;
+  int slowFramesDuration = 0;
+  int frozenFramesDuration = 0;
+
+  void updateMetrics(
+      FrameInfo frameInfo, int expectedFrameDuration, int spanDuration) {
+    totalFrameDuration += frameInfo.effectiveDuration;
+
+    if (frameInfo.effectiveDuration >
+        SpanFrameMetricsCollector._frozenFrameThresholdMs) {
+      frozenFrames++;
+      frozenFramesDuration += frameInfo.effectiveDuration;
+    } else if (frameInfo.effectiveDuration > expectedFrameDuration) {
+      slowFrames++;
+      slowFramesDuration += frameInfo.effectiveDuration;
+    }
+
+    totalDelay += frameInfo.effectiveDelay;
+    final normalFramesCount =
+        (spanDuration - (slowFramesDuration + frozenFramesDuration)) /
+            expectedFrameDuration;
+    final totalFramesCount =
+        (normalFramesCount + slowFrames + frozenFrames).ceil();
+    totalFrames = totalFramesCount;
   }
 }
