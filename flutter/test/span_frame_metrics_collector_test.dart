@@ -272,7 +272,7 @@ void main() {
     sut.activeSpans.add(span);
     sut.frames[DateTime.now()] = 1;
     const maxFramesToTrack = 1000;
-    fixture.options.maxFramesToTrack = maxFramesToTrack;
+    sut.maxFramesToTrack = maxFramesToTrack;
 
     for (var i = 1; i <= maxFramesToTrack; i++) {
       if (i == maxFramesToTrack - 1) {

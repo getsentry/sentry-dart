@@ -276,11 +276,6 @@ class SentryFlutterOptions extends SentryOptions {
   /// Defaults to `true`
   bool enableFramesTracking = true;
 
-  /// Maximum number of frames to track at a time before clearing.
-  /// Clearing cancels frame tracking for all active spans.
-  /// Default is 10800 frames.
-  int maxFramesToTrack = 10800;
-
   /// By using this, you are disabling native [Breadcrumb] tracking and instead
   /// you are just tracking [Breadcrumb]s which result from events available
   /// in the current Flutter environment.
