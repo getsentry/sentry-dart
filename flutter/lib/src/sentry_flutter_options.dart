@@ -278,7 +278,7 @@ class SentryFlutterOptions extends SentryOptions {
 
   /// Maximum number of frames to track at a time before clearing.
   /// Clearing cancels frame tracking for all active spans.
-  /// Default is 10800 frames, this equals to 3 minutes of frames at 60fps.
+  /// Default is 10800 frames.
   int maxFramesToTrack = 10800;
 
   /// By using this, you are disabling native [Breadcrumb] tracking and instead
