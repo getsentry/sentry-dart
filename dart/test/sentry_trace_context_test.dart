@@ -19,6 +19,7 @@ void main() {
     expect(map['status'], 'aborted');
     expect(map['origin'], 'auto.ui');
     expect(map['replay_id'], isNotNull);
+    expect(map['data'], {'key': 'value'});
   });
 
   test('fromJson deserializes', () {
@@ -30,7 +31,8 @@ void main() {
       'description': 'desc',
       'status': 'aborted',
       'origin': 'auto.ui',
-      'replay_id': '00000000000000000000000000000004'
+      'replay_id': '00000000000000000000000000000004',
+      'data': {'key': 'value'},
     };
     map.addAll(testUnknown);
     final traceContext = SentryTraceContext.fromJson(map);
@@ -44,6 +46,7 @@ void main() {
     expect(traceContext.sampled, true);
     expect(
         traceContext.replayId.toString(), '00000000000000000000000000000004');
+    expect(traceContext.data, {'key': 'value'});
   });
 }
 
@@ -57,6 +60,7 @@ class Fixture {
       status: SpanStatus.aborted(),
       origin: 'auto.ui',
       replayId: SentryId.newId(),
+      data: {'key': 'value'},
       unknown: testUnknown,
     );
   }
