@@ -48,19 +48,33 @@ class SentryReplayOptions {
 
   /// Redact all image content. Draws a rectangle of image bounds with image's
   /// dominant color on top. Currently, only [Image] widgets are redacted.
-  /// Default is enabled.
+  /// Default is enabled (except for asset images, see [maskAssetImages]).
+  bool _maskImages = true;
   set redactAllImages(bool value) {
+    _maskImages = value;
     if (value) {
-      maskIfTrue(Image, (element, widget) {
-        widget as Image;
-        if (widget.image is AssetBundleImageProvider) {
-          final image = widget.image as AssetBundleImageProvider;
-          if (WidgetFilter.isBuiltInAssetImage(image, rootBundle)) {
-            return false;
-          }
-        }
-        return true;
-      });
+      if (_maskAssetImages) {
+        mask(Image);
+      } else {
+        maskIfTrue(Image, _maskImagesExceptAssets);
+      }
+    } else {
+      unmask(Image);
+    }
+  }
+
+  /// Redact asset iamges.
+  bool _maskAssetImages = false;
+  set maskAssetImages(bool value) {
+    if (_maskAssetImages == value) {
+      return;
+    }
+    _maskAssetImages = value;
+    if (value) {
+      assert(_maskImages);
+      mask(Image);
+    } else if (_maskImages) {
+      maskIfTrue(Image, _maskImagesExceptAssets);
     } else {
       unmask(Image);
     }
@@ -101,4 +115,16 @@ class SentryReplayOptions {
   @internal
   bool get isEnabled =>
       ((sessionSampleRate ?? 0) > 0) || ((onErrorSampleRate ?? 0) > 0);
+}
+
+bool _maskImagesExceptAssets(Element element, Widget widget) {
+  if (widget is Image) {
+    final image = widget.image;
+    if (image is AssetBundleImageProvider) {
+      if (WidgetFilter.isBuiltInAssetImage(image, rootBundle)) {
+        return false;
+      }
+    }
+  }
+  return true;
 }
