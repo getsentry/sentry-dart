@@ -22,13 +22,13 @@ class WidgetFilter {
     _bounds = bounds;
     items.clear();
     if (context is Element) {
-      _obscure(context);
+      _process(context);
     } else {
-      context.visitChildElements(_obscure);
+      context.visitChildElements(_process);
     }
   }
 
-  void _obscure(Element element) {
+  void _process(Element element) {
     final widget = element.widget;
 
     if (!_isVisible(widget)) {
@@ -39,46 +39,73 @@ class WidgetFilter {
       return;
     }
 
-    final obscured = _obscureIfNeeded(element, widget);
-    if (!obscured) {
-      element.visitChildElements(_obscure);
+    if (!_shouldObscure(element, widget)) {
+      // If this element should not be obscured, visit and check its children.
+      element.visitChildElements(_process);
+    } else {
+      final item = _obscureElementOrParent(element, widget);
+      if (item != null) {
+        items.add(item);
+      }
     }
   }
 
   @pragma('vm:prefer-inline')
-  bool _obscureIfNeeded(Element element, Widget widget) {
+  bool _shouldObscure(Element element, Widget widget) {
+    // Check if we should mask this widget based on the configuration.
     final maskingConfig = config[widget.runtimeType];
     if (maskingConfig == null) {
       return false;
     } else if (!maskingConfig.shouldMask(element, widget)) {
-      logger(SentryLevel.debug, "WidgetFilter skipping: $widget");
+      assert(() {
+        logger(SentryLevel.debug, "WidgetFilter skipping: $widget");
+        return true;
+      }());
       return false;
     }
+    return true;
+  }
 
-    Color? color;
-    if (widget is Text) {
-      color = widget.style?.color;
-    } else if (widget is EditableText) {
-      color = widget.style.color;
-    } else if (widget is Image) {
-      color = widget.color;
-    } else {
-      // No other type is currently obscured.
-      return false;
+  /// Determine the color and bounding box of the widget.
+  /// If the widget is offscreen, returns null.
+  /// If the widget cannot be obscured, obscures the parent.
+  @pragma('vm:prefer-inline')
+  WidgetFilterItem? _obscureElementOrParent(Element element, Widget widget) {
+    while (true) {
+      try {
+        return _obscure(element, widget);
+      } catch (e, stackTrace) {
+        final parent = element.parent;
+        if (!_warnedWidgets.contains(widget.hashCode)) {
+          _warnedWidgets.add(widget.hashCode);
+          logger(
+              SentryLevel.warning,
+              'WidgetFilter cannot obscure widget $widget: $e.'
+              'Obscuring the parent instead: ${parent?.widget}.',
+              stackTrace: stackTrace);
+        }
+        if (parent == null) {
+          return WidgetFilterItem(_defaultColor, _bounds);
+        }
+        element = parent;
+        widget = element.widget;
+      }
     }
+  }
 
-    final renderObject = element.renderObject;
-    if (renderObject is! RenderBox) {
-      _cantObscure(widget, "its renderObject is not a RenderBox");
-      return false;
-    }
-
-    var rect = _boundingBox(renderObject);
+  /// Determine the color and bounding box of the widget.
+  /// If the widget is offscreen, returns null.
+  /// This function may throw in which case the caller is responsible for
+  /// calling it again on the parent element.
+  @pragma('vm:prefer-inline')
+  WidgetFilterItem? _obscure(Element element, Widget widget) {
+    final RenderBox renderBox = element.renderObject as RenderBox;
+    var rect = _boundingBox(renderBox);
 
     // If it's a clipped render object, use parent's offset and size.
     // This helps with text fields which often have oversized render objects.
-    if (renderObject.parent is RenderStack) {
-      final renderStack = (renderObject.parent as RenderStack);
+    if (renderBox.parent is RenderStack) {
+      final renderStack = (renderBox.parent as RenderStack);
       final clipBehavior = renderStack.clipBehavior;
       if (clipBehavior == Clip.hardEdge ||
           clipBehavior == Clip.antiAlias ||
@@ -93,19 +120,28 @@ class WidgetFilter {
         logger(SentryLevel.debug, "WidgetFilter skipping offscreen: $widget");
         return true;
       }());
-      return false;
+      return null;
     }
 
-    items.add(WidgetFilterItem(color ?? _defaultColor, rect));
     assert(() {
       logger(SentryLevel.debug, "WidgetFilter obscuring: $widget");
       return true;
     }());
 
-    return true;
+    Color? color;
+    if (widget is Text) {
+      color = (widget).style?.color;
+    } else if (widget is EditableText) {
+      color = (widget).style.color;
+    } else if (widget is Image) {
+      color = (widget).color;
+    }
+
+    return WidgetFilterItem(color ?? _defaultColor, rect);
   }
 
   // We cut off some widgets early because they're not visible at all.
+  @pragma('vm:prefer-inline')
   bool _isVisible(Widget widget) {
     if (widget is Visibility) {
       return widget.visible;
@@ -134,15 +170,6 @@ class WidgetFilter {
     return (bundle == null ||
         bundle == rootAssetBundle ||
         (bundle is SentryAssetBundle && bundle.bundle == rootAssetBundle));
-  }
-
-  @pragma('vm:prefer-inline')
-  void _cantObscure(Widget widget, String message) {
-    if (!_warnedWidgets.contains(widget.hashCode)) {
-      _warnedWidgets.add(widget.hashCode);
-      logger(SentryLevel.warning,
-          "WidgetFilter cannot obscure widget $widget: $message");
-    }
   }
 
   @pragma('vm:prefer-inline')
@@ -192,5 +219,16 @@ class WidgetFilterMaskingConfig {
       default:
         return _shouldMask!(element, widget);
     }
+  }
+}
+
+extension on Element {
+  Element? get parent {
+    Element? result;
+    visitAncestorElements((el) {
+      result = el;
+      return false;
+    });
+    return result;
   }
 }
