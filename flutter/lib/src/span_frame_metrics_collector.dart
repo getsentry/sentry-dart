@@ -91,10 +91,6 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
         calculateFrameMetrics(span, endTimestamp, displayRefreshRate!);
     _applyFrameMetricsToSpan(span, frameMetrics);
 
-    for (var i = 0; i < 21000; i++) {
-      frames[DateTime.now().add(Duration(milliseconds: i))] = 14;
-    }
-
     activeSpans.remove(span);
     if (activeSpans.isEmpty) {
       clear();
