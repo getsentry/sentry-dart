@@ -47,31 +47,32 @@ void main() {
     expect(sut.isTrackingRegistered, isFalse);
   });
 
-  test(
-      'captures metrics with display refresh rate of 60 if native refresh rate is null',
-      () async {
+  test('does not start frame tracking if native refresh rate is null', () {
     final sut = fixture.sut;
     fixture.options.tracesSampleRate = 1.0;
     fixture.options.addPerformanceCollector(sut);
-    final startTimestamp = DateTime.now();
-    final endTimestamp =
-        startTimestamp.add(Duration(milliseconds: 1000)).toUtc();
 
     when(fixture.mockSentryNative.displayRefreshRate())
         .thenAnswer((_) async => null);
 
-    final tracer = SentryTracer(
-        SentryTransactionContext('name', 'op', description: 'tracerDesc'),
-        fixture.hub,
-        startTimestamp: startTimestamp);
+    final span = MockSentrySpan();
+    sut.onSpanStarted(span);
 
-    await Future<void>.delayed(Duration(milliseconds: 500));
-    await tracer.finish(endTimestamp: endTimestamp);
+    expect(sut.isTrackingRegistered, isFalse);
+  });
 
-    expect(tracer.data['frames.slow'], expectedSlowFrames);
-    expect(tracer.data['frames.frozen'], expectedFrozenFrames);
-    expect(tracer.data['frames.delay'], expectedFramesDelay);
-    expect(tracer.data['frames.total'], expectedTotalFrames);
+  test('does not start frame tracking if native refresh rate is 0', () {
+    final sut = fixture.sut;
+    fixture.options.tracesSampleRate = 1.0;
+    fixture.options.addPerformanceCollector(sut);
+
+    when(fixture.mockSentryNative.displayRefreshRate())
+        .thenAnswer((_) async => 0);
+
+    final span = MockSentrySpan();
+    sut.onSpanStarted(span);
+
+    expect(sut.isTrackingRegistered, isFalse);
   });
 
   test('onSpanFinished removes frames older than span start timestamp',
@@ -83,6 +84,7 @@ void main() {
     final span2 = MockSentrySpan();
     final spanStartTimestamp = DateTime.now();
     final spanEndTimestamp = spanStartTimestamp.add(Duration(seconds: 1));
+    sut.displayRefreshRate = 60;
 
     when(span1.isRootSpan).thenReturn(false);
     when(span1.startTimestamp).thenReturn(spanStartTimestamp);
@@ -162,7 +164,7 @@ void main() {
 
     final metrics = sut.calculateFrameMetrics(span, span.endTimestamp!, 60);
 
-    expect(metrics['frames.total'], 31);
+    expect(metrics['frames.total'], 32);
     expect(metrics['frames.slow'], 0);
     expect(metrics['frames.delay'], 0);
     expect(metrics['frames.frozen'], 0);
@@ -182,7 +184,7 @@ void main() {
 
     final metrics = sut.calculateFrameMetrics(span, span.endTimestamp!, 60);
 
-    expect(metrics['frames.total'], 29);
+    expect(metrics['frames.total'], 30);
     expect(metrics['frames.slow'], 1);
     expect(metrics['frames.delay'], 42);
     expect(metrics['frames.frozen'], 0);
@@ -201,7 +203,7 @@ void main() {
 
     final metrics = sut.calculateFrameMetrics(span, span.endTimestamp!, 60);
 
-    expect(metrics['frames.total'], 29);
+    expect(metrics['frames.total'], 30);
     expect(metrics['frames.slow'], 1);
     expect(metrics['frames.delay'], 42);
     expect(metrics['frames.frozen'], 0);
