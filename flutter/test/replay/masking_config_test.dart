@@ -11,6 +11,7 @@ void main() async {
     final sut = SentryMaskingConfig([]);
     final element = await pumpTestElement(tester);
     expect(sut.rules, isEmpty);
+    expect(sut.length, 0);
     expect(sut.shouldMask(element, element.widget), isFalse);
   });
 

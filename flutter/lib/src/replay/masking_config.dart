@@ -3,7 +3,9 @@ import 'package:meta/meta.dart';
 
 @internal
 class SentryMaskingConfig {
+  @visibleForTesting
   final List<SentryMaskingRule> rules;
+
   final int length;
 
   SentryMaskingConfig(List<SentryMaskingRule> rules)
