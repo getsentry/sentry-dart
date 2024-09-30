@@ -25,7 +25,7 @@ Future<Element> pumpTestElement(WidgetTester tester,
                         onPressed: () {},
                         child: Text('Button title'),
                       ),
-                      newImage(),
+                      newCustomImage(),
                       // Invisible widgets won't be obscured.
                       Visibility(visible: false, child: Text('Invisible text')),
                       Visibility(visible: false, child: newImage()),
@@ -77,4 +77,16 @@ Image newImage({double width = 1, double height = 1}) => Image.memory(
       height: height,
     );
 
+CustomImageWidget newCustomImage({double width = 1, double height = 1}) =>
+    CustomImageWidget.memory(
+      testImageData,
+      width: width,
+      height: height,
+    );
+
 const dummyText = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.';
+
+class CustomImageWidget extends Image {
+  CustomImageWidget.memory(super.bytes, {super.key, super.width, super.height})
+      : super.memory();
+}
