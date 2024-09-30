@@ -17,7 +17,7 @@ void main() async {
     final replayOptions = SentryReplayOptions();
     replayOptions.redactAllImages = redactImages;
     replayOptions.redactAllText = redactText;
-    return WidgetFilter(replayOptions.maskingConfig,
+    return WidgetFilter(replayOptions.buildMaskingConfig(),
         (level, message, {exception, logger, stackTrace}) {});
   };
 

@@ -4,12 +4,13 @@ import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
 import '../sentry_asset_bundle.dart';
+import 'masking_config.dart';
 
 @internal
 class WidgetFilter {
   final items = <WidgetFilterItem>[];
   final SentryLogger logger;
-  final Map<Type, WidgetFilterMaskingConfig> config;
+  final SentryMaskingConfig config;
   static const _defaultColor = Color.fromARGB(255, 0, 0, 0);
   late double _pixelRatio;
   late Rect _bounds;
@@ -39,31 +40,15 @@ class WidgetFilter {
       return;
     }
 
-    if (!_shouldObscure(element, widget)) {
-      // If this element should not be obscured, visit and check its children.
-      element.visitChildElements(_process);
-    } else {
+    if (config.shouldMask(element, widget)) {
       final item = _obscureElementOrParent(element, widget);
       if (item != null) {
         items.add(item);
       }
+    } else {
+      // If this element should not be obscured, visit and check its children.
+      element.visitChildElements(_process);
     }
-  }
-
-  @pragma('vm:prefer-inline')
-  bool _shouldObscure(Element element, Widget widget) {
-    // Check if we should mask this widget based on the configuration.
-    final maskingConfig = config[widget.runtimeType];
-    if (maskingConfig == null) {
-      return false;
-    } else if (!maskingConfig.shouldMask(element, widget)) {
-      assert(() {
-        logger(SentryLevel.debug, "WidgetFilter skipping: $widget");
-        return true;
-      }());
-      return false;
-    }
-    return true;
   }
 
   /// Determine the color and bounding box of the widget.
@@ -190,28 +175,6 @@ class WidgetFilterItem {
   final Rect bounds;
 
   const WidgetFilterItem(this.color, this.bounds);
-}
-
-@internal
-class WidgetFilterMaskingConfig {
-  static const mask = WidgetFilterMaskingConfig._(1, 'mask');
-
-  final int index;
-  final String _name;
-  final bool Function(Element, Widget)? _shouldMask;
-
-  const WidgetFilterMaskingConfig._(this.index, this._name)
-      : _shouldMask = null;
-  const WidgetFilterMaskingConfig.custom(this._shouldMask)
-      : index = 2,
-        _name = 'custom';
-
-  @override
-  String toString() => "$WidgetFilterMaskingConfig.$_name";
-
-  @pragma('vm:prefer-inline')
-  bool shouldMask(Element element, Widget widget) =>
-      this == mask ? true : _shouldMask!(element, widget);
 }
 
 extension on Element {

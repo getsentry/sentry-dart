@@ -40,9 +40,10 @@ class SentryMaskingCustomRule<T extends Widget> extends SentryMaskingRule<T> {
 }
 
 @internal
-class SentryMaskingTruthyRule<T extends Widget> extends SentryMaskingRule<T> {
-  const SentryMaskingTruthyRule();
+class SentryMaskingConstantRule<T extends Widget> extends SentryMaskingRule<T> {
+  final bool _value;
+  const SentryMaskingConstantRule(this._value);
 
   @override
-  bool shouldMask(Element element, T widget) => true;
+  bool shouldMask(Element element, T widget) => _value;
 }

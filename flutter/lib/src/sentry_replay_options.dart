@@ -2,6 +2,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
+import 'replay/masking_config.dart';
 import 'replay/widget_filter.dart';
 
 /// Configuration of the experimental replay feature.
@@ -33,84 +34,71 @@ class SentryReplayOptions {
     _onErrorSampleRate = value;
   }
 
-  /// Redact all text content. Draws a rectangle of text bounds with text color
+  /// Mask all text content. Draws a rectangle of text bounds with text color
   /// on top. Currently, only [Text] and [EditableText] Widgets are redacted.
   /// Default is enabled.
-  set redactAllText(bool value) {
-    if (value) {
-      mask(Text);
-      mask(EditableText);
-    } else {
-      unmask(Text);
-      unmask(EditableText);
-    }
-  }
+  bool maskAllText = true;
 
-  /// Redact all image content. Draws a rectangle of image bounds with image's
+  @Deprecated('Use maskAllText instead')
+  bool get redactAllText => maskAllText;
+  set redactAllText(bool value) => maskAllText = value;
+
+  /// Mask content of all images. Draws a rectangle of image bounds with image's
   /// dominant color on top. Currently, only [Image] widgets are redacted.
   /// Default is enabled (except for asset images, see [maskAssetImages]).
-  bool _maskImages = true;
-  set redactAllImages(bool value) {
-    _maskImages = value;
-    if (value) {
-      if (_maskAssetImages) {
-        mask(Image);
+  bool maskAllImages = true;
+
+  @Deprecated('Use maskAllImages instead')
+  bool get redactAllImages => maskAllImages;
+  set redactAllImages(bool value) => maskAllImages = value;
+
+  /// Redact asset images coming from the root asset bundle.
+  bool maskAssetImages = false;
+
+  final _userMaskingRules = <SentryMaskingRule>[];
+
+  @internal
+  SentryMaskingConfig buildMaskingConfig() {
+    final rules = _userMaskingRules.toList();
+    if (maskAllImages) {
+      if (maskAssetImages) {
+        rules.add(const SentryMaskingConstantRule<Image>(true));
       } else {
-        maskIfTrue(Image, _maskImagesExceptAssets);
+        rules
+            .add(const SentryMaskingCustomRule<Image>(_maskImagesExceptAssets));
       }
     } else {
-      unmask(Image);
+      assert(!maskAssetImages,
+          "maskAssetImages can't be true if maskAllImages is false");
     }
-  }
-
-  /// Redact asset iamges.
-  bool _maskAssetImages = false;
-  set maskAssetImages(bool value) {
-    if (_maskAssetImages == value) {
-      return;
+    if (maskAllText) {
+      rules.add(const SentryMaskingConstantRule<Text>(true));
+      rules.add(const SentryMaskingConstantRule<EditableText>(true));
     }
-    _maskAssetImages = value;
-    if (value) {
-      assert(_maskImages);
-      mask(Image);
-    } else if (_maskImages) {
-      maskIfTrue(Image, _maskImagesExceptAssets);
-    } else {
-      unmask(Image);
-    }
-  }
-
-  Map<Type, WidgetFilterMaskingConfig> _maskingConfig = {};
-  bool _finished = false;
-
-  /// Once accessed, masking confing cannot change anymore.
-  @internal
-  Map<Type, WidgetFilterMaskingConfig> get maskingConfig {
-    if (_finished) {
-      return _maskingConfig;
-    }
-    _finished = true;
-    final result =
-        Map<Type, WidgetFilterMaskingConfig>.unmodifiable(_maskingConfig);
-    _maskingConfig = result;
-    return result;
+    return SentryMaskingConfig(rules);
   }
 
   /// Mask given widget type in the replay.
-  void mask(Type type) {
-    _maskingConfig[type] = WidgetFilterMaskingConfig.mask;
+  void mask<T extends Widget>() {
+    _removeMaskingConstantRule<T>();
+    _userMaskingRules.add(SentryMaskingConstantRule<T>(true));
   }
 
   /// Unmask given widget type in the replay.
-  void unmask(Type type) {
-    _maskingConfig.remove(type);
+  void unmask<T extends Widget>() {
+    _removeMaskingConstantRule<T>();
+    _userMaskingRules.add(SentryMaskingConstantRule<T>(false));
   }
 
   /// Unmask given widget type in the replay if it's masked by default rules
-  /// [redactAllText] or [redactAllImages].
-  void maskIfTrue(Type type, bool Function(Element, Widget) shouldMask) {
-    _maskingConfig[type] = WidgetFilterMaskingConfig.custom(shouldMask);
+  /// [maskAllText] or [maskAllImages].
+  void maskIfTrue<T extends Widget>(bool Function(Element, T) shouldMask) {
+    _removeMaskingConstantRule<T>();
+    _userMaskingRules.add(SentryMaskingCustomRule<T>(shouldMask));
   }
+
+  void _removeMaskingConstantRule<T extends Widget>() => _userMaskingRules
+      .removeWhere((rule) => rule is SentryMaskingConstantRule<T>);
 
   @internal
   bool get isEnabled =>

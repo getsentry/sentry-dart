@@ -21,9 +21,9 @@ class ScreenshotRecorder {
   bool warningLogged = false;
 
   ScreenshotRecorder(this.config, this.options) {
-    final replayOptions = options.experimental.replay;
-    if (replayOptions.maskingConfig.isNotEmpty) {
-      _widgetFilter = WidgetFilter(replayOptions.maskingConfig, options.logger);
+    final maskingConfig = options.experimental.replay.buildMaskingConfig();
+    if (maskingConfig.length > 0) {
+      _widgetFilter = WidgetFilter(maskingConfig, options.logger);
     }
   }
 

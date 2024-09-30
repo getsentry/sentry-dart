@@ -14,28 +14,33 @@ void main() async {
     expect(sut.shouldMask(element, element.widget), isFalse);
   });
 
-  group('$SentryMaskingTruthyRule', () {
-    testWidgets('will mask widget by type', (tester) async {
-      final sut = SentryMaskingConfig([SentryMaskingTruthyRule<Image>()]);
-      final rootElement = await pumpTestElement(tester);
-      final element = rootElement.findFirstOfType<Image>();
-      expect(sut.shouldMask(element, element.widget), isTrue);
-    });
+  for (final value in [true, false]) {
+    group('$SentryMaskingConstantRule($value)', () {
+      testWidgets('will mask widget by type', (tester) async {
+        final sut =
+            SentryMaskingConfig([SentryMaskingConstantRule<Image>(value)]);
+        final rootElement = await pumpTestElement(tester);
+        final element = rootElement.findFirstOfType<Image>();
+        expect(sut.shouldMask(element, element.widget), value);
+      });
 
-    testWidgets('will mask subtype widget by type', (tester) async {
-      final sut = SentryMaskingConfig([SentryMaskingTruthyRule<Image>()]);
-      final rootElement = await pumpTestElement(tester);
-      final element = rootElement.findFirstOfType<CustomImageWidget>();
-      expect(sut.shouldMask(element, element.widget), isTrue);
-    });
+      testWidgets('will mask subtype widget by type', (tester) async {
+        final sut =
+            SentryMaskingConfig([SentryMaskingConstantRule<Image>(value)]);
+        final rootElement = await pumpTestElement(tester);
+        final element = rootElement.findFirstOfType<CustomImageWidget>();
+        expect(sut.shouldMask(element, element.widget), value);
+      });
 
-    testWidgets('will not mask widget of a different type', (tester) async {
-      final sut = SentryMaskingConfig([SentryMaskingTruthyRule<Image>()]);
-      final rootElement = await pumpTestElement(tester);
-      final element = rootElement.findFirstOfType<Text>();
-      expect(sut.shouldMask(element, element.widget), isFalse);
+      testWidgets('will not mask widget of a different type', (tester) async {
+        final sut =
+            SentryMaskingConfig([SentryMaskingConstantRule<Image>(value)]);
+        final rootElement = await pumpTestElement(tester);
+        final element = rootElement.findFirstOfType<Text>();
+        expect(sut.shouldMask(element, element.widget), !value);
+      }, skip: !value);
     });
-  });
+  }
 
   group('$SentryMaskingCustomRule', () {
     testWidgets('only called for specified type', (tester) async {
