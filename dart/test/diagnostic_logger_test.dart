@@ -2,6 +2,8 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry/src/diagnostic_logger.dart';
 import 'package:test/test.dart';
 
+import 'test_utils.dart';
+
 void main() {
   late Fixture fixture;
 
@@ -44,7 +46,7 @@ void main() {
 }
 
 class Fixture {
-  var options = SentryOptions();
+  var options = defaultTestOptions();
 
   Object? loggedMessage;
 

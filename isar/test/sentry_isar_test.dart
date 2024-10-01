@@ -13,6 +13,7 @@ import 'package:sentry_isar/src/version.dart';
 
 import 'mocks/mocks.mocks.dart';
 import 'person.dart';
+import 'utils.dart';
 
 void main() {
   void verifySpan(String description, SentrySpan? span) {
@@ -416,7 +417,7 @@ void main() {
 }
 
 class Fixture {
-  final options = SentryOptions();
+  final options = defaultTestOptions();
   final hub = MockHub();
   final isar = MockIsar();
 

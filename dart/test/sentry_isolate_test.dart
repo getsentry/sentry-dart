@@ -5,12 +5,11 @@ import 'package:sentry/src/hub.dart';
 import 'package:sentry/src/protocol/sentry_level.dart';
 import 'package:sentry/src/protocol/span_status.dart';
 import 'package:sentry/src/sentry_isolate.dart';
-import 'package:sentry/src/sentry_options.dart';
 import 'package:test/test.dart';
 
-import 'mocks.dart';
 import 'mocks/mock_hub.dart';
 import 'mocks/mock_sentry_client.dart';
+import 'test_utils.dart';
 
 void main() {
   group("SentryIsolate", () {
@@ -72,5 +71,5 @@ void main() {
 
 class Fixture {
   final hub = MockHub();
-  final options = SentryOptions(dsn: fakeDsn)..tracesSampleRate = 1.0;
+  final options = defaultTestOptions()..tracesSampleRate = 1.0;
 }

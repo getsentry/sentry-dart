@@ -4,9 +4,9 @@ library dart_test;
 import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 
-import 'mocks.dart';
 import 'mocks/mock_hub.dart';
 import 'mocks/mock_sentry_client.dart';
+import 'test_utils.dart';
 
 void main() {
   group(RunZonedGuardedIntegration, () {
@@ -77,7 +77,7 @@ void main() {
 
 class Fixture {
   final hub = MockHub();
-  final options = SentryOptions(dsn: fakeDsn)..tracesSampleRate = 1.0;
+  final options = defaultTestOptions()..tracesSampleRate = 1.0;
 
   RunZonedGuardedIntegration getSut(
       {required RunZonedGuardedRunner runner,

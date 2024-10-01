@@ -6,8 +6,8 @@ import 'package:sentry/src/metrics/metrics_api.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:test/test.dart';
 
-import '../mocks.dart';
 import '../mocks/mock_hub.dart';
+import '../test_utils.dart';
 
 void main() {
   group('api', () {
@@ -144,7 +144,7 @@ void main() {
 }
 
 class Fixture {
-  final _options = SentryOptions(dsn: fakeDsn);
+  final _options = defaultTestOptions();
   final mockHub = MockHub();
   late final hub = Hub(_options);
 

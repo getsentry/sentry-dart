@@ -15,6 +15,8 @@ import 'person.dart';
 
 import 'package:hive/src/box_collection/box_collection_stub.dart' as stub;
 
+import 'utils.dart';
+
 void main() {
   void verifySpan(String description, SentrySpan? span) {
     expect(span?.context.operation, SentryHiveImpl.dbOp);
@@ -355,7 +357,7 @@ void main() {
 }
 
 class Fixture {
-  final options = SentryOptions();
+  final options = defaultTestOptions();
   final hub = MockHub();
   final exception = Exception('fixture-exception');
 

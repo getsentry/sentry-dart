@@ -2,10 +2,9 @@ import 'package:sentry/src/exception_cause.dart';
 import 'package:sentry/src/exception_cause_extractor.dart';
 import 'package:sentry/src/recursive_exception_cause_extractor.dart';
 import 'package:sentry/src/protocol/mechanism.dart';
-import 'package:sentry/src/sentry_options.dart';
 import 'package:sentry/src/throwable_mechanism.dart';
 import 'package:test/test.dart';
-import 'mocks.dart';
+import 'test_utils.dart';
 
 void main() {
   late Fixture fixture;
@@ -91,6 +90,7 @@ void main() {
       ExceptionBCauseExtractor(),
     );
 
+    fixture.options.automatedTestMode = false;
     final sut = fixture.getSut();
 
     final flattened = sut.flatten(errorA, null);
@@ -101,7 +101,7 @@ void main() {
 }
 
 class Fixture {
-  final options = SentryOptions(dsn: fakeDsn);
+  final options = defaultTestOptions();
 
   RecursiveExceptionCauseExtractor getSut() {
     return RecursiveExceptionCauseExtractor(options);

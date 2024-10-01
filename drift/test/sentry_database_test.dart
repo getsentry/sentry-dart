@@ -15,6 +15,7 @@ import 'package:sqlite3/open.dart';
 
 import 'mocks/mocks.mocks.dart';
 import 'test_database.dart';
+import 'utils.dart';
 import 'utils/windows_helper.dart';
 
 void main() {
@@ -643,7 +644,7 @@ void main() {
 }
 
 class Fixture {
-  final options = SentryOptions();
+  final options = defaultTestOptions();
   final hub = MockHub();
   static final dbName = 'people-drift-impl';
   final exception = Exception('fixture-exception');

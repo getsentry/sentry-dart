@@ -1,436 +1,124 @@
 @TestOn('vm')
 library flutter_test;
 
-import 'package:collection/collection.dart';
+import 'dart:core';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/integrations/integrations.dart';
+import 'package:sentry_flutter/src/integrations/native_app_start_handler.dart';
 import 'package:sentry_flutter/src/integrations/native_app_start_integration.dart';
-import 'package:sentry/src/sentry_tracer.dart';
-import 'package:sentry_flutter/src/native/native_app_start.dart';
 
-import '../fake_frame_callback_handler.dart';
+import '../mock_frame_callback_handler.dart';
+import '../mocks.dart';
 import '../mocks.mocks.dart';
-import 'fixture.dart';
 
 void main() {
-  void setupMocks(Fixture fixture) {
-    when(fixture.hub.startTransaction('root /', 'ui.load',
-            description: null, startTimestamp: anyNamed('startTimestamp')))
-        .thenReturn(fixture.createTracer());
-    when(fixture.hub.configureScope(captureAny)).thenAnswer((_) {});
-    when(fixture.hub
-            .captureTransaction(any, traceContext: anyNamed('traceContext')))
-        .thenAnswer((_) async => SentryId.empty());
-  }
+  late Fixture fixture;
 
-  Future<void> registerIntegration(Fixture fixture) async {
-    await fixture.registerIntegration();
-    // Wait for the app start info to be fetched
-    // This ensures that setAppStartInfo has been called, which happens asynchronously
-    // in a post-frame callback. Waiting here prevents race conditions in subsequent tests
-    // that might depend on or modify the app start info.
-    await NativeAppStartIntegration.getAppStartInfo();
-  }
-
-  group('$NativeAppStartIntegration', () {
-    late Fixture fixture;
-
-    setUp(() {
-      fixture = Fixture();
-      setupMocks(fixture);
-      when(fixture.binding.fetchNativeAppStart()).thenAnswer((_) async =>
-          NativeAppStart(
-              appStartTime: 0,
-              pluginRegistrationTime: 10,
-              isColdStart: true,
-              nativeSpanTimes: {}));
-      NativeAppStartIntegration.clearAppStartInfo();
-    });
-
-    test('native app start measurement added to first transaction', () async {
-      NativeAppStartIntegration.appStartEnd =
-          DateTime.fromMillisecondsSinceEpoch(10);
-
-      await registerIntegration(fixture);
-      final tracer = fixture.createTracer();
-      final transaction = SentryTransaction(tracer);
-
-      final processor = fixture.options.eventProcessors.first;
-      final enriched =
-          await processor.apply(transaction, Hint()) as SentryTransaction;
-
-      final measurement = enriched.measurements['app_start_cold']!;
-      expect(measurement.value, 10);
-      expect(measurement.unit, DurationSentryMeasurementUnit.milliSecond);
-    });
-
-    test('native app start measurement not added to following transactions',
-        () async {
-      NativeAppStartIntegration.appStartEnd =
-          DateTime.fromMillisecondsSinceEpoch(10);
-
-      await registerIntegration(fixture);
-      final tracer = fixture.createTracer();
-      final transaction = SentryTransaction(tracer);
-
-      final processor = fixture.options.eventProcessors.first;
-
-      var enriched =
-          await processor.apply(transaction, Hint()) as SentryTransaction;
-      var secondEnriched =
-          await processor.apply(enriched, Hint()) as SentryTransaction;
-
-      expect(secondEnriched.measurements.length, 1);
-    });
-
-    test('measurements appended', () async {
-      NativeAppStartIntegration.appStartEnd =
-          DateTime.fromMillisecondsSinceEpoch(10);
-      final measurement = SentryMeasurement.warmAppStart(Duration(seconds: 1));
-
-      await registerIntegration(fixture);
-      final tracer = fixture.createTracer();
-      final transaction = SentryTransaction(tracer).copyWith();
-      transaction.measurements[measurement.name] = measurement;
-
-      final processor = fixture.options.eventProcessors.first;
-
-      var enriched =
-          await processor.apply(transaction, Hint()) as SentryTransaction;
-      var secondEnriched =
-          await processor.apply(enriched, Hint()) as SentryTransaction;
-
-      expect(secondEnriched.measurements.length, 2);
-      expect(secondEnriched.measurements.containsKey(measurement.name), true);
-    });
-
-    test('native app start measurement not added if more than 60s', () async {
-      NativeAppStartIntegration.appStartEnd =
-          DateTime.fromMillisecondsSinceEpoch(60001);
-
-      await registerIntegration(fixture);
-      final tracer = fixture.createTracer();
-      final transaction = SentryTransaction(tracer);
-
-      final processor = fixture.options.eventProcessors.first;
-      final enriched =
-          await processor.apply(transaction, Hint()) as SentryTransaction;
-
-      expect(enriched.measurements.isEmpty, true);
-    });
-
-    test('native app start integration is called and sets app start info',
-        () async {
-      NativeAppStartIntegration.appStartEnd =
-          DateTime.fromMillisecondsSinceEpoch(10);
-
-      await registerIntegration(fixture);
-      final appStartInfo = await NativeAppStartIntegration.getAppStartInfo();
-      expect(appStartInfo?.start, DateTime.fromMillisecondsSinceEpoch(0));
-      expect(appStartInfo?.end, DateTime.fromMillisecondsSinceEpoch(10));
-    });
-
-    test(
-        'autoAppStart is false and appStartEnd is not set does not add app start measurement',
-        () async {
-      fixture.options.autoAppStart = false;
-
-      await registerIntegration(fixture);
-
-      final tracer = fixture.createTracer();
-      final transaction = SentryTransaction(tracer);
-
-      final processor = fixture.options.eventProcessors.first;
-      final enriched =
-          await processor.apply(transaction, Hint()) as SentryTransaction;
-
-      expect(enriched.measurements.isEmpty, true);
-      expect(enriched.spans.isEmpty, true);
-    });
-
-    test(
-        'does not trigger timeout if autoAppStart is false and setAppStartEnd is not called',
-        () async {
-      // setting a frame callback with a bigger timeout than our app start timeout so the timeout would theoretically be triggered
-      fixture = Fixture(
-          frameCallbackTimeout: NativeAppStartIntegration.timeoutDuration +
-              const Duration(seconds: 5));
-      fixture.options.autoAppStart = false;
-
-      await registerIntegration(fixture);
-      final tracer = fixture.createTracer();
-      final transaction = SentryTransaction(tracer);
-
-      final processor = fixture.options.eventProcessors.first;
-
-      final stopwatch = Stopwatch()..start();
-      await processor.apply(transaction, Hint()) as SentryTransaction;
-      stopwatch.stop();
-
-      expect(stopwatch.elapsed < NativeAppStartIntegration.timeoutDuration,
-          isTrue);
-    });
-
-    test(
-        'autoAppStart is false and appStartEnd is set adds app start measurement',
-        () async {
-      fixture.options.autoAppStart = false;
-
-      await registerIntegration(fixture);
-      SentryFlutter.setAppStartEnd(DateTime.fromMillisecondsSinceEpoch(10));
-
-      final tracer = fixture.createTracer();
-      final transaction = SentryTransaction(tracer);
-
-      final processor = fixture.options.eventProcessors.first;
-      final enriched =
-          await processor.apply(transaction, Hint()) as SentryTransaction;
-
-      final measurement = enriched.measurements['app_start_cold']!;
-      expect(measurement.value, 10);
-      expect(measurement.unit, DurationSentryMeasurementUnit.milliSecond);
-
-      final appStartInfo = await NativeAppStartIntegration.getAppStartInfo();
-
-      final appStartSpan = enriched.spans.firstWhereOrNull((element) =>
-          element.context.description == appStartInfo!.appStartTypeDescription);
-      final pluginRegistrationSpan = enriched.spans.firstWhereOrNull(
-          (element) =>
-              element.context.description ==
-              appStartInfo!.pluginRegistrationDescription);
-      final sentrySetupSpan = enriched.spans.firstWhereOrNull((element) =>
-          element.context.description == appStartInfo!.sentrySetupDescription);
-      final firstFrameRenderSpan = enriched.spans.firstWhereOrNull((element) =>
-          element.context.description ==
-          appStartInfo!.firstFrameRenderDescription);
-
-      expect(appStartSpan, isNotNull);
-      expect(pluginRegistrationSpan, isNotNull);
-      expect(sentrySetupSpan, isNotNull);
-      expect(firstFrameRenderSpan, isNotNull);
-    });
+  setUp(() {
+    fixture = Fixture();
   });
 
-  group('App start spans', () {
-    late SentrySpan? coldStartSpan,
-        pluginRegistrationSpan,
-        sentrySetupSpan,
-        firstFrameRenderSpan;
-    // ignore: invalid_use_of_internal_member
-    late SentryTracer tracer;
-    late Fixture fixture;
-    late SentryTransaction enriched;
+  test('$NativeAppStartIntegration adds integration', () async {
+    fixture.callIntegration();
 
-    final validNativeSpanTimes = {
-      'correct span description': {
-        'startTimestampMsSinceEpoch': 1,
-        'stopTimestampMsSinceEpoch': 2,
-      },
-      'correct span description 2': {
-        'startTimestampMsSinceEpoch': 4,
-        'stopTimestampMsSinceEpoch': 6,
-      },
-      'correct span description 3': {
-        'startTimestampMsSinceEpoch': 3,
-        'stopTimestampMsSinceEpoch': 4,
-      },
-    };
+    expect(
+        fixture.options.sdk.integrations.contains('nativeAppStartIntegration'),
+        true);
+  });
 
-    final invalidNativeSpanTimes = {
-      'failing span with null timestamp': {
-        'startTimestampMsSinceEpoch': null,
-        'stopTimestampMsSinceEpoch': 3,
-      },
-      'failing span with string timestamp': {
-        'startTimestampMsSinceEpoch': '1',
-        'stopTimestampMsSinceEpoch': 3,
-      },
-    };
+  test('$NativeAppStartIntegration adds postFrameCallback', () async {
+    fixture.callIntegration();
 
-    final appStartInfoSrc = NativeAppStart(
-        appStartTime: 0,
-        pluginRegistrationTime: 10,
-        isColdStart: true,
-        nativeSpanTimes: {
-          ...validNativeSpanTimes,
-          ...invalidNativeSpanTimes,
-        });
+    expect(fixture.frameCallbackHandler.postFrameCallback, isNotNull);
+  });
 
-    setUp(() async {
-      fixture = Fixture();
-      NativeAppStartIntegration.clearAppStartInfo();
+  test(
+      '$NativeAppStartIntegration postFrameCallback calls nativeAppStartHandler',
+      () async {
+    fixture.callIntegration();
 
-      NativeAppStartIntegration.appStartEnd =
-          DateTime.fromMillisecondsSinceEpoch(50);
+    final appStartEnd = DateTime.fromMicrosecondsSinceEpoch(50);
+    fixture.sut.appStartEnd = appStartEnd;
 
-      // dartLoadingEnd needs to be set after engine end (see MockNativeChannel)
-      SentryFlutter.sentrySetupStartTime =
-          DateTime.fromMillisecondsSinceEpoch(15);
+    final postFrameCallback = fixture.frameCallbackHandler.postFrameCallback!;
+    postFrameCallback(Duration(seconds: 0));
 
-      setupMocks(fixture);
+    expect(fixture.nativeAppStartHandler.calls, 1);
+    expect(fixture.nativeAppStartHandler.appStartEnd, appStartEnd);
+  });
 
-      when(fixture.binding.fetchNativeAppStart())
-          .thenAnswer((_) async => appStartInfoSrc);
+  test(
+      '$NativeAppStartIntegration with disabled auto app start waits until appStartEnd is set',
+      () async {
+    fixture.options.autoAppStart = false;
 
-      await registerIntegration(fixture);
-      final processor = fixture.options.eventProcessors.first;
-      tracer = fixture.createTracer();
-      final transaction = SentryTransaction(tracer);
-      enriched =
-          await processor.apply(transaction, Hint()) as SentryTransaction;
+    fixture.callIntegration();
+    final postFrameCallback = fixture.frameCallbackHandler.postFrameCallback!;
+    postFrameCallback(Duration(seconds: 0));
 
-      final appStartInfo = await NativeAppStartIntegration.getAppStartInfo();
+    expect(fixture.nativeAppStartHandler.calls, 0);
 
-      coldStartSpan = enriched.spans.firstWhereOrNull((element) =>
-          element.context.description == appStartInfo?.appStartTypeDescription);
-      pluginRegistrationSpan = enriched.spans.firstWhereOrNull((element) =>
-          element.context.description ==
-          appStartInfo?.pluginRegistrationDescription);
-      sentrySetupSpan = enriched.spans.firstWhereOrNull((element) =>
-          element.context.description == appStartInfo?.sentrySetupDescription);
-      firstFrameRenderSpan = enriched.spans.firstWhereOrNull((element) =>
-          element.context.description ==
-          appStartInfo?.firstFrameRenderDescription);
-    });
+    final appStartEnd = DateTime.fromMicrosecondsSinceEpoch(50);
+    fixture.sut.appStartEnd = appStartEnd;
 
-    test('native app start spans not added to following transactions',
-        () async {
-      final processor = fixture.options.eventProcessors.first;
+    await Future<void>.delayed(Duration(milliseconds: 10));
 
-      final transaction = SentryTransaction(fixture.createTracer());
+    expect(fixture.frameCallbackHandler.postFrameCallback, isNotNull);
+    expect(fixture.nativeAppStartHandler.calls, 1);
+    expect(fixture.nativeAppStartHandler.appStartEnd, appStartEnd);
+  });
 
-      final secondEnriched =
-          await processor.apply(transaction, Hint()) as SentryTransaction;
+  test(
+      '$NativeAppStartIntegration with disabled auto app start waits until timeout',
+      () async {
+    fixture.options.autoAppStart = false;
 
-      expect(secondEnriched.spans.length, 0);
-    });
+    fixture.callIntegration();
+    final postFrameCallback = fixture.frameCallbackHandler.postFrameCallback!;
+    postFrameCallback(Duration(seconds: 0));
 
-    test('includes only valid native spans', () async {
-      final spans =
-          enriched.spans.where((element) => element.data['native'] == true);
+    expect(fixture.nativeAppStartHandler.calls, 0);
 
-      expect(spans.length, validNativeSpanTimes.length);
+    await Future<void>.delayed(Duration(seconds: 11));
 
-      for (final span in spans) {
-        final validSpan = validNativeSpanTimes[span.context.description];
-        expect(validSpan, isNotNull);
-        expect(
-            span.startTimestamp,
-            DateTime.fromMillisecondsSinceEpoch(
-                    validSpan!['startTimestampMsSinceEpoch']!)
-                .toUtc());
-        expect(
-            span.endTimestamp,
-            DateTime.fromMillisecondsSinceEpoch(
-                    validSpan['stopTimestampMsSinceEpoch']!)
-                .toUtc());
-      }
-    });
-
-    test('are correctly ordered', () async {
-      final spans =
-          enriched.spans.where((element) => element.data['native'] == true);
-
-      final orderedSpans = spans.toList()
-        ..sort((a, b) => a.startTimestamp.compareTo(b.startTimestamp));
-
-      expect(spans, orderedEquals(orderedSpans));
-    });
-
-    test('ignores invalid spans', () async {
-      final spans =
-          enriched.spans.where((element) => element.data['native'] == true);
-
-      expect(spans, isNot(contains('failing span')));
-    });
-
-    test('are added by event processor', () async {
-      expect(coldStartSpan, isNotNull);
-      expect(pluginRegistrationSpan, isNotNull);
-      expect(sentrySetupSpan, isNotNull);
-      expect(firstFrameRenderSpan, isNotNull);
-    });
-
-    test('have correct op', () async {
-      const op = 'app.start.cold';
-      expect(coldStartSpan?.context.operation, op);
-      expect(pluginRegistrationSpan?.context.operation, op);
-      expect(sentrySetupSpan?.context.operation, op);
-      expect(firstFrameRenderSpan?.context.operation, op);
-    });
-
-    test('have correct parents', () async {
-      expect(coldStartSpan?.context.parentSpanId, tracer.context.spanId);
-      expect(pluginRegistrationSpan?.context.parentSpanId,
-          coldStartSpan?.context.spanId);
-      expect(
-          sentrySetupSpan?.context.parentSpanId, coldStartSpan?.context.spanId);
-      expect(firstFrameRenderSpan?.context.parentSpanId,
-          coldStartSpan?.context.spanId);
-    });
-
-    test('have correct traceId', () async {
-      final traceId = tracer.context.traceId;
-      expect(coldStartSpan?.context.traceId, traceId);
-      expect(pluginRegistrationSpan?.context.traceId, traceId);
-      expect(sentrySetupSpan?.context.traceId, traceId);
-      expect(firstFrameRenderSpan?.context.traceId, traceId);
-    });
-
-    test('have correct startTimestamp', () async {
-      final appStartTime = DateTime.fromMillisecondsSinceEpoch(
-              appStartInfoSrc.appStartTime.toInt())
-          .toUtc();
-      expect(coldStartSpan?.startTimestamp, appStartTime);
-      expect(pluginRegistrationSpan?.startTimestamp, appStartTime);
-      expect(sentrySetupSpan?.startTimestamp,
-          pluginRegistrationSpan?.endTimestamp);
-      expect(
-          firstFrameRenderSpan?.startTimestamp, sentrySetupSpan?.endTimestamp);
-    });
-
-    test('have correct endTimestamp', () async {
-      final engineReadyEndtime = DateTime.fromMillisecondsSinceEpoch(
-              appStartInfoSrc.pluginRegistrationTime.toInt())
-          .toUtc();
-      expect(coldStartSpan?.endTimestamp,
-          NativeAppStartIntegration.appStartEnd?.toUtc());
-      expect(pluginRegistrationSpan?.endTimestamp, engineReadyEndtime);
-      expect(sentrySetupSpan?.endTimestamp,
-          SentryFlutter.sentrySetupStartTime?.toUtc());
-      expect(firstFrameRenderSpan?.endTimestamp, coldStartSpan?.endTimestamp);
-    });
+    expect(fixture.frameCallbackHandler.postFrameCallback, isNotNull);
+    expect(fixture.nativeAppStartHandler.calls, 0);
+    expect(fixture.nativeAppStartHandler.appStartEnd, null);
   });
 }
 
-class Fixture extends IntegrationTestFixture<NativeAppStartIntegration> {
-  @override
-  MockHub get hub => super.hub as MockHub;
+class Fixture {
+  final options = SentryFlutterOptions(dsn: fakeDsn);
+  final hub = MockHub();
 
-  Fixture({Duration? frameCallbackTimeout})
-      : super((binding) => NativeAppStartIntegration(
-            binding,
-            FakeFrameCallbackHandler(
-                finishAfterDuration: frameCallbackTimeout ??
-                    const Duration(milliseconds: 50)))) {
-    NativeAppStartIntegration.reset();
-    hub = MockHub();
-    // ignore: invalid_use_of_internal_member
+  final frameCallbackHandler = MockFrameCallbackHandler();
+  final nativeAppStartHandler = MockNativeAppStartHandler();
+
+  late NativeAppStartIntegration sut = NativeAppStartIntegration(
+    frameCallbackHandler,
+    nativeAppStartHandler,
+  );
+
+  Fixture() {
     when(hub.options).thenReturn(options);
-    SentryFlutter.sentrySetupStartTime = DateTime.now().toUtc();
   }
 
-  // ignore: invalid_use_of_internal_member
-  SentryTracer createTracer({
-    bool? sampled = true,
-  }) {
-    final context = SentryTransactionContext(
-      'name',
-      'op',
-      samplingDecision: SentryTracesSamplingDecision(sampled!),
-    );
-    return SentryTracer(context, hub);
+  void callIntegration() {
+    sut.call(hub, options);
+  }
+}
+
+class MockNativeAppStartHandler implements NativeAppStartHandler {
+  DateTime? appStartEnd;
+  var calls = 0;
+
+  @override
+  Future<void> call(Hub hub, SentryFlutterOptions options,
+      {required DateTime? appStartEnd}) async {
+    this.appStartEnd = appStartEnd;
+    calls += 1;
   }
 }

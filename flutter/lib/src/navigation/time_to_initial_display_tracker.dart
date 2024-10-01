@@ -45,20 +45,6 @@ class TimeToInitialDisplayTracker {
     );
   }
 
-  Future<void> trackAppStart(ISentrySpan transaction,
-      {required DateTime startTimestamp,
-      required DateTime endTimestamp}) async {
-    await _trackTimeToInitialDisplay(
-      transaction: transaction,
-      startTimestamp: startTimestamp,
-      endTimestamp: endTimestamp,
-      origin: SentryTraceOrigins.autoUiTimeToDisplay,
-    );
-
-    // Store the end timestamp for potential use by TTFD tracking
-    _endTimestamp = endTimestamp;
-  }
-
   Future<void> _trackTimeToInitialDisplay({
     required ISentrySpan transaction,
     required DateTime startTimestamp,

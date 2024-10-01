@@ -25,8 +25,8 @@ class SentryNativeChannel
   @protected
   final SentrySafeMethodChannel channel;
 
-  SentryNativeChannel(this.options, MethodChannel channel)
-      : channel = SentrySafeMethodChannel(channel, options);
+  SentryNativeChannel(this.options)
+      : channel = SentrySafeMethodChannel(options);
 
   @override
   Future<void> init(Hub hub) async {
@@ -71,6 +71,8 @@ class SentryNativeChannel
         'sessionSampleRate': options.experimental.replay.sessionSampleRate,
         'onErrorSampleRate': options.experimental.replay.onErrorSampleRate,
       },
+      'enableSpotlight': options.spotlight.enabled,
+      'spotlightUrl': options.spotlight.url,
     });
   }
 

@@ -10,6 +10,7 @@ import 'package:sentry/src/sentry_envelope_item_header.dart';
 import 'package:test/test.dart';
 
 import 'mocks.dart';
+import 'test_utils.dart';
 
 void main() {
   group('SentryEnvelopeItem', () {
@@ -37,7 +38,7 @@ void main() {
 
       final envelopeData = <int>[];
       await envelope
-          .envelopeStream(SentryOptions())
+          .envelopeStream(defaultTestOptions())
           .forEach(envelopeData.addAll);
 
       final expectedEnvelopeFile =
@@ -62,8 +63,9 @@ void main() {
         attachments: [attachment],
       );
 
-      final data = (await envelope.envelopeStream(SentryOptions()).toList())
-          .reduce((a, b) => a + b);
+      final data =
+          (await envelope.envelopeStream(defaultTestOptions()).toList())
+              .reduce((a, b) => a + b);
 
       final file = File('test_resources/envelope-no-attachment.envelope');
       final jsonStr = await file.readAsString();

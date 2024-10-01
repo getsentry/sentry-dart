@@ -65,7 +65,7 @@ void main() {
 
 class Fixture {
   final startTimestamp = getUtcDateTime();
-  final hub = Hub(SentryFlutterOptions(dsn: fakeDsn)..tracesSampleRate = 1.0);
+  final hub = Hub(defaultTestOptions()..tracesSampleRate = 1.0);
   final autoFinishAfter = const Duration(seconds: 2);
   late final endTimestampProvider = fakeTTIDEndTimestampProvider();
 

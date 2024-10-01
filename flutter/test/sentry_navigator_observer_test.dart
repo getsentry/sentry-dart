@@ -7,7 +7,6 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:sentry_flutter/src/integrations/integrations.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry_flutter/src/native/native_frames.dart';
 import 'package:sentry_flutter/src/navigation/time_to_display_tracker.dart';
@@ -83,6 +82,8 @@ void main() {
 
       final options = defaultTestOptions();
       options.tracesSampleRate = 1;
+      // Drop events, otherwise sentry tries to send them to the test DSN.
+      options.addEventProcessor(FunctionEventProcessor((_, __) => null));
       final hub = Hub(options);
 
       when(mockBinding.endNativeFrames(any))
@@ -487,49 +488,32 @@ void main() {
       verify(span.setData('route_settings_arguments', arguments));
     });
 
-    test('flutter root name is replaced', () async {
+    test('root route does not start transaction', () async {
       final rootRoute = route(RouteSettings(name: '/'));
-      NativeAppStartIntegration.setAppStartInfo(
-        AppStartInfo(
-          AppStartType.cold,
-          start: DateTime.now().add(const Duration(seconds: 1)),
-          end: DateTime.now().add(const Duration(seconds: 2)),
-          pluginRegistration: DateTime.now().add(const Duration(seconds: 3)),
-          sentrySetupStart: DateTime.now().add(const Duration(seconds: 4)),
-          nativeSpanTimes: [],
-        ),
-      );
 
       final hub = _MockHub();
-      final span = getMockSentryTracer(name: '/');
+      final span = getMockSentryTracer();
       when(span.context).thenReturn(SentrySpanContext(operation: 'op'));
       when(span.finished).thenReturn(false);
       when(span.status).thenReturn(SpanStatus.ok());
-      when(span.startChild('ui.load.initial_display',
-              description: anyNamed('description'),
-              startTimestamp: anyNamed('startTimestamp')))
-          .thenReturn(NoOpSentrySpan());
       _whenAnyStart(hub, span);
 
       final sut = fixture.getSut(hub: hub);
 
       sut.didPush(rootRoute, null);
-
       await Future<void>.delayed(const Duration(milliseconds: 100));
 
-      final context = verify(hub.startTransactionWithContext(
-        captureAny,
-        waitForChildren: true,
+      verifyNever(hub.startTransactionWithContext(
+        any,
         startTimestamp: anyNamed('startTimestamp'),
+        waitForChildren: true,
         autoFinishAfter: anyNamed('autoFinishAfter'),
         trimEnd: true,
         onFinish: anyNamed('onFinish'),
-      )).captured.single as SentryTransactionContext;
-
-      expect(context.name, 'root /');
+      ));
 
       hub.configureScope((scope) {
-        expect(scope.span, span);
+        expect(scope.span, null);
       });
     });
 
@@ -598,6 +582,7 @@ void main() {
       const op = 'navigation';
       final hub = _MockHub();
       final span = getMockSentryTracer(name: oldRouteName);
+      when(span.children).thenReturn([]);
       when(span.context).thenReturn(SentrySpanContext(operation: op));
       when(span.status).thenReturn(null);
       when(span.finished).thenReturn(false);
@@ -982,6 +967,7 @@ void main() {
       final secondRoute = route(RouteSettings(name: 'testRoute'));
 
       final hub = _MockHub();
+      _whenAnyStart(hub, NoOpSentrySpan());
 
       final sut = fixture.getSut(hub: hub, ignoreRoutes: ["testRoute"]);
 
@@ -1002,6 +988,7 @@ void main() {
       final secondRoute = route(RouteSettings(name: 'testRoute'));
 
       final hub = _MockHub();
+      _whenAnyStart(hub, NoOpSentrySpan());
 
       final sut = fixture.getSut(hub: hub, ignoreRoutes: ["testRoute"]);
 
@@ -1086,7 +1073,7 @@ class _MockHub extends MockHub {
   }
 }
 
-ISentrySpan getMockSentryTracer({String? name, bool? finished}) {
+MockSentryTracer getMockSentryTracer({String? name, bool? finished}) {
   final tracer = MockSentryTracer();
   when(tracer.name).thenReturn(name ?? 'name');
   when(tracer.finished).thenReturn(finished ?? true);

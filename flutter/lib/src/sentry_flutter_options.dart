@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:file/file.dart';
 import 'package:file/local.dart';
+import 'package:flutter/services.dart';
 import 'package:meta/meta.dart' as meta;
 import 'package:sentry/sentry.dart';
 import 'package:flutter/widgets.dart';
@@ -224,6 +225,9 @@ class SentryFlutterOptions extends SentryOptions {
   @meta.internal
   late RendererWrapper rendererWrapper = RendererWrapper();
 
+  @meta.internal
+  late MethodChannel methodChannel = const MethodChannel('sentry_flutter');
+
   /// Enables the View Hierarchy feature.
   ///
   /// Renders an ASCII represention of the entire view hierarchy of the
@@ -345,6 +349,17 @@ class SentryFlutterOptions extends SentryOptions {
 
   /// The [navigatorKey] is used to add information of the currently used locale to the contexts.
   GlobalKey<NavigatorState>? navigatorKey;
+
+  // Override so we don't have to add `ignore` on each use.
+  @meta.internal
+  @override
+  // ignore: invalid_use_of_internal_member
+  bool get automatedTestMode => super.automatedTestMode;
+
+  @meta.internal
+  @override
+  // ignore: invalid_use_of_internal_member
+  set automatedTestMode(bool value) => super.automatedTestMode = value;
 
   @meta.internal
   FileSystem fileSystem = LocalFileSystem();

@@ -10,6 +10,7 @@ import 'package:sentry/src/sentry_envelope_header.dart';
 
 import '../mocks/mock_client_report_recorder.dart';
 import '../mocks/mock_hub.dart';
+import '../test_utils.dart';
 
 void main() {
   var fixture = Fixture();
@@ -368,7 +369,7 @@ class Fixture {
   late var mockRecorder = MockClientReportRecorder();
 
   RateLimiter getSut() {
-    final options = SentryOptions();
+    final options = defaultTestOptions();
     options.clock = _currentDateTime;
     options.recorder = mockRecorder;
 

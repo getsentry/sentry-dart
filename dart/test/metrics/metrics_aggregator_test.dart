@@ -3,8 +3,8 @@ import 'package:sentry/src/metrics/metric.dart';
 import 'package:sentry/src/metrics/metrics_aggregator.dart';
 import 'package:test/test.dart';
 
-import '../mocks.dart';
 import '../mocks/mock_hub.dart';
+import '../test_utils.dart';
 
 void main() {
   group('emit', () {
@@ -402,6 +402,7 @@ void main() {
     });
 
     test('emits if it throws', () async {
+      fixture.options.automatedTestMode = false;
       final MetricsAggregator sut = fixture.getSut(maxWeight: 4);
       fixture.options.beforeMetricCallback = (key, {tags}) => throw Exception();
       sut.testEmit(key: 'key1');
@@ -455,7 +456,7 @@ const Map<String, String> mockTags2 = {'tag1': 'val1'};
 final DateTime mockTimestamp = DateTime.fromMillisecondsSinceEpoch(1);
 
 class Fixture {
-  final options = SentryOptions(dsn: fakeDsn);
+  final options = defaultTestOptions();
   final mockHub = MockHub();
   late final hub = Hub(options);
 

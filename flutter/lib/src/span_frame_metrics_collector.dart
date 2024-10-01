@@ -26,10 +26,12 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
   /// Stores frame timestamps and their durations in milliseconds.
   /// Keys are frame timestamps, values are frame durations.
   /// The timestamps mark the end of the frame.
+  @visibleForTesting
   final frames = SplayTreeMap<DateTime, int>();
 
   /// Stores the spans that are actively being tracked.
   /// After the frames are calculated and stored in the span the span is removed from this list.
+  @visibleForTesting
   final activeSpans = SplayTreeSet<ISentrySpan>(
       (a, b) => a.startTimestamp.compareTo(b.startTimestamp));
 
@@ -39,7 +41,11 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
   bool get isTrackingRegistered => _isTrackingRegistered;
   bool _isTrackingRegistered = false;
 
-  int displayRefreshRate = 60;
+  @visibleForTesting
+  int? displayRefreshRate;
+
+  @visibleForTesting
+  int maxFramesToTrack = 10800;
 
   final _stopwatch = Stopwatch();
 
@@ -59,25 +65,33 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
     }
 
     final fetchedDisplayRefreshRate = await _native?.displayRefreshRate();
-    if (fetchedDisplayRefreshRate != null) {
+    if (fetchedDisplayRefreshRate != null && fetchedDisplayRefreshRate > 0) {
       options.logger(SentryLevel.debug,
           'Retrieved display refresh rate at $fetchedDisplayRefreshRate');
       displayRefreshRate = fetchedDisplayRefreshRate;
+
+      // Start tracking frames only when refresh rate is valid
+      activeSpans.add(span);
+      startFrameTracking();
     } else {
       options.logger(SentryLevel.debug,
-          'Could not fetch display refresh rate, keeping at 60hz by default');
+          'Retrieved invalid display refresh rate: $fetchedDisplayRefreshRate. Not starting frame tracking.');
     }
-
-    activeSpans.add(span);
-    startFrameTracking();
   }
 
   @override
   Future<void> onSpanFinished(ISentrySpan span, DateTime endTimestamp) async {
     if (span is NoOpSentrySpan || !activeSpans.contains(span)) return;
 
+    if (displayRefreshRate == null || displayRefreshRate! <= 0) {
+      options.logger(SentryLevel.warning,
+          'Invalid display refresh rate. Skipping frame tracking for all active spans.');
+      clear();
+      return;
+    }
+
     final frameMetrics =
-        calculateFrameMetrics(span, endTimestamp, displayRefreshRate);
+        calculateFrameMetrics(span, endTimestamp, displayRefreshRate!);
     _applyFrameMetricsToSpan(span, frameMetrics);
 
     activeSpans.remove(span);
@@ -107,6 +121,13 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
   ///
   /// This method is called for each frame when frame tracking is active.
   Future<void> measureFrameDuration(Duration duration) async {
+    if (frames.length >= maxFramesToTrack) {
+      options.logger(SentryLevel.warning,
+          'Frame tracking limit reached. Clearing frames and cancelling frame tracking for all active spans');
+      clear();
+      return;
+    }
+
     // Using the stopwatch to measure the frame duration is flaky in ci
     if (_isTestMode) {
       // ignore: invalid_use_of_internal_member
@@ -223,11 +244,11 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
 
     final spanDuration =
         spanEndTimestamp.difference(span.startTimestamp).inMilliseconds;
+    final normalFramesCount =
+        (spanDuration - (slowFramesDuration + frozenFramesDuration)) /
+            expectedFrameDuration;
     final totalFramesCount =
-        ((spanDuration - (slowFramesDuration + frozenFramesDuration)) /
-                expectedFrameDuration) +
-            slowFramesCount +
-            frozenFramesCount;
+        (normalFramesCount + slowFramesCount + frozenFramesCount).ceil();
 
     if (totalFramesCount < 0 ||
         framesDelay < 0 ||
@@ -238,8 +259,15 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
       return {};
     }
 
+    if (totalFramesCount < slowFramesCount ||
+        totalFramesCount < frozenFramesCount) {
+      options.logger(SentryLevel.warning,
+          'Total frames count is less than slow or frozen frames count. Dropping frame metrics.');
+      return {};
+    }
+
     return {
-      SpanFrameMetricsCollector.totalFramesKey: totalFramesCount.toInt(),
+      SpanFrameMetricsCollector.totalFramesKey: totalFramesCount,
       SpanFrameMetricsCollector.framesDelayKey: framesDelay,
       SpanFrameMetricsCollector.slowFramesKey: slowFramesCount,
       SpanFrameMetricsCollector.frozenFramesKey: frozenFramesCount,
@@ -249,8 +277,9 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
   @override
   void clear() {
     _isTrackingPaused = true;
+    _stopwatch.reset();
     frames.clear();
     activeSpans.clear();
-    displayRefreshRate = 60;
+    displayRefreshRate = null;
   }
 }

@@ -22,41 +22,6 @@ void main() {
     sut.clear();
   });
 
-  group('app start', () {
-    test('tracking creates and finishes ttid span with correct measurements',
-        () async {
-      final endTimestamp =
-          fixture.startTimestamp.add(const Duration(milliseconds: 10));
-
-      final transaction =
-          fixture.getTransaction(name: 'root ("/")') as SentryTracer;
-      await sut.trackAppStart(transaction,
-          startTimestamp: fixture.startTimestamp, endTimestamp: endTimestamp);
-
-      final children = transaction.children;
-      expect(children, hasLength(1));
-
-      final ttidSpan = children.first;
-      expect(ttidSpan.context.operation,
-          SentrySpanOperations.uiTimeToInitialDisplay);
-      expect(ttidSpan.finished, isTrue);
-      expect(ttidSpan.context.description, 'root ("/") initial display');
-      expect(ttidSpan.origin, SentryTraceOrigins.autoUiTimeToDisplay);
-      expect(ttidSpan.startTimestamp, fixture.startTimestamp);
-      expect(ttidSpan.endTimestamp, endTimestamp);
-
-      final ttidMeasurement =
-          transaction.measurements['time_to_initial_display'];
-      expect(ttidMeasurement, isNotNull);
-      expect(ttidMeasurement?.unit, DurationSentryMeasurementUnit.milliSecond);
-      expect(
-          ttidMeasurement?.value,
-          ttidSpan.endTimestamp!
-              .difference(ttidSpan.startTimestamp)
-              .inMilliseconds);
-    });
-  });
-
   group('regular route', () {
     test(
         'approximation tracking creates and finishes ttid span with correct measurements',
@@ -179,7 +144,7 @@ void main() {
 
 class Fixture {
   final startTimestamp = getUtcDateTime();
-  final hub = Hub(SentryFlutterOptions(dsn: fakeDsn)..tracesSampleRate = 1.0);
+  final hub = Hub(defaultTestOptions()..tracesSampleRate = 1.0);
   late final fakeFrameCallbackHandler = FakeFrameCallbackHandler();
 
   ISentrySpan getTransaction({String? name = "Regular route"}) {

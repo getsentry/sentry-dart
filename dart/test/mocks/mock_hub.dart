@@ -3,7 +3,7 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry/src/metrics/metric.dart';
 import 'package:sentry/src/metrics/metrics_aggregator.dart';
 
-import '../mocks.dart';
+import '../test_utils.dart';
 import 'mock_sentry_client.dart';
 import 'no_such_method_provider.dart';
 
@@ -21,7 +21,7 @@ class MockHub with NoSuchMethodProvider implements Hub {
   int spanContextCals = 0;
   int getSpanCalls = 0;
 
-  final _options = SentryOptions(dsn: fakeDsn);
+  final _options = defaultTestOptions();
   late final MetricsAggregator _metricsAggregator =
       MetricsAggregator(options: _options, hub: this);
 

@@ -24,6 +24,7 @@ import 'mocks/mock_hub.dart';
 import 'mocks/mock_platform.dart';
 import 'mocks/mock_platform_checker.dart';
 import 'mocks/mock_transport.dart';
+import 'test_utils.dart';
 
 void main() {
   group('SentryClient captures message', () {
@@ -1249,11 +1250,13 @@ void main() {
     });
 
     test('thrown error is handled', () async {
+      fixture.options.automatedTestMode = false;
       final exception = Exception("before send exception");
       final beforeSendTransactionCallback = (SentryTransaction event) {
         throw exception;
       };
 
+      fixture.options.automatedTestMode = false;
       final client = fixture.getSut(
           beforeSendTransaction: beforeSendTransactionCallback, debug: true);
       final fakeTransaction = fixture.fakeTransaction();
@@ -1311,11 +1314,13 @@ void main() {
     });
 
     test('thrown error is handled', () async {
+      fixture.options.automatedTestMode = false;
       final exception = Exception("before send exception");
       final beforeSendCallback = (SentryEvent event, Hint hint) {
         throw exception;
       };
 
+      fixture.options.automatedTestMode = false;
       final client =
           fixture.getSut(beforeSend: beforeSendCallback, debug: true);
 
@@ -1604,7 +1609,13 @@ void main() {
     });
 
     test('record event processor dropping event', () async {
-      final client = fixture.getSut(eventProcessor: DropAllEventProcessor());
+      bool secondProcessorCalled = false;
+      fixture.options.addEventProcessor(DropAllEventProcessor());
+      fixture.options.addEventProcessor(FunctionEventProcessor((event, hint) {
+        secondProcessorCalled = true;
+        return event;
+      }));
+      final client = fixture.getSut();
 
       await client.captureEvent(fakeEvent);
 
@@ -1612,6 +1623,7 @@ void main() {
           DiscardReason.eventProcessor);
       expect(
           fixture.recorder.discardedEvents.first.category, DataCategory.error);
+      expect(secondProcessorCalled, isFalse);
     });
 
     test('record event processor dropping transaction', () async {
@@ -1767,12 +1779,72 @@ void main() {
       expect(capturedEnvelope.header.dsn, fixture.options.dsn);
     });
 
-    test('Spotlight enabled should set transport to SpotlightHttpTransport',
+    test(
+        'Spotlight enabled should not set transport to SpotlightHttpTransport on iOS',
         () async {
+      fixture.options.platformChecker = MockPlatformChecker(
+        platform: MockPlatform.iOS(),
+      );
       fixture.options.spotlight = Spotlight(enabled: true);
       fixture.getSut();
 
-      expect(fixture.options.transport is SpotlightHttpTransport, true);
+      expect(fixture.options.transport is SpotlightHttpTransport, isFalse);
+    });
+
+    test(
+        'Spotlight enabled should not set transport to SpotlightHttpTransport on macOS',
+        () async {
+      fixture.options.platformChecker = MockPlatformChecker(
+        platform: MockPlatform.macOS(),
+      );
+      fixture.options.spotlight = Spotlight(enabled: true);
+      fixture.getSut();
+
+      expect(fixture.options.transport is SpotlightHttpTransport, isFalse);
+    });
+
+    test(
+        'Spotlight enabled should not set transport to SpotlightHttpTransport on Android',
+        () async {
+      fixture.options.platformChecker = MockPlatformChecker(
+        platform: MockPlatform.android(),
+      );
+      fixture.options.spotlight = Spotlight(enabled: true);
+      fixture.getSut();
+
+      expect(fixture.options.transport is SpotlightHttpTransport, isFalse);
+    });
+
+    test(
+        'Spotlight enabled should set transport to SpotlightHttpTransport on Web',
+        () async {
+      fixture.options.platformChecker = MockPlatformChecker(isWebValue: true);
+      fixture.options.spotlight = Spotlight(enabled: true);
+      fixture.getSut();
+
+      expect(fixture.options.transport is SpotlightHttpTransport, isTrue);
+    });
+
+    test(
+        'Spotlight enabled should set transport to SpotlightHttpTransport on Linux',
+        () async {
+      fixture.options.platformChecker =
+          MockPlatformChecker(platform: MockPlatform.linux());
+      fixture.options.spotlight = Spotlight(enabled: true);
+      fixture.getSut();
+
+      expect(fixture.options.transport is SpotlightHttpTransport, isTrue);
+    });
+
+    test(
+        'Spotlight enabled should set transport to SpotlightHttpTransport on Windows',
+        () async {
+      fixture.options.platformChecker =
+          MockPlatformChecker(platform: MockPlatform.windows());
+      fixture.options.spotlight = Spotlight(enabled: true);
+      fixture.getSut();
+
+      expect(fixture.options.transport is SpotlightHttpTransport, isTrue);
     });
   });
 
@@ -1884,8 +1956,8 @@ class Fixture {
   final recorder = MockClientReportRecorder();
   final transport = MockTransport();
 
-  final options = SentryOptions(dsn: fakeDsn)
-    ..platformChecker = MockPlatformChecker(platform: MockPlatform.iOS());
+  final options =
+      defaultTestOptions(MockPlatformChecker(platform: MockPlatform.iOS()));
 
   late SentryTransactionContext _context;
   late SentryTracer tracer;

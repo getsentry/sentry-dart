@@ -100,6 +100,9 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
           exception: exception,
           stackTrace: stackTrace,
         );
+        if (_options.automatedTestMode) {
+          rethrow;
+        }
       }
     }
 

@@ -9,6 +9,7 @@ import 'package:test/test.dart';
 
 import '../../mocks.dart';
 import '../../mocks/mock_platform_checker.dart';
+import '../../test_utils.dart';
 
 void main() {
   group('io_enricher', () {
@@ -164,20 +165,17 @@ void main() {
     });
 
     test('$IoEnricherEventProcessor gets added on init', () async {
-      final options = SentryOptions(dsn: fakeDsn)..automatedTestMode = true;
-      late SentryOptions configuredOptions;
+      final options = defaultTestOptions();
       await Sentry.init(
         (options) {
           options.dsn = fakeDsn;
-          configuredOptions = options;
         },
         options: options,
       );
       await Sentry.close();
 
-      final ioEnricherCount = configuredOptions.eventProcessors
-          .whereType<IoEnricherEventProcessor>()
-          .length;
+      final ioEnricherCount =
+          options.eventProcessors.whereType<IoEnricherEventProcessor>().length;
       expect(ioEnricherCount, 1);
     });
   });
@@ -188,10 +186,8 @@ class Fixture {
     bool hasNativeIntegration = false,
     bool includePii = false,
   }) {
-    final options = SentryOptions(
-        dsn: fakeDsn,
-        checker:
-            MockPlatformChecker(hasNativeIntegration: hasNativeIntegration))
+    final options = defaultTestOptions(
+        MockPlatformChecker(hasNativeIntegration: hasNativeIntegration))
       ..sendDefaultPii = includePii;
 
     return IoEnricherEventProcessor(options);
