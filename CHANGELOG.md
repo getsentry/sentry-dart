@@ -2,8 +2,10 @@
 
 ## Unreleased
 
-## Features
+### Features
 
+- Emit `transaction.data` inside `contexts.trace.data` ([#2284](https://github.com/getsentry/sentry-dart/pull/2284))
+- Blocking app starts if "appLaunchedInForeground" is false. (Android only) ([#2291](https://github.com/getsentry/sentry-dart/pull/2291)
 - Support `captureFeedback` ([#2230](https://github.com/getsentry/sentry-dart/pull/2230))
   - Deprecated `Sentry.captureUserFeedback`, use `captureFeedback` instead.
   - Deprecated `Hub.captureUserFeedback`, use `captureFeedback` instead.
@@ -19,10 +21,6 @@ Navigator.push(
   ),
 );
 ```
-### Features
-
-- Emit `transaction.data` inside `contexts.trace.data` ([#2284](https://github.com/getsentry/sentry-dart/pull/2284))
-- Blocking app starts if "appLaunchedInForeground" is false. (Android only) ([#2291](https://github.com/getsentry/sentry-dart/pull/2291)
 
 ### Enhancements
 
