@@ -171,7 +171,7 @@ class TestBindingWrapper implements BindingWrapper {
 
 // All these values are based on the fakeFrameDurations list.
 // The expected total frames is also based on the span duration of 1000ms and the slow and frozen frames.
-const expectedTotalFrames = 17;
+const expectedTotalFrames = 18;
 const expectedFramesDelay = 722;
 const expectedSlowFrames = 2;
 const expectedFrozenFrames = 1;

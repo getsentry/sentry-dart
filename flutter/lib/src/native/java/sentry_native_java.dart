@@ -25,7 +25,7 @@ class SentryNativeJava extends SentryNativeChannel {
     if (options.experimental.replay.isEnabled) {
       // We only need the integration when error-replay capture is enabled.
       if ((options.experimental.replay.onErrorSampleRate ?? 0) > 0) {
-        options.addEventProcessor(ReplayEventProcessor(this));
+        options.addEventProcessor(ReplayEventProcessor(hub, this));
       }
 
       channel.setMethodCallHandler((call) async {

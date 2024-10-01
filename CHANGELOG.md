@@ -19,12 +19,24 @@ Navigator.push(
   ),
 );
 ```
+### Features
+
+- Emit `transaction.data` inside `contexts.trace.data` ([#2284](https://github.com/getsentry/sentry-dart/pull/2284))
+- Blocking app starts if "appLaunchedInForeground" is false. (Android only) ([#2291](https://github.com/getsentry/sentry-dart/pull/2291)
 
 ### Enhancements
 
+- Use native spotlight integrations on Flutter Android, iOS, macOS ([#2285](https://github.com/getsentry/sentry-dart/pull/2285))
 - Improve app start integration ([#2266](https://github.com/getsentry/sentry-dart/pull/2266))
   - Fixes ([#2103](https://github.com/getsentry/sentry-dart/issues/2103))
   - Fixes ([#2233](https://github.com/getsentry/sentry-dart/issues/2233))
+
+### Fixes
+
+- App lag with frame tracking enabled when span finishes after a long time ([#2311](https://github.com/getsentry/sentry-dart/pull/2311))
+- Only start frame tracking if we receive valid display refresh data ([#2307](https://github.com/getsentry/sentry-dart/pull/2307))
+- Rounding error used on frames.total and reject frame measurements if frames.total is less than frames.slow or frames.frozen ([#2308](https://github.com/getsentry/sentry-dart/pull/2308))
+- iOS replay integration when only `onErrorSampleRate` is specified ([#2306](https://github.com/getsentry/sentry-dart/pull/2306))
 
 ## 8.9.0
 

@@ -65,7 +65,7 @@ class SentryFlutter(
     }
     data.getIfNotNull<String>("diagnosticLevel") {
       if (options.isDebug) {
-        val sentryLevel = SentryLevel.valueOf(it.toUpperCase(Locale.ROOT))
+        val sentryLevel = SentryLevel.valueOf(it.uppercase(Locale.ROOT))
         options.setDiagnosticLevel(sentryLevel)
       }
     }
@@ -80,6 +80,12 @@ class SentryFlutter(
     }
     data.getIfNotNull<String>("proguardUuid") {
       options.proguardUuid = it
+    }
+    data.getIfNotNull<Boolean>("enableSpotlight") {
+      options.isEnableSpotlight = it
+    }
+    data.getIfNotNull<String>("spotlightUrl") {
+      options.spotlightConnectionUrl = it
     }
 
     val nativeCrashHandling = (data["enableNativeCrashHandling"] as? Boolean) ?: true

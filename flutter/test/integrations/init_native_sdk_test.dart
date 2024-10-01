@@ -69,6 +69,8 @@ void main() {
         'sessionSampleRate': null,
         'onErrorSampleRate': null,
       },
+      'enableSpotlight': false,
+      'spotlightUrl': null,
     });
   });
 
@@ -118,7 +120,9 @@ void main() {
         pass: '0000',
       )
       ..experimental.replay.sessionSampleRate = 0.1
-      ..experimental.replay.onErrorSampleRate = 0.2;
+      ..experimental.replay.onErrorSampleRate = 0.2
+      ..spotlight =
+          Spotlight(enabled: true, url: 'http://localhost:8969/stream');
 
     fixture.options.sdk.addIntegration('foo');
     fixture.options.sdk.addPackage('bar', '1');
@@ -174,6 +178,8 @@ void main() {
         'sessionSampleRate': 0.1,
         'onErrorSampleRate': 0.2,
       },
+      'enableSpotlight': true,
+      'spotlightUrl': 'http://localhost:8969/stream',
     });
   });
 }
