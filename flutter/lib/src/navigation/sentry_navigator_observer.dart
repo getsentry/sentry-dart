@@ -159,8 +159,12 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
 
     // Clearing the display tracker here is safe since didPush happens before the Widget is built
     _timeToDisplayTracker?.clear();
-    _finishTimeToDisplayTracking();
-    _startTimeToDisplayTracking(route);
+    _finishAndStartTTIDTracking(route);
+  }
+
+  Future<void> _finishAndStartTTIDTracking(Route<dynamic>? route) async {
+    await _finishTimeToDisplayTracking();
+    await _startTimeToDisplayTracking(route);
   }
 
   @override
