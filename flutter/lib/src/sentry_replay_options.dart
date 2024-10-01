@@ -62,7 +62,7 @@ class SentryReplayOptions {
     final rules = _userMaskingRules.toList();
     if (maskAllImages) {
       if (maskAssetImages) {
-        rules.add(const SentryMaskingConstantRule<Image>(true));
+        rules.add(const SentryMaskingConstantRule<Image>(MaskingDecision.mask));
       } else {
         rules
             .add(const SentryMaskingCustomRule<Image>(_maskImagesExceptAssets));
@@ -72,47 +72,46 @@ class SentryReplayOptions {
           "maskAssetImages can't be true if maskAllImages is false");
     }
     if (maskAllText) {
-      rules.add(const SentryMaskingConstantRule<Text>(true));
-      rules.add(const SentryMaskingConstantRule<EditableText>(true));
+      rules.add(const SentryMaskingConstantRule<Text>(MaskingDecision.mask));
+      rules.add(
+          const SentryMaskingConstantRule<EditableText>(MaskingDecision.mask));
     }
     return SentryMaskingConfig(rules);
   }
 
-  /// Mask given widget type in the replay.
+  /// Mask given widget type (or it's subclasses) in the replay.
+  /// Note: masking rules are called in the order they're added.
   void mask<T extends Widget>() {
-    _removeMaskingConstantRule<T>();
-    _userMaskingRules.add(SentryMaskingConstantRule<T>(true));
+    _userMaskingRules.add(SentryMaskingConstantRule<T>(MaskingDecision.mask));
   }
 
-  /// Unmask given widget type in the replay.
-  void unmask<T extends Widget>() {
-    _removeMaskingConstantRule<T>();
-    _userMaskingRules.add(SentryMaskingConstantRule<T>(false));
-  }
-
-  /// Unmask given widget type in the replay if it's masked by default rules
+  /// Unmask given widget type (or it's subclasses) in the replay, if it would
+  /// have otherwise been masked by other rules, for example the default rules
   /// [maskAllText] or [maskAllImages].
-  void maskIfTrue<T extends Widget>(bool Function(Element, T) shouldMask) {
-    _removeMaskingConstantRule<T>();
+  void unmask<T extends Widget>() {
+    _userMaskingRules.add(SentryMaskingConstantRule<T>(MaskingDecision.unmask));
+  }
+
+  /// Provide a custom callback to decide whether to mask the widget.
+  /// Note: masking rules are called in the order they're added.
+  void maskCallback<T extends Widget>(
+      MaskingDecision Function(Element, T) shouldMask) {
     _userMaskingRules.add(SentryMaskingCustomRule<T>(shouldMask));
   }
-
-  void _removeMaskingConstantRule<T extends Widget>() => _userMaskingRules
-      .removeWhere((rule) => rule is SentryMaskingConstantRule<T>);
 
   @internal
   bool get isEnabled =>
       ((sessionSampleRate ?? 0) > 0) || ((onErrorSampleRate ?? 0) > 0);
 }
 
-bool _maskImagesExceptAssets(Element element, Widget widget) {
+MaskingDecision _maskImagesExceptAssets(Element element, Widget widget) {
   if (widget is Image) {
     final image = widget.image;
     if (image is AssetBundleImageProvider) {
       if (WidgetFilter.isBuiltInAssetImage(image, rootBundle)) {
-        return false;
+        return MaskingDecision.continueProcessing;
       }
     }
   }
-  return true;
+  return MaskingDecision.mask;
 }

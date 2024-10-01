@@ -15,37 +15,58 @@ class SentryMaskingConfig {
 
   bool shouldMask<T extends Widget>(Element element, T widget) {
     for (int i = 0; i < length; i++) {
-      if (rules[i].appliesTo(widget) && rules[i].shouldMask(element, widget)) {
-        return true;
+      if (rules[i].appliesTo(widget)) {
+        switch (rules[i].shouldMask(element, widget)) {
+          case MaskingDecision.mask:
+            return true;
+          case MaskingDecision.unmask:
+            return false;
+          case MaskingDecision.continueProcessing:
+          // Continue to the next matching rule.
+        }
       }
     }
     return false;
   }
 }
 
+enum MaskingDecision { mask, unmask, continueProcessing }
+
 @internal
 abstract class SentryMaskingRule<T extends Widget> {
   bool appliesTo(Widget widget) => widget is T;
-  bool shouldMask(Element element, T widget);
+  MaskingDecision shouldMask(Element element, T widget);
 
   const SentryMaskingRule();
 }
 
 @internal
 class SentryMaskingCustomRule<T extends Widget> extends SentryMaskingRule<T> {
-  final bool Function(Element element, T widget) callback;
+  final MaskingDecision Function(Element element, T widget) callback;
 
   const SentryMaskingCustomRule(this.callback);
 
   @override
-  bool shouldMask(Element element, T widget) => callback(element, widget);
+  MaskingDecision shouldMask(Element element, T widget) =>
+      callback(element, widget);
+
+  @override
+  String toString() => '$SentryMaskingCustomRule<$T>($callback)';
 }
 
 @internal
 class SentryMaskingConstantRule<T extends Widget> extends SentryMaskingRule<T> {
-  final bool _value;
+  final MaskingDecision _value;
   const SentryMaskingConstantRule(this._value);
 
   @override
-  bool shouldMask(Element element, T widget) => _value;
+  MaskingDecision shouldMask(Element element, T widget) {
+    // This rule only makes sense with true/false. Continue won't do anything.
+    assert(_value == MaskingDecision.mask || _value == MaskingDecision.unmask);
+    return _value;
+  }
+
+  @override
+  String toString() =>
+      '$SentryMaskingConstantRule<$T>(${_value == MaskingDecision.mask ? 'mask' : 'unmask'})';
 }
