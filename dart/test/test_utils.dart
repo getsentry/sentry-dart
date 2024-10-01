@@ -150,8 +150,8 @@ Future testCaptureException(
     expect(
         topFrame['filename'],
         anyOf([
-          '/sentry_browser_test.dart.browser_test.dart.js',
-          '/sentry_browser_test.dart.browser_test.dart.wasm'
+          'sentry_browser_test.dart.browser_test.dart.js',
+          'sentry_browser_test.dart.browser_test.dart.wasm'
         ]));
     expect(topFrame['function'], 'Object.wrapException');
 
