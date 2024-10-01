@@ -102,7 +102,9 @@ class TimeToInitialDisplayTracker {
   }
 
   void markAsManual() {
-    _isManual = true;
+    if (_trackingCompleter != null && !_trackingCompleter!.isCompleted) {
+      _isManual = true;
+    }
   }
 
   void completeTracking() {
