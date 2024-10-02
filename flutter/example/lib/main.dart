@@ -539,17 +539,23 @@ class MainScaffold extends StatelessWidget {
                     Sentry.startTransaction(
                         'testMetrics', 'span summary example',
                         bindToScope: true);
+                // ignore: deprecated_member_use
                 Sentry.metrics().increment('increment key',
                     unit: DurationSentryMeasurementUnit.day);
+                // ignore: deprecated_member_use
                 Sentry.metrics().distribution('distribution key',
                     value: Random().nextDouble() * 10);
+                // ignore: deprecated_member_use
                 Sentry.metrics().set('set int key',
                     value: Random().nextInt(100),
                     tags: {'myTag': 'myValue', 'myTag2': 'myValue2'});
+                // ignore: deprecated_member_use
                 Sentry.metrics().set('set string key',
                     stringValue: 'Random n ${Random().nextInt(100)}');
+                // ignore: deprecated_member_use
                 Sentry.metrics()
                     .gauge('gauge key', value: Random().nextDouble() * 10);
+                // ignore: deprecated_member_use
                 Sentry.metrics().timing(
                   'timing key',
                   function: () async => await Future.delayed(

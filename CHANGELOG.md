@@ -4,6 +4,7 @@
 
 ### Features
 
+- Emit `transaction.data` inside `contexts.trace.data` ([#2284](https://github.com/getsentry/sentry-dart/pull/2284))
 - Blocking app starts if "appLaunchedInForeground" is false. (Android only) ([#2291](https://github.com/getsentry/sentry-dart/pull/2291)
 - Windows native error & obfuscation support ([#2286](https://github.com/getsentry/sentry-dart/pull/2286))
 
@@ -16,10 +17,15 @@
 
 ### Fixes
 
--- Incoming Change
+- App lag with frame tracking enabled when span finishes after a long time ([#2311](https://github.com/getsentry/sentry-dart/pull/2311))
 - Only start frame tracking if we receive valid display refresh data ([#2307](https://github.com/getsentry/sentry-dart/pull/2307))
 - Rounding error used on frames.total and reject frame measurements if frames.total is less than frames.slow or frames.frozen ([#2308](https://github.com/getsentry/sentry-dart/pull/2308))
 - iOS replay integration when only `onErrorSampleRate` is specified ([#2306](https://github.com/getsentry/sentry-dart/pull/2306))
+
+### Deprecate
+
+- Metrics API ([#2312](https://github.com/getsentry/sentry-dart/pull/2312))
+  - Learn more: https://sentry.zendesk.com/hc/en-us/articles/26369339769883-Metrics-Beta-Coming-to-an-End
 
 ## 8.9.0
 
