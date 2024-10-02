@@ -158,7 +158,8 @@ Future testCaptureException(
           'sentry_browser_test.dart.browser_test.dart.js',
           'sentry_browser_test.dart.browser_test.dart.wasm'
         ]));
-    expect(topFrame['function'], 'Object.wrapException');
+    expect(topFrame['function'],
+        anyOf(['Object.wrapException', 'testCaptureException']));
 
     expect(data['event_id'], sentryId.toString());
     expect(data['timestamp'], '2017-01-02T00:00:00.000Z');
