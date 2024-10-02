@@ -164,7 +164,8 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     _finishAndStartTTIDTracking(route, timestamp);
   }
 
-  Future<void> _finishAndStartTTIDTracking(Route<dynamic>? route, DateTime timestamp) async {
+  Future<void> _finishAndStartTTIDTracking(
+      Route<dynamic>? route, DateTime timestamp) async {
     await _finishTimeToDisplayTracking(endTimestamp: timestamp);
     await _startTimeToDisplayTracking(route, timestamp);
   }
@@ -302,7 +303,8 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     await _native?.beginNativeFrames();
   }
 
-  Future<void> _finishTimeToDisplayTracking({required DateTime endTimestamp, bool clearAfter = false}) async {
+  Future<void> _finishTimeToDisplayTracking(
+      {required DateTime endTimestamp, bool clearAfter = false}) async {
     final transaction = _transaction;
     _transaction = null;
     try {
@@ -324,7 +326,10 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
         final isTTFDSpan =
             child.context.operation == SentrySpanOperations.uiTimeToFullDisplay;
         if (!child.finished && (isTTIDSpan || isTTFDSpan)) {
-          await child.finish(endTimestamp: endTimestamp, status: SpanStatus.deadlineExceeded());
+          await child.finish(
+            endTimestamp: endTimestamp,
+            status: SpanStatus.deadlineExceeded(),
+          );
         }
       }
     } catch (exception, stacktrace) {
@@ -345,7 +350,8 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     }
   }
 
-  Future<void> _startTimeToDisplayTracking(Route<dynamic>? route, DateTime startTimestamp) async {
+  Future<void> _startTimeToDisplayTracking(
+      Route<dynamic>? route, DateTime startTimestamp) async {
     try {
       final routeName = _getRouteName(route) ?? _currentRouteName;
       if (!_enableAutoTransactions || routeName == null) {
