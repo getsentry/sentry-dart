@@ -161,13 +161,8 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     _timeToDisplayTracker?.clear();
 
     DateTime timestamp = _hub.options.clock();
-    _finishAndStartTTIDTracking(route, timestamp);
-  }
-
-  Future<void> _finishAndStartTTIDTracking(
-      Route<dynamic>? route, DateTime timestamp) async {
-    await _finishTimeToDisplayTracking(endTimestamp: timestamp);
-    await _startTimeToDisplayTracking(route, timestamp);
+    _finishTimeToDisplayTracking(endTimestamp: timestamp);
+    _startTimeToDisplayTracking(route, timestamp);
   }
 
   @override
