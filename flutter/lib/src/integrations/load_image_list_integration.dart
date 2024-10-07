@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:sentry/sentry.dart';
 import '../native/sentry_native_binding.dart';
@@ -33,12 +34,44 @@ class _LoadImageListIntegrationEventProcessor implements EventProcessor {
   @override
   Future<SentryEvent?> apply(SentryEvent event, Hint hint) async {
     if (event.needsSymbolication()) {
-      final images = await _native.loadDebugImages();
+      Set<String> imageAddresses = {};
+      var exceptions = event.exceptions;
+      if (exceptions != null && exceptions.isNotEmpty) {
+        for (var e in exceptions) {
+          if (e.stackTrace != null) {
+            imageAddresses.addAll(
+              _collectImageAddressesFromStackTrace(e.stackTrace!),
+            );
+          }
+        }
+      }
+
+      if (event.threads != null && event.threads!.isNotEmpty) {
+        for (var thread in event.threads!) {
+          if (thread.stacktrace != null) {
+            imageAddresses.addAll(
+              _collectImageAddressesFromStackTrace(thread.stacktrace!),
+            );
+          }
+        }
+      }
+
+      final images = await _native.loadDebugImages(imageAddresses);
       if (images != null) {
         return event.copyWith(debugMeta: DebugMeta(images: images));
       }
     }
 
     return event;
+  }
+
+  Set<String> _collectImageAddressesFromStackTrace(SentryStackTrace trace) {
+    Set<String> imageAddresses = {};
+    for (var frame in trace.frames) {
+      if (frame.imageAddr != null) {
+        imageAddresses.add(frame.imageAddr!);
+      }
+    }
+    return imageAddresses;
   }
 }

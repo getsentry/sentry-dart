@@ -96,7 +96,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
             loadContexts(result: result)
 
         case "loadImageList":
-            loadImageList(result: result)
+            loadImageList(call, result: result)
 
         case "initNativeSdk":
             initNativeSdk(call, result: result)
@@ -277,8 +277,14 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         }
     }
 
-    private func loadImageList(result: @escaping FlutterResult) {
-      let debugImages = PrivateSentrySDKOnly.getDebugImages() as [DebugMeta]
+    private func loadImageList(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+      guard let imageAddresses = call.arguments as? Set<String> else {
+          print("Arguments is not a list of string")
+          result(FlutterError(code: "X", message: "Cannot get image for address", details: nil))
+          return
+      }
+
+      let debugImages = SentryDependencyContainer.sharedInstance().debugImageProvider.getDebugImages(forAddresses: imageAddresses, isCrash: false) as [DebugMeta]
       result(debugImages.map { $0.serialize() })
     }
 

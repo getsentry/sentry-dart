@@ -178,10 +178,11 @@ class SentryNativeChannel
       });
 
   @override
-  Future<List<DebugImage>?> loadDebugImages() =>
+  Future<List<DebugImage>?> loadDebugImages(Set<String> imageAddresses) =>
       tryCatchAsync('loadDebugImages', () async {
-        final images = await channel
-            .invokeListMethod<Map<dynamic, dynamic>>('loadImageList');
+        final images =
+            await channel.invokeListMethod<Map<dynamic, Set<String>>>(
+                'loadImageList', imageAddresses);
         return images
             ?.map((e) => e.cast<String, dynamic>())
             .map(DebugImage.fromJson)
