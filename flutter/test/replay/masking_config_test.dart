@@ -102,18 +102,22 @@ void main() async {
   });
 
   group('$SentryReplayOptions.buildMaskingConfig()', () {
-    List<String> stringRules(SentryReplayOptions options) {
+    List<String> rulesAsStrings(SentryReplayOptions options) {
       final config = options.buildMaskingConfig();
       return config.rules
           .map((rule) => rule.toString())
-          .map((str) => str.replaceAll(RegExp(r'@[0-9]+'), '@<id>'))
+          // This normalizes the string on VM & web:
+          .map((str) => str.replaceAll(
+              RegExp(
+                  r"MaskingDecision from:? [fF]unction '?_maskImagesExceptAssets[@(].*"),
+              'MaskingDecision from Function _maskImagesExceptAssets'))
           .toList();
     }
 
     test('defaults', () {
       final sut = SentryReplayOptions();
-      expect(stringRules(sut), [
-        '$SentryMaskingCustomRule<$Image>(Closure: (Element, Widget) => MaskingDecision from Function \'_maskImagesExceptAssets@<id>\': static.)',
+      expect(rulesAsStrings(sut), [
+        '$SentryMaskingCustomRule<$Image>(Closure: (Element, Widget) => MaskingDecision from Function _maskImagesExceptAssets',
         '$SentryMaskingConstantRule<$Text>(mask)',
         '$SentryMaskingConstantRule<$EditableText>(mask)'
       ]);
@@ -124,7 +128,7 @@ void main() async {
         ..maskAllText = false
         ..maskAllImages = true
         ..maskAssetImages = true;
-      expect(stringRules(sut), [
+      expect(rulesAsStrings(sut), [
         '$SentryMaskingConstantRule<$Image>(mask)',
       ]);
     });
@@ -134,8 +138,8 @@ void main() async {
         ..maskAllText = false
         ..maskAllImages = true
         ..maskAssetImages = false;
-      expect(stringRules(sut), [
-        '$SentryMaskingCustomRule<$Image>(Closure: (Element, Widget) => MaskingDecision from Function \'_maskImagesExceptAssets@<id>\': static.)',
+      expect(rulesAsStrings(sut), [
+        '$SentryMaskingCustomRule<$Image>(Closure: (Element, Widget) => MaskingDecision from Function _maskImagesExceptAssets',
       ]);
     });
 
@@ -144,7 +148,7 @@ void main() async {
         ..maskAllText = true
         ..maskAllImages = false
         ..maskAssetImages = false;
-      expect(stringRules(sut), [
+      expect(rulesAsStrings(sut), [
         '$SentryMaskingConstantRule<$Text>(mask)',
         '$SentryMaskingConstantRule<$EditableText>(mask)'
       ]);
@@ -155,32 +159,32 @@ void main() async {
         ..maskAllText = false
         ..maskAllImages = false
         ..maskAssetImages = false;
-      expect(stringRules(sut), isEmpty);
+      expect(rulesAsStrings(sut), isEmpty);
     });
 
     group('user rules', () {
       final defaultRules = [
-        '$SentryMaskingCustomRule<$Image>(Closure: (Element, Widget) => MaskingDecision from Function \'_maskImagesExceptAssets@<id>\': static.)',
+        '$SentryMaskingCustomRule<$Image>(Closure: (Element, Widget) => MaskingDecision from Function _maskImagesExceptAssets',
         '$SentryMaskingConstantRule<$Text>(mask)',
         '$SentryMaskingConstantRule<$EditableText>(mask)'
       ];
       test('mask() takes precedence', () {
         final sut = SentryReplayOptions();
         sut.mask<Image>();
-        expect(stringRules(sut),
+        expect(rulesAsStrings(sut),
             ['$SentryMaskingConstantRule<$Image>(mask)', ...defaultRules]);
       });
       test('unmask() takes precedence', () {
         final sut = SentryReplayOptions();
         sut.unmask<Image>();
-        expect(stringRules(sut),
+        expect(rulesAsStrings(sut),
             ['$SentryMaskingConstantRule<$Image>(unmask)', ...defaultRules]);
       });
       test('are ordered in the call order', () {
         var sut = SentryReplayOptions();
         sut.mask<Image>();
         sut.unmask<Image>();
-        expect(stringRules(sut), [
+        expect(rulesAsStrings(sut), [
           '$SentryMaskingConstantRule<$Image>(mask)',
           '$SentryMaskingConstantRule<$Image>(unmask)',
           ...defaultRules
@@ -188,7 +192,7 @@ void main() async {
         sut = SentryReplayOptions();
         sut.unmask<Image>();
         sut.mask<Image>();
-        expect(stringRules(sut), [
+        expect(rulesAsStrings(sut), [
           '$SentryMaskingConstantRule<$Image>(unmask)',
           '$SentryMaskingConstantRule<$Image>(mask)',
           ...defaultRules
@@ -197,7 +201,7 @@ void main() async {
         sut.unmask<Image>();
         sut.maskCallback((_, Image widget) => MaskingDecision.mask);
         sut.mask<Image>();
-        expect(stringRules(sut), [
+        expect(rulesAsStrings(sut), [
           '$SentryMaskingConstantRule<$Image>(unmask)',
           '$SentryMaskingCustomRule<$Image>(Closure: ($Element, $Image) => $MaskingDecision)',
           '$SentryMaskingConstantRule<$Image>(mask)',
@@ -207,7 +211,7 @@ void main() async {
       test('maskCallback() takes precedence', () {
         final sut = SentryReplayOptions();
         sut.maskCallback((_, Image widget) => MaskingDecision.mask);
-        expect(stringRules(sut), [
+        expect(rulesAsStrings(sut), [
           '$SentryMaskingCustomRule<$Image>(Closure: ($Element, $Image) => $MaskingDecision)',
           ...defaultRules
         ]);
