@@ -43,12 +43,12 @@ class NativeAppStartHandler {
       startTimestamp: appStartInfo.start,
     );
 
-    await options.timeToDisplayTracker.track(transaction,
-        startTimestamp: appStartInfo.start,
-        endTimestamp: appStartInfo.end,
-        origin: SentryTraceOrigins.autoUiTimeToDisplay);
-
-    // Enrich Transaction
+    await options.timeToDisplayTracker.track(
+      transaction,
+      startTimestamp: appStartInfo.start,
+      endTimestamp: appStartInfo.end,
+      origin: SentryTraceOrigins.autoUiTimeToDisplay,
+    );
 
     SentryTracer sentryTracer;
     if (transaction is SentryTracer) {
@@ -57,11 +57,10 @@ class NativeAppStartHandler {
       return;
     }
 
+    // Enrich Transaction
     SentryMeasurement? measurement = appStartInfo.toMeasurement();
-    if (measurement != null) {
-      sentryTracer.measurements[measurement.name] = measurement;
-      await _attachAppStartSpans(appStartInfo, sentryTracer);
-    }
+    sentryTracer.measurements[measurement.name] = appStartInfo.toMeasurement();
+    await _attachAppStartSpans(appStartInfo, sentryTracer);
 
     // Finish Transaction
     await transaction.finish(endTimestamp: appStartInfo.end);
@@ -131,9 +130,6 @@ class NativeAppStartHandler {
       _AppStartInfo appStartInfo, SentryTracer transaction) async {
     final transactionTraceId = transaction.context.traceId;
     final appStartEnd = appStartInfo.end;
-    if (appStartEnd == null) {
-      return;
-    }
 
     final appStartSpan = await _createAndFinishSpan(
       tracer: transaction,
@@ -242,30 +238,24 @@ class _AppStartInfo {
   _AppStartInfo(
     this.type, {
     required this.start,
+    required this.end,
     required this.pluginRegistration,
     required this.sentrySetupStart,
     required this.nativeSpanTimes,
-    this.end,
   });
 
   final _AppStartType type;
   final DateTime start;
+  final DateTime end;
   final List<_TimeSpan> nativeSpanTimes;
-
-  // We allow the end to be null, since it might be set at a later time
-  // with setAppStartEnd when autoAppStart is disabled
-  DateTime? end;
 
   final DateTime pluginRegistration;
   final DateTime sentrySetupStart;
 
-  Duration? get duration => end?.difference(start);
+  Duration get duration => end.difference(start);
 
-  SentryMeasurement? toMeasurement() {
+  SentryMeasurement toMeasurement() {
     final duration = this.duration;
-    if (duration == null) {
-      return null;
-    }
     return type == _AppStartType.cold
         ? SentryMeasurement.coldAppStart(duration)
         : SentryMeasurement.warmAppStart(duration);
