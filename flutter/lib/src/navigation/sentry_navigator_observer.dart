@@ -97,14 +97,13 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   }
 
   /// Initializes the TimeToDisplayTracker with the option to enable time to full display tracing.
-  TimeToDisplayTracker _initializeTimeToDisplayTracker() {
-    bool enableTimeToFullDisplayTracing = false;
+  TimeToDisplayTracker? _initializeTimeToDisplayTracker() {
     final options = _hub.options;
     if (options is SentryFlutterOptions) {
-      enableTimeToFullDisplayTracing = options.enableTimeToFullDisplayTracing;
+      return options.timeToDisplayTracker;
+    } else {
+      return null;
     }
-    return TimeToDisplayTracker(
-        enableTimeToFullDisplayTracing: enableTimeToFullDisplayTracing);
   }
 
   final Hub _hub;
@@ -362,7 +361,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       }
 
       if (!isAppStart) {
-        await _timeToDisplayTracker?.trackRegularRouteTTD(
+        await _timeToDisplayTracker?.track(
           transaction,
           startTimestamp: startTimestamp,
         );

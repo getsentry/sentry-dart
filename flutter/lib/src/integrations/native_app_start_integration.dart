@@ -34,14 +34,18 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
     _frameCallbackHandler.addPostFrameCallback((timeStamp) async {
       try {
         if (!options.autoAppStart && _appStartEnd == null) {
-          await _appStartEndCompleter.future
-              .timeout(const Duration(seconds: 10));
+          await _appStartEndCompleter.future.timeout(
+            const Duration(seconds: 10),
+          );
         }
-        await _nativeAppStartHandler.call(
-          hub,
-          options,
-          appStartEnd: _appStartEnd,
-        );
+        final appStartEnd = _appStartEnd;
+        if (appStartEnd != null) {
+          await _nativeAppStartHandler.call(
+            hub,
+            options,
+            appStartEnd: appStartEnd,
+          );
+        }
       } catch (exception, stackTrace) {
         options.logger(
           SentryLevel.error,

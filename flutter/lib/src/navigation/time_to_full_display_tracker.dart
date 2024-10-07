@@ -37,54 +37,55 @@ class TimeToFullDisplayTracker {
   EndTimestampProvider _endTimestampProvider = ttidEndTimestampProvider();
   Completer<void> _completedTTFDTracking = Completer<void>();
 
-  Future<void> track(ISentrySpan transaction, DateTime startTimestamp) async {
+  Future<void> track({
+    required ISentrySpan transaction,
+    required DateTime startTimestamp,
+  }) async {
     _startTimestamp = startTimestamp;
     _transaction = transaction as SentryTracer;
-    _ttfdSpan = transaction.startChild(SentrySpanOperations.uiTimeToFullDisplay,
-        description: '${transaction.name} full display',
-        startTimestamp: startTimestamp);
+    _ttfdSpan = transaction.startChild(
+      SentrySpanOperations.uiTimeToFullDisplay,
+      description: '${transaction.name} full display',
+      startTimestamp: startTimestamp,
+    );
     _ttfdSpan?.origin = SentryTraceOrigins.manualUiTimeToDisplay;
     // Wait for TTFD to finish
-    await _completedTTFDTracking.future
-        .timeout(_autoFinishAfter, onTimeout: handleTimeout);
-
-    clear();
+    await _completedTTFDTracking.future.timeout(
+      _autoFinishAfter,
+      onTimeout: _handleTimeout,
+    );
   }
 
-  void handleTimeout() {
+  Future<void> reportFullyDisplayed() async {
+    await _complete(getUtcDateTime());
+  }
+
+  void _handleTimeout() {
+    _complete(null);
+  }
+
+  Future<void> _complete(DateTime? timestamp) async {
     final ttfdSpan = _ttfdSpan;
     final startTimestamp = _startTimestamp;
-    final endTimestamp = _endTimestampProvider();
+    final endTimestamp = timestamp ?? _endTimestampProvider();
 
     if (ttfdSpan == null ||
         ttfdSpan.finished == true ||
         startTimestamp == null ||
         endTimestamp == null) {
       _completedTTFDTracking.complete();
+      clear();
       return;
     }
 
     _setTTFDMeasurement(startTimestamp, endTimestamp);
-    ttfdSpan.finish(
-        status: SpanStatus.deadlineExceeded(), endTimestamp: endTimestamp);
-
+    await ttfdSpan.finish(
+      status:
+          timestamp != null ? SpanStatus.ok() : SpanStatus.deadlineExceeded(),
+      endTimestamp: endTimestamp,
+    );
     _completedTTFDTracking.complete();
-  }
-
-  Future<void> reportFullyDisplayed() async {
-    final endTimestamp = getUtcDateTime();
-    final startTimestamp = _startTimestamp;
-    final ttfdSpan = _ttfdSpan;
-
-    if (ttfdSpan?.finished == true || startTimestamp == null) {
-      _completedTTFDTracking.complete();
-      return;
-    }
-
-    _setTTFDMeasurement(startTimestamp, endTimestamp);
-    await ttfdSpan?.finish(status: SpanStatus.ok(), endTimestamp: endTimestamp);
-
-    _completedTTFDTracking.complete();
+    clear();
   }
 
   void _setTTFDMeasurement(DateTime startTimestamp, DateTime endTimestamp) {

@@ -21,7 +21,7 @@ class NativeAppStartHandler {
   static const _maxAppStartMillis = 60000;
 
   Future<void> call(Hub hub, SentryFlutterOptions options,
-      {required DateTime? appStartEnd}) async {
+      {required DateTime appStartEnd}) async {
     _hub = hub;
     _options = options;
 
@@ -42,11 +42,11 @@ class NativeAppStartHandler {
       SentrySpanOperations.uiLoad,
       startTimestamp: appStartInfo.start,
     );
-    final ttidSpan = transaction.startChild(
-      SentrySpanOperations.uiTimeToInitialDisplay,
-      description: '$screenName initial display',
-      startTimestamp: appStartInfo.start,
-    );
+
+    await options.timeToDisplayTracker.track(transaction,
+        startTimestamp: appStartInfo.start,
+        endTimestamp: appStartInfo.end,
+        origin: SentryTraceOrigins.autoUiTimeToDisplay);
 
     // Enrich Transaction
 
@@ -57,28 +57,19 @@ class NativeAppStartHandler {
       return;
     }
 
-    SentryMeasurement? measurement;
-    if (options.autoAppStart) {
-      measurement = appStartInfo.toMeasurement();
-    } else if (appStartEnd != null) {
-      appStartInfo.end = appStartEnd;
-      measurement = appStartInfo.toMeasurement();
-    }
-
+    SentryMeasurement? measurement = appStartInfo.toMeasurement();
     if (measurement != null) {
       sentryTracer.measurements[measurement.name] = measurement;
       await _attachAppStartSpans(appStartInfo, sentryTracer);
     }
 
-    // Finish Transaction & Span
-
-    await ttidSpan.finish(endTimestamp: appStartInfo.end);
+    // Finish Transaction
     await transaction.finish(endTimestamp: appStartInfo.end);
   }
 
   _AppStartInfo? _infoNativeAppStart(
     NativeAppStart nativeAppStart,
-    DateTime? appStartEnd,
+    DateTime appStartEnd,
   ) {
     final sentrySetupStartDateTime = SentryFlutter.sentrySetupStartTime;
     if (sentrySetupStartDateTime == null) {
@@ -90,23 +81,18 @@ class NativeAppStartHandler {
     final pluginRegistrationDateTime = DateTime.fromMillisecondsSinceEpoch(
         nativeAppStart.pluginRegistrationTime);
 
-    if (_options.autoAppStart) {
-      // We only assign the current time if it's not already set - this is useful in tests
-      appStartEnd ??= _options.clock();
+    final duration = appStartEnd.difference(appStartDateTime);
 
-      final duration = appStartEnd.difference(appStartDateTime);
-
-      // We filter out app start more than 60s.
-      // This could be due to many different reasons.
-      // If you do the manual init and init the SDK too late and it does not
-      // compute the app start end in the very first Screen.
-      // If the process starts but the App isn't in the foreground.
-      // If the system forked the process earlier to accelerate the app start.
-      // And some unknown reasons that could not be reproduced.
-      // We've seen app starts with hours, days and even months.
-      if (duration.inMilliseconds > _maxAppStartMillis) {
-        return null;
-      }
+    // We filter out app start more than 60s.
+    // This could be due to many different reasons.
+    // If you do the manual init and init the SDK too late and it does not
+    // compute the app start end in the very first Screen.
+    // If the process starts but the App isn't in the foreground.
+    // If the system forked the process earlier to accelerate the app start.
+    // And some unknown reasons that could not be reproduced.
+    // We've seen app starts with hours, days and even months.
+    if (duration.inMilliseconds > _maxAppStartMillis) {
+      return null;
     }
 
     List<_TimeSpan> nativeSpanTimes = [];

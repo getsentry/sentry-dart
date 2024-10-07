@@ -1052,7 +1052,7 @@ class Fixture {
         TimeToInitialDisplayTracker(frameCallbackHandler: frameCallbackHandler);
     final timeToDisplayTracker = TimeToDisplayTracker(
       ttidTracker: timeToInitialDisplayTracker,
-      enableTimeToFullDisplayTracing: enableTimeToFullDisplayTracing,
+      options: hub.options as SentryFlutterOptions,
     );
     return SentryNavigatorObserver(
       hub: hub,
