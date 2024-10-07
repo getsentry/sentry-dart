@@ -29,6 +29,8 @@ class TimeToInitialDisplayTracker {
   bool _isManual = false;
   Completer<DateTime?>? _trackingCompleter;
   DateTime? _endTimestamp;
+  DateTime? _completeTrackingTimeStamp;
+
   final Duration _determineEndtimeTimeout = Duration(seconds: 5);
 
   /// This endTimestamp is needed in the [TimeToFullDisplayTracker] class
@@ -87,6 +89,13 @@ class TimeToInitialDisplayTracker {
 
     // If we already know it's manual we can return the future immediately
     if (_isManual) {
+      final completeTrackingTimeStamp = _completeTrackingTimeStamp;
+      if (completeTrackingTimeStamp != null) {
+        // If complete was called before we could call start, complete it here.
+        _endTimestamp = completeTrackingTimeStamp;
+        _trackingCompleter?.complete(completeTrackingTimeStamp);
+        _completeTrackingTimeStamp = null;
+      }
       return future;
     }
 
@@ -106,10 +115,13 @@ class TimeToInitialDisplayTracker {
   }
 
   void completeTracking() {
+    final timestamp = DateTime.now();
+
     if (_trackingCompleter != null && !_trackingCompleter!.isCompleted) {
-      final endTimestamp = DateTime.now();
-      _endTimestamp = endTimestamp;
-      _trackingCompleter?.complete(endTimestamp);
+      _endTimestamp = timestamp;
+      _trackingCompleter?.complete(timestamp);
+    } else {
+      _completeTrackingTimeStamp = timestamp;
     }
   }
 

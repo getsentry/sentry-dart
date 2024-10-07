@@ -44,6 +44,8 @@ class Hub {
   late final MetricsApi _metricsApi;
 
   @internal
+  @Deprecated(
+      'Metrics will be deprecated and removed in the next major release. Sentry will reject all metrics sent after October 7, 2024. Learn more: https://sentry.zendesk.com/hc/en-us/articles/26369339769883-Upcoming-API-Changes-to-Metrics')
   MetricsApi get metricsApi => _metricsApi;
 
   @internal
