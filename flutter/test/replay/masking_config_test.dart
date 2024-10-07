@@ -106,11 +106,15 @@ void main() async {
       final config = options.buildMaskingConfig();
       return config.rules
           .map((rule) => rule.toString())
-          // This normalizes the string on VM & web:
+          // These normalize the string on VM & web:
           .map((str) => str.replaceAll(
               RegExp(
-                  r"MaskingDecision from:? [fF]unction '?_maskImagesExceptAssets[@(].*"),
+                  r"MaskingDecision from:? [fF]unction '?_maskImagesExceptAssets[@(].*",
+                  dotAll: true),
               'MaskingDecision from Function _maskImagesExceptAssets'))
+          .map((str) => str.replaceAll(
+              ' from: (element, widget) => masking_config.MaskingDecision.mask',
+              ''))
           .toList();
     }
 
@@ -199,7 +203,8 @@ void main() async {
         ]);
         sut = SentryReplayOptions();
         sut.unmask<Image>();
-        sut.maskCallback((_, Image widget) => MaskingDecision.mask);
+        sut.maskCallback(
+            (Element element, Image widget) => MaskingDecision.mask);
         sut.mask<Image>();
         expect(rulesAsStrings(sut), [
           '$SentryMaskingConstantRule<$Image>(unmask)',
@@ -210,7 +215,8 @@ void main() async {
       });
       test('maskCallback() takes precedence', () {
         final sut = SentryReplayOptions();
-        sut.maskCallback((_, Image widget) => MaskingDecision.mask);
+        sut.maskCallback(
+            (Element element, Image widget) => MaskingDecision.mask);
         expect(rulesAsStrings(sut), [
           '$SentryMaskingCustomRule<$Image>(Closure: ($Element, $Image) => $MaskingDecision)',
           ...defaultRules
