@@ -1,4 +1,8 @@
 # This is used by the action https://github.com/dorny/paths-filter
 
 high_risk_code: &high_risk_code
-  - ".github/file-filters.yml"
+  - "flutter/lib/src/span_frame_metrics_collector.dart"
+  - "flutter/lib/src/integrations/native_app_start_integration.dart"
+  - "flutter/android/src/main/kotlin/io/sentry/flutter/SentryFlutterPlugin.kt"
+  - "flutter/ios/Classes/SentryFlutterPluginApple.swift"
+  
