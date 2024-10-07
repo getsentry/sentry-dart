@@ -318,7 +318,8 @@ void main() {
         expect(scope.span, null);
       });
 
-      verify(span.finish()).called(2);
+      verify(span.finish(endTimestamp: captureAnyNamed('endTimestamp')))
+          .called(2);
     });
 
     test('didPop finishes transaction', () async {
@@ -345,7 +346,8 @@ void main() {
         expect(scope.span, null);
       });
 
-      verify(span.finish()).called(1);
+      verify(span.finish(endTimestamp: captureAnyNamed('endTimestamp')))
+          .called(1);
     });
 
     test('multiple didPop only finish transaction once', () async {
@@ -374,7 +376,8 @@ void main() {
         expect(scope.span, null);
       });
 
-      verify(span.finish()).called(1);
+      verify(span.finish(endTimestamp: captureAnyNamed('endTimestamp')))
+          .called(1);
     });
 
     test(
@@ -414,9 +417,13 @@ void main() {
 
       await Future<void>.delayed(const Duration(milliseconds: 100));
 
-      verify(mockChildA.finish(status: SpanStatus.deadlineExceeded()))
+      verify(mockChildA.finish(
+              endTimestamp: captureAnyNamed('endTimestamp'),
+              status: SpanStatus.deadlineExceeded()))
           .called(1);
-      verify(mockChildB.finish(status: SpanStatus.deadlineExceeded()))
+      verify(mockChildB.finish(
+              endTimestamp: captureAnyNamed('endTimestamp'),
+              status: SpanStatus.deadlineExceeded()))
           .called(1);
     });
 
@@ -457,9 +464,13 @@ void main() {
 
       await Future<void>.delayed(const Duration(milliseconds: 100));
 
-      verify(mockChildA.finish(status: SpanStatus.deadlineExceeded()))
+      verify(mockChildA.finish(
+              endTimestamp: captureAnyNamed('endTimestamp'),
+              status: SpanStatus.deadlineExceeded()))
           .called(1);
-      verify(mockChildB.finish(status: SpanStatus.deadlineExceeded()))
+      verify(mockChildB.finish(
+              endTimestamp: captureAnyNamed('endTimestamp'),
+              status: SpanStatus.deadlineExceeded()))
           .called(1);
     });
 
