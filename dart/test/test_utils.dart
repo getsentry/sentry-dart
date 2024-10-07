@@ -145,13 +145,21 @@ Future testCaptureException(
     // the localhost port can change
     final absPathUri = Uri.parse(topFrame['abs_path'] as String);
     expect(absPathUri.host, 'localhost');
-    expect(absPathUri.path, '/sentry_browser_test.dart.browser_test.dart.js');
+    expect(
+        absPathUri.path,
+        anyOf([
+          '/sentry_browser_test.dart.browser_test.dart.js',
+          '/sentry_browser_test.dart.browser_test.dart.wasm'
+        ]));
 
     expect(
-      topFrame['filename'],
-      'sentry_browser_test.dart.browser_test.dart.js',
-    );
-    expect(topFrame['function'], 'Object.wrapException');
+        topFrame['filename'],
+        anyOf([
+          'sentry_browser_test.dart.browser_test.dart.js',
+          'sentry_browser_test.dart.browser_test.dart.wasm'
+        ]));
+    expect(topFrame['function'],
+        anyOf(['Object.wrapException', 'testCaptureException']));
 
     expect(data['event_id'], sentryId.toString());
     expect(data['timestamp'], '2017-01-02T00:00:00.000Z');
