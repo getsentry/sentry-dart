@@ -7,6 +7,9 @@ import 'package:sentry_flutter/src/replay/widget_filter.dart';
 
 import 'test_widget.dart';
 
+// Note: these tests predate existance of `SentryMaskingConfig` which now
+// takes care of the decision making whether something is masked or not.
+// We'll keep these tests although they're not unit-tests anymore.
 void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
   const defaultBounds = Rect.fromLTRB(0, 0, 1000, 1000);

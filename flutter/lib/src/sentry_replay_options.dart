@@ -7,11 +7,6 @@ import 'replay/widget_filter.dart';
 
 /// Configuration of the experimental replay feature.
 class SentryReplayOptions {
-  SentryReplayOptions() {
-    redactAllText = true;
-    redactAllImages = true;
-  }
-
   double? _sessionSampleRate;
 
   /// A percentage of sessions in which a replay will be created.
@@ -37,7 +32,7 @@ class SentryReplayOptions {
   /// Mask all text content. Draws a rectangle of text bounds with text color
   /// on top. Currently, only [Text] and [EditableText] Widgets are redacted.
   /// Default is enabled.
-  bool maskAllText = true;
+  var maskAllText = true;
 
   @Deprecated('Use maskAllText instead')
   bool get redactAllText => maskAllText;
@@ -46,14 +41,14 @@ class SentryReplayOptions {
   /// Mask content of all images. Draws a rectangle of image bounds with image's
   /// dominant color on top. Currently, only [Image] widgets are redacted.
   /// Default is enabled (except for asset images, see [maskAssetImages]).
-  bool maskAllImages = true;
+  var maskAllImages = true;
 
   @Deprecated('Use maskAllImages instead')
   bool get redactAllImages => maskAllImages;
   set redactAllImages(bool value) => maskAllImages = value;
 
   /// Redact asset images coming from the root asset bundle.
-  bool maskAssetImages = false;
+  var maskAssetImages = false;
 
   final _userMaskingRules = <SentryMaskingRule>[];
 
