@@ -106,12 +106,12 @@ void main() async {
       final config = options.buildMaskingConfig();
       return config.rules
           .map((rule) => rule.toString())
-          // These normalize the string on VM & web:
+          // These normalize the string on VM & js & wasm:
           .map((str) => str.replaceAll(
               RegExp(
                   r"MaskingDecision from:? [fF]unction '?_maskImagesExceptAssets[@(].*",
                   dotAll: true),
-              'MaskingDecision from Function _maskImagesExceptAssets'))
+              'MaskingDecision)'))
           .map((str) => str.replaceAll(
               ' from: (element, widget) => masking_config.MaskingDecision.mask',
               ''))
@@ -121,7 +121,7 @@ void main() async {
     test('defaults', () {
       final sut = SentryReplayOptions();
       expect(rulesAsStrings(sut), [
-        '$SentryMaskingCustomRule<$Image>(Closure: (Element, Widget) => MaskingDecision from Function _maskImagesExceptAssets',
+        '$SentryMaskingCustomRule<$Image>(Closure: (Element, Widget) => MaskingDecision)',
         '$SentryMaskingConstantRule<$Text>(mask)',
         '$SentryMaskingConstantRule<$EditableText>(mask)'
       ]);
@@ -143,7 +143,7 @@ void main() async {
         ..maskAllImages = true
         ..maskAssetImages = false;
       expect(rulesAsStrings(sut), [
-        '$SentryMaskingCustomRule<$Image>(Closure: (Element, Widget) => MaskingDecision from Function _maskImagesExceptAssets',
+        '$SentryMaskingCustomRule<$Image>(Closure: (Element, Widget) => MaskingDecision)',
       ]);
     });
 
@@ -168,7 +168,7 @@ void main() async {
 
     group('user rules', () {
       final defaultRules = [
-        '$SentryMaskingCustomRule<$Image>(Closure: (Element, Widget) => MaskingDecision from Function _maskImagesExceptAssets',
+        '$SentryMaskingCustomRule<$Image>(Closure: (Element, Widget) => MaskingDecision)',
         '$SentryMaskingConstantRule<$Text>(mask)',
         '$SentryMaskingConstantRule<$EditableText>(mask)'
       ];
