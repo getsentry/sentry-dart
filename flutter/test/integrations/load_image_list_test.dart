@@ -26,8 +26,10 @@ void main() {
 
     setUp(() async {
       fixture = IntegrationTestFixture(LoadImageListIntegration.new);
-      when(fixture.binding.loadDebugImages())
+      when(fixture.binding.loadDebugImages(<String>{"0x6f80b000"}))
           .thenAnswer((_) async => imageList);
+      // when(fixture.binding.loadDebugImages(any))
+      //     .thenAnswer((_) async => imageList);
       await fixture.registerIntegration();
     });
 
@@ -44,14 +46,14 @@ void main() {
       await fixture.hub.captureException(StateError('error'),
           stackTrace: StackTrace.current);
 
-      verifyNever(fixture.binding.loadDebugImages());
+      verifyNever(fixture.binding.loadDebugImages(<String>{}));
     });
 
     test('Native layer is not called if the event has no stack traces',
         () async {
       await fixture.hub.captureException(StateError('error'));
 
-      verifyNever(fixture.binding.loadDebugImages());
+      verifyNever(fixture.binding.loadDebugImages(<String>{}));
     });
 
     test('Native layer is called because stack traces are not symbolicated',
@@ -67,7 +69,10 @@ void main() {
           #01 abs 000000723d637527 virt 00000000001f0527 _kDartIsolateSnapshotInstructions+0x1e5527
       ''');
 
-      verify(fixture.binding.loadDebugImages()).called(1);
+      verify(
+        fixture.binding
+            .loadDebugImages(<String>{"000000723d6346d7", "000000723d637527"}),
+      ).called(1);
     });
 
     test('Event processor adds image list to the event', () async {
@@ -100,13 +105,13 @@ void main() {
       expect(fixture.options.eventProcessors.length, 1);
 
       await fixture.hub.captureMessage('error');
-      verifyNever(fixture.binding.loadDebugImages());
+      verifyNever(fixture.binding.loadDebugImages(<String>{"0x6f80b000"}));
     });
   });
 }
 
 SentryEvent _getEvent() {
-  final frame = SentryStackFrame(platform: 'native');
+  final frame = SentryStackFrame(platform: 'native', imageAddr: "0x6f80b000");
   final st = SentryStackTrace(frames: [frame]);
   return SentryEvent(threads: [SentryThread(stacktrace: st)]);
 }
