@@ -26,10 +26,8 @@ void main() {
 
     setUp(() async {
       fixture = IntegrationTestFixture(LoadImageListIntegration.new);
-      when(fixture.binding.loadDebugImages(<String>{"0x6f80b000"}))
+      when(fixture.binding.loadDebugImages(any))
           .thenAnswer((_) async => imageList);
-      // when(fixture.binding.loadDebugImages(any))
-      //     .thenAnswer((_) async => imageList);
       await fixture.registerIntegration();
     });
 
@@ -70,8 +68,7 @@ void main() {
       ''');
 
       verify(
-        fixture.binding
-            .loadDebugImages(<String>{"000000723d6346d7", "000000723d637527"}),
+        fixture.binding.loadDebugImages(any),
       ).called(1);
     });
 

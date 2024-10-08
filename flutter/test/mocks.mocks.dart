@@ -1537,7 +1537,7 @@ class MockSentryNativeBinding extends _i1.Mock
 
   @override
   _i7.Future<List<_i2.DebugImage>?> loadDebugImages(
-          Set<String> imageAddresses) =>
+          Set<String>? imageAddresses) =>
       (super.noSuchMethod(
         Invocation.method(
           #loadDebugImages,
