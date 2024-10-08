@@ -33,12 +33,17 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
   void call(Hub hub, SentryFlutterOptions options) async {
     _frameCallbackHandler.addPostFrameCallback((timeStamp) async {
       try {
-        if (!options.autoAppStart && _appStartEnd == null) {
+        DateTime? appStartEnd;
+        if (options.autoAppStart) {
+          appStartEnd = options.clock();
+        } else if (_appStartEnd == null) {
           await _appStartEndCompleter.future.timeout(
             const Duration(seconds: 10),
           );
+          appStartEnd = _appStartEnd;
+        } else {
+          appStartEnd = null;
         }
-        final appStartEnd = _appStartEnd;
         if (appStartEnd != null) {
           await _nativeAppStartHandler.call(
             hub,
