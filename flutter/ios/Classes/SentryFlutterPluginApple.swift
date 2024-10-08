@@ -279,10 +279,9 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 
     private func loadImageList(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
       var debugImages: [DebugMeta] = []
-      let imageAddresses = call.arguments as? Set<String>
       
-      if let arguments = call.arguments as? Set<String> {
-          debugImages = SentryDependencyContainer.sharedInstance().debugImageProvider.getDebugImages(forAddresses: imageAddresses!, isCrash: false) as [DebugMeta]
+      if let imageAddresses = call.arguments as? Set<String> {
+          debugImages = SentryDependencyContainer.sharedInstance().debugImageProvider.getDebugImages(forAddresses: imageAddresses, isCrash: false) as [DebugMeta]
       } else {
           debugImages = PrivateSentrySDKOnly.getDebugImages() as [DebugMeta]
       }

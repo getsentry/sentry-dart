@@ -34,12 +34,12 @@ class _LoadImageListIntegrationEventProcessor implements EventProcessor {
   @override
   Future<SentryEvent?> apply(SentryEvent event, Hint hint) async {
     if (event.needsSymbolication()) {
-      Set<String> imageAddresses = {};
+      Set<String> instructionAddresses = {};
       var exceptions = event.exceptions;
       if (exceptions != null && exceptions.isNotEmpty) {
         for (var e in exceptions) {
           if (e.stackTrace != null) {
-            imageAddresses.addAll(
+            instructionAddresses.addAll(
               _collectImageAddressesFromStackTrace(e.stackTrace!),
             );
           }
@@ -49,14 +49,14 @@ class _LoadImageListIntegrationEventProcessor implements EventProcessor {
       if (event.threads != null && event.threads!.isNotEmpty) {
         for (var thread in event.threads!) {
           if (thread.stacktrace != null) {
-            imageAddresses.addAll(
+            instructionAddresses.addAll(
               _collectImageAddressesFromStackTrace(thread.stacktrace!),
             );
           }
         }
       }
 
-      final images = await _native.loadDebugImages(imageAddresses);
+      final images = await _native.loadDebugImages(instructionAddresses);
       if (images != null) {
         return event.copyWith(debugMeta: DebugMeta(images: images));
       }
@@ -66,12 +66,12 @@ class _LoadImageListIntegrationEventProcessor implements EventProcessor {
   }
 
   Set<String> _collectImageAddressesFromStackTrace(SentryStackTrace trace) {
-    Set<String> imageAddresses = {};
+    Set<String> instructionAddresses = {};
     for (var frame in trace.frames) {
       if (frame.imageAddr != null) {
-        imageAddresses.add(frame.imageAddr!);
+        instructionAddresses.add(frame.instructionAddr!);
       }
     }
-    return imageAddresses;
+    return instructionAddresses;
   }
 }
