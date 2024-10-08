@@ -96,7 +96,7 @@ jobs:
           cd drift
           flutter test --coverage --test-randomize-ordering-seed=random
 
-      - uses: codecov/codecov-action@e28ff129e5465c2c0dcc6f003fc735cb6ae0c673 # pin@v3
+      - uses: codecov/codecov-action@b9fd7d16f6d7d1b5d2bec1a2887e65ceed900238 # pin@v3
         if: runner.os == 'Linux' && matrix.sdk == 'stable' && matrix.target == 'linux'
         with:
           name: sentry_drift
