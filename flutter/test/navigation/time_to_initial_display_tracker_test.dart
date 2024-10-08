@@ -84,6 +84,37 @@ void main() {
               .difference(ttidSpan.startTimestamp)
               .inMilliseconds);
     });
+
+    test('starting after completing still finished correctly', () async {
+      await Future.delayed(fixture.finishFrameDuration, () {
+        sut.markAsManual();
+        sut.completeTracking();
+      });
+
+      final transaction = fixture.getTransaction() as SentryTracer;
+      await sut.trackRegularRoute(transaction, fixture.startTimestamp);
+
+      final children = transaction.children;
+      expect(children, hasLength(1));
+
+      final ttidSpan = children.first;
+      expect(ttidSpan.context.operation,
+          SentrySpanOperations.uiTimeToInitialDisplay);
+      expect(ttidSpan.finished, isTrue);
+      expect(ttidSpan.context.description, 'Regular route initial display');
+      expect(ttidSpan.origin, SentryTraceOrigins.manualUiTimeToDisplay);
+      final ttidMeasurement =
+          transaction.measurements['time_to_initial_display'];
+      expect(ttidMeasurement, isNotNull);
+      expect(ttidMeasurement?.unit, DurationSentryMeasurementUnit.milliSecond);
+      expect(ttidMeasurement?.value,
+          greaterThanOrEqualTo(fixture.finishFrameDuration.inMilliseconds));
+      expect(
+          ttidMeasurement?.value,
+          ttidSpan.endTimestamp!
+              .difference(ttidSpan.startTimestamp)
+              .inMilliseconds);
+    });
   });
 
   group('determineEndtime', () {
