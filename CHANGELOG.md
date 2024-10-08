@@ -13,6 +13,7 @@
 - Improve app start integration ([#2266](https://github.com/getsentry/sentry-dart/pull/2266))
   - Fixes ([#2103](https://github.com/getsentry/sentry-dart/issues/2103))
   - Fixes ([#2233](https://github.com/getsentry/sentry-dart/issues/2233))
+- Only store slow and frozen frames for frame delay calculation ([#2337](https://github.com/getsentry/sentry-dart/pull/2337))
 
 ### Fixes
 
