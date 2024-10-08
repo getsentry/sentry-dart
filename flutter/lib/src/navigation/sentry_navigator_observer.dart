@@ -15,6 +15,9 @@ import '../event_processor/flutter_enricher_event_processor.dart';
 // ignore: implementation_imports
 import 'package:sentry/src/sentry_tracer.dart';
 
+import 'time_to_full_display_tracker.dart';
+import 'time_to_initial_display_tracker.dart';
+
 /// This key must be used so that the web interface displays the events nicely
 /// See https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/
 const _navigationKey = 'navigation';
@@ -313,10 +316,13 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
             SentrySpanOperations.uiTimeToInitialDisplay;
         final isTTFDSpan =
             child.context.operation == SentrySpanOperations.uiTimeToFullDisplay;
+        if (isTTFDSpan) {
+          endTimestamp = ttidEndTimestampProvider() ?? endTimestamp;
+        }
         if (!child.finished && (isTTIDSpan || isTTFDSpan)) {
           await child.finish(
             endTimestamp: endTimestamp,
-            status: SpanStatus.deadlineExceeded(),
+            status: SpanStatus.cancelled(),
           );
         }
       }
