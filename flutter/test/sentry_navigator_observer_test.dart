@@ -1044,16 +1044,19 @@ class Fixture {
     bool setRouteNameAsTransaction = false,
     RouteNameExtractor? routeNameExtractor,
     AdditionalInfoExtractor? additionalInfoProvider,
-    bool enableTimeToFullDisplayTracing = false,
     List<String>? ignoreRoutes,
   }) {
     final frameCallbackHandler = FakeFrameCallbackHandler();
-    final timeToInitialDisplayTracker =
-        TimeToInitialDisplayTracker(frameCallbackHandler: frameCallbackHandler);
-    final timeToDisplayTracker = TimeToDisplayTracker(
-      ttidTracker: timeToInitialDisplayTracker,
-      options: hub.options as SentryFlutterOptions,
+    final timeToInitialDisplayTracker = TimeToInitialDisplayTracker(
+      frameCallbackHandler: frameCallbackHandler,
     );
+    final options = hub.options;
+    if (options is SentryFlutterOptions) {
+      options.timeToDisplayTracker = TimeToDisplayTracker(
+        ttidTracker: timeToInitialDisplayTracker,
+        options: hub.options as SentryFlutterOptions,
+      );
+    }
     return SentryNavigatorObserver(
       hub: hub,
       enableAutoTransactions: enableAutoTransactions,
@@ -1061,7 +1064,6 @@ class Fixture {
       setRouteNameAsTransaction: setRouteNameAsTransaction,
       routeNameExtractor: routeNameExtractor,
       additionalInfoProvider: additionalInfoProvider,
-      timeToDisplayTracker: timeToDisplayTracker,
       ignoreRoutes: ignoreRoutes,
     );
   }
