@@ -84,7 +84,6 @@ void main() {
     final span2 = MockSentrySpan();
     final spanStartTimestamp = DateTime.now();
     final spanEndTimestamp = spanStartTimestamp.add(Duration(seconds: 1));
-    sut.displayRefreshRate = 60;
 
     when(span1.isRootSpan).thenReturn(false);
     when(span1.startTimestamp).thenReturn(spanStartTimestamp);
@@ -296,8 +295,12 @@ class Fixture {
   final fakeFrameCallbackHandler = FakeFrameCallbackHandler();
   final mockSentryNative = MockSentryNativeBinding();
 
-  SpanFrameMetricsCollector get sut => SpanFrameMetricsCollector(options,
-      frameCallbackHandler: fakeFrameCallbackHandler,
-      native: mockSentryNative,
-      isTestMode: true);
+  SpanFrameMetricsCollector get sut {
+    return SpanFrameMetricsCollector(options,
+        frameCallbackHandler: fakeFrameCallbackHandler,
+        native: mockSentryNative,
+        isTestMode: true)
+      ..displayRefreshRate = 60
+      ..expectedFrameDuration = Duration(milliseconds: 16);
+  }
 }

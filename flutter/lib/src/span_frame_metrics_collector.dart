@@ -11,7 +11,7 @@ import 'native/sentry_native_binding.dart';
 
 @internal
 class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
-  static const _frozenFrameThresholdMs = 700;
+  static const _frozenFrameThreshold = Duration(milliseconds: 700);
   static const totalFramesKey = 'frames.total';
   static const framesDelayKey = 'frames.delay';
   static const slowFramesKey = 'frames.slow';
@@ -45,6 +45,9 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
   int? displayRefreshRate;
 
   @visibleForTesting
+  Duration? expectedFrameDuration;
+
+  @visibleForTesting
   int maxFramesToTrack = 10800;
 
   final _stopwatch = Stopwatch();
@@ -69,6 +72,8 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
       options.logger(SentryLevel.debug,
           'Retrieved display refresh rate at $fetchedDisplayRefreshRate');
       displayRefreshRate = fetchedDisplayRefreshRate;
+      expectedFrameDuration =
+          Duration(milliseconds: ((1 / displayRefreshRate!) * 1000).toInt());
 
       // Start tracking frames only when refresh rate is valid
       activeSpans.add(span);
@@ -144,8 +149,10 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
     await _frameCallbackHandler.endOfFrame;
 
     final frameDuration = _stopwatch.elapsedMilliseconds;
-    // ignore: invalid_use_of_internal_member
-    frames[options.clock()] = frameDuration;
+    if (_isFrozenFrame(frameDuration) || _isSlowFrame(frameDuration)) {
+      // ignore: invalid_use_of_internal_member
+      frames[options.clock()] = frameDuration;
+    }
 
     _stopwatch.reset();
 
@@ -183,7 +190,11 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
       return {};
     }
 
-    final expectedFrameDuration = ((1 / displayRefreshRate) * 1000).toInt();
+    if (expectedFrameDuration == null) {
+      options.logger(SentryLevel.info,
+          'Expected frame duration is null. Dropping frame metrics.');
+      return {};
+    }
 
     int slowFramesCount = 0;
     int frozenFramesCount = 0;
@@ -214,27 +225,26 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
 
       if (frameFullyContainedInSpan) {
         effectiveDuration = frameDuration;
-        effectiveDelay = max(0, frameDuration - expectedFrameDuration);
+        effectiveDelay =
+            max(0, frameDuration - expectedFrameDuration!.inMilliseconds);
       } else if (framePartiallyContainedInSpan) {
         final intersectionStart = max(frameStartMs, spanStartMs);
         final intersectionEnd = min(frameEndMs, spanEndMs);
         effectiveDuration = intersectionEnd - intersectionStart;
 
-        final fullFrameDelay = max(0, frameDuration - expectedFrameDuration);
+        final fullFrameDelay =
+            max(0, frameDuration - expectedFrameDuration!.inMilliseconds);
         final intersectionRatio = effectiveDuration / frameDuration;
         effectiveDelay = (fullFrameDelay * intersectionRatio).round();
       } else if (frameStartMs > spanEndMs) {
         // Other frames will be newer than this span, as frames are ordered
         break;
-      } else {
-        // Frame is completely outside the span, skip it
-        continue;
       }
 
-      if (effectiveDuration > _frozenFrameThresholdMs) {
+      if (_isFrozenFrame(effectiveDuration)) {
         frozenFramesCount++;
         frozenFramesDuration += effectiveDuration;
-      } else if (effectiveDuration > expectedFrameDuration) {
+      } else if (_isSlowFrame(effectiveDuration)) {
         slowFramesCount++;
         slowFramesDuration += effectiveDuration;
       }
@@ -246,7 +256,7 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
         spanEndTimestamp.difference(span.startTimestamp).inMilliseconds;
     final normalFramesCount =
         (spanDuration - (slowFramesDuration + frozenFramesDuration)) /
-            expectedFrameDuration;
+            expectedFrameDuration!.inMilliseconds;
     final totalFramesCount =
         (normalFramesCount + slowFramesCount + frozenFramesCount).ceil();
 
@@ -272,6 +282,20 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
       SpanFrameMetricsCollector.slowFramesKey: slowFramesCount,
       SpanFrameMetricsCollector.frozenFramesKey: frozenFramesCount,
     };
+  }
+
+  @pragma('vm:prefer-inline')
+  bool _isFrozenFrame(int frameDuration) {
+    return frameDuration > _frozenFrameThreshold.inMilliseconds;
+  }
+
+  @pragma('vm:prefer-inline')
+  bool _isSlowFrame(int frameDuration) {
+    if (expectedFrameDuration != null) {
+      return frameDuration > expectedFrameDuration!.inMilliseconds;
+    } else {
+      return false;
+    }
   }
 
   @override
