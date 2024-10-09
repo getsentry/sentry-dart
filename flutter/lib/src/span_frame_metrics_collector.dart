@@ -62,60 +62,60 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
         _isTestMode = isTestMode;
 
   @override
-  Future<void> onSpanStarted(ISentrySpan span) {
-    return _tryCatch('onSpanStarted', () async {
-      if (span is NoOpSentrySpan || !options.enableFramesTracking) {
-        return;
-      }
+  Future<void> onSpanStarted(ISentrySpan span) =>
+      _tryCatch('onSpanStarted', () async {
+        if (span is NoOpSentrySpan || !options.enableFramesTracking) {
+          return;
+        }
 
-      final fetchedDisplayRefreshRate = await _native?.displayRefreshRate();
-      if (fetchedDisplayRefreshRate != null && fetchedDisplayRefreshRate > 0) {
-        options.logger(SentryLevel.debug,
-            'Retrieved display refresh rate at $fetchedDisplayRefreshRate');
-        displayRefreshRate = fetchedDisplayRefreshRate;
-        expectedFrameDuration =
-            Duration(milliseconds: ((1 / displayRefreshRate!) * 1000).toInt());
+        final fetchedDisplayRefreshRate = await _native?.displayRefreshRate();
+        if (fetchedDisplayRefreshRate != null &&
+            fetchedDisplayRefreshRate > 0) {
+          options.logger(SentryLevel.debug,
+              'Retrieved display refresh rate at $fetchedDisplayRefreshRate');
+          displayRefreshRate = fetchedDisplayRefreshRate;
+          expectedFrameDuration = Duration(
+              milliseconds: ((1 / displayRefreshRate!) * 1000).toInt());
 
-        // Start tracking frames only when refresh rate is valid
-        activeSpans.add(span);
-        startFrameTracking();
-      } else {
-        options.logger(SentryLevel.debug,
-            'Retrieved invalid display refresh rate: $fetchedDisplayRefreshRate. Not starting frame tracking.');
-      }
-    });
-  }
+          // Start tracking frames only when refresh rate is valid
+          activeSpans.add(span);
+          startFrameTracking();
+        } else {
+          options.logger(SentryLevel.debug,
+              'Retrieved invalid display refresh rate: $fetchedDisplayRefreshRate. Not starting frame tracking.');
+        }
+      });
 
   @override
-  Future<void> onSpanFinished(ISentrySpan span, DateTime endTimestamp) {
-    return _tryCatch('onSpanFinished', () async {
-      if (span is NoOpSentrySpan || !activeSpans.contains(span)) return;
+  Future<void> onSpanFinished(ISentrySpan span, DateTime endTimestamp) =>
+      _tryCatch('onSpanFinished', () async {
+        if (span is NoOpSentrySpan || !activeSpans.contains(span)) return;
 
-      if (displayRefreshRate == null || displayRefreshRate! <= 0) {
-        options.logger(SentryLevel.warning,
-            'Invalid display refresh rate. Skipping frame tracking for all active spans.');
-        clear();
-        return;
-      }
+        if (displayRefreshRate == null || displayRefreshRate! <= 0) {
+          options.logger(SentryLevel.warning,
+              'Invalid display refresh rate. Skipping frame tracking for all active spans.');
+          clear();
+          return;
+        }
 
-      final frameMetrics =
-          calculateFrameMetrics(span, endTimestamp, displayRefreshRate!);
-      _applyFrameMetricsToSpan(span, frameMetrics);
+        final frameMetrics =
+            calculateFrameMetrics(span, endTimestamp, displayRefreshRate!);
+        _applyFrameMetricsToSpan(span, frameMetrics);
 
-      activeSpans.remove(span);
-      if (activeSpans.isEmpty) {
-        clear();
-      } else {
-        exceededFrames.removeWhere((frameTimestamp, _) =>
-            frameTimestamp.isBefore(activeSpans.first.startTimestamp));
-      }
-    });
-  }
+        activeSpans.remove(span);
+        if (activeSpans.isEmpty) {
+          clear();
+        } else {
+          exceededFrames.removeWhere((frameTimestamp, _) =>
+              frameTimestamp.isBefore(activeSpans.first.startTimestamp));
+        }
+      });
 
-  Future<void> _tryCatch(
-      String methodName, Future<void> Function() action) async {
+  // TODO: there's already a similar implementation in SentryNativeSafeInvoker
+  // let's try to reuse it at some point
+  Future<void> _tryCatch(String methodName, Future<void> Function() fn) async {
     try {
-      return action();
+      return fn();
     } catch (exception, stackTrace) {
       options.logger(
         SentryLevel.error,
