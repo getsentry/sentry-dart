@@ -6,6 +6,8 @@ import 'dart:convert';
 
 import 'package:meta/meta.dart';
 
+import '../sentry.dart';
+
 /// Sentry does not take a timezone and instead expects the date-time to be
 /// submitted in UTC timezone.
 @internal
