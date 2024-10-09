@@ -47,7 +47,7 @@ query LoadPosts($id: ID!) {
 
 it will be represented in Sentry as seen in the image
 
-<img src="https://raw.githubusercontent.com/ueman/sentry-dart-tools/main/sentry_link/screenshot.png" />
+<img src="https://raw.githubusercontent.com/getsentry/sentry-dart/main/sentry_link/screenshot.png" />
 
 ## Improve exception reports for `LinkException`s
 
@@ -245,7 +245,7 @@ class OperationExceptionExtractor extends ExceptionCauseExtractor<T> {
 
 </details>
 
-# 📣 About the author
+# 📣 About the original author
 
 - [![Twitter Follow](https://img.shields.io/twitter/follow/ue_man?style=social)](https://twitter.com/ue_man)
 - [![GitHub followers](https://img.shields.io/github/followers/ueman?style=social)](https://github.com/ueman)
