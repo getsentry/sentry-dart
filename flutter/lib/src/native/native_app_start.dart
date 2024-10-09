@@ -30,7 +30,7 @@ class NativeAppStart {
       // ignore: invalid_use_of_internal_member
       Sentry.currentHub.options.logger(
         SentryLevel.warning,
-        'Failed to parse json in NativeAppStart. Required keys are missing or have an invalid type',
+        'Failed to parse json when capturing App Start metrics. App Start wont be reported.',
       );
       return null;
     }
