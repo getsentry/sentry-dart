@@ -75,7 +75,7 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
               'Retrieved display refresh rate at $fetchedDisplayRefreshRate');
           displayRefreshRate = fetchedDisplayRefreshRate;
           expectedFrameDuration = Duration(
-              milliseconds: ((1 / displayRefreshRate!) * 1000).toInt());
+              milliseconds: ((1 / fetchedDisplayRefreshRate) * 1000).toInt());
 
           // Start tracking frames only when refresh rate is valid
           activeSpans.add(span);
@@ -123,7 +123,6 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
         exception: exception,
         stackTrace: stackTrace,
       );
-
       clear();
     }
   }
