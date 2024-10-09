@@ -346,10 +346,10 @@ extension on String {
 
 extension on int {
   binding.sentry_value_u toNativeValue() {
-    if (this > 0x7FFFFFFF) {
-      return toString().toNativeValue();
-    } else {
+    if (this >= -2147483648 && this <= 2147483647) {
       return SentryNative.native.value_new_int32(this);
+    } else {
+      return toString().toNativeValue();
     }
   }
 }
