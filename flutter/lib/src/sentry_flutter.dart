@@ -249,7 +249,7 @@ mixin SentryFlutter {
       // ignore: invalid_use_of_internal_member
       Sentry.currentHub.options.logger(
         SentryLevel.error,
-        'Error while reporting fully displayed',
+        'Error while reporting TTFD',
         exception: e,
         stackTrace: stackTrace,
       );
