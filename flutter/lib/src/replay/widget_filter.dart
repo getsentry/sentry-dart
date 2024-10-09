@@ -40,14 +40,21 @@ class WidgetFilter {
       return;
     }
 
-    if (config.shouldMask(element, widget)) {
-      final item = _obscureElementOrParent(element, widget);
-      if (item != null) {
-        items.add(item);
-      }
-    } else {
-      // If this element should not be obscured, visit and check its children.
-      element.visitChildElements(_process);
+    final decision = config.shouldMask(element, widget);
+    switch (decision) {
+      case MaskingDecision.mask:
+        final item = _obscureElementOrParent(element, widget);
+        if (item != null) {
+          items.add(item);
+        }
+        break;
+      case MaskingDecision.unmask:
+        logger(SentryLevel.debug, "WidgetFilter unmasked: $widget");
+        break;
+      case MaskingDecision.continueProcessing:
+        // If this element should not be obscured, visit and check its children.
+        element.visitChildElements(_process);
+        break;
     }
   }
 
@@ -65,7 +72,7 @@ class WidgetFilter {
           _warnedWidgets.add(widget.hashCode);
           logger(
               SentryLevel.warning,
-              'WidgetFilter cannot obscure widget $widget: $e.'
+              'WidgetFilter cannot mask widget $widget: $e.'
               'Obscuring the parent instead: ${parent?.widget}.',
               stackTrace: stackTrace);
         }
@@ -109,7 +116,7 @@ class WidgetFilter {
     }
 
     assert(() {
-      logger(SentryLevel.debug, "WidgetFilter obscuring: $widget");
+      logger(SentryLevel.debug, "WidgetFilter masking: $widget");
       return true;
     }());
 

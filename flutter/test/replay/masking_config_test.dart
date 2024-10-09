@@ -8,12 +8,18 @@ import 'test_widget.dart';
 void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
 
+  final alwaysEnabledRules = [
+    '$SentryMaskingConstantRule<$SentryMask>(mask)',
+    '$SentryMaskingConstantRule<$SentryUnmask>(unmask)',
+  ];
+
   testWidgets('will not mask if there are no rules', (tester) async {
     final sut = SentryMaskingConfig([]);
     final element = await pumpTestElement(tester);
     expect(sut.rules, isEmpty);
     expect(sut.length, 0);
-    expect(sut.shouldMask(element, element.widget), isFalse);
+    expect(sut.shouldMask(element, element.widget),
+        MaskingDecision.continueProcessing);
   });
 
   for (final value in [MaskingDecision.mask, MaskingDecision.unmask]) {
@@ -23,8 +29,7 @@ void main() async {
             SentryMaskingConfig([SentryMaskingConstantRule<Image>(value)]);
         final rootElement = await pumpTestElement(tester);
         final element = rootElement.findFirstOfType<Image>();
-        expect(sut.shouldMask(element, element.widget),
-            value == MaskingDecision.mask);
+        expect(sut.shouldMask(element, element.widget), value);
       });
 
       testWidgets('will mask subtype widget by type', (tester) async {
@@ -32,8 +37,7 @@ void main() async {
             SentryMaskingConfig([SentryMaskingConstantRule<Image>(value)]);
         final rootElement = await pumpTestElement(tester);
         final element = rootElement.findFirstOfType<CustomImageWidget>();
-        expect(sut.shouldMask(element, element.widget),
-            value == MaskingDecision.mask);
+        expect(sut.shouldMask(element, element.widget), value);
       });
 
       testWidgets('will not mask widget of a different type', (tester) async {
@@ -41,7 +45,8 @@ void main() async {
             SentryMaskingConfig([SentryMaskingConstantRule<Image>(value)]);
         final rootElement = await pumpTestElement(tester);
         final element = rootElement.findFirstOfType<Text>();
-        expect(sut.shouldMask(element, element.widget), false);
+        expect(sut.shouldMask(element, element.widget),
+            MaskingDecision.continueProcessing);
       }, skip: value == MaskingDecision.unmask);
     });
   }
@@ -57,7 +62,8 @@ void main() async {
       ]);
       final rootElement = await pumpTestElement(tester);
       for (final element in rootElement.findAllChildren()) {
-        expect(sut.shouldMask(element, element.widget), isFalse);
+        expect(sut.shouldMask(element, element.widget),
+            MaskingDecision.continueProcessing);
       }
       // Note: there are actually 5 Image widgets in the tree but when it's
       // inside an `Visibility(visible: false)`, it won't be visited.
@@ -73,7 +79,7 @@ void main() async {
       ]);
       final rootElement = await pumpTestElement(tester);
       final element = rootElement.findFirstOfType<Image>();
-      expect(sut.shouldMask(element, element.widget), isTrue);
+      expect(sut.shouldMask(element, element.widget), MaskingDecision.mask);
     });
 
     testWidgets('stops iteration on first "unmask" rule', (tester) async {
@@ -85,7 +91,7 @@ void main() async {
       ]);
       final rootElement = await pumpTestElement(tester);
       final element = rootElement.findFirstOfType<Image>();
-      expect(sut.shouldMask(element, element.widget), isFalse);
+      expect(sut.shouldMask(element, element.widget), MaskingDecision.unmask);
     });
 
     testWidgets('retuns false if no rule matches', (tester) async {
@@ -97,7 +103,8 @@ void main() async {
       ]);
       final rootElement = await pumpTestElement(tester);
       final element = rootElement.findFirstOfType<Image>();
-      expect(sut.shouldMask(element, element.widget), isFalse);
+      expect(sut.shouldMask(element, element.widget),
+          MaskingDecision.continueProcessing);
     });
   });
 
@@ -121,6 +128,7 @@ void main() async {
     test('defaults', () {
       final sut = SentryReplayOptions();
       expect(rulesAsStrings(sut), [
+        ...alwaysEnabledRules,
         '$SentryMaskingCustomRule<$Image>(Closure: (Element, Widget) => MaskingDecision)',
         '$SentryMaskingConstantRule<$Text>(mask)',
         '$SentryMaskingConstantRule<$EditableText>(mask)'
@@ -133,6 +141,7 @@ void main() async {
         ..maskAllImages = true
         ..maskAssetImages = true;
       expect(rulesAsStrings(sut), [
+        ...alwaysEnabledRules,
         '$SentryMaskingConstantRule<$Image>(mask)',
       ]);
     });
@@ -143,6 +152,7 @@ void main() async {
         ..maskAllImages = true
         ..maskAssetImages = false;
       expect(rulesAsStrings(sut), [
+        ...alwaysEnabledRules,
         '$SentryMaskingCustomRule<$Image>(Closure: (Element, Widget) => MaskingDecision)',
       ]);
     });
@@ -153,8 +163,9 @@ void main() async {
         ..maskAllImages = false
         ..maskAssetImages = false;
       expect(rulesAsStrings(sut), [
+        ...alwaysEnabledRules,
         '$SentryMaskingConstantRule<$Text>(mask)',
-        '$SentryMaskingConstantRule<$EditableText>(mask)'
+        '$SentryMaskingConstantRule<$EditableText>(mask)',
       ]);
     });
 
@@ -163,11 +174,12 @@ void main() async {
         ..maskAllText = false
         ..maskAllImages = false
         ..maskAssetImages = false;
-      expect(rulesAsStrings(sut), isEmpty);
+      expect(rulesAsStrings(sut), alwaysEnabledRules);
     });
 
     group('user rules', () {
       final defaultRules = [
+        ...alwaysEnabledRules,
         '$SentryMaskingCustomRule<$Image>(Closure: (Element, Widget) => MaskingDecision)',
         '$SentryMaskingConstantRule<$Text>(mask)',
         '$SentryMaskingConstantRule<$EditableText>(mask)'
@@ -221,6 +233,20 @@ void main() async {
           '$SentryMaskingCustomRule<$Image>(Closure: ($Element, $Image) => $MaskingDecision)',
           ...defaultRules
         ]);
+      });
+      test('User cannot add $SentryMask and $SentryUnmask rules', () {
+        final sut = SentryReplayOptions();
+        expect(sut.mask<SentryMask>, throwsA(isA<AssertionError>()));
+        expect(sut.mask<SentryUnmask>, throwsA(isA<AssertionError>()));
+        expect(sut.unmask<SentryMask>, throwsA(isA<AssertionError>()));
+        expect(sut.unmask<SentryUnmask>, throwsA(isA<AssertionError>()));
+        expect(
+            () => sut.maskCallback<SentryMask>((_, __) => MaskingDecision.mask),
+            throwsA(isA<AssertionError>()));
+        expect(
+            () =>
+                sut.maskCallback<SentryUnmask>((_, __) => MaskingDecision.mask),
+            throwsA(isA<AssertionError>()));
       });
     });
   });

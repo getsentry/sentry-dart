@@ -129,6 +129,27 @@ void main() async {
       expect(boundsRect(sut.items[2]), '50x20');
     });
   });
+
+  testWidgets('respects $SentryMask', (tester) async {
+    final sut = createSut(redactText: false, redactImages: false);
+    final element = await pumpTestElement(tester, children: [
+      SentryMask(Padding(padding: EdgeInsets.all(100), child: Text('foo'))),
+    ]);
+    sut.obscure(element, 1.0, defaultBounds);
+    expect(sut.items.length, 1);
+    expect(boundsRect(sut.items[0]), '344x248');
+  });
+
+  testWidgets('respects $SentryUnmask', (tester) async {
+    final sut = createSut(redactText: true, redactImages: true);
+    final element = await pumpTestElement(tester, children: [
+      SentryUnmask(Text('foo')),
+      SentryUnmask(newImage()),
+      SentryUnmask(SentryMask(Text('foo'))),
+    ]);
+    sut.obscure(element, 1.0, defaultBounds);
+    expect(sut.items, isEmpty);
+  });
 }
 
 class TestAssetBundle extends CachingAssetBundle {

@@ -13,24 +13,35 @@ class SentryMaskingConfig {
       : rules = List.of(rules, growable: false),
         length = rules.length;
 
-  bool shouldMask<T extends Widget>(Element element, T widget) {
+  MaskingDecision shouldMask<T extends Widget>(Element element, T widget) {
     for (int i = 0; i < length; i++) {
       if (rules[i].appliesTo(widget)) {
+        // We use a switch here to get lints if more values are added.
         switch (rules[i].shouldMask(element, widget)) {
           case MaskingDecision.mask:
-            return true;
+            return MaskingDecision.mask;
           case MaskingDecision.unmask:
-            return false;
+            return MaskingDecision.unmask;
           case MaskingDecision.continueProcessing:
           // Continue to the next matching rule.
         }
       }
     }
-    return false;
+    return MaskingDecision.continueProcessing;
   }
 }
 
-enum MaskingDecision { mask, unmask, continueProcessing }
+enum MaskingDecision {
+  /// Mask the widget and its children
+  mask,
+
+  /// Leave the widget visible, including its children (no more rules will
+  /// be checked for children).
+  unmask,
+
+  /// Don't make a decision - continue checking other rules and children.
+  continueProcessing
+}
 
 @internal
 abstract class SentryMaskingRule<T extends Widget> {

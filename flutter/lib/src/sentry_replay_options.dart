@@ -4,6 +4,8 @@ import 'package:meta/meta.dart';
 
 import 'replay/masking_config.dart';
 import 'replay/widget_filter.dart';
+import 'screenshot/sentry_mask_widget.dart';
+import 'screenshot/sentry_unmask_widget.dart';
 
 /// Configuration of the experimental replay feature.
 class SentryReplayOptions {
@@ -54,7 +56,16 @@ class SentryReplayOptions {
 
   @internal
   SentryMaskingConfig buildMaskingConfig() {
+    // First, we collect rules defined by the user (so they're applied first).
     final rules = _userMaskingRules.toList();
+
+    // Then, we apply rules for [SentryMask] and [SentryUnmask].
+    rules
+        .add(const SentryMaskingConstantRule<SentryMask>(MaskingDecision.mask));
+    rules.add(
+        const SentryMaskingConstantRule<SentryUnmask>(MaskingDecision.unmask));
+
+    // Then, we apply apply rules based on the configuration.
     if (maskAllImages) {
       if (maskAssetImages) {
         rules.add(const SentryMaskingConstantRule<Image>(MaskingDecision.mask));
@@ -74,23 +85,36 @@ class SentryReplayOptions {
     return SentryMaskingConfig(rules);
   }
 
-  /// Mask given widget type (or it's subclasses) in the replay.
-  /// Note: masking rules are called in the order they're added.
+  /// Mask given widget type [T] (or subclasses of [T]) in the replay.
+  /// Note: masking rules are called in the order they're added so if a previous
+  /// rule already makes a decision, this rule won't be called.
   void mask<T extends Widget>() {
+    assert(T != SentryMask);
+    assert(T != SentryUnmask);
     _userMaskingRules.add(SentryMaskingConstantRule<T>(MaskingDecision.mask));
   }
 
-  /// Unmask given widget type (or it's subclasses) in the replay, if it would
-  /// have otherwise been masked by other rules, for example the default rules
-  /// [maskAllText] or [maskAllImages].
+  /// Unmask given widget type [T] (or subclasses of [T]) in the replay. This is
+  /// useful to explicitly show certain widgets that would otherwise be masked
+  /// by other rules, for example default [maskAllText] or [maskAllImages].
+  /// The [MaskingDecision.unmask] will apply to the widget and its children,
+  /// so no other rules will be checked for the children.
+  /// Note: masking rules are called in the order they're added so if a previous
+  /// rule already makes a decision, this rule won't be called.
   void unmask<T extends Widget>() {
+    assert(T != SentryMask);
+    assert(T != SentryUnmask);
     _userMaskingRules.add(SentryMaskingConstantRule<T>(MaskingDecision.unmask));
   }
 
-  /// Provide a custom callback to decide whether to mask the widget.
-  /// Note: masking rules are called in the order they're added.
+  /// Provide a custom callback to decide whether to mask the widget of class
+  /// [T] (or subclasses of [T]).
+  /// Note: masking rules are called in the order they're added so if a previous
+  /// rule already makes a decision, this rule won't be called.
   void maskCallback<T extends Widget>(
       MaskingDecision Function(Element, T) shouldMask) {
+    assert(T != SentryMask);
+    assert(T != SentryUnmask);
     _userMaskingRules.add(SentryMaskingCustomRule<T>(shouldMask));
   }
 
