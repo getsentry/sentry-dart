@@ -42,16 +42,16 @@ class WidgetFilter {
 
     final decision = config.shouldMask(element, widget);
     switch (decision) {
-      case MaskingDecision.mask:
+      case SentryMaskingDecision.mask:
         final item = _obscureElementOrParent(element, widget);
         if (item != null) {
           items.add(item);
         }
         break;
-      case MaskingDecision.unmask:
+      case SentryMaskingDecision.unmask:
         logger(SentryLevel.debug, "WidgetFilter unmasked: $widget");
         break;
-      case MaskingDecision.continueProcessing:
+      case SentryMaskingDecision.continueProcessing:
         // If this element should not be obscured, visit and check its children.
         element.visitChildElements(_process);
         break;

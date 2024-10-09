@@ -18,8 +18,8 @@
       options.experimental.replay.maskCallback<Text>(
           (Element element, Text widget) =>
               (widget.data?.contains('secret') ?? false)
-                  ? MaskingDecision.mask
-                  : MaskingDecision.continueProcessing);
+                  ? SentryMaskingDecision.mask
+                  : SentryMaskingDecision.continueProcessing);
     },
     appRunner: () => runApp(MyApp()),
   );
