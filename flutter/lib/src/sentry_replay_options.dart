@@ -8,6 +8,7 @@ import 'screenshot/sentry_mask_widget.dart';
 import 'screenshot/sentry_unmask_widget.dart';
 
 /// Configuration of the experimental replay feature.
+@experimental
 class SentryReplayOptions {
   double? _sessionSampleRate;
 
