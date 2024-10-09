@@ -80,11 +80,16 @@ class SentryNativeChannel
   Future<void> close() async => channel.invokeMethod('closeNativeSdk');
 
   @override
-  Future<NativeAppStart?> fetchNativeAppStart() async {
-    final json =
-        await channel.invokeMapMethod<String, dynamic>('fetchNativeAppStart');
-    return (json != null) ? NativeAppStart.fromJson(json) : null;
-  }
+  Future<NativeAppStart?> fetchNativeAppStart() => tryCatchAsync(
+        'fetchNativeAppStart',
+        () async {
+          final json = await channel.invokeMapMethod<String, dynamic>(
+            'fetchNativeAppStart',
+          );
+
+          return (json != null) ? NativeAppStart.fromJson(json) : null;
+        },
+      );
 
   @override
   Future<void> captureEnvelope(
