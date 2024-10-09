@@ -1536,10 +1536,12 @@ class MockSentryNativeBinding extends _i1.Mock
       ) as _i7.Future<Map<String, dynamic>?>);
 
   @override
-  _i7.Future<List<_i2.DebugImage>?> loadDebugImages() => (super.noSuchMethod(
+  _i7.Future<List<_i2.DebugImage>?> loadDebugImages(
+          Set<String>? instructionAddresses) =>
+      (super.noSuchMethod(
         Invocation.method(
           #loadDebugImages,
-          [],
+          [instructionAddresses],
         ),
         returnValue: _i7.Future<List<_i2.DebugImage>?>.value(),
       ) as _i7.Future<List<_i2.DebugImage>?>);

@@ -279,7 +279,7 @@ void main() {
         when(channel.invokeMethod('loadImageList'))
             .thenAnswer((invocation) async => json);
 
-        final data = await sut.loadDebugImages();
+        final data = await sut.loadDebugImages({"0x6f80b000"});
 
         expect(data?.map((v) => v.toJson()), json);
       });
