@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Transfer ownership of `sentry_link` to Sentry. You can view the changelog for the previous versions [here](https://github.com/getsentry/sentry-dart/blob/main/sentry_link/CHANGELOG_OLD.md)
+  - No functional changes have been made. This version is identical to the previos one.
+
 ### Features
 
 - Emit `transaction.data` inside `contexts.trace.data` ([#2284](https://github.com/getsentry/sentry-dart/pull/2284))
