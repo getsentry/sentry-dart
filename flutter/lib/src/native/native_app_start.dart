@@ -29,7 +29,7 @@ class NativeAppStart {
         nativeSpanTimes is! Map) {
       // ignore: invalid_use_of_internal_member
       Sentry.currentHub.options.logger(
-        SentryLevel.error,
+        SentryLevel.warning,
         'Failed to parse json in NativeAppStart. Required keys are missing or have an invalid type',
       );
       return null;
