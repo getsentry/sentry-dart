@@ -1,8 +1,5 @@
-import 'dart:ffi';
-
 import 'package:meta/meta.dart';
-
-import '../../sentry_flutter.dart';
+import 'package:sentry/sentry.dart';
 
 @internal
 class NativeAppStart {
