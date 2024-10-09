@@ -6,6 +6,25 @@
 
 - Emit `transaction.data` inside `contexts.trace.data` ([#2284](https://github.com/getsentry/sentry-dart/pull/2284))
 - Blocking app starts if "appLaunchedInForeground" is false. (Android only) ([#2291](https://github.com/getsentry/sentry-dart/pull/2291))
+- Replay: user-configurable masking (redaction) for widget classes and specific widget instances. ([#2324](https://github.com/getsentry/sentry-dart/pull/2324))
+  Some examples of the configuration:
+
+  ```dart
+  await SentryFlutter.init(
+    (options) {
+      ...
+      options.experimental.replay.mask<IconButton>();
+      options.experimental.replay.unmask<Image>();
+      options.experimental.replay.maskCallback<Text>(
+          (Element element, Text widget) =>
+              (widget.data?.contains('secret') ?? false)
+                  ? MaskingDecision.mask
+                  : MaskingDecision.continueProcessing);
+    },
+    appRunner: () => runApp(MyApp()),
+  );
+  ```
+
 
 ### Enhancements
 
