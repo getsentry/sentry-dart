@@ -111,7 +111,7 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
         }
       });
 
-  // TODO: there's already a similar implementation in SentryNativeSafeInvoker
+  // TODO: there's already a similar implementation: [SentryNativeSafeInvoker]
   // let's try to reuse it at some point
   Future<void> _tryCatch(String methodName, Future<void> Function() fn) async {
     try {
