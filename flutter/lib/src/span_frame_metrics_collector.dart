@@ -154,7 +154,8 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
 
     if (expectedFrameDuration == null) {
       options.logger(SentryLevel.info,
-          'Expected frame duration is null. Dropping frame duration.');
+          'Expected frame duration is null. Cancelling frame tracking for all active spans.');
+      clear();
       return;
     }
 
