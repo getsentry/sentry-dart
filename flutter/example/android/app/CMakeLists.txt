@@ -12,3 +12,5 @@ target_link_libraries(
     ${LOG_LIB}
     ${ANDROID_GRADLE_NATIVE_MODULES}
 )
+
+target_link_options(${CMAKE_PROJECT_NAME} PRIVATE "-Wl,-z,max-page-size=16384")
