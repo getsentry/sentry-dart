@@ -6,7 +6,6 @@
 
 - Emit `transaction.data` inside `contexts.trace.data` ([#2284](https://github.com/getsentry/sentry-dart/pull/2284))
 - Blocking app starts if "appLaunchedInForeground" is false. (Android only) ([#2291](https://github.com/getsentry/sentry-dart/pull/2291))
-- Blocking app starts if "appLaunchedInForeground" is false. (Android only) ([#2291](https://github.com/getsentry/sentry-dart/pull/2291))
 - Windows native error & obfuscation support ([#2286](https://github.com/getsentry/sentry-dart/pull/2286))
 - Support `captureFeedback` ([#2230](https://github.com/getsentry/sentry-dart/pull/2230))
   - Deprecated `Sentry.captureUserFeedback`, use `captureFeedback` instead.
