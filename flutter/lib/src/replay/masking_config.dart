@@ -47,6 +47,7 @@ enum SentryMaskingDecision {
 
 @internal
 abstract class SentryMaskingRule<T extends Widget> {
+  @pragma('vm:prefer-inline')
   bool appliesTo(Widget widget) => widget is T;
   SentryMaskingDecision shouldMask(Element element, T widget);
 
