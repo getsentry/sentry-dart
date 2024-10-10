@@ -72,7 +72,6 @@ Navigator.push(
   ```
 
 - Support allowUrls and denyUrls for Flutter Web ([#2227](https://github.com/getsentry/sentry-dart/pull/2227))
-
   ```dart
   await SentryFlutter.init(
     (options) {
