@@ -32,6 +32,7 @@ class TimeToFullDisplayTracker {
   ISentrySpan? _ttfdSpan;
   ISentrySpan? _transaction;
   Duration _autoFinishAfter = const Duration(seconds: 30);
+  final options = Sentry.currentHub.options;
 
   // End timestamp provider is only needed when the TTFD timeout is triggered
   EndTimestampProvider _endTimestampProvider = ttidEndTimestampProvider();
@@ -72,17 +73,26 @@ class TimeToFullDisplayTracker {
   }
 
   Future<void> reportFullyDisplayed() async {
-    final endTimestamp = getUtcDateTime();
-    final startTimestamp = _startTimestamp;
-    final ttfdSpan = _ttfdSpan;
-
-    if (ttfdSpan?.finished == true || startTimestamp == null) {
-      _completedTTFDTracking.complete();
+    if (_ttfdSpan == null || _startTimestamp == null) {
+      options.logger(
+        SentryLevel.warning,
+        'TTFD tracker not started',
+      );
       return;
     }
 
-    _setTTFDMeasurement(startTimestamp, endTimestamp);
-    await ttfdSpan?.finish(status: SpanStatus.ok(), endTimestamp: endTimestamp);
+    if (_completedTTFDTracking.isCompleted || _ttfdSpan?.finished == true) {
+      options.logger(
+        SentryLevel.warning,
+        'TTFD tracker already completed',
+      );
+      return;
+    }
+
+    final endTimestamp = getUtcDateTime();
+    _setTTFDMeasurement(_startTimestamp!, endTimestamp);
+    await _ttfdSpan?.finish(
+        status: SpanStatus.ok(), endTimestamp: endTimestamp);
 
     _completedTTFDTracking.complete();
   }

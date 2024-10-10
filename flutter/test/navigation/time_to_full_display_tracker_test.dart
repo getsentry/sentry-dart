@@ -61,6 +61,25 @@ void main() {
     expect(ttfdSpan.context.description, equals('Current route full display'));
     expect(ttfdSpan.origin, equals(SentryTraceOrigins.manualUiTimeToDisplay));
   });
+
+  test('finishing ttfd twice does not throw', () async {
+    final sut = fixture.getSut();
+    final transaction = fixture.getTransaction() as SentryTracer;
+    const finishAfterDuration = Duration(seconds: 1);
+
+    Future<void>.delayed(finishAfterDuration, () {
+      sut.reportFullyDisplayed();
+      sut.reportFullyDisplayed();
+    });
+
+    await sut.track(transaction, fixture.startTimestamp);
+  });
+
+  test('finishing ttfd without starting tracker does not throw', () async {
+    final sut = fixture.getSut();
+
+    await sut.reportFullyDisplayed();
+  });
 }
 
 class Fixture {
