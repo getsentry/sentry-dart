@@ -15,6 +15,8 @@ import '../mocks.mocks.dart';
 late final String repoRootDir;
 late final List<String> expectedDistFiles;
 
+// NOTE: Don't run/debug this main(), it likely won't work.
+// You can use main() in `sentry_native_test.dart`.
 void main() {
   repoRootDir = Directory.current.path.endsWith('/test')
       ? Directory.current.parent.path
