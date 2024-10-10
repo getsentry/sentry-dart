@@ -22,12 +22,15 @@ void main() {
     sut.clear();
   });
 
-  group('regular route', () {
+  group('track', () {
     test(
         'approximation tracking creates and finishes ttid span with correct measurements',
         () async {
       final transaction = fixture.getTransaction() as SentryTracer;
-      await sut.trackRegularRoute(transaction, fixture.startTimestamp);
+      await sut.track(
+        transaction: transaction,
+        startTimestamp: fixture.startTimestamp,
+      );
 
       final children = transaction.children;
       expect(children, hasLength(1));
@@ -61,7 +64,10 @@ void main() {
       });
 
       final transaction = fixture.getTransaction() as SentryTracer;
-      await sut.trackRegularRoute(transaction, fixture.startTimestamp);
+      await sut.track(
+        transaction: transaction,
+        startTimestamp: fixture.startTimestamp,
+      );
 
       final children = transaction.children;
       expect(children, hasLength(1));
@@ -92,7 +98,10 @@ void main() {
       });
 
       final transaction = fixture.getTransaction() as SentryTracer;
-      await sut.trackRegularRoute(transaction, fixture.startTimestamp);
+      await sut.track(
+        transaction: transaction,
+        startTimestamp: fixture.startTimestamp,
+      );
 
       final children = transaction.children;
       expect(children, hasLength(1));
@@ -114,6 +123,44 @@ void main() {
           ttidSpan.endTimestamp!
               .difference(ttidSpan.startTimestamp)
               .inMilliseconds);
+    });
+
+    test('providing endTimestamp finishes transaction with it', () async {
+      final transaction = fixture.getTransaction() as SentryTracer;
+      final endTimestamp =
+          fixture.startTimestamp.add(Duration(milliseconds: 100));
+
+      await sut.track(
+        transaction: transaction,
+        startTimestamp: fixture.startTimestamp,
+        endTimestamp: endTimestamp,
+      );
+
+      final children = transaction.children;
+      expect(children, hasLength(1));
+
+      final ttidSpan = transaction.children.first;
+      expect(endTimestamp, ttidSpan.endTimestamp);
+
+      final ttidMeasurement =
+          transaction.measurements['time_to_initial_display'];
+
+      expect(ttidMeasurement, isNotNull);
+      expect(ttidMeasurement?.unit, DurationSentryMeasurementUnit.milliSecond);
+      expect(ttidMeasurement?.value, greaterThanOrEqualTo(100));
+    });
+
+    test('providing endTimestamp sets endTimestamp ivar', () async {
+      final transaction = fixture.getTransaction() as SentryTracer;
+      final endTimestamp = fixture.startTimestamp.add(Duration(seconds: 1));
+
+      await sut.track(
+        transaction: transaction,
+        startTimestamp: fixture.startTimestamp,
+        endTimestamp: endTimestamp,
+      );
+
+      expect(sut.endTimestamp, endTimestamp);
     });
   });
 

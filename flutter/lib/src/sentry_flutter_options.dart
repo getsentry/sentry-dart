@@ -8,6 +8,7 @@ import 'package:sentry/sentry.dart';
 import 'package:flutter/widgets.dart';
 
 import 'binding_wrapper.dart';
+import 'navigation/time_to_display_tracker.dart';
 import 'renderer/renderer.dart';
 import 'screenshot/sentry_screenshot_quality.dart';
 import 'event_processor/screenshot_event_processor.dart';
@@ -218,6 +219,11 @@ class SentryFlutterOptions extends SentryOptions {
   /// after the creation of the TTFD span, it will finish with the status [SpanStatus.deadlineExceeded].
   /// This feature requires using the [Routing Instrumentation](https://docs.sentry.io/platforms/flutter/integrations/routing-instrumentation/).
   bool enableTimeToFullDisplayTracing = false;
+
+  @meta.internal
+  late TimeToDisplayTracker timeToDisplayTracker = TimeToDisplayTracker(
+    options: this,
+  );
 
   /// Sets the Proguard uuid for Android platform.
   String? proguardUuid;
