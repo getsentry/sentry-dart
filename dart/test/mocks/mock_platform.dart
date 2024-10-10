@@ -1,9 +1,13 @@
+import 'dart:typed_data';
+
 import 'package:sentry/src/platform/platform.dart';
 
 import 'no_such_method_provider.dart';
 
 class MockPlatform extends Platform with NoSuchMethodProvider {
-  MockPlatform({String? os}) : operatingSystem = os ?? '';
+  MockPlatform({String? os, Endian? endian})
+      : operatingSystem = os ?? '',
+        endian = endian ?? Endian.host;
 
   factory MockPlatform.android() {
     return MockPlatform(os: 'android');
@@ -26,5 +30,11 @@ class MockPlatform extends Platform with NoSuchMethodProvider {
   }
 
   @override
-  String operatingSystem;
+  final String operatingSystem;
+
+  @override
+  final Endian endian;
+
+  @override
+  String toString() => operatingSystem;
 }

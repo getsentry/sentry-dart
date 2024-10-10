@@ -110,12 +110,11 @@ void main() {
 
   group('encodeStackTrace', () {
     test('encodes a simple stack trace', () {
-      final frames = Fixture()
-          .getSut(considerInAppFramesByDefault: true)
-          .getStackFrames('''
+      final frames =
+          Fixture().getSut(considerInAppFramesByDefault: true).parse('''
 #0      baz (file:///pathto/test.dart:50:3)
 #1      bar (file:///pathto/test.dart:46:9)
-      ''').map((frame) => frame.toJson());
+      ''').frames.map((frame) => frame.toJson());
 
       expect(frames, [
         {
@@ -139,14 +138,26 @@ void main() {
       ]);
     });
 
+    test('obsoleted getStackFrames works as expected', () {
+      final sut = Fixture().getSut(considerInAppFramesByDefault: true);
+      final trace = '''
+#0      baz (file:///pathto/test.dart:50:3)
+#1      bar (file:///pathto/test.dart:46:9)
+      ''';
+      final frames1 = sut.parse(trace).frames.map((frame) => frame.toJson());
+      // ignore: deprecated_member_use_from_same_package
+      final frames2 = sut.getStackFrames(trace).map((frame) => frame.toJson());
+
+      expect(frames1, equals(frames2));
+    });
+
     test('encodes an asynchronous stack trace', () {
-      final frames = Fixture()
-          .getSut(considerInAppFramesByDefault: true)
-          .getStackFrames('''
+      final frames =
+          Fixture().getSut(considerInAppFramesByDefault: true).parse('''
 #0      baz (file:///pathto/test.dart:50:3)
 <asynchronous suspension>
 #1      bar (file:///pathto/test.dart:46:9)
-      ''').map((frame) => frame.toJson());
+      ''').frames.map((frame) => frame.toJson());
 
       expect(frames, [
         {
@@ -201,7 +212,8 @@ isolate_instructions: 10fa27070, vm_instructions: 10fa21e20
       for (var traceString in stackTraces) {
         final frames = Fixture()
             .getSut(considerInAppFramesByDefault: true)
-            .getStackFrames(traceString)
+            .parse(traceString)
+            .frames
             .map((frame) => frame.toJson());
 
         expect(
@@ -221,13 +233,12 @@ isolate_instructions: 10fa27070, vm_instructions: 10fa21e20
     });
 
     test('parses normal stack trace', () {
-      final frames = Fixture()
-          .getSut(considerInAppFramesByDefault: true)
-          .getStackFrames('''
+      final frames =
+          Fixture().getSut(considerInAppFramesByDefault: true).parse('''
 #0 asyncThrows (file:/foo/bar/main.dart:404)
 #1 MainScaffold.build.<anonymous closure> (package:example/main.dart:131)
 #2 PlatformDispatcher._dispatchPointerDataPacket (dart:ui/platform_dispatcher.dart:341)
-            ''').map((frame) => frame.toJson());
+            ''').frames.map((frame) => frame.toJson());
       expect(frames, [
         {
           'filename': 'platform_dispatcher.dart',
@@ -260,9 +271,10 @@ isolate_instructions: 10fa27070, vm_instructions: 10fa21e20
     test('remove frames if only async gap is left', () {
       final frames = Fixture()
           .getSut(considerInAppFramesByDefault: true)
-          .getStackFrames(StackTrace.fromString('''
+          .parse(StackTrace.fromString('''
 <asynchronous suspension>
             '''))
+          .frames
           .map((frame) => frame.toJson());
       expect(frames.isEmpty, true);
     });
