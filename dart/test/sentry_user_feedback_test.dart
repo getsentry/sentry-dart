@@ -8,9 +8,11 @@ import 'mocks/mock_transport.dart';
 import 'test_utils.dart';
 
 void main() {
+  // ignore: deprecated_member_use_from_same_package
   group('$SentryUserFeedback', () {
     final id = SentryId.newId();
 
+    // ignore: deprecated_member_use_from_same_package
     final feedback = SentryUserFeedback(
       eventId: id,
       comments: 'this is awesome',
@@ -46,6 +48,7 @@ void main() {
 
     test('copyWith', () {
       final id = SentryId.newId();
+      // ignore: deprecated_member_use_from_same_package
       final feedback = SentryUserFeedback(
         eventId: id,
         comments: 'this is awesome',
@@ -69,17 +72,21 @@ void main() {
 
     test('disallow empty id', () {
       final id = SentryId.empty();
+      // ignore: deprecated_member_use_from_same_package
       expect(() => SentryUserFeedback(eventId: id),
           throwsA(isA<AssertionError>()));
     });
   });
 
+  // ignore: deprecated_member_use_from_same_package
   group('$SentryUserFeedback to envelops', () {
     test('to envelope', () {
+      // ignore: deprecated_member_use_from_same_package
       final feedback = SentryUserFeedback(
         eventId: SentryId.newId(),
         name: 'test',
       );
+      // ignore: deprecated_member_use_from_same_package
       final envelope = SentryEnvelope.fromUserFeedback(
         feedback,
         SdkVersion(name: 'a', version: 'b'),
@@ -96,9 +103,11 @@ void main() {
     });
   });
 
+  // ignore: deprecated_member_use_from_same_package
   test('sending $SentryUserFeedback', () async {
     final fixture = Fixture();
     final sut = fixture.getSut();
+    // ignore: deprecated_member_use_from_same_package
     await sut.captureUserFeedback(SentryUserFeedback(
       eventId: SentryId.newId(),
       name: 'test',
@@ -107,18 +116,23 @@ void main() {
     expect(fixture.transport.envelopes.length, 1);
   });
 
+  // ignore: deprecated_member_use_from_same_package
   test('cannot create $SentryUserFeedback with empty id', () async {
     expect(
+      // ignore: deprecated_member_use_from_same_package
       () => SentryUserFeedback(eventId: const SentryId.empty()),
       throwsA(isA<AssertionError>()),
     );
   });
 
+  // ignore: deprecated_member_use_from_same_package
   test('do not send $SentryUserFeedback when disabled', () async {
     final fixture = Fixture();
     final sut = fixture.getSut();
     await sut.close();
+    // ignore: deprecated_member_use_from_same_package
     await sut.captureUserFeedback(
+      // ignore: deprecated_member_use_from_same_package
       SentryUserFeedback(
         eventId: SentryId.newId(),
         name: 'test',
@@ -128,10 +142,12 @@ void main() {
     expect(fixture.transport.envelopes.length, 0);
   });
 
+  // ignore: deprecated_member_use_from_same_package
   test('do not send $SentryUserFeedback with empty id', () async {
     final fixture = Fixture();
     final sut = fixture.getSut();
     await sut.close();
+    // ignore: deprecated_member_use_from_same_package
     await sut.captureUserFeedback(
       SentryUserFeedbackWithoutAssert(
         eventId: SentryId.empty(),
@@ -148,7 +164,9 @@ void main() {
     final sut = Hub(options);
 
     await expectLater(() async {
+      // ignore: deprecated_member_use_from_same_package
       await sut.captureUserFeedback(
+        // ignore: deprecated_member_use_from_same_package
         SentryUserFeedback(eventId: SentryId.newId(), name: 'name'),
       );
     }, returnsNormally);
@@ -169,6 +187,7 @@ class Fixture {
 // You cannot create an instance of SentryUserFeedback with an empty id.
 // In order to test that UserFeedback with an empty id is not sent
 // we need to implement it and remove the assert.
+// ignore: deprecated_member_use_from_same_package
 class SentryUserFeedbackWithoutAssert implements SentryUserFeedback {
   SentryUserFeedbackWithoutAssert({
     required this.eventId,
@@ -205,12 +224,14 @@ class SentryUserFeedbackWithoutAssert implements SentryUserFeedback {
   }
 
   @override
+  // ignore: deprecated_member_use_from_same_package
   SentryUserFeedback copyWith({
     SentryId? eventId,
     String? name,
     String? email,
     String? comments,
   }) {
+    // ignore: deprecated_member_use_from_same_package
     return SentryUserFeedback(
       eventId: eventId ?? this.eventId,
       name: name ?? this.name,

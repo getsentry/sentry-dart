@@ -5,6 +5,7 @@ import 'package:meta/meta.dart';
 import 'dart_exception_type_identifier.dart';
 import 'load_dart_debug_images_integration.dart';
 import 'metrics/metrics_api.dart';
+import 'protocol/sentry_feedback.dart';
 import 'run_zoned_guarded_integration.dart';
 import 'event_processor/enricher/enricher_event_processor.dart';
 import 'environment/environment_variables.dart';
@@ -22,6 +23,7 @@ import 'sentry_client.dart';
 import 'sentry_options.dart';
 import 'sentry_user_feedback.dart';
 import 'tracing.dart';
+import 'sentry_attachment/sentry_attachment.dart';
 
 /// Configuration options callback
 typedef OptionsConfiguration = FutureOr<void> Function(SentryOptions);
@@ -221,8 +223,20 @@ class Sentry {
   /// Reports a [userFeedback] to Sentry.io.
   ///
   /// First capture an event and use the [SentryId] to create a [SentryUserFeedback]
+  @Deprecated(
+      'Will be removed in a future version. Use [captureFeedback] instead')
   static Future<void> captureUserFeedback(SentryUserFeedback userFeedback) =>
       _hub.captureUserFeedback(userFeedback);
+
+  /// Reports [SentryFeedback] to Sentry.io.
+  ///
+  /// Use [withScope] to add [SentryAttachment] to the feedback.
+  static Future<SentryId> captureFeedback(
+    SentryFeedback feedback, {
+    Hint? hint,
+    ScopeCallback? withScope,
+  }) =>
+      _hub.captureFeedback(feedback, hint: hint, withScope: withScope);
 
   /// Close the client SDK
   static Future<void> close() async {

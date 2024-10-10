@@ -9,7 +9,10 @@ class MockSentryClient with NoSuchMethodProvider implements SentryClient {
   List<CaptureMessageCall> captureMessageCalls = [];
   List<CaptureEnvelopeCall> captureEnvelopeCalls = [];
   List<CaptureTransactionCall> captureTransactionCalls = [];
+
+  // ignore: deprecated_member_use_from_same_package
   List<SentryUserFeedback> userFeedbackCalls = [];
+  List<CaptureFeedbackCall> captureFeedbackCalls = [];
   List<Map<int, Iterable<Metric>>> captureMetricsCalls = [];
   int closeCalls = 0;
 
@@ -72,8 +75,23 @@ class MockSentryClient with NoSuchMethodProvider implements SentryClient {
   }
 
   @override
+  // ignore: deprecated_member_use_from_same_package
   Future<void> captureUserFeedback(SentryUserFeedback userFeedback) async {
     userFeedbackCalls.add(userFeedback);
+  }
+
+  @override
+  Future<SentryId> captureFeedback(
+    SentryFeedback feedback, {
+    Scope? scope,
+    Hint? hint,
+  }) async {
+    captureFeedbackCalls.add(CaptureFeedbackCall(
+      feedback,
+      scope,
+      hint,
+    ));
+    return SentryId.newId();
   }
 
   @override
@@ -109,6 +127,18 @@ class CaptureEventCall {
     this.event,
     this.scope,
     this.stackTrace,
+    this.hint,
+  );
+}
+
+class CaptureFeedbackCall {
+  final SentryFeedback feedback;
+  final Hint? hint;
+  final Scope? scope;
+
+  CaptureFeedbackCall(
+    this.feedback,
+    this.scope,
     this.hint,
   );
 }

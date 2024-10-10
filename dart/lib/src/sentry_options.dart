@@ -161,6 +161,10 @@ class SentryOptions {
   /// transaction object or nothing to skip reporting the transaction
   BeforeSendTransactionCallback? beforeSendTransaction;
 
+  /// This function is called with an SDK specific feedback event object and can return a modified
+  /// feedback event object or nothing to skip reporting the feedback event
+  BeforeSendCallback? beforeSendFeedback;
+
   /// This function is called with an SDK specific breadcrumb object before the breadcrumb is added
   /// to the scope. When nothing is returned from the function, the breadcrumb is dropped
   BeforeBreadcrumbCallback? beforeBreadcrumb;
