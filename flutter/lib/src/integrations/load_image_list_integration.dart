@@ -68,7 +68,7 @@ class _LoadImageListIntegrationEventProcessor implements EventProcessor {
   Set<String> _collectImageAddressesFromStackTrace(SentryStackTrace trace) {
     Set<String> instructionAddresses = {};
     for (var frame in trace.frames) {
-      if (frame.imageAddr != null) {
+      if (frame.instructionAddr != null) {
         instructionAddresses.add(frame.instructionAddr!);
       }
     }
