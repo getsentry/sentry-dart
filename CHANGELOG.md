@@ -26,6 +26,12 @@
   );
   ```
 
+  Also, you can wrap any of your widgets with `SentryMask()` or `SentryUnmask()` widgets to mask/unmask them, respectively. For example:
+
+  ```dart
+   SentryUnmask(Text('Not secret at all'));
+  ```
+
 ### Enhancements
 
 - Use native spotlight integrations on Flutter Android, iOS, macOS ([#2285](https://github.com/getsentry/sentry-dart/pull/2285))
