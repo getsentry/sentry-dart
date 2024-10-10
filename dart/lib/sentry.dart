@@ -58,3 +58,5 @@ export 'src/utils.dart';
 export 'src/spotlight.dart';
 // proxy
 export 'src/protocol/sentry_proxy.dart';
+// feedback
+export 'src/protocol/sentry_feedback.dart';

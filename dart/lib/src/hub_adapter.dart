@@ -1,19 +1,20 @@
 import 'dart:async';
 
 import 'package:meta/meta.dart';
-import 'hint.dart';
 
+import 'hint.dart';
 import 'hub.dart';
 import 'metrics/metric.dart';
 import 'metrics/metrics_aggregator.dart';
 import 'metrics/metrics_api.dart';
 import 'profiling.dart';
 import 'protocol.dart';
+import 'protocol/sentry_feedback.dart';
 import 'scope.dart';
 import 'sentry.dart';
 import 'sentry_client.dart';
-import 'sentry_user_feedback.dart';
 import 'sentry_options.dart';
+import 'sentry_user_feedback.dart';
 import 'tracing.dart';
 
 /// Hub adapter to make Integrations testable
@@ -118,7 +119,9 @@ class HubAdapter implements Hub {
   ISentrySpan? getSpan() => Sentry.currentHub.getSpan();
 
   @override
+  // ignore: deprecated_member_use_from_same_package
   Future<void> captureUserFeedback(SentryUserFeedback userFeedback) =>
+      // ignore: deprecated_member_use_from_same_package
       Sentry.captureUserFeedback(userFeedback);
 
   @override
@@ -197,4 +200,16 @@ class HubAdapter implements Hub {
   @override
   MetricsAggregator? get metricsAggregator =>
       Sentry.currentHub.metricsAggregator;
+
+  @override
+  Future<SentryId> captureFeedback(
+    SentryFeedback feedback, {
+    Hint? hint,
+    ScopeCallback? withScope,
+  }) =>
+      Sentry.currentHub.captureFeedback(
+        feedback,
+        hint: hint,
+        withScope: withScope,
+      );
 }

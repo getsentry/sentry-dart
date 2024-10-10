@@ -32,6 +32,22 @@
    SentryUnmask(Text('Not secret at all'));
   ```
 
+- Support `captureFeedback` ([#2230](https://github.com/getsentry/sentry-dart/pull/2230))
+  - Deprecated `Sentry.captureUserFeedback`, use `captureFeedback` instead.
+  - Deprecated `Hub.captureUserFeedback`, use `captureFeedback` instead.
+  - Deprecated `SentryClient.captureUserFeedback`, use `captureFeedback` instead.
+  - Deprecated `SentryUserFeedback`, use `SentryFeedback` instead.
+- Add `SentryFeedbackWidget` ([#2240](https://github.com/getsentry/sentry-dart/pull/2240))
+```dart
+Navigator.push(
+  context,
+  MaterialPageRoute(
+    builder: (context) => SentryFeedbackWidget(associatedEventId: id),
+    fullscreenDialog: true,
+  ),
+);
+```
+
 ### Enhancements
 
 - Use native spotlight integrations on Flutter Android, iOS, macOS ([#2285](https://github.com/getsentry/sentry-dart/pull/2285))
@@ -83,7 +99,6 @@
   ```
 
 - Support allowUrls and denyUrls for Flutter Web ([#2227](https://github.com/getsentry/sentry-dart/pull/2227))
-
   ```dart
   await SentryFlutter.init(
     (options) {
@@ -94,7 +109,6 @@
     appRunner: () => runApp(MyApp()),
   );
   ```
-
 - Collect touch breadcrumbs for all buttons, not just those with `key` specified. ([#2242](https://github.com/getsentry/sentry-dart/pull/2242))
 - Add `enableDartSymbolication` option to Sentry.init() for **Flutter iOS, macOS and Android** ([#2256](https://github.com/getsentry/sentry-dart/pull/2256))
   - This flag enables symbolication of Dart stack traces when native debug images are not available.
@@ -117,14 +131,12 @@
 
 - Add `SentryFlutter.nativeCrash()` using MethodChannels for Android and iOS ([#2239](https://github.com/getsentry/sentry-dart/pull/2239))
   - This can be used to test if native crash reporting works
-
 - Add `ignoreRoutes` parameter to `SentryNavigatorObserver`. ([#2218](https://github.com/getsentry/sentry-dart/pull/2218))
-  - This will ignore the Routes and prevent the Route from being pushed to the Sentry server.
-  - Ignored routes will also create no TTID and TTFD spans.
-
-  ```dart
-  SentryNavigatorObserver(ignoreRoutes: ["/ignoreThisRoute"]),
-  ```
+    - This will ignore the Routes and prevent the Route from being pushed to the Sentry server.
+    - Ignored routes will also create no TTID and TTFD spans.
+```dart
+SentryNavigatorObserver(ignoreRoutes: ["/ignoreThisRoute"]),
+```
 
 ### Improvements
 
