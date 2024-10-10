@@ -280,7 +280,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
     private func loadImageList(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
       var debugImages: [DebugMeta] = []
       
-      if let arguments = call.arguments as? Set<String> {
+      if let arguments = call.arguments as? Set<String> , !arguments.isEmpty{
           var imagesAddresses: Set<String> = []
 
           for argument in arguments {
