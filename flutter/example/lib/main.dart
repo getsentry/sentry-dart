@@ -91,6 +91,7 @@ Future<void> setupSentry(
 
       options.experimental.replay.sessionSampleRate = 1.0;
       options.experimental.replay.onErrorSampleRate = 1.0;
+      options.experimental.replay.maskAllText = false;
 
       _isIntegrationTest = isIntegrationTest;
       if (_isIntegrationTest) {
@@ -198,6 +199,17 @@ class MainScaffold extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
+            const CustomPaint(
+                child: Center(
+              child: Text(
+                'Custom paint',
+                style: TextStyle(
+                  fontSize: 40.0,
+                  fontWeight: FontWeight.w900,
+                  color: Color.fromARGB(255, 166, 7, 7),
+                ),
+              ),
+            )),
             if (_isIntegrationTest) const IntegrationTestWidget(),
             const Center(child: Text('Trigger an action.\n')),
             const Padding(
