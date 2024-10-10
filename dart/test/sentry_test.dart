@@ -153,10 +153,6 @@ void main() {
 
       expect(Sentry.getSpan(), isNull);
     });
-
-    test('should provide metrics API', () async {
-      expect(Sentry.metrics(), Sentry.currentHub.metricsApi);
-    });
   });
 
   group('Sentry is enabled or disabled', () {

@@ -115,7 +115,9 @@ mixin SentryFlutter {
 
     // Not all platforms have a native integration.
     if (_native != null) {
-      options.transport = FileSystemTransport(_native!, options);
+      if (_native!.supportsCaptureEnvelope) {
+        options.transport = FileSystemTransport(_native!, options);
+      }
       options.addScopeObserver(NativeScopeObserver(_native!));
     }
 
@@ -170,7 +172,9 @@ mixin SentryFlutter {
     final native = _native;
     if (native != null) {
       integrations.add(NativeSdkIntegration(native));
-      integrations.add(LoadContextsIntegration(native));
+      if (native.supportsLoadContexts) {
+        integrations.add(LoadContextsIntegration(native));
+      }
       integrations.add(LoadImageListIntegration(native));
       options.enableDartSymbolication = false;
     }
@@ -247,22 +251,22 @@ mixin SentryFlutter {
 
   /// Pauses the app hang tracking.
   /// Only for iOS and macOS.
-  static Future<void> pauseAppHangTracking() {
+  static Future<void> pauseAppHangTracking() async {
     if (_native == null) {
       _logNativeIntegrationNotAvailable("pauseAppHangTracking");
-      return Future<void>.value();
+    } else {
+      await _native!.pauseAppHangTracking();
     }
-    return _native!.pauseAppHangTracking();
   }
 
   /// Resumes the app hang tracking.
   /// Only for iOS and macOS
-  static Future<void> resumeAppHangTracking() {
+  static Future<void> resumeAppHangTracking() async {
     if (_native == null) {
       _logNativeIntegrationNotAvailable("resumeAppHangTracking");
-      return Future<void>.value();
+    } else {
+      await _native!.resumeAppHangTracking();
     }
-    return _native!.resumeAppHangTracking();
   }
 
   @internal
@@ -276,7 +280,7 @@ mixin SentryFlutter {
   /// Use `nativeCrash()` to crash the native implementation and test/debug the crash reporting for native code.
   /// This should not be used in production code.
   /// Only for Android, iOS and macOS
-  static Future<void> nativeCrash() {
+  static Future<void> nativeCrash() async {
     if (_native == null) {
       _logNativeIntegrationNotAvailable("nativeCrash");
       return Future<void>.value();

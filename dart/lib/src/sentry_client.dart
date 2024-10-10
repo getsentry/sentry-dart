@@ -7,7 +7,6 @@ import 'client_reports/client_report_recorder.dart';
 import 'client_reports/discard_reason.dart';
 import 'event_processor.dart';
 import 'hint.dart';
-import 'load_dart_debug_images_integration.dart';
 import 'metrics/metric.dart';
 import 'metrics/metrics_aggregator.dart';
 import 'protocol.dart';
@@ -127,7 +126,6 @@ class SentryClient {
     SentryEvent? preparedEvent = _prepareEvent(event, stackTrace: stackTrace);
 
     hint ??= Hint();
-    hint.set(hintRawStackTraceKey, stackTrace.toString());
 
     if (scope != null) {
       preparedEvent = await scope.applyToEvent(preparedEvent, hint);
@@ -283,9 +281,8 @@ class SentryClient {
     // https://develop.sentry.dev/sdk/event-payloads/stacktrace/
     if (stackTrace != null || _options.attachStacktrace) {
       stackTrace ??= getCurrentStackTrace();
-      final frames = _stackTraceFactory.getStackFrames(stackTrace);
-
-      if (frames.isNotEmpty) {
+      final sentryStackTrace = _stackTraceFactory.parse(stackTrace);
+      if (sentryStackTrace.frames.isNotEmpty) {
         event = event.copyWith(threads: [
           ...?event.threads,
           SentryThread(
@@ -293,7 +290,7 @@ class SentryClient {
             id: isolateId,
             crashed: false,
             current: true,
-            stacktrace: SentryStackTrace(frames: frames),
+            stacktrace: sentryStackTrace,
           ),
         ]);
       }

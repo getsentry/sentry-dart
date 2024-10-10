@@ -29,6 +29,7 @@ class HubAdapter implements Hub {
 
   @override
   @internal
+  // ignore: deprecated_member_use_from_same_package
   MetricsApi get metricsApi => Sentry.currentHub.metricsApi;
 
   factory HubAdapter() {

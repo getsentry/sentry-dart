@@ -11,6 +11,8 @@
   - Deprecated `Hub.captureUserFeedback`, use `captureFeedback` instead.
   - Deprecated `SentryClient.captureUserFeedback`, use `captureFeedback` instead.
   - Deprecated `SentryUserFeedback`, use `SentryFeedback` instead.
+- Blocking app starts if "appLaunchedInForeground" is false. (Android only) ([#2291](https://github.com/getsentry/sentry-dart/pull/2291))
+- Windows native error & obfuscation support ([#2286](https://github.com/getsentry/sentry-dart/pull/2286))
 - Add `SentryFeedbackWidget` ([#2240](https://github.com/getsentry/sentry-dart/pull/2240))
 ```dart
 Navigator.push(
@@ -28,6 +30,7 @@ Navigator.push(
 - Improve app start integration ([#2266](https://github.com/getsentry/sentry-dart/pull/2266))
   - Fixes ([#2103](https://github.com/getsentry/sentry-dart/issues/2103))
   - Fixes ([#2233](https://github.com/getsentry/sentry-dart/issues/2233))
+- Only store slow and frozen frames for frame delay calculation ([#2337](https://github.com/getsentry/sentry-dart/pull/2337))
 
 ### Fixes
 
@@ -35,6 +38,21 @@ Navigator.push(
 - Only start frame tracking if we receive valid display refresh data ([#2307](https://github.com/getsentry/sentry-dart/pull/2307))
 - Rounding error used on frames.total and reject frame measurements if frames.total is less than frames.slow or frames.frozen ([#2308](https://github.com/getsentry/sentry-dart/pull/2308))
 - iOS replay integration when only `onErrorSampleRate` is specified ([#2306](https://github.com/getsentry/sentry-dart/pull/2306))
+- Fix TTID timing issue ([#2326](https://github.com/getsentry/sentry-dart/pull/2326))
+
+### Deprecate
+
+- Metrics API ([#2312](https://github.com/getsentry/sentry-dart/pull/2312))
+  - Learn more: https://sentry.zendesk.com/hc/en-us/articles/26369339769883-Metrics-Beta-Coming-to-an-End
+
+### Dependencies
+
+- Bump Cocoa SDK from v8.36.0 to v8.37.0 ([#2334](https://github.com/getsentry/sentry-dart/pull/2334))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8370)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.36.0...8.37.0)
+- Bump Android SDK from v7.14.0 to v7.15.0 ([#2342](https://github.com/getsentry/sentry-dart/pull/2342))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#7150)
+  - [diff](https://github.com/getsentry/sentry-java/compare/7.14.0...7.15.0)
 
 ## 8.9.0
 
