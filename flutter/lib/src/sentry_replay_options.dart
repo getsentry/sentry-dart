@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
@@ -74,6 +75,23 @@ class SentryReplayOptions {
       } else {
         rules
             .add(const SentryMaskingCustomRule<Image>(_maskImagesExceptAssets));
+      }
+
+      // Mask CustomPaint, except for DEBUG banner which overlays the whole screen in debug builds.
+      if (kReleaseMode) {
+        rules.add(const SentryMaskingConstantRule<CustomPaint>(
+            SentryMaskingDecision.mask));
+      } else {
+        rules.add(SentryMaskingCustomRule<CustomPaint>(
+            (Element element, CustomPaint widget) {
+          final parent = element.parent;
+          if (parent is StatefulElement &&
+              (parent.widget is Banner) &&
+              (parent.widget as Banner).message == 'DEBUG') {
+            return SentryMaskingDecision.continueProcessing;
+          }
+          return SentryMaskingDecision.mask;
+        }));
       }
     } else {
       assert(!maskAssetImages,

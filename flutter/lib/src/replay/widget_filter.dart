@@ -197,7 +197,8 @@ class WidgetFilterItem {
   const WidgetFilterItem(this.color, this.bounds);
 }
 
-extension on Element {
+@internal
+extension ElementParentFinder on Element {
   Element? get parent {
     Element? result;
     visitAncestorElements((el) {
