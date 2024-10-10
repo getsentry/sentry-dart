@@ -39,9 +39,8 @@ class _LoadImageListIntegrationEventProcessor implements EventProcessor {
       if (exceptions != null && exceptions.isNotEmpty) {
         for (var e in exceptions) {
           if (e.stackTrace != null) {
-            instructionAddresses.addAll(
-              _collectImageAddressesFromStackTrace(e.stackTrace!),
-            );
+            _collectImageAddressesFromStackTrace(
+                e.stackTrace!, instructionAddresses);
           }
         }
       }
@@ -49,9 +48,8 @@ class _LoadImageListIntegrationEventProcessor implements EventProcessor {
       if (event.threads != null && event.threads!.isNotEmpty) {
         for (var thread in event.threads!) {
           if (thread.stacktrace != null) {
-            instructionAddresses.addAll(
-              _collectImageAddressesFromStackTrace(thread.stacktrace!),
-            );
+            _collectImageAddressesFromStackTrace(
+                thread.stacktrace!, instructionAddresses);
           }
         }
       }
@@ -65,13 +63,12 @@ class _LoadImageListIntegrationEventProcessor implements EventProcessor {
     return event;
   }
 
-  Set<String> _collectImageAddressesFromStackTrace(SentryStackTrace trace) {
-    Set<String> instructionAddresses = {};
+  void _collectImageAddressesFromStackTrace(
+      SentryStackTrace trace, Set<String> instructionAddresses) {
     for (var frame in trace.frames) {
       if (frame.instructionAddr != null) {
         instructionAddresses.add(frame.instructionAddr!);
       }
     }
-    return instructionAddresses;
   }
 }
