@@ -18,9 +18,11 @@ void main() {
       fixture = Fixture();
     });
 
-    test('captured span if successful request', () async {
+    test('captured span if successful request without Pii', () async {
+      final responseBody = "test response body";
       final sut = fixture.getSut(
-        client: fixture.getClient(statusCode: 200, reason: 'OK'),
+        client: fixture.getClient(
+            statusCode: 200, reason: 'OK', body: responseBody),
       );
       final tr = fixture._hub.startTransaction(
         'name',
@@ -43,7 +45,41 @@ void main() {
       expect(span.data['http.query'], 'foo=bar');
       expect(span.data['http.fragment'], 'baz');
       expect(span.data['http.response.status_code'], 200);
-      expect(span.data['http.response_content_length'], 2);
+      expect(span.data['http.response_content_length'], responseBody.length);
+      expect(span.data['http.response_content'], null);
+      expect(span.origin, SentryTraceOrigins.autoHttpHttp);
+    });
+
+    test('captured span if successful request with Pii', () async {
+      fixture._hub.options.sendDefaultPii = true;
+      final responseBody = "test response body";
+      final sut = fixture.getSut(
+        client: fixture.getClient(
+            statusCode: 200, reason: 'OK', body: responseBody),
+      );
+      final tr = fixture._hub.startTransaction(
+        'name',
+        'op',
+        bindToScope: true,
+      );
+
+      await sut.get(requestUri);
+
+      await tr.finish();
+
+      final tracer = (tr as SentryTracer);
+      final span = tracer.children.first;
+
+      expect(span.status, SpanStatus.ok());
+      expect(span.context.operation, 'http.client');
+      expect(span.context.description, 'GET https://example.com');
+      expect(span.data['http.request.method'], 'GET');
+      expect(span.data['url'], 'https://example.com');
+      expect(span.data['http.query'], 'foo=bar');
+      expect(span.data['http.fragment'], 'baz');
+      expect(span.data['http.response.status_code'], 200);
+      expect(span.data['http.response_content_length'], responseBody.length);
+      expect(span.data['http.response_content'], responseBody);
       expect(span.origin, SentryTraceOrigins.autoHttpHttp);
     });
 
@@ -244,10 +280,15 @@ class Fixture {
     );
   }
 
-  MockClient getClient({int statusCode = 200, String? reason}) {
+  MockClient getClient({
+    int statusCode = 200,
+    // String body = '{}',
+    String body = '',
+    String? reason,
+  }) {
     return MockClient((request) async {
       expect(request.url, requestUri);
-      return Response('{}', statusCode, reasonPhrase: reason, request: request);
+      return Response(body, statusCode, reasonPhrase: reason, request: request);
     });
   }
 }

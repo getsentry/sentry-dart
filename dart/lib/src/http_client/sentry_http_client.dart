@@ -1,4 +1,6 @@
 import 'package:http/http.dart';
+import 'package:meta/meta.dart';
+import '../../sentry.dart';
 import 'tracing_client.dart';
 import '../hub.dart';
 import '../hub_adapter.dart';
@@ -159,4 +161,96 @@ class SentryStatusCode {
     }
     return '$_min..$_max';
   }
+}
+
+@internal
+// See https://develop.sentry.dev/sdk/event-payloads/request/
+Future<void> captureEvent(
+  Hub hub, {
+  Object? exception,
+  StackTrace? stackTrace,
+  String? reason,
+  required Duration requestDuration,
+  required BaseRequest request,
+  required StreamedResponse? response,
+}) async {
+  final sentryRequest = SentryRequest.fromUri(
+    method: request.method,
+    headers: hub.options.sendDefaultPii ? request.headers : null,
+    uri: request.url,
+    data: hub.options.sendDefaultPii ? _getDataFromRequest(hub, request) : null,
+    // ignore: deprecated_member_use_from_same_package
+    other: {
+      'content_length': request.contentLength.toString(),
+      'duration': requestDuration.toString(),
+    },
+  );
+
+  final mechanism = Mechanism(
+    type: 'SentryHttpClient',
+    description: reason,
+  );
+
+  bool? snapshot;
+  ThrowableMechanism? throwableMechanism;
+  if (exception is SentryHttpClientError) {
+    snapshot = true;
+    throwableMechanism = ThrowableMechanism(
+      mechanism,
+      exception,
+      snapshot: snapshot,
+    );
+  }
+
+  final event = SentryEvent(
+    throwable: throwableMechanism,
+    request: sentryRequest,
+    timestamp: hub.options.clock(),
+  );
+
+  final hint = Hint.withMap({TypeCheckHint.httpRequest: request});
+
+  if (response != null) {
+    final responseBody = await response.stream.bytesToString();
+    event.contexts.response = SentryResponse(
+      headers: hub.options.sendDefaultPii ? response.headers : null,
+      bodySize: response.contentLength,
+      statusCode: response.statusCode,
+      data: hub.options.sendDefaultPii &&
+              hub.options.maxResponseBodySize
+                  .shouldAddBody(response.contentLength!)
+          ? responseBody
+          : null,
+    );
+    hint.set(TypeCheckHint.httpResponse, response);
+  }
+
+  await hub.captureEvent(
+    event,
+    stackTrace: stackTrace,
+    hint: hint,
+  );
+}
+
+// Types of Request can be found here:
+// https://pub.dev/documentation/http/latest/http/http-library.html
+Object? _getDataFromRequest(Hub hub, BaseRequest request) {
+  final contentLength = request.contentLength;
+  if (contentLength == null) {
+    return null;
+  }
+  if (!hub.options.maxRequestBodySize.shouldAddBody(contentLength)) {
+    return null;
+  }
+  if (request is MultipartRequest) {
+    final data = <String, String>{...request.fields};
+    return data;
+  }
+
+  if (request is Request) {
+    return request.body;
+  }
+
+  // There's nothing we can do for a StreamedRequest
+  return null;
 }
