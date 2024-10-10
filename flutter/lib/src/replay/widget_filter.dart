@@ -16,6 +16,10 @@ class WidgetFilter {
   late Rect _bounds;
   final _warnedWidgets = <int>{};
 
+  /// Used to test _obscureElementOrParent
+  @visibleForTesting
+  bool throwInObscure = false;
+
   WidgetFilter(this.config, this.logger);
 
   void obscure(BuildContext context, double pixelRatio, Rect bounds) {
@@ -128,6 +132,15 @@ class WidgetFilter {
     } else if (widget is Image) {
       color = (widget).color;
     }
+
+    // test-only code
+    assert(() {
+      if (throwInObscure) {
+        throwInObscure = false;
+        return false;
+      }
+      return true;
+    }());
 
     return WidgetFilterItem(color ?? _defaultColor, rect);
   }

@@ -149,6 +149,20 @@ void main() async {
     sut.obscure(element, 1.0, defaultBounds);
     expect(sut.items, isEmpty);
   });
+
+  testWidgets('obscureElementOrParent', (tester) async {
+    final sut = createSut(redactText: true);
+    final element = await pumpTestElement(tester, children: [
+      Padding(padding: EdgeInsets.all(100), child: Text('foo')),
+    ]);
+    sut.obscure(element, 1.0, defaultBounds);
+    expect(sut.items.length, 1);
+    expect(boundsRect(sut.items[0]), '144x48');
+    sut.throwInObscure = true;
+    sut.obscure(element, 1.0, defaultBounds);
+    expect(sut.items.length, 1);
+    expect(boundsRect(sut.items[0]), '344x248');
+  });
 }
 
 class TestAssetBundle extends CachingAssetBundle {
