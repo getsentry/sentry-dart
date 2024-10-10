@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import '_io_platform.dart'
     if (dart.library.html) '_html_platform.dart'
     if (dart.library.js_interop) '_web_platform.dart' as platform;
@@ -16,6 +18,9 @@ abstract class Platform {
 
   /// Get the local hostname for the system.
   String get localHostname;
+
+  /// Endianness of this platform.
+  Endian get endian => Endian.host;
 
   /// True if the operating system is Linux.
   bool get isLinux => (operatingSystem == 'linux');
