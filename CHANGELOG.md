@@ -5,14 +5,14 @@
 ### Features
 
 - Emit `transaction.data` inside `contexts.trace.data` ([#2284](https://github.com/getsentry/sentry-dart/pull/2284))
-- Blocking app starts if "appLaunchedInForeground" is false. (Android only) ([#2291](https://github.com/getsentry/sentry-dart/pull/2291)
+- Blocking app starts if "appLaunchedInForeground" is false. (Android only) ([#2291](https://github.com/getsentry/sentry-dart/pull/2291))
+- Blocking app starts if "appLaunchedInForeground" is false. (Android only) ([#2291](https://github.com/getsentry/sentry-dart/pull/2291))
+- Windows native error & obfuscation support ([#2286](https://github.com/getsentry/sentry-dart/pull/2286))
 - Support `captureFeedback` ([#2230](https://github.com/getsentry/sentry-dart/pull/2230))
   - Deprecated `Sentry.captureUserFeedback`, use `captureFeedback` instead.
   - Deprecated `Hub.captureUserFeedback`, use `captureFeedback` instead.
   - Deprecated `SentryClient.captureUserFeedback`, use `captureFeedback` instead.
   - Deprecated `SentryUserFeedback`, use `SentryFeedback` instead.
-- Blocking app starts if "appLaunchedInForeground" is false. (Android only) ([#2291](https://github.com/getsentry/sentry-dart/pull/2291))
-- Windows native error & obfuscation support ([#2286](https://github.com/getsentry/sentry-dart/pull/2286))
 - Add `SentryFeedbackWidget` ([#2240](https://github.com/getsentry/sentry-dart/pull/2240))
 ```dart
 Navigator.push(
