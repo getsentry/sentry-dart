@@ -43,3 +43,6 @@ app.*.map.json
 # sqflite
 web/sqflite_sw.js
 web/sqlite3.wasm
+
+# Sentry native local storage
+.sentry-native

@@ -159,6 +159,10 @@ class Fixture {
   final options = defaultTestOptions();
   final binding = MockSentryNativeBinding();
 
+  Fixture() {
+    when(binding.captureEnvelope(any, any)).thenReturn(null);
+  }
+
   FileSystemTransport getSut() {
     return FileSystemTransport(binding, options);
   }
