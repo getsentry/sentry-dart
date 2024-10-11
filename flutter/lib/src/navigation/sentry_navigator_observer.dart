@@ -78,7 +78,6 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     bool setRouteNameAsTransaction = false,
     RouteNameExtractor? routeNameExtractor,
     AdditionalInfoExtractor? additionalInfoProvider,
-    @visibleForTesting TimeToDisplayTracker? timeToDisplayTracker,
     List<String>? ignoreRoutes,
   })  : _hub = hub ?? HubAdapter(),
         _enableAutoTransactions = enableAutoTransactions,
@@ -92,19 +91,17 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     if (enableAutoTransactions) {
       _hub.options.sdk.addIntegration('UINavigationTracing');
     }
-    _timeToDisplayTracker =
-        timeToDisplayTracker ?? _initializeTimeToDisplayTracker();
+    _timeToDisplayTracker = _initializeTimeToDisplayTracker();
   }
 
   /// Initializes the TimeToDisplayTracker with the option to enable time to full display tracing.
-  TimeToDisplayTracker _initializeTimeToDisplayTracker() {
-    bool enableTimeToFullDisplayTracing = false;
+  TimeToDisplayTracker? _initializeTimeToDisplayTracker() {
     final options = _hub.options;
     if (options is SentryFlutterOptions) {
-      enableTimeToFullDisplayTracing = options.enableTimeToFullDisplayTracing;
+      return options.timeToDisplayTracker;
+    } else {
+      return null;
     }
-    return TimeToDisplayTracker(
-        enableTimeToFullDisplayTracing: enableTimeToFullDisplayTracing);
   }
 
   final Hub _hub;
@@ -115,11 +112,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   final AdditionalInfoExtractor? _additionalInfoProvider;
   final SentryNativeBinding? _native;
   final List<String> _ignoreRoutes;
-  static TimeToDisplayTracker? _timeToDisplayTracker;
-
-  @internal
-  static TimeToDisplayTracker? get timeToDisplayTracker =>
-      _timeToDisplayTracker;
+  TimeToDisplayTracker? _timeToDisplayTracker;
 
   ISentrySpan? _transaction;
 
@@ -362,7 +355,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       }
 
       if (!isAppStart) {
-        await _timeToDisplayTracker?.trackRegularRouteTTD(
+        await _timeToDisplayTracker?.track(
           transaction,
           startTimestamp: startTimestamp,
         );

@@ -246,17 +246,21 @@ mixin SentryFlutter {
   /// Reports the time it took for the screen to be fully displayed.
   /// This requires the [SentryFlutterOptions.enableTimeToFullDisplayTracing] option to be set to `true`.
   static Future<void> reportFullyDisplayed() async {
-    try {
-      return SentryNavigatorObserver.timeToDisplayTracker
-          ?.reportFullyDisplayed();
-    } catch (e, stackTrace) {
-      // ignore: invalid_use_of_internal_member
-      Sentry.currentHub.options.logger(
-        SentryLevel.error,
-        'Error while reporting TTFD',
-        exception: e,
-        stackTrace: stackTrace,
-      );
+    // ignore: invalid_use_of_internal_member
+    final options = Sentry.currentHub.options;
+    if (options is SentryFlutterOptions) {
+      try {
+        return options.timeToDisplayTracker.reportFullyDisplayed();
+      } catch (exception, stackTrace) {
+        options.logger(
+          SentryLevel.error,
+          'Error while reporting TTFD',
+          exception: exception,
+          stackTrace: stackTrace,
+        );
+      }
+    } else {
+      return;
     }
   }
 

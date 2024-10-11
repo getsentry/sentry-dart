@@ -23,7 +23,10 @@ void main() {
       sut.reportFullyDisplayed();
     });
 
-    await sut.track(transaction, fixture.startTimestamp);
+    await sut.track(
+      transaction: transaction,
+      startTimestamp: fixture.startTimestamp,
+    );
 
     final ttfdSpan = transaction.children.first;
     expect(transaction.children, hasLength(1));
@@ -49,7 +52,10 @@ void main() {
     final sut = fixture.getSut();
     final transaction = fixture.getTransaction() as SentryTracer;
 
-    await sut.track(transaction, fixture.startTimestamp);
+    await sut.track(
+      transaction: transaction,
+      startTimestamp: fixture.startTimestamp,
+    );
 
     final ttfdSpan = transaction.children.first;
     expect(transaction.children, hasLength(1));
@@ -72,7 +78,8 @@ void main() {
       sut.reportFullyDisplayed();
     });
 
-    await sut.track(transaction, fixture.startTimestamp);
+    await sut.track(
+        transaction: transaction, startTimestamp: fixture.startTimestamp);
   });
 
   test('finishing ttfd without starting tracker does not throw', () async {
