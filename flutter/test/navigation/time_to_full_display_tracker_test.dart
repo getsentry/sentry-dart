@@ -78,7 +78,8 @@ void main() {
       sut.reportFullyDisplayed();
     });
 
-    await sut.track(transaction, fixture.startTimestamp);
+    await sut.track(
+        transaction: transaction, startTimestamp: fixture.startTimestamp);
   });
 
   test('finishing ttfd without starting tracker does not throw', () async {
