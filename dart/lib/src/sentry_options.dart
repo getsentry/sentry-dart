@@ -161,6 +161,10 @@ class SentryOptions {
   /// transaction object or nothing to skip reporting the transaction
   BeforeSendTransactionCallback? beforeSendTransaction;
 
+  /// This function is called with an SDK specific feedback event object and can return a modified
+  /// feedback event object or nothing to skip reporting the feedback event
+  BeforeSendCallback? beforeSendFeedback;
+
   /// This function is called with an SDK specific breadcrumb object before the breadcrumb is added
   /// to the scope. When nothing is returned from the function, the breadcrumb is dropped
   BeforeBreadcrumbCallback? beforeBreadcrumb;
@@ -366,8 +370,8 @@ class SentryOptions {
   /// [Sentry.init] is used instead of `SentryFlutter.init`. This is useful
   /// when native debug images are not available.
   ///
-  /// Automatically set to `false` when using `SentryFlutter.init`, as it uses
-  /// native SDKs for setting up symbolication on iOS, macOS, and Android.
+  /// Automatically set to `false` when using `SentryFlutter.init` on a platform
+  /// with a native integration (e.g. Android, iOS, ...).
   bool enableDartSymbolication = true;
 
   @internal

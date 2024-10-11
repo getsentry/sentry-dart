@@ -87,11 +87,17 @@ class SentryNativeChannel
   }
 
   @override
+  bool get supportsCaptureEnvelope => true;
+
+  @override
   Future<void> captureEnvelope(
       Uint8List envelopeData, bool containsUnhandledException) {
     return channel.invokeMethod(
         'captureEnvelope', [envelopeData, containsUnhandledException]);
   }
+
+  @override
+  bool get supportsLoadContexts => true;
 
   @override
   Future<Map<String, dynamic>?> loadContexts() =>
@@ -178,7 +184,7 @@ class SentryNativeChannel
       });
 
   @override
-  Future<List<DebugImage>?> loadDebugImages() =>
+  Future<List<DebugImage>?> loadDebugImages(SentryStackTrace stackTrace) =>
       tryCatchAsync('loadDebugImages', () async {
         final images = await channel
             .invokeListMethod<Map<dynamic, dynamic>>('loadImageList');

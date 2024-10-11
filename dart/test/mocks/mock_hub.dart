@@ -13,6 +13,8 @@ class MockHub with NoSuchMethodProvider implements Hub {
   List<CaptureMessageCall> captureMessageCalls = [];
   List<AddBreadcrumbCall> addBreadcrumbCalls = [];
   List<SentryClient?> bindClientCalls = [];
+
+  // ignore: deprecated_member_use_from_same_package
   List<SentryUserFeedback> userFeedbackCalls = [];
   List<CaptureTransactionCall> captureTransactionCalls = [];
   List<CaptureMetricsCall> captureMetricsCalls = [];
@@ -133,6 +135,7 @@ class MockHub with NoSuchMethodProvider implements Hub {
   }
 
   @override
+  // ignore: deprecated_member_use_from_same_package
   Future<void> captureUserFeedback(SentryUserFeedback userFeedback) async {
     userFeedbackCalls.add(userFeedback);
   }

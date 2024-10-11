@@ -47,6 +47,7 @@ void main() {
 
     setUp(() {
       mockBinding = MockSentryNativeBinding();
+      when(mockBinding.beginNativeFrames()).thenReturn(null);
       SentryFlutter.native = mockBinding;
     });
 

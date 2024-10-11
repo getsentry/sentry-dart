@@ -14,18 +14,8 @@ cocoa_version="${1:-$(./scripts/update-cocoa.sh get-version)}"
 
 cd "$(dirname "$0")/../"
 
-# Remove dependency on script exit (even in case of an error).
-trap "dart pub remove ffigen" EXIT
-
-# Currently we add the dependency only when the code needs to be generated because it depends
-# on Dart SDK 3.2.0 which isn't available on with Flutter stable yet.
-# Leaving the dependency in pubspec would block all contributors.
-# As for why this is coming from a fork - because we need a specific version of ffigen including PR 607 but not PR 601
-# which starts generating code not compatible with Dart SDK 2.17. The problem is they were merged in the wrong order...
-dart pub add 'dev:ffigen:{"git":{"url":"https://github.com/getsentry/ffigen","ref":"6aa2c2642f507eab3df83373189170797a9fa5e7"}}'
-
 # Download Cocoa SDK (we need the headers)
-temp="cocoa_bindings_temp"
+temp="temp"
 rm -rf $temp
 mkdir -p $temp
 curl -Lv --fail-with-body https://github.com/getsentry/sentry-cocoa/releases/download/$cocoa_version/Sentry.xcframework.zip -o $temp/Sentry.xcframework.zip
