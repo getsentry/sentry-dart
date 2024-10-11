@@ -35,6 +35,7 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
       try {
         DateTime? appStartEnd;
         if (options.autoAppStart) {
+          // ignore: invalid_use_of_internal_member
           appStartEnd = options.clock();
         } else if (_appStartEnd == null) {
           await _appStartEndCompleter.future.timeout(
