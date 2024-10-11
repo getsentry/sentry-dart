@@ -54,7 +54,7 @@ class _LoadImageListIntegrationEventProcessor implements EventProcessor {
         }
       }
 
-      final images = await _native.loadDebugImages(instructionAddresses);
+      final images = await _native.loadDebugImages(instructionAddresses.toList());
       if (images != null) {
         return event.copyWith(debugMeta: DebugMeta(images: images));
       }
