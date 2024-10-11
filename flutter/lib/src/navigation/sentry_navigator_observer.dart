@@ -311,16 +311,18 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       // Cancel unfinished TTID/TTFD spans, e.g this might happen if the user navigates
       // away from the current route before TTFD or TTID is finished.
       for (final child in (transaction as SentryTracer).children) {
+        if (child.finished) continue;
+
         final isTTIDSpan = child.context.operation ==
             SentrySpanOperations.uiTimeToInitialDisplay;
         final isTTFDSpan =
             child.context.operation == SentrySpanOperations.uiTimeToFullDisplay;
-        if (isTTFDSpan) {
-          endTimestamp = ttidEndTimestampProvider() ?? endTimestamp;
-        }
         if (!child.finished && (isTTIDSpan || isTTFDSpan)) {
+          final finishTimestamp = isTTFDSpan
+              ? (ttidEndTimestampProvider() ?? endTimestamp)
+              : endTimestamp;
           await child.finish(
-            endTimestamp: endTimestamp,
+            endTimestamp: finishTimestamp,
             status: SpanStatus.cancelled(),
           );
         }
