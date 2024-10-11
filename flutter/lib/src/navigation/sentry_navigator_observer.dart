@@ -8,6 +8,8 @@ import 'package:meta/meta.dart';
 import '../native/native_frames.dart';
 import '../native/sentry_native_binding.dart';
 import 'time_to_display_tracker.dart';
+import 'time_to_full_display_tracker.dart';
+import 'time_to_initial_display_tracker.dart';
 
 import '../../sentry_flutter.dart';
 import '../event_processor/flutter_enricher_event_processor.dart';
@@ -313,10 +315,13 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
             SentrySpanOperations.uiTimeToInitialDisplay;
         final isTTFDSpan =
             child.context.operation == SentrySpanOperations.uiTimeToFullDisplay;
+        if (isTTFDSpan) {
+          endTimestamp = ttidEndTimestampProvider() ?? endTimestamp;
+        }
         if (!child.finished && (isTTIDSpan || isTTFDSpan)) {
           await child.finish(
             endTimestamp: endTimestamp,
-            status: SpanStatus.deadlineExceeded(),
+            status: SpanStatus.cancelled(),
           );
         }
       }
