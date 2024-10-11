@@ -284,7 +284,8 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
           var imagesAddresses: Set<String> = []
 
           for argument in arguments {
-              if let instructionAddress = UInt64(argument) {
+              let hexDigits = argument.replacingOccurrences(of: "0x", with: "")
+              if let instructionAddress = UInt64(hexDigits, radix: 16) {
                 let image = SentryDependencyContainer.sharedInstance().binaryImageCache.image(byAddress: instructionAddress)
                   if let image = image {
                       let imageAddress = sentry_formatHexAddressUInt64(image.address)!
