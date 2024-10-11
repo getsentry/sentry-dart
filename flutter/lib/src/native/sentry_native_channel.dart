@@ -181,7 +181,7 @@ class SentryNativeChannel
   Future<List<DebugImage>?> loadDebugImages(Set<String> instructionAddresses) =>
       tryCatchAsync('loadDebugImages', () async {
         final images =
-            await channel.invokeListMethod<Map<dynamic, Set<String>>>(
+            await channel.invokeListMethod<Map<dynamic, dynamic>>(
                 'loadImageList', instructionAddresses);
         return images
             ?.map((e) => e.cast<String, dynamic>())
