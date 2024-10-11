@@ -36,6 +36,7 @@ void main() {
     expect(ttfdSpan.context.description, equals('Current route full display'));
     expect(ttfdSpan.origin, equals(SentryTraceOrigins.manualUiTimeToDisplay));
     expect(ttfdSpan.startTimestamp, equals(fixture.startTimestamp));
+    expect(transaction.measurements['time_to_full_display'], isNotNull);
 
     // Ensure endTimestamp is within an acceptable range
     final expectedEndTimestamp =
@@ -66,6 +67,7 @@ void main() {
     expect(ttfdSpan.status, equals(SpanStatus.deadlineExceeded()));
     expect(ttfdSpan.context.description, equals('Current route full display'));
     expect(ttfdSpan.origin, equals(SentryTraceOrigins.manualUiTimeToDisplay));
+    expect(transaction.measurements, isEmpty);
   });
 
   test('finishing ttfd twice does not throw', () async {

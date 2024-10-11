@@ -83,7 +83,12 @@ class TimeToFullDisplayTracker {
       return;
     }
 
-    _setTTFDMeasurement(startTimestamp, endTimestamp);
+    final status =
+        timestamp != null ? SpanStatus.ok() : SpanStatus.deadlineExceeded();
+    if (status == SpanStatus.ok()) {
+      _setTTFDMeasurement(startTimestamp, endTimestamp);
+    }
+
     await ttfdSpan.finish(
       status:
           timestamp != null ? SpanStatus.ok() : SpanStatus.deadlineExceeded(),
