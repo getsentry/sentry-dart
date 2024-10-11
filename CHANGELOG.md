@@ -64,6 +64,8 @@ Navigator.push(
 - iOS replay integration when only `onErrorSampleRate` is specified ([#2306](https://github.com/getsentry/sentry-dart/pull/2306))
 - Fix TTID timing issue ([#2326](https://github.com/getsentry/sentry-dart/pull/2326))
 - Start missing TTFD for root screen transaction ([#2332](https://github.com/getsentry/sentry-dart/pull/2332))
+- Unfinished TTID or TTFD spans should be set to status `cancelled` ([#2347](https://github.com/getsentry/sentry-dart/pull/2347))
+  - This might happen if a user navigates to another screen while either span is unfinished
 - Accessing invalid json fields from `fetchNativeAppStart` should return null ([#2340](https://github.com/getsentry/sentry-dart/pull/2340))
 - Error when calling `SentryFlutter.reportFullyDisplayed()` twice ([#2339](https://github.com/getsentry/sentry-dart/pull/2339))
 
