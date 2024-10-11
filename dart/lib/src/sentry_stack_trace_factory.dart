@@ -32,10 +32,17 @@ class SentryStackTraceFactory {
     for (var t = 0; t < parsed.traces.length; t += 1) {
       final trace = parsed.traces[t];
 
-      // NOTE: We want to keep the Sentry frames for crash detection
-      // this does not affect grouping since they're not marked as inApp
+      // Iterate over the frames
       for (final frame in trace.frames) {
-        final stackTraceFrame = encodeStackTraceFrame(frame);
+        SentryStackFrame? stackTraceFrame;
+
+        if (frame is UnparsedFrame) {
+          // Try to parse as wasm frame
+          stackTraceFrame = encodeWasmStackTraceFrame(frame);
+        } else {
+          stackTraceFrame = encodeStackTraceFrame(frame);
+        }
+
         if (stackTraceFrame != null) {
           frames.add(stackTraceFrame);
           onlyAsyncGap = false;
@@ -198,6 +205,67 @@ class SentryStackTraceFactory {
 
     return _options.considerInAppFramesByDefault;
   }
+
+  @visibleForTesting
+  SentryStackFrame? encodeWasmStackTraceFrame(Frame frame) {
+    final wasmFrame = _parseWasmFrame(frame.member!);
+    if (wasmFrame == null) {
+      return null;
+    }
+
+    final platform = _options.platformChecker.isWeb ? 'javascript' : 'dart';
+
+    return SentryStackFrame(
+      absPath: wasmFrame.uri.toString(),
+      function: wasmFrame.member,
+      instructionAddr: '0x${wasmFrame.offset.toRadixString(16)}',
+      platform: platform,
+      // Since wasm frames are not part of the Dart code, they are not in-app
+      inApp: false,
+    );
+  }
+
+  _WasmFrame? _parseWasmFrame(String frame) {
+    // Implement regex matching based on the patterns for wasm frames
+    // For example, using the V8 Wasm Frame pattern
+    final v8WasmFrameRegex = RegExp(
+        r'^\s*at (?:(?<member>.+) )?\(?(?<uri>\S+):wasm-function\[(?<index>\d+)\]:0x(?<offset>[0-9a-fA-F]+)\)?$');
+
+    final match = v8WasmFrameRegex.firstMatch(frame);
+    if (match != null) {
+      final member = match.namedGroup('member');
+      final uriString = match.namedGroup('uri');
+      final offsetHex = match.namedGroup('offset');
+
+      if (uriString != null && offsetHex != null) {
+        final uri = Uri.parse(uriString);
+        final offset = int.parse(offsetHex, radix: 16);
+
+        return _WasmFrame(
+          uri: uri,
+          member: member ?? '<wasm function>',
+          offset: offset,
+        );
+      }
+    }
+
+    // Add parsing for other wasm frame formats (Firefox, Safari) if needed
+
+    return null;
+  }
+}
+
+// Helper class representing a parsed wasm frame
+class _WasmFrame {
+  final Uri uri;
+  final String member;
+  final int offset;
+
+  _WasmFrame({
+    required this.uri,
+    required this.member,
+    required this.offset,
+  });
 }
 
 class _StackInfo {
