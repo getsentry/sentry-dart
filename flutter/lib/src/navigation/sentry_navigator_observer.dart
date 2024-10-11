@@ -322,7 +322,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
               : endTimestamp;
           await child.finish(
             endTimestamp: finishTimestamp,
-            status: SpanStatus.cancelled(),
+            status: SpanStatus.deadlineExceeded(),
           );
         }
       }

@@ -380,6 +380,7 @@ void main() {
           .called(1);
     });
 
+    // e.g when a user navigates to another screen before ttfd or ttid is finished
     test('cancelled TTID and TTFD spans do not add measurements', () async {
       final initialRoute = route(RouteSettings(name: 'Initial Route'));
       final newRoute = route(RouteSettings(name: 'New Route'));
@@ -443,11 +444,11 @@ void main() {
       // Verify that the TTID and TTFD spans are finished with a cancelled status
       verify(mockChildTTID.finish(
               endTimestamp: anyNamed('endTimestamp'),
-              status: SpanStatus.cancelled()))
+              status: SpanStatus.deadlineExceeded()))
           .called(1);
       verify(mockChildTTFD.finish(
               endTimestamp: anyNamed('endTimestamp'),
-              status: SpanStatus.cancelled()))
+              status: SpanStatus.deadlineExceeded()))
           .called(1);
 
       // Verify that the measurements are not added to the transaction
@@ -456,7 +457,8 @@ void main() {
       expect(measurements.containsKey('time_to_full_display'), isFalse);
     });
 
-    test('unfinished children will be finished with cancelled on didPush',
+    test(
+        'unfinished children will be finished with deadline_exceeded on didPush',
         () async {
       final currentRoute = route(RouteSettings(name: 'Current Route'));
 
@@ -491,15 +493,16 @@ void main() {
 
       verify(mockChildA.finish(
               endTimestamp: captureAnyNamed('endTimestamp'),
-              status: SpanStatus.cancelled()))
+              status: SpanStatus.deadlineExceeded()))
           .called(1);
       verify(mockChildB.finish(
               endTimestamp: captureAnyNamed('endTimestamp'),
-              status: SpanStatus.cancelled()))
+              status: SpanStatus.deadlineExceeded()))
           .called(1);
     });
 
-    test('unfinished children will be finished with cancelled on didPop',
+    test(
+        'unfinished children will be finished with deadline_exceeded on didPop',
         () async {
       final currentRoute = route(RouteSettings(name: 'Current Route'));
 
@@ -537,11 +540,11 @@ void main() {
 
       verify(mockChildA.finish(
               endTimestamp: captureAnyNamed('endTimestamp'),
-              status: SpanStatus.cancelled()))
+              status: SpanStatus.deadlineExceeded()))
           .called(1);
       verify(mockChildB.finish(
               endTimestamp: captureAnyNamed('endTimestamp'),
-              status: SpanStatus.cancelled()))
+              status: SpanStatus.deadlineExceeded()))
           .called(1);
     });
 
