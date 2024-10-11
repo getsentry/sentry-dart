@@ -15,6 +15,8 @@ void main() {
 
     setUp(() {
       fixture = IntegrationTestFixture(NativeSdkIntegration.new);
+      when(fixture.binding.init(any)).thenReturn(null);
+      when(fixture.binding.close()).thenReturn(null);
     });
 
     test('adds integration', () async {

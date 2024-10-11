@@ -1,13 +1,11 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:sentry/sentry.dart';
+// ignore: implementation_imports
+import 'package:sentry/src/load_dart_debug_images_integration.dart';
+
 import '../native/sentry_native_binding.dart';
 import '../sentry_flutter_options.dart';
-
-// ignore: implementation_imports
-import 'package:sentry/src/load_dart_debug_images_integration.dart'
-    show NeedsSymbolication;
 
 /// Loads the native debug image list for stack trace symbolication.
 class LoadImageListIntegration extends Integration<SentryFlutterOptions> {
@@ -19,7 +17,7 @@ class LoadImageListIntegration extends Integration<SentryFlutterOptions> {
   @override
   void call(Hub hub, SentryFlutterOptions options) {
     options.addEventProcessor(
-      _LoadImageListIntegrationEventProcessor(_native),
+      _LoadImageListIntegrationEventProcessor(options, _native),
     );
 
     options.sdk.addIntegration('loadImageListIntegration');
@@ -27,48 +25,37 @@ class LoadImageListIntegration extends Integration<SentryFlutterOptions> {
 }
 
 class _LoadImageListIntegrationEventProcessor implements EventProcessor {
-  _LoadImageListIntegrationEventProcessor(this._native);
+  _LoadImageListIntegrationEventProcessor(this._options, this._native);
 
+  final SentryFlutterOptions _options;
   final SentryNativeBinding _native;
+
+  late final _dartProcessor = LoadImageIntegrationEventProcessor(_options);
 
   @override
   Future<SentryEvent?> apply(SentryEvent event, Hint hint) async {
-    if (event.needsSymbolication()) {
-      Set<String> instructionAddresses = {};
-      var exceptions = event.exceptions;
-      if (exceptions != null && exceptions.isNotEmpty) {
-        for (var e in exceptions) {
-          if (e.stackTrace != null) {
-            _collectImageAddressesFromStackTrace(
-                e.stackTrace!, instructionAddresses);
-          }
+    // ignore: invalid_use_of_internal_member
+    final stackTrace = event.stacktrace;
+
+    // if the stacktrace has native frames, we load native debug images.
+    if (stackTrace != null &&
+        stackTrace.frames.any((frame) => 'native' == frame.platform)) {
+      var images = await _native.loadDebugImages(stackTrace);
+
+      // On windows, we need to add the ELF debug image of the AOT code.
+      // See https://github.com/flutter/flutter/issues/154840
+      if (_options.platformChecker.platform.isWindows) {
+        final debugImage = _dartProcessor.getAppDebugImage(stackTrace);
+        if (debugImage != null) {
+          images ??= List.empty();
+          images.add(debugImage);
         }
       }
-
-      if (event.threads != null && event.threads!.isNotEmpty) {
-        for (var thread in event.threads!) {
-          if (thread.stacktrace != null) {
-            _collectImageAddressesFromStackTrace(
-                thread.stacktrace!, instructionAddresses);
-          }
-        }
-      }
-
-      final images = await _native.loadDebugImages(instructionAddresses.toList());
       if (images != null) {
         return event.copyWith(debugMeta: DebugMeta(images: images));
       }
     }
 
     return event;
-  }
-
-  void _collectImageAddressesFromStackTrace(
-      SentryStackTrace trace, Set<String> instructionAddresses) {
-    for (var frame in trace.frames) {
-      if (frame.instructionAddr != null) {
-        instructionAddresses.add(frame.instructionAddr!);
-      }
-    }
   }
 }

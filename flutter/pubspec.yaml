@@ -35,11 +35,15 @@ dev_dependencies:
     sdk: flutter
   mockito: ^5.1.0
   yaml: ^3.1.0 # needed for version match (code and pubspec)
-  flutter_lints: ^4.0.0
+  flutter_lints: ^5.0.0
   collection: ^1.16.0
   remove_from_coverage: ^2.0.0
   flutter_localizations:
     sdk: flutter
+  ffigen:
+    git:
+      url: https://github.com/getsentry/ffigen
+      ref: 6aa2c2642f507eab3df83373189170797a9fa5e7
 
 flutter:
   plugin:
@@ -57,4 +61,6 @@ flutter:
       linux:
         pluginClass: SentryFlutterPlugin
       windows:
-        ffiPlugin: true
+        # Note, we cannot use `ffiPlugin: true` because flutter tooling won't add `target_link_libraries()`
+        # so sentry-native won't even build during the build process (since it doesn't need to).
+        pluginClass: SentryFlutterPlugin

@@ -44,10 +44,10 @@ class PlatformChecker {
     // the OS checks return true when the browser runs on the checked platform.
     // Example: platform.isAndroid return true if the browser is used on an
     // Android device.
-    if (platform.isAndroid || platform.isIOS || platform.isMacOS) {
-      return true;
-    }
-    return false;
+    return platform.isAndroid ||
+        platform.isIOS ||
+        platform.isMacOS ||
+        platform.isWindows;
   }
 
   static bool _isWebWithWasmSupport() {

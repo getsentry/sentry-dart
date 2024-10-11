@@ -52,6 +52,21 @@ void main() {
         expect(actual?.isColdStart, true);
       });
 
+      test('invalid fetchNativeAppStart returns null', () async {
+        when(channel.invokeMethod('fetchNativeAppStart'))
+            .thenAnswer((_) async => {
+                  'pluginRegistrationTime': 'invalid',
+                  'appStartTime': 'invalid',
+                  'isColdStart': 'invalid',
+                  // ignore: inference_failure_on_collection_literal
+                  'nativeSpanTimes': 'invalid',
+                });
+
+        final actual = await sut.fetchNativeAppStart();
+
+        expect(actual, isNull);
+      });
+
       test('beginNativeFrames', () async {
         when(channel.invokeMethod('beginNativeFrames'))
             .thenAnswer((realInvocation) async {});
@@ -279,7 +294,7 @@ void main() {
         when(channel.invokeMethod('loadImageList'))
             .thenAnswer((invocation) async => json);
 
-        final data = await sut.loadDebugImages({"0x6f80b000"});
+        final data = await sut.loadDebugImages();
 
         expect(data?.map((v) => v.toJson()), json);
       });
