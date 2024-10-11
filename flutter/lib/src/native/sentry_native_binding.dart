@@ -52,7 +52,7 @@ abstract class SentryNativeBinding {
   Future<Map<String, dynamic>?> collectProfile(
       SentryId traceId, int startTimeNs, int endTimeNs);
 
-  Future<List<DebugImage>?> loadDebugImages(Set<String> instructionAddresses);
+  Future<List<DebugImage>?> loadDebugImages(List<String> instructionAddresses);
 
   Future<void> pauseAppHangTracking();
 
