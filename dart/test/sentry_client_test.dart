@@ -377,6 +377,7 @@ void main() {
     });
 
     test('should capture sentry frames exception', () async {
+      fixture.options.removeStackFrameExclude('sentry');
       fixture.options.addExceptionCauseExtractor(
         ExceptionWithCauseExtractor(),
       );
@@ -497,6 +498,8 @@ void main() {
     });
 
     test('should capture sentry frames exception', () async {
+      fixture.options.removeStackFrameExclude('sentry');
+
       try {
         throw Exception('Error');
       } catch (err) {
