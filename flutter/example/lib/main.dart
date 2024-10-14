@@ -9,6 +9,7 @@ import 'package:feedback/feedback.dart' as feedback;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:logging/logging.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
@@ -23,6 +24,8 @@ import 'package:sqflite/sqflite.dart';
 // import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 // import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 import 'package:universal_platform/universal_platform.dart';
+import 'package:video_player/video_player.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 import 'auto_close_screen.dart';
 import 'drift/connection/connection.dart';
@@ -206,6 +209,24 @@ class MainScaffold extends StatelessWidget {
                 child: Text(
                     'Long press a button to see more information. (hover on web)'),
               ),
+            ),
+            Text('webview_flutter:'),
+            SizedBox.fromSize(
+                size: Size(400, 200),
+                child: WebViewWidget(
+                    controller: WebViewController()
+                      ..loadRequest(Uri.parse('https://sentry.io/')))),
+            Text('flutter_inappwebview:'),
+            SizedBox.fromSize(
+                size: Size(400, 200),
+                child: InAppWebView(
+                  initialUrlRequest:
+                      URLRequest(url: WebUri('https://sentry.io/')),
+                )),
+            Text('video:'),
+            SizedBox.fromSize(
+              size: Size(400, 200),
+              child: _BumbleBeeRemoteVideo(),
             ),
             TooltipButton(
               onPressed: () => navigateToAutoCloseScreen(context),
@@ -1119,4 +1140,139 @@ int findPrimeNumber(int n) {
     a++;
   }
   return a - 1;
+}
+
+// https://pub.dev/packages/video_player/example
+class _BumbleBeeRemoteVideo extends StatefulWidget {
+  @override
+  _BumbleBeeRemoteVideoState createState() => _BumbleBeeRemoteVideoState();
+}
+
+class _BumbleBeeRemoteVideoState extends State<_BumbleBeeRemoteVideo> {
+  late VideoPlayerController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = VideoPlayerController.networkUrl(
+      Uri.parse(
+          'https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4'),
+      videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
+    );
+
+    _controller.addListener(() {
+      setState(() {});
+    });
+    _controller.setLooping(true);
+    _controller.initialize();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      child: Column(
+        children: <Widget>[
+          Container(padding: const EdgeInsets.only(top: 20.0)),
+          const Text('With remote mp4'),
+          Container(
+            padding: const EdgeInsets.all(20),
+            child: AspectRatio(
+              aspectRatio: _controller.value.aspectRatio,
+              child: Stack(
+                alignment: Alignment.bottomCenter,
+                children: <Widget>[
+                  VideoPlayer(_controller),
+                  _ControlsOverlay(controller: _controller),
+                  VideoProgressIndicator(_controller, allowScrubbing: true),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// https://pub.dev/packages/video_player/example
+class _ControlsOverlay extends StatelessWidget {
+  const _ControlsOverlay({required this.controller});
+
+  static const List<double> _examplePlaybackRates = <double>[
+    0.25,
+    0.5,
+    1.0,
+    1.5,
+    2.0,
+    3.0,
+    5.0,
+    10.0,
+  ];
+
+  final VideoPlayerController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: <Widget>[
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 50),
+          reverseDuration: const Duration(milliseconds: 200),
+          child: controller.value.isPlaying
+              ? const SizedBox.shrink()
+              : const ColoredBox(
+                  color: Colors.black26,
+                  child: Center(
+                    child: Icon(
+                      Icons.play_arrow,
+                      color: Colors.white,
+                      size: 100.0,
+                      semanticLabel: 'Play',
+                    ),
+                  ),
+                ),
+        ),
+        GestureDetector(
+          onTap: () {
+            controller.value.isPlaying ? controller.pause() : controller.play();
+          },
+        ),
+        Align(
+          alignment: Alignment.topRight,
+          child: PopupMenuButton<double>(
+            initialValue: controller.value.playbackSpeed,
+            tooltip: 'Playback speed',
+            onSelected: (double speed) {
+              controller.setPlaybackSpeed(speed);
+            },
+            itemBuilder: (BuildContext context) {
+              return <PopupMenuItem<double>>[
+                for (final double speed in _examplePlaybackRates)
+                  PopupMenuItem<double>(
+                    value: speed,
+                    child: Text('${speed}x'),
+                  )
+              ];
+            },
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                // Using less vertical padding as the text is also longer
+                // horizontally, so it feels like it would need more spacing
+                // horizontally (matching the aspect ratio of the video).
+                vertical: 12,
+                horizontal: 16,
+              ),
+              child: Text('${controller.value.playbackSpeed}x'),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 }
