@@ -38,15 +38,16 @@
   - Deprecated `SentryClient.captureUserFeedback`, use `captureFeedback` instead.
   - Deprecated `SentryUserFeedback`, use `SentryFeedback` instead.
 - Add `SentryFeedbackWidget` ([#2240](https://github.com/getsentry/sentry-dart/pull/2240))
-```dart
-Navigator.push(
-  context,
-  MaterialPageRoute(
-    builder: (context) => SentryFeedbackWidget(associatedEventId: id),
-    fullscreenDialog: true,
-  ),
-);
-```
+
+  ```dart
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => SentryFeedbackWidget(associatedEventId: id),
+      fullscreenDialog: true,
+    ),
+  );
+  ```
 
 ### Enhancements
 
@@ -55,6 +56,7 @@ Navigator.push(
   - Fixes ([#2103](https://github.com/getsentry/sentry-dart/issues/2103))
   - Fixes ([#2233](https://github.com/getsentry/sentry-dart/issues/2233))
 - Only store slow and frozen frames for frame delay calculation ([#2337](https://github.com/getsentry/sentry-dart/pull/2337))
+- Add ReplayIntegration to the integrations list on events when replay is enabled. ([#2349](https://github.com/getsentry/sentry-dart/pull/2349))
 
 ### Fixes
 
@@ -66,6 +68,7 @@ Navigator.push(
 - Start missing TTFD for root screen transaction ([#2332](https://github.com/getsentry/sentry-dart/pull/2332))
 - Accessing invalid json fields from `fetchNativeAppStart` should return null ([#2340](https://github.com/getsentry/sentry-dart/pull/2340))
 - Error when calling `SentryFlutter.reportFullyDisplayed()` twice ([#2339](https://github.com/getsentry/sentry-dart/pull/2339))
+- TTFD measurements should only be added for successful TTFD spans ([#2348](https://github.com/getsentry/sentry-dart/pull/2348))
 
 ### Deprecate
 
