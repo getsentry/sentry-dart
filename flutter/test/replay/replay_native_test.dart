@@ -78,6 +78,14 @@ void main() {
         expect(options.sdk.integrations, contains(replayIntegrationName));
       });
 
+      test('init does not add $replayIntegrationName when replay is disabled',
+          () async {
+        await sut.init(hub);
+
+        expect(
+            options.sdk.integrations, isNot(contains(replayIntegrationName)));
+      });
+
       test('init sets $ReplayEventProcessor when error replay is enabled',
           () async {
         options.experimental.replay.onErrorSampleRate = 0.1;
