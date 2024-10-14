@@ -44,6 +44,7 @@ void main() {
     final differenceInSeconds =
         actualEndTimestamp.difference(expectedEndTimestamp).inSeconds.abs();
     expect(differenceInSeconds, lessThanOrEqualTo(1));
+    expect(transaction.measurements, isNotEmpty);
   });
 
   test(
@@ -66,6 +67,7 @@ void main() {
     expect(ttfdSpan.status, equals(SpanStatus.deadlineExceeded()));
     expect(ttfdSpan.context.description, equals('Current route full display'));
     expect(ttfdSpan.origin, equals(SentryTraceOrigins.manualUiTimeToDisplay));
+    expect(transaction.measurements, isEmpty);
   });
 
   test('finishing ttfd twice does not throw', () async {
