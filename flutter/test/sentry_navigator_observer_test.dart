@@ -457,45 +457,98 @@ void main() {
       expect(measurements.containsKey('time_to_full_display'), isFalse);
     });
 
+    test('unfinished ttfd will match ttid duration if available', () async {
+      final currentRoute = route(RouteSettings(name: 'Current Route'));
+
+      final hub = _MockHub();
+      final transaction = getMockSentryTracer(finished: false) as SentryTracer;
+      final ttidSpan = MockSentrySpan();
+      final ttfdSpan = MockSentrySpan();
+      when(transaction.children).thenReturn([
+        ttfdSpan,
+        ttidSpan,
+      ]);
+      when(ttidSpan.finished).thenReturn(false);
+      when(ttfdSpan.finished).thenReturn(false);
+      when(ttidSpan.context).thenReturn(SentrySpanContext(
+          operation: SentrySpanOperations.uiTimeToInitialDisplay));
+      when(ttfdSpan.context).thenReturn(SentrySpanContext(
+          operation: SentrySpanOperations.uiTimeToFullDisplay));
+      when(transaction.context).thenReturn(SentrySpanContext(operation: 'op'));
+      when(transaction.status).thenReturn(null);
+      when(transaction.startChild('ui.load.initial_display',
+              description: anyNamed('description'),
+              startTimestamp: anyNamed('startTimestamp')))
+          .thenReturn(NoOpSentrySpan());
+      _whenAnyStart(hub, transaction);
+
+      final sut = fixture.getSut(hub: hub);
+
+      sut.didPush(currentRoute, null);
+
+      final anotherRoute = route(RouteSettings(name: 'Another Route'));
+      sut.didPush(anotherRoute, null);
+
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+
+      final ttidFinishVerification = verify(ttidSpan.finish(
+        endTimestamp: captureAnyNamed('endTimestamp'),
+        status: anyNamed('status'),
+      ));
+      final ttidEndTimestamp =
+          ttidFinishVerification.captured.single as DateTime;
+
+      final ttfdFinishVerification = verify(ttfdSpan.finish(
+        endTimestamp: captureAnyNamed('endTimestamp'),
+        status: anyNamed('status'),
+      ));
+      final ttfdEndTimestamp =
+          ttfdFinishVerification.captured.single as DateTime;
+
+      expect(ttfdEndTimestamp, equals(ttidEndTimestamp));
+    });
+
     test(
         'unfinished children will be finished with deadline_exceeded on didPush',
         () async {
       final currentRoute = route(RouteSettings(name: 'Current Route'));
 
       final hub = _MockHub();
-      final span = getMockSentryTracer(finished: false) as SentryTracer;
-      final mockChildA = MockSentrySpan();
-      final mockChildB = MockSentrySpan();
-      when(span.children).thenReturn([
-        mockChildB,
-        mockChildA,
+      final transaction = getMockSentryTracer(finished: false) as SentryTracer;
+      final ttidSpan = MockSentrySpan();
+      final ttfdSpan = MockSentrySpan();
+      when(transaction.children).thenReturn([
+        ttfdSpan,
+        ttidSpan,
       ]);
-      when(mockChildA.finished).thenReturn(false);
-      when(mockChildB.finished).thenReturn(false);
-      when(mockChildA.context).thenReturn(SentrySpanContext(
+      when(ttidSpan.finished).thenReturn(false);
+      when(ttfdSpan.finished).thenReturn(false);
+      when(ttidSpan.context).thenReturn(SentrySpanContext(
           operation: SentrySpanOperations.uiTimeToInitialDisplay));
-      when(mockChildB.context).thenReturn(SentrySpanContext(
+      when(ttfdSpan.context).thenReturn(SentrySpanContext(
           operation: SentrySpanOperations.uiTimeToFullDisplay));
-      when(span.context).thenReturn(SentrySpanContext(operation: 'op'));
-      when(span.status).thenReturn(null);
-      when(span.startChild('ui.load.initial_display',
+      when(transaction.context).thenReturn(SentrySpanContext(operation: 'op'));
+      when(transaction.status).thenReturn(null);
+      when(transaction.startChild('ui.load.initial_display',
               description: anyNamed('description'),
               startTimestamp: anyNamed('startTimestamp')))
           .thenReturn(NoOpSentrySpan());
-      _whenAnyStart(hub, span);
+      _whenAnyStart(hub, transaction);
 
       final sut = fixture.getSut(hub: hub);
 
       sut.didPush(currentRoute, null);
-      sut.didPush(currentRoute, null);
+
+      final anotherRoute = route(RouteSettings(name: 'Another Route'));
+      sut.didPush(anotherRoute, null);
 
       await Future<void>.delayed(const Duration(milliseconds: 100));
 
-      verify(mockChildA.finish(
+      verify(ttidSpan.finish(
               endTimestamp: captureAnyNamed('endTimestamp'),
               status: SpanStatus.deadlineExceeded()))
           .called(1);
-      verify(mockChildB.finish(
+      verify(ttfdSpan.finish(
               endTimestamp: captureAnyNamed('endTimestamp'),
               status: SpanStatus.deadlineExceeded()))
           .called(1);
