@@ -10,6 +10,7 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry_flutter/src/native/native_frames.dart';
 import 'package:sentry_flutter/src/navigation/time_to_display_tracker.dart';
+import 'package:sentry_flutter/src/navigation/time_to_full_display_tracker.dart';
 import 'package:sentry_flutter/src/navigation/time_to_initial_display_tracker.dart';
 
 import 'fake_frame_callback_handler.dart';
@@ -128,6 +129,11 @@ void main() {
   });
 
   group('$SentryNavigatorObserver', () {
+    tearDown(() {
+      fixture.timeToInitialDisplayTracker.clearForTest();
+      fixture.timeToFullDisplayTracker.clear();
+    });
+
     test('didPush starts transaction', () async {
       const name = 'Current Route';
       final currentRoute = route(RouteSettings(name: name));
@@ -461,6 +467,9 @@ void main() {
       final currentRoute = route(RouteSettings(name: 'Current Route'));
 
       final hub = _MockHub();
+      final options = hub.options as SentryFlutterOptions;
+      options.enableTimeToFullDisplayTracing = true;
+
       final transaction = getMockSentryTracer(finished: false) as SentryTracer;
       final ttidSpan = MockSentrySpan();
       final ttfdSpan = MockSentrySpan();
@@ -477,6 +486,10 @@ void main() {
       when(transaction.context).thenReturn(SentrySpanContext(operation: 'op'));
       when(transaction.status).thenReturn(null);
       when(transaction.startChild('ui.load.initial_display',
+              description: anyNamed('description'),
+              startTimestamp: anyNamed('startTimestamp')))
+          .thenReturn(NoOpSentrySpan());
+      when(transaction.startChild('ui.load.full_display',
               description: anyNamed('description'),
               startTimestamp: anyNamed('startTimestamp')))
           .thenReturn(NoOpSentrySpan());
@@ -514,6 +527,9 @@ void main() {
       final currentRoute = route(RouteSettings(name: 'Current Route'));
 
       final hub = _MockHub();
+      final options = hub.options as SentryFlutterOptions;
+      options.enableTimeToFullDisplayTracing = true;
+
       final transaction = getMockSentryTracer(finished: false) as SentryTracer;
       final ttidSpan = MockSentrySpan();
       final ttfdSpan = MockSentrySpan();
@@ -530,6 +546,10 @@ void main() {
       when(transaction.context).thenReturn(SentrySpanContext(operation: 'op'));
       when(transaction.status).thenReturn(null);
       when(transaction.startChild('ui.load.initial_display',
+              description: anyNamed('description'),
+              startTimestamp: anyNamed('startTimestamp')))
+          .thenReturn(NoOpSentrySpan());
+      when(transaction.startChild('ui.load.full_display',
               description: anyNamed('description'),
               startTimestamp: anyNamed('startTimestamp')))
           .thenReturn(NoOpSentrySpan());
@@ -1165,6 +1185,9 @@ void main() {
 }
 
 class Fixture {
+  late TimeToInitialDisplayTracker timeToInitialDisplayTracker;
+  late TimeToFullDisplayTracker timeToFullDisplayTracker;
+
   SentryNavigatorObserver getSut({
     required Hub hub,
     bool enableAutoTransactions = true,
@@ -1175,13 +1198,17 @@ class Fixture {
     List<String>? ignoreRoutes,
   }) {
     final frameCallbackHandler = FakeFrameCallbackHandler();
-    final timeToInitialDisplayTracker = TimeToInitialDisplayTracker(
+    timeToInitialDisplayTracker = TimeToInitialDisplayTracker(
       frameCallbackHandler: frameCallbackHandler,
+    );
+    timeToFullDisplayTracker = TimeToFullDisplayTracker(
+      endTimestampProvider: () => timeToInitialDisplayTracker.endTimestamp,
     );
     final options = hub.options;
     if (options is SentryFlutterOptions) {
       options.timeToDisplayTracker = TimeToDisplayTracker(
         ttidTracker: timeToInitialDisplayTracker,
+        ttfdTracker: timeToFullDisplayTracker,
         options: hub.options as SentryFlutterOptions,
       );
     }
