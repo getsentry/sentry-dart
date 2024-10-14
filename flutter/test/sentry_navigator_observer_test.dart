@@ -505,7 +505,7 @@ void main() {
       final ttfdEndTimestamp =
           ttfdFinishVerification.captured.single as DateTime;
 
-      expect(ttfdEndTimestamp, equals(ttidEndTimestamp));
+      expect(ttfdEndTimestamp.toUtc(), equals(ttidEndTimestamp.toUtc()));
     });
 
     test(
