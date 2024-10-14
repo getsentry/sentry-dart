@@ -13,6 +13,7 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/event_processor/replay_event_processor.dart';
 import 'package:sentry_flutter/src/native/factory.dart';
 import 'package:sentry_flutter/src/native/sentry_native_binding.dart';
+import 'package:sentry_flutter/src/replay/integration.dart';
 
 import '../mocks.dart';
 import '../mocks.mocks.dart';
@@ -68,6 +69,13 @@ void main() {
 
       tearDown(() async {
         await sut.close();
+      });
+
+      test('init adds $replayIntegrationName when replay is enabled', () async {
+        options.experimental.replay.sessionSampleRate = 0.1;
+        await sut.init(hub);
+
+        expect(options.sdk.integrations, contains(replayIntegrationName));
       });
 
       test('init sets $ReplayEventProcessor when error replay is enabled',
