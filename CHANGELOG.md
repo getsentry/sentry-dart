@@ -49,6 +49,8 @@
   );
   ```
 
+- Add `stackFrameExcludes` to `SentryOptions` ([#2351](https://github.com/getsentry/sentry-dart/pull/2351))
+
 ### Enhancements
 
 - Use native spotlight integrations on Flutter Android, iOS, macOS ([#2285](https://github.com/getsentry/sentry-dart/pull/2285))
