@@ -37,22 +37,17 @@ class TimeToInitialDisplayTracker {
   @internal
   DateTime? get endTimestamp => _endTimestamp;
 
-  Future<void> trackRegularRoute(
-    ISentrySpan transaction,
-    DateTime startTimestamp,
-  ) async {
-    await _trackTimeToInitialDisplay(
-      transaction: transaction,
-      startTimestamp: startTimestamp,
-    );
-  }
-
-  Future<void> _trackTimeToInitialDisplay({
+  Future<void> track({
     required ISentrySpan transaction,
     required DateTime startTimestamp,
     DateTime? endTimestamp,
     String? origin,
   }) async {
+    if (endTimestamp != null) {
+      // Store the end timestamp for potential use by TTFD tracking
+      this._endTimestamp = endTimestamp;
+    }
+
     final _endTimestamp = endTimestamp ?? await determineEndTime();
     if (_endTimestamp == null) return;
 
@@ -73,8 +68,11 @@ class TimeToInitialDisplayTracker {
         milliseconds: _endTimestamp.difference(startTimestamp).inMilliseconds);
     final ttidMeasurement = SentryMeasurement.timeToInitialDisplay(duration);
 
-    transaction.setMeasurement(ttidMeasurement.name, ttidMeasurement.value,
-        unit: ttidMeasurement.unit);
+    transaction.setMeasurement(
+      ttidMeasurement.name,
+      ttidMeasurement.value,
+      unit: ttidMeasurement.unit,
+    );
     await ttidSpan.finish(endTimestamp: _endTimestamp);
   }
 

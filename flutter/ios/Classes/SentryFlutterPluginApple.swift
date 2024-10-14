@@ -239,7 +239,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
             }
 
             if let integrations = PrivateSentrySDKOnly.options.integrations {
-                infos["integrations"] = integrations
+                infos["integrations"] = integrations.filter { $0 != "SentrySessionReplayIntegration" }
             }
 
             let deviceStr = "device"

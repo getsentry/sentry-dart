@@ -21,7 +21,7 @@ class NativeAppStartHandler {
   static const _maxAppStartMillis = 60000;
 
   Future<void> call(Hub hub, SentryFlutterOptions options,
-      {required DateTime? appStartEnd}) async {
+      {required DateTime appStartEnd}) async {
     _hub = hub;
     _options = options;
 
@@ -42,13 +42,13 @@ class NativeAppStartHandler {
       SentrySpanOperations.uiLoad,
       startTimestamp: appStartInfo.start,
     );
-    final ttidSpan = transaction.startChild(
-      SentrySpanOperations.uiTimeToInitialDisplay,
-      description: '$screenName initial display',
-      startTimestamp: appStartInfo.start,
-    );
 
-    // Enrich Transaction
+    await options.timeToDisplayTracker.track(
+      transaction,
+      startTimestamp: appStartInfo.start,
+      endTimestamp: appStartInfo.end,
+      origin: SentryTraceOrigins.autoUiTimeToDisplay,
+    );
 
     SentryTracer sentryTracer;
     if (transaction is SentryTracer) {
@@ -57,28 +57,18 @@ class NativeAppStartHandler {
       return;
     }
 
-    SentryMeasurement? measurement;
-    if (options.autoAppStart) {
-      measurement = appStartInfo.toMeasurement();
-    } else if (appStartEnd != null) {
-      appStartInfo.end = appStartEnd;
-      measurement = appStartInfo.toMeasurement();
-    }
+    // Enrich Transaction
+    SentryMeasurement? measurement = appStartInfo.toMeasurement();
+    sentryTracer.measurements[measurement.name] = appStartInfo.toMeasurement();
+    await _attachAppStartSpans(appStartInfo, sentryTracer);
 
-    if (measurement != null) {
-      sentryTracer.measurements[measurement.name] = measurement;
-      await _attachAppStartSpans(appStartInfo, sentryTracer);
-    }
-
-    // Finish Transaction & Span
-
-    await ttidSpan.finish(endTimestamp: appStartInfo.end);
+    // Finish Transaction
     await transaction.finish(endTimestamp: appStartInfo.end);
   }
 
   _AppStartInfo? _infoNativeAppStart(
     NativeAppStart nativeAppStart,
-    DateTime? appStartEnd,
+    DateTime appStartEnd,
   ) {
     final sentrySetupStartDateTime = SentryFlutter.sentrySetupStartTime;
     if (sentrySetupStartDateTime == null) {
@@ -90,23 +80,18 @@ class NativeAppStartHandler {
     final pluginRegistrationDateTime = DateTime.fromMillisecondsSinceEpoch(
         nativeAppStart.pluginRegistrationTime);
 
-    if (_options.autoAppStart) {
-      // We only assign the current time if it's not already set - this is useful in tests
-      appStartEnd ??= _options.clock();
+    final duration = appStartEnd.difference(appStartDateTime);
 
-      final duration = appStartEnd.difference(appStartDateTime);
-
-      // We filter out app start more than 60s.
-      // This could be due to many different reasons.
-      // If you do the manual init and init the SDK too late and it does not
-      // compute the app start end in the very first Screen.
-      // If the process starts but the App isn't in the foreground.
-      // If the system forked the process earlier to accelerate the app start.
-      // And some unknown reasons that could not be reproduced.
-      // We've seen app starts with hours, days and even months.
-      if (duration.inMilliseconds > _maxAppStartMillis) {
-        return null;
-      }
+    // We filter out app start more than 60s.
+    // This could be due to many different reasons.
+    // If you do the manual init and init the SDK too late and it does not
+    // compute the app start end in the very first Screen.
+    // If the process starts but the App isn't in the foreground.
+    // If the system forked the process earlier to accelerate the app start.
+    // And some unknown reasons that could not be reproduced.
+    // We've seen app starts with hours, days and even months.
+    if (duration.inMilliseconds > _maxAppStartMillis) {
+      return null;
     }
 
     List<_TimeSpan> nativeSpanTimes = [];
@@ -145,9 +130,6 @@ class NativeAppStartHandler {
       _AppStartInfo appStartInfo, SentryTracer transaction) async {
     final transactionTraceId = transaction.context.traceId;
     final appStartEnd = appStartInfo.end;
-    if (appStartEnd == null) {
-      return;
-    }
 
     final appStartSpan = await _createAndFinishSpan(
       tracer: transaction,
@@ -256,30 +238,24 @@ class _AppStartInfo {
   _AppStartInfo(
     this.type, {
     required this.start,
+    required this.end,
     required this.pluginRegistration,
     required this.sentrySetupStart,
     required this.nativeSpanTimes,
-    this.end,
   });
 
   final _AppStartType type;
   final DateTime start;
+  final DateTime end;
   final List<_TimeSpan> nativeSpanTimes;
-
-  // We allow the end to be null, since it might be set at a later time
-  // with setAppStartEnd when autoAppStart is disabled
-  DateTime? end;
 
   final DateTime pluginRegistration;
   final DateTime sentrySetupStart;
 
-  Duration? get duration => end?.difference(start);
+  Duration get duration => end.difference(start);
 
-  SentryMeasurement? toMeasurement() {
+  SentryMeasurement toMeasurement() {
     final duration = this.duration;
-    if (duration == null) {
-      return null;
-    }
     return type == _AppStartType.cold
         ? SentryMeasurement.coldAppStart(duration)
         : SentryMeasurement.warmAppStart(duration);

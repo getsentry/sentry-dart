@@ -1,5 +1,6 @@
+// ignore_for_file: library_annotations
+
 @TestOn('vm')
-library file_test;
 
 import 'dart:io';
 
