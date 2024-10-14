@@ -198,6 +198,17 @@ class SentryOptions {
   /// To use regex add the `^` and the `$` to the string.
   List<String> ignoreTransactions = [];
 
+  final List<String> _stackFrameExcludes = [
+    'sentry',
+    'sentry_flutter',
+  ];
+
+  /// A list of packages names that will be removed from stack traces.
+  /// Per default, `sentry` and `sentry_flutter` package stack frames will be removed.
+  ///
+  /// example : `['sentry']` will remove stack frames with package `package:sentry/sentry.dart` origin
+  List<String> get stackFrameExcludes => List.unmodifiable(_stackFrameExcludes);
+
   final List<String> _inAppExcludes = [];
 
   /// A list of string prefixes of packages names that do not belong to the app, but rather third-party
@@ -564,13 +575,23 @@ class SentryOptions {
   }
 
   /// Adds an inAppExclude
-  void addInAppExclude(String inApp) {
-    _inAppExcludes.add(inApp);
+  void addInAppExclude(String inAppInclude) {
+    _inAppExcludes.add(inAppInclude);
   }
 
   /// Adds an inAppIncludes
-  void addInAppInclude(String inApp) {
-    _inAppIncludes.add(inApp);
+  void addInAppInclude(String inAppExclude) {
+    _inAppIncludes.add(inAppExclude);
+  }
+
+  /// Adds an stackFrameExclude
+  void addStackFrameExclude(String stackFrameExclude) {
+    _stackFrameExcludes.add(stackFrameExclude);
+  }
+
+  /// Removes an stackFrameExclude
+  void removeStackFrameExclude(String stackFrameExclude) {
+    _stackFrameExcludes.remove(stackFrameExclude);
   }
 
   /// Returns if tracing should be enabled. If tracing is disabled, starting transactions returns

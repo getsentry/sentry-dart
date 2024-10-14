@@ -97,6 +97,11 @@ class SentryStackTraceFactory {
   /// converts [Frame] to [SentryStackFrame]
   @visibleForTesting
   SentryStackFrame? encodeStackTraceFrame(Frame frame) {
+    final package = frame.package;
+    if (package != null && _options.stackFrameExcludes.contains(package)) {
+      return null;
+    }
+
     final member = frame.member;
 
     if (frame is UnparsedFrame && member != null) {
