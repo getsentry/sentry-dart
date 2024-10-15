@@ -18,10 +18,12 @@ FetchContent_MakeAvailable(sentry-native)
 # List of absolute paths to libraries that should be bundled with the plugin.
 # This list could contain prebuilt libraries, or libraries created by an
 # external build triggered from this build file.
-set(sentry_flutter_bundled_libraries $<TARGET_FILE:crashpad_handler> PARENT_SCOPE)
-
+# On Linux, we don't need to explicitly add crashpad_handler - it's coppied to `bin/crashpad_handler` automatically.
 if(WIN32)
-    set(sentry_flutter_bundled_libraries ${sentry_flutter_bundled_libraries} $<TARGET_FILE:crashpad_wer> PARENT_SCOPE)
+    set(sentry_flutter_bundled_libraries
+        $<TARGET_FILE:crashpad_handler>
+        $<TARGET_FILE:crashpad_wer>
+        PARENT_SCOPE)
 endif()
 
 # `*_plugin` is the name of the plugin library as expected by flutter.
