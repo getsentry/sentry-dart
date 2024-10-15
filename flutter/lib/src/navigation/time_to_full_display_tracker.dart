@@ -35,66 +35,77 @@ class TimeToFullDisplayTracker {
   final options = Sentry.currentHub.options;
 
   // End timestamp provider is only needed when the TTFD timeout is triggered
-  EndTimestampProvider _endTimestampProvider = ttidEndTimestampProvider();
+  EndTimestampProvider _endTimestampProvider = ttidEndTimestampProvider;
   Completer<void> _completedTTFDTracking = Completer<void>();
 
-  Future<void> track(ISentrySpan transaction, DateTime startTimestamp) async {
+  Future<void> track({
+    required ISentrySpan transaction,
+    required DateTime startTimestamp,
+  }) async {
     _startTimestamp = startTimestamp;
     _transaction = transaction as SentryTracer;
-    _ttfdSpan = transaction.startChild(SentrySpanOperations.uiTimeToFullDisplay,
-        description: '${transaction.name} full display',
-        startTimestamp: startTimestamp);
+    _ttfdSpan = transaction.startChild(
+      SentrySpanOperations.uiTimeToFullDisplay,
+      description: '${transaction.name} full display',
+      startTimestamp: startTimestamp,
+    );
     _ttfdSpan?.origin = SentryTraceOrigins.manualUiTimeToDisplay;
     // Wait for TTFD to finish
-    await _completedTTFDTracking.future
-        .timeout(_autoFinishAfter, onTimeout: handleTimeout);
-
-    clear();
-  }
-
-  void handleTimeout() {
-    final ttfdSpan = _ttfdSpan;
-    final startTimestamp = _startTimestamp;
-    final endTimestamp = _endTimestampProvider();
-
-    if (ttfdSpan == null ||
-        ttfdSpan.finished == true ||
-        startTimestamp == null ||
-        endTimestamp == null) {
-      _completedTTFDTracking.complete();
-      return;
-    }
-
-    _setTTFDMeasurement(startTimestamp, endTimestamp);
-    ttfdSpan.finish(
-        status: SpanStatus.deadlineExceeded(), endTimestamp: endTimestamp);
-
-    _completedTTFDTracking.complete();
+    await _completedTTFDTracking.future.timeout(
+      _autoFinishAfter,
+      onTimeout: _handleTimeout,
+    );
   }
 
   Future<void> reportFullyDisplayed() async {
-    if (_ttfdSpan == null || _startTimestamp == null) {
+    await _complete(getUtcDateTime());
+  }
+
+  void _handleTimeout() {
+    _complete(null);
+  }
+
+  Future<void> _complete(DateTime? timestamp) async {
+    final ttfdSpan = _ttfdSpan;
+    final startTimestamp = _startTimestamp;
+    final endTimestamp = timestamp ?? _endTimestampProvider();
+
+    if (ttfdSpan == null ||
+        ttfdSpan.finished ||
+        startTimestamp == null ||
+        endTimestamp == null) {
       options.logger(
         SentryLevel.warning,
-        'TTFD tracker not started',
+        'TTFD tracker not started or already completed. Dropping TTFD measurement.',
       );
+      _completedTTFDTracking.complete();
+      clear();
       return;
     }
 
-    if (_completedTTFDTracking.isCompleted || _ttfdSpan?.finished == true) {
-      options.logger(
-        SentryLevel.warning,
-        'TTFD tracker already completed',
+    // If a timestamp is provided, the operation was successful; otherwise, it timed out
+    final status =
+        timestamp != null ? SpanStatus.ok() : SpanStatus.deadlineExceeded();
+    try {
+      // Should only add measurements if the span is successful
+      if (status == SpanStatus.ok()) {
+        _setTTFDMeasurement(startTimestamp, endTimestamp);
+      }
+      await ttfdSpan.finish(
+        status: status,
+        endTimestamp: endTimestamp,
       );
-      return;
+    } catch (e, stackTrace) {
+      options.logger(
+        SentryLevel.error,
+        'Failed to finish TTFD span',
+        exception: e,
+        stackTrace: stackTrace,
+      );
+    } finally {
+      _completedTTFDTracking.complete();
+      clear();
     }
-
-    final endTimestamp = getUtcDateTime();
-    _setTTFDMeasurement(_startTimestamp!, endTimestamp);
-    await _ttfdSpan?.finish(
-        status: SpanStatus.ok(), endTimestamp: endTimestamp);
-
-    _completedTTFDTracking.complete();
   }
 
   void _setTTFDMeasurement(DateTime startTimestamp, DateTime endTimestamp) {
@@ -119,5 +130,5 @@ class TimeToFullDisplayTracker {
 typedef EndTimestampProvider = DateTime? Function();
 
 @internal
-EndTimestampProvider ttidEndTimestampProvider() =>
+EndTimestampProvider ttidEndTimestampProvider =
     () => TimeToInitialDisplayTracker().endTimestamp;

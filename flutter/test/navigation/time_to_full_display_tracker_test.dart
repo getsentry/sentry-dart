@@ -23,7 +23,10 @@ void main() {
       sut.reportFullyDisplayed();
     });
 
-    await sut.track(transaction, fixture.startTimestamp);
+    await sut.track(
+      transaction: transaction,
+      startTimestamp: fixture.startTimestamp,
+    );
 
     final ttfdSpan = transaction.children.first;
     expect(transaction.children, hasLength(1));
@@ -41,6 +44,7 @@ void main() {
     final differenceInSeconds =
         actualEndTimestamp.difference(expectedEndTimestamp).inSeconds.abs();
     expect(differenceInSeconds, lessThanOrEqualTo(1));
+    expect(transaction.measurements, isNotEmpty);
   });
 
   test(
@@ -49,7 +53,10 @@ void main() {
     final sut = fixture.getSut();
     final transaction = fixture.getTransaction() as SentryTracer;
 
-    await sut.track(transaction, fixture.startTimestamp);
+    await sut.track(
+      transaction: transaction,
+      startTimestamp: fixture.startTimestamp,
+    );
 
     final ttfdSpan = transaction.children.first;
     expect(transaction.children, hasLength(1));
@@ -60,6 +67,7 @@ void main() {
     expect(ttfdSpan.status, equals(SpanStatus.deadlineExceeded()));
     expect(ttfdSpan.context.description, equals('Current route full display'));
     expect(ttfdSpan.origin, equals(SentryTraceOrigins.manualUiTimeToDisplay));
+    expect(transaction.measurements, isEmpty);
   });
 
   test('finishing ttfd twice does not throw', () async {
@@ -72,7 +80,8 @@ void main() {
       sut.reportFullyDisplayed();
     });
 
-    await sut.track(transaction, fixture.startTimestamp);
+    await sut.track(
+        transaction: transaction, startTimestamp: fixture.startTimestamp);
   });
 
   test('finishing ttfd without starting tracker does not throw', () async {

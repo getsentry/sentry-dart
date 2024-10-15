@@ -9,6 +9,7 @@ import 'metrics/metrics_aggregator.dart';
 import 'metrics/metrics_api.dart';
 import 'profiling.dart';
 import 'protocol.dart';
+import 'protocol/sentry_feedback.dart';
 import 'scope.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
@@ -96,7 +97,16 @@ class NoOpHub implements Hub {
       SentryId.empty();
 
   @override
+  // ignore: deprecated_member_use_from_same_package
   Future<void> captureUserFeedback(SentryUserFeedback userFeedback) async {}
+
+  @override
+  Future<SentryId> captureFeedback(
+    SentryFeedback feedback, {
+    Hint? hint,
+    ScopeCallback? withScope,
+  }) async =>
+      SentryId.empty();
 
   @override
   ISentrySpan startTransaction(
