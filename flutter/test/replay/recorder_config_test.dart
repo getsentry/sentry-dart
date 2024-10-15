@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sentry_flutter/src/replay/recorder_config.dart';
+import 'package:sentry_flutter/src/screenshot/recorder_config.dart';
 
 void main() async {
   group('$ScreenshotRecorderConfig', () {

@@ -17,13 +17,3 @@ class ScreenshotRecorderConfig {
     return min(width! / srcWidth, height! / srcHeight);
   }
 }
-
-class ScheduledScreenshotRecorderConfig extends ScreenshotRecorderConfig {
-  final int frameRate;
-
-  const ScheduledScreenshotRecorderConfig({
-    super.width,
-    super.height,
-    required this.frameRate,
-  });
-}

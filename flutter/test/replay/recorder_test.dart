@@ -6,8 +6,8 @@ library dart_test;
 import 'dart:ui';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sentry_flutter/src/replay/recorder.dart';
-import 'package:sentry_flutter/src/replay/recorder_config.dart';
+import 'package:sentry_flutter/src/screenshot/recorder.dart';
+import 'package:sentry_flutter/src/screenshot/recorder_config.dart';
 
 import '../mocks.dart';
 import 'test_widget.dart';

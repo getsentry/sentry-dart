@@ -87,7 +87,7 @@ class ScreenshotRecorder {
         try {
           await callback(finalImage);
         } finally {
-          finalImage.dispose();
+          finalImage.dispose(); // image needs to be disposed manually
         }
       } finally {
         picture.dispose();
