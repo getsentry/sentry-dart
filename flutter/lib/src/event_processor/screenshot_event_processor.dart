@@ -81,9 +81,7 @@ class ScreenshotEventProcessor implements EventProcessor {
 
     // ignore: deprecated_member_use
     var recorder = ScreenshotRecorder(
-        ScreenshotRecorderConfig(
-            width: window.display.size.width.toInt(),
-            height: window.display.size.height.toInt()),
+        ScreenshotRecorderConfig(quality: _options.screenshotQuality),
         _options);
 
     await recorder.capture((Image image) async {

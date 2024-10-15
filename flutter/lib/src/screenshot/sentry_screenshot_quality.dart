@@ -17,4 +17,30 @@ enum SentryScreenshotQuality {
         return 854;
     }
   }
+
+  int calculateHeight(int width, int height) {
+    if (this == SentryScreenshotQuality.full) {
+      return height;
+    } else {
+      if (height > width) {
+        return targetResolution()!;
+      } else {
+        var ratio = targetResolution()! / width;
+        return (height * ratio).round();
+      }
+    }
+  }
+
+  int calculateWidth(int width, int height) {
+    if (this == SentryScreenshotQuality.full) {
+      return width;
+    } else {
+      if (width > height) {
+        return targetResolution()!;
+      } else {
+        var ratio = targetResolution()! / height;
+        return (width * ratio).round();
+      }
+    }
+  }
 }
