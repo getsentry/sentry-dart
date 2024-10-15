@@ -8,9 +8,10 @@ on:
     paths:
       - "!**/*.md"
       - "!**/class-diagram.svg"
-      - ".github/workflows/e2e_dart.yml"
+      - ".github/workflows/e2e_flutter.yml"
       - "dart/**"
-      - "e2e_test/dart/**"
+      - "flutter/**"
+      - "e2e_test/flutter/**"
 
 env:
   SENTRY_AUTH_TOKEN_E2E: ${{ secrets.SENTRY_AUTH_TOKEN_E2E }}
@@ -31,7 +32,7 @@ jobs:
     timeout-minutes: 30
     defaults:
       run:
-        working-directory: ./e2e_test
+        working-directory: ./e2e_test/flutter
     strategy:
       fail-fast: false
       matrix:
@@ -41,14 +42,18 @@ jobs:
         with:
           sdk: ${{ matrix.sdk }}
       - uses: actions/checkout@v4
+      - name: Install Maestro
+        run: brew tap mobile-dev-inc/tap && brew install mobile-dev-inc/tap/maestro@1.38
       - name: Run
         if: env.SENTRY_AUTH_TOKEN != null
         run: |
-          dart pub get
-          dart run --define=SENTRY_ENVIRONMENT=e2e
-
-  analyze:
-    uses: ./.github/workflows/analyze.yml
-    with:
-      package: e2e_test
-      panaThreshold: 0
+          flutter pub get
+          flutter build ios --debug --simulator --obfuscate --split-debug-info=./
+          xcrun simctl install Booted build/ios/iphonesimulator/Runner.app
+          maestro test flow.yaml
+          
+#  analyze:
+#    uses: ./.github/workflows/analyze.yml
+#    with:
+#      package: e2e_test/flutter
+#      panaThreshold: 0
