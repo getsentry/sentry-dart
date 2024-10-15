@@ -19,7 +19,7 @@ env:
 
 jobs:
   cancel-previous-workflow:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
       - name: Cancel Previous Runs
         uses: styfle/cancel-workflow-action@85880fa0301c86cca9da44039ee3bb12d3bedbfa # pin@0.12.1
@@ -28,7 +28,7 @@ jobs:
 
   build:
     name: E2E Flutter
-    runs-on: "ubuntu-latest"
+    runs-on: macos-latest
     timeout-minutes: 30
     defaults:
       run:
