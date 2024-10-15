@@ -1,0 +1,5 @@
+appId: io.sentry.samples.flutter_e2e
+---
+- launchApp
+- tapOn: "Capture exception"
+- assertVisible: 'Capture exception'

@@ -1,0 +1,30 @@
+name: flutter_e2e
+description: "E2E Sentry Flutter test."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.6.0-306.0.dev
+
+dependencies:
+  flutter:
+    sdk: flutter
+  sentry:
+  sentry_flutter:
+  cupertino_icons: ^1.0.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+
+dependency_overrides:
+  sentry:
+    path: ../../dart
+  sentry_flutter:
+    path: ../../flutter
