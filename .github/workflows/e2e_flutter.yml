@@ -1,4 +1,4 @@
-name: e2e-sentry-dart
+name: e2e-sentry-flutter
 on:
   push:
     branches:
@@ -27,7 +27,7 @@ jobs:
           access_token: ${{ github.token }}
 
   build:
-    name: E2E
+    name: E2E Flutter
     runs-on: "ubuntu-latest"
     timeout-minutes: 30
     defaults:
@@ -38,16 +38,18 @@ jobs:
       matrix:
         sdk: [stable, beta]
     steps:
-      - uses: dart-lang/setup-dart@0a8a0fc875eb934c15d08629302413c671d3f672 # pin@v1
-        with:
-          sdk: ${{ matrix.sdk }}
       - uses: actions/checkout@v4
       - name: Install Maestro
         run: brew tap mobile-dev-inc/tap && brew install mobile-dev-inc/tap/maestro@1.38
+      - uses: subosito/flutter-action@44ac965b96f18d999802d4b807e3256d5a3f9fa1 # pin@v2.16.0
+        with:
+          channel: ${{ matrix.sdk }}
+      - run: flutter upgrade
+      - name: Pub Get
+        run: flutter pub get
       - name: Run
         if: env.SENTRY_AUTH_TOKEN != null
         run: |
-          flutter pub get
           flutter build ios --debug --simulator --obfuscate --split-debug-info=./
           xcrun simctl install Booted build/ios/iphonesimulator/Runner.app
           maestro test flow.yaml
