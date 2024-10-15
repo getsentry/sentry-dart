@@ -47,13 +47,14 @@ jobs:
       - run: flutter upgrade
       - name: Pub Get
         run: flutter pub get
-      - name: Run
-        if: env.SENTRY_AUTH_TOKEN != null
+      - name: Build App
+#        if: env.SENTRY_AUTH_TOKEN != null
         run: |
           flutter build ios --debug --simulator --obfuscate --split-debug-info=./
           xcrun simctl install Booted build/ios/iphonesimulator/Runner.app
-          maestro test flow.yaml
-          
+      - name: Run Maestro
+        run: maestro test flow.yaml
+
 #  analyze:
 #    uses: ./.github/workflows/analyze.yml
 #    with:
