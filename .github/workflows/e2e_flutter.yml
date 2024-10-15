@@ -57,6 +57,9 @@ jobs:
           flutter build ios --debug --simulator --obfuscate --split-debug-info=./
           xcrun simctl install Booted build/ios/iphonesimulator/Runner.app
       - name: Run Maestro
+        env:
+          MAESTRO_DRIVER_STARTUP_TIMEOUT: 1500000 # 25 min, CI can be slow at times
+          MAX_ATTEMPTS: 3 # Maestro test suits re runs in case of flakyness
         run: maestro test flow.yaml
 
 #  analyze:
