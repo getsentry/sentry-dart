@@ -22,15 +22,14 @@ void main() {
       ? Directory.current.parent.path
       : Directory.current.path;
 
-  expectedDistFiles = [
-    'sentry.dll',
-    'crashpad_handler.exe',
-    'crashpad_wer.dll',
-  ];
+  expectedDistFiles = platform.instance.isWindows
+      ? ['sentry.dll', 'crashpad_handler.exe', 'crashpad_wer.dll']
+      : ['libsentry.so', 'crashpad_handler'];
 
   setUpAll(() async {
     Directory.current =
         await _buildSentryNative('$repoRootDir/temp/native-test');
+    SentryNative.dynamicLibraryDirectory = '${Directory.current.path}/';
     SentryNative.crashpadPath =
         '${Directory.current.path}/${expectedDistFiles.firstWhere((f) => f.startsWith('crashpad_handler'))}';
   });
@@ -213,9 +212,10 @@ void main() {
   test('loadDebugImages', () async {
     final list = await sut.loadDebugImages(SentryStackTrace(frames: []));
     expect(list, isNotEmpty);
-    expect(list![0].type, 'pe');
+    expect(list![0].type, platform.instance.isWindows ? 'pe' : 'elf');
     expect(list[0].debugId!.length, greaterThan(30));
-    expect(list[0].debugFile, isNotEmpty);
+    expect(
+        list[0].debugFile, platform.instance.isWindows ? isNotEmpty : isNull);
     expect(list[0].imageSize, greaterThan(0));
     expect(list[0].imageAddr, startsWith('0x'));
     expect(list[0].imageAddr?.length, greaterThan(2));
@@ -274,7 +274,17 @@ install(FILES "\${PLUGIN_BUNDLED_LIBRARIES}" DESTINATION "${buildOutputDir.repla
     await _exec('cmake', ['-B', cmakeBuildDir, cmakeConfDir]);
     await _exec('cmake',
         ['--build', cmakeBuildDir, '--config', 'Release', '--parallel']);
-    await _exec('cmake', ['--install', cmakeBuildDir, '--config', 'Release']);
+    await _exec('cmake', [
+      '--install',
+      cmakeBuildDir,
+      '--config',
+      'Release',
+      '--component',
+      'Runtime'
+    ]);
+    if (platform.instance.isLinux) {
+      await _exec('chmod', ['+x', '$buildOutputDir/crashpad_handler']);
+    }
   }
   return buildOutputDir;
 }

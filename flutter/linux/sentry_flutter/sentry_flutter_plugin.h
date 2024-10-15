@@ -1,5 +1,4 @@
-#ifndef FLUTTER_PLUGIN_SENTRY_FLUTTER_PLUGIN_H_
-#define FLUTTER_PLUGIN_SENTRY_FLUTTER_PLUGIN_H_
+#pragma once
 
 #include <flutter_linux/flutter_linux.h>
 
@@ -16,11 +15,7 @@ typedef struct {
   GObjectClass parent_class;
 } SentryFlutterPluginClass;
 
-FLUTTER_PLUGIN_EXPORT GType sentry_flutter_plugin_get_type();
-
 FLUTTER_PLUGIN_EXPORT void sentry_flutter_plugin_register_with_registrar(
-    FlPluginRegistrar* registrar);
+    FlPluginRegistrar* registrar) {}
 
 G_END_DECLS
-
-#endif  // FLUTTER_PLUGIN_SENTRY_FLUTTER_PLUGIN_H_

@@ -11,7 +11,7 @@ SentryNativeBinding createBinding(SentryFlutterOptions options) {
     return SentryNativeCocoa(options);
   } else if (platform.isAndroid) {
     return SentryNativeJava(options);
-  } else if (platform.isWindows) {
+  } else if (platform.isWindows || platform.isLinux) {
     return SentryNative(options);
   } else {
     return SentryNativeChannel(options);

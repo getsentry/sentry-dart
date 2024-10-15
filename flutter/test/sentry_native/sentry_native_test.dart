@@ -1,7 +1,7 @@
 // We must conditionally import the actual test code, otherwise tests fail on
 // a browser. @TestOn('vm') doesn't help by itself in this case because imports
 // are still evaluated, thus causing a compilation failure.
-@TestOn('vm && windows')
+@TestOn('vm && (windows || linux)')
 library sentry_native_test;
 
 import 'package:flutter_test/flutter_test.dart';
