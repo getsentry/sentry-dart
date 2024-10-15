@@ -5,6 +5,7 @@ import 'dart:typed_data';
 
 import 'package:ffi/ffi.dart';
 import 'package:meta/meta.dart';
+import 'package:path/path.dart' as path;
 
 import '../../../sentry_flutter.dart';
 import '../native_app_start.dart';
@@ -28,10 +29,12 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   /// - on Linux in /lib and /usr/lib
   /// - on Windows in the working directory and System32
   @visibleForTesting
-  static String? dynamicLibraryDirectory;
+  static String dynamicLibraryDirectory = '';
 
   @visibleForTesting
-  static String? crashpadPath;
+  static String? crashpadPath = Platform.isLinux
+      ? '${path.dirname(Platform.resolvedExecutable)}/bin/crashpad_handler'
+      : null;
 
   SentryNative(this.options);
 
