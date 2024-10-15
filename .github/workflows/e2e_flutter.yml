@@ -47,6 +47,10 @@ jobs:
       - run: flutter upgrade
       - name: Pub Get
         run: flutter pub get
+      - uses: futureware-tech/simulator-action@bfa03d93ec9de6dacb0c5553bbf8da8afc6c2ee9 # pin@v3
+        with:
+          model: "iPhone 15"
+          os_version: "17.5"
       - name: Build App
 #        if: env.SENTRY_AUTH_TOKEN != null
         run: |
