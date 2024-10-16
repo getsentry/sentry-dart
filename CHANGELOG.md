@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Temporarily disable Windows native error & obfuscation support ([#2363](https://github.com/getsentry/sentry-dart/pull/2363))
+
 ## 8.10.0-beta.1
 
 ### Features
