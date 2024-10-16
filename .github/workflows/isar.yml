@@ -69,7 +69,7 @@ jobs:
       - uses: actions/setup-java@v4
         if: ${{ matrix.target == 'android' }}
         with:
-          java-version: "17"
+          java-version: "11"
           distribution: "adopt"
 
       # Install required dependencies for Flutter on Linux on Ubuntu
