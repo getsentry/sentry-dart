@@ -1,5 +1,8 @@
 appId: io.sentry.samples.flutter_e2e
 ---
 - launchApp
-- tapOn: "Capture exception"
 - assertVisible: 'Capture exception'
+- tapOn: "Capture exception"
+- assertVisible: "Sending exception to Sentry..."
+- waitForAnimationToEnd
+- assertVisible: "Event successfully received"
