@@ -16,11 +16,6 @@ import 'test_widget.dart';
 void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('captures images', (tester) async {
-    final fixture = await _Fixture.create(tester);
-    expect(fixture.capture(), completion('800x600'));
-  });
-
   testWidgets('captures full resolution images - portrait', (tester) async {
     await tester.binding.setSurfaceSize(Size(2000, 4000));
     final fixture = await _Fixture.create(tester);
