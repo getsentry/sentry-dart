@@ -1,11 +1,5 @@
-import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
-import 'screenshot/masking_config.dart';
-import 'screenshot/widget_filter.dart';
-import 'screenshot/sentry_mask_widget.dart';
-import 'screenshot/sentry_unmask_widget.dart';
 import 'sentry_screenshot_options.dart';
 
 /// Configuration of the experimental replay feature.
@@ -40,8 +34,6 @@ class SentryReplayOptions extends SentryScreenshotOptions {
   @Deprecated('Use maskAllImages instead')
   bool get redactAllImages => maskAllImages;
   set redactAllImages(bool value) => maskAllImages = value;
-
-  final _userMaskingRules = <SentryMaskingRule>[];
 
   @internal
   bool get isEnabled =>
