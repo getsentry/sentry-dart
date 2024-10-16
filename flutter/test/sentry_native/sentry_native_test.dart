@@ -12,4 +12,7 @@ import 'sentry_native_test_web.dart'
 
 // Defining main() here allows us to manually run/debug from VSCode.
 // If we didn't need that, we could just `export` above.
-void main() => actual.main();
+
+// Temporarily disabled due to https://github.com/getsentry/sentry-dart-plugin/issues/270
+// void main() => actual.main();
+void main() {}
