@@ -198,4 +198,31 @@ void main() {
 
     expect(options.enableDartSymbolication, true);
   });
+
+  test('parsedDsn is correctly cached', () {
+    final options = defaultTestOptions();
+
+    // Ensure _cachedDsn is null before accessing parsedDsn
+    expect(options.cachedDsn, isNull);
+
+    // Access parsedDsn for the first time
+    final parsedDsn1 = options.parsedDsn;
+
+    // _cachedDsn should now be set
+    expect(options.cachedDsn, isNotNull);
+
+    // Access parsedDsn again
+    final parsedDsn2 = options.parsedDsn;
+
+    // Should return the cached instance
+    expect(identical(parsedDsn1, parsedDsn2), isTrue);
+
+    // Is the same as calling Dsn.parse
+    final manuallyParsedDsn = Dsn.parse(options.dsn!);
+    expect(options.parsedDsn.publicKey, manuallyParsedDsn.publicKey);
+    expect(options.parsedDsn.postUri, manuallyParsedDsn.postUri);
+    expect(options.parsedDsn.projectId, manuallyParsedDsn.projectId);
+    expect(options.parsedDsn.secretKey, manuallyParsedDsn.secretKey);
+    expect(options.parsedDsn.uri, manuallyParsedDsn.uri);
+  });
 }

@@ -95,9 +95,7 @@ class SentryBaggage {
   setValuesFromScope(Scope scope, SentryOptions options) {
     final propagationContext = scope.propagationContext;
     setTraceId(propagationContext.traceId.toString());
-    if (options.parsedDsn != null) {
-      setPublicKey(options.parsedDsn!.publicKey);
-    }
+    setPublicKey(options.parsedDsn.publicKey);
     if (options.release != null) {
       setRelease(options.release!);
     }

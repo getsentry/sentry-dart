@@ -25,19 +25,24 @@ class SentryOptions {
 
   /// The DSN tells the SDK where to send the events to. If an empty string is
   /// used, the SDK will not send any events.
-  String? get dsn => _dsn;
+  String? dsn;
 
-  set dsn(String? value) {
-    _dsn = value;
-
-    assert(_dsn != null);
-    assert(_dsn!.isNotEmpty);
-    parsedDsn = Dsn.parse(_dsn!);
+  /// Uses the cached DSN if it exists otherwise parses the DSN at most once.
+  @internal
+  Dsn get parsedDsn {
+    if (cachedDsn != null) {
+      return cachedDsn!;
+    }
+    if (dsn == null || dsn!.isEmpty) {
+      throw StateError('DSN is null or empty');
+    }
+    cachedDsn = Dsn.parse(dsn!);
+    return cachedDsn!;
   }
 
-  @internal
-  late Dsn parsedDsn;
-  String? _dsn;
+  /// The cached dsn which is set at most once.
+  @visibleForTesting
+  Dsn? cachedDsn;
 
   /// If [compressPayload] is `true` the outgoing HTTP payloads are compressed
   /// using gzip. Otherwise, the payloads are sent in plain UTF8-encoded JSON
@@ -537,8 +542,7 @@ class SentryOptions {
   /// iOS only supports http proxies, while macOS also supports socks.
   SentryProxy? proxy;
 
-  SentryOptions({String? dsn, PlatformChecker? checker}) {
-    _dsn = dsn;
+  SentryOptions({this.dsn, PlatformChecker? checker}) {
     if (checker != null) {
       platformChecker = checker;
     }
