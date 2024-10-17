@@ -15,6 +15,7 @@ import 'event_processor/screenshot_event_processor.dart';
 import 'screenshot/sentry_screenshot_widget.dart';
 import 'sentry_flutter.dart';
 import 'sentry_replay_options.dart';
+import 'sentry_screenshot_options.dart';
 import 'user_interaction/sentry_user_interaction_widget.dart';
 
 /// This class adds options which are only available in a Flutter environment.
@@ -380,6 +381,7 @@ class SentryFlutterOptions extends SentryOptions {
 class _SentryFlutterExperimentalOptions {
   /// Replay recording configuration.
   final replay = SentryReplayOptions();
+  final screenshot = SentryScreenshotOptions();
 }
 
 /// Callback being executed in [ScreenshotEventProcessor], deciding if a

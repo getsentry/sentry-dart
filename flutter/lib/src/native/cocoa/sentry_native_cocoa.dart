@@ -6,9 +6,9 @@ import 'package:meta/meta.dart';
 
 import '../../../sentry_flutter.dart';
 import '../../event_processor/replay_event_processor.dart';
+import '../../screenshot/recorder.dart';
+import '../../screenshot/recorder_config.dart';
 import '../../replay/integration.dart';
-import '../../replay/recorder.dart';
-import '../../replay/recorder_config.dart';
 import '../sentry_native_channel.dart';
 import 'binding.dart' as cocoa;
 
