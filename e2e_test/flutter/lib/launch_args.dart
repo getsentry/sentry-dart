@@ -16,7 +16,7 @@ class LaunchArgs {
       if (!kIsWeb) {
         if (Platform.isAndroid || Platform.isIOS) {
           args = List<String>.from(await _channel
-              .invokeMethod('args');
+              .invokeMethod('args'));
         }
       }
     } catch (e, stackTrace) {
