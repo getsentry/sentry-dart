@@ -17,7 +17,7 @@ class HttpTransportRequestHandler {
   late _CredentialBuilder _credentialBuilder;
 
   HttpTransportRequestHandler(this._options, this._requestUri)
-      : _dsn = _options.parsedDsn!,
+      : _dsn = _options.parsedDsn,
         _headers = _buildHeaders(
           _options.platformChecker.isWeb,
           _options.sentryClientName,

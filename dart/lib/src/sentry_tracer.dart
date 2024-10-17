@@ -377,7 +377,7 @@ class SentryTracer extends ISentrySpan {
 
     _sentryTraceContextHeader = SentryTraceContextHeader(
       _rootSpan.context.traceId,
-      _hub.options.parsedDsn!.publicKey,
+      _hub.options.parsedDsn.publicKey,
       release: _hub.options.release,
       environment: _hub.options.environment,
       userId: null, // because of PII not sending it for now
