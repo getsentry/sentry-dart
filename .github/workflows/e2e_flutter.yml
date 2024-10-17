@@ -54,13 +54,18 @@ jobs:
       - name: Build App
         if: env.SENTRY_AUTH_TOKEN_E2E != null
         run: |
-          flutter build ios --debug --simulator --obfuscate --split-debug-info=./ --dart-define=SENTRY_AUTH_TOKEN_E2E=$SENTRY_AUTH_TOKEN_E2E
+          flutter build ios --debug --simulator
           xcrun simctl install Booted build/ios/iphonesimulator/Runner.app
       - name: Run Maestro
         env:
           MAESTRO_DRIVER_STARTUP_TIMEOUT: 1500000 # 25 min, CI can be slow at times
         run: maestro test flow.yaml
-
+      - name: Store Maestro Logs
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: maestro-logs-test
+          path: MaestroLogs
 #  analyze:
 #    uses: ./.github/workflows/analyze.yml
 #    with:

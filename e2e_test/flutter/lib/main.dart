@@ -1,19 +1,24 @@
-import 'package:flutter/material.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:http/http.dart';
 import 'dart:convert';
 import 'dart:io';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_e2e/launch_args.dart';
+import 'package:http/http.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
+// import 'package:launch_args/launch_args.dart';
 
 const _org = 'sentry-sdks';
 const _projectSlug = 'sentry-flutter';
 const _exampleDsn =
     'https://e85b375ffb9f43cf8bdf9787768149e0@o447951.ingest.sentry.io/5428562';
-const _token =
-    String.fromEnvironment('SENTRY_AUTH_TOKEN_E2E', defaultValue: '');
-//  flutter build apk --dart-define=SENTRY_AUTH_TOKEN_E2E=$SENTRY_AUTH_TOKEN_E2E works
+String? _token;
 
 Future<void> main() async {
-  if (_token.trim().isEmpty) {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  final args = await LaunchArgs.args;
+  _token = args[1];
+  if (_token!.trim().isEmpty) {
     print('AUTH TOKEN is not set');
     exit(1);
   }
