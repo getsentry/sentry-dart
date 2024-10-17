@@ -27,22 +27,16 @@ class SentryOptions {
   /// used, the SDK will not send any events.
   String? dsn;
 
-  /// Uses the cached DSN if it exists otherwise parses the DSN at most once.
+  /// Evaluates and parses the DSN. May throw an exception if the DSN is invalid.
   @internal
-  Dsn get parsedDsn {
-    if (cachedDsn != null) {
-      return cachedDsn!;
-    }
+  late final Dsn parsedDsn = _parseDsn();
+
+  Dsn _parseDsn() {
     if (dsn == null || dsn!.isEmpty) {
       throw StateError('DSN is null or empty');
     }
-    cachedDsn = Dsn.parse(dsn!);
-    return cachedDsn!;
+    return Dsn.parse(dsn!);
   }
-
-  /// The cached dsn which is set at most once.
-  @visibleForTesting
-  Dsn? cachedDsn;
 
   /// If [compressPayload] is `true` the outgoing HTTP payloads are compressed
   /// using gzip. Otherwise, the payloads are sent in plain UTF8-encoded JSON
