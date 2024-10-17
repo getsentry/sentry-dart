@@ -284,12 +284,14 @@ isolate_instructions: 10fa27070, vm_instructions: 10fa21e20
       final fixture = Fixture();
 
       // Test for web platform
-      final webSut = fixture.getSut(isWeb: true);
+      fixture.options.platformChecker = MockPlatformChecker(isWebValue: true);
+      final webSut = fixture.getSut();
       var webFrame = webSut.encodeStackTraceFrame(frame)!;
       expect(webFrame.platform, 'javascript');
 
       // Test for non-web platform
-      final nativeFrameBeforeSut = fixture.getSut(isWeb: false);
+      fixture.options.platformChecker = MockPlatformChecker(isWebValue: false);
+      final nativeFrameBeforeSut = fixture.getSut();
       var nativeFrameBefore =
           nativeFrameBeforeSut.encodeStackTraceFrame(frame)!;
       expect(nativeFrameBefore.platform, 'dart');
@@ -301,17 +303,84 @@ isolate_instructions: 10fa27070, vm_instructions: 10fa21e20
           .copyWith(platform: 'native');
       expect(frameWithPlatform.platform, 'native');
     });
+
+    group('stackFrameExcludes', () {
+      final stackTraceString = '''
+      #0      getCurrentStackTrace (package:sentry/src/utils/stacktrace_utils.dart:10:49)
+#1      OnErrorIntegration.call.<anonymous closure> (package:sentry_flutter/src/integrations/on_error_integration.dart:82:22)
+#2      MainScaffold.build.<anonymous closure> (package:sentry_flutter_example/main.dart:349:23)
+#3      _InkResponseState.handleTap (package:flutter/src/material/ink_well.dart:1170:21)
+#4      GestureRecognizer.invokeCallback (package:flutter/src/gestures/recognizer.dart:351:24)
+#5      TapGestureRecognizer.handleTapUp (package:flutter/src/gestures/tap.dart:656:11)
+#6      BaseTapGestureRecognizer._checkUp (package:flutter/src/gestures/tap.dart:313:5)
+#7      BaseTapGestureRecognizer.acceptGesture (package:flutter/src/gestures/tap.dart:283:7)
+#8      GestureArenaManager.sweep (package:flutter/src/gestures/arena.dart:169:27)
+#9      GestureBinding.handleEvent (package:flutter/src/gestures/binding.dart:505:20)
+#10     GestureBinding.dispatchEvent (package:flutter/src/gestures/binding.dart:481:22)
+#11     RendererBinding.dispatchEvent (package:flutter/src/rendering/binding.dart:450:11)
+#12     GestureBinding._handlePointerEventImmediately (package:flutter/src/gestures/binding.dart:426:7)
+#13     GestureBinding.handlePointerEvent (package:flutter/src/gestures/binding.dart:389:5)
+#14     GestureBinding._flushPointerEventQueue (package:flutter/src/gestures/binding.dart:336:7)
+#15     GestureBinding._handlePointerDataPacket (package:flutter/src/gestures/binding.dart:305:9)
+#16     _invoke1 (dart:ui/hooks.dart:328:13)
+#17     PlatformDispatcher._dispatchPointerDataPacket (dart:ui/platform_dispatcher.dart:442:7)
+#18     _dispatchPointerDataPacket (dart:ui/hooks.dart:262:31)
+      ''';
+
+      test('excludes sentry and sentry_flutter stack frames per default', () {
+        final fixture = Fixture();
+
+        expect(
+            fixture.options.stackFrameExcludes, ['sentry', 'sentry_flutter']);
+
+        final sut = fixture.getSut();
+        final sentryStackTrace =
+            sut.parse(StackTrace.fromString(stackTraceString));
+
+        expect(sentryStackTrace.frames.length, 17);
+        expect(sentryStackTrace.frames[16].package, 'sentry_flutter_example');
+        expect(sentryStackTrace.frames[15].package, 'flutter');
+      });
+
+      test('excludes added stack frame exclude', () {
+        final fixture = Fixture();
+
+        final sut = fixture.getSut();
+        fixture.options.addStackFrameExclude('sentry_flutter_example');
+
+        final sentryStackTrace =
+            sut.parse(StackTrace.fromString(stackTraceString));
+
+        expect(sentryStackTrace.frames.length, 16);
+        expect(sentryStackTrace.frames[15].package, 'flutter');
+      });
+
+      test('ignores removed stack frame excludes', () {
+        final fixture = Fixture();
+
+        final sut = fixture.getSut();
+        fixture.options.removeStackFrameExclude('sentry');
+        fixture.options.removeStackFrameExclude('sentry_flutter');
+
+        final sentryStackTrace =
+            sut.parse(StackTrace.fromString(stackTraceString));
+
+        expect(sentryStackTrace.frames.length, 19);
+        expect(sentryStackTrace.frames[18].package, 'sentry');
+        expect(sentryStackTrace.frames[17].package, 'sentry_flutter');
+      });
+    });
   });
 }
 
 class Fixture {
+  final options = defaultTestOptions(MockPlatformChecker(isWebValue: false));
+
   SentryStackTraceFactory getSut({
     List<String> inAppIncludes = const [],
     List<String> inAppExcludes = const [],
     bool considerInAppFramesByDefault = true,
-    bool isWeb = false,
   }) {
-    final options = defaultTestOptions(MockPlatformChecker(isWebValue: isWeb));
     inAppIncludes.forEach(options.addInAppInclude);
     inAppExcludes.forEach(options.addInAppExclude);
     options.considerInAppFramesByDefault = considerInAppFramesByDefault;

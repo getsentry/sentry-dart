@@ -36,6 +36,7 @@ void main() {
       FlutterExceptionHandler? handler,
       dynamic exception,
       FlutterErrorDetails? optionalDetails,
+      StackTrace? stackTrace,
     }) {
       _mockValues();
 
@@ -53,6 +54,7 @@ void main() {
         context: DiagnosticsNode.message('while handling a gesture'),
         library: 'sentry',
         informationCollector: () => [DiagnosticsNode.message('foo bar')],
+        stack: stackTrace,
       );
 
       FlutterError.reportError(optionalDetails ?? details);
@@ -309,6 +311,54 @@ void main() {
       ).captured.first as SentryEvent;
 
       expect(event.level, SentryLevel.error);
+    });
+
+    test('adds current stack trace hint on null stack trace', () async {
+      final exception = StateError('error');
+
+      _reportError(exception: exception, stackTrace: null);
+
+      final hint = verify(
+        await fixture.hub.captureEvent(
+          captureAny,
+          stackTrace: captureAnyNamed('stackTrace'),
+          hint: captureAnyNamed('hint'),
+        ),
+      ).captured[2] as Hint;
+
+      expect(hint.get(TypeCheckHint.currentStackTrace), isTrue);
+    });
+
+    test('adds current stack trace hint on empty stack trace', () async {
+      final exception = StateError('error');
+
+      _reportError(exception: exception, stackTrace: StackTrace.empty);
+
+      final hint = verify(
+        await fixture.hub.captureEvent(
+          captureAny,
+          stackTrace: captureAnyNamed('stackTrace'),
+          hint: captureAnyNamed('hint'),
+        ),
+      ).captured[2] as Hint;
+
+      expect(hint.get(TypeCheckHint.currentStackTrace), isTrue);
+    });
+
+    test('does not add current stack trace hint with stack trace', () async {
+      final exception = StateError('error');
+
+      _reportError(exception: exception, stackTrace: StackTrace.current);
+
+      final hint = verify(
+        await fixture.hub.captureEvent(
+          captureAny,
+          stackTrace: captureAnyNamed('stackTrace'),
+          hint: captureAnyNamed('hint'),
+        ),
+      ).captured[2] as Hint;
+
+      expect(hint.get(TypeCheckHint.currentStackTrace), isNull);
     });
   });
 }
