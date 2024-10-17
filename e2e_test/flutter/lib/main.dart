@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_e2e/launch_args.dart';
 import 'package:http/http.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-// import 'package:launch_args/launch_args.dart';
 
 const _org = 'sentry-sdks';
 const _projectSlug = 'sentry-flutter';
@@ -17,8 +16,11 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   final args = await LaunchArgs.args;
+  if (args.isEmpty) {
+    exit(1);
+  }
   _token = args[1];
-  if (_token!.trim().isEmpty) {
+  if (_token?.trim().isEmpty == true) {
     print('AUTH TOKEN is not set');
     exit(1);
   }

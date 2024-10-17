@@ -12,13 +12,16 @@ class LaunchArgs {
   /// other platforms will result in an empty list being returned.
   static Future<List<String>> get args async {
     var args = <String>[];
-
-    if (!kIsWeb) {
-      if (Platform.isAndroid || Platform.isIOS) {
-        args = List<String>.from(await _channel.invokeMethod('args'));
+    try {
+      if (!kIsWeb) {
+        if (Platform.isAndroid || Platform.isIOS) {
+          args = List<String>.from(await _channel
+              .invokeMethod('args');
+        }
       }
+    } catch (e, stackTrace) {
+      // no-op
     }
-
     return args;
   }
 }

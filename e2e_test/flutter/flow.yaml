@@ -1,4 +1,4 @@
-appId: io.sentry.samples.flutter_e2e
+appId: io.sentry.samples.flutterE2e
 ---
 - launchApp:
     arguments:
