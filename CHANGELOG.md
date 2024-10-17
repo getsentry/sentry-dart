@@ -55,7 +55,7 @@
   );
   ```
 
-- Add `stackFrameExcludes` to `SentryOptions` ([#2351](https://github.com/getsentry/sentry-dart/pull/2351))
+- Remove `sentry` frames if SDK falls back to `currentStackTrace` ([#2351](https://github.com/getsentry/sentry-dart/pull/2351))
 
 ### Enhancements
 
