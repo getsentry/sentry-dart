@@ -114,6 +114,9 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
+    Future.delayed(const Duration(seconds: 3), () {
+      SentryFlutter.reportFullyDisplayed();
+    });
     return feedback.BetterFeedback(
       child: ChangeNotifierProvider<ThemeProvider>(
         create: (_) => ThemeProvider(),
@@ -231,7 +234,7 @@ class MainScaffold extends StatelessWidget {
               TooltipButton(
                 onPressed: isarTest,
                 text:
-                    'Executes CRUD operations on an in-memory with Isart and sends the created transaction to Sentry.',
+                    'Executes CRUD operations on an in-memory with Isar and sends the created transaction to Sentry.',
                 buttonTitle: 'isar',
               ),
             TooltipButton(

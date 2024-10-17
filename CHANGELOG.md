@@ -1,6 +1,12 @@
 # Changelog
 
-## Unreleased
+## 8.10.0-beta.2
+
+### Fixes
+
+- Temporarily disable Windows native error & obfuscation support ([#2363](https://github.com/getsentry/sentry-dart/pull/2363))
+
+## 8.10.0-beta.1
 
 ### Features
 
@@ -68,6 +74,7 @@
 - iOS replay integration when only `onErrorSampleRate` is specified ([#2306](https://github.com/getsentry/sentry-dart/pull/2306))
 - Fix TTID timing issue ([#2326](https://github.com/getsentry/sentry-dart/pull/2326))
 - Start missing TTFD for root screen transaction ([#2332](https://github.com/getsentry/sentry-dart/pull/2332))
+- Match TTFD to TTID end timespan if TTFD is unfinished when user navigates to another screen ([#2347](https://github.com/getsentry/sentry-dart/pull/2347))
 - Accessing invalid json fields from `fetchNativeAppStart` should return null ([#2340](https://github.com/getsentry/sentry-dart/pull/2340))
 - Error when calling `SentryFlutter.reportFullyDisplayed()` twice ([#2339](https://github.com/getsentry/sentry-dart/pull/2339))
 - TTFD measurements should only be added for successful TTFD spans ([#2348](https://github.com/getsentry/sentry-dart/pull/2348))

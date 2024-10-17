@@ -198,7 +198,7 @@ class Fixture {
   final options = defaultTestOptions()
     ..dsn = fakeDsn
     ..tracesSampleRate = 1.0;
-  late final endTimeProvider = ttidEndTimestampProvider();
+  late final endTimeProvider = ttidEndTimestampProvider;
   late final hub = Hub(options);
 
   TimeToInitialDisplayTracker? ttidTracker;
