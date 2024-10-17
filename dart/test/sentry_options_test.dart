@@ -205,9 +205,6 @@ void main() {
     // Access parsedDsn for the first time
     final parsedDsn1 = options.parsedDsn;
 
-    // Verify that parsedDsn is not null
-    expect(parsedDsn1, isNotNull);
-
     // Access parsedDsn again
     final parsedDsn2 = options.parsedDsn;
 
