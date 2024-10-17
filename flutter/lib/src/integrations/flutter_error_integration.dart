@@ -79,6 +79,9 @@ class FlutterErrorIntegration implements Integration<SentryFlutterOptions> {
           (scope) => scope.span?.status ??= const SpanStatus.internalError(),
         );
 
+        final hint = Hint();
+        hint.addAll({TypeCheckHint.syntheticException: errorDetails});
+
         await hub.captureEvent(event,
             // ignore: invalid_use_of_internal_member
             stackTrace: errorDetails.stack ?? getCurrentStackTrace(),

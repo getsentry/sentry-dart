@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:meta/meta.dart';
+import 'package:sentry/src/type_check_hint.dart';
 
 import 'client_reports/client_report_recorder.dart';
 import 'client_reports/discard_reason.dart';
@@ -123,9 +124,9 @@ class SentryClient {
       return _emptySentryId;
     }
 
-    SentryEvent? preparedEvent = _prepareEvent(event, stackTrace: stackTrace);
-
     hint ??= Hint();
+
+    SentryEvent? preparedEvent = _prepareEvent(event, hint, stackTrace: stackTrace);
 
     if (scope != null) {
       preparedEvent = await scope.applyToEvent(preparedEvent, hint);
@@ -208,7 +209,7 @@ class SentryClient {
     return isMatchingRegexPattern(message, _options.ignoreErrors);
   }
 
-  SentryEvent _prepareEvent(SentryEvent event, {dynamic stackTrace}) {
+  SentryEvent _prepareEvent(SentryEvent event, Hint hint, {dynamic stackTrace}) {
     event = event.copyWith(
       serverName: event.serverName ?? _options.serverName,
       dist: event.dist ?? _options.dist,
@@ -245,6 +246,7 @@ class SentryClient {
         var sentryException = _exceptionFactory.getSentryException(
           extractedException.exception,
           stackTrace: extractedException.stackTrace,
+          removeSentryFrames: hint.get(TypeCheckHint.currentStackTrace),
         );
 
         SentryThread? sentryThread;
@@ -280,8 +282,14 @@ class SentryClient {
     // therefore add it to the threads.
     // https://develop.sentry.dev/sdk/event-payloads/stacktrace/
     if (stackTrace != null || _options.attachStacktrace) {
-      stackTrace ??= getCurrentStackTrace();
-      final sentryStackTrace = _stackTraceFactory.parse(stackTrace);
+      if (stackTrace == null || stackTrace == StackTrace.empty) {
+        stackTrace = getCurrentStackTrace();
+        hint.addAll({TypeCheckHint.currentStackTrace: true});
+      }
+      final sentryStackTrace = _stackTraceFactory.parse(
+        stackTrace,
+        removeSentryFrames: hint.get(TypeCheckHint.currentStackTrace),
+      );
       if (sentryStackTrace.frames.isNotEmpty) {
         event = event.copyWith(threads: [
           ...?event.threads,
@@ -353,10 +361,10 @@ class SentryClient {
     Scope? scope,
     SentryTraceContextHeader? traceContext,
   }) async {
-    SentryTransaction? preparedTransaction =
-        _prepareEvent(transaction) as SentryTransaction;
-
     final hint = Hint();
+
+    SentryTransaction? preparedTransaction =
+        _prepareEvent(transaction, hint) as SentryTransaction;
 
     if (scope != null) {
       preparedTransaction = await scope.applyToEvent(preparedTransaction, hint)

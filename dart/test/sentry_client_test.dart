@@ -377,7 +377,6 @@ void main() {
     });
 
     test('should capture sentry frames exception', () async {
-      fixture.options.removeStackFrameExclude('sentry');
       fixture.options.addExceptionCauseExtractor(
         ExceptionWithCauseExtractor(),
       );
@@ -498,8 +497,6 @@ void main() {
     });
 
     test('should capture sentry frames exception', () async {
-      fixture.options.removeStackFrameExclude('sentry');
-
       try {
         throw Exception('Error');
       } catch (err) {
@@ -524,6 +521,38 @@ void main() {
             .any((frame) => frame.package == 'sentry'),
         true,
       );
+    });
+
+    test('should remove sentry frames if null stackStrace', () async {
+      final throwable = Object();
+
+      final client = fixture.getSut(attachStacktrace: true);
+      await client.captureException(throwable, stackTrace: null);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
+
+      final sentryFramesCount = capturedEvent.exceptions?[0].stackTrace!.frames
+          .where((frame) => frame.package == 'sentry')
+          .length;
+
+      expect(sentryFramesCount, 0);
+    });
+
+    test('should remove sentry frames if empty stackStrace', () async {
+      final throwable = Object();
+
+      final client = fixture.getSut(attachStacktrace: true);
+      await client.captureException(throwable, stackTrace: StackTrace.empty);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
+
+      final sentryFramesCount = capturedEvent.exceptions?[0].stackTrace!.frames
+          .where((frame) => frame.package == 'sentry')
+          .length;
+
+      expect(sentryFramesCount, 0);
     });
   });
 
@@ -2172,9 +2201,54 @@ void main() {
 
       final capturedEnvelope = (fixture.transport).envelopes.first;
       final attachmentItem = capturedEnvelope.items.firstWhereOrNull(
-          (element) => element.header.type == SentryItemType.attachment);
-
+          (element) => element.header.type == SentryItemType.attachment,
+      );
       expect(attachmentItem, isNull);
+    });
+
+    test('null stack trace marked in hint & sentry frames removed from thread stackTrace', () async {
+      final beforeSendCallback = (SentryEvent event, Hint hint) {
+        expect(hint.get(TypeCheckHint.currentStackTrace), isTrue);
+        return event;
+      };
+      final client = fixture.getSut(beforeSend: beforeSendCallback, attachStacktrace: true);
+      await client.captureEvent(fakeEvent);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
+
+      final sentryFramesCount = capturedEvent.threads?[0].stacktrace!.frames
+          .where((frame) => frame.package == 'sentry')
+          .length;
+
+      expect(sentryFramesCount, 0);
+    });
+
+    test('empty stack trace marked in hint & sentry frames removed from thread stackTrace', () async {
+      final beforeSendCallback = (SentryEvent event, Hint hint) {
+        expect(hint.get(TypeCheckHint.currentStackTrace), isTrue);
+        return event;
+      };
+      final client = fixture.getSut(beforeSend: beforeSendCallback, attachStacktrace: true);
+      await client.captureEvent(fakeEvent, stackTrace: StackTrace.empty);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
+
+      final sentryFramesCount = capturedEvent.threads?[0].stacktrace!.frames
+          .where((frame) => frame.package == 'sentry')
+          .length;
+
+      expect(sentryFramesCount, 0);
+    });
+
+    test('non-null stack trace not marked in hint', () async {
+      final beforeSendCallback = (SentryEvent event, Hint hint) {
+        expect(hint.get(TypeCheckHint.currentStackTrace), isNull);
+        return event;
+      };
+      final client = fixture.getSut(beforeSend: beforeSendCallback, attachStacktrace: true);
+      await client.captureEvent(fakeEvent, stackTrace: StackTrace.current);
     });
   });
 

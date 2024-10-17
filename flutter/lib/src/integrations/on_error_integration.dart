@@ -77,13 +77,14 @@ class OnErrorIntegration implements Integration<SentryFlutterOptions> {
         (scope) => scope.span?.status ??= const SpanStatus.internalError(),
       );
 
+      Hint? hint;
       if (stackTrace == StackTrace.empty) {
         // ignore: invalid_use_of_internal_member
         stackTrace = getCurrentStackTrace();
+        hint = Hint.withMap({TypeCheckHint.currentStackTrace: true});
       }
-
       // unawaited future
-      hub.captureEvent(event, stackTrace: stackTrace);
+      hub.captureEvent(event, stackTrace: stackTrace, hint: hint);
 
       return handled;
     };

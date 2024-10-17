@@ -230,6 +230,23 @@ void main() {
     expect(sentryStackTrace.baseAddr, isNull);
     expect(sentryStackTrace.buildId, isNull);
   });
+
+  test('remove sentry frames', () {
+    final sentryException = fixture
+      .getSut(attachStacktrace: false)
+      .getSentryException(
+        SentryStackTraceError(),
+        stackTrace: SentryStackTrace(),
+        removeSentryFrames: true,
+      );
+
+    final sentryStackTrace = sentryException.stackTrace!;
+    expect(sentryStackTrace.baseAddr, isNull);
+
+    expect(sentryStackTrace.frames.length, 17);
+    expect(sentryStackTrace.frames[16].package, 'sentry_flutter_example');
+    expect(sentryStackTrace.frames[15].package, 'flutter');
+  });
 }
 
 class CustomError extends Error {}
@@ -288,11 +305,51 @@ isolate_instructions: 7526344980, vm_instructions: 752633f000
   }
 }
 
+class SentryStackTraceError extends Error {
+  var prefix =
+      "Unknown error without own stacktrace";
+
+  @override
+  String toString() {
+    return '''
+$prefix
+
+${SentryStackTrace()}''';
+  }
+}
+
+class SentryStackTrace extends StackTrace {
+  @override
+  String toString() {
+    return '''
+      #0      getCurrentStackTrace (package:sentry/src/utils/stacktrace_utils.dart:10:49)
+#1      OnErrorIntegration.call.<anonymous closure> (package:sentry_flutter/src/integrations/on_error_integration.dart:82:22)
+#2      MainScaffold.build.<anonymous closure> (package:sentry_flutter_example/main.dart:349:23)
+#3      _InkResponseState.handleTap (package:flutter/src/material/ink_well.dart:1170:21)
+#4      GestureRecognizer.invokeCallback (package:flutter/src/gestures/recognizer.dart:351:24)
+#5      TapGestureRecognizer.handleTapUp (package:flutter/src/gestures/tap.dart:656:11)
+#6      BaseTapGestureRecognizer._checkUp (package:flutter/src/gestures/tap.dart:313:5)
+#7      BaseTapGestureRecognizer.acceptGesture (package:flutter/src/gestures/tap.dart:283:7)
+#8      GestureArenaManager.sweep (package:flutter/src/gestures/arena.dart:169:27)
+#9      GestureBinding.handleEvent (package:flutter/src/gestures/binding.dart:505:20)
+#10     GestureBinding.dispatchEvent (package:flutter/src/gestures/binding.dart:481:22)
+#11     RendererBinding.dispatchEvent (package:flutter/src/rendering/binding.dart:450:11)
+#12     GestureBinding._handlePointerEventImmediately (package:flutter/src/gestures/binding.dart:426:7)
+#13     GestureBinding.handlePointerEvent (package:flutter/src/gestures/binding.dart:389:5)
+#14     GestureBinding._flushPointerEventQueue (package:flutter/src/gestures/binding.dart:336:7)
+#15     GestureBinding._handlePointerDataPacket (package:flutter/src/gestures/binding.dart:305:9)
+#16     _invoke1 (dart:ui/hooks.dart:328:13)
+#17     PlatformDispatcher._dispatchPointerDataPacket (dart:ui/platform_dispatcher.dart:442:7)
+#18     _dispatchPointerDataPacket (dart:ui/hooks.dart:262:31)
+      ''';
+  }
+}
+
 class Fixture {
   final options = defaultTestOptions();
 
   SentryExceptionFactory getSut({bool attachStacktrace = true}) {
-    options.attachStacktrace = true;
+    options.attachStacktrace = attachStacktrace;
     return SentryExceptionFactory(options);
   }
 }
