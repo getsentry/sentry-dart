@@ -219,4 +219,16 @@ void main() {
     expect(parsedDsn1.projectId, manuallyParsedDsn.projectId);
     expect(parsedDsn1.uri, manuallyParsedDsn.uri);
   });
+
+  test('parsedDsn throws when DSN is null', () {
+    final options = defaultTestOptions()..dsn = null;
+
+    expect(() => options.parsedDsn, throwsA(isA<StateError>()));
+  });
+
+  test('parsedDsn throws when DSN is empty', () {
+    final options = defaultTestOptions()..dsn = '';
+
+    expect(() => options.parsedDsn, throwsA(isA<StateError>()));
+  });
 }
