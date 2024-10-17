@@ -27,6 +27,17 @@ class SentryOptions {
   /// used, the SDK will not send any events.
   String? dsn;
 
+  /// Evaluates and parses the DSN. May throw an exception if the DSN is invalid.
+  @internal
+  late final Dsn parsedDsn = _parseDsn();
+
+  Dsn _parseDsn() {
+    if (dsn == null || dsn!.isEmpty) {
+      throw StateError('DSN is null or empty');
+    }
+    return Dsn.parse(dsn!);
+  }
+
   /// If [compressPayload] is `true` the outgoing HTTP payloads are compressed
   /// using gzip. Otherwise, the payloads are sent in plain UTF8-encoded JSON
   /// text. The compression is enabled by default.

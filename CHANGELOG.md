@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Enhancements
+
+- Cache parsed DSN ([#2365](https://github.com/getsentry/sentry-dart/pull/2365))
+
 ## 8.10.0-beta.2
 
 ### Fixes
