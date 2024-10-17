@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Enhancements
+
+- Remove `sentry` frames if SDK falls back to current stack trace ([#2351](https://github.com/getsentry/sentry-dart/pull/2351))
+
 ## 8.10.0-beta.2
 
 ### Fixes
@@ -54,8 +60,6 @@
     ),
   );
   ```
-
-- Remove `sentry` frames if SDK falls back to `currentStackTrace` ([#2351](https://github.com/getsentry/sentry-dart/pull/2351))
 
 ### Enhancements
 
