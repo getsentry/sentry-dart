@@ -2,7 +2,7 @@ appId: io.sentry.samples.flutterE2e
 ---
 - launchApp:
     arguments:
-      sentryAuthToken: "test"
+      sentryAuthToken: ${SENTRY_DIST}
 - assertVisible: 'Capture exception'
 - tapOn: "Capture exception"
 - assertVisible: "Sending exception to Sentry..."
