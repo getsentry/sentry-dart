@@ -30,8 +30,8 @@ class HttpTransport implements Transport {
   }
 
   HttpTransport._(this._options, this._rateLimiter)
-      : _requestHandler = HttpTransportRequestHandler(
-            _options, Dsn.parse(_options.dsn!).postUri);
+      : _requestHandler =
+            HttpTransportRequestHandler(_options, _options.parsedDsn!.postUri);
 
   @override
   Future<SentryId?> send(SentryEnvelope envelope) async {

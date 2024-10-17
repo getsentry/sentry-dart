@@ -25,7 +25,19 @@ class SentryOptions {
 
   /// The DSN tells the SDK where to send the events to. If an empty string is
   /// used, the SDK will not send any events.
-  String? dsn;
+  String? get dsn => _dsn;
+
+  set dsn(String? value) {
+    _dsn = value;
+
+    assert(_dsn != null);
+    assert(_dsn!.isNotEmpty);
+    parsedDsn = Dsn.parse(_dsn!);
+  }
+
+  @internal
+  late Dsn parsedDsn;
+  String? _dsn;
 
   /// If [compressPayload] is `true` the outgoing HTTP payloads are compressed
   /// using gzip. Otherwise, the payloads are sent in plain UTF8-encoded JSON
@@ -525,7 +537,8 @@ class SentryOptions {
   /// iOS only supports http proxies, while macOS also supports socks.
   SentryProxy? proxy;
 
-  SentryOptions({this.dsn, PlatformChecker? checker}) {
+  SentryOptions({String? dsn, PlatformChecker? checker}) {
+    _dsn = dsn;
     if (checker != null) {
       platformChecker = checker;
     }
