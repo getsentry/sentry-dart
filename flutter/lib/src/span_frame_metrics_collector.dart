@@ -34,7 +34,6 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
   }
 
   final SentryFlutterOptions options;
-  final FrameCallbackHandler _frameCallbackHandler;
   final SentryNativeBinding? _native;
   final bool _isTestMode;
 
@@ -180,6 +179,9 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
         //   return;
         // }
 
+        // We could theoretically also re-assign onBeginFrame to the original callback
+        // when we pause the tracking but I'd rather not assign and re-assign due
+        // to the potential risk of breaking so having a flag that `toggles` tracking is much safer
         if (!_isTrackingPaused) {
           final stopwatch = Stopwatch()..start();
           WidgetsBinding.instance.addPostFrameCallback((_) {
