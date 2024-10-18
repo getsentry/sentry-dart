@@ -1,57 +1,24 @@
+import 'dart:async';
 import 'dart:collection';
 import 'dart:math';
+import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:meta/meta.dart';
 
 import '../sentry_flutter.dart';
-
 import 'frame_callback_handler.dart';
 import 'native/sentry_native_binding.dart';
 
+const _frozenFrameThreshold = Duration(milliseconds: 700);
+const _totalFramesKey = 'frames.total';
+const _framesDelayKey = 'frames.delay';
+const _slowFramesKey = 'frames.slow';
+const _frozenFramesKey = 'frames.frozen';
+
 @internal
 class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
-  static const _frozenFrameThreshold = Duration(milliseconds: 700);
-  static const totalFramesKey = 'frames.total';
-  static const framesDelayKey = 'frames.delay';
-  static const slowFramesKey = 'frames.slow';
-  static const frozenFramesKey = 'frames.frozen';
-
-  final SentryFlutterOptions options;
-  final FrameCallbackHandler _frameCallbackHandler;
-  final SentryNativeBinding? _native;
-
-  final bool _isTestMode;
-
-  /// Stores timestamps and durations (in milliseconds) of frames exceeding the expected duration.
-  /// Keys are frame timestamps, values are frame durations.
-  /// The timestamps mark the end of the frame.
-  @visibleForTesting
-  final exceededFrames = SplayTreeMap<DateTime, int>();
-
-  /// Stores the spans that are actively being tracked.
-  /// After the frames are calculated and stored in the span the span is removed from this list.
-  @visibleForTesting
-  final activeSpans = SplayTreeSet<ISentrySpan>(
-      (a, b) => a.startTimestamp.compareTo(b.startTimestamp));
-
-  bool get isTrackingPaused => _isTrackingPaused;
-  bool _isTrackingPaused = true;
-
-  bool get isTrackingRegistered => _isTrackingRegistered;
-  bool _isTrackingRegistered = false;
-
-  @visibleForTesting
-  int? displayRefreshRate;
-
-  @visibleForTesting
-  Duration? expectedFrameDuration;
-
-  @visibleForTesting
-  int maxFramesToTrack = 10800;
-
-  final _stopwatch = Stopwatch();
-
   SpanFrameMetricsCollector(this.options,
       {FrameCallbackHandler? frameCallbackHandler,
       SentryNativeBinding? native,
@@ -59,7 +26,53 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
       : _frameCallbackHandler =
             frameCallbackHandler ?? DefaultFrameCallbackHandler(),
         _native = native ?? SentryFlutter.native,
-        _isTestMode = isTestMode;
+        _isTestMode = isTestMode {
+    options.bindingUtils.ensureInitialized();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _originalBeginFrameCallback = PlatformDispatcher.instance.onBeginFrame;
+    });
+  }
+
+  final SentryFlutterOptions options;
+  final FrameCallbackHandler _frameCallbackHandler;
+  final SentryNativeBinding? _native;
+  final bool _isTestMode;
+
+  // Frame Tracking Control Variables
+  @visibleForTesting
+  int? displayRefreshRate;
+
+  @visibleForTesting
+  Duration? expectedFrameDuration;
+
+  bool _isTrackingPaused = true;
+  bool get isTrackingPaused => _isTrackingPaused;
+
+  bool _isTrackingRegistered = false;
+  bool get isTrackingRegistered => _isTrackingRegistered;
+
+  @visibleForTesting
+  int maxFramesToTrack = 10800;
+
+  // Data Storage for Frame Metrics
+  /// Stores timestamps and durations (in milliseconds) of frames exceeding the expected duration.
+  /// Keys are frame timestamps, values are frame durations.
+  /// The timestamps mark the end of the frame.
+  @visibleForTesting
+  final exceededFrames = SplayTreeMap<DateTime, int>();
+
+  /// Stores the spans that are actively being tracked.
+  /// After the frames are calculated and stored in the span, the span is removed from this list.
+  @visibleForTesting
+  final activeSpans = SplayTreeSet<ISentrySpan>(
+    (a, b) => a.startTimestamp.compareTo(b.startTimestamp),
+  );
+
+  // Frame Callback Handling
+  FrameCallback? _originalBeginFrameCallback;
+
+  // Timing Utilities
+  final _stopwatch = Stopwatch();
 
   @override
   Future<void> onSpanStarted(ISentrySpan span) =>
@@ -136,56 +149,60 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
     _isTrackingPaused = false;
 
     if (!_isTrackingRegistered) {
-      _frameCallbackHandler.addPersistentFrameCallback(measureFrameDuration);
+      _setupFrameDurationListener();
       _isTrackingRegistered = true;
     }
+  }
+
+  void _setupFrameDurationListener() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // This is under the assumption that nothing else overrides onBeginFrame
+      final FrameCallback onBeginFrameCallback = (Duration duration) {
+        if (exceededFrames.length >= maxFramesToTrack) {
+          options.logger(SentryLevel.warning,
+              'Frame tracking limit reached. Clearing frames and cancelling frame tracking for all active spans');
+          clear();
+          return;
+        }
+
+        if (expectedFrameDuration == null) {
+          options.logger(SentryLevel.info,
+              'Expected frame duration is null. Cancelling frame tracking for all active spans.');
+          clear();
+          return;
+        }
+
+        // Using the stopwatch to measure the frame duration is flaky in ci
+        // if (_isTestMode) {
+        //   // ignore: invalid_use_of_internal_member
+        //   exceededFrames[options.clock().add(duration)] =
+        //       duration.inMilliseconds;
+        //   return;
+        // }
+
+        if (!_isTrackingPaused) {
+          final stopwatch = Stopwatch()..start();
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            stopwatch.stop();
+            final frameDuration = _stopwatch.elapsedMilliseconds;
+            if (frameDuration > expectedFrameDuration!.inMilliseconds) {
+              // ignore: invalid_use_of_internal_member
+              exceededFrames[options.clock()] = frameDuration;
+            }
+            stopwatch.reset();
+          });
+        }
+
+        // Continue with the normal frame handling. This is extremely important
+        _originalBeginFrameCallback?.call(duration);
+      };
+      PlatformDispatcher.instance.onBeginFrame = onBeginFrameCallback;
+    });
   }
 
   /// Records the duration of a single frame and stores it in [exceededFrames].
   ///
   /// This method is called for each frame when frame tracking is active.
-  Future<void> measureFrameDuration(Duration duration) async {
-    if (exceededFrames.length >= maxFramesToTrack) {
-      options.logger(SentryLevel.warning,
-          'Frame tracking limit reached. Clearing frames and cancelling frame tracking for all active spans');
-      clear();
-      return;
-    }
-
-    if (expectedFrameDuration == null) {
-      options.logger(SentryLevel.info,
-          'Expected frame duration is null. Cancelling frame tracking for all active spans.');
-      clear();
-      return;
-    }
-
-    // Using the stopwatch to measure the frame duration is flaky in ci
-    if (_isTestMode) {
-      // ignore: invalid_use_of_internal_member
-      exceededFrames[options.clock().add(duration)] = duration.inMilliseconds;
-      return;
-    }
-
-    if (_isTrackingPaused) return;
-
-    if (!_stopwatch.isRunning) {
-      _stopwatch.start();
-    }
-
-    await _frameCallbackHandler.endOfFrame;
-
-    final frameDuration = _stopwatch.elapsedMilliseconds;
-    if (frameDuration > expectedFrameDuration!.inMilliseconds) {
-      // ignore: invalid_use_of_internal_member
-      exceededFrames[options.clock()] = frameDuration;
-    }
-
-    _stopwatch.reset();
-
-    if (_frameCallbackHandler.hasScheduledFrame == true) {
-      _stopwatch.start();
-    }
-  }
 
   void _applyFrameMetricsToSpan(
       ISentrySpan span, Map<String, int> frameMetrics) {
@@ -212,13 +229,18 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
       ISentrySpan span, DateTime spanEndTimestamp, int displayRefreshRate) {
     if (exceededFrames.isEmpty) {
       options.logger(
-          SentryLevel.info, 'No frame durations available in frame tracker.');
+        SentryLevel.info,
+        'No frame durations available in frame tracker.',
+      );
       return {};
     }
 
-    if (expectedFrameDuration == null) {
-      options.logger(SentryLevel.info,
-          'Expected frame duration is null. Dropping frame metrics.');
+    if (expectedFrameDuration == null ||
+        expectedFrameDuration!.inMilliseconds <= 0) {
+      options.logger(
+        SentryLevel.info,
+        'Expected frame duration is invalid. Dropping frame metrics.',
+      );
       return {};
     }
 
@@ -286,28 +308,44 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
     final totalFramesCount =
         (normalFramesCount + slowFramesCount + frozenFramesCount).ceil();
 
+    final metrics = {
+      _totalFramesKey: totalFramesCount,
+      _framesDelayKey: framesDelay,
+      _slowFramesKey: slowFramesCount,
+      _frozenFramesKey: frozenFramesCount,
+    };
+
+    if (_areMetricsValid(metrics)) {
+      return metrics;
+    } else {
+      options.logger(
+        SentryLevel.warning,
+        'Invalid frame metrics calculated. Dropping frame metrics.',
+      );
+      return {};
+    }
+  }
+
+  /// Validates the calculated frame metrics.
+  bool _areMetricsValid(Map<String, int> metrics) {
+    final totalFramesCount = metrics[_totalFramesKey] ?? 0;
+    final framesDelay = metrics[_framesDelayKey] ?? 0;
+    final slowFramesCount = metrics[_slowFramesKey] ?? 0;
+    final frozenFramesCount = metrics[_frozenFramesKey] ?? 0;
+
     if (totalFramesCount < 0 ||
         framesDelay < 0 ||
         slowFramesCount < 0 ||
         frozenFramesCount < 0) {
-      options.logger(SentryLevel.warning,
-          'Negative frame metrics calculated. Dropping frame metrics.');
-      return {};
+      return false;
     }
 
     if (totalFramesCount < slowFramesCount ||
         totalFramesCount < frozenFramesCount) {
-      options.logger(SentryLevel.warning,
-          'Total frames count is less than slow or frozen frames count. Dropping frame metrics.');
-      return {};
+      return false;
     }
 
-    return {
-      SpanFrameMetricsCollector.totalFramesKey: totalFramesCount,
-      SpanFrameMetricsCollector.framesDelayKey: framesDelay,
-      SpanFrameMetricsCollector.slowFramesKey: slowFramesCount,
-      SpanFrameMetricsCollector.frozenFramesKey: frozenFramesCount,
-    };
+    return true;
   }
 
   @override
