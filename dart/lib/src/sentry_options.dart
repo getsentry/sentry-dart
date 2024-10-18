@@ -38,6 +38,7 @@ class SentryOptions {
   }
 
   /// Evaluates and parses the DSN.
+  /// May throw an exception if the DSN is invalid.
   @internal
   Dsn get parsedDsn {
     _parsedDsn ??= _parseDsn();
