@@ -198,4 +198,37 @@ void main() {
 
     expect(options.enableDartSymbolication, true);
   });
+
+  test('parsedDsn is correctly parsed and cached', () {
+    final options = defaultTestOptions();
+
+    // Access parsedDsn for the first time
+    final parsedDsn1 = options.parsedDsn;
+
+    // Access parsedDsn again
+    final parsedDsn2 = options.parsedDsn;
+
+    // Should return the same instance since it's cached
+    expect(identical(parsedDsn1, parsedDsn2), isTrue);
+
+    // Verify the parsed DSN fields
+    final manuallyParsedDsn = Dsn.parse(options.dsn!);
+    expect(parsedDsn1.publicKey, manuallyParsedDsn.publicKey);
+    expect(parsedDsn1.postUri, manuallyParsedDsn.postUri);
+    expect(parsedDsn1.secretKey, manuallyParsedDsn.secretKey);
+    expect(parsedDsn1.projectId, manuallyParsedDsn.projectId);
+    expect(parsedDsn1.uri, manuallyParsedDsn.uri);
+  });
+
+  test('parsedDsn throws when DSN is null', () {
+    final options = defaultTestOptions()..dsn = null;
+
+    expect(() => options.parsedDsn, throwsA(isA<StateError>()));
+  });
+
+  test('parsedDsn throws when DSN is empty', () {
+    final options = defaultTestOptions()..dsn = '';
+
+    expect(() => options.parsedDsn, throwsA(isA<StateError>()));
+  });
 }
