@@ -77,6 +77,11 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
           expectedFrameDuration = Duration(
               milliseconds: ((1 / fetchedDisplayRefreshRate) * 1000).toInt());
 
+          final spanFrameMetricsCalculator =
+              SpanFrameMetricsCalculator(expectedFrameDuration!);
+
+          spanFrameMetricsCalculator.calculateFor(span, []);
+
           // Start tracking frames only when refresh rate is valid
           activeSpans.add(span);
           startFrameTracking();
