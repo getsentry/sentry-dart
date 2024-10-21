@@ -6,8 +6,10 @@ MultiViewHelper multiViewHelper() => WebMultiViewHelper();
 class WebMultiViewHelper implements MultiViewHelper {
   @override
   bool isMultiViewEnabled() {
+    final dynamic uncheckedImplicitView =
+        PlatformDispatcher.instance.implicitView;
     try {
-      return null == PlatformDispatcher.instance.implicitView;
+      return null == uncheckedImplicitView;
     } on NoSuchMethodError catch (_) {
       return false;
     }
