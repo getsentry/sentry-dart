@@ -59,7 +59,6 @@ jobs:
       - name: Run Maestro
         env:
           MAESTRO_DRIVER_STARTUP_TIMEOUT: 1500000 # 25 min, CI can be slow at times
-          SENTRY_DIST: 1
         run: maestro test flow.yaml -e SENTRY_AUTH_TOKEN_E2E=$SENTRY_AUTH_TOKEN_E2E
       - name: Store Maestro Logs
         uses: actions/upload-artifact@v4
