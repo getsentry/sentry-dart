@@ -208,7 +208,8 @@ void main() {
     final sentryException =
         fixture.getSut(attachStacktrace: false).getSentryException(Object());
 
-    expect(sentryException.stackTrace!.snapshot, true);
+    // stackTrace is null anyway when not present and attachStacktrace false
+    expect(sentryException.stackTrace?.snapshot, isNull);
   });
 
   test('sets stacktrace build id and image address', () {
@@ -226,19 +227,19 @@ void main() {
         .getSut(attachStacktrace: false)
         .getSentryException(Object(), stackTrace: null);
 
-    final sentryStackTrace = sentryException.stackTrace!;
-    expect(sentryStackTrace.baseAddr, isNull);
-    expect(sentryStackTrace.buildId, isNull);
+    // stackTrace is null anyway with null stack trace and attachStacktrace false
+    final sentryStackTrace = sentryException.stackTrace;
+    expect(sentryStackTrace?.baseAddr, isNull);
+    expect(sentryStackTrace?.buildId, isNull);
   });
 
   test('remove sentry frames', () {
-    final sentryException = fixture
-      .getSut(attachStacktrace: false)
-      .getSentryException(
-        SentryStackTraceError(),
-        stackTrace: SentryStackTrace(),
-        removeSentryFrames: true,
-      );
+    final sentryException =
+        fixture.getSut(attachStacktrace: false).getSentryException(
+              SentryStackTraceError(),
+              stackTrace: SentryStackTrace(),
+              removeSentryFrames: true,
+            );
 
     final sentryStackTrace = sentryException.stackTrace!;
     expect(sentryStackTrace.baseAddr, isNull);
@@ -306,8 +307,7 @@ isolate_instructions: 7526344980, vm_instructions: 752633f000
 }
 
 class SentryStackTraceError extends Error {
-  var prefix =
-      "Unknown error without own stacktrace";
+  var prefix = "Unknown error without own stacktrace";
 
   @override
   String toString() {

@@ -39,7 +39,9 @@ class SentryStackTraceFactory {
         var stackTraceFrame = encodeStackTraceFrame(frame);
 
         if (stackTraceFrame != null) {
-          if (removeSentryFrames == true && (stackTraceFrame.package == 'sentry' || stackTraceFrame.package == 'sentry_flutter')) {
+          if (removeSentryFrames == true &&
+              (stackTraceFrame.package == 'sentry' ||
+                  stackTraceFrame.package == 'sentry_flutter')) {
             continue;
           }
           frames.add(stackTraceFrame);

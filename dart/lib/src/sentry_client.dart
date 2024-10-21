@@ -126,7 +126,8 @@ class SentryClient {
 
     hint ??= Hint();
 
-    SentryEvent? preparedEvent = _prepareEvent(event, hint, stackTrace: stackTrace);
+    SentryEvent? preparedEvent =
+        _prepareEvent(event, hint, stackTrace: stackTrace);
 
     if (scope != null) {
       preparedEvent = await scope.applyToEvent(preparedEvent, hint);
@@ -209,7 +210,8 @@ class SentryClient {
     return isMatchingRegexPattern(message, _options.ignoreErrors);
   }
 
-  SentryEvent _prepareEvent(SentryEvent event, Hint hint, {dynamic stackTrace}) {
+  SentryEvent _prepareEvent(SentryEvent event, Hint hint,
+      {dynamic stackTrace}) {
     event = event.copyWith(
       serverName: event.serverName ?? _options.serverName,
       dist: event.dist ?? _options.dist,

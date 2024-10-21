@@ -2201,17 +2201,20 @@ void main() {
 
       final capturedEnvelope = (fixture.transport).envelopes.first;
       final attachmentItem = capturedEnvelope.items.firstWhereOrNull(
-          (element) => element.header.type == SentryItemType.attachment,
+        (element) => element.header.type == SentryItemType.attachment,
       );
       expect(attachmentItem, isNull);
     });
 
-    test('null stack trace marked in hint & sentry frames removed from thread stackTrace', () async {
+    test(
+        'null stack trace marked in hint & sentry frames removed from thread stackTrace',
+        () async {
       final beforeSendCallback = (SentryEvent event, Hint hint) {
         expect(hint.get(TypeCheckHint.currentStackTrace), isTrue);
         return event;
       };
-      final client = fixture.getSut(beforeSend: beforeSendCallback, attachStacktrace: true);
+      final client = fixture.getSut(
+          beforeSend: beforeSendCallback, attachStacktrace: true);
       await client.captureEvent(fakeEvent);
 
       final capturedEnvelope = (fixture.transport).envelopes.first;
@@ -2224,12 +2227,15 @@ void main() {
       expect(sentryFramesCount, 0);
     });
 
-    test('empty stack trace marked in hint & sentry frames removed from thread stackTrace', () async {
+    test(
+        'empty stack trace marked in hint & sentry frames removed from thread stackTrace',
+        () async {
       final beforeSendCallback = (SentryEvent event, Hint hint) {
         expect(hint.get(TypeCheckHint.currentStackTrace), isTrue);
         return event;
       };
-      final client = fixture.getSut(beforeSend: beforeSendCallback, attachStacktrace: true);
+      final client = fixture.getSut(
+          beforeSend: beforeSendCallback, attachStacktrace: true);
       await client.captureEvent(fakeEvent, stackTrace: StackTrace.empty);
 
       final capturedEnvelope = (fixture.transport).envelopes.first;
@@ -2247,7 +2253,8 @@ void main() {
         expect(hint.get(TypeCheckHint.currentStackTrace), isNull);
         return event;
       };
-      final client = fixture.getSut(beforeSend: beforeSendCallback, attachStacktrace: true);
+      final client = fixture.getSut(
+          beforeSend: beforeSendCallback, attachStacktrace: true);
       await client.captureEvent(fakeEvent, stackTrace: StackTrace.current);
     });
   });
