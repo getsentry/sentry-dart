@@ -51,15 +51,15 @@ jobs:
         with:
           model: "iPhone 15"
           os_version: "17.5"
-      - name: Build App
-        if: env.SENTRY_AUTH_TOKEN_E2E != null
-        run: |
-          flutter build ios --debug --simulator
-          xcrun simctl install Booted build/ios/iphonesimulator/Runner.app
+#      - name: Build App
+#        if: env.SENTRY_AUTH_TOKEN_E2E != null
+#        run: |
+#          flutter build ios --debug --simulator
+#          xcrun simctl install Booted build/ios/iphonesimulator/Runner.app
       - name: Run Maestro
         env:
           MAESTRO_DRIVER_STARTUP_TIMEOUT: 1500000 # 25 min, CI can be slow at times
-        run: maestro test flow.yaml -e SENTRY_DIST=${SENTRY_DIST}
+        run: maestro test flow.yaml -e SENTRY_DIST=$SENTRY_DIST
       - name: Store Maestro Logs
         uses: actions/upload-artifact@v4
         if: failure()
