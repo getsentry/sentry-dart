@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- add multiview helper to make the sentry widget multiview aware for the web platform ([#2366](https://github.com/getsentry/sentry-dart/pull/2366))
+
 ## 8.10.0-beta.2
 
 ### Fixes
