@@ -6,10 +6,9 @@ MultiViewHelper multiViewHelper() => HtmlMultiViewHelper();
 class HtmlMultiViewHelper implements MultiViewHelper {
   @override
   bool isMultiViewEnabled() {
-    final dynamic uncheckedImplicitView =
-        PlatformDispatcher.instance.implicitView;
+    final dynamic uncheckedImplicitView = PlatformDispatcher.instance;
     try {
-      return null == uncheckedImplicitView;
+      return null == uncheckedImplicitView.implicitView;
     } on NoSuchMethodError catch (_) {
       return false;
     }
