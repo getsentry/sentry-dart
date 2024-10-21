@@ -59,7 +59,7 @@ jobs:
       - name: Run Maestro
         env:
           MAESTRO_DRIVER_STARTUP_TIMEOUT: 1500000 # 25 min, CI can be slow at times
-        run: maestro test flow.yaml -e SENTRY_DIST=${{ env.SENTRY_DIST }}
+        run: maestro test flow.yaml -e SENTRY_DIST=${SENTRY_DIST}
       - name: Store Maestro Logs
         uses: actions/upload-artifact@v4
         if: failure()
