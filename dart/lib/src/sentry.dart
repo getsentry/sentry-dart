@@ -273,7 +273,7 @@ class Sentry {
     }
 
     // try parsing the dsn
-    Dsn.parse(options.dsn!);
+    options.parsedDsn;
 
     return true;
   }
