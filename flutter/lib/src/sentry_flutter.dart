@@ -189,7 +189,8 @@ mixin SentryFlutter {
     }
 
     final renderer = options.rendererWrapper.getRenderer();
-    if (!platformChecker.isWeb || renderer == FlutterRenderer.canvasKit) {
+    if (!MultiViewHelper.isMultiViewEnabled() && !platformChecker.isWeb ||
+        renderer == FlutterRenderer.canvasKit) {
       integrations.add(ScreenshotIntegration());
     }
 
