@@ -6,10 +6,6 @@ import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
 
-/// Singleton of a frame tracker.
-/// This is used in [SentryFrameTrackingBindingMixin] to gather the build duration of
-/// individual frames. The frame tracking mechanism and the gathered frames are
-/// controlled and consumed by [SpanFrameMetricsCollector].
 @internal
 class SentryFrameTracker {
   SentryFrameTracker._privateConstructor(this._options);
@@ -97,7 +93,7 @@ class SentryFrameTracker {
   void _processFrame(DateTime startTimestamp, DateTime endTimestamp) {
     final frameTiming = SentryFrameTiming(
         startTimestamp: startTimestamp, endTimestamp: endTimestamp);
-    if (frameTiming.duration > _expectedFrameDuration!) {
+    if (frameTiming.duration > expectedFrameDuration!) {
       _exceededFrames.add(frameTiming);
     }
     _resetCurrentFrame();
@@ -107,12 +103,10 @@ class SentryFrameTracker {
     _currentFrameStartTimestamp = null;
   }
 
-  /// Resumes frame tracking if it's not currently active.
   void resume() {
     _isTrackingActive = true;
   }
 
-  /// Pauses frame tracking.
   void pause() {
     _isTrackingActive = false;
     _currentFrameStartTimestamp = null; // Reset any ongoing frame

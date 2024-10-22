@@ -5,8 +5,8 @@ import 'package:sentry_flutter/src/frame_tracking/span_frame_metrics_collector.d
 import 'package:sentry_flutter/src/frame_tracking/sentry_frame_tracker.dart';
 import 'package:sentry_flutter/src/frame_tracking/span_frame_metrics_calculator.dart';
 
-import 'mocks.dart';
-import 'mocks.mocks.dart';
+import '../mocks.dart';
+import '../mocks.mocks.dart';
 
 void main() {
   late Fixture fixture;
@@ -243,7 +243,8 @@ class Fixture {
     return SpanFrameMetricsCollector(
       options,
       mockFrameTracker,
-      nativeBinding: mockNativeBinding,
+      SpanFrameMetricsCalculator(),
+      mockNativeBinding,
     );
   }
 }

@@ -10,11 +10,7 @@ import 'span_frame_metrics_calculator.dart';
 @internal
 class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
   SpanFrameMetricsCollector(this._options, this._frameTracker,
-      {SpanFrameMetricsCalculator? frameMetricsCalculator,
-      SentryNativeBinding? nativeBinding})
-      : _frameMetricsCalculator = frameMetricsCalculator ??
-            SpanFrameMetricsCalculator(_options.logger),
-        _nativeBinding = nativeBinding ?? SentryFlutter.native;
+      this._frameMetricsCalculator, this._nativeBinding);
 
   final SentryFlutterOptions _options;
   final SentryFrameTracker _frameTracker;
@@ -29,15 +25,25 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
 
   @override
   Future<void> onSpanStarted(ISentrySpan span) async {
-    if (await _shouldProcess(span)) {
+    return _tryCatch('onSpanFinished', () async {
+      final shouldProcess = await _shouldProcess(span);
+      if (!shouldProcess) {
+        return;
+      }
+
       activeSpans.add(span);
       _frameTracker.resume();
-    }
+    });
   }
 
   @override
   Future<void> onSpanFinished(ISentrySpan span, DateTime endTimestamp) async {
-    if (await _shouldProcess(span)) {
+    return _tryCatch('onSpanFinished', () async {
+      final shouldProcess = await _shouldProcess(span);
+      if (!shouldProcess) {
+        return;
+      }
+
       final startTimestamp = span.startTimestamp;
       final frameTimings = _frameTracker.getFramesIntersecting(
           startTimestamp: startTimestamp, endTimestamp: endTimestamp);
@@ -54,7 +60,7 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
       } else {
         _frameTracker.removeFramesBefore(activeSpans.first.startTimestamp);
       }
-    }
+    });
   }
 
   Future<bool> _shouldProcess(ISentrySpan span) async {
@@ -81,6 +87,22 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
         Duration(milliseconds: ((1 / displayRefreshRate) * 1000).toInt());
     _frameTracker.setExpectedFrameDuration(expectedFrameDuration);
     return true;
+  }
+
+  // TODO: there's already a similar implementation: [SentryNativeSafeInvoker]
+  // let's try to reuse it at some point
+  Future<void> _tryCatch(String methodName, Future<void> Function() fn) async {
+    try {
+      return fn();
+    } catch (exception, stackTrace) {
+      _options.logger(
+        SentryLevel.error,
+        'SpanFrameMetricsCollector $methodName failed',
+        exception: exception,
+        stackTrace: stackTrace,
+      );
+      clear();
+    }
   }
 
   @override

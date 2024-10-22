@@ -1559,18 +1559,18 @@ class MockSentryFrameTracker extends _i1.Mock
       );
 
   @override
-  void pause() => super.noSuchMethod(
+  void resume() => super.noSuchMethod(
         Invocation.method(
-          #pause,
+          #resume,
           [],
         ),
         returnValueForMissingStub: null,
       );
 
   @override
-  void resumeIfNeeded() => super.noSuchMethod(
+  void pause() => super.noSuchMethod(
         Invocation.method(
-          #resumeIfNeeded,
+          #pause,
           [],
         ),
         returnValueForMissingStub: null,

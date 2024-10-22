@@ -14,6 +14,7 @@ import 'event_processor/widget_event_processor.dart';
 import 'file_system_transport.dart';
 import 'flutter_exception_type_identifier.dart';
 import 'frame_callback_handler.dart';
+import 'frame_tracking/span_frame_metrics_calculator.dart';
 import 'integrations/connectivity/connectivity_integration.dart';
 import 'integrations/integrations.dart';
 import 'integrations/native_app_start_handler.dart';
@@ -115,8 +116,9 @@ mixin SentryFlutter {
         options.platformChecker.platform.isMacOS) {
       SentryFrameTrackingBindingMixin.initializeFrameTracker(options);
       final frameTracker = SentryFrameTrackingBindingMixin.frameTracker;
-      options.addPerformanceCollector(
-          SpanFrameMetricsCollector(options, frameTracker!));
+      final metricsCalculator = SpanFrameMetricsCalculator();
+      options.addPerformanceCollector(SpanFrameMetricsCollector(
+          options, frameTracker!, metricsCalculator, native));
     }
   }
 
