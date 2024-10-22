@@ -85,7 +85,7 @@ class SentryWidgetsFlutterBinding extends WidgetsFlutterBinding
       }
       return SentryWidgetsFlutterBinding.instance;
     } catch (e) {
-      HubAdapter().options.logger(
+      Sentry.currentHub.options.logger(
           SentryLevel.info,
           'WidgetsFlutterBinding already initialized. '
           'Falling back to default WidgetsBinding instance.');
