@@ -1,3 +1,5 @@
+import 'package:meta/meta.dart';
+
 /// The quality of the attached screenshot
 enum SentryScreenshotQuality {
   full,
@@ -18,6 +20,7 @@ enum SentryScreenshotQuality {
     }
   }
 
+  @internal
   int calculateHeight(int width, int height) {
     if (this == SentryScreenshotQuality.full) {
       return height;
@@ -31,6 +34,7 @@ enum SentryScreenshotQuality {
     }
   }
 
+  @internal
   int calculateWidth(int width, int height) {
     if (this == SentryScreenshotQuality.full) {
       return width;
