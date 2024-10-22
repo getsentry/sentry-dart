@@ -80,14 +80,14 @@ class ScreenshotEventProcessor implements EventProcessor {
         ScreenshotRecorderConfig(quality: _options.screenshotQuality),
         _options);
 
-    Uint8List? _screenshotCache;
+    Uint8List? _screenshotData;
 
     await recorder.capture((Image image) async {
-      _screenshotCache = await _convertImageToUint8List(image);
+      _screenshotData = await _convertImageToUint8List(image);
     });
 
-    if (_screenshotCache != null) {
-      hint.screenshot = SentryAttachment.fromScreenshotData(_screenshotCache!);
+    if (_screenshotData != null) {
+      hint.screenshot = SentryAttachment.fromScreenshotData(_screenshotData!);
     }
 
     return event;
