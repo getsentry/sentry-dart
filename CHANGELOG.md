@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Add `MultiViewHelper` to make the sentry plugin multiview aware for the web platform and automatically disable `SentryScreenshotWidget`, `SentryUserInteractionWidget` and `WidgetsBindingIntegration` in multi-view applications.([#2366](https://github.com/getsentry/sentry-dart/pull/2366))
+
 ### Enhancements
 
 - Cache parsed DSN ([#2365](https://github.com/getsentry/sentry-dart/pull/2365))

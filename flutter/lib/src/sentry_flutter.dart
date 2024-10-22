@@ -24,6 +24,7 @@ import 'native/sentry_native_binding.dart';
 import 'profiling.dart';
 import 'renderer/renderer.dart';
 import 'span_frame_metrics_collector.dart';
+import 'utils/multi_view_helper.dart';
 import 'version.dart';
 import 'view_hierarchy/view_hierarchy_integration.dart';
 
@@ -163,8 +164,16 @@ mixin SentryFlutter {
     // Will catch any errors that may occur in the Flutter framework itself.
     integrations.add(FlutterErrorIntegration());
 
-    // This tracks Flutter application events, such as lifecycle events.
-    integrations.add(WidgetsBindingIntegration());
+    if (MultiViewHelper.isMultiViewEnabled()) {
+      // ignore: invalid_use_of_internal_member
+      options.logger(
+        SentryLevel.debug,
+        '`WidgetsBindingIntegration` is not available in multi-view applications.',
+      );
+    } else {
+      // This tracks Flutter application events, such as lifecycle events.
+      integrations.add(WidgetsBindingIntegration());
+    }
 
     // The ordering here matters, as we'd like to first start the native integration.
     // That allow us to send events to the network and then the Flutter integrations.
@@ -180,7 +189,8 @@ mixin SentryFlutter {
     }
 
     final renderer = options.rendererWrapper.getRenderer();
-    if (!platformChecker.isWeb || renderer == FlutterRenderer.canvasKit) {
+    if (!MultiViewHelper.isMultiViewEnabled() && !platformChecker.isWeb ||
+        renderer == FlutterRenderer.canvasKit) {
       integrations.add(ScreenshotIntegration());
     }
 
