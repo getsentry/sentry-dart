@@ -30,6 +30,11 @@ class ScreenshotEventProcessor implements EventProcessor {
         _hasSentryScreenshotWidget) {
       return event;
     }
+
+    if (event.type == 'feedback') {
+      return event; // No need to attach screenshot of feedback form.
+    }
+
     final beforeScreenshot = _options.beforeScreenshot;
     if (beforeScreenshot != null) {
       try {
