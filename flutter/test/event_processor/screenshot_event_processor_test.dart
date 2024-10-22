@@ -201,7 +201,13 @@ void main() {
         await sut.apply(firstEvent, firstHint);
         await sut.apply(secondEvent, secondHint);
 
+        // ignore: invalid_use_of_internal_member
+        fixture.options.clock = () => DateTime.fromMillisecondsSinceEpoch(0);
         expect(firstHint.screenshot, isNotNull);
+
+        // ignore: invalid_use_of_internal_member
+        fixture.options.clock = () => DateTime.fromMillisecondsSinceEpoch(
+            sut.debounceDuration.inMilliseconds - 1);
         expect(secondHint.screenshot, isNull);
       });
     });
@@ -223,8 +229,13 @@ void main() {
         final secondEvent = SentryEvent(throwable: throwable);
         final secondHint = Hint();
 
+        // ignore: invalid_use_of_internal_member
+        fixture.options.clock = () => DateTime.fromMillisecondsSinceEpoch(0);
         await sut.apply(firstEvent, firstHint);
-        await Future<void>.delayed(sut.debounceDuration);
+
+        // ignore: invalid_use_of_internal_member
+        fixture.options.clock = () => DateTime.fromMillisecondsSinceEpoch(
+            sut.debounceDuration.inMilliseconds);
         await sut.apply(secondEvent, secondHint);
 
         expect(firstHint.screenshot, isNotNull);
