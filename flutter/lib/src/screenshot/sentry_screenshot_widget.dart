@@ -9,7 +9,6 @@ import 'package:meta/meta.dart';
 import 'package:flutter/widgets.dart' as widgets;
 
 import '../../sentry_flutter.dart';
-import '../sentry_flutter_options.dart';
 
 /// Key which is used to identify the [RepaintBoundary]
 @internal
