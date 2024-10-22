@@ -4,8 +4,8 @@
 
 ### Enhancements
 
-- Add debounce to `ScreenshotWidget` ([#2368](https://github.com/getsentry/sentry-dart/pull/2368))
 - Cache parsed DSN ([#2365](https://github.com/getsentry/sentry-dart/pull/2365))
+- Add debounce to `ScreenshotWidget` ([#2368](https://github.com/getsentry/sentry-dart/pull/2368))
 
 ## 8.10.0-beta.2
 
