@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:meta/meta.dart';
-import 'package:sentry/src/type_check_hint.dart';
+import 'type_check_hint.dart';
 
 import 'client_reports/client_report_recorder.dart';
 import 'client_reports/discard_reason.dart';
