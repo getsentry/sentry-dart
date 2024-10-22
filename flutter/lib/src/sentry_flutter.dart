@@ -164,12 +164,13 @@ mixin SentryFlutter {
     // Will catch any errors that may occur in the Flutter framework itself.
     integrations.add(FlutterErrorIntegration());
 
-    if (!MultiViewHelper.isMultiViewEnabled()) {
+    if (MultiViewHelper.isMultiViewEnabled()) {
       // ignore: invalid_use_of_internal_member
-      Sentry.currentHub.options.logger(
+      options.logger(
         SentryLevel.debug,
         '`WidgetsBindingIntegration` is not available in multi-view applications.',
       );
+    } else {
       // This tracks Flutter application events, such as lifecycle events.
       integrations.add(WidgetsBindingIntegration());
     }
