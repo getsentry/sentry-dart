@@ -41,7 +41,7 @@ class ScreenshotEventProcessor implements EventProcessor {
 
     // ignore: invalid_use_of_internal_member
     final now = _options.clock();
-    final difference = _lastApplyCall?.difference(DateTime.now()).abs();
+    final difference = _lastApplyCall?.difference(now).abs();
     _lastApplyCall = now;
 
     if (difference != null && difference < debounceDuration) {
