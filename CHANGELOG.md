@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Enhancements
+
+- Add debounce to `ScreenshotWidget` ([#2368](https://github.com/getsentry/sentry-dart/pull/2368))
+
 ## 8.10.0-beta.2
 
 ### Fixes
