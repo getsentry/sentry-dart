@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Add screenshot to `SentryFeedbackWidget` ([#2369](https://github.com/getsentry/sentry-dart/pull/2369))
+
 ### Enhancements
 
 - Cache parsed DSN ([#2365](https://github.com/getsentry/sentry-dart/pull/2365))
