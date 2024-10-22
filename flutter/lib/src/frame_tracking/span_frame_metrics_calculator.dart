@@ -1,4 +1,3 @@
-// TODO: maybe could be an extension
 import 'dart:math';
 import 'package:meta/meta.dart';
 import 'sentry_frame_tracker.dart';
