@@ -1,15 +1,11 @@
 // ignore_for_file: invalid_use_of_internal_member
 
-import 'dart:math';
-
 import 'package:flutter/foundation.dart';
 
 import '../sentry_flutter.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
-
-import 'frame_tracking/frame_tracker.dart';
-import 'native/sentry_native_binding.dart';
+import 'frame_tracking/span_frame_metrics_collector.dart';
 
 /// The methods and properties are modelled after the the real binding class.
 @experimental
@@ -52,8 +48,7 @@ class BindingWrapper {
 WidgetsBinding? _ambiguate(WidgetsBinding? binding) => binding;
 
 mixin FrameTrackingBindingMixin on WidgetsBinding {
-  FrameTracker get frameTracker => _frameTracker;
-  final _frameTracker = FrameTracker();
+  final _frameTracker = SpanFrameTracker();
 
   @override
   void handleBeginFrame(Duration? rawTimeStamp) {

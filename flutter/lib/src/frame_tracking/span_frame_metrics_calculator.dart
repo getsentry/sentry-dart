@@ -2,23 +2,20 @@
 import 'dart:math';
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
-import 'frame_tracker.dart';
+import 'span_frame_metrics_collector.dart';
 
 @internal
 class SpanFrameMetricsCalculator {
-  SpanFrameMetricsCalculator({SentryOptions? options})
-      // ignore: invalid_use_of_internal_member
-      : _options = options ?? Sentry.currentHub.options;
+  SpanFrameMetricsCalculator(this._logger);
 
   final _frozenFrameThreshold = Duration(milliseconds: 700);
-  final SentryOptions _options;
+  final SentryLogger _logger;
 
   SpanFrameMetrics? calculateFor(ISentrySpan span,
       {required List<SentryFrameTiming> frameTimings,
       required Duration expectedFrameDuration}) {
     if (frameTimings.isEmpty) {
-      _options.logger(
-          SentryLevel.info, 'No frame timings available in frame tracker.');
+      _logger(SentryLevel.info, 'No frame timings available in frame tracker.');
       return null;
     }
 
@@ -93,17 +90,23 @@ class SpanFrameMetricsCalculator {
     final totalFrameCount =
         (normalFramesCount + slowFrameCount + frozenFrameCount).ceil();
 
-    final metrics = SpanFrameMetrics(
+    if (totalFrameCount < 0 ||
+        framesDelay < 0 ||
+        slowFrameCount < 0 ||
+        frozenFrameCount < 0) {
+      return null;
+    }
+
+    if (totalFrameCount < slowFrameCount ||
+        totalFrameCount < frozenFrameCount) {
+      return null;
+    }
+
+    return SpanFrameMetrics(
         totalFrameCount: totalFrameCount,
         slowFrameCount: slowFrameCount,
         frozenFrameCount: frozenFrameCount,
         framesDelay: framesDelay);
-
-    if (!metrics.isValid()) {
-      return null;
-    }
-
-    return metrics;
   }
 }
 
@@ -113,22 +116,6 @@ class SpanFrameMetrics {
   final int slowFrameCount;
   final int frozenFrameCount;
   final int framesDelay;
-
-  bool isValid() {
-    if (totalFrameCount < 0 ||
-        framesDelay < 0 ||
-        slowFrameCount < 0 ||
-        frozenFrameCount < 0) {
-      return false;
-    }
-
-    if (totalFrameCount < slowFrameCount ||
-        totalFrameCount < frozenFrameCount) {
-      return false;
-    }
-
-    return true;
-  }
 
   SpanFrameMetrics({
     required this.totalFrameCount,
