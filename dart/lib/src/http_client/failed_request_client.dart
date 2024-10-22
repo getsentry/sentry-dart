@@ -1,6 +1,7 @@
 import 'package:http/http.dart';
 import '../hint.dart';
 import '../type_check_hint.dart';
+import '../utils/http_deep_copy_streamed_response.dart';
 import '../utils/tracing_utils.dart';
 import 'sentry_http_client_error.dart';
 import '../protocol.dart';
@@ -100,152 +101,37 @@ class FailedRequestClient extends BaseClient {
     Object? exception;
     StackTrace? stackTrace;
     StreamedResponse? response;
+    List<StreamedResponse> copiedResponses = [];
 
     final stopwatch = Stopwatch();
     stopwatch.start();
 
     try {
       response = await _client.send(request);
-      statusCode = response.statusCode;
-      return response;
+      copiedResponses = await deepCopyStreamedResponse(response, 2);
+      statusCode = copiedResponses[0].statusCode;
+      return copiedResponses[0];
     } catch (e, st) {
       exception = e;
       stackTrace = st;
       rethrow;
     } finally {
       stopwatch.stop();
-      await _captureEventIfNeeded(
-        request,
-        statusCode,
-        exception,
-        stackTrace,
-        response,
-        stopwatch.elapsed,
+
+      await captureEvent(
+        _hub,
+        exception: exception,
+        stackTrace: stackTrace,
+        request: request,
+        requestDuration: stopwatch.elapsed,
+        response: copiedResponses.isNotEmpty ? copiedResponses[1] : null,
+        reason: 'HTTP Client Event with status code: $statusCode',
       );
     }
-  }
-
-  Future<void> _captureEventIfNeeded(
-      BaseRequest request,
-      int? statusCode,
-      Object? exception,
-      StackTrace? stackTrace,
-      StreamedResponse? response,
-      Duration duration) async {
-    if (!(_captureFailedRequests ?? _hub.options.captureFailedRequests)) {
-      return;
-    }
-
-    // Only check `failedRequestStatusCodes` & `failedRequestTargets` if no exception was thrown.
-    if (exception == null) {
-      if (!failedRequestStatusCodes._containsStatusCode(statusCode)) {
-        return;
-      }
-      if (!containsTargetOrMatchesRegExp(
-          failedRequestTargets, request.url.toString())) {
-        return;
-      }
-    }
-
-    final reason = 'HTTP Client Error with status code: $statusCode';
-    exception ??= SentryHttpClientError(reason);
-
-    await _captureEvent(
-      exception: exception,
-      stackTrace: stackTrace,
-      request: request,
-      requestDuration: duration,
-      response: response,
-      reason: reason,
-    );
   }
 
   @override
   void close() => _client.close();
-
-  // See https://develop.sentry.dev/sdk/event-payloads/request/
-  Future<void> _captureEvent({
-    required Object? exception,
-    StackTrace? stackTrace,
-    String? reason,
-    required Duration requestDuration,
-    required BaseRequest request,
-    required StreamedResponse? response,
-  }) async {
-    final sentryRequest = SentryRequest.fromUri(
-      method: request.method,
-      headers: _hub.options.sendDefaultPii ? request.headers : null,
-      uri: request.url,
-      data: _hub.options.sendDefaultPii ? _getDataFromRequest(request) : null,
-      // ignore: deprecated_member_use_from_same_package
-      other: {
-        'content_length': request.contentLength.toString(),
-        'duration': requestDuration.toString(),
-      },
-    );
-
-    final mechanism = Mechanism(
-      type: 'SentryHttpClient',
-      description: reason,
-    );
-
-    bool? snapshot;
-    if (exception is SentryHttpClientError) {
-      snapshot = true;
-    }
-
-    final throwableMechanism = ThrowableMechanism(
-      mechanism,
-      exception,
-      snapshot: snapshot,
-    );
-
-    final event = SentryEvent(
-      throwable: throwableMechanism,
-      request: sentryRequest,
-      timestamp: _hub.options.clock(),
-    );
-
-    final hint = Hint.withMap({TypeCheckHint.httpRequest: request});
-
-    if (response != null) {
-      event.contexts.response = SentryResponse(
-        headers: _hub.options.sendDefaultPii ? response.headers : null,
-        bodySize: response.contentLength,
-        statusCode: response.statusCode,
-      );
-      hint.set(TypeCheckHint.httpResponse, response);
-    }
-
-    await _hub.captureEvent(
-      event,
-      stackTrace: stackTrace,
-      hint: hint,
-    );
-  }
-
-  // Types of Request can be found here:
-  // https://pub.dev/documentation/http/latest/http/http-library.html
-  Object? _getDataFromRequest(BaseRequest request) {
-    final contentLength = request.contentLength;
-    if (contentLength == null) {
-      return null;
-    }
-    if (!_hub.options.maxRequestBodySize.shouldAddBody(contentLength)) {
-      return null;
-    }
-    if (request is MultipartRequest) {
-      final data = <String, String>{...request.fields};
-      return data;
-    }
-
-    if (request is Request) {
-      return request.body;
-    }
-
-    // There's nothing we can do for a StreamedRequest
-    return null;
-  }
 }
 
 extension _ListX on List<SentryStatusCode> {
