@@ -4,11 +4,13 @@ import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 import 'span_frame_metrics_collector.dart';
 
+/// The duration at which we consider a frame 'frozen'
+const _frozenFrameThreshold = Duration(milliseconds: 700);
+
 @internal
 class SpanFrameMetricsCalculator {
   SpanFrameMetricsCalculator(this._logger);
 
-  final _frozenFrameThreshold = Duration(milliseconds: 700);
   final SentryLogger _logger;
 
   SpanFrameMetrics? calculateFor(ISentrySpan span,
@@ -111,6 +113,26 @@ class SpanFrameMetricsCalculator {
 }
 
 @internal
+class SpanFrameMetricKey {
+  final String data;
+  final String measurement;
+
+  SpanFrameMetricKey._(this.data) : measurement = data.replaceAll('.', '_');
+
+  static final totalFrames = SpanFrameMetricKey._('frames.total');
+  static final slowFrames = SpanFrameMetricKey._('frames.slow');
+  static final frozenFrames = SpanFrameMetricKey._('frames.frozen');
+  static final framesDelay = SpanFrameMetricKey._('frames.delay');
+
+  static final allKeys = [
+    totalFrames,
+    slowFrames,
+    frozenFrames,
+    framesDelay,
+  ];
+}
+
+@internal
 class SpanFrameMetrics {
   final int totalFrameCount;
   final int slowFrameCount;
@@ -125,27 +147,36 @@ class SpanFrameMetrics {
   });
 
   void applyTo(ISentrySpan span) {
+    final dataMap = {
+      SpanFrameMetricKey.totalFrames: totalFrameCount,
+      SpanFrameMetricKey.slowFrames: slowFrameCount,
+      SpanFrameMetricKey.frozenFrames: frozenFrameCount,
+      SpanFrameMetricKey.framesDelay: framesDelay,
+    };
+
     // Apply data to the span
-    span.setData('frames.total', totalFrameCount);
-    span.setData('frames.slow', slowFrameCount);
-    span.setData('frames.frozen', frozenFrameCount);
-    span.setData('frames.delay', framesDelay);
+    _setData(span, dataMap);
 
     // If it's a root span, also apply measurements
     if (span is SentrySpan && span.isRootSpan) {
       // ignore: invalid_use_of_internal_member
       final tracer = span.tracer;
 
-      tracer.setData('frames.total', totalFrameCount);
-      tracer.setData('frames.slow', slowFrameCount);
-      tracer.setData('frames.frozen', frozenFrameCount);
-      tracer.setData('frames.delay', framesDelay);
-
-      // Set measurements
-      span.setMeasurement('frames_total', totalFrameCount);
-      span.setMeasurement('frames_slow', slowFrameCount);
-      span.setMeasurement('frames_frozen', frozenFrameCount);
-      span.setMeasurement('frames_delay', framesDelay);
+      _setData(tracer, dataMap);
+      _setMeasurements(span, dataMap);
     }
+  }
+
+  void _setData(ISentrySpan span, Map<SpanFrameMetricKey, num> dataMap) {
+    dataMap.forEach((metricKey, value) {
+      span.setData(metricKey.data, value);
+    });
+  }
+
+  void _setMeasurements(
+      ISentrySpan span, Map<SpanFrameMetricKey, num> dataMap) {
+    dataMap.forEach((metricKey, value) {
+      span.setMeasurement(metricKey.measurement, value);
+    });
   }
 }

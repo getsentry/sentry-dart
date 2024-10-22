@@ -110,13 +110,15 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
 /// individual frames. The frame tracking is controlled by [SpanFrameMetricsCollector].
 @internal
 class SpanFrameTracker {
+  // note: the reason this class is in this file is to limit the control of
+  // resume() and pause() to the span frame collector
   SpanFrameTracker._privateConstructor(this._options);
 
   static SpanFrameTracker? _instance;
 
   factory SpanFrameTracker({SentryFlutterOptions? options}) {
-    _instance ??= SpanFrameTracker._privateConstructor(
-        options ?? Sentry.currentHub.options as SentryFlutterOptions);
+    _instance ??=
+        SpanFrameTracker._privateConstructor(options ?? SentryFlutterOptions());
     return _instance!;
   }
 
@@ -160,8 +162,8 @@ class SpanFrameTracker {
 
     final startTimestamp = _currentFrameStartTimestamp!;
     final endTimestamp = _options.clock();
-    final frameTiming = SentryFrameTiming(startTimestamp, endTimestamp);
-    print('frame duration: ${frameTiming.duration}');
+    final frameTiming = SentryFrameTiming(
+        startTimestamp: startTimestamp, endTimestamp: endTimestamp);
     if (frameTiming.duration > _expectedFrameDuration!) {
       _exceededFrames.add(frameTiming);
     }
@@ -201,8 +203,8 @@ class SentryFrameTiming {
 
   late final duration = endTimestamp.difference(startTimestamp);
 
-  SentryFrameTiming(
-    this.startTimestamp,
-    this.endTimestamp,
-  );
+  SentryFrameTiming({
+    required this.startTimestamp,
+    required this.endTimestamp,
+  });
 }

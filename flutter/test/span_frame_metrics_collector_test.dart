@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:sentry_flutter/src/span_frame_metrics_collector.dart';
+import 'package:sentry_flutter/src/frame_tracking/span_frame_metrics_collector.dart';
 
 import 'fake_frame_callback_handler.dart';
 import 'mocks.dart';
