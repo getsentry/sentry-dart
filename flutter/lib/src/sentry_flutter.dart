@@ -165,6 +165,11 @@ mixin SentryFlutter {
     integrations.add(FlutterErrorIntegration());
 
     if (!MultiViewHelper.isMultiViewEnabled()) {
+      // ignore: invalid_use_of_internal_member
+      Sentry.currentHub.options.logger(
+        SentryLevel.debug,
+        '`WidgetsBindingIntegration` is not available in multi-view applications.',
+      );
       // This tracks Flutter application events, such as lifecycle events.
       integrations.add(WidgetsBindingIntegration());
     }

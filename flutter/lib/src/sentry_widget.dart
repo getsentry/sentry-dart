@@ -29,6 +29,11 @@ class _SentryWidgetState extends State<SentryWidget> {
   Widget build(BuildContext context) {
     Widget content = widget.child;
     if (widget._isMultiViewEnabled) {
+      // ignore: invalid_use_of_internal_member
+      Sentry.currentHub.options.logger(
+        SentryLevel.debug,
+        '`SentryScreenshotWidget` and `SentryUserInteractionWidget` is not available in multi-view applications.',
+      );
       return content;
     }
     content = SentryScreenshotWidget(child: content);
