@@ -96,6 +96,36 @@ void main() {
         added: true, isWeb: false, expectedMaxWidthOrHeight: widthOrHeight);
   });
 
+  testWidgets('does not add screenshot for feedback events', (tester) async {
+    await tester.runAsync(() async {
+      final sut = fixture.getSut(null, false);
+
+      await tester.pumpWidget(
+        SentryScreenshotWidget(
+          child: Text('Catching Pokémon is a snap!',
+              textDirection: TextDirection.ltr),
+        ),
+      );
+
+      final feedback = SentryFeedback(
+        message: 'message',
+        contactEmail: 'foo@bar.com',
+        name: 'Joe Dirt',
+        associatedEventId: null,
+      );
+      final feedbackEvent = SentryEvent(
+        type: 'feedback',
+        contexts: Contexts(feedback: feedback),
+        level: SentryLevel.info,
+      );
+
+      final hint = Hint();
+      await sut.apply(feedbackEvent, hint);
+
+      expect(hint.screenshot, isNull);
+    });
+  });
+
   group('beforeScreenshot', () {
     testWidgets('does add screenshot if beforeScreenshot returns true',
         (tester) async {

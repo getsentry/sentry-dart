@@ -21,6 +21,7 @@ class SentryFeedbackWidget extends StatefulWidget {
     this.isRequiredLabel = '(required)',
     this.isNameRequired = false,
     this.isEmailRequired = false,
+    this.screenshot,
   })  : assert(associatedEventId != const SentryId.empty()),
         _hub = hub ?? HubAdapter();
 
@@ -44,6 +45,8 @@ class SentryFeedbackWidget extends StatefulWidget {
 
   final bool isNameRequired;
   final bool isEmailRequired;
+
+  final SentryAttachment? screenshot;
 
   @override
   _SentryFeedbackWidgetState createState() => _SentryFeedbackWidgetState();
@@ -197,7 +200,12 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
                         name: _nameController.text,
                         associatedEventId: widget.associatedEventId,
                       );
-                      await _captureFeedback(feedback);
+                      Hint? hint;
+                      final screenshot = widget.screenshot;
+                      if (screenshot != null) {
+                        hint = Hint.withScreenshot(screenshot);
+                      }
+                      await _captureFeedback(feedback, hint);
 
                       bool mounted;
                       try {
@@ -246,7 +254,7 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
     return null;
   }
 
-  Future<SentryId> _captureFeedback(SentryFeedback feedback) {
-    return widget._hub.captureFeedback(feedback);
+  Future<SentryId> _captureFeedback(SentryFeedback feedback, Hint? hint) {
+    return widget._hub.captureFeedback(feedback, hint: hint);
   }
 }

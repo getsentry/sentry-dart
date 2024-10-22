@@ -502,12 +502,14 @@ class MainScaffold extends StatelessWidget {
             TooltipButton(
               onPressed: () async {
                 final id = await Sentry.captureMessage('UserFeedback');
+                final screenshot = await SentryFlutter.captureScreenshot();
+
                 if (!context.mounted) return;
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) =>
-                        SentryFeedbackWidget(associatedEventId: id),
+                    builder: (context) => SentryFeedbackWidget(
+                        associatedEventId: id, screenshot: screenshot),
                     fullscreenDialog: true,
                   ),
                 );

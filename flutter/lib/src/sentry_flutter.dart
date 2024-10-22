@@ -284,6 +284,27 @@ mixin SentryFlutter {
     }
   }
 
+  /// Uses [SentryScreenshotWidget] to capture the current screen as a
+  /// [SentryAttachment].
+  static Future<SentryAttachment?> captureScreenshot() async {
+    // ignore: invalid_use_of_internal_member
+    final options = Sentry.currentHub.options;
+    if (!SentryScreenshotWidget.isMounted) {
+      options.logger(
+        SentryLevel.debug,
+        'SentryScreenshotWidget could not be found in the widget tree.',
+      );
+      return null;
+    }
+    if (options is SentryFlutterOptions) {
+      final bytes = await SentryScreenshotWidget.captureScreenshot(options);
+      if (bytes != null) {
+        return SentryAttachment.fromScreenshotData(bytes);
+      }
+    }
+    return null;
+  }
+
   @internal
   static SentryNativeBinding? get native => _native;
 
