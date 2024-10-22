@@ -19,6 +19,14 @@ class ScreenshotEventProcessor implements EventProcessor {
   bool get _hasSentryScreenshotWidget =>
       sentryScreenshotWidgetGlobalKey.currentContext != null;
 
+  final _debounceDuration = Duration(milliseconds: 100);
+
+  /// Only apply this event processor every [debounceDuration] duration.
+  DateTime? _lastApplyCall;
+
+  /// The debounce duration for applying this event processor.
+  Duration get debounceDuration => _debounceDuration;
+
   @override
   Future<SentryEvent?> apply(SentryEvent event, Hint hint) async {
     if (event is SentryTransaction) {
@@ -30,6 +38,19 @@ class ScreenshotEventProcessor implements EventProcessor {
         _hasSentryScreenshotWidget) {
       return event;
     }
+
+    final now = DateTime.now();
+    final difference = _lastApplyCall?.difference(DateTime.now()).abs();
+    _lastApplyCall = now;
+
+    if (difference != null && difference < debounceDuration) {
+      _options.logger(
+        SentryLevel.warning,
+        'Skipping screenshot due to too many calls within a short time frame.',
+      );
+      return event; // Debounce
+    }
+
     final beforeScreenshot = _options.beforeScreenshot;
     if (beforeScreenshot != null) {
       try {

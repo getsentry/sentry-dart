@@ -178,6 +178,60 @@ void main() {
       expect(beforeScreenshotHint, hint);
     });
   });
+
+  group("debounce", () {
+    testWidgets("limits added screenshots within debounce timeframe",
+        (tester) async {
+      // Run with real async https://stackoverflow.com/a/54021863
+      await tester.runAsync(() async {
+        final sut = fixture.getSut(FlutterRenderer.canvasKit, false);
+
+        await tester.pumpWidget(SentryScreenshotWidget(
+            child: Text('Catching Pokémon is a snap!',
+                textDirection: TextDirection.ltr)));
+
+        final throwable = Exception();
+
+        final firstEvent = SentryEvent(throwable: throwable);
+        final firstHint = Hint();
+
+        final secondEvent = SentryEvent(throwable: throwable);
+        final secondHint = Hint();
+
+        await sut.apply(firstEvent, firstHint);
+        await sut.apply(secondEvent, secondHint);
+
+        expect(firstHint.screenshot, isNotNull);
+        expect(secondHint.screenshot, isNull);
+      });
+    });
+
+    testWidgets("adds screenshots after debounce timeframe", (tester) async {
+      // Run with real async https://stackoverflow.com/a/54021863
+      await tester.runAsync(() async {
+        final sut = fixture.getSut(FlutterRenderer.canvasKit, false);
+
+        await tester.pumpWidget(SentryScreenshotWidget(
+            child: Text('Catching Pokémon is a snap!',
+                textDirection: TextDirection.ltr)));
+
+        final throwable = Exception();
+
+        final firstEvent = SentryEvent(throwable: throwable);
+        final firstHint = Hint();
+
+        final secondEvent = SentryEvent(throwable: throwable);
+        final secondHint = Hint();
+
+        await sut.apply(firstEvent, firstHint);
+        await Future<void>.delayed(sut.debounceDuration);
+        await sut.apply(secondEvent, secondHint);
+
+        expect(firstHint.screenshot, isNotNull);
+        expect(secondHint.screenshot, isNotNull);
+      });
+    });
+  });
 }
 
 class Fixture {

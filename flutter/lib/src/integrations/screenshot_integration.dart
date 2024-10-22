@@ -1,6 +1,7 @@
 import 'package:sentry/sentry.dart';
 import '../event_processor/screenshot_event_processor.dart';
 import '../sentry_flutter_options.dart';
+import '../utils/debouncer.dart';
 
 /// Adds [ScreenshotEventProcessor] to options event processors if
 /// [SentryFlutterOptions.attachScreenshot] is true
