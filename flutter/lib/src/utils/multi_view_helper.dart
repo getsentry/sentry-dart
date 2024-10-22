@@ -1,11 +1,9 @@
 import 'dart:ui';
-import 'multi_view_helper.dart';
+import 'package:meta/meta.dart';
 
-MultiViewHelper multiViewHelper() => WebMultiViewHelper();
-
-class WebMultiViewHelper implements MultiViewHelper {
-  @override
-  bool isMultiViewEnabled() {
+@internal
+class MultiViewHelper {
+  static bool isMultiViewEnabled() {
     final dynamic uncheckedImplicitView = PlatformDispatcher.instance;
     try {
       return null == uncheckedImplicitView.implicitView;

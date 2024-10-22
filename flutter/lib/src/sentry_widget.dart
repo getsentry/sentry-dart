@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:meta/meta.dart';
 import '../sentry_flutter.dart';
-import 'utils/multi_view/multi_view_helper.dart';
+import 'utils/multi_view_helper.dart';
 
 /// Key which is used to identify the [SentryWidget]
 @internal
@@ -18,7 +18,7 @@ class SentryWidget extends StatefulWidget {
     @internal Hub? hub,
   });
 
-  final bool _isMultiViewEnabled = MultiViewHelper().isMultiViewEnabled();
+  final bool _isMultiViewEnabled = MultiViewHelper.isMultiViewEnabled();
 
   @override
   _SentryWidgetState createState() => _SentryWidgetState();
