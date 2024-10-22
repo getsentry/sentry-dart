@@ -1,28 +1,25 @@
 // ignore_for_file: invalid_use_of_internal_member
 
 import 'dart:collection';
-
 import 'package:meta/meta.dart';
 import '../../sentry_flutter.dart';
 import '../native/sentry_native_binding.dart';
+import 'sentry_frame_tracker.dart';
 import 'span_frame_metrics_calculator.dart';
 
 @internal
 class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
-  SpanFrameMetricsCollector(this._options,
-      {SpanFrameTracker? frameTracker,
-      SpanFrameMetricsCalculator? frameMetricsCalculator,
+  SpanFrameMetricsCollector(this._options, this._frameTracker,
+      {SpanFrameMetricsCalculator? frameMetricsCalculator,
       SentryNativeBinding? nativeBinding})
-      : _frameTracker = frameTracker ?? SpanFrameTracker(),
-        _frameMetricsCalculator = frameMetricsCalculator ??
+      : _frameMetricsCalculator = frameMetricsCalculator ??
             SpanFrameMetricsCalculator(_options.logger),
         _nativeBinding = nativeBinding ?? SentryFlutter.native;
 
   final SentryFlutterOptions _options;
-  final SpanFrameTracker _frameTracker;
+  final SentryFrameTracker _frameTracker;
   final SentryNativeBinding? _nativeBinding;
   final SpanFrameMetricsCalculator _frameMetricsCalculator;
-  Duration? _expectedFrameDuration;
 
   /// Stores the spans that are actively being tracked.
   /// After the frames are calculated and stored in the span the span is removed from this list.
@@ -32,67 +29,57 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
 
   @override
   Future<void> onSpanStarted(ISentrySpan span) async {
-    if (!_shouldProcess(span)) {
-      return;
+    if (await _shouldProcess(span)) {
+      activeSpans.add(span);
+      _frameTracker.resume();
     }
-
-    if (_expectedFrameDuration == null) {
-      final initialized = await _tryInitializeExpectedFrameDuration();
-      if (initialized) {
-        _frameTracker._updateExpectedFrameDuration(_expectedFrameDuration!);
-      } else {
-        return;
-      }
-    }
-
-    _frameTracker._resume();
   }
 
   @override
   Future<void> onSpanFinished(ISentrySpan span, DateTime endTimestamp) async {
-    _frameTracker._pause();
+    if (await _shouldProcess(span)) {
+      final startTimestamp = span.startTimestamp;
+      final frameTimings = _frameTracker.getFramesIntersecting(
+          startTimestamp: startTimestamp, endTimestamp: endTimestamp);
+      final metrics = _frameMetricsCalculator.calculateFrameMetrics(
+          spanStartTimestamp: startTimestamp,
+          spanEndTimestamp: endTimestamp,
+          exceededFrameTimings: frameTimings,
+          expectedFrameDuration: _frameTracker.expectedFrameDuration!);
+      metrics?.applyTo(span);
 
-    if (!_shouldProcess(span)) {
-      return;
-    }
-
-    final metrics = _frameMetricsCalculator.calculateFor(span,
-        frameTimings: _frameTracker.exceededFrames,
-        expectedFrameDuration: _expectedFrameDuration!);
-    metrics?.applyTo(span);
-
-    activeSpans.remove(span);
-    if (activeSpans.isEmpty) {
-      clear();
-    } else {
-      _frameTracker.removeFramesBefore(activeSpans.first.startTimestamp);
+      activeSpans.remove(span);
+      if (activeSpans.isEmpty) {
+        clear();
+      } else {
+        _frameTracker.removeFramesBefore(activeSpans.first.startTimestamp);
+      }
     }
   }
 
-  bool _shouldProcess(ISentrySpan span) {
+  Future<bool> _shouldProcess(ISentrySpan span) async {
     if (span is NoOpSentrySpan || !_options.enableFramesTracking) {
       return false;
     }
-    return true;
+    return _ensureExpectedFrameDurationInitialized();
   }
 
-  /// Returns true if initializing expected frame duration succeeded and false if failed.
-  Future<bool> _tryInitializeExpectedFrameDuration() async {
-    // Attempt to fetch the display refresh rate
+  /// Returns true if expected frame duration is initialized and false if failed.
+  Future<bool> _ensureExpectedFrameDurationInitialized() async {
+    if (_frameTracker.expectedFrameDuration != null) return true;
+    return _initializeExpectedFrameDuration();
+  }
+
+  Future<bool> _initializeExpectedFrameDuration() async {
     final displayRefreshRate = await _nativeBinding?.displayRefreshRate();
     if (displayRefreshRate == null || displayRefreshRate <= 0) {
-      _options.logger(
-        SentryLevel.debug,
-        'Could not retrieve a valid display refresh rate.',
-      );
+      _options.logger(SentryLevel.debug,
+          'Could not retrieve a valid display refresh rate.');
       return false;
     }
-
-    // Calculate and cache the expected frame duration
-    _expectedFrameDuration = Duration(
-      microseconds: (1000000 / displayRefreshRate).round(),
-    );
-
+    final expectedFrameDuration =
+        Duration(milliseconds: ((1 / displayRefreshRate) * 1000).toInt());
+    _frameTracker.setExpectedFrameDuration(expectedFrameDuration);
     return true;
   }
 
@@ -103,108 +90,4 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
     // we don't need to clear the expected frame duration as that realistically
     // won't change throughout the application's lifecycle
   }
-}
-
-/// Singleton of a per-span frame tracker.
-/// This is used in [FrameTrackingBindingMixin] to gather the build duration of
-/// individual frames. The frame tracking is controlled by [SpanFrameMetricsCollector].
-@internal
-class SpanFrameTracker {
-  // note: the reason this class is in this file is to limit the control of
-  // resume() and pause() to the span frame collector
-  SpanFrameTracker._privateConstructor(this._options);
-
-  static SpanFrameTracker? _instance;
-
-  factory SpanFrameTracker({SentryFlutterOptions? options}) {
-    _instance ??=
-        SpanFrameTracker._privateConstructor(options ?? SentryFlutterOptions());
-    return _instance!;
-  }
-
-  /// A list of frame timings for frames that exceeded performance thresholds,
-  /// classified as either slow or frozen based on their duration.
-  ///
-  /// These frames are collected during active spans.
-  List<SentryFrameTiming> get exceededFrames =>
-      List.unmodifiable(_exceededFrames);
-  final List<SentryFrameTiming> _exceededFrames = [];
-
-  final SentryFlutterOptions _options;
-  DateTime? _currentFrameStartTimestamp;
-  Duration? _expectedFrameDuration;
-
-  /// Indicates whether the frame tracker is active.
-  /// Tracking needs to be enabled externally such as [SpanFrameMetricsCollector].
-  bool _isTrackingActive = false;
-
-  void _updateExpectedFrameDuration(Duration expectedFrameDuration) {
-    _expectedFrameDuration = expectedFrameDuration;
-  }
-
-  @pragma('vm:prefer-inline')
-  void startFrame() {
-    if (!_isTrackingActive || !_options.enableFramesTracking) {
-      return;
-    }
-
-    _currentFrameStartTimestamp = _options.clock();
-  }
-
-  @pragma('vm:prefer-inline')
-  void endFrame() {
-    if (!_isTrackingActive ||
-        !_options.enableFramesTracking ||
-        _currentFrameStartTimestamp == null ||
-        _expectedFrameDuration == null) {
-      return;
-    }
-
-    final startTimestamp = _currentFrameStartTimestamp!;
-    final endTimestamp = _options.clock();
-    final frameTiming = SentryFrameTiming(
-        startTimestamp: startTimestamp, endTimestamp: endTimestamp);
-    if (frameTiming.duration > _expectedFrameDuration!) {
-      _exceededFrames.add(frameTiming);
-    }
-    _currentFrameStartTimestamp = null;
-  }
-
-  /// Pauses frame tracking.
-  /// Controlled by [SpanFrameMetricsCollector].
-  void _pause() {
-    _isTrackingActive = false;
-    _currentFrameStartTimestamp = null; // Reset any ongoing frame
-  }
-
-  /// Resumes frame tracking.
-  /// Controlled by [SpanFrameMetricsCollector].
-  void _resume() {
-    _isTrackingActive = true;
-  }
-
-  /// Removes frames whose endTimestamp is before [time].
-  void removeFramesBefore(DateTime time) {
-    if (_exceededFrames.isEmpty) return;
-    _exceededFrames.removeWhere((frame) => frame.endTimestamp.isBefore(time));
-  }
-
-  void clear() {
-    _exceededFrames.clear();
-    _pause();
-  }
-}
-
-/// Frame timing that represents an approximation of the frame's build duration.
-@internal
-class SentryFrameTiming {
-  final DateTime startTimestamp;
-  final DateTime endTimestamp;
-
-  late final duration = endTimestamp.difference(startTimestamp);
-
-  SentryFrameTiming({
-    required this.startTimestamp,
-    required this.endTimestamp,
-  });
 }

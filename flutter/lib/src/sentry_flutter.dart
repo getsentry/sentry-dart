@@ -108,6 +108,16 @@ mixin SentryFlutter {
     // Insert it at the start of the list, before the Dart Exceptions that are set in Sentry.init
     // so we can identify Flutter exceptions first.
     options.prependExceptionTypeIdentifier(FlutterExceptionTypeIdentifier());
+
+    // Disabled for web, linux and windows until we can reliably get the display refresh rate
+    if (options.platformChecker.platform.isAndroid ||
+        options.platformChecker.platform.isIOS ||
+        options.platformChecker.platform.isMacOS) {
+      SentryFrameTrackingBindingMixin.initializeFrameTracker(options);
+      final frameTracker = SentryFrameTrackingBindingMixin.frameTracker;
+      options.addPerformanceCollector(
+          SpanFrameMetricsCollector(options, frameTracker!));
+    }
   }
 
   static Future<void> _initDefaultValues(SentryFlutterOptions options) async {
@@ -132,13 +142,6 @@ mixin SentryFlutter {
     }
 
     options.addEventProcessor(PlatformExceptionEventProcessor());
-
-    // Disabled for web, linux and windows until we can reliably get the display refresh rate
-    if (options.platformChecker.platform.isAndroid ||
-        options.platformChecker.platform.isIOS ||
-        options.platformChecker.platform.isMacOS) {
-      options.addPerformanceCollector(SpanFrameMetricsCollector(options));
-    }
 
     _setSdk(options);
   }

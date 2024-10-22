@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
+import 'package:sentry_flutter/src/frame_tracking/sentry_frame_tracker.dart';
 import 'package:sentry_flutter/src/frame_tracking/span_frame_metrics_calculator.dart';
-import 'package:sentry_flutter/src/frame_tracking/span_frame_metrics_collector.dart';
 
 import '../mocks.dart';
 import '../mocks.mocks.dart';
@@ -22,9 +22,9 @@ void main() {
       when(span.endTimestamp)
           .thenReturn(DateTime.now().add(const Duration(seconds: 1)));
 
-      final metrics = calculator.calculateFor(
+      final metrics = calculator.calculateFrameMetrics(
         span,
-        frameTimings: [],
+        exceededFrameTimings: [],
         expectedFrameDuration: const Duration(milliseconds: 16),
       );
 
@@ -50,9 +50,9 @@ void main() {
       when(span.startTimestamp).thenReturn(spanStart);
       when(span.endTimestamp).thenReturn(spanEnd);
 
-      final metrics = calculator.calculateFor(
+      final metrics = calculator.calculateFrameMetrics(
         span,
-        frameTimings: frameTimings,
+        exceededFrameTimings: frameTimings,
         expectedFrameDuration: const Duration(milliseconds: 16),
       );
 
@@ -85,9 +85,9 @@ void main() {
       when(span.startTimestamp).thenReturn(spanStart);
       when(span.endTimestamp).thenReturn(spanEnd);
 
-      final metrics = calculator.calculateFor(
+      final metrics = calculator.calculateFrameMetrics(
         span,
-        frameTimings: frameTimings,
+        exceededFrameTimings: frameTimings,
         expectedFrameDuration: const Duration(milliseconds: 16),
       );
 
@@ -103,9 +103,9 @@ void main() {
       when(span.startTimestamp).thenReturn(DateTime.now());
       when(span.endTimestamp).thenReturn(null);
 
-      final metrics = calculator.calculateFor(
+      final metrics = calculator.calculateFrameMetrics(
         span,
-        frameTimings: [],
+        exceededFrameTimings: [],
         expectedFrameDuration: const Duration(milliseconds: 16),
       );
 

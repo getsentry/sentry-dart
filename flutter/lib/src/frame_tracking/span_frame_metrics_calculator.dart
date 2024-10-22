@@ -2,7 +2,7 @@
 import 'dart:math';
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
-import 'span_frame_metrics_collector.dart';
+import 'sentry_frame_tracker.dart';
 
 /// The duration at which we consider a frame 'frozen'
 const _frozenFrameThreshold = Duration(milliseconds: 700);
@@ -13,12 +13,20 @@ class SpanFrameMetricsCalculator {
 
   final SentryLogger _logger;
 
-  SpanFrameMetrics? calculateFor(ISentrySpan span,
-      {required List<SentryFrameTiming> frameTimings,
+  SpanFrameMetrics? calculateFrameMetrics(
+      {required DateTime spanStartTimestamp,
+      required DateTime spanEndTimestamp,
+      required List<SentryFrameTiming> exceededFrameTimings,
       required Duration expectedFrameDuration}) {
-    if (frameTimings.isEmpty) {
-      _logger(SentryLevel.info, 'No frame timings available in frame tracker.');
-      return null;
+    final spanDuration =
+        spanEndTimestamp.difference(spanStartTimestamp).inMilliseconds;
+    if (exceededFrameTimings.isEmpty) {
+      return SpanFrameMetrics(
+          totalFrameCount:
+              (spanDuration / expectedFrameDuration.inMilliseconds).ceil(),
+          slowFrameCount: 0,
+          frozenFrameCount: 0,
+          framesDelay: 0);
     }
 
     int slowFrameCount = 0;
@@ -26,19 +34,14 @@ class SpanFrameMetricsCalculator {
     int slowFramesDuration = 0;
     int frozenFramesDuration = 0;
     int framesDelay = 0;
-    final spanEndTimestamp = span.endTimestamp;
 
-    if (spanEndTimestamp == null) {
-      return null;
-    }
-
-    for (final timing in frameTimings) {
+    for (final timing in exceededFrameTimings) {
       final frameDuration = timing.duration;
       final frameEndTimestamp = timing.endTimestamp;
       final frameStartTimestamp = timing.startTimestamp;
 
       final frameEndMs = frameEndTimestamp.millisecondsSinceEpoch;
-      final spanStartMs = span.startTimestamp.millisecondsSinceEpoch;
+      final spanStartMs = spanStartTimestamp.millisecondsSinceEpoch;
       final spanEndMs = spanEndTimestamp.millisecondsSinceEpoch;
       final frameStartMs = frameStartTimestamp.millisecondsSinceEpoch;
       final frameDurationMs = frameDuration.inMilliseconds;
@@ -84,8 +87,6 @@ class SpanFrameMetricsCalculator {
       framesDelay += effectiveDelay;
     }
 
-    final spanDuration =
-        spanEndTimestamp.difference(span.startTimestamp).inMilliseconds;
     final normalFramesCount =
         (spanDuration - (slowFramesDuration + frozenFramesDuration)) /
             expectedFrameDuration.inMilliseconds;

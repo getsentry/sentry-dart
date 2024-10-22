@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 import '../sentry_flutter.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
-import 'frame_tracking/span_frame_metrics_collector.dart';
+import 'frame_tracking/sentry_frame_tracker.dart';
 
 /// The methods and properties are modelled after the the real binding class.
 @experimental
@@ -47,12 +47,17 @@ class BindingWrapper {
 
 WidgetsBinding? _ambiguate(WidgetsBinding? binding) => binding;
 
-mixin FrameTrackingBindingMixin on WidgetsBinding {
-  final _frameTracker = SpanFrameTracker();
+mixin SentryFrameTrackingBindingMixin on WidgetsBinding {
+  static SentryFrameTracker? get frameTracker => _frameTracker;
+  static SentryFrameTracker? _frameTracker;
+
+  static void initializeFrameTracker(SentryFlutterOptions options) {
+    _frameTracker ??= SentryFrameTracker(options);
+  }
 
   @override
   void handleBeginFrame(Duration? rawTimeStamp) {
-    _frameTracker.startFrame();
+    _frameTracker?.startFrame();
 
     super.handleBeginFrame(rawTimeStamp);
   }
@@ -61,12 +66,12 @@ mixin FrameTrackingBindingMixin on WidgetsBinding {
   void handleDrawFrame() {
     super.handleDrawFrame();
 
-    _frameTracker.endFrame();
+    _frameTracker?.endFrame();
   }
 }
 
 class SentryWidgetsFlutterBinding extends WidgetsFlutterBinding
-    with FrameTrackingBindingMixin {
+    with SentryFrameTrackingBindingMixin {
   @override
   void initInstances() {
     super.initInstances();

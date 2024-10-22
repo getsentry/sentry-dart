@@ -1,15 +1,11 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/frame_tracking/span_frame_metrics_collector.dart';
+import 'package:sentry_flutter/src/frame_tracking/sentry_frame_tracker.dart';
+import 'package:sentry_flutter/src/frame_tracking/span_frame_metrics_calculator.dart';
 
-import 'fake_frame_callback_handler.dart';
 import 'mocks.dart';
-
-// ignore: implementation_imports
-import 'package:sentry/src/sentry_tracer.dart';
-
 import 'mocks.mocks.dart';
 
 void main() {
@@ -17,291 +13,237 @@ void main() {
 
   setUp(() {
     fixture = Fixture();
-    WidgetsFlutterBinding.ensureInitialized();
-
-    when(fixture.mockSentryNative.displayRefreshRate())
-        .thenAnswer((_) async => 60);
   });
 
-  test('clear() clears frames, running spans and pauses frame tracking', () {
-    final sut = fixture.sut;
-    sut.exceededFrames[DateTime.now()] = 1;
+  test('clear() clears frame tracker and active spans', () async {
+    final sut = fixture.getSut();
     final mockSpan = MockSentrySpan();
     when(mockSpan.startTimestamp).thenReturn(DateTime.now());
+    when(fixture.mockFrameTracker.expectedFrameDuration)
+        .thenReturn(Duration(milliseconds: 16));
 
-    sut.onSpanStarted(mockSpan);
+    await sut.onSpanStarted(mockSpan);
+    expect(sut.activeSpans, isNotEmpty);
+
     sut.clear();
 
-    expect(sut.exceededFrames, isEmpty);
+    verify(fixture.mockFrameTracker.clear()).called(1);
     expect(sut.activeSpans, isEmpty);
-    expect(sut.isTrackingPaused, isTrue);
   });
 
-  test('does not start frame tracking if frames tracking is disabled', () {
-    final sut = fixture.sut;
+  test('does not process span if frames tracking is disabled', () async {
     fixture.options.enableFramesTracking = false;
+    final sut = fixture.getSut();
 
     final span = MockSentrySpan();
-    sut.onSpanStarted(span);
+    await sut.onSpanStarted(span);
 
-    expect(sut.isTrackingRegistered, isFalse);
+    verifyNever(fixture.mockFrameTracker.resume());
+    expect(sut.activeSpans, isEmpty);
   });
 
-  test('does not start frame tracking if native refresh rate is null', () {
-    final sut = fixture.sut;
-    fixture.options.tracesSampleRate = 1.0;
-    fixture.options.addPerformanceCollector(sut);
-
-    when(fixture.mockSentryNative.displayRefreshRate())
-        .thenAnswer((_) async => null);
-
-    final span = MockSentrySpan();
-    sut.onSpanStarted(span);
-
-    expect(sut.isTrackingRegistered, isFalse);
-  });
-
-  test('does not start frame tracking if native refresh rate is 0', () {
-    final sut = fixture.sut;
-    fixture.options.tracesSampleRate = 1.0;
-    fixture.options.addPerformanceCollector(sut);
-
-    when(fixture.mockSentryNative.displayRefreshRate())
-        .thenAnswer((_) async => 0);
-
-    final span = MockSentrySpan();
-    sut.onSpanStarted(span);
-
-    expect(sut.isTrackingRegistered, isFalse);
-  });
-
-  test('onSpanFinished removes frames older than span start timestamp',
+  test('does not process span if expected frame duration is not initialized',
       () async {
-    // Using multiple spans to test frame removal. When the last span is finished,
-    // the tracker clears all data, so we need at least two spans to observe partial removal.
-    final sut = fixture.sut;
+    when(fixture.mockFrameTracker.expectedFrameDuration).thenReturn(null);
+    when(fixture.mockNativeBinding.displayRefreshRate())
+        .thenAnswer((_) async => null);
+    final sut = fixture.getSut();
+
+    final span = MockSentrySpan();
+    await sut.onSpanStarted(span);
+
+    verifyNever(fixture.mockFrameTracker.resume());
+    expect(sut.activeSpans, isEmpty);
+  });
+
+  test('initializes expected frame duration on first span', () async {
+    when(fixture.mockFrameTracker.expectedFrameDuration).thenReturn(null);
+    when(fixture.mockNativeBinding.displayRefreshRate())
+        .thenAnswer((_) async => 60);
+    final sut = fixture.getSut();
+
+    final span = MockSentrySpan();
+    when(span.startTimestamp).thenReturn(DateTime.now());
+    await sut.onSpanStarted(span);
+
+    verify(fixture.mockFrameTracker
+            .setExpectedFrameDuration(Duration(milliseconds: 16)))
+        .called(1);
+    verify(fixture.mockFrameTracker.resume()).called(1);
+    expect(sut.activeSpans, contains(span));
+  });
+
+  test('onSpanFinished calculates metrics for fully contained span', () async {
+    final sut = fixture.getSut();
+    final span = MockSentrySpan();
+    final startTimestamp = DateTime.now();
+    final endTimestamp = startTimestamp.add(Duration(seconds: 1));
+
+    when(span.startTimestamp).thenReturn(startTimestamp);
+    when(span.endTimestamp).thenReturn(endTimestamp);
+    when(span.isRootSpan).thenReturn(false);
+
+    when(fixture.mockFrameTracker.expectedFrameDuration)
+        .thenReturn(Duration(milliseconds: 16));
+    when(fixture.mockFrameTracker.getFramesIntersecting(
+      startTimestamp: startTimestamp,
+      endTimestamp: endTimestamp,
+    )).thenReturn([
+      SentryFrameTiming(
+          startTimestamp: startTimestamp.add(Duration(milliseconds: 100)),
+          endTimestamp: startTimestamp.add(Duration(milliseconds: 150))),
+      SentryFrameTiming(
+          startTimestamp: startTimestamp.add(Duration(milliseconds: 200)),
+          endTimestamp: startTimestamp.add(Duration(milliseconds: 220))),
+    ]);
+
+    await sut.onSpanStarted(span);
+    await sut.onSpanFinished(span, endTimestamp);
+
+    verify(span.setData('frames.total', 61)).called(1);
+    verify(span.setData('frames.slow', 2)).called(1);
+    verify(span.setData('frames.frozen', 0)).called(1);
+    verify(span.setData('frames.delay', 38)).called(1);
+
+    expect(sut.activeSpans, isEmpty);
+  });
+
+  test(
+      'onSpanFinished calculates metrics for partially contained span (starts before, ends within)',
+      () async {
+    final sut = fixture.getSut();
+    final span = MockSentrySpan();
+    final startTimestamp = DateTime.now();
+    final endTimestamp = startTimestamp.add(Duration(seconds: 1));
+
+    when(span.startTimestamp).thenReturn(startTimestamp);
+    when(span.endTimestamp).thenReturn(endTimestamp);
+    when(span.isRootSpan).thenReturn(false);
+
+    when(fixture.mockFrameTracker.expectedFrameDuration)
+        .thenReturn(Duration(milliseconds: 16));
+    when(fixture.mockFrameTracker.getFramesIntersecting(
+      startTimestamp: startTimestamp,
+      endTimestamp: endTimestamp,
+    )).thenReturn([
+      SentryFrameTiming(
+          startTimestamp: startTimestamp.subtract(Duration(milliseconds: 50)),
+          endTimestamp: startTimestamp.add(Duration(milliseconds: 50))),
+      SentryFrameTiming(
+          startTimestamp: startTimestamp.add(Duration(milliseconds: 100)),
+          endTimestamp: startTimestamp.add(Duration(milliseconds: 150))),
+    ]);
+
+    await sut.onSpanStarted(span);
+    await sut.onSpanFinished(span, endTimestamp);
+
+    verify(span.setData('frames.total', 59)).called(1);
+    verify(span.setData('frames.slow', 2)).called(1);
+    verify(span.setData('frames.frozen', 0)).called(1);
+    verify(span.setData('frames.delay', 76)).called(1);
+
+    expect(sut.activeSpans, isEmpty);
+  });
+
+  test(
+      'onSpanFinished calculates metrics for partially contained span (starts within, ends after)',
+      () async {
+    final sut = fixture.getSut();
+    final span = MockSentrySpan();
+    final startTimestamp = DateTime.now();
+    final endTimestamp = startTimestamp.add(Duration(seconds: 1));
+
+    when(span.startTimestamp).thenReturn(startTimestamp);
+    when(span.endTimestamp).thenReturn(endTimestamp);
+    when(span.isRootSpan).thenReturn(false);
+
+    when(fixture.mockFrameTracker.expectedFrameDuration)
+        .thenReturn(Duration(milliseconds: 16));
+    when(fixture.mockFrameTracker.getFramesIntersecting(
+      startTimestamp: startTimestamp,
+      endTimestamp: endTimestamp,
+    )).thenReturn([
+      SentryFrameTiming(
+          startTimestamp: startTimestamp.add(Duration(milliseconds: 900)),
+          endTimestamp: startTimestamp.add(Duration(milliseconds: 1100))),
+    ]);
+
+    await sut.onSpanStarted(span);
+    await sut.onSpanFinished(span, endTimestamp);
+
+    verify(span.setData('frames.total', 58)).called(1);
+    verify(span.setData('frames.slow', 1)).called(1);
+    verify(span.setData('frames.frozen', 0)).called(1);
+    verify(span.setData('frames.delay', 92)).called(1);
+
+    expect(sut.activeSpans, isEmpty);
+  });
+
+  test('onSpanFinished handles multiple overlapping spans correctly', () async {
+    final sut = fixture.getSut();
     final span1 = MockSentrySpan();
     final span2 = MockSentrySpan();
-    final spanStartTimestamp = DateTime.now();
-    final spanEndTimestamp = spanStartTimestamp.add(Duration(seconds: 1));
+    final startTimestamp1 = DateTime.now();
+    final startTimestamp2 = startTimestamp1.add(Duration(milliseconds: 200));
+    final endTimestamp1 = startTimestamp1.add(Duration(seconds: 1));
+    final endTimestamp2 = startTimestamp2.add(Duration(milliseconds: 200));
 
+    when(span1.startTimestamp).thenReturn(startTimestamp1);
+    when(span1.endTimestamp).thenReturn(endTimestamp1);
     when(span1.isRootSpan).thenReturn(false);
-    when(span1.startTimestamp).thenReturn(spanStartTimestamp);
-    when(span1.context).thenReturn(SentrySpanContext(operation: 'op'));
-
+    when(span2.startTimestamp).thenReturn(startTimestamp2);
+    when(span2.endTimestamp).thenReturn(endTimestamp2);
     when(span2.isRootSpan).thenReturn(false);
-    when(span2.startTimestamp)
-        .thenReturn(spanStartTimestamp.add(Duration(seconds: 2)));
-    when(span2.context).thenReturn(SentrySpanContext(operation: 'op'));
 
-    sut.activeSpans.add(span1);
-    sut.activeSpans.add(span2);
+    when(fixture.mockFrameTracker.expectedFrameDuration)
+        .thenReturn(Duration(milliseconds: 16));
+    when(fixture.mockFrameTracker.getFramesIntersecting(
+      startTimestamp: startTimestamp1,
+      endTimestamp: endTimestamp1,
+    )).thenReturn([
+      SentryFrameTiming(
+          startTimestamp: startTimestamp1.add(Duration(milliseconds: 100)),
+          endTimestamp: startTimestamp1.add(Duration(milliseconds: 150))),
+    ]);
+    when(fixture.mockFrameTracker.getFramesIntersecting(
+      startTimestamp: startTimestamp2,
+      endTimestamp: endTimestamp2,
+    )).thenReturn([
+      SentryFrameTiming(
+          startTimestamp: startTimestamp2.add(Duration(milliseconds: 100)),
+          endTimestamp: startTimestamp2.add(Duration(milliseconds: 180))),
+    ]);
 
-    sut.exceededFrames[spanStartTimestamp.subtract(Duration(seconds: 5))] = 1;
-    sut.exceededFrames[spanStartTimestamp.subtract(Duration(seconds: 3))] = 1;
-    sut.exceededFrames[spanStartTimestamp.add(Duration(seconds: 4))] = 1;
+    await sut.onSpanStarted(span1);
+    await sut.onSpanStarted(span2);
+    await sut.onSpanFinished(span2, endTimestamp2);
+    await sut.onSpanFinished(span1, endTimestamp1);
 
-    await sut.onSpanFinished(span1, spanEndTimestamp);
+    verify(span1.setData('frames.total', 61)).called(1);
+    verify(span1.setData('frames.slow', 1)).called(1);
+    verify(span1.setData('frames.frozen', 0)).called(1);
+    verify(span1.setData('frames.delay', 34)).called(1);
 
-    expect(sut.exceededFrames, hasLength(1));
-    expect(sut.exceededFrames.keys.first,
-        spanStartTimestamp.add(Duration(seconds: 4)));
-  });
+    verify(span2.setData('frames.total', 9)).called(1);
+    verify(span2.setData('frames.slow', 1)).called(1);
+    verify(span2.setData('frames.frozen', 0)).called(1);
+    verify(span2.setData('frames.delay', 64)).called(1);
 
-  test(
-      'starting and finishing a span calculates and attaches frame metrics to span',
-      () async {
-    final sut = fixture.sut;
-    fixture.options.tracesSampleRate = 1.0;
-    fixture.options.addPerformanceCollector(sut);
-    final startTimestamp = DateTime.now();
-    final endTimestamp = startTimestamp.add(Duration(milliseconds: 1000));
-
-    final tracer = SentryTracer(
-        SentryTransactionContext('name1', 'op1'), fixture.hub,
-        startTimestamp: startTimestamp);
-
-    await Future<void>.delayed(Duration(milliseconds: 500));
-    await tracer.finish(endTimestamp: endTimestamp);
-
-    expect(tracer.data['frames.slow'], expectedSlowFrames);
-    expect(tracer.data['frames.frozen'], expectedFrozenFrames);
-    expect(tracer.data['frames.delay'], expectedFramesDelay);
-    expect(tracer.data['frames.total'], expectedTotalFrames);
-
-    expect(tracer.measurements['frames_delay']!.value, expectedFramesDelay);
-    expect(tracer.measurements['frames_total']!.value, expectedTotalFrames);
-    expect(tracer.measurements['frames_slow']!.value, expectedSlowFrames);
-    expect(tracer.measurements['frames_frozen']!.value, expectedFrozenFrames);
-  });
-
-  test('frame fully contained in span should contribute to frame metrics', () {
-    final sut = fixture.sut;
-    final span = MockSentrySpan();
-
-    final now = DateTime.now();
-    when(span.startTimestamp).thenReturn(now);
-    when(span.endTimestamp).thenReturn(now.add(Duration(milliseconds: 500)));
-    sut.exceededFrames[now.add(Duration(milliseconds: 200))] = 100;
-
-    final metrics = sut.calculateFrameMetrics(span, span.endTimestamp!, 60);
-
-    expect(metrics['frames.total'], 26);
-    expect(metrics['frames.slow'], 1);
-    expect(metrics['frames.delay'], 84);
-    expect(metrics['frames.frozen'], 0);
-  });
-
-  test('frame fully outside of span should not contribute to frame metrics',
-      () {
-    final sut = fixture.sut;
-    final span = MockSentrySpan();
-
-    final now = DateTime.now();
-    when(span.startTimestamp).thenReturn(now);
-    when(span.endTimestamp).thenReturn(now.add(Duration(milliseconds: 500)));
-    sut.exceededFrames[now.subtract(Duration(milliseconds: 200))] = 100;
-
-    final metrics = sut.calculateFrameMetrics(span, span.endTimestamp!, 60);
-
-    expect(metrics['frames.total'], 32);
-    expect(metrics['frames.slow'], 0);
-    expect(metrics['frames.delay'], 0);
-    expect(metrics['frames.frozen'], 0);
-  });
-
-  test(
-      'frame partially contained in span (starts before span and ends within span) should contribute to frame metrics',
-      () {
-    final sut = fixture.sut;
-    final span = MockSentrySpan();
-
-    final now = DateTime.now();
-    when(span.startTimestamp).thenReturn(now);
-    when(span.endTimestamp).thenReturn(now.add(Duration(milliseconds: 500)));
-    // 50ms before span starts and ends 50ms after span starts
-    sut.exceededFrames[now.add(Duration(milliseconds: 50))] = 100;
-
-    final metrics = sut.calculateFrameMetrics(span, span.endTimestamp!, 60);
-
-    expect(metrics['frames.total'], 30);
-    expect(metrics['frames.slow'], 1);
-    expect(metrics['frames.delay'], 42);
-    expect(metrics['frames.frozen'], 0);
-  });
-
-  test(
-      'frame partially contained in span (starts withing span and ends after span end) should contribute to frame metrics',
-      () {
-    final sut = fixture.sut;
-    final span = MockSentrySpan();
-
-    final now = DateTime.now();
-    when(span.startTimestamp).thenReturn(now);
-    when(span.endTimestamp).thenReturn(now.add(Duration(milliseconds: 500)));
-    sut.exceededFrames[now.add(Duration(milliseconds: 550))] = 100;
-
-    final metrics = sut.calculateFrameMetrics(span, span.endTimestamp!, 60);
-
-    expect(metrics['frames.total'], 30);
-    expect(metrics['frames.slow'], 1);
-    expect(metrics['frames.delay'], 42);
-    expect(metrics['frames.frozen'], 0);
-  });
-
-  test('calculates frame metrics correctly for multiple simultaneous spans',
-      () async {
-    final sut = fixture.sut;
-    fixture.options.tracesSampleRate = 1.0;
-    fixture.options.addPerformanceCollector(sut);
-    final startTimestamp = DateTime.now();
-    final endTimestamp = startTimestamp.add(Duration(milliseconds: 1000));
-
-    final tracer = SentryTracer(
-        SentryTransactionContext('name1', 'op1'), fixture.hub,
-        startTimestamp: startTimestamp);
-
-    final child = tracer.startChild('child',
-            startTimestamp: startTimestamp.add(Duration(milliseconds: 1)))
-        as SentrySpan;
-
-    await Future<void>.delayed(Duration(milliseconds: 500));
-    await child.finish(endTimestamp: endTimestamp);
-
-    await Future<void>.delayed(Duration(milliseconds: 500));
-    await tracer.finish(endTimestamp: endTimestamp);
-
-    expect(child.data['frames.slow'], expectedSlowFrames);
-    expect(child.data['frames.frozen'], expectedFrozenFrames);
-    expect(child.data['frames.delay'], expectedFramesDelay);
-    expect(child.data['frames.total'], expectedTotalFrames);
-
-    // total frames is hardcoded here since it depends on span duration as well
-    // and we are deviating from the default 800ms to 1600ms for the whole transaction
-    expect(tracer.data['frames.slow'], expectedSlowFrames);
-    expect(tracer.data['frames.frozen'], expectedFrozenFrames);
-    expect(tracer.data['frames.delay'], expectedFramesDelay);
-    // expect(tracer.data['frames.total'], 54);
-    expect(tracer.measurements['frames_delay']!.value, expectedFramesDelay);
-    // expect(tracer.measurements['frames_total']!.value, 54);
-    expect(tracer.measurements['frames_slow']!.value, expectedSlowFrames);
-    expect(tracer.measurements['frames_frozen']!.value, expectedFrozenFrames);
-  });
-
-  test('frame tracker is paused after finishing a span', () async {
-    final sut = fixture.sut;
-    fixture.options.tracesSampleRate = 1.0;
-    fixture.options.addPerformanceCollector(sut);
-
-    final tracer =
-        SentryTracer(SentryTransactionContext('name', 'op'), fixture.hub);
-
-    await Future<void>.delayed(Duration(milliseconds: 100));
-    await tracer.finish();
-
-    expect(sut.isTrackingPaused, isTrue);
-  });
-
-  test(
-      'measureFrameDuration stops and removes all frames when reaching frame limit',
-      () async {
-    final sut = fixture.sut;
-    final span = MockSentrySpan();
-
-    when(span.startTimestamp).thenReturn(DateTime.now());
-    sut.activeSpans.add(span);
-    sut.exceededFrames[DateTime.now()] = 1;
-    const maxFramesToTrack = 1000;
-    sut.maxFramesToTrack = maxFramesToTrack;
-
-    for (var i = 1; i <= maxFramesToTrack; i++) {
-      await Future<void>.delayed(
-          Duration(milliseconds: 1)); // Add a small delay
-      if (i == maxFramesToTrack - 1) {
-        expect(sut.exceededFrames.length, maxFramesToTrack - 1);
-      }
-      await sut.measureFrameDuration(Duration.zero);
-    }
-
-    expect(sut.exceededFrames, isEmpty);
+    verify(fixture.mockFrameTracker.removeFramesBefore(any)).called(1);
     expect(sut.activeSpans, isEmpty);
-    expect(sut.displayRefreshRate, isNull);
-    expect(sut.isTrackingPaused, isTrue);
   });
 }
 
 class Fixture {
   final options = defaultTestOptions();
-  late final hub = Hub(options);
-  final fakeFrameCallbackHandler = FakeFrameCallbackHandler();
-  final mockSentryNative = MockSentryNativeBinding();
+  final mockNativeBinding = MockSentryNativeBinding();
+  final mockFrameTracker = MockSentryFrameTracker();
 
-  SpanFrameMetricsCollector get sut {
-    return SpanFrameMetricsCollector(options,
-        frameCallbackHandler: fakeFrameCallbackHandler,
-        native: mockSentryNative,
-        isTestMode: true)
-      ..displayRefreshRate = 60
-      ..expectedFrameDuration = Duration(milliseconds: 16);
+  SpanFrameMetricsCollector getSut() {
+    return SpanFrameMetricsCollector(
+      options,
+      mockFrameTracker,
+      nativeBinding: mockNativeBinding,
+    );
   }
 }
