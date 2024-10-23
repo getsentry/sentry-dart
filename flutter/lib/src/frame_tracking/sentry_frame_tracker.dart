@@ -6,12 +6,12 @@ import '../../sentry_flutter.dart';
 
 /// Singleton frame tracker to collect frames drawn by the Flutter SDK.
 ///
-/// We collect frames in [SentryFrameTrackingBindingMixin].
-/// The order in which [startFrame] and [endFrame] is called is sequential
-/// and depends on Flutter to be accurate and precise.
+/// The tracker needs to be initialized first via [SentryFrameTrackingBindingMixin.initializeFrameTracker]
+/// otherwise the tracker won't collect frames in the mixin.
 ///
-/// Each tracked frame is aimed to replicate the build duration that you would
-/// receive from [addTimingsCallback].
+/// The order in which [startFrame] and [endFrame] is called is sequential
+/// and depends on Flutter to be accurate and precise. Each tracked frame is
+/// aimed to replicate the build duration that you would receive from [addTimingsCallback].
 @internal
 class SentryFrameTracker {
   SentryFrameTracker._privateConstructor(this._options);
