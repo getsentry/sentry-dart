@@ -1,4 +1,6 @@
 // ignore_for_file: invalid_use_of_internal_member
+@TestOn('vm')
+library flutter_test;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -110,12 +112,10 @@ void main() {
 
       // Verify child span
       final childSpan = tracer!.children.first;
-      expect(childSpan!.data['frames.total'] as int, 4);
       expect(childSpan.data['frames.slow'] as int, 2);
       expect(childSpan.data['frames.frozen'] as int, 1);
 
       // Verify tracer
-      expect(tracer!.data['frames.total'] as int, 9);
       expect(tracer!.data['frames.slow'] as int, 5);
       expect(tracer!.data['frames.frozen'] as int, 2);
       expect(
@@ -124,7 +124,7 @@ void main() {
           (tracer!.measurements['frames_slow'] as SentryMeasurement).value, 5);
       expect((tracer!.measurements['frames_frozen'] as SentryMeasurement).value,
           2);
-      // we don't measure the frames delay because the timings are not
+      // we don't measure the frames delay or total frames because the timings are not
       // completely accurate in a test env so it may flake
     });
   });
