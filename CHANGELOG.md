@@ -1,5 +1,9 @@
 # Changelog
 
+## Features
+
+- Improve frame tracking accuracy ([#2372](https://github.com/getsentry/sentry-dart/pull/2372))
+
 ## 8.10.0-beta.2
 
 ### Fixes
