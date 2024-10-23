@@ -1,11 +1,17 @@
 // ignore_for_file: invalid_use_of_internal_member
 
 import 'dart:collection';
-
 import 'package:meta/meta.dart';
-
 import '../../sentry_flutter.dart';
 
+/// Singleton frame tracker to collect frames drawn by the Flutter SDK.
+///
+/// We collect frames in [SentryFrameTrackingBindingMixin].
+/// The order in which [startFrame] and [endFrame] is called is sequential
+/// and depends on Flutter to be accurate and precise.
+///
+/// Each tracked frame is aimed to replicate the build duration that you would
+/// receive from [addTimingsCallback].
 @internal
 class SentryFrameTracker {
   SentryFrameTracker._privateConstructor(this._options);
@@ -18,12 +24,20 @@ class SentryFrameTracker {
   }
 
   /// List of frame timings that exceeded the expected frame duration threshold.
+  /// We don't keep track of normal frames since we can estimate the number of
+  /// normal frames based on the span duration and the expected frame duration.
+  // todo: since startFrame and endFrame is always called sequentially by Flutter we maybe don't need a SplayTree
   final SplayTreeSet<SentryFrameTiming> _exceededFrames =
       SplayTreeSet<SentryFrameTiming>((a, b) => a.compareTo(b));
 
   final SentryFlutterOptions? _options;
   DateTime? _currentFrameStartTimestamp;
   bool _isTrackingActive = false;
+
+  /// When we reach this limit, we will clear the state of the tracker.
+  /// Realistically this won't happen since we only track slow or frozen frames
+  /// but it gives us a safeguard if that case ever happens.
+  final _framesInMemoryLimit = 10000;
 
   Duration? get expectedFrameDuration => _expectedFrameDuration;
   Duration? _expectedFrameDuration;
@@ -32,32 +46,7 @@ class SentryFrameTracker {
     _expectedFrameDuration ??= expectedFrameDuration;
   }
 
-  List<SentryFrameTiming> getFramesIntersecting(
-      {required DateTime startTimestamp, required DateTime endTimestamp}) {
-    return _exceededFrames.where((frame) {
-      // Fully contained or exactly matching
-      final fullyContainedOrMatching =
-          frame.startTimestamp.compareTo(startTimestamp) >= 0 &&
-              frame.endTimestamp.compareTo(endTimestamp) <= 0;
-
-      // Partially contained, starts before range, ends within range
-      final startsBeforeEndsWithin =
-          frame.startTimestamp.isBefore(startTimestamp) &&
-              frame.endTimestamp.isAfter(startTimestamp) &&
-              frame.endTimestamp.isBefore(endTimestamp);
-
-      // Partially contained, starts within range, ends after range
-      final startsWithinEndsAfter =
-          frame.startTimestamp.isAfter(startTimestamp) &&
-              frame.startTimestamp.isBefore(endTimestamp) &&
-              frame.endTimestamp.isAfter(endTimestamp);
-
-      return fullyContainedOrMatching ||
-          startsBeforeEndsWithin ||
-          startsWithinEndsAfter;
-    }).toList(growable: false);
-  }
-
+  /// Marks the start of a frame.
   @pragma('vm:prefer-inline')
   void startFrame() {
     if (!_isTrackingActive || _options?.enableFramesTracking == false) {
@@ -67,6 +56,7 @@ class SentryFrameTracker {
     _currentFrameStartTimestamp = _options?.clock();
   }
 
+  /// Marks the end of a frame.
   @pragma('vm:prefer-inline')
   void endFrame() {
     if (!_isTrackingActive || _options?.enableFramesTracking == false) {
@@ -97,19 +87,54 @@ class SentryFrameTracker {
       _exceededFrames.add(frameTiming);
     }
     _resetCurrentFrame();
+
+    if (_exceededFrames.length > _framesInMemoryLimit) {
+      _options?.logger(SentryLevel.warning,
+          'Frame tracker: number of frames in memory limit reached. Dropping frame metrics.');
+      clear();
+    }
   }
 
   void _resetCurrentFrame() {
     _currentFrameStartTimestamp = null;
   }
 
+  /// Resumes the collecting of frames.
   void resume() {
     _isTrackingActive = true;
   }
 
+  /// Pauses the collecting of frames.
   void pause() {
     _isTrackingActive = false;
     _currentFrameStartTimestamp = null; // Reset any ongoing frame
+  }
+
+  /// Retrieves the frames the intersect with the provided [startTimestamp] and [endTimestamp].
+  List<SentryFrameTiming> getFramesIntersecting(
+      {required DateTime startTimestamp, required DateTime endTimestamp}) {
+    return _exceededFrames.where((frame) {
+      // Fully contained or exactly matching
+      final fullyContainedOrMatching =
+          frame.startTimestamp.compareTo(startTimestamp) >= 0 &&
+              frame.endTimestamp.compareTo(endTimestamp) <= 0;
+
+      // Partially contained, starts before range, ends within range
+      final startsBeforeEndsWithin =
+          frame.startTimestamp.isBefore(startTimestamp) &&
+              frame.endTimestamp.isAfter(startTimestamp) &&
+              frame.endTimestamp.isBefore(endTimestamp);
+
+      // Partially contained, starts within range, ends after range
+      final startsWithinEndsAfter =
+          frame.startTimestamp.isAfter(startTimestamp) &&
+              frame.startTimestamp.isBefore(endTimestamp) &&
+              frame.endTimestamp.isAfter(endTimestamp);
+
+      return fullyContainedOrMatching ||
+          startsBeforeEndsWithin ||
+          startsWithinEndsAfter;
+    }).toList(growable: false);
   }
 
   /// Removes frames whose endTimestamp is before [spanStartTimestamp].
@@ -120,6 +145,7 @@ class SentryFrameTracker {
         (frame) => frame.endTimestamp.isBefore(spanStartTimestamp));
   }
 
+  /// Clears the state of the tracker.
   void clear() {
     _exceededFrames.clear();
     pause();
