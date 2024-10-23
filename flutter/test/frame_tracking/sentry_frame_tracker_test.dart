@@ -42,7 +42,20 @@ void main() {
       _setClockToEpochMillis(50);
       sut.endFrame();
 
-      expect(sut.exceededFrames, isEmpty);
+      expect(sut.delayedFrames, isEmpty);
+    });
+
+    test('clears tracker when frame in memory limit reached', () {
+      for (int i = 0; i <= sut.maxTrackedFrames; i++) {
+        _setClockToEpochMillis(i);
+        sut.startFrame();
+
+        _setClockToEpochMillis(50 + i);
+        sut.endFrame();
+      }
+
+      expect(sut.delayedFrames, isEmpty);
+      expect(sut.isTrackingActive, isFalse);
     });
 
     test('captures slow frames', () {
@@ -52,8 +65,8 @@ void main() {
       _setClockToEpochMillis(50);
       sut.endFrame();
 
-      expect(sut.exceededFrames, hasLength(1));
-      expect(sut.exceededFrames.first.duration, Duration(milliseconds: 50));
+      expect(sut.delayedFrames, hasLength(1));
+      expect(sut.delayedFrames.first.duration, Duration(milliseconds: 50));
     });
 
     test('captures frozen frames', () {
@@ -63,8 +76,8 @@ void main() {
       _setClockToEpochMillis(800);
       sut.endFrame();
 
-      expect(sut.exceededFrames, hasLength(1));
-      expect(sut.exceededFrames.first.duration, Duration(milliseconds: 800));
+      expect(sut.delayedFrames, hasLength(1));
+      expect(sut.delayedFrames.first.duration, Duration(milliseconds: 800));
     });
 
     test('does not capture frames within expected duration', () {
@@ -74,7 +87,7 @@ void main() {
       _setClockToEpochMillis(15);
       sut.endFrame();
 
-      expect(sut.exceededFrames, isEmpty);
+      expect(sut.delayedFrames, isEmpty);
     });
 
     test('getFramesIntersectingrange returns correct frames', () {
@@ -145,8 +158,8 @@ void main() {
 
       sut.removeFramesBefore(DateTime.fromMillisecondsSinceEpoch(75));
 
-      expect(sut.exceededFrames, hasLength(1));
-      expect(sut.exceededFrames.first.startTimestamp,
+      expect(sut.delayedFrames, hasLength(1));
+      expect(sut.delayedFrames.first.startTimestamp,
           DateTime.fromMillisecondsSinceEpoch(100));
     });
 
@@ -161,7 +174,7 @@ void main() {
       _setClockToEpochMillis(50);
       sut.endFrame();
 
-      expect(sut.exceededFrames, isEmpty);
+      expect(sut.delayedFrames, isEmpty);
     });
 
     test('resumeIfNeeded resumes frame tracking', () {
@@ -176,7 +189,7 @@ void main() {
       _setClockToEpochMillis(50);
       sut.endFrame();
 
-      expect(sut.exceededFrames, hasLength(1));
+      expect(sut.delayedFrames, hasLength(1));
     });
 
     test('clear removes all tracked frames and pauses tracking', () {
@@ -187,12 +200,12 @@ void main() {
       _setClockToEpochMillis(50);
       sut.endFrame();
 
-      expect(sut.exceededFrames, isNotEmpty);
+      expect(sut.delayedFrames, isNotEmpty);
       expect(sut.isTrackingActive, isTrue);
 
       sut.clear();
 
-      expect(sut.exceededFrames, isEmpty);
+      expect(sut.delayedFrames, isEmpty);
       expect(sut.isTrackingActive, isFalse);
     });
   });
@@ -210,7 +223,7 @@ void main() {
       _setClockToEpochMillis(50);
       sut.endFrame();
 
-      expect(sut.exceededFrames, isEmpty);
+      expect(sut.delayedFrames, isEmpty);
     });
   });
 

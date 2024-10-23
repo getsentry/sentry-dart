@@ -23,11 +23,11 @@ class SentryFrameTracker {
     return _instance!;
   }
 
-  /// List of frame timings that exceeded the expected frame duration threshold.
+  /// List of frame timings that holds delayed frames (slow and frozen frames).
   /// We don't keep track of normal frames since we can estimate the number of
   /// normal frames based on the span duration and the expected frame duration.
   // todo: since startFrame and endFrame is always called sequentially by Flutter we maybe don't need a SplayTree
-  final SplayTreeSet<SentryFrameTiming> _exceededFrames =
+  final SplayTreeSet<SentryFrameTiming> _delayedFrames =
       SplayTreeSet<SentryFrameTiming>((a, b) => a.compareTo(b));
 
   final SentryFlutterOptions? _options;
@@ -37,7 +37,7 @@ class SentryFrameTracker {
   /// When we reach this limit, we will clear the state of the tracker.
   /// Realistically this won't happen since we only track slow or frozen frames
   /// but it gives us a safeguard if that case ever happens.
-  final _framesInMemoryLimit = 10000;
+  final _maxTrackedFrames = 10000;
 
   Duration? get expectedFrameDuration => _expectedFrameDuration;
   Duration? _expectedFrameDuration;
@@ -84,11 +84,11 @@ class SentryFrameTracker {
     final frameTiming = SentryFrameTiming(
         startTimestamp: startTimestamp, endTimestamp: endTimestamp);
     if (frameTiming.duration > expectedFrameDuration!) {
-      _exceededFrames.add(frameTiming);
+      _delayedFrames.add(frameTiming);
     }
     _resetCurrentFrame();
 
-    if (_exceededFrames.length > _framesInMemoryLimit) {
+    if (_delayedFrames.length > _maxTrackedFrames) {
       _options?.logger(SentryLevel.warning,
           'Frame tracker: number of frames in memory limit reached. Dropping frame metrics.');
       clear();
@@ -113,7 +113,7 @@ class SentryFrameTracker {
   /// Retrieves the frames the intersect with the provided [startTimestamp] and [endTimestamp].
   List<SentryFrameTiming> getFramesIntersecting(
       {required DateTime startTimestamp, required DateTime endTimestamp}) {
-    return _exceededFrames.where((frame) {
+    return _delayedFrames.where((frame) {
       // Fully contained or exactly matching
       final fullyContainedOrMatching =
           frame.startTimestamp.compareTo(startTimestamp) >= 0 &&
@@ -140,22 +140,25 @@ class SentryFrameTracker {
   /// Removes frames whose endTimestamp is before [spanStartTimestamp].
   /// This should be called whenever a span finishes.
   void removeFramesBefore(DateTime spanStartTimestamp) {
-    if (_exceededFrames.isEmpty) return;
-    _exceededFrames.removeWhere(
+    if (_delayedFrames.isEmpty) return;
+    _delayedFrames.removeWhere(
         (frame) => frame.endTimestamp.isBefore(spanStartTimestamp));
   }
 
   /// Clears the state of the tracker.
   void clear() {
-    _exceededFrames.clear();
+    _delayedFrames.clear();
     pause();
   }
 
   @visibleForTesting
-  List<SentryFrameTiming> get exceededFrames => _exceededFrames.toList();
+  List<SentryFrameTiming> get delayedFrames => _delayedFrames.toList();
 
   @visibleForTesting
   bool get isTrackingActive => _isTrackingActive;
+
+  @visibleForTesting
+  int get maxTrackedFrames => _maxTrackedFrames;
 
   @visibleForTesting
   static void resetInstance() {
