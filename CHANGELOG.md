@@ -5,7 +5,10 @@
 ### Enhancements
 
 - Cache parsed DSN ([#2365](https://github.com/getsentry/sentry-dart/pull/2365))
-
+- Handle backpressure earlier in pipeline ([#2371](https://github.com/getsentry/sentry-dart/pull/2371))
+  - Drops max un-awaited parallel tasks earlier, so event processors & callbacks are not executed for them. 
+  - Change by setting `SentryOptions.maxQueueSize`. Default is 30.
+  
 ## 8.10.0-beta.2
 
 ### Fixes
