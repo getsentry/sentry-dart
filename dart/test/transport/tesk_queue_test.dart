@@ -25,7 +25,7 @@ void main() {
           await Future.delayed(Duration(milliseconds: 1));
           completedTasks += 1;
           return 1 + 1;
-        }, -1));
+        }, -1, 'foo'));
       }
 
       // This will always await the other futures, even if they are running longer, as it was scheduled after them.
@@ -48,7 +48,7 @@ void main() {
           print('Completed task $i');
           completedTasks += 1;
           return 1 + 1;
-        }, -1));
+        }, -1, 'foo'));
       }
 
       print('Started waiting for first 5 tasks');
@@ -62,7 +62,7 @@ void main() {
           print('Completed task $i');
           completedTasks += 1;
           return 1 + 1;
-        }, -1));
+        }, -1, 'foo'));
       }
 
       print('Started waiting for second 5 tasks');
@@ -83,7 +83,7 @@ void main() {
           await Future.delayed(Duration(milliseconds: 1));
           completedTasks += 1;
           return 1 + 1;
-        }, -1);
+        }, -1, 'foo');
       }
       expect(completedTasks, 10);
     });
@@ -98,7 +98,7 @@ void main() {
           await sut.enqueue(() async {
             completedTasks += 1;
             throw Error();
-          }, -1);
+          }, -1, 'foo');
         } catch (_) {
           // Ignore
         }
@@ -112,6 +112,6 @@ class Fixture {
   final options = defaultTestOptions();
 
   TaskQueue<int> getSut({required int maxQueueSize}) {
-    return TaskQueue(maxQueueSize, options.logger);
+    return DefaultTaskQueue(maxQueueSize, options.logger);
   }
 }
