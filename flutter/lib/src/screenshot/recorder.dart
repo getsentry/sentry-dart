@@ -3,9 +3,9 @@ import 'dart:ui';
 
 import 'package:flutter/rendering.dart';
 import 'package:meta/meta.dart';
+import '../sentry_redaction_options.dart';
 
 import '../../sentry_flutter.dart';
-import '../replay/scheduled_recorder_config.dart';
 import 'masking_config.dart';
 import 'recorder_config.dart';
 import 'widget_filter.dart';
@@ -23,12 +23,11 @@ class ScreenshotRecorder {
   bool warningLogged = false;
 
   ScreenshotRecorder(this.config, this.options) {
-    SentryMaskingConfig maskingConfig;
-    if (config is ScheduledScreenshotRecorderConfig) {
-      maskingConfig = options.experimental.replay.buildMaskingConfig();
-    } else {
-      maskingConfig = options.experimental.screenshot.buildMaskingConfig();
-    }
+    /// TODO: Rewrite when default redaction value are synced with SS & SR
+    final SentryMaskingConfig maskingConfig =
+        (options.experimental.sentryRedactingOptions ??
+                SentryRedactingOptions())
+            .buildMaskingConfig();
 
     if (maskingConfig.length > 0) {
       _widgetFilter = WidgetFilter(maskingConfig, options.logger);
@@ -91,16 +90,11 @@ class ScreenshotRecorder {
 
       try {
         Image finalImage;
-        if (config is ScheduledScreenshotRecorderConfig) {
-          finalImage = await picture.toImage((srcWidth * pixelRatio).round(),
-              (srcHeight * pixelRatio).round());
-        } else {
-          final targetHeight = config.quality
-              .calculateHeight(srcWidth.toInt(), srcHeight.toInt());
-          final targetWidth = config.quality
-              .calculateWidth(srcWidth.toInt(), srcHeight.toInt());
-          finalImage = await picture.toImage(targetWidth, targetHeight);
-        }
+        final targetHeight =
+            config.quality.calculateHeight(srcWidth.toInt(), srcHeight.toInt());
+        final targetWidth =
+            config.quality.calculateWidth(srcWidth.toInt(), srcHeight.toInt());
+        finalImage = await picture.toImage(targetWidth, targetHeight);
         try {
           await callback(finalImage);
         } finally {

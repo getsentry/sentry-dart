@@ -16,6 +16,7 @@ void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   testWidgets('captures images', (tester) async {
+    await tester.binding.setSurfaceSize(Size(1000, 750));
     final fixture = await _Fixture.create(tester);
     expect(fixture.capturedImages, isEmpty);
     await fixture.nextFrame();

@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:file/file.dart';
 import 'package:file/local.dart';
 import 'package:flutter/services.dart';
@@ -11,9 +9,9 @@ import 'binding_wrapper.dart';
 import 'navigation/time_to_display_tracker.dart';
 import 'renderer/renderer.dart';
 import 'screenshot/sentry_screenshot_quality.dart';
-import 'event_processor/screenshot_event_processor.dart';
 import 'screenshot/sentry_screenshot_widget.dart';
 import 'sentry_flutter.dart';
+import 'sentry_redaction_options.dart';
 import 'sentry_replay_options.dart';
 import 'sentry_screenshot_options.dart';
 import 'user_interaction/sentry_user_interaction_widget.dart';
@@ -188,18 +186,32 @@ class SentryFlutterOptions extends SentryOptions {
   /// Example:
   /// runApp(SentryScreenshotWidget(child: App()));
   /// The [SentryScreenshotWidget] has to be the root widget of the app.
-  bool attachScreenshot = false;
+  @Deprecated('Use `screenshot.attachScreenshot` instead')
+  bool get attachScreenshot => screenshot.attachScreenshot;
+  set attachScreenshot(bool value) => screenshot.attachScreenshot = value;
 
   /// The quality of the attached screenshot
-  SentryScreenshotQuality screenshotQuality = SentryScreenshotQuality.high;
+  @Deprecated('Use `screenshot.screenshotQuality` instead')
+  SentryScreenshotQuality get screenshotQuality => screenshot.screenshotQuality;
+  set screenshotQuality(SentryScreenshotQuality value) =>
+      screenshot.screenshotQuality = value;
 
   /// Only attach a screenshot when the app is resumed.
-  bool attachScreenshotOnlyWhenResumed = false;
+  @Deprecated('Use `screenshot.attachScreenshotOnlyWhenResumed` instead')
+  bool get attachScreenshotOnlyWhenResumed =>
+      screenshot.attachScreenshotOnlyWhenResumed;
+  set attachScreenshotOnlyWhenResumed(bool value) =>
+      screenshot.attachScreenshotOnlyWhenResumed = value;
 
   /// Sets a callback which is executed before capturing screenshots. Only
   /// relevant if `attachScreenshot` is set to true. When false is returned
   /// from the function, no screenshot will be attached.
-  BeforeScreenshotCallback? beforeScreenshot;
+  @Deprecated('Use `screenshot.beforeScreenshot` instead')
+  BeforeScreenshotCallback? get beforeScreenshot => screenshot.beforeScreenshot;
+  set beforeScreenshot(BeforeScreenshotCallback? value) =>
+      screenshot.beforeScreenshot = value;
+
+  final screenshot = SentryScreenshotOptions();
 
   /// Enable or disable automatic breadcrumbs for User interactions Using [Listener]
   ///
@@ -381,12 +393,5 @@ class SentryFlutterOptions extends SentryOptions {
 class _SentryFlutterExperimentalOptions {
   /// Replay recording configuration.
   final replay = SentryReplayOptions();
-  final screenshot = SentryScreenshotOptions();
+  SentryRedactingOptions? sentryRedactingOptions;
 }
-
-/// Callback being executed in [ScreenshotEventProcessor], deciding if a
-/// screenshot should be recorded and attached.
-typedef BeforeScreenshotCallback = FutureOr<bool> Function(
-  SentryEvent event, {
-  Hint? hint,
-});

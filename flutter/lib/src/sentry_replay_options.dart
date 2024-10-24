@@ -1,10 +1,8 @@
 import 'package:meta/meta.dart';
 
-import 'sentry_screenshot_options.dart';
-
 /// Configuration of the experimental replay feature.
 @experimental
-class SentryReplayOptions extends SentryScreenshotOptions {
+class SentryReplayOptions {
   double? _sessionSampleRate;
 
   /// A percentage of sessions in which a replay will be created.
@@ -27,13 +25,6 @@ class SentryReplayOptions extends SentryScreenshotOptions {
     _onErrorSampleRate = value;
   }
 
-  @Deprecated('Use maskAllText instead')
-  bool get redactAllText => maskAllText;
-  set redactAllText(bool value) => maskAllText = value;
-
-  @Deprecated('Use maskAllImages instead')
-  bool get redactAllImages => maskAllImages;
-  set redactAllImages(bool value) => maskAllImages = value;
 
   @internal
   bool get isEnabled =>

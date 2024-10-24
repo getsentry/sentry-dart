@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/screenshot/widget_filter.dart';
+import 'package:sentry_flutter/src/sentry_redaction_options.dart';
 
 import 'test_widget.dart';
 
@@ -16,9 +17,9 @@ void main() async {
   final otherBundle = TestAssetBundle();
 
   final createSut = ({bool redactImages = false, bool redactText = false}) {
-    final replayOptions = SentryReplayOptions();
-    replayOptions.redactAllImages = redactImages;
-    replayOptions.redactAllText = redactText;
+    final replayOptions = SentryRedactingOptions();
+    replayOptions.maskAllImages = redactImages;
+    replayOptions.maskAllText = redactText;
     return WidgetFilter(replayOptions.buildMaskingConfig(),
         (level, message, {exception, logger, stackTrace}) {});
   };
