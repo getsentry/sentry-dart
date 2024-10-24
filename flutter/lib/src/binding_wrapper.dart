@@ -5,7 +5,9 @@ import 'package:flutter/foundation.dart';
 import '../sentry_flutter.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
-import 'frame_tracking/sentry_frame_tracker.dart';
+import 'frame_tracking/sentry_delayed_frames_tracker.dart';
+import 'frame_tracking/sentry_frame_tracking_binding_mixin.dart';
+import 'sentry_widgets_flutter_binding.dart';
 
 /// The methods and properties are modelled after the the real binding class.
 @experimental
@@ -46,55 +48,3 @@ class BindingWrapper {
 }
 
 WidgetsBinding? _ambiguate(WidgetsBinding? binding) => binding;
-
-mixin SentryFrameTrackingBindingMixin on WidgetsBinding {
-  static SentryFrameTracker? get frameTracker => _frameTracker;
-  static SentryFrameTracker? _frameTracker;
-
-  static void initializeFrameTracker(SentryFlutterOptions options) {
-    _frameTracker ??= SentryFrameTracker(options);
-  }
-
-  @override
-  void handleBeginFrame(Duration? rawTimeStamp) {
-    _frameTracker?.startFrame();
-
-    super.handleBeginFrame(rawTimeStamp);
-  }
-
-  @override
-  void handleDrawFrame() {
-    super.handleDrawFrame();
-
-    _frameTracker?.endFrame();
-  }
-}
-
-class SentryWidgetsFlutterBinding extends WidgetsFlutterBinding
-    with SentryFrameTrackingBindingMixin {
-  @override
-  void initInstances() {
-    super.initInstances();
-    _instance = this;
-  }
-
-  static SentryWidgetsFlutterBinding get instance =>
-      BindingBase.checkInstance(_instance);
-  static SentryWidgetsFlutterBinding? _instance;
-
-  // ignore: prefer_constructors_over_static_methods
-  static WidgetsBinding ensureInitialized() {
-    try {
-      if (SentryWidgetsFlutterBinding._instance == null) {
-        SentryWidgetsFlutterBinding();
-      }
-      return SentryWidgetsFlutterBinding.instance;
-    } catch (e) {
-      Sentry.currentHub.options.logger(
-          SentryLevel.info,
-          'WidgetsFlutterBinding already initialized. '
-          'Falling back to default WidgetsBinding instance.');
-      return WidgetsBinding.instance;
-    }
-  }
-}

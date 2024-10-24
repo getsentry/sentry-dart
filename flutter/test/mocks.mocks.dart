@@ -14,7 +14,7 @@ import 'package:sentry/src/metrics/metrics_api.dart' as _i5;
 import 'package:sentry/src/profiling.dart' as _i9;
 import 'package:sentry/src/sentry_tracer.dart' as _i3;
 import 'package:sentry_flutter/sentry_flutter.dart' as _i2;
-import 'package:sentry_flutter/src/frame_tracking/sentry_frame_tracker.dart'
+import 'package:sentry_flutter/src/frame_tracking/sentry_delayed_frames_tracker.dart'
     as _i14;
 import 'package:sentry_flutter/src/native/native_frames.dart' as _i13;
 import 'package:sentry_flutter/src/native/sentry_native_binding.dart' as _i11;
@@ -1492,18 +1492,18 @@ class MockSentryNativeBinding extends _i1.Mock
       ) as _i7.FutureOr<_i2.SentryId>);
 }
 
-/// A class which mocks [SentryFrameTracker].
+/// A class which mocks [SentryDelayedFramesTracker].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockSentryFrameTracker extends _i1.Mock
-    implements _i14.SentryFrameTracker {
-  MockSentryFrameTracker() {
+class MockSentryDelayedFramesTracker extends _i1.Mock
+    implements _i14.SentryDelayedFramesTracker {
+  MockSentryDelayedFramesTracker() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  List<_i14.SentryFrameTiming> get exceededFrames => (super.noSuchMethod(
-        Invocation.getter(#exceededFrames),
+  List<_i14.SentryFrameTiming> get delayedFrames => (super.noSuchMethod(
+        Invocation.getter(#delayedFrames),
         returnValue: <_i14.SentryFrameTiming>[],
       ) as List<_i14.SentryFrameTiming>);
 
@@ -1514,6 +1514,12 @@ class MockSentryFrameTracker extends _i1.Mock
       ) as bool);
 
   @override
+  int get maxTrackedFrames => (super.noSuchMethod(
+        Invocation.getter(#maxTrackedFrames),
+        returnValue: 0,
+      ) as int);
+
+  @override
   void setExpectedFrameDuration(Duration? expectedFrameDuration) =>
       super.noSuchMethod(
         Invocation.method(
@@ -1522,23 +1528,6 @@ class MockSentryFrameTracker extends _i1.Mock
         ),
         returnValueForMissingStub: null,
       );
-
-  @override
-  List<_i14.SentryFrameTiming> getFramesIntersecting({
-    required DateTime? startTimestamp,
-    required DateTime? endTimestamp,
-  }) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #getFramesIntersecting,
-          [],
-          {
-            #startTimestamp: startTimestamp,
-            #endTimestamp: endTimestamp,
-          },
-        ),
-        returnValue: <_i14.SentryFrameTiming>[],
-      ) as List<_i14.SentryFrameTiming>);
 
   @override
   void startFrame() => super.noSuchMethod(
@@ -1575,6 +1564,23 @@ class MockSentryFrameTracker extends _i1.Mock
         ),
         returnValueForMissingStub: null,
       );
+
+  @override
+  List<_i14.SentryFrameTiming> getFramesIntersecting({
+    required DateTime? startTimestamp,
+    required DateTime? endTimestamp,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #getFramesIntersecting,
+          [],
+          {
+            #startTimestamp: startTimestamp,
+            #endTimestamp: endTimestamp,
+          },
+        ),
+        returnValue: <_i14.SentryFrameTiming>[],
+      ) as List<_i14.SentryFrameTiming>);
 
   @override
   void removeFramesBefore(DateTime? spanStartTimestamp) => super.noSuchMethod(

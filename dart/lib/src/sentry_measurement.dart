@@ -25,6 +25,10 @@ class SentryMeasurement {
       : name = 'frames_frozen',
         unit = SentryMeasurementUnit.none;
 
+  SentryMeasurement.framesDelay(this.value)
+      : name = 'frames_delay',
+        unit = SentryMeasurementUnit.none;
+
   /// Duration of the Cold App start in milliseconds
   SentryMeasurement.coldAppStart(Duration duration)
       : assert(!duration.isNegative),

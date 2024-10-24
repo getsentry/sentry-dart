@@ -1,6 +1,6 @@
 import 'dart:math';
 import 'package:meta/meta.dart';
-import 'sentry_frame_tracker.dart';
+import 'sentry_delayed_frames_tracker.dart';
 import 'span_frame_metrics.dart';
 
 /// The duration at which we consider a frame 'frozen'
@@ -8,20 +8,24 @@ const _frozenFrameThreshold = Duration(milliseconds: 700);
 
 @internal
 class SpanFrameMetricsCalculator {
-  SpanFrameMetricsCalculator();
+  SpanFrameMetricsCalculator(this._expectedFrameDuration);
 
+  final Duration _expectedFrameDuration;
+
+  /// Calculates the frame metrics based on start, end timestamps and the
+  /// delayed frames metrics. If the delayed frames array is empty then
+  /// only the total frames will be calculated.
   SpanFrameMetrics? calculateFrameMetrics(
       {required DateTime spanStartTimestamp,
       required DateTime spanEndTimestamp,
-      required List<SentryFrameTiming> exceededFrameTimings,
-      required Duration expectedFrameDuration}) {
+      required List<SentryFrameTiming> delayedFrames}) {
     final spanDuration =
         spanEndTimestamp.difference(spanStartTimestamp).inMilliseconds;
 
-    if (exceededFrameTimings.isEmpty) {
+    if (delayedFrames.isEmpty) {
       return SpanFrameMetrics(
           totalFrameCount:
-              (spanDuration / expectedFrameDuration.inMilliseconds).ceil(),
+              (spanDuration / _expectedFrameDuration.inMilliseconds).ceil(),
           slowFrameCount: 0,
           frozenFrameCount: 0,
           framesDelay: 0);
@@ -33,7 +37,7 @@ class SpanFrameMetricsCalculator {
     int frozenFramesDuration = 0;
     int framesDelay = 0;
 
-    for (final timing in exceededFrameTimings) {
+    for (final timing in delayedFrames) {
       final frameDuration = timing.duration;
       final frameEndTimestamp = timing.endTimestamp;
       final frameStartTimestamp = timing.startTimestamp;
@@ -59,14 +63,14 @@ class SpanFrameMetricsCalculator {
       if (frameFullyContainedInSpan) {
         effectiveDuration = frameDurationMs;
         effectiveDelay =
-            max(0, frameDurationMs - expectedFrameDuration.inMilliseconds);
+            max(0, frameDurationMs - _expectedFrameDuration.inMilliseconds);
       } else if (framePartiallyContainedInSpan) {
         final intersectionStart = max(frameStartMs, spanStartMs);
         final intersectionEnd = min(frameEndMs, spanEndMs);
         effectiveDuration = intersectionEnd - intersectionStart;
 
         final fullFrameDelay =
-            max(0, frameDurationMs - expectedFrameDuration.inMilliseconds);
+            max(0, frameDurationMs - _expectedFrameDuration.inMilliseconds);
         final intersectionRatio = effectiveDuration / frameDurationMs;
         effectiveDelay = (fullFrameDelay * intersectionRatio).round();
       } else if (frameStartMs > spanEndMs) {
@@ -77,7 +81,7 @@ class SpanFrameMetricsCalculator {
       if (effectiveDuration >= _frozenFrameThreshold.inMilliseconds) {
         frozenFrameCount++;
         frozenFramesDuration += effectiveDuration;
-      } else if (effectiveDuration > expectedFrameDuration.inMilliseconds) {
+      } else if (effectiveDuration > _expectedFrameDuration.inMilliseconds) {
         slowFrameCount++;
         slowFramesDuration += effectiveDuration;
       }
@@ -87,7 +91,7 @@ class SpanFrameMetricsCalculator {
 
     final normalFramesCount =
         (spanDuration - (slowFramesDuration + frozenFramesDuration)) /
-            expectedFrameDuration.inMilliseconds;
+            _expectedFrameDuration.inMilliseconds;
     final totalFrameCount =
         (normalFramesCount + slowFrameCount + frozenFrameCount).ceil();
 

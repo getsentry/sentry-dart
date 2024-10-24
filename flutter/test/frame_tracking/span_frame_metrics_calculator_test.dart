@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sentry_flutter/src/frame_tracking/sentry_frame_tracker.dart';
+import 'package:sentry_flutter/src/frame_tracking/sentry_delayed_frames_tracker.dart';
 import 'package:sentry_flutter/src/frame_tracking/span_frame_metrics_calculator.dart';
 
 void main() {
@@ -20,7 +20,7 @@ void main() {
     final metrics = calculator.calculateFrameMetrics(
       spanStartTimestamp: spanStart,
       spanEndTimestamp: spanEnd,
-      exceededFrameTimings: [],
+      delayedFrames: [],
       expectedFrameDuration: const Duration(milliseconds: 16),
     );
 
@@ -49,7 +49,7 @@ void main() {
     final metrics = calculator.calculateFrameMetrics(
       spanStartTimestamp: spanStart,
       spanEndTimestamp: spanEnd,
-      exceededFrameTimings: frameTimings,
+      delayedFrames: frameTimings,
       expectedFrameDuration: const Duration(milliseconds: 16),
     );
 
@@ -80,7 +80,7 @@ void main() {
     final metrics = calculator.calculateFrameMetrics(
       spanStartTimestamp: spanStart,
       spanEndTimestamp: spanEnd,
-      exceededFrameTimings: frameTimings,
+      delayedFrames: frameTimings,
       expectedFrameDuration: const Duration(milliseconds: 16),
     );
 

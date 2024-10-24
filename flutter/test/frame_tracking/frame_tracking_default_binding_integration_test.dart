@@ -11,12 +11,11 @@ import 'package:sentry_flutter/src/frame_tracking/sentry_frame_tracking_binding_
 import 'package:sentry_flutter/src/frame_tracking/span_frame_metrics_calculator.dart';
 import 'package:sentry_flutter/src/frame_tracking/span_frame_metrics_collector.dart';
 
-import '../binding.dart';
 import '../mocks.dart';
 import '../mocks.mocks.dart';
 
 void main() {
-  SentryAutomatedTestWidgetsFlutterBinding.ensureInitialized();
+  // default bindings is used automatically
 
   late Hub hub;
   late MockSentryNativeBinding mockNativeBinding;
@@ -38,7 +37,8 @@ void main() {
     hub = Hub(options);
   });
 
-  testWidgets('Frame tracking measures frames', (WidgetTester tester) async {
+  testWidgets('Frame tracking does not measure frames',
+      (WidgetTester tester) async {
     SentryTracer? tracer;
     ISentrySpan? child;
 
@@ -112,18 +112,11 @@ void main() {
 
       // Verify child span
       final childSpan = tracer!.children.first;
-      expect(childSpan.data['frames.slow'] as int, 2);
-      expect(childSpan.data['frames.frozen'] as int, 1);
+      expect(childSpan.data, isEmpty);
 
       // Verify tracer
-      expect(tracer!.data['frames.slow'] as int, 5);
-      expect(tracer!.data['frames.frozen'] as int, 2);
-      expect(
-          (tracer!.measurements['frames_total'] as SentryMeasurement).value, 9);
-      expect(
-          (tracer!.measurements['frames_slow'] as SentryMeasurement).value, 5);
-      expect((tracer!.measurements['frames_frozen'] as SentryMeasurement).value,
-          2);
+      expect(tracer!.data, isEmpty);
+      expect(tracer!.measurements, isEmpty);
       // we don't measure the frames delay or total frames because the timings are not
       // completely accurate in a test env so it may flake
     });

@@ -14,8 +14,10 @@ import 'event_processor/widget_event_processor.dart';
 import 'file_system_transport.dart';
 import 'flutter_exception_type_identifier.dart';
 import 'frame_callback_handler.dart';
+import 'frame_tracking/sentry_frame_tracking_binding_mixin.dart';
 import 'frame_tracking/span_frame_metrics_calculator.dart';
 import 'integrations/connectivity/connectivity_integration.dart';
+import 'integrations/frame_tracker_integration.dart';
 import 'integrations/integrations.dart';
 import 'integrations/native_app_start_handler.dart';
 import 'integrations/screenshot_integration.dart';
@@ -109,17 +111,6 @@ mixin SentryFlutter {
     // Insert it at the start of the list, before the Dart Exceptions that are set in Sentry.init
     // so we can identify Flutter exceptions first.
     options.prependExceptionTypeIdentifier(FlutterExceptionTypeIdentifier());
-
-    // Disabled for web, linux and windows until we can reliably get the display refresh rate
-    if (options.platformChecker.platform.isAndroid ||
-        options.platformChecker.platform.isIOS ||
-        options.platformChecker.platform.isMacOS) {
-      SentryFrameTrackingBindingMixin.initializeFrameTracker(options);
-      final frameTracker = SentryFrameTrackingBindingMixin.frameTracker;
-      final metricsCalculator = SpanFrameMetricsCalculator();
-      options.addPerformanceCollector(SpanFrameMetricsCollector(
-          options, frameTracker!, metricsCalculator, native));
-    }
   }
 
   static Future<void> _initDefaultValues(SentryFlutterOptions options) async {
@@ -186,6 +177,7 @@ mixin SentryFlutter {
         integrations.add(LoadContextsIntegration(native));
       }
       integrations.add(LoadImageListIntegration(native));
+      integrations.add(FrameTrackerIntegration(native));
       options.enableDartSymbolication = false;
     }
 

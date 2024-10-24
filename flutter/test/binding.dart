@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_flutter/src/frame_tracking/sentry_frame_tracking_binding_mixin.dart';
 
 class SentryAutomatedTestWidgetsFlutterBinding
     extends AutomatedTestWidgetsFlutterBinding

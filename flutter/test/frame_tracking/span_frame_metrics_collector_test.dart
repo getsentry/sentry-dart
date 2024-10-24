@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/src/frame_tracking/span_frame_metrics_collector.dart';
-import 'package:sentry_flutter/src/frame_tracking/sentry_frame_tracker.dart';
+import 'package:sentry_flutter/src/frame_tracking/sentry_delayed_frames_tracker.dart';
 import 'package:sentry_flutter/src/frame_tracking/span_frame_metrics_calculator.dart';
 
 import '../mocks.dart';
@@ -228,7 +228,7 @@ void main() {
     verify(span2.setData('frames.frozen', 0)).called(1);
     verify(span2.setData('frames.delay', 64)).called(1);
 
-    verify(fixture.mockFrameTracker.removeFramesBefore(any)).called(1);
+    verify(fixture.mockFrameTracker.cleanupFramesOlderThan(any)).called(1);
     expect(sut.activeSpans, isEmpty);
   });
 }
@@ -236,7 +236,7 @@ void main() {
 class Fixture {
   final options = defaultTestOptions();
   final mockNativeBinding = MockSentryNativeBinding();
-  final mockFrameTracker = MockSentryFrameTracker();
+  final mockFrameTracker = MockSentryDelayedFramesTracker();
 
   SpanFrameMetricsCollector getSut() {
     return SpanFrameMetricsCollector(

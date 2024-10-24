@@ -1,19 +1,19 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sentry_flutter/src/frame_tracking/sentry_frame_tracker.dart';
+import 'package:sentry_flutter/src/frame_tracking/sentry_delayed_frames_tracker.dart';
 import 'package:sentry_flutter/src/sentry_flutter_options.dart';
 
 import '../mocks.dart';
 
 void main() {
   late Fixture fixture;
-  late SentryFrameTracker sut;
+  late SentryDelayedFramesTracker sut;
 
   setUp(() {
     fixture = Fixture();
   });
 
   tearDown(() {
-    SentryFrameTracker.resetInstance();
+    SentryDelayedFramesTracker.resetInstance();
   });
 
   // Simulate the clock time used within frame tracker so we don't rely on
@@ -156,7 +156,7 @@ void main() {
       _setClockToEpochMillis(200);
       sut.endFrame();
 
-      sut.removeFramesBefore(DateTime.fromMillisecondsSinceEpoch(75));
+      sut.cleanupFramesOlderThan(DateTime.fromMillisecondsSinceEpoch(75));
 
       expect(sut.delayedFrames, hasLength(1));
       expect(sut.delayedFrames.first.startTimestamp,
@@ -247,8 +247,8 @@ void main() {
 class Fixture {
   late SentryFlutterOptions options = defaultTestOptions();
 
-  SentryFrameTracker getSut({bool enableFramesTracking = true}) {
+  SentryDelayedFramesTracker getSut({bool enableFramesTracking = true}) {
     options.enableFramesTracking = enableFramesTracking;
-    return SentryFrameTracker(options);
+    return SentryDelayedFramesTracker(options);
   }
 }
