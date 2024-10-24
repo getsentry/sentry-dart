@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
-import 'package:sentry_flutter/src/frame_tracking/sentry_delayed_frames_tracker.dart';
+import 'package:sentry_flutter/src/frames_tracking/sentry_delayed_frames_tracker.dart';
 import '../mocks.mocks.dart';
 
 void main() {

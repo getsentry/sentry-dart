@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sentry_flutter/src/frame_tracking/sentry_delayed_frames_tracker.dart';
+import 'package:sentry_flutter/src/frames_tracking/sentry_delayed_frames_tracker.dart';
 import 'package:sentry_flutter/src/sentry_flutter_options.dart';
 
 import '../mocks.dart';

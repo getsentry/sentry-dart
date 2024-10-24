@@ -20,7 +20,7 @@ const _frozenFrameThreshold = Duration(milliseconds: 700);
 
 /// Singleton frame tracker to collect delayed frames processed by the Flutter SDK.
 ///
-/// The tracker needs to be initialized first via [SentryFrameTrackingBindingMixin.initializeFrameTracker]
+/// The tracker needs to be initialized first via [SentryWidgetsBindingMixin.initializesFrameTracker]
 /// otherwise the tracker won't collect frames.
 ///
 /// The order in which [startFrame] and [endFrame] is called is sequential
@@ -101,7 +101,7 @@ class SentryDelayedFramesTracker {
   /// Pauses the collecting of frames.
   void pause() {
     _isTrackingActive = false;
-    _currentFrameStartTimestamp = null; // Reset any ongoing frame
+    _resetCurrentFrame();
   }
 
   /// Retrieves the frames the intersect with the provided [startTimestamp] and [endTimestamp].

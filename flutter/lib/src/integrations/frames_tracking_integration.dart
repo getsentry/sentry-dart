@@ -1,13 +1,13 @@
 import 'package:flutter/cupertino.dart';
 
 import '../../sentry_flutter.dart';
-import '../frame_tracking/sentry_delayed_frames_tracker.dart';
-import '../frame_tracking/sentry_frame_tracking_binding_mixin.dart';
-import '../frame_tracking/span_frame_metrics_collector.dart';
+import '../binding_wrapper.dart';
+import '../frames_tracking/sentry_delayed_frames_tracker.dart';
+import '../frames_tracking/span_frame_metrics_collector.dart';
 import '../native/sentry_native_binding.dart';
 
-class FrameTrackingIntegration implements Integration<SentryFlutterOptions> {
-  FrameTrackingIntegration(
+class FramesTrackingIntegration implements Integration<SentryFlutterOptions> {
+  FramesTrackingIntegration(
     this._native, {
     bool Function(WidgetsBinding binding)? isCompatibleBinding,
   }) : _isCompatibleBinding = isCompatibleBinding ??
@@ -16,13 +16,18 @@ class FrameTrackingIntegration implements Integration<SentryFlutterOptions> {
   final SentryNativeBinding _native;
   final bool Function(WidgetsBinding binding) _isCompatibleBinding;
 
+  SentryFlutterOptions? _options;
+  PerformanceCollector? _collector;
+
   @override
   Future<void> call(Hub hub, SentryFlutterOptions options) async {
+    _options = options;
+
     if (!options.enableFramesTracking) {
       return;
     }
 
-    if (!options.isTracingEnabled()) {
+    if (options.tracesSampleRate == null && options.tracesSampler == null) {
       return;
     }
 
@@ -36,19 +41,19 @@ class FrameTrackingIntegration implements Integration<SentryFlutterOptions> {
     }
 
     _initializeFrameTracking(options, expectedFrameDuration);
-    options.sdk.addIntegration('frameTrackerIntegration');
+    options.sdk.addIntegration('framesTrackingIntegration');
   }
 
   void _initializeFrameTracking(
       SentryFlutterOptions options, Duration expectedFrameDuration) {
-    final frameTracker =
+    final framesTracker =
         SentryDelayedFramesTracker(options, expectedFrameDuration);
-    SentryFrameTrackingBindingMixin.initializeFrameTracker(frameTracker);
+    SentryWidgetsBindingMixin.initializesFramesTracker(framesTracker);
     final collector = SpanFrameMetricsCollector(
       options,
-      frameTracker,
+      framesTracker,
     );
-
+    _collector = collector;
     options.addPerformanceCollector(collector);
   }
 
@@ -61,5 +66,8 @@ class FrameTrackingIntegration implements Integration<SentryFlutterOptions> {
   }
 
   @override
-  void close() {}
+  void close() {
+    _options?.performanceCollectors.remove(_collector);
+    SentryWidgetsBindingMixin.clearFramesTracker();
+  }
 }
