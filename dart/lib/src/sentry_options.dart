@@ -590,13 +590,13 @@ class SentryOptions {
   }
 
   /// Adds an inAppExclude
-  void addInAppExclude(String inApp) {
-    _inAppExcludes.add(inApp);
+  void addInAppExclude(String inAppInclude) {
+    _inAppExcludes.add(inAppInclude);
   }
 
   /// Adds an inAppIncludes
-  void addInAppInclude(String inApp) {
-    _inAppIncludes.add(inApp);
+  void addInAppInclude(String inAppExclude) {
+    _inAppIncludes.add(inAppExclude);
   }
 
   /// Returns if tracing should be enabled. If tracing is disabled, starting transactions returns

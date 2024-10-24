@@ -24,7 +24,7 @@ class SentryStackTraceFactory {
     return parse(stackTrace).frames;
   }
 
-  SentryStackTrace parse(dynamic stackTrace) {
+  SentryStackTrace parse(dynamic stackTrace, {bool? removeSentryFrames}) {
     final parsed = _parseStackTrace(stackTrace);
     final frames = <SentryStackFrame>[];
     var onlyAsyncGap = true;
@@ -32,11 +32,18 @@ class SentryStackTraceFactory {
     for (var t = 0; t < parsed.traces.length; t += 1) {
       final trace = parsed.traces[t];
 
-      // NOTE: We want to keep the Sentry frames for crash detection
+      // NOTE: We want to keep the Sentry frames for SDK crash detection
       // this does not affect grouping since they're not marked as inApp
+      // only exception if there was no stack trace, we remove them
       for (final frame in trace.frames) {
-        final stackTraceFrame = encodeStackTraceFrame(frame);
+        var stackTraceFrame = encodeStackTraceFrame(frame);
+
         if (stackTraceFrame != null) {
+          if (removeSentryFrames == true &&
+              (stackTraceFrame.package == 'sentry' ||
+                  stackTraceFrame.package == 'sentry_flutter')) {
+            continue;
+          }
           frames.add(stackTraceFrame);
           onlyAsyncGap = false;
         }
@@ -100,7 +107,7 @@ class SentryStackTraceFactory {
     final member = frame.member;
 
     if (frame is UnparsedFrame && member != null) {
-      // if --split-debug-info is enabled, thats what we see:
+      // if --split-debug-info is enabled, that's what we see:
       //     #00 abs 000000723d6346d7 _kDartIsolateSnapshotInstructions+0x1e26d7
 
       // we are only interested on the #01, 02... items which contains the 'abs' addresses.

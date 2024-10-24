@@ -28,9 +28,16 @@ void main() {
             return onErrorReturnValue;
           };
 
-      when(fixture.hub.captureEvent(captureAny,
-              stackTrace: captureAnyNamed('stackTrace')))
-          .thenAnswer((_) => Future.value(SentryId.empty()));
+      when(fixture.hub.captureEvent(
+        captureAny,
+        stackTrace: captureAnyNamed('stackTrace'),
+      )).thenAnswer((_) => Future.value(SentryId.empty()));
+
+      when(fixture.hub.captureEvent(
+        captureAny,
+        stackTrace: captureAnyNamed('stackTrace'),
+        hint: captureAnyNamed('hint'),
+      )).thenAnswer((_) => Future.value(SentryId.empty()));
 
       when(fixture.hub.options).thenReturn(fixture.options);
       final tracer = MockSentryTracer();
@@ -188,6 +195,23 @@ void main() {
       expect(span?.status, const SpanStatus.internalError());
 
       await span?.finish();
+    });
+
+    test('adds current stack trace hint if error has empty stack trace',
+        () async {
+      final exception = StateError('error');
+
+      _reportError(exception: exception, stackTrace: StackTrace.empty);
+
+      final hint = verify(
+        await fixture.hub.captureEvent(
+          captureAny,
+          stackTrace: captureAnyNamed('stackTrace'),
+          hint: captureAnyNamed('hint'),
+        ),
+      ).captured[2] as Hint;
+
+      expect(hint.get(TypeCheckHint.currentStackTrace), isTrue);
     });
   });
 }
