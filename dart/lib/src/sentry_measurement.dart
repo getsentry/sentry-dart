@@ -8,9 +8,9 @@ class SentryMeasurement {
   });
 
   static const totalFramesName = 'frames_total';
-  static const slowFramesName = 'frames_total';
-  static const frozenFramesName = 'frames_total';
-  static const framesDelayName = 'frames_total';
+  static const slowFramesName = 'frames_slow';
+  static const frozenFramesName = 'frames_frozen';
+  static const framesDelayName = 'frames_delay';
 
   /// Amount of frames drawn during a transaction
   SentryMeasurement.totalFrames(this.value)
