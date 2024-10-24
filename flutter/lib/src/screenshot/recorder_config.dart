@@ -2,12 +2,19 @@ import 'dart:math';
 
 import 'package:meta/meta.dart';
 
+import '../../sentry_flutter.dart';
+
 @internal
 class ScreenshotRecorderConfig {
   final int? width;
   final int? height;
+  final SentryScreenshotQuality quality;
 
-  const ScreenshotRecorderConfig({this.width, this.height});
+  const ScreenshotRecorderConfig({
+    this.width,
+    this.height,
+    this.quality = SentryScreenshotQuality.full,
+  });
 
   double getPixelRatio(double srcWidth, double srcHeight) {
     assert((width == null) == (height == null));
@@ -16,14 +23,4 @@ class ScreenshotRecorderConfig {
     }
     return min(width! / srcWidth, height! / srcHeight);
   }
-}
-
-class ScheduledScreenshotRecorderConfig extends ScreenshotRecorderConfig {
-  final int frameRate;
-
-  const ScheduledScreenshotRecorderConfig({
-    super.width,
-    super.height,
-    required this.frameRate,
-  });
 }

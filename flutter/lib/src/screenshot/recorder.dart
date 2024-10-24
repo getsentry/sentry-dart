@@ -3,8 +3,10 @@ import 'dart:ui';
 
 import 'package:flutter/rendering.dart';
 import 'package:meta/meta.dart';
+import '../sentry_redaction_options.dart';
 
 import '../../sentry_flutter.dart';
+import 'masking_config.dart';
 import 'recorder_config.dart';
 import 'widget_filter.dart';
 
@@ -21,7 +23,12 @@ class ScreenshotRecorder {
   bool warningLogged = false;
 
   ScreenshotRecorder(this.config, this.options) {
-    final maskingConfig = options.experimental.replay.buildMaskingConfig();
+    /// TODO: Rewrite when default redaction value are synced with SS & SR
+    final SentryMaskingConfig maskingConfig =
+        (options.experimental.sentryRedactingOptions ??
+                SentryRedactingOptions())
+            .buildMaskingConfig();
+
     if (maskingConfig.length > 0) {
       _widgetFilter = WidgetFilter(maskingConfig, options.logger);
     }
@@ -82,12 +89,16 @@ class ScreenshotRecorder {
       final picture = recorder.endRecording();
 
       try {
-        final finalImage = await picture.toImage(
-            (srcWidth * pixelRatio).round(), (srcHeight * pixelRatio).round());
+        Image finalImage;
+        final targetHeight =
+            config.quality.calculateHeight(srcWidth.toInt(), srcHeight.toInt());
+        final targetWidth =
+            config.quality.calculateWidth(srcWidth.toInt(), srcHeight.toInt());
+        finalImage = await picture.toImage(targetWidth, targetHeight);
         try {
           await callback(finalImage);
         } finally {
-          finalImage.dispose();
+          finalImage.dispose(); // image needs to be disposed manually
         }
       } finally {
         picture.dispose();

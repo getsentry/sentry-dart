@@ -7,7 +7,7 @@ import 'dart:ui';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/src/replay/scheduled_recorder.dart';
-import 'package:sentry_flutter/src/replay/recorder_config.dart';
+import 'package:sentry_flutter/src/replay/scheduled_recorder_config.dart';
 
 import '../mocks.dart';
 import 'test_widget.dart';
@@ -16,6 +16,7 @@ void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   testWidgets('captures images', (tester) async {
+    await tester.binding.setSurfaceSize(Size(1000, 750));
     final fixture = await _Fixture.create(tester);
     expect(fixture.capturedImages, isEmpty);
     await fixture.nextFrame();

@@ -23,6 +23,7 @@ import 'native/native_scope_observer.dart';
 import 'native/sentry_native_binding.dart';
 import 'profiling.dart';
 import 'renderer/renderer.dart';
+import 'sentry_redaction_options.dart';
 import 'span_frame_metrics_collector.dart';
 import 'version.dart';
 import 'view_hierarchy/view_hierarchy_integration.dart';
@@ -149,6 +150,8 @@ mixin SentryFlutter {
     SentryFlutterOptions options,
     bool isOnErrorSupported,
   ) {
+    _setRedactionOptions(options);
+
     final integrations = <Integration>[];
     final platformChecker = options.platformChecker;
 
@@ -241,6 +244,19 @@ mixin SentryFlutter {
     );
     sdk.addPackage('pub:sentry_flutter', sdkVersion);
     options.sdk = sdk;
+  }
+
+  static void _setRedactionOptions(SentryFlutterOptions options) {
+    if (options.experimental.sentryRedactingOptions != null) {
+      return;
+    } else if (options.screenshot.attachScreenshot == true &&
+        !options.experimental.replay.isEnabled) {
+      options.experimental.sentryRedactingOptions = SentryRedactingOptions()
+        ..maskAllText = false
+        ..maskAllImages = false;
+    } else {
+      options.experimental.sentryRedactingOptions = SentryRedactingOptions();
+    }
   }
 
   /// Reports the time it took for the screen to be fully displayed.
