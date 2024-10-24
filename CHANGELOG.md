@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Enhancements
+
+- Cache parsed DSN ([#2365](https://github.com/getsentry/sentry-dart/pull/2365))
 - Switching from traditional screenshot to view hierarchy for screenshots which allows redacting ([#2361](https://github.com/getsentry/sentry-dart/pull/2361))
 
 ## 8.10.0-beta.2
