@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
@@ -85,6 +86,30 @@ class SentryReplayOptions {
       rules.add(const SentryMaskingConstantRule<EditableText>(
           SentryMaskingDecision.mask));
     }
+
+    // In Debug mode, check if users explicitly masks (or unmasks) widgets that
+    // look like they should be masked, e.g. Videos, WebViews, etc.
+    if (kDebugMode) {
+      rules.add(
+          SentryMaskingCustomRule<Widget>((Element element, Widget widget) {
+        final type = widget.runtimeType.toString();
+        final regexp = 'video|webview|password|pinput|camera|chart';
+        if (RegExp(regexp, caseSensitive: false).hasMatch(type)) {
+          final optionsName = 'options.experimental.replay';
+          throw Exception(
+              'Widget "$widget" name matches widgets that should usually be '
+              'masked because they may contain sensitive data. Because this '
+              'widget comes from a third-party plugin or your code, Sentry '
+              'cannot reliably mask it in release builds (due to obfuscation).'
+              'Please mask it explicitly using $optionsName.mask<$type>(). '
+              'If you want to silence this exception and keep the widget '
+              'visible in captures, you can use $optionsName.unmask<$type>(). '
+              'Note: the RegExp matched is: $regexp (case insensitive).');
+        }
+        return SentryMaskingDecision.continueProcessing;
+      }));
+    }
+
     return SentryMaskingConfig(rules);
   }
 
