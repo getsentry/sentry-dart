@@ -1,6 +1,5 @@
 import 'dart:async';
 
-
 import '../sentry_flutter.dart';
 
 /// Configuration of the screenshot feature.

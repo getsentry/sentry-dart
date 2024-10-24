@@ -6,7 +6,7 @@ import '../sentry_flutter.dart';
 import 'screenshot/masking_config.dart';
 import 'screenshot/widget_filter.dart';
 
-/// Configuration of the experimental screenshot feature.
+/// Configuration of the experimental redaction feature.
 class SentryRedactingOptions {
   /// Mask all text content. Draws a rectangle of text bounds with text color
   /// on top. Currently, only [Text] and [EditableText] Widgets are redacted.
