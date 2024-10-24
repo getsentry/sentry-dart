@@ -26,7 +26,7 @@ void main() {
 
     final mockNativeBinding = MockSentryNativeBinding();
     when(mockNativeBinding.displayRefreshRate()).thenAnswer((_) async => 60);
-    await FrameTrackerIntegration(mockNativeBinding).call(hub, options);
+    await FrameTrackingIntegration(mockNativeBinding).call(hub, options);
   });
 
   testWidgets('Frame tracking does not measure frames',

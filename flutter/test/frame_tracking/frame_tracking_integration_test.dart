@@ -26,7 +26,7 @@ void main() {
 
     final mockNativeBinding = MockSentryNativeBinding();
     when(mockNativeBinding.displayRefreshRate()).thenAnswer((_) async => 60);
-    await FrameTrackerIntegration(mockNativeBinding,
+    await FrameTrackingIntegration(mockNativeBinding,
             isCompatibleBinding: (binding) =>
                 binding is SentryAutomatedTestWidgetsFlutterBinding)
         .call(hub, options);

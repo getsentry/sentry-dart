@@ -6,8 +6,8 @@ import '../frame_tracking/sentry_frame_tracking_binding_mixin.dart';
 import '../frame_tracking/span_frame_metrics_collector.dart';
 import '../native/sentry_native_binding.dart';
 
-class FrameTrackerIntegration implements Integration<SentryFlutterOptions> {
-  FrameTrackerIntegration(
+class FrameTrackingIntegration implements Integration<SentryFlutterOptions> {
+  FrameTrackingIntegration(
     this._native, {
     bool Function(WidgetsBinding binding)? isCompatibleBinding,
   }) : _isCompatibleBinding = isCompatibleBinding ??

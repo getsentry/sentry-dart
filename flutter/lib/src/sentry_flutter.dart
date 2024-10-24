@@ -177,7 +177,7 @@ mixin SentryFlutter {
         integrations.add(LoadContextsIntegration(native));
       }
       integrations.add(LoadImageListIntegration(native));
-      integrations.add(FrameTrackerIntegration(native));
+      integrations.add(FrameTrackingIntegration(native));
       options.enableDartSymbolication = false;
     }
 
