@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
-import 'package:sentry_flutter/src/frame_tracking/span_frame_metrics.dart';
+import 'package:sentry/sentry.dart';
+import 'package:sentry_flutter/src/frame_tracking/sentry_delayed_frames_tracker.dart';
 import '../mocks.mocks.dart';
 
-/// Tests the [SpanFrameMetrics] data structure
 void main() {
   late _Fixture fixture;
   late SpanFrameMetrics metrics;
@@ -19,10 +19,10 @@ void main() {
 
     metrics.applyTo(span);
 
-    verify(span.setData(SpanFrameMetricKey.totalFrames.data, 10)).called(1);
-    verify(span.setData(SpanFrameMetricKey.slowFrames.data, 2)).called(1);
-    verify(span.setData(SpanFrameMetricKey.frozenFrames.data, 1)).called(1);
-    verify(span.setData(SpanFrameMetricKey.framesDelay.data, 30)).called(1);
+    verify(span.setData(SpanDataConvention.totalFrames, 10)).called(1);
+    verify(span.setData(SpanDataConvention.slowFrames, 2)).called(1);
+    verify(span.setData(SpanDataConvention.frozenFrames, 1)).called(1);
+    verify(span.setData(SpanDataConvention.framesDelay, 30)).called(1);
   });
 
   test('applyTo sets data and measurements on root spans', () {
@@ -33,23 +33,17 @@ void main() {
 
     metrics.applyTo(span);
 
-    verify(span.setData(SpanFrameMetricKey.totalFrames.data, 10)).called(1);
-    verify(span.setData(SpanFrameMetricKey.slowFrames.data, 2)).called(1);
-    verify(span.setData(SpanFrameMetricKey.frozenFrames.data, 1)).called(1);
-    verify(span.setData(SpanFrameMetricKey.framesDelay.data, 30)).called(1);
+    verify(tracer.setData(SpanDataConvention.totalFrames, 10)).called(1);
+    verify(tracer.setData(SpanDataConvention.slowFrames, 2)).called(1);
+    verify(tracer.setData(SpanDataConvention.frozenFrames, 1)).called(1);
+    verify(tracer.setData(SpanDataConvention.framesDelay, 30)).called(1);
 
-    verify(tracer.setData(SpanFrameMetricKey.totalFrames.data, 10)).called(1);
-    verify(tracer.setData(SpanFrameMetricKey.slowFrames.data, 2)).called(1);
-    verify(tracer.setData(SpanFrameMetricKey.frozenFrames.data, 1)).called(1);
-    verify(tracer.setData(SpanFrameMetricKey.framesDelay.data, 30)).called(1);
-
-    verify(span.setMeasurement(SpanFrameMetricKey.totalFrames.measurement, 10))
+    verify(span.setMeasurement(SentryMeasurement.totalFramesName, 10))
         .called(1);
-    verify(span.setMeasurement(SpanFrameMetricKey.slowFrames.measurement, 2))
+    verify(span.setMeasurement(SentryMeasurement.slowFramesName, 2)).called(1);
+    verify(span.setMeasurement(SentryMeasurement.frozenFramesName, 1))
         .called(1);
-    verify(span.setMeasurement(SpanFrameMetricKey.frozenFrames.measurement, 1))
-        .called(1);
-    verify(span.setMeasurement(SpanFrameMetricKey.framesDelay.measurement, 30))
+    verify(span.setMeasurement(SentryMeasurement.framesDelayName, 30))
         .called(1);
   });
 }

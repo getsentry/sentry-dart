@@ -12,10 +12,6 @@ void main() {
     fixture = Fixture();
   });
 
-  tearDown(() {
-    SentryDelayedFramesTracker.resetInstance();
-  });
-
   // Simulate the clock time used within frame tracker so we don't rely on
   // actually measuring the time between frames
   void _setClockToEpochMillis(int millisSinceEpoch) {
@@ -29,7 +25,6 @@ void main() {
 
     setUp(() {
       sut = fixture.getSut();
-      sut.setExpectedFrameDuration(expectedFrameDuration);
       sut.resume();
     });
 
@@ -46,7 +41,7 @@ void main() {
     });
 
     test('clears tracker when frame in memory limit reached', () {
-      for (int i = 0; i <= sut.maxTrackedFrames; i++) {
+      for (int i = 0; i <= maxFramesCount; i++) {
         _setClockToEpochMillis(i);
         sut.startFrame();
 
@@ -145,24 +140,6 @@ void main() {
       expect(frames[3].endTimestamp, DateTime.fromMillisecondsSinceEpoch(180));
     });
 
-    test('removeFramesBefore removes correct frames', () {
-      _setClockToEpochMillis(0);
-      sut.startFrame();
-      _setClockToEpochMillis(50);
-      sut.endFrame();
-
-      _setClockToEpochMillis(100);
-      sut.startFrame();
-      _setClockToEpochMillis(200);
-      sut.endFrame();
-
-      sut.cleanupFramesOlderThan(DateTime.fromMillisecondsSinceEpoch(75));
-
-      expect(sut.delayedFrames, hasLength(1));
-      expect(sut.delayedFrames.first.startTimestamp,
-          DateTime.fromMillisecondsSinceEpoch(100));
-    });
-
     test('pause stops frame tracking', () {
       expect(sut.isTrackingActive, isTrue);
 
@@ -208,6 +185,99 @@ void main() {
       expect(sut.delayedFrames, isEmpty);
       expect(sut.isTrackingActive, isFalse);
     });
+
+    test('returns metrics with only total frames when no delayed frames exist',
+        () {
+      final spanStart = DateTime.fromMillisecondsSinceEpoch(0);
+      final spanEnd = spanStart.add(const Duration(seconds: 1));
+
+      final metrics = sut.getFrameMetrics(
+        spanStartTimestamp: spanStart,
+        spanEndTimestamp: spanEnd,
+      );
+
+      expect(metrics, isNotNull);
+      expect(metrics!.totalFrameCount, 63); // 1000ms / 16ms ≈ 63 frames
+      expect(metrics.slowFrameCount, 0);
+      expect(metrics.frozenFrameCount, 0);
+      expect(metrics.framesDelay, 0);
+    });
+
+    test('calculates metrics for frames fully contained within span', () {
+      final spanStart = DateTime.fromMillisecondsSinceEpoch(0);
+      final spanEnd = spanStart.add(const Duration(seconds: 1));
+
+      // Add two frames: one slow (20ms over) and one normal-ish
+      _setClockToEpochMillis(100);
+      sut.startFrame();
+      _setClockToEpochMillis(120); // 20ms duration
+      sut.endFrame();
+
+      _setClockToEpochMillis(200);
+      sut.startFrame();
+      _setClockToEpochMillis(216); // 16ms duration
+      sut.endFrame();
+
+      final metrics = sut.getFrameMetrics(
+        spanStartTimestamp: spanStart,
+        spanEndTimestamp: spanEnd,
+      );
+
+      expect(metrics, isNotNull);
+      expect(metrics!.totalFrameCount, 63);
+      expect(metrics.slowFrameCount, 1);
+      expect(metrics.frozenFrameCount, 0);
+      expect(metrics.framesDelay, 4); // 20ms - 16ms = 4ms delay
+    });
+
+    test('calculates metrics for frames partially contained within span', () {
+      final spanStart = DateTime.fromMillisecondsSinceEpoch(0);
+      final spanEnd = spanStart.add(const Duration(milliseconds: 500));
+
+      // Frame starts before span and ends within span
+      _setClockToEpochMillis(-50);
+      sut.startFrame();
+      _setClockToEpochMillis(50);
+      sut.endFrame();
+
+      // Frame starts within span and ends after span
+      _setClockToEpochMillis(400);
+      sut.startFrame();
+      _setClockToEpochMillis(600);
+      sut.endFrame();
+
+      final metrics = sut.getFrameMetrics(
+        spanStartTimestamp: spanStart,
+        spanEndTimestamp: spanEnd,
+      );
+
+      expect(metrics, isNotNull);
+      expect(metrics!.totalFrameCount, 24); // ~500ms / 16ms = 31 frames
+      expect(metrics.slowFrameCount, 2);
+      expect(metrics.frozenFrameCount, 0);
+      expect(metrics.framesDelay, 134);
+    });
+
+    test('calculates metrics for frozen frames', () {
+      final spanStart = DateTime.fromMillisecondsSinceEpoch(0);
+      final spanEnd = spanStart.add(const Duration(seconds: 1));
+
+      // Add a frozen frame (800ms)
+      _setClockToEpochMillis(100);
+      sut.startFrame();
+      _setClockToEpochMillis(900);
+      sut.endFrame();
+
+      final metrics = sut.getFrameMetrics(
+        spanStartTimestamp: spanStart,
+        spanEndTimestamp: spanEnd,
+      );
+
+      expect(metrics, isNotNull);
+      expect(metrics!.frozenFrameCount, 1);
+      expect(metrics.slowFrameCount, 0);
+      expect(metrics.framesDelay, 784); // 800ms - 16ms = 784ms delay
+    });
   });
 
   group('when enableFramesTracking is false', () {
@@ -227,15 +297,6 @@ void main() {
     });
   });
 
-  test('updateExpectedFrameDuration only sets duration once', () {
-    sut = fixture.getSut();
-
-    sut.setExpectedFrameDuration(Duration(milliseconds: 16));
-    sut.setExpectedFrameDuration(Duration(milliseconds: 33));
-
-    expect(sut.expectedFrameDuration, Duration(milliseconds: 16));
-  });
-
   test('SentryFrameTracker is a singleton', () {
     final tracker1 = fixture.getSut();
     final tracker2 = fixture.getSut();
@@ -247,8 +308,10 @@ void main() {
 class Fixture {
   late SentryFlutterOptions options = defaultTestOptions();
 
-  SentryDelayedFramesTracker getSut({bool enableFramesTracking = true}) {
+  SentryDelayedFramesTracker getSut(
+      {bool enableFramesTracking = true,
+      Duration expectedFrameDuration = const Duration(milliseconds: 16)}) {
     options.enableFramesTracking = enableFramesTracking;
-    return SentryDelayedFramesTracker(options);
+    return SentryDelayedFramesTracker(options, expectedFrameDuration);
   }
 }

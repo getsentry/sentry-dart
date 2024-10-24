@@ -1,7 +1,6 @@
 import 'dart:math';
 import 'package:meta/meta.dart';
 import 'sentry_delayed_frames_tracker.dart';
-import 'span_frame_metrics.dart';
 
 /// The duration at which we consider a frame 'frozen'
 const _frozenFrameThreshold = Duration(milliseconds: 700);

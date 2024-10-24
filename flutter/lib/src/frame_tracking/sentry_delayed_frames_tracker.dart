@@ -4,7 +4,6 @@ import 'dart:math';
 
 import 'package:meta/meta.dart';
 import '../../sentry_flutter.dart';
-import 'span_frame_metrics.dart';
 
 /// 30s span duration at 120fps = 3600 frames
 /// This is just an upper limit, ensuring that the buffer does not grow
@@ -144,6 +143,7 @@ class SentryDelayedFramesTracker {
     final spanDuration =
         spanEndTimestamp.difference(spanStartTimestamp).inMilliseconds;
 
+    // No slow or frozen frames detected
     if (relevantFrames.isEmpty) {
       return SpanFrameMetrics(
           totalFrameCount:
@@ -153,6 +153,11 @@ class SentryDelayedFramesTracker {
           framesDelay: 0);
     }
 
+    final spanStartMs = spanStartTimestamp.millisecondsSinceEpoch;
+    final spanEndMs = spanEndTimestamp.millisecondsSinceEpoch;
+    final expectedDurationMs = _expectedFrameDuration.inMilliseconds;
+    final frozenThresholdMs = _frozenFrameThreshold.inMilliseconds;
+
     int slowFrameCount = 0;
     int frozenFrameCount = 0;
     int slowFramesDuration = 0;
@@ -160,50 +165,46 @@ class SentryDelayedFramesTracker {
     int framesDelay = 0;
 
     for (final timing in delayedFrames) {
-      final frameDuration = timing.duration;
-      final frameEndTimestamp = timing.endTimestamp;
-      final frameStartTimestamp = timing.startTimestamp;
+      final frameStartMs = timing.startTimestamp.millisecondsSinceEpoch;
+      final frameEndMs = timing.endTimestamp.millisecondsSinceEpoch;
+      final actualDurationMs = timing.duration.inMilliseconds;
 
-      final frameEndMs = frameEndTimestamp.millisecondsSinceEpoch;
-      final spanStartMs = spanStartTimestamp.millisecondsSinceEpoch;
-      final spanEndMs = spanEndTimestamp.millisecondsSinceEpoch;
-      final frameStartMs = frameStartTimestamp.millisecondsSinceEpoch;
-      final frameDurationMs = frameDuration.inMilliseconds;
+      if (frameEndMs <= spanStartMs) {
+        // Frame ends before the span starts, skip it
+        continue;
+      }
 
-      final frameFullyContainedInSpan =
-          frameEndMs <= spanEndMs && frameStartMs >= spanStartMs;
-      final frameStartsBeforeSpan =
-          frameStartMs < spanStartMs && frameEndMs > spanStartMs;
-      final frameEndsAfterSpan =
-          frameStartMs < spanEndMs && frameEndMs > spanEndMs;
-      final framePartiallyContainedInSpan =
-          frameStartsBeforeSpan || frameEndsAfterSpan;
+      if (frameStartMs >= spanEndMs) {
+        // Frames are ordered, every next frame will start after this span, stop processing
+        break;
+      }
 
-      int effectiveDuration = 0;
-      int effectiveDelay = 0;
+      // Calculate effective duration and delay
+      int effectiveDuration;
+      int effectiveDelay;
 
-      if (frameFullyContainedInSpan) {
-        effectiveDuration = frameDurationMs;
-        effectiveDelay =
-            max(0, frameDurationMs - _expectedFrameDuration.inMilliseconds);
-      } else if (framePartiallyContainedInSpan) {
+      if (frameStartMs >= spanStartMs && frameEndMs <= spanEndMs) {
+        // Fully contained
+        effectiveDuration = actualDurationMs;
+        effectiveDelay = max(0, actualDurationMs - expectedDurationMs);
+      } else {
+        // Partially contained
         final intersectionStart = max(frameStartMs, spanStartMs);
         final intersectionEnd = min(frameEndMs, spanEndMs);
         effectiveDuration = intersectionEnd - intersectionStart;
 
-        final fullFrameDelay =
-            max(0, frameDurationMs - _expectedFrameDuration.inMilliseconds);
-        final intersectionRatio = effectiveDuration / frameDurationMs;
+        final fullFrameDelay = max(0, actualDurationMs - expectedDurationMs);
+        final intersectionRatio = effectiveDuration / actualDurationMs;
         effectiveDelay = (fullFrameDelay * intersectionRatio).round();
-      } else if (frameStartMs > spanEndMs) {
-        // Other frames will be newer than this span, as frames are ordered
-        break;
       }
 
-      if (effectiveDuration >= _frozenFrameThreshold.inMilliseconds) {
+      // Classify frame
+      final isFrozen = effectiveDuration >= frozenThresholdMs;
+      final isSlow = effectiveDuration > expectedDurationMs;
+      if (isFrozen) {
         frozenFrameCount++;
         frozenFramesDuration += effectiveDuration;
-      } else if (effectiveDuration > _expectedFrameDuration.inMilliseconds) {
+      } else if (isSlow) {
         slowFrameCount++;
         slowFramesDuration += effectiveDuration;
       }
@@ -261,4 +262,42 @@ class SentryFrameTiming {
     required this.startTimestamp,
     required this.endTimestamp,
   });
+}
+
+@internal
+class SpanFrameMetrics {
+  final int totalFrameCount;
+  final int slowFrameCount;
+  final int frozenFrameCount;
+  final int framesDelay;
+
+  SpanFrameMetrics({
+    required this.totalFrameCount,
+    required this.slowFrameCount,
+    required this.frozenFrameCount,
+    required this.framesDelay,
+  });
+
+  void applyTo(ISentrySpan span) {
+    // If it's a root span, also apply measurements
+    if (span is SentrySpan && span.isRootSpan) {
+      final tracer = span.tracer;
+
+      _setData(tracer);
+
+      span.setMeasurement(SentryMeasurement.totalFramesName, totalFrameCount);
+      span.setMeasurement(SentryMeasurement.slowFramesName, slowFrameCount);
+      span.setMeasurement(SentryMeasurement.frozenFramesName, frozenFrameCount);
+      span.setMeasurement(SentryMeasurement.framesDelayName, framesDelay);
+    } else {
+      _setData(span);
+    }
+  }
+
+  void _setData(ISentrySpan span) {
+    span.setData(SpanDataConvention.totalFrames, totalFrameCount);
+    span.setData(SpanDataConvention.slowFrames, slowFrameCount);
+    span.setData(SpanDataConvention.frozenFrames, frozenFrameCount);
+    span.setData(SpanDataConvention.framesDelay, framesDelay);
+  }
 }
