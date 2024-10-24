@@ -7,12 +7,17 @@ import '../frame_tracking/span_frame_metrics_collector.dart';
 import '../native/sentry_native_binding.dart';
 
 class FrameTrackerIntegration implements Integration<SentryFlutterOptions> {
-  FrameTrackerIntegration(this._native);
+  FrameTrackerIntegration(
+    this._native, {
+    bool Function(WidgetsBinding binding)? isCompatibleBinding,
+  }) : _isCompatibleBinding = isCompatibleBinding ??
+            ((binding) => binding is SentryWidgetsFlutterBinding);
 
   final SentryNativeBinding _native;
+  final bool Function(WidgetsBinding binding) _isCompatibleBinding;
 
   @override
-  void call(Hub hub, SentryFlutterOptions options) async {
+  Future<void> call(Hub hub, SentryFlutterOptions options) async {
     if (!options.enableFramesTracking) {
       return;
     }
@@ -21,7 +26,7 @@ class FrameTrackerIntegration implements Integration<SentryFlutterOptions> {
       return;
     }
 
-    if (WidgetsBinding.instance is! SentryWidgetsFlutterBinding) {
+    if (!_isCompatibleBinding(WidgetsBinding.instance)) {
       return;
     }
 
