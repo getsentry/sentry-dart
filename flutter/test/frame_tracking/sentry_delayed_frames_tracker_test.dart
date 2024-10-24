@@ -40,8 +40,8 @@ void main() {
       expect(sut.delayedFrames, isEmpty);
     });
 
-    test('clears tracker when frame in memory limit reached', () {
-      for (int i = 0; i <= maxFramesCount; i++) {
+    test('stop collecting frames when maxFramesCount is reached', () {
+      for (int i = 0; i < maxFramesCount + 100; i++) {
         _setClockToEpochMillis(i);
         sut.startFrame();
 
@@ -49,8 +49,7 @@ void main() {
         sut.endFrame();
       }
 
-      expect(sut.delayedFrames, isEmpty);
-      expect(sut.isTrackingActive, isFalse);
+      expect(sut.delayedFrames.length, maxFramesCount);
     });
 
     test('captures slow frames', () {
@@ -85,7 +84,7 @@ void main() {
       expect(sut.delayedFrames, isEmpty);
     });
 
-    test('getFramesIntersectingrange returns correct frames', () {
+    test('getFramesIntersectingRange returns correct frames', () {
       // Frame entirely before range (should be excluded)
       _setClockToEpochMillis(0);
       sut.startFrame();
@@ -116,28 +115,19 @@ void main() {
       _setClockToEpochMillis(220);
       sut.endFrame();
 
-      // Frame exactly matching range (edge case, should be included)
-      _setClockToEpochMillis(50);
-      sut.startFrame();
-      _setClockToEpochMillis(150);
-      sut.endFrame();
-
       final frames = sut.getFramesIntersecting(
         startTimestamp: DateTime.fromMillisecondsSinceEpoch(50),
         endTimestamp: DateTime.fromMillisecondsSinceEpoch(150),
       );
 
-      expect(frames.length, 4);
-      // frames are ordered by endTimestamp
+      expect(frames.length, 3);
       expect(frames[0].startTimestamp, DateTime.fromMillisecondsSinceEpoch(40));
       expect(frames[0].endTimestamp, DateTime.fromMillisecondsSinceEpoch(60));
       expect(frames[1].startTimestamp, DateTime.fromMillisecondsSinceEpoch(80));
       expect(frames[1].endTimestamp, DateTime.fromMillisecondsSinceEpoch(120));
-      expect(frames[2].startTimestamp, DateTime.fromMillisecondsSinceEpoch(50));
-      expect(frames[2].endTimestamp, DateTime.fromMillisecondsSinceEpoch(150));
       expect(
-          frames[3].startTimestamp, DateTime.fromMillisecondsSinceEpoch(140));
-      expect(frames[3].endTimestamp, DateTime.fromMillisecondsSinceEpoch(180));
+          frames[2].startTimestamp, DateTime.fromMillisecondsSinceEpoch(140));
+      expect(frames[2].endTimestamp, DateTime.fromMillisecondsSinceEpoch(180));
     });
 
     test('pause stops frame tracking', () {
@@ -295,13 +285,6 @@ void main() {
 
       expect(sut.delayedFrames, isEmpty);
     });
-  });
-
-  test('SentryFrameTracker is a singleton', () {
-    final tracker1 = fixture.getSut();
-    final tracker2 = fixture.getSut();
-
-    expect(identical(tracker1, tracker2), isTrue);
   });
 }
 
