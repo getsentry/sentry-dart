@@ -5,6 +5,7 @@
 ### Enhancements
 
 - Remove `sentry` frames if SDK falls back to current stack trace ([#2351](https://github.com/getsentry/sentry-dart/pull/2351))
+- Cache parsed DSN ([#2365](https://github.com/getsentry/sentry-dart/pull/2365))
 
 ## 8.10.0-beta.2
 

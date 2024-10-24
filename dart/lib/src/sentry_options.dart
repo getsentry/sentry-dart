@@ -23,9 +23,34 @@ class SentryOptions {
   /// Default Log level if not specified Default is DEBUG
   static final SentryLevel _defaultDiagnosticLevel = SentryLevel.debug;
 
-  /// The DSN tells the SDK where to send the events to. If an empty string is
-  /// used, the SDK will not send any events.
-  String? dsn;
+  String? _dsn;
+  Dsn? _parsedDsn;
+
+  /// The DSN tells the SDK where to send the events to.
+  /// If an empty string is used, the SDK will not send any events.
+  String? get dsn => _dsn;
+
+  set dsn(String? value) {
+    if (_dsn != value) {
+      _dsn = value;
+      _parsedDsn = null; // Invalidate the cached parsed DSN
+    }
+  }
+
+  /// Evaluates and parses the DSN.
+  /// May throw an exception if the DSN is invalid.
+  @internal
+  Dsn get parsedDsn {
+    _parsedDsn ??= _parseDsn();
+    return _parsedDsn!;
+  }
+
+  Dsn _parseDsn() {
+    if (_dsn == null || _dsn!.isEmpty) {
+      throw StateError('DSN is null or empty');
+    }
+    return Dsn.parse(_dsn!);
+  }
 
   /// If [compressPayload] is `true` the outgoing HTTP payloads are compressed
   /// using gzip. Otherwise, the payloads are sent in plain UTF8-encoded JSON
@@ -525,7 +550,8 @@ class SentryOptions {
   /// iOS only supports http proxies, while macOS also supports socks.
   SentryProxy? proxy;
 
-  SentryOptions({this.dsn, PlatformChecker? checker}) {
+  SentryOptions({String? dsn, PlatformChecker? checker}) {
+    this.dsn = dsn;
     if (checker != null) {
       platformChecker = checker;
     }
