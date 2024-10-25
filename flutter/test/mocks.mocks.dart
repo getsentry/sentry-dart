@@ -14,6 +14,8 @@ import 'package:sentry/src/metrics/metrics_api.dart' as _i5;
 import 'package:sentry/src/profiling.dart' as _i9;
 import 'package:sentry/src/sentry_tracer.dart' as _i3;
 import 'package:sentry_flutter/sentry_flutter.dart' as _i2;
+import 'package:sentry_flutter/src/frames_tracking/sentry_delayed_frames_tracker.dart'
+    as _i14;
 import 'package:sentry_flutter/src/native/native_frames.dart' as _i13;
 import 'package:sentry_flutter/src/native/sentry_native_binding.dart' as _i11;
 
@@ -1488,6 +1490,104 @@ class MockSentryNativeBinding extends _i1.Mock
           ),
         )),
       ) as _i7.FutureOr<_i2.SentryId>);
+}
+
+/// A class which mocks [SentryDelayedFramesTracker].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockSentryDelayedFramesTracker extends _i1.Mock
+    implements _i14.SentryDelayedFramesTracker {
+  MockSentryDelayedFramesTracker() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  List<_i14.SentryFrameTiming> get delayedFrames => (super.noSuchMethod(
+        Invocation.getter(#delayedFrames),
+        returnValue: <_i14.SentryFrameTiming>[],
+      ) as List<_i14.SentryFrameTiming>);
+
+  @override
+  bool get isTrackingActive => (super.noSuchMethod(
+        Invocation.getter(#isTrackingActive),
+        returnValue: false,
+      ) as bool);
+
+  @override
+  void startFrame() => super.noSuchMethod(
+        Invocation.method(
+          #startFrame,
+          [],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void endFrame() => super.noSuchMethod(
+        Invocation.method(
+          #endFrame,
+          [],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void resume() => super.noSuchMethod(
+        Invocation.method(
+          #resume,
+          [],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void pause() => super.noSuchMethod(
+        Invocation.method(
+          #pause,
+          [],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  List<_i14.SentryFrameTiming> getFramesIntersecting({
+    required DateTime? startTimestamp,
+    required DateTime? endTimestamp,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #getFramesIntersecting,
+          [],
+          {
+            #startTimestamp: startTimestamp,
+            #endTimestamp: endTimestamp,
+          },
+        ),
+        returnValue: <_i14.SentryFrameTiming>[],
+      ) as List<_i14.SentryFrameTiming>);
+
+  @override
+  _i14.SpanFrameMetrics? getFrameMetrics({
+    required DateTime? spanStartTimestamp,
+    required DateTime? spanEndTimestamp,
+  }) =>
+      (super.noSuchMethod(Invocation.method(
+        #getFrameMetrics,
+        [],
+        {
+          #spanStartTimestamp: spanStartTimestamp,
+          #spanEndTimestamp: spanEndTimestamp,
+        },
+      )) as _i14.SpanFrameMetrics?);
+
+  @override
+  void clear() => super.noSuchMethod(
+        Invocation.method(
+          #clear,
+          [],
+        ),
+        returnValueForMissingStub: null,
+      );
 }
 
 /// A class which mocks [Hub].

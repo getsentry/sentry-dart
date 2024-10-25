@@ -50,6 +50,7 @@ ISentrySpan startTransactionShim(
   SentryClient,
   MethodChannel,
   SentryNativeBinding,
+  SentryDelayedFramesTracker,
 ], customMocks: [
   MockSpec<Hub>(fallbackGenerators: {#startTransaction: startTransactionShim})
 ])
