@@ -24,8 +24,7 @@ class ScreenshotRecorder {
   ScreenshotRecorder(this.config, this.options) {
     /// TODO: Rewrite when default redaction value are synced with SS & SR
     final SentryMaskingConfig maskingConfig =
-        (options.experimental.sentryRedactingOptions ??
-                SentryRedactingOptions())
+        (options.experimental.privacy ?? SentryPrivacyOptions())
             .buildMaskingConfig();
 
     if (maskingConfig.length > 0) {

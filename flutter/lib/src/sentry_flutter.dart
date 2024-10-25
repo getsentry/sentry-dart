@@ -246,15 +246,15 @@ mixin SentryFlutter {
   }
 
   static void _setRedactionOptions(SentryFlutterOptions options) {
-    if (options.experimental.sentryRedactingOptions != null) {
+    if (options.experimental.privacy != null) {
       return;
     } else if (options.screenshot.attachScreenshot == true &&
         !options.experimental.replay.isEnabled) {
-      options.experimental.sentryRedactingOptions = SentryRedactingOptions()
+      options.experimental.privacy = SentryPrivacyOptions()
         ..maskAllText = false
         ..maskAllImages = false;
     } else {
-      options.experimental.sentryRedactingOptions = SentryRedactingOptions();
+      options.experimental.privacy = SentryPrivacyOptions();
     }
   }
 

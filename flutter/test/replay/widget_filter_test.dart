@@ -16,7 +16,7 @@ void main() async {
   final otherBundle = TestAssetBundle();
 
   final createSut = ({bool redactImages = false, bool redactText = false}) {
-    final replayOptions = SentryRedactingOptions();
+    final replayOptions = SentryPrivacyOptions();
     replayOptions.maskAllImages = redactImages;
     replayOptions.maskAllText = redactText;
     return WidgetFilter(replayOptions.buildMaskingConfig(),

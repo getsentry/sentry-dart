@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:meta/meta.dart' as meta;
 import 'package:sentry/sentry.dart';
 import 'package:flutter/widgets.dart';
+import 'sentry_privacy_options.dart';
 
 import 'binding_wrapper.dart';
 import 'navigation/time_to_display_tracker.dart';
@@ -11,7 +12,6 @@ import 'renderer/renderer.dart';
 import 'screenshot/sentry_screenshot_quality.dart';
 import 'screenshot/sentry_screenshot_widget.dart';
 import 'sentry_flutter.dart';
-import 'sentry_redaction_options.dart';
 import 'sentry_replay_options.dart';
 import 'sentry_screenshot_options.dart';
 import 'user_interaction/sentry_user_interaction_widget.dart';
@@ -393,5 +393,7 @@ class SentryFlutterOptions extends SentryOptions {
 class _SentryFlutterExperimentalOptions {
   /// Replay recording configuration.
   final replay = SentryReplayOptions();
-  SentryRedactingOptions? sentryRedactingOptions;
+
+  /// Privacy configuration for masking sensitive data in the Screenshot and Session Replay.
+  SentryPrivacyOptions? privacy;
 }

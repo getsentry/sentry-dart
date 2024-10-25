@@ -114,7 +114,7 @@ void main() async {
   });
 
   group('$SentryReplayOptions.buildMaskingConfig()', () {
-    List<String> rulesAsStrings(SentryRedactingOptions options) {
+    List<String> rulesAsStrings(SentryPrivacyOptions options) {
       final config = options.buildMaskingConfig();
       return config.rules
           .map((rule) => rule.toString())
@@ -131,7 +131,7 @@ void main() async {
     }
 
     test('defaults', () {
-      final sut = SentryRedactingOptions();
+      final sut = SentryPrivacyOptions();
       expect(rulesAsStrings(sut), [
         ...alwaysEnabledRules,
         '$SentryMaskingCustomRule<$Image>(Closure: (Element, Widget) => SentryMaskingDecision)',
@@ -141,7 +141,7 @@ void main() async {
     });
 
     test('maskAllImages=true & maskAssetImages=true', () {
-      final sut = SentryRedactingOptions()
+      final sut = SentryPrivacyOptions()
         ..maskAllText = false
         ..maskAllImages = true
         ..maskAssetImages = true;
@@ -152,7 +152,7 @@ void main() async {
     });
 
     test('maskAllImages=true & maskAssetImages=false', () {
-      final sut = SentryRedactingOptions()
+      final sut = SentryPrivacyOptions()
         ..maskAllText = false
         ..maskAllImages = true
         ..maskAssetImages = false;
@@ -163,7 +163,7 @@ void main() async {
     });
 
     test('maskAllText=true', () {
-      final sut = SentryRedactingOptions()
+      final sut = SentryPrivacyOptions()
         ..maskAllText = true
         ..maskAllImages = false
         ..maskAssetImages = false;
@@ -175,7 +175,7 @@ void main() async {
     });
 
     test('maskAllText=false', () {
-      final sut = SentryRedactingOptions()
+      final sut = SentryPrivacyOptions()
         ..maskAllText = false
         ..maskAllImages = false
         ..maskAssetImages = false;
@@ -190,19 +190,19 @@ void main() async {
         '$SentryMaskingConstantRule<$EditableText>(mask)'
       ];
       test('mask() takes precedence', () {
-        final sut = SentryRedactingOptions();
+        final sut = SentryPrivacyOptions();
         sut.mask<Image>();
         expect(rulesAsStrings(sut),
             ['$SentryMaskingConstantRule<$Image>(mask)', ...defaultRules]);
       });
       test('unmask() takes precedence', () {
-        final sut = SentryRedactingOptions();
+        final sut = SentryPrivacyOptions();
         sut.unmask<Image>();
         expect(rulesAsStrings(sut),
             ['$SentryMaskingConstantRule<$Image>(unmask)', ...defaultRules]);
       });
       test('are ordered in the call order', () {
-        var sut = SentryRedactingOptions();
+        var sut = SentryPrivacyOptions();
         sut.mask<Image>();
         sut.unmask<Image>();
         expect(rulesAsStrings(sut), [
@@ -210,7 +210,7 @@ void main() async {
           '$SentryMaskingConstantRule<$Image>(unmask)',
           ...defaultRules
         ]);
-        sut = SentryRedactingOptions();
+        sut = SentryPrivacyOptions();
         sut.unmask<Image>();
         sut.mask<Image>();
         expect(rulesAsStrings(sut), [
@@ -218,7 +218,7 @@ void main() async {
           '$SentryMaskingConstantRule<$Image>(mask)',
           ...defaultRules
         ]);
-        sut = SentryRedactingOptions();
+        sut = SentryPrivacyOptions();
         sut.unmask<Image>();
         sut.maskCallback(
             (Element element, Image widget) => SentryMaskingDecision.mask);
@@ -231,7 +231,7 @@ void main() async {
         ]);
       });
       test('maskCallback() takes precedence', () {
-        final sut = SentryRedactingOptions();
+        final sut = SentryPrivacyOptions();
         sut.maskCallback(
             (Element element, Image widget) => SentryMaskingDecision.mask);
         expect(rulesAsStrings(sut), [
@@ -240,7 +240,7 @@ void main() async {
         ]);
       });
       test('User cannot add $SentryMask and $SentryUnmask rules', () {
-        final sut = SentryRedactingOptions();
+        final sut = SentryPrivacyOptions();
         expect(sut.mask<SentryMask>, throwsA(isA<AssertionError>()));
         expect(sut.mask<SentryUnmask>, throwsA(isA<AssertionError>()));
         expect(sut.unmask<SentryMask>, throwsA(isA<AssertionError>()));
