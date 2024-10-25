@@ -280,6 +280,9 @@ class SentryFlutterOptions extends SentryOptions {
   /// Read more about frames tracking here: https://develop.sentry.dev/sdk/performance/frames-delay/
   ///
   /// Defaults to `true`
+  ///
+  /// Note: If you call `WidgetsFlutterBinding.ensureInitialized()` before `SentryFlutter.init()`,
+  /// you must use `SentryWidgetsFlutterBinding.ensureInitialized()` instead.
   bool enableFramesTracking = true;
 
   /// By using this, you are disabling native [Breadcrumb] tracking and instead
