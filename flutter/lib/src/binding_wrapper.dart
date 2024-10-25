@@ -59,7 +59,11 @@ class SentryWidgetsFlutterBinding extends WidgetsFlutterBinding
       BindingBase.checkInstance(_instance);
   static SentryWidgetsFlutterBinding? _instance;
 
-  // ignore: prefer_constructors_over_static_methods
+  /// Returns an instance of [SentryWidgetsFlutterBinding].
+  /// If no binding has yet been initialized, creates and initializes one.
+  ///
+  /// If the binding was already initialized with a different implementation,
+  /// returns the existing [WidgetsBinding] instance instead.
   static WidgetsBinding ensureInitialized() {
     try {
       if (SentryWidgetsFlutterBinding._instance == null) {
@@ -85,8 +89,7 @@ mixin SentryWidgetsBindingMixin on WidgetsBinding {
     _frameTracker = null;
   }
 
-  static void initializesFramesTracker(
-      SentryDelayedFramesTracker frameTracker) {
+  static void initializeFramesTracker(SentryDelayedFramesTracker frameTracker) {
     _frameTracker ??= frameTracker;
   }
 

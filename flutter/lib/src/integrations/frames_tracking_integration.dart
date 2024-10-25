@@ -56,7 +56,7 @@ class FramesTrackingIntegration implements Integration<SentryFlutterOptions> {
       SentryFlutterOptions options, Duration expectedFrameDuration) {
     final framesTracker =
         SentryDelayedFramesTracker(options, expectedFrameDuration);
-    SentryWidgetsBindingMixin.initializesFramesTracker(framesTracker);
+    SentryWidgetsBindingMixin.initializeFramesTracker(framesTracker);
     final collector = SpanFrameMetricsCollector(
       options,
       framesTracker,
