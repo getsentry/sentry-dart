@@ -23,25 +23,32 @@ class FramesTrackingIntegration implements Integration<SentryFlutterOptions> {
   Future<void> call(Hub hub, SentryFlutterOptions options) async {
     _options = options;
 
+    void abortInitWith({required String reason}) {
+      options.logger(SentryLevel.debug, 'Frames tracking disabled: $reason.');
+    }
+
     if (!options.enableFramesTracking) {
-      return;
+      return abortInitWith(reason: 'option enablesFrameTracking is false');
     }
 
     if (options.tracesSampleRate == null && options.tracesSampler == null) {
-      return;
+      return abortInitWith(reason: 'tracing is disabled');
     }
 
     if (!_isCompatibleBinding(WidgetsBinding.instance)) {
-      return;
+      return abortInitWith(
+          reason: 'SentryFlutterWidgetsBinding has not been instantiated');
     }
 
     final expectedFrameDuration = await _initializeExpectedFrameDuration();
     if (expectedFrameDuration == null) {
-      return;
+      return abortInitWith(reason: 'could not fetch display refresh rate');
     }
 
     _initializeFrameTracking(options, expectedFrameDuration);
     options.sdk.addIntegration('framesTrackingIntegration');
+    options.logger(SentryLevel.debug,
+        'Frames tracking successfully initialized with an expected frame duration of ${expectedFrameDuration.inMilliseconds}ms');
   }
 
   void _initializeFrameTracking(

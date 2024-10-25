@@ -21,8 +21,6 @@ void main() {
   }
 
   group('when enableFramesTracking is true', () {
-    final expectedFrameDuration = Duration(milliseconds: 16);
-
     setUp(() {
       sut = fixture.getSut();
       sut.resume();
