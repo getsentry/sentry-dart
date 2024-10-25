@@ -120,10 +120,8 @@ void main() async {
           .map((rule) => rule.toString())
           // These normalize the string on VM & js & wasm:
           .map((str) => str.replaceAll(
-              RegExp(
-                  r"SentryMaskingDecision from:? [fF]unction '?_maskImagesExceptAssets[@(].*",
-                  dotAll: true),
-              'SentryMaskingDecision)'))
+              RegExp(r"=> SentryMaskingDecision from:? .*", dotAll: true),
+              '=> SentryMaskingDecision)'))
           .map((str) => str.replaceAll(
               ' from: (element, widget) => masking_config.SentryMaskingDecision.mask',
               ''))
