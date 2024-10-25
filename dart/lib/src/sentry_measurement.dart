@@ -7,22 +7,32 @@ class SentryMeasurement {
     this.unit,
   });
 
+  static const totalFramesName = 'frames_total';
+  static const slowFramesName = 'frames_slow';
+  static const frozenFramesName = 'frames_frozen';
+  static const framesDelayName = 'frames_delay';
+
   /// Amount of frames drawn during a transaction
   SentryMeasurement.totalFrames(this.value)
-      : name = 'frames_total',
+      : name = totalFramesName,
         unit = SentryMeasurementUnit.none;
 
   /// Amount of slow frames drawn during a transaction.
   /// A slow frame is any frame longer than 1s / refreshrate.
   /// So for example any frame slower than 16ms for a refresh rate of 60hz.
   SentryMeasurement.slowFrames(this.value)
-      : name = 'frames_slow',
+      : name = slowFramesName,
         unit = SentryMeasurementUnit.none;
 
   /// Amount of frozen frames drawn during a transaction.
   /// Typically defined as frames slower than 500ms.
   SentryMeasurement.frozenFrames(this.value)
-      : name = 'frames_frozen',
+      : name = frozenFramesName,
+        unit = SentryMeasurementUnit.none;
+
+  /// Total duration of frames delayed.
+  SentryMeasurement.framesDelay(this.value)
+      : name = framesDelayName,
         unit = SentryMeasurementUnit.none;
 
   /// Duration of the Cold App start in milliseconds

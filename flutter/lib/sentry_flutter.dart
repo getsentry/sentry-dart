@@ -18,7 +18,8 @@ export 'src/screenshot/sentry_unmask_widget.dart';
 export 'src/screenshot/sentry_screenshot_widget.dart';
 export 'src/screenshot/sentry_screenshot_quality.dart';
 export 'src/user_interaction/sentry_user_interaction_widget.dart';
-export 'src/binding_wrapper.dart';
+export 'src/binding_wrapper.dart'
+    show BindingWrapper, SentryWidgetsFlutterBinding;
 export 'src/sentry_widget.dart';
 export 'src/navigation/sentry_display_widget.dart';
 export 'src/feedback/sentry_feedback_widget.dart';
