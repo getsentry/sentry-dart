@@ -43,7 +43,8 @@ class FramesTrackingIntegration implements Integration<SentryFlutterOptions> {
 
     final expectedFrameDuration = await _initializeExpectedFrameDuration();
     if (expectedFrameDuration == null) {
-      return abortInitWith(reason: 'could not fetch display refresh rate');
+      return abortInitWith(
+          reason: 'could not fetch valid display refresh rate');
     }
 
     _initializeFrameTracking(options, expectedFrameDuration);
