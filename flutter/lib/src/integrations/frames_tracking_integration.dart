@@ -24,7 +24,8 @@ class FramesTrackingIntegration implements Integration<SentryFlutterOptions> {
     _options = options;
 
     void abortInitWith({required String reason}) {
-      options.logger(SentryLevel.debug, 'Frames tracking disabled: $reason.');
+      options.logger(SentryLevel.debug,
+          '$FramesTrackingIntegration is disabled: $reason.');
     }
 
     if (!options.enableFramesTracking) {
