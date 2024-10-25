@@ -1,5 +1,3 @@
-import 'package:flutter/cupertino.dart';
-
 import '../../sentry_flutter.dart';
 import '../binding_wrapper.dart';
 import '../frames_tracking/sentry_delayed_frames_tracker.dart';
@@ -7,17 +5,12 @@ import '../frames_tracking/span_frame_metrics_collector.dart';
 import '../native/sentry_native_binding.dart';
 
 class FramesTrackingIntegration implements Integration<SentryFlutterOptions> {
-  FramesTrackingIntegration(
-    this._native, {
-    bool Function(WidgetsBinding binding)? isCompatibleBinding,
-  }) : _isCompatibleBinding = isCompatibleBinding ??
-            ((binding) => binding is SentryWidgetsFlutterBinding);
+  FramesTrackingIntegration(this._native);
 
   final SentryNativeBinding _native;
-  final bool Function(WidgetsBinding binding) _isCompatibleBinding;
-
   SentryFlutterOptions? _options;
   PerformanceCollector? _collector;
+  SentryWidgetsBindingMixin? _widgetsBinding;
 
   @override
   Future<void> call(Hub hub, SentryFlutterOptions options) async {
@@ -36,10 +29,14 @@ class FramesTrackingIntegration implements Integration<SentryFlutterOptions> {
       return abortInitWith(reason: 'tracing is disabled');
     }
 
-    if (!_isCompatibleBinding(WidgetsBinding.instance)) {
+    final widgetsBinding = options.bindingUtils.instance;
+    if (widgetsBinding == null ||
+        widgetsBinding is! SentryWidgetsBindingMixin) {
       return abortInitWith(
-          reason: 'SentryFlutterWidgetsBinding has not been instantiated');
+          reason:
+              'incompatible binding, SentryFlutterWidgetsBinding has not been instantiated');
     }
+    _widgetsBinding = widgetsBinding;
 
     final expectedFrameDuration = await _initializeExpectedFrameDuration();
     if (expectedFrameDuration == null) {
@@ -47,23 +44,17 @@ class FramesTrackingIntegration implements Integration<SentryFlutterOptions> {
           reason: 'could not fetch valid display refresh rate');
     }
 
-    _initializeFrameTracking(options, expectedFrameDuration);
+    // Everything valid, we can initialize now
+    final framesTracker =
+        SentryDelayedFramesTracker(options, expectedFrameDuration);
+    final collector = SpanFrameMetricsCollector(options, framesTracker);
+    widgetsBinding.initializeFramesTracker(framesTracker);
+    options.addPerformanceCollector(collector);
+    _collector = collector;
+
     options.sdk.addIntegration('framesTrackingIntegration');
     options.logger(SentryLevel.debug,
         'Frames tracking successfully initialized with an expected frame duration of ${expectedFrameDuration.inMilliseconds}ms');
-  }
-
-  void _initializeFrameTracking(
-      SentryFlutterOptions options, Duration expectedFrameDuration) {
-    final framesTracker =
-        SentryDelayedFramesTracker(options, expectedFrameDuration);
-    SentryWidgetsBindingMixin.initializeFramesTracker(framesTracker);
-    final collector = SpanFrameMetricsCollector(
-      options,
-      framesTracker,
-    );
-    _collector = collector;
-    options.addPerformanceCollector(collector);
   }
 
   Future<Duration?> _initializeExpectedFrameDuration() async {
@@ -77,6 +68,6 @@ class FramesTrackingIntegration implements Integration<SentryFlutterOptions> {
   @override
   void close() {
     _options?.performanceCollectors.remove(_collector);
-    SentryWidgetsBindingMixin.clearFramesTracker();
+    _widgetsBinding?.removeFramesTracker();
   }
 }

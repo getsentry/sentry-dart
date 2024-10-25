@@ -51,6 +51,8 @@ ISentrySpan startTransactionShim(
   MethodChannel,
   SentryNativeBinding,
   SentryDelayedFramesTracker,
+  BindingWrapper,
+  WidgetsFlutterBinding,
 ], customMocks: [
   MockSpec<Hub>(fallbackGenerators: {#startTransaction: startTransactionShim})
 ])

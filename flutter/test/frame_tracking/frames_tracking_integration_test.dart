@@ -18,7 +18,8 @@ void main() {
   SentryAutomatedTestWidgetsFlutterBinding.ensureInitialized();
 
   late SentryFlutterOptions options;
-  late Integration<SentryFlutterOptions> integration;
+  late FramesTrackingIntegration integration;
+  late SentryWidgetsBindingMixin? widgetsBinding;
 
   Future<void> fromWorkingState(
     SentryFlutterOptions options, {
@@ -31,6 +32,7 @@ void main() {
     if (disableTracing == true) {
       options.tracesSampleRate = null;
     }
+
     if (disableFramesTracking == true) {
       options.enableFramesTracking = false;
     }
@@ -39,28 +41,30 @@ void main() {
     when(mockNativeBinding.displayRefreshRate())
         .thenAnswer((_) async => setInvalidRefreshRate == true ? 0 : 60);
 
-    bool Function(WidgetsBinding binding)? isCompatibleBinding =
-        (binding) => binding is SentryAutomatedTestWidgetsFlutterBinding;
     if (setIncompatibleBinding == true) {
-      isCompatibleBinding = (binding) => binding is bool;
+      final mockBindingWrapper = MockBindingWrapper();
+      when(mockBindingWrapper.instance).thenReturn(MockWidgetsFlutterBinding());
+      options.bindingUtils = mockBindingWrapper;
     }
 
-    integration = FramesTrackingIntegration(
-      mockNativeBinding,
-      isCompatibleBinding: isCompatibleBinding,
-    );
+    integration = FramesTrackingIntegration(mockNativeBinding);
 
     // hub is not used in the integration so it doesnt matter what we pass here
     await integration.call(Hub(options), options);
   }
 
   void assertInitFailure() {
-    expect(SentryWidgetsBindingMixin.frameTracker, isNull);
+    if (widgetsBinding != null) {
+      expect(widgetsBinding!.isFramesTrackerInitialized(), isFalse);
+    }
     expect(options.performanceCollectors, isEmpty);
   }
 
   setUp(() {
     options = defaultTestOptions();
+    widgetsBinding = options.bindingUtils.instance is SentryWidgetsBindingMixin
+        ? options.bindingUtils.instance as SentryWidgetsBindingMixin
+        : null;
   });
 
   tearDown(() {
@@ -76,12 +80,12 @@ void main() {
   test('properly cleans up resources on close', () async {
     await fromWorkingState(options);
 
-    expect(SentryWidgetsBindingMixin.frameTracker, isNotNull);
+    expect(widgetsBinding!.isFramesTrackerInitialized(), isTrue);
     expect(options.performanceCollectors, isNotEmpty);
 
-    await integration.close();
+    integration.close();
 
-    expect(SentryWidgetsBindingMixin.frameTracker, isNull);
+    expect(widgetsBinding!.isFramesTrackerInitialized(), isFalse);
     expect(options.performanceCollectors, isEmpty);
   });
 

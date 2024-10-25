@@ -81,21 +81,23 @@ class SentryWidgetsFlutterBinding extends WidgetsFlutterBinding
 }
 
 mixin SentryWidgetsBindingMixin on WidgetsBinding {
-  @visibleForTesting
-  static SentryDelayedFramesTracker? get frameTracker => _frameTracker;
-  static SentryDelayedFramesTracker? _frameTracker;
+  SentryDelayedFramesTracker? _framesTracker;
 
-  static void clearFramesTracker() {
-    _frameTracker = null;
+  void initializeFramesTracker(SentryDelayedFramesTracker tracker) {
+    _framesTracker ??= tracker;
   }
 
-  static void initializeFramesTracker(SentryDelayedFramesTracker frameTracker) {
-    _frameTracker ??= frameTracker;
+  void removeFramesTracker() {
+    _framesTracker = null;
+  }
+
+  bool isFramesTrackerInitialized() {
+    return _framesTracker != null;
   }
 
   @override
   void handleBeginFrame(Duration? rawTimeStamp) {
-    _frameTracker?.startFrame();
+    _framesTracker?.startFrame();
 
     super.handleBeginFrame(rawTimeStamp);
   }
@@ -104,6 +106,6 @@ mixin SentryWidgetsBindingMixin on WidgetsBinding {
   void handleDrawFrame() {
     super.handleDrawFrame();
 
-    _frameTracker?.endFrame();
+    _framesTracker?.endFrame();
   }
 }
