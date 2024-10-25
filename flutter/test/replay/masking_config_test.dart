@@ -2,7 +2,6 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/screenshot/masking_config.dart';
-import 'package:sentry_flutter/src/sentry_redaction_options.dart';
 
 import 'test_widget.dart';
 

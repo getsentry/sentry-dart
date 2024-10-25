@@ -25,7 +25,6 @@ class SentryReplayOptions {
     _onErrorSampleRate = value;
   }
 
-
   @internal
   bool get isEnabled =>
       ((sessionSampleRate ?? 0) > 0) || ((onErrorSampleRate ?? 0) > 0);

@@ -3,7 +3,6 @@ import 'dart:ui';
 
 import 'package:flutter/rendering.dart';
 import 'package:meta/meta.dart';
-import '../sentry_redaction_options.dart';
 
 import '../../sentry_flutter.dart';
 import 'masking_config.dart';

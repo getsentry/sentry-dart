@@ -23,7 +23,6 @@ import 'native/native_scope_observer.dart';
 import 'native/sentry_native_binding.dart';
 import 'profiling.dart';
 import 'renderer/renderer.dart';
-import 'sentry_redaction_options.dart';
 import 'span_frame_metrics_collector.dart';
 import 'version.dart';
 import 'view_hierarchy/view_hierarchy_integration.dart';
@@ -100,6 +99,8 @@ mixin SentryFlutter {
       // ignore: invalid_use_of_internal_member
       runZonedGuardedOnError: runZonedGuardedOnError,
     );
+    // TODO: Remove when we synced SS and SR configurations and have a single default configuration
+    _setRedactionOptions(options);
 
     if (_native != null) {
       // ignore: invalid_use_of_internal_member
@@ -150,8 +151,6 @@ mixin SentryFlutter {
     SentryFlutterOptions options,
     bool isOnErrorSupported,
   ) {
-    _setRedactionOptions(options);
-
     final integrations = <Integration>[];
     final platformChecker = options.platformChecker;
 
