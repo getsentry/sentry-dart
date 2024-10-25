@@ -17,7 +17,7 @@ import '../mocks.mocks.dart';
 void main() {
   SentryAutomatedTestWidgetsFlutterBinding.ensureInitialized();
 
-  final options = defaultTestOptions();
+  late SentryFlutterOptions options;
   late Integration<SentryFlutterOptions> integration;
 
   Future<void> fromWorkingState(
@@ -58,6 +58,10 @@ void main() {
     expect(SentryWidgetsBindingMixin.frameTracker, isNull);
     expect(options.performanceCollectors, isEmpty);
   }
+
+  setUp(() {
+    options = defaultTestOptions();
+  });
 
   tearDown(() {
     integration.close();
