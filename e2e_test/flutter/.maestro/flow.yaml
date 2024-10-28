@@ -6,5 +6,6 @@ appId: io.sentry.samples.flutterE2e
 - assertVisible: 'Capture exception'
 - tapOn: "Capture exception"
 - assertVisible: "Sending exception to Sentry..."
-- waitForAnimationToEnd
-- assertVisible: "Event successfully received"
+- extendedWaitUntil:
+    visible : "Event successfully received"
+    timeout: 20000
