@@ -77,7 +77,7 @@ class ScreenshotEventProcessor implements EventProcessor {
       return event;
     }
 
-    final bytes = await captureScreenshot();
+    final bytes = await createScreenshot();
     if (bytes != null) {
       hint.screenshot = SentryAttachment.fromScreenshotData(bytes);
     }
@@ -85,7 +85,7 @@ class ScreenshotEventProcessor implements EventProcessor {
   }
 
   @internal
-  Future<Uint8List?> captureScreenshot() async {
+  Future<Uint8List?> createScreenshot() async {
     try {
       final renderObject =
           sentryScreenshotWidgetGlobalKey.currentContext?.findRenderObject();
@@ -147,7 +147,7 @@ class ScreenshotEventProcessor implements EventProcessor {
     return null;
   }
 
-  static FutureOr<Image> _getImage(
+  FutureOr<Image> _getImage(
       RenderRepaintBoundary repaintBoundary, double pixelRatio) {
     // This one is a hack to use https://api.flutter.dev/flutter/rendering/RenderRepaintBoundary/toImage.html on versions older than 3.7 and https://api.flutter.dev/flutter/rendering/RenderRepaintBoundary/toImageSync.html on versions equal or newer than 3.7
     try {

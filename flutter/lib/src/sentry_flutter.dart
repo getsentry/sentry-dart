@@ -307,7 +307,7 @@ mixin SentryFlutter {
       return null;
     }
     final processor = processors.first;
-    final bytes = await processor.captureScreenshot();
+    final bytes = await processor.createScreenshot();
     if (bytes != null) {
       return SentryAttachment.fromScreenshotData(bytes);
     } else {
