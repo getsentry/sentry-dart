@@ -53,6 +53,7 @@ class SentrySpanContext {
   SentryTraceContext toTraceContext({
     bool? sampled,
     SpanStatus? status,
+    Map<String, dynamic>? data,
   }) {
     return SentryTraceContext(
       operation: operation,
@@ -63,6 +64,7 @@ class SentrySpanContext {
       sampled: sampled,
       status: status,
       origin: origin,
+      data: data,
     );
   }
 }

@@ -9,6 +9,7 @@ import 'package:test/scaffolding.dart';
 
 import '../mocks.dart';
 import '../mocks/mock_client_report_recorder.dart';
+import '../test_utils.dart';
 
 void main() {
   group('send to Sentry', () {
@@ -52,9 +53,7 @@ void main() {
 }
 
 class Fixture {
-  final options = SentryOptions(
-    dsn: 'https://public:secret@sentry.example.com/1',
-  );
+  final options = defaultTestOptions();
 
   late var clientReportRecorder = MockClientReportRecorder();
 

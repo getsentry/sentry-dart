@@ -109,13 +109,24 @@ void main() {
 
         await tapMe(tester, sut, 'btn_1');
 
-        Breadcrumb? crumb;
-        fixture.hub.configureScope((scope) {
-          crumb = scope.breadcrumbs.last;
-        });
-        expect(crumb?.category, 'ui.click');
-        expect(crumb?.data?['view.id'], 'btn_1');
-        expect(crumb?.data?['view.class'], 'MaterialButton');
+        expect(
+            fixture.getBreadcrumb().data?.replaceHashCodes(),
+            equals({
+              'path': [
+                {'name': 'btn_1', 'element': 'MaterialButton'},
+                {'element': 'Column'},
+                {'element': 'Center'},
+                {'name': '[GlobalKey#00000]', 'element': 'KeyedSubtree'},
+                {'element': 'MediaQuery'},
+                {'name': '_ScaffoldSlot.body', 'element': 'LayoutId'},
+                {'element': 'CustomMultiChildLayout'},
+                {'element': 'Actions'},
+                {'element': 'AnimatedBuilder'},
+                {'element': 'DefaultTextStyle'}
+              ],
+              'view.id': 'btn_1',
+              'view.class': 'MaterialButton',
+            }));
       });
     });
 
@@ -125,11 +136,25 @@ void main() {
 
         await tapMe(tester, sut, 'btn_1');
 
-        Breadcrumb? crumb;
-        fixture.hub.configureScope((scope) {
-          crumb = scope.breadcrumbs.last;
-        });
-        expect(crumb?.data?['label'], 'Button 1');
+        expect(
+            fixture.getBreadcrumb().data?.replaceHashCodes(),
+            equals({
+              'path': [
+                {'name': 'btn_1', 'element': 'MaterialButton'},
+                {'element': 'Column'},
+                {'element': 'Center'},
+                {'name': '[GlobalKey#00000]', 'element': 'KeyedSubtree'},
+                {'element': 'MediaQuery'},
+                {'name': '_ScaffoldSlot.body', 'element': 'LayoutId'},
+                {'element': 'CustomMultiChildLayout'},
+                {'element': 'Actions'},
+                {'element': 'AnimatedBuilder'},
+                {'element': 'DefaultTextStyle'}
+              ],
+              'label': 'Button 1',
+              'view.id': 'btn_1',
+              'view.class': 'MaterialButton'
+            }));
       });
     });
 
@@ -139,11 +164,25 @@ void main() {
 
         await tapMe(tester, sut, 'btn_3');
 
-        Breadcrumb? crumb;
-        fixture.hub.configureScope((scope) {
-          crumb = scope.breadcrumbs.last;
-        });
-        expect(crumb?.data?['label'], 'My Icon');
+        expect(
+            fixture.getBreadcrumb().data?.replaceHashCodes(),
+            equals({
+              'path': [
+                {'name': 'btn_3', 'element': 'IconButton'},
+                {'element': 'Column'},
+                {'element': 'Center'},
+                {'name': '[GlobalKey#00000]', 'element': 'KeyedSubtree'},
+                {'element': 'MediaQuery'},
+                {'name': '_ScaffoldSlot.body', 'element': 'LayoutId'},
+                {'element': 'CustomMultiChildLayout'},
+                {'element': 'Actions'},
+                {'element': 'AnimatedBuilder'},
+                {'element': 'DefaultTextStyle'}
+              ],
+              'label': 'My Icon',
+              'view.id': 'btn_3',
+              'view.class': 'IconButton'
+            }));
       });
     });
 
@@ -153,11 +192,25 @@ void main() {
 
         await tapMe(tester, sut, 'btn_2');
 
-        Breadcrumb? crumb;
-        fixture.hub.configureScope((scope) {
-          crumb = scope.breadcrumbs.last;
-        });
-        expect(crumb?.data?['label'], 'Button 2');
+        expect(
+            fixture.getBreadcrumb().data?.replaceHashCodes(),
+            equals({
+              'path': [
+                {'name': 'btn_2', 'element': 'CupertinoButton'},
+                {'element': 'Column'},
+                {'element': 'Center'},
+                {'name': '[GlobalKey#00000]', 'element': 'KeyedSubtree'},
+                {'element': 'MediaQuery'},
+                {'name': '_ScaffoldSlot.body', 'element': 'LayoutId'},
+                {'element': 'CustomMultiChildLayout'},
+                {'element': 'Actions'},
+                {'element': 'AnimatedBuilder'},
+                {'element': 'DefaultTextStyle'}
+              ],
+              'label': 'Button 2',
+              'view.id': 'btn_2',
+              'view.class': 'CupertinoButton'
+            }));
       });
     });
 
@@ -183,11 +236,25 @@ void main() {
 
         await tapMe(tester, sut, 'btn_5');
 
-        Breadcrumb? crumb;
-        fixture.hub.configureScope((scope) {
-          crumb = scope.breadcrumbs.last;
-        });
-        expect(crumb?.data?['label'], 'Button 5');
+        expect(
+            fixture.getBreadcrumb().data?.replaceHashCodes(),
+            equals({
+              'path': [
+                {'name': 'btn_5', 'element': 'ButtonStyleButton'},
+                {'element': 'Stack'},
+                {'element': 'Listener'},
+                {'element': 'RawGestureDetector'},
+                {'name': 'btn_4', 'element': 'GestureDetector'},
+                {'element': 'Semantics'},
+                {'element': 'DefaultTextStyle'},
+                {'element': 'AnimatedDefaultTextStyle'},
+                {'element': 'NotificationListener<LayoutChangedNotification>'},
+                {'element': 'CustomPaint'}
+              ],
+              'label': 'Button 5',
+              'view.id': 'btn_5',
+              'view.class': 'ButtonStyleButton'
+            }));
       });
     });
 
@@ -197,13 +264,24 @@ void main() {
 
         await tapMe(tester, sut, 'popup_menu_button');
 
-        Breadcrumb? crumb;
-        fixture.hub.configureScope((scope) {
-          crumb = scope.breadcrumbs.last;
-        });
-        expect(crumb?.category, 'ui.click');
-        expect(crumb?.data?['view.id'], 'popup_menu_button');
-        expect(crumb?.data?['view.class'], 'PopupMenuButton');
+        expect(
+            fixture.getBreadcrumb().data?.replaceHashCodes(),
+            equals({
+              'path': [
+                {'name': 'popup_menu_button', 'element': 'PopupMenuButton'},
+                {'element': 'Column'},
+                {'element': 'Center'},
+                {'name': '[GlobalKey#00000]', 'element': 'KeyedSubtree'},
+                {'element': 'MediaQuery'},
+                {'name': '_ScaffoldSlot.body', 'element': 'LayoutId'},
+                {'element': 'CustomMultiChildLayout'},
+                {'element': 'Actions'},
+                {'element': 'AnimatedBuilder'},
+                {'element': 'DefaultTextStyle'}
+              ],
+              'view.id': 'popup_menu_button',
+              'view.class': 'PopupMenuButton'
+            }));
       });
     });
 
@@ -217,13 +295,90 @@ void main() {
 
         await tapMe(tester, sut, 'popup_menu_item_1');
 
-        Breadcrumb? crumb;
-        fixture.hub.configureScope((scope) {
-          crumb = scope.breadcrumbs.last;
-        });
-        expect(crumb?.category, 'ui.click');
-        expect(crumb?.data?['view.id'], 'popup_menu_item_1');
-        expect(crumb?.data?['view.class'], 'PopupMenuItem');
+        expect(
+            fixture.getBreadcrumb().data?.replaceHashCodes(),
+            equals({
+              'path': [
+                {'name': 'popup_menu_item_1', 'element': 'PopupMenuItem'},
+                {'name': '[GlobalKey#00000]', 'element': 'FadeTransition'},
+                {'element': 'ListBody'},
+                {'element': 'Padding'},
+                {'name': '[GlobalKey#00000]', 'element': 'IgnorePointer'},
+                {'element': 'Semantics'},
+                {'element': 'Listener'},
+                {
+                  'name': '[LabeledGlobalKey<RawGestureDetectorState>#00000]',
+                  'element': 'RawGestureDetector'
+                },
+                {'element': 'Listener'},
+                {'element': 'NotificationListener<ScrollMetricsNotification>'}
+              ],
+              'view.id': 'popup_menu_item_1',
+              'view.class': 'PopupMenuItem'
+            }));
+      });
+    });
+
+    testWidgets('Add crumb for button with tooltip', (tester) async {
+      await tester.runAsync(() async {
+        final sut = fixture.getSut(sendDefaultPii: true);
+
+        // open the popup menu and wait for the animation to complete
+        await tapMe(tester, sut, 'tooltip_button');
+
+        expect(
+            fixture.getBreadcrumb().data?.replaceHashCodes(),
+            equals({
+              'path': [
+                {'name': 'tooltip_button', 'element': 'ButtonStyleButton'},
+                {'element': 'Semantics'},
+                {'element': 'Listener'},
+                {'element': 'OverlayPortal'},
+                {'element': 'Tooltip', 'label': 'Tooltip message.'},
+                {'element': 'Column'},
+                {'element': 'Center'},
+                {'name': '[GlobalKey#00000]', 'element': 'KeyedSubtree'},
+                {'element': 'MediaQuery'},
+                {'name': '_ScaffoldSlot.body', 'element': 'LayoutId'}
+              ],
+              'label': 'Button text',
+              'view.id': 'tooltip_button',
+              'view.class': 'ButtonStyleButton'
+            }));
+      });
+    });
+
+    testWidgets('Add crumb for button without key', (tester) async {
+      await tester.runAsync(() async {
+        final sut = fixture.getSut(sendDefaultPii: true);
+
+        await tester.pumpWidget(sut);
+        await tester.tap(find.byElementPredicate((element) {
+          final widget = element.widget;
+          if (widget is MaterialButton) {
+            return (widget.child as Text).data == 'Button 5';
+          }
+          return false;
+        }));
+
+        expect(
+            fixture.getBreadcrumb().data?.replaceHashCodes(),
+            equals({
+              'path': [
+                {'element': 'MaterialButton'},
+                {'element': 'Column'},
+                {'element': 'Center'},
+                {'name': '[GlobalKey#00000]', 'element': 'KeyedSubtree'},
+                {'element': 'MediaQuery'},
+                {'name': '_ScaffoldSlot.body', 'element': 'LayoutId'},
+                {'element': 'CustomMultiChildLayout'},
+                {'element': 'Actions'},
+                {'element': 'AnimatedBuilder'},
+                {'element': 'DefaultTextStyle'}
+              ],
+              'label': 'Button 5',
+              'view.class': 'MaterialButton'
+            }));
       });
     });
   });
@@ -365,12 +520,11 @@ Future<void> tapMe(
   if (pumpWidget) {
     await tester.pumpWidget(widget);
   }
-
   await tester.tap(find.byKey(Key(key)));
 }
 
 class Fixture {
-  final _options = SentryFlutterOptions(dsn: fakeDsn);
+  final _options = defaultTestOptions();
   final _transport = MockTransport();
   late Hub hub;
 
@@ -393,6 +547,14 @@ class Fixture {
       hub: hub,
       child: MyApp(),
     );
+  }
+
+  Breadcrumb getBreadcrumb() {
+    late final Breadcrumb crumb;
+    hub.configureScope((scope) {
+      crumb = scope.breadcrumbs.last;
+    });
+    return crumb;
   }
 }
 
@@ -420,23 +582,17 @@ class Page1 extends StatelessWidget {
           children: [
             MaterialButton(
               key: Key('btn_1'),
-              onPressed: () {
-                // print('button pressed');
-              },
+              onPressed: () {},
               child: const Text('Button 1'),
             ),
             CupertinoButton(
               key: Key('btn_2'),
-              onPressed: () {
-                // print('button pressed 2');
-              },
+              onPressed: () {},
               child: const Text('Button 2'),
             ),
             IconButton(
               key: Key('btn_3'),
-              onPressed: () {
-                // print('button pressed 3');
-              },
+              onPressed: () {},
               icon: Icon(
                 Icons.dark_mode,
                 semanticLabel: 'My Icon',
@@ -445,17 +601,13 @@ class Page1 extends StatelessWidget {
             Card(
               child: GestureDetector(
                 key: Key('btn_4'),
-                onTap: () => {
-                  // print('button pressed 4'),
-                },
+                onTap: () => {},
                 child: Stack(
                   children: [
                     //fancy card layout
                     ElevatedButton(
                       key: Key('btn_5'),
-                      onPressed: () => {
-                        // print('button pressed 5'),
-                      },
+                      onPressed: () => {},
                       child: const Text('Button 5'),
                     ),
                   ],
@@ -478,6 +630,18 @@ class Page1 extends StatelessWidget {
                 ),
               ],
             ),
+            Tooltip(
+              message: 'Tooltip message.',
+              child: ElevatedButton(
+                key: ValueKey('tooltip_button'),
+                onPressed: () {},
+                child: Text('Button text'),
+              ),
+            ),
+            MaterialButton(
+              onPressed: () {},
+              child: const Text('Button 5'),
+            ),
           ],
         ),
       ),
@@ -496,9 +660,7 @@ class Page2 extends StatelessWidget {
           children: [
             MaterialButton(
               key: Key('btn_page_2'),
-              onPressed: () {
-                // print('button page 2 pressed');
-              },
+              onPressed: () {},
               child: const Text('Button Page 2'),
             ),
           ],
@@ -506,4 +668,35 @@ class Page2 extends StatelessWidget {
       ),
     );
   }
+}
+
+extension on String {
+  String replaceHashCodes() => replaceAll(RegExp(r'#[\da-fA-F]{5}'), '#00000');
+}
+
+extension on Map<dynamic, dynamic> {
+  Map<dynamic, dynamic> replaceHashCodes() => map((key, value) {
+        if (value is String) {
+          value = value.replaceHashCodes();
+        } else if (value is Map) {
+          value = value.replaceHashCodes();
+        } else if (value is List) {
+          value = value.replaceHashCodes();
+        }
+        return MapEntry(key, value);
+      });
+}
+
+extension on List<dynamic> {
+  Iterable<dynamic> replaceHashCodes() => map((value) {
+        if (value is String) {
+          return value.replaceHashCodes();
+        } else if (value is Map) {
+          return value.replaceHashCodes();
+        } else if (value is List) {
+          return value.replaceHashCodes();
+        } else {
+          return value;
+        }
+      });
 }

@@ -1,16 +1,21 @@
 import 'dart:async';
 
+import 'package:file/file.dart';
+import 'package:file/local.dart';
+import 'package:flutter/services.dart';
 import 'package:meta/meta.dart' as meta;
 import 'package:sentry/sentry.dart';
 import 'package:flutter/widgets.dart';
 import 'sentry_replay_options.dart';
 
 import 'binding_wrapper.dart';
+import 'navigation/time_to_display_tracker.dart';
 import 'renderer/renderer.dart';
 import 'screenshot/sentry_screenshot_quality.dart';
 import 'event_processor/screenshot_event_processor.dart';
 import 'screenshot/sentry_screenshot_widget.dart';
 import 'sentry_flutter.dart';
+import 'sentry_replay_options.dart';
 import 'user_interaction/sentry_user_interaction_widget.dart';
 
 /// This class adds options which are only available in a Flutter environment.
@@ -144,6 +149,21 @@ class SentryFlutterOptions extends SentryOptions {
   /// See https://api.flutter.dev/flutter/foundation/FlutterErrorDetails/silent.html
   bool reportSilentFlutterErrors = false;
 
+  /// (Web only) Events only occurring on these Urls will be handled and sent to sentry.
+  /// If an empty list is used, the SDK will send all errors.
+  /// `allowUrls` uses regex for the matching.
+  ///
+  /// If used on a platform other than Web, this setting will be ignored.
+  List<String> allowUrls = [];
+
+  /// (Web only) Events occurring on these Urls will be ignored and are not sent to sentry.
+  /// If an empty list is used, the SDK will send all errors.
+  /// `denyUrls` uses regex for the matching.
+  /// In combination with `allowUrls` you can block subdomains of the domains listed in `allowUrls`.
+  ///
+  /// If used on a platform other than Web, this setting will be ignored.
+  List<String> denyUrls = [];
+
   /// Enables Out of Memory Tracking for iOS and macCatalyst.
   /// See the following link for more information and possible restrictions:
   /// https://docs.sentry.io/platforms/apple/guides/ios/configuration/out-of-memory/
@@ -185,14 +205,14 @@ class SentryFlutterOptions extends SentryOptions {
   ///
   /// Requires adding the [SentryUserInteractionWidget] to the widget tree.
   /// Example:
-  /// runApp(SentryUserInteractionWidget(child: App()));
+  /// runApp(SentryWidget(child: App()));
   bool enableUserInteractionBreadcrumbs = true;
 
   /// Enables the Auto instrumentation for user interaction tracing.
   ///
   /// Requires adding the [SentryUserInteractionWidget] to the widget tree.
   /// Example:
-  /// runApp(SentryUserInteractionWidget(child: App()));
+  /// runApp(SentryWidget(child: App()));
   bool enableUserInteractionTracing = true;
 
   /// Enable or disable the tracing of time to full display (TTFD).
@@ -201,11 +221,19 @@ class SentryFlutterOptions extends SentryOptions {
   /// This feature requires using the [Routing Instrumentation](https://docs.sentry.io/platforms/flutter/integrations/routing-instrumentation/).
   bool enableTimeToFullDisplayTracing = false;
 
+  @meta.internal
+  late TimeToDisplayTracker timeToDisplayTracker = TimeToDisplayTracker(
+    options: this,
+  );
+
   /// Sets the Proguard uuid for Android platform.
   String? proguardUuid;
 
   @meta.internal
   late RendererWrapper rendererWrapper = RendererWrapper();
+
+  @meta.internal
+  late MethodChannel methodChannel = const MethodChannel('sentry_flutter');
 
   /// Enables the View Hierarchy feature.
   ///
@@ -328,6 +356,20 @@ class SentryFlutterOptions extends SentryOptions {
 
   /// The [navigatorKey] is used to add information of the currently used locale to the contexts.
   GlobalKey<NavigatorState>? navigatorKey;
+
+  // Override so we don't have to add `ignore` on each use.
+  @meta.internal
+  @override
+  // ignore: invalid_use_of_internal_member
+  bool get automatedTestMode => super.automatedTestMode;
+
+  @meta.internal
+  @override
+  // ignore: invalid_use_of_internal_member
+  set automatedTestMode(bool value) => super.automatedTestMode = value;
+
+  @meta.internal
+  FileSystem fileSystem = LocalFileSystem();
 
   /// Configuration of experimental features that may change or be removed
   /// without prior notice. Additionally, these features may not be ready for

@@ -91,6 +91,7 @@ class SentryStackFrame {
   /// The "package" the frame was contained in.
   final String? package;
 
+  // TODO what is this? doesn't seem to be part of the spec https://develop.sentry.dev/sdk/event-payloads/stacktrace/
   final bool? native;
 
   /// This can override the platform for a single frame. Otherwise, the platform of the event is assumed. This can be used for multi-platform stack traces

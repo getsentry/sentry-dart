@@ -121,7 +121,7 @@ void main() {
 
 class Fixture {
   final hub = MockHub();
-  final options = SentryOptions(dsn: fakeDsn)..tracesSampleRate = 1.0;
+  final options = defaultTestOptions()..tracesSampleRate = 1.0;
   final _context = SentryTransactionContext('name', 'operation');
   late final tracer = SentryTracer(_context, hub);
   late final scope = Scope(options);

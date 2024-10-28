@@ -1,10 +1,9 @@
 import 'dart:async';
 
-import 'package:sentry/sentry.dart';
 import 'package:sentry/src/transport/task_queue.dart';
 import 'package:test/test.dart';
 
-import '../mocks.dart';
+import '../test_utils.dart';
 
 void main() {
   group("called sync", () {
@@ -110,7 +109,7 @@ void main() {
 }
 
 class Fixture {
-  final options = SentryOptions(dsn: fakeDsn);
+  final options = defaultTestOptions();
 
   TaskQueue<int> getSut({required int maxQueueSize}) {
     return TaskQueue(maxQueueSize, options.logger);

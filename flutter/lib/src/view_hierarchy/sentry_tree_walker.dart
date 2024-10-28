@@ -255,7 +255,7 @@ class _TreeWalker {
     double? alpha;
 
     final renderObject = element.renderObject;
-    if (renderObject is RenderBox) {
+    if (renderObject is RenderBox && renderObject.hasSize) {
       final offset = renderObject.localToGlobal(Offset.zero);
       if (offset.dx > 0) {
         x = offset.dx;

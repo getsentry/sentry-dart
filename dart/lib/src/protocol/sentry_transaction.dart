@@ -57,9 +57,11 @@ class SentryTransaction extends SentryEvent {
     this.metricSummaries =
         metricSummaries ?? tracer.localMetricsAggregator?.getSummaries();
 
+    final data = extra ?? tracer.data;
     contexts.trace = spanContext.toTraceContext(
       sampled: tracer.samplingDecision?.sampled,
       status: tracer.status,
+      data: data.isEmpty ? null : data,
     );
 
     this.transactionInfo = transactionInfo ??

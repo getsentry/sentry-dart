@@ -1,4 +1,5 @@
 import 'package:meta/meta.dart';
+import 'package:collection/collection.dart';
 
 import '../../sentry.dart';
 import '../protocol.dart';
@@ -419,4 +420,10 @@ class SentryEvent
   Future<dynamic> getPayload() {
     return Future.value(toJson());
   }
+
+  // Returns first non-null stack trace of this event
+  @internal
+  SentryStackTrace? get stacktrace =>
+      exceptions?.firstWhereOrNull((e) => e.stackTrace != null)?.stackTrace ??
+      threads?.firstWhereOrNull((t) => t.stacktrace != null)?.stacktrace;
 }

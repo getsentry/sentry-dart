@@ -10,6 +10,7 @@ import 'hint.dart';
 import 'metrics/metric.dart';
 import 'metrics/metrics_aggregator.dart';
 import 'protocol.dart';
+import 'protocol/sentry_feedback.dart';
 import 'scope.dart';
 import 'sentry_attachment/sentry_attachment.dart';
 import 'sentry_baggage.dart';
@@ -26,6 +27,7 @@ import 'transport/rate_limiter.dart';
 import 'transport/spotlight_http_transport.dart';
 import 'transport/task_queue.dart';
 import 'utils/isolate_utils.dart';
+import 'utils/regex_utils.dart';
 import 'utils/stacktrace_utils.dart';
 import 'version.dart';
 
@@ -61,7 +63,14 @@ class SentryClient {
       final rateLimiter = RateLimiter(options);
       options.transport = HttpTransport(options, rateLimiter);
     }
-    if (options.spotlight.enabled) {
+    // TODO: Web might change soon to use the JS SDK so we can remove it here later on
+    final enableFlutterSpotlight = (options.spotlight.enabled &&
+        (options.platformChecker.isWeb ||
+            options.platformChecker.platform.isLinux ||
+            options.platformChecker.platform.isWindows));
+    // Spotlight in the Flutter layer is only enabled for Web, Linux and Windows
+    // Other platforms use spotlight through their native SDKs
+    if (enableFlutterSpotlight) {
       options.transport = SpotlightHttpTransport(options, options.transport);
     }
     return SentryClient._(options);
@@ -104,7 +113,7 @@ class SentryClient {
       return _emptySentryId;
     }
 
-    if (_sampleRate()) {
+    if (_sampleRate() && event.type != 'feedback') {
       _options.recorder
           .recordLostEvent(DiscardReason.sampleRate, _getCategory(event));
       _options.logger(
@@ -161,21 +170,21 @@ class SentryClient {
     }
 
     var viewHierarchy = hint.viewHierarchy;
-    if (viewHierarchy != null) {
+    if (viewHierarchy != null && event.type != 'feedback') {
       attachments.add(viewHierarchy);
     }
 
     var traceContext = scope?.span?.traceContext();
     if (traceContext == null) {
-      if (scope?.propagationContext.baggage == null) {
-        scope?.propagationContext.baggage =
-            SentryBaggage({}, logger: _options.logger);
-        scope?.propagationContext.baggage?.setValuesFromScope(scope, _options);
-      }
       if (scope != null) {
+        scope.propagationContext.baggage ??=
+            SentryBaggage({}, logger: _options.logger)
+              ..setValuesFromScope(scope, _options);
         traceContext = SentryTraceContextHeader.fromBaggage(
             scope.propagationContext.baggage!);
       }
+    } else {
+      traceContext.replayId = scope?.replayId;
     }
 
     final envelope = SentryEnvelope.fromEvent(
@@ -196,7 +205,7 @@ class SentryClient {
     }
 
     var message = event.message!.formatted;
-    return _isMatchingRegexPattern(message, _options.ignoreErrors);
+    return isMatchingRegexPattern(message, _options.ignoreErrors);
   }
 
   SentryEvent _prepareEvent(SentryEvent event, {dynamic stackTrace}) {
@@ -210,6 +219,10 @@ class SentryClient {
     );
 
     if (event is SentryTransaction) {
+      return event;
+    }
+
+    if (event.type == 'feedback') {
       return event;
     }
 
@@ -268,9 +281,8 @@ class SentryClient {
     // https://develop.sentry.dev/sdk/event-payloads/stacktrace/
     if (stackTrace != null || _options.attachStacktrace) {
       stackTrace ??= getCurrentStackTrace();
-      final frames = _stackTraceFactory.getStackFrames(stackTrace);
-
-      if (frames.isNotEmpty) {
+      final sentryStackTrace = _stackTraceFactory.parse(stackTrace);
+      if (sentryStackTrace.frames.isNotEmpty) {
         event = event.copyWith(threads: [
           ...?event.threads,
           SentryThread(
@@ -278,7 +290,7 @@ class SentryClient {
             id: isolateId,
             crashed: false,
             current: true,
-            stacktrace: SentryStackTrace(frames: frames),
+            stacktrace: sentryStackTrace,
           ),
         ]);
       }
@@ -415,7 +427,7 @@ class SentryClient {
     }
 
     var name = transaction.tracer.name;
-    return _isMatchingRegexPattern(name, _options.ignoreTransactions);
+    return isMatchingRegexPattern(name, _options.ignoreTransactions);
   }
 
   /// Reports the [envelope] to Sentry.io.
@@ -424,6 +436,8 @@ class SentryClient {
   }
 
   /// Reports the [userFeedback] to Sentry.io.
+  @Deprecated(
+      'Will be removed in a future version. Use [captureFeedback] instead')
   Future<void> captureUserFeedback(SentryUserFeedback userFeedback) {
     final envelope = SentryEnvelope.fromUserFeedback(
       userFeedback,
@@ -431,6 +445,25 @@ class SentryClient {
       dsn: _options.dsn,
     );
     return _attachClientReportsAndSend(envelope);
+  }
+
+  /// Reports the [feedback] to Sentry.io.
+  Future<SentryId> captureFeedback(
+    SentryFeedback feedback, {
+    Scope? scope,
+    Hint? hint,
+  }) {
+    final feedbackEvent = SentryEvent(
+      type: 'feedback',
+      contexts: Contexts(feedback: feedback),
+      level: SentryLevel.info,
+    );
+
+    return captureEvent(
+      feedbackEvent,
+      scope: scope,
+      hint: hint,
+    );
   }
 
   /// Reports the [metricsBuckets] to Sentry.io.
@@ -460,6 +493,7 @@ class SentryClient {
 
     final beforeSend = _options.beforeSend;
     final beforeSendTransaction = _options.beforeSendTransaction;
+    final beforeSendFeedback = _options.beforeSendFeedback;
     String beforeSendName = 'beforeSend';
 
     try {
@@ -467,6 +501,13 @@ class SentryClient {
         beforeSendName = 'beforeSendTransaction';
         final callbackResult = beforeSendTransaction(event);
         if (callbackResult is Future<SentryTransaction?>) {
+          processedEvent = await callbackResult;
+        } else {
+          processedEvent = callbackResult;
+        }
+      } else if (event.type == 'feedback' && beforeSendFeedback != null) {
+        final callbackResult = beforeSendFeedback(event, hint);
+        if (callbackResult is Future<SentryEvent?>) {
           processedEvent = await callbackResult;
         } else {
           processedEvent = callbackResult;
@@ -555,6 +596,7 @@ class SentryClient {
               count: spanCountBeforeEventProcessors + 1);
         }
         _options.logger(SentryLevel.debug, 'Event was dropped by a processor');
+        break;
       } else if (event is SentryTransaction &&
           processedEvent is SentryTransaction) {
         // If event processor removed only some spans we still report them as dropped
@@ -592,12 +634,5 @@ class SentryClient {
       () => _options.transport.send(envelope),
       SentryId.empty(),
     );
-  }
-
-  bool _isMatchingRegexPattern(String value, List<String> regexPattern,
-      {bool caseSensitive = false}) {
-    final combinedRegexPattern = regexPattern.join('|');
-    final regExp = RegExp(combinedRegexPattern, caseSensitive: caseSensitive);
-    return regExp.hasMatch(value);
   }
 }

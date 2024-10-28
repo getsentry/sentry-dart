@@ -8,7 +8,6 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:sentry_flutter/src/integrations/native_app_start_integration.dart';
 import 'package:sentry_flutter_example/main.dart';
 
 void main() {
@@ -26,8 +25,6 @@ void main() {
   // Using fake DSN for testing purposes.
   Future<void> setupSentryAndApp(WidgetTester tester,
       {String? dsn, BeforeSendCallback? beforeSendCallback}) async {
-    NativeAppStartIntegration.isIntegrationTest = true;
-
     await setupSentry(
       () async {
         await tester.pumpWidget(SentryScreenshotWidget(
@@ -85,12 +82,30 @@ void main() {
   testWidgets('setup sentry and capture user feedback', (tester) async {
     await setupSentryAndApp(tester);
 
+    // ignore: deprecated_member_use_from_same_package
+    // ignore: deprecated_member_use
     final feedback = SentryUserFeedback(
         eventId: SentryId.newId(),
         name: 'fixture-name',
         email: 'fixture@email.com',
         comments: 'fixture-comments');
+    // ignore: deprecated_member_use
     await Sentry.captureUserFeedback(feedback);
+  });
+
+  testWidgets('setup sentry and capture feedback', (tester) async {
+    await setupSentryAndApp(tester);
+
+    // ignore: deprecated_member_use_from_same_package
+    // ignore: deprecated_member_use
+    final associatedEventId = await Sentry.captureMessage("Associated");
+    final feedback = SentryFeedback(
+      message: 'message',
+      contactEmail: 'john.appleseed@apple.com',
+      name: 'John Appleseed',
+      associatedEventId: associatedEventId,
+    );
+    await Sentry.captureFeedback(feedback);
   });
 
   testWidgets('setup sentry and close', (tester) async {

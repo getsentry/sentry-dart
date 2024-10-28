@@ -1,7 +1,6 @@
-// ignore_for_file: invalid_use_of_internal_member
+// ignore_for_file: invalid_use_of_internal_member, library_annotations
 
 @TestOn('vm')
-library file_test;
 
 import 'dart:io';
 
@@ -662,7 +661,7 @@ void main() {
 
 class Fixture {
   final client = MockSentryClient();
-  final options = SentryOptions(dsn: fakeDsn);
+  final options = defaultTestOptions();
   late Hub hub;
 
   SentryFile getSut(

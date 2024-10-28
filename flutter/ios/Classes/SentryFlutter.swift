@@ -70,6 +70,12 @@ public final class SentryFlutter {
         if let appHangTimeoutIntervalMillis = data["appHangTimeoutIntervalMillis"] as? NSNumber {
             options.appHangTimeoutInterval = appHangTimeoutIntervalMillis.doubleValue / 1000
         }
+        if let spotlightUrl = data["spotlightUrl"] as? String {
+            options.spotlightUrl = spotlightUrl
+        }
+        if let enableSpotlight = data["enableSpotlight"] as? Bool {
+            options.enableSpotlight = enableSpotlight
+        }
         if let proxy = data["proxy"] as? [String: Any] {
             guard let host = proxy["host"] as? String,
                   let port = proxy["port"] as? Int,
@@ -105,6 +111,14 @@ public final class SentryFlutter {
 
             options.urlSession = URLSession(configuration: configuration)
         }
+#if canImport(UIKit) && !SENTRY_NO_UIKIT && (os(iOS) || os(tvOS))
+        if let replayOptions = data["replay"] as? [String: Any] {
+            options.experimental.sessionReplay.sessionSampleRate =
+                (replayOptions["sessionSampleRate"] as? NSNumber)?.floatValue ?? 0
+            options.experimental.sessionReplay.onErrorSampleRate =
+                (replayOptions["onErrorSampleRate"] as? NSNumber)?.floatValue ?? 0
+        }
+#endif
     }
 
     private func logLevelFrom(diagnosticLevel: String) -> SentryLevel {

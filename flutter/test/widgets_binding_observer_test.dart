@@ -17,11 +17,11 @@ void main() {
     setUp(() {
       TestWidgetsFlutterBinding.ensureInitialized();
 
-      flutterTrackingEnabledOptions = SentryFlutterOptions()
+      flutterTrackingEnabledOptions = defaultTestOptions()
         ..bindingUtils = TestBindingWrapper();
       flutterTrackingEnabledOptions.useFlutterBreadcrumbTracking();
 
-      flutterTrackingDisabledOptions = SentryFlutterOptions()
+      flutterTrackingDisabledOptions = defaultTestOptions()
         ..bindingUtils = TestBindingWrapper();
       flutterTrackingDisabledOptions.useNativeBreadcrumbTracking();
     });
@@ -193,6 +193,9 @@ void main() {
       // ignore: deprecated_member_use
       window.physicalSizeTestValue = Size(newWidth, newHeight);
 
+      // waiting for debouncing with 100ms added https://github.com/getsentry/sentry-dart/issues/400
+      await tester.pump(Duration(milliseconds: 150));
+
       final breadcrumb =
           verify(hub.addBreadcrumb(captureAny)).captured.single as Breadcrumb;
 
@@ -230,6 +233,9 @@ void main() {
       // ignore: deprecated_member_use
       window.devicePixelRatioTestValue = newPixelRatio;
 
+      // waiting for debouncing with 100ms added https://github.com/getsentry/sentry-dart/issues/400
+      await tester.pump(Duration(milliseconds: 150));
+
       final breadcrumb =
           verify(hub.addBreadcrumb(captureAny)).captured.single as Breadcrumb;
 
@@ -265,6 +271,9 @@ void main() {
       // ignore: deprecated_member_use
       window.viewInsetsTestValue = WindowPadding.zero;
 
+      // waiting for debouncing with 100ms added https://github.com/getsentry/sentry-dart/issues/400
+      await tester.pump(Duration(milliseconds: 150));
+
       verifyNever(hub.addBreadcrumb(captureAny));
 
       instance.removeObserver(observer);
@@ -285,6 +294,9 @@ void main() {
       final window = instance.window;
 
       window.onMetricsChanged!();
+
+      // waiting for debouncing with 100ms added https://github.com/getsentry/sentry-dart/issues/400
+      await tester.pump(Duration(milliseconds: 150));
 
       verifyNever(hub.addBreadcrumb(captureAny));
 
@@ -397,6 +409,71 @@ void main() {
       window.onTextScaleFactorChanged!();
 
       verifyNever(hub.addBreadcrumb(captureAny));
+
+      instance.removeObserver(observer);
+    });
+
+    testWidgets('debouncing didChangeMetrics with 100ms delay',
+        (WidgetTester tester) async {
+      final hub = MockHub();
+
+      final observer = SentryWidgetsBindingObserver(
+        hub: hub,
+        options: flutterTrackingEnabledOptions,
+      );
+      final instance = tester.binding;
+      instance.addObserver(observer);
+
+      // ignore: deprecated_member_use
+      final window = instance.window;
+
+      // ignore: deprecated_member_use
+      window.physicalSizeTestValue = window.physicalSize;
+
+      const newPixelRatio = 1.7;
+      // ignore: deprecated_member_use
+      window.devicePixelRatioTestValue = newPixelRatio;
+
+      verifyNever(hub.addBreadcrumb(captureAny));
+
+      // waiting for debouncing with 100ms added https://github.com/getsentry/sentry-dart/issues/400
+      await tester.pump(Duration(milliseconds: 150));
+
+      verify(hub.addBreadcrumb(captureAny));
+
+      instance.removeObserver(observer);
+    });
+
+    testWidgets('debouncing: didChangeMetrics is called only once in 100ms',
+        (WidgetTester tester) async {
+      final hub = MockHub();
+
+      final observer = SentryWidgetsBindingObserver(
+        hub: hub,
+        options: flutterTrackingEnabledOptions,
+      );
+      final instance = tester.binding;
+      instance.addObserver(observer);
+
+      // ignore: deprecated_member_use
+      final window = instance.window;
+
+      // ignore: deprecated_member_use
+      window.physicalSizeTestValue = window.physicalSize;
+
+      // ignore: deprecated_member_use
+      window.devicePixelRatioTestValue = 2.1;
+      // ignore: deprecated_member_use
+      window.devicePixelRatioTestValue = 2.2;
+      // ignore: deprecated_member_use
+      window.devicePixelRatioTestValue = 2.3;
+
+      verifyNever(hub.addBreadcrumb(captureAny));
+
+      // waiting for debouncing with 100ms added https://github.com/getsentry/sentry-dart/issues/400
+      await tester.pump(Duration(milliseconds: 150));
+
+      verify(hub.addBreadcrumb(captureAny)).called(1);
 
       instance.removeObserver(observer);
     });

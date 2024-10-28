@@ -18,28 +18,35 @@ void main() {
     expect(map['description'], 'desc');
     expect(map['status'], 'aborted');
     expect(map['origin'], 'auto.ui');
+    expect(map['replay_id'], isNotNull);
+    expect(map['data'], {'key': 'value'});
   });
 
   test('fromJson deserializes', () {
     final map = <String, dynamic>{
       'op': 'op',
-      'span_id': '0000000000000000',
-      'trace_id': '00000000000000000000000000000000',
-      'parent_span_id': '0000000000000000',
+      'span_id': '0000000000000001',
+      'trace_id': '00000000000000000000000000000002',
+      'parent_span_id': '0000000000000003',
       'description': 'desc',
       'status': 'aborted',
-      'origin': 'auto.ui'
+      'origin': 'auto.ui',
+      'replay_id': '00000000000000000000000000000004',
+      'data': {'key': 'value'},
     };
     map.addAll(testUnknown);
     final traceContext = SentryTraceContext.fromJson(map);
 
     expect(traceContext.description, 'desc');
     expect(traceContext.operation, 'op');
-    expect(traceContext.spanId.toString(), '0000000000000000');
-    expect(traceContext.traceId.toString(), '00000000000000000000000000000000');
-    expect(traceContext.parentSpanId.toString(), '0000000000000000');
+    expect(traceContext.spanId.toString(), '0000000000000001');
+    expect(traceContext.traceId.toString(), '00000000000000000000000000000002');
+    expect(traceContext.parentSpanId.toString(), '0000000000000003');
     expect(traceContext.status.toString(), 'aborted');
     expect(traceContext.sampled, true);
+    expect(
+        traceContext.replayId.toString(), '00000000000000000000000000000004');
+    expect(traceContext.data, {'key': 'value'});
   });
 }
 
@@ -52,6 +59,8 @@ class Fixture {
       sampled: true,
       status: SpanStatus.aborted(),
       origin: 'auto.ui',
+      replayId: SentryId.newId(),
+      data: {'key': 'value'},
       unknown: testUnknown,
     );
   }

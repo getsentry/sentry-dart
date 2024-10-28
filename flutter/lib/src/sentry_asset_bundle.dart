@@ -7,6 +7,7 @@ import 'dart:ui';
 
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
+import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 
 typedef _StringParser<T> = Future<T> Function(String value);
@@ -374,4 +375,10 @@ class SentryAssetBundle implements AssetBundle {
     return (_bundle as dynamic).loadStructuredBinaryData<T>(key, parser)
         as Future<T>;
   }
+}
+
+@internal
+extension SentryAssetBundleInternal on SentryAssetBundle {
+  /// Returns the wrapped [AssetBundle].
+  AssetBundle get bundle => _bundle;
 }

@@ -17,6 +17,7 @@ import 'package:test/test.dart';
 import '../mocks.dart';
 import '../mocks/mock_client_report_recorder.dart';
 import '../mocks/mock_hub.dart';
+import '../test_utils.dart';
 
 void main() {
   SentryEnvelope givenEnvelope() {
@@ -286,9 +287,7 @@ void main() {
 }
 
 class Fixture {
-  final options = SentryOptions(
-    dsn: 'https://public:secret@sentry.example.com/1',
-  );
+  final options = defaultTestOptions();
 
   late var clientReportRecorder = MockClientReportRecorder();
 

@@ -94,10 +94,8 @@ class Fixture {
     bool debug = false,
     bool enablePrintBreadcrumbs = true,
   }) {
-    return SentryFlutterOptions(
-      dsn: fakeDsn,
-      checker: MockPlatformChecker(isDebug: debug),
-    )..enablePrintBreadcrumbs = enablePrintBreadcrumbs;
+    return defaultTestOptions(MockPlatformChecker(isDebug: debug))
+      ..enablePrintBreadcrumbs = enablePrintBreadcrumbs;
   }
 
   DebugPrintIntegration getSut() {

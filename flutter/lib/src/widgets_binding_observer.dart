@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../sentry_flutter.dart';
+import 'utils/debouncer.dart';
 
 /// This is a `WidgetsBindingObserver` which can observe some events of a
 /// Flutter application.
@@ -50,6 +51,8 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
   // ignore: deprecated_member_use
   final StreamController<SingletonFlutterWindow?> _screenSizeStreamController;
 
+  final _didChangeMetricsDebouncer = Debouncer(milliseconds: 100);
+
   /// This method records lifecycle events.
   /// It tries to mimic the behavior of ActivityBreadcrumbsIntegration of Sentry
   /// Android for lifecycle events.
@@ -88,9 +91,12 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
     if (!_options.enableWindowMetricBreadcrumbs) {
       return;
     }
-    // ignore: deprecated_member_use
-    final window = _options.bindingUtils.instance?.window;
-    _screenSizeStreamController.add(window);
+
+    _didChangeMetricsDebouncer.run(() {
+      // ignore: deprecated_member_use
+      final window = _options.bindingUtils.instance?.window;
+      _screenSizeStreamController.add(window);
+    });
   }
 
   void _onScreenSizeChanged(Map<String, dynamic> data) {

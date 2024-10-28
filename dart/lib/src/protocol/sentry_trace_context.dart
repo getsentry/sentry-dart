@@ -18,6 +18,9 @@ class SentryTraceContext {
   /// Id of a parent span
   final SpanId? parentSpanId;
 
+  /// Replay associated with this trace.
+  final SentryId? replayId;
+
   /// Whether the span is sampled or not
   final bool? sampled;
 
@@ -38,6 +41,8 @@ class SentryTraceContext {
   /// @see <https://develop.sentry.dev/sdk/performance/trace-origin>
   final String? origin;
 
+  final Map<String, dynamic>? data;
+
   @internal
   final Map<String, dynamic>? unknown;
 
@@ -50,12 +55,16 @@ class SentryTraceContext {
           ? null
           : SpanId.fromId(json['parent_span_id'] as String),
       traceId: SentryId.fromId(json['trace_id'] as String),
+      replayId: json['replay_id'] == null
+          ? null
+          : SentryId.fromId(json['replay_id'] as String),
       description: json['description'] as String?,
       status: json['status'] == null
           ? null
           : SpanStatus.fromString(json['status'] as String),
       sampled: true,
       origin: json['origin'] == null ? null : json['origin'] as String?,
+      data: json['data'] == null ? null : json['data'] as Map<String, dynamic>,
       unknown: json.notAccessed(),
     );
   }
@@ -68,9 +77,11 @@ class SentryTraceContext {
       'trace_id': traceId.toString(),
       'op': operation,
       if (parentSpanId != null) 'parent_span_id': parentSpanId!.toString(),
+      if (replayId != null) 'replay_id': replayId!.toString(),
       if (description != null) 'description': description,
       if (status != null) 'status': status!.toString(),
       if (origin != null) 'origin': origin,
+      if (data != null) 'data': data,
     };
   }
 
@@ -84,6 +95,8 @@ class SentryTraceContext {
         sampled: sampled,
         origin: origin,
         unknown: unknown,
+        replayId: replayId,
+        data: data,
       );
 
   SentryTraceContext({
@@ -96,6 +109,8 @@ class SentryTraceContext {
     this.status,
     this.origin,
     this.unknown,
+    this.replayId,
+    this.data,
   })  : traceId = traceId ?? SentryId.newId(),
         spanId = spanId ?? SpanId.newId();
 
@@ -103,9 +118,9 @@ class SentryTraceContext {
   factory SentryTraceContext.fromPropagationContext(
       PropagationContext propagationContext) {
     return SentryTraceContext(
-      traceId: propagationContext.traceId,
-      spanId: propagationContext.spanId,
-      operation: 'default',
-    );
+        traceId: propagationContext.traceId,
+        spanId: propagationContext.spanId,
+        operation: 'default',
+        replayId: propagationContext.baggage?.getReplayId());
   }
 }
