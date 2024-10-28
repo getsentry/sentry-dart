@@ -9,6 +9,7 @@ import 'event_processor/android_platform_exception_event_processor.dart';
 import 'event_processor/flutter_enricher_event_processor.dart';
 import 'event_processor/flutter_exception_event_processor.dart';
 import 'event_processor/platform_exception_event_processor.dart';
+import 'event_processor/screenshot_event_processor.dart';
 import 'event_processor/url_filter/url_filter_event_processor.dart';
 import 'event_processor/widget_event_processor.dart';
 import 'file_system_transport.dart';
@@ -296,13 +297,22 @@ mixin SentryFlutter {
       );
       return null;
     }
-    if (options is SentryFlutterOptions) {
-      final bytes = await SentryScreenshotWidget.captureScreenshot(options);
-      if (bytes != null) {
-        return SentryAttachment.fromScreenshotData(bytes);
-      }
+    final processors =
+        options.eventProcessors.whereType<ScreenshotEventProcessor>();
+    if (processors.isEmpty) {
+      options.logger(
+        SentryLevel.debug,
+        'ScreenshotEventProcessor could not be found.',
+      );
+      return null;
     }
-    return null;
+    final processor = processors.first;
+    final bytes = await processor.captureScreenshot();
+    if (bytes != null) {
+      return SentryAttachment.fromScreenshotData(bytes);
+    } else {
+      return null;
+    }
   }
 
   @internal
