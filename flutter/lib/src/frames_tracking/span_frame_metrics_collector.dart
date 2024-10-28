@@ -6,7 +6,7 @@ import 'sentry_delayed_frames_tracker.dart';
 
 /// Collects frames from [SentryDelayedFramesTracker], calculates the metrics
 /// and attaches them to spans.
-///@internal
+@internal
 class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
   SpanFrameMetricsCollector(this._options, this._frameTracker);
 
