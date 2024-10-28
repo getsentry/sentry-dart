@@ -1,14 +1,13 @@
-import 'dart:ui';
+import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
+import 'platform_dispatcher_wrapper.dart';
 
 @internal
 class MultiViewHelper {
+  static PlatformDispatcherWrapper wrapper =
+      PlatformDispatcherWrapper(WidgetsBinding.instance.platformDispatcher);
+
   static bool isMultiViewEnabled() {
-    final dynamic uncheckedImplicitView = PlatformDispatcher.instance;
-    try {
-      return null == uncheckedImplicitView.implicitView;
-    } on NoSuchMethodError catch (_) {
-      return false;
-    }
+    return wrapper.implicitView == null;
   }
 }
