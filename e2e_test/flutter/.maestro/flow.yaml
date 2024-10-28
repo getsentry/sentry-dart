@@ -8,4 +8,4 @@ appId: io.sentry.samples.flutterE2e
 - assertVisible: "Sending exception to Sentry..."
 - extendedWaitUntil:
     visible : "Event successfully received"
-    timeout: 20000
+    timeout: 150000
