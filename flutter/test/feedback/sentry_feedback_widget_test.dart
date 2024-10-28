@@ -143,6 +143,15 @@ void main() {
     });
 
     testWidgets('does call hub captureFeedback on submit', (tester) async {
+      await fixture.pumpFeedbackWidget(
+        tester,
+        (hub) => SentryFeedbackWidget(
+          hub: hub,
+          associatedEventId:
+              SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea'),
+        ),
+      );
+
       when(fixture.hub.captureFeedback(
         any,
         hint: anyNamed('hint'),
