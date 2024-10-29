@@ -2,6 +2,28 @@
 
 ## Unreleased
 
+### Features
+
+- Add screenshot to `SentryFeedbackWidget` ([#2369](https://github.com/getsentry/sentry-dart/pull/2369))
+  - Use `SentryFlutter.captureScreenshot` to create a screenshot attachment
+  - Call `SentryFeedbackWidget` with this attachment to add it to the user feedback
+
+  ```dart
+  final id = await Sentry.captureMessage('UserFeedback');
+  final screenshot = await SentryFlutter.captureScreenshot();
+  
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => SentryFeedbackWidget(
+          associatedEventId: id,
+          screenshot: screenshot,
+      ),
+      fullscreenDialog: true,
+    ),
+  );
+  ```
+
 ### Enhancements
 
 - Cache parsed DSN ([#2365](https://github.com/getsentry/sentry-dart/pull/2365))
