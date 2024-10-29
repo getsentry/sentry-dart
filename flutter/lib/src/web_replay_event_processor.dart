@@ -12,11 +12,11 @@ class WebReplayEventProcessor implements EventProcessor {
 
   @override
   FutureOr<SentryEvent?> apply(SentryEvent event, Hint hint) async {
-    try {
-      if (!_options.experimental.replay.isEnabled) {
-        return event;
-      }
+    if (!_options.experimental.replay.isEnabled) {
+      return event;
+    }
 
+    try {
       // flush the first occurrence of a replay event
       // converts buffer to session mode (if the session is set as buffer)
       // captures the replay immediately for session mode

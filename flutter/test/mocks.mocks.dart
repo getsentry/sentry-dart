@@ -3,21 +3,23 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i7;
-import 'dart:typed_data' as _i12;
+import 'dart:async' as _i8;
+import 'dart:js_interop' as _i15;
+import 'dart:typed_data' as _i13;
 
 import 'package:flutter/services.dart' as _i4;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:mockito/src/dummies.dart' as _i8;
-import 'package:sentry/src/metrics/metric.dart' as _i10;
-import 'package:sentry/src/metrics/metrics_api.dart' as _i5;
-import 'package:sentry/src/profiling.dart' as _i9;
+import 'package:mockito/src/dummies.dart' as _i9;
+import 'package:sentry/src/metrics/metric.dart' as _i11;
+import 'package:sentry/src/metrics/metrics_api.dart' as _i6;
+import 'package:sentry/src/profiling.dart' as _i10;
 import 'package:sentry/src/sentry_tracer.dart' as _i3;
 import 'package:sentry_flutter/sentry_flutter.dart' as _i2;
-import 'package:sentry_flutter/src/native/native_frames.dart' as _i13;
-import 'package:sentry_flutter/src/native/sentry_native_binding.dart' as _i11;
+import 'package:sentry_flutter/src/native/native_frames.dart' as _i14;
+import 'package:sentry_flutter/src/native/sentry_native_binding.dart' as _i12;
+import 'package:sentry_flutter/src/web/sentry_js_bridge.dart' as _i5;
 
-import 'mocks.dart' as _i6;
+import 'mocks.dart' as _i7;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -136,8 +138,9 @@ class _FakeBinaryMessenger_9 extends _i1.SmartFake
         );
 }
 
-class _FakeSentryOptions_10 extends _i1.SmartFake implements _i2.SentryOptions {
-  _FakeSentryOptions_10(
+class _FakeSentryJsClient_10 extends _i1.SmartFake
+    implements _i5.SentryJsClient {
+  _FakeSentryJsClient_10(
     Object parent,
     Invocation parentInvocation,
   ) : super(
@@ -146,8 +149,9 @@ class _FakeSentryOptions_10 extends _i1.SmartFake implements _i2.SentryOptions {
         );
 }
 
-class _FakeMetricsApi_11 extends _i1.SmartFake implements _i5.MetricsApi {
-  _FakeMetricsApi_11(
+class _FakeSentryJsReplay_11 extends _i1.SmartFake
+    implements _i5.SentryJsReplay {
+  _FakeSentryJsReplay_11(
     Object parent,
     Invocation parentInvocation,
   ) : super(
@@ -156,8 +160,8 @@ class _FakeMetricsApi_11 extends _i1.SmartFake implements _i5.MetricsApi {
         );
 }
 
-class _FakeScope_12 extends _i1.SmartFake implements _i2.Scope {
-  _FakeScope_12(
+class _FakeSentryOptions_12 extends _i1.SmartFake implements _i2.SentryOptions {
+  _FakeSentryOptions_12(
     Object parent,
     Invocation parentInvocation,
   ) : super(
@@ -166,8 +170,28 @@ class _FakeScope_12 extends _i1.SmartFake implements _i2.Scope {
         );
 }
 
-class _FakeHub_13 extends _i1.SmartFake implements _i2.Hub {
-  _FakeHub_13(
+class _FakeMetricsApi_13 extends _i1.SmartFake implements _i6.MetricsApi {
+  _FakeMetricsApi_13(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
+class _FakeScope_14 extends _i1.SmartFake implements _i2.Scope {
+  _FakeScope_14(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
+class _FakeHub_15 extends _i1.SmartFake implements _i2.Hub {
+  _FakeHub_15(
     Object parent,
     Invocation parentInvocation,
   ) : super(
@@ -179,13 +203,13 @@ class _FakeHub_13 extends _i1.SmartFake implements _i2.Hub {
 /// A class which mocks [Callbacks].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockCallbacks extends _i1.Mock implements _i6.Callbacks {
+class MockCallbacks extends _i1.Mock implements _i7.Callbacks {
   MockCallbacks() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i7.Future<Object?>? methodCallHandler(
+  _i8.Future<Object?>? methodCallHandler(
     String? method, [
     dynamic arguments,
   ]) =>
@@ -195,7 +219,7 @@ class MockCallbacks extends _i1.Mock implements _i6.Callbacks {
           method,
           arguments,
         ],
-      )) as _i7.Future<Object?>?);
+      )) as _i8.Future<Object?>?);
 }
 
 /// A class which mocks [Transport].
@@ -207,14 +231,14 @@ class MockTransport extends _i1.Mock implements _i2.Transport {
   }
 
   @override
-  _i7.Future<_i2.SentryId?> send(_i2.SentryEnvelope? envelope) =>
+  _i8.Future<_i2.SentryId?> send(_i2.SentryEnvelope? envelope) =>
       (super.noSuchMethod(
         Invocation.method(
           #send,
           [envelope],
         ),
-        returnValue: _i7.Future<_i2.SentryId?>.value(),
-      ) as _i7.Future<_i2.SentryId?>);
+        returnValue: _i8.Future<_i2.SentryId?>.value(),
+      ) as _i8.Future<_i2.SentryId?>);
 }
 
 /// A class which mocks [SentryTracer].
@@ -228,7 +252,7 @@ class MockSentryTracer extends _i1.Mock implements _i3.SentryTracer {
   @override
   String get name => (super.noSuchMethod(
         Invocation.getter(#name),
-        returnValue: _i8.dummyValue<String>(
+        returnValue: _i9.dummyValue<String>(
           this,
           Invocation.getter(#name),
         ),
@@ -262,7 +286,7 @@ class MockSentryTracer extends _i1.Mock implements _i3.SentryTracer {
       );
 
   @override
-  set profiler(_i9.SentryProfiler? _profiler) => super.noSuchMethod(
+  set profiler(_i10.SentryProfiler? _profiler) => super.noSuchMethod(
         Invocation.setter(
           #profiler,
           _profiler,
@@ -271,7 +295,7 @@ class MockSentryTracer extends _i1.Mock implements _i3.SentryTracer {
       );
 
   @override
-  set profileInfo(_i9.SentryProfileInfo? _profileInfo) => super.noSuchMethod(
+  set profileInfo(_i10.SentryProfileInfo? _profileInfo) => super.noSuchMethod(
         Invocation.setter(
           #profileInfo,
           _profileInfo,
@@ -355,7 +379,7 @@ class MockSentryTracer extends _i1.Mock implements _i3.SentryTracer {
       ) as Map<String, String>);
 
   @override
-  _i7.Future<void> finish({
+  _i8.Future<void> finish({
     _i2.SpanStatus? status,
     DateTime? endTimestamp,
   }) =>
@@ -368,9 +392,9 @@ class MockSentryTracer extends _i1.Mock implements _i3.SentryTracer {
             #endTimestamp: endTimestamp,
           },
         ),
-        returnValue: _i7.Future<void>.value(),
-        returnValueForMissingStub: _i7.Future<void>.value(),
-      ) as _i7.Future<void>);
+        returnValue: _i8.Future<void>.value(),
+        returnValueForMissingStub: _i8.Future<void>.value(),
+      ) as _i8.Future<void>);
 
   @override
   void removeData(String? key) => super.noSuchMethod(
@@ -779,6 +803,15 @@ class MockSentryTransaction extends _i1.Mock implements _i2.SentryTransaction {
           ),
         ),
       ) as _i2.SentryTransaction);
+
+  @override
+  _i8.Future<dynamic> getPayload() => (super.noSuchMethod(
+        Invocation.method(
+          #getPayload,
+          [],
+        ),
+        returnValue: _i8.Future<dynamic>.value(),
+      ) as _i8.Future<dynamic>);
 }
 
 /// A class which mocks [SentrySpan].
@@ -868,7 +901,7 @@ class MockSentrySpan extends _i1.Mock implements _i2.SentrySpan {
       ) as Map<String, dynamic>);
 
   @override
-  _i7.Future<void> finish({
+  _i8.Future<void> finish({
     _i2.SpanStatus? status,
     DateTime? endTimestamp,
   }) =>
@@ -881,9 +914,9 @@ class MockSentrySpan extends _i1.Mock implements _i2.SentrySpan {
             #endTimestamp: endTimestamp,
           },
         ),
-        returnValue: _i7.Future<void>.value(),
-        returnValueForMissingStub: _i7.Future<void>.value(),
-      ) as _i7.Future<void>);
+        returnValue: _i8.Future<void>.value(),
+        returnValueForMissingStub: _i8.Future<void>.value(),
+      ) as _i8.Future<void>);
 
   @override
   void removeData(String? key) => super.noSuchMethod(
@@ -1024,7 +1057,7 @@ class MockSentryClient extends _i1.Mock implements _i2.SentryClient {
   }
 
   @override
-  _i7.Future<_i2.SentryId> captureEvent(
+  _i8.Future<_i2.SentryId> captureEvent(
     _i2.SentryEvent? event, {
     _i2.Scope? scope,
     dynamic stackTrace,
@@ -1040,7 +1073,7 @@ class MockSentryClient extends _i1.Mock implements _i2.SentryClient {
             #hint: hint,
           },
         ),
-        returnValue: _i7.Future<_i2.SentryId>.value(_FakeSentryId_5(
+        returnValue: _i8.Future<_i2.SentryId>.value(_FakeSentryId_5(
           this,
           Invocation.method(
             #captureEvent,
@@ -1052,10 +1085,10 @@ class MockSentryClient extends _i1.Mock implements _i2.SentryClient {
             },
           ),
         )),
-      ) as _i7.Future<_i2.SentryId>);
+      ) as _i8.Future<_i2.SentryId>);
 
   @override
-  _i7.Future<_i2.SentryId> captureException(
+  _i8.Future<_i2.SentryId> captureException(
     dynamic throwable, {
     dynamic stackTrace,
     _i2.Scope? scope,
@@ -1071,7 +1104,7 @@ class MockSentryClient extends _i1.Mock implements _i2.SentryClient {
             #hint: hint,
           },
         ),
-        returnValue: _i7.Future<_i2.SentryId>.value(_FakeSentryId_5(
+        returnValue: _i8.Future<_i2.SentryId>.value(_FakeSentryId_5(
           this,
           Invocation.method(
             #captureException,
@@ -1083,10 +1116,10 @@ class MockSentryClient extends _i1.Mock implements _i2.SentryClient {
             },
           ),
         )),
-      ) as _i7.Future<_i2.SentryId>);
+      ) as _i8.Future<_i2.SentryId>);
 
   @override
-  _i7.Future<_i2.SentryId> captureMessage(
+  _i8.Future<_i2.SentryId> captureMessage(
     String? formatted, {
     _i2.SentryLevel? level,
     String? template,
@@ -1106,7 +1139,7 @@ class MockSentryClient extends _i1.Mock implements _i2.SentryClient {
             #hint: hint,
           },
         ),
-        returnValue: _i7.Future<_i2.SentryId>.value(_FakeSentryId_5(
+        returnValue: _i8.Future<_i2.SentryId>.value(_FakeSentryId_5(
           this,
           Invocation.method(
             #captureMessage,
@@ -1120,10 +1153,10 @@ class MockSentryClient extends _i1.Mock implements _i2.SentryClient {
             },
           ),
         )),
-      ) as _i7.Future<_i2.SentryId>);
+      ) as _i8.Future<_i2.SentryId>);
 
   @override
-  _i7.Future<_i2.SentryId> captureTransaction(
+  _i8.Future<_i2.SentryId> captureTransaction(
     _i2.SentryTransaction? transaction, {
     _i2.Scope? scope,
     _i2.SentryTraceContextHeader? traceContext,
@@ -1137,7 +1170,7 @@ class MockSentryClient extends _i1.Mock implements _i2.SentryClient {
             #traceContext: traceContext,
           },
         ),
-        returnValue: _i7.Future<_i2.SentryId>.value(_FakeSentryId_5(
+        returnValue: _i8.Future<_i2.SentryId>.value(_FakeSentryId_5(
           this,
           Invocation.method(
             #captureTransaction,
@@ -1148,31 +1181,31 @@ class MockSentryClient extends _i1.Mock implements _i2.SentryClient {
             },
           ),
         )),
-      ) as _i7.Future<_i2.SentryId>);
+      ) as _i8.Future<_i2.SentryId>);
 
   @override
-  _i7.Future<_i2.SentryId?> captureEnvelope(_i2.SentryEnvelope? envelope) =>
+  _i8.Future<_i2.SentryId?> captureEnvelope(_i2.SentryEnvelope? envelope) =>
       (super.noSuchMethod(
         Invocation.method(
           #captureEnvelope,
           [envelope],
         ),
-        returnValue: _i7.Future<_i2.SentryId?>.value(),
-      ) as _i7.Future<_i2.SentryId?>);
+        returnValue: _i8.Future<_i2.SentryId?>.value(),
+      ) as _i8.Future<_i2.SentryId?>);
 
   @override
-  _i7.Future<void> captureUserFeedback(_i2.SentryUserFeedback? userFeedback) =>
+  _i8.Future<void> captureUserFeedback(_i2.SentryUserFeedback? userFeedback) =>
       (super.noSuchMethod(
         Invocation.method(
           #captureUserFeedback,
           [userFeedback],
         ),
-        returnValue: _i7.Future<void>.value(),
-        returnValueForMissingStub: _i7.Future<void>.value(),
-      ) as _i7.Future<void>);
+        returnValue: _i8.Future<void>.value(),
+        returnValueForMissingStub: _i8.Future<void>.value(),
+      ) as _i8.Future<void>);
 
   @override
-  _i7.Future<_i2.SentryId> captureFeedback(
+  _i8.Future<_i2.SentryId> captureFeedback(
     _i2.SentryFeedback? feedback, {
     _i2.Scope? scope,
     _i2.Hint? hint,
@@ -1186,7 +1219,7 @@ class MockSentryClient extends _i1.Mock implements _i2.SentryClient {
             #hint: hint,
           },
         ),
-        returnValue: _i7.Future<_i2.SentryId>.value(_FakeSentryId_5(
+        returnValue: _i8.Future<_i2.SentryId>.value(_FakeSentryId_5(
           this,
           Invocation.method(
             #captureFeedback,
@@ -1197,24 +1230,24 @@ class MockSentryClient extends _i1.Mock implements _i2.SentryClient {
             },
           ),
         )),
-      ) as _i7.Future<_i2.SentryId>);
+      ) as _i8.Future<_i2.SentryId>);
 
   @override
-  _i7.Future<_i2.SentryId> captureMetrics(
-          Map<int, Iterable<_i10.Metric>>? metricsBuckets) =>
+  _i8.Future<_i2.SentryId> captureMetrics(
+          Map<int, Iterable<_i11.Metric>>? metricsBuckets) =>
       (super.noSuchMethod(
         Invocation.method(
           #captureMetrics,
           [metricsBuckets],
         ),
-        returnValue: _i7.Future<_i2.SentryId>.value(_FakeSentryId_5(
+        returnValue: _i8.Future<_i2.SentryId>.value(_FakeSentryId_5(
           this,
           Invocation.method(
             #captureMetrics,
             [metricsBuckets],
           ),
         )),
-      ) as _i7.Future<_i2.SentryId>);
+      ) as _i8.Future<_i2.SentryId>);
 
   @override
   void close() => super.noSuchMethod(
@@ -1237,7 +1270,7 @@ class MockMethodChannel extends _i1.Mock implements _i4.MethodChannel {
   @override
   String get name => (super.noSuchMethod(
         Invocation.getter(#name),
-        returnValue: _i8.dummyValue<String>(
+        returnValue: _i9.dummyValue<String>(
           this,
           Invocation.getter(#name),
         ),
@@ -1262,7 +1295,7 @@ class MockMethodChannel extends _i1.Mock implements _i4.MethodChannel {
       ) as _i4.BinaryMessenger);
 
   @override
-  _i7.Future<T?> invokeMethod<T>(
+  _i8.Future<T?> invokeMethod<T>(
     String? method, [
     dynamic arguments,
   ]) =>
@@ -1274,11 +1307,11 @@ class MockMethodChannel extends _i1.Mock implements _i4.MethodChannel {
             arguments,
           ],
         ),
-        returnValue: _i7.Future<T?>.value(),
-      ) as _i7.Future<T?>);
+        returnValue: _i8.Future<T?>.value(),
+      ) as _i8.Future<T?>);
 
   @override
-  _i7.Future<List<T>?> invokeListMethod<T>(
+  _i8.Future<List<T>?> invokeListMethod<T>(
     String? method, [
     dynamic arguments,
   ]) =>
@@ -1290,11 +1323,11 @@ class MockMethodChannel extends _i1.Mock implements _i4.MethodChannel {
             arguments,
           ],
         ),
-        returnValue: _i7.Future<List<T>?>.value(),
-      ) as _i7.Future<List<T>?>);
+        returnValue: _i8.Future<List<T>?>.value(),
+      ) as _i8.Future<List<T>?>);
 
   @override
-  _i7.Future<Map<K, V>?> invokeMapMethod<K, V>(
+  _i8.Future<Map<K, V>?> invokeMapMethod<K, V>(
     String? method, [
     dynamic arguments,
   ]) =>
@@ -1306,12 +1339,12 @@ class MockMethodChannel extends _i1.Mock implements _i4.MethodChannel {
             arguments,
           ],
         ),
-        returnValue: _i7.Future<Map<K, V>?>.value(),
-      ) as _i7.Future<Map<K, V>?>);
+        returnValue: _i8.Future<Map<K, V>?>.value(),
+      ) as _i8.Future<Map<K, V>?>);
 
   @override
   void setMethodCallHandler(
-          _i7.Future<dynamic> Function(_i4.MethodCall)? handler) =>
+          _i8.Future<dynamic> Function(_i4.MethodCall)? handler) =>
       super.noSuchMethod(
         Invocation.method(
           #setMethodCallHandler,
@@ -1325,7 +1358,7 @@ class MockMethodChannel extends _i1.Mock implements _i4.MethodChannel {
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockSentryNativeBinding extends _i1.Mock
-    implements _i11.SentryNativeBinding {
+    implements _i12.SentryNativeBinding {
   MockSentryNativeBinding() {
     _i1.throwOnMissingStub(this);
   }
@@ -1343,15 +1376,15 @@ class MockSentryNativeBinding extends _i1.Mock
       ) as bool);
 
   @override
-  _i7.FutureOr<void> init(_i2.Hub? hub) =>
+  _i8.FutureOr<void> init(_i2.Hub? hub) =>
       (super.noSuchMethod(Invocation.method(
         #init,
         [hub],
-      )) as _i7.FutureOr<void>);
+      )) as _i8.FutureOr<void>);
 
   @override
-  _i7.FutureOr<void> captureEnvelope(
-    _i12.Uint8List? envelopeData,
+  _i8.FutureOr<void> captureEnvelope(
+    _i13.Uint8List? envelopeData,
     bool? containsUnhandledException,
   ) =>
       (super.noSuchMethod(Invocation.method(
@@ -1360,24 +1393,24 @@ class MockSentryNativeBinding extends _i1.Mock
           envelopeData,
           containsUnhandledException,
         ],
-      )) as _i7.FutureOr<void>);
+      )) as _i8.FutureOr<void>);
 
   @override
-  _i7.FutureOr<_i13.NativeFrames?> endNativeFrames(_i2.SentryId? id) =>
+  _i8.FutureOr<_i14.NativeFrames?> endNativeFrames(_i2.SentryId? id) =>
       (super.noSuchMethod(Invocation.method(
         #endNativeFrames,
         [id],
-      )) as _i7.FutureOr<_i13.NativeFrames?>);
+      )) as _i8.FutureOr<_i14.NativeFrames?>);
 
   @override
-  _i7.FutureOr<void> addBreadcrumb(_i2.Breadcrumb? breadcrumb) =>
+  _i8.FutureOr<void> addBreadcrumb(_i2.Breadcrumb? breadcrumb) =>
       (super.noSuchMethod(Invocation.method(
         #addBreadcrumb,
         [breadcrumb],
-      )) as _i7.FutureOr<void>);
+      )) as _i8.FutureOr<void>);
 
   @override
-  _i7.FutureOr<void> setContexts(
+  _i8.FutureOr<void> setContexts(
     String? key,
     dynamic value,
   ) =>
@@ -1387,17 +1420,17 @@ class MockSentryNativeBinding extends _i1.Mock
           key,
           value,
         ],
-      )) as _i7.FutureOr<void>);
+      )) as _i8.FutureOr<void>);
 
   @override
-  _i7.FutureOr<void> removeContexts(String? key) =>
+  _i8.FutureOr<void> removeContexts(String? key) =>
       (super.noSuchMethod(Invocation.method(
         #removeContexts,
         [key],
-      )) as _i7.FutureOr<void>);
+      )) as _i8.FutureOr<void>);
 
   @override
-  _i7.FutureOr<void> setExtra(
+  _i8.FutureOr<void> setExtra(
     String? key,
     dynamic value,
   ) =>
@@ -1407,17 +1440,17 @@ class MockSentryNativeBinding extends _i1.Mock
           key,
           value,
         ],
-      )) as _i7.FutureOr<void>);
+      )) as _i8.FutureOr<void>);
 
   @override
-  _i7.FutureOr<void> removeExtra(String? key) =>
+  _i8.FutureOr<void> removeExtra(String? key) =>
       (super.noSuchMethod(Invocation.method(
         #removeExtra,
         [key],
-      )) as _i7.FutureOr<void>);
+      )) as _i8.FutureOr<void>);
 
   @override
-  _i7.FutureOr<void> setTag(
+  _i8.FutureOr<void> setTag(
     String? key,
     String? value,
   ) =>
@@ -1427,14 +1460,14 @@ class MockSentryNativeBinding extends _i1.Mock
           key,
           value,
         ],
-      )) as _i7.FutureOr<void>);
+      )) as _i8.FutureOr<void>);
 
   @override
-  _i7.FutureOr<void> removeTag(String? key) =>
+  _i8.FutureOr<void> removeTag(String? key) =>
       (super.noSuchMethod(Invocation.method(
         #removeTag,
         [key],
-      )) as _i7.FutureOr<void>);
+      )) as _i8.FutureOr<void>);
 
   @override
   int? startProfiler(_i2.SentryId? traceId) =>
@@ -1444,14 +1477,14 @@ class MockSentryNativeBinding extends _i1.Mock
       )) as int?);
 
   @override
-  _i7.FutureOr<void> discardProfiler(_i2.SentryId? traceId) =>
+  _i8.FutureOr<void> discardProfiler(_i2.SentryId? traceId) =>
       (super.noSuchMethod(Invocation.method(
         #discardProfiler,
         [traceId],
-      )) as _i7.FutureOr<void>);
+      )) as _i8.FutureOr<void>);
 
   @override
-  _i7.FutureOr<Map<String, dynamic>?> collectProfile(
+  _i8.FutureOr<Map<String, dynamic>?> collectProfile(
     _i2.SentryId? traceId,
     int? startTimeNs,
     int? endTimeNs,
@@ -1463,31 +1496,98 @@ class MockSentryNativeBinding extends _i1.Mock
           startTimeNs,
           endTimeNs,
         ],
-      )) as _i7.FutureOr<Map<String, dynamic>?>);
+      )) as _i8.FutureOr<Map<String, dynamic>?>);
 
   @override
-  _i7.FutureOr<List<_i2.DebugImage>?> loadDebugImages(
+  _i8.FutureOr<List<_i2.DebugImage>?> loadDebugImages(
           _i2.SentryStackTrace? stackTrace) =>
       (super.noSuchMethod(Invocation.method(
         #loadDebugImages,
         [stackTrace],
-      )) as _i7.FutureOr<List<_i2.DebugImage>?>);
+      )) as _i8.FutureOr<List<_i2.DebugImage>?>);
 
   @override
-  _i7.FutureOr<_i2.SentryId> captureReplay(bool? isCrash) =>
+  _i8.FutureOr<_i2.SentryId> captureReplay(bool? isCrash) =>
       (super.noSuchMethod(
         Invocation.method(
           #captureReplay,
           [isCrash],
         ),
-        returnValue: _i7.Future<_i2.SentryId>.value(_FakeSentryId_5(
+        returnValue: _i8.Future<_i2.SentryId>.value(_FakeSentryId_5(
           this,
           Invocation.method(
             #captureReplay,
             [isCrash],
           ),
         )),
-      ) as _i7.FutureOr<_i2.SentryId>);
+      ) as _i8.FutureOr<_i2.SentryId>);
+}
+
+/// A class which mocks [SentryJsApi].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockSentryJsApi extends _i1.Mock implements _i5.SentryJsApi {
+  MockSentryJsApi() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  void init(_i15.JSAny? options) => super.noSuchMethod(
+        Invocation.method(
+          #init,
+          [options],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void close() => super.noSuchMethod(
+        Invocation.method(
+          #close,
+          [],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  _i5.SentryJsClient getClient() => (super.noSuchMethod(
+        Invocation.method(
+          #getClient,
+          [],
+        ),
+        returnValue: _FakeSentryJsClient_10(
+          this,
+          Invocation.method(
+            #getClient,
+            [],
+          ),
+        ),
+      ) as _i5.SentryJsClient);
+
+  @override
+  _i5.SentryJsReplay replayIntegration(_i15.JSAny? configuration) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #replayIntegration,
+          [configuration],
+        ),
+        returnValue: _FakeSentryJsReplay_11(
+          this,
+          Invocation.method(
+            #replayIntegration,
+            [configuration],
+          ),
+        ),
+      ) as _i5.SentryJsReplay);
+
+  @override
+  void captureSession() => super.noSuchMethod(
+        Invocation.method(
+          #captureSession,
+          [],
+        ),
+        returnValueForMissingStub: null,
+      );
 }
 
 /// A class which mocks [Hub].
@@ -1501,20 +1601,20 @@ class MockHub extends _i1.Mock implements _i2.Hub {
   @override
   _i2.SentryOptions get options => (super.noSuchMethod(
         Invocation.getter(#options),
-        returnValue: _FakeSentryOptions_10(
+        returnValue: _FakeSentryOptions_12(
           this,
           Invocation.getter(#options),
         ),
       ) as _i2.SentryOptions);
 
   @override
-  _i5.MetricsApi get metricsApi => (super.noSuchMethod(
+  _i6.MetricsApi get metricsApi => (super.noSuchMethod(
         Invocation.getter(#metricsApi),
-        returnValue: _FakeMetricsApi_11(
+        returnValue: _FakeMetricsApi_13(
           this,
           Invocation.getter(#metricsApi),
         ),
-      ) as _i5.MetricsApi);
+      ) as _i6.MetricsApi);
 
   @override
   bool get isEnabled => (super.noSuchMethod(
@@ -1534,14 +1634,14 @@ class MockHub extends _i1.Mock implements _i2.Hub {
   @override
   _i2.Scope get scope => (super.noSuchMethod(
         Invocation.getter(#scope),
-        returnValue: _FakeScope_12(
+        returnValue: _FakeScope_14(
           this,
           Invocation.getter(#scope),
         ),
       ) as _i2.Scope);
 
   @override
-  set profilerFactory(_i9.SentryProfilerFactory? value) => super.noSuchMethod(
+  set profilerFactory(_i10.SentryProfilerFactory? value) => super.noSuchMethod(
         Invocation.setter(
           #profilerFactory,
           value,
@@ -1550,7 +1650,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
       );
 
   @override
-  _i7.Future<_i2.SentryId> captureEvent(
+  _i8.Future<_i2.SentryId> captureEvent(
     _i2.SentryEvent? event, {
     dynamic stackTrace,
     _i2.Hint? hint,
@@ -1566,7 +1666,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
             #withScope: withScope,
           },
         ),
-        returnValue: _i7.Future<_i2.SentryId>.value(_FakeSentryId_5(
+        returnValue: _i8.Future<_i2.SentryId>.value(_FakeSentryId_5(
           this,
           Invocation.method(
             #captureEvent,
@@ -1578,10 +1678,10 @@ class MockHub extends _i1.Mock implements _i2.Hub {
             },
           ),
         )),
-      ) as _i7.Future<_i2.SentryId>);
+      ) as _i8.Future<_i2.SentryId>);
 
   @override
-  _i7.Future<_i2.SentryId> captureException(
+  _i8.Future<_i2.SentryId> captureException(
     dynamic throwable, {
     dynamic stackTrace,
     _i2.Hint? hint,
@@ -1597,7 +1697,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
             #withScope: withScope,
           },
         ),
-        returnValue: _i7.Future<_i2.SentryId>.value(_FakeSentryId_5(
+        returnValue: _i8.Future<_i2.SentryId>.value(_FakeSentryId_5(
           this,
           Invocation.method(
             #captureException,
@@ -1609,10 +1709,10 @@ class MockHub extends _i1.Mock implements _i2.Hub {
             },
           ),
         )),
-      ) as _i7.Future<_i2.SentryId>);
+      ) as _i8.Future<_i2.SentryId>);
 
   @override
-  _i7.Future<_i2.SentryId> captureMessage(
+  _i8.Future<_i2.SentryId> captureMessage(
     String? message, {
     _i2.SentryLevel? level,
     String? template,
@@ -1632,7 +1732,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
             #withScope: withScope,
           },
         ),
-        returnValue: _i7.Future<_i2.SentryId>.value(_FakeSentryId_5(
+        returnValue: _i8.Future<_i2.SentryId>.value(_FakeSentryId_5(
           this,
           Invocation.method(
             #captureMessage,
@@ -1646,21 +1746,21 @@ class MockHub extends _i1.Mock implements _i2.Hub {
             },
           ),
         )),
-      ) as _i7.Future<_i2.SentryId>);
+      ) as _i8.Future<_i2.SentryId>);
 
   @override
-  _i7.Future<void> captureUserFeedback(_i2.SentryUserFeedback? userFeedback) =>
+  _i8.Future<void> captureUserFeedback(_i2.SentryUserFeedback? userFeedback) =>
       (super.noSuchMethod(
         Invocation.method(
           #captureUserFeedback,
           [userFeedback],
         ),
-        returnValue: _i7.Future<void>.value(),
-        returnValueForMissingStub: _i7.Future<void>.value(),
-      ) as _i7.Future<void>);
+        returnValue: _i8.Future<void>.value(),
+        returnValueForMissingStub: _i8.Future<void>.value(),
+      ) as _i8.Future<void>);
 
   @override
-  _i7.Future<_i2.SentryId> captureFeedback(
+  _i8.Future<_i2.SentryId> captureFeedback(
     _i2.SentryFeedback? feedback, {
     _i2.Hint? hint,
     _i2.ScopeCallback? withScope,
@@ -1674,7 +1774,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
             #withScope: withScope,
           },
         ),
-        returnValue: _i7.Future<_i2.SentryId>.value(_FakeSentryId_5(
+        returnValue: _i8.Future<_i2.SentryId>.value(_FakeSentryId_5(
           this,
           Invocation.method(
             #captureFeedback,
@@ -1685,10 +1785,10 @@ class MockHub extends _i1.Mock implements _i2.Hub {
             },
           ),
         )),
-      ) as _i7.Future<_i2.SentryId>);
+      ) as _i8.Future<_i2.SentryId>);
 
   @override
-  _i7.Future<void> addBreadcrumb(
+  _i8.Future<void> addBreadcrumb(
     _i2.Breadcrumb? crumb, {
     _i2.Hint? hint,
   }) =>
@@ -1698,9 +1798,9 @@ class MockHub extends _i1.Mock implements _i2.Hub {
           [crumb],
           {#hint: hint},
         ),
-        returnValue: _i7.Future<void>.value(),
-        returnValueForMissingStub: _i7.Future<void>.value(),
-      ) as _i7.Future<void>);
+        returnValue: _i8.Future<void>.value(),
+        returnValueForMissingStub: _i8.Future<void>.value(),
+      ) as _i8.Future<void>);
 
   @override
   void bindClient(_i2.SentryClient? client) => super.noSuchMethod(
@@ -1717,7 +1817,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
           #clone,
           [],
         ),
-        returnValue: _FakeHub_13(
+        returnValue: _FakeHub_15(
           this,
           Invocation.method(
             #clone,
@@ -1727,21 +1827,21 @@ class MockHub extends _i1.Mock implements _i2.Hub {
       ) as _i2.Hub);
 
   @override
-  _i7.Future<void> close() => (super.noSuchMethod(
+  _i8.Future<void> close() => (super.noSuchMethod(
         Invocation.method(
           #close,
           [],
         ),
-        returnValue: _i7.Future<void>.value(),
-        returnValueForMissingStub: _i7.Future<void>.value(),
-      ) as _i7.Future<void>);
+        returnValue: _i8.Future<void>.value(),
+        returnValueForMissingStub: _i8.Future<void>.value(),
+      ) as _i8.Future<void>);
 
   @override
-  _i7.FutureOr<void> configureScope(_i2.ScopeCallback? callback) =>
+  _i8.FutureOr<void> configureScope(_i2.ScopeCallback? callback) =>
       (super.noSuchMethod(Invocation.method(
         #configureScope,
         [callback],
-      )) as _i7.FutureOr<void>);
+      )) as _i8.FutureOr<void>);
 
   @override
   _i2.ISentrySpan startTransaction(
@@ -1774,7 +1874,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
             #customSamplingContext: customSamplingContext,
           },
         ),
-        returnValue: _i6.startTransactionShim(
+        returnValue: _i7.startTransactionShim(
           name,
           operation,
           description: description,
@@ -1832,7 +1932,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
       ) as _i2.ISentrySpan);
 
   @override
-  _i7.Future<_i2.SentryId> captureTransaction(
+  _i8.Future<_i2.SentryId> captureTransaction(
     _i2.SentryTransaction? transaction, {
     _i2.SentryTraceContextHeader? traceContext,
   }) =>
@@ -1842,7 +1942,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
           [transaction],
           {#traceContext: traceContext},
         ),
-        returnValue: _i7.Future<_i2.SentryId>.value(_FakeSentryId_5(
+        returnValue: _i8.Future<_i2.SentryId>.value(_FakeSentryId_5(
           this,
           Invocation.method(
             #captureTransaction,
@@ -1850,24 +1950,24 @@ class MockHub extends _i1.Mock implements _i2.Hub {
             {#traceContext: traceContext},
           ),
         )),
-      ) as _i7.Future<_i2.SentryId>);
+      ) as _i8.Future<_i2.SentryId>);
 
   @override
-  _i7.Future<_i2.SentryId> captureMetrics(
-          Map<int, Iterable<_i10.Metric>>? metricsBuckets) =>
+  _i8.Future<_i2.SentryId> captureMetrics(
+          Map<int, Iterable<_i11.Metric>>? metricsBuckets) =>
       (super.noSuchMethod(
         Invocation.method(
           #captureMetrics,
           [metricsBuckets],
         ),
-        returnValue: _i7.Future<_i2.SentryId>.value(_FakeSentryId_5(
+        returnValue: _i8.Future<_i2.SentryId>.value(_FakeSentryId_5(
           this,
           Invocation.method(
             #captureMetrics,
             [metricsBuckets],
           ),
         )),
-      ) as _i7.Future<_i2.SentryId>);
+      ) as _i8.Future<_i2.SentryId>);
 
   @override
   void setSpanContext(

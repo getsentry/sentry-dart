@@ -1,6 +1,9 @@
 import 'dart:js_interop';
 import 'package:meta/meta.dart';
 
+/// Low-level interface for direct JavaScript SDK operations.
+///
+/// Provides raw access to JS SDK functionality with JS types.
 abstract class SentryJsApi {
   void init(JSAny? options);
   void close();
@@ -13,44 +16,44 @@ abstract class SentryJsApi {
   void captureSession();
 }
 
-class SentryJsWrapper implements SentryJsApi {
+class SentryJsSdk implements SentryJsApi {
   @override
-  void init(JSAny? options) => _SentryJsBridge.init(options);
+  void init(JSAny? options) => _SentryJs.init(options);
 
   @override
-  void close() => _SentryJsBridge.close();
+  void close() => _SentryJs.close();
 
   @override
-  SentryJsClient getClient() => _SentryJsBridge.getClient();
+  SentryJsClient getClient() => _SentryJs.getClient();
 
   @override
   SentryJsReplay replayIntegration(JSAny? configuration) =>
-      _SentryJsBridge.replayIntegration(configuration);
+      _SentryJs.replayIntegration(configuration)!;
 
   @override
-  JSAny? replayCanvasIntegration() => _SentryJsBridge.replayCanvasIntegration();
+  JSAny? replayCanvasIntegration() => _SentryJs.replayCanvasIntegration();
 
   @override
-  JSAny? browserTracingIntegration() =>
-      _SentryJsBridge.browserTracingIntegration();
+  JSAny? browserTracingIntegration() => _SentryJs.browserTracingIntegration();
 
   @override
-  SentryJsSession? getSession() => _SentryJsBridge.getSession();
+  SentryJsSession? getSession() => _SentryJs.getSession();
 
   @override
-  void captureSession() => _SentryJsBridge.captureSession();
+  void captureSession() => _SentryJs.captureSession();
 
   @override
-  JSAny? breadcrumbsIntegration() => _SentryJsBridge.breadcrumbsIntegration();
+  JSAny? breadcrumbsIntegration() => _SentryJs.breadcrumbsIntegration();
 }
 
+/// Raw JavaScript interop with Sentry JS Browser
 @internal
 @JS('Sentry')
 @staticInterop
-class _SentryJsBridge {
+class _SentryJs {
   external static void init(JSAny? options);
 
-  external static JSAny? replayIntegration(JSAny? configuration);
+  external static SentryJsReplay? replayIntegration(JSAny? configuration);
 
   external static JSAny? replayCanvasIntegration();
 

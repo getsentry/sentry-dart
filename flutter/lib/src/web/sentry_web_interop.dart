@@ -8,18 +8,20 @@ import '../native/sentry_native_invoker.dart';
 import 'dart:html';
 import 'dart:js_util' as js_util;
 
+import 'sentry_script_loader.dart';
 import 'sentry_web_binding.dart';
 
-/// Provide typed methods to access native layer via MethodChannel.
+/// API for accessing native Sentry JS SDK methods
 @internal
 class SentryWebInterop
     with SentryNativeSafeInvoker
     implements SentryWebBinding {
-  SentryWebInterop(this._jsBridge, this._options);
+  SentryWebInterop(this._jsBridge, this._options, this._scriptLoader);
 
   @override
   SentryFlutterOptions get options => _options;
   final SentryFlutterOptions _options;
+  final SentryScriptLoader _scriptLoader;
   final SentryJsApi _jsBridge;
 
   SentryJsReplay? _replay;
@@ -27,9 +29,9 @@ class SentryWebInterop
   @override
   Future<void> init(SentryFlutterOptions options) async {
     return tryCatchAsync('init', () async {
-      await _loadSentryScripts(options);
+      await _scriptLoader.loadScripts();
 
-      if (!_scriptLoaded) {
+      if (!_scriptLoader.isLoaded) {
         options.logger(SentryLevel.warning,
             'Sentry scripts are not loaded, cannot initialize Sentry JS SDK.');
       }
@@ -52,7 +54,8 @@ class SentryWebInterop
         'maxBreadcrumbs': options.maxBreadcrumbs,
         'replaysSessionSampleRate':
             options.experimental.replay.sessionSampleRate,
-        'replaysOnErrorSampleRate': options.experimental.replay.errorSampleRate,
+        'replaysOnErrorSampleRate':
+            options.experimental.replay.onErrorSampleRate,
         // using defaultIntegrations ensures that we can control which integrations are added
         'defaultIntegrations': [
           _replay,
@@ -128,65 +131,4 @@ class SentryWebInterop
       return id == null ? null : SentryId.fromId(id);
     });
   }
-}
-
-bool _scriptLoaded = false;
-Future<void> _loadSentryScripts(SentryFlutterOptions options,
-    {bool useIntegrity = true}) async {
-  if (_scriptLoaded) return;
-
-  // todo: put this somewhere else so we can auto-update it through CI
-  List<Map<String, String>> scripts = [
-    {
-      'url':
-          'https://browser.sentry-cdn.com/8.24.0/bundle.tracing.replay.min.js',
-      'integrity':
-          'sha384-eEn/WSvcP5C2h5g0AGe5LCsheNNlNkn/iV8y5zOylmPoOfSyvZ23HBDnOhoB0sdL'
-    },
-    {
-      'url': 'https://browser.sentry-cdn.com/8.24.0/replay-canvas.min.js',
-      'integrity':
-          'sha384-gSFCG8IdZobb6PWs7SwuaES/R5PPt+gw4y6N/Kkwlic+1Hzf21EUm5Dg/WbYMxTE'
-    },
-  ];
-
-  if (options.debug) {
-    options.logger(SentryLevel.debug,
-        'Option `debug` is enabled, loading non-minified Sentry scripts.');
-    scripts = [
-      {
-        'url': 'https://browser.sentry-cdn.com/8.24.0/bundle.tracing.replay.js',
-      },
-      {
-        'url': 'https://browser.sentry-cdn.com/8.24.0/replay-canvas.js',
-      },
-    ];
-  }
-
-  try {
-    await Future.wait(scripts.map((script) => _loadScript(
-        script['url']!, useIntegrity ? script['integrity'] : null)));
-    _scriptLoaded = true;
-    options.logger(
-        SentryLevel.debug, 'All Sentry scripts loaded successfully.');
-  } catch (e) {
-    options.logger(SentryLevel.error,
-        'Failed to load Sentry scripts, cannot initialize Sentry JS SDK.');
-  }
-}
-
-Future<void> _loadScript(String src, String? integrity) {
-  final completer = Completer<void>();
-  final script = ScriptElement()
-    ..src = src
-    ..crossOrigin = 'anonymous'
-    ..onLoad.listen((_) => completer.complete())
-    ..onError.listen((event) => completer.completeError('Failed to load $src'));
-
-  if (integrity != null) {
-    script.integrity = integrity;
-  }
-
-  document.head?.append(script);
-  return completer.future;
 }

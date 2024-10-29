@@ -4,8 +4,8 @@ import 'dart:typed_data';
 
 import 'package:flutter/services.dart';
 
-import '../sentry_flutter.dart';
-import 'native/sentry_native_binding.dart';
+import '../../sentry_flutter.dart';
+import '../native/sentry_native_binding.dart';
 
 class FileSystemTransport implements Transport {
   FileSystemTransport(this._native, this._options);

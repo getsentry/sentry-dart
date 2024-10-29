@@ -67,7 +67,7 @@ mixin SentryFlutter {
 
     // todo: maybe makes sense to combine the bindings into a single interface
     if (options.platformChecker.isWeb) {
-      _webBinding = webFactory.createBinding(flutterOptions);
+      _webBinding = webFactory.createBinding(options);
     }
 
     if (options.platformChecker.hasNativeIntegration) {

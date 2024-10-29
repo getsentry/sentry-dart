@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/version.dart';
 import 'package:sentry_flutter/src/web/sentry_js_bridge.dart';
+import 'package:sentry_flutter/src/web/sentry_script_loader.dart';
 import 'package:sentry_flutter/src/web/sentry_web_interop.dart';
 
 import '../mocks.dart';
@@ -80,6 +81,6 @@ class Fixture {
   late SentryFlutterOptions options;
   SentryWebInterop getSut(SentryJsApi jsBridge) {
     options = createOptions();
-    return SentryWebInterop(jsBridge, options);
+    return SentryWebInterop(jsBridge, options, SentryScriptLoader(options));
   }
 }
