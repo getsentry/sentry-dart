@@ -2023,7 +2023,7 @@ void main() {
       final capturedEnvelope = (fixture.transport).envelopes.first;
       final attachmentItem = IterableUtils.firstWhereOrNull(
         capturedEnvelope.items,
-            (SentryEnvelopeItem e) => e.header.type == SentryItemType.attachment,
+        (SentryEnvelopeItem e) => e.header.type == SentryItemType.attachment,
       );
       expect(attachmentItem?.header.attachmentType,
           SentryAttachment.typeAttachmentDefault);
