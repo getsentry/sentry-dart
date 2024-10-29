@@ -30,7 +30,7 @@ class ScreenshotEventProcessor implements EventProcessor {
         _hasSentryScreenshotWidget) {
       return event;
     }
-    final beforeScreenshot = _options.beforeScreenshot;
+    final beforeScreenshot = _options.screenshot.beforeScreenshot;
     if (beforeScreenshot != null) {
       try {
         final result = beforeScreenshot(event, hint: hint);
@@ -67,7 +67,7 @@ class ScreenshotEventProcessor implements EventProcessor {
       return event;
     }
 
-    if (_options.attachScreenshotOnlyWhenResumed &&
+    if (_options.screenshot.attachScreenshotOnlyWhenResumed &&
         widget.WidgetsBinding.instance.lifecycleState !=
             AppLifecycleState.resumed) {
       _options.logger(SentryLevel.debug,
@@ -77,7 +77,8 @@ class ScreenshotEventProcessor implements EventProcessor {
 
     // ignore: deprecated_member_use
     var recorder = ScreenshotRecorder(
-        ScreenshotRecorderConfig(quality: _options.screenshotQuality),
+        ScreenshotRecorderConfig(
+            quality: _options.screenshot.screenshotQuality),
         _options);
 
     Uint8List? _screenshotData;

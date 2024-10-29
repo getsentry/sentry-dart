@@ -3,14 +3,14 @@ import '../event_processor/screenshot_event_processor.dart';
 import '../sentry_flutter_options.dart';
 
 /// Adds [ScreenshotEventProcessor] to options event processors if
-/// [SentryFlutterOptions.attachScreenshot] is true
+/// [SentryFlutterOptions.screenshot.attachScreenshot] is true
 class ScreenshotIntegration implements Integration<SentryFlutterOptions> {
   SentryFlutterOptions? _options;
   ScreenshotEventProcessor? _screenshotEventProcessor;
 
   @override
   void call(Hub hub, SentryFlutterOptions options) {
-    if (options.attachScreenshot) {
+    if (options.screenshot.attachScreenshot) {
       _options = options;
       final screenshotEventProcessor = ScreenshotEventProcessor(options);
       options.addEventProcessor(screenshotEventProcessor);
