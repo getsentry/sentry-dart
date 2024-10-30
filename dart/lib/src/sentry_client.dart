@@ -60,8 +60,11 @@ class SentryClient {
       rateLimiter = RateLimiter(options);
       options.transport = HttpTransport(options, rateLimiter);
     }
-    options.transport =
-        ClientReportTransport(rateLimiter, options.recorder, options.transport);
+    options.transport = ClientReportTransport(
+      rateLimiter,
+      options,
+      options.transport,
+    );
     // TODO: Web might change soon to use the JS SDK so we can remove it here later on
     final enableFlutterSpotlight = (options.spotlight.enabled &&
         (options.platformChecker.isWeb ||

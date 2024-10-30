@@ -2,6 +2,7 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry/src/client_reports/client_report.dart';
 import 'package:sentry/src/client_reports/discard_reason.dart';
 import 'package:sentry/src/client_reports/discarded_event.dart';
+import 'package:sentry/src/sentry_item_type.dart';
 import 'package:sentry/src/transport/client_report_transport.dart';
 import 'package:sentry/src/transport/data_category.dart';
 import 'package:sentry/src/transport/rate_limiter.dart';
@@ -79,6 +80,75 @@ void main() {
       expect(envelope.clientReport, clientReport);
     });
   });
+
+  group('client report only event', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    test('send after filtering out 10 times and client report', () async {
+      final clientReport = ClientReport(
+        DateTime(0),
+        [DiscardedEvent(DiscardReason.rateLimitBackoff, DataCategory.error, 1)],
+      );
+      fixture.recorder.clientReport = clientReport;
+
+      final mockRateLimiter = MockRateLimiter()..filterReturnsNull = true;
+
+      final sut = fixture.getSut(rateLimiter: mockRateLimiter);
+
+      final envelope = MockEnvelope();
+      envelope.items = [SentryEnvelopeItem.fromEvent(SentryEvent())];
+
+      for (int i = 0; i < 10; i++) {
+        await sut.send(envelope);
+      }
+
+      expect(fixture.mockTransport.called(1), true);
+
+      final sentEnvelope = fixture.mockTransport.envelopes.first;
+      expect(sentEnvelope.items.length, 1);
+      expect(sentEnvelope.items[0].header.type, SentryItemType.clientReport);
+    });
+
+    test('filter out after 10 times with no client reports', () async {
+      final mockRateLimiter = MockRateLimiter()..filterReturnsNull = true;
+
+      final sut = fixture.getSut(rateLimiter: mockRateLimiter);
+
+      final envelope = MockEnvelope();
+      envelope.items = [SentryEnvelopeItem.fromEvent(SentryEvent())];
+
+      for (int i = 0; i < 10; i++) {
+        await sut.send(envelope);
+      }
+
+      expect(fixture.mockTransport.called(0), true);
+    });
+
+    test('reset counter', () async {
+      final clientReport = ClientReport(
+        DateTime(0),
+        [DiscardedEvent(DiscardReason.rateLimitBackoff, DataCategory.error, 1)],
+      );
+      fixture.recorder.clientReport = clientReport;
+
+      final mockRateLimiter = MockRateLimiter()..filterReturnsNull = true;
+
+      final sut = fixture.getSut(rateLimiter: mockRateLimiter);
+
+      final envelope = MockEnvelope();
+      envelope.items = [SentryEnvelopeItem.fromEvent(SentryEvent())];
+
+      for (int i = 0; i < 20; i++) {
+        await sut.send(envelope);
+      }
+
+      expect(fixture.mockTransport.called(2), true);
+    });
+  });
 }
 
 class Fixture {
@@ -89,6 +159,7 @@ class Fixture {
 
   ClientReportTransport getSut({RateLimiter? rateLimiter}) {
     mockTransport.parseFromEnvelope = false;
-    return ClientReportTransport(rateLimiter, recorder, mockTransport);
+    options.recorder = recorder;
+    return ClientReportTransport(rateLimiter, options, mockTransport);
   }
 }
