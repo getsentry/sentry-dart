@@ -24,6 +24,8 @@
   );
   ```
 
+- Send Less Client Reports When Rate Limited ([#2380](https://github.com/getsentry/sentry-dart/pull/2380))
+
 ### Enhancements
 
 - Cache parsed DSN ([#2365](https://github.com/getsentry/sentry-dart/pull/2365))
