@@ -1658,85 +1658,6 @@ void main() {
       expect(envelope.clientReport, clientReport);
     });
 
-    test('captureEvent adds trace context', () async {
-      final client = fixture.getSut();
-
-      final scope = Scope(fixture.options);
-      scope.replayId = SentryId.newId();
-      scope.span =
-          SentrySpan(fixture.tracer, fixture.tracer.context, MockHub());
-
-      await client.captureEvent(fakeEvent, scope: scope);
-
-      final envelope = fixture.transport.envelopes.first;
-      expect(envelope.header.traceContext, isNotNull);
-      expect(envelope.header.traceContext?.replayId, scope.replayId);
-    });
-
-    test('captureEvent adds attachments from hint', () async {
-      final attachment = SentryAttachment.fromIntList([], "fixture-fileName");
-      final hint = Hint.withAttachment(attachment);
-
-      final sut = fixture.getSut();
-      await sut.captureEvent(fakeEvent, hint: hint);
-
-      final capturedEnvelope = (fixture.transport).envelopes.first;
-      final attachmentItem = IterableUtils.firstWhereOrNull(
-        capturedEnvelope.items,
-        (SentryEnvelopeItem e) => e.header.type == SentryItemType.attachment,
-      );
-      expect(attachmentItem?.header.attachmentType,
-          SentryAttachment.typeAttachmentDefault);
-    });
-
-    test('captureEvent adds screenshot from hint', () async {
-      final client = fixture.getSut();
-      final screenshot =
-          SentryAttachment.fromScreenshotData(Uint8List.fromList([0, 0, 0, 0]));
-      final hint = Hint.withScreenshot(screenshot);
-
-      await client.captureEvent(fakeEvent, hint: hint);
-
-      final capturedEnvelope = (fixture.transport).envelopes.first;
-      final attachmentItem = capturedEnvelope.items.firstWhereOrNull(
-          (element) => element.header.type == SentryItemType.attachment);
-      expect(attachmentItem?.header.fileName, 'screenshot.png');
-    });
-
-    test('captureEvent adds viewHierarchy from hint', () async {
-      final client = fixture.getSut();
-      final view = SentryViewHierarchy('flutter');
-      final attachment = SentryAttachment.fromViewHierarchy(view);
-      final hint = Hint.withViewHierarchy(attachment);
-
-      await client.captureEvent(fakeEvent, hint: hint);
-
-      final capturedEnvelope = (fixture.transport).envelopes.first;
-      final attachmentItem = capturedEnvelope.items.firstWhereOrNull(
-          (element) => element.header.type == SentryItemType.attachment);
-
-      expect(attachmentItem?.header.attachmentType,
-          SentryAttachment.typeViewHierarchy);
-    });
-
-    test('captureTransaction adds trace context', () async {
-      final client = fixture.getSut();
-
-      final tr = SentryTransaction(fixture.tracer);
-
-      final context = SentryTraceContextHeader.fromJson(<String, dynamic>{
-        'trace_id': '${tr.eventId}',
-        'public_key': '123',
-        'replay_id': '456',
-      });
-
-      await client.captureTransaction(tr, traceContext: context);
-
-      final envelope = fixture.transport.envelopes.first;
-      expect(envelope.header.traceContext, isNotNull);
-      expect(envelope.header.traceContext?.replayId, SentryId.fromId('456'));
-    });
-
     test('captureUserFeedback calls flush', () async {
       final client = fixture.getSut(eventProcessor: DropAllEventProcessor());
 
@@ -1953,6 +1874,14 @@ void main() {
 
       expect(capturedEnvelope.header.dsn, fixture.options.dsn);
     });
+  });
+
+  group('Spotlight', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
 
     test(
         'Spotlight enabled should not set transport to SpotlightHttpTransport on iOS',
@@ -2034,6 +1963,7 @@ void main() {
       final client = fixture.getSut();
 
       final scope = Scope(fixture.options);
+      scope.replayId = SentryId.newId();
       scope.span =
           SentrySpan(fixture.tracer, fixture.tracer.context, MockHub());
 
@@ -2041,6 +1971,7 @@ void main() {
 
       final envelope = fixture.transport.envelopes.first;
       expect(envelope.header.traceContext, isNotNull);
+      expect(envelope.header.traceContext?.replayId, scope.replayId);
     });
 
     test('captureTransaction adds trace context', () async {
@@ -2051,12 +1982,14 @@ void main() {
       final context = SentryTraceContextHeader.fromJson(<String, dynamic>{
         'trace_id': '${tr.eventId}',
         'public_key': '123',
+        'replay_id': '456',
       });
 
       await client.captureTransaction(tr, traceContext: context);
 
       final envelope = fixture.transport.envelopes.first;
       expect(envelope.header.traceContext, isNotNull);
+      expect(envelope.header.traceContext?.replayId, SentryId.fromId('456'));
     });
 
     test('captureFeedback adds trace context', () async {
