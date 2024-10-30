@@ -25,7 +25,6 @@ import 'transport/http_transport.dart';
 import 'transport/noop_transport.dart';
 import 'transport/rate_limiter.dart';
 import 'transport/spotlight_http_transport.dart';
-import 'transport/task_queue.dart';
 import 'utils/isolate_utils.dart';
 import 'utils/regex_utils.dart';
 import 'utils/stacktrace_utils.dart';
@@ -39,10 +38,6 @@ const _defaultIpAddress = '{{auto}}';
 /// Logs crash reports and events to the Sentry.io service.
 class SentryClient {
   final SentryOptions _options;
-  late final _taskQueue = TaskQueue<SentryId?>(
-    _options.maxQueueSize,
-    _options.logger,
-  );
 
   final Random? _random;
 
@@ -630,9 +625,6 @@ class SentryClient {
   Future<SentryId?> _attachClientReportsAndSend(SentryEnvelope envelope) {
     final clientReport = _options.recorder.flush();
     envelope.addClientReport(clientReport);
-    return _taskQueue.enqueue(
-      () => _options.transport.send(envelope),
-      SentryId.empty(),
-    );
+    return _options.transport.send(envelope);
   }
 }
