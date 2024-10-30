@@ -2,10 +2,35 @@
 
 ## Unreleased
 
+### Features
+
+- Add screenshot to `SentryFeedbackWidget` ([#2369](https://github.com/getsentry/sentry-dart/pull/2369))
+  - Use `SentryFlutter.captureScreenshot` to create a screenshot attachment
+  - Call `SentryFeedbackWidget` with this attachment to add it to the user feedback
+
+  ```dart
+  final id = await Sentry.captureMessage('UserFeedback');
+  final screenshot = await SentryFlutter.captureScreenshot();
+  
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => SentryFeedbackWidget(
+          associatedEventId: id,
+          screenshot: screenshot,
+      ),
+      fullscreenDialog: true,
+    ),
+  );
+  ```
+
 ### Enhancements
 
 - Cache parsed DSN ([#2365](https://github.com/getsentry/sentry-dart/pull/2365))
-
+- Handle backpressure earlier in pipeline ([#2371](https://github.com/getsentry/sentry-dart/pull/2371))
+  - Drops max un-awaited parallel tasks earlier, so event processors & callbacks are not executed for them. 
+  - Change by setting `SentryOptions.maxQueueSize`. Default is 30.
+  
 ## 8.10.0-beta.2
 
 ### Fixes
