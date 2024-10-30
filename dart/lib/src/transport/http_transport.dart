@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:http/http.dart';
+import 'package:meta/meta.dart';
+import '../client_reports/client_report_recorder.dart';
 import '../utils/transport_utils.dart';
 import 'http_transport_request_handler.dart';
 
@@ -35,14 +37,16 @@ class HttpTransport implements Transport {
 
   @override
   Future<SentryId?> send(SentryEnvelope envelope) async {
-    final filteredEnvelope = _rateLimiter.filter(envelope);
-    if (filteredEnvelope == null) {
-      return SentryId.empty();
-    }
-    filteredEnvelope.header.sentAt = _options.clock();
+    // final filteredEnvelope = _rateLimiter.filter(envelope);
+    // if (filteredEnvelope == null) {
+    //   return SentryId.empty();
+    // }
+    // final clientReport = _options.recorder.flush();
+    // envelope.addClientReport(clientReport);
 
-    final streamedRequest =
-        await _requestHandler.createRequest(filteredEnvelope);
+    envelope.header.sentAt = _options.clock();
+
+    final streamedRequest = await _requestHandler.createRequest(envelope);
 
     final response = await _options.httpClient
         .send(streamedRequest)

@@ -20,6 +20,7 @@ import 'sentry_options.dart';
 import 'sentry_stack_trace_factory.dart';
 import 'sentry_trace_context_header.dart';
 import 'sentry_user_feedback.dart';
+import 'transport/client_report_transport.dart';
 import 'transport/data_category.dart';
 import 'transport/http_transport.dart';
 import 'transport/noop_transport.dart';
@@ -54,10 +55,13 @@ class SentryClient {
     if (options.sendClientReports) {
       options.recorder = ClientReportRecorder(options.clock);
     }
+    RateLimiter? rateLimiter;
     if (options.transport is NoOpTransport) {
-      final rateLimiter = RateLimiter(options);
+      rateLimiter = RateLimiter(options);
       options.transport = HttpTransport(options, rateLimiter);
     }
+    options.transport =
+        ClientReportTransport(rateLimiter, options.recorder, options.transport);
     // TODO: Web might change soon to use the JS SDK so we can remove it here later on
     final enableFlutterSpotlight = (options.spotlight.enabled &&
         (options.platformChecker.isWeb ||
@@ -427,7 +431,7 @@ class SentryClient {
 
   /// Reports the [envelope] to Sentry.io.
   Future<SentryId?> captureEnvelope(SentryEnvelope envelope) {
-    return _attachClientReportsAndSend(envelope);
+    return _options.transport.send(envelope);
   }
 
   /// Reports the [userFeedback] to Sentry.io.
@@ -439,7 +443,7 @@ class SentryClient {
       _options.sdk,
       dsn: _options.dsn,
     );
-    return _attachClientReportsAndSend(envelope);
+    return _options.transport.send(envelope);
   }
 
   /// Reports the [feedback] to Sentry.io.
@@ -469,7 +473,7 @@ class SentryClient {
       _options.sdk,
       dsn: _options.dsn,
     );
-    final id = await _attachClientReportsAndSend(envelope);
+    final id = await _options.transport.send(envelope);
     return id ?? SentryId.empty();
   }
 
@@ -620,11 +624,5 @@ class SentryClient {
       return DataCategory.transaction;
     }
     return DataCategory.error;
-  }
-
-  Future<SentryId?> _attachClientReportsAndSend(SentryEnvelope envelope) {
-    final clientReport = _options.recorder.flush();
-    envelope.addClientReport(clientReport);
-    return _options.transport.send(envelope);
   }
 }
