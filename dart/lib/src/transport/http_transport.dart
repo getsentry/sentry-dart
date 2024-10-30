@@ -2,8 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:http/http.dart';
-import 'package:meta/meta.dart';
-import '../client_reports/client_report_recorder.dart';
 import '../utils/transport_utils.dart';
 import 'http_transport_request_handler.dart';
 
