@@ -79,7 +79,8 @@ class ScreenshotEventProcessor implements EventProcessor {
     var recorder = ScreenshotRecorder(
         ScreenshotRecorderConfig(
             quality: _options.screenshot.screenshotQuality),
-        _options);
+        _options,
+        isReplayRecorder: false);
 
     Uint8List? _screenshotData;
 

@@ -5,7 +5,6 @@ import 'package:flutter/rendering.dart';
 import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
-import 'masking_config.dart';
 import 'recorder_config.dart';
 import 'widget_filter.dart';
 
@@ -21,13 +20,18 @@ class ScreenshotRecorder {
   WidgetFilter? _widgetFilter;
   bool warningLogged = false;
 
-  ScreenshotRecorder(this.config, this.options) {
-    /// TODO: Rewrite when default redaction value are synced with SS & SR
-    final SentryMaskingConfig maskingConfig =
-        (options.experimental.privacy ?? SentryPrivacyOptions())
-            .buildMaskingConfig();
+  // TODO: remove in the next major release, see recorder_test.dart.
+  @visibleForTesting
+  bool get hasWidgetFilter => _widgetFilter != null;
 
-    if (maskingConfig.length > 0) {
+  // TODO: remove [isReplayRecorder] parameter in the next major release, see _SentryFlutterExperimentalOptions.
+  ScreenshotRecorder(this.config, this.options,
+      {bool isReplayRecorder = true}) {
+    final privacyOptions = isReplayRecorder
+        ? options.experimental.privacyForReplay
+        : options.experimental.privacyForScreenshots;
+    final maskingConfig = privacyOptions?.buildMaskingConfig();
+    if (maskingConfig != null && maskingConfig.length > 0) {
       _widgetFilter = WidgetFilter(maskingConfig, options.logger);
     }
   }

@@ -55,6 +55,33 @@ void main() async {
         await _Fixture.create(tester, quality: SentryScreenshotQuality.low);
     expect(fixture.capture(), completion('427x854'));
   });
+
+  // TODO: remove in the next major release, see _SentryFlutterExperimentalOptions.
+  group('Widget filter is used based on config or application', () {
+    test('Uses widget filter by default for Replay', () {
+      final sut = ScreenshotRecorder(
+        ScreenshotRecorderConfig(),
+        defaultTestOptions(),
+      );
+      expect(sut.hasWidgetFilter, isTrue);
+    });
+
+    test('Does not use widget filter by default for Screenshots', () {
+      final sut = ScreenshotRecorder(
+          ScreenshotRecorderConfig(), defaultTestOptions(),
+          isReplayRecorder: false);
+      expect(sut.hasWidgetFilter, isFalse);
+    });
+
+    test(
+        'Uses widget filter for Screenshots when privacy configured explicitly',
+        () {
+      final sut = ScreenshotRecorder(ScreenshotRecorderConfig(),
+          defaultTestOptions()..experimental.privacy.maskAllText = false,
+          isReplayRecorder: false);
+      expect(sut.hasWidgetFilter, isTrue);
+    });
+  });
 }
 
 class _Fixture {

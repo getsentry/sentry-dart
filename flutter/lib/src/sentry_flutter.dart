@@ -99,8 +99,6 @@ mixin SentryFlutter {
       // ignore: invalid_use_of_internal_member
       runZonedGuardedOnError: runZonedGuardedOnError,
     );
-    // TODO: Remove when we synced SS and SR configurations and have a single default configuration
-    _setRedactionOptions(options);
 
     if (_native != null) {
       // ignore: invalid_use_of_internal_member
@@ -243,27 +241,6 @@ mixin SentryFlutter {
     );
     sdk.addPackage('pub:sentry_flutter', sdkVersion);
     options.sdk = sdk;
-  }
-
-  /// Screen redaction was previously introduced with the SessionReplay feature.
-  /// Screen redaction is enabled by default for SessionReplay.
-  /// As we also to use this feature for Screenshot, which previously was not
-  /// capable of redacting the screenshot, we need to disable redaction for Screenshot by default
-  /// so we don`t break the existing behavior.
-  /// As we have only one central place to configure the redaction,
-  /// we need to set the redaction options to full fill the above default settings.
-  /// The plan is to unify this behaviour with the next major release.
-  static void _setRedactionOptions(SentryFlutterOptions options) {
-    if (options.experimental.privacy != null) {
-      return;
-    } else if (options.screenshot.attachScreenshot == true &&
-        !options.experimental.replay.isEnabled) {
-      options.experimental.privacy = SentryPrivacyOptions()
-        ..maskAllText = false
-        ..maskAllImages = false;
-    } else {
-      options.experimental.privacy = SentryPrivacyOptions();
-    }
   }
 
   /// Reports the time it took for the screen to be fully displayed.
