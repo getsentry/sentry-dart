@@ -217,6 +217,23 @@ void main() {
       expect(metrics.slowFrameCount, 0);
       expect(metrics.framesDelay, 784); // 800ms - 16ms = 784ms delay
     });
+
+    test('removeIrrelevantFrames removes the correct frames', () {
+      sut.addFrame(DateTime.fromMillisecondsSinceEpoch(20),
+          DateTime.fromMillisecondsSinceEpoch(50));
+
+      sut.addFrame(DateTime.fromMillisecondsSinceEpoch(60),
+          DateTime.fromMillisecondsSinceEpoch(80));
+
+      sut.addFrame(DateTime.fromMillisecondsSinceEpoch(90),
+          DateTime.fromMillisecondsSinceEpoch(110));
+
+      expect(sut.delayedFrames.length, 3);
+
+      sut.removeIrrelevantFrames(DateTime.fromMillisecondsSinceEpoch(89));
+
+      expect(sut.delayedFrames.length, 1);
+    });
   });
 
   // todo: test removeIrrelevantFrames

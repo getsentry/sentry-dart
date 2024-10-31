@@ -37,7 +37,7 @@ class SentryDelayedFramesTracker {
   final List<SentryFrameTiming> _delayedFrames = [];
   final SentryFlutterOptions _options;
   final Duration _expectedFrameDuration;
-  DateTime? _oldestFrameStartTimestamp;
+  DateTime? _oldestFrameEndTimestamp;
   bool _isTrackingActive = false;
 
   /// Resumes the collecting of frames.
@@ -92,7 +92,7 @@ class SentryDelayedFramesTracker {
         final frameTiming = SentryFrameTiming(
             startTimestamp: startTimestamp, endTimestamp: endTimestamp);
         _delayedFrames.add(frameTiming);
-        _oldestFrameStartTimestamp ??= startTimestamp;
+        _oldestFrameEndTimestamp ??= endTimestamp;
       } else {
         // buffer is full, we stop collecting frames until all active spans have
         // finished processing
@@ -102,17 +102,17 @@ class SentryDelayedFramesTracker {
   }
 
   void removeIrrelevantFrames(DateTime spanStartTimestamp) {
-    if (_oldestFrameStartTimestamp == null) {
+    if (_oldestFrameEndTimestamp == null) {
       return;
     }
-    if (_oldestFrameStartTimestamp!.isBefore(spanStartTimestamp)) {
+    if (_oldestFrameEndTimestamp!.isBefore(spanStartTimestamp)) {
       _delayedFrames.removeWhere(
           (frame) => frame.startTimestamp.isBefore(spanStartTimestamp));
       try {
         // We cannot use firstOrNull, it requires at least Dart 3.0.0
-        _oldestFrameStartTimestamp = _delayedFrames.first.startTimestamp;
+        _oldestFrameEndTimestamp = _delayedFrames.first.startTimestamp;
       } catch (e) {
-        _oldestFrameStartTimestamp = null;
+        _oldestFrameEndTimestamp = null;
       }
     }
   }
@@ -226,7 +226,7 @@ class SentryDelayedFramesTracker {
   void clear() {
     _delayedFrames.clear();
     pause();
-    _oldestFrameStartTimestamp = null;
+    _oldestFrameEndTimestamp = null;
   }
 
   @visibleForTesting

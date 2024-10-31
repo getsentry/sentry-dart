@@ -87,7 +87,11 @@ void main() {
       expect(tracer.measurements[SentryMeasurement.slowFramesName]?.value, 2);
       expect(tracer.measurements[SentryMeasurement.frozenFramesName]?.value, 1);
       expect(
-          tracer.measurements[SentryMeasurement.framesDelayName]?.value, 500);
+          // This code verifies that the delay measurements added to the SentryTracer
+          // are correctly capturing the framesDelay value. The test checks if the
+          // framesDelayName measurement in the tracer accurately reflects the expected
+          tracer.measurements[SentryMeasurement.framesDelayName]?.value,
+          500);
       expect(sut.activeSpans, isEmpty);
     });
 
@@ -186,9 +190,15 @@ void main() {
       // ignore: invalid_use_of_internal_member
       final startTime = fixture.options.clock();
       final endTime = startTime.add(Duration(seconds: 1));
+      final startTime2 = startTime.add(Duration(seconds: 2));
       when(span.startTimestamp).thenReturn(startTime);
+      when(span2.startTimestamp).thenReturn(startTime2);
       when(fixture.mockFrameTracker.getFrameMetrics(
               spanStartTimestamp: startTime, spanEndTimestamp: endTime))
+          .thenReturn(null);
+      when(fixture.mockFrameTracker.getFrameMetrics(
+              spanStartTimestamp: startTime2,
+              spanEndTimestamp: anyNamed('spanEndTimestamp')))
           .thenReturn(null);
 
       await sut.onSpanStarted(span);
@@ -197,10 +207,9 @@ void main() {
       await sut.onSpanFinished(span, endTime);
 
       verifyNever(fixture.mockFrameTracker.clear());
+      verify(fixture.mockFrameTracker.removeIrrelevantFrames(any)).called(1);
     });
   });
-
-  // todo: test removeIrrelevantFrames
 }
 
 class Fixture {

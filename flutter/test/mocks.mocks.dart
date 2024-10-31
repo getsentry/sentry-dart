@@ -1856,24 +1856,6 @@ class MockSentryDelayedFramesTracker extends _i1.Mock
       ) as bool);
 
   @override
-  void startFrame() => super.noSuchMethod(
-        Invocation.method(
-          #startFrame,
-          [],
-        ),
-        returnValueForMissingStub: null,
-      );
-
-  @override
-  void endFrame() => super.noSuchMethod(
-        Invocation.method(
-          #endFrame,
-          [],
-        ),
-        returnValueForMissingStub: null,
-      );
-
-  @override
   void resume() => super.noSuchMethod(
         Invocation.method(
           #resume,
@@ -1907,6 +1889,32 @@ class MockSentryDelayedFramesTracker extends _i1.Mock
         ),
         returnValue: <_i21.SentryFrameTiming>[],
       ) as List<_i21.SentryFrameTiming>);
+
+  @override
+  void addFrame(
+    DateTime? startTimestamp,
+    DateTime? endTimestamp,
+  ) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #addFrame,
+          [
+            startTimestamp,
+            endTimestamp,
+          ],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void removeIrrelevantFrames(DateTime? spanStartTimestamp) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #removeIrrelevantFrames,
+          [spanStartTimestamp],
+        ),
+        returnValueForMissingStub: null,
+      );
 
   @override
   _i21.SpanFrameMetrics? getFrameMetrics({
