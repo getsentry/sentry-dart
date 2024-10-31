@@ -16,32 +16,28 @@ class FramesTrackingIntegration implements Integration<SentryFlutterOptions> {
   Future<void> call(Hub hub, SentryFlutterOptions options) async {
     _options = options;
 
-    void abortInitWith({required String reason}) {
-      options.logger(SentryLevel.debug,
-          '$FramesTrackingIntegration is disabled: $reason.');
-    }
-
     if (!options.enableFramesTracking) {
-      return abortInitWith(reason: 'option enablesFrameTracking is false');
+      return options.logger(SentryLevel.debug,
+          '$FramesTrackingIntegration disabled: enablesFramesTracking option is false');
     }
 
     if (options.tracesSampleRate == null && options.tracesSampler == null) {
-      return abortInitWith(reason: 'tracing is disabled');
+      return options.logger(SentryLevel.debug,
+          '$FramesTrackingIntegration disabled: tracesSampleRate and tracesSampler are disabled');
     }
 
     final widgetsBinding = options.bindingUtils.instance;
     if (widgetsBinding == null ||
         widgetsBinding is! SentryWidgetsBindingMixin) {
-      return abortInitWith(
-          reason:
-              'incompatible binding, SentryFlutterWidgetsBinding has not been instantiated');
+      return options.logger(SentryLevel.warning,
+          '$FramesTrackingIntegration disabled: incompatible binding, SentryFlutterWidgetsBinding has not been instantiated. Please, use SentryFlutterWidgetsBinding.ensureInitialized() instead of FlutterWidgetsBinding.ensureInitialized()');
     }
     _widgetsBinding = widgetsBinding;
 
     final expectedFrameDuration = await _initializeExpectedFrameDuration();
     if (expectedFrameDuration == null) {
-      return abortInitWith(
-          reason: 'could not fetch valid display refresh rate');
+      return options.logger(SentryLevel.debug,
+          '$FramesTrackingIntegration disabled: could not fetch valid display refresh rate');
     }
 
     // Everything valid, we can initialize now
