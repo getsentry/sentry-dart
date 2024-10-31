@@ -80,7 +80,7 @@ class SentryDelayedFramesTracker {
 
   @pragma('vm:prefer-inline')
   void addFrame(DateTime startTimestamp, DateTime endTimestamp) {
-    if (!_isTrackingActive) {
+    if (!_isTrackingActive || !_options.enableFramesTracking) {
       return;
     }
     if (startTimestamp.isAfter(endTimestamp)) {

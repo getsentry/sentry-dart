@@ -55,7 +55,7 @@ void main() {
 
   void assertInitFailure() {
     if (widgetsBinding != null) {
-      expect(widgetsBinding!.isFramesTrackerInitialized(), isFalse);
+      expect(widgetsBinding!.isFramesTrackingInitialized(), isFalse);
     }
     expect(options.performanceCollectors, isEmpty);
   }
@@ -80,12 +80,12 @@ void main() {
   test('properly cleans up resources on close', () async {
     await fromWorkingState(options);
 
-    expect(widgetsBinding!.isFramesTrackerInitialized(), isTrue);
+    expect(widgetsBinding!.isFramesTrackingInitialized(), isTrue);
     expect(options.performanceCollectors, isNotEmpty);
 
     integration.close();
 
-    expect(widgetsBinding!.isFramesTrackerInitialized(), isFalse);
+    expect(widgetsBinding!.isFramesTrackingInitialized(), isFalse);
     expect(options.performanceCollectors, isEmpty);
   });
 

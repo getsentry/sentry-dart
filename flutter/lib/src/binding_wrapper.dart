@@ -97,6 +97,11 @@ mixin SentryWidgetsBindingMixin on WidgetsBinding {
     _clock ??= clock;
   }
 
+  @visibleForTesting
+  bool isFramesTrackingInitialized() {
+    return _frameTimingCallback != null && _clock != null;
+  }
+
   @internal
   void removeFramesTracking() {
     _frameTimingCallback = null;

@@ -199,6 +199,8 @@ void main() {
       verifyNever(fixture.mockFrameTracker.clear());
     });
   });
+
+  // todo: test removeIrrelevantFrames
 }
 
 class Fixture {

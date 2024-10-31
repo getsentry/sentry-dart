@@ -12,14 +12,6 @@ void main() {
     fixture = Fixture();
   });
 
-  // Simulate the clock time used within frame tracker so we don't rely on
-  // actually measuring the time between frames
-  void _setClockToEpochMillis(int millisSinceEpoch) {
-    // ignore: invalid_use_of_internal_member
-    fixture.options.clock =
-        () => DateTime.fromMillisecondsSinceEpoch(millisSinceEpoch);
-  }
-
   group('when enableFramesTracking is true', () {
     setUp(() {
       sut = fixture.getSut();
@@ -29,89 +21,64 @@ void main() {
     test('does not capture frame if tracking is inactive', () {
       sut.pause();
 
-      _setClockToEpochMillis(0);
-      sut.startFrame();
-
-      _setClockToEpochMillis(50);
-      sut.endFrame();
+      sut.addFrame(DateTime.fromMillisecondsSinceEpoch(0),
+          DateTime.fromMillisecondsSinceEpoch(50));
 
       expect(sut.delayedFrames, isEmpty);
     });
 
     test('stop collecting frames when maxFramesCount is reached', () {
       for (int i = 0; i < maxDelayedFramesCount + 100; i++) {
-        _setClockToEpochMillis(i);
-        sut.startFrame();
-
-        _setClockToEpochMillis(50 + i);
-        sut.endFrame();
+        sut.addFrame(DateTime.fromMillisecondsSinceEpoch(0 + i),
+            DateTime.fromMillisecondsSinceEpoch(50 + i));
       }
 
       expect(sut.delayedFrames.length, maxDelayedFramesCount);
     });
 
     test('captures slow frames', () {
-      _setClockToEpochMillis(0);
-      sut.startFrame();
-
-      _setClockToEpochMillis(50);
-      sut.endFrame();
+      sut.addFrame(DateTime.fromMillisecondsSinceEpoch(0),
+          DateTime.fromMillisecondsSinceEpoch(50));
 
       expect(sut.delayedFrames, hasLength(1));
       expect(sut.delayedFrames.first.duration, Duration(milliseconds: 50));
     });
 
     test('captures frozen frames', () {
-      _setClockToEpochMillis(0);
-      sut.startFrame();
-
-      _setClockToEpochMillis(800);
-      sut.endFrame();
+      sut.addFrame(DateTime.fromMillisecondsSinceEpoch(0),
+          DateTime.fromMillisecondsSinceEpoch(800));
 
       expect(sut.delayedFrames, hasLength(1));
       expect(sut.delayedFrames.first.duration, Duration(milliseconds: 800));
     });
 
     test('does not capture frames within expected duration', () {
-      _setClockToEpochMillis(0);
-      sut.startFrame();
-
-      _setClockToEpochMillis(15);
-      sut.endFrame();
+      sut.addFrame(DateTime.fromMillisecondsSinceEpoch(0),
+          DateTime.fromMillisecondsSinceEpoch(10));
 
       expect(sut.delayedFrames, isEmpty);
     });
 
     test('getFramesIntersectingRange returns correct frames', () {
       // Frame entirely before range (should be excluded)
-      _setClockToEpochMillis(0);
-      sut.startFrame();
-      _setClockToEpochMillis(10);
-      sut.endFrame();
+      sut.addFrame(DateTime.fromMillisecondsSinceEpoch(0),
+          DateTime.fromMillisecondsSinceEpoch(10));
 
       // Frame starting before range and ending within (should be included)
-      _setClockToEpochMillis(40);
-      sut.startFrame();
-      _setClockToEpochMillis(60);
-      sut.endFrame();
+      sut.addFrame(DateTime.fromMillisecondsSinceEpoch(40),
+          DateTime.fromMillisecondsSinceEpoch(60));
 
       // Frame fully contained within range (should be included)
-      _setClockToEpochMillis(80);
-      sut.startFrame();
-      _setClockToEpochMillis(120);
-      sut.endFrame();
+      sut.addFrame(DateTime.fromMillisecondsSinceEpoch(80),
+          DateTime.fromMillisecondsSinceEpoch(120));
 
       // Frame starting within range and ending after (should be included)
-      _setClockToEpochMillis(140);
-      sut.startFrame();
-      _setClockToEpochMillis(180);
-      sut.endFrame();
+      sut.addFrame(DateTime.fromMillisecondsSinceEpoch(140),
+          DateTime.fromMillisecondsSinceEpoch(180));
 
       // Frame entirely after range (should be excluded)
-      _setClockToEpochMillis(200);
-      sut.startFrame();
-      _setClockToEpochMillis(220);
-      sut.endFrame();
+      sut.addFrame(DateTime.fromMillisecondsSinceEpoch(200),
+          DateTime.fromMillisecondsSinceEpoch(220));
 
       final frames = sut.getFramesIntersecting(
         startTimestamp: DateTime.fromMillisecondsSinceEpoch(50),
@@ -134,10 +101,8 @@ void main() {
       sut.pause();
       expect(sut.isTrackingActive, isFalse);
 
-      _setClockToEpochMillis(0);
-      sut.startFrame();
-      _setClockToEpochMillis(50);
-      sut.endFrame();
+      sut.addFrame(DateTime.fromMillisecondsSinceEpoch(0),
+          DateTime.fromMillisecondsSinceEpoch(50));
 
       expect(sut.delayedFrames, isEmpty);
     });
@@ -149,10 +114,8 @@ void main() {
       sut.resume();
       expect(sut.isTrackingActive, isTrue);
 
-      _setClockToEpochMillis(0);
-      sut.startFrame();
-      _setClockToEpochMillis(50);
-      sut.endFrame();
+      sut.addFrame(DateTime.fromMillisecondsSinceEpoch(0),
+          DateTime.fromMillisecondsSinceEpoch(50));
 
       expect(sut.delayedFrames, hasLength(1));
     });
@@ -160,10 +123,8 @@ void main() {
     test('clear removes all tracked frames and pauses tracking', () {
       sut.resume();
 
-      _setClockToEpochMillis(0);
-      sut.startFrame();
-      _setClockToEpochMillis(50);
-      sut.endFrame();
+      sut.addFrame(DateTime.fromMillisecondsSinceEpoch(0),
+          DateTime.fromMillisecondsSinceEpoch(50));
 
       expect(sut.delayedFrames, isNotEmpty);
       expect(sut.isTrackingActive, isTrue);
@@ -196,15 +157,11 @@ void main() {
       final spanEnd = spanStart.add(const Duration(seconds: 1));
 
       // Add two frames: one slow (20ms over) and one normal-ish
-      _setClockToEpochMillis(100);
-      sut.startFrame();
-      _setClockToEpochMillis(120); // 20ms duration
-      sut.endFrame();
+      sut.addFrame(DateTime.fromMillisecondsSinceEpoch(100),
+          DateTime.fromMillisecondsSinceEpoch(120));
 
-      _setClockToEpochMillis(200);
-      sut.startFrame();
-      _setClockToEpochMillis(216); // 16ms duration
-      sut.endFrame();
+      sut.addFrame(DateTime.fromMillisecondsSinceEpoch(200),
+          DateTime.fromMillisecondsSinceEpoch(216));
 
       final metrics = sut.getFrameMetrics(
         spanStartTimestamp: spanStart,
@@ -223,16 +180,12 @@ void main() {
       final spanEnd = spanStart.add(const Duration(milliseconds: 500));
 
       // Frame starts before span and ends within span
-      _setClockToEpochMillis(-50);
-      sut.startFrame();
-      _setClockToEpochMillis(50);
-      sut.endFrame();
+      sut.addFrame(DateTime.fromMillisecondsSinceEpoch(-50),
+          DateTime.fromMillisecondsSinceEpoch(50));
 
       // Frame starts within span and ends after span
-      _setClockToEpochMillis(400);
-      sut.startFrame();
-      _setClockToEpochMillis(600);
-      sut.endFrame();
+      sut.addFrame(DateTime.fromMillisecondsSinceEpoch(400),
+          DateTime.fromMillisecondsSinceEpoch(600));
 
       final metrics = sut.getFrameMetrics(
         spanStartTimestamp: spanStart,
@@ -251,10 +204,8 @@ void main() {
       final spanEnd = spanStart.add(const Duration(seconds: 1));
 
       // Add a frozen frame (800ms)
-      _setClockToEpochMillis(100);
-      sut.startFrame();
-      _setClockToEpochMillis(900);
-      sut.endFrame();
+      sut.addFrame(DateTime.fromMillisecondsSinceEpoch(100),
+          DateTime.fromMillisecondsSinceEpoch(900));
 
       final metrics = sut.getFrameMetrics(
         spanStartTimestamp: spanStart,
@@ -268,6 +219,8 @@ void main() {
     });
   });
 
+  // todo: test removeIrrelevantFrames
+
   group('when enableFramesTracking is false', () {
     setUp(() {
       sut = fixture.getSut(enableFramesTracking: false);
@@ -276,10 +229,8 @@ void main() {
     test('does not capture frames', () {
       sut.resume();
 
-      _setClockToEpochMillis(0);
-      sut.startFrame();
-      _setClockToEpochMillis(50);
-      sut.endFrame();
+      sut.addFrame(DateTime.fromMillisecondsSinceEpoch(0),
+          DateTime.fromMillisecondsSinceEpoch(50));
 
       expect(sut.delayedFrames, isEmpty);
     });
