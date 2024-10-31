@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_use_of_internal_member
+
 import '../../sentry_flutter.dart';
 import '../binding_wrapper.dart';
 import '../frames_tracking/sentry_delayed_frames_tracker.dart';
@@ -43,16 +45,15 @@ class FramesTrackingIntegration implements Integration<SentryFlutterOptions> {
     // Everything valid, we can initialize now
     final framesTracker =
         SentryDelayedFramesTracker(options, expectedFrameDuration);
-    final collector = SpanFrameMetricsCollector(options, framesTracker);
-    // widgetsBinding.initializeFramesTracker(framesTracker);
     widgetsBinding.registerFramesTracking(
         framesTracker.addFrame, options.clock);
+    final collector = SpanFrameMetricsCollector(options, framesTracker);
     options.addPerformanceCollector(collector);
     _collector = collector;
 
     options.sdk.addIntegration('framesTrackingIntegration');
     options.logger(SentryLevel.debug,
-        'Frames tracking successfully initialized with an expected frame duration of ${expectedFrameDuration.inMilliseconds}ms');
+        '$FramesTrackingIntegration successfully initialized with an expected frame duration of ${expectedFrameDuration.inMilliseconds}ms');
   }
 
   Future<Duration?> _initializeExpectedFrameDuration() async {
@@ -66,6 +67,6 @@ class FramesTrackingIntegration implements Integration<SentryFlutterOptions> {
   @override
   void close() {
     _options?.performanceCollectors.remove(_collector);
-    _widgetsBinding?.removeFramesTracker();
+    _widgetsBinding?.removeFramesTracking();
   }
 }

@@ -86,16 +86,22 @@ typedef FrameTimingCallback = void Function(
 typedef ClockCallback = DateTime Function();
 
 mixin SentryWidgetsBindingMixin on WidgetsBinding {
+  DateTime? _startTimestamp;
   FrameTimingCallback? _frameTimingCallback;
-  ClockCallback? _clock;
+  ClockProvider? _clock;
 
+  @internal
   void registerFramesTracking(
-      FrameTimingCallback callback, ClockCallback clock) {
-    _frameTimingCallback = callback;
-    _clock = clock;
+      FrameTimingCallback callback, ClockProvider clock) {
+    _frameTimingCallback ??= callback;
+    _clock ??= clock;
   }
 
-  DateTime? _startTimestamp;
+  @internal
+  void removeFramesTracking() {
+    _frameTimingCallback = null;
+    _clock = null;
+  }
 
   @override
   void handleBeginFrame(Duration? rawTimeStamp) {

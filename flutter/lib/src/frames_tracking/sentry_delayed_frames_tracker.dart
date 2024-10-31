@@ -5,7 +5,6 @@ import 'dart:math';
 import 'package:meta/meta.dart';
 import '../../sentry_flutter.dart';
 
-/// 30s span duration at 120fps = 3600 frames
 /// This is just an upper limit, ensuring that the buffer does not grow
 /// indefinitely in case of a long running span.
 /// Realistically this won't happen since we only track slow or frozen frames
@@ -13,7 +12,7 @@ import '../../sentry_flutter.dart';
 ///
 /// If this limit is reached, we stop collecting frames until all active spans
 /// have finished processing.
-const maxFramesCount = 3600;
+const maxDelayedFramesCount = 3600;
 
 /// The duration at which we consider a frame 'frozen'
 const _frozenFrameThreshold = Duration(milliseconds: 700);
@@ -89,7 +88,7 @@ class SentryDelayedFramesTracker {
     }
     final duration = endTimestamp.difference(startTimestamp);
     if (duration > _expectedFrameDuration) {
-      if (_delayedFrames.length < maxFramesCount) {
+      if (_delayedFrames.length < maxDelayedFramesCount) {
         final frameTiming = SentryFrameTiming(
             startTimestamp: startTimestamp, endTimestamp: endTimestamp);
         _delayedFrames.add(frameTiming);
@@ -113,7 +112,7 @@ class SentryDelayedFramesTracker {
         // We cannot use firstOrNull, it requires at least Dart 3.0.0
         _firstFrameStartTimestamp = _delayedFrames.first.startTimestamp;
       } catch (e) {
-        // no-op
+        _firstFrameStartTimestamp = null;
       }
     }
   }

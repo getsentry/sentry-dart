@@ -39,7 +39,7 @@ void main() {
     });
 
     test('stop collecting frames when maxFramesCount is reached', () {
-      for (int i = 0; i < maxFramesCount + 100; i++) {
+      for (int i = 0; i < maxDelayedFramesCount + 100; i++) {
         _setClockToEpochMillis(i);
         sut.startFrame();
 
@@ -47,7 +47,7 @@ void main() {
         sut.endFrame();
       }
 
-      expect(sut.delayedFrames.length, maxFramesCount);
+      expect(sut.delayedFrames.length, maxDelayedFramesCount);
     });
 
     test('captures slow frames', () {
