@@ -163,7 +163,7 @@ class SentryDelayedFramesTracker {
     for (final timing in relevantFrames) {
       final frameStartMs = timing.startTimestamp.millisecondsSinceEpoch;
       final frameEndMs = timing.endTimestamp.millisecondsSinceEpoch;
-      final actualDurationMs = timing.duration.inMilliseconds;
+      final frameDurationMs = timing.duration.inMilliseconds;
 
       if (frameEndMs <= spanStartMs) {
         // Frame ends before the span starts, skip it
@@ -181,16 +181,16 @@ class SentryDelayedFramesTracker {
 
       if (frameStartMs >= spanStartMs && frameEndMs <= spanEndMs) {
         // Fully contained
-        effectiveDuration = actualDurationMs;
-        effectiveDelay = max(0, actualDurationMs - expectedDurationMs);
+        effectiveDuration = frameDurationMs;
+        effectiveDelay = max(0, frameDurationMs - expectedDurationMs);
       } else {
         // Partially contained
         final intersectionStart = max(frameStartMs, spanStartMs);
         final intersectionEnd = min(frameEndMs, spanEndMs);
         effectiveDuration = intersectionEnd - intersectionStart;
 
-        final fullFrameDelay = max(0, actualDurationMs - expectedDurationMs);
-        final intersectionRatio = effectiveDuration / actualDurationMs;
+        final fullFrameDelay = max(0, frameDurationMs - expectedDurationMs);
+        final intersectionRatio = effectiveDuration / frameDurationMs;
         effectiveDelay = (fullFrameDelay * intersectionRatio).round();
       }
 
