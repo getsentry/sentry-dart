@@ -83,21 +83,23 @@ class SentryWidgetsFlutterBinding extends WidgetsFlutterBinding
 typedef FrameTimingCallback = void Function(
     DateTime startTimestamp, DateTime endTimestamp);
 
+typedef ClockCallback = DateTime Function();
+
 mixin SentryWidgetsBindingMixin on WidgetsBinding {
   FrameTimingCallback? _frameTimingCallback;
-  SentryFlutterOptions? _options;
+  ClockCallback? _clock;
 
   void registerFramesTracking(
-      FrameTimingCallback callback, SentryFlutterOptions options) {
+      FrameTimingCallback callback, ClockCallback clock) {
     _frameTimingCallback = callback;
-    _options = options;
+    _clock = clock;
   }
 
   DateTime? _startTimestamp;
 
   @override
   void handleBeginFrame(Duration? rawTimeStamp) {
-    _startTimestamp = _options?.clock();
+    _startTimestamp = _clock?.call();
 
     super.handleBeginFrame(rawTimeStamp);
   }
@@ -106,8 +108,11 @@ mixin SentryWidgetsBindingMixin on WidgetsBinding {
   void handleDrawFrame() {
     super.handleDrawFrame();
 
-    if (_startTimestamp != null && _options != null) {
-      _frameTimingCallback?.call(_startTimestamp!, _options!.clock());
+    final endTimestamp = _clock?.call();
+    if (_startTimestamp != null &&
+        endTimestamp != null &&
+        _startTimestamp!.isBefore(endTimestamp)) {
+      _frameTimingCallback?.call(_startTimestamp!, endTimestamp);
     }
   }
 }
