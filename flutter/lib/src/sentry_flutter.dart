@@ -148,11 +148,6 @@ mixin SentryFlutter {
     // Will call WidgetsFlutterBinding.ensureInitialized() before all other integrations.
     integrations.add(WidgetsFlutterBindingIntegration());
 
-    options.logger(
-      SentryLevel.info,
-      '`WidgetsBindingIntegration` is available in multi-view applications.',
-    );
-
     // Use PlatformDispatcher.onError instead of zones.
     if (isOnErrorSupported) {
       integrations.add(OnErrorIntegration());
