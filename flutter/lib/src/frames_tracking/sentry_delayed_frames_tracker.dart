@@ -61,16 +61,12 @@ class SentryDelayedFramesTracker {
     final endTimestamp = _options.clock();
     final startTimestamp = _currentFrameStartTimestamp;
 
-    if (!_isFrameValid(startTimestamp, endTimestamp)) {
+    if (startTimestamp != null && startTimestamp.isBefore(endTimestamp)) {
       _resetCurrentFrame();
       return;
     }
 
     _processFrame(startTimestamp!, endTimestamp);
-  }
-
-  bool _isFrameValid(DateTime? startTimestamp, DateTime? endTimestamp) {
-    return startTimestamp != null && endTimestamp != null;
   }
 
   void _processFrame(DateTime startTimestamp, DateTime endTimestamp) {
