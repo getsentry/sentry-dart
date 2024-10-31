@@ -38,56 +38,8 @@ class SentryDelayedFramesTracker {
   final List<SentryFrameTiming> _delayedFrames = [];
   final SentryFlutterOptions _options;
   final Duration _expectedFrameDuration;
-  DateTime? _currentFrameStartTimestamp;
+  DateTime? _firstFrameStartTimestamp;
   bool _isTrackingActive = false;
-
-  /// Marks the start of a frame.
-  @pragma('vm:prefer-inline')
-  void startFrame() {
-    if (!_isTrackingActive || _options.enableFramesTracking == false) {
-      return;
-    }
-
-    _currentFrameStartTimestamp = _options.clock();
-  }
-
-  /// Marks the end of a frame.
-  @pragma('vm:prefer-inline')
-  void endFrame() {
-    if (!_isTrackingActive || !_options.enableFramesTracking) {
-      return;
-    }
-
-    final endTimestamp = _options.clock();
-    final startTimestamp = _currentFrameStartTimestamp;
-
-    if (startTimestamp != null && startTimestamp.isBefore(endTimestamp)) {
-      _resetCurrentFrame();
-      return;
-    }
-
-    _processFrame(startTimestamp!, endTimestamp);
-  }
-
-  void _processFrame(DateTime startTimestamp, DateTime endTimestamp) {
-    final duration = endTimestamp.difference(startTimestamp);
-    if (duration > _expectedFrameDuration) {
-      if (_delayedFrames.length < maxFramesCount) {
-        final frameTiming = SentryFrameTiming(
-            startTimestamp: startTimestamp, endTimestamp: endTimestamp);
-        _delayedFrames.add(frameTiming);
-      } else {
-        // buffer is full, we stop collecting frames until all active spans have
-        // finished processing
-        pause();
-      }
-    }
-    _resetCurrentFrame();
-  }
-
-  void _resetCurrentFrame() {
-    _currentFrameStartTimestamp = null;
-  }
 
   /// Resumes the collecting of frames.
   void resume() {
@@ -97,7 +49,6 @@ class SentryDelayedFramesTracker {
   /// Pauses the collecting of frames.
   void pause() {
     _isTrackingActive = false;
-    _resetCurrentFrame();
   }
 
   /// Retrieves the frames the intersect with the provided [startTimestamp] and [endTimestamp].
@@ -126,6 +77,45 @@ class SentryDelayedFramesTracker {
           startsBeforeEndsWithin ||
           startsWithinEndsAfter;
     }).toList(growable: false);
+  }
+
+  @pragma('vm:prefer-inline')
+  void addFrame(DateTime startTimestamp, DateTime endTimestamp) {
+    if (!_isTrackingActive) {
+      return;
+    }
+    if (startTimestamp.isAfter(endTimestamp)) {
+      return;
+    }
+    final duration = endTimestamp.difference(startTimestamp);
+    if (duration > _expectedFrameDuration) {
+      if (_delayedFrames.length < maxFramesCount) {
+        final frameTiming = SentryFrameTiming(
+            startTimestamp: startTimestamp, endTimestamp: endTimestamp);
+        _delayedFrames.add(frameTiming);
+        _firstFrameStartTimestamp ??= startTimestamp;
+      } else {
+        // buffer is full, we stop collecting frames until all active spans have
+        // finished processing
+        pause();
+      }
+    }
+  }
+
+  void removeIrrelevantFrames(DateTime spanStartTimestamp) {
+    if (_firstFrameStartTimestamp == null) {
+      return;
+    }
+    if (_firstFrameStartTimestamp!.isBefore(spanStartTimestamp)) {
+      _delayedFrames.removeWhere(
+          (frame) => frame.startTimestamp.isBefore(spanStartTimestamp));
+      try {
+        // We cannot use firstOrNull, it requires at least Dart 3.0.0
+        _firstFrameStartTimestamp = _delayedFrames.first.startTimestamp;
+      } catch (e) {
+        // no-op
+      }
+    }
   }
 
   /// Calculates the frame metrics based on start, end timestamps and the
@@ -237,6 +227,7 @@ class SentryDelayedFramesTracker {
   void clear() {
     _delayedFrames.clear();
     pause();
+    _firstFrameStartTimestamp = null;
   }
 
   @visibleForTesting

@@ -45,6 +45,8 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
       activeSpans.remove(span);
       if (activeSpans.isEmpty) {
         clear();
+      } else {
+        _frameTracker.removeIrrelevantFrames(activeSpans.first.startTimestamp);
       }
     });
   }

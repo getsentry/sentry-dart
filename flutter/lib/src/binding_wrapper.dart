@@ -80,24 +80,24 @@ class SentryWidgetsFlutterBinding extends WidgetsFlutterBinding
   }
 }
 
+typedef FrameTimingCallback = void Function(
+    DateTime startTimestamp, DateTime endTimestamp);
+
 mixin SentryWidgetsBindingMixin on WidgetsBinding {
-  SentryDelayedFramesTracker? _framesTracker;
+  FrameTimingCallback? _frameTimingCallback;
+  SentryFlutterOptions? _options;
 
-  void initializeFramesTracker(SentryDelayedFramesTracker tracker) {
-    _framesTracker ??= tracker;
+  void registerFramesTracking(
+      FrameTimingCallback callback, SentryFlutterOptions options) {
+    _frameTimingCallback = callback;
+    _options = options;
   }
 
-  void removeFramesTracker() {
-    _framesTracker = null;
-  }
-
-  bool isFramesTrackerInitialized() {
-    return _framesTracker != null;
-  }
+  DateTime? _startTimestamp;
 
   @override
   void handleBeginFrame(Duration? rawTimeStamp) {
-    _framesTracker?.startFrame();
+    _startTimestamp = _options?.clock();
 
     super.handleBeginFrame(rawTimeStamp);
   }
@@ -106,6 +106,8 @@ mixin SentryWidgetsBindingMixin on WidgetsBinding {
   void handleDrawFrame() {
     super.handleDrawFrame();
 
-    _framesTracker?.endFrame();
+    if (_startTimestamp != null && _options != null) {
+      _frameTimingCallback?.call(_startTimestamp!, _options!.clock());
+    }
   }
 }
