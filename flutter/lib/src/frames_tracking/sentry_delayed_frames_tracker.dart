@@ -164,7 +164,7 @@ class SentryDelayedFramesTracker {
     int frozenFramesDuration = 0;
     int framesDelay = 0;
 
-    for (final timing in delayedFrames) {
+    for (final timing in relevantFrames) {
       final frameStartMs = timing.startTimestamp.millisecondsSinceEpoch;
       final frameEndMs = timing.endTimestamp.millisecondsSinceEpoch;
       final actualDurationMs = timing.duration.inMilliseconds;
