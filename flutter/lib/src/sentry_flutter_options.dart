@@ -281,6 +281,8 @@ class SentryFlutterOptions extends SentryOptions {
   ///
   /// Defaults to `true`
   ///
+  /// Supported platforms: `Android, iOS, macOS`
+  ///
   /// Note: If you call `WidgetsFlutterBinding.ensureInitialized()` before `SentryFlutter.init()`,
   /// you must use `SentryWidgetsFlutterBinding.ensureInitialized()` instead.
   bool enableFramesTracking = true;

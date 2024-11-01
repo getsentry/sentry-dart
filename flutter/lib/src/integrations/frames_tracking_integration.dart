@@ -20,7 +20,7 @@ class FramesTrackingIntegration implements Integration<SentryFlutterOptions> {
 
     if (!options.enableFramesTracking) {
       return options.logger(SentryLevel.debug,
-          '$FramesTrackingIntegration disabled: enablesFramesTracking option is false');
+          '$FramesTrackingIntegration disabled: enableFramesTracking option is false');
     }
 
     if (options.tracesSampleRate == null && options.tracesSampler == null) {
