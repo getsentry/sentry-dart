@@ -23,6 +23,8 @@
     ),
   );
   ```
+- Added new measurement `frames.relative_delay` to spans. This metric is the frame delay divided by the span duration. It provides a relative measure of frame delay to better assess the impact of frame delay.
+- Added new measurement `frames.rate` to spans. This metric estimates the frame rate based on the span duration and the number of frames.
 
 ### Enhancements
 

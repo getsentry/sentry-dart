@@ -16,6 +16,8 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
   static const framesDelayKey = 'frames.delay';
   static const slowFramesKey = 'frames.slow';
   static const frozenFramesKey = 'frames.frozen';
+  static const estimatedFrameRateKey = 'frames.rate';
+  static const relativeFrameDelayKey = 'frames.relative_delay';
 
   final SentryFlutterOptions options;
   final FrameCallbackHandler _frameCallbackHandler;
@@ -302,11 +304,20 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
       return {};
     }
 
+    final numberOfFrames =
+        (spanDuration - framesDelay) / expectedFrameDuration!.inMilliseconds;
+
+    final estimatedFrameRate = (numberOfFrames / (spanDuration / 1000)).toInt();
+
+    final relativeFrameDelay = framesDelay ~/ spanDuration;
+
     return {
       SpanFrameMetricsCollector.totalFramesKey: totalFramesCount,
       SpanFrameMetricsCollector.framesDelayKey: framesDelay,
       SpanFrameMetricsCollector.slowFramesKey: slowFramesCount,
       SpanFrameMetricsCollector.frozenFramesKey: frozenFramesCount,
+      SpanFrameMetricsCollector.estimatedFrameRateKey: estimatedFrameRate,
+      SpanFrameMetricsCollector.relativeFrameDelayKey: relativeFrameDelay,
     };
   }
 

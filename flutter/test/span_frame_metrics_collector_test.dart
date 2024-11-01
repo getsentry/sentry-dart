@@ -230,11 +230,15 @@ void main() {
 
     await Future<void>.delayed(Duration(milliseconds: 500));
     await tracer.finish(endTimestamp: endTimestamp);
+    final frameDuration = endTimestamp.difference(startTimestamp);
+    final expectedRelativeFrameDelay =
+        expectedFramesDelay ~/ frameDuration.inMilliseconds;
 
     expect(child.data['frames.slow'], expectedSlowFrames);
     expect(child.data['frames.frozen'], expectedFrozenFrames);
     expect(child.data['frames.delay'], expectedFramesDelay);
     expect(child.data['frames.total'], expectedTotalFrames);
+    expect(child.data['frames.relative_delay'], expectedRelativeFrameDelay);
 
     // total frames is hardcoded here since it depends on span duration as well
     // and we are deviating from the default 800ms to 1600ms for the whole transaction
