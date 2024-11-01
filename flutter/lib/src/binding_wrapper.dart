@@ -5,7 +5,6 @@ import 'package:flutter/foundation.dart';
 import '../sentry_flutter.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
-import 'frames_tracking/sentry_delayed_frames_tracker.dart';
 
 /// The methods and properties are modelled after the the real binding class.
 @experimental
