@@ -86,18 +86,18 @@ class SentryDelayedFramesTracker {
     if (startTimestamp.isAfter(endTimestamp)) {
       return;
     }
+    if (_delayedFrames.length > maxDelayedFramesCount) {
+      // buffer is full, we stop collecting frames until all active spans have
+      // finished processing
+      pause();
+      return;
+    }
     final duration = endTimestamp.difference(startTimestamp);
     if (duration > _expectedFrameDuration) {
-      if (_delayedFrames.length < maxDelayedFramesCount) {
-        final frameTiming = SentryFrameTiming(
-            startTimestamp: startTimestamp, endTimestamp: endTimestamp);
-        _delayedFrames.add(frameTiming);
-        _oldestFrameEndTimestamp ??= endTimestamp;
-      } else {
-        // buffer is full, we stop collecting frames until all active spans have
-        // finished processing
-        pause();
-      }
+      final frameTiming = SentryFrameTiming(
+          startTimestamp: startTimestamp, endTimestamp: endTimestamp);
+      _delayedFrames.add(frameTiming);
+      _oldestFrameEndTimestamp ??= endTimestamp;
     }
   }
 
