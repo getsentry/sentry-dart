@@ -60,7 +60,7 @@ jobs:
       - uses: actions/setup-java@v4
         if: ${{ matrix.target == 'android' }}
         with:
-          java-version: '11'
+          java-version: '17'
           distribution: 'adopt'
 
       # Install required dependencies for Flutter on Linux on Ubuntu
@@ -98,12 +98,12 @@ jobs:
           flutter test --coverage --test-randomize-ordering-seed=random
           dart run remove_from_coverage -f coverage/lcov.info -r 'binding.dart'
 
-      - uses: codecov/codecov-action@e28ff129e5465c2c0dcc6f003fc735cb6ae0c673 # pin@v3
+      - uses: codecov/codecov-action@b9fd7d16f6d7d1b5d2bec1a2887e65ceed900238 # pin@v3
         if: matrix.sdk == 'stable' && matrix.target == 'linux'
         with:
           name: sentry_flutter
           file: ./flutter/coverage/lcov.info
-          functionalities: "search" # remove after https://github.com/codecov/codecov-action/issues/600
+          functionalities: 'search' # remove after https://github.com/codecov/codecov-action/issues/600
           token: ${{ secrets.CODECOV_TOKEN }}
 
       - uses: VeryGoodOpenSource/very_good_coverage@c953fca3e24a915e111cc6f55f03f756dcb3964c # pin@v3.0.0
@@ -111,7 +111,8 @@ jobs:
         with:
           path: './flutter/coverage/lcov.info'
           min_coverage: 90
-          exclude: 'lib/src/native/cocoa/binding.dart'
+          # 'native/c' for now because we run coverage on Linux where these are not tested yet.
+          exclude: 'lib/src/native/cocoa/binding.dart lib/src/native/c/*'
 
       - name: Build ${{ matrix.target }}
         working-directory: flutter/example

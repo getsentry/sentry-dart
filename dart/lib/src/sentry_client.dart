@@ -7,10 +7,10 @@ import 'client_reports/client_report_recorder.dart';
 import 'client_reports/discard_reason.dart';
 import 'event_processor.dart';
 import 'hint.dart';
-import 'load_dart_debug_images_integration.dart';
 import 'metrics/metric.dart';
 import 'metrics/metrics_aggregator.dart';
 import 'protocol.dart';
+import 'protocol/sentry_feedback.dart';
 import 'scope.dart';
 import 'sentry_attachment/sentry_attachment.dart';
 import 'sentry_baggage.dart';
@@ -25,7 +25,6 @@ import 'transport/http_transport.dart';
 import 'transport/noop_transport.dart';
 import 'transport/rate_limiter.dart';
 import 'transport/spotlight_http_transport.dart';
-import 'transport/task_queue.dart';
 import 'utils/isolate_utils.dart';
 import 'utils/regex_utils.dart';
 import 'utils/stacktrace_utils.dart';
@@ -39,10 +38,6 @@ const _defaultIpAddress = '{{auto}}';
 /// Logs crash reports and events to the Sentry.io service.
 class SentryClient {
   final SentryOptions _options;
-  late final _taskQueue = TaskQueue<SentryId?>(
-    _options.maxQueueSize,
-    _options.logger,
-  );
 
   final Random? _random;
 
@@ -63,7 +58,14 @@ class SentryClient {
       final rateLimiter = RateLimiter(options);
       options.transport = HttpTransport(options, rateLimiter);
     }
-    if (options.spotlight.enabled) {
+    // TODO: Web might change soon to use the JS SDK so we can remove it here later on
+    final enableFlutterSpotlight = (options.spotlight.enabled &&
+        (options.platformChecker.isWeb ||
+            options.platformChecker.platform.isLinux ||
+            options.platformChecker.platform.isWindows));
+    // Spotlight in the Flutter layer is only enabled for Web, Linux and Windows
+    // Other platforms use spotlight through their native SDKs
+    if (enableFlutterSpotlight) {
       options.transport = SpotlightHttpTransport(options, options.transport);
     }
     return SentryClient._(options);
@@ -106,7 +108,7 @@ class SentryClient {
       return _emptySentryId;
     }
 
-    if (_sampleRate()) {
+    if (_sampleRate() && event.type != 'feedback') {
       _options.recorder
           .recordLostEvent(DiscardReason.sampleRate, _getCategory(event));
       _options.logger(
@@ -119,7 +121,6 @@ class SentryClient {
     SentryEvent? preparedEvent = _prepareEvent(event, stackTrace: stackTrace);
 
     hint ??= Hint();
-    hint.set(hintRawStackTraceKey, stackTrace.toString());
 
     if (scope != null) {
       preparedEvent = await scope.applyToEvent(preparedEvent, hint);
@@ -164,7 +165,7 @@ class SentryClient {
     }
 
     var viewHierarchy = hint.viewHierarchy;
-    if (viewHierarchy != null) {
+    if (viewHierarchy != null && event.type != 'feedback') {
       attachments.add(viewHierarchy);
     }
 
@@ -213,6 +214,10 @@ class SentryClient {
     );
 
     if (event is SentryTransaction) {
+      return event;
+    }
+
+    if (event.type == 'feedback') {
       return event;
     }
 
@@ -271,9 +276,8 @@ class SentryClient {
     // https://develop.sentry.dev/sdk/event-payloads/stacktrace/
     if (stackTrace != null || _options.attachStacktrace) {
       stackTrace ??= getCurrentStackTrace();
-      final frames = _stackTraceFactory.getStackFrames(stackTrace);
-
-      if (frames.isNotEmpty) {
+      final sentryStackTrace = _stackTraceFactory.parse(stackTrace);
+      if (sentryStackTrace.frames.isNotEmpty) {
         event = event.copyWith(threads: [
           ...?event.threads,
           SentryThread(
@@ -281,7 +285,7 @@ class SentryClient {
             id: isolateId,
             crashed: false,
             current: true,
-            stacktrace: SentryStackTrace(frames: frames),
+            stacktrace: sentryStackTrace,
           ),
         ]);
       }
@@ -427,6 +431,8 @@ class SentryClient {
   }
 
   /// Reports the [userFeedback] to Sentry.io.
+  @Deprecated(
+      'Will be removed in a future version. Use [captureFeedback] instead')
   Future<void> captureUserFeedback(SentryUserFeedback userFeedback) {
     final envelope = SentryEnvelope.fromUserFeedback(
       userFeedback,
@@ -434,6 +440,25 @@ class SentryClient {
       dsn: _options.dsn,
     );
     return _attachClientReportsAndSend(envelope);
+  }
+
+  /// Reports the [feedback] to Sentry.io.
+  Future<SentryId> captureFeedback(
+    SentryFeedback feedback, {
+    Scope? scope,
+    Hint? hint,
+  }) {
+    final feedbackEvent = SentryEvent(
+      type: 'feedback',
+      contexts: Contexts(feedback: feedback),
+      level: SentryLevel.info,
+    );
+
+    return captureEvent(
+      feedbackEvent,
+      scope: scope,
+      hint: hint,
+    );
   }
 
   /// Reports the [metricsBuckets] to Sentry.io.
@@ -463,6 +488,7 @@ class SentryClient {
 
     final beforeSend = _options.beforeSend;
     final beforeSendTransaction = _options.beforeSendTransaction;
+    final beforeSendFeedback = _options.beforeSendFeedback;
     String beforeSendName = 'beforeSend';
 
     try {
@@ -470,6 +496,13 @@ class SentryClient {
         beforeSendName = 'beforeSendTransaction';
         final callbackResult = beforeSendTransaction(event);
         if (callbackResult is Future<SentryTransaction?>) {
+          processedEvent = await callbackResult;
+        } else {
+          processedEvent = callbackResult;
+        }
+      } else if (event.type == 'feedback' && beforeSendFeedback != null) {
+        final callbackResult = beforeSendFeedback(event, hint);
+        if (callbackResult is Future<SentryEvent?>) {
           processedEvent = await callbackResult;
         } else {
           processedEvent = callbackResult;
@@ -558,6 +591,7 @@ class SentryClient {
               count: spanCountBeforeEventProcessors + 1);
         }
         _options.logger(SentryLevel.debug, 'Event was dropped by a processor');
+        break;
       } else if (event is SentryTransaction &&
           processedEvent is SentryTransaction) {
         // If event processor removed only some spans we still report them as dropped
@@ -591,9 +625,6 @@ class SentryClient {
   Future<SentryId?> _attachClientReportsAndSend(SentryEnvelope envelope) {
     final clientReport = _options.recorder.flush();
     envelope.addClientReport(clientReport);
-    return _taskQueue.enqueue(
-      () => _options.transport.send(envelope),
-      SentryId.empty(),
-    );
+    return _options.transport.send(envelope);
   }
 }

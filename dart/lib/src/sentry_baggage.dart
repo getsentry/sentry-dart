@@ -55,6 +55,7 @@ class SentryBaggage {
           exception: exception,
           stackTrace: stackTrace,
         );
+        // TODO rethrow in options.automatedTestMode (currently not available here to check)
       }
     }
 
@@ -94,9 +95,7 @@ class SentryBaggage {
   setValuesFromScope(Scope scope, SentryOptions options) {
     final propagationContext = scope.propagationContext;
     setTraceId(propagationContext.traceId.toString());
-    if (options.dsn != null) {
-      setPublicKey(Dsn.parse(options.dsn!).publicKey);
-    }
+    setPublicKey(options.parsedDsn.publicKey);
     if (options.release != null) {
       setRelease(options.release!);
     }

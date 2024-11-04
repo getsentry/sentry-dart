@@ -35,6 +35,9 @@ elif [ "$1" == "web" ]; then
 elif [ "$1" == "macos" ]; then
     flutter build macos --split-debug-info=$symbolsDir --obfuscate
     launchCmd='./build/macos/Build/Products/Release/sentry_flutter_example.app/Contents/MacOS/sentry_flutter_example'
+elif [ "$1" == "windows" ]; then
+    flutter build windows --split-debug-info=$symbolsDir --obfuscate
+    launchCmd='./build/windows/x64/runner/Release/sentry_flutter_example.exe'
 else
     if [ "$1" == "" ]; then
         echo -e "[\033[92mrun\033[0m] Pass the platform you'd like to run: android, ios, web"

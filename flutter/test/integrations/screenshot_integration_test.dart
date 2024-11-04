@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/event_processor/screenshot_event_processor.dart';
 import 'package:sentry_flutter/src/integrations/screenshot_integration.dart';
 
+import '../mocks.dart';
 import '../mocks.mocks.dart';
 
 void main() {
@@ -69,7 +69,7 @@ void main() {
 
 class Fixture {
   final hub = MockHub();
-  final options = SentryFlutterOptions();
+  final options = defaultTestOptions();
 
   ScreenshotIntegration getSut({bool attachScreenshot = true}) {
     options.attachScreenshot = attachScreenshot;

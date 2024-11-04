@@ -3,10 +3,11 @@ import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui';
 
+import 'package:flutter/rendering.dart';
+import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 import '../screenshot/sentry_screenshot_widget.dart';
 import '../sentry_flutter_options.dart';
-import 'package:flutter/rendering.dart';
 import '../renderer/renderer.dart';
 import 'package:flutter/widgets.dart' as widget;
 
@@ -14,10 +15,6 @@ class ScreenshotEventProcessor implements EventProcessor {
   final SentryFlutterOptions _options;
 
   ScreenshotEventProcessor(this._options);
-
-  /// This is true when the SentryWidget is in the view hierarchy
-  bool get _hasSentryScreenshotWidget =>
-      sentryScreenshotWidgetGlobalKey.currentContext != null;
 
   @override
   Future<SentryEvent?> apply(SentryEvent event, Hint hint) async {
@@ -27,9 +24,14 @@ class ScreenshotEventProcessor implements EventProcessor {
 
     if (event.exceptions == null &&
         event.throwable == null &&
-        _hasSentryScreenshotWidget) {
+        SentryScreenshotWidget.isMounted) {
       return event;
     }
+
+    if (event.type == 'feedback') {
+      return event; // No need to attach screenshot of feedback form.
+    }
+
     final beforeScreenshot = _options.beforeScreenshot;
     if (beforeScreenshot != null) {
       try {
@@ -50,7 +52,6 @@ class ScreenshotEventProcessor implements EventProcessor {
           exception: exception,
           stackTrace: stackTrace,
         );
-        // ignore: invalid_use_of_internal_member
         if (_options.automatedTestMode) {
           rethrow;
         }
@@ -76,14 +77,15 @@ class ScreenshotEventProcessor implements EventProcessor {
       return event;
     }
 
-    final bytes = await _createScreenshot();
+    final bytes = await createScreenshot();
     if (bytes != null) {
       hint.screenshot = SentryAttachment.fromScreenshotData(bytes);
     }
     return event;
   }
 
-  Future<Uint8List?> _createScreenshot() async {
+  @internal
+  Future<Uint8List?> createScreenshot() async {
     try {
       final renderObject =
           sentryScreenshotWidgetGlobalKey.currentContext?.findRenderObject();
@@ -138,6 +140,9 @@ class ScreenshotEventProcessor implements EventProcessor {
         exception: exception,
         stackTrace: stackTrace,
       );
+      if (_options.automatedTestMode) {
+        rethrow;
+      }
     }
     return null;
   }

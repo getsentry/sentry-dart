@@ -55,6 +55,12 @@ final nativeIntegrations = [
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  late NativeChannelFixture native;
+
+  setUp(() async {
+    native = NativeChannelFixture();
+    SentryFlutter.native = null;
+  });
 
   group('Test platform integrations', () {
     setUp(() async {
@@ -67,19 +73,19 @@ void main() {
       List<Integration> integrations = [];
       Transport transport = MockTransport();
 
-      SentryFlutterOptions? sentryFlutterOptions;
+      final sentryFlutterOptions = defaultTestOptions(
+          getPlatformChecker(platform: MockPlatform.android()))
+        ..methodChannel = native.channel;
 
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
-          options.automatedTestMode = true;
           options.profilesSampleRate = 1.0;
           integrations = options.integrations;
           transport = options.transport;
-          sentryFlutterOptions = options;
         },
         appRunner: appRunner,
-        platformChecker: getPlatformChecker(platform: MockPlatform.android()),
+        options: sentryFlutterOptions,
       );
 
       testTransport(
@@ -88,7 +94,7 @@ void main() {
       );
 
       testScopeObserver(
-          options: sentryFlutterOptions!, expectedHasNativeScopeObserver: true);
+          options: sentryFlutterOptions, expectedHasNativeScopeObserver: true);
 
       testConfiguration(
         integrations: integrations,
@@ -121,19 +127,20 @@ void main() {
     test('iOS', () async {
       List<Integration> integrations = [];
       Transport transport = MockTransport();
-      SentryFlutterOptions? sentryFlutterOptions;
+
+      final sentryFlutterOptions =
+          defaultTestOptions(getPlatformChecker(platform: MockPlatform.iOs()))
+            ..methodChannel = native.channel;
 
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
-          options.automatedTestMode = true;
           options.profilesSampleRate = 1.0;
           integrations = options.integrations;
           transport = options.transport;
-          sentryFlutterOptions = options;
         },
         appRunner: appRunner,
-        platformChecker: getPlatformChecker(platform: MockPlatform.iOs()),
+        options: sentryFlutterOptions,
       );
 
       testTransport(
@@ -142,7 +149,7 @@ void main() {
       );
 
       testScopeObserver(
-          options: sentryFlutterOptions!, expectedHasNativeScopeObserver: true);
+          options: sentryFlutterOptions, expectedHasNativeScopeObserver: true);
 
       testConfiguration(
         integrations: integrations,
@@ -173,19 +180,19 @@ void main() {
     test('macOS', () async {
       List<Integration> integrations = [];
       Transport transport = MockTransport();
-      SentryFlutterOptions? sentryFlutterOptions;
+      final sentryFlutterOptions =
+          defaultTestOptions(getPlatformChecker(platform: MockPlatform.macOs()))
+            ..methodChannel = native.channel;
 
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
-          options.automatedTestMode = true;
           options.profilesSampleRate = 1.0;
           integrations = options.integrations;
           transport = options.transport;
-          sentryFlutterOptions = options;
         },
         appRunner: appRunner,
-        platformChecker: getPlatformChecker(platform: MockPlatform.macOs()),
+        options: sentryFlutterOptions,
       );
 
       testTransport(
@@ -194,7 +201,7 @@ void main() {
       );
 
       testScopeObserver(
-          options: sentryFlutterOptions!, expectedHasNativeScopeObserver: true);
+          options: sentryFlutterOptions, expectedHasNativeScopeObserver: true);
 
       testConfiguration(integrations: integrations, shouldHaveIntegrations: [
         ...iOsAndMacOsIntegrations,
@@ -221,19 +228,20 @@ void main() {
     test('Windows', () async {
       List<Integration> integrations = [];
       Transport transport = MockTransport();
-      SentryFlutterOptions? sentryFlutterOptions;
+      final sentryFlutterOptions = defaultTestOptions(
+          getPlatformChecker(platform: MockPlatform.windows()))
+        // We need to disable native init because sentry.dll is not available here.
+        ..autoInitializeNativeSdk = false;
 
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
-          options.automatedTestMode = true;
           options.profilesSampleRate = 1.0;
           integrations = options.integrations;
           transport = options.transport;
-          sentryFlutterOptions = options;
         },
         appRunner: appRunner,
-        platformChecker: getPlatformChecker(platform: MockPlatform.windows()),
+        options: sentryFlutterOptions,
       );
 
       testTransport(
@@ -241,9 +249,11 @@ void main() {
         hasFileSystemTransport: false,
       );
 
+      // Temporarily disabled due to https://github.com/getsentry/sentry-dart-plugin/issues/270
+      // testScopeObserver(
+      //     options: sentryFlutterOptions, expectedHasNativeScopeObserver: true);
       testScopeObserver(
-          options: sentryFlutterOptions!,
-          expectedHasNativeScopeObserver: false);
+          options: sentryFlutterOptions, expectedHasNativeScopeObserver: false);
 
       testConfiguration(
         integrations: integrations,
@@ -264,28 +274,28 @@ void main() {
           beforeIntegration: WidgetsFlutterBindingIntegration,
           afterIntegration: OnErrorIntegration);
 
+      // Temporarily disabled due to https://github.com/getsentry/sentry-dart-plugin/issues/270
+      // expect(SentryFlutter.native, isNotNull);
       expect(SentryFlutter.native, isNull);
       expect(Sentry.currentHub.profilerFactory, isNull);
-
-      await Sentry.close();
     }, testOn: 'vm');
 
     test('Linux', () async {
       List<Integration> integrations = [];
       Transport transport = MockTransport();
-      SentryFlutterOptions? sentryFlutterOptions;
+      final sentryFlutterOptions =
+          defaultTestOptions(getPlatformChecker(platform: MockPlatform.linux()))
+            ..methodChannel = native.channel;
 
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
-          options.automatedTestMode = true;
           options.profilesSampleRate = 1.0;
           integrations = options.integrations;
           transport = options.transport;
-          sentryFlutterOptions = options;
         },
         appRunner: appRunner,
-        platformChecker: getPlatformChecker(platform: MockPlatform.linux()),
+        options: sentryFlutterOptions,
       );
 
       testTransport(
@@ -294,8 +304,7 @@ void main() {
       );
 
       testScopeObserver(
-          options: sentryFlutterOptions!,
-          expectedHasNativeScopeObserver: false);
+          options: sentryFlutterOptions, expectedHasNativeScopeObserver: false);
 
       testConfiguration(
         integrations: integrations,
@@ -325,22 +334,18 @@ void main() {
     test('Web', () async {
       List<Integration> integrations = [];
       Transport transport = MockTransport();
-      SentryFlutterOptions? sentryFlutterOptions;
+      final sentryFlutterOptions = defaultTestOptions(
+          getPlatformChecker(isWeb: true, platform: MockPlatform.linux()))
+        ..methodChannel = native.channel;
 
       await SentryFlutter.init(
         (options) async {
-          options.dsn = fakeDsn;
-          options.automatedTestMode = true;
           options.profilesSampleRate = 1.0;
           integrations = options.integrations;
           transport = options.transport;
-          sentryFlutterOptions = options;
         },
         appRunner: appRunner,
-        platformChecker: getPlatformChecker(
-          isWeb: true,
-          platform: MockPlatform.linux(),
-        ),
+        options: sentryFlutterOptions,
       );
 
       testTransport(
@@ -349,8 +354,7 @@ void main() {
       );
 
       testScopeObserver(
-          options: sentryFlutterOptions!,
-          expectedHasNativeScopeObserver: false);
+          options: sentryFlutterOptions, expectedHasNativeScopeObserver: false);
 
       testConfiguration(
         integrations: integrations,
@@ -380,21 +384,19 @@ void main() {
     test('Web && (iOS || macOS)', () async {
       List<Integration> integrations = [];
       Transport transport = MockTransport();
+      final sentryFlutterOptions = defaultTestOptions(
+          getPlatformChecker(isWeb: true, platform: MockPlatform.iOs()))
+        ..methodChannel = native.channel;
 
       // Tests that iOS || macOS integrations aren't added on a browser which
       // runs on iOS or macOS
       await SentryFlutter.init(
         (options) async {
-          options.dsn = fakeDsn;
-          options.automatedTestMode = true;
           integrations = options.integrations;
           transport = options.transport;
         },
         appRunner: appRunner,
-        platformChecker: getPlatformChecker(
-          isWeb: true,
-          platform: MockPlatform.iOs(),
-        ),
+        options: sentryFlutterOptions,
       );
 
       testTransport(
@@ -427,21 +429,19 @@ void main() {
     test('Web && (macOS)', () async {
       List<Integration> integrations = [];
       Transport transport = MockTransport();
+      final sentryFlutterOptions = defaultTestOptions(
+          getPlatformChecker(isWeb: true, platform: MockPlatform.macOs()))
+        ..methodChannel = native.channel;
 
       // Tests that iOS || macOS integrations aren't added on a browser which
       // runs on iOS or macOS
       await SentryFlutter.init(
         (options) async {
-          options.dsn = fakeDsn;
-          options.automatedTestMode = true;
           integrations = options.integrations;
           transport = options.transport;
         },
         appRunner: appRunner,
-        platformChecker: getPlatformChecker(
-          isWeb: true,
-          platform: MockPlatform.macOs(),
-        ),
+        options: sentryFlutterOptions,
       );
 
       testTransport(
@@ -476,20 +476,18 @@ void main() {
     test('Web && Android', () async {
       List<Integration> integrations = [];
       Transport transport = MockTransport();
+      final sentryFlutterOptions = defaultTestOptions(
+          getPlatformChecker(isWeb: true, platform: MockPlatform.android()))
+        ..methodChannel = native.channel;
 
       // Tests that Android integrations aren't added on an Android browser
       await SentryFlutter.init(
         (options) async {
-          options.dsn = fakeDsn;
-          options.automatedTestMode = true;
           integrations = options.integrations;
           transport = options.transport;
         },
         appRunner: appRunner,
-        platformChecker: getPlatformChecker(
-          isWeb: true,
-          platform: MockPlatform.android(),
-        ),
+        options: sentryFlutterOptions,
       );
 
       testTransport(
@@ -528,16 +526,19 @@ void main() {
     test('installed on io platforms', () async {
       List<Integration> integrations = [];
 
+      final sentryFlutterOptions = defaultTestOptions(
+          getPlatformChecker(platform: MockPlatform.iOs(), isWeb: false))
+        ..methodChannel = native.channel
+        ..rendererWrapper = MockRendererWrapper(FlutterRenderer.skia)
+        ..release = ''
+        ..dist = '';
+
       await SentryFlutter.init(
         (options) async {
-          options.dsn = fakeDsn;
-          options.automatedTestMode = true;
           integrations = options.integrations;
         },
         appRunner: appRunner,
-        platformChecker:
-            getPlatformChecker(platform: MockPlatform.iOs(), isWeb: false),
-        rendererWrapper: MockRendererWrapper(FlutterRenderer.skia),
+        options: sentryFlutterOptions,
       );
 
       expect(
@@ -552,16 +553,18 @@ void main() {
     test('installed with canvasKit renderer', () async {
       List<Integration> integrations = [];
 
+      final sentryFlutterOptions = defaultTestOptions(
+          getPlatformChecker(platform: MockPlatform.iOs(), isWeb: true))
+        ..rendererWrapper = MockRendererWrapper(FlutterRenderer.canvasKit)
+        ..release = ''
+        ..dist = '';
+
       await SentryFlutter.init(
         (options) async {
-          options.dsn = fakeDsn;
-          options.automatedTestMode = true;
           integrations = options.integrations;
         },
         appRunner: appRunner,
-        platformChecker:
-            getPlatformChecker(platform: MockPlatform.iOs(), isWeb: true),
-        rendererWrapper: MockRendererWrapper(FlutterRenderer.canvasKit),
+        options: sentryFlutterOptions,
       );
 
       expect(
@@ -576,16 +579,18 @@ void main() {
     test('not installed with html renderer', () async {
       List<Integration> integrations = [];
 
+      final sentryFlutterOptions = defaultTestOptions(
+          getPlatformChecker(platform: MockPlatform.iOs(), isWeb: true))
+        ..rendererWrapper = MockRendererWrapper(FlutterRenderer.html)
+        ..release = ''
+        ..dist = '';
+
       await SentryFlutter.init(
         (options) async {
-          options.dsn = fakeDsn;
-          options.automatedTestMode = true;
           integrations = options.integrations;
         },
         appRunner: appRunner,
-        platformChecker:
-            getPlatformChecker(platform: MockPlatform.iOs(), isWeb: true),
-        rendererWrapper: MockRendererWrapper(FlutterRenderer.html),
+        options: sentryFlutterOptions,
       );
 
       expect(
@@ -605,11 +610,11 @@ void main() {
     });
 
     test('test that initial values are set correctly', () async {
+      final sentryFlutterOptions = defaultTestOptions(
+          getPlatformChecker(platform: MockPlatform.android(), isWeb: true));
+
       await SentryFlutter.init(
         (options) {
-          options.dsn = fakeDsn;
-          options.automatedTestMode = true;
-
           expect(false, options.debug);
           expect('debug', options.environment);
           expect(sdkName, options.sdk.name);
@@ -618,10 +623,7 @@ void main() {
           expect(sdkVersion, options.sdk.packages.last.version);
         },
         appRunner: appRunner,
-        platformChecker: getPlatformChecker(
-          platform: MockPlatform.android(),
-          isWeb: true,
-        ),
+        options: sentryFlutterOptions,
       );
 
       await Sentry.close();
@@ -630,19 +632,15 @@ void main() {
     test(
         'enablePureDartSymbolication is set to false during SentryFlutter init',
         () async {
-      SentryFlutter.native = MockSentryNativeBinding();
+      final sentryFlutterOptions = defaultTestOptions(
+          getPlatformChecker(platform: MockPlatform.android(), isWeb: true));
+      SentryFlutter.native = mockNativeBinding();
       await SentryFlutter.init(
         (options) {
-          options.dsn = fakeDsn;
-          options.automatedTestMode = true;
-
           expect(options.enableDartSymbolication, false);
         },
         appRunner: appRunner,
-        platformChecker: getPlatformChecker(
-          platform: MockPlatform.android(),
-          isWeb: true,
-        ),
+        options: sentryFlutterOptions,
       );
 
       await Sentry.close();
@@ -650,7 +648,7 @@ void main() {
   });
 
   test('resumeAppHangTracking calls native method when available', () async {
-    SentryFlutter.native = MockSentryNativeBinding();
+    SentryFlutter.native = mockNativeBinding();
     when(SentryFlutter.native?.resumeAppHangTracking())
         .thenAnswer((_) => Future.value());
 
@@ -669,7 +667,7 @@ void main() {
   });
 
   test('pauseAppHangTracking calls native method when available', () async {
-    SentryFlutter.native = MockSentryNativeBinding();
+    SentryFlutter.native = mockNativeBinding();
     when(SentryFlutter.native?.pauseAppHangTracking())
         .thenAnswer((_) => Future.value());
 
@@ -696,24 +694,18 @@ void main() {
     test(
         'should add DartExceptionTypeIdentifier and FlutterExceptionTypeIdentifier by default',
         () async {
-      SentryOptions? actualOptions;
+      final actualOptions = defaultTestOptions(
+          getPlatformChecker(platform: MockPlatform.android(), isWeb: true));
       await SentryFlutter.init(
-        (options) {
-          options.dsn = fakeDsn;
-          options.automatedTestMode = true;
-          actualOptions = options;
-        },
+        (options) {},
         appRunner: appRunner,
-        platformChecker: getPlatformChecker(
-          platform: MockPlatform.android(),
-          isWeb: true,
-        ),
+        options: actualOptions,
       );
 
-      expect(actualOptions!.exceptionTypeIdentifiers.length, 2);
+      expect(actualOptions.exceptionTypeIdentifiers.length, 2);
       // Flutter identifier should be first as it's more specific
       expect(
-        actualOptions!.exceptionTypeIdentifiers.first,
+        actualOptions.exceptionTypeIdentifiers.first,
         isA<CachingExceptionTypeIdentifier>().having(
           (c) => c.identifier,
           'wrapped identifier',
@@ -721,7 +713,7 @@ void main() {
         ),
       );
       expect(
-        actualOptions!.exceptionTypeIdentifiers[1],
+        actualOptions.exceptionTypeIdentifiers[1],
         isA<CachingExceptionTypeIdentifier>().having(
           (c) => c.identifier,
           'wrapped identifier',
@@ -732,6 +724,16 @@ void main() {
       await Sentry.close();
     });
   });
+}
+
+MockSentryNativeBinding mockNativeBinding() {
+  final result = MockSentryNativeBinding();
+  when(result.supportsLoadContexts).thenReturn(true);
+  when(result.supportsCaptureEnvelope).thenReturn(true);
+  when(result.captureEnvelope(any, any)).thenReturn(null);
+  when(result.init(any)).thenReturn(null);
+  when(result.close()).thenReturn(null);
+  return result;
 }
 
 void appRunner() {}

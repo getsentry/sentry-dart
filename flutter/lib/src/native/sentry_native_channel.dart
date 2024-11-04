@@ -25,8 +25,8 @@ class SentryNativeChannel
   @protected
   final SentrySafeMethodChannel channel;
 
-  SentryNativeChannel(this.options, MethodChannel channel)
-      : channel = SentrySafeMethodChannel(channel, options);
+  SentryNativeChannel(this.options)
+      : channel = SentrySafeMethodChannel(options);
 
   @override
   Future<void> init(Hub hub) async {
@@ -71,6 +71,8 @@ class SentryNativeChannel
         'sessionSampleRate': options.experimental.replay.sessionSampleRate,
         'onErrorSampleRate': options.experimental.replay.onErrorSampleRate,
       },
+      'enableSpotlight': options.spotlight.enabled,
+      'spotlightUrl': options.spotlight.url,
     });
   }
 
@@ -85,11 +87,17 @@ class SentryNativeChannel
   }
 
   @override
+  bool get supportsCaptureEnvelope => true;
+
+  @override
   Future<void> captureEnvelope(
       Uint8List envelopeData, bool containsUnhandledException) {
     return channel.invokeMethod(
         'captureEnvelope', [envelopeData, containsUnhandledException]);
   }
+
+  @override
+  bool get supportsLoadContexts => true;
 
   @override
   Future<Map<String, dynamic>?> loadContexts() =>
@@ -176,7 +184,7 @@ class SentryNativeChannel
       });
 
   @override
-  Future<List<DebugImage>?> loadDebugImages() =>
+  Future<List<DebugImage>?> loadDebugImages(SentryStackTrace stackTrace) =>
       tryCatchAsync('loadDebugImages', () async {
         final images = await channel
             .invokeListMethod<Map<dynamic, dynamic>>('loadImageList');

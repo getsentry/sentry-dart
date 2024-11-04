@@ -23,9 +23,34 @@ class SentryOptions {
   /// Default Log level if not specified Default is DEBUG
   static final SentryLevel _defaultDiagnosticLevel = SentryLevel.debug;
 
-  /// The DSN tells the SDK where to send the events to. If an empty string is
-  /// used, the SDK will not send any events.
-  String? dsn;
+  String? _dsn;
+  Dsn? _parsedDsn;
+
+  /// The DSN tells the SDK where to send the events to.
+  /// If an empty string is used, the SDK will not send any events.
+  String? get dsn => _dsn;
+
+  set dsn(String? value) {
+    if (_dsn != value) {
+      _dsn = value;
+      _parsedDsn = null; // Invalidate the cached parsed DSN
+    }
+  }
+
+  /// Evaluates and parses the DSN.
+  /// May throw an exception if the DSN is invalid.
+  @internal
+  Dsn get parsedDsn {
+    _parsedDsn ??= _parseDsn();
+    return _parsedDsn!;
+  }
+
+  Dsn _parseDsn() {
+    if (_dsn == null || _dsn!.isEmpty) {
+      throw StateError('DSN is null or empty');
+    }
+    return Dsn.parse(_dsn!);
+  }
 
   /// If [compressPayload] is `true` the outgoing HTTP payloads are compressed
   /// using gzip. Otherwise, the payloads are sent in plain UTF8-encoded JSON
@@ -160,6 +185,10 @@ class SentryOptions {
   /// This function is called with an SDK specific transaction object and can return a modified
   /// transaction object or nothing to skip reporting the transaction
   BeforeSendTransactionCallback? beforeSendTransaction;
+
+  /// This function is called with an SDK specific feedback event object and can return a modified
+  /// feedback event object or nothing to skip reporting the feedback event
+  BeforeSendCallback? beforeSendFeedback;
 
   /// This function is called with an SDK specific breadcrumb object before the breadcrumb is added
   /// to the scope. When nothing is returned from the function, the breadcrumb is dropped
@@ -368,8 +397,8 @@ class SentryOptions {
   /// [Sentry.init] is used instead of `SentryFlutter.init`. This is useful
   /// when native debug images are not available.
   ///
-  /// Automatically set to `false` when using `SentryFlutter.init`, as it uses
-  /// native SDKs for setting up symbolication on iOS, macOS, and Android.
+  /// Automatically set to `false` when using `SentryFlutter.init` on a platform
+  /// with a native integration (e.g. Android, iOS, ...).
   bool enableDartSymbolication = true;
 
   @internal
@@ -523,7 +552,8 @@ class SentryOptions {
   /// iOS only supports http proxies, while macOS also supports socks.
   SentryProxy? proxy;
 
-  SentryOptions({this.dsn, PlatformChecker? checker}) {
+  SentryOptions({String? dsn, PlatformChecker? checker}) {
+    this.dsn = dsn;
     if (checker != null) {
       platformChecker = checker;
     }

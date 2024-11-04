@@ -3,6 +3,11 @@ import 'package:sentry/src/transport/rate_limiter.dart';
 
 final fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
 
+SentryOptions defaultTestOptions() {
+  // ignore: invalid_use_of_internal_member
+  return SentryOptions(dsn: fakeDsn)..automatedTestMode = true;
+}
+
 final fakeException = Exception('Error');
 
 final fakeMessage = SentryMessage(

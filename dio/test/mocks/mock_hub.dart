@@ -1,7 +1,7 @@
 import 'package:meta/meta.dart';
-
 import 'package:sentry/sentry.dart';
 
+import '../mocks.dart';
 import 'no_such_method_provider.dart';
 
 class MockHub with NoSuchMethodProvider implements Hub {
@@ -10,6 +10,8 @@ class MockHub with NoSuchMethodProvider implements Hub {
   List<CaptureMessageCall> captureMessageCalls = [];
   List<AddBreadcrumbCall> addBreadcrumbCalls = [];
   List<SentryClient?> bindClientCalls = [];
+
+  // ignore: deprecated_member_use
   List<SentryUserFeedback> userFeedbackCalls = [];
   List<SentryTransaction> captureTransactionCalls = [];
   int closeCalls = 0;
@@ -17,7 +19,7 @@ class MockHub with NoSuchMethodProvider implements Hub {
   int spanContextCals = 0;
   int getSpanCalls = 0;
 
-  final _options = SentryOptions(dsn: 'fixture-dsn');
+  final _options = defaultTestOptions();
 
   @override
   @internal
@@ -121,6 +123,7 @@ class MockHub with NoSuchMethodProvider implements Hub {
   }
 
   @override
+  // ignore: deprecated_member_use
   Future<void> captureUserFeedback(SentryUserFeedback userFeedback) async {
     userFeedbackCalls.add(userFeedback);
   }

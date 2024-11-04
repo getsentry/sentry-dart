@@ -6,6 +6,7 @@ import 'package:test/test.dart';
 import '../mocks.dart';
 import '../mocks/mock_hub.dart';
 import '../mocks/mock_transport.dart';
+import '../test_utils.dart';
 
 void main() {
   group('$DeduplicationEventProcessor', () {
@@ -77,14 +78,13 @@ void main() {
 
       final transport = MockTransport();
 
-      final options = SentryOptions(dsn: fakeDsn)..automatedTestMode = true;
       await Sentry.init(
         (options) {
           options.dsn = fakeDsn;
           options.transport = transport;
           options.enableDeduplication = true;
         },
-        options: options,
+        options: defaultTestOptions(),
       );
 
       // The test doesn't work if `outerTestMethod` is passed as
@@ -114,7 +114,7 @@ class Fixture {
 
   DeduplicationEventProcessor getSut(bool enabled,
       [int? maxDeduplicationItems]) {
-    final options = SentryOptions(dsn: fakeDsn)
+    final options = defaultTestOptions()
       ..enableDeduplication = enabled
       ..maxDeduplicationItems = maxDeduplicationItems ?? 5;
 

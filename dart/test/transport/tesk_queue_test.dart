@@ -1,10 +1,12 @@
 import 'dart:async';
 
-import 'package:sentry/sentry.dart';
+import 'package:sentry/src/client_reports/discard_reason.dart';
+import 'package:sentry/src/transport/data_category.dart';
 import 'package:sentry/src/transport/task_queue.dart';
 import 'package:test/test.dart';
 
-import '../mocks.dart';
+import '../mocks/mock_client_report_recorder.dart';
+import '../test_utils.dart';
 
 void main() {
   group("called sync", () {
@@ -26,7 +28,7 @@ void main() {
           await Future.delayed(Duration(milliseconds: 1));
           completedTasks += 1;
           return 1 + 1;
-        }, -1));
+        }, -1, DataCategory.error));
       }
 
       // This will always await the other futures, even if they are running longer, as it was scheduled after them.
@@ -49,7 +51,7 @@ void main() {
           print('Completed task $i');
           completedTasks += 1;
           return 1 + 1;
-        }, -1));
+        }, -1, DataCategory.error));
       }
 
       print('Started waiting for first 5 tasks');
@@ -63,7 +65,7 @@ void main() {
           print('Completed task $i');
           completedTasks += 1;
           return 1 + 1;
-        }, -1));
+        }, -1, DataCategory.error));
       }
 
       print('Started waiting for second 5 tasks');
@@ -84,7 +86,7 @@ void main() {
           await Future.delayed(Duration(milliseconds: 1));
           completedTasks += 1;
           return 1 + 1;
-        }, -1);
+        }, -1, DataCategory.error);
       }
       expect(completedTasks, 10);
     });
@@ -99,20 +101,45 @@ void main() {
           await sut.enqueue(() async {
             completedTasks += 1;
             throw Error();
-          }, -1);
+          }, -1, DataCategory.error);
         } catch (_) {
           // Ignore
         }
       }
       expect(completedTasks, 10);
     });
+
+    test('recording dropped event when category set', () async {
+      final sut = fixture.getSut(maxQueueSize: 5);
+
+      for (int i = 0; i < 10; i++) {
+        unawaited(sut.enqueue(() async {
+          print('Task $i');
+          return 1 + 1;
+        }, -1, DataCategory.error));
+      }
+
+      // This will always await the other futures, even if they are running longer, as it was scheduled after them.
+      print('Started waiting for first 5 tasks');
+      await Future.delayed(Duration(milliseconds: 1));
+      print('Stopped waiting for first 5 tasks');
+
+      expect(fixture.clientReportRecorder.discardedEvents.length, 5);
+      for (final event in fixture.clientReportRecorder.discardedEvents) {
+        expect(event.reason, DiscardReason.queueOverflow);
+        expect(event.category, DataCategory.error);
+        expect(event.quantity, 1);
+      }
+    });
   });
 }
 
 class Fixture {
-  final options = SentryOptions(dsn: fakeDsn);
+  final options = defaultTestOptions();
+
+  late var clientReportRecorder = MockClientReportRecorder();
 
   TaskQueue<int> getSut({required int maxQueueSize}) {
-    return TaskQueue(maxQueueSize, options.logger);
+    return DefaultTaskQueue(maxQueueSize, options.logger, clientReportRecorder);
   }
 }

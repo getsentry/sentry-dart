@@ -9,47 +9,50 @@ import 'time_to_initial_display_tracker.dart';
 @internal
 class TimeToDisplayTracker {
   final TimeToInitialDisplayTracker _ttidTracker;
-  final TimeToFullDisplayTracker? _ttfdTracker;
-  final bool enableTimeToFullDisplayTracing;
+  final TimeToFullDisplayTracker _ttfdTracker;
+  final SentryFlutterOptions options;
 
   TimeToDisplayTracker({
     TimeToInitialDisplayTracker? ttidTracker,
     TimeToFullDisplayTracker? ttfdTracker,
-    required this.enableTimeToFullDisplayTracing,
+    required this.options,
   })  : _ttidTracker = ttidTracker ?? TimeToInitialDisplayTracker(),
-        _ttfdTracker = enableTimeToFullDisplayTracing
-            ? ttfdTracker ?? TimeToFullDisplayTracker()
-            : null;
+        _ttfdTracker = ttfdTracker ?? TimeToFullDisplayTracker();
 
-  Future<void> trackAppStartTTD(ISentrySpan transaction,
-      {required DateTime startTimestamp,
-      required DateTime endTimestamp}) async {
-    // We start and immediately finish the spans since we cannot mutate the history of spans.
-    await _ttidTracker.trackAppStart(transaction,
-        startTimestamp: startTimestamp, endTimestamp: endTimestamp);
-    await _trackTTFDIfEnabled(transaction, startTimestamp);
-  }
+  Future<void> track(
+    ISentrySpan transaction, {
+    required DateTime startTimestamp,
+    DateTime? endTimestamp,
+    String? origin,
+  }) async {
+    // TTID
+    await _ttidTracker.track(
+      transaction: transaction,
+      startTimestamp: startTimestamp,
+      endTimestamp: endTimestamp,
+      origin: origin,
+    );
 
-  Future<void> trackRegularRouteTTD(ISentrySpan transaction,
-      {required DateTime startTimestamp}) async {
-    await _ttidTracker.trackRegularRoute(transaction, startTimestamp);
-    await _trackTTFDIfEnabled(transaction, startTimestamp);
-  }
-
-  Future<void> _trackTTFDIfEnabled(
-      ISentrySpan transaction, DateTime startTimestamp) async {
-    if (enableTimeToFullDisplayTracing) {
-      await _ttfdTracker?.track(transaction, startTimestamp);
+    // TTFD
+    if (options.enableTimeToFullDisplayTracing) {
+      await _ttfdTracker.track(
+        transaction: transaction,
+        startTimestamp: startTimestamp,
+      );
     }
   }
 
   @internal
   Future<void> reportFullyDisplayed() async {
-    return _ttfdTracker?.reportFullyDisplayed();
+    if (options.enableTimeToFullDisplayTracing) {
+      return _ttfdTracker.reportFullyDisplayed();
+    }
   }
 
   void clear() {
     _ttidTracker.clear();
-    _ttfdTracker?.clear();
+    if (options.enableTimeToFullDisplayTracing) {
+      _ttfdTracker.clear();
+    }
   }
 }

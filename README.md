@@ -26,11 +26,19 @@ Sentry SDK for Dart and Flutter
 | sentry_hive | [![build](https://github.com/getsentry/sentry-dart/actions/workflows/hive.yml/badge.svg?branch=main)](https://github.com/getsentry/sentry-dart/actions?query=workflow%3Asentry-hive) | [![pub package](https://img.shields.io/pub/v/sentry_hive.svg)](https://pub.dev/packages/sentry_hive) | [![likes](https://img.shields.io/pub/likes/sentry_hive)](https://pub.dev/packages/sentry_hive/score)           | [![popularity](https://img.shields.io/pub/popularity/sentry_hive)](https://pub.dev/packages/sentry_hive/score) | [![pub points](https://img.shields.io/pub/points/sentry_hive)](https://pub.dev/packages/sentry_hive/score)
 | sentry_isar | [![build](https://github.com/getsentry/sentry-dart/actions/workflows/isar.yml/badge.svg?branch=main)](https://github.com/getsentry/sentry-dart/actions?query=workflow%3Asentry-isar) | [![pub package](https://img.shields.io/pub/v/sentry_isar.svg)](https://pub.dev/packages/sentry_isar) | [![likes](https://img.shields.io/pub/likes/sentry_isar)](https://pub.dev/packages/sentry_isar/score) | [![popularity](https://img.shields.io/pub/popularity/sentry_isar)](https://pub.dev/packages/sentry_isar/score) | [![pub points](https://img.shields.io/pub/points/sentry_isar)](https://pub.dev/packages/sentry_isar/score)
 
-##### Usage
+## Releases
+
+This repo uses the following ways to release SDK updates:
+
+- `Pre-release`: We create pre-releases (alpha, beta, RC,…) for larger and potentially more impactful changes, such as new features or major versions.
+- `Latest`: We continuously release major/minor/hotfix versions from the `main` branch. These releases go through all our internal quality gates and are very safe to use and intended to be the default for most teams.
+- `Stable`: We promote releases from `Latest` when they have been used in the field for some time and in scale, considering time since release, adoption, and other quality and stability metrics. These releases will be indicated on the releases page (https://github.com/getsentry/sentry-dart/releases/) with the `Stable` suffix.
+
+## Usage
 
 For detailed usage, check out the inner [dart](https://github.com/getsentry/sentry-dart/tree/main/dart), [flutter](https://github.com/getsentry/sentry-dart/tree/main/flutter), [logging](https://github.com/getsentry/sentry-dart/tree/main/logging), [dio](https://github.com/getsentry/sentry-dart/tree/main/dio), [file](https://github.com/getsentry/sentry-dart/tree/main/file), [sqflite](https://github.com/getsentry/sentry-dart/tree/main/sqflite), [drift](https://github.com/getsentry/sentry-dart/tree/main/drift), [hive](https://github.com/getsentry/sentry-dart/tree/main/hive) and [isar](https://github.com/getsentry/sentry-dart/tree/main/isar) `README's` or our `Resources` section below.
 
-#### Blog posts
+## Blog posts
 
 [Introducing Mobile Screenshots](https://blog.sentry.io/introducing-mobile-screenshots-and-suspect-commits/).
 
@@ -40,7 +48,7 @@ For detailed usage, check out the inner [dart](https://github.com/getsentry/sent
 
 [Supporting Native Android Libraries Loaded From APKs](https://blog.sentry.io/2021/05/13/supporting-native-android-libraries-loaded-from-apks).
 
-#### Resources
+## Resources
 
 * [![Flutter docs](https://img.shields.io/badge/documentation-sentry.io-green.svg?label=flutter%20docs)](https://docs.sentry.io/platforms/flutter/)
 * [![Dart docs](https://img.shields.io/badge/documentation-sentry.io-green.svg?label=dart%20docs)](https://docs.sentry.io/platforms/dart/)
@@ -49,7 +57,7 @@ For detailed usage, check out the inner [dart](https://github.com/getsentry/sent
 * [![Stack Overflow](https://img.shields.io/badge/stack%20overflow-sentry-green.svg)](https://stackoverflow.com/questions/tagged/sentry)
 * [![Twitter Follow](https://img.shields.io/twitter/follow/getsentry?label=getsentry&style=social)](https://twitter.com/intent/follow?screen_name=getsentry)
 
-#### Apple Privacy Manifest
+## Apple Privacy Manifest
 
 Starting with [May 1st 2024](https://developer.apple.com/news/?id=3d8a9yyh), iOS apps are required to declare approved reasons to access certain APIs. This also includes third-party SDKs.
 If you are using `sentry-flutter`, update to at least version `7.17.0` to get the updated `sentry-cocoa` native iOS/macOS SDK, supporting the privacy manifest.

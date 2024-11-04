@@ -29,6 +29,9 @@ class NativeSdkIntegration implements Integration<SentryFlutterOptions> {
         exception: exception,
         stackTrace: stackTrace,
       );
+      if (_options?.automatedTestMode ?? false) {
+        rethrow;
+      }
     }
   }
 
@@ -44,6 +47,9 @@ class NativeSdkIntegration implements Integration<SentryFlutterOptions> {
           exception: exception,
           stackTrace: stackTrace,
         );
+        if (_options?.automatedTestMode ?? false) {
+          rethrow;
+        }
       }
     }
   }

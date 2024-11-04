@@ -18,6 +18,11 @@ const String _testDsnWithPath =
 const String _testDsnWithPort =
     'https://public:secret@sentry.example.com:8888/1';
 
+SentryOptions defaultTestOptions([PlatformChecker? checker]) {
+  return SentryOptions(dsn: testDsn, checker: checker)
+    ..automatedTestMode = true;
+}
+
 void testHeaders(
   Map<String, String>? headers,
   ClockProvider fakeClockProvider, {
@@ -69,7 +74,7 @@ Future testCaptureException(
     fail('Unexpected request on ${request.method} ${request.url} in HttpMock');
   });
 
-  final options = SentryOptions(dsn: testDsn)
+  final options = defaultTestOptions()
     ..compressPayload = compressPayload
     ..clock = fakeClockProvider
     ..httpClient = httpMock
@@ -140,13 +145,26 @@ Future testCaptureException(
     // the localhost port can change
     final absPathUri = Uri.parse(topFrame['abs_path'] as String);
     expect(absPathUri.host, 'localhost');
-    expect(absPathUri.path, '/sentry_browser_test.dart.browser_test.dart.js');
+    expect(
+        absPathUri.path,
+        anyOf([
+          '/sentry_browser_test.dart.browser_test.dart.js',
+          '/sentry_browser_test.dart.browser_test.dart.wasm'
+        ]));
 
     expect(
-      topFrame['filename'],
-      'sentry_browser_test.dart.browser_test.dart.js',
-    );
-    expect(topFrame['function'], 'Object.wrapException');
+        topFrame['filename'],
+        anyOf([
+          'sentry_browser_test.dart.browser_test.dart.js',
+          'sentry_browser_test.dart.browser_test.dart.wasm'
+        ]));
+    expect(
+        topFrame['function'],
+        anyOf([
+          'Object.wrapException',
+          'testCaptureException',
+          'module0.testCaptureException'
+        ]));
 
     expect(data['event_id'], sentryId.toString());
     expect(data['timestamp'], '2017-01-02T00:00:00.000Z');
@@ -196,7 +214,7 @@ Future testCaptureException(
 
 void runTest({Codec<List<int>, List<int>?>? gzip, bool isWeb = false}) {
   test('can parse DSN', () async {
-    final options = SentryOptions(dsn: testDsn);
+    final options = defaultTestOptions();
     final client = SentryClient(options);
 
     final dsn = Dsn.parse(options.dsn!);
@@ -213,7 +231,7 @@ void runTest({Codec<List<int>, List<int>?>? gzip, bool isWeb = false}) {
   });
 
   test('can parse DSN without secret', () async {
-    final options = SentryOptions(dsn: _testDsnWithoutSecret);
+    final options = defaultTestOptions()..dsn = _testDsnWithoutSecret;
     final client = SentryClient(options);
 
     final dsn = Dsn.parse(options.dsn!);
@@ -230,7 +248,7 @@ void runTest({Codec<List<int>, List<int>?>? gzip, bool isWeb = false}) {
   });
 
   test('can parse DSN with path', () async {
-    final options = SentryOptions(dsn: _testDsnWithPath);
+    final options = defaultTestOptions()..dsn = _testDsnWithPath;
     final client = SentryClient(options);
 
     final dsn = Dsn.parse(options.dsn!);
@@ -246,7 +264,7 @@ void runTest({Codec<List<int>, List<int>?>? gzip, bool isWeb = false}) {
     client.close();
   });
   test('can parse DSN with port', () async {
-    final options = SentryOptions(dsn: _testDsnWithPort);
+    final options = defaultTestOptions()..dsn = _testDsnWithPort;
     final client = SentryClient(options);
 
     final dsn = Dsn.parse(options.dsn!);
@@ -277,7 +295,8 @@ void runTest({Codec<List<int>, List<int>?>? gzip, bool isWeb = false}) {
     });
 
     final client = SentryClient(
-      SentryOptions(dsn: _testDsnWithoutSecret)
+      defaultTestOptions()
+        ..dsn = _testDsnWithoutSecret
         ..httpClient = httpMock
         ..clock = fakeClockProvider
         ..compressPayload = false
@@ -331,9 +350,7 @@ void runTest({Codec<List<int>, List<int>?>? gzip, bool isWeb = false}) {
     });
 
     final client = SentryClient(
-      SentryOptions(
-        dsn: testDsn,
-      )
+      defaultTestOptions()
         ..httpClient = httpMock
         ..clock = fakeClockProvider
         ..compressPayload = false
@@ -392,9 +409,7 @@ void runTest({Codec<List<int>, List<int>?>? gzip, bool isWeb = false}) {
       data: <String, String>{'foo': 'bar'},
     );
 
-    final options = SentryOptions(
-      dsn: testDsn,
-    )
+    final options = defaultTestOptions()
       ..httpClient = httpMock
       ..clock = fakeClockProvider
       ..compressPayload = false

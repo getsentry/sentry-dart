@@ -6,6 +6,7 @@ import 'package:meta/meta.dart';
 
 import '../../../sentry_flutter.dart';
 import '../../event_processor/replay_event_processor.dart';
+import '../../replay/integration.dart';
 import '../../replay/recorder.dart';
 import '../../replay/recorder_config.dart';
 import '../sentry_native_channel.dart';
@@ -17,7 +18,7 @@ class SentryNativeCocoa extends SentryNativeChannel {
   ScreenshotRecorder? _replayRecorder;
   SentryId? _replayId;
 
-  SentryNativeCocoa(super.options, super.channel);
+  SentryNativeCocoa(super.options);
 
   @override
   Future<void> init(Hub hub) async {
@@ -25,9 +26,11 @@ class SentryNativeCocoa extends SentryNativeChannel {
     // so let's set it up conditionally. This allows Dart to trim the code.
     if (options.experimental.replay.isEnabled &&
         options.platformChecker.platform.isIOS) {
+      options.sdk.addIntegration(replayIntegrationName);
+
       // We only need the integration when error-replay capture is enabled.
       if ((options.experimental.replay.onErrorSampleRate ?? 0) > 0) {
-        options.addEventProcessor(ReplayEventProcessor(this));
+        options.addEventProcessor(ReplayEventProcessor(hub, this));
       }
 
       channel.setMethodCallHandler((call) async {
@@ -35,8 +38,9 @@ class SentryNativeCocoa extends SentryNativeChannel {
           case 'captureReplayScreenshot':
             _replayRecorder ??=
                 ScreenshotRecorder(ScreenshotRecorderConfig(), options);
-            final replayId =
-                SentryId.fromId(call.arguments['replayId'] as String);
+            final replayId = call.arguments['replayId'] == null
+                ? null
+                : SentryId.fromId(call.arguments['replayId'] as String);
             if (_replayId != replayId) {
               _replayId = replayId;
               hub.configureScope((s) {

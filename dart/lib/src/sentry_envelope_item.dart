@@ -4,11 +4,11 @@ import 'dart:convert';
 import 'client_reports/client_report.dart';
 import 'metrics/metric.dart';
 import 'protocol.dart';
-import 'utils.dart';
 import 'sentry_attachment/sentry_attachment.dart';
-import 'sentry_item_type.dart';
 import 'sentry_envelope_item_header.dart';
+import 'sentry_item_type.dart';
 import 'sentry_user_feedback.dart';
+import 'utils.dart';
 
 /// Item holding header information and JSON encoded data.
 class SentryEnvelopeItem {
@@ -46,6 +46,7 @@ class SentryEnvelopeItem {
   }
 
   /// Create a [SentryEnvelopeItem] which sends [SentryUserFeedback].
+  @Deprecated('Will be removed in a future version.')
   factory SentryEnvelopeItem.fromUserFeedback(SentryUserFeedback feedback) {
     final cachedItem =
         _CachedItem(() async => utf8JsonEncoder.convert(feedback.toJson()));
@@ -65,13 +66,14 @@ class SentryEnvelopeItem {
         _CachedItem(() async => utf8JsonEncoder.convert(event.toJson()));
 
     return SentryEnvelopeItem(
-        SentryEnvelopeItemHeader(
-          SentryItemType.event,
-          cachedItem.getDataLength,
-          contentType: 'application/json',
-        ),
-        cachedItem.getData,
-        originalObject: event);
+      SentryEnvelopeItemHeader(
+        event.type == 'feedback' ? 'feedback' : SentryItemType.event,
+        cachedItem.getDataLength,
+        contentType: 'application/json',
+      ),
+      cachedItem.getData,
+      originalObject: event,
+    );
   }
 
   /// Create a [SentryEnvelopeItem] which holds the [ClientReport] data.
@@ -132,6 +134,7 @@ class SentryEnvelopeItem {
       // TODO the data copy could be avoided - this would be most significant with attachments.
       return [...itemHeader, ...newLine, ...data];
     } catch (e) {
+      // TODO rethrow in options.automatedTestMode (currently not available here to check)
       return [];
     }
   }

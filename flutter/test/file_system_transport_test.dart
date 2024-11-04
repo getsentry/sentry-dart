@@ -40,6 +40,7 @@ void main() {
   });
 
   test('$FileSystemTransport returns emptyId if channel throws', () async {
+    fixture.options.automatedTestMode = false;
     when(fixture.binding.captureEnvelope(any, false)).thenThrow(Exception());
 
     final transport = fixture.getSut();
@@ -155,8 +156,12 @@ void main() {
 }
 
 class Fixture {
-  final options = SentryOptions(dsn: fakeDsn);
+  final options = defaultTestOptions();
   final binding = MockSentryNativeBinding();
+
+  Fixture() {
+    when(binding.captureEnvelope(any, any)).thenReturn(null);
+  }
 
   FileSystemTransport getSut() {
     return FileSystemTransport(binding, options);
