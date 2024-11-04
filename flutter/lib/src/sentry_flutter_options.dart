@@ -195,6 +195,10 @@ class SentryFlutterOptions extends SentryOptions {
   /// Only attach a screenshot when the app is resumed.
   bool attachScreenshotOnlyWhenResumed = false;
 
+  /// Screenshots will be cached for 100ms per default. Change this to change
+  /// the duration, or set to zero if you want to disable screenshot caching.
+  Duration screenshotCacheDuration = Duration(milliseconds: 100);
+
   /// Sets a callback which is executed before capturing screenshots. Only
   /// relevant if `attachScreenshot` is set to true. When false is returned
   /// from the function, no screenshot will be attached.

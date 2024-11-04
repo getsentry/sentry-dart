@@ -38,11 +38,13 @@ class DefaultTaskQueue<T> implements TaskQueue<T> {
       );
       return fallbackResult;
     } else {
+      print("XXX before");
       _queueCount++;
       try {
         return await task();
       } finally {
         _queueCount--;
+        print("XXX after $_queueCount");
       }
     }
   }

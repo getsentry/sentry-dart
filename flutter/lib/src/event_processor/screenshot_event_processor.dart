@@ -14,6 +14,9 @@ import 'package:flutter/widgets.dart' as widget;
 class ScreenshotEventProcessor implements EventProcessor {
   final SentryFlutterOptions _options;
 
+  Uint8List? _cachedScreenshotData;
+  DateTime? _lastScreenshotTime;
+
   ScreenshotEventProcessor(this._options);
 
   @override
@@ -77,11 +80,24 @@ class ScreenshotEventProcessor implements EventProcessor {
       return event;
     }
 
-    final bytes = await createScreenshot();
+    final bytes = await _getOrCreateScreenshot();
     if (bytes != null) {
       hint.screenshot = SentryAttachment.fromScreenshotData(bytes);
     }
     return event;
+  }
+
+  Future<Uint8List?> _getOrCreateScreenshot() async {
+    if (_options.screenshotCacheDuration.inMilliseconds > 0 &&
+        _cachedScreenshotData != null &&
+        _lastScreenshotTime != null &&
+        DateTime.now().difference(_lastScreenshotTime!) <
+            _options.screenshotCacheDuration) {
+      return _cachedScreenshotData;
+    }
+    _cachedScreenshotData = await createScreenshot();
+    _lastScreenshotTime = DateTime.now();
+    return _cachedScreenshotData;
   }
 
   @internal
