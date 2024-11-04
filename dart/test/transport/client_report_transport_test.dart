@@ -27,6 +27,8 @@ void main() {
       final sut = fixture.getSut(rateLimiter: mockRateLimiter);
 
       final envelope = MockEnvelope();
+      envelope.items = [SentryEnvelopeItem.fromEvent(SentryEvent())];
+
       await sut.send(envelope);
 
       expect(mockRateLimiter.envelopeToFilter, envelope);
@@ -38,6 +40,8 @@ void main() {
       final sut = fixture.getSut(rateLimiter: mockRateLimiter);
 
       final envelope = MockEnvelope();
+      envelope.items = [SentryEnvelopeItem.fromEvent(SentryEvent())];
+
       final eventId = await sut.send(envelope);
 
       expect(eventId, SentryId.empty());

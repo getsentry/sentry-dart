@@ -1,6 +1,5 @@
 import 'package:meta/meta.dart';
 import '../../sentry.dart';
-import '../client_reports/client_report_recorder.dart';
 import '../sentry_envelope_header.dart';
 import 'rate_limiter.dart';
 
