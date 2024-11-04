@@ -24,6 +24,9 @@
   );
   ```
 
+- Add `screenshotCacheDuration` to `FlutterOptions` ([#2387](https://github.com/getsentry/sentry-dart/pull/2387))
+  - Screenshots will be cached for 100ms per default.
+  
 ### Enhancements
 
 - Cache parsed DSN ([#2365](https://github.com/getsentry/sentry-dart/pull/2365))
