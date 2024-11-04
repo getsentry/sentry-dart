@@ -76,7 +76,7 @@ Future<void> setupSentry(
       options.reportSilentFlutterErrors = true;
       options.attachScreenshot = true;
       options.screenshotQuality = SentryScreenshotQuality.low;
-      // options.attachViewHierarchy = true;
+      options.attachViewHierarchy = true;
       // We can enable Sentry debug logging during development. This is likely
       // going to log too much for your app, but can be useful when figuring out
       // configuration issues, e.g. finding out why your events are not uploaded.
@@ -201,20 +201,6 @@ class MainScaffold extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            TooltipButton(
-              onPressed: () async {
-                for (int i = 0; i < 100; i++) {
-                  print("SENDING TO SENTRY $i...");
-                  await Sentry.captureException(
-                    Exception("FOO"),
-                  );
-                  print("SENT TO SENTRY $i!");
-                }
-                print("SENT TO SENTRY DONE!");
-              },
-              text: '',
-              buttonTitle: 'Tight Loop Await',
-            ),
             if (_isIntegrationTest) const IntegrationTestWidget(),
             const Center(child: Text('Trigger an action.\n')),
             const Padding(
