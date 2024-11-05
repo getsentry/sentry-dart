@@ -28,7 +28,6 @@ import 'auto_close_screen.dart';
 import 'drift/connection/connection.dart';
 import 'drift/database.dart';
 import 'isar/user.dart';
-import 'user_feedback_dialog.dart';
 
 // ATTENTION: Change the DSN below with your own to see the events in Sentry. Get one at sentry.io
 const String exampleDsn =
@@ -115,6 +114,9 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
+    Future.delayed(const Duration(seconds: 3), () {
+      SentryFlutter.reportFullyDisplayed();
+    });
     return feedback.BetterFeedback(
       child: ChangeNotifierProvider<ThemeProvider>(
         create: (_) => ThemeProvider(),
@@ -232,7 +234,7 @@ class MainScaffold extends StatelessWidget {
               TooltipButton(
                 onPressed: isarTest,
                 text:
-                    'Executes CRUD operations on an in-memory with Isart and sends the created transaction to Sentry.',
+                    'Executes CRUD operations on an in-memory with Isar and sends the created transaction to Sentry.',
                 buttonTitle: 'isar',
               ),
             TooltipButton(
@@ -453,7 +455,7 @@ class MainScaffold extends StatelessWidget {
                 Sentry.captureMessage(
                   'This message has an attachment',
                   withScope: (scope) {
-                    const txt = 'Lorem Ipsum dolar sit amet';
+                    const txt = 'Lorem Ipsum dolor sit amet';
                     scope.addAttachment(
                       SentryAttachment.fromIntList(
                         utf8.encode(txt),
@@ -500,29 +502,21 @@ class MainScaffold extends StatelessWidget {
             TooltipButton(
               onPressed: () async {
                 final id = await Sentry.captureMessage('UserFeedback');
+                final screenshot = await SentryFlutter.captureScreenshot();
+
                 if (!context.mounted) return;
-                await showDialog(
-                  context: context,
-                  builder: (context) {
-                    return UserFeedbackDialog(eventId: id);
-                  },
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => SentryFeedbackWidget(
+                        associatedEventId: id, screenshot: screenshot),
+                    fullscreenDialog: true,
+                  ),
                 );
               },
               text:
-                  'Shows a custom user feedback dialog without an ongoing event that captures and sends user feedback data to Sentry.',
-              buttonTitle: 'Capture User Feedback',
-            ),
-            TooltipButton(
-              onPressed: () async {
-                await showDialog(
-                  context: context,
-                  builder: (context) {
-                    return UserFeedbackDialog(eventId: SentryId.newId());
-                  },
-                );
-              },
-              text: '',
-              buttonTitle: 'Show UserFeedback Dialog without event',
+                  'Shows a custom feedback dialog without an ongoing event that captures and sends user feedback data to Sentry.',
+              buttonTitle: 'Capture Feedback',
             ),
             TooltipButton(
               onPressed: () {
@@ -571,6 +565,14 @@ class MainScaffold extends StatelessWidget {
             if (UniversalPlatform.isIOS || UniversalPlatform.isMacOS)
               const CocoaExample(),
             if (UniversalPlatform.isAndroid) const AndroidExample(),
+            // ignore: invalid_use_of_internal_member
+            if (SentryFlutter.native != null)
+              ElevatedButton(
+                onPressed: () async {
+                  SentryFlutter.nativeCrash();
+                },
+                child: const Text('Sentry.nativeCrash'),
+              ),
           ].map((widget) {
             if (kIsWeb) {
               // Add vertical padding to web so the tooltip doesn't obstruct the clicking of the button below.
@@ -767,12 +769,6 @@ class AndroidExample extends StatelessWidget {
         },
         child: const Text('Platform exception'),
       ),
-      ElevatedButton(
-        onPressed: () async {
-          SentryFlutter.nativeCrash();
-        },
-        child: const Text('Sentry.nativeCrash'),
-      ),
     ]);
   }
 }
@@ -884,12 +880,6 @@ class CocoaExample extends StatelessWidget {
             await execute('crash');
           },
           child: const Text('Objective-C SEGFAULT'),
-        ),
-        ElevatedButton(
-          onPressed: () async {
-            SentryFlutter.nativeCrash();
-          },
-          child: const Text('Sentry.nativeCrash'),
         ),
       ],
     );

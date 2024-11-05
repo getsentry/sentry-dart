@@ -42,63 +42,7 @@ void main() {
       setupMocks(fixture);
     });
 
-    test('native app start measurement added to first transaction', () async {
-      await fixture.call(
-        appStartEnd: DateTime.fromMillisecondsSinceEpoch(10),
-      );
-      final transaction = fixture.capturedTransaction();
-
-      final measurement = transaction.measurements['app_start_cold']!;
-      expect(measurement.value, 10);
-      expect(measurement.unit, DurationSentryMeasurementUnit.milliSecond);
-    });
-
-    test('measurements appended', () async {
-      await fixture.call(
-        appStartEnd: DateTime.fromMillisecondsSinceEpoch(10),
-      );
-
-      final measurement = SentryMeasurement.warmAppStart(Duration(seconds: 1));
-
-      final transaction = fixture.capturedTransaction().copyWith();
-      transaction.measurements[measurement.name] = measurement;
-
-      expect(transaction.measurements.length, 2);
-      expect(transaction.measurements.containsKey(measurement.name), true);
-    });
-
-    test('native app start measurement not added if more than 60s', () async {
-      await fixture.call(
-        appStartEnd: DateTime.fromMillisecondsSinceEpoch(60001),
-      );
-
-      verifyNever(fixture.hub.captureTransaction(
-        captureAny,
-        traceContext: captureAnyNamed('traceContext'),
-      ));
-    });
-
-    test(
-        'autoAppStart is false and appStartEnd is not set does not add app start measurement',
-        () async {
-      fixture.options.autoAppStart = false;
-      await fixture.call(
-        appStartEnd: null,
-      );
-
-      final transaction = fixture.capturedTransaction();
-
-      expect(transaction.measurements.isEmpty, true);
-      expect(transaction.spans.length,
-          1); // Only containing ui.load.initial_display
-      expect(transaction.spans[0].context.operation, 'ui.load.initial_display');
-    });
-
-    test(
-        'autoAppStart is false and appStartEnd is set adds app start measurement',
-        () async {
-      fixture.options.autoAppStart = false;
-
+    test('added transaction has app start measurement', () async {
       await fixture.call(
         appStartEnd: DateTime.fromMillisecondsSinceEpoch(10),
       );
@@ -127,6 +71,59 @@ void main() {
       expect(pluginRegistrationSpan, isNotNull);
       expect(sentrySetupSpan, isNotNull);
       expect(firstFrameRenderSpan, isNotNull);
+    });
+
+    test('added transaction has ttid measurement', () async {
+      await fixture.call(
+        appStartEnd: DateTime.fromMillisecondsSinceEpoch(10),
+      );
+
+      final transaction = fixture.capturedTransaction().copyWith();
+
+      final measurement = transaction.measurements['time_to_initial_display']!;
+      expect(measurement.value, 10);
+      expect(measurement.unit, DurationSentryMeasurementUnit.milliSecond);
+    });
+
+    test('added transaction has no ttfd measurement', () async {
+      await fixture.call(
+        appStartEnd: DateTime.fromMillisecondsSinceEpoch(10),
+      );
+
+      final transaction = fixture.capturedTransaction().copyWith();
+
+      final measurement = transaction.measurements['time_to_full_display'];
+      expect(measurement, isNull);
+    });
+
+    test('added transaction has ttfd measurement if opt in', () async {
+      Future.delayed(
+        const Duration(milliseconds: 100),
+        () async =>
+            await fixture.options.timeToDisplayTracker.reportFullyDisplayed(),
+      );
+
+      fixture.options.enableTimeToFullDisplayTracing = true;
+
+      await fixture.call(
+        appStartEnd: DateTime.fromMillisecondsSinceEpoch(10),
+      );
+
+      final transaction = fixture.capturedTransaction().copyWith();
+
+      final measurement = transaction.measurements['time_to_full_display'];
+      expect(measurement, isNotNull);
+    });
+
+    test('no transaction if app start takes more than 60s', () async {
+      await fixture.call(
+        appStartEnd: DateTime.fromMillisecondsSinceEpoch(60001),
+      );
+
+      verifyNever(fixture.hub.captureTransaction(
+        captureAny,
+        traceContext: captureAnyNamed('traceContext'),
+      ));
     });
   });
 
@@ -334,7 +331,7 @@ class Fixture {
     SentryFlutter.sentrySetupStartTime = DateTime.now().toUtc();
   }
 
-  Future<void> call({DateTime? appStartEnd}) async {
+  Future<void> call({required DateTime appStartEnd}) async {
     await sut.call(hub, options, appStartEnd: appStartEnd);
   }
 

@@ -9,6 +9,7 @@ import 'event_processor/android_platform_exception_event_processor.dart';
 import 'event_processor/flutter_enricher_event_processor.dart';
 import 'event_processor/flutter_exception_event_processor.dart';
 import 'event_processor/platform_exception_event_processor.dart';
+import 'event_processor/screenshot_event_processor.dart';
 import 'event_processor/url_filter/url_filter_event_processor.dart';
 import 'event_processor/widget_event_processor.dart';
 import 'file_system_transport.dart';
@@ -115,7 +116,9 @@ mixin SentryFlutter {
 
     // Not all platforms have a native integration.
     if (_native != null) {
-      options.transport = FileSystemTransport(_native!, options);
+      if (_native!.supportsCaptureEnvelope) {
+        options.transport = FileSystemTransport(_native!, options);
+      }
       options.addScopeObserver(NativeScopeObserver(_native!));
     }
 
@@ -170,7 +173,9 @@ mixin SentryFlutter {
     final native = _native;
     if (native != null) {
       integrations.add(NativeSdkIntegration(native));
-      integrations.add(LoadContextsIntegration(native));
+      if (native.supportsLoadContexts) {
+        integrations.add(LoadContextsIntegration(native));
+      }
       integrations.add(LoadImageListIntegration(native));
       options.enableDartSymbolication = false;
     }
@@ -242,27 +247,72 @@ mixin SentryFlutter {
   /// Reports the time it took for the screen to be fully displayed.
   /// This requires the [SentryFlutterOptions.enableTimeToFullDisplayTracing] option to be set to `true`.
   static Future<void> reportFullyDisplayed() async {
-    return SentryNavigatorObserver.timeToDisplayTracker?.reportFullyDisplayed();
+    // ignore: invalid_use_of_internal_member
+    final options = Sentry.currentHub.options;
+    if (options is SentryFlutterOptions) {
+      try {
+        return options.timeToDisplayTracker.reportFullyDisplayed();
+      } catch (exception, stackTrace) {
+        options.logger(
+          SentryLevel.error,
+          'Error while reporting TTFD',
+          exception: exception,
+          stackTrace: stackTrace,
+        );
+      }
+    } else {
+      return;
+    }
   }
 
   /// Pauses the app hang tracking.
   /// Only for iOS and macOS.
-  static Future<void> pauseAppHangTracking() {
+  static Future<void> pauseAppHangTracking() async {
     if (_native == null) {
       _logNativeIntegrationNotAvailable("pauseAppHangTracking");
-      return Future<void>.value();
+    } else {
+      await _native!.pauseAppHangTracking();
     }
-    return _native!.pauseAppHangTracking();
   }
 
   /// Resumes the app hang tracking.
   /// Only for iOS and macOS
-  static Future<void> resumeAppHangTracking() {
+  static Future<void> resumeAppHangTracking() async {
     if (_native == null) {
       _logNativeIntegrationNotAvailable("resumeAppHangTracking");
-      return Future<void>.value();
+    } else {
+      await _native!.resumeAppHangTracking();
     }
-    return _native!.resumeAppHangTracking();
+  }
+
+  /// Uses [SentryScreenshotWidget] to capture the current screen as a
+  /// [SentryAttachment].
+  static Future<SentryAttachment?> captureScreenshot() async {
+    // ignore: invalid_use_of_internal_member
+    final options = Sentry.currentHub.options;
+    if (!SentryScreenshotWidget.isMounted) {
+      options.logger(
+        SentryLevel.debug,
+        'SentryScreenshotWidget could not be found in the widget tree.',
+      );
+      return null;
+    }
+    final processors =
+        options.eventProcessors.whereType<ScreenshotEventProcessor>();
+    if (processors.isEmpty) {
+      options.logger(
+        SentryLevel.debug,
+        'ScreenshotEventProcessor could not be found.',
+      );
+      return null;
+    }
+    final processor = processors.first;
+    final bytes = await processor.createScreenshot();
+    if (bytes != null) {
+      return SentryAttachment.fromScreenshotData(bytes);
+    } else {
+      return null;
+    }
   }
 
   @internal
@@ -276,7 +326,7 @@ mixin SentryFlutter {
   /// Use `nativeCrash()` to crash the native implementation and test/debug the crash reporting for native code.
   /// This should not be used in production code.
   /// Only for Android, iOS and macOS
-  static Future<void> nativeCrash() {
+  static Future<void> nativeCrash() async {
     if (_native == null) {
       _logNativeIntegrationNotAvailable("nativeCrash");
       return Future<void>.value();

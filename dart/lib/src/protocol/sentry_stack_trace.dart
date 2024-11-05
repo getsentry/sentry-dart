@@ -12,6 +12,8 @@ class SentryStackTrace {
     this.lang,
     this.snapshot,
     this.unknown,
+    @internal this.baseAddr,
+    @internal this.buildId,
   })  : _frames = frames,
         _registers = Map.from(registers ?? {});
 
@@ -45,6 +47,12 @@ class SentryStackTrace {
   /// crashing thread, or a stack trace computed as a result of an external kill
   /// signal.
   final bool? snapshot;
+
+  @internal
+  final String? baseAddr;
+
+  @internal
+  final String? buildId;
 
   @internal
   final Map<String, dynamic>? unknown;
@@ -91,5 +99,7 @@ class SentryStackTrace {
         lang: lang ?? this.lang,
         snapshot: snapshot ?? this.snapshot,
         unknown: unknown,
+        baseAddr: baseAddr,
+        buildId: buildId,
       );
 }

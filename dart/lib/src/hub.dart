@@ -256,6 +256,8 @@ class Hub {
     return sentryId;
   }
 
+  @Deprecated(
+      'Will be removed in a future version. Use [captureFeedback] instead')
   Future<void> captureUserFeedback(SentryUserFeedback userFeedback) async {
     if (!_isEnabled) {
       _options.logger(
@@ -286,6 +288,47 @@ class Hub {
         rethrow;
       }
     }
+  }
+
+  /// Captures the feedback.
+  Future<SentryId> captureFeedback(
+    SentryFeedback feedback, {
+    Hint? hint,
+    ScopeCallback? withScope,
+  }) async {
+    var sentryId = SentryId.empty();
+
+    if (!_isEnabled) {
+      _options.logger(
+        SentryLevel.warning,
+        "Instance is disabled and this 'captureFeedback' call is a no-op.",
+      );
+    } else {
+      final item = _peek();
+      late Scope scope;
+      final s = _cloneAndRunWithScope(item.scope, withScope);
+      if (s is Future<Scope>) {
+        scope = await s;
+      } else {
+        scope = s;
+      }
+
+      try {
+        sentryId = await item.client.captureFeedback(
+          feedback,
+          hint: hint,
+          scope: scope,
+        );
+      } catch (exception, stacktrace) {
+        _options.logger(
+          SentryLevel.error,
+          'Error while capturing feedback',
+          exception: exception,
+          stackTrace: stacktrace,
+        );
+      }
+    }
+    return sentryId;
   }
 
   FutureOr<Scope> _cloneAndRunWithScope(

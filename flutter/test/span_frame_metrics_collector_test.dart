@@ -25,14 +25,14 @@ void main() {
 
   test('clear() clears frames, running spans and pauses frame tracking', () {
     final sut = fixture.sut;
-    sut.frames[DateTime.now()] = 1;
+    sut.exceededFrames[DateTime.now()] = 1;
     final mockSpan = MockSentrySpan();
     when(mockSpan.startTimestamp).thenReturn(DateTime.now());
 
     sut.onSpanStarted(mockSpan);
     sut.clear();
 
-    expect(sut.frames, isEmpty);
+    expect(sut.exceededFrames, isEmpty);
     expect(sut.activeSpans, isEmpty);
     expect(sut.isTrackingPaused, isTrue);
   });
@@ -84,7 +84,6 @@ void main() {
     final span2 = MockSentrySpan();
     final spanStartTimestamp = DateTime.now();
     final spanEndTimestamp = spanStartTimestamp.add(Duration(seconds: 1));
-    sut.displayRefreshRate = 60;
 
     when(span1.isRootSpan).thenReturn(false);
     when(span1.startTimestamp).thenReturn(spanStartTimestamp);
@@ -98,14 +97,15 @@ void main() {
     sut.activeSpans.add(span1);
     sut.activeSpans.add(span2);
 
-    sut.frames[spanStartTimestamp.subtract(Duration(seconds: 5))] = 1;
-    sut.frames[spanStartTimestamp.subtract(Duration(seconds: 3))] = 1;
-    sut.frames[spanStartTimestamp.add(Duration(seconds: 4))] = 1;
+    sut.exceededFrames[spanStartTimestamp.subtract(Duration(seconds: 5))] = 1;
+    sut.exceededFrames[spanStartTimestamp.subtract(Duration(seconds: 3))] = 1;
+    sut.exceededFrames[spanStartTimestamp.add(Duration(seconds: 4))] = 1;
 
     await sut.onSpanFinished(span1, spanEndTimestamp);
 
-    expect(sut.frames, hasLength(1));
-    expect(sut.frames.keys.first, spanStartTimestamp.add(Duration(seconds: 4)));
+    expect(sut.exceededFrames, hasLength(1));
+    expect(sut.exceededFrames.keys.first,
+        spanStartTimestamp.add(Duration(seconds: 4)));
   });
 
   test(
@@ -142,7 +142,7 @@ void main() {
     final now = DateTime.now();
     when(span.startTimestamp).thenReturn(now);
     when(span.endTimestamp).thenReturn(now.add(Duration(milliseconds: 500)));
-    sut.frames[now.add(Duration(milliseconds: 200))] = 100;
+    sut.exceededFrames[now.add(Duration(milliseconds: 200))] = 100;
 
     final metrics = sut.calculateFrameMetrics(span, span.endTimestamp!, 60);
 
@@ -160,7 +160,7 @@ void main() {
     final now = DateTime.now();
     when(span.startTimestamp).thenReturn(now);
     when(span.endTimestamp).thenReturn(now.add(Duration(milliseconds: 500)));
-    sut.frames[now.subtract(Duration(milliseconds: 200))] = 100;
+    sut.exceededFrames[now.subtract(Duration(milliseconds: 200))] = 100;
 
     final metrics = sut.calculateFrameMetrics(span, span.endTimestamp!, 60);
 
@@ -180,7 +180,7 @@ void main() {
     when(span.startTimestamp).thenReturn(now);
     when(span.endTimestamp).thenReturn(now.add(Duration(milliseconds: 500)));
     // 50ms before span starts and ends 50ms after span starts
-    sut.frames[now.add(Duration(milliseconds: 50))] = 100;
+    sut.exceededFrames[now.add(Duration(milliseconds: 50))] = 100;
 
     final metrics = sut.calculateFrameMetrics(span, span.endTimestamp!, 60);
 
@@ -199,7 +199,7 @@ void main() {
     final now = DateTime.now();
     when(span.startTimestamp).thenReturn(now);
     when(span.endTimestamp).thenReturn(now.add(Duration(milliseconds: 500)));
-    sut.frames[now.add(Duration(milliseconds: 550))] = 100;
+    sut.exceededFrames[now.add(Duration(milliseconds: 550))] = 100;
 
     final metrics = sut.calculateFrameMetrics(span, span.endTimestamp!, 60);
 
@@ -270,7 +270,7 @@ void main() {
 
     when(span.startTimestamp).thenReturn(DateTime.now());
     sut.activeSpans.add(span);
-    sut.frames[DateTime.now()] = 1;
+    sut.exceededFrames[DateTime.now()] = 1;
     const maxFramesToTrack = 1000;
     sut.maxFramesToTrack = maxFramesToTrack;
 
@@ -278,12 +278,12 @@ void main() {
       await Future<void>.delayed(
           Duration(milliseconds: 1)); // Add a small delay
       if (i == maxFramesToTrack - 1) {
-        expect(sut.frames.length, maxFramesToTrack - 1);
+        expect(sut.exceededFrames.length, maxFramesToTrack - 1);
       }
       await sut.measureFrameDuration(Duration.zero);
     }
 
-    expect(sut.frames, isEmpty);
+    expect(sut.exceededFrames, isEmpty);
     expect(sut.activeSpans, isEmpty);
     expect(sut.displayRefreshRate, isNull);
     expect(sut.isTrackingPaused, isTrue);
@@ -296,8 +296,12 @@ class Fixture {
   final fakeFrameCallbackHandler = FakeFrameCallbackHandler();
   final mockSentryNative = MockSentryNativeBinding();
 
-  SpanFrameMetricsCollector get sut => SpanFrameMetricsCollector(options,
-      frameCallbackHandler: fakeFrameCallbackHandler,
-      native: mockSentryNative,
-      isTestMode: true);
+  SpanFrameMetricsCollector get sut {
+    return SpanFrameMetricsCollector(options,
+        frameCallbackHandler: fakeFrameCallbackHandler,
+        native: mockSentryNative,
+        isTestMode: true)
+      ..displayRefreshRate = 60
+      ..expectedFrameDuration = Duration(milliseconds: 16);
+  }
 }
