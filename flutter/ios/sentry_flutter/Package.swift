@@ -29,8 +29,7 @@ let package = Package(
             name: "sentry_flutter_swift",
             dependencies: [
                 .product(name: "Sentry", package: "sentry-cocoa")
-            ],
-            publicHeadersPath:"include"
+            ]
         )
     ]
 )
