@@ -10,17 +10,18 @@ let package = Package(
         .macOS("10.13")
     ],
     products: [
-        .library(name: "sentry-flutter", targets: ["sentry_flutter", "sentry_flutter_swift"])
+        .library(name: "sentry-flutter", targets: ["sentry_flutter", "sentry_flutter_swift", "sentry_flutter_objc"])
     ],
     dependencies: [
-      .package(url: "https://github.com/getsentry/sentry-cocoa", from: "8.36.0")
+//      .package(url: "https://github.com/getsentry/sentry-cocoa", from: "8.36.0")
     ],
     targets: [
         .target(
             name: "sentry_flutter",
             dependencies: [
                 "sentry_flutter_swift",
-                .product(name: "Sentry", package: "sentry-cocoa")
+//                .target(name: "Sentry")
+//                .product(name: "Sentry", package: "sentry-cocoa")
             ],
             publicHeadersPath:"include"
         ),
@@ -28,8 +29,20 @@ let package = Package(
         .target(
             name: "sentry_flutter_swift",
             dependencies: [
-                .product(name: "Sentry", package: "sentry-cocoa")
+                .target(name: "sentry_flutter_objc"),
+                .target(name: "Sentry")
+//                .product(name: "Sentry", package: "sentry-cocoa")
             ]
+        ),
+        .target(
+            name: "sentry_flutter_objc",
+            dependencies: [
+                .target(name: "Sentry")
+            ]
+        ),
+        .binaryTarget(
+            name: "Sentry",
+            path: "Sentry.xcframework"
         )
     ]
 )

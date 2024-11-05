@@ -1,6 +1,6 @@
 #import "include/SentryFlutterPlugin.h"
 
-// TODO Check if this kind of import is requirred for cocoapods
+// TODO Check if this kind of import is required for cocoapods
 
 //#if __has_include(<sentry_flutter/sentry_flutter-Swift.h>)
 //#import <sentry_flutter/sentry_flutter-Swift.h>

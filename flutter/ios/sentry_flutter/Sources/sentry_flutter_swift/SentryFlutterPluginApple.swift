@@ -1,4 +1,10 @@
 import Sentry
+
+#if SWIFT_PACKAGE
+import Sentry.HybridSDK
+import sentry_flutter_objc
+#endif
+
 #if os(iOS)
 import Flutter
 import UIKit
