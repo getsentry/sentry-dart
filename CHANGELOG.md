@@ -26,6 +26,18 @@
 
 ### Enhancements
 
+- Make response body accessible via hint in `beforSend` callback for failed web requests or if tracing is enabled in `SentryHttpClient` ([#2293](https://github.com/getsentry/sentry-dart/pull/2293))
+  ```dart
+  options.beforeSend = (event, hint) async {
+    final response = hint.get(TypeCheckHint.httpResponse);
+    if (response is StreamedResponse) {
+      final body = await response.stream.bytesToString();
+      // user can now use it
+    }
+    return event;
+  };
+  ```
+  
 - Cache parsed DSN ([#2365](https://github.com/getsentry/sentry-dart/pull/2365))
 - Handle backpressure earlier in pipeline ([#2371](https://github.com/getsentry/sentry-dart/pull/2371))
   - Drops max un-awaited parallel tasks earlier, so event processors & callbacks are not executed for them. 
