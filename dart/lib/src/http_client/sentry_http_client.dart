@@ -2,8 +2,6 @@ import 'package:http/http.dart';
 import 'package:meta/meta.dart';
 import '../../sentry.dart';
 import 'tracing_client.dart';
-import '../hub.dart';
-import '../hub_adapter.dart';
 import 'breadcrumb_client.dart';
 import 'failed_request_client.dart';
 
@@ -192,15 +190,15 @@ Future<void> captureEvent(
   );
 
   bool? snapshot;
-  ThrowableMechanism? throwableMechanism;
   if (exception is SentryHttpClientError) {
     snapshot = true;
-    throwableMechanism = ThrowableMechanism(
-      mechanism,
-      exception,
-      snapshot: snapshot,
-    );
   }
+
+  final throwableMechanism = ThrowableMechanism(
+    mechanism,
+    exception,
+    snapshot: snapshot,
+  );
 
   final event = SentryEvent(
     throwable: throwableMechanism,
@@ -211,17 +209,10 @@ Future<void> captureEvent(
   final hint = Hint.withMap({TypeCheckHint.httpRequest: request});
 
   if (response != null) {
-    final responseBody = await response.stream.bytesToString();
     event.contexts.response = SentryResponse(
-      headers: hub.options.sendDefaultPii ? response.headers : null,
-      bodySize: response.contentLength,
-      statusCode: response.statusCode,
-      data: hub.options.sendDefaultPii &&
-              hub.options.maxResponseBodySize
-                  .shouldAddBody(response.contentLength!)
-          ? responseBody
-          : null,
-    );
+        headers: hub.options.sendDefaultPii ? response.headers : null,
+        bodySize: response.contentLength,
+        statusCode: response.statusCode);
     hint.set(TypeCheckHint.httpResponse, response);
   }
 

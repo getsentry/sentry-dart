@@ -1,13 +1,6 @@
 import 'package:http/http.dart';
 import '../../sentry.dart';
-import '../hub.dart';
-import '../hub_adapter.dart';
-import '../protocol.dart';
-import '../sentry_trace_origins.dart';
-import '../tracing.dart';
 import '../utils/http_deep_copy_streamed_response.dart';
-import '../utils/tracing_utils.dart';
-import '../utils/http_sanitizer.dart';
 
 /// A [http](https://pub.dev/packages/http)-package compatible HTTP client
 /// which adds support to Sentry Performance feature.
@@ -83,12 +76,6 @@ class TracingClient extends BaseClient {
       span?.setData('http.response.status_code', copiedResponses[1].statusCode);
       span?.setData(
           'http.response_content_length', copiedResponses[1].contentLength);
-      if (_hub.options.sendDefaultPii &&
-          _hub.options.maxResponseBodySize
-              .shouldAddBody(response.contentLength!)) {
-        final responseBody = await copiedResponses[1].stream.bytesToString();
-        span?.setData('http.response_content', responseBody);
-      }
       span?.status =
           SpanStatus.fromHttpStatusCode(copiedResponses[1].statusCode);
     } catch (exception) {

@@ -1,5 +1,6 @@
 import 'package:mockito/annotations.dart';
 import 'package:sentry/sentry.dart';
+import 'package:sentry/sentry_io.dart';
 import 'package:sentry/src/metrics/metric.dart';
 import 'package:sentry/src/profiling.dart';
 import 'package:sentry/src/transport/rate_limiter.dart';
@@ -214,5 +215,6 @@ final Map<String, dynamic> testUnknown = {
   SentryProfiler,
   SentryProfileInfo,
   ExceptionTypeIdentifier,
+  Hub,
 ])
 void main() {}

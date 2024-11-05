@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:http/http.dart';
 import 'package:http/testing.dart';
 import 'package:mockito/mockito.dart';
@@ -6,18 +8,22 @@ import 'package:sentry/src/http_client/failed_request_client.dart';
 import 'package:test/test.dart';
 
 import '../mocks.dart';
-import '../mocks/mock_hub.dart';
 import '../mocks/mock_transport.dart';
 import '../test_utils.dart';
+
+import '../mocks.mocks.dart';
+import '../mocks/mock_hub.dart' as fake;
 
 final requestUri = Uri.parse('https://example.com?foo=bar#myFragment');
 
 void main() {
   group(FailedRequestClient, () {
     late Fixture fixture;
+    late MockHub mockHub;
 
     setUp(() {
-      fixture = Fixture();
+      mockHub = MockHub();
+      fixture = Fixture(null);
     });
 
     test('no captured events when everything goes well', () async {
@@ -31,23 +37,41 @@ void main() {
       expect(fixture.transport.calls, 0);
     });
 
-    test('capture event with response body on error', () async {
-      fixture._hub.options.sendDefaultPii = true;
-      fixture._hub.options.maxResponseBodySize = MaxResponseBodySize.always;
+    test('capture response body as hint on error', () async {
+      fake.MockHub fakeHub = fake.MockHub();
+      fixture = Fixture(mockHub);
+      SentryOptions options = SentryOptions(dsn: "fake.dsn")
+        ..maxResponseBodySize = MaxResponseBodySize.medium;
       String responseBody = "this is the response body";
       int statusCode = 505;
+
+      when(mockHub.options).thenReturn(options);
+      when(mockHub.getSpan()).thenReturn(null);
+      when(mockHub.scope).thenReturn(fakeHub.scope);
+      when(
+        mockHub.captureEvent(
+          any,
+          stackTrace: anyNamed('stackTrace'),
+          hint: anyNamed('hint'),
+        ),
+      ).thenAnswer((invocation) async {
+        final hint = invocation.namedArguments[const Symbol('hint')] as Hint?;
+        final response =
+            hint?.get(TypeCheckHint.httpResponse) as StreamedResponse;
+        final responseBody = await response.stream.bytesToString();
+
+        expect(responseBody, responseBody);
+
+        return SentryId.newId();
+      });
 
       final sut = fixture.getSut(
         client: fixture.getClient(statusCode: statusCode, body: responseBody),
       );
       final response = await sut.get(requestUri);
+      final actualResponseBody = utf8.decode(response.bodyBytes);
 
-      expect(response.statusCode, statusCode);
-      expect(response.body, responseBody);
-      expect(fixture.transport.calls, 1);
-      expect(fixture.transport.events.length, 1);
-      expect(fixture.transport.events.first.contexts["response"].data,
-          responseBody);
+      expect(actualResponseBody, responseBody);
     });
 
     test('exception gets reported if client throws', () async {
@@ -220,15 +244,14 @@ void main() {
     });
 
     test('close does get called for user defined client', () async {
-      final mockHub = MockHub();
-
+      final fakeHub = fake.MockHub();
       final mockClient = CloseableMockClient();
 
-      final client = FailedRequestClient(client: mockClient, hub: mockHub);
+      final client = FailedRequestClient(client: mockClient, hub: fakeHub);
       client.close();
 
-      expect(mockHub.addBreadcrumbCalls.length, 0);
-      expect(mockHub.captureExceptionCalls.length, 0);
+      expect(fakeHub.addBreadcrumbCalls.length, 0);
+      expect(fakeHub.captureExceptionCalls.length, 0);
       verify(mockClient.close());
     });
 
@@ -380,11 +403,11 @@ class CloseableMockClient extends Mock implements BaseClient {}
 
 class Fixture {
   final options = defaultTestOptions();
-  late Hub _hub;
   final transport = MockTransport();
-  Fixture() {
+  late Hub _hub;
+  Fixture(Hub? hub) {
     options.transport = transport;
-    _hub = Hub(options);
+    _hub = hub ?? Hub(options);
   }
 
   FailedRequestClient getSut({

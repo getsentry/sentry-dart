@@ -1,13 +1,9 @@
 import 'package:http/http.dart';
-import '../hint.dart';
-import '../type_check_hint.dart';
 import '../utils/http_deep_copy_streamed_response.dart';
 import '../utils/tracing_utils.dart';
 import 'sentry_http_client_error.dart';
-import '../protocol.dart';
 import '../hub.dart';
 import '../hub_adapter.dart';
-import '../throwable_mechanism.dart';
 import 'sentry_http_client.dart';
 
 /// A [http](https://pub.dev/packages/http)-package compatible HTTP client
@@ -118,16 +114,50 @@ class FailedRequestClient extends BaseClient {
     } finally {
       stopwatch.stop();
 
-      await captureEvent(
-        _hub,
-        exception: exception,
-        stackTrace: stackTrace,
-        request: request,
-        requestDuration: stopwatch.elapsed,
-        response: copiedResponses.isNotEmpty ? copiedResponses[1] : null,
-        reason: 'HTTP Client Event with status code: $statusCode',
+      await _captureEventIfNeeded(
+        request,
+        statusCode,
+        exception,
+        stackTrace,
+        copiedResponses.isNotEmpty ? copiedResponses[1] : null,
+        stopwatch.elapsed,
       );
     }
+  }
+
+  Future<void> _captureEventIfNeeded(
+      BaseRequest request,
+      int? statusCode,
+      Object? exception,
+      StackTrace? stackTrace,
+      StreamedResponse? response,
+      Duration duration) async {
+    if (!(_captureFailedRequests ?? _hub.options.captureFailedRequests)) {
+      return;
+    }
+
+    // Only check `failedRequestStatusCodes` & `failedRequestTargets` if no exception was thrown.
+    if (exception == null) {
+      if (!failedRequestStatusCodes._containsStatusCode(statusCode)) {
+        return;
+      }
+      if (!containsTargetOrMatchesRegExp(
+          failedRequestTargets, request.url.toString())) {
+        return;
+      }
+    }
+
+    final reason = 'HTTP Client Error with status code: $statusCode';
+
+    await captureEvent(
+      _hub,
+      exception: exception ?? SentryHttpClientError(reason),
+      stackTrace: stackTrace,
+      request: request,
+      requestDuration: duration,
+      response: response,
+      reason: reason,
+    );
   }
 
   @override
