@@ -10,7 +10,7 @@ let package = Package(
         .macOS("10.13")
     ],
     products: [
-        .library(name: "sentry-flutter", targets: ["sentry_flutter", "sentry_flutter_swift", "sentry_flutter_objc"])
+        .library(name: "sentry-flutter", targets: ["sentry_flutter", "sentry_flutter_objc"])
     ],
     dependencies: [
 //      .package(url: "https://github.com/getsentry/sentry-cocoa", from: "8.36.0")
@@ -19,21 +19,12 @@ let package = Package(
         .target(
             name: "sentry_flutter",
             dependencies: [
-                "sentry_flutter_swift",
-//                .target(name: "Sentry")
-//                .product(name: "Sentry", package: "sentry-cocoa")
-            ],
-            publicHeadersPath:"include"
-        ),
-        // SPM does not support mixed-language, so we need to move the swift files into a separate target
-        .target(
-            name: "sentry_flutter_swift",
-            dependencies: [
-                .target(name: "sentry_flutter_objc"),
+                "sentry_flutter_objc",
                 .target(name: "Sentry")
 //                .product(name: "Sentry", package: "sentry-cocoa")
             ]
         ),
+        // SPM does not support mixed-language targets, so we need to move the ObjC files into a separate one
         .target(
             name: "sentry_flutter_objc",
             dependencies: [
