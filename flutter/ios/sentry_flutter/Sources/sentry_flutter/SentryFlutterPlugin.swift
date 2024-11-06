@@ -1,7 +1,7 @@
 import Sentry
 
 #if SWIFT_PACKAGE
-import Sentry._HybridSDK
+import Sentry._Hybrid
 import sentry_flutter_objc
 #endif
 

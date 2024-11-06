@@ -24,6 +24,8 @@
   );
   ```
 
+- SPM Support ([#2280](https://github.com/getsentry/sentry-dart/pull/2280))
+
 ### Enhancements
 
 - Cache parsed DSN ([#2365](https://github.com/getsentry/sentry-dart/pull/2365))

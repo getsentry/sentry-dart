@@ -1,7 +1,7 @@
 @import Sentry;
 
 #if SWIFT_PACKAGE
-@import Sentry._HybridSDK;
+@import Sentry._Hybrid;
 #endif
 
 #if SENTRY_TARGET_REPLAY_SUPPORTED

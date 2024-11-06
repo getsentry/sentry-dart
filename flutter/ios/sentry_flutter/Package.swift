@@ -29,6 +29,7 @@ let package = Package(
             name: "sentry_flutter_objc",
             dependencies: [
                 .target(name: "Sentry")
+//                .product(name: "Sentry", package: "sentry-cocoa")
             ]
         ),
         .binaryTarget(
