@@ -37,6 +37,8 @@ class SentryDelayedFramesTracker {
   final List<SentryFrameTiming> _delayedFrames = [];
   final SentryFlutterOptions _options;
   final Duration _expectedFrameDuration;
+  @visibleForTesting
+  DateTime? get oldestFrameEndTimestamp => _oldestFrameEndTimestamp;
   DateTime? _oldestFrameEndTimestamp;
   bool _isTrackingActive = false;
 
@@ -110,7 +112,7 @@ class SentryDelayedFramesTracker {
           (frame) => frame.startTimestamp.isBefore(spanStartTimestamp));
       try {
         // We cannot use firstOrNull, it requires at least Dart 3.0.0
-        _oldestFrameEndTimestamp = _delayedFrames.first.startTimestamp;
+        _oldestFrameEndTimestamp = _delayedFrames.first.endTimestamp;
       } catch (e) {
         _oldestFrameEndTimestamp = null;
       }

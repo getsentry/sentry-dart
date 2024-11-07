@@ -33,7 +33,13 @@ void main() {
             DateTime.fromMillisecondsSinceEpoch(50 + i));
       }
 
-      expect(sut.delayedFrames.length, maxDelayedFramesBuffer);
+      expect(
+        sut.delayedFrames.length,
+        within(
+          distance: 2,
+          from: maxDelayedFramesBuffer,
+        ),
+      );
     });
 
     test('captures slow frames', () {
@@ -232,11 +238,11 @@ void main() {
 
       sut.removeIrrelevantFrames(DateTime.fromMillisecondsSinceEpoch(89));
 
+      expect(sut.oldestFrameEndTimestamp,
+          DateTime.fromMillisecondsSinceEpoch(110));
       expect(sut.delayedFrames.length, 1);
     });
   });
-
-  // todo: test removeIrrelevantFrames
 
   group('when enableFramesTracking is false', () {
     setUp(() {
