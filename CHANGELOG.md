@@ -99,18 +99,6 @@
 
 - Metrics API ([#2312](https://github.com/getsentry/sentry-dart/pull/2312))
   - Learn more: https://sentry.zendesk.com/hc/en-us/articles/26369339769883-Metrics-Beta-Coming-to-an-End
-
-### Dependencies
-
-- Bump Cocoa SDK from v8.36.0 to v8.37.0 ([#2334](https://github.com/getsentry/sentry-dart/pull/2334))
-  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8370)
-  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.36.0...8.37.0)
-- Bump Android SDK from v7.14.0 to v7.15.0 ([#2342](https://github.com/getsentry/sentry-dart/pull/2342))
-  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#7150)
-  - [diff](https://github.com/getsentry/sentry-java/compare/7.14.0...7.15.0)
-- Bump Native SDK from v0.7.8 to v0.7.10 ([#2344](https://github.com/getsentry/sentry-dart/pull/2344))
-  - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#0710)
-  - [diff](https://github.com/getsentry/sentry-native/compare/0.7.8...0.7.10)
   
 ### Dependencies
 
