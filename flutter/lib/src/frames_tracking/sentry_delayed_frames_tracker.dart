@@ -12,7 +12,7 @@ import '../../sentry_flutter.dart';
 ///
 /// If this limit is reached, we stop collecting frames until all active spans
 /// have finished processing.
-const maxDelayedFramesCount = 3600;
+const maxDelayedFramesBuffer = 3600;
 
 /// The duration at which we consider a frame 'frozen'
 const _frozenFrameThreshold = Duration(milliseconds: 700);
@@ -86,7 +86,7 @@ class SentryDelayedFramesTracker {
     if (startTimestamp.isAfter(endTimestamp)) {
       return;
     }
-    if (_delayedFrames.length > maxDelayedFramesCount) {
+    if (_delayedFrames.length > maxDelayedFramesBuffer) {
       // buffer is full, we stop collecting frames until all active spans have
       // finished processing
       pause();

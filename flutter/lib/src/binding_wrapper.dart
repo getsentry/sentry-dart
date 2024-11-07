@@ -79,10 +79,9 @@ class SentryWidgetsFlutterBinding extends WidgetsFlutterBinding
   }
 }
 
+@internal
 typedef FrameTimingCallback = void Function(
     DateTime startTimestamp, DateTime endTimestamp);
-
-typedef ClockCallback = DateTime Function();
 
 mixin SentryWidgetsBindingMixin on WidgetsBinding {
   DateTime? _startTimestamp;

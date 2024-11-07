@@ -28,12 +28,12 @@ void main() {
     });
 
     test('stop collecting frames when maxFramesCount is reached', () {
-      for (int i = 0; i < maxDelayedFramesCount + 100; i++) {
+      for (int i = 0; i < maxDelayedFramesBuffer + 100; i++) {
         sut.addFrame(DateTime.fromMillisecondsSinceEpoch(0 + i),
             DateTime.fromMillisecondsSinceEpoch(50 + i));
       }
 
-      expect(sut.delayedFrames.length, maxDelayedFramesCount);
+      expect(sut.delayedFrames.length, maxDelayedFramesBuffer);
     });
 
     test('captures slow frames', () {
