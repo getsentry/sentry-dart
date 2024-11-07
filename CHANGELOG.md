@@ -77,8 +77,8 @@
   - Change by setting `SentryOptions.maxQueueSize`. Default is 30.
 - Use native spotlight integrations on Flutter Android, iOS, macOS ([#2285](https://github.com/getsentry/sentry-dart/pull/2285))
 - Improve app start integration ([#2266](https://github.com/getsentry/sentry-dart/pull/2266))
-  - Fixes ([#2103](https://github.com/getsentry/sentry-dart/issues/2103))
-  - Fixes ([#2233](https://github.com/getsentry/sentry-dart/issues/2233))
+  - Fixes pendingTimer during tests ([#2103](https://github.com/getsentry/sentry-dart/issues/2103))
+  - Fixes transaction slows app start ([#2233](https://github.com/getsentry/sentry-dart/issues/2233))
 - Only store slow and frozen frames for frame delay calculation ([#2337](https://github.com/getsentry/sentry-dart/pull/2337))
 - Add ReplayIntegration to the integrations list on events when replay is enabled. ([#2349](https://github.com/getsentry/sentry-dart/pull/2349))
 
@@ -89,11 +89,12 @@
 - Rounding error used on frames.total and reject frame measurements if frames.total is less than frames.slow or frames.frozen ([#2308](https://github.com/getsentry/sentry-dart/pull/2308))
 - iOS replay integration when only `onErrorSampleRate` is specified ([#2306](https://github.com/getsentry/sentry-dart/pull/2306))
 - Fix TTID timing issue ([#2326](https://github.com/getsentry/sentry-dart/pull/2326))
-- Start missing TTFD for root screen transaction ([#2332](https://github.com/getsentry/sentry-dart/pull/2332))
-- Match TTFD to TTID end timespan if TTFD is unfinished when user navigates to another screen ([#2347](https://github.com/getsentry/sentry-dart/pull/2347))
+- TTFD fixes
+  - Start missing TTFD for root screen transaction ([#2332](https://github.com/getsentry/sentry-dart/pull/2332))
+  - Match TTFD to TTID end timespan if TTFD is unfinished when user navigates to another screen ([#2347](https://github.com/getsentry/sentry-dart/pull/2347))
+  - TTFD measurements should only be added for successful TTFD spans ([#2348](https://github.com/getsentry/sentry-dart/pull/2348))
+  - Error when calling `SentryFlutter.reportFullyDisplayed()` twice ([#2339](https://github.com/getsentry/sentry-dart/pull/2339))
 - Accessing invalid json fields from `fetchNativeAppStart` should return null ([#2340](https://github.com/getsentry/sentry-dart/pull/2340))
-- Error when calling `SentryFlutter.reportFullyDisplayed()` twice ([#2339](https://github.com/getsentry/sentry-dart/pull/2339))
-- TTFD measurements should only be added for successful TTFD spans ([#2348](https://github.com/getsentry/sentry-dart/pull/2348))
 
 ### Deprecate
 
