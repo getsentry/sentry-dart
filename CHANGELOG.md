@@ -31,6 +31,12 @@
   - Drops max un-awaited parallel tasks earlier, so event processors & callbacks are not executed for them. 
   - Change by setting `SentryOptions.maxQueueSize`. Default is 30.
   
+### Dependencies
+
+- Bump Native SDK from v0.7.10 to v0.7.12 ([#2390](https://github.com/getsentry/sentry-dart/pull/2390))
+  - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#0712)
+  - [diff](https://github.com/getsentry/sentry-native/compare/0.7.10...0.7.12)
+
 ## 8.10.0-beta.2
 
 ### Fixes
