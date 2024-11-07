@@ -40,6 +40,9 @@
 - Bump Android SDK from v7.15.0 to v7.16.0 ([#2373](https://github.com/getsentry/sentry-dart/pull/2373))
   - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#7160)
   - [diff](https://github.com/getsentry/sentry-java/compare/7.15.0...7.16.0)
+- Bump Cocoa SDK from v8.37.0 to v8.40.1 ([#2394](https://github.com/getsentry/sentry-dart/pull/2394))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8401)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.37.0...8.40.1)
 
 ## 8.10.0-beta.2
 
