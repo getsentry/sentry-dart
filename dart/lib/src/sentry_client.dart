@@ -60,6 +60,8 @@ class SentryClient {
       rateLimiter = RateLimiter(options);
       options.transport = HttpTransport(options, rateLimiter);
     }
+    // rateLimiter is null if FileSystemTransport is active
+    // Native SDKs take care of rate limiting
     options.transport = ClientReportTransport(
       rateLimiter,
       options,
