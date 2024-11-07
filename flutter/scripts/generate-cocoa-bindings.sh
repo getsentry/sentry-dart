@@ -19,7 +19,7 @@ temp="temp"
 rm -rf $temp
 mkdir -p $temp
 curl -Lv --fail-with-body https://github.com/getsentry/sentry-cocoa/releases/download/$cocoa_version/Sentry.xcframework.zip -o $temp/Sentry.xcframework.zip
-subdir="Sentry.xcframework/macos-arm64_x86_64/Sentry.framework"
+subdir="Sentry.xcframework/macos-arm64_arm64e_x86_64/Sentry.framework"
 unzip -q $temp/Sentry.xcframework.zip "$subdir/*" -d $temp
 mv "$temp/$subdir" $temp/Sentry.framework
 
