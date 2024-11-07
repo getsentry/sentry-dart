@@ -26,7 +26,7 @@
 
 ### Enhancements
 
-- Avoid sending empty client reports when Http Transport is used ([#2380](https://github.com/getsentry/sentry-dart/pull/2380))
+- Avoid sending too many empty client reports when Http Transport is used ([#2380](https://github.com/getsentry/sentry-dart/pull/2380))
 - Cache parsed DSN ([#2365](https://github.com/getsentry/sentry-dart/pull/2365))
 - Handle backpressure earlier in pipeline ([#2371](https://github.com/getsentry/sentry-dart/pull/2371))
   - Drops max un-awaited parallel tasks earlier, so event processors & callbacks are not executed for them. 
