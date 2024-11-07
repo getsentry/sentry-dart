@@ -70,6 +70,7 @@
 
 ### Enhancements
 
+- Avoid sending too many empty client reports when Http Transport is used ([#2380](https://github.com/getsentry/sentry-dart/pull/2380))
 - Cache parsed DSN ([#2365](https://github.com/getsentry/sentry-dart/pull/2365))
 - Handle backpressure earlier in pipeline ([#2371](https://github.com/getsentry/sentry-dart/pull/2371))
   - Drops max un-awaited parallel tasks earlier, so event processors & callbacks are not executed for them. 
@@ -111,6 +112,18 @@
   - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#0710)
   - [diff](https://github.com/getsentry/sentry-native/compare/0.7.8...0.7.10)
   
+### Dependencies
+
+- Bump Native SDK from v0.7.10 to v0.7.12 ([#2390](https://github.com/getsentry/sentry-dart/pull/2390))
+  - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#0712)
+  - [diff](https://github.com/getsentry/sentry-native/compare/0.7.10...0.7.12)
+- Bump Android SDK from v7.15.0 to v7.16.0 ([#2373](https://github.com/getsentry/sentry-dart/pull/2373))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#7160)
+  - [diff](https://github.com/getsentry/sentry-java/compare/7.15.0...7.16.0)
+- Bump Cocoa SDK from v8.37.0 to v8.40.1 ([#2394](https://github.com/getsentry/sentry-dart/pull/2394))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8401)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.37.0...8.40.1)
+
 ## 8.10.0-beta.2
 
 ### Fixes
