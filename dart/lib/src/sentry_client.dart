@@ -404,6 +404,9 @@ class SentryClient {
       return _emptySentryId;
     }
 
+    preparedTransaction = _createUserOrSetDefaultIpAddress(preparedTransaction)
+        as SentryTransaction;
+
     final attachments = scope?.attachments
         .where((element) => element.addToTransactions)
         .toList();
