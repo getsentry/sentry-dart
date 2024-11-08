@@ -35,7 +35,7 @@ import io.sentry.transport.CurrentDateProvider
 import java.io.File
 import java.lang.ref.WeakReference
 
-private const val MILLIS_PER_SECOND = 1000.0
+private const val APP_START_MAX_DURATION_MS = 60000
 
 class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
   private lateinit var channel: MethodChannel
@@ -174,7 +174,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     val appStartMetrics = AppStartMetrics.getInstance()
 
     if (!appStartMetrics.isAppLaunchedInForeground ||
-      appStartMetrics.appStartTimeSpan.durationMs > 60 * MILLIS_PER_SECOND
+      appStartMetrics.appStartTimeSpan.durationMs > APP_START_MAX_DURATION_MS
     ) {
       Log.w(
         "Sentry",
