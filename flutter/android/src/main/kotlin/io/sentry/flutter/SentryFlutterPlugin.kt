@@ -34,8 +34,6 @@ import io.sentry.protocol.User
 import io.sentry.transport.CurrentDateProvider
 import java.io.File
 import java.lang.ref.WeakReference
-import kotlin.time.DurationUnit
-import kotlin.time.toDuration
 
 class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
   private lateinit var channel: MethodChannel
@@ -174,7 +172,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     val appStartMetrics = AppStartMetrics.getInstance()
 
     if (!appStartMetrics.isAppLaunchedInForeground ||
-      appStartMetrics.appStartTimeSpan.durationMs > 1.toDuration(DurationUnit.MINUTES).inWholeMilliseconds
+      appStartMetrics.appStartTimeSpan.durationMs > 60000
     ) {
       Log.w(
         "Sentry",
