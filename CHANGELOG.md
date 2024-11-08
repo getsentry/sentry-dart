@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Android build error when compiling ([#2397](https://github.com/getsentry/sentry-dart/pull/2397))
+
 ## 8.10.0
 
 ### Features
