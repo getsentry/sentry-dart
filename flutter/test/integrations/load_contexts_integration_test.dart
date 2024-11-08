@@ -7,7 +7,6 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/integrations/load_contexts_integration.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 
-import '../mocks.mocks.dart';
 import 'fixture.dart';
 
 void main() {
