@@ -74,6 +74,10 @@
   );
   ```
 
+### Features
+
+- Make Sentry Flutter multiview aware for the web platform and automatically disable `SentryScreenshotWidget`, `SentryUserInteractionWidget` and `WidgetsBindingIntegration` in multi-view applications.([#2366](https://github.com/getsentry/sentry-dart/pull/2366))
+
 ### Enhancements
 
 - Avoid sending too many empty client reports when Http Transport is used ([#2380](https://github.com/getsentry/sentry-dart/pull/2380))
