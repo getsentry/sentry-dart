@@ -253,7 +253,7 @@ mixin SentryFlutter {
   /// As we have only one central place to configure the redaction,
   /// we need to set the redaction options to full fill the above default settings.
   /// The plan is to unify this behaviour with the next major release.
-  static void _setRedactionOptions(SentryFlutterOptions options) {
+  static void _setMaskingOptions(SentryFlutterOptions options) {
     if (options.experimental.privacy != null) {
       return;
     } else if (options.screenshot.attachScreenshot == true &&
