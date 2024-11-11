@@ -4,22 +4,21 @@ import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/client_reports/client_report.dart';
 import 'package:sentry/src/client_reports/discard_reason.dart';
-import 'package:sentry/src/client_reports/discarded_event.dart';
 import 'package:sentry/src/client_reports/noop_client_report_recorder.dart';
 import 'package:sentry/src/metrics/metric.dart';
 import 'package:sentry/src/sentry_item_type.dart';
 import 'package:sentry/src/sentry_stack_trace_factory.dart';
 import 'package:sentry/src/sentry_tracer.dart';
+import 'package:sentry/src/transport/client_report_transport.dart';
 import 'package:sentry/src/transport/data_category.dart';
+import 'package:sentry/src/transport/noop_transport.dart';
 import 'package:sentry/src/transport/spotlight_http_transport.dart';
 import 'package:sentry/src/utils/iterable_utils.dart';
 import 'package:test/test.dart';
 
 import 'mocks.dart';
 import 'mocks/mock_client_report_recorder.dart';
-import 'mocks/mock_envelope.dart';
 import 'mocks/mock_hub.dart';
 import 'mocks/mock_platform.dart';
 import 'mocks/mock_platform_checker.dart';
@@ -1632,6 +1631,47 @@ void main() {
     });
   });
 
+  group('ClientReportTransport', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    test('set on options on init', () async {
+      fixture.getSut(
+        eventProcessor: DropAllEventProcessor(),
+        provideMockRecorder: false,
+      );
+
+      expect(fixture.options.transport is ClientReportTransport, true);
+    });
+
+    test('has rateLimiter with http transport', () async {
+      fixture.getSut(
+        eventProcessor: DropAllEventProcessor(),
+        provideMockRecorder: false,
+        transport: NoOpTransport(), // this will set http transport
+      );
+
+      expect(fixture.options.transport is ClientReportTransport, true);
+      final crt = fixture.options.transport as ClientReportTransport;
+      expect(crt.rateLimiter, isNotNull);
+    });
+
+    test('does not have rateLimiter without http transport', () async {
+      fixture.getSut(
+        eventProcessor: DropAllEventProcessor(),
+        provideMockRecorder: false,
+        transport: MockTransport(),
+      );
+
+      expect(fixture.options.transport is ClientReportTransport, true);
+      final crt = fixture.options.transport as ClientReportTransport;
+      expect(crt.rateLimiter, isNull);
+    });
+  });
+
   group('ClientReportRecorder', () {
     late Fixture fixture;
 
@@ -1648,7 +1688,6 @@ void main() {
       );
 
       expect(fixture.options.recorder is NoOpClientReportRecorder, false);
-      expect(fixture.options.recorder is MockClientReportRecorder, false);
     });
 
     test('recorder is noop if client reports are disabled', () {
@@ -1660,78 +1699,6 @@ void main() {
       );
 
       expect(fixture.options.recorder is NoOpClientReportRecorder, true);
-    });
-
-    test('captureEnvelope calls flush', () async {
-      final client = fixture.getSut(eventProcessor: DropAllEventProcessor());
-
-      final envelope = MockEnvelope();
-      envelope.items = [SentryEnvelopeItem.fromEvent(SentryEvent())];
-
-      await client.captureEnvelope(envelope);
-
-      expect(fixture.recorder.flushCalled, true);
-    });
-
-    test('captureEnvelope adds client report', () async {
-      final clientReport = ClientReport(
-        DateTime(0),
-        [DiscardedEvent(DiscardReason.rateLimitBackoff, DataCategory.error, 1)],
-      );
-      fixture.recorder.clientReport = clientReport;
-
-      final client = fixture.getSut(eventProcessor: DropAllEventProcessor());
-
-      final envelope = MockEnvelope();
-      envelope.items = [SentryEnvelopeItem.fromEvent(SentryEvent())];
-
-      await client.captureEnvelope(envelope);
-
-      expect(envelope.clientReport, clientReport);
-    });
-
-    test('captureUserFeedback calls flush', () async {
-      final client = fixture.getSut(eventProcessor: DropAllEventProcessor());
-
-      final id = SentryId.newId();
-      // ignore: deprecated_member_use_from_same_package
-      final feedback = SentryUserFeedback(
-        eventId: id,
-        comments: 'this is awesome',
-        email: 'sentry@example.com',
-        name: 'Rockstar Developer',
-      );
-      // ignore: deprecated_member_use_from_same_package
-      await client.captureUserFeedback(feedback);
-
-      expect(fixture.recorder.flushCalled, true);
-    });
-
-    test('captureUserFeedback adds client report', () async {
-      final clientReport = ClientReport(
-        DateTime(0),
-        [DiscardedEvent(DiscardReason.rateLimitBackoff, DataCategory.error, 1)],
-      );
-      fixture.recorder.clientReport = clientReport;
-
-      final client = fixture.getSut(eventProcessor: DropAllEventProcessor());
-
-      final id = SentryId.newId();
-      // ignore: deprecated_member_use_from_same_package
-      final feedback = SentryUserFeedback(
-        eventId: id,
-        comments: 'this is awesome',
-        email: 'sentry@example.com',
-        name: 'Rockstar Developer',
-      );
-      // ignore: deprecated_member_use_from_same_package
-      await client.captureUserFeedback(feedback);
-
-      final envelope = fixture.transport.envelopes.first;
-      final item = envelope.items.last;
-
-      // Only partial test, as the envelope is created internally from feedback.
-      expect(item.header.type, SentryItemType.clientReport);
     });
 
     test('record event processor dropping event', () async {
@@ -2339,14 +2306,8 @@ class Fixture {
     EventProcessor? eventProcessor,
     bool provideMockRecorder = true,
     bool debug = false,
+    Transport? transport,
   }) {
-    final hub = Hub(options);
-    _context = SentryTransactionContext(
-      'name',
-      'op',
-    );
-    tracer = SentryTracer(_context, hub);
-
     options.tracesSampleRate = 1.0;
     options.sendDefaultPii = sendDefaultPii;
     options.enableMetrics = enableMetrics;
@@ -2362,7 +2323,19 @@ class Fixture {
     if (eventProcessor != null) {
       options.addEventProcessor(eventProcessor);
     }
-    options.transport = transport;
+
+    // Internally also creates a SentryClient instance
+    final hub = Hub(options);
+    _context = SentryTransactionContext(
+      'name',
+      'op',
+    );
+    tracer = SentryTracer(_context, hub);
+
+    // Reset transport
+    options.transport = transport ?? this.transport;
+
+    // Again create SentryClient instance
     final client = SentryClient(options);
 
     if (provideMockRecorder) {
