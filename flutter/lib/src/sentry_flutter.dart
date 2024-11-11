@@ -16,6 +16,7 @@ import 'file_system_transport.dart';
 import 'flutter_exception_type_identifier.dart';
 import 'frame_callback_handler.dart';
 import 'integrations/connectivity/connectivity_integration.dart';
+import 'integrations/frames_tracking_integration.dart';
 import 'integrations/integrations.dart';
 import 'integrations/native_app_start_handler.dart';
 import 'integrations/screenshot_integration.dart';
@@ -24,7 +25,6 @@ import 'native/native_scope_observer.dart';
 import 'native/sentry_native_binding.dart';
 import 'profiling.dart';
 import 'renderer/renderer.dart';
-import 'span_frame_metrics_collector.dart';
 import 'version.dart';
 import 'view_hierarchy/view_hierarchy_integration.dart';
 
@@ -134,13 +134,6 @@ mixin SentryFlutter {
 
     options.addEventProcessor(PlatformExceptionEventProcessor());
 
-    // Disabled for web, linux and windows until we can reliably get the display refresh rate
-    if (options.platformChecker.platform.isAndroid ||
-        options.platformChecker.platform.isIOS ||
-        options.platformChecker.platform.isMacOS) {
-      options.addPerformanceCollector(SpanFrameMetricsCollector(options));
-    }
-
     _setSdk(options);
   }
 
@@ -177,6 +170,7 @@ mixin SentryFlutter {
         integrations.add(LoadContextsIntegration(native));
       }
       integrations.add(LoadImageListIntegration(native));
+      integrations.add(FramesTrackingIntegration(native));
       options.enableDartSymbolication = false;
     }
 
