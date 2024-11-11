@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:ui';
 
+import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
@@ -31,12 +33,24 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
 
   @override
   void call(Hub hub, SentryFlutterOptions options) async {
-    _frameCallbackHandler.addPostFrameCallback((timeStamp) async {
+    bool loadedAppStartEnd = false;
+    bool isHandlingCallback = false; // Add this flag
+
+    void timingsCallback(List<FrameTiming> timings) async {
+      print('hello');
+
+      if (loadedAppStartEnd || isHandlingCallback) {
+        return;
+      }
+
+      isHandlingCallback = true;
+
       try {
         DateTime? appStartEnd;
         if (options.autoAppStart) {
           // ignore: invalid_use_of_internal_member
-          appStartEnd = options.clock();
+          appStartEnd = DateTime.fromMicrosecondsSinceEpoch(timings.first
+              .timestampInMicroseconds(FramePhase.rasterFinishWallTime));
         } else if (_appStartEnd == null) {
           await _appStartEndCompleter.future.timeout(
             const Duration(seconds: 10),
@@ -62,8 +76,15 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
         if (options.automatedTestMode) {
           rethrow;
         }
+      } finally {
+        loadedAppStartEnd = true;
+        isHandlingCallback = false;
+        WidgetsBinding.instance.removeTimingsCallback(timingsCallback);
       }
-    });
+    }
+
+    WidgetsBinding.instance.addTimingsCallback(timingsCallback);
+
     options.sdk.addIntegration('nativeAppStartIntegration');
   }
 }
