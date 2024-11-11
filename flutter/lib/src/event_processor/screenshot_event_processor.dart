@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:typed_data';
 import 'dart:ui';
 
+import 'package:flutter/rendering.dart';
+import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 import '../screenshot/recorder.dart';
 import '../screenshot/recorder_config.dart';
@@ -15,10 +17,6 @@ class ScreenshotEventProcessor implements EventProcessor {
 
   ScreenshotEventProcessor(this._options);
 
-  /// This is true when the SentryWidget is in the view hierarchy
-  bool get _hasSentryScreenshotWidget =>
-      sentryScreenshotWidgetGlobalKey.currentContext != null;
-
   @override
   Future<SentryEvent?> apply(SentryEvent event, Hint hint) async {
     if (event is SentryTransaction) {
@@ -27,9 +25,14 @@ class ScreenshotEventProcessor implements EventProcessor {
 
     if (event.exceptions == null &&
         event.throwable == null &&
-        _hasSentryScreenshotWidget) {
+        SentryScreenshotWidget.isMounted) {
       return event;
     }
+
+    if (event.type == 'feedback') {
+      return event; // No need to attach screenshot of feedback form.
+    }
+
     final beforeScreenshot = _options.screenshot.beforeScreenshot;
     if (beforeScreenshot != null) {
       try {
@@ -75,6 +78,17 @@ class ScreenshotEventProcessor implements EventProcessor {
       return event;
     }
 
+    Uint8List? screenshotData = await createScreenshot();
+
+    if (screenshotData != null) {
+      hint.screenshot = SentryAttachment.fromScreenshotData(screenshotData);
+    }
+
+    return event;
+  }
+
+  @internal
+  Future<Uint8List?> createScreenshot() async {
     // ignore: deprecated_member_use
     var recorder = ScreenshotRecorder(
         ScreenshotRecorderConfig(
@@ -82,17 +96,13 @@ class ScreenshotEventProcessor implements EventProcessor {
         _options,
         isReplayRecorder: false);
 
-    Uint8List? _screenshotData;
+    Uint8List? screenshotData;
 
     await recorder.capture((Image image) async {
-      _screenshotData = await _convertImageToUint8List(image);
+      screenshotData = await _convertImageToUint8List(image);
     });
 
-    if (_screenshotData != null) {
-      hint.screenshot = SentryAttachment.fromScreenshotData(_screenshotData!);
-    }
-
-    return event;
+    return screenshotData;
   }
 
   Future<Uint8List?> _convertImageToUint8List(Image image) async {
