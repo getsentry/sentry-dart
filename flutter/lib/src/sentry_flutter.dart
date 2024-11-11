@@ -99,8 +99,6 @@ mixin SentryFlutter {
       // ignore: invalid_use_of_internal_member
       runZonedGuardedOnError: runZonedGuardedOnError,
     );
-    // TODO: Remove when we synced SS and SR configurations and have a single default configuration
-    _setRedactionOptions(options);
 
     if (_native != null) {
       // ignore: invalid_use_of_internal_member
@@ -243,25 +241,6 @@ mixin SentryFlutter {
     );
     sdk.addPackage('pub:sentry_flutter', sdkVersion);
     options.sdk = sdk;
-  }
-
-  /// Masking behaviour
-  /// - If only Screenshot is enabled: masking is disabled by default.
-  /// - If both Screenshot and Session Replay are enabled: masking is enabled for both by default.
-  /// - If the user explicitly sets masking to false: masking is disabled for both features.
-  /// We don't want to break the existing screenshot integration which is not masked by default.
-  /// The plan is to unify screenshot and replay masking with the next major release.
-  static void _setMaskingOptions(SentryFlutterOptions options) {
-    if (options.experimental.privacy != null) {
-      return;
-    } else if (options.screenshot.attachScreenshot == true &&
-        !options.experimental.replay.isEnabled) {
-      options.experimental.privacy = SentryPrivacyOptions()
-        ..maskAllText = false
-        ..maskAllImages = false;
-    } else {
-      options.experimental.privacy = SentryPrivacyOptions();
-    }
   }
 
   /// Reports the time it took for the screen to be fully displayed.
