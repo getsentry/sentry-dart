@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Apply default IP address (`{{auto}}`) to transactions ([#2395](https://github.com/getsentry/sentry-dart/pull/2395))
+  - Previously, transactions weren't getting the default IP address when user context was loaded
+  - Now consistently applies default IP address to both events and transactions when:
+    - No user context exists
+    - User context exists but IP address is null
+
 ## 8.10.1
 
 ### Fixes
