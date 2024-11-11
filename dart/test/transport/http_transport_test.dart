@@ -1,13 +1,8 @@
-import 'dart:convert';
-
 import 'package:collection/collection.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/client_reports/discard_reason.dart';
-import 'package:sentry/src/sentry_envelope_header.dart';
-import 'package:sentry/src/sentry_envelope_item_header.dart';
-import 'package:sentry/src/sentry_item_type.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry/src/transport/data_category.dart';
 import 'package:sentry/src/transport/http_transport.dart';
@@ -20,42 +15,14 @@ import '../mocks/mock_hub.dart';
 import '../test_utils.dart';
 
 void main() {
-  SentryEnvelope givenEnvelope() {
-    final filteredEnvelopeHeader = SentryEnvelopeHeader(SentryId.empty(), null);
-    final filteredItemHeader =
-        SentryEnvelopeItemHeader(SentryItemType.event, () async {
-      return 2;
-    }, contentType: 'application/json');
-    final dataFactory = () async {
-      return utf8.encode('{}');
-    };
-    final filteredItem = SentryEnvelopeItem(filteredItemHeader, dataFactory);
-    return SentryEnvelope(filteredEnvelopeHeader, [filteredItem]);
-  }
-
-  group('filter', () {
+  group('send', () {
     late Fixture fixture;
 
     setUp(() {
       fixture = Fixture();
     });
 
-    test('filter called', () async {
-      final httpMock = MockClient((http.Request request) async {
-        return http.Response('{}', 200);
-      });
-
-      fixture.options.compressPayload = false;
-      final mockRateLimiter = MockRateLimiter();
-      final sut = fixture.getSut(httpMock, mockRateLimiter);
-
-      final sentryEnvelope = givenEnvelope();
-      await sut.send(sentryEnvelope);
-
-      expect(mockRateLimiter.envelopeToFilter, sentryEnvelope);
-    });
-
-    test('send filtered event', () async {
+    test('event with http client', () async {
       List<int>? body;
 
       final httpMock = MockClient((http.Request request) async {
@@ -63,11 +30,9 @@ void main() {
         return http.Response('{}', 200);
       });
 
-      final filteredEnvelope = givenEnvelope();
-
       fixture.options.compressPayload = false;
-      final mockRateLimiter = MockRateLimiter()
-        ..filteredEnvelope = filteredEnvelope;
+      final mockRateLimiter = MockRateLimiter();
+
       final sut = fixture.getSut(httpMock, mockRateLimiter);
 
       final sentryEvent = SentryEvent();
@@ -79,34 +44,11 @@ void main() {
       await sut.send(envelope);
 
       final envelopeData = <int>[];
-      await filteredEnvelope
+      await envelope
           .envelopeStream(fixture.options)
           .forEach(envelopeData.addAll);
 
       expect(body, envelopeData);
-    });
-
-    test('send nothing when filtered event null', () async {
-      var httpCalled = false;
-      final httpMock = MockClient((http.Request request) async {
-        httpCalled = true;
-        return http.Response('{}', 200);
-      });
-
-      fixture.options.compressPayload = false;
-      final mockRateLimiter = MockRateLimiter()..filterReturnsNull = true;
-      final sut = fixture.getSut(httpMock, mockRateLimiter);
-
-      final sentryEvent = SentryEvent();
-      final envelope = SentryEnvelope.fromEvent(
-        sentryEvent,
-        fixture.options.sdk,
-        dsn: fixture.options.dsn,
-      );
-      final eventId = await sut.send(envelope);
-
-      expect(eventId, SentryId.empty());
-      expect(httpCalled, false);
     });
   });
 
@@ -130,6 +72,9 @@ void main() {
         fixture.options.sdk,
         dsn: fixture.options.dsn,
       );
+
+      mockRateLimiter.filter(envelope);
+
       await sut.send(envelope);
 
       expect(mockRateLimiter.envelopeToFilter?.header.eventId,
