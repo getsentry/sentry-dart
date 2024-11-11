@@ -10,6 +10,7 @@
     - SDK creates a synthetic trace using `StackTrace.current`
     - Internal SDK frames are removed to reduce noise
   - Original stack traces (when provided) are left unchanged
+
 ## 8.10.1
 
 ### Fixes
