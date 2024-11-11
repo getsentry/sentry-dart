@@ -6,9 +6,9 @@ import '../sentry_flutter.dart';
 class SentryScreenshotOptions {
   /// Automatically attaches a screenshot when capturing an error or exception.
   ///
-  /// Requires adding the [SentryScreenshotWidget] to the widget tree.
+  /// Requires adding the [SentryWidget] to the widget tree.
   /// Example:
-  /// runApp(SentryScreenshotWidget(child: App()));
+  /// runApp(SentryWidget(child: App()));
   /// The [SentryWidget] has to be the root widget of the app.
   bool attachScreenshot = false;
 
