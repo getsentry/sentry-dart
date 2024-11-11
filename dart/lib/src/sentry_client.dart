@@ -396,6 +396,9 @@ class SentryClient {
       return _emptySentryId;
     }
 
+    preparedTransaction = _createUserOrSetDefaultIpAddress(preparedTransaction)
+        as SentryTransaction;
+
     preparedTransaction =
         await _runBeforeSend(preparedTransaction, hint) as SentryTransaction?;
 
