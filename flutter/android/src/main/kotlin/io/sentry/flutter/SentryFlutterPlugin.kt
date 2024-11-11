@@ -12,6 +12,7 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
+import io.flutter.embedding.engine.renderer.FlutterUiDisplayListener
 import io.sentry.Breadcrumb
 import io.sentry.DateUtils
 import io.sentry.Hint
@@ -46,6 +47,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
   private var activity: WeakReference<Activity>? = null
   private var framesTracker: ActivityFramesTracker? = null
   private var pluginRegistrationTime: Long? = null
+  private var appStartEndTime: Long? = null
 
   override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     pluginRegistrationTime = System.currentTimeMillis()
@@ -53,6 +55,19 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     context = flutterPluginBinding.applicationContext
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, "sentry_flutter")
     channel.setMethodCallHandler(this)
+
+    flutterPluginBinding.flutterEngine.renderer.addIsDisplayingFlutterUiListener(
+      object : FlutterUiDisplayListener {
+        override fun onFlutterUiDisplayed() {
+          appStartEndTime = System.currentTimeMillis()
+        }
+
+        override fun onFlutterUiNoLongerDisplayed() {
+          // Handle when Flutter UI is no longer displayed
+          // This is required by the interface
+        }
+      }
+    )
 
     sentryFlutter =
       SentryFlutter(
@@ -193,10 +208,10 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     } else {
       val appStartTimeMillis = DateUtils.nanosToMillis(appStartTime.nanoTimestamp().toDouble())
       val item =
-
         mutableMapOf<String, Any?>(
           "pluginRegistrationTime" to pluginRegistrationTime,
           "appStartTime" to appStartTimeMillis,
+          "appStartEndTime" to appStartEndTime,
           "isColdStart" to isColdStart,
         )
 

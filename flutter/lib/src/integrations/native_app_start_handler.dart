@@ -3,6 +3,8 @@
 import '../../sentry_flutter.dart';
 import '../native/native_app_start.dart';
 import '../native/sentry_native_binding.dart';
+import 'package:flutter/services.dart';
+import 'package:meta/meta.dart';
 
 // ignore: implementation_imports
 import 'package:sentry/src/sentry_tracer.dart';
@@ -11,6 +13,8 @@ import 'package:sentry/src/sentry_tracer.dart';
 /// root [SentryTransaction] with app start data for mobile vitals.
 class NativeAppStartHandler {
   NativeAppStartHandler(this._native);
+
+  final _channel = MethodChannel('sentry_flutter');
 
   final SentryNativeBinding _native;
 
@@ -26,6 +30,7 @@ class NativeAppStartHandler {
     _options = options;
 
     final nativeAppStart = await _native.fetchNativeAppStart();
+
     if (nativeAppStart == null) {
       return;
     }

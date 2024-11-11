@@ -30,12 +30,18 @@ class _LoadImageListIntegrationEventProcessor implements EventProcessor {
   final SentryFlutterOptions _options;
   final SentryNativeBinding _native;
 
+  List<DebugImage> _debugImagesCache = [];
+
   late final _dartProcessor = LoadImageIntegrationEventProcessor(_options);
 
   @override
   Future<SentryEvent?> apply(SentryEvent event, Hint hint) async {
     // ignore: invalid_use_of_internal_member
     final stackTrace = event.stacktrace;
+
+    if (_debugImagesCache.isNotEmpty) {
+      return event.copyWith(debugMeta: DebugMeta(images: _debugImagesCache));
+    }
 
     // if the stacktrace has native frames, we load native debug images.
     if (stackTrace != null &&
@@ -52,6 +58,7 @@ class _LoadImageListIntegrationEventProcessor implements EventProcessor {
         }
       }
       if (images != null) {
+        _debugImagesCache = images;
         return event.copyWith(debugMeta: DebugMeta(images: images));
       }
     }

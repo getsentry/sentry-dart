@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
+import 'dart:ui';
 
 import 'package:dio/dio.dart';
 import 'package:feedback/feedback.dart' as feedback;
@@ -42,17 +43,56 @@ var _isIntegrationTest = false;
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {
-  await setupSentry(
-    () => runApp(
-      SentryWidget(
-        child: DefaultAssetBundle(
-          bundle: SentryAssetBundle(),
-          child: const MyApp(),
+  // WidgetsFlutterBinding.ensureInitialized();
+
+  runZonedGuarded(
+    () async {
+      WidgetsFlutterBinding.ensureInitialized();
+
+      await Future.delayed(const Duration(seconds: 4));
+
+      var hello = false;
+      callback(List<FrameTiming> timings) {
+        if (hello) {
+          return;
+        }
+        print(
+            "timing 2nd: ${DateTime.fromMicrosecondsSinceEpoch(timings.first.timestampInMicroseconds(FramePhase.rasterFinishWallTime))}");
+        hello = true;
+      }
+
+      WidgetsBinding.instance.addTimingsCallback(callback);
+
+      await setupSentry(
+        () => runApp(
+          SentryWidget(
+            child: DefaultAssetBundle(
+              bundle: SentryAssetBundle(),
+              child: const MyApp(),
+            ),
+          ),
         ),
-      ),
+        exampleDsn,
+      );
+    },
+    sentryOnErrorHandler(
+      onError: (error, stack) {
+        print('Error caught: $error');
+      },
     ),
-    exampleDsn,
   );
+
+  // await setupSentry(
+  //   () => runApp(
+  //     SentryWidget(
+  //       child: DefaultAssetBundle(
+  //         bundle: SentryAssetBundle(),
+  //         child: const MyApp(),
+  //       ),
+  //     ),
+  //   ),
+  //   exampleDsn,
+  // );
 }
 
 Future<void> setupSentry(

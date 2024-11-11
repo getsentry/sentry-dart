@@ -74,6 +74,11 @@ mixin SentryFlutter {
         ? false
         : wrapper.isOnErrorSupported(options);
 
+    // Use zone guarded on web if we're in root zone
+    final shouldUseZonedGuarded = options.platformChecker.isWeb
+        ? Zone.current == Zone.root
+        : !isOnErrorSupported;
+
     final runZonedGuardedOnError =
         options.platformChecker.isWeb ? _createRunZonedGuardedOnError() : null;
 
@@ -96,7 +101,7 @@ mixin SentryFlutter {
       // ignore: invalid_use_of_internal_member
       options: options,
       // ignore: invalid_use_of_internal_member
-      callAppRunnerInRunZonedGuarded: !isOnErrorSupported,
+      callAppRunnerInRunZonedGuarded: shouldUseZonedGuarded,
       // ignore: invalid_use_of_internal_member
       runZonedGuardedOnError: runZonedGuardedOnError,
     );

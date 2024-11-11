@@ -16,11 +16,14 @@ class NativeAppStart {
 
   static NativeAppStart? fromJson(Map<String, dynamic> json) {
     final appStartTime = json['appStartTime'];
+    final appStartEndTime = json['appStartEndTime'];
+
     final pluginRegistrationTime = json['pluginRegistrationTime'];
     final isColdStart = json['isColdStart'];
     final nativeSpanTimes = json['nativeSpanTimes'];
 
     if (appStartTime is! double ||
+        appStartEndTime is! int ||
         pluginRegistrationTime is! int ||
         isColdStart is! bool ||
         nativeSpanTimes is! Map) {
@@ -31,6 +34,9 @@ class NativeAppStart {
       );
       return null;
     }
+
+    print(
+        'timing 1st: ${DateTime.fromMillisecondsSinceEpoch(appStartEndTime)}');
 
     return NativeAppStart(
       appStartTime: appStartTime,
