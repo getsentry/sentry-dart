@@ -18,6 +18,7 @@ class SentryExceptionFactory {
   SentryException getSentryException(
     dynamic exception, {
     dynamic stackTrace,
+    bool? removeSentryFrames,
   }) {
     var throwable = exception;
     Mechanism? mechanism;
@@ -38,17 +39,20 @@ class SentryExceptionFactory {
     // throwable.stackTrace is null if its an exception that was never thrown
     // hence we check again if stackTrace is null and if not, read the current stack trace
     // but only if attachStacktrace is enabled
+
     if (_options.attachStacktrace) {
       if (stackTrace == null || stackTrace == StackTrace.empty) {
         snapshot = true;
         stackTrace = getCurrentStackTrace();
+        removeSentryFrames = true;
       }
     }
 
     SentryStackTrace? sentryStackTrace;
     if (stackTrace != null) {
-      sentryStackTrace =
-          _stacktraceFactory.parse(stackTrace).copyWith(snapshot: snapshot);
+      sentryStackTrace = _stacktraceFactory
+          .parse(stackTrace, removeSentryFrames: removeSentryFrames)
+          .copyWith(snapshot: snapshot);
       if (sentryStackTrace.frames.isEmpty) {
         sentryStackTrace = null;
       }
