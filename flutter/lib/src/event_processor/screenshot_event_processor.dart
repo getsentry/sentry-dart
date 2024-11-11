@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:typed_data';
 import 'dart:ui';
 
-import 'package:flutter/rendering.dart';
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 import '../screenshot/recorder.dart';
@@ -15,7 +14,15 @@ import 'package:flutter/widgets.dart' as widget;
 class ScreenshotEventProcessor implements EventProcessor {
   final SentryFlutterOptions _options;
 
-  ScreenshotEventProcessor(this._options);
+  late final ScreenshotRecorder _recorder;
+
+  ScreenshotEventProcessor(this._options) {
+    _recorder = ScreenshotRecorder(
+      ScreenshotRecorderConfig(quality: _options.screenshot.screenshotQuality),
+      _options,
+      isReplayRecorder: false,
+    );
+  }
 
   @override
   Future<SentryEvent?> apply(SentryEvent event, Hint hint) async {
@@ -89,16 +96,9 @@ class ScreenshotEventProcessor implements EventProcessor {
 
   @internal
   Future<Uint8List?> createScreenshot() async {
-    // ignore: deprecated_member_use
-    var recorder = ScreenshotRecorder(
-        ScreenshotRecorderConfig(
-            quality: _options.screenshot.screenshotQuality),
-        _options,
-        isReplayRecorder: false);
-
     Uint8List? screenshotData;
 
-    await recorder.capture((Image image) async {
+    await _recorder.capture((Image image) async {
       screenshotData = await _convertImageToUint8List(image);
     });
 
