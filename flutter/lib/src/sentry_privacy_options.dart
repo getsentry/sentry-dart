@@ -9,7 +9,7 @@ import 'screenshot/widget_filter.dart';
 /// Configuration of the experimental privacy feature.
 class SentryPrivacyOptions {
   /// Mask all text content. Draws a rectangle of text bounds with text color
-  /// on top. Currently, only [Text] and [EditableText] Widgets are redacted.
+  /// on top. Currently, only [Text] and [EditableText] Widgets are masked.
   /// Default is enabled.
   @experimental
   var maskAllText = true;
