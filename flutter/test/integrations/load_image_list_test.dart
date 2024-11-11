@@ -102,6 +102,20 @@ void main() {
       await fixture.hub.captureMessage('error');
       verifyNever(fixture.binding.loadDebugImages(any));
     });
+
+    test('Event processor caches and reuses debug images', () async {
+      final ep = fixture.options.eventProcessors.first;
+
+      // First call should fetch images from native
+      var event = await ep.apply(_getEvent(), Hint());
+      verify(fixture.binding.loadDebugImages(any)).called(1);
+      expect(event!.debugMeta!.images, imageList);
+
+      // Second call should use cached images
+      event = await ep.apply(_getEvent(), Hint());
+      verifyNoMoreInteractions(fixture.binding);
+      expect(event!.debugMeta!.images, imageList);
+    });
   });
 }
 
