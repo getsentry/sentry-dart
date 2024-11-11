@@ -13,7 +13,7 @@ let package = Package(
         .library(name: "sentry-flutter", targets: ["sentry_flutter", "sentry_flutter_objc"])
     ],
     dependencies: [
-      .package(url: "https://github.com/getsentry/sentry-cocoa", from: "8.37.0")
+      .package(url: "https://github.com/getsentry/sentry-cocoa", from: "8.40.1")
     ],
     targets: [
         .target(
@@ -27,7 +27,6 @@ let package = Package(
         .target(
             name: "sentry_flutter_objc",
             dependencies: [
-                .target(name: "Sentry")
                 .product(name: "Sentry", package: "sentry-cocoa")
             ]
         )
