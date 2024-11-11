@@ -1,12 +1,6 @@
 # Changelog
 
-## 8.10.1
-
-### Fixes
-
-- Android build error when compiling ([#2397](https://github.com/getsentry/sentry-dart/pull/2397))
-
-## 8.10.0
+## Unreleased
 
 ### Features
 
@@ -24,6 +18,17 @@
   }
   ```
   - ⚠️ Frame tracking will be disabled if a different binding is used
+
+## 8.10.1
+
+### Fixes
+
+- Android build error when compiling ([#2397](https://github.com/getsentry/sentry-dart/pull/2397))
+
+## 8.10.0
+
+### Features
+
 - Emit `transaction.data` inside `contexts.trace.data` ([#2284](https://github.com/getsentry/sentry-dart/pull/2284))
 - Blocking app starts span if "appLaunchedInForeground" is false. (Android only) ([#2291](https://github.com/getsentry/sentry-dart/pull/2291))
 - Replay: user-configurable masking (redaction) for widget classes and specific widget instances. ([#2324](https://github.com/getsentry/sentry-dart/pull/2324))
