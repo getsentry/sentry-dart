@@ -27,6 +27,7 @@ class ScreenshotRecorder {
   // TODO: remove [isReplayRecorder] parameter in the next major release, see _SentryFlutterExperimentalOptions.
   ScreenshotRecorder(this.config, this.options,
       {bool isReplayRecorder = true}) {
+		// see `options.experimental.privacy` docs for details
     final privacyOptions = isReplayRecorder
         ? options.experimental.privacyForReplay
         : options.experimental.privacyForScreenshots;
