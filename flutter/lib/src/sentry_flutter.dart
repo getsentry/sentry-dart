@@ -245,14 +245,12 @@ mixin SentryFlutter {
     options.sdk = sdk;
   }
 
-  /// Screen redaction was previously introduced with the SessionReplay feature.
-  /// Screen redaction is enabled by default for SessionReplay.
-  /// As we also to use this feature for Screenshot, which previously was not
-  /// capable of redacting the screenshot, we need to disable redaction for Screenshot by default
-  /// so we don`t break the existing behavior.
-  /// As we have only one central place to configure the redaction,
-  /// we need to set the redaction options to full fill the above default settings.
-  /// The plan is to unify this behaviour with the next major release.
+  /// Masking behaviour
+  /// - If only Screenshot is enabled: masking is disabled by default.
+  /// - If both Screenshot and Session Replay are enabled: masking is enabled for both by default.
+  /// - If the user explicitly sets masking to false: masking is disabled for both features.
+  /// We don't want to break the existing screenshot integration which is not masked by default.
+  /// The plan is to unify screenshot and replay masking with the next major release.
   static void _setMaskingOptions(SentryFlutterOptions options) {
     if (options.experimental.privacy != null) {
       return;
