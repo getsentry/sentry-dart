@@ -85,7 +85,8 @@ void main() {
       expect(event.breadcrumbs!.first.message, 'native-mutated-applied');
     });
 
-    test('apply default IP to user during captureEvent after loading context if ip is null',
+    test(
+        'apply default IP to user during captureEvent after loading context if ip is null',
         () async {
       fixture.options.enableScopeSync = true;
 
