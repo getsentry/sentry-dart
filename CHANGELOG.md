@@ -10,6 +10,22 @@
     - SDK creates a synthetic trace using `StackTrace.current`
     - Internal SDK frames are removed to reduce noise
   - Original stack traces (when provided) are left unchanged
+### Features
+
+- Improve frame tracking accuracy ([#2372](https://github.com/getsentry/sentry-dart/pull/2372))
+  - Introduces `SentryWidgetsFlutterBinding` that tracks a frame starting from `handleBeginFrame` and ending in `handleDrawFrame`, this is approximately the [buildDuration](https://api.flutter.dev/flutter/dart-ui/FrameTiming/buildDuration.html) time
+  - By default, `SentryFlutter.init()` automatically initializes `SentryWidgetsFlutterBinding` through the `WidgetsFlutterBindingIntegration`
+  - If you need to initialize the binding before `SentryFlutter.init`, use `SentryWidgetsFlutterBinding.ensureInitialized` instead of `WidgetsFlutterBinding.ensureInitialized`:
+  ```dart
+  void main() async {
+    // Replace WidgetsFlutterBinding.ensureInitialized()
+    SentryWidgetsFlutterBinding.ensureInitialized();
+    
+    await SentryFlutter.init(...);
+    runApp(MyApp());
+  }
+  ```
+  - ⚠️ Frame tracking will be disabled if a different binding is used
 
 ## 8.10.1
 
