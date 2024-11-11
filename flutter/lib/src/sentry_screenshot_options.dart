@@ -9,7 +9,7 @@ class SentryScreenshotOptions {
   /// Requires adding the [SentryScreenshotWidget] to the widget tree.
   /// Example:
   /// runApp(SentryScreenshotWidget(child: App()));
-  /// The [SentryScreenshotWidget] has to be the root widget of the app.
+  /// The [SentryWidget] has to be the root widget of the app.
   bool attachScreenshot = false;
 
   /// Sets a callback which is executed before capturing screenshots. Only
