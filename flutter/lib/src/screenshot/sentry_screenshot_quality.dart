@@ -12,7 +12,7 @@ enum SentryScreenshotQuality {
   int? targetResolution() {
     switch (this) {
       case SentryScreenshotQuality.full:
-        return null; // Keep current scale
+        return null; // Use device resolution
       case SentryScreenshotQuality.high:
         return 1920;
       case SentryScreenshotQuality.medium:
@@ -23,31 +23,31 @@ enum SentryScreenshotQuality {
   }
 
   @internal
-  int calculateHeight(int width, int height) {
+  int calculateHeight(int deviceWidth, int deviceHeight) {
     if (this == SentryScreenshotQuality.full) {
       // ignore: deprecated_member_use
       return window.physicalSize.height.round();
     } else {
-      if (height > width) {
+      if (deviceHeight > deviceWidth) {
         return targetResolution()!;
       } else {
-        var ratio = targetResolution()! / width;
-        return (height * ratio).round();
+        var ratio = targetResolution()! / deviceWidth;
+        return (deviceHeight * ratio).round();
       }
     }
   }
 
   @internal
-  int calculateWidth(int width, int height) {
+  int calculateWidth(int deviceWidth, int deviceHeight) {
     if (this == SentryScreenshotQuality.full) {
       // ignore: deprecated_member_use
       return window.physicalSize.width.round();
     } else {
-      if (width > height) {
+      if (deviceWidth > deviceHeight) {
         return targetResolution()!;
       } else {
-        var ratio = targetResolution()! / height;
-        return (width * ratio).round();
+        var ratio = targetResolution()! / deviceHeight;
+        return (deviceWidth * ratio).round();
       }
     }
   }

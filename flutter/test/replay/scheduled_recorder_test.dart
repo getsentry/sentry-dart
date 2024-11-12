@@ -16,7 +16,7 @@ void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   testWidgets('captures images', (tester) async {
-    await tester.binding.setSurfaceSize(Size(1000, 750));
+    await tester.binding.setSurfaceSize(Size(1000, 1000));
     final fixture = await _Fixture.create(tester);
     expect(fixture.capturedImages, isEmpty);
     await fixture.nextFrame();
@@ -38,8 +38,8 @@ class _Fixture {
   _Fixture._(this._tester) {
     sut = ScheduledScreenshotRecorder(
       ScheduledScreenshotRecorderConfig(
-        srcWidth: 1000,
-        srcHeight: 1000,
+        targetWidth: 1000,
+        targetHeight: 750,
         frameRate: 1000,
       ),
       (Image image) async {

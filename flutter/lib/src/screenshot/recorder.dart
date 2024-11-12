@@ -66,11 +66,9 @@ class ScreenshotRecorder {
 
       // In Session Replay the target size is already set and should not be changed.
       // For Screenshots, we need to calculate the target size based on the quality setting.
-      if (!isReplayRecorder) {
-        config.targetHeight =
-            config.quality.calculateHeight(srcWidth, srcHeight);
-        config.targetWidth = config.quality.calculateWidth(srcWidth, srcHeight);
-      }
+      config.targetHeight ??=
+          config.quality.calculateHeight(srcWidth, srcHeight);
+      config.targetWidth ??= config.quality.calculateWidth(srcWidth, srcHeight);
 
       var pixelRatio =
           config.getPixelRatio(srcWidth.toDouble(), srcHeight.toDouble());

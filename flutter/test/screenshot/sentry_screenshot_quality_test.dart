@@ -1,15 +1,19 @@
+import 'dart:ui';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+
+// ignore_for_file: deprecated_member_use
 
 void main() async {
   group('$SentryScreenshotQuality', () {
     test('test quality: full', () {
       final sut = SentryScreenshotQuality.full;
       expect(sut.targetResolution(), isNull);
-      expect(sut.calculateHeight(2000, 4000), 4000);
-      expect(sut.calculateWidth(2000, 4000), 2000);
-      expect(sut.calculateHeight(4000, 2000), 2000);
-      expect(sut.calculateWidth(4000, 2000), 4000);
+      expect(sut.calculateHeight(2000, 4000), window.physicalSize.height);
+      expect(sut.calculateWidth(2000, 4000), window.physicalSize.width);
+      expect(sut.calculateHeight(4000, 2000), window.physicalSize.height);
+      expect(sut.calculateWidth(4000, 2000), window.physicalSize.width);
     });
 
     test('test quality: high', () {
