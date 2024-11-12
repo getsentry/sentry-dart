@@ -11,18 +11,19 @@ import '../sentry_flutter_options.dart';
 import '../renderer/renderer.dart';
 import 'package:flutter/widgets.dart' as widget;
 
+import '../utils/debouncer.dart';
+
 class ScreenshotEventProcessor implements EventProcessor {
   final SentryFlutterOptions _options;
+  final Debouncer _debouncer;
 
-  ScreenshotEventProcessor(this._options);
-
-  final _debounceDuration = Duration(milliseconds: 100);
-
-  /// Only apply this event processor every [debounceDuration] duration.
-  DateTime? _lastApplyCall;
-
-  /// The debounce duration for applying this event processor.
-  Duration get debounceDuration => _debounceDuration;
+  ScreenshotEventProcessor(this._options)
+      : _debouncer = Debouncer(
+          // ignore: invalid_use_of_internal_member
+          _options.clock,
+          waitTimeMs: 2000,
+          debounceOnFirstTry: false,
+        );
 
   @override
   Future<SentryEvent?> apply(SentryEvent event, Hint hint) async {
@@ -40,17 +41,9 @@ class ScreenshotEventProcessor implements EventProcessor {
       return event; // No need to attach screenshot of feedback form.
     }
 
-    // ignore: invalid_use_of_internal_member
-    final now = _options.clock();
-    final difference = _lastApplyCall?.difference(now).abs();
-    _lastApplyCall = now;
-
-    if (difference != null && difference < debounceDuration) {
-      _options.logger(
-        SentryLevel.warning,
-        'Skipping screenshot due to too many calls within a short time frame.',
-      );
-      return event; // Debounce
+    final shouldDebounce = _debouncer.shouldDebounce();
+    if (shouldDebounce) {
+      return event;
     }
 
     final beforeScreenshot = _options.beforeScreenshot;

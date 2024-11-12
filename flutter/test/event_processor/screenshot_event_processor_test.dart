@@ -214,6 +214,17 @@ void main() {
         (tester) async {
       // Run with real async https://stackoverflow.com/a/54021863
       await tester.runAsync(() async {
+        var firstCall = true;
+        // ignore: invalid_use_of_internal_member
+        fixture.options.clock = () {
+          if (firstCall) {
+            firstCall = false;
+            return DateTime.fromMillisecondsSinceEpoch(0);
+          } else {
+            return DateTime.fromMillisecondsSinceEpoch(2000 - 1);
+          }
+        };
+
         final sut = fixture.getSut(FlutterRenderer.canvasKit, false);
 
         await tester.pumpWidget(SentryScreenshotWidget(
@@ -228,13 +239,7 @@ void main() {
         final secondEvent = SentryEvent(throwable: throwable);
         final secondHint = Hint();
 
-        // ignore: invalid_use_of_internal_member
-        fixture.options.clock = () => DateTime.fromMillisecondsSinceEpoch(0);
         await sut.apply(firstEvent, firstHint);
-
-        // ignore: invalid_use_of_internal_member
-        fixture.options.clock = () => DateTime.fromMillisecondsSinceEpoch(
-            sut.debounceDuration.inMilliseconds - 1);
         await sut.apply(secondEvent, secondHint);
 
         expect(firstHint.screenshot, isNotNull);
@@ -245,6 +250,17 @@ void main() {
     testWidgets("adds screenshots after debounce timeframe", (tester) async {
       // Run with real async https://stackoverflow.com/a/54021863
       await tester.runAsync(() async {
+        var firstCall = true;
+        // ignore: invalid_use_of_internal_member
+        fixture.options.clock = () {
+          if (firstCall) {
+            firstCall = false;
+            return DateTime.fromMillisecondsSinceEpoch(0);
+          } else {
+            return DateTime.fromMillisecondsSinceEpoch(2001);
+          }
+        };
+
         final sut = fixture.getSut(FlutterRenderer.canvasKit, false);
 
         await tester.pumpWidget(SentryScreenshotWidget(
@@ -259,13 +275,7 @@ void main() {
         final secondEvent = SentryEvent(throwable: throwable);
         final secondHint = Hint();
 
-        // ignore: invalid_use_of_internal_member
-        fixture.options.clock = () => DateTime.fromMillisecondsSinceEpoch(0);
         await sut.apply(firstEvent, firstHint);
-
-        // ignore: invalid_use_of_internal_member
-        fixture.options.clock = () => DateTime.fromMillisecondsSinceEpoch(
-            sut.debounceDuration.inMilliseconds);
         await sut.apply(secondEvent, secondHint);
 
         expect(firstHint.screenshot, isNotNull);

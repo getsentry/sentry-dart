@@ -26,8 +26,8 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
   })  : _hub = hub ?? HubAdapter(),
         _options = options,
         _screenSizeStreamController = StreamController(sync: true),
-        // ignore: invalid_use_of_internal_member
         _didChangeMetricsDebouncer = Debouncer(
+          // ignore: invalid_use_of_internal_member
           options.clock,
           waitTimeMs: 100,
           debounceOnFirstTry: true,
