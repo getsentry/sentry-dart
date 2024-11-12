@@ -1,5 +1,26 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Exchange of the internal screenshot generation, which now enables masking (redaction) of Screenshots for privacy reasons ([#2361](https://github.com/getsentry/sentry-dart/pull/2361))
+  Masking behaviour:
+   - enabled by default for SessionReplay
+   - disabled by default for screenshots captured with events.
+    ```dart
+  await SentryFlutter.init(
+    (options) {
+      ...
+      options.experimental.privacy.maskAllText = true;
+      options.experimental.privacy.maskAllImages = true;
+      options.experimental.privacy.maskAssetImages = true;
+    },
+    appRunner: () => runApp(MyApp()),
+  );
+  ```  
+
+
 ## 8.10.1
 
 ### Fixes
