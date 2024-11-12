@@ -12,7 +12,7 @@ class WebSdkIntegration implements Integration<SentryFlutterOptions> {
   @override
   FutureOr<void> call(Hub hub, SentryFlutterOptions options) async {
     try {
-      await _scriptLoader.loadScripts();
+      await _scriptLoader.load();
 
       options.sdk.addIntegration('webSdkIntegration');
     } catch (exception, stackTrace) {

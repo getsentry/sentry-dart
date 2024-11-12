@@ -5,6 +5,7 @@ import 'dart:html';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_flutter/src/web/sentry_js_sdk_version.dart';
 import 'package:sentry_flutter/src/web/sentry_script_loader.dart';
 
 import '../mocks.dart';
@@ -28,7 +29,7 @@ void main() {
     test('loads production scripts by default', () async {
       final sut = fixture.getSut();
 
-      await sut.loadScripts();
+      await sut.load();
 
       final scripts = document.querySelectorAll('script[src*="sentry-cdn"]');
       for (final script in scripts) {
@@ -40,7 +41,7 @@ void main() {
     test('loads debug scripts when debug is enabled', () async {
       final sut = fixture.getSut(debug: true);
 
-      await sut.loadScripts();
+      await sut.load();
 
       final scripts = document.querySelectorAll('script[src*="sentry-cdn"]');
       for (final script in scripts) {
@@ -52,10 +53,10 @@ void main() {
     test('does not load scripts twice', () async {
       final sut = fixture.getSut();
 
-      await sut.loadScripts();
+      await sut.load();
       final initialScriptCount = document.querySelectorAll('script').length;
 
-      await sut.loadScripts();
+      await sut.load();
       expect(document.querySelectorAll('script').length, initialScriptCount);
     });
 
@@ -70,14 +71,14 @@ void main() {
       final sut = fixture.getSut(scripts: scripts);
 
       await expectLater(() async {
-        await sut.loadScripts();
+        await sut.load();
       }, throwsA(anything));
     });
 
     test('maintains script loading order', () async {
       final sut = fixture.getSut();
 
-      await sut.loadScripts();
+      await sut.load();
 
       final scripts = document
           .querySelectorAll('script[src*="sentry-cdn"]')
@@ -95,6 +96,7 @@ class Fixture {
   SentryScriptLoader getSut(
       {bool debug = false, List<Map<String, String>>? scripts}) {
     options.platformChecker = MockPlatformChecker(isDebug: debug);
-    return SentryScriptLoader(options, scripts: scripts);
+    return SentryScriptLoader(
+        options, debug ? debugScripts : productionScripts);
   }
 }

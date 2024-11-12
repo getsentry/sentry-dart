@@ -3,6 +3,7 @@ library flutter_test;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/src/integrations/web_sdk_integration.dart';
+import 'package:sentry_flutter/src/web/sentry_js_sdk_version.dart';
 import 'package:sentry_flutter/src/web/sentry_script_loader.dart';
 
 import '../mocks.dart';
@@ -43,20 +44,20 @@ class Fixture {
   late FakeSentryScriptLoader scriptLoader;
 
   WebSdkIntegration getSut() {
-    scriptLoader = FakeSentryScriptLoader(options);
+    scriptLoader = FakeSentryScriptLoader(options, debugScripts);
     return WebSdkIntegration(scriptLoader);
   }
 }
 
 class FakeSentryScriptLoader extends SentryScriptLoader {
-  FakeSentryScriptLoader(super.options);
+  FakeSentryScriptLoader(super.options, super.scripts);
 
   int loadScriptsCalls = 0;
 
   @override
-  Future<void> loadScripts() {
+  Future<void> load() {
     loadScriptsCalls += 1;
 
-    return super.loadScripts();
+    return super.load();
   }
 }
