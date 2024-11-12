@@ -20,6 +20,7 @@ import 'integrations/frames_tracking_integration.dart';
 import 'integrations/integrations.dart';
 import 'integrations/native_app_start_handler.dart';
 import 'integrations/screenshot_integration.dart';
+import 'integrations/web_sdk_integration.dart';
 import 'native/factory.dart';
 import 'native/native_scope_observer.dart';
 import 'native/sentry_native_binding.dart';
@@ -27,6 +28,7 @@ import 'profiling.dart';
 import 'renderer/renderer.dart';
 import 'version.dart';
 import 'view_hierarchy/view_hierarchy_integration.dart';
+import 'web/sentry_script_loader.dart';
 
 /// Configuration options callback
 typedef FlutterOptionsConfiguration = FutureOr<void> Function(
@@ -180,6 +182,8 @@ mixin SentryFlutter {
     }
 
     if (platformChecker.isWeb) {
+      final scriptLoader = SentryScriptLoader(options);
+      integrations.add(WebSdkIntegration(scriptLoader));
       integrations.add(ConnectivityIntegration());
     }
 
