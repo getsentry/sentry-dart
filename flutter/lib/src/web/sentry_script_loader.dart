@@ -1,12 +1,14 @@
 import 'dart:async';
 import 'dart:html';
 
+import 'package:meta/meta.dart';
+
 import '../../sentry_flutter.dart';
 
 // todo: set up ci to update this and the integrity
 const _sdkVersion = '8.37.1';
 
-const productionScripts = [
+const _productionScripts = [
   {
     'url':
         'https://browser.sentry-cdn.com/$_sdkVersion/bundle.tracing.replay.min.js',
@@ -19,7 +21,7 @@ const productionScripts = [
         'sha384-UNUCiMVh5gTr9Z45bRUPU5eOHHKGOI80UV3zM858k7yV/c6NNhtSJnIDjh+jJ8Vk'
   },
 ];
-const debugScripts = [
+const _debugScripts = [
   {
     'url':
         'https://browser.sentry-cdn.com/$_sdkVersion/bundle.tracing.replay.js',
@@ -29,6 +31,7 @@ const debugScripts = [
   },
 ];
 
+@internal
 class SentryScriptLoader {
   SentryScriptLoader(this.options, {List<Map<String, String>>? scripts})
       : _scripts = scripts ?? _getScriptConfigs(options.platformChecker);
@@ -38,12 +41,18 @@ class SentryScriptLoader {
   bool get isLoaded => _scriptLoaded;
   bool _scriptLoaded = false;
 
-  Future<void> loadScripts({bool useIntegrity = true}) async {
+  Future<void> loadScripts() async {
     if (_scriptLoaded || _scripts == null) return;
 
     try {
-      await Future.wait(_scripts!.map((script) => _loadScript(
-          script['url']!, useIntegrity ? script['integrity'] : null)));
+      await Future.wait(_scripts!.map((script) async {
+        final url = script['url'];
+        final integrity = script['integrity'];
+
+        if (url != null) {
+          return _loadScript(url, integrity);
+        }
+      }));
       _scriptLoaded = true;
       options.logger(SentryLevel.debug,
           'JS SDK integration: all Sentry scripts loaded successfully.');
@@ -59,9 +68,9 @@ class SentryScriptLoader {
 
 List<Map<String, String>> _getScriptConfigs(PlatformChecker platformChecker) {
   if (platformChecker.isDebugMode()) {
-    return debugScripts;
+    return _debugScripts;
   } else {
-    return productionScripts;
+    return _productionScripts;
   }
 }
 
