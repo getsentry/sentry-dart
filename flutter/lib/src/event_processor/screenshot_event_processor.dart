@@ -8,7 +8,6 @@ import '../screenshot/recorder.dart';
 import '../screenshot/recorder_config.dart';
 import '../screenshot/sentry_screenshot_widget.dart';
 import '../sentry_flutter_options.dart';
-import '../renderer/renderer.dart';
 import 'package:flutter/widgets.dart' as widget;
 
 class ScreenshotEventProcessor implements EventProcessor {
@@ -64,17 +63,6 @@ class ScreenshotEventProcessor implements EventProcessor {
           rethrow;
         }
       }
-    }
-
-    final renderer = _options.rendererWrapper.getRenderer();
-
-    if (_options.platformChecker.isWeb &&
-        renderer != FlutterRenderer.canvasKit) {
-      _options.logger(
-        SentryLevel.debug,
-        'Cannot take screenshot with ${renderer?.name} renderer.',
-      );
-      return event;
     }
 
     if (_options.screenshot.attachScreenshotOnlyWhenResumed &&
