@@ -97,6 +97,6 @@ class Fixture {
       {bool debug = false, List<Map<String, String>>? scripts}) {
     options.platformChecker = MockPlatformChecker(isDebug: debug);
     return SentryScriptLoader(
-        options, debug ? debugScripts : productionScripts);
+        options, debug ? debugScripts : scripts ?? productionScripts);
   }
 }
