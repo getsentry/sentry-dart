@@ -56,6 +56,19 @@ void main() {
     expect(fixture.nativeAppStartHandler.appStartEnd, isNotNull);
   });
 
+  test('$NativeAppStartIntegration sets correct app start from timing',
+      () async {
+    fixture.callIntegration();
+
+    final timingsCallback = fixture.frameCallbackHandler.timingsCallback!;
+    timingsCallback([_fakeFrameTiming]);
+
+    expect(fixture.nativeAppStartHandler.calls, 1);
+    expect(fixture.nativeAppStartHandler.appStartEnd, isNotNull);
+    expect(fixture.nativeAppStartHandler.appStartEnd,
+        DateTime.fromMicrosecondsSinceEpoch(10));
+  });
+
   test('$NativeAppStartIntegration handles timingsCallback exactly once',
       () async {
     fixture.callIntegration();
