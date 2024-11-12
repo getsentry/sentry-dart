@@ -4,8 +4,8 @@ class ScheduledScreenshotRecorderConfig extends ScreenshotRecorderConfig {
   final int frameRate;
 
   ScheduledScreenshotRecorderConfig({
-    super.srcWidth,
-    super.srcHeight,
+    super.targetWidth,
+    super.targetHeight,
     required this.frameRate,
   });
 }

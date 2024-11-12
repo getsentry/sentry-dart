@@ -19,6 +19,8 @@ class ScreenshotRecorder {
   final SentryFlutterOptions options;
   WidgetFilter? _widgetFilter;
   bool warningLogged = false;
+
+  // TODO: remove [isReplayRecorder] parameter in the next major release, see _SentryFlutterExperimentalOptions.
   @protected
   final bool isReplayRecorder;
 
@@ -59,15 +61,19 @@ class ScreenshotRecorder {
       // On Android, the desired resolution (coming from the configuration)
       // is rounded to next multitude of 16 . Therefore, we scale the image.
       // On iOS, the screenshot resolution is not adjusted.
-      config.srcWidth = renderObject.size.width.toInt();
-      config.srcHeight = renderObject.size.height.toInt();
-      final targetHeight =
-          config.quality.calculateHeight(config.srcWidth!, config.srcHeight!);
-      final targetWidth =
-          config.quality.calculateWidth(config.srcWidth!, config.srcHeight!);
+      final srcWidth = renderObject.size.width.toInt();
+      final srcHeight = renderObject.size.height.toInt();
 
-      final pixelRatio =
-          config.getPixelRatio(targetWidth.toDouble(), targetHeight.toDouble());
+      // In Session Replay the target size is already set and should not be changed.
+      // For Screenshots, we need to calculate the target size based on the quality setting.
+      if (!isReplayRecorder) {
+        config.targetHeight =
+            config.quality.calculateHeight(srcWidth, srcHeight);
+        config.targetWidth = config.quality.calculateWidth(srcWidth, srcHeight);
+      }
+
+      var pixelRatio =
+          config.getPixelRatio(srcWidth.toDouble(), srcHeight.toDouble());
 
       // First, we synchronously capture the image and enumerate widgets on the main UI loop.
       final futureImage = renderObject.toImage(pixelRatio: pixelRatio);
@@ -77,7 +83,8 @@ class ScreenshotRecorder {
         filter.obscure(
           context,
           pixelRatio,
-          Rect.fromLTWH(0, 0, targetWidth.toDouble(), targetHeight.toDouble()),
+          Rect.fromLTWH(0, 0, config.targetWidth!.toDouble(),
+              config.targetHeight!.toDouble()),
         );
       }
 
@@ -101,7 +108,8 @@ class ScreenshotRecorder {
 
       try {
         Image finalImage;
-        finalImage = await picture.toImage(targetWidth, targetHeight);
+        finalImage =
+            await picture.toImage(config.targetWidth!, config.targetHeight!);
         try {
           await callback(finalImage);
         } finally {

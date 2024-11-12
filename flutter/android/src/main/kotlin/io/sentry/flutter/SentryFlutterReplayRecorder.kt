@@ -24,8 +24,8 @@ internal class SentryFlutterReplayRecorder(
           "ReplayRecorder.start",
           mapOf(
             "directory" to cacheDirPath,
-            "srcWidth" to recorderConfig.recordingWidth,
-            "srcHeight" to recorderConfig.recordingHeight,
+            "targetWidth" to recorderConfig.recordingWidth,
+            "targetHeight" to recorderConfig.recordingHeight,
             "frameRate" to recorderConfig.frameRate,
             "replayId" to integration.getReplayId().toString(),
           ),

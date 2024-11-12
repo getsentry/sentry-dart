@@ -6,21 +6,21 @@ import '../../sentry_flutter.dart';
 
 @internal
 class ScreenshotRecorderConfig {
-  int? srcWidth;
-  int? srcHeight;
+  int? targetWidth;
+  int? targetHeight;
   final SentryScreenshotQuality quality;
 
   ScreenshotRecorderConfig({
-    this.srcWidth,
-    this.srcHeight,
+    this.targetWidth,
+    this.targetHeight,
     this.quality = SentryScreenshotQuality.low,
   });
 
-  double getPixelRatio(double targetWidth, double targetHeight) {
-    assert((srcWidth == null) == (srcHeight == null));
-    if (srcWidth == null || srcHeight == null) {
+  double getPixelRatio(double srcWidth, double srcHeight) {
+    assert((targetWidth == null) == (targetHeight == null));
+    if (targetWidth == null || targetHeight == null) {
       return 1.0;
     }
-    return min(targetWidth / srcWidth!, targetHeight / srcHeight!);
+    return min(targetWidth! / srcWidth, targetHeight! / srcHeight);
   }
 }
