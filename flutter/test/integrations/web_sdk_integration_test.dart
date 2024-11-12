@@ -19,10 +19,10 @@ void main() {
     test('adds integration', () async {
       final sut = fixture.getSut();
 
-      sut.call(fixture.hub, fixture.options);
+      await sut.call(fixture.hub, fixture.options);
 
-      expect(
-          fixture.options.sdk.integrations.contains('webSdkIntegration'), true);
+      expect(fixture.options.sdk.integrations.contains(WebSdkIntegration.name),
+          true);
     });
 
     test('calls executes loads scripts', () async {
