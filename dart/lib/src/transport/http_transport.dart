@@ -35,14 +35,9 @@ class HttpTransport implements Transport {
 
   @override
   Future<SentryId?> send(SentryEnvelope envelope) async {
-    final filteredEnvelope = _rateLimiter.filter(envelope);
-    if (filteredEnvelope == null) {
-      return SentryId.empty();
-    }
-    filteredEnvelope.header.sentAt = _options.clock();
+    envelope.header.sentAt = _options.clock();
 
-    final streamedRequest =
-        await _requestHandler.createRequest(filteredEnvelope);
+    final streamedRequest = await _requestHandler.createRequest(envelope);
 
     final response = await _options.httpClient
         .send(streamedRequest)

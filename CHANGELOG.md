@@ -4,8 +4,157 @@
 
 ### Enhancements
 
+- Remove `sentry` frames if SDK falls back to current stack trace ([#2351](https://github.com/getsentry/sentry-dart/pull/2351))  
+  - Flutter doesn't always provide stack traces for unhandled errors - this is normal Flutter behavior
+  - When no stack trace is provided (in Flutter errors, `captureException`, or `captureMessage`):
+    - SDK creates a synthetic trace using `StackTrace.current`
+    - Internal SDK frames are removed to reduce noise
+  - Original stack traces (when provided) are left unchanged
+  
+### Features
+
+- Improve frame tracking accuracy ([#2372](https://github.com/getsentry/sentry-dart/pull/2372))
+  - Introduces `SentryWidgetsFlutterBinding` that tracks a frame starting from `handleBeginFrame` and ending in `handleDrawFrame`, this is approximately the [buildDuration](https://api.flutter.dev/flutter/dart-ui/FrameTiming/buildDuration.html) time
+  - By default, `SentryFlutter.init()` automatically initializes `SentryWidgetsFlutterBinding` through the `WidgetsFlutterBindingIntegration`
+  - If you need to initialize the binding before `SentryFlutter.init`, use `SentryWidgetsFlutterBinding.ensureInitialized` instead of `WidgetsFlutterBinding.ensureInitialized`:
+  ```dart
+  void main() async {
+    // Replace WidgetsFlutterBinding.ensureInitialized()
+    SentryWidgetsFlutterBinding.ensureInitialized();
+    
+    await SentryFlutter.init(...);
+    runApp(MyApp());
+  }
+  ```
+  - ⚠️ Frame tracking will be disabled if a different binding is used
+
+### Fixes
+
+- Apply default IP address (`{{auto}}`) to transactions ([#2395](https://github.com/getsentry/sentry-dart/pull/2395))
+  - Previously, transactions weren't getting the default IP address when user context was loaded
+  - Now consistently applies default IP address to both events and transactions when:
+    - No user context exists
+    - User context exists but IP address is null
+
+## 8.10.1
+
+### Fixes
+
+- Android build error when compiling ([#2397](https://github.com/getsentry/sentry-dart/pull/2397))
+
+## 8.10.0
+
+### Features
+
+- Emit `transaction.data` inside `contexts.trace.data` ([#2284](https://github.com/getsentry/sentry-dart/pull/2284))
+- Blocking app starts span if "appLaunchedInForeground" is false. (Android only) ([#2291](https://github.com/getsentry/sentry-dart/pull/2291))
+- Replay: user-configurable masking (redaction) for widget classes and specific widget instances. ([#2324](https://github.com/getsentry/sentry-dart/pull/2324))
+  Some examples of the configuration:
+
+  ```dart
+  await SentryFlutter.init(
+    (options) {
+      ...
+      options.experimental.replay.mask<IconButton>();
+      options.experimental.replay.unmask<Image>();
+      options.experimental.replay.maskCallback<Text>(
+          (Element element, Text widget) =>
+              (widget.data?.contains('secret') ?? false)
+                  ? SentryMaskingDecision.mask
+                  : SentryMaskingDecision.continueProcessing);
+    },
+    appRunner: () => runApp(MyApp()),
+  );
+  ```
+
+  Also, you can wrap any of your widgets with `SentryMask()` or `SentryUnmask()` widgets to mask/unmask them, respectively. For example:
+
+  ```dart
+   SentryUnmask(Text('Not secret at all'));
+  ```
+
+- Support `captureFeedback` ([#2230](https://github.com/getsentry/sentry-dart/pull/2230))
+  - Deprecated `Sentry.captureUserFeedback`, use `captureFeedback` instead.
+  - Deprecated `Hub.captureUserFeedback`, use `captureFeedback` instead.
+  - Deprecated `SentryClient.captureUserFeedback`, use `captureFeedback` instead.
+  - Deprecated `SentryUserFeedback`, use `SentryFeedback` instead.
+- Add `SentryFeedbackWidget` ([#2240](https://github.com/getsentry/sentry-dart/pull/2240))
+
+  ```dart
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => SentryFeedbackWidget(associatedEventId: id),
+      fullscreenDialog: true,
+    ),
+  );
+  ```
+  
+- Add screenshot to `SentryFeedbackWidget` ([#2369](https://github.com/getsentry/sentry-dart/pull/2369))
+  - Use `SentryFlutter.captureScreenshot` to create a screenshot attachment
+  - Call `SentryFeedbackWidget` with this attachment to add it to the user feedback
+
+  ```dart
+  final id = await Sentry.captureMessage('UserFeedback');
+  final screenshot = await SentryFlutter.captureScreenshot();
+  
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => SentryFeedbackWidget(
+          associatedEventId: id,
+          screenshot: screenshot,
+      ),
+      fullscreenDialog: true,
+    ),
+  );
+  ```
+
+### Enhancements
+
+- Avoid sending too many empty client reports when Http Transport is used ([#2380](https://github.com/getsentry/sentry-dart/pull/2380))
 - Cache parsed DSN ([#2365](https://github.com/getsentry/sentry-dart/pull/2365))
 - Add debounce to `ScreenshotWidget` ([#2368](https://github.com/getsentry/sentry-dart/pull/2368))
+- Handle backpressure earlier in pipeline ([#2371](https://github.com/getsentry/sentry-dart/pull/2371))
+  - Drops max un-awaited parallel tasks earlier, so event processors & callbacks are not executed for them. 
+  - Change by setting `SentryOptions.maxQueueSize`. Default is 30.
+- Use native spotlight integrations on Flutter Android, iOS, macOS ([#2285](https://github.com/getsentry/sentry-dart/pull/2285))
+- Improve app start integration ([#2266](https://github.com/getsentry/sentry-dart/pull/2266))
+  - Fixes pendingTimer during tests ([#2103](https://github.com/getsentry/sentry-dart/issues/2103))
+  - Fixes transaction slows app start ([#2233](https://github.com/getsentry/sentry-dart/issues/2233))
+- Only store slow and frozen frames for frame delay calculation ([#2337](https://github.com/getsentry/sentry-dart/pull/2337))
+- Add ReplayIntegration to the integrations list on events when replay is enabled. ([#2349](https://github.com/getsentry/sentry-dart/pull/2349))
+
+### Fixes
+
+- App lag with frame tracking enabled when span finishes after a long time ([#2311](https://github.com/getsentry/sentry-dart/pull/2311))
+- Only start frame tracking if we receive valid display refresh data ([#2307](https://github.com/getsentry/sentry-dart/pull/2307))
+- Rounding error used on frames.total and reject frame measurements if frames.total is less than frames.slow or frames.frozen ([#2308](https://github.com/getsentry/sentry-dart/pull/2308))
+- iOS replay integration when only `onErrorSampleRate` is specified ([#2306](https://github.com/getsentry/sentry-dart/pull/2306))
+- Fix TTID timing issue ([#2326](https://github.com/getsentry/sentry-dart/pull/2326))
+- TTFD fixes
+  - Start missing TTFD for root screen transaction ([#2332](https://github.com/getsentry/sentry-dart/pull/2332))
+  - Match TTFD to TTID end timespan if TTFD is unfinished when user navigates to another screen ([#2347](https://github.com/getsentry/sentry-dart/pull/2347))
+  - TTFD measurements should only be added for successful TTFD spans ([#2348](https://github.com/getsentry/sentry-dart/pull/2348))
+  - Error when calling `SentryFlutter.reportFullyDisplayed()` twice ([#2339](https://github.com/getsentry/sentry-dart/pull/2339))
+- Accessing invalid json fields from `fetchNativeAppStart` should return null ([#2340](https://github.com/getsentry/sentry-dart/pull/2340))
+
+### Deprecate
+
+- Metrics API ([#2312](https://github.com/getsentry/sentry-dart/pull/2312))
+  - Learn more: https://sentry.zendesk.com/hc/en-us/articles/26369339769883-Metrics-Beta-Coming-to-an-End
+  
+### Dependencies
+
+- Bump Native SDK from v0.7.10 to v0.7.12 ([#2390](https://github.com/getsentry/sentry-dart/pull/2390))
+  - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#0712)
+  - [diff](https://github.com/getsentry/sentry-native/compare/0.7.10...0.7.12)
+- Bump Android SDK from v7.15.0 to v7.16.0 ([#2373](https://github.com/getsentry/sentry-dart/pull/2373))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#7160)
+  - [diff](https://github.com/getsentry/sentry-java/compare/7.15.0...7.16.0)
+- Bump Cocoa SDK from v8.37.0 to v8.40.1 ([#2394](https://github.com/getsentry/sentry-dart/pull/2394))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8401)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.37.0...8.40.1)
 
 ## 8.10.0-beta.2
 

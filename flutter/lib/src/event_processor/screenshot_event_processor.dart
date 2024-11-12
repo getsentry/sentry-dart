@@ -3,10 +3,11 @@ import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui';
 
+import 'package:flutter/rendering.dart';
+import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 import '../screenshot/sentry_screenshot_widget.dart';
 import '../sentry_flutter_options.dart';
-import 'package:flutter/rendering.dart';
 import '../renderer/renderer.dart';
 import 'package:flutter/widgets.dart' as widget;
 
@@ -14,10 +15,6 @@ class ScreenshotEventProcessor implements EventProcessor {
   final SentryFlutterOptions _options;
 
   ScreenshotEventProcessor(this._options);
-
-  /// This is true when the SentryWidget is in the view hierarchy
-  bool get _hasSentryScreenshotWidget =>
-      sentryScreenshotWidgetGlobalKey.currentContext != null;
 
   final _debounceDuration = Duration(milliseconds: 100);
 
@@ -35,8 +32,12 @@ class ScreenshotEventProcessor implements EventProcessor {
 
     if (event.exceptions == null &&
         event.throwable == null &&
-        _hasSentryScreenshotWidget) {
+        SentryScreenshotWidget.isMounted) {
       return event;
+    }
+
+    if (event.type == 'feedback') {
+      return event; // No need to attach screenshot of feedback form.
     }
 
     // ignore: invalid_use_of_internal_member
@@ -97,14 +98,15 @@ class ScreenshotEventProcessor implements EventProcessor {
       return event;
     }
 
-    final bytes = await _createScreenshot();
+    final bytes = await createScreenshot();
     if (bytes != null) {
       hint.screenshot = SentryAttachment.fromScreenshotData(bytes);
     }
     return event;
   }
 
-  Future<Uint8List?> _createScreenshot() async {
+  @internal
+  Future<Uint8List?> createScreenshot() async {
     try {
       final renderObject =
           sentryScreenshotWidgetGlobalKey.currentContext?.findRenderObject();
