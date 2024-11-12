@@ -1,10 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/scheduler.dart';
 
+typedef SentryTimingsCallback = void Function(List<FrameTiming> timings);
+
 abstract class FrameCallbackHandler {
   void addPostFrameCallback(FrameCallback callback);
   void removeTimingsCallback(TimingsCallback callback);
-  void addTimingsCallback(TimingsCallback callback);
+  void addTimingsCallback(SentryTimingsCallback callback);
 }
 
 class DefaultFrameCallbackHandler implements FrameCallbackHandler {
@@ -17,7 +19,7 @@ class DefaultFrameCallbackHandler implements FrameCallbackHandler {
   }
 
   @override
-  void addTimingsCallback(TimingsCallback callback) {
+  void addTimingsCallback(SentryTimingsCallback callback) {
     try {
       WidgetsBinding.instance.addTimingsCallback(callback);
     } catch (_) {}
