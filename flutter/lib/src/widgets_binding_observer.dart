@@ -25,7 +25,13 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
     required SentryFlutterOptions options,
   })  : _hub = hub ?? HubAdapter(),
         _options = options,
-        _screenSizeStreamController = StreamController(sync: true) {
+        _screenSizeStreamController = StreamController(sync: true),
+        // ignore: invalid_use_of_internal_member
+        _didChangeMetricsDebouncer = Debouncer(
+          options.clock,
+          waitTimeMs: 100,
+          debounceOnFirstTry: true,
+        ) {
     if (_options.enableWindowMetricBreadcrumbs) {
       _screenSizeStreamController.stream
           .map(
@@ -47,11 +53,10 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
 
   final Hub _hub;
   final SentryFlutterOptions _options;
+  final Debouncer _didChangeMetricsDebouncer;
 
   // ignore: deprecated_member_use
   final StreamController<SingletonFlutterWindow?> _screenSizeStreamController;
-
-  final _didChangeMetricsDebouncer = Debouncer(milliseconds: 100);
 
   /// This method records lifecycle events.
   /// It tries to mimic the behavior of ActivityBreadcrumbsIntegration of Sentry
@@ -92,11 +97,11 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
       return;
     }
 
-    _didChangeMetricsDebouncer.run(() {
-      // ignore: deprecated_member_use
+    final shouldDebounce = _didChangeMetricsDebouncer.shouldDebounce();
+    if (!shouldDebounce) {
       final window = _options.bindingUtils.instance?.window;
       _screenSizeStreamController.add(window);
-    });
+    }
   }
 
   void _onScreenSizeChanged(Map<String, dynamic> data) {
