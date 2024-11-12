@@ -29,17 +29,17 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
   }
 
   final Completer<void> _appStartEndCompleter = Completer<void>();
-  bool _allowProcessing = false;
+  bool _allowProcessing = true;
 
   @override
   void call(Hub hub, SentryFlutterOptions options) async {
     void timingsCallback(List<FrameTiming> timings) async {
-      if (_allowProcessing) {
+      if (!_allowProcessing) {
         return;
       }
       // Set immediately to prevent multiple executions
       // we only care about the first frame
-      _allowProcessing = true;
+      _allowProcessing = false;
 
       try {
         DateTime? appStartEnd;

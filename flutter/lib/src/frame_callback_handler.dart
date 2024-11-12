@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/scheduler.dart';
 
+/// Use instead of TimingsCallback as it is not available in the Flutter min version
 typedef SentryTimingsCallback = void Function(List<FrameTiming> timings);
 
 abstract class FrameCallbackHandler {
