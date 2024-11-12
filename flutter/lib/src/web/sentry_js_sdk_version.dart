@@ -1,6 +1,6 @@
-// todo: set up ci to update this and the integrity
 import 'package:meta/meta.dart';
 
+// todo: set up ci to update this and the integrity
 @internal
 const jsSdkVersion = '8.37.1';
 
