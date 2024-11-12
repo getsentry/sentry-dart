@@ -12,7 +12,7 @@
   - Original stack traces (when provided) are left unchanged
 - Add debounce to `ScreenshotWidget` ([#2368](https://github.com/getsentry/sentry-dart/pull/2368))
   - This is a breaking change. Replace `BeforeScreenshotCallback` with new `BeforeCaptureCallback`.
-  
+
 ### Features
 
 - Improve frame tracking accuracy ([#2372](https://github.com/getsentry/sentry-dart/pull/2372))
