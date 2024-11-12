@@ -10,7 +10,7 @@ import 'package:sentry_flutter/src/replay/scheduled_recorder.dart';
 import 'package:sentry_flutter/src/replay/scheduled_recorder_config.dart';
 
 import '../mocks.dart';
-import 'test_widget.dart';
+import '../screenshot/test_widget.dart';
 
 void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
