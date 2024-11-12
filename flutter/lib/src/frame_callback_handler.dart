@@ -5,7 +5,7 @@ typedef SentryTimingsCallback = void Function(List<FrameTiming> timings);
 
 abstract class FrameCallbackHandler {
   void addPostFrameCallback(FrameCallback callback);
-  void removeTimingsCallback(TimingsCallback callback);
+  void removeTimingsCallback(SentryTimingsCallback callback);
   void addTimingsCallback(SentryTimingsCallback callback);
 }
 
@@ -26,7 +26,7 @@ class DefaultFrameCallbackHandler implements FrameCallbackHandler {
   }
 
   @override
-  void removeTimingsCallback(TimingsCallback callback) {
+  void removeTimingsCallback(SentryTimingsCallback callback) {
     try {
       WidgetsBinding.instance.removeTimingsCallback(callback);
     } catch (_) {}
