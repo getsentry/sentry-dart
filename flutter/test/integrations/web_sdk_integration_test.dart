@@ -22,9 +22,7 @@ void main() {
       sut.call(fixture.hub, fixture.options);
 
       expect(
-          fixture.options.sdk.integrations
-              .contains('nativeAppStartIntegration'),
-          true);
+          fixture.options.sdk.integrations.contains('webSdkIntegration'), true);
     });
 
     test('calls executes loads scripts', () async {
