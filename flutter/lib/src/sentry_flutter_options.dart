@@ -198,7 +198,7 @@ class SentryFlutterOptions extends SentryOptions {
   /// Sets a callback which is executed before capturing screenshots. Only
   /// relevant if `attachScreenshot` is set to true. When false is returned
   /// from the function, no screenshot will be attached.
-  BeforeScreenshotCallback? beforeScreenshot;
+  BeforeCaptureCallback? beforeScreenshot;
 
   /// Enable or disable automatic breadcrumbs for User interactions Using [Listener]
   ///
@@ -387,9 +387,29 @@ class _SentryFlutterExperimentalOptions {
   final replay = SentryReplayOptions();
 }
 
-/// Callback being executed in [ScreenshotEventProcessor], deciding if a
-/// screenshot should be recorded and attached.
-typedef BeforeScreenshotCallback = FutureOr<bool> Function(
-  SentryEvent event, {
-  Hint? hint,
-});
+/// A callback which can be used to suppress capturing of screenshots.
+/// It's called in [ScreenshotEventProcessor] if screenshots are enabled.
+/// This gives more fine-grained control over when capturing should be performed,
+/// e.g., only capture screenshots for fatal events or override any debouncing for important events.
+///
+/// Since capturing can be resource-intensive, the debounce parameter should be respected if possible.
+///
+/// Example:
+/// ```dart
+/// if (debounce) {
+///   return false;
+/// } else {
+///   // check event and hint
+/// }
+/// ```
+///
+/// [event] is the event to be checked.
+/// [hint] provides additional hints.
+/// [debounce] indicates if capturing is marked for being debounced.
+///
+/// Returns `true` if capturing should be performed, otherwise `false`.
+typedef BeforeCaptureCallback = FutureOr<bool> Function(
+  SentryEvent event,
+  Hint hint,
+  bool debounce,
+);

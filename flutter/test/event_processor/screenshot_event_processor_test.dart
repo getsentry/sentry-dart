@@ -129,7 +129,8 @@ void main() {
   group('beforeScreenshot', () {
     testWidgets('does add screenshot if beforeScreenshot returns true',
         (tester) async {
-      fixture.options.beforeScreenshot = (SentryEvent event, {Hint? hint}) {
+      fixture.options.beforeScreenshot =
+          (SentryEvent event, Hint hint, bool shouldDebounce) {
         return true;
       };
       await _addScreenshotAttachment(tester, FlutterRenderer.canvasKit,
@@ -139,7 +140,7 @@ void main() {
     testWidgets('does add screenshot if async beforeScreenshot returns true',
         (tester) async {
       fixture.options.beforeScreenshot =
-          (SentryEvent event, {Hint? hint}) async {
+          (SentryEvent event, Hint hint, bool shouldDebounce) async {
         await Future<void>.delayed(Duration(milliseconds: 1));
         return true;
       };
@@ -149,7 +150,8 @@ void main() {
 
     testWidgets('does not add screenshot if beforeScreenshot returns false',
         (tester) async {
-      fixture.options.beforeScreenshot = (SentryEvent event, {Hint? hint}) {
+      fixture.options.beforeScreenshot =
+          (SentryEvent event, Hint hint, bool shouldDebounce) {
         return false;
       };
       await _addScreenshotAttachment(tester, FlutterRenderer.canvasKit,
@@ -160,7 +162,7 @@ void main() {
         'does not add screenshot if async beforeScreenshot returns false',
         (tester) async {
       fixture.options.beforeScreenshot =
-          (SentryEvent event, {Hint? hint}) async {
+          (SentryEvent event, Hint hint, bool shouldDebounce) async {
         await Future<void>.delayed(Duration(milliseconds: 1));
         return false;
       };
@@ -171,7 +173,8 @@ void main() {
     testWidgets('does add screenshot if beforeScreenshot throws',
         (tester) async {
       fixture.options.automatedTestMode = false;
-      fixture.options.beforeScreenshot = (SentryEvent event, {Hint? hint}) {
+      fixture.options.beforeScreenshot =
+          (SentryEvent event, Hint hint, bool shouldDebounce) {
         throw Error();
       };
       await _addScreenshotAttachment(tester, FlutterRenderer.canvasKit,
@@ -182,7 +185,7 @@ void main() {
         (tester) async {
       fixture.options.automatedTestMode = false;
       fixture.options.beforeScreenshot =
-          (SentryEvent event, {Hint? hint}) async {
+          (SentryEvent event, Hint hint, bool shouldDebounce) async {
         await Future<void>.delayed(Duration(milliseconds: 1));
         throw Error();
       };
@@ -190,12 +193,50 @@ void main() {
           added: true, isWeb: false);
     });
 
+    testWidgets('does add screenshot event if shouldDebounce true',
+        (tester) async {
+      await tester.runAsync(() async {
+        var shouldDebounceValues = <bool>[];
+
+        fixture.options.beforeScreenshot =
+            (SentryEvent event, Hint hint, bool shouldDebounce) {
+          shouldDebounceValues.add(shouldDebounce);
+          return true;
+        };
+
+        final sut = fixture.getSut(FlutterRenderer.canvasKit, false);
+
+        await tester.pumpWidget(
+          SentryScreenshotWidget(
+            child: Text(
+              'Catching Pokémon is a snap!',
+              textDirection: TextDirection.ltr,
+            ),
+          ),
+        );
+
+        final event = SentryEvent(throwable: Exception());
+        final hintOne = Hint();
+        final hintTwo = Hint();
+
+        await sut.apply(event, hintOne);
+        await sut.apply(event, hintTwo);
+
+        expect(hintOne.screenshot, isNotNull);
+        expect(hintTwo.screenshot, isNotNull);
+
+        expect(shouldDebounceValues[0], false);
+        expect(shouldDebounceValues[1], true);
+      });
+    });
+
     testWidgets('passes event & hint to beforeScreenshot callback',
         (tester) async {
       SentryEvent? beforeScreenshotEvent;
       Hint? beforeScreenshotHint;
 
-      fixture.options.beforeScreenshot = (SentryEvent event, {Hint? hint}) {
+      fixture.options.beforeScreenshot =
+          (SentryEvent event, Hint hint, bool shouldDebounce) {
         beforeScreenshotEvent = event;
         beforeScreenshotHint = hint;
         return true;
@@ -263,9 +304,14 @@ void main() {
 
         final sut = fixture.getSut(FlutterRenderer.canvasKit, false);
 
-        await tester.pumpWidget(SentryScreenshotWidget(
-            child: Text('Catching Pokémon is a snap!',
-                textDirection: TextDirection.ltr)));
+        await tester.pumpWidget(
+          SentryScreenshotWidget(
+            child: Text(
+              'Catching Pokémon is a snap!',
+              textDirection: TextDirection.ltr,
+            ),
+          ),
+        );
 
         final throwable = Exception();
 

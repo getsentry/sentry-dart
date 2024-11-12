@@ -41,15 +41,13 @@ class ScreenshotEventProcessor implements EventProcessor {
       return event; // No need to attach screenshot of feedback form.
     }
 
+    // skip capturing in case of debouncing (=too many frequent capture requests)
+    // the BeforeCaptureCallback may overrules the debouncing decision
     final shouldDebounce = _debouncer.shouldDebounce();
-    if (shouldDebounce) {
-      return event;
-    }
-
     final beforeScreenshot = _options.beforeScreenshot;
     if (beforeScreenshot != null) {
       try {
-        final result = beforeScreenshot(event, hint: hint);
+        final result = beforeScreenshot(event, hint, shouldDebounce);
         bool takeScreenshot;
         if (result is Future<bool>) {
           takeScreenshot = await result;
@@ -70,6 +68,8 @@ class ScreenshotEventProcessor implements EventProcessor {
           rethrow;
         }
       }
+    } else if (shouldDebounce) {
+      return event;
     }
 
     final renderer = _options.rendererWrapper.getRenderer();
