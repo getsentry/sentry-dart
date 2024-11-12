@@ -19,6 +19,8 @@ class ScreenshotRecorder {
   final SentryFlutterOptions options;
   WidgetFilter? _widgetFilter;
   bool warningLogged = false;
+  @protected
+  final bool isReplayRecorder;
 
   // TODO: remove in the next major release, see recorder_test.dart.
   @visibleForTesting
@@ -26,7 +28,7 @@ class ScreenshotRecorder {
 
   // TODO: remove [isReplayRecorder] parameter in the next major release, see _SentryFlutterExperimentalOptions.
   ScreenshotRecorder(this.config, this.options,
-      {bool isReplayRecorder = true}) {
+      {this.isReplayRecorder = true}) {
     // see `options.experimental.privacy` docs for details
     final privacyOptions = isReplayRecorder
         ? options.experimental.privacyForReplay
@@ -57,9 +59,15 @@ class ScreenshotRecorder {
       // On Android, the desired resolution (coming from the configuration)
       // is rounded to next multitude of 16 . Therefore, we scale the image.
       // On iOS, the screenshot resolution is not adjusted.
-      final srcWidth = renderObject.size.width;
-      final srcHeight = renderObject.size.height;
-      final pixelRatio = config.getPixelRatio(srcWidth, srcHeight);
+      config.srcWidth = renderObject.size.width.toInt();
+      config.srcHeight = renderObject.size.height.toInt();
+      final targetHeight =
+          config.quality.calculateHeight(config.srcWidth!, config.srcHeight!);
+      final targetWidth =
+          config.quality.calculateWidth(config.srcWidth!, config.srcHeight!);
+
+      final pixelRatio =
+          config.getPixelRatio(targetWidth.toDouble(), targetHeight.toDouble());
 
       // First, we synchronously capture the image and enumerate widgets on the main UI loop.
       final futureImage = renderObject.toImage(pixelRatio: pixelRatio);
@@ -69,7 +77,7 @@ class ScreenshotRecorder {
         filter.obscure(
           context,
           pixelRatio,
-          Rect.fromLTWH(0, 0, srcWidth * pixelRatio, srcHeight * pixelRatio),
+          Rect.fromLTWH(0, 0, targetWidth.toDouble(), targetHeight.toDouble()),
         );
       }
 
@@ -93,10 +101,6 @@ class ScreenshotRecorder {
 
       try {
         Image finalImage;
-        final targetHeight =
-            config.quality.calculateHeight(srcWidth.toInt(), srcHeight.toInt());
-        final targetWidth =
-            config.quality.calculateWidth(srcWidth.toInt(), srcHeight.toInt());
         finalImage = await picture.toImage(targetWidth, targetHeight);
         try {
           await callback(finalImage);

@@ -38,8 +38,8 @@ class _Fixture {
   _Fixture._(this._tester) {
     sut = ScheduledScreenshotRecorder(
       ScheduledScreenshotRecorderConfig(
-        width: 1000,
-        height: 1000,
+        srcWidth: 1000,
+        srcHeight: 1000,
         frameRate: 1000,
       ),
       (Image image) async {

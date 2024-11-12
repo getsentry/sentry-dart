@@ -40,8 +40,8 @@ class SentryNativeJava extends SentryNativeChannel {
             _startRecorder(
               call.arguments['directory'] as String,
               ScheduledScreenshotRecorderConfig(
-                width: call.arguments['width'] as int,
-                height: call.arguments['height'] as int,
+                srcWidth: call.arguments['srcWidth'] as int,
+                srcHeight: call.arguments['srcHeight'] as int,
                 frameRate: call.arguments['frameRate'] as int,
               ),
             );

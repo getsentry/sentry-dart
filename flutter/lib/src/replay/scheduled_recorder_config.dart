@@ -3,9 +3,9 @@ import '../screenshot/recorder_config.dart';
 class ScheduledScreenshotRecorderConfig extends ScreenshotRecorderConfig {
   final int frameRate;
 
-  const ScheduledScreenshotRecorderConfig({
-    super.width,
-    super.height,
+  ScheduledScreenshotRecorderConfig({
+    super.srcWidth,
+    super.srcHeight,
     required this.frameRate,
   });
 }

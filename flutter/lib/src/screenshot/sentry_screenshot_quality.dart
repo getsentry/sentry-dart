@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:meta/meta.dart';
 
 /// The quality of the attached screenshot
@@ -23,7 +25,8 @@ enum SentryScreenshotQuality {
   @internal
   int calculateHeight(int width, int height) {
     if (this == SentryScreenshotQuality.full) {
-      return height;
+      // ignore: deprecated_member_use
+      return window.physicalSize.height.round();
     } else {
       if (height > width) {
         return targetResolution()!;
@@ -37,7 +40,8 @@ enum SentryScreenshotQuality {
   @internal
   int calculateWidth(int width, int height) {
     if (this == SentryScreenshotQuality.full) {
-      return width;
+      // ignore: deprecated_member_use
+      return window.physicalSize.width.round();
     } else {
       if (width > height) {
         return targetResolution()!;
