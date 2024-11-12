@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import '../../sentry_flutter.dart';
-import '../web/sentry_script_loader.dart';
+import '../web/script_loader/sentry_script_loader.dart';
 
 /// Initializes the Javascript SDK with the given options.
 class WebSdkIntegration implements Integration<SentryFlutterOptions> {

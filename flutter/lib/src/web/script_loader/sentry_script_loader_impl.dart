@@ -3,17 +3,18 @@ import 'dart:html';
 
 import 'package:meta/meta.dart';
 
-import '../../sentry_flutter.dart';
+import '../../../sentry_flutter.dart';
+import 'sentry_script_loader.dart';
 
 @internal
-class SentryScriptLoader {
-  SentryScriptLoader(this.options, this.scripts);
+class SentryScriptLoaderImpl implements SentryScriptLoader {
+  SentryScriptLoaderImpl(this.options, this.scripts);
 
   final SentryFlutterOptions options;
   final List<Map<String, String>> scripts;
-  bool get isLoaded => _scriptLoaded;
   bool _scriptLoaded = false;
 
+  @override
   Future<void> load() async {
     if (_scriptLoaded) return;
 
