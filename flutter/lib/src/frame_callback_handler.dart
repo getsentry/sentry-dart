@@ -3,9 +3,8 @@ import 'package:flutter/scheduler.dart';
 
 abstract class FrameCallbackHandler {
   void addPostFrameCallback(FrameCallback callback);
-  void addPersistentFrameCallback(FrameCallback callback);
-  Future<void> get endOfFrame;
-  bool get hasScheduledFrame;
+  void removeTimingsCallback(TimingsCallback callback);
+  void addTimingsCallback(TimingsCallback callback);
 }
 
 class DefaultFrameCallbackHandler implements FrameCallbackHandler {
@@ -18,19 +17,16 @@ class DefaultFrameCallbackHandler implements FrameCallbackHandler {
   }
 
   @override
-  void addPersistentFrameCallback(FrameCallback callback) {
+  void addTimingsCallback(TimingsCallback callback) {
     try {
-      WidgetsBinding.instance.addPersistentFrameCallback(callback);
+      WidgetsBinding.instance.addTimingsCallback(callback);
     } catch (_) {}
   }
 
   @override
-  Future<void> get endOfFrame async {
+  void removeTimingsCallback(TimingsCallback callback) {
     try {
-      await WidgetsBinding.instance.endOfFrame;
+      WidgetsBinding.instance.removeTimingsCallback(callback);
     } catch (_) {}
   }
-
-  @override
-  bool get hasScheduledFrame => WidgetsBinding.instance.hasScheduledFrame;
 }
