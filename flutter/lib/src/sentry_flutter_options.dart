@@ -399,7 +399,7 @@ class _SentryFlutterExperimentalOptions {
   /// Replay recording configuration.
   final replay = SentryReplayOptions();
 
-  /// Privacy configuration for masking sensitive data in the Screenshot and Session Replay.
+  /// Privacy configuration for masking sensitive data in screenshots and Session Replay.
   /// Screen content masking redaction is:
   /// - enabled by default for SessionReplay
   /// - disabled by default for screenshots captured with events.
