@@ -22,7 +22,6 @@ class ScreenshotEventProcessor implements EventProcessor {
           // ignore: invalid_use_of_internal_member
           _options.clock,
           waitTimeMs: 2000,
-          debounceOnFirstTry: false,
         );
 
   @override

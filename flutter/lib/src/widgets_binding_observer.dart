@@ -3,8 +3,8 @@ import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'utils/timer_debouncer.dart';
 import '../sentry_flutter.dart';
-import 'utils/debouncer.dart';
 
 /// This is a `WidgetsBindingObserver` which can observe some events of a
 /// Flutter application.
@@ -26,12 +26,7 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
   })  : _hub = hub ?? HubAdapter(),
         _options = options,
         _screenSizeStreamController = StreamController(sync: true),
-        _didChangeMetricsDebouncer = Debouncer(
-          // ignore: invalid_use_of_internal_member
-          options.clock,
-          waitTimeMs: 100,
-          debounceOnFirstTry: true,
-        ) {
+        _didChangeMetricsDebouncer = TimerDebouncer(milliseconds: 100) {
     if (_options.enableWindowMetricBreadcrumbs) {
       _screenSizeStreamController.stream
           .map(
@@ -53,7 +48,7 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
 
   final Hub _hub;
   final SentryFlutterOptions _options;
-  final Debouncer _didChangeMetricsDebouncer;
+  final TimerDebouncer _didChangeMetricsDebouncer;
 
   // ignore: deprecated_member_use
   final StreamController<SingletonFlutterWindow?> _screenSizeStreamController;
@@ -96,12 +91,10 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
     if (!_options.enableWindowMetricBreadcrumbs) {
       return;
     }
-
-    final shouldDebounce = _didChangeMetricsDebouncer.shouldDebounce();
-    if (!shouldDebounce) {
+    _didChangeMetricsDebouncer.run(() {
       final window = _options.bindingUtils.instance?.window;
       _screenSizeStreamController.add(window);
-    }
+    });
   }
 
   void _onScreenSizeChanged(Map<String, dynamic> data) {

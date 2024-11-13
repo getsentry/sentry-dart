@@ -8,14 +8,9 @@ void main() {
     fixture = Fixture();
   });
 
-  test('Debouncer should not debounce on the first check per default', () {
+  test('Debouncer should not debounce on the first check', () {
     final sut = fixture.getSut();
     expect(sut.shouldDebounce(), isFalse);
-  });
-
-  test('Debouncer should debounce on the first check', () {
-    final sut = fixture.getSut(debounceOnFirstTry: true);
-    expect(sut.shouldDebounce(), isTrue);
   });
 
   test('Debouncer should not debounce if wait time is 0', () {
@@ -52,8 +47,7 @@ class Fixture {
 
   DateTime mockClock() => DateTime.fromMillisecondsSinceEpoch(currentTimeMs);
 
-  Debouncer getSut({int waitTimeMs = 3000, bool debounceOnFirstTry = false}) {
-    return Debouncer(mockClock,
-        waitTimeMs: waitTimeMs, debounceOnFirstTry: debounceOnFirstTry);
+  Debouncer getSut({int waitTimeMs = 3000}) {
+    return Debouncer(mockClock, waitTimeMs: waitTimeMs);
   }
 }
