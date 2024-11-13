@@ -92,6 +92,7 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
       return;
     }
     _didChangeMetricsDebouncer.run(() {
+      // ignore: deprecated_member_use
       final window = _options.bindingUtils.instance?.window;
       _screenSizeStreamController.add(window);
     });

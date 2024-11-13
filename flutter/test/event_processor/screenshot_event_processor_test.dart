@@ -129,6 +129,7 @@ void main() {
   group('beforeScreenshot', () {
     testWidgets('does add screenshot if beforeScreenshot returns true',
         (tester) async {
+      // ignore: deprecated_member_use_from_same_package
       fixture.options.beforeScreenshot = (SentryEvent event, {Hint? hint}) {
         return true;
       };
@@ -138,6 +139,7 @@ void main() {
 
     testWidgets('does add screenshot if async beforeScreenshot returns true',
         (tester) async {
+      // ignore: deprecated_member_use_from_same_package
       fixture.options.beforeScreenshot =
           (SentryEvent event, {Hint? hint}) async {
         await Future<void>.delayed(Duration(milliseconds: 1));
@@ -149,6 +151,7 @@ void main() {
 
     testWidgets('does not add screenshot if beforeScreenshot returns false',
         (tester) async {
+      // ignore: deprecated_member_use_from_same_package
       fixture.options.beforeScreenshot = (SentryEvent event, {Hint? hint}) {
         return false;
       };
@@ -159,6 +162,7 @@ void main() {
     testWidgets(
         'does not add screenshot if async beforeScreenshot returns false',
         (tester) async {
+      // ignore: deprecated_member_use_from_same_package
       fixture.options.beforeScreenshot =
           (SentryEvent event, {Hint? hint}) async {
         await Future<void>.delayed(Duration(milliseconds: 1));
@@ -171,6 +175,7 @@ void main() {
     testWidgets('does add screenshot if beforeScreenshot throws',
         (tester) async {
       fixture.options.automatedTestMode = false;
+      // ignore: deprecated_member_use_from_same_package
       fixture.options.beforeScreenshot = (SentryEvent event, {Hint? hint}) {
         throw Error();
       };
@@ -181,6 +186,7 @@ void main() {
     testWidgets('does add screenshot if async beforeScreenshot throws',
         (tester) async {
       fixture.options.automatedTestMode = false;
+      // ignore: deprecated_member_use_from_same_package
       fixture.options.beforeScreenshot =
           (SentryEvent event, {Hint? hint}) async {
         await Future<void>.delayed(Duration(milliseconds: 1));
@@ -195,6 +201,7 @@ void main() {
       SentryEvent? beforeScreenshotEvent;
       Hint? beforeScreenshotHint;
 
+      // ignore: deprecated_member_use_from_same_package
       fixture.options.beforeScreenshot = (SentryEvent event, {Hint? hint}) {
         beforeScreenshotEvent = event;
         beforeScreenshotHint = hint;
