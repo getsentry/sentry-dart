@@ -44,35 +44,46 @@ class ScreenshotEventProcessor implements EventProcessor {
     // the BeforeCaptureCallback may overrules the debouncing decision
     final shouldDebounce = _debouncer.shouldDebounce();
     final beforeScreenshot = _options.beforeScreenshot;
-    if (beforeScreenshot != null) {
-      try {
-        final result = beforeScreenshot(event, hint, shouldDebounce);
-        bool takeScreenshot;
+    final beforeCapture = _options.beforeCapture;
+
+    try {
+      FutureOr<bool>? result;
+
+      if (beforeCapture != null) {
+        result = beforeCapture(event, hint, shouldDebounce);
+      } else if (beforeScreenshot != null) {
+        result = beforeScreenshot(event, hint: hint);
+      } else if (shouldDebounce) {
+        _options.logger(
+          SentryLevel.debug,
+          'Skipping screenshot capture due to debouncing (too many captures within ${_debouncer.waitTimeMs}ms)',
+        );
+        return event;
+      }
+
+      bool takeScreenshot = true;
+
+      if (result != null) {
         if (result is Future<bool>) {
           takeScreenshot = await result;
         } else {
           takeScreenshot = result;
         }
-        if (!takeScreenshot) {
-          return event;
-        }
-      } catch (exception, stackTrace) {
-        _options.logger(
-          SentryLevel.error,
-          'The beforeScreenshot callback threw an exception',
-          exception: exception,
-          stackTrace: stackTrace,
-        );
-        if (_options.automatedTestMode) {
-          rethrow;
-        }
       }
-    } else if (shouldDebounce) {
+
+      if (!takeScreenshot) {
+        return event;
+      }
+    } catch (exception, stackTrace) {
       _options.logger(
-        SentryLevel.debug,
-        'Skipping screenshot capture due to debouncing (too many captures within ${_debouncer.waitTimeMs}ms)',
+        SentryLevel.error,
+        'The beforeScreenshot callback threw an exception',
+        exception: exception,
+        stackTrace: stackTrace,
       );
-      return event;
+      if (_options.automatedTestMode) {
+        rethrow;
+      }
     }
 
     final renderer = _options.rendererWrapper.getRenderer();

@@ -195,10 +195,14 @@ class SentryFlutterOptions extends SentryOptions {
   /// Only attach a screenshot when the app is resumed.
   bool attachScreenshotOnlyWhenResumed = false;
 
+  @Deprecated(
+      'Will be removed in a future version. Use [beforeCapture] instead')
+  BeforeScreenshotCallback? beforeScreenshot;
+
   /// Sets a callback which is executed before capturing screenshots. Only
   /// relevant if `attachScreenshot` is set to true. When false is returned
   /// from the function, no screenshot will be attached.
-  BeforeCaptureCallback? beforeScreenshot;
+  BeforeCaptureCallback? beforeCapture;
 
   /// Enable or disable automatic breadcrumbs for User interactions Using [Listener]
   ///
@@ -386,6 +390,11 @@ class _SentryFlutterExperimentalOptions {
   /// Replay recording configuration.
   final replay = SentryReplayOptions();
 }
+
+@Deprecated(
+    'Will be removed in a future version. Use [BeforeCaptureCallback] instead')
+typedef BeforeScreenshotCallback = FutureOr<bool> Function(SentryEvent event,
+    {Hint? hint});
 
 /// A callback which can be used to suppress capturing of screenshots.
 /// It's called in [ScreenshotEventProcessor] if screenshots are enabled.

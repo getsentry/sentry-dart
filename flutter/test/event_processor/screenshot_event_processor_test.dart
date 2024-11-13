@@ -129,8 +129,7 @@ void main() {
   group('beforeScreenshot', () {
     testWidgets('does add screenshot if beforeScreenshot returns true',
         (tester) async {
-      fixture.options.beforeScreenshot =
-          (SentryEvent event, Hint hint, bool shouldDebounce) {
+      fixture.options.beforeScreenshot = (SentryEvent event, {Hint? hint}) {
         return true;
       };
       await _addScreenshotAttachment(tester, FlutterRenderer.canvasKit,
@@ -140,7 +139,7 @@ void main() {
     testWidgets('does add screenshot if async beforeScreenshot returns true',
         (tester) async {
       fixture.options.beforeScreenshot =
-          (SentryEvent event, Hint hint, bool shouldDebounce) async {
+          (SentryEvent event, {Hint? hint}) async {
         await Future<void>.delayed(Duration(milliseconds: 1));
         return true;
       };
@@ -150,8 +149,7 @@ void main() {
 
     testWidgets('does not add screenshot if beforeScreenshot returns false',
         (tester) async {
-      fixture.options.beforeScreenshot =
-          (SentryEvent event, Hint hint, bool shouldDebounce) {
+      fixture.options.beforeScreenshot = (SentryEvent event, {Hint? hint}) {
         return false;
       };
       await _addScreenshotAttachment(tester, FlutterRenderer.canvasKit,
@@ -162,7 +160,7 @@ void main() {
         'does not add screenshot if async beforeScreenshot returns false',
         (tester) async {
       fixture.options.beforeScreenshot =
-          (SentryEvent event, Hint hint, bool shouldDebounce) async {
+          (SentryEvent event, {Hint? hint}) async {
         await Future<void>.delayed(Duration(milliseconds: 1));
         return false;
       };
@@ -173,8 +171,7 @@ void main() {
     testWidgets('does add screenshot if beforeScreenshot throws',
         (tester) async {
       fixture.options.automatedTestMode = false;
-      fixture.options.beforeScreenshot =
-          (SentryEvent event, Hint hint, bool shouldDebounce) {
+      fixture.options.beforeScreenshot = (SentryEvent event, {Hint? hint}) {
         throw Error();
       };
       await _addScreenshotAttachment(tester, FlutterRenderer.canvasKit,
@@ -185,6 +182,90 @@ void main() {
         (tester) async {
       fixture.options.automatedTestMode = false;
       fixture.options.beforeScreenshot =
+          (SentryEvent event, {Hint? hint}) async {
+        await Future<void>.delayed(Duration(milliseconds: 1));
+        throw Error();
+      };
+      await _addScreenshotAttachment(tester, FlutterRenderer.canvasKit,
+          added: true, isWeb: false);
+    });
+
+    testWidgets('passes event & hint to beforeScreenshot callback',
+        (tester) async {
+      SentryEvent? beforeScreenshotEvent;
+      Hint? beforeScreenshotHint;
+
+      fixture.options.beforeScreenshot = (SentryEvent event, {Hint? hint}) {
+        beforeScreenshotEvent = event;
+        beforeScreenshotHint = hint;
+        return true;
+      };
+
+      await _addScreenshotAttachment(tester, FlutterRenderer.canvasKit,
+          added: true, isWeb: false);
+
+      expect(beforeScreenshotEvent, event);
+      expect(beforeScreenshotHint, hint);
+    });
+  });
+
+  group('beforeCapture', () {
+    testWidgets('does add screenshot if beforeCapture returns true',
+        (tester) async {
+      fixture.options.beforeCapture =
+          (SentryEvent event, Hint hint, bool shouldDebounce) {
+        return true;
+      };
+      await _addScreenshotAttachment(tester, FlutterRenderer.canvasKit,
+          added: true, isWeb: false);
+    });
+
+    testWidgets('does add screenshot if async beforeCapture returns true',
+        (tester) async {
+      fixture.options.beforeCapture =
+          (SentryEvent event, Hint hint, bool shouldDebounce) async {
+        await Future<void>.delayed(Duration(milliseconds: 1));
+        return true;
+      };
+      await _addScreenshotAttachment(tester, FlutterRenderer.canvasKit,
+          added: true, isWeb: false);
+    });
+
+    testWidgets('does not add screenshot if beforeCapture returns false',
+        (tester) async {
+      fixture.options.beforeCapture =
+          (SentryEvent event, Hint hint, bool shouldDebounce) {
+        return false;
+      };
+      await _addScreenshotAttachment(tester, FlutterRenderer.canvasKit,
+          added: false, isWeb: false);
+    });
+
+    testWidgets('does not add screenshot if async beforeCapture returns false',
+        (tester) async {
+      fixture.options.beforeCapture =
+          (SentryEvent event, Hint hint, bool shouldDebounce) async {
+        await Future<void>.delayed(Duration(milliseconds: 1));
+        return false;
+      };
+      await _addScreenshotAttachment(tester, FlutterRenderer.canvasKit,
+          added: false, isWeb: false);
+    });
+
+    testWidgets('does add screenshot if beforeCapture throws', (tester) async {
+      fixture.options.automatedTestMode = false;
+      fixture.options.beforeCapture =
+          (SentryEvent event, Hint hint, bool shouldDebounce) {
+        throw Error();
+      };
+      await _addScreenshotAttachment(tester, FlutterRenderer.canvasKit,
+          added: true, isWeb: false);
+    });
+
+    testWidgets('does add screenshot if async beforeCapture throws',
+        (tester) async {
+      fixture.options.automatedTestMode = false;
+      fixture.options.beforeCapture =
           (SentryEvent event, Hint hint, bool shouldDebounce) async {
         await Future<void>.delayed(Duration(milliseconds: 1));
         throw Error();
@@ -198,7 +279,7 @@ void main() {
       await tester.runAsync(() async {
         var shouldDebounceValues = <bool>[];
 
-        fixture.options.beforeScreenshot =
+        fixture.options.beforeCapture =
             (SentryEvent event, Hint hint, bool shouldDebounce) {
           shouldDebounceValues.add(shouldDebounce);
           return true;
@@ -230,12 +311,12 @@ void main() {
       });
     });
 
-    testWidgets('passes event & hint to beforeScreenshot callback',
+    testWidgets('passes event & hint to beforeCapture callback',
         (tester) async {
       SentryEvent? beforeScreenshotEvent;
       Hint? beforeScreenshotHint;
 
-      fixture.options.beforeScreenshot =
+      fixture.options.beforeCapture =
           (SentryEvent event, Hint hint, bool shouldDebounce) {
         beforeScreenshotEvent = event;
         beforeScreenshotHint = hint;
