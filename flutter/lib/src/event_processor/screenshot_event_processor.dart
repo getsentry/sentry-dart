@@ -77,7 +77,7 @@ class ScreenshotEventProcessor implements EventProcessor {
     } catch (exception, stackTrace) {
       _options.logger(
         SentryLevel.error,
-        'The beforeScreenshot callback threw an exception',
+        'The beforeCapture/beforeScreenshot callback threw an exception',
         exception: exception,
         stackTrace: stackTrace,
       );
