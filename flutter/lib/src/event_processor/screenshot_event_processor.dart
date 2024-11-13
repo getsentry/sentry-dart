@@ -69,6 +69,10 @@ class ScreenshotEventProcessor implements EventProcessor {
         }
       }
     } else if (shouldDebounce) {
+      _options.logger(
+        SentryLevel.debug,
+        'Skipping screenshot capture due to debouncing (too many captures within ${_debouncer.waitTimeMs}ms)',
+      );
       return event;
     }
 

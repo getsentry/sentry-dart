@@ -9,41 +9,41 @@ void main() {
   });
 
   test('Debouncer should not debounce on the first check per default', () {
-    final debouncer = fixture.getDebouncer();
-    expect(debouncer.shouldDebounce(), isFalse);
+    final sut = fixture.getSut();
+    expect(sut.shouldDebounce(), isFalse);
   });
 
   test('Debouncer should debounce on the first check', () {
-    final debouncer = fixture.getDebouncer(debounceOnFirstTry: true);
-    expect(debouncer.shouldDebounce(), isTrue);
+    final sut = fixture.getSut(debounceOnFirstTry: true);
+    expect(sut.shouldDebounce(), isTrue);
   });
 
   test('Debouncer should not debounce if wait time is 0', () {
-    final debouncer = fixture.getDebouncer(waitTimeMs: 0);
-    expect(debouncer.shouldDebounce(), isFalse);
-    expect(debouncer.shouldDebounce(), isFalse);
-    expect(debouncer.shouldDebounce(), isFalse);
+    final sut = fixture.getSut(waitTimeMs: 0);
+    expect(sut.shouldDebounce(), isFalse);
+    expect(sut.shouldDebounce(), isFalse);
+    expect(sut.shouldDebounce(), isFalse);
   });
 
   test('Debouncer should signal debounce if the second invocation is too early',
       () {
     fixture.currentTimeMs = 1000;
-    final debouncer = fixture.getDebouncer(waitTimeMs: 3000);
-    expect(debouncer.shouldDebounce(), isFalse);
+    final sut = fixture.getSut(waitTimeMs: 3000);
+    expect(sut.shouldDebounce(), isFalse);
 
     fixture.currentTimeMs = 3999;
-    expect(debouncer.shouldDebounce(), isTrue);
+    expect(sut.shouldDebounce(), isTrue);
   });
 
   test(
       'Debouncer should not signal debounce if the second invocation is late enough',
       () {
     fixture.currentTimeMs = 1000;
-    final debouncer = fixture.getDebouncer(waitTimeMs: 3000);
-    expect(debouncer.shouldDebounce(), isFalse);
+    final sut = fixture.getSut(waitTimeMs: 3000);
+    expect(sut.shouldDebounce(), isFalse);
 
     fixture.currentTimeMs = 4000;
-    expect(debouncer.shouldDebounce(), isFalse);
+    expect(sut.shouldDebounce(), isFalse);
   });
 }
 
@@ -52,8 +52,7 @@ class Fixture {
 
   DateTime mockClock() => DateTime.fromMillisecondsSinceEpoch(currentTimeMs);
 
-  Debouncer getDebouncer(
-      {int waitTimeMs = 3000, bool debounceOnFirstTry = false}) {
+  Debouncer getSut({int waitTimeMs = 3000, bool debounceOnFirstTry = false}) {
     return Debouncer(mockClock,
         waitTimeMs: waitTimeMs, debounceOnFirstTry: debounceOnFirstTry);
   }
