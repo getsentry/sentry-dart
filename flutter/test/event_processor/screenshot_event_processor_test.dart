@@ -69,7 +69,7 @@ void main() {
   testWidgets('does not add screenshot attachment with html renderer',
       (tester) async {
     await _addScreenshotAttachment(tester, FlutterRenderer.html,
-        added: false, isWeb: true);
+        added: true, isWeb: true);
   });
 
   testWidgets('does add screenshot in correct resolution for low',

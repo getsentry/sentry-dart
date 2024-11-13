@@ -10,7 +10,6 @@ import 'binding_wrapper.dart';
 import 'navigation/time_to_display_tracker.dart';
 import 'renderer/renderer.dart';
 import 'screenshot/sentry_screenshot_quality.dart';
-import 'screenshot/sentry_screenshot_widget.dart';
 import 'sentry_flutter.dart';
 import 'sentry_replay_options.dart';
 import 'sentry_screenshot_options.dart';

@@ -3,11 +3,9 @@ import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:meta/meta.dart';
-import 'package:sentry/sentry.dart';
+import '../../sentry_flutter.dart';
 import '../screenshot/recorder.dart';
 import '../screenshot/recorder_config.dart';
-import '../screenshot/sentry_screenshot_widget.dart';
-import '../sentry_flutter_options.dart';
 import 'package:flutter/widgets.dart' as widget;
 
 class ScreenshotEventProcessor implements EventProcessor {
@@ -16,8 +14,13 @@ class ScreenshotEventProcessor implements EventProcessor {
   late final ScreenshotRecorder _recorder;
 
   ScreenshotEventProcessor(this._options) {
+    final targetResolution = _options.screenshot.quality.targetResolution();
+
     _recorder = ScreenshotRecorder(
-      ScreenshotRecorderConfig(quality: _options.screenshot.quality),
+      ScreenshotRecorderConfig(
+        width: targetResolution?.toInt(),
+        height: targetResolution?.toInt(),
+      ),
       _options,
       isReplayRecorder: false,
     );

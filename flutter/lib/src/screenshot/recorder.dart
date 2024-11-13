@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/rendering.dart';
@@ -20,17 +21,13 @@ class ScreenshotRecorder {
   WidgetFilter? _widgetFilter;
   bool warningLogged = false;
 
-  // TODO: remove [isReplayRecorder] parameter in the next major release, see _SentryFlutterExperimentalOptions.
-  @protected
-  final bool isReplayRecorder;
-
   // TODO: remove in the next major release, see recorder_test.dart.
   @visibleForTesting
   bool get hasWidgetFilter => _widgetFilter != null;
 
   // TODO: remove [isReplayRecorder] parameter in the next major release, see _SentryFlutterExperimentalOptions.
   ScreenshotRecorder(this.config, this.options,
-      {this.isReplayRecorder = true}) {
+      {bool isReplayRecorder = true}) {
     // see `options.experimental.privacy` docs for details
     final privacyOptions = isReplayRecorder
         ? options.experimental.privacyForReplay
@@ -64,14 +61,28 @@ class ScreenshotRecorder {
       final srcWidth = renderObject.size.width.toInt();
       final srcHeight = renderObject.size.height.toInt();
 
-      // In Session Replay the target size is already set and should not be changed.
-      // For Screenshots, we need to calculate the target size based on the quality setting.
-      config.targetHeight ??=
-          config.quality.calculateHeight(srcWidth, srcHeight);
-      config.targetWidth ??= config.quality.calculateWidth(srcWidth, srcHeight);
+      final int targetWidth;
+      final int targetHeight;
 
-      var pixelRatio =
-          config.getPixelRatio(srcWidth.toDouble(), srcHeight.toDouble());
+      final double pixelRatio;
+
+      // If width or height is not set, we use the device resolution.
+      if (config.width == null || config.height == null) {
+        final binding = options.bindingUtils.instance!;
+
+        // ignore: deprecated_member_use
+        targetHeight = binding.window.physicalSize.height.toInt();
+        // ignore: deprecated_member_use
+        targetWidth = binding.window.physicalSize.width.toInt();
+
+        pixelRatio = max(targetWidth, targetHeight) / max(srcWidth, srcHeight);
+      } else {
+        pixelRatio =
+            max(config.width!, config.height!) / max(srcWidth, srcHeight);
+
+        targetWidth = (srcWidth * pixelRatio).toInt();
+        targetHeight = (srcHeight * pixelRatio).toInt();
+      }
 
       // First, we synchronously capture the image and enumerate widgets on the main UI loop.
       final futureImage = renderObject.toImage(pixelRatio: pixelRatio);
@@ -81,8 +92,7 @@ class ScreenshotRecorder {
         filter.obscure(
           context,
           pixelRatio,
-          Rect.fromLTWH(0, 0, config.targetWidth!.toDouble(),
-              config.targetHeight!.toDouble()),
+          Rect.fromLTWH(0, 0, targetWidth.toDouble(), targetHeight.toDouble()),
         );
       }
 
@@ -106,8 +116,7 @@ class ScreenshotRecorder {
 
       try {
         Image finalImage;
-        finalImage =
-            await picture.toImage(config.targetWidth!, config.targetHeight!);
+        finalImage = await picture.toImage(targetWidth, targetHeight);
         try {
           await callback(finalImage);
         } finally {
