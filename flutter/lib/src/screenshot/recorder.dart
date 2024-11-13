@@ -19,7 +19,7 @@ class ScreenshotRecorder {
   final SentryFlutterOptions options;
   final String _logName;
   WidgetFilter? _widgetFilter;
-  bool warningLogged = false;
+  bool _warningLogged = false;
 
   // TODO: remove in the next major release, see recorder_test.dart.
   @visibleForTesting
@@ -42,11 +42,11 @@ class ScreenshotRecorder {
     final context = sentryScreenshotWidgetGlobalKey.currentContext;
     final renderObject = context?.findRenderObject() as RenderRepaintBoundary?;
     if (context == null || renderObject == null) {
-      if (!warningLogged) {
+      if (!_warningLogged) {
         options.logger(
             SentryLevel.warning,
             "$_logName: SentryScreenshotWidget is not attached, skipping capture.");
-        warningLogged = true;
+        _warningLogged = true;
       }
       return;
     }
