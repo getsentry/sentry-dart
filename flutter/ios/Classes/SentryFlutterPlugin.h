@@ -8,7 +8,3 @@
 
 @interface SentryFlutterPlugin : NSObject<FlutterPlugin>
 @end
-
-@interface SentryDebugImageProvider ()
-- (NSArray<SentryDebugMeta *> * _Nonnull)getDebugImagesForAddresses:(NSSet<NSString *> * _Nonnull)addresses isCrash:(BOOL)isCrash;
-@end

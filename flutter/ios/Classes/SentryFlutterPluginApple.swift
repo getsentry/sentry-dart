@@ -294,9 +294,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
                     }
                 }
             }
-            debugImages =
-                SentryDependencyContainer.sharedInstance().debugImageProvider.getDebugImages(
-                    forAddresses: imagesAddresses, isCrash: false) as [DebugMeta]
+            debugImages = SentryDependencyContainer.sharedInstance().debugImageProvider.getDebugImagesForImageAddressesFromCache(imageAddresses: imagesAddresses) as [DebugMeta]
         }
         if debugImages.isEmpty {
             debugImages = PrivateSentrySDKOnly.getDebugImages() as [DebugMeta]
