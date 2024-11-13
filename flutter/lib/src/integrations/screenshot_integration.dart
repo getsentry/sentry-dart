@@ -10,7 +10,7 @@ class ScreenshotIntegration implements Integration<SentryFlutterOptions> {
 
   @override
   void call(Hub hub, SentryFlutterOptions options) {
-    if (options.screenshot.attachScreenshot) {
+    if (options.screenshot.attach) {
       _options = options;
       final screenshotEventProcessor = ScreenshotEventProcessor(options);
       options.addEventProcessor(screenshotEventProcessor);

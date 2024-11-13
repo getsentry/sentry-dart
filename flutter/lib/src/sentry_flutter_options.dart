@@ -182,34 +182,33 @@ class SentryFlutterOptions extends SentryOptions {
 
   /// Automatically attaches a screenshot when capturing an error or exception.
   ///
-  /// Requires adding the [SentryScreenshotWidget] to the widget tree.
+  /// Requires adding the [SentryWidget] to the widget tree.
   /// Example:
-  /// runApp(SentryScreenshotWidget(child: App()));
-  /// The [SentryScreenshotWidget] has to be the root widget of the app.
-  @Deprecated('Use `screenshot.attachScreenshot` instead')
-  bool get attachScreenshot => screenshot.attachScreenshot;
-  set attachScreenshot(bool value) => screenshot.attachScreenshot = value;
+  /// runApp(SentryWidget(child: App()));
+  /// The [SentryWidget] has to be the root widget of the app.
+  @Deprecated('Use `screenshot.attach` instead')
+  bool get attachScreenshot => screenshot.attach;
+  set attachScreenshot(bool value) => screenshot.attach = value;
 
   /// The quality of the attached screenshot
-  @Deprecated('Use `screenshot.screenshotQuality` instead')
-  SentryScreenshotQuality get screenshotQuality => screenshot.screenshotQuality;
+  @Deprecated('Use `screenshot.quality` instead')
+  SentryScreenshotQuality get screenshotQuality => screenshot.quality;
   set screenshotQuality(SentryScreenshotQuality value) =>
-      screenshot.screenshotQuality = value;
+      screenshot.quality = value;
 
   /// Only attach a screenshot when the app is resumed.
-  @Deprecated('Use `screenshot.attachScreenshotOnlyWhenResumed` instead')
-  bool get attachScreenshotOnlyWhenResumed =>
-      screenshot.attachScreenshotOnlyWhenResumed;
+  @Deprecated('Use `screenshot.attachOnlyWhenResumed` instead')
+  bool get attachScreenshotOnlyWhenResumed => screenshot.attachOnlyWhenResumed;
   set attachScreenshotOnlyWhenResumed(bool value) =>
-      screenshot.attachScreenshotOnlyWhenResumed = value;
+      screenshot.attachOnlyWhenResumed = value;
 
   /// Sets a callback which is executed before capturing screenshots. Only
   /// relevant if `attachScreenshot` is set to true. When false is returned
   /// from the function, no screenshot will be attached.
-  @Deprecated('Use `screenshot.beforeScreenshot` instead')
-  BeforeScreenshotCallback? get beforeScreenshot => screenshot.beforeScreenshot;
+  @Deprecated('Use `screenshot.beforeCapture` instead')
+  BeforeScreenshotCallback? get beforeScreenshot => screenshot.beforeCapture;
   set beforeScreenshot(BeforeScreenshotCallback? value) =>
-      screenshot.beforeScreenshot = value;
+      screenshot.beforeCapture = value;
 
   final screenshot = SentryScreenshotOptions();
 
