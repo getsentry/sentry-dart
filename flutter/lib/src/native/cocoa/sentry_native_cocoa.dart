@@ -6,6 +6,7 @@ import 'package:meta/meta.dart';
 
 import '../../../sentry_flutter.dart';
 import '../../event_processor/replay_event_processor.dart';
+import '../../replay/integration.dart';
 import '../../replay/recorder.dart';
 import '../../replay/recorder_config.dart';
 import '../sentry_native_channel.dart';
@@ -25,6 +26,8 @@ class SentryNativeCocoa extends SentryNativeChannel {
     // so let's set it up conditionally. This allows Dart to trim the code.
     if (options.experimental.replay.isEnabled &&
         options.platformChecker.platform.isIOS) {
+      options.sdk.addIntegration(replayIntegrationName);
+
       // We only need the integration when error-replay capture is enabled.
       if ((options.experimental.replay.onErrorSampleRate ?? 0) > 0) {
         options.addEventProcessor(ReplayEventProcessor(hub, this));

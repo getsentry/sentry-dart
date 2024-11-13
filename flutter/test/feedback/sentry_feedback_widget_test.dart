@@ -104,6 +104,44 @@ void main() {
       fixture = Fixture();
     });
 
+    testWidgets('does add screenshot attachment to hint', (tester) async {
+      final screenshot = SentryAttachment.fromIntList([0, 0, 0, 0], 'test.png');
+
+      await fixture.pumpFeedbackWidget(
+        tester,
+        (hub) => SentryFeedbackWidget(
+          hub: hub,
+          screenshot: screenshot,
+        ),
+      );
+
+      when(fixture.hub.captureFeedback(
+        any,
+        hint: anyNamed('hint'),
+        withScope: anyNamed('withScope'),
+      )).thenAnswer(
+          (_) async => SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea'));
+
+      await tester.enterText(
+          find.byKey(ValueKey('sentry_feedback_name_textfield')),
+          "fixture-name");
+      await tester.enterText(
+          find.byKey(ValueKey('sentry_feedback_email_textfield')),
+          "fixture-email");
+      await tester.enterText(
+          find.byKey(ValueKey('sentry_feedback_message_textfield')),
+          "fixture-message");
+      await tester.tap(find.text('Send Bug Report'));
+      await tester.pumpAndSettle();
+
+      verify(fixture.hub.captureFeedback(
+        any,
+        hint: argThat(predicate<Hint>((hint) => hint.screenshot == screenshot),
+            named: 'hint'),
+        withScope: anyNamed('withScope'),
+      )).called(1);
+    });
+
     testWidgets('does call hub captureFeedback on submit', (tester) async {
       await fixture.pumpFeedbackWidget(
         tester,

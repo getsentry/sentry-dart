@@ -129,4 +129,10 @@ class TimeToInitialDisplayTracker {
     // We can't clear the ttid end time stamp here, because it might be needed
     // in the [TimeToFullDisplayTracker] class
   }
+
+  @visibleForTesting
+  void clearForTest() {
+    clear();
+    _endTimestamp = null;
+  }
 }

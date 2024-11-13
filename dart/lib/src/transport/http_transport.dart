@@ -30,19 +30,14 @@ class HttpTransport implements Transport {
   }
 
   HttpTransport._(this._options, this._rateLimiter)
-      : _requestHandler = HttpTransportRequestHandler(
-            _options, Dsn.parse(_options.dsn!).postUri);
+      : _requestHandler =
+            HttpTransportRequestHandler(_options, _options.parsedDsn.postUri);
 
   @override
   Future<SentryId?> send(SentryEnvelope envelope) async {
-    final filteredEnvelope = _rateLimiter.filter(envelope);
-    if (filteredEnvelope == null) {
-      return SentryId.empty();
-    }
-    filteredEnvelope.header.sentAt = _options.clock();
+    envelope.header.sentAt = _options.clock();
 
-    final streamedRequest =
-        await _requestHandler.createRequest(filteredEnvelope);
+    final streamedRequest = await _requestHandler.createRequest(envelope);
 
     final response = await _options.httpClient
         .send(streamedRequest)

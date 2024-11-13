@@ -126,7 +126,7 @@ void main() {
 
   group('Integration test', () {
     setUp(() {
-      fixture.options.transport = MockTransport();
+      fixture.options.transport = fixture.mockTransport;
     });
 
     test(
@@ -139,7 +139,7 @@ void main() {
 
       await client.captureException(ObfuscatedException());
 
-      final transport = fixture.options.transport as MockTransport;
+      final transport = fixture.mockTransport;
       final capturedEnvelope = transport.envelopes.first;
       final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
@@ -154,7 +154,7 @@ void main() {
 
       await client.captureException(ObfuscatedException());
 
-      final transport = fixture.options.transport as MockTransport;
+      final transport = fixture.mockTransport;
       final capturedEnvelope = transport.envelopes.first;
       final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
@@ -165,6 +165,7 @@ void main() {
 }
 
 class Fixture {
+  final mockTransport = MockTransport();
   SentryOptions options = defaultTestOptions();
 }
 
