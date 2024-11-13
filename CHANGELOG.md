@@ -13,17 +13,29 @@
   
 ### Features
 
-- Exchange of the internal screenshot generation, which now enables masking (redaction) of Screenshots for privacy reasons ([#2361](https://github.com/getsentry/sentry-dart/pull/2361))
-  Masking behaviour:
-   - enabled by default for SessionReplay
-   - disabled by default for screenshots captured with events.
-    ```dart
+- Support for screenshot PII content redaction (masking) ([#2361](https://github.com/getsentry/sentry-dart/pull/2361))
+  By default, masking is enabled for SessionReplay. To also enable it for screenshots captured with events, you just can specify `options.experimental.privacy`:
+  ```dart
   await SentryFlutter.init(
     (options) {
       ...
+      // the defaults are:
       options.experimental.privacy.maskAllText = true;
       options.experimental.privacy.maskAllImages = true;
-      options.experimental.privacy.maskAssetImages = true;
+      options.experimental.privacy.maskAssetImages = false;
+      // you cal also set up custom masking, for example:
+      options.experimental.privacy.mask<WebView>();
+    },
+    appRunner: () => runApp(MyApp()),
+  );
+  ```
+  Actually, just accessing this field will cause it to be initialized with the default settings to mask all text and images:
+  ```dart
+  await SentryFlutter.init(
+    (options) {
+      ...
+      // this has a side-effect of creating the default privacy configuration, thus enabling Screenshot redaction:
+      options.experimental.privacy;
     },
     appRunner: () => runApp(MyApp()),
   );
