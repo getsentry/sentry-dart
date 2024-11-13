@@ -16,4 +16,7 @@ class TypeCheckHint {
 
   /// Widget that was tapped in `sentry_flutter/SentryUserInteractionWidget`
   static const widget = 'widget';
+
+  /// Used to indicate that the SDK added a synthetic current stack trace.
+  static const currentStackTrace = 'currentStackTrace';
 }
