@@ -11,7 +11,7 @@
     - Internal SDK frames are removed to reduce noise
   - Original stack traces (when provided) are left unchanged
 - Add debounce to `ScreenshotWidget` ([#2368](https://github.com/getsentry/sentry-dart/pull/2368))
-  - This is a breaking change. Replace `BeforeScreenshotCallback` with new `BeforeCaptureCallback`.
+  - Replace deprecated `BeforeScreenshotCallback` with new `BeforeCaptureCallback`.
 
 ### Features
 
