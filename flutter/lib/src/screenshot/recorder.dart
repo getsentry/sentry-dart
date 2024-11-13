@@ -43,8 +43,7 @@ class ScreenshotRecorder {
     final renderObject = context?.findRenderObject() as RenderRepaintBoundary?;
     if (context == null || renderObject == null) {
       if (!_warningLogged) {
-        options.logger(
-            SentryLevel.warning,
+        options.logger(SentryLevel.warning,
             "$_logName: SentryScreenshotWidget is not attached, skipping capture.");
         _warningLogged = true;
       }
