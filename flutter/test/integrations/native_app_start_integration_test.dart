@@ -40,14 +40,11 @@ void main() {
       () async {
     fixture.callIntegration();
 
-    final appStartEnd = DateTime.fromMicrosecondsSinceEpoch(50);
-    fixture.sut.appStartEnd = appStartEnd;
-
     final postFrameCallback = fixture.frameCallbackHandler.postFrameCallback!;
     postFrameCallback(Duration(seconds: 0));
 
     expect(fixture.nativeAppStartHandler.calls, 1);
-    expect(fixture.nativeAppStartHandler.appStartEnd, appStartEnd);
+    expect(fixture.nativeAppStartHandler.appStartEnd, isNotNull);
   });
 
   test(

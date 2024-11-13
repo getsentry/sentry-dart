@@ -2,15 +2,16 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:meta/meta.dart';
+import 'type_check_hint.dart';
 
 import 'client_reports/client_report_recorder.dart';
 import 'client_reports/discard_reason.dart';
 import 'event_processor.dart';
 import 'hint.dart';
-import 'load_dart_debug_images_integration.dart';
 import 'metrics/metric.dart';
 import 'metrics/metrics_aggregator.dart';
 import 'protocol.dart';
+import 'protocol/sentry_feedback.dart';
 import 'scope.dart';
 import 'sentry_attachment/sentry_attachment.dart';
 import 'sentry_baggage.dart';
@@ -20,12 +21,12 @@ import 'sentry_options.dart';
 import 'sentry_stack_trace_factory.dart';
 import 'sentry_trace_context_header.dart';
 import 'sentry_user_feedback.dart';
+import 'transport/client_report_transport.dart';
 import 'transport/data_category.dart';
 import 'transport/http_transport.dart';
 import 'transport/noop_transport.dart';
 import 'transport/rate_limiter.dart';
 import 'transport/spotlight_http_transport.dart';
-import 'transport/task_queue.dart';
 import 'utils/isolate_utils.dart';
 import 'utils/regex_utils.dart';
 import 'utils/stacktrace_utils.dart';
@@ -39,10 +40,6 @@ const _defaultIpAddress = '{{auto}}';
 /// Logs crash reports and events to the Sentry.io service.
 class SentryClient {
   final SentryOptions _options;
-  late final _taskQueue = TaskQueue<SentryId?>(
-    _options.maxQueueSize,
-    _options.logger,
-  );
 
   final Random? _random;
 
@@ -59,10 +56,17 @@ class SentryClient {
     if (options.sendClientReports) {
       options.recorder = ClientReportRecorder(options.clock);
     }
+    RateLimiter? rateLimiter;
     if (options.transport is NoOpTransport) {
-      final rateLimiter = RateLimiter(options);
+      rateLimiter = RateLimiter(options);
       options.transport = HttpTransport(options, rateLimiter);
     }
+    // rateLimiter is null if FileSystemTransport is active since Native SDKs take care of rate limiting
+    options.transport = ClientReportTransport(
+      rateLimiter,
+      options,
+      options.transport,
+    );
     // TODO: Web might change soon to use the JS SDK so we can remove it here later on
     final enableFlutterSpotlight = (options.spotlight.enabled &&
         (options.platformChecker.isWeb ||
@@ -113,7 +117,7 @@ class SentryClient {
       return _emptySentryId;
     }
 
-    if (_sampleRate()) {
+    if (_sampleRate() && event.type != 'feedback') {
       _options.recorder
           .recordLostEvent(DiscardReason.sampleRate, _getCategory(event));
       _options.logger(
@@ -123,10 +127,10 @@ class SentryClient {
       return _emptySentryId;
     }
 
-    SentryEvent? preparedEvent = _prepareEvent(event, stackTrace: stackTrace);
-
     hint ??= Hint();
-    hint.set(hintRawStackTraceKey, stackTrace.toString());
+
+    SentryEvent? preparedEvent =
+        _prepareEvent(event, hint, stackTrace: stackTrace);
 
     if (scope != null) {
       preparedEvent = await scope.applyToEvent(preparedEvent, hint);
@@ -171,7 +175,7 @@ class SentryClient {
     }
 
     var viewHierarchy = hint.viewHierarchy;
-    if (viewHierarchy != null) {
+    if (viewHierarchy != null && event.type != 'feedback') {
       attachments.add(viewHierarchy);
     }
 
@@ -209,7 +213,8 @@ class SentryClient {
     return isMatchingRegexPattern(message, _options.ignoreErrors);
   }
 
-  SentryEvent _prepareEvent(SentryEvent event, {dynamic stackTrace}) {
+  SentryEvent _prepareEvent(SentryEvent event, Hint hint,
+      {dynamic stackTrace}) {
     event = event.copyWith(
       serverName: event.serverName ?? _options.serverName,
       dist: event.dist ?? _options.dist,
@@ -220,6 +225,10 @@ class SentryClient {
     );
 
     if (event is SentryTransaction) {
+      return event;
+    }
+
+    if (event.type == 'feedback') {
       return event;
     }
 
@@ -242,6 +251,7 @@ class SentryClient {
         var sentryException = _exceptionFactory.getSentryException(
           extractedException.exception,
           stackTrace: extractedException.stackTrace,
+          removeSentryFrames: hint.get(TypeCheckHint.currentStackTrace),
         );
 
         SentryThread? sentryThread;
@@ -277,10 +287,15 @@ class SentryClient {
     // therefore add it to the threads.
     // https://develop.sentry.dev/sdk/event-payloads/stacktrace/
     if (stackTrace != null || _options.attachStacktrace) {
-      stackTrace ??= getCurrentStackTrace();
-      final frames = _stackTraceFactory.getStackFrames(stackTrace);
-
-      if (frames.isNotEmpty) {
+      if (stackTrace == null || stackTrace == StackTrace.empty) {
+        stackTrace = getCurrentStackTrace();
+        hint.addAll({TypeCheckHint.currentStackTrace: true});
+      }
+      final sentryStackTrace = _stackTraceFactory.parse(
+        stackTrace,
+        removeSentryFrames: hint.get(TypeCheckHint.currentStackTrace),
+      );
+      if (sentryStackTrace.frames.isNotEmpty) {
         event = event.copyWith(threads: [
           ...?event.threads,
           SentryThread(
@@ -288,7 +303,7 @@ class SentryClient {
             id: isolateId,
             crashed: false,
             current: true,
-            stacktrace: SentryStackTrace(frames: frames),
+            stacktrace: sentryStackTrace,
           ),
         ]);
       }
@@ -351,10 +366,10 @@ class SentryClient {
     Scope? scope,
     SentryTraceContextHeader? traceContext,
   }) async {
-    SentryTransaction? preparedTransaction =
-        _prepareEvent(transaction) as SentryTransaction;
-
     final hint = Hint();
+
+    SentryTransaction? preparedTransaction =
+        _prepareEvent(transaction, hint) as SentryTransaction;
 
     if (scope != null) {
       preparedTransaction = await scope.applyToEvent(preparedTransaction, hint)
@@ -390,6 +405,9 @@ class SentryClient {
           DiscardReason.ignored, _getCategory(preparedTransaction));
       return _emptySentryId;
     }
+
+    preparedTransaction = _createUserOrSetDefaultIpAddress(preparedTransaction)
+        as SentryTransaction;
 
     preparedTransaction =
         await _runBeforeSend(preparedTransaction, hint) as SentryTransaction?;
@@ -430,17 +448,38 @@ class SentryClient {
 
   /// Reports the [envelope] to Sentry.io.
   Future<SentryId?> captureEnvelope(SentryEnvelope envelope) {
-    return _attachClientReportsAndSend(envelope);
+    return _options.transport.send(envelope);
   }
 
   /// Reports the [userFeedback] to Sentry.io.
+  @Deprecated(
+      'Will be removed in a future version. Use [captureFeedback] instead')
   Future<void> captureUserFeedback(SentryUserFeedback userFeedback) {
     final envelope = SentryEnvelope.fromUserFeedback(
       userFeedback,
       _options.sdk,
       dsn: _options.dsn,
     );
-    return _attachClientReportsAndSend(envelope);
+    return _options.transport.send(envelope);
+  }
+
+  /// Reports the [feedback] to Sentry.io.
+  Future<SentryId> captureFeedback(
+    SentryFeedback feedback, {
+    Scope? scope,
+    Hint? hint,
+  }) {
+    final feedbackEvent = SentryEvent(
+      type: 'feedback',
+      contexts: Contexts(feedback: feedback),
+      level: SentryLevel.info,
+    );
+
+    return captureEvent(
+      feedbackEvent,
+      scope: scope,
+      hint: hint,
+    );
   }
 
   /// Reports the [metricsBuckets] to Sentry.io.
@@ -451,7 +490,7 @@ class SentryClient {
       _options.sdk,
       dsn: _options.dsn,
     );
-    final id = await _attachClientReportsAndSend(envelope);
+    final id = await _options.transport.send(envelope);
     return id ?? SentryId.empty();
   }
 
@@ -470,6 +509,7 @@ class SentryClient {
 
     final beforeSend = _options.beforeSend;
     final beforeSendTransaction = _options.beforeSendTransaction;
+    final beforeSendFeedback = _options.beforeSendFeedback;
     String beforeSendName = 'beforeSend';
 
     try {
@@ -477,6 +517,13 @@ class SentryClient {
         beforeSendName = 'beforeSendTransaction';
         final callbackResult = beforeSendTransaction(event);
         if (callbackResult is Future<SentryTransaction?>) {
+          processedEvent = await callbackResult;
+        } else {
+          processedEvent = callbackResult;
+        }
+      } else if (event.type == 'feedback' && beforeSendFeedback != null) {
+        final callbackResult = beforeSendFeedback(event, hint);
+        if (callbackResult is Future<SentryEvent?>) {
           processedEvent = await callbackResult;
         } else {
           processedEvent = callbackResult;
@@ -594,14 +641,5 @@ class SentryClient {
       return DataCategory.transaction;
     }
     return DataCategory.error;
-  }
-
-  Future<SentryId?> _attachClientReportsAndSend(SentryEnvelope envelope) {
-    final clientReport = _options.recorder.flush();
-    envelope.addClientReport(clientReport);
-    return _taskQueue.enqueue(
-      () => _options.transport.send(envelope),
-      SentryId.empty(),
-    );
   }
 }

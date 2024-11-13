@@ -37,89 +37,78 @@ void main() {
   }
 
   group('time to initial display', () {
-    group('in root screen app start route', () {
-      test('matches startTimestamp of transaction', () async {
-        final sut = fixture.getSut();
+    test('matches startTimestamp of transaction', () async {
+      final sut = fixture.getSut();
 
-        final transaction = fixture.getTransaction(name: '/') as SentryTracer;
-        await sut.trackRegularRouteTTD(transaction,
-            startTimestamp: fixture.startTimestamp);
+      final transaction = fixture.getTransaction() as SentryTracer;
+      await sut.track(transaction, startTimestamp: fixture.startTimestamp);
 
-        final ttidSpan = _getTTIDSpan(transaction);
-        expect(transaction, isNotNull);
-        expect(transaction.context.operation, SentrySpanOperations.uiLoad);
-        expect(transaction.startTimestamp, ttidSpan?.startTimestamp);
-      });
+      final ttidSpan = _getTTIDSpan(transaction);
+      expect(transaction, isNotNull);
+      expect(transaction.context.operation, SentrySpanOperations.uiLoad);
+      expect(transaction.startTimestamp, ttidSpan?.startTimestamp);
     });
 
-    group('in regular routes', () {
-      test('matches startTimestamp of transaction', () async {
+    test('matches provided endTimestamp', () async {
+      final sut = fixture.getSut();
+
+      final transaction = fixture.getTransaction() as SentryTracer;
+      final start = fixture.startTimestamp;
+      final end = fixture.startTimestamp.add(Duration(milliseconds: 100));
+      await sut.track(transaction, startTimestamp: start, endTimestamp: end);
+
+      final ttidSpan = _getTTIDSpan(transaction);
+      expect(transaction, isNotNull);
+      expect(ttidSpan?.endTimestamp, end);
+    });
+
+    group('with approximation strategy', () {
+      test('finishes ttid span', () async {
         final sut = fixture.getSut();
 
         final transaction = fixture.getTransaction() as SentryTracer;
-        await sut.trackRegularRouteTTD(transaction,
-            startTimestamp: fixture.startTimestamp);
+        await sut.track(transaction, startTimestamp: fixture.startTimestamp);
 
         final ttidSpan = _getTTIDSpan(transaction);
-        expect(transaction, isNotNull);
-        expect(transaction.context.operation, SentrySpanOperations.uiLoad);
-        expect(transaction.startTimestamp, ttidSpan?.startTimestamp);
+        expect(ttidSpan?.context.operation,
+            SentrySpanOperations.uiTimeToInitialDisplay);
+        expect(ttidSpan?.finished, isTrue);
+        expect(ttidSpan?.origin, SentryTraceOrigins.autoUiTimeToDisplay);
       });
 
-      group('with approximation strategy', () {
-        test('finishes ttid span', () async {
-          final sut = fixture.getSut();
+      test('completes with timeout when not completing the tracking', () async {
+        final sut = fixture.getSut(triggerApproximationTimeout: true);
 
-          final transaction = fixture.getTransaction() as SentryTracer;
-          await sut.trackRegularRouteTTD(transaction,
-              startTimestamp: fixture.startTimestamp);
-
-          final ttidSpan = _getTTIDSpan(transaction);
-          expect(ttidSpan?.context.operation,
-              SentrySpanOperations.uiTimeToInitialDisplay);
-          expect(ttidSpan?.finished, isTrue);
-          expect(ttidSpan?.origin, SentryTraceOrigins.autoUiTimeToDisplay);
-        });
-
-        test('completes with timeout when not completing the tracking',
-            () async {
-          final sut = fixture.getSut(triggerApproximationTimeout: true);
-
-          final transaction = fixture.getTransaction() as SentryTracer;
-          await sut.trackRegularRouteTTD(transaction,
-              startTimestamp: fixture.startTimestamp);
-        });
+        final transaction = fixture.getTransaction() as SentryTracer;
+        await sut.track(transaction, startTimestamp: fixture.startTimestamp);
       });
+    });
 
-      group('with manual strategy', () {
-        test('finishes ttid span', () async {
-          final sut = fixture.getSut();
+    group('with manual strategy', () {
+      test('finishes ttid span', () async {
+        final sut = fixture.getSut();
 
-          Future.delayed(const Duration(milliseconds: 1), () {
-            fixture.ttidTracker?.markAsManual();
-            fixture.ttidTracker?.completeTracking();
-          });
-          final transaction = fixture.getTransaction() as SentryTracer;
-          await sut.trackRegularRouteTTD(transaction,
-              startTimestamp: fixture.startTimestamp);
-
-          final ttidSpan = _getTTIDSpan(transaction);
-          expect(ttidSpan, isNotNull);
-          expect(ttidSpan?.finished, isTrue);
-          expect(ttidSpan?.origin, SentryTraceOrigins.manualUiTimeToDisplay);
-        });
-
-        test('completes with timeout when not completing the tracking',
-            () async {
-          final sut = fixture.getSut();
-
+        Future.delayed(const Duration(milliseconds: 1), () {
           fixture.ttidTracker?.markAsManual();
-          // Not calling completeTracking() triggers the manual timeout
-
-          final transaction = fixture.getTransaction() as SentryTracer;
-          await sut.trackRegularRouteTTD(transaction,
-              startTimestamp: fixture.startTimestamp);
+          fixture.ttidTracker?.completeTracking();
         });
+        final transaction = fixture.getTransaction() as SentryTracer;
+        await sut.track(transaction, startTimestamp: fixture.startTimestamp);
+
+        final ttidSpan = _getTTIDSpan(transaction);
+        expect(ttidSpan, isNotNull);
+        expect(ttidSpan?.finished, isTrue);
+        expect(ttidSpan?.origin, SentryTraceOrigins.manualUiTimeToDisplay);
+      });
+
+      test('completes with timeout when not completing the tracking', () async {
+        final sut = fixture.getSut();
+
+        fixture.ttidTracker?.markAsManual();
+        // Not calling completeTracking() triggers the manual timeout
+
+        final transaction = fixture.getTransaction() as SentryTracer;
+        await sut.track(transaction, startTimestamp: fixture.startTimestamp);
       });
     });
   });
@@ -129,25 +118,22 @@ void main() {
       fixture.options.enableTimeToFullDisplayTracing = true;
     });
 
-    group('in regular routes', () {
-      test(
-          'finishes span after timeout with deadline exceeded and ttid matching end time',
-          () async {
-        final sut = fixture.getSut();
-        final transaction = fixture.getTransaction() as SentryTracer;
+    test(
+        'finishes span after timeout with deadline exceeded and ttid matching end time',
+        () async {
+      final sut = fixture.getSut();
+      final transaction = fixture.getTransaction() as SentryTracer;
 
-        await sut.trackRegularRouteTTD(transaction,
-            startTimestamp: fixture.startTimestamp);
+      await sut.track(transaction, startTimestamp: fixture.startTimestamp);
 
-        final ttidSpan = _getTTIDSpan(transaction);
-        expect(ttidSpan, isNotNull);
+      final ttidSpan = _getTTIDSpan(transaction);
+      expect(ttidSpan, isNotNull);
 
-        final ttfdSpan = _getTTFDSpan(transaction);
-        expect(ttfdSpan?.finished, isTrue);
-        expect(ttfdSpan?.status, SpanStatus.deadlineExceeded());
-        expect(ttfdSpan?.endTimestamp, ttidSpan?.endTimestamp);
-        expect(ttfdSpan?.startTimestamp, ttidSpan?.startTimestamp);
-      });
+      final ttfdSpan = _getTTFDSpan(transaction);
+      expect(ttfdSpan?.finished, isTrue);
+      expect(ttfdSpan?.status, SpanStatus.deadlineExceeded());
+      expect(ttfdSpan?.endTimestamp, ttidSpan?.endTimestamp);
+      expect(ttfdSpan?.startTimestamp, ttidSpan?.startTimestamp);
     });
 
     test('multiple ttfd timeouts have correct ttid matching end time',
@@ -156,8 +142,7 @@ void main() {
       final transaction = fixture.getTransaction() as SentryTracer;
 
       // First ttfd timeout
-      await sut.trackRegularRouteTTD(transaction,
-          startTimestamp: fixture.startTimestamp);
+      await sut.track(transaction, startTimestamp: fixture.startTimestamp);
 
       final ttidSpanA = _getTTIDSpan(transaction);
       expect(ttidSpanA, isNotNull);
@@ -169,8 +154,7 @@ void main() {
       expect(ttfdSpanA?.startTimestamp, ttidSpanA?.startTimestamp);
 
       // Second ttfd timeout
-      await sut.trackRegularRouteTTD(transaction,
-          startTimestamp: fixture.startTimestamp);
+      await sut.track(transaction, startTimestamp: fixture.startTimestamp);
 
       final ttidSpanB = _getTTIDSpan(transaction);
       expect(ttidSpanB, isNotNull);
@@ -189,8 +173,7 @@ void main() {
 
       final transaction = fixture.getTransaction() as SentryTracer;
 
-      await sut.trackRegularRouteTTD(transaction,
-          startTimestamp: fixture.startTimestamp);
+      await sut.track(transaction, startTimestamp: fixture.startTimestamp);
 
       final ttfdSpan = transaction.children.firstWhereOrNull((element) =>
           element.context.operation ==
@@ -203,8 +186,7 @@ void main() {
     final sut = fixture.getSut();
 
     final transaction = fixture.getTransaction() as SentryTracer;
-    await sut.trackRegularRouteTTD(transaction,
-        startTimestamp: fixture.startTimestamp);
+    await sut.track(transaction, startTimestamp: fixture.startTimestamp);
 
     expect(transaction, isNotNull);
     expect(transaction.context.operation, SentrySpanOperations.uiLoad);
@@ -216,7 +198,7 @@ class Fixture {
   final options = defaultTestOptions()
     ..dsn = fakeDsn
     ..tracesSampleRate = 1.0;
-  late final endTimeProvider = ttidEndTimestampProvider();
+  late final endTimeProvider = ttidEndTimestampProvider;
   late final hub = Hub(options);
 
   TimeToInitialDisplayTracker? ttidTracker;
@@ -239,7 +221,7 @@ class Fixture {
     return TimeToDisplayTracker(
       ttidTracker: ttidTracker,
       ttfdTracker: ttfdTracker,
-      enableTimeToFullDisplayTracing: options.enableTimeToFullDisplayTracing,
+      options: options,
     );
   }
 }

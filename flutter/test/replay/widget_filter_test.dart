@@ -1,4 +1,3 @@
-import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -7,19 +6,22 @@ import 'package:sentry_flutter/src/replay/widget_filter.dart';
 
 import 'test_widget.dart';
 
+// Note: these tests predate existance of `SentryMaskingConfig` which now
+// takes care of the decision making whether something is masked or not.
+// We'll keep these tests although they're not unit-tests anymore.
 void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
   const defaultBounds = Rect.fromLTRB(0, 0, 1000, 1000);
   final rootBundle = TestAssetBundle();
   final otherBundle = TestAssetBundle();
 
-  final createSut =
-      ({bool redactImages = false, bool redactText = false}) => WidgetFilter(
-            logger: (level, message, {exception, logger, stackTrace}) {},
-            redactImages: redactImages,
-            redactText: redactText,
-            rootAssetBundle: rootBundle,
-          );
+  final createSut = ({bool redactImages = false, bool redactText = false}) {
+    final replayOptions = SentryReplayOptions();
+    replayOptions.redactAllImages = redactImages;
+    replayOptions.redactAllText = redactText;
+    return WidgetFilter(replayOptions.buildMaskingConfig(),
+        (level, message, {exception, logger, stackTrace}) {});
+  };
 
   boundsRect(WidgetFilterItem item) =>
       '${item.bounds.width.floor()}x${item.bounds.height.floor()}';
@@ -29,7 +31,7 @@ void main() async {
       final sut = createSut(redactText: true);
       final element = await pumpTestElement(tester);
       sut.obscure(element, 1.0, defaultBounds);
-      expect(sut.items.length, 4);
+      expect(sut.items.length, 5);
     });
 
     testWidgets('does not redact text when disabled', (tester) async {
@@ -51,11 +53,12 @@ void main() async {
       final sut = createSut(redactText: true);
       final element = await pumpTestElement(tester);
       sut.obscure(element, 1.0, defaultBounds);
-      expect(sut.items.length, 4);
+      expect(sut.items.length, 5);
       expect(boundsRect(sut.items[0]), '624x48');
       expect(boundsRect(sut.items[1]), '169x20');
       expect(boundsRect(sut.items[2]), '800x192');
-      expect(boundsRect(sut.items[3]), '50x20');
+      expect(boundsRect(sut.items[3]), '800x24');
+      expect(boundsRect(sut.items[4]), '50x20');
     });
   });
 
@@ -75,20 +78,27 @@ void main() async {
       testWidgets(
           'recognizes ${newAssetImage('').runtimeType} from the root bundle',
           (tester) async {
-        final sut = createSut(redactImages: true);
-
-        expect(sut.isBuiltInAssetImage(newAssetImage('')), isTrue);
-        expect(sut.isBuiltInAssetImage(newAssetImage('', bundle: rootBundle)),
+        expect(WidgetFilter.isBuiltInAssetImage(newAssetImage(''), rootBundle),
             isTrue);
-        expect(sut.isBuiltInAssetImage(newAssetImage('', bundle: otherBundle)),
+        expect(
+            WidgetFilter.isBuiltInAssetImage(
+                newAssetImage('', bundle: rootBundle), rootBundle),
+            isTrue);
+        expect(
+            WidgetFilter.isBuiltInAssetImage(
+                newAssetImage('', bundle: otherBundle), rootBundle),
             isFalse);
         expect(
-            sut.isBuiltInAssetImage(newAssetImage('',
-                bundle: SentryAssetBundle(bundle: rootBundle))),
+            WidgetFilter.isBuiltInAssetImage(
+                newAssetImage('',
+                    bundle: SentryAssetBundle(bundle: rootBundle)),
+                rootBundle),
             isTrue);
         expect(
-            sut.isBuiltInAssetImage(newAssetImage('',
-                bundle: SentryAssetBundle(bundle: otherBundle))),
+            WidgetFilter.isBuiltInAssetImage(
+                newAssetImage('',
+                    bundle: SentryAssetBundle(bundle: otherBundle)),
+                rootBundle),
             isFalse);
       });
     }
@@ -117,6 +127,41 @@ void main() async {
       expect(boundsRect(sut.items[1]), '1x1');
       expect(boundsRect(sut.items[2]), '50x20');
     });
+  });
+
+  testWidgets('respects $SentryMask', (tester) async {
+    final sut = createSut(redactText: false, redactImages: false);
+    final element = await pumpTestElement(tester, children: [
+      SentryMask(Padding(padding: EdgeInsets.all(100), child: Text('foo'))),
+    ]);
+    sut.obscure(element, 1.0, defaultBounds);
+    expect(sut.items.length, 1);
+    expect(boundsRect(sut.items[0]), '344x248');
+  });
+
+  testWidgets('respects $SentryUnmask', (tester) async {
+    final sut = createSut(redactText: true, redactImages: true);
+    final element = await pumpTestElement(tester, children: [
+      SentryUnmask(Text('foo')),
+      SentryUnmask(newImage()),
+      SentryUnmask(SentryMask(Text('foo'))),
+    ]);
+    sut.obscure(element, 1.0, defaultBounds);
+    expect(sut.items, isEmpty);
+  });
+
+  testWidgets('obscureElementOrParent', (tester) async {
+    final sut = createSut(redactText: true);
+    final element = await pumpTestElement(tester, children: [
+      Padding(padding: EdgeInsets.all(100), child: Text('foo')),
+    ]);
+    sut.obscure(element, 1.0, defaultBounds);
+    expect(sut.items.length, 1);
+    expect(boundsRect(sut.items[0]), '144x48');
+    sut.throwInObscure = true;
+    sut.obscure(element, 1.0, defaultBounds);
+    expect(sut.items.length, 1);
+    expect(boundsRect(sut.items[0]), '344x248');
   });
 }
 

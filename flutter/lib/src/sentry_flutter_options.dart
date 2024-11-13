@@ -8,6 +8,7 @@ import 'package:sentry/sentry.dart';
 import 'package:flutter/widgets.dart';
 
 import 'binding_wrapper.dart';
+import 'navigation/time_to_display_tracker.dart';
 import 'renderer/renderer.dart';
 import 'screenshot/sentry_screenshot_quality.dart';
 import 'event_processor/screenshot_event_processor.dart';
@@ -219,6 +220,11 @@ class SentryFlutterOptions extends SentryOptions {
   /// This feature requires using the [Routing Instrumentation](https://docs.sentry.io/platforms/flutter/integrations/routing-instrumentation/).
   bool enableTimeToFullDisplayTracing = false;
 
+  @meta.internal
+  late TimeToDisplayTracker timeToDisplayTracker = TimeToDisplayTracker(
+    options: this,
+  );
+
   /// Sets the Proguard uuid for Android platform.
   String? proguardUuid;
 
@@ -266,14 +272,19 @@ class SentryFlutterOptions extends SentryOptions {
   /// for every [ISentrySpan].
   ///
   /// When enabled, the following metrics are reported for each span:
-  /// - Slow frames: The number of frames that exceeded a specified threshold for frame duration.
-  /// - Frozen frames: The number of frames that took an unusually long time to render, indicating a potential freeze or hang.
+  /// - Slow frames: The number of frames that exceeded the expected frame duration. For most devices this will be around 16ms
+  /// - Frozen frames: The number of frames that took more than 700ms to render, indicating a potential freeze or hang.
   /// - Total frames count: The total number of frames rendered during the span.
   /// - Frames delay: The delayed frame render duration of all frames.
-
+  ///
   /// Read more about frames tracking here: https://develop.sentry.dev/sdk/performance/frames-delay/
   ///
   /// Defaults to `true`
+  ///
+  /// Supported platforms: `Android, iOS, macOS`
+  ///
+  /// Note: If you call `WidgetsFlutterBinding.ensureInitialized()` before `SentryFlutter.init()`,
+  /// you must use `SentryWidgetsFlutterBinding.ensureInitialized()` instead.
   bool enableFramesTracking = true;
 
   /// By using this, you are disabling native [Breadcrumb] tracking and instead

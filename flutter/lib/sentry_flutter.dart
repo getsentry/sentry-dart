@@ -12,9 +12,14 @@ export 'src/sentry_replay_options.dart';
 export 'src/flutter_sentry_attachment.dart';
 export 'src/sentry_asset_bundle.dart' show SentryAssetBundle;
 export 'src/integrations/on_error_integration.dart';
+export 'src/replay/masking_config.dart' show SentryMaskingDecision;
+export 'src/screenshot/sentry_mask_widget.dart';
+export 'src/screenshot/sentry_unmask_widget.dart';
 export 'src/screenshot/sentry_screenshot_widget.dart';
 export 'src/screenshot/sentry_screenshot_quality.dart';
 export 'src/user_interaction/sentry_user_interaction_widget.dart';
-export 'src/binding_wrapper.dart';
+export 'src/binding_wrapper.dart'
+    show BindingWrapper, SentryWidgetsFlutterBinding;
 export 'src/sentry_widget.dart';
 export 'src/navigation/sentry_display_widget.dart';
+export 'src/feedback/sentry_feedback_widget.dart';

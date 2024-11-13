@@ -65,7 +65,7 @@ class SentryFlutter(
     }
     data.getIfNotNull<String>("diagnosticLevel") {
       if (options.isDebug) {
-        val sentryLevel = SentryLevel.valueOf(it.uppercase(Locale.ROOT))
+        val sentryLevel = SentryLevel.valueOf(it.toUpperCase(Locale.ROOT))
         options.setDiagnosticLevel(sentryLevel)
       }
     }
@@ -164,7 +164,7 @@ class SentryFlutter(
     data: Map<String, Any>,
   ) {
     options.sessionSampleRate = data["sessionSampleRate"] as? Double
-    options.errorSampleRate = data["onErrorSampleRate"] as? Double
+    options.onErrorSampleRate = data["onErrorSampleRate"] as? Double
   }
 }
 

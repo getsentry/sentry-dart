@@ -28,6 +28,10 @@ class SentryScreenshotWidget extends StatefulWidget {
 
   @override
   _SentryScreenshotWidgetState createState() => _SentryScreenshotWidgetState();
+
+  /// This is true when the [SentryScreenshotWidget] is in the widget tree.
+  static bool get isMounted =>
+      sentryScreenshotWidgetGlobalKey.currentContext != null;
 }
 
 class _SentryScreenshotWidgetState extends State<SentryScreenshotWidget> {
