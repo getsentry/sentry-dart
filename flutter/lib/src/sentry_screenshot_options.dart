@@ -10,18 +10,18 @@ class SentryScreenshotOptions {
   /// Example:
   /// runApp(SentryWidget(child: App()));
   /// The [SentryWidget] has to be the root widget of the app.
-  bool attachScreenshot = false;
+  bool attach = false;
 
   /// Sets a callback which is executed before capturing screenshots. Only
   /// relevant if `attachScreenshot` is set to true. When false is returned
   /// from the function, no screenshot will be attached.
-  BeforeScreenshotCallback? beforeScreenshot;
+  BeforeScreenshotCallback? beforeCapture;
 
   /// Only attach a screenshot when the app is resumed.
-  bool attachScreenshotOnlyWhenResumed = false;
+  bool attachOnlyWhenResumed = false;
 
   /// The quality of the attached screenshot
-  SentryScreenshotQuality screenshotQuality = SentryScreenshotQuality.high;
+  SentryScreenshotQuality quality = SentryScreenshotQuality.high;
 }
 
 /// Callback being executed in [ScreenshotEventProcessor], deciding if a
