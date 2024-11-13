@@ -53,12 +53,6 @@ class ScreenshotEventProcessor implements EventProcessor {
         result = beforeCapture(event, hint, shouldDebounce);
       } else if (beforeScreenshot != null) {
         result = beforeScreenshot(event, hint: hint);
-      } else if (shouldDebounce) {
-        _options.logger(
-          SentryLevel.debug,
-          'Skipping screenshot capture due to debouncing (too many captures within ${_debouncer.waitTimeMs}ms)',
-        );
-        return event;
       }
 
       bool takeScreenshot = true;
@@ -69,6 +63,12 @@ class ScreenshotEventProcessor implements EventProcessor {
         } else {
           takeScreenshot = result;
         }
+      } else if (shouldDebounce) {
+        _options.logger(
+          SentryLevel.debug,
+          'Skipping screenshot capture due to debouncing (too many captures within ${_debouncer.waitTimeMs}ms)',
+        );
+        takeScreenshot = false;
       }
 
       if (!takeScreenshot) {
