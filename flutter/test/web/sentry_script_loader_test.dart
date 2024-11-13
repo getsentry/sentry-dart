@@ -6,13 +6,12 @@ import 'dart:html';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/web/script_loader/sentry_script_loader.dart';
-import 'package:sentry_flutter/src/web/script_loader/sentry_script_loader_impl.dart';
 import 'package:sentry_flutter/src/web/sentry_js_sdk_version.dart';
 
 import '../mocks.dart';
 
 void main() {
-  group('$SentryScriptLoaderImpl', () {
+  group('$SentryScriptLoader', () {
     late Fixture fixture;
 
     setUp(() {
@@ -97,7 +96,7 @@ class Fixture {
   SentryScriptLoader getSut(
       {bool debug = false, List<Map<String, String>>? scripts}) {
     options.platformChecker = MockPlatformChecker(isDebug: debug);
-    return SentryScriptLoaderImpl(
+    return SentryScriptLoader(
         options, debug ? debugScripts : scripts ?? productionScripts);
   }
 }

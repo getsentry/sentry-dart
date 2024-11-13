@@ -28,7 +28,7 @@ import 'profiling.dart';
 import 'renderer/renderer.dart';
 import 'version.dart';
 import 'view_hierarchy/view_hierarchy_integration.dart';
-import 'web/script_loader/sentry_script_loader_factory.dart';
+import 'web/script_loader/sentry_script_loader.dart';
 import 'web/sentry_js_sdk_version.dart';
 
 /// Configuration options callback
@@ -186,7 +186,7 @@ mixin SentryFlutter {
       final scripts = options.platformChecker.isDebugMode()
           ? debugScripts
           : productionScripts;
-      final scriptLoader = createSentryScriptLoader(options, scripts);
+      final scriptLoader = SentryScriptLoader(options, scripts);
       integrations.add(WebSdkIntegration(scriptLoader));
       integrations.add(ConnectivityIntegration());
     }

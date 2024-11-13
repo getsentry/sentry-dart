@@ -41,13 +41,15 @@ class Fixture {
   late FakeSentryScriptLoader scriptLoader;
 
   WebSdkIntegration getSut() {
-    scriptLoader = FakeSentryScriptLoader();
+    scriptLoader = FakeSentryScriptLoader(options, []);
     return WebSdkIntegration(scriptLoader);
   }
 }
 
 class FakeSentryScriptLoader extends SentryScriptLoader {
   int loadScriptsCalls = 0;
+
+  FakeSentryScriptLoader(super.options, super.scripts);
 
   @override
   Future<void> load() async {
