@@ -17,6 +17,7 @@ class ScreenshotRecorder {
   final ScreenshotRecorderConfig config;
   @protected
   final SentryFlutterOptions options;
+  final String _logName;
   WidgetFilter? _widgetFilter;
   bool warningLogged = false;
 
@@ -25,8 +26,8 @@ class ScreenshotRecorder {
   bool get hasWidgetFilter => _widgetFilter != null;
 
   // TODO: remove [isReplayRecorder] parameter in the next major release, see _SentryFlutterExperimentalOptions.
-  ScreenshotRecorder(this.config, this.options,
-      {bool isReplayRecorder = true}) {
+  ScreenshotRecorder(this.config, this.options, {bool isReplayRecorder = true})
+      : _logName = isReplayRecorder ? 'ReplayRecorder' : 'ScreenshotyRecorder' {
     // see `options.experimental.privacy` docs for details
     final privacyOptions = isReplayRecorder
         ? options.experimental.privacyForReplay
@@ -44,8 +45,7 @@ class ScreenshotRecorder {
       if (!warningLogged) {
         options.logger(
             SentryLevel.warning,
-            "Replay: SentryScreenshotWidget is not attached. "
-            "Skipping replay capture.");
+            "$_logName: SentryScreenshotWidget is not attached, skipping capture.");
         warningLogged = true;
       }
       return;
@@ -105,10 +105,11 @@ class ScreenshotRecorder {
 
       options.logger(
           SentryLevel.debug,
-          "Replay: captured a screenshot in ${watch.elapsedMilliseconds}"
+          "$_logName: captured a screenshot in ${watch.elapsedMilliseconds}"
           " ms ($blockingTime ms blocking).");
     } catch (e, stackTrace) {
-      options.logger(SentryLevel.error, "Replay: failed to capture screenshot.",
+      options.logger(
+          SentryLevel.error, "$_logName: failed to capture screenshot.",
           exception: e, stackTrace: stackTrace);
       if (options.automatedTestMode) {
         rethrow;
