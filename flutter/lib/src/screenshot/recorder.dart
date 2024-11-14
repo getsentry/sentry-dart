@@ -60,8 +60,7 @@ class ScreenshotRecorder {
       final srcHeight = renderObject.size.height;
 
       final pixelRatio = config.getPixelRatio(srcWidth, srcHeight) ??
-          // ignore: deprecated_member_use
-          options.bindingUtils.instance!.window.devicePixelRatio;
+          MediaQuery.of(context).devicePixelRatio;
 
       // First, we synchronously capture the image and enumerate widgets on the main UI loop.
       final futureImage = renderObject.toImage(pixelRatio: pixelRatio);
