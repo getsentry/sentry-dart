@@ -74,8 +74,7 @@ Future<void> setupSentry(
       options.addIntegration(LoggingIntegration(minEventLevel: Level.INFO));
       options.sendDefaultPii = true;
       options.reportSilentFlutterErrors = true;
-      options.attachScreenshot = true;
-      options.screenshotQuality = SentryScreenshotQuality.low;
+      options.screenshot.attach = true;
       options.attachViewHierarchy = true;
       // We can enable Sentry debug logging during development. This is likely
       // going to log too much for your app, but can be useful when figuring out
@@ -91,6 +90,10 @@ Future<void> setupSentry(
 
       options.experimental.replay.sessionSampleRate = 1.0;
       options.experimental.replay.onErrorSampleRate = 1.0;
+
+      // This has a side-effect of creating the default privacy configuration,
+      // thus enabling Screenshot redaction. No need to actually change it.
+      options.experimental.privacy;
 
       _isIntegrationTest = isIntegrationTest;
       if (_isIntegrationTest) {

@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/rendering.dart';
@@ -18,16 +17,17 @@ class ScreenshotRecorder {
   final ScreenshotRecorderConfig config;
   @protected
   final SentryFlutterOptions options;
+  final String _logName;
   WidgetFilter? _widgetFilter;
-  bool warningLogged = false;
+  bool _warningLogged = false;
 
   // TODO: remove in the next major release, see recorder_test.dart.
   @visibleForTesting
   bool get hasWidgetFilter => _widgetFilter != null;
 
   // TODO: remove [isReplayRecorder] parameter in the next major release, see _SentryFlutterExperimentalOptions.
-  ScreenshotRecorder(this.config, this.options,
-      {bool isReplayRecorder = true}) {
+  ScreenshotRecorder(this.config, this.options, {bool isReplayRecorder = true})
+      : _logName = isReplayRecorder ? 'ReplayRecorder' : 'ScreenshotyRecorder' {
     // see `options.experimental.privacy` docs for details
     final privacyOptions = isReplayRecorder
         ? options.experimental.privacyForReplay
@@ -42,12 +42,10 @@ class ScreenshotRecorder {
     final context = sentryScreenshotWidgetGlobalKey.currentContext;
     final renderObject = context?.findRenderObject() as RenderRepaintBoundary?;
     if (context == null || renderObject == null) {
-      if (!warningLogged) {
-        options.logger(
-            SentryLevel.warning,
-            "Replay: SentryScreenshotWidget is not attached. "
-            "Skipping replay capture.");
-        warningLogged = true;
+      if (!_warningLogged) {
+        options.logger(SentryLevel.warning,
+            "$_logName: SentryScreenshotWidget is not attached, skipping capture.");
+        _warningLogged = true;
       }
       return;
     }
@@ -58,31 +56,9 @@ class ScreenshotRecorder {
       // On Android, the desired resolution (coming from the configuration)
       // is rounded to next multitude of 16 . Therefore, we scale the image.
       // On iOS, the screenshot resolution is not adjusted.
-      final srcWidth = renderObject.size.width.toInt();
-      final srcHeight = renderObject.size.height.toInt();
-
-      final int targetWidth;
-      final int targetHeight;
-
-      final double pixelRatio;
-
-      // If width or height is not set, we use the device resolution.
-      if (config.width == null || config.height == null) {
-        final binding = options.bindingUtils.instance!;
-
-        // ignore: deprecated_member_use
-        targetHeight = binding.window.physicalSize.height.toInt();
-        // ignore: deprecated_member_use
-        targetWidth = binding.window.physicalSize.width.toInt();
-
-        pixelRatio = max(targetWidth, targetHeight) / max(srcWidth, srcHeight);
-      } else {
-        pixelRatio =
-            max(config.width!, config.height!) / max(srcWidth, srcHeight);
-
-        targetWidth = (srcWidth * pixelRatio).toInt();
-        targetHeight = (srcHeight * pixelRatio).toInt();
-      }
+      final srcWidth = renderObject.size.width;
+      final srcHeight = renderObject.size.height;
+      final pixelRatio = config.getPixelRatio(srcWidth, srcHeight);
 
       // First, we synchronously capture the image and enumerate widgets on the main UI loop.
       final futureImage = renderObject.toImage(pixelRatio: pixelRatio);
@@ -92,7 +68,7 @@ class ScreenshotRecorder {
         filter.obscure(
           context,
           pixelRatio,
-          Rect.fromLTWH(0, 0, targetWidth.toDouble(), targetHeight.toDouble()),
+          Rect.fromLTWH(0, 0, srcWidth * pixelRatio, srcHeight * pixelRatio),
         );
       }
 
@@ -115,8 +91,8 @@ class ScreenshotRecorder {
       final picture = recorder.endRecording();
 
       try {
-        Image finalImage;
-        finalImage = await picture.toImage(targetWidth, targetHeight);
+        final finalImage = await picture.toImage(
+            (srcWidth * pixelRatio).round(), (srcHeight * pixelRatio).round());
         try {
           await callback(finalImage);
         } finally {
@@ -128,10 +104,11 @@ class ScreenshotRecorder {
 
       options.logger(
           SentryLevel.debug,
-          "Replay: captured a screenshot in ${watch.elapsedMilliseconds}"
+          "$_logName: captured a screenshot in ${watch.elapsedMilliseconds}"
           " ms ($blockingTime ms blocking).");
     } catch (e, stackTrace) {
-      options.logger(SentryLevel.error, "Replay: failed to capture screenshot.",
+      options.logger(
+          SentryLevel.error, "$_logName: failed to capture screenshot.",
           exception: e, stackTrace: stackTrace);
       if (options.automatedTestMode) {
         rethrow;

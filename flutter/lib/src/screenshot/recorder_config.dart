@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:meta/meta.dart';
 
 @internal
@@ -9,4 +11,12 @@ class ScreenshotRecorderConfig {
     this.width,
     this.height,
   });
+
+  double getPixelRatio(double srcWidth, double srcHeight) {
+    assert((width == null) == (height == null));
+    if (width == null || height == null) {
+      return 1.0;
+    }
+    return min(width! / srcWidth, height! / srcHeight);
+  }
 }
