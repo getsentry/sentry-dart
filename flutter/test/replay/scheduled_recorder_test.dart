@@ -38,7 +38,7 @@ class _Fixture {
     sut = ScheduledScreenshotRecorder(
       ScheduledScreenshotRecorderConfig(
         width: 1000,
-        height: 750,
+        height: 1000,
         frameRate: 1000,
       ),
       (Image image) async {
