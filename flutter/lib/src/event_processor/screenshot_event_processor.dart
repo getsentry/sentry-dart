@@ -18,8 +18,8 @@ class ScreenshotEventProcessor implements EventProcessor {
 
     _recorder = ScreenshotRecorder(
       ScreenshotRecorderConfig(
-        width: targetResolution?.toInt(),
-        height: targetResolution?.toInt(),
+        width: targetResolution,
+        height: targetResolution,
       ),
       _options,
       isReplayRecorder: false,
