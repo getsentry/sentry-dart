@@ -12,10 +12,10 @@ class ScreenshotRecorderConfig {
     this.height,
   });
 
-  double getPixelRatio(double srcWidth, double srcHeight) {
+  double? getPixelRatio(double srcWidth, double srcHeight) {
     assert((width == null) == (height == null));
     if (width == null || height == null) {
-      return 1.0;
+      return null;
     }
     return min(width! / srcWidth, height! / srcHeight);
   }

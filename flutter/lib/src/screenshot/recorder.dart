@@ -58,7 +58,10 @@ class ScreenshotRecorder {
       // On iOS, the screenshot resolution is not adjusted.
       final srcWidth = renderObject.size.width;
       final srcHeight = renderObject.size.height;
-      final pixelRatio = config.getPixelRatio(srcWidth, srcHeight);
+
+      final pixelRatio = config.getPixelRatio(srcWidth, srcHeight) ??
+          // ignore: deprecated_member_use
+          options.bindingUtils.instance!.window.devicePixelRatio;
 
       // First, we synchronously capture the image and enumerate widgets on the main UI loop.
       final futureImage = renderObject.toImage(pixelRatio: pixelRatio);
