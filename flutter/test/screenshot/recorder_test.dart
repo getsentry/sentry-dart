@@ -16,11 +16,24 @@ import 'test_widget.dart';
 void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('captures full resolution images - landscape', (tester) async {
+  // with `tester.binding.setSurfaceSize` you are setting the `logical resolution`
+  // not the `device screen resolution`.
+  // The `device screen resolution = logical resolution * devicePixelRatio`
+
+  testWidgets('captures full resolution images - portrait', (tester) async {
     await tester.binding.setSurfaceSize(Size(2000, 4000));
     final fixture = await _Fixture.create(tester);
 
-    expect(fixture.capture(), completion('2000x4000'));
+    //devicePixelRatio is 3.0 therefore the resolution multiplied by 3
+    expect(fixture.capture(), completion('6000x12000'));
+  });
+
+  testWidgets('captures full resolution images - landscape', (tester) async {
+    await tester.binding.setSurfaceSize(Size(4000, 2000));
+    final fixture = await _Fixture.create(tester);
+
+    //devicePixelRatio is 3.0 therefore the resolution multiplied by 3
+    expect(fixture.capture(), completion('12000x6000'));
   });
 
   testWidgets('captures high resolution images - portrait', (tester) async {
