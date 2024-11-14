@@ -18,6 +18,7 @@ class SentryScreenshotOptions {
   BeforeScreenshotCallback? beforeCapture;
 
   /// Only attach a screenshot when the app is resumed.
+  /// See https://docs.sentry.io/platforms/flutter/troubleshooting/#screenshot-integration-background-crash
   bool attachOnlyWhenResumed = false;
 
   /// The quality of the attached screenshot
