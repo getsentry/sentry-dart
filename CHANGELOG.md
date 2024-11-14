@@ -14,7 +14,7 @@
 ### Features
 
 - Support for screenshot PII content redaction (masking) ([#2361](https://github.com/getsentry/sentry-dart/pull/2361))
-  By default, masking is enabled for SessionReplay. To also enable it for screenshots captured with events, you just can specify `options.experimental.privacy`:
+  By default, masking is enabled for SessionReplay. To also enable it for screenshots captured with events, you can specify `options.experimental.privacy`:
   ```dart
   await SentryFlutter.init(
     (options) {
@@ -141,7 +141,6 @@
 
 - Avoid sending too many empty client reports when Http Transport is used ([#2380](https://github.com/getsentry/sentry-dart/pull/2380))
 - Cache parsed DSN ([#2365](https://github.com/getsentry/sentry-dart/pull/2365))
-- Switching from traditional screenshot to view hierarchy for screenshots which allows redacting ([#2361](https://github.com/getsentry/sentry-dart/pull/2361))
 - Handle backpressure earlier in pipeline ([#2371](https://github.com/getsentry/sentry-dart/pull/2371))
   - Drops max un-awaited parallel tasks earlier, so event processors & callbacks are not executed for them. 
   - Change by setting `SentryOptions.maxQueueSize`. Default is 30.

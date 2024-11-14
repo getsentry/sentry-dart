@@ -126,8 +126,9 @@ void main() {
     });
   });
 
-  group('beforeScreenshot', () {
-    testWidgets('does add screenshot if beforeScreenshot returns true',
+  group('beforeScreenshot - canvasKit', () {
+    testWidgets(
+        '(canvasKit) does add screenshot if beforeScreenshot returns true',
         (tester) async {
       fixture.options.beforeScreenshot = (SentryEvent event, {Hint? hint}) {
         return true;
@@ -136,7 +137,8 @@ void main() {
           added: true, isWeb: false);
     });
 
-    testWidgets('does add screenshot if async beforeScreenshot returns true',
+    testWidgets(
+        '(canvasKit) does add screenshot if async beforeScreenshot returns true',
         (tester) async {
       fixture.options.beforeScreenshot =
           (SentryEvent event, {Hint? hint}) async {
@@ -147,7 +149,8 @@ void main() {
           added: true, isWeb: false);
     });
 
-    testWidgets('does not add screenshot if beforeScreenshot returns false',
+    testWidgets(
+        '(canvasKit) does not add screenshot if beforeScreenshot returns false',
         (tester) async {
       fixture.options.beforeScreenshot = (SentryEvent event, {Hint? hint}) {
         return false;
@@ -157,7 +160,7 @@ void main() {
     });
 
     testWidgets(
-        'does not add screenshot if async beforeScreenshot returns false',
+        '(canvasKit) does not add screenshot if async beforeScreenshot returns false',
         (tester) async {
       fixture.options.beforeScreenshot =
           (SentryEvent event, {Hint? hint}) async {
@@ -168,7 +171,7 @@ void main() {
           added: false, isWeb: false);
     });
 
-    testWidgets('does add screenshot if beforeScreenshot throws',
+    testWidgets('(canvasKit) does add screenshot if beforeScreenshot throws',
         (tester) async {
       fixture.options.automatedTestMode = false;
       fixture.options.beforeScreenshot = (SentryEvent event, {Hint? hint}) {
@@ -178,7 +181,8 @@ void main() {
           added: true, isWeb: false);
     });
 
-    testWidgets('does add screenshot if async beforeScreenshot throws',
+    testWidgets(
+        '(canvasKit) does add screenshot if async beforeScreenshot throws',
         (tester) async {
       fixture.options.automatedTestMode = false;
       fixture.options.beforeScreenshot =
@@ -188,6 +192,91 @@ void main() {
       };
       await _addScreenshotAttachment(tester, FlutterRenderer.canvasKit,
           added: true, isWeb: false);
+    });
+
+    testWidgets('(canvasKit) passes event & hint to beforeScreenshot callback',
+        (tester) async {
+      SentryEvent? beforeScreenshotEvent;
+      Hint? beforeScreenshotHint;
+
+      fixture.options.beforeScreenshot = (SentryEvent event, {Hint? hint}) {
+        beforeScreenshotEvent = event;
+        beforeScreenshotHint = hint;
+        return true;
+      };
+
+      await _addScreenshotAttachment(tester, FlutterRenderer.canvasKit,
+          added: true, isWeb: false);
+
+      expect(beforeScreenshotEvent, event);
+      expect(beforeScreenshotHint, hint);
+    });
+  });
+
+  group('beforeScreenshot - html', () {
+    testWidgets('(html) does add screenshot if beforeScreenshot returns true',
+        (tester) async {
+      fixture.options.beforeScreenshot = (SentryEvent event, {Hint? hint}) {
+        return true;
+      };
+      await _addScreenshotAttachment(tester, FlutterRenderer.html,
+          added: true, isWeb: true);
+    });
+
+    testWidgets(
+        '(html) does add screenshot if async beforeScreenshot returns true',
+        (tester) async {
+      fixture.options.beforeScreenshot =
+          (SentryEvent event, {Hint? hint}) async {
+        await Future<void>.delayed(Duration(milliseconds: 1));
+        return true;
+      };
+      await _addScreenshotAttachment(tester, FlutterRenderer.html,
+          added: true, isWeb: true);
+    });
+
+    testWidgets(
+        '(html) does not add screenshot if beforeScreenshot returns false',
+        (tester) async {
+      fixture.options.beforeScreenshot = (SentryEvent event, {Hint? hint}) {
+        return false;
+      };
+      await _addScreenshotAttachment(tester, FlutterRenderer.html,
+          added: false, isWeb: true);
+    });
+
+    testWidgets(
+        '(html) does not add screenshot if async beforeScreenshot returns false',
+        (tester) async {
+      fixture.options.beforeScreenshot =
+          (SentryEvent event, {Hint? hint}) async {
+        await Future<void>.delayed(Duration(milliseconds: 1));
+        return false;
+      };
+      await _addScreenshotAttachment(tester, FlutterRenderer.html,
+          added: false, isWeb: true);
+    });
+
+    testWidgets('(html) does add screenshot if beforeScreenshot throws',
+        (tester) async {
+      fixture.options.automatedTestMode = false;
+      fixture.options.beforeScreenshot = (SentryEvent event, {Hint? hint}) {
+        throw Error();
+      };
+      await _addScreenshotAttachment(tester, FlutterRenderer.html,
+          added: true, isWeb: true);
+    });
+
+    testWidgets('(html) does add screenshot if async beforeScreenshot throws',
+        (tester) async {
+      fixture.options.automatedTestMode = false;
+      fixture.options.beforeScreenshot =
+          (SentryEvent event, {Hint? hint}) async {
+        await Future<void>.delayed(Duration(milliseconds: 1));
+        throw Error();
+      };
+      await _addScreenshotAttachment(tester, FlutterRenderer.html,
+          added: true, isWeb: true);
     });
 
     testWidgets('passes event & hint to beforeScreenshot callback',
