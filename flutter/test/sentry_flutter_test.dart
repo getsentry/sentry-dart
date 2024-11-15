@@ -249,11 +249,8 @@ void main() {
         hasFileSystemTransport: false,
       );
 
-      // Temporarily disabled due to https://github.com/getsentry/sentry-dart-plugin/issues/270
-      // testScopeObserver(
-      //     options: sentryFlutterOptions, expectedHasNativeScopeObserver: true);
       testScopeObserver(
-          options: sentryFlutterOptions, expectedHasNativeScopeObserver: false);
+          options: sentryFlutterOptions, expectedHasNativeScopeObserver: true);
 
       testConfiguration(
         integrations: integrations,
@@ -274,9 +271,7 @@ void main() {
           beforeIntegration: WidgetsFlutterBindingIntegration,
           afterIntegration: OnErrorIntegration);
 
-      // Temporarily disabled due to https://github.com/getsentry/sentry-dart-plugin/issues/270
-      // expect(SentryFlutter.native, isNotNull);
-      expect(SentryFlutter.native, isNull);
+      expect(SentryFlutter.native, isNotNull);
       expect(Sentry.currentHub.profilerFactory, isNull);
     }, testOn: 'vm');
 
