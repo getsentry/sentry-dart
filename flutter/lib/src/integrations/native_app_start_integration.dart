@@ -6,8 +6,6 @@ import '../../sentry_flutter.dart';
 import '../frame_callback_handler.dart';
 import 'native_app_start_handler.dart';
 
-// todo: remove this after
-// again
 /// Integration which calls [NativeAppStartHandler] after
 /// [SchedulerBinding.instance.addPostFrameCallback] is called.
 class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
