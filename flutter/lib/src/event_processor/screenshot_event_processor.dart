@@ -4,6 +4,7 @@ import 'dart:ui';
 
 import 'package:meta/meta.dart';
 import '../../sentry_flutter.dart';
+import '../renderer/renderer.dart';
 import '../screenshot/recorder.dart';
 import '../screenshot/recorder_config.dart';
 import 'package:flutter/widgets.dart' as widget;
@@ -40,6 +41,17 @@ class ScreenshotEventProcessor implements EventProcessor {
 
     if (event.type == 'feedback') {
       return event; // No need to attach screenshot of feedback form.
+    }
+
+    final renderer = _options.rendererWrapper.getRenderer();
+
+    if (_options.platformChecker.isWeb &&
+        renderer != FlutterRenderer.canvasKit) {
+      _options.logger(
+        SentryLevel.debug,
+        'Cannot take screenshot with ${renderer?.name} renderer.',
+      );
+      return event;
     }
 
     final beforeScreenshot = _options.screenshot.beforeCapture;

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/rendering.dart';
+import 'package:flutter/widgets.dart' as widgets;
 import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
@@ -27,7 +28,7 @@ class ScreenshotRecorder {
 
   // TODO: remove [isReplayRecorder] parameter in the next major release, see _SentryFlutterExperimentalOptions.
   ScreenshotRecorder(this.config, this.options, {bool isReplayRecorder = true})
-      : _logName = isReplayRecorder ? 'ReplayRecorder' : 'ScreenshotyRecorder' {
+      : _logName = isReplayRecorder ? 'ReplayRecorder' : 'ScreenshotRecorder' {
     // see `options.experimental.privacy` docs for details
     final privacyOptions = isReplayRecorder
         ? options.experimental.privacyForReplay
@@ -60,7 +61,7 @@ class ScreenshotRecorder {
       final srcHeight = renderObject.size.height;
 
       final pixelRatio = config.getPixelRatio(srcWidth, srcHeight) ??
-          MediaQuery.of(context).devicePixelRatio;
+          widgets.MediaQuery.of(context).devicePixelRatio;
 
       // First, we synchronously capture the image and enumerate widgets on the main UI loop.
       final futureImage = renderObject.toImage(pixelRatio: pixelRatio);
