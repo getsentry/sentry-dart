@@ -2,10 +2,10 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:meta/meta.dart';
-import 'scheduled_recorder_config.dart';
 
 import '../../sentry_flutter.dart';
 import '../screenshot/recorder.dart';
+import 'scheduled_recorder_config.dart';
 import 'scheduler.dart';
 
 @internal
