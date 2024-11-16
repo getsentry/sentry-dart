@@ -63,7 +63,9 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text(widget.title,
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
