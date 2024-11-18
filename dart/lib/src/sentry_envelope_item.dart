@@ -136,7 +136,11 @@ class SentryEnvelopeItem {
 
       final result = Uint8List(totalLength);
       result.setRange(0, itemHeader.length, itemHeader);
-      result.setRange(itemHeader.length, itemHeader.length + newLine.length, newLine);
+      result.setRange(
+        itemHeader.length,
+        itemHeader.length + newLine.length,
+        newLine,
+      );
       result.setRange(itemHeader.length + newLine.length, totalLength, data);
 
       return result;
