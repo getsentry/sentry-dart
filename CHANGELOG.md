@@ -31,7 +31,6 @@
     - Internal SDK frames are removed to reduce noise
   - Original stack traces (when provided) are left unchanged
 
-
 ### Fixes
 
 - Apply default IP address (`{{auto}}`) to transactions ([#2395](https://github.com/getsentry/sentry-dart/pull/2395))
