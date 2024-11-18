@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/src/scheduler/binding.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -58,7 +60,7 @@ void main() {
     expect(transaction.measurements, isNotEmpty);
     expect(transaction.measurements['time_to_initial_display'], isNotNull);
     expect(transaction.measurements['app_start_cold'], isNotNull);
-  });
+  }, skip: Platform.isMacOS);
 }
 
 class _IntegrationFrameCallbackHandler implements FrameCallbackHandler {
