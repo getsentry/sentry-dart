@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'client_reports/client_report.dart';
 import 'metrics/metric.dart';
@@ -122,19 +123,21 @@ class SentryEnvelopeItem {
   final Future<List<int>> Function() dataFactory;
 
   /// Stream binary data of `Envelope` item.
-  Future<List<int>> envelopeItemStream() async {
-    // Each item needs to be encoded as one unit.
-    // Otherwise the header already got yielded if the content throws
-    // an exception.
+  Future<List<int>> envelopeItemStreamNew() async {
     try {
       final itemHeader = utf8JsonEncoder.convert(await header.toJson());
-
       final newLine = utf8.encode('\n');
       final data = await dataFactory();
-      // TODO the data copy could be avoided - this would be most significant with attachments.
-      return [...itemHeader, ...newLine, ...data];
+
+      final totalLength = itemHeader.length + newLine.length + data.length;
+
+      final result = Uint8List(totalLength);
+      result.setRange(0, itemHeader.length, itemHeader);
+      result.setRange(itemHeader.length, itemHeader.length + newLine.length, newLine);
+      result.setRange(itemHeader.length + newLine.length, totalLength, data);
+
+      return result;
     } catch (e) {
-      // TODO rethrow in options.automatedTestMode (currently not available here to check)
       return [];
     }
   }
