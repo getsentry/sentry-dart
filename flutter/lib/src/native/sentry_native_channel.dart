@@ -187,7 +187,7 @@ class SentryNativeChannel
   Future<List<DebugImage>?> loadDebugImages(SentryStackTrace stackTrace) =>
       tryCatchAsync('loadDebugImages', () async {
         Set<String> instructionAddresses = {};
-        for (var frame in stackTrace.frames) {
+        for (final frame in stackTrace.frames) {
           if (frame.instructionAddr != null) {
             instructionAddresses.add(frame.instructionAddr!);
           }
