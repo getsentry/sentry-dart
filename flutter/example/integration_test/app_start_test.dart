@@ -8,58 +8,60 @@ import 'package:sentry_flutter/src/frame_callback_handler.dart';
 import 'package:sentry_flutter/src/integrations/native_app_start_handler.dart';
 import 'package:sentry_flutter/src/integrations/native_app_start_integration.dart';
 
-void main() {
+void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   late _IntegrationFrameCallbackHandler frameCallbackHandler;
   late SentryTransaction transaction;
 
-  setUp(() async {
-    frameCallbackHandler = _IntegrationFrameCallbackHandler();
+  group('App start measurements', () {
+    setUp(() async {
+      frameCallbackHandler = _IntegrationFrameCallbackHandler();
 
-    await SentryFlutter.init((options) {
-      // ignore: invalid_use_of_internal_member
-      options.automatedTestMode = true;
-      options.dsn = 'https://abc@def.ingest.sentry.io/1234567';
-      options.debug = true;
-      options.tracesSampleRate = 1.0;
+      await SentryFlutter.init((options) {
+        // ignore: invalid_use_of_internal_member
+        options.automatedTestMode = true;
+        options.dsn = 'https://abc@def.ingest.sentry.io/1234567';
+        options.debug = true;
+        options.tracesSampleRate = 1.0;
 
-      options.beforeSendTransaction = (tx) {
-        transaction = tx;
-        return tx;
-      };
+        options.beforeSendTransaction = (tx) {
+          transaction = tx;
+          return tx;
+        };
 
-      final appStartIntegration = options.integrations.firstWhere(
-          (integration) => integration is NativeAppStartIntegration);
-      options.removeIntegration(appStartIntegration);
-      options.addIntegration(NativeAppStartIntegration(
-          frameCallbackHandler,
-          // ignore: invalid_use_of_internal_member
-          NativeAppStartHandler(SentryFlutter.native!)));
+        final appStartIntegration = options.integrations.firstWhere(
+            (integration) => integration is NativeAppStartIntegration);
+        options.removeIntegration(appStartIntegration);
+        options.addIntegration(NativeAppStartIntegration(
+            frameCallbackHandler,
+            // ignore: invalid_use_of_internal_member
+            NativeAppStartHandler(SentryFlutter.native!)));
+      });
     });
-  });
 
-  tearDown(() async {
-    await Sentry.close();
-  });
+    tearDown(() async {
+      await Sentry.close();
+    });
 
-  testWidgets('app start measurements are processed and reported',
-      (WidgetTester tester) async {
-    await tester.pumpWidget(
-      const MaterialApp(
-        home: Scaffold(
-          body: Center(
-            child: Text('Test Widget'),
+    testWidgets('app start measurements are processed and reported',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: Center(
+              child: Text('Test Widget'),
+            ),
           ),
         ),
-      ),
-    );
+      );
 
-    await tester.pumpAndSettle();
+      await tester.pumpAndSettle();
 
-    expect(transaction.measurements, isNotEmpty);
-    expect(transaction.measurements['time_to_initial_display'], isNotNull);
-    expect(transaction.measurements['app_start_cold'], isNotNull);
+      expect(transaction.measurements, isNotEmpty);
+      expect(transaction.measurements['time_to_initial_display'], isNotNull);
+      expect(transaction.measurements['app_start_cold'], isNotNull);
+    });
   }, skip: Platform.isMacOS);
 }
 
