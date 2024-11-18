@@ -11,7 +11,8 @@
     - SDK creates a synthetic trace using `StackTrace.current`
     - Internal SDK frames are removed to reduce noise
   - Original stack traces (when provided) are left unchanged
-  
+- Avoid copy in `SentryEnvelopeItem.envelopeItemStream` ([#2417](https://github.com/getsentry/sentry-dart/pull/2417))
+
 ### Features
 
 - Improve frame tracking accuracy ([#2372](https://github.com/getsentry/sentry-dart/pull/2372))
