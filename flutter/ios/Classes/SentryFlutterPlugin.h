@@ -4,5 +4,7 @@
     #import <FlutterMacOS/FlutterMacOS.h>
 #endif
 
+#import <Sentry/SentryDebugImageProvider.h>
+
 @interface SentryFlutterPlugin : NSObject<FlutterPlugin>
 @end
