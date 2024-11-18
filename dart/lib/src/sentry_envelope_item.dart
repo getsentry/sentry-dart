@@ -123,7 +123,7 @@ class SentryEnvelopeItem {
   final Future<List<int>> Function() dataFactory;
 
   /// Stream binary data of `Envelope` item.
-  Future<List<int>> envelopeItemStreamNew() async {
+  Future<List<int>> envelopeItemStream() async {
     try {
       final itemHeader = utf8JsonEncoder.convert(await header.toJson());
       final newLine = utf8.encode('\n');
