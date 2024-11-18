@@ -46,7 +46,7 @@ class ScreenshotEventProcessor implements EventProcessor {
 
     // ignore: deprecated_member_use_from_same_package
     final beforeScreenshot = _options.beforeScreenshot;
-    final beforeCapture = _options.beforeCapture;
+    final beforeCapture = _options.beforeScreenshotCapture;
 
     try {
       FutureOr<bool>? result;

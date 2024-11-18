@@ -196,13 +196,13 @@ class SentryFlutterOptions extends SentryOptions {
   bool attachScreenshotOnlyWhenResumed = false;
 
   @Deprecated(
-      'Will be removed in a future version. Use [beforeCapture] instead')
+      'Will be removed in a future version. Use [beforeScreenshotCapture] instead')
   BeforeScreenshotCallback? beforeScreenshot;
 
   /// Sets a callback which is executed before capturing screenshots. Only
   /// relevant if `attachScreenshot` is set to true. When false is returned
   /// from the function, no screenshot will be attached.
-  BeforeCaptureCallback? beforeCapture;
+  BeforeCaptureCallback? beforeScreenshotCapture;
 
   /// Enable or disable automatic breadcrumbs for User interactions Using [Listener]
   ///
