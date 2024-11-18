@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:http/http.dart';
 import 'package:http/testing.dart';
+import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/http_client/tracing_client.dart';
 import 'package:sentry/src/sentry_tracer.dart';
@@ -10,12 +13,82 @@ import '../test_utils.dart';
 
 final requestUri = Uri.parse('https://example.com?foo=bar#baz');
 
+class MockBeforeSendTransactionCallback extends Mock {
+  FutureOr<SentryTransaction?> beforeSendTransaction(
+    SentryTransaction? transaction,
+    Hint? hint,
+  );
+}
+
 void main() {
   group(TracingClient, () {
     late Fixture fixture;
 
     setUp(() {
       fixture = Fixture();
+    });
+
+    test('beforeSendTransaction called for captured span', () async {
+      var beforeSendTransaction =
+          MockBeforeSendTransactionCallback().beforeSendTransaction;
+
+      fixture._hub.options.beforeSendTransaction = beforeSendTransaction;
+      final responseBody = "test response body";
+      final sut = fixture.getSut(
+        client: fixture.getClient(
+            statusCode: 200, reason: 'OK', body: responseBody),
+      );
+      final tr = fixture._hub.startTransaction(
+        'name',
+        'op',
+        bindToScope: true,
+      );
+
+      await sut.get(requestUri);
+
+      await tr.finish();
+
+      verify(beforeSendTransaction(
+        any,
+        any,
+      )).called(1);
+    });
+
+    test('beforeSendTransaction called with response as hint for captured span',
+        () async {
+      SentryTransaction? transaction;
+      Hint? hint;
+
+      fixture._hub.options.beforeSendTransaction = (_transaction, _hint) {
+        transaction = _transaction;
+        hint = _hint;
+        return transaction;
+      };
+
+      final responseBody = "test response body";
+      final sut = fixture.getSut(
+        client: fixture.getClient(
+            statusCode: 200, reason: 'OK', body: responseBody),
+      );
+      final tr = fixture._hub.startTransaction(
+        'name',
+        'op',
+        bindToScope: true,
+      );
+
+      final originalResponse = await sut.get(requestUri);
+      final originalResponseBody = originalResponse.body;
+
+      await tr.finish();
+
+      final httpResponse =
+          hint!.get(TypeCheckHint.httpResponse) as StreamedResponse;
+      final httpResponseBody = await httpResponse.stream.bytesToString();
+
+      expect(httpResponse.statusCode, 200);
+      expect(httpResponseBody, responseBody);
+
+      expect(originalResponseBody, responseBody);
     });
 
     test('captured span if successful request without Pii', () async {

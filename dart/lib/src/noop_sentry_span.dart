@@ -1,3 +1,4 @@
+import '../sentry.dart';
 import 'metrics/local_metrics_aggregator.dart';
 import 'protocol.dart';
 import 'tracing.dart';
@@ -27,7 +28,11 @@ class NoOpSentrySpan extends ISentrySpan {
   }
 
   @override
-  Future<void> finish({SpanStatus? status, DateTime? endTimestamp}) async {}
+  Future<void> finish({
+    SpanStatus? status,
+    DateTime? endTimestamp,
+    Hint? hint,
+  }) async {}
 
   @override
   void removeData(String key) {}

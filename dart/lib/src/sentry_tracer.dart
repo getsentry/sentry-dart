@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:http/http.dart';
 import 'package:meta/meta.dart';
 
 import '../sentry.dart';
@@ -32,6 +33,12 @@ class SentryTracer extends ISentrySpan {
   late final bool _trimEnd;
 
   late SentryTransactionNameSource transactionNameSource;
+
+  Hint? _hint;
+  @internal
+  Hint? get hint => _hint;
+  @internal
+  set hint(Hint? hint) => _hint = hint;
 
   SentryTraceContextHeader? _sentryTraceContextHeader;
 
@@ -92,7 +99,12 @@ class SentryTracer extends ISentrySpan {
   }
 
   @override
-  Future<void> finish({SpanStatus? status, DateTime? endTimestamp}) async {
+  Future<void> finish({
+    SpanStatus? status,
+    DateTime? endTimestamp,
+    Hint? hint,
+  }) async {
+    _hint ??= hint;
     final commonEndTimestamp = endTimestamp ?? _hub.options.clock();
     _autoFinishAfterTimer?.cancel();
     _finishStatus = SentryTracerFinishStatus.finishing(status);
@@ -157,10 +169,8 @@ class SentryTracer extends ISentrySpan {
           ? await profiler?.finishFor(transaction)
           : null;
 
-      await _hub.captureTransaction(
-        transaction,
-        traceContext: traceContext(),
-      );
+      await _hub.captureTransaction(transaction,
+          traceContext: traceContext(), hint: _hint);
     } finally {
       profiler?.dispose();
     }
@@ -274,12 +284,11 @@ class SentryTracer extends ISentrySpan {
     return child;
   }
 
-  Future<void> _finishedCallback({
-    DateTime? endTimestamp,
-  }) async {
+  Future<void> _finishedCallback({DateTime? endTimestamp, Hint? hint}) async {
     final finishStatus = _finishStatus;
     if (finishStatus.finishing) {
-      await finish(status: finishStatus.status, endTimestamp: endTimestamp);
+      await finish(
+          status: finishStatus.status, endTimestamp: endTimestamp, hint: hint);
     }
   }
 

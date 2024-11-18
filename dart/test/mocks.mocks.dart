@@ -528,19 +528,26 @@ class MockHub extends _i1.Mock implements _i2.Hub {
   _i5.Future<_i2.SentryId> captureTransaction(
     _i2.SentryTransaction? transaction, {
     _i2.SentryTraceContextHeader? traceContext,
+    _i2.Hint? hint,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
           #captureTransaction,
           [transaction],
-          {#traceContext: traceContext},
+          {
+            #traceContext: traceContext,
+            #hint: hint,
+          },
         ),
         returnValue: _i5.Future<_i2.SentryId>.value(_FakeSentryId_3(
           this,
           Invocation.method(
             #captureTransaction,
             [transaction],
-            {#traceContext: traceContext},
+            {
+              #traceContext: traceContext,
+              #hint: hint,
+            },
           ),
         )),
       ) as _i5.Future<_i2.SentryId>);

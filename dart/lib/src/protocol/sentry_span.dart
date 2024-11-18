@@ -7,7 +7,8 @@ import '../metrics/local_metrics_aggregator.dart';
 
 import '../sentry_tracer.dart';
 
-typedef OnFinishedCallback = Future<void> Function({DateTime? endTimestamp});
+typedef OnFinishedCallback = Future<void> Function(
+    {DateTime? endTimestamp, Hint? hint});
 
 class SentrySpan extends ISentrySpan {
   final SentrySpanContext _context;
@@ -55,7 +56,13 @@ class SentrySpan extends ISentrySpan {
   }
 
   @override
-  Future<void> finish({SpanStatus? status, DateTime? endTimestamp}) async {
+  Future<void> finish({
+    SpanStatus? status,
+    DateTime? endTimestamp,
+    Hint? hint,
+  }) async {
+    _tracer.hint ??= hint;
+
     if (finished) {
       return;
     }

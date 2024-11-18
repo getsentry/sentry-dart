@@ -1,6 +1,7 @@
 import 'package:http/http.dart';
 import '../../sentry.dart';
 import '../utils/http_deep_copy_streamed_response.dart';
+import '../utils/streamed_response_copier.dart';
 
 /// A [http](https://pub.dev/packages/http)-package compatible HTTP client
 /// which adds support to Sentry Performance feature.
@@ -42,8 +43,9 @@ class TracingClient extends BaseClient {
     span?.setData('http.request.method', request.method);
     urlDetails?.applyToSpan(span);
 
-    StreamedResponse? response;
-    List<StreamedResponse> copiedResponses = [];
+    StreamedResponse? originalResponse;
+    final hint = Hint();
+    // List<StreamedResponse> copiedResponses = [];
     try {
       if (containsTargetOrMatchesRegExp(
           _hub.options.tracePropagationTargets, request.url.toString())) {
@@ -70,31 +72,27 @@ class TracingClient extends BaseClient {
         }
       }
 
-      response = await _client.send(request);
-      copiedResponses = await deepCopyStreamedResponse(response, 2);
-      statusCode = copiedResponses[0].statusCode;
-      span?.setData('http.response.status_code', copiedResponses[1].statusCode);
+      originalResponse = await _client.send(request);
+      final copier = StreamedResponseCopier(originalResponse);
+      originalResponse = copier.copy();
+      final copiedResponse = copier.copy();
+
+      span?.setData('http.response.status_code', originalResponse.statusCode);
       span?.setData(
-          'http.response_content_length', copiedResponses[1].contentLength);
-      span?.status =
-          SpanStatus.fromHttpStatusCode(copiedResponses[1].statusCode);
+          'http.response_content_length', originalResponse.contentLength);
+      span?.status = SpanStatus.fromHttpStatusCode(originalResponse.statusCode);
+
+      hint.set(TypeCheckHint.httpResponse, copiedResponse);
     } catch (exception) {
       span?.throwable = exception;
       span?.status = SpanStatus.internalError();
 
       rethrow;
     } finally {
-      await span?.finish();
+      await span?.finish(hint: hint);
       stopwatch.stop();
-      await captureEvent(
-        _hub,
-        request: request,
-        requestDuration: stopwatch.elapsed,
-        response: copiedResponses.isNotEmpty ? copiedResponses[1] : null,
-        reason: 'HTTP Client Event with status code: $statusCode',
-      );
     }
-    return copiedResponses[0];
+    return originalResponse;
   }
 
   @override

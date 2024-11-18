@@ -118,10 +118,8 @@ class MockHub with NoSuchMethodProvider implements Hub {
   bool get isEnabled => _isEnabled;
 
   @override
-  Future<SentryId> captureTransaction(
-    SentryTransaction transaction, {
-    SentryTraceContextHeader? traceContext,
-  }) async {
+  Future<SentryId> captureTransaction(SentryTransaction transaction,
+      {SentryTraceContextHeader? traceContext, Hint? hint}) async {
     captureTransactionCalls
         .add(CaptureTransactionCall(transaction, traceContext));
     return transaction.eventId;

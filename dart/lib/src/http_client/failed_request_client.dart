@@ -96,15 +96,15 @@ class FailedRequestClient extends BaseClient {
     int? statusCode;
     Object? exception;
     StackTrace? stackTrace;
-    StreamedResponse? response;
+    StreamedResponse? streamedResponse;
     List<StreamedResponse> copiedResponses = [];
 
     final stopwatch = Stopwatch();
     stopwatch.start();
 
     try {
-      response = await _client.send(request);
-      copiedResponses = await deepCopyStreamedResponse(response, 2);
+      streamedResponse = await _client.send(request);
+      copiedResponses = await deepCopyStreamedResponse(streamedResponse, 2);
       statusCode = copiedResponses[0].statusCode;
       return copiedResponses[0];
     } catch (e, st) {

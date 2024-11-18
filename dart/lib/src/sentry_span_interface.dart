@@ -1,5 +1,7 @@
+import 'package:http/http.dart';
 import 'package:meta/meta.dart';
 
+import '../sentry.dart';
 import 'metrics/local_metrics_aggregator.dart';
 import 'protocol.dart';
 import 'tracing.dart';
@@ -26,7 +28,11 @@ abstract class ISentrySpan {
   void removeData(String key);
 
   /// Sets span timestamp marking this span as finished.
-  Future<void> finish({SpanStatus? status, DateTime? endTimestamp}) async {}
+  Future<void> finish({
+    SpanStatus? status,
+    DateTime? endTimestamp,
+    Hint? hint,
+  }) async {}
 
   /// Gets span status.
   SpanStatus? get status;

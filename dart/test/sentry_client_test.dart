@@ -1368,7 +1368,8 @@ void main() {
     test('thrown error is handled', () async {
       fixture.options.automatedTestMode = false;
       final exception = Exception("before send exception");
-      final beforeSendTransactionCallback = (SentryTransaction event) {
+      final beforeSendTransactionCallback =
+          (SentryTransaction event, Hint? hint) {
         throw exception;
       };
 
@@ -1767,7 +1768,10 @@ void main() {
       fixture.tracer.startChild('child2');
       fixture.tracer.startChild('child3');
 
-      fixture.options.beforeSendTransaction = (transaction) {
+      fixture.options.beforeSendTransaction = (
+        transaction,
+        Hint? hint,
+      ) {
         if (transaction.tracer == fixture.tracer) {
           return null;
         }
@@ -1794,7 +1798,10 @@ void main() {
       fixture.tracer.startChild('child2');
       fixture.tracer.startChild('child3');
 
-      fixture.options.beforeSendTransaction = (transaction) {
+      fixture.options.beforeSendTransaction = (
+        transaction,
+        Hint? hint,
+      ) {
         if (transaction.tracer == fixture.tracer) {
           transaction.spans
               .removeWhere((element) => element.context.operation == 'child2');
@@ -2237,6 +2244,7 @@ Future<SentryEvent?> asyncBeforeSendFeedbackCallbackDropEvent(
 
 SentryTransaction? beforeSendTransactionCallbackDropEvent(
   SentryTransaction event,
+  Hint? hint,
 ) =>
     null;
 
@@ -2249,7 +2257,9 @@ Future<SentryEvent?> asyncBeforeSendCallbackDropEvent(
 }
 
 Future<SentryTransaction?> asyncBeforeSendTransactionCallbackDropEvent(
-    SentryEvent event) async {
+  SentryEvent event,
+  Hint? hint,
+) async {
   await Future.delayed(Duration(milliseconds: 200));
   return null;
 }
@@ -2271,7 +2281,9 @@ SentryEvent? beforeSendCallback(SentryEvent event, Hint hint) {
 }
 
 SentryTransaction? beforeSendTransactionCallback(
-    SentryTransaction transaction) {
+  SentryTransaction transaction,
+  Hint? hint,
+) {
   return transaction
     ..tags!.addAll({'theme': 'material'})
     // ignore: deprecated_member_use_from_same_package
