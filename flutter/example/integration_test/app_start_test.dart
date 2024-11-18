@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -8,13 +9,15 @@ import 'package:sentry_flutter/src/frame_callback_handler.dart';
 import 'package:sentry_flutter/src/integrations/native_app_start_handler.dart';
 import 'package:sentry_flutter/src/integrations/native_app_start_integration.dart';
 
+import '../../../dart/test/mocks/mock_transport.dart';
+
 void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   late _IntegrationFrameCallbackHandler frameCallbackHandler;
-  late SentryTransaction transaction;
+  final transport = MockTransport();
 
-  group('App start measurements', () {
+  group('App start measurement', () {
     setUp(() async {
       frameCallbackHandler = _IntegrationFrameCallbackHandler();
 
@@ -24,11 +27,7 @@ void main() async {
         options.dsn = 'https://abc@def.ingest.sentry.io/1234567';
         options.debug = true;
         options.tracesSampleRate = 1.0;
-
-        options.beforeSendTransaction = (tx) {
-          transaction = tx;
-          return tx;
-        };
+        options.transport = transport;
 
         final appStartIntegration = options.integrations.firstWhere(
             (integration) => integration is NativeAppStartIntegration);
@@ -44,8 +43,7 @@ void main() async {
       await Sentry.close();
     });
 
-    testWidgets('app start measurements are processed and reported',
-        (WidgetTester tester) async {
+    testWidgets('is captured', (WidgetTester tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
@@ -58,11 +56,21 @@ void main() async {
 
       await tester.pumpAndSettle();
 
-      expect(transaction.measurements, isNotEmpty);
-      expect(transaction.measurements['time_to_initial_display'], isNotNull);
-      expect(transaction.measurements['app_start_cold'], isNotNull);
+      final envelope = transport.envelopes.first;
+      expect(envelope.items[0].header.type, "transaction");
+      expect(await envelope.items[0].header.length(), greaterThan(0));
+
+      final txJson = utf8.decode(await envelope.items[0].dataFactory());
+      final txData = json.decode(txJson) as Map<String, dynamic>;
+
+      expect(txData["measurements"]["time_to_initial_display"]["value"],
+          isNotNull);
+      expect(txData["measurements"]["app_start_cold"]["value"], isNotNull);
     });
-  }, skip: Platform.isMacOS);
+  },
+      skip: Platform.isMacOS
+          ? 'App start measurement is not supported on this platform'
+          : false);
 }
 
 class _IntegrationFrameCallbackHandler implements FrameCallbackHandler {
