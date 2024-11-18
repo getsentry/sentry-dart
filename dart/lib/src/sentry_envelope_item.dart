@@ -124,6 +124,9 @@ class SentryEnvelopeItem {
 
   /// Stream binary data of `Envelope` item.
   Future<List<int>> envelopeItemStream() async {
+    // Each item needs to be encoded as one unit.
+    // Otherwise the header already got yielded if the content throws
+    // an exception.
     try {
       final itemHeader = utf8JsonEncoder.convert(await header.toJson());
       final newLine = utf8.encode('\n');
