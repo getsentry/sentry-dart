@@ -141,6 +141,7 @@ class SentryEnvelopeItem {
 
       return result;
     } catch (e) {
+      // TODO rethrow in options.automatedTestMode (currently not available here to check)
       return [];
     }
   }
