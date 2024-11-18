@@ -39,9 +39,9 @@
 
 ### Dependencies
 
-- Bump Android SDK from v7.16.0 to v7.17.0 ([#2408](https://github.com/getsentry/sentry-dart/pull/2408))
-  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#7170)
-  - [diff](https://github.com/getsentry/sentry-java/compare/7.16.0...7.17.0)
+- Bump Android SDK from v7.16.0 to v7.18.0 ([#2408](https://github.com/getsentry/sentry-dart/pull/2408), [#2419](https://github.com/getsentry/sentry-dart/pull/2419))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#7180)
+  - [diff](https://github.com/getsentry/sentry-java/compare/7.16.0...7.18.0)
 
 ## 8.10.1
 
