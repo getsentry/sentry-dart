@@ -16,7 +16,6 @@ class TracingClient extends BaseClient {
   @override
   Future<StreamedResponse> send(BaseRequest request) async {
     // see https://develop.sentry.dev/sdk/performance/#header-sentry-trace
-    int? statusCode;
     final stopwatch = Stopwatch();
     stopwatch.start();
 

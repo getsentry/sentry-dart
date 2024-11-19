@@ -428,10 +428,10 @@ class MockHub extends _i1.Mock implements _i2.Hub {
 
   @override
   _i5.Future<_i2.SentryId> captureTransaction(
-      _i2.SentryTransaction? transaction, {
-        _i2.SentryTraceContextHeader? traceContext,
-        _i2.Hint? hint,
-      }) =>
+    _i2.SentryTransaction? transaction, {
+    _i2.SentryTraceContextHeader? traceContext,
+    _i2.Hint? hint,
+  }) =>
       (super.noSuchMethod(
         Invocation.method(
           #captureTransaction,
