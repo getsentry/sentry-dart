@@ -39,26 +39,30 @@ void main() {
     final envelope = transport.envelopes.first;
     expect(envelope.items.length, 2);
     expect(envelope.items[0].header.type, "transaction");
-    expect(await envelope.items[0].header.length(), greaterThan(0));
     expect(envelope.items[1].header.type, "profile");
-    expect(await envelope.items[1].header.length(), greaterThan(0));
 
-    final txJson = utf8.decode(await envelope.items[0].dataFactory());
-    final txData = json.decode(txJson) as Map<String, dynamic>;
+    final txData = await envelope.items[0].dataFactory();
+    expect(txData.length, greaterThan(0));
 
-    final profileJson = utf8.decode(await envelope.items[1].dataFactory());
-    final profileData = json.decode(profileJson) as Map<String, dynamic>;
+    final txJson = utf8.decode(txData);
+    final txMap = json.decode(txJson) as Map<String, dynamic>;
 
-    expect(txData["event_id"], isNotNull);
-    expect(txData["event_id"], profileData["transaction"]["id"]);
-    expect(txData["contexts"]["trace"]["trace_id"], isNotNull);
-    expect(txData["contexts"]["trace"]["trace_id"],
-        profileData["transaction"]["trace_id"]);
-    expect(profileData["debug_meta"]["images"], isNotEmpty);
-    expect(profileData["profile"]["thread_metadata"], isNotEmpty);
-    expect(profileData["profile"]["samples"], isNotEmpty);
-    expect(profileData["profile"]["stacks"], isNotEmpty);
-    expect(profileData["profile"]["frames"], isNotEmpty);
+    final profileData = await envelope.items[1].dataFactory();
+    expect(profileData.length, greaterThan(0));
+
+    final profileJson = utf8.decode(profileData);
+    final profileMap = json.decode(profileJson) as Map<String, dynamic>;
+
+    expect(txMap["event_id"], isNotNull);
+    expect(txMap["event_id"], profileMap["transaction"]["id"]);
+    expect(txMap["contexts"]["trace"]["trace_id"], isNotNull);
+    expect(txMap["contexts"]["trace"]["trace_id"],
+        profileMap["transaction"]["trace_id"]);
+    expect(profileMap["debug_meta"]["images"], isNotEmpty);
+    expect(profileMap["profile"]["thread_metadata"], isNotEmpty);
+    expect(profileMap["profile"]["samples"], isNotEmpty);
+    expect(profileMap["profile"]["stacks"], isNotEmpty);
+    expect(profileMap["profile"]["frames"], isNotEmpty);
   },
       skip: (Platform.isMacOS || Platform.isIOS)
           ? false
