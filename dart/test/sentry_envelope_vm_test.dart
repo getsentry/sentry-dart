@@ -61,9 +61,12 @@ void main() {
         attachments: [attachment],
       );
 
-      final data =
-          (await envelope.envelopeStream(defaultTestOptions()).toList())
-              .reduce((a, b) => a + b);
+      final options = SentryOptions(dsn: testDsn)
+        ..automatedTestMode =
+            false; // We want to skip throwing envelope items in this test.
+
+      final data = (await envelope.envelopeStream(options).toList())
+          .reduce((a, b) => a + b);
 
       final file = File('test_resources/envelope-no-attachment.envelope');
       final jsonStr = await file.readAsString();
