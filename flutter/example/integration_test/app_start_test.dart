@@ -14,12 +14,10 @@ import '../../../dart/test/mocks/mock_transport.dart';
 void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  late _IntegrationFrameCallbackHandler frameCallbackHandler;
-  final transport = MockTransport();
-
   group('App start measurement', () {
-    setUp(() async {
-      frameCallbackHandler = _IntegrationFrameCallbackHandler();
+    testWidgets('is captured', (WidgetTester tester) async {
+      final frameCallbackHandler = _IntegrationFrameCallbackHandler();
+      final transport = MockTransport();
 
       await SentryFlutter.init((options) {
         // ignore: invalid_use_of_internal_member
@@ -37,13 +35,7 @@ void main() async {
             // ignore: invalid_use_of_internal_member
             NativeAppStartHandler(SentryFlutter.native!)));
       });
-    });
 
-    tearDown(() async {
-      await Sentry.close();
-    });
-
-    testWidgets('is captured', (WidgetTester tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
