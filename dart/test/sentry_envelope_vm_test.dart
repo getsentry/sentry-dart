@@ -17,15 +17,13 @@ void main() {
     test('item with binary payload', () async {
       // Attachment
 
-      final length = () async {
-        return 3535;
-      };
+      // length == 3535
       final dataFactory = () async {
         final file = File('test_resources/sentry.png');
         final bytes = await file.readAsBytes();
         return bytes;
       };
-      final attachmentHeader = SentryEnvelopeItemHeader('attachment', length,
+      final attachmentHeader = SentryEnvelopeItemHeader('attachment',
           contentType: 'image/png', fileName: 'sentry.png');
       final attachmentItem = SentryEnvelopeItem(attachmentHeader, dataFactory);
 

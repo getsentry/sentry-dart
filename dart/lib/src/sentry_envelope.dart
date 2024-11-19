@@ -122,23 +122,26 @@ class SentryEnvelope {
 
     final newLineData = utf8.encode('\n');
     for (final item in items) {
-      final length = await item.header.length();
-      // A length smaller than 0 indicates an invalid envelope, which should not
-      // be send to Sentry.io
-      if (length < 0) {
-        continue;
-      }
-      // Only attachments should be filtered according to
-      // SentryOptions.maxAttachmentSize
-      if (item.header.type == SentryItemType.attachment) {
-        if (await item.header.length() > options.maxAttachmentSize) {
+      try {
+        final data = await item.dataFactory();
+
+        // Only attachments should be filtered according to
+        // SentryOptions.maxAttachmentSize
+        if (item.header.type == SentryItemType.attachment &&
+            data.length > options.maxAttachmentSize) {
           continue;
         }
-      }
-      final itemStream = await item.envelopeItemStream();
-      if (itemStream.isNotEmpty) {
+
         yield newLineData;
-        yield itemStream;
+        yield utf8.encode(jsonEncode(await item.header.toJson(data.length)));
+        yield newLineData;
+        yield data;
+      } catch (_) {
+        if (options.automatedTestMode) {
+          rethrow;
+        }
+        // Skip throwing envelope item data closure.
+        continue;
       }
     }
   }
