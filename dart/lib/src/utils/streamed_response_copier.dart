@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:http/http.dart';
 
 class StreamedResponseCopier {
@@ -26,6 +25,10 @@ class StreamedResponseCopier {
 
   /// Get a copied StreamedResponse
   StreamedResponse copy() {
+    if (_streamController.isClosed) {
+      throw StateError(
+          'Cannot create a new stream after the copier is disposed');
+    }
     final Stream<List<int>> replayStream = _getReplayStream();
     return StreamedResponse(
       replayStream,
@@ -40,8 +43,11 @@ class StreamedResponseCopier {
 
   /// Create a stream that replays the cached data and listens to future updates
   Stream<List<int>> _getReplayStream() async* {
+    // Create a snapshot of the current cache to iterate over
+    final cacheSnapshot = List<List<int>>.from(_cache);
+
     // Replay cached data
-    for (final chunk in _cache) {
+    for (final chunk in cacheSnapshot) {
       yield chunk;
     }
 
@@ -52,7 +58,9 @@ class StreamedResponseCopier {
   }
 
   /// Dispose resources when done
-  void dispose() {
-    _streamController.close();
+  Future dispose() async {
+    if (!_streamController.isClosed) {
+      await _streamController.close();
+    }
   }
 }
