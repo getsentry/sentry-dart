@@ -261,10 +261,10 @@ void main() {
       final expected =
           utf8.encode('$expectedHeaderJsonSerialized\n$expectedItemSerialized');
 
+      final options = defaultTestOptions();
+      options.automatedTestMode = false; // Test if throwing item is ignored.
       final envelopeData = <int>[];
-      await sut
-          .envelopeStream(defaultTestOptions())
-          .forEach(envelopeData.addAll);
+      await sut.envelopeStream(options).forEach(envelopeData.addAll);
       expect(envelopeData, expected);
     });
 
