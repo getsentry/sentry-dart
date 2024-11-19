@@ -96,7 +96,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
             loadContexts(result: result)
 
         case "loadImageList":
-            loadImageList(result: result)
+            loadImageList(call, result: result)
 
         case "initNativeSdk":
             initNativeSdk(call, result: result)
@@ -277,9 +277,32 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         }
     }
 
-    private func loadImageList(result: @escaping FlutterResult) {
-      let debugImages = PrivateSentrySDKOnly.getDebugImages() as [DebugMeta]
-      result(debugImages.map { $0.serialize() })
+    private func loadImageList(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        var debugImages: [DebugMeta] = []
+
+        if let arguments = call.arguments as? [String], !arguments.isEmpty {
+            var imagesAddresses: Set<String> = []
+
+            for argument in arguments {
+                let hexDigits = argument.replacingOccurrences(of: "0x", with: "")
+                if let instructionAddress = UInt64(hexDigits, radix: 16) {
+                    let image = SentryDependencyContainer.sharedInstance().binaryImageCache.image(
+                        byAddress: instructionAddress)
+                    if let image = image {
+                        let imageAddress = sentry_formatHexAddressUInt64(image.address)!
+                        imagesAddresses.insert(imageAddress)
+                    }
+                }
+            }
+            debugImages =
+              SentryDependencyContainer.sharedInstance().debugImageProvider
+              .getDebugImagesForImageAddressesFromCache(imageAddresses: imagesAddresses) as [DebugMeta]
+        }
+        if debugImages.isEmpty {
+            debugImages = PrivateSentrySDKOnly.getDebugImages() as [DebugMeta]
+        }
+
+        result(debugImages.map { $0.serialize() })
     }
 
     private func initNativeSdk(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
