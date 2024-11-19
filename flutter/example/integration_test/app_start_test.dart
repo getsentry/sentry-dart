@@ -56,7 +56,7 @@ void main() async {
 
       await tester.pumpAndSettle();
 
-      await Future<void>.delayed(Duration(seconds: 3));
+      await Future<void>.delayed(const Duration(seconds: 3));
 
       final envelope = transport.envelopes.first;
       expect(envelope.items[0].header.type, "transaction");
