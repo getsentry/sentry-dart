@@ -168,8 +168,11 @@ class SentryTracer extends ISentrySpan {
           ? await profiler?.finishFor(transaction)
           : null;
 
-      await _hub.captureTransaction(transaction,
-          traceContext: traceContext(), hint: _hint);
+      await _hub.captureTransaction(
+        transaction,
+        traceContext: traceContext(),
+        hint: _hint,
+      );
     } finally {
       profiler?.dispose();
     }
@@ -287,7 +290,10 @@ class SentryTracer extends ISentrySpan {
     final finishStatus = _finishStatus;
     if (finishStatus.finishing) {
       await finish(
-          status: finishStatus.status, endTimestamp: endTimestamp, hint: hint);
+        status: finishStatus.status,
+        endTimestamp: endTimestamp,
+        hint: hint,
+      );
     }
   }
 

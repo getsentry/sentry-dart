@@ -16,8 +16,6 @@ class TracingClient extends BaseClient {
   @override
   Future<StreamedResponse> send(BaseRequest request) async {
     // see https://develop.sentry.dev/sdk/performance/#header-sentry-trace
-    final stopwatch = Stopwatch();
-    stopwatch.start();
 
     final urlDetails = HttpSanitizer.sanitizeUrl(request.url.toString());
 
@@ -43,7 +41,6 @@ class TracingClient extends BaseClient {
 
     StreamedResponse? originalResponse;
     final hint = Hint();
-    // List<StreamedResponse> copiedResponses = [];
     try {
       if (containsTargetOrMatchesRegExp(
           _hub.options.tracePropagationTargets, request.url.toString())) {
@@ -88,7 +85,6 @@ class TracingClient extends BaseClient {
       rethrow;
     } finally {
       await span?.finish(hint: hint);
-      stopwatch.stop();
     }
     return originalResponse;
   }
