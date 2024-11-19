@@ -1,9 +1,13 @@
 import 'package:http/http.dart';
-import '../utils/http_deep_copy_streamed_response.dart';
+import '../hint.dart';
+import '../type_check_hint.dart';
+import '../utils/streamed_response_copier.dart';
 import '../utils/tracing_utils.dart';
 import 'sentry_http_client_error.dart';
+import '../protocol.dart';
 import '../hub.dart';
 import '../hub_adapter.dart';
+import '../throwable_mechanism.dart';
 import 'sentry_http_client.dart';
 
 /// A [http](https://pub.dev/packages/http)-package compatible HTTP client
@@ -96,30 +100,31 @@ class FailedRequestClient extends BaseClient {
     int? statusCode;
     Object? exception;
     StackTrace? stackTrace;
-    StreamedResponse? streamedResponse;
-    List<StreamedResponse> copiedResponses = [];
+    StreamedResponse? originalResponse;
+    StreamedResponse? copiedResponse;
 
     final stopwatch = Stopwatch();
     stopwatch.start();
 
     try {
-      streamedResponse = await _client.send(request);
-      copiedResponses = await deepCopyStreamedResponse(streamedResponse, 2);
-      statusCode = copiedResponses[0].statusCode;
-      return copiedResponses[0];
+      originalResponse = await _client.send(request);
+      final copier = StreamedResponseCopier(originalResponse);
+      originalResponse = copier.copy();
+      copiedResponse = copier.copy();
+      statusCode = originalResponse.statusCode;
+      return originalResponse;
     } catch (e, st) {
       exception = e;
       stackTrace = st;
       rethrow;
     } finally {
       stopwatch.stop();
-
       await _captureEventIfNeeded(
         request,
         statusCode,
         exception,
         stackTrace,
-        copiedResponses.isNotEmpty ? copiedResponses[1] : null,
+        copiedResponse,
         stopwatch.elapsed,
       );
     }
@@ -148,10 +153,10 @@ class FailedRequestClient extends BaseClient {
     }
 
     final reason = 'HTTP Client Error with status code: $statusCode';
+    exception ??= SentryHttpClientError(reason);
 
-    await captureEvent(
-      _hub,
-      exception: exception ?? SentryHttpClientError(reason),
+    await _captureEvent(
+      exception: exception,
       stackTrace: stackTrace,
       request: request,
       requestDuration: duration,
@@ -162,6 +167,90 @@ class FailedRequestClient extends BaseClient {
 
   @override
   void close() => _client.close();
+
+  // See https://develop.sentry.dev/sdk/event-payloads/request/
+  Future<void> _captureEvent({
+    required Object? exception,
+    StackTrace? stackTrace,
+    String? reason,
+    required Duration requestDuration,
+    required BaseRequest request,
+    required StreamedResponse? response,
+  }) async {
+    final sentryRequest = SentryRequest.fromUri(
+      method: request.method,
+      headers: _hub.options.sendDefaultPii ? request.headers : null,
+      uri: request.url,
+      data: _hub.options.sendDefaultPii ? _getDataFromRequest(request) : null,
+      // ignore: deprecated_member_use_from_same_package
+      other: {
+        'content_length': request.contentLength.toString(),
+        'duration': requestDuration.toString(),
+      },
+    );
+
+    final mechanism = Mechanism(
+      type: 'SentryHttpClient',
+      description: reason,
+    );
+
+    bool? snapshot;
+    if (exception is SentryHttpClientError) {
+      snapshot = true;
+    }
+
+    final throwableMechanism = ThrowableMechanism(
+      mechanism,
+      exception,
+      snapshot: snapshot,
+    );
+
+    final event = SentryEvent(
+      throwable: throwableMechanism,
+      request: sentryRequest,
+      timestamp: _hub.options.clock(),
+    );
+
+    final hint = Hint.withMap({TypeCheckHint.httpRequest: request});
+
+    if (response != null) {
+      event.contexts.response = SentryResponse(
+        headers: _hub.options.sendDefaultPii ? response.headers : null,
+        bodySize: response.contentLength,
+        statusCode: response.statusCode,
+      );
+      hint.set(TypeCheckHint.httpResponse, response);
+    }
+
+    await _hub.captureEvent(
+      event,
+      stackTrace: stackTrace,
+      hint: hint,
+    );
+  }
+
+  // Types of Request can be found here:
+  // https://pub.dev/documentation/http/latest/http/http-library.html
+  Object? _getDataFromRequest(BaseRequest request) {
+    final contentLength = request.contentLength;
+    if (contentLength == null) {
+      return null;
+    }
+    if (!_hub.options.maxRequestBodySize.shouldAddBody(contentLength)) {
+      return null;
+    }
+    if (request is MultipartRequest) {
+      final data = <String, String>{...request.fields};
+      return data;
+    }
+
+    if (request is Request) {
+      return request.body;
+    }
+
+    // There's nothing we can do for a StreamedRequest
+    return null;
+  }
 }
 
 extension _ListX on List<SentryStatusCode> {
