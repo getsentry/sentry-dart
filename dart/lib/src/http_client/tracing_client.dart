@@ -1,6 +1,5 @@
 import 'package:http/http.dart';
 import '../../sentry.dart';
-import '../utils/http_deep_copy_streamed_response.dart';
 import '../utils/streamed_response_copier.dart';
 
 /// A [http](https://pub.dev/packages/http)-package compatible HTTP client

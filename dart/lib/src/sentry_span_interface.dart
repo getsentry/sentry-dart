@@ -1,10 +1,7 @@
-import 'package:http/http.dart';
 import 'package:meta/meta.dart';
 
 import '../sentry.dart';
 import 'metrics/local_metrics_aggregator.dart';
-import 'protocol.dart';
-import 'tracing.dart';
 
 /// Represents performance monitoring Span.
 abstract class ISentrySpan {
