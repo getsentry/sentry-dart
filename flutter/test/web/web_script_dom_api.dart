@@ -1,6 +1,5 @@
 import 'dart:js_interop';
 
-// ignore: depend_on_referenced_packages
 import 'package:web/web.dart';
 
 import 'script_dom_api.dart';
