@@ -29,6 +29,7 @@ jobs:
     defaults:
       run:
         shell: bash
+        working-directory: flutter
     strategy:
       fail-fast: false
       matrix:
@@ -59,7 +60,7 @@ jobs:
       - uses: actions/setup-java@v4
         if: ${{ matrix.target == 'android' }}
         with:
-          java-version: '11'
+          java-version: '17'
           distribution: 'adopt'
 
       # Install required dependencies for Flutter on Linux on Ubuntu
@@ -77,30 +78,32 @@ jobs:
       - run: flutter upgrade
 
       - name: Pub Get
-        run: |
-          cd flutter
-          flutter pub get
+        run: flutter pub get
 
-      - name: Test chrome
+      - name: Test web (JS)
         if: matrix.target == 'web'
         run: |
-          cd flutter
           flutter test --platform chrome --test-randomize-ordering-seed=random --exclude-tags canvasKit
           flutter test --platform chrome --test-randomize-ordering-seed=random --tags canvasKit --web-renderer canvaskit
+
+      - name: Test web (WASM)
+        if: matrix.target == 'web'
+        run: |
+          flutter test --platform chrome --wasm --test-randomize-ordering-seed=random --exclude-tags canvasKit
+          flutter test --platform chrome --wasm --test-randomize-ordering-seed=random --tags canvasKit --web-renderer canvaskit
 
       - name: Test VM with coverage
         if: matrix.target == 'linux' || matrix.target == 'macos' || matrix.target == 'windows'
         run: |
-          cd flutter
           flutter test --coverage --test-randomize-ordering-seed=random
           dart run remove_from_coverage -f coverage/lcov.info -r 'binding.dart'
 
-      - uses: codecov/codecov-action@e28ff129e5465c2c0dcc6f003fc735cb6ae0c673 # pin@v3
+      - uses: codecov/codecov-action@5c47607acb93fed5485fdbf7232e8a31425f672a # pin@v3
         if: matrix.sdk == 'stable' && matrix.target == 'linux'
         with:
           name: sentry_flutter
           file: ./flutter/coverage/lcov.info
-          functionalities: "search" # remove after https://github.com/codecov/codecov-action/issues/600
+          functionalities: 'search' # remove after https://github.com/codecov/codecov-action/issues/600
           token: ${{ secrets.CODECOV_TOKEN }}
 
       - uses: VeryGoodOpenSource/very_good_coverage@c953fca3e24a915e111cc6f55f03f756dcb3964c # pin@v3.0.0
@@ -108,14 +111,15 @@ jobs:
         with:
           path: './flutter/coverage/lcov.info'
           min_coverage: 90
-          exclude: 'lib/src/native/cocoa/binding.dart'
+          # 'native/c' for now because we run coverage on Linux where these are not tested yet.
+          exclude: 'lib/src/native/cocoa/binding.dart lib/src/native/c/*'
 
       - name: Build ${{ matrix.target }}
+        working-directory: flutter/example
         run: |
           flutter config --enable-windows-desktop
           flutter config --enable-macos-desktop
           flutter config --enable-linux-desktop
-          cd flutter/example
           TARGET=${{ matrix.target }}
           flutter pub get
           case $TARGET in
@@ -144,6 +148,7 @@ jobs:
     with:
       package: flutter
       sdk: flutter
+      panaThreshold: 87
 
   pod-lint:
     runs-on: macos-latest
@@ -178,7 +183,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: ktlint
-        uses: ScaCap/action-ktlint@7bfa4928cf705b83700c91fecc0e1a3a4c0e99ad # pin@1.8.3
+        uses: ScaCap/action-ktlint@26c5e9b625966139d9956cbbb6217375480d4e14 # pin@1.9.0
         with:
           github_token: ${{ secrets.github_token }}
           reporter: github-pr-review
@@ -191,6 +196,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       # To recreate baseline run: detekt -i flutter/android,flutter/example/android -b flutter/config/detekt-bl.xml -cb
-      - uses: natiginfo/action-detekt-all@b9daaf58ff7a4885ff92ba612c3ea72bf1abeadb # pin@1.23.6
+      - uses: natiginfo/action-detekt-all@6bf4342ea96f638ecced05cf7d7dc48acdecc854 # pin@1.23.7
         with:
           args: -i flutter/android,flutter/example/android --baseline flutter/config/detekt-bl.xml --jvm-target 1.8 --build-upon-default-config --all-rules

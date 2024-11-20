@@ -29,42 +29,25 @@ class TimeToInitialDisplayTracker {
   bool _isManual = false;
   Completer<DateTime?>? _trackingCompleter;
   DateTime? _endTimestamp;
+  DateTime? _completeTrackingTimeStamp;
+
   final Duration _determineEndtimeTimeout = Duration(seconds: 5);
 
   /// This endTimestamp is needed in the [TimeToFullDisplayTracker] class
   @internal
   DateTime? get endTimestamp => _endTimestamp;
 
-  Future<void> trackRegularRoute(
-    ISentrySpan transaction,
-    DateTime startTimestamp,
-  ) async {
-    await _trackTimeToInitialDisplay(
-      transaction: transaction,
-      startTimestamp: startTimestamp,
-    );
-  }
-
-  Future<void> trackAppStart(ISentrySpan transaction,
-      {required DateTime startTimestamp,
-      required DateTime endTimestamp}) async {
-    await _trackTimeToInitialDisplay(
-      transaction: transaction,
-      startTimestamp: startTimestamp,
-      endTimestamp: endTimestamp,
-      origin: SentryTraceOrigins.autoUiTimeToDisplay,
-    );
-
-    // Store the end timestamp for potential use by TTFD tracking
-    _endTimestamp = endTimestamp;
-  }
-
-  Future<void> _trackTimeToInitialDisplay({
+  Future<void> track({
     required ISentrySpan transaction,
     required DateTime startTimestamp,
     DateTime? endTimestamp,
     String? origin,
   }) async {
+    if (endTimestamp != null) {
+      // Store the end timestamp for potential use by TTFD tracking
+      this._endTimestamp = endTimestamp;
+    }
+
     final _endTimestamp = endTimestamp ?? await determineEndTime();
     if (_endTimestamp == null) return;
 
@@ -85,8 +68,11 @@ class TimeToInitialDisplayTracker {
         milliseconds: _endTimestamp.difference(startTimestamp).inMilliseconds);
     final ttidMeasurement = SentryMeasurement.timeToInitialDisplay(duration);
 
-    transaction.setMeasurement(ttidMeasurement.name, ttidMeasurement.value,
-        unit: ttidMeasurement.unit);
+    transaction.setMeasurement(
+      ttidMeasurement.name,
+      ttidMeasurement.value,
+      unit: ttidMeasurement.unit,
+    );
     await ttidSpan.finish(endTimestamp: _endTimestamp);
   }
 
@@ -101,6 +87,13 @@ class TimeToInitialDisplayTracker {
 
     // If we already know it's manual we can return the future immediately
     if (_isManual) {
+      final completeTrackingTimeStamp = _completeTrackingTimeStamp;
+      if (completeTrackingTimeStamp != null) {
+        // If complete was called before we could call start, complete it here.
+        _endTimestamp = completeTrackingTimeStamp;
+        _trackingCompleter?.complete(completeTrackingTimeStamp);
+        _completeTrackingTimeStamp = null;
+      }
       return future;
     }
 
@@ -120,10 +113,13 @@ class TimeToInitialDisplayTracker {
   }
 
   void completeTracking() {
+    final timestamp = DateTime.now();
+
     if (_trackingCompleter != null && !_trackingCompleter!.isCompleted) {
-      final endTimestamp = DateTime.now();
-      _endTimestamp = endTimestamp;
-      _trackingCompleter?.complete(endTimestamp);
+      _endTimestamp = timestamp;
+      _trackingCompleter?.complete(timestamp);
+    } else {
+      _completeTrackingTimeStamp = timestamp;
     }
   }
 
@@ -132,5 +128,11 @@ class TimeToInitialDisplayTracker {
     _trackingCompleter = null;
     // We can't clear the ttid end time stamp here, because it might be needed
     // in the [TimeToFullDisplayTracker] class
+  }
+
+  @visibleForTesting
+  void clearForTest() {
+    clear();
+    _endTimestamp = null;
   }
 }

@@ -2,7 +2,10 @@ import 'dart:async';
 
 import 'package:meta/meta.dart';
 
+import 'dart_exception_type_identifier.dart';
+import 'load_dart_debug_images_integration.dart';
 import 'metrics/metrics_api.dart';
+import 'protocol/sentry_feedback.dart';
 import 'run_zoned_guarded_integration.dart';
 import 'event_processor/enricher/enricher_event_processor.dart';
 import 'environment/environment_variables.dart';
@@ -20,6 +23,9 @@ import 'sentry_client.dart';
 import 'sentry_options.dart';
 import 'sentry_user_feedback.dart';
 import 'tracing.dart';
+import 'sentry_attachment/sentry_attachment.dart';
+import 'transport/data_category.dart';
+import 'transport/task_queue.dart';
 
 /// Configuration options callback
 typedef OptionsConfiguration = FutureOr<void> Function(SentryOptions);
@@ -30,6 +36,7 @@ typedef AppRunner = FutureOr<void> Function();
 /// Sentry SDK main entry point
 class Sentry {
   static Hub _hub = NoOpHub();
+  static TaskQueue<SentryId> _taskQueue = NoOpTaskQueue();
 
   Sentry._();
 
@@ -52,6 +59,11 @@ class Sentry {
       if (config is Future) {
         await config;
       }
+      _taskQueue = DefaultTaskQueue<SentryId>(
+        sentryOptions.maxQueueSize,
+        sentryOptions.logger,
+        sentryOptions.recorder,
+      );
     } catch (exception, stackTrace) {
       sentryOptions.logger(
         SentryLevel.error,
@@ -82,9 +94,15 @@ class Sentry {
       options.addIntegrationByIndex(0, IsolateErrorIntegration());
     }
 
+    if (options.enableDartSymbolication) {
+      options.addIntegration(LoadDartDebugImagesIntegration());
+    }
+
     options.addEventProcessor(EnricherEventProcessor(options));
     options.addEventProcessor(ExceptionEventProcessor(options));
     options.addEventProcessor(DeduplicationEventProcessor(options));
+
+    options.prependExceptionTypeIdentifier(DartExceptionTypeIdentifier());
   }
 
   /// This method reads available environment variables and uses them
@@ -171,12 +189,17 @@ class Sentry {
     Hint? hint,
     ScopeCallback? withScope,
   }) =>
-      _hub.captureEvent(
-        event,
-        stackTrace: stackTrace,
-        hint: hint,
-        withScope: withScope,
-      );
+      _taskQueue.enqueue(
+          () => _hub.captureEvent(
+                event,
+                stackTrace: stackTrace,
+                hint: hint,
+                withScope: withScope,
+              ),
+          SentryId.empty(),
+          event.type != null
+              ? DataCategory.fromItemType(event.type!)
+              : DataCategory.unknown);
 
   /// Reports the [throwable] and optionally its [stackTrace] to Sentry.io.
   static Future<SentryId> captureException(
@@ -185,11 +208,15 @@ class Sentry {
     Hint? hint,
     ScopeCallback? withScope,
   }) =>
-      _hub.captureException(
-        throwable,
-        stackTrace: stackTrace,
-        hint: hint,
-        withScope: withScope,
+      _taskQueue.enqueue(
+        () => _hub.captureException(
+          throwable,
+          stackTrace: stackTrace,
+          hint: hint,
+          withScope: withScope,
+        ),
+        SentryId.empty(),
+        DataCategory.error,
       );
 
   /// Reports a [message] to Sentry.io.
@@ -201,20 +228,44 @@ class Sentry {
     Hint? hint,
     ScopeCallback? withScope,
   }) =>
-      _hub.captureMessage(
-        message,
-        level: level,
-        template: template,
-        params: params,
-        hint: hint,
-        withScope: withScope,
+      _taskQueue.enqueue(
+        () => _hub.captureMessage(
+          message,
+          level: level,
+          template: template,
+          params: params,
+          hint: hint,
+          withScope: withScope,
+        ),
+        SentryId.empty(),
+        DataCategory.unknown,
       );
 
   /// Reports a [userFeedback] to Sentry.io.
   ///
   /// First capture an event and use the [SentryId] to create a [SentryUserFeedback]
+  @Deprecated(
+      'Will be removed in a future version. Use [captureFeedback] instead')
   static Future<void> captureUserFeedback(SentryUserFeedback userFeedback) =>
       _hub.captureUserFeedback(userFeedback);
+
+  /// Reports [SentryFeedback] to Sentry.io.
+  ///
+  /// Use [withScope] to add [SentryAttachment] to the feedback.
+  static Future<SentryId> captureFeedback(
+    SentryFeedback feedback, {
+    Hint? hint,
+    ScopeCallback? withScope,
+  }) =>
+      _taskQueue.enqueue(
+        () => _hub.captureFeedback(
+          feedback,
+          hint: hint,
+          withScope: withScope,
+        ),
+        SentryId.empty(),
+        DataCategory.unknown,
+      );
 
   /// Close the client SDK
   static Future<void> close() async {
@@ -229,7 +280,7 @@ class Sentry {
   /// Last event id recorded by the current Hub
   static SentryId get lastEventId => _hub.lastEventId;
 
-  /// Adds a breacrumb to the current Scope
+  /// Adds a breadcrumb to the current Scope
   static Future<void> addBreadcrumb(Breadcrumb crumb, {Hint? hint}) =>
       _hub.addBreadcrumb(crumb, hint: hint);
 
@@ -251,7 +302,7 @@ class Sentry {
     }
 
     // try parsing the dsn
-    Dsn.parse(options.dsn!);
+    options.parsedDsn;
 
     return true;
   }
@@ -308,6 +359,8 @@ class Sentry {
   static ISentrySpan? getSpan() => _hub.getSpan();
 
   /// Gets access to the metrics API for the current hub.
+  @Deprecated(
+      'Metrics will be deprecated and removed in the next major release. Sentry will reject all metrics sent after October 7, 2024. Learn more: https://sentry.zendesk.com/hc/en-us/articles/26369339769883-Upcoming-API-Changes-to-Metrics')
   static MetricsApi metrics() => _hub.metricsApi;
 
   @internal

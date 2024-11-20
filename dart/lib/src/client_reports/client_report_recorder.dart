@@ -13,11 +13,11 @@ class ClientReportRecorder {
   final ClockProvider _clock;
   final Map<_QuantityKey, int> _quantities = {};
 
-  void recordLostEvent(
-      final DiscardReason reason, final DataCategory category) {
+  void recordLostEvent(final DiscardReason reason, final DataCategory category,
+      {int count = 1}) {
     final key = _QuantityKey(reason, category);
     var current = _quantities[key] ?? 0;
-    _quantities[key] = current + 1;
+    _quantities[key] = current + count;
   }
 
   ClientReport? flush() {

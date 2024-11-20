@@ -2,6 +2,9 @@ import 'package:flutter/foundation.dart';
 import 'package:sentry/sentry.dart';
 import '../sentry_flutter_options.dart';
 
+// ignore: implementation_imports
+import 'package:sentry/src/utils/stacktrace_utils.dart';
+
 /// Integration that capture errors on the [FlutterError.onError] handler.
 ///
 /// Remarks:
@@ -76,10 +79,16 @@ class FlutterErrorIntegration implements Integration<SentryFlutterOptions> {
           (scope) => scope.span?.status ??= const SpanStatus.internalError(),
         );
 
-        await hub.captureEvent(event,
-            stackTrace: errorDetails.stack,
-            hint:
-                Hint.withMap({TypeCheckHint.syntheticException: errorDetails}));
+        final hint = Hint();
+        hint.addAll({TypeCheckHint.syntheticException: errorDetails});
+        var stackTrace = errorDetails.stack;
+        if (errorDetails.stack == null ||
+            errorDetails.stack == StackTrace.empty) {
+          // ignore: invalid_use_of_internal_member
+          stackTrace = getCurrentStackTrace();
+          hint.addAll({TypeCheckHint.currentStackTrace: true});
+        }
+        await hub.captureEvent(event, stackTrace: stackTrace, hint: hint);
         // we don't call Zone.current.handleUncaughtError because we'd like
         // to set a specific mechanism for FlutterError.onError.
       } else {

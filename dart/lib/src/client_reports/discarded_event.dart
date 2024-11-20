@@ -37,6 +37,8 @@ extension _OutcomeExtension on DiscardReason {
         return 'cache_overflow';
       case DiscardReason.rateLimitBackoff:
         return 'ratelimit_backoff';
+      case DiscardReason.ignored:
+        return 'ignored';
     }
   }
 }
@@ -54,6 +56,8 @@ extension _DataCategoryExtension on DataCategory {
         return 'session';
       case DataCategory.transaction:
         return 'transaction';
+      case DataCategory.span:
+        return 'span';
       case DataCategory.attachment:
         return 'attachment';
       case DataCategory.security:

@@ -2,7 +2,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry_flutter/src/integrations/on_error_integration.dart';
-import 'package:sentry_flutter/src/sentry_flutter_options.dart';
 
 import '../mocks.dart';
 import '../mocks.mocks.dart';
@@ -51,7 +50,7 @@ void main() {
 
 class Fixture {
   final hub = MockHub();
-  final options = SentryFlutterOptions(dsn: fakeDsn);
+  final options = defaultTestOptions();
   late final platformDispatcherWrapper =
       PlatformDispatcherWrapper(MockPlatformDispatcher());
 

@@ -1,5 +1,7 @@
 import 'package:meta/meta.dart';
 
+import 'access_aware_map.dart';
+
 /// Describes a runtime in more detail.
 ///
 /// Typically this context is used multiple times if multiple runtimes
@@ -17,6 +19,7 @@ class SentryRuntime {
     this.compiler,
     this.rawDescription,
     this.build,
+    this.unknown,
   }) : assert(key == null || key.length >= 1);
 
   /// Key used in the JSON and which will be displayed
@@ -44,18 +47,26 @@ class SentryRuntime {
   /// Application build string, if it is separate from the version.
   final String? build;
 
+  @internal
+  final Map<String, dynamic>? unknown;
+
   /// Deserializes a [SentryRuntime] from JSON [Map].
-  factory SentryRuntime.fromJson(Map<String, dynamic> data) => SentryRuntime(
-        name: data['name'],
-        version: data['version'],
-        compiler: data['compiler'],
-        rawDescription: data['raw_description'],
-        build: data['build'],
-      );
+  factory SentryRuntime.fromJson(Map<String, dynamic> data) {
+    final json = AccessAwareMap(data);
+    return SentryRuntime(
+      name: json['name'],
+      version: json['version'],
+      compiler: json['compiler'],
+      rawDescription: json['raw_description'],
+      build: json['build'],
+      unknown: json.notAccessed(),
+    );
+  }
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
-    return <String, dynamic>{
+    return {
+      ...?unknown,
       if (name != null) 'name': name,
       if (compiler != null) 'compiler': compiler,
       if (version != null) 'version': version,
@@ -71,6 +82,7 @@ class SentryRuntime {
         compiler: compiler,
         rawDescription: rawDescription,
         build: build,
+        unknown: unknown,
       );
 
   SentryRuntime copyWith({
@@ -88,5 +100,6 @@ class SentryRuntime {
         compiler: compiler ?? this.compiler,
         rawDescription: rawDescription ?? this.rawDescription,
         build: build ?? this.build,
+        unknown: unknown,
       );
 }

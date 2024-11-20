@@ -209,9 +209,10 @@ import '../widget_utils.dart';
 class _TreeWalker {
   static const _privateDelimiter = '_';
 
-  _TreeWalker(this.rootElement);
+  _TreeWalker(this.rootElement, this.options);
 
   final Element rootElement;
+  final SentryFlutterOptions options;
 
   ValueChanged<Element> _visitor(
       SentryViewHierarchyElement parentSentryElement) {
@@ -254,7 +255,7 @@ class _TreeWalker {
     double? alpha;
 
     final renderObject = element.renderObject;
-    if (renderObject is RenderBox) {
+    if (renderObject is RenderBox && renderObject.hasSize) {
       final offset = renderObject.localToGlobal(Offset.zero);
       if (offset.dx > 0) {
         x = offset.dx;
@@ -278,10 +279,15 @@ class _TreeWalker {
       alpha = widget.opacity;
     }
 
+    String? identifier;
+    if (options.reportViewHierarchyIdentifiers) {
+      identifier = WidgetUtils.toStringValue(widget.key);
+    }
+
     return SentryViewHierarchyElement(
       element.widget.runtimeType.toString(),
       depth: element.depth,
-      identifier: WidgetUtils.toStringValue(element.widget.key),
+      identifier: identifier,
       width: width,
       height: height,
       x: x,
@@ -292,7 +298,8 @@ class _TreeWalker {
   }
 }
 
-SentryViewHierarchy? walkWidgetTree(WidgetsBinding instance) {
+SentryViewHierarchy? walkWidgetTree(
+    WidgetsBinding instance, SentryFlutterOptions options) {
   // to keep compatibility with older versions
   // ignore: deprecated_member_use
   final rootElement = instance.renderViewElement;
@@ -300,7 +307,7 @@ SentryViewHierarchy? walkWidgetTree(WidgetsBinding instance) {
     return null;
   }
 
-  final walker = _TreeWalker(rootElement);
+  final walker = _TreeWalker(rootElement, options);
 
   return walker.toSentryViewHierarchy();
 }

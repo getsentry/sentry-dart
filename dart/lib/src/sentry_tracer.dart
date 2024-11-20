@@ -17,7 +17,9 @@ class SentryTracer extends ISentrySpan {
   late final SentrySpan _rootSpan;
   final List<SentrySpan> _children = [];
   final Map<String, dynamic> _extra = {};
+
   final Map<String, SentryMeasurement> _measurements = {};
+  Map<String, SentryMeasurement> get measurements => _measurements;
 
   Timer? _autoFinishAfterTimer;
   Duration? _autoFinishAfter;
@@ -69,6 +71,7 @@ class SentryTracer extends ISentrySpan {
       _hub,
       samplingDecision: transactionContext.samplingDecision,
       startTimestamp: startTimestamp,
+      isRootSpan: true,
     );
     _waitForChildren = waitForChildren;
     _autoFinishAfter = autoFinishAfter;
@@ -80,6 +83,12 @@ class SentryTracer extends ISentrySpan {
         SentryTransactionNameSource.custom;
     _trimEnd = trimEnd;
     _onFinish = onFinish;
+
+    for (final collector in _hub.options.performanceCollectors) {
+      if (collector is PerformanceContinuousCollector) {
+        collector.onSpanStarted(_rootSpan);
+      }
+    }
   }
 
   @override
@@ -256,6 +265,12 @@ class SentryTracer extends ISentrySpan {
 
     _children.add(child);
 
+    for (final collector in _hub.options.performanceCollectors) {
+      if (collector is PerformanceContinuousCollector) {
+        collector.onSpanStarted(child);
+      }
+    }
+
     return child;
   }
 
@@ -307,10 +322,6 @@ class SentryTracer extends ISentrySpan {
   @override
   SentryTraceHeader toSentryTrace() => _rootSpan.toSentryTrace();
 
-  @visibleForTesting
-  Map<String, SentryMeasurement> get measurements =>
-      Map.unmodifiable(_measurements);
-
   bool _haveAllChildrenFinished() {
     for (final child in children) {
       if (!child.finished) {
@@ -328,10 +339,19 @@ class SentryTracer extends ISentrySpan {
   @override
   void setMeasurement(String name, num value, {SentryMeasurementUnit? unit}) {
     if (finished) {
+      _hub.options.logger(SentryLevel.debug,
+          "The tracer is already finished. Measurement $name cannot be set");
       return;
     }
-    final measurement = SentryMeasurement(name, value, unit: unit);
-    _measurements[name] = measurement;
+    _measurements[name] = SentryMeasurement(name, value, unit: unit);
+  }
+
+  void setMeasurementFromChild(String name, num value,
+      {SentryMeasurementUnit? unit}) {
+    // We don't want to overwrite span measurement, if it comes from a child.
+    if (!_measurements.containsKey(name)) {
+      setMeasurement(name, value, unit: unit);
+    }
   }
 
   @override
@@ -357,10 +377,11 @@ class SentryTracer extends ISentrySpan {
 
     _sentryTraceContextHeader = SentryTraceContextHeader(
       _rootSpan.context.traceId,
-      Dsn.parse(_hub.options.dsn!).publicKey,
+      _hub.options.parsedDsn.publicKey,
       release: _hub.options.release,
       environment: _hub.options.environment,
       userId: null, // because of PII not sending it for now
+      // ignore: deprecated_member_use_from_same_package
       userSegment: user?.segment,
       transaction:
           _isHighQualityTransactionName(transactionNameSource) ? name : null,

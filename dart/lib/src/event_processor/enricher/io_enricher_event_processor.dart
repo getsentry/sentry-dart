@@ -2,6 +2,7 @@ import 'dart:io';
 
 import '../../../sentry.dart';
 import 'enricher_event_processor.dart';
+import 'io_platform_memory.dart';
 
 EnricherEventProcessor enricherEventProcessor(SentryOptions options) {
   return IoEnricherEventProcessor(options);
@@ -14,28 +15,47 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
   IoEnricherEventProcessor(this._options);
 
   final SentryOptions _options;
+  late final String _dartVersion = _extractDartVersion(Platform.version);
+
+  /// Extracts the semantic version and channel from the full version string.
+  ///
+  /// Example:
+  /// Input: "3.5.0-180.3.beta (beta) (Wed Jun 5 15:06:15 2024 +0000) on "android_arm64""
+  /// Output: "3.5.0-180.3.beta (beta)"
+  ///
+  /// Falls back to the full version if the matching fails.
+  String _extractDartVersion(String fullVersion) {
+    RegExp channelRegex = RegExp(r'\((stable|beta|dev)\)');
+    Match? match = channelRegex.firstMatch(fullVersion);
+    // if match is null this will return the full version
+    return fullVersion.substring(0, match?.end);
+  }
 
   @override
   SentryEvent? apply(SentryEvent event, Hint hint) {
+    // Amend app with current memory usage, as this is not available on native.
+    final app = _getApp(event.contexts.app);
+
     // If there's a native integration available, it probably has better
     // information available than Flutter.
-
-    final os = _options.platformChecker.hasNativeIntegration
-        ? null
-        : _getOperatingSystem(event.contexts.operatingSystem);
 
     final device = _options.platformChecker.hasNativeIntegration
         ? null
         : _getDevice(event.contexts.device);
+
+    final os = _options.platformChecker.hasNativeIntegration
+        ? null
+        : _getOperatingSystem(event.contexts.operatingSystem);
 
     final culture = _options.platformChecker.hasNativeIntegration
         ? null
         : _getSentryCulture(event.contexts.culture);
 
     final contexts = event.contexts.copyWith(
-      operatingSystem: os,
       device: device,
+      operatingSystem: os,
       runtimes: _getRuntimes(event.contexts.runtimes),
+      app: app,
       culture: culture,
     );
 
@@ -51,6 +71,7 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
     // like Flutter: https://flutter.dev/docs/testing/build-modes
     final dartRuntime = SentryRuntime(
       name: 'Dart',
+      version: _dartVersion,
       rawDescription: Platform.version,
     );
     if (runtimes == null) {
@@ -79,6 +100,9 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
           exception: exception,
           stackTrace: stackTrace,
         );
+        if (_options.automatedTestMode) {
+          rethrow;
+        }
       }
     }
 
@@ -97,9 +121,18 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
   }
 
   SentryDevice _getDevice(SentryDevice? device) {
+    final platformMemory = PlatformMemory(_options);
     return (device ?? SentryDevice()).copyWith(
       name: device?.name ?? Platform.localHostname,
       processorCount: device?.processorCount ?? Platform.numberOfProcessors,
+      memorySize: device?.memorySize ?? platformMemory.getTotalPhysicalMemory(),
+      freeMemory: device?.freeMemory ?? platformMemory.getFreePhysicalMemory(),
+    );
+  }
+
+  SentryApp _getApp(SentryApp? app) {
+    return (app ?? SentryApp()).copyWith(
+      appMemory: app?.appMemory ?? ProcessInfo.currentRss,
     );
   }
 

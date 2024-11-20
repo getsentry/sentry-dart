@@ -1,5 +1,7 @@
 import 'package:meta/meta.dart';
 
+import 'access_aware_map.dart';
+
 /// Sentry Exception Mechanism
 /// The exception mechanism is an optional field residing
 /// in the Exception Interface. It carries additional information about
@@ -76,6 +78,9 @@ class Mechanism {
   /// (the last to be listed in the exception values).
   final int? parentId;
 
+  @internal
+  final Map<String, dynamic>? unknown;
+
   Mechanism({
     required this.type,
     this.description,
@@ -88,6 +93,7 @@ class Mechanism {
     this.source,
     this.exceptionId,
     this.parentId,
+    this.unknown,
   })  : _meta = meta != null ? Map.from(meta) : null,
         _data = data != null ? Map.from(data) : null;
 
@@ -116,10 +122,12 @@ class Mechanism {
         source: source ?? this.source,
         exceptionId: exceptionId ?? this.exceptionId,
         parentId: parentId ?? this.parentId,
+        unknown: unknown,
       );
 
   /// Deserializes a [Mechanism] from JSON [Map].
-  factory Mechanism.fromJson(Map<String, dynamic> json) {
+  factory Mechanism.fromJson(Map<String, dynamic> jsonData) {
+    final json = AccessAwareMap(jsonData);
     var data = json['data'];
     if (data != null) {
       data = Map<String, dynamic>.from(data as Map);
@@ -142,12 +150,14 @@ class Mechanism {
       source: json['source'],
       exceptionId: json['exception_id'],
       parentId: json['parent_id'],
+      unknown: json.notAccessed(),
     );
   }
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
     return {
+      ...?unknown,
       'type': type,
       if (description != null) 'description': description,
       if (helpLink != null) 'help_link': helpLink,

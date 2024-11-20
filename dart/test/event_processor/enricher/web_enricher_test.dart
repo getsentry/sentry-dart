@@ -1,14 +1,15 @@
 @TestOn('browser')
 library dart_test;
 
-import 'dart:html' as html;
-
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/event_processor/enricher/web_enricher_event_processor.dart';
+import 'package:sentry/src/event_processor/enricher/html_enricher_event_processor.dart'
+    if (dart.library.html) 'package:sentry/src/event_processor/enricher/html_enricher_event_processor.dart'
+    if (dart.library.js_interop) 'package:sentry/src/event_processor/enricher/web_enricher_event_processor.dart';
 import 'package:test/test.dart';
 
 import '../../mocks.dart';
 import '../../mocks/mock_platform_checker.dart';
+import '../../test_utils.dart';
 
 // can be tested on command line with
 // `dart test -p chrome --name web_enricher`
@@ -193,23 +194,16 @@ void main() {
       );
       await Sentry.close();
 
-      final ioEnricherCount = sentryOptions.eventProcessors
-          .whereType<WebEnricherEventProcessor>()
-          .length;
-      expect(ioEnricherCount, 1);
+      expect(sentryOptions.eventProcessors.map((e) => e.runtimeType.toString()),
+          contains('$WebEnricherEventProcessor'));
     });
   });
 }
 
 class Fixture {
   WebEnricherEventProcessor getSut() {
-    final options = SentryOptions(
-        dsn: fakeDsn,
-        checker: MockPlatformChecker(hasNativeIntegration: false));
-
-    return WebEnricherEventProcessor(
-      html.window,
-      options,
-    );
+    final options =
+        defaultTestOptions(MockPlatformChecker(hasNativeIntegration: false));
+    return enricherEventProcessor(options) as WebEnricherEventProcessor;
   }
 }

@@ -3,7 +3,7 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry/src/metrics/metric.dart';
 import 'package:sentry/src/metrics/metrics_aggregator.dart';
 
-import '../mocks.dart';
+import '../test_utils.dart';
 import 'mock_sentry_client.dart';
 import 'no_such_method_provider.dart';
 
@@ -13,6 +13,8 @@ class MockHub with NoSuchMethodProvider implements Hub {
   List<CaptureMessageCall> captureMessageCalls = [];
   List<AddBreadcrumbCall> addBreadcrumbCalls = [];
   List<SentryClient?> bindClientCalls = [];
+
+  // ignore: deprecated_member_use_from_same_package
   List<SentryUserFeedback> userFeedbackCalls = [];
   List<CaptureTransactionCall> captureTransactionCalls = [];
   List<CaptureMetricsCall> captureMetricsCalls = [];
@@ -21,7 +23,7 @@ class MockHub with NoSuchMethodProvider implements Hub {
   int spanContextCals = 0;
   int getSpanCalls = 0;
 
-  final _options = SentryOptions(dsn: fakeDsn);
+  final _options = defaultTestOptions();
   late final MetricsAggregator _metricsAggregator =
       MetricsAggregator(options: _options, hub: this);
 
@@ -133,6 +135,7 @@ class MockHub with NoSuchMethodProvider implements Hub {
   }
 
   @override
+  // ignore: deprecated_member_use_from_same_package
   Future<void> captureUserFeedback(SentryUserFeedback userFeedback) async {
     userFeedbackCalls.add(userFeedback);
   }

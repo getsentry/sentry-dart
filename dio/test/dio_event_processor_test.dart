@@ -436,7 +436,7 @@ final requestOptions = RequestOptions(
 );
 
 class Fixture {
-  final SentryOptions options = SentryOptions(dsn: fakeDsn);
+  final SentryOptions options = defaultTestOptions();
 
   // ignore: invalid_use_of_internal_member
   SentryExceptionFactory get exceptionFactory => options.exceptionFactory;

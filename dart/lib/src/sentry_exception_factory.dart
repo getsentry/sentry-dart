@@ -1,10 +1,9 @@
-import 'utils/stacktrace_utils.dart';
-
-import 'recursive_exception_cause_extractor.dart';
 import 'protocol.dart';
+import 'recursive_exception_cause_extractor.dart';
 import 'sentry_options.dart';
 import 'sentry_stack_trace_factory.dart';
 import 'throwable_mechanism.dart';
+import 'utils/stacktrace_utils.dart';
 
 /// class to convert Dart Error and exception to SentryException
 class SentryExceptionFactory {
@@ -19,6 +18,7 @@ class SentryExceptionFactory {
   SentryException getSentryException(
     dynamic exception, {
     dynamic stackTrace,
+    bool? removeSentryFrames,
   }) {
     var throwable = exception;
     Mechanism? mechanism;
@@ -39,22 +39,22 @@ class SentryExceptionFactory {
     // throwable.stackTrace is null if its an exception that was never thrown
     // hence we check again if stackTrace is null and if not, read the current stack trace
     // but only if attachStacktrace is enabled
+
     if (_options.attachStacktrace) {
       if (stackTrace == null || stackTrace == StackTrace.empty) {
         snapshot = true;
         stackTrace = getCurrentStackTrace();
+        removeSentryFrames = true;
       }
     }
 
     SentryStackTrace? sentryStackTrace;
     if (stackTrace != null) {
-      final frames = _stacktraceFactory.getStackFrames(stackTrace);
-
-      if (frames.isNotEmpty) {
-        sentryStackTrace = SentryStackTrace(
-          frames: frames,
-          snapshot: snapshot,
-        );
+      sentryStackTrace = _stacktraceFactory
+          .parse(stackTrace, removeSentryFrames: removeSentryFrames)
+          .copyWith(snapshot: snapshot);
+      if (sentryStackTrace.frames.isEmpty) {
+        sentryStackTrace = null;
       }
     }
 
@@ -62,10 +62,22 @@ class SentryExceptionFactory {
     final stackTraceString = stackTrace.toString();
     final value = throwableString.replaceAll(stackTraceString, '').trim();
 
+    String errorTypeName = throwable.runtimeType.toString();
+
+    if (_options.enableExceptionTypeIdentification) {
+      for (final errorTypeIdentifier in _options.exceptionTypeIdentifiers) {
+        final identifiedErrorType = errorTypeIdentifier.identifyType(throwable);
+        if (identifiedErrorType != null) {
+          errorTypeName = identifiedErrorType;
+          break;
+        }
+      }
+    }
+
     // if --obfuscate feature is enabled, 'type' won't be human readable.
     // https://flutter.dev/docs/deployment/obfuscate#caveat
     return SentryException(
-      type: (throwable.runtimeType).toString(),
+      type: errorTypeName,
       value: value.isNotEmpty ? value : null,
       mechanism: mechanism,
       stackTrace: sentryStackTrace,

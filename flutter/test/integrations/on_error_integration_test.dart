@@ -2,7 +2,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry_flutter/src/integrations/on_error_integration.dart';
-import 'package:sentry_flutter/src/sentry_flutter_options.dart';
 
 import '../mocks.dart';
 import '../mocks.mocks.dart';
@@ -29,9 +28,16 @@ void main() {
             return onErrorReturnValue;
           };
 
-      when(fixture.hub.captureEvent(captureAny,
-              stackTrace: captureAnyNamed('stackTrace')))
-          .thenAnswer((_) => Future.value(SentryId.empty()));
+      when(fixture.hub.captureEvent(
+        captureAny,
+        stackTrace: captureAnyNamed('stackTrace'),
+      )).thenAnswer((_) => Future.value(SentryId.empty()));
+
+      when(fixture.hub.captureEvent(
+        captureAny,
+        stackTrace: captureAnyNamed('stackTrace'),
+        hint: captureAnyNamed('hint'),
+      )).thenAnswer((_) => Future.value(SentryId.empty()));
 
       when(fixture.hub.options).thenReturn(fixture.options);
       final tracer = MockSentryTracer();
@@ -95,6 +101,25 @@ void main() {
       expect(throwableMechanism.mechanism.handled, false);
     });
 
+    test('captureEvent never uses an empty or null stack trace', () async {
+      final exception = StateError('error');
+      _reportError(
+        exception: exception,
+        stackTrace: StackTrace.current,
+        onErrorReturnValue: false,
+      );
+
+      final captured = verify(
+        await fixture.hub.captureEvent(captureAny,
+            hint: anyNamed('hint'), stackTrace: captureAnyNamed('stackTrace')),
+      ).captured;
+
+      final stackTrace = captured[1] as StackTrace?;
+
+      expect(stackTrace, isNotNull);
+      expect(stackTrace.toString(), isNotEmpty);
+    });
+
     test('calls default error', () async {
       var called = false;
       final defaultError = (_, __) {
@@ -146,6 +171,14 @@ void main() {
 
       final hub = Hub(fixture.options);
       final client = MockSentryClient();
+      when(client.captureEvent(any,
+              scope: anyNamed('scope'),
+              stackTrace: anyNamed('stackTrace'),
+              hint: anyNamed('hint')))
+          .thenAnswer((_) => Future.value(SentryId.newId()));
+      when(client.captureTransaction(any,
+              scope: anyNamed('scope'), traceContext: anyNamed('traceContext')))
+          .thenAnswer((_) => Future.value(SentryId.newId()));
       hub.bindClient(client);
 
       final sut = fixture.getSut();
@@ -163,12 +196,29 @@ void main() {
 
       await span?.finish();
     });
+
+    test('adds current stack trace hint if error has empty stack trace',
+        () async {
+      final exception = StateError('error');
+
+      _reportError(exception: exception, stackTrace: StackTrace.empty);
+
+      final hint = verify(
+        await fixture.hub.captureEvent(
+          captureAny,
+          stackTrace: captureAnyNamed('stackTrace'),
+          hint: captureAnyNamed('hint'),
+        ),
+      ).captured[2] as Hint;
+
+      expect(hint.get(TypeCheckHint.currentStackTrace), isTrue);
+    });
   });
 }
 
 class Fixture {
   final hub = MockHub();
-  final options = SentryFlutterOptions(dsn: fakeDsn)..tracesSampleRate = 1.0;
+  final options = defaultTestOptions()..tracesSampleRate = 1.0;
   final platformDispatcherWrapper =
       PlatformDispatcherWrapper(MockPlatformDispatcher());
 

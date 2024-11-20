@@ -4,31 +4,30 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:dio/dio.dart';
+import 'package:feedback/feedback.dart' as feedback;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:logging/logging.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:provider/provider.dart';
+import 'package:sentry_dio/sentry_dio.dart';
 import 'package:sentry_drift/sentry_drift.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_hive/sentry_hive.dart';
 import 'package:sentry_isar/sentry_isar.dart';
+import 'package:sentry_logging/sentry_logging.dart';
 import 'package:sentry_sqflite/sentry_sqflite.dart';
 import 'package:sqflite/sqflite.dart';
-
 // import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 // import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 import 'package:universal_platform/universal_platform.dart';
-import 'package:feedback/feedback.dart' as feedback;
-import 'package:provider/provider.dart';
+
 import 'auto_close_screen.dart';
-import 'drift/database.dart';
 import 'drift/connection/connection.dart';
+import 'drift/database.dart';
 import 'isar/user.dart';
-import 'user_feedback_dialog.dart';
-import 'package:dio/dio.dart';
-import 'package:sentry_dio/sentry_dio.dart';
-import 'package:sentry_logging/sentry_logging.dart';
-import 'package:sentry_hive/sentry_hive.dart';
 
 // ATTENTION: Change the DSN below with your own to see the events in Sentry. Get one at sentry.io
 const String exampleDsn =
@@ -43,6 +42,9 @@ var _isIntegrationTest = false;
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {
+
+  runZonedGuarded(() {})
+
   await setupSentry(
     () => runApp(
       SentryWidget(
@@ -90,6 +92,9 @@ Future<void> setupSentry(
       options.maxResponseBodySize = MaxResponseBodySize.always;
       options.navigatorKey = navigatorKey;
 
+      options.experimental.replay.sessionSampleRate = 1.0;
+      options.experimental.replay.onErrorSampleRate = 1.0;
+
       _isIntegrationTest = isIntegrationTest;
       if (_isIntegrationTest) {
         options.dist = '1';
@@ -103,7 +108,7 @@ Future<void> setupSentry(
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   _MyAppState createState() => _MyAppState();
@@ -112,6 +117,9 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
+    Future.delayed(const Duration(seconds: 3), () {
+      SentryFlutter.reportFullyDisplayed();
+    });
     return feedback.BetterFeedback(
       child: ChangeNotifierProvider<ThemeProvider>(
         create: (_) => ThemeProvider(),
@@ -139,8 +147,8 @@ class TooltipButton extends StatelessWidget {
     required this.onPressed,
     required this.buttonTitle,
     required this.text,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -157,8 +165,8 @@ class TooltipButton extends StatelessWidget {
 
 class MainScaffold extends StatelessWidget {
   const MainScaffold({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -229,7 +237,7 @@ class MainScaffold extends StatelessWidget {
               TooltipButton(
                 onPressed: isarTest,
                 text:
-                    'Executes CRUD operations on an in-memory with Isart and sends the created transaction to Sentry.',
+                    'Executes CRUD operations on an in-memory with Isar and sends the created transaction to Sentry.',
                 buttonTitle: 'isar',
               ),
             TooltipButton(
@@ -450,7 +458,7 @@ class MainScaffold extends StatelessWidget {
                 Sentry.captureMessage(
                   'This message has an attachment',
                   withScope: (scope) {
-                    const txt = 'Lorem Ipsum dolar sit amet';
+                    const txt = 'Lorem Ipsum dolor sit amet';
                     scope.addAttachment(
                       SentryAttachment.fromIntList(
                         utf8.encode(txt),
@@ -474,6 +482,7 @@ class MainScaffold extends StatelessWidget {
                         final entries = feedback.extra?.entries;
                         if (entries != null) {
                           for (final extra in entries) {
+                            // ignore: deprecated_member_use
                             scope.setExtra(extra.key, extra.value);
                           }
                         }
@@ -496,29 +505,21 @@ class MainScaffold extends StatelessWidget {
             TooltipButton(
               onPressed: () async {
                 final id = await Sentry.captureMessage('UserFeedback');
+                final screenshot = await SentryFlutter.captureScreenshot();
+
                 if (!context.mounted) return;
-                await showDialog(
-                  context: context,
-                  builder: (context) {
-                    return UserFeedbackDialog(eventId: id);
-                  },
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => SentryFeedbackWidget(
+                        associatedEventId: id, screenshot: screenshot),
+                    fullscreenDialog: true,
+                  ),
                 );
               },
               text:
-                  'Shows a custom user feedback dialog without an ongoing event that captures and sends user feedback data to Sentry.',
-              buttonTitle: 'Capture User Feedback',
-            ),
-            TooltipButton(
-              onPressed: () async {
-                await showDialog(
-                  context: context,
-                  builder: (context) {
-                    return UserFeedbackDialog(eventId: SentryId.newId());
-                  },
-                );
-              },
-              text: '',
-              buttonTitle: 'Show UserFeedback Dialog without event',
+                  'Shows a custom feedback dialog without an ongoing event that captures and sends user feedback data to Sentry.',
+              buttonTitle: 'Capture Feedback',
             ),
             TooltipButton(
               onPressed: () {
@@ -535,17 +536,23 @@ class MainScaffold extends StatelessWidget {
                     Sentry.startTransaction(
                         'testMetrics', 'span summary example',
                         bindToScope: true);
+                // ignore: deprecated_member_use
                 Sentry.metrics().increment('increment key',
                     unit: DurationSentryMeasurementUnit.day);
+                // ignore: deprecated_member_use
                 Sentry.metrics().distribution('distribution key',
                     value: Random().nextDouble() * 10);
+                // ignore: deprecated_member_use
                 Sentry.metrics().set('set int key',
                     value: Random().nextInt(100),
                     tags: {'myTag': 'myValue', 'myTag2': 'myValue2'});
+                // ignore: deprecated_member_use
                 Sentry.metrics().set('set string key',
                     stringValue: 'Random n ${Random().nextInt(100)}');
+                // ignore: deprecated_member_use
                 Sentry.metrics()
                     .gauge('gauge key', value: Random().nextDouble() * 10);
+                // ignore: deprecated_member_use
                 Sentry.metrics().timing(
                   'timing key',
                   function: () async => await Future.delayed(
@@ -561,6 +568,14 @@ class MainScaffold extends StatelessWidget {
             if (UniversalPlatform.isIOS || UniversalPlatform.isMacOS)
               const CocoaExample(),
             if (UniversalPlatform.isAndroid) const AndroidExample(),
+            // ignore: invalid_use_of_internal_member
+            if (SentryFlutter.native != null)
+              ElevatedButton(
+                onPressed: () async {
+                  SentryFlutter.nativeCrash();
+                },
+                child: const Text('Sentry.nativeCrash'),
+              ),
           ].map((widget) {
             if (kIsWeb) {
               // Add vertical padding to web so the tooltip doesn't obstruct the clicking of the button below.
@@ -715,7 +730,7 @@ extension BuildContextExtension on BuildContext {
 }
 
 class AndroidExample extends StatelessWidget {
-  const AndroidExample({Key? key}) : super(key: key);
+  const AndroidExample({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -833,7 +848,7 @@ class _IntegrationTestWidgetState extends State<IntegrationTestWidget> {
 }
 
 class CocoaExample extends StatelessWidget {
-  const CocoaExample({Key? key}) : super(key: key);
+  const CocoaExample({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -886,7 +901,7 @@ int loop(int val) {
 }
 
 class SecondaryScaffold extends StatelessWidget {
-  const SecondaryScaffold({Key? key}) : super(key: key);
+  const SecondaryScaffold({super.key});
 
   static Future<void> openSecondaryScaffold(BuildContext context) {
     return Navigator.push(
@@ -1027,7 +1042,10 @@ Future<void> showDialogWithTextAndImage(BuildContext context) async {
       await DefaultAssetBundle.of(context).loadString('assets/lorem-ipsum.txt');
 
   if (!context.mounted) return;
+  final imageBytes =
+      await DefaultAssetBundle.of(context).load('assets/sentry-wordmark.png');
   await showDialog<void>(
+    // ignore: use_build_context_synchronously
     context: context,
     // gets tracked if using SentryNavigatorObserver
     routeSettings: const RouteSettings(
@@ -1040,7 +1058,15 @@ Future<void> showDialogWithTextAndImage(BuildContext context) async {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              // Use various ways an image is included in the app.
+              // Local asset images are not obscured in replay recording.
               Image.asset('assets/sentry-wordmark.png'),
+              Image.asset('assets/sentry-wordmark.png', bundle: rootBundle),
+              Image.asset('assets/sentry-wordmark.png',
+                  bundle: DefaultAssetBundle.of(context)),
+              Image.network(
+                  'https://www.gstatic.com/recaptcha/api2/logo_48.png'),
+              Image.memory(imageBytes.buffer.asUint8List()),
               Text(text),
             ],
           ),

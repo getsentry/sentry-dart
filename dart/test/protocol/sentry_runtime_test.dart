@@ -2,12 +2,15 @@ import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 
+import '../mocks.dart';
+
 void main() {
   final sentryRuntime = SentryRuntime(
     key: 'key',
     name: 'name',
     version: 'version',
     rawDescription: 'rawDescription',
+    unknown: testUnknown,
   );
 
   final sentryRuntimeJson = <String, dynamic>{
@@ -15,6 +18,7 @@ void main() {
     'version': 'version',
     'raw_description': 'rawDescription',
   };
+  sentryRuntimeJson.addAll(testUnknown);
 
   group('json', () {
     test('toJson', () {

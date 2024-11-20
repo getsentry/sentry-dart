@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/dart_exception_type_identifier.dart';
 import 'package:sentry/src/event_processor/deduplication_event_processor.dart';
 import 'package:test/test.dart';
 
@@ -8,6 +9,7 @@ import 'fake_platform_checker.dart';
 import 'mocks.dart';
 import 'mocks/mock_integration.dart';
 import 'mocks/mock_sentry_client.dart';
+import 'test_utils.dart';
 
 AppRunner appRunner = () {};
 
@@ -18,7 +20,7 @@ void main() {
     var anException = Exception();
 
     setUp(() async {
-      final options = SentryOptions(dsn: fakeDsn)..automatedTestMode = true;
+      final options = defaultTestOptions();
       await Sentry.init(
         options: options,
         (options) {
@@ -44,6 +46,15 @@ void main() {
       expect(client.captureEventCalls.first.scope, isNotNull);
     });
 
+    test('should capture the feedback event', () async {
+      final fakeFeedback = SentryFeedback(message: 'message');
+      await Sentry.captureFeedback(fakeFeedback);
+
+      expect(client.captureFeedbackCalls.length, 1);
+      expect(client.captureFeedbackCalls.first.feedback, fakeFeedback);
+      expect(client.captureFeedbackCalls.first.scope, isNotNull);
+    });
+
     test('should capture the event withScope', () async {
       await Sentry.captureEvent(
         fakeEvent,
@@ -55,6 +66,19 @@ void main() {
       expect(client.captureEventCalls.length, 1);
       expect(client.captureEventCalls.first.event, fakeEvent);
       expect(client.captureEventCalls.first.scope?.user?.id, 'foo bar');
+    });
+
+    test('should capture the feedback event withScope', () async {
+      final fakeFeedback = SentryFeedback(message: 'message');
+      await Sentry.captureFeedback(
+        fakeFeedback,
+        withScope: (scope) {
+          scope.setUser(SentryUser(id: 'foo bar'));
+        },
+      );
+
+      expect(client.captureFeedbackCalls.length, 1);
+      expect(client.captureFeedbackCalls.first.scope?.user?.id, 'foo bar');
     });
 
     test('should not capture a null exception', () async {
@@ -129,10 +153,6 @@ void main() {
 
       expect(Sentry.getSpan(), isNull);
     });
-
-    test('should provide metrics API', () async {
-      expect(Sentry.metrics(), Sentry.currentHub.metricsApi);
-    });
   });
 
   group('Sentry is enabled or disabled', () {
@@ -141,7 +161,7 @@ void main() {
     });
 
     test('null DSN', () async {
-      final options = SentryOptions(dsn: fakeDsn)..automatedTestMode = true;
+      final options = defaultTestOptions();
       expect(
         () async => await Sentry.init(
           options: options,
@@ -154,7 +174,7 @@ void main() {
 
     test('appRunner should be optional', () async {
       expect(Sentry.isEnabled, false);
-      final options = SentryOptions(dsn: fakeDsn)..automatedTestMode = true;
+      final options = defaultTestOptions();
       await Sentry.init(
         options: options,
         (options) => options.dsn = fakeDsn,
@@ -163,7 +183,7 @@ void main() {
     });
 
     test('empty DSN', () async {
-      final options = SentryOptions(dsn: fakeDsn)..automatedTestMode = true;
+      final options = defaultTestOptions();
       await Sentry.init(
         options: options,
         (options) => options.dsn = '',
@@ -174,7 +194,7 @@ void main() {
     test('empty DSN disables the SDK but runs the integrations', () async {
       final integration = MockIntegration();
 
-      final options = SentryOptions(dsn: fakeDsn)..automatedTestMode = true;
+      final options = defaultTestOptions();
       await Sentry.init(
         options: options,
         (options) {
@@ -187,7 +207,7 @@ void main() {
     });
 
     test('close disables the SDK', () async {
-      final options = SentryOptions(dsn: fakeDsn)..automatedTestMode = true;
+      final options = defaultTestOptions();
       await Sentry.init(
         options: options,
         (options) => options.dsn = fakeDsn,
@@ -211,7 +231,7 @@ void main() {
     test('should install integrations', () async {
       final integration = MockIntegration();
 
-      final options = SentryOptions(dsn: fakeDsn)..automatedTestMode = true;
+      final options = defaultTestOptions();
       await Sentry.init(
         options: options,
         (options) {
@@ -225,7 +245,7 @@ void main() {
 
     test('should add default integrations', () async {
       late SentryOptions optionsReference;
-      final options = SentryOptions(dsn: fakeDsn)..automatedTestMode = true;
+      final options = defaultTestOptions();
       await Sentry.init(
         options: options,
         (options) {
@@ -249,7 +269,7 @@ void main() {
     }, onPlatform: {'browser': Skip()});
 
     test('should add only web compatible default integrations', () async {
-      final options = SentryOptions(dsn: fakeDsn)..automatedTestMode = true;
+      final options = defaultTestOptions();
       await Sentry.init(
         options: options,
         (options) {
@@ -265,7 +285,7 @@ void main() {
     test('should close integrations', () async {
       final integration = MockIntegration();
 
-      final options = SentryOptions(dsn: fakeDsn)..automatedTestMode = true;
+      final options = defaultTestOptions();
       await Sentry.init(
         options: options,
         (options) {
@@ -281,7 +301,7 @@ void main() {
     });
 
     test('$DeduplicationEventProcessor is added on init', () async {
-      final options = SentryOptions(dsn: fakeDsn)..automatedTestMode = true;
+      final options = defaultTestOptions();
       await Sentry.init(
         options: options,
         (options) {
@@ -298,7 +318,7 @@ void main() {
       final completer = Completer();
       var completed = false;
 
-      final options = SentryOptions(dsn: fakeDsn)..automatedTestMode = true;
+      final options = defaultTestOptions();
       final init = Sentry.init(
         options: options,
         (options) {
@@ -318,6 +338,28 @@ void main() {
 
       expect(completed, true);
     });
+
+    test('should add DartExceptionTypeIdentifier by default', () async {
+      final options = defaultTestOptions();
+      await Sentry.init(
+        options: options,
+        (options) {
+          options.dsn = fakeDsn;
+        },
+      );
+
+      expect(options.exceptionTypeIdentifiers.length, 1);
+      final cachingIdentifier = options.exceptionTypeIdentifiers.first
+          as CachingExceptionTypeIdentifier;
+      expect(
+        cachingIdentifier,
+        isA<CachingExceptionTypeIdentifier>().having(
+          (c) => c.identifier,
+          'wrapped identifier',
+          isA<DartExceptionTypeIdentifier>(),
+        ),
+      );
+    });
   });
 
   test('should complete when appRunner is not called in runZonedGuarded',
@@ -325,7 +367,7 @@ void main() {
     final completer = Completer();
     var completed = false;
 
-    final options = SentryOptions(dsn: fakeDsn)..automatedTestMode = true;
+    final options = defaultTestOptions();
     final init = Sentry.init(
       options: options,
       (options) {
@@ -348,12 +390,7 @@ void main() {
   });
 
   test('options.environment debug', () async {
-    final sentryOptions = SentryOptions(dsn: fakeDsn)
-      ..automatedTestMode = true
-      ..platformChecker = FakePlatformChecker.debugMode();
-
-    final options = SentryOptions();
-    options.automatedTestMode = true;
+    final sentryOptions = defaultTestOptions(FakePlatformChecker.debugMode());
     await Sentry.init(
       (options) {
         options.dsn = fakeDsn;
@@ -365,9 +402,7 @@ void main() {
   });
 
   test('options.environment profile', () async {
-    final sentryOptions =
-        SentryOptions(dsn: fakeDsn, checker: FakePlatformChecker.profileMode())
-          ..automatedTestMode = true;
+    final sentryOptions = defaultTestOptions(FakePlatformChecker.profileMode());
 
     await Sentry.init(
       (options) {
@@ -380,9 +415,7 @@ void main() {
   });
 
   test('options.environment production (defaultEnvironment)', () async {
-    final sentryOptions =
-        SentryOptions(dsn: fakeDsn, checker: FakePlatformChecker.releaseMode())
-          ..automatedTestMode = true;
+    final sentryOptions = defaultTestOptions(FakePlatformChecker.releaseMode());
     await Sentry.init(
       (options) {
         options.dsn = fakeDsn;
@@ -394,9 +427,7 @@ void main() {
   });
 
   test('options.logger is set by setting the debug flag', () async {
-    final sentryOptions =
-        SentryOptions(dsn: fakeDsn, checker: FakePlatformChecker.debugMode())
-          ..automatedTestMode = true;
+    final sentryOptions = defaultTestOptions(FakePlatformChecker.debugMode());
 
     await Sentry.init(
       (options) {
@@ -420,7 +451,7 @@ void main() {
     final fixture = Fixture();
 
     test('throw is handled and logged', () async {
-      final sentryOptions = SentryOptions(dsn: fakeDsn)
+      final sentryOptions = defaultTestOptions()
         ..automatedTestMode = false
         ..debug = true
         ..logger = fixture.mockLogger;

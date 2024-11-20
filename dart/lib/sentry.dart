@@ -30,6 +30,7 @@ export 'src/http_client/sentry_http_client_error.dart';
 export 'src/sentry_attachment/sentry_attachment.dart';
 export 'src/sentry_user_feedback.dart';
 export 'src/utils/tracing_utils.dart';
+export 'src/performance_collector.dart';
 // tracing
 export 'src/tracing.dart';
 export 'src/hint.dart';
@@ -39,6 +40,7 @@ export 'src/sentry_baggage.dart';
 export 'src/exception_cause_extractor.dart';
 export 'src/exception_cause.dart';
 export 'src/exception_stacktrace_extractor.dart';
+export 'src/exception_type_identifier.dart';
 // URL
 // ignore: invalid_export_of_internal_element
 export 'src/utils/http_sanitizer.dart';
@@ -54,3 +56,9 @@ export 'src/sentry_span_operations.dart';
 export 'src/utils.dart';
 // spotlight debugging
 export 'src/spotlight.dart';
+// proxy
+export 'src/protocol/sentry_proxy.dart';
+// feedback
+export 'src/protocol/sentry_feedback.dart';
+// constants
+export 'src/span_data_convention.dart';

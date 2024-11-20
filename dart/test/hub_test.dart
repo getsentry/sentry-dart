@@ -10,6 +10,7 @@ import 'mocks.dart';
 import 'mocks.mocks.dart';
 import 'mocks/mock_client_report_recorder.dart';
 import 'mocks/mock_sentry_client.dart';
+import 'test_utils.dart';
 
 void main() {
   bool scopeEquals(Scope? a, Scope b) {
@@ -25,7 +26,7 @@ void main() {
 
   group('Hub instantiation', () {
     test('should instantiate with a dsn', () {
-      final hub = Hub(SentryOptions(dsn: fakeDsn));
+      final hub = Hub(defaultTestOptions());
       expect(hub.isEnabled, true);
     });
   });
@@ -48,6 +49,24 @@ void main() {
         expect(
           fixture.client.captureEventCalls.first.event,
           fakeEvent,
+        );
+
+        expect(scopeEquals(scope, Scope(fixture.options)), true);
+      },
+    );
+
+    test(
+      'should capture feedback with the default scope',
+      () async {
+        final hub = fixture.getSut();
+        final feedback = SentryFeedback(message: 'message');
+        await hub.captureFeedback(feedback);
+
+        var scope = fixture.client.captureFeedbackCalls.first.scope;
+
+        expect(
+          fixture.client.captureFeedbackCalls.first.feedback,
+          feedback,
         );
 
         expect(scopeEquals(scope, Scope(fixture.options)), true);
@@ -458,11 +477,11 @@ void main() {
   });
 
   group('Hub scope', () {
-    var hub = Hub(SentryOptions(dsn: fakeDsn));
+    var hub = Hub(defaultTestOptions());
     var client = MockSentryClient();
 
     setUp(() {
-      hub = Hub(SentryOptions(dsn: fakeDsn));
+      hub = Hub(defaultTestOptions());
       client = MockSentryClient();
       hub.bindClient(client);
     });
@@ -487,7 +506,7 @@ void main() {
       expect(client.captureEventCalls.first.scope, isNotNull);
       final scope = client.captureEventCalls.first.scope;
 
-      final otherScope = Scope(SentryOptions(dsn: fakeDsn))
+      final otherScope = Scope(defaultTestOptions())
         ..level = SentryLevel.debug
         ..fingerprint = ['1', '2'];
 
@@ -511,7 +530,7 @@ void main() {
       await hub.captureEvent(fakeEvent);
 
       final scope = client.captureEventCalls.first.scope;
-      final otherScope = Scope(SentryOptions(dsn: fakeDsn));
+      final otherScope = Scope(defaultTestOptions());
       await otherScope.setUser(fakeUser);
 
       expect(
@@ -542,6 +561,7 @@ void main() {
     });
 
     test('captureEvent should handle thrown error in scope callback', () async {
+      fixture.options.automatedTestMode = false;
       final hub = fixture.getSut(debug: true);
       final scopeCallbackException = Exception('error in scope callback');
 
@@ -555,8 +575,26 @@ void main() {
       expect(fixture.loggedLevel, SentryLevel.error);
     });
 
+    test('captureFeedback should handle thrown error in scope callback',
+        () async {
+      fixture.options.automatedTestMode = false;
+      final hub = fixture.getSut(debug: true);
+      final scopeCallbackException = Exception('error in scope callback');
+
+      ScopeCallback scopeCallback = (Scope scope) {
+        throw scopeCallbackException;
+      };
+
+      final feedback = SentryFeedback(message: 'message');
+      await hub.captureFeedback(feedback, withScope: scopeCallback);
+
+      expect(fixture.loggedException, scopeCallbackException);
+      expect(fixture.loggedLevel, SentryLevel.error);
+    });
+
     test('captureException should handle thrown error in scope callback',
         () async {
+      fixture.options.automatedTestMode = false;
       final hub = fixture.getSut(debug: true);
       final scopeCallbackException = Exception('error in scope callback');
 
@@ -573,6 +611,7 @@ void main() {
 
     test('captureMessage should handle thrown error in scope callback',
         () async {
+      fixture.options.automatedTestMode = false;
       final hub = fixture.getSut(debug: true);
       final scopeCallbackException = Exception('error in scope callback');
 
@@ -593,7 +632,7 @@ void main() {
     SentryOptions options;
 
     setUp(() {
-      options = SentryOptions(dsn: fakeDsn);
+      options = defaultTestOptions();
       hub = Hub(options);
       client = MockSentryClient();
       hub.bindClient(client);
@@ -637,6 +676,22 @@ void main() {
       await hub.captureEvent(SentryEvent());
 
       var calls = fixture.client.captureEventCalls;
+      expect(calls.length, 3);
+      expect(calls[0].scope?.user, isNull);
+      expect(calls[1].scope?.user?.id, 'foo bar');
+      expect(calls[2].scope?.user, isNull);
+    });
+
+    test('captureFeedback should create a new scope', () async {
+      final hub = fixture.getSut();
+      await hub.captureFeedback(SentryFeedback(message: 'message'));
+      await hub.captureFeedback(SentryFeedback(message: 'message'),
+          withScope: (scope) async {
+        await scope.setUser(SentryUser(id: 'foo bar'));
+      });
+      await hub.captureFeedback(SentryFeedback(message: 'message'));
+
+      var calls = fixture.client.captureFeedbackCalls;
       expect(calls.length, 3);
       expect(calls[0].scope?.user, isNull);
       expect(calls[1].scope?.user?.id, 'foo bar');
@@ -694,11 +749,22 @@ void main() {
     test('record sample rate dropping transaction', () async {
       final hub = fixture.getSut(sampled: false);
       var transaction = SentryTransaction(fixture.tracer);
+      fixture.tracer.startChild('child1');
+      fixture.tracer.startChild('child2');
+      fixture.tracer.startChild('child3');
 
       await hub.captureTransaction(transaction);
 
-      expect(fixture.recorder.reason, DiscardReason.sampleRate);
-      expect(fixture.recorder.category, DataCategory.transaction);
+      expect(fixture.recorder.discardedEvents.length, 2);
+
+      // we dropped the whole tracer and it has 3 span children so the span count should be 4
+      // 3 children + 1 root span
+      final spanCount = fixture.recorder.discardedEvents
+          .firstWhere((element) =>
+              element.category == DataCategory.span &&
+              element.reason == DiscardReason.sampleRate)
+          .quantity;
+      expect(spanCount, 4);
     });
   });
 
@@ -745,7 +811,7 @@ class Fixture {
   final client = MockSentryClient();
   final recorder = MockClientReportRecorder();
 
-  final options = SentryOptions(dsn: fakeDsn);
+  final options = defaultTestOptions();
   late SentryTransactionContext _context;
   late SentryTracer tracer;
 

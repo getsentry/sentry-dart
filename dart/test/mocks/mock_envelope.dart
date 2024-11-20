@@ -23,4 +23,7 @@ class MockEnvelope implements SentryEnvelope {
 
   @override
   List<SentryEnvelopeItem> items = [];
+
+  @override
+  bool get containsUnhandledException => false;
 }

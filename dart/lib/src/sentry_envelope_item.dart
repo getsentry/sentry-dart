@@ -4,15 +4,18 @@ import 'dart:convert';
 import 'client_reports/client_report.dart';
 import 'metrics/metric.dart';
 import 'protocol.dart';
-import 'utils.dart';
 import 'sentry_attachment/sentry_attachment.dart';
-import 'sentry_item_type.dart';
 import 'sentry_envelope_item_header.dart';
+import 'sentry_item_type.dart';
 import 'sentry_user_feedback.dart';
+import 'utils.dart';
 
 /// Item holding header information and JSON encoded data.
 class SentryEnvelopeItem {
-  SentryEnvelopeItem(this.header, this.dataFactory);
+  /// The original, non-encoded object, used when direct access to the source data is needed.
+  Object? originalObject;
+
+  SentryEnvelopeItem(this.header, this.dataFactory, {this.originalObject});
 
   /// Creates a [SentryEnvelopeItem] which sends [SentryTransaction].
   factory SentryEnvelopeItem.fromTransaction(SentryTransaction transaction) {
@@ -24,7 +27,8 @@ class SentryEnvelopeItem {
       cachedItem.getDataLength,
       contentType: 'application/json',
     );
-    return SentryEnvelopeItem(header, cachedItem.getData);
+    return SentryEnvelopeItem(header, cachedItem.getData,
+        originalObject: transaction);
   }
 
   factory SentryEnvelopeItem.fromAttachment(SentryAttachment attachment) {
@@ -37,10 +41,12 @@ class SentryEnvelopeItem {
       fileName: attachment.filename,
       attachmentType: attachment.attachmentType,
     );
-    return SentryEnvelopeItem(header, cachedItem.getData);
+    return SentryEnvelopeItem(header, cachedItem.getData,
+        originalObject: attachment);
   }
 
   /// Create a [SentryEnvelopeItem] which sends [SentryUserFeedback].
+  @Deprecated('Will be removed in a future version.')
   factory SentryEnvelopeItem.fromUserFeedback(SentryUserFeedback feedback) {
     final cachedItem =
         _CachedItem(() async => utf8JsonEncoder.convert(feedback.toJson()));
@@ -50,7 +56,8 @@ class SentryEnvelopeItem {
       cachedItem.getDataLength,
       contentType: 'application/json',
     );
-    return SentryEnvelopeItem(header, cachedItem.getData);
+    return SentryEnvelopeItem(header, cachedItem.getData,
+        originalObject: feedback);
   }
 
   /// Create a [SentryEnvelopeItem] which holds the [SentryEvent] data.
@@ -60,11 +67,12 @@ class SentryEnvelopeItem {
 
     return SentryEnvelopeItem(
       SentryEnvelopeItemHeader(
-        SentryItemType.event,
+        event.type == 'feedback' ? 'feedback' : SentryItemType.event,
         cachedItem.getDataLength,
         contentType: 'application/json',
       ),
       cachedItem.getData,
+      originalObject: event,
     );
   }
 
@@ -80,6 +88,7 @@ class SentryEnvelopeItem {
         contentType: 'application/json',
       ),
       cachedItem.getData,
+      originalObject: clientReport,
     );
   }
 
@@ -102,7 +111,8 @@ class SentryEnvelopeItem {
       cachedItem.getDataLength,
       contentType: 'application/octet-stream',
     );
-    return SentryEnvelopeItem(header, cachedItem.getData);
+    return SentryEnvelopeItem(header, cachedItem.getData,
+        originalObject: buckets);
   }
 
   /// Header with info about type and length of data in bytes.
@@ -124,6 +134,7 @@ class SentryEnvelopeItem {
       // TODO the data copy could be avoided - this would be most significant with attachments.
       return [...itemHeader, ...newLine, ...data];
     } catch (e) {
+      // TODO rethrow in options.automatedTestMode (currently not available here to check)
       return [];
     }
   }

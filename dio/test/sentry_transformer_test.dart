@@ -137,7 +137,7 @@ void main() {
 }
 
 class Fixture {
-  final _options = SentryOptions(dsn: fakeDsn);
+  final _options = defaultTestOptions();
   late Hub _hub;
   final transport = MockTransport();
   Fixture() {

@@ -1,3 +1,5 @@
+// ignore_for_file: library_annotations
+
 @TestOn('vm')
 
 import 'dart:io';
@@ -14,6 +16,8 @@ import 'mocks/mocks.mocks.dart';
 import 'person.dart';
 
 import 'package:hive/src/box_collection/box_collection_stub.dart' as stub;
+
+import 'utils.dart';
 
 void main() {
   void verifySpan(String description, SentrySpan? span) {
@@ -355,7 +359,7 @@ void main() {
 }
 
 class Fixture {
-  final options = SentryOptions();
+  final options = defaultTestOptions();
   final hub = MockHub();
   final exception = Exception('fixture-exception');
 

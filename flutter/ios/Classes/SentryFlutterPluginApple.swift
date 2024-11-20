@@ -5,12 +5,14 @@ import UIKit
 #elseif os(macOS)
 import FlutterMacOS
 import AppKit
+import CoreVideo
 #endif
 
 // swiftlint:disable file_length function_body_length
 
 // swiftlint:disable:next type_body_length
 public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
+    private let channel: FlutterMethodChannel
 
     private static let nativeClientName = "sentry.cocoa.flutter"
 
@@ -37,10 +39,14 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         let channel = FlutterMethodChannel(name: "sentry_flutter", binaryMessenger: registrar.messenger)
 #endif
 
-        let instance = SentryFlutterPluginApple()
+        let instance = SentryFlutterPluginApple(channel: channel)
         instance.registerObserver()
-
         registrar.addMethodCallDelegate(instance, channel: channel)
+    }
+
+    private init(channel: FlutterMethodChannel) {
+        self.channel = channel
+        super.init()
     }
 
     private lazy var sentryFlutter = SentryFlutter()
@@ -90,7 +96,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
             loadContexts(result: result)
 
         case "loadImageList":
-            loadImageList(result: result)
+            loadImageList(call, result: result)
 
         case "initNativeSdk":
             initNativeSdk(call, result: result)
@@ -164,6 +170,26 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
             collectProfile(call, result)
         #endif
 
+        case "displayRefreshRate":
+            displayRefreshRate(result)
+
+        case "pauseAppHangTracking":
+            pauseAppHangTracking(result)
+
+        case "resumeAppHangTracking":
+            resumeAppHangTracking(result)
+
+        case "nativeCrash":
+            crash()
+
+        case "captureReplay":
+#if canImport(UIKit) && !SENTRY_NO_UIKIT && (os(iOS) || os(tvOS))
+            PrivateSentrySDKOnly.captureReplay()
+            result(PrivateSentrySDKOnly.getReplayId())
+#else
+            result(nil)
+#endif
+
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -213,7 +239,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
             }
 
             if let integrations = PrivateSentrySDKOnly.options.integrations {
-                infos["integrations"] = integrations
+                infos["integrations"] = integrations.filter { $0 != "SentrySessionReplayIntegration" }
             }
 
             let deviceStr = "device"
@@ -251,9 +277,32 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         }
     }
 
-    private func loadImageList(result: @escaping FlutterResult) {
-      let debugImages = PrivateSentrySDKOnly.getDebugImages() as [DebugMeta]
-      result(debugImages.map { $0.serialize() })
+    private func loadImageList(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        var debugImages: [DebugMeta] = []
+
+        if let arguments = call.arguments as? [String], !arguments.isEmpty {
+            var imagesAddresses: Set<String> = []
+
+            for argument in arguments {
+                let hexDigits = argument.replacingOccurrences(of: "0x", with: "")
+                if let instructionAddress = UInt64(hexDigits, radix: 16) {
+                    let image = SentryDependencyContainer.sharedInstance().binaryImageCache.image(
+                        byAddress: instructionAddress)
+                    if let image = image {
+                        let imageAddress = sentry_formatHexAddressUInt64(image.address)!
+                        imagesAddresses.insert(imageAddress)
+                    }
+                }
+            }
+            debugImages =
+              SentryDependencyContainer.sharedInstance().debugImageProvider
+              .getDebugImagesForImageAddressesFromCache(imageAddresses: imagesAddresses) as [DebugMeta]
+        }
+        if debugImages.isEmpty {
+            debugImages = PrivateSentrySDKOnly.getDebugImages() as [DebugMeta]
+        }
+
+        result(debugImages.map { $0.serialize() })
     }
 
     private func initNativeSdk(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -312,6 +361,14 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
            // we reset the flag for the sake of correctness
            didReceiveDidBecomeActiveNotification = false
        }
+
+#if canImport(UIKit) && !SENTRY_NO_UIKIT
+#if os(iOS) || os(tvOS)
+        let breadcrumbConverter = SentryFlutterReplayBreadcrumbConverter()
+        let screenshotProvider = SentryFlutterReplayScreenshotProvider(channel: self.channel)
+        PrivateSentrySDKOnly.configureSessionReplay(with: breadcrumbConverter, screenshotProvider: screenshotProvider)
+#endif
+#endif
 
         result("")
     }
@@ -650,6 +707,78 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 
         PrivateSentrySDKOnly.discardProfiler(forTrace: SentryId(uuidString: traceId))
         result(nil)
+    }
+
+    #if os(iOS)
+    // Taken from the Flutter engine:
+    // https://github.com/flutter/engine/blob/main/shell/platform/darwin/ios/framework/Source/vsync_waiter_ios.mm#L150
+    private func displayRefreshRate(_ result: @escaping FlutterResult) {
+        let displayLink = CADisplayLink(target: self, selector: #selector(onDisplayLink(_:)))
+        displayLink.add(to: .main, forMode: .common)
+        displayLink.isPaused = true
+
+        let preferredFPS = displayLink.preferredFramesPerSecond
+        displayLink.invalidate()
+
+        if preferredFPS != 0 {
+            result(preferredFPS)
+            return
+        }
+
+        if #available(iOS 13.0, *) {
+            guard let windowScene = UIApplication.shared.windows.first?.windowScene else {
+                result(nil)
+                return
+            }
+            result(windowScene.screen.maximumFramesPerSecond)
+        } else {
+            result(UIScreen.main.maximumFramesPerSecond)
+        }
+    }
+
+    @objc private func onDisplayLink(_ displayLink: CADisplayLink) {
+        // No-op
+    }
+    #elseif os(macOS)
+    private func displayRefreshRate(_ result: @escaping FlutterResult) {
+        // We don't use CADisplayLink for macOS because it's only available starting with macOS 14
+        guard let window = NSApplication.shared.keyWindow else {
+            result(nil)
+            return
+        }
+
+        guard let screen = window.screen else {
+            result(nil)
+            return
+        }
+
+        guard let displayID =
+                screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? CGDirectDisplayID else {
+            result(nil)
+            return
+        }
+
+        guard let mode = CGDisplayCopyDisplayMode(displayID) else {
+            result(nil)
+            return
+        }
+
+        result(Int(mode.refreshRate))
+    }
+    #endif
+
+    private func pauseAppHangTracking(_ result: @escaping FlutterResult) {
+        SentrySDK.pauseAppHangTracking()
+        result("")
+    }
+
+    private func resumeAppHangTracking(_ result: @escaping FlutterResult) {
+        SentrySDK.resumeAppHangTracking()
+        result("")
+    }
+
+    private func crash() {
+        SentrySDK.crash()
     }
 }
 

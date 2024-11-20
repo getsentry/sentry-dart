@@ -32,14 +32,14 @@ jobs:
         working-directory: ${{ inputs.package }}
     steps:
       - uses: actions/checkout@v4
-      - uses: dart-lang/setup-dart@f0ead981b4d9a35b37f30d36160575d60931ec30 # pin@v1
+      - uses: dart-lang/setup-dart@0a8a0fc875eb934c15d08629302413c671d3f672 # pin@v1
         if: ${{ inputs.sdk == 'dart' }}
       - uses: subosito/flutter-action@44ac965b96f18d999802d4b807e3256d5a3f9fa1 # pin@v2.16.0
         if: ${{ inputs.sdk == 'flutter' }}
 
       - run: ${{ inputs.sdk }} pub get
       - run: dart format --set-exit-if-changed ./
-        
+
       - name: dart analyze
         uses: invertase/github-action-dart-analyzer@e981b01a458d0bab71ee5da182e5b26687b7101b # pin@v3.0.0
         with:
@@ -50,6 +50,11 @@ jobs:
           working-directory: ${{ inputs.package }}
 
       - run: dart doc --dry-run
+
+      - name: Run publish validation
+        run: |
+          dart pub get --directory ../scripts/publish_validation
+          dart run ../scripts/publish_validation/bin/publish_validation.dart --executable ${{ inputs.sdk }}
 
   package-analysis:
     # `axel-op/dart-package-analyzer` is using `flutter pub upgrade` instead of `get`,
@@ -78,6 +83,6 @@ jobs:
           PERCENTAGE=$(( $TOTAL * 100 / $TOTAL_MAX ))
           if (( $PERCENTAGE < ${{ inputs.panaThreshold }} ))
           then
-            echo Score too low!
+            echo "Score too low ($PERCENTAGE % is less than the expected ${{ inputs.panaThreshold }} %)!"
             exit 1
           fi

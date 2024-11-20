@@ -2,17 +2,21 @@ import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 
+import '../mocks.dart';
+
 void main() {
   final sentryGpu = SentryGpu(
-      name: 'fixture-name',
-      id: 1,
-      vendorId: '2',
-      vendorName: 'fixture-vendorName',
-      memorySize: 3,
-      apiType: 'fixture-apiType',
-      multiThreadedRendering: true,
-      version: '4',
-      npotSupport: 'fixture-npotSupport');
+    name: 'fixture-name',
+    id: 1,
+    vendorId: '2',
+    vendorName: 'fixture-vendorName',
+    memorySize: 3,
+    apiType: 'fixture-apiType',
+    multiThreadedRendering: true,
+    version: '4',
+    npotSupport: 'fixture-npotSupport',
+    unknown: testUnknown,
+  );
 
   final sentryGpuJson = <String, dynamic>{
     'name': 'fixture-name',
@@ -25,6 +29,7 @@ void main() {
     'version': '4',
     'npot_support': 'fixture-npotSupport'
   };
+  sentryGpuJson.addAll(testUnknown);
 
   group('json', () {
     test('toJson', () {

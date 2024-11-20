@@ -1,10 +1,9 @@
-import 'package:min_version_test/transaction/transaction.dart';
-
 import 'package:logging/logging.dart';
 import 'package:dio/dio.dart';
-
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_dio/sentry_dio.dart';
+
+import 'transaction.dart';
 
 class WebTransaction implements Transaction {
   @override

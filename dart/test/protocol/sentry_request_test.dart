@@ -2,6 +2,8 @@ import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 
+import '../mocks.dart';
+
 void main() {
   final sentryRequest = SentryRequest(
     url: 'url',
@@ -14,6 +16,7 @@ void main() {
     apiTarget: 'GraphQL',
     // ignore: deprecated_member_use_from_same_package
     other: {'other_key': 'other_value'},
+    unknown: testUnknown,
   );
 
   final sentryRequestJson = <String, dynamic>{
@@ -27,6 +30,7 @@ void main() {
     'api_target': 'GraphQL',
     'other': {'other_key': 'other_value'},
   };
+  sentryRequestJson.addAll(testUnknown);
 
   group('json', () {
     test('toJson', () {

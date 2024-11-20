@@ -2,12 +2,15 @@ import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 
+import '../mocks.dart';
+
 void main() {
   final sdkInfo = SdkInfo(
     sdkName: 'sdkName',
     versionMajor: 1,
     versionMinor: 2,
     versionPatchlevel: 3,
+    unknown: testUnknown,
   );
 
   final sdkInfoJson = <String, dynamic>{
@@ -16,6 +19,7 @@ void main() {
     'version_minor': 2,
     'version_patchlevel': 3,
   };
+  sdkInfoJson.addAll(testUnknown);
 
   group('json', () {
     test('toJson', () {
@@ -29,6 +33,9 @@ void main() {
     test('fromJson', () {
       final sdkInfo = SdkInfo.fromJson(sdkInfoJson);
       final json = sdkInfo.toJson();
+
+      print(sdkInfo);
+      print(json);
 
       expect(
         MapEquality().equals(sdkInfoJson, json),

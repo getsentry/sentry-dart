@@ -2,6 +2,8 @@ import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 
+import '../mocks.dart';
+
 void main() {
   final sentryUser = SentryUser(
     id: 'id',
@@ -10,6 +12,7 @@ void main() {
     ipAddress: 'ipAddress',
     data: {'key': 'value'},
     segment: 'seg',
+    unknown: testUnknown,
   );
 
   final sentryUserJson = <String, dynamic>{
@@ -20,10 +23,13 @@ void main() {
     'data': {'key': 'value'},
     'segment': 'seg',
   };
+  sentryUserJson.addAll(testUnknown);
 
   group('json', () {
     test('toJson', () {
       final json = sentryUser.toJson();
+
+      print("$json");
 
       expect(
         DeepCollectionEquality().equals(sentryUserJson, json),
@@ -91,6 +97,7 @@ void main() {
       expect('email1', copy.email);
       expect('ipAddress1', copy.ipAddress);
       expect({'key1': 'value1'}, copy.data);
+      // ignore: deprecated_member_use_from_same_package
       expect('seg1', copy.segment);
     });
   });

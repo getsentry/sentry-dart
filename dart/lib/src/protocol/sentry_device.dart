@@ -1,5 +1,6 @@
 import 'package:meta/meta.dart';
 import '../sentry_options.dart';
+import 'access_aware_map.dart';
 
 /// If a device is on portrait or landscape mode
 enum SentryOrientation { portrait, landscape }
@@ -46,6 +47,7 @@ class SentryDevice {
     this.supportsGyroscope,
     this.supportsAudio,
     this.supportsLocationService,
+    this.unknown,
   }) : assert(
           batteryLevel == null || (batteryLevel >= 0 && batteryLevel <= 100),
         );
@@ -171,57 +173,65 @@ class SentryDevice {
   /// Optional. Is the device capable of reporting its location?
   final bool? supportsLocationService;
 
+  @internal
+  final Map<String, dynamic>? unknown;
+
   /// Deserializes a [SentryDevice] from JSON [Map].
-  factory SentryDevice.fromJson(Map<String, dynamic> data) => SentryDevice(
-        name: data['name'],
-        family: data['family'],
-        model: data['model'],
-        modelId: data['model_id'],
-        arch: data['arch'],
-        batteryLevel:
-            (data['battery_level'] is num ? data['battery_level'] as num : null)
-                ?.toDouble(),
-        orientation: data['orientation'] == 'portrait'
-            ? SentryOrientation.portrait
-            : data['orientation'] == 'landscape'
-                ? SentryOrientation.landscape
-                : null,
-        manufacturer: data['manufacturer'],
-        brand: data['brand'],
-        screenHeightPixels: data['screen_height_pixels']?.toInt(),
-        screenWidthPixels: data['screen_width_pixels']?.toInt(),
-        screenDensity: data['screen_density'],
-        screenDpi: data['screen_dpi'],
-        online: data['online'],
-        charging: data['charging'],
-        lowMemory: data['low_memory'],
-        simulator: data['simulator'],
-        memorySize: data['memory_size'],
-        freeMemory: data['free_memory'],
-        usableMemory: data['usable_memory'],
-        storageSize: data['storage_size'],
-        freeStorage: data['free_storage'],
-        externalStorageSize: data['external_storage_size'],
-        externalFreeStorage: data['external_free_storage'],
-        bootTime: data['boot_time'] != null
-            ? DateTime.tryParse(data['boot_time'])
-            : null,
-        processorCount: data['processor_count'],
-        cpuDescription: data['cpu_description'],
-        processorFrequency: data['processor_frequency'],
-        deviceType: data['device_type'],
-        batteryStatus: data['battery_status'],
-        deviceUniqueIdentifier: data['device_unique_identifier'],
-        supportsVibration: data['supports_vibration'],
-        supportsAccelerometer: data['supports_accelerometer'],
-        supportsGyroscope: data['supports_gyroscope'],
-        supportsAudio: data['supports_audio'],
-        supportsLocationService: data['supports_location_service'],
-      );
+  factory SentryDevice.fromJson(Map<String, dynamic> data) {
+    final json = AccessAwareMap(data);
+    return SentryDevice(
+      name: json['name'],
+      family: json['family'],
+      model: json['model'],
+      modelId: json['model_id'],
+      arch: json['arch'],
+      batteryLevel:
+          (json['battery_level'] is num ? json['battery_level'] as num : null)
+              ?.toDouble(),
+      orientation: json['orientation'] == 'portrait'
+          ? SentryOrientation.portrait
+          : json['orientation'] == 'landscape'
+              ? SentryOrientation.landscape
+              : null,
+      manufacturer: json['manufacturer'],
+      brand: json['brand'],
+      screenHeightPixels: json['screen_height_pixels']?.toInt(),
+      screenWidthPixels: json['screen_width_pixels']?.toInt(),
+      screenDensity: json['screen_density'],
+      screenDpi: json['screen_dpi'],
+      online: json['online'],
+      charging: json['charging'],
+      lowMemory: json['low_memory'],
+      simulator: json['simulator'],
+      memorySize: json['memory_size'],
+      freeMemory: json['free_memory'],
+      usableMemory: json['usable_memory'],
+      storageSize: json['storage_size'],
+      freeStorage: json['free_storage'],
+      externalStorageSize: json['external_storage_size'],
+      externalFreeStorage: json['external_free_storage'],
+      bootTime: json['boot_time'] != null
+          ? DateTime.tryParse(json['boot_time'])
+          : null,
+      processorCount: json['processor_count'],
+      cpuDescription: json['cpu_description'],
+      processorFrequency: json['processor_frequency'],
+      deviceType: json['device_type'],
+      batteryStatus: json['battery_status'],
+      deviceUniqueIdentifier: json['device_unique_identifier'],
+      supportsVibration: json['supports_vibration'],
+      supportsAccelerometer: json['supports_accelerometer'],
+      supportsGyroscope: json['supports_gyroscope'],
+      supportsAudio: json['supports_audio'],
+      supportsLocationService: json['supports_location_service'],
+      unknown: json.notAccessed(),
+    );
+  }
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
-    return <String, dynamic>{
+    return {
+      ...?unknown,
       if (name != null) 'name': name,
       if (family != null) 'family': family,
       if (model != null) 'model': model,
@@ -304,6 +314,7 @@ class SentryDevice {
         supportsGyroscope: supportsGyroscope,
         supportsAudio: supportsAudio,
         supportsLocationService: supportsLocationService,
+        unknown: unknown,
       );
 
   SentryDevice copyWith({
@@ -384,5 +395,6 @@ class SentryDevice {
         supportsAudio: supportsAudio ?? this.supportsAudio,
         supportsLocationService:
             supportsLocationService ?? this.supportsLocationService,
+        unknown: unknown,
       );
 }

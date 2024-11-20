@@ -2,6 +2,8 @@ import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 
+import '../mocks.dart';
+
 void main() {
   final sentryException = SentryException(
     type: 'type',
@@ -10,6 +12,7 @@ void main() {
     stackTrace: SentryStackTrace(frames: [SentryStackFrame(absPath: 'abs')]),
     mechanism: Mechanism(type: 'type'),
     threadId: 1,
+    unknown: testUnknown,
   );
 
   final sentryExceptionJson = <String, dynamic>{
@@ -24,6 +27,7 @@ void main() {
     'mechanism': {'type': 'type'},
     'thread_id': 1,
   };
+  sentryExceptionJson.addAll(testUnknown);
 
   group('json', () {
     test('fromJson', () {

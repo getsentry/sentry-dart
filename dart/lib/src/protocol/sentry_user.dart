@@ -1,6 +1,7 @@
 import 'package:meta/meta.dart';
 
 import '../../sentry.dart';
+import 'access_aware_map.dart';
 
 /// Describes the current user associated with the application, such as the
 /// currently signed in user.
@@ -44,6 +45,7 @@ class SentryUser {
     Map<String, dynamic>? data,
     @Deprecated('Will be removed in v8. Use [data] instead')
     Map<String, dynamic>? extras,
+    this.unknown,
   })  : assert(
           id != null ||
               username != null ||
@@ -68,6 +70,8 @@ class SentryUser {
   final String? ipAddress;
 
   /// The user segment, for apps that divide users in user segments.
+  @Deprecated(
+      'Will be removed in v9. Use a custom tag or context instead to capture this information.')
   final String? segment;
 
   /// Any other user context information that may be helpful.
@@ -90,8 +94,13 @@ class SentryUser {
   /// Human readable name of the user.
   final String? name;
 
+  @internal
+  final Map<String, dynamic>? unknown;
+
   /// Deserializes a [SentryUser] from JSON [Map].
-  factory SentryUser.fromJson(Map<String, dynamic> json) {
+  factory SentryUser.fromJson(Map<String, dynamic> jsonData) {
+    final json = AccessAwareMap(jsonData);
+
     var extras = json['extras'];
     if (extras != null) {
       extras = Map<String, dynamic>.from(extras);
@@ -118,17 +127,20 @@ class SentryUser {
       name: json['name'],
       // ignore: deprecated_member_use_from_same_package
       extras: extras,
+      unknown: json.notAccessed(),
     );
   }
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
     final geoJson = geo?.toJson();
-    return <String, dynamic>{
+    return {
+      ...?unknown,
       if (id != null) 'id': id,
       if (username != null) 'username': username,
       if (email != null) 'email': email,
       if (ipAddress != null) 'ip_address': ipAddress,
+      // ignore: deprecated_member_use_from_same_package
       if (segment != null) 'segment': segment,
       if (data?.isNotEmpty ?? false) 'data': data,
       // ignore: deprecated_member_use_from_same_package
@@ -155,12 +167,14 @@ class SentryUser {
       username: username ?? this.username,
       email: email ?? this.email,
       ipAddress: ipAddress ?? this.ipAddress,
+      // ignore: deprecated_member_use_from_same_package
       segment: segment ?? this.segment,
       data: data ?? this.data,
       // ignore: deprecated_member_use_from_same_package
       extras: extras ?? this.extras,
       geo: geo ?? this.geo,
       name: name ?? this.name,
+      unknown: unknown,
     );
   }
 }

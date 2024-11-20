@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sentry/sentry.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/view_hierarchy/sentry_tree_walker.dart';
+
+import '../mocks.dart';
 
 void main() {
   group('TreeWalker', () {
@@ -16,7 +18,8 @@ void main() {
       await tester.runAsync(() async {
         await tester.pumpWidget(MyApp());
 
-        final sentryViewHierarchy = walkWidgetTree(instance);
+        final sentryViewHierarchy =
+            walkWidgetTree(instance, defaultTestOptions());
 
         expect(sentryViewHierarchy!.renderingSystem, 'flutter');
       });
@@ -147,7 +150,8 @@ void main() {
 
 SentryViewHierarchyElement _getFirstSentryViewHierarchy(
     WidgetsBinding instance) {
-  final sentryViewHierarchy = walkWidgetTree(instance);
+  final options = defaultTestOptions();
+  final sentryViewHierarchy = walkWidgetTree(instance, options);
 
   return sentryViewHierarchy!.windows.first;
 }

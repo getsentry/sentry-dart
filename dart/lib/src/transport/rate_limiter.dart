@@ -1,7 +1,5 @@
+import '../../sentry.dart';
 import '../transport/rate_limit_parser.dart';
-import '../sentry_options.dart';
-import '../sentry_envelope.dart';
-import '../sentry_envelope_item.dart';
 import 'rate_limit.dart';
 import 'data_category.dart';
 import '../client_reports/discard_reason.dart';
@@ -25,8 +23,17 @@ class RateLimiter {
 
         _options.recorder.recordLostEvent(
           DiscardReason.rateLimitBackoff,
-          _categoryFromItemType(item.header.type),
+          DataCategory.fromItemType(item.header.type),
         );
+
+        final originalObject = item.originalObject;
+        if (originalObject is SentryTransaction) {
+          _options.recorder.recordLostEvent(
+            DiscardReason.rateLimitBackoff,
+            DataCategory.span,
+            count: originalObject.spans.length + 1,
+          );
+        }
       }
     }
 
@@ -80,7 +87,7 @@ class RateLimiter {
   // Private
 
   bool _isRetryAfter(String itemType) {
-    final dataCategory = _categoryFromItemType(itemType);
+    final dataCategory = DataCategory.fromItemType(itemType);
     final currentDate = DateTime.fromMillisecondsSinceEpoch(
         _options.clock().millisecondsSinceEpoch);
 
@@ -104,25 +111,6 @@ class RateLimiter {
     }
 
     return false;
-  }
-
-  DataCategory _categoryFromItemType(String itemType) {
-    switch (itemType) {
-      case 'event':
-        return DataCategory.error;
-      case 'session':
-        return DataCategory.session;
-      case 'attachment':
-        return DataCategory.attachment;
-      case 'transaction':
-        return DataCategory.transaction;
-      // The envelope item type used for metrics is statsd,
-      // whereas the client report category is metric_bucket
-      case 'statsd':
-        return DataCategory.metricBucket;
-      default:
-        return DataCategory.unknown;
-    }
   }
 
   void _applyRetryAfterOnlyIfLonger(DataCategory dataCategory, DateTime date) {

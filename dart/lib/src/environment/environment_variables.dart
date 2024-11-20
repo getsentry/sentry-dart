@@ -1,6 +1,7 @@
 import '../platform_checker.dart';
 import '_io_environment_variables.dart'
-    if (dart.library.html) '_web_environment_variables.dart' as env;
+    if (dart.library.html) '_web_environment_variables.dart'
+    if (dart.library.js_interop) '_web_environment_variables.dart' as env;
 
 /// Reads environment variables from the system.
 /// In an Flutter environment these can be set via

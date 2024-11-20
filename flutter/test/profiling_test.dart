@@ -19,7 +19,7 @@ void main() {
 
   group('$SentryNativeProfilerFactory', () {
     Hub hubWithSampleRate(double profilesSampleRate) {
-      final o = SentryFlutterOptions(dsn: fakeDsn);
+      final o = defaultTestOptions();
       o.platformChecker = getPlatformChecker(platform: MockPlatform.iOs());
       o.profilesSampleRate = profilesSampleRate;
 
@@ -68,6 +68,8 @@ void main() {
     });
 
     test('dispose() calls native discard() exactly once', () async {
+      when(mock.discardProfiler(any)).thenReturn(null);
+
       sut.dispose();
       sut.dispose(); // Additional calls must not have an effect.
 

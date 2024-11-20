@@ -1,45 +1,54 @@
+import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/sentry_item_type.dart';
 import 'package:test/test.dart';
 
 import 'mocks.dart';
 import 'mocks/mock_transport.dart';
+import 'test_utils.dart';
 
 void main() {
+  // ignore: deprecated_member_use_from_same_package
   group('$SentryUserFeedback', () {
+    final id = SentryId.newId();
+
+    // ignore: deprecated_member_use_from_same_package
+    final feedback = SentryUserFeedback(
+      eventId: id,
+      comments: 'this is awesome',
+      email: 'sentry@example.com',
+      name: 'Rockstar Developer',
+      unknown: testUnknown,
+    );
+    final feedbackJson = <String, dynamic>{
+      'event_id': id.toString(),
+      'comments': 'this is awesome',
+      'email': 'sentry@example.com',
+      'name': 'Rockstar Developer',
+    };
+    feedbackJson.addAll(testUnknown);
+
     test('toJson', () {
-      final id = SentryId.newId();
-      final feedback = SentryUserFeedback(
-        eventId: id,
-        comments: 'this is awesome',
-        email: 'sentry@example.com',
-        name: 'Rockstar Developer',
+      final json = feedback.toJson();
+      expect(
+        MapEquality().equals(feedbackJson, json),
+        true,
       );
-      expect(feedback.toJson(), {
-        'event_id': id.toString(),
-        'comments': 'this is awesome',
-        'email': 'sentry@example.com',
-        'name': 'Rockstar Developer',
-      });
     });
 
     test('fromJson', () {
-      final id = SentryId.newId();
-      final feedback = SentryUserFeedback.fromJson({
-        'event_id': id.toString(),
-        'comments': 'this is awesome',
-        'email': 'sentry@example.com',
-        'name': 'Rockstar Developer',
-      });
+      final feedback = SentryRuntime.fromJson(feedbackJson);
+      final json = feedback.toJson();
 
-      expect(feedback.eventId.toString(), id.toString());
-      expect(feedback.comments, 'this is awesome');
-      expect(feedback.email, 'sentry@example.com');
-      expect(feedback.name, 'Rockstar Developer');
+      expect(
+        MapEquality().equals(feedbackJson, json),
+        true,
+      );
     });
 
     test('copyWith', () {
       final id = SentryId.newId();
+      // ignore: deprecated_member_use_from_same_package
       final feedback = SentryUserFeedback(
         eventId: id,
         comments: 'this is awesome',
@@ -63,17 +72,21 @@ void main() {
 
     test('disallow empty id', () {
       final id = SentryId.empty();
+      // ignore: deprecated_member_use_from_same_package
       expect(() => SentryUserFeedback(eventId: id),
           throwsA(isA<AssertionError>()));
     });
   });
 
+  // ignore: deprecated_member_use_from_same_package
   group('$SentryUserFeedback to envelops', () {
     test('to envelope', () {
+      // ignore: deprecated_member_use_from_same_package
       final feedback = SentryUserFeedback(
         eventId: SentryId.newId(),
         name: 'test',
       );
+      // ignore: deprecated_member_use_from_same_package
       final envelope = SentryEnvelope.fromUserFeedback(
         feedback,
         SdkVersion(name: 'a', version: 'b'),
@@ -90,9 +103,11 @@ void main() {
     });
   });
 
+  // ignore: deprecated_member_use_from_same_package
   test('sending $SentryUserFeedback', () async {
     final fixture = Fixture();
     final sut = fixture.getSut();
+    // ignore: deprecated_member_use_from_same_package
     await sut.captureUserFeedback(SentryUserFeedback(
       eventId: SentryId.newId(),
       name: 'test',
@@ -101,18 +116,23 @@ void main() {
     expect(fixture.transport.envelopes.length, 1);
   });
 
+  // ignore: deprecated_member_use_from_same_package
   test('cannot create $SentryUserFeedback with empty id', () async {
     expect(
+      // ignore: deprecated_member_use_from_same_package
       () => SentryUserFeedback(eventId: const SentryId.empty()),
       throwsA(isA<AssertionError>()),
     );
   });
 
+  // ignore: deprecated_member_use_from_same_package
   test('do not send $SentryUserFeedback when disabled', () async {
     final fixture = Fixture();
     final sut = fixture.getSut();
     await sut.close();
+    // ignore: deprecated_member_use_from_same_package
     await sut.captureUserFeedback(
+      // ignore: deprecated_member_use_from_same_package
       SentryUserFeedback(
         eventId: SentryId.newId(),
         name: 'test',
@@ -122,10 +142,12 @@ void main() {
     expect(fixture.transport.envelopes.length, 0);
   });
 
+  // ignore: deprecated_member_use_from_same_package
   test('do not send $SentryUserFeedback with empty id', () async {
     final fixture = Fixture();
     final sut = fixture.getSut();
     await sut.close();
+    // ignore: deprecated_member_use_from_same_package
     await sut.captureUserFeedback(
       SentryUserFeedbackWithoutAssert(
         eventId: SentryId.empty(),
@@ -136,13 +158,15 @@ void main() {
   });
 
   test('captureUserFeedback does not throw', () async {
-    final options = SentryOptions(dsn: fakeDsn);
+    final options = defaultTestOptions()..automatedTestMode = false;
     final transport = ThrowingTransport();
     options.transport = transport;
     final sut = Hub(options);
 
     await expectLater(() async {
+      // ignore: deprecated_member_use_from_same_package
       await sut.captureUserFeedback(
+        // ignore: deprecated_member_use_from_same_package
         SentryUserFeedback(eventId: SentryId.newId(), name: 'name'),
       );
     }, returnsNormally);
@@ -153,7 +177,7 @@ class Fixture {
   late MockTransport transport;
 
   Hub getSut() {
-    final options = SentryOptions(dsn: fakeDsn);
+    final options = defaultTestOptions();
     transport = MockTransport();
     options.transport = transport;
     return Hub(options);
@@ -163,12 +187,14 @@ class Fixture {
 // You cannot create an instance of SentryUserFeedback with an empty id.
 // In order to test that UserFeedback with an empty id is not sent
 // we need to implement it and remove the assert.
+// ignore: deprecated_member_use_from_same_package
 class SentryUserFeedbackWithoutAssert implements SentryUserFeedback {
   SentryUserFeedbackWithoutAssert({
     required this.eventId,
     this.name,
     this.email,
     this.comments,
+    this.unknown,
   });
 
   @override
@@ -184,8 +210,12 @@ class SentryUserFeedbackWithoutAssert implements SentryUserFeedback {
   final String? comments;
 
   @override
+  Map<String, dynamic>? unknown;
+
+  @override
   Map<String, dynamic> toJson() {
-    return <String, dynamic>{
+    return {
+      ...?unknown,
       'event_id': eventId.toString(),
       if (name != null) 'name': name,
       if (email != null) 'email': email,
@@ -194,17 +224,20 @@ class SentryUserFeedbackWithoutAssert implements SentryUserFeedback {
   }
 
   @override
+  // ignore: deprecated_member_use_from_same_package
   SentryUserFeedback copyWith({
     SentryId? eventId,
     String? name,
     String? email,
     String? comments,
   }) {
+    // ignore: deprecated_member_use_from_same_package
     return SentryUserFeedback(
       eventId: eventId ?? this.eventId,
       name: name ?? this.name,
       email: email ?? this.email,
       comments: comments ?? this.comments,
+      unknown: unknown,
     );
   }
 }

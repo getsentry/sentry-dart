@@ -5,8 +5,8 @@ import 'package:sentry/src/http_client/tracing_client.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:test/test.dart';
 
-import '../mocks.dart';
 import '../mocks/mock_transport.dart';
+import '../test_utils.dart';
 
 final requestUri = Uri.parse('https://example.com?foo=bar#baz');
 
@@ -177,6 +177,7 @@ void main() {
 
     test('set headers from propagationContext when tracing is disabled',
         () async {
+      // ignore: deprecated_member_use_from_same_package
       fixture._options.enableTracing = false;
       final sut = fixture.getSut(
         client: fixture.getClient(statusCode: 200, reason: 'OK'),
@@ -219,7 +220,7 @@ MockClient createThrowingClient() {
 }
 
 class Fixture {
-  final _options = SentryOptions(dsn: fakeDsn);
+  final _options = defaultTestOptions();
   late Hub _hub;
   final transport = MockTransport();
   Fixture() {

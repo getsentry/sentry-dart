@@ -1,3 +1,5 @@
+// ignore_for_file: library_annotations
+
 @TestOn('vm')
 
 import 'dart:io';
@@ -14,6 +16,7 @@ import 'package:test/test.dart';
 
 import 'mocks/mocks.mocks.dart';
 import 'person.dart';
+import 'utils.dart';
 
 void main() {
   void verifySpan(
@@ -583,7 +586,7 @@ void main() {
 }
 
 class Fixture {
-  final options = SentryOptions();
+  final options = defaultTestOptions();
   late final mockHive = MockHiveInterface();
   final hub = MockHub();
   static final dbName = 'people-hive-impl';

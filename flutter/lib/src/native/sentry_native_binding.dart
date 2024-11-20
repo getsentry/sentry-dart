@@ -10,44 +10,59 @@ import 'native_frames.dart';
 /// Provide typed methods to access native layer.
 @internal
 abstract class SentryNativeBinding {
-  Future<void> init(SentryFlutterOptions options);
+  FutureOr<void> init(Hub hub);
 
-  Future<void> close();
+  FutureOr<void> close();
 
-  Future<NativeAppStart?> fetchNativeAppStart();
+  FutureOr<NativeAppStart?> fetchNativeAppStart();
 
-  Future<void> captureEnvelope(Uint8List envelopeData);
+  bool get supportsCaptureEnvelope;
 
-  Future<void> beginNativeFrames();
+  FutureOr<void> captureEnvelope(
+      Uint8List envelopeData, bool containsUnhandledException);
 
-  Future<NativeFrames?> endNativeFrames(SentryId id);
+  FutureOr<void> beginNativeFrames();
 
-  Future<void> setUser(SentryUser? user);
+  FutureOr<NativeFrames?> endNativeFrames(SentryId id);
 
-  Future<void> addBreadcrumb(Breadcrumb breadcrumb);
+  FutureOr<void> setUser(SentryUser? user);
 
-  Future<void> clearBreadcrumbs();
+  FutureOr<void> addBreadcrumb(Breadcrumb breadcrumb);
 
-  Future<Map<String, dynamic>?> loadContexts();
+  FutureOr<void> clearBreadcrumbs();
 
-  Future<void> setContexts(String key, dynamic value);
+  bool get supportsLoadContexts;
 
-  Future<void> removeContexts(String key);
+  FutureOr<Map<String, dynamic>?> loadContexts();
 
-  Future<void> setExtra(String key, dynamic value);
+  FutureOr<void> setContexts(String key, dynamic value);
 
-  Future<void> removeExtra(String key);
+  FutureOr<void> removeContexts(String key);
 
-  Future<void> setTag(String key, String value);
+  FutureOr<void> setExtra(String key, dynamic value);
 
-  Future<void> removeTag(String key);
+  FutureOr<void> removeExtra(String key);
+
+  FutureOr<void> setTag(String key, String value);
+
+  FutureOr<void> removeTag(String key);
 
   int? startProfiler(SentryId traceId);
 
-  Future<void> discardProfiler(SentryId traceId);
+  FutureOr<void> discardProfiler(SentryId traceId);
 
-  Future<Map<String, dynamic>?> collectProfile(
+  FutureOr<int?> displayRefreshRate();
+
+  FutureOr<Map<String, dynamic>?> collectProfile(
       SentryId traceId, int startTimeNs, int endTimeNs);
 
-  Future<List<DebugImage>?> loadDebugImages();
+  FutureOr<List<DebugImage>?> loadDebugImages(SentryStackTrace stackTrace);
+
+  FutureOr<void> pauseAppHangTracking();
+
+  FutureOr<void> resumeAppHangTracking();
+
+  FutureOr<void> nativeCrash();
+
+  FutureOr<SentryId> captureReplay(bool isCrash);
 }

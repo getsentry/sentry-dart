@@ -1,25 +1,31 @@
 import 'dart:convert';
+
 import 'client_reports/client_report.dart';
 import 'metrics/metric.dart';
 import 'protocol.dart';
-import 'sentry_item_type.dart';
-import 'sentry_options.dart';
-import 'sentry_trace_context_header.dart';
-import 'utils.dart';
 import 'sentry_attachment/sentry_attachment.dart';
 import 'sentry_envelope_header.dart';
 import 'sentry_envelope_item.dart';
+import 'sentry_item_type.dart';
+import 'sentry_options.dart';
+import 'sentry_trace_context_header.dart';
 import 'sentry_user_feedback.dart';
+import 'utils.dart';
 
 /// Class representation of `Envelope` file.
 class SentryEnvelope {
-  SentryEnvelope(this.header, this.items);
+  SentryEnvelope(this.header, this.items,
+      {this.containsUnhandledException = false});
 
   /// Header describing envelope content.
   final SentryEnvelopeHeader header;
 
   /// All items contained in the envelope.
   final List<SentryEnvelopeItem> items;
+
+  /// Whether the envelope contains an unhandled exception.
+  /// This is used to determine if the native SDK should start a new session.
+  final bool containsUnhandledException;
 
   /// Create a [SentryEnvelope] containing one [SentryEnvelopeItem] which holds the [SentryEvent] data.
   factory SentryEnvelope.fromEvent(
@@ -29,6 +35,15 @@ class SentryEnvelope {
     SentryTraceContextHeader? traceContext,
     List<SentryAttachment>? attachments,
   }) {
+    bool containsUnhandledException = false;
+
+    if (event.exceptions != null && event.exceptions!.isNotEmpty) {
+      // Check all exceptions for any unhandled ones
+      containsUnhandledException = event.exceptions!.any((exception) {
+        return exception.mechanism?.handled == false;
+      });
+    }
+
     return SentryEnvelope(
       SentryEnvelopeHeader(
         event.eventId,
@@ -41,9 +56,11 @@ class SentryEnvelope {
         if (attachments != null)
           ...attachments.map((e) => SentryEnvelopeItem.fromAttachment(e))
       ],
+      containsUnhandledException: containsUnhandledException,
     );
   }
 
+  @Deprecated('Will be removed in a future version.')
   factory SentryEnvelope.fromUserFeedback(
     SentryUserFeedback feedback,
     SdkVersion sdkVersion, {

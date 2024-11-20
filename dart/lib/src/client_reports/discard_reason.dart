@@ -11,4 +11,5 @@ enum DiscardReason {
   queueOverflow,
   cacheOverflow,
   rateLimitBackoff,
+  ignored,
 }

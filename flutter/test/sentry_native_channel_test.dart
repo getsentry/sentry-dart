@@ -27,12 +27,11 @@ void main() {
       late MockMethodChannel channel;
 
       setUp(() {
-        final options = SentryFlutterOptions(
-            dsn: fakeDsn, checker: getPlatformChecker(platform: mockPlatform))
-          // ignore: invalid_use_of_internal_member
-          ..automatedTestMode = true;
         channel = MockMethodChannel();
-        sut = createBinding(options, channel: channel);
+        final options =
+            defaultTestOptions(getPlatformChecker(platform: mockPlatform))
+              ..methodChannel = channel;
+        sut = createBinding(options);
       });
 
       // TODO move other methods here, e.g. init_native_sdk_test.dart
@@ -51,6 +50,21 @@ void main() {
 
         expect(actual?.appStartTime, 0.1);
         expect(actual?.isColdStart, true);
+      });
+
+      test('invalid fetchNativeAppStart returns null', () async {
+        when(channel.invokeMethod('fetchNativeAppStart'))
+            .thenAnswer((_) async => {
+                  'pluginRegistrationTime': 'invalid',
+                  'appStartTime': 'invalid',
+                  'isColdStart': 'invalid',
+                  // ignore: inference_failure_on_collection_literal
+                  'nativeSpanTimes': 'invalid',
+                });
+
+        final actual = await sut.fetchNativeAppStart();
+
+        expect(actual, isNull);
       });
 
       test('beginNativeFrames', () async {
@@ -244,7 +258,7 @@ void main() {
             (invocation) async =>
                 {captured = invocation.positionalArguments[1][0] as Uint8List});
 
-        await sut.captureEnvelope(data);
+        await sut.captureEnvelope(data, false);
 
         expect(captured, data);
       });
@@ -277,12 +291,39 @@ void main() {
           }
         ];
 
-        when(channel.invokeMethod('loadImageList'))
+        when(channel.invokeMethod('loadImageList', any))
             .thenAnswer((invocation) async => json);
 
-        final data = await sut.loadDebugImages();
+        final data = await sut.loadDebugImages(SentryStackTrace(frames: []));
 
         expect(data?.map((v) => v.toJson()), json);
+      });
+
+      test('pauseAppHangTracking', () async {
+        when(channel.invokeMethod('pauseAppHangTracking'))
+            .thenAnswer((_) => Future.value());
+
+        await sut.pauseAppHangTracking();
+
+        verify(channel.invokeMethod('pauseAppHangTracking'));
+      });
+
+      test('resumeAppHangTracking', () async {
+        when(channel.invokeMethod('resumeAppHangTracking'))
+            .thenAnswer((_) => Future.value());
+
+        await sut.resumeAppHangTracking();
+
+        verify(channel.invokeMethod('resumeAppHangTracking'));
+      });
+
+      test('nativeCrash', () async {
+        when(channel.invokeMethod('nativeCrash'))
+            .thenAnswer((_) => Future.value());
+
+        await sut.nativeCrash();
+
+        verify(channel.invokeMethod('nativeCrash'));
       });
     });
   }

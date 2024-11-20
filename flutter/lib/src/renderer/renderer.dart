@@ -2,6 +2,7 @@ import 'package:meta/meta.dart';
 
 import 'unknown_renderer.dart'
     if (dart.library.html) 'html_renderer.dart'
+    if (dart.library.js_interop) 'web_renderer.dart'
     if (dart.library.io) 'io_renderer.dart' as implementation;
 
 @internal

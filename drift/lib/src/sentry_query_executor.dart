@@ -3,9 +3,10 @@ import 'dart:async';
 import 'package:drift/drift.dart';
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
-import 'version.dart';
+
 import 'sentry_span_helper.dart';
 import 'sentry_transaction_executor.dart';
+import 'version.dart';
 
 /// Signature of a function that opens a database connection when instructed to.
 typedef DatabaseOpener = FutureOr<QueryExecutor> Function();
@@ -165,6 +166,17 @@ class SentryQueryExecutor extends QueryExecutor {
       },
       dbName: _dbName,
     );
+  }
+
+  @override
+  // ignore: override_on_non_overriding_member, public_member_api_docs
+  QueryExecutor beginExclusive() {
+    final dynamic uncheckedExecutor = _executor;
+    try {
+      return uncheckedExecutor.beginExclusive() as QueryExecutor;
+    } on NoSuchMethodError catch (_) {
+      throw Exception('This method is not supported in Drift versions <2.19.0');
+    }
   }
 
   @override

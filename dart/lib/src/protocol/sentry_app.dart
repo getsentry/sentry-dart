@@ -1,5 +1,7 @@
 import 'package:meta/meta.dart';
 
+import 'access_aware_map.dart';
+
 /// App context describes the application.
 ///
 /// As opposed to the runtime, this is the actual application that was
@@ -20,6 +22,7 @@ class SentryApp {
     this.inForeground,
     this.viewNames,
     this.textScale,
+    this.unknown,
   });
 
   /// Human readable application name, as it appears on the platform.
@@ -56,29 +59,35 @@ class SentryApp {
   /// The current text scale. Only available on Flutter.
   final double? textScale;
 
+  @internal
+  final Map<String, dynamic>? unknown;
+
   /// Deserializes a [SentryApp] from JSON [Map].
   factory SentryApp.fromJson(Map<String, dynamic> data) {
-    final viewNamesJson = data['view_names'] as List<dynamic>?;
+    final json = AccessAwareMap(data);
+    final viewNamesJson = json['view_names'] as List<dynamic>?;
     return SentryApp(
-      name: data['app_name'],
-      version: data['app_version'],
-      identifier: data['app_identifier'],
-      build: data['app_build'],
-      buildType: data['build_type'],
-      startTime: data['app_start_time'] != null
-          ? DateTime.tryParse(data['app_start_time'])
+      name: json['app_name'],
+      version: json['app_version'],
+      identifier: json['app_identifier'],
+      build: json['app_build'],
+      buildType: json['build_type'],
+      startTime: json['app_start_time'] != null
+          ? DateTime.tryParse(json['app_start_time'])
           : null,
-      deviceAppHash: data['device_app_hash'],
-      appMemory: data['app_memory'],
-      inForeground: data['in_foreground'],
+      deviceAppHash: json['device_app_hash'],
+      appMemory: json['app_memory'],
+      inForeground: json['in_foreground'],
       viewNames: viewNamesJson?.map((e) => e as String).toList(),
-      textScale: data['text_scale'],
+      textScale: json['text_scale'],
+      unknown: json.notAccessed(),
     );
   }
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
     return {
+      ...?unknown,
       if (name != null) 'app_name': name!,
       if (version != null) 'app_version': version!,
       if (identifier != null) 'app_identifier': identifier!,
@@ -105,6 +114,7 @@ class SentryApp {
         inForeground: inForeground,
         viewNames: viewNames,
         textScale: textScale,
+        unknown: unknown,
       );
 
   SentryApp copyWith({
@@ -132,5 +142,6 @@ class SentryApp {
         inForeground: inForeground ?? this.inForeground,
         viewNames: viewNames ?? this.viewNames,
         textScale: textScale ?? this.textScale,
+        unknown: unknown,
       );
 }

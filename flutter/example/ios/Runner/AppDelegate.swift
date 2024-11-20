@@ -2,7 +2,7 @@ import UIKit
 import Flutter
 import Sentry
 
-@UIApplicationMain
+@main
 @objc class AppDelegate: FlutterAppDelegate {
   private let _channel = "example.flutter.sentry.io"
 

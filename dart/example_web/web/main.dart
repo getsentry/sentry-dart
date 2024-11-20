@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:html';
+import 'package:web/web.dart';
 
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/version.dart';
@@ -24,7 +24,7 @@ Future<void> main() async {
 Future<void> runApp() async {
   print('runApp');
 
-  querySelector('#output')?.text = 'Your Dart app is running.';
+  document.querySelector('#output')?.text = 'Your Dart app is running.';
 
   await Sentry.addBreadcrumb(
     Breadcrumb(
@@ -44,6 +44,7 @@ Future<void> runApp() async {
       ..transaction = '/example/app'
       ..level = SentryLevel.warning;
     await scope.setTag('build', '579');
+    // ignore: deprecated_member_use
     await scope.setExtra('company-name', 'Dart Inc');
 
     await scope.setUser(
@@ -57,12 +58,20 @@ Future<void> runApp() async {
     );
   });
 
-  querySelector('#btEvent')
+  document
+      .querySelector('#btEvent')
       ?.onClick
       .listen((event) => captureCompleteExampleEvent());
-  querySelector('#btMessage')?.onClick.listen((event) => captureMessage());
-  querySelector('#btException')?.onClick.listen((event) => captureException());
-  querySelector('#btUnhandledException')
+  document
+      .querySelector('#btMessage')
+      ?.onClick
+      .listen((event) => captureMessage());
+  document
+      .querySelector('#btException')
+      ?.onClick
+      .listen((event) => captureException());
+  document
+      .querySelector('#btUnhandledException')
       ?.onClick
       .listen((event) => captureUnhandledException());
 }
@@ -76,7 +85,8 @@ Future<void> captureMessage() async {
   );
   print('capture message result : $sentryId');
   if (sentryId != SentryId.empty()) {
-    querySelector('#messageResult')?.style.display = 'block';
+    (document.querySelector('#messageResult') as HTMLElement?)?.style.display =
+        'block';
   }
 }
 
@@ -93,13 +103,16 @@ Future<void> captureException() async {
     print('Capture exception : SentryId: $sentryId');
 
     if (sentryId != SentryId.empty()) {
-      querySelector('#exceptionResult')?.style.display = 'block';
+      (document.querySelector('#exceptionResult') as HTMLElement?)
+          ?.style
+          .display = 'block';
     }
   }
 }
 
 Future<void> captureUnhandledException() async {
-  querySelector('#unhandledResult')?.style.display = 'block';
+  (document.querySelector('#unhandledResult') as HTMLElement?)?.style.display =
+      'block';
 
   await buildCard();
 }
@@ -111,7 +124,8 @@ Future<void> captureCompleteExampleEvent() async {
   print('Response SentryId: $sentryId');
 
   if (sentryId != SentryId.empty()) {
-    querySelector('#eventResult')?.style.display = 'block';
+    (document.querySelector('#eventResult') as HTMLElement?)?.style.display =
+        'block';
   }
 }
 

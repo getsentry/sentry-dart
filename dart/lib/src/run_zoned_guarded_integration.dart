@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:meta/meta.dart';
 
+import '../sentry.dart';
 import 'hub.dart';
 import 'integration.dart';
 import 'protocol.dart';

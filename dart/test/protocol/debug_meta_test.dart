@@ -2,12 +2,15 @@ import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 
+import '../mocks.dart';
+
 void main() {
   final debugMeta = DebugMeta(
     sdk: SdkInfo(
       sdkName: 'sdkName',
     ),
     images: [DebugImage(type: 'macho', uuid: 'uuid')],
+    unknown: testUnknown,
   );
 
   final debugMetaJson = <String, dynamic>{
@@ -16,6 +19,7 @@ void main() {
       {'uuid': 'uuid', 'type': 'macho'}
     ]
   };
+  debugMetaJson.addAll(testUnknown);
 
   group('json', () {
     test('toJson', () {

@@ -1,4 +1,5 @@
 import 'package:meta/meta.dart';
+import 'package:sentry/sentry.dart';
 
 @internal
 class NativeAppStart {
@@ -13,12 +14,29 @@ class NativeAppStart {
   bool isColdStart;
   Map<dynamic, dynamic> nativeSpanTimes;
 
-  factory NativeAppStart.fromJson(Map<String, dynamic> json) {
+  static NativeAppStart? fromJson(Map<String, dynamic> json) {
+    final appStartTime = json['appStartTime'];
+    final pluginRegistrationTime = json['pluginRegistrationTime'];
+    final isColdStart = json['isColdStart'];
+    final nativeSpanTimes = json['nativeSpanTimes'];
+
+    if (appStartTime is! double ||
+        pluginRegistrationTime is! int ||
+        isColdStart is! bool ||
+        nativeSpanTimes is! Map) {
+      // ignore: invalid_use_of_internal_member
+      Sentry.currentHub.options.logger(
+        SentryLevel.warning,
+        'Failed to parse json when capturing App Start metrics. App Start wont be reported.',
+      );
+      return null;
+    }
+
     return NativeAppStart(
-      appStartTime: json['appStartTime'] as double,
-      pluginRegistrationTime: json['pluginRegistrationTime'] as int,
-      isColdStart: json['isColdStart'] as bool,
-      nativeSpanTimes: json['nativeSpanTimes'] as Map<dynamic, dynamic>,
+      appStartTime: appStartTime,
+      pluginRegistrationTime: pluginRegistrationTime,
+      isColdStart: isColdStart,
+      nativeSpanTimes: nativeSpanTimes,
     );
   }
 }

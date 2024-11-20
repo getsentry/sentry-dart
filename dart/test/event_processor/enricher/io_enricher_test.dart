@@ -1,12 +1,15 @@
 @TestOn('vm')
 library dart_test;
 
+import 'dart:io';
+
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/event_processor/enricher/io_enricher_event_processor.dart';
 import 'package:test/test.dart';
 
 import '../../mocks.dart';
 import '../../mocks/mock_platform_checker.dart';
+import '../../test_utils.dart';
 
 void main() {
   group('io_enricher', () {
@@ -25,6 +28,8 @@ void main() {
           .firstWhere((element) => element.name == 'Dart');
       expect(dartRuntime?.name, 'Dart');
       expect(dartRuntime?.rawDescription, isNotNull);
+      expect(dartRuntime!.version.toString(), isNot(Platform.version));
+      expect(Platform.version, contains(dartRuntime.version.toString()));
     });
 
     test('does add to existing runtimes', () {
@@ -160,20 +165,17 @@ void main() {
     });
 
     test('$IoEnricherEventProcessor gets added on init', () async {
-      final options = SentryOptions(dsn: fakeDsn)..automatedTestMode = true;
-      late SentryOptions configuredOptions;
+      final options = defaultTestOptions();
       await Sentry.init(
         (options) {
           options.dsn = fakeDsn;
-          configuredOptions = options;
         },
         options: options,
       );
       await Sentry.close();
 
-      final ioEnricherCount = configuredOptions.eventProcessors
-          .whereType<IoEnricherEventProcessor>()
-          .length;
+      final ioEnricherCount =
+          options.eventProcessors.whereType<IoEnricherEventProcessor>().length;
       expect(ioEnricherCount, 1);
     });
   });
@@ -184,10 +186,8 @@ class Fixture {
     bool hasNativeIntegration = false,
     bool includePii = false,
   }) {
-    final options = SentryOptions(
-        dsn: fakeDsn,
-        checker:
-            MockPlatformChecker(hasNativeIntegration: hasNativeIntegration))
+    final options = defaultTestOptions(
+        MockPlatformChecker(hasNativeIntegration: hasNativeIntegration))
       ..sendDefaultPii = includePii;
 
     return IoEnricherEventProcessor(options);

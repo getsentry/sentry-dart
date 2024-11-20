@@ -2,6 +2,8 @@ import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 
+import '../mocks.dart';
+
 void main() {
   final testStartTime = DateTime.fromMicrosecondsSinceEpoch(0);
 
@@ -16,6 +18,7 @@ void main() {
     inForeground: true,
     viewNames: ['fixture-viewName', 'fixture-viewName2'],
     textScale: 2.0,
+    unknown: testUnknown,
   );
 
   final sentryAppJson = <String, dynamic>{
@@ -30,6 +33,7 @@ void main() {
     'view_names': ['fixture-viewName', 'fixture-viewName2'],
     'text_scale': 2.0,
   };
+  sentryAppJson.addAll(testUnknown);
 
   group('json', () {
     test('toJson', () {

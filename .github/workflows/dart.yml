@@ -21,19 +21,28 @@ jobs:
           access_token: ${{ github.token }}
 
   build:
-    name: Build ${{matrix.sdk}} on ${{matrix.os}}
-    runs-on: ${{ matrix.os }}
+    name: Dart ${{matrix.sdk}} on ${{matrix.os}}
+    runs-on: ${{ matrix.os }}-latest
     timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        sdk: [stable, beta]
-        exclude:
-          - os: windows-latest
-            sdk: beta
-          - os: macos-latest
-            sdk: beta
+        os: [ubuntu]
+        sdk:
+          - '2.18'
+          - '2.19'
+          - '3.0'
+          - '3.1'
+          - '3.2'
+          - '3.3'
+          - '3.4'
+          - stable
+          - beta
+        include:
+          - os: windows
+            sdk: stable
+          - os: macos
+            sdk: stable
     steps:
       - uses: actions/checkout@v4
 
@@ -49,24 +58,14 @@ jobs:
           coverage: sentry
           min-coverage: 85
 
-      - name: Install webdev
-        if: runner.os != 'Windows'
-        run: dart pub global activate webdev
-
       - name: Build example
         working-directory: dart/example
         run: |
           dart pub get
           dart compile aot-snapshot bin/example.dart
 
-      - name: Build Web example
-        if: runner.os != 'Windows'
-        working-directory: dart/example_web
-        run: |
-          dart pub get
-          webdev build
-
   analyze:
     uses: ./.github/workflows/analyze.yml
     with:
       package: dart
+      panaThreshold: 87

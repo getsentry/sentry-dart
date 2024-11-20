@@ -41,6 +41,9 @@ class RecursiveExceptionCauseExtractor {
           exception: exception,
           stackTrace: stackTrace,
         );
+        if (_options.automatedTestMode) {
+          rethrow;
+        }
         break;
       }
     }

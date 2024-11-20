@@ -55,6 +55,7 @@ class SentryBaggage {
           exception: exception,
           stackTrace: stackTrace,
         );
+        // TODO rethrow in options.automatedTestMode (currently not available here to check)
       }
     }
 
@@ -94,9 +95,7 @@ class SentryBaggage {
   setValuesFromScope(Scope scope, SentryOptions options) {
     final propagationContext = scope.propagationContext;
     setTraceId(propagationContext.traceId.toString());
-    if (options.dsn != null) {
-      setPublicKey(Dsn.parse(options.dsn!).publicKey);
-    }
+    setPublicKey(options.parsedDsn.publicKey);
     if (options.release != null) {
       setRelease(options.release!);
     }
@@ -106,8 +105,13 @@ class SentryBaggage {
     if (scope.user?.id != null) {
       setUserId(scope.user!.id!);
     }
+    // ignore: deprecated_member_use_from_same_package
     if (scope.user?.segment != null) {
+      // ignore: deprecated_member_use_from_same_package
       setUserSegment(scope.user!.segment!);
+    }
+    if (scope.replayId != null && scope.replayId != SentryId.empty()) {
+      setReplayId(scope.replayId.toString());
     }
   }
 
@@ -176,6 +180,8 @@ class SentryBaggage {
     set('sentry-user_id', value);
   }
 
+  @Deprecated(
+      'Will be removed in v9 since functionality has been removed from Sentry')
   void setUserSegment(String value) {
     set('sentry-user_segment', value);
   }
@@ -199,6 +205,13 @@ class SentryBaggage {
     }
 
     return double.tryParse(sampleRate);
+  }
+
+  void setReplayId(String value) => set('sentry-replay_id', value);
+
+  SentryId? getReplayId() {
+    final replayId = get('sentry-replay_id');
+    return replayId == null ? null : SentryId.fromId(replayId);
   }
 
   Map<String, String> get keyValues => Map.unmodifiable(_keyValues);

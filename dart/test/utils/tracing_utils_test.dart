@@ -2,8 +2,8 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:test/test.dart';
 
-import '../mocks.dart';
 import '../mocks/mock_sentry_client.dart';
+import '../test_utils.dart';
 
 void main() {
   group('$containsTargetOrMatchesRegExp', () {
@@ -125,7 +125,7 @@ void main() {
       addBaggageHeaderFromSpan(sut, headers);
 
       expect(headers[baggage!.name],
-          'other-vendor-value=foo,sentry-trace_id=${sut.context.traceId},sentry-public_key=abc,sentry-release=release,sentry-environment=environment,sentry-user_segment=segment,sentry-transaction=name,sentry-sample_rate=1,sentry-sampled=true');
+          'other-vendor-value=foo,sentry-trace_id=${sut.context.traceId},sentry-public_key=public,sentry-release=release,sentry-environment=environment,sentry-user_segment=segment,sentry-transaction=name,sentry-sample_rate=1,sentry-sampled=true');
     });
   });
 
@@ -167,7 +167,7 @@ class Fixture {
     ),
   );
 
-  final _options = SentryOptions(dsn: fakeDsn)
+  final _options = defaultTestOptions()
     ..release = 'release'
     ..environment = 'environment';
 

@@ -97,6 +97,13 @@ class Scope {
   /// they must be JSON-serializable.
   Map<String, dynamic> get extra => Map.unmodifiable(_extra);
 
+  /// Active replay recording.
+  @internal
+  SentryId? get replayId => _replayId;
+  @internal
+  set replayId(SentryId? value) => _replayId = value;
+  SentryId? _replayId;
+
   final Contexts _contexts = Contexts();
 
   /// Unmodifiable map of the scope contexts key/value
@@ -237,6 +244,7 @@ class Scope {
     _tags.clear();
     _extra.clear();
     _eventProcessors.clear();
+    _replayId = null;
 
     _clearBreadcrumbsSync();
     _setUserSync(null);
@@ -268,6 +276,8 @@ class Scope {
   }
 
   /// Sets an extra to the Scope
+  @Deprecated(
+      'Use Contexts instead. Additional data is deprecated in favor of structured Contexts and should be avoided when possible')
   Future<void> setExtra(String key, dynamic value) async {
     _setExtraSync(key, value);
     await _callScopeObservers(
@@ -275,6 +285,8 @@ class Scope {
   }
 
   /// Removes an extra from the Scope
+  @Deprecated(
+      'Use Contexts instead. Additional data is deprecated in favor of structured Contexts and should be avoided when possible')
   Future<void> removeExtra(String key) async {
     _extra.remove(key);
     await _callScopeObservers(
@@ -425,7 +437,8 @@ class Scope {
       ..fingerprint = List.from(fingerprint)
       .._transaction = _transaction
       ..span = span
-      .._enableScopeSync = false;
+      .._enableScopeSync = false
+      .._replayId = _replayId;
 
     clone._setUserSync(user);
 

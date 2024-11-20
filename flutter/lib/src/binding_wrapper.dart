@@ -1,5 +1,7 @@
 // ignore_for_file: invalid_use_of_internal_member
 
+import 'package:flutter/foundation.dart';
+
 import '../sentry_flutter.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
@@ -26,6 +28,9 @@ class BindingWrapper {
         stackTrace: s,
         logger: 'BindingWrapper',
       );
+      if (_hub.options.automatedTestMode) {
+        rethrow;
+      }
       return null;
     }
   }
@@ -36,7 +41,87 @@ class BindingWrapper {
   /// You only need to call this method if you need the binding to be
   /// initialized before calling [runApp].
   WidgetsBinding ensureInitialized() =>
-      WidgetsFlutterBinding.ensureInitialized();
+      SentryWidgetsFlutterBinding.ensureInitialized();
 }
 
 WidgetsBinding? _ambiguate(WidgetsBinding? binding) => binding;
+
+class SentryWidgetsFlutterBinding extends WidgetsFlutterBinding
+    with SentryWidgetsBindingMixin {
+  @override
+  void initInstances() {
+    super.initInstances();
+    _instance = this;
+  }
+
+  static SentryWidgetsFlutterBinding get instance =>
+      BindingBase.checkInstance(_instance);
+  static SentryWidgetsFlutterBinding? _instance;
+
+  /// Returns an instance of [SentryWidgetsFlutterBinding].
+  /// If no binding has yet been initialized, creates and initializes one.
+  ///
+  /// If the binding was already initialized with a different implementation,
+  /// returns the existing [WidgetsBinding] instance instead.
+  static WidgetsBinding ensureInitialized() {
+    try {
+      if (SentryWidgetsFlutterBinding._instance == null) {
+        SentryWidgetsFlutterBinding();
+      }
+      return SentryWidgetsFlutterBinding.instance;
+    } catch (e) {
+      Sentry.currentHub.options.logger(
+          SentryLevel.info,
+          'WidgetsFlutterBinding already initialized. '
+          'Falling back to default WidgetsBinding instance.');
+      return WidgetsBinding.instance;
+    }
+  }
+}
+
+@internal
+typedef FrameTimingCallback = void Function(
+    DateTime startTimestamp, DateTime endTimestamp);
+
+mixin SentryWidgetsBindingMixin on WidgetsBinding {
+  DateTime? _startTimestamp;
+  FrameTimingCallback? _frameTimingCallback;
+  ClockProvider? _clock;
+
+  @internal
+  void registerFramesTracking(
+      FrameTimingCallback callback, ClockProvider clock) {
+    _frameTimingCallback ??= callback;
+    _clock ??= clock;
+  }
+
+  @visibleForTesting
+  bool isFramesTrackingInitialized() {
+    return _frameTimingCallback != null && _clock != null;
+  }
+
+  @internal
+  void removeFramesTracking() {
+    _frameTimingCallback = null;
+    _clock = null;
+  }
+
+  @override
+  void handleBeginFrame(Duration? rawTimeStamp) {
+    _startTimestamp = _clock?.call();
+
+    super.handleBeginFrame(rawTimeStamp);
+  }
+
+  @override
+  void handleDrawFrame() {
+    super.handleDrawFrame();
+
+    final endTimestamp = _clock?.call();
+    if (_startTimestamp != null &&
+        endTimestamp != null &&
+        _startTimestamp!.isBefore(endTimestamp)) {
+      _frameTimingCallback?.call(_startTimestamp!, endTimestamp);
+    }
+  }
+}

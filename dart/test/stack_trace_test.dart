@@ -2,14 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:sentry/sentry.dart';
-import 'package:sentry/src/noop_origin.dart'
-    if (dart.library.html) 'package:sentry/src/origin.dart';
+import 'package:sentry/src/origin.dart';
 import 'package:sentry/src/sentry_stack_trace_factory.dart';
 import 'package:stack_trace/stack_trace.dart';
 import 'package:test/test.dart';
 
-import 'mocks.dart';
+import 'mocks/mock_platform_checker.dart';
+import 'test_utils.dart';
 
 void main() {
   group('encodeStackTraceFrame', () {
@@ -24,7 +23,8 @@ void main() {
           'lineno': 1,
           'colno': 2,
           'in_app': false,
-          'filename': 'core'
+          'filename': 'core',
+          'platform': 'dart',
         },
       );
     });
@@ -110,12 +110,11 @@ void main() {
 
   group('encodeStackTrace', () {
     test('encodes a simple stack trace', () {
-      final frames = Fixture()
-          .getSut(considerInAppFramesByDefault: true)
-          .getStackFrames('''
+      final frames =
+          Fixture().getSut(considerInAppFramesByDefault: true).parse('''
 #0      baz (file:///pathto/test.dart:50:3)
 #1      bar (file:///pathto/test.dart:46:9)
-      ''').map((frame) => frame.toJson());
+      ''').frames.map((frame) => frame.toJson());
 
       expect(frames, [
         {
@@ -124,7 +123,8 @@ void main() {
           'lineno': 46,
           'colno': 9,
           'in_app': true,
-          'filename': 'test.dart'
+          'filename': 'test.dart',
+          'platform': 'dart',
         },
         {
           'abs_path': '${eventOrigin}test.dart',
@@ -132,19 +132,32 @@ void main() {
           'lineno': 50,
           'colno': 3,
           'in_app': true,
-          'filename': 'test.dart'
+          'filename': 'test.dart',
+          'platform': 'dart',
         },
       ]);
     });
 
+    test('obsoleted getStackFrames works as expected', () {
+      final sut = Fixture().getSut(considerInAppFramesByDefault: true);
+      final trace = '''
+#0      baz (file:///pathto/test.dart:50:3)
+#1      bar (file:///pathto/test.dart:46:9)
+      ''';
+      final frames1 = sut.parse(trace).frames.map((frame) => frame.toJson());
+      // ignore: deprecated_member_use_from_same_package
+      final frames2 = sut.getStackFrames(trace).map((frame) => frame.toJson());
+
+      expect(frames1, equals(frames2));
+    });
+
     test('encodes an asynchronous stack trace', () {
-      final frames = Fixture()
-          .getSut(considerInAppFramesByDefault: true)
-          .getStackFrames('''
+      final frames =
+          Fixture().getSut(considerInAppFramesByDefault: true).parse('''
 #0      baz (file:///pathto/test.dart:50:3)
 <asynchronous suspension>
 #1      bar (file:///pathto/test.dart:46:9)
-      ''').map((frame) => frame.toJson());
+      ''').frames.map((frame) => frame.toJson());
 
       expect(frames, [
         {
@@ -153,7 +166,8 @@ void main() {
           'lineno': 46,
           'colno': 9,
           'in_app': true,
-          'filename': 'test.dart'
+          'filename': 'test.dart',
+          'platform': 'dart',
         },
         {
           'abs_path': '<asynchronous suspension>',
@@ -164,7 +178,8 @@ void main() {
           'lineno': 50,
           'colno': 3,
           'in_app': true,
-          'filename': 'test.dart'
+          'filename': 'test.dart',
+          'platform': 'dart',
         },
       ]);
     });
@@ -197,7 +212,8 @@ isolate_instructions: 10fa27070, vm_instructions: 10fa21e20
       for (var traceString in stackTraces) {
         final frames = Fixture()
             .getSut(considerInAppFramesByDefault: true)
-            .getStackFrames(traceString)
+            .parse(traceString)
+            .frames
             .map((frame) => frame.toJson());
 
         expect(
@@ -217,20 +233,20 @@ isolate_instructions: 10fa27070, vm_instructions: 10fa21e20
     });
 
     test('parses normal stack trace', () {
-      final frames = Fixture()
-          .getSut(considerInAppFramesByDefault: true)
-          .getStackFrames('''
+      final frames =
+          Fixture().getSut(considerInAppFramesByDefault: true).parse('''
 #0 asyncThrows (file:/foo/bar/main.dart:404)
 #1 MainScaffold.build.<anonymous closure> (package:example/main.dart:131)
 #2 PlatformDispatcher._dispatchPointerDataPacket (dart:ui/platform_dispatcher.dart:341)
-            ''').map((frame) => frame.toJson());
+            ''').frames.map((frame) => frame.toJson());
       expect(frames, [
         {
           'filename': 'platform_dispatcher.dart',
           'function': 'PlatformDispatcher._dispatchPointerDataPacket',
           'lineno': 341,
           'abs_path': '${eventOrigin}dart:ui/platform_dispatcher.dart',
-          'in_app': false
+          'in_app': false,
+          'platform': 'dart',
         },
         {
           'filename': 'main.dart',
@@ -238,14 +254,16 @@ isolate_instructions: 10fa27070, vm_instructions: 10fa21e20
           'function': 'MainScaffold.build.<fn>',
           'lineno': 131,
           'abs_path': '${eventOrigin}package:example/main.dart',
-          'in_app': true
+          'in_app': true,
+          'platform': 'dart',
         },
         {
           'filename': 'main.dart',
           'function': 'asyncThrows',
           'lineno': 404,
           'abs_path': '${eventOrigin}main.dart',
-          'in_app': true
+          'in_app': true,
+          'platform': 'dart',
         }
       ]);
     });
@@ -253,22 +271,49 @@ isolate_instructions: 10fa27070, vm_instructions: 10fa21e20
     test('remove frames if only async gap is left', () {
       final frames = Fixture()
           .getSut(considerInAppFramesByDefault: true)
-          .getStackFrames(StackTrace.fromString('''
+          .parse(StackTrace.fromString('''
 <asynchronous suspension>
             '''))
+          .frames
           .map((frame) => frame.toJson());
       expect(frames.isEmpty, true);
+    });
+
+    test('sets platform to javascript for web and dart for non-web', () {
+      final frame = Frame(Uri.parse('file://foo/bar/baz.dart'), 1, 2, 'buzz');
+      final fixture = Fixture();
+
+      // Test for web platform
+      fixture.options.platformChecker = MockPlatformChecker(isWebValue: true);
+      final webSut = fixture.getSut();
+      var webFrame = webSut.encodeStackTraceFrame(frame)!;
+      expect(webFrame.platform, 'javascript');
+
+      // Test for non-web platform
+      fixture.options.platformChecker = MockPlatformChecker(isWebValue: false);
+      final nativeFrameBeforeSut = fixture.getSut();
+      var nativeFrameBefore =
+          nativeFrameBeforeSut.encodeStackTraceFrame(frame)!;
+      expect(nativeFrameBefore.platform, 'dart');
+
+      // Test when platform is already set
+      final frameWithPlatform = fixture
+          .getSut()
+          .encodeStackTraceFrame(frame)!
+          .copyWith(platform: 'native');
+      expect(frameWithPlatform.platform, 'native');
     });
   });
 }
 
 class Fixture {
+  final options = defaultTestOptions(MockPlatformChecker(isWebValue: false));
+
   SentryStackTraceFactory getSut({
     List<String> inAppIncludes = const [],
     List<String> inAppExcludes = const [],
     bool considerInAppFramesByDefault = true,
   }) {
-    final options = SentryOptions(dsn: fakeDsn);
     inAppIncludes.forEach(options.addInAppInclude);
     inAppExcludes.forEach(options.addInAppExclude);
     options.considerInAppFramesByDefault = considerInAppFramesByDefault;

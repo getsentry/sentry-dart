@@ -310,6 +310,21 @@ void main() {
     expect(fixture.hub.options.enableSpanLocalMetricAggregation, false);
     expect(sut.localMetricsAggregator, null);
   });
+
+  test('setMeasurement sets a measurement', () async {
+    final sut = fixture.getSut();
+    sut.setMeasurement("test", 1);
+    expect(sut.tracer.measurements.containsKey("test"), true);
+    expect(sut.tracer.measurements["test"]!.value, 1);
+  });
+
+  test('setMeasurement does not set a measurement if a span is finished',
+      () async {
+    final sut = fixture.getSut();
+    await sut.finish();
+    sut.setMeasurement("test", 1);
+    expect(sut.tracer.measurements.isEmpty, true);
+  });
 }
 
 class Fixture {

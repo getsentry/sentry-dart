@@ -2,10 +2,10 @@
 library flutter_test;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/view_hierarchy/view_hierarchy_event_processor.dart';
 import 'package:sentry_flutter/src/view_hierarchy/view_hierarchy_integration.dart';
 
+import '../mocks.dart';
 import '../mocks.mocks.dart';
 
 void main() {
@@ -74,7 +74,7 @@ void main() {
 
 class Fixture {
   final hub = MockHub();
-  final options = SentryFlutterOptions();
+  final options = defaultTestOptions();
 
   SentryViewHierarchyIntegration getSut({bool attachViewHierarchy = true}) {
     options.attachViewHierarchy = attachViewHierarchy;

@@ -2,6 +2,8 @@ import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 
+import '../mocks.dart';
+
 void main() {
   final testBootTime = DateTime.fromMicrosecondsSinceEpoch(0);
 
@@ -42,6 +44,7 @@ void main() {
     supportsVibration: true,
     screenHeightPixels: 100,
     screenWidthPixels: 100,
+    unknown: testUnknown,
   );
 
   final sentryDeviceJson = <String, dynamic>{
@@ -82,6 +85,7 @@ void main() {
     'screen_height_pixels': 100,
     'screen_width_pixels': 100,
   };
+  sentryDeviceJson.addAll(testUnknown);
 
   group('json', () {
     test('toJson', () {

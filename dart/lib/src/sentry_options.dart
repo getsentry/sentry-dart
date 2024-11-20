@@ -1,17 +1,17 @@
 import 'dart:async';
 import 'dart:developer';
 
-import 'package:meta/meta.dart';
 import 'package:http/http.dart';
+import 'package:meta/meta.dart';
 
 import '../sentry.dart';
 import 'client_reports/client_report_recorder.dart';
 import 'client_reports/noop_client_report_recorder.dart';
-import 'sentry_exception_factory.dart';
-import 'sentry_stack_trace_factory.dart';
 import 'diagnostic_logger.dart';
 import 'environment/environment_variables.dart';
 import 'noop_client.dart';
+import 'sentry_exception_factory.dart';
+import 'sentry_stack_trace_factory.dart';
 import 'transport/noop_transport.dart';
 import 'version.dart';
 
@@ -23,9 +23,34 @@ class SentryOptions {
   /// Default Log level if not specified Default is DEBUG
   static final SentryLevel _defaultDiagnosticLevel = SentryLevel.debug;
 
-  /// The DSN tells the SDK where to send the events to. If an empty string is
-  /// used, the SDK will not send any events.
-  String? dsn;
+  String? _dsn;
+  Dsn? _parsedDsn;
+
+  /// The DSN tells the SDK where to send the events to.
+  /// If an empty string is used, the SDK will not send any events.
+  String? get dsn => _dsn;
+
+  set dsn(String? value) {
+    if (_dsn != value) {
+      _dsn = value;
+      _parsedDsn = null; // Invalidate the cached parsed DSN
+    }
+  }
+
+  /// Evaluates and parses the DSN.
+  /// May throw an exception if the DSN is invalid.
+  @internal
+  Dsn get parsedDsn {
+    _parsedDsn ??= _parseDsn();
+    return _parsedDsn!;
+  }
+
+  Dsn _parseDsn() {
+    if (_dsn == null || _dsn!.isEmpty) {
+      throw StateError('DSN is null or empty');
+    }
+    return Dsn.parse(_dsn!);
+  }
 
   /// If [compressPayload] is `true` the outgoing HTTP payloads are compressed
   /// using gzip. Otherwise, the payloads are sent in plain UTF8-encoded JSON
@@ -161,6 +186,10 @@ class SentryOptions {
   /// transaction object or nothing to skip reporting the transaction
   BeforeSendTransactionCallback? beforeSendTransaction;
 
+  /// This function is called with an SDK specific feedback event object and can return a modified
+  /// feedback event object or nothing to skip reporting the feedback event
+  BeforeSendCallback? beforeSendFeedback;
+
   /// This function is called with an SDK specific breadcrumb object before the breadcrumb is added
   /// to the scope. When nothing is returned from the function, the breadcrumb is dropped
   BeforeBreadcrumbCallback? beforeBreadcrumb;
@@ -183,6 +212,16 @@ class SentryOptions {
   /// 1.0 is set it means that 100% of events are sent. If set to 0.1 only 10% of events will be
   /// sent. Events are picked randomly. Default is null (disabled)
   double? sampleRate;
+
+  /// The ignoreErrors tells the SDK which errors should be not sent to the sentry server.
+  /// If an null or an empty list is used, the SDK will send all transactions.
+  /// To use regex add the `^` and the `$` to the string.
+  List<String> ignoreErrors = [];
+
+  /// The ignoreTransactions tells the SDK which transactions should be not sent to the sentry server.
+  /// If null or an empty list is used, the SDK will send all transactions.
+  /// To use regex add the `^` and the `$` to the string.
+  List<String> ignoreTransactions = [];
 
   final List<String> _inAppExcludes = [];
 
@@ -334,6 +373,32 @@ class SentryOptions {
     _scopeObservers.add(scopeObserver);
   }
 
+  final List<Type> _ignoredExceptionsForType = [];
+
+  /// Ignored exception types.
+  List<Type> get ignoredExceptionsForType => _ignoredExceptionsForType;
+
+  /// Adds exception type to the list of ignored exceptions.
+  void addExceptionFilterForType(Type exceptionType) {
+    _ignoredExceptionsForType.add(exceptionType);
+  }
+
+  /// Check if [ignoredExceptionsForType] contains an exception.
+  bool containsIgnoredExceptionForType(dynamic exception) {
+    return exception != null &&
+        _ignoredExceptionsForType.contains(exception.runtimeType);
+  }
+
+  /// Enables Dart symbolication for stack traces in Flutter.
+  ///
+  /// If true, the SDK will attempt to symbolicate Dart stack traces when
+  /// [Sentry.init] is used instead of `SentryFlutter.init`. This is useful
+  /// when native debug images are not available.
+  ///
+  /// Automatically set to `false` when using `SentryFlutter.init` on a platform
+  /// with a native integration (e.g. Android, iOS, ...).
+  bool enableDartSymbolication = true;
+
   @internal
   late ClientReportRecorder recorder = NoOpClientReportRecorder();
 
@@ -382,6 +447,8 @@ class SentryOptions {
   /// Enables generation of transactions and propagation of trace data. If set
   /// to null, tracing might be enabled if [tracesSampleRate] or [tracesSampler]
   /// are set.
+  @Deprecated(
+      'Use either tracesSampleRate or tracesSampler instead. This will be removed in v9')
   bool? enableTracing;
 
   /// Enables sending developer metrics to Sentry.
@@ -436,6 +503,33 @@ class SentryOptions {
   /// Settings this to `false` will set the `level` to [SentryLevel.error].
   bool markAutomaticallyCollectedErrorsAsFatal = true;
 
+  /// Enables identification of exception types in obfuscated builds.
+  /// When true, the SDK will attempt to identify common exception types
+  /// to improve readability of obfuscated issue titles.
+  ///
+  /// If you already have events with obfuscated issue titles this will change grouping.
+  ///
+  /// Default: `true`
+  bool enableExceptionTypeIdentification = true;
+
+  final List<ExceptionTypeIdentifier> _exceptionTypeIdentifiers = [];
+
+  List<ExceptionTypeIdentifier> get exceptionTypeIdentifiers =>
+      List.unmodifiable(_exceptionTypeIdentifiers);
+
+  void addExceptionTypeIdentifierByIndex(
+      int index, ExceptionTypeIdentifier exceptionTypeIdentifier) {
+    _exceptionTypeIdentifiers.insert(
+        index, exceptionTypeIdentifier.withCache());
+  }
+
+  /// Adds an exception type identifier to the beginning of the list.
+  /// This ensures it is processed first and takes precedence over existing identifiers.
+  void prependExceptionTypeIdentifier(
+      ExceptionTypeIdentifier exceptionTypeIdentifier) {
+    addExceptionTypeIdentifierByIndex(0, exceptionTypeIdentifier);
+  }
+
   /// The Spotlight configuration.
   /// Disabled by default.
   /// ```dart
@@ -443,7 +537,21 @@ class SentryOptions {
   /// ```
   Spotlight spotlight = Spotlight(enabled: false);
 
-  SentryOptions({this.dsn, PlatformChecker? checker}) {
+  /// Configure a proxy to use for SDK API calls.
+  ///
+  /// On io platforms without native SDKs (dart, linux, windows), this will use
+  /// an 'IOClient' with inner 'HTTPClient' for http communication.
+  /// A http proxy will be set in returned for 'HttpClient.findProxy' in the
+  /// form 'PROXY <your_host>:<your_port>'.
+  /// When setting 'user' and 'pass', the 'HttpClient.addProxyCredentials'
+  /// method will be called with empty 'realm'.
+  ///
+  /// On Android & iOS, the proxy settings are handled by the native SDK.
+  /// iOS only supports http proxies, while macOS also supports socks.
+  SentryProxy? proxy;
+
+  SentryOptions({String? dsn, PlatformChecker? checker}) {
+    this.dsn = dsn;
     if (checker != null) {
       platformChecker = checker;
     }
@@ -482,23 +590,32 @@ class SentryOptions {
   }
 
   /// Adds an inAppExclude
-  void addInAppExclude(String inApp) {
-    _inAppExcludes.add(inApp);
+  void addInAppExclude(String inAppInclude) {
+    _inAppExcludes.add(inAppInclude);
   }
 
   /// Adds an inAppIncludes
-  void addInAppInclude(String inApp) {
-    _inAppIncludes.add(inApp);
+  void addInAppInclude(String inAppExclude) {
+    _inAppIncludes.add(inAppExclude);
   }
 
   /// Returns if tracing should be enabled. If tracing is disabled, starting transactions returns
   /// [NoOpSentrySpan].
   bool isTracingEnabled() {
+    // ignore: deprecated_member_use_from_same_package
     final enable = enableTracing;
     if (enable != null) {
       return enable;
     }
     return tracesSampleRate != null || tracesSampler != null;
+  }
+
+  List<PerformanceCollector> get performanceCollectors =>
+      _performanceCollectors;
+  final List<PerformanceCollector> _performanceCollectors = [];
+
+  void addPerformanceCollector(PerformanceCollector collector) {
+    _performanceCollectors.add(collector);
   }
 
   @internal
