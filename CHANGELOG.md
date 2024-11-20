@@ -4,6 +4,7 @@
 
 ### Enhancements
 
+- Only send debug images referenced in the stacktrace for events ([#2329](https://github.com/getsentry/sentry-dart/pull/2329))
 - Remove `sentry` frames if SDK falls back to current stack trace ([#2351](https://github.com/getsentry/sentry-dart/pull/2351))  
   - Flutter doesn't always provide stack traces for unhandled errors - this is normal Flutter behavior
   - When no stack trace is provided (in Flutter errors, `captureException`, or `captureMessage`):
@@ -35,6 +36,12 @@
   - Now consistently applies default IP address to both events and transactions when:
     - No user context exists
     - User context exists but IP address is null
+
+### Dependencies
+
+- Bump Android SDK from v7.16.0 to v7.17.0 ([#2408](https://github.com/getsentry/sentry-dart/pull/2408))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#7170)
+  - [diff](https://github.com/getsentry/sentry-java/compare/7.16.0...7.17.0)
 
 ## 8.10.1
 
