@@ -1,5 +1,4 @@
-import 'dart:js_interop';
-
+// ignore: depend_on_referenced_packages
 import 'package:web/web.dart';
 
 import 'script_dom_api.dart';
@@ -20,9 +19,12 @@ class _ScriptElement implements SentryScriptElement {
 
 List<SentryScriptElement> querySelectorAll(String query) {
   final scripts = document.querySelectorAll(query);
-  // ignore: sdk_version_since
-  final jsArray = JSArray.from(scripts);
-  return jsArray.toDart
-      .map((JSAny script) => _ScriptElement(script as HTMLScriptElement))
-      .toList();
+
+  List<SentryScriptElement> elements = [];
+  for (int i = 0; i < scripts.length; i++) {
+    final node = scripts.item(i);
+    elements.add(_ScriptElement(node as HTMLScriptElement));
+  }
+
+  return elements;
 }
