@@ -1,7 +1,10 @@
 @TestOn('vm')
 library dart_test;
 
+import 'dart:async';
+
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/sentry_run_zoned_guarded.dart';
 import 'package:test/test.dart';
 
 import 'mocks/mock_hub.dart';
@@ -9,7 +12,7 @@ import 'mocks/mock_sentry_client.dart';
 import 'test_utils.dart';
 
 void main() {
-  group(RunZonedGuardedIntegration, () {
+  group("SentryRunZonedGuarded", () {
     late Fixture fixture;
 
     setUp(() {
@@ -26,11 +29,14 @@ void main() {
       final client = MockSentryClient();
       hub.bindClient(client);
 
-      final sut = fixture.getSut(runner: () async {});
-
       hub.startTransaction('name', 'operation', bindToScope: true);
 
-      await sut.captureError(hub, fixture.options, exception, stackTrace);
+      await SentryRunZonedGuarded.captureError(
+        hub,
+        fixture.options,
+        exception,
+        stackTrace,
+      );
 
       final span = hub.getSpan();
 
@@ -42,18 +48,40 @@ void main() {
     test('calls onError', () async {
       final error = StateError("StateError");
       var onErrorCalled = false;
-      RunZonedGuardedRunner runner = () async {
-        throw error;
-      };
-      RunZonedGuardedOnError onError = (error, stackTrace) async {
-        onErrorCalled = true;
-      };
-      final sut = fixture.getSut(runner: runner, onError: onError);
 
-      await sut.call(fixture.hub, fixture.options);
+      SentryRunZonedGuarded.sentryRunZonedGuarded(
+        () {
+          throw error;
+        },
+        (error, stackTrace) {
+          onErrorCalled = true;
+        },
+      );
+
       await Future.delayed(Duration(milliseconds: 10));
 
       expect(onErrorCalled, true);
+    });
+
+    test('calls zoneSpecification print', () async {
+      var printCalled = false;
+
+      final zoneSpecification = ZoneSpecification(
+        print: (self, parent, zone, line) {
+          printCalled = true;
+        },
+      );
+      SentryRunZonedGuarded.sentryRunZonedGuarded(
+        () {
+          print('foo');
+        },
+        null,
+        zoneSpecification: zoneSpecification,
+      );
+
+      await Future.delayed(Duration(milliseconds: 10));
+
+      expect(printCalled, true);
     });
 
     test('sets level to error instead of fatal', () async {
@@ -64,10 +92,13 @@ void main() {
       final client = MockSentryClient();
       hub.bindClient(client);
 
-      final sut = fixture.getSut(runner: () async {});
-
       fixture.options.markAutomaticallyCollectedErrorsAsFatal = false;
-      await sut.captureError(hub, fixture.options, exception, stackTrace);
+      await SentryRunZonedGuarded.captureError(
+        hub,
+        fixture.options,
+        exception,
+        stackTrace,
+      );
 
       final capturedEvent = client.captureEventCalls.last.event;
       expect(capturedEvent.level, SentryLevel.error);
@@ -78,10 +109,4 @@ void main() {
 class Fixture {
   final hub = MockHub();
   final options = defaultTestOptions()..tracesSampleRate = 1.0;
-
-  RunZonedGuardedIntegration getSut(
-      {required RunZonedGuardedRunner runner,
-      RunZonedGuardedOnError? onError}) {
-    return RunZonedGuardedIntegration(runner, onError);
-  }
 }

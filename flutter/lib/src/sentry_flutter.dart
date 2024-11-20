@@ -78,13 +78,8 @@ mixin SentryFlutter {
     // If onError is not supported and no custom zone exists, use runZonedGuarded to capture errors.
     final bool useRunZonedGuarded = !isOnErrorSupported && !customZoneExists;
 
-    // Retrieve the onError callback set by the user if a custom zone exists.
-    final RunZonedGuardedOnError? additionalOnError =
-        customZoneExists ? Zone.current.handleUncaughtError : null;
-
-    RunZonedGuardedOnError? runZonedGuardedOnError = useRunZonedGuarded
-        ? _createRunZonedGuardedOnError(additionalOnError: additionalOnError)
-        : null;
+    RunZonedGuardedOnError? runZonedGuardedOnError =
+        useRunZonedGuarded ? _createRunZonedGuardedOnError() : null;
 
     // first step is to install the native integration and set default values,
     // so we are able to capture future errors.
@@ -213,19 +208,13 @@ mixin SentryFlutter {
     return integrations;
   }
 
-  static RunZonedGuardedOnError _createRunZonedGuardedOnError({
-    RunZonedGuardedOnError? additionalOnError,
-  }) {
+  static RunZonedGuardedOnError _createRunZonedGuardedOnError() {
     return (Object error, StackTrace stackTrace) async {
       final errorDetails = FlutterErrorDetails(
         exception: error,
         stack: stackTrace,
       );
       FlutterError.dumpErrorToConsole(errorDetails, forceReport: true);
-
-      if (additionalOnError != null) {
-        additionalOnError(error, stackTrace);
-      }
     };
   }
 

@@ -21,6 +21,7 @@ import 'noop_isolate_error_integration.dart'
 import 'protocol.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
+import 'sentry_run_zoned_guarded.dart';
 import 'sentry_user_feedback.dart';
 import 'tracing.dart';
 import 'sentry_attachment/sentry_attachment.dart';
@@ -365,4 +366,19 @@ class Sentry {
 
   @internal
   static Hub get currentHub => _hub;
+
+  /// TODO @denis Document me
+  static runZonedGuarded<R>(
+    R Function() body,
+    void Function(Object error, StackTrace stack)? onError, {
+    Map<Object?, Object?>? zoneValues,
+    ZoneSpecification? zoneSpecification,
+  }) {
+    return SentryRunZonedGuarded.sentryRunZonedGuarded(
+      body,
+      onError,
+      zoneValues: zoneValues,
+      zoneSpecification: zoneSpecification,
+    );
+  }
 }
