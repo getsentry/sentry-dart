@@ -33,12 +33,6 @@ class SentryTracer extends ISentrySpan {
 
   late SentryTransactionNameSource transactionNameSource;
 
-  Hint? _hint;
-  @internal
-  Hint? get hint => _hint;
-  @internal
-  set hint(Hint? hint) => _hint = hint;
-
   SentryTraceContextHeader? _sentryTraceContextHeader;
 
   // Profiler attached to this tracer.
@@ -103,7 +97,6 @@ class SentryTracer extends ISentrySpan {
     DateTime? endTimestamp,
     Hint? hint,
   }) async {
-    _hint ??= hint;
     final commonEndTimestamp = endTimestamp ?? _hub.options.clock();
     _autoFinishAfterTimer?.cancel();
     _finishStatus = SentryTracerFinishStatus.finishing(status);
@@ -171,7 +164,7 @@ class SentryTracer extends ISentrySpan {
       await _hub.captureTransaction(
         transaction,
         traceContext: traceContext(),
-        hint: _hint,
+        hint: hint,
       );
     } finally {
       profiler?.dispose();

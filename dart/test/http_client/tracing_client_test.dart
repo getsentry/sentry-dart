@@ -54,7 +54,8 @@ void main() {
       )).called(1);
     });
 
-    test('beforeSendTransaction called with response as hint for captured span',
+    test(
+        'beforeSendTransaction called with two httpResponses inside captured span',
         () async {
       SentryTransaction? transaction;
       Hint? hint;
@@ -65,7 +66,9 @@ void main() {
         return transaction;
       };
 
-      final responseBody = "test response body";
+      String firstResponseBody = "first response body";
+      String secondResponseBody = "first response body";
+      String responseBody = firstResponseBody;
       final sut = fixture.getSut(
         client: fixture.getClient(
             statusCode: 200, reason: 'OK', body: responseBody),
@@ -76,19 +79,38 @@ void main() {
         bindToScope: true,
       );
 
-      final originalResponse = await sut.get(requestUri);
-      final originalResponseBody = originalResponse.body;
+      final firstOriginalResponse = await sut.get(requestUri);
+      final firstOriginalResponseBody = firstOriginalResponse.body;
+
+      responseBody = secondResponseBody;
+      final secondOriginalResponse = await sut.get(requestUri);
+      final secondOriginalResponseBody = secondOriginalResponse.body;
 
       await tr.finish();
 
-      final httpResponse =
-          hint!.get(TypeCheckHint.httpResponse) as StreamedResponse;
-      final httpResponseBody = await httpResponse.stream.bytesToString();
+      final transactionHintHttpResponse =
+          hint!.get(TypeCheckHint.httpResponse) as StreamedResponse?;
 
-      expect(httpResponse.statusCode, 200);
-      expect(httpResponseBody, responseBody);
+      final firstHint = transaction!.spans[0].hint!;
+      final secondHint = transaction!.spans[1].hint!;
 
-      expect(originalResponseBody, responseBody);
+      final firstHintHttpResponse =
+          firstHint.get(TypeCheckHint.httpResponse) as StreamedResponse;
+      final secondHintHttpResponse =
+          secondHint.get(TypeCheckHint.httpResponse) as StreamedResponse;
+
+      final firstHintHttpResponseBody =
+          await firstHintHttpResponse.stream.bytesToString();
+      final secondHintHttpResponseBody =
+          await secondHintHttpResponse.stream.bytesToString();
+
+      expect(transactionHintHttpResponse, null);
+
+      expect(firstHintHttpResponseBody, firstResponseBody);
+      expect(firstOriginalResponseBody, firstResponseBody);
+
+      expect(secondHintHttpResponseBody, secondResponseBody);
+      expect(secondOriginalResponseBody, secondResponseBody);
     });
 
     test('captured span if successful request without Pii', () async {

@@ -39,6 +39,8 @@ class SentrySpan extends ISentrySpan {
   @override
   final SentryTracesSamplingDecision? samplingDecision;
 
+  late final Hint? hint;
+
   SentrySpan(
     this._tracer,
     this._context,
@@ -63,11 +65,10 @@ class SentrySpan extends ISentrySpan {
     DateTime? endTimestamp,
     Hint? hint,
   }) async {
-    _tracer.hint ??= hint;
-
     if (finished) {
       return;
     }
+    this.hint = hint;
 
     if (status != null) {
       _status = status;
