@@ -81,8 +81,9 @@ void main() {
       final scripts = querySelectorAll('script[src*="sentry-cdn"]')
           .map((s) => (s).src)
           .toList();
-      expect(scripts[0], contains('bundle.tracing.replay'));
-      expect(scripts[1], contains('replay-canvas'));
+      expect(productionScripts.length, scripts.length);
+      expect(debugScripts.length, scripts.length);
+      expect(scripts[0], contains('bundle.tracing'));
     });
   });
 }
