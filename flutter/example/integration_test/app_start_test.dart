@@ -45,6 +45,7 @@ void main() async {
     });
 
     testWidgets('is captured', (WidgetTester tester) async {
+      print('start of test');
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
@@ -57,7 +58,9 @@ void main() async {
 
       await tester.pumpAndSettle();
 
+      print('right before delay');
       await Future<void>.delayed(const Duration(seconds: 3));
+      print('after delay');
 
       final envelope = transport.envelopes.first;
       expect(envelope.items[0].header.type, "transaction");
