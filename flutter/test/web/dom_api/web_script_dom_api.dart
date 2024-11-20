@@ -3,7 +3,7 @@ import 'package:web/web.dart';
 
 import 'script_dom_api.dart';
 
-class _ScriptElement implements SentryScriptElement {
+class _ScriptElement implements TestScriptElement {
   final HTMLScriptElement element;
 
   _ScriptElement(this.element);
@@ -17,10 +17,10 @@ class _ScriptElement implements SentryScriptElement {
   String get src => element.src;
 }
 
-List<SentryScriptElement> querySelectorAll(String query) {
+List<TestScriptElement> querySelectorAll(String query) {
   final scripts = document.querySelectorAll(query);
 
-  List<SentryScriptElement> elements = [];
+  List<TestScriptElement> elements = [];
   for (int i = 0; i < scripts.length; i++) {
     final node = scripts.item(i);
     elements.add(_ScriptElement(node as HTMLScriptElement));

@@ -1,3 +1,3 @@
 import 'script_dom_api.dart';
 
-List<SentryScriptElement> querySelectorAll(String query) => [];
+List<TestScriptElement> querySelectorAll(String query) => [];

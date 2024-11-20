@@ -5,7 +5,6 @@ import 'package:meta/meta.dart';
 import '../../sentry_flutter.dart';
 import '../web/script_loader/sentry_script_loader.dart';
 
-/// Initializes the Javascript SDK with the given options.
 class WebSdkIntegration implements Integration<SentryFlutterOptions> {
   WebSdkIntegration(this._scriptLoader);
 
@@ -32,6 +31,6 @@ class WebSdkIntegration implements Integration<SentryFlutterOptions> {
 
   @override
   FutureOr<void> close() {
-    // no-op for now
+    // no-op
   }
 }
