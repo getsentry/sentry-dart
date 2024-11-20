@@ -387,25 +387,25 @@ class _SentryFlutterExperimentalOptions {
   final replay = SentryReplayOptions();
 
   /// Privacy configuration for masking sensitive data in screenshots and Session Replay.
-  /// Screen content masking redaction is:
+  /// Screen content masking is:
   /// - enabled by default for SessionReplay
   /// - disabled by default for screenshots captured with events.
-  /// In order to redact screenshots captured with events, access or change
+  /// In order to mask screenshots captured with events, access or change
   /// this property in your application: `options.experimental.privacy`.
   /// Doing so will indicate that you want to configure privacy settings and
-  /// will enable screenshot redaction alongside the default replay redaction.
+  /// will enable screenshot masking alongside the default replay masking.
   /// Note: this will change in a future SDK major release to enable screenshot
-  /// redaction by default for all captures.
+  /// masking by default for all captures.
   SentryPrivacyOptions get privacy {
     // If the user explicitly sets the privacy setting, we use that.
-    // Otherwise, we use the default settings, which is no redaction for screenshots
-    // and full redaction for session replay.
+    // Otherwise, we use the default settings, which is no masking for screenshots
+    // and full masking for session replay.
     // This property must only by accessed by user code otherwise it defeats the purpose.
     _privacy ??= SentryPrivacyOptions();
     return _privacy!;
   }
 
-  /// TODO: remove when default redaction value are synced with SS & SR in the next major release
+  /// TODO: remove when default masking value are synced with SS & SR in the next major release
   SentryPrivacyOptions? _privacy;
 
   @meta.internal

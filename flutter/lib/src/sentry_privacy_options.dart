@@ -15,7 +15,7 @@ class SentryPrivacyOptions {
   var maskAllText = true;
 
   /// Mask content of all images. Draws a rectangle of image bounds with image's
-  /// dominant color on top. Currently, only [Image] widgets are redacted.
+  /// dominant color on top. Currently, only [Image] widgets are masked.
   /// Default is enabled (except for asset images, see [maskAssetImages]).
   @experimental
   var maskAllImages = true;

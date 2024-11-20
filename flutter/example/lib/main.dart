@@ -92,7 +92,7 @@ Future<void> setupSentry(
       options.experimental.replay.onErrorSampleRate = 1.0;
 
       // This has a side-effect of creating the default privacy configuration,
-      // thus enabling Screenshot redaction. No need to actually change it.
+      // thus enabling Screenshot masking. No need to actually change it.
       options.experimental.privacy;
 
       _isIntegrationTest = isIntegrationTest;

@@ -13,7 +13,7 @@
   
 ### Features
 
-- Support for screenshot PII content redaction (masking) ([#2361](https://github.com/getsentry/sentry-dart/pull/2361))
+- Support for screenshot PII content masking ([#2361](https://github.com/getsentry/sentry-dart/pull/2361))
   By default, masking is enabled for SessionReplay. To also enable it for screenshots captured with events, you can specify `options.experimental.privacy`:
   ```dart
   await SentryFlutter.init(
@@ -34,7 +34,7 @@
   await SentryFlutter.init(
     (options) {
       ...
-      // this has a side-effect of creating the default privacy configuration, thus enabling Screenshot redaction:
+      // this has a side-effect of creating the default privacy configuration, thus enabling Screenshot masking:
       options.experimental.privacy;
     },
     appRunner: () => runApp(MyApp()),
