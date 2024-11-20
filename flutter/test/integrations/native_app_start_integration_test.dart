@@ -31,134 +31,129 @@ void main() {
       rasterFinish: 10,
       rasterFinishWallTime: 10);
 
-  test('$NativeAppStartIntegration adds integration', () async {
-    fixture.callIntegration();
+  group('$NativeAppStartIntegration', () {
+    test('adds integration', () async {
+      fixture.callIntegration();
 
-    expect(
-        fixture.options.sdk.integrations.contains('nativeAppStartIntegration'),
-        true);
-  });
+      expect(
+          fixture.options.sdk.integrations
+              .contains('nativeAppStartIntegration'),
+          true);
+    });
 
-  test('$NativeAppStartIntegration adds timingsCallback', () async {
-    fixture.callIntegration();
+    test('adds timingsCallback', () async {
+      fixture.callIntegration();
 
-    expect(fixture.frameCallbackHandler.timingsCallback, isNotNull);
-  });
+      expect(fixture.frameCallbackHandler.timingsCallback, isNotNull);
+    });
 
-  test('$NativeAppStartIntegration timingsCallback calls nativeAppStartHandler',
-      () async {
-    fixture.callIntegration();
+    test('timingsCallback calls nativeAppStartHandler', () async {
+      fixture.callIntegration();
 
-    final timingsCallback = fixture.frameCallbackHandler.timingsCallback!;
-    timingsCallback([_fakeFrameTiming]);
+      final timingsCallback = fixture.frameCallbackHandler.timingsCallback!;
+      timingsCallback([_fakeFrameTiming]);
 
-    expect(fixture.nativeAppStartHandler.calls, 1);
-    expect(fixture.nativeAppStartHandler.appStartEnd, isNotNull);
-  });
+      expect(fixture.nativeAppStartHandler.calls, 1);
+      expect(fixture.nativeAppStartHandler.appStartEnd, isNotNull);
+    });
 
-  test('$NativeAppStartIntegration sets correct app start from timing',
-      () async {
-    fixture.callIntegration();
+    test('sets correct app start from timing', () async {
+      fixture.callIntegration();
 
-    final timingsCallback = fixture.frameCallbackHandler.timingsCallback!;
-    timingsCallback([_fakeFrameTiming]);
+      final timingsCallback = fixture.frameCallbackHandler.timingsCallback!;
+      timingsCallback([_fakeFrameTiming]);
 
-    expect(fixture.nativeAppStartHandler.calls, 1);
-    expect(fixture.nativeAppStartHandler.appStartEnd, isNotNull);
-    expect(fixture.nativeAppStartHandler.appStartEnd,
-        DateTime.fromMicrosecondsSinceEpoch(10));
-  });
+      expect(fixture.nativeAppStartHandler.calls, 1);
+      expect(fixture.nativeAppStartHandler.appStartEnd, isNotNull);
+      expect(fixture.nativeAppStartHandler.appStartEnd,
+          DateTime.fromMicrosecondsSinceEpoch(10));
+    });
 
-  test('$NativeAppStartIntegration handles timingsCallback exactly once',
-      () async {
-    fixture.callIntegration();
+    test('handles timingsCallback exactly once', () async {
+      fixture.callIntegration();
 
-    final timingsCallback = fixture.frameCallbackHandler.timingsCallback!;
-    timingsCallback([_fakeFrameTiming]);
-    timingsCallback([_fakeFrameTiming]);
-    timingsCallback([_fakeFrameTiming]);
+      final timingsCallback = fixture.frameCallbackHandler.timingsCallback!;
+      timingsCallback([_fakeFrameTiming]);
+      timingsCallback([_fakeFrameTiming]);
+      timingsCallback([_fakeFrameTiming]);
 
-    await Future<void>.delayed(Duration(milliseconds: 10));
+      await Future<void>.delayed(Duration(milliseconds: 10));
 
-    expect(fixture.frameCallbackHandler.timingsCallback, isNull);
-    expect(fixture.nativeAppStartHandler.calls, 1);
-  });
+      expect(fixture.frameCallbackHandler.timingsCallback, isNull);
+      expect(fixture.nativeAppStartHandler.calls, 1);
+    });
 
-  test('$NativeAppStartIntegration handles empty timings', () async {
-    fixture.callIntegration();
+    test('handles empty timings', () async {
+      fixture.callIntegration();
 
-    final timingsCallback = fixture.frameCallbackHandler.timingsCallback!;
-    expect(
-      () => timingsCallback([]),
-      throwsA(isA<StateError>()),
-    );
+      final timingsCallback = fixture.frameCallbackHandler.timingsCallback!;
+      expect(
+        () => timingsCallback([]),
+        throwsA(isA<StateError>()),
+      );
 
-    await Future<void>.delayed(Duration(milliseconds: 10));
+      await Future<void>.delayed(Duration(milliseconds: 10));
 
-    expect(fixture.frameCallbackHandler.timingsCallback, isNull);
-  });
+      expect(fixture.frameCallbackHandler.timingsCallback, isNull);
+    });
 
-  test(
-      '$NativeAppStartIntegration removes timingsCallback after it was triggered',
-      () async {
-    fixture.callIntegration();
+    test('removes timingsCallback after it was triggered', () async {
+      fixture.callIntegration();
 
-    final timingsCallback = fixture.frameCallbackHandler.timingsCallback!;
-    timingsCallback([
-      FrameTiming(
-          vsyncStart: 10,
-          buildStart: 10,
-          buildFinish: 10,
-          rasterStart: 10,
-          rasterFinish: 10,
-          rasterFinishWallTime: 10)
-    ]);
+      final timingsCallback = fixture.frameCallbackHandler.timingsCallback!;
+      timingsCallback([
+        FrameTiming(
+            vsyncStart: 10,
+            buildStart: 10,
+            buildFinish: 10,
+            rasterStart: 10,
+            rasterFinish: 10,
+            rasterFinishWallTime: 10)
+      ]);
 
-    await Future<void>.delayed(Duration(milliseconds: 10));
+      await Future<void>.delayed(Duration(milliseconds: 10));
 
-    expect(fixture.frameCallbackHandler.timingsCallback, isNull);
-  });
+      expect(fixture.frameCallbackHandler.timingsCallback, isNull);
+    });
 
-  test(
-      '$NativeAppStartIntegration with disabled auto app start waits until appStartEnd is set',
-      () async {
-    fixture.options.autoAppStart = false;
+    test('with disabled auto app start waits until appStartEnd is set',
+        () async {
+      fixture.options.autoAppStart = false;
 
-    fixture.callIntegration();
-    final timingsCallback = fixture.frameCallbackHandler.timingsCallback!;
-    timingsCallback([_fakeFrameTiming]);
+      fixture.callIntegration();
+      final timingsCallback = fixture.frameCallbackHandler.timingsCallback!;
+      timingsCallback([_fakeFrameTiming]);
 
-    expect(fixture.nativeAppStartHandler.calls, 0);
+      expect(fixture.nativeAppStartHandler.calls, 0);
 
-    final appStartEnd = DateTime.fromMicrosecondsSinceEpoch(50);
-    fixture.sut.appStartEnd = appStartEnd;
+      final appStartEnd = DateTime.fromMicrosecondsSinceEpoch(50);
+      fixture.sut.appStartEnd = appStartEnd;
 
-    await Future<void>.delayed(Duration(milliseconds: 10));
+      await Future<void>.delayed(Duration(milliseconds: 10));
 
-    expect(fixture.frameCallbackHandler.timingsCallback, isNull);
-    expect(fixture.nativeAppStartHandler.calls, 1);
-    expect(fixture.nativeAppStartHandler.appStartEnd, appStartEnd);
-  });
+      expect(fixture.frameCallbackHandler.timingsCallback, isNull);
+      expect(fixture.nativeAppStartHandler.calls, 1);
+      expect(fixture.nativeAppStartHandler.appStartEnd, appStartEnd);
+    });
 
-  test(
-      '$NativeAppStartIntegration with disabled auto app start waits until timeout',
-      () async {
-    fixture.options.autoAppStart = false;
+    test('with disabled auto app start waits until timeout', () async {
+      fixture.options.autoAppStart = false;
 
-    fixture.callIntegration();
-    final timingsCallback = fixture.frameCallbackHandler.timingsCallback!;
-    await expectLater(
-      () => timingsCallback([_fakeFrameTiming]),
-      throwsA(isA<TimeoutException>()),
-    );
+      fixture.callIntegration();
+      final timingsCallback = fixture.frameCallbackHandler.timingsCallback!;
+      await expectLater(
+        () => timingsCallback([_fakeFrameTiming]),
+        throwsA(isA<TimeoutException>()),
+      );
 
-    expect(fixture.nativeAppStartHandler.calls, 0);
+      expect(fixture.nativeAppStartHandler.calls, 0);
 
-    await Future<void>.delayed(Duration(seconds: 11));
+      await Future<void>.delayed(Duration(seconds: 11));
 
-    expect(fixture.frameCallbackHandler.timingsCallback, isNull);
-    expect(fixture.nativeAppStartHandler.calls, 0);
-    expect(fixture.nativeAppStartHandler.appStartEnd, null);
+      expect(fixture.frameCallbackHandler.timingsCallback, isNull);
+      expect(fixture.nativeAppStartHandler.calls, 0);
+      expect(fixture.nativeAppStartHandler.appStartEnd, null);
+    });
   });
 }
 
