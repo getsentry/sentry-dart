@@ -34,7 +34,6 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
   @override
   void call(Hub hub, SentryFlutterOptions options) async {
     void timingsCallback(List<FrameTiming> timings) async {
-      print('triggered timings callback');
       if (!_allowProcessing) {
         return;
       }
