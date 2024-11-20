@@ -1,3 +1,6 @@
+@TestOn('browser')
+library flutter_test;
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:sentry_flutter/src/web/sentry_js_bundle.dart';
