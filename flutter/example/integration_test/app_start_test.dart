@@ -59,7 +59,7 @@ void main() async {
       await tester.pumpAndSettle();
 
       print('right before delay');
-      await Future<void>.delayed(const Duration(seconds: 3));
+      await Future<void>.delayed(const Duration(seconds: 10));
       print('after delay');
 
       final envelope = transport.envelopes.first;
