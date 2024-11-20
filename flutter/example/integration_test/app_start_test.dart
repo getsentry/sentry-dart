@@ -14,12 +14,14 @@ import '../../../dart/test/mocks/mock_transport.dart';
 void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  group('App start measurement', () {
-    testWidgets('is captured', (WidgetTester tester) async {
-      final frameCallbackHandler = _IntegrationFrameCallbackHandler();
-      final transport = MockTransport();
+  late _IntegrationFrameCallbackHandler frameCallbackHandler;
+  late MockTransport transport;
 
-      await Sentry.close();
+  group('App start measurement', () {
+    setUp(() async {
+      frameCallbackHandler = _IntegrationFrameCallbackHandler();
+      transport = MockTransport();
+
       await SentryFlutter.init((options) {
         // ignore: invalid_use_of_internal_member
         options.automatedTestMode = true;
@@ -36,7 +38,13 @@ void main() async {
             // ignore: invalid_use_of_internal_member
             NativeAppStartHandler(SentryFlutter.native!)));
       });
+    });
 
+    tearDown(() async {
+      await Sentry.close();
+    });
+
+    testWidgets('is captured', (WidgetTester tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
@@ -48,6 +56,8 @@ void main() async {
       );
 
       await tester.pumpAndSettle();
+
+      await Future<void>.delayed(const Duration(seconds: 3));
 
       final envelope = transport.envelopes.first;
       expect(envelope.items[0].header.type, "transaction");
@@ -84,6 +94,7 @@ class _IntegrationFrameCallbackHandler implements FrameCallbackHandler {
   void removeTimingsCallback(SentryTimingsCallback callback) {
     assert(timingsCallback != null);
     assert(timingsCallback == callback);
+    print('tries removing callback');
     WidgetsBinding.instance.removeTimingsCallback(timingsCallback!);
   }
 }
