@@ -94,7 +94,6 @@ class _IntegrationFrameCallbackHandler implements FrameCallbackHandler {
   void removeTimingsCallback(SentryTimingsCallback callback) {
     assert(timingsCallback != null);
     assert(timingsCallback == callback);
-    print('tries removing callback');
     WidgetsBinding.instance.removeTimingsCallback(timingsCallback!);
   }
 }
