@@ -23,6 +23,6 @@ List<SentryScriptElement> querySelectorAll(String query) {
   // ignore: sdk_version_since
   final jsArray = JSArray.from(scripts);
   return jsArray.toDart
-      .map((script) => _ScriptElement(script as HTMLScriptElement))
+      .map((JSAny script) => _ScriptElement(script as HTMLScriptElement))
       .toList();
 }
