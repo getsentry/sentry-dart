@@ -20,15 +20,15 @@ class WebSdkIntegration implements Integration<SentryFlutterOptions> {
 
       options.sdk.addIntegration(name);
     } catch (exception, stackTrace) {
-      if (options.automatedTestMode) {
-        rethrow;
-      }
       options.logger(
         SentryLevel.fatal,
         '$name failed to be installed',
         exception: exception,
         stackTrace: stackTrace,
       );
+      if (options.automatedTestMode) {
+        rethrow;
+      }
     }
   }
 
