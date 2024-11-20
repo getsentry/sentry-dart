@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:file/file.dart';
 import 'package:file/local.dart';
 import 'package:flutter/services.dart';
@@ -12,7 +14,6 @@ import 'screenshot/sentry_screenshot_quality.dart';
 import 'sentry_flutter.dart';
 import 'sentry_privacy_options.dart';
 import 'sentry_replay_options.dart';
-import 'sentry_screenshot_options.dart';
 import 'user_interaction/sentry_user_interaction_widget.dart';
 
 /// This class adds options which are only available in a Flutter environment.
@@ -185,31 +186,19 @@ class SentryFlutterOptions extends SentryOptions {
   /// Example:
   /// runApp(SentryWidget(child: App()));
   /// The [SentryWidget] has to be the root widget of the app.
-  @Deprecated('Use `screenshot.attach` instead')
-  bool get attachScreenshot => screenshot.attach;
-  set attachScreenshot(bool value) => screenshot.attach = value;
+  bool attachScreenshot = false;
 
   /// The quality of the attached screenshot
-  @Deprecated('Use `screenshot.quality` instead')
-  SentryScreenshotQuality get screenshotQuality => screenshot.quality;
-  set screenshotQuality(SentryScreenshotQuality value) =>
-      screenshot.quality = value;
+  SentryScreenshotQuality screenshotQuality = SentryScreenshotQuality.high;
 
   /// Only attach a screenshot when the app is resumed.
-  @Deprecated('Use `screenshot.attachOnlyWhenResumed` instead')
-  bool get attachScreenshotOnlyWhenResumed => screenshot.attachOnlyWhenResumed;
-  set attachScreenshotOnlyWhenResumed(bool value) =>
-      screenshot.attachOnlyWhenResumed = value;
+  /// See https://docs.sentry.io/platforms/flutter/troubleshooting/#screenshot-integration-background-crash
+  bool attachScreenshotOnlyWhenResumed = false;
 
   /// Sets a callback which is executed before capturing screenshots. Only
   /// relevant if `attachScreenshot` is set to true. When false is returned
   /// from the function, no screenshot will be attached.
-  @Deprecated('Use `screenshot.beforeCapture` instead')
-  BeforeScreenshotCallback? get beforeScreenshot => screenshot.beforeCapture;
-  set beforeScreenshot(BeforeScreenshotCallback? value) =>
-      screenshot.beforeCapture = value;
-
-  final screenshot = SentryScreenshotOptions();
+  BeforeScreenshotCallback? beforeScreenshot;
 
   /// Enable or disable automatic breadcrumbs for User interactions Using [Listener]
   ///
@@ -426,3 +415,10 @@ class _SentryFlutterExperimentalOptions {
   SentryPrivacyOptions get privacyForReplay =>
       _privacy ?? SentryPrivacyOptions();
 }
+
+/// Callback being executed in [ScreenshotEventProcessor], deciding if a
+/// screenshot should be recorded and attached.
+typedef BeforeScreenshotCallback = FutureOr<bool> Function(
+  SentryEvent event, {
+  Hint? hint,
+});

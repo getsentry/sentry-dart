@@ -15,7 +15,7 @@ class ScreenshotEventProcessor implements EventProcessor {
   late final ScreenshotRecorder _recorder;
 
   ScreenshotEventProcessor(this._options) {
-    final targetResolution = _options.screenshot.quality.targetResolution();
+    final targetResolution = _options.screenshotQuality.targetResolution();
 
     _recorder = ScreenshotRecorder(
       ScreenshotRecorderConfig(
@@ -43,7 +43,7 @@ class ScreenshotEventProcessor implements EventProcessor {
       return event; // No need to attach screenshot of feedback form.
     }
 
-    final beforeScreenshot = _options.screenshot.beforeCapture;
+    final beforeScreenshot = _options.beforeScreenshot;
     if (beforeScreenshot != null) {
       try {
         final result = beforeScreenshot(event, hint: hint);
@@ -80,7 +80,7 @@ class ScreenshotEventProcessor implements EventProcessor {
       return event;
     }
 
-    if (_options.screenshot.attachOnlyWhenResumed &&
+    if (_options.attachScreenshotOnlyWhenResumed &&
         widget.WidgetsBinding.instance.lifecycleState !=
             AppLifecycleState.resumed) {
       _options.logger(SentryLevel.debug,
