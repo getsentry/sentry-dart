@@ -14,12 +14,10 @@ import '../../../dart/test/mocks/mock_transport.dart';
 void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  late _IntegrationFrameCallbackHandler frameCallbackHandler;
   late MockTransport transport;
 
   group('App start measurement', () {
     setUp(() async {
-      frameCallbackHandler = _IntegrationFrameCallbackHandler();
       transport = MockTransport();
 
       await SentryFlutter.init((options) {
@@ -34,7 +32,7 @@ void main() async {
             (integration) => integration is NativeAppStartIntegration);
         options.removeIntegration(appStartIntegration);
         options.addIntegration(NativeAppStartIntegration(
-            frameCallbackHandler,
+            _IntegrationFrameCallbackHandler(),
             // ignore: invalid_use_of_internal_member
             NativeAppStartHandler(SentryFlutter.native!)));
       });
@@ -45,7 +43,6 @@ void main() async {
     });
 
     testWidgets('is captured', (WidgetTester tester) async {
-      print('start of test');
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
@@ -55,12 +52,6 @@ void main() async {
           ),
         ),
       );
-
-      await tester.pumpAndSettle();
-
-      print('right before delay');
-      await Future<void>.delayed(const Duration(seconds: 10));
-      print('after delay');
 
       final envelope = transport.envelopes.first;
       expect(envelope.items[0].header.type, "transaction");
