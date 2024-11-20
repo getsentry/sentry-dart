@@ -19,6 +19,7 @@ void main() async {
       final frameCallbackHandler = _IntegrationFrameCallbackHandler();
       final transport = MockTransport();
 
+      await Sentry.close();
       await SentryFlutter.init((options) {
         // ignore: invalid_use_of_internal_member
         options.automatedTestMode = true;
@@ -47,8 +48,6 @@ void main() async {
       );
 
       await tester.pumpAndSettle();
-
-      await Future<void>.delayed(const Duration(seconds: 3));
 
       final envelope = transport.envelopes.first;
       expect(envelope.items[0].header.type, "transaction");
