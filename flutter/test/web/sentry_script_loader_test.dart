@@ -1,14 +1,13 @@
 @TestOn('browser')
 library flutter_test;
 
-import 'dart:html';
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/web/script_loader/sentry_script_loader.dart';
 import 'package:sentry_flutter/src/web/sentry_js_sdk_version.dart';
 
 import '../mocks.dart';
+import 'script_dom_api.dart';
 
 void main() {
   group('$SentryScriptLoader', () {
@@ -19,8 +18,7 @@ void main() {
     });
 
     tearDown(() {
-      final existingScripts =
-          document.querySelectorAll('script[src*="sentry-cdn"]');
+      final existingScripts = querySelectorAll('script[src*="sentry-cdn"]');
       for (final script in existingScripts) {
         script.remove();
       }
@@ -31,9 +29,9 @@ void main() {
 
       await sut.load();
 
-      final scripts = document.querySelectorAll('script[src*="sentry-cdn"]');
+      final scripts = querySelectorAll('script[src*="sentry-cdn"]');
       for (final script in scripts) {
-        final element = script as ScriptElement;
+        final element = script;
         expect(element.src, contains('.min.js'));
       }
     });
@@ -43,9 +41,9 @@ void main() {
 
       await sut.load();
 
-      final scripts = document.querySelectorAll('script[src*="sentry-cdn"]');
+      final scripts = querySelectorAll('script[src*="sentry-cdn"]');
       for (final script in scripts) {
-        final element = script as ScriptElement;
+        final element = script;
         expect(element.src, isNot(contains('.min.js')));
       }
     });
@@ -54,10 +52,10 @@ void main() {
       final sut = fixture.getSut();
 
       await sut.load();
-      final initialScriptCount = document.querySelectorAll('script').length;
+      final initialScriptCount = querySelectorAll('script').length;
 
       await sut.load();
-      expect(document.querySelectorAll('script').length, initialScriptCount);
+      expect(querySelectorAll('script').length, initialScriptCount);
     });
 
     test('handles script loading failures', () async {
@@ -80,9 +78,8 @@ void main() {
 
       await sut.load();
 
-      final scripts = document
-          .querySelectorAll('script[src*="sentry-cdn"]')
-          .map((s) => (s as ScriptElement).src)
+      final scripts = querySelectorAll('script[src*="sentry-cdn"]')
+          .map((s) => (s).src)
           .toList();
       expect(scripts[0], contains('bundle.tracing.replay'));
       expect(scripts[1], contains('replay-canvas'));
