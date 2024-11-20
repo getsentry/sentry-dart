@@ -21,3 +21,4 @@ List<SentryScriptElement> querySelectorAll(String query) {
   return scripts
       .map((script) => HtmlScriptElement(script as ScriptElement))
       .toList();
+}
