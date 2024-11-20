@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:meta/meta.dart';
 
@@ -28,15 +29,24 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
   }
 
   final Completer<void> _appStartEndCompleter = Completer<void>();
+  bool _allowProcessing = true;
 
   @override
   void call(Hub hub, SentryFlutterOptions options) async {
-    _frameCallbackHandler.addPostFrameCallback((timeStamp) async {
+    void timingsCallback(List<FrameTiming> timings) async {
+      if (!_allowProcessing) {
+        return;
+      }
+      // Set immediately to prevent multiple executions
+      // we only care about the first frame
+      _allowProcessing = false;
+
       try {
         DateTime? appStartEnd;
         if (options.autoAppStart) {
           // ignore: invalid_use_of_internal_member
-          appStartEnd = options.clock();
+          appStartEnd = DateTime.fromMicrosecondsSinceEpoch(timings.first
+              .timestampInMicroseconds(FramePhase.rasterFinishWallTime));
         } else if (_appStartEnd == null) {
           await _appStartEndCompleter.future.timeout(
             const Duration(seconds: 10),
@@ -62,8 +72,12 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
         if (options.automatedTestMode) {
           rethrow;
         }
+      } finally {
+        _frameCallbackHandler.removeTimingsCallback(timingsCallback);
       }
-    });
+    }
+
+    _frameCallbackHandler.addTimingsCallback(timingsCallback);
     options.sdk.addIntegration('nativeAppStartIntegration');
   }
 }

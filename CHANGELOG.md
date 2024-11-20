@@ -1,19 +1,11 @@
 # Changelog
 
 ## Unreleased
-
-### Enhancements
-
-- Only send debug images referenced in the stacktrace for events ([#2329](https://github.com/getsentry/sentry-dart/pull/2329))
-- Remove `sentry` frames if SDK falls back to current stack trace ([#2351](https://github.com/getsentry/sentry-dart/pull/2351))  
-  - Flutter doesn't always provide stack traces for unhandled errors - this is normal Flutter behavior
-  - When no stack trace is provided (in Flutter errors, `captureException`, or `captureMessage`):
-    - SDK creates a synthetic trace using `StackTrace.current`
-    - Internal SDK frames are removed to reduce noise
-  - Original stack traces (when provided) are left unchanged
   
 ### Features
 
+- Improve app start measurements by using `addTimingsCallback` instead of `addPostFrameCallback` to determine app start end ([#2405](https://github.com/getsentry/sentry-dart/pull/2405))
+  - ⚠️ This change may result in reporting of shorter app start durations
 - Improve frame tracking accuracy ([#2372](https://github.com/getsentry/sentry-dart/pull/2372))
   - Introduces `SentryWidgetsFlutterBinding` that tracks a frame starting from `handleBeginFrame` and ending in `handleDrawFrame`, this is approximately the [buildDuration](https://api.flutter.dev/flutter/dart-ui/FrameTiming/buildDuration.html) time
   - By default, `SentryFlutter.init()` automatically initializes `SentryWidgetsFlutterBinding` through the `WidgetsFlutterBindingIntegration`
@@ -28,6 +20,16 @@
   }
   ```
   - ⚠️ Frame tracking will be disabled if a different binding is used
+
+### Enhancements
+
+- Only send debug images referenced in the stacktrace for events ([#2329](https://github.com/getsentry/sentry-dart/pull/2329))
+- Remove `sentry` frames if SDK falls back to current stack trace ([#2351](https://github.com/getsentry/sentry-dart/pull/2351))  
+  - Flutter doesn't always provide stack traces for unhandled errors - this is normal Flutter behavior
+  - When no stack trace is provided (in Flutter errors, `captureException`, or `captureMessage`):
+    - SDK creates a synthetic trace using `StackTrace.current`
+    - Internal SDK frames are removed to reduce noise
+  - Original stack traces (when provided) are left unchanged
 
 ### Fixes
 
