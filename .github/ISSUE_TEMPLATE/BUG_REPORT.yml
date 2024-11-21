@@ -11,10 +11,10 @@ body:
       options:
         - Dart
         - Dart Web
-        - Flutter Mobile (iOS)
-        - Flutter Mobile (Android)
-        - Flutter Desktop (Windows)
-        - Flutter Desktop (Linux)
+        - Flutter Mobile iOS
+        - Flutter Mobile Android
+        - Flutter Desktop Windows
+        - Flutter Desktop Linux
         - Flutter Web
         - Flutter Wasm
     validations:
