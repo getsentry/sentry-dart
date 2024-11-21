@@ -2,18 +2,11 @@
 
 ## Unreleased
 
-### Enhancements
-
-- Remove `sentry` frames if SDK falls back to current stack trace ([#2351](https://github.com/getsentry/sentry-dart/pull/2351))
-  - Flutter doesn't always provide stack traces for unhandled errors - this is normal Flutter behavior
-  - When no stack trace is provided (in Flutter errors, `captureException`, or `captureMessage`):
-    - SDK creates a synthetic trace using `StackTrace.current`
-    - Internal SDK frames are removed to reduce noise
-  - Original stack traces (when provided) are left unchanged
-
 ### Features
 
 - Windows native error & obfuscation support ([#2286](https://github.com/getsentry/sentry-dart/pull/2286), [#2426](https://github.com/getsentry/sentry-dart/pull/2426))
+- Improve app start measurements by using `addTimingsCallback` instead of `addPostFrameCallback` to determine app start end ([#2405](https://github.com/getsentry/sentry-dart/pull/2405))
+  - ⚠️ This change may result in reporting of shorter app start durations
 - Improve frame tracking accuracy ([#2372](https://github.com/getsentry/sentry-dart/pull/2372))
   - Introduces `SentryWidgetsFlutterBinding` that tracks a frame starting from `handleBeginFrame` and ending in `handleDrawFrame`, this is approximately the [buildDuration](https://api.flutter.dev/flutter/dart-ui/FrameTiming/buildDuration.html) time
   - By default, `SentryFlutter.init()` automatically initializes `SentryWidgetsFlutterBinding` through the `WidgetsFlutterBindingIntegration`
@@ -29,6 +22,16 @@
   ```
   - ⚠️ Frame tracking will be disabled if a different binding is used
 
+### Enhancements
+
+- Only send debug images referenced in the stacktrace for events ([#2329](https://github.com/getsentry/sentry-dart/pull/2329))
+- Remove `sentry` frames if SDK falls back to current stack trace ([#2351](https://github.com/getsentry/sentry-dart/pull/2351))
+  - Flutter doesn't always provide stack traces for unhandled errors - this is normal Flutter behavior
+  - When no stack trace is provided (in Flutter errors, `captureException`, or `captureMessage`):
+    - SDK creates a synthetic trace using `StackTrace.current`
+    - Internal SDK frames are removed to reduce noise
+  - Original stack traces (when provided) are left unchanged
+
 ### Fixes
 
 - Apply default IP address (`{{auto}}`) to transactions ([#2395](https://github.com/getsentry/sentry-dart/pull/2395))
@@ -39,9 +42,12 @@
 
 ### Dependencies
 
-- Bump Android SDK from v7.16.0 to v7.17.0 ([#2408](https://github.com/getsentry/sentry-dart/pull/2408))
-  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#7170)
-  - [diff](https://github.com/getsentry/sentry-java/compare/7.16.0...7.17.0)
+- Bump Android SDK from v7.16.0 to v7.18.0 ([#2408](https://github.com/getsentry/sentry-dart/pull/2408), [#2419](https://github.com/getsentry/sentry-dart/pull/2419))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#7180)
+  - [diff](https://github.com/getsentry/sentry-java/compare/7.16.0...7.18.0)
+- Bump Native SDK from v0.7.12 to v0.7.13 ([#2420](https://github.com/getsentry/sentry-dart/pull/2420))
+  - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#0713)
+  - [diff](https://github.com/getsentry/sentry-native/compare/0.7.12...0.7.13)
 
 ## 8.10.1
 

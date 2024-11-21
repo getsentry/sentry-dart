@@ -1,33 +1,33 @@
 import 'package:flutter/scheduler.dart';
 import 'package:sentry_flutter/src/frame_callback_handler.dart';
 
-import 'mocks.dart';
-
 class FakeFrameCallbackHandler implements FrameCallbackHandler {
-  final Duration finishAfterDuration;
+  FakeFrameCallbackHandler({this.postFrameCallbackDelay});
 
-  FakeFrameCallbackHandler(
-      {this.finishAfterDuration = const Duration(milliseconds: 50)});
+  /// If set, it automatically executes the callback after the delay
+  Duration? postFrameCallbackDelay;
+  FrameCallback? postFrameCallback;
+  TimingsCallback? timingsCallback;
 
   @override
   void addPostFrameCallback(FrameCallback callback) async {
-    // ignore: inference_failure_on_instance_creation
-    await Future.delayed(finishAfterDuration);
-    callback(Duration.zero);
-  }
+    postFrameCallback = callback;
 
-  @override
-  Future<void> addPersistentFrameCallback(FrameCallback callback) async {
-    for (final duration in fakeFrameDurations) {
-      // Let's wait a bit so the timestamp intervals are large enough
-      await Future<void>.delayed(Duration(milliseconds: 20));
-      callback(duration);
+    if (postFrameCallbackDelay != null) {
+      await Future<void>.delayed(postFrameCallbackDelay!);
+      callback(Duration.zero);
     }
   }
 
   @override
-  bool hasScheduledFrame = true;
+  void addTimingsCallback(TimingsCallback callback) {
+    timingsCallback = callback;
+  }
 
   @override
-  Future<void> get endOfFrame => Future<void>.value();
+  void removeTimingsCallback(TimingsCallback callback) {
+    if (timingsCallback == callback) {
+      timingsCallback = null;
+    }
+  }
 }
