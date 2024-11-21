@@ -5,7 +5,6 @@ import 'dart:typed_data';
 
 import 'package:ffi/ffi.dart';
 import 'package:meta/meta.dart';
-import 'package:path/path.dart' as path;
 
 import '../../../sentry_flutter.dart';
 import '../native_app_start.dart';
