@@ -24,7 +24,7 @@ void main() {
 
   expectedDistFiles = platform.instance.isWindows
       ? ['sentry.dll', 'crashpad_handler.exe', 'crashpad_wer.dll']
-      : ['libsentry.so', 'bin/crashpad_handler'];
+      : ['libsentry.so', 'crashpad_handler'];
 
   setUpAll(() async {
     Directory.current =
@@ -282,7 +282,7 @@ set(CMAKE_INSTALL_PREFIX "${buildOutputDir.replaceAll('\\', '/')}")
       'Release',
     ]);
     if (platform.instance.isLinux) {
-      await _exec('chmod', ['+x', '$buildOutputDir/bin/crashpad_handler']);
+      await _exec('chmod', ['+x', '$buildOutputDir/crashpad_handler']);
     }
   }
   return buildOutputDir;

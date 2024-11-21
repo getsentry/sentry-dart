@@ -32,9 +32,7 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   static String dynamicLibraryDirectory = '';
 
   @visibleForTesting
-  static String? crashpadPath = Platform.isLinux
-      ? '${path.dirname(Platform.resolvedExecutable)}/bin/crashpad_handler'
-      : null;
+  static String? crashpadPath;
 
   SentryNative(this.options);
 

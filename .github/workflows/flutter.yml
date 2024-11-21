@@ -143,13 +143,6 @@ jobs:
           ;;
           esac
 
-      - name: Upload temp artifact
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: native-test-temp
-          path: flutter/temp
-
   analyze:
     uses: ./.github/workflows/analyze.yml
     with:
