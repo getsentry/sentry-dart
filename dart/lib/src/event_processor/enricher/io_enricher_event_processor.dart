@@ -36,27 +36,12 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
     // Amend app with current memory usage, as this is not available on native.
     final app = _getApp(event.contexts.app);
 
-    // If there's a native integration available, it probably has better
-    // information available than Flutter.
-
-    final device = _options.platformChecker.hasNativeIntegration
-        ? null
-        : _getDevice(event.contexts.device);
-
-    final os = _options.platformChecker.hasNativeIntegration
-        ? null
-        : _getOperatingSystem(event.contexts.operatingSystem);
-
-    final culture = _options.platformChecker.hasNativeIntegration
-        ? null
-        : _getSentryCulture(event.contexts.culture);
-
     final contexts = event.contexts.copyWith(
-      device: device,
-      operatingSystem: os,
+      device: _getDevice(event.contexts.device),
+      operatingSystem: _getOperatingSystem(event.contexts.operatingSystem),
       runtimes: _getRuntimes(event.contexts.runtimes),
       app: app,
-      culture: culture,
+      culture: _getSentryCulture(event.contexts.culture),
     );
 
     contexts['dart_context'] = _getDartContext();
