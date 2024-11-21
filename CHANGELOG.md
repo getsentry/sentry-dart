@@ -4,15 +4,16 @@
 
 ### Enhancements
 
-- Remove `sentry` frames if SDK falls back to current stack trace ([#2351](https://github.com/getsentry/sentry-dart/pull/2351))  
+- Remove `sentry` frames if SDK falls back to current stack trace ([#2351](https://github.com/getsentry/sentry-dart/pull/2351))
   - Flutter doesn't always provide stack traces for unhandled errors - this is normal Flutter behavior
   - When no stack trace is provided (in Flutter errors, `captureException`, or `captureMessage`):
     - SDK creates a synthetic trace using `StackTrace.current`
     - Internal SDK frames are removed to reduce noise
   - Original stack traces (when provided) are left unchanged
-  
+
 ### Features
 
+- Windows native error & obfuscation support ([#2286](https://github.com/getsentry/sentry-dart/pull/2286), [#2426](https://github.com/getsentry/sentry-dart/pull/2426))
 - Improve frame tracking accuracy ([#2372](https://github.com/getsentry/sentry-dart/pull/2372))
   - Introduces `SentryWidgetsFlutterBinding` that tracks a frame starting from `handleBeginFrame` and ending in `handleDrawFrame`, this is approximately the [buildDuration](https://api.flutter.dev/flutter/dart-ui/FrameTiming/buildDuration.html) time
   - By default, `SentryFlutter.init()` automatically initializes `SentryWidgetsFlutterBinding` through the `WidgetsFlutterBindingIntegration`
@@ -21,7 +22,7 @@
   void main() async {
     // Replace WidgetsFlutterBinding.ensureInitialized()
     SentryWidgetsFlutterBinding.ensureInitialized();
-    
+
     await SentryFlutter.init(...);
     runApp(MyApp());
   }
@@ -95,7 +96,7 @@
     ),
   );
   ```
-  
+
 - Add screenshot to `SentryFeedbackWidget` ([#2369](https://github.com/getsentry/sentry-dart/pull/2369))
   - Use `SentryFlutter.captureScreenshot` to create a screenshot attachment
   - Call `SentryFeedbackWidget` with this attachment to add it to the user feedback
@@ -103,7 +104,7 @@
   ```dart
   final id = await Sentry.captureMessage('UserFeedback');
   final screenshot = await SentryFlutter.captureScreenshot();
-  
+
   Navigator.push(
     context,
     MaterialPageRoute(
@@ -121,7 +122,7 @@
 - Avoid sending too many empty client reports when Http Transport is used ([#2380](https://github.com/getsentry/sentry-dart/pull/2380))
 - Cache parsed DSN ([#2365](https://github.com/getsentry/sentry-dart/pull/2365))
 - Handle backpressure earlier in pipeline ([#2371](https://github.com/getsentry/sentry-dart/pull/2371))
-  - Drops max un-awaited parallel tasks earlier, so event processors & callbacks are not executed for them. 
+  - Drops max un-awaited parallel tasks earlier, so event processors & callbacks are not executed for them.
   - Change by setting `SentryOptions.maxQueueSize`. Default is 30.
 - Use native spotlight integrations on Flutter Android, iOS, macOS ([#2285](https://github.com/getsentry/sentry-dart/pull/2285))
 - Improve app start integration ([#2266](https://github.com/getsentry/sentry-dart/pull/2266))
@@ -148,7 +149,7 @@
 
 - Metrics API ([#2312](https://github.com/getsentry/sentry-dart/pull/2312))
   - Learn more: https://sentry.zendesk.com/hc/en-us/articles/26369339769883-Metrics-Beta-Coming-to-an-End
-  
+
 ### Dependencies
 
 - Bump Native SDK from v0.7.10 to v0.7.12 ([#2390](https://github.com/getsentry/sentry-dart/pull/2390))
