@@ -6,7 +6,7 @@ body:
     id: environment
     attributes:
       label: Platform
-      description: Which platform do you use?
+      description: Which platforms does this bug affect?
       multiple: true
       options:
         - Dart
