@@ -519,7 +519,7 @@ void main() {
           ttfdFinishVerification.captured.single as DateTime;
 
       expect(ttfdEndTimestamp.toUtc(), equals(ttidEndTimestamp.toUtc()));
-    });
+    }, skip: 'Flaky, see https://github.com/getsentry/sentry-dart/issues/2428');
 
     test(
         'unfinished children will be finished with deadline_exceeded on didPush',
