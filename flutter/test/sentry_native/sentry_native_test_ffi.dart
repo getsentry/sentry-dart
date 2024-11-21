@@ -24,14 +24,14 @@ void main() {
 
   expectedDistFiles = platform.instance.isWindows
       ? ['sentry.dll', 'crashpad_handler.exe', 'crashpad_wer.dll']
-      : ['libsentry.so', 'crashpad_handler'];
+      : ['libsentry.so', 'bin/crashpad_handler'];
 
   setUpAll(() async {
     Directory.current =
         await _buildSentryNative('$repoRootDir/temp/native-test');
     SentryNative.dynamicLibraryDirectory = '${Directory.current.path}/';
     SentryNative.crashpadPath =
-        '${Directory.current.path}/${expectedDistFiles.firstWhere((f) => f.startsWith('crashpad_handler'))}';
+        '${Directory.current.path}/${expectedDistFiles.firstWhere((f) => f.contains('crashpad_handler'))}';
   });
 
   late SentryNative sut;
@@ -270,6 +270,7 @@ target_link_libraries(\${CMAKE_PROJECT_NAME} PRIVATE sentry_flutter_plugin)
 list(APPEND PLUGIN_BUNDLED_LIBRARIES \$<TARGET_FILE:sentry_flutter_plugin>)
 list(APPEND PLUGIN_BUNDLED_LIBRARIES \${sentry_flutter_bundled_libraries})
 install(FILES "\${PLUGIN_BUNDLED_LIBRARIES}" DESTINATION "${buildOutputDir.replaceAll('\\', '/')}" COMPONENT Runtime)
+set(CMAKE_INSTALL_PREFIX "${buildOutputDir.replaceAll('\\', '/')}")
 ''');
     await _exec('cmake', ['-B', cmakeBuildDir, cmakeConfDir]);
     await _exec('cmake',
@@ -279,11 +280,9 @@ install(FILES "\${PLUGIN_BUNDLED_LIBRARIES}" DESTINATION "${buildOutputDir.repla
       cmakeBuildDir,
       '--config',
       'Release',
-      '--component',
-      'Runtime'
     ]);
     if (platform.instance.isLinux) {
-      await _exec('chmod', ['+x', '$buildOutputDir/crashpad_handler']);
+      await _exec('chmod', ['+x', '$buildOutputDir/bin/crashpad_handler']);
     }
   }
   return buildOutputDir;
