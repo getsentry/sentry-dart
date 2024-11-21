@@ -7,12 +7,16 @@ body:
     attributes:
       label: Platform
       description: Which platform do you use?
+      multiple: true
       options:
         - Dart
         - Dart Web
-        - Flutter Mobile
-        - Flutter Desktop
+        - Flutter Mobile (iOS)
+        - Flutter Mobile (Android)
+        - Flutter Desktop (Windows)
+        - Flutter Desktop (Linux)
         - Flutter Web
+        - Flutter Wasm
     validations:
       required: true
 
