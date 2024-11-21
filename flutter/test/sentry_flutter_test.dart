@@ -281,7 +281,7 @@ void main() {
       final sentryFlutterOptions =
           defaultTestOptions(getPlatformChecker(platform: MockPlatform.linux()))
             ..methodChannel = native.channel
-            // We need to disable native init because sentry.dll is not available here.
+            // We need to disable native init because libsentry.so is not available here.
             ..autoInitializeNativeSdk = false;
 
       await SentryFlutter.init(
