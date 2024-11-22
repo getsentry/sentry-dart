@@ -44,25 +44,18 @@ void main() {
       expect(event.contexts.runtimes.length, 2);
     });
 
-    test(
-        'does not add device, os and culture if native integration is available',
-        () {
-      final enricher = fixture.getSut(hasNativeIntegration: true);
-      final event = enricher.apply(SentryEvent(), Hint());
+    group('adds device, os and culture', () {
+      for (final hasNativeIntegration in [true, false]) {
+        test('native=$hasNativeIntegration', () {
+          final enricher =
+              fixture.getSut(hasNativeIntegration: hasNativeIntegration);
+          final event = enricher.apply(SentryEvent(), Hint());
 
-      expect(event?.contexts.device, isNull);
-      expect(event?.contexts.operatingSystem, isNull);
-      expect(event?.contexts.culture, isNull);
-    });
-
-    test('adds device, os and culture if no native integration is available',
-        () {
-      final enricher = fixture.getSut(hasNativeIntegration: false);
-      final event = enricher.apply(SentryEvent(), Hint());
-
-      expect(event?.contexts.device, isNotNull);
-      expect(event?.contexts.operatingSystem, isNotNull);
-      expect(event?.contexts.culture, isNotNull);
+          expect(event?.contexts.device, isNotNull);
+          expect(event?.contexts.operatingSystem, isNotNull);
+          expect(event?.contexts.culture, isNotNull);
+        });
+      }
     });
 
     test('device has name', () {
