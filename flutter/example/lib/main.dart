@@ -53,6 +53,14 @@ Future<void> main() async {
     ),
     exampleDsn,
   );
+
+  final Map<String, dynamic> config = {
+    'dsn': exampleDsn,
+    'debug': true,
+    'defaultIntegrations': []
+  };
+
+  // SentryJsBridge().init(config);
 }
 
 Future<void> setupSentry(
@@ -82,7 +90,6 @@ Future<void> setupSentry(
       // configuration issues, e.g. finding out why your events are not uploaded.
       options.debug = true;
       options.spotlight = Spotlight(enabled: true);
-      options.enableTimeToFullDisplayTracing = true;
       options.enableMetrics = true;
 
       options.maxRequestBodySize = MaxRequestBodySize.always;
@@ -784,11 +791,12 @@ void navigateToAutoCloseScreen(BuildContext context) {
 }
 
 Future<void> tryCatch() async {
-  try {
-    throw StateError('try catch');
-  } catch (error, stackTrace) {
-    await Sentry.captureException(error, stackTrace: stackTrace);
-  }
+  // SentryJsBridge.captureMessage('ello');
+  // try {
+  //   throw StateError('try catch');
+  // } catch (error, stackTrace) {
+  //   await Sentry.captureException(error, stackTrace: stackTrace);
+  // }
 }
 
 Future<void> asyncThrows() async {
