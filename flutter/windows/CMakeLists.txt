@@ -6,6 +6,6 @@ cmake_minimum_required(VERSION 3.14)
 
 include("${CMAKE_CURRENT_SOURCE_DIR}/../sentry-native/sentry-native.cmake")
 
-# Even though sentry_flutter doesn't actually provide a useful plugin, we need to accomodate the Flutter tooling.
+# Even though sentry_flutter doesn't actually provide a useful plugin, we need to accommodate the Flutter tooling.
 # sentry_flutter/sentry_flutter_plugin.h is included by the flutter-tool generated plugin registrar:
 target_include_directories(sentry INTERFACE ${CMAKE_CURRENT_LIST_DIR})

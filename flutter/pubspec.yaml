@@ -58,9 +58,9 @@ flutter:
       web:
         pluginClass: SentryFlutterWeb
         fileName: sentry_flutter_web.dart
+        # Note, we cannot use `ffiPlugin: true` on Linux and windows because flutter won't add `target_link_libraries()`
+        # so sentry-native won't even build during the build process (since it doesn't need to).
       linux:
         pluginClass: SentryFlutterPlugin
       windows:
-        # Note, we cannot use `ffiPlugin: true` because flutter tooling won't add `target_link_libraries()`
-        # so sentry-native won't even build during the build process (since it doesn't need to).
         pluginClass: SentryFlutterPlugin
