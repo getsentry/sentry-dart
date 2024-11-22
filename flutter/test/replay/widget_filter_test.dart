@@ -31,7 +31,7 @@ void main() async {
       final sut = createSut(redactText: true);
       final element = await pumpTestElement(tester);
       sut.obscure(element, 1.0, defaultBounds);
-      expect(sut.items.length, 5);
+      expect(sut.items.length, 6);
     });
 
     testWidgets('does not redact text when disabled', (tester) async {
@@ -53,12 +53,13 @@ void main() async {
       final sut = createSut(redactText: true);
       final element = await pumpTestElement(tester);
       sut.obscure(element, 1.0, defaultBounds);
-      expect(sut.items.length, 5);
+      expect(sut.items.length, 6);
       expect(boundsRect(sut.items[0]), '624x48');
       expect(boundsRect(sut.items[1]), '169x20');
       expect(boundsRect(sut.items[2]), '800x192');
       expect(boundsRect(sut.items[3]), '800x24');
-      expect(boundsRect(sut.items[4]), '50x20');
+      expect(boundsRect(sut.items[4]), '800x24');
+      expect(boundsRect(sut.items[5]), '50x20');
     });
   });
 

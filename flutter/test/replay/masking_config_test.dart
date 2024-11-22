@@ -120,10 +120,8 @@ void main() async {
           .map((rule) => rule.toString())
           // These normalize the string on VM & js & wasm:
           .map((str) => str.replaceAll(
-              RegExp(
-                  r"SentryMaskingDecision from:? [fF]unction '?_maskImagesExceptAssets[@(].*",
-                  dotAll: true),
-              'SentryMaskingDecision)'))
+              RegExp(r"=> SentryMaskingDecision from:? .*", dotAll: true),
+              '=> SentryMaskingDecision)'))
           .map((str) => str.replaceAll(
               ' from: (element, widget) => masking_config.SentryMaskingDecision.mask',
               ''))
@@ -136,7 +134,8 @@ void main() async {
         ...alwaysEnabledRules,
         '$SentryMaskingCustomRule<$Image>(Closure: (Element, Widget) => SentryMaskingDecision)',
         '$SentryMaskingConstantRule<$Text>(mask)',
-        '$SentryMaskingConstantRule<$EditableText>(mask)'
+        '$SentryMaskingConstantRule<$EditableText>(mask)',
+        '$SentryMaskingCustomRule<$Widget>(Closure: ($Element, $Widget) => $SentryMaskingDecision)'
       ]);
     });
 
@@ -148,6 +147,7 @@ void main() async {
       expect(rulesAsStrings(sut), [
         ...alwaysEnabledRules,
         '$SentryMaskingConstantRule<$Image>(mask)',
+        '$SentryMaskingCustomRule<$Widget>(Closure: ($Element, $Widget) => $SentryMaskingDecision)'
       ]);
     });
 
@@ -159,6 +159,7 @@ void main() async {
       expect(rulesAsStrings(sut), [
         ...alwaysEnabledRules,
         '$SentryMaskingCustomRule<$Image>(Closure: (Element, Widget) => SentryMaskingDecision)',
+        '$SentryMaskingCustomRule<$Widget>(Closure: ($Element, $Widget) => $SentryMaskingDecision)'
       ]);
     });
 
@@ -171,6 +172,7 @@ void main() async {
         ...alwaysEnabledRules,
         '$SentryMaskingConstantRule<$Text>(mask)',
         '$SentryMaskingConstantRule<$EditableText>(mask)',
+        '$SentryMaskingCustomRule<$Widget>(Closure: ($Element, $Widget) => $SentryMaskingDecision)'
       ]);
     });
 
@@ -179,7 +181,10 @@ void main() async {
         ..maskAllText = false
         ..maskAllImages = false
         ..maskAssetImages = false;
-      expect(rulesAsStrings(sut), alwaysEnabledRules);
+      expect(rulesAsStrings(sut), [
+        ...alwaysEnabledRules,
+        '$SentryMaskingCustomRule<$Widget>(Closure: ($Element, $Widget) => $SentryMaskingDecision)'
+      ]);
     });
 
     group('user rules', () {
@@ -187,7 +192,8 @@ void main() async {
         ...alwaysEnabledRules,
         '$SentryMaskingCustomRule<$Image>(Closure: (Element, Widget) => SentryMaskingDecision)',
         '$SentryMaskingConstantRule<$Text>(mask)',
-        '$SentryMaskingConstantRule<$EditableText>(mask)'
+        '$SentryMaskingConstantRule<$EditableText>(mask)',
+        '$SentryMaskingCustomRule<$Widget>(Closure: ($Element, $Widget) => $SentryMaskingDecision)'
       ];
       test('mask() takes precedence', () {
         final sut = SentryReplayOptions();
