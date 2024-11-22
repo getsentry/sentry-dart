@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- OS & device contexts missing on Windows ([#2439](https://github.com/getsentry/sentry-dart/pull/2439))
+
 ## 8.11.0-beta.1
 
 ### Features
