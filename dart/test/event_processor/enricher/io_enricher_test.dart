@@ -82,7 +82,11 @@ void main() {
     final event = enricher.apply(SentryEvent(), Hint());
 
     expect(event?.contexts.operatingSystem?.name, isNotNull);
-    expect(event?.contexts.operatingSystem?.version, isNotNull);
+    if (Platform.isLinux) {
+      expect(event?.contexts.operatingSystem?.kernelVersion, isNotNull);
+    } else {
+      expect(event?.contexts.operatingSystem?.version, isNotNull);
+    }
   });
 
   group('os info parsing', () {
