@@ -279,7 +279,9 @@ void main() {
       Transport transport = MockTransport();
       final sentryFlutterOptions =
           defaultTestOptions(getPlatformChecker(platform: MockPlatform.linux()))
-            ..methodChannel = native.channel;
+            ..methodChannel = native.channel
+            // We need to disable native init because libsentry.so is not available here.
+            ..autoInitializeNativeSdk = false;
 
       await SentryFlutter.init(
         (options) async {
@@ -295,7 +297,7 @@ void main() {
       expect(transport, isNot(isA<FileSystemTransport>()));
 
       testScopeObserver(
-          options: sentryFlutterOptions, expectedHasNativeScopeObserver: false);
+          options: sentryFlutterOptions, expectedHasNativeScopeObserver: true);
 
       testConfiguration(
         integrations: integrations,
@@ -316,7 +318,7 @@ void main() {
           beforeIntegration: WidgetsFlutterBindingIntegration,
           afterIntegration: OnErrorIntegration);
 
-      expect(SentryFlutter.native, isNull);
+      expect(SentryFlutter.native, isNotNull);
       expect(Sentry.currentHub.profilerFactory, isNull);
 
       await Sentry.close();

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:ffi';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:ffi/ffi.dart';
@@ -19,7 +20,15 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   final SentryFlutterOptions options;
 
   @visibleForTesting
-  static final native = binding.SentryNative(DynamicLibrary.open('sentry.dll'));
+  static final native = binding.SentryNative(DynamicLibrary.open(
+      '$dynamicLibraryDirectory${Platform.isWindows ? 'sentry.dll' : 'libsentry.so'}'));
+
+  /// If the path is just the library name, the loader will look for it in
+  /// the usual places for shared libraries:
+  /// - on Linux in /lib and /usr/lib
+  /// - on Windows in the working directory and System32
+  @visibleForTesting
+  static String dynamicLibraryDirectory = '';
 
   @visibleForTesting
   static String? crashpadPath;
