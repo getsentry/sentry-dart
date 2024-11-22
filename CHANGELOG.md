@@ -1,11 +1,16 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Linux native error & obfuscation support ([#2431](https://github.com/getsentry/sentry-dart/pull/2431))
+
 ## 8.11.0-beta.1
 
 ### Features
 
 - Windows native error & obfuscation support ([#2286](https://github.com/getsentry/sentry-dart/pull/2286), [#2426](https://github.com/getsentry/sentry-dart/pull/2426))
-- Linux native error & obfuscation support ([#2431](https://github.com/getsentry/sentry-dart/pull/2431))
 - Improve app start measurements by using `addTimingsCallback` instead of `addPostFrameCallback` to determine app start end ([#2405](https://github.com/getsentry/sentry-dart/pull/2405))
   - ⚠️ This change may result in reporting of shorter app start durations
 - Improve frame tracking accuracy ([#2372](https://github.com/getsentry/sentry-dart/pull/2372))
