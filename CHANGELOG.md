@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Linux native error & obfuscation support ([#2431](https://github.com/getsentry/sentry-dart/pull/2431))
+
 ## 8.11.0-beta.1
 
 ### Features

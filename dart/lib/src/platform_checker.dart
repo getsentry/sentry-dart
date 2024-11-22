@@ -47,7 +47,8 @@ class PlatformChecker {
     return platform.isAndroid ||
         platform.isIOS ||
         platform.isMacOS ||
-        platform.isWindows;
+        platform.isWindows ||
+        platform.isLinux;
   }
 
   static bool _isWebWithWasmSupport() {
