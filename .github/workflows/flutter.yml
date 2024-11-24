@@ -67,7 +67,7 @@ jobs:
       - name: 'Setup Linux'
         run: |
           sudo apt update
-          sudo apt install -y cmake dbus libblkid-dev libgtk-3-dev liblzma-dev ninja-build pkg-config xvfb
+          sudo apt install -y cmake dbus libblkid-dev libgtk-3-dev liblzma-dev ninja-build pkg-config xvfb libcurl4-openssl-dev
           sudo apt install -y network-manager upower
         if: matrix.target == 'linux'
 
