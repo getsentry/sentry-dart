@@ -11,6 +11,7 @@ import 'binding_wrapper.dart';
 import 'navigation/time_to_display_tracker.dart';
 import 'renderer/renderer.dart';
 import 'screenshot/sentry_screenshot_quality.dart';
+import 'event_processor/screenshot_event_processor.dart';
 import 'sentry_flutter.dart';
 import 'sentry_privacy_options.dart';
 import 'sentry_replay_options.dart';
