@@ -4,13 +4,6 @@
 
 ### Enhancements
 
-- Only send debug images referenced in the stacktrace for events ([#2329](https://github.com/getsentry/sentry-dart/pull/2329))
-- Remove `sentry` frames if SDK falls back to current stack trace ([#2351](https://github.com/getsentry/sentry-dart/pull/2351))  
-  - Flutter doesn't always provide stack traces for unhandled errors - this is normal Flutter behavior
-  - When no stack trace is provided (in Flutter errors, `captureException`, or `captureMessage`):
-    - SDK creates a synthetic trace using `StackTrace.current`
-    - Internal SDK frames are removed to reduce noise
-  - Original stack traces (when provided) are left unchanged
 - Add debounce to `ScreenshotWidget` ([#2368](https://github.com/getsentry/sentry-dart/pull/2368))
   - Replace deprecated `BeforeScreenshotCallback` with new `BeforeCaptureCallback`.
 
