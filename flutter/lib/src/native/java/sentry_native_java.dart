@@ -7,7 +7,7 @@ import '../../../sentry_flutter.dart';
 import '../../event_processor/replay_event_processor.dart';
 import '../../replay/integration.dart';
 import '../../replay/scheduled_recorder.dart';
-import '../../replay/recorder_config.dart';
+import '../../replay/scheduled_recorder_config.dart';
 import '../sentry_native_channel.dart';
 
 // Note: currently this doesn't do anything. Later, it shall be used with
