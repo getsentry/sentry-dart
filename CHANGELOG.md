@@ -4,12 +4,45 @@
 
 ### Features
 
+- Support for screenshot PII content masking ([#2361](https://github.com/getsentry/sentry-dart/pull/2361))
+  By default, masking is enabled for SessionReplay. To also enable it for screenshots captured with events, you can specify `options.experimental.privacy`:
+  ```dart
+  await SentryFlutter.init(
+    (options) {
+      ...
+      // the defaults are:
+      options.experimental.privacy.maskAllText = true;
+      options.experimental.privacy.maskAllImages = true;
+      options.experimental.privacy.maskAssetImages = false;
+      // you cal also set up custom masking, for example:
+      options.experimental.privacy.mask<WebView>();
+    },
+    appRunner: () => runApp(MyApp()),
+  );
+  ```
+  Actually, just accessing this field will cause it to be initialized with the default settings to mask all text and images:
+  ```dart
+  await SentryFlutter.init(
+    (options) {
+      ...
+      // this has a side-effect of creating the default privacy configuration, thus enabling Screenshot masking:
+      options.experimental.privacy;
+    },
+    appRunner: () => runApp(MyApp()),
+  );
+  ```  
 - Linux native error & obfuscation support ([#2431](https://github.com/getsentry/sentry-dart/pull/2431))
 - Improve Device context on plain Dart and Flutter desktop apps ([#2441](https://github.com/getsentry/sentry-dart/pull/2441))
 
 ### Fixes
 
 - OS & device contexts missing on Windows ([#2439](https://github.com/getsentry/sentry-dart/pull/2439))
+
+### Dependencies
+
+- Bump Cocoa SDK from v8.40.1 to v8.41.0 ([#2442](https://github.com/getsentry/sentry-dart/pull/2442))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8410)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.40.1...8.41.0)
 
 ## 8.11.0-beta.1
 
