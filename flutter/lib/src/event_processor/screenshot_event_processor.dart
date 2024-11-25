@@ -1,28 +1,38 @@
 import 'dart:async';
-import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui';
 
-import 'package:flutter/rendering.dart';
 import 'package:meta/meta.dart';
-import 'package:sentry/sentry.dart';
-import '../screenshot/sentry_screenshot_widget.dart';
-import '../sentry_flutter_options.dart';
+import '../../sentry_flutter.dart';
 import '../renderer/renderer.dart';
+import '../screenshot/recorder.dart';
+import '../screenshot/recorder_config.dart';
 import 'package:flutter/widgets.dart' as widget;
 
 import '../utils/debouncer.dart';
 
 class ScreenshotEventProcessor implements EventProcessor {
   final SentryFlutterOptions _options;
-  final Debouncer _debouncer;
 
-  ScreenshotEventProcessor(this._options)
-      : _debouncer = Debouncer(
-          // ignore: invalid_use_of_internal_member
-          _options.clock,
-          waitTimeMs: 2000,
-        );
+  late final ScreenshotRecorder _recorder;
+  late final Debouncer _debouncer;
+
+  ScreenshotEventProcessor(this._options) {
+    final targetResolution = _options.screenshotQuality.targetResolution();
+    _recorder = ScreenshotRecorder(
+      ScreenshotRecorderConfig(
+        width: targetResolution,
+        height: targetResolution,
+      ),
+      _options,
+      isReplayRecorder: false,
+    );
+    _debouncer = Debouncer(
+      // ignore: invalid_use_of_internal_member
+      _options.clock,
+      waitTimeMs: 2000,
+    );
+  }
 
   @override
   Future<SentryEvent?> apply(SentryEvent event, Hint hint) async {
@@ -107,84 +117,36 @@ class ScreenshotEventProcessor implements EventProcessor {
       return event;
     }
 
-    final bytes = await createScreenshot();
-    if (bytes != null) {
-      hint.screenshot = SentryAttachment.fromScreenshotData(bytes);
+    Uint8List? screenshotData = await createScreenshot();
+
+    if (screenshotData != null) {
+      hint.screenshot = SentryAttachment.fromScreenshotData(screenshotData);
     }
+
     return event;
   }
 
   @internal
   Future<Uint8List?> createScreenshot() async {
-    try {
-      final renderObject =
-          sentryScreenshotWidgetGlobalKey.currentContext?.findRenderObject();
-      if (renderObject is RenderRepaintBoundary) {
-        // ignore: deprecated_member_use
-        final pixelRatio = window.devicePixelRatio;
-        var imageResult = _getImage(renderObject, pixelRatio);
-        Image image;
-        if (imageResult is Future<Image>) {
-          image = await imageResult;
-        } else {
-          image = imageResult;
-        }
-        // At the time of writing there's no other image format available which
-        // Sentry understands.
+    Uint8List? screenshotData;
 
-        if (image.width == 0 || image.height == 0) {
-          _options.logger(SentryLevel.debug,
-              'View\'s width and height is zeroed, not taking screenshot.');
-          return null;
-        }
+    await _recorder.capture((Image image) async {
+      screenshotData = await _convertImageToUint8List(image);
+    });
 
-        final targetResolution = _options.screenshotQuality.targetResolution();
-        if (targetResolution != null) {
-          var ratioWidth = targetResolution / image.width;
-          var ratioHeight = targetResolution / image.height;
-          var ratio = min(ratioWidth, ratioHeight);
-          if (ratio > 0.0 && ratio < 1.0) {
-            imageResult = _getImage(renderObject, ratio * pixelRatio);
-            if (imageResult is Future<Image>) {
-              image = await imageResult;
-            } else {
-              image = imageResult;
-            }
-          }
-        }
-        final byteData = await image.toByteData(format: ImageByteFormat.png);
-
-        final bytes = byteData?.buffer.asUint8List();
-        if (bytes?.isNotEmpty == true) {
-          return bytes;
-        } else {
-          _options.logger(SentryLevel.debug,
-              'Screenshot is 0 bytes, not attaching the image.');
-          return null;
-        }
-      }
-    } catch (exception, stackTrace) {
-      _options.logger(
-        SentryLevel.error,
-        'Taking screenshot failed.',
-        exception: exception,
-        stackTrace: stackTrace,
-      );
-      if (_options.automatedTestMode) {
-        rethrow;
-      }
-    }
-    return null;
+    return screenshotData;
   }
 
-  FutureOr<Image> _getImage(
-      RenderRepaintBoundary repaintBoundary, double pixelRatio) {
-    // This one is a hack to use https://api.flutter.dev/flutter/rendering/RenderRepaintBoundary/toImage.html on versions older than 3.7 and https://api.flutter.dev/flutter/rendering/RenderRepaintBoundary/toImageSync.html on versions equal or newer than 3.7
-    try {
-      return (repaintBoundary as dynamic).toImageSync(pixelRatio: pixelRatio)
-          as Image;
-    } on NoSuchMethodError catch (_) {
-      return repaintBoundary.toImage(pixelRatio: pixelRatio);
+  Future<Uint8List?> _convertImageToUint8List(Image image) async {
+    final byteData = await image.toByteData(format: ImageByteFormat.png);
+
+    final bytes = byteData?.buffer.asUint8List();
+    if (bytes?.isNotEmpty == true) {
+      return bytes;
+    } else {
+      _options.logger(
+          SentryLevel.debug, 'Screenshot is 0 bytes, not attaching the image.');
+      return null;
     }
   }
 }

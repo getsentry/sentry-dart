@@ -16,6 +16,49 @@
 
 ### Features
 
+- Support for screenshot PII content masking ([#2361](https://github.com/getsentry/sentry-dart/pull/2361))
+  By default, masking is enabled for SessionReplay. To also enable it for screenshots captured with events, you can specify `options.experimental.privacy`:
+  ```dart
+  await SentryFlutter.init(
+    (options) {
+      ...
+      // the defaults are:
+      options.experimental.privacy.maskAllText = true;
+      options.experimental.privacy.maskAllImages = true;
+      options.experimental.privacy.maskAssetImages = false;
+      // you cal also set up custom masking, for example:
+      options.experimental.privacy.mask<WebView>();
+    },
+    appRunner: () => runApp(MyApp()),
+  );
+  ```
+  Actually, just accessing this field will cause it to be initialized with the default settings to mask all text and images:
+  ```dart
+  await SentryFlutter.init(
+    (options) {
+      ...
+      // this has a side-effect of creating the default privacy configuration, thus enabling Screenshot masking:
+      options.experimental.privacy;
+    },
+    appRunner: () => runApp(MyApp()),
+  );
+  ```  
+- Linux native error & obfuscation support ([#2431](https://github.com/getsentry/sentry-dart/pull/2431))
+- Improve Device context on plain Dart and Flutter desktop apps ([#2441](https://github.com/getsentry/sentry-dart/pull/2441))
+
+### Dependencies
+
+- Bump Cocoa SDK from v8.40.1 to v8.41.0 ([#2442](https://github.com/getsentry/sentry-dart/pull/2442))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8410)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.40.1...8.41.0)
+
+## 8.11.0-beta.1
+
+### Features
+
+- Windows native error & obfuscation support ([#2286](https://github.com/getsentry/sentry-dart/pull/2286), [#2426](https://github.com/getsentry/sentry-dart/pull/2426))
+- Improve app start measurements by using `addTimingsCallback` instead of `addPostFrameCallback` to determine app start end ([#2405](https://github.com/getsentry/sentry-dart/pull/2405))
+  - ⚠️ This change may result in reporting of shorter app start durations
 - Improve frame tracking accuracy ([#2372](https://github.com/getsentry/sentry-dart/pull/2372))
   - Introduces `SentryWidgetsFlutterBinding` that tracks a frame starting from `handleBeginFrame` and ending in `handleDrawFrame`, this is approximately the [buildDuration](https://api.flutter.dev/flutter/dart-ui/FrameTiming/buildDuration.html) time
   - By default, `SentryFlutter.init()` automatically initializes `SentryWidgetsFlutterBinding` through the `WidgetsFlutterBindingIntegration`
@@ -24,12 +67,22 @@
   void main() async {
     // Replace WidgetsFlutterBinding.ensureInitialized()
     SentryWidgetsFlutterBinding.ensureInitialized();
-    
+
     await SentryFlutter.init(...);
     runApp(MyApp());
   }
   ```
   - ⚠️ Frame tracking will be disabled if a different binding is used
+
+### Enhancements
+
+- Only send debug images referenced in the stacktrace for events ([#2329](https://github.com/getsentry/sentry-dart/pull/2329))
+- Remove `sentry` frames if SDK falls back to current stack trace ([#2351](https://github.com/getsentry/sentry-dart/pull/2351))
+  - Flutter doesn't always provide stack traces for unhandled errors - this is normal Flutter behavior
+  - When no stack trace is provided (in Flutter errors, `captureException`, or `captureMessage`):
+    - SDK creates a synthetic trace using `StackTrace.current`
+    - Internal SDK frames are removed to reduce noise
+  - Original stack traces (when provided) are left unchanged
 
 ### Fixes
 
@@ -41,9 +94,12 @@
 
 ### Dependencies
 
-- Bump Android SDK from v7.16.0 to v7.17.0 ([#2408](https://github.com/getsentry/sentry-dart/pull/2408))
-  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#7170)
-  - [diff](https://github.com/getsentry/sentry-java/compare/7.16.0...7.17.0)
+- Bump Android SDK from v7.16.0 to v7.18.0 ([#2408](https://github.com/getsentry/sentry-dart/pull/2408), [#2419](https://github.com/getsentry/sentry-dart/pull/2419))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#7180)
+  - [diff](https://github.com/getsentry/sentry-java/compare/7.16.0...7.18.0)
+- Bump Native SDK from v0.7.12 to v0.7.15 ([#2430](https://github.com/getsentry/sentry-dart/pull/2430))
+  - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#0715)
+  - [diff](https://github.com/getsentry/sentry-native/compare/0.7.12...0.7.15)
 
 ## 8.10.1
 
@@ -98,7 +154,7 @@
     ),
   );
   ```
-  
+
 - Add screenshot to `SentryFeedbackWidget` ([#2369](https://github.com/getsentry/sentry-dart/pull/2369))
   - Use `SentryFlutter.captureScreenshot` to create a screenshot attachment
   - Call `SentryFeedbackWidget` with this attachment to add it to the user feedback
@@ -106,7 +162,7 @@
   ```dart
   final id = await Sentry.captureMessage('UserFeedback');
   final screenshot = await SentryFlutter.captureScreenshot();
-  
+
   Navigator.push(
     context,
     MaterialPageRoute(
@@ -124,7 +180,7 @@
 - Avoid sending too many empty client reports when Http Transport is used ([#2380](https://github.com/getsentry/sentry-dart/pull/2380))
 - Cache parsed DSN ([#2365](https://github.com/getsentry/sentry-dart/pull/2365))
 - Handle backpressure earlier in pipeline ([#2371](https://github.com/getsentry/sentry-dart/pull/2371))
-  - Drops max un-awaited parallel tasks earlier, so event processors & callbacks are not executed for them. 
+  - Drops max un-awaited parallel tasks earlier, so event processors & callbacks are not executed for them.
   - Change by setting `SentryOptions.maxQueueSize`. Default is 30.
 - Use native spotlight integrations on Flutter Android, iOS, macOS ([#2285](https://github.com/getsentry/sentry-dart/pull/2285))
 - Improve app start integration ([#2266](https://github.com/getsentry/sentry-dart/pull/2266))
@@ -151,7 +207,7 @@
 
 - Metrics API ([#2312](https://github.com/getsentry/sentry-dart/pull/2312))
   - Learn more: https://sentry.zendesk.com/hc/en-us/articles/26369339769883-Metrics-Beta-Coming-to-an-End
-  
+
 ### Dependencies
 
 - Bump Native SDK from v0.7.10 to v0.7.12 ([#2390](https://github.com/getsentry/sentry-dart/pull/2390))

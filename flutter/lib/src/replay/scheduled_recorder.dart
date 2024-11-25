@@ -4,8 +4,8 @@ import 'dart:ui';
 import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
-import 'recorder.dart';
-import 'recorder_config.dart';
+import '../screenshot/recorder.dart';
+import 'scheduled_recorder_config.dart';
 import 'scheduler.dart';
 
 @internal
