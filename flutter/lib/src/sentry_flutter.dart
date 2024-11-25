@@ -171,6 +171,12 @@ mixin SentryFlutter {
       }
       integrations.add(LoadImageListIntegration(native));
       integrations.add(FramesTrackingIntegration(native));
+      integrations.add(
+        NativeAppStartIntegration(
+          DefaultFrameCallbackHandler(),
+          NativeAppStartHandler(native),
+        ),
+      );
       options.enableDartSymbolication = false;
     }
 
@@ -193,14 +199,6 @@ mixin SentryFlutter {
     // in errors.
     integrations.add(LoadReleaseIntegration());
 
-    if (native != null) {
-      integrations.add(
-        NativeAppStartIntegration(
-          DefaultFrameCallbackHandler(),
-          NativeAppStartHandler(native),
-        ),
-      );
-    }
     return integrations;
   }
 

@@ -1,13 +1,13 @@
 // ignore_for_file: invalid_use_of_internal_member
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/frame_callback_handler.dart';
 import 'package:sentry_flutter/src/navigation/time_to_initial_display_tracker.dart';
 
 import '../fake_frame_callback_handler.dart';
 import '../mocks.dart';
-import 'package:sentry/src/sentry_tracer.dart';
 
 void main() {
   late Fixture fixture;
@@ -223,7 +223,7 @@ void main() {
 class Fixture {
   final startTimestamp = getUtcDateTime();
   final hub = Hub(defaultTestOptions()..tracesSampleRate = 1.0);
-  late final fakeFrameCallbackHandler = FakeFrameCallbackHandler();
+  final fakeFrameCallbackHandler = FakeFrameCallbackHandler();
 
   ISentrySpan getTransaction({String? name = "Regular route"}) {
     return hub.startTransaction(name!, 'ui.load',
@@ -231,14 +231,14 @@ class Fixture {
   }
 
   /// The time it takes until a fake frame has been triggered
-  Duration get finishFrameDuration =>
-      fakeFrameCallbackHandler.finishAfterDuration;
+  final finishFrameDuration = Duration(milliseconds: 50);
 
   TimeToInitialDisplayTracker getSut(
       {bool triggerApproximationTimeout = false}) {
     return TimeToInitialDisplayTracker(
         frameCallbackHandler: triggerApproximationTimeout
             ? DefaultFrameCallbackHandler()
-            : FakeFrameCallbackHandler());
+            : FakeFrameCallbackHandler(
+                postFrameCallbackDelay: finishFrameDuration));
   }
 }
