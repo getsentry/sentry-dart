@@ -1,10 +1,10 @@
 // ignore_for_file: invalid_use_of_internal_member
 
 import 'package:flutter/foundation.dart';
-
-import '../sentry_flutter.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
+
+import '../sentry_flutter.dart';
 
 /// The methods and properties are modelled after the the real binding class.
 @experimental
@@ -108,7 +108,9 @@ mixin SentryWidgetsBindingMixin on WidgetsBinding {
 
   @override
   void handleBeginFrame(Duration? rawTimeStamp) {
-    _startTimestamp = _clock?.call();
+    try {
+      _startTimestamp = _clock?.call();
+    } catch (_) {}
 
     super.handleBeginFrame(rawTimeStamp);
   }
@@ -117,11 +119,13 @@ mixin SentryWidgetsBindingMixin on WidgetsBinding {
   void handleDrawFrame() {
     super.handleDrawFrame();
 
-    final endTimestamp = _clock?.call();
-    if (_startTimestamp != null &&
-        endTimestamp != null &&
-        _startTimestamp!.isBefore(endTimestamp)) {
-      _frameTimingCallback?.call(_startTimestamp!, endTimestamp);
-    }
+    try {
+      final endTimestamp = _clock?.call();
+      if (_startTimestamp != null &&
+          endTimestamp != null &&
+          _startTimestamp!.isBefore(endTimestamp)) {
+        _frameTimingCallback?.call(_startTimestamp!, endTimestamp);
+      }
+    } catch (_) {}
   }
 }
