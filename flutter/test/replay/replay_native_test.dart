@@ -17,7 +17,7 @@ import 'package:sentry_flutter/src/replay/integration.dart';
 
 import '../mocks.dart';
 import '../mocks.mocks.dart';
-import 'test_widget.dart';
+import '../screenshot/test_widget.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
