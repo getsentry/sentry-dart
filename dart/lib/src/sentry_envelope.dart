@@ -133,7 +133,7 @@ class SentryEnvelope {
         }
 
         yield newLineData;
-        yield utf8.encode(jsonEncode(await item.header.toJson(data.length)));
+        yield utf8JsonEncoder.convert(await item.header.toJson(data.length));
         yield newLineData;
         yield data;
       } catch (_) {
