@@ -117,8 +117,7 @@ class ScreenshotEventProcessor implements EventProcessor {
       return event;
     }
 
-    Uint8List? screenshotData = await createScreenshot();
-
+    final screenshotData = await createScreenshot();
     if (screenshotData != null) {
       hint.screenshot = SentryAttachment.fromScreenshotData(screenshotData);
     }
