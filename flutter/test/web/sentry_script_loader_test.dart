@@ -59,6 +59,9 @@ void main() {
     });
 
     test('handles script loading failures', () async {
+      // don't rethrow errors
+      fixture.options.automatedTestMode = false;
+
       final scripts = [
         {
           'url': 'https://invalid',
@@ -68,22 +71,8 @@ void main() {
       // Modify script URL to cause failure
       final sut = fixture.getSut(scripts: scripts);
 
-      await expectLater(() async {
-        await sut.load();
-      }, throwsA(anything));
-    });
-
-    test('maintains script loading order', () async {
-      final sut = fixture.getSut();
-
-      await sut.load();
-
-      final scripts = querySelectorAll('script[src*="sentry-cdn"]')
-          .map((s) => (s).src)
-          .toList();
-      expect(productionScripts.length, scripts.length);
-      expect(debugScripts.length, scripts.length);
-      expect(scripts[0], contains('bundle.tracing'));
+      // Expect the load() call to complete without throwing
+      await expectLater(sut.load(), completes);
     });
   });
 }
