@@ -12,3 +12,6 @@ target_link_libraries(
     ${LOG_LIB}
     ${ANDROID_GRADLE_NATIVE_MODULES}
 )
+
+# https://developer.android.com/guide/practices/page-sizes#compile-r26-lower
+target_link_options(native-sample PRIVATE "-Wl,-z,max-page-size=16384")
