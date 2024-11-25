@@ -20,14 +20,15 @@ class SentryScriptLoader {
     if (_scriptLoaded) return;
 
     try {
-      await Future.wait(scripts.map((script) async {
+      await Future.forEach(scripts, (Map<String, String> script) async {
         final url = script['url'];
         final integrity = script['integrity'];
 
         if (url != null) {
-          return loadScript(url, integrity);
+          await loadScript(url, integrity);
         }
-      }));
+      });
+
       _scriptLoaded = true;
       options.logger(SentryLevel.debug,
           'JS SDK integration: all Sentry scripts loaded successfully.');
