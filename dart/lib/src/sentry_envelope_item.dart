@@ -24,7 +24,7 @@ class SentryEnvelopeItem {
       contentType: 'application/json',
     );
     return SentryEnvelopeItem(
-        header, () async => utf8JsonEncoder.convert(transaction.toJson()),
+        header, () => utf8JsonEncoder.convert(transaction.toJson()),
         originalObject: transaction);
   }
 
@@ -37,7 +37,7 @@ class SentryEnvelopeItem {
     );
     return SentryEnvelopeItem(
       header,
-      () async => attachment.bytes,
+      () => attachment.bytes,
       originalObject: attachment,
     );
   }
@@ -45,7 +45,7 @@ class SentryEnvelopeItem {
   /// Create a [SentryEnvelopeItem] which sends [SentryUserFeedback].
   @Deprecated('Will be removed in a future version.')
   factory SentryEnvelopeItem.fromUserFeedback(SentryUserFeedback feedback) {
-    final dataFactory = () async => utf8JsonEncoder.convert(feedback.toJson());
+    final dataFactory = () => utf8JsonEncoder.convert(feedback.toJson());
 
     final header = SentryEnvelopeItemHeader(
       SentryItemType.userFeedback,
@@ -65,7 +65,7 @@ class SentryEnvelopeItem {
         event.type == 'feedback' ? 'feedback' : SentryItemType.event,
         contentType: 'application/json',
       ),
-      () async => utf8JsonEncoder.convert(event.toJson()),
+      () => utf8JsonEncoder.convert(event.toJson()),
       originalObject: event,
     );
   }
@@ -77,14 +77,14 @@ class SentryEnvelopeItem {
         SentryItemType.clientReport,
         contentType: 'application/json',
       ),
-      () async => utf8JsonEncoder.convert(clientReport.toJson()),
+      () => utf8JsonEncoder.convert(clientReport.toJson()),
       originalObject: clientReport,
     );
   }
 
   /// Creates a [SentryEnvelopeItem] which holds several [Metric] data.
   factory SentryEnvelopeItem.fromMetrics(Map<int, Iterable<Metric>> buckets) {
-    final dataFactory = () async {
+    final dataFactory = () {
       final statsd = StringBuffer();
       // Encode all metrics of a bucket in statsd format, using the bucket key,
       //  which is the timestamp of the bucket.
@@ -110,5 +110,5 @@ class SentryEnvelopeItem {
   final SentryEnvelopeItemHeader header;
 
   /// Create binary data representation of item data.
-  final Future<List<int>> Function() dataFactory;
+  final FutureOr<List<int>> Function() dataFactory;
 }

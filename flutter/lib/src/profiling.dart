@@ -111,6 +111,6 @@ class SentryNativeProfileInfo implements SentryProfileInfo {
       SentryItemType.profile,
       contentType: 'application/json',
     );
-    return SentryEnvelopeItem(header, () => Future.value(_data));
+    return SentryEnvelopeItem(header, () => _data);
   }
 }

@@ -123,7 +123,8 @@ class SentryEnvelope {
     final newLineData = utf8.encode('\n');
     for (final item in items) {
       try {
-        final data = await item.dataFactory();
+        final dataFuture = item.dataFactory();
+        final data = dataFuture is Future ? await dataFuture : dataFuture;
 
         // Only attachments should be filtered according to
         // SentryOptions.maxAttachmentSize
@@ -133,7 +134,7 @@ class SentryEnvelope {
         }
 
         yield newLineData;
-        yield utf8.encode(jsonEncode(await item.header.toJson(data.length)));
+        yield utf8JsonEncoder.convert(await item.header.toJson(data.length));
         yield newLineData;
         yield data;
       } catch (_) {
