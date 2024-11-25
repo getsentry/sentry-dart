@@ -3,6 +3,7 @@ import 'dart:ffi';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:collection/collection.dart';
 import 'package:ffi/ffi.dart';
 import 'package:meta/meta.dart';
 
@@ -31,7 +32,7 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   static String dynamicLibraryDirectory = '';
 
   @visibleForTesting
-  static String? crashpadPath;
+  static String? crashpadPath = _getDefaultCrashpadPath();
 
   SentryNative(this.options);
 
@@ -395,4 +396,20 @@ extension on List<dynamic> {
     }
     return cObject;
   }
+}
+
+String? _getDefaultCrashpadPath() {
+  if (Platform.isLinux) {
+    final lastSeparator =
+        Platform.resolvedExecutable.lastIndexOf(Platform.pathSeparator);
+    if (lastSeparator >= 0) {
+      final appDir = Platform.resolvedExecutable.substring(0, lastSeparator);
+      final candidates = [
+        '$appDir${Platform.pathSeparator}crashpad_handler',
+        '$appDir${Platform.pathSeparator}bin/crashpad_handler'
+      ];
+      return candidates.firstWhereOrNull((path) => File(path).existsSync());
+    }
+  }
+  return null;
 }
