@@ -2,11 +2,6 @@
 
 ## Unreleased
 
-### Enhancements
-
-- Add debounce to `ScreenshotWidget` ([#2368](https://github.com/getsentry/sentry-dart/pull/2368))
-  - Replace deprecated `BeforeScreenshotCallback` with new `BeforeCaptureCallback`.
-
 ### Features
 
 - Support for screenshot PII content masking ([#2361](https://github.com/getsentry/sentry-dart/pull/2361))
@@ -38,6 +33,8 @@
   ```  
 - Linux native error & obfuscation support ([#2431](https://github.com/getsentry/sentry-dart/pull/2431))
 - Improve Device context on plain Dart and Flutter desktop apps ([#2441](https://github.com/getsentry/sentry-dart/pull/2441))
+- Add debounce to `ScreenshotWidget` ([#2368](https://github.com/getsentry/sentry-dart/pull/2368))
+  - Replace deprecated `BeforeScreenshotCallback` with new `BeforeCaptureCallback`.
 
 ### Dependencies
 
