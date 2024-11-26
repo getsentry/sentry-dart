@@ -367,10 +367,7 @@ class Sentry {
   @internal
   static Hub get currentHub => _hub;
 
-  /// On web platforms, sentry will create it's own `runZonedGuarded` if it is
-  /// not initialized in a custom one.
-  ///
-  /// With [runZonedGuarded] you can have a custom zone, and still let sentry
+  /// With [runZonedGuarded] you can create a custom zone, and still let Sentry
   /// report errors and breadcrumbs automatically.
   ///
   /// It takes the same parameters than the dart function.
