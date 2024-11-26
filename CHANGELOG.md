@@ -65,9 +65,9 @@
       appRunner: () => runApp(MyApp()),
     );
   } (error, stackTrace) {
-  // Automatically sends errors to Sentry, no need to do any
-  // captureException calls on your part.
-  // On top of that, you can do your own custom stuff in this callback.
+    // Automatically sends errors to Sentry, no need to do any
+    // captureException calls on your part.
+    // On top of that, you can do your own custom stuff in this callback.
   });
   ```
 
