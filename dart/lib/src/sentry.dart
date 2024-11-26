@@ -392,10 +392,10 @@ class Sentry {
   ///   // captureException calls on your part.
   ///   // On top of that, you can do your own custom stuff in this callback.
   /// });
+  /// ```
   ///
   /// This function also records calls to `print()` as Breadcrumbs.
   /// This can be configured with [SentryOptions.enablePrintBreadcrumbs]
-  /// ```
   static runZonedGuarded<R>(
     R Function() body,
     void Function(Object error, StackTrace stack)? onError, {
