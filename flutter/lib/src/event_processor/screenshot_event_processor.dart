@@ -9,14 +9,16 @@ import '../screenshot/recorder.dart';
 import '../screenshot/recorder_config.dart';
 import 'package:flutter/widgets.dart' as widget;
 
+import '../utils/debouncer.dart';
+
 class ScreenshotEventProcessor implements EventProcessor {
   final SentryFlutterOptions _options;
 
   late final ScreenshotRecorder _recorder;
+  late final Debouncer _debouncer;
 
   ScreenshotEventProcessor(this._options) {
     final targetResolution = _options.screenshotQuality.targetResolution();
-
     _recorder = ScreenshotRecorder(
       ScreenshotRecorderConfig(
         width: targetResolution,
@@ -24,6 +26,11 @@ class ScreenshotEventProcessor implements EventProcessor {
       ),
       _options,
       isReplayRecorder: false,
+    );
+    _debouncer = Debouncer(
+      // ignore: invalid_use_of_internal_member
+      _options.clock,
+      waitTimeMs: 2000,
     );
   }
 
@@ -43,29 +50,51 @@ class ScreenshotEventProcessor implements EventProcessor {
       return event; // No need to attach screenshot of feedback form.
     }
 
+    // skip capturing in case of debouncing (=too many frequent capture requests)
+    // the BeforeCaptureCallback may overrules the debouncing decision
+    final shouldDebounce = _debouncer.shouldDebounce();
+
+    // ignore: deprecated_member_use_from_same_package
     final beforeScreenshot = _options.beforeScreenshot;
-    if (beforeScreenshot != null) {
-      try {
-        final result = beforeScreenshot(event, hint: hint);
-        bool takeScreenshot;
+    final beforeCapture = _options.beforeCaptureScreenshot;
+
+    try {
+      FutureOr<bool>? result;
+
+      if (beforeCapture != null) {
+        result = beforeCapture(event, hint, shouldDebounce);
+      } else if (beforeScreenshot != null) {
+        result = beforeScreenshot(event, hint: hint);
+      }
+
+      bool takeScreenshot = true;
+
+      if (result != null) {
         if (result is Future<bool>) {
           takeScreenshot = await result;
         } else {
           takeScreenshot = result;
         }
-        if (!takeScreenshot) {
-          return event;
-        }
-      } catch (exception, stackTrace) {
+      } else if (shouldDebounce) {
         _options.logger(
-          SentryLevel.error,
-          'The beforeScreenshot callback threw an exception',
-          exception: exception,
-          stackTrace: stackTrace,
+          SentryLevel.debug,
+          'Skipping screenshot capture due to debouncing (too many captures within ${_debouncer.waitTimeMs}ms)',
         );
-        if (_options.automatedTestMode) {
-          rethrow;
-        }
+        takeScreenshot = false;
+      }
+
+      if (!takeScreenshot) {
+        return event;
+      }
+    } catch (exception, stackTrace) {
+      _options.logger(
+        SentryLevel.error,
+        'The beforeCapture/beforeScreenshot callback threw an exception',
+        exception: exception,
+        stackTrace: stackTrace,
+      );
+      if (_options.automatedTestMode) {
+        rethrow;
       }
     }
 
@@ -88,8 +117,7 @@ class ScreenshotEventProcessor implements EventProcessor {
       return event;
     }
 
-    Uint8List? screenshotData = await createScreenshot();
-
+    final screenshotData = await createScreenshot();
     if (screenshotData != null) {
       hint.screenshot = SentryAttachment.fromScreenshotData(screenshotData);
     }
