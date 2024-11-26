@@ -110,4 +110,20 @@ class SentryOperatingSystem {
         theme: theme ?? this.theme,
         unknown: unknown,
       );
+
+  SentryOperatingSystem mergeWith(SentryOperatingSystem other) =>
+      SentryOperatingSystem(
+        name: other.name ?? name,
+        version: other.version ?? version,
+        build: other.build ?? build,
+        kernelVersion: other.kernelVersion ?? kernelVersion,
+        rooted: other.rooted ?? rooted,
+        rawDescription: other.rawDescription ?? rawDescription,
+        theme: other.theme ?? theme,
+        unknown: other.unknown == null
+            ? unknown
+            : unknown == null
+                ? null
+                : {...unknown!, ...other.unknown!},
+      );
 }

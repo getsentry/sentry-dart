@@ -80,7 +80,7 @@ void main() {
         'test.txt',
       );
       await expectLater(
-        await attachmentEnvelope.header.length(),
+        (await attachmentEnvelope.dataFactory()).length,
         4,
       );
     });
