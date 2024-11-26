@@ -73,10 +73,10 @@ mixin SentryFlutter {
     final bool isOnErrorSupported =
         !options.platformChecker.isWeb && wrapper.isOnErrorSupported(options);
 
-    final bool customZoneExists = Zone.current != Zone.root;
+    final bool isRootZone = options.platformChecker.isRootZone;
 
     // If onError is not supported and no custom zone exists, use runZonedGuarded to capture errors.
-    final bool useRunZonedGuarded = !isOnErrorSupported && !customZoneExists;
+    final bool useRunZonedGuarded = !isOnErrorSupported && isRootZone;
 
     RunZonedGuardedOnError? runZonedGuardedOnError =
         useRunZonedGuarded ? _createRunZonedGuardedOnError() : null;
