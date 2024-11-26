@@ -468,6 +468,22 @@ void main() {
       expect(fixture.loggedLevel, SentryLevel.error);
     });
   });
+
+  test('calling runZonedGuarded before init does not throw', () async {
+    var expected = Exception("run zoned guarded exception");
+    Object? actual;
+
+    Sentry.runZonedGuarded(() {
+      throw expected;
+    }, (error, stackTrace) {
+      actual = error;
+    });
+
+    await Future.delayed(Duration(milliseconds: 100));
+
+    expect(actual, isNotNull);
+    expect(actual, expected);
+  });
 }
 
 class Fixture {

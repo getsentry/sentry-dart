@@ -367,7 +367,38 @@ class Sentry {
   @internal
   static Hub get currentHub => _hub;
 
-  /// TODO @denis Document me
+  /// On web platforms, sentry will create it's own `runZonedGuarded` if it is
+  /// not initialized in a custom one.
+  ///
+  /// With [runZonedGuarded] you can have a custom zone, and still let sentry
+  /// report errors and breadcrumbs automatically.
+  ///
+  /// It takes the same parameters than the dart function.
+  ///
+  /// Please be aware that any errors in the zone which occur before the [init]
+  /// call cannot be handled by Sentry.
+  ///
+  /// ```dart
+  /// Sentry.runZonedGuarded(() {
+  ///   WidgetsBinding.ensureInitialized();
+  ///
+  ///   // Errors before init will not be handled by Sentry
+  ///
+  ///   SentryFlutter.init(
+  ///     (options) {
+  ///     ...
+  ///     },
+  ///     appRunner: () => runApp(MyApp()),
+  ///   );
+  /// } (error, stackTrace) {
+  ///   // Automatically sends errors to Sentry, no need to do any
+  ///   // captureException calls on your part.
+  ///   // On top of that, you can do your own custom stuff in this callback.
+  /// });
+  ///
+  /// This function also records calls to `print()` as Breadcrumbs.
+  /// This can be configured with [SentryOptions.enablePrintBreadcrumbs]
+  /// ```
   static runZonedGuarded<R>(
     R Function() body,
     void Function(Object error, StackTrace stack)? onError, {
@@ -375,6 +406,7 @@ class Sentry {
     ZoneSpecification? zoneSpecification,
   }) {
     return SentryRunZonedGuarded.sentryRunZonedGuarded(
+      _hub,
       body,
       onError,
       zoneValues: zoneValues,

@@ -19,37 +19,12 @@ void main() {
       fixture = Fixture();
     });
 
-    // increase coverage of captureError
-
-    test('marks transaction as internal error if no status', () async {
-      final exception = StateError('error');
-      final stackTrace = StackTrace.current;
-
-      final hub = Hub(fixture.options);
-      final client = MockSentryClient();
-      hub.bindClient(client);
-
-      hub.startTransaction('name', 'operation', bindToScope: true);
-
-      await SentryRunZonedGuarded.captureError(
-        hub,
-        fixture.options,
-        exception,
-        stackTrace,
-      );
-
-      final span = hub.getSpan();
-
-      expect(span?.status, const SpanStatus.internalError());
-
-      await span?.finish();
-    });
-
     test('calls onError', () async {
       final error = StateError("StateError");
       var onErrorCalled = false;
 
       SentryRunZonedGuarded.sentryRunZonedGuarded(
+        fixture.hub,
         () {
           throw error;
         },
@@ -72,6 +47,7 @@ void main() {
         },
       );
       SentryRunZonedGuarded.sentryRunZonedGuarded(
+        fixture.hub,
         () {
           print('foo');
         },
@@ -84,21 +60,49 @@ void main() {
       expect(printCalled, true);
     });
 
-    test('sets level to error instead of fatal', () async {
+    test('marks transaction as internal error if no status', () async {
       final exception = StateError('error');
-      final stackTrace = StackTrace.current;
 
-      final hub = Hub(fixture.options);
       final client = MockSentryClient();
+      final hub = Hub(fixture.options);
       hub.bindClient(client);
+      hub.startTransaction('name', 'operation', bindToScope: true);
 
-      fixture.options.markAutomaticallyCollectedErrorsAsFatal = false;
-      await SentryRunZonedGuarded.captureError(
+      SentryRunZonedGuarded.sentryRunZonedGuarded(
         hub,
-        fixture.options,
-        exception,
-        stackTrace,
+        () {
+          throw exception;
+        },
+        (error, stackTrace) {
+          // Stub
+        },
       );
+
+      await Future.delayed(Duration(milliseconds: 10));
+
+      final span = hub.getSpan();
+      expect(span?.status, const SpanStatus.internalError());
+      await span?.finish();
+    });
+
+    test('sets level to error instead of fatal', () async {
+      final client = MockSentryClient();
+      fixture.hub.bindClient(client);
+      fixture.options.markAutomaticallyCollectedErrorsAsFatal = false;
+
+      final exception = StateError('error');
+
+      SentryRunZonedGuarded.sentryRunZonedGuarded(
+        fixture.hub,
+        () {
+          throw exception;
+        },
+        (error, stackTrace) {
+          // Stub
+        },
+      );
+
+      await Future.delayed(Duration(milliseconds: 10));
 
       final capturedEvent = client.captureEventCalls.last.event;
       expect(capturedEvent.level, SentryLevel.error);

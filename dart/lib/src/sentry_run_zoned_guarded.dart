@@ -4,22 +4,21 @@ import 'package:meta/meta.dart';
 
 import '../sentry.dart';
 
-/// Needed to check if we somehow caused a `print()` recursion
-var _isPrinting = false; // TODO @denis Move to non-global?
+@internal
+class SentryRunZonedGuarded {
+  /// Needed to check if we somehow caused a `print()` recursion
+  static var _isPrinting = false;
 
-extension SentryRunZonedGuarded on Sentry {
-  @internal
   static R? sentryRunZonedGuarded<R>(
+    Hub hub,
     R Function() body,
     void Function(Object error, StackTrace stack)? onError, {
     Map<Object?, Object?>? zoneValues,
     ZoneSpecification? zoneSpecification,
   }) {
     final sentryOnError = (exception, stackTrace) async {
-      final hub = HubAdapter();
       final options = hub.options;
-
-      await captureError(hub, options, exception, stackTrace);
+      await _captureError(hub, options, exception, stackTrace);
 
       if (onError != null) {
         onError(exception, stackTrace);
@@ -31,7 +30,6 @@ extension SentryRunZonedGuarded on Sentry {
     final sentryZoneSpecification = ZoneSpecification.from(
       zoneSpecification ?? ZoneSpecification(),
       print: (self, parent, zone, line) async {
-        final hub = HubAdapter();
         final options = hub.options;
 
         if (userPrint != null) {
@@ -83,8 +81,7 @@ extension SentryRunZonedGuarded on Sentry {
     );
   }
 
-  @visibleForTesting
-  static Future<void> captureError(
+  static Future<void> _captureError(
     Hub hub,
     SentryOptions options,
     Object exception,

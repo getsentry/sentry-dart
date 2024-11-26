@@ -25,7 +25,7 @@ class RunZonedGuardedIntegration extends Integration<SentryOptions> {
   Future<void> call(Hub hub, SentryOptions options) {
     final completer = Completer<void>();
 
-    SentryRunZonedGuarded.sentryRunZonedGuarded(() async {
+    SentryRunZonedGuarded.sentryRunZonedGuarded(hub, () async {
       try {
         await _runner();
       } finally {
