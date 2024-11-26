@@ -329,7 +329,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         let appIsActive = NSApplication.shared.isActive
         #endif
 
-        // We send a SentryHybridSdkDidBecomeActive to the Sentry Cocoa SDK, so the SDK will mimics
+        // We send a SentryHybridSdkDidBecomeActive to the Sentry Cocoa SDK, to mimic
         // the didBecomeActiveNotification notification. This is needed for session, OOM tracking, replays, etc.
         if appIsActive {
             NotificationCenter.default.post(name: Notification.Name("SentryHybridSdkDidBecomeActive"), object: nil)
