@@ -23,6 +23,7 @@ void main() {
       final error = StateError("StateError");
       var onErrorCalled = false;
 
+      final completer = Completer<void>();
       SentryRunZonedGuarded.sentryRunZonedGuarded(
         fixture.hub,
         () {
@@ -30,20 +31,23 @@ void main() {
         },
         (error, stackTrace) {
           onErrorCalled = true;
+          completer.complete();
         },
       );
 
-      await Future.delayed(Duration(milliseconds: 10));
+      await completer.future;
 
       expect(onErrorCalled, true);
     });
 
     test('calls zoneSpecification print', () async {
       var printCalled = false;
+      final completer = Completer<void>();
 
       final zoneSpecification = ZoneSpecification(
         print: (self, parent, zone, line) {
           printCalled = true;
+          completer.complete();
         },
       );
       SentryRunZonedGuarded.sentryRunZonedGuarded(
@@ -55,7 +59,7 @@ void main() {
         zoneSpecification: zoneSpecification,
       );
 
-      await Future.delayed(Duration(milliseconds: 10));
+      await completer.future;
 
       expect(printCalled, true);
     });
@@ -68,17 +72,18 @@ void main() {
       hub.bindClient(client);
       hub.startTransaction('name', 'operation', bindToScope: true);
 
+      final completer = Completer<void>();
       SentryRunZonedGuarded.sentryRunZonedGuarded(
         hub,
         () {
           throw exception;
         },
         (error, stackTrace) {
-          // Stub
+          completer.complete();
         },
       );
 
-      await Future.delayed(Duration(milliseconds: 10));
+      await completer.future;
 
       final span = hub.getSpan();
       expect(span?.status, const SpanStatus.internalError());
@@ -87,22 +92,24 @@ void main() {
 
     test('sets level to error instead of fatal', () async {
       final client = MockSentryClient();
-      fixture.hub.bindClient(client);
+      final hub = Hub(fixture.options);
+      hub.bindClient(client);
       fixture.options.markAutomaticallyCollectedErrorsAsFatal = false;
 
       final exception = StateError('error');
 
+      final completer = Completer<void>();
       SentryRunZonedGuarded.sentryRunZonedGuarded(
-        fixture.hub,
+        hub,
         () {
           throw exception;
         },
         (error, stackTrace) {
-          // Stub
+          completer.complete();
         },
       );
 
-      await Future.delayed(Duration(milliseconds: 10));
+      await completer.future;
 
       final capturedEvent = client.captureEventCalls.last.event;
       expect(capturedEvent.level, SentryLevel.error);

@@ -473,13 +473,15 @@ void main() {
     var expected = Exception("run zoned guarded exception");
     Object? actual;
 
+    final completer = Completer<void>();
     Sentry.runZonedGuarded(() {
       throw expected;
     }, (error, stackTrace) {
       actual = error;
+      completer.complete();
     });
 
-    await Future.delayed(Duration(milliseconds: 100));
+    await completer.future;
 
     expect(actual, isNotNull);
     expect(actual, expected);
