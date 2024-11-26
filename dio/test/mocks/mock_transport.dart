@@ -38,10 +38,7 @@ class MockTransport implements Transport {
   }
 
   Future<SentryEvent> _eventFromEnvelope(SentryEnvelope envelope) async {
-    final envelopeItemData = <int>[];
-    envelopeItemData.addAll(await envelope.items.first.envelopeItemStream());
-
-    final envelopeItem = utf8.decode(envelopeItemData).split('\n').last;
+    final envelopeItem = utf8.decode(await envelope.items.first.dataFactory());
     final envelopeItemJson = jsonDecode(envelopeItem) as Map<String, dynamic>;
     return SentryEvent.fromJson(envelopeItemJson);
   }

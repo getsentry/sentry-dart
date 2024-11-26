@@ -42,11 +42,11 @@ class MockTransport implements Transport {
   }
 
   Future<void> _eventFromEnvelope(SentryEnvelope envelope) async {
-    final envelopeItemData = <int>[];
     final RegExp statSdRegex = RegExp('^(?!{).+@.+:.+\\|.+', multiLine: true);
-    envelopeItemData.addAll(await envelope.items.first.envelopeItemStream());
 
-    final envelopeItem = utf8.decode(envelopeItemData).split('\n').last;
+    final envelopeItemData = await envelope.items.first.dataFactory();
+    final envelopeItem = utf8.decode(envelopeItemData);
+
     if (statSdRegex.hasMatch(envelopeItem)) {
       statsdItems.add(envelopeItem);
     } else {
