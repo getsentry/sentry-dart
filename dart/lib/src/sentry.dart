@@ -370,7 +370,7 @@ class Sentry {
   /// With [runZonedGuarded] you can create a custom zone, and still let Sentry
   /// report errors and breadcrumbs automatically.
   ///
-  /// It takes the same parameters than the dart function.
+  /// It takes the same parameters as the dart function.
   ///
   /// Please be aware that any errors in the zone which occur before the [init]
   /// call cannot be handled by Sentry.
@@ -401,13 +401,12 @@ class Sentry {
     void Function(Object error, StackTrace stack)? onError, {
     Map<Object?, Object?>? zoneValues,
     ZoneSpecification? zoneSpecification,
-  }) {
-    return SentryRunZonedGuarded.sentryRunZonedGuarded(
-      _hub,
-      body,
-      onError,
-      zoneValues: zoneValues,
-      zoneSpecification: zoneSpecification,
-    );
-  }
+  }) =>
+      SentryRunZonedGuarded.sentryRunZonedGuarded(
+        _hub,
+        body,
+        onError,
+        zoneValues: zoneValues,
+        zoneSpecification: zoneSpecification,
+      );
 }
