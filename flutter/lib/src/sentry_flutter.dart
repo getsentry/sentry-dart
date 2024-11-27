@@ -29,7 +29,6 @@ import 'renderer/renderer.dart';
 import 'version.dart';
 import 'view_hierarchy/view_hierarchy_integration.dart';
 import 'web/script_loader/sentry_script_loader.dart';
-import 'web/sentry_js_bundle.dart';
 
 /// Configuration options callback
 typedef FlutterOptionsConfiguration = FutureOr<void> Function(
@@ -183,10 +182,7 @@ mixin SentryFlutter {
     }
 
     if (platformChecker.isWeb) {
-      final scripts = options.platformChecker.isDebugMode()
-          ? debugScripts
-          : productionScripts;
-      final scriptLoader = SentryScriptLoader(options, scripts);
+      final scriptLoader = SentryScriptLoader(options);
       integrations.add(WebSdkIntegration(scriptLoader));
       integrations.add(ConnectivityIntegration());
     }

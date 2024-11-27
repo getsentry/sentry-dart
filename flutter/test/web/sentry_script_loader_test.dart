@@ -27,7 +27,7 @@ void main() {
     test('loads production scripts by default', () async {
       final sut = fixture.getSut();
 
-      await sut.load();
+      await sut.load(productionScripts);
 
       final scripts = querySelectorAll('script[src*="sentry-cdn"]');
       for (final script in scripts) {
@@ -39,7 +39,7 @@ void main() {
     test('loads debug scripts when debug is enabled', () async {
       final sut = fixture.getSut(debug: true);
 
-      await sut.load();
+      await sut.load(debugScripts);
 
       final scripts = querySelectorAll('script[src*="sentry-cdn"]');
       for (final script in scripts) {
@@ -51,28 +51,48 @@ void main() {
     test('does not load scripts twice', () async {
       final sut = fixture.getSut();
 
-      await sut.load();
+      await sut.load(productionScripts);
       final initialScriptCount = querySelectorAll('script').length;
 
-      await sut.load();
+      await sut.load(productionScripts);
       expect(querySelectorAll('script').length, initialScriptCount);
     });
 
     test('handles script loading failures', () async {
-      // don't rethrow errors
-      fixture.options.automatedTestMode = false;
-
-      final scripts = [
+      final failingScripts = [
         {
           'url': 'https://invalid',
         },
       ];
 
       // Modify script URL to cause failure
-      final sut = fixture.getSut(scripts: scripts);
+      final sut = fixture.getSut();
 
-      // Expect the load() call to complete without throwing
-      await expectLater(sut.load(), completes);
+      expect(() async => await sut.load(failingScripts), throwsA(anything));
+      await sut.load(productionScripts);
+
+      final scripts = querySelectorAll('script[src*="sentry-cdn"]');
+      expect(scripts.first.src, contains('.min.js'));
+    });
+
+    test('handles script loading failures with automatedTestMode false',
+        () async {
+      fixture.options.automatedTestMode = false;
+
+      final failingScripts = [
+        {
+          'url': 'https://invalid',
+        },
+      ];
+
+      // Modify script URL to cause failure
+      final sut = fixture.getSut();
+
+      await sut.load(failingScripts);
+      await sut.load(productionScripts);
+
+      final scripts = querySelectorAll('script[src*="sentry-cdn"]');
+      expect(scripts.first.src, contains('.min.js'));
     });
   });
 }
@@ -80,10 +100,8 @@ void main() {
 class Fixture {
   final SentryFlutterOptions options = defaultTestOptions();
 
-  SentryScriptLoader getSut(
-      {bool debug = false, List<Map<String, String>>? scripts}) {
+  SentryScriptLoader getSut({bool debug = false}) {
     options.platformChecker = MockPlatformChecker(isDebug: debug);
-    return SentryScriptLoader(
-        options, debug ? debugScripts : scripts ?? productionScripts);
+    return SentryScriptLoader(options);
   }
 }

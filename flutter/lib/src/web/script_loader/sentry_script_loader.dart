@@ -7,16 +7,15 @@ import 'script_dom_api.dart';
 
 @internal
 class SentryScriptLoader {
-  SentryScriptLoader(this.options, this.scripts);
+  SentryScriptLoader(this.options);
 
   final SentryFlutterOptions options;
-  final List<Map<String, String>> scripts;
   bool _scriptLoaded = false;
 
   /// Loads scripts into the document asynchronously.
   ///
   /// Idempotent: does nothing if scripts are already loaded.
-  Future<void> load() async {
+  Future<void> load(List<Map<String, String>> scripts) async {
     if (_scriptLoaded) return;
 
     try {
