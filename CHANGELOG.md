@@ -30,7 +30,7 @@
     },
     appRunner: () => runApp(MyApp()),
   );
-  ```  
+  ```
 - Linux native error & obfuscation support ([#2431](https://github.com/getsentry/sentry-dart/pull/2431))
 - Improve Device context on plain Dart and Flutter desktop apps ([#2441](https://github.com/getsentry/sentry-dart/pull/2441))
 - Add debounce to capturing screenshots ([#2368](https://github.com/getsentry/sentry-dart/pull/2368))
@@ -53,6 +53,7 @@
 ### Fixes
 
 - OS & device contexts missing on Windows ([#2439](https://github.com/getsentry/sentry-dart/pull/2439))
+- Native iOS/macOS SDK session didn't start after Flutter hot-restart ([#2452](https://github.com/getsentry/sentry-dart/pull/2452))
 
 ### Dependencies
 
