@@ -88,6 +88,8 @@ mixin SentryWidgetsBindingMixin on WidgetsBinding {
   FrameTimingCallback? _frameTimingCallback;
   ClockProvider? _clock;
 
+  SentryOptions get _options => Sentry.currentHub.options;
+
   @internal
   void registerFramesTracking(
       FrameTimingCallback callback, ClockProvider clock) {
@@ -110,7 +112,11 @@ mixin SentryWidgetsBindingMixin on WidgetsBinding {
   void handleBeginFrame(Duration? rawTimeStamp) {
     try {
       _startTimestamp = _clock?.call();
-    } catch (_) {}
+    } catch (_) {
+      if (_options.automatedTestMode) {
+        rethrow;
+      }
+    }
 
     super.handleBeginFrame(rawTimeStamp);
   }
@@ -126,6 +132,10 @@ mixin SentryWidgetsBindingMixin on WidgetsBinding {
           _startTimestamp!.isBefore(endTimestamp)) {
         _frameTimingCallback?.call(_startTimestamp!, endTimestamp);
       }
-    } catch (_) {}
+    } catch (_) {
+      if (_options.automatedTestMode) {
+        rethrow;
+      }
+    }
   }
 }
