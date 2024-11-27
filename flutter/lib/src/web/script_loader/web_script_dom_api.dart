@@ -14,7 +14,14 @@ Future<void> loadScript(String src, String? integrity) {
   if (integrity != null) {
     script.integrity = integrity;
   }
-
-  document.head?.append(script);
+  // JS SDK needs to be loaded before everything else
+  final head = document.head;
+  if (head != null) {
+    if (head.hasChildNodes()) {
+      head.insertBefore(script, head.firstChild);
+    } else {
+      head.append(script);
+    }
+  }
   return completer.future;
 }
