@@ -30,14 +30,31 @@
     },
     appRunner: () => runApp(MyApp()),
   );
-  ```  
+  ```
 - Linux native error & obfuscation support ([#2431](https://github.com/getsentry/sentry-dart/pull/2431))
 - Improve Device context on plain Dart and Flutter desktop apps ([#2441](https://github.com/getsentry/sentry-dart/pull/2441))
+- Add debounce to capturing screenshots ([#2368](https://github.com/getsentry/sentry-dart/pull/2368))
+  - Per default, screenshots are debounced for 2 seconds.
+  - If you need more granular screenshots, you can opt out of debouncing:
+  ```dart
+  await SentryFlutter.init((options) {
+    options.beforeCaptureScreenshot = (event, hint, debounce) {
+      if (debounce) {
+        return true; // Capture screenshot even if the SDK wants to debounce it.
+      } else {
+        // check event and hint
+        ...
+      }
+    };
+  });
+  ```
+  - Replace deprecated `BeforeScreenshotCallback` with new `BeforeCaptureCallback`.
 
 ### Fixes
 
 - Catch errors thrown during `handleBeginFrame` and `handleDrawFrame` ([#2446](https://github.com/getsentry/sentry-dart/pull/2446))
 - OS & device contexts missing on Windows ([#2439](https://github.com/getsentry/sentry-dart/pull/2439))
+- Native iOS/macOS SDK session didn't start after Flutter hot-restart ([#2452](https://github.com/getsentry/sentry-dart/pull/2452))
 
 ### Dependencies
 

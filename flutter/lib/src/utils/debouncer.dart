@@ -1,20 +1,24 @@
-import 'dart:async';
-import 'package:flutter/foundation.dart';
 import 'package:meta/meta.dart';
+import 'package:sentry/sentry.dart';
 
 @internal
 class Debouncer {
-  final int milliseconds;
-  Timer? _timer;
+  final ClockProvider clockProvider;
+  final int waitTimeMs;
+  DateTime? _lastExecutionTime;
 
-  Debouncer({required this.milliseconds});
+  Debouncer(this.clockProvider, {this.waitTimeMs = 2000});
 
-  void run(VoidCallback action) {
-    _timer?.cancel();
-    _timer = Timer(Duration(milliseconds: milliseconds), action);
-  }
+  bool shouldDebounce() {
+    final currentTime = clockProvider();
+    final lastExecutionTime = _lastExecutionTime;
+    _lastExecutionTime = currentTime;
 
-  void dispose() {
-    _timer?.cancel();
+    if (lastExecutionTime != null &&
+        currentTime.difference(lastExecutionTime).inMilliseconds < waitTimeMs) {
+      return true;
+    }
+
+    return false;
   }
 }
