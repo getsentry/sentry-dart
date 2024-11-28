@@ -52,6 +52,7 @@
 
 ### Fixes
 
+- Catch errors thrown during `handleBeginFrame` and `handleDrawFrame` ([#2446](https://github.com/getsentry/sentry-dart/pull/2446))
 - OS & device contexts missing on Windows ([#2439](https://github.com/getsentry/sentry-dart/pull/2439))
 - Native iOS/macOS SDK session didn't start after Flutter hot-restart ([#2452](https://github.com/getsentry/sentry-dart/pull/2452))
 
