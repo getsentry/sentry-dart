@@ -56,6 +56,7 @@ mixin SentryFlutter {
     AppRunner? appRunner,
     @internal SentryFlutterOptions? options,
   }) async {
+    SentryScreenshotWidget.reset();
     options ??= SentryFlutterOptions();
 
     // ignore: invalid_use_of_internal_member
