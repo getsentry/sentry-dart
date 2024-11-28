@@ -1687,6 +1687,12 @@ class MockSentryNativeBinding extends _i1.Mock
       ) as bool);
 
   @override
+  bool get supportsReplay => (super.noSuchMethod(
+        Invocation.getter(#supportsReplay),
+        returnValue: false,
+      ) as bool);
+
+  @override
   _i11.FutureOr<void> init(_i2.Hub? hub) =>
       (super.noSuchMethod(Invocation.method(
         #init,

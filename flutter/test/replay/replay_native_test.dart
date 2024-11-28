@@ -10,10 +10,8 @@ import 'package:file/memory.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:sentry_flutter/src/event_processor/replay_event_processor.dart';
 import 'package:sentry_flutter/src/native/factory.dart';
 import 'package:sentry_flutter/src/native/sentry_native_binding.dart';
-import 'package:sentry_flutter/src/replay/integration.dart';
 
 import '../mocks.dart';
 import '../mocks.mocks.dart';
@@ -69,39 +67,6 @@ void main() {
 
       tearDown(() async {
         await sut.close();
-      });
-
-      test('init adds $replayIntegrationName when replay is enabled', () async {
-        options.experimental.replay.sessionSampleRate = 0.1;
-        await sut.init(hub);
-
-        expect(options.sdk.integrations, contains(replayIntegrationName));
-      });
-
-      test('init does not add $replayIntegrationName when replay is disabled',
-          () async {
-        await sut.init(hub);
-
-        expect(
-            options.sdk.integrations, isNot(contains(replayIntegrationName)));
-      });
-
-      test('init sets $ReplayEventProcessor when error replay is enabled',
-          () async {
-        options.experimental.replay.onErrorSampleRate = 0.1;
-        await sut.init(hub);
-
-        expect(options.eventProcessors.map((e) => e.runtimeType.toString()),
-            contains('$ReplayEventProcessor'));
-      });
-
-      test(
-          'init does not set $ReplayEventProcessor when error replay is disabled',
-          () async {
-        await sut.init(hub);
-
-        expect(options.eventProcessors.map((e) => e.runtimeType.toString()),
-            isNot(contains('$ReplayEventProcessor')));
       });
 
       group('replay recorder', () {

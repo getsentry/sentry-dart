@@ -4,8 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:meta/meta.dart';
 
 import '../../../sentry_flutter.dart';
-import '../../event_processor/replay_event_processor.dart';
-import '../../replay/integration.dart';
 import '../../replay/scheduled_recorder.dart';
 import '../../replay/scheduled_recorder_config.dart';
 import '../sentry_native_channel.dart';
@@ -20,17 +18,13 @@ class SentryNativeJava extends SentryNativeChannel {
   SentryNativeJava(super.options);
 
   @override
+  bool get supportsReplay => true;
+
+  @override
   Future<void> init(Hub hub) async {
     // We only need these when replay is enabled (session or error capture)
     // so let's set it up conditionally. This allows Dart to trim the code.
     if (options.experimental.replay.isEnabled) {
-      options.sdk.addIntegration(replayIntegrationName);
-
-      // We only need the integration when error-replay capture is enabled.
-      if ((options.experimental.replay.onErrorSampleRate ?? 0) > 0) {
-        options.addEventProcessor(ReplayEventProcessor(hub, this));
-      }
-
       channel.setMethodCallHandler((call) async {
         switch (call.method) {
           case 'ReplayRecorder.start':

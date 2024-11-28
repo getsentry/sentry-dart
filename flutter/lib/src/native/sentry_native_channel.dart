@@ -217,6 +217,9 @@ class SentryNativeChannel
   Future<void> nativeCrash() => channel.invokeMethod('nativeCrash');
 
   @override
+  bool get supportsReplay => false;
+
+  @override
   Future<SentryId> captureReplay(bool isCrash) =>
       channel.invokeMethod('captureReplay', {
         'isCrash': isCrash,

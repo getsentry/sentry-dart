@@ -269,6 +269,9 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   }
 
   @override
+  bool get supportsReplay => false;
+
+  @override
   FutureOr<SentryId> captureReplay(bool isCrash) {
     _logNotSupported('capturing replay');
     return SentryId.empty();
