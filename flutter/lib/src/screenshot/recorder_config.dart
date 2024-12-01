@@ -7,7 +7,7 @@ class ScreenshotRecorderConfig {
   final int? width;
   final int? height;
 
-  ScreenshotRecorderConfig({
+  const ScreenshotRecorderConfig({
     this.width,
     this.height,
   });

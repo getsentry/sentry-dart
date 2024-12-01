@@ -13,7 +13,7 @@ class ReplayConfig extends ScheduledScreenshotRecorderConfig {
 
   final int bitRate;
 
-  ReplayConfig({
+  const ReplayConfig({
     required int super.width,
     required int super.height,
     required super.frameRate,

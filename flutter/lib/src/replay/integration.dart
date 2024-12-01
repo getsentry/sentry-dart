@@ -5,6 +5,7 @@ import 'package:meta/meta.dart';
 import '../../sentry_flutter.dart';
 import '../event_processor/replay_event_processor.dart';
 import '../native/sentry_native_binding.dart';
+import 'replay_config.dart';
 
 @internal
 const replayIntegrationName = 'ReplayIntegration';
@@ -24,6 +25,18 @@ class ReplayIntegration extends Integration<SentryFlutterOptions> {
       if ((options.experimental.replay.onErrorSampleRate ?? 0) > 0) {
         options.addEventProcessor(ReplayEventProcessor(hub, _native));
       }
+
+      SentryScreenshotWidget.onBuild((status, prevStatus) {
+        if (status != prevStatus) {
+          _native.setReplayConfig(ReplayConfig(
+            width: status.size?.width.round() ?? 0,
+            height: status.size?.height.round() ?? 0,
+            frameRate: 1,
+            bitRate: 75000, // TODO replay quality config
+          ));
+        }
+        return true;
+      });
     }
   }
 }
