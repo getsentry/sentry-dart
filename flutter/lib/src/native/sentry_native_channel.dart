@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
+import '../replay/replay_config.dart';
 import 'native_app_start.dart';
 import 'native_frames.dart';
 import 'method_channel_helper.dart';
@@ -218,6 +219,15 @@ class SentryNativeChannel
 
   @override
   bool get supportsReplay => false;
+
+  @override
+  Future<void> setReplayConfig(ReplayConfig config) =>
+      channel.invokeMethod('setReplayConfig', {
+        'width': config.width,
+        'height': config.height,
+        'frameRate': config.frameRate,
+        'bitRate': config.bitRate,
+      });
 
   @override
   Future<SentryId> captureReplay(bool isCrash) =>

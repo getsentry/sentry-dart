@@ -2,6 +2,7 @@ package io.sentry.flutter
 
 import android.app.Activity
 import android.content.Context
+import android.content.res.Configuration;
 import android.os.Build
 import android.os.Looper
 import android.util.Log
@@ -27,6 +28,7 @@ import io.sentry.android.core.SentryAndroidOptions
 import io.sentry.android.core.performance.AppStartMetrics
 import io.sentry.android.core.performance.TimeSpan
 import io.sentry.android.replay.ReplayIntegration
+import io.sentry.android.replay.ScreenshotRecorderConfig
 import io.sentry.protocol.DebugImage
 import io.sentry.protocol.SdkVersion
 import io.sentry.protocol.SentryId
@@ -34,6 +36,7 @@ import io.sentry.protocol.User
 import io.sentry.transport.CurrentDateProvider
 import java.io.File
 import java.lang.ref.WeakReference
+import kotlin.math.roundToInt
 
 private const val APP_START_MAX_DURATION_MS = 60000
 
@@ -42,6 +45,14 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
   private lateinit var context: Context
   private lateinit var sentryFlutter: SentryFlutter
   private lateinit var replay: ReplayIntegration
+  private var replayConfig = ScreenshotRecorderConfig(
+    recordingWidth = 0,
+    recordingHeight = 0,
+    scaleFactorX = 1.0f,
+    scaleFactorY = 1.0f,
+    frameRate = 0,
+    bitRate = 0
+  )
 
   private var activity: WeakReference<Activity>? = null
   private var framesTracker: ActivityFramesTracker? = null
@@ -86,6 +97,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       "loadContexts" -> loadContexts(result)
       "displayRefreshRate" -> displayRefreshRate(result)
       "nativeCrash" -> crash()
+      "setReplayConfig" -> setReplayConfig(call, result)
       "addReplayScreenshot" -> addReplayScreenshot(call.argument("path"), call.argument("timestamp"), result)
       "captureReplay" -> captureReplay(call.argument("isCrash"), result)
       else -> result.notImplemented()
@@ -152,7 +164,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             context,
             dateProvider = CurrentDateProvider.getInstance(),
             recorderProvider = { SentryFlutterReplayRecorder(channel, replay) },
-            recorderConfigProvider = null,
+            recorderConfigProvider = { replayConfig },
             replayCacheProvider = null,
           )
         replay.breadcrumbConverter = SentryFlutterReplayBreadcrumbConverter()
@@ -574,6 +586,19 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       return
     }
     replay.onScreenshotRecorded(File(path), timestamp)
+    result.success("")
+  }
+
+  private fun setReplayConfig(call: MethodCall, result: Result) {
+    replayConfig = ScreenshotRecorderConfig(
+      recordingWidth = call.argument("width") as? Int ?: 0,
+      recordingHeight = call.argument("height") as? Int ?: 0,
+      scaleFactorX = 1.0f,
+      scaleFactorY = 1.0f,
+      frameRate = call.argument("frameRate") as? Int ?: 0,
+      bitRate = call.argument("bitRate") as? Int ?: 0
+    )
+    replay.onConfigurationChanged(Configuration())
     result.success("")
   }
 

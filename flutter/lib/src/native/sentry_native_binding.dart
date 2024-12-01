@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
+import '../replay/replay_config.dart';
 import 'native_app_start.dart';
 import 'native_frames.dart';
 
@@ -65,6 +66,8 @@ abstract class SentryNativeBinding {
   FutureOr<void> nativeCrash();
 
   bool get supportsReplay;
+
+  FutureOr<void> setReplayConfig(ReplayConfig config);
 
   FutureOr<SentryId> captureReplay(bool isCrash);
 }

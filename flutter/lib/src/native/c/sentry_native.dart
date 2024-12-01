@@ -8,6 +8,7 @@ import 'package:ffi/ffi.dart';
 import 'package:meta/meta.dart';
 
 import '../../../sentry_flutter.dart';
+import '../../replay/replay_config.dart';
 import '../native_app_start.dart';
 import '../native_frames.dart';
 import '../sentry_native_binding.dart';
@@ -270,6 +271,11 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
 
   @override
   bool get supportsReplay => false;
+
+  @override
+  FutureOr<void> setReplayConfig(ReplayConfig config) {
+    _logNotSupported('replay config');
+  }
 
   @override
   FutureOr<SentryId> captureReplay(bool isCrash) {
