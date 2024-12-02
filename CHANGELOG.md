@@ -7,12 +7,12 @@
 - Make response body accessible via hint in `beforSend` callback for failed web requests or if tracing is enabled in `SentryHttpClient` ([#2293](https://github.com/getsentry/sentry-dart/pull/2293))
   ```dart
   options.beforeSendTransaction = (transaction, hint) {
-    final firstHint = transaction!.spans[0].hint;
-    final firstResponseBody = firstHint.get(TypeCheckHint.httpResponse);
-    final secondHint = transaction!.spans[1].hint;
-    final secondResponseBody = secondHint.get(TypeCheckHint.httpResponse);
+    final firstHint = transaction.spans[0].hint;
+    final firstResponseBody = firstHint?.get(TypeCheckHint.httpResponse);
+    final secondHint = transaction.spans[1].hint;
+    final secondResponseBody = secondHint?.get(TypeCheckHint.httpResponse);
     // user can now use it
-    return transaction;    
+    return transaction;
   };
   ```
 - Support for screenshot PII content masking ([#2361](https://github.com/getsentry/sentry-dart/pull/2361))
