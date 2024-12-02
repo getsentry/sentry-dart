@@ -13,6 +13,12 @@ internal class SentryFlutterReplayRecorder(
   private val integration: ReplayIntegration,
 ) : Recorder {
   override fun start(recorderConfig: ScreenshotRecorderConfig) {
+    // Ignore if this is the initial call before we actually got the configuration from Flutter.
+    // We'll get another call here when the configuration is set.
+    if (recorderConfig.recordingHeight == 0 && recorderConfig.recordingWidth == 0) {
+      return;
+    }
+
     val cacheDirPath = integration.replayCacheDir?.absolutePath
     if (cacheDirPath == null) {
       Log.w("Sentry", "Replay cache directory is null, can't start replay recorder.")
