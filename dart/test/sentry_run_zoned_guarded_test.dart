@@ -4,7 +4,6 @@ library dart_test;
 import 'dart:async';
 
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/sentry_run_zoned_guarded.dart';
 import 'package:test/test.dart';
 
 import 'mocks/mock_hub.dart';

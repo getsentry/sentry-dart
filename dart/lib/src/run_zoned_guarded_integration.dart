@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import '../sentry.dart';
-import 'sentry_run_zoned_guarded.dart';
 
 /// Called inside of `runZonedGuarded`
 typedef RunZonedGuardedRunner = Future<void> Function();
