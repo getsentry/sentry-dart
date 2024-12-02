@@ -168,7 +168,7 @@ jobs:
         run: xcodebuild test -workspace Runner.xcworkspace -scheme Runner -configuration Debug -destination "platform=${{ steps.device.outputs.platform }}" -allowProvisioningUpdates CODE_SIGNING_ALLOWED=NO
 
   test-web:
-    runs-on: macos-13
+    runs-on: ubuntu-latest
     timeout-minutes: 30
     defaults:
       run:
