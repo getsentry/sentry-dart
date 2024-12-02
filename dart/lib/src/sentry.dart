@@ -367,13 +367,14 @@ class Sentry {
   @internal
   static Hub get currentHub => _hub;
 
-  /// With [runZonedGuarded] you can create a custom zone, and still let Sentry
-  /// report errors and breadcrumbs automatically.
+  /// Creates a new error handling zone with Sentry integration using [runZonedGuarded].
   ///
-  /// It takes the same parameters as the dart function.
+  /// This method provides automatic error reporting and breadcrumb tracking while
+  /// allowing you to define a custom error handling zone. It wraps Dart's native
+  /// [runZonedGuarded] function with Sentry-specific functionality.
   ///
-  /// Please be aware that any errors in the zone which occur before the [init]
-  /// call cannot be handled by Sentry.
+  /// This function automatically records calls to `print()` as Breadcrumbs and
+  /// can be configured using [SentryOptions.enablePrintBreadcrumbs].
   ///
   /// ```dart
   /// Sentry.runZonedGuarded(() {
