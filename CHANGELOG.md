@@ -76,12 +76,16 @@
 - Catch errors thrown during `handleBeginFrame` and `handleDrawFrame` ([#2446](https://github.com/getsentry/sentry-dart/pull/2446))
 - OS & device contexts missing on Windows ([#2439](https://github.com/getsentry/sentry-dart/pull/2439))
 - Native iOS/macOS SDK session didn't start after Flutter hot-restart ([#2452](https://github.com/getsentry/sentry-dart/pull/2452))
+- Kotlin 2.1.0 compatibility on Android, bump Kotlin language version from `1.4` to `1.6` ([#2456](https://github.com/getsentry/sentry-dart/pull/2456))
 
 ### Dependencies
 
 - Bump Cocoa SDK from v8.40.1 to v8.41.0 ([#2442](https://github.com/getsentry/sentry-dart/pull/2442))
   - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8410)
   - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.40.1...8.41.0)
+- Bump Android SDK from v7.18.0 to v7.18.1 ([#2457](https://github.com/getsentry/sentry-dart/pull/2457))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#7181)
+  - [diff](https://github.com/getsentry/sentry-java/compare/7.18.0...7.18.1)
 
 ## 8.11.0-beta.1
 
