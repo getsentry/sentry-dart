@@ -613,6 +613,10 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       frameRate = call.argument("frameRate") as? Int ?: 0,
       bitRate = call.argument("bitRate") as? Int ?: 0
     )
+    Log.i(
+      "Sentry",
+      "Configuring replay: %dx%d at %d FPS, %d BPS".format(replayConfig.recordingWidth, replayConfig.recordingHeight, replayConfig.frameRate, replayConfig.bitRate)
+    )
     replay.onConfigurationChanged(Configuration())
     result.success("")
   }
