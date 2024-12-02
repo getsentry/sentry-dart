@@ -14,14 +14,14 @@ void main() {
       expect(response.body, isNotEmpty);
     }
 
-    test('production script is accessible', () async {
+    test('Production script is accessible', () async {
       await Future.forEach(productionScripts,
           (Map<String, String> script) async {
         await checkScript(script);
       });
     });
 
-    test('debug script is accessible', () async {
+    test('Debug script is accessible', () async {
       await Future.forEach(debugScripts, (Map<String, String> script) async {
         await checkScript(script);
       });
