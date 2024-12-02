@@ -24,13 +24,19 @@ Future<void> loadScript(String src, SentryOptions? options,
       final policy =
           js_util.callMethod(trustedTypes as Object, 'createPolicy', [
         trustedTypePolicyName,
-        js_util.jsify(
-            {'createScriptURL': js_util.allowInterop((String url) => src)})
+        js_util.jsify({
+          'createScriptURL': (String url) => src,
+        })
       ]);
       trustedUrl =
           js_util.callMethod(policy as Object, 'createScriptURL', [src]);
       // Set the trusted URL using js_util
     } catch (e) {
+      options?.logger(
+        SentryLevel.warning,
+        'SentryScriptLoader: failed to created trusted url',
+        exception: e,
+      );
       if (options!.automatedTestMode) {
         throw TrustedTypesException();
       }
