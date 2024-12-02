@@ -22,3 +22,11 @@ List<TestScriptElement> querySelectorAll(String query) {
       .map((script) => HtmlScriptElement(script as ScriptElement))
       .toList();
 }
+
+void injectMetaTag(Map<String, String> attributes) {
+  final MetaElement meta = document.createElement('meta') as MetaElement;
+  for (final MapEntry<String, String> attribute in attributes.entries) {
+    meta.setAttribute(attribute.key, attribute.value);
+  }
+  document.head!.append(meta);
+}

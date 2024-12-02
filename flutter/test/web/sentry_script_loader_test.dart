@@ -2,15 +2,22 @@
 library flutter_test;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_flutter/src/web/script_loader/noop_script_dom_api.dart';
 import 'package:sentry_flutter/src/web/script_loader/sentry_script_loader.dart';
 import 'package:sentry_flutter/src/web/sentry_js_bundle.dart';
 
 import '../mocks.dart';
 import 'dom_api/script_dom_api.dart';
 
+// This file will contain most of the test cases but also tests the
+// trusted types by default(TT).
+//
+// The other TT tests will be split up into multiple files
+// * sentry_script_loader_test.dart : default TT configuration (not enforced)
+// * sentry_script_loader_tt_custom_test.dart : TT are customized, but allowed
+// * sentry_script_loader_tt_forbidden_test.dart: TT are completely disallowed
 void main() {
-  group('$SentryScriptLoader', () {
+  group('loadWebSdk (no TrustedTypes)', () {
     late Fixture fixture;
 
     setUp(() {
@@ -18,87 +25,101 @@ void main() {
     });
 
     tearDown(() {
-      final existingScripts = querySelectorAll('script[src*="sentry-cdn"]');
+      final existingScripts = querySelectorAll('script');
       for (final script in existingScripts) {
         script.remove();
       }
     });
 
-    test('loads production scripts by default', () async {
+    test('Loads production scripts by default', () async {
       final sut = fixture.getSut();
 
-      await sut.load(productionScripts);
+      await sut.loadWebSdk(productionScripts);
 
-      final scripts = querySelectorAll('script[src*="sentry-cdn"]');
-      for (final script in scripts) {
-        final element = script;
-        expect(element.src, contains('.min.js'));
-      }
+      final scripts = querySelectorAll('script');
+
+      expect(
+          scripts.first.src, endsWith('$jsSdkVersion/bundle.tracing.min.js'));
     });
 
-    test('loads debug scripts when debug is enabled', () async {
-      final sut = fixture.getSut(debug: true);
-
-      await sut.load(debugScripts);
-
-      final scripts = querySelectorAll('script[src*="sentry-cdn"]');
-      for (final script in scripts) {
-        final element = script;
-        expect(element.src, isNot(contains('.min.js')));
-      }
-    });
-
-    test('does not load scripts twice', () async {
+    test('Loads debug scripts when debug is enabled', () async {
       final sut = fixture.getSut();
 
-      await sut.load(productionScripts);
+      await sut.loadWebSdk(debugScripts);
+
+      final scripts = querySelectorAll('script');
+
+      expect(scripts.first.src, endsWith('$jsSdkVersion/bundle.tracing.js'));
+    });
+
+    test('Does not load scripts twice', () async {
+      final sut = fixture.getSut();
+
+      await sut.loadWebSdk(productionScripts);
+
       final initialScriptCount = querySelectorAll('script').length;
 
-      await sut.load(productionScripts);
+      await sut.loadWebSdk(productionScripts);
       expect(querySelectorAll('script').length, initialScriptCount);
     });
 
-    test('handles script loading failures', () async {
+    test('Handles script loading failures', () async {
       final failingScripts = [
         {
           'url': 'https://invalid',
         },
       ];
-
-      // Modify script URL to cause failure
       final sut = fixture.getSut();
 
-      expect(() async => await sut.load(failingScripts), throwsA(anything));
-      await sut.load(productionScripts);
+      // Modify script URL to cause failure
+      expect(
+          () async => await sut.loadWebSdk(failingScripts), throwsA(anything));
 
-      final scripts = querySelectorAll('script[src*="sentry-cdn"]');
-      expect(scripts.first.src, contains('.min.js'));
+      // loading after the failure still works
+      await sut.loadWebSdk(productionScripts);
+
+      final scripts = querySelectorAll('script');
+      expect(
+          scripts.first.src, endsWith('$jsSdkVersion/bundle.tracing.min.js'));
     });
 
-    test('handles script loading failures with automatedTestMode false',
+    test('Handles script loading failures with automatedTestMode false',
         () async {
       fixture.options.automatedTestMode = false;
-
       final failingScripts = [
         {
           'url': 'https://invalid',
         },
       ];
-
-      // Modify script URL to cause failure
       final sut = fixture.getSut();
 
-      await sut.load(failingScripts);
-      await sut.load(productionScripts);
+      // Modify script URL to cause failure
+      await sut.loadWebSdk(failingScripts);
 
-      final scripts = querySelectorAll('script[src*="sentry-cdn"]');
-      expect(scripts.first.src, contains('.min.js'));
+      // loading after the failure still works
+      await sut.loadWebSdk(productionScripts);
+
+      final scripts = querySelectorAll('script');
+      expect(
+          scripts.first.src, endsWith('$jsSdkVersion/bundle.tracing.min.js'));
+    });
+
+    test('Loads sentry script as first element', () async {
+      final sut = fixture.getSut();
+
+      // use loadScript since that disregards the isLoaded check
+      await loadScript('https://google.com', fixture.options);
+
+      await sut.loadWebSdk(productionScripts);
+      final scriptElements = querySelectorAll('script');
+      expect(scriptElements.first.src,
+          endsWith('$jsSdkVersion/bundle.tracing.min.js'));
     });
   });
 }
 
 class Fixture {
-  final SentryFlutterOptions options = defaultTestOptions();
+  final options = defaultTestOptions();
 
   SentryScriptLoader getSut({bool debug = false}) {
     options.platformChecker = MockPlatformChecker(isDebug: debug);

@@ -182,8 +182,8 @@ mixin SentryFlutter {
     }
 
     if (platformChecker.isWeb) {
-      final scriptLoader = SentryScriptLoader(options);
-      integrations.add(WebSdkIntegration(scriptLoader));
+      final loader = SentryScriptLoader(options);
+      integrations.add(WebSdkIntegration(loader));
       integrations.add(ConnectivityIntegration());
     }
 
