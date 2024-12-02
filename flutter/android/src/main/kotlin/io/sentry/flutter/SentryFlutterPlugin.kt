@@ -164,7 +164,13 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             context,
             dateProvider = CurrentDateProvider.getInstance(),
             recorderProvider = { SentryFlutterReplayRecorder(channel, replay) },
-            recorderConfigProvider = { replayConfig },
+            recorderConfigProvider = {
+              Log.i(
+                "Sentry",
+                "Replay configuration requested. Returning: %dx%d at %d FPS, %d BPS".format(replayConfig.recordingWidth, replayConfig.recordingHeight, replayConfig.frameRate, replayConfig.bitRate)
+              )
+              replayConfig
+            },
             replayCacheProvider = null,
           )
         replay.breadcrumbConverter = SentryFlutterReplayBreadcrumbConverter()
