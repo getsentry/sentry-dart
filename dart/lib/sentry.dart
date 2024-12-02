@@ -62,3 +62,5 @@ export 'src/protocol/sentry_proxy.dart';
 export 'src/protocol/sentry_feedback.dart';
 // constants
 export 'src/span_data_convention.dart';
+// ignore: invalid_export_of_internal_element
+export 'src/sentry_run_zoned_guarded.dart';

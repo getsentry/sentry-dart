@@ -78,6 +78,15 @@ mixin SentryFlutter {
     // If onError is not supported and no custom zone exists, use runZonedGuarded to capture errors.
     final bool useRunZonedGuarded = !isOnErrorSupported && isRootZone;
 
+    // Sentry should be initialized in a zone, but user is (probably) using a custom one.
+    // ignore: invalid_use_of_internal_member
+    if (!isOnErrorSupported && !isRootZone && !SentryRunZonedGuarded.called) {
+      options.logger(
+        SentryLevel.warning,
+        'Sentry is being initialized in a custom `runZonedGuarded`. Use `Sentry.runZonedGuarded` to get automatic error and breadcrumb tracking.',
+      );
+    }
+
     RunZonedGuardedOnError? runZonedGuardedOnError =
         useRunZonedGuarded ? _createRunZonedGuardedOnError() : null;
 
