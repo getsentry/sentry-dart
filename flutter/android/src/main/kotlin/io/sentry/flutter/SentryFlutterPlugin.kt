@@ -193,6 +193,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         "Invalid app start data: app not launched in foreground or app start took too long (>60s)",
       )
       result.success(null)
+      return
     }
 
     val appStartTimeSpan = appStartMetrics.appStartTimeSpan
@@ -558,6 +559,20 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       mainThread.uncaughtExceptionHandler.uncaughtException(mainThread, exception)
       mainThread.join(NATIVE_CRASH_WAIT_TIME)
     }
+
+    /**
+     * Since codec block size is 16, so we have to adjust the width and height to it, otherwise
+     * the codec might fail to configure on some devices, see
+     * https://cs.android.com/android/platform/superproject/+/master:frameworks/base/media/java/android/media/MediaCodecInfo.java;l=1999-2001
+     */
+    private fun Int.adjustReplaySizeToBlockSize(): Int {
+        val remainder = this % 16
+        return if (remainder <= 8) {
+            this - remainder
+        } else {
+            this + (16 - remainder)
+        }
+    }
   }
 
   private fun loadContexts(result: Result) {
@@ -591,8 +606,8 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
   private fun setReplayConfig(call: MethodCall, result: Result) {
     replayConfig = ScreenshotRecorderConfig(
-      recordingWidth = call.argument("width") as? Int ?: 0,
-      recordingHeight = call.argument("height") as? Int ?: 0,
+      recordingWidth = (call.argument("width") as? Int)?.adjustReplaySizeToBlockSize() ?: 0,
+      recordingHeight = (call.argument("height") as? Int)?.adjustReplaySizeToBlockSize() ?: 0,
       scaleFactorX = 1.0f,
       scaleFactorY = 1.0f,
       frameRate = call.argument("frameRate") as? Int ?: 0,
