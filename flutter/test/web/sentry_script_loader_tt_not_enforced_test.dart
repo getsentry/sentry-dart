@@ -8,7 +8,8 @@ import 'package:sentry_flutter/src/web/sentry_js_bundle.dart';
 import '../mocks.dart';
 import 'dom_api/html_script_dom_api.dart';
 
-// The other TrustedTypes (TT) tests will be split up into multiple files
+// The other TT tests will be split up into multiple files
+// because TrustedTypes cannot be relaxed after they are set
 // * sentry_script_loader_tt_not_enforced_test.dart : default TT configuration (not enforced)
 // * sentry_script_loader_tt_custom_test.dart : TT are customized, but allowed
 // * sentry_script_loader_tt_forbidden_test.dart: TT are completely disallowed
