@@ -18,11 +18,11 @@ Future<void> loadScript(String src, SentryOptions? options,
   TrustedScriptUrl? trustedUrl;
 
   // If TrustedTypes are available, prepare a trusted URL
-  final trustedTypes = js_util.getProperty(window, 'trustedTypes');
+  final trustedTypes = js_util.getProperty<dynamic>(window, 'trustedTypes');
   if (trustedTypes != null) {
     try {
       final policy =
-          js_util.callMethod(trustedTypes as Object, 'createPolicy', [
+          js_util.callMethod<dynamic>(trustedTypes as Object, 'createPolicy', [
         trustedTypePolicyName,
         js_util.jsify({
           'createScriptURL': (String url) => src,
@@ -37,6 +37,7 @@ Future<void> loadScript(String src, SentryOptions? options,
         'SentryScriptLoader: failed to created trusted url',
         exception: e,
       );
+      // ignore: invalid_use_of_internal_member
       if (options!.automatedTestMode) {
         throw TrustedTypesException();
       }
