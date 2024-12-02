@@ -14,7 +14,7 @@ class SentryScriptLoader {
   final SentryFlutterOptions _options;
   bool _scriptLoaded = false;
 
-  /// Loads scripts into the document asynchrcriptLoader {
+  /// Loads scripts into the document async
   ///
   /// Idempotent: does nothing if scripts are already loaded.
   Future<void> loadWebSdk(List<Map<String, String>> scripts,
