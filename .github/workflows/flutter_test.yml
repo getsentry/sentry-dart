@@ -197,12 +197,31 @@ jobs:
       - name: flutter pub get
         run: flutter pub get
 
-      - uses: nanasess/setup-chromedriver@v2
-      - run: |
-          Xvfb :99 &
-          export DISPLAY=:99
-          chromedriver --url-base=/wd/hub --port=4444 &
-
-      - name: run integration test
+      - name: Install Xvfb and dependencies
         run: |
-          flutter drive --driver=integration_test/test_driver/web_driver.dart --target=integration_test/web_sdk_test.dart -d chrome
+          sudo apt-get update
+          sudo apt-get install -y xvfb
+          sudo apt-get -y install xorg xvfb gtk2-engines-pixbuf
+          sudo apt-get -y install dbus-x11 xfonts-base xfonts-100dpi xfonts-75dpi xfonts-cyrillic xfonts-scalable
+          sudo apt-get -y install imagemagick x11-apps
+
+      - name: Setup ChromeDriver
+        uses: nanasess/setup-chromedriver@v2
+
+      - name: Start Xvfb and run tests
+        run: |
+          # Start Xvfb with specific screen settings
+          Xvfb -ac :99 -screen 0 1280x1024x16 &
+          export DISPLAY=:99
+          
+          # Start ChromeDriver
+          chromedriver --port=4444 &
+          
+          # Wait for services to start
+          sleep 5
+
+          # Run the tests
+          flutter drive \
+            --driver=integration_test/test_driver/web_driver.dart \
+            --target=integration_test/web_sdk_test.dart \
+            -d chrome
