@@ -192,7 +192,7 @@ jobs:
         run: flutter pub get
 
       - uses: nanasess/setup-chromedriver@v2
-      - run: chromedriver
+      - run: chromedriver &
 
       - name: run integration test
         run: |
