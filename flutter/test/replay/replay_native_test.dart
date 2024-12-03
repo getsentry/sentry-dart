@@ -115,6 +115,8 @@ void main() {
 
         testWidgets('captures images', (tester) async {
           await tester.runAsync(() async {
+            when(hub.configureScope(captureAny)).thenReturn(null);
+
             if (mockPlatform.isAndroid) {
               var callbackFinished = Completer<void>();
 
@@ -200,9 +202,6 @@ void main() {
               expect(capturedImages, equals(fsImages()));
               expect(capturedImages.length, count);
             } else if (mockPlatform.isIOS) {
-              // configureScope() is called on iOS
-              when(hub.configureScope(captureAny)).thenReturn(null);
-
               nextFrame() async {
                 tester.binding.scheduleFrame();
                 await Future<void>.delayed(const Duration(milliseconds: 100));
