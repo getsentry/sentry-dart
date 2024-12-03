@@ -9,9 +9,6 @@ class SentryRunZonedGuarded {
   /// Needed to check if we somehow caused a `print()` recursion
   static var _isPrinting = false;
 
-  /// Indicates that the API was at least called.
-  static var called = false;
-
   static R? sentryRunZonedGuarded<R>(
     Hub hub,
     R Function() body,
@@ -19,8 +16,6 @@ class SentryRunZonedGuarded {
     Map<Object?, Object?>? zoneValues,
     ZoneSpecification? zoneSpecification,
   }) {
-    called = true;
-
     final sentryOnError = (exception, stackTrace) async {
       final options = hub.options;
       await _captureError(hub, options, exception, stackTrace);
