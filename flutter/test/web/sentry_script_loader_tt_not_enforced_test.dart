@@ -6,7 +6,7 @@ import 'package:sentry_flutter/src/web/script_loader/sentry_script_loader.dart';
 import 'package:sentry_flutter/src/web/sentry_js_bundle.dart';
 
 import '../mocks.dart';
-import 'dom_api/html_script_dom_api.dart';
+import 'dom_api/script_dom_api.dart';
 
 // The other TT tests will be split up into multiple files
 // because TrustedTypes cannot be relaxed after they are set
