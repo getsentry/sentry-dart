@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'sentry_run_zoned_guarded.dart';
 import '../sentry.dart';
 
 /// Called inside of `runZonedGuarded`
