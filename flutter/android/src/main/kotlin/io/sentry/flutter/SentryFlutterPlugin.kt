@@ -2,7 +2,7 @@ package io.sentry.flutter
 
 import android.app.Activity
 import android.content.Context
-import android.content.res.Configuration;
+import android.content.res.Configuration
 import android.os.Build
 import android.os.Looper
 import android.util.Log
@@ -40,19 +40,23 @@ import kotlin.math.roundToInt
 
 private const val APP_START_MAX_DURATION_MS = 60000
 
-class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
+class SentryFlutterPlugin :
+  FlutterPlugin,
+  MethodCallHandler,
+  ActivityAware {
   private lateinit var channel: MethodChannel
   private lateinit var context: Context
   private lateinit var sentryFlutter: SentryFlutter
   private lateinit var replay: ReplayIntegration
-  private var replayConfig = ScreenshotRecorderConfig(
-    recordingWidth = 0,
-    recordingHeight = 0,
-    scaleFactorX = 1.0f,
-    scaleFactorY = 1.0f,
-    frameRate = 0,
-    bitRate = 0
-  )
+  private var replayConfig =
+    ScreenshotRecorderConfig(
+      recordingWidth = 0,
+      recordingHeight = 0,
+      scaleFactorX = 1.0f,
+      scaleFactorY = 1.0f,
+      frameRate = 0,
+      bitRate = 0,
+    )
 
   private var activity: WeakReference<Activity>? = null
   private var framesTracker: ActivityFramesTracker? = null
@@ -167,7 +171,12 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             recorderConfigProvider = {
               Log.i(
                 "Sentry",
-                "Replay configuration requested. Returning: %dx%d at %d FPS, %d BPS".format(replayConfig.recordingWidth, replayConfig.recordingHeight, replayConfig.frameRate, replayConfig.bitRate)
+                "Replay configuration requested. Returning: %dx%d at %d FPS, %d BPS".format(
+                  replayConfig.recordingWidth,
+                  replayConfig.recordingHeight,
+                  replayConfig.frameRate,
+                  replayConfig.bitRate,
+                ),
               )
               replayConfig
             },
@@ -567,12 +576,12 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     }
 
     private fun Double.adjustReplaySizeToBlockSize(): Double {
-        val remainder = this % 16
-        return if (remainder <= 8) {
-            this - remainder
-        } else {
-            this + (16 - remainder)
-        }
+      val remainder = this % 16
+      return if (remainder <= 8) {
+        this - remainder
+      } else {
+        this + (16 - remainder)
+      }
     }
   }
 
@@ -605,7 +614,10 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     result.success("")
   }
 
-  private fun setReplayConfig(call: MethodCall, result: Result) {
+  private fun setReplayConfig(
+    call: MethodCall,
+    result: Result,
+  ) {
     // Since codec block size is 16, so we have to adjust the width and height to it,
     // otherwise the codec might fail to configure on some devices, see
     // https://cs.android.com/android/platform/superproject/+/master:frameworks/base/media/java/android/media/MediaCodecInfo.java;l=1999-2001
@@ -622,17 +634,23 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       height = newHeight
     }
 
-    replayConfig = ScreenshotRecorderConfig(
-      recordingWidth = width.roundToInt(),
-      recordingHeight = height.roundToInt(),
-      scaleFactorX = 1.0f,
-      scaleFactorY = 1.0f,
-      frameRate = call.argument("frameRate") as? Int ?: 0,
-      bitRate = call.argument("bitRate") as? Int ?: 0
-    )
+    replayConfig =
+      ScreenshotRecorderConfig(
+        recordingWidth = width.roundToInt(),
+        recordingHeight = height.roundToInt(),
+        scaleFactorX = 1.0f,
+        scaleFactorY = 1.0f,
+        frameRate = call.argument("frameRate") as? Int ?: 0,
+        bitRate = call.argument("bitRate") as? Int ?: 0,
+      )
     Log.i(
       "Sentry",
-      "Configuring replay: %dx%d at %d FPS, %d BPS".format(replayConfig.recordingWidth, replayConfig.recordingHeight, replayConfig.frameRate, replayConfig.bitRate)
+      "Configuring replay: %dx%d at %d FPS, %d BPS".format(
+        replayConfig.recordingWidth,
+        replayConfig.recordingHeight,
+        replayConfig.frameRate,
+        replayConfig.bitRate,
+      ),
     )
     replay.onConfigurationChanged(Configuration())
     result.success("")

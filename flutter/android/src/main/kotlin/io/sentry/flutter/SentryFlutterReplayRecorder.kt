@@ -16,7 +16,7 @@ internal class SentryFlutterReplayRecorder(
     // Ignore if this is the initial call before we actually got the configuration from Flutter.
     // We'll get another call here when the configuration is set.
     if (recorderConfig.recordingHeight == 0 && recorderConfig.recordingWidth == 0) {
-      return;
+      return
     }
 
     val cacheDirPath = integration.replayCacheDir?.absolutePath
