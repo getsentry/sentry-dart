@@ -224,4 +224,11 @@ jobs:
           flutter drive \
             --driver=integration_test/test_driver/web_driver.dart \
             --target=integration_test/web_sdk_test.dart \
-            -d chrome
+            -d chrome || exit_code=$?
+
+          # Cleanup processes
+          kill $CHROMEDRIVER_PID
+          killall Xvfb
+          
+          # Exit with the test exit code
+          exit ${exit_code:-0}
