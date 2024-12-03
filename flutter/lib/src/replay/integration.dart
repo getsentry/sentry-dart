@@ -29,8 +29,8 @@ class ReplayIntegration extends Integration<SentryFlutterOptions> {
       SentryScreenshotWidget.onBuild((status, prevStatus) {
         if (status != prevStatus) {
           _native.setReplayConfig(ReplayConfig(
-            width: status.size?.width.round() ?? 0,
-            height: status.size?.height.round() ?? 0,
+            width: status.size?.width ?? 0.0,
+            height: status.size?.height ?? 0.0,
             frameRate: 1,
             bitRate: 75000, // TODO replay quality config
           ));

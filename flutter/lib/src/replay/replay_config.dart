@@ -6,16 +6,16 @@ import 'scheduled_recorder_config.dart';
 @internal
 class ReplayConfig extends ScheduledScreenshotRecorderConfig {
   @override
-  int get width => super.width!;
+  double get width => super.width!;
 
   @override
-  int get height => super.height!;
+  double get height => super.height!;
 
   final int bitRate;
 
   const ReplayConfig({
-    required int super.width,
-    required int super.height,
+    required double super.width,
+    required double super.height,
     required super.frameRate,
     required this.bitRate,
   });

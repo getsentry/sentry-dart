@@ -4,8 +4,8 @@ import 'package:meta/meta.dart';
 
 @internal
 class ScreenshotRecorderConfig {
-  final int? width;
-  final int? height;
+  final double? width;
+  final double? height;
 
   const ScreenshotRecorderConfig({
     this.width,

@@ -566,12 +566,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       mainThread.join(NATIVE_CRASH_WAIT_TIME)
     }
 
-    /**
-     * Since codec block size is 16, so we have to adjust the width and height to it, otherwise
-     * the codec might fail to configure on some devices, see
-     * https://cs.android.com/android/platform/superproject/+/master:frameworks/base/media/java/android/media/MediaCodecInfo.java;l=1999-2001
-     */
-    private fun Int.adjustReplaySizeToBlockSize(): Int {
+    private fun Double.adjustReplaySizeToBlockSize(): Double {
         val remainder = this % 16
         return if (remainder <= 8) {
             this - remainder
@@ -611,9 +606,25 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
   }
 
   private fun setReplayConfig(call: MethodCall, result: Result) {
+    // Since codec block size is 16, so we have to adjust the width and height to it,
+    // otherwise the codec might fail to configure on some devices, see
+    // https://cs.android.com/android/platform/superproject/+/master:frameworks/base/media/java/android/media/MediaCodecInfo.java;l=1999-2001
+    var width = call.argument("width") as? Double ?: 0.0
+    var height = call.argument("height") as? Double ?: 0.0
+    // First update the smaller dimension, as changing that will affect the screen ratio more.
+    if (width < height) {
+      val newWidth = width.adjustReplaySizeToBlockSize()
+      height = (height * (newWidth / width)).adjustReplaySizeToBlockSize()
+      width = newWidth
+    } else {
+      val newHeight = height.adjustReplaySizeToBlockSize()
+      width = (width * (newHeight / height)).adjustReplaySizeToBlockSize()
+      height = newHeight
+    }
+
     replayConfig = ScreenshotRecorderConfig(
-      recordingWidth = (call.argument("width") as? Int)?.adjustReplaySizeToBlockSize() ?: 0,
-      recordingHeight = (call.argument("height") as? Int)?.adjustReplaySizeToBlockSize() ?: 0,
+      recordingWidth = width.roundToInt(),
+      recordingHeight = height.roundToInt(),
       scaleFactorX = 1.0f,
       scaleFactorY = 1.0f,
       frameRate = call.argument("frameRate") as? Int ?: 0,
