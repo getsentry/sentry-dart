@@ -450,6 +450,10 @@ void main() {
   group('Sentry init optionsConfiguration', () {
     final fixture = Fixture();
 
+    tearDown(() async {
+      await Sentry.close();
+    });
+
     test('throw is handled and logged', () async {
       final sentryOptions = defaultTestOptions()
         ..automatedTestMode = false
@@ -468,15 +472,30 @@ void main() {
       expect(fixture.loggedLevel, SentryLevel.error);
     });
   });
+  
+  group('Sentry runZonedGuarded', () {
 
-  test('calling runZonedGuarded before init does not throw', () async {
-    final completer = Completer<void>();
-    Sentry.runZonedGuarded(() {
-      throw Exception("run zoned guarded exception");
-    }, (error, stackTrace) {
-      completer.complete();
+    tearDown(() async {
+      await Sentry.close();
     });
-    await completer.future;
+
+    test('calling runZonedGuarded before init does not throw', () async {
+      var expected = Exception("run zoned guarded exception");
+      Object? actual;
+
+      final completer = Completer<void>();
+      Sentry.runZonedGuarded(() {
+        throw expected;
+      }, (error, stackTrace) {
+        actual = error;
+        completer.complete();
+      });
+
+      await completer.future;
+
+      expect(actual, isNotNull);
+      expect(actual, expected);
+    });
   });
 }
 
