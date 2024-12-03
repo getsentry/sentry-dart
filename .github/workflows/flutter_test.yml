@@ -167,32 +167,32 @@ jobs:
         working-directory: ./flutter/example/${{ matrix.target }}
         run: xcodebuild test -workspace Runner.xcworkspace -scheme Runner -configuration Debug -destination "platform=${{ steps.device.outputs.platform }}" -allowProvisioningUpdates CODE_SIGNING_ALLOWED=NO
 
-  test-web:
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    defaults:
-      run:
-        working-directory: ./flutter/example
-    strategy:
-      fail-fast: false
-      matrix:
-        sdk: [ "stable", "beta" ]
-    steps:
-      - name: checkout
-        uses: actions/checkout@v4
-
-      - uses: subosito/flutter-action@44ac965b96f18d999802d4b807e3256d5a3f9fa1 # pin@v2.16.0
-        with:
-          channel: ${{ matrix.sdk }}
-
-      - name: flutter upgrade
-        run: flutter upgrade
-
-      - name: flutter pub get
-        run: flutter pub get
-
-      - uses: nanasess/setup-chromedriver@v2
-        run: chromedriver
+#  test-web:
+#    runs-on: ubuntu-latest
+#    timeout-minutes: 30
+#    defaults:
+#      run:
+#        working-directory: ./flutter/example
+#    strategy:
+#      fail-fast: false
+#      matrix:
+#        sdk: [ "stable", "beta" ]
+#    steps:
+#      - name: checkout
+#        uses: actions/checkout@v4
+#
+#      - uses: subosito/flutter-action@44ac965b96f18d999802d4b807e3256d5a3f9fa1 # pin@v2.16.0
+#        with:
+#          channel: ${{ matrix.sdk }}
+#
+#      - name: flutter upgrade
+#        run: flutter upgrade
+#
+#      - name: flutter pub get
+#        run: flutter pub get
+#
+#      - uses: nanasess/setup-chromedriver@v2
+#        run: chromedriver
 
 #      - name: run integration test
 #        run: |
