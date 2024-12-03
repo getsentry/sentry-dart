@@ -472,9 +472,8 @@ void main() {
       expect(fixture.loggedLevel, SentryLevel.error);
     });
   });
-  
-  group('Sentry runZonedGuarded', () {
 
+  group('Sentry runZonedGuarded', () {
     tearDown(() async {
       await Sentry.close();
     });
