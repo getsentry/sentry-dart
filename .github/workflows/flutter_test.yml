@@ -192,7 +192,10 @@ jobs:
         run: flutter pub get
 
       - uses: nanasess/setup-chromedriver@v2
-      - run: chromedriver --port=4444 &
+      - run: |
+          export DISPLAY=:99
+          chromedriver --url-base=/wd/hub --port=4444 &
+          sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 & # optional
 
       - name: run integration test
         run: |
