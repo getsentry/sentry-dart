@@ -24,12 +24,10 @@ class SentryNativeJava extends SentryNativeChannel {
             final replayId =
                 SentryId.fromId(call.arguments['replayId'] as String);
 
-            final config =
-              ScheduledScreenshotRecorderConfig(
+            final config = ScheduledScreenshotRecorderConfig(
                 width: (call.arguments['width'] as num).toDouble(),
                 height: (call.arguments['height'] as num).toDouble(),
-              frameRate: call.arguments['frameRate'] as int,
-            );
+                frameRate: call.arguments['frameRate'] as int);
 
             _replayRecorder = AndroidReplayRecorder(
                 config, options, channel, call.arguments['directory'] as String)

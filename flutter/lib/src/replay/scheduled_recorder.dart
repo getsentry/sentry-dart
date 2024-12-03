@@ -11,7 +11,7 @@ import 'scheduler.dart';
 
 @internal
 typedef ScheduledScreenshotRecorderCallback = Future<void> Function(
-    ScreenshotPng);
+    ScreenshotPng screenshot, bool isNewlyCaptured);
 
 @internal
 class ScheduledScreenshotRecorder extends ScreenshotRecorder {
@@ -33,8 +33,10 @@ class ScheduledScreenshotRecorder extends ScreenshotRecorder {
     assert(config.frameRate > 0);
     _frameDuration = Duration(milliseconds: 1000 ~/ config.frameRate);
     assert(_frameDuration.inMicroseconds > 0);
+
     _scheduler = Scheduler(_frameDuration, _capture,
         options.bindingUtils.instance!.addPostFrameCallback);
+
     if (callback != null) {
       _callback = callback;
     }
@@ -99,7 +101,7 @@ class ScheduledScreenshotRecorder extends ScreenshotRecorder {
       var imageData = await image.toByteData(format: ImageByteFormat.png);
       if (imageData != null) {
         final screenshot = ScreenshotPng(image.width, image.height, imageData);
-        await _onScreenshot(screenshot);
+        await _onScreenshot(screenshot, true);
         _idleFrameFiller.actualFrameReceived(screenshot);
       } else {
         options.logger(
@@ -114,9 +116,10 @@ class ScheduledScreenshotRecorder extends ScreenshotRecorder {
     }
   }
 
-  Future<void> _onScreenshot(ScreenshotPng screenshot) async {
+  Future<void> _onScreenshot(
+      ScreenshotPng screenshot, bool isNewlyCaptured) async {
     if (_status == _Status.running) {
-      await _callback(screenshot);
+      await _callback(screenshot, isNewlyCaptured);
     } else {
       // drop any screenshots from callbacks if the replay has already been stopped/paused.
       options.logger(SentryLevel.debug,
@@ -142,7 +145,7 @@ class ScreenshotPng {
 // filling the gaps between actual frames with the most recent frame.
 class _IdleFrameFiller {
   final Duration _interval;
-  final Future<void> Function(ScreenshotPng screenshot) _callback;
+  final ScheduledScreenshotRecorderCallback _callback;
   var _status = _Status.running;
   Future<void>? _scheduled;
   ScreenshotPng? _mostRecent;
@@ -187,10 +190,10 @@ class _IdleFrameFiller {
       // Only repost if the screenshot haven't changed.
       if (screenshot == _mostRecent) {
         if (_status == _Status.running) {
-          // We don't strictly need to await here but it helps reduce load.
-          // If the callback takes a long time, we keep the spacing between
-          // calls consistent.
-          await _callback(screenshot);
+          // We don't strictly need to await here but it helps to reduce load.
+          // If the callback takes a long time, we still wait between calls,
+          // based on the configured rate.
+          await _callback(screenshot, false);
         }
         // On subsequent frames, we stick to the actual frame rate.
         repostLater(_interval, screenshot);

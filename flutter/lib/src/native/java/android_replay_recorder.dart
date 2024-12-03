@@ -14,14 +14,15 @@ class AndroidReplayRecorder extends ScheduledScreenshotRecorder {
     super.callback = _addReplayScreenshot;
   }
 
-  Future<void> _addReplayScreenshot(ScreenshotPng screenshot) async {
+  Future<void> _addReplayScreenshot(
+      ScreenshotPng screenshot, bool isNewlyCaptured) async {
     final timestamp = DateTime.now().millisecondsSinceEpoch;
     final filePath = "$_cacheDir/$timestamp.png";
 
     options.logger(
         SentryLevel.debug,
-        '$logName: saving screenshot to $filePath ('
-        '${screenshot.width}x${screenshot.height} pixels, '
+        '$logName: saving ${isNewlyCaptured ? 'new' : 'repeated'} screenshot to'
+        ' $filePath (${screenshot.width}x${screenshot.height} pixels, '
         '${screenshot.data.lengthInBytes} bytes)');
     try {
       await options.fileSystem

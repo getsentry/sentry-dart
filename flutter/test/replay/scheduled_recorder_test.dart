@@ -15,7 +15,7 @@ import '../screenshot/test_widget.dart';
 void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('captures images', (tester) async {
+  testWidgets('captures images on frame updates', (tester) async {
     await tester.runAsync(() async {
       final fixture = await _Fixture.create(tester);
       expect(fixture.capturedImages, isEmpty);
@@ -45,9 +45,11 @@ class _Fixture {
         frameRate: 1000,
       ),
       defaultTestOptions()..bindingUtils = TestBindingWrapper(),
-      (image) async {
-        capturedImages.add("${image.width}x${image.height}");
-        _completer.complete();
+      (image, isNewlyCaptured) async {
+        capturedImages.add('${image.width}x${image.height}');
+        if (!_completer.isCompleted) {
+          _completer.complete();
+        }
       },
     );
   }
@@ -62,7 +64,13 @@ class _Fixture {
   Future<void> nextFrame() async {
     _completer = Completer();
     _tester.binding.scheduleFrame();
-    await _tester.pumpAndSettle(const Duration(seconds: 100));
+    await _tester.pumpAndSettle(const Duration(seconds: 1));
+    await _completer.future
+        .timeout(Duration(milliseconds: 100), onTimeout: () {});
+  }
+
+  Future<void> tryNextImage() async {
+    _completer = Completer();
     await _completer.future
         .timeout(Duration(milliseconds: 100), onTimeout: () {});
   }
