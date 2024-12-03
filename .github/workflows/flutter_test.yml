@@ -199,6 +199,7 @@ jobs:
 
       - uses: nanasess/setup-chromedriver@v2
       - run: |
+          Xvfb :99 &
           export DISPLAY=:99
           chromedriver --url-base=/wd/hub --port=4444 &
 
