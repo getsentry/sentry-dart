@@ -39,7 +39,9 @@ class Scheduler {
 
   @pragma('vm:prefer-inline')
   void _scheduleNext() {
-    _scheduled ??= Future.delayed(_interval, _runAfterNextFrame);
+    if (_running) {
+      _scheduled ??= Future.delayed(_interval, _runAfterNextFrame);
+    }
   }
 
   @pragma('vm:prefer-inline')
