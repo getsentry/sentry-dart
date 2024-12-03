@@ -474,11 +474,10 @@ void main() {
   });
 
   group('Sentry runZonedGuarded', () {
-    tearDown(() async {
-      await Sentry.close();
-    });
-
     test('calling runZonedGuarded before init does not throw', () async {
+
+      await Sentry.close();
+
       var expected = Exception("run zoned guarded exception");
       Object? actual;
 
