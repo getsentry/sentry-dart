@@ -206,7 +206,7 @@ jobs:
           sudo apt-get -y install imagemagick x11-apps
 
       - name: Setup ChromeDriver
-        uses: nanasess/setup-chromedriver@v2
+        uses: nanasess/setup-chromedriver@e93e57b843c0c92788f22483f1a31af8ee48db25 # pin@2.3.0
 
       - name: Start Xvfb and run tests
         run: |
