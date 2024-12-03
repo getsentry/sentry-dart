@@ -185,7 +185,7 @@ jobs:
         uses: browser-actions/setup-chrome@facf10a55b9caf92e0cc749b4f82bf8220989148 # pin@v1.7.2
         with:
           chrome-version: stable
-        id: setup-chrome
+      - run: chrome --version
 
       - uses: subosito/flutter-action@44ac965b96f18d999802d4b807e3256d5a3f9fa1 # pin@v2.16.0
         with:
