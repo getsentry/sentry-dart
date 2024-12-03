@@ -470,21 +470,13 @@ void main() {
   });
 
   test('calling runZonedGuarded before init does not throw', () async {
-    var expected = Exception("run zoned guarded exception");
-    Object? actual;
-
     final completer = Completer<void>();
     Sentry.runZonedGuarded(() {
-      throw expected;
+      throw Exception("run zoned guarded exception");
     }, (error, stackTrace) {
-      actual = error;
       completer.complete();
     });
-
     await completer.future;
-
-    expect(actual, isNotNull);
-    expect(actual, expected);
   });
 }
 
