@@ -3,6 +3,7 @@
 @TestOn('browser')
 library flutter_test;
 
+// ignore: avoid_web_libraries_in_flutter
 import 'dart:js';
 import 'dart:js_interop';
 
@@ -50,15 +51,4 @@ void main() {
       sentry.callMethod('captureMessage', [expectedMessage.toJS]);
     });
   });
-}
-
-class _FakePlatformChecker extends PlatformChecker {
-  _FakePlatformChecker({
-    this.isDebug = false,
-  });
-
-  final bool isDebug;
-
-  @override
-  bool isDebugMode() => isDebug;
 }
