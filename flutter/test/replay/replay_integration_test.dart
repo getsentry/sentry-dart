@@ -8,9 +8,11 @@ import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/event_processor/replay_event_processor.dart';
 import 'package:sentry_flutter/src/replay/integration.dart';
+import 'package:sentry_flutter/src/replay/replay_config.dart';
 
 import '../mocks.dart';
 import '../mocks.mocks.dart';
+import '../screenshot/test_widget.dart';
 
 void main() {
   late ReplayIntegration sut;
@@ -24,6 +26,10 @@ void main() {
     native = MockSentryNativeBinding();
     when(native.supportsReplay).thenReturn(true);
     sut = ReplayIntegration(native);
+  });
+
+  tearDown(() {
+    SentryScreenshotWidget.reset();
   });
 
   for (var supportsReplay in [true, false]) {
@@ -66,4 +72,21 @@ void main() {
       }
     });
   }
+
+  testWidgets('Configures replay when displayed', (tester) async {
+    options.experimental.replay.sessionSampleRate = 1.0;
+    when(native.setReplayConfig(any)).thenReturn(null);
+    sut.call(hub, options);
+
+    TestWidgetsFlutterBinding.ensureInitialized();
+    await pumpTestElement(tester);
+    await tester.pumpAndSettle(Duration(seconds: 1));
+
+    final config = verify(native.setReplayConfig(captureAny)).captured.single
+        as ReplayConfig;
+    expect(config.bitRate, 75000);
+    expect(config.frameRate, 1);
+    expect(config.width, 800);
+    expect(config.height, 600);
+  });
 }
