@@ -291,7 +291,7 @@ void main() {
           }
         ];
 
-        when(channel.invokeMethod('loadImageList'))
+        when(channel.invokeMethod('loadImageList', any))
             .thenAnswer((invocation) async => json);
 
         final data = await sut.loadDebugImages(SentryStackTrace(frames: []));

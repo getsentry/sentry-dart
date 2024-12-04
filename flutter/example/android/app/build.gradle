@@ -31,6 +31,7 @@ apply plugin: 'com.ydq.android.gradle.native-aar.import'
 // apply plugin: 'io.sentry.android.gradle'
 
 android {
+    namespace = "io.sentry.samples.flutter"
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
@@ -55,7 +56,11 @@ android {
 
         externalNativeBuild {
             cmake {
-                arguments.add(0, "-DANDROID_STL=c++_static")
+                arguments.addAll([
+                    "-DANDROID_STL=c++_static",
+                    // https://developer.android.com/guide/practices/page-sizes#compile-r27
+                    "-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON"
+                ])
             }
         }
 
@@ -65,7 +70,7 @@ android {
         }
     }
 
-    ndkVersion "25.1.8937393"
+    ndkVersion "27.2.12479018"
 
     externalNativeBuild {
         cmake {

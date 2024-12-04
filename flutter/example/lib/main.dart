@@ -78,7 +78,6 @@ Future<void> setupSentry(
       options.sendDefaultPii = true;
       options.reportSilentFlutterErrors = true;
       options.attachScreenshot = true;
-      options.screenshotQuality = SentryScreenshotQuality.low;
       options.attachViewHierarchy = true;
       // We can enable Sentry debug logging during development. This is likely
       // going to log too much for your app, but can be useful when figuring out
@@ -94,6 +93,10 @@ Future<void> setupSentry(
 
       options.experimental.replay.sessionSampleRate = 1.0;
       options.experimental.replay.onErrorSampleRate = 1.0;
+
+      // This has a side-effect of creating the default privacy configuration,
+      // thus enabling Screenshot masking. No need to actually change it.
+      options.experimental.privacy;
 
       _isIntegrationTest = isIntegrationTest;
       if (_isIntegrationTest) {
@@ -117,6 +120,9 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
+    Future.delayed(const Duration(seconds: 3), () {
+      SentryFlutter.reportFullyDisplayed();
+    });
     return feedback.BetterFeedback(
       child: ChangeNotifierProvider<ThemeProvider>(
         create: (_) => ThemeProvider(),
@@ -252,7 +258,7 @@ class MainScaffold extends StatelessWidget {
               TooltipButton(
                 onPressed: isarTest,
                 text:
-                    'Executes CRUD operations on an in-memory with Isart and sends the created transaction to Sentry.',
+                    'Executes CRUD operations on an in-memory with Isar and sends the created transaction to Sentry.',
                 buttonTitle: 'isar',
               ),
             TooltipButton(
@@ -520,12 +526,14 @@ class MainScaffold extends StatelessWidget {
             TooltipButton(
               onPressed: () async {
                 final id = await Sentry.captureMessage('UserFeedback');
+                final screenshot = await SentryFlutter.captureScreenshot();
+
                 if (!context.mounted) return;
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) =>
-                        SentryFeedbackWidget(associatedEventId: id),
+                    builder: (context) => SentryFeedbackWidget(
+                        associatedEventId: id, screenshot: screenshot),
                     fullscreenDialog: true,
                   ),
                 );

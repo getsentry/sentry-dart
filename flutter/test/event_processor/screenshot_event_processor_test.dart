@@ -96,9 +96,40 @@ void main() {
         added: true, isWeb: false, expectedMaxWidthOrHeight: widthOrHeight);
   });
 
+  testWidgets('does not add screenshot for feedback events', (tester) async {
+    await tester.runAsync(() async {
+      final sut = fixture.getSut(null, false);
+
+      await tester.pumpWidget(
+        SentryScreenshotWidget(
+          child: Text('Catching Pokémon is a snap!',
+              textDirection: TextDirection.ltr),
+        ),
+      );
+
+      final feedback = SentryFeedback(
+        message: 'message',
+        contactEmail: 'foo@bar.com',
+        name: 'Joe Dirt',
+        associatedEventId: null,
+      );
+      final feedbackEvent = SentryEvent(
+        type: 'feedback',
+        contexts: Contexts(feedback: feedback),
+        level: SentryLevel.info,
+      );
+
+      final hint = Hint();
+      await sut.apply(feedbackEvent, hint);
+
+      expect(hint.screenshot, isNull);
+    });
+  });
+
   group('beforeScreenshot', () {
     testWidgets('does add screenshot if beforeScreenshot returns true',
         (tester) async {
+      // ignore: deprecated_member_use_from_same_package
       fixture.options.beforeScreenshot = (SentryEvent event, {Hint? hint}) {
         return true;
       };
@@ -108,6 +139,7 @@ void main() {
 
     testWidgets('does add screenshot if async beforeScreenshot returns true',
         (tester) async {
+      // ignore: deprecated_member_use_from_same_package
       fixture.options.beforeScreenshot =
           (SentryEvent event, {Hint? hint}) async {
         await Future<void>.delayed(Duration(milliseconds: 1));
@@ -119,6 +151,7 @@ void main() {
 
     testWidgets('does not add screenshot if beforeScreenshot returns false',
         (tester) async {
+      // ignore: deprecated_member_use_from_same_package
       fixture.options.beforeScreenshot = (SentryEvent event, {Hint? hint}) {
         return false;
       };
@@ -129,6 +162,7 @@ void main() {
     testWidgets(
         'does not add screenshot if async beforeScreenshot returns false',
         (tester) async {
+      // ignore: deprecated_member_use_from_same_package
       fixture.options.beforeScreenshot =
           (SentryEvent event, {Hint? hint}) async {
         await Future<void>.delayed(Duration(milliseconds: 1));
@@ -141,6 +175,7 @@ void main() {
     testWidgets('does add screenshot if beforeScreenshot throws',
         (tester) async {
       fixture.options.automatedTestMode = false;
+      // ignore: deprecated_member_use_from_same_package
       fixture.options.beforeScreenshot = (SentryEvent event, {Hint? hint}) {
         throw Error();
       };
@@ -151,6 +186,7 @@ void main() {
     testWidgets('does add screenshot if async beforeScreenshot throws',
         (tester) async {
       fixture.options.automatedTestMode = false;
+      // ignore: deprecated_member_use_from_same_package
       fixture.options.beforeScreenshot =
           (SentryEvent event, {Hint? hint}) async {
         await Future<void>.delayed(Duration(milliseconds: 1));
@@ -165,6 +201,7 @@ void main() {
       SentryEvent? beforeScreenshotEvent;
       Hint? beforeScreenshotHint;
 
+      // ignore: deprecated_member_use_from_same_package
       fixture.options.beforeScreenshot = (SentryEvent event, {Hint? hint}) {
         beforeScreenshotEvent = event;
         beforeScreenshotHint = hint;
@@ -176,6 +213,208 @@ void main() {
 
       expect(beforeScreenshotEvent, event);
       expect(beforeScreenshotHint, hint);
+    });
+  });
+
+  group('beforeCaptureScreenshot', () {
+    testWidgets('does add screenshot if beforeCapture returns true',
+        (tester) async {
+      fixture.options.beforeCaptureScreenshot =
+          (SentryEvent event, Hint hint, bool shouldDebounce) {
+        return true;
+      };
+      await _addScreenshotAttachment(tester, FlutterRenderer.canvasKit,
+          added: true, isWeb: false);
+    });
+
+    testWidgets('does add screenshot if async beforeCapture returns true',
+        (tester) async {
+      fixture.options.beforeCaptureScreenshot =
+          (SentryEvent event, Hint hint, bool shouldDebounce) async {
+        await Future<void>.delayed(Duration(milliseconds: 1));
+        return true;
+      };
+      await _addScreenshotAttachment(tester, FlutterRenderer.canvasKit,
+          added: true, isWeb: false);
+    });
+
+    testWidgets('does not add screenshot if beforeCapture returns false',
+        (tester) async {
+      fixture.options.beforeCaptureScreenshot =
+          (SentryEvent event, Hint hint, bool shouldDebounce) {
+        return false;
+      };
+      await _addScreenshotAttachment(tester, FlutterRenderer.canvasKit,
+          added: false, isWeb: false);
+    });
+
+    testWidgets('does not add screenshot if async beforeCapture returns false',
+        (tester) async {
+      fixture.options.beforeCaptureScreenshot =
+          (SentryEvent event, Hint hint, bool shouldDebounce) async {
+        await Future<void>.delayed(Duration(milliseconds: 1));
+        return false;
+      };
+      await _addScreenshotAttachment(tester, FlutterRenderer.canvasKit,
+          added: false, isWeb: false);
+    });
+
+    testWidgets('does add screenshot if beforeCapture throws', (tester) async {
+      fixture.options.automatedTestMode = false;
+      fixture.options.beforeCaptureScreenshot =
+          (SentryEvent event, Hint hint, bool shouldDebounce) {
+        throw Error();
+      };
+      await _addScreenshotAttachment(tester, FlutterRenderer.canvasKit,
+          added: true, isWeb: false);
+    });
+
+    testWidgets('does add screenshot if async beforeCapture throws',
+        (tester) async {
+      fixture.options.automatedTestMode = false;
+      fixture.options.beforeCaptureScreenshot =
+          (SentryEvent event, Hint hint, bool shouldDebounce) async {
+        await Future<void>.delayed(Duration(milliseconds: 1));
+        throw Error();
+      };
+      await _addScreenshotAttachment(tester, FlutterRenderer.canvasKit,
+          added: true, isWeb: false);
+    });
+
+    testWidgets('does add screenshot event if shouldDebounce true',
+        (tester) async {
+      await tester.runAsync(() async {
+        var shouldDebounceValues = <bool>[];
+
+        fixture.options.beforeCaptureScreenshot =
+            (SentryEvent event, Hint hint, bool shouldDebounce) {
+          shouldDebounceValues.add(shouldDebounce);
+          return true;
+        };
+
+        final sut = fixture.getSut(FlutterRenderer.canvasKit, false);
+
+        await tester.pumpWidget(
+          SentryScreenshotWidget(
+            child: Text(
+              'Catching Pokémon is a snap!',
+              textDirection: TextDirection.ltr,
+            ),
+          ),
+        );
+
+        final event = SentryEvent(throwable: Exception());
+        final hintOne = Hint();
+        final hintTwo = Hint();
+
+        await sut.apply(event, hintOne);
+        await sut.apply(event, hintTwo);
+
+        expect(hintOne.screenshot, isNotNull);
+        expect(hintTwo.screenshot, isNotNull);
+
+        expect(shouldDebounceValues[0], false);
+        expect(shouldDebounceValues[1], true);
+      });
+    });
+
+    testWidgets('passes event & hint to beforeCapture callback',
+        (tester) async {
+      SentryEvent? beforeScreenshotEvent;
+      Hint? beforeScreenshotHint;
+
+      fixture.options.beforeCaptureScreenshot =
+          (SentryEvent event, Hint hint, bool shouldDebounce) {
+        beforeScreenshotEvent = event;
+        beforeScreenshotHint = hint;
+        return true;
+      };
+
+      await _addScreenshotAttachment(tester, FlutterRenderer.canvasKit,
+          added: true, isWeb: false);
+
+      expect(beforeScreenshotEvent, event);
+      expect(beforeScreenshotHint, hint);
+    });
+  });
+
+  group("debounce", () {
+    testWidgets("limits added screenshots within debounce timeframe",
+        (tester) async {
+      // Run with real async https://stackoverflow.com/a/54021863
+      await tester.runAsync(() async {
+        var firstCall = true;
+        // ignore: invalid_use_of_internal_member
+        fixture.options.clock = () {
+          if (firstCall) {
+            firstCall = false;
+            return DateTime.fromMillisecondsSinceEpoch(0);
+          } else {
+            return DateTime.fromMillisecondsSinceEpoch(2000 - 1);
+          }
+        };
+
+        final sut = fixture.getSut(FlutterRenderer.canvasKit, false);
+
+        await tester.pumpWidget(SentryScreenshotWidget(
+            child: Text('Catching Pokémon is a snap!',
+                textDirection: TextDirection.ltr)));
+
+        final throwable = Exception();
+
+        final firstEvent = SentryEvent(throwable: throwable);
+        final firstHint = Hint();
+
+        final secondEvent = SentryEvent(throwable: throwable);
+        final secondHint = Hint();
+
+        await sut.apply(firstEvent, firstHint);
+        await sut.apply(secondEvent, secondHint);
+
+        expect(firstHint.screenshot, isNotNull);
+        expect(secondHint.screenshot, isNull);
+      });
+    });
+
+    testWidgets("adds screenshots after debounce timeframe", (tester) async {
+      // Run with real async https://stackoverflow.com/a/54021863
+      await tester.runAsync(() async {
+        var firstCall = true;
+        // ignore: invalid_use_of_internal_member
+        fixture.options.clock = () {
+          if (firstCall) {
+            firstCall = false;
+            return DateTime.fromMillisecondsSinceEpoch(0);
+          } else {
+            return DateTime.fromMillisecondsSinceEpoch(2001);
+          }
+        };
+
+        final sut = fixture.getSut(FlutterRenderer.canvasKit, false);
+
+        await tester.pumpWidget(
+          SentryScreenshotWidget(
+            child: Text(
+              'Catching Pokémon is a snap!',
+              textDirection: TextDirection.ltr,
+            ),
+          ),
+        );
+
+        final throwable = Exception();
+
+        final firstEvent = SentryEvent(throwable: throwable);
+        final firstHint = Hint();
+
+        final secondEvent = SentryEvent(throwable: throwable);
+        final secondHint = Hint();
+
+        await sut.apply(firstEvent, firstHint);
+        await sut.apply(secondEvent, secondHint);
+
+        expect(firstHint.screenshot, isNotNull);
+        expect(secondHint.screenshot, isNotNull);
+      });
     });
   });
 }

@@ -9,12 +9,14 @@ import 'event_processor/android_platform_exception_event_processor.dart';
 import 'event_processor/flutter_enricher_event_processor.dart';
 import 'event_processor/flutter_exception_event_processor.dart';
 import 'event_processor/platform_exception_event_processor.dart';
+import 'event_processor/screenshot_event_processor.dart';
 import 'event_processor/url_filter/url_filter_event_processor.dart';
 import 'event_processor/widget_event_processor.dart';
 import 'file_system_transport.dart';
 import 'flutter_exception_type_identifier.dart';
 import 'frame_callback_handler.dart';
 import 'integrations/connectivity/connectivity_integration.dart';
+import 'integrations/frames_tracking_integration.dart';
 import 'integrations/integrations.dart';
 import 'integrations/native_app_start_handler.dart';
 import 'integrations/screenshot_integration.dart';
@@ -23,7 +25,6 @@ import 'native/native_scope_observer.dart';
 import 'native/sentry_native_binding.dart';
 import 'profiling.dart';
 import 'renderer/renderer.dart';
-import 'span_frame_metrics_collector.dart';
 import 'version.dart';
 import 'view_hierarchy/view_hierarchy_integration.dart';
 
@@ -133,13 +134,6 @@ mixin SentryFlutter {
 
     options.addEventProcessor(PlatformExceptionEventProcessor());
 
-    // Disabled for web, linux and windows until we can reliably get the display refresh rate
-    if (options.platformChecker.platform.isAndroid ||
-        options.platformChecker.platform.isIOS ||
-        options.platformChecker.platform.isMacOS) {
-      options.addPerformanceCollector(SpanFrameMetricsCollector(options));
-    }
-
     _setSdk(options);
   }
 
@@ -176,6 +170,13 @@ mixin SentryFlutter {
         integrations.add(LoadContextsIntegration(native));
       }
       integrations.add(LoadImageListIntegration(native));
+      integrations.add(FramesTrackingIntegration(native));
+      integrations.add(
+        NativeAppStartIntegration(
+          DefaultFrameCallbackHandler(),
+          NativeAppStartHandler(native),
+        ),
+      );
       options.enableDartSymbolication = false;
     }
 
@@ -198,14 +199,6 @@ mixin SentryFlutter {
     // in errors.
     integrations.add(LoadReleaseIntegration());
 
-    if (native != null) {
-      integrations.add(
-        NativeAppStartIntegration(
-          DefaultFrameCallbackHandler(),
-          NativeAppStartHandler(native),
-        ),
-      );
-    }
     return integrations;
   }
 
@@ -281,6 +274,36 @@ mixin SentryFlutter {
       _logNativeIntegrationNotAvailable("resumeAppHangTracking");
     } else {
       await _native!.resumeAppHangTracking();
+    }
+  }
+
+  /// Uses [SentryScreenshotWidget] to capture the current screen as a
+  /// [SentryAttachment].
+  static Future<SentryAttachment?> captureScreenshot() async {
+    // ignore: invalid_use_of_internal_member
+    final options = Sentry.currentHub.options;
+    if (!SentryScreenshotWidget.isMounted) {
+      options.logger(
+        SentryLevel.debug,
+        'SentryScreenshotWidget could not be found in the widget tree.',
+      );
+      return null;
+    }
+    final processors =
+        options.eventProcessors.whereType<ScreenshotEventProcessor>();
+    if (processors.isEmpty) {
+      options.logger(
+        SentryLevel.debug,
+        'ScreenshotEventProcessor could not be found.',
+      );
+      return null;
+    }
+    final processor = processors.first;
+    final bytes = await processor.createScreenshot();
+    if (bytes != null) {
+      return SentryAttachment.fromScreenshotData(bytes);
+    } else {
+      return null;
     }
   }
 

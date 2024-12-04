@@ -35,7 +35,7 @@ class TimeToFullDisplayTracker {
   final options = Sentry.currentHub.options;
 
   // End timestamp provider is only needed when the TTFD timeout is triggered
-  EndTimestampProvider _endTimestampProvider = ttidEndTimestampProvider();
+  EndTimestampProvider _endTimestampProvider = ttidEndTimestampProvider;
   Completer<void> _completedTTFDTracking = Completer<void>();
 
   Future<void> track({
@@ -130,5 +130,5 @@ class TimeToFullDisplayTracker {
 typedef EndTimestampProvider = DateTime? Function();
 
 @internal
-EndTimestampProvider ttidEndTimestampProvider() =>
+EndTimestampProvider ttidEndTimestampProvider =
     () => TimeToInitialDisplayTracker().endTimestamp;
