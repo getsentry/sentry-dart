@@ -13,6 +13,7 @@ import 'dom_api/script_dom_api.dart';
 // * sentry_script_loader_tt_not_enforced_test.dart : default TT configuration (not enforced)
 // * sentry_script_loader_tt_custom_test.dart : TT are customized, but allowed
 // * sentry_script_loader_tt_forbidden_test.dart: TT are completely disallowed
+// tests inspired by https://pub.dev/packages/google_identity_services_web
 
 void main() {
   group('loadWebSdk (no TrustedTypes configured)', () {
@@ -22,12 +23,19 @@ void main() {
       fixture = Fixture();
     });
 
+    tearDown(() {
+      final existingScripts = fetchAllScripts();
+      for (final script in existingScripts) {
+        script.remove();
+      }
+    });
+
     test('Injects script into document head', () async {
       final sut = fixture.getSut();
 
       await sut.loadWebSdk(productionScripts);
 
-      final scripts = querySelectorAll('script');
+      final scripts = fetchAllScripts();
       expect(
           scripts.first.src, contains('$jsSdkVersion/bundle.tracing.min.js'));
     });

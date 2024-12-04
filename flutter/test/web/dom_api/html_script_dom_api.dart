@@ -16,8 +16,8 @@ class HtmlScriptElement implements TestScriptElement {
   String get src => element.src;
 }
 
-List<TestScriptElement> querySelectorAll(String query) {
-  final scripts = document.querySelectorAll(query);
+List<TestScriptElement> fetchAllScripts() {
+  final scripts = document.querySelectorAll('script');
   return scripts
       .map((script) => HtmlScriptElement(script as ScriptElement))
       .toList();

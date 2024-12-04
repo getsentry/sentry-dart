@@ -22,6 +22,8 @@ class SentryScriptLoader {
   /// 3. Trusted Types forbidden - Throws TrustedTypesException
   ///
   /// The function is only executed once and will be guarded by a flag afterwards.
+  ///
+  /// TrustedTypes implementation inspired by https://pub.dev/packages/google_identity_services_web
   Future<void> loadWebSdk(List<Map<String, String>> scripts,
       {String trustedTypePolicyName = defaultTrustedPolicyName}) async {
     if (_scriptLoaded) return;

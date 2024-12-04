@@ -13,6 +13,7 @@ import 'dom_api/script_dom_api.dart';
 // * sentry_script_loader_test.dart : default TT configuration (not enforced)
 // * sentry_script_loader_tt_custom_test.dart : TT are customized, but allowed
 // * sentry_script_loader_tt_forbidden_test.dart: TT are completely disallowed
+// tests inspired by https://pub.dev/packages/google_identity_services_web
 
 void main() {
   group('loadWebSdk (TrustedTypes configured)', () {
@@ -20,6 +21,13 @@ void main() {
 
     setUp(() {
       fixture = Fixture();
+    });
+
+    tearDown(() {
+      final existingScripts = fetchAllScripts();
+      for (final script in existingScripts) {
+        script.remove();
+      }
     });
 
     injectMetaTag(<String, String>{
@@ -32,7 +40,7 @@ void main() {
 
       await sut.loadWebSdk(productionScripts);
 
-      final script = querySelectorAll('script').where((element) =>
+      final script = fetchAllScripts().where((element) =>
           element.src.contains('$jsSdkVersion/bundle.tracing.min.js'));
       expect(script, isEmpty);
     });
@@ -44,7 +52,7 @@ void main() {
           trustedTypePolicyName: 'my-custom-policy-name');
       expect(done, isA<Future<void>>());
 
-      final scripts = querySelectorAll('script');
+      final scripts = fetchAllScripts();
       expect(
           scripts.first.src, endsWith('$jsSdkVersion/bundle.tracing.min.js'));
     });

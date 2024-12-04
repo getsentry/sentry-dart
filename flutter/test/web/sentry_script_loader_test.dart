@@ -18,7 +18,7 @@ void main() {
     });
 
     tearDown(() {
-      final existingScripts = querySelectorAll('script');
+      final existingScripts = fetchAllScripts();
       for (final script in existingScripts) {
         script.remove();
       }
@@ -29,7 +29,7 @@ void main() {
 
       await sut.loadWebSdk(productionScripts);
 
-      final scripts = querySelectorAll('script');
+      final scripts = fetchAllScripts();
 
       expect(
           scripts.first.src, endsWith('$jsSdkVersion/bundle.tracing.min.js'));
@@ -40,7 +40,7 @@ void main() {
 
       await sut.loadWebSdk(debugScripts);
 
-      final scripts = querySelectorAll('script');
+      final scripts = fetchAllScripts();
 
       expect(scripts.first.src, endsWith('$jsSdkVersion/bundle.tracing.js'));
     });
@@ -50,10 +50,10 @@ void main() {
 
       await sut.loadWebSdk(productionScripts);
 
-      final initialScriptCount = querySelectorAll('script').length;
+      final initialScriptCount = fetchAllScripts().length;
 
       await sut.loadWebSdk(productionScripts);
-      expect(querySelectorAll('script').length, initialScriptCount);
+      expect(fetchAllScripts().length, initialScriptCount);
     });
 
     test('Handles script loading failures', () async {
@@ -71,7 +71,7 @@ void main() {
       // loading after the failure still works
       await sut.loadWebSdk(productionScripts);
 
-      final scripts = querySelectorAll('script');
+      final scripts = fetchAllScripts();
       expect(
           scripts.first.src, endsWith('$jsSdkVersion/bundle.tracing.min.js'));
     });
@@ -92,7 +92,7 @@ void main() {
       // loading after the failure still works
       await sut.loadWebSdk(productionScripts);
 
-      final scripts = querySelectorAll('script');
+      final scripts = fetchAllScripts();
       expect(
           scripts.first.src, endsWith('$jsSdkVersion/bundle.tracing.min.js'));
     });
@@ -104,7 +104,7 @@ void main() {
       await loadScript('https://google.com', fixture.options);
 
       await sut.loadWebSdk(productionScripts);
-      final scriptElements = querySelectorAll('script');
+      final scriptElements = fetchAllScripts();
       expect(scriptElements.first.src,
           endsWith('$jsSdkVersion/bundle.tracing.min.js'));
     });

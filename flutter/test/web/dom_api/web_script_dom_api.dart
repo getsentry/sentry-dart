@@ -17,8 +17,8 @@ class _ScriptElement implements TestScriptElement {
   String get src => element.src;
 }
 
-List<TestScriptElement> querySelectorAll(String query) {
-  final scripts = document.querySelectorAll(query);
+List<TestScriptElement> fetchAllScripts() {
+  final scripts = document.querySelectorAll('script');
 
   List<TestScriptElement> elements = [];
   for (int i = 0; i < scripts.length; i++) {
