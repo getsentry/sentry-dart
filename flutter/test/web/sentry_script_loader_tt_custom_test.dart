@@ -10,7 +10,6 @@ import 'dom_api/script_dom_api.dart';
 
 // The other TT tests will be split up into multiple files
 // because TrustedTypes cannot be relaxed after they are set
-// * sentry_script_loader_test.dart : default TT configuration (not enforced)
 // * sentry_script_loader_tt_custom_test.dart : TT are customized, but allowed
 // * sentry_script_loader_tt_forbidden_test.dart: TT are completely disallowed
 // tests inspired by https://pub.dev/packages/google_identity_services_web

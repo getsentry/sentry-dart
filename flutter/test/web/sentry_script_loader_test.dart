@@ -24,13 +24,13 @@ void main() {
       }
     });
 
+    // automatically tests TrustedType not configured
     test('Loads production scripts by default', () async {
       final sut = fixture.getSut();
 
       await sut.loadWebSdk(productionScripts);
 
       final scripts = fetchAllScripts();
-
       expect(
           scripts.first.src, endsWith('$jsSdkVersion/bundle.tracing.min.js'));
     });
@@ -41,7 +41,6 @@ void main() {
       await sut.loadWebSdk(debugScripts);
 
       final scripts = fetchAllScripts();
-
       expect(scripts.first.src, endsWith('$jsSdkVersion/bundle.tracing.js'));
     });
 
