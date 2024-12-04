@@ -68,10 +68,11 @@ typedef SentryScreenshotWidgetOnBuildCallback = bool Function(
 class _SentryScreenshotWidgetState extends State<SentryScreenshotWidget> {
   @override
   Widget build(BuildContext context) {
+    final mq = MediaQuery.of(context);
     final status = SentryScreenshotWidgetStatus(
-      size: MediaQuery.maybeSizeOf(context),
-      pixelRatio: MediaQuery.maybeDevicePixelRatioOf(context),
-      orientantion: MediaQuery.maybeOrientationOf(context),
+      size: mq.size,
+      pixelRatio: mq.devicePixelRatio,
+      orientantion: mq.orientation,
     );
     final prevStatus = SentryScreenshotWidget._status;
     SentryScreenshotWidget._status = status;

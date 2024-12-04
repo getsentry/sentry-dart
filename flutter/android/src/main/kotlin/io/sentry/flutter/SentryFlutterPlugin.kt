@@ -39,6 +39,7 @@ import java.lang.ref.WeakReference
 import kotlin.math.roundToInt
 
 private const val APP_START_MAX_DURATION_MS = 60000
+private const val VIDEO_BLOCK_SIZE = 16
 
 class SentryFlutterPlugin :
   FlutterPlugin,
@@ -576,11 +577,11 @@ class SentryFlutterPlugin :
     }
 
     private fun Double.adjustReplaySizeToBlockSize(): Double {
-      val remainder = this % 16
-      return if (remainder <= 8) {
+      val remainder = this % VIDEO_BLOCK_SIZE
+      return if (remainder <= VIDEO_BLOCK_SIZE / 2) {
         this - remainder
       } else {
-        this + (16 - remainder)
+        this + (VIDEO_BLOCK_SIZE - remainder)
       }
     }
   }

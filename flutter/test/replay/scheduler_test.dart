@@ -63,11 +63,11 @@ class _Fixture {
     sut = Scheduler(
       const Duration(milliseconds: 1),
       (_) async => calls++,
-      _AddPostFrameCallbackMock,
+      _addPostFrameCallbackMock,
     );
   }
 
-  void _AddPostFrameCallbackMock(FrameCallback callback,
+  void _addPostFrameCallbackMock(FrameCallback callback,
       {String debugLabel = 'callback'}) {
     registeredCallback = callback;
   }
