@@ -3,13 +3,12 @@
 @TestOn('browser')
 library flutter_test;
 
-// ignore: avoid_web_libraries_in_flutter
-import 'dart:html';
+import 'dart:js';
+import 'dart:js_interop';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:sentry_flutter/src/integrations/web_sdk_integration.dart';
 import 'package:sentry_flutter_example/main.dart' as app;
 
 import 'utils.dart';
@@ -25,51 +24,30 @@ void main() {
       await Sentry.close();
     });
 
-    testWidgets('Production mode: injects correct script', (tester) async {
-      await SentryFlutter.init((options) {
-        defaultTestOptionsInitializer(options);
-        options.platformChecker = _FakePlatformChecker(isDebug: false);
-      }, appRunner: () async {
-        await tester.pumpWidget(const app.MyApp());
-      });
-
-      final scripts = document
-          .querySelectorAll('script')
-          .map((script) => script as ScriptElement)
-          .toList();
-
-      expect(scripts.first.src, contains('bundle.tracing.min.js'));
-      expect(scripts.first.integrity, isNotEmpty);
-      expect(scripts.first.crossOrigin, isNotEmpty);
-    });
-
-    testWidgets('Debug mode: injects correct script', (tester) async {
-      // by default in debug mode, no need to add fake platform checker
+    testWidgets('Sentry JS SDK is callable', (tester) async {
       await SentryFlutter.init(defaultTestOptionsInitializer,
           appRunner: () async {
         await tester.pumpWidget(const app.MyApp());
       });
 
-      final scripts = document
-          .querySelectorAll('script')
-          .map((script) => script as ScriptElement)
-          .toList();
+      const expectedMessage = 'test message';
+      final beforeSendFn = JsFunction.withThis((thisArg, event, hint) {
+        final actualMessage = event['message'];
+        expect(actualMessage, equals(actualMessage));
 
-      expect(scripts.first.src, contains('bundle.tracing.js'));
-      expect(scripts.first.integrity, isNotEmpty);
-      expect(scripts.first.crossOrigin, isNotEmpty);
-    });
-
-    // TODO: verify javascript sdk works
-
-    testWidgets('Adds Integration', (tester) async {
-      await SentryFlutter.init(defaultTestOptionsInitializer,
-          appRunner: () async {
-        await tester.pumpWidget(const app.MyApp());
+        return event;
       });
 
-      final integrations = Sentry.currentHub.options.integrations;
-      expect(integrations, contains(isA<WebSdkIntegration>()));
+      final Map<String, dynamic> options = {
+        'dsn': app.exampleDsn,
+        'beforeSend': beforeSendFn,
+        'defaultIntegrations': [],
+      };
+
+      final sentry = context['Sentry'] as JsObject;
+      sentry.callMethod('init', [JsObject.jsify(options)]);
+
+      sentry.callMethod('captureMessage', [expectedMessage.toJS]);
     });
   });
 }
