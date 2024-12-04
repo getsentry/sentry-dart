@@ -92,7 +92,11 @@ class SentryTracer extends ISentrySpan {
   }
 
   @override
-  Future<void> finish({SpanStatus? status, DateTime? endTimestamp}) async {
+  Future<void> finish({
+    SpanStatus? status,
+    DateTime? endTimestamp,
+    Hint? hint,
+  }) async {
     final commonEndTimestamp = endTimestamp ?? _hub.options.clock();
     _autoFinishAfterTimer?.cancel();
     _finishStatus = SentryTracerFinishStatus.finishing(status);
@@ -160,6 +164,7 @@ class SentryTracer extends ISentrySpan {
       await _hub.captureTransaction(
         transaction,
         traceContext: traceContext(),
+        hint: hint,
       );
     } finally {
       profiler?.dispose();
@@ -274,12 +279,14 @@ class SentryTracer extends ISentrySpan {
     return child;
   }
 
-  Future<void> _finishedCallback({
-    DateTime? endTimestamp,
-  }) async {
+  Future<void> _finishedCallback({DateTime? endTimestamp, Hint? hint}) async {
     final finishStatus = _finishStatus;
     if (finishStatus.finishing) {
-      await finish(status: finishStatus.status, endTimestamp: endTimestamp);
+      await finish(
+        status: finishStatus.status,
+        endTimestamp: endTimestamp,
+        hint: hint,
+      );
     }
   }
 

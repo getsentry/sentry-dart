@@ -25,6 +25,7 @@ export 'src/throwable_mechanism.dart';
 export 'src/transport/transport.dart';
 export 'src/integration.dart';
 export 'src/event_processor.dart';
+// ignore: invalid_export_of_internal_element
 export 'src/http_client/sentry_http_client.dart';
 export 'src/http_client/sentry_http_client_error.dart';
 export 'src/sentry_attachment/sentry_attachment.dart';

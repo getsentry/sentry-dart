@@ -128,7 +128,7 @@ void main() {
       const expectedId = '1';
       String? actualId;
 
-      fixture.options.beforeSendTransaction = (transaction) {
+      fixture.options.beforeSendTransaction = (transaction, hint) {
         actualIp = transaction.user?.ipAddress;
         actualId = transaction.user?.id;
         return transaction;

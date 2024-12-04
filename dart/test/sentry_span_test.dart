@@ -259,8 +259,8 @@ void main() {
 
   test('callback called on finish', () async {
     var numberOfCallbackCalls = 0;
-    final sut =
-        fixture.getSut(finishedCallback: ({DateTime? endTimestamp}) async {
+    final sut = fixture.getSut(
+        finishedCallback: ({DateTime? endTimestamp, Hint? hint}) async {
       numberOfCallbackCalls += 1;
     });
 

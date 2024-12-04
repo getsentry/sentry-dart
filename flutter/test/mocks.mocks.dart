@@ -630,6 +630,15 @@ class MockSentryTracer extends _i1.Mock implements _i3.SentryTracer {
       ) as Map<String, _i2.SentryMeasurement>);
 
   @override
+  set hint(_i2.Hint? hint) => super.noSuchMethod(
+        Invocation.setter(
+          #hint,
+          hint,
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
   _i2.SentrySpanContext get context => (super.noSuchMethod(
         Invocation.getter(#context),
         returnValue: _FakeSentrySpanContext_0(
@@ -702,6 +711,7 @@ class MockSentryTracer extends _i1.Mock implements _i3.SentryTracer {
   _i11.Future<void> finish({
     _i2.SpanStatus? status,
     DateTime? endTimestamp,
+    _i2.Hint? hint,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -710,6 +720,7 @@ class MockSentryTracer extends _i1.Mock implements _i3.SentryTracer {
           {
             #status: status,
             #endTimestamp: endTimestamp,
+            #hint: hint,
           },
         ),
         returnValue: _i11.Future<void>.value(),
@@ -1215,6 +1226,7 @@ class MockSentrySpan extends _i1.Mock implements _i2.SentrySpan {
   _i11.Future<void> finish({
     _i2.SpanStatus? status,
     DateTime? endTimestamp,
+    _i2.Hint? hint,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -1223,6 +1235,7 @@ class MockSentrySpan extends _i1.Mock implements _i2.SentrySpan {
           {
             #status: status,
             #endTimestamp: endTimestamp,
+            #hint: hint,
           },
         ),
         returnValue: _i11.Future<void>.value(),
@@ -1471,6 +1484,7 @@ class MockSentryClient extends _i1.Mock implements _i2.SentryClient {
     _i2.SentryTransaction? transaction, {
     _i2.Scope? scope,
     _i2.SentryTraceContextHeader? traceContext,
+    _i2.Hint? hint,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -1479,6 +1493,7 @@ class MockSentryClient extends _i1.Mock implements _i2.SentryClient {
           {
             #scope: scope,
             #traceContext: traceContext,
+            #hint: hint,
           },
         ),
         returnValue: _i11.Future<_i2.SentryId>.value(_FakeSentryId_5(
@@ -1489,6 +1504,7 @@ class MockSentryClient extends _i1.Mock implements _i2.SentryClient {
             {
               #scope: scope,
               #traceContext: traceContext,
+              #hint: hint,
             },
           ),
         )),
@@ -3793,19 +3809,26 @@ class MockHub extends _i1.Mock implements _i2.Hub {
   _i11.Future<_i2.SentryId> captureTransaction(
     _i2.SentryTransaction? transaction, {
     _i2.SentryTraceContextHeader? traceContext,
+    _i2.Hint? hint,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
           #captureTransaction,
           [transaction],
-          {#traceContext: traceContext},
+          {
+            #traceContext: traceContext,
+            #hint: hint,
+          },
         ),
         returnValue: _i11.Future<_i2.SentryId>.value(_FakeSentryId_5(
           this,
           Invocation.method(
             #captureTransaction,
             [transaction],
-            {#traceContext: traceContext},
+            {
+              #traceContext: traceContext,
+              #hint: hint,
+            },
           ),
         )),
       ) as _i11.Future<_i2.SentryId>);

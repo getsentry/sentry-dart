@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:http/http.dart';
 import 'package:http/testing.dart';
+import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/http_client/tracing_client.dart';
 import 'package:sentry/src/sentry_tracer.dart';
@@ -10,6 +13,13 @@ import '../test_utils.dart';
 
 final requestUri = Uri.parse('https://example.com?foo=bar#baz');
 
+class MockBeforeSendTransactionCallback extends Mock {
+  FutureOr<SentryTransaction?> beforeSendTransaction(
+    SentryTransaction? transaction,
+    Hint? hint,
+  );
+}
+
 void main() {
   group(TracingClient, () {
     late Fixture fixture;
@@ -18,9 +28,96 @@ void main() {
       fixture = Fixture();
     });
 
-    test('captured span if successful request', () async {
+    test('beforeSendTransaction called for captured span', () async {
+      var beforeSendTransaction =
+          MockBeforeSendTransactionCallback().beforeSendTransaction;
+
+      fixture._hub.options.beforeSendTransaction = beforeSendTransaction;
+      final responseBody = "test response body";
       final sut = fixture.getSut(
-        client: fixture.getClient(statusCode: 200, reason: 'OK'),
+        client: fixture.getClient(
+            statusCode: 200, reason: 'OK', body: responseBody),
+      );
+      final tr = fixture._hub.startTransaction(
+        'name',
+        'op',
+        bindToScope: true,
+      );
+
+      await sut.get(requestUri);
+
+      await tr.finish();
+
+      verify(beforeSendTransaction(
+        any,
+        any,
+      )).called(1);
+    });
+
+    test(
+        'beforeSendTransaction called with two httpResponses inside captured span',
+        () async {
+      SentryTransaction? transaction;
+      Hint? hint;
+
+      fixture._hub.options.beforeSendTransaction = (_transaction, _hint) {
+        transaction = _transaction;
+        hint = _hint;
+        return transaction;
+      };
+
+      String firstResponseBody = "first response body";
+      String secondResponseBody = "first response body";
+      String responseBody = firstResponseBody;
+      final sut = fixture.getSut(
+        client: fixture.getClient(
+            statusCode: 200, reason: 'OK', body: responseBody),
+      );
+      final tr = fixture._hub.startTransaction(
+        'name',
+        'op',
+        bindToScope: true,
+      );
+
+      final firstOriginalResponse = await sut.get(requestUri);
+      final firstOriginalResponseBody = firstOriginalResponse.body;
+
+      responseBody = secondResponseBody;
+      final secondOriginalResponse = await sut.get(requestUri);
+      final secondOriginalResponseBody = secondOriginalResponse.body;
+
+      await tr.finish();
+
+      final transactionHintHttpResponse =
+          hint!.get(TypeCheckHint.httpResponse) as StreamedResponse?;
+
+      final firstHint = transaction!.spans[0].hint!;
+      final secondHint = transaction!.spans[1].hint!;
+
+      final firstHintHttpResponse =
+          firstHint.get(TypeCheckHint.httpResponse) as StreamedResponse;
+      final secondHintHttpResponse =
+          secondHint.get(TypeCheckHint.httpResponse) as StreamedResponse;
+
+      final firstHintHttpResponseBody =
+          await firstHintHttpResponse.stream.bytesToString();
+      final secondHintHttpResponseBody =
+          await secondHintHttpResponse.stream.bytesToString();
+
+      expect(transactionHintHttpResponse, null);
+
+      expect(firstHintHttpResponseBody, firstResponseBody);
+      expect(firstOriginalResponseBody, firstResponseBody);
+
+      expect(secondHintHttpResponseBody, secondResponseBody);
+      expect(secondOriginalResponseBody, secondResponseBody);
+    });
+
+    test('captured span if successful request without Pii', () async {
+      final responseBody = "test response body";
+      final sut = fixture.getSut(
+        client: fixture.getClient(
+            statusCode: 200, reason: 'OK', body: responseBody),
       );
       final tr = fixture._hub.startTransaction(
         'name',
@@ -43,7 +140,40 @@ void main() {
       expect(span.data['http.query'], 'foo=bar');
       expect(span.data['http.fragment'], 'baz');
       expect(span.data['http.response.status_code'], 200);
-      expect(span.data['http.response_content_length'], 2);
+      expect(span.data['http.response_content_length'], responseBody.length);
+      expect(span.data['http.response_content'], null);
+      expect(span.origin, SentryTraceOrigins.autoHttpHttp);
+    });
+
+    test('captured span if successful request with Pii', () async {
+      fixture._hub.options.sendDefaultPii = true;
+      final responseBody = "test response body";
+      final sut = fixture.getSut(
+        client: fixture.getClient(
+            statusCode: 200, reason: 'OK', body: responseBody),
+      );
+      final tr = fixture._hub.startTransaction(
+        'name',
+        'op',
+        bindToScope: true,
+      );
+
+      await sut.get(requestUri);
+
+      await tr.finish();
+
+      final tracer = (tr as SentryTracer);
+      final span = tracer.children.first;
+
+      expect(span.status, SpanStatus.ok());
+      expect(span.context.operation, 'http.client');
+      expect(span.context.description, 'GET https://example.com');
+      expect(span.data['http.request.method'], 'GET');
+      expect(span.data['url'], 'https://example.com');
+      expect(span.data['http.query'], 'foo=bar');
+      expect(span.data['http.fragment'], 'baz');
+      expect(span.data['http.response.status_code'], 200);
+      expect(span.data['http.response_content_length'], responseBody.length);
       expect(span.origin, SentryTraceOrigins.autoHttpHttp);
     });
 
@@ -244,10 +374,15 @@ class Fixture {
     );
   }
 
-  MockClient getClient({int statusCode = 200, String? reason}) {
+  MockClient getClient({
+    int statusCode = 200,
+    // String body = '{}',
+    String body = '',
+    String? reason,
+  }) {
     return MockClient((request) async {
       expect(request.url, requestUri);
-      return Response('{}', statusCode, reasonPhrase: reason, request: request);
+      return Response(body, statusCode, reasonPhrase: reason, request: request);
     });
   }
 }

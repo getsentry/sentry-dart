@@ -109,10 +109,12 @@ class HubAdapter implements Hub {
   Future<SentryId> captureTransaction(
     SentryTransaction transaction, {
     SentryTraceContextHeader? traceContext,
+    Hint? hint,
   }) =>
       Sentry.currentHub.captureTransaction(
         transaction,
         traceContext: traceContext,
+        hint: hint,
       );
 
   @override

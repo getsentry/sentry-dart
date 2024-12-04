@@ -1,6 +1,7 @@
 import 'package:http/http.dart';
 import '../hint.dart';
 import '../type_check_hint.dart';
+import '../utils/streamed_response_copier.dart';
 import '../utils/tracing_utils.dart';
 import 'sentry_http_client_error.dart';
 import '../protocol.dart';
@@ -99,15 +100,19 @@ class FailedRequestClient extends BaseClient {
     int? statusCode;
     Object? exception;
     StackTrace? stackTrace;
-    StreamedResponse? response;
+    StreamedResponse? originalResponse;
+    StreamedResponse? copiedResponse;
 
     final stopwatch = Stopwatch();
     stopwatch.start();
 
     try {
-      response = await _client.send(request);
-      statusCode = response.statusCode;
-      return response;
+      originalResponse = await _client.send(request);
+      final copier = StreamedResponseCopier(originalResponse);
+      originalResponse = copier.copy();
+      copiedResponse = copier.copy();
+      statusCode = originalResponse.statusCode;
+      return originalResponse;
     } catch (e, st) {
       exception = e;
       stackTrace = st;
@@ -119,7 +124,7 @@ class FailedRequestClient extends BaseClient {
         statusCode,
         exception,
         stackTrace,
-        response,
+        copiedResponse,
         stopwatch.elapsed,
       );
     }

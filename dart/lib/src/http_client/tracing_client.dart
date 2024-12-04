@@ -1,11 +1,6 @@
 import 'package:http/http.dart';
-import '../hub.dart';
-import '../hub_adapter.dart';
-import '../protocol.dart';
-import '../sentry_trace_origins.dart';
-import '../tracing.dart';
-import '../utils/tracing_utils.dart';
-import '../utils/http_sanitizer.dart';
+import '../../sentry.dart';
+import '../utils/streamed_response_copier.dart';
 
 /// A [http](https://pub.dev/packages/http)-package compatible HTTP client
 /// which adds support to Sentry Performance feature.
@@ -44,7 +39,8 @@ class TracingClient extends BaseClient {
     span?.setData('http.request.method', request.method);
     urlDetails?.applyToSpan(span);
 
-    StreamedResponse? response;
+    StreamedResponse? originalResponse;
+    final hint = Hint();
     try {
       if (containsTargetOrMatchesRegExp(
           _hub.options.tracePropagationTargets, request.url.toString())) {
@@ -71,19 +67,26 @@ class TracingClient extends BaseClient {
         }
       }
 
-      response = await _client.send(request);
-      span?.setData('http.response.status_code', response.statusCode);
-      span?.setData('http.response_content_length', response.contentLength);
-      span?.status = SpanStatus.fromHttpStatusCode(response.statusCode);
+      originalResponse = await _client.send(request);
+      final copier = StreamedResponseCopier(originalResponse);
+      originalResponse = copier.copy();
+      final copiedResponse = copier.copy();
+
+      span?.setData('http.response.status_code', originalResponse.statusCode);
+      span?.setData(
+          'http.response_content_length', originalResponse.contentLength);
+      span?.status = SpanStatus.fromHttpStatusCode(originalResponse.statusCode);
+
+      hint.set(TypeCheckHint.httpResponse, copiedResponse);
     } catch (exception) {
       span?.throwable = exception;
       span?.status = SpanStatus.internalError();
 
       rethrow;
     } finally {
-      await span?.finish();
+      await span?.finish(hint: hint);
     }
-    return response;
+    return originalResponse;
   }
 
   @override
