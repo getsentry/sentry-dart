@@ -60,6 +60,8 @@ void main() {
       expect(scripts.first.crossOrigin, isNotEmpty);
     });
 
+    // TODO: verify javascript sdk works
+
     testWidgets('Adds Integration', (tester) async {
       await SentryFlutter.init(defaultTestOptionsInitializer,
           appRunner: () async {
