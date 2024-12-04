@@ -27,12 +27,14 @@ void main() {
       'content': "trusted-types my-custom-policy-name 'allow-duplicates';",
     });
 
-    test('Wrong policy name: Fail with TrustedTypesException', () {
-      expect(() async {
-        final sut = fixture.getSut();
+    test('Wrong policy name: does not inject script', () async {
+      final sut = fixture.getSut();
 
-        await sut.loadWebSdk(productionScripts);
-      }, throwsA(isA<TrustedTypesException>()));
+      await sut.loadWebSdk(productionScripts);
+
+      final script = querySelectorAll('script').where((element) =>
+          element.src.contains('$jsSdkVersion/bundle.tracing.min.js'));
+      expect(script, isEmpty);
     });
 
     test('Correct policy name: Completes', () {

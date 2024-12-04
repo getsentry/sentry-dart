@@ -5,7 +5,7 @@ import 'dart:js_util' as js_util;
 import '../../../sentry_flutter.dart';
 import 'sentry_script_loader.dart';
 
-Future<void> loadScript(String src, SentryOptions? options,
+Future<void> loadScript(String src, SentryOptions options,
     {String? integrity,
     String trustedTypePolicyName = defaultTrustedPolicyName}) {
   final completer = Completer<void>();
@@ -32,15 +32,12 @@ Future<void> loadScript(String src, SentryOptions? options,
           js_util.callMethod(policy as Object, 'createScriptURL', [src]);
       // Set the trusted URL using js_util
     } catch (e) {
-      options?.logger(
+      options.logger(
         SentryLevel.warning,
         'SentryScriptLoader: failed to created trusted url',
         exception: e,
       );
-      // ignore: invalid_use_of_internal_member
-      if (options!.automatedTestMode) {
-        throw TrustedTypesException();
-      }
+      return Future.value();
     }
   }
 

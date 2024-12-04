@@ -14,9 +14,14 @@ class SentryScriptLoader {
   final SentryFlutterOptions _options;
   bool _scriptLoaded = false;
 
-  /// Loads scripts into the document async
+  /// Loads the scripts into the web page with support for Trusted Types security policy.
   ///
-  /// Idempotent: does nothing if scripts are already loaded.
+  /// The function handles three Trusted Types scenarios:
+  /// 1. No Trusted Types configured - Scripts load normally
+  /// 2. Custom Trusted Types policy - Uses provided policy name to create trusted URLs
+  /// 3. Trusted Types forbidden - Throws TrustedTypesException
+  ///
+  /// The function is only executed once and will be guarded by a flag afterwards.
   Future<void> loadWebSdk(List<Map<String, String>> scripts,
       {String trustedTypePolicyName = defaultTrustedPolicyName}) async {
     if (_scriptLoaded) return;

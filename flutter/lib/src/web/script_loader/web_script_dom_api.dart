@@ -27,10 +27,12 @@ Future<void> loadScript(String src, SentryOptions options,
           ));
       trustedUrl = policy.createScriptURL(src, null);
     } catch (e) {
-      // ignore: invalid_use_of_internal_member
-      if (options.automatedTestMode) {
-        throw TrustedTypesException();
-      }
+      options.logger(
+        SentryLevel.warning,
+        'SentryScriptLoader: failed to created trusted url',
+        exception: e,
+      );
+      return Future.value();
     }
   }
 
