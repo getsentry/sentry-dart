@@ -1,0 +1,11 @@
+appId: io.sentry.samples.flutterE2e
+---
+- launchApp:
+    arguments:
+      sentryAuthToken: ${TEST_TOKEN}
+- assertVisible: 'Capture exception'
+- tapOn: "Capture exception"
+- assertVisible: "Sending exception to Sentry..."
+- extendedWaitUntil:
+    visible : "Event successfully received"
+    timeout: 150000

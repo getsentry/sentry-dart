@@ -10,7 +10,7 @@ on:
       - "!**/class-diagram.svg"
       - ".github/workflows/e2e_dart.yml"
       - "dart/**"
-      - "e2e_test/**"
+      - "e2e_test/dart/**"
 
 env:
   SENTRY_AUTH_TOKEN_E2E: ${{ secrets.SENTRY_AUTH_TOKEN_E2E }}
