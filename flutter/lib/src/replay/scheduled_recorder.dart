@@ -67,7 +67,7 @@ class ScheduledScreenshotRecorder extends ScreenshotRecorder {
     // actions, there may not be any frame captured for a long time so even
     // the IdleFrameFiller won't have anything to repeat. This would appear
     // as if the replay was broken.
-    options.bindingUtils.instance!.scheduleFrame();
+    options.bindingUtils.instance!.ensureVisualUpdate();
   }
 
   Future<void> stop() async {
