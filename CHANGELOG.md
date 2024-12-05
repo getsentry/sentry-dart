@@ -1,5 +1,32 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Support custom `Sentry.runZoneGuarded` zone creation ([#2088](https://github.com/getsentry/sentry-dart/pull/2088))
+  - Sentry will not create a custom zone anymore if it is started within a custom one.
+  - This fixes Zone miss-match errors when trying to initialize WidgetsBinding before Sentry on Flutter Web
+  - `Sentry.runZonedGuarded` creates a zone and also captures exceptions & breadcrumbs automatically.
+  ```dart
+  Sentry.runZonedGuarded(() {
+    WidgetsBinding.ensureInitialized();
+
+    // Errors before init will not be handled by Sentry
+
+    SentryFlutter.init(
+      (options) {
+      ...
+      },
+      appRunner: () => runApp(MyApp()),
+    );
+  } (error, stackTrace) {
+    // Automatically sends errors to Sentry, no need to do any
+    // captureException calls on your part.
+    // On top of that, you can do your own custom stuff in this callback.
+  });
+  ```
+
 ## 8.11.0-beta.2
 
 ### Features
@@ -49,6 +76,7 @@
   });
   ```
   - Replace deprecated `BeforeScreenshotCallback` with new `BeforeCaptureCallback`.
+
 
 ### Fixes
 

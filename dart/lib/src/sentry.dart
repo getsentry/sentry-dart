@@ -21,6 +21,7 @@ import 'noop_isolate_error_integration.dart'
 import 'protocol.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
+import 'sentry_run_zoned_guarded.dart';
 import 'sentry_user_feedback.dart';
 import 'tracing.dart';
 import 'sentry_attachment/sentry_attachment.dart';
@@ -365,4 +366,45 @@ class Sentry {
 
   @internal
   static Hub get currentHub => _hub;
+
+  /// Creates a new error handling zone with Sentry integration using [runZonedGuarded].
+  ///
+  /// This method provides automatic error reporting and breadcrumb tracking while
+  /// allowing you to define a custom error handling zone. It wraps Dart's native
+  /// [runZonedGuarded] function with Sentry-specific functionality.
+  ///
+  /// This function automatically records calls to `print()` as Breadcrumbs and
+  /// can be configured using [SentryOptions.enablePrintBreadcrumbs].
+  ///
+  /// ```dart
+  /// Sentry.runZonedGuarded(() {
+  ///   WidgetsBinding.ensureInitialized();
+  ///
+  ///   // Errors before init will not be handled by Sentry
+  ///
+  ///   SentryFlutter.init(
+  ///     (options) {
+  ///     ...
+  ///     },
+  ///     appRunner: () => runApp(MyApp()),
+  ///   );
+  /// } (error, stackTrace) {
+  ///   // Automatically sends errors to Sentry, no need to do any
+  ///   // captureException calls on your part.
+  ///   // On top of that, you can do your own custom stuff in this callback.
+  /// });
+  /// ```
+  static runZonedGuarded<R>(
+    R Function() body,
+    void Function(Object error, StackTrace stack)? onError, {
+    Map<Object?, Object?>? zoneValues,
+    ZoneSpecification? zoneSpecification,
+  }) =>
+      SentryRunZonedGuarded.sentryRunZonedGuarded(
+        _hub,
+        body,
+        onError,
+        zoneValues: zoneValues,
+        zoneSpecification: zoneSpecification,
+      );
 }
