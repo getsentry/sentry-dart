@@ -34,7 +34,7 @@ void main() {
       const expectedMessage = 'test message';
       final beforeSendFn = JsFunction.withThis((thisArg, event, hint) {
         final actualMessage = event['message'];
-        expect(actualMessage, equals(actualMessage));
+        expect(actualMessage, equals(expectedMessage));
 
         return event;
       });
