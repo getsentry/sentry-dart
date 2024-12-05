@@ -21,7 +21,7 @@ class SentryScriptLoader {
   /// 2. Custom Trusted Types policy - Uses provided policy name to create trusted URLs
   /// 3. Trusted Types forbidden - Scripts are not loaded
   ///
-  /// The function is only executed once and will be guarded by a flag afterwards.
+  /// The function is only executed successfully once and will be guarded by a flag afterwards.
   ///
   /// TrustedTypes implementation inspired by https://pub.dev/packages/google_identity_services_web
   Future<void> loadWebSdk(List<Map<String, String>> scripts,
