@@ -30,7 +30,9 @@ void main() {
     test('Does not inject script', () async {
       final sut = fixture.getSut();
 
-      await sut.loadWebSdk(productionScripts);
+      expect(() async {
+        await sut.loadWebSdk(productionScripts);
+      }, throwsA(isA<TrustedTypesException>()));
 
       final script = fetchAllScripts().where((element) =>
           element.src.contains('$jsSdkVersion/bundle.tracing.min.js'));

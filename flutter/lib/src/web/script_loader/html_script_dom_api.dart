@@ -30,14 +30,9 @@ Future<void> loadScript(String src, SentryOptions options,
       ]);
       trustedUrl =
           js_util.callMethod(policy as Object, 'createScriptURL', [src]);
-      // Set the trusted URL using js_util
     } catch (e) {
-      options.logger(
-        SentryLevel.warning,
-        'SentryScriptLoader: failed to created trusted url',
-        exception: e,
-      );
-      return Future.value();
+      // will be caught by loadWebSdk
+      throw TrustedTypesException();
     }
   }
 

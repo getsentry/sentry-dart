@@ -19,7 +19,7 @@ class SentryScriptLoader {
   /// The function handles three Trusted Types scenarios:
   /// 1. No Trusted Types configured - Scripts load normally
   /// 2. Custom Trusted Types policy - Uses provided policy name to create trusted URLs
-  /// 3. Trusted Types forbidden - Throws TrustedTypesException
+  /// 3. Trusted Types forbidden - Scripts are not loaded
   ///
   /// The function is only executed once and will be guarded by a flag afterwards.
   ///
@@ -43,9 +43,8 @@ class SentryScriptLoader {
       _scriptLoaded = true;
       _options.logger(SentryLevel.debug,
           'JS SDK integration: all Sentry scripts loaded successfully.');
-    } catch (e, stackTrace) {
-      _options.logger(
-          SentryLevel.error, 'Failed to load Sentry scripts: $e\n$stackTrace');
+    } catch (e) {
+      _options.logger(SentryLevel.error, 'Failed to load Sentry scripts: $e');
       if (_options.automatedTestMode) {
         rethrow;
       }
@@ -55,7 +54,7 @@ class SentryScriptLoader {
 
 /// Exception thrown if the Trusted Types feature is supported, enabled, and it
 /// has prevented this loader from injecting the Sentry JS SDK
-@visibleForTesting
+@internal
 class TrustedTypesException implements Exception {
   TrustedTypesException();
 }
