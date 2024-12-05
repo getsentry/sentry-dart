@@ -46,6 +46,19 @@ void main() {
       expect(script, isEmpty);
     });
 
+    test(
+        'Wrong policy name: does not inject script with automatedTestMode false',
+        () async {
+      fixture.options.automatedTestMode = false;
+      final sut = fixture.getSut();
+
+      await sut.loadWebSdk(productionScripts);
+
+      final script = fetchAllScripts().where((element) =>
+          element.src.contains('$jsSdkVersion/bundle.tracing.min.js'));
+      expect(script, isEmpty);
+    });
+
     test('Correct policy name: Completes', () {
       final sut = fixture.getSut();
 
