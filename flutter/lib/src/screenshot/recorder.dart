@@ -12,13 +12,16 @@ import 'widget_filter.dart';
 @internal
 typedef ScreenshotRecorderCallback = Future<void> Function(Image);
 
+var _instanceCounter = 0;
+
 @internal
 class ScreenshotRecorder {
   @protected
   final ScreenshotRecorderConfig config;
   @protected
   final SentryFlutterOptions options;
-  final String _logName;
+  @protected
+  late final String logName;
   WidgetFilter? _widgetFilter;
   bool _warningLogged = false;
 
@@ -27,8 +30,16 @@ class ScreenshotRecorder {
   bool get hasWidgetFilter => _widgetFilter != null;
 
   // TODO: remove [isReplayRecorder] parameter in the next major release, see _SentryFlutterExperimentalOptions.
-  ScreenshotRecorder(this.config, this.options, {bool isReplayRecorder = true})
-      : _logName = isReplayRecorder ? 'ReplayRecorder' : 'ScreenshotRecorder' {
+  ScreenshotRecorder(this.config, this.options,
+      {bool isReplayRecorder = true, String? logName}) {
+    if (logName != null) {
+      this.logName = logName;
+    } else if (isReplayRecorder) {
+      _instanceCounter++;
+      this.logName = 'ReplayRecorder #$_instanceCounter';
+    } else {
+      this.logName = 'ScreenshotRecorder';
+    }
     // see `options.experimental.privacy` docs for details
     final privacyOptions = isReplayRecorder
         ? options.experimental.privacyForReplay
@@ -45,7 +56,7 @@ class ScreenshotRecorder {
     if (context == null || renderObject == null) {
       if (!_warningLogged) {
         options.logger(SentryLevel.warning,
-            "$_logName: SentryScreenshotWidget is not attached, skipping capture.");
+            "$logName: SentryScreenshotWidget is not attached, skipping capture.");
         _warningLogged = true;
       }
       return;
@@ -96,6 +107,10 @@ class ScreenshotRecorder {
       try {
         final finalImage = await picture.toImage(
             (srcWidth * pixelRatio).round(), (srcHeight * pixelRatio).round());
+        options.logger(
+            SentryLevel.debug,
+            "$logName: captured a screenshot in ${watch.elapsedMilliseconds}"
+            " ms ($blockingTime ms blocking).");
         try {
           await callback(finalImage);
         } finally {
@@ -104,14 +119,9 @@ class ScreenshotRecorder {
       } finally {
         picture.dispose();
       }
-
-      options.logger(
-          SentryLevel.debug,
-          "$_logName: captured a screenshot in ${watch.elapsedMilliseconds}"
-          " ms ($blockingTime ms blocking).");
     } catch (e, stackTrace) {
       options.logger(
-          SentryLevel.error, "$_logName: failed to capture screenshot.",
+          SentryLevel.error, "$logName: failed to capture screenshot.",
           exception: e, stackTrace: stackTrace);
       if (options.automatedTestMode) {
         rethrow;

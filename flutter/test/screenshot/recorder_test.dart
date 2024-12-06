@@ -103,7 +103,7 @@ void main() async {
 class _Fixture {
   late final ScreenshotRecorder sut;
 
-  _Fixture({int? width, int? height}) {
+  _Fixture({double? width, double? height}) {
     sut = ScreenshotRecorder(
       ScreenshotRecorderConfig(width: width, height: height),
       defaultTestOptions()..bindingUtils = TestBindingWrapper(),
@@ -111,7 +111,7 @@ class _Fixture {
   }
 
   static Future<_Fixture> create(WidgetTester tester,
-      {int? width, int? height}) async {
+      {double? width, double? height}) async {
     final fixture = _Fixture(width: width, height: height);
     await pumpTestElement(tester);
     return fixture;

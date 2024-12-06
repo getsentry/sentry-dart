@@ -44,6 +44,7 @@ class MainActivity : FlutterActivity() {
   }
 
   private external fun crash()
+
   private external fun message()
 
   companion object {

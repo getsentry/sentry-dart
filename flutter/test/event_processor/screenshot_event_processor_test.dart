@@ -27,7 +27,7 @@ void main() {
     FlutterRenderer? renderer, {
     required bool isWeb,
     required bool added,
-    int? expectedMaxWidthOrHeight,
+    double? expectedMaxWidthOrHeight,
   }) async {
     // Run with real async https://stackoverflow.com/a/54021863
     await tester.runAsync(() async {

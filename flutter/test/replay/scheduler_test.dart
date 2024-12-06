@@ -63,10 +63,13 @@ class _Fixture {
     sut = Scheduler(
       const Duration(milliseconds: 1),
       (_) async => calls++,
-      (FrameCallback callback, {String debugLabel = 'callback'}) {
-        registeredCallback = callback;
-      },
+      _addPostFrameCallbackMock,
     );
+  }
+
+  void _addPostFrameCallbackMock(FrameCallback callback,
+      {String debugLabel = 'callback'}) {
+    registeredCallback = callback;
   }
 
   factory _Fixture.started() {
@@ -76,7 +79,7 @@ class _Fixture {
   Future<void> drawFrame() async {
     await Future.delayed(const Duration(milliseconds: 8), () {});
     _frames++;
-    registeredCallback!(Duration(milliseconds: _frames));
+    registeredCallback?.call(Duration(milliseconds: _frames));
     registeredCallback = null;
   }
 }
