@@ -4,8 +4,8 @@
 library flutter_test;
 
 // ignore: avoid_web_libraries_in_flutter
+import 'dart:async';
 import 'dart:js';
-import 'dart:js_interop';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -26,29 +26,40 @@ void main() {
     });
 
     testWidgets('Sentry JS SDK is callable', (tester) async {
-      await SentryFlutter.init(defaultTestOptionsInitializer,
-          appRunner: () async {
-        await tester.pumpWidget(const app.MyApp());
-      });
-
+      final completer = Completer();
       const expectedMessage = 'test message';
-      final beforeSendFn = JsFunction.withThis((thisArg, event, hint) {
-        final actualMessage = event['message'];
-        expect(actualMessage, equals(expectedMessage));
+      String actualMessage = '';
 
-        return event;
+      await restoreFlutterOnErrorAfter(() async {
+        await SentryFlutter.init((options) {
+          options.dsn = app.exampleDsn;
+          options.automatedTestMode = false;
+        }, appRunner: () async {
+          await tester.pumpWidget(const app.MyApp());
+        });
+
+        final beforeSendFn = JsFunction.withThis((thisArg, event, hint) {
+          actualMessage = event['message'];
+          completer.complete();
+          return event;
+        });
+
+        final Map<String, dynamic> options = {
+          'dsn': app.exampleDsn,
+          'beforeSend': beforeSendFn,
+          'defaultIntegrations': [],
+        };
+
+        final sentry = context['Sentry'] as JsObject;
+        sentry.callMethod('init', [JsObject.jsify(options)]);
+        sentry.callMethod('captureMessage', [expectedMessage]);
       });
 
-      final Map<String, dynamic> options = {
-        'dsn': app.exampleDsn,
-        'beforeSend': beforeSendFn,
-        'defaultIntegrations': [],
-      };
+      await completer.future.timeout(const Duration(seconds: 5), onTimeout: () {
+        fail('beforeSend was not triggered');
+      });
 
-      final sentry = context['Sentry'] as JsObject;
-      sentry.callMethod('init', [JsObject.jsify(options)]);
-
-      sentry.callMethod('captureMessage', [expectedMessage.toJS]);
+      expect(actualMessage, equals(expectedMessage));
     });
   });
 }

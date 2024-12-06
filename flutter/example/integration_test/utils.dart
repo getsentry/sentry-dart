@@ -1,9 +1,21 @@
-import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:flutter/cupertino.dart';
 
-const fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
+/// Restores the onError to it's original state.
+/// This makes assertion errors readable.
+///
+/// testWidgets override Flutter.onError by default
+/// If a fail happens during integration tests this would complain that
+/// the FlutterError.onError was overwritten and wasn't reset to its
+/// state before asserting.
+///
+/// This function needs to be executed before assertions.
+Future<void> restoreFlutterOnErrorAfter(Future<void> Function() fn) async {
+  final originalOnError = FlutterError.onError!;
+  await fn();
+  final overriddenOnError = FlutterError.onError!;
 
-void defaultTestOptionsInitializer(SentryFlutterOptions options) {
-  options.dsn = fakeDsn;
-  // ignore: invalid_use_of_internal_member
-  options.automatedTestMode = true;
+  FlutterError.onError = (FlutterErrorDetails details) {
+    if (overriddenOnError != originalOnError) overriddenOnError(details);
+    originalOnError(details);
+  };
 }
