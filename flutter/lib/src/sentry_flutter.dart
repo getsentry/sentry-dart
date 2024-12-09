@@ -25,6 +25,7 @@ import 'native/native_scope_observer.dart';
 import 'native/sentry_native_binding.dart';
 import 'profiling.dart';
 import 'renderer/renderer.dart';
+import 'replay/integration.dart';
 import 'version.dart';
 import 'view_hierarchy/view_hierarchy_integration.dart';
 
@@ -55,6 +56,7 @@ mixin SentryFlutter {
     AppRunner? appRunner,
     @internal SentryFlutterOptions? options,
   }) async {
+    SentryScreenshotWidget.reset();
     options ??= SentryFlutterOptions();
 
     // ignore: invalid_use_of_internal_member
@@ -181,6 +183,7 @@ mixin SentryFlutter {
           NativeAppStartHandler(native),
         ),
       );
+      integrations.add(ReplayIntegration(native));
       options.enableDartSymbolication = false;
     }
 

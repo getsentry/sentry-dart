@@ -4,6 +4,7 @@
 
 ### Features
 
+- Replay: device orientation change support & improve video size fit on Android ([#2462](https://github.com/getsentry/sentry-dart/pull/2462))
 - Support custom `Sentry.runZoneGuarded` zone creation ([#2088](https://github.com/getsentry/sentry-dart/pull/2088))
   - Sentry will not create a custom zone anymore if it is started within a custom one.
   - This fixes Zone miss-match errors when trying to initialize WidgetsBinding before Sentry on Flutter Web

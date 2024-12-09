@@ -13,6 +13,7 @@ import 'package:sentry_flutter/src/integrations/integrations.dart';
 import 'package:sentry_flutter/src/integrations/screenshot_integration.dart';
 import 'package:sentry_flutter/src/profiling.dart';
 import 'package:sentry_flutter/src/renderer/renderer.dart';
+import 'package:sentry_flutter/src/replay/integration.dart';
 import 'package:sentry_flutter/src/version.dart';
 import 'package:sentry_flutter/src/view_hierarchy/view_hierarchy_integration.dart';
 import 'mocks.dart';
@@ -101,6 +102,7 @@ void main() {
           ...nativeIntegrations,
           ...platformAgnosticIntegrations,
           ...nonWebIntegrations,
+          ReplayIntegration,
         ],
         shouldNotHaveIntegrations: [
           ...iOsAndMacOsIntegrations,
@@ -158,6 +160,7 @@ void main() {
           ...nativeIntegrations,
           ...platformAgnosticIntegrations,
           ...nonWebIntegrations,
+          ReplayIntegration,
         ],
         shouldNotHaveIntegrations: [
           ...androidIntegrations,
@@ -735,6 +738,7 @@ MockSentryNativeBinding mockNativeBinding() {
   final result = MockSentryNativeBinding();
   when(result.supportsLoadContexts).thenReturn(true);
   when(result.supportsCaptureEnvelope).thenReturn(true);
+  when(result.supportsReplay).thenReturn(false);
   when(result.captureEnvelope(any, any)).thenReturn(null);
   when(result.init(any)).thenReturn(null);
   when(result.close()).thenReturn(null);

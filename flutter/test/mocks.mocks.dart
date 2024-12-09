@@ -4,14 +4,14 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _i11;
-import 'dart:developer' as _i23;
+import 'dart:developer' as _i24;
 import 'dart:typed_data' as _i19;
 import 'dart:ui' as _i6;
 
 import 'package:flutter/foundation.dart' as _i8;
 import 'package:flutter/gestures.dart' as _i7;
 import 'package:flutter/rendering.dart' as _i10;
-import 'package:flutter/scheduler.dart' as _i22;
+import 'package:flutter/scheduler.dart' as _i23;
 import 'package:flutter/services.dart' as _i4;
 import 'package:flutter/src/widgets/binding.dart' as _i5;
 import 'package:flutter/widgets.dart' as _i9;
@@ -24,9 +24,10 @@ import 'package:sentry/src/profiling.dart' as _i16;
 import 'package:sentry/src/sentry_tracer.dart' as _i3;
 import 'package:sentry_flutter/sentry_flutter.dart' as _i2;
 import 'package:sentry_flutter/src/frames_tracking/sentry_delayed_frames_tracker.dart'
-    as _i21;
+    as _i22;
 import 'package:sentry_flutter/src/native/native_frames.dart' as _i20;
 import 'package:sentry_flutter/src/native/sentry_native_binding.dart' as _i18;
+import 'package:sentry_flutter/src/replay/replay_config.dart' as _i21;
 
 import 'mocks.dart' as _i14;
 
@@ -1687,6 +1688,12 @@ class MockSentryNativeBinding extends _i1.Mock
       ) as bool);
 
   @override
+  bool get supportsReplay => (super.noSuchMethod(
+        Invocation.getter(#supportsReplay),
+        returnValue: false,
+      ) as bool);
+
+  @override
   _i11.FutureOr<void> init(_i2.Hub? hub) =>
       (super.noSuchMethod(Invocation.method(
         #init,
@@ -1818,6 +1825,13 @@ class MockSentryNativeBinding extends _i1.Mock
       )) as _i11.FutureOr<List<_i2.DebugImage>?>);
 
   @override
+  _i11.FutureOr<void> setReplayConfig(_i21.ReplayConfig? config) =>
+      (super.noSuchMethod(Invocation.method(
+        #setReplayConfig,
+        [config],
+      )) as _i11.FutureOr<void>);
+
+  @override
   _i11.FutureOr<_i2.SentryId> captureReplay(bool? isCrash) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -1838,16 +1852,16 @@ class MockSentryNativeBinding extends _i1.Mock
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockSentryDelayedFramesTracker extends _i1.Mock
-    implements _i21.SentryDelayedFramesTracker {
+    implements _i22.SentryDelayedFramesTracker {
   MockSentryDelayedFramesTracker() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  List<_i21.SentryFrameTiming> get delayedFrames => (super.noSuchMethod(
+  List<_i22.SentryFrameTiming> get delayedFrames => (super.noSuchMethod(
         Invocation.getter(#delayedFrames),
-        returnValue: <_i21.SentryFrameTiming>[],
-      ) as List<_i21.SentryFrameTiming>);
+        returnValue: <_i22.SentryFrameTiming>[],
+      ) as List<_i22.SentryFrameTiming>);
 
   @override
   bool get isTrackingActive => (super.noSuchMethod(
@@ -1874,7 +1888,7 @@ class MockSentryDelayedFramesTracker extends _i1.Mock
       );
 
   @override
-  List<_i21.SentryFrameTiming> getFramesIntersecting({
+  List<_i22.SentryFrameTiming> getFramesIntersecting({
     required DateTime? startTimestamp,
     required DateTime? endTimestamp,
   }) =>
@@ -1887,8 +1901,8 @@ class MockSentryDelayedFramesTracker extends _i1.Mock
             #endTimestamp: endTimestamp,
           },
         ),
-        returnValue: <_i21.SentryFrameTiming>[],
-      ) as List<_i21.SentryFrameTiming>);
+        returnValue: <_i22.SentryFrameTiming>[],
+      ) as List<_i22.SentryFrameTiming>);
 
   @override
   void addFrame(
@@ -1917,7 +1931,7 @@ class MockSentryDelayedFramesTracker extends _i1.Mock
       );
 
   @override
-  _i21.SpanFrameMetrics? getFrameMetrics({
+  _i22.SpanFrameMetrics? getFrameMetrics({
     required DateTime? spanStartTimestamp,
     required DateTime? spanEndTimestamp,
   }) =>
@@ -1928,7 +1942,7 @@ class MockSentryDelayedFramesTracker extends _i1.Mock
           #spanStartTimestamp: spanStartTimestamp,
           #spanEndTimestamp: spanEndTimestamp,
         },
-      )) as _i21.SpanFrameMetrics?);
+      )) as _i22.SpanFrameMetrics?);
 
   @override
   void clear() => super.noSuchMethod(
@@ -2067,17 +2081,17 @@ class MockWidgetsFlutterBinding extends _i1.Mock
       ) as _i7.SamplingClock);
 
   @override
-  _i22.SchedulingStrategy get schedulingStrategy => (super.noSuchMethod(
+  _i23.SchedulingStrategy get schedulingStrategy => (super.noSuchMethod(
         Invocation.getter(#schedulingStrategy),
         returnValue: ({
           required int priority,
-          required _i22.SchedulerBinding scheduler,
+          required _i23.SchedulerBinding scheduler,
         }) =>
             false,
-      ) as _i22.SchedulingStrategy);
+      ) as _i23.SchedulingStrategy);
 
   @override
-  set schedulingStrategy(_i22.SchedulingStrategy? _schedulingStrategy) =>
+  set schedulingStrategy(_i23.SchedulingStrategy? _schedulingStrategy) =>
       super.noSuchMethod(
         Invocation.setter(
           #schedulingStrategy,
@@ -2105,10 +2119,10 @@ class MockWidgetsFlutterBinding extends _i1.Mock
       ) as bool);
 
   @override
-  _i22.SchedulerPhase get schedulerPhase => (super.noSuchMethod(
+  _i23.SchedulerPhase get schedulerPhase => (super.noSuchMethod(
         Invocation.getter(#schedulerPhase),
-        returnValue: _i22.SchedulerPhase.idle,
-      ) as _i22.SchedulerPhase);
+        returnValue: _i23.SchedulerPhase.idle,
+      ) as _i23.SchedulerPhase);
 
   @override
   bool get framesEnabled => (super.noSuchMethod(
@@ -2681,10 +2695,10 @@ class MockWidgetsFlutterBinding extends _i1.Mock
 
   @override
   _i11.Future<T> scheduleTask<T>(
-    _i22.TaskCallback<T>? task,
-    _i22.Priority? priority, {
+    _i23.TaskCallback<T>? task,
+    _i23.Priority? priority, {
     String? debugLabel,
-    _i23.Flow? flow,
+    _i24.Flow? flow,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -2742,7 +2756,7 @@ class MockWidgetsFlutterBinding extends _i1.Mock
 
   @override
   int scheduleFrameCallback(
-    _i22.FrameCallback? callback, {
+    _i23.FrameCallback? callback, {
     bool? rescheduling = false,
   }) =>
       (super.noSuchMethod(
@@ -2792,7 +2806,7 @@ class MockWidgetsFlutterBinding extends _i1.Mock
       ) as bool);
 
   @override
-  void addPersistentFrameCallback(_i22.FrameCallback? callback) =>
+  void addPersistentFrameCallback(_i23.FrameCallback? callback) =>
       super.noSuchMethod(
         Invocation.method(
           #addPersistentFrameCallback,
@@ -2803,7 +2817,7 @@ class MockWidgetsFlutterBinding extends _i1.Mock
 
   @override
   void addPostFrameCallback(
-    _i22.FrameCallback? callback, {
+    _i23.FrameCallback? callback, {
     String? debugLabel = r'callback',
   }) =>
       super.noSuchMethod(
@@ -2879,12 +2893,12 @@ class MockWidgetsFlutterBinding extends _i1.Mock
       );
 
   @override
-  _i22.PerformanceModeRequestHandle? requestPerformanceMode(
+  _i23.PerformanceModeRequestHandle? requestPerformanceMode(
           _i6.DartPerformanceMode? mode) =>
       (super.noSuchMethod(Invocation.method(
         #requestPerformanceMode,
         [mode],
-      )) as _i22.PerformanceModeRequestHandle?);
+      )) as _i23.PerformanceModeRequestHandle?);
 
   @override
   void handleDrawFrame() => super.noSuchMethod(
