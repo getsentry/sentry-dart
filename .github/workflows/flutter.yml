@@ -98,7 +98,7 @@ jobs:
           flutter test --coverage --test-randomize-ordering-seed=random
           dart run remove_from_coverage -f coverage/lcov.info -r 'binding.dart'
 
-      - uses: codecov/codecov-action@015f24e6818733317a2da2edd6290ab26238649a # pin@v3
+      - uses: codecov/codecov-action@7f8b4b4bde536c465e797be725718b88c5d95e0e # pin@v3
         if: matrix.sdk == 'stable' && matrix.target == 'linux'
         with:
           name: sentry_flutter
