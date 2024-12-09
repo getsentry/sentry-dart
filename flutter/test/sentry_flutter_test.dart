@@ -344,7 +344,9 @@ void main() {
       expect(transport, isNot(isA<FileSystemTransport>()));
 
       testScopeObserver(
-          options: sentryFlutterOptions, expectedHasNativeScopeObserver: false);
+        options: sentryFlutterOptions,
+        expectedHasNativeScopeObserver: false,
+      );
 
       testConfiguration(
         integrations: integrations,
@@ -367,6 +369,28 @@ void main() {
 
       expect(SentryFlutter.native, isNull);
       expect(Sentry.currentHub.profilerFactory, isNull);
+
+      await Sentry.close();
+    });
+
+    test('Web (custom zone)', () async {
+      final sentryFlutterOptions = defaultTestOptions(getPlatformChecker(
+          platform: MockPlatform.linux(), isWeb: true, isRootZone: false))
+        ..methodChannel = native.channel;
+
+      await SentryFlutter.init(
+        (options) async {
+          options.profilesSampleRate = 1.0;
+        },
+        appRunner: appRunner,
+        options: sentryFlutterOptions,
+      );
+
+      final containsRunZonedGuardedIntegration =
+          Sentry.currentHub.options.integrations.any(
+        (integration) => integration is RunZonedGuardedIntegration,
+      );
+      expect(containsRunZonedGuardedIntegration, isFalse);
 
       await Sentry.close();
     });
@@ -733,10 +757,12 @@ void loadTestPackage() {
 PlatformChecker getPlatformChecker({
   required Platform platform,
   bool isWeb = false,
+  bool isRootZone = true,
 }) {
   final platformChecker = PlatformChecker(
-    isWeb: isWeb,
     platform: platform,
+    isWeb: isWeb,
+    isRootZone: isRootZone,
   );
   return platformChecker;
 }
