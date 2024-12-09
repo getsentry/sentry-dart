@@ -1,5 +1,9 @@
 @import Sentry;
 
+#if SWIFT_PACKAGE
+@import Sentry._Hybrid;
+#endif
+
 #if SENTRY_TARGET_REPLAY_SUPPORTED
 #import "SentryFlutterReplayScreenshotProvider.h"
 #import <Flutter/Flutter.h>
