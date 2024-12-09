@@ -14,8 +14,8 @@ internal class SentryFlutterReplayRecorder(
 ) : Recorder {
   override fun start(recorderConfig: ScreenshotRecorderConfig) {
     // Ignore if this is the initial call before we actually got the configuration from Flutter.
-    // We'll get another call here when the configuration is set.
-    if (recorderConfig.recordingHeight == 0 && recorderConfig.recordingWidth == 0) {
+    // We'll get another call here when the configuration is changed according to the widget size.
+    if (recorderConfig.recordingHeight <= VIDEO_BLOCK_SIZE && recorderConfig.recordingWidth <= VIDEO_BLOCK_SIZE) {
       return
     }
 

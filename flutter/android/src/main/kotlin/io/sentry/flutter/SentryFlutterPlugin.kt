@@ -39,7 +39,7 @@ import java.lang.ref.WeakReference
 import kotlin.math.roundToInt
 
 private const val APP_START_MAX_DURATION_MS = 60000
-private const val VIDEO_BLOCK_SIZE = 16
+public const val VIDEO_BLOCK_SIZE = 16
 
 class SentryFlutterPlugin :
   FlutterPlugin,
@@ -49,14 +49,16 @@ class SentryFlutterPlugin :
   private lateinit var context: Context
   private lateinit var sentryFlutter: SentryFlutter
   private lateinit var replay: ReplayIntegration
+  // Note: initial config because we don't yet have the numbers of the actual Flutter widget.
+  // See how SentryFlutterReplayRecorder.start() handles it. New settings will be set by setReplayConfig() method below.
   private var replayConfig =
     ScreenshotRecorderConfig(
-      recordingWidth = 0,
-      recordingHeight = 0,
+      recordingWidth = VIDEO_BLOCK_SIZE,
+      recordingHeight = VIDEO_BLOCK_SIZE,
       scaleFactorX = 1.0f,
       scaleFactorY = 1.0f,
-      frameRate = 0,
-      bitRate = 0,
+      frameRate = 1,
+      bitRate = 75000,
     )
 
   private var activity: WeakReference<Activity>? = null
