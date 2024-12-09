@@ -49,6 +49,7 @@ class SentryFlutterPlugin :
   private lateinit var context: Context
   private lateinit var sentryFlutter: SentryFlutter
   private lateinit var replay: ReplayIntegration
+
   // Note: initial config because we don't yet have the numbers of the actual Flutter widget.
   // See how SentryFlutterReplayRecorder.start() handles it. New settings will be set by setReplayConfig() method below.
   private var replayConfig =
