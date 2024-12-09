@@ -12,7 +12,7 @@ import 'mocks/mock_sentry_client.dart';
 import 'test_utils.dart';
 
 void main() {
-  group("SentryRunZonedGuarded", () {
+  group("$SentryRunZonedGuarded", () {
     late Fixture fixture;
 
     setUp(() {
