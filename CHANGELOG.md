@@ -4,6 +4,34 @@
 
 ### Features
 
+- Replay: device orientation change support & improve video size fit on Android ([#2462](https://github.com/getsentry/sentry-dart/pull/2462))
+- Support custom `Sentry.runZoneGuarded` zone creation ([#2088](https://github.com/getsentry/sentry-dart/pull/2088))
+  - Sentry will not create a custom zone anymore if it is started within a custom one.
+  - This fixes Zone miss-match errors when trying to initialize WidgetsBinding before Sentry on Flutter Web
+  - `Sentry.runZonedGuarded` creates a zone and also captures exceptions & breadcrumbs automatically.
+  ```dart
+  Sentry.runZonedGuarded(() {
+    WidgetsBinding.ensureInitialized();
+
+    // Errors before init will not be handled by Sentry
+
+    SentryFlutter.init(
+      (options) {
+      ...
+      },
+      appRunner: () => runApp(MyApp()),
+    );
+  } (error, stackTrace) {
+    // Automatically sends errors to Sentry, no need to do any
+    // captureException calls on your part.
+    // On top of that, you can do your own custom stuff in this callback.
+  });
+  ```
+
+## 8.11.0-beta.2
+
+### Features
+
 - Support for screenshot PII content masking ([#2361](https://github.com/getsentry/sentry-dart/pull/2361))
   By default, masking is enabled for SessionReplay. To also enable it for screenshots captured with events, you can specify `options.experimental.privacy`:
   ```dart
@@ -30,15 +58,42 @@
     },
     appRunner: () => runApp(MyApp()),
   );
-  ```  
+  ```
 - Linux native error & obfuscation support ([#2431](https://github.com/getsentry/sentry-dart/pull/2431))
 - Improve Device context on plain Dart and Flutter desktop apps ([#2441](https://github.com/getsentry/sentry-dart/pull/2441))
+- Add debounce to capturing screenshots ([#2368](https://github.com/getsentry/sentry-dart/pull/2368))
+  - Per default, screenshots are debounced for 2 seconds.
+  - If you need more granular screenshots, you can opt out of debouncing:
+  ```dart
+  await SentryFlutter.init((options) {
+    options.beforeCaptureScreenshot = (event, hint, debounce) {
+      if (debounce) {
+        return true; // Capture screenshot even if the SDK wants to debounce it.
+      } else {
+        // check event and hint
+        ...
+      }
+    };
+  });
+  ```
+  - Replace deprecated `BeforeScreenshotCallback` with new `BeforeCaptureCallback`.
+
+
+### Fixes
+
+- Catch errors thrown during `handleBeginFrame` and `handleDrawFrame` ([#2446](https://github.com/getsentry/sentry-dart/pull/2446))
+- OS & device contexts missing on Windows ([#2439](https://github.com/getsentry/sentry-dart/pull/2439))
+- Native iOS/macOS SDK session didn't start after Flutter hot-restart ([#2452](https://github.com/getsentry/sentry-dart/pull/2452))
+- Kotlin 2.1.0 compatibility on Android, bump Kotlin language version from `1.4` to `1.6` ([#2456](https://github.com/getsentry/sentry-dart/pull/2456))
 
 ### Dependencies
 
 - Bump Cocoa SDK from v8.40.1 to v8.41.0 ([#2442](https://github.com/getsentry/sentry-dart/pull/2442))
   - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8410)
   - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.40.1...8.41.0)
+- Bump Android SDK from v7.18.0 to v7.18.1 ([#2457](https://github.com/getsentry/sentry-dart/pull/2457))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#7181)
+  - [diff](https://github.com/getsentry/sentry-java/compare/7.18.0...7.18.1)
 
 ## 8.11.0-beta.1
 

@@ -25,6 +25,7 @@ import 'native/native_scope_observer.dart';
 import 'native/sentry_native_binding.dart';
 import 'profiling.dart';
 import 'renderer/renderer.dart';
+import 'replay/integration.dart';
 import 'version.dart';
 import 'view_hierarchy/view_hierarchy_integration.dart';
 
@@ -55,6 +56,7 @@ mixin SentryFlutter {
     AppRunner? appRunner,
     @internal SentryFlutterOptions? options,
   }) async {
+    SentryScreenshotWidget.reset();
     options ??= SentryFlutterOptions();
 
     // ignore: invalid_use_of_internal_member
@@ -67,15 +69,19 @@ mixin SentryFlutter {
     final platformDispatcher = PlatformDispatcher.instance;
     final wrapper = PlatformDispatcherWrapper(platformDispatcher);
 
-    // Flutter Web don't capture [Future] errors if using [PlatformDispatcher.onError] and not
+    // Flutter Web doesn't capture [Future] errors if using [PlatformDispatcher.onError] and not
     // the [runZonedGuarded].
     // likely due to https://github.com/flutter/flutter/issues/100277
-    final isOnErrorSupported = options.platformChecker.isWeb
-        ? false
-        : wrapper.isOnErrorSupported(options);
+    final bool isOnErrorSupported =
+        !options.platformChecker.isWeb && wrapper.isOnErrorSupported(options);
 
-    final runZonedGuardedOnError =
-        options.platformChecker.isWeb ? _createRunZonedGuardedOnError() : null;
+    final bool isRootZone = options.platformChecker.isRootZone;
+
+    // If onError is not supported and no custom zone exists, use runZonedGuarded to capture errors.
+    final bool useRunZonedGuarded = !isOnErrorSupported && isRootZone;
+
+    RunZonedGuardedOnError? runZonedGuardedOnError =
+        useRunZonedGuarded ? _createRunZonedGuardedOnError() : null;
 
     // first step is to install the native integration and set default values,
     // so we are able to capture future errors.
@@ -96,7 +102,7 @@ mixin SentryFlutter {
       // ignore: invalid_use_of_internal_member
       options: options,
       // ignore: invalid_use_of_internal_member
-      callAppRunnerInRunZonedGuarded: !isOnErrorSupported,
+      callAppRunnerInRunZonedGuarded: useRunZonedGuarded,
       // ignore: invalid_use_of_internal_member
       runZonedGuardedOnError: runZonedGuardedOnError,
     );
@@ -177,6 +183,7 @@ mixin SentryFlutter {
           NativeAppStartHandler(native),
         ),
       );
+      integrations.add(ReplayIntegration(native));
       options.enableDartSymbolication = false;
     }
 
