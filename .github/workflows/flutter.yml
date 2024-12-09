@@ -71,7 +71,7 @@ jobs:
           sudo apt install -y network-manager upower
         if: matrix.target == 'linux'
 
-      - uses: subosito/flutter-action@74af56c5ed2697ba4621264652728e8d217e53d3 # pin@v2.17.0
+      - uses: subosito/flutter-action@f2c4f6686ca8e8d6e6d0f28410eeef506ed66aff # pin@v2.18.0
         with:
           channel: ${{ matrix.sdk }}
 
