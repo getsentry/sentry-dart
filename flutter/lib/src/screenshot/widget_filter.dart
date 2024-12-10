@@ -152,7 +152,6 @@ class WidgetFilter {
       color = _scheme.defaultMask;
     } else if (!color.isOpaque) {
       color = Color.alphaBlend(color, _scheme.background);
-      assert(color.isOpaque, 'Mask color must be opaque: $color');
     }
 
     // test-only code
@@ -164,7 +163,7 @@ class WidgetFilter {
       return true;
     }());
 
-    assert(color.isOpaque);
+    assert(color.isOpaque, 'Mask color must be opaque: $color');
     return WidgetFilterItem(color, rect);
   }
 
