@@ -3,8 +3,8 @@ import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'utils/timer_debouncer.dart';
 import '../sentry_flutter.dart';
-import 'utils/debouncer.dart';
 
 /// This is a `WidgetsBindingObserver` which can observe some events of a
 /// Flutter application.
@@ -25,7 +25,8 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
     required SentryFlutterOptions options,
   })  : _hub = hub ?? HubAdapter(),
         _options = options,
-        _screenSizeStreamController = StreamController(sync: true) {
+        _screenSizeStreamController = StreamController(sync: true),
+        _didChangeMetricsDebouncer = TimerDebouncer(milliseconds: 100) {
     if (_options.enableWindowMetricBreadcrumbs) {
       _screenSizeStreamController.stream
           .map(
@@ -47,11 +48,10 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
 
   final Hub _hub;
   final SentryFlutterOptions _options;
+  final TimerDebouncer _didChangeMetricsDebouncer;
 
   // ignore: deprecated_member_use
   final StreamController<SingletonFlutterWindow?> _screenSizeStreamController;
-
-  final _didChangeMetricsDebouncer = Debouncer(milliseconds: 100);
 
   /// This method records lifecycle events.
   /// It tries to mimic the behavior of ActivityBreadcrumbsIntegration of Sentry
@@ -91,7 +91,6 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
     if (!_options.enableWindowMetricBreadcrumbs) {
       return;
     }
-
     _didChangeMetricsDebouncer.run(() {
       // ignore: deprecated_member_use
       final window = _options.bindingUtils.instance?.window;
