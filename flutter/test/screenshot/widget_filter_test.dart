@@ -1,5 +1,5 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/screenshot/widget_filter.dart';
@@ -14,6 +14,10 @@ void main() async {
   const defaultBounds = Rect.fromLTRB(0, 0, 1000, 1000);
   final rootBundle = TestAssetBundle();
   final otherBundle = TestAssetBundle();
+  final colorScheme = WidgetFilterColorScheme(
+      defaultMask: Colors.white,
+      defaultTextMask: Colors.green,
+      background: Colors.red);
 
   final createSut = ({bool redactImages = false, bool redactText = false}) {
     final replayOptions = SentryPrivacyOptions();
@@ -30,14 +34,22 @@ void main() async {
     testWidgets('redacts the correct number of elements', (tester) async {
       final sut = createSut(redactText: true);
       final element = await pumpTestElement(tester);
-      sut.obscure(element, 1.0, defaultBounds);
+      sut.obscure(
+          context: element,
+          pixelRatio: 1.0,
+          bounds: defaultBounds,
+          colorScheme: colorScheme);
       expect(sut.items.length, 5);
     });
 
     testWidgets('does not redact text when disabled', (tester) async {
       final sut = createSut(redactText: false);
       final element = await pumpTestElement(tester);
-      sut.obscure(element, 1.0, defaultBounds);
+      sut.obscure(
+          context: element,
+          pixelRatio: 1.0,
+          bounds: defaultBounds,
+          colorScheme: colorScheme);
       expect(sut.items.length, 0);
     });
 
@@ -45,14 +57,22 @@ void main() async {
         (tester) async {
       final sut = createSut(redactText: true);
       final element = await pumpTestElement(tester);
-      sut.obscure(element, 1.0, Rect.fromLTRB(0, 0, 100, 100));
+      sut.obscure(
+          context: element,
+          pixelRatio: 1.0,
+          bounds: Rect.fromLTRB(0, 0, 100, 100),
+          colorScheme: colorScheme);
       expect(sut.items.length, 1);
     });
 
     testWidgets('correctly determines sizes', (tester) async {
       final sut = createSut(redactText: true);
       final element = await pumpTestElement(tester);
-      sut.obscure(element, 1.0, defaultBounds);
+      sut.obscure(
+          context: element,
+          pixelRatio: 1.0,
+          bounds: defaultBounds,
+          colorScheme: colorScheme);
       expect(sut.items.length, 5);
       expect(boundsRect(sut.items[0]), '624x48');
       expect(boundsRect(sut.items[1]), '169x20');
@@ -66,7 +86,11 @@ void main() async {
     testWidgets('redacts the correct number of elements', (tester) async {
       final sut = createSut(redactImages: true);
       final element = await pumpTestElement(tester);
-      sut.obscure(element, 1.0, defaultBounds);
+      sut.obscure(
+          context: element,
+          pixelRatio: 1.0,
+          bounds: defaultBounds,
+          colorScheme: colorScheme);
       expect(sut.items.length, 3);
     });
 
@@ -106,7 +130,11 @@ void main() async {
     testWidgets('does not redact text when disabled', (tester) async {
       final sut = createSut(redactImages: false);
       final element = await pumpTestElement(tester);
-      sut.obscure(element, 1.0, defaultBounds);
+      sut.obscure(
+          context: element,
+          pixelRatio: 1.0,
+          bounds: defaultBounds,
+          colorScheme: colorScheme);
       expect(sut.items.length, 0);
     });
 
@@ -114,14 +142,22 @@ void main() async {
         (tester) async {
       final sut = createSut(redactImages: true);
       final element = await pumpTestElement(tester);
-      sut.obscure(element, 1.0, Rect.fromLTRB(0, 0, 500, 100));
+      sut.obscure(
+          context: element,
+          pixelRatio: 1.0,
+          bounds: Rect.fromLTRB(0, 0, 500, 100),
+          colorScheme: colorScheme);
       expect(sut.items.length, 1);
     });
 
     testWidgets('correctly determines sizes', (tester) async {
       final sut = createSut(redactImages: true);
       final element = await pumpTestElement(tester);
-      sut.obscure(element, 1.0, defaultBounds);
+      sut.obscure(
+          context: element,
+          pixelRatio: 1.0,
+          bounds: defaultBounds,
+          colorScheme: colorScheme);
       expect(sut.items.length, 3);
       expect(boundsRect(sut.items[0]), '1x1');
       expect(boundsRect(sut.items[1]), '1x1');
@@ -134,7 +170,11 @@ void main() async {
     final element = await pumpTestElement(tester, children: [
       SentryMask(Padding(padding: EdgeInsets.all(100), child: Text('foo'))),
     ]);
-    sut.obscure(element, 1.0, defaultBounds);
+    sut.obscure(
+        context: element,
+        pixelRatio: 1.0,
+        bounds: defaultBounds,
+        colorScheme: colorScheme);
     expect(sut.items.length, 1);
     expect(boundsRect(sut.items[0]), '344x248');
   });
@@ -146,7 +186,11 @@ void main() async {
       SentryUnmask(newImage()),
       SentryUnmask(SentryMask(Text('foo'))),
     ]);
-    sut.obscure(element, 1.0, defaultBounds);
+    sut.obscure(
+        context: element,
+        pixelRatio: 1.0,
+        bounds: defaultBounds,
+        colorScheme: colorScheme);
     expect(sut.items, isEmpty);
   });
 
@@ -155,11 +199,19 @@ void main() async {
     final element = await pumpTestElement(tester, children: [
       Padding(padding: EdgeInsets.all(100), child: Text('foo')),
     ]);
-    sut.obscure(element, 1.0, defaultBounds);
+    sut.obscure(
+        context: element,
+        pixelRatio: 1.0,
+        bounds: defaultBounds,
+        colorScheme: colorScheme);
     expect(sut.items.length, 1);
     expect(boundsRect(sut.items[0]), '144x48');
     sut.throwInObscure = true;
-    sut.obscure(element, 1.0, defaultBounds);
+    sut.obscure(
+        context: element,
+        pixelRatio: 1.0,
+        bounds: defaultBounds,
+        colorScheme: colorScheme);
     expect(sut.items.length, 1);
     expect(boundsRect(sut.items[0]), '344x248');
   });

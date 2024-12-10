@@ -28,6 +28,10 @@
   });
   ```
 
+### Fixes
+
+- Masking semi-transparent widgets ([#2472](https://github.com/getsentry/sentry-dart/pull/2472))
+
 ## 8.11.0-beta.2
 
 ### Features
