@@ -10,12 +10,12 @@ import 'package:flutter/cupertino.dart';
 ///
 /// This function needs to be executed before assertions.
 Future<void> restoreFlutterOnErrorAfter(Future<void> Function() fn) async {
-  final originalOnError = FlutterError.onError!;
+  final originalOnError = FlutterError.onError;
   await fn();
-  final overriddenOnError = FlutterError.onError!;
+  final overriddenOnError = FlutterError.onError;
 
   FlutterError.onError = (FlutterErrorDetails details) {
-    if (overriddenOnError != originalOnError) overriddenOnError(details);
-    originalOnError(details);
+    if (overriddenOnError != originalOnError) overriddenOnError?.call(details);
+    originalOnError?.call(details);
   };
 }
