@@ -1,9 +1,11 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/screenshot/widget_filter.dart';
 
+import '../mocks.dart';
 import 'test_widget.dart';
 
 // Note: these tests predate existance of `SentryMaskingConfig` which now
@@ -14,12 +16,14 @@ void main() async {
   const defaultBounds = Rect.fromLTRB(0, 0, 1000, 1000);
   final rootBundle = TestAssetBundle();
   final otherBundle = TestAssetBundle();
+  final logger = MockLogger();
 
   final createSut = ({bool redactImages = false, bool redactText = false}) {
     final replayOptions = SentryPrivacyOptions();
     replayOptions.maskAllImages = redactImages;
     replayOptions.maskAllText = redactText;
-    return WidgetFilter(replayOptions.buildMaskingConfig(),
+    logger.clear();
+    return WidgetFilter(replayOptions.buildMaskingConfig(logger.call),
         (level, message, {exception, logger, stackTrace}) {});
   };
 
@@ -164,6 +168,21 @@ void main() async {
     expect(sut.items.length, 1);
     expect(boundsRect(sut.items[0]), '344x248');
   });
+
+  testWidgets('warns on sensitive widgets', (tester) async {
+    final sut = createSut(redactText: true);
+    final element =
+        await pumpTestElement(tester, children: [CustomPasswordWidget()]);
+    sut.obscure(element, 1.0, defaultBounds);
+    final logMessages = logger.items
+        .where((item) => item.level == SentryLevel.warning)
+        .map((item) => item.message)
+        .toList();
+    expect(
+        logMessages,
+        anyElement(contains(
+            'name matches widgets that should usually be masked because they may contain sensitive data')));
+  });
 }
 
 class TestAssetBundle extends CachingAssetBundle {
@@ -171,4 +190,8 @@ class TestAssetBundle extends CachingAssetBundle {
   Future<ByteData> load(String key) async {
     return ByteData(0);
   }
+}
+
+class CustomPasswordWidget extends Column {
+  const CustomPasswordWidget({super.key});
 }

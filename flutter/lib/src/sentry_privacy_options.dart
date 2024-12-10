@@ -28,7 +28,7 @@ class SentryPrivacyOptions {
   final _userMaskingRules = <SentryMaskingRule>[];
 
   @internal
-  SentryMaskingConfig buildMaskingConfig() {
+  SentryMaskingConfig buildMaskingConfig(SentryLogger logger) {
     // First, we collect rules defined by the user (so they're applied first).
     final rules = _userMaskingRules.toList();
 
@@ -68,14 +68,15 @@ class SentryPrivacyOptions {
         final regexp = 'video|webview|password|pinput|camera|chart';
         if (RegExp(regexp, caseSensitive: false).hasMatch(type)) {
           final optionsName = 'options.experimental.privacy';
-          throw Exception(
+          logger(
+              SentryLevel.warning,
               'Widget "$widget" name matches widgets that should usually be '
               'masked because they may contain sensitive data. Because this '
               'widget comes from a third-party plugin or your code, Sentry '
               "doesn't recognize it and can't reliably mask it in release "
               'builds (due to obfuscation). '
               'Please mask it explicitly using $optionsName.mask<$type>(). '
-              'If you want to silence this exception and keep the widget '
+              'If you want to silence this warning and keep the widget '
               'visible in captures, you can use $optionsName.unmask<$type>(). '
               'Note: the RegExp matched is: $regexp (case insensitive).');
         }

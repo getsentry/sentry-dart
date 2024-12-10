@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/screenshot/masking_config.dart';
 
+import '../mocks.dart';
 import 'test_widget.dart';
 
 void main() async {
@@ -115,7 +116,7 @@ void main() async {
 
   group('$SentryReplayOptions.buildMaskingConfig()', () {
     List<String> rulesAsStrings(SentryPrivacyOptions options) {
-      final config = options.buildMaskingConfig();
+      final config = options.buildMaskingConfig(MockLogger().call);
       return config.rules
           .map((rule) => rule.toString())
           // These normalize the string on VM & js & wasm:
