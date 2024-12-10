@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
-import 'time_to_initial_display_tracker.dart';
 
 import '../frame_callback_handler.dart';
+import 'time_to_initial_display_tracker.dart';
 
 /// A widget that reports the Time To Initially Displayed (TTID) of its child widget.
 ///
@@ -27,6 +27,9 @@ import '../frame_callback_handler.dart';
 /// See also:
 /// - [Sentry's documentation on Flutter integrations](https://docs.sentry.io/platforms/flutter/)
 ///   for more information on how to integrate Sentry into your Flutter application.
+@Deprecated(
+    'Manual TTID tracking is no longer needed - Sentry automatically tracks TTID accurately.'
+    ' You can safely remove this widget.')
 class SentryDisplayWidget extends StatefulWidget {
   final Widget child;
   final FrameCallbackHandler _frameCallbackHandler;
@@ -42,6 +45,7 @@ class SentryDisplayWidget extends StatefulWidget {
   _SentryDisplayWidgetState createState() => _SentryDisplayWidgetState();
 }
 
+// ignore: deprecated_member_use_from_same_package
 class _SentryDisplayWidgetState extends State<SentryDisplayWidget> {
   @override
   void initState() {
