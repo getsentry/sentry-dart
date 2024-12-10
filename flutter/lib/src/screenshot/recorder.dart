@@ -182,14 +182,14 @@ extension on widgets.BuildContext {
   WidgetFilterColorScheme? getElementColorScheme(widgets.Element el) {
     final widget = el.widget;
     if (widget is material.MaterialApp || widget is material.Scaffold) {
-      final colorScheme = material.Theme.of(this).colorScheme;
+      final colorScheme = material.Theme.of(el).colorScheme;
       return WidgetFilterColorScheme(
         background: colorScheme.surface.asOpaque(),
         defaultMask: colorScheme.primary.asOpaque(),
         defaultTextMask: colorScheme.primary.asOpaque(),
       );
     } else if (widget is cupertino.CupertinoApp) {
-      final colorScheme = cupertino.CupertinoTheme.of(this);
+      final colorScheme = cupertino.CupertinoTheme.of(el);
       final textColor = colorScheme.textTheme.textStyle.foreground?.color ??
           colorScheme.textTheme.textStyle.color ??
           colorScheme.primaryColor;
