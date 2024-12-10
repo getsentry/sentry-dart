@@ -14,7 +14,7 @@ import 'package:sentry_flutter_example/main.dart';
 void main() {
   const org = 'sentry-sdks';
   const slug = 'sentry-flutter';
-  const authToken = String.fromEnvironment('SENTRY_AUTH_TOKEN');
+  const authToken = String.fromEnvironment('SENTRY_AUTH_TOKEN_E2E');
   const fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
 
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -99,7 +99,7 @@ void main() {
 
     // ignore: deprecated_member_use_from_same_package
     // ignore: deprecated_member_use
-    final associatedEventId = await Sentry.captureMessage("Associated");
+    final associatedEventId = await Sentry.captureMessage('Associated');
     final feedback = SentryFeedback(
       message: 'message',
       contactEmail: 'john.appleseed@apple.com',
@@ -196,21 +196,23 @@ void main() {
       final sentEvent = fixture.sentEvent;
       expect(sentEvent, isNotNull);
 
-      final tags = event!["tags"] as List<dynamic>;
+      final tags = event!['tags'] as List<dynamic>;
 
-      expect(sentEvent!.eventId.toString(), event["id"]);
-      expect("_Exception: Exception: captureException", event["title"]);
-      expect(sentEvent.release, event["release"]["version"]);
+      print('event id: ${event['id']}');
+      print('event title: ${event['title']}');
+      expect(sentEvent!.eventId.toString(), event['id']);
+      expect('_Exception: Exception: captureException', event['title']);
+      expect(sentEvent.release, event['release']['version']);
       expect(
           2,
-          (tags.firstWhere((e) => e["value"] == sentEvent.environment) as Map)
+          (tags.firstWhere((e) => e['value'] == sentEvent.environment) as Map)
               .length);
-      expect(sentEvent.fingerprint, event["fingerprint"] ?? []);
+      expect(sentEvent.fingerprint, event['fingerprint'] ?? []);
       expect(
           2,
-          (tags.firstWhere((e) => e["value"] == SentryLevel.error.name) as Map)
+          (tags.firstWhere((e) => e['value'] == SentryLevel.error.name) as Map)
               .length);
-      expect(sentEvent.logger, event["logger"]);
+      expect(sentEvent.logger, event['logger']);
 
       final dist = tags.firstWhere((element) => element['key'] == 'dist');
       expect('1', dist['value']);
@@ -226,7 +228,7 @@ class Fixture {
   SentryEvent? sentEvent;
 
   FutureOr<SentryEvent?> beforeSend(SentryEvent event, Hint hint) async {
-    sentEvent = event;
+    sentEvent ??= event;
     return event;
   }
 
@@ -242,16 +244,16 @@ class Fixture {
 
     while (retries < maxRetries) {
       try {
-        print("Trying to fetch $url [try $retries/$maxRetries]");
+        print('Trying to fetch $url [try $retries/$maxRetries]');
         final response = await client.get(
           url,
           headers: <String, String>{'Authorization': 'Bearer $authToken'},
         );
-        print("Response status code: ${response.statusCode}");
+        print('Response status code: ${response.statusCode}');
         if (response.statusCode == 200) {
           return jsonDecode(utf8.decode(response.bodyBytes));
         } else if (response.statusCode == 401) {
-          print("Cannot fetch $url - invalid auth token.");
+          print('Cannot fetch $url - invalid auth token.');
           break;
         }
       } catch (e) {
