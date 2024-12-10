@@ -1,9 +1,8 @@
-// ignore_for_file: invalid_use_of_internal_member
+// ignore_for_file: invalid_use_of_internal_member, avoid_web_libraries_in_flutter
 
 @TestOn('browser')
 library flutter_test;
 
-// ignore: avoid_web_libraries_in_flutter
 import 'dart:async';
 import 'dart:js';
 
