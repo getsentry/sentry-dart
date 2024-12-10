@@ -45,6 +45,7 @@ class SentryDisplayWidget extends StatefulWidget {
   _SentryDisplayWidgetState createState() => _SentryDisplayWidgetState();
 }
 
+// ignore: deprecated_member_use_from_same_package
 class _SentryDisplayWidgetState extends State<SentryDisplayWidget> {
   @override
   void initState() {

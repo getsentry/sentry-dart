@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Deprecate
+
+- Manual TTID ([#2477](https://github.com/getsentry/sentry-dart/pull/2477))
+
 ### Features
 
 - Replay: device orientation change support & improve video size fit on Android ([#2462](https://github.com/getsentry/sentry-dart/pull/2462))
