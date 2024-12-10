@@ -222,6 +222,8 @@
   );
   ```
 
+- SPM Support ([#2280](https://github.com/getsentry/sentry-dart/pull/2280))
+
 ### Enhancements
 
 - Avoid sending too many empty client reports when Http Transport is used ([#2380](https://github.com/getsentry/sentry-dart/pull/2380))

@@ -1,6 +1,10 @@
-#import "SentryFlutterReplayBreadcrumbConverter.h"
+#import "include/SentryFlutterReplayBreadcrumbConverter.h"
 
 @import Sentry;
+
+#if SWIFT_PACKAGE
+@import Sentry._Hybrid;
+#endif
 
 #if SENTRY_TARGET_REPLAY_SUPPORTED
 
