@@ -6,6 +6,14 @@
 
 - Manual TTID ([#2477](https://github.com/getsentry/sentry-dart/pull/2477))
 
+### Dependencies
+
+- Bump Native SDK from v0.7.15 to v0.7.16 ([#2465](https://github.com/getsentry/sentry-dart/pull/2465))
+  - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#0716)
+  - [diff](https://github.com/getsentry/sentry-native/compare/0.7.15...0.7.16)
+
+## 8.12.0-beta.1
+
 ### Features
 
 - Replay: device orientation change support & improve video size fit on Android ([#2462](https://github.com/getsentry/sentry-dart/pull/2462))
