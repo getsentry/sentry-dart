@@ -1,5 +1,115 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Support for screenshot PII content masking ([#2361](https://github.com/getsentry/sentry-dart/pull/2361))
+  By default, masking is enabled for SessionReplay. To also enable it for screenshots captured with events, you can specify `options.experimental.privacy`:
+
+  ```dart
+  await SentryFlutter.init(
+    (options) {
+      ...
+      // the defaults are:
+      options.experimental.privacy.maskAllText = true;
+      options.experimental.privacy.maskAllImages = true;
+      options.experimental.privacy.maskAssetImages = false;
+      // you cal also set up custom masking, for example:
+      options.experimental.privacy.mask<WebView>();
+    },
+    appRunner: () => runApp(MyApp()),
+  );
+  ```
+
+  Actually, just accessing this field will cause it to be initialized with the default settings to mask all text and images:
+
+  ```dart
+  await SentryFlutter.init(
+    (options) {
+      ...
+      // this has a side-effect of creating the default privacy configuration, thus enabling Screenshot masking:
+      options.experimental.privacy;
+    },
+    appRunner: () => runApp(MyApp()),
+  );
+  ```
+
+- Linux native error & obfuscation support ([#2431](https://github.com/getsentry/sentry-dart/pull/2431))
+- Improve Device context on plain Dart and Flutter desktop apps ([#2441](https://github.com/getsentry/sentry-dart/pull/2441))
+- Add debounce to capturing screenshots ([#2368](https://github.com/getsentry/sentry-dart/pull/2368))
+  - Per default, screenshots are debounced for 2 seconds.
+  - If you need more granular screenshots, you can opt out of debouncing:
+
+    ```dart
+    await SentryFlutter.init((options) {
+      options.beforeCaptureScreenshot = (event, hint, debounce) {
+        if (debounce) {
+          return true; // Capture screenshot even if the SDK wants to debounce it.
+        } else {
+          // check event and hint
+          ...
+        }
+      };
+    });
+    ```
+
+  - Replace deprecated `BeforeScreenshotCallback` with new `BeforeCaptureCallback`.
+
+- Windows native error & obfuscation support ([#2286](https://github.com/getsentry/sentry-dart/pull/2286), [#2426](https://github.com/getsentry/sentry-dart/pull/2426))
+- Improve app start measurements by using `addTimingsCallback` instead of `addPostFrameCallback` to determine app start end ([#2405](https://github.com/getsentry/sentry-dart/pull/2405))
+  - ⚠️ This change may result in reporting of shorter app start durations
+- Improve frame tracking accuracy ([#2372](https://github.com/getsentry/sentry-dart/pull/2372))
+  - Introduces `SentryWidgetsFlutterBinding` that tracks a frame starting from `handleBeginFrame` and ending in `handleDrawFrame`, this is approximately the [buildDuration](https://api.flutter.dev/flutter/dart-ui/FrameTiming/buildDuration.html) time
+  - By default, `SentryFlutter.init()` automatically initializes `SentryWidgetsFlutterBinding` through the `WidgetsFlutterBindingIntegration`
+  - If you need to initialize the binding before `SentryFlutter.init`, use `SentryWidgetsFlutterBinding.ensureInitialized` instead of `WidgetsFlutterBinding.ensureInitialized`:
+
+    ```dart
+    void main() async {
+      // Replace WidgetsFlutterBinding.ensureInitialized()
+      SentryWidgetsFlutterBinding.ensureInitialized();
+
+      await SentryFlutter.init(...);
+      runApp(MyApp());
+    }
+    ```
+
+  - ⚠️ Frame tracking will be disabled if a different binding is used
+
+### Enhancements
+
+- Only send debug images referenced in the stacktrace for events ([#2329](https://github.com/getsentry/sentry-dart/pull/2329))
+- Remove `sentry` frames if SDK falls back to current stack trace ([#2351](https://github.com/getsentry/sentry-dart/pull/2351))
+  - Flutter doesn't always provide stack traces for unhandled errors - this is normal Flutter behavior
+  - When no stack trace is provided (in Flutter errors, `captureException`, or `captureMessage`):
+    - SDK creates a synthetic trace using `StackTrace.current`
+    - Internal SDK frames are removed to reduce noise
+  - Original stack traces (when provided) are left unchanged
+
+### Fixes
+
+- Catch errors thrown during `handleBeginFrame` and `handleDrawFrame` ([#2446](https://github.com/getsentry/sentry-dart/pull/2446))
+- OS & device contexts missing on Windows ([#2439](https://github.com/getsentry/sentry-dart/pull/2439))
+- Native iOS/macOS SDK session didn't start after Flutter hot-restart ([#2452](https://github.com/getsentry/sentry-dart/pull/2452))
+- Kotlin 2.1.0 compatibility on Android, bump Kotlin language version from `1.4` to `1.6` ([#2456](https://github.com/getsentry/sentry-dart/pull/2456))
+- Apply default IP address (`{{auto}}`) to transactions ([#2395](https://github.com/getsentry/sentry-dart/pull/2395))
+  - Previously, transactions weren't getting the default IP address when user context was loaded
+  - Now consistently applies default IP address to both events and transactions when:
+    - No user context exists
+    - User context exists but IP address is null
+
+### Dependencies
+
+- Bump Cocoa SDK from v8.40.1 to v8.41.0 ([#2442](https://github.com/getsentry/sentry-dart/pull/2442))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8410)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.40.1...8.41.0)
+- Bump Android SDK from v7.16.0 to v7.18.1 ([#2408](https://github.com/getsentry/sentry-dart/pull/2408), [#2419](https://github.com/getsentry/sentry-dart/pull/2419), [#2457](https://github.com/getsentry/sentry-dart/pull/2457))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#7181)
+  - [diff](https://github.com/getsentry/sentry-java/compare/7.16.0...7.18.1)
+- Bump Native SDK from v0.7.12 to v0.7.15 ([#2430](https://github.com/getsentry/sentry-dart/pull/2430))
+  - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#0715)
+  - [diff](https://github.com/getsentry/sentry-native/compare/0.7.12...0.7.15)
+
 ## 8.11.0-beta.2
 
 ### Features
