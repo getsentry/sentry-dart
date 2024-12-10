@@ -108,6 +108,10 @@
 
   - ⚠️ Frame tracking will be disabled if a different binding is used
 
+- Transfer ownership of `sentry_link` to Sentry. You can view the changelog for the previous versions [here](https://github.com/getsentry/sentry-dart/blob/main/sentry_link/CHANGELOG_OLD.md) ([#2338](https://github.com/getsentry/sentry-dart/pull/2338))
+  - No functional changes have been made. This version is identical to the previos one.
+  - Change license from Apache to MIT
+
 ### Enhancements
 
 - Only send debug images referenced in the stacktrace for events ([#2329](https://github.com/getsentry/sentry-dart/pull/2329))
