@@ -148,7 +148,7 @@ extension on widgets.BuildContext {
     WidgetFilterColorScheme? result;
     visitAncestorElements((el) {
       result = getElementColorScheme(el);
-      return result != null;
+      return result == null;
     });
 
     if (result == null) {
