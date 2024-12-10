@@ -43,4 +43,4 @@ jobs:
 
       - name: Compare APK sizes
         working-directory: ./benchmarking
-        run: compare_sizes.sh sample-flutter.apk sample-flutter-sentry.apk $THRESHOLD
+        run: ./compare_sizes.sh sample-flutter.apk sample-flutter-sentry.apk $THRESHOLD
