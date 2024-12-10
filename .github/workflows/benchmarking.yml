@@ -1,0 +1,46 @@
+name: benchmarking
+on:
+  push:
+    branches:
+      - main
+      - release/**
+  pull_request:
+    paths:
+      - '.github/workflows/benchmarking.yml'
+      - '!**/*.md'
+      - '!**/class-diagram.svg'
+      - 'dart/**'
+      - 'flutter/**'
+      - 'benchmarking/**'
+
+jobs:
+  android:
+    name: Collect Android metrics
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@f2c4f6686ca8e8d6e6d0f28410eeef506ed66aff # pin@v2.18.0
+
+      - name: build sample-flutter
+        working-directory: ./benchmarking/sample_flutter
+        run: |
+          flutter upgrade
+          flutter pub get
+          flutter build apk
+          mv ./build/app/outputs/flutter-apk/app-release.apk ../sample-flutter.apk
+
+      - name: build sample-flutter-sentry
+        working-directory: ./benchmarking/sample_flutter_sentry
+        run: |
+          flutter upgrade
+          flutter pub add sentry_flutter
+          flutter pub get
+          flutter build apk
+          mv ./build/app/outputs/flutter-apk/app-release.apk ../sample-flutter-sentry.apk
+
+      - name: Set APK diff threshold
+        run: echo "THRESHOLD=3145728" >> $GITHUB_ENV # 3 MB in bytes
+
+      - name: Compare APK sizes
+        working-directory: ./benchmarking
+        run: compare_sizes.sh sample-flutter.apk sample-flutter-sentry.apk $THRESHOLD
