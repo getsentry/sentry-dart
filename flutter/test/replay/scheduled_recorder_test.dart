@@ -3,7 +3,7 @@
 @TestOn('vm')
 library dart_test;
 
-import 'dart:ui';
+import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/src/replay/scheduled_recorder.dart';
@@ -15,17 +15,19 @@ import '../screenshot/test_widget.dart';
 void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('captures images', (tester) async {
-    final fixture = await _Fixture.create(tester);
-    expect(fixture.capturedImages, isEmpty);
-    await fixture.nextFrame();
-    expect(fixture.capturedImages, ['1000x750']);
-    await fixture.nextFrame();
-    expect(fixture.capturedImages, ['1000x750', '1000x750']);
-    final stopFuture = fixture.sut.stop();
-    await fixture.nextFrame();
-    await stopFuture;
-    expect(fixture.capturedImages, ['1000x750', '1000x750']);
+  testWidgets('captures images on frame updates', (tester) async {
+    await tester.runAsync(() async {
+      final fixture = await _Fixture.create(tester);
+      expect(fixture.capturedImages, isEmpty);
+      await fixture.nextFrame();
+      expect(fixture.capturedImages, ['1000x750']);
+      await fixture.nextFrame();
+      expect(fixture.capturedImages, ['1000x750', '1000x750']);
+      final stopFuture = fixture.sut.stop();
+      await fixture.nextFrame();
+      await stopFuture;
+      expect(fixture.capturedImages, ['1000x750', '1000x750']);
+    });
   });
 }
 
@@ -33,6 +35,7 @@ class _Fixture {
   final WidgetTester _tester;
   late final ScheduledScreenshotRecorder sut;
   final capturedImages = <String>[];
+  late Completer<void> _completer;
 
   _Fixture._(this._tester) {
     sut = ScheduledScreenshotRecorder(
@@ -41,10 +44,13 @@ class _Fixture {
         height: 1000,
         frameRate: 1000,
       ),
-      (Image image) async {
-        capturedImages.add("${image.width}x${image.height}");
-      },
       defaultTestOptions()..bindingUtils = TestBindingWrapper(),
+      (image, isNewlyCaptured) async {
+        capturedImages.add('${image.width}x${image.height}');
+        if (!_completer.isCompleted) {
+          _completer.complete();
+        }
+      },
     );
   }
 
@@ -56,7 +62,16 @@ class _Fixture {
   }
 
   Future<void> nextFrame() async {
+    _completer = Completer();
     _tester.binding.scheduleFrame();
     await _tester.pumpAndSettle(const Duration(seconds: 1));
+    await _completer.future
+        .timeout(Duration(milliseconds: 100), onTimeout: () {});
+  }
+
+  Future<void> tryNextImage() async {
+    _completer = Completer();
+    await _completer.future
+        .timeout(Duration(milliseconds: 100), onTimeout: () {});
   }
 }
