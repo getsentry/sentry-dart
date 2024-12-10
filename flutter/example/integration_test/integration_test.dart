@@ -193,8 +193,8 @@ void main() {
       final event = await fixture.poll(uri, authToken);
       expect(event, isNotNull);
 
-      final sentEvents =
-          fixture.sentEvents.where((el) => el!.eventId == event!['id']);
+      final sentEvents = fixture.sentEvents
+          .where((el) => el!.eventId.toString() == event!['id']);
       expect(
           sentEvents.length, 1); // one button click should only send one error
       final sentEvent = sentEvents.first;
