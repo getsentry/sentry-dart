@@ -24,8 +24,8 @@ void main() {
       }
     });
 
-    // automatically tests TrustedType not configured
-    test('Loads production scripts by default', () async {
+    // automatically tests TrustedType not configured as well
+    test('Loads production scripts correctly', () async {
       final sut = fixture.getSut();
 
       await sut.loadWebSdk(productionScripts);
@@ -35,7 +35,7 @@ void main() {
           scripts.first.src, endsWith('$jsSdkVersion/bundle.tracing.min.js'));
     });
 
-    test('Loads debug scripts when debug is enabled', () async {
+    test('Loads debug scripts correctly', () async {
       final sut = fixture.getSut();
 
       await sut.loadWebSdk(debugScripts);
@@ -113,8 +113,7 @@ void main() {
 class Fixture {
   final options = defaultTestOptions();
 
-  SentryScriptLoader getSut({bool debug = false}) {
-    options.platformChecker = MockPlatformChecker(isDebug: debug);
+  SentryScriptLoader getSut() {
     return SentryScriptLoader(options);
   }
 }
