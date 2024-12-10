@@ -1,5 +1,5 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
@@ -11,7 +11,7 @@ class WidgetFilter {
   final items = <WidgetFilterItem>[];
   final SentryLogger logger;
   final SentryMaskingConfig config;
-  static const _defaultColor = Color.fromARGB(255, 0, 0, 0);
+  late WidgetFilterColorScheme _scheme;
   late double _pixelRatio;
   late Rect _bounds;
   final _warnedWidgets = <int>{};
@@ -22,9 +22,18 @@ class WidgetFilter {
 
   WidgetFilter(this.config, this.logger);
 
-  void obscure(BuildContext context, double pixelRatio, Rect bounds) {
+  void obscure({
+    required BuildContext context,
+    required double pixelRatio,
+    required Rect bounds,
+    required WidgetFilterColorScheme colorScheme,
+  }) {
     _pixelRatio = pixelRatio;
     _bounds = bounds;
+    _scheme = colorScheme;
+    assert(colorScheme.background.isOpaque);
+    assert(colorScheme.defaultMask.isOpaque);
+    assert(colorScheme.defaultTextMask.isOpaque);
     items.clear();
     if (context is Element) {
       _process(context);
@@ -81,7 +90,7 @@ class WidgetFilter {
               stackTrace: stackTrace);
         }
         if (parent == null) {
-          return WidgetFilterItem(_defaultColor, _bounds);
+          return WidgetFilterItem(_scheme.defaultMask, _bounds);
         }
         element = parent;
         widget = element.widget;
@@ -126,11 +135,24 @@ class WidgetFilter {
 
     Color? color;
     if (widget is Text) {
-      color = (widget).style?.color;
+      color = widget.style?.color;
+      if (color == null && renderBox is RenderParagraph) {
+        color = renderBox.text.style?.color;
+      }
+      color ??= _scheme.defaultTextMask;
     } else if (widget is EditableText) {
-      color = (widget).style.color;
+      color = widget.style.color ?? _scheme.defaultTextMask;
     } else if (widget is Image) {
-      color = (widget).color;
+      color = widget.color;
+    }
+
+    // We need to make the color non-transparent or the mask would
+    // also be partially transparent.
+    if (color == null) {
+      color = _scheme.defaultMask;
+    } else if (!color.isOpaque) {
+      color = Color.alphaBlend(color, _scheme.background);
+      assert(color.isOpaque, 'Mask color must be opaque: $color');
     }
 
     // test-only code
@@ -142,7 +164,8 @@ class WidgetFilter {
       return true;
     }());
 
-    return WidgetFilterItem(color ?? _defaultColor, rect);
+    assert(color.isOpaque);
+    return WidgetFilterItem(color, rect);
   }
 
   // We cut off some widgets early because they're not visible at all.
@@ -206,4 +229,25 @@ extension on Element {
     });
     return result;
   }
+}
+
+@internal
+extension Opaqueness on Color {
+  @pragma('vm:prefer-inline')
+  bool get isOpaque => alpha == 0xff;
+
+  @pragma('vm:prefer-inline')
+  Color asOpaque() => isOpaque ? this : Color.fromARGB(0xff, red, green, blue);
+}
+
+@internal
+class WidgetFilterColorScheme {
+  final Color defaultMask;
+  final Color defaultTextMask;
+  final Color background;
+
+  const WidgetFilterColorScheme(
+      {required this.defaultMask,
+      required this.defaultTextMask,
+      required this.background});
 }
