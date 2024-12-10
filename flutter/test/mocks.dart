@@ -237,3 +237,26 @@ class FunctionEventProcessor implements EventProcessor {
     return applyFunction(event, hint);
   }
 }
+
+class MockLogger {
+  final items = <MockLogItem>[];
+
+  void call(SentryLevel level, String message,
+      {String? logger, Object? exception, StackTrace? stackTrace}) {
+    items.add(MockLogItem(level, message,
+        logger: logger, exception: exception, stackTrace: stackTrace));
+  }
+
+  void clear() => items.clear();
+}
+
+class MockLogItem {
+  final SentryLevel level;
+  final String message;
+  final String? logger;
+  final Object? exception;
+  final StackTrace? stackTrace;
+
+  const MockLogItem(this.level, this.message,
+      {this.logger, this.exception, this.stackTrace});
+}
