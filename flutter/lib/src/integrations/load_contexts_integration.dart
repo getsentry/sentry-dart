@@ -1,6 +1,9 @@
 import 'dart:async';
 
 import 'package:sentry/sentry.dart';
+import 'package:collection/collection.dart';
+// ignore: implementation_imports
+import 'package:sentry/src/event_processor/enricher/enricher_event_processor.dart';
 import '../native/sentry_native_binding.dart';
 import '../sentry_flutter_options.dart';
 
@@ -24,6 +27,21 @@ class LoadContextsIntegration extends Integration<SentryFlutterOptions> {
     options.addEventProcessor(
       _LoadContextsIntegrationEventProcessor(_native, options),
     );
+
+    // We need to move [IOEnricherEventProcessor] after [_LoadContextsIntegrationEventProcessor]
+    // so that we know which contexts were set by the user and which were set by the other processor.
+    // The priorities are:
+    // - user-set context values
+    // - context values set from native (this)
+    // - values set from IOEnricherEventProcessor
+    final enricherEventProcessor = options.eventProcessors.firstWhereOrNull(
+      (element) => element is EnricherEventProcessor,
+    );
+    if (enricherEventProcessor != null) {
+      options.removeEventProcessor(enricherEventProcessor);
+      options.addEventProcessor(enricherEventProcessor);
+    }
+
     options.sdk.addIntegration('loadContextsIntegration');
   }
 }

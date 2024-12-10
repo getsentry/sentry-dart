@@ -30116,11 +30116,9 @@ class SentryCocoa {
       ffi.Pointer<ObjCObject> Function(ffi.Pointer<ObjCObject>,
           ffi.Pointer<ObjCSel>, ffi.Pointer<ObjCObject>)>();
 
-  late final _class_SentryCurrentDateProvider1 =
-      _getClass1("SentryCurrentDateProvider");
-  late final _sel_timezoneOffset1 = _registerName1("timezoneOffset");
-  late final _sel_systemTime1 = _registerName1("systemTime");
-  int _objc_msgSend_1062(
+  late final _class_SentryId11 = _getClass1("Sentry.SentryId");
+  late final _sel_empty1 = _registerName1("empty");
+  ffi.Pointer<ObjCObject> _objc_msgSend_1062(
     ffi.Pointer<ObjCObject> obj,
     ffi.Pointer<ObjCSel> sel,
   ) {
@@ -30132,50 +30130,30 @@ class SentryCocoa {
 
   late final __objc_msgSend_1062Ptr = _lookup<
       ffi.NativeFunction<
-          ffi.Uint64 Function(
-              ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>)>>('objc_msgSend');
-  late final __objc_msgSend_1062 = __objc_msgSend_1062Ptr.asFunction<
-      int Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>)>();
-
-  late final _sel_bucketTimestamp1 = _registerName1("bucketTimestamp");
-  late final _class_SentryId11 = _getClass1("Sentry.SentryId");
-  late final _sel_empty1 = _registerName1("empty");
-  ffi.Pointer<ObjCObject> _objc_msgSend_1063(
-    ffi.Pointer<ObjCObject> obj,
-    ffi.Pointer<ObjCSel> sel,
-  ) {
-    return __objc_msgSend_1063(
-      obj,
-      sel,
-    );
-  }
-
-  late final __objc_msgSend_1063Ptr = _lookup<
-      ffi.NativeFunction<
           ffi.Pointer<ObjCObject> Function(
               ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>)>>('objc_msgSend');
-  late final __objc_msgSend_1063 = __objc_msgSend_1063Ptr.asFunction<
+  late final __objc_msgSend_1062 = __objc_msgSend_1062Ptr.asFunction<
       ffi.Pointer<ObjCObject> Function(
           ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>)>();
 
   late final _sel_setEmpty_1 = _registerName1("setEmpty:");
-  void _objc_msgSend_1064(
+  void _objc_msgSend_1063(
     ffi.Pointer<ObjCObject> obj,
     ffi.Pointer<ObjCSel> sel,
     ffi.Pointer<ObjCObject> value,
   ) {
-    return __objc_msgSend_1064(
+    return __objc_msgSend_1063(
       obj,
       sel,
       value,
     );
   }
 
-  late final __objc_msgSend_1064Ptr = _lookup<
+  late final __objc_msgSend_1063Ptr = _lookup<
       ffi.NativeFunction<
           ffi.Void Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
               ffi.Pointer<ObjCObject>)>>('objc_msgSend');
-  late final __objc_msgSend_1064 = __objc_msgSend_1064Ptr.asFunction<
+  late final __objc_msgSend_1063 = __objc_msgSend_1063Ptr.asFunction<
       void Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
           ffi.Pointer<ObjCObject>)>();
 
@@ -30184,86 +30162,86 @@ class SentryCocoa {
   late final _sel_UUID1 = _registerName1("UUID");
   late final _sel_initWithUUIDString_1 = _registerName1("initWithUUIDString:");
   late final _sel_initWithUUIDBytes_1 = _registerName1("initWithUUIDBytes:");
-  instancetype _objc_msgSend_1065(
+  instancetype _objc_msgSend_1064(
     ffi.Pointer<ObjCObject> obj,
     ffi.Pointer<ObjCSel> sel,
     ffi.Pointer<ffi.UnsignedChar> bytes,
   ) {
-    return __objc_msgSend_1065(
+    return __objc_msgSend_1064(
       obj,
       sel,
       bytes,
     );
   }
 
-  late final __objc_msgSend_1065Ptr = _lookup<
+  late final __objc_msgSend_1064Ptr = _lookup<
       ffi.NativeFunction<
           instancetype Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
               ffi.Pointer<ffi.UnsignedChar>)>>('objc_msgSend');
-  late final __objc_msgSend_1065 = __objc_msgSend_1065Ptr.asFunction<
+  late final __objc_msgSend_1064 = __objc_msgSend_1064Ptr.asFunction<
       instancetype Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
           ffi.Pointer<ffi.UnsignedChar>)>();
 
   late final _sel_getUUIDBytes_1 = _registerName1("getUUIDBytes:");
-  void _objc_msgSend_1066(
+  void _objc_msgSend_1065(
     ffi.Pointer<ObjCObject> obj,
     ffi.Pointer<ObjCSel> sel,
     ffi.Pointer<ffi.UnsignedChar> uuid,
   ) {
-    return __objc_msgSend_1066(
+    return __objc_msgSend_1065(
       obj,
       sel,
       uuid,
     );
   }
 
-  late final __objc_msgSend_1066Ptr = _lookup<
+  late final __objc_msgSend_1065Ptr = _lookup<
       ffi.NativeFunction<
           ffi.Void Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
               ffi.Pointer<ffi.UnsignedChar>)>>('objc_msgSend');
-  late final __objc_msgSend_1066 = __objc_msgSend_1066Ptr.asFunction<
+  late final __objc_msgSend_1065 = __objc_msgSend_1065Ptr.asFunction<
       void Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
           ffi.Pointer<ffi.UnsignedChar>)>();
 
-  int _objc_msgSend_1067(
+  int _objc_msgSend_1066(
     ffi.Pointer<ObjCObject> obj,
     ffi.Pointer<ObjCSel> sel,
     ffi.Pointer<ObjCObject> otherUUID,
   ) {
-    return __objc_msgSend_1067(
+    return __objc_msgSend_1066(
       obj,
       sel,
       otherUUID,
     );
   }
 
-  late final __objc_msgSend_1067Ptr = _lookup<
+  late final __objc_msgSend_1066Ptr = _lookup<
       ffi.NativeFunction<
           ffi.Int32 Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
               ffi.Pointer<ObjCObject>)>>('objc_msgSend');
-  late final __objc_msgSend_1067 = __objc_msgSend_1067Ptr.asFunction<
+  late final __objc_msgSend_1066 = __objc_msgSend_1066Ptr.asFunction<
       int Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
           ffi.Pointer<ObjCObject>)>();
 
   late final _sel_UUIDString1 = _registerName1("UUIDString");
   late final _sel_initWithUuid_1 = _registerName1("initWithUuid:");
-  instancetype _objc_msgSend_1068(
+  instancetype _objc_msgSend_1067(
     ffi.Pointer<ObjCObject> obj,
     ffi.Pointer<ObjCSel> sel,
     ffi.Pointer<ObjCObject> uuid,
   ) {
-    return __objc_msgSend_1068(
+    return __objc_msgSend_1067(
       obj,
       sel,
       uuid,
     );
   }
 
-  late final __objc_msgSend_1068Ptr = _lookup<
+  late final __objc_msgSend_1067Ptr = _lookup<
       ffi.NativeFunction<
           instancetype Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
               ffi.Pointer<ObjCObject>)>>('objc_msgSend');
-  late final __objc_msgSend_1068 = __objc_msgSend_1068Ptr.asFunction<
+  late final __objc_msgSend_1067 = __objc_msgSend_1067Ptr.asFunction<
       instancetype Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
           ffi.Pointer<ObjCObject>)>();
 
@@ -71221,148 +71199,6 @@ class SentryBreadcrumb extends _ObjCWrapper {
   }
 }
 
-class SentryCurrentDateProvider extends NSObject {
-  SentryCurrentDateProvider._(ffi.Pointer<ObjCObject> id, SentryCocoa lib,
-      {bool retain = false, bool release = false})
-      : super._(id, lib, retain: retain, release: release);
-
-  /// Returns a [SentryCurrentDateProvider] that points to the same underlying object as [other].
-  static SentryCurrentDateProvider castFrom<T extends _ObjCWrapper>(T other) {
-    return SentryCurrentDateProvider._(other._id, other._lib,
-        retain: true, release: true);
-  }
-
-  /// Returns a [SentryCurrentDateProvider] that wraps the given raw object pointer.
-  static SentryCurrentDateProvider castFromPointer(
-      SentryCocoa lib, ffi.Pointer<ObjCObject> other,
-      {bool retain = false, bool release = false}) {
-    return SentryCurrentDateProvider._(other, lib,
-        retain: retain, release: release);
-  }
-
-  /// Returns whether [obj] is an instance of [SentryCurrentDateProvider].
-  static bool isInstance(_ObjCWrapper obj) {
-    return obj._lib._objc_msgSend_0(obj._id, obj._lib._sel_isKindOfClass_1,
-        obj._lib._class_SentryCurrentDateProvider1);
-  }
-
-  NSDate date() {
-    final _ret = _lib._objc_msgSend_162(_id, _lib._sel_date1);
-    return NSDate._(_ret, _lib, retain: true, release: true);
-  }
-
-  int timezoneOffset() {
-    return _lib._objc_msgSend_78(_id, _lib._sel_timezoneOffset1);
-  }
-
-  int systemTime() {
-    return _lib._objc_msgSend_1062(_id, _lib._sel_systemTime1);
-  }
-
-  double systemUptime() {
-    return _lib._objc_msgSend_155(_id, _lib._sel_systemUptime1);
-  }
-
-  @override
-  SentryCurrentDateProvider init() {
-    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
-    return SentryCurrentDateProvider._(_ret, _lib, retain: true, release: true);
-  }
-
-  int get bucketTimestamp {
-    return _lib._objc_msgSend_1062(_id, _lib._sel_bucketTimestamp1);
-  }
-
-  static SentryCurrentDateProvider new1(SentryCocoa _lib) {
-    final _ret = _lib._objc_msgSend_2(
-        _lib._class_SentryCurrentDateProvider1, _lib._sel_new1);
-    return SentryCurrentDateProvider._(_ret, _lib,
-        retain: false, release: true);
-  }
-
-  static SentryCurrentDateProvider allocWithZone_(
-      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
-    final _ret = _lib._objc_msgSend_3(_lib._class_SentryCurrentDateProvider1,
-        _lib._sel_allocWithZone_1, zone);
-    return SentryCurrentDateProvider._(_ret, _lib,
-        retain: false, release: true);
-  }
-
-  static SentryCurrentDateProvider alloc(SentryCocoa _lib) {
-    final _ret = _lib._objc_msgSend_2(
-        _lib._class_SentryCurrentDateProvider1, _lib._sel_alloc1);
-    return SentryCurrentDateProvider._(_ret, _lib,
-        retain: false, release: true);
-  }
-
-  static void cancelPreviousPerformRequestsWithTarget_selector_object_(
-      SentryCocoa _lib,
-      NSObject aTarget,
-      ffi.Pointer<ObjCSel> aSelector,
-      NSObject anArgument) {
-    _lib._objc_msgSend_14(
-        _lib._class_SentryCurrentDateProvider1,
-        _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
-        aTarget._id,
-        aSelector,
-        anArgument._id);
-  }
-
-  static void cancelPreviousPerformRequestsWithTarget_(
-      SentryCocoa _lib, NSObject aTarget) {
-    _lib._objc_msgSend_15(_lib._class_SentryCurrentDateProvider1,
-        _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
-  }
-
-  static bool getAccessInstanceVariablesDirectly(SentryCocoa _lib) {
-    return _lib._objc_msgSend_12(_lib._class_SentryCurrentDateProvider1,
-        _lib._sel_accessInstanceVariablesDirectly1);
-  }
-
-  static bool useStoredAccessor(SentryCocoa _lib) {
-    return _lib._objc_msgSend_12(
-        _lib._class_SentryCurrentDateProvider1, _lib._sel_useStoredAccessor1);
-  }
-
-  static NSSet keyPathsForValuesAffectingValueForKey_(
-      SentryCocoa _lib, NSString? key) {
-    final _ret = _lib._objc_msgSend_58(
-        _lib._class_SentryCurrentDateProvider1,
-        _lib._sel_keyPathsForValuesAffectingValueForKey_1,
-        key?._id ?? ffi.nullptr);
-    return NSSet._(_ret, _lib, retain: true, release: true);
-  }
-
-  static bool automaticallyNotifiesObserversForKey_(
-      SentryCocoa _lib, NSString? key) {
-    return _lib._objc_msgSend_59(
-        _lib._class_SentryCurrentDateProvider1,
-        _lib._sel_automaticallyNotifiesObserversForKey_1,
-        key?._id ?? ffi.nullptr);
-  }
-
-  static void setKeys_triggerChangeNotificationsForDependentKey_(
-      SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
-    _lib._objc_msgSend_82(
-        _lib._class_SentryCurrentDateProvider1,
-        _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
-        keys?._id ?? ffi.nullptr,
-        dependentKey?._id ?? ffi.nullptr);
-  }
-
-  static NSArray classFallbacksForKeyedArchiver(SentryCocoa _lib) {
-    final _ret = _lib._objc_msgSend_79(_lib._class_SentryCurrentDateProvider1,
-        _lib._sel_classFallbacksForKeyedArchiver1);
-    return NSArray._(_ret, _lib, retain: true, release: true);
-  }
-
-  static NSObject classForKeyedUnarchiver(SentryCocoa _lib) {
-    final _ret = _lib._objc_msgSend_2(_lib._class_SentryCurrentDateProvider1,
-        _lib._sel_classForKeyedUnarchiver1);
-    return NSObject._(_ret, _lib, retain: true, release: true);
-  }
-}
-
 class SentryId1 extends NSObject {
   SentryId1._(ffi.Pointer<ObjCObject> id, SentryCocoa lib,
       {bool retain = false, bool release = false})
@@ -71388,14 +71224,14 @@ class SentryId1 extends NSObject {
 
   static SentryId1? getEmpty(SentryCocoa _lib) {
     final _ret =
-        _lib._objc_msgSend_1063(_lib._class_SentryId11, _lib._sel_empty1);
+        _lib._objc_msgSend_1062(_lib._class_SentryId11, _lib._sel_empty1);
     return _ret.address == 0
         ? null
         : SentryId1._(_ret, _lib, retain: true, release: true);
   }
 
   static void setEmpty(SentryCocoa _lib, SentryId1? value) {
-    return _lib._objc_msgSend_1064(_lib._class_SentryId11, _lib._sel_setEmpty_1,
+    return _lib._objc_msgSend_1063(_lib._class_SentryId11, _lib._sel_setEmpty_1,
         value?._id ?? ffi.nullptr);
   }
 
@@ -71417,7 +71253,7 @@ class SentryId1 extends NSObject {
 
   /// Creates a SentryId with the given UUID.
   SentryId1 initWithUuid_(NSUUID? uuid) {
-    final _ret = _lib._objc_msgSend_1068(
+    final _ret = _lib._objc_msgSend_1067(
         _id, _lib._sel_initWithUuid_1, uuid?._id ?? ffi.nullptr);
     return SentryId1._(_ret, _lib, retain: true, release: true);
   }
@@ -71572,16 +71408,16 @@ class NSUUID extends NSObject {
 
   NSUUID initWithUUIDBytes_(ffi.Pointer<ffi.UnsignedChar> bytes) {
     final _ret =
-        _lib._objc_msgSend_1065(_id, _lib._sel_initWithUUIDBytes_1, bytes);
+        _lib._objc_msgSend_1064(_id, _lib._sel_initWithUUIDBytes_1, bytes);
     return NSUUID._(_ret, _lib, retain: true, release: true);
   }
 
   void getUUIDBytes_(ffi.Pointer<ffi.UnsignedChar> uuid) {
-    _lib._objc_msgSend_1066(_id, _lib._sel_getUUIDBytes_1, uuid);
+    _lib._objc_msgSend_1065(_id, _lib._sel_getUUIDBytes_1, uuid);
   }
 
   int compare_(NSUUID? otherUUID) {
-    return _lib._objc_msgSend_1067(
+    return _lib._objc_msgSend_1066(
         _id, _lib._sel_compare_1, otherUUID?._id ?? ffi.nullptr);
   }
 

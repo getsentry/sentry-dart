@@ -5,10 +5,10 @@ enum SentryScreenshotQuality {
   medium,
   low;
 
-  int? targetResolution() {
+  double? targetResolution() {
     switch (this) {
       case SentryScreenshotQuality.full:
-        return null; // Keep current scale
+        return null; // Uses the device pixel ratio to scale the screenshot
       case SentryScreenshotQuality.high:
         return 1920;
       case SentryScreenshotQuality.medium:

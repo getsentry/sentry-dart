@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/integrations/load_contexts_integration.dart';
+import 'package:sentry/src/sentry_tracer.dart';
 
 import 'fixture.dart';
 
@@ -84,7 +85,8 @@ void main() {
       expect(event.breadcrumbs!.first.message, 'native-mutated-applied');
     });
 
-    test('apply default IP to user during captureEvent after loading context',
+    test(
+        'apply default IP to user during captureEvent after loading context if ip is null',
         () async {
       fixture.options.enableScopeSync = true;
 
@@ -111,8 +113,43 @@ void main() {
 
       await client.captureEvent(event);
 
-      expect(expectedIp, actualIp);
-      expect(expectedId, actualId);
+      expect(actualIp, expectedIp);
+      expect(actualId, expectedId);
+    });
+
+    test(
+        'apply default IP to user during captureTransaction after loading context if ip is null',
+        () async {
+      fixture.options.enableScopeSync = true;
+
+      const expectedIp = '{{auto}}';
+      String? actualIp;
+
+      const expectedId = '1';
+      String? actualId;
+
+      fixture.options.beforeSendTransaction = (transaction) {
+        actualIp = transaction.user?.ipAddress;
+        actualId = transaction.user?.id;
+        return transaction;
+      };
+
+      final options = fixture.options;
+
+      final user = SentryUser(id: expectedId);
+      when(fixture.binding.loadContexts())
+          .thenAnswer((_) async => {'user': user.toJson()});
+
+      final client = SentryClient(options);
+      final tracer =
+          SentryTracer(SentryTransactionContext('name', 'op'), fixture.hub);
+      final transaction = SentryTransaction(tracer);
+
+      // ignore: invalid_use_of_internal_member
+      await client.captureTransaction(transaction);
+
+      expect(actualIp, expectedIp);
+      expect(actualId, expectedId);
     });
   });
 }

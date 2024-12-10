@@ -16,18 +16,6 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 
     private static let nativeClientName = "sentry.cocoa.flutter"
 
-    // The Cocoa SDK is init. after the notification didBecomeActiveNotification is registered.
-    // We need to be able to receive this notification and start a session when the SDK is fully operational.
-    private var didReceiveDidBecomeActiveNotification = false
-
-    private var didBecomeActiveNotificationName: NSNotification.Name {
-#if os(iOS)
-        return UIApplication.didBecomeActiveNotification
-#elseif os(macOS)
-        return NSApplication.didBecomeActiveNotification
-#endif
-    }
-
     private static var pluginRegistrationTime: Int64 = 0
 
     public static func register(with registrar: FlutterPluginRegistrar) {
@@ -40,7 +28,6 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 #endif
 
         let instance = SentryFlutterPluginApple(channel: channel)
-        instance.registerObserver()
         registrar.addMethodCallDelegate(instance, channel: channel)
     }
 
@@ -50,22 +37,6 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
     }
 
     private lazy var sentryFlutter = SentryFlutter()
-
-    private func registerObserver() {
-        NotificationCenter.default.addObserver(self,
-                                               selector: #selector(applicationDidBecomeActive),
-                                               name: didBecomeActiveNotificationName,
-                                               object: nil)
-    }
-
-    @objc private func applicationDidBecomeActive() {
-        didReceiveDidBecomeActiveNotification = true
-        // we only need to do that in the 1st time, so removing it
-        NotificationCenter.default.removeObserver(self,
-                                                  name: didBecomeActiveNotificationName,
-                                                  object: nil)
-
-    }
 
     private lazy var iso8601Formatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -96,7 +67,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
             loadContexts(result: result)
 
         case "loadImageList":
-            loadImageList(result: result)
+            loadImageList(call, result: result)
 
         case "initNativeSdk":
             initNativeSdk(call, result: result)
@@ -277,9 +248,32 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         }
     }
 
-    private func loadImageList(result: @escaping FlutterResult) {
-      let debugImages = PrivateSentrySDKOnly.getDebugImages() as [DebugMeta]
-      result(debugImages.map { $0.serialize() })
+    private func loadImageList(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        var debugImages: [DebugMeta] = []
+
+        if let arguments = call.arguments as? [String], !arguments.isEmpty {
+            var imagesAddresses: Set<String> = []
+
+            for argument in arguments {
+                let hexDigits = argument.replacingOccurrences(of: "0x", with: "")
+                if let instructionAddress = UInt64(hexDigits, radix: 16) {
+                    let image = SentryDependencyContainer.sharedInstance().binaryImageCache.image(
+                        byAddress: instructionAddress)
+                    if let image = image {
+                        let imageAddress = sentry_formatHexAddressUInt64(image.address)!
+                        imagesAddresses.insert(imageAddress)
+                    }
+                }
+            }
+            debugImages =
+              SentryDependencyContainer.sharedInstance().debugImageProvider
+              .getDebugImagesForImageAddressesFromCache(imageAddresses: imagesAddresses) as [DebugMeta]
+        }
+        if debugImages.isEmpty {
+            debugImages = PrivateSentrySDKOnly.getDebugImages() as [DebugMeta]
+        }
+
+        result(debugImages.map { $0.serialize() })
     }
 
     private func initNativeSdk(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -329,15 +323,17 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
             }
         }
 
-       if didReceiveDidBecomeActiveNotification &&
-            (PrivateSentrySDKOnly.options.enableAutoSessionTracking ||
-             PrivateSentrySDKOnly.options.enableWatchdogTerminationTracking) {
-            // We send a SentryHybridSdkDidBecomeActive to the Sentry Cocoa SDK, so the SDK will mimics
-            // the didBecomeActiveNotification notification. This is needed for session and OOM tracking.
-           NotificationCenter.default.post(name: Notification.Name("SentryHybridSdkDidBecomeActive"), object: nil)
-           // we reset the flag for the sake of correctness
-           didReceiveDidBecomeActiveNotification = false
-       }
+        #if os(iOS) || targetEnvironment(macCatalyst)
+        let appIsActive = UIApplication.shared.applicationState == .active
+        #else
+        let appIsActive = NSApplication.shared.isActive
+        #endif
+
+        // We send a SentryHybridSdkDidBecomeActive to the Sentry Cocoa SDK, to mimic
+        // the didBecomeActiveNotification notification. This is needed for session, OOM tracking, replays, etc.
+        if appIsActive {
+            NotificationCenter.default.post(name: Notification.Name("SentryHybridSdkDidBecomeActive"), object: nil)
+        }
 
 #if canImport(UIKit) && !SENTRY_NO_UIKIT
 #if os(iOS) || os(tvOS)

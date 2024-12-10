@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/rendering.dart';
+import 'package:flutter/widgets.dart' as widgets;
 import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
@@ -11,18 +12,40 @@ import 'widget_filter.dart';
 @internal
 typedef ScreenshotRecorderCallback = Future<void> Function(Image);
 
+var _instanceCounter = 0;
+
 @internal
 class ScreenshotRecorder {
   @protected
   final ScreenshotRecorderConfig config;
   @protected
   final SentryFlutterOptions options;
+  @protected
+  late final String logName;
   WidgetFilter? _widgetFilter;
-  bool warningLogged = false;
+  bool _warningLogged = false;
 
-  ScreenshotRecorder(this.config, this.options) {
-    final maskingConfig = options.experimental.replay.buildMaskingConfig();
-    if (maskingConfig.length > 0) {
+  // TODO: remove in the next major release, see recorder_test.dart.
+  @visibleForTesting
+  bool get hasWidgetFilter => _widgetFilter != null;
+
+  // TODO: remove [isReplayRecorder] parameter in the next major release, see _SentryFlutterExperimentalOptions.
+  ScreenshotRecorder(this.config, this.options,
+      {bool isReplayRecorder = true, String? logName}) {
+    if (logName != null) {
+      this.logName = logName;
+    } else if (isReplayRecorder) {
+      _instanceCounter++;
+      this.logName = 'ReplayRecorder #$_instanceCounter';
+    } else {
+      this.logName = 'ScreenshotRecorder';
+    }
+    // see `options.experimental.privacy` docs for details
+    final privacyOptions = isReplayRecorder
+        ? options.experimental.privacyForReplay
+        : options.experimental.privacyForScreenshots;
+    final maskingConfig = privacyOptions?.buildMaskingConfig();
+    if (maskingConfig != null && maskingConfig.length > 0) {
       _widgetFilter = WidgetFilter(maskingConfig, options.logger);
     }
   }
@@ -31,12 +54,10 @@ class ScreenshotRecorder {
     final context = sentryScreenshotWidgetGlobalKey.currentContext;
     final renderObject = context?.findRenderObject() as RenderRepaintBoundary?;
     if (context == null || renderObject == null) {
-      if (!warningLogged) {
-        options.logger(
-            SentryLevel.warning,
-            "Replay: SentryScreenshotWidget is not attached. "
-            "Skipping replay capture.");
-        warningLogged = true;
+      if (!_warningLogged) {
+        options.logger(SentryLevel.warning,
+            "$logName: SentryScreenshotWidget is not attached, skipping capture.");
+        _warningLogged = true;
       }
       return;
     }
@@ -49,7 +70,9 @@ class ScreenshotRecorder {
       // On iOS, the screenshot resolution is not adjusted.
       final srcWidth = renderObject.size.width;
       final srcHeight = renderObject.size.height;
-      final pixelRatio = config.getPixelRatio(srcWidth, srcHeight);
+
+      final pixelRatio = config.getPixelRatio(srcWidth, srcHeight) ??
+          widgets.MediaQuery.of(context).devicePixelRatio;
 
       // First, we synchronously capture the image and enumerate widgets on the main UI loop.
       final futureImage = renderObject.toImage(pixelRatio: pixelRatio);
@@ -84,21 +107,21 @@ class ScreenshotRecorder {
       try {
         final finalImage = await picture.toImage(
             (srcWidth * pixelRatio).round(), (srcHeight * pixelRatio).round());
+        options.logger(
+            SentryLevel.debug,
+            "$logName: captured a screenshot in ${watch.elapsedMilliseconds}"
+            " ms ($blockingTime ms blocking).");
         try {
           await callback(finalImage);
         } finally {
-          finalImage.dispose();
+          finalImage.dispose(); // image needs to be disposed manually
         }
       } finally {
         picture.dispose();
       }
-
-      options.logger(
-          SentryLevel.debug,
-          "Replay: captured a screenshot in ${watch.elapsedMilliseconds}"
-          " ms ($blockingTime ms blocking).");
     } catch (e, stackTrace) {
-      options.logger(SentryLevel.error, "Replay: failed to capture screenshot.",
+      options.logger(
+          SentryLevel.error, "$logName: failed to capture screenshot.",
           exception: e, stackTrace: stackTrace);
       if (options.automatedTestMode) {
         rethrow;

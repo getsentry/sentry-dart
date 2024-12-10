@@ -10,6 +10,7 @@ import 'package:sentry/src/sentry_tracer.dart';
 
 import 'package:meta/meta.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_flutter/src/frames_tracking/sentry_delayed_frames_tracker.dart';
 import 'package:sentry_flutter/src/renderer/renderer.dart';
 import 'package:sentry_flutter/src/native/sentry_native_binding.dart';
 
@@ -48,7 +49,10 @@ ISentrySpan startTransactionShim(
   SentrySpan,
   SentryClient,
   MethodChannel,
-  SentryNativeBinding
+  SentryNativeBinding,
+  SentryDelayedFramesTracker,
+  BindingWrapper,
+  WidgetsFlutterBinding,
 ], customMocks: [
   MockSpec<Hub>(fallbackGenerators: {#startTransaction: startTransactionShim})
 ])
@@ -100,6 +104,7 @@ class MockPlatformChecker with NoSuchMethodProvider implements PlatformChecker {
     this.isRelease = false,
     this.isWebValue = false,
     this.hasNativeIntegration = false,
+    this.isRoot = true,
     Platform? mockPlatform,
   }) : _mockPlatform = mockPlatform ?? MockPlatform('');
 
@@ -107,6 +112,7 @@ class MockPlatformChecker with NoSuchMethodProvider implements PlatformChecker {
   final bool isProfile;
   final bool isRelease;
   final bool isWebValue;
+  final bool isRoot;
   final Platform _mockPlatform;
 
   @override
@@ -120,6 +126,9 @@ class MockPlatformChecker with NoSuchMethodProvider implements PlatformChecker {
 
   @override
   bool isReleaseMode() => isRelease;
+
+  @override
+  bool get isRootZone => isRoot;
 
   @override
   bool get isWeb => isWebValue;
