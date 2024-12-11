@@ -117,12 +117,12 @@ void main() {
 
       await sut.loadWebSdk(debugScripts);
 
-      final beforeCloseScripts = fetchScripts('script');
+      final beforeCloseScripts = fetchAllScripts();
       expect(beforeCloseScripts.length, 2);
 
       await sut.close();
 
-      final afterCloseScripts = fetchScripts('script');
+      final afterCloseScripts = fetchAllScripts();
       expect(afterCloseScripts.length,
           beforeCloseScripts.length - debugScripts.length);
     });
