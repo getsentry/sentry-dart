@@ -99,18 +99,14 @@ class MockPlatform with NoSuchMethodProvider implements Platform {
 
 class MockPlatformChecker with NoSuchMethodProvider implements PlatformChecker {
   MockPlatformChecker({
-    this.isDebug = false,
-    this.isProfile = false,
-    this.isRelease = false,
+    this.buildMode = MockPlatformCheckerBuildMode.debug,
     this.isWebValue = false,
     this.hasNativeIntegration = false,
     this.isRoot = true,
     Platform? mockPlatform,
   }) : _mockPlatform = mockPlatform ?? MockPlatform('');
 
-  final bool isDebug;
-  final bool isProfile;
-  final bool isRelease;
+  final MockPlatformCheckerBuildMode buildMode;
   final bool isWebValue;
   final bool isRoot;
   final Platform _mockPlatform;
@@ -119,13 +115,13 @@ class MockPlatformChecker with NoSuchMethodProvider implements PlatformChecker {
   bool hasNativeIntegration = false;
 
   @override
-  bool isDebugMode() => isDebug;
+  bool isDebugMode() => buildMode == MockPlatformCheckerBuildMode.debug;
 
   @override
-  bool isProfileMode() => isProfile;
+  bool isProfileMode() => buildMode == MockPlatformCheckerBuildMode.profile;
 
   @override
-  bool isReleaseMode() => isRelease;
+  bool isReleaseMode() => buildMode == MockPlatformCheckerBuildMode.release;
 
   @override
   bool get isRootZone => isRoot;
@@ -136,6 +132,8 @@ class MockPlatformChecker with NoSuchMethodProvider implements PlatformChecker {
   @override
   Platform get platform => _mockPlatform;
 }
+
+enum MockPlatformCheckerBuildMode { debug, profile, release }
 
 // Does nothing or returns default values.
 // Useful for when a Hub needs to be passed but is not used.

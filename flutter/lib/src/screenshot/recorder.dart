@@ -46,7 +46,8 @@ class ScreenshotRecorder {
     final privacyOptions = isReplayRecorder
         ? options.experimental.privacyForReplay
         : options.experimental.privacyForScreenshots;
-    final maskingConfig = privacyOptions?.buildMaskingConfig(_log);
+    final maskingConfig =
+        privacyOptions?.buildMaskingConfig(_log, options.platformChecker);
     if (maskingConfig != null && maskingConfig.length > 0) {
       _widgetFilter = WidgetFilter(maskingConfig, options.logger);
     }

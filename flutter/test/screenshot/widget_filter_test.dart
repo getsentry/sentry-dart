@@ -21,13 +21,17 @@ void main() async {
       defaultTextMask: Colors.green,
       background: Colors.red);
 
-  final createSut = ({bool redactImages = false, bool redactText = false}) {
-    final replayOptions = SentryPrivacyOptions();
-    replayOptions.maskAllImages = redactImages;
-    replayOptions.maskAllText = redactText;
+  final createSut = (
+      {bool redactImages = false,
+      bool redactText = false,
+      PlatformChecker? platformChecker}) {
+    final privacyOptions = SentryPrivacyOptions()
+      ..maskAllImages = redactImages
+      ..maskAllText = redactText;
     logger.clear();
-    return WidgetFilter(replayOptions.buildMaskingConfig(logger.call),
-        (level, message, {exception, logger, stackTrace}) {});
+    final maskingConfig = privacyOptions.buildMaskingConfig(
+        logger.call, platformChecker ?? PlatformChecker());
+    return WidgetFilter(maskingConfig, logger.call);
   };
 
   boundsRect(WidgetFilterItem item) =>
@@ -220,23 +224,34 @@ void main() async {
     expect(boundsRect(sut.items[0]), '344x248');
   });
 
-  testWidgets('warns on sensitive widgets', (tester) async {
-    final sut = createSut(redactText: true);
-    final element =
-        await pumpTestElement(tester, children: [CustomPasswordWidget()]);
-    sut.obscure(
-        context: element,
-        pixelRatio: 1.0,
-        bounds: defaultBounds,
-        colorScheme: colorScheme);
-    final logMessages = logger.items
-        .where((item) => item.level == SentryLevel.warning)
-        .map((item) => item.message)
-        .toList();
-    expect(
-        logMessages,
-        anyElement(contains(
-            'name matches widgets that should usually be masked because they may contain sensitive data')));
+  group('warning on sensitive widgets', () {
+    for (final buildMode in MockPlatformCheckerBuildMode.values) {
+      testWidgets(buildMode.name, (tester) async {
+        final sut = createSut(
+            redactText: true,
+            platformChecker: MockPlatformChecker(buildMode: buildMode));
+        final element =
+            await pumpTestElement(tester, children: [CustomPasswordWidget()]);
+        sut.obscure(
+            context: element,
+            pixelRatio: 1.0,
+            bounds: defaultBounds,
+            colorScheme: colorScheme);
+        final logMessages = logger.items
+            .where((item) => item.level == SentryLevel.warning)
+            .map((item) => item.message)
+            .toList();
+
+        if (buildMode == MockPlatformCheckerBuildMode.debug) {
+          expect(
+              logMessages,
+              anyElement(contains(
+                  'name matches widgets that should usually be masked because they may contain sensitive data')));
+        } else {
+          expect(logMessages, isEmpty);
+        }
+      });
+    }
   });
 }
 

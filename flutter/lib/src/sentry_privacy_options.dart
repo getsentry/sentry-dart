@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
@@ -28,7 +27,8 @@ class SentryPrivacyOptions {
   final _userMaskingRules = <SentryMaskingRule>[];
 
   @internal
-  SentryMaskingConfig buildMaskingConfig(SentryLogger logger) {
+  SentryMaskingConfig buildMaskingConfig(
+      SentryLogger logger, PlatformChecker platform) {
     // First, we collect rules defined by the user (so they're applied first).
     final rules = _userMaskingRules.toList();
 
@@ -61,13 +61,19 @@ class SentryPrivacyOptions {
 
     // In Debug mode, check if users explicitly mask (or unmask) widgets that
     // look like they should be masked, e.g. Videos, WebViews, etc.
-    if (kDebugMode) {
+    if (platform.isDebugMode()) {
+      final regexp = RegExp('video|webview|password|pinput|camera|chart',
+          caseSensitive: false);
+
+      // Note: the following line just makes sure if the option is renamed,
+      // someone will notice that there is a string that needs updating too.
+      SentryFlutterOptions().experimental.privacy;
+      final optionsName = 'options.experimental.privacy';
+
       rules.add(
           SentryMaskingCustomRule<Widget>((Element element, Widget widget) {
         final type = widget.runtimeType.toString();
-        final regexp = 'video|webview|password|pinput|camera|chart';
-        if (RegExp(regexp, caseSensitive: false).hasMatch(type)) {
-          final optionsName = 'options.experimental.privacy';
+        if (regexp.hasMatch(type)) {
           logger(
               SentryLevel.warning,
               'Widget "$widget" name matches widgets that should usually be '
