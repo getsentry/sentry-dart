@@ -57,6 +57,7 @@ class SentryScriptLoader {
         ? productionScripts
         : debugScripts;
 
+    // no risk of injection since the scripts are constants
     final selectors = scriptsToRemove.map((script) {
       return 'script[src="${script['url']}"][integrity="${script['integrity']}"]';
     }).join(', ');
