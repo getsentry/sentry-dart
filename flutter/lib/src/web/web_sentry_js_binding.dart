@@ -9,9 +9,17 @@ SentryJsBinding createJsBinding() {
 class WebSentryJsBinding implements SentryJsBinding {
   @override
   void init(Map<String, dynamic> options) {
-    _sentryInit(options.jsify());
+    _init(options.jsify());
+  }
+
+  @override
+  void close() {
+    _close();
   }
 }
 
 @JS('Sentry.init')
-external void _sentryInit(JSAny? options);
+external void _init(JSAny? options);
+
+@JS('Sentry.close')
+external void _close();

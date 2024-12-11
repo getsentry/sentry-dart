@@ -16,4 +16,9 @@ class HtmlSentryJsBinding implements SentryJsBinding {
     _sentry ??= context['Sentry'] as JsObject;
     _sentry!.callMethod('init', [JsObject.jsify(options)]);
   }
+
+  @override
+  void close() {
+    _sentry?.callMethod('close');
+  }
 }

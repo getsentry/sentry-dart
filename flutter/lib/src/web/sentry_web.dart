@@ -33,7 +33,9 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryWebBinding {
   }
 
   @override
-  FutureOr<void> close() {}
+  FutureOr<void> close() {
+    _binding.close();
+  }
 
   @override
   SentryFlutterOptions get options => _options;
