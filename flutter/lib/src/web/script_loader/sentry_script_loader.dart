@@ -58,7 +58,7 @@ class SentryScriptLoader {
         : debugScripts;
 
     final selectors = scriptsToRemove.map((script) {
-      return 'script[src="${script['url']}"]';
+      return 'script[src="${script['url']}"][integrity="${script['integrity']}"]';
     }).join(', ');
     final sentryScripts = fetchScripts(selectors);
     for (final script in sentryScripts) {

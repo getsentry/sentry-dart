@@ -7,7 +7,7 @@ import 'package:sentry_flutter/src/web/script_loader/sentry_script_loader.dart';
 import 'package:sentry_flutter/src/web/sentry_js_bundle.dart';
 
 import '../mocks.dart';
-import 'dom_api/script_dom_api.dart';
+import 'utils.dart';
 
 // Just some random/arbitrary script that we can use for injecting
 const randomWorkingScriptUrl =
