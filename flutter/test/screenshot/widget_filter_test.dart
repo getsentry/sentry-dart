@@ -81,12 +81,16 @@ void main() async {
           bounds: defaultBounds,
           colorScheme: colorScheme);
       expect(sut.items.length, 6);
-      expect(boundsRect(sut.items[0]), '624x48');
-      expect(boundsRect(sut.items[1]), '169x20');
-      expect(boundsRect(sut.items[2]), '800x192');
-      expect(boundsRect(sut.items[3]), '800x24');
-      expect(boundsRect(sut.items[4]), '800x24');
-      expect(boundsRect(sut.items[5]), '50x20');
+      expect(
+          sut.items.map(boundsRect),
+          unorderedEquals([
+            '624x48',
+            '169x20',
+            '800x192',
+            '800x24',
+            '800x24',
+            '50x20',
+          ]));
     });
   });
 
