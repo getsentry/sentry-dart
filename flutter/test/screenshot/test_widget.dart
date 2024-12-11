@@ -35,6 +35,7 @@ Future<Element> pumpTestElement(WidgetTester tester,
                       Offstage(offstage: true, child: newImage()),
                       Text(dummyText),
                       Material(child: TextFormField()),
+                      Material(child: TextField()),
                       SizedBox(
                           width: 100,
                           height: 20,

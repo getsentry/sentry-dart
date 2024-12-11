@@ -46,10 +46,17 @@ class ScreenshotRecorder {
     final privacyOptions = isReplayRecorder
         ? options.experimental.privacyForReplay
         : options.experimental.privacyForScreenshots;
-    final maskingConfig = privacyOptions?.buildMaskingConfig();
+    final maskingConfig =
+        privacyOptions?.buildMaskingConfig(_log, options.platformChecker);
     if (maskingConfig != null && maskingConfig.length > 0) {
       _widgetFilter = WidgetFilter(maskingConfig, options.logger);
     }
+  }
+
+  void _log(SentryLevel level, String message,
+      {String? logger, Object? exception, StackTrace? stackTrace}) {
+    options.logger(level, '$logName: $message',
+        logger: logger, exception: exception, stackTrace: stackTrace);
   }
 
   Future<void> capture(ScreenshotRecorderCallback callback) async {
@@ -57,8 +64,8 @@ class ScreenshotRecorder {
     final renderObject = context?.findRenderObject() as RenderRepaintBoundary?;
     if (context == null || renderObject == null) {
       if (!_warningLogged) {
-        options.logger(SentryLevel.warning,
-            "$logName: SentryScreenshotWidget is not attached, skipping capture.");
+        _log(SentryLevel.warning,
+            "SentryScreenshotWidget is not attached, skipping capture.");
         _warningLogged = true;
       }
       return;
@@ -112,9 +119,9 @@ class ScreenshotRecorder {
       try {
         final finalImage = await picture.toImage(
             (srcWidth * pixelRatio).round(), (srcHeight * pixelRatio).round());
-        options.logger(
+        _log(
             SentryLevel.debug,
-            "$logName: captured a screenshot in ${watch.elapsedMilliseconds}"
+            "captured a screenshot in ${watch.elapsedMilliseconds}"
             " ms ($blockingTime ms blocking).");
         try {
           await callback(finalImage);
@@ -125,8 +132,7 @@ class ScreenshotRecorder {
         picture.dispose();
       }
     } catch (e, stackTrace) {
-      options.logger(
-          SentryLevel.error, "$logName: failed to capture screenshot.",
+      _log(SentryLevel.error, "failed to capture screenshot.",
           exception: e, stackTrace: stackTrace);
       if (options.automatedTestMode) {
         rethrow;

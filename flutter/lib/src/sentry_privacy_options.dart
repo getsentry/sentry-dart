@@ -27,7 +27,8 @@ class SentryPrivacyOptions {
   final _userMaskingRules = <SentryMaskingRule>[];
 
   @internal
-  SentryMaskingConfig buildMaskingConfig() {
+  SentryMaskingConfig buildMaskingConfig(
+      SentryLogger logger, PlatformChecker platform) {
     // First, we collect rules defined by the user (so they're applied first).
     final rules = _userMaskingRules.toList();
 
@@ -50,12 +51,45 @@ class SentryPrivacyOptions {
       assert(!maskAssetImages,
           "maskAssetImages can't be true if maskAllImages is false");
     }
+
     if (maskAllText) {
       rules.add(
           const SentryMaskingConstantRule<Text>(SentryMaskingDecision.mask));
       rules.add(const SentryMaskingConstantRule<EditableText>(
           SentryMaskingDecision.mask));
     }
+
+    // In Debug mode, check if users explicitly mask (or unmask) widgets that
+    // look like they should be masked, e.g. Videos, WebViews, etc.
+    if (platform.isDebugMode()) {
+      final regexp = RegExp('video|webview|password|pinput|camera|chart',
+          caseSensitive: false);
+
+      // Note: the following line just makes sure if the option is renamed,
+      // someone will notice that there is a string that needs updating too.
+      SentryFlutterOptions().experimental.privacy;
+      final optionsName = 'options.experimental.privacy';
+
+      rules.add(
+          SentryMaskingCustomRule<Widget>((Element element, Widget widget) {
+        final type = widget.runtimeType.toString();
+        if (regexp.hasMatch(type)) {
+          logger(
+              SentryLevel.warning,
+              'Widget "$widget" name matches widgets that should usually be '
+              'masked because they may contain sensitive data. Because this '
+              'widget comes from a third-party plugin or your code, Sentry '
+              "doesn't recognize it and can't reliably mask it in release "
+              'builds (due to obfuscation). '
+              'Please mask it explicitly using $optionsName.mask<$type>(). '
+              'If you want to silence this warning and keep the widget '
+              'visible in captures, you can use $optionsName.unmask<$type>(). '
+              'Note: the RegExp matched is: $regexp (case insensitive).');
+        }
+        return SentryMaskingDecision.continueProcessing;
+      }));
+    }
+
     return SentryMaskingConfig(rules);
   }
 
