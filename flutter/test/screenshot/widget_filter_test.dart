@@ -225,6 +225,7 @@ void main() async {
   });
 
   group('warning on sensitive widgets', () {
+    assert(MockPlatformCheckerBuildMode.values.length == 3);
     for (final buildMode in MockPlatformCheckerBuildMode.values) {
       testWidgets(buildMode.name, (tester) async {
         final sut = createSut(
