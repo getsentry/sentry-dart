@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:meta/meta.dart';
 
 import '../../../sentry_flutter.dart';
+import '../sentry_js_bundle.dart';
 import 'script_dom_api.dart';
 
 @internal
@@ -48,6 +49,20 @@ class SentryScriptLoader {
       if (_options.automatedTestMode) {
         rethrow;
       }
+    }
+  }
+
+  Future<void> close() async {
+    final scriptsToRemove = _options.platformChecker.isReleaseMode()
+        ? productionScripts
+        : debugScripts;
+
+    final selectors = scriptsToRemove.map((script) {
+      return 'script[src="${script['url']}"]';
+    }).join(', ');
+    final sentryScripts = fetchScripts(selectors);
+    for (final script in sentryScripts) {
+      script.remove();
     }
   }
 }
