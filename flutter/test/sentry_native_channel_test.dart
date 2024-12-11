@@ -335,12 +335,16 @@ void main() {
             ReplayConfig(width: 1.1, height: 2.2, frameRate: 3, bitRate: 4);
         await sut.setReplayConfig(config);
 
-        verify(channel.invokeMethod('setReplayConfig', {
-          'width': config.width,
-          'height': config.height,
-          'frameRate': config.frameRate,
-          'bitRate': config.bitRate,
-        }));
+        if (mockPlatform.isAndroid) {
+          verify(channel.invokeMethod('setReplayConfig', {
+            'width': config.width,
+            'height': config.height,
+            'frameRate': config.frameRate,
+            'bitRate': config.bitRate,
+          }));
+        } else {
+          verifyNever(channel.invokeMethod('setReplayConfig', any));
+        }
       });
 
       test('captureReplay', () async {
