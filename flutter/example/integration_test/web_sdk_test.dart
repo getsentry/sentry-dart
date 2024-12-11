@@ -32,14 +32,12 @@ void main() {
       await restoreFlutterOnErrorAfter(() async {
         await SentryFlutter.init((options) {
           options.dsn = app.exampleDsn;
-          options.release = 'my-random-release';
         }, appRunner: () async {
           await tester.pumpWidget(const app.MyApp());
         });
 
         final beforeSendFn = JsFunction.withThis((thisArg, event, hint) {
           actualMessage = event['message'];
-          print('release ${event['release']}');
           completer.complete();
           return event;
         });
