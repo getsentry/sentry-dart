@@ -22,6 +22,8 @@ void main() {
 
     tearDown(() async {
       await Sentry.close();
+      // Clean up any existing Sentry object from previous tests
+      context['Sentry'] = null;
     });
 
     testWidgets('Sentry JS SDK is callable', (tester) async {
@@ -61,14 +63,27 @@ void main() {
     });
 
     testWidgets('Sentry JS SDK is automatically initialized', (tester) async {
+      const expectedDsn = 'https://random@def.ingest.sentry.io/1234567';
+      const expectedRelease = 'my-random-release';
+      const expectedSampleRate = 0.2;
+      const expectedEnv = 'my-random-env';
+      const expectedDist = '999';
+      const expectedAttachStacktrace = false;
+      const expectedMaxBreadcrumbs = 1000;
+      const expectedDebug = true;
+
       dynamic jsOptions;
-      SentryFlutterOptions? dartOptions;
+
       await restoreFlutterOnErrorAfter(() async {
         await SentryFlutter.init((options) {
-          options.dsn = app.exampleDsn;
-          options.release = 'my-random-release';
-          options.sampleRate = 0.2;
-          dartOptions = options;
+          options.dsn = expectedDsn;
+          options.debug = expectedDebug;
+          options.release = expectedRelease;
+          options.sampleRate = expectedSampleRate;
+          options.environment = expectedEnv;
+          options.dist = expectedDist;
+          options.attachStacktrace = expectedAttachStacktrace;
+          options.maxBreadcrumbs = expectedMaxBreadcrumbs;
         }, appRunner: () async {
           await tester.pumpWidget(const app.MyApp());
         });
@@ -78,15 +93,32 @@ void main() {
       });
 
       // Test all options mapped from Dart to JS
-      expect(jsOptions['dsn'], dartOptions!.dsn);
-      expect(jsOptions['debug'], dartOptions!.debug);
-      expect(jsOptions['environment'], dartOptions!.environment);
-      expect(jsOptions['release'], dartOptions!.release);
-      expect(jsOptions['dist'], dartOptions!.dist);
-      expect(jsOptions['sampleRate'], dartOptions!.sampleRate);
-      expect(jsOptions['attachStacktrace'], dartOptions!.attachStacktrace);
-      expect(jsOptions['maxBreadcrumbs'], dartOptions!.maxBreadcrumbs);
+      expect(jsOptions['dsn'], equals(expectedDsn));
+      expect(jsOptions['debug'], equals(expectedDebug));
+      expect(jsOptions['environment'], equals(expectedEnv));
+      expect(jsOptions['release'], equals(expectedRelease));
+      expect(jsOptions['dist'], equals(expectedDist));
+      expect(jsOptions['sampleRate'], equals(expectedSampleRate));
+      expect(jsOptions['attachStacktrace'], equals(expectedAttachStacktrace));
+      expect(jsOptions['maxBreadcrumbs'], equals(expectedMaxBreadcrumbs));
       expect(jsOptions['defaultIntegrations'], isEmpty);
+    });
+
+    testWidgets('Sentry JS SDK is not available without WebSdkIntegration',
+        (tester) async {
+      await restoreFlutterOnErrorAfter(() async {
+        await SentryFlutter.init((options) {
+          options.dsn = app.exampleDsn;
+          // Remove WebSdkIntegration
+          final integration = options.integrations.firstWhere((integration) =>
+              integration.runtimeType.toString() == 'WebSdkIntegration');
+          options.removeIntegration(integration);
+        }, appRunner: () async {
+          await tester.pumpWidget(const app.MyApp());
+        });
+      });
+
+      expect(context['Sentry'], isNull);
     });
   });
 }
