@@ -74,7 +74,6 @@ jobs:
           profile: Nexus 6
           arch: x86_64
           force-avd-creation: false
-          avd-name: macOS-avd-x86_64-31
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
           script: echo 'Generated AVD snapshot for caching.'
