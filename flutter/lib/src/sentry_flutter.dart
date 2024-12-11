@@ -29,7 +29,9 @@ import 'renderer/renderer.dart';
 import 'replay/integration.dart';
 import 'version.dart';
 import 'view_hierarchy/view_hierarchy_integration.dart';
+import 'web/html_sentry_js_binding.dart';
 import 'web/script_loader/sentry_script_loader.dart';
+import 'web/sentry_web.dart';
 
 /// Configuration options callback
 typedef FlutterOptionsConfiguration = FutureOr<void> Function(
@@ -195,8 +197,10 @@ mixin SentryFlutter {
     }
 
     if (platformChecker.isWeb) {
+      final jsBinding = createJsBinding();
+      final web = SentryWeb(jsBinding, options);
       final loader = SentryScriptLoader(options);
-      integrations.add(WebSdkIntegration(loader));
+      integrations.add(WebSdkIntegration(web, loader));
       integrations.add(ConnectivityIntegration());
     }
 
@@ -325,6 +329,7 @@ mixin SentryFlutter {
   static set native(SentryNativeBinding? value) => _native = value;
 
   static SentryNativeBinding? _native;
+  static SentryWebBinding? _web;
 
   /// Use `nativeCrash()` to crash the native implementation and test/debug the crash reporting for native code.
   /// This should not be used in production code.

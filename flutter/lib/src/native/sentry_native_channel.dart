@@ -8,9 +8,9 @@ import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
 import '../replay/replay_config.dart';
+import 'method_channel_helper.dart';
 import 'native_app_start.dart';
 import 'native_frames.dart';
-import 'method_channel_helper.dart';
 import 'sentry_native_binding.dart';
 import 'sentry_native_invoker.dart';
 import 'sentry_safe_method_channel.dart';
@@ -234,4 +234,9 @@ class SentryNativeChannel
       channel.invokeMethod('captureReplay', {
         'isCrash': isCrash,
       }).then((value) => SentryId.fromId(value as String));
+
+  @override
+  FutureOr<void> captureSerializedEnvelope(SentryEnvelope envelope) {
+    throw UnsupportedError("Not supported on this platform");
+  }
 }

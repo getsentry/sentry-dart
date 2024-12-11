@@ -32,13 +32,14 @@ void main() {
       await restoreFlutterOnErrorAfter(() async {
         await SentryFlutter.init((options) {
           options.dsn = app.exampleDsn;
-          options.automatedTestMode = false;
+          options.release = 'my-random-release';
         }, appRunner: () async {
           await tester.pumpWidget(const app.MyApp());
         });
 
         final beforeSendFn = JsFunction.withThis((thisArg, event, hint) {
           actualMessage = event['message'];
+          print('release ${event['release']}');
           completer.complete();
           return event;
         });
@@ -59,6 +60,35 @@ void main() {
       });
 
       expect(actualMessage, equals(expectedMessage));
+    });
+
+    testWidgets('Sentry JS SDK is automatically initialized', (tester) async {
+      dynamic jsOptions;
+      SentryFlutterOptions? dartOptions;
+      await restoreFlutterOnErrorAfter(() async {
+        await SentryFlutter.init((options) {
+          options.dsn = app.exampleDsn;
+          options.release = 'my-random-release';
+          options.sampleRate = 0.2;
+          dartOptions = options;
+        }, appRunner: () async {
+          await tester.pumpWidget(const app.MyApp());
+        });
+
+        final sentry = context['Sentry'] as JsObject;
+        jsOptions = sentry.callMethod('getClient').callMethod('getOptions');
+      });
+
+      // Test all options mapped from Dart to JS
+      expect(jsOptions['dsn'], dartOptions!.dsn);
+      expect(jsOptions['debug'], dartOptions!.debug);
+      expect(jsOptions['environment'], dartOptions!.environment);
+      expect(jsOptions['release'], dartOptions!.release);
+      expect(jsOptions['dist'], dartOptions!.dist);
+      expect(jsOptions['sampleRate'], dartOptions!.sampleRate);
+      expect(jsOptions['attachStacktrace'], dartOptions!.attachStacktrace);
+      expect(jsOptions['maxBreadcrumbs'], dartOptions!.maxBreadcrumbs);
+      expect(jsOptions['defaultIntegrations'], isEmpty);
     });
   });
 }
