@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'platform/platform.dart';
 
 /// Helper to check in which environment the library is running.
