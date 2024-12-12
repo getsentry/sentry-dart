@@ -23,8 +23,6 @@ class WebSdkIntegration implements Integration<SentryFlutterOptions> {
           ? debugScripts
           : productionScripts;
       await _scriptLoader.loadWebSdk(scripts);
-
-      print('start init');
       await _web.init(hub);
 
       options.sdk.addIntegration(name);
