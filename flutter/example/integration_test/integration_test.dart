@@ -175,6 +175,7 @@ void main() {
 
     testWidgets('captureException', (tester) async {
       late Uri uri;
+
       await restoreFlutterOnErrorAfter(() async {
         await setupSentryAndApp(tester,
             dsn: exampleDsn, beforeSendCallback: fixture.beforeSend);
@@ -188,9 +189,9 @@ void main() {
         uri = Uri.parse(
           'https://sentry.io/api/0/projects/$org/$slug/events/$id/',
         );
-
-        expect(authToken, isNotEmpty);
       });
+
+      expect(authToken, isNotEmpty);
 
       final event = await fixture.poll(uri, authToken);
       expect(event, isNotNull);
