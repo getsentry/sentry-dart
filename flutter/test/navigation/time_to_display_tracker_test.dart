@@ -101,7 +101,6 @@ void main() {
         expect(ttidSpan?.origin, SentryTraceOrigins.manualUiTimeToDisplay);
       });
 
-      // skipping test, flaky
       test('completes with timeout when not completing the tracking', () async {
         final sut = fixture.getSut();
 
@@ -110,7 +109,7 @@ void main() {
 
         final transaction = fixture.getTransaction() as SentryTracer;
         await sut.track(transaction, startTimestamp: fixture.startTimestamp);
-      }, skip: true);
+      });
     });
   });
 
