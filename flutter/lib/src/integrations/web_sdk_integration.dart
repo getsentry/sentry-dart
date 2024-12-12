@@ -23,6 +23,8 @@ class WebSdkIntegration implements Integration<SentryFlutterOptions> {
           ? debugScripts
           : productionScripts;
       await _scriptLoader.loadWebSdk(scripts);
+
+      print('start init');
       await _web.init(hub);
 
       options.sdk.addIntegration(name);
@@ -40,7 +42,8 @@ class WebSdkIntegration implements Integration<SentryFlutterOptions> {
   }
 
   @override
-  FutureOr<void> close() {
-    // no-op
+  FutureOr<void> close() async {
+    await _web.close();
+    await _scriptLoader.close();
   }
 }

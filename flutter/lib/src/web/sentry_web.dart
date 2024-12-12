@@ -20,9 +20,6 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
   final SentryJsBinding _binding;
   final SentryFlutterOptions _options;
 
-  void _logNotSupported(String operation) => options.logger(
-      SentryLevel.debug, 'SentryWeb: $operation is not supported');
-
   @override
   FutureOr<void> init(Hub hub) {
     final Map<String, dynamic> mapOptions = {
@@ -122,7 +119,7 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
   @override
   FutureOr<void> nativeCrash() {
     throw UnsupportedError(
-        "$SentryWeb.setReplayConfig() not supported on this platform");
+        "$SentryWeb.nativeCrash() not supported on this platform");
   }
 
   @override
