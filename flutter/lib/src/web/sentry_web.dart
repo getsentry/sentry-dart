@@ -22,24 +22,28 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
 
   @override
   FutureOr<void> init(Hub hub) {
-    final Map<String, dynamic> jsOptions = {
-      'dsn': _options.dsn,
-      'debug': _options.debug,
-      'environment': _options.environment,
-      'release': _options.release,
-      'dist': _options.dist,
-      'sampleRate': _options.sampleRate,
-      'attachStacktrace': _options.attachStacktrace,
-      'maxBreadcrumbs': _options.maxBreadcrumbs,
-      // using defaultIntegrations ensures that we can control which integrations are added
-      'defaultIntegrations': [],
-    };
-    _binding.init(jsOptions);
+    tryCatchSync('init', () {
+      final Map<String, dynamic> jsOptions = {
+        'dsn': _options.dsn,
+        'debug': _options.debug,
+        'environment': _options.environment,
+        'release': _options.release,
+        'dist': _options.dist,
+        'sampleRate': _options.sampleRate,
+        'attachStacktrace': _options.attachStacktrace,
+        'maxBreadcrumbs': _options.maxBreadcrumbs,
+        // using defaultIntegrations ensures that we can control which integrations are added
+        'defaultIntegrations': [],
+      };
+      _binding.init(jsOptions);
+    });
   }
 
   @override
   FutureOr<void> close() {
-    _binding.close();
+    tryCatchSync('close', () {
+      _binding.close();
+    });
   }
 
   @override
