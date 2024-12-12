@@ -33,7 +33,7 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
         'attachStacktrace': _options.attachStacktrace,
         'maxBreadcrumbs': _options.maxBreadcrumbs,
         // using defaultIntegrations ensures that we can control which integrations are added
-        'defaultIntegrations': [],
+        'defaultIntegrations': <String>[],
       };
       _binding.init(jsOptions);
     });
