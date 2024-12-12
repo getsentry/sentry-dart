@@ -1,15 +1,16 @@
-import 'package:flutter/cupertino.dart';
+import 'dart:async';
 
-/// Restores the onError to it's original state.
-/// This makes assertion errors readable.
+import 'package:flutter/widgets.dart';
+
+/// Restores Flutter's `FlutterError.onError` to its original state after executing a function.
 ///
-/// testWidgets override Flutter.onError by default
-/// If a fail happens during integration tests this would complain that
-/// the FlutterError.onError was overwritten and wasn't reset to its
-/// state before asserting.
+/// `testWidgets` and `SentryFlutter.init` automatically override `FlutterError.onError`.
+/// If `FlutterError.onError` is not restored to its original state and an assertion fails
+/// Flutter will complain and throw an error.
 ///
-/// This function needs to be executed before assertions.
-Future<void> restoreFlutterOnErrorAfter(Future<void> Function() fn) async {
+/// This function ensures `FlutterError.onError` is restored to its initial state after `fn` runs.
+/// Assertions must only be executed after onError has been restored.
+FutureOr<void> restoreFlutterOnErrorAfter(FutureOr<void> Function() fn) async {
   final originalOnError = FlutterError.onError;
   await fn();
   final overriddenOnError = FlutterError.onError;

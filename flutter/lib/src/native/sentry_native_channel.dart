@@ -221,7 +221,7 @@ class SentryNativeChannel
   bool get supportsReplay => false;
 
   @override
-  Future<void> setReplayConfig(ReplayConfig config) =>
+  FutureOr<void> setReplayConfig(ReplayConfig config) =>
       channel.invokeMethod('setReplayConfig', {
         'width': config.width,
         'height': config.height,
