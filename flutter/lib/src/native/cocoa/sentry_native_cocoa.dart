@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ffi';
 import 'dart:typed_data';
 import 'dart:ui';
@@ -5,6 +6,7 @@ import 'dart:ui';
 import 'package:meta/meta.dart';
 
 import '../../../sentry_flutter.dart';
+import '../../replay/replay_config.dart';
 import '../../screenshot/recorder.dart';
 import '../../screenshot/recorder_config.dart';
 import '../sentry_native_channel.dart';
@@ -66,6 +68,11 @@ class SentryNativeCocoa extends SentryNativeChannel {
     }
 
     return super.init(hub);
+  }
+
+  @override
+  FutureOr<void> setReplayConfig(ReplayConfig config) {
+    // Note: unused on iOS.
   }
 
   @override
