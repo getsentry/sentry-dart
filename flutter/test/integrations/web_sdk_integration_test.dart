@@ -12,14 +12,17 @@ import '../mocks.mocks.dart';
 void main() {
   group('$WebSdkIntegration', () {
     late Fixture fixture;
+    late WebSdkIntegration sut;
 
     setUp(() async {
       fixture = Fixture();
+      sut = fixture.getSut();
+
+      when(fixture.web.init(any)).thenReturn(null);
+      when(fixture.web.close()).thenReturn(null);
     });
 
     test('adds integration', () async {
-      final sut = fixture.getSut();
-
       await sut.call(fixture.hub, fixture.options);
 
       expect(fixture.options.sdk.integrations.contains(WebSdkIntegration.name),
@@ -27,8 +30,6 @@ void main() {
     });
 
     test('loads scripts and initializes web', () async {
-      final sut = fixture.getSut();
-
       await sut.call(fixture.hub, fixture.options);
 
       expect(fixture.scriptLoader.loadScriptsCalls, 1);
@@ -36,9 +37,7 @@ void main() {
     });
 
     test('closes resources', () async {
-      final sut = fixture.getSut();
-
-      await sut.call(fixture.hub, fixture.options);
+      await sut.close();
 
       expect(fixture.scriptLoader.closeCalls, 1);
       verify(fixture.web.close()).called(1);
