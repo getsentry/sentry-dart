@@ -282,11 +282,6 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
     _logNotSupported('capturing replay');
     return SentryId.empty();
   }
-
-  @override
-  FutureOr<void> captureSerializedEnvelope(SentryEnvelope envelope) {
-    throw UnsupportedError("Not supported on this platform");
-  }
 }
 
 extension on binding.sentry_value_u {

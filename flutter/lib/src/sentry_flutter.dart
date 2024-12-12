@@ -29,7 +29,6 @@ import 'renderer/renderer.dart';
 import 'replay/integration.dart';
 import 'version.dart';
 import 'view_hierarchy/view_hierarchy_integration.dart';
-import 'web/html_sentry_js_binding.dart';
 import 'web/script_loader/sentry_script_loader.dart';
 import 'web/sentry_web.dart';
 
@@ -129,7 +128,9 @@ mixin SentryFlutter {
       if (_native!.supportsCaptureEnvelope) {
         options.transport = FileSystemTransport(_native!, options);
       }
-      options.addScopeObserver(NativeScopeObserver(_native!));
+      if (!options.platformChecker.isWeb) {
+        options.addScopeObserver(NativeScopeObserver(_native!));
+      }
     }
 
     options.addEventProcessor(FlutterEnricherEventProcessor(options));
@@ -172,22 +173,26 @@ mixin SentryFlutter {
 
     // The ordering here matters, as we'd like to first start the native integration.
     // That allow us to send events to the network and then the Flutter integrations.
-    // Flutter Web doesn't need that, only Android and iOS.
     final native = _native;
     if (native != null) {
-      integrations.add(NativeSdkIntegration(native));
-      if (native.supportsLoadContexts) {
-        integrations.add(LoadContextsIntegration(native));
+      if (platformChecker.isWeb) {
+        final loader = SentryScriptLoader(options);
+        integrations.add(WebSdkIntegration(native, loader));
+      } else {
+        integrations.add(NativeSdkIntegration(native));
+        if (native.supportsLoadContexts) {
+          integrations.add(LoadContextsIntegration(native));
+        }
+        integrations.add(LoadImageListIntegration(native));
+        integrations.add(FramesTrackingIntegration(native));
+        integrations.add(
+          NativeAppStartIntegration(
+            DefaultFrameCallbackHandler(),
+            NativeAppStartHandler(native),
+          ),
+        );
+        integrations.add(ReplayIntegration(native));
       }
-      integrations.add(LoadImageListIntegration(native));
-      integrations.add(FramesTrackingIntegration(native));
-      integrations.add(
-        NativeAppStartIntegration(
-          DefaultFrameCallbackHandler(),
-          NativeAppStartHandler(native),
-        ),
-      );
-      integrations.add(ReplayIntegration(native));
       options.enableDartSymbolication = false;
     }
 
@@ -197,10 +202,6 @@ mixin SentryFlutter {
     }
 
     if (platformChecker.isWeb) {
-      final jsBinding = createJsBinding();
-      final web = SentryWeb(jsBinding, options);
-      final loader = SentryScriptLoader(options);
-      integrations.add(WebSdkIntegration(web, loader));
       integrations.add(ConnectivityIntegration());
     }
 

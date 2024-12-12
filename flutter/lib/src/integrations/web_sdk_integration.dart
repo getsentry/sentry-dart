@@ -3,15 +3,15 @@ import 'dart:async';
 import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
+import '../native/sentry_native_binding.dart';
 import '../web/script_loader/sentry_script_loader.dart';
 import '../web/sentry_js_bundle.dart';
-import '../web/sentry_web.dart';
 
 class WebSdkIntegration implements Integration<SentryFlutterOptions> {
   WebSdkIntegration(this._web, this._scriptLoader);
 
   final SentryScriptLoader _scriptLoader;
-  final SentryWebBinding _web;
+  final SentryNativeBinding _web;
 
   @internal
   static const name = 'webSdkIntegration';
@@ -23,7 +23,7 @@ class WebSdkIntegration implements Integration<SentryFlutterOptions> {
           ? debugScripts
           : productionScripts;
       await _scriptLoader.loadWebSdk(scripts);
-      await _web.init();
+      await _web.init(hub);
 
       options.sdk.addIntegration(name);
     } catch (exception, stackTrace) {
