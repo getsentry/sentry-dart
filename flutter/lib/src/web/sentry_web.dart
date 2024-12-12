@@ -22,7 +22,7 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
 
   @override
   FutureOr<void> init(Hub hub) {
-    final Map<String, dynamic> mapOptions = {
+    final Map<String, dynamic> jsOptions = {
       'dsn': _options.dsn,
       'debug': _options.debug,
       'environment': _options.environment,
@@ -34,7 +34,7 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
       // using defaultIntegrations ensures that we can control which integrations are added
       'defaultIntegrations': [],
     };
-    _binding.init(mapOptions);
+    _binding.init(jsOptions);
   }
 
   @override
