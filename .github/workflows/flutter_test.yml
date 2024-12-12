@@ -81,7 +81,7 @@ jobs:
           arch: x86_64
           force-avd-creation: false
           avd-name: avd-x86_64-31
-          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
           script: echo 'Generated AVD snapshot for caching.'
 
