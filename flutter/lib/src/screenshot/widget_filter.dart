@@ -14,6 +14,7 @@ class WidgetFilter {
   late WidgetFilterColorScheme _scheme;
   late double _pixelRatio;
   late Rect _bounds;
+  late List<Element> _visitList;
   final _warnedWidgets = <int>{};
 
   /// Used to test _obscureElementOrParent
@@ -34,11 +35,24 @@ class WidgetFilter {
     assert(colorScheme.background.isOpaque);
     assert(colorScheme.defaultMask.isOpaque);
     assert(colorScheme.defaultTextMask.isOpaque);
+
+    // clear the output list
     items.clear();
-    if (context is Element) {
-      _process(context);
-    } else {
-      context.visitChildElements(_process);
+
+    // Reset the list of elements we're going to process.
+    // Then do a breadth-first tree traversal on all the widgets.
+    // TODO benchmark performance compared to to DoubleLinkedQueue.
+    _visitList = [];
+    context.visitChildElements(_visitList.add);
+    while (_visitList.isNotEmpty) {
+      // Get a handle on the items we're supposed to process in this step.
+      // Then _visitList (which is updated in _process()) with a new instance.
+      final currentList = _visitList;
+      _visitList = [];
+
+      for (final element in currentList) {
+        _process(element);
+      }
     }
   }
 
@@ -66,7 +80,7 @@ class WidgetFilter {
         break;
       case SentryMaskingDecision.continueProcessing:
         // If this element should not be obscured, visit and check its children.
-        element.visitChildElements(_process);
+        element.visitChildElements(_visitList.add);
         break;
     }
   }
@@ -233,9 +247,11 @@ extension on Element {
 @internal
 extension Opaqueness on Color {
   @pragma('vm:prefer-inline')
+  // ignore: deprecated_member_use
   bool get isOpaque => alpha == 0xff;
 
   @pragma('vm:prefer-inline')
+  // ignore: deprecated_member_use
   Color asOpaque() => isOpaque ? this : Color.fromARGB(0xff, red, green, blue);
 }
 
