@@ -69,6 +69,7 @@ class Fixture {
 
   MaterialApp getSut() {
     return MaterialApp(
+      // ignore: deprecated_member_use_from_same_package
       home: SentryDisplayWidget(
         frameCallbackHandler: frameCallbackHandler,
         child: Text('my text'),
