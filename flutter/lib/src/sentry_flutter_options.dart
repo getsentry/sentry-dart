@@ -12,8 +12,8 @@ import 'navigation/time_to_display_tracker.dart';
 import 'renderer/renderer.dart';
 import 'screenshot/sentry_screenshot_quality.dart';
 import 'event_processor/screenshot_event_processor.dart';
-import 'screenshot/sentry_screenshot_widget.dart';
 import 'sentry_flutter.dart';
+import 'sentry_privacy_options.dart';
 import 'sentry_replay_options.dart';
 import 'user_interaction/sentry_user_interaction_widget.dart';
 
@@ -183,22 +183,27 @@ class SentryFlutterOptions extends SentryOptions {
 
   /// Automatically attaches a screenshot when capturing an error or exception.
   ///
-  /// Requires adding the [SentryScreenshotWidget] to the widget tree.
+  /// Requires adding the [SentryWidget] to the widget tree.
   /// Example:
-  /// runApp(SentryScreenshotWidget(child: App()));
-  /// The [SentryScreenshotWidget] has to be the root widget of the app.
+  /// runApp(SentryWidget(child: App()));
+  /// The [SentryWidget] has to be the root widget of the app.
   bool attachScreenshot = false;
 
   /// The quality of the attached screenshot
   SentryScreenshotQuality screenshotQuality = SentryScreenshotQuality.high;
 
   /// Only attach a screenshot when the app is resumed.
+  /// See https://docs.sentry.io/platforms/flutter/troubleshooting/#screenshot-integration-background-crash
   bool attachScreenshotOnlyWhenResumed = false;
+
+  @Deprecated(
+      'Will be removed in a future version. Use [beforeCaptureScreenshot] instead')
+  BeforeScreenshotCallback? beforeScreenshot;
 
   /// Sets a callback which is executed before capturing screenshots. Only
   /// relevant if `attachScreenshot` is set to true. When false is returned
   /// from the function, no screenshot will be attached.
-  BeforeScreenshotCallback? beforeScreenshot;
+  BeforeCaptureCallback? beforeCaptureScreenshot;
 
   /// Enable or disable automatic breadcrumbs for User interactions Using [Listener]
   ///
@@ -385,11 +390,65 @@ class SentryFlutterOptions extends SentryOptions {
 class _SentryFlutterExperimentalOptions {
   /// Replay recording configuration.
   final replay = SentryReplayOptions();
+
+  /// Privacy configuration for masking sensitive data in screenshots and Session Replay.
+  /// Screen content masking is:
+  /// - enabled by default for SessionReplay
+  /// - disabled by default for screenshots captured with events.
+  /// In order to mask screenshots captured with events, access or change
+  /// this property in your application: `options.experimental.privacy`.
+  /// Doing so will indicate that you want to configure privacy settings and
+  /// will enable screenshot masking alongside the default replay masking.
+  /// Note: this will change in a future SDK major release to enable screenshot
+  /// masking by default for all captures.
+  SentryPrivacyOptions get privacy {
+    // If the user explicitly sets the privacy setting, we use that.
+    // Otherwise, we use the default settings, which is no masking for screenshots
+    // and full masking for session replay.
+    // This property must only by accessed by user code otherwise it defeats the purpose.
+    _privacy ??= SentryPrivacyOptions();
+    return _privacy!;
+  }
+
+  /// TODO: remove when default masking value are synced with SS & SR in the next major release
+  SentryPrivacyOptions? _privacy;
+
+  @meta.internal
+  SentryPrivacyOptions? get privacyForScreenshots => _privacy;
+
+  @meta.internal
+  SentryPrivacyOptions get privacyForReplay =>
+      _privacy ?? SentryPrivacyOptions();
 }
 
-/// Callback being executed in [ScreenshotEventProcessor], deciding if a
-/// screenshot should be recorded and attached.
-typedef BeforeScreenshotCallback = FutureOr<bool> Function(
-  SentryEvent event, {
-  Hint? hint,
-});
+@Deprecated(
+    'Will be removed in a future version. Use [BeforeCaptureCallback] instead')
+typedef BeforeScreenshotCallback = FutureOr<bool> Function(SentryEvent event,
+    {Hint? hint});
+
+/// A callback which can be used to suppress capturing of screenshots.
+/// It's called in [ScreenshotEventProcessor] if screenshots are enabled.
+/// This gives more fine-grained control over when capturing should be performed,
+/// e.g., only capture screenshots for fatal events or override any debouncing for important events.
+///
+/// Since capturing can be resource-intensive, the debounce parameter should be respected if possible.
+///
+/// Example:
+/// ```dart
+/// if (debounce) {
+///   return false;
+/// } else {
+///   // check event and hint
+/// }
+/// ```
+///
+/// [event] is the event to be checked.
+/// [hint] provides additional hints.
+/// [debounce] indicates if capturing is marked for being debounced.
+///
+/// Returns `true` if capturing should be performed, otherwise `false`.
+typedef BeforeCaptureCallback = FutureOr<bool> Function(
+  SentryEvent event,
+  Hint hint,
+  bool debounce,
+);

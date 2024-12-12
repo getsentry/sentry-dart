@@ -222,12 +222,24 @@ void main() {
 
     testWidgets('adds correct flutter runtime', (WidgetTester tester) async {
       final checkerMap = {
-        MockPlatformChecker(isWebValue: false, isDebug: true): 'Dart VM',
-        MockPlatformChecker(isWebValue: false, isProfile: true): 'Dart AOT',
-        MockPlatformChecker(isWebValue: false, isRelease: true): 'Dart AOT',
-        MockPlatformChecker(isWebValue: true, isDebug: true): 'dartdevc',
-        MockPlatformChecker(isWebValue: true, isProfile: true): 'dart2js',
-        MockPlatformChecker(isWebValue: true, isRelease: true): 'dart2js',
+        MockPlatformChecker(
+            isWebValue: false,
+            buildMode: MockPlatformCheckerBuildMode.debug): 'Dart VM',
+        MockPlatformChecker(
+            isWebValue: false,
+            buildMode: MockPlatformCheckerBuildMode.profile): 'Dart AOT',
+        MockPlatformChecker(
+            isWebValue: false,
+            buildMode: MockPlatformCheckerBuildMode.release): 'Dart AOT',
+        MockPlatformChecker(
+            isWebValue: true,
+            buildMode: MockPlatformCheckerBuildMode.debug): 'dartdevc',
+        MockPlatformChecker(
+            isWebValue: true,
+            buildMode: MockPlatformCheckerBuildMode.profile): 'dart2js',
+        MockPlatformChecker(
+            isWebValue: true,
+            buildMode: MockPlatformCheckerBuildMode.release): 'dart2js',
       };
 
       for (var pair in checkerMap.entries) {

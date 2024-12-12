@@ -2197,21 +2197,17 @@ void main() {
 }
 
 Future<SentryEvent> eventFromEnvelope(SentryEnvelope envelope) async {
-  final envelopeItemData = <int>[];
-  envelopeItemData.addAll(await envelope.items.first.envelopeItemStream());
-
-  final envelopeItem = utf8.decode(envelopeItemData);
-  final envelopeItemJson = jsonDecode(envelopeItem.split('\n').last);
+  final data = await envelope.items.first.dataFactory();
+  final utf8Data = utf8.decode(data);
+  final envelopeItemJson = jsonDecode(utf8Data);
   return SentryEvent.fromJson(envelopeItemJson as Map<String, dynamic>);
 }
 
 Future<Map<String, dynamic>> transactionFromEnvelope(
     SentryEnvelope envelope) async {
-  final envelopeItemData = <int>[];
-  envelopeItemData.addAll(await envelope.items.first.envelopeItemStream());
-
-  final envelopeItem = utf8.decode(envelopeItemData);
-  final envelopeItemJson = jsonDecode(envelopeItem.split('\n').last);
+  final data = await envelope.items.first.dataFactory();
+  final utf8Data = utf8.decode(data);
+  final envelopeItemJson = jsonDecode(utf8Data);
   return envelopeItemJson as Map<String, dynamic>;
 }
 

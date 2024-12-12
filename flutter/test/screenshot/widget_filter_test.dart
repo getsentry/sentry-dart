@@ -1,9 +1,10 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:sentry_flutter/src/replay/widget_filter.dart';
+import 'package:sentry_flutter/src/screenshot/widget_filter.dart';
 
+import '../mocks.dart';
 import 'test_widget.dart';
 
 // Note: these tests predate existance of `SentryMaskingConfig` which now
@@ -14,13 +15,23 @@ void main() async {
   const defaultBounds = Rect.fromLTRB(0, 0, 1000, 1000);
   final rootBundle = TestAssetBundle();
   final otherBundle = TestAssetBundle();
+  final logger = MockLogger();
+  final colorScheme = WidgetFilterColorScheme(
+      defaultMask: Colors.white,
+      defaultTextMask: Colors.green,
+      background: Colors.red);
 
-  final createSut = ({bool redactImages = false, bool redactText = false}) {
-    final replayOptions = SentryReplayOptions();
-    replayOptions.redactAllImages = redactImages;
-    replayOptions.redactAllText = redactText;
-    return WidgetFilter(replayOptions.buildMaskingConfig(),
-        (level, message, {exception, logger, stackTrace}) {});
+  final createSut = (
+      {bool redactImages = false,
+      bool redactText = false,
+      PlatformChecker? platformChecker}) {
+    final privacyOptions = SentryPrivacyOptions()
+      ..maskAllImages = redactImages
+      ..maskAllText = redactText;
+    logger.clear();
+    final maskingConfig = privacyOptions.buildMaskingConfig(
+        logger.call, platformChecker ?? PlatformChecker());
+    return WidgetFilter(maskingConfig, logger.call);
   };
 
   boundsRect(WidgetFilterItem item) =>
@@ -30,14 +41,22 @@ void main() async {
     testWidgets('redacts the correct number of elements', (tester) async {
       final sut = createSut(redactText: true);
       final element = await pumpTestElement(tester);
-      sut.obscure(element, 1.0, defaultBounds);
-      expect(sut.items.length, 5);
+      sut.obscure(
+          context: element,
+          pixelRatio: 1.0,
+          bounds: defaultBounds,
+          colorScheme: colorScheme);
+      expect(sut.items.length, 6);
     });
 
     testWidgets('does not redact text when disabled', (tester) async {
       final sut = createSut(redactText: false);
       final element = await pumpTestElement(tester);
-      sut.obscure(element, 1.0, defaultBounds);
+      sut.obscure(
+          context: element,
+          pixelRatio: 1.0,
+          bounds: defaultBounds,
+          colorScheme: colorScheme);
       expect(sut.items.length, 0);
     });
 
@@ -45,20 +64,33 @@ void main() async {
         (tester) async {
       final sut = createSut(redactText: true);
       final element = await pumpTestElement(tester);
-      sut.obscure(element, 1.0, Rect.fromLTRB(0, 0, 100, 100));
+      sut.obscure(
+          context: element,
+          pixelRatio: 1.0,
+          bounds: Rect.fromLTRB(0, 0, 100, 100),
+          colorScheme: colorScheme);
       expect(sut.items.length, 1);
     });
 
     testWidgets('correctly determines sizes', (tester) async {
       final sut = createSut(redactText: true);
       final element = await pumpTestElement(tester);
-      sut.obscure(element, 1.0, defaultBounds);
-      expect(sut.items.length, 5);
-      expect(boundsRect(sut.items[0]), '624x48');
-      expect(boundsRect(sut.items[1]), '169x20');
-      expect(boundsRect(sut.items[2]), '800x192');
-      expect(boundsRect(sut.items[3]), '800x24');
-      expect(boundsRect(sut.items[4]), '50x20');
+      sut.obscure(
+          context: element,
+          pixelRatio: 1.0,
+          bounds: defaultBounds,
+          colorScheme: colorScheme);
+      expect(sut.items.length, 6);
+      expect(
+          sut.items.map(boundsRect),
+          unorderedEquals([
+            '624x48',
+            '169x20',
+            '800x192',
+            '800x24',
+            '800x24',
+            '50x20',
+          ]));
     });
   });
 
@@ -66,7 +98,11 @@ void main() async {
     testWidgets('redacts the correct number of elements', (tester) async {
       final sut = createSut(redactImages: true);
       final element = await pumpTestElement(tester);
-      sut.obscure(element, 1.0, defaultBounds);
+      sut.obscure(
+          context: element,
+          pixelRatio: 1.0,
+          bounds: defaultBounds,
+          colorScheme: colorScheme);
       expect(sut.items.length, 3);
     });
 
@@ -106,7 +142,11 @@ void main() async {
     testWidgets('does not redact text when disabled', (tester) async {
       final sut = createSut(redactImages: false);
       final element = await pumpTestElement(tester);
-      sut.obscure(element, 1.0, defaultBounds);
+      sut.obscure(
+          context: element,
+          pixelRatio: 1.0,
+          bounds: defaultBounds,
+          colorScheme: colorScheme);
       expect(sut.items.length, 0);
     });
 
@@ -114,14 +154,22 @@ void main() async {
         (tester) async {
       final sut = createSut(redactImages: true);
       final element = await pumpTestElement(tester);
-      sut.obscure(element, 1.0, Rect.fromLTRB(0, 0, 500, 100));
+      sut.obscure(
+          context: element,
+          pixelRatio: 1.0,
+          bounds: Rect.fromLTRB(0, 0, 500, 100),
+          colorScheme: colorScheme);
       expect(sut.items.length, 1);
     });
 
     testWidgets('correctly determines sizes', (tester) async {
       final sut = createSut(redactImages: true);
       final element = await pumpTestElement(tester);
-      sut.obscure(element, 1.0, defaultBounds);
+      sut.obscure(
+          context: element,
+          pixelRatio: 1.0,
+          bounds: defaultBounds,
+          colorScheme: colorScheme);
       expect(sut.items.length, 3);
       expect(boundsRect(sut.items[0]), '1x1');
       expect(boundsRect(sut.items[1]), '1x1');
@@ -134,7 +182,11 @@ void main() async {
     final element = await pumpTestElement(tester, children: [
       SentryMask(Padding(padding: EdgeInsets.all(100), child: Text('foo'))),
     ]);
-    sut.obscure(element, 1.0, defaultBounds);
+    sut.obscure(
+        context: element,
+        pixelRatio: 1.0,
+        bounds: defaultBounds,
+        colorScheme: colorScheme);
     expect(sut.items.length, 1);
     expect(boundsRect(sut.items[0]), '344x248');
   });
@@ -146,7 +198,11 @@ void main() async {
       SentryUnmask(newImage()),
       SentryUnmask(SentryMask(Text('foo'))),
     ]);
-    sut.obscure(element, 1.0, defaultBounds);
+    sut.obscure(
+        context: element,
+        pixelRatio: 1.0,
+        bounds: defaultBounds,
+        colorScheme: colorScheme);
     expect(sut.items, isEmpty);
   });
 
@@ -155,13 +211,52 @@ void main() async {
     final element = await pumpTestElement(tester, children: [
       Padding(padding: EdgeInsets.all(100), child: Text('foo')),
     ]);
-    sut.obscure(element, 1.0, defaultBounds);
+    sut.obscure(
+        context: element,
+        pixelRatio: 1.0,
+        bounds: defaultBounds,
+        colorScheme: colorScheme);
     expect(sut.items.length, 1);
     expect(boundsRect(sut.items[0]), '144x48');
     sut.throwInObscure = true;
-    sut.obscure(element, 1.0, defaultBounds);
+    sut.obscure(
+        context: element,
+        pixelRatio: 1.0,
+        bounds: defaultBounds,
+        colorScheme: colorScheme);
     expect(sut.items.length, 1);
     expect(boundsRect(sut.items[0]), '344x248');
+  });
+
+  group('warning on sensitive widgets', () {
+    assert(MockPlatformCheckerBuildMode.values.length == 3);
+    for (final buildMode in MockPlatformCheckerBuildMode.values) {
+      testWidgets(buildMode.name, (tester) async {
+        final sut = createSut(
+            redactText: true,
+            platformChecker: MockPlatformChecker(buildMode: buildMode));
+        final element =
+            await pumpTestElement(tester, children: [CustomPasswordWidget()]);
+        sut.obscure(
+            context: element,
+            pixelRatio: 1.0,
+            bounds: defaultBounds,
+            colorScheme: colorScheme);
+        final logMessages = logger.items
+            .where((item) => item.level == SentryLevel.warning)
+            .map((item) => item.message)
+            .toList();
+
+        if (buildMode == MockPlatformCheckerBuildMode.debug) {
+          expect(
+              logMessages,
+              anyElement(contains(
+                  'name matches widgets that should usually be masked because they may contain sensitive data')));
+        } else {
+          expect(logMessages, isEmpty);
+        }
+      });
+    }
   });
 }
 
@@ -170,4 +265,8 @@ class TestAssetBundle extends CachingAssetBundle {
   Future<ByteData> load(String key) async {
     return ByteData(0);
   }
+}
+
+class CustomPasswordWidget extends Column {
+  const CustomPasswordWidget({super.key});
 }

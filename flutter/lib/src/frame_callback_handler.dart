@@ -1,11 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/scheduler.dart';
 
+/// Use instead of TimingsCallback as it is not available in the Flutter min version
+typedef SentryTimingsCallback = void Function(List<FrameTiming> timings);
+
 abstract class FrameCallbackHandler {
   void addPostFrameCallback(FrameCallback callback);
-  void addPersistentFrameCallback(FrameCallback callback);
-  Future<void> get endOfFrame;
-  bool get hasScheduledFrame;
+  void removeTimingsCallback(SentryTimingsCallback callback);
+  void addTimingsCallback(SentryTimingsCallback callback);
 }
 
 class DefaultFrameCallbackHandler implements FrameCallbackHandler {
@@ -18,19 +20,16 @@ class DefaultFrameCallbackHandler implements FrameCallbackHandler {
   }
 
   @override
-  void addPersistentFrameCallback(FrameCallback callback) {
+  void addTimingsCallback(SentryTimingsCallback callback) {
     try {
-      WidgetsBinding.instance.addPersistentFrameCallback(callback);
+      WidgetsBinding.instance.addTimingsCallback(callback);
     } catch (_) {}
   }
 
   @override
-  Future<void> get endOfFrame async {
+  void removeTimingsCallback(SentryTimingsCallback callback) {
     try {
-      await WidgetsBinding.instance.endOfFrame;
+      WidgetsBinding.instance.removeTimingsCallback(callback);
     } catch (_) {}
   }
-
-  @override
-  bool get hasScheduledFrame => WidgetsBinding.instance.hasScheduledFrame;
 }
