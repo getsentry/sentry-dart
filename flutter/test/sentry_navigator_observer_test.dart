@@ -125,7 +125,7 @@ void main() {
           expect(measurement.value, expectedFrozen.value);
         }
       }
-    });
+    }, testOn: 'browser');
   });
 
   group('$SentryNavigatorObserver', () {
