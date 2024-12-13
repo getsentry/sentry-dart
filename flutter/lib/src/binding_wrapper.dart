@@ -70,8 +70,8 @@ class SentryWidgetsFlutterBinding extends WidgetsFlutterBinding
     } catch (_) {
       Sentry.currentHub.options.logger(
           SentryLevel.info,
-          'WidgetsFlutterBinding already initialized. '
-          'Falling back to existing WidgetsBinding instance.');
+          'WidgetsFlutterBinding has not been initialized yet. '
+          'Creating $SentryWidgetsFlutterBinding.');
       // No binding exists yet, create our custom one
       SentryWidgetsFlutterBinding();
       return WidgetsBinding.instance;
