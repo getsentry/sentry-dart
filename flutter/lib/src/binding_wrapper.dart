@@ -1,6 +1,5 @@
 // ignore_for_file: invalid_use_of_internal_member
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
@@ -48,16 +47,6 @@ WidgetsBinding? _ambiguate(WidgetsBinding? binding) => binding;
 
 class SentryWidgetsFlutterBinding extends WidgetsFlutterBinding
     with SentryWidgetsBindingMixin {
-  @override
-  void initInstances() {
-    super.initInstances();
-    _instance = this;
-  }
-
-  static SentryWidgetsFlutterBinding get instance =>
-      BindingBase.checkInstance(_instance);
-  static SentryWidgetsFlutterBinding? _instance;
-
   /// Returns an instance of [SentryWidgetsFlutterBinding].
   /// If no binding has yet been initialized, creates and initializes one.
   ///
