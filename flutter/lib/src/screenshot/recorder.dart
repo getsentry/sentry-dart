@@ -101,7 +101,7 @@ class ScreenshotRecorder {
           context: context,
           pixelRatio: pixelRatio,
           colorScheme: colorScheme,
-          bounds: Rect.fromLTWH( 
+          bounds: Rect.fromLTWH(
               0, 0, srcWidth * pixelRatio, srcHeight * pixelRatio),
         );
       }
@@ -148,7 +148,6 @@ class ScreenshotRecorder {
       });
 
       return completer.future;
-
     } catch (e, stackTrace) {
       _logError(e, stackTrace);
       if (options.automatedTestMode) {
