@@ -1,5 +1,7 @@
 // ignore_for_file: invalid_use_of_internal_member
 
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
@@ -87,8 +89,12 @@ mixin SentryWidgetsBindingMixin on WidgetsBinding {
   DateTime? _startTimestamp;
   FrameTimingCallback? _frameTimingCallback;
   ClockProvider? _clock;
+  SentryFlutterOptions? _options;
 
-  SentryOptions get _options => Sentry.currentHub.options;
+  @internal
+  void registerOptions(SentryFlutterOptions options) {
+    _options ??= options;
+  }
 
   @internal
   void registerFramesTracking(
@@ -110,31 +116,43 @@ mixin SentryWidgetsBindingMixin on WidgetsBinding {
 
   @override
   void handleBeginFrame(Duration? rawTimeStamp) {
-    try {
-      _startTimestamp = _clock?.call();
-    } catch (_) {
-      if (_options.automatedTestMode) {
-        rethrow;
-      }
-    }
+    unawaited(_handleBeginFrame());
 
     super.handleBeginFrame(rawTimeStamp);
+  }
+
+  Future<void> _handleBeginFrame() async {
+    if (_options?.enableFramesTracking == true) {
+      try {
+        _startTimestamp = _clock?.call();
+      } catch (_) {
+        if (_options?.automatedTestMode == true) {
+          rethrow;
+        }
+      }
+    }
   }
 
   @override
   void handleDrawFrame() {
     super.handleDrawFrame();
 
-    try {
-      final endTimestamp = _clock?.call();
-      if (_startTimestamp != null &&
-          endTimestamp != null &&
-          _startTimestamp!.isBefore(endTimestamp)) {
-        _frameTimingCallback?.call(_startTimestamp!, endTimestamp);
-      }
-    } catch (_) {
-      if (_options.automatedTestMode) {
-        rethrow;
+    unawaited(_handleDrawFrame());
+  }
+
+  Future<void> _handleDrawFrame() async {
+    if (_options?.enableFramesTracking == true) {
+      try {
+        final endTimestamp = _clock?.call();
+        if (_startTimestamp != null &&
+            endTimestamp != null &&
+            _startTimestamp!.isBefore(endTimestamp)) {
+          _frameTimingCallback?.call(_startTimestamp!, endTimestamp);
+        }
+      } catch (_) {
+        if (_options?.automatedTestMode == true) {
+          rethrow;
+        }
       }
     }
   }
