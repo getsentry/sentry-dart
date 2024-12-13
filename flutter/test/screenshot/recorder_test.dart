@@ -25,7 +25,7 @@ void main() async {
     final fixture = await _Fixture.create(tester);
 
     //devicePixelRatio is 3.0 therefore the resolution multiplied by 3
-    expect(fixture.capture(), completion('6000x12000'));
+    expect(await fixture.capture(), '6000x12000');
   });
 
   testWidgets('captures full resolution images - landscape', (tester) async {
@@ -33,7 +33,7 @@ void main() async {
     final fixture = await _Fixture.create(tester);
 
     //devicePixelRatio is 3.0 therefore the resolution multiplied by 3
-    expect(fixture.capture(), completion('12000x6000'));
+    expect(await fixture.capture(), '12000x6000');
   });
 
   testWidgets('captures high resolution images - portrait', (tester) async {
@@ -42,7 +42,7 @@ void main() async {
     final fixture = await _Fixture.create(tester,
         width: targetResolution, height: targetResolution);
 
-    expect(fixture.capture(), completion('960x1920'));
+    expect(await fixture.capture(), '960x1920');
   });
 
   testWidgets('captures high resolution images - landscape', (tester) async {
@@ -51,7 +51,7 @@ void main() async {
     final fixture = await _Fixture.create(tester,
         width: targetResolution, height: targetResolution);
 
-    expect(fixture.capture(), completion('1920x960'));
+    expect(await fixture.capture(), '1920x960');
   });
 
   testWidgets('captures medium resolution images', (tester) async {
@@ -60,7 +60,7 @@ void main() async {
     final fixture = await _Fixture.create(tester,
         width: targetResolution, height: targetResolution);
 
-    expect(fixture.capture(), completion('640x1280'));
+    expect(await fixture.capture(), '640x1280');
   });
 
   testWidgets('captures low resolution images', (tester) async {
@@ -69,7 +69,7 @@ void main() async {
     final fixture = await _Fixture.create(tester,
         width: targetResolution, height: targetResolution);
 
-    expect(fixture.capture(), completion('427x854'));
+    expect(await fixture.capture(), '427x854');
   });
 
   // TODO: remove in the next major release, see _SentryFlutterExperimentalOptions.
@@ -102,8 +102,9 @@ void main() async {
 
 class _Fixture {
   late final ScreenshotRecorder sut;
+  final WidgetTester _tester;
 
-  _Fixture({double? width, double? height}) {
+  _Fixture(this._tester, {double? width, double? height}) {
     sut = ScreenshotRecorder(
       ScreenshotRecorderConfig(width: width, height: height),
       defaultTestOptions()..bindingUtils = TestBindingWrapper(),
@@ -112,16 +113,15 @@ class _Fixture {
 
   static Future<_Fixture> create(WidgetTester tester,
       {double? width, double? height}) async {
-    final fixture = _Fixture(width: width, height: height);
+    final fixture = _Fixture(tester, width: width, height: height);
     await pumpTestElement(tester);
     return fixture;
   }
 
   Future<String?> capture() async {
-    String? captured;
-    await sut.capture((Image image) async {
-      captured = "${image.width}x${image.height}";
-    });
-    return captured;
+    final future = sut.capture(
+        (Image image) => Future.value("${image.width}x${image.height}"));
+    await _tester.idle();
+    return future;
   }
 }

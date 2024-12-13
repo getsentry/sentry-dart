@@ -93,8 +93,7 @@ class ScheduledScreenshotRecorder extends ScreenshotRecorder {
     }
   }
 
-  Future<void> _capture(Duration sinceSchedulerEpoch) async =>
-      capture(_onImageCaptured);
+  void _capture(Duration sinceSchedulerEpoch) => capture(_onImageCaptured);
 
   Future<void> _onImageCaptured(Image image) async {
     if (_status == _Status.running) {
@@ -169,13 +168,13 @@ class _IdleFrameFiller {
     await scheduled;
   }
 
-  void pause() async {
+  void pause() {
     if (_status == _Status.running) {
       _status = _Status.paused;
     }
   }
 
-  void resume() async {
+  void resume() {
     if (_status == _Status.paused) {
       _status = _Status.running;
     }
