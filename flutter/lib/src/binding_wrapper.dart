@@ -65,15 +65,15 @@ class SentryWidgetsFlutterBinding extends WidgetsFlutterBinding
   /// returns the existing [WidgetsBinding] instance instead.
   static WidgetsBinding ensureInitialized() {
     try {
-      if (SentryWidgetsFlutterBinding._instance == null) {
-        SentryWidgetsFlutterBinding();
-      }
-      return SentryWidgetsFlutterBinding.instance;
-    } catch (e) {
+      // Try to get the existing binding instance
+      return WidgetsBinding.instance;
+    } catch (_) {
       Sentry.currentHub.options.logger(
           SentryLevel.info,
           'WidgetsFlutterBinding already initialized. '
-          'Falling back to default WidgetsBinding instance.');
+          'Falling back to existing WidgetsBinding instance.');
+      // No binding exists yet, create our custom one
+      SentryWidgetsFlutterBinding();
       return WidgetsBinding.instance;
     }
   }
