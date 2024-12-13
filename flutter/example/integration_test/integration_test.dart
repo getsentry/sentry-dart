@@ -7,6 +7,7 @@ import 'dart:convert';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart';
+import 'package:integration_test/integration_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter_example/main.dart';
 
@@ -16,7 +17,8 @@ void main() {
   // const authToken = String.fromEnvironment('SENTRY_AUTH_TOKEN');
   const fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
 
-  TestWidgetsFlutterBinding.ensureInitialized();
+  final originalBinding =
+      IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   tearDown(() async {
     await Sentry.close();
@@ -38,6 +40,17 @@ void main() {
       beforeSendCallback: beforeSendCallback,
     );
   }
+
+  testWidgets('haa', (tester) async {
+    // The issue might be caused by this line of code.
+    await Future.delayed(const Duration(milliseconds: 3000));
+    final hello2 = SentryWidgetsFlutterBinding.ensureInitialized();
+
+    print('testingggg');
+    expect(hello2, equals(originalBinding));
+
+    await tester.pumpWidget(const MyApp());
+  });
 
   // Tests
 
