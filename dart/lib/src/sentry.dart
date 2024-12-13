@@ -3,27 +3,27 @@ import 'dart:async';
 import 'package:meta/meta.dart';
 
 import 'dart_exception_type_identifier.dart';
-import 'load_dart_debug_images_integration.dart';
-import 'metrics/metrics_api.dart';
-import 'protocol/sentry_feedback.dart';
-import 'run_zoned_guarded_integration.dart';
-import 'event_processor/enricher/enricher_event_processor.dart';
 import 'environment/environment_variables.dart';
 import 'event_processor/deduplication_event_processor.dart';
-import 'hint.dart';
+import 'event_processor/enricher/enricher_event_processor.dart';
 import 'event_processor/exception/exception_event_processor.dart';
+import 'hint.dart';
 import 'hub.dart';
 import 'hub_adapter.dart';
 import 'integration.dart';
+import 'load_dart_debug_images_integration.dart';
+import 'metrics/metrics_api.dart';
 import 'noop_hub.dart';
 import 'noop_isolate_error_integration.dart'
     if (dart.library.io) 'isolate_error_integration.dart';
 import 'protocol.dart';
+import 'protocol/sentry_feedback.dart';
+import 'run_zoned_guarded_integration.dart';
+import 'sentry_attachment/sentry_attachment.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
 import 'sentry_user_feedback.dart';
 import 'tracing.dart';
-import 'sentry_attachment/sentry_attachment.dart';
 import 'transport/data_category.dart';
 import 'transport/task_queue.dart';
 
@@ -175,9 +175,18 @@ class Sentry {
   static Future<void> _callIntegrations(
       Iterable<Integration> integrations, SentryOptions options) async {
     for (final integration in integrations) {
-      final execute = integration(HubAdapter(), options);
-      if (execute is Future) {
-        await execute;
+      try {
+        final execute = integration(HubAdapter(), options);
+        if (execute is Future) {
+          await execute;
+        }
+      } catch (error, stackTrace) {
+        options.logger(
+          SentryLevel.error,
+          'Integration execution of ${integration.runtimeType} failed',
+          exception: error,
+          stackTrace: stackTrace,
+        );
       }
     }
   }
