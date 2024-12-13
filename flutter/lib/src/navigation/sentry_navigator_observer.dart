@@ -5,16 +5,15 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
+// ignore: implementation_imports
+import 'package:sentry/src/sentry_tracer.dart';
+
+import '../../sentry_flutter.dart';
+import '../event_processor/flutter_enricher_event_processor.dart';
 import '../native/native_frames.dart';
 import '../native/sentry_native_binding.dart';
 import 'time_to_display_tracker.dart';
 import 'time_to_full_display_tracker.dart';
-
-import '../../sentry_flutter.dart';
-import '../event_processor/flutter_enricher_event_processor.dart';
-
-// ignore: implementation_imports
-import 'package:sentry/src/sentry_tracer.dart';
 
 /// This key must be used so that the web interface displays the events nicely
 /// See https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/
@@ -137,67 +136,94 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
     super.didPush(route, previousRoute);
 
-    if (_isRouteIgnored(route) ||
-        previousRoute != null && _isRouteIgnored(previousRoute)) {
-      return;
+    try {
+      if (_isRouteIgnored(route) ||
+          previousRoute != null && _isRouteIgnored(previousRoute)) {
+        return;
+      }
+
+      _setCurrentRouteName(route);
+      _setCurrentRouteNameAsTransaction(route);
+
+      _addBreadcrumb(
+        type: 'didPush',
+        from: previousRoute?.settings,
+        to: route.settings,
+      );
+
+      // Clearing the display tracker here is safe since didPush happens before the Widget is built
+      _timeToDisplayTracker?.clear();
+
+      DateTime timestamp = _hub.options.clock();
+      _finishTimeToDisplayTracking(endTimestamp: timestamp);
+      _startTimeToDisplayTracking(route, timestamp);
+    } catch (error, stackTrace) {
+      _hub.options.logger(
+        SentryLevel.error,
+        '$SentryNavigatorObserver didPush failed',
+        exception: error,
+        stackTrace: stackTrace,
+      );
     }
-
-    _setCurrentRouteName(route);
-    _setCurrentRouteNameAsTransaction(route);
-
-    _addBreadcrumb(
-      type: 'didPush',
-      from: previousRoute?.settings,
-      to: route.settings,
-    );
-
-    // Clearing the display tracker here is safe since didPush happens before the Widget is built
-    _timeToDisplayTracker?.clear();
-
-    DateTime timestamp = _hub.options.clock();
-    _finishTimeToDisplayTracking(endTimestamp: timestamp);
-    _startTimeToDisplayTracking(route, timestamp);
   }
 
   @override
   void didReplace({Route<dynamic>? newRoute, Route<dynamic>? oldRoute}) {
     super.didReplace(newRoute: newRoute, oldRoute: oldRoute);
 
-    if (newRoute != null && _isRouteIgnored(newRoute) ||
-        oldRoute != null && _isRouteIgnored(oldRoute)) {
-      return;
+    try {
+      if (newRoute != null && _isRouteIgnored(newRoute) ||
+          oldRoute != null && _isRouteIgnored(oldRoute)) {
+        return;
+      }
+
+      _setCurrentRouteName(newRoute);
+      _setCurrentRouteNameAsTransaction(newRoute);
+
+      _addBreadcrumb(
+        type: 'didReplace',
+        from: oldRoute?.settings,
+        to: newRoute?.settings,
+      );
+    } catch (error, stackTrace) {
+      _hub.options.logger(
+        SentryLevel.error,
+        '$SentryNavigatorObserver didReplace failed',
+        exception: error,
+        stackTrace: stackTrace,
+      );
     }
-
-    _setCurrentRouteName(newRoute);
-    _setCurrentRouteNameAsTransaction(newRoute);
-
-    _addBreadcrumb(
-      type: 'didReplace',
-      from: oldRoute?.settings,
-      to: newRoute?.settings,
-    );
   }
 
   @override
   void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
     super.didPop(route, previousRoute);
 
-    if (_isRouteIgnored(route) ||
-        previousRoute != null && _isRouteIgnored(previousRoute)) {
-      return;
+    try {
+      if (_isRouteIgnored(route) ||
+          previousRoute != null && _isRouteIgnored(previousRoute)) {
+        return;
+      }
+
+      _setCurrentRouteName(previousRoute);
+      _setCurrentRouteNameAsTransaction(previousRoute);
+
+      _addBreadcrumb(
+        type: 'didPop',
+        from: route.settings,
+        to: previousRoute?.settings,
+      );
+
+      final timestamp = _hub.options.clock();
+      _finishTimeToDisplayTracking(endTimestamp: timestamp, clearAfter: true);
+    } catch (error, stackTrace) {
+      _hub.options.logger(
+        SentryLevel.error,
+        '$SentryNavigatorObserver didPop failed',
+        exception: error,
+        stackTrace: stackTrace,
+      );
     }
-
-    _setCurrentRouteName(previousRoute);
-    _setCurrentRouteNameAsTransaction(previousRoute);
-
-    _addBreadcrumb(
-      type: 'didPop',
-      from: route.settings,
-      to: previousRoute?.settings,
-    );
-
-    final timestamp = _hub.options.clock();
-    _finishTimeToDisplayTracking(endTimestamp: timestamp, clearAfter: true);
   }
 
   void _addBreadcrumb({
