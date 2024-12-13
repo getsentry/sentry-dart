@@ -32,7 +32,7 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
   bool _allowProcessing = true;
 
   @override
-  void call(Hub hub, SentryFlutterOptions options) async {
+  void call(Hub hub, SentryFlutterOptions options) {
     void timingsCallback(List<FrameTiming> timings) async {
       if (!_allowProcessing) {
         return;

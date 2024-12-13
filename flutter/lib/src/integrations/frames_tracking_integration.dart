@@ -15,9 +15,12 @@ class FramesTrackingIntegration implements Integration<SentryFlutterOptions> {
   SentryWidgetsBindingMixin? _widgetsBinding;
 
   @override
-  Future<void> call(Hub hub, SentryFlutterOptions options) async {
+  void call(Hub hub, SentryFlutterOptions options) {
     _options = options;
+    _initializeFramesTracking(options);
+  }
 
+  void _initializeFramesTracking(SentryFlutterOptions options) async {
     if (!options.enableFramesTracking) {
       return options.logger(SentryLevel.debug,
           '$FramesTrackingIntegration disabled: enableFramesTracking option is false');
