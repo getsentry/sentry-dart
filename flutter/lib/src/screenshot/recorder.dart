@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 import 'dart:ui';
 
 import 'package:flutter/rendering.dart';
@@ -69,7 +70,8 @@ class ScreenshotRecorder {
   /// THIS FUNCTION MUST NOT BE ASYNC.
   Future<R> capture<R>(Future<R> Function(Image) callback) {
     try {
-      final watch = Stopwatch()..start();
+      final flow = Flow.begin();
+      Timeline.startSync('Sentry::captureScreenshot', flow: flow);
       final context = sentryScreenshotWidgetGlobalKey.currentContext;
       final renderObject =
           context?.findRenderObject() as RenderRepaintBoundary?;
@@ -92,8 +94,12 @@ class ScreenshotRecorder {
       final pixelRatio = config.getPixelRatio(srcWidth, srcHeight) ??
           widgets.MediaQuery.of(context).devicePixelRatio;
 
+      Timeline.startSync('Sentry::captureScreenshot:RenderObjectToImage',
+          flow: flow);
       final futureImage = renderObject.toImage(pixelRatio: pixelRatio);
+      Timeline.finishSync(); // Sentry::captureScreenshot:RenderObjectToImage
 
+      Timeline.startSync('Sentry::captureScreenshot:Masking', flow: flow);
       final filter = _widgetFilter;
       if (filter != null) {
         final colorScheme = context.findColorScheme();
@@ -105,13 +111,13 @@ class ScreenshotRecorder {
               0, 0, srcWidth * pixelRatio, srcHeight * pixelRatio),
         );
       }
-
-      _log(SentryLevel.debug,
-          'captured a screenshot in ${watch.elapsedMilliseconds} ms.');
+      Timeline.finishSync(); // Sentry::captureScreenshot:Masking
+      Timeline.finishSync(); // Sentry::captureScreenshot
 
       // Then we draw the image and obscure masks later, between frames.
       final completer = Completer<R>();
       options.bindingUtils.instance?.scheduleTask(() async {
+        Timeline.startSync('Sentry::renderScreenshot', flow: flow);
         final recorder = PictureRecorder();
         final canvas = Canvas(recorder);
         final image = await futureImage;
@@ -126,13 +132,18 @@ class ScreenshotRecorder {
         }
 
         final picture = recorder.endRecording();
+        Timeline.finishSync(); // Sentry::renderScreenshot
 
         try {
+          Timeline.startSync('Sentry::screenshotToImage', flow: flow);
           final finalImage = await picture.toImage(
               (srcWidth * pixelRatio).round(),
               (srcHeight * pixelRatio).round());
+          Timeline.finishSync(); // Sentry::screenshotToImage
           try {
+            Timeline.startSync('Sentry::screenshotCallback', flow: flow);
             completer.complete(await callback(finalImage));
+            Timeline.finishSync(); // Sentry::screenshotCallback
           } finally {
             finalImage.dispose(); // image needs to be disposed-of manually
           }
