@@ -164,6 +164,9 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
         exception: error,
         stackTrace: stackTrace,
       );
+      if (_hub.options.automatedTestMode) {
+        rethrow;
+      }
     }
   }
 
@@ -192,6 +195,9 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
         exception: error,
         stackTrace: stackTrace,
       );
+      if (_hub.options.automatedTestMode) {
+        rethrow;
+      }
     }
   }
 
@@ -223,6 +229,9 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
         exception: error,
         stackTrace: stackTrace,
       );
+      if (_hub.options.automatedTestMode) {
+        rethrow;
+      }
     }
   }
 

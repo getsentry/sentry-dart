@@ -187,6 +187,9 @@ class Sentry {
           exception: error,
           stackTrace: stackTrace,
         );
+        if (options.automatedTestMode) {
+          rethrow;
+        }
       }
     }
   }
