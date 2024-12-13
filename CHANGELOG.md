@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Improvements
+
+- Check for type before casting in TTID ([#2497](https://github.com/getsentry/sentry-dart/pull/2497))
 
 ### Fixes 
 
