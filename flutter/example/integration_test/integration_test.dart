@@ -41,17 +41,6 @@ void main() {
     );
   }
 
-  testWidgets('haa', (tester) async {
-    // The issue might be caused by this line of code.
-    await Future.delayed(const Duration(milliseconds: 3000));
-    final hello2 = SentryWidgetsFlutterBinding.ensureInitialized();
-
-    print('testingggg');
-    expect(hello2, equals(originalBinding));
-
-    await tester.pumpWidget(const MyApp());
-  });
-
   // Tests
 
   testWidgets('setup sentry and render app', (tester) async {
