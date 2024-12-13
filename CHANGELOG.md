@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+
+### Fixes 
+
+- SentryWidgetsFlutterBinding initializing even if a binding already exists ([#2494](https://github.com/getsentry/sentry-dart/pull/2494))
+
 ## 8.11.0
 
 ### Features
