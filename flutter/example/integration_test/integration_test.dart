@@ -17,8 +17,7 @@ void main() {
   // const authToken = String.fromEnvironment('SENTRY_AUTH_TOKEN');
   const fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
 
-  final originalBinding =
-      IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  TestWidgetsFlutterBinding.ensureInitialized();
 
   tearDown(() async {
     await Sentry.close();
