@@ -1,6 +1,5 @@
 // ignore_for_file: invalid_use_of_internal_member
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
@@ -48,16 +47,6 @@ WidgetsBinding? _ambiguate(WidgetsBinding? binding) => binding;
 
 class SentryWidgetsFlutterBinding extends WidgetsFlutterBinding
     with SentryWidgetsBindingMixin {
-  @override
-  void initInstances() {
-    super.initInstances();
-    _instance = this;
-  }
-
-  static SentryWidgetsFlutterBinding get instance =>
-      BindingBase.checkInstance(_instance);
-  static SentryWidgetsFlutterBinding? _instance;
-
   /// Returns an instance of [SentryWidgetsFlutterBinding].
   /// If no binding has yet been initialized, creates and initializes one.
   ///
@@ -65,15 +54,15 @@ class SentryWidgetsFlutterBinding extends WidgetsFlutterBinding
   /// returns the existing [WidgetsBinding] instance instead.
   static WidgetsBinding ensureInitialized() {
     try {
-      if (SentryWidgetsFlutterBinding._instance == null) {
-        SentryWidgetsFlutterBinding();
-      }
-      return SentryWidgetsFlutterBinding.instance;
-    } catch (e) {
+      // Try to get the existing binding instance
+      return WidgetsBinding.instance;
+    } catch (_) {
       Sentry.currentHub.options.logger(
           SentryLevel.info,
-          'WidgetsFlutterBinding already initialized. '
-          'Falling back to default WidgetsBinding instance.');
+          'WidgetsFlutterBinding has not been initialized yet. '
+          'Creating $SentryWidgetsFlutterBinding.');
+      // No binding exists yet, create our custom one
+      SentryWidgetsFlutterBinding();
       return WidgetsBinding.instance;
     }
   }
