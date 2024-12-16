@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ffi';
 import 'dart:typed_data';
 import 'dart:ui';
@@ -5,10 +6,9 @@ import 'dart:ui';
 import 'package:meta/meta.dart';
 
 import '../../../sentry_flutter.dart';
-import '../../event_processor/replay_event_processor.dart';
+import '../../replay/replay_config.dart';
 import '../../screenshot/recorder.dart';
 import '../../screenshot/recorder_config.dart';
-import '../../replay/integration.dart';
 import '../sentry_native_channel.dart';
 import 'binding.dart' as cocoa;
 
@@ -21,18 +21,13 @@ class SentryNativeCocoa extends SentryNativeChannel {
   SentryNativeCocoa(super.options);
 
   @override
+  bool get supportsReplay => options.platformChecker.platform.isIOS;
+
+  @override
   Future<void> init(Hub hub) async {
     // We only need these when replay is enabled (session or error capture)
     // so let's set it up conditionally. This allows Dart to trim the code.
-    if (options.experimental.replay.isEnabled &&
-        options.platformChecker.platform.isIOS) {
-      options.sdk.addIntegration(replayIntegrationName);
-
-      // We only need the integration when error-replay capture is enabled.
-      if ((options.experimental.replay.onErrorSampleRate ?? 0) > 0) {
-        options.addEventProcessor(ReplayEventProcessor(hub, this));
-      }
-
+    if (options.experimental.replay.isEnabled) {
       channel.setMethodCallHandler((call) async {
         switch (call.method) {
           case 'captureReplayScreenshot':
@@ -73,6 +68,11 @@ class SentryNativeCocoa extends SentryNativeChannel {
     }
 
     return super.init(hub);
+  }
+
+  @override
+  FutureOr<void> setReplayConfig(ReplayConfig config) {
+    // Note: unused on iOS.
   }
 
   @override

@@ -3,6 +3,8 @@ import 'dart:ui';
 
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart' as widgets;
+import 'package:flutter/material.dart' as material;
+import 'package:flutter/cupertino.dart' as cupertino;
 import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
@@ -12,13 +14,16 @@ import 'widget_filter.dart';
 @internal
 typedef ScreenshotRecorderCallback = Future<void> Function(Image);
 
+var _instanceCounter = 0;
+
 @internal
 class ScreenshotRecorder {
   @protected
   final ScreenshotRecorderConfig config;
   @protected
   final SentryFlutterOptions options;
-  final String _logName;
+  @protected
+  late final String logName;
   WidgetFilter? _widgetFilter;
   bool _warningLogged = false;
 
@@ -27,16 +32,31 @@ class ScreenshotRecorder {
   bool get hasWidgetFilter => _widgetFilter != null;
 
   // TODO: remove [isReplayRecorder] parameter in the next major release, see _SentryFlutterExperimentalOptions.
-  ScreenshotRecorder(this.config, this.options, {bool isReplayRecorder = true})
-      : _logName = isReplayRecorder ? 'ReplayRecorder' : 'ScreenshotRecorder' {
+  ScreenshotRecorder(this.config, this.options,
+      {bool isReplayRecorder = true, String? logName}) {
+    if (logName != null) {
+      this.logName = logName;
+    } else if (isReplayRecorder) {
+      _instanceCounter++;
+      this.logName = 'ReplayRecorder #$_instanceCounter';
+    } else {
+      this.logName = 'ScreenshotRecorder';
+    }
     // see `options.experimental.privacy` docs for details
     final privacyOptions = isReplayRecorder
         ? options.experimental.privacyForReplay
         : options.experimental.privacyForScreenshots;
-    final maskingConfig = privacyOptions?.buildMaskingConfig();
+    final maskingConfig =
+        privacyOptions?.buildMaskingConfig(_log, options.platformChecker);
     if (maskingConfig != null && maskingConfig.length > 0) {
       _widgetFilter = WidgetFilter(maskingConfig, options.logger);
     }
+  }
+
+  void _log(SentryLevel level, String message,
+      {String? logger, Object? exception, StackTrace? stackTrace}) {
+    options.logger(level, '$logName: $message',
+        logger: logger, exception: exception, stackTrace: stackTrace);
   }
 
   Future<void> capture(ScreenshotRecorderCallback callback) async {
@@ -44,8 +64,8 @@ class ScreenshotRecorder {
     final renderObject = context?.findRenderObject() as RenderRepaintBoundary?;
     if (context == null || renderObject == null) {
       if (!_warningLogged) {
-        options.logger(SentryLevel.warning,
-            "$_logName: SentryScreenshotWidget is not attached, skipping capture.");
+        _log(SentryLevel.warning,
+            "SentryScreenshotWidget is not attached, skipping capture.");
         _warningLogged = true;
       }
       return;
@@ -68,10 +88,13 @@ class ScreenshotRecorder {
 
       final filter = _widgetFilter;
       if (filter != null) {
+        final colorScheme = context.findColorScheme();
         filter.obscure(
-          context,
-          pixelRatio,
-          Rect.fromLTWH(0, 0, srcWidth * pixelRatio, srcHeight * pixelRatio),
+          context: context,
+          pixelRatio: pixelRatio,
+          colorScheme: colorScheme,
+          bounds: Rect.fromLTWH(
+              0, 0, srcWidth * pixelRatio, srcHeight * pixelRatio),
         );
       }
 
@@ -96,6 +119,10 @@ class ScreenshotRecorder {
       try {
         final finalImage = await picture.toImage(
             (srcWidth * pixelRatio).round(), (srcHeight * pixelRatio).round());
+        _log(
+            SentryLevel.debug,
+            "captured a screenshot in ${watch.elapsedMilliseconds}"
+            " ms ($blockingTime ms blocking).");
         try {
           await callback(finalImage);
         } finally {
@@ -104,14 +131,8 @@ class ScreenshotRecorder {
       } finally {
         picture.dispose();
       }
-
-      options.logger(
-          SentryLevel.debug,
-          "$_logName: captured a screenshot in ${watch.elapsedMilliseconds}"
-          " ms ($blockingTime ms blocking).");
     } catch (e, stackTrace) {
-      options.logger(
-          SentryLevel.error, "$_logName: failed to capture screenshot.",
+      _log(SentryLevel.error, "failed to capture screenshot.",
           exception: e, stackTrace: stackTrace);
       if (options.automatedTestMode) {
         rethrow;
@@ -125,5 +146,65 @@ class ScreenshotRecorder {
       paint.color = item.color;
       canvas.drawRect(item.bounds, paint);
     }
+  }
+}
+
+extension on widgets.BuildContext {
+  WidgetFilterColorScheme findColorScheme() {
+    WidgetFilterColorScheme? result;
+    visitAncestorElements((el) {
+      result = getElementColorScheme(el);
+      return result == null;
+    });
+
+    if (result == null) {
+      int limit = 20;
+      visitor(widgets.Element el) {
+        // Don't take too much time trying to find the theme.
+        if (limit-- < 0) {
+          return;
+        }
+
+        result ??= getElementColorScheme(el);
+        if (result == null) {
+          el.visitChildren(visitor);
+        }
+      }
+
+      visitChildElements(visitor);
+    }
+
+    assert(material.Colors.white.isOpaque);
+    assert(material.Colors.black.isOpaque);
+    result ??= const WidgetFilterColorScheme(
+      background: material.Colors.white,
+      defaultMask: material.Colors.black,
+      defaultTextMask: material.Colors.black,
+    );
+
+    return result!;
+  }
+
+  WidgetFilterColorScheme? getElementColorScheme(widgets.Element el) {
+    final widget = el.widget;
+    if (widget is material.MaterialApp || widget is material.Scaffold) {
+      final colorScheme = material.Theme.of(el).colorScheme;
+      return WidgetFilterColorScheme(
+        background: colorScheme.surface.asOpaque(),
+        defaultMask: colorScheme.primary.asOpaque(),
+        defaultTextMask: colorScheme.primary.asOpaque(),
+      );
+    } else if (widget is cupertino.CupertinoApp) {
+      final colorScheme = cupertino.CupertinoTheme.of(el);
+      final textColor = colorScheme.textTheme.textStyle.foreground?.color ??
+          colorScheme.textTheme.textStyle.color ??
+          colorScheme.primaryColor;
+      return WidgetFilterColorScheme(
+        background: colorScheme.scaffoldBackgroundColor.asOpaque(),
+        defaultMask: colorScheme.primaryColor.asOpaque(),
+        defaultTextMask: textColor.asOpaque(),
+      );
+    }
+    return null;
   }
 }
