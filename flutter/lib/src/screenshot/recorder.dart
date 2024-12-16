@@ -99,9 +99,9 @@ class ScreenshotRecorder {
       // Then we draw the image and obscure masks later, asynchronously.
       final task =
           capture.createTask(futureImage, callback, obscureItems, flow);
-      _scheduleTask(task, flow, capture.completer);
+      scheduleTask(task, flow);
       Timeline.finishSync(); // Sentry::captureScreenshot
-      return capture.completer.future;
+      return capture.future;
     } catch (e, stackTrace) {
       _logError(e, stackTrace);
       if (options.automatedTestMode) {
@@ -112,8 +112,9 @@ class ScreenshotRecorder {
     }
   }
 
-  void _scheduleTask(
-      void Function() task, Flow flow, Completer<dynamic> completer) {
+  // TODO unit-test
+  @visibleForTesting
+  void scheduleTask(void Function() task, Flow flow) {
     late final Future<void> future;
     if (_isReplayRecorder && options.bindingUtils.instance != null) {
       future = options.bindingUtils.instance!
@@ -124,7 +125,7 @@ class ScreenshotRecorder {
     future.onError((e, stackTrace) {
       _logError(e, stackTrace);
       if (e != null && options.automatedTestMode) {
-        completer.completeError(e, stackTrace);
+        throw e;
       }
     });
   }
@@ -150,7 +151,7 @@ class _Capture<R> {
   final double srcWidth;
   final double srcHeight;
   final double pixelRatio;
-  late final completer = Completer<R>();
+  final _completer = Completer<R>();
 
   _Capture._(
       {required this.context,
@@ -183,6 +184,8 @@ class _Capture<R> {
   int get width => (srcWidth * pixelRatio).round();
 
   int get height => (srcHeight * pixelRatio).round();
+
+  Future<R> get future => _completer.future;
 
   /// Creates an asynchronous task (a.k.a lambda) to:
   /// - produce the image
@@ -219,7 +222,7 @@ class _Capture<R> {
         Timeline.finishSync(); // Sentry::screenshotToImage
         try {
           Timeline.startSync('Sentry::screenshotCallback', flow: flow);
-          completer.complete(await callback(finalImage));
+          _completer.complete(await callback(finalImage));
           Timeline.finishSync(); // Sentry::screenshotCallback
         } finally {
           finalImage.dispose(); // image needs to be disposed-of manually

@@ -4,6 +4,7 @@
 library dart_test;
 
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/src/replay/scheduled_recorder.dart';
@@ -33,12 +34,14 @@ void main() async {
 
 class _Fixture {
   final WidgetTester _tester;
-  late final ScheduledScreenshotRecorder sut;
+  late final _TestScheduledRecorder _sut;
   final capturedImages = <String>[];
   late Completer<void> _completer;
 
+  ScheduledScreenshotRecorder get sut => _sut;
+
   _Fixture._(this._tester) {
-    sut = ScheduledScreenshotRecorder(
+    _sut = _TestScheduledRecorder(
       ScheduledScreenshotRecorderConfig(
         width: 1000,
         height: 1000,
@@ -65,11 +68,16 @@ class _Fixture {
     _completer = Completer();
     _tester.binding.scheduleFrame();
     await _tester.pumpAndSettle(const Duration(seconds: 1));
-    await _tester.idle();
-    await _completer.future.timeout(
-        bool.hasEnvironment('CI')
-            ? const Duration(seconds: 10)
-            : const Duration(milliseconds: 100),
+    await _completer.future.timeout(const Duration(milliseconds: 100),
         onTimeout: imageIsExpected ? null : () {});
+  }
+}
+
+class _TestScheduledRecorder extends ScheduledScreenshotRecorder {
+  _TestScheduledRecorder(super.config, super.options, super.callback);
+
+  @override
+  void scheduleTask(void Function() task, Flow flow) {
+    task();
   }
 }
