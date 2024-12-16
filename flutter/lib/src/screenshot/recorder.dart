@@ -95,13 +95,13 @@ class ScreenshotRecorder {
       Timeline.startSync('Sentry::captureScreenshot:Masking', flow: flow);
       final obscureItems = _obscureSync(capture);
       Timeline.finishSync(); // Sentry::captureScreenshot:Masking
-      Timeline.finishSync(); // Sentry::captureScreenshot
 
       // Then we draw the image and obscure masks later, asynchronously.
-      final completer =
+      final task =
           capture.createTask(futureImage, callback, obscureItems, flow);
-      _scheduleTask(capture.task, flow, completer);
-      return completer.future;
+      _scheduleTask(task, flow, capture.completer);
+      Timeline.finishSync(); // Sentry::captureScreenshot
+      return capture.completer.future;
     } catch (e, stackTrace) {
       _logError(e, stackTrace);
       if (options.automatedTestMode) {
@@ -129,7 +129,7 @@ class ScreenshotRecorder {
     });
   }
 
-  List<WidgetFilterItem>? _obscureSync(_Capture capture) {
+  List<WidgetFilterItem>? _obscureSync(_Capture<dynamic> capture) {
     if (_maskingConfig != null) {
       final filter = WidgetFilter(_maskingConfig!, options.logger);
       final colorScheme = capture.context.findColorScheme();
@@ -150,7 +150,7 @@ class _Capture<R> {
   final double srcWidth;
   final double srcHeight;
   final double pixelRatio;
-  late final void Function() task;
+  late final completer = Completer<R>();
 
   _Capture._(
       {required this.context,
@@ -184,20 +184,18 @@ class _Capture<R> {
 
   int get height => (srcHeight * pixelRatio).round();
 
-  /// Creates an asynchronous task (a.k.a lambda) to
+  /// Creates an asynchronous task (a.k.a lambda) to:
   /// - produce the image
   /// - render obscure masks
   /// - call the callback
   ///
-  /// See [future] which is what gets completed with the callback result.
-  Completer<R> createTask(
+  /// See [task] which is what gets completed with the callback result.
+  void Function() createTask(
       Future<Image> futureImage,
       Future<R> Function(Image) callback,
       List<WidgetFilterItem>? obscureItems,
       Flow flow) {
-    final completer = Completer<R>();
-
-    task = () async {
+    return () async {
       Timeline.startSync('Sentry::renderScreenshot', flow: flow);
       final recorder = PictureRecorder();
       final canvas = Canvas(recorder);
@@ -230,7 +228,6 @@ class _Capture<R> {
         picture.dispose();
       }
     };
-    return completer;
   }
 
   void _obscureWidgets(Canvas canvas, List<WidgetFilterItem> items) {
