@@ -1,4 +1,5 @@
 import 'dart:js_interop';
+import 'dart:js_interop_unsafe';
 
 import 'sentry_js_binding.dart';
 
@@ -15,6 +16,9 @@ class WebSentryJsBinding implements SentryJsBinding {
   @override
   void close() {
     _close();
+    if (globalThis['Sentry'] != null) {
+      globalThis['Sentry'] = null;
+    }
   }
 }
 
@@ -23,3 +27,6 @@ external void _init(JSAny? options);
 
 @JS('Sentry.close')
 external void _close();
+
+@JS('globalThis')
+external JSObject get globalThis;

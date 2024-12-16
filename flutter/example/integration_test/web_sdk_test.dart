@@ -4,7 +4,8 @@
 library flutter_test;
 
 import 'dart:async';
-import 'dart:js';
+import 'dart:js_interop';
+import 'dart:js_interop_unsafe';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -13,8 +14,14 @@ import 'package:sentry_flutter_example/main.dart' as app;
 
 import 'utils.dart';
 
-// We can use dart:html, this is meant to be tested on Flutter Web and not WASM
-// This integration test can be changed later when we actually do support WASM
+@JS('globalThis')
+external JSObject get globalThis;
+
+@JS('Sentry.init')
+external void _init(JSAny? options);
+
+@JS('Sentry.captureMessage')
+external void _captureMessage(JSAny? message);
 
 void main() {
   group('Web SDK Integration', () {
@@ -22,8 +29,6 @@ void main() {
 
     tearDown(() async {
       await Sentry.close();
-      // Clean up any existing Sentry object from previous tests
-      context['Sentry'] = null;
     });
 
     testWidgets('Sentry JS SDK is callable', (tester) async {
@@ -38,21 +43,21 @@ void main() {
           await tester.pumpWidget(const app.MyApp());
         });
 
-        final beforeSendFn = JsFunction.withThis((thisArg, event, hint) {
-          actualMessage = event['message'];
+        final beforeSendFn = (JSObject event, JSObject hint) {
+          actualMessage = event.getProperty('message'.toJS).toString();
           completer.complete();
           return event;
-        });
+        }.toJS;
 
-        final Map<String, dynamic> options = {
+        final options = {
           'dsn': app.exampleDsn,
           'beforeSend': beforeSendFn,
+          'debug': true,
           'defaultIntegrations': [],
-        };
+        }.jsify();
 
-        final sentry = context['Sentry'] as JsObject;
-        sentry.callMethod('init', [JsObject.jsify(options)]);
-        sentry.callMethod('captureMessage', [expectedMessage]);
+        _init(options);
+        _captureMessage(expectedMessage.toJS);
       });
 
       await completer.future.timeout(const Duration(seconds: 5), onTimeout: () {
@@ -71,7 +76,7 @@ void main() {
         });
       });
 
-      expect(context['Sentry'], isNotNull);
+      expect(globalThis['Sentry'], isNotNull);
     });
 
     testWidgets('WebSdkIntegration removed: JS SDK not initialized',
@@ -88,7 +93,7 @@ void main() {
         });
       });
 
-      expect(context['Sentry'], isNull);
+      expect(globalThis['Sentry'], isNull);
     });
   });
 }

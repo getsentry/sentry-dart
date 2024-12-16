@@ -20,5 +20,7 @@ class HtmlSentryJsBinding implements SentryJsBinding {
   @override
   void close() {
     _sentry?.callMethod('close');
+    _sentry = null;
+    context['Sentry'] = null;
   }
 }
