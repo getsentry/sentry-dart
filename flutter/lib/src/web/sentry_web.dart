@@ -1,3 +1,6 @@
+// coverage:ignore-file
+// Note: Flutter Web test coverage isn't supported
+
 import 'dart:async';
 import 'dart:typed_data';
 
