@@ -10,6 +10,7 @@ import 'package:flutter/cupertino.dart' as cupertino;
 import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
+import 'masking_config.dart';
 import 'recorder_config.dart';
 import 'widget_filter.dart';
 
@@ -23,16 +24,17 @@ class ScreenshotRecorder {
   final SentryFlutterOptions options;
   @protected
   late final String logName;
-  WidgetFilter? _widgetFilter;
   bool _warningLogged = false;
+  late final bool _isReplayRecorder;
+  late final SentryMaskingConfig? _maskingConfig;
 
   // TODO: remove in the next major release, see recorder_test.dart.
   @visibleForTesting
-  bool get hasWidgetFilter => _widgetFilter != null;
+  bool get hasWidgetFilter => _maskingConfig != null;
 
-  // TODO: remove [isReplayRecorder] parameter in the next major release, see _SentryFlutterExperimentalOptions.
   ScreenshotRecorder(this.config, this.options,
       {bool isReplayRecorder = true, String? logName}) {
+    _isReplayRecorder = isReplayRecorder;
     if (logName != null) {
       this.logName = logName;
     } else if (isReplayRecorder) {
@@ -45,10 +47,11 @@ class ScreenshotRecorder {
     final privacyOptions = isReplayRecorder
         ? options.experimental.privacyForReplay
         : options.experimental.privacyForScreenshots;
-    final maskingConfig =
+
+    _maskingConfig =
         privacyOptions?.buildMaskingConfig(_log, options.platformChecker);
-    if (maskingConfig != null && maskingConfig.length > 0) {
-      _widgetFilter = WidgetFilter(maskingConfig, options.logger);
+    if (_maskingConfig != null && _maskingConfig?.length == 0) {
+      _maskingConfig = null;
     }
   }
 
@@ -84,80 +87,22 @@ class ScreenshotRecorder {
         return Future.value(null);
       }
 
-      // On Android, the desired resolution (coming from the configuration)
-      // is rounded to next multitude of 16. Therefore, we scale the image.
-      // On iOS, the screenshot resolution is not adjusted.
-      // For screenshots, the pixel ratio is adjusted based on quality config.
-      final srcWidth = renderObject.size.width;
-      final srcHeight = renderObject.size.height;
-
-      final pixelRatio = config.getPixelRatio(srcWidth, srcHeight) ??
-          widgets.MediaQuery.of(context).devicePixelRatio;
+      final capture = _Capture<R>.create(renderObject, config, context);
 
       Timeline.startSync('Sentry::captureScreenshot:RenderObjectToImage',
           flow: flow);
-      final futureImage = renderObject.toImage(pixelRatio: pixelRatio);
+      final futureImage = renderObject.toImage(pixelRatio: capture.pixelRatio);
       Timeline.finishSync(); // Sentry::captureScreenshot:RenderObjectToImage
 
       Timeline.startSync('Sentry::captureScreenshot:Masking', flow: flow);
-      final filter = _widgetFilter;
-      if (filter != null) {
-        final colorScheme = context.findColorScheme();
-        filter.obscure(
-          context: context,
-          pixelRatio: pixelRatio,
-          colorScheme: colorScheme,
-          bounds: Rect.fromLTWH(
-              0, 0, srcWidth * pixelRatio, srcHeight * pixelRatio),
-        );
-      }
+      final obscureItems = _obscureSync(capture);
       Timeline.finishSync(); // Sentry::captureScreenshot:Masking
       Timeline.finishSync(); // Sentry::captureScreenshot
 
-      // Then we draw the image and obscure masks later, between frames.
-      final completer = Completer<R>();
-      options.bindingUtils.instance?.scheduleTask<void>(() async {
-        Timeline.startSync('Sentry::renderScreenshot', flow: flow);
-        final recorder = PictureRecorder();
-        final canvas = Canvas(recorder);
-        final image = await futureImage;
-        try {
-          canvas.drawImage(image, Offset.zero, Paint());
-        } finally {
-          image.dispose();
-        }
-
-        if (filter != null) {
-          _obscureWidgets(canvas, filter.items);
-        }
-
-        final picture = recorder.endRecording();
-        Timeline.finishSync(); // Sentry::renderScreenshot
-
-        try {
-          Timeline.startSync('Sentry::screenshotToImage', flow: flow);
-          final finalImage = await picture.toImage(
-              (srcWidth * pixelRatio).round(),
-              (srcHeight * pixelRatio).round());
-          Timeline.finishSync(); // Sentry::screenshotToImage
-          try {
-            Timeline.startSync('Sentry::screenshotCallback', flow: flow);
-            completer.complete(await callback(finalImage));
-            Timeline.finishSync(); // Sentry::screenshotCallback
-          } finally {
-            finalImage.dispose(); // image needs to be disposed-of manually
-          }
-        } finally {
-          picture.dispose();
-        }
-      }, Priority.idle, debugLabel: '$logName: process screenshot').onError(
-          (e, stackTrace) {
-        _logError(e, stackTrace);
-        if (e != null && options.automatedTestMode) {
-          completer.completeError(e, stackTrace);
-        }
-      });
-
+      // Then we draw the image and obscure masks later, asynchronously.
+      final completer =
+          capture.createTask(futureImage, callback, obscureItems, flow);
+      _scheduleTask(capture.task, flow, completer);
       return completer.future;
     } catch (e, stackTrace) {
       _logError(e, stackTrace);
@@ -167,6 +112,127 @@ class ScreenshotRecorder {
         return Future.value(null);
       }
     }
+  }
+
+  void _scheduleTask(
+      void Function() task, Flow flow, Completer<dynamic> completer) {
+    late final Future<void> future;
+    if (_isReplayRecorder && options.bindingUtils.instance != null) {
+      future = options.bindingUtils.instance!
+          .scheduleTask<void>(task, Priority.idle, flow: flow);
+    } else {
+      future = Future.sync(task);
+    }
+    future.onError((e, stackTrace) {
+      _logError(e, stackTrace);
+      if (e != null && options.automatedTestMode) {
+        completer.completeError(e, stackTrace);
+      }
+    });
+  }
+
+  List<WidgetFilterItem>? _obscureSync(_Capture capture) {
+    if (_maskingConfig != null) {
+      final filter = WidgetFilter(_maskingConfig!, options.logger);
+      final colorScheme = capture.context.findColorScheme();
+      filter.obscure(
+        context: capture.context,
+        pixelRatio: capture.pixelRatio,
+        colorScheme: colorScheme,
+        bounds: capture.bounds,
+      );
+      return filter.items;
+    }
+    return null;
+  }
+}
+
+class _Capture<R> {
+  final widgets.BuildContext context;
+  final double srcWidth;
+  final double srcHeight;
+  final double pixelRatio;
+  late final void Function() task;
+
+  _Capture._(
+      {required this.context,
+      required this.srcWidth,
+      required this.srcHeight,
+      required this.pixelRatio});
+
+  factory _Capture.create(RenderRepaintBoundary renderObject,
+      ScreenshotRecorderConfig config, widgets.BuildContext context) {
+    // On Android, the resolution (coming from the configuration)
+    // is rounded to next multitude of 16. Therefore, we scale the image.
+    // On iOS, the screenshot resolution is not adjusted.
+    // For screenshots, the pixel ratio is adjusted based on quality config.
+    final srcWidth = renderObject.size.width;
+    final srcHeight = renderObject.size.height;
+    final pixelRatio = config.getPixelRatio(srcWidth, srcHeight) ??
+        widgets.MediaQuery.of(context).devicePixelRatio;
+
+    return _Capture._(
+      context: context,
+      srcWidth: srcWidth,
+      srcHeight: srcHeight,
+      pixelRatio: pixelRatio,
+    );
+  }
+
+  Rect get bounds =>
+      Rect.fromLTWH(0, 0, srcWidth * pixelRatio, srcHeight * pixelRatio);
+
+  int get width => (srcWidth * pixelRatio).round();
+
+  int get height => (srcHeight * pixelRatio).round();
+
+  /// Creates an asynchronous task (a.k.a lambda) to
+  /// - produce the image
+  /// - render obscure masks
+  /// - call the callback
+  ///
+  /// See [future] which is what gets completed with the callback result.
+  Completer<R> createTask(
+      Future<Image> futureImage,
+      Future<R> Function(Image) callback,
+      List<WidgetFilterItem>? obscureItems,
+      Flow flow) {
+    final completer = Completer<R>();
+
+    task = () async {
+      Timeline.startSync('Sentry::renderScreenshot', flow: flow);
+      final recorder = PictureRecorder();
+      final canvas = Canvas(recorder);
+      final image = await futureImage;
+      try {
+        canvas.drawImage(image, Offset.zero, Paint());
+      } finally {
+        image.dispose();
+      }
+
+      if (obscureItems != null) {
+        _obscureWidgets(canvas, obscureItems);
+      }
+
+      final picture = recorder.endRecording();
+      Timeline.finishSync(); // Sentry::renderScreenshot
+
+      try {
+        Timeline.startSync('Sentry::screenshotToImage', flow: flow);
+        final finalImage = await picture.toImage(width, height);
+        Timeline.finishSync(); // Sentry::screenshotToImage
+        try {
+          Timeline.startSync('Sentry::screenshotCallback', flow: flow);
+          completer.complete(await callback(finalImage));
+          Timeline.finishSync(); // Sentry::screenshotCallback
+        } finally {
+          finalImage.dispose(); // image needs to be disposed-of manually
+        }
+      } finally {
+        picture.dispose();
+      }
+    };
+    return completer;
   }
 
   void _obscureWidgets(Canvas canvas, List<WidgetFilterItem> items) {
