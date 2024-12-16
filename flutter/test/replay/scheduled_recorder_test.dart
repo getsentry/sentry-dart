@@ -65,6 +65,7 @@ class _Fixture {
     _completer = Completer();
     _tester.binding.scheduleFrame();
     await _tester.pumpAndSettle(const Duration(seconds: 1));
+    await _tester.idle();
     await _completer.future
         .timeout(Duration(milliseconds: 100), onTimeout: () {});
   }
