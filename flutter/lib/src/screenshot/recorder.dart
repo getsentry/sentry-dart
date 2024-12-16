@@ -48,11 +48,9 @@ class ScreenshotRecorder {
         ? options.experimental.privacyForReplay
         : options.experimental.privacyForScreenshots;
 
-    _maskingConfig =
+    final maskingConfig =
         privacyOptions?.buildMaskingConfig(_log, options.platformChecker);
-    if (_maskingConfig != null && _maskingConfig?.length == 0) {
-      _maskingConfig = null;
-    }
+    _maskingConfig = (maskingConfig?.length ?? 0) > 0 ? maskingConfig : null;
   }
 
   void _log(SentryLevel level, String message,
