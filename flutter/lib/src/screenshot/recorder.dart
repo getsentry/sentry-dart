@@ -116,7 +116,7 @@ class ScreenshotRecorder {
 
       // Then we draw the image and obscure masks later, between frames.
       final completer = Completer<R>();
-      options.bindingUtils.instance?.scheduleTask(() async {
+      options.bindingUtils.instance?.scheduleTask<void>(() async {
         Timeline.startSync('Sentry::renderScreenshot', flow: flow);
         final recorder = PictureRecorder();
         final canvas = Canvas(recorder);
