@@ -19,12 +19,12 @@ void main() async {
     await tester.runAsync(() async {
       final fixture = await _Fixture.create(tester);
       expect(fixture.capturedImages, isEmpty);
-      await fixture.nextFrame();
+      await fixture.nextFrame(true);
       expect(fixture.capturedImages, ['1000x750']);
-      await fixture.nextFrame();
+      await fixture.nextFrame(true);
       expect(fixture.capturedImages, ['1000x750', '1000x750']);
       final stopFuture = fixture.sut.stop();
-      await fixture.nextFrame();
+      await fixture.nextFrame(false);
       await stopFuture;
       expect(fixture.capturedImages, ['1000x750', '1000x750']);
     });
@@ -61,18 +61,13 @@ class _Fixture {
     return fixture;
   }
 
-  Future<void> nextFrame() async {
+  Future<void> nextFrame(bool imageIsExpected) async {
     _completer = Completer();
     _tester.binding.scheduleFrame();
     await _tester.pumpAndSettle(const Duration(seconds: 1));
     await _tester.idle();
     await _completer.future
-        .timeout(Duration(milliseconds: 100), onTimeout: () {});
-  }
-
-  Future<void> tryNextImage() async {
-    _completer = Completer();
-    await _completer.future
-        .timeout(Duration(milliseconds: 100), onTimeout: () {});
+        .timeout(const Duration(seconds: 1),
+        onTimeout: imageIsExpected ? null : () {});
   }
 }
