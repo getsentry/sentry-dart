@@ -51,11 +51,13 @@ class TimeToInitialDisplayTracker {
     final _endTimestamp = endTimestamp ?? await determineEndTime();
     if (_endTimestamp == null) return;
 
-    final tracer = transaction as SentryTracer;
+    if (transaction is! SentryTracer) {
+      return;
+    }
 
     final ttidSpan = transaction.startChild(
       SentrySpanOperations.uiTimeToInitialDisplay,
-      description: '${tracer.name} initial display',
+      description: '${transaction.name} initial display',
       startTimestamp: startTimestamp,
     );
 
