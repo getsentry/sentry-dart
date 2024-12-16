@@ -67,7 +67,9 @@ class _Fixture {
     await _tester.pumpAndSettle(const Duration(seconds: 1));
     await _tester.idle();
     await _completer.future.timeout(
-        const Duration(milliseconds: bool.hasEnvironment('CI') ? 10000 : 100),
+        bool.hasEnvironment('CI')
+            ? const Duration(seconds: 10)
+            : const Duration(milliseconds: 100),
         onTimeout: imageIsExpected ? null : () {});
   }
 }
