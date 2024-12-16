@@ -1,14 +1,5 @@
 # Changelog
 
-## 8.11.1
-
-### Improvements
-
-- Check for type before casting in TTID ([#2497](https://github.com/getsentry/sentry-dart/pull/2497))
-
-### Fixes 
-
-- SentryWidgetsFlutterBinding initializing even if a binding already exists ([#2494](https://github.com/getsentry/sentry-dart/pull/2494))
 ## Unreleased
 
 ### Deprecate
@@ -27,6 +18,16 @@
 - Bump Android SDK from v7.18.1 to v7.19.0 ([#2488](https://github.com/getsentry/sentry-dart/pull/2488))
   - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#7190)
   - [diff](https://github.com/getsentry/sentry-java/compare/7.18.1...7.19.0)
+
+## 8.11.1
+
+### Improvements
+
+- Check for type before casting in TTID ([#2497](https://github.com/getsentry/sentry-dart/pull/2497))
+
+### Fixes
+
+- SentryWidgetsFlutterBinding initializing even if a binding already exists ([#2494](https://github.com/getsentry/sentry-dart/pull/2494))
 
 ## 8.12.0-beta.1
 
