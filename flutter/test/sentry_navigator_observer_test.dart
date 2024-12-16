@@ -77,7 +77,7 @@ void main() {
       // Handle internal async method calls.
       await Future.delayed(const Duration(milliseconds: 10), () {});
       verify(mockBinding.beginNativeFrames()).called(1);
-    });
+    }, testOn: 'vm');
 
     test('transaction finish adds native frames to tracer', () async {
       final currentRoute = route(RouteSettings(name: 'Current Route'));
@@ -125,7 +125,7 @@ void main() {
           expect(measurement.value, expectedFrozen.value);
         }
       }
-    }, testOn: 'browser');
+    }, testOn: 'vm');
   });
 
   group('$SentryNavigatorObserver', () {
