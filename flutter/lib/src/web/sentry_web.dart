@@ -25,6 +25,7 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
 
   @override
   FutureOr<void> init(Hub hub) {
+    print('trying to init');
     tryCatchSync('init', () {
       final Map<String, dynamic> jsOptions = {
         'dsn': _options.dsn,

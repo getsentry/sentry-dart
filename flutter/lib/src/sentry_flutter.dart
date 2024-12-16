@@ -20,7 +20,6 @@ import 'integrations/frames_tracking_integration.dart';
 import 'integrations/integrations.dart';
 import 'integrations/native_app_start_handler.dart';
 import 'integrations/screenshot_integration.dart';
-import 'integrations/web_sdk_integration.dart';
 import 'native/factory.dart';
 import 'native/native_scope_observer.dart';
 import 'native/sentry_native_binding.dart';
@@ -29,7 +28,6 @@ import 'renderer/renderer.dart';
 import 'replay/integration.dart';
 import 'version.dart';
 import 'view_hierarchy/view_hierarchy_integration.dart';
-import 'web/script_loader/sentry_script_loader.dart';
 
 /// Configuration options callback
 typedef FlutterOptionsConfiguration = FutureOr<void> Function(
@@ -174,11 +172,8 @@ mixin SentryFlutter {
     // That allow us to send events to the network and then the Flutter integrations.
     final native = _native;
     if (native != null) {
-      if (platformChecker.isWeb) {
-        final loader = SentryScriptLoader(options);
-        integrations.add(WebSdkIntegration(native, loader));
-      } else {
-        integrations.add(NativeSdkIntegration(native));
+      integrations.add(createSdkIntegration(native));
+      if (!platformChecker.isWeb) {
         if (native.supportsLoadContexts) {
           integrations.add(LoadContextsIntegration(native));
         }

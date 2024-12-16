@@ -5,5 +5,6 @@ import 'sentry_native_binding.dart';
 
 SentryNativeBinding createBinding(SentryFlutterOptions options) {
   final binding = createJsBinding();
+  print('create web');
   return SentryWeb(binding, options);
 }

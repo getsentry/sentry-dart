@@ -1,8 +1,14 @@
 import 'dart:async';
 
 import 'package:sentry/sentry.dart';
+
 import '../native/sentry_native_binding.dart';
 import '../sentry_flutter_options.dart';
+
+Integration<SentryFlutterOptions> createSdkIntegration(
+    SentryNativeBinding native) {
+  return NativeSdkIntegration(native);
+}
 
 /// Enables Sentry's native SDKs (Android and iOS) with options.
 class NativeSdkIntegration implements Integration<SentryFlutterOptions> {
@@ -18,6 +24,7 @@ class NativeSdkIntegration implements Integration<SentryFlutterOptions> {
     if (!options.autoInitializeNativeSdk) {
       return;
     }
+    print('trying to init');
 
     try {
       await _native.init(hub);

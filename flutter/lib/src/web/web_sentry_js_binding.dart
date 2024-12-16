@@ -15,8 +15,9 @@ class WebSentryJsBinding implements SentryJsBinding {
 
   @override
   void close() {
-    _close();
-    if (globalThis['Sentry'] != null) {
+    final sentryProp = globalThis.getProperty('Sentry'.toJS);
+    if (sentryProp != null) {
+      _close();
       globalThis['Sentry'] = null;
     }
   }

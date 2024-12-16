@@ -52,9 +52,9 @@ class Fixture {
   late MockSentryNativeBinding web;
 
   WebSdkIntegration getSut() {
-    scriptLoader = FakeSentryScriptLoader(options);
+    options.scriptLoader = FakeSentryScriptLoader(options);
     web = MockSentryNativeBinding();
-    return WebSdkIntegration(web, scriptLoader);
+    return WebSdkIntegration(web);
   }
 }
 
