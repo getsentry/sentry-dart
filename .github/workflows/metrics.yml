@@ -107,17 +107,9 @@ jobs:
         working-directory: ./metrics
         run: ./build-dart.sh
 
-#      - name: Set file diff max threshold
-#        run: echo "THRESHOLD=13100000" >> $GITHUB_ENV # 1,31 MB
+      - name: Set file diff max threshold
+        run: echo "THRESHOLD=13100000" >> $GITHUB_ENV # 1,31 MB
 
-#      - name: Compare executable size
-#        working-directory: ./metrics
-#        run: ./compare_sizes.sh perf_test_console_plain.bin perf_test_console_sentry.bin $THRESHOLD
-
-      - name: Collect executable metrics
-        uses: getsentry/action-app-sdk-overhead-metrics@v1
-        with:
-          name: Console
-          config: ./metrics/metrics-console.yml
-          sauce-user: ${{ secrets.SAUCE_USERNAME }}
-          sauce-key: ${{ secrets.SAUCE_ACCESS_KEY }}
+      - name: Compare executable size
+        working-directory: ./metrics
+        run: ./compare_sizes.sh perf_test_console_plain.bin perf_test_console_sentry.bin $THRESHOLD
