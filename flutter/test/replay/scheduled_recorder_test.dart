@@ -77,7 +77,8 @@ class _TestScheduledRecorder extends ScheduledScreenshotRecorder {
   _TestScheduledRecorder(super.config, super.options, super.callback);
 
   @override
-  void scheduleTask(void Function() task, Flow flow) {
+  Future<void> executeTask(void Function() task, Flow flow) {
     task();
+    return Future.value();
   }
 }

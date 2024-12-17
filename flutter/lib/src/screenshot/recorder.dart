@@ -3,7 +3,6 @@ import 'dart:developer';
 import 'dart:ui';
 
 import 'package:flutter/rendering.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart' as widgets;
 import 'package:flutter/material.dart' as material;
 import 'package:flutter/cupertino.dart' as cupertino;
@@ -14,39 +13,31 @@ import 'masking_config.dart';
 import 'recorder_config.dart';
 import 'widget_filter.dart';
 
-var _instanceCounter = 0;
-
 @internal
 class ScreenshotRecorder {
   @protected
   final ScreenshotRecorderConfig config;
+
   @protected
   final SentryFlutterOptions options;
+
   @protected
-  late final String logName;
+  final String logName;
+
   bool _warningLogged = false;
-  late final bool _isReplayRecorder;
   late final SentryMaskingConfig? _maskingConfig;
 
   // TODO: remove in the next major release, see recorder_test.dart.
   @visibleForTesting
   bool get hasWidgetFilter => _maskingConfig != null;
 
-  ScreenshotRecorder(this.config, this.options,
-      {bool isReplayRecorder = true, String? logName}) {
-    _isReplayRecorder = isReplayRecorder;
-    if (logName != null) {
-      this.logName = logName;
-    } else if (isReplayRecorder) {
-      _instanceCounter++;
-      this.logName = 'ReplayRecorder #$_instanceCounter';
-    } else {
-      this.logName = 'ScreenshotRecorder';
-    }
-    // see `options.experimental.privacy` docs for details
-    final privacyOptions = isReplayRecorder
-        ? options.experimental.privacyForReplay
-        : options.experimental.privacyForScreenshots;
+  ScreenshotRecorder(
+    this.config,
+    this.options, {
+    SentryPrivacyOptions? privacyOptions,
+    this.logName = 'ScreenshotRecorder',
+  }) {
+    privacyOptions ??= options.experimental.privacyForScreenshots;
 
     final maskingConfig =
         privacyOptions?.buildMaskingConfig(_log, options.platformChecker);
@@ -99,7 +90,12 @@ class ScreenshotRecorder {
       // Then we draw the image and obscure masks later, asynchronously.
       final task =
           capture.createTask(futureImage, callback, obscureItems, flow);
-      scheduleTask(task, flow);
+      executeTask(task, flow).onError((e, stackTrace) {
+        _logError(e, stackTrace);
+        if (e != null && options.automatedTestMode) {
+          throw e;
+        }
+      });
       Timeline.finishSync(); // Sentry::captureScreenshot
       return capture.future;
     } catch (e, stackTrace) {
@@ -112,23 +108,9 @@ class ScreenshotRecorder {
     }
   }
 
-  // TODO unit-test
-  @visibleForTesting
-  void scheduleTask(void Function() task, Flow flow) {
-    late final Future<void> future;
-    if (_isReplayRecorder && options.bindingUtils.instance != null) {
-      future = options.bindingUtils.instance!
-          .scheduleTask<void>(task, Priority.idle, flow: flow);
-    } else {
-      future = Future.sync(task);
-    }
-    future.onError((e, stackTrace) {
-      _logError(e, stackTrace);
-      if (e != null && options.automatedTestMode) {
-        throw e;
-      }
-    });
-  }
+  @protected
+  Future<void> executeTask(void Function() task, Flow flow) =>
+      Future.sync(task);
 
   List<WidgetFilterItem>? _obscureSync(_Capture<dynamic> capture) {
     if (_maskingConfig != null) {

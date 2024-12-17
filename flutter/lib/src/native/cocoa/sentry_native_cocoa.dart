@@ -6,6 +6,7 @@ import 'package:meta/meta.dart';
 
 import '../../../sentry_flutter.dart';
 import '../../replay/replay_config.dart';
+import '../../replay/replay_recorder.dart';
 import '../../screenshot/recorder.dart';
 import '../../screenshot/recorder_config.dart';
 import '../sentry_native_channel.dart';
@@ -31,7 +32,8 @@ class SentryNativeCocoa extends SentryNativeChannel {
         switch (call.method) {
           case 'captureReplayScreenshot':
             _replayRecorder ??=
-                ScreenshotRecorder(ScreenshotRecorderConfig(), options);
+                ReplayScreenshotRecorder(ScreenshotRecorderConfig(), options);
+
             final replayId = call.arguments['replayId'] == null
                 ? null
                 : SentryId.fromId(call.arguments['replayId'] as String);

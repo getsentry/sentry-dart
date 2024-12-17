@@ -25,7 +25,6 @@ class ScreenshotEventProcessor implements EventProcessor {
         height: targetResolution,
       ),
       _options,
-      isReplayRecorder: false,
     );
     _debouncer = Debouncer(
       // ignore: invalid_use_of_internal_member

@@ -7,6 +7,7 @@ import 'dart:ui';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_flutter/src/replay/replay_recorder.dart';
 import 'package:sentry_flutter/src/screenshot/recorder.dart';
 import 'package:sentry_flutter/src/screenshot/recorder_config.dart';
 
@@ -75,7 +76,7 @@ void main() async {
   // TODO: remove in the next major release, see _SentryFlutterExperimentalOptions.
   group('Widget filter is used based on config or application', () {
     test('Uses widget filter by default for Replay', () {
-      final sut = ScreenshotRecorder(
+      final sut = ReplayScreenshotRecorder(
         ScreenshotRecorderConfig(),
         defaultTestOptions(),
       );
@@ -83,9 +84,8 @@ void main() async {
     });
 
     test('Does not use widget filter by default for Screenshots', () {
-      final sut = ScreenshotRecorder(
-          ScreenshotRecorderConfig(), defaultTestOptions(),
-          isReplayRecorder: false);
+      final sut =
+          ScreenshotRecorder(ScreenshotRecorderConfig(), defaultTestOptions());
       expect(sut.hasWidgetFilter, isFalse);
     });
 
@@ -93,8 +93,7 @@ void main() async {
         'Uses widget filter for Screenshots when privacy configured explicitly',
         () {
       final sut = ScreenshotRecorder(ScreenshotRecorderConfig(),
-          defaultTestOptions()..experimental.privacy.maskAllText = false,
-          isReplayRecorder: false);
+          defaultTestOptions()..experimental.privacy.maskAllText = false);
       expect(sut.hasWidgetFilter, isTrue);
     });
   });
