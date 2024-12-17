@@ -30136,112 +30136,91 @@ class SentryCocoa {
       ffi.Pointer<ObjCObject> Function(
           ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>)>();
 
-  late final _sel_setEmpty_1 = _registerName1("setEmpty:");
-  void _objc_msgSend_1063(
-    ffi.Pointer<ObjCObject> obj,
-    ffi.Pointer<ObjCSel> sel,
-    ffi.Pointer<ObjCObject> value,
-  ) {
-    return __objc_msgSend_1063(
-      obj,
-      sel,
-      value,
-    );
-  }
-
-  late final __objc_msgSend_1063Ptr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
-              ffi.Pointer<ObjCObject>)>>('objc_msgSend');
-  late final __objc_msgSend_1063 = __objc_msgSend_1063Ptr.asFunction<
-      void Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
-          ffi.Pointer<ObjCObject>)>();
-
   late final _sel_sentryIdString1 = _registerName1("sentryIdString");
   late final _class_NSUUID1 = _getClass1("NSUUID");
   late final _sel_UUID1 = _registerName1("UUID");
   late final _sel_initWithUUIDString_1 = _registerName1("initWithUUIDString:");
   late final _sel_initWithUUIDBytes_1 = _registerName1("initWithUUIDBytes:");
-  instancetype _objc_msgSend_1064(
+  instancetype _objc_msgSend_1063(
     ffi.Pointer<ObjCObject> obj,
     ffi.Pointer<ObjCSel> sel,
     ffi.Pointer<ffi.UnsignedChar> bytes,
   ) {
-    return __objc_msgSend_1064(
+    return __objc_msgSend_1063(
       obj,
       sel,
       bytes,
     );
   }
 
-  late final __objc_msgSend_1064Ptr = _lookup<
+  late final __objc_msgSend_1063Ptr = _lookup<
       ffi.NativeFunction<
           instancetype Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
               ffi.Pointer<ffi.UnsignedChar>)>>('objc_msgSend');
-  late final __objc_msgSend_1064 = __objc_msgSend_1064Ptr.asFunction<
+  late final __objc_msgSend_1063 = __objc_msgSend_1063Ptr.asFunction<
       instancetype Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
           ffi.Pointer<ffi.UnsignedChar>)>();
 
   late final _sel_getUUIDBytes_1 = _registerName1("getUUIDBytes:");
-  void _objc_msgSend_1065(
+  void _objc_msgSend_1064(
     ffi.Pointer<ObjCObject> obj,
     ffi.Pointer<ObjCSel> sel,
     ffi.Pointer<ffi.UnsignedChar> uuid,
   ) {
-    return __objc_msgSend_1065(
+    return __objc_msgSend_1064(
       obj,
       sel,
       uuid,
     );
   }
 
-  late final __objc_msgSend_1065Ptr = _lookup<
+  late final __objc_msgSend_1064Ptr = _lookup<
       ffi.NativeFunction<
           ffi.Void Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
               ffi.Pointer<ffi.UnsignedChar>)>>('objc_msgSend');
-  late final __objc_msgSend_1065 = __objc_msgSend_1065Ptr.asFunction<
+  late final __objc_msgSend_1064 = __objc_msgSend_1064Ptr.asFunction<
       void Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
           ffi.Pointer<ffi.UnsignedChar>)>();
 
-  int _objc_msgSend_1066(
+  int _objc_msgSend_1065(
     ffi.Pointer<ObjCObject> obj,
     ffi.Pointer<ObjCSel> sel,
     ffi.Pointer<ObjCObject> otherUUID,
   ) {
-    return __objc_msgSend_1066(
+    return __objc_msgSend_1065(
       obj,
       sel,
       otherUUID,
     );
   }
 
-  late final __objc_msgSend_1066Ptr = _lookup<
+  late final __objc_msgSend_1065Ptr = _lookup<
       ffi.NativeFunction<
           ffi.Int32 Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
               ffi.Pointer<ObjCObject>)>>('objc_msgSend');
-  late final __objc_msgSend_1066 = __objc_msgSend_1066Ptr.asFunction<
+  late final __objc_msgSend_1065 = __objc_msgSend_1065Ptr.asFunction<
       int Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
           ffi.Pointer<ObjCObject>)>();
 
   late final _sel_UUIDString1 = _registerName1("UUIDString");
   late final _sel_initWithUuid_1 = _registerName1("initWithUuid:");
-  instancetype _objc_msgSend_1067(
+  instancetype _objc_msgSend_1066(
     ffi.Pointer<ObjCObject> obj,
     ffi.Pointer<ObjCSel> sel,
     ffi.Pointer<ObjCObject> uuid,
   ) {
-    return __objc_msgSend_1067(
+    return __objc_msgSend_1066(
       obj,
       sel,
       uuid,
     );
   }
 
-  late final __objc_msgSend_1067Ptr = _lookup<
+  late final __objc_msgSend_1066Ptr = _lookup<
       ffi.NativeFunction<
           instancetype Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
               ffi.Pointer<ObjCObject>)>>('objc_msgSend');
-  late final __objc_msgSend_1067 = __objc_msgSend_1067Ptr.asFunction<
+  late final __objc_msgSend_1066 = __objc_msgSend_1066Ptr.asFunction<
       instancetype Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
           ffi.Pointer<ObjCObject>)>();
 
@@ -37645,7 +37624,8 @@ class ObjCBlock_bool_ObjCObject_ffiUnsignedLong_bool extends _ObjCBlockBase {
   ObjCBlock_bool_ObjCObject_ffiUnsignedLong_bool.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
-              ffi.NativeFunction<
+              ffi
+              .NativeFunction<
                   ffi.Bool Function(ffi.Pointer<ObjCObject> arg0,
                       ffi.UnsignedLong arg1, ffi.Pointer<ffi.Bool> arg2)>>
           ptr)
@@ -42089,15 +42069,17 @@ class ObjCBlock_bool_ObjCObject_bool extends _ObjCBlockBase {
                       ffi.Pointer<ffi.Bool> arg1)>>
           ptr)
       : this._(
-            lib._newBlock1(
-                _cFuncTrampoline ??= ffi.Pointer.fromFunction<
-                            ffi.Bool Function(
-                                ffi.Pointer<_ObjCBlock> block,
-                                ffi.Pointer<ObjCObject> arg0,
-                                ffi.Pointer<ffi.Bool> arg1)>(
-                        _ObjCBlock_bool_ObjCObject_bool_fnPtrTrampoline, false)
-                    .cast(),
-                ptr.cast()),
+            lib
+                ._newBlock1(
+                    _cFuncTrampoline ??= ffi.Pointer.fromFunction<
+                                ffi.Bool Function(
+                                    ffi.Pointer<_ObjCBlock> block,
+                                    ffi.Pointer<ObjCObject> arg0,
+                                    ffi.Pointer<ffi.Bool> arg1)>(
+                            _ObjCBlock_bool_ObjCObject_bool_fnPtrTrampoline,
+                            false)
+                        .cast(),
+                    ptr.cast()),
             lib);
   static ffi.Pointer<ffi.Void>? _cFuncTrampoline;
 
@@ -71230,11 +71212,6 @@ class SentryId1 extends NSObject {
         : SentryId1._(_ret, _lib, retain: true, release: true);
   }
 
-  static void setEmpty(SentryCocoa _lib, SentryId1? value) {
-    return _lib._objc_msgSend_1063(_lib._class_SentryId11, _lib._sel_setEmpty_1,
-        value?._id ?? ffi.nullptr);
-  }
-
   /// Returns a 32 lowercase character hexadecimal string description of the @c SentryId, such as
   /// “12c2d058d58442709aa2eca08bf20986”.
   NSString? get sentryIdString {
@@ -71253,7 +71230,7 @@ class SentryId1 extends NSObject {
 
   /// Creates a SentryId with the given UUID.
   SentryId1 initWithUuid_(NSUUID? uuid) {
-    final _ret = _lib._objc_msgSend_1067(
+    final _ret = _lib._objc_msgSend_1066(
         _id, _lib._sel_initWithUuid_1, uuid?._id ?? ffi.nullptr);
     return SentryId1._(_ret, _lib, retain: true, release: true);
   }
@@ -71408,16 +71385,16 @@ class NSUUID extends NSObject {
 
   NSUUID initWithUUIDBytes_(ffi.Pointer<ffi.UnsignedChar> bytes) {
     final _ret =
-        _lib._objc_msgSend_1064(_id, _lib._sel_initWithUUIDBytes_1, bytes);
+        _lib._objc_msgSend_1063(_id, _lib._sel_initWithUUIDBytes_1, bytes);
     return NSUUID._(_ret, _lib, retain: true, release: true);
   }
 
   void getUUIDBytes_(ffi.Pointer<ffi.UnsignedChar> uuid) {
-    _lib._objc_msgSend_1065(_id, _lib._sel_getUUIDBytes_1, uuid);
+    _lib._objc_msgSend_1064(_id, _lib._sel_getUUIDBytes_1, uuid);
   }
 
   int compare_(NSUUID? otherUUID) {
-    return _lib._objc_msgSend_1066(
+    return _lib._objc_msgSend_1065(
         _id, _lib._sel_compare_1, otherUUID?._id ?? ffi.nullptr);
   }
 
