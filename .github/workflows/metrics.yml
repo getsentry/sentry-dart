@@ -23,7 +23,7 @@ jobs:
           access_token: ${{ github.token }}
 
   metrics:
-    name: ${{ matrix.name }}
+    name: Sentry Flutter ${{ matrix.name }}
     runs-on: ${{ matrix.host }}
     timeout-minutes: 30
     strategy:
@@ -93,6 +93,7 @@ jobs:
           sauce-key: ${{ secrets.SAUCE_ACCESS_KEY }}
 
   metrics-dart:
+    name: Sentry Dart
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
@@ -109,6 +110,6 @@ jobs:
       - name: Set file diff max threshold
         run: echo "THRESHOLD=13100000" >> $GITHUB_ENV # 1,31 MB
 
-      - name: Compare APK sizes
+      - name: Compare executable size
         working-directory: ./metrics
         run: ./compare_sizes.sh perf_test_console_plain.bin perf_test_console_sentry.bin $THRESHOLD
