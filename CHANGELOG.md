@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### Deprecate
+
+- Manual TTID ([#2477](https://github.com/getsentry/sentry-dart/pull/2477))
+
+### Improvements
+
+- Check `SentryTracer` type in TTFD tracker ([#2508](https://github.com/getsentry/sentry-dart/pull/2508))
+
 ### Enhancements
 
 - Warning (in a debug build) if a potentially sensitive widget is not masked or unmasked explicitly ([#2375](https://github.com/getsentry/sentry-dart/pull/2375))
@@ -12,6 +20,19 @@
 - Bump Native SDK from v0.7.15 to v0.7.16 ([#2465](https://github.com/getsentry/sentry-dart/pull/2465))
   - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#0716)
   - [diff](https://github.com/getsentry/sentry-native/compare/0.7.15...0.7.16)
+- Bump Android SDK from v7.18.1 to v7.19.0 ([#2488](https://github.com/getsentry/sentry-dart/pull/2488))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#7190)
+  - [diff](https://github.com/getsentry/sentry-java/compare/7.18.1...7.19.0)
+
+## 8.11.1
+
+### Improvements
+
+- Check for type before casting in TTID ([#2497](https://github.com/getsentry/sentry-dart/pull/2497))
+
+### Fixes
+
+- SentryWidgetsFlutterBinding initializing even if a binding already exists ([#2494](https://github.com/getsentry/sentry-dart/pull/2494))
 
 ## 8.12.0-beta.1
 

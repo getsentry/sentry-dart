@@ -247,9 +247,11 @@ extension on Element {
 @internal
 extension Opaqueness on Color {
   @pragma('vm:prefer-inline')
+  // ignore: deprecated_member_use
   bool get isOpaque => alpha == 0xff;
 
   @pragma('vm:prefer-inline')
+  // ignore: deprecated_member_use
   Color asOpaque() => isOpaque ? this : Color.fromARGB(0xff, red, green, blue);
 }
 
