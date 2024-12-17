@@ -10,9 +10,12 @@ import 'script_dom_api.dart';
 const String defaultTrustedPolicyName = 'sentry-dart';
 
 class SentryScriptLoader {
-  SentryScriptLoader(this._options);
+  SentryScriptLoader({SentryOptions? options})
+      :
+        // ignore: invalid_use_of_internal_member
+        _options = options ?? Sentry.currentHub.options;
 
-  final SentryFlutterOptions _options;
+  final SentryOptions _options;
   bool _scriptLoaded = false;
 
   /// Loads the scripts into the web page with support for Trusted Types security policy.

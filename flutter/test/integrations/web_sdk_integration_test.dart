@@ -22,18 +22,35 @@ void main() {
       when(fixture.web.close()).thenReturn(null);
     });
 
-    test('adds integration', () async {
-      await sut.call(fixture.hub, fixture.options);
+    group('initializeNativeJsSdk: true', () {
+      setUp(() {
+        fixture.options.initializeNativeJsSdk = true;
+      });
 
-      expect(fixture.options.sdk.integrations.contains(WebSdkIntegration.name),
-          true);
+      test('adds integration', () async {
+        await sut.call(fixture.hub, fixture.options);
+
+        expect(
+            fixture.options.sdk.integrations.contains(WebSdkIntegration.name),
+            true);
+      });
+
+      test('loads scripts and initializes web', () async {
+        await sut.call(fixture.hub, fixture.options);
+
+        expect(fixture.scriptLoader.loadScriptsCalls, 1);
+        verify(fixture.web.init(fixture.hub)).called(1);
+      });
     });
 
-    test('loads scripts and initializes web', () async {
-      await sut.call(fixture.hub, fixture.options);
+    // false by default
+    group('initializeNativeJsSdk: false', () {
+      test('does not add integration', () async {
+        await sut.call(fixture.hub, fixture.options);
 
-      expect(fixture.scriptLoader.loadScriptsCalls, 1);
-      verify(fixture.web.init(fixture.hub)).called(1);
+        expect(fixture.options.sdk.integrations,
+            isNot(contains(WebSdkIntegration.name)));
+      });
     });
 
     test('closes resources', () async {
@@ -52,14 +69,14 @@ class Fixture {
   late MockSentryNativeBinding web;
 
   WebSdkIntegration getSut() {
-    options.scriptLoader = FakeSentryScriptLoader(options);
+    scriptLoader = FakeSentryScriptLoader(options: options);
     web = MockSentryNativeBinding();
-    return WebSdkIntegration(web);
+    return WebSdkIntegration(web, scriptLoader);
   }
 }
 
 class FakeSentryScriptLoader extends SentryScriptLoader {
-  FakeSentryScriptLoader(super.options);
+  FakeSentryScriptLoader({super.options});
 
   int loadScriptsCalls = 0;
   int closeCalls = 0;

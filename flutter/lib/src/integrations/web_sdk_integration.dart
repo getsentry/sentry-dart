@@ -5,17 +5,20 @@ import 'package:sentry/sentry.dart';
 
 import '../native/sentry_native_binding.dart';
 import '../sentry_flutter_options.dart';
+import '../web/script_loader/sentry_script_loader.dart';
 import '../web/sentry_js_bundle.dart';
+import 'integrations.dart';
 
-Integration<SentryFlutterOptions> createSdkIntegration(
-    SentryNativeBinding native) {
-  return WebSdkIntegration(native);
+SdkIntegration createSdkIntegration(SentryNativeBinding native) {
+  final scriptLoader = SentryScriptLoader();
+  return WebSdkIntegration(native, scriptLoader);
 }
 
 class WebSdkIntegration implements Integration<SentryFlutterOptions> {
-  WebSdkIntegration(this._web);
+  WebSdkIntegration(this._web, this._scriptLoader);
 
   final SentryNativeBinding _web;
+  final SentryScriptLoader _scriptLoader;
   SentryFlutterOptions? _options;
 
   @internal
@@ -23,12 +26,16 @@ class WebSdkIntegration implements Integration<SentryFlutterOptions> {
 
   @override
   FutureOr<void> call(Hub hub, SentryFlutterOptions options) async {
+    if (!options.initializeNativeJsSdk) {
+      return;
+    }
+
     try {
       _options = options;
       final scripts = options.platformChecker.isDebugMode()
           ? debugScripts
           : productionScripts;
-      await options.scriptLoader.loadWebSdk(scripts);
+      await _scriptLoader.loadWebSdk(scripts);
       await _web.init(hub);
 
       options.sdk.addIntegration(name);
@@ -47,7 +54,11 @@ class WebSdkIntegration implements Integration<SentryFlutterOptions> {
 
   @override
   FutureOr<void> close() async {
-    await _web.close();
-    await _options?.scriptLoader.close();
+    try {
+      await _web.close();
+      await _scriptLoader.close();
+    } catch (error, stackTrace) {
+      if (_options?.automatedTestMode == true) {}
+    }
   }
 }

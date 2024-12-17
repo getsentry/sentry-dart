@@ -23,7 +23,7 @@ void main() {
     setUp(() async {
       hub = MockHub();
       options = defaultTestOptions();
-      final loader = SentryScriptLoader(options);
+      final loader = SentryScriptLoader(options: options);
       await loader.loadWebSdk(debugScripts);
 
       final binding = createJsBinding();

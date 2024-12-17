@@ -56,6 +56,6 @@ class Fixture {
   final options = defaultTestOptions();
 
   SentryScriptLoader getSut() {
-    return SentryScriptLoader(options);
+    return SentryScriptLoader(options: options);
   }
 }

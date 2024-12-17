@@ -16,7 +16,6 @@ import 'sentry_flutter.dart';
 import 'sentry_privacy_options.dart';
 import 'sentry_replay_options.dart';
 import 'user_interaction/sentry_user_interaction_widget.dart';
-import 'web/script_loader/sentry_script_loader.dart';
 
 /// This class adds options which are only available in a Flutter environment.
 /// Note that some of these options require native Sentry integration, which is
@@ -240,9 +239,6 @@ class SentryFlutterOptions extends SentryOptions {
   @meta.internal
   late MethodChannel methodChannel = const MethodChannel('sentry_flutter');
 
-  @meta.internal
-  late SentryScriptLoader scriptLoader = SentryScriptLoader(this);
-
   /// Enables the View Hierarchy feature.
   ///
   /// Renders an ASCII represention of the entire view hierarchy of the
@@ -295,6 +291,14 @@ class SentryFlutterOptions extends SentryOptions {
   /// Note: If you call `WidgetsFlutterBinding.ensureInitialized()` before `SentryFlutter.init()`,
   /// you must use `SentryWidgetsFlutterBinding.ensureInitialized()` instead.
   bool enableFramesTracking = true;
+
+  /// Whether to initialize native Javascript SDK integration.
+  ///
+  /// When enabled this will load the script dynamically into the document's head
+  /// and initialize the Sentry Javascript SDK automatically within SentryFlutter.init
+  ///
+  /// Defaults to `false`
+  bool initializeNativeJsSdk = false;
 
   /// By using this, you are disabling native [Breadcrumb] tracking and instead
   /// you are just tracking [Breadcrumb]s which result from events available
