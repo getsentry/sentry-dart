@@ -5,6 +5,7 @@ library dart_test;
 
 import 'dart:ui';
 
+import 'package:flutter/widgets.dart' as widgets;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/replay/replay_recorder.dart';
@@ -73,6 +74,31 @@ void main() async {
     expect(await fixture.capture(), '427x854');
   });
 
+  testWidgets('propagates errors in test-mode', (tester) async {
+    final fixture = await _Fixture.create(tester);
+    fixture.options
+      ..automatedTestMode = true
+      ..experimental.privacy.maskCallback<widgets.Stack>((el, widget) {
+        throw Exception('testing masking error');
+      });
+
+    expect(
+        fixture.capture(),
+        throwsA(predicate(
+            (Exception e) => e.toString().contains('testing masking error'))));
+  });
+
+  testWidgets('does not propagate errors in real apps', (tester) async {
+    final fixture = await _Fixture.create(tester);
+    fixture.options
+      ..automatedTestMode = false
+      ..experimental.privacy.maskCallback<widgets.Stack>((el, widget) {
+        throw Exception('testing masking error');
+      });
+
+    expect(await fixture.capture(), isNull);
+  });
+
   // TODO: remove in the next major release, see _SentryFlutterExperimentalOptions.
   group('Widget filter is used based on config or application', () {
     test('Uses widget filter by default for Replay', () {
@@ -100,15 +126,15 @@ void main() async {
 }
 
 class _Fixture {
-  late final ScreenshotRecorder sut;
+  late final ScreenshotRecorder sut = ScreenshotRecorder(
+      ScreenshotRecorderConfig(width: width, height: height), options);
+  late final options = defaultTestOptions()
+    ..bindingUtils = TestBindingWrapper();
   final WidgetTester _tester;
+  final double? width;
+  final double? height;
 
-  _Fixture(this._tester, {double? width, double? height}) {
-    sut = ScreenshotRecorder(
-      ScreenshotRecorderConfig(width: width, height: height),
-      defaultTestOptions()..bindingUtils = TestBindingWrapper(),
-    );
-  }
+  _Fixture(this._tester, {this.width, this.height});
 
   static Future<_Fixture> create(WidgetTester tester,
       {double? width, double? height}) async {
@@ -118,7 +144,7 @@ class _Fixture {
   }
 
   Future<String?> capture() async {
-    final future = sut.capture(
+    final future = sut.capture<String?>(
         (Image image) => Future.value("${image.width}x${image.height}"));
     await _tester.idle();
     return future;

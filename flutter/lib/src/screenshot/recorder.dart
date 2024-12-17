@@ -93,7 +93,9 @@ class ScreenshotRecorder {
       executeTask(task, flow).onError((e, stackTrace) {
         _logError(e, stackTrace);
         if (e != null && options.automatedTestMode) {
-          throw e;
+          capture._completer.completeError(e, stackTrace);
+        } else {
+          capture._completer.complete(null);
         }
       });
       Timeline.finishSync(); // Sentry::captureScreenshot
