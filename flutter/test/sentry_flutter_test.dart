@@ -386,6 +386,8 @@ void main() {
       );
       expect(containsRunZonedGuardedIntegration, isFalse);
 
+      expect(SentryFlutter.native, isNull);
+
       await Sentry.close();
     }, testOn: 'browser');
 
@@ -426,6 +428,8 @@ void main() {
           integrations: Sentry.currentHub.options.integrations,
           beforeIntegration: RunZonedGuardedIntegration,
           afterIntegration: WidgetsFlutterBindingIntegration);
+
+      expect(SentryFlutter.native, isNull);
 
       await Sentry.close();
     }, testOn: 'browser');
@@ -469,6 +473,7 @@ void main() {
           afterIntegration: WidgetsFlutterBindingIntegration);
 
       expect(Sentry.currentHub.profilerFactory, isNull);
+      expect(SentryFlutter.native, isNull);
 
       await Sentry.close();
     }, testOn: 'browser');
@@ -510,29 +515,9 @@ void main() {
           beforeIntegration: RunZonedGuardedIntegration,
           afterIntegration: WidgetsFlutterBindingIntegration);
 
-      await Sentry.close();
-    }, testOn: 'browser');
-  });
-
-  group('Native binding', () {
-    test('web: created if enableNativeJsSdk is true', () async {
-      final sentryFlutterOptions = defaultTestOptions(
-          getPlatformChecker(platform: MockPlatform.android()))
-        ..enableNativeJsSdk = true;
-
-      await SentryFlutter.init((options) {}, options: sentryFlutterOptions);
-
-      expect(SentryFlutter.native, isNotNull);
-    }, testOn: 'browser');
-
-    test('web: not created if enableNativeJsSdk is false', () async {
-      final sentryFlutterOptions = defaultTestOptions(
-          getPlatformChecker(platform: MockPlatform.android()))
-        ..enableNativeJsSdk = false;
-
-      await SentryFlutter.init((options) {}, options: sentryFlutterOptions);
-
       expect(SentryFlutter.native, isNull);
+
+      await Sentry.close();
     }, testOn: 'browser');
   });
 
