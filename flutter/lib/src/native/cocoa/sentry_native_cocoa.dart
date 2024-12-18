@@ -1,12 +1,12 @@
 import 'dart:async';
 import 'dart:ffi';
-import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:meta/meta.dart';
 
 import '../../../sentry_flutter.dart';
 import '../../replay/replay_config.dart';
+import '../../replay/replay_recorder.dart';
 import '../../screenshot/recorder.dart';
 import '../../screenshot/recorder_config.dart';
 import '../sentry_native_channel.dart';
@@ -32,7 +32,8 @@ class SentryNativeCocoa extends SentryNativeChannel {
         switch (call.method) {
           case 'captureReplayScreenshot':
             _replayRecorder ??=
-                ScreenshotRecorder(ScreenshotRecorderConfig(), options);
+                ReplayScreenshotRecorder(ScreenshotRecorderConfig(), options);
+
             final replayId = call.arguments['replayId'] == null
                 ? null
                 : SentryId.fromId(call.arguments['replayId'] as String);
@@ -44,8 +45,7 @@ class SentryNativeCocoa extends SentryNativeChannel {
               });
             }
 
-            Uint8List? imageBytes;
-            await _replayRecorder?.capture((image) async {
+            return _replayRecorder?.capture((image) async {
               final imageData =
                   await image.toByteData(format: ImageByteFormat.png);
               if (imageData != null) {
@@ -54,13 +54,12 @@ class SentryNativeCocoa extends SentryNativeChannel {
                     'Replay: captured screenshot ('
                     '${image.width}x${image.height} pixels, '
                     '${imageData.lengthInBytes} bytes)');
-                imageBytes = imageData.buffer.asUint8List();
+                return imageData.buffer.asUint8List();
               } else {
                 options.logger(SentryLevel.warning,
                     'Replay: failed to convert screenshot to PNG');
               }
             });
-            return imageBytes;
           default:
             throw UnimplementedError('Method ${call.method} not implemented');
         }

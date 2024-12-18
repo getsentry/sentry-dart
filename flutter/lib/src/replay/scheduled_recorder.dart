@@ -5,7 +5,7 @@ import 'dart:ui';
 import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
-import '../screenshot/recorder.dart';
+import 'replay_recorder.dart';
 import 'scheduled_recorder_config.dart';
 import 'scheduler.dart';
 
@@ -14,7 +14,7 @@ typedef ScheduledScreenshotRecorderCallback = Future<void> Function(
     ScreenshotPng screenshot, bool isNewlyCaptured);
 
 @internal
-class ScheduledScreenshotRecorder extends ScreenshotRecorder {
+class ScheduledScreenshotRecorder extends ReplayScreenshotRecorder {
   late final Scheduler _scheduler;
   late final ScheduledScreenshotRecorderCallback _callback;
   var _status = _Status.running;
@@ -28,8 +28,8 @@ class ScheduledScreenshotRecorder extends ScreenshotRecorder {
 
   ScheduledScreenshotRecorder(
       ScheduledScreenshotRecorderConfig config, SentryFlutterOptions options,
-      [ScheduledScreenshotRecorderCallback? callback, String? logName])
-      : super(config, options, logName: logName) {
+      [ScheduledScreenshotRecorderCallback? callback])
+      : super(config, options) {
     assert(config.frameRate > 0);
     _frameDuration = Duration(milliseconds: 1000 ~/ config.frameRate);
     assert(_frameDuration.inMicroseconds > 0);
@@ -93,8 +93,7 @@ class ScheduledScreenshotRecorder extends ScreenshotRecorder {
     }
   }
 
-  Future<void> _capture(Duration sinceSchedulerEpoch) async =>
-      capture(_onImageCaptured);
+  void _capture(Duration sinceSchedulerEpoch) => capture(_onImageCaptured);
 
   Future<void> _onImageCaptured(Image image) async {
     if (_status == _Status.running) {
@@ -169,13 +168,13 @@ class _IdleFrameFiller {
     await scheduled;
   }
 
-  void pause() async {
+  void pause() {
     if (_status == _Status.running) {
       _status = _Status.paused;
     }
   }
 
-  void resume() async {
+  void resume() {
     if (_status == _Status.paused) {
       _status = _Status.running;
     }
