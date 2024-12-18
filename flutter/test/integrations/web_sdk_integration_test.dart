@@ -45,7 +45,7 @@ void main() {
 
     group('disabled', () {
       setUp(() {
-        fixture.options.autoInitializeNativeSdk = true;
+        fixture.options.autoInitializeNativeSdk = false;
       });
 
       test('does not add integration', () async {
