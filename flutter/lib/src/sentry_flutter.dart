@@ -63,7 +63,14 @@ mixin SentryFlutter {
     sentrySetupStartTime ??= options.clock();
 
     if (options.platformChecker.hasNativeIntegration) {
-      _native = createBinding(options);
+      if (options.platformChecker.platform.isLinux ||
+          options.platformChecker.platform.isWindows) {
+        if (options.enableNativeSdk) {
+          _native = createBinding(options);
+        }
+      } else {
+        _native = createBinding(options);
+      }
     }
 
     final platformDispatcher = PlatformDispatcher.instance;

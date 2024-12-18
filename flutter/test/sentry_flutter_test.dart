@@ -3,8 +3,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:sentry/src/platform/platform.dart';
 import 'package:sentry/src/dart_exception_type_identifier.dart';
+import 'package:sentry/src/platform/platform.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/file_system_transport.dart';
 import 'package:sentry_flutter/src/flutter_exception_type_identifier.dart';
@@ -16,6 +16,7 @@ import 'package:sentry_flutter/src/renderer/renderer.dart';
 import 'package:sentry_flutter/src/replay/integration.dart';
 import 'package:sentry_flutter/src/version.dart';
 import 'package:sentry_flutter/src/view_hierarchy/view_hierarchy_integration.dart';
+
 import 'mocks.dart';
 import 'mocks.mocks.dart';
 import 'sentry_flutter_util.dart';
@@ -273,7 +274,7 @@ void main() {
           beforeIntegration: WidgetsFlutterBindingIntegration,
           afterIntegration: OnErrorIntegration);
 
-      expect(SentryFlutter.native, isNotNull);
+      expect(SentryFlutter.native, isNull);
       expect(Sentry.currentHub.profilerFactory, isNull);
     }, testOn: 'vm');
 
@@ -321,7 +322,7 @@ void main() {
           beforeIntegration: WidgetsFlutterBindingIntegration,
           afterIntegration: OnErrorIntegration);
 
-      expect(SentryFlutter.native, isNotNull);
+      expect(SentryFlutter.native, isNull);
       expect(Sentry.currentHub.profilerFactory, isNull);
 
       await Sentry.close();
