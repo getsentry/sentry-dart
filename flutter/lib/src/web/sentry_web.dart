@@ -12,20 +12,17 @@ import '../native/sentry_native_invoker.dart';
 import '../replay/replay_config.dart';
 import 'sentry_js_binding.dart';
 
-abstract class SentryWebBinding {
-  FutureOr<void> init();
-  FutureOr<void> close();
-}
-
 class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
   SentryWeb(this._binding, this._options);
 
   final SentryJsBinding _binding;
   final SentryFlutterOptions _options;
 
+  void _logNotSupported(String operation) => options.logger(
+      SentryLevel.debug, 'SentryWeb: $operation is not supported');
+
   @override
   FutureOr<void> init(Hub hub) {
-    print('trying to init');
     tryCatchSync('init', () {
       final Map<String, dynamic> jsOptions = {
         'dsn': _options.dsn,
@@ -52,21 +49,18 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
 
   @override
   FutureOr<void> addBreadcrumb(Breadcrumb breadcrumb) {
-    throw UnsupportedError(
-        "$SentryWeb.addBreadcrumb() not supported on this platform");
+    _logNotSupported('add breadcrumb');
   }
 
   @override
   FutureOr<void> beginNativeFrames() {
-    throw UnsupportedError(
-        "$SentryWeb.beginNativeFrames() not supported on this platform");
+    _logNotSupported('begin native frames collection');
   }
 
   @override
   FutureOr<void> captureEnvelope(
       Uint8List envelopeData, bool containsUnhandledException) {
-    throw UnsupportedError(
-        "$SentryWeb.captureEnvelope() not supported on this platform");
+    _logNotSupported('capture envelope');
   }
 
   @override
@@ -77,123 +71,110 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
 
   @override
   FutureOr<void> clearBreadcrumbs() {
-    throw UnsupportedError(
-        "$SentryWeb.clearBreadcrumbs() not supported on this platform");
+    _logNotSupported('clear breadcrumbs');
   }
 
   @override
   FutureOr<Map<String, dynamic>?> collectProfile(
       SentryId traceId, int startTimeNs, int endTimeNs) {
-    throw UnsupportedError(
-        "$SentryWeb.collectProfile() not supported on this platform");
+    _logNotSupported('collect profile');
+    return null;
   }
 
   @override
   FutureOr<void> discardProfiler(SentryId traceId) {
-    throw UnsupportedError(
-        "$SentryWeb.discardProfiler() not supported on this platform");
+    _logNotSupported('discard profiler');
   }
 
   @override
   FutureOr<int?> displayRefreshRate() {
-    throw UnsupportedError(
-        "$SentryWeb.displayRefreshRate() not supported on this platform");
+    _logNotSupported('fetching display refresh rate');
+    return null;
   }
 
   @override
   FutureOr<NativeFrames?> endNativeFrames(SentryId id) {
-    throw UnsupportedError(
-        "$SentryWeb.endNativeFrames() not supported on this platform");
+    _logNotSupported('end native frames collection');
+    return null;
   }
 
   @override
   FutureOr<NativeAppStart?> fetchNativeAppStart() {
-    throw UnsupportedError(
-        "$SentryWeb.fetchNativeAppStart() not supported on this platform");
+    _logNotSupported('fetch native app start');
+    return null;
   }
 
   @override
   FutureOr<Map<String, dynamic>?> loadContexts() {
-    throw UnsupportedError(
-        "$SentryWeb.loadContexts() not supported on this platform");
+    _logNotSupported('load contexts');
+    return null;
   }
 
   @override
   FutureOr<List<DebugImage>?> loadDebugImages(SentryStackTrace stackTrace) {
-    throw UnsupportedError(
-        "$SentryWeb.loadDebugImages() not supported on this platform");
+    _logNotSupported('loading debug images');
+    return null;
   }
 
   @override
   FutureOr<void> nativeCrash() {
-    throw UnsupportedError(
-        "$SentryWeb.nativeCrash() not supported on this platform");
-  }
-
-  @override
-  FutureOr<void> pauseAppHangTracking() {
-    throw UnsupportedError(
-        "$SentryWeb.pauseAppHangTracking() not supported on this platform");
+    _logNotSupported('native crash');
   }
 
   @override
   FutureOr<void> removeContexts(String key) {
-    throw UnsupportedError(
-        "$SentryWeb.removeContexts() not supported on this platform");
+    _logNotSupported('remove contexts');
   }
 
   @override
   FutureOr<void> removeExtra(String key) {
-    throw UnsupportedError(
-        "$SentryWeb.removeExtra() not supported on this platform");
+    _logNotSupported('remove extra');
   }
 
   @override
   FutureOr<void> removeTag(String key) {
-    throw UnsupportedError(
-        "$SentryWeb.removeTag() not supported on this platform");
+    _logNotSupported('remove tag');
   }
 
   @override
   FutureOr<void> resumeAppHangTracking() {
-    throw UnsupportedError(
-        "$SentryWeb.resumeAppHangTracking() not supported on this platform");
+    _logNotSupported('resume app hang tracking');
+  }
+
+  @override
+  FutureOr<void> pauseAppHangTracking() {
+    _logNotSupported('pause app hang tracking');
   }
 
   @override
   FutureOr<void> setContexts(String key, value) {
-    throw UnsupportedError(
-        "$SentryWeb.setContexts() not supported on this platform");
+    _logNotSupported('set contexts');
   }
 
   @override
   FutureOr<void> setExtra(String key, value) {
-    throw UnsupportedError(
-        "$SentryWeb.setExtra() not supported on this platform");
+    _logNotSupported('set extra');
   }
 
   @override
   FutureOr<void> setReplayConfig(ReplayConfig config) {
-    throw UnsupportedError(
-        "$SentryWeb.setReplayConfig() not supported on this platform");
+    _logNotSupported('setting replay config');
   }
 
   @override
   FutureOr<void> setTag(String key, String value) {
-    throw UnsupportedError(
-        "$SentryWeb.setTag() not supported on this platform");
+    _logNotSupported('set tag');
   }
 
   @override
   FutureOr<void> setUser(SentryUser? user) {
-    throw UnsupportedError(
-        "$SentryWeb.setUser() not supported on this platform");
+    _logNotSupported('set user');
   }
 
   @override
   int? startProfiler(SentryId traceId) {
-    throw UnsupportedError(
-        "$SentryWeb.startProfiler() not supported on this platform");
+    _logNotSupported('start profiler');
+    return null;
   }
 
   @override

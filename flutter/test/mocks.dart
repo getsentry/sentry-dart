@@ -12,6 +12,7 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/frames_tracking/sentry_delayed_frames_tracker.dart';
 import 'package:sentry_flutter/src/native/sentry_native_binding.dart';
 import 'package:sentry_flutter/src/renderer/renderer.dart';
+import 'package:sentry_flutter/src/web/sentry_js_binding.dart';
 
 import 'mocks.mocks.dart';
 import 'no_such_method_provider.dart';
@@ -52,6 +53,7 @@ ISentrySpan startTransactionShim(
   SentryDelayedFramesTracker,
   BindingWrapper,
   WidgetsFlutterBinding,
+  SentryJsBinding,
 ], customMocks: [
   MockSpec<Hub>(fallbackGenerators: {#startTransaction: startTransactionShim})
 ])
