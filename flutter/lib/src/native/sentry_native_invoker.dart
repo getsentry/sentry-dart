@@ -14,7 +14,6 @@ mixin SentryNativeSafeInvoker {
     try {
       return await fn();
     } catch (error, stackTrace) {
-      print('von hier1?');
       _logError(nativeMethodName, error, stackTrace);
       if (options.automatedTestMode) {
         rethrow;
@@ -27,7 +26,6 @@ mixin SentryNativeSafeInvoker {
     try {
       return fn();
     } catch (error, stackTrace) {
-      print('von hier?');
       _logError(nativeMethodName, error, stackTrace);
       if (options.automatedTestMode) {
         rethrow;

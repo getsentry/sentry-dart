@@ -49,6 +49,7 @@ class SentryScriptLoader {
           'JS SDK integration: all Sentry scripts loaded successfully.');
     } catch (e) {
       _options.logger(SentryLevel.error, 'Failed to load Sentry scripts: $e');
+      // ignore: invalid_use_of_internal_member
       if (_options.automatedTestMode) {
         rethrow;
       }
