@@ -2,16 +2,17 @@
 
 ## Unreleased
 
-### Deprecate
+### Deprecations
 
 - Manual TTID ([#2477](https://github.com/getsentry/sentry-dart/pull/2477))
 
-### Improvements
+### Fixes
 
-- Check `SentryTracer` type in TTFD tracker ([#2508](https://github.com/getsentry/sentry-dart/pull/2508))
+- Missing replay gestures on Android ([#2515](https://github.com/getsentry/sentry-dart/pull/2515))
 
 ### Enhancements
 
+- Check `SentryTracer` type in TTFD tracker ([#2508](https://github.com/getsentry/sentry-dart/pull/2508))
 - Warning (in a debug build) if a potentially sensitive widget is not masked or unmasked explicitly ([#2375](https://github.com/getsentry/sentry-dart/pull/2375))
 
 ### Dependencies
