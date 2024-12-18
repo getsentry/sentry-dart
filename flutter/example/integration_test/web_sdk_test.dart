@@ -27,73 +27,72 @@ void main() {
   group('Web SDK Integration', () {
     IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-    tearDown(() async {
-      await Sentry.close();
-    });
+    group('enabled', () {
+      testWidgets('Sentry JS SDK is callable', (tester) async {
+        final completer = Completer<String>();
+        const expectedMessage = 'test message';
 
-    testWidgets('Sentry JS SDK is callable', (tester) async {
-      final completer = Completer();
-      const expectedMessage = 'test message';
-      String actualMessage = '';
+        await restoreFlutterOnErrorAfter(() async {
+          await SentryFlutter.init((options) {
+            options.initializeNativeJsSdk = true;
+            options.automatedTestMode = true;
+            options.dsn = fakeDsn;
+          }, appRunner: () async {
+            await tester.pumpWidget(const app.MyApp());
+          });
 
-      await restoreFlutterOnErrorAfter(() async {
-        await SentryFlutter.init((options) {
-          options.dsn = fakeDsn;
-        }, appRunner: () async {
-          await tester.pumpWidget(const app.MyApp());
+          final beforeSendFn = (JSObject event, JSObject hint) {
+            completer.complete(event.getProperty('message'.toJS).toString());
+            return event;
+          }.toJS;
+
+          final options = {
+            'dsn': app.exampleDsn,
+            'beforeSend': beforeSendFn,
+            'debug': true,
+            'defaultIntegrations': [],
+          }.jsify();
+
+          _init(options);
+          _captureMessage(expectedMessage.toJS);
         });
 
-        final beforeSendFn = (JSObject event, JSObject hint) {
-          actualMessage = event.getProperty('message'.toJS).toString();
-          completer.complete();
-          return event;
-        }.toJS;
+        final actualMessage = await completer.future
+            .timeout(const Duration(seconds: 5), onTimeout: () {
+          fail('beforeSend was not triggered');
+        });
 
-        final options = {
-          'dsn': app.exampleDsn,
-          'beforeSend': beforeSendFn,
-          'debug': true,
-          'defaultIntegrations': [],
-        }.jsify();
-
-        _init(options);
-        _captureMessage(expectedMessage.toJS);
+        expect(actualMessage, equals(expectedMessage));
       });
 
-      await completer.future.timeout(const Duration(seconds: 5), onTimeout: () {
-        fail('beforeSend was not triggered');
-      });
+      testWidgets('Sentry JS SDK initialized', (tester) async {
+        await restoreFlutterOnErrorAfter(() async {
+          await SentryFlutter.init((options) {
+            options.initializeNativeJsSdk = true;
+            options.automatedTestMode = true;
+            options.dsn = fakeDsn;
+          }, appRunner: () async {
+            await tester.pumpWidget(const app.MyApp());
+          });
+        });
 
-      expect(actualMessage, equals(expectedMessage));
+        expect(globalThis['Sentry'], isNotNull);
+      });
     });
 
-    testWidgets('Default: JS SDK initialized', (tester) async {
-      await restoreFlutterOnErrorAfter(() async {
-        await SentryFlutter.init((options) {
-          options.dsn = fakeDsn;
-        }, appRunner: () async {
-          await tester.pumpWidget(const app.MyApp());
+    group('disabled', () {
+      testWidgets('Sentry JS SDK is not initialized', (tester) async {
+        await restoreFlutterOnErrorAfter(() async {
+          await SentryFlutter.init((options) {
+            options.dsn = fakeDsn;
+            options.automatedTestMode = true;
+          }, appRunner: () async {
+            await tester.pumpWidget(const app.MyApp());
+          });
         });
+
+        expect(globalThis['Sentry'], isNull);
       });
-
-      expect(globalThis['Sentry'], isNotNull);
-    });
-
-    testWidgets('WebSdkIntegration removed: JS SDK not initialized',
-        (tester) async {
-      await restoreFlutterOnErrorAfter(() async {
-        await SentryFlutter.init((options) {
-          options.dsn = fakeDsn;
-          // Remove WebSdkIntegration
-          final integration = options.integrations.firstWhere((integration) =>
-              integration.runtimeType.toString() == 'WebSdkIntegration');
-          options.removeIntegration(integration);
-        }, appRunner: () async {
-          await tester.pumpWidget(const app.MyApp());
-        });
-      });
-
-      expect(globalThis['Sentry'], isNull);
     });
   });
 }

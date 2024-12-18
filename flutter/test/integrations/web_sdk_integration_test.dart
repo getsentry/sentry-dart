@@ -22,8 +22,9 @@ void main() {
       when(fixture.web.close()).thenReturn(null);
     });
 
-    group('initializeNativeJsSdk: true', () {
+    group('enabled', () {
       setUp(() {
+        fixture.options.autoInitializeNativeSdk = true;
         fixture.options.initializeNativeJsSdk = true;
       });
 
@@ -43,13 +44,20 @@ void main() {
       });
     });
 
-    // false by default
-    group('initializeNativeJsSdk: false', () {
+    // disabled by default
+    group('disabled', () {
       test('does not add integration', () async {
         await sut.call(fixture.hub, fixture.options);
 
         expect(fixture.options.sdk.integrations,
             isNot(contains(WebSdkIntegration.name)));
+      });
+
+      test('does not load scripts and initialize web', () async {
+        await sut.call(fixture.hub, fixture.options);
+
+        expect(fixture.scriptLoader.loadScriptsCalls, 0);
+        verify(fixture.web.init(fixture.hub)).called(0);
       });
     });
 
@@ -58,6 +66,32 @@ void main() {
 
       expect(fixture.scriptLoader.closeCalls, 1);
       verify(fixture.web.close()).called(1);
+    });
+
+    group('initialization conditions', () {
+      test('disabled when only autoInitializeNativeSdk is true', () async {
+        fixture.options.autoInitializeNativeSdk = true;
+        fixture.options.initializeNativeJsSdk = false;
+
+        await sut.call(fixture.hub, fixture.options);
+
+        expect(fixture.options.sdk.integrations,
+            isNot(contains(WebSdkIntegration.name)));
+        expect(fixture.scriptLoader.loadScriptsCalls, 0);
+        verify(fixture.web.init(fixture.hub)).called(0);
+      });
+
+      test('disabled when only initializeNativeJsSdk is true', () async {
+        fixture.options.autoInitializeNativeSdk = false;
+        fixture.options.initializeNativeJsSdk = true;
+
+        await sut.call(fixture.hub, fixture.options);
+
+        expect(fixture.options.sdk.integrations,
+            isNot(contains(WebSdkIntegration.name)));
+        expect(fixture.scriptLoader.loadScriptsCalls, 0);
+        verify(fixture.web.init(fixture.hub)).called(0);
+      });
     });
   });
 }

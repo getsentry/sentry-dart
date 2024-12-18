@@ -26,7 +26,7 @@ class WebSdkIntegration implements Integration<SentryFlutterOptions> {
 
   @override
   FutureOr<void> call(Hub hub, SentryFlutterOptions options) async {
-    if (!options.initializeNativeJsSdk) {
+    if (!options.initializeNativeJsSdk || !options.autoInitializeNativeSdk) {
       return;
     }
 
@@ -37,12 +37,11 @@ class WebSdkIntegration implements Integration<SentryFlutterOptions> {
           : productionScripts;
       await _scriptLoader.loadWebSdk(scripts);
       await _web.init(hub);
-
       options.sdk.addIntegration(name);
     } catch (exception, stackTrace) {
       options.logger(
         SentryLevel.fatal,
-        '$name failed to be installed',
+        '$name failed to be installed.',
         exception: exception,
         stackTrace: stackTrace,
       );
@@ -58,7 +57,11 @@ class WebSdkIntegration implements Integration<SentryFlutterOptions> {
       await _web.close();
       await _scriptLoader.close();
     } catch (error, stackTrace) {
-      if (_options?.automatedTestMode == true) {}
+      _options?.logger(SentryLevel.warning, '$name failed to be closed.',
+          exception: error, stackTrace: stackTrace);
+      if (_options?.automatedTestMode == true) {
+        rethrow;
+      }
     }
   }
 }
