@@ -144,8 +144,10 @@ class _Fixture {
   }
 
   Future<String?> capture() async {
-    final future = sut.capture<String?>(
-        (Image image) => Future.value("${image.width}x${image.height}"));
+    final future = sut.capture<String?>((Screenshot screenshot) {
+      final image = screenshot.image;
+      return Future.value("${image.width}x${image.height}");
+    });
     await _tester.idle();
     return future;
   }

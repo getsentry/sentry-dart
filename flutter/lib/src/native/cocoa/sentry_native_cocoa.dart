@@ -45,7 +45,8 @@ class SentryNativeCocoa extends SentryNativeChannel {
               });
             }
 
-            return _replayRecorder?.capture((image) async {
+            return _replayRecorder?.capture((screenshot) async {
+              final image = screenshot.image;
               final imageData =
                   await image.toByteData(format: ImageByteFormat.png);
               if (imageData != null) {

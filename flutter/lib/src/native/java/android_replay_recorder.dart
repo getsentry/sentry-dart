@@ -16,7 +16,7 @@ class AndroidReplayRecorder extends ScheduledScreenshotRecorder {
 
   Future<void> _addReplayScreenshot(
       ScreenshotPng screenshot, bool isNewlyCaptured) async {
-    final timestamp = DateTime.now().millisecondsSinceEpoch;
+    final timestamp = screenshot.timestamp.millisecondsSinceEpoch;
     final filePath = "$_cacheDir/$timestamp.png";
 
     options.logger(

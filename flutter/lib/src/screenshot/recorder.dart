@@ -60,7 +60,7 @@ class ScreenshotRecorder {
   /// To prevent accidental addition of await before that happens,
   ///
   /// THIS FUNCTION MUST NOT BE ASYNC.
-  Future<R> capture<R>(Future<R> Function(Image) callback) {
+  Future<R> capture<R>(Future<R> Function(Screenshot) callback) {
     try {
       final flow = Flow.begin();
       Timeline.startSync('Sentry::captureScreenshot', flow: flow);
@@ -179,9 +179,10 @@ class _Capture<R> {
   /// See [task] which is what gets completed with the callback result.
   void Function() createTask(
       Future<Image> futureImage,
-      Future<R> Function(Image) callback,
+      Future<R> Function(Screenshot) callback,
       List<WidgetFilterItem>? obscureItems,
       Flow flow) {
+    final timestamp = DateTime.now();
     return () async {
       Timeline.startSync('Sentry::renderScreenshot', flow: flow);
       final recorder = PictureRecorder();
@@ -206,7 +207,8 @@ class _Capture<R> {
         Timeline.finishSync(); // Sentry::screenshotToImage
         try {
           Timeline.startSync('Sentry::screenshotCallback', flow: flow);
-          _completer.complete(await callback(finalImage));
+          _completer
+              .complete(await callback(Screenshot(finalImage, timestamp)));
           Timeline.finishSync(); // Sentry::screenshotCallback
         } finally {
           finalImage.dispose(); // image needs to be disposed-of manually
@@ -284,4 +286,12 @@ extension on widgets.BuildContext {
     }
     return null;
   }
+}
+
+@internal
+class Screenshot {
+  final Image image;
+  final DateTime timestamp;
+
+  const Screenshot(this.image, this.timestamp);
 }
