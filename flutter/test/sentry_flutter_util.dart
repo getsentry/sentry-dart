@@ -42,7 +42,7 @@ void testConfiguration({
   if (kIsWeb) {
     final nativeIntegration = integrations.firstWhereOrNull(
         (x) => x.runtimeType.toString() == 'WebSdkIntegration');
-    if (options?.enableNativeJsSdk == true) {
+    if (options?.enableSentryJs == true) {
       expect(nativeIntegration, isNotNull);
     } else {
       expect(nativeIntegration, isNull);

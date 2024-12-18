@@ -65,7 +65,7 @@ mixin SentryFlutter {
     if (options.platformChecker.hasNativeIntegration) {
       // For web: JS SDK binding is currently opt-in
       if (options.platformChecker.isWeb) {
-        if (options.enableNativeJsSdk) {
+        if (options.enableSentryJs) {
           _native = createBinding(options);
         }
       } else {
