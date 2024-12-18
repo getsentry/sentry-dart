@@ -57,7 +57,7 @@ void main() {
         await sut.call(fixture.hub, fixture.options);
 
         expect(fixture.scriptLoader.loadScriptsCalls, 0);
-        verify(fixture.web.init(fixture.hub)).called(0);
+        verifyNever(fixture.web.init(fixture.hub));
       });
     });
 
@@ -78,7 +78,7 @@ void main() {
         expect(fixture.options.sdk.integrations,
             isNot(contains(WebSdkIntegration.name)));
         expect(fixture.scriptLoader.loadScriptsCalls, 0);
-        verify(fixture.web.init(fixture.hub)).called(0);
+        verifyNever(fixture.web.init(fixture.hub));
       });
 
       test('disabled when only enableNativeJsSdk is true', () async {
@@ -90,7 +90,7 @@ void main() {
         expect(fixture.options.sdk.integrations,
             isNot(contains(WebSdkIntegration.name)));
         expect(fixture.scriptLoader.loadScriptsCalls, 0);
-        verify(fixture.web.init(fixture.hub)).called(0);
+        verifyNever(fixture.web.init(fixture.hub));
       });
     });
   });
