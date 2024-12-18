@@ -34,7 +34,7 @@ void main() {
 
         await restoreFlutterOnErrorAfter(() async {
           await SentryFlutter.init((options) {
-            options.initializeNativeJsSdk = true;
+            options.enableNativeJsSdk = true;
             options.automatedTestMode = true;
             options.dsn = fakeDsn;
           }, appRunner: () async {
@@ -68,7 +68,7 @@ void main() {
       testWidgets('Sentry JS SDK initialized', (tester) async {
         await restoreFlutterOnErrorAfter(() async {
           await SentryFlutter.init((options) {
-            options.initializeNativeJsSdk = true;
+            options.enableNativeJsSdk = true;
             options.automatedTestMode = true;
             options.dsn = fakeDsn;
           }, appRunner: () async {

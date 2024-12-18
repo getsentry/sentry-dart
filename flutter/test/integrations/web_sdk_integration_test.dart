@@ -25,7 +25,7 @@ void main() {
     group('enabled', () {
       setUp(() {
         fixture.options.autoInitializeNativeSdk = true;
-        fixture.options.initializeNativeJsSdk = true;
+        fixture.options.enableNativeJsSdk = true;
       });
 
       test('adds integration', () async {
@@ -71,7 +71,7 @@ void main() {
     group('initialization conditions', () {
       test('disabled when only autoInitializeNativeSdk is true', () async {
         fixture.options.autoInitializeNativeSdk = true;
-        fixture.options.initializeNativeJsSdk = false;
+        fixture.options.enableNativeJsSdk = false;
 
         await sut.call(fixture.hub, fixture.options);
 
@@ -81,9 +81,9 @@ void main() {
         verify(fixture.web.init(fixture.hub)).called(0);
       });
 
-      test('disabled when only initializeNativeJsSdk is true', () async {
+      test('disabled when only enableNativeJsSdk is true', () async {
         fixture.options.autoInitializeNativeSdk = false;
-        fixture.options.initializeNativeJsSdk = true;
+        fixture.options.enableNativeJsSdk = true;
 
         await sut.call(fixture.hub, fixture.options);
 
