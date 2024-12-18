@@ -17,22 +17,11 @@ void testScopeObserver(
   expect(actualHasNativeScopeObserver, expectedHasNativeScopeObserver);
 }
 
-void expectNativeSdkIntegration(Iterable<Integration> integrations) {
-  final nativeIntegration = integrations.firstWhereOrNull(
-      (x) => x.runtimeType.toString() == 'NativeSdkIntegration');
-  expect(integrations, containsOnce(nativeIntegration));
-}
-
-void expectWebSdkIntegration(Iterable<Integration> integrations) {
-  final nativeIntegration = integrations
-      .firstWhereOrNull((x) => x.runtimeType.toString() == 'WebSdkIntegration');
-  expect(integrations, containsOnce(nativeIntegration));
-}
-
 void testConfiguration({
   required Iterable<Integration> integrations,
   required Iterable<Type> shouldHaveIntegrations,
   required Iterable<Type> shouldNotHaveIntegrations,
+  SentryFlutterOptions? options,
 }) {
   final numberOfIntegrationsByType = <Type, int>{};
   for (var e in integrations) {
@@ -51,9 +40,17 @@ void testConfiguration({
   }
 
   if (kIsWeb) {
-    expectWebSdkIntegration(integrations);
+    final nativeIntegration = integrations.firstWhereOrNull(
+        (x) => x.runtimeType.toString() == 'WebSdkIntegration');
+    if (options?.enableNativeJsSdk == true) {
+      expect(nativeIntegration, isNotNull);
+    } else {
+      expect(nativeIntegration, isNull);
+    }
   } else {
-    expectNativeSdkIntegration(integrations);
+    final nativeIntegration = integrations.firstWhereOrNull(
+        (x) => x.runtimeType.toString() == 'NativeSdkIntegration');
+    expect(nativeIntegration, isNotNull);
   }
 }
 
