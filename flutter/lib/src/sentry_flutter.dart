@@ -65,7 +65,7 @@ mixin SentryFlutter {
     if (options.platformChecker.hasNativeIntegration) {
       if (options.platformChecker.platform.isLinux ||
           options.platformChecker.platform.isWindows) {
-        if (options.enableNativeSdk) {
+        if (options.enableSentryNative) {
           _native = createBinding(options);
         }
       } else {

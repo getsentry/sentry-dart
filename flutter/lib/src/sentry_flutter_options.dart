@@ -292,15 +292,15 @@ class SentryFlutterOptions extends SentryOptions {
   /// you must use `SentryWidgetsFlutterBinding.ensureInitialized()` instead.
   bool enableFramesTracking = true;
 
-  /// Enables the initialization of the Sentry-Native SDK.
+  /// Enables the initialization of the Sentry-Native SDK for Windows & Linux.
   ///
-  /// When enabled this will enhance Windows & Linux:
+  /// When enabled this will enhance Windows & Linux support:
   ///  - catching native crashes
   ///  - reporting richer device context
   ///  - symbolication of Dart errors
   ///
   /// Defaults to `false`
-  bool enableNativeSdk = false;
+  bool enableSentryNative = false;
 
   /// By using this, you are disabling native [Breadcrumb] tracking and instead
   /// you are just tracking [Breadcrumb]s which result from events available
