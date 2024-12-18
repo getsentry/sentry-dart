@@ -3,6 +3,7 @@ import 'dart:html';
 import 'dart:js_util' as js_util;
 
 import '../../../sentry_flutter.dart';
+import 'script_dom_api.dart';
 import 'sentry_script_loader.dart';
 
 Future<void> loadScript(String src, SentryOptions options,
@@ -56,4 +57,28 @@ Future<void> loadScript(String src, SentryOptions options,
     }
   }
   return completer.future;
+}
+
+class _ScriptElement implements SentryScriptElement {
+  final ScriptElement element;
+
+  _ScriptElement(this.element);
+
+  @override
+  void remove() {
+    element.remove();
+  }
+
+  @override
+  String get src => element.src;
+
+  @override
+  String? get integrity => element.integrity;
+}
+
+List<SentryScriptElement> fetchScripts(String query) {
+  final scripts = document.querySelectorAll(query);
+  return scripts
+      .map((script) => _ScriptElement(script as ScriptElement))
+      .toList();
 }

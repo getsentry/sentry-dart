@@ -1,7 +1,9 @@
 import '../../sentry_flutter.dart';
+import '../web/sentry_js_binding.dart';
+import '../web/sentry_web.dart';
 import 'sentry_native_binding.dart';
 
-// This isn't actually called, see SentryFlutter.init()
 SentryNativeBinding createBinding(SentryFlutterOptions options) {
-  throw UnsupportedError("Native binding is not supported on this platform.");
+  final binding = createJsBinding();
+  return SentryWeb(binding, options);
 }

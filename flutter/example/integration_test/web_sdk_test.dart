@@ -4,7 +4,8 @@
 library flutter_test;
 
 import 'dart:async';
-import 'dart:js';
+import 'dart:js_interop';
+import 'dart:js_interop_unsafe';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -13,52 +14,85 @@ import 'package:sentry_flutter_example/main.dart' as app;
 
 import 'utils.dart';
 
-// We can use dart:html, this is meant to be tested on Flutter Web and not WASM
-// This integration test can be changed later when we actually do support WASM
+@JS('globalThis')
+external JSObject get globalThis;
+
+@JS('Sentry.init')
+external void _init(JSAny? options);
+
+@JS('Sentry.captureMessage')
+external void _captureMessage(JSAny? message);
 
 void main() {
   group('Web SDK Integration', () {
     IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-    tearDown(() async {
-      await Sentry.close();
+    group('enabled', () {
+      testWidgets('Sentry JS SDK is callable', (tester) async {
+        final completer = Completer<String>();
+        const expectedMessage = 'test message';
+
+        await restoreFlutterOnErrorAfter(() async {
+          await SentryFlutter.init((options) {
+            options.enableSentryJs = true;
+            options.automatedTestMode = true;
+            options.dsn = fakeDsn;
+          }, appRunner: () async {
+            await tester.pumpWidget(const app.MyApp());
+          });
+
+          final beforeSendFn = (JSObject event, JSObject hint) {
+            completer.complete(event.getProperty('message'.toJS).toString());
+            return event;
+          }.toJS;
+
+          final options = {
+            'dsn': app.exampleDsn,
+            'beforeSend': beforeSendFn,
+            'debug': true,
+            'defaultIntegrations': [],
+          }.jsify();
+
+          _init(options);
+          _captureMessage(expectedMessage.toJS);
+        });
+
+        final actualMessage = await completer.future
+            .timeout(const Duration(seconds: 5), onTimeout: () {
+          fail('beforeSend was not triggered');
+        });
+
+        expect(actualMessage, equals(expectedMessage));
+      });
+
+      testWidgets('Sentry JS SDK initialized', (tester) async {
+        await restoreFlutterOnErrorAfter(() async {
+          await SentryFlutter.init((options) {
+            options.enableSentryJs = true;
+            options.automatedTestMode = true;
+            options.dsn = fakeDsn;
+          }, appRunner: () async {
+            await tester.pumpWidget(const app.MyApp());
+          });
+        });
+
+        expect(globalThis['Sentry'], isNotNull);
+      });
     });
 
-    testWidgets('Sentry JS SDK is callable', (tester) async {
-      final completer = Completer();
-      const expectedMessage = 'test message';
-      String actualMessage = '';
-
-      await restoreFlutterOnErrorAfter(() async {
-        await SentryFlutter.init((options) {
-          options.dsn = app.exampleDsn;
-          options.automatedTestMode = false;
-        }, appRunner: () async {
-          await tester.pumpWidget(const app.MyApp());
+    group('disabled', () {
+      testWidgets('Sentry JS SDK is not initialized', (tester) async {
+        await restoreFlutterOnErrorAfter(() async {
+          await SentryFlutter.init((options) {
+            options.dsn = fakeDsn;
+            options.automatedTestMode = true;
+          }, appRunner: () async {
+            await tester.pumpWidget(const app.MyApp());
+          });
         });
 
-        final beforeSendFn = JsFunction.withThis((thisArg, event, hint) {
-          actualMessage = event['message'];
-          completer.complete();
-          return event;
-        });
-
-        final Map<String, dynamic> options = {
-          'dsn': app.exampleDsn,
-          'beforeSend': beforeSendFn,
-          'defaultIntegrations': [],
-        };
-
-        final sentry = context['Sentry'] as JsObject;
-        sentry.callMethod('init', [JsObject.jsify(options)]);
-        sentry.callMethod('captureMessage', [expectedMessage]);
+        expect(globalThis['Sentry'], isNull);
       });
-
-      await completer.future.timeout(const Duration(seconds: 5), onTimeout: () {
-        fail('beforeSend was not triggered');
-      });
-
-      expect(actualMessage, equals(expectedMessage));
     });
   });
 }
