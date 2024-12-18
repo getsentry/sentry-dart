@@ -4,9 +4,9 @@ import 'package:sentry/sentry.dart';
 
 import '../native/sentry_native_binding.dart';
 import '../sentry_flutter_options.dart';
-import 'integrations.dart';
 
-SdkIntegration createSdkIntegration(SentryNativeBinding native) {
+Integration<SentryFlutterOptions> createSdkIntegration(
+    SentryNativeBinding native) {
   return NativeSdkIntegration(native);
 }
 

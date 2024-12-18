@@ -1,3 +1,5 @@
+import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/native/native_scope_observer.dart';
@@ -13,6 +15,18 @@ void testScopeObserver(
     }
   }
   expect(actualHasNativeScopeObserver, expectedHasNativeScopeObserver);
+}
+
+void expectNativeSdkIntegration(Iterable<Integration> integrations) {
+  final nativeIntegration = integrations.firstWhereOrNull(
+      (x) => x.runtimeType.toString() == 'NativeSdkIntegration');
+  expect(integrations, containsOnce(nativeIntegration));
+}
+
+void expectWebSdkIntegration(Iterable<Integration> integrations) {
+  final nativeIntegration = integrations
+      .firstWhereOrNull((x) => x.runtimeType.toString() == 'WebSdkIntegration');
+  expect(integrations, containsOnce(nativeIntegration));
 }
 
 void testConfiguration({
@@ -34,6 +48,12 @@ void testConfiguration({
       .difference(Set.of(shouldHaveIntegrations));
   for (final type in shouldNotHaveIntegrations) {
     expect(integrations, isNot(contains(type)));
+  }
+
+  if (kIsWeb) {
+    expectWebSdkIntegration(integrations);
+  } else {
+    expectNativeSdkIntegration(integrations);
   }
 }
 

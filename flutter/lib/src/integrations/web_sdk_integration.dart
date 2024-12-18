@@ -7,9 +7,9 @@ import '../native/sentry_native_binding.dart';
 import '../sentry_flutter_options.dart';
 import '../web/script_loader/sentry_script_loader.dart';
 import '../web/sentry_js_bundle.dart';
-import 'integrations.dart';
 
-SdkIntegration createSdkIntegration(SentryNativeBinding native) {
+Integration<SentryFlutterOptions> createSdkIntegration(
+    SentryNativeBinding native) {
   final scriptLoader = SentryScriptLoader();
   return WebSdkIntegration(native, scriptLoader);
 }
