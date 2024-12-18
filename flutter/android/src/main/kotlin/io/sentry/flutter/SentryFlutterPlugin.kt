@@ -6,9 +6,9 @@ import android.content.res.Configuration
 import android.graphics.Point
 import android.graphics.Rect
 import android.os.Build
-import android.os.Looper
 import android.os.Build.VERSION
 import android.os.Build.VERSION_CODES
+import android.os.Looper
 import android.util.Log
 import android.view.WindowManager
 import io.flutter.embedding.engine.plugins.FlutterPlugin
@@ -644,14 +644,15 @@ class SentryFlutterPlugin :
     }
 
     val wm = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-    val screenBounds = if (VERSION.SDK_INT >= VERSION_CODES.R) {
+    val screenBounds =
+      if (VERSION.SDK_INT >= VERSION_CODES.R) {
         wm.currentWindowMetrics.bounds
-    } else {
+      } else {
         val screenBounds = Point()
         @Suppress("DEPRECATION")
         wm.defaultDisplay.getRealSize(screenBounds)
         Rect(0, 0, screenBounds.x, screenBounds.y)
-    }
+      }
 
     replayConfig =
       ScreenshotRecorderConfig(
