@@ -26,12 +26,13 @@ class WebSdkIntegration implements Integration<SentryFlutterOptions> {
 
   @override
   FutureOr<void> call(Hub hub, SentryFlutterOptions options) async {
-    if (!options.enableNativeJsSdk || !options.autoInitializeNativeSdk) {
+    if (!options.autoInitializeNativeSdk) {
       return;
     }
 
+    _options = options;
+
     try {
-      _options = options;
       final scripts = options.platformChecker.isDebugMode()
           ? debugScripts
           : productionScripts;

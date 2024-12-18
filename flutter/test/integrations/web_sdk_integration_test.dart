@@ -25,7 +25,6 @@ void main() {
     group('enabled', () {
       setUp(() {
         fixture.options.autoInitializeNativeSdk = true;
-        fixture.options.enableNativeJsSdk = true;
       });
 
       test('adds integration', () async {
@@ -44,8 +43,11 @@ void main() {
       });
     });
 
-    // disabled by default
     group('disabled', () {
+      setUp(() {
+        fixture.options.autoInitializeNativeSdk = true;
+      });
+
       test('does not add integration', () async {
         await sut.call(fixture.hub, fixture.options);
 
@@ -66,32 +68,6 @@ void main() {
 
       expect(fixture.scriptLoader.closeCalls, 1);
       verify(fixture.web.close()).called(1);
-    });
-
-    group('initialization conditions', () {
-      test('disabled when only autoInitializeNativeSdk is true', () async {
-        fixture.options.autoInitializeNativeSdk = true;
-        fixture.options.enableNativeJsSdk = false;
-
-        await sut.call(fixture.hub, fixture.options);
-
-        expect(fixture.options.sdk.integrations,
-            isNot(contains(WebSdkIntegration.name)));
-        expect(fixture.scriptLoader.loadScriptsCalls, 0);
-        verifyNever(fixture.web.init(fixture.hub));
-      });
-
-      test('disabled when only enableNativeJsSdk is true', () async {
-        fixture.options.autoInitializeNativeSdk = false;
-        fixture.options.enableNativeJsSdk = true;
-
-        await sut.call(fixture.hub, fixture.options);
-
-        expect(fixture.options.sdk.integrations,
-            isNot(contains(WebSdkIntegration.name)));
-        expect(fixture.scriptLoader.loadScriptsCalls, 0);
-        verifyNever(fixture.web.init(fixture.hub));
-      });
     });
   });
 }
