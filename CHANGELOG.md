@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Features
+
+- Add `beforeCapture` for View Hierarchy ([#2523](https://github.com/getsentry/sentry-dart/pull/2523))
+  - View hierarchy calls are now debounced for 2 seconds.
+  
 ### Deprecations
 
 - Manual TTID ([#2477](https://github.com/getsentry/sentry-dart/pull/2477))
