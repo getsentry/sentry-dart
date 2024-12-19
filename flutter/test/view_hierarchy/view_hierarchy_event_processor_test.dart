@@ -30,7 +30,7 @@ void main() {
             exceptions: [SentryException(type: 'type', value: 'value')]);
         final hint = Hint();
 
-        sut.apply(event, hint);
+        await sut.apply(event, hint);
 
         expect(hint.viewHierarchy, isNotNull);
       });
@@ -46,7 +46,7 @@ void main() {
         final event = SentryEvent(throwable: StateError('error'));
         final hint = Hint();
 
-        sut.apply(event, hint);
+        await sut.apply(event, hint);
 
         expect(hint.viewHierarchy, isNotNull);
       });
@@ -62,7 +62,7 @@ void main() {
         final event = SentryEvent();
         final hint = Hint();
 
-        sut.apply(event, hint);
+        await sut.apply(event, hint);
 
         expect(hint.viewHierarchy, isNull);
       });
@@ -78,7 +78,7 @@ void main() {
         final event = SentryEvent();
         final hint = Hint();
 
-        sut.apply(event, hint);
+        await sut.apply(event, hint);
 
         expect(hint.viewHierarchy, isNull);
       });
@@ -96,7 +96,7 @@ void main() {
             exceptions: [SentryException(type: 'type', value: 'value')]);
         final hint = Hint();
 
-        sut.apply(event, hint);
+        await sut.apply(event, hint);
 
         expect(hint.viewHierarchy, isNotNull);
         final bytes = await hint.viewHierarchy!.bytes;
