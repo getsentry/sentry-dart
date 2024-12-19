@@ -14,6 +14,7 @@
 
 - Check `SentryTracer` type in TTFD tracker ([#2508](https://github.com/getsentry/sentry-dart/pull/2508))
 - Warning (in a debug build) if a potentially sensitive widget is not masked or unmasked explicitly ([#2375](https://github.com/getsentry/sentry-dart/pull/2375))
+- Replay: ensure visual update before capturing screenshots ([#2527](https://github.com/getsentry/sentry-dart/pull/2527))
 
 ### Dependencies
 
