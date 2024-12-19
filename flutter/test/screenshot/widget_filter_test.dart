@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -12,7 +13,6 @@ import 'test_widget.dart';
 // We'll keep these tests although they're not unit-tests anymore.
 void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
-  const defaultBounds = Rect.fromLTRB(0, 0, 1000, 1000);
   final rootBundle = TestAssetBundle();
   final otherBundle = TestAssetBundle();
   final logger = MockLogger();
@@ -43,8 +43,7 @@ void main() async {
       final element = await pumpTestElement(tester);
       sut.obscure(
           context: element,
-          pixelRatio: 1.0,
-          bounds: defaultBounds,
+          root: element.renderObject as RenderRepaintBoundary,
           colorScheme: colorScheme);
       expect(sut.items.length, 6);
     });
@@ -54,8 +53,7 @@ void main() async {
       final element = await pumpTestElement(tester);
       sut.obscure(
           context: element,
-          pixelRatio: 1.0,
-          bounds: defaultBounds,
+          root: element.renderObject as RenderRepaintBoundary,
           colorScheme: colorScheme);
       expect(sut.items.length, 0);
     });
@@ -66,7 +64,7 @@ void main() async {
       final element = await pumpTestElement(tester);
       sut.obscure(
           context: element,
-          pixelRatio: 1.0,
+          root: element.renderObject as RenderRepaintBoundary,
           bounds: Rect.fromLTRB(0, 0, 100, 100),
           colorScheme: colorScheme);
       expect(sut.items.length, 1);
@@ -77,8 +75,7 @@ void main() async {
       final element = await pumpTestElement(tester);
       sut.obscure(
           context: element,
-          pixelRatio: 1.0,
-          bounds: defaultBounds,
+          root: element.renderObject as RenderRepaintBoundary,
           colorScheme: colorScheme);
       expect(sut.items.length, 6);
       expect(
@@ -100,8 +97,7 @@ void main() async {
       final element = await pumpTestElement(tester);
       sut.obscure(
           context: element,
-          pixelRatio: 1.0,
-          bounds: defaultBounds,
+          root: element.renderObject as RenderRepaintBoundary,
           colorScheme: colorScheme);
       expect(sut.items.length, 3);
     });
@@ -144,8 +140,7 @@ void main() async {
       final element = await pumpTestElement(tester);
       sut.obscure(
           context: element,
-          pixelRatio: 1.0,
-          bounds: defaultBounds,
+          root: element.renderObject as RenderRepaintBoundary,
           colorScheme: colorScheme);
       expect(sut.items.length, 0);
     });
@@ -156,7 +151,7 @@ void main() async {
       final element = await pumpTestElement(tester);
       sut.obscure(
           context: element,
-          pixelRatio: 1.0,
+          root: element.renderObject as RenderRepaintBoundary,
           bounds: Rect.fromLTRB(0, 0, 500, 100),
           colorScheme: colorScheme);
       expect(sut.items.length, 1);
@@ -167,8 +162,7 @@ void main() async {
       final element = await pumpTestElement(tester);
       sut.obscure(
           context: element,
-          pixelRatio: 1.0,
-          bounds: defaultBounds,
+          root: element.renderObject as RenderRepaintBoundary,
           colorScheme: colorScheme);
       expect(sut.items.length, 3);
       expect(boundsRect(sut.items[0]), '1x1');
@@ -184,8 +178,7 @@ void main() async {
     ]);
     sut.obscure(
         context: element,
-        pixelRatio: 1.0,
-        bounds: defaultBounds,
+        root: element.renderObject as RenderRepaintBoundary,
         colorScheme: colorScheme);
     expect(sut.items.length, 1);
     expect(boundsRect(sut.items[0]), '344x248');
@@ -200,8 +193,7 @@ void main() async {
     ]);
     sut.obscure(
         context: element,
-        pixelRatio: 1.0,
-        bounds: defaultBounds,
+        root: element.renderObject as RenderRepaintBoundary,
         colorScheme: colorScheme);
     expect(sut.items, isEmpty);
   });
@@ -213,16 +205,14 @@ void main() async {
     ]);
     sut.obscure(
         context: element,
-        pixelRatio: 1.0,
-        bounds: defaultBounds,
+        root: element.renderObject as RenderRepaintBoundary,
         colorScheme: colorScheme);
     expect(sut.items.length, 1);
     expect(boundsRect(sut.items[0]), '144x48');
     sut.throwInObscure = true;
     sut.obscure(
         context: element,
-        pixelRatio: 1.0,
-        bounds: defaultBounds,
+        root: element.renderObject as RenderRepaintBoundary,
         colorScheme: colorScheme);
     expect(sut.items.length, 1);
     expect(boundsRect(sut.items[0]), '344x248');
@@ -239,8 +229,7 @@ void main() async {
             await pumpTestElement(tester, children: [CustomPasswordWidget()]);
         sut.obscure(
             context: element,
-            pixelRatio: 1.0,
-            bounds: defaultBounds,
+            root: element.renderObject as RenderRepaintBoundary,
             colorScheme: colorScheme);
         final logMessages = logger.items
             .where((item) => item.level == SentryLevel.warning)
