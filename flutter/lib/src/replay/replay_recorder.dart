@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
 
-import 'package:flutter/scheduler.dart';
 import 'package:meta/meta.dart';
 
 import '../screenshot/recorder.dart';
@@ -18,9 +17,7 @@ class ReplayScreenshotRecorder extends ScreenshotRecorder {
   @override
   @protected
   Future<void> executeTask(void Function() task, Flow flow) {
-    // Schedule the task to run between frames, when the app is idle.
-    return options.bindingUtils.instance
-            ?.scheduleTask<void>(task, Priority.idle, flow: flow) ??
-        Future.sync(task);
+    // Future() schedules the task to be executed asynchronously with TImer.run.
+    return Future(task);
   }
 }

@@ -111,8 +111,11 @@ class ScreenshotRecorder {
   }
 
   @protected
-  Future<void> executeTask(void Function() task, Flow flow) =>
-      Future.sync(task);
+  Future<void> executeTask(void Function() task, Flow flow) {
+    // Future.sync() starts executing the function synchronously, until the
+    // first await, i.e. it's the same as if the code was executed directly.
+    return Future.sync(task);
+  }
 
   List<WidgetFilterItem>? _obscureSync(_Capture<dynamic> capture) {
     if (_maskingConfig != null) {
