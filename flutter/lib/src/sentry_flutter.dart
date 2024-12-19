@@ -63,12 +63,7 @@ mixin SentryFlutter {
     sentrySetupStartTime ??= options.clock();
 
     if (options.platformChecker.hasNativeIntegration) {
-      // For web: JS SDK binding is currently opt-in
-      if (options.platformChecker.isWeb) {
-        if (options.enableSentryJs) {
-          _native = createBinding(options);
-        }
-      } else {
+      if (!options.platformChecker.isWeb || options.enableSentryJs) {
         _native = createBinding(options);
       }
     }
