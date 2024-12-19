@@ -16,7 +16,8 @@ enum NativeBackend { default_, crashpad, breakpad, inproc, none }
 
 extension on NativeBackend {
   // TODO change default to crashpad in v9
-  String get actualValue => this == NativeBackend.default_ ? 'none' : name;
+  NativeBackend get actualValue =>
+      this == NativeBackend.default_ ? NativeBackend.none : this;
 }
 
 // NOTE: Don't run/debug this main(), it likely won't work.
@@ -32,7 +33,7 @@ void main() {
       late final NativeTestHelper helper;
       setUpAll(() async {
         late final List<String> expectedDistFiles;
-        if (backend.actualValue == 'crashpad') {
+        if (backend.actualValue == NativeBackend.crashpad) {
           expectedDistFiles = platform.instance.isWindows
               ? ['sentry.dll', 'crashpad_handler.exe', 'crashpad_wer.dll']
               : ['libsentry.so', 'crashpad_handler'];
@@ -50,7 +51,7 @@ void main() {
 
         Directory.current = await helper._buildSentryNative();
         SentryNative.dynamicLibraryDirectory = '${Directory.current.path}/';
-        if (backend.actualValue == 'crashpad') {
+        if (backend.actualValue == NativeBackend.crashpad) {
           SentryNative.crashpadPath =
               '${Directory.current.path}/${expectedDistFiles.firstWhere((f) => f.contains('crashpad_handler'))}';
         }
@@ -71,7 +72,7 @@ void main() {
         final cmakeCacheTxt =
             await File('${helper.cmakeBuildDir}/CMakeCache.txt').readAsLines();
         expect(cmakeCacheTxt,
-            contains('SENTRY_BACKEND:STRING=${backend.actualValue}'));
+            contains('SENTRY_BACKEND:STRING=${backend.actualValue.name}'));
       });
 
       test('expected output files', () {
@@ -332,7 +333,8 @@ set(CMAKE_INSTALL_PREFIX "${buildOutputDir.replaceAll('\\', '/')}")
         '--config',
         'Release',
       ]);
-      if (platform.instance.isLinux) {
+      if (platform.instance.isLinux &&
+          nativeBackend.actualValue == NativeBackend.crashpad) {
         await _exec('chmod', ['+x', '$buildOutputDir/crashpad_handler']);
       }
     }
