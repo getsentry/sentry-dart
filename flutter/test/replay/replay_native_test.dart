@@ -137,12 +137,13 @@ void main() {
 
               final capturedImages = <String, int>{};
               when(native.handler('addReplayScreenshot', any))
-                  .thenAnswer((invocation) async {
+                  .thenAnswer((invocation) {
                 final path =
                     invocation.positionalArguments[1]["path"] as String;
                 capturedImages[path] = imageSizeBytes(fs.file(path));
                 callbackFinished.complete();
                 callbackFinished = Completer<void>();
+                return null;
               });
 
               fsImages() {
