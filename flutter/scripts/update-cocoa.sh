@@ -2,25 +2,55 @@
 set -euo pipefail
 
 cd $(dirname "$0")/../ios
-file='sentry_flutter.podspec'
-content=$(cat $file)
-regex="('Sentry/HybridSDK', *)'([0-9\.]+(\-[a-z0-9\.]+)?)'"
-if ! [[ $content =~ $regex ]]; then
+
+get_podspec_version() {
+  local file='sentry_flutter.podspec'
+  local content=$(cat $file)
+  regex="('Sentry/HybridSDK', *)'([0-9\.]+(\-[a-z0-9\.]+)?)'"
+  if ! [[ $content =~ $regex ]]; then
     echo "Failed to find the plugin version in $file"
     exit 1
-fi
+  else
+    echo "${BASH_REMATCH[2]}"
+  fi
+}
+
+set_podspec_version() {
+  local file='sentry_flutter.podspec'
+  local content=$(cat $file)
+  regex="('Sentry/HybridSDK', *)'([0-9\.]+(\-[a-z0-9\.]+)?)'"
+  if ! [[ $content =~ $regex ]]; then
+    echo "Failed to find the plugin version in $file"
+    exit 1
+  else
+    newValue="${BASH_REMATCH[1]}'$1'"
+    echo "${content/${BASH_REMATCH[0]}/$newValue}" >$file
+  fi
+}
+
+set_spm_version() {
+  local file='sentry_flutter/Package.swift'
+  local content=$(cat $file)
+  regex="(url: *['\"]https://github.com/getsentry/sentry-cocoa['\"], *from: *)['\"]([0-9\.]+(-[a-z0-9\.]+)?)['\"]"
+  if ! [[ $content =~ $regex ]]; then
+    echo "Failed to find the plugin version in $file"
+    exit 1
+  else
+    newValue="${BASH_REMATCH[1]}\"$1\""
+    echo "${content/${BASH_REMATCH[0]}/$newValue}" >$file
+  fi
+}
 
 case $1 in
 get-version)
-    echo ${BASH_REMATCH[2]}
+    echo $(get_podspec_version)
     ;;
 get-repo)
     echo "https://github.com/getsentry/sentry-cocoa.git"
     ;;
 set-version)
-    newValue="${BASH_REMATCH[1]}'$2'"
-    echo "${content/${BASH_REMATCH[0]}/$newValue}" >$file
-    ../scripts/generate-cocoa-bindings.sh "$2"
+    set_podspec_version "$2"
+    set_spm_version "$2"
     ;;
 *)
     echo "Unknown argument $1"
