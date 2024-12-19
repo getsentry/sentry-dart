@@ -10,6 +10,8 @@ import 'dart:js_interop_unsafe';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_flutter/src/web/script_loader/sentry_script_loader.dart';
+import 'package:sentry_flutter/src/web/sentry_js_bundle.dart';
 import 'package:sentry_flutter_example/main.dart' as app;
 
 import 'utils.dart';
@@ -35,27 +37,30 @@ void main() {
         await restoreFlutterOnErrorAfter(() async {
           await SentryFlutter.init((options) {
             options.enableSentryJs = true;
-            options.automatedTestMode = true;
+            // we need to set this to false so the sdk does not init automatically and
+            // we can pass the native beforeSend function
+            options.autoInitializeNativeSdk = false;
             options.dsn = fakeDsn;
           }, appRunner: () async {
             await tester.pumpWidget(const app.MyApp());
           });
-
-          final beforeSendFn = (JSObject event, JSObject hint) {
-            completer.complete(event.getProperty('message'.toJS).toString());
-            return event;
-          }.toJS;
-
-          final options = {
-            'dsn': app.exampleDsn,
-            'beforeSend': beforeSendFn,
-            'debug': true,
-            'defaultIntegrations': [],
-          }.jsify();
-
-          _init(options);
-          _captureMessage(expectedMessage.toJS);
         });
+
+        final loader = SentryScriptLoader();
+        await loader.loadWebSdk(productionScripts);
+
+        final beforeSendFn = (JSObject event, JSObject hint) {
+          completer.complete(event.getProperty('message'.toJS).toString());
+          return event;
+        }.toJS;
+
+        final options = {
+          'dsn': app.exampleDsn,
+          'beforeSend': beforeSendFn,
+          'defaultIntegrations': [],
+        }.jsify();
+        _init(options);
+        _captureMessage(expectedMessage.toJS);
 
         final actualMessage = await completer.future
             .timeout(const Duration(seconds: 5), onTimeout: () {
@@ -69,7 +74,6 @@ void main() {
         await restoreFlutterOnErrorAfter(() async {
           await SentryFlutter.init((options) {
             options.enableSentryJs = true;
-            options.automatedTestMode = true;
             options.dsn = fakeDsn;
           }, appRunner: () async {
             await tester.pumpWidget(const app.MyApp());
@@ -84,8 +88,8 @@ void main() {
       testWidgets('Sentry JS SDK is not initialized', (tester) async {
         await restoreFlutterOnErrorAfter(() async {
           await SentryFlutter.init((options) {
+            options.enableSentryJs = false;
             options.dsn = fakeDsn;
-            options.automatedTestMode = true;
           }, appRunner: () async {
             await tester.pumpWidget(const app.MyApp());
           });

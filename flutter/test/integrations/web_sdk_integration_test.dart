@@ -24,6 +24,7 @@ void main() {
 
     group('enabled', () {
       setUp(() {
+        fixture.options.enableSentryJs = true;
         fixture.options.autoInitializeNativeSdk = true;
       });
 
@@ -43,24 +44,41 @@ void main() {
       });
     });
 
-    group('disabled', () {
-      setUp(() {
-        fixture.options.autoInitializeNativeSdk = false;
-      });
+    group('disabled scenarios', () {
+      final disabledScenarios = [
+        _TestScenario(
+          'with autoInitializeNativeSdk=false',
+          () {
+            fixture.options.enableSentryJs = true;
+            fixture.options.autoInitializeNativeSdk = false;
+          },
+        ),
+        _TestScenario(
+          'with enableSentryJs=false',
+          () {
+            fixture.options.enableSentryJs = false;
+            fixture.options.autoInitializeNativeSdk = true;
+          },
+        ),
+      ];
 
-      test('does not add integration', () async {
-        await sut.call(fixture.hub, fixture.options);
+      for (final scenario in disabledScenarios) {
+        group(scenario.description, () {
+          setUp(scenario.setup);
 
-        expect(fixture.options.sdk.integrations,
-            isNot(contains(WebSdkIntegration.name)));
-      });
+          test('does not add integration', () async {
+            await sut.call(fixture.hub, fixture.options);
+            expect(fixture.options.sdk.integrations,
+                isNot(contains(WebSdkIntegration.name)));
+          });
 
-      test('does not load scripts and initialize web', () async {
-        await sut.call(fixture.hub, fixture.options);
-
-        expect(fixture.scriptLoader.loadScriptsCalls, 0);
-        verifyNever(fixture.web.init(fixture.hub));
-      });
+          test('does not load scripts and initialize web', () async {
+            await sut.call(fixture.hub, fixture.options);
+            expect(fixture.scriptLoader.loadScriptsCalls, 0);
+            verifyNever(fixture.web.init(fixture.hub));
+          });
+        });
+      }
     });
 
     test('closes resources', () async {
@@ -70,6 +88,13 @@ void main() {
       verify(fixture.web.close()).called(1);
     });
   });
+}
+
+class _TestScenario {
+  final String description;
+  final dynamic Function() setup;
+
+  _TestScenario(this.description, this.setup);
 }
 
 class Fixture {

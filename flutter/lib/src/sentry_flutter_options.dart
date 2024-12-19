@@ -292,10 +292,9 @@ class SentryFlutterOptions extends SentryOptions {
   /// you must use `SentryWidgetsFlutterBinding.ensureInitialized()` instead.
   bool enableFramesTracking = true;
 
-  /// Whether to enable the initialization of the Sentry Javascript SDK.
-  ///
-  /// When enabled this will load the script dynamically into the document's head
-  /// and initialize the Sentry Javascript SDK automatically within SentryFlutter.init
+  /// Controls initialization of the Sentry Javascript SDK on web platforms.
+  /// When enabled and [autoInitializeNativeSdk] is true, loads and initializes
+  /// the JS SDK in the document head.
   ///
   /// Defaults to `false`
   bool enableSentryJs = false;

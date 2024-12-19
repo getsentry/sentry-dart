@@ -63,9 +63,7 @@ mixin SentryFlutter {
     sentrySetupStartTime ??= options.clock();
 
     if (options.platformChecker.hasNativeIntegration) {
-      if (!options.platformChecker.isWeb || options.enableSentryJs) {
-        _native = createBinding(options);
-      }
+      _native = createBinding(options);
     }
 
     final platformDispatcher = PlatformDispatcher.instance;

@@ -361,7 +361,7 @@ void main() {
           beforeIntegration: RunZonedGuardedIntegration,
           afterIntegration: WidgetsFlutterBindingIntegration);
 
-      expect(SentryFlutter.native, isNull);
+      expect(SentryFlutter.native, isNotNull);
       expect(Sentry.currentHub.profilerFactory, isNull);
 
       await Sentry.close();
@@ -386,7 +386,7 @@ void main() {
       );
       expect(containsRunZonedGuardedIntegration, isFalse);
 
-      expect(SentryFlutter.native, isNull);
+      expect(SentryFlutter.native, isNotNull);
 
       await Sentry.close();
     }, testOn: 'browser');
@@ -429,7 +429,7 @@ void main() {
           beforeIntegration: RunZonedGuardedIntegration,
           afterIntegration: WidgetsFlutterBindingIntegration);
 
-      expect(SentryFlutter.native, isNull);
+      expect(SentryFlutter.native, isNotNull);
 
       await Sentry.close();
     }, testOn: 'browser');
@@ -473,7 +473,7 @@ void main() {
           afterIntegration: WidgetsFlutterBindingIntegration);
 
       expect(Sentry.currentHub.profilerFactory, isNull);
-      expect(SentryFlutter.native, isNull);
+      expect(SentryFlutter.native, isNotNull);
 
       await Sentry.close();
     }, testOn: 'browser');
@@ -515,7 +515,7 @@ void main() {
           beforeIntegration: RunZonedGuardedIntegration,
           afterIntegration: WidgetsFlutterBindingIntegration);
 
-      expect(SentryFlutter.native, isNull);
+      expect(SentryFlutter.native, isNotNull);
 
       await Sentry.close();
     }, testOn: 'browser');

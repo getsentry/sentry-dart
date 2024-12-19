@@ -258,9 +258,6 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       trimEnd: true,
       onFinish: (transaction) async {
         _transaction = null;
-        if (_hub.options.platformChecker.isWeb) {
-          return;
-        }
         final nativeFrames =
             await _native?.endNativeFrames(transaction.context.traceId);
         if (nativeFrames != null) {
