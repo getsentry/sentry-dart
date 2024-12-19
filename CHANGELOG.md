@@ -10,7 +10,7 @@
   This broke the ability to build the app for some users compiling Windows and Linux apps with older toolchains.
 
   To avoid this issue, we're disabling the native crash handling by default for Linux and Windows for now.
-  You can enable manually by setting `SENTRY_NATIVE_BACKEND=crashpad` environment variable app build.
+  You can enable manually by setting `SENTRY_NATIVE_BACKEND=crashpad` environment variable before running `flutter build`.
   You can read more about available backends that fit your use-case in [sentry-native docs](https://docs.sentry.io/platforms/native/configuration/backends/).
 
   We plan to change the default to back to `crashpad` in the next major SDK release.
