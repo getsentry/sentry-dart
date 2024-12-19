@@ -205,6 +205,8 @@ class SentryFlutterOptions extends SentryOptions {
   /// from the function, no screenshot will be attached.
   BeforeCaptureCallback? beforeCaptureScreenshot;
 
+
+
   /// Enable or disable automatic breadcrumbs for User interactions Using [Listener]
   ///
   /// Requires adding the [SentryUserInteractionWidget] to the widget tree.
@@ -241,10 +243,16 @@ class SentryFlutterOptions extends SentryOptions {
 
   /// Enables the View Hierarchy feature.
   ///
-  /// Renders an ASCII represention of the entire view hierarchy of the
+  /// Renders an ASCII representation of the entire view hierarchy of the
   /// application when an error happens and includes it as an attachment.
   @meta.experimental
   bool attachViewHierarchy = false;
+
+  /// Sets a callback which is executed before capturing view hierarchy. Only
+  /// relevant if `attachViewHierarchy` is set to true. When false is returned
+  /// from the function, no view hierarchy will be attached.
+  @meta.experimental
+  BeforeCaptureCallback? beforeCaptureViewHierarchy;
 
   /// Enables collection of view hierarchy element identifiers.
   ///
