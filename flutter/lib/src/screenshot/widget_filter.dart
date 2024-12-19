@@ -80,7 +80,7 @@ class WidgetFilter {
         break;
       case SentryMaskingDecision.continueProcessing:
         // If this element should not be obscured, visit and check its children.
-        element.visitChildElements(_visitList.add);
+        element.debugVisitOnstageChildren(_visitList.add);
         break;
     }
   }
