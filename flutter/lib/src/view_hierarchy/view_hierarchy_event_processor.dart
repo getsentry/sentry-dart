@@ -81,7 +81,8 @@ class SentryViewHierarchyEventProcessor implements EventProcessor {
     if (sentryViewHierarchy == null) {
       return event;
     }
-    hint.viewHierarchy = SentryAttachment.fromViewHierarchy(sentryViewHierarchy);
+    hint.viewHierarchy =
+        SentryAttachment.fromViewHierarchy(sentryViewHierarchy);
     return event;
   }
 }
