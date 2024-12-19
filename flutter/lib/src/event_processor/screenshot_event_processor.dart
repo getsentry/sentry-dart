@@ -25,7 +25,6 @@ class ScreenshotEventProcessor implements EventProcessor {
         height: targetResolution,
       ),
       _options,
-      isReplayRecorder: false,
     );
     _debouncer = Debouncer(
       // ignore: invalid_use_of_internal_member
@@ -126,15 +125,8 @@ class ScreenshotEventProcessor implements EventProcessor {
   }
 
   @internal
-  Future<Uint8List?> createScreenshot() async {
-    Uint8List? screenshotData;
-
-    await _recorder.capture((Image image) async {
-      screenshotData = await _convertImageToUint8List(image);
-    });
-
-    return screenshotData;
-  }
+  Future<Uint8List?> createScreenshot() =>
+      _recorder.capture(_convertImageToUint8List);
 
   Future<Uint8List?> _convertImageToUint8List(Image image) async {
     final byteData = await image.toByteData(format: ImageByteFormat.png);
