@@ -51,7 +51,6 @@ get-repo)
 set-version)
     set_podspec_version "$2"
     set_spm_version "$2"
-#    ../scripts/generate-cocoa-bindings.sh "$2"
     ;;
 *)
     echo "Unknown argument $1"
