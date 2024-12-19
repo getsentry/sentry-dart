@@ -1,12 +1,27 @@
 # Changelog
 
+## Unreleased
+
+### Changes
+
+- Windows & Linux native crash handlers: add `SENTRY_NATIVE_BACKEND` env var with default setting of `none`. ([#2522](https://github.com/getsentry/sentry-dart/pull/2522))
+  Native crash reporting support with `sentry-native`'s `crashpad` was added in v8.11.0 and has caused build-time issues
+  for some users, because it required newer build tools (newer versions of MSVC/Clang/GCC) than base Flutter SDK.
+  This broke the ability to build the app for some users compiling Windows and Linux apps with older toolchains.
+
+  To avoid this issue, we're disabling the native crash handling by default for Linux and Windows for now.
+  You can enable manually by setting `SENTRY_NATIVE_BACKEND=crashpad` environment variable app build.
+  You can read more about available backends that fit your use-case in [sentry-native docs](https://docs.sentry.io/platforms/native/configuration/backends/).
+
+  We plan to change the default to back to `crashpad` in the next major SDK release.
+
 ## 8.11.1
 
 ### Improvements
 
 - Check for type before casting in TTID ([#2497](https://github.com/getsentry/sentry-dart/pull/2497))
 
-### Fixes 
+### Fixes
 
 - SentryWidgetsFlutterBinding initializing even if a binding already exists ([#2494](https://github.com/getsentry/sentry-dart/pull/2494))
 
