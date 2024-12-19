@@ -24,7 +24,7 @@ void main() {
     MockPlatform.android(),
     MockPlatform.iOs(),
   ]) {
-    group('$SentryNativeBinding ($mockPlatform)', () {
+    group('$SentryNativeBinding (${mockPlatform.operatingSystem})', () {
       late SentryNativeBinding sut;
       late NativeChannelFixture native;
       late SentryFlutterOptions options;
@@ -45,7 +45,7 @@ void main() {
             'directory': 'dir',
             'width': 800,
             'height': 600,
-            'frameRate': 10,
+            'frameRate': 1000,
           };
         }
 
@@ -116,14 +116,15 @@ void main() {
         testWidgets('captures images', (tester) async {
           await tester.runAsync(() async {
             when(hub.configureScope(captureAny)).thenReturn(null);
+            await pumpTestElement(tester);
+            pumpAndSettle() => tester.pumpAndSettle(const Duration(seconds: 1));
 
             if (mockPlatform.isAndroid) {
               var callbackFinished = Completer<void>();
 
               nextFrame({bool wait = true}) async {
                 final future = callbackFinished.future;
-                tester.binding.scheduleFrame();
-                await tester.pumpAndSettle(const Duration(seconds: 1));
+                await pumpAndSettle();
                 await future.timeout(Duration(milliseconds: wait ? 1000 : 100),
                     onTimeout: () {
                   if (wait) {
@@ -132,28 +133,22 @@ void main() {
                 });
               }
 
-              imageInfo(File file) => file.readAsBytesSync().length;
-
-              fileToImageMap(Iterable<File> files) =>
-                  {for (var file in files) file.path: imageInfo(file)};
+              imageSizeBytes(File file) => file.readAsBytesSync().length;
 
               final capturedImages = <String, int>{};
               when(native.handler('addReplayScreenshot', any))
                   .thenAnswer((invocation) async {
                 final path =
                     invocation.positionalArguments[1]["path"] as String;
-                capturedImages[path] = imageInfo(fs.file(path));
+                capturedImages[path] = imageSizeBytes(fs.file(path));
                 callbackFinished.complete();
                 callbackFinished = Completer<void>();
-                return null;
               });
 
               fsImages() {
                 final files = replayDir.listSync().map((f) => f as File);
-                return fileToImageMap(files);
+                return {for (var f in files) f.path: imageSizeBytes(f)};
               }
-
-              await pumpTestElement(tester);
 
               await nextFrame(wait: false);
               expect(fsImages(), isEmpty);
@@ -202,24 +197,17 @@ void main() {
               expect(capturedImages, equals(fsImages()));
               expect(capturedImages.length, count);
             } else if (mockPlatform.isIOS) {
-              nextFrame() async {
-                tester.binding.scheduleFrame();
-                await Future<void>.delayed(const Duration(milliseconds: 100));
-                await tester.pumpAndSettle(const Duration(seconds: 1));
-              }
-
-              await pumpTestElement(tester);
-              await nextFrame();
-
-              final imagaData = await native.invokeFromNative(
+              var imagaData = native.invokeFromNative(
                   'captureReplayScreenshot', replayConfig);
-              expect(imagaData?.lengthInBytes, greaterThan(3000));
+              await pumpAndSettle();
+              expect((await imagaData)?.lengthInBytes, greaterThan(3000));
 
               // Happens if the session-replay rate is 0.
               replayConfig['replayId'] = null;
-              final imagaData2 = await native.invokeFromNative(
+              imagaData = native.invokeFromNative(
                   'captureReplayScreenshot', replayConfig);
-              expect(imagaData2?.lengthInBytes, greaterThan(3000));
+              await pumpAndSettle();
+              expect((await imagaData)?.lengthInBytes, greaterThan(3000));
             } else {
               fail('unsupported platform');
             }
