@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 8.11.2
 
 ### Changes
 
