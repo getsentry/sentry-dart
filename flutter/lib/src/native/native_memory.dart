@@ -29,9 +29,7 @@ class NativeMemory {
 
   /// Frees the underlying native memory.
   /// You must not use this object after freeing.
-  void free() {
-    pkg_ffi.malloc.free(pointer);
-  }
+  void free() => pkg_ffi.malloc.free(pointer);
 
   Uint8List asTypedList() => pointer.asTypedList(length);
 

@@ -26,18 +26,18 @@
       invokeMethod:@"captureReplayScreenshot"
          arguments:@{@"replayId" : replayId ? replayId : [NSNull null]}
             result:^(id value) {
-              if (value == nil || value == 0) {
+              if (value == nil) {
                 NSLog(@"SentryFlutterReplayScreenshotProvider received null "
                       @"result. "
                       @"Cannot capture a replay screenshot.");
               } else if ([value isKindOfClass:[NSDictionary class]]) {
                 NSDictionary *dict = (NSDictionary *)value;
                 long address = ((NSNumber *)dict[@"address"]).longValue;
-                unsigned long length =
-                    ((NSNumber *)dict[@"length"]).unsignedLongValue;
-                NSData *data = [NSData dataWithBytesNoCopy:(void *)address
-                                                    length:length
-                                              freeWhenDone:TRUE];
+                (NSNumber *)length = ((NSNumber *)dict[@"length"]);
+                NSData *data =
+                    [NSData dataWithBytesNoCopy:(void *)address
+                                         length:length.unsignedLongValue
+                                   freeWhenDone:TRUE];
                 UIImage *image = [UIImage imageWithData:data];
                 onComplete(image);
                 return;
@@ -47,10 +47,11 @@
                       @"error: %@. Cannot capture a replay screenshot.",
                       error.message);
                 return;
+              } else {
+                NSLog(@"SentryFlutterReplayScreenshotProvider received an "
+                      @"unexpected result. "
+                      @"Cannot capture a replay screenshot.");
               }
-              NSLog(@"SentryFlutterReplayScreenshotProvider received an "
-                    @"unexpected result. "
-                    @"Cannot capture a replay screenshot.");
             }];
 }
 

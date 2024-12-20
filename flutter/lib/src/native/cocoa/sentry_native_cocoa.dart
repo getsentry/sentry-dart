@@ -76,7 +76,7 @@ class SentryNativeCocoa extends SentryNativeChannel {
             });
             final uint8List = await completer.future;
 
-            //Malloc memory and copy the data. Native must free it.
+            // Malloc memory and copy the data. Native must free it.
             return uint8List?.toNativeMemory().toJson();
           default:
             throw UnimplementedError('Method ${call.method} not implemented');
