@@ -83,7 +83,7 @@ void main() async {
       });
 
     expect(
-        fixture.capture(),
+        fixture.capture,
         throwsA(predicate(
             (Exception e) => e.toString().contains('testing masking error'))));
   });
@@ -130,23 +130,18 @@ class _Fixture {
       ScreenshotRecorderConfig(width: width, height: height), options);
   late final options = defaultTestOptions()
     ..bindingUtils = TestBindingWrapper();
-  final WidgetTester _tester;
   final double? width;
   final double? height;
 
-  _Fixture(this._tester, {this.width, this.height});
+  _Fixture({this.width, this.height});
 
   static Future<_Fixture> create(WidgetTester tester,
       {double? width, double? height}) async {
-    final fixture = _Fixture(tester, width: width, height: height);
+    final fixture = _Fixture(width: width, height: height);
     await pumpTestElement(tester);
     return fixture;
   }
 
-  Future<String?> capture() async {
-    final future = sut.capture<String?>(
-        (Image image) => Future.value("${image.width}x${image.height}"));
-    await _tester.idle();
-    return future;
-  }
+  Future<String?> capture() => sut.capture<String?>(
+      (Image image) => Future.value("${image.width}x${image.height}"));
 }
