@@ -1,11 +1,11 @@
 @TestOn('vm')
 library flutter_test;
 
-import 'dart:ffi';
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sentry_flutter/src/native/native_memory.dart';
+import 'package:sentry_flutter/src/native/native_memory.dart'
+    if (dart.library.html) 'native_memory_web_mock.dart';
 
 void main() {
   final testSrcList = Uint8List.fromList([1, 2, 3]);
@@ -13,7 +13,7 @@ void main() {
   test('empty list', () async {
     final sut = NativeMemory.fromUint8List(Uint8List.fromList([]));
     expect(sut.length, 0);
-    expect(sut.pointer, isNot(nullptr));
+    expect(sut.pointer.address, greaterThan(0));
     expect(sut.asTypedList(), isEmpty);
     sut.free();
   });
@@ -21,7 +21,7 @@ void main() {
   test('non-empty list', () async {
     final sut = NativeMemory.fromUint8List(testSrcList);
     expect(sut.length, 3);
-    expect(sut.pointer, isNot(nullptr));
+    expect(sut.pointer.address, greaterThan(0));
     expect(sut.asTypedList(), testSrcList);
     sut.free();
   });

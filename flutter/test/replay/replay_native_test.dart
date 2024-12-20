@@ -11,7 +11,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/native/factory.dart';
-import 'package:sentry_flutter/src/native/native_memory.dart';
+import 'package:sentry_flutter/src/native/native_memory.dart'
+    if (dart.library.html) '../native_memory_web_mock.dart';
 import 'package:sentry_flutter/src/native/sentry_native_binding.dart';
 
 import '../mocks.dart';
