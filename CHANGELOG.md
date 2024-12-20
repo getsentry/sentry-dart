@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Enahncements
+
+- Replay: improve performance of screenshot data to native recorder ([#2530](https://github.com/getsentry/sentry-dart/pull/2530))
+
 ## 8.12.0-beta.2
 
 ### Deprecations
