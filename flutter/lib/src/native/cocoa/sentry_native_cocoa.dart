@@ -36,7 +36,7 @@ class SentryNativeCocoa extends SentryNativeChannel {
             _replayRecorder ??=
                 ReplayScreenshotRecorder(ScreenshotRecorderConfig(), options);
 
-            final replayId = call.arguments ['replayId'] == null
+            final replayId = call.arguments['replayId'] == null
                 ? null
                 : SentryId.fromId(call.arguments['replayId'] as String);
             if (_replayId != replayId) {
