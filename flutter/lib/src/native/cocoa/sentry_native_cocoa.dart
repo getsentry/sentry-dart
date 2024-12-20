@@ -56,7 +56,8 @@ class SentryNativeCocoa extends SentryNativeChannel {
             final completer = Completer<Uint8List?>();
             widgetsBinding.ensureVisualUpdate();
             widgetsBinding.addPostFrameCallback((_) {
-              _replayRecorder?.capture((image) async {
+              _replayRecorder?.capture((screenshot) async {
+                final image = screenshot.image;
                 final imageData =
                     await image.toByteData(format: ImageByteFormat.png);
                 if (imageData != null) {

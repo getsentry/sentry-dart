@@ -5,6 +5,7 @@ import 'dart:ui';
 import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
+import '../screenshot/recorder.dart';
 import 'replay_recorder.dart';
 import 'scheduled_recorder_config.dart';
 import 'scheduler.dart';
@@ -101,11 +102,13 @@ class ScheduledScreenshotRecorder extends ReplayScreenshotRecorder {
 
   void _capture(Duration sinceSchedulerEpoch) => capture(_onImageCaptured);
 
-  Future<void> _onImageCaptured(Image image) async {
+  Future<void> _onImageCaptured(Screenshot capturedScreenshot) async {
+    final image = capturedScreenshot.image;
     if (_status == _Status.running) {
       var imageData = await image.toByteData(format: ImageByteFormat.png);
       if (imageData != null) {
-        final screenshot = ScreenshotPng(image.width, image.height, imageData);
+        final screenshot = ScreenshotPng(
+            image.width, image.height, imageData, capturedScreenshot.timestamp);
         await _onScreenshot(screenshot, true);
         // _idleFrameFiller.actualFrameReceived(screenshot);
       } else {
@@ -139,8 +142,9 @@ class ScreenshotPng {
   final int width;
   final int height;
   final ByteData data;
+  final DateTime timestamp;
 
-  const ScreenshotPng(this.width, this.height, this.data);
+  const ScreenshotPng(this.width, this.height, this.data, this.timestamp);
 }
 // TODO this is currently unused because we've decided to capture on every
 //      frame. Consider removing if we don't reverse the decision in the future.

@@ -60,7 +60,7 @@ class ScreenshotRecorder {
   /// To prevent accidental addition of await before that happens,
   ///
   /// THIS FUNCTION MUST NOT BE ASYNC.
-  Future<R> capture<R>(Future<R> Function(Image) callback) {
+  Future<R> capture<R>(Future<R> Function(Screenshot) callback) {
     try {
       final flow = Flow.begin();
       Timeline.startSync('Sentry::captureScreenshot', flow: flow);
@@ -111,18 +111,20 @@ class ScreenshotRecorder {
   }
 
   @protected
-  Future<void> executeTask(void Function() task, Flow flow) =>
-      Future.sync(task);
+  Future<void> executeTask(void Function() task, Flow flow) {
+    // Future.sync() starts executing the function synchronously, until the
+    // first await, i.e. it's the same as if the code was executed directly.
+    return Future.sync(task);
+  }
 
   List<WidgetFilterItem>? _obscureSync(_Capture<dynamic> capture) {
     if (_maskingConfig != null) {
       final filter = WidgetFilter(_maskingConfig!, options.logger);
       final colorScheme = capture.context.findColorScheme();
       filter.obscure(
+        root: capture.root,
         context: capture.context,
-        pixelRatio: capture.pixelRatio,
         colorScheme: colorScheme,
-        bounds: capture.bounds,
       );
       return filter.items;
     }
@@ -131,6 +133,7 @@ class ScreenshotRecorder {
 }
 
 class _Capture<R> {
+  final RenderRepaintBoundary root;
   final widgets.BuildContext context;
   final double srcWidth;
   final double srcHeight;
@@ -138,7 +141,8 @@ class _Capture<R> {
   final _completer = Completer<R>();
 
   _Capture._(
-      {required this.context,
+      {required this.root,
+      required this.context,
       required this.srcWidth,
       required this.srcHeight,
       required this.pixelRatio});
@@ -155,15 +159,13 @@ class _Capture<R> {
         widgets.MediaQuery.of(context).devicePixelRatio;
 
     return _Capture._(
+      root: renderObject,
       context: context,
       srcWidth: srcWidth,
       srcHeight: srcHeight,
       pixelRatio: pixelRatio,
     );
   }
-
-  Rect get bounds =>
-      Rect.fromLTWH(0, 0, srcWidth * pixelRatio, srcHeight * pixelRatio);
 
   int get width => (srcWidth * pixelRatio).round();
 
@@ -179,9 +181,10 @@ class _Capture<R> {
   /// See [task] which is what gets completed with the callback result.
   void Function() createTask(
       Future<Image> futureImage,
-      Future<R> Function(Image) callback,
+      Future<R> Function(Screenshot) callback,
       List<WidgetFilterItem>? obscureItems,
       Flow flow) {
+    final timestamp = DateTime.now();
     return () async {
       Timeline.startSync('Sentry::renderScreenshot', flow: flow);
       final recorder = PictureRecorder();
@@ -206,7 +209,8 @@ class _Capture<R> {
         Timeline.finishSync(); // Sentry::screenshotToImage
         try {
           Timeline.startSync('Sentry::screenshotCallback', flow: flow);
-          _completer.complete(await callback(finalImage));
+          _completer
+              .complete(await callback(Screenshot(finalImage, timestamp)));
           Timeline.finishSync(); // Sentry::screenshotCallback
         } finally {
           finalImage.dispose(); // image needs to be disposed-of manually
@@ -221,7 +225,13 @@ class _Capture<R> {
     final paint = Paint()..style = PaintingStyle.fill;
     for (var item in items) {
       paint.color = item.color;
-      canvas.drawRect(item.bounds, paint);
+      final source = item.bounds;
+      final scaled = Rect.fromLTRB(
+          source.left * pixelRatio,
+          source.top * pixelRatio,
+          source.right * pixelRatio,
+          source.bottom * pixelRatio);
+      canvas.drawRect(scaled, paint);
     }
   }
 }
@@ -284,4 +294,12 @@ extension on widgets.BuildContext {
     }
     return null;
   }
+}
+
+@internal
+class Screenshot {
+  final Image image;
+  final DateTime timestamp;
+
+  const Screenshot(this.image, this.timestamp);
 }
