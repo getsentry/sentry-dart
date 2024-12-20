@@ -7,16 +7,19 @@ import 'dart:convert';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart';
+import 'package:integration_test/integration_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter_example/main.dart';
 
+import 'utils.dart';
+
 void main() {
-  // const org = 'sentry-sdks';
-  // const slug = 'sentry-flutter';
-  // const authToken = String.fromEnvironment('SENTRY_AUTH_TOKEN');
+  const org = 'sentry-sdks';
+  const slug = 'sentry-flutter';
+  const authToken = String.fromEnvironment('SENTRY_AUTH_TOKEN_E2E');
   const fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
 
-  TestWidgetsFlutterBinding.ensureInitialized();
+  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   tearDown(() async {
     await Sentry.close();
@@ -98,7 +101,7 @@ void main() {
 
     // ignore: deprecated_member_use_from_same_package
     // ignore: deprecated_member_use
-    final associatedEventId = await Sentry.captureMessage("Associated");
+    final associatedEventId = await Sentry.captureMessage('Associated');
     final feedback = SentryFeedback(
       message: 'message',
       contactEmail: 'john.appleseed@apple.com',
@@ -162,66 +165,76 @@ void main() {
     await transaction.finish();
   });
 
-  // group('e2e', () {
-  //   var output = find.byKey(const Key('output'));
-  //   late Fixture fixture;
-  //
-  //   setUp(() {
-  //     fixture = Fixture();
-  //   });
-  //
-  //   testWidgets('captureException', (tester) async {
-  //     await setupSentryAndApp(tester,
-  //         dsn: exampleDsn, beforeSendCallback: fixture.beforeSend);
-  //
-  //     await tester.tap(find.text('captureException'));
-  //     await tester.pumpAndSettle();
-  //
-  //     final text = output.evaluate().single.widget as Text;
-  //     final id = text.data!;
-  //
-  //     final uri = Uri.parse(
-  //       'https://sentry.io/api/0/projects/$org/$slug/events/$id/',
-  //     );
-  //     expect(authToken, isNotEmpty);
-  //
-  //     final event = await fixture.poll(uri, authToken);
-  //     expect(event, isNotNull);
-  //
-  //     final sentEvent = fixture.sentEvent;
-  //     expect(sentEvent, isNotNull);
-  //
-  //     final tags = event!["tags"] as List<dynamic>;
-  //
-  //     expect(sentEvent!.eventId.toString(), event["id"]);
-  //     expect("_Exception: Exception: captureException", event["title"]);
-  //     expect(sentEvent.release, event["release"]["version"]);
-  //     expect(
-  //         2,
-  //         (tags.firstWhere((e) => e["value"] == sentEvent.environment) as Map)
-  //             .length);
-  //     expect(sentEvent.fingerprint, event["fingerprint"] ?? []);
-  //     expect(
-  //         2,
-  //         (tags.firstWhere((e) => e["value"] == SentryLevel.error.name) as Map)
-  //             .length);
-  //     expect(sentEvent.logger, event["logger"]);
-  //
-  //     final dist = tags.firstWhere((element) => element['key'] == 'dist');
-  //     expect('1', dist['value']);
-  //
-  //     final environment =
-  //         tags.firstWhere((element) => element['key'] == 'environment');
-  //     expect('integration', environment['value']);
-  //   });
-  // });
+  group('e2e', () {
+    var output = find.byKey(const Key('output'));
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    testWidgets('captureException', (tester) async {
+      late Uri uri;
+
+      await restoreFlutterOnErrorAfter(() async {
+        await setupSentryAndApp(tester,
+            dsn: exampleDsn, beforeSendCallback: fixture.beforeSend);
+
+        await tester.tap(find.text('captureException'));
+        await tester.pumpAndSettle();
+
+        final text = output.evaluate().single.widget as Text;
+        final id = text.data!;
+
+        uri = Uri.parse(
+          'https://sentry.io/api/0/projects/$org/$slug/events/$id/',
+        );
+      });
+
+      expect(authToken, isNotEmpty);
+
+      final event = await fixture.poll(uri, authToken);
+      expect(event, isNotNull);
+
+      final sentEvents = fixture.sentEvents
+          .where((el) => el!.eventId.toString() == event!['id']);
+      expect(
+          sentEvents.length, 1); // one button click should only send one error
+      final sentEvent = sentEvents.first;
+
+      final tags = event!['tags'] as List<dynamic>;
+
+      print('event id: ${event['id']}');
+      print('event title: ${event['title']}');
+      expect(sentEvent!.eventId.toString(), event['id']);
+      expect('_Exception: Exception: captureException', event['title']);
+      expect(sentEvent.release, event['release']['version']);
+      expect(
+          2,
+          (tags.firstWhere((e) => e['value'] == sentEvent.environment) as Map)
+              .length);
+      expect(sentEvent.fingerprint, event['fingerprint'] ?? []);
+      expect(
+          2,
+          (tags.firstWhere((e) => e['value'] == SentryLevel.error.name) as Map)
+              .length);
+      expect(sentEvent.logger, event['logger']);
+
+      final dist = tags.firstWhere((element) => element['key'] == 'dist');
+      expect('1', dist['value']);
+
+      final environment =
+          tags.firstWhere((element) => element['key'] == 'environment');
+      expect('integration', environment['value']);
+    });
+  });
 }
 
 class Fixture {
-  SentryEvent? sentEvent;
+  List<SentryEvent?> sentEvents = [];
 
   FutureOr<SentryEvent?> beforeSend(SentryEvent event, Hint hint) async {
-    sentEvent = event;
+    sentEvents.add(event);
     return event;
   }
 
@@ -237,16 +250,16 @@ class Fixture {
 
     while (retries < maxRetries) {
       try {
-        print("Trying to fetch $url [try $retries/$maxRetries]");
+        print('Trying to fetch $url [try $retries/$maxRetries]');
         final response = await client.get(
           url,
           headers: <String, String>{'Authorization': 'Bearer $authToken'},
         );
-        print("Response status code: ${response.statusCode}");
+        print('Response status code: ${response.statusCode}');
         if (response.statusCode == 200) {
           return jsonDecode(utf8.decode(response.bodyBytes));
         } else if (response.statusCode == 401) {
-          print("Cannot fetch $url - invalid auth token.");
+          print('Cannot fetch $url - invalid auth token.');
           break;
         }
       } catch (e) {

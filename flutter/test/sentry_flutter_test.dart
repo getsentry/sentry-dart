@@ -13,6 +13,7 @@ import 'package:sentry_flutter/src/integrations/integrations.dart';
 import 'package:sentry_flutter/src/integrations/screenshot_integration.dart';
 import 'package:sentry_flutter/src/profiling.dart';
 import 'package:sentry_flutter/src/renderer/renderer.dart';
+import 'package:sentry_flutter/src/replay/integration.dart';
 import 'package:sentry_flutter/src/version.dart';
 import 'package:sentry_flutter/src/view_hierarchy/view_hierarchy_integration.dart';
 import 'mocks.dart';
@@ -101,6 +102,7 @@ void main() {
           ...nativeIntegrations,
           ...platformAgnosticIntegrations,
           ...nonWebIntegrations,
+          ReplayIntegration,
         ],
         shouldNotHaveIntegrations: [
           ...iOsAndMacOsIntegrations,
@@ -158,6 +160,7 @@ void main() {
           ...nativeIntegrations,
           ...platformAgnosticIntegrations,
           ...nonWebIntegrations,
+          ReplayIntegration,
         ],
         shouldNotHaveIntegrations: [
           ...androidIntegrations,
@@ -344,7 +347,9 @@ void main() {
       expect(transport, isNot(isA<FileSystemTransport>()));
 
       testScopeObserver(
-          options: sentryFlutterOptions, expectedHasNativeScopeObserver: false);
+        options: sentryFlutterOptions,
+        expectedHasNativeScopeObserver: false,
+      );
 
       testConfiguration(
         integrations: integrations,
@@ -367,6 +372,28 @@ void main() {
 
       expect(SentryFlutter.native, isNull);
       expect(Sentry.currentHub.profilerFactory, isNull);
+
+      await Sentry.close();
+    });
+
+    test('Web (custom zone)', () async {
+      final sentryFlutterOptions = defaultTestOptions(getPlatformChecker(
+          platform: MockPlatform.linux(), isWeb: true, isRootZone: false))
+        ..methodChannel = native.channel;
+
+      await SentryFlutter.init(
+        (options) async {
+          options.profilesSampleRate = 1.0;
+        },
+        appRunner: appRunner,
+        options: sentryFlutterOptions,
+      );
+
+      final containsRunZonedGuardedIntegration =
+          Sentry.currentHub.options.integrations.any(
+        (integration) => integration is RunZonedGuardedIntegration,
+      );
+      expect(containsRunZonedGuardedIntegration, isFalse);
 
       await Sentry.close();
     });
@@ -711,6 +738,7 @@ MockSentryNativeBinding mockNativeBinding() {
   final result = MockSentryNativeBinding();
   when(result.supportsLoadContexts).thenReturn(true);
   when(result.supportsCaptureEnvelope).thenReturn(true);
+  when(result.supportsReplay).thenReturn(false);
   when(result.captureEnvelope(any, any)).thenReturn(null);
   when(result.init(any)).thenReturn(null);
   when(result.close()).thenReturn(null);
@@ -733,10 +761,12 @@ void loadTestPackage() {
 PlatformChecker getPlatformChecker({
   required Platform platform,
   bool isWeb = false,
+  bool isRootZone = true,
 }) {
   final platformChecker = PlatformChecker(
-    isWeb: isWeb,
     platform: platform,
+    isWeb: isWeb,
+    isRootZone: isRootZone,
   );
   return platformChecker;
 }
