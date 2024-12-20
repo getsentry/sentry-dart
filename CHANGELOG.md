@@ -3,21 +3,40 @@
 ## Unreleased
 
 - Transfer ownership of `sentry_link` to Sentry. You can view the changelog for the previous versions [here](https://github.com/getsentry/sentry-dart/blob/main/sentry_link/CHANGELOG_OLD.md) ([#2338](https://github.com/getsentry/sentry-dart/pull/2338))
-  - No functional changes have been made. This version is identical to the previos one.
+  - No functional changes have been made. This version is identical to the previous one.
   - Change license from Apache to MIT
+
+### Deprecations
+
+- Manual TTID ([#2477](https://github.com/getsentry/sentry-dart/pull/2477))
+
+### Fixes
+
+- Missing replay gestures on Android ([#2515](https://github.com/getsentry/sentry-dart/pull/2515))
 
 ### Enhancements
 
+- Check `SentryTracer` type in TTFD tracker ([#2508](https://github.com/getsentry/sentry-dart/pull/2508))
 - Warning (in a debug build) if a potentially sensitive widget is not masked or unmasked explicitly ([#2375](https://github.com/getsentry/sentry-dart/pull/2375))
 
 ### Dependencies
 
-- Bump Native SDK from v0.7.15 to v0.7.16 ([#2465](https://github.com/getsentry/sentry-dart/pull/2465))
-  - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#0716)
-  - [diff](https://github.com/getsentry/sentry-native/compare/0.7.15...0.7.16)
+- Bump Native SDK from v0.7.15 to v0.7.17 ([#2465](https://github.com/getsentry/sentry-dart/pull/2465), [#2516](https://github.com/getsentry/sentry-dart/pull/2516))
+  - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#0717)
+  - [diff](https://github.com/getsentry/sentry-native/compare/0.7.15...0.7.17)
 - Bump Android SDK from v7.18.1 to v7.19.0 ([#2488](https://github.com/getsentry/sentry-dart/pull/2488))
   - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#7190)
   - [diff](https://github.com/getsentry/sentry-java/compare/7.18.1...7.19.0)
+
+## 8.11.1
+
+### Improvements
+
+- Check for type before casting in TTID ([#2497](https://github.com/getsentry/sentry-dart/pull/2497))
+
+### Fixes
+
+- SentryWidgetsFlutterBinding initializing even if a binding already exists ([#2494](https://github.com/getsentry/sentry-dart/pull/2494))
 
 ## 8.12.0-beta.1
 
