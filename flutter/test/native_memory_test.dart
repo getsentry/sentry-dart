@@ -4,8 +4,8 @@ library flutter_test;
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sentry_flutter/src/native/native_memory.dart'
-    if (dart.library.html) 'native_memory_web_mock.dart';
+import 'native_memory_web_mock.dart'
+    if (dart.library.io) 'package:sentry_flutter/src/native/native_memory.dart';
 
 void main() {
   final testSrcList = Uint8List.fromList([1, 2, 3]);
