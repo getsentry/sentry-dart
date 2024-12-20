@@ -17,9 +17,9 @@
 
 ### Dependencies
 
-- Bump Native SDK from v0.7.15 to v0.7.16 ([#2465](https://github.com/getsentry/sentry-dart/pull/2465))
-  - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#0716)
-  - [diff](https://github.com/getsentry/sentry-native/compare/0.7.15...0.7.16)
+- Bump Native SDK from v0.7.15 to v0.7.17 ([#2465](https://github.com/getsentry/sentry-dart/pull/2465), [#2516](https://github.com/getsentry/sentry-dart/pull/2516))
+  - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#0717)
+  - [diff](https://github.com/getsentry/sentry-native/compare/0.7.15...0.7.17)
 - Bump Android SDK from v7.18.1 to v7.19.0 ([#2488](https://github.com/getsentry/sentry-dart/pull/2488))
   - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#7190)
   - [diff](https://github.com/getsentry/sentry-java/compare/7.18.1...7.19.0)
