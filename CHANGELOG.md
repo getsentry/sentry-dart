@@ -9,6 +9,7 @@
 ### Fixes
 
 - Missing replay gestures on Android ([#2515](https://github.com/getsentry/sentry-dart/pull/2515))
+- Replay mask sizing on scaling transform widget children ([#2520](https://github.com/getsentry/sentry-dart/pull/2520))
 
 ### Enhancements
 

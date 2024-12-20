@@ -122,10 +122,9 @@ class ScreenshotRecorder {
       final filter = WidgetFilter(_maskingConfig!, options.logger);
       final colorScheme = capture.context.findColorScheme();
       filter.obscure(
+        root: capture.root,
         context: capture.context,
-        pixelRatio: capture.pixelRatio,
         colorScheme: colorScheme,
-        bounds: capture.bounds,
       );
       return filter.items;
     }
@@ -134,6 +133,7 @@ class ScreenshotRecorder {
 }
 
 class _Capture<R> {
+  final RenderRepaintBoundary root;
   final widgets.BuildContext context;
   final double srcWidth;
   final double srcHeight;
@@ -141,7 +141,8 @@ class _Capture<R> {
   final _completer = Completer<R>();
 
   _Capture._(
-      {required this.context,
+      {required this.root,
+      required this.context,
       required this.srcWidth,
       required this.srcHeight,
       required this.pixelRatio});
@@ -158,15 +159,13 @@ class _Capture<R> {
         widgets.MediaQuery.of(context).devicePixelRatio;
 
     return _Capture._(
+      root: renderObject,
       context: context,
       srcWidth: srcWidth,
       srcHeight: srcHeight,
       pixelRatio: pixelRatio,
     );
   }
-
-  Rect get bounds =>
-      Rect.fromLTWH(0, 0, srcWidth * pixelRatio, srcHeight * pixelRatio);
 
   int get width => (srcWidth * pixelRatio).round();
 
@@ -226,7 +225,13 @@ class _Capture<R> {
     final paint = Paint()..style = PaintingStyle.fill;
     for (var item in items) {
       paint.color = item.color;
-      canvas.drawRect(item.bounds, paint);
+      final source = item.bounds;
+      final scaled = Rect.fromLTRB(
+          source.left * pixelRatio,
+          source.top * pixelRatio,
+          source.right * pixelRatio,
+          source.bottom * pixelRatio);
+      canvas.drawRect(scaled, paint);
     }
   }
 }
