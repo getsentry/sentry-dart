@@ -33,7 +33,7 @@
               } else if ([value isKindOfClass:[NSDictionary class]]) {
                 NSDictionary *dict = (NSDictionary *)value;
                 long address = ((NSNumber *)dict[@"address"]).longValue;
-                (NSNumber *)length = ((NSNumber *)dict[@"length"]);
+                NSNumber *length = ((NSNumber *)dict[@"length"]);
                 NSData *data =
                     [NSData dataWithBytesNoCopy:(void *)address
                                          length:length.unsignedLongValue
