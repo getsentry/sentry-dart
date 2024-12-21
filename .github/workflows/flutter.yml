@@ -33,7 +33,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [android, ios, macos, linux, windows, web]
+        target: [android, ios, macos, linux, windows, js, wasm]
         sdk: [stable, beta]
         # Specify which platform to run on for each target:
         include:
@@ -47,8 +47,12 @@ jobs:
             os: ubuntu
           - target: windows
             os: windows
-          - target: web
+          - target: js
             os: ubuntu
+            testArgs: ''
+          - target: wasm
+            os: ubuntu
+            testArgs: '--wasm'
         # Exclude beta for windows for now until the flutter set up action does not fail anymore
         exclude:
           - target: windows
@@ -80,17 +84,11 @@ jobs:
       - name: Pub Get
         run: flutter pub get
 
-      - name: Test web (JS)
-        if: matrix.target == 'web'
+      - name: Test web
+        if: matrix.target == 'js' || matrix.target == 'wasm'
         run: |
-          flutter test --platform chrome --test-randomize-ordering-seed=random --exclude-tags canvasKit
-          flutter test --platform chrome --test-randomize-ordering-seed=random --tags canvasKit
-
-      - name: Test web (WASM)
-        if: matrix.target == 'web'
-        run: |
-          flutter test --platform chrome --wasm --test-randomize-ordering-seed=random --exclude-tags canvasKit
-          flutter test --platform chrome --wasm --test-randomize-ordering-seed=random --tags canvasKit
+          flutter test --platform chrome ${{ matrix.testArg }} --test-randomize-ordering-seed=random --exclude-tags canvasKit
+          flutter test --platform chrome ${{ matrix.testArg }} --test-randomize-ordering-seed=random --tags canvasKit
 
       - name: Test VM with coverage
         if: matrix.target == 'linux' || matrix.target == 'macos' || matrix.target == 'windows'
@@ -132,7 +130,7 @@ jobs:
           android)
           flutter build appbundle
           ;;
-          web)
+          js)
           flutter build web
           ;;
           linux)
