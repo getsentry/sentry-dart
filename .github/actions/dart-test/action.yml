@@ -27,7 +27,7 @@ runs:
       shell: bash
       run: |
         testCmd="dart test -p vm --test-randomize-ordering-seed=random --chain-stack-traces"
-        if ${{ (matrix.os == 'linux' && matrix.sdk == 'stable' && 'true') || 'false' }} ; then
+        if ${{ (matrix.os == 'ubuntu' && matrix.sdk == 'stable' && 'true') || 'false' }} ; then
           $testCmd --coverage=coverage
           dart run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.dart_tool/package_config.json --report-on=lib
         else
