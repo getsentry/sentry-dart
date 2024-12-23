@@ -41,8 +41,6 @@ jobs:
         with:
           directory: drift
 
-      - run: cat drift/coverage/lcov.info
-
       - uses: ./.github/actions/coverage
         if: matrix.target == 'linux' && matrix.sdk == 'stable'
         with:
