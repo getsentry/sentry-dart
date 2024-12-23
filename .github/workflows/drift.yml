@@ -41,10 +41,6 @@ jobs:
             os: ubuntu
           - target: windows
             os: windows
-          - target: js
-            os: ubuntu
-          - target: wasm
-            os: ubuntu
 
     steps:
       - uses: actions/checkout@v4

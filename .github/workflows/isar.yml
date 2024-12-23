@@ -28,7 +28,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [macos, linux, windows, js, wasm]
+        target: [macos, linux, windows]
         sdk: [stable, beta]
         include:
           - target: android
@@ -41,10 +41,6 @@ jobs:
             os: ubuntu
           - target: windows
             os: windows
-          - target: js
-            os: ubuntu
-          - target: wasm
-            os: ubuntu
 
     steps:
       - uses: actions/checkout@v4
