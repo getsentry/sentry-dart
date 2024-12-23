@@ -18,11 +18,28 @@ class HtmlSentryJsBinding implements SentryJsBinding {
   }
 
   @override
+  void captureEnvelope(List<dynamic> envelope) {
+    // _sentry?
+    // _getClient()?.callMethod('sendEnvelope'.toJS, envelope.jsify());
+  }
+
+  @override
   void close() {
     if (_sentry != null) {
       _sentry?.callMethod('close');
       _sentry = null;
       context['Sentry'] = null;
     }
+  }
+
+  @override
+  void captureSession() {
+    // TODO: implement captureSession
+  }
+
+  @override
+  getSession() {
+    // TODO: implement getSession
+    throw UnimplementedError();
   }
 }

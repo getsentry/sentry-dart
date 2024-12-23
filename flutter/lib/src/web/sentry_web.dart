@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:typed_data';
 
 import '../../sentry_flutter.dart';
@@ -57,7 +58,39 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
   @override
   FutureOr<void> captureEnvelope(
       Uint8List envelopeData, bool containsUnhandledException) {
-    _logNotSupported('capture envelope');
+    // _binding.captureEnvelope(envelopeData);
+  }
+
+  @override
+  FutureOr<void> captureEnvelopeObject(SentryEnvelope envelope) async {
+    final List<dynamic> envelopeItems = [];
+
+    for (final item in envelope.items) {
+      print('type: ${item.header.type}');
+      final originalObject = item.originalObject;
+      final payload = await originalObject?.getPayload();
+      final length =
+          payload != null ? utf8.encode(json.encode(payload)).length : 0;
+
+      envelopeItems.add([(await item.header.toJson(length)), payload]);
+
+      // // We use `sendEnvelope` where sessions are not managed in the JS SDK
+      // // so we have to do it manually
+      // if (originalObject is SentryEvent &&
+      //     originalObject.exceptions?.isEmpty == false) {
+      //   final session = _binding.getSession();
+      //   if (envelope.containsUnhandledException) {
+      //     // todo fix this properly
+      //     session?.status = 'crashed'.toJS;
+      //   }
+      //   session?.errors = originalObject.exceptions?.length.toJS ?? 0.toJS;
+      //   _binding.captureSession();
+      // }
+    }
+
+    final jsEnvelope = [envelope.header.toJson(), envelopeItems];
+
+    _binding.captureEnvelope(jsEnvelope);
   }
 
   @override
@@ -175,7 +208,7 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
   }
 
   @override
-  bool get supportsCaptureEnvelope => false;
+  bool get supportsCaptureEnvelope => true;
 
   @override
   bool get supportsLoadContexts => false;

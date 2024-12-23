@@ -276,7 +276,7 @@ class SentryOptions {
   /// breadcrumbs.
   /// In a Flutter environment, this setting also toggles recording of `debugPrint` calls.
   /// `debugPrint` calls are only recorded in release builds, though.
-  bool enablePrintBreadcrumbs = true;
+  bool enablePrintBreadcrumbs = false;
 
   /// If [platformChecker] is provided, it is used get the environment.
   /// This is useful in tests. Should be an implementation of [PlatformChecker].

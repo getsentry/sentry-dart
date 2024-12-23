@@ -74,7 +74,7 @@ Future<void> setupSentry(
       options.addIntegration(LoggingIntegration(minEventLevel: Level.INFO));
       options.sendDefaultPii = true;
       options.reportSilentFlutterErrors = true;
-      options.attachScreenshot = true;
+      options.attachScreenshot = false;
       options.attachViewHierarchy = true;
       // We can enable Sentry debug logging during development. This is likely
       // going to log too much for your app, but can be useful when figuring out

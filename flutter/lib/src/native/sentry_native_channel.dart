@@ -234,4 +234,9 @@ class SentryNativeChannel
       channel.invokeMethod('captureReplay', {
         'isCrash': isCrash,
       }).then((value) => SentryId.fromId(value as String));
+
+  @override
+  FutureOr<void> captureEnvelopeObject(SentryEnvelope envelope) {
+    throw UnsupportedError("Not supported on this platform");
+  }
 }

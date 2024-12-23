@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'sentry_js_binding.dart';
 
 SentryJsBinding createJsBinding() {
@@ -12,4 +14,13 @@ class NoOpSentryJsBinding implements SentryJsBinding {
 
   @override
   void close() {}
+
+  @override
+  void captureEnvelope(Uint8List envelope) {}
+
+  @override
+  void captureSession() {}
+
+  @override
+  getSession() {}
 }

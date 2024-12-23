@@ -4,5 +4,8 @@ export 'noop_sentry_js_binding.dart'
 
 abstract class SentryJsBinding {
   void init(Map<String, dynamic> options);
+  void captureEnvelope(List<Object> envelope);
+  dynamic getSession();
+  void captureSession();
   void close();
 }

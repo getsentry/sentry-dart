@@ -12,7 +12,6 @@ import 'event_processor/platform_exception_event_processor.dart';
 import 'event_processor/screenshot_event_processor.dart';
 import 'event_processor/url_filter/url_filter_event_processor.dart';
 import 'event_processor/widget_event_processor.dart';
-import 'file_system_transport.dart';
 import 'flutter_exception_type_identifier.dart';
 import 'frame_callback_handler.dart';
 import 'integrations/connectivity/connectivity_integration.dart';
@@ -26,6 +25,8 @@ import 'native/sentry_native_binding.dart';
 import 'profiling.dart';
 import 'renderer/renderer.dart';
 import 'replay/integration.dart';
+import 'transport/file_system_transport.dart';
+import 'transport/javascript_transport.dart';
 import 'version.dart';
 import 'view_hierarchy/view_hierarchy_integration.dart';
 
@@ -123,7 +124,11 @@ mixin SentryFlutter {
     // Not all platforms have a native integration.
     if (_native != null) {
       if (_native!.supportsCaptureEnvelope) {
-        options.transport = FileSystemTransport(_native!, options);
+        if (options.platformChecker.isWeb) {
+          options.transport = JavascriptTransport(_native!, options);
+        } else {
+          options.transport = FileSystemTransport(_native!, options);
+        }
       }
       if (!options.platformChecker.isWeb) {
         options.addScopeObserver(NativeScopeObserver(_native!));
