@@ -37,8 +37,11 @@ class FlutterEnricherEventProcessor implements EventProcessor {
   ) async {
     // If there's a native integration available, it probably has better
     // information available than Flutter.
-    final device =
-        _hasNativeIntegration ? null : _getDevice(event.contexts.device);
+    // TODO: while we have a native integration with JS SDK, it's currently opt in and we dont gather contexts yet
+    // so for web it's still better to rely on the information of Flutter.
+    final device = _hasNativeIntegration && !_checker.isWeb
+        ? null
+        : _getDevice(event.contexts.device);
 
     final contexts = event.contexts.copyWith(
       device: device,

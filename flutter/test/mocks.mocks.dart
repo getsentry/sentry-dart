@@ -28,6 +28,7 @@ import 'package:sentry_flutter/src/frames_tracking/sentry_delayed_frames_tracker
 import 'package:sentry_flutter/src/native/native_frames.dart' as _i20;
 import 'package:sentry_flutter/src/native/sentry_native_binding.dart' as _i18;
 import 'package:sentry_flutter/src/replay/replay_config.dart' as _i21;
+import 'package:sentry_flutter/src/web/sentry_js_binding.dart' as _i25;
 
 import 'mocks.dart' as _i14;
 
@@ -3460,6 +3461,33 @@ class MockWidgetsFlutterBinding extends _i1.Mock
         #computePlatformResolvedLocale,
         [supportedLocales],
       )) as _i6.Locale?);
+}
+
+/// A class which mocks [SentryJsBinding].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockSentryJsBinding extends _i1.Mock implements _i25.SentryJsBinding {
+  MockSentryJsBinding() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  void init(Map<String, dynamic>? options) => super.noSuchMethod(
+        Invocation.method(
+          #init,
+          [options],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void close() => super.noSuchMethod(
+        Invocation.method(
+          #close,
+          [],
+        ),
+        returnValueForMissingStub: null,
+      );
 }
 
 /// A class which mocks [Hub].
