@@ -39,19 +39,15 @@ void testConfiguration({
     expect(integrations, isNot(contains(type)));
   }
 
+  Integration? nativeIntegration;
   if (kIsWeb) {
-    final nativeIntegration = integrations.firstWhereOrNull(
+    nativeIntegration = integrations.firstWhereOrNull(
         (x) => x.runtimeType.toString() == 'WebSdkIntegration');
-    if (options?.enableSentryJs == true) {
-      expect(nativeIntegration, isNotNull);
-    } else {
-      expect(nativeIntegration, isNull);
-    }
   } else {
-    final nativeIntegration = integrations.firstWhereOrNull(
+    nativeIntegration = integrations.firstWhereOrNull(
         (x) => x.runtimeType.toString() == 'NativeSdkIntegration');
-    expect(nativeIntegration, isNotNull);
   }
+  expect(nativeIntegration, isNotNull);
 }
 
 void testBefore({
