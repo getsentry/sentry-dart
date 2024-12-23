@@ -39,5 +39,4 @@ runs:
       with:
         path: './${{ inputs.directory }}/coverage/lcov.info'
         min_coverage: ${{ inputs.min-coverage }}
-        # 'native/c' for now because we run coverage on Linux where these are not tested yet.
-        exclude: 'lib/src/native/cocoa/binding.dart lib/src/native/c/*'
+        exclude: 'lib/src/native/cocoa/binding.dart'
