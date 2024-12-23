@@ -4,6 +4,7 @@
 library dart_test;
 
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/src/replay/scheduled_recorder.dart';
@@ -19,12 +20,12 @@ void main() async {
     await tester.runAsync(() async {
       final fixture = await _Fixture.create(tester);
       expect(fixture.capturedImages, isEmpty);
-      await fixture.nextFrame();
+      await fixture.nextFrame(true);
       expect(fixture.capturedImages, ['1000x750']);
-      await fixture.nextFrame();
+      await fixture.nextFrame(true);
       expect(fixture.capturedImages, ['1000x750', '1000x750']);
       final stopFuture = fixture.sut.stop();
-      await fixture.nextFrame();
+      await fixture.nextFrame(false);
       await stopFuture;
       expect(fixture.capturedImages, ['1000x750', '1000x750']);
     });
@@ -33,12 +34,14 @@ void main() async {
 
 class _Fixture {
   final WidgetTester _tester;
-  late final ScheduledScreenshotRecorder sut;
+  late final _TestScheduledRecorder _sut;
   final capturedImages = <String>[];
   late Completer<void> _completer;
 
+  ScheduledScreenshotRecorder get sut => _sut;
+
   _Fixture._(this._tester) {
-    sut = ScheduledScreenshotRecorder(
+    _sut = _TestScheduledRecorder(
       ScheduledScreenshotRecorderConfig(
         width: 1000,
         height: 1000,
@@ -61,17 +64,24 @@ class _Fixture {
     return fixture;
   }
 
-  Future<void> nextFrame() async {
+  Future<void> nextFrame(bool imageIsExpected) async {
     _completer = Completer();
     _tester.binding.scheduleFrame();
     await _tester.pumpAndSettle(const Duration(seconds: 1));
-    await _completer.future
-        .timeout(Duration(milliseconds: 100), onTimeout: () {});
+    await _completer.future.timeout(
+        bool.hasEnvironment('CI')
+            ? Duration(seconds: 1)
+            : Duration(milliseconds: 100),
+        onTimeout: imageIsExpected ? null : () {});
   }
+}
 
-  Future<void> tryNextImage() async {
-    _completer = Completer();
-    await _completer.future
-        .timeout(Duration(milliseconds: 100), onTimeout: () {});
+class _TestScheduledRecorder extends ScheduledScreenshotRecorder {
+  _TestScheduledRecorder(super.config, super.options, super.callback);
+
+  @override
+  Future<void> executeTask(void Function() task, Flow flow) {
+    task();
+    return Future.value();
   }
 }

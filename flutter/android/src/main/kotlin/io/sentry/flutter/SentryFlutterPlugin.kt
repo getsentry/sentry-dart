@@ -3,9 +3,14 @@ package io.sentry.flutter
 import android.app.Activity
 import android.content.Context
 import android.content.res.Configuration
+import android.graphics.Point
+import android.graphics.Rect
 import android.os.Build
+import android.os.Build.VERSION
+import android.os.Build.VERSION_CODES
 import android.os.Looper
 import android.util.Log
+import android.view.WindowManager
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
@@ -638,12 +643,23 @@ class SentryFlutterPlugin :
       height = newHeight
     }
 
+    val wm = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+    val screenBounds =
+      if (VERSION.SDK_INT >= VERSION_CODES.R) {
+        wm.currentWindowMetrics.bounds
+      } else {
+        val screenBounds = Point()
+        @Suppress("DEPRECATION")
+        wm.defaultDisplay.getRealSize(screenBounds)
+        Rect(0, 0, screenBounds.x, screenBounds.y)
+      }
+
     replayConfig =
       ScreenshotRecorderConfig(
         recordingWidth = width.roundToInt(),
         recordingHeight = height.roundToInt(),
-        scaleFactorX = 1.0f,
-        scaleFactorY = 1.0f,
+        scaleFactorX = width.toFloat() / screenBounds.width().toFloat(),
+        scaleFactorY = height.toFloat() / screenBounds.height().toFloat(),
         frameRate = call.argument("frameRate") as? Int ?: 0,
         bitRate = call.argument("bitRate") as? Int ?: 0,
       )

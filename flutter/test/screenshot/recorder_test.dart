@@ -5,8 +5,10 @@ library dart_test;
 
 import 'dart:ui';
 
+import 'package:flutter/widgets.dart' as widgets;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_flutter/src/replay/replay_recorder.dart';
 import 'package:sentry_flutter/src/screenshot/recorder.dart';
 import 'package:sentry_flutter/src/screenshot/recorder_config.dart';
 
@@ -25,7 +27,7 @@ void main() async {
     final fixture = await _Fixture.create(tester);
 
     //devicePixelRatio is 3.0 therefore the resolution multiplied by 3
-    expect(fixture.capture(), completion('6000x12000'));
+    expect(await fixture.capture(), '6000x12000');
   });
 
   testWidgets('captures full resolution images - landscape', (tester) async {
@@ -33,7 +35,7 @@ void main() async {
     final fixture = await _Fixture.create(tester);
 
     //devicePixelRatio is 3.0 therefore the resolution multiplied by 3
-    expect(fixture.capture(), completion('12000x6000'));
+    expect(await fixture.capture(), '12000x6000');
   });
 
   testWidgets('captures high resolution images - portrait', (tester) async {
@@ -42,7 +44,7 @@ void main() async {
     final fixture = await _Fixture.create(tester,
         width: targetResolution, height: targetResolution);
 
-    expect(fixture.capture(), completion('960x1920'));
+    expect(await fixture.capture(), '960x1920');
   });
 
   testWidgets('captures high resolution images - landscape', (tester) async {
@@ -51,7 +53,7 @@ void main() async {
     final fixture = await _Fixture.create(tester,
         width: targetResolution, height: targetResolution);
 
-    expect(fixture.capture(), completion('1920x960'));
+    expect(await fixture.capture(), '1920x960');
   });
 
   testWidgets('captures medium resolution images', (tester) async {
@@ -60,7 +62,7 @@ void main() async {
     final fixture = await _Fixture.create(tester,
         width: targetResolution, height: targetResolution);
 
-    expect(fixture.capture(), completion('640x1280'));
+    expect(await fixture.capture(), '640x1280');
   });
 
   testWidgets('captures low resolution images', (tester) async {
@@ -69,13 +71,38 @@ void main() async {
     final fixture = await _Fixture.create(tester,
         width: targetResolution, height: targetResolution);
 
-    expect(fixture.capture(), completion('427x854'));
+    expect(await fixture.capture(), '427x854');
+  });
+
+  testWidgets('propagates errors in test-mode', (tester) async {
+    final fixture = await _Fixture.create(tester);
+    fixture.options
+      ..automatedTestMode = true
+      ..experimental.privacy.maskCallback<widgets.Stack>((el, widget) {
+        throw Exception('testing masking error');
+      });
+
+    expect(
+        fixture.capture,
+        throwsA(predicate(
+            (Exception e) => e.toString().contains('testing masking error'))));
+  });
+
+  testWidgets('does not propagate errors in real apps', (tester) async {
+    final fixture = await _Fixture.create(tester);
+    fixture.options
+      ..automatedTestMode = false
+      ..experimental.privacy.maskCallback<widgets.Stack>((el, widget) {
+        throw Exception('testing masking error');
+      });
+
+    expect(await fixture.capture(), isNull);
   });
 
   // TODO: remove in the next major release, see _SentryFlutterExperimentalOptions.
   group('Widget filter is used based on config or application', () {
     test('Uses widget filter by default for Replay', () {
-      final sut = ScreenshotRecorder(
+      final sut = ReplayScreenshotRecorder(
         ScreenshotRecorderConfig(),
         defaultTestOptions(),
       );
@@ -83,9 +110,8 @@ void main() async {
     });
 
     test('Does not use widget filter by default for Screenshots', () {
-      final sut = ScreenshotRecorder(
-          ScreenshotRecorderConfig(), defaultTestOptions(),
-          isReplayRecorder: false);
+      final sut =
+          ScreenshotRecorder(ScreenshotRecorderConfig(), defaultTestOptions());
       expect(sut.hasWidgetFilter, isFalse);
     });
 
@@ -93,22 +119,21 @@ void main() async {
         'Uses widget filter for Screenshots when privacy configured explicitly',
         () {
       final sut = ScreenshotRecorder(ScreenshotRecorderConfig(),
-          defaultTestOptions()..experimental.privacy.maskAllText = false,
-          isReplayRecorder: false);
+          defaultTestOptions()..experimental.privacy.maskAllText = false);
       expect(sut.hasWidgetFilter, isTrue);
     });
   });
 }
 
 class _Fixture {
-  late final ScreenshotRecorder sut;
+  late final ScreenshotRecorder sut = ScreenshotRecorder(
+      ScreenshotRecorderConfig(width: width, height: height), options);
+  late final options = defaultTestOptions()
+    ..bindingUtils = TestBindingWrapper();
+  final double? width;
+  final double? height;
 
-  _Fixture({double? width, double? height}) {
-    sut = ScreenshotRecorder(
-      ScreenshotRecorderConfig(width: width, height: height),
-      defaultTestOptions()..bindingUtils = TestBindingWrapper(),
-    );
-  }
+  _Fixture({this.width, this.height});
 
   static Future<_Fixture> create(WidgetTester tester,
       {double? width, double? height}) async {
@@ -117,11 +142,8 @@ class _Fixture {
     return fixture;
   }
 
-  Future<String?> capture() async {
-    String? captured;
-    await sut.capture((Image image) async {
-      captured = "${image.width}x${image.height}";
-    });
-    return captured;
-  }
+  Future<String?> capture() => sut.capture<String?>((Screenshot screenshot) {
+        final image = screenshot.image;
+        return Future.value("${image.width}x${image.height}");
+      });
 }

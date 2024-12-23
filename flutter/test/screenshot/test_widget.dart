@@ -59,7 +59,7 @@ Future<Element> pumpTestElement(WidgetTester tester,
       ),
     ),
   );
-  return TestWidgetsFlutterBinding.instance.rootElement!;
+  return find.byType(SentryScreenshotWidget).evaluate().first;
 }
 
 final testImageData = Uint8List.fromList([
