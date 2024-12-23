@@ -24,7 +24,7 @@ jobs:
           access_token: ${{ github.token }}
 
   build:
-    name: Dart ${{matrix.sdk}} on ${{matrix.os}}
+    name: '${{ matrix.os }} | ${{ matrix.sdk }}'
     runs-on: ${{ matrix.os }}-latest
     timeout-minutes: 30
     strategy:
