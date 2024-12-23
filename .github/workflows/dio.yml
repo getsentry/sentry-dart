@@ -9,6 +9,9 @@ on:
       - '!**/*.md'
       - '!**/class-diagram.svg'
       - '.github/workflows/dio.yml'
+      - '.github/workflows/analyze.yml'
+      - '.github/actions/dart-test/**'
+      - '.github/actions/coverage/**'
       - 'dart/**'
       - 'dio/**'
 

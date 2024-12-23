@@ -7,6 +7,9 @@ on:
   pull_request:
     paths:
       - '.github/workflows/flutter.yml'
+      - '.github/workflows/analyze.yml'
+      - '.github/actions/flutter-test/**'
+      - '.github/actions/coverage/**'
       - '!**/*.md'
       - '!**/class-diagram.svg'
       - 'dart/**'
