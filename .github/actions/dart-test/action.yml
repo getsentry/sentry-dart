@@ -26,7 +26,7 @@ runs:
       working-directory: ${{ inputs.directory }}
       shell: bash
       run: |
-        testCmd="dart test -p vm --test-randomize-ordering-seed=random --chain-stack-traces
+        testCmd="dart test -p vm --test-randomize-ordering-seed=random --chain-stack-traces"
         if ${{ (matrix.target == 'linux' && matrix.sdk == 'stable' && 'true') || 'false' }} ; then
           $testCmd --coverage=coverage
           dart run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.dart_tool/package_config.json --report-on=lib
