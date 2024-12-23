@@ -33,7 +33,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        sdk: ['stable', 'beta']
+        sdk: [stable, beta]
     steps:
       - name: checkout
         uses: actions/checkout@v4
@@ -113,8 +113,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        sdk: ['stable', 'beta']
-        target: ['ios', 'macos']
+        target: [ios, macos]
+        sdk: [stable, beta]
     steps:
       - name: checkout
         uses: actions/checkout@v4

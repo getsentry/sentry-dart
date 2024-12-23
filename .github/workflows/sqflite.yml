@@ -43,7 +43,7 @@ jobs:
 
       - uses: ./.github/actions/flutter-test
         with:
-          directory: isar
+          directory: sqflite
 
       - uses: ./.github/actions/coverage
         if: matrix.target == 'linux' && matrix.sdk == 'stable'
