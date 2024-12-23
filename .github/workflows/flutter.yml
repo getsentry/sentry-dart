@@ -112,7 +112,9 @@ jobs:
           # 'native/c' for now because we run coverage on Linux where these are not tested yet.
           exclude: 'lib/src/native/cocoa/binding.dart lib/src/native/c/*'
 
-      - name: Build ${{ matrix.target }}
+      - name: Build example for ${{ matrix.target }}
+        # The example currently doesn't support compiling for WASM. Should be OK once we add package:web in v9.
+        if: matrix.target != 'wasm'
         working-directory: flutter/example
         run: |
           flutter config --enable-windows-desktop
