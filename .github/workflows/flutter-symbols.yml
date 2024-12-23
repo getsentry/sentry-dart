@@ -2,14 +2,14 @@ name: Flutter symbols collection
 on:
   schedule:
     # Run once an hour. It takes just a couple of minutes because of status caching.
-    - cron: "10 * * * *"
+    - cron: '10 * * * *'
   workflow_dispatch:
     inputs:
       flutter_version:
         description: Flutter version, can be either a specific version (3.17.0) or a wildcard (3.2.*)
         required: false
         type: string
-        default: "3.*.*"
+        default: '3.*.*'
 
 defaults:
   run:
@@ -17,7 +17,7 @@ defaults:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
 
@@ -29,7 +29,7 @@ jobs:
 
   run:
     needs: [test]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
 

@@ -6,15 +6,15 @@ on:
       - release/**
   pull_request:
     paths:
-      - "!**/*.md"
-      - "!**/class-diagram.svg"
-      - ".github/workflows/isar.yml"
-      - "dart/**"
-      - "isar/**"
+      - '!**/*.md'
+      - '!**/class-diagram.svg'
+      - '.github/workflows/isar.yml'
+      - 'dart/**'
+      - 'isar/**'
 
 jobs:
   cancel-previous-workflow:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Cancel Previous Runs
         uses: styfle/cancel-workflow-action@85880fa0301c86cca9da44039ee3bb12d3bedbfa # pin@0.12.1
@@ -31,15 +31,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        target: ["ios", "android", "macos", "linux", "windows"]
-        sdk: ["stable", "beta"]
+        os: [ubuntu-24.04, macos-latest, windows-latest]
+        target: ['ios', 'android', 'macos', 'linux', 'windows']
+        sdk: ['stable', 'beta']
         exclude:
-          - os: ubuntu-latest
+          - os: ubuntu-24.04
             target: ios
-          - os: ubuntu-latest
+          - os: ubuntu-24.04
             target: macos
-          - os: ubuntu-latest
+          - os: ubuntu-24.04
             target: windows
           - os: windows-latest
             target: ios
@@ -69,16 +69,16 @@ jobs:
       - uses: actions/setup-java@v4
         if: ${{ matrix.target == 'android' }}
         with:
-          java-version: "11"
-          distribution: "adopt"
+          java-version: '11'
+          distribution: 'adopt'
 
       # Install required dependencies for Flutter on Linux on Ubuntu
-      - name: "Setup Linux"
+      - name: 'Setup Linux'
         run: |
           sudo apt update
           sudo apt install -y cmake dbus libblkid-dev libgtk-3-dev liblzma-dev ninja-build pkg-config xvfb
           sudo apt install -y network-manager upower
-        if: matrix.os == 'ubuntu-latest' && matrix.target == 'linux'
+        if: matrix.os == 'ubuntu-24.04' && matrix.target == 'linux'
 
       - uses: subosito/flutter-action@f2c4f6686ca8e8d6e6d0f28410eeef506ed66aff # pin@v2.18.0
         with:
@@ -101,13 +101,13 @@ jobs:
         with:
           name: sentry_isar
           file: ./isar/coverage/lcov.info
-          functionalities: "search" # remove after https://github.com/codecov/codecov-action/issues/600
+          functionalities: 'search' # remove after https://github.com/codecov/codecov-action/issues/600
           token: ${{ secrets.CODECOV_TOKEN }}
 
       - uses: VeryGoodOpenSource/very_good_coverage@c953fca3e24a915e111cc6f55f03f756dcb3964c # pin@v3.0.0
         if: runner.os == 'Linux' && matrix.sdk == 'stable' && matrix.target == 'linux'
         with:
-          path: "./isar/coverage/lcov.info"
+          path: './isar/coverage/lcov.info'
           min_coverage: 55
 
   analyze:

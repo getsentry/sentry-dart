@@ -7,15 +7,15 @@ on:
       - dart/**
       - flutter/**
       - metrics/**
-      - "!**/*.md"
+      - '!**/*.md'
     branches-ignore:
       - deps/**
       - dependabot/**
-    tags-ignore: ["**"]
+    tags-ignore: ['**']
 
 jobs:
   cancel-previous-workflow:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Cancel Previous Runs
         uses: styfle/cancel-workflow-action@85880fa0301c86cca9da44039ee3bb12d3bedbfa # pin@0.12.1
@@ -38,7 +38,7 @@ jobs:
           - platform: android
             name: Android
             appPlain: metrics/perf-test-app-plain/build/app/outputs/apk/release/app-arm64-v8a-release.apk
-            host: ubuntu-latest
+            host: ubuntu-24.04
 
     steps:
       - uses: actions/checkout@v4
@@ -60,8 +60,8 @@ jobs:
       - uses: actions/setup-java@v4
         if: ${{ matrix.platform == 'android' }}
         with:
-          java-version: "17"
-          distribution: "adopt"
+          java-version: '17'
+          distribution: 'adopt'
 
       - run: ./metrics/prepare.sh
 

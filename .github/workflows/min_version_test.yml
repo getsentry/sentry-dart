@@ -6,16 +6,16 @@ on:
       - release/**
   pull_request:
     paths:
-      - "!**/*.md"
-      - "!**/class-diagram.svg"
-      - ".github/workflows/min_version_test.yml"
-      - "dart/**"
-      - "flutter/**"
-      - "min_version_test/**"
+      - '!**/*.md'
+      - '!**/class-diagram.svg'
+      - '.github/workflows/min_version_test.yml'
+      - 'dart/**'
+      - 'flutter/**'
+      - 'min_version_test/**'
 
 jobs:
   cancel-previous-workflow:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Cancel Previous Runs
         uses: styfle/cancel-workflow-action@85880fa0301c86cca9da44039ee3bb12d3bedbfa # pin@0.12.1
@@ -23,7 +23,7 @@ jobs:
           access_token: ${{ github.token }}
 
   build-android:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
 
     steps:
@@ -31,12 +31,12 @@ jobs:
 
       - uses: actions/setup-java@v4
         with:
-          distribution: "adopt"
-          java-version: "11"
+          distribution: 'adopt'
+          java-version: '11'
 
       - uses: subosito/flutter-action@f2c4f6686ca8e8d6e6d0f28410eeef506ed66aff # pin@v2.18.0
         with:
-          flutter-version: "3.0.0"
+          flutter-version: '3.0.0'
 
       - name: Build Android
         run: |
@@ -53,7 +53,7 @@ jobs:
 
       - uses: subosito/flutter-action@f2c4f6686ca8e8d6e6d0f28410eeef506ed66aff # pin@v2.18.0
         with:
-          flutter-version: "3.0.0"
+          flutter-version: '3.0.0'
 
       - name: Build iOS
         run: |
@@ -62,7 +62,7 @@ jobs:
           flutter build ios --no-codesign
 
   build-web:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
 
     steps:
@@ -70,7 +70,7 @@ jobs:
 
       - uses: subosito/flutter-action@f2c4f6686ca8e8d6e6d0f28410eeef506ed66aff # pin@v2.18.0
         with:
-          flutter-version: "3.0.0"
+          flutter-version: '3.0.0'
 
       - name: Build web
         run: |

@@ -4,8 +4,8 @@ on:
 
 jobs:
   diagrams:
-    runs-on: ubuntu-latest
-    name: "Create class diagrams of all packages"
+    runs-on: ubuntu-24.04
+    name: 'Create class diagrams of all packages'
     steps:
       - uses: dart-lang/setup-dart@e630b99d28a3b71860378cafdc2a067c71107f94 # pin@v1
         with:
