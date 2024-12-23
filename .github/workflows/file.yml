@@ -26,13 +26,13 @@ jobs:
           access_token: ${{ github.token }}
 
   build:
-    name: '${{ matrix.target }} | ${{ matrix.sdk }}'
-    runs-on: ${{ matrix.target }}-latest
+    name: '${{ matrix.os }} | ${{ matrix.sdk }}'
+    runs-on: ${{ matrix.os }}-latest
     timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
-        target: [macos, linux, windows]
+        os: [macos, ubuntu, windows]
         sdk: [stable, beta]
 
     steps:
