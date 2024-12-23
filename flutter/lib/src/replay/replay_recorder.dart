@@ -1,0 +1,23 @@
+import 'dart:async';
+import 'dart:developer';
+
+import 'package:meta/meta.dart';
+
+import '../screenshot/recorder.dart';
+
+var _instanceCounter = 0;
+
+@internal
+class ReplayScreenshotRecorder extends ScreenshotRecorder {
+  ReplayScreenshotRecorder(super.config, super.options)
+      : super(
+            privacyOptions: options.experimental.privacyForReplay,
+            logName: 'ReplayRecorder #${++_instanceCounter}');
+
+  @override
+  @protected
+  Future<void> executeTask(void Function() task, Flow flow) {
+    // Future() schedules the task to be executed asynchronously with TImer.run.
+    return Future(task);
+  }
+}

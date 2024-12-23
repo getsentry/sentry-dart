@@ -2,7 +2,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:meta/meta.dart';
 
 @internal
-typedef SchedulerCallback = Future<void> Function(Duration);
+typedef SchedulerCallback = void Function(Duration);
 
 /// This is a low-priority scheduler.
 /// We're not using Timer.periodic() because it may schedule a callback
@@ -52,6 +52,7 @@ class Scheduler {
 
   void _run(Duration sinceSchedulerEpoch) {
     if (!_running) return;
-    _callback(sinceSchedulerEpoch).then((_) => _scheduleNext());
+    _callback(sinceSchedulerEpoch);
+    _scheduleNext();
   }
 }
