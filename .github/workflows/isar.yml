@@ -30,7 +30,6 @@ jobs:
       matrix:
         target: [macos, linux, windows, js, wasm]
         sdk: [stable, beta]
-        # Specify which platform to run on for each target:
         include:
           - target: android
             os: ubuntu

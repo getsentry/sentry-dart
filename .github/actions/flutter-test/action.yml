@@ -39,7 +39,9 @@ runs:
       run: |
         if ${{ (matrix.target == 'linux' && matrix.sdk == 'stable' && 'true') || 'false' }} ; then
           flutter test --coverage --test-randomize-ordering-seed=random
-          dart run remove_from_coverage -f coverage/lcov.info -r 'binding.dart'
+          if [[ '${{ inputs.directory }}' == 'flutter' ]] ; then
+            dart run remove_from_coverage -f coverage/lcov.info -r 'binding.dart'
+          fi
         else
           flutter test --test-randomize-ordering-seed=random
         fi
