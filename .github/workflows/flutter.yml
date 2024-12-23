@@ -87,8 +87,8 @@ jobs:
       - name: Test web
         if: matrix.target == 'js' || matrix.target == 'wasm'
         run: |
-          flutter test --platform chrome ${{ matrix.testArg }} --test-randomize-ordering-seed=random --exclude-tags canvasKit
-          flutter test --platform chrome ${{ matrix.testArg }} --test-randomize-ordering-seed=random --tags canvasKit
+          flutter test --platform chrome ${{ matrix.testArgs }} --test-randomize-ordering-seed=random --exclude-tags canvasKit
+          flutter test --platform chrome ${{ matrix.testArgs }} --test-randomize-ordering-seed=random --tags canvasKit
 
       - name: Test VM with coverage
         if: matrix.target == 'linux' || matrix.target == 'macos' || matrix.target == 'windows'
