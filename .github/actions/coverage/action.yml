@@ -21,24 +21,12 @@ runs:
   using: composite
 
   steps:
-    - name: Format coverage info
-      if: ${{ inputs.coverage != '' }}
-      run: dart pub run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.dart_tool/package_config.json --report-on=lib
-      shell: bash
-      working-directory: ${{ inputs.directory }}
-
-    - run: cat ${{ inputs.directory }}/coverage/lcov.info
-      shell: bash
-
     - uses: codecov/codecov-action@e28ff129e5465c2c0dcc6f003fc735cb6ae0c673 # pin@v3
       if: ${{ inputs.coverage != '' }}
       with:
         name: ${{ inputs.coverage != '' }}
         files: ./${{ inputs.directory }}/coverage/lcov.info
         token: ${{ inputs.token }}
-
-    - run: cat ${{ inputs.directory }}/coverage/lcov.info
-      shell: bash
 
     - uses: VeryGoodOpenSource/very_good_coverage@c953fca3e24a915e111cc6f55f03f756dcb3964c # pin@v3.0.0
       if: ${{ inputs.coverage != '' }}
