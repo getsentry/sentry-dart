@@ -29,6 +29,10 @@ class NativeMemory {
 
   /// Frees the underlying native memory.
   /// You must not use this object after freeing.
+  ///
+  /// Currently, we only need to do this in tests because there's no native
+  /// counterpart to free the memory.
+  @visibleForTesting
   void free() => pkg_ffi.malloc.free(pointer);
 
   Uint8List asTypedList() => pointer.asTypedList(length);
