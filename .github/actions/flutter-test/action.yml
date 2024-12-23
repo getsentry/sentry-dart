@@ -33,7 +33,7 @@ runs:
       working-directory: ${{ inputs.directory }}
 
     - name: Test VM
-      if: matrix.target != 'js' && matrix.target != 'wasm'
+      if: matrix.target == 'linux' || matrix.target == 'windows' || matrix.target == 'macos'
       working-directory: ${{ inputs.directory }}
       shell: bash
       run: |
