@@ -31,10 +31,6 @@ jobs:
         target: [macos, linux, windows]
         sdk: [stable, beta]
         include:
-          - target: android
-            os: ubuntu
-          - target: ios
-            os: macos
           - target: macos
             os: macos
           - target: linux
