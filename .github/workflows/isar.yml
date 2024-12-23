@@ -6,11 +6,11 @@ on:
       - release/**
   pull_request:
     paths:
-      - "!**/*.md"
-      - "!**/class-diagram.svg"
-      - ".github/workflows/isar.yml"
-      - "dart/**"
-      - "isar/**"
+      - '!**/*.md'
+      - '!**/class-diagram.svg'
+      - '.github/workflows/isar.yml'
+      - 'dart/**'
+      - 'isar/**'
 
 jobs:
   cancel-previous-workflow:
@@ -22,93 +22,45 @@ jobs:
           access_token: ${{ github.token }}
 
   build:
-    name: ${{ matrix.target }} | ${{ matrix.os }} | ${{ matrix.sdk }}
-    runs-on: ${{ matrix.os }}
+    name: '${{ matrix.target }} | ${{ matrix.os }} | ${{ matrix.sdk }}'
+    runs-on: ${{ matrix.os }}-latest
     timeout-minutes: 30
-    defaults:
-      run:
-        shell: bash
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        target: ["ios", "android", "macos", "linux", "windows"]
-        sdk: ["stable", "beta"]
-        exclude:
-          - os: ubuntu-latest
-            target: ios
-          - os: ubuntu-latest
-            target: macos
-          - os: ubuntu-latest
-            target: windows
-          - os: windows-latest
-            target: ios
-          - os: windows-latest
-            target: android
-          - os: windows-latest
-            target: macos
-          - os: windows-latest
-            target: linux
-          # macos-latest is taking hours due to limited resources
-          - os: macos-latest
-            target: android
-          - os: macos-latest
-            target: linux
-          - os: macos-latest
-            target: windows
-          # Bad CPU type in executable
-          - os: macos-latest
-            sdk: beta
-            # Exclude beta for windows for now until the flutter set up action does not fail anymore
-          - os: windows-latest
-            sdk: beta
+        target: [macos, linux, windows, js, wasm]
+        sdk: [stable, beta]
+        # Specify which platform to run on for each target:
+        include:
+          - target: android
+            os: ubuntu
+          - target: ios
+            os: macos
+          - target: macos
+            os: macos
+          - target: linux
+            os: ubuntu
+          - target: windows
+            os: windows
+          - target: js
+            os: ubuntu
+          - target: wasm
+            os: ubuntu
 
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-java@v4
-        if: ${{ matrix.target == 'android' }}
+      - uses: ./.github/actions/flutter-test
         with:
-          java-version: "11"
-          distribution: "adopt"
+          directory: isar
 
-      # Install required dependencies for Flutter on Linux on Ubuntu
-      - name: "Setup Linux"
-        run: |
-          sudo apt update
-          sudo apt install -y cmake dbus libblkid-dev libgtk-3-dev liblzma-dev ninja-build pkg-config xvfb
-          sudo apt install -y network-manager upower
-        if: matrix.os == 'ubuntu-latest' && matrix.target == 'linux'
-
-      - uses: subosito/flutter-action@f2c4f6686ca8e8d6e6d0f28410eeef506ed66aff # pin@v2.18.0
+      - uses: ./.github/actions/coverage
+        if: matrix.target == 'linux' && matrix.sdk == 'stable'
         with:
-          channel: ${{ matrix.sdk }}
-
-      - run: flutter upgrade
-
-      - name: Pub Get
-        run: |
-          cd isar
-          flutter pub get
-
-      - name: Test VM with coverage
-        run: |
-          cd isar
-          flutter test -j 1 --coverage --test-randomize-ordering-seed=random
-
-      - uses: codecov/codecov-action@7f8b4b4bde536c465e797be725718b88c5d95e0e # pin@v3
-        if: runner.os == 'Linux' && matrix.sdk == 'stable' && matrix.target == 'linux'
-        with:
-          name: sentry_isar
-          file: ./isar/coverage/lcov.info
-          functionalities: "search" # remove after https://github.com/codecov/codecov-action/issues/600
           token: ${{ secrets.CODECOV_TOKEN }}
-
-      - uses: VeryGoodOpenSource/very_good_coverage@c953fca3e24a915e111cc6f55f03f756dcb3964c # pin@v3.0.0
-        if: runner.os == 'Linux' && matrix.sdk == 'stable' && matrix.target == 'linux'
-        with:
-          path: "./isar/coverage/lcov.info"
-          min_coverage: 55
+          directory: isar
+          coverage: sentry_isar
+          min-coverage: 55
 
   analyze:
     uses: ./.github/workflows/analyze.yml

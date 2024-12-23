@@ -1,0 +1,43 @@
+name: Dart tests
+description: Run Dart tests
+inputs:
+  directory:
+    description: The directory to run tests in
+    required: false
+    default: ''
+  web:
+    description: Whether to run tests for web
+    required: false
+    default: 'true'
+
+runs:
+  using: composite
+
+  steps:
+    - uses: subosito/flutter-action@f2c4f6686ca8e8d6e6d0f28410eeef506ed66aff # pin@v2.18.0
+      with:
+        channel: ${{ matrix.sdk }}
+
+    # Install required dependencies for Flutter on Linux on Ubuntu
+    - name: "Setup Linux"
+      run: |
+        sudo apt update
+        sudo apt install -y cmake dbus libblkid-dev libgtk-3-dev liblzma-dev ninja-build pkg-config xvfb
+        sudo apt install -y network-manager upower
+      if: matrix.target == 'linux'
+
+    - run: flutter pub get
+      shell: bash
+      working-directory: ${{ inputs.directory }}
+
+    - name: Test VM
+      if: matrix.target != 'js' && matrix.target != 'wasm'
+      run: flutter test ${{ (matrix.target == 'linux' && matrix.sdk == 'stable' && '--coverage=coverage') || '' }} --test-randomize-ordering-seed=random
+      shell: bash
+      working-directory: ${{ inputs.directory }}
+
+    - name: Test web (${{ matrix.target }})
+      if: matrix.target == 'js' || matrix.target == 'wasm'
+      run: |
+        flutter test --platform chrome ${{ (matrix.target == 'wasm' && '--wasm') || '' }} --test-randomize-ordering-seed=random --exclude-tags canvasKit
+        flutter test --platform chrome ${{ (matrix.target == 'wasm' && '--wasm') || '' }} --test-randomize-ordering-seed=random --tags canvasKit

@@ -42,11 +42,7 @@ jobs:
         with:
           channel: ${{ matrix.sdk }}
 
-      - name: flutter upgrade
-        run: flutter upgrade
-
-      - name: flutter pub get
-        run: flutter pub get
+      - run: flutter pub get
 
       - name: Gradle cache
         uses: gradle/gradle-build-action@ac2d340dc04d9e1113182899e983b5400c17cda1 # pin@v3.5.0
@@ -104,11 +100,7 @@ jobs:
         with:
           channel: ${{ matrix.sdk }}
 
-      - name: flutter upgrade
-        run: flutter upgrade
-
-      - name: flutter pub get
-        run: flutter pub get
+      - run: flutter pub get
 
       - name: launch ios simulator
         run: |
