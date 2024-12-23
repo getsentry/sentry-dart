@@ -25,19 +25,15 @@ jobs:
           access_token: ${{ github.token }}
 
   build:
-    name: Build ${{matrix.sdk}} on ${{matrix.os}}
-    runs-on: ${{ matrix.os }}
+    name: '${{ matrix.target }} | ${{ matrix.sdk }}'
+    runs-on: ${{ matrix.target }}-latest
     timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        target: [macos, linux, windows]
         sdk: [stable, beta]
-        exclude:
-          - os: windows-latest
-            sdk: beta
-          - os: macos-latest
-            sdk: beta
+
     steps:
       - uses: actions/checkout@v4
 
