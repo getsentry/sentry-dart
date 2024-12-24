@@ -66,13 +66,19 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
     final List<dynamic> envelopeItems = [];
 
     for (final item in envelope.items) {
-      print('type: ${item.header.type}');
       final originalObject = item.originalObject;
       final payload = await originalObject?.getPayload();
-      final length =
-          payload != null ? utf8.encode(json.encode(payload)).length : 0;
-
-      envelopeItems.add([(await item.header.toJson(length)), payload]);
+      if (payload is Uint8List) {
+        final length = payload.length;
+        envelopeItems.add([
+          (await item.header.toJson(length)),
+          payload,
+        ]);
+      } else {
+        final length =
+            payload != null ? utf8.encode(json.encode(payload)).length : 0;
+        envelopeItems.add([(await item.header.toJson(length)), payload]);
+      }
 
       // // We use `sendEnvelope` where sessions are not managed in the JS SDK
       // // so we have to do it manually
@@ -91,6 +97,18 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
     final jsEnvelope = [envelope.header.toJson(), envelopeItems];
 
     _binding.captureEnvelope(jsEnvelope);
+  }
+
+  String uint8ListToHexString(Uint8List uint8list) {
+    var hex = "";
+    for (var i in uint8list) {
+      var x = i.toRadixString(16);
+      if (x.length == 1) {
+        x = "0$x";
+      }
+      hex += x;
+    }
+    return hex;
   }
 
   @override
