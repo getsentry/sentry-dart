@@ -1,6 +1,8 @@
 import 'dart:js_interop';
 import 'dart:js_interop_unsafe';
 
+import 'package:meta/meta.dart';
+
 import 'sentry_js_binding.dart';
 
 SentryJsBinding createJsBinding() {
@@ -10,40 +12,42 @@ SentryJsBinding createJsBinding() {
 class WebSentryJsBinding implements SentryJsBinding {
   @override
   void init(Map<String, dynamic> options) {
-    _SentryJsBridge.init(options.jsify());
+    SentryJsBridge.init(options.jsify());
   }
 
   @override
   void close() {
     final sentryProp = globalThis.getProperty('Sentry'.toJS);
     if (sentryProp != null) {
-      _SentryJsBridge.close();
+      SentryJsBridge.close();
       globalThis['Sentry'] = null;
     }
   }
 
   @override
   void captureEnvelope(List<Object> envelope) {
-    _SentryJsBridge.getClient().sendEnvelope(envelope.jsify());
+    SentryJsBridge.getClient().sendEnvelope(envelope.jsify());
   }
 
   @override
   void captureSession() {
-    _SentryJsBridge.captureSession();
+    SentryJsBridge.captureSession();
   }
 
   @override
   getSession() {
-    return _SentryJsBridge.getSession();
+    return SentryJsBridge.getSession();
   }
 }
 
 @JS('globalThis')
+@internal
 external JSObject get globalThis;
 
 @JS('Sentry')
 @staticInterop
-class _SentryJsBridge {
+@internal
+class SentryJsBridge {
   external static void init(JSAny? options);
 
   external static void close();
@@ -63,6 +67,7 @@ class _SentryJsBridge {
 
 @JS('Session')
 @staticInterop
+@internal
 class SentryJsSession {}
 
 extension SentryJsSessionExtension on SentryJsSession {
@@ -81,8 +86,11 @@ extension SentryScopeExtension on SentryJsScope {
 
 @JS('Client')
 @staticInterop
+@internal
 class SentryJsClient {}
 
 extension SentryJsClientExtension on SentryJsClient {
   external JSAny? sendEnvelope(JSAny? envelope);
+
+  external JSFunction on(JSString hook, JSFunction callback);
 }
