@@ -6,6 +6,12 @@
 
 - Replay: improve performance of screenshot data to native recorder ([#2530](https://github.com/getsentry/sentry-dart/pull/2530))
 
+### Dependencies
+
+- Bump Cocoa SDK from v8.42.0 to v8.42.1 ([#2537](https://github.com/getsentry/sentry-dart/pull/2537))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8421)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.42.0...8.42.1)
+
 ## 8.12.0
 
 ### Deprecations
