@@ -24,7 +24,6 @@ jobs:
       - name: flutter
         working-directory: ./flutter/example
         run: |
-          flutter upgrade
           flutter pub get
           flutter build ios --no-codesign --obfuscate --split-debug-info=.
 
