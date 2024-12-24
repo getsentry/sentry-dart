@@ -24,7 +24,6 @@ class WebSentryJsBinding implements SentryJsBinding {
 
   @override
   void captureEnvelope(List<Object> envelope) {
-    print('aa');
     _SentryJsBridge.getClient().sendEnvelope(envelope.jsify());
   }
 

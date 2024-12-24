@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:js_interop';
 import 'dart:typed_data';
 
 import '../../sentry_flutter.dart';
@@ -32,7 +33,7 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
         'attachStacktrace': _options.attachStacktrace,
         'maxBreadcrumbs': _options.maxBreadcrumbs,
         // using defaultIntegrations ensures that we can control which integrations are added
-        'defaultIntegrations': <String>[],
+        'defaultIntegrations': <dynamic>[],
       };
       _binding.init(jsOptions);
     });
@@ -58,7 +59,7 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
   @override
   FutureOr<void> captureEnvelope(
       Uint8List envelopeData, bool containsUnhandledException) {
-    // _binding.captureEnvelope(envelopeData);
+    _logNotSupported('capture envelope with raw data');
   }
 
   @override
@@ -80,18 +81,19 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
         envelopeItems.add([(await item.header.toJson(length)), payload]);
       }
 
-      // // We use `sendEnvelope` where sessions are not managed in the JS SDK
-      // // so we have to do it manually
-      // if (originalObject is SentryEvent &&
-      //     originalObject.exceptions?.isEmpty == false) {
-      //   final session = _binding.getSession();
-      //   if (envelope.containsUnhandledException) {
-      //     // todo fix this properly
-      //     session?.status = 'crashed'.toJS;
-      //   }
-      //   session?.errors = originalObject.exceptions?.length.toJS ?? 0.toJS;
-      //   _binding.captureSession();
-      // }
+      // We use `sendEnvelope` where sessions are not managed in the JS SDK
+      // so we have to do it manually
+      if (originalObject is SentryEvent &&
+          originalObject.exceptions?.isEmpty == false) {
+        final session = _binding.getSession();
+        if (session != null) {
+          if (envelope.containsUnhandledException) {
+            session.status = 'crashed'.toJS;
+          }
+          session.errors = originalObject.exceptions!.length.toJS;
+          _binding.captureSession();
+        }
+      }
     }
 
     final jsEnvelope = [envelope.header.toJson(), envelopeItems];

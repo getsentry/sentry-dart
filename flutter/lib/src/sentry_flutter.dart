@@ -173,6 +173,11 @@ mixin SentryFlutter {
     // This tracks Flutter application events, such as lifecycle events.
     integrations.add(WidgetsBindingIntegration());
 
+    // This is an Integration because we want to execute it after all the
+    // error handlers are in place. Calling a MethodChannel might result
+    // in errors.
+    integrations.add(LoadReleaseIntegration());
+
     // The ordering here matters, as we'd like to first start the native integration.
     // That allow us to send events to the network and then the Flutter integrations.
     final native = _native;
@@ -208,11 +213,6 @@ mixin SentryFlutter {
     integrations.add(SentryViewHierarchyIntegration());
 
     integrations.add(DebugPrintIntegration());
-
-    // This is an Integration because we want to execute it after all the
-    // error handlers are in place. Calling a MethodChannel might result
-    // in errors.
-    integrations.add(LoadReleaseIntegration());
 
     return integrations;
   }
