@@ -9,6 +9,7 @@ on:
       - "!**/*.md"
       - "!**/class-diagram.svg"
       - ".github/workflows/e2e_dart.yml"
+      - '.github/workflows/analyze.yml'
       - "dart/**"
       - "e2e_test/**"
 
