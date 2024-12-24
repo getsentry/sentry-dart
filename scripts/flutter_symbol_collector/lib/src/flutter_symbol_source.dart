@@ -129,7 +129,7 @@ class FlutterSymbolSource {
       } else {
         // Note: package:archive doesn't support extracting directly to an
         // IOSink. See https://github.com/brendan-duncan/archive/issues/12
-        final stream = OutputStream();
+        final stream = OutputMemoryStream();
         entry.writeContent(stream, freeMemory: true);
         stream.flush();
 
