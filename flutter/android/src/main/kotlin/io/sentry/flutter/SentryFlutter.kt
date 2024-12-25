@@ -165,6 +165,11 @@ class SentryFlutter(
   ) {
     options.sessionSampleRate = data["sessionSampleRate"] as? Double
     options.onErrorSampleRate = data["onErrorSampleRate"] as? Double
+
+    // Disable native tracking of orientation change (causes replay restart)
+    // because we don't have the new size from Flutter yet. Instead, we'll
+    // trigger onConfigurationChanged() manually in setReplayConfig().
+    options.setTrackOrientationChange(false)
   }
 }
 
