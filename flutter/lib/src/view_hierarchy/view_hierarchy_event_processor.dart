@@ -57,7 +57,7 @@ class SentryViewHierarchyEventProcessor implements EventProcessor {
       } else if (shouldDebounce) {
         _options.logger(
           SentryLevel.debug,
-          'Skipping view hierarchy capture due to debouncing (too many captures within ${_debouncer.waitTime}ms)',
+          'Skipping view hierarchy capture due to debouncing (too many captures within ${_debouncer.waitTime.inMilliseconds}ms)',
         );
         captureViewHierarchy = false;
       }
