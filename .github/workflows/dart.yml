@@ -9,6 +9,9 @@ on:
       - '!**/*.md'
       - '!**/class-diagram.svg'
       - '.github/workflows/dart.yml'
+      - '.github/workflows/analyze.yml'
+      - '.github/actions/dart-test/**'
+      - '.github/actions/coverage/**'
       - 'dart/**'
 
 jobs:
@@ -21,7 +24,7 @@ jobs:
           access_token: ${{ github.token }}
 
   build:
-    name: Dart ${{matrix.sdk}} on ${{matrix.os}}
+    name: '${{ matrix.os }} | ${{ matrix.sdk }}'
     runs-on: ${{ matrix.os }}-latest
     timeout-minutes: 30
     strategy:
@@ -36,6 +39,7 @@ jobs:
           - '3.2'
           - '3.3'
           - '3.4'
+          - '3.5'
           - stable
           - beta
         include:

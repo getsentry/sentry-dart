@@ -128,8 +128,9 @@ class ScreenshotEventProcessor implements EventProcessor {
   Future<Uint8List?> createScreenshot() =>
       _recorder.capture(_convertImageToUint8List);
 
-  Future<Uint8List?> _convertImageToUint8List(Image image) async {
-    final byteData = await image.toByteData(format: ImageByteFormat.png);
+  Future<Uint8List?> _convertImageToUint8List(Screenshot screenshot) async {
+    final byteData =
+        await screenshot.image.toByteData(format: ImageByteFormat.png);
 
     final bytes = byteData?.buffer.asUint8List();
     if (bytes?.isNotEmpty == true) {
