@@ -15,7 +15,7 @@ class SentryViewHierarchyEventProcessor implements EventProcessor {
     _debouncer = Debouncer(
       // ignore: invalid_use_of_internal_member
       _options.clock,
-      waitTimeMs: 2000,
+      waitTime: Duration(milliseconds: 2000),
     );
   }
 
@@ -57,7 +57,7 @@ class SentryViewHierarchyEventProcessor implements EventProcessor {
       } else if (shouldDebounce) {
         _options.logger(
           SentryLevel.debug,
-          'Skipping view hierarchy capture due to debouncing (too many captures within ${_debouncer.waitTimeMs}ms)',
+          'Skipping view hierarchy capture due to debouncing (too many captures within ${_debouncer.waitTime}ms)',
         );
         captureViewHierarchy = false;
       }
