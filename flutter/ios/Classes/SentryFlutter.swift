@@ -117,6 +117,13 @@ public final class SentryFlutter {
                 (replayOptions["sessionSampleRate"] as? NSNumber)?.floatValue ?? 0
             options.experimental.sessionReplay.onErrorSampleRate =
                 (replayOptions["onErrorSampleRate"] as? NSNumber)?.floatValue ?? 0
+
+            // TMP: this doesn't actually mask, just ensures we show the correct
+            // value in tags. https://github.com/getsentry/sentry-cocoa/issues/4666
+            options.experimental.sessionReplay.maskAllText =
+                (replayOptions["maskAllText"] as? Bool) ?? false
+            options.experimental.sessionReplay.maskAllImages =
+                (replayOptions["maskAllImages"] as? Bool) ?? false
         }
 #endif
     }
