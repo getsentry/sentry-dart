@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:meta/meta.dart';
-import 'type_check_hint.dart';
 
 import 'client_reports/client_report_recorder.dart';
 import 'client_reports/discard_reason.dart';
@@ -27,6 +26,7 @@ import 'transport/http_transport.dart';
 import 'transport/noop_transport.dart';
 import 'transport/rate_limiter.dart';
 import 'transport/spotlight_http_transport.dart';
+import 'type_check_hint.dart';
 import 'utils/isolate_utils.dart';
 import 'utils/regex_utils.dart';
 import 'utils/stacktrace_utils.dart';

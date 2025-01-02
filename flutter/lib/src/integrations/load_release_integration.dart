@@ -2,12 +2,11 @@ import 'dart:async';
 
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry/sentry.dart';
+
 import '../sentry_flutter_options.dart';
 
 /// An [Integration] that loads the release version from native apps
 class LoadReleaseIntegration extends Integration<SentryFlutterOptions> {
-  LoadReleaseIntegration();
-
   @override
   Future<void> call(Hub hub, SentryFlutterOptions options) async {
     try {

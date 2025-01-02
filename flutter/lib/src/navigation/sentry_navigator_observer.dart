@@ -5,16 +5,15 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
+// ignore: implementation_imports
+import 'package:sentry/src/sentry_tracer.dart';
+
+import '../../sentry_flutter.dart';
+import '../event_processor/flutter_enricher_event_processor.dart';
 import '../native/native_frames.dart';
 import '../native/sentry_native_binding.dart';
 import 'time_to_display_tracker.dart';
 import 'time_to_full_display_tracker.dart';
-
-import '../../sentry_flutter.dart';
-import '../event_processor/flutter_enricher_event_processor.dart';
-
-// ignore: implementation_imports
-import 'package:sentry/src/sentry_tracer.dart';
 
 /// This key must be used so that the web interface displays the events nicely
 /// See https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/

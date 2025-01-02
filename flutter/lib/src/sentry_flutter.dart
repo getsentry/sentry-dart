@@ -12,7 +12,6 @@ import 'event_processor/platform_exception_event_processor.dart';
 import 'event_processor/screenshot_event_processor.dart';
 import 'event_processor/url_filter/url_filter_event_processor.dart';
 import 'event_processor/widget_event_processor.dart';
-import 'file_system_transport.dart';
 import 'flutter_exception_type_identifier.dart';
 import 'frame_callback_handler.dart';
 import 'integrations/connectivity/connectivity_integration.dart';
@@ -20,16 +19,15 @@ import 'integrations/frames_tracking_integration.dart';
 import 'integrations/integrations.dart';
 import 'integrations/native_app_start_handler.dart';
 import 'integrations/screenshot_integration.dart';
-import 'integrations/web_sdk_integration.dart';
 import 'native/factory.dart';
 import 'native/native_scope_observer.dart';
 import 'native/sentry_native_binding.dart';
 import 'profiling.dart';
 import 'renderer/renderer.dart';
 import 'replay/integration.dart';
+import 'transport/file_system_transport.dart';
 import 'version.dart';
 import 'view_hierarchy/view_hierarchy_integration.dart';
-import 'web/script_loader/sentry_script_loader.dart';
 
 /// Configuration options callback
 typedef FlutterOptionsConfiguration = FutureOr<void> Function(
@@ -125,9 +123,16 @@ mixin SentryFlutter {
     // Not all platforms have a native integration.
     if (_native != null) {
       if (_native!.supportsCaptureEnvelope) {
-        options.transport = FileSystemTransport(_native!, options);
+        // Sentry's native web integration is only enabled when enableSentryJs=true.
+        // Transport configuration happens in web_integration because the configuration
+        // options aren't available until after the options callback executes.
+        if (!options.platformChecker.isWeb) {
+          options.transport = FileSystemTransport(_native!, options);
+        }
       }
-      options.addScopeObserver(NativeScopeObserver(_native!));
+      if (!options.platformChecker.isWeb) {
+        options.addScopeObserver(NativeScopeObserver(_native!));
+      }
     }
 
     options.addEventProcessor(FlutterEnricherEventProcessor(options));
@@ -168,24 +173,30 @@ mixin SentryFlutter {
     // This tracks Flutter application events, such as lifecycle events.
     integrations.add(WidgetsBindingIntegration());
 
+    // This is an Integration because we want to execute it after all the
+    // error handlers are in place. Calling a MethodChannel might result
+    // in errors.
+    integrations.add(LoadReleaseIntegration());
+
     // The ordering here matters, as we'd like to first start the native integration.
     // That allow us to send events to the network and then the Flutter integrations.
-    // Flutter Web doesn't need that, only Android and iOS.
     final native = _native;
     if (native != null) {
-      integrations.add(NativeSdkIntegration(native));
-      if (native.supportsLoadContexts) {
-        integrations.add(LoadContextsIntegration(native));
+      integrations.add(createSdkIntegration(native));
+      if (!platformChecker.isWeb) {
+        if (native.supportsLoadContexts) {
+          integrations.add(LoadContextsIntegration(native));
+        }
+        integrations.add(LoadImageListIntegration(native));
+        integrations.add(FramesTrackingIntegration(native));
+        integrations.add(
+          NativeAppStartIntegration(
+            DefaultFrameCallbackHandler(),
+            NativeAppStartHandler(native),
+          ),
+        );
+        integrations.add(ReplayIntegration(native));
       }
-      integrations.add(LoadImageListIntegration(native));
-      integrations.add(FramesTrackingIntegration(native));
-      integrations.add(
-        NativeAppStartIntegration(
-          DefaultFrameCallbackHandler(),
-          NativeAppStartHandler(native),
-        ),
-      );
-      integrations.add(ReplayIntegration(native));
       options.enableDartSymbolication = false;
     }
 
@@ -195,8 +206,6 @@ mixin SentryFlutter {
     }
 
     if (platformChecker.isWeb) {
-      final loader = SentryScriptLoader(options);
-      integrations.add(WebSdkIntegration(loader));
       integrations.add(ConnectivityIntegration());
     }
 
@@ -204,11 +213,6 @@ mixin SentryFlutter {
     integrations.add(SentryViewHierarchyIntegration());
 
     integrations.add(DebugPrintIntegration());
-
-    // This is an Integration because we want to execute it after all the
-    // error handlers are in place. Calling a MethodChannel might result
-    // in errors.
-    integrations.add(LoadReleaseIntegration());
 
     return integrations;
   }
