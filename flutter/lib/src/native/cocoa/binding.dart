@@ -29906,6 +29906,8 @@ class SentryCocoa {
   late final _sel_setSdkName_1 = _registerName1("setSdkName:");
   late final _sel_getSdkName1 = _registerName1("getSdkName");
   late final _sel_getSdkVersionString1 = _registerName1("getSdkVersionString");
+  late final _sel_addSdkPackage_version_1 =
+      _registerName1("addSdkPackage:version:");
   late final _sel_getExtraContext1 = _registerName1("getExtraContext");
   late final _class_SentryId2 = _getClass1("Sentry.SentryId");
   late final _sel_startProfilerForTrace_1 =
@@ -37624,7 +37626,8 @@ class ObjCBlock_bool_ObjCObject_ffiUnsignedLong_bool extends _ObjCBlockBase {
   ObjCBlock_bool_ObjCObject_ffiUnsignedLong_bool.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
-              ffi.NativeFunction<
+              ffi
+              .NativeFunction<
                   ffi.Bool Function(ffi.Pointer<ObjCObject> arg0,
                       ffi.UnsignedLong arg1, ffi.Pointer<ffi.Bool> arg2)>>
           ptr)
@@ -42068,15 +42071,17 @@ class ObjCBlock_bool_ObjCObject_bool extends _ObjCBlockBase {
                       ffi.Pointer<ffi.Bool> arg1)>>
           ptr)
       : this._(
-            lib._newBlock1(
-                _cFuncTrampoline ??= ffi.Pointer.fromFunction<
-                            ffi.Bool Function(
-                                ffi.Pointer<_ObjCBlock> block,
-                                ffi.Pointer<ObjCObject> arg0,
-                                ffi.Pointer<ffi.Bool> arg1)>(
-                        _ObjCBlock_bool_ObjCObject_bool_fnPtrTrampoline, false)
-                    .cast(),
-                ptr.cast()),
+            lib
+                ._newBlock1(
+                    _cFuncTrampoline ??= ffi.Pointer.fromFunction<
+                                ffi.Bool Function(
+                                    ffi.Pointer<_ObjCBlock> block,
+                                    ffi.Pointer<ObjCObject> arg0,
+                                    ffi.Pointer<ffi.Bool> arg1)>(
+                            _ObjCBlock_bool_ObjCObject_bool_fnPtrTrampoline,
+                            false)
+                        .cast(),
+                    ptr.cast()),
             lib);
   static ffi.Pointer<ffi.Void>? _cFuncTrampoline;
 
@@ -70743,6 +70748,16 @@ class PrivateSentrySDKOnly extends NSObject {
     final _ret = _lib._objc_msgSend_20(
         _lib._class_PrivateSentrySDKOnly1, _lib._sel_getSdkVersionString1);
     return NSString._(_ret, _lib, retain: true, release: true);
+  }
+
+  /// Add a package to the SDK packages
+  static void addSdkPackage_version_(
+      SentryCocoa _lib, NSString? name, NSString? version) {
+    _lib._objc_msgSend_515(
+        _lib._class_PrivateSentrySDKOnly1,
+        _lib._sel_addSdkPackage_version_1,
+        name?._id ?? ffi.nullptr,
+        version?._id ?? ffi.nullptr);
   }
 
   /// Retrieves extra context
