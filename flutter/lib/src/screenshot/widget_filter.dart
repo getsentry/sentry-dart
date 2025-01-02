@@ -178,7 +178,8 @@ class WidgetFilter {
     }());
 
     assert(color.isOpaque, 'Mask color must be opaque: $color');
-    return WidgetFilterItem(color, rect);
+    return WidgetFilterItem(
+        color, rect, widget is Text ? widget.data : null); // xxx
   }
 
   // We cut off some widgets early because they're not visible at all.
@@ -224,8 +225,9 @@ class WidgetFilter {
 class WidgetFilterItem {
   final Color color;
   final Rect bounds;
+  final String? text; // xxx
 
-  const WidgetFilterItem(this.color, this.bounds);
+  const WidgetFilterItem(this.color, this.bounds, [this.text]);
 }
 
 extension on Element {

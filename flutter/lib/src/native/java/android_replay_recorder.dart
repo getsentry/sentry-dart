@@ -33,6 +33,14 @@ class AndroidReplayRecorder extends ScheduledScreenshotRecorder {
         'addReplayScreenshot',
         {'path': filePath, 'timestamp': timestamp},
       );
+
+      // xxx
+      var filePath2 = "$_cacheDir-backup";
+      await options.fileSystem.directory(filePath2).create(recursive: true);
+      filePath2 += "/$timestamp.png";
+      await options.fileSystem
+          .file(filePath2)
+          .writeAsBytes(screenshot.data.buffer.asUint8List(), flush: true);
     } catch (error, stackTrace) {
       options.logger(
         SentryLevel.error,

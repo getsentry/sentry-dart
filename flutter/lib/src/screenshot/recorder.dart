@@ -232,6 +232,26 @@ class _Capture<R> {
           source.right * pixelRatio,
           source.bottom * pixelRatio);
       canvas.drawRect(scaled, paint);
+      // xxx
+      if (item.text != null) {
+        final textPainter = TextPainter(
+          text: TextSpan(
+              text: item.text,
+              style: TextStyle(
+                color: material.Colors.greenAccent,
+                fontSize: scaled.height / 2,
+              )),
+          textDirection: TextDirection.ltr,
+        );
+        textPainter.layout(
+          minWidth: 0,
+          maxWidth: scaled.width,
+        );
+        final xCenter = (scaled.width - textPainter.width) / 2;
+        final yCenter = (scaled.height - textPainter.height) / 2;
+        final textOffset = Offset(xCenter + scaled.left, yCenter + scaled.top);
+        textPainter.paint(canvas, textOffset);
+      }
     }
   }
 }

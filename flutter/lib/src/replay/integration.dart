@@ -31,7 +31,7 @@ class ReplayIntegration extends Integration<SentryFlutterOptions> {
           _native.setReplayConfig(ReplayConfig(
             width: status.size?.width ?? 0.0,
             height: status.size?.height ?? 0.0,
-            frameRate: 1,
+            frameRate: 5, // xxx
             bitRate: 75000, // TODO replay quality config
           ));
         }

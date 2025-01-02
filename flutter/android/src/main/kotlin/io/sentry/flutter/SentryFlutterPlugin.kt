@@ -63,7 +63,7 @@ class SentryFlutterPlugin :
       recordingHeight = VIDEO_BLOCK_SIZE,
       scaleFactorX = 1.0f,
       scaleFactorY = 1.0f,
-      frameRate = 1,
+      frameRate = 5, // xxx
       bitRate = 75000,
     )
 
