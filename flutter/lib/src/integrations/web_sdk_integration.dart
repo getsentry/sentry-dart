@@ -5,6 +5,7 @@ import 'package:sentry/sentry.dart';
 
 import '../native/sentry_native_binding.dart';
 import '../sentry_flutter_options.dart';
+import '../transport/javascript_transport.dart';
 import '../web/script_loader/sentry_script_loader.dart';
 import '../web/sentry_js_bundle.dart';
 
@@ -38,6 +39,10 @@ class WebSdkIntegration implements Integration<SentryFlutterOptions> {
           : productionScripts;
       await _scriptLoader.loadWebSdk(scripts);
       await _web.init(hub);
+
+      // todo: we can move this to sentry_flutter.dart once using the native web integration is the default
+      options.transport = JavascriptTransport(_web, options);
+
       options.sdk.addIntegration(name);
     } catch (exception, stackTrace) {
       options.logger(

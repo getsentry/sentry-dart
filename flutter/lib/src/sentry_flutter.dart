@@ -26,7 +26,6 @@ import 'profiling.dart';
 import 'renderer/renderer.dart';
 import 'replay/integration.dart';
 import 'transport/file_system_transport.dart';
-import 'transport/javascript_transport.dart';
 import 'version.dart';
 import 'view_hierarchy/view_hierarchy_integration.dart';
 
@@ -124,9 +123,10 @@ mixin SentryFlutter {
     // Not all platforms have a native integration.
     if (_native != null) {
       if (_native!.supportsCaptureEnvelope) {
-        if (options.platformChecker.isWeb) {
-          options.transport = JavascriptTransport(_native!, options);
-        } else {
+        // Sentry's native web integration is only enabled when enableSentryJs=true.
+        // Transport configuration happens in web_integration because the configuration
+        // options aren't available until after the options callback executes.
+        if (!options.platformChecker.isWeb) {
           options.transport = FileSystemTransport(_native!, options);
         }
       }
