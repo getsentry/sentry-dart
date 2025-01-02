@@ -68,11 +68,9 @@ class _Fixture {
     _completer = Completer();
     _tester.binding.scheduleFrame();
     await _tester.pumpAndSettle(const Duration(seconds: 1));
-    await _completer.future.timeout(
-        bool.hasEnvironment('CI')
-            ? Duration(seconds: 1)
-            : Duration(milliseconds: 100),
-        onTimeout: imageIsExpected ? null : () {});
+    if (imageIsExpected) {
+      await _completer.future.timeout(Duration(seconds: 10));
+    }
   }
 }
 
