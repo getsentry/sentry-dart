@@ -20,3 +20,5 @@ FutureOr<void> restoreFlutterOnErrorAfter(FutureOr<void> Function() fn) async {
     originalOnError?.call(details);
   };
 }
+
+const fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';

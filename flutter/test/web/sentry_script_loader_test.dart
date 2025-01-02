@@ -2,12 +2,16 @@
 library flutter_test;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sentry_flutter/src/web/script_loader/noop_script_dom_api.dart';
+import 'package:sentry_flutter/src/web/script_loader/script_dom_api.dart';
 import 'package:sentry_flutter/src/web/script_loader/sentry_script_loader.dart';
 import 'package:sentry_flutter/src/web/sentry_js_bundle.dart';
 
 import '../mocks.dart';
-import 'dom_api/script_dom_api.dart';
+import 'utils.dart';
+
+// Just some random/arbitrary script that we can use for injecting
+const randomWorkingScriptUrl =
+    'https://cdn.jsdelivr.net/npm/random-js@2.1.0/dist/random-js.umd.min.js';
 
 void main() {
   group('$SentryScriptLoader', () {
@@ -15,9 +19,7 @@ void main() {
 
     setUp(() {
       fixture = Fixture();
-    });
 
-    tearDown(() {
       final existingScripts = fetchAllScripts();
       for (final script in existingScripts) {
         script.remove();
@@ -100,12 +102,29 @@ void main() {
       final sut = fixture.getSut();
 
       // use loadScript since that disregards the isLoaded check
-      await loadScript('https://google.com', fixture.options);
+      await loadScript(randomWorkingScriptUrl, fixture.options);
 
       await sut.loadWebSdk(productionScripts);
       final scriptElements = fetchAllScripts();
       expect(scriptElements.first.src,
           endsWith('$jsSdkVersion/bundle.tracing.min.js'));
+    });
+
+    test('Closes and cleans up resources', () async {
+      final sut = fixture.getSut();
+
+      await loadScript(randomWorkingScriptUrl, fixture.options);
+
+      await sut.loadWebSdk(debugScripts);
+
+      final beforeCloseScripts = fetchAllScripts();
+      expect(beforeCloseScripts.length, 2);
+
+      await sut.close();
+
+      final afterCloseScripts = fetchAllScripts();
+      expect(afterCloseScripts.length,
+          beforeCloseScripts.length - debugScripts.length);
     });
   });
 }
@@ -114,6 +133,6 @@ class Fixture {
   final options = defaultTestOptions();
 
   SentryScriptLoader getSut() {
-    return SentryScriptLoader(options);
+    return SentryScriptLoader(options: options);
   }
 }

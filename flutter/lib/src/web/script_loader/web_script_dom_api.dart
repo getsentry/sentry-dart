@@ -6,6 +6,7 @@ import 'dart:js_interop_unsafe';
 import 'package:web/web.dart';
 
 import '../../../sentry_flutter.dart';
+import 'script_dom_api.dart';
 import 'sentry_script_loader.dart';
 
 Future<void> loadScript(String src, SentryOptions options,
@@ -52,4 +53,33 @@ Future<void> loadScript(String src, SentryOptions options,
     }
   }
   return completer.future;
+}
+
+class _ScriptElement implements SentryScriptElement {
+  final HTMLScriptElement element;
+
+  _ScriptElement(this.element);
+
+  @override
+  void remove() {
+    element.remove();
+  }
+
+  @override
+  String get src => element.src;
+
+  @override
+  String? get integrity => element.integrity;
+}
+
+List<SentryScriptElement> fetchScripts(String query) {
+  final scripts = document.querySelectorAll(query);
+
+  List<SentryScriptElement> elements = [];
+  for (int i = 0; i < scripts.length; i++) {
+    final node = scripts.item(i);
+    elements.add(_ScriptElement(node as HTMLScriptElement));
+  }
+
+  return elements;
 }
