@@ -60,9 +60,10 @@ class ScreenshotRecorder {
   /// To prevent accidental addition of await before that happens,
   ///
   /// THIS FUNCTION MUST NOT BE ASYNC.
-  Future<R> capture<R>(Future<R> Function(ScreenshotPng) callback) {
+  Future<R> capture<R>(Future<R> Function(ScreenshotPng) callback,
+      [Flow? flow]) {
     try {
-      final flow = Flow.begin();
+      flow ??= Flow.begin();
       Timeline.startSync('Sentry::captureScreenshot', flow: flow);
       final context = sentryScreenshotWidgetGlobalKey.currentContext;
       final renderObject =
@@ -213,7 +214,7 @@ class _Capture<R> {
           final imageData =
               await finalImage.toByteData(format: ImageByteFormat.png);
           final png = ScreenshotPng(finalImage.width, finalImage.height,
-              imageData!.buffer.asUint8List(), timestamp);
+              imageData!.buffer.asUint8List(), timestamp, flow);
           Timeline.finishSync(); // Sentry::screenshotToPng
 
           Timeline.startSync('Sentry::screenshotCallback', flow: flow);
@@ -310,8 +311,10 @@ class ScreenshotPng {
   final int height;
   final Uint8List data;
   final DateTime timestamp;
+  final Flow flow;
 
-  const ScreenshotPng(this.width, this.height, this.data, this.timestamp);
+  const ScreenshotPng(
+      this.width, this.height, this.data, this.timestamp, this.flow);
 
   bool hasSameImageAs(ScreenshotPng other) {
     if (other.width != width || other.height != height) {

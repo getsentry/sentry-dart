@@ -52,13 +52,24 @@ class ScreenshotRetrier<R> {
     final prevScreenshot = _previousScreenshot;
     _previousScreenshot = screenshot;
     if (prevScreenshot != null && prevScreenshot.hasSameImageAs(screenshot)) {
+      // Sucessfully captured a stable screenshot (repeated at least twice).
       _tries = 0;
-      await _callback(screenshot);
+      if (prevScreenshot.flow.id == screenshot.flow.id) {
+        // If it's from the same (retry) flow, use the first screenshot timestamp.
+        await _callback(prevScreenshot);
+      } else {
+        // Otherwise this was called from a scheduler (in a new flow) so use
+        // the new timestamp.
+        await _callback(screenshot);
+      }
     } else if (_tries > _options.screenshotRetries) {
       throw Exception('Failed to capture a stable screenshot. '
           'Giving up after $_tries tries.');
     } else {
-      ensureFrameAndAddCallback(capture);
+      ensureFrameAndAddCallback((Duration sinceSchedulerEpoch) {
+        _tries++;
+        _recorder.capture(_onImageCaptured, screenshot.flow);
+      });
     }
   }
 }
