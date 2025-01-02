@@ -85,6 +85,7 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
       // so we have to do it manually
       if (originalObject is SentryEvent &&
           originalObject.exceptions?.isEmpty == false) {
+        // todo: how to test this except manually checking?
         final session = _binding.getSession();
         if (session != null) {
           if (envelope.containsUnhandledException) {
