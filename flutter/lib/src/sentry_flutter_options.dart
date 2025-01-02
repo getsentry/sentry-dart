@@ -205,6 +205,10 @@ class SentryFlutterOptions extends SentryOptions {
   /// from the function, no screenshot will be attached.
   BeforeCaptureCallback? beforeCaptureScreenshot;
 
+  /// See [ScreenshotRetrier]
+  @meta.internal
+  int screenshotRetries = 5;
+
   /// Enable or disable automatic breadcrumbs for User interactions Using [Listener]
   ///
   /// Requires adding the [SentryUserInteractionWidget] to the widget tree.

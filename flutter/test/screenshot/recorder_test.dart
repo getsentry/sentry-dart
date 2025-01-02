@@ -142,8 +142,7 @@ class _Fixture {
     return fixture;
   }
 
-  Future<String?> capture() => sut.capture<String?>((Screenshot screenshot) {
-        final image = screenshot.image;
-        return Future.value("${image.width}x${image.height}");
+  Future<String?> capture() => sut.capture<String?>((screenshot) {
+        return Future.value("${screenshot.width}x${screenshot.height}");
       });
 }

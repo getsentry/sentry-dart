@@ -125,20 +125,6 @@ class ScreenshotEventProcessor implements EventProcessor {
   }
 
   @internal
-  Future<Uint8List?> createScreenshot() =>
-      _recorder.capture(_convertImageToUint8List);
-
-  Future<Uint8List?> _convertImageToUint8List(Screenshot screenshot) async {
-    final byteData =
-        await screenshot.image.toByteData(format: ImageByteFormat.png);
-
-    final bytes = byteData?.buffer.asUint8List();
-    if (bytes?.isNotEmpty == true) {
-      return bytes;
-    } else {
-      _options.logger(
-          SentryLevel.debug, 'Screenshot is 0 bytes, not attaching the image.');
-      return null;
-    }
-  }
+  Future<Uint8List?> createScreenshot() => _recorder
+      .capture((ScreenshotPng screenshot) => Future.value(screenshot.data));
 }

@@ -2,6 +2,7 @@ import 'package:meta/meta.dart';
 
 import '../../../sentry_flutter.dart';
 import '../../replay/scheduled_recorder.dart';
+import '../../screenshot/recorder.dart';
 import '../sentry_safe_method_channel.dart';
 
 @internal
