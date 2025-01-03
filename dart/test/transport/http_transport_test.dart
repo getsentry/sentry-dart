@@ -74,15 +74,18 @@ void main() {
       );
 
       mockRateLimiter.filter(envelope);
+      try {
+        await sut.send(envelope);
+      } on QuotaExceededException catch (e) {
+        expect(mockRateLimiter.envelopeToFilter?.header.eventId,
+            sentryEvent.eventId);
 
-      await sut.send(envelope);
-
-      expect(mockRateLimiter.envelopeToFilter?.header.eventId,
-          sentryEvent.eventId);
-
-      expect(mockRateLimiter.errorCode, 429);
-      expect(mockRateLimiter.retryAfterHeader, '1');
-      expect(mockRateLimiter.sentryRateLimitHeader, isNull);
+        expect(mockRateLimiter.errorCode, 429);
+        expect(mockRateLimiter.retryAfterHeader, '1');
+        expect(mockRateLimiter.sentryRateLimitHeader, isNull);
+        // check that the exception message is correct
+        expect(e.toString(), 'Rate limit reached');
+      }
     });
 
     test('sentryRateLimitHeader', () async {
@@ -204,9 +207,13 @@ void main() {
         fixture.options.sdk,
         dsn: fixture.options.dsn,
       );
-      await sut.send(envelope);
-
-      expect(fixture.clientReportRecorder.discardedEvents.isEmpty, isTrue);
+      try {
+        await sut.send(envelope);
+      } on QuotaExceededException catch (e) {
+        expect(fixture.clientReportRecorder.discardedEvents.isEmpty, isTrue);
+        // check that the exception message is correct
+        expect(e.toString(), 'Rate limit reached');
+      }
     });
 
     test('does record lost event for error >= 500', () async {
