@@ -78,7 +78,7 @@ void main() {
         expect(defaultIntegrations, isEmpty);
       });
 
-      testWidgets('sends the same envelope', (tester) async {
+      testWidgets('sends the correct envelope', (tester) async {
         SentryFlutterOptions? configuredOptions;
         SentryEvent? dartEvent;
 
