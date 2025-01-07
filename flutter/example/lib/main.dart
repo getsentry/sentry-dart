@@ -79,7 +79,7 @@ Future<void> setupSentry(
       // We can enable Sentry debug logging during development. This is likely
       // going to log too much for your app, but can be useful when figuring out
       // configuration issues, e.g. finding out why your events are not uploaded.
-      options.debug = true;
+      options.debug = kDebugMode;
       options.spotlight = Spotlight(enabled: true);
       options.enableTimeToFullDisplayTracing = true;
       options.enableMetrics = true;
