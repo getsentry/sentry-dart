@@ -3,12 +3,14 @@
 @TestOn('browser')
 library flutter_test;
 
+import 'dart:async';
 import 'dart:js_interop';
 import 'dart:js_interop_unsafe';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_flutter/src/web/javascript_transport.dart';
 import 'package:sentry_flutter_example/main.dart' as app;
 
 import 'utils.dart';
@@ -17,7 +19,33 @@ import 'utils.dart';
 external JSObject get globalThis;
 
 @JS('Sentry.getClient')
-external JSObject? _getClient();
+external SentryClient? _getClient();
+
+@JS()
+@staticInterop
+class SentryClient {
+  external factory SentryClient();
+}
+
+extension _SentryClientExtension on SentryClient {
+  external void on(JSString event, JSFunction callback);
+
+  external JSObject getOptions();
+}
+
+class MockTransport implements Transport {
+  MockTransport(this.innerTransport);
+
+  Transport innerTransport;
+  SentryEnvelope? envelope;
+
+  @override
+  Future<SentryId?> send(SentryEnvelope envelope) {
+    this.envelope = envelope;
+
+    return innerTransport.send(envelope);
+  }
+}
 
 void main() {
   group('Web SDK Integration', () {
@@ -37,15 +65,68 @@ void main() {
         expect(globalThis['Sentry'], isNotNull);
 
         final client = _getClient()!;
-        final options = client.callMethod('getOptions'.toJS)! as JSObject;
+        final options = client.getOptions();
 
         final dsn = options.getProperty('dsn'.toJS).toString();
         final defaultIntegrations = options
             .getProperty('defaultIntegrations'.toJS)
             .dartify() as List<Object?>;
 
+        await Sentry.captureException(Exception('test'));
+
         expect(dsn, fakeDsn);
         expect(defaultIntegrations, isEmpty);
+      });
+
+      testWidgets('sends the same envelope', (tester) async {
+        SentryFlutterOptions? configuredOptions;
+        SentryEvent? dartEvent;
+
+        await restoreFlutterOnErrorAfter(() async {
+          await SentryFlutter.init((options) {
+            options.enableSentryJs = true;
+            options.dsn = app.exampleDsn;
+            options.beforeSend = (event, hint) {
+              dartEvent = event;
+              return event;
+            };
+            configuredOptions = options;
+          }, appRunner: () async {
+            await tester.pumpWidget(const app.MyApp());
+          });
+        });
+
+        expect(configuredOptions!.transport, isA<JavascriptTransport>());
+
+        final client = _getClient()!;
+        final completer = Completer<List<Object?>>();
+
+        JSFunction beforeEnvelopeCallback = ((JSArray envelope) {
+          final envelopDart = envelope.dartify() as List<Object?>;
+          completer.complete(envelopDart);
+        }).toJS;
+
+        client.on('beforeEnvelope'.toJS, beforeEnvelopeCallback);
+
+        final id = await Sentry.captureException(Exception('test'));
+
+        final envelope = await completer.future;
+
+        final header = envelope.first as Map<Object?, Object?>;
+        expect(header['event_id'], id.toString());
+        expect((header['sdk'] as Map<Object?, Object?>)['name'],
+            'sentry.dart.flutter');
+
+        final item = (envelope[1] as List<Object?>).first as List<Object?>;
+        final itemPayload = item[1] as Map<Object?, Object?>;
+        final jsEventJson = (itemPayload).map((key, value) {
+          return MapEntry(key.toString(), value as dynamic);
+        });
+        final dartEventJson = dartEvent!.toJson();
+
+        // Make sure what we send from the Flutter layer is the same as what's being
+        // sent in the JS layer
+        expect(jsEventJson, equals(dartEventJson));
       });
     });
 
