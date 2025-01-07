@@ -8,17 +8,27 @@ SentryJsBinding createJsBinding() {
 }
 
 class WebSentryJsBinding implements SentryJsBinding {
+  SentryJsClient? _client;
+
   @override
   void init(Map<String, dynamic> options) {
     _init(options.jsify());
+    _client = SentryJsClient();
   }
 
   @override
   void close() {
-    final sentryProp = globalThis.getProperty('Sentry'.toJS);
+    final sentryProp = _globalThis.getProperty('Sentry'.toJS);
     if (sentryProp != null) {
       _close();
-      globalThis['Sentry'] = null;
+      _globalThis['Sentry'] = null;
+    }
+  }
+
+  @override
+  void captureEnvelope(List<Object> envelope) {
+    if (_client != null) {
+      _client?.sendEnvelope(envelope.jsify());
     }
   }
 }
@@ -26,8 +36,18 @@ class WebSentryJsBinding implements SentryJsBinding {
 @JS('Sentry.init')
 external void _init(JSAny? options);
 
+@JS('Sentry.getClient')
+@staticInterop
+class SentryJsClient {
+  external factory SentryJsClient();
+}
+
 @JS('Sentry.close')
 external void _close();
 
 @JS('globalThis')
-external JSObject get globalThis;
+external JSObject get _globalThis;
+
+extension _SentryJsClientExtension on SentryJsClient {
+  external void sendEnvelope(JSAny? envelope);
+}

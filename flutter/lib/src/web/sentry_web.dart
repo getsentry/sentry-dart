@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:typed_data';
 
 import '../../sentry_flutter.dart';
@@ -58,6 +59,31 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
   FutureOr<void> captureEnvelope(
       Uint8List envelopeData, bool containsUnhandledException) {
     _logNotSupported('capture envelope');
+  }
+
+  @override
+  FutureOr<void> captureEnvelopeObject(SentryEnvelope envelope) async {
+    final List<dynamic> envelopeItems = [];
+
+    for (final item in envelope.items) {
+      final originalObject = item.originalObject;
+      final payload = await originalObject?.getPayload();
+      if (payload is Uint8List) {
+        final length = payload.length;
+        envelopeItems.add([
+          (await item.header.toJson(length)),
+          payload,
+        ]);
+      } else {
+        final length =
+            payload != null ? utf8.encode(json.encode(payload)).length : 0;
+        envelopeItems.add([(await item.header.toJson(length)), payload]);
+      }
+    }
+
+    final jsEnvelope = [envelope.header.toJson(), envelopeItems];
+
+    _binding.captureEnvelope(jsEnvelope);
   }
 
   @override
@@ -175,7 +201,7 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
   }
 
   @override
-  bool get supportsCaptureEnvelope => false;
+  bool get supportsCaptureEnvelope => true;
 
   @override
   bool get supportsLoadContexts => false;

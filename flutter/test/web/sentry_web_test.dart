@@ -80,9 +80,19 @@ void main() {
       });
 
       test('native features are not supported', () {
-        expect(sut.supportsCaptureEnvelope, isFalse);
         expect(sut.supportsLoadContexts, isFalse);
         expect(sut.supportsReplay, isFalse);
+      });
+
+      test('capturing envelope is supported', () {
+        expect(sut.supportsCaptureEnvelope, isTrue);
+      });
+
+      test('can send envelope without throwing', () async {
+        await sut.init(hub);
+
+        await sut.captureEnvelopeObject(SentryEnvelope.fromEvent(
+            SentryEvent(), SdkVersion(name: 'test', version: '0')));
       });
     });
 

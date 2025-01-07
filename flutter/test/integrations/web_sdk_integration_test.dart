@@ -3,7 +3,9 @@ library flutter_test;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
+import 'package:sentry/src/transport/noop_transport.dart';
 import 'package:sentry_flutter/src/integrations/web_sdk_integration.dart';
+import 'package:sentry_flutter/src/web/javascript_transport.dart';
 import 'package:sentry_flutter/src/web/script_loader/sentry_script_loader.dart';
 
 import '../mocks.dart';
@@ -20,6 +22,7 @@ void main() {
 
       when(fixture.web.init(any)).thenReturn(null);
       when(fixture.web.close()).thenReturn(null);
+      when(fixture.web.supportsCaptureEnvelope).thenReturn(true);
     });
 
     group('enabled', () {
@@ -77,8 +80,56 @@ void main() {
             expect(fixture.scriptLoader.loadScriptsCalls, 0);
             verifyNever(fixture.web.init(fixture.hub));
           });
+
+          test('does not use javascript transport', () async {
+            expect(fixture.options.transport, isA<NoOpTransport>());
+
+            await sut.call(fixture.hub, fixture.options);
+
+            expect(fixture.options.transport, isA<NoOpTransport>());
+          });
         });
       }
+    });
+
+    group('transport configuration', () {
+      test('integration disabled: does not use javascript transport', () async {
+        fixture.options.enableSentryJs = false;
+        fixture.options.autoInitializeNativeSdk = false;
+
+        expect(fixture.options.transport, isA<NoOpTransport>());
+
+        await sut.call(fixture.hub, fixture.options);
+
+        expect(fixture.options.transport, isA<NoOpTransport>());
+      });
+
+      test(
+          'integration enabled and supportsCaptureEnvelope is false: does not use javascript transport',
+          () async {
+        fixture.options.enableSentryJs = true;
+        fixture.options.autoInitializeNativeSdk = true;
+        when(fixture.web.supportsCaptureEnvelope).thenReturn(false);
+
+        expect(fixture.options.transport, isA<NoOpTransport>());
+
+        await sut.call(fixture.hub, fixture.options);
+
+        expect(fixture.options.transport, isA<NoOpTransport>());
+      });
+
+      test(
+          'integration enabled and supportsCaptureEnvelope is true: uses javascript transport',
+          () async {
+        fixture.options.enableSentryJs = true;
+        fixture.options.autoInitializeNativeSdk = true;
+
+        expect(fixture.options.transport, isA<NoOpTransport>());
+
+        await sut.call(fixture.hub, fixture.options);
+
+        expect(fixture.options.transport, isA<JavascriptTransport>());
+      });
     });
 
     test('closes resources', () async {

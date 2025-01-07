@@ -21,7 +21,6 @@ import 'integrations/integrations.dart';
 import 'integrations/native_app_start_handler.dart';
 import 'integrations/screenshot_integration.dart';
 import 'native/factory.dart';
-import 'native/native_scope_observer.dart';
 import 'native/sentry_native_binding.dart';
 import 'profiling.dart';
 import 'renderer/renderer.dart';
@@ -123,10 +122,12 @@ mixin SentryFlutter {
     // Not all platforms have a native integration.
     if (_native != null) {
       if (_native!.supportsCaptureEnvelope) {
-        options.transport = FileSystemTransport(_native!, options);
-      }
-      if (!options.platformChecker.isWeb) {
-        options.addScopeObserver(NativeScopeObserver(_native!));
+        // Sentry's native web integration is only enabled when enableSentryJs=true.
+        // Transport configuration happens in web_integration because the configuration
+        // options aren't available until after the options callback executes.
+        if (!options.platformChecker.isWeb) {
+          options.transport = FileSystemTransport(_native!, options);
+        }
       }
     }
 
