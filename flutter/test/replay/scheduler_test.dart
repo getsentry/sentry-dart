@@ -67,7 +67,7 @@ void main() {
     await fixture.drawFrame();
     await fixture.drawFrame();
     expect(fixture.calls, 1);
-    
+
     guard.complete();
     await fixture.drawFrame();
     expect(fixture.calls, 2);
