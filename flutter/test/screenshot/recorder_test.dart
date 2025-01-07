@@ -23,55 +23,68 @@ void main() async {
   // The `device screen resolution = logical resolution * devicePixelRatio`
 
   testWidgets('captures full resolution images - portrait', (tester) async {
-    await tester.binding.setSurfaceSize(Size(2000, 4000));
-    final fixture = await _Fixture.create(tester);
+    await tester.runAsync(() async {
+      await tester.binding.setSurfaceSize(Size(20, 40));
+      final fixture = await _Fixture.create(tester);
 
-    //devicePixelRatio is 3.0 therefore the resolution multiplied by 3
-    expect(await fixture.capture(), '6000x12000');
+      //devicePixelRatio is 3.0 therefore the resolution multiplied by 3
+      expect(await fixture.capture(), '60x120');
+    });
   });
 
   testWidgets('captures full resolution images - landscape', (tester) async {
-    await tester.binding.setSurfaceSize(Size(4000, 2000));
-    final fixture = await _Fixture.create(tester);
+    await tester.runAsync(() async {
+      await tester.binding.setSurfaceSize(Size(40, 20));
+      final fixture = await _Fixture.create(tester);
 
-    //devicePixelRatio is 3.0 therefore the resolution multiplied by 3
-    expect(await fixture.capture(), '12000x6000');
+      //devicePixelRatio is 3.0 therefore the resolution multiplied by 3
+      expect(await fixture.capture(), '120x60');
+    });
   });
 
   testWidgets('captures high resolution images - portrait', (tester) async {
-    await tester.binding.setSurfaceSize(Size(2000, 4000));
-    final targetResolution = SentryScreenshotQuality.high.targetResolution();
-    final fixture = await _Fixture.create(tester,
-        width: targetResolution, height: targetResolution);
+    await tester.runAsync(() async {
+      await tester.binding.setSurfaceSize(Size(20, 40));
+      final targetResolution = SentryScreenshotQuality.high.targetResolution();
+      final fixture = await _Fixture.create(tester,
+          width: targetResolution, height: targetResolution);
 
-    expect(await fixture.capture(), '960x1920');
+      expect(await fixture.capture(), '960x1920');
+    });
   });
 
   testWidgets('captures high resolution images - landscape', (tester) async {
-    await tester.binding.setSurfaceSize(Size(4000, 2000));
-    final targetResolution = SentryScreenshotQuality.high.targetResolution();
-    final fixture = await _Fixture.create(tester,
-        width: targetResolution, height: targetResolution);
+    await tester.runAsync(() async {
+      await tester.binding.setSurfaceSize(Size(40, 20));
+      final targetResolution = SentryScreenshotQuality.high.targetResolution();
+      final fixture = await _Fixture.create(tester,
+          width: targetResolution, height: targetResolution);
 
-    expect(await fixture.capture(), '1920x960');
+      expect(await fixture.capture(), '1920x960');
+    });
   });
 
   testWidgets('captures medium resolution images', (tester) async {
-    await tester.binding.setSurfaceSize(Size(2000, 4000));
-    final targetResolution = SentryScreenshotQuality.medium.targetResolution();
-    final fixture = await _Fixture.create(tester,
-        width: targetResolution, height: targetResolution);
+    await tester.runAsync(() async {
+      await tester.binding.setSurfaceSize(Size(20, 40));
+      final targetResolution =
+          SentryScreenshotQuality.medium.targetResolution();
+      final fixture = await _Fixture.create(tester,
+          width: targetResolution, height: targetResolution);
 
-    expect(await fixture.capture(), '640x1280');
+      expect(await fixture.capture(), '640x1280');
+    });
   });
 
   testWidgets('captures low resolution images', (tester) async {
-    await tester.binding.setSurfaceSize(Size(2000, 4000));
-    final targetResolution = SentryScreenshotQuality.low.targetResolution();
-    final fixture = await _Fixture.create(tester,
-        width: targetResolution, height: targetResolution);
+    await tester.runAsync(() async {
+      await tester.binding.setSurfaceSize(Size(20, 40));
+      final targetResolution = SentryScreenshotQuality.low.targetResolution();
+      final fixture = await _Fixture.create(tester,
+          width: targetResolution, height: targetResolution);
 
-    expect(await fixture.capture(), '427x854');
+      expect(await fixture.capture(), '427x854');
+    });
   });
 
   testWidgets('propagates errors in test-mode', (tester) async {

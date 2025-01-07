@@ -66,10 +66,17 @@ class ScreenshotRetrier<R> {
       throw Exception('Failed to capture a stable screenshot. '
           'Giving up after $_tries tries.');
     } else {
-      ensureFrameAndAddCallback((Duration sinceSchedulerEpoch) {
+      final completer = Completer<void>();
+      ensureFrameAndAddCallback((Duration sinceSchedulerEpoch) async {
         _tries++;
-        _recorder.capture(_onImageCaptured, screenshot.flow);
+        try {
+          await _recorder.capture(_onImageCaptured, screenshot.flow);
+          completer.complete();
+        } catch (e, stackTrace) {
+          completer.completeError(e, stackTrace);
+        }
       });
+      return completer.future;
     }
   }
 }

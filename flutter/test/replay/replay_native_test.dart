@@ -18,6 +18,7 @@ import 'package:sentry_flutter/src/native/sentry_native_binding.dart';
 import '../mocks.dart';
 import '../mocks.mocks.dart';
 import '../screenshot/test_widget.dart';
+import 'replay_test_util.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -80,6 +81,7 @@ void main() {
 
         testWidgets('sets replayID to context', (tester) async {
           await tester.runAsync(() async {
+            await pumpTestElement(tester);
             // verify there was no scope configured before
             verifyNever(hub.configureScope(any));
             when(hub.configureScope(captureAny)).thenReturn(null);
@@ -90,8 +92,8 @@ void main() {
                     ? 'ReplayRecorder.start'
                     : 'captureReplayScreenshot',
                 replayConfig);
-            await tester.pumpAndSettle(const Duration(seconds: 1));
-            await future;
+            tester.binding.scheduleFrame();
+            await tester.pumpAndWaitUntil(future);
 
             // verify the replay ID was set
             final closure =
@@ -126,20 +128,12 @@ void main() {
             when(hub.configureScope(captureAny)).thenReturn(null);
 
             await pumpTestElement(tester);
-            pumpAndSettle() => tester.pumpAndSettle(const Duration(seconds: 1));
-
             if (mockPlatform.isAndroid) {
               var callbackFinished = Completer<void>();
 
               nextFrame({bool wait = true}) async {
                 final future = callbackFinished.future;
-                await pumpAndSettle();
-                await future.timeout(Duration(milliseconds: wait ? 1000 : 100),
-                    onTimeout: () {
-                  if (wait) {
-                    fail('native callback not called');
-                  }
-                });
+                await tester.pumpAndWaitUntil(future, requiredToComplete: wait);
               }
 
               imageSizeBytes(File file) => file.readAsBytesSync().length;
@@ -210,8 +204,8 @@ void main() {
               Future<void> captureAndVerify() async {
                 final future = native.invokeFromNative(
                     'captureReplayScreenshot', replayConfig);
-                await pumpAndSettle();
-                final json = (await future) as Map<dynamic, dynamic>;
+                final json = (await tester.pumpAndWaitUntil(future))
+                    as Map<dynamic, dynamic>;
 
                 expect(json['length'], greaterThan(3000));
                 expect(json['address'], greaterThan(0));

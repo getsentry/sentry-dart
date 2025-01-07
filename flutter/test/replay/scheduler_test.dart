@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/src/replay/scheduler.dart';
@@ -51,6 +53,25 @@ void main() {
     await fixture.drawFrame();
     expect(fixture.calls, 2);
   });
+
+  test('does not trigger until previous call finished', () async {
+    final guard = Completer<void>();
+    var fixture = _Fixture((_) async => guard.future);
+
+    fixture.sut.start();
+
+    expect(fixture.calls, 0);
+    await fixture.drawFrame();
+    expect(fixture.calls, 1);
+    await fixture.drawFrame();
+    await fixture.drawFrame();
+    await fixture.drawFrame();
+    expect(fixture.calls, 1);
+    
+    guard.complete();
+    await fixture.drawFrame();
+    expect(fixture.calls, 2);
+  });
 }
 
 class _Fixture {
@@ -59,10 +80,13 @@ class _Fixture {
   FrameCallback? registeredCallback;
   var _frames = 0;
 
-  _Fixture() {
+  _Fixture([SchedulerCallback? callback]) {
     sut = Scheduler(
       const Duration(milliseconds: 1),
-      (_) async => calls++,
+      (timestamp) async {
+        calls++;
+        await callback?.call(timestamp);
+      },
       _addPostFrameCallbackMock,
     );
   }

@@ -112,7 +112,7 @@ class ScreenshotRecorder {
   }
 
   @protected
-  Future<void> executeTask(void Function() task, Flow flow) {
+  Future<void> executeTask(Future<void> Function() task, Flow flow) {
     // Future.sync() starts executing the function synchronously, until the
     // first await, i.e. it's the same as if the code was executed directly.
     return Future.sync(task);
@@ -180,7 +180,7 @@ class _Capture<R> {
   /// - call the callback
   ///
   /// See [task] which is what gets completed with the callback result.
-  void Function() createTask(
+  Future<void> Function() createTask(
     Future<Image> futureImage,
     Future<R> Function(ScreenshotPng) callback,
     List<WidgetFilterItem>? obscureItems,
