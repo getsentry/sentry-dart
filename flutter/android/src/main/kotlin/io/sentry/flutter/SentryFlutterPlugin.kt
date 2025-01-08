@@ -201,7 +201,7 @@ class SentryFlutterPlugin :
             val payload = (optionsEvent as RRWebOptionsEvent).optionsPayload
 
             // Remove defaults set by the native SDK.
-            payload.filterKeys { it -> it.contains("mask") }.forEach { (k, _) -> payload.remove(k) }
+            payload.filterKeys { it.contains("mask") }.forEach { (k, _) -> payload.remove(k) }
 
             // Now, set the Flutter-specific values.
             // TODO do this in a followup PR
