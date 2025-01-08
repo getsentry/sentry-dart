@@ -196,18 +196,19 @@ class SentryFlutterPlugin :
         options.addIntegration(replay)
         options.setReplayController(replay)
 
-        options.beforeSendReplay = SentryOptions.BeforeSendReplayCallback { event, hint ->
-          hint.replayRecording?.payload?.firstOrNull { it is RRWebOptionsEvent }?.let { optionsEvent ->
-            val payload = (optionsEvent as RRWebOptionsEvent).optionsPayload
+        options.beforeSendReplay =
+          SentryOptions.BeforeSendReplayCallback { event, hint ->
+            hint.replayRecording?.payload?.firstOrNull { it is RRWebOptionsEvent }?.let { optionsEvent ->
+              val payload = (optionsEvent as RRWebOptionsEvent).optionsPayload
 
-            // Remove defaults set by the native SDK.
-            payload.filterKeys { it.contains("mask") }.forEach { (k, _) -> payload.remove(k) }
+              // Remove defaults set by the native SDK.
+              payload.filterKeys { it.contains("mask") }.forEach { (k, _) -> payload.remove(k) }
 
-            // Now, set the Flutter-specific values.
-            // TODO do this in a followup PR
+              // Now, set the Flutter-specific values.
+              // TODO do this in a followup PR
+            }
+            event
           }
-          event
-        }
       } else {
         options.setReplayController(null)
       }
