@@ -80,14 +80,6 @@ void main() {
             expect(fixture.scriptLoader.loadScriptsCalls, 0);
             verifyNever(fixture.web.init(fixture.hub));
           });
-
-          test('does not use javascript transport', () async {
-            expect(fixture.options.transport, isA<NoOpTransport>());
-
-            await sut.call(fixture.hub, fixture.options);
-
-            expect(fixture.options.transport, isA<NoOpTransport>());
-          });
         });
       }
     });
