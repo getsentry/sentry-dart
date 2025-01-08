@@ -123,7 +123,7 @@ class SentryAttachment implements SentryEnvelopeItemPayload {
   final bool addToTransactions;
 
   @override
-  Future<dynamic> getPayload() async {
+  Future<dynamic> get payload async {
     return await bytes;
   }
 }

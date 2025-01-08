@@ -420,7 +420,5 @@ class SentryEvent
       threads?.firstWhereOrNull((t) => t.stacktrace != null)?.stacktrace;
 
   @override
-  Future<dynamic> getPayload() {
-    return Future.value(toJson());
-  }
+  Future<dynamic> get payload => Future.value(toJson());
 }

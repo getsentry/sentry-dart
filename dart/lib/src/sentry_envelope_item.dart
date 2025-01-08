@@ -11,7 +11,7 @@ import 'sentry_user_feedback.dart';
 import 'utils.dart';
 
 abstract class SentryEnvelopeItemPayload {
-  Future<dynamic> getPayload();
+  Future<dynamic> get payload;
 }
 
 /// Item holding header information and JSON encoded data.

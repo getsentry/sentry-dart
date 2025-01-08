@@ -29,7 +29,5 @@ class ClientReport implements SentryEnvelopeItemPayload {
   }
 
   @override
-  Future getPayload() {
-    return Future.value(toJson());
-  }
+  Future<dynamic> get payload => Future.value(toJson());
 }
