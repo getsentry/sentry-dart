@@ -35,7 +35,6 @@ class FlutterEnricherEventProcessor implements EventProcessor {
     SentryEvent event,
     Hint hint,
   ) async {
-    print('transport used: ${_options.transport}');
     // If there's a native integration available, it probably has better
     // information available than Flutter.
     // TODO: while we have a native integration with JS SDK, it's currently opt in and we dont gather contexts yet

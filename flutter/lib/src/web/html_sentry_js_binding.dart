@@ -16,7 +16,7 @@ class HtmlSentryJsBinding implements SentryJsBinding {
   void init(Map<String, dynamic> options) {
     _sentry ??= context['Sentry'] as JsObject;
     _sentry!.callMethod('init', [JsObject.jsify(options)]);
-    _client = _sentry?.callMethod('getClient');
+    _client = _sentry!.callMethod('getClient');
   }
 
   @override

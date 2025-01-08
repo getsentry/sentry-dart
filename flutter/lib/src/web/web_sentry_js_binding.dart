@@ -36,18 +36,18 @@ class WebSentryJsBinding implements SentryJsBinding {
 @JS('Sentry.init')
 external void _init(JSAny? options);
 
+@JS('Sentry.close')
+external void _close();
+
 @JS('Sentry.getClient')
 @staticInterop
 class SentryJsClient {
   external factory SentryJsClient();
 }
 
-@JS('Sentry.close')
-external void _close();
-
-@JS('globalThis')
-external JSObject get _globalThis;
-
 extension _SentryJsClientExtension on SentryJsClient {
   external void sendEnvelope(JSAny? envelope);
 }
+
+@JS('globalThis')
+external JSObject get _globalThis;
