@@ -1125,6 +1125,15 @@ class MockSentryTransaction extends _i1.Mock implements _i2.SentryTransaction {
           ),
         ),
       ) as _i2.SentryTransaction);
+
+  @override
+  _i11.Future<dynamic> asPayload() => (super.noSuchMethod(
+        Invocation.method(
+          #asPayload,
+          [],
+        ),
+        returnValue: _i11.Future<dynamic>.value(),
+      ) as _i11.Future<dynamic>);
 }
 
 /// A class which mocks [SentrySpan].
@@ -1712,6 +1721,13 @@ class MockSentryNativeBinding extends _i1.Mock
           envelopeData,
           containsUnhandledException,
         ],
+      )) as _i11.FutureOr<void>);
+
+  @override
+  _i11.FutureOr<void> captureEnvelopeObject(_i2.SentryEnvelope? envelope) =>
+      (super.noSuchMethod(Invocation.method(
+        #captureEnvelopeObject,
+        [envelope],
       )) as _i11.FutureOr<void>);
 
   @override
@@ -3485,6 +3501,15 @@ class MockSentryJsBinding extends _i1.Mock implements _i25.SentryJsBinding {
         Invocation.method(
           #close,
           [],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void captureEnvelope(List<Object>? envelope) => super.noSuchMethod(
+        Invocation.method(
+          #captureEnvelope,
+          [envelope],
         ),
         returnValueForMissingStub: null,
       );

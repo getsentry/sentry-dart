@@ -62,39 +62,32 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
   }
 
   @override
-  FutureOr<void> captureEnvelopeObject(SentryEnvelope envelope) {
-    tryCatchAsync('captureEnvelopeObject', () async {
-      final List<dynamic> envelopeItems = [];
+  FutureOr<void> captureEnvelopeObject(SentryEnvelope envelope) =>
+      tryCatchAsync('captureEnvelopeObject', () async {
+        final List<dynamic> envelopeItems = [];
 
-      for (final item in envelope.items) {
-        final payload = await item.originalObject?.asPayload();
-        if (payload == null) {
-          options.logger(SentryLevel.warning,
-              'SentryWeb: failed to read payload for envelope item type ${item.header.type}');
-          continue;
+        for (final item in envelope.items) {
+          final payload = await item.originalObject?.asPayload();
+          if (payload == null) {
+            options.logger(SentryLevel.warning,
+                'SentryWeb: failed to read payload for envelope item type ${item.header.type}');
+            continue;
+          }
+
+          final length = payload is Uint8List
+              ? payload.length
+              : utf8.encode(json.encode(payload)).length;
+
+          envelopeItems.add([
+            await item.header.toJson(length),
+            payload,
+          ]);
         }
 
-        final length = payload is Uint8List
-            ? payload.length
-            : utf8.encode(json.encode(payload)).length;
+        final jsEnvelope = [envelope.header.toJson(), envelopeItems];
 
-        envelopeItems.add([
-          await item.header.toJson(length),
-          payload,
-        ]);
-      }
-
-      if (envelopeItems.isEmpty) {
-        options.logger(
-            SentryLevel.warning, 'SentryWeb: no envelope items to send');
-        return;
-      }
-
-      final jsEnvelope = [envelope.header.toJson(), envelopeItems];
-
-      _binding.captureEnvelope(jsEnvelope);
-    });
-  }
+        _binding.captureEnvelope(jsEnvelope);
+      });
 
   @override
   FutureOr<SentryId> captureReplay(bool isCrash) {

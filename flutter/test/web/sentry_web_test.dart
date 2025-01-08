@@ -1,6 +1,7 @@
 @TestOn('browser')
 library flutter_test;
 
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -96,7 +97,7 @@ void main() {
       });
     });
 
-    group('no-op or throwing methods', () {
+    group('with mock binding', () {
       late MockSentryJsBinding mockBinding;
       late SentryWeb sut;
 
@@ -105,47 +106,127 @@ void main() {
         sut = SentryWeb(mockBinding, options);
       });
 
-      test('captureReplay throws unsupported error', () {
-        expect(() => sut.captureReplay(false), throwsUnsupportedError);
+      group('no-op or throwing methods', () {
+        test('captureReplay throws unsupported error', () {
+          expect(() => sut.captureReplay(false), throwsUnsupportedError);
+        });
+
+        test('methods execute without calling JS binding', () {
+          sut.addBreadcrumb(Breadcrumb());
+          sut.beginNativeFrames();
+          sut.captureEnvelope(Uint8List(0), false);
+          sut.clearBreadcrumbs();
+          sut.collectProfile(SentryId.empty(), 0, 0);
+          sut.discardProfiler(SentryId.empty());
+          sut.displayRefreshRate();
+          sut.endNativeFrames(SentryId.empty());
+          sut.fetchNativeAppStart();
+          sut.loadContexts();
+          sut.loadDebugImages(SentryStackTrace(frames: []));
+          sut.nativeCrash();
+          sut.removeContexts('key');
+          sut.removeExtra('key');
+          sut.removeTag('key');
+          sut.resumeAppHangTracking();
+          sut.pauseAppHangTracking();
+          sut.setContexts('key', 'value');
+          sut.setExtra('key', 'value');
+          sut.setReplayConfig(
+              ReplayConfig(width: 0, height: 0, frameRate: 0, bitRate: 0));
+          sut.setTag('key', 'value');
+          sut.setUser(null);
+          sut.startProfiler(SentryId.empty());
+
+          verifyZeroInteractions(mockBinding);
+        });
+
+        test('methods return expected default values', () {
+          expect(sut.displayRefreshRate(), isNull);
+          expect(sut.fetchNativeAppStart(), isNull);
+          expect(sut.loadContexts(), isNull);
+          expect(sut.loadDebugImages(SentryStackTrace(frames: [])), isNull);
+          expect(sut.collectProfile(SentryId.empty(), 0, 0), isNull);
+          expect(sut.endNativeFrames(SentryId.empty()), isNull);
+          expect(sut.startProfiler(SentryId.empty()), isNull);
+        });
       });
 
-      test('methods execute without calling JS binding', () {
-        sut.addBreadcrumb(Breadcrumb());
-        sut.beginNativeFrames();
-        sut.captureEnvelope(Uint8List(0), false);
-        sut.clearBreadcrumbs();
-        sut.collectProfile(SentryId.empty(), 0, 0);
-        sut.discardProfiler(SentryId.empty());
-        sut.displayRefreshRate();
-        sut.endNativeFrames(SentryId.empty());
-        sut.fetchNativeAppStart();
-        sut.loadContexts();
-        sut.loadDebugImages(SentryStackTrace(frames: []));
-        sut.nativeCrash();
-        sut.removeContexts('key');
-        sut.removeExtra('key');
-        sut.removeTag('key');
-        sut.resumeAppHangTracking();
-        sut.pauseAppHangTracking();
-        sut.setContexts('key', 'value');
-        sut.setExtra('key', 'value');
-        sut.setReplayConfig(
-            ReplayConfig(width: 0, height: 0, frameRate: 0, bitRate: 0));
-        sut.setTag('key', 'value');
-        sut.setUser(null);
-        sut.startProfiler(SentryId.empty());
+      test('payload uint8list: captures correct length', () async {
+        final sdkVersion = SdkVersion(name: 'test', version: '1000');
+        final event = SentryEvent();
+        final attachment = SentryAttachment.fromByteData(ByteData(100), 'test');
+        final envelope = SentryEnvelope.fromEvent(event, sdkVersion,
+            attachments: [attachment]);
 
-        verifyZeroInteractions(mockBinding);
+        await sut.captureEnvelopeObject(envelope);
+
+        final verification = verify(mockBinding.captureEnvelope(captureAny));
+        verification.called(1);
+
+        final List<dynamic> capturedEnvelope =
+            verification.captured.single as List<dynamic>;
+
+        final envelopeItems = capturedEnvelope[1];
+        final envelopeAttachment = envelopeItems[1];
+        final envelopeAttachmentHeader = envelopeAttachment.first;
+        final envelopeAttachmentItem = envelopeAttachment[1];
+
+        expect(envelopeAttachmentHeader['length'], 100);
+        expect(envelopeAttachmentItem.length, 100);
       });
 
-      test('methods return expected default values', () {
-        expect(sut.displayRefreshRate(), isNull);
-        expect(sut.fetchNativeAppStart(), isNull);
-        expect(sut.loadContexts(), isNull);
-        expect(sut.loadDebugImages(SentryStackTrace(frames: [])), isNull);
-        expect(sut.collectProfile(SentryId.empty(), 0, 0), isNull);
-        expect(sut.endNativeFrames(SentryId.empty()), isNull);
-        expect(sut.startProfiler(SentryId.empty()), isNull);
+      test('payload json: captures correct length', () async {
+        final sdkVersion = SdkVersion(name: 'test', version: '1000');
+        final event = SentryEvent();
+        final attachment = SentryAttachment.fromByteData(ByteData(100), 'test');
+        final envelope = SentryEnvelope.fromEvent(event, sdkVersion,
+            attachments: [attachment]);
+
+        await sut.captureEnvelopeObject(envelope);
+
+        final verification = verify(mockBinding.captureEnvelope(captureAny));
+        verification.called(1);
+
+        final List<dynamic> capturedEnvelope =
+            verification.captured.single as List<dynamic>;
+
+        final envelopeItems = capturedEnvelope[1];
+        final envelopeEvent = envelopeItems.first;
+        final envelopeEventHeader = envelopeEvent.first;
+        final envelopeEventItem = envelopeEvent[1];
+
+        final length = utf8.encode(json.encode(event.toJson())).length;
+        final envelopeItemLength =
+            utf8.encode(json.encode(envelopeEventItem)).length;
+        expect(envelopeEventHeader['length'], length);
+        expect(envelopeItemLength, length);
+      });
+
+      test('payload json: captures correct length', () async {
+        final sdkVersion = SdkVersion(name: 'test', version: '1000');
+        final event = SentryEvent();
+        final attachment = SentryAttachment.fromByteData(ByteData(100), 'test');
+        final envelope = SentryEnvelope.fromEvent(event, sdkVersion,
+            attachments: [attachment]);
+
+        await sut.captureEnvelopeObject(envelope);
+
+        final verification = verify(mockBinding.captureEnvelope(captureAny));
+        verification.called(1);
+
+        final List<dynamic> capturedEnvelope =
+            verification.captured.single as List<dynamic>;
+
+        final envelopeItems = capturedEnvelope[1];
+        final envelopeEvent = envelopeItems.first;
+        final envelopeEventHeader = envelopeEvent.first;
+        final envelopeEventItem = envelopeEvent[1];
+
+        final length = utf8.encode(json.encode(event.toJson())).length;
+        final envelopeItemLength =
+            utf8.encode(json.encode(envelopeEventItem)).length;
+        expect(envelopeEventHeader['length'], length);
+        expect(envelopeItemLength, length);
       });
     });
   });
