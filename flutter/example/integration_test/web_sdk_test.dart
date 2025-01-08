@@ -30,7 +30,18 @@ class SentryClient {
 extension _SentryClientExtension on SentryClient {
   external void on(JSString event, JSFunction callback);
 
-  external JSObject getOptions();
+  external SentryOptions getOptions();
+}
+
+@JS()
+@staticInterop
+class SentryOptions {
+  external factory SentryOptions();
+}
+
+extension _SentryOptionsExtension on SentryOptions {
+  external JSString get dsn;
+  external JSArray get defaultIntegrations;
 }
 
 class MockTransport implements Transport {
@@ -67,10 +78,8 @@ void main() {
         final client = _getClient()!;
         final options = client.getOptions();
 
-        final dsn = options.getProperty('dsn'.toJS).toString();
-        final defaultIntegrations = options
-            .getProperty('defaultIntegrations'.toJS)
-            .dartify() as List<Object?>;
+        final dsn = options.dsn.toDart;
+        final defaultIntegrations = options.defaultIntegrations.toDart;
 
         await Sentry.captureException(Exception('test'));
 
