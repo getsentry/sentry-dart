@@ -38,6 +38,7 @@ import io.sentry.protocol.DebugImage
 import io.sentry.protocol.SdkVersion
 import io.sentry.protocol.SentryId
 import io.sentry.protocol.User
+import io.sentry.rrweb.RRWebOptionsEvent
 import io.sentry.transport.CurrentDateProvider
 import java.io.File
 import java.lang.ref.WeakReference
@@ -169,7 +170,7 @@ class SentryFlutterPlugin :
       // Replace the default ReplayIntegration with a Flutter-specific recorder.
       options.integrations.removeAll { it is ReplayIntegration }
       val cacheDirPath = options.cacheDirPath
-      val replayOptions = options.experimental.sessionReplay
+      val replayOptions = options.sessionReplay
       val isReplayEnabled = replayOptions.isSessionReplayEnabled || replayOptions.isSessionReplayForErrorsEnabled
       if (cacheDirPath != null && isReplayEnabled) {
         replay =
@@ -194,6 +195,20 @@ class SentryFlutterPlugin :
         replay.breadcrumbConverter = SentryFlutterReplayBreadcrumbConverter()
         options.addIntegration(replay)
         options.setReplayController(replay)
+
+        options.beforeSendReplay =
+          SentryOptions.BeforeSendReplayCallback { event, hint ->
+            hint.replayRecording?.payload?.firstOrNull { it is RRWebOptionsEvent }?.let { optionsEvent ->
+              val payload = (optionsEvent as RRWebOptionsEvent).optionsPayload
+
+              // Remove defaults set by the native SDK.
+              payload.filterKeys { it.contains("mask") }.forEach { (k, _) -> payload.remove(k) }
+
+              // Now, set the Flutter-specific values.
+              // TODO do this in a followup PR
+            }
+            event
+          }
       } else {
         options.setReplayController(null)
       }
