@@ -62,28 +62,38 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
   }
 
   @override
-  FutureOr<void> captureEnvelopeObject(SentryEnvelope envelope) async {
-    final List<dynamic> envelopeItems = [];
+  FutureOr<void> captureEnvelopeObject(SentryEnvelope envelope) {
+    tryCatchAsync('captureEnvelopeObject', () async {
+      final List<dynamic> envelopeItems = [];
 
-    for (final item in envelope.items) {
-      final originalObject = item.originalObject;
-      final payload = await originalObject?.getPayload();
-      if (payload is Uint8List) {
-        final length = payload.length;
+      for (final item in envelope.items) {
+        final payload = await item.originalObject?.asPayload();
+        if (payload == null) {
+          options.logger(SentryLevel.warning,
+              'SentryWeb: failed to read payload for envelope item type ${item.header.type}');
+          continue;
+        }
+
+        final length = payload is Uint8List
+            ? payload.length
+            : utf8.encode(json.encode(payload)).length;
+
         envelopeItems.add([
-          (await item.header.toJson(length)),
+          await item.header.toJson(length),
           payload,
         ]);
-      } else {
-        final length =
-            payload != null ? utf8.encode(json.encode(payload)).length : 0;
-        envelopeItems.add([(await item.header.toJson(length)), payload]);
       }
-    }
 
-    final jsEnvelope = [envelope.header.toJson(), envelopeItems];
+      if (envelopeItems.isEmpty) {
+        options.logger(
+            SentryLevel.warning, 'SentryWeb: no envelope items to send');
+        return;
+      }
 
-    _binding.captureEnvelope(jsEnvelope);
+      final jsEnvelope = [envelope.header.toJson(), envelopeItems];
+
+      _binding.captureEnvelope(jsEnvelope);
+    });
   }
 
   @override
