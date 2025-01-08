@@ -63,9 +63,9 @@ void main() {
     expect(fixture.calls, 0);
     await fixture.drawFrame();
     expect(fixture.calls, 1);
-    await fixture.drawFrame();
-    await fixture.drawFrame();
-    await fixture.drawFrame();
+    await fixture
+        .drawFrame()
+        .timeout(const Duration(milliseconds: 200), onTimeout: () => null);
     expect(fixture.calls, 1);
 
     guard.complete();
@@ -77,7 +77,7 @@ void main() {
 class _Fixture {
   var calls = 0;
   late final Scheduler sut;
-  FrameCallback? registeredCallback;
+  var registeredCallback = Completer<FrameCallback>();
   var _frames = 0;
 
   _Fixture([SchedulerCallback? callback]) {
@@ -93,17 +93,18 @@ class _Fixture {
 
   void _addPostFrameCallbackMock(FrameCallback callback,
       {String debugLabel = 'callback'}) {
-    registeredCallback = callback;
+    if (!registeredCallback.isCompleted) {
+      registeredCallback.complete(callback);
+    }
   }
 
   factory _Fixture.started() {
     return _Fixture()..sut.start();
   }
 
-  Future<void> drawFrame() async {
-    await Future.delayed(const Duration(milliseconds: 8), () {});
-    _frames++;
-    registeredCallback?.call(Duration(milliseconds: _frames));
-    registeredCallback = null;
+  Future<void> drawFrame() {
+    registeredCallback = Completer<FrameCallback>();
+    return registeredCallback.future
+        .then((fn) => fn(Duration(milliseconds: ++_frames)));
   }
 }
