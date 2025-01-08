@@ -155,7 +155,7 @@ class SentryFlutter(
     }
 
     data.getIfNotNull<Map<String, Any>>("replay") {
-      updateReplayOptions(options.experimental.sessionReplay, it)
+      updateReplayOptions(options.sessionReplay, it)
     }
   }
 
@@ -163,8 +163,8 @@ class SentryFlutter(
     options: SentryReplayOptions,
     data: Map<String, Any>,
   ) {
-    options.sessionReplay.sessionSampleRate = data["sessionSampleRate"] as? Double
-    options.sessionReplay.onErrorSampleRate = data["onErrorSampleRate"] as? Double
+    options.sessionSampleRate = data["sessionSampleRate"] as? Double
+    options.onErrorSampleRate = data["onErrorSampleRate"] as? Double
 
     // Disable native tracking of orientation change (causes replay restart)
     // because we don't have the new size from Flutter yet. Instead, we'll
