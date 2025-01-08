@@ -21,6 +21,7 @@ import 'integrations/integrations.dart';
 import 'integrations/native_app_start_handler.dart';
 import 'integrations/screenshot_integration.dart';
 import 'native/factory.dart';
+import 'native/native_scope_observer.dart';
 import 'native/sentry_native_binding.dart';
 import 'profiling.dart';
 import 'renderer/renderer.dart';
@@ -128,6 +129,9 @@ mixin SentryFlutter {
         if (!options.platformChecker.isWeb) {
           options.transport = FileSystemTransport(_native!, options);
         }
+      }
+      if (!options.platformChecker.isWeb) {
+        options.addScopeObserver(NativeScopeObserver(_native!));
       }
     }
 
