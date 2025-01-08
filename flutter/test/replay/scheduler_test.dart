@@ -34,8 +34,9 @@ void main() {
     await fixture.drawFrame();
     expect(fixture.calls, 1);
     await fixture.drawFrame();
+    expect(fixture.calls, 2);
     await fixture.sut.stop();
-    await fixture.drawFrame();
+    await fixture.drawFrame(awaitCallback: false);
     expect(fixture.calls, 2);
   });
 
@@ -47,7 +48,7 @@ void main() {
     await fixture.drawFrame();
     expect(fixture.calls, 1);
     await fixture.sut.stop();
-    await fixture.drawFrame();
+    await fixture.drawFrame(awaitCallback: false);
     expect(fixture.calls, 1);
     fixture.sut.start();
     await fixture.drawFrame();
@@ -63,9 +64,7 @@ void main() {
     expect(fixture.calls, 0);
     await fixture.drawFrame();
     expect(fixture.calls, 1);
-    await fixture
-        .drawFrame()
-        .timeout(const Duration(milliseconds: 200), onTimeout: () => null);
+    await fixture.drawFrame(awaitCallback: false);
     expect(fixture.calls, 1);
 
     guard.complete();
@@ -102,9 +101,15 @@ class _Fixture {
     return _Fixture()..sut.start();
   }
 
-  Future<void> drawFrame() {
+  Future<void> drawFrame({bool awaitCallback = true}) async {
     registeredCallback = Completer<FrameCallback>();
     final timestamp = Duration(milliseconds: ++_frames);
-    return registeredCallback.future.then((fn) => fn(timestamp));
+    final future = registeredCallback.future.then((fn) => fn(timestamp));
+    if (awaitCallback) {
+      return future;
+    } else {
+      return future.timeout(const Duration(milliseconds: 200),
+          onTimeout: () {});
+    }
   }
 }
