@@ -155,7 +155,7 @@ class SentryFlutter(
     }
 
     data.getIfNotNull<Map<String, Any>>("replay") {
-      updateReplayOptions(options.experimental.sessionReplay, it)
+      updateReplayOptions(options.sessionReplay, it)
     }
   }
 
