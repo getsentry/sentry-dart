@@ -104,7 +104,7 @@ class _Fixture {
 
   Future<void> drawFrame() {
     registeredCallback = Completer<FrameCallback>();
-    return registeredCallback.future
-        .then((fn) => fn(Duration(milliseconds: ++_frames)));
+    final timestamp = Duration(milliseconds: ++_frames);
+    return registeredCallback.future.then((fn) => fn(timestamp));
   }
 }
