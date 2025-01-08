@@ -1,14 +1,14 @@
-import 'package:collection/collection.dart';
 import 'package:meta/meta.dart';
+import 'package:collection/collection.dart';
 
-import '../../sentry.dart';
+import '../protocol.dart';
+import '../throwable_mechanism.dart';
+import '../utils.dart';
 import 'access_aware_map.dart';
 
 /// An event to be reported to Sentry.io.
 @immutable
-class SentryEvent
-    with SentryEventLike<SentryEvent>
-    implements SentryEnvelopeItemPayload {
+class SentryEvent with SentryEventLike<SentryEvent> {
   /// Creates an event.
   SentryEvent({
     SentryId? eventId,
@@ -418,7 +418,4 @@ class SentryEvent
   SentryStackTrace? get stacktrace =>
       exceptions?.firstWhereOrNull((e) => e.stackTrace != null)?.stackTrace ??
       threads?.firstWhereOrNull((t) => t.stacktrace != null)?.stacktrace;
-
-  @override
-  Future<dynamic> get payload => Future.value(toJson());
 }

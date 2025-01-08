@@ -1,7 +1,8 @@
 import 'dart:async';
 import 'dart:typed_data';
 
-import '../../sentry.dart';
+import '../protocol/sentry_view_hierarchy.dart';
+import '../utils.dart';
 
 // https://develop.sentry.dev/sdk/features/#attachments
 // https://develop.sentry.dev/sdk/envelopes/#attachment
@@ -9,7 +10,7 @@ import '../../sentry.dart';
 typedef ContentLoader = FutureOr<Uint8List> Function();
 
 /// Arbitrary content which gets attached to an event.
-class SentryAttachment implements SentryEnvelopeItemPayload {
+class SentryAttachment {
   /// Standard attachment without special meaning.
   static const String typeAttachmentDefault = 'event.attachment';
 
@@ -121,9 +122,4 @@ class SentryAttachment implements SentryEnvelopeItemPayload {
   /// If true, attachment should be added to every transaction.
   /// Defaults to false.
   final bool addToTransactions;
-
-  @override
-  Future<dynamic> get payload async {
-    return await bytes;
-  }
 }

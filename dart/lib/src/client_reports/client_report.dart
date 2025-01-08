@@ -1,10 +1,10 @@
 import 'package:meta/meta.dart';
 
-import '../../sentry.dart';
 import 'discarded_event.dart';
+import '../utils.dart';
 
 @internal
-class ClientReport implements SentryEnvelopeItemPayload {
+class ClientReport {
   ClientReport(this.timestamp, this.discardedEvents);
 
   final DateTime? timestamp;
@@ -27,7 +27,4 @@ class ClientReport implements SentryEnvelopeItemPayload {
 
     return json;
   }
-
-  @override
-  Future<dynamic> get payload => Future.value(toJson());
 }

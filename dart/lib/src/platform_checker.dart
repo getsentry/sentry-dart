@@ -40,13 +40,20 @@ class PlatformChecker {
   }
 
   /// Indicates whether a native integration is available.
-  bool get hasNativeIntegration =>
-      isWeb ||
-      platform.isAndroid ||
-      platform.isIOS ||
-      platform.isMacOS ||
-      platform.isWindows ||
-      platform.isLinux;
+  bool get hasNativeIntegration {
+    if (isWeb) {
+      return false;
+    }
+    // We need to check the platform after we checked for web, because
+    // the OS checks return true when the browser runs on the checked platform.
+    // Example: platform.isAndroid return true if the browser is used on an
+    // Android device.
+    return platform.isAndroid ||
+        platform.isIOS ||
+        platform.isMacOS ||
+        platform.isWindows ||
+        platform.isLinux;
+  }
 
   static bool _isWebWithWasmSupport() {
     if (const bool.hasEnvironment(_jsUtil)) {
