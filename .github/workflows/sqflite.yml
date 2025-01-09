@@ -37,6 +37,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install libsqlite3
+        if: matrix.target == 'linux'
+        run: sudo apt-get -y install libsqlite3-dev
+
       - uses: ./.github/actions/flutter-test
         with:
           directory: sqflite
