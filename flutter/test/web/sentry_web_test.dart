@@ -73,6 +73,11 @@ void main() {
         expect(jsOptions['attachStacktrace'], expectedAttachStacktrace);
         expect(jsOptions['maxBreadcrumbs'], expectedMaxBreadcrumbs);
         expect(jsOptions['debug'], expectedDebug);
+        expect(jsOptions['defaultIntegrations'].length, 2);
+        expect(jsOptions['defaultIntegrations'][0].toString(),
+            contains('name: GlobalHandlers'));
+        expect(jsOptions['defaultIntegrations'][1].toString(),
+            contains('name: Dedupe'));
       });
 
       test('options getter returns the original options', () {
