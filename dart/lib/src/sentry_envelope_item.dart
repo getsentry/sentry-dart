@@ -10,14 +10,10 @@ import 'sentry_item_type.dart';
 import 'sentry_user_feedback.dart';
 import 'utils.dart';
 
-abstract class SentryEnvelopeItemPayload {
-  Future<dynamic> asPayload();
-}
-
 /// Item holding header information and JSON encoded data.
 class SentryEnvelopeItem {
   /// The original, non-encoded object, used when direct access to the source data is needed.
-  SentryEnvelopeItemPayload? originalObject;
+  dynamic originalObject;
 
   SentryEnvelopeItem(this.header, this.dataFactory, {this.originalObject});
 

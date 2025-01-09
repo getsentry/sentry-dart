@@ -1,6 +1,7 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:typed_data';
+
+import 'package:sentry/src/sentry_item_type.dart';
 
 import '../../sentry_flutter.dart';
 import '../native/native_app_start.dart';
@@ -67,20 +68,19 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
         final List<dynamic> envelopeItems = [];
 
         for (final item in envelope.items) {
-          final payload = await item.originalObject?.asPayload();
-          if (payload == null) {
-            options.logger(SentryLevel.warning,
-                'SentryWeb: failed to read payload for envelope item type ${item.header.type}');
+          final dataFuture = item.dataFactory();
+          final data = dataFuture is Future ? await dataFuture : dataFuture;
+
+          // Only attachments should be filtered according to
+          // SentryOptions.maxAttachmentSize
+          if (item.header.type == SentryItemType.attachment &&
+              data.length > options.maxAttachmentSize) {
             continue;
           }
 
-          final length = payload is Uint8List
-              ? payload.length
-              : utf8.encode(json.encode(payload)).length;
-
           envelopeItems.add([
-            await item.header.toJson(length),
-            payload,
+            await item.header.toJson(data.length),
+            data,
           ]);
         }
 

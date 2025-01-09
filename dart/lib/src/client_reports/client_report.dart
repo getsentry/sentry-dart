@@ -4,7 +4,7 @@ import '../../sentry.dart';
 import 'discarded_event.dart';
 
 @internal
-class ClientReport implements SentryEnvelopeItemPayload {
+class ClientReport {
   ClientReport(this.timestamp, this.discardedEvents);
 
   final DateTime? timestamp;
@@ -27,7 +27,4 @@ class ClientReport implements SentryEnvelopeItemPayload {
 
     return json;
   }
-
-  @override
-  Future<dynamic> asPayload() => Future.value(toJson());
 }

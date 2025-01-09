@@ -4,7 +4,7 @@ import '../sentry.dart';
 import 'protocol/access_aware_map.dart';
 
 @Deprecated('Will be removed in a future version. Use [SentryFeedback] instead')
-class SentryUserFeedback implements SentryEnvelopeItemPayload {
+class SentryUserFeedback {
   SentryUserFeedback({
     required this.eventId,
     this.name,
@@ -66,7 +66,4 @@ class SentryUserFeedback implements SentryEnvelopeItemPayload {
       unknown: unknown,
     );
   }
-
-  @override
-  Future<dynamic> asPayload() => Future.value(toJson());
 }
