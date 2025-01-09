@@ -44,20 +44,6 @@ extension _SentryOptionsExtension on SentryOptions {
   external JSArray get defaultIntegrations;
 }
 
-class MockTransport implements Transport {
-  MockTransport(this.innerTransport);
-
-  Transport innerTransport;
-  SentryEnvelope? envelope;
-
-  @override
-  Future<SentryId?> send(SentryEnvelope envelope) {
-    this.envelope = envelope;
-
-    return innerTransport.send(envelope);
-  }
-}
-
 void main() {
   group('Web SDK Integration', () {
     IntegrationTestWidgetsFlutterBinding.ensureInitialized();
