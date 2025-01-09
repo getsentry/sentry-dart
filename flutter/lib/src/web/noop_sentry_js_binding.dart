@@ -15,4 +15,7 @@ class NoOpSentryJsBinding implements SentryJsBinding {
 
   @override
   void captureEnvelope(List<Object> envelope) {}
+
+  @override
+  getJsOptions() {}
 }
