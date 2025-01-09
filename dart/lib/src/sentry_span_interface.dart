@@ -1,6 +1,5 @@
 import 'package:meta/meta.dart';
 
-import 'metrics/local_metrics_aggregator.dart';
 import 'protocol.dart';
 import 'tracing.dart';
 
@@ -46,9 +45,6 @@ abstract class ISentrySpan {
   ///
   /// See https://develop.sentry.dev/sdk/performance/trace-origin
   set origin(String? origin);
-
-  @internal
-  LocalMetricsAggregator? get localMetricsAggregator;
 
   /// Returns the end timestamp if finished
   DateTime? get endTimestamp;

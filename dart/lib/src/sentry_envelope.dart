@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'client_reports/client_report.dart';
-import 'metrics/metric.dart';
 import 'protocol.dart';
 import 'sentry_attachment/sentry_attachment.dart';
 import 'sentry_envelope_header.dart';
@@ -97,22 +96,6 @@ class SentryEnvelope {
         if (attachments != null)
           ...attachments.map((e) => SentryEnvelopeItem.fromAttachment(e))
       ],
-    );
-  }
-
-  /// Create a [SentryEnvelope] containing one [SentryEnvelopeItem] which holds the [Metric] data.
-  factory SentryEnvelope.fromMetrics(
-    Map<int, Iterable<Metric>> metricsBuckets,
-    SdkVersion sdkVersion, {
-    String? dsn,
-  }) {
-    return SentryEnvelope(
-      SentryEnvelopeHeader(
-        SentryId.newId(),
-        sdkVersion,
-        dsn: dsn,
-      ),
-      [SentryEnvelopeItem.fromMetrics(metricsBuckets)],
     );
   }
 
