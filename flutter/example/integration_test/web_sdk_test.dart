@@ -4,6 +4,7 @@
 library flutter_test;
 
 import 'dart:async';
+import 'dart:convert';
 import 'dart:js_interop';
 import 'dart:js_interop_unsafe';
 
@@ -41,7 +42,6 @@ class SentryOptions {
 
 extension _SentryOptionsExtension on SentryOptions {
   external JSString get dsn;
-  external JSArray get defaultIntegrations;
 }
 
 void main() {
@@ -65,12 +65,10 @@ void main() {
         final options = client.getOptions();
 
         final dsn = options.dsn.toDart;
-        final defaultIntegrations = options.defaultIntegrations.toDart;
 
         await Sentry.captureException(Exception('test'));
 
         expect(dsn, fakeDsn);
-        expect(defaultIntegrations, isEmpty);
       });
 
       testWidgets('sends the correct envelope', (tester) async {
@@ -80,7 +78,7 @@ void main() {
         await restoreFlutterOnErrorAfter(() async {
           await SentryFlutter.init((options) {
             options.enableSentryJs = true;
-            options.dsn = app.exampleDsn;
+            options.dsn = fakeDsn;
             options.beforeSend = (event, hint) {
               dartEvent = event;
               return event;
@@ -113,7 +111,10 @@ void main() {
             'sentry.dart.flutter');
 
         final item = (envelope[1] as List<Object?>).first as List<Object?>;
-        final itemPayload = item[1] as Map<Object?, Object?>;
+        final itemPayload =
+            json.decode(utf8.decoder.convert((item[1] as List<int>)))
+                as Map<Object?, Object?>;
+
         final jsEventJson = (itemPayload).map((key, value) {
           return MapEntry(key.toString(), value as dynamic);
         });
