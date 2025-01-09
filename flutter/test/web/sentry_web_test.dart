@@ -14,7 +14,6 @@ import 'package:sentry_flutter/src/web/sentry_web.dart';
 
 import '../mocks.dart';
 import '../mocks.mocks.dart';
-import 'utils.dart';
 
 void main() {
   group('$SentryWeb', () {
@@ -28,11 +27,12 @@ void main() {
 
     group('with real binding', () {
       late SentryWeb sut;
+      late SentryJsBinding binding;
 
       setUp(() async {
         final loader = SentryScriptLoader(options: options);
         await loader.loadWebSdk(debugScripts);
-        final binding = createJsBinding();
+        binding = createJsBinding();
         sut = SentryWeb(binding, options);
       });
 
@@ -59,12 +59,12 @@ void main() {
         options.maxBreadcrumbs = expectedMaxBreadcrumbs;
         options.debug = expectedDebug;
 
-        // quick check that it doesn't work before init
-        expect(() => getJsOptions()['dsn'], throwsA(anything));
+        // quick check that Sentry is not initialized first
+        expect(() => binding.getJsOptions()['dsn'], throwsA(anything));
 
         await sut.init(hub);
 
-        final jsOptions = getJsOptions();
+        final jsOptions = binding.getJsOptions();
         expect(jsOptions['dsn'], expectedDsn);
         expect(jsOptions['release'], expectedRelease);
         expect(jsOptions['sampleRate'], expectedSampleRate);
@@ -91,7 +91,7 @@ void main() {
       test('can send envelope without throwing', () async {
         await sut.init(hub);
 
-        await sut.captureEnvelopeObject(SentryEnvelope.fromEvent(
+        await sut.captureStructuredEnvelope(SentryEnvelope.fromEvent(
             SentryEvent(), SdkVersion(name: 'test', version: '0')));
       });
     });
@@ -157,7 +157,7 @@ void main() {
         final envelope = SentryEnvelope.fromEvent(event, sdkVersion,
             attachments: [attachment]);
 
-        await sut.captureEnvelopeObject(envelope);
+        await sut.captureStructuredEnvelope(envelope);
 
         final verification = verify(mockBinding.captureEnvelope(captureAny));
         verification.called(1);
@@ -179,7 +179,7 @@ void main() {
         final event = SentryEvent();
         final envelope = SentryEnvelope.fromEvent(event, sdkVersion);
 
-        await sut.captureEnvelopeObject(envelope);
+        await sut.captureStructuredEnvelope(envelope);
 
         final verification = verify(mockBinding.captureEnvelope(captureAny));
         verification.called(1);

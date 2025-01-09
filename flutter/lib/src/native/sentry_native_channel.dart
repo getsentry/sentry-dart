@@ -102,7 +102,7 @@ class SentryNativeChannel
   }
 
   @override
-  FutureOr<void> captureEnvelopeObject(SentryEnvelope envelope) {
+  FutureOr<void> captureStructuredEnvelope(SentryEnvelope envelope) {
     throw UnsupportedError("Not supported on this platform");
   }
 

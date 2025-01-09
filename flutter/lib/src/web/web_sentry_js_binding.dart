@@ -1,6 +1,8 @@
 import 'dart:js_interop';
 import 'dart:js_interop_unsafe';
 
+import 'package:flutter/cupertino.dart';
+
 import 'sentry_js_binding.dart';
 
 SentryJsBinding createJsBinding() {
@@ -31,6 +33,12 @@ class WebSentryJsBinding implements SentryJsBinding {
       _client?.sendEnvelope(envelope.jsify());
     }
   }
+
+  @visibleForTesting
+  @override
+  getJsOptions() {
+    return _client?.getOptions().dartify();
+  }
 }
 
 @JS('Sentry.init')
@@ -47,6 +55,7 @@ class SentryJsClient {
 
 extension _SentryJsClientExtension on SentryJsClient {
   external void sendEnvelope(JSAny? envelope);
+  external JSObject? getOptions();
 }
 
 @JS('globalThis')

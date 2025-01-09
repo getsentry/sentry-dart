@@ -1,5 +1,7 @@
 import 'dart:js';
 
+import 'package:flutter/cupertino.dart';
+
 import 'sentry_js_binding.dart';
 
 SentryJsBinding createJsBinding() {
@@ -33,5 +35,12 @@ class HtmlSentryJsBinding implements SentryJsBinding {
     if (_client != null) {
       _client.callMethod('sendEnvelope', [JsObject.jsify(envelope)]);
     }
+  }
+
+  @visibleForTesting
+  @override
+  getJsOptions() {
+    final sentry = context['Sentry'] as JsObject;
+    return sentry.callMethod('getClient').callMethod('getOptions').dartify();
   }
 }

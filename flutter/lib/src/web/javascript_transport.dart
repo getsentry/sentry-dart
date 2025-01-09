@@ -10,7 +10,7 @@ class JavascriptTransport implements Transport {
   @override
   Future<SentryId?> send(SentryEnvelope envelope) async {
     try {
-      await _binding.captureEnvelopeObject(envelope);
+      await _binding.captureStructuredEnvelope(envelope);
     } catch (exception, stackTrace) {
       _options.logger(
         SentryLevel.error,
