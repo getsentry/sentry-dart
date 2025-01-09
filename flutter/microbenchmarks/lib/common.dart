@@ -5,12 +5,14 @@
 import 'dart:convert' show json;
 import 'dart:math' as math;
 
-double _doNormal({required double mean, required double stddev, required double x}) {
+double _doNormal(
+    {required double mean, required double stddev, required double x}) {
   return (1.0 / (stddev * math.sqrt(2.0 * math.pi))) *
       math.pow(math.e, -0.5 * math.pow((x - mean) / stddev, 2.0));
 }
 
-double _doMean(List<double> values) => values.reduce((double x, double y) => x + y) / values.length;
+double _doMean(List<double> values) =>
+    values.reduce((double x, double y) => x + y) / values.length;
 
 double _doStddev(List<double> values, double mean) {
   double stddev = 0.0;
@@ -37,7 +39,8 @@ double _doIntegral({
 
 /// Probability is defined as the probability that the mean is within the
 /// [margin] of the true value.
-double _doProbability({required double mean, required double stddev, required double margin}) {
+double _doProbability(
+    {required double mean, required double stddev, required double margin}) {
   return _doIntegral(
     func: (double x) => _doNormal(mean: mean, stddev: stddev, x: x),
     start: (1.0 - margin) * mean,
@@ -95,7 +98,8 @@ class BenchmarkResultPrinter {
     final double mean = _doMean(values);
     final double stddev = _doStddev(values, mean);
     const double margin = 0.05;
-    final double probability = _doProbability(mean: mean, stddev: stddev, margin: margin);
+    final double probability =
+        _doProbability(mean: mean, stddev: stddev, margin: margin);
     _results.add(_BenchmarkResult(description, mean, unit, name));
     _results.add(
       _BenchmarkResult(
@@ -132,7 +136,8 @@ class BenchmarkResultPrinter {
   String _printPlainText() {
     final StringBuffer buf = StringBuffer();
     for (final _BenchmarkResult result in _results) {
-      buf.writeln('${result.description}: ${result.value.toStringAsFixed(1)} ${result.unit}');
+      buf.writeln(
+          '${result.description}: ${result.value.toStringAsFixed(1)} ${result.unit}');
     }
     return buf.toString();
   }

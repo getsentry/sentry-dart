@@ -82,8 +82,7 @@ class CanvasObscureBenchmark extends SyncBenchmark {
   late final List<WidgetFilterItem> _items;
   late final double _pixelRatio;
 
-  CanvasObscureBenchmark(Image source)
-      : super('CanvasObscure ($_count rectangles)') {
+  CanvasObscureBenchmark(Image source) : super('Canvas.drawRect() x $_count') {
     _canvas = Canvas(PictureRecorder());
     _canvas.drawImage(source, Offset.zero, Paint());
     _pixelRatio = Random().nextDouble();
