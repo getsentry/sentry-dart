@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+// ignore: implementation_imports
 import 'package:sentry/src/sentry_item_type.dart';
 
 import '../../sentry_flutter.dart';
