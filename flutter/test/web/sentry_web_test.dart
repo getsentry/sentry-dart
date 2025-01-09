@@ -1,7 +1,6 @@
 @TestOn('browser')
 library flutter_test;
 
-import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -178,9 +177,7 @@ void main() {
       test('payload json: captures correct length', () async {
         final sdkVersion = SdkVersion(name: 'test', version: '1000');
         final event = SentryEvent();
-        final attachment = SentryAttachment.fromByteData(ByteData(100), 'test');
-        final envelope = SentryEnvelope.fromEvent(event, sdkVersion,
-            attachments: [attachment]);
+        final envelope = SentryEnvelope.fromEvent(event, sdkVersion);
 
         await sut.captureEnvelopeObject(envelope);
 
@@ -195,36 +192,9 @@ void main() {
         final envelopeEventHeader = envelopeEvent.first;
         final envelopeEventItem = envelopeEvent[1];
 
-        final length = utf8.encode(json.encode(event.toJson())).length;
-        final envelopeItemLength =
-            utf8.encode(json.encode(envelopeEventItem)).length;
-        expect(envelopeEventHeader['length'], length);
-        expect(envelopeItemLength, length);
-      });
-
-      test('payload json: captures correct length', () async {
-        final sdkVersion = SdkVersion(name: 'test', version: '1000');
-        final event = SentryEvent();
-        final attachment = SentryAttachment.fromByteData(ByteData(100), 'test');
-        final envelope = SentryEnvelope.fromEvent(event, sdkVersion,
-            attachments: [attachment]);
-
-        await sut.captureEnvelopeObject(envelope);
-
-        final verification = verify(mockBinding.captureEnvelope(captureAny));
-        verification.called(1);
-
-        final List<dynamic> capturedEnvelope =
-            verification.captured.single as List<dynamic>;
-
-        final envelopeItems = capturedEnvelope[1];
-        final envelopeEvent = envelopeItems.first;
-        final envelopeEventHeader = envelopeEvent.first;
-        final envelopeEventItem = envelopeEvent[1];
-
-        final length = utf8.encode(json.encode(event.toJson())).length;
-        final envelopeItemLength =
-            utf8.encode(json.encode(envelopeEventItem)).length;
+        // ignore: invalid_use_of_internal_member
+        final length = utf8JsonEncoder.convert(event.toJson()).length;
+        final envelopeItemLength = envelopeEventItem.length;
         expect(envelopeEventHeader['length'], length);
         expect(envelopeItemLength, length);
       });
