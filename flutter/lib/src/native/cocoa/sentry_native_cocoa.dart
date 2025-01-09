@@ -55,14 +55,15 @@ class SentryNativeCocoa extends SentryNativeChannel {
             }
 
             final completer = Completer<Uint8List?>();
-            final retrier =
-                ScreenshotRetrier(_replayRecorder!, options, (image) async {
+            final retrier = ScreenshotRetrier(_replayRecorder!, options,
+                (screenshot) async {
+              final pngData = await screenshot.pngData;
               options.logger(
                   SentryLevel.debug,
                   'Replay: captured screenshot ('
-                  '${image.width}x${image.height} pixels, '
-                  '${image.data.lengthInBytes} bytes)');
-              completer.complete(image.data);
+                  '${screenshot.width}x${screenshot.height} pixels, '
+                  '${pngData.lengthInBytes} bytes)');
+              completer.complete(pngData.buffer.asUint8List());
             });
             retrier.ensureFrameAndAddCallback((msSinceEpoch) {
               retrier.capture(msSinceEpoch).onError(completer.completeError);

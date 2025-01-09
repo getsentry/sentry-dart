@@ -5,6 +5,7 @@ import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
 import 'recorder.dart';
+import 'screenshot.dart';
 
 /// We're facing an issue: the tree walked with visitChildElements() is out of
 /// sync to what is currently rendered by RenderRepaintBoundary.toImage(),
@@ -22,8 +23,8 @@ import 'recorder.dart';
 class ScreenshotRetrier<R> {
   final SentryFlutterOptions _options;
   final ScreenshotRecorder _recorder;
-  final Future<R> Function(ScreenshotPng screenshot) _callback;
-  ScreenshotPng? _previousScreenshot;
+  final Future<R> Function(Screenshot screenshot) _callback;
+  Screenshot? _previousScreenshot;
   int _tries = 0;
   bool stopped = false;
 
@@ -43,40 +44,45 @@ class ScreenshotRetrier<R> {
     return _recorder.capture(_onImageCaptured);
   }
 
-  Future<void> _onImageCaptured(ScreenshotPng screenshot) async {
+  Future<void> _onImageCaptured(Screenshot screenshot) async {
     if (stopped) {
       _tries = 0;
       return;
     }
 
     final prevScreenshot = _previousScreenshot;
-    _previousScreenshot = screenshot;
-    if (prevScreenshot != null && prevScreenshot.hasSameImageAs(screenshot)) {
-      // Sucessfully captured a stable screenshot (repeated at least twice).
-      _tries = 0;
-      if (prevScreenshot.flow.id == screenshot.flow.id) {
-        // If it's from the same (retry) flow, use the first screenshot timestamp.
-        await _callback(prevScreenshot);
-      } else {
-        // Otherwise this was called from a scheduler (in a new flow) so use
-        // the new timestamp.
-        await _callback(screenshot);
-      }
-    } else if (_tries > _options.screenshotRetries) {
-      throw Exception('Failed to capture a stable screenshot. '
-          'Giving up after $_tries tries.');
-    } else {
-      final completer = Completer<void>();
-      ensureFrameAndAddCallback((Duration sinceSchedulerEpoch) async {
-        _tries++;
-        try {
-          await _recorder.capture(_onImageCaptured, screenshot.flow);
-          completer.complete();
-        } catch (e, stackTrace) {
-          completer.completeError(e, stackTrace);
+    try {
+      _previousScreenshot = screenshot.clone();
+      if (prevScreenshot != null &&
+          await prevScreenshot.hasSameImageAs(screenshot)) {
+        // Sucessfully captured a stable screenshot (repeated at least twice).
+        _tries = 0;
+        if (prevScreenshot.flow.id == screenshot.flow.id) {
+          // If it's from the same (retry) flow, use the first screenshot timestamp.
+          await _callback(prevScreenshot);
+        } else {
+          // Otherwise this was called from a scheduler (in a new flow) so use
+          // the new timestamp.
+          await _callback(screenshot);
         }
-      });
-      return completer.future;
+      } else if (_tries > _options.screenshotRetries) {
+        throw Exception('Failed to capture a stable screenshot. '
+            'Giving up after $_tries tries.');
+      } else {
+        final completer = Completer<void>();
+        ensureFrameAndAddCallback((Duration sinceSchedulerEpoch) async {
+          _tries++;
+          try {
+            await _recorder.capture(_onImageCaptured, screenshot.flow);
+            completer.complete();
+          } catch (e, stackTrace) {
+            completer.completeError(e, stackTrace);
+          }
+        });
+        return completer.future;
+      }
+    } finally {
+      prevScreenshot?.dispose();
     }
   }
 }

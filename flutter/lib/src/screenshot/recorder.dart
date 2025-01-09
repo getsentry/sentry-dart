@@ -1,10 +1,7 @@
 import 'dart:async';
 import 'dart:developer';
 import 'dart:ui';
-// ignore: unnecessary_import // backcompatibility for Flutter < 3.3
-import 'dart:typed_data';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart' as widgets;
 import 'package:flutter/material.dart' as material;
@@ -14,6 +11,7 @@ import 'package:meta/meta.dart';
 import '../../sentry_flutter.dart';
 import 'masking_config.dart';
 import 'recorder_config.dart';
+import 'screenshot.dart';
 import 'widget_filter.dart';
 
 @internal
@@ -62,8 +60,7 @@ class ScreenshotRecorder {
   /// To prevent accidental addition of await before that happens,
   ///
   /// THIS FUNCTION MUST NOT BE ASYNC.
-  Future<R> capture<R>(Future<R> Function(ScreenshotPng) callback,
-      [Flow? flow]) {
+  Future<R> capture<R>(Future<R> Function(Screenshot) callback, [Flow? flow]) {
     try {
       flow ??= Flow.begin();
       Timeline.startSync('Sentry::captureScreenshot', flow: flow);
@@ -184,7 +181,7 @@ class _Capture<R> {
   /// See [task] which is what gets completed with the callback result.
   Future<void> Function() createTask(
     Future<Image> futureImage,
-    Future<R> Function(ScreenshotPng) callback,
+    Future<R> Function(Screenshot) callback,
     List<WidgetFilterItem>? obscureItems,
     Flow flow,
   ) {
@@ -207,26 +204,22 @@ class _Capture<R> {
       final picture = recorder.endRecording();
       Timeline.finishSync(); // Sentry::renderScreenshot
 
+      late Image finalImage;
       try {
         Timeline.startSync('Sentry::screenshotToImage', flow: flow);
-        final finalImage = await picture.toImage(width, height);
+        finalImage = await picture.toImage(width, height);
         Timeline.finishSync(); // Sentry::screenshotToImage
-        try {
-          Timeline.startSync('Sentry::screenshotToPng', flow: flow);
-          final imageData =
-              await finalImage.toByteData(format: ImageByteFormat.png);
-          final png = ScreenshotPng(finalImage.width, finalImage.height,
-              imageData!.buffer.asUint8List(), timestamp, flow);
-          Timeline.finishSync(); // Sentry::screenshotToPng
-
-          Timeline.startSync('Sentry::screenshotCallback', flow: flow);
-          _completer.complete(await callback(png));
-          Timeline.finishSync(); // Sentry::screenshotCallback
-        } finally {
-          finalImage.dispose(); // image needs to be disposed-of manually
-        }
       } finally {
         picture.dispose();
+      }
+
+      final screenshot = Screenshot(finalImage, timestamp, flow);
+      try {
+        Timeline.startSync('Sentry::screenshotCallback', flow: flow);
+        _completer.complete(await callback(screenshot));
+        Timeline.finishSync(); // Sentry::screenshotCallback
+      } finally {
+        screenshot.dispose();
       }
     };
   }
@@ -303,25 +296,5 @@ extension on widgets.BuildContext {
       );
     }
     return null;
-  }
-}
-
-@internal
-@immutable
-class ScreenshotPng {
-  final int width;
-  final int height;
-  final Uint8List data;
-  final DateTime timestamp;
-  final Flow flow;
-
-  const ScreenshotPng(
-      this.width, this.height, this.data, this.timestamp, this.flow);
-
-  bool hasSameImageAs(ScreenshotPng other) {
-    if (other.width != width || other.height != height) {
-      return false;
-    }
-    return listEquals(data, other.data);
   }
 }

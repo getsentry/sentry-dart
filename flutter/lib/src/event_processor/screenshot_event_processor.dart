@@ -125,6 +125,6 @@ class ScreenshotEventProcessor implements EventProcessor {
   }
 
   @internal
-  Future<Uint8List?> createScreenshot() =>
-      _recorder.capture((screenshot) => Future.value(screenshot.data));
+  Future<Uint8List?> createScreenshot() => _recorder.capture(
+      (screenshot) => screenshot.pngData.then((v) => v.buffer.asUint8List()));
 }

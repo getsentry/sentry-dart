@@ -3,15 +3,15 @@ import 'dart:async';
 import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
-import '../screenshot/recorder.dart';
 import '../screenshot/retrier.dart';
+import '../screenshot/screenshot.dart';
 import 'replay_recorder.dart';
 import 'scheduled_recorder_config.dart';
 import 'scheduler.dart';
 
 @internal
 typedef ScheduledScreenshotRecorderCallback = Future<void> Function(
-    ScreenshotPng screenshot, bool isNewlyCaptured);
+    Screenshot screenshot, bool isNewlyCaptured);
 
 @internal
 class ScheduledScreenshotRecorder extends ReplayScreenshotRecorder {
@@ -102,7 +102,7 @@ class ScheduledScreenshotRecorder extends ReplayScreenshotRecorder {
     }
   }
 
-  Future<void> _onImageCaptured(ScreenshotPng screenshot) async {
+  Future<void> _onImageCaptured(Screenshot screenshot) async {
     if (_status == _Status.running) {
       await _onScreenshot(screenshot, true);
       // _idleFrameFiller.actualFrameReceived(screenshot);
@@ -114,7 +114,7 @@ class ScheduledScreenshotRecorder extends ReplayScreenshotRecorder {
   }
 
   Future<void> _onScreenshot(
-      ScreenshotPng screenshot, bool isNewlyCaptured) async {
+      Screenshot screenshot, bool isNewlyCaptured) async {
     if (_status == _Status.running) {
       await _callback(screenshot, isNewlyCaptured);
     } else {
@@ -138,11 +138,11 @@ class ScheduledScreenshotRecorder extends ReplayScreenshotRecorder {
 //   final ScheduledScreenshotRecorderCallback _callback;
 //   var _status = _Status.running;
 //   Future<void>? _scheduled;
-//   ScreenshotPng? _mostRecent;
+//   Screenshot? _mostRecent;
 
 //   _IdleFrameFiller(this._interval, this._callback);
 
-//   void actualFrameReceived(ScreenshotPng screenshot) {
+//   void actualFrameReceived(Screenshot screenshot) {
 //     // We store the most recent frame but only repost it when the most recent
 //     // one is the same instance (unchanged).
 //     _mostRecent = screenshot;
@@ -171,7 +171,7 @@ class ScheduledScreenshotRecorder extends ReplayScreenshotRecorder {
 //     }
 //   }
 
-//   void repostLater(Duration delay, ScreenshotPng screenshot) {
+//   void repostLater(Duration delay, Screenshot screenshot) {
 //     _scheduled = Future.delayed(delay, () async {
 //       if (_status == _Status.stopped) {
 //         return;
