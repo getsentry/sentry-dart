@@ -29,7 +29,7 @@ class ScreenshotEventProcessor implements EventProcessor {
     _debouncer = Debouncer(
       // ignore: invalid_use_of_internal_member
       _options.clock,
-      waitTimeMs: 2000,
+      waitTime: Duration(milliseconds: 2000),
     );
   }
 
@@ -50,7 +50,7 @@ class ScreenshotEventProcessor implements EventProcessor {
     }
 
     // skip capturing in case of debouncing (=too many frequent capture requests)
-    // the BeforeCaptureCallback may overrules the debouncing decision
+    // the BeforeCaptureCallback may overrule the debouncing decision
     final shouldDebounce = _debouncer.shouldDebounce();
 
     // ignore: deprecated_member_use_from_same_package
@@ -77,7 +77,7 @@ class ScreenshotEventProcessor implements EventProcessor {
       } else if (shouldDebounce) {
         _options.logger(
           SentryLevel.debug,
-          'Skipping screenshot capture due to debouncing (too many captures within ${_debouncer.waitTimeMs}ms)',
+          'Skipping screenshot capture due to debouncing (too many captures within ${_debouncer.waitTime.inMilliseconds}ms)',
         );
         takeScreenshot = false;
       }
@@ -88,7 +88,7 @@ class ScreenshotEventProcessor implements EventProcessor {
     } catch (exception, stackTrace) {
       _options.logger(
         SentryLevel.error,
-        'The beforeCapture/beforeScreenshot callback threw an exception',
+        'The beforeCaptureScreenshot/beforeScreenshot callback threw an exception',
         exception: exception,
         stackTrace: stackTrace,
       );

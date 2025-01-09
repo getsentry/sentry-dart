@@ -113,10 +113,17 @@ public final class SentryFlutter {
         }
 #if canImport(UIKit) && !SENTRY_NO_UIKIT && (os(iOS) || os(tvOS))
         if let replayOptions = data["replay"] as? [String: Any] {
-            options.experimental.sessionReplay.sessionSampleRate =
+            options.sessionReplay.sessionSampleRate =
                 (replayOptions["sessionSampleRate"] as? NSNumber)?.floatValue ?? 0
-            options.experimental.sessionReplay.onErrorSampleRate =
+            options.sessionReplay.onErrorSampleRate =
                 (replayOptions["onErrorSampleRate"] as? NSNumber)?.floatValue ?? 0
+
+            // TMP: this doesn't actually mask, just ensures we show the correct
+            // value in tags. https://github.com/getsentry/sentry-cocoa/issues/4666
+            options.sessionReplay.maskAllText =
+                (replayOptions["maskAllText"] as? Bool) ?? false
+            options.sessionReplay.maskAllImages =
+                (replayOptions["maskAllImages"] as? Bool) ?? false
         }
 #endif
     }

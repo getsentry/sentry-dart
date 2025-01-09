@@ -29906,6 +29906,8 @@ class SentryCocoa {
   late final _sel_setSdkName_1 = _registerName1("setSdkName:");
   late final _sel_getSdkName1 = _registerName1("getSdkName");
   late final _sel_getSdkVersionString1 = _registerName1("getSdkVersionString");
+  late final _sel_addSdkPackage_version_1 =
+      _registerName1("addSdkPackage:version:");
   late final _sel_getExtraContext1 = _registerName1("getExtraContext");
   late final _class_SentryId2 = _getClass1("Sentry.SentryId");
   late final _sel_startProfilerForTrace_1 =
@@ -70743,6 +70745,16 @@ class PrivateSentrySDKOnly extends NSObject {
     final _ret = _lib._objc_msgSend_20(
         _lib._class_PrivateSentrySDKOnly1, _lib._sel_getSdkVersionString1);
     return NSString._(_ret, _lib, retain: true, release: true);
+  }
+
+  /// Add a package to the SDK packages
+  static void addSdkPackage_version_(
+      SentryCocoa _lib, NSString? name, NSString? version) {
+    _lib._objc_msgSend_515(
+        _lib._class_PrivateSentrySDKOnly1,
+        _lib._sel_addSdkPackage_version_1,
+        name?._id ?? ffi.nullptr,
+        version?._id ?? ffi.nullptr);
   }
 
   /// Retrieves extra context

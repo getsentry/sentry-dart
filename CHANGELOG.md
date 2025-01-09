@@ -1,5 +1,26 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Add `beforeCapture` for View Hierarchy ([#2523](https://github.com/getsentry/sentry-dart/pull/2523))
+  - View hierarchy calls are now debounced for 2 seconds.
+  
+### Enhancements
+
+- Replay: improve iOS native interop performance ([#2530](https://github.com/getsentry/sentry-dart/pull/2530))
+- Replay: improve orientation change tracking accuracy on Android ([#2540](https://github.com/getsentry/sentry-dart/pull/2540))
+
+### Dependencies
+
+- Bump Cocoa SDK from v8.42.0 to v8.43.0 ([#2542](https://github.com/getsentry/sentry-dart/pull/2542), [#2548](https://github.com/getsentry/sentry-dart/pull/2548))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8430)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.42.0...8.43.0)
+- Bump Android SDK from v7.19.0 to v7.20.0 ([#2536](https://github.com/getsentry/sentry-dart/pull/2536), [#2549](https://github.com/getsentry/sentry-dart/pull/2549))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#7200)
+  - [diff](https://github.com/getsentry/sentry-java/compare/7.19.0...7.20.0)
+
 ## 8.12.0
 
 ### Deprecations
