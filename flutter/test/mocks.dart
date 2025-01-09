@@ -203,10 +203,11 @@ class NativeChannelFixture {
       handler;
   static TestDefaultBinaryMessenger get _messenger =>
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+  late final codec = StandardMethodCodec();
 
   NativeChannelFixture() {
     TestWidgetsFlutterBinding.ensureInitialized();
-    channel = MethodChannel('test.channel', StandardMethodCodec(), _messenger);
+    channel = MethodChannel('test.channel', codec, _messenger);
     handler = MockCallbacks().methodCallHandler;
     when(handler('initNativeSdk', any)).thenAnswer((_) => Future.value());
     when(handler('closeNativeSdk', any)).thenAnswer((_) => Future.value());
@@ -215,11 +216,15 @@ class NativeChannelFixture {
   }
 
   // Mock this call as if it was invoked by the native side.
-  Future<ByteData?> invokeFromNative(String method, [dynamic arguments]) async {
-    final call =
-        StandardMethodCodec().encodeMethodCall(MethodCall(method, arguments));
-    return _messenger.handlePlatformMessage(
+  Future<dynamic> invokeFromNative(String method, [dynamic arguments]) async {
+    final call = codec.encodeMethodCall(MethodCall(method, arguments));
+    final byteData = await _messenger.handlePlatformMessage(
         channel.name, call, (ByteData? data) {});
+    if (byteData != null) {
+      return codec.decodeEnvelope(byteData);
+    } else {
+      return null;
+    }
   }
 }
 

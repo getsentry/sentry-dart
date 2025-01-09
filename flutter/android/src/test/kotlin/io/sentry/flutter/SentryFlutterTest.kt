@@ -68,15 +68,15 @@ class SentryFlutterTest {
     assertEquals("admin", fixture.options.proxy?.user)
     assertEquals("0000", fixture.options.proxy?.pass)
 
-    assertEquals(0.5, fixture.options.experimental.sessionReplay.sessionSampleRate)
-    assertEquals(0.6, fixture.options.experimental.sessionReplay.onErrorSampleRate)
+    assertEquals(0.5, fixture.options.sessionReplay.sessionSampleRate)
+    assertEquals(0.6, fixture.options.sessionReplay.onErrorSampleRate)
 
     // Note: these are currently read-only in SentryReplayOptions so we're only asserting the default values here to
     // know when there's a change in the native SDK, as it may require a manual change in the Flutter implementation.
-    assertEquals(1, fixture.options.experimental.sessionReplay.frameRate)
-    assertEquals(30_000L, fixture.options.experimental.sessionReplay.errorReplayDuration)
-    assertEquals(5000L, fixture.options.experimental.sessionReplay.sessionSegmentDuration)
-    assertEquals(60 * 60 * 1000L, fixture.options.experimental.sessionReplay.sessionDuration)
+    assertEquals(1, fixture.options.sessionReplay.frameRate)
+    assertEquals(30_000L, fixture.options.sessionReplay.errorReplayDuration)
+    assertEquals(5000L, fixture.options.sessionReplay.sessionSegmentDuration)
+    assertEquals(60 * 60 * 1000L, fixture.options.sessionReplay.sessionDuration)
   }
 
   @Test

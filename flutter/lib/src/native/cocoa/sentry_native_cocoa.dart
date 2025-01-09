@@ -10,6 +10,7 @@ import '../../replay/replay_config.dart';
 import '../../replay/replay_recorder.dart';
 import '../../screenshot/recorder.dart';
 import '../../screenshot/recorder_config.dart';
+import '../native_memory.dart';
 import '../sentry_native_channel.dart';
 import 'binding.dart' as cocoa;
 
@@ -73,7 +74,10 @@ class SentryNativeCocoa extends SentryNativeChannel {
                 }
               }).then(completer.complete, onError: completer.completeError);
             });
-            return completer.future;
+            final uint8List = await completer.future;
+
+            // Malloc memory and copy the data. Native must free it.
+            return uint8List?.toNativeMemory().toJson();
           default:
             throw UnimplementedError('Method ${call.method} not implemented');
         }

@@ -11,6 +11,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/native/factory.dart';
+import '../native_memory_web_mock.dart'
+    if (dart.library.io) 'package:sentry_flutter/src/native/native_memory.dart';
 import 'package:sentry_flutter/src/native/sentry_native_binding.dart';
 
 import '../mocks.dart';
@@ -76,29 +78,35 @@ void main() {
           await sut.init(hub);
         });
 
-        test('sets replay ID to context', () async {
-          // verify there was no scope configured before
-          verifyNever(hub.configureScope(any));
+        testWidgets('sets replayID to context', (tester) async {
+          await tester.runAsync(() async {
+            // verify there was no scope configured before
+            verifyNever(hub.configureScope(any));
+            when(hub.configureScope(captureAny)).thenReturn(null);
 
-          // emulate the native platform invoking the method
-          await native.invokeFromNative(
-              mockPlatform.isAndroid
-                  ? 'ReplayRecorder.start'
-                  : 'captureReplayScreenshot',
-              replayConfig);
+            // emulate the native platform invoking the method
+            final future = native.invokeFromNative(
+                mockPlatform.isAndroid
+                    ? 'ReplayRecorder.start'
+                    : 'captureReplayScreenshot',
+                replayConfig);
+            await tester.pumpAndSettle(const Duration(seconds: 1));
+            await future;
 
-          // verify the replay ID was set
-          final closure =
-              verify(hub.configureScope(captureAny)).captured.single;
-          final scope = Scope(options);
-          expect(scope.replayId, isNull);
-          await closure(scope);
-          expect(scope.replayId.toString(), replayConfig['replayId']);
+            // verify the replay ID was set
+            final closure =
+                verify(hub.configureScope(captureAny)).captured.single;
+            final scope = Scope(options);
+            expect(scope.replayId, isNull);
+            await closure(scope);
+            expect(scope.replayId.toString(), replayConfig['replayId']);
+          });
         });
 
         test('clears replay ID from context', () async {
           // verify there was no scope configured before
           verifyNever(hub.configureScope(any));
+          when(hub.configureScope(captureAny)).thenReturn(null);
 
           // emulate the native platform invoking the method
           await native.invokeFromNative('ReplayRecorder.stop');
@@ -116,6 +124,7 @@ void main() {
         testWidgets('captures images', (tester) async {
           await tester.runAsync(() async {
             when(hub.configureScope(captureAny)).thenReturn(null);
+
             await pumpTestElement(tester);
             pumpAndSettle() => tester.pumpAndSettle(const Duration(seconds: 1));
 
@@ -198,17 +207,23 @@ void main() {
               expect(capturedImages, equals(fsImages()));
               expect(capturedImages.length, count);
             } else if (mockPlatform.isIOS) {
-              var imagaData = native.invokeFromNative(
-                  'captureReplayScreenshot', replayConfig);
-              await pumpAndSettle();
-              expect((await imagaData)?.lengthInBytes, greaterThan(3000));
+              Future<void> captureAndVerify() async {
+                final future = native.invokeFromNative(
+                    'captureReplayScreenshot', replayConfig);
+                await pumpAndSettle();
+                final json = (await future) as Map<dynamic, dynamic>;
 
-              // Happens if the session-replay rate is 0.
+                expect(json['length'], greaterThan(3000));
+                expect(json['address'], greaterThan(0));
+                NativeMemory.fromJson(json).free();
+              }
+
+              await captureAndVerify();
+
+              // Check everything works if session-replay rate is 0,
+              // which causes replayId to be 0 as well.
               replayConfig['replayId'] = null;
-              imagaData = native.invokeFromNative(
-                  'captureReplayScreenshot', replayConfig);
-              await pumpAndSettle();
-              expect((await imagaData)?.lengthInBytes, greaterThan(3000));
+              await captureAndVerify();
             } else {
               fail('unsupported platform');
             }
