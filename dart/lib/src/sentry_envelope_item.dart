@@ -13,7 +13,7 @@ import 'utils.dart';
 /// Item holding header information and JSON encoded data.
 class SentryEnvelopeItem {
   /// The original, non-encoded object, used when direct access to the source data is needed.
-  dynamic originalObject;
+  Object? originalObject;
 
   SentryEnvelopeItem(this.header, this.dataFactory, {this.originalObject});
 

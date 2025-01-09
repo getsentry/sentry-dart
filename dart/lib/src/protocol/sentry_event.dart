@@ -1,7 +1,9 @@
 import 'package:collection/collection.dart';
 import 'package:meta/meta.dart';
 
-import '../../sentry.dart';
+import '../protocol.dart';
+import '../throwable_mechanism.dart';
+import '../utils.dart';
 import 'access_aware_map.dart';
 
 /// An event to be reported to Sentry.io.

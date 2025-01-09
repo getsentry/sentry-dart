@@ -1,7 +1,8 @@
 import 'dart:async';
 import 'dart:typed_data';
 
-import '../../sentry.dart';
+import '../protocol/sentry_view_hierarchy.dart';
+import '../utils.dart';
 
 // https://develop.sentry.dev/sdk/features/#attachments
 // https://develop.sentry.dev/sdk/envelopes/#attachment

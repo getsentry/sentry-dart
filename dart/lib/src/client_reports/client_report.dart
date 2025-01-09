@@ -1,6 +1,6 @@
 import 'package:meta/meta.dart';
 
-import '../../sentry.dart';
+import '../utils.dart';
 import 'discarded_event.dart';
 
 @internal

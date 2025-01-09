@@ -1,6 +1,6 @@
 import 'package:meta/meta.dart';
 
-import '../sentry.dart';
+import 'protocol.dart';
 import 'protocol/access_aware_map.dart';
 
 @Deprecated('Will be removed in a future version. Use [SentryFeedback] instead')
