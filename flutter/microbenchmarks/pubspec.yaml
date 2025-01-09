@@ -11,6 +11,9 @@ dependencies:
     sdk: flutter
   meta: ^1.15.0
   test: ^1.25.14
+  benchmarking: ^0.6.1
+  sentry_flutter:
+    path: ../
 
 flutter:
   uses-material-design: true

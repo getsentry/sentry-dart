@@ -20,8 +20,6 @@ class Benchmark {
 }
 
 Future<void> main() async {
-  assert(false, "Don't run benchmarks in debug mode! Use 'flutter run --release'.");
-
   // BenchmarkingBinding is used by animation_bench, providing a simple
   // stopwatch interface over rendering. Lifting it here makes all
   // benchmarks run together.
@@ -41,7 +39,8 @@ Future<void> main() async {
     allowed: allowed,
     help: 'selected tests to run',
   );
-  parser.addOption('seed', defaultsTo: '12345', help: 'selects seed to sort tests by');
+  parser.addOption('seed',
+      defaultsTo: '12345', help: 'selects seed to sort tests by');
   final List<String> mainArgs = <String>[];
   const String testArgs = String.fromEnvironment('tests');
   if (testArgs.isNotEmpty) {
@@ -62,6 +61,9 @@ Future<void> main() async {
   final List<Benchmark> tests =
       benchmarks.where((Benchmark e) => selectedTests.contains(e.$1)).toList();
   tests.shuffle(Random(int.parse(results.option('seed')!)));
+
+  // Wait for the app to stabilize before running the benchmarks.
+  await Future<void>.delayed(const Duration(seconds: 1));
 
   print('╡ ••• Running microbenchmarks ••• ╞');
   for (final Benchmark mark in tests) {
