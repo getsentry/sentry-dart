@@ -25,12 +25,13 @@ class ScreenshotStabilizer<R> {
   final ScreenshotRecorder _recorder;
   final Future<R> Function(Screenshot screenshot) _callback;
   final int? maxTries;
+  final FrameSchedulingMode frameSchedulingMode;
   Screenshot? _previousScreenshot;
   int _tries = 0;
   bool stopped = false;
 
   ScreenshotStabilizer(this._recorder, this._options, this._callback,
-      {this.maxTries}) {
+      {this.maxTries, this.frameSchedulingMode = FrameSchedulingMode.normal}) {
     assert(maxTries == null || maxTries! > 1,
         "Cannot use ScreenshotStabilizer if we cannot retry at least once.");
   }
@@ -41,9 +42,16 @@ class ScreenshotStabilizer<R> {
   }
 
   void ensureFrameAndAddCallback(FrameCallback callback) {
-    _options.bindingUtils.instance!
-      ..ensureVisualUpdate()
-      ..addPostFrameCallback(callback);
+    final binding = _options.bindingUtils.instance!;
+    switch (frameSchedulingMode) {
+      case FrameSchedulingMode.normal:
+        binding.scheduleFrame();
+        break;
+      case FrameSchedulingMode.forced:
+        binding.scheduleForcedFrame();
+        break;
+    }
+    binding.addPostFrameCallback(callback);
   }
 
   Future<void> capture(Duration _) {
@@ -115,4 +123,15 @@ class ScreenshotStabilizer<R> {
       return completer.future;
     }
   }
+}
+
+@internal
+enum FrameSchedulingMode {
+  /// The frame is scheduled only if the UI is visible.
+  /// If you await for the callback, it may take indefinitely long if the
+  /// app is in the background.
+  normal,
+
+  /// A forced frame is scheduled immediately regardless of the UI visibility.
+  forced,
 }
