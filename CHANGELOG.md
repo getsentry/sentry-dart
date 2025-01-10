@@ -6,11 +6,15 @@
 
 - Add `beforeCapture` for View Hierarchy ([#2523](https://github.com/getsentry/sentry-dart/pull/2523))
   - View hierarchy calls are now debounced for 2 seconds.
-  
+
 ### Enhancements
 
 - Replay: improve iOS native interop performance ([#2530](https://github.com/getsentry/sentry-dart/pull/2530))
 - Replay: improve orientation change tracking accuracy on Android ([#2540](https://github.com/getsentry/sentry-dart/pull/2540))
+
+### Fixes
+
+- Replay: fix masking for frames captured during UI changes ([#2553](https://github.com/getsentry/sentry-dart/pull/2553))
 
 ### Dependencies
 
