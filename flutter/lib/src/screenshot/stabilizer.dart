@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/scheduler.dart';
 import 'package:meta/meta.dart';
@@ -23,17 +24,20 @@ class ScreenshotStabilizer<R> {
   final SentryFlutterOptions _options;
   final ScreenshotRecorder _recorder;
   final Future<R> Function(Screenshot screenshot) _callback;
+  final int? maxTries;
   Screenshot? _previousScreenshot;
   int _tries = 0;
   bool stopped = false;
 
-  ScreenshotStabilizer(this._recorder, this._options, this._callback) {
-    assert(_options.screenshotRetries >= 1,
+  ScreenshotStabilizer(this._recorder, this._options, this._callback,
+      {this.maxTries}) {
+    assert(maxTries == null || maxTries! > 1,
         "Cannot use ScreenshotStabilizer if we cannot retry at least once.");
   }
 
   void dispose() {
     _previousScreenshot?.dispose();
+    _previousScreenshot = null;
   }
 
   void ensureFrameAndAddCallback(FrameCallback callback) {
@@ -68,10 +72,16 @@ class ScreenshotStabilizer<R> {
           // the new timestamp.
           await _callback(screenshot);
         }
-      } else if (_tries > _options.screenshotRetries) {
+      } else if (maxTries != null && _tries >= maxTries!) {
         throw Exception('Failed to capture a stable screenshot. '
             'Giving up after $_tries tries.');
       } else {
+        // Add a delay to give the UI a chance to stabilize.
+        if (_tries > 0) {
+          await Future<void>.delayed(
+              Duration(milliseconds: min(100, 10 * (_tries - 1))));
+        }
+
         final completer = Completer<void>();
         ensureFrameAndAddCallback((Duration sinceSchedulerEpoch) async {
           _tries++;

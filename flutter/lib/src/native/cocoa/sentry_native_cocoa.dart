@@ -55,6 +55,7 @@ class SentryNativeCocoa extends SentryNativeChannel {
             }
 
             final completer = Completer<Uint8List?>();
+
             final stabilizer = ScreenshotStabilizer(_replayRecorder!, options,
                 (screenshot) async {
               final pngData = await screenshot.pngData;
@@ -65,10 +66,18 @@ class SentryNativeCocoa extends SentryNativeChannel {
                   '${pngData.lengthInBytes} bytes)');
               completer.complete(pngData.buffer.asUint8List());
             });
-            stabilizer.ensureFrameAndAddCallback((msSinceEpoch) {
-              stabilizer.capture(msSinceEpoch).onError(completer.completeError);
-            });
-            final uint8List = await completer.future;
+
+            late final Uint8List? uint8List;
+            try {
+              stabilizer.ensureFrameAndAddCallback((msSinceEpoch) {
+                stabilizer
+                    .capture(msSinceEpoch)
+                    .onError(completer.completeError);
+              });
+              uint8List = await completer.future;
+            } finally {
+              stabilizer.dispose();
+            }
 
             // Malloc memory and copy the data. Native must free it.
             return uint8List?.toNativeMemory().toJson();

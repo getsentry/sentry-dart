@@ -11,6 +11,8 @@ import 'package:sentry_flutter/src/renderer/renderer.dart';
 import '../mocks.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
+import '../replay/replay_test_util.dart';
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   late Fixture fixture;
@@ -40,7 +42,7 @@ void main() {
       final throwable = Exception();
       event = SentryEvent(throwable: throwable);
       hint = Hint();
-      await sut.apply(event, hint);
+      await tester.pumpAndWaitUntil(sut.apply(event, hint));
 
       expect(hint.screenshot != null, added);
       if (expectedMaxWidthOrHeight != null) {
@@ -57,6 +59,12 @@ void main() {
   }
 
   testWidgets('adds screenshot attachment dart:io', (tester) async {
+    await _addScreenshotAttachment(tester, null, added: true, isWeb: false);
+  });
+
+  testWidgets('adds screenshot attachment with masking enabled dart:io',
+      (tester) async {
+    fixture.options.experimental.privacy.maskAllText = true;
     await _addScreenshotAttachment(tester, null, added: true, isWeb: false);
   });
 

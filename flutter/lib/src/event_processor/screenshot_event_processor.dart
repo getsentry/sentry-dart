@@ -133,11 +133,16 @@ class ScreenshotEventProcessor implements EventProcessor {
     } else {
       // If masking is enabled, we need to use [ScreenshotStabilizer].
       final completer = Completer<Uint8List?>();
-      final stabilizer =
-          ScreenshotStabilizer(_recorder, _options, (screenshot) async {
-        final pngData = await screenshot.pngData;
-        completer.complete(pngData.buffer.asUint8List());
-      });
+      final stabilizer = ScreenshotStabilizer(
+        _recorder,
+        _options,
+        (screenshot) async {
+          final pngData = await screenshot.pngData;
+          completer.complete(pngData.buffer.asUint8List());
+        },
+        // This limits the amount of time to take a stable masked screenshot.
+        maxTries: 5,
+      );
       unawaited(
           stabilizer.capture(Duration.zero).onError(completer.completeError));
       final uint8List = await completer.future;

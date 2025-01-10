@@ -82,6 +82,7 @@ class ScheduledScreenshotRecorder extends ReplayScreenshotRecorder {
     options.logger(SentryLevel.debug, "$logName: stopping capture.");
     _status = _Status.stopped;
     await _stopScheduler();
+    _stabilizer.dispose();
     // await Future.wait([_stopScheduler(), _idleFrameFiller.stop()]);
     options.logger(SentryLevel.debug, "$logName: capture stopped.");
   }
