@@ -64,49 +64,55 @@ class ScreenshotStabilizer<R> {
           await prevScreenshot.hasSameImageAs(screenshot)) {
         // Sucessfully captured a stable screenshot (repeated at least twice).
         _tries = 0;
-        if (prevScreenshot.flow.id == screenshot.flow.id) {
-          // If it's from the same (retry) flow, use the first screenshot timestamp.
-          await _callback(prevScreenshot);
-        } else {
-          // Otherwise this was called from a scheduler (in a new flow) so use
-          // the new timestamp.
-          await _callback(screenshot);
-        }
-      } else if (maxTries != null && _tries >= maxTries!) {
-        throw Exception('Failed to capture a stable screenshot. '
-            'Giving up after $_tries tries.');
-      } else {
-        // Add a delay to give the UI a chance to stabilize.
-        // Only do this on every other frame so that there's a greater chance
-        // of two subsequent frames being the same.
-        final sleepMs = _tries % 2 == 1 ? min(100, 10 * (_tries - 1)) : 0;
 
-        if (_tries > 1) {
-          _options.logger(
-              SentryLevel.debug,
-              '${_recorder.logName}: '
-              'Retrying screenshot capture due to UI changes. '
-              'Delay before next capture: $sleepMs ms.');
-        }
+        // If it's from the same (retry) flow, use the first screenshot
+        // timestamp. Otherwise this was called from a scheduler (in a new flow)
+        // so use the new timestamp.
+        await _callback((prevScreenshot.flow.id == screenshot.flow.id)
+            ? prevScreenshot
+            : screenshot);
 
-        if (sleepMs > 0) {
-          await Future<void>.delayed(Duration(milliseconds: sleepMs));
-        }
-
-        final completer = Completer<void>();
-        ensureFrameAndAddCallback((Duration sinceSchedulerEpoch) async {
-          _tries++;
-          try {
-            await _recorder.capture(_onImageCaptured, screenshot.flow);
-            completer.complete();
-          } catch (e, stackTrace) {
-            completer.completeError(e, stackTrace);
-          }
-        });
-        return completer.future;
+        // Do not just return the Future resulting from callback().
+        // We need to await here so that the dispose runs ASAP.
+        return;
       }
     } finally {
+      // Note: we need to dispose (free the memory) before recursion.
       prevScreenshot?.dispose();
+    }
+
+    if (maxTries != null && _tries >= maxTries!) {
+      throw Exception('Failed to capture a stable screenshot. '
+          'Giving up after $_tries tries.');
+    } else {
+      // Add a delay to give the UI a chance to stabilize.
+      // Only do this on every other frame so that there's a greater chance
+      // of two subsequent frames being the same.
+      final sleepMs = _tries % 2 == 1 ? min(100, 10 * (_tries - 1)) : 0;
+
+      if (_tries > 1) {
+        _options.logger(
+            SentryLevel.debug,
+            '${_recorder.logName}: '
+            'Retrying screenshot capture due to UI changes. '
+            'Delay before next capture: $sleepMs ms.');
+      }
+
+      if (sleepMs > 0) {
+        await Future<void>.delayed(Duration(milliseconds: sleepMs));
+      }
+
+      final completer = Completer<void>();
+      ensureFrameAndAddCallback((Duration sinceSchedulerEpoch) async {
+        _tries++;
+        try {
+          await _recorder.capture(_onImageCaptured, screenshot.flow);
+          completer.complete();
+        } catch (e, stackTrace) {
+          completer.completeError(e, stackTrace);
+        }
+      });
+      return completer.future;
     }
   }
 }
