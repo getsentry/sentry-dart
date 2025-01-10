@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
-import '../screenshot/retrier.dart';
+import '../screenshot/stabilizer.dart';
 import '../screenshot/screenshot.dart';
 import 'replay_recorder.dart';
 import 'scheduled_recorder_config.dart';
@@ -19,7 +19,7 @@ class ScheduledScreenshotRecorder extends ReplayScreenshotRecorder {
   late final ScheduledScreenshotRecorderCallback _callback;
   var _status = _Status.running;
   late final Duration _frameDuration;
-  late final ScreenshotRetrier<void> _retrier;
+  late final ScreenshotStabilizer<void> _stabilizer;
   // late final _idleFrameFiller = _IdleFrameFiller(_frameDuration, _onScreenshot);
 
   @override
@@ -35,9 +35,9 @@ class ScheduledScreenshotRecorder extends ReplayScreenshotRecorder {
     _frameDuration = Duration(milliseconds: 1000 ~/ config.frameRate);
     assert(_frameDuration.inMicroseconds > 0);
 
-    _retrier = ScreenshotRetrier(this, options, _onImageCaptured);
-    _scheduler = Scheduler(
-        _frameDuration, _retrier.capture, _retrier.ensureFrameAndAddCallback);
+    _stabilizer = ScreenshotStabilizer(this, options, _onImageCaptured);
+    _scheduler = Scheduler(_frameDuration, _stabilizer.capture,
+        _stabilizer.ensureFrameAndAddCallback);
 
     if (callback != null) {
       _callback = callback;
@@ -63,12 +63,12 @@ class ScheduledScreenshotRecorder extends ReplayScreenshotRecorder {
   }
 
   Future<void> _stopScheduler() {
-    _retrier.stopped = true;
+    _stabilizer.stopped = true;
     return _scheduler.stop();
   }
 
   void _startScheduler() {
-    _retrier.stopped = false;
+    _stabilizer.stopped = false;
     _scheduler.start();
 
     // We need to schedule a frame because if this happens in-between user

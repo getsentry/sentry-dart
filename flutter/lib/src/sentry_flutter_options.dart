@@ -11,7 +11,7 @@ import 'binding_wrapper.dart';
 import 'navigation/time_to_display_tracker.dart';
 import 'renderer/renderer.dart';
 import 'screenshot/sentry_screenshot_quality.dart';
-import 'screenshot/retrier.dart';
+import 'screenshot/stabilizer.dart';
 import 'event_processor/screenshot_event_processor.dart';
 import 'sentry_flutter.dart';
 import 'sentry_privacy_options.dart';
@@ -206,7 +206,7 @@ class SentryFlutterOptions extends SentryOptions {
   /// from the function, no screenshot will be attached.
   BeforeCaptureCallback? beforeCaptureScreenshot;
 
-  /// See [ScreenshotRetrier]
+  /// See [ScreenshotStabilizer]
   @meta.internal
   int screenshotRetries = 5;
 

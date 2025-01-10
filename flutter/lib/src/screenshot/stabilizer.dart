@@ -18,9 +18,8 @@ import 'screenshot.dart';
 /// To get around this issue, we're taking two subsequent screenshots
 /// (after two frames) and only actually capture a screenshot if the
 /// two are exactly the same.
-/// We only do these if masking is enabled.
 @internal
-class ScreenshotRetrier<R> {
+class ScreenshotStabilizer<R> {
   final SentryFlutterOptions _options;
   final ScreenshotRecorder _recorder;
   final Future<R> Function(Screenshot screenshot) _callback;
@@ -28,9 +27,9 @@ class ScreenshotRetrier<R> {
   int _tries = 0;
   bool stopped = false;
 
-  ScreenshotRetrier(this._recorder, this._options, this._callback) {
+  ScreenshotStabilizer(this._recorder, this._options, this._callback) {
     assert(_options.screenshotRetries >= 1,
-        "Cannot use ScreenshotRetrier if we cannot retry at least once.");
+        "Cannot use ScreenshotStabilizer if we cannot retry at least once.");
   }
 
   void ensureFrameAndAddCallback(FrameCallback callback) {

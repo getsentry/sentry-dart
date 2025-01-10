@@ -9,7 +9,7 @@ import '../../replay/replay_config.dart';
 import '../../replay/replay_recorder.dart';
 import '../../screenshot/recorder.dart';
 import '../../screenshot/recorder_config.dart';
-import '../../screenshot/retrier.dart';
+import '../../screenshot/stabilizer.dart';
 import '../native_memory.dart';
 import '../sentry_native_channel.dart';
 import 'binding.dart' as cocoa;
@@ -55,7 +55,7 @@ class SentryNativeCocoa extends SentryNativeChannel {
             }
 
             final completer = Completer<Uint8List?>();
-            final retrier = ScreenshotRetrier(_replayRecorder!, options,
+            final stabilizer = ScreenshotStabilizer(_replayRecorder!, options,
                 (screenshot) async {
               final pngData = await screenshot.pngData;
               options.logger(
@@ -65,8 +65,8 @@ class SentryNativeCocoa extends SentryNativeChannel {
                   '${pngData.lengthInBytes} bytes)');
               completer.complete(pngData.buffer.asUint8List());
             });
-            retrier.ensureFrameAndAddCallback((msSinceEpoch) {
-              retrier.capture(msSinceEpoch).onError(completer.completeError);
+            stabilizer.ensureFrameAndAddCallback((msSinceEpoch) {
+              stabilizer.capture(msSinceEpoch).onError(completer.completeError);
             });
             final uint8List = await completer.future;
 
