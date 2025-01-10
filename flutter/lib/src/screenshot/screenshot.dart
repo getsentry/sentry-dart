@@ -72,19 +72,27 @@ class Screenshot {
     /// For now, the best we can do is compare by chunks of 8 bytes.
     // return 0 == memcmp(dataA.address, dataB.address, dataA.lengthInBytes);
 
-    final numWords = dataA.lengthInBytes ~/ 8;
-    final wordsA = dataA.buffer.asUint64List(0, numWords);
-    final wordsB = dataB.buffer.asUint64List(0, numWords);
+    late final int processed;
+    try {
+      final numWords = dataA.lengthInBytes ~/ 8;
+      final wordsA = dataA.buffer.asUint64List(0, numWords);
+      final wordsB = dataB.buffer.asUint64List(0, numWords);
 
-    for (var i = 0; i < wordsA.length; i++) {
-      if (wordsA[i] != wordsB[i]) {
-        return false;
+      for (var i = 0; i < wordsA.length; i++) {
+        if (wordsA[i] != wordsB[i]) {
+          return false;
+        }
       }
+      processed = wordsA.lengthInBytes;
+    } on UnsupportedError {
+      // This should only trigger on dart2js:
+      // Unsupported operation: Uint64List not supported by dart2js.
+      processed = 0;
     }
 
     // Compare any remaining bytes.
-    final bytesA = dataA.buffer.asUint8List(wordsA.lengthInBytes);
-    final bytesB = dataB.buffer.asUint8List(wordsA.lengthInBytes);
+    final bytesA = dataA.buffer.asUint8List(processed);
+    final bytesB = dataB.buffer.asUint8List(processed);
     for (var i = 0; i < bytesA.lengthInBytes; i++) {
       if (bytesA[i] != bytesB[i]) {
         return false;
