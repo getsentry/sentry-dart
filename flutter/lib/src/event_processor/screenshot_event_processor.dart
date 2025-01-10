@@ -9,6 +9,7 @@ import '../screenshot/recorder.dart';
 import '../screenshot/recorder_config.dart';
 import 'package:flutter/widgets.dart' as widget;
 
+import '../screenshot/stabilizer.dart';
 import '../utils/debouncer.dart';
 
 class ScreenshotEventProcessor implements EventProcessor {
@@ -125,6 +126,23 @@ class ScreenshotEventProcessor implements EventProcessor {
   }
 
   @internal
-  Future<Uint8List?> createScreenshot() => _recorder.capture(
-      (screenshot) => screenshot.pngData.then((v) => v.buffer.asUint8List()));
+  Future<Uint8List?> createScreenshot() async {
+    if (_options.experimental.privacyForScreenshots == null) {
+      return _recorder.capture((screenshot) =>
+          screenshot.pngData.then((v) => v.buffer.asUint8List()));
+    } else {
+      // If masking is enabled, we need to use [ScreenshotStabilizer].
+      final completer = Completer<Uint8List?>();
+      final stabilizer =
+          ScreenshotStabilizer(_recorder, _options, (screenshot) async {
+        final pngData = await screenshot.pngData;
+        completer.complete(pngData.buffer.asUint8List());
+      });
+      unawaited(
+          stabilizer.capture(Duration.zero).onError(completer.completeError));
+      final uint8List = await completer.future;
+      stabilizer.dispose();
+      return uint8List;
+    }
+  }
 }

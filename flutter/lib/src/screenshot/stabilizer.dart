@@ -32,13 +32,17 @@ class ScreenshotStabilizer<R> {
         "Cannot use ScreenshotStabilizer if we cannot retry at least once.");
   }
 
+  void dispose() {
+    _previousScreenshot?.dispose();
+  }
+
   void ensureFrameAndAddCallback(FrameCallback callback) {
     _options.bindingUtils.instance!
       ..ensureVisualUpdate()
       ..addPostFrameCallback(callback);
   }
 
-  Future<void> capture(Duration sinceSchedulerEpoch) {
+  Future<void> capture(Duration _) {
     _tries++;
     return _recorder.capture(_onImageCaptured);
   }
