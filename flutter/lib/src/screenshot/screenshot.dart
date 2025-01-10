@@ -55,9 +55,6 @@ class Screenshot {
   void dispose() => _image.dispose();
 
   /// Efficiently compares two memory regions for data equality..
-  /// Ideally, we would use memcmp with Uint8List.address but that's only
-  /// available since Dart 3.5.0.
-  /// For now, the best we can do is compare by chunks of 8 bytes.
   @visibleForTesting
   static bool listEquals(ByteData dataA, ByteData dataB) {
     if (identical(dataA, dataB)) {
@@ -66,6 +63,12 @@ class Screenshot {
     if (dataA.lengthInBytes != dataB.lengthInBytes) {
       return false;
     }
+
+    /// Ideally, we would use memcmp with Uint8List.address but that's only
+    /// available since Dart 3.5.0. The relevant code is commented out below and
+    /// Should be used once we can bump the Dart SDK in the next major version.
+    /// For now, the best we can do is compare by chunks of 8 bytes.
+    // return 0 == memcmp(dataA.address, dataB.address, dataA.lengthInBytes);
 
     final numWords = dataA.lengthInBytes ~/ 8;
     final wordsA = dataA.buffer.asUint64List(0, numWords);
@@ -89,3 +92,9 @@ class Screenshot {
     return true;
   }
 }
+
+// /// Compares the first num bytes of the block of memory pointed by ptr1 to the
+// /// first num bytes pointed by ptr2, returning zero if they all match or a value
+// ///  different from zero representing which is greater if they do not.
+// @Native<Int32 Function(Pointer, Pointer, Int32)>(symbol: 'memcmp', isLeaf: true)
+// external int memcmp(Pointer<Uint8> ptr1, Pointer<Uint8> ptr2, int len);
