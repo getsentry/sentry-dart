@@ -77,9 +77,20 @@ class ScreenshotStabilizer<R> {
             'Giving up after $_tries tries.');
       } else {
         // Add a delay to give the UI a chance to stabilize.
-        if (_tries > 0) {
-          await Future<void>.delayed(
-              Duration(milliseconds: min(100, 10 * (_tries - 1))));
+        // Only do this on every other frame so that there's a greater chance
+        // of two subsequent frames being the same.
+        final sleepMs = _tries % 2 == 1 ? min(100, 10 * (_tries - 1)) : 0;
+
+        if (_tries > 1) {
+          _options.logger(
+              SentryLevel.debug,
+              '${_recorder.logName}: '
+              'Retrying screenshot capture due to UI changes. '
+              'Delay before next capture: $sleepMs ms.');
+        }
+
+        if (sleepMs > 0) {
+          await Future<void>.delayed(Duration(milliseconds: sleepMs));
         }
 
         final completer = Completer<void>();

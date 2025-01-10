@@ -22,7 +22,6 @@ class ScreenshotRecorder {
   @protected
   final SentryFlutterOptions options;
 
-  @protected
   final String logName;
   bool _warningLogged = false;
   late final SentryMaskingConfig? _maskingConfig;
