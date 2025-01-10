@@ -1,12 +1,17 @@
 import 'dart:ffi';
+import 'dart:math';
 
 import 'package:benchmarking/benchmarking.dart';
 import 'package:flutter/foundation.dart';
 import 'package:test/test.dart';
 
 Future<void> execute() async {
-  const size = 1000 * 1000;
-  final dataA = Uint8List.fromList(List.generate(size, (index) => index % 256));
+  final rand = Random();
+
+  // Randomized size prevents loop optimizations of constant sized loops.
+  final size = 1000 * 1000 + rand.nextInt(5);
+  final dataA = Uint8List.fromList(
+      List.generate(size, (index) => rand.nextInt(size) % 256));
   final byteDataA = dataA.buffer.asByteData();
   final dataB = Uint8List.fromList(dataA);
   final byteDataB = dataB.buffer.asByteData();
