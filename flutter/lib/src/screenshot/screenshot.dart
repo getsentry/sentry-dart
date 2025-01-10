@@ -82,7 +82,7 @@ class Screenshot {
 
     // Compare any remaining bytes.
     final bytesA = dataA.buffer.asUint8List(wordsA.lengthInBytes);
-    final bytesB = dataA.buffer.asUint8List(wordsA.lengthInBytes);
+    final bytesB = dataB.buffer.asUint8List(wordsA.lengthInBytes);
     for (var i = 0; i < bytesA.lengthInBytes; i++) {
       if (bytesA[i] != bytesB[i]) {
         return false;

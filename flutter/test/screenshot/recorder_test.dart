@@ -3,6 +3,7 @@
 @TestOn('vm')
 library dart_test;
 
+import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:flutter/widgets.dart' as widgets;
@@ -11,6 +12,7 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/replay/replay_recorder.dart';
 import 'package:sentry_flutter/src/screenshot/recorder.dart';
 import 'package:sentry_flutter/src/screenshot/recorder_config.dart';
+import 'package:sentry_flutter/src/screenshot/screenshot.dart';
 
 import '../mocks.dart';
 import 'test_widget.dart';
@@ -134,6 +136,64 @@ void main() async {
       final sut = ScreenshotRecorder(ScreenshotRecorderConfig(),
           defaultTestOptions()..experimental.privacy.maskAllText = false);
       expect(sut.hasWidgetFilter, isTrue);
+    });
+  });
+
+  group('$Screenshot', () {
+    test('listEquals()', () {
+      expect(
+          Screenshot.listEquals(
+            Uint8List(0).buffer.asByteData(),
+            Uint8List(0).buffer.asByteData(),
+          ),
+          isTrue);
+      expect(
+          Screenshot.listEquals(
+            Uint8List.fromList([1, 2, 3]).buffer.asByteData(),
+            Uint8List.fromList([1, 2, 3]).buffer.asByteData(),
+          ),
+          isTrue);
+      expect(
+          Screenshot.listEquals(
+            Uint8List.fromList([1, 0, 3]).buffer.asByteData(),
+            Uint8List.fromList([1, 2, 3]).buffer.asByteData(),
+          ),
+          isFalse);
+      expect(
+          Screenshot.listEquals(
+            Uint8List.fromList([1, 2, 3, 4, 5, 6, 7, 8]).buffer.asByteData(),
+            Uint8List.fromList([1, 2, 3, 4, 5, 6, 7, 8]).buffer.asByteData(),
+          ),
+          isTrue);
+      expect(
+          Screenshot.listEquals(
+            Uint8List.fromList([1, 2, 3, 4, 5, 6, 0, 8]).buffer.asByteData(),
+            Uint8List.fromList([1, 2, 3, 4, 5, 6, 7, 8]).buffer.asByteData(),
+          ),
+          isFalse);
+      expect(
+          Screenshot.listEquals(
+            Uint8List.fromList([1, 2, 3, 4, 5, 6, 7, 8, 9]).buffer.asByteData(),
+            Uint8List.fromList([1, 2, 3, 4, 5, 6, 7, 8, 9]).buffer.asByteData(),
+          ),
+          isTrue);
+      expect(
+          Screenshot.listEquals(
+            Uint8List.fromList([1, 2, 3, 4, 5, 6, 7, 8, 9]).buffer.asByteData(),
+            Uint8List.fromList([1, 2, 3, 4, 5, 6, 7, 8, 0]).buffer.asByteData(),
+          ),
+          isFalse);
+
+      final dataA = Uint8List.fromList(
+              List.generate(10 * 1000 * 1000, (index) => index % 256))
+          .buffer
+          .asByteData();
+      final dataB = ByteData(dataA.lengthInBytes)
+        ..buffer.asUint8List().setAll(0, dataA.buffer.asUint8List());
+      expect(Screenshot.listEquals(dataA, dataB), isTrue);
+
+      dataB.setInt8(dataB.lengthInBytes >> 2, 0);
+      expect(Screenshot.listEquals(dataA, dataB), isFalse);
     });
   });
 }
