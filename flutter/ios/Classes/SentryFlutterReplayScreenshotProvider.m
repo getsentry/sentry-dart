@@ -33,11 +33,45 @@
                 NSDictionary *dict = (NSDictionary *)value;
                 long address = ((NSNumber *)dict[@"address"]).longValue;
                 NSNumber *length = ((NSNumber *)dict[@"length"]);
+                NSNumber *width = ((NSNumber *)dict[@"width"]);
+                NSNumber *height = ((NSNumber *)dict[@"height"]);
                 NSData *data =
                     [NSData dataWithBytesNoCopy:(void *)address
                                          length:length.unsignedLongValue
                                    freeWhenDone:TRUE];
-                UIImage *image = [UIImage imageWithData:data];
+
+                // We expect rawRGBA, see from
+                // https://api.flutter.dev/flutter/dart-ui/ImageByteFormat.html
+                // Unencoded bytes, in RGBA row-primary form with premultiplied
+                // alpha, 8 bits per channel.
+                static const int kBitsPerChannel = 8;
+                static const int kBytesPerPixel = 4;
+                assert(length.unsignedLongValue % kBytesPerPixel == 0);
+
+                // Let's create an UIImage from the raw data.
+                // We need to provide it the width & height and
+                // the info how the data is encoded.
+                CGDataProviderRef provider =
+                    CGDataProviderCreateWithCFData((CFDataRef)data);
+                CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+                CGBitmapInfo bitmapInfo =
+                    kCGBitmapByteOrderDefault | kCGImageAlphaPremultipliedLast;
+                CGImageRef cgImage = CGImageCreate(
+                    width.unsignedLongValue,          // width
+                    height.unsignedLongValue,         // height
+                    kBitsPerChannel,                  // bits per component
+                    kBitsPerChannel * kBytesPerPixel, // bits per pixel
+                    width.unsignedLongValue * kBytesPerPixel, // bytes per row
+                    colorSpace, bitmapInfo, provider, NULL, false,
+                    kCGRenderingIntentDefault);
+
+                UIImage *image = [UIImage imageWithCGImage:cgImage];
+
+                // UIImage takes its own refs, we need to release these here.
+                CGImageRelease(cgImage);
+                CGColorSpaceRelease(colorSpace);
+                CGDataProviderRelease(provider);
+
                 onComplete(image);
                 return;
               } else if ([value isKindOfClass:[FlutterError class]]) {

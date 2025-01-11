@@ -12,19 +12,19 @@ class Screenshot {
   final Image _image;
   final DateTime timestamp;
   final Flow flow;
-  Future<ByteData>? _rawData;
+  Future<ByteData>? _rawRgbaData;
   Future<ByteData>? _pngData;
 
   Screenshot(this._image, this.timestamp, this.flow);
   Screenshot._cloned(
-      this._image, this.timestamp, this.flow, this._rawData, this._pngData);
+      this._image, this.timestamp, this.flow, this._rawRgbaData, this._pngData);
 
   int get width => _image.width;
   int get height => _image.height;
 
-  Future<ByteData> get rawData {
-    _rawData ??= _encode(ImageByteFormat.rawUnmodified);
-    return _rawData!;
+  Future<ByteData> get rawRgbaData {
+    _rawRgbaData ??= _encode(ImageByteFormat.rawRgba);
+    return _rawRgbaData!;
   }
 
   Future<ByteData> get pngData {
@@ -45,13 +45,13 @@ class Screenshot {
       return false;
     }
 
-    return listEquals(await rawData, await other.rawData);
+    return listEquals(await rawRgbaData, await other.rawRgbaData);
   }
 
   Screenshot clone() {
     assert(!_image.debugDisposed);
     return Screenshot._cloned(
-        _image.clone(), timestamp, flow, _rawData, _pngData);
+        _image.clone(), timestamp, flow, _rawRgbaData, _pngData);
   }
 
   void dispose() => _image.dispose();
