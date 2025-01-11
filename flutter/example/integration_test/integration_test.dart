@@ -20,6 +20,8 @@ void main() {
   const fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
 
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  IntegrationTestWidgetsFlutterBinding.instance.framePolicy =
+      LiveTestWidgetsFlutterBindingFramePolicy.fullyLive;
 
   tearDown(() async {
     await Sentry.close();
