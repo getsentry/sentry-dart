@@ -148,7 +148,12 @@ class ScreenshotEventProcessor implements EventProcessor {
         unawaited(
             stabilizer.capture(Duration.zero).onError(completer.completeError));
         // DO NOT return completer.future directly - we need to dispose first.
-        return await completer.future;
+        return await completer.future.timeout(const Duration(seconds: 1),
+            onTimeout: () {
+          _options.logger(
+              SentryLevel.warning, 'Timed out taking a stable screenshot.');
+          return null;
+        });
       } finally {
         stabilizer.dispose();
       }

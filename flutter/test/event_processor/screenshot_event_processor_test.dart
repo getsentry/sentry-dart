@@ -68,6 +68,27 @@ void main() {
     await _addScreenshotAttachment(tester, null, added: true, isWeb: false);
   });
 
+  testWidgets('does not block if the screenshot fails to stabilize',
+      (tester) async {
+    fixture.options.automatedTestMode = false;
+    fixture.options.experimental.privacy.maskAllText = true;
+    // Run with real async https://stackoverflow.com/a/54021863
+    await tester.runAsync(() async {
+      final sut = fixture.getSut(null, false);
+
+      await tester.pumpWidget(SentryScreenshotWidget(
+          child: Text('Catching Pokémon is a snap!',
+              textDirection: TextDirection.ltr)));
+
+      final throwable = Exception();
+      event = SentryEvent(throwable: throwable);
+      hint = Hint();
+      await sut.apply(event, hint);
+
+      expect(hint.screenshot, isNull);
+    });
+  });
+
   testWidgets('adds screenshot attachment with canvasKit renderer',
       (tester) async {
     await _addScreenshotAttachment(tester, FlutterRenderer.canvasKit,
