@@ -1,18 +1,17 @@
 import 'dart:async';
-import 'dart:typed_data';
-import 'dart:ui';
 
 import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
-import '../screenshot/recorder.dart';
+import '../screenshot/stabilizer.dart';
+import '../screenshot/screenshot.dart';
 import 'replay_recorder.dart';
 import 'scheduled_recorder_config.dart';
 import 'scheduler.dart';
 
 @internal
 typedef ScheduledScreenshotRecorderCallback = Future<void> Function(
-    ScreenshotPng screenshot, bool isNewlyCaptured);
+    Screenshot screenshot, bool isNewlyCaptured);
 
 @internal
 class ScheduledScreenshotRecorder extends ReplayScreenshotRecorder {
@@ -20,6 +19,7 @@ class ScheduledScreenshotRecorder extends ReplayScreenshotRecorder {
   late final ScheduledScreenshotRecorderCallback _callback;
   var _status = _Status.running;
   late final Duration _frameDuration;
+  late final ScreenshotStabilizer<void> _stabilizer;
   // late final _idleFrameFiller = _IdleFrameFiller(_frameDuration, _onScreenshot);
 
   @override
@@ -35,7 +35,9 @@ class ScheduledScreenshotRecorder extends ReplayScreenshotRecorder {
     _frameDuration = Duration(milliseconds: 1000 ~/ config.frameRate);
     assert(_frameDuration.inMicroseconds > 0);
 
-    _scheduler = Scheduler(_frameDuration, _capture, _addPostFrameCallback);
+    _stabilizer = ScreenshotStabilizer(this, options, _onImageCaptured);
+    _scheduler = Scheduler(_frameDuration, _stabilizer.capture,
+        _stabilizer.ensureFrameAndAddCallback);
 
     if (callback != null) {
       _callback = callback;
@@ -44,12 +46,6 @@ class ScheduledScreenshotRecorder extends ReplayScreenshotRecorder {
 
   set callback(ScheduledScreenshotRecorderCallback callback) {
     _callback = callback;
-  }
-
-  void _addPostFrameCallback(FrameCallback callback) {
-    options.bindingUtils.instance!
-      ..ensureVisualUpdate()
-      ..addPostFrameCallback(callback);
   }
 
   void start() {
@@ -66,7 +62,13 @@ class ScheduledScreenshotRecorder extends ReplayScreenshotRecorder {
     _startScheduler();
   }
 
+  Future<void> _stopScheduler() {
+    _stabilizer.stopped = true;
+    return _scheduler.stop();
+  }
+
   void _startScheduler() {
+    _stabilizer.stopped = false;
     _scheduler.start();
 
     // We need to schedule a frame because if this happens in-between user
@@ -79,8 +81,9 @@ class ScheduledScreenshotRecorder extends ReplayScreenshotRecorder {
   Future<void> stop() async {
     options.logger(SentryLevel.debug, "$logName: stopping capture.");
     _status = _Status.stopped;
-    await _scheduler.stop();
-    // await Future.wait([_scheduler.stop(), _idleFrameFiller.stop()]);
+    await _stopScheduler();
+    _stabilizer.dispose();
+    // await Future.wait([_stopScheduler(), _idleFrameFiller.stop()]);
     options.logger(SentryLevel.debug, "$logName: capture stopped.");
   }
 
@@ -88,7 +91,7 @@ class ScheduledScreenshotRecorder extends ReplayScreenshotRecorder {
     if (_status == _Status.running) {
       _status = _Status.paused;
       // _idleFrameFiller.pause();
-      await _scheduler.stop();
+      await _stopScheduler();
     }
   }
 
@@ -100,23 +103,10 @@ class ScheduledScreenshotRecorder extends ReplayScreenshotRecorder {
     }
   }
 
-  void _capture(Duration sinceSchedulerEpoch) => capture(_onImageCaptured);
-
-  Future<void> _onImageCaptured(Screenshot capturedScreenshot) async {
-    final image = capturedScreenshot.image;
+  Future<void> _onImageCaptured(Screenshot screenshot) async {
     if (_status == _Status.running) {
-      var imageData = await image.toByteData(format: ImageByteFormat.png);
-      if (imageData != null) {
-        final screenshot = ScreenshotPng(
-            image.width, image.height, imageData, capturedScreenshot.timestamp);
-        await _onScreenshot(screenshot, true);
-        // _idleFrameFiller.actualFrameReceived(screenshot);
-      } else {
-        options.logger(
-            SentryLevel.debug,
-            '$logName: failed to convert screenshot to PNG, '
-            'toByteData() returned null. (${image.width}x${image.height} pixels)');
-      }
+      await _onScreenshot(screenshot, true);
+      // _idleFrameFiller.actualFrameReceived(screenshot);
     } else {
       // drop any screenshots from callbacks if the replay has already been stopped/paused.
       options.logger(SentryLevel.debug,
@@ -125,7 +115,7 @@ class ScheduledScreenshotRecorder extends ReplayScreenshotRecorder {
   }
 
   Future<void> _onScreenshot(
-      ScreenshotPng screenshot, bool isNewlyCaptured) async {
+      Screenshot screenshot, bool isNewlyCaptured) async {
     if (_status == _Status.running) {
       await _callback(screenshot, isNewlyCaptured);
     } else {
@@ -136,16 +126,6 @@ class ScheduledScreenshotRecorder extends ReplayScreenshotRecorder {
   }
 }
 
-@internal
-@immutable
-class ScreenshotPng {
-  final int width;
-  final int height;
-  final ByteData data;
-  final DateTime timestamp;
-
-  const ScreenshotPng(this.width, this.height, this.data, this.timestamp);
-}
 // TODO this is currently unused because we've decided to capture on every
 //      frame. Consider removing if we don't reverse the decision in the future.
 
@@ -159,11 +139,11 @@ class ScreenshotPng {
 //   final ScheduledScreenshotRecorderCallback _callback;
 //   var _status = _Status.running;
 //   Future<void>? _scheduled;
-//   ScreenshotPng? _mostRecent;
+//   Screenshot? _mostRecent;
 
 //   _IdleFrameFiller(this._interval, this._callback);
 
-//   void actualFrameReceived(ScreenshotPng screenshot) {
+//   void actualFrameReceived(Screenshot screenshot) {
 //     // We store the most recent frame but only repost it when the most recent
 //     // one is the same instance (unchanged).
 //     _mostRecent = screenshot;
@@ -192,7 +172,7 @@ class ScreenshotPng {
 //     }
 //   }
 
-//   void repostLater(Duration delay, ScreenshotPng screenshot) {
+//   void repostLater(Duration delay, Screenshot screenshot) {
 //     _scheduled = Future.delayed(delay, () async {
 //       if (_status == _Status.stopped) {
 //         return;

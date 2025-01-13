@@ -2,6 +2,7 @@ import 'package:meta/meta.dart';
 
 import '../../../sentry_flutter.dart';
 import '../../replay/scheduled_recorder.dart';
+import '../../screenshot/screenshot.dart';
 import '../sentry_safe_method_channel.dart';
 
 @internal
@@ -15,19 +16,20 @@ class AndroidReplayRecorder extends ScheduledScreenshotRecorder {
   }
 
   Future<void> _addReplayScreenshot(
-      ScreenshotPng screenshot, bool isNewlyCaptured) async {
+      Screenshot screenshot, bool isNewlyCaptured) async {
     final timestamp = screenshot.timestamp.millisecondsSinceEpoch;
     final filePath = "$_cacheDir/$timestamp.png";
 
-    options.logger(
-        SentryLevel.debug,
-        '$logName: saving ${isNewlyCaptured ? 'new' : 'repeated'} screenshot to'
-        ' $filePath (${screenshot.width}x${screenshot.height} pixels, '
-        '${screenshot.data.lengthInBytes} bytes)');
     try {
+      final pngData = await screenshot.pngData;
+      options.logger(
+          SentryLevel.debug,
+          '$logName: saving ${isNewlyCaptured ? 'new' : 'repeated'} screenshot to'
+          ' $filePath (${screenshot.width}x${screenshot.height} pixels, '
+          '${pngData.lengthInBytes} bytes)');
       await options.fileSystem
           .file(filePath)
-          .writeAsBytes(screenshot.data.buffer.asUint8List(), flush: true);
+          .writeAsBytes(pngData.buffer.asUint8List(), flush: true);
 
       await _channel.invokeMethod(
         'addReplayScreenshot',
