@@ -34,10 +34,8 @@ export 'protocol/sentry_transaction.dart';
 export 'protocol/sentry_transaction_info.dart';
 export 'protocol/sentry_transaction_name_source.dart';
 export 'protocol/sentry_user.dart';
-// view hierarchy
 export 'protocol/sentry_view_hierarchy.dart';
 export 'protocol/sentry_view_hierarchy_element.dart';
 export 'protocol/span_id.dart';
-// tracing
 export 'protocol/span_status.dart';
 export 'sentry_event_like.dart';
