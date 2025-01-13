@@ -73,20 +73,28 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
         final List<dynamic> envelopeItems = [];
 
         for (final item in envelope.items) {
-          final dataFuture = item.dataFactory();
-          final data = dataFuture is Future ? await dataFuture : dataFuture;
+          try {
+            final dataFuture = item.dataFactory();
+            final data = dataFuture is Future ? await dataFuture : dataFuture;
 
-          // Only attachments should be filtered according to
-          // SentryOptions.maxAttachmentSize
-          if (item.header.type == SentryItemType.attachment &&
-              data.length > options.maxAttachmentSize) {
+            // Only attachments should be filtered according to
+            // SentryOptions.maxAttachmentSize
+            if (item.header.type == SentryItemType.attachment &&
+                data.length > options.maxAttachmentSize) {
+              continue;
+            }
+
+            envelopeItems.add([
+              await item.header.toJson(data.length),
+              data,
+            ]);
+          } catch (_) {
+            if (options.automatedTestMode) {
+              rethrow;
+            }
+            // Skip throwing envelope item data closure.
             continue;
           }
-
-          envelopeItems.add([
-            await item.header.toJson(data.length),
-            data,
-          ]);
         }
 
         final jsEnvelope = [envelope.header.toJson(), envelopeItems];

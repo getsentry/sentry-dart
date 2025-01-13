@@ -5,6 +5,8 @@ import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
+import 'package:sentry/src/sentry_envelope_header.dart';
+import 'package:sentry/src/sentry_envelope_item_header.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/replay/replay_config.dart';
 import 'package:sentry_flutter/src/web/script_loader/sentry_script_loader.dart';
@@ -108,6 +110,32 @@ void main() {
       setUp(() {
         mockBinding = MockSentryJsBinding();
         sut = SentryWeb(mockBinding, options);
+      });
+
+      test(
+          'captureStructuredEnvelope: exception thrown does not block sending the envelopes',
+          () async {
+        // disable so the test doesnt fail
+        options.automatedTestMode = false;
+
+        final attachmentHeader = SentryEnvelopeItemHeader('test');
+        final attachment = SentryEnvelopeItem(
+            attachmentHeader, () => throw Exception('throw'));
+        final event = SentryEnvelopeItem.fromEvent(SentryEvent());
+
+        final header = SentryEnvelopeHeader(null, null);
+        final envelope = SentryEnvelope(header, [attachment, event]);
+
+        await sut.captureStructuredEnvelope(envelope);
+
+        final verification = verify(mockBinding.captureEnvelope(captureAny));
+        verification.called(1);
+
+        final List<dynamic> capturedEnvelope =
+            verification.captured.single as List<dynamic>;
+
+        final envelopeItems = capturedEnvelope[1];
+        expect(envelopeItems.length, 1);
       });
 
       group('no-op or throwing methods', () {
