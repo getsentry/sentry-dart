@@ -16,8 +16,8 @@ class ReplayScreenshotRecorder extends ScreenshotRecorder {
 
   @override
   @protected
-  Future<void> executeTask(void Function() task, Flow flow) {
-    // Future() schedules the task to be executed asynchronously with TImer.run.
+  Future<void> executeTask(Future<void> Function() task, Flow flow) {
+    // Future() schedules the task to be executed asynchronously with Timer.run.
     return Future(task);
   }
 }
