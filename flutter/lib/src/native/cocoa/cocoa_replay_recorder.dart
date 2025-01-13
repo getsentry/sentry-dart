@@ -7,7 +7,6 @@ import '../../replay/replay_recorder.dart';
 import '../../screenshot/recorder.dart';
 import '../../screenshot/recorder_config.dart';
 import '../../screenshot/stabilizer.dart';
-import '../native_memory.dart';
 
 @internal
 class CocoaReplayRecorder {
@@ -20,15 +19,15 @@ class CocoaReplayRecorder {
       : _recorder =
             ReplayScreenshotRecorder(ScreenshotRecorderConfig(), _options) {
     _stabilizer = ScreenshotStabilizer(_recorder, _options, (screenshot) async {
-      final data = await screenshot.rawRgbaData;
+      final data = await screenshot.releaseRawRgbaDataNative();
       _options.logger(
           SentryLevel.debug,
           'Replay: captured screenshot ('
           '${screenshot.width}x${screenshot.height} pixels, '
-          '${data.lengthInBytes} bytes)');
+          '${data.length} bytes)');
 
       // Malloc memory and copy the data. Native must free it.
-      final json = data.toNativeMemory().toJson();
+      final json = data.toJson();
       json['width'] = screenshot.width;
       json['height'] = screenshot.height;
       _completer.complete(json);

@@ -218,7 +218,7 @@ class _Capture<R> {
         _completer.complete(await callback(screenshot));
         Timeline.finishSync(); // Sentry::screenshotCallback
       } finally {
-        screenshot.dispose();
+        await screenshot.dispose();
       }
     };
   }

@@ -7,30 +7,39 @@ import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:meta/meta.dart';
 
+import '../native/native_memory.dart';
+
 @internal
 class Screenshot {
   final Image _image;
   final DateTime timestamp;
   final Flow flow;
-  Future<ByteData>? _rawRgbaData;
+  Future<NativeMemory>? _rawRgbaDataNative;
   Future<ByteData>? _pngData;
   bool _disposed = false;
 
   Screenshot(this._image, this.timestamp, this.flow);
-  Screenshot._cloned(
-      this._image, this.timestamp, this.flow, this._rawRgbaData, this._pngData);
+  Screenshot._cloned(this._image, this.timestamp, this.flow,
+      this._rawRgbaDataNative, this._pngData);
 
   int get width => _image.width;
   int get height => _image.height;
 
-  Future<ByteData> get rawRgbaData {
-    _rawRgbaData ??= _encode(ImageByteFormat.rawRgba);
-    return _rawRgbaData!;
+  Future<NativeMemory> get rawRgbaDataNative {
+    _rawRgbaDataNative ??=
+        _encode(ImageByteFormat.rawRgba).then(NativeMemory.fromByteData);
+    return _rawRgbaDataNative!;
   }
 
   Future<ByteData> get pngData {
     _pngData ??= _encode(ImageByteFormat.png);
     return _pngData!;
+  }
+
+  Future<NativeMemory> releaseRawRgbaDataNative() async {
+    final result = await rawRgbaDataNative;
+    _rawRgbaDataNative = null;
+    return result;
   }
 
   Future<ByteData> _encode(ImageByteFormat format) async {
@@ -46,24 +55,27 @@ class Screenshot {
       return false;
     }
 
-    return listEquals(await rawRgbaData, await other.rawRgbaData);
+    final thisNativeMem = await rawRgbaDataNative;
+    return thisNativeMem.hasSameContentAs(await other.rawRgbaDataNative);
   }
 
   Screenshot clone() {
     assert(!_disposed, 'Cannot clone a disposed screenshot');
     return Screenshot._cloned(
-        _image.clone(), timestamp, flow, _rawRgbaData, _pngData);
+        _image.clone(), timestamp, flow, _rawRgbaDataNative, _pngData);
   }
 
-  void dispose() {
+  Future<void> dispose() async {
     if (!_disposed) {
       _disposed = true;
       _image.dispose();
-      _rawRgbaData = null;
       _pngData = null;
+      (await _rawRgbaDataNative)?.free();
+      _rawRgbaDataNative = null;
     }
   }
 
+  // TODO remove
   /// Efficiently compares two memory regions for data equality..
   @visibleForTesting
   static bool listEquals(ByteData dataA, ByteData dataB) {

@@ -89,14 +89,14 @@ class ScreenshotStabilizer<R> {
       // Note: we need to dispose (free the memory) before recursion.
       // Also, we need to reset the variable to null so that the whole object
       // can be garbage collected.
-      prevScreenshot?.dispose();
+      await prevScreenshot?.dispose();
       prevScreenshot = null;
       // Note: while the caller will also do `screenshot.dispose()`,
       // it would be a problem in a long recursion because we only return
       // from this function when the screenshot is ultimately stable.
       // At that point, the caller would have accumulated a lot of screenshots
       // on stack. This would lead to OOM.
-      screenshot.dispose();
+      await screenshot.dispose();
     }
 
     if (maxTries != null && _tries >= maxTries!) {
