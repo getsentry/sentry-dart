@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Removals
+
+- Remove Metrics API ([#2571](https://github.com/getsentry/sentry-dart/pull/2571))
+
 ### Features
 
 - Add `beforeCapture` for View Hierarchy ([#2523](https://github.com/getsentry/sentry-dart/pull/2523))
