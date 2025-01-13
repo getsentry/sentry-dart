@@ -6,7 +6,6 @@ import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/client_reports/discard_reason.dart';
 import 'package:sentry/src/client_reports/noop_client_report_recorder.dart';
-import 'package:sentry/src/metrics/metric.dart';
 import 'package:sentry/src/sentry_item_type.dart';
 import 'package:sentry/src/sentry_stack_trace_factory.dart';
 import 'package:sentry/src/sentry_tracer.dart';
@@ -2156,42 +2155,6 @@ void main() {
       final client = fixture.getSut(
           beforeSend: beforeSendCallback, attachStacktrace: true);
       await client.captureEvent(fakeEvent, stackTrace: StackTrace.current);
-    });
-  });
-
-  group('Capture metrics', () {
-    late Fixture fixture;
-
-    setUp(() {
-      fixture = Fixture();
-    });
-
-    test('metricsAggregator is set if metrics are enabled', () async {
-      final client = fixture.getSut(enableMetrics: true);
-      expect(client.metricsAggregator, isNotNull);
-    });
-
-    test('metricsAggregator is null if metrics are disabled', () async {
-      final client = fixture.getSut(enableMetrics: false);
-      expect(client.metricsAggregator, isNull);
-    });
-
-    test('captureMetrics send statsd envelope', () async {
-      final client = fixture.getSut();
-      await client.captureMetrics(fakeMetrics);
-
-      final capturedStatsd = (fixture.transport).statsdItems.first;
-      expect(capturedStatsd, isNotNull);
-    });
-
-    test('close closes metricsAggregator', () async {
-      final client = fixture.getSut();
-      client.close();
-      expect(client.metricsAggregator, isNotNull);
-      client.metricsAggregator!
-          .emit(MetricType.counter, 'key', 1, SentryMeasurementUnit.none, {});
-      // metricsAggregator is closed, so no metrics should be recorded
-      expect(client.metricsAggregator!.buckets, isEmpty);
     });
   });
 }

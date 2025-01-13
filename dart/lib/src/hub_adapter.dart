@@ -4,9 +4,6 @@ import 'package:meta/meta.dart';
 
 import 'hint.dart';
 import 'hub.dart';
-import 'metrics/metric.dart';
-import 'metrics/metrics_aggregator.dart';
-import 'metrics/metrics_api.dart';
 import 'profiling.dart';
 import 'protocol.dart';
 import 'protocol/sentry_feedback.dart';
@@ -26,11 +23,6 @@ class HubAdapter implements Hub {
   @override
   @internal
   SentryOptions get options => Sentry.currentHub.options;
-
-  @override
-  @internal
-  // ignore: deprecated_member_use_from_same_package
-  MetricsApi get metricsApi => Sentry.currentHub.metricsApi;
 
   factory HubAdapter() {
     return _instance;
@@ -192,14 +184,6 @@ class HubAdapter implements Hub {
 
   @override
   Scope get scope => Sentry.currentHub.scope;
-
-  @override
-  Future<SentryId> captureMetrics(Map<int, Iterable<Metric>> metricsBuckets) =>
-      Sentry.currentHub.captureMetrics(metricsBuckets);
-
-  @override
-  MetricsAggregator? get metricsAggregator =>
-      Sentry.currentHub.metricsAggregator;
 
   @override
   Future<SentryId> captureFeedback(

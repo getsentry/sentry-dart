@@ -2,7 +2,6 @@
 
 import 'dart:async';
 import 'dart:convert';
-import 'dart:math';
 
 import 'package:dio/dio.dart';
 import 'package:feedback/feedback.dart' as feedback;
@@ -529,41 +528,6 @@ class MainScaffold extends StatelessWidget {
               text:
                   'Demonstrates the logging integration. log.info() will create an info event send it to Sentry.',
               buttonTitle: 'Logging',
-            ),
-            TooltipButton(
-              onPressed: () async {
-                final span = Sentry.getSpan() ??
-                    Sentry.startTransaction(
-                        'testMetrics', 'span summary example',
-                        bindToScope: true);
-                // ignore: deprecated_member_use
-                Sentry.metrics().increment('increment key',
-                    unit: DurationSentryMeasurementUnit.day);
-                // ignore: deprecated_member_use
-                Sentry.metrics().distribution('distribution key',
-                    value: Random().nextDouble() * 10);
-                // ignore: deprecated_member_use
-                Sentry.metrics().set('set int key',
-                    value: Random().nextInt(100),
-                    tags: {'myTag': 'myValue', 'myTag2': 'myValue2'});
-                // ignore: deprecated_member_use
-                Sentry.metrics().set('set string key',
-                    stringValue: 'Random n ${Random().nextInt(100)}');
-                // ignore: deprecated_member_use
-                Sentry.metrics()
-                    .gauge('gauge key', value: Random().nextDouble() * 10);
-                // ignore: deprecated_member_use
-                Sentry.metrics().timing(
-                  'timing key',
-                  function: () async => await Future.delayed(
-                      Duration(milliseconds: Random().nextInt(100)),
-                      () => span.finish()),
-                  unit: DurationSentryMeasurementUnit.milliSecond,
-                );
-              },
-              text:
-                  'Demonstrates the metrics. It creates several metrics and send them to Sentry.',
-              buttonTitle: 'Metrics',
             ),
             if (UniversalPlatform.isIOS || UniversalPlatform.isMacOS)
               const CocoaExample(),

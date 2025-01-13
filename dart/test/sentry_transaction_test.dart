@@ -2,7 +2,6 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:test/test.dart';
 
-import 'mocks.dart';
 import 'mocks/mock_hub.dart';
 import 'test_utils.dart';
 
@@ -27,7 +26,6 @@ void main() {
     fixture.options.enableMetrics = true;
 
     final tracer = _createTracer(hub: fixture.hub);
-    tracer.localMetricsAggregator?.add(fakeMetric, 0);
 
     final child = tracer.startChild('child');
     await child.finish();
@@ -40,7 +38,6 @@ void main() {
     expect(map['start_timestamp'], isNotNull);
     expect(map['spans'], isNotNull);
     expect(map['transaction_info']['source'], 'component');
-    expect(map['_metrics_summary'], isNotNull);
   });
 
   test('returns finished if it is', () async {
@@ -97,37 +94,6 @@ void main() {
     final sut = fixture.getSut(tracer);
 
     expect(sut.sampled, false);
-  });
-
-  test('add a metric to localAggregator adds it to metricSummary', () async {
-    fixture.options.enableSpanLocalMetricAggregation = true;
-    fixture.options.enableMetrics = true;
-
-    final tracer = _createTracer(hub: fixture.hub)
-      ..localMetricsAggregator?.add(fakeMetric, 0);
-    await tracer.finish();
-
-    final sut = fixture.getSut(tracer);
-    expect(sut.metricSummaries, isNotEmpty);
-  });
-
-  test('add metric after creation does not add it to metricSummary', () async {
-    fixture.options.enableSpanLocalMetricAggregation = true;
-    fixture.options.enableMetrics = true;
-
-    final tracer = _createTracer(hub: fixture.hub);
-    await tracer.finish();
-    final sut = fixture.getSut(tracer);
-    tracer.localMetricsAggregator?.add(fakeMetric, 0);
-
-    expect(sut.metricSummaries, isEmpty);
-  });
-
-  test('metricSummary is null by default', () async {
-    final tracer = _createTracer();
-    await tracer.finish();
-    final sut = fixture.getSut(tracer);
-    expect(sut.metricSummaries, null);
   });
 }
 

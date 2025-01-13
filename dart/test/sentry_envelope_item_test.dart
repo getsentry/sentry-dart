@@ -4,13 +4,11 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry/src/client_reports/client_report.dart';
 import 'package:sentry/src/client_reports/discard_reason.dart';
 import 'package:sentry/src/client_reports/discarded_event.dart';
-import 'package:sentry/src/metrics/metric.dart';
 import 'package:sentry/src/sentry_item_type.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry/src/transport/data_category.dart';
 import 'package:test/test.dart';
 
-import 'mocks.dart';
 import 'mocks/mock_hub.dart';
 
 void main() {
@@ -116,23 +114,6 @@ void main() {
 
       expect(sut.header.contentType, 'application/json');
       expect(sut.header.type, SentryItemType.userFeedback);
-      expect(actualData, expectedData);
-    });
-
-    test('fromMetrics', () async {
-      final sut = SentryEnvelopeItem.fromMetrics(fakeMetrics);
-
-      final StringBuffer statsd = StringBuffer();
-      for (MapEntry<int, Iterable<Metric>> bucket in fakeMetrics.entries) {
-        final Iterable<String> encodedMetrics =
-            bucket.value.map((metric) => metric.encodeToStatsd(bucket.key));
-        statsd.write(encodedMetrics.join('\n'));
-      }
-      final expectedData = utf8.encode(statsd.toString());
-      final actualData = await sut.dataFactory();
-
-      expect(sut.header.contentType, 'application/octet-stream');
-      expect(sut.header.type, SentryItemType.statsd);
       expect(actualData, expectedData);
     });
   });

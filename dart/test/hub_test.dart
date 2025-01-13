@@ -100,21 +100,6 @@ void main() {
       expect(fixture.client.captureMessageCalls.first.scope, isNotNull);
     });
 
-    test('should capture metrics', () async {
-      final hub = fixture.getSut();
-      await hub.captureMetrics(fakeMetrics);
-
-      expect(fixture.client.captureMetricsCalls.length, 1);
-      expect(
-        fixture.client.captureMetricsCalls.first.values,
-        [
-          [fakeMetric],
-          [fakeMetric, fakeMetric2],
-          [fakeMetric, fakeMetric3, fakeMetric4],
-        ],
-      );
-    });
-
     test('should save the lastEventId', () async {
       final hub = fixture.getSut();
       final event = SentryEvent();
@@ -765,44 +750,6 @@ void main() {
               element.reason == DiscardReason.sampleRate)
           .quantity;
       expect(spanCount, 4);
-    });
-  });
-
-  group('Metrics', () {
-    late Fixture fixture;
-
-    setUp(() {
-      fixture = Fixture();
-    });
-
-    test('should not capture metrics if enableMetric is false', () async {
-      final hub = fixture.getSut(enableMetrics: false, debug: true);
-      await hub.captureMetrics(fakeMetrics);
-
-      expect(fixture.client.captureMetricsCalls, isEmpty);
-      expect(fixture.loggedMessage,
-          'Metrics are disabled and this \'captureMetrics\' call is a no-op.');
-    });
-
-    test('should not capture metrics if hub is closed', () async {
-      final hub = fixture.getSut(debug: true);
-      await hub.close();
-
-      expect(hub.isEnabled, false);
-      await hub.captureMetrics(fakeMetrics);
-      expect(fixture.loggedMessage,
-          'Instance is disabled and this \'captureMetrics\' call is a no-op.');
-
-      expect(fixture.client.captureMetricsCalls, isEmpty);
-    });
-
-    test('should not capture metrics if metrics are empty', () async {
-      final hub = fixture.getSut(debug: true);
-      await hub.captureMetrics({});
-      expect(fixture.loggedMessage,
-          'Metrics are empty and this \'captureMetrics\' call is a no-op.');
-
-      expect(fixture.client.captureMetricsCalls, isEmpty);
     });
   });
 }

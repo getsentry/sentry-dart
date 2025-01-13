@@ -165,28 +165,6 @@ void main() {
       expect(actualItem, expectedItem);
     });
 
-    test('fromMetrics', () async {
-      final sdkVersion =
-          SdkVersion(name: 'fixture-name', version: 'fixture-version');
-      final sut = SentryEnvelope.fromMetrics(
-        fakeMetrics,
-        sdkVersion,
-        dsn: fakeDsn,
-      );
-
-      final expectedEnvelopeItem = SentryEnvelopeItem.fromMetrics(fakeMetrics);
-
-      expect(sut.header.sdkVersion, sdkVersion);
-      expect(sut.header.dsn, fakeDsn);
-      expect(sut.items[0].header.contentType,
-          expectedEnvelopeItem.header.contentType);
-      expect(sut.items[0].header.type, expectedEnvelopeItem.header.type);
-
-      final actualItem = await sut.items[0].dataFactory();
-      final expectedItem = await expectedEnvelopeItem.dataFactory();
-      expect(actualItem, expectedItem);
-    });
-
     test('max attachment size', () async {
       final attachment = SentryAttachment.fromLoader(
         loader: () => Uint8List.fromList([1, 2, 3, 4]),
