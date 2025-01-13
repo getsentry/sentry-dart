@@ -2257,7 +2257,6 @@ class Fixture {
     bool sendDefaultPii = false,
     bool attachStacktrace = true,
     bool attachThreads = false,
-    bool enableMetrics = true,
     double? sampleRate,
     BeforeSendCallback? beforeSend,
     BeforeSendTransactionCallback? beforeSendTransaction,
@@ -2269,7 +2268,6 @@ class Fixture {
   }) {
     options.tracesSampleRate = 1.0;
     options.sendDefaultPii = sendDefaultPii;
-    options.enableMetrics = enableMetrics;
     options.attachStacktrace = attachStacktrace;
     options.attachThreads = attachThreads;
     options.sampleRate = sampleRate;

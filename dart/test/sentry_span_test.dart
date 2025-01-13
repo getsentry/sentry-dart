@@ -125,8 +125,6 @@ void main() {
   });
 
   test('span serializes', () async {
-    fixture.hub.options.enableMetrics = true;
-    fixture.hub.options.enableSpanLocalMetricAggregation = true;
     final sut = fixture.getSut();
 
     sut.setTag('test', 'test');

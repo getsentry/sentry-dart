@@ -770,13 +770,11 @@ class Fixture {
     double? tracesSampleRate = 1.0,
     TracesSamplerCallback? tracesSampler,
     bool? sampled = true,
-    bool enableMetrics = true,
     bool debug = false,
   }) {
     options.tracesSampleRate = tracesSampleRate;
     options.tracesSampler = tracesSampler;
     options.debug = debug;
-    options.enableMetrics = enableMetrics;
     options.logger = mockLogger; // Enable logging in DiagnosticsLogger
 
     final hub = Hub(options);

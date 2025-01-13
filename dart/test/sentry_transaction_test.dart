@@ -22,9 +22,6 @@ void main() {
   }
 
   test('toJson serializes', () async {
-    fixture.options.enableSpanLocalMetricAggregation = true;
-    fixture.options.enableMetrics = true;
-
     final tracer = _createTracer(hub: fixture.hub);
 
     final child = tracer.startChild('child');
