@@ -45,7 +45,7 @@ void main() {
             .dartify() as List<Object?>;
 
         expect(dsn, fakeDsn);
-        expect(defaultIntegrations, isEmpty);
+        expect(defaultIntegrations, isNotEmpty);
       });
     });
 
