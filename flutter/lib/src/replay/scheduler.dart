@@ -16,6 +16,7 @@ class Scheduler {
   final Duration _interval;
   bool _running = false;
   Future<void>? _scheduled;
+  Future<void>? _runningCallback;
 
   final void Function(FrameCallback callback) _addPostFrameCallback;
 
@@ -46,12 +47,16 @@ class Scheduler {
 
   @pragma('vm:prefer-inline')
   void _runAfterNextFrame() {
-    _scheduled = null;
-    _addPostFrameCallback(_run);
+    final runningCallback = _runningCallback ?? Future.value();
+    runningCallback.whenComplete(() {
+      _scheduled = null;
+      _addPostFrameCallback(_run);
+    });
   }
 
   void _run(Duration sinceSchedulerEpoch) {
     if (!_running) return;
-    _callback(sinceSchedulerEpoch).then((_) => _scheduleNext());
+    _runningCallback = _callback(sinceSchedulerEpoch);
+    _scheduleNext();
   }
 }

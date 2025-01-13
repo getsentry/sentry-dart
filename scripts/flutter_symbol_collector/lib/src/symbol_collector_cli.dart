@@ -53,7 +53,7 @@ class SymbolCollectorCli {
         'Download successful, received ${zipData.length} bytes; extracting the archive');
 
     final archive = ZipDecoder().decodeBytes(zipData);
-    final stream = OutputStream();
+    final stream = OutputMemoryStream();
     archive.single.writeContent(stream, freeMemory: true);
     stream.flush();
 

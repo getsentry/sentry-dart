@@ -3,9 +3,14 @@ package io.sentry.flutter
 import android.app.Activity
 import android.content.Context
 import android.content.res.Configuration
+import android.graphics.Point
+import android.graphics.Rect
 import android.os.Build
+import android.os.Build.VERSION
+import android.os.Build.VERSION_CODES
 import android.os.Looper
 import android.util.Log
+import android.view.WindowManager
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
@@ -33,6 +38,7 @@ import io.sentry.protocol.DebugImage
 import io.sentry.protocol.SdkVersion
 import io.sentry.protocol.SentryId
 import io.sentry.protocol.User
+import io.sentry.rrweb.RRWebOptionsEvent
 import io.sentry.transport.CurrentDateProvider
 import java.io.File
 import java.lang.ref.WeakReference
@@ -164,7 +170,7 @@ class SentryFlutterPlugin :
       // Replace the default ReplayIntegration with a Flutter-specific recorder.
       options.integrations.removeAll { it is ReplayIntegration }
       val cacheDirPath = options.cacheDirPath
-      val replayOptions = options.experimental.sessionReplay
+      val replayOptions = options.sessionReplay
       val isReplayEnabled = replayOptions.isSessionReplayEnabled || replayOptions.isSessionReplayForErrorsEnabled
       if (cacheDirPath != null && isReplayEnabled) {
         replay =
@@ -189,6 +195,20 @@ class SentryFlutterPlugin :
         replay.breadcrumbConverter = SentryFlutterReplayBreadcrumbConverter()
         options.addIntegration(replay)
         options.setReplayController(replay)
+
+        options.beforeSendReplay =
+          SentryOptions.BeforeSendReplayCallback { event, hint ->
+            hint.replayRecording?.payload?.firstOrNull { it is RRWebOptionsEvent }?.let { optionsEvent ->
+              val payload = (optionsEvent as RRWebOptionsEvent).optionsPayload
+
+              // Remove defaults set by the native SDK.
+              payload.filterKeys { it.contains("mask") }.forEach { (k, _) -> payload.remove(k) }
+
+              // Now, set the Flutter-specific values.
+              // TODO do this in a followup PR
+            }
+            event
+          }
       } else {
         options.setReplayController(null)
       }
@@ -638,12 +658,23 @@ class SentryFlutterPlugin :
       height = newHeight
     }
 
+    val wm = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+    val screenBounds =
+      if (VERSION.SDK_INT >= VERSION_CODES.R) {
+        wm.currentWindowMetrics.bounds
+      } else {
+        val screenBounds = Point()
+        @Suppress("DEPRECATION")
+        wm.defaultDisplay.getRealSize(screenBounds)
+        Rect(0, 0, screenBounds.x, screenBounds.y)
+      }
+
     replayConfig =
       ScreenshotRecorderConfig(
         recordingWidth = width.roundToInt(),
         recordingHeight = height.roundToInt(),
-        scaleFactorX = 1.0f,
-        scaleFactorY = 1.0f,
+        scaleFactorX = width.toFloat() / screenBounds.width().toFloat(),
+        scaleFactorY = height.toFloat() / screenBounds.height().toFloat(),
         frameRate = call.argument("frameRate") as? Int ?: 0,
         bitRate = call.argument("bitRate") as? Int ?: 0,
       )

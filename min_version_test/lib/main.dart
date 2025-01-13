@@ -13,13 +13,9 @@ const String _exampleDsn =
 
 Future<void> main() async {
   await setupSentry(() => runApp(
-        SentryScreenshotWidget(
-          child: SentryUserInteractionWidget(
-            child: DefaultAssetBundle(
-              bundle: SentryAssetBundle(),
-              child: const MyApp(),
-            ),
-          ),
+        DefaultAssetBundle(
+          bundle: SentryAssetBundle(),
+          child: const MyApp(),
         ),
       ));
 }
@@ -64,7 +60,8 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: SentryWidget(
+          child: const MyHomePage(title: 'Flutter Demo Home Page')),
     );
   }
 }

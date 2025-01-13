@@ -71,6 +71,10 @@ class SentryNativeChannel
       'replay': <String, dynamic>{
         'sessionSampleRate': options.experimental.replay.sessionSampleRate,
         'onErrorSampleRate': options.experimental.replay.onErrorSampleRate,
+        // TMP: this doesn't actually mask, just ensures we show the correct
+        // value in tags. https://github.com/getsentry/sentry-cocoa/issues/4666
+        'maskAllText': options.experimental.privacyForReplay.maskAllText,
+        'maskAllImages': options.experimental.privacyForReplay.maskAllImages,
       },
       'enableSpotlight': options.spotlight.enabled,
       'spotlightUrl': options.spotlight.url,
