@@ -1,6 +1,9 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+// ignore: implementation_imports
+import 'package:sentry/src/sentry_item_type.dart';
+
 import '../../sentry_flutter.dart';
 import '../native/native_app_start.dart';
 import '../native/native_frames.dart';
@@ -61,8 +64,43 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
   @override
   FutureOr<void> captureEnvelope(
       Uint8List envelopeData, bool containsUnhandledException) {
-    _logNotSupported('capture envelope');
+    _logNotSupported('capture raw envelope data');
   }
+
+  @override
+  FutureOr<void> captureStructuredEnvelope(SentryEnvelope envelope) =>
+      tryCatchAsync('captureStructuredEnvelope', () async {
+        final List<dynamic> envelopeItems = [];
+
+        for (final item in envelope.items) {
+          try {
+            final dataFuture = item.dataFactory();
+            final data = dataFuture is Future ? await dataFuture : dataFuture;
+
+            // Only attachments should be filtered according to
+            // SentryOptions.maxAttachmentSize
+            if (item.header.type == SentryItemType.attachment &&
+                data.length > options.maxAttachmentSize) {
+              continue;
+            }
+
+            envelopeItems.add([
+              await item.header.toJson(data.length),
+              data,
+            ]);
+          } catch (_) {
+            if (options.automatedTestMode) {
+              rethrow;
+            }
+            // Skip throwing envelope item data closure.
+            continue;
+          }
+        }
+
+        final jsEnvelope = [envelope.header.toJson(), envelopeItems];
+
+        _binding.captureEnvelope(jsEnvelope);
+      });
 
   @override
   FutureOr<SentryId> captureReplay(bool isCrash) {
@@ -179,7 +217,7 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
   }
 
   @override
-  bool get supportsCaptureEnvelope => false;
+  bool get supportsCaptureEnvelope => true;
 
   @override
   bool get supportsLoadContexts => false;

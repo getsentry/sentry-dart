@@ -1715,6 +1715,13 @@ class MockSentryNativeBinding extends _i1.Mock
       )) as _i11.FutureOr<void>);
 
   @override
+  _i11.FutureOr<void> captureStructuredEnvelope(_i2.SentryEnvelope? envelope) =>
+      (super.noSuchMethod(Invocation.method(
+        #captureStructuredEnvelope,
+        [envelope],
+      )) as _i11.FutureOr<void>);
+
+  @override
   _i11.FutureOr<_i20.NativeFrames?> endNativeFrames(_i2.SentryId? id) =>
       (super.noSuchMethod(Invocation.method(
         #endNativeFrames,
@@ -3485,6 +3492,15 @@ class MockSentryJsBinding extends _i1.Mock implements _i25.SentryJsBinding {
         Invocation.method(
           #close,
           [],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void captureEnvelope(List<Object>? envelope) => super.noSuchMethod(
+        Invocation.method(
+          #captureEnvelope,
+          [envelope],
         ),
         returnValueForMissingStub: null,
       );

@@ -123,7 +123,12 @@ mixin SentryFlutter {
     // Not all platforms have a native integration.
     if (_native != null) {
       if (_native!.supportsCaptureEnvelope) {
-        options.transport = FileSystemTransport(_native!, options);
+        // Sentry's native web integration is only enabled when enableSentryJs=true.
+        // Transport configuration happens in web_integration because the configuration
+        // options aren't available until after the options callback executes.
+        if (!options.platformChecker.isWeb) {
+          options.transport = FileSystemTransport(_native!, options);
+        }
       }
       if (!options.platformChecker.isWeb) {
         options.addScopeObserver(NativeScopeObserver(_native!));

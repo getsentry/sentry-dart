@@ -102,6 +102,11 @@ class SentryNativeChannel
   }
 
   @override
+  FutureOr<void> captureStructuredEnvelope(SentryEnvelope envelope) {
+    throw UnsupportedError("Not supported on this platform");
+  }
+
+  @override
   bool get supportsLoadContexts => true;
 
   @override

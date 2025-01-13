@@ -105,6 +105,11 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   }
 
   @override
+  FutureOr<void> captureStructuredEnvelope(SentryEnvelope envelope) {
+    throw UnsupportedError("Not supported on this platform");
+  }
+
+  @override
   FutureOr<void> beginNativeFrames() {}
 
   @override
