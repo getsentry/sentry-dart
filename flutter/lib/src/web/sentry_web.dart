@@ -30,11 +30,15 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
         'environment': _options.environment,
         'release': _options.release,
         'dist': _options.dist,
-        'sampleRate': _options.sampleRate,
+        'sampleRate': _options.sampleRate ?? 1,
+        'tracesSampleRate': 0,
         'attachStacktrace': _options.attachStacktrace,
         'maxBreadcrumbs': _options.maxBreadcrumbs,
         // using defaultIntegrations ensures that we can control which integrations are added
-        'defaultIntegrations': <String>[],
+        'defaultIntegrations': <String>{
+          SentryJsIntegrationName.globalHandlers,
+          SentryJsIntegrationName.dedupe
+        },
       };
       _binding.init(jsOptions);
     });

@@ -16,9 +16,25 @@ class HtmlSentryJsBinding implements SentryJsBinding {
 
   @override
   void init(Map<String, dynamic> options) {
+    if (options['defaultIntegrations'] != null) {
+      options['defaultIntegrations'] = options['defaultIntegrations']
+          .map((String integration) => _createIntegration(integration));
+    }
+
     _sentry ??= context['Sentry'] as JsObject;
     _sentry!.callMethod('init', [JsObject.jsify(options)]);
     _client = _sentry!.callMethod('getClient');
+  }
+
+  JsObject? _createIntegration(String integration) {
+    switch (integration) {
+      case SentryJsIntegrationName.globalHandlers:
+      case SentryJsIntegrationName.dedupe:
+        final jsIntegration = _sentry?.callMethod(integration, []);
+        return jsIntegration is JsObject ? jsIntegration : null;
+      default:
+        return null;
+    }
   }
 
   @override

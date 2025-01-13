@@ -14,8 +14,23 @@ class WebSentryJsBinding implements SentryJsBinding {
 
   @override
   void init(Map<String, dynamic> options) {
+    if (options['defaultIntegrations'] != null) {
+      options['defaultIntegrations'] = options['defaultIntegrations']
+          .map((String integration) => _createIntegration(integration));
+    }
     _init(options.jsify());
     _client = SentryJsClient();
+  }
+
+  JSObject? _createIntegration(String integration) {
+    switch (integration) {
+      case SentryJsIntegrationName.globalHandlers:
+        return _globalHandlersIntegration();
+      case SentryJsIntegrationName.dedupe:
+        return _dedupeIntegration();
+      default:
+        return null;
+    }
   }
 
   @override
@@ -57,6 +72,12 @@ extension _SentryJsClientExtension on SentryJsClient {
   external void sendEnvelope(JSAny? envelope);
   external JSObject? getOptions();
 }
+
+@JS('Sentry.globalHandlersIntegration')
+external JSObject _globalHandlersIntegration();
+
+@JS('Sentry.dedupeIntegration')
+external JSObject _dedupeIntegration();
 
 @JS('globalThis')
 external JSObject get _globalThis;
