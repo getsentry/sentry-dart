@@ -1,23 +1,19 @@
 import 'dart:async';
 import 'dart:ffi';
-import 'dart:typed_data';
-import 'dart:ui';
 
 import 'package:meta/meta.dart';
 
 import '../../../sentry_flutter.dart';
 import '../../replay/replay_config.dart';
-import '../../replay/replay_recorder.dart';
-import '../../screenshot/recorder.dart';
-import '../../screenshot/recorder_config.dart';
 import '../native_memory.dart';
 import '../sentry_native_channel.dart';
 import 'binding.dart' as cocoa;
+import 'cocoa_replay_recorder.dart';
 
 @internal
 class SentryNativeCocoa extends SentryNativeChannel {
   late final _lib = cocoa.SentryCocoa(DynamicLibrary.process());
-  ScreenshotRecorder? _replayRecorder;
+  CocoaReplayRecorder? _replayRecorder;
   SentryId? _replayId;
 
   SentryNativeCocoa(super.options);
@@ -33,12 +29,12 @@ class SentryNativeCocoa extends SentryNativeChannel {
       channel.setMethodCallHandler((call) async {
         switch (call.method) {
           case 'captureReplayScreenshot':
-            _replayRecorder ??=
-                ReplayScreenshotRecorder(ScreenshotRecorderConfig(), options);
+            _replayRecorder ??= CocoaReplayRecorder(options);
 
             final replayId = call.arguments['replayId'] == null
                 ? null
                 : SentryId.fromId(call.arguments['replayId'] as String);
+
             if (_replayId != replayId) {
               _replayId = replayId;
               hub.configureScope((s) {
@@ -47,35 +43,7 @@ class SentryNativeCocoa extends SentryNativeChannel {
               });
             }
 
-            final widgetsBinding = options.bindingUtils.instance;
-            if (widgetsBinding == null) {
-              options.logger(SentryLevel.warning,
-                  'Replay: failed to capture screenshot, WidgetsBinding.instance is null');
-              return null;
-            }
-
-            final completer = Completer<Uint8List?>();
-            widgetsBinding.ensureVisualUpdate();
-            widgetsBinding.addPostFrameCallback((_) {
-              _replayRecorder?.capture((screenshot) async {
-                final image = screenshot.image;
-                final imageData =
-                    await image.toByteData(format: ImageByteFormat.png);
-                if (imageData != null) {
-                  options.logger(
-                      SentryLevel.debug,
-                      'Replay: captured screenshot ('
-                      '${image.width}x${image.height} pixels, '
-                      '${imageData.lengthInBytes} bytes)');
-                  return imageData.buffer.asUint8List();
-                } else {
-                  options.logger(SentryLevel.warning,
-                      'Replay: failed to convert screenshot to PNG');
-                }
-              }).then(completer.complete, onError: completer.completeError);
-            });
-            final uint8List = await completer.future;
-
+            final uint8List = await _replayRecorder!.captureScreenshot();
             // Malloc memory and copy the data. Native must free it.
             return uint8List?.toNativeMemory().toJson();
           default:
