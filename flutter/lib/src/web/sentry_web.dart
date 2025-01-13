@@ -65,7 +65,7 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
 
   @override
   FutureOr<void> captureStructuredEnvelope(SentryEnvelope envelope) =>
-      tryCatchAsync('captureEnvelopeObject', () async {
+      tryCatchAsync('captureStructuredEnvelope', () async {
         final List<dynamic> envelopeItems = [];
 
         for (final item in envelope.items) {
