@@ -102,7 +102,7 @@ class SentryEnvelopeItem {
     return SentryEnvelopeItem(
       header,
       dataFactory,
-      originalObject: null,
+      originalObject: buckets,
     );
   }
 
