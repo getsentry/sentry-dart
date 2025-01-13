@@ -6,6 +6,11 @@
 
 - Add `beforeCapture` for View Hierarchy ([#2523](https://github.com/getsentry/sentry-dart/pull/2523))
   - View hierarchy calls are now debounced for 2 seconds.
+- JS SDK integration ([#2572](https://github.com/getsentry/sentry-dart/pull/2572))
+  - Enable the integration by setting `options.enableSentryJs = true`
+  - Features:
+    - Sending envelopes through Sentry JS transport layer
+    - Capturing native JS errors
 
 ### Enhancements
 
