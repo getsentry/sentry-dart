@@ -14,6 +14,7 @@ class Screenshot {
   final Flow flow;
   Future<ByteData>? _rawRgbaData;
   Future<ByteData>? _pngData;
+  bool _disposed = false;
 
   Screenshot(this._image, this.timestamp, this.flow);
   Screenshot._cloned(
@@ -49,12 +50,19 @@ class Screenshot {
   }
 
   Screenshot clone() {
-    assert(!_image.debugDisposed);
+    assert(!_disposed, 'Cannot clone a disposed screenshot');
     return Screenshot._cloned(
         _image.clone(), timestamp, flow, _rawRgbaData, _pngData);
   }
 
-  void dispose() => _image.dispose();
+  void dispose() {
+    if (!_disposed) {
+      _disposed = true;
+      _image.dispose();
+      _rawRgbaData = null;
+      _pngData = null;
+    }
+  }
 
   /// Efficiently compares two memory regions for data equality..
   @visibleForTesting
