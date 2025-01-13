@@ -40,7 +40,7 @@
                                          length:length.unsignedLongValue
                                    freeWhenDone:TRUE];
 
-                // We expect rawRGBA, see from
+                // We expect rawRGBA, see docs for ImageByteFormat:
                 // https://api.flutter.dev/flutter/dart-ui/ImageByteFormat.html
                 // Unencoded bytes, in RGBA row-primary form with premultiplied
                 // alpha, 8 bits per channel.
