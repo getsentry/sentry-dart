@@ -8,9 +8,9 @@ import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
 import '../replay/replay_config.dart';
+import 'method_channel_helper.dart';
 import 'native_app_start.dart';
 import 'native_frames.dart';
-import 'method_channel_helper.dart';
 import 'sentry_native_binding.dart';
 import 'sentry_native_invoker.dart';
 import 'sentry_safe_method_channel.dart';
@@ -99,6 +99,11 @@ class SentryNativeChannel
       Uint8List envelopeData, bool containsUnhandledException) {
     return channel.invokeMethod(
         'captureEnvelope', [envelopeData, containsUnhandledException]);
+  }
+
+  @override
+  FutureOr<void> captureStructuredEnvelope(SentryEnvelope envelope) {
+    throw UnsupportedError("Not supported on this platform");
   }
 
   @override

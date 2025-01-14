@@ -83,6 +83,7 @@ Future<void> setupSentry(
       options.spotlight = Spotlight(enabled: true);
       options.enableTimeToFullDisplayTracing = true;
       options.enableMetrics = true;
+      options.enableSentryJs = true;
 
       options.maxRequestBodySize = MaxRequestBodySize.always;
       options.maxResponseBodySize = MaxResponseBodySize.always;
