@@ -54,7 +54,7 @@ class SentryAssetBundle implements AssetBundle {
   @override
   Future<ByteData> load(String key) {
     final outerSpan = _hub.getSpan();
-    return _wrapLoad(outerSpan, 'load', key, _bundle.load(key));
+    return _wrapLoad(outerSpan, 'load', key, () => _bundle.load(key));
   }
 
   @override
@@ -64,7 +64,7 @@ class SentryAssetBundle implements AssetBundle {
       outerSpan,
       'loadString',
       key,
-      _bundle.loadString(key, cache: cache),
+      () => _bundle.loadString(key, cache: cache),
       updateInnerSpan: (innerSpan) => innerSpan?.setData('from-cache', cache),
     );
   }
@@ -78,7 +78,7 @@ class SentryAssetBundle implements AssetBundle {
       outerSpan,
       'loadBuffer',
       key,
-      _loadBuffer(key),
+      () => _loadBuffer(key),
       updateInnerSpan: (innerSpan) => innerSpan?.setData('file.path', key),
     );
   }
@@ -94,9 +94,13 @@ class SentryAssetBundle implements AssetBundle {
       outerSpan,
       'loadStructuredData',
       key,
-      _bundle.loadStructuredData(
+      () => _bundle.loadStructuredData(
         key,
-        (value) => _wrapParser(() => parser(value), key, outerSpan),
+        (value) => _wrapParser(
+          outerSpan,
+          key,
+          () => parser(value),
+        ),
       ),
     );
   }
@@ -113,10 +117,13 @@ class SentryAssetBundle implements AssetBundle {
       outerSpan,
       'loadStructuredBinaryData',
       key,
-      _loadStructuredBinaryDataWrapper(
+      () => _loadStructuredBinaryDataWrapper(
         key,
-        (value) =>
-            _wrapParser(() => Future.value(parser(value)), key, outerSpan),
+        (value) => _wrapParser(
+          outerSpan,
+          key,
+          () => Future.value(parser(value)),
+        ),
       ),
     );
   }
@@ -130,8 +137,12 @@ class SentryAssetBundle implements AssetBundle {
   // Wrappers
 
   Future<T> _wrapLoad<T>(
-      ISentrySpan? outerSpan, String traceName, String key, Future<T> future,
-      {void Function(ISentrySpan?)? updateInnerSpan}) {
+    ISentrySpan? outerSpan,
+    String traceName,
+    String key,
+    Future<T> Function() loadFunction, {
+    void Function(ISentrySpan?)? updateInnerSpan,
+  }) {
     final String description;
     if (traceName == 'loadStructuredData' ||
         traceName == 'loadStructuredBinaryData') {
@@ -153,7 +164,7 @@ class SentryAssetBundle implements AssetBundle {
     }
 
     return _wrapWithCompleter(
-      action: () => future,
+      action: loadFunction,
       onSuccess: (data) {
         _setDataLength(data, span);
         span?.status = const SpanStatus.ok();
@@ -168,9 +179,9 @@ class SentryAssetBundle implements AssetBundle {
   }
 
   Future<T> _wrapParser<T>(
-    Future<T> Function() parser,
-    String key,
     ISentrySpan? outerSpan,
+    String key,
+    Future<T> Function() parserFunction,
   ) {
     final span = outerSpan?.startChild(
       'serialize.file.read',
@@ -180,7 +191,7 @@ class SentryAssetBundle implements AssetBundle {
     span?.origin = SentryTraceOrigins.autoFileAssetBundle;
 
     return _wrapWithCompleter(
-      action: parser,
+      action: parserFunction,
       onSuccess: (data) {
         span?.status = const SpanStatus.ok();
         span?.finish(); // Do NOT await
