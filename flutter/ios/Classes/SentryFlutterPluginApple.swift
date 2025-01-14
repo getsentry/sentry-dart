@@ -340,6 +340,9 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         let breadcrumbConverter = SentryFlutterReplayBreadcrumbConverter()
         let screenshotProvider = SentryFlutterReplayScreenshotProvider(channel: self.channel)
         PrivateSentrySDKOnly.configureSessionReplay(with: breadcrumbConverter, screenshotProvider: screenshotProvider)
+        if let replayOptions = arguments["replay"] as? [String: Any] {
+            PrivateSentrySDKOnly.setReplayTags(replayOptions)
+        }
 #endif
 #endif
 
