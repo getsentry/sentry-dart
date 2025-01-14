@@ -11,9 +11,6 @@ import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 
-typedef _StringParser<T> = Future<T> Function(String value);
-typedef _ByteParser<T> = FutureOr<T> Function(ByteData value);
-
 /// An [AssetBundle] which creates automatic performance traces for loading
 /// assets.
 ///
