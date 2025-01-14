@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/widgets.dart';
 
 /// Restores Flutter's `FlutterError.onError` to its original state after executing a function.
 ///
@@ -9,7 +9,7 @@ import 'package:flutter/cupertino.dart';
 /// Flutter will complain and throw an error.
 ///
 /// This function ensures `FlutterError.onError` is restored to its initial state after `fn` runs.
-/// It must be called **after** the function executes but **before** any assertions.
+/// Assertions must only be executed after onError has been restored.
 FutureOr<void> restoreFlutterOnErrorAfter(FutureOr<void> Function() fn) async {
   final originalOnError = FlutterError.onError;
   await fn();
@@ -20,3 +20,5 @@ FutureOr<void> restoreFlutterOnErrorAfter(FutureOr<void> Function() fn) async {
     originalOnError?.call(details);
   };
 }
+
+const fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
