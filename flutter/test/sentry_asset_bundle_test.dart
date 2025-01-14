@@ -429,9 +429,10 @@ void main() {
         await tr.finish();
 
         final tracer = (tr as SentryTracer);
-        var span = tracer.children.first;
 
         expect(tracer.children.length, 2);
+
+        var span = tracer.children[0];
 
         expect(span.status, SpanStatus.internalError());
         expect(span.finished, true);
@@ -476,9 +477,10 @@ void main() {
         await tr.finish();
 
         final tracer = (tr as SentryTracer);
-        var span = tracer.children.first;
 
         expect(tracer.children.length, 2);
+
+        var span = tracer.children[0];
 
         expect(span.status, SpanStatus.ok());
         expect(span.finished, true);
