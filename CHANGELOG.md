@@ -14,7 +14,7 @@
 
 ### Enhancements
 
-- Replay: improve iOS native interop performance ([#2530](https://github.com/getsentry/sentry-dart/pull/2530))
+- Replay: improve iOS native interop performance ([#2530](https://github.com/getsentry/sentry-dart/pull/2530), [#2573](https://github.com/getsentry/sentry-dart/pull/2573))
 - Replay: improve orientation change tracking accuracy on Android ([#2540](https://github.com/getsentry/sentry-dart/pull/2540))
 
 ### Fixes

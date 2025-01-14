@@ -209,6 +209,8 @@ void main() {
 
                 expect(json['length'], greaterThan(3000));
                 expect(json['address'], greaterThan(0));
+                expect(json['width'], greaterThan(0));
+                expect(json['height'], greaterThan(0));
                 NativeMemory.fromJson(json).free();
               }
 
