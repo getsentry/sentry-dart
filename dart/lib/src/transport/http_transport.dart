@@ -2,17 +2,17 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:http/http.dart';
-import '../utils/transport_utils.dart';
-import 'http_transport_request_handler.dart';
 
-import '../noop_client.dart';
-import '../protocol.dart';
-import '../sentry_options.dart';
-import '../sentry_envelope.dart';
-import 'transport.dart';
-import 'rate_limiter.dart';
 import '../http_client/client_provider.dart'
     if (dart.library.io) '../http_client/io_client_provider.dart';
+import '../noop_client.dart';
+import '../protocol.dart';
+import '../sentry_envelope.dart';
+import '../sentry_options.dart';
+import '../utils/transport_utils.dart';
+import 'http_transport_request_handler.dart';
+import 'rate_limiter.dart';
+import 'transport.dart';
 
 /// A transport is in charge of sending the event to the Sentry server.
 class HttpTransport implements Transport {

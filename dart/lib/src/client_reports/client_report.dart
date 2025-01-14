@@ -1,7 +1,7 @@
 import 'package:meta/meta.dart';
 
-import 'discarded_event.dart';
 import '../utils.dart';
+import 'discarded_event.dart';
 
 @internal
 class ClientReport {
