@@ -51,7 +51,7 @@ void main() {
       expect(span.origin, SentryTraceOrigins.autoFileAssetBundle);
     });
 
-    test('load: creates a span if transaction is bound to scope', () async {
+    test('load - creates a span if transaction is bound to scope', () async {
       final sut = fixture.getSut();
       final tr = fixture._hub.startTransaction(
         'name',
@@ -99,7 +99,7 @@ void main() {
       expect(span.origin, SentryTraceOrigins.autoFileAssetBundle);
     });
 
-    test('loadString: creates a span if transaction is bound to scope',
+    test('loadString - creates a span if transaction is bound to scope',
         () async {
       final sut = fixture.getSut();
       final tr = fixture._hub.startTransaction(
@@ -124,7 +124,7 @@ void main() {
       expect(span.origin, SentryTraceOrigins.autoFileAssetBundle);
     });
 
-    test('loadString: end span with error if exception is thrown', () async {
+    test('loadString - end span with error if exception is thrown', () async {
       final sut = fixture.getSut(throwException: true);
       final tr = fixture._hub.startTransaction(
         'name',
@@ -147,7 +147,7 @@ void main() {
       expect(span.origin, SentryTraceOrigins.autoFileAssetBundle);
     });
 
-    test('loadBuffer: creates a span if transaction is bound to scope',
+    test('loadBuffer - creates a span if transaction is bound to scope',
         () async {
       final sut = fixture.getSut();
       final tr = fixture._hub.startTransaction(
@@ -172,7 +172,7 @@ void main() {
       expect(span.origin, SentryTraceOrigins.autoFileAssetBundle);
     });
 
-    test('loadBuffer: end span with error if exception is thrown', () async {
+    test('loadBuffer - end span with error if exception is thrown', () async {
       final sut = fixture.getSut(throwException: true);
       final tr = fixture._hub.startTransaction(
         'name',
@@ -197,7 +197,7 @@ void main() {
     });
 
     test(
-      'loadStructuredData: does not create any spans and just forwards the call to the underlying assetbundle if disabled',
+      'loadStructuredData - does not create any spans and just forwards the call to the underlying assetbundle if disabled',
       () async {
         final sut = fixture.getSut(structuredDataTracing: false);
         final tr = fixture._hub.startTransaction(
@@ -221,7 +221,7 @@ void main() {
     );
 
     test(
-      'loadStructuredData: finish with errored span if loading fails',
+      'loadStructuredData - finish with errored span if loading fails',
       () async {
         final sut = fixture.getSut(throwException: true);
         final tr = fixture._hub.startTransaction(
@@ -255,7 +255,7 @@ void main() {
     );
 
     test(
-      'loadStructuredData: finish with errored span if parsing fails',
+      'loadStructuredData - finish with errored span if parsing fails',
       () async {
         final sut = fixture.getSut(throwException: false);
         final tr = fixture._hub.startTransaction(
@@ -303,7 +303,7 @@ void main() {
     );
 
     test(
-      'loadStructuredData: finish with successfully',
+      'loadStructuredData - finish with successfully',
       () async {
         final sut = fixture.getSut(throwException: false);
         final tr = fixture._hub.startTransaction(
@@ -347,7 +347,7 @@ void main() {
     );
 
     test(
-      'loadStructuredBinaryData: does not create any spans and just forwords the call to the underlying assetbundle if disabled',
+      'loadStructuredBinaryData - does not create any spans and just forwords the call to the underlying assetbundle if disabled',
       () async {
         final sut = fixture.getSut(structuredDataTracing: false);
         final tr = fixture._hub.startTransaction(
@@ -373,7 +373,7 @@ void main() {
     );
 
     test(
-      'loadStructuredBinaryData: finish with errored span if loading fails',
+      'loadStructuredBinaryData - finish with errored span if loading fails',
       () async {
         final sut = fixture.getSut(throwException: true);
         final tr = fixture._hub.startTransaction(
@@ -410,7 +410,7 @@ void main() {
     );
 
     test(
-      'loadStructuredBinaryData: finish with errored span if parsing fails',
+      'loadStructuredBinaryData - finish with errored span if parsing fails',
       () async {
         final sut = fixture.getSut(throwException: false);
         final tr = fixture._hub.startTransaction(
@@ -458,7 +458,7 @@ void main() {
     );
 
     test(
-      'loadStructuredBinaryData: finish with successfully',
+      'loadStructuredBinaryData - finish with successfully',
       () async {
         final sut = fixture.getSut(throwException: false);
         final tr = fixture._hub.startTransaction(
