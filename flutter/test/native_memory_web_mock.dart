@@ -9,8 +9,9 @@ class NativeMemory {
 
   const NativeMemory._(this.pointer, this.length);
 
-  factory NativeMemory.fromUint8List(Uint8List source) {
-    return NativeMemory._(Pointer<Uint8>._store(source), source.length);
+  factory NativeMemory.fromByteData(ByteData source) {
+    return NativeMemory._(Pointer<Uint8>._store(source.buffer.asUint8List()),
+        source.lengthInBytes);
   }
 
   factory NativeMemory.fromJson(Map<dynamic, dynamic> json) {
