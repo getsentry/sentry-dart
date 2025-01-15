@@ -2,14 +2,11 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:meta/meta.dart';
-import 'type_check_hint.dart';
 
 import 'client_reports/client_report_recorder.dart';
 import 'client_reports/discard_reason.dart';
 import 'event_processor.dart';
 import 'hint.dart';
-import 'metrics/metric.dart';
-import 'metrics/metrics_aggregator.dart';
 import 'protocol.dart';
 import 'protocol/sentry_feedback.dart';
 import 'scope.dart';
@@ -27,6 +24,7 @@ import 'transport/http_transport.dart';
 import 'transport/noop_transport.dart';
 import 'transport/rate_limiter.dart';
 import 'transport/spotlight_http_transport.dart';
+import 'type_check_hint.dart';
 import 'utils/isolate_utils.dart';
 import 'utils/regex_utils.dart';
 import 'utils/stacktrace_utils.dart';
@@ -42,8 +40,6 @@ class SentryClient {
   final SentryOptions _options;
 
   final Random? _random;
-
-  late final MetricsAggregator? _metricsAggregator;
 
   static final _emptySentryId = Future.value(SentryId.empty());
 
@@ -82,13 +78,7 @@ class SentryClient {
 
   /// Instantiates a client using [SentryOptions]
   SentryClient._(this._options)
-      : _random = _options.sampleRate == null ? null : Random(),
-        _metricsAggregator = _options.enableMetrics
-            ? MetricsAggregator(options: _options)
-            : null;
-
-  @internal
-  MetricsAggregator? get metricsAggregator => _metricsAggregator;
+      : _random = _options.sampleRate == null ? null : Random();
 
   /// Reports an [event] to Sentry.io.
   Future<SentryId> captureEvent(
@@ -482,20 +472,7 @@ class SentryClient {
     );
   }
 
-  /// Reports the [metricsBuckets] to Sentry.io.
-  Future<SentryId> captureMetrics(
-      Map<int, Iterable<Metric>> metricsBuckets) async {
-    final envelope = SentryEnvelope.fromMetrics(
-      metricsBuckets,
-      _options.sdk,
-      dsn: _options.dsn,
-    );
-    final id = await _options.transport.send(envelope);
-    return id ?? SentryId.empty();
-  }
-
   void close() {
-    _metricsAggregator?.close();
     _options.httpClient.close();
   }
 

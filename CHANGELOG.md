@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Breaking changes
+
+- Remove Metrics API ([#2571](https://github.com/getsentry/sentry-dart/pull/2571))
+  - The Metrics product never reached maturity from beta and has officially ended in October 7th, 2024
+  - Read [this post](https://sentry.zendesk.com/hc/en-us/articles/26369339769883-Metrics-Beta-Ended-on-October-7th) for more information
+
 ### Features
 
 - Add `beforeCapture` for View Hierarchy ([#2523](https://github.com/getsentry/sentry-dart/pull/2523))
@@ -14,13 +20,14 @@
 
 ### Enhancements
 
-- Replay: improve iOS native interop performance ([#2530](https://github.com/getsentry/sentry-dart/pull/2530))
+- Replay: improve iOS native interop performance ([#2530](https://github.com/getsentry/sentry-dart/pull/2530), [#2573](https://github.com/getsentry/sentry-dart/pull/2573))
 - Replay: improve orientation change tracking accuracy on Android ([#2540](https://github.com/getsentry/sentry-dart/pull/2540))
 
 ### Fixes
 
 - Replay: fix masking for frames captured during UI changes ([#2553](https://github.com/getsentry/sentry-dart/pull/2553))
 - Fix image flickering when using `SentryAssetBundle` ([#2577](https://github.com/getsentry/sentry-dart/pull/2577))
+- Replay: fix widget masks overlap when navigating between screens ([#2486](https://github.com/getsentry/sentry-dart/pull/2486), [#2576](https://github.com/getsentry/sentry-dart/pull/2576))
 
 ### Dependencies
 
