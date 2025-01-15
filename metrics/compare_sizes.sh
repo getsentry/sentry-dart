@@ -16,9 +16,9 @@ if [ ! -f "$FILE2" ]; then
     exit 1
 fi
 
-# Get sizes of files (macOS-specific)
-SIZE1=$(stat -f%z "$FILE1")
-SIZE2=$(stat -f%z "$FILE2")
+# Get sizes of files (Linux-compatible)
+SIZE1=$(stat --format=%s "$FILE1")
+SIZE2=$(stat --format=%s "$FILE2")
 
 # Calculate absolute size difference
 SIZE_DIFF=$(( SIZE1 - SIZE2 ))
@@ -26,7 +26,7 @@ SIZE_DIFF=${SIZE_DIFF#-} # Convert to absolute value
 
 # Print results
 echo "File 1: $FILE1 (Size: $SIZE1 bytes)"
-echo "Binary 2: $FILE2 (Size: $SIZE2 bytes)"
+echo "File 2: $FILE2 (Size: $SIZE2 bytes)"
 echo "Difference: $SIZE_DIFF bytes"
 
 # Check if the size difference exceeds the threshold
