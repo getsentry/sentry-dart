@@ -9,6 +9,7 @@ import '../screenshot/recorder.dart';
 import '../screenshot/recorder_config.dart';
 import 'package:flutter/widgets.dart' as widget;
 
+import '../screenshot/stabilizer.dart';
 import '../utils/debouncer.dart';
 
 class ScreenshotEventProcessor implements EventProcessor {
@@ -29,7 +30,7 @@ class ScreenshotEventProcessor implements EventProcessor {
     _debouncer = Debouncer(
       // ignore: invalid_use_of_internal_member
       _options.clock,
-      waitTimeMs: 2000,
+      waitTime: Duration(milliseconds: 2000),
     );
   }
 
@@ -50,7 +51,7 @@ class ScreenshotEventProcessor implements EventProcessor {
     }
 
     // skip capturing in case of debouncing (=too many frequent capture requests)
-    // the BeforeCaptureCallback may overrules the debouncing decision
+    // the BeforeCaptureCallback may overrule the debouncing decision
     final shouldDebounce = _debouncer.shouldDebounce();
 
     // ignore: deprecated_member_use_from_same_package
@@ -77,7 +78,7 @@ class ScreenshotEventProcessor implements EventProcessor {
       } else if (shouldDebounce) {
         _options.logger(
           SentryLevel.debug,
-          'Skipping screenshot capture due to debouncing (too many captures within ${_debouncer.waitTimeMs}ms)',
+          'Skipping screenshot capture due to debouncing (too many captures within ${_debouncer.waitTime.inMilliseconds}ms)',
         );
         takeScreenshot = false;
       }
@@ -88,7 +89,7 @@ class ScreenshotEventProcessor implements EventProcessor {
     } catch (exception, stackTrace) {
       _options.logger(
         SentryLevel.error,
-        'The beforeCapture/beforeScreenshot callback threw an exception',
+        'The beforeCaptureScreenshot/beforeScreenshot callback threw an exception',
         exception: exception,
         stackTrace: stackTrace,
       );
@@ -125,19 +126,37 @@ class ScreenshotEventProcessor implements EventProcessor {
   }
 
   @internal
-  Future<Uint8List?> createScreenshot() =>
-      _recorder.capture(_convertImageToUint8List);
-
-  Future<Uint8List?> _convertImageToUint8List(Image image) async {
-    final byteData = await image.toByteData(format: ImageByteFormat.png);
-
-    final bytes = byteData?.buffer.asUint8List();
-    if (bytes?.isNotEmpty == true) {
-      return bytes;
+  Future<Uint8List?> createScreenshot() async {
+    if (_options.experimental.privacyForScreenshots == null) {
+      return _recorder.capture((screenshot) =>
+          screenshot.pngData.then((v) => v.buffer.asUint8List()));
     } else {
-      _options.logger(
-          SentryLevel.debug, 'Screenshot is 0 bytes, not attaching the image.');
-      return null;
+      // If masking is enabled, we need to use [ScreenshotStabilizer].
+      final completer = Completer<Uint8List?>();
+      final stabilizer = ScreenshotStabilizer(
+        _recorder, _options,
+        (screenshot) async {
+          final pngData = await screenshot.pngData;
+          completer.complete(pngData.buffer.asUint8List());
+        },
+        // This limits the amount of time to take a stable masked screenshot.
+        maxTries: 5,
+        // We need to force the frame the frame or this could hang indefinitely.
+        frameSchedulingMode: FrameSchedulingMode.forced,
+      );
+      try {
+        unawaited(
+            stabilizer.capture(Duration.zero).onError(completer.completeError));
+        // DO NOT return completer.future directly - we need to dispose first.
+        return await completer.future.timeout(const Duration(seconds: 1),
+            onTimeout: () {
+          _options.logger(
+              SentryLevel.warning, 'Timed out taking a stable screenshot.');
+          return null;
+        });
+      } finally {
+        stabilizer.dispose();
+      }
     }
   }
 }

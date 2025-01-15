@@ -12,7 +12,7 @@ class WidgetFilter {
   final SentryLogger logger;
   final SentryMaskingConfig config;
   late WidgetFilterColorScheme _scheme;
-  late double _pixelRatio;
+  late RenderObject _root;
   late Rect _bounds;
   late List<Element> _visitList;
   final _warnedWidgets = <int>{};
@@ -24,14 +24,14 @@ class WidgetFilter {
   WidgetFilter(this.config, this.logger);
 
   void obscure({
+    required RenderRepaintBoundary root,
     required BuildContext context,
-    required double pixelRatio,
-    required Rect bounds,
     required WidgetFilterColorScheme colorScheme,
+    Rect? bounds,
   }) {
-    _pixelRatio = pixelRatio;
-    _bounds = bounds;
+    _root = root;
     _scheme = colorScheme;
+    _bounds = bounds ?? Offset.zero & root.size;
     assert(colorScheme.background.isOpaque);
     assert(colorScheme.defaultMask.isOpaque);
     assert(colorScheme.defaultTextMask.isOpaque);
@@ -80,7 +80,7 @@ class WidgetFilter {
         break;
       case SentryMaskingDecision.continueProcessing:
         // If this element should not be obscured, visit and check its children.
-        element.visitChildElements(_visitList.add);
+        element.debugVisitOnstageChildren(_visitList.add);
         break;
     }
   }
@@ -215,13 +215,8 @@ class WidgetFilter {
 
   @pragma('vm:prefer-inline')
   Rect _boundingBox(RenderBox box) {
-    final offset = box.localToGlobal(Offset.zero);
-    return Rect.fromLTWH(
-      offset.dx * _pixelRatio,
-      offset.dy * _pixelRatio,
-      box.size.width * _pixelRatio,
-      box.size.height * _pixelRatio,
-    );
+    final transform = box.getTransformTo(_root);
+    return MatrixUtils.transformRect(transform, box.paintBounds);
   }
 }
 

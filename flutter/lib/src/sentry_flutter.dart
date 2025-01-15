@@ -123,9 +123,16 @@ mixin SentryFlutter {
     // Not all platforms have a native integration.
     if (_native != null) {
       if (_native!.supportsCaptureEnvelope) {
-        options.transport = FileSystemTransport(_native!, options);
+        // Sentry's native web integration is only enabled when enableSentryJs=true.
+        // Transport configuration happens in web_integration because the configuration
+        // options aren't available until after the options callback executes.
+        if (!options.platformChecker.isWeb) {
+          options.transport = FileSystemTransport(_native!, options);
+        }
       }
-      options.addScopeObserver(NativeScopeObserver(_native!));
+      if (!options.platformChecker.isWeb) {
+        options.addScopeObserver(NativeScopeObserver(_native!));
+      }
     }
 
     options.addEventProcessor(FlutterEnricherEventProcessor(options));
@@ -168,22 +175,23 @@ mixin SentryFlutter {
 
     // The ordering here matters, as we'd like to first start the native integration.
     // That allow us to send events to the network and then the Flutter integrations.
-    // Flutter Web doesn't need that, only Android and iOS.
     final native = _native;
     if (native != null) {
-      integrations.add(NativeSdkIntegration(native));
-      if (native.supportsLoadContexts) {
-        integrations.add(LoadContextsIntegration(native));
+      integrations.add(createSdkIntegration(native));
+      if (!platformChecker.isWeb) {
+        if (native.supportsLoadContexts) {
+          integrations.add(LoadContextsIntegration(native));
+        }
+        integrations.add(LoadImageListIntegration(native));
+        integrations.add(FramesTrackingIntegration(native));
+        integrations.add(
+          NativeAppStartIntegration(
+            DefaultFrameCallbackHandler(),
+            NativeAppStartHandler(native),
+          ),
+        );
+        integrations.add(ReplayIntegration(native));
       }
-      integrations.add(LoadImageListIntegration(native));
-      integrations.add(FramesTrackingIntegration(native));
-      integrations.add(
-        NativeAppStartIntegration(
-          DefaultFrameCallbackHandler(),
-          NativeAppStartHandler(native),
-        ),
-      );
-      integrations.add(ReplayIntegration(native));
       options.enableDartSymbolication = false;
     }
 

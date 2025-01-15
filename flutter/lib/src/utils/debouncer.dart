@@ -4,10 +4,11 @@ import 'package:sentry/sentry.dart';
 @internal
 class Debouncer {
   final ClockProvider clockProvider;
-  final int waitTimeMs;
+  final Duration waitTime;
   DateTime? _lastExecutionTime;
 
-  Debouncer(this.clockProvider, {this.waitTimeMs = 2000});
+  Debouncer(this.clockProvider,
+      {this.waitTime = const Duration(milliseconds: 2000)});
 
   bool shouldDebounce() {
     final currentTime = clockProvider();
@@ -15,7 +16,7 @@ class Debouncer {
     _lastExecutionTime = currentTime;
 
     if (lastExecutionTime != null &&
-        currentTime.difference(lastExecutionTime).inMilliseconds < waitTimeMs) {
+        currentTime.difference(lastExecutionTime) < waitTime) {
       return true;
     }
 

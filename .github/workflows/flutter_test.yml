@@ -6,11 +6,11 @@ on:
       - release/**
   pull_request:
     paths:
-      - "!**/*.md"
-      - "!**/class-diagram.svg"
-      - ".github/workflows/flutter_test.yml"
-      - "dart/**"
-      - "flutter/**"
+      - '!**/*.md'
+      - '!**/class-diagram.svg'
+      - '.github/workflows/flutter_test.yml'
+      - 'dart/**'
+      - 'flutter/**'
 
 env:
   SENTRY_AUTH_TOKEN_E2E: ${{ secrets.SENTRY_AUTH_TOKEN_E2E }}
@@ -33,7 +33,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        sdk: ["stable", "beta"]
+        sdk: [stable, beta]
     steps:
       - name: checkout
         uses: actions/checkout@v4
@@ -46,18 +46,14 @@ jobs:
 
       - uses: actions/setup-java@v4
         with:
-          distribution: "adopt"
-          java-version: "17"
+          distribution: 'adopt'
+          java-version: '17'
 
       - uses: subosito/flutter-action@f2c4f6686ca8e8d6e6d0f28410eeef506ed66aff # pin@v2.18.0
         with:
           channel: ${{ matrix.sdk }}
 
-      - name: flutter upgrade
-        run: flutter upgrade
-
-      - name: flutter pub get
-        run: flutter pub get
+      - run: flutter pub get
 
       - name: Gradle cache
         uses: gradle/gradle-build-action@ac2d340dc04d9e1113182899e983b5400c17cda1 # pin@v3.0.0
@@ -108,7 +104,7 @@ jobs:
           script: flutter drive --driver=integration_test/test_driver/driver.dart --target=integration_test/sentry_widgets_flutter_binding_test.dart --profile -d emulator-5554
 
   cocoa:
-    name: "${{ matrix.target }} | ${{ matrix.sdk }}"
+    name: '${{ matrix.target }} | ${{ matrix.sdk }}'
     runs-on: macos-latest-xlarge
     timeout-minutes: 30
     defaults:
@@ -117,8 +113,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        sdk: ["stable", "beta"]
-        target: ["ios", "macos"]
+        target: [ios, macos]
+        sdk: [stable, beta]
     steps:
       - name: checkout
         uses: actions/checkout@v4
@@ -127,15 +123,10 @@ jobs:
         with:
           channel: ${{ matrix.sdk }}
 
-      - name: flutter upgrade
-        run: flutter upgrade
+      - run: flutter pub get
 
-      - name: flutter pub get
-        run: flutter pub get
-
-      - name: pod install
+      - run: pod install
         working-directory: ./flutter/example/${{ matrix.target }}
-        run: pod install
 
       - name: prepare test device
         id: device
@@ -166,3 +157,62 @@ jobs:
         if: ${{ matrix.target != 'macos' }}
         working-directory: ./flutter/example/${{ matrix.target }}
         run: xcodebuild test -workspace Runner.xcworkspace -scheme Runner -configuration Debug -destination "platform=${{ steps.device.outputs.platform }}" -allowProvisioningUpdates CODE_SIGNING_ALLOWED=NO
+
+  test-web:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: ./flutter/example
+    strategy:
+      fail-fast: false
+      matrix:
+        sdk: [ "stable", "beta" ]
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: Install Chrome Browser
+        uses: browser-actions/setup-chrome@facf10a55b9caf92e0cc749b4f82bf8220989148 # pin@v1.7.2
+        with:
+          chrome-version: stable
+      - run: chrome --version
+
+      - uses: subosito/flutter-action@44ac965b96f18d999802d4b807e3256d5a3f9fa1 # pin@v2.16.0
+        with:
+          channel: ${{ matrix.sdk }}
+
+      - name: flutter upgrade
+        run: flutter upgrade
+
+      - name: flutter pub get
+        run: flutter pub get
+
+      - name: Install Xvfb and dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb
+          sudo apt-get -y install xorg xvfb gtk2-engines-pixbuf
+          sudo apt-get -y install dbus-x11 xfonts-base xfonts-100dpi xfonts-75dpi xfonts-cyrillic xfonts-scalable
+          sudo apt-get -y install imagemagick x11-apps
+
+      - name: Setup ChromeDriver
+        uses: nanasess/setup-chromedriver@e93e57b843c0c92788f22483f1a31af8ee48db25 # pin@2.3.0
+
+      - name: Start Xvfb and run tests
+        run: |
+          # Start Xvfb with specific screen settings
+          Xvfb -ac :99 -screen 0 1280x1024x16 &
+          export DISPLAY=:99
+          
+          # Start ChromeDriver
+          chromedriver --port=4444 &
+          
+          # Wait for services to start
+          sleep 5
+
+          # Run the tests
+          flutter drive \
+            --driver=integration_test/test_driver/driver.dart \
+            --target=integration_test/web_sdk_test.dart \
+            -d chrome

@@ -1,5 +1,4 @@
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/metrics/metric.dart';
 
 import 'no_such_method_provider.dart';
 
@@ -13,7 +12,6 @@ class MockSentryClient with NoSuchMethodProvider implements SentryClient {
   // ignore: deprecated_member_use_from_same_package
   List<SentryUserFeedback> userFeedbackCalls = [];
   List<CaptureFeedbackCall> captureFeedbackCalls = [];
-  List<Map<int, Iterable<Metric>>> captureMetricsCalls = [];
   int closeCalls = 0;
 
   @override
@@ -91,12 +89,6 @@ class MockSentryClient with NoSuchMethodProvider implements SentryClient {
       scope,
       hint,
     ));
-    return SentryId.newId();
-  }
-
-  @override
-  Future<SentryId> captureMetrics(Map<int, Iterable<Metric>> metrics) async {
-    captureMetricsCalls.add(metrics);
     return SentryId.newId();
   }
 
@@ -186,10 +178,4 @@ class CaptureTransactionCall {
   final SentryTraceContextHeader? traceContext;
 
   CaptureTransactionCall(this.transaction, this.traceContext);
-}
-
-class CaptureMetricsCall {
-  final Map<int, Iterable<Metric>> metricsBuckets;
-
-  CaptureMetricsCall(this.metricsBuckets);
 }

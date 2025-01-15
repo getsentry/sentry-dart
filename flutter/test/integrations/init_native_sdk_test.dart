@@ -68,6 +68,8 @@ void main() {
       'replay': <String, dynamic>{
         'sessionSampleRate': null,
         'onErrorSampleRate': null,
+        'maskAllText': true,
+        'maskAllImages': true,
       },
       'enableSpotlight': false,
       'spotlightUrl': null,
@@ -177,6 +179,8 @@ void main() {
       'replay': <String, dynamic>{
         'sessionSampleRate': 0.1,
         'onErrorSampleRate': 0.2,
+        'maskAllText': true,
+        'maskAllImages': true,
       },
       'enableSpotlight': true,
       'spotlightUrl': 'http://localhost:8969/stream',

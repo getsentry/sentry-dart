@@ -3,15 +3,15 @@ import 'dart:async';
 import 'package:file/file.dart';
 import 'package:file/local.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart' as meta;
 import 'package:sentry/sentry.dart';
-import 'package:flutter/widgets.dart';
 
 import 'binding_wrapper.dart';
+import 'event_processor/screenshot_event_processor.dart';
 import 'navigation/time_to_display_tracker.dart';
 import 'renderer/renderer.dart';
 import 'screenshot/sentry_screenshot_quality.dart';
-import 'event_processor/screenshot_event_processor.dart';
 import 'sentry_flutter.dart';
 import 'sentry_privacy_options.dart';
 import 'sentry_replay_options.dart';
@@ -241,10 +241,16 @@ class SentryFlutterOptions extends SentryOptions {
 
   /// Enables the View Hierarchy feature.
   ///
-  /// Renders an ASCII represention of the entire view hierarchy of the
+  /// Renders an ASCII representation of the entire view hierarchy of the
   /// application when an error happens and includes it as an attachment.
   @meta.experimental
   bool attachViewHierarchy = false;
+
+  /// Sets a callback which is executed before capturing view hierarchy. Only
+  /// relevant if `attachViewHierarchy` is set to true. When false is returned
+  /// from the function, no view hierarchy will be attached.
+  @meta.experimental
+  BeforeCaptureCallback? beforeCaptureViewHierarchy;
 
   /// Enables collection of view hierarchy element identifiers.
   ///
@@ -291,6 +297,13 @@ class SentryFlutterOptions extends SentryOptions {
   /// Note: If you call `WidgetsFlutterBinding.ensureInitialized()` before `SentryFlutter.init()`,
   /// you must use `SentryWidgetsFlutterBinding.ensureInitialized()` instead.
   bool enableFramesTracking = true;
+
+  /// Controls initialization of the Sentry Javascript SDK on web platforms.
+  /// When enabled and [autoInitializeNativeSdk] is true, loads and initializes
+  /// the JS SDK in the document head.
+  ///
+  /// Defaults to `false`
+  bool enableSentryJs = false;
 
   /// By using this, you are disabling native [Breadcrumb] tracking and instead
   /// you are just tracking [Breadcrumb]s which result from events available
