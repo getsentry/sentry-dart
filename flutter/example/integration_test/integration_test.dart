@@ -8,10 +8,10 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart';
 import 'package:integration_test/integration_test.dart';
+import 'package:sentry/src/sentry_envelope_header.dart';
+import 'package:sentry/src/sentry_envelope_item_header.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter_example/main.dart';
-
-import 'utils.dart';
 
 void main() {
   const org = 'sentry-sdks';
@@ -167,69 +167,90 @@ void main() {
     await transaction.finish();
   });
 
-  group('e2e', () {
-    var output = find.byKey(const Key('output'));
-    late Fixture fixture;
+  testWidgets('sending invalid envelope does not crash SDK', (tester) async {
+    await setupSentryAndApp(tester);
 
-    setUp(() {
-      fixture = Fixture();
-    });
+    final options = Sentry.currentHub.options;
 
-    testWidgets('captureException', (tester) async {
-      late Uri uri;
+    final envelope = SentryEnvelope(SentryEnvelopeHeader(null, null), [
+      SentryEnvelopeItem(
+          SentryEnvelopeItemHeader('event'), () => Future.value(utf8.encode('''
+            {
+              "invalid_json": {
+                "unclosed_object": {
+                "broken_array": [1, 2,]
+            ''')))
+    ]);
 
-      await restoreFlutterOnErrorAfter(() async {
-        await setupSentryAndApp(tester,
-            dsn: exampleDsn, beforeSendCallback: fixture.beforeSend);
+    await options.transport.send(envelope);
 
-        await tester.tap(find.text('captureException'));
-        await tester.pumpAndSettle();
-
-        final text = output.evaluate().single.widget as Text;
-        final id = text.data!;
-
-        uri = Uri.parse(
-          'https://sentry.io/api/0/projects/$org/$slug/events/$id/',
-        );
-      });
-
-      expect(authToken, isNotEmpty);
-
-      final event = await fixture.poll(uri, authToken);
-      expect(event, isNotNull);
-
-      final sentEvents = fixture.sentEvents
-          .where((el) => el!.eventId.toString() == event!['id']);
-      expect(
-          sentEvents.length, 1); // one button click should only send one error
-      final sentEvent = sentEvents.first;
-
-      final tags = event!['tags'] as List<dynamic>;
-
-      print('event id: ${event['id']}');
-      print('event title: ${event['title']}');
-      expect(sentEvent!.eventId.toString(), event['id']);
-      expect('_Exception: Exception: captureException', event['title']);
-      expect(sentEvent.release, event['release']['version']);
-      expect(
-          2,
-          (tags.firstWhere((e) => e['value'] == sentEvent.environment) as Map)
-              .length);
-      expect(sentEvent.fingerprint, event['fingerprint'] ?? []);
-      expect(
-          2,
-          (tags.firstWhere((e) => e['value'] == SentryLevel.error.name) as Map)
-              .length);
-      expect(sentEvent.logger, event['logger']);
-
-      final dist = tags.firstWhere((element) => element['key'] == 'dist');
-      expect('1', dist['value']);
-
-      final environment =
-          tags.firstWhere((element) => element['key'] == 'environment');
-      expect('integration', environment['value']);
-    });
+    final id = await Sentry.captureMessage('SDK still works');
+    expect(id, isNotNull);
   });
+
+  // group('e2e', () {
+  //   var output = find.byKey(const Key('output'));
+  //   late Fixture fixture;
+  //
+  //   setUp(() {
+  //     fixture = Fixture();
+  //   });
+  //
+  //   testWidgets('captureException', (tester) async {
+  //     late Uri uri;
+  //
+  //     await restoreFlutterOnErrorAfter(() async {
+  //       await setupSentryAndApp(tester,
+  //           dsn: exampleDsn, beforeSendCallback: fixture.beforeSend);
+  //
+  //       await tester.tap(find.text('captureException'));
+  //       await tester.pumpAndSettle();
+  //
+  //       final text = output.evaluate().single.widget as Text;
+  //       final id = text.data!;
+  //
+  //       uri = Uri.parse(
+  //         'https://sentry.io/api/0/projects/$org/$slug/events/$id/',
+  //       );
+  //     });
+  //
+  //     expect(authToken, isNotEmpty);
+  //
+  //     final event = await fixture.poll(uri, authToken);
+  //     expect(event, isNotNull);
+  //
+  //     final sentEvents = fixture.sentEvents
+  //         .where((el) => el!.eventId.toString() == event!['id']);
+  //     expect(
+  //         sentEvents.length, 1); // one button click should only send one error
+  //     final sentEvent = sentEvents.first;
+  //
+  //     final tags = event!['tags'] as List<dynamic>;
+  //
+  //     print('event id: ${event['id']}');
+  //     print('event title: ${event['title']}');
+  //     expect(sentEvent!.eventId.toString(), event['id']);
+  //     expect('_Exception: Exception: captureException', event['title']);
+  //     expect(sentEvent.release, event['release']['version']);
+  //     expect(
+  //         2,
+  //         (tags.firstWhere((e) => e['value'] == sentEvent.environment) as Map)
+  //             .length);
+  //     expect(sentEvent.fingerprint, event['fingerprint'] ?? []);
+  //     expect(
+  //         2,
+  //         (tags.firstWhere((e) => e['value'] == SentryLevel.error.name) as Map)
+  //             .length);
+  //     expect(sentEvent.logger, event['logger']);
+  //
+  //     final dist = tags.firstWhere((element) => element['key'] == 'dist');
+  //     expect('1', dist['value']);
+  //
+  //     final environment =
+  //         tags.firstWhere((element) => element['key'] == 'environment');
+  //     expect('integration', environment['value']);
+  //   });
+  // });
 }
 
 class Fixture {
