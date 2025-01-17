@@ -166,10 +166,8 @@ class SentryFlutter(
     options.quality =
       when (data["quality"] as? String) {
         "low" -> SentryReplayOptions.SentryReplayQuality.LOW
-        "medium" -> SentryReplayOptions.SentryReplayQuality.MEDIUM
         "high" -> SentryReplayOptions.SentryReplayQuality.HIGH
         else -> {
-          Log.w("Sentry", "Unknown value for replay quality config: ${data["quality"] as? String}")
           SentryReplayOptions.SentryReplayQuality.MEDIUM
         }
       }
