@@ -116,10 +116,8 @@ public final class SentryFlutter {
             switch data["quality"] as? String {
             case "low":
                 options.sessionReplay.quality = SentryReplayOptions.SentryReplayQuality.low
-                break
             case "high":
                 options.sessionReplay.quality = SentryReplayOptions.SentryReplayQuality.high
-                break
             default:
                 options.sessionReplay.quality = SentryReplayOptions.SentryReplayQuality.medium
             }
