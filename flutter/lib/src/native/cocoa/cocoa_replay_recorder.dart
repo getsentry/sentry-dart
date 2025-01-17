@@ -17,8 +17,12 @@ class CocoaReplayRecorder {
   var _completer = Completer<Map<String, int>?>();
 
   CocoaReplayRecorder(this._options)
-      : _recorder =
-            ReplayScreenshotRecorder(ScreenshotRecorderConfig(), _options) {
+      : _recorder = ReplayScreenshotRecorder(
+            ScreenshotRecorderConfig(
+              pixelRatio:
+                  _options.experimental.replay.quality.resolutionScalingFactor,
+            ),
+            _options) {
     _stabilizer = ScreenshotStabilizer(_recorder, _options, (screenshot) async {
       final data = await screenshot.rawRgbaData;
       _options.logger(

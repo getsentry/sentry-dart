@@ -69,6 +69,7 @@ class SentryNativeChannel
           options.appHangTimeoutInterval.inMilliseconds,
       if (options.proxy != null) 'proxy': options.proxy?.toJson(),
       'replay': <String, dynamic>{
+        'quality': options.experimental.replay.quality.name,
         'sessionSampleRate': options.experimental.replay.sessionSampleRate,
         'onErrorSampleRate': options.experimental.replay.onErrorSampleRate,
         // TMP: this doesn't actually mask, just ensures we show the correct
@@ -235,7 +236,6 @@ class SentryNativeChannel
         'width': config.width,
         'height': config.height,
         'frameRate': config.frameRate,
-        'bitRate': config.bitRate,
       });
 
   @override
