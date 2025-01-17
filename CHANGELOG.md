@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Add SentryReplayQuality setting (`options.experimental.replay.quality`) ([#2582](https://github.com/getsentry/sentry-dart/pull/2582))
+
 ## 8.13.0-beta.1
 
 ### Breaking changes
