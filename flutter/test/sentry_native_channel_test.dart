@@ -331,8 +331,7 @@ void main() {
         when(channel.invokeMethod('setReplayConfig', any))
             .thenAnswer((_) => Future.value());
 
-        final config =
-            ReplayConfig(width: 1.1, height: 2.2, frameRate: 3);
+        final config = ReplayConfig(width: 1.1, height: 2.2, frameRate: 3);
         await sut.setReplayConfig(config);
 
         if (mockPlatform.isAndroid) {
