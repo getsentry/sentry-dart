@@ -1,9 +1,14 @@
 package io.sentry.flutter
 
+import io.sentry.Hint
+import io.sentry.ReplayRecording
 import io.sentry.SentryLevel
+import io.sentry.SentryReplayEvent
 import io.sentry.android.core.BuildConfig
 import io.sentry.android.core.SentryAndroidOptions
+import io.sentry.rrweb.RRWebOptionsEvent
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Test
 import java.net.Proxy
@@ -113,6 +118,56 @@ class SentryFlutterTest {
     // Then
     assertEquals(false, fixture.options.isEnableUncaughtExceptionHandler)
     assertEquals(false, fixture.options.isAnrEnabled)
+  }
+
+  @Test
+  fun replayTagsAreCopiedFromFlutter() {
+    // Given
+    val sut = fixture.getSut()
+
+    // When
+    sut.updateOptions(
+      fixture.options,
+      mapOf(
+        "replay" to
+          mapOf(
+            "sessionSampleRate" to 1,
+            "onErrorSampleRate" to 1,
+            "tags" to mapOf(
+              "maskingRules" to mapOf(
+                "Image" to "mask",
+                "SentryMask" to "mask",
+                "SentryUnmask" to "unmask",
+                "User" to "custom()"
+              )
+            )
+          ),
+      ),
+    )
+
+    assertNotNull(fixture.options.beforeSendReplay)
+    fixture.options.beforeSendReplay?.let {
+      val event = SentryReplayEvent()
+      val rrwebEvent = RRWebOptionsEvent(fixture.options)
+      val hint = Hint()
+      hint.replayRecording = ReplayRecording().also {
+        it.payload = listOf(rrwebEvent)
+      }
+      assertEquals(it.execute(event, hint), event)
+      assertEquals(
+        mapOf(
+          "Image" to "mask",
+          "SentryMask" to "mask",
+          "SentryUnmask" to "unmask",
+          "User" to "custom()"
+        ),
+        rrwebEvent.optionsPayload["maskingRules"])
+      assertEquals("medium", rrwebEvent.optionsPayload["quality"])
+      assertEquals(1.0, rrwebEvent.optionsPayload["errorSampleRate"])
+      assertEquals(1.0, rrwebEvent.optionsPayload["sessionSampleRate"])
+      assertEquals("sentry.java.android.flutter", rrwebEvent.optionsPayload["nativeSdkName"])
+      assertEquals(BuildConfig.VERSION_NAME, rrwebEvent.optionsPayload["nativeSdkVersion"])
+    }
   }
 }
 

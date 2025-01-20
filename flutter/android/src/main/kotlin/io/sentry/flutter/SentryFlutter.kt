@@ -2,11 +2,13 @@ package io.sentry.flutter
 
 import android.util.Log
 import io.sentry.SentryLevel
+import io.sentry.SentryOptions
 import io.sentry.SentryOptions.Proxy
 import io.sentry.SentryReplayOptions
 import io.sentry.android.core.BuildConfig
 import io.sentry.android.core.SentryAndroidOptions
 import io.sentry.protocol.SdkVersion
+import io.sentry.rrweb.RRWebOptionsEvent
 import java.net.Proxy.Type
 import java.util.Locale
 
@@ -155,15 +157,16 @@ class SentryFlutter(
     }
 
     data.getIfNotNull<Map<String, Any>>("replay") {
-      updateReplayOptions(options.sessionReplay, it)
+      updateReplayOptions(options, it)
     }
   }
 
-  fun updateReplayOptions(
-    options: SentryReplayOptions,
+  private fun updateReplayOptions(
+    options: SentryAndroidOptions,
     data: Map<String, Any>,
   ) {
-    options.quality =
+    val replayOptions = options.sessionReplay
+    replayOptions.quality =
       when (data["quality"] as? String) {
         "low" -> SentryReplayOptions.SentryReplayQuality.LOW
         "high" -> SentryReplayOptions.SentryReplayQuality.HIGH
@@ -171,13 +174,29 @@ class SentryFlutter(
           SentryReplayOptions.SentryReplayQuality.MEDIUM
         }
       }
-    options.sessionSampleRate = data["sessionSampleRate"] as? Double
-    options.onErrorSampleRate = data["onErrorSampleRate"] as? Double
+    replayOptions.sessionSampleRate = (data["sessionSampleRate"] as? Number)?.toDouble()
+    replayOptions.onErrorSampleRate = (data["onErrorSampleRate"] as? Number)?.toDouble()
 
     // Disable native tracking of orientation change (causes replay restart)
     // because we don't have the new size from Flutter yet. Instead, we'll
     // trigger onConfigurationChanged() manually in setReplayConfig().
-    options.setTrackOrientationChange(false)
+    replayOptions.setTrackOrientationChange(false)
+
+    @Suppress("UNCHECKED_CAST")
+    val tags = (data["tags"] as? Map<String, Any>) ?: mapOf()
+    options.beforeSendReplay =
+      SentryOptions.BeforeSendReplayCallback { event, hint ->
+        hint.replayRecording?.payload?.firstOrNull { it is RRWebOptionsEvent }?.let { optionsEvent ->
+          val payload = (optionsEvent as RRWebOptionsEvent).optionsPayload
+
+          // Remove defaults set by the native SDK.
+          payload.filterKeys { it.contains("mask") }.forEach { (k, _) -> payload.remove(k) }
+
+          // Now, set the Flutter-specific values.
+          payload.putAll(tags)
+        }
+        event
+      }
   }
 }
 
