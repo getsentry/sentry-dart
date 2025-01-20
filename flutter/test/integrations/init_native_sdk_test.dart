@@ -2,6 +2,7 @@
 library flutter_test;
 
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/native/sentry_native_channel.dart';
@@ -69,8 +70,11 @@ void main() {
         'quality': 'medium',
         'sessionSampleRate': null,
         'onErrorSampleRate': null,
-        'maskAllText': true,
-        'maskAllImages': true,
+        'tags': {
+          'maskAllText': true,
+          'maskAllImages': true,
+          'maskAssetImages': false,
+        }
       },
       'enableSpotlight': false,
       'spotlightUrl': null,
@@ -125,6 +129,7 @@ void main() {
       ..experimental.replay.quality = SentryReplayQuality.high
       ..experimental.replay.sessionSampleRate = 0.1
       ..experimental.replay.onErrorSampleRate = 0.2
+      ..experimental.privacy.mask<Image>()
       ..spotlight =
           Spotlight(enabled: true, url: 'http://localhost:8969/stream');
 
@@ -182,8 +187,14 @@ void main() {
         'quality': 'high',
         'sessionSampleRate': 0.1,
         'onErrorSampleRate': 0.2,
-        'maskAllText': true,
-        'maskAllImages': true,
+        'tags': {
+          'maskAllText': true,
+          'maskAllImages': true,
+          'maskAssetImages': false,
+          'maskingRules': [
+            {'Image': 'mask'},
+          ]
+        }
       },
       'enableSpotlight': true,
       'spotlightUrl': 'http://localhost:8969/stream',

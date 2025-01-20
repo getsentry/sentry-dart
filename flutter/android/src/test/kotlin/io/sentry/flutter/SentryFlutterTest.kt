@@ -133,14 +133,18 @@ class SentryFlutterTest {
           mapOf(
             "sessionSampleRate" to 1,
             "onErrorSampleRate" to 1,
-            "tags" to mapOf(
-              "maskingRules" to mapOf(
-                "Image" to "mask",
-                "SentryMask" to "mask",
-                "SentryUnmask" to "unmask",
-                "User" to "custom()"
-              )
-            )
+            "tags" to
+              mapOf(
+                "random-key" to "value",
+                "maskingRules" to
+                  listOf(
+                    mapOf("Image" to "mask"),
+                    mapOf("SentryMask" to "mask"),
+                    mapOf("SentryUnmask" to "unmask"),
+                    mapOf("User" to "custom text"),
+                    mapOf("Image" to "unmask"),
+                  ),
+              ),
           ),
       ),
     )
@@ -150,18 +154,22 @@ class SentryFlutterTest {
       val event = SentryReplayEvent()
       val rrwebEvent = RRWebOptionsEvent(fixture.options)
       val hint = Hint()
-      hint.replayRecording = ReplayRecording().also {
-        it.payload = listOf(rrwebEvent)
-      }
+      hint.replayRecording =
+        ReplayRecording().also {
+          it.payload = listOf(rrwebEvent)
+        }
       assertEquals(it.execute(event, hint), event)
       assertEquals(
-        mapOf(
-          "Image" to "mask",
-          "SentryMask" to "mask",
-          "SentryUnmask" to "unmask",
-          "User" to "custom()"
+        listOf(
+          mapOf("Image" to "mask"),
+          mapOf("SentryMask" to "mask"),
+          mapOf("SentryUnmask" to "unmask"),
+          mapOf("User" to "custom text"),
+          mapOf("Image" to "unmask"),
         ),
-        rrwebEvent.optionsPayload["maskingRules"])
+        rrwebEvent.optionsPayload["maskingRules"],
+      )
+      assertEquals("value", rrwebEvent.optionsPayload["random-key"])
       assertEquals("medium", rrwebEvent.optionsPayload["quality"])
       assertEquals(1.0, rrwebEvent.optionsPayload["errorSampleRate"])
       assertEquals(1.0, rrwebEvent.optionsPayload["sessionSampleRate"])
