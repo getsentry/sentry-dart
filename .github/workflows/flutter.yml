@@ -97,6 +97,33 @@ jobs:
           ;;
           esac
 
+  spm:
+    name: "SPM"
+    runs-on: macos-15
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: bash
+        working-directory: flutter/example
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [ios, macos]
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@44ac965b96f18d999802d4b807e3256d5a3f9fa1 # pin@v2.16.0
+        with:
+          channel: main
+      - run: flutter upgrade
+      - run: flutter config --enable-swift-package-manager
+      - name: Run on iOS
+        if: matrix.target == 'ios'
+        run: flutter build ios --no-codesign
+      - name: Run on macOS
+        if: matrix.target == 'macos'
+        run: flutter build macos
+
   analyze:
     uses: ./.github/workflows/analyze.yml
     with:
