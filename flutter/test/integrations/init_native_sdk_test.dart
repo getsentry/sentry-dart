@@ -191,9 +191,7 @@ void main() {
           'maskAllText': true,
           'maskAllImages': true,
           'maskAssetImages': false,
-          'maskingRules': [
-            {'Image': 'mask'},
-          ]
+          'maskingRules': ['Image: mask']
         }
       },
       'enableSpotlight': true,
