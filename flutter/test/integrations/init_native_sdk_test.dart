@@ -66,6 +66,7 @@ void main() {
       'readTimeoutMillis': 5000,
       'appHangTimeoutIntervalMillis': 2000,
       'replay': <String, dynamic>{
+        'quality': 'medium',
         'sessionSampleRate': null,
         'onErrorSampleRate': null,
         'maskAllText': true,
@@ -121,6 +122,7 @@ void main() {
         user: 'admin',
         pass: '0000',
       )
+      ..experimental.replay.quality = SentryReplayQuality.high
       ..experimental.replay.sessionSampleRate = 0.1
       ..experimental.replay.onErrorSampleRate = 0.2
       ..spotlight =
@@ -177,6 +179,7 @@ void main() {
         'pass': '0000',
       },
       'replay': <String, dynamic>{
+        'quality': 'high',
         'sessionSampleRate': 0.1,
         'onErrorSampleRate': 0.2,
         'maskAllText': true,

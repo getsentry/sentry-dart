@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Add SentryReplayQuality setting (`options.experimental.replay.quality`) ([#2582](https://github.com/getsentry/sentry-dart/pull/2582))
+
 ### Dependencies
 
 - Bump Native SDK from v0.7.17 to v0.7.18 ([#2578](https://github.com/getsentry/sentry-dart/pull/2578))

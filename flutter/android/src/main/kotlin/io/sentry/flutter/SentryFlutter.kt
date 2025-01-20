@@ -163,6 +163,14 @@ class SentryFlutter(
     options: SentryReplayOptions,
     data: Map<String, Any>,
   ) {
+    options.quality =
+      when (data["quality"] as? String) {
+        "low" -> SentryReplayOptions.SentryReplayQuality.LOW
+        "high" -> SentryReplayOptions.SentryReplayQuality.HIGH
+        else -> {
+          SentryReplayOptions.SentryReplayQuality.MEDIUM
+        }
+      }
     options.sessionSampleRate = data["sessionSampleRate"] as? Double
     options.onErrorSampleRate = data["onErrorSampleRate"] as? Double
 
