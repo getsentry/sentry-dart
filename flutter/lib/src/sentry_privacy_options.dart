@@ -157,7 +157,8 @@ class SentryPrivacyOptions {
     _userMaskingRules.add(SentryMaskingCustomRule<T>(
       callback: shouldMask,
       name: name ?? T.toString(),
-      description: description ?? '$shouldMask',
+      description:
+          description ?? 'Custom callback-based rule (description unspecified)',
     ));
   }
 }

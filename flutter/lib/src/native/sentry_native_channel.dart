@@ -80,7 +80,7 @@ class SentryNativeChannel
           if (options.experimental.privacyForReplay.userMaskingRules.isNotEmpty)
             'maskingRules': options
                 .experimental.privacyForReplay.userMaskingRules
-                .map((rule) => {rule.name: rule.description})
+                .map((rule) => '${rule.name}: ${rule.description}')
                 .toList(growable: false),
         },
       },

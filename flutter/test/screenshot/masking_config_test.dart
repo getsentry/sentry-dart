@@ -264,7 +264,7 @@ void main() async {
         sut.mask<Image>();
         expect(rulesAsStrings(sut), [
           'SentryMaskingConstantRule<Image>(unmask)',
-          'SentryMaskingCustomRule<Image>(Closure: ($Element, $Image) => $SentryMaskingDecision)',
+          'SentryMaskingCustomRule<Image>(Custom callback-based rule (description unspecified))',
           'SentryMaskingConstantRule<Image>(mask)',
           ...defaultRules
         ]);
@@ -274,7 +274,7 @@ void main() async {
         sut.maskCallback(
             (Element element, Image widget) => SentryMaskingDecision.mask);
         expect(rulesAsStrings(sut), [
-          'SentryMaskingCustomRule<Image>(Closure: ($Element, $Image) => $SentryMaskingDecision)',
+          'SentryMaskingCustomRule<Image>(Custom callback-based rule (description unspecified))',
           ...defaultRules
         ]);
       });

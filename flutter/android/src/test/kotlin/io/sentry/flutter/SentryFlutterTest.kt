@@ -138,11 +138,11 @@ class SentryFlutterTest {
                 "random-key" to "value",
                 "maskingRules" to
                   listOf(
-                    mapOf("Image" to "mask"),
-                    mapOf("SentryMask" to "mask"),
-                    mapOf("SentryUnmask" to "unmask"),
-                    mapOf("User" to "custom text"),
-                    mapOf("Image" to "unmask"),
+                    "Image: mask",
+                    "SentryMask: mask",
+                    "SentryUnmask: unmask",
+                    "User: custom text",
+                    "Image: unmask",
                   ),
               ),
           ),
@@ -161,11 +161,11 @@ class SentryFlutterTest {
       assertEquals(it.execute(event, hint), event)
       assertEquals(
         listOf(
-          mapOf("Image" to "mask"),
-          mapOf("SentryMask" to "mask"),
-          mapOf("SentryUnmask" to "unmask"),
-          mapOf("User" to "custom text"),
-          mapOf("Image" to "unmask"),
+          "Image: mask",
+          "SentryMask: mask",
+          "SentryUnmask: unmask",
+          "User: custom text",
+          "Image: unmask",
         ),
         rrwebEvent.optionsPayload["maskingRules"],
       )
