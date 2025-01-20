@@ -84,9 +84,24 @@ void main() {
 
     final config = verify(native.setReplayConfig(captureAny)).captured.single
         as ReplayConfig;
-    expect(config.bitRate, 75000);
     expect(config.frameRate, 1);
     expect(config.width, 800);
     expect(config.height, 600);
+  });
+
+  testWidgets('Adjusts resolution based on quality', (tester) async {
+    options.experimental.replay.sessionSampleRate = 1.0;
+    options.experimental.replay.quality = SentryReplayQuality.low;
+    when(native.setReplayConfig(any)).thenReturn(null);
+    sut.call(hub, options);
+
+    TestWidgetsFlutterBinding.ensureInitialized();
+    await pumpTestElement(tester);
+    await tester.pumpAndSettle(Duration(seconds: 1));
+
+    final config = verify(native.setReplayConfig(captureAny)).captured.single
+        as ReplayConfig;
+    expect(config.width, 640);
+    expect(config.height, 480);
   });
 }
