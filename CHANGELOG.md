@@ -1,6 +1,43 @@
 # Changelog
 
-## Unreleased
+## 8.13.0-beta.1
+
+### Breaking changes
+
+- Remove Metrics API ([#2571](https://github.com/getsentry/sentry-dart/pull/2571))
+  - The Metrics product never reached maturity from beta and has officially ended in October 7th, 2024
+  - Read [this post](https://sentry.zendesk.com/hc/en-us/articles/26369339769883-Metrics-Beta-Ended-on-October-7th) for more information
+
+### Features
+
+- Add `beforeCapture` for View Hierarchy ([#2523](https://github.com/getsentry/sentry-dart/pull/2523))
+  - View hierarchy calls are now debounced for 2 seconds.
+- JS SDK integration ([#2572](https://github.com/getsentry/sentry-dart/pull/2572))
+  - Enable the integration by setting `options.enableSentryJs = true`
+  - Features:
+    - Sending envelopes through Sentry JS transport layer
+    - Capturing native JS errors
+
+### Enhancements
+
+- Replay: improve iOS native interop performance ([#2530](https://github.com/getsentry/sentry-dart/pull/2530), [#2573](https://github.com/getsentry/sentry-dart/pull/2573))
+- Replay: improve orientation change tracking accuracy on Android ([#2540](https://github.com/getsentry/sentry-dart/pull/2540))
+
+### Fixes
+
+- Replay: fix masking for frames captured during UI changes ([#2553](https://github.com/getsentry/sentry-dart/pull/2553))
+- Replay: fix widget masks overlap when navigating between screens ([#2486](https://github.com/getsentry/sentry-dart/pull/2486), [#2576](https://github.com/getsentry/sentry-dart/pull/2576))
+
+### Dependencies
+
+- Bump Cocoa SDK from v8.42.0 to v8.43.0 ([#2542](https://github.com/getsentry/sentry-dart/pull/2542), [#2548](https://github.com/getsentry/sentry-dart/pull/2548))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8430)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.42.0...8.43.0)
+- Bump Android SDK from v7.19.0 to v7.20.0 ([#2536](https://github.com/getsentry/sentry-dart/pull/2536), [#2549](https://github.com/getsentry/sentry-dart/pull/2549))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#7200)
+  - [diff](https://github.com/getsentry/sentry-java/compare/7.19.0...7.20.0)
+
+## 8.12.0
 
 ### Deprecations
 
@@ -9,12 +46,40 @@
 ### Fixes
 
 - Missing replay gestures on Android ([#2515](https://github.com/getsentry/sentry-dart/pull/2515))
-
-### Enhancements
-
+- Replay mask sizing on scaling transform widget children ([#2520](https://github.com/getsentry/sentry-dart/pull/2520))
+- Masking semi-transparent widgets ([#2472](https://github.com/getsentry/sentry-dart/pull/2472))
 - Check `SentryTracer` type in TTFD tracker ([#2508](https://github.com/getsentry/sentry-dart/pull/2508))
+
+### Features
+
+- Replay: device orientation change support & improve video size fit on Android ([#2462](https://github.com/getsentry/sentry-dart/pull/2462))
+- Support custom `Sentry.runZoneGuarded` zone creation ([#2088](https://github.com/getsentry/sentry-dart/pull/2088))
+  - Sentry will not create a custom zone anymore if it is started within a custom one.
+  - This fixes Zone miss-match errors when trying to initialize WidgetsBinding before Sentry on Flutter Web
+  - `Sentry.runZonedGuarded` creates a zone and also captures exceptions & breadcrumbs automatically.
+
+  ```dart
+  Sentry.runZonedGuarded(() {
+    WidgetsBinding.ensureInitialized();
+
+    // Errors before init will not be handled by Sentry
+
+    SentryFlutter.init(
+      (options) {
+      ...
+      },
+      appRunner: () => runApp(MyApp()),
+    );
+  } (error, stackTrace) {
+    // Automatically sends errors to Sentry, no need to do any
+    // captureException calls on your part.
+    // On top of that, you can do your own custom stuff in this callback.
+  });
+  ```
+
 - Warning (in a debug build) if a potentially sensitive widget is not masked or unmasked explicitly ([#2375](https://github.com/getsentry/sentry-dart/pull/2375))
 - SPM Support ([#2280](https://github.com/getsentry/sentry-dart/pull/2280))
+- Replay: ensure visual update before capturing screenshots ([#2527](https://github.com/getsentry/sentry-dart/pull/2527))
 
 ### Dependencies
 
@@ -24,6 +89,47 @@
 - Bump Android SDK from v7.18.1 to v7.19.0 ([#2488](https://github.com/getsentry/sentry-dart/pull/2488))
   - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#7190)
   - [diff](https://github.com/getsentry/sentry-java/compare/7.18.1...7.19.0)
+
+## 8.12.0-beta.2
+
+### Deprecations
+
+- Manual TTID ([#2477](https://github.com/getsentry/sentry-dart/pull/2477))
+
+### Fixes
+
+- Missing replay gestures on Android ([#2515](https://github.com/getsentry/sentry-dart/pull/2515))
+- Replay mask sizing on scaling transform widget children ([#2520](https://github.com/getsentry/sentry-dart/pull/2520))
+
+### Enhancements
+
+- Check `SentryTracer` type in TTFD tracker ([#2508](https://github.com/getsentry/sentry-dart/pull/2508))
+- Warning (in a debug build) if a potentially sensitive widget is not masked or unmasked explicitly ([#2375](https://github.com/getsentry/sentry-dart/pull/2375))
+- Replay: ensure visual update before capturing screenshots ([#2527](https://github.com/getsentry/sentry-dart/pull/2527))
+
+### Dependencies
+
+- Bump Native SDK from v0.7.15 to v0.7.17 ([#2465](https://github.com/getsentry/sentry-dart/pull/2465), [#2516](https://github.com/getsentry/sentry-dart/pull/2516))
+  - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#0717)
+  - [diff](https://github.com/getsentry/sentry-native/compare/0.7.15...0.7.17)
+- Bump Android SDK from v7.18.1 to v7.19.0 ([#2488](https://github.com/getsentry/sentry-dart/pull/2488))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#7190)
+  - [diff](https://github.com/getsentry/sentry-java/compare/7.18.1...7.19.0)
+
+## 8.11.2
+
+### Changes
+
+- Windows & Linux native crash handlers: add `SENTRY_NATIVE_BACKEND` env var with default setting of `none`. ([#2522](https://github.com/getsentry/sentry-dart/pull/2522))
+  Native crash reporting support with `sentry-native`'s `crashpad` was added in v8.11.0 and has caused build-time issues
+  for some users, because it required newer build tools (newer versions of MSVC/Clang/GCC) than base Flutter SDK.
+  This broke the ability to build the app for some users compiling Windows and Linux apps with older toolchains.
+
+  To avoid this issue, we're disabling the native crash handling by default for Linux and Windows for now.
+  You can enable it manually by setting the `SENTRY_NATIVE_BACKEND=crashpad` environment variable before running `flutter build`.
+  You can read more about available backends that fit your use-case in [sentry-native docs](https://docs.sentry.io/platforms/native/configuration/backends/).
+
+  We plan to change the default back to `crashpad` in the next major SDK release.
 
 ## 8.11.1
 

@@ -2,17 +2,14 @@ import 'dart:async';
 import 'dart:collection';
 
 import 'package:meta/meta.dart';
-import 'metrics/metric.dart';
-import 'metrics/metrics_aggregator.dart';
-import 'metrics/metrics_api.dart';
-import 'profiling.dart';
-import 'propagation_context.dart';
-import 'transport/data_category.dart';
 
 import '../sentry.dart';
 import 'client_reports/discard_reason.dart';
+import 'profiling.dart';
+import 'propagation_context.dart';
 import 'sentry_tracer.dart';
 import 'sentry_traces_sampler.dart';
+import 'transport/data_category.dart';
 
 /// Configures the scope through the callback.
 typedef ScopeCallback = FutureOr<void> Function(Scope);
@@ -41,16 +38,6 @@ class Hub {
 
   late final _WeakMap _throwableToSpan;
 
-  late final MetricsApi _metricsApi;
-
-  @internal
-  @Deprecated(
-      'Metrics will be deprecated and removed in the next major release. Sentry will reject all metrics sent after October 7, 2024. Learn more: https://sentry.zendesk.com/hc/en-us/articles/26369339769883-Upcoming-API-Changes-to-Metrics')
-  MetricsApi get metricsApi => _metricsApi;
-
-  @internal
-  MetricsAggregator? get metricsAggregator => _peek().client.metricsAggregator;
-
   factory Hub(SentryOptions options) {
     _validateOptions(options);
 
@@ -62,7 +49,6 @@ class Hub {
     _stack.add(_StackItem(_getClient(_options), Scope(_options)));
     _isEnabled = true;
     _throwableToSpan = _WeakMap(_options);
-    _metricsApi = MetricsApi(hub: this);
   }
 
   static void _validateOptions(SentryOptions options) {
@@ -628,45 +614,6 @@ class Hub {
           if (_options.automatedTestMode) {
             rethrow;
           }
-        }
-      }
-    }
-    return sentryId;
-  }
-
-  @internal
-  Future<SentryId> captureMetrics(
-      Map<int, Iterable<Metric>> metricsBuckets) async {
-    var sentryId = SentryId.empty();
-
-    if (!_isEnabled) {
-      _options.logger(
-        SentryLevel.warning,
-        "Instance is disabled and this 'captureMetrics' call is a no-op.",
-      );
-    } else if (!_options.enableMetrics) {
-      _options.logger(
-        SentryLevel.info,
-        "Metrics are disabled and this 'captureMetrics' call is a no-op.",
-      );
-    } else if (metricsBuckets.isEmpty) {
-      _options.logger(
-        SentryLevel.info,
-        "Metrics are empty and this 'captureMetrics' call is a no-op.",
-      );
-    } else {
-      final item = _peek();
-      try {
-        sentryId = await item.client.captureMetrics(metricsBuckets);
-      } catch (exception, stackTrace) {
-        _options.logger(
-          SentryLevel.error,
-          'Error while capturing metrics.',
-          exception: exception,
-          stackTrace: stackTrace,
-        );
-        if (_options.automatedTestMode) {
-          rethrow;
         }
       }
     }

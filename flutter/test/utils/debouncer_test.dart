@@ -48,6 +48,6 @@ class Fixture {
   DateTime mockClock() => DateTime.fromMillisecondsSinceEpoch(currentTimeMs);
 
   Debouncer getSut({int waitTimeMs = 3000}) {
-    return Debouncer(mockClock, waitTimeMs: waitTimeMs);
+    return Debouncer(mockClock, waitTime: Duration(milliseconds: waitTimeMs));
   }
 }

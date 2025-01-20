@@ -1,4 +1,3 @@
-import 'metrics/local_metrics_aggregator.dart';
 import 'protocol.dart';
 import 'tracing.dart';
 import 'utils.dart';
@@ -96,7 +95,4 @@ class NoOpSentrySpan extends ISentrySpan {
 
   @override
   void scheduleFinish() {}
-
-  @override
-  LocalMetricsAggregator? get localMetricsAggregator => null;
 }

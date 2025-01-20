@@ -3,16 +3,16 @@
 import 'package:flutter/services.dart';
 import 'package:flutter/src/widgets/binding.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:meta/meta.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry/src/platform/platform.dart';
 import 'package:sentry/src/sentry_tracer.dart';
-
-import 'package:meta/meta.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/frames_tracking/sentry_delayed_frames_tracker.dart';
-import 'package:sentry_flutter/src/renderer/renderer.dart';
 import 'package:sentry_flutter/src/native/sentry_native_binding.dart';
+import 'package:sentry_flutter/src/renderer/renderer.dart';
+import 'package:sentry_flutter/src/web/sentry_js_binding.dart';
 
 import 'mocks.mocks.dart';
 import 'no_such_method_provider.dart';
@@ -53,6 +53,7 @@ ISentrySpan startTransactionShim(
   SentryDelayedFramesTracker,
   BindingWrapper,
   WidgetsFlutterBinding,
+  SentryJsBinding,
 ], customMocks: [
   MockSpec<Hub>(fallbackGenerators: {#startTransaction: startTransactionShim})
 ])
@@ -202,10 +203,11 @@ class NativeChannelFixture {
       handler;
   static TestDefaultBinaryMessenger get _messenger =>
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+  late final codec = StandardMethodCodec();
 
   NativeChannelFixture() {
     TestWidgetsFlutterBinding.ensureInitialized();
-    channel = MethodChannel('test.channel', StandardMethodCodec(), _messenger);
+    channel = MethodChannel('test.channel', codec, _messenger);
     handler = MockCallbacks().methodCallHandler;
     when(handler('initNativeSdk', any)).thenAnswer((_) => Future.value());
     when(handler('closeNativeSdk', any)).thenAnswer((_) => Future.value());
@@ -214,11 +216,15 @@ class NativeChannelFixture {
   }
 
   // Mock this call as if it was invoked by the native side.
-  Future<ByteData?> invokeFromNative(String method, [dynamic arguments]) async {
-    final call =
-        StandardMethodCodec().encodeMethodCall(MethodCall(method, arguments));
-    return _messenger.handlePlatformMessage(
+  Future<dynamic> invokeFromNative(String method, [dynamic arguments]) async {
+    final call = codec.encodeMethodCall(MethodCall(method, arguments));
+    final byteData = await _messenger.handlePlatformMessage(
         channel.name, call, (ByteData? data) {});
+    if (byteData != null) {
+      return codec.decodeEnvelope(byteData);
+    } else {
+      return null;
+    }
   }
 }
 

@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:meta/meta.dart';
 
 import '../sentry.dart';
-import 'metrics/local_metrics_aggregator.dart';
 import 'profiling.dart';
 import 'sentry_tracer_finish_status.dart';
 import 'utils/sample_rate_format.dart';
@@ -426,8 +425,4 @@ class SentryTracer extends ISentrySpan {
       });
     }
   }
-
-  @override
-  LocalMetricsAggregator? get localMetricsAggregator =>
-      _rootSpan.localMetricsAggregator;
 }

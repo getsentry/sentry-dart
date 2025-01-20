@@ -4,7 +4,6 @@
 library dart_test;
 
 import 'dart:async';
-import 'dart:developer';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/src/replay/scheduled_recorder.dart';
@@ -12,6 +11,7 @@ import 'package:sentry_flutter/src/replay/scheduled_recorder_config.dart';
 
 import '../mocks.dart';
 import '../screenshot/test_widget.dart';
+import 'replay_test_util.dart';
 
 void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -34,14 +34,14 @@ void main() async {
 
 class _Fixture {
   final WidgetTester _tester;
-  late final _TestScheduledRecorder _sut;
+  late final ScheduledScreenshotRecorder _sut;
   final capturedImages = <String>[];
   late Completer<void> _completer;
 
   ScheduledScreenshotRecorder get sut => _sut;
 
   _Fixture._(this._tester) {
-    _sut = _TestScheduledRecorder(
+    _sut = ScheduledScreenshotRecorder(
       ScheduledScreenshotRecorderConfig(
         width: 1000,
         height: 1000,
@@ -50,9 +50,7 @@ class _Fixture {
       defaultTestOptions()..bindingUtils = TestBindingWrapper(),
       (image, isNewlyCaptured) async {
         capturedImages.add('${image.width}x${image.height}');
-        if (!_completer.isCompleted) {
-          _completer.complete();
-        }
+        _completer.complete();
       },
     );
   }
@@ -67,18 +65,8 @@ class _Fixture {
   Future<void> nextFrame(bool imageIsExpected) async {
     _completer = Completer();
     _tester.binding.scheduleFrame();
-    await _tester.pumpAndSettle(const Duration(seconds: 1));
-    await _completer.future.timeout(const Duration(milliseconds: 100),
-        onTimeout: imageIsExpected ? null : () {});
-  }
-}
-
-class _TestScheduledRecorder extends ScheduledScreenshotRecorder {
-  _TestScheduledRecorder(super.config, super.options, super.callback);
-
-  @override
-  Future<void> executeTask(void Function() task, Flow flow) {
-    task();
-    return Future.value();
+    await _tester.pumpAndWaitUntil(_completer.future,
+        requiredToComplete: imageIsExpected);
+    expect(_completer.isCompleted, imageIsExpected);
   }
 }

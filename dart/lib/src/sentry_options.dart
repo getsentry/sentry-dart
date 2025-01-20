@@ -451,48 +451,6 @@ class SentryOptions {
       'Use either tracesSampleRate or tracesSampler instead. This will be removed in v9')
   bool? enableTracing;
 
-  /// Enables sending developer metrics to Sentry.
-  /// More on https://develop.sentry.dev/delightful-developer-metrics/.
-  /// Example:
-  /// ```dart
-  /// Sentry.metrics.counter('myMetric');
-  /// ```
-  @experimental
-  bool enableMetrics = false;
-
-  @experimental
-  bool _enableDefaultTagsForMetrics = true;
-
-  /// Enables enriching metrics with default tags. Requires [enableMetrics].
-  /// More on https://develop.sentry.dev/delightful-developer-metrics/sending-metrics-sdk/#automatic-tags-extraction
-  /// Currently adds release, environment and transaction name.
-  @experimental
-  bool get enableDefaultTagsForMetrics =>
-      enableMetrics && _enableDefaultTagsForMetrics;
-
-  /// Enables enriching metrics with default tags. Requires [enableMetrics].
-  /// More on https://develop.sentry.dev/delightful-developer-metrics/sending-metrics-sdk/#automatic-tags-extraction
-  /// Currently adds release, environment and transaction name.
-  @experimental
-  set enableDefaultTagsForMetrics(final bool enableDefaultTagsForMetrics) =>
-      _enableDefaultTagsForMetrics = enableDefaultTagsForMetrics;
-
-  @experimental
-  bool _enableSpanLocalMetricAggregation = true;
-
-  /// Enables span metrics aggregation. Requires [enableMetrics].
-  /// More on https://develop.sentry.dev/sdk/metrics/#span-aggregation
-  @experimental
-  bool get enableSpanLocalMetricAggregation =>
-      enableMetrics && _enableSpanLocalMetricAggregation;
-
-  /// Enables span metrics aggregation. Requires [enableMetrics].
-  /// More on https://develop.sentry.dev/sdk/metrics/#span-aggregation
-  @experimental
-  set enableSpanLocalMetricAggregation(
-          final bool enableSpanLocalMetricAggregation) =>
-      _enableSpanLocalMetricAggregation = enableSpanLocalMetricAggregation;
-
   /// Only for internal use. Changed SDK behaviour when set to true:
   /// - Rethrow exceptions that occur in user provided closures
   @internal
