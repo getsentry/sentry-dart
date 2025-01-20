@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- WASM compat for Drift ([#2580](https://github.com/getsentry/sentry-dart/pull/2580))
+
 ## 8.13.0-beta.1
 
 ### Breaking changes
