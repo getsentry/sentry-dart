@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+## Features
+
+- SPM Support ([#2280](https://github.com/getsentry/sentry-dart/pull/2280))
+
 ## 8.13.0-beta.1
 
 ### Breaking changes
@@ -78,7 +84,6 @@
   ```
 
 - Warning (in a debug build) if a potentially sensitive widget is not masked or unmasked explicitly ([#2375](https://github.com/getsentry/sentry-dart/pull/2375))
-- SPM Support ([#2280](https://github.com/getsentry/sentry-dart/pull/2280))
 - Replay: ensure visual update before capturing screenshots ([#2527](https://github.com/getsentry/sentry-dart/pull/2527))
 
 ### Dependencies
