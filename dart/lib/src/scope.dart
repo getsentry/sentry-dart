@@ -4,6 +4,7 @@ import 'dart:collection';
 import 'package:meta/meta.dart';
 
 import 'event_processor.dart';
+import 'event_processor/run_event_processors.dart';
 import 'hint.dart';
 import 'propagation_context.dart';
 import 'protocol.dart';
@@ -341,33 +342,7 @@ class Scope {
       }
     }
 
-    SentryEvent? processedEvent = event;
-    for (final processor in _eventProcessors) {
-      try {
-        final e = processor.apply(processedEvent!, hint);
-        if (e is Future<SentryEvent?>) {
-          processedEvent = await e;
-        } else {
-          processedEvent = e;
-        }
-      } catch (exception, stackTrace) {
-        _options.logger(
-          SentryLevel.error,
-          'An exception occurred while processing event by a processor',
-          exception: exception,
-          stackTrace: stackTrace,
-        );
-        if (_options.automatedTestMode) {
-          rethrow;
-        }
-      }
-      if (processedEvent == null) {
-        _options.logger(SentryLevel.debug, 'Event was dropped by a processor');
-        break;
-      }
-    }
-
-    return processedEvent;
+    return await runEventProcessors(event, hint, _eventProcessors, _options);
   }
 
   /// Merge the scope contexts runtimes and the event contexts runtimes.
