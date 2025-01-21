@@ -43,9 +43,7 @@ class SentryNativeChannel
       'autoSessionTrackingIntervalMillis':
           options.autoSessionTrackingInterval.inMilliseconds,
       'dist': options.dist,
-      'integrations': options.sdk.integrations,
-      'packages':
-          options.sdk.packages.map((e) => e.toJson()).toList(growable: false),
+      'sdk': options.sdk.toJson(),
       'diagnosticLevel': options.diagnosticLevel.name,
       'maxBreadcrumbs': options.maxBreadcrumbs,
       'anrEnabled': options.anrEnabled,

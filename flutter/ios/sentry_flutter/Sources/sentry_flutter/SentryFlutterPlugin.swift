@@ -302,27 +302,31 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
             let version = PrivateSentrySDKOnly.getSdkVersionString()
             PrivateSentrySDKOnly.setSdkName(SentryFlutterPlugin.nativeClientName, andVersionString: version)
 
+            let flutterSdk = arguments["sdk"] as? [String: Any]
+
             // note : for now, in sentry-cocoa, beforeSend is not called before captureEnvelope
             options.beforeSend = { event in
                 self.setEventOriginTag(event: event)
 
-                if var sdk = event.sdk, self.isValidSdk(sdk: sdk) {
-                    if let packages = arguments["packages"] as? [[String: String]] {
-                        if let sdkPackages = sdk["packages"] as? [[String: String]] {
-                            sdk["packages"] = sdkPackages + packages
-                        } else {
-                            sdk["packages"] = packages
+                if flutterSdk != nil {
+                    if var sdk = event.sdk, self.isValidSdk(sdk: sdk) {
+                        if let packages = flutterSdk["packages"] as? [[String: String]] {
+                            if let sdkPackages = sdk["packages"] as? [[String: String]] {
+                                sdk["packages"] = sdkPackages + packages
+                            } else {
+                                sdk["packages"] = packages
+                            }
                         }
-                    }
 
-                    if let integrations = arguments["integrations"] as? [String] {
-                        if let sdkIntegrations = sdk["integrations"] as? [String] {
-                            sdk["integrations"] = sdkIntegrations + integrations
-                        } else {
-                            sdk["integrations"] = integrations
+                        if let integrations = flutterSdk["integrations"] as? [String] {
+                            if let sdkIntegrations = sdk["integrations"] as? [String] {
+                                sdk["integrations"] = sdkIntegrations + integrations
+                            } else {
+                                sdk["integrations"] = integrations
+                            }
                         }
+                        event.sdk = sdk
                     }
-                    event.sdk = sdk
                 }
 
                 return event

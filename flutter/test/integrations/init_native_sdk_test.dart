@@ -43,10 +43,13 @@ void main() {
       'attachThreads': false,
       'autoSessionTrackingIntervalMillis': 30000,
       'dist': null,
-      'integrations': <String>[],
-      'packages': [
-        {'name': 'pub:sentry_flutter', 'version': sdkVersion}
-      ],
+      'sdk': {
+        'name': 'sentry.dart.flutter',
+        'version': sdkVersion,
+        'packages': [
+          {'name': 'pub:sentry_flutter', 'version': sdkVersion}
+        ]
+      },
       'diagnosticLevel': 'debug',
       'maxBreadcrumbs': 100,
       'anrEnabled': false,
@@ -152,11 +155,15 @@ void main() {
       'attachThreads': true,
       'autoSessionTrackingIntervalMillis': 240000,
       'dist': 'distfoo',
-      'integrations': ['foo'],
-      'packages': [
-        {'name': 'pub:sentry_flutter', 'version': sdkVersion},
-        {'name': 'bar', 'version': '1'},
-      ],
+      'sdk': {
+        'name': 'sentry.dart.flutter',
+        'version': sdkVersion,
+        'packages': [
+          {'name': 'pub:sentry_flutter', 'version': sdkVersion},
+          {'name': 'bar', 'version': '1'},
+        ],
+        'integrations': ['foo'],
+      },
       'diagnosticLevel': 'error',
       'maxBreadcrumbs': 0,
       'anrEnabled': false,

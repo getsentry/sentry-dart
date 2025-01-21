@@ -156,8 +156,12 @@ class SentryFlutter(
           }
     }
 
-    data.getIfNotNull<Map<String, Any>>("replay") {
-      updateReplayOptions(options, it)
+    data.getIfNotNull<Map<String, Any>>("replay") { replayArgs ->
+      updateReplayOptions(options, replayArgs)
+
+      data.getIfNotNull<Map<String, Any>>("sdk") {
+        options.sessionReplay.sdkVersion = SdkVersion(it["name"] as String, it["version"] as String)
+      }
     }
   }
 
