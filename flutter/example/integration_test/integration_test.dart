@@ -174,7 +174,9 @@ void main() {
 
     final options = Sentry.currentHub.options;
 
-    final envelope = SentryEnvelope(SentryEnvelopeHeader(null, null), [
+    // Test case 1: Invalid JSON in event payload
+    final invalidJsonEnvelope =
+        SentryEnvelope(SentryEnvelopeHeader(null, null), [
       SentryEnvelopeItem(
           SentryEnvelopeItemHeader('event'), () => Future.value(utf8.encode('''
             {
@@ -184,7 +186,23 @@ void main() {
             ''')))
     ]);
 
-    await options.transport.send(envelope);
+    // Test case 2: Invalid envelope header
+    final invalidHeaderEnvelope = SentryEnvelope(
+      SentryEnvelopeHeader(null, null),
+      [
+        SentryEnvelopeItem(
+          SentryEnvelopeItemHeader('invalid_type'),
+          () => Future.value(utf8.encode('{"valid": "json"}')),
+        )
+      ],
+    );
+
+    // Test case 3: Empty envelope items
+    final emptyEnvelope = SentryEnvelope(SentryEnvelopeHeader(null, null), []);
+
+    await options.transport.send(invalidJsonEnvelope);
+    await options.transport.send(invalidHeaderEnvelope);
+    await options.transport.send(emptyEnvelope);
 
     final id = await Sentry.captureMessage('SDK still works');
     expect(id, isNotNull);
