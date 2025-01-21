@@ -35,8 +35,10 @@ import io.sentry.android.core.performance.TimeSpan
 import io.sentry.android.replay.ReplayIntegration
 import io.sentry.android.replay.ScreenshotRecorderConfig
 import io.sentry.protocol.DebugImage
+import io.sentry.protocol.SdkInfo
 import io.sentry.protocol.SdkVersion
 import io.sentry.protocol.SentryId
+import io.sentry.protocol.SentryPackage
 import io.sentry.protocol.User
 import io.sentry.transport.CurrentDateProvider
 import java.io.File
@@ -78,11 +80,7 @@ class SentryFlutterPlugin :
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, "sentry_flutter")
     channel.setMethodCallHandler(this)
 
-    sentryFlutter =
-      SentryFlutter(
-        androidSdk = ANDROID_SDK,
-        nativeSdk = NATIVE_SDK,
-      )
+    sentryFlutter = SentryFlutter()
   }
 
   @Suppress("CyclomaticComplexMethod")
@@ -164,7 +162,6 @@ class SentryFlutterPlugin :
         framesTracker = ActivityFramesTracker(LoadClass(), options)
       }
 
-      options.beforeSend = BeforeSendCallbackImpl(options.sdkVersion)
       setupReplay(options)
     }
     result.success("")
@@ -525,60 +522,8 @@ class SentryFlutterPlugin :
     result.success("")
   }
 
-  private class BeforeSendCallbackImpl(
-    private val sdkVersion: SdkVersion?,
-  ) : SentryOptions.BeforeSendCallback {
-    override fun execute(
-      event: SentryEvent,
-      hint: Hint,
-    ): SentryEvent {
-      setEventOriginTag(event)
-      addPackages(event, sdkVersion)
-      return event
-    }
-  }
-
   companion object {
-    private const val FLUTTER_SDK = "sentry.dart.flutter"
-    private const val ANDROID_SDK = "sentry.java.android.flutter"
-    private const val NATIVE_SDK = "sentry.native.android.flutter"
     private const val NATIVE_CRASH_WAIT_TIME = 500L
-
-    private fun setEventOriginTag(event: SentryEvent) {
-      event.sdk?.let {
-        when (it.name) {
-          FLUTTER_SDK -> setEventEnvironmentTag(event, "flutter", "dart")
-          ANDROID_SDK -> setEventEnvironmentTag(event, environment = "java")
-          NATIVE_SDK -> setEventEnvironmentTag(event, environment = "native")
-          else -> return
-        }
-      }
-    }
-
-    private fun setEventEnvironmentTag(
-      event: SentryEvent,
-      origin: String = "android",
-      environment: String,
-    ) {
-      event.setTag("event.origin", origin)
-      event.setTag("event.environment", environment)
-    }
-
-    private fun addPackages(
-      event: SentryEvent,
-      sdk: SdkVersion?,
-    ) {
-      event.sdk?.let {
-        if (it.name == FLUTTER_SDK) {
-          sdk?.packageSet?.forEach { sentryPackage ->
-            it.addPackage(sentryPackage.name, sentryPackage.version)
-          }
-          sdk?.integrationSet?.forEach { integration ->
-            it.addIntegration(integration)
-          }
-        }
-      }
-    }
 
     private fun crash() {
       val exception = RuntimeException("FlutterSentry Native Integration: Sample RuntimeException")
