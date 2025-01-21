@@ -113,6 +113,14 @@ public final class SentryFlutter {
         }
 #if canImport(UIKit) && !SENTRY_NO_UIKIT && (os(iOS) || os(tvOS))
         if let replayOptions = data["replay"] as? [String: Any] {
+            switch data["quality"] as? String {
+            case "low":
+                options.sessionReplay.quality = SentryReplayOptions.SentryReplayQuality.low
+            case "high":
+                options.sessionReplay.quality = SentryReplayOptions.SentryReplayQuality.high
+            default:
+                options.sessionReplay.quality = SentryReplayOptions.SentryReplayQuality.medium
+            }
             options.sessionReplay.sessionSampleRate =
                 (replayOptions["sessionSampleRate"] as? NSNumber)?.floatValue ?? 0
             options.sessionReplay.onErrorSampleRate =

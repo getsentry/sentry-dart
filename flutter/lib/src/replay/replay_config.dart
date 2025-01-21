@@ -11,12 +11,9 @@ class ReplayConfig extends ScheduledScreenshotRecorderConfig {
   @override
   double get height => super.height!;
 
-  final int bitRate;
-
   const ReplayConfig({
     required double super.width,
     required double super.height,
-    required super.frameRate,
-    required this.bitRate,
+    super.frameRate = 1,
   });
 }

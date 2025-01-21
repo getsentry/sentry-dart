@@ -1,1 +1,0 @@
-../../ios/Classes/SentryFlutterPluginApple.swift

@@ -1,4 +1,10 @@
 import Sentry
+
+#if SWIFT_PACKAGE
+import Sentry._Hybrid
+import sentry_flutter_objc
+#endif
+
 #if os(iOS)
 import Flutter
 import UIKit
@@ -11,7 +17,7 @@ import CoreVideo
 // swiftlint:disable file_length function_body_length
 
 // swiftlint:disable:next type_body_length
-public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
+public class SentryFlutterPlugin: NSObject, FlutterPlugin {
     private let channel: FlutterMethodChannel
 
     private static let nativeClientName = "sentry.cocoa.flutter"
@@ -27,7 +33,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         let channel = FlutterMethodChannel(name: "sentry_flutter", binaryMessenger: registrar.messenger)
 #endif
 
-        let instance = SentryFlutterPluginApple(channel: channel)
+        let instance = SentryFlutterPlugin(channel: channel)
         registrar.addMethodCallDelegate(instance, channel: channel)
     }
 
@@ -294,7 +300,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
             }
 
             let version = PrivateSentrySDKOnly.getSdkVersionString()
-            PrivateSentrySDKOnly.setSdkName(SentryFlutterPluginApple.nativeClientName, andVersionString: version)
+            PrivateSentrySDKOnly.setSdkName(SentryFlutterPlugin.nativeClientName, andVersionString: version)
 
             // note : for now, in sentry-cocoa, beforeSend is not called before captureEnvelope
             options.beforeSend = { event in
@@ -337,9 +343,9 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 
 #if canImport(UIKit) && !SENTRY_NO_UIKIT
 #if os(iOS) || os(tvOS)
-        let breadcrumbConverter = SentryFlutterReplayBreadcrumbConverter()
-        let screenshotProvider = SentryFlutterReplayScreenshotProvider(channel: self.channel)
-        PrivateSentrySDKOnly.configureSessionReplay(with: breadcrumbConverter, screenshotProvider: screenshotProvider)
+       let breadcrumbConverter = SentryFlutterReplayBreadcrumbConverter()
+       let screenshotProvider = SentryFlutterReplayScreenshotProvider(channel: self.channel)
+       PrivateSentrySDKOnly.configureSessionReplay(with: breadcrumbConverter, screenshotProvider: screenshotProvider)
 #endif
 #endif
 
@@ -358,7 +364,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         if isValidSdk(sdk: sdk) {
 
             switch sdk["name"] as? String {
-            case SentryFlutterPluginApple.nativeClientName:
+            case SentryFlutterPlugin.nativeClientName:
                 #if os(OSX)
                     let origin = "mac"
                 #elseif os(watchOS)
@@ -473,7 +479,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         let isColdStart = appStartMeasurement.type == .cold
 
         let item: [String: Any] = [
-            "pluginRegistrationTime": SentryFlutterPluginApple.pluginRegistrationTime,
+            "pluginRegistrationTime": SentryFlutterPlugin.pluginRegistrationTime,
             "appStartTime": appStartTime,
             "isColdStart": isColdStart,
             "nativeSpanTimes": nativeSpanTimes
