@@ -93,9 +93,13 @@ class Sentry {
       // in the ‘root zone’ where all Dart programs start
       options.addIntegrationByIndex(0, IsolateErrorIntegration());
     }
-    
+
     if (options.platformChecker.isDebugMode()) {
       options.debug = true;
+      options.logger(
+        SentryLevel.debug,
+        'Debug mode is enabled: Application is running in a debug environment.',
+      );
     }
 
     if (options.enableDartSymbolication) {
