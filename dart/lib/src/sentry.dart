@@ -93,6 +93,10 @@ class Sentry {
       // in the ‘root zone’ where all Dart programs start
       options.addIntegrationByIndex(0, IsolateErrorIntegration());
     }
+    
+    if (options.platformChecker.isDebugMode()) {
+      options.debug = true;
+    }
 
     if (options.enableDartSymbolication) {
       options.addIntegration(LoadDartDebugImagesIntegration());

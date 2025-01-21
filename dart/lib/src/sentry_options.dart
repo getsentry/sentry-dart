@@ -154,7 +154,7 @@ class SentryOptions {
   List<Integration> get integrations => List.unmodifiable(_integrations);
 
   /// Turns debug mode on or off. If debug is enabled SDK will attempt to print out useful debugging
-  /// information if something goes wrong. Default is disabled.
+  /// information if something goes wrong. Default is enabled in debug mode, otherwise it is disabled.
   bool get debug => _debug;
 
   set debug(bool newValue) {
