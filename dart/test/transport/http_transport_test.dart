@@ -85,7 +85,8 @@ void main() {
       expect(mockRateLimiter.sentryRateLimitHeader, isNull);
 
       expect(fixture.loggedLevel, SentryLevel.warning);
-      expect(fixture.loggedMessage, 'Rate limit reached, failed to send envelope');
+      expect(
+          fixture.loggedMessage, 'Rate limit reached, failed to send envelope');
     });
 
     test('sentryRateLimitHeader', () async {
@@ -212,7 +213,8 @@ void main() {
       expect(fixture.clientReportRecorder.discardedEvents.isEmpty, isTrue);
 
       expect(fixture.loggedLevel, SentryLevel.warning);
-      expect(fixture.loggedMessage, 'Rate limit reached, failed to send envelope');
+      expect(
+          fixture.loggedMessage, 'Rate limit reached, failed to send envelope');
     });
 
     test('does record lost event for error >= 500', () async {
@@ -267,12 +269,12 @@ class Fixture {
   String? loggedMessage;
 
   void mockLogger(
-      SentryLevel level,
-      String message, {
-        String? logger,
-        Object? exception,
-        StackTrace? stackTrace,
-      }) {
+    SentryLevel level,
+    String message, {
+    String? logger,
+    Object? exception,
+    StackTrace? stackTrace,
+  }) {
     loggedLevel = level;
     loggedMessage = message;
   }

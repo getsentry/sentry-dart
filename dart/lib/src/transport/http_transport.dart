@@ -52,9 +52,7 @@ class HttpTransport implements Transport {
     }
     if (response.statusCode == 429) {
       _options.logger(
-          SentryLevel.warning,
-          'Rate limit reached, failed to send envelope'
-      );
+          SentryLevel.warning, 'Rate limit reached, failed to send envelope');
     }
     return SentryId.empty();
   }
