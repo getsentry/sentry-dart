@@ -7,6 +7,10 @@
 - Add SentryReplayQuality setting (`options.experimental.replay.quality`) ([#2582](https://github.com/getsentry/sentry-dart/pull/2582))
 - SPM Support ([#2280](https://github.com/getsentry/sentry-dart/pull/2280))
 
+### Enhancements
+
+- Print a warning if the rate limit was reached ([#2595](https://github.com/getsentry/sentry-dart/pull/2595))
+
 ### Fixes
 
 - WASM compat for Drift ([#2580](https://github.com/getsentry/sentry-dart/pull/2580))
