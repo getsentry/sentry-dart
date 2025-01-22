@@ -1,4 +1,4 @@
-name: sentry-hive
+name: sentry-link
 on:
   push:
     branches:
