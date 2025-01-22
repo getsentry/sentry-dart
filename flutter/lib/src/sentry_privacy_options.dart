@@ -163,13 +163,11 @@ class SentryPrivacyOptions {
   }
 }
 
-SentryMaskingDecision _maskImagesExceptAssets(Element element, Widget widget) {
-  if (widget is Image) {
-    final image = widget.image;
-    if (image is AssetBundleImageProvider) {
-      if (WidgetFilter.isBuiltInAssetImage(image, rootBundle)) {
-        return SentryMaskingDecision.continueProcessing;
-      }
+SentryMaskingDecision _maskImagesExceptAssets(Element element, Image widget) {
+  final image = widget.image;
+  if (image is AssetBundleImageProvider) {
+    if (WidgetFilter.isBuiltInAssetImage(image, rootBundle)) {
+      return SentryMaskingDecision.continueProcessing;
     }
   }
   return SentryMaskingDecision.mask;
