@@ -501,10 +501,11 @@ void main() {
 
     test('throw is handled and logged', () async {
       // Use release mode in platform checker to avoid additional log
-      final sentryOptions = defaultTestOptions(FakePlatformChecker.releaseMode())
-        ..automatedTestMode = false
-        ..debug = true
-        ..logger = fixture.mockLogger;
+      final sentryOptions =
+          defaultTestOptions(FakePlatformChecker.releaseMode())
+            ..automatedTestMode = false
+            ..debug = true
+            ..logger = fixture.mockLogger;
 
       final exception = Exception("Exception in options callback");
       await Sentry.init(
