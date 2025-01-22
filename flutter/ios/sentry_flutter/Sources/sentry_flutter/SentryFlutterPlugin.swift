@@ -345,6 +345,12 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
             NotificationCenter.default.post(name: Notification.Name("SentryHybridSdkDidBecomeActive"), object: nil)
         }
 
+        configureReplay(arguments)
+
+        result("")
+    }
+
+  private func configureReplay(_ arguments: [String: Any]) {
 #if canImport(UIKit) && !SENTRY_NO_UIKIT && (os(iOS) || os(tvOS))
        let breadcrumbConverter = SentryFlutterReplayBreadcrumbConverter()
        let screenshotProvider = SentryFlutterReplayScreenshotProvider(channel: self.channel)
@@ -359,16 +365,14 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
             "nativeSdkName": PrivateSentrySDKOnly.getSdkName(),
             "nativeSdkVersion": PrivateSentrySDKOnly.getSdkVersionString()
            ]
-           for (k, v) in tags {
-               newTags[k] = v
+           for (key, value) in tags {
+               newTags[key] = value
            }
            PrivateSentrySDKOnly.setReplayTags(newTags)
          }
        }
 #endif
-
-        result("")
-    }
+  }
 
     private func closeNativeSdk(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         SentrySDK.close()

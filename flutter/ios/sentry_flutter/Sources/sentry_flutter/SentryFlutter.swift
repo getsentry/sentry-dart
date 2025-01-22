@@ -131,7 +131,7 @@ public final class SentryFlutter {
                 options.sessionReplay.setValue(
                     [
                         "name": flutterSdk!["name"],
-                        "version": flutterSdk!["version"],
+                        "version": flutterSdk!["version"]
                     ], forKey: "sdkInfo")
             }
         #endif
