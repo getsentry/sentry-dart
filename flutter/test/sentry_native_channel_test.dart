@@ -331,8 +331,7 @@ void main() {
         when(channel.invokeMethod('setReplayConfig', any))
             .thenAnswer((_) => Future.value());
 
-        final config =
-            ReplayConfig(width: 1.1, height: 2.2, frameRate: 3, bitRate: 4);
+        final config = ReplayConfig(width: 1.1, height: 2.2, frameRate: 3);
         await sut.setReplayConfig(config);
 
         if (mockPlatform.isAndroid) {
@@ -340,7 +339,6 @@ void main() {
             'width': config.width,
             'height': config.height,
             'frameRate': config.frameRate,
-            'bitRate': config.bitRate,
           }));
         } else {
           verifyNever(channel.invokeMethod('setReplayConfig', any));

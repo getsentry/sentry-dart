@@ -1,4 +1,10 @@
 import Sentry
+
+#if SWIFT_PACKAGE
+import Sentry._Hybrid
+import sentry_flutter_objc
+#endif
+
 #if os(iOS)
 import Flutter
 import UIKit
@@ -11,7 +17,7 @@ import CoreVideo
 // swiftlint:disable file_length function_body_length
 
 // swiftlint:disable:next type_body_length
-public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
+public class SentryFlutterPlugin: NSObject, FlutterPlugin {
     private let channel: FlutterMethodChannel
 
     private static let nativeClientName = "sentry.cocoa.flutter"
@@ -27,7 +33,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         let channel = FlutterMethodChannel(name: "sentry_flutter", binaryMessenger: registrar.messenger)
 #endif
 
-        let instance = SentryFlutterPluginApple(channel: channel)
+        let instance = SentryFlutterPlugin(channel: channel)
         registrar.addMethodCallDelegate(instance, channel: channel)
     }
 
@@ -294,29 +300,33 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
             }
 
             let version = PrivateSentrySDKOnly.getSdkVersionString()
-            PrivateSentrySDKOnly.setSdkName(SentryFlutterPluginApple.nativeClientName, andVersionString: version)
+            PrivateSentrySDKOnly.setSdkName(SentryFlutterPlugin.nativeClientName, andVersionString: version)
+
+            let flutterSdk = arguments["sdk"] as? [String: Any]
 
             // note : for now, in sentry-cocoa, beforeSend is not called before captureEnvelope
             options.beforeSend = { event in
                 self.setEventOriginTag(event: event)
 
-                if var sdk = event.sdk, self.isValidSdk(sdk: sdk) {
-                    if let packages = arguments["packages"] as? [[String: String]] {
-                        if let sdkPackages = sdk["packages"] as? [[String: String]] {
-                            sdk["packages"] = sdkPackages + packages
-                        } else {
-                            sdk["packages"] = packages
+                if flutterSdk != nil {
+                    if var sdk = event.sdk, self.isValidSdk(sdk: sdk) {
+                        if let packages = flutterSdk!["packages"] as? [[String: String]] {
+                            if let sdkPackages = sdk["packages"] as? [[String: String]] {
+                                sdk["packages"] = sdkPackages + packages
+                            } else {
+                                sdk["packages"] = packages
+                            }
                         }
-                    }
 
-                    if let integrations = arguments["integrations"] as? [String] {
-                        if let sdkIntegrations = sdk["integrations"] as? [String] {
-                            sdk["integrations"] = sdkIntegrations + integrations
-                        } else {
-                            sdk["integrations"] = integrations
+                        if let integrations = flutterSdk!["integrations"] as? [String] {
+                            if let sdkIntegrations = sdk["integrations"] as? [String] {
+                                sdk["integrations"] = sdkIntegrations + integrations
+                            } else {
+                                sdk["integrations"] = integrations
+                            }
                         }
+                        event.sdk = sdk
                     }
-                    event.sdk = sdk
                 }
 
                 return event
@@ -335,16 +345,34 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
             NotificationCenter.default.post(name: Notification.Name("SentryHybridSdkDidBecomeActive"), object: nil)
         }
 
-#if canImport(UIKit) && !SENTRY_NO_UIKIT
-#if os(iOS) || os(tvOS)
-        let breadcrumbConverter = SentryFlutterReplayBreadcrumbConverter()
-        let screenshotProvider = SentryFlutterReplayScreenshotProvider(channel: self.channel)
-        PrivateSentrySDKOnly.configureSessionReplay(with: breadcrumbConverter, screenshotProvider: screenshotProvider)
-#endif
-#endif
+        configureReplay(arguments)
 
         result("")
     }
+
+  private func configureReplay(_ arguments: [String: Any]) {
+#if canImport(UIKit) && !SENTRY_NO_UIKIT && (os(iOS) || os(tvOS))
+       let breadcrumbConverter = SentryFlutterReplayBreadcrumbConverter()
+       let screenshotProvider = SentryFlutterReplayScreenshotProvider(channel: self.channel)
+       PrivateSentrySDKOnly.configureSessionReplay(with: breadcrumbConverter, screenshotProvider: screenshotProvider)
+       if let replayOptions = arguments["replay"] as? [String: Any] {
+         if let tags = replayOptions["tags"] as? [String: Any] {
+           let sessionReplayOptions = PrivateSentrySDKOnly.options.sessionReplay
+           var newTags: [String: Any] = [
+            "sessionSampleRate": sessionReplayOptions.sessionSampleRate,
+            "errorSampleRate": sessionReplayOptions.onErrorSampleRate,
+            "quality": String(describing: sessionReplayOptions.quality),
+            "nativeSdkName": PrivateSentrySDKOnly.getSdkName(),
+            "nativeSdkVersion": PrivateSentrySDKOnly.getSdkVersionString()
+           ]
+           for (key, value) in tags {
+               newTags[key] = value
+           }
+           PrivateSentrySDKOnly.setReplayTags(newTags)
+         }
+       }
+#endif
+  }
 
     private func closeNativeSdk(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         SentrySDK.close()
@@ -356,9 +384,8 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
             return
         }
         if isValidSdk(sdk: sdk) {
-
             switch sdk["name"] as? String {
-            case SentryFlutterPluginApple.nativeClientName:
+            case SentryFlutterPlugin.nativeClientName:
                 #if os(OSX)
                     let origin = "mac"
                 #elseif os(watchOS)
@@ -473,7 +500,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         let isColdStart = appStartMeasurement.type == .cold
 
         let item: [String: Any] = [
-            "pluginRegistrationTime": SentryFlutterPluginApple.pluginRegistrationTime,
+            "pluginRegistrationTime": SentryFlutterPlugin.pluginRegistrationTime,
             "appStartTime": appStartTime,
             "isColdStart": isColdStart,
             "nativeSpanTimes": nativeSpanTimes

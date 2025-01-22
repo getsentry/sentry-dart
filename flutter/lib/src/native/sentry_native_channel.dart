@@ -43,9 +43,7 @@ class SentryNativeChannel
       'autoSessionTrackingIntervalMillis':
           options.autoSessionTrackingInterval.inMilliseconds,
       'dist': options.dist,
-      'integrations': options.sdk.integrations,
-      'packages':
-          options.sdk.packages.map((e) => e.toJson()).toList(growable: false),
+      'sdk': options.sdk.toJson(),
       'diagnosticLevel': options.diagnosticLevel.name,
       'maxBreadcrumbs': options.maxBreadcrumbs,
       'anrEnabled': options.anrEnabled,
@@ -69,12 +67,20 @@ class SentryNativeChannel
           options.appHangTimeoutInterval.inMilliseconds,
       if (options.proxy != null) 'proxy': options.proxy?.toJson(),
       'replay': <String, dynamic>{
+        'quality': options.experimental.replay.quality.name,
         'sessionSampleRate': options.experimental.replay.sessionSampleRate,
         'onErrorSampleRate': options.experimental.replay.onErrorSampleRate,
-        // TMP: this doesn't actually mask, just ensures we show the correct
-        // value in tags. https://github.com/getsentry/sentry-cocoa/issues/4666
-        'maskAllText': options.experimental.privacyForReplay.maskAllText,
-        'maskAllImages': options.experimental.privacyForReplay.maskAllImages,
+        'tags': <String, dynamic>{
+          'maskAllText': options.experimental.privacyForReplay.maskAllText,
+          'maskAllImages': options.experimental.privacyForReplay.maskAllImages,
+          'maskAssetImages':
+              options.experimental.privacyForReplay.maskAssetImages,
+          if (options.experimental.privacyForReplay.userMaskingRules.isNotEmpty)
+            'maskingRules': options
+                .experimental.privacyForReplay.userMaskingRules
+                .map((rule) => '${rule.name}: ${rule.description}')
+                .toList(growable: false),
+        },
       },
       'enableSpotlight': options.spotlight.enabled,
       'spotlightUrl': options.spotlight.url,
@@ -235,7 +241,6 @@ class SentryNativeChannel
         'width': config.width,
         'height': config.height,
         'frameRate': config.frameRate,
-        'bitRate': config.bitRate,
       });
 
   @override

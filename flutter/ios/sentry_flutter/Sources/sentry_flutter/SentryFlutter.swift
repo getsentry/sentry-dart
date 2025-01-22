@@ -78,8 +78,9 @@ public final class SentryFlutter {
         }
         if let proxy = data["proxy"] as? [String: Any] {
             guard let host = proxy["host"] as? String,
-                  let port = proxy["port"] as? Int,
-                  let type = proxy["type"] as? String else {
+                let port = proxy["port"] as? Int,
+                let type = proxy["type"] as? String
+            else {
                 print("Could not read proxy data")
                 return
             }
@@ -91,11 +92,11 @@ public final class SentryFlutter {
                 connectionProxyDictionary[kCFNetworkProxiesHTTPPort as String] = port
             } else if type.lowercased() == "socks" {
                 #if os(macOS)
-                connectionProxyDictionary[kCFNetworkProxiesSOCKSEnable as String] = true
-                connectionProxyDictionary[kCFNetworkProxiesSOCKSProxy as String] = host
-                connectionProxyDictionary[kCFNetworkProxiesSOCKSPort as String] = port
+                    connectionProxyDictionary[kCFNetworkProxiesSOCKSEnable as String] = true
+                    connectionProxyDictionary[kCFNetworkProxiesSOCKSProxy as String] = host
+                    connectionProxyDictionary[kCFNetworkProxiesSOCKSPort as String] = port
                 #else
-                return
+                    return
                 #endif
             } else {
                 return
@@ -111,21 +112,29 @@ public final class SentryFlutter {
 
             options.urlSession = URLSession(configuration: configuration)
         }
-#if canImport(UIKit) && !SENTRY_NO_UIKIT && (os(iOS) || os(tvOS))
-        if let replayOptions = data["replay"] as? [String: Any] {
-            options.sessionReplay.sessionSampleRate =
-                (replayOptions["sessionSampleRate"] as? NSNumber)?.floatValue ?? 0
-            options.sessionReplay.onErrorSampleRate =
-                (replayOptions["onErrorSampleRate"] as? NSNumber)?.floatValue ?? 0
+        #if canImport(UIKit) && !SENTRY_NO_UIKIT && (os(iOS) || os(tvOS))
+            if let replayOptions = data["replay"] as? [String: Any] {
+                switch data["quality"] as? String {
+                case "low":
+                    options.sessionReplay.quality = SentryReplayOptions.SentryReplayQuality.low
+                case "high":
+                    options.sessionReplay.quality = SentryReplayOptions.SentryReplayQuality.high
+                default:
+                    options.sessionReplay.quality = SentryReplayOptions.SentryReplayQuality.medium
+                }
+                options.sessionReplay.sessionSampleRate =
+                    (replayOptions["sessionSampleRate"] as? NSNumber)?.floatValue ?? 0
+                options.sessionReplay.onErrorSampleRate =
+                    (replayOptions["onErrorSampleRate"] as? NSNumber)?.floatValue ?? 0
 
-            // TMP: this doesn't actually mask, just ensures we show the correct
-            // value in tags. https://github.com/getsentry/sentry-cocoa/issues/4666
-            options.sessionReplay.maskAllText =
-                (replayOptions["maskAllText"] as? Bool) ?? false
-            options.sessionReplay.maskAllImages =
-                (replayOptions["maskAllImages"] as? Bool) ?? false
-        }
-#endif
+                let flutterSdk = data["sdk"] as? [String: Any]
+                options.sessionReplay.setValue(
+                    [
+                        "name": flutterSdk!["name"],
+                        "version": flutterSdk!["version"]
+                    ], forKey: "sdkInfo")
+            }
+        #endif
     }
 
     private func logLevelFrom(diagnosticLevel: String) -> SentryLevel {

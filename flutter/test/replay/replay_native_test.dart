@@ -33,14 +33,12 @@ void main() {
       late SentryFlutterOptions options;
       late MockHub hub;
       late FileSystem fs;
-      late Directory replayDir;
       late Map<String, dynamic> replayConfig;
 
       setUp(() {
         if (mockPlatform.isIOS) {
           replayConfig = {
             'replayId': '123',
-            'directory': 'dir',
           };
         } else if (mockPlatform.isAndroid) {
           replayConfig = {
@@ -55,15 +53,14 @@ void main() {
         hub = MockHub();
 
         fs = MemoryFileSystem.test();
-        replayDir = fs.directory(replayConfig['directory'])
-          ..createSync(recursive: true);
 
         native = NativeChannelFixture();
 
         options =
             defaultTestOptions(MockPlatformChecker(mockPlatform: mockPlatform))
               ..fileSystem = fs
-              ..methodChannel = native.channel;
+              ..methodChannel = native.channel
+              ..experimental.replay.quality = SentryReplayQuality.low;
 
         sut = createBinding(options);
       });
@@ -129,6 +126,9 @@ void main() {
 
             await pumpTestElement(tester);
             if (mockPlatform.isAndroid) {
+              final replayDir = fs.directory(replayConfig['directory'])
+                ..createSync(recursive: true);
+
               var callbackFinished = Completer<void>();
 
               nextFrame({bool wait = true}) async {
@@ -209,8 +209,8 @@ void main() {
 
                 expect(json['length'], greaterThan(3000));
                 expect(json['address'], greaterThan(0));
-                expect(json['width'], greaterThan(0));
-                expect(json['height'], greaterThan(0));
+                expect(json['width'], 640);
+                expect(json['height'], 480);
                 NativeMemory.fromJson(json).free();
               }
 

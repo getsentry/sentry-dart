@@ -49,39 +49,52 @@ enum SentryMaskingDecision {
 abstract class SentryMaskingRule<T extends Widget> {
   @pragma('vm:prefer-inline')
   bool appliesTo(Widget widget) => widget is T;
+
   SentryMaskingDecision shouldMask(Element element, T widget);
 
-  const SentryMaskingRule();
+  const SentryMaskingRule({required this.name, required this.description});
+
+  final String name;
+
+  final String description;
+
+  String get _ruleType;
+
+  @override
+  String toString() => '$_ruleType<$name>($description)';
 }
 
 @internal
 class SentryMaskingCustomRule<T extends Widget> extends SentryMaskingRule<T> {
+  @override
+  String get _ruleType => 'SentryMaskingCustomRule';
+
   final SentryMaskingDecision Function(Element element, T widget) callback;
 
-  const SentryMaskingCustomRule(this.callback);
+  const SentryMaskingCustomRule({
+    required this.callback,
+    required super.name,
+    required super.description,
+  });
 
   @override
   SentryMaskingDecision shouldMask(Element element, T widget) =>
       callback(element, widget);
-
-  @override
-  String toString() => '$SentryMaskingCustomRule<$T>($callback)';
 }
 
 @internal
 class SentryMaskingConstantRule<T extends Widget> extends SentryMaskingRule<T> {
+  @override
+  String get _ruleType => 'SentryMaskingConstantRule';
+
   final SentryMaskingDecision _value;
-  const SentryMaskingConstantRule(this._value);
+
+  const SentryMaskingConstantRule(
+      {required bool mask, required super.name, String? description})
+      : _value =
+            mask ? SentryMaskingDecision.mask : SentryMaskingDecision.unmask,
+        super(description: description ?? (mask ? 'mask' : 'unmask'));
 
   @override
-  SentryMaskingDecision shouldMask(Element element, T widget) {
-    // This rule only makes sense with true/false. Continue won't do anything.
-    assert(_value == SentryMaskingDecision.mask ||
-        _value == SentryMaskingDecision.unmask);
-    return _value;
-  }
-
-  @override
-  String toString() =>
-      '$SentryMaskingConstantRule<$T>(${_value == SentryMaskingDecision.mask ? 'mask' : 'unmask'})';
+  SentryMaskingDecision shouldMask(Element element, T widget) => _value;
 }
