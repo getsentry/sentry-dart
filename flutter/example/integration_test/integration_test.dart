@@ -10,6 +10,7 @@ import 'package:http/http.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:sentry/src/sentry_envelope_header.dart';
 import 'package:sentry/src/sentry_envelope_item_header.dart';
+import 'package:sentry/src/transport/noop_transport.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter_example/main.dart';
 
@@ -199,6 +200,8 @@ void main() {
 
     // Test case 3: Empty envelope items
     final emptyEnvelope = SentryEnvelope(SentryEnvelopeHeader(null, null), []);
+
+    expect(options.transport, isNot(isA<NoOpTransport>()));
 
     await options.transport.send(invalidJsonEnvelope);
     await options.transport.send(invalidHeaderEnvelope);
