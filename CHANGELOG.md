@@ -10,6 +10,7 @@
 ### Enhancements
 
 - Print a warning if the rate limit was reached ([#2595](https://github.com/getsentry/sentry-dart/pull/2595))
+- Add replay masking config to tags and report SDKs versions ([#2592](https://github.com/getsentry/sentry-dart/pull/2592))
 
 ### Fixes
 

@@ -302,27 +302,31 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
             let version = PrivateSentrySDKOnly.getSdkVersionString()
             PrivateSentrySDKOnly.setSdkName(SentryFlutterPlugin.nativeClientName, andVersionString: version)
 
+            let flutterSdk = arguments["sdk"] as? [String: Any]
+
             // note : for now, in sentry-cocoa, beforeSend is not called before captureEnvelope
             options.beforeSend = { event in
                 self.setEventOriginTag(event: event)
 
-                if var sdk = event.sdk, self.isValidSdk(sdk: sdk) {
-                    if let packages = arguments["packages"] as? [[String: String]] {
-                        if let sdkPackages = sdk["packages"] as? [[String: String]] {
-                            sdk["packages"] = sdkPackages + packages
-                        } else {
-                            sdk["packages"] = packages
+                if flutterSdk != nil {
+                    if var sdk = event.sdk, self.isValidSdk(sdk: sdk) {
+                        if let packages = flutterSdk!["packages"] as? [[String: String]] {
+                            if let sdkPackages = sdk["packages"] as? [[String: String]] {
+                                sdk["packages"] = sdkPackages + packages
+                            } else {
+                                sdk["packages"] = packages
+                            }
                         }
-                    }
 
-                    if let integrations = arguments["integrations"] as? [String] {
-                        if let sdkIntegrations = sdk["integrations"] as? [String] {
-                            sdk["integrations"] = sdkIntegrations + integrations
-                        } else {
-                            sdk["integrations"] = integrations
+                        if let integrations = flutterSdk!["integrations"] as? [String] {
+                            if let sdkIntegrations = sdk["integrations"] as? [String] {
+                                sdk["integrations"] = sdkIntegrations + integrations
+                            } else {
+                                sdk["integrations"] = integrations
+                            }
                         }
+                        event.sdk = sdk
                     }
-                    event.sdk = sdk
                 }
 
                 return event
@@ -341,16 +345,34 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
             NotificationCenter.default.post(name: Notification.Name("SentryHybridSdkDidBecomeActive"), object: nil)
         }
 
-#if canImport(UIKit) && !SENTRY_NO_UIKIT
-#if os(iOS) || os(tvOS)
-       let breadcrumbConverter = SentryFlutterReplayBreadcrumbConverter()
-       let screenshotProvider = SentryFlutterReplayScreenshotProvider(channel: self.channel)
-       PrivateSentrySDKOnly.configureSessionReplay(with: breadcrumbConverter, screenshotProvider: screenshotProvider)
-#endif
-#endif
+        configureReplay(arguments)
 
         result("")
     }
+
+  private func configureReplay(_ arguments: [String: Any]) {
+#if canImport(UIKit) && !SENTRY_NO_UIKIT && (os(iOS) || os(tvOS))
+       let breadcrumbConverter = SentryFlutterReplayBreadcrumbConverter()
+       let screenshotProvider = SentryFlutterReplayScreenshotProvider(channel: self.channel)
+       PrivateSentrySDKOnly.configureSessionReplay(with: breadcrumbConverter, screenshotProvider: screenshotProvider)
+       if let replayOptions = arguments["replay"] as? [String: Any] {
+         if let tags = replayOptions["tags"] as? [String: Any] {
+           let sessionReplayOptions = PrivateSentrySDKOnly.options.sessionReplay
+           var newTags: [String: Any] = [
+            "sessionSampleRate": sessionReplayOptions.sessionSampleRate,
+            "errorSampleRate": sessionReplayOptions.onErrorSampleRate,
+            "quality": String(describing: sessionReplayOptions.quality),
+            "nativeSdkName": PrivateSentrySDKOnly.getSdkName(),
+            "nativeSdkVersion": PrivateSentrySDKOnly.getSdkVersionString()
+           ]
+           for (key, value) in tags {
+               newTags[key] = value
+           }
+           PrivateSentrySDKOnly.setReplayTags(newTags)
+         }
+       }
+#endif
+  }
 
     private func closeNativeSdk(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         SentrySDK.close()
@@ -362,7 +384,6 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
             return
         }
         if isValidSdk(sdk: sdk) {
-
             switch sdk["name"] as? String {
             case SentryFlutterPlugin.nativeClientName:
                 #if os(OSX)
