@@ -345,12 +345,26 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
             NotificationCenter.default.post(name: Notification.Name("SentryHybridSdkDidBecomeActive"), object: nil)
         }
 
-#if canImport(UIKit) && !SENTRY_NO_UIKIT
-#if os(iOS) || os(tvOS)
+#if canImport(UIKit) && !SENTRY_NO_UIKIT && (os(iOS) || os(tvOS))
        let breadcrumbConverter = SentryFlutterReplayBreadcrumbConverter()
        let screenshotProvider = SentryFlutterReplayScreenshotProvider(channel: self.channel)
        PrivateSentrySDKOnly.configureSessionReplay(with: breadcrumbConverter, screenshotProvider: screenshotProvider)
-#endif
+       if let replayOptions = arguments["replay"] as? [String: Any] {
+         if let tags = replayOptions["tags"] as? [String: Any] {
+           let sessionReplayOptions = PrivateSentrySDKOnly.options.sessionReplay
+           var newTags: [String: Any] = [
+            "sessionSampleRate": sessionReplayOptions.sessionSampleRate,
+            "errorSampleRate": sessionReplayOptions.onErrorSampleRate,
+            "quality": String(describing: sessionReplayOptions.quality),
+            "nativeSdkName": PrivateSentrySDKOnly.getSdkName(),
+            "nativeSdkVersion": PrivateSentrySDKOnly.getSdkVersionString()
+           ]
+           for (k, v) in tags {
+               newTags[k] = v
+           }
+           PrivateSentrySDKOnly.setReplayTags(newTags)
+         }
+       }
 #endif
 
         result("")
@@ -366,7 +380,6 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
             return
         }
         if isValidSdk(sdk: sdk) {
-
             switch sdk["name"] as? String {
             case SentryFlutterPlugin.nativeClientName:
                 #if os(OSX)
