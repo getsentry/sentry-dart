@@ -20,11 +20,8 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import io.sentry.Breadcrumb
 import io.sentry.DateUtils
-import io.sentry.Hint
 import io.sentry.HubAdapter
 import io.sentry.Sentry
-import io.sentry.SentryEvent
-import io.sentry.SentryOptions
 import io.sentry.android.core.ActivityFramesTracker
 import io.sentry.android.core.InternalSentrySdk
 import io.sentry.android.core.LoadClass
@@ -35,10 +32,8 @@ import io.sentry.android.core.performance.TimeSpan
 import io.sentry.android.replay.ReplayIntegration
 import io.sentry.android.replay.ScreenshotRecorderConfig
 import io.sentry.protocol.DebugImage
-import io.sentry.protocol.SdkVersion
 import io.sentry.protocol.SentryId
 import io.sentry.protocol.User
-import io.sentry.rrweb.RRWebOptionsEvent
 import io.sentry.transport.CurrentDateProvider
 import java.io.File
 import java.lang.ref.WeakReference
@@ -79,11 +74,7 @@ class SentryFlutterPlugin :
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, "sentry_flutter")
     channel.setMethodCallHandler(this)
 
-    sentryFlutter =
-      SentryFlutter(
-        androidSdk = ANDROID_SDK,
-        nativeSdk = NATIVE_SDK,
-      )
+    sentryFlutter = SentryFlutter()
   }
 
   @Suppress("CyclomaticComplexMethod")
@@ -165,55 +156,43 @@ class SentryFlutterPlugin :
         framesTracker = ActivityFramesTracker(LoadClass(), options)
       }
 
-      options.beforeSend = BeforeSendCallbackImpl(options.sdkVersion)
-
-      // Replace the default ReplayIntegration with a Flutter-specific recorder.
-      options.integrations.removeAll { it is ReplayIntegration }
-      val cacheDirPath = options.cacheDirPath
-      val replayOptions = options.sessionReplay
-      val isReplayEnabled = replayOptions.isSessionReplayEnabled || replayOptions.isSessionReplayForErrorsEnabled
-      if (cacheDirPath != null && isReplayEnabled) {
-        replay =
-          ReplayIntegration(
-            context,
-            dateProvider = CurrentDateProvider.getInstance(),
-            recorderProvider = { SentryFlutterReplayRecorder(channel, replay) },
-            recorderConfigProvider = {
-              Log.i(
-                "Sentry",
-                "Replay configuration requested. Returning: %dx%d at %d FPS, %d BPS".format(
-                  replayConfig.recordingWidth,
-                  replayConfig.recordingHeight,
-                  replayConfig.frameRate,
-                  replayConfig.bitRate,
-                ),
-              )
-              replayConfig
-            },
-            replayCacheProvider = null,
-          )
-        replay.breadcrumbConverter = SentryFlutterReplayBreadcrumbConverter()
-        options.addIntegration(replay)
-        options.setReplayController(replay)
-
-        options.beforeSendReplay =
-          SentryOptions.BeforeSendReplayCallback { event, hint ->
-            hint.replayRecording?.payload?.firstOrNull { it is RRWebOptionsEvent }?.let { optionsEvent ->
-              val payload = (optionsEvent as RRWebOptionsEvent).optionsPayload
-
-              // Remove defaults set by the native SDK.
-              payload.filterKeys { it.contains("mask") }.forEach { (k, _) -> payload.remove(k) }
-
-              // Now, set the Flutter-specific values.
-              // TODO do this in a followup PR
-            }
-            event
-          }
-      } else {
-        options.setReplayController(null)
-      }
+      setupReplay(options)
     }
     result.success("")
+  }
+
+  private fun setupReplay(options: SentryAndroidOptions) {
+    // Replace the default ReplayIntegration with a Flutter-specific recorder.
+    options.integrations.removeAll { it is ReplayIntegration }
+    val cacheDirPath = options.cacheDirPath
+    val replayOptions = options.sessionReplay
+    val isReplayEnabled = replayOptions.isSessionReplayEnabled || replayOptions.isSessionReplayForErrorsEnabled
+    if (cacheDirPath != null && isReplayEnabled) {
+      replay =
+        ReplayIntegration(
+          context,
+          dateProvider = CurrentDateProvider.getInstance(),
+          recorderProvider = { SentryFlutterReplayRecorder(channel, replay) },
+          recorderConfigProvider = {
+            Log.i(
+              "Sentry",
+              "Replay configuration requested. Returning: %dx%d at %d FPS, %d BPS".format(
+                replayConfig.recordingWidth,
+                replayConfig.recordingHeight,
+                replayConfig.frameRate,
+                replayConfig.bitRate,
+              ),
+            )
+            replayConfig
+          },
+          replayCacheProvider = null,
+        )
+      replay.breadcrumbConverter = SentryFlutterReplayBreadcrumbConverter()
+      options.addIntegration(replay)
+      options.setReplayController(replay)
+    } else {
+      options.setReplayController(null)
+    }
   }
 
   private fun fetchNativeAppStart(result: Result) {
@@ -537,60 +516,8 @@ class SentryFlutterPlugin :
     result.success("")
   }
 
-  private class BeforeSendCallbackImpl(
-    private val sdkVersion: SdkVersion?,
-  ) : SentryOptions.BeforeSendCallback {
-    override fun execute(
-      event: SentryEvent,
-      hint: Hint,
-    ): SentryEvent {
-      setEventOriginTag(event)
-      addPackages(event, sdkVersion)
-      return event
-    }
-  }
-
   companion object {
-    private const val FLUTTER_SDK = "sentry.dart.flutter"
-    private const val ANDROID_SDK = "sentry.java.android.flutter"
-    private const val NATIVE_SDK = "sentry.native.android.flutter"
     private const val NATIVE_CRASH_WAIT_TIME = 500L
-
-    private fun setEventOriginTag(event: SentryEvent) {
-      event.sdk?.let {
-        when (it.name) {
-          FLUTTER_SDK -> setEventEnvironmentTag(event, "flutter", "dart")
-          ANDROID_SDK -> setEventEnvironmentTag(event, environment = "java")
-          NATIVE_SDK -> setEventEnvironmentTag(event, environment = "native")
-          else -> return
-        }
-      }
-    }
-
-    private fun setEventEnvironmentTag(
-      event: SentryEvent,
-      origin: String = "android",
-      environment: String,
-    ) {
-      event.setTag("event.origin", origin)
-      event.setTag("event.environment", environment)
-    }
-
-    private fun addPackages(
-      event: SentryEvent,
-      sdk: SdkVersion?,
-    ) {
-      event.sdk?.let {
-        if (it.name == FLUTTER_SDK) {
-          sdk?.packageSet?.forEach { sentryPackage ->
-            it.addPackage(sentryPackage.name, sentryPackage.version)
-          }
-          sdk?.integrationSet?.forEach { integration ->
-            it.addIntegration(integration)
-          }
-        }
-      }
-    }
 
     private fun crash() {
       val exception = RuntimeException("FlutterSentry Native Integration: Sample RuntimeException")
