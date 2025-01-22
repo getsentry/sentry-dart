@@ -440,7 +440,7 @@ void main() {
       (options) {
         options.dsn = fakeDsn;
         expect(options.environment, 'debug');
-        expect(options.debug, false);
+        expect(options.debug, true);
       },
       options: sentryOptions,
     );
@@ -500,7 +500,8 @@ void main() {
     });
 
     test('throw is handled and logged', () async {
-      final sentryOptions = defaultTestOptions()
+      // Use release mode in platform checker to avoid additional log
+      final sentryOptions = defaultTestOptions(FakePlatformChecker.releaseMode())
         ..automatedTestMode = false
         ..debug = true
         ..logger = fixture.mockLogger;
