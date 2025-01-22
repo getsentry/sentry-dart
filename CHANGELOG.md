@@ -14,6 +14,7 @@
 ### Fixes
 
 - WASM compat for Drift ([#2580](https://github.com/getsentry/sentry-dart/pull/2580))
+- Fix image flickering when using `SentryAssetBundle` ([#2577](https://github.com/getsentry/sentry-dart/pull/2577))
 
 ### Dependencies
 
@@ -54,7 +55,6 @@
 
 - Replay: fix masking for frames captured during UI changes ([#2553](https://github.com/getsentry/sentry-dart/pull/2553))
 - Replay: fix widget masks overlap when navigating between screens ([#2486](https://github.com/getsentry/sentry-dart/pull/2486), [#2576](https://github.com/getsentry/sentry-dart/pull/2576))
-- Fix image flickering when using `SentryAssetBundle` ([#2577](https://github.com/getsentry/sentry-dart/pull/2577))
 
 ### Dependencies
 

@@ -168,12 +168,12 @@ class SentryAssetBundle implements AssetBundle {
       onSuccess: (data) {
         _setDataLength(data, span);
         span?.status = const SpanStatus.ok();
-        span?.finish(); // Do NOT await
+        unawaited(span?.finish());
       },
       onError: (error, stackTrace) {
         span?.throwable = error;
         span?.status = SpanStatus.internalError();
-        span?.finish(); // Do NOT await, as this will lead to flickering.
+        unawaited(span?.finish());
       },
     );
   }
@@ -194,12 +194,12 @@ class SentryAssetBundle implements AssetBundle {
       action: parserFunction,
       onSuccess: (data) {
         span?.status = const SpanStatus.ok();
-        span?.finish(); // Do NOT await
+        unawaited(span?.finish());
       },
       onError: (error, stackTrace) {
         span?.throwable = error;
         span?.status = SpanStatus.internalError();
-        span?.finish(); // Do NOT await, as this will lead to flickering.
+        unawaited(span?.finish());
       },
     );
   }
