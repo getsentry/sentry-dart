@@ -15,6 +15,7 @@
 ### Fixes
 
 - WASM compat for Drift ([#2580](https://github.com/getsentry/sentry-dart/pull/2580))
+- Fix image flickering when using `SentryAssetBundle` ([#2577](https://github.com/getsentry/sentry-dart/pull/2577))
 
 ### Dependencies
 
