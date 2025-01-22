@@ -18,22 +18,22 @@ class ReplayIntegration extends Integration<SentryFlutterOptions> {
 
   @override
   FutureOr<void> call(Hub hub, SentryFlutterOptions options) {
-    if (_native.supportsReplay && options.experimental.replay.isEnabled) {
+    final replayOptions = options.experimental.replay;
+    if (_native.supportsReplay && replayOptions.isEnabled) {
       options.sdk.addIntegration(replayIntegrationName);
 
       // We only need the integration when error-replay capture is enabled.
-      if ((options.experimental.replay.onErrorSampleRate ?? 0) > 0) {
+      if ((replayOptions.onErrorSampleRate ?? 0) > 0) {
         options.addEventProcessor(ReplayEventProcessor(hub, _native));
       }
 
       SentryScreenshotWidget.onBuild((status, prevStatus) {
         if (status != prevStatus) {
           _native.setReplayConfig(ReplayConfig(
-            width: status.size?.width ?? 0.0,
-            height: status.size?.height ?? 0.0,
-            frameRate: 1,
-            bitRate: 75000, // TODO replay quality config
-          ));
+              width: replayOptions.quality.resolutionScalingFactor *
+                  (status.size?.width ?? 0.0),
+              height: replayOptions.quality.resolutionScalingFactor *
+                  (status.size?.height ?? 0.0)));
         }
         return true;
       });
