@@ -310,7 +310,7 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
 
                 if flutterSdk != nil {
                     if var sdk = event.sdk, self.isValidSdk(sdk: sdk) {
-                        if let packages = flutterSdk["packages"] as? [[String: String]] {
+                        if let packages = flutterSdk!["packages"] as? [[String: String]] {
                             if let sdkPackages = sdk["packages"] as? [[String: String]] {
                                 sdk["packages"] = sdkPackages + packages
                             } else {
@@ -318,7 +318,7 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
                             }
                         }
 
-                        if let integrations = flutterSdk["integrations"] as? [String] {
+                        if let integrations = flutterSdk!["integrations"] as? [String] {
                             if let sdkIntegrations = sdk["integrations"] as? [String] {
                                 sdk["integrations"] = sdkIntegrations + integrations
                             } else {
