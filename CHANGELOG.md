@@ -2,13 +2,16 @@
 
 ## Unreleased
 
+### Fixes
+
+- Fix image flickering when using `SentryAssetBundle` ([#2577](https://github.com/getsentry/sentry-dart/pull/2577))
+
 ### Misc
 
 - Transfer ownership of `sentry_link` to Sentry. You can view the changelog for the previous versions [here](https://github.com/getsentry/sentry-dart/blob/main/sentry_link/CHANGELOG_OLD.md) ([#2338](https://github.com/getsentry/sentry-dart/pull/2338))
   - No functional changes have been made. This version is identical to the previous one.
   - Change license from Apache to MIT
-- Fix image flickering when using `SentryAssetBundle` ([#2577](https://github.com/getsentry/sentry-dart/pull/2577))
-
+ 
 ## 8.13.0-beta.2
 
 ### Features
