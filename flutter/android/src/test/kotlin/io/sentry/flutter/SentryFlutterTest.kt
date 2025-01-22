@@ -2,13 +2,10 @@ package io.sentry.flutter
 
 import io.sentry.Hint
 import io.sentry.ReplayRecording
-import io.sentry.SentryEvent
 import io.sentry.SentryLevel
 import io.sentry.SentryReplayEvent
 import io.sentry.android.core.BuildConfig
 import io.sentry.android.core.SentryAndroidOptions
-import io.sentry.protocol.SdkVersion
-import io.sentry.protocol.SentryPackage
 import io.sentry.rrweb.RRWebOptionsEvent
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -187,32 +184,41 @@ class SentryFlutterTest {
     val sut = fixture.getSut()
 
     // When
-    sut.updateOptions(fixture.options, mapOf(
-      "sdk" to mapOf(
-        "name" to "sentry.dart.flutter",
-        "version" to "1.2.3",
-        "packages" to listOf(
+    sut.updateOptions(
+      fixture.options,
+      mapOf(
+        "sdk" to
           mapOf(
-            "name" to "pub:sentry_flutter",
-            "version" to "1.2.3"
-          )
-        ),
-        "integrations" to listOf(
-          "Replay",
-          "Another"
-        ),
+            "name" to "sentry.dart.flutter",
+            "version" to "1.2.3",
+            "packages" to
+              listOf(
+                mapOf(
+                  "name" to "pub:sentry_flutter",
+                  "version" to "1.2.3",
+                ),
+              ),
+            "integrations" to
+              listOf(
+                "Replay",
+                "Another",
+              ),
+          ),
       ),
-    ))
+    )
 
     assertNotNull(fixture.options.sdkVersion)
     fixture.options.sdkVersion?.let { sdk ->
       assertEquals(BuildConfig.VERSION_NAME, sdk.version)
       assertEquals("sentry.java.android.flutter", sdk.name)
-      assertEquals(setOf(
-        "maven:io.sentry:sentry = ${BuildConfig.VERSION_NAME}",
-        "maven:io.sentry:sentry-android-core = ${BuildConfig.VERSION_NAME}",
-        "pub:sentry_flutter = 1.2.3"
-      ), sdk.packageSet.map { "${it.name} = ${it.version}" }.toSet())
+      assertEquals(
+        setOf(
+          "maven:io.sentry:sentry = ${BuildConfig.VERSION_NAME}",
+          "maven:io.sentry:sentry-android-core = ${BuildConfig.VERSION_NAME}",
+          "pub:sentry_flutter = 1.2.3",
+        ),
+        sdk.packageSet.map { "${it.name} = ${it.version}" }.toSet(),
+      )
       assertEquals(setOf("Replay", "Another"), sdk.integrationSet)
     }
   }

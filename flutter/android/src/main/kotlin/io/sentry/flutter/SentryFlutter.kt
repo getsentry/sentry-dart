@@ -10,7 +10,6 @@ import io.sentry.SentryReplayOptions
 import io.sentry.android.core.BuildConfig
 import io.sentry.android.core.SentryAndroidOptions
 import io.sentry.protocol.SdkVersion
-import io.sentry.protocol.SentryPackage
 import io.sentry.rrweb.RRWebOptionsEvent
 import java.net.Proxy.Type
 import java.util.Locale
@@ -131,7 +130,7 @@ class SentryFlutter {
     options.sentryClientName = "$ANDROID_SDK/${BuildConfig.VERSION_NAME}"
     options.nativeSdkName = NATIVE_SDK
 
-    data.getIfNotNull<Map<String,Any>>("sdk") { flutterSdk ->
+    data.getIfNotNull<Map<String, Any>>("sdk") { flutterSdk ->
       flutterSdk.getIfNotNull<List<String>>("integrations") {
         it.forEach { integration ->
           sdkVersion.addIntegration(integration)

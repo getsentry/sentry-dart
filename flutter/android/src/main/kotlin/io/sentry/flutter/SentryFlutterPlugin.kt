@@ -20,11 +20,8 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import io.sentry.Breadcrumb
 import io.sentry.DateUtils
-import io.sentry.Hint
 import io.sentry.HubAdapter
 import io.sentry.Sentry
-import io.sentry.SentryEvent
-import io.sentry.SentryOptions
 import io.sentry.android.core.ActivityFramesTracker
 import io.sentry.android.core.InternalSentrySdk
 import io.sentry.android.core.LoadClass
@@ -35,10 +32,7 @@ import io.sentry.android.core.performance.TimeSpan
 import io.sentry.android.replay.ReplayIntegration
 import io.sentry.android.replay.ScreenshotRecorderConfig
 import io.sentry.protocol.DebugImage
-import io.sentry.protocol.SdkInfo
-import io.sentry.protocol.SdkVersion
 import io.sentry.protocol.SentryId
-import io.sentry.protocol.SentryPackage
 import io.sentry.protocol.User
 import io.sentry.transport.CurrentDateProvider
 import java.io.File
