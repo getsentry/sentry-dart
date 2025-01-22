@@ -1,9 +1,14 @@
 package io.sentry.flutter
 
+import io.sentry.Hint
+import io.sentry.ReplayRecording
 import io.sentry.SentryLevel
+import io.sentry.SentryReplayEvent
 import io.sentry.android.core.BuildConfig
 import io.sentry.android.core.SentryAndroidOptions
+import io.sentry.rrweb.RRWebOptionsEvent
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Test
 import java.net.Proxy
@@ -55,7 +60,7 @@ class SentryFlutterTest {
       "sentry.java.android.flutter/${BuildConfig.VERSION_NAME}",
       fixture.options.sentryClientName,
     )
-    assertEquals("fixture-nativeSdk", fixture.options.nativeSdkName)
+    assertEquals("sentry.native.android.flutter", fixture.options.nativeSdkName)
 
     assertEquals(true, sut.autoPerformanceTracingEnabled)
 
@@ -114,6 +119,109 @@ class SentryFlutterTest {
     assertEquals(false, fixture.options.isEnableUncaughtExceptionHandler)
     assertEquals(false, fixture.options.isAnrEnabled)
   }
+
+  @Test
+  fun replayTagsAreCopiedFromFlutter() {
+    // Given
+    val sut = fixture.getSut()
+
+    // When
+    sut.updateOptions(
+      fixture.options,
+      mapOf(
+        "replay" to
+          mapOf(
+            "sessionSampleRate" to 1,
+            "onErrorSampleRate" to 1,
+            "tags" to
+              mapOf(
+                "random-key" to "value",
+                "maskingRules" to
+                  listOf(
+                    "Image: mask",
+                    "SentryMask: mask",
+                    "SentryUnmask: unmask",
+                    "User: custom text",
+                    "Image: unmask",
+                  ),
+              ),
+          ),
+      ),
+    )
+
+    assertNotNull(fixture.options.beforeSendReplay)
+    fixture.options.beforeSendReplay?.let {
+      val event = SentryReplayEvent()
+      val rrwebEvent = RRWebOptionsEvent(fixture.options)
+      val hint = Hint()
+      hint.replayRecording =
+        ReplayRecording().also {
+          it.payload = listOf(rrwebEvent)
+        }
+      assertEquals(it.execute(event, hint), event)
+      assertEquals(
+        listOf(
+          "Image: mask",
+          "SentryMask: mask",
+          "SentryUnmask: unmask",
+          "User: custom text",
+          "Image: unmask",
+        ),
+        rrwebEvent.optionsPayload["maskingRules"],
+      )
+      assertEquals("value", rrwebEvent.optionsPayload["random-key"])
+      assertEquals("medium", rrwebEvent.optionsPayload["quality"])
+      assertEquals(1.0, rrwebEvent.optionsPayload["errorSampleRate"])
+      assertEquals(1.0, rrwebEvent.optionsPayload["sessionSampleRate"])
+      assertEquals("sentry.java.android.flutter", rrwebEvent.optionsPayload["nativeSdkName"])
+      assertEquals(BuildConfig.VERSION_NAME, rrwebEvent.optionsPayload["nativeSdkVersion"])
+    }
+  }
+
+  @Test
+  fun sdkInfoIsPropagatedFromFlutter() {
+    // Given
+    val sut = fixture.getSut()
+
+    // When
+    sut.updateOptions(
+      fixture.options,
+      mapOf(
+        "sdk" to
+          mapOf(
+            "name" to "sentry.dart.flutter",
+            "version" to "1.2.3",
+            "packages" to
+              listOf(
+                mapOf(
+                  "name" to "pub:sentry_flutter",
+                  "version" to "1.2.3",
+                ),
+              ),
+            "integrations" to
+              listOf(
+                "Replay",
+                "Another",
+              ),
+          ),
+      ),
+    )
+
+    assertNotNull(fixture.options.sdkVersion)
+    fixture.options.sdkVersion?.let { sdk ->
+      assertEquals(BuildConfig.VERSION_NAME, sdk.version)
+      assertEquals("sentry.java.android.flutter", sdk.name)
+      assertEquals(
+        setOf(
+          "maven:io.sentry:sentry = ${BuildConfig.VERSION_NAME}",
+          "maven:io.sentry:sentry-android-core = ${BuildConfig.VERSION_NAME}",
+          "pub:sentry_flutter = 1.2.3",
+        ),
+        sdk.packageSet.map { "${it.name} = ${it.version}" }.toSet(),
+      )
+      assertEquals(setOf("Replay", "Another"), sdk.integrationSet)
+    }
+  }
 }
 
 class Fixture {
@@ -159,9 +267,5 @@ class Fixture {
         ),
     )
 
-  fun getSut(): SentryFlutter =
-    SentryFlutter(
-      androidSdk = "sentry.java.android.flutter",
-      nativeSdk = "fixture-nativeSdk",
-    )
+  fun getSut(): SentryFlutter = SentryFlutter()
 }
