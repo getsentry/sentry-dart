@@ -8,6 +8,7 @@ import 'package:test/test.dart';
 import 'fake_platform_checker.dart';
 import 'mocks.dart';
 import 'mocks/mock_integration.dart';
+import 'mocks/mock_platform_checker.dart';
 import 'mocks/mock_sentry_client.dart';
 import 'test_utils.dart';
 
@@ -359,6 +360,50 @@ void main() {
           isA<DartExceptionTypeIdentifier>(),
         ),
       );
+    });
+
+    test('should set options.debug to true when in debug mode', () async {
+      final options = defaultTestOptions();
+      options.platformChecker = MockPlatformChecker(isDebug: true);
+
+      expect(options.debug, isFalse);
+      await Sentry.init(
+        options: options,
+        (options) {
+          options.dsn = fakeDsn;
+        },
+      );
+      expect(options.debug, isTrue);
+    });
+
+    test('should respect user options.debug when in debug mode', () async {
+      final options = defaultTestOptions();
+      options.platformChecker = MockPlatformChecker(isDebug: true);
+
+      expect(options.debug, isFalse);
+      await Sentry.init(
+        options: options,
+        (options) {
+          options.dsn = fakeDsn;
+          options.debug = false;
+        },
+      );
+      expect(options.debug, isFalse);
+    });
+
+    test('should leave options.debug unchanged when not in debug mode',
+        () async {
+      final options = defaultTestOptions();
+      options.platformChecker = MockPlatformChecker(isDebug: false);
+
+      expect(options.debug, isFalse);
+      await Sentry.init(
+        options: options,
+        (options) {
+          options.dsn = fakeDsn;
+        },
+      );
+      expect(options.debug, isFalse);
     });
   });
 
