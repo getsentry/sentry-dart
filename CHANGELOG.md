@@ -7,6 +7,10 @@
 - Add SentryReplayQuality setting (`options.experimental.replay.quality`) ([#2582](https://github.com/getsentry/sentry-dart/pull/2582))
 - SPM Support ([#2280](https://github.com/getsentry/sentry-dart/pull/2280))
 
+### Enhancements
+
+- Print a warning if the rate limit was reached ([#2595](https://github.com/getsentry/sentry-dart/pull/2595))
+
 ### Fixes
 
 - WASM compat for Drift ([#2580](https://github.com/getsentry/sentry-dart/pull/2580))
@@ -19,6 +23,9 @@
 - Bump Android SDK from v7.20.0 to v7.20.1 ([#2593](https://github.com/getsentry/sentry-dart/pull/2593))
   - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#7201)
   - [diff](https://github.com/getsentry/sentry-java/compare/7.20.0...7.20.1)
+- Bump Cocoa SDK from v8.43.0 to v8.44.0-beta.1 ([#2598](https://github.com/getsentry/sentry-dart/pull/2598))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8440-beta1)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.43.0...8.44.0-beta.1)
 
 ## 8.13.0-beta.1
 
