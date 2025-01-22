@@ -5,7 +5,6 @@ import 'package:meta/meta.dart';
 
 import 'client_reports/client_report_recorder.dart';
 import 'client_reports/discard_reason.dart';
-import 'event_processor.dart';
 import 'event_processor/run_event_processors.dart';
 import 'hint.dart';
 import 'protocol.dart';
