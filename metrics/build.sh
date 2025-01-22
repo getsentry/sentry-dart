@@ -16,12 +16,12 @@ else
   case "$1" in
   ios)
     target="ipa"
-    args="--release --no-codesign"
+    args="--release --no-codesign --obfuscate --split-debug-info=."
     ;;
 
   android)
     target="apk"
-    args="--release --target-platform android-arm64 --split-per-abi"
+    args="--release --target-platform android-arm64 --split-per-abi --obfuscate --split-debug-info=."
     ;;
 
   *)
