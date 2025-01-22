@@ -2,6 +2,7 @@
 library flutter_test;
 
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/native/sentry_native_channel.dart';
@@ -42,10 +43,13 @@ void main() {
       'attachThreads': false,
       'autoSessionTrackingIntervalMillis': 30000,
       'dist': null,
-      'integrations': <String>[],
-      'packages': [
-        {'name': 'pub:sentry_flutter', 'version': sdkVersion}
-      ],
+      'sdk': {
+        'name': 'sentry.dart.flutter',
+        'version': sdkVersion,
+        'packages': [
+          {'name': 'pub:sentry_flutter', 'version': sdkVersion}
+        ]
+      },
       'diagnosticLevel': 'debug',
       'maxBreadcrumbs': 100,
       'anrEnabled': false,
@@ -69,8 +73,11 @@ void main() {
         'quality': 'medium',
         'sessionSampleRate': null,
         'onErrorSampleRate': null,
-        'maskAllText': true,
-        'maskAllImages': true,
+        'tags': {
+          'maskAllText': true,
+          'maskAllImages': true,
+          'maskAssetImages': false,
+        }
       },
       'enableSpotlight': false,
       'spotlightUrl': null,
@@ -125,6 +132,7 @@ void main() {
       ..experimental.replay.quality = SentryReplayQuality.high
       ..experimental.replay.sessionSampleRate = 0.1
       ..experimental.replay.onErrorSampleRate = 0.2
+      ..experimental.privacy.mask<Image>()
       ..spotlight =
           Spotlight(enabled: true, url: 'http://localhost:8969/stream');
 
@@ -147,11 +155,15 @@ void main() {
       'attachThreads': true,
       'autoSessionTrackingIntervalMillis': 240000,
       'dist': 'distfoo',
-      'integrations': ['foo'],
-      'packages': [
-        {'name': 'pub:sentry_flutter', 'version': sdkVersion},
-        {'name': 'bar', 'version': '1'},
-      ],
+      'sdk': {
+        'name': 'sentry.dart.flutter',
+        'version': sdkVersion,
+        'packages': [
+          {'name': 'pub:sentry_flutter', 'version': sdkVersion},
+          {'name': 'bar', 'version': '1'},
+        ],
+        'integrations': ['foo'],
+      },
       'diagnosticLevel': 'error',
       'maxBreadcrumbs': 0,
       'anrEnabled': false,
@@ -182,8 +194,12 @@ void main() {
         'quality': 'high',
         'sessionSampleRate': 0.1,
         'onErrorSampleRate': 0.2,
-        'maskAllText': true,
-        'maskAllImages': true,
+        'tags': {
+          'maskAllText': true,
+          'maskAllImages': true,
+          'maskAssetImages': false,
+          'maskingRules': ['Image: mask']
+        }
       },
       'enableSpotlight': true,
       'spotlightUrl': 'http://localhost:8969/stream',

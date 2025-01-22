@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+### Enhancements
+
+- Enable `options.debug` when in debug mode ([#2597](https://github.com/getsentry/sentry-dart/pull/2597))
+
+### Fixes
+
+- Fix image flickering when using `SentryAssetBundle` ([#2577](https://github.com/getsentry/sentry-dart/pull/2577))
+
+### Misc
+
+- Transfer ownership of `sentry_link` to Sentry. You can view the changelog for the previous versions [here](https://github.com/getsentry/sentry-dart/blob/main/sentry_link/CHANGELOG_OLD.md) ([#2338](https://github.com/getsentry/sentry-dart/pull/2338))
+  - No functional changes have been made. This version is identical to the previous one.
+  - Change license from Apache to MIT
+
+## 8.13.0-beta.2
+
 ### Features
 
 - Add SentryReplayQuality setting (`options.experimental.replay.quality`) ([#2582](https://github.com/getsentry/sentry-dart/pull/2582))
@@ -10,6 +26,8 @@
 ### Enhancements
 
 - Enable `options.debug` when in debug mode ([#2597](https://github.com/getsentry/sentry-dart/pull/2597))
+- Print a warning if the rate limit was reached ([#2595](https://github.com/getsentry/sentry-dart/pull/2595))
+- Add replay masking config to tags and report SDKs versions ([#2592](https://github.com/getsentry/sentry-dart/pull/2592))
 
 ### Fixes
 
@@ -23,6 +41,9 @@
 - Bump Android SDK from v7.20.0 to v7.20.1 ([#2593](https://github.com/getsentry/sentry-dart/pull/2593))
   - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#7201)
   - [diff](https://github.com/getsentry/sentry-java/compare/7.20.0...7.20.1)
+- Bump Cocoa SDK from v8.43.0 to v8.44.0-beta.1 ([#2598](https://github.com/getsentry/sentry-dart/pull/2598))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8440-beta1)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.43.0...8.44.0-beta.1)
 
 ## 8.13.0-beta.1
 
