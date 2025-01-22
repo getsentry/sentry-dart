@@ -36,7 +36,7 @@
 - Bump Cocoa SDK from v8.43.0 to v8.44.0-beta.1 ([#2598](https://github.com/getsentry/sentry-dart/pull/2598))
   - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8440-beta1)
   - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.43.0...8.44.0-beta.1)
-    
+
 ## 8.13.0-beta.1
 
 ### Breaking changes
