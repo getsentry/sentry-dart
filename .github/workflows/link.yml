@@ -55,4 +55,3 @@ jobs:
     uses: ./.github/workflows/analyze.yml
     with:
       package: link
-      panaThreshold: 90
