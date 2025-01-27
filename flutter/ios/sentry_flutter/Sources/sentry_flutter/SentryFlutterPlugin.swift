@@ -744,7 +744,8 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
         // We don't use CADisplayLink for macOS because it's only available starting with macOS 14
         let window = NSApplication.shared.keyWindow ?? NSApplication.shared.mainWindow
         // Refresh rate can be incorrect on multi-screen setups where users move their application.
-        guard let screen = window?.screen ?? NSScreen.main else {
+      guard let screen = window?.screen ?? NSScreen.main else {
+            print("Cannot find screen to read display refresh rate.")
             result(nil)
             return
         }
@@ -752,10 +753,12 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
         guard let displayID =
                 screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? CGDirectDisplayID else {
             result(nil)
+            print("Cannot read display identifier from screen to read display refresh rate.")
             return
         }
 
         guard let mode = CGDisplayCopyDisplayMode(displayID) else {
+            print("Cannot read mode from display idntifier to read display refresh rate.")
             result(nil)
             return
         }
