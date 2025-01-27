@@ -622,7 +622,7 @@ void main() {
 
       await SentryFlutter.init(
         (options) {
-          expect(false, options.debug);
+          expect(true, options.debug);
           expect('debug', options.environment);
           expect(sdkName, options.sdk.name);
           expect(sdkVersion, options.sdk.version);

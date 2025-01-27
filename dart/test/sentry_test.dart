@@ -8,6 +8,7 @@ import 'package:test/test.dart';
 import 'fake_platform_checker.dart';
 import 'mocks.dart';
 import 'mocks/mock_integration.dart';
+import 'mocks/mock_platform_checker.dart';
 import 'mocks/mock_sentry_client.dart';
 import 'test_utils.dart';
 
@@ -360,6 +361,50 @@ void main() {
         ),
       );
     });
+
+    test('should set options.debug to true when in debug mode', () async {
+      final options = defaultTestOptions();
+      options.platformChecker = MockPlatformChecker(isDebug: true);
+
+      expect(options.debug, isFalse);
+      await Sentry.init(
+        options: options,
+        (options) {
+          options.dsn = fakeDsn;
+        },
+      );
+      expect(options.debug, isTrue);
+    });
+
+    test('should respect user options.debug when in debug mode', () async {
+      final options = defaultTestOptions();
+      options.platformChecker = MockPlatformChecker(isDebug: true);
+
+      expect(options.debug, isFalse);
+      await Sentry.init(
+        options: options,
+        (options) {
+          options.dsn = fakeDsn;
+          options.debug = false;
+        },
+      );
+      expect(options.debug, isFalse);
+    });
+
+    test('should leave options.debug unchanged when not in debug mode',
+        () async {
+      final options = defaultTestOptions();
+      options.platformChecker = MockPlatformChecker(isDebug: false);
+
+      expect(options.debug, isFalse);
+      await Sentry.init(
+        options: options,
+        (options) {
+          options.dsn = fakeDsn;
+        },
+      );
+      expect(options.debug, isFalse);
+    });
   });
 
   test('should complete when appRunner is not called in runZonedGuarded',
@@ -395,7 +440,7 @@ void main() {
       (options) {
         options.dsn = fakeDsn;
         expect(options.environment, 'debug');
-        expect(options.debug, false);
+        expect(options.debug, true);
       },
       options: sentryOptions,
     );
@@ -455,10 +500,12 @@ void main() {
     });
 
     test('throw is handled and logged', () async {
-      final sentryOptions = defaultTestOptions()
-        ..automatedTestMode = false
-        ..debug = true
-        ..logger = fixture.mockLogger;
+      // Use release mode in platform checker to avoid additional log
+      final sentryOptions =
+          defaultTestOptions(FakePlatformChecker.releaseMode())
+            ..automatedTestMode = false
+            ..debug = true
+            ..logger = fixture.mockLogger;
 
       final exception = Exception("Exception in options callback");
       await Sentry.init(
