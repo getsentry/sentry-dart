@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Fallback to main window and main screen for macOS display refresh rate ([#2621](https://github.com/getsentry/sentry-dart/pull/2621))
+
 ## 8.13.0-beta.3
 
 ### Enhancements
