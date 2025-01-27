@@ -66,4 +66,4 @@ Run [flutter pub upgrade](https://docs.flutter.dev/release/upgrade#upgrading-pac
 
 ## SDK Size Overhead
 
-The Sentry Flutter SDK adds about 1.5 MB on iOS and 1 MB on Android to your binary size. The Sentry Dart SDK adds about 1.3 MB when compiled as a binary for Linux.
+The Sentry SDKs for Dart and Flutter typically add approximately 1-1.5 MB to an app’s binary size. The exact impact may vary depending on the device architecture.
