@@ -758,7 +758,7 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
         }
 
         guard let mode = CGDisplayCopyDisplayMode(displayID) else {
-            print("Cannot read mode from display idntifier to read display refresh rate.")
+            print("Cannot read mode from display identifier to read display refresh rate.")
             result(nil)
             return
         }
