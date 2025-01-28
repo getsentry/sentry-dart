@@ -64,3 +64,7 @@ Starting with [May 1st 2024](https://developer.apple.com/news/?id=3d8a9yyh), iOS
 If you are using `sentry-flutter`, update to at least version `7.17.0` to get the updated `sentry-cocoa` native iOS/macOS SDK, supporting the privacy manifest.
 All other used dependencies with file declarations are supported by Sentry packages.
 Run [flutter pub upgrade](https://docs.flutter.dev/release/upgrade#upgrading-packages) to the latest compatible versions of all the dependencies.
+
+## SDK Size Overhead
+
+The Sentry SDKs for Dart and Flutter typically add approximately 1-1.5 MB to an app’s binary size. The exact impact may vary depending on the device architecture.
