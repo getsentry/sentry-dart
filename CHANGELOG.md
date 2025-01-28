@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Fix print recursion detection ([#2624](https://github.com/getsentry/sentry-dart/pull/2624))
+
 ## 8.13.0-beta.3
 
 ### Enhancements
