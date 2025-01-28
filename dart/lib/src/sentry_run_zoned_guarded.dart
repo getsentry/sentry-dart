@@ -16,7 +16,7 @@ class SentryRunZonedGuarded {
     Map<Object?, Object?>? zoneValues,
     ZoneSpecification? zoneSpecification,
   }) {
-    final sentryOnError = (exception, stackTrace) async {
+    final sentryOnError = (exception, stackTrace) {
       final options = hub.options;
       await _captureError(hub, options, exception, stackTrace);
 
@@ -61,12 +61,13 @@ class SentryRunZonedGuarded {
 
         try {
           _isPrinting = true;
-          await hub.addBreadcrumb(
+          // If we await, sub-sequent print calls would be detected as recursions, when they are not.
+          unawaited(hub.addBreadcrumb(
             Breadcrumb.console(
               message: line,
               level: SentryLevel.debug,
             ),
-          );
+          ));
           parent.print(zone, line);
         } finally {
           _isPrinting = false;
