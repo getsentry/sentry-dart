@@ -28,14 +28,82 @@ class SentryScreenshotWidget extends StatefulWidget {
 
   @override
   _SentryScreenshotWidgetState createState() => _SentryScreenshotWidgetState();
+
+  /// This is true when the [SentryScreenshotWidget] is in the widget tree.
+  @internal
+  static bool get isMounted =>
+      sentryScreenshotWidgetGlobalKey.currentContext != null;
+
+  @internal
+  static void reset() {
+    _status = null;
+    _onBuild.clear();
+  }
+
+  static SentryScreenshotWidgetStatus? _status;
+  static final _onBuild = <SentryScreenshotWidgetOnBuildCallback>[];
+
+  /// Registers a persistent callback that is called whenever the widget is
+  /// built. The callback is called with the current and previous widget status.
+  /// To unregister, return false;
+  /// If the widget is already built, the callback is called immediately.
+  /// Note: the callback must not throw and it must not call onBuild().
+  @internal
+  static void onBuild(SentryScreenshotWidgetOnBuildCallback callback) {
+    bool register = true;
+    final currentStatus = _status;
+    if (currentStatus != null) {
+      register = callback(currentStatus, null);
+    }
+    if (register) {
+      _onBuild.add(callback);
+    }
+  }
 }
+
+typedef SentryScreenshotWidgetOnBuildCallback = bool Function(
+    SentryScreenshotWidgetStatus currentStatus,
+    SentryScreenshotWidgetStatus? previousStatus);
 
 class _SentryScreenshotWidgetState extends State<SentryScreenshotWidget> {
   @override
   Widget build(BuildContext context) {
+    final mq = MediaQuery.of(context);
+    final status = SentryScreenshotWidgetStatus(
+      size: mq.size,
+      pixelRatio: mq.devicePixelRatio,
+      orientantion: mq.orientation,
+    );
+    final prevStatus = SentryScreenshotWidget._status;
+    SentryScreenshotWidget._status = status;
+
+    if (SentryScreenshotWidget._onBuild.isNotEmpty) {
+      final unregisterCallbacks = <SentryScreenshotWidgetOnBuildCallback>[];
+      for (final callback in SentryScreenshotWidget._onBuild) {
+        if (!callback(status, prevStatus)) {
+          unregisterCallbacks.add(callback);
+        }
+      }
+      unregisterCallbacks.forEach(SentryScreenshotWidget._onBuild.remove);
+    }
+
     return RepaintBoundary(
       key: sentryScreenshotWidgetGlobalKey,
       child: widget.child,
     );
   }
+}
+
+@visibleForTesting
+@immutable
+class SentryScreenshotWidgetStatus {
+  final Size? size;
+  final double? pixelRatio;
+  final Orientation? orientantion;
+
+  const SentryScreenshotWidgetStatus({
+    required this.size,
+    required this.pixelRatio,
+    required this.orientantion,
+  });
 }

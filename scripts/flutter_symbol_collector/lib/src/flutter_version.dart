@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:http/http.dart' as http;
 import 'package:meta/meta.dart';
 
@@ -5,10 +7,17 @@ import 'package:meta/meta.dart';
 class FlutterVersion {
   final String tagName;
 
-  late final engineVersion = http
-      .get(Uri.https('raw.githubusercontent.com',
-          'flutter/flutter/$tagName/bin/internal/engine.version'))
-      .then((value) => value.body.trim());
+  late final engineVersion = () async {
+    final url = Uri.https('raw.githubusercontent.com',
+        'flutter/flutter/$tagName/bin/internal/engine.version');
+    final response = await http.get(url);
+    if (response.statusCode ~/ 100 != 2) {
+      throw HttpException(
+          'Failed to fetch engine version. Response status code: ${response.statusCode}',
+          uri: url);
+    }
+    return response.body.trim();
+  }();
 
   FlutterVersion(this.tagName);
 

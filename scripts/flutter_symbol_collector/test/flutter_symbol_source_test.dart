@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:file/file.dart';
 import 'package:file/memory.dart';
 import 'package:flutter_symbol_collector/flutter_symbol_collector.dart';
@@ -41,6 +43,11 @@ void main() {
           'v1.16.2 => 2d42c74a348d98d2fd372a91953c104e58f185cd',
           'v1.16.1 => 216c420a2c06e5266a60a768b3fd0b660551cc9c'
         ]));
+  });
+
+  test('Engine version request throws on uknown version', () async {
+    final version = FlutterVersion('0.0.0');
+    expect(version.engineVersion, throwsA(isA<HttpException>()));
   });
 
   test('listSymbolArchives() supports expected platforms', () async {

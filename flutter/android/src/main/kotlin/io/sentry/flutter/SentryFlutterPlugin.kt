@@ -2,9 +2,15 @@ package io.sentry.flutter
 
 import android.app.Activity
 import android.content.Context
+import android.content.res.Configuration
+import android.graphics.Point
+import android.graphics.Rect
 import android.os.Build
+import android.os.Build.VERSION
+import android.os.Build.VERSION_CODES
 import android.os.Looper
 import android.util.Log
+import android.view.WindowManager
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
@@ -14,11 +20,8 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import io.sentry.Breadcrumb
 import io.sentry.DateUtils
-import io.sentry.Hint
 import io.sentry.HubAdapter
 import io.sentry.Sentry
-import io.sentry.SentryEvent
-import io.sentry.SentryOptions
 import io.sentry.android.core.ActivityFramesTracker
 import io.sentry.android.core.InternalSentrySdk
 import io.sentry.android.core.LoadClass
@@ -27,21 +30,38 @@ import io.sentry.android.core.SentryAndroidOptions
 import io.sentry.android.core.performance.AppStartMetrics
 import io.sentry.android.core.performance.TimeSpan
 import io.sentry.android.replay.ReplayIntegration
+import io.sentry.android.replay.ScreenshotRecorderConfig
 import io.sentry.protocol.DebugImage
-import io.sentry.protocol.SdkVersion
 import io.sentry.protocol.SentryId
 import io.sentry.protocol.User
 import io.sentry.transport.CurrentDateProvider
 import java.io.File
 import java.lang.ref.WeakReference
-import kotlin.time.DurationUnit
-import kotlin.time.toDuration
+import kotlin.math.roundToInt
 
-class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
+private const val APP_START_MAX_DURATION_MS = 60000
+public const val VIDEO_BLOCK_SIZE = 16
+
+class SentryFlutterPlugin :
+  FlutterPlugin,
+  MethodCallHandler,
+  ActivityAware {
   private lateinit var channel: MethodChannel
   private lateinit var context: Context
   private lateinit var sentryFlutter: SentryFlutter
   private lateinit var replay: ReplayIntegration
+
+  // Note: initial config because we don't yet have the numbers of the actual Flutter widget.
+  // See how SentryFlutterReplayRecorder.start() handles it. New settings will be set by setReplayConfig() method below.
+  private var replayConfig =
+    ScreenshotRecorderConfig(
+      recordingWidth = VIDEO_BLOCK_SIZE,
+      recordingHeight = VIDEO_BLOCK_SIZE,
+      scaleFactorX = 1.0f,
+      scaleFactorY = 1.0f,
+      frameRate = 1,
+      bitRate = 75000,
+    )
 
   private var activity: WeakReference<Activity>? = null
   private var framesTracker: ActivityFramesTracker? = null
@@ -54,11 +74,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, "sentry_flutter")
     channel.setMethodCallHandler(this)
 
-    sentryFlutter =
-      SentryFlutter(
-        androidSdk = ANDROID_SDK,
-        nativeSdk = NATIVE_SDK,
-      )
+    sentryFlutter = SentryFlutter()
   }
 
   @Suppress("CyclomaticComplexMethod")
@@ -86,6 +102,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       "loadContexts" -> loadContexts(result)
       "displayRefreshRate" -> displayRefreshRate(result)
       "nativeCrash" -> crash()
+      "setReplayConfig" -> setReplayConfig(call, result)
       "addReplayScreenshot" -> addReplayScreenshot(call.argument("path"), call.argument("timestamp"), result)
       "captureReplay" -> captureReplay(call.argument("isCrash"), result)
       else -> result.notImplemented()
@@ -139,30 +156,43 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         framesTracker = ActivityFramesTracker(LoadClass(), options)
       }
 
-      options.beforeSend = BeforeSendCallbackImpl(options.sdkVersion)
-
-      // Replace the default ReplayIntegration with a Flutter-specific recorder.
-      options.integrations.removeAll { it is ReplayIntegration }
-      val cacheDirPath = options.cacheDirPath
-      val replayOptions = options.experimental.sessionReplay
-      val isReplayEnabled = replayOptions.isSessionReplayEnabled || replayOptions.isSessionReplayForErrorsEnabled
-      if (cacheDirPath != null && isReplayEnabled) {
-        replay =
-          ReplayIntegration(
-            context,
-            dateProvider = CurrentDateProvider.getInstance(),
-            recorderProvider = { SentryFlutterReplayRecorder(channel, replay) },
-            recorderConfigProvider = null,
-            replayCacheProvider = null,
-          )
-        replay.breadcrumbConverter = SentryFlutterReplayBreadcrumbConverter()
-        options.addIntegration(replay)
-        options.setReplayController(replay)
-      } else {
-        options.setReplayController(null)
-      }
+      setupReplay(options)
     }
     result.success("")
+  }
+
+  private fun setupReplay(options: SentryAndroidOptions) {
+    // Replace the default ReplayIntegration with a Flutter-specific recorder.
+    options.integrations.removeAll { it is ReplayIntegration }
+    val cacheDirPath = options.cacheDirPath
+    val replayOptions = options.sessionReplay
+    val isReplayEnabled = replayOptions.isSessionReplayEnabled || replayOptions.isSessionReplayForErrorsEnabled
+    if (cacheDirPath != null && isReplayEnabled) {
+      replay =
+        ReplayIntegration(
+          context,
+          dateProvider = CurrentDateProvider.getInstance(),
+          recorderProvider = { SentryFlutterReplayRecorder(channel, replay) },
+          recorderConfigProvider = {
+            Log.i(
+              "Sentry",
+              "Replay configuration requested. Returning: %dx%d at %d FPS, %d BPS".format(
+                replayConfig.recordingWidth,
+                replayConfig.recordingHeight,
+                replayConfig.frameRate,
+                replayConfig.bitRate,
+              ),
+            )
+            replayConfig
+          },
+          replayCacheProvider = null,
+        )
+      replay.breadcrumbConverter = SentryFlutterReplayBreadcrumbConverter()
+      options.addIntegration(replay)
+      options.setReplayController(replay)
+    } else {
+      options.setReplayController(null)
+    }
   }
 
   private fun fetchNativeAppStart(result: Result) {
@@ -174,13 +204,14 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     val appStartMetrics = AppStartMetrics.getInstance()
 
     if (!appStartMetrics.isAppLaunchedInForeground ||
-      appStartMetrics.appStartTimeSpan.durationMs > 1.toDuration(DurationUnit.MINUTES).inWholeMilliseconds
+      appStartMetrics.appStartTimeSpan.durationMs > APP_START_MAX_DURATION_MS
     ) {
       Log.w(
         "Sentry",
         "Invalid app start data: app not launched in foreground or app start took too long (>60s)",
       )
       result.success(null)
+      return
     }
 
     val appStartTimeSpan = appStartMetrics.appStartTimeSpan
@@ -485,66 +516,23 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     result.success("")
   }
 
-  private class BeforeSendCallbackImpl(
-    private val sdkVersion: SdkVersion?,
-  ) : SentryOptions.BeforeSendCallback {
-    override fun execute(
-      event: SentryEvent,
-      hint: Hint,
-    ): SentryEvent {
-      setEventOriginTag(event)
-      addPackages(event, sdkVersion)
-      return event
-    }
-  }
-
   companion object {
-    private const val FLUTTER_SDK = "sentry.dart.flutter"
-    private const val ANDROID_SDK = "sentry.java.android.flutter"
-    private const val NATIVE_SDK = "sentry.native.android.flutter"
     private const val NATIVE_CRASH_WAIT_TIME = 500L
-
-    private fun setEventOriginTag(event: SentryEvent) {
-      event.sdk?.let {
-        when (it.name) {
-          FLUTTER_SDK -> setEventEnvironmentTag(event, "flutter", "dart")
-          ANDROID_SDK -> setEventEnvironmentTag(event, environment = "java")
-          NATIVE_SDK -> setEventEnvironmentTag(event, environment = "native")
-          else -> return
-        }
-      }
-    }
-
-    private fun setEventEnvironmentTag(
-      event: SentryEvent,
-      origin: String = "android",
-      environment: String,
-    ) {
-      event.setTag("event.origin", origin)
-      event.setTag("event.environment", environment)
-    }
-
-    private fun addPackages(
-      event: SentryEvent,
-      sdk: SdkVersion?,
-    ) {
-      event.sdk?.let {
-        if (it.name == FLUTTER_SDK) {
-          sdk?.packageSet?.forEach { sentryPackage ->
-            it.addPackage(sentryPackage.name, sentryPackage.version)
-          }
-          sdk?.integrationSet?.forEach { integration ->
-            it.addIntegration(integration)
-          }
-        }
-      }
-    }
 
     private fun crash() {
       val exception = RuntimeException("FlutterSentry Native Integration: Sample RuntimeException")
       val mainThread = Looper.getMainLooper().thread
       mainThread.uncaughtExceptionHandler.uncaughtException(mainThread, exception)
       mainThread.join(NATIVE_CRASH_WAIT_TIME)
+    }
+
+    private fun Double.adjustReplaySizeToBlockSize(): Double {
+      val remainder = this % VIDEO_BLOCK_SIZE
+      return if (remainder <= VIDEO_BLOCK_SIZE / 2) {
+        this - remainder
+      } else {
+        this + (VIDEO_BLOCK_SIZE - remainder)
+      }
     }
   }
 
@@ -574,6 +562,59 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       return
     }
     replay.onScreenshotRecorded(File(path), timestamp)
+    result.success("")
+  }
+
+  private fun setReplayConfig(
+    call: MethodCall,
+    result: Result,
+  ) {
+    // Since codec block size is 16, so we have to adjust the width and height to it,
+    // otherwise the codec might fail to configure on some devices, see
+    // https://cs.android.com/android/platform/superproject/+/master:frameworks/base/media/java/android/media/MediaCodecInfo.java;l=1999-2001
+    var width = call.argument("width") as? Double ?: 0.0
+    var height = call.argument("height") as? Double ?: 0.0
+    // First update the smaller dimension, as changing that will affect the screen ratio more.
+    if (width < height) {
+      val newWidth = width.adjustReplaySizeToBlockSize()
+      height = (height * (newWidth / width)).adjustReplaySizeToBlockSize()
+      width = newWidth
+    } else {
+      val newHeight = height.adjustReplaySizeToBlockSize()
+      width = (width * (newHeight / height)).adjustReplaySizeToBlockSize()
+      height = newHeight
+    }
+
+    val wm = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+    val screenBounds =
+      if (VERSION.SDK_INT >= VERSION_CODES.R) {
+        wm.currentWindowMetrics.bounds
+      } else {
+        val screenBounds = Point()
+        @Suppress("DEPRECATION")
+        wm.defaultDisplay.getRealSize(screenBounds)
+        Rect(0, 0, screenBounds.x, screenBounds.y)
+      }
+
+    replayConfig =
+      ScreenshotRecorderConfig(
+        recordingWidth = width.roundToInt(),
+        recordingHeight = height.roundToInt(),
+        scaleFactorX = width.toFloat() / screenBounds.width().toFloat(),
+        scaleFactorY = height.toFloat() / screenBounds.height().toFloat(),
+        frameRate = call.argument("frameRate") as? Int ?: 0,
+        bitRate = call.argument("bitRate") as? Int ?: 0,
+      )
+    Log.i(
+      "Sentry",
+      "Configuring replay: %dx%d at %d FPS, %d BPS".format(
+        replayConfig.recordingWidth,
+        replayConfig.recordingHeight,
+        replayConfig.frameRate,
+        replayConfig.bitRate,
+      ),
+    )
+    replay.onConfigurationChanged(Configuration())
     result.success("")
   }
 

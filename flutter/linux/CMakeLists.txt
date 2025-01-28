@@ -1,25 +1,12 @@
+# The Flutter tooling requires that developers have CMake 3.10 or later
+# installed. You should not increase this version, as doing so will cause
+# the plugin to fail to compile for some customers of the plugin.
 cmake_minimum_required(VERSION 3.10)
-set(PROJECT_NAME "sentry_flutter")
-project(${PROJECT_NAME} LANGUAGES CXX)
 
-# This value is used when generating builds using this plugin, so it must
-# not be changed
-set(PLUGIN_NAME "sentry_flutter_plugin")
+set(SENTRY_BACKEND "crashpad" CACHE STRING "The sentry backend responsible for reporting crashes" FORCE)
 
-add_library(${PLUGIN_NAME} SHARED
-  "sentry_flutter_plugin.cc"
-)
-apply_standard_settings(${PLUGIN_NAME})
-set_target_properties(${PLUGIN_NAME} PROPERTIES
-  CXX_VISIBILITY_PRESET hidden)
-target_compile_definitions(${PLUGIN_NAME} PRIVATE FLUTTER_PLUGIN_IMPL)
-target_include_directories(${PLUGIN_NAME} INTERFACE
-  "${CMAKE_CURRENT_SOURCE_DIR}/include")
-target_link_libraries(${PLUGIN_NAME} PRIVATE flutter)
-target_link_libraries(${PLUGIN_NAME} PRIVATE PkgConfig::GTK)
+include("${CMAKE_CURRENT_SOURCE_DIR}/../sentry-native/sentry-native.cmake")
 
-# List of absolute paths to libraries that should be bundled with the plugin
-set(sentry_flutter_bundled_libraries
-  ""
-  PARENT_SCOPE
-)
+# Even though sentry_flutter doesn't actually provide a useful plugin, we need to accommodate the Flutter tooling.
+# sentry_flutter/sentry_flutter_plugin.h is included by the flutter-tool generated plugin registrar:
+target_include_directories(sentry INTERFACE ${CMAKE_CURRENT_LIST_DIR})

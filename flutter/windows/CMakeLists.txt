@@ -4,13 +4,16 @@
 # customers of the plugin.
 cmake_minimum_required(VERSION 3.14)
 
-# Temporarily disabled due to https://github.com/getsentry/sentry-dart-plugin/issues/270
-# include("${CMAKE_CURRENT_SOURCE_DIR}/../sentry-native/sentry-native.cmake")
+if(FLUTTER_TARGET_PLATFORM EQUAL "windows-arm64")
+    set(native_backend "breakpad")
+else()
+    set(native_backend "crashpad")
+endif()
 
-# # Even though sentry_flutter doesn't actually provide a useful plugin, we need to accomodate the Flutter tooling.
-# # sentry_flutter/sentry_flutter_plugin.h is included by the flutter-tool generated plugin registrar:
-# target_include_directories(sentry INTERFACE ${CMAKE_CURRENT_LIST_DIR})
+set(SENTRY_BACKEND ${native_backend} CACHE STRING "The sentry backend responsible for reporting crashes" FORCE)
 
-# Temp code: replace with the previous code when sentry-native is enabled
-add_library(sentry_flutter_plugin temp.cpp)
-target_include_directories(sentry_flutter_plugin INTERFACE ${CMAKE_CURRENT_LIST_DIR})
+include("${CMAKE_CURRENT_SOURCE_DIR}/../sentry-native/sentry-native.cmake")
+
+# Even though sentry_flutter doesn't actually provide a useful plugin, we need to accommodate the Flutter tooling.
+# sentry_flutter/sentry_flutter_plugin.h is included by the flutter-tool generated plugin registrar:
+target_include_directories(sentry INTERFACE ${CMAKE_CURRENT_LIST_DIR})

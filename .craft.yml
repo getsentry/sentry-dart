@@ -17,6 +17,7 @@ targets:
       hive:
       drift:
       isar:
+      link:
   - name: github
   - name: registry
     sdks:
@@ -29,3 +30,5 @@ targets:
       pub:sentry_drift:
       pub:sentry_hive:
       pub:sentry_isar:
+      # TODO: after we published link we need to add it to the registry repo and then uncomment here
+      # pub:sentry_link:

@@ -2,14 +2,14 @@ name: Flutter symbols collection
 on:
   schedule:
     # Run once an hour. It takes just a couple of minutes because of status caching.
-    - cron: "10 * * * *"
+    - cron: '10 * * * *'
   workflow_dispatch:
     inputs:
       flutter_version:
         description: Flutter version, can be either a specific version (3.17.0) or a wildcard (3.2.*)
         required: false
         type: string
-        default: "3.*.*"
+        default: '3.*.*'
 
 defaults:
   run:
@@ -21,7 +21,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: dart-lang/setup-dart@0a8a0fc875eb934c15d08629302413c671d3f672 # pin@v1
+      - uses: dart-lang/setup-dart@e630b99d28a3b71860378cafdc2a067c71107f94 # pin@v1
 
       - run: dart pub get
 
@@ -33,7 +33,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: dart-lang/setup-dart@0a8a0fc875eb934c15d08629302413c671d3f672 # pin@v1
+      - uses: dart-lang/setup-dart@e630b99d28a3b71860378cafdc2a067c71107f94 # pin@v1
 
       - run: dart pub get
 
@@ -56,3 +56,7 @@ jobs:
         with:
           name: flutter-symbol-collector-database
           path: scripts/flutter_symbol_collector/.cache
+          include-hidden-files: true
+          overwrite: true
+          retention-days: 90
+          if-no-files-found: error

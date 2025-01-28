@@ -19,7 +19,7 @@ class SymbolCollectorCli {
 
   // https://github.com/getsentry/symbol-collector/releases
   @internal
-  static const version = '1.21.0';
+  static const version = '1.22.0';
 
   @internal
   late final String cli;
@@ -53,7 +53,7 @@ class SymbolCollectorCli {
         'Download successful, received ${zipData.length} bytes; extracting the archive');
 
     final archive = ZipDecoder().decodeBytes(zipData);
-    final stream = OutputStream();
+    final stream = OutputMemoryStream();
     archive.single.writeContent(stream, freeMemory: true);
     stream.flush();
 

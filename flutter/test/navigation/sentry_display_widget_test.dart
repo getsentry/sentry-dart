@@ -2,8 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry/src/sentry_tracer.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '../fake_frame_callback_handler.dart';
 import '../mocks.dart';
@@ -26,7 +26,9 @@ void main() {
 
     await tester.runAsync(() async {
       fixture.navigatorObserver.didPush(currentRoute, null);
+
       await tester.pumpWidget(fixture.getSut());
+
       await fixture.navigatorObserver.completedDisplayTracking?.future;
     });
 
@@ -58,6 +60,8 @@ class Fixture {
   final Hub hub = Hub(defaultTestOptions()..tracesSampleRate = 1.0);
   late final SentryNavigatorObserver navigatorObserver;
   final fakeFrameCallbackHandler = FakeFrameCallbackHandler();
+  final frameCallbackHandler = FakeFrameCallbackHandler(
+      postFrameCallbackDelay: Duration(milliseconds: 10));
 
   Fixture() {
     navigatorObserver = SentryNavigatorObserver(hub: hub);
@@ -65,10 +69,9 @@ class Fixture {
 
   MaterialApp getSut() {
     return MaterialApp(
+      // ignore: deprecated_member_use_from_same_package
       home: SentryDisplayWidget(
-        frameCallbackHandler: FakeFrameCallbackHandler(
-          finishAfterDuration: Duration(milliseconds: 50),
-        ),
+        frameCallbackHandler: frameCallbackHandler,
         child: Text('my text'),
       ),
     );

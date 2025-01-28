@@ -7,9 +7,10 @@ import 'package:flutter/services.dart';
 import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
+import '../replay/replay_config.dart';
+import 'method_channel_helper.dart';
 import 'native_app_start.dart';
 import 'native_frames.dart';
-import 'method_channel_helper.dart';
 import 'sentry_native_binding.dart';
 import 'sentry_native_invoker.dart';
 import 'sentry_safe_method_channel.dart';
@@ -42,9 +43,7 @@ class SentryNativeChannel
       'autoSessionTrackingIntervalMillis':
           options.autoSessionTrackingInterval.inMilliseconds,
       'dist': options.dist,
-      'integrations': options.sdk.integrations,
-      'packages':
-          options.sdk.packages.map((e) => e.toJson()).toList(growable: false),
+      'sdk': options.sdk.toJson(),
       'diagnosticLevel': options.diagnosticLevel.name,
       'maxBreadcrumbs': options.maxBreadcrumbs,
       'anrEnabled': options.anrEnabled,
@@ -68,8 +67,20 @@ class SentryNativeChannel
           options.appHangTimeoutInterval.inMilliseconds,
       if (options.proxy != null) 'proxy': options.proxy?.toJson(),
       'replay': <String, dynamic>{
+        'quality': options.experimental.replay.quality.name,
         'sessionSampleRate': options.experimental.replay.sessionSampleRate,
         'onErrorSampleRate': options.experimental.replay.onErrorSampleRate,
+        'tags': <String, dynamic>{
+          'maskAllText': options.experimental.privacyForReplay.maskAllText,
+          'maskAllImages': options.experimental.privacyForReplay.maskAllImages,
+          'maskAssetImages':
+              options.experimental.privacyForReplay.maskAssetImages,
+          if (options.experimental.privacyForReplay.userMaskingRules.isNotEmpty)
+            'maskingRules': options
+                .experimental.privacyForReplay.userMaskingRules
+                .map((rule) => '${rule.name}: ${rule.description}')
+                .toList(growable: false),
+        },
       },
       'enableSpotlight': options.spotlight.enabled,
       'spotlightUrl': options.spotlight.url,
@@ -94,6 +105,11 @@ class SentryNativeChannel
       Uint8List envelopeData, bool containsUnhandledException) {
     return channel.invokeMethod(
         'captureEnvelope', [envelopeData, containsUnhandledException]);
+  }
+
+  @override
+  FutureOr<void> captureStructuredEnvelope(SentryEnvelope envelope) {
+    throw UnsupportedError("Not supported on this platform");
   }
 
   @override
@@ -186,8 +202,15 @@ class SentryNativeChannel
   @override
   Future<List<DebugImage>?> loadDebugImages(SentryStackTrace stackTrace) =>
       tryCatchAsync('loadDebugImages', () async {
-        final images = await channel
-            .invokeListMethod<Map<dynamic, dynamic>>('loadImageList');
+        Set<String> instructionAddresses = {};
+        for (final frame in stackTrace.frames) {
+          if (frame.instructionAddr != null) {
+            instructionAddresses.add(frame.instructionAddr!);
+          }
+        }
+
+        final images = await channel.invokeListMethod<Map<dynamic, dynamic>>(
+            'loadImageList', instructionAddresses.toList());
         return images
             ?.map((e) => e.cast<String, dynamic>())
             .map(DebugImage.fromJson)
@@ -208,6 +231,17 @@ class SentryNativeChannel
 
   @override
   Future<void> nativeCrash() => channel.invokeMethod('nativeCrash');
+
+  @override
+  bool get supportsReplay => false;
+
+  @override
+  FutureOr<void> setReplayConfig(ReplayConfig config) =>
+      channel.invokeMethod('setReplayConfig', {
+        'width': config.width,
+        'height': config.height,
+        'frameRate': config.frameRate,
+      });
 
   @override
   Future<SentryId> captureReplay(bool isCrash) =>

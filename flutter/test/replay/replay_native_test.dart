@@ -10,14 +10,15 @@ import 'package:file/memory.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:sentry_flutter/src/event_processor/replay_event_processor.dart';
 import 'package:sentry_flutter/src/native/factory.dart';
+import '../native_memory_web_mock.dart'
+    if (dart.library.io) 'package:sentry_flutter/src/native/native_memory.dart';
 import 'package:sentry_flutter/src/native/sentry_native_binding.dart';
-import 'package:sentry_flutter/src/replay/integration.dart';
 
 import '../mocks.dart';
 import '../mocks.mocks.dart';
-import 'test_widget.dart';
+import '../screenshot/test_widget.dart';
+import 'replay_test_util.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -26,20 +27,18 @@ void main() {
     MockPlatform.android(),
     MockPlatform.iOs(),
   ]) {
-    group('$SentryNativeBinding ($mockPlatform)', () {
+    group('$SentryNativeBinding (${mockPlatform.operatingSystem})', () {
       late SentryNativeBinding sut;
       late NativeChannelFixture native;
       late SentryFlutterOptions options;
       late MockHub hub;
       late FileSystem fs;
-      late Directory replayDir;
       late Map<String, dynamic> replayConfig;
 
       setUp(() {
         if (mockPlatform.isIOS) {
           replayConfig = {
             'replayId': '123',
-            'directory': 'dir',
           };
         } else if (mockPlatform.isAndroid) {
           replayConfig = {
@@ -47,61 +46,27 @@ void main() {
             'directory': 'dir',
             'width': 800,
             'height': 600,
-            'frameRate': 10,
+            'frameRate': 1000,
           };
         }
 
         hub = MockHub();
 
         fs = MemoryFileSystem.test();
-        replayDir = fs.directory(replayConfig['directory'])
-          ..createSync(recursive: true);
 
         native = NativeChannelFixture();
 
         options =
             defaultTestOptions(MockPlatformChecker(mockPlatform: mockPlatform))
               ..fileSystem = fs
-              ..methodChannel = native.channel;
+              ..methodChannel = native.channel
+              ..experimental.replay.quality = SentryReplayQuality.low;
 
         sut = createBinding(options);
       });
 
       tearDown(() async {
         await sut.close();
-      });
-
-      test('init adds $replayIntegrationName when replay is enabled', () async {
-        options.experimental.replay.sessionSampleRate = 0.1;
-        await sut.init(hub);
-
-        expect(options.sdk.integrations, contains(replayIntegrationName));
-      });
-
-      test('init does not add $replayIntegrationName when replay is disabled',
-          () async {
-        await sut.init(hub);
-
-        expect(
-            options.sdk.integrations, isNot(contains(replayIntegrationName)));
-      });
-
-      test('init sets $ReplayEventProcessor when error replay is enabled',
-          () async {
-        options.experimental.replay.onErrorSampleRate = 0.1;
-        await sut.init(hub);
-
-        expect(options.eventProcessors.map((e) => e.runtimeType.toString()),
-            contains('$ReplayEventProcessor'));
-      });
-
-      test(
-          'init does not set $ReplayEventProcessor when error replay is disabled',
-          () async {
-        await sut.init(hub);
-
-        expect(options.eventProcessors.map((e) => e.runtimeType.toString()),
-            isNot(contains('$ReplayEventProcessor')));
       });
 
       group('replay recorder', () {
@@ -111,29 +76,36 @@ void main() {
           await sut.init(hub);
         });
 
-        test('sets replay ID to context', () async {
-          // verify there was no scope configured before
-          verifyNever(hub.configureScope(any));
+        testWidgets('sets replayID to context', (tester) async {
+          await tester.runAsync(() async {
+            await pumpTestElement(tester);
+            // verify there was no scope configured before
+            verifyNever(hub.configureScope(any));
+            when(hub.configureScope(captureAny)).thenReturn(null);
 
-          // emulate the native platform invoking the method
-          await native.invokeFromNative(
-              mockPlatform.isAndroid
-                  ? 'ReplayRecorder.start'
-                  : 'captureReplayScreenshot',
-              replayConfig);
+            // emulate the native platform invoking the method
+            final future = native.invokeFromNative(
+                mockPlatform.isAndroid
+                    ? 'ReplayRecorder.start'
+                    : 'captureReplayScreenshot',
+                replayConfig);
+            tester.binding.scheduleFrame();
+            await tester.pumpAndWaitUntil(future);
 
-          // verify the replay ID was set
-          final closure =
-              verify(hub.configureScope(captureAny)).captured.single;
-          final scope = Scope(options);
-          expect(scope.replayId, isNull);
-          await closure(scope);
-          expect(scope.replayId.toString(), replayConfig['replayId']);
+            // verify the replay ID was set
+            final closure =
+                verify(hub.configureScope(captureAny)).captured.single;
+            final scope = Scope(options);
+            expect(scope.replayId, isNull);
+            await closure(scope);
+            expect(scope.replayId.toString(), replayConfig['replayId']);
+          });
         });
 
         test('clears replay ID from context', () async {
           // verify there was no scope configured before
           verifyNever(hub.configureScope(any));
+          when(hub.configureScope(captureAny)).thenReturn(null);
 
           // emulate the native platform invoking the method
           await native.invokeFromNative('ReplayRecorder.stop');
@@ -150,32 +122,28 @@ void main() {
 
         testWidgets('captures images', (tester) async {
           await tester.runAsync(() async {
+            when(hub.configureScope(captureAny)).thenReturn(null);
+
+            await pumpTestElement(tester);
             if (mockPlatform.isAndroid) {
+              final replayDir = fs.directory(replayConfig['directory'])
+                ..createSync(recursive: true);
+
               var callbackFinished = Completer<void>();
 
               nextFrame({bool wait = true}) async {
                 final future = callbackFinished.future;
-                tester.binding.scheduleFrame();
-                await tester.pumpAndSettle(const Duration(seconds: 1));
-                await future.timeout(Duration(milliseconds: wait ? 1000 : 100),
-                    onTimeout: () {
-                  if (wait) {
-                    fail('native callback not called');
-                  }
-                });
+                await tester.pumpAndWaitUntil(future, requiredToComplete: wait);
               }
 
-              imageInfo(File file) => file.readAsBytesSync().length;
-
-              fileToImageMap(Iterable<File> files) =>
-                  {for (var file in files) file.path: imageInfo(file)};
+              imageSizeBytes(File file) => file.readAsBytesSync().length;
 
               final capturedImages = <String, int>{};
               when(native.handler('addReplayScreenshot', any))
-                  .thenAnswer((invocation) async {
+                  .thenAnswer((invocation) {
                 final path =
                     invocation.positionalArguments[1]["path"] as String;
-                capturedImages[path] = imageInfo(fs.file(path));
+                capturedImages[path] = imageSizeBytes(fs.file(path));
                 callbackFinished.complete();
                 callbackFinished = Completer<void>();
                 return null;
@@ -183,10 +151,8 @@ void main() {
 
               fsImages() {
                 final files = replayDir.listSync().map((f) => f as File);
-                return fileToImageMap(files);
+                return {for (var f in files) f.path: imageSizeBytes(f)};
               }
-
-              await pumpTestElement(tester);
 
               await nextFrame(wait: false);
               expect(fsImages(), isEmpty);
@@ -235,27 +201,25 @@ void main() {
               expect(capturedImages, equals(fsImages()));
               expect(capturedImages.length, count);
             } else if (mockPlatform.isIOS) {
-              // configureScope() is called on iOS
-              when(hub.configureScope(captureAny)).thenReturn(null);
+              Future<void> captureAndVerify() async {
+                final future = native.invokeFromNative(
+                    'captureReplayScreenshot', replayConfig);
+                final json = (await tester.pumpAndWaitUntil(future))
+                    as Map<dynamic, dynamic>;
 
-              nextFrame() async {
-                tester.binding.scheduleFrame();
-                await Future<void>.delayed(const Duration(milliseconds: 100));
-                await tester.pumpAndSettle(const Duration(seconds: 1));
+                expect(json['length'], greaterThan(3000));
+                expect(json['address'], greaterThan(0));
+                expect(json['width'], 640);
+                expect(json['height'], 480);
+                NativeMemory.fromJson(json).free();
               }
 
-              await pumpTestElement(tester);
-              await nextFrame();
+              await captureAndVerify();
 
-              final imagaData = await native.invokeFromNative(
-                  'captureReplayScreenshot', replayConfig);
-              expect(imagaData?.lengthInBytes, greaterThan(3000));
-
-              // Happens if the session-replay rate is 0.
+              // Check everything works if session-replay rate is 0,
+              // which causes replayId to be 0 as well.
               replayConfig['replayId'] = null;
-              final imagaData2 = await native.invokeFromNative(
-                  'captureReplayScreenshot', replayConfig);
-              expect(imagaData2?.lengthInBytes, greaterThan(3000));
+              await captureAndVerify();
             } else {
               fail('unsupported platform');
             }

@@ -1,7 +1,5 @@
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/metrics/metric.dart';
-import 'package:sentry/src/metrics/metrics_aggregator.dart';
 
 import '../test_utils.dart';
 import 'mock_sentry_client.dart';
@@ -17,22 +15,16 @@ class MockHub with NoSuchMethodProvider implements Hub {
   // ignore: deprecated_member_use_from_same_package
   List<SentryUserFeedback> userFeedbackCalls = [];
   List<CaptureTransactionCall> captureTransactionCalls = [];
-  List<CaptureMetricsCall> captureMetricsCalls = [];
   int closeCalls = 0;
   bool _isEnabled = true;
   int spanContextCals = 0;
   int getSpanCalls = 0;
 
   final _options = defaultTestOptions();
-  late final MetricsAggregator _metricsAggregator =
-      MetricsAggregator(options: _options, hub: this);
 
   @override
   @internal
   SentryOptions get options => _options;
-
-  @override
-  MetricsAggregator? get metricsAggregator => _metricsAggregator;
 
   /// Useful for tests.
   void reset() {
@@ -45,7 +37,6 @@ class MockHub with NoSuchMethodProvider implements Hub {
     _isEnabled = true;
     spanContextCals = 0;
     captureTransactionCalls = [];
-    captureMetricsCalls = [];
     getSpanCalls = 0;
   }
 
@@ -125,13 +116,6 @@ class MockHub with NoSuchMethodProvider implements Hub {
     captureTransactionCalls
         .add(CaptureTransactionCall(transaction, traceContext));
     return transaction.eventId;
-  }
-
-  @override
-  Future<SentryId> captureMetrics(
-      Map<int, Iterable<Metric>> metricsBuckets) async {
-    captureMetricsCalls.add(CaptureMetricsCall(metricsBuckets));
-    return SentryId.newId();
   }
 
   @override

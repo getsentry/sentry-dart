@@ -53,7 +53,7 @@ jobs:
           echo "flutter=$version" >> "$GITHUB_OUTPUT"
 
       - name: Install Flutter v${{ steps.conf.outputs.flutter }}
-        uses: subosito/flutter-action@44ac965b96f18d999802d4b807e3256d5a3f9fa1 # pin@v2.16.0
+        uses: subosito/flutter-action@f2c4f6686ca8e8d6e6d0f28410eeef506ed66aff # pin@v2.18.0
         with:
           flutter-version: ${{ steps.conf.outputs.flutter }}
 
@@ -91,3 +91,25 @@ jobs:
           config: ./metrics/metrics-${{ matrix.platform }}.yml
           sauce-user: ${{ secrets.SAUCE_USERNAME }}
           sauce-key: ${{ secrets.SAUCE_ACCESS_KEY }}
+
+  metrics-dart:
+    name: Console
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@f2c4f6686ca8e8d6e6d0f28410eeef506ed66aff # pin@v2.18.0
+
+      - name: create dart sample apps
+        working-directory: ./metrics
+        run: ./prepare-dart.sh
+
+      - name: build dart sample apps
+        working-directory: ./metrics
+        run: ./build-dart.sh
+
+      - name: Set file diff max threshold
+        run: echo "THRESHOLD=13100000" >> $GITHUB_ENV # 1,31 MB
+
+      - name: Compare executable size
+        working-directory: ./metrics
+        run: ./compare_sizes.sh perf_test_console_plain.bin perf_test_console_sentry.bin $THRESHOLD

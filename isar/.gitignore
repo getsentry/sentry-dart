@@ -15,3 +15,5 @@ pubspec.lock
 
 # Downloaded on demand by tests for correct architecture.
 libisar.dylib
+libisar.so
+isar.dll

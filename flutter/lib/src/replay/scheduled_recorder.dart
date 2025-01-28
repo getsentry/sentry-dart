@@ -1,40 +1,196 @@
 import 'dart:async';
-import 'dart:ui';
 
 import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
-import 'recorder.dart';
-import 'recorder_config.dart';
+import '../screenshot/stabilizer.dart';
+import '../screenshot/screenshot.dart';
+import 'replay_recorder.dart';
+import 'scheduled_recorder_config.dart';
 import 'scheduler.dart';
 
 @internal
-typedef ScreenshotRecorderCallback = Future<void> Function(Image);
+typedef ScheduledScreenshotRecorderCallback = Future<void> Function(
+    Screenshot screenshot, bool isNewlyCaptured);
 
 @internal
-class ScheduledScreenshotRecorder extends ScreenshotRecorder {
+class ScheduledScreenshotRecorder extends ReplayScreenshotRecorder {
   late final Scheduler _scheduler;
-  final ScreenshotRecorderCallback _callback;
+  late final ScheduledScreenshotRecorderCallback _callback;
+  var _status = _Status.running;
+  late final Duration _frameDuration;
+  late final ScreenshotStabilizer<void> _stabilizer;
+  // late final _idleFrameFiller = _IdleFrameFiller(_frameDuration, _onScreenshot);
 
-  ScheduledScreenshotRecorder(ScheduledScreenshotRecorderConfig config,
-      this._callback, SentryFlutterOptions options)
+  @override
+  @protected
+  ScheduledScreenshotRecorderConfig get config =>
+      super.config as ScheduledScreenshotRecorderConfig;
+
+  ScheduledScreenshotRecorder(
+      ScheduledScreenshotRecorderConfig config, SentryFlutterOptions options,
+      [ScheduledScreenshotRecorderCallback? callback])
       : super(config, options) {
     assert(config.frameRate > 0);
-    final frameDuration = Duration(milliseconds: 1000 ~/ config.frameRate);
-    _scheduler = Scheduler(frameDuration, _capture,
-        options.bindingUtils.instance!.addPostFrameCallback);
+    _frameDuration = Duration(milliseconds: 1000 ~/ config.frameRate);
+    assert(_frameDuration.inMicroseconds > 0);
+
+    _stabilizer = ScreenshotStabilizer(this, options, _onImageCaptured);
+    _scheduler = Scheduler(_frameDuration, _stabilizer.capture,
+        _stabilizer.ensureFrameAndAddCallback);
+
+    if (callback != null) {
+      _callback = callback;
+    }
+  }
+
+  set callback(ScheduledScreenshotRecorderCallback callback) {
+    _callback = callback;
   }
 
   void start() {
-    options.logger(SentryLevel.debug, "Replay: starting replay capture.");
+    assert(() {
+      // The following fails if callback hasn't been provided
+      // in the constructor nor set with a setter.
+      _callback;
+      return true;
+    }());
+
+    options.logger(SentryLevel.debug,
+        "$logName: starting capture (${config.width}x${config.height} @ ${config.frameRate} Hz).");
+    _status = _Status.running;
+    _startScheduler();
+  }
+
+  Future<void> _stopScheduler() {
+    _stabilizer.stopped = true;
+    return _scheduler.stop();
+  }
+
+  void _startScheduler() {
+    _stabilizer.stopped = false;
     _scheduler.start();
+
+    // We need to schedule a frame because if this happens in-between user
+    // actions, there may not be any frame captured for a long time so even
+    // the IdleFrameFiller won't have anything to repeat. This would appear
+    // as if the replay was broken.
+    options.bindingUtils.instance!.ensureVisualUpdate();
   }
 
   Future<void> stop() async {
-    await _scheduler.stop();
-    options.logger(SentryLevel.debug, "Replay: replay capture stopped.");
+    options.logger(SentryLevel.debug, "$logName: stopping capture.");
+    _status = _Status.stopped;
+    await _stopScheduler();
+    _stabilizer.dispose();
+    // await Future.wait([_stopScheduler(), _idleFrameFiller.stop()]);
+    options.logger(SentryLevel.debug, "$logName: capture stopped.");
   }
 
-  Future<void> _capture(Duration sinceSchedulerEpoch) async =>
-      capture(_callback);
+  Future<void> pause() async {
+    if (_status == _Status.running) {
+      _status = _Status.paused;
+      // _idleFrameFiller.pause();
+      await _stopScheduler();
+    }
+  }
+
+  Future<void> resume() async {
+    if (_status == _Status.paused) {
+      _status = _Status.running;
+      _startScheduler();
+      // _idleFrameFiller.resume();
+    }
+  }
+
+  Future<void> _onImageCaptured(Screenshot screenshot) async {
+    if (_status == _Status.running) {
+      await _onScreenshot(screenshot, true);
+      // _idleFrameFiller.actualFrameReceived(screenshot);
+    } else {
+      // drop any screenshots from callbacks if the replay has already been stopped/paused.
+      options.logger(SentryLevel.debug,
+          '$logName: screenshot dropped because status=${_status.name}.');
+    }
+  }
+
+  Future<void> _onScreenshot(
+      Screenshot screenshot, bool isNewlyCaptured) async {
+    if (_status == _Status.running) {
+      await _callback(screenshot, isNewlyCaptured);
+    } else {
+      // drop any screenshots from callbacks if the replay has already been stopped/paused.
+      options.logger(SentryLevel.debug,
+          '$logName: screenshot dropped because status=${_status.name}.');
+    }
+  }
 }
+
+// TODO this is currently unused because we've decided to capture on every
+//      frame. Consider removing if we don't reverse the decision in the future.
+
+// /// Workaround for https://github.com/getsentry/sentry-java/issues/3677
+// /// In short: when there are no postFrameCallbacks issued by Flutter (because
+// /// there are no animations or user interactions), the replay recorder will
+// /// need to get screenshots at a fixed frame rate. This class is responsible for
+// /// filling the gaps between actual frames with the most recent frame.
+// class _IdleFrameFiller {
+//   final Duration _interval;
+//   final ScheduledScreenshotRecorderCallback _callback;
+//   var _status = _Status.running;
+//   Future<void>? _scheduled;
+//   Screenshot? _mostRecent;
+
+//   _IdleFrameFiller(this._interval, this._callback);
+
+//   void actualFrameReceived(Screenshot screenshot) {
+//     // We store the most recent frame but only repost it when the most recent
+//     // one is the same instance (unchanged).
+//     _mostRecent = screenshot;
+//     // Also, the initial reposted frame will be delayed to allow actual frames
+//     // to cancel the reposting.
+//     repostLater(_interval * 1.5, screenshot);
+//   }
+
+//   Future<void> stop() async {
+//     _status = _Status.stopped;
+//     final scheduled = _scheduled;
+//     _scheduled = null;
+//     _mostRecent = null;
+//     await scheduled;
+//   }
+
+//   void pause() {
+//     if (_status == _Status.running) {
+//       _status = _Status.paused;
+//     }
+//   }
+
+//   void resume() {
+//     if (_status == _Status.paused) {
+//       _status = _Status.running;
+//     }
+//   }
+
+//   void repostLater(Duration delay, Screenshot screenshot) {
+//     _scheduled = Future.delayed(delay, () async {
+//       if (_status == _Status.stopped) {
+//         return;
+//       }
+
+//       // Only repost if the screenshot haven't changed.
+//       if (screenshot == _mostRecent) {
+//         if (_status == _Status.running) {
+//           // We don't strictly need to await here but it helps to reduce load.
+//           // If the callback takes a long time, we still wait between calls,
+//           // based on the configured rate.
+//           await _callback(screenshot, false);
+//         }
+//         // On subsequent frames, we stick to the actual frame rate.
+//         repostLater(_interval, screenshot);
+//       }
+//     });
+//   }
+// }
+
+enum _Status { stopped, running, paused }
