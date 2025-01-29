@@ -151,7 +151,7 @@ class SentryAssetBundle implements AssetBundle {
       // the completer.
       // ignore: unawaited_futures
       runZonedGuarded(() async {
-        final data = await loadStructuredBinaryData(
+        final data = await _bundle.loadStructuredBinaryData<T>(
           key,
           (value) async => await _wrapBinaryParsing(parser, value, key, span),
         );
