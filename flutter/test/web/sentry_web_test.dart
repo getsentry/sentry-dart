@@ -1,5 +1,5 @@
 @TestOn('browser')
-library flutter_test;
+library;
 
 import 'dart:typed_data';
 
