@@ -1,5 +1,4 @@
 import 'package:meta/meta.dart';
-
 import 'protocol.dart';
 import 'scope.dart';
 import 'sentry_options.dart';

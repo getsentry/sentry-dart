@@ -31,9 +31,9 @@ class SentryTracesSampler {
     final tracesSampler = _options.tracesSampler;
     if (tracesSampler != null) {
       try {
-        final result = tracesSampler(samplingContext);
-        if (result != null) {
-          return _decideSampling(result);
+        final sampleRate = tracesSampler(samplingContext);
+        if (sampleRate != null) {
+          return _makeSampleDecision(sampleRate);
         }
       } catch (exception, stackTrace) {
         _options.logger(
@@ -61,7 +61,7 @@ class SentryTracesSampler {
     double? optionsOrDefaultRate = optionsRate ?? defaultRate;
 
     if (optionsOrDefaultRate != null) {
-      return _decideSampling(optionsOrDefaultRate);
+      return _makeSampleDecision(optionsOrDefaultRate);
     }
 
     return SentryTracesSamplingDecision(false);
@@ -72,18 +72,17 @@ class SentryTracesSampler {
     if (optionsRate == null || !tracesSamplingDecision.sampled) {
       return false;
     }
-    return _shouldSample(optionsRate);
+    return _isSampled(optionsRate);
   }
 
-  SentryTracesSamplingDecision _decideSampling(double sampleRate) {
+  SentryTracesSamplingDecision _makeSampleDecision(double sampleRate) {
     final sampleRand = _random.nextDouble();
-    return SentryTracesSamplingDecision(
-        _shouldSample(sampleRate, sampleRand: sampleRand),
-        sampleRate: sampleRate,
-        sampleRand: sampleRand);
+    final sampled = _isSampled(sampleRate, sampleRand: sampleRand);
+    return SentryTracesSamplingDecision(sampled,
+        sampleRate: sampleRate, sampleRand: sampleRand);
   }
 
-  bool _shouldSample(double sampleRate, {double? sampleRand}) {
+  bool _isSampled(double sampleRate, {double? sampleRand}) {
     final rand = sampleRand ?? _random.nextDouble();
     return rand <= sampleRate;
   }
