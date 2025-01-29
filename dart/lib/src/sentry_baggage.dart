@@ -1,11 +1,13 @@
 import 'package:meta/meta.dart';
-import 'scope.dart';
-import 'protocol.dart';
 
+import 'protocol.dart';
+import 'scope.dart';
 import 'sentry_options.dart';
 
 class SentryBaggage {
   static const String _sampleRateKeyName = 'sentry-sample_rate';
+  static const String _sampleRandKeyName = 'sentry-sample_rand';
+
   static const int _maxChars = 8192;
   static const int _maxListMember = 64;
 
@@ -194,6 +196,10 @@ class SentryBaggage {
     set(_sampleRateKeyName, value);
   }
 
+  void setSampleRand(String value) {
+    set(_sampleRandKeyName, value);
+  }
+
   void setSampled(String value) {
     set('sentry-sampled', value);
   }
@@ -205,6 +211,15 @@ class SentryBaggage {
     }
 
     return double.tryParse(sampleRate);
+  }
+
+  double? getSampleRand() {
+    final sampleRand = get(_sampleRandKeyName);
+    if (sampleRand == null) {
+      return null;
+    }
+
+    return double.tryParse(sampleRand);
   }
 
   void setReplayId(String value) => set('sentry-replay_id', value);

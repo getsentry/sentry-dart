@@ -385,6 +385,7 @@ class SentryTracer extends ISentrySpan {
       transaction:
           _isHighQualityTransactionName(transactionNameSource) ? name : null,
       sampleRate: _sampleRateToString(_rootSpan.samplingDecision?.sampleRate),
+      sampleRand: _sampleRateToString(_rootSpan.samplingDecision?.sampleRand),
       sampled: _rootSpan.samplingDecision?.sampled.toString(),
     );
 

@@ -1,8 +1,8 @@
 import 'package:meta/meta.dart';
-import 'sentry_trace_origins.dart';
 
 import 'protocol.dart';
 import 'sentry_baggage.dart';
+import 'sentry_trace_origins.dart';
 import 'tracing.dart';
 
 @immutable
@@ -35,6 +35,7 @@ class SentryTransactionContext extends SentrySpanContext {
     SentryBaggage? baggage,
   }) {
     final sampleRate = baggage?.getSampleRate();
+    final sampleRand = baggage?.getSampleRand();
     return SentryTransactionContext(
       name,
       operation,
@@ -44,6 +45,7 @@ class SentryTransactionContext extends SentrySpanContext {
           ? SentryTracesSamplingDecision(
               traceHeader.sampled!,
               sampleRate: sampleRate,
+              sampleRand: sampleRand,
             )
           : null,
       transactionNameSource:
