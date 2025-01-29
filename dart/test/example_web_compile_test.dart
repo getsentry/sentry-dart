@@ -1,11 +1,10 @@
 @TestOn('vm')
-library dart_test;
+library;
 
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:version/version.dart';
 import 'package:test/test.dart';
 
 // Tests for the following issue

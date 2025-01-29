@@ -1,5 +1,5 @@
 /// A Flutter client for Sentry.io crash reporting.
-library sentry_flutter;
+library;
 
 // ignore: invalid_export_of_internal_element
 export 'package:sentry/sentry.dart';

@@ -6,7 +6,7 @@
 /// tool used to submit events to Sentry.io.
 ///
 /// This library contains Sentry.io SDK constants used by this package.
-library version;
+library;
 
 /// The SDK version reported to Sentry.io in the submitted events.
 const String sdkVersion = '8.11.0-beta.1';

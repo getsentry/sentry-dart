@@ -251,7 +251,7 @@ class SentryAssetBundle implements AssetBundle {
 
       ImmutableBuffer data;
       try {
-        data = await _bundle.loadBuffer(key);;
+        data = await _bundle.loadBuffer(key);
         _setDataLength(data, span);
         span?.status = SpanStatus.ok();
       } catch (exception) {
