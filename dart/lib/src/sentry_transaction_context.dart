@@ -8,20 +8,20 @@ import 'tracing.dart';
 @immutable
 class SentryTransactionContext extends SentrySpanContext {
   final String name;
-  final SentryTracesSamplingDecision? parentSamplingDecision;
   final SentryTransactionNameSource? transactionNameSource;
   final SentryTracesSamplingDecision? samplingDecision;
+  final SentryTracesSamplingDecision? parentSamplingDecision;
 
   SentryTransactionContext(
     this.name,
     String operation, {
     super.description,
-    this.parentSamplingDecision,
     super.traceId,
     super.spanId,
     super.parentSpanId,
     this.transactionNameSource,
     this.samplingDecision,
+    this.parentSamplingDecision,
     super.origin,
   }) : super(
           operation: operation,

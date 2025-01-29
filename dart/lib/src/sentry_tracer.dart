@@ -385,7 +385,7 @@ class SentryTracer extends ISentrySpan {
       transaction:
           _isHighQualityTransactionName(transactionNameSource) ? name : null,
       sampleRate: _sampleRateToString(_rootSpan.samplingDecision?.sampleRate),
-      sampleRand: _sampleRateToString(_rootSpan.samplingDecision?.sampleRand),
+      sampleRand: _sampleRandToString(_rootSpan.samplingDecision?.sampleRand),
       sampled: _rootSpan.samplingDecision?.sampled.toString(),
     );
 
@@ -397,6 +397,13 @@ class SentryTracer extends ISentrySpan {
       return null;
     }
     return sampleRate != null ? SampleRateFormat().format(sampleRate) : null;
+  }
+
+  String? _sampleRandToString(double? sampleRand) {
+    if (!isValidSampleRand(sampleRand)) {
+      return null;
+    }
+    return sampleRand != null ? SampleRateFormat().format(sampleRand) : null;
   }
 
   bool _isHighQualityTransactionName(SentryTransactionNameSource source) {

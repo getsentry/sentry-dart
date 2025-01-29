@@ -105,7 +105,7 @@ class SentryTraceContextHeader {
       baggage.setSampleRate(sampleRate!);
     }
     if (sampleRand != null) {
-      baggage.setSampleRate(sampleRand!);
+      baggage.setSampleRand(sampleRand!);
     }
     if (sampled != null) {
       baggage.setSampled(sampled!);
@@ -118,6 +118,7 @@ class SentryTraceContextHeader {
 
   factory SentryTraceContextHeader.fromBaggage(SentryBaggage baggage) {
     return SentryTraceContextHeader(
+      // TODO: implement and use proper get methods here
       SentryId.fromId(baggage.get('sentry-trace_id').toString()),
       baggage.get('sentry-public_key').toString(),
       release: baggage.get('sentry-release'),
