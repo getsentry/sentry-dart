@@ -39,8 +39,8 @@ void main() {
             reason:
                 'Could not compile main.dart, likely because of dart:io import.');
         expect(
-            compileResult.stdout,
-            contains('build_web_compilers:entrypoint on web/main.dart:Compiled'),
+          compileResult.stdout,
+          contains('build_web_compilers:entrypoint on web/main.dart:Compiled'),
         );
       },
       timeout: Timeout(const Duration(minutes: 1)), // double of detault timeout
