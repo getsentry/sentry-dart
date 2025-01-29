@@ -62,7 +62,7 @@ mixin SentryFlutter {
     if (options.platformChecker.hasNativeIntegration) {
       _native = createBinding(options);
     }
-    
+
     // Flutter Web don't capture [Future] errors if using [PlatformDispatcher.onError] and not
     // the [runZonedGuarded].
     // likely due to https://github.com/flutter/flutter/issues/100277

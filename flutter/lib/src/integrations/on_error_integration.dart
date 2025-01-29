@@ -111,7 +111,7 @@ class PlatformDispatcherWrapper {
   PlatformDispatcherWrapper(this._dispatcher);
 
   final PlatformDispatcher? _dispatcher;
-  
+
   ErrorCallback? get onError => _dispatcher?.onError;
 
   set onError(ErrorCallback? callback) {

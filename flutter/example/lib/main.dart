@@ -347,12 +347,10 @@ class MainScaffold extends StatelessWidget {
             ),
             TooltipButton(
               onPressed: () {
-                WidgetsBinding.instance.platformDispatcher
-                    .onError
-                    ?.call(
-                      Exception('PlatformDispatcher.onError'),
-                      StackTrace.current,
-                    );
+                WidgetsBinding.instance.platformDispatcher.onError?.call(
+                  Exception('PlatformDispatcher.onError'),
+                  StackTrace.current,
+                );
               },
               text:
                   'This requires additional setup: options.addIntegration(OnErrorIntegration());',
