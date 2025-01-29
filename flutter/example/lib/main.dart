@@ -347,10 +347,7 @@ class MainScaffold extends StatelessWidget {
             ),
             TooltipButton(
               onPressed: () {
-                // Only usable on Flutter >= 3.3
-                // and needs the following additional setup:
-                // options.addIntegration(OnErrorIntegration());
-                (WidgetsBinding.instance.platformDispatcher as dynamic)
+                WidgetsBinding.instance.platformDispatcher
                     .onError
                     ?.call(
                       Exception('PlatformDispatcher.onError'),
@@ -358,7 +355,7 @@ class MainScaffold extends StatelessWidget {
                     );
               },
               text:
-                  'This is only usable on Flutter >= 3.3 and requires additional setup: options.addIntegration(OnErrorIntegration());',
+                  'This requires additional setup: options.addIntegration(OnErrorIntegration());',
               buttonTitle: 'Capture from PlatformDispatcher.onError',
             ),
             TooltipButton(
@@ -715,17 +712,6 @@ class MainScaffold extends StatelessWidget {
     await db.close();
 
     await tr.finish(status: const SpanStatus.ok());
-  }
-}
-
-extension BuildContextExtension on BuildContext {
-  bool get isMounted {
-    try {
-      return (this as dynamic).mounted;
-    } on NoSuchMethodError catch (_) {
-      // ignore, only available in newer Flutter versions
-    }
-    return true;
   }
 }
 
