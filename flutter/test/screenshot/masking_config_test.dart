@@ -3,14 +3,15 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/screenshot/masking_config.dart';
 
+import '../mocks.dart';
 import 'test_widget.dart';
 
 void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   final alwaysEnabledRules = [
-    '$SentryMaskingConstantRule<$SentryMask>(mask)',
-    '$SentryMaskingConstantRule<$SentryUnmask>(unmask)',
+    'SentryMaskingConstantRule<SentryMask>(mask)',
+    'SentryMaskingConstantRule<SentryUnmask>(unmask)',
   ];
 
   testWidgets('will not mask if there are no rules', (tester) async {
@@ -26,26 +27,25 @@ void main() async {
     SentryMaskingDecision.mask,
     SentryMaskingDecision.unmask
   ]) {
-    group('$SentryMaskingConstantRule($value)', () {
+    group('SentryMaskingConstantRule($value)', () {
+      final rule = SentryMaskingConstantRule<Image>(
+        mask: value == SentryMaskingDecision.mask,
+        name: 'Image',
+      );
+      final sut = SentryMaskingConfig([rule]);
       testWidgets('will mask widget by type', (tester) async {
-        final sut =
-            SentryMaskingConfig([SentryMaskingConstantRule<Image>(value)]);
         final rootElement = await pumpTestElement(tester);
         final element = rootElement.findFirstOfType<Image>();
         expect(sut.shouldMask(element, element.widget), value);
       });
 
       testWidgets('will mask subtype widget by type', (tester) async {
-        final sut =
-            SentryMaskingConfig([SentryMaskingConstantRule<Image>(value)]);
         final rootElement = await pumpTestElement(tester);
         final element = rootElement.findFirstOfType<CustomImageWidget>();
         expect(sut.shouldMask(element, element.widget), value);
       });
 
       testWidgets('will not mask widget of a different type', (tester) async {
-        final sut =
-            SentryMaskingConfig([SentryMaskingConstantRule<Image>(value)]);
         final rootElement = await pumpTestElement(tester);
         final element = rootElement.findFirstOfType<Text>();
         expect(sut.shouldMask(element, element.widget),
@@ -54,14 +54,18 @@ void main() async {
     });
   }
 
-  group('$SentryMaskingCustomRule', () {
+  group('SentryMaskingCustomRule', () {
     testWidgets('only called for specified type', (tester) async {
       final called = <Type, int>{};
       final sut = SentryMaskingConfig([
-        SentryMaskingCustomRule<Image>((e, w) {
-          called[w.runtimeType] = (called[w.runtimeType] ?? 0) + 1;
-          return SentryMaskingDecision.continueProcessing;
-        })
+        SentryMaskingCustomRule<Image>(
+          callback: (e, w) {
+            called[w.runtimeType] = (called[w.runtimeType] ?? 0) + 1;
+            return SentryMaskingDecision.continueProcessing;
+          },
+          name: 'Image',
+          description: 'custom callback',
+        ),
       ]);
       final rootElement = await pumpTestElement(tester);
       for (final element in rootElement.findAllChildren()) {
@@ -76,9 +80,20 @@ void main() async {
     testWidgets('stops iteration on the first "mask" rule', (tester) async {
       final sut = SentryMaskingConfig([
         SentryMaskingCustomRule<Image>(
-            (e, w) => SentryMaskingDecision.continueProcessing),
-        SentryMaskingCustomRule<Image>((e, w) => SentryMaskingDecision.mask),
-        SentryMaskingCustomRule<Image>((e, w) => fail('should not be called'))
+          callback: (e, w) => SentryMaskingDecision.continueProcessing,
+          name: 'Image',
+          description: 'custom callback',
+        ),
+        SentryMaskingCustomRule<Image>(
+          callback: (e, w) => SentryMaskingDecision.mask,
+          name: 'Image',
+          description: 'custom callback',
+        ),
+        SentryMaskingCustomRule<Image>(
+          callback: (e, w) => fail('should not be called'),
+          name: 'Image',
+          description: 'custom callback',
+        ),
       ]);
       final rootElement = await pumpTestElement(tester);
       final element = rootElement.findFirstOfType<Image>();
@@ -89,9 +104,20 @@ void main() async {
     testWidgets('stops iteration on first "unmask" rule', (tester) async {
       final sut = SentryMaskingConfig([
         SentryMaskingCustomRule<Image>(
-            (e, w) => SentryMaskingDecision.continueProcessing),
-        SentryMaskingCustomRule<Image>((e, w) => SentryMaskingDecision.unmask),
-        SentryMaskingCustomRule<Image>((e, w) => fail('should not be called'))
+          callback: (e, w) => SentryMaskingDecision.continueProcessing,
+          name: 'Image',
+          description: 'custom callback',
+        ),
+        SentryMaskingCustomRule<Image>(
+          callback: (e, w) => SentryMaskingDecision.unmask,
+          name: 'Image',
+          description: 'custom callback',
+        ),
+        SentryMaskingCustomRule<Image>(
+          callback: (e, w) => fail('should not be called'),
+          name: 'Image',
+          description: 'custom callback',
+        )
       ]);
       final rootElement = await pumpTestElement(tester);
       final element = rootElement.findFirstOfType<Image>();
@@ -102,9 +128,15 @@ void main() async {
     testWidgets('retuns false if no rule matches', (tester) async {
       final sut = SentryMaskingConfig([
         SentryMaskingCustomRule<Image>(
-            (e, w) => SentryMaskingDecision.continueProcessing),
+          callback: (e, w) => SentryMaskingDecision.continueProcessing,
+          name: 'Image',
+          description: 'custom callback',
+        ),
         SentryMaskingCustomRule<Image>(
-            (e, w) => SentryMaskingDecision.continueProcessing),
+          callback: (e, w) => SentryMaskingDecision.continueProcessing,
+          name: 'Image',
+          description: 'custom callback',
+        ),
       ]);
       final rootElement = await pumpTestElement(tester);
       final element = rootElement.findFirstOfType<Image>();
@@ -115,15 +147,14 @@ void main() async {
 
   group('$SentryReplayOptions.buildMaskingConfig()', () {
     List<String> rulesAsStrings(SentryPrivacyOptions options) {
-      final config = options.buildMaskingConfig();
+      final config =
+          options.buildMaskingConfig(MockLogger().call, PlatformChecker());
       return config.rules
           .map((rule) => rule.toString())
           // These normalize the string on VM & js & wasm:
           .map((str) => str.replaceAll(
-              RegExp(
-                  r"SentryMaskingDecision from:? [fF]unction '?_maskImagesExceptAssets[@(].*",
-                  dotAll: true),
-              'SentryMaskingDecision)'))
+              RegExp(r"=> SentryMaskingDecision from:? .*", dotAll: true),
+              '=> SentryMaskingDecision)'))
           .map((str) => str.replaceAll(
               ' from: (element, widget) => masking_config.SentryMaskingDecision.mask',
               ''))
@@ -134,9 +165,10 @@ void main() async {
       final sut = SentryPrivacyOptions();
       expect(rulesAsStrings(sut), [
         ...alwaysEnabledRules,
-        '$SentryMaskingCustomRule<$Image>(Closure: (Element, Widget) => SentryMaskingDecision)',
-        '$SentryMaskingConstantRule<$Text>(mask)',
-        '$SentryMaskingConstantRule<$EditableText>(mask)'
+        'SentryMaskingCustomRule<Image>(Mask all images except asset images.)',
+        'SentryMaskingConstantRule<Text>(mask)',
+        'SentryMaskingConstantRule<EditableText>(mask)',
+        'SentryMaskingCustomRule<Widget>(Debug-mode-only warning for potentially sensitive widgets.)'
       ]);
     });
 
@@ -147,7 +179,8 @@ void main() async {
         ..maskAssetImages = true;
       expect(rulesAsStrings(sut), [
         ...alwaysEnabledRules,
-        '$SentryMaskingConstantRule<$Image>(mask)',
+        'SentryMaskingConstantRule<Image>(mask)',
+        'SentryMaskingCustomRule<Widget>(Debug-mode-only warning for potentially sensitive widgets.)'
       ]);
     });
 
@@ -158,7 +191,8 @@ void main() async {
         ..maskAssetImages = false;
       expect(rulesAsStrings(sut), [
         ...alwaysEnabledRules,
-        '$SentryMaskingCustomRule<$Image>(Closure: (Element, Widget) => SentryMaskingDecision)',
+        'SentryMaskingCustomRule<Image>(Mask all images except asset images.)',
+        'SentryMaskingCustomRule<Widget>(Debug-mode-only warning for potentially sensitive widgets.)'
       ]);
     });
 
@@ -169,8 +203,9 @@ void main() async {
         ..maskAssetImages = false;
       expect(rulesAsStrings(sut), [
         ...alwaysEnabledRules,
-        '$SentryMaskingConstantRule<$Text>(mask)',
-        '$SentryMaskingConstantRule<$EditableText>(mask)',
+        'SentryMaskingConstantRule<Text>(mask)',
+        'SentryMaskingConstantRule<EditableText>(mask)',
+        'SentryMaskingCustomRule<Widget>(Debug-mode-only warning for potentially sensitive widgets.)'
       ]);
     });
 
@@ -179,43 +214,47 @@ void main() async {
         ..maskAllText = false
         ..maskAllImages = false
         ..maskAssetImages = false;
-      expect(rulesAsStrings(sut), alwaysEnabledRules);
+      expect(rulesAsStrings(sut), [
+        ...alwaysEnabledRules,
+        'SentryMaskingCustomRule<Widget>(Debug-mode-only warning for potentially sensitive widgets.)'
+      ]);
     });
 
     group('user rules', () {
       final defaultRules = [
         ...alwaysEnabledRules,
-        '$SentryMaskingCustomRule<$Image>(Closure: (Element, Widget) => SentryMaskingDecision)',
-        '$SentryMaskingConstantRule<$Text>(mask)',
-        '$SentryMaskingConstantRule<$EditableText>(mask)'
+        'SentryMaskingCustomRule<Image>(Mask all images except asset images.)',
+        'SentryMaskingConstantRule<Text>(mask)',
+        'SentryMaskingConstantRule<EditableText>(mask)',
+        'SentryMaskingCustomRule<Widget>(Debug-mode-only warning for potentially sensitive widgets.)'
       ];
       test('mask() takes precedence', () {
         final sut = SentryPrivacyOptions();
         sut.mask<Image>();
         expect(rulesAsStrings(sut),
-            ['$SentryMaskingConstantRule<$Image>(mask)', ...defaultRules]);
+            ['SentryMaskingConstantRule<Image>(mask)', ...defaultRules]);
       });
       test('unmask() takes precedence', () {
         final sut = SentryPrivacyOptions();
         sut.unmask<Image>();
         expect(rulesAsStrings(sut),
-            ['$SentryMaskingConstantRule<$Image>(unmask)', ...defaultRules]);
+            ['SentryMaskingConstantRule<Image>(unmask)', ...defaultRules]);
       });
       test('are ordered in the call order', () {
         var sut = SentryPrivacyOptions();
         sut.mask<Image>();
         sut.unmask<Image>();
         expect(rulesAsStrings(sut), [
-          '$SentryMaskingConstantRule<$Image>(mask)',
-          '$SentryMaskingConstantRule<$Image>(unmask)',
+          'SentryMaskingConstantRule<Image>(mask)',
+          'SentryMaskingConstantRule<Image>(unmask)',
           ...defaultRules
         ]);
         sut = SentryPrivacyOptions();
         sut.unmask<Image>();
         sut.mask<Image>();
         expect(rulesAsStrings(sut), [
-          '$SentryMaskingConstantRule<$Image>(unmask)',
-          '$SentryMaskingConstantRule<$Image>(mask)',
+          'SentryMaskingConstantRule<Image>(unmask)',
+          'SentryMaskingConstantRule<Image>(mask)',
           ...defaultRules
         ]);
         sut = SentryPrivacyOptions();
@@ -224,9 +263,9 @@ void main() async {
             (Element element, Image widget) => SentryMaskingDecision.mask);
         sut.mask<Image>();
         expect(rulesAsStrings(sut), [
-          '$SentryMaskingConstantRule<$Image>(unmask)',
-          '$SentryMaskingCustomRule<$Image>(Closure: ($Element, $Image) => $SentryMaskingDecision)',
-          '$SentryMaskingConstantRule<$Image>(mask)',
+          'SentryMaskingConstantRule<Image>(unmask)',
+          'SentryMaskingCustomRule<Image>(Custom callback-based rule (description unspecified))',
+          'SentryMaskingConstantRule<Image>(mask)',
           ...defaultRules
         ]);
       });
@@ -235,7 +274,7 @@ void main() async {
         sut.maskCallback(
             (Element element, Image widget) => SentryMaskingDecision.mask);
         expect(rulesAsStrings(sut), [
-          '$SentryMaskingCustomRule<$Image>(Closure: ($Element, $Image) => $SentryMaskingDecision)',
+          'SentryMaskingCustomRule<Image>(Custom callback-based rule (description unspecified))',
           ...defaultRules
         ]);
       });

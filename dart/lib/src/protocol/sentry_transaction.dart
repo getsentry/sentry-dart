@@ -1,9 +1,9 @@
 import 'package:meta/meta.dart';
 
 import '../protocol.dart';
+import '../sentry_measurement.dart';
 import '../sentry_tracer.dart';
 import '../utils.dart';
-import '../sentry_measurement.dart';
 
 @immutable
 class SentryTransaction extends SentryEvent {
@@ -13,7 +13,6 @@ class SentryTransaction extends SentryEvent {
   @internal
   final SentryTracer tracer;
   late final Map<String, SentryMeasurement> measurements;
-  late final Map<String, List<MetricSummary>>? metricSummaries;
   late final SentryTransactionInfo? transactionInfo;
 
   SentryTransaction(
@@ -38,7 +37,6 @@ class SentryTransaction extends SentryEvent {
     super.request,
     String? type,
     Map<String, SentryMeasurement>? measurements,
-    Map<String, List<MetricSummary>>? metricSummaries,
     SentryTransactionInfo? transactionInfo,
   }) : super(
           timestamp: timestamp ?? tracer.endTimestamp,
@@ -54,8 +52,6 @@ class SentryTransaction extends SentryEvent {
     final spanContext = tracer.context;
     spans = tracer.children;
     this.measurements = measurements ?? {};
-    this.metricSummaries =
-        metricSummaries ?? tracer.localMetricsAggregator?.getSummaries();
 
     final data = extra ?? tracer.data;
     contexts.trace = spanContext.toTraceContext(
@@ -89,16 +85,6 @@ class SentryTransaction extends SentryEvent {
     final transactionInfo = this.transactionInfo;
     if (transactionInfo != null) {
       json['transaction_info'] = transactionInfo.toJson();
-    }
-
-    final metricSummariesMap = metricSummaries?.entries ?? Iterable.empty();
-    if (metricSummariesMap.isNotEmpty) {
-      final map = <String, dynamic>{};
-      for (final entry in metricSummariesMap) {
-        final summary = entry.value.map((e) => e.toJson());
-        map[entry.key] = summary.toList(growable: false);
-      }
-      json['_metrics_summary'] = map;
     }
 
     return json;
@@ -139,7 +125,6 @@ class SentryTransaction extends SentryEvent {
     List<SentryThread>? threads,
     String? type,
     Map<String, SentryMeasurement>? measurements,
-    Map<String, List<MetricSummary>>? metricSummaries,
     SentryTransactionInfo? transactionInfo,
   }) =>
       SentryTransaction(
@@ -165,9 +150,6 @@ class SentryTransaction extends SentryEvent {
         type: type ?? this.type,
         measurements: (measurements != null ? Map.from(measurements) : null) ??
             this.measurements,
-        metricSummaries:
-            (metricSummaries != null ? Map.from(metricSummaries) : null) ??
-                this.metricSummaries,
         transactionInfo: transactionInfo ?? this.transactionInfo,
       );
 }

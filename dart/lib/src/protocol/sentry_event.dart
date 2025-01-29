@@ -1,5 +1,5 @@
-import 'package:meta/meta.dart';
 import 'package:collection/collection.dart';
+import 'package:meta/meta.dart';
 
 import '../protocol.dart';
 import '../throwable_mechanism.dart';

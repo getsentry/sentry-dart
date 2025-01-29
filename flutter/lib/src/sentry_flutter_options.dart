@@ -3,15 +3,15 @@ import 'dart:async';
 import 'package:file/file.dart';
 import 'package:file/local.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart' as meta;
 import 'package:sentry/sentry.dart';
-import 'package:flutter/widgets.dart';
 
 import 'binding_wrapper.dart';
+import 'event_processor/screenshot_event_processor.dart';
 import 'navigation/time_to_display_tracker.dart';
 import 'renderer/renderer.dart';
 import 'screenshot/sentry_screenshot_quality.dart';
-import 'event_processor/screenshot_event_processor.dart';
 import 'sentry_flutter.dart';
 import 'sentry_privacy_options.dart';
 import 'sentry_replay_options.dart';
@@ -196,10 +196,14 @@ class SentryFlutterOptions extends SentryOptions {
   /// See https://docs.sentry.io/platforms/flutter/troubleshooting/#screenshot-integration-background-crash
   bool attachScreenshotOnlyWhenResumed = false;
 
+  @Deprecated(
+      'Will be removed in a future version. Use [beforeCaptureScreenshot] instead')
+  BeforeScreenshotCallback? beforeScreenshot;
+
   /// Sets a callback which is executed before capturing screenshots. Only
   /// relevant if `attachScreenshot` is set to true. When false is returned
   /// from the function, no screenshot will be attached.
-  BeforeScreenshotCallback? beforeScreenshot;
+  BeforeCaptureCallback? beforeCaptureScreenshot;
 
   /// Enable or disable automatic breadcrumbs for User interactions Using [Listener]
   ///
@@ -237,10 +241,16 @@ class SentryFlutterOptions extends SentryOptions {
 
   /// Enables the View Hierarchy feature.
   ///
-  /// Renders an ASCII represention of the entire view hierarchy of the
+  /// Renders an ASCII representation of the entire view hierarchy of the
   /// application when an error happens and includes it as an attachment.
   @meta.experimental
   bool attachViewHierarchy = false;
+
+  /// Sets a callback which is executed before capturing view hierarchy. Only
+  /// relevant if `attachViewHierarchy` is set to true. When false is returned
+  /// from the function, no view hierarchy will be attached.
+  @meta.experimental
+  BeforeCaptureCallback? beforeCaptureViewHierarchy;
 
   /// Enables collection of view hierarchy element identifiers.
   ///
@@ -287,6 +297,13 @@ class SentryFlutterOptions extends SentryOptions {
   /// Note: If you call `WidgetsFlutterBinding.ensureInitialized()` before `SentryFlutter.init()`,
   /// you must use `SentryWidgetsFlutterBinding.ensureInitialized()` instead.
   bool enableFramesTracking = true;
+
+  /// Controls initialization of the Sentry Javascript SDK on web platforms.
+  /// When enabled and [autoInitializeNativeSdk] is true, loads and initializes
+  /// the JS SDK in the document head.
+  ///
+  /// Defaults to `false`
+  bool enableSentryJs = false;
 
   /// By using this, you are disabling native [Breadcrumb] tracking and instead
   /// you are just tracking [Breadcrumb]s which result from events available
@@ -417,9 +434,34 @@ class _SentryFlutterExperimentalOptions {
       _privacy ?? SentryPrivacyOptions();
 }
 
-/// Callback being executed in [ScreenshotEventProcessor], deciding if a
-/// screenshot should be recorded and attached.
-typedef BeforeScreenshotCallback = FutureOr<bool> Function(
-  SentryEvent event, {
-  Hint? hint,
-});
+@Deprecated(
+    'Will be removed in a future version. Use [BeforeCaptureCallback] instead')
+typedef BeforeScreenshotCallback = FutureOr<bool> Function(SentryEvent event,
+    {Hint? hint});
+
+/// A callback which can be used to suppress capturing of screenshots.
+/// It's called in [ScreenshotEventProcessor] if screenshots are enabled.
+/// This gives more fine-grained control over when capturing should be performed,
+/// e.g., only capture screenshots for fatal events or override any debouncing for important events.
+///
+/// Since capturing can be resource-intensive, the debounce parameter should be respected if possible.
+///
+/// Example:
+/// ```dart
+/// if (debounce) {
+///   return false;
+/// } else {
+///   // check event and hint
+/// }
+/// ```
+///
+/// [event] is the event to be checked.
+/// [hint] provides additional hints.
+/// [debounce] indicates if capturing is marked for being debounced.
+///
+/// Returns `true` if capturing should be performed, otherwise `false`.
+typedef BeforeCaptureCallback = FutureOr<bool> Function(
+  SentryEvent event,
+  Hint hint,
+  bool debounce,
+);

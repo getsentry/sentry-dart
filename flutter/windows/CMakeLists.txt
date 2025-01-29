@@ -4,6 +4,14 @@
 # customers of the plugin.
 cmake_minimum_required(VERSION 3.14)
 
+if(FLUTTER_TARGET_PLATFORM EQUAL "windows-arm64")
+    set(native_backend "breakpad")
+else()
+    set(native_backend "crashpad")
+endif()
+
+set(SENTRY_BACKEND ${native_backend} CACHE STRING "The sentry backend responsible for reporting crashes" FORCE)
+
 include("${CMAKE_CURRENT_SOURCE_DIR}/../sentry-native/sentry-native.cmake")
 
 # Even though sentry_flutter doesn't actually provide a useful plugin, we need to accommodate the Flutter tooling.

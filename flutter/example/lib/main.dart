@@ -2,7 +2,6 @@
 
 import 'dart:async';
 import 'dart:convert';
-import 'dart:math';
 
 import 'package:dio/dio.dart';
 import 'package:feedback/feedback.dart' as feedback;
@@ -79,10 +78,10 @@ Future<void> setupSentry(
       // We can enable Sentry debug logging during development. This is likely
       // going to log too much for your app, but can be useful when figuring out
       // configuration issues, e.g. finding out why your events are not uploaded.
-      options.debug = true;
+      options.debug = kDebugMode;
       options.spotlight = Spotlight(enabled: true);
       options.enableTimeToFullDisplayTracing = true;
-      options.enableMetrics = true;
+      options.enableSentryJs = true;
 
       options.maxRequestBodySize = MaxRequestBodySize.always;
       options.maxResponseBodySize = MaxResponseBodySize.always;
@@ -525,41 +524,6 @@ class MainScaffold extends StatelessWidget {
                   'Demonstrates the logging integration. log.info() will create an info event send it to Sentry.',
               buttonTitle: 'Logging',
             ),
-            TooltipButton(
-              onPressed: () async {
-                final span = Sentry.getSpan() ??
-                    Sentry.startTransaction(
-                        'testMetrics', 'span summary example',
-                        bindToScope: true);
-                // ignore: deprecated_member_use
-                Sentry.metrics().increment('increment key',
-                    unit: DurationSentryMeasurementUnit.day);
-                // ignore: deprecated_member_use
-                Sentry.metrics().distribution('distribution key',
-                    value: Random().nextDouble() * 10);
-                // ignore: deprecated_member_use
-                Sentry.metrics().set('set int key',
-                    value: Random().nextInt(100),
-                    tags: {'myTag': 'myValue', 'myTag2': 'myValue2'});
-                // ignore: deprecated_member_use
-                Sentry.metrics().set('set string key',
-                    stringValue: 'Random n ${Random().nextInt(100)}');
-                // ignore: deprecated_member_use
-                Sentry.metrics()
-                    .gauge('gauge key', value: Random().nextDouble() * 10);
-                // ignore: deprecated_member_use
-                Sentry.metrics().timing(
-                  'timing key',
-                  function: () async => await Future.delayed(
-                      Duration(milliseconds: Random().nextInt(100)),
-                      () => span.finish()),
-                  unit: DurationSentryMeasurementUnit.milliSecond,
-                );
-              },
-              text:
-                  'Demonstrates the metrics. It creates several metrics and send them to Sentry.',
-              buttonTitle: 'Metrics',
-            ),
             if (UniversalPlatform.isIOS || UniversalPlatform.isMacOS)
               const CocoaExample(),
             if (UniversalPlatform.isAndroid) const AndroidExample(),
@@ -765,6 +729,7 @@ void navigateToAutoCloseScreen(BuildContext context) {
     context,
     MaterialPageRoute(
       settings: const RouteSettings(name: 'AutoCloseScreen'),
+      // ignore: deprecated_member_use
       builder: (context) => SentryDisplayWidget(child: const AutoCloseScreen()),
     ),
   );

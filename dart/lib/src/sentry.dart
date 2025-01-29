@@ -3,27 +3,27 @@ import 'dart:async';
 import 'package:meta/meta.dart';
 
 import 'dart_exception_type_identifier.dart';
-import 'load_dart_debug_images_integration.dart';
-import 'metrics/metrics_api.dart';
-import 'protocol/sentry_feedback.dart';
-import 'run_zoned_guarded_integration.dart';
-import 'event_processor/enricher/enricher_event_processor.dart';
 import 'environment/environment_variables.dart';
 import 'event_processor/deduplication_event_processor.dart';
-import 'hint.dart';
+import 'event_processor/enricher/enricher_event_processor.dart';
 import 'event_processor/exception/exception_event_processor.dart';
+import 'hint.dart';
 import 'hub.dart';
 import 'hub_adapter.dart';
 import 'integration.dart';
+import 'load_dart_debug_images_integration.dart';
 import 'noop_hub.dart';
 import 'noop_isolate_error_integration.dart'
     if (dart.library.io) 'isolate_error_integration.dart';
 import 'protocol.dart';
+import 'protocol/sentry_feedback.dart';
+import 'run_zoned_guarded_integration.dart';
+import 'sentry_attachment/sentry_attachment.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
+import 'sentry_run_zoned_guarded.dart';
 import 'sentry_user_feedback.dart';
 import 'tracing.dart';
-import 'sentry_attachment/sentry_attachment.dart';
 import 'transport/data_category.dart';
 import 'transport/task_queue.dart';
 
@@ -92,6 +92,14 @@ class Sentry {
       // catch any errors that may occur within the entry function, main()
       // in the ‘root zone’ where all Dart programs start
       options.addIntegrationByIndex(0, IsolateErrorIntegration());
+    }
+
+    if (options.platformChecker.isDebugMode()) {
+      options.debug = true;
+      options.logger(
+        SentryLevel.debug,
+        'Debug mode is enabled: Application is running in a debug environment.',
+      );
     }
 
     if (options.enableDartSymbolication) {
@@ -358,11 +366,47 @@ class Sentry {
   /// Gets the current active transaction or span bound to the scope.
   static ISentrySpan? getSpan() => _hub.getSpan();
 
-  /// Gets access to the metrics API for the current hub.
-  @Deprecated(
-      'Metrics will be deprecated and removed in the next major release. Sentry will reject all metrics sent after October 7, 2024. Learn more: https://sentry.zendesk.com/hc/en-us/articles/26369339769883-Upcoming-API-Changes-to-Metrics')
-  static MetricsApi metrics() => _hub.metricsApi;
-
   @internal
   static Hub get currentHub => _hub;
+
+  /// Creates a new error handling zone with Sentry integration using [runZonedGuarded].
+  ///
+  /// This method provides automatic error reporting and breadcrumb tracking while
+  /// allowing you to define a custom error handling zone. It wraps Dart's native
+  /// [runZonedGuarded] function with Sentry-specific functionality.
+  ///
+  /// This function automatically records calls to `print()` as Breadcrumbs and
+  /// can be configured using [SentryOptions.enablePrintBreadcrumbs].
+  ///
+  /// ```dart
+  /// Sentry.runZonedGuarded(() {
+  ///   WidgetsBinding.ensureInitialized();
+  ///
+  ///   // Errors before init will not be handled by Sentry
+  ///
+  ///   SentryFlutter.init(
+  ///     (options) {
+  ///     ...
+  ///     },
+  ///     appRunner: () => runApp(MyApp()),
+  ///   );
+  /// } (error, stackTrace) {
+  ///   // Automatically sends errors to Sentry, no need to do any
+  ///   // captureException calls on your part.
+  ///   // On top of that, you can do your own custom stuff in this callback.
+  /// });
+  /// ```
+  static runZonedGuarded<R>(
+    R Function() body,
+    void Function(Object error, StackTrace stack)? onError, {
+    Map<Object?, Object?>? zoneValues,
+    ZoneSpecification? zoneSpecification,
+  }) =>
+      SentryRunZonedGuarded.sentryRunZonedGuarded(
+        _hub,
+        body,
+        onError,
+        zoneValues: zoneValues,
+        zoneSpecification: zoneSpecification,
+      );
 }

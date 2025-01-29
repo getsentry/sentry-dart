@@ -1,18 +1,8 @@
+import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:sentry_flutter/src/file_system_transport.dart';
 import 'package:sentry_flutter/src/native/native_scope_observer.dart';
-
-void testTransport({
-  required Transport transport,
-  required bool hasFileSystemTransport,
-}) {
-  expect(
-    transport is FileSystemTransport,
-    hasFileSystemTransport,
-    reason: '$FileSystemTransport was wrongly set',
-  );
-}
 
 void testScopeObserver(
     {required SentryFlutterOptions options,
@@ -31,6 +21,7 @@ void testConfiguration({
   required Iterable<Integration> integrations,
   required Iterable<Type> shouldHaveIntegrations,
   required Iterable<Type> shouldNotHaveIntegrations,
+  SentryFlutterOptions? options,
 }) {
   final numberOfIntegrationsByType = <Type, int>{};
   for (var e in integrations) {
@@ -47,6 +38,16 @@ void testConfiguration({
   for (final type in shouldNotHaveIntegrations) {
     expect(integrations, isNot(contains(type)));
   }
+
+  Integration? nativeIntegration;
+  if (kIsWeb) {
+    nativeIntegration = integrations.firstWhereOrNull(
+        (x) => x.runtimeType.toString() == 'WebSdkIntegration');
+  } else {
+    nativeIntegration = integrations.firstWhereOrNull(
+        (x) => x.runtimeType.toString() == 'NativeSdkIntegration');
+  }
+  expect(nativeIntegration, isNotNull);
 }
 
 void testBefore({
@@ -54,9 +55,21 @@ void testBefore({
   required Type beforeIntegration,
   required Type afterIntegration,
 }) {
-  final beforeIndex = integrations
-      .indexWhere((element) => element.runtimeType == beforeIntegration);
-  final afterIndex = integrations
-      .indexWhere((element) => element.runtimeType == afterIntegration);
-  expect(beforeIndex < afterIndex, true);
+  expect(integrations.indexOfType(beforeIntegration),
+      lessThan(integrations.indexOfType(afterIntegration)));
+}
+
+extension ListExtension<T> on List<T> {
+  int indexOfType(Type type) {
+    final index = indexWhere((element) => element.runtimeType == type);
+    expect(index, greaterThanOrEqualTo(0), reason: '$type not found in $this');
+    return index;
+  }
+
+  int indexOfTypeString(String type) {
+    final index =
+        indexWhere((element) => element.runtimeType.toString() == type);
+    expect(index, greaterThanOrEqualTo(0), reason: '$type not found in $this');
+    return index;
+  }
 }

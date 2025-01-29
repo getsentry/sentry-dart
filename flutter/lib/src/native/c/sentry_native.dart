@@ -8,6 +8,7 @@ import 'package:ffi/ffi.dart';
 import 'package:meta/meta.dart';
 
 import '../../../sentry_flutter.dart';
+import '../../replay/replay_config.dart';
 import '../native_app_start.dart';
 import '../native_frames.dart';
 import '../sentry_native_binding.dart';
@@ -100,7 +101,12 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   @override
   FutureOr<void> captureEnvelope(
       Uint8List envelopeData, bool containsUnhandledException) {
-    throw UnsupportedError('$SentryNative.captureEnvelope() is not suppurted');
+    throw UnsupportedError('$SentryNative.captureEnvelope() is not supported');
+  }
+
+  @override
+  FutureOr<void> captureStructuredEnvelope(SentryEnvelope envelope) {
+    throw UnsupportedError("Not supported on this platform");
   }
 
   @override
@@ -266,6 +272,14 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   @override
   FutureOr<void> nativeCrash() {
     Pointer.fromAddress(1).cast<Utf8>().toDartString();
+  }
+
+  @override
+  bool get supportsReplay => false;
+
+  @override
+  FutureOr<void> setReplayConfig(ReplayConfig config) {
+    _logNotSupported('replay config');
   }
 
   @override

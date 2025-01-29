@@ -5,13 +5,11 @@ import 'dart:typed_data';
 // ignore: unnecessary_import
 import 'dart:ui';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
-
-typedef _StringParser<T> = Future<T> Function(String value);
-typedef _ByteParser<T> = FutureOr<T> Function(ByteData value);
 
 /// An [AssetBundle] which creates automatic performance traces for loading
 /// assets.
@@ -55,154 +53,186 @@ class SentryAssetBundle implements AssetBundle {
 
   @override
   Future<ByteData> load(String key) {
-    return Future<ByteData>(() async {
-      final span = _hub.getSpan()?.startChild(
-            'file.read',
-            description: 'AssetBundle.load: ${_fileName(key)}',
-          );
-
-      span?.setData('file.path', key);
-      // ignore: invalid_use_of_internal_member
-      span?.origin = SentryTraceOrigins.autoFileAssetBundle;
-
-      ByteData? data;
-      try {
-        data = await _bundle.load(key);
-        _setDataLength(data, span);
-        span?.status = SpanStatus.ok();
-      } catch (exception) {
-        span?.throwable = exception;
-        span?.status = SpanStatus.internalError();
-        rethrow;
-      } finally {
-        await span?.finish();
-      }
-      return data;
-    });
-  }
-
-  @override
-  Future<T> loadStructuredData<T>(String key, _StringParser<T> parser) {
-    if (_enableStructuredDataTracing) {
-      return _loadStructuredDataWithTracing(key, parser);
-    }
-    return _bundle.loadStructuredData(key, parser);
-  }
-
-  Future<T> _loadStructuredDataWithTracing<T>(
-      String key, _StringParser<T> parser) {
-    return Future<T>(() async {
-      final span = _hub.getSpan()?.startChild(
-            'file.read',
-            description:
-                'AssetBundle.loadStructuredData<$T>: ${_fileName(key)}',
-          );
-      span?.setData('file.path', key);
-      // ignore: invalid_use_of_internal_member
-      span?.origin = SentryTraceOrigins.autoFileAssetBundle;
-
-      final completer = Completer<T>();
-
-      // This future is intentionally not awaited. Otherwise we deadlock with
-      // the completer.
-      // ignore: unawaited_futures
-      runZonedGuarded(() async {
-        final data = await _bundle.loadStructuredData(
-          key,
-          (value) async => await _wrapParsing(parser, value, key, span),
-        );
-        span?.status = SpanStatus.ok();
-        completer.complete(data);
-      }, (exception, stackTrace) {
-        completer.completeError(exception, stackTrace);
-      });
-
-      T data;
-      try {
-        data = await completer.future;
-        _setDataLength(data, span);
-        span?.status = const SpanStatus.ok();
-      } catch (e) {
-        span?.throwable = e;
-        span?.status = const SpanStatus.internalError();
-        rethrow;
-      } finally {
-        await span?.finish();
-      }
-      return data;
-    });
-  }
-
-  Future<T> _loadStructuredBinaryDataWithTracing<T>(
-      String key, _ByteParser<T> parser) {
-    return Future<T>(() async {
-      final span = _hub.getSpan()?.startChild(
-            'file.read',
-            description:
-                'AssetBundle.loadStructuredBinaryData<$T>: ${_fileName(key)}',
-          );
-      span?.setData('file.path', key);
-      // ignore: invalid_use_of_internal_member
-      span?.origin = SentryTraceOrigins.autoFileAssetBundle;
-
-      final completer = Completer<T>();
-
-      // This future is intentionally not awaited. Otherwise we deadlock with
-      // the completer.
-      // ignore: unawaited_futures
-      runZonedGuarded(() async {
-        final data = await _bundle.loadStructuredBinaryData<T>(
-          key,
-          (value) async => await _wrapBinaryParsing(parser, value, key, span),
-        );
-        span?.status = SpanStatus.ok();
-        completer.complete(data);
-      }, (exception, stackTrace) {
-        completer.completeError(exception, stackTrace);
-      });
-
-      T data;
-      try {
-        data = await completer.future;
-        _setDataLength(data, span);
-        span?.status = const SpanStatus.ok();
-      } catch (e) {
-        span?.throwable = e;
-        span?.status = const SpanStatus.internalError();
-        rethrow;
-      } finally {
-        await span?.finish();
-      }
-      return data;
-    });
+    final outerSpan = _hub.getSpan();
+    return _wrapLoad(outerSpan, 'load', key, () => _bundle.load(key));
   }
 
   @override
   Future<String> loadString(String key, {bool cache = true}) {
-    return Future<String>(() async {
-      final span = _hub.getSpan()?.startChild(
-            'file.read',
-            description: 'AssetBundle.loadString: ${_fileName(key)}',
-          );
+    final outerSpan = _hub.getSpan();
+    return _wrapLoad(
+      outerSpan,
+      'loadString',
+      key,
+      () => _bundle.loadString(key, cache: cache),
+      updateInnerSpan: (innerSpan) => innerSpan?.setData('from-cache', cache),
+    );
+  }
 
-      span?.setData('file.path', key);
-      span?.setData('from-cache', cache);
-      // ignore: invalid_use_of_internal_member
-      span?.origin = SentryTraceOrigins.autoFileAssetBundle;
+  @override
+  // This is an override on Flutter greater than 3.1
+  // ignore: override_on_non_overriding_member
+  Future<ImmutableBuffer> loadBuffer(String key) {
+    final outerSpan = _hub.getSpan();
+    return _wrapLoad(
+      outerSpan,
+      'loadBuffer',
+      key,
+      () => _bundle.loadBuffer(key),
+      updateInnerSpan: (innerSpan) => innerSpan?.setData('file.path', key),
+    );
+  }
 
-      String? data;
-      try {
-        data = await _bundle.loadString(key, cache: cache);
-        span?.status = SpanStatus.ok();
-      } catch (exception) {
-        span?.throwable = exception;
+  @override
+  Future<T> loadStructuredData<T>(
+      String key, Future<T> Function(String value) parser) {
+    if (!_enableStructuredDataTracing) {
+      return _bundle.loadStructuredData(key, parser);
+    }
+    final outerSpan = _hub.getSpan();
+    return _wrapLoad(
+      outerSpan,
+      'loadStructuredData',
+      key,
+      () => _bundle.loadStructuredData(
+        key,
+        (value) => _wrapParser(
+          outerSpan,
+          key,
+          () => parser(value),
+        ),
+      ),
+    );
+  }
+
+  @override
+  // ignore: override_on_non_overriding_member
+  Future<T> loadStructuredBinaryData<T>(
+      String key, FutureOr<T> Function(ByteData data) parser) {
+    if (!_enableStructuredDataTracing) {
+      return _bundle.loadStructuredBinaryData<T>(key, parser);
+    }
+    final outerSpan = _hub.getSpan();
+    return _wrapLoad(
+      outerSpan,
+      'loadStructuredBinaryData',
+      key,
+      () => _bundle.loadStructuredBinaryData<T>(
+        key,
+        (value) => _wrapParser(
+          outerSpan,
+          key,
+          () => Future.value(parser(value)),
+        ),
+      ),
+    );
+  }
+
+  @override
+  void evict(String key) => _bundle.evict(key);
+
+  @override
+  void clear() => _bundle.clear();
+
+  // Wrappers
+
+  Future<T> _wrapLoad<T>(
+    ISentrySpan? outerSpan,
+    String traceName,
+    String key,
+    Future<T> Function() loadFunction, {
+    void Function(ISentrySpan?)? updateInnerSpan,
+  }) {
+    final String description;
+    if (traceName == 'loadStructuredData' ||
+        traceName == 'loadStructuredBinaryData') {
+      description = 'AssetBundle.$traceName<$T>: ${_fileName(key)}';
+    } else {
+      description = 'AssetBundle.$traceName: ${_fileName(key)}';
+    }
+
+    final span = outerSpan?.startChild(
+      'file.read',
+      description: description,
+    );
+    span?.setData('file.path', key);
+    // ignore: invalid_use_of_internal_member
+    span?.origin = SentryTraceOrigins.autoFileAssetBundle;
+
+    if (updateInnerSpan != null) {
+      updateInnerSpan(span);
+    }
+
+    return _wrapWithCompleter(
+      action: loadFunction,
+      onSuccess: (data) {
+        _setDataLength(data, span);
+        span?.status = const SpanStatus.ok();
+        unawaited(span?.finish());
+      },
+      onError: (error, stackTrace) {
+        span?.throwable = error;
         span?.status = SpanStatus.internalError();
-        rethrow;
-      } finally {
-        await span?.finish();
+        unawaited(span?.finish());
+      },
+    );
+  }
+
+  Future<T> _wrapParser<T>(
+    ISentrySpan? outerSpan,
+    String key,
+    Future<T> Function() parserFunction,
+  ) {
+    final span = outerSpan?.startChild(
+      'serialize.file.read',
+      description: 'parsing "$key" to "$T"',
+    );
+    // ignore: invalid_use_of_internal_member
+    span?.origin = SentryTraceOrigins.autoFileAssetBundle;
+
+    return _wrapWithCompleter(
+      action: parserFunction,
+      onSuccess: (data) {
+        span?.status = const SpanStatus.ok();
+        unawaited(span?.finish());
+      },
+      onError: (error, stackTrace) {
+        span?.throwable = error;
+        span?.status = SpanStatus.internalError();
+        unawaited(span?.finish());
+      },
+    );
+  }
+
+  // Helper
+
+  Future<T> _wrapWithCompleter<T>({
+    required Future<T> Function() action,
+    required void Function(T) onSuccess,
+    required void Function(Object, StackTrace) onError,
+  }) {
+    Completer<T>? completer;
+    Future<T>? result;
+
+    action().then((data) {
+      onSuccess(data);
+
+      if (completer != null) {
+        completer.complete(data);
+      } else {
+        result = SynchronousFuture<T>(data);
       }
-      return data;
+    }).onError((Object error, StackTrace stackTrace) {
+      onError(error, stackTrace);
+      // SynchronousFuture does not have an error, only completer left.
+      completer?.completeError(error, stackTrace);
     });
+
+    if (result != null) {
+      return result!;
+    }
+    completer = Completer<T>();
+    return completer.future;
   }
 
   void _setDataLength(dynamic data, ISentrySpan? span) {
@@ -225,120 +255,6 @@ class SentryAssetBundle implements AssetBundle {
       return key;
     }
     return uri.pathSegments.isEmpty ? key : uri.pathSegments.last;
-  }
-
-  @override
-  void evict(String key) => _bundle.evict(key);
-
-  @override
-  void clear() {
-    _bundle.clear();
-  }
-
-  @override
-  // This is an override on Flutter greater than 3.1
-  // ignore: override_on_non_overriding_member
-  Future<ImmutableBuffer> loadBuffer(String key) {
-    return Future<ImmutableBuffer>(() async {
-      final span = _hub.getSpan()?.startChild(
-            'file.read',
-            description: 'AssetBundle.loadBuffer: ${_fileName(key)}',
-          );
-
-      span?.setData('file.path', key);
-      // ignore: invalid_use_of_internal_member
-      span?.origin = SentryTraceOrigins.autoFileAssetBundle;
-
-      ImmutableBuffer data;
-      try {
-        data = await _bundle.loadBuffer(key);
-        _setDataLength(data, span);
-        span?.status = SpanStatus.ok();
-      } catch (exception) {
-        span?.throwable = exception;
-        span?.status = SpanStatus.internalError();
-        rethrow;
-      } finally {
-        await span?.finish();
-      }
-      return data;
-    });
-  }
-
-  static Future<T> _wrapParsing<T>(
-    _StringParser<T> parser,
-    String value,
-    String key,
-    ISentrySpan? outerSpan,
-  ) async {
-    final span = outerSpan?.startChild(
-      'serialize.file.read',
-      description: 'parsing "$key" to "$T"',
-    );
-    // ignore: invalid_use_of_internal_member
-    span?.origin = SentryTraceOrigins.autoFileAssetBundle;
-
-    T data;
-    try {
-      data = await parser(value);
-      span?.status = const SpanStatus.ok();
-    } catch (e) {
-      span?.throwable = e;
-      span?.status = const SpanStatus.internalError();
-      rethrow;
-    } finally {
-      await span?.finish();
-    }
-
-    return data;
-  }
-
-  static FutureOr<T> _wrapBinaryParsing<T>(
-    _ByteParser<T> parser,
-    ByteData value,
-    String key,
-    ISentrySpan? outerSpan,
-  ) async {
-    final span = outerSpan?.startChild(
-      'serialize.file.read',
-      description: 'parsing "$key" to "$T"',
-    );
-    // ignore: invalid_use_of_internal_member
-    span?.origin = SentryTraceOrigins.autoFileAssetBundle;
-
-    T data;
-    try {
-      final result = parser(value);
-
-      if (result is Future<T>) {
-        data = await result;
-      } else {
-        data = result;
-      }
-
-      span?.status = const SpanStatus.ok();
-    } catch (e) {
-      span?.throwable = e;
-      span?.status = const SpanStatus.internalError();
-      rethrow;
-    } finally {
-      await span?.finish();
-    }
-
-    return data;
-  }
-
-  @override
-  // ignore: override_on_non_overriding_member
-  Future<T> loadStructuredBinaryData<T>(
-    String key,
-    FutureOr<T> Function(ByteData data) parser,
-  ) {
-    if (_enableStructuredDataTracing) {
-      return _loadStructuredBinaryDataWithTracing<T>(key, parser);
-    }
-
-    return _bundle.loadStructuredBinaryData<T>(key, parser);
   }
 }
 

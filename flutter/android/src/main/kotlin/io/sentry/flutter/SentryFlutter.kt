@@ -1,19 +1,26 @@
 package io.sentry.flutter
 
 import android.util.Log
+import io.sentry.Hint
+import io.sentry.SentryEvent
 import io.sentry.SentryLevel
+import io.sentry.SentryOptions
 import io.sentry.SentryOptions.Proxy
 import io.sentry.SentryReplayOptions
 import io.sentry.android.core.BuildConfig
 import io.sentry.android.core.SentryAndroidOptions
 import io.sentry.protocol.SdkVersion
+import io.sentry.rrweb.RRWebOptionsEvent
 import java.net.Proxy.Type
 import java.util.Locale
 
-class SentryFlutter(
-  private val androidSdk: String,
-  private val nativeSdk: String,
-) {
+class SentryFlutter {
+  companion object {
+    internal const val FLUTTER_SDK = "sentry.dart.flutter"
+    internal const val ANDROID_SDK = "sentry.java.android.flutter"
+    internal const val NATIVE_SDK = "sentry.native.android.flutter"
+  }
+
   var autoPerformanceTracingEnabled = false
 
   fun updateOptions(
@@ -114,14 +121,29 @@ class SentryFlutter(
 
     var sdkVersion = options.sdkVersion
     if (sdkVersion == null) {
-      sdkVersion = SdkVersion(androidSdk, BuildConfig.VERSION_NAME)
+      sdkVersion = SdkVersion(ANDROID_SDK, BuildConfig.VERSION_NAME)
     } else {
-      sdkVersion.name = androidSdk
+      sdkVersion.name = ANDROID_SDK
     }
 
     options.sdkVersion = sdkVersion
-    options.sentryClientName = "$androidSdk/${BuildConfig.VERSION_NAME}"
-    options.nativeSdkName = nativeSdk
+    options.sentryClientName = "$ANDROID_SDK/${BuildConfig.VERSION_NAME}"
+    options.nativeSdkName = NATIVE_SDK
+
+    data.getIfNotNull<Map<String, Any>>("sdk") { flutterSdk ->
+      flutterSdk.getIfNotNull<List<String>>("integrations") {
+        it.forEach { integration ->
+          sdkVersion.addIntegration(integration)
+        }
+      }
+      flutterSdk.getIfNotNull<List<Map<String, String>>>("packages") {
+        it.forEach { fPackage ->
+          sdkVersion.addPackage(fPackage["name"] as String, fPackage["version"] as String)
+        }
+      }
+    }
+
+    options.beforeSend = BeforeSendCallbackImpl()
 
     data.getIfNotNull<Int>("connectionTimeoutMillis") {
       options.connectionTimeoutMillis = it
@@ -154,17 +176,51 @@ class SentryFlutter(
           }
     }
 
-    data.getIfNotNull<Map<String, Any>>("replay") {
-      updateReplayOptions(options.experimental.sessionReplay, it)
+    data.getIfNotNull<Map<String, Any>>("replay") { replayArgs ->
+      updateReplayOptions(options, replayArgs)
+
+      data.getIfNotNull<Map<String, Any>>("sdk") {
+        options.sessionReplay.sdkVersion = SdkVersion(it["name"] as String, it["version"] as String)
+      }
     }
   }
 
-  fun updateReplayOptions(
-    options: SentryReplayOptions,
+  private fun updateReplayOptions(
+    options: SentryAndroidOptions,
     data: Map<String, Any>,
   ) {
-    options.sessionSampleRate = data["sessionSampleRate"] as? Double
-    options.onErrorSampleRate = data["onErrorSampleRate"] as? Double
+    val replayOptions = options.sessionReplay
+    replayOptions.quality =
+      when (data["quality"] as? String) {
+        "low" -> SentryReplayOptions.SentryReplayQuality.LOW
+        "high" -> SentryReplayOptions.SentryReplayQuality.HIGH
+        else -> {
+          SentryReplayOptions.SentryReplayQuality.MEDIUM
+        }
+      }
+    replayOptions.sessionSampleRate = (data["sessionSampleRate"] as? Number)?.toDouble()
+    replayOptions.onErrorSampleRate = (data["onErrorSampleRate"] as? Number)?.toDouble()
+
+    // Disable native tracking of orientation change (causes replay restart)
+    // because we don't have the new size from Flutter yet. Instead, we'll
+    // trigger onConfigurationChanged() manually in setReplayConfig().
+    replayOptions.setTrackOrientationChange(false)
+
+    @Suppress("UNCHECKED_CAST")
+    val tags = (data["tags"] as? Map<String, Any>) ?: mapOf()
+    options.beforeSendReplay =
+      SentryOptions.BeforeSendReplayCallback { event, hint ->
+        hint.replayRecording?.payload?.firstOrNull { it is RRWebOptionsEvent }?.let { optionsEvent ->
+          val payload = (optionsEvent as RRWebOptionsEvent).optionsPayload
+
+          // Remove defaults set by the native SDK.
+          payload.filterKeys { it.contains("mask") }.forEach { (k, _) -> payload.remove(k) }
+
+          // Now, set the Flutter-specific values.
+          payload.putAll(tags)
+        }
+        event
+      }
   }
 }
 
@@ -176,5 +232,30 @@ private fun <T> Map<String, Any>.getIfNotNull(
 ) {
   (get(key) as? T)?.let {
     callback(it)
+  }
+}
+
+private class BeforeSendCallbackImpl : SentryOptions.BeforeSendCallback {
+  override fun execute(
+    event: SentryEvent,
+    hint: Hint,
+  ): SentryEvent {
+    event.sdk?.let {
+      when (it.name) {
+        SentryFlutter.FLUTTER_SDK -> setEventEnvironmentTag(event, "flutter", "dart")
+        SentryFlutter.ANDROID_SDK -> setEventEnvironmentTag(event, environment = "java")
+        SentryFlutter.NATIVE_SDK -> setEventEnvironmentTag(event, environment = "native")
+      }
+    }
+    return event
+  }
+
+  private fun setEventEnvironmentTag(
+    event: SentryEvent,
+    origin: String = "android",
+    environment: String,
+  ) {
+    event.setTag("event.origin", origin)
+    event.setTag("event.environment", environment)
   }
 }

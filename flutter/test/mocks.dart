@@ -3,16 +3,16 @@
 import 'package:flutter/services.dart';
 import 'package:flutter/src/widgets/binding.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:meta/meta.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry/src/platform/platform.dart';
 import 'package:sentry/src/sentry_tracer.dart';
-
-import 'package:meta/meta.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/frames_tracking/sentry_delayed_frames_tracker.dart';
-import 'package:sentry_flutter/src/renderer/renderer.dart';
 import 'package:sentry_flutter/src/native/sentry_native_binding.dart';
+import 'package:sentry_flutter/src/renderer/renderer.dart';
+import 'package:sentry_flutter/src/web/sentry_js_binding.dart';
 
 import 'mocks.mocks.dart';
 import 'no_such_method_provider.dart';
@@ -53,6 +53,7 @@ ISentrySpan startTransactionShim(
   SentryDelayedFramesTracker,
   BindingWrapper,
   WidgetsFlutterBinding,
+  SentryJsBinding,
 ], customMocks: [
   MockSpec<Hub>(fallbackGenerators: {#startTransaction: startTransactionShim})
 ])
@@ -99,31 +100,32 @@ class MockPlatform with NoSuchMethodProvider implements Platform {
 
 class MockPlatformChecker with NoSuchMethodProvider implements PlatformChecker {
   MockPlatformChecker({
-    this.isDebug = false,
-    this.isProfile = false,
-    this.isRelease = false,
+    this.buildMode = MockPlatformCheckerBuildMode.debug,
     this.isWebValue = false,
     this.hasNativeIntegration = false,
+    this.isRoot = true,
     Platform? mockPlatform,
   }) : _mockPlatform = mockPlatform ?? MockPlatform('');
 
-  final bool isDebug;
-  final bool isProfile;
-  final bool isRelease;
+  final MockPlatformCheckerBuildMode buildMode;
   final bool isWebValue;
+  final bool isRoot;
   final Platform _mockPlatform;
 
   @override
   bool hasNativeIntegration = false;
 
   @override
-  bool isDebugMode() => isDebug;
+  bool isDebugMode() => buildMode == MockPlatformCheckerBuildMode.debug;
 
   @override
-  bool isProfileMode() => isProfile;
+  bool isProfileMode() => buildMode == MockPlatformCheckerBuildMode.profile;
 
   @override
-  bool isReleaseMode() => isRelease;
+  bool isReleaseMode() => buildMode == MockPlatformCheckerBuildMode.release;
+
+  @override
+  bool get isRootZone => isRoot;
 
   @override
   bool get isWeb => isWebValue;
@@ -131,6 +133,8 @@ class MockPlatformChecker with NoSuchMethodProvider implements PlatformChecker {
   @override
   Platform get platform => _mockPlatform;
 }
+
+enum MockPlatformCheckerBuildMode { debug, profile, release }
 
 // Does nothing or returns default values.
 // Useful for when a Hub needs to be passed but is not used.
@@ -199,10 +203,11 @@ class NativeChannelFixture {
       handler;
   static TestDefaultBinaryMessenger get _messenger =>
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+  late final codec = StandardMethodCodec();
 
   NativeChannelFixture() {
     TestWidgetsFlutterBinding.ensureInitialized();
-    channel = MethodChannel('test.channel', StandardMethodCodec(), _messenger);
+    channel = MethodChannel('test.channel', codec, _messenger);
     handler = MockCallbacks().methodCallHandler;
     when(handler('initNativeSdk', any)).thenAnswer((_) => Future.value());
     when(handler('closeNativeSdk', any)).thenAnswer((_) => Future.value());
@@ -211,11 +216,15 @@ class NativeChannelFixture {
   }
 
   // Mock this call as if it was invoked by the native side.
-  Future<ByteData?> invokeFromNative(String method, [dynamic arguments]) async {
-    final call =
-        StandardMethodCodec().encodeMethodCall(MethodCall(method, arguments));
-    return _messenger.handlePlatformMessage(
+  Future<dynamic> invokeFromNative(String method, [dynamic arguments]) async {
+    final call = codec.encodeMethodCall(MethodCall(method, arguments));
+    final byteData = await _messenger.handlePlatformMessage(
         channel.name, call, (ByteData? data) {});
+    if (byteData != null) {
+      return codec.decodeEnvelope(byteData);
+    } else {
+      return null;
+    }
   }
 }
 
@@ -231,4 +240,27 @@ class FunctionEventProcessor implements EventProcessor {
   SentryEvent? apply(SentryEvent event, Hint hint) {
     return applyFunction(event, hint);
   }
+}
+
+class MockLogger {
+  final items = <MockLogItem>[];
+
+  void call(SentryLevel level, String message,
+      {String? logger, Object? exception, StackTrace? stackTrace}) {
+    items.add(MockLogItem(level, message,
+        logger: logger, exception: exception, stackTrace: stackTrace));
+  }
+
+  void clear() => items.clear();
+}
+
+class MockLogItem {
+  final SentryLevel level;
+  final String message;
+  final String? logger;
+  final Object? exception;
+  final StackTrace? stackTrace;
+
+  const MockLogItem(this.level, this.message,
+      {this.logger, this.exception, this.stackTrace});
 }

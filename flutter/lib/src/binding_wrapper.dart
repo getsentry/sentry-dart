@@ -1,10 +1,9 @@
 // ignore_for_file: invalid_use_of_internal_member
 
-import 'package:flutter/foundation.dart';
-
-import '../sentry_flutter.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
+
+import '../sentry_flutter.dart';
 
 /// The methods and properties are modelled after the the real binding class.
 @experimental
@@ -48,16 +47,6 @@ WidgetsBinding? _ambiguate(WidgetsBinding? binding) => binding;
 
 class SentryWidgetsFlutterBinding extends WidgetsFlutterBinding
     with SentryWidgetsBindingMixin {
-  @override
-  void initInstances() {
-    super.initInstances();
-    _instance = this;
-  }
-
-  static SentryWidgetsFlutterBinding get instance =>
-      BindingBase.checkInstance(_instance);
-  static SentryWidgetsFlutterBinding? _instance;
-
   /// Returns an instance of [SentryWidgetsFlutterBinding].
   /// If no binding has yet been initialized, creates and initializes one.
   ///
@@ -65,15 +54,15 @@ class SentryWidgetsFlutterBinding extends WidgetsFlutterBinding
   /// returns the existing [WidgetsBinding] instance instead.
   static WidgetsBinding ensureInitialized() {
     try {
-      if (SentryWidgetsFlutterBinding._instance == null) {
-        SentryWidgetsFlutterBinding();
-      }
-      return SentryWidgetsFlutterBinding.instance;
-    } catch (e) {
+      // Try to get the existing binding instance
+      return WidgetsBinding.instance;
+    } catch (_) {
       Sentry.currentHub.options.logger(
           SentryLevel.info,
-          'WidgetsFlutterBinding already initialized. '
-          'Falling back to default WidgetsBinding instance.');
+          'WidgetsFlutterBinding has not been initialized yet. '
+          'Creating $SentryWidgetsFlutterBinding.');
+      // No binding exists yet, create our custom one
+      SentryWidgetsFlutterBinding();
       return WidgetsBinding.instance;
     }
   }
@@ -87,6 +76,8 @@ mixin SentryWidgetsBindingMixin on WidgetsBinding {
   DateTime? _startTimestamp;
   FrameTimingCallback? _frameTimingCallback;
   ClockProvider? _clock;
+
+  SentryOptions get _options => Sentry.currentHub.options;
 
   @internal
   void registerFramesTracking(
@@ -108,7 +99,13 @@ mixin SentryWidgetsBindingMixin on WidgetsBinding {
 
   @override
   void handleBeginFrame(Duration? rawTimeStamp) {
-    _startTimestamp = _clock?.call();
+    try {
+      _startTimestamp = _clock?.call();
+    } catch (_) {
+      if (_options.automatedTestMode) {
+        rethrow;
+      }
+    }
 
     super.handleBeginFrame(rawTimeStamp);
   }
@@ -117,11 +114,17 @@ mixin SentryWidgetsBindingMixin on WidgetsBinding {
   void handleDrawFrame() {
     super.handleDrawFrame();
 
-    final endTimestamp = _clock?.call();
-    if (_startTimestamp != null &&
-        endTimestamp != null &&
-        _startTimestamp!.isBefore(endTimestamp)) {
-      _frameTimingCallback?.call(_startTimestamp!, endTimestamp);
+    try {
+      final endTimestamp = _clock?.call();
+      if (_startTimestamp != null &&
+          endTimestamp != null &&
+          _startTimestamp!.isBefore(endTimestamp)) {
+        _frameTimingCallback?.call(_startTimestamp!, endTimestamp);
+      }
+    } catch (_) {
+      if (_options.automatedTestMode) {
+        rethrow;
+      }
     }
   }
 }

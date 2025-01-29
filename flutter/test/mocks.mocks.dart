@@ -4,31 +4,31 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _i11;
-import 'dart:developer' as _i23;
-import 'dart:typed_data' as _i19;
+import 'dart:developer' as _i22;
+import 'dart:typed_data' as _i17;
 import 'dart:ui' as _i6;
 
 import 'package:flutter/foundation.dart' as _i8;
 import 'package:flutter/gestures.dart' as _i7;
 import 'package:flutter/rendering.dart' as _i10;
-import 'package:flutter/scheduler.dart' as _i22;
+import 'package:flutter/scheduler.dart' as _i21;
 import 'package:flutter/services.dart' as _i4;
 import 'package:flutter/src/widgets/binding.dart' as _i5;
 import 'package:flutter/widgets.dart' as _i9;
 import 'package:flutter_test/flutter_test.dart' as _i12;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:mockito/src/dummies.dart' as _i15;
-import 'package:sentry/src/metrics/metric.dart' as _i17;
-import 'package:sentry/src/metrics/metrics_api.dart' as _i13;
-import 'package:sentry/src/profiling.dart' as _i16;
+import 'package:mockito/src/dummies.dart' as _i14;
+import 'package:sentry/src/profiling.dart' as _i15;
 import 'package:sentry/src/sentry_tracer.dart' as _i3;
 import 'package:sentry_flutter/sentry_flutter.dart' as _i2;
 import 'package:sentry_flutter/src/frames_tracking/sentry_delayed_frames_tracker.dart'
-    as _i21;
-import 'package:sentry_flutter/src/native/native_frames.dart' as _i20;
-import 'package:sentry_flutter/src/native/sentry_native_binding.dart' as _i18;
+    as _i20;
+import 'package:sentry_flutter/src/native/native_frames.dart' as _i18;
+import 'package:sentry_flutter/src/native/sentry_native_binding.dart' as _i16;
+import 'package:sentry_flutter/src/replay/replay_config.dart' as _i19;
+import 'package:sentry_flutter/src/web/sentry_js_binding.dart' as _i23;
 
-import 'mocks.dart' as _i14;
+import 'mocks.dart' as _i13;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -490,8 +490,8 @@ class _FakeSentryOptions_40 extends _i1.SmartFake implements _i2.SentryOptions {
         );
 }
 
-class _FakeMetricsApi_41 extends _i1.SmartFake implements _i13.MetricsApi {
-  _FakeMetricsApi_41(
+class _FakeScope_41 extends _i1.SmartFake implements _i2.Scope {
+  _FakeScope_41(
     Object parent,
     Invocation parentInvocation,
   ) : super(
@@ -500,18 +500,8 @@ class _FakeMetricsApi_41 extends _i1.SmartFake implements _i13.MetricsApi {
         );
 }
 
-class _FakeScope_42 extends _i1.SmartFake implements _i2.Scope {
-  _FakeScope_42(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
-}
-
-class _FakeHub_43 extends _i1.SmartFake implements _i2.Hub {
-  _FakeHub_43(
+class _FakeHub_42 extends _i1.SmartFake implements _i2.Hub {
+  _FakeHub_42(
     Object parent,
     Invocation parentInvocation,
   ) : super(
@@ -523,7 +513,7 @@ class _FakeHub_43 extends _i1.SmartFake implements _i2.Hub {
 /// A class which mocks [Callbacks].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockCallbacks extends _i1.Mock implements _i14.Callbacks {
+class MockCallbacks extends _i1.Mock implements _i13.Callbacks {
   MockCallbacks() {
     _i1.throwOnMissingStub(this);
   }
@@ -572,7 +562,7 @@ class MockSentryTracer extends _i1.Mock implements _i3.SentryTracer {
   @override
   String get name => (super.noSuchMethod(
         Invocation.getter(#name),
-        returnValue: _i15.dummyValue<String>(
+        returnValue: _i14.dummyValue<String>(
           this,
           Invocation.getter(#name),
         ),
@@ -606,7 +596,7 @@ class MockSentryTracer extends _i1.Mock implements _i3.SentryTracer {
       );
 
   @override
-  set profiler(_i16.SentryProfiler? _profiler) => super.noSuchMethod(
+  set profiler(_i15.SentryProfiler? _profiler) => super.noSuchMethod(
         Invocation.setter(
           #profiler,
           _profiler,
@@ -615,7 +605,7 @@ class MockSentryTracer extends _i1.Mock implements _i3.SentryTracer {
       );
 
   @override
-  set profileInfo(_i16.SentryProfileInfo? _profileInfo) => super.noSuchMethod(
+  set profileInfo(_i15.SentryProfileInfo? _profileInfo) => super.noSuchMethod(
         Invocation.setter(
           #profileInfo,
           _profileInfo,
@@ -958,16 +948,6 @@ class MockSentryTransaction extends _i1.Mock implements _i2.SentryTransaction {
       );
 
   @override
-  set metricSummaries(Map<String, List<_i2.MetricSummary>>? _metricSummaries) =>
-      super.noSuchMethod(
-        Invocation.setter(
-          #metricSummaries,
-          _metricSummaries,
-        ),
-        returnValueForMissingStub: null,
-      );
-
-  @override
   set transactionInfo(_i2.SentryTransactionInfo? _transactionInfo) =>
       super.noSuchMethod(
         Invocation.setter(
@@ -1045,7 +1025,6 @@ class MockSentryTransaction extends _i1.Mock implements _i2.SentryTransaction {
     List<_i2.SentryThread>? threads,
     String? type,
     Map<String, _i2.SentryMeasurement>? measurements,
-    Map<String, List<_i2.MetricSummary>>? metricSummaries,
     _i2.SentryTransactionInfo? transactionInfo,
   }) =>
       (super.noSuchMethod(
@@ -1080,7 +1059,6 @@ class MockSentryTransaction extends _i1.Mock implements _i2.SentryTransaction {
             #threads: threads,
             #type: type,
             #measurements: measurements,
-            #metricSummaries: metricSummaries,
             #transactionInfo: transactionInfo,
           },
         ),
@@ -1117,7 +1095,6 @@ class MockSentryTransaction extends _i1.Mock implements _i2.SentryTransaction {
               #threads: threads,
               #type: type,
               #measurements: measurements,
-              #metricSummaries: metricSummaries,
               #transactionInfo: transactionInfo,
             },
           ),
@@ -1544,23 +1521,6 @@ class MockSentryClient extends _i1.Mock implements _i2.SentryClient {
       ) as _i11.Future<_i2.SentryId>);
 
   @override
-  _i11.Future<_i2.SentryId> captureMetrics(
-          Map<int, Iterable<_i17.Metric>>? metricsBuckets) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #captureMetrics,
-          [metricsBuckets],
-        ),
-        returnValue: _i11.Future<_i2.SentryId>.value(_FakeSentryId_5(
-          this,
-          Invocation.method(
-            #captureMetrics,
-            [metricsBuckets],
-          ),
-        )),
-      ) as _i11.Future<_i2.SentryId>);
-
-  @override
   void close() => super.noSuchMethod(
         Invocation.method(
           #close,
@@ -1581,7 +1541,7 @@ class MockMethodChannel extends _i1.Mock implements _i4.MethodChannel {
   @override
   String get name => (super.noSuchMethod(
         Invocation.getter(#name),
-        returnValue: _i15.dummyValue<String>(
+        returnValue: _i14.dummyValue<String>(
           this,
           Invocation.getter(#name),
         ),
@@ -1669,7 +1629,7 @@ class MockMethodChannel extends _i1.Mock implements _i4.MethodChannel {
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockSentryNativeBinding extends _i1.Mock
-    implements _i18.SentryNativeBinding {
+    implements _i16.SentryNativeBinding {
   MockSentryNativeBinding() {
     _i1.throwOnMissingStub(this);
   }
@@ -1687,6 +1647,12 @@ class MockSentryNativeBinding extends _i1.Mock
       ) as bool);
 
   @override
+  bool get supportsReplay => (super.noSuchMethod(
+        Invocation.getter(#supportsReplay),
+        returnValue: false,
+      ) as bool);
+
+  @override
   _i11.FutureOr<void> init(_i2.Hub? hub) =>
       (super.noSuchMethod(Invocation.method(
         #init,
@@ -1695,7 +1661,7 @@ class MockSentryNativeBinding extends _i1.Mock
 
   @override
   _i11.FutureOr<void> captureEnvelope(
-    _i19.Uint8List? envelopeData,
+    _i17.Uint8List? envelopeData,
     bool? containsUnhandledException,
   ) =>
       (super.noSuchMethod(Invocation.method(
@@ -1707,11 +1673,18 @@ class MockSentryNativeBinding extends _i1.Mock
       )) as _i11.FutureOr<void>);
 
   @override
-  _i11.FutureOr<_i20.NativeFrames?> endNativeFrames(_i2.SentryId? id) =>
+  _i11.FutureOr<void> captureStructuredEnvelope(_i2.SentryEnvelope? envelope) =>
+      (super.noSuchMethod(Invocation.method(
+        #captureStructuredEnvelope,
+        [envelope],
+      )) as _i11.FutureOr<void>);
+
+  @override
+  _i11.FutureOr<_i18.NativeFrames?> endNativeFrames(_i2.SentryId? id) =>
       (super.noSuchMethod(Invocation.method(
         #endNativeFrames,
         [id],
-      )) as _i11.FutureOr<_i20.NativeFrames?>);
+      )) as _i11.FutureOr<_i18.NativeFrames?>);
 
   @override
   _i11.FutureOr<void> addBreadcrumb(_i2.Breadcrumb? breadcrumb) =>
@@ -1818,6 +1791,13 @@ class MockSentryNativeBinding extends _i1.Mock
       )) as _i11.FutureOr<List<_i2.DebugImage>?>);
 
   @override
+  _i11.FutureOr<void> setReplayConfig(_i19.ReplayConfig? config) =>
+      (super.noSuchMethod(Invocation.method(
+        #setReplayConfig,
+        [config],
+      )) as _i11.FutureOr<void>);
+
+  @override
   _i11.FutureOr<_i2.SentryId> captureReplay(bool? isCrash) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -1838,16 +1818,16 @@ class MockSentryNativeBinding extends _i1.Mock
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockSentryDelayedFramesTracker extends _i1.Mock
-    implements _i21.SentryDelayedFramesTracker {
+    implements _i20.SentryDelayedFramesTracker {
   MockSentryDelayedFramesTracker() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  List<_i21.SentryFrameTiming> get delayedFrames => (super.noSuchMethod(
+  List<_i20.SentryFrameTiming> get delayedFrames => (super.noSuchMethod(
         Invocation.getter(#delayedFrames),
-        returnValue: <_i21.SentryFrameTiming>[],
-      ) as List<_i21.SentryFrameTiming>);
+        returnValue: <_i20.SentryFrameTiming>[],
+      ) as List<_i20.SentryFrameTiming>);
 
   @override
   bool get isTrackingActive => (super.noSuchMethod(
@@ -1874,7 +1854,7 @@ class MockSentryDelayedFramesTracker extends _i1.Mock
       );
 
   @override
-  List<_i21.SentryFrameTiming> getFramesIntersecting({
+  List<_i20.SentryFrameTiming> getFramesIntersecting({
     required DateTime? startTimestamp,
     required DateTime? endTimestamp,
   }) =>
@@ -1887,8 +1867,8 @@ class MockSentryDelayedFramesTracker extends _i1.Mock
             #endTimestamp: endTimestamp,
           },
         ),
-        returnValue: <_i21.SentryFrameTiming>[],
-      ) as List<_i21.SentryFrameTiming>);
+        returnValue: <_i20.SentryFrameTiming>[],
+      ) as List<_i20.SentryFrameTiming>);
 
   @override
   void addFrame(
@@ -1917,7 +1897,7 @@ class MockSentryDelayedFramesTracker extends _i1.Mock
       );
 
   @override
-  _i21.SpanFrameMetrics? getFrameMetrics({
+  _i20.SpanFrameMetrics? getFrameMetrics({
     required DateTime? spanStartTimestamp,
     required DateTime? spanEndTimestamp,
   }) =>
@@ -1928,7 +1908,7 @@ class MockSentryDelayedFramesTracker extends _i1.Mock
           #spanStartTimestamp: spanStartTimestamp,
           #spanEndTimestamp: spanEndTimestamp,
         },
-      )) as _i21.SpanFrameMetrics?);
+      )) as _i20.SpanFrameMetrics?);
 
   @override
   void clear() => super.noSuchMethod(
@@ -2067,17 +2047,17 @@ class MockWidgetsFlutterBinding extends _i1.Mock
       ) as _i7.SamplingClock);
 
   @override
-  _i22.SchedulingStrategy get schedulingStrategy => (super.noSuchMethod(
+  _i21.SchedulingStrategy get schedulingStrategy => (super.noSuchMethod(
         Invocation.getter(#schedulingStrategy),
         returnValue: ({
           required int priority,
-          required _i22.SchedulerBinding scheduler,
+          required _i21.SchedulerBinding scheduler,
         }) =>
             false,
-      ) as _i22.SchedulingStrategy);
+      ) as _i21.SchedulingStrategy);
 
   @override
-  set schedulingStrategy(_i22.SchedulingStrategy? _schedulingStrategy) =>
+  set schedulingStrategy(_i21.SchedulingStrategy? _schedulingStrategy) =>
       super.noSuchMethod(
         Invocation.setter(
           #schedulingStrategy,
@@ -2105,10 +2085,10 @@ class MockWidgetsFlutterBinding extends _i1.Mock
       ) as bool);
 
   @override
-  _i22.SchedulerPhase get schedulerPhase => (super.noSuchMethod(
+  _i21.SchedulerPhase get schedulerPhase => (super.noSuchMethod(
         Invocation.getter(#schedulerPhase),
-        returnValue: _i22.SchedulerPhase.idle,
-      ) as _i22.SchedulerPhase);
+        returnValue: _i21.SchedulerPhase.idle,
+      ) as _i21.SchedulerPhase);
 
   @override
   bool get framesEnabled => (super.noSuchMethod(
@@ -2681,10 +2661,10 @@ class MockWidgetsFlutterBinding extends _i1.Mock
 
   @override
   _i11.Future<T> scheduleTask<T>(
-    _i22.TaskCallback<T>? task,
-    _i22.Priority? priority, {
+    _i21.TaskCallback<T>? task,
+    _i21.Priority? priority, {
     String? debugLabel,
-    _i23.Flow? flow,
+    _i22.Flow? flow,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -2698,8 +2678,8 @@ class MockWidgetsFlutterBinding extends _i1.Mock
             #flow: flow,
           },
         ),
-        returnValue: _i15.ifNotNull(
-              _i15.dummyValueOrNull<T>(
+        returnValue: _i14.ifNotNull(
+              _i14.dummyValueOrNull<T>(
                 this,
                 Invocation.method(
                   #scheduleTask,
@@ -2742,7 +2722,7 @@ class MockWidgetsFlutterBinding extends _i1.Mock
 
   @override
   int scheduleFrameCallback(
-    _i22.FrameCallback? callback, {
+    _i21.FrameCallback? callback, {
     bool? rescheduling = false,
   }) =>
       (super.noSuchMethod(
@@ -2792,7 +2772,7 @@ class MockWidgetsFlutterBinding extends _i1.Mock
       ) as bool);
 
   @override
-  void addPersistentFrameCallback(_i22.FrameCallback? callback) =>
+  void addPersistentFrameCallback(_i21.FrameCallback? callback) =>
       super.noSuchMethod(
         Invocation.method(
           #addPersistentFrameCallback,
@@ -2803,7 +2783,7 @@ class MockWidgetsFlutterBinding extends _i1.Mock
 
   @override
   void addPostFrameCallback(
-    _i22.FrameCallback? callback, {
+    _i21.FrameCallback? callback, {
     String? debugLabel = r'callback',
   }) =>
       super.noSuchMethod(
@@ -2879,12 +2859,12 @@ class MockWidgetsFlutterBinding extends _i1.Mock
       );
 
   @override
-  _i22.PerformanceModeRequestHandle? requestPerformanceMode(
+  _i21.PerformanceModeRequestHandle? requestPerformanceMode(
           _i6.DartPerformanceMode? mode) =>
       (super.noSuchMethod(Invocation.method(
         #requestPerformanceMode,
         [mode],
-      )) as _i22.PerformanceModeRequestHandle?);
+      )) as _i21.PerformanceModeRequestHandle?);
 
   @override
   void handleDrawFrame() => super.noSuchMethod(
@@ -3448,6 +3428,42 @@ class MockWidgetsFlutterBinding extends _i1.Mock
       )) as _i6.Locale?);
 }
 
+/// A class which mocks [SentryJsBinding].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockSentryJsBinding extends _i1.Mock implements _i23.SentryJsBinding {
+  MockSentryJsBinding() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  void init(Map<String, dynamic>? options) => super.noSuchMethod(
+        Invocation.method(
+          #init,
+          [options],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void close() => super.noSuchMethod(
+        Invocation.method(
+          #close,
+          [],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void captureEnvelope(List<Object>? envelope) => super.noSuchMethod(
+        Invocation.method(
+          #captureEnvelope,
+          [envelope],
+        ),
+        returnValueForMissingStub: null,
+      );
+}
+
 /// A class which mocks [Hub].
 ///
 /// See the documentation for Mockito's code generation for more information.
@@ -3464,15 +3480,6 @@ class MockHub extends _i1.Mock implements _i2.Hub {
           Invocation.getter(#options),
         ),
       ) as _i2.SentryOptions);
-
-  @override
-  _i13.MetricsApi get metricsApi => (super.noSuchMethod(
-        Invocation.getter(#metricsApi),
-        returnValue: _FakeMetricsApi_41(
-          this,
-          Invocation.getter(#metricsApi),
-        ),
-      ) as _i13.MetricsApi);
 
   @override
   bool get isEnabled => (super.noSuchMethod(
@@ -3492,14 +3499,14 @@ class MockHub extends _i1.Mock implements _i2.Hub {
   @override
   _i2.Scope get scope => (super.noSuchMethod(
         Invocation.getter(#scope),
-        returnValue: _FakeScope_42(
+        returnValue: _FakeScope_41(
           this,
           Invocation.getter(#scope),
         ),
       ) as _i2.Scope);
 
   @override
-  set profilerFactory(_i16.SentryProfilerFactory? value) => super.noSuchMethod(
+  set profilerFactory(_i15.SentryProfilerFactory? value) => super.noSuchMethod(
         Invocation.setter(
           #profilerFactory,
           value,
@@ -3675,7 +3682,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
           #clone,
           [],
         ),
-        returnValue: _FakeHub_43(
+        returnValue: _FakeHub_42(
           this,
           Invocation.method(
             #clone,
@@ -3732,7 +3739,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
             #customSamplingContext: customSamplingContext,
           },
         ),
-        returnValue: _i14.startTransactionShim(
+        returnValue: _i13.startTransactionShim(
           name,
           operation,
           description: description,
@@ -3806,23 +3813,6 @@ class MockHub extends _i1.Mock implements _i2.Hub {
             #captureTransaction,
             [transaction],
             {#traceContext: traceContext},
-          ),
-        )),
-      ) as _i11.Future<_i2.SentryId>);
-
-  @override
-  _i11.Future<_i2.SentryId> captureMetrics(
-          Map<int, Iterable<_i17.Metric>>? metricsBuckets) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #captureMetrics,
-          [metricsBuckets],
-        ),
-        returnValue: _i11.Future<_i2.SentryId>.value(_FakeSentryId_5(
-          this,
-          Invocation.method(
-            #captureMetrics,
-            [metricsBuckets],
           ),
         )),
       ) as _i11.Future<_i2.SentryId>);

@@ -3,7 +3,7 @@
 @TestOn('vm')
 library;
 
-import 'dart:ui';
+import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/src/replay/scheduled_recorder.dart';
@@ -11,40 +11,47 @@ import 'package:sentry_flutter/src/replay/scheduled_recorder_config.dart';
 
 import '../mocks.dart';
 import '../screenshot/test_widget.dart';
+import 'replay_test_util.dart';
 
 void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('captures images', (tester) async {
-    final fixture = await _Fixture.create(tester);
-    expect(fixture.capturedImages, isEmpty);
-    await fixture.nextFrame();
-    expect(fixture.capturedImages, ['1000x750']);
-    await fixture.nextFrame();
-    expect(fixture.capturedImages, ['1000x750', '1000x750']);
-    final stopFuture = fixture.sut.stop();
-    await fixture.nextFrame();
-    await stopFuture;
-    expect(fixture.capturedImages, ['1000x750', '1000x750']);
+  testWidgets('captures images on frame updates', (tester) async {
+    await tester.runAsync(() async {
+      final fixture = await _Fixture.create(tester);
+      expect(fixture.capturedImages, isEmpty);
+      await fixture.nextFrame(true);
+      expect(fixture.capturedImages, ['1000x750']);
+      await fixture.nextFrame(true);
+      expect(fixture.capturedImages, ['1000x750', '1000x750']);
+      final stopFuture = fixture.sut.stop();
+      await fixture.nextFrame(false);
+      await stopFuture;
+      expect(fixture.capturedImages, ['1000x750', '1000x750']);
+    });
   });
 }
 
 class _Fixture {
   final WidgetTester _tester;
-  late final ScheduledScreenshotRecorder sut;
+  late final ScheduledScreenshotRecorder _sut;
   final capturedImages = <String>[];
+  late Completer<void> _completer;
+
+  ScheduledScreenshotRecorder get sut => _sut;
 
   _Fixture._(this._tester) {
-    sut = ScheduledScreenshotRecorder(
+    _sut = ScheduledScreenshotRecorder(
       ScheduledScreenshotRecorderConfig(
         width: 1000,
         height: 1000,
         frameRate: 1000,
       ),
-      (Image image) async {
-        capturedImages.add("${image.width}x${image.height}");
-      },
       defaultTestOptions()..bindingUtils = TestBindingWrapper(),
+      (image, isNewlyCaptured) async {
+        capturedImages.add('${image.width}x${image.height}');
+        _completer.complete();
+      },
     );
   }
 
@@ -55,8 +62,11 @@ class _Fixture {
     return fixture;
   }
 
-  Future<void> nextFrame() async {
+  Future<void> nextFrame(bool imageIsExpected) async {
+    _completer = Completer();
     _tester.binding.scheduleFrame();
-    await _tester.pumpAndSettle(const Duration(seconds: 1));
+    await _tester.pumpAndWaitUntil(_completer.future,
+        requiredToComplete: imageIsExpected);
+    expect(_completer.isCompleted, imageIsExpected);
   }
 }

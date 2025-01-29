@@ -17,15 +17,13 @@ void main() {
     test('item with binary payload', () async {
       // Attachment
 
-      final length = () async {
-        return 3535;
-      };
+      // length == 3535
       final dataFactory = () async {
         final file = File('test_resources/sentry.png');
         final bytes = await file.readAsBytes();
         return bytes;
       };
-      final attachmentHeader = SentryEnvelopeItemHeader('attachment', length,
+      final attachmentHeader = SentryEnvelopeItemHeader('attachment',
           contentType: 'image/png', fileName: 'sentry.png');
       final attachmentItem = SentryEnvelopeItem(attachmentHeader, dataFactory);
 
@@ -63,9 +61,12 @@ void main() {
         attachments: [attachment],
       );
 
-      final data =
-          (await envelope.envelopeStream(defaultTestOptions()).toList())
-              .reduce((a, b) => a + b);
+      final options = SentryOptions(dsn: testDsn)
+        ..automatedTestMode =
+            false; // We want to skip throwing envelope items in this test.
+
+      final data = (await envelope.envelopeStream(options).toList())
+          .reduce((a, b) => a + b);
 
       final file = File('test_resources/envelope-no-attachment.envelope');
       final jsonStr = await file.readAsString();

@@ -6,7 +6,6 @@ import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/client_reports/discard_reason.dart';
 import 'package:sentry/src/client_reports/noop_client_report_recorder.dart';
-import 'package:sentry/src/metrics/metric.dart';
 import 'package:sentry/src/sentry_item_type.dart';
 import 'package:sentry/src/sentry_stack_trace_factory.dart';
 import 'package:sentry/src/sentry_tracer.dart';
@@ -2158,60 +2157,20 @@ void main() {
       await client.captureEvent(fakeEvent, stackTrace: StackTrace.current);
     });
   });
-
-  group('Capture metrics', () {
-    late Fixture fixture;
-
-    setUp(() {
-      fixture = Fixture();
-    });
-
-    test('metricsAggregator is set if metrics are enabled', () async {
-      final client = fixture.getSut(enableMetrics: true);
-      expect(client.metricsAggregator, isNotNull);
-    });
-
-    test('metricsAggregator is null if metrics are disabled', () async {
-      final client = fixture.getSut(enableMetrics: false);
-      expect(client.metricsAggregator, isNull);
-    });
-
-    test('captureMetrics send statsd envelope', () async {
-      final client = fixture.getSut();
-      await client.captureMetrics(fakeMetrics);
-
-      final capturedStatsd = (fixture.transport).statsdItems.first;
-      expect(capturedStatsd, isNotNull);
-    });
-
-    test('close closes metricsAggregator', () async {
-      final client = fixture.getSut();
-      client.close();
-      expect(client.metricsAggregator, isNotNull);
-      client.metricsAggregator!
-          .emit(MetricType.counter, 'key', 1, SentryMeasurementUnit.none, {});
-      // metricsAggregator is closed, so no metrics should be recorded
-      expect(client.metricsAggregator!.buckets, isEmpty);
-    });
-  });
 }
 
 Future<SentryEvent> eventFromEnvelope(SentryEnvelope envelope) async {
-  final envelopeItemData = <int>[];
-  envelopeItemData.addAll(await envelope.items.first.envelopeItemStream());
-
-  final envelopeItem = utf8.decode(envelopeItemData);
-  final envelopeItemJson = jsonDecode(envelopeItem.split('\n').last);
+  final data = await envelope.items.first.dataFactory();
+  final utf8Data = utf8.decode(data);
+  final envelopeItemJson = jsonDecode(utf8Data);
   return SentryEvent.fromJson(envelopeItemJson as Map<String, dynamic>);
 }
 
 Future<Map<String, dynamic>> transactionFromEnvelope(
     SentryEnvelope envelope) async {
-  final envelopeItemData = <int>[];
-  envelopeItemData.addAll(await envelope.items.first.envelopeItemStream());
-
-  final envelopeItem = utf8.decode(envelopeItemData);
-  final envelopeItemJson = jsonDecode(envelopeItem.split('\n').last);
+  final data = await envelope.items.first.dataFactory();
+  final utf8Data = utf8.decode(data);
+  final envelopeItemJson = jsonDecode(utf8Data);
   return envelopeItemJson as Map<String, dynamic>;
 }
 
@@ -2298,7 +2257,6 @@ class Fixture {
     bool sendDefaultPii = false,
     bool attachStacktrace = true,
     bool attachThreads = false,
-    bool enableMetrics = true,
     double? sampleRate,
     BeforeSendCallback? beforeSend,
     BeforeSendTransactionCallback? beforeSendTransaction,
@@ -2310,7 +2268,6 @@ class Fixture {
   }) {
     options.tracesSampleRate = 1.0;
     options.sendDefaultPii = sendDefaultPii;
-    options.enableMetrics = enableMetrics;
     options.attachStacktrace = attachStacktrace;
     options.attachThreads = attachThreads;
     options.sampleRate = sampleRate;

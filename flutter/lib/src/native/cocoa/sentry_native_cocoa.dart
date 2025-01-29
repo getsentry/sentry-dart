@@ -1,46 +1,39 @@
+import 'dart:async';
 import 'dart:ffi';
-import 'dart:typed_data';
-import 'dart:ui';
 
 import 'package:meta/meta.dart';
 
 import '../../../sentry_flutter.dart';
-import '../../event_processor/replay_event_processor.dart';
-import '../../screenshot/recorder.dart';
-import '../../screenshot/recorder_config.dart';
-import '../../replay/integration.dart';
+import '../../replay/replay_config.dart';
 import '../sentry_native_channel.dart';
 import 'binding.dart' as cocoa;
+import 'cocoa_replay_recorder.dart';
 
 @internal
 class SentryNativeCocoa extends SentryNativeChannel {
   late final _lib = cocoa.SentryCocoa(DynamicLibrary.process());
-  ScreenshotRecorder? _replayRecorder;
+  CocoaReplayRecorder? _replayRecorder;
   SentryId? _replayId;
 
   SentryNativeCocoa(super.options);
 
   @override
+  bool get supportsReplay => options.platformChecker.platform.isIOS;
+
+  @override
   Future<void> init(Hub hub) async {
     // We only need these when replay is enabled (session or error capture)
     // so let's set it up conditionally. This allows Dart to trim the code.
-    if (options.experimental.replay.isEnabled &&
-        options.platformChecker.platform.isIOS) {
-      options.sdk.addIntegration(replayIntegrationName);
-
-      // We only need the integration when error-replay capture is enabled.
-      if ((options.experimental.replay.onErrorSampleRate ?? 0) > 0) {
-        options.addEventProcessor(ReplayEventProcessor(hub, this));
-      }
-
+    if (options.experimental.replay.isEnabled) {
       channel.setMethodCallHandler((call) async {
         switch (call.method) {
           case 'captureReplayScreenshot':
-            _replayRecorder ??=
-                ScreenshotRecorder(ScreenshotRecorderConfig(), options);
+            _replayRecorder ??= CocoaReplayRecorder(options);
+
             final replayId = call.arguments['replayId'] == null
                 ? null
                 : SentryId.fromId(call.arguments['replayId'] as String);
+
             if (_replayId != replayId) {
               _replayId = replayId;
               hub.configureScope((s) {
@@ -49,23 +42,7 @@ class SentryNativeCocoa extends SentryNativeChannel {
               });
             }
 
-            Uint8List? imageBytes;
-            await _replayRecorder?.capture((image) async {
-              final imageData =
-                  await image.toByteData(format: ImageByteFormat.png);
-              if (imageData != null) {
-                options.logger(
-                    SentryLevel.debug,
-                    'Replay: captured screenshot ('
-                    '${image.width}x${image.height} pixels, '
-                    '${imageData.lengthInBytes} bytes)');
-                imageBytes = imageData.buffer.asUint8List();
-              } else {
-                options.logger(SentryLevel.warning,
-                    'Replay: failed to convert screenshot to PNG');
-              }
-            });
-            return imageBytes;
+            return _replayRecorder!.captureScreenshot();
           default:
             throw UnimplementedError('Method ${call.method} not implemented');
         }
@@ -73,6 +50,11 @@ class SentryNativeCocoa extends SentryNativeChannel {
     }
 
     return super.init(hub);
+  }
+
+  @override
+  FutureOr<void> setReplayConfig(ReplayConfig config) {
+    // Note: unused on iOS.
   }
 
   @override

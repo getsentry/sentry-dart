@@ -154,7 +154,7 @@ class SentryOptions {
   List<Integration> get integrations => List.unmodifiable(_integrations);
 
   /// Turns debug mode on or off. If debug is enabled SDK will attempt to print out useful debugging
-  /// information if something goes wrong. Default is disabled.
+  /// information if something goes wrong. Default is enabled in debug mode, otherwise it is disabled.
   bool get debug => _debug;
 
   set debug(bool newValue) {
@@ -451,48 +451,6 @@ class SentryOptions {
       'Use either tracesSampleRate or tracesSampler instead. This will be removed in v9')
   bool? enableTracing;
 
-  /// Enables sending developer metrics to Sentry.
-  /// More on https://develop.sentry.dev/delightful-developer-metrics/.
-  /// Example:
-  /// ```dart
-  /// Sentry.metrics.counter('myMetric');
-  /// ```
-  @experimental
-  bool enableMetrics = false;
-
-  @experimental
-  bool _enableDefaultTagsForMetrics = true;
-
-  /// Enables enriching metrics with default tags. Requires [enableMetrics].
-  /// More on https://develop.sentry.dev/delightful-developer-metrics/sending-metrics-sdk/#automatic-tags-extraction
-  /// Currently adds release, environment and transaction name.
-  @experimental
-  bool get enableDefaultTagsForMetrics =>
-      enableMetrics && _enableDefaultTagsForMetrics;
-
-  /// Enables enriching metrics with default tags. Requires [enableMetrics].
-  /// More on https://develop.sentry.dev/delightful-developer-metrics/sending-metrics-sdk/#automatic-tags-extraction
-  /// Currently adds release, environment and transaction name.
-  @experimental
-  set enableDefaultTagsForMetrics(final bool enableDefaultTagsForMetrics) =>
-      _enableDefaultTagsForMetrics = enableDefaultTagsForMetrics;
-
-  @experimental
-  bool _enableSpanLocalMetricAggregation = true;
-
-  /// Enables span metrics aggregation. Requires [enableMetrics].
-  /// More on https://develop.sentry.dev/sdk/metrics/#span-aggregation
-  @experimental
-  bool get enableSpanLocalMetricAggregation =>
-      enableMetrics && _enableSpanLocalMetricAggregation;
-
-  /// Enables span metrics aggregation. Requires [enableMetrics].
-  /// More on https://develop.sentry.dev/sdk/metrics/#span-aggregation
-  @experimental
-  set enableSpanLocalMetricAggregation(
-          final bool enableSpanLocalMetricAggregation) =>
-      _enableSpanLocalMetricAggregation = enableSpanLocalMetricAggregation;
-
   /// Only for internal use. Changed SDK behaviour when set to true:
   /// - Rethrow exceptions that occur in user provided closures
   @internal
@@ -542,7 +500,7 @@ class SentryOptions {
   /// On io platforms without native SDKs (dart, linux, windows), this will use
   /// an 'IOClient' with inner 'HTTPClient' for http communication.
   /// A http proxy will be set in returned for 'HttpClient.findProxy' in the
-  /// form 'PROXY <your_host>:<your_port>'.
+  /// form 'PROXY your_host:your_port'.
   /// When setting 'user' and 'pass', the 'HttpClient.addProxyCredentials'
   /// method will be called with empty 'realm'.
   ///

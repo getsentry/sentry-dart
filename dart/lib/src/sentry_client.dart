@@ -2,14 +2,11 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:meta/meta.dart';
-import 'type_check_hint.dart';
 
 import 'client_reports/client_report_recorder.dart';
 import 'client_reports/discard_reason.dart';
-import 'event_processor.dart';
+import 'event_processor/run_event_processors.dart';
 import 'hint.dart';
-import 'metrics/metric.dart';
-import 'metrics/metrics_aggregator.dart';
 import 'protocol.dart';
 import 'protocol/sentry_feedback.dart';
 import 'scope.dart';
@@ -27,6 +24,7 @@ import 'transport/http_transport.dart';
 import 'transport/noop_transport.dart';
 import 'transport/rate_limiter.dart';
 import 'transport/spotlight_http_transport.dart';
+import 'type_check_hint.dart';
 import 'utils/isolate_utils.dart';
 import 'utils/regex_utils.dart';
 import 'utils/stacktrace_utils.dart';
@@ -42,8 +40,6 @@ class SentryClient {
   final SentryOptions _options;
 
   final Random? _random;
-
-  late final MetricsAggregator? _metricsAggregator;
 
   static final _emptySentryId = Future.value(SentryId.empty());
 
@@ -82,13 +78,7 @@ class SentryClient {
 
   /// Instantiates a client using [SentryOptions]
   SentryClient._(this._options)
-      : _random = _options.sampleRate == null ? null : Random(),
-        _metricsAggregator = _options.enableMetrics
-            ? MetricsAggregator(options: _options)
-            : null;
-
-  @internal
-  MetricsAggregator? get metricsAggregator => _metricsAggregator;
+      : _random = _options.sampleRate == null ? null : Random();
 
   /// Reports an [event] to Sentry.io.
   Future<SentryId> captureEvent(
@@ -144,10 +134,11 @@ class SentryClient {
       return _emptySentryId;
     }
 
-    preparedEvent = await _runEventProcessors(
+    preparedEvent = await runEventProcessors(
       preparedEvent,
       hint,
-      eventProcessors: _options.eventProcessors,
+      _options.eventProcessors,
+      _options,
     );
 
     // dropped by event processors
@@ -384,10 +375,11 @@ class SentryClient {
       return _emptySentryId;
     }
 
-    preparedTransaction = await _runEventProcessors(
+    preparedTransaction = await runEventProcessors(
       preparedTransaction,
       hint,
-      eventProcessors: _options.eventProcessors,
+      _options.eventProcessors,
+      _options,
     ) as SentryTransaction?;
 
     // dropped by event processors
@@ -482,20 +474,7 @@ class SentryClient {
     );
   }
 
-  /// Reports the [metricsBuckets] to Sentry.io.
-  Future<SentryId> captureMetrics(
-      Map<int, Iterable<Metric>> metricsBuckets) async {
-    final envelope = SentryEnvelope.fromMetrics(
-      metricsBuckets,
-      _options.sdk,
-      dsn: _options.dsn,
-    );
-    final id = await _options.transport.send(envelope);
-    return id ?? SentryId.empty();
-  }
-
   void close() {
-    _metricsAggregator?.close();
     _options.httpClient.close();
   }
 
@@ -568,61 +547,6 @@ class SentryClient {
       if (droppedSpanCount > 0) {
         _options.recorder.recordLostEvent(discardReason, DataCategory.span,
             count: droppedSpanCount);
-      }
-    }
-
-    return processedEvent;
-  }
-
-  Future<SentryEvent?> _runEventProcessors(
-    SentryEvent event,
-    Hint hint, {
-    required List<EventProcessor> eventProcessors,
-  }) async {
-    SentryEvent? processedEvent = event;
-    int spanCountBeforeEventProcessors =
-        event is SentryTransaction ? event.spans.length : 0;
-
-    for (final processor in eventProcessors) {
-      try {
-        final e = processor.apply(processedEvent!, hint);
-        if (e is Future<SentryEvent?>) {
-          processedEvent = await e;
-        } else {
-          processedEvent = e;
-        }
-      } catch (exception, stackTrace) {
-        _options.logger(
-          SentryLevel.error,
-          'An exception occurred while processing event by a processor',
-          exception: exception,
-          stackTrace: stackTrace,
-        );
-        if (_options.automatedTestMode) {
-          rethrow;
-        }
-      }
-
-      final discardReason = DiscardReason.eventProcessor;
-      if (processedEvent == null) {
-        _options.recorder.recordLostEvent(discardReason, _getCategory(event));
-        if (event is SentryTransaction) {
-          // We dropped the whole transaction, the dropped count includes all child spans + 1 root span
-          _options.recorder.recordLostEvent(discardReason, DataCategory.span,
-              count: spanCountBeforeEventProcessors + 1);
-        }
-        _options.logger(SentryLevel.debug, 'Event was dropped by a processor');
-        break;
-      } else if (event is SentryTransaction &&
-          processedEvent is SentryTransaction) {
-        // If event processor removed only some spans we still report them as dropped
-        final spanCountAfterEventProcessors = processedEvent.spans.length;
-        final droppedSpanCount =
-            spanCountBeforeEventProcessors - spanCountAfterEventProcessors;
-        if (droppedSpanCount > 0) {
-          _options.recorder.recordLostEvent(discardReason, DataCategory.span,
-              count: droppedSpanCount);
-        }
       }
     }
 
