@@ -14,7 +14,6 @@ typedef ErrorCallback = bool Function(Object exception, StackTrace stackTrace);
 /// - https://api.flutter.dev/flutter/dart-ui/PlatformDispatcher/onError.html
 ///
 /// Remarks:
-/// - Only usable on Flutter >= 3.3.0.
 /// - Does not work on Flutter Web
 ///
 /// This is used instead of [RunZonedGuardedIntegration]. Not using the
