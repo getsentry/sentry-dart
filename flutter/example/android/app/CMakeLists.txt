@@ -7,7 +7,7 @@ add_library(native-sample SHARED src/main/cpp/native-sample.cpp)
 find_library(LOG_LIB log)
 
 target_link_libraries(
-        native-sample PRIVATE
-        ${LOG_LIB}
-        sentry_flutter_plugin # Use the alias defined in sentry-native.cmake
+    native-sample PRIVATE
+    ${LOG_LIB}
+    sentry_flutter_plugin # Use the alias defined in sentry-native.cmake
 )
