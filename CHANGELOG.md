@@ -34,6 +34,10 @@
 - Linux native error & obfuscation support ([#2431](https://github.com/getsentry/sentry-dart/pull/2431))
 - Improve Device context on plain Dart and Flutter desktop apps ([#2441](https://github.com/getsentry/sentry-dart/pull/2441))
 
+## 9.0.0
+
+- Bump Dart and Flutter version, Dart to 3.5.0, Flutter to 3.24.0 ([#2643](https://github.com/getsentry/sentry-dart/pull/2643))
+
 ## 8.11.0-beta.1
 
 ### Features
