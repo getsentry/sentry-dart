@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Enhancements
+
+- Propagate sample seed in baggage header ([#2629](https://github.com/getsentry/sentry-dart/pull/2629))
+  - Read more about the specs [here](https://develop.sentry.dev/sdk/telemetry/traces/#propagated-random-value)
+
 ## 8.13.0-beta.3
 
 ### Enhancements
