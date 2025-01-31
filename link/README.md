@@ -47,7 +47,7 @@ query LoadPosts($id: ID!) {
 
 it will be represented in Sentry as seen in the image
 
-<img src="https://raw.githubusercontent.com/getsentry/sentry-dart/main/link/screenshot.png" />
+<img src="https://raw.githubusercontent.com/getsentry/sentry-dart/a24a1dbf1d0fdb00416b46a20a819e04c48f52a4/link/screenshot.png" />
 
 ## Improve exception reports for `LinkException`s
 
