@@ -1,6 +1,6 @@
 # Sentry Link (GraphQL)
 
-[![pub package](https://img.shields.io/pub/v/sentry_link.svg)](https://pub.dev/packages/sentry_link) [![likes](https://img.shields.io/pub/likes/sentry_link)](https://pub.dev/packages/sentry_link/score) [![popularity](https://img.shields.io/pub/popularity/sentry_link)](https://pub.dev/packages/sentry_link/score) [![pub points](https://img.shields.io/pub/points/sentry_link)](https://pub.dev/packages/sentry_link/score)
+[![pub package](https://img.shields.io/pub/v/sentry_link.svg)](https://pub.dev/packages/sentry_link) [![likes](https://img.shields.io/pub/likes/sentry_link)](https://pub.dev/packages/sentry_link/score) [![pub points](https://img.shields.io/pub/points/sentry_link)](https://pub.dev/packages/sentry_link/score)
 
 ## Compatibility list
 
@@ -8,10 +8,10 @@ This integration is compatible with the following packages. It's also compatible
 
 | package | stats |
 |---------|-------|
-| [`gql_link`](https://pub.dev/packages/gql_link) | <a href="https://pub.dev/packages/graphql/score"><img src="https://img.shields.io/pub/likes/gql_link" alt="likes"></a> <a href="https://pub.dev/packages/gql_link/score"><img src="https://img.shields.io/pub/popularity/gql_link" alt="popularity"></a> <a href="https://pub.dev/packages/gql_link/score"><img src="https://img.shields.io/pub/points/gql_link" alt="pub points"></a> |
-| [`graphql`](https://pub.dev/packages/graphql) | <a href="https://pub.dev/packages/graphql/score"><img src="https://img.shields.io/pub/likes/graphql" alt="likes"></a> <a href="https://pub.dev/packages/graphql/score"><img src="https://img.shields.io/pub/popularity/graphql" alt="popularity"></a> <a href="https://pub.dev/packages/graphql/score"><img src="https://img.shields.io/pub/points/graphql" alt="pub points"></a> |
-| [`ferry`](https://pub.dev/packages/ferry) | <a href="https://pub.dev/packages/ferry/score"><img src="https://img.shields.io/pub/likes/ferry" alt="likes"></a> <a href="https://pub.dev/packages/ferry/score"><img src="https://img.shields.io/pub/popularity/ferry" alt="popularity"></a> <a href="https://pub.dev/packages/ferry/score"><img src="https://img.shields.io/pub/points/ferry" alt="pub points"></a> |
-| [`artemis`](https://pub.dev/packages/artemis) | <a href="https://pub.dev/packages/artemis/score"><img src="https://img.shields.io/pub/likes/artemis" alt="likes"></a> <a href="https://pub.dev/packages/artemis/score"><img src="https://img.shields.io/pub/popularity/artemis" alt="popularity"></a> <a href="https://pub.dev/packages/artemis/score"><img src="https://img.shields.io/pub/points/artemis" alt="pub points"></a> |
+| [`gql_link`](https://pub.dev/packages/gql_link) | <a href="https://pub.dev/packages/graphql/score"><img src="https://img.shields.io/pub/likes/gql_link" alt="likes"></a> <a href="https://pub.dev/packages/gql_link/score"><img src="https://img.shields.io/pub/points/gql_link" alt="pub points"></a> |
+| [`graphql`](https://pub.dev/packages/graphql) | <a href="https://pub.dev/packages/graphql/score"><img src="https://img.shields.io/pub/likes/graphql" alt="likes"></a> <a href="https://pub.dev/packages/graphql/score"><img src="https://img.shields.io/pub/points/graphql" alt="pub points"></a> |
+| [`ferry`](https://pub.dev/packages/ferry) | <a href="https://pub.dev/packages/ferry/score"><img src="https://img.shields.io/pub/likes/ferry" alt="likes"></a> <a href="https://pub.dev/packages/ferry/score"><img src="https://img.shields.io/pub/points/ferry" alt="pub points"></a> |
+| [`artemis`](https://pub.dev/packages/artemis) | <a href="https://pub.dev/packages/artemis/score"><img src="https://img.shields.io/pub/likes/artemis" alt="likes"></a> <a href="https://pub.dev/packages/artemis/score"><img src="https://img.shields.io/pub/points/artemis" alt="pub points"></a> |
 
 ## Usage
 
@@ -47,7 +47,7 @@ query LoadPosts($id: ID!) {
 
 it will be represented in Sentry as seen in the image
 
-<img src="https://raw.githubusercontent.com/getsentry/sentry-dart/main/sentry_link/screenshot.png" />
+<img src="https://raw.githubusercontent.com/getsentry/sentry-dart/a24a1dbf1d0fdb00416b46a20a819e04c48f52a4/link/screenshot.png" />
 
 ## Improve exception reports for `LinkException`s
 
