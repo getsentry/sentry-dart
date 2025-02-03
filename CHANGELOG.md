@@ -2,14 +2,15 @@
 
 ## Unreleased
 
-### Other
-
-- Remove macOS display refresh rate support ([#2628](https://github.com/getsentry/sentry-dart/pull/2628))
 ### Dependencies
 
 - Bump Cocoa SDK from v8.44.0-beta.1 to v8.44.0 ([#2649](https://github.com/getsentry/sentry-dart/pull/2649))
   - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8440)
   - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.44.0-beta.1...8.44.0)
+
+### Other
+
+- Remove macOS display refresh rate support ([#2628](https://github.com/getsentry/sentry-dart/pull/2628))
 
 ## 8.13.0-beta.3
 
