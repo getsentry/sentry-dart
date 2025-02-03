@@ -732,6 +732,8 @@ void main() {
       );
     });
   });
+
+  // TODO @denis Test isMultiViewApp...
 }
 
 MockSentryNativeBinding mockNativeBinding() {

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:file/file.dart';
 import 'package:file/local.dart';
@@ -7,6 +8,7 @@ import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart' as meta;
 import 'package:sentry/sentry.dart';
 
+import '../sentry_flutter.dart';
 import 'binding_wrapper.dart';
 import 'event_processor/screenshot_event_processor.dart';
 import 'navigation/time_to_display_tracker.dart';
@@ -235,6 +237,9 @@ class SentryFlutterOptions extends SentryOptions {
 
   @meta.internal
   late RendererWrapper rendererWrapper = RendererWrapper();
+
+  @meta.internal
+  bool isMultiViewApp = false;
 
   @meta.internal
   late MethodChannel methodChannel = const MethodChannel('sentry_flutter');
