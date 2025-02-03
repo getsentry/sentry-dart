@@ -31229,13 +31229,13 @@ class NSObject extends _ObjCWrapper {
   }
 }
 
-base class ObjCSel extends ffi.Opaque {}
+final class ObjCSel extends ffi.Opaque {}
 
-base class ObjCObject extends ffi.Opaque {}
+final class ObjCObject extends ffi.Opaque {}
 
 typedef instancetype = ffi.Pointer<ObjCObject>;
 
-base class _NSZone extends ffi.Opaque {}
+final class _NSZone extends ffi.Opaque {}
 
 class Protocol extends _ObjCWrapper {
   Protocol._(ffi.Pointer<ObjCObject> id, SentryCocoa lib,
@@ -34397,7 +34397,7 @@ class NSData extends NSObject {
   }
 }
 
-base class _NSRange extends ffi.Struct {
+final class _NSRange extends ffi.Struct {
   @ffi.UnsignedLong()
   external int location;
 
@@ -35851,7 +35851,7 @@ class NSValue extends NSObject {
   }
 }
 
-base class CGPoint extends ffi.Struct {
+final class CGPoint extends ffi.Struct {
   @ffi.Double()
   external double x;
 
@@ -35859,7 +35859,7 @@ base class CGPoint extends ffi.Struct {
   external double y;
 }
 
-base class CGSize extends ffi.Struct {
+final class CGSize extends ffi.Struct {
   @ffi.Double()
   external double width;
 
@@ -35867,13 +35867,13 @@ base class CGSize extends ffi.Struct {
   external double height;
 }
 
-base class CGRect extends ffi.Struct {
+final class CGRect extends ffi.Struct {
   external CGPoint origin;
 
   external CGSize size;
 }
 
-base class NSEdgeInsets extends ffi.Struct {
+final class NSEdgeInsets extends ffi.Struct {
   @ffi.Double()
   external double top;
 
@@ -36894,7 +36894,7 @@ class ObjCBlock_ObjCObject_NSError_NSString extends _ObjCBlockBase {
   }
 }
 
-base class _ObjCBlockDesc extends ffi.Struct {
+final class _ObjCBlockDesc extends ffi.Struct {
   @ffi.UnsignedLong()
   external int reserved;
 
@@ -36908,7 +36908,7 @@ base class _ObjCBlockDesc extends ffi.Struct {
   external ffi.Pointer<ffi.Char> signature;
 }
 
-base class _ObjCBlock extends ffi.Struct {
+final class _ObjCBlock extends ffi.Struct {
   external ffi.Pointer<ffi.Void> isa;
 
   @ffi.Int()
@@ -38108,7 +38108,7 @@ class NSPredicate extends NSObject {
   }
 }
 
-base class __va_list_tag extends ffi.Struct {
+final class __va_list_tag extends ffi.Struct {
   @ffi.UnsignedInt()
   external int gp_offset;
 
@@ -38950,7 +38950,7 @@ class ObjCBlock_bool_ObjCObject_ObjCObject_bool extends _ObjCBlockBase {
   }
 }
 
-base class NSFastEnumerationState extends ffi.Struct {
+final class NSFastEnumerationState extends ffi.Struct {
   @ffi.UnsignedLong()
   external int state;
 
@@ -46911,7 +46911,7 @@ class NSRunLoop extends NSObject {
   }
 }
 
-base class __CFRunLoop extends ffi.Opaque {}
+final class __CFRunLoop extends ffi.Opaque {}
 
 class NSTimer extends NSObject {
   NSTimer._(ffi.Pointer<ObjCObject> id, SentryCocoa lib,
@@ -48885,14 +48885,14 @@ class NSAppleEventDescriptor extends NSObject {
 }
 
 @ffi.Packed(2)
-base class AEDesc extends ffi.Struct {
+final class AEDesc extends ffi.Struct {
   @ffi.UnsignedInt()
   external int descriptorType;
 
   external ffi.Pointer<ffi.Pointer<OpaqueAEDataStorageType>> dataHandle;
 }
 
-base class OpaqueAEDataStorageType extends ffi.Opaque {}
+final class OpaqueAEDataStorageType extends ffi.Opaque {}
 
 abstract class NSAppleEventSendOptions {
   static const int NSAppleEventSendNoReply = 1;
@@ -57048,7 +57048,7 @@ class NSScanner extends NSObject {
   }
 }
 
-base class NSDecimal extends ffi.Opaque {}
+final class NSDecimal extends ffi.Opaque {}
 
 class NSException extends NSObject {
   NSException._(ffi.Pointer<ObjCObject> id, SentryCocoa lib,
@@ -61794,7 +61794,7 @@ class NSProcessInfo extends NSObject {
   }
 }
 
-base class NSOperatingSystemVersion extends ffi.Struct {
+final class NSOperatingSystemVersion extends ffi.Struct {
   @ffi.Long()
   external int majorVersion;
 
@@ -63819,9 +63819,9 @@ abstract class NSURLCredentialPersistence {
   static const int NSURLCredentialPersistenceSynchronizable = 3;
 }
 
-base class __SecIdentity extends ffi.Opaque {}
+final class __SecIdentity extends ffi.Opaque {}
 
-base class __SecTrust extends ffi.Opaque {}
+final class __SecTrust extends ffi.Opaque {}
 
 class NSURLProtectionSpace extends NSObject {
   NSURLProtectionSpace._(ffi.Pointer<ObjCObject> id, SentryCocoa lib,
