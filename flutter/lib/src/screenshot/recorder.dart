@@ -199,7 +199,7 @@ class _Capture<R> {
       // Weirdly, dumping the image data seems to prevent this issue...
       {
         // we do so in a block so it can be GC'ed early.
-        final _ = image.toByteData();
+        final _ = await image.toByteData();
       }
 
       try {
