@@ -14,6 +14,9 @@
 - Bump Cocoa SDK from v8.44.0-beta.1 to v8.44.0 ([#2649](https://github.com/getsentry/sentry-dart/pull/2649))
   - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8440)
   - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.44.0-beta.1...8.44.0)
+- Bump Android SDK from v7.20.1 to v8.1.0 ([#2650](https://github.com/getsentry/sentry-dart/pull/2650))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#810)
+  - [diff](https://github.com/getsentry/sentry-java/compare/7.20.1...8.1.0)
 
 ## 8.13.0-beta.3
 
