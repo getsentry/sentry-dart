@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
+import '../integrations/on_error_integration.dart';
 import '../sentry_flutter_options.dart';
 
 /// This class wraps the `this as dynamic` hack in a type-safe manner.
