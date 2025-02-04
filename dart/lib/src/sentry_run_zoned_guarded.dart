@@ -61,12 +61,12 @@ class SentryRunZonedGuarded {
 
         try {
           _isPrinting = true;
-          hub.addBreadcrumb(
+          unawaited(hub.addBreadcrumb(
             Breadcrumb.console(
               message: line,
               level: SentryLevel.debug,
             ),
-          );
+          ));
           parent.print(zone, line);
         } finally {
           _isPrinting = false;
