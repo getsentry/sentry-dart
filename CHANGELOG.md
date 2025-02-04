@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Disable `ScreenshotIntegration`, `WidgetsBindingIntegration` and `SentryWidget` in multi-view apps #2366 ([#2366](https://github.com/getsentry/sentry-dart/pull/2366))
+
 ### Dependencies
 
 - Bump Cocoa SDK from v8.44.0-beta.1 to v8.44.0 ([#2649](https://github.com/getsentry/sentry-dart/pull/2649))
@@ -9,10 +13,6 @@
   - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.44.0-beta.1...8.44.0)
 
 ## 8.13.0-beta.3
-
-### Features
-
-- Make Sentry Flutter multiview aware for the web platform and automatically disable `SentryScreenshotWidget`, `SentryUserInteractionWidget` and `WidgetsBindingIntegration` in multi-view applications.([#2366](https://github.com/getsentry/sentry-dart/pull/2366))
 
 ### Enhancements
 
