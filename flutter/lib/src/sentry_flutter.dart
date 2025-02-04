@@ -67,8 +67,7 @@ mixin SentryFlutter {
     }
 
     final wrapper = PlatformDispatcherWrapper(PlatformDispatcher.instance);
-    final isMultiViewApp = wrapper.isMultiViewEnabled(options);
-    options.isMultiViewApp = isMultiViewApp; // TODO @denis Make testable/mockable
+    options.isMultiViewApp = wrapper.isMultiViewEnabled(options);
 
     // Flutter Web doesn't capture [Future] errors if using [PlatformDispatcher.onError] and not
     // the [runZonedGuarded].
@@ -89,7 +88,6 @@ mixin SentryFlutter {
     final defaultIntegrations = _createDefaultIntegrations(
       options,
       isOnErrorSupported,
-      isMultiViewApp,
     );
     for (final defaultIntegration in defaultIntegrations) {
       options.addIntegration(defaultIntegration);
@@ -159,7 +157,6 @@ mixin SentryFlutter {
   static List<Integration> _createDefaultIntegrations(
     SentryFlutterOptions options,
     bool isOnErrorSupported,
-    bool isMultiViewApp,
   ) {
     final integrations = <Integration>[];
     final platformChecker = options.platformChecker;
@@ -175,10 +172,8 @@ mixin SentryFlutter {
     // Will catch any errors that may occur in the Flutter framework itself.
     integrations.add(FlutterErrorIntegration());
 
-    if (!isMultiViewApp) {
-      // This tracks Flutter application events, such as lifecycle events.
-      integrations.add(WidgetsBindingIntegration());
-    }
+    // This tracks Flutter application events, such as lifecycle events.
+    integrations.add(WidgetsBindingIntegration());
 
     // The ordering here matters, as we'd like to first start the native integration.
     // That allow us to send events to the network and then the Flutter integrations.
@@ -203,8 +198,7 @@ mixin SentryFlutter {
     }
 
     final renderer = options.rendererWrapper.getRenderer();
-    if ((!platformChecker.isWeb || renderer == FlutterRenderer.canvasKit) &&
-        !isMultiViewApp) {
+    if (!platformChecker.isWeb || renderer == FlutterRenderer.canvasKit) {
       integrations.add(ScreenshotIntegration());
     }
 
