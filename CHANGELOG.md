@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased 9.0.0
+
+- Increase minimum SDK version requirements to Dart v3.5.0 and Flutter v3.24.0 ([#2643](https://github.com/getsentry/sentry-dart/pull/2643))
+
 ## 8.13.0-beta.3
 
 ### Enhancements
@@ -376,7 +380,6 @@
   ```
   - Replace deprecated `BeforeScreenshotCallback` with new `BeforeCaptureCallback`.
 
-
 ### Fixes
 
 - Catch errors thrown during `handleBeginFrame` and `handleDrawFrame` ([#2446](https://github.com/getsentry/sentry-dart/pull/2446))
@@ -392,10 +395,6 @@
 - Bump Android SDK from v7.18.0 to v7.18.1 ([#2457](https://github.com/getsentry/sentry-dart/pull/2457))
   - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#7181)
   - [diff](https://github.com/getsentry/sentry-java/compare/7.18.0...7.18.1)
-
-## 9.0.0
-
-- Bump Dart and Flutter version, Dart to 3.5.0, Flutter to 3.24.0 ([#2643](https://github.com/getsentry/sentry-dart/pull/2643))
 
 ## 8.11.0-beta.1
 
