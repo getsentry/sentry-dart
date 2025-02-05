@@ -108,14 +108,6 @@ class ScreenshotEventProcessor implements EventProcessor {
       return event;
     }
 
-    if (_options.attachScreenshotOnlyWhenResumed &&
-        widget.WidgetsBinding.instance.lifecycleState !=
-            AppLifecycleState.resumed) {
-      _options.logger(SentryLevel.debug,
-          'Only attaching screenshots when application state is resumed.');
-      return event;
-    }
-
     final screenshotData = await createScreenshot();
     if (screenshotData != null) {
       hint.screenshot = SentryAttachment.fromScreenshotData(screenshotData);

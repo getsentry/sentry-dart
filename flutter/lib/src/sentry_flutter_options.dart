@@ -192,10 +192,6 @@ class SentryFlutterOptions extends SentryOptions {
   /// The quality of the attached screenshot
   SentryScreenshotQuality screenshotQuality = SentryScreenshotQuality.high;
 
-  /// Only attach a screenshot when the app is resumed.
-  /// See https://docs.sentry.io/platforms/flutter/troubleshooting/#screenshot-integration-background-crash
-  bool attachScreenshotOnlyWhenResumed = false;
-
   @Deprecated(
       'Will be removed in a future version. Use [beforeCaptureScreenshot] instead')
   BeforeScreenshotCallback? beforeScreenshot;
