@@ -100,6 +100,10 @@ void main() {
             expect(scope.replayId, isNull);
             await closure(scope);
             expect(scope.replayId.toString(), replayConfig['replayId']);
+
+            if (mockPlatform.isAndroid) {
+              await native.invokeFromNative('ReplayRecorder.stop');
+            }
           });
         });
 
