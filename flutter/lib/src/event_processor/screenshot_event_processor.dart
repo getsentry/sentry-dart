@@ -1,13 +1,11 @@
 import 'dart:async';
 import 'dart:typed_data';
-import 'dart:ui';
 
 import 'package:meta/meta.dart';
 import '../../sentry_flutter.dart';
 import '../renderer/renderer.dart';
 import '../screenshot/recorder.dart';
 import '../screenshot/recorder_config.dart';
-import 'package:flutter/widgets.dart' as widget;
 
 import '../utils/debouncer.dart';
 
