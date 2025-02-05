@@ -1,5 +1,5 @@
 @TestOn('browser')
-library flutter_test;
+library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/src/web/script_loader/sentry_script_loader.dart';

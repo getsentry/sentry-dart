@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:ui';
 
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
@@ -66,14 +65,10 @@ mixin SentryFlutter {
       _native = createBinding(options);
     }
 
-    final platformDispatcher = PlatformDispatcher.instance;
-    final wrapper = PlatformDispatcherWrapper(platformDispatcher);
-
-    // Flutter Web doesn't capture [Future] errors if using [PlatformDispatcher.onError] and not
+    // Flutter Web don't capture [Future] errors if using [PlatformDispatcher.onError] and not
     // the [runZonedGuarded].
     // likely due to https://github.com/flutter/flutter/issues/100277
-    final bool isOnErrorSupported =
-        !options.platformChecker.isWeb && wrapper.isOnErrorSupported(options);
+    final isOnErrorSupported = !options.platformChecker.isWeb;
 
     final bool isRootZone = options.platformChecker.isRootZone;
 

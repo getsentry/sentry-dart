@@ -869,7 +869,7 @@ class SentryNative {
 /// frozen but lists and dicts are not and can be frozen on demand.  This
 /// automatically happens for some shared values in the event payload like
 /// the module list.
-class sentry_value_u extends ffi.Union {
+final class sentry_value_u extends ffi.Union {
   @ffi.Uint64()
   external int _bits;
 
@@ -891,4 +891,4 @@ abstract class sentry_value_type_t {
 /// The Sentry Client Options.
 ///
 /// See https://docs.sentry.io/platforms/native/configuration/
-class sentry_options_s extends ffi.Opaque {}
+final class sentry_options_s extends ffi.Opaque {}

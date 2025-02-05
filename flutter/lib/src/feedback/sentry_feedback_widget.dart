@@ -206,13 +206,6 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
                         hint = Hint.withScreenshot(screenshot);
                       }
                       await _captureFeedback(feedback, hint);
-
-                      bool mounted;
-                      try {
-                        mounted = (this as dynamic).mounted as bool;
-                      } on NoSuchMethodError catch (_) {
-                        mounted = false;
-                      }
                       if (mounted) {
                         // ignore: use_build_context_synchronously
                         await Navigator.maybePop(context);

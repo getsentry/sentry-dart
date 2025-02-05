@@ -1,5 +1,5 @@
 @TestOn('vm')
-library flutter_test;
+library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/src/view_hierarchy/view_hierarchy_event_processor.dart';

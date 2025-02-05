@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 /// A pure Dart client for Sentry.io crash reporting.
-library sentry_dart;
+library;
 
 export 'src/run_zoned_guarded_integration.dart';
 export 'src/hub.dart';
