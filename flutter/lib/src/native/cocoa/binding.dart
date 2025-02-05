@@ -30118,6 +30118,11 @@ class SentryCocoa {
       ffi.Pointer<ObjCObject> Function(ffi.Pointer<ObjCObject>,
           ffi.Pointer<ObjCSel>, ffi.Pointer<ObjCObject>)>();
 
+  late final _class_SentryFeedback1 = _getClass1("SentryFeedback");
+  late final _sel_email1 = _registerName1("email");
+  late final _sel_setEmail_1 = _registerName1("setEmail:");
+  late final _sel_message1 = _registerName1("message");
+  late final _sel_setMessage_1 = _registerName1("setMessage:");
   late final _class_SentryId11 = _getClass1("Sentry.SentryId");
   late final _sel_empty1 = _registerName1("empty");
   ffi.Pointer<ObjCObject> _objc_msgSend_1062(
@@ -30227,6 +30232,15 @@ class SentryCocoa {
           ffi.Pointer<ObjCObject>)>();
 
   late final _sel_isEqual_1 = _registerName1("isEqual:");
+  late final _sel_eventId1 = _registerName1("eventId");
+  late final _sel_screenshot1 = _registerName1("screenshot");
+  late final _sel_setScreenshot_1 = _registerName1("setScreenshot:");
+  late final _sel_associatedEventId1 = _registerName1("associatedEventId");
+  late final _sel_setAssociatedEventId_1 =
+      _registerName1("setAssociatedEventId:");
+  late final _sel_serialize1 = _registerName1("serialize");
+  late final _sel_dataDictionary1 = _registerName1("dataDictionary");
+  late final _sel_attachments1 = _registerName1("attachments");
 }
 
 class _ObjCWrapper implements ffi.Finalizable {
@@ -71187,6 +71201,212 @@ class SentryBreadcrumb extends _ObjCWrapper {
   static bool isInstance(_ObjCWrapper obj) {
     return obj._lib._objc_msgSend_0(obj._id, obj._lib._sel_isKindOfClass_1,
         obj._lib._class_SentryBreadcrumb1);
+  }
+}
+
+class SentryFeedback extends NSObject {
+  SentryFeedback._(ffi.Pointer<ObjCObject> id, SentryCocoa lib,
+      {bool retain = false, bool release = false})
+      : super._(id, lib, retain: retain, release: release);
+
+  /// Returns a [SentryFeedback] that points to the same underlying object as [other].
+  static SentryFeedback castFrom<T extends _ObjCWrapper>(T other) {
+    return SentryFeedback._(other._id, other._lib, retain: true, release: true);
+  }
+
+  /// Returns a [SentryFeedback] that wraps the given raw object pointer.
+  static SentryFeedback castFromPointer(
+      SentryCocoa lib, ffi.Pointer<ObjCObject> other,
+      {bool retain = false, bool release = false}) {
+    return SentryFeedback._(other, lib, retain: retain, release: release);
+  }
+
+  /// Returns whether [obj] is an instance of [SentryFeedback].
+  static bool isInstance(_ObjCWrapper obj) {
+    return obj._lib._objc_msgSend_0(obj._id, obj._lib._sel_isKindOfClass_1,
+        obj._lib._class_SentryFeedback1);
+  }
+
+  NSString? get name {
+    final _ret = _lib._objc_msgSend_20(_id, _lib._sel_name1);
+    return _ret.address == 0
+        ? null
+        : NSString._(_ret, _lib, retain: true, release: true);
+  }
+
+  set name(NSString? value) {
+    return _lib._objc_msgSend_509(
+        _id, _lib._sel_setName_1, value?._id ?? ffi.nullptr);
+  }
+
+  NSString? get email {
+    final _ret = _lib._objc_msgSend_20(_id, _lib._sel_email1);
+    return _ret.address == 0
+        ? null
+        : NSString._(_ret, _lib, retain: true, release: true);
+  }
+
+  set email(NSString? value) {
+    return _lib._objc_msgSend_509(
+        _id, _lib._sel_setEmail_1, value?._id ?? ffi.nullptr);
+  }
+
+  NSString? get message {
+    final _ret = _lib._objc_msgSend_20(_id, _lib._sel_message1);
+    return _ret.address == 0
+        ? null
+        : NSString._(_ret, _lib, retain: true, release: true);
+  }
+
+  set message(NSString? value) {
+    return _lib._objc_msgSend_509(
+        _id, _lib._sel_setMessage_1, value?._id ?? ffi.nullptr);
+  }
+
+  SentryId1? get eventId {
+    final _ret = _lib._objc_msgSend_1062(_id, _lib._sel_eventId1);
+    return _ret.address == 0
+        ? null
+        : SentryId1._(_ret, _lib, retain: true, release: true);
+  }
+
+  /// PNG data for the screenshot image
+  NSData? get screenshot {
+    final _ret = _lib._objc_msgSend_39(_id, _lib._sel_screenshot1);
+    return _ret.address == 0
+        ? null
+        : NSData._(_ret, _lib, retain: true, release: true);
+  }
+
+  /// PNG data for the screenshot image
+  set screenshot(NSData? value) {
+    return _lib._objc_msgSend_939(
+        _id, _lib._sel_setScreenshot_1, value?._id ?? ffi.nullptr);
+  }
+
+  /// The event id that this feedback is associated with, like a crash report.
+  NSString? get associatedEventId {
+    final _ret = _lib._objc_msgSend_20(_id, _lib._sel_associatedEventId1);
+    return _ret.address == 0
+        ? null
+        : NSString._(_ret, _lib, retain: true, release: true);
+  }
+
+  /// The event id that this feedback is associated with, like a crash report.
+  set associatedEventId(NSString? value) {
+    return _lib._objc_msgSend_509(
+        _id, _lib._sel_setAssociatedEventId_1, value?._id ?? ffi.nullptr);
+  }
+
+  @override
+  SentryFeedback init() {
+    final _ret = _lib._objc_msgSend_2(_id, _lib._sel_init1);
+    return SentryFeedback._(_ret, _lib, retain: true, release: true);
+  }
+
+  static SentryFeedback new1(SentryCocoa _lib) {
+    final _ret =
+        _lib._objc_msgSend_2(_lib._class_SentryFeedback1, _lib._sel_new1);
+    return SentryFeedback._(_ret, _lib, retain: false, release: true);
+  }
+
+  NSDictionary serialize() {
+    final _ret = _lib._objc_msgSend_170(_id, _lib._sel_serialize1);
+    return NSDictionary._(_ret, _lib, retain: true, release: true);
+  }
+
+  /// note:
+  /// This dictionary is to pass to the block <code>SentryUserFeedbackConfiguration.onSubmitSuccess</code>, describing the contents submitted. This is different from the serialized form of the feedback for envelope transmission, because there are some internal details in that serialization that are irrelevant to the consumer and are not available at the time <code>onSubmitSuccess</code> is called.
+  NSDictionary dataDictionary() {
+    final _ret = _lib._objc_msgSend_170(_id, _lib._sel_dataDictionary1);
+    return NSDictionary._(_ret, _lib, retain: true, release: true);
+  }
+
+  /// note:
+  /// Currently there is only a single attachment possible, for the screenshot, of which there can be only one.
+  NSArray attachments() {
+    final _ret = _lib._objc_msgSend_79(_id, _lib._sel_attachments1);
+    return NSArray._(_ret, _lib, retain: true, release: true);
+  }
+
+  static SentryFeedback allocWithZone_(
+      SentryCocoa _lib, ffi.Pointer<_NSZone> zone) {
+    final _ret = _lib._objc_msgSend_3(
+        _lib._class_SentryFeedback1, _lib._sel_allocWithZone_1, zone);
+    return SentryFeedback._(_ret, _lib, retain: false, release: true);
+  }
+
+  static SentryFeedback alloc(SentryCocoa _lib) {
+    final _ret =
+        _lib._objc_msgSend_2(_lib._class_SentryFeedback1, _lib._sel_alloc1);
+    return SentryFeedback._(_ret, _lib, retain: false, release: true);
+  }
+
+  static void cancelPreviousPerformRequestsWithTarget_selector_object_(
+      SentryCocoa _lib,
+      NSObject aTarget,
+      ffi.Pointer<ObjCSel> aSelector,
+      NSObject anArgument) {
+    _lib._objc_msgSend_14(
+        _lib._class_SentryFeedback1,
+        _lib._sel_cancelPreviousPerformRequestsWithTarget_selector_object_1,
+        aTarget._id,
+        aSelector,
+        anArgument._id);
+  }
+
+  static void cancelPreviousPerformRequestsWithTarget_(
+      SentryCocoa _lib, NSObject aTarget) {
+    _lib._objc_msgSend_15(_lib._class_SentryFeedback1,
+        _lib._sel_cancelPreviousPerformRequestsWithTarget_1, aTarget._id);
+  }
+
+  static bool getAccessInstanceVariablesDirectly(SentryCocoa _lib) {
+    return _lib._objc_msgSend_12(_lib._class_SentryFeedback1,
+        _lib._sel_accessInstanceVariablesDirectly1);
+  }
+
+  static bool useStoredAccessor(SentryCocoa _lib) {
+    return _lib._objc_msgSend_12(
+        _lib._class_SentryFeedback1, _lib._sel_useStoredAccessor1);
+  }
+
+  static NSSet keyPathsForValuesAffectingValueForKey_(
+      SentryCocoa _lib, NSString? key) {
+    final _ret = _lib._objc_msgSend_58(
+        _lib._class_SentryFeedback1,
+        _lib._sel_keyPathsForValuesAffectingValueForKey_1,
+        key?._id ?? ffi.nullptr);
+    return NSSet._(_ret, _lib, retain: true, release: true);
+  }
+
+  static bool automaticallyNotifiesObserversForKey_(
+      SentryCocoa _lib, NSString? key) {
+    return _lib._objc_msgSend_59(
+        _lib._class_SentryFeedback1,
+        _lib._sel_automaticallyNotifiesObserversForKey_1,
+        key?._id ?? ffi.nullptr);
+  }
+
+  static void setKeys_triggerChangeNotificationsForDependentKey_(
+      SentryCocoa _lib, NSArray? keys, NSString? dependentKey) {
+    _lib._objc_msgSend_82(
+        _lib._class_SentryFeedback1,
+        _lib._sel_setKeys_triggerChangeNotificationsForDependentKey_1,
+        keys?._id ?? ffi.nullptr,
+        dependentKey?._id ?? ffi.nullptr);
+  }
+
+  static NSArray classFallbacksForKeyedArchiver(SentryCocoa _lib) {
+    final _ret = _lib._objc_msgSend_79(
+        _lib._class_SentryFeedback1, _lib._sel_classFallbacksForKeyedArchiver1);
+    return NSArray._(_ret, _lib, retain: true, release: true);
+  }
+
+  static NSObject classForKeyedUnarchiver(SentryCocoa _lib) {
+    final _ret = _lib._objc_msgSend_2(
+        _lib._class_SentryFeedback1, _lib._sel_classForKeyedUnarchiver1);
+    return NSObject._(_ret, _lib, retain: true, release: true);
   }
 }
 

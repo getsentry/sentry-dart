@@ -4,6 +4,17 @@
 
 - Increase minimum SDK version requirements to Dart v3.5.0 and Flutter v3.24.0 ([#2643](https://github.com/getsentry/sentry-dart/pull/2643))
 
+## Unreleased
+
+### Fixes
+
+- Fix print recursion detection ([#2624](https://github.com/getsentry/sentry-dart/pull/2624))
+### Dependencies
+
+- Bump Cocoa SDK from v8.44.0-beta.1 to v8.44.0 ([#2649](https://github.com/getsentry/sentry-dart/pull/2649))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8440)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.44.0-beta.1...8.44.0)
+
 ## 8.13.0-beta.3
 
 ### Enhancements
