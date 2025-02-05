@@ -3,6 +3,7 @@
 ## Unreleased 9.0.0
 
 - Increase minimum SDK version requirements to Dart v3.5.0 and Flutter v3.24.0 ([#2643](https://github.com/getsentry/sentry-dart/pull/2643))
+- Remove deprecated `beforeScreenshot` ([#2662](https://github.com/getsentry/sentry-dart/pull/2662))
 
 ### Dependencies
 
@@ -15,6 +16,7 @@
 ### Fixes
 
 - Fix print recursion detection ([#2624](https://github.com/getsentry/sentry-dart/pull/2624))
+
 ### Dependencies
 
 - Bump Cocoa SDK from v8.44.0-beta.1 to v8.44.0 ([#2649](https://github.com/getsentry/sentry-dart/pull/2649))
