@@ -6,6 +6,17 @@
 
 - Propagate sample seed in baggage header ([#2629](https://github.com/getsentry/sentry-dart/pull/2629))
   - Read more about the specs [here](https://develop.sentry.dev/sdk/telemetry/traces/#propagated-random-value)
+- Finish and start new transaction when tapping same element again ([#2623](https://github.com/getsentry/sentry-dart/pull/2623))
+
+### Fixes
+
+- Fix print recursion detection ([#2624](https://github.com/getsentry/sentry-dart/pull/2624))
+
+### Dependencies
+
+- Bump Cocoa SDK from v8.44.0-beta.1 to v8.44.0 ([#2649](https://github.com/getsentry/sentry-dart/pull/2649))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8440)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.44.0-beta.1...8.44.0)
 
 ## 8.13.0-beta.3
 
