@@ -3,6 +3,7 @@
 ## Unreleased 9.0.0
 
 - Increase minimum SDK version requirements to Dart v3.5.0 and Flutter v3.24.0 ([#2643](https://github.com/getsentry/sentry-dart/pull/2643))
+- Remove screenshot option `attachScreenshotOnlyWhenResumed` ([#2664](https://github.com/getsentry/sentry-dart/pull/2664))
 
 ### Dependencies
 
@@ -10,7 +11,6 @@
   - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#810)
   - [diff](https://github.com/getsentry/sentry-java/compare/7.20.1...8.1.0)
 
-## Unreleased
 ## 8.13.0
 
 ### Breaking changes
