@@ -41,8 +41,10 @@ void main() {
 
     integration(fixture.hub, fixture.options);
 
-    expect(fixture.options.sdk.integrations.contains('screenshotIntegration'),
-        true);
+    expect(
+      fixture.options.sdk.integrations.contains('screenshotIntegration'),
+      true,
+    );
   });
 
   test('screenshotIntegration does not add integration to the sdk list', () {
@@ -50,8 +52,23 @@ void main() {
 
     integration(fixture.hub, fixture.options);
 
-    expect(fixture.options.sdk.integrations.contains('screenshotIntegration'),
-        false);
+    expect(
+      fixture.options.sdk.integrations.contains('screenshotIntegration'),
+      false,
+    );
+  });
+
+  test(
+      'screenshotIntegration does not add integration to the sdk list for multiview app',
+      () {
+    final integration = fixture.getSut();
+    fixture.options.isMultiViewApp = true;
+    integration(fixture.hub, fixture.options);
+
+    expect(
+      fixture.options.sdk.integrations.contains('screenshotIntegration'),
+      false,
+    );
   });
 
   test('screenshotIntegration close resets processor', () {

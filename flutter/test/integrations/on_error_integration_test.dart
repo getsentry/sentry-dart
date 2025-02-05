@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry_flutter/src/integrations/on_error_integration.dart';
+import 'package:sentry_flutter/src/utils/platform_dispatcher_wrapper.dart';
 
 import '../mocks.dart';
 import '../mocks.mocks.dart';

@@ -12,6 +12,14 @@ class WidgetsBindingIntegration implements Integration<SentryFlutterOptions> {
 
   @override
   void call(Hub hub, SentryFlutterOptions options) {
+    if (options.isMultiViewApp) {
+      // ignore: invalid_use_of_internal_member
+      options.logger(
+        SentryLevel.debug,
+        '`WidgetsBindingIntegration` is not available in multi-view applications.',
+      );
+      return;
+    }
     _options = options;
     final observer = SentryWidgetsBindingObserver(
       hub: hub,

@@ -45,6 +45,10 @@
   - No functional changes have been made. This version is identical to the previous one.
   - Change license from Apache to MIT
 
+### Features
+
+- Disable `ScreenshotIntegration`, `WidgetsBindingIntegration` and `SentryWidget` in multi-view apps #2366 ([#2366](https://github.com/getsentry/sentry-dart/pull/2366))
+
 ### Dependencies
 
 - Bump Native SDK from v0.7.17 to v0.7.19 ([#2578](https://github.com/getsentry/sentry-dart/pull/2578), [#2588](https://github.com/getsentry/sentry-dart/pull/2588))
