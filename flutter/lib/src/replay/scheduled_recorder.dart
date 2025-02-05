@@ -1,9 +1,9 @@
 import 'dart:async';
 
+import 'package:flutter/scheduler.dart';
 import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
-import '../screenshot/stabilizer.dart';
 import '../screenshot/screenshot.dart';
 import 'replay_recorder.dart';
 import 'scheduled_recorder_config.dart';
@@ -19,7 +19,6 @@ class ScheduledScreenshotRecorder extends ReplayScreenshotRecorder {
   late final ScheduledScreenshotRecorderCallback _callback;
   var _status = _Status.running;
   late final Duration _frameDuration;
-  late final ScreenshotStabilizer<void> _stabilizer;
   // late final _idleFrameFiller = _IdleFrameFiller(_frameDuration, _onScreenshot);
 
   @override
@@ -35,13 +34,21 @@ class ScheduledScreenshotRecorder extends ReplayScreenshotRecorder {
     _frameDuration = Duration(milliseconds: 1000 ~/ config.frameRate);
     assert(_frameDuration.inMicroseconds > 0);
 
-    _stabilizer = ScreenshotStabilizer(this, options, _onImageCaptured);
-    _scheduler = Scheduler(_frameDuration, _stabilizer.capture,
-        _stabilizer.ensureFrameAndAddCallback);
+    _scheduler = Scheduler(
+      _frameDuration,
+      (_) => capture(_onImageCaptured),
+      _addPostFrameCallback,
+    );
 
     if (callback != null) {
       _callback = callback;
     }
+  }
+
+  void _addPostFrameCallback(FrameCallback callback) {
+    options.bindingUtils.instance!
+      ..ensureVisualUpdate()
+      ..addPostFrameCallback(callback);
   }
 
   set callback(ScheduledScreenshotRecorderCallback callback) {
@@ -63,12 +70,10 @@ class ScheduledScreenshotRecorder extends ReplayScreenshotRecorder {
   }
 
   Future<void> _stopScheduler() {
-    _stabilizer.stopped = true;
     return _scheduler.stop();
   }
 
   void _startScheduler() {
-    _stabilizer.stopped = false;
     _scheduler.start();
 
     // We need to schedule a frame because if this happens in-between user
@@ -82,7 +87,6 @@ class ScheduledScreenshotRecorder extends ReplayScreenshotRecorder {
     options.logger(SentryLevel.debug, "$logName: stopping capture.");
     _status = _Status.stopped;
     await _stopScheduler();
-    _stabilizer.dispose();
     // await Future.wait([_stopScheduler(), _idleFrameFiller.stop()]);
     options.logger(SentryLevel.debug, "$logName: capture stopped.");
   }
