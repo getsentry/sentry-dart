@@ -190,6 +190,18 @@ class _Capture<R> {
       final recorder = PictureRecorder();
       final canvas = Canvas(recorder);
       final image = await futureImage;
+
+      // Note: there's a weird bug when we write image to canvas directly.
+      // If the UI is updating quickly in some apps, the image could get
+      // out-of-sync with the UI and/or it can get completely mangled.
+      // This can be reproduced, for example, by switching between Spotube's
+      // Search vs Library (2nd and 3rd bottom bar buttons).
+      // Weirdly, dumping the image data seems to prevent this issue...
+      {
+        // we do so in a block so it can be GC'ed early.
+        final _ = await image.toByteData();
+      }
+
       try {
         canvas.drawImage(image, Offset.zero, Paint());
       } finally {

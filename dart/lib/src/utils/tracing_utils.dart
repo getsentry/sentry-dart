@@ -80,3 +80,10 @@ bool isValidSampleRate(double? sampleRate) {
   }
   return !sampleRate.isNaN && sampleRate >= 0.0 && sampleRate <= 1.0;
 }
+
+bool isValidSampleRand(double? sampleRand) {
+  if (sampleRand == null) {
+    return false;
+  }
+  return !sampleRand.isNaN && sampleRand >= 0.0 && sampleRand < 1.0;
+}

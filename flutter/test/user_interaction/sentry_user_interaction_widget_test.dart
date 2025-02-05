@@ -2,11 +2,10 @@
 library;
 // ignore_for_file: invalid_use_of_internal_member
 
-import 'dart:async';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 
@@ -459,7 +458,8 @@ void main() {
       });
     });
 
-    testWidgets('Extend timer if transaction already started for same widget',
+    testWidgets(
+        'Cancel transaction if already started for same widget and start new one',
         (tester) async {
       await tester.runAsync(() async {
         final sut = fixture.getSut(
@@ -467,21 +467,50 @@ void main() {
             enableUserInteractionBreadcrumbs: false);
 
         await tapMe(tester, sut, 'btn_1');
-        Timer? currentTimer;
+        SentryTracer? initialTracer;
 
         fixture.hub.configureScope((scope) {
-          final tracer = (scope.span as SentryTracer);
-          currentTimer = tracer.autoFinishAfterTimer;
+          initialTracer = (scope.span as SentryTracer);
         });
 
-        await tapMe(tester, sut, 'btn_1', pumpWidget: false);
+        await tapMe(tester, sut, 'btn_1');
 
-        Timer? autoFinishAfterTimer;
+        SentryTracer? tracer;
         fixture.hub.configureScope((scope) {
-          final tracer = (scope.span as SentryTracer);
-          autoFinishAfterTimer = tracer.autoFinishAfterTimer;
+          tracer = (scope.span as SentryTracer);
         });
-        expect(currentTimer, isNot(equals(autoFinishAfterTimer)));
+        expect(initialTracer?.finished, isTrue);
+        expect(initialTracer?.status, equals(SpanStatus.cancelled()));
+
+        expect(initialTracer, isNot(equals(tracer)));
+      });
+    });
+
+    testWidgets(
+        'Finish transaction if already started with children for same widget and start new one',
+        (tester) async {
+      await tester.runAsync(() async {
+        final sut = fixture.getSut(
+            enableUserInteractionTracing: true,
+            enableUserInteractionBreadcrumbs: false);
+
+        await tapMe(tester, sut, 'btn_1');
+        SentryTracer? initialTracer;
+
+        await fixture.hub.configureScope((scope) async {
+          initialTracer = (scope.span as SentryTracer);
+          final child = initialTracer?.startChild("btn_1_child");
+          await child?.finish();
+        });
+
+        await tapMe(tester, sut, 'btn_1');
+
+        SentryTracer? tracer;
+        fixture.hub.configureScope((scope) {
+          tracer = (scope.span as SentryTracer);
+        });
+        expect(initialTracer?.finished, isTrue);
+        expect(initialTracer, isNot(equals(tracer)));
       });
     });
 
@@ -534,6 +563,9 @@ class Fixture {
     double? tracesSampleRate = 1.0,
     bool sendDefaultPii = false,
   }) {
+    // Missing mock exception
+    when(_transport.send(any)).thenAnswer((_) async => SentryId.newId());
+
     _options.transport = _transport;
     _options.tracesSampleRate = tracesSampleRate;
     _options.enableUserInteractionTracing = enableUserInteractionTracing;
