@@ -12,16 +12,62 @@
   - [diff](https://github.com/getsentry/sentry-java/compare/7.20.1...8.1.0)
 
 ## Unreleased
+## 8.13.0
+
+### Breaking changes
+
+- Remove Metrics API ([#2571](https://github.com/getsentry/sentry-dart/pull/2571))
+  - The Metrics product never reached maturity from beta and has officially ended in October 7th, 2024
+  - Read [this post](https://sentry.zendesk.com/hc/en-us/articles/26369339769883-Metrics-Beta-Ended-on-October-7th) for more information
+
+### Features
+
+- Add `beforeCapture` for View Hierarchy ([#2523](https://github.com/getsentry/sentry-dart/pull/2523))
+  - View hierarchy calls are now debounced for 2 seconds.
+- JS SDK integration ([#2572](https://github.com/getsentry/sentry-dart/pull/2572))
+  - Enable the integration by setting `options.enableSentryJs = true`
+  - Features:
+    - Sending envelopes through Sentry JS transport layer
+    - Capturing native JS errors
+- Add SentryReplayQuality setting (`options.experimental.replay.quality`) ([#2582](https://github.com/getsentry/sentry-dart/pull/2582))
+- SPM Support ([#2280](https://github.com/getsentry/sentry-dart/pull/2280))
+
+### Enhancements
+
+- Replay: improve iOS native interop performance ([#2530](https://github.com/getsentry/sentry-dart/pull/2530), [#2573](https://github.com/getsentry/sentry-dart/pull/2573))
+- Replay: improve orientation change tracking accuracy on Android ([#2540](https://github.com/getsentry/sentry-dart/pull/2540))
+- Print a warning if the rate limit was reached ([#2595](https://github.com/getsentry/sentry-dart/pull/2595))
+- Add replay masking config to tags and report SDKs versions ([#2592](https://github.com/getsentry/sentry-dart/pull/2592))
+- Enable `options.debug` when in debug mode ([#2597](https://github.com/getsentry/sentry-dart/pull/2597))
+- Propagate sample seed in baggage header ([#2629](https://github.com/getsentry/sentry-dart/pull/2629))
+  - Read more about the specs [here](https://develop.sentry.dev/sdk/telemetry/traces/#propagated-random-value)
+- Finish and start new transaction when tapping same element again ([#2623](https://github.com/getsentry/sentry-dart/pull/2623))
 
 ### Fixes
 
+- Replay: fix masking for frames captured during UI changes ([#2553](https://github.com/getsentry/sentry-dart/pull/2553), [#2657](https://github.com/getsentry/sentry-dart/pull/2657))
+- Replay: fix widget masks overlap when navigating between screens ([#2486](https://github.com/getsentry/sentry-dart/pull/2486), [#2576](https://github.com/getsentry/sentry-dart/pull/2576))
+- WASM compat for Drift ([#2580](https://github.com/getsentry/sentry-dart/pull/2580))
+- Fix image flickering when using `SentryAssetBundle` ([#2577](https://github.com/getsentry/sentry-dart/pull/2577))
 - Fix print recursion detection ([#2624](https://github.com/getsentry/sentry-dart/pull/2624))
+
+### Misc
+
+- Transfer ownership of `sentry_link` to Sentry. You can view the changelog for the previous versions [here](https://github.com/getsentry/sentry-dart/blob/main/link/CHANGELOG_OLD.md) ([#2338](https://github.com/getsentry/sentry-dart/pull/2338))
+  - No functional changes have been made. This version is identical to the previous one.
+  - Change license from Apache to MIT
 
 ### Dependencies
 
-- Bump Cocoa SDK from v8.44.0-beta.1 to v8.44.0 ([#2649](https://github.com/getsentry/sentry-dart/pull/2649))
+- Bump Native SDK from v0.7.17 to v0.7.19 ([#2578](https://github.com/getsentry/sentry-dart/pull/2578), [#2588](https://github.com/getsentry/sentry-dart/pull/2588))
+  - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#0719)
+  - [diff](https://github.com/getsentry/sentry-native/compare/0.7.17...0.7.19)
+- Bump Android SDK from v7.19.0 to v7.20.1 ([#2536](https://github.com/getsentry/sentry-dart/pull/2536), [#2549](https://github.com/getsentry/sentry-dart/pull/2549), [#2593](https://github.com/getsentry/sentry-dart/pull/2593))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#7201)
+  - [diff](https://github.com/getsentry/sentry-java/compare/7.20.0...7.20.1)
+- Bump Cocoa SDK from v8.42.0 to v8.44.0 ([#2542](https://github.com/getsentry/sentry-dart/pull/2542), [#2548](https://github.com/getsentry/sentry-dart/pull/2548), [#2598](https://github.com/getsentry/sentry-dart/pull/2598), [#2649](https://github.com/getsentry/sentry-dart/pull/2649))
   - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8440)
-  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.44.0-beta.1...8.44.0)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.42.0...8.44.0)
 
 ## 8.13.0-beta.3
 
