@@ -434,11 +434,6 @@ class _SentryFlutterExperimentalOptions {
       _privacy ?? SentryPrivacyOptions();
 }
 
-@Deprecated(
-    'Will be removed in a future version. Use [BeforeCaptureCallback] instead')
-typedef BeforeScreenshotCallback = FutureOr<bool> Function(SentryEvent event,
-    {Hint? hint});
-
 /// A callback which can be used to suppress capturing of screenshots.
 /// It's called in [ScreenshotEventProcessor] if screenshots are enabled.
 /// This gives more fine-grained control over when capturing should be performed,
