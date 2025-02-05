@@ -4,6 +4,8 @@
 
 ### Enhancements
 
+- Propagate sample seed in baggage header ([#2629](https://github.com/getsentry/sentry-dart/pull/2629))
+  - Read more about the specs [here](https://develop.sentry.dev/sdk/telemetry/traces/#propagated-random-value)
 - Finish and start new transaction when tapping same element again ([#2623](https://github.com/getsentry/sentry-dart/pull/2623))
 
 ### Fixes
