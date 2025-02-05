@@ -7,7 +7,7 @@ let package = Package(
     name: "sentry_flutter",
     platforms: [
         .iOS("12.0"),
-        .macOS("10.13")
+        .macOS("10.14")
     ],
     products: [
         .library(name: "sentry-flutter", targets: ["sentry_flutter", "sentry_flutter_objc"])

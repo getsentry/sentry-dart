@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased 9.0.0
+
+- Increase minimum SDK version requirements to Dart v3.5.0 and Flutter v3.24.0 ([#2643](https://github.com/getsentry/sentry-dart/pull/2643))
+
 ## 8.13.0-beta.3
 
 ### Enhancements
@@ -375,7 +379,6 @@
   });
   ```
   - Replace deprecated `BeforeScreenshotCallback` with new `BeforeCaptureCallback`.
-
 
 ### Fixes
 

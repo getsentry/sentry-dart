@@ -555,7 +555,7 @@ class SentryClient {
 
   bool _sampleRate() {
     if (_options.sampleRate != null && _random != null) {
-      return (_options.sampleRate! < _random!.nextDouble());
+      return (_options.sampleRate! < _random.nextDouble());
     }
     return false;
   }

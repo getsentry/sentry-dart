@@ -1,5 +1,5 @@
 @TestOn('vm')
-library flutter_test;
+library;
 
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
