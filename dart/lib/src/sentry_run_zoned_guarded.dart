@@ -29,7 +29,7 @@ class SentryRunZonedGuarded {
 
     final sentryZoneSpecification = ZoneSpecification.from(
       zoneSpecification ?? ZoneSpecification(),
-      print: (self, parent, zone, line) async {
+      print: (self, parent, zone, line) {
         final options = hub.options;
 
         if (userPrint != null) {
@@ -61,12 +61,12 @@ class SentryRunZonedGuarded {
 
         try {
           _isPrinting = true;
-          await hub.addBreadcrumb(
+          unawaited(hub.addBreadcrumb(
             Breadcrumb.console(
               message: line,
               level: SentryLevel.debug,
             ),
-          );
+          ));
           parent.print(zone, line);
         } finally {
           _isPrinting = false;

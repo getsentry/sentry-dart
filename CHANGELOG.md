@@ -6,6 +6,9 @@
 
 - Finish and start new transaction when tapping same element again ([#2623](https://github.com/getsentry/sentry-dart/pull/2623))
 
+### Fixes
+
+- Fix print recursion detection ([#2624](https://github.com/getsentry/sentry-dart/pull/2624))
 ### Dependencies
 
 - Bump Cocoa SDK from v8.44.0-beta.1 to v8.44.0 ([#2649](https://github.com/getsentry/sentry-dart/pull/2649))
