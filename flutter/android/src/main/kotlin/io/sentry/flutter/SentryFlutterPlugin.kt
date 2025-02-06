@@ -1,5 +1,6 @@
 package io.sentry.flutter
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.res.Configuration
@@ -49,7 +50,6 @@ class SentryFlutterPlugin :
   private lateinit var channel: MethodChannel
   private lateinit var context: Context
   private lateinit var sentryFlutter: SentryFlutter
-  private lateinit var replay: ReplayIntegration
 
   // Note: initial config because we don't yet have the numbers of the actual Flutter widget.
   // See how SentryFlutterReplayRecorder.start() handles it. New settings will be set by setReplayConfig() method below.
@@ -170,9 +170,9 @@ class SentryFlutterPlugin :
     if (cacheDirPath != null && isReplayEnabled) {
       replay =
         ReplayIntegration(
-          context,
+          context.applicationContext,
           dateProvider = CurrentDateProvider.getInstance(),
-          recorderProvider = { SentryFlutterReplayRecorder(channel, replay) },
+          recorderProvider = { SentryFlutterReplayRecorder(channel, replay!!) },
           recorderConfigProvider = {
             Log.i(
               "Sentry",
@@ -187,8 +187,8 @@ class SentryFlutterPlugin :
           },
           replayCacheProvider = null,
         )
-      replay.breadcrumbConverter = SentryFlutterReplayBreadcrumbConverter()
-      options.addIntegration(replay)
+      replay!!.breadcrumbConverter = SentryFlutterReplayBreadcrumbConverter()
+      options.addIntegration(replay!!)
       options.setReplayController(replay)
     } else {
       options.setReplayController(null)
@@ -517,7 +517,14 @@ class SentryFlutterPlugin :
   }
 
   companion object {
+    @SuppressLint("StaticFieldLeak")
+    private var replay: ReplayIntegration? = null
+
     private const val NATIVE_CRASH_WAIT_TIME = 500L
+
+    @JvmStatic fun privateSentryGetReplayIntegration() : ReplayIntegration? {
+      return replay
+    }
 
     private fun crash() {
       val exception = RuntimeException("FlutterSentry Native Integration: Sample RuntimeException")
@@ -561,7 +568,7 @@ class SentryFlutterPlugin :
       result.error("5", "Arguments are null", null)
       return
     }
-    replay.onScreenshotRecorded(File(path), timestamp)
+    replay!!.onScreenshotRecorded(File(path), timestamp)
     result.success("")
   }
 
@@ -614,7 +621,7 @@ class SentryFlutterPlugin :
         replayConfig.bitRate,
       ),
     )
-    replay.onConfigurationChanged(Configuration())
+    replay!!.onConfigurationChanged(Configuration())
     result.success("")
   }
 
@@ -626,7 +633,7 @@ class SentryFlutterPlugin :
       result.error("5", "Arguments are null", null)
       return
     }
-    replay.captureReplay(isCrash)
-    result.success(replay.getReplayId().toString())
+    replay!!.captureReplay(isCrash)
+    result.success(replay!!.getReplayId().toString())
   }
 }

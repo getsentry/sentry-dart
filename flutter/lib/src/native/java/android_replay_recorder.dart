@@ -1,17 +1,18 @@
+import 'package:jni/jni.dart';
 import 'package:meta/meta.dart';
 
 import '../../../sentry_flutter.dart';
 import '../../replay/scheduled_recorder.dart';
 import '../../screenshot/screenshot.dart';
-import '../sentry_safe_method_channel.dart';
+import 'binding.dart' as native;
 
 @internal
 class AndroidReplayRecorder extends ScheduledScreenshotRecorder {
-  final SentrySafeMethodChannel _channel;
   final String _cacheDir;
+  late final native.ReplayIntegration _nativeReplay;
 
   AndroidReplayRecorder(
-      super.config, super.options, this._channel, this._cacheDir) {
+      super.config, super.options, this._nativeReplay, this._cacheDir) {
     super.callback = _addReplayScreenshot;
   }
 
@@ -31,10 +32,8 @@ class AndroidReplayRecorder extends ScheduledScreenshotRecorder {
           .file(filePath)
           .writeAsBytes(pngData.buffer.asUint8List(), flush: true);
 
-      await _channel.invokeMethod(
-        'addReplayScreenshot',
-        {'path': filePath, 'timestamp': timestamp},
-      );
+      _nativeReplay.onScreenshotRecorded$1(
+          native.File(filePath.toJString()), timestamp);
     } catch (error, stackTrace) {
       options.logger(
         SentryLevel.error,
