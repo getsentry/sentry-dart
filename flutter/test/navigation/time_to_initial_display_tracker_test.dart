@@ -74,6 +74,7 @@ void main() {
           SentrySpanOperations.uiTimeToInitialDisplay);
       expect(ttidSpan.finished, isTrue);
       expect(ttidSpan.context.description, 'Regular route initial display');
+      expect(ttidSpan.origin, SentryTraceOrigins.autoUiTimeToDisplay);
       final ttidMeasurement =
           transaction.measurements['time_to_initial_display'];
       expect(ttidMeasurement, isNotNull);
