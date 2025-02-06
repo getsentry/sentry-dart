@@ -1,25 +1,19 @@
 import 'package:meta/meta.dart';
-
 import 'package:sentry/sentry.dart';
 
 import 'sentry_query_executor.dart';
 
-/// @nodoc
-@internal
 class SentrySpanHelper {
   /// @nodoc
-  Hub _hub = HubAdapter();
+  final Hub _hub;
 
   /// @nodoc
   final String _origin;
 
-  /// @nodoc
-  SentrySpanHelper(this._origin);
+  ISentrySpan? _parentSpan;
 
   /// @nodoc
-  void setHub(Hub hub) {
-    _hub = hub;
-  }
+  SentrySpanHelper(this._origin, {Hub? hub}) : _hub = hub ?? HubAdapter();
 
   /// @nodoc
   @internal
@@ -29,10 +23,7 @@ class SentrySpanHelper {
     String? dbName,
     bool useTransactionSpan = false,
   }) async {
-    ISentrySpan? currentSpan = _hub.getSpan();
-    if (useTransactionSpan) {
-      currentSpan = transactionSpan;
-    }
+    final currentSpan = _parentSpan ?? _hub.getSpan();
     final span = currentSpan?.startChild(
       SentryQueryExecutor.dbOp,
       description: description,
@@ -65,91 +56,78 @@ class SentrySpanHelper {
     }
   }
 
-  /// This span is used for the database transaction.
-  @internal
-  ISentrySpan? transactionSpan;
-
   /// @nodoc
   @internal
   T beginTransaction<T>(
-    String description,
     T Function() execute, {
     String? dbName,
   }) {
-    final currentSpan = _hub.getSpan();
-    final span = currentSpan?.startChild(
+    final scopeSpan = _hub.getSpan();
+    _parentSpan = scopeSpan?.startChild(
       SentryQueryExecutor.dbOp,
-      description: description,
+      description: 'Begin transaction',
     );
 
     // ignore: invalid_use_of_internal_member
-    span?.origin = _origin;
+    _parentSpan?.origin = _origin;
 
-    span?.setData(
+    _parentSpan?.setData(
       SentryQueryExecutor.dbSystemKey,
       SentryQueryExecutor.dbSystem,
     );
 
     if (dbName != null) {
-      span?.setData(SentryQueryExecutor.dbNameKey, dbName);
+      _parentSpan?.setData(SentryQueryExecutor.dbNameKey, dbName);
     }
 
     try {
       final result = execute();
-      span?.status = SpanStatus.unknown();
+      _parentSpan?.status = SpanStatus.unknown();
 
       return result;
     } catch (exception) {
-      span?.throwable = exception;
-      span?.status = SpanStatus.internalError();
+      _parentSpan?.throwable = exception;
+      _parentSpan?.status = SpanStatus.internalError();
 
       rethrow;
-    } finally {
-      transactionSpan = span;
     }
   }
 
   /// @nodoc
   @internal
-  Future<T> finishTransaction<T>(
-    Future<T> Function() execute, {
-    String? dbName,
-  }) async {
+  Future<T> finishTransaction<T>(Future<T> Function() execute) async {
     try {
       final result = await execute();
-      transactionSpan?.status = SpanStatus.ok();
+      _parentSpan?.status = SpanStatus.ok();
 
       return result;
     } catch (exception) {
-      transactionSpan?.throwable = exception;
-      transactionSpan?.status = SpanStatus.internalError();
+      _parentSpan?.throwable = exception;
+      _parentSpan?.status = SpanStatus.internalError();
 
       rethrow;
     } finally {
-      await transactionSpan?.finish();
-      transactionSpan = null;
+      await _parentSpan?.finish();
+      _parentSpan = null;
     }
   }
 
   /// @nodoc
   @internal
-  Future<T> abortTransaction<T>(
-    Future<T> Function() execute, {
-    String? dbName,
-  }) async {
+  Future<T> abortTransaction<T>(Future<T> Function() execute) async {
     try {
       final result = await execute();
-      transactionSpan?.status = SpanStatus.aborted();
+      _parentSpan?.status = SpanStatus.aborted();
 
       return result;
     } catch (exception) {
-      transactionSpan?.throwable = exception;
-      transactionSpan?.status = SpanStatus.internalError();
+      _parentSpan?.throwable = exception;
+      _parentSpan?.status = SpanStatus.internalError();
 
       rethrow;
     } finally {
-      await transactionSpan?.finish();
-      transactionSpan = null;
+      await _parentSpan?.finish();
+      _parentSpan = null;
     }
   }
 }
