@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### Other
+
+- Remove macOS display refresh rate support ([#2628](https://github.com/getsentry/sentry-dart/pull/2628))
+  - Can't reliably detect on multi-monitor systems and on older macOS versions.
+  - Not very meaningful, as other applications may be running in parallel and affecting it.
+
 ## 8.13.0
 
 ### Breaking changes
