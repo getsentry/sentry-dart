@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### Other
+
+- Remove macOS display refresh rate support ([#2628](https://github.com/getsentry/sentry-dart/pull/2628))
+  - Can't reliably detect on multi-monitor systems and on older macOS versions.
+  - Not very meaningful, as other applications may be running in parallel and affecting it.
+
 ## 8.13.0
 
 ### Breaking changes
@@ -56,12 +64,6 @@
 - Bump Cocoa SDK from v8.42.0 to v8.44.0 ([#2542](https://github.com/getsentry/sentry-dart/pull/2542), [#2548](https://github.com/getsentry/sentry-dart/pull/2548), [#2598](https://github.com/getsentry/sentry-dart/pull/2598), [#2649](https://github.com/getsentry/sentry-dart/pull/2649))
   - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8440)
   - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.42.0...8.44.0)
-
-### Other
-
-- Remove macOS display refresh rate support ([#2628](https://github.com/getsentry/sentry-dart/pull/2628))
-  - Can't reliably detect on multi-monitor systems and on older macOS versions.
-  - Not very meaningful, as other applications may be running in parallel and affecting it.
 
 ## 8.13.0-beta.3
 
