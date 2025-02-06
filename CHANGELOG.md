@@ -8,6 +8,12 @@
   - Can't reliably detect on multi-monitor systems and on older macOS versions.
   - Not very meaningful, as other applications may be running in parallel and affecting it.
 
+### Dependencies
+
+- Bump Android SDK from v7.20.1 to v8.1.0 ([#2660](https://github.com/getsentry/sentry-dart/pull/2660))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#810)
+  - [diff](https://github.com/getsentry/sentry-java/compare/7.20.1...8.1.0)
+
 ## 8.13.0
 
 ### Breaking changes
