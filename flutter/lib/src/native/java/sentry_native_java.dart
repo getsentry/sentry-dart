@@ -33,9 +33,8 @@ class SentryNativeJava extends SentryNativeChannel {
             final nativeReplay = native.SentryFlutterPlugin$Companion(null)
                 .privateSentryGetReplayIntegration()!;
 
-            _replayRecorder = AndroidReplayRecorder(config, options,
-                nativeReplay, call.arguments['directory'] as String)
-              ..start();
+            _replayRecorder =
+                AndroidReplayRecorder(config, options, nativeReplay)..start();
 
             hub.configureScope((s) {
               // ignore: invalid_use_of_internal_member

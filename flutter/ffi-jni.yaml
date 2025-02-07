@@ -15,4 +15,4 @@ log_level: all
 classes:
   - io.sentry.android.replay.ReplayIntegration
   - io.sentry.flutter.SentryFlutterPlugin
-  - java.io.File
+  - android.graphics.Bitmap

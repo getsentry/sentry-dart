@@ -103,7 +103,6 @@ class SentryFlutterPlugin :
       "displayRefreshRate" -> displayRefreshRate(result)
       "nativeCrash" -> crash()
       "setReplayConfig" -> setReplayConfig(call, result)
-      "addReplayScreenshot" -> addReplayScreenshot(call.argument("path"), call.argument("timestamp"), result)
       "captureReplay" -> captureReplay(call.argument("isCrash"), result)
       else -> result.notImplemented()
     }
@@ -164,10 +163,8 @@ class SentryFlutterPlugin :
   private fun setupReplay(options: SentryAndroidOptions) {
     // Replace the default ReplayIntegration with a Flutter-specific recorder.
     options.integrations.removeAll { it is ReplayIntegration }
-    val cacheDirPath = options.cacheDirPath
     val replayOptions = options.sessionReplay
-    val isReplayEnabled = replayOptions.isSessionReplayEnabled || replayOptions.isSessionReplayForErrorsEnabled
-    if (cacheDirPath != null && isReplayEnabled) {
+    if (replayOptions.isSessionReplayEnabled || replayOptions.isSessionReplayForErrorsEnabled) {
       replay =
         ReplayIntegration(
           context.applicationContext,
@@ -557,19 +554,6 @@ class SentryFlutterPlugin :
         currentScope,
       )
     result.success(serializedScope)
-  }
-
-  private fun addReplayScreenshot(
-    path: String?,
-    timestamp: Long?,
-    result: Result,
-  ) {
-    if (path == null || timestamp == null) {
-      result.error("5", "Arguments are null", null)
-      return
-    }
-    replay!!.onScreenshotRecorded(File(path), timestamp)
-    result.success("")
   }
 
   private fun setReplayConfig(
