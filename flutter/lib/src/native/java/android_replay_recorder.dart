@@ -10,8 +10,10 @@ import 'binding.dart' as native;
 class AndroidReplayRecorder extends ScheduledScreenshotRecorder {
   late final native.ReplayIntegration _nativeReplay;
 
-  AndroidReplayRecorder(super.config, super.options, this._nativeReplay) {
+  AndroidReplayRecorder(super.config, super.options) {
     super.callback = _addReplayScreenshot;
+    _nativeReplay = native.SentryFlutterPlugin$Companion(null)
+        .privateSentryGetReplayIntegration()!;
   }
 
   Future<void> _addReplayScreenshot(

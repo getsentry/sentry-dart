@@ -4,7 +4,6 @@ import '../../../sentry_flutter.dart';
 import '../../replay/scheduled_recorder_config.dart';
 import '../sentry_native_channel.dart';
 import 'android_replay_recorder.dart';
-import 'binding.dart' as native;
 
 @internal
 class SentryNativeJava extends SentryNativeChannel {
@@ -30,11 +29,7 @@ class SentryNativeJava extends SentryNativeChannel {
                 height: (call.arguments['height'] as num).toDouble(),
                 frameRate: call.arguments['frameRate'] as int);
 
-            final nativeReplay = native.SentryFlutterPlugin$Companion(null)
-                .privateSentryGetReplayIntegration()!;
-
-            _replayRecorder =
-                AndroidReplayRecorder(config, options, nativeReplay)..start();
+            _replayRecorder = AndroidReplayRecorder(config, options)..start();
 
             hub.configureScope((s) {
               // ignore: invalid_use_of_internal_member
