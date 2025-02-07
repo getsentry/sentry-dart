@@ -1,31 +1,24 @@
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 
-import 'sentry_query_executor.dart';
+import 'constants.dart' as constants;
 
+@internal
 class SentrySpanHelper {
-  /// @nodoc
   final Hub _hub;
-
-  /// @nodoc
   final String _origin;
-
   ISentrySpan? _parentSpan;
 
-  /// @nodoc
   SentrySpanHelper(this._origin, {Hub? hub}) : _hub = hub ?? HubAdapter();
 
-  /// @nodoc
-  @internal
   Future<T> asyncWrapInSpan<T>(
     String description,
     Future<T> Function() execute, {
     String? dbName,
-    bool useTransactionSpan = false,
   }) async {
     final currentSpan = _parentSpan ?? _hub.getSpan();
     final span = currentSpan?.startChild(
-      SentryQueryExecutor.dbOp,
+      constants.dbSqlQueryOp,
       description: description,
     );
 
@@ -33,12 +26,12 @@ class SentrySpanHelper {
     span?.origin = _origin;
 
     span?.setData(
-      SentryQueryExecutor.dbSystemKey,
-      SentryQueryExecutor.dbSystem,
+      constants.dbSystemKey,
+      constants.dbSystem,
     );
 
     if (dbName != null) {
-      span?.setData(SentryQueryExecutor.dbNameKey, dbName);
+      span?.setData(constants.dbNameKey, dbName);
     }
 
     try {
@@ -56,15 +49,13 @@ class SentrySpanHelper {
     }
   }
 
-  /// @nodoc
-  @internal
   T beginTransaction<T>(
     T Function() execute, {
     String? dbName,
   }) {
     final scopeSpan = _hub.getSpan();
     _parentSpan = scopeSpan?.startChild(
-      SentryQueryExecutor.dbOp,
+      constants.dbSqlTransactionOp,
       description: 'Begin transaction',
     );
 
@@ -72,12 +63,12 @@ class SentrySpanHelper {
     _parentSpan?.origin = _origin;
 
     _parentSpan?.setData(
-      SentryQueryExecutor.dbSystemKey,
-      SentryQueryExecutor.dbSystem,
+      constants.dbSystemKey,
+      constants.dbSystem,
     );
 
     if (dbName != null) {
-      _parentSpan?.setData(SentryQueryExecutor.dbNameKey, dbName);
+      _parentSpan?.setData(constants.dbNameKey, dbName);
     }
 
     try {
@@ -93,8 +84,6 @@ class SentrySpanHelper {
     }
   }
 
-  /// @nodoc
-  @internal
   Future<T> finishTransaction<T>(Future<T> Function() execute) async {
     try {
       final result = await execute();
@@ -112,8 +101,6 @@ class SentrySpanHelper {
     }
   }
 
-  /// @nodoc
-  @internal
   Future<T> abortTransaction<T>(Future<T> Function() execute) async {
     try {
       final result = await execute();

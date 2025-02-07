@@ -11,7 +11,7 @@ class SentryQueryInterceptor extends QueryInterceptor {
   final String _dbName;
   final Hub _hub;
 
-  final _spanHelper = NewSentrySpanHelper(
+  final _spanHelper = SentrySpanHelper(
     // ignore: invalid_use_of_internal_member
     SentryTraceOrigins.autoDbDriftQueryExecutor,
   );
@@ -23,11 +23,12 @@ class SentryQueryInterceptor extends QueryInterceptor {
 
   Future<T> _run<T>(
     String description,
-    FutureOr<T> Function() operation,
-  ) async {
+    FutureOr<T> Function() execute, {
+    String? operation,
+  }) async {
     return await _spanHelper.asyncWrapInSpan<T>(
       description,
-      () async => operation(),
+      () async => execute(),
       dbName: _dbName,
     );
   }

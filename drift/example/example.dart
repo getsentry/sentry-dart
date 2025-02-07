@@ -31,15 +31,15 @@ Future<void> runApp() async {
 
   final db = AppDatabase(executor);
 
-  // await db.transaction(() async {
-  await db.into(db.todoItems).insert(
-        TodoItemsCompanion.insert(
-          id: Value(0),
-          title: 'This is a test thing',
-          content: 'test',
-        ),
-      );
-  // });
+  await db.transaction(() async {
+    await db.into(db.todoItems).insert(
+          TodoItemsCompanion.insert(
+            id: Value(0),
+            title: 'This is a test thing',
+            content: 'test',
+          ),
+        );
+  });
 
   final items = await db.select(db.todoItems).get();
   print(items);
