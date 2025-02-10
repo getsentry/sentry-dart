@@ -52,7 +52,6 @@ void main() {
       testWidgets('Sentry JS SDK initialized', (tester) async {
         await restoreFlutterOnErrorAfter(() async {
           await SentryFlutter.init((options) {
-            options.enableSentryJs = true;
             options.dsn = fakeDsn;
           }, appRunner: () async {
             await tester.pumpWidget(const app.MyApp());
@@ -77,7 +76,6 @@ void main() {
 
         await restoreFlutterOnErrorAfter(() async {
           await SentryFlutter.init((options) {
-            options.enableSentryJs = true;
             options.dsn = fakeDsn;
             options.beforeSend = (event, hint) {
               dartEvent = event;
@@ -130,7 +128,6 @@ void main() {
       testWidgets('Sentry JS SDK is not initialized', (tester) async {
         await restoreFlutterOnErrorAfter(() async {
           await SentryFlutter.init((options) {
-            options.enableSentryJs = false;
             options.dsn = fakeDsn;
           }, appRunner: () async {
             await tester.pumpWidget(const app.MyApp());

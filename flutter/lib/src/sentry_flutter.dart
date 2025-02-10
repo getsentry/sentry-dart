@@ -27,6 +27,7 @@ import 'renderer/renderer.dart';
 import 'replay/integration.dart';
 import 'version.dart';
 import 'view_hierarchy/view_hierarchy_integration.dart';
+import 'web/javascript_transport.dart';
 
 /// Configuration options callback
 typedef FlutterOptionsConfiguration = FutureOr<void> Function(
@@ -118,11 +119,10 @@ mixin SentryFlutter {
     // Not all platforms have a native integration.
     if (_native != null) {
       if (_native!.supportsCaptureEnvelope) {
-        // Sentry's native web integration is only enabled when enableSentryJs=true.
-        // Transport configuration happens in web_integration because the configuration
-        // options aren't available until after the options callback executes.
         if (!options.platformChecker.isWeb) {
           options.transport = FileSystemTransport(_native!, options);
+        } else {
+          options.transport = JavascriptTransport(_native!, options);
         }
       }
       if (!options.platformChecker.isWeb) {

@@ -290,13 +290,6 @@ class SentryFlutterOptions extends SentryOptions {
   /// you must use `SentryWidgetsFlutterBinding.ensureInitialized()` instead.
   bool enableFramesTracking = true;
 
-  /// Controls initialization of the Sentry Javascript SDK on web platforms.
-  /// When enabled and [autoInitializeNativeSdk] is true, loads and initializes
-  /// the JS SDK in the document head.
-  ///
-  /// Defaults to `false`
-  bool enableSentryJs = false;
-
   /// By using this, you are disabling native [Breadcrumb] tracking and instead
   /// you are just tracking [Breadcrumb]s which result from events available
   /// in the current Flutter environment.

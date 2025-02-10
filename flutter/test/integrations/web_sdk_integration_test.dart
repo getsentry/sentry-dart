@@ -27,7 +27,6 @@ void main() {
 
     group('enabled', () {
       setUp(() {
-        fixture.options.enableSentryJs = true;
         fixture.options.autoInitializeNativeSdk = true;
       });
 
@@ -52,15 +51,7 @@ void main() {
         _TestScenario(
           'with autoInitializeNativeSdk=false',
           () {
-            fixture.options.enableSentryJs = true;
             fixture.options.autoInitializeNativeSdk = false;
-          },
-        ),
-        _TestScenario(
-          'with enableSentryJs=false',
-          () {
-            fixture.options.enableSentryJs = false;
-            fixture.options.autoInitializeNativeSdk = true;
           },
         ),
       ];
@@ -86,7 +77,6 @@ void main() {
 
     group('transport configuration', () {
       test('integration disabled: does not use javascript transport', () async {
-        fixture.options.enableSentryJs = false;
         fixture.options.autoInitializeNativeSdk = false;
 
         expect(fixture.options.transport, isA<NoOpTransport>());
@@ -99,7 +89,6 @@ void main() {
       test(
           'integration enabled and supportsCaptureEnvelope is false: does not use javascript transport',
           () async {
-        fixture.options.enableSentryJs = true;
         fixture.options.autoInitializeNativeSdk = true;
         when(fixture.web.supportsCaptureEnvelope).thenReturn(false);
 
@@ -113,7 +102,6 @@ void main() {
       test(
           'integration enabled and supportsCaptureEnvelope is true: uses javascript transport',
           () async {
-        fixture.options.enableSentryJs = true;
         fixture.options.autoInitializeNativeSdk = true;
 
         expect(fixture.options.transport, isA<NoOpTransport>());
