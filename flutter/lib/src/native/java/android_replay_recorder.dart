@@ -10,8 +10,10 @@ import 'binding.dart' as native;
 
 @internal
 class AndroidReplayRecorder extends ScheduledScreenshotRecorder {
-  static final _nativeReplay = native.SentryFlutterPlugin$Companion(null)
+  late final _nativeReplay = native.SentryFlutterPlugin$Companion(null)
       .privateSentryGetReplayIntegration()!;
+  // Android Bitmap creation is a bit costly so we reuse it between captures.
+  native.Bitmap? _bitmap;
 
   AndroidReplayRecorder(super.config, super.options) {
     super.callback = _addReplayScreenshot;
@@ -35,9 +37,7 @@ class AndroidReplayRecorder extends ScheduledScreenshotRecorder {
       int width = screenshot.width;
       int height = screenshot.height;
 
-      // TODO possible future improvements:
-      // - long-lived isolate
-      // - store Bitmap (creation is a bit expensive) and only refresh when the resolution changes
+      // Note: possible future improvement: long-lived isolate
       await Isolate.run(
           () => _addReplayScreenshotNative(jBuffer, width, height),
           debugName: 'SentryReplayRecorder');
@@ -54,19 +54,34 @@ class AndroidReplayRecorder extends ScheduledScreenshotRecorder {
     }
   }
 
-  static void _addReplayScreenshotNative(
-      JByteBuffer jBuffer, int width, int height) {
-    using((arena) {
-      // https://developer.android.com/reference/android/graphics/Bitmap#createBitmap(int,%20int,%20android.graphics.Bitmap.Config)
-      final jBitmap = native.Bitmap.createBitmap$3(
-          width, height, native.Bitmap$Config.ARGB_8888)!
-        ..releasedBy(arena);
-      try {
-        jBitmap.copyPixelsFromBuffer(jBuffer);
-      } finally {
-        jBuffer.release();
+  @override
+  Future<void> stop() async {
+    await super.stop();
+    _bitmap?.release();
+    _bitmap = null;
+  }
+
+  void _addReplayScreenshotNative(JByteBuffer jBuffer, int width, int height) {
+    if (_bitmap != null) {
+      if (_bitmap!.getWidth() != width || _bitmap!.getHeight() != height) {
+        _bitmap!.release();
+        _bitmap = null;
       }
-      _nativeReplay.onScreenshotRecorded(jBitmap);
-    });
+    }
+
+    // https://developer.android.com/reference/android/graphics/Bitmap#createBitmap(int,%20int,%20android.graphics.Bitmap.Config)
+    // Note: in the currently generated API this may return null so we null-check below.
+    _bitmap ??= native.Bitmap.createBitmap$3(
+        width, height, native.Bitmap$Config.ARGB_8888);
+
+    try {
+      _bitmap?.copyPixelsFromBuffer(jBuffer);
+    } finally {
+      jBuffer.release();
+    }
+
+    if (_bitmap != null) {
+      _nativeReplay.onScreenshotRecorded(_bitmap!);
+    }
   }
 }
