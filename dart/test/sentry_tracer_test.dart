@@ -585,8 +585,6 @@ void main() {
       expect(context.publicKey, 'public');
       expect(context.release, 'release');
       expect(context.environment, 'environment');
-      // ignore: deprecated_member_use_from_same_package
-      expect(context.userSegment, 'segment');
       expect(context.transaction, 'name');
       expect(context.sampleRate, '1');
       expect(context.sampled, 'true');

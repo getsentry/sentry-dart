@@ -115,7 +115,7 @@ void main() {
     test('overwrites duplicate key values', () {
       final headers = <String, String>{};
       final oldValue =
-          'other-vendor-value=foo,sentry-trace_id=${SentryId.newId()},sentry-public_key=oldPublicKey,sentry-release=oldRelease,sentry-environment=oldEnvironment,sentry-user_id=oldUserId,sentry-user_segment=oldUserSegment,sentry-transaction=oldTransaction,sentry-sample_rate=0.5';
+          'other-vendor-value=foo,sentry-trace_id=${SentryId.newId()},sentry-public_key=oldPublicKey,sentry-release=oldRelease,sentry-environment=oldEnvironment,sentry-user_id=oldUserId,sentry-transaction=oldTransaction,sentry-sample_rate=0.5';
 
       headers['baggage'] = oldValue;
 

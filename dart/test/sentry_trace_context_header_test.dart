@@ -14,7 +14,6 @@ void main() {
       release: 'release',
       environment: 'environment',
       userId: 'user_id',
-      userSegment: 'user_segment',
       transaction: 'transaction',
       sampleRate: '1.0',
       sampled: 'false',
@@ -42,8 +41,6 @@ void main() {
       expect(context.release, 'release');
       expect(context.environment, 'environment');
       expect(context.userId, 'user_id');
-      // ignore: deprecated_member_use_from_same_package
-      expect(context.userSegment, 'user_segment');
       expect(context.transaction, 'transaction');
       expect(context.sampleRate, '1.0');
       expect(context.sampled, 'false');
