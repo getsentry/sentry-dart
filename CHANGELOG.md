@@ -3,6 +3,8 @@
 ## Unreleased 9.0.0
 
 - Increase minimum SDK version requirements to Dart v3.5.0 and Flutter v3.24.0 ([#2643](https://github.com/getsentry/sentry-dart/pull/2643))
+- Remove screenshot option `attachScreenshotOnlyWhenResumed` ([#2664](https://github.com/getsentry/sentry-dart/pull/2664))
+- Remove deprecated `beforeScreenshot` ([#2662](https://github.com/getsentry/sentry-dart/pull/2662))
 
 ### Dependencies
 
@@ -11,6 +13,13 @@
   - [diff](https://github.com/getsentry/sentry-java/compare/7.20.1...8.1.0)
 
 ## Unreleased
+
+### Other
+
+- Remove macOS display refresh rate support ([#2628](https://github.com/getsentry/sentry-dart/pull/2628))
+  - Can't reliably detect on multi-monitor systems and on older macOS versions.
+  - Not very meaningful, as other applications may be running in parallel and affecting it.
+
 ## 8.13.0
 
 ### Breaking changes
