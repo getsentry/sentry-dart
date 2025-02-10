@@ -50,18 +50,13 @@ class ScreenshotEventProcessor implements EventProcessor {
     // skip capturing in case of debouncing (=too many frequent capture requests)
     // the BeforeCaptureCallback may overrule the debouncing decision
     final shouldDebounce = _debouncer.shouldDebounce();
-
-    // ignore: deprecated_member_use_from_same_package
-    final beforeScreenshot = _options.beforeScreenshot;
-    final beforeCapture = _options.beforeCaptureScreenshot;
+    final beforeCaptureScreenshot = _options.beforeCaptureScreenshot;
 
     try {
       FutureOr<bool>? result;
 
-      if (beforeCapture != null) {
-        result = beforeCapture(event, hint, shouldDebounce);
-      } else if (beforeScreenshot != null) {
-        result = beforeScreenshot(event, hint: hint);
+      if (beforeCaptureScreenshot != null) {
+        result = beforeCaptureScreenshot(event, hint, shouldDebounce);
       }
 
       bool takeScreenshot = true;
