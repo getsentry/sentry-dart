@@ -4,33 +4,56 @@ import 'package:drift/drift.dart';
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 
+import 'constants.dart' as constants;
 import 'sentry_span_helper.dart';
+import 'version.dart';
 
-/// Doc
+/// A Sentry query interceptor that wraps database operations in performance monitoring spans.
+///
+/// This interceptor tracks all database operations executed through a Drift database connection,
+/// including transactions, batches, and individual CRUD operations. Each operation is captured
+/// as a Sentry span with relevant context.
 class SentryQueryInterceptor extends QueryInterceptor {
   final String _dbName;
-  final Hub _hub;
+  late final SentrySpanHelper _spanHelper;
+  bool _isDbOpen = false;
 
-  final _spanHelper = SentrySpanHelper(
-    // ignore: invalid_use_of_internal_member
-    SentryTraceOrigins.autoDbDriftQueryExecutor,
-  );
-
-  /// @nodoc
   SentryQueryInterceptor({required String databaseName, @internal Hub? hub})
-      : _dbName = databaseName,
-        _hub = hub ?? HubAdapter();
+      : _dbName = databaseName {
+    _spanHelper = SentrySpanHelper(
+      // ignore: invalid_use_of_internal_member
+      SentryTraceOrigins.autoDbDriftQueryInterceptor,
+      hub: hub,
+    );
+    // ignore: invalid_use_of_internal_member
+    final options = hub?.options;
+    options?.sdk.addIntegration(constants.integrationName);
+    options?.sdk.addPackage(packageName, sdkVersion);
+  }
 
   Future<T> _run<T>(
     String description,
     FutureOr<T> Function() execute, {
     String? operation,
-  }) async {
-    return await _spanHelper.asyncWrapInSpan<T>(
-      description,
-      () async => execute(),
-      dbName: _dbName,
-    );
+  }) async =>
+      _spanHelper.asyncWrapInSpan<T>(
+        description,
+        () async => execute(),
+        dbName: _dbName,
+        operation: operation,
+      );
+
+  @override
+  Future<bool> ensureOpen(QueryExecutor executor, QueryExecutorUser user) {
+    if (!_isDbOpen) {
+      _isDbOpen = true;
+      return _run(
+        constants.dbOpenDesc(dbName: _dbName),
+        () => super.ensureOpen(executor, user),
+        operation: constants.dbOpenOp,
+      );
+    }
+    return super.ensureOpen(executor, user);
   }
 
   @override
@@ -38,6 +61,25 @@ class SentryQueryInterceptor extends QueryInterceptor {
     return _spanHelper.beginTransaction(
       () => super.beginTransaction(parent),
       dbName: _dbName,
+    );
+  }
+
+  @override
+  Future<void> close(QueryExecutor inner) {
+    return _run(
+      constants.dbCloseDesc(dbName: _dbName),
+      () => super.close(inner),
+      operation: constants.dbCloseOp,
+    );
+  }
+
+  @override
+  Future<void> runBatched(
+      QueryExecutor executor, BatchedStatements statements) {
+    return _run(
+      constants.dbBatchDesc,
+      () => super.runBatched(executor, statements),
+      operation: constants.dbSqlBatchOp,
     );
   }
 
@@ -52,47 +94,50 @@ class SentryQueryInterceptor extends QueryInterceptor {
   }
 
   @override
-  Future<void> runBatched(
-      QueryExecutor executor, BatchedStatements statements) {
-    return _run(
-        'batch with $statements', () => executor.runBatched(statements));
-  }
-
-  @override
   Future<int> runInsert(
-      QueryExecutor executor, String statement, List<Object?> args) {
-    print('run insert');
+    QueryExecutor executor,
+    String statement,
+    List<Object?> args,
+  ) {
     return _run(
-      '$statement with $args',
+      statement,
       () => executor.runInsert(statement, args),
     );
   }
 
   @override
   Future<int> runUpdate(
-      QueryExecutor executor, String statement, List<Object?> args) {
-    return _run(
-        '$statement with $args', () => executor.runUpdate(statement, args));
+    QueryExecutor executor,
+    String statement,
+    List<Object?> args,
+  ) {
+    return _run(statement, () => executor.runUpdate(statement, args));
   }
 
   @override
   Future<int> runDelete(
-      QueryExecutor executor, String statement, List<Object?> args) {
-    return _run(
-        '$statement with $args', () => executor.runDelete(statement, args));
+    QueryExecutor executor,
+    String statement,
+    List<Object?> args,
+  ) {
+    return _run(statement, () => executor.runDelete(statement, args));
   }
 
   @override
   Future<void> runCustom(
-      QueryExecutor executor, String statement, List<Object?> args) {
-    return _run(
-        '$statement with $args', () => executor.runCustom(statement, args));
+    QueryExecutor executor,
+    String statement,
+    List<Object?> args,
+  ) {
+    return _run(statement, () => executor.runCustom(statement, args));
   }
 
   @override
   Future<List<Map<String, Object?>>> runSelect(
-      QueryExecutor executor, String statement, List<Object?> args) {
-    return _run(
-        '$statement with $args', () => executor.runSelect(statement, args));
+    QueryExecutor executor,
+    String statement,
+    List<Object?> args,
+  ) {
+    return _run(statement, () => executor.runSelect(statement, args));
   }
 }

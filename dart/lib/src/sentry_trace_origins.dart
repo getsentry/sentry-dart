@@ -24,9 +24,7 @@ class SentryTraceOrigins {
   static const autoDbHiveBoxBase = 'auto.db.hive.box_base';
   static const autoDbHiveLazyBox = 'auto.db.hive.lazy_box';
   static const autoDbHiveBoxCollection = 'auto.db.hive.box_collection';
-  static const autoDbDriftQueryExecutor = 'auto.db.drift.query.executor';
-  static const autoDbDriftTransactionExecutor =
-      'auto.db.drift.transaction.executor';
+  static const autoDbDriftQueryInterceptor = 'auto.db.drift.query.interceptor';
   static const autoUiTimeToDisplay = 'auto.ui.time_to_display';
   static const manualUiTimeToDisplay = 'manual.ui.time_to_display';
 }

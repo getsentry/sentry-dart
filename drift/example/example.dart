@@ -34,12 +34,56 @@ Future<void> runApp() async {
   await db.transaction(() async {
     await db.into(db.todoItems).insert(
           TodoItemsCompanion.insert(
-            id: Value(0),
             title: 'This is a test thing',
             content: 'test',
           ),
         );
+
+    await db.batch((batch) {
+      // functions in a batch don't have to be awaited - just
+      // await the whole batch afterwards.
+      batch.insertAll(db.todoItems, [
+        TodoItemsCompanion.insert(
+          title: 'First entry',
+          content: 'My content',
+        ),
+        TodoItemsCompanion.insert(
+          title: 'Another entry',
+          content: 'More content',
+        ),
+        // ...
+      ]);
+    });
   });
+
+  // await db.batch((batch) async {
+  // batch.insertAll(db.todoItems, [
+  //   TodoItemsCompanion.insert(
+  //     title: 'This is a test thing inside a batch #1',
+  //     content: 'test',
+  //   ),
+  // ]);
+  // await batch.into(db.todoItems).insert(
+  //       TodoItemsCompanion.insert(
+  //         title: 'This is a test thing inside a batch #1',
+  //         content: 'test',
+  //       ),
+  //     );
+  //
+  // await db.into(db.todoItems).insert(
+  //       TodoItemsCompanion.insert(
+  //         title: 'This is a test thing inside a batch #2',
+  //         content: 'test',
+  //       ),
+  //     );
+  //
+  // await db.into(db.todoItems).insert(
+  //       TodoItemsCompanion.insert(
+  //         title: 'This is a test thing inside a batch #3',
+  //         content: 'test',
+  //       ),
+  //     );
+  // });
 
   final items = await db.select(db.todoItems).get();
   print(items);

@@ -15,10 +15,11 @@ class SentrySpanHelper {
     String description,
     Future<T> Function() execute, {
     String? dbName,
+    String? operation,
   }) async {
     final currentSpan = _parentSpan ?? _hub.getSpan();
     final span = currentSpan?.startChild(
-      constants.dbSqlQueryOp,
+      operation ?? constants.dbSqlQueryOp,
       description: description,
     );
 
@@ -56,7 +57,7 @@ class SentrySpanHelper {
     final scopeSpan = _hub.getSpan();
     _parentSpan = scopeSpan?.startChild(
       constants.dbSqlTransactionOp,
-      description: 'Begin transaction',
+      description: constants.dbTransactionDesc,
     );
 
     // ignore: invalid_use_of_internal_member
