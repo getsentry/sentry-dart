@@ -491,6 +491,7 @@ class SentryFlutterPlugin :
     if (args.isNotEmpty()) {
       val debugImages = options.debugImagesLoader.loadDebugImagesForAddresses(args.toSet())
 
+      // TODO: if we receive empty or null debugImages, we should return all images as fallback
       // TODO: dedupe this
       debugImages?.let {
         it.forEach { image ->
