@@ -85,7 +85,7 @@ class SentryFlutterPlugin :
     when (call.method) {
       "initNativeSdk" -> initNativeSdk(call, result)
       "captureEnvelope" -> captureEnvelope(call, result)
-      "loadImageList" -> loadImageList(result)
+      "loadImageList" -> loadImageList(call, result)
       "closeNativeSdk" -> closeNativeSdk(result)
       "fetchNativeAppStart" -> fetchNativeAppStart(result)
       "beginNativeFrames" -> beginNativeFrames(result)
@@ -483,29 +483,53 @@ class SentryFlutterPlugin :
     result.error("3", "Envelope is null or empty", null)
   }
 
-  private fun loadImageList(result: Result) {
+  private fun loadImageList(call: MethodCall, result: Result) {
     val options = HubAdapter.getInstance().options as SentryAndroidOptions
 
+    val args = call.arguments() as List<Long>? ?: listOf()
     val newDebugImages = mutableListOf<Map<String, Any?>>()
-    val debugImages: List<DebugImage>? = options.debugImagesLoader.loadDebugImages()
+    if (args.isNotEmpty()) {
+      val debugImages = options.debugImagesLoader.loadDebugImagesForAddresses(args.toSet())
 
-    debugImages?.let {
-      it.forEach { image ->
-        val item = mutableMapOf<String, Any?>()
+      // TODO: dedupe this
+      debugImages?.let {
+        it.forEach { image ->
+          val item = mutableMapOf<String, Any?>()
 
-        item["image_addr"] = image.imageAddr
-        item["image_size"] = image.imageSize
-        item["code_file"] = image.codeFile
-        item["type"] = image.type
-        item["debug_id"] = image.debugId
-        item["code_id"] = image.codeId
-        item["debug_file"] = image.debugFile
+          item["image_addr"] = image.imageAddr
+          item["image_size"] = image.imageSize
+          item["code_file"] = image.codeFile
+          item["type"] = image.type
+          item["debug_id"] = image.debugId
+          item["code_id"] = image.codeId
+          item["debug_file"] = image.debugFile
 
-        newDebugImages.add(item)
+          newDebugImages.add(item)
+        }
+      }
+
+      result.success(newDebugImages)
+    } else {
+      val debugImages: List<DebugImage>? = options.debugImagesLoader.loadDebugImages()
+
+      debugImages?.let {
+        it.forEach { image ->
+          val item = mutableMapOf<String, Any?>()
+
+          item["image_addr"] = image.imageAddr
+          item["image_size"] = image.imageSize
+          item["code_file"] = image.codeFile
+          item["type"] = image.type
+          item["debug_id"] = image.debugId
+          item["code_id"] = image.codeId
+          item["debug_file"] = image.debugFile
+
+          newDebugImages.add(item)
+        }
+
+        result.success(newDebugImages)
       }
     }
-
-    result.success(newDebugImages)
   }
 
   private fun closeNativeSdk(result: Result) {
