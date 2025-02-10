@@ -5,7 +5,8 @@ import 'package:meta/meta.dart';
 import '../../sentry.dart';
 import '../sentry_tracer.dart';
 
-typedef OnFinishedCallback = Future<void> Function({DateTime? endTimestamp});
+typedef OnFinishedCallback = Future<void> Function(
+    {DateTime? endTimestamp, Hint? hint});
 
 class SentrySpan extends ISentrySpan {
   final SentrySpanContext _context;
@@ -84,7 +85,7 @@ class SentrySpan extends ISentrySpan {
     if (_throwable != null) {
       _hub.setSpanContext(_throwable, this, _tracer.name);
     }
-    await _finishedCallback?.call(endTimestamp: _endTimestamp);
+    await _finishedCallback?.call(endTimestamp: _endTimestamp, hint: hint);
     return super
         .finish(status: status, endTimestamp: _endTimestamp, hint: hint);
   }

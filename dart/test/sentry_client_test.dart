@@ -2045,6 +2045,33 @@ void main() {
           SentryAttachment.typeAttachmentDefault);
     });
 
+    test('captureTransaction hint passed to beforeSendTransaction', () async {
+      final sut = fixture.getSut();
+
+      final hint = Hint();
+      final transaction = SentryTransaction(fixture.tracer);
+
+      fixture.options.beforeSendTransaction = (bsTransaction, bsHint) async {
+        expect(hint, bsHint);
+        return bsTransaction;
+      };
+
+      await sut.captureTransaction(transaction, hint: hint);
+    });
+
+    test('captureTransaction hint passed to event processors', () async {
+      final hint = Hint();
+
+      final eventProcessor = FunctionEventProcessor((event, epHint) {
+        expect(epHint, hint);
+        return event;
+      });
+      final sut = fixture.getSut(eventProcessor: eventProcessor);
+
+      final transaction = SentryTransaction(fixture.tracer);
+      await sut.captureTransaction(transaction, hint: hint);
+    });
+
     test('captureEvent adds screenshot from hint', () async {
       final client = fixture.getSut();
       final screenshot =

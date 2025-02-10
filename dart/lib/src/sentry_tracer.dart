@@ -277,10 +277,15 @@ class SentryTracer extends ISentrySpan {
 
   Future<void> _finishedCallback({
     DateTime? endTimestamp,
+    Hint? hint,
   }) async {
     final finishStatus = _finishStatus;
     if (finishStatus.finishing) {
-      await finish(status: finishStatus.status, endTimestamp: endTimestamp);
+      await finish(
+        status: finishStatus.status,
+        endTimestamp: endTimestamp,
+        hint: hint,
+      );
     }
   }
 
