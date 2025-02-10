@@ -1856,22 +1856,6 @@ void main() {
       expect(
           fixture.recorder.discardedEvents.first.category, DataCategory.error);
     });
-
-    test('user feedback envelope contains dsn', () async {
-      final client = fixture.getSut();
-      final event = SentryEvent();
-      // ignore: deprecated_member_use_from_same_package
-      final feedback = SentryUserFeedback(
-        eventId: event.eventId,
-        name: 'test',
-      );
-      // ignore: deprecated_member_use_from_same_package
-      await client.captureUserFeedback(feedback);
-
-      final capturedEnvelope = (fixture.transport).envelopes.first;
-
-      expect(capturedEnvelope.header.dsn, fixture.options.dsn);
-    });
   });
 
   group('Spotlight', () {
