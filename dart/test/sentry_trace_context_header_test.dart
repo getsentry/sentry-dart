@@ -27,7 +27,6 @@ void main() {
       'release': 'release',
       'environment': 'environment',
       'user_id': 'user_id',
-      'user_segment': 'user_segment',
       'transaction': 'transaction',
       'sample_rate': '1.0',
       'sampled': 'false',
@@ -63,7 +62,6 @@ void main() {
         'sentry-release=release,'
         'sentry-environment=environment,'
         'sentry-user_id=user_id,'
-        'sentry-user_segment=user_segment,'
         'sentry-transaction=transaction,'
         'sentry-sample_rate=1.0,'
         'sentry-sampled=false,'
