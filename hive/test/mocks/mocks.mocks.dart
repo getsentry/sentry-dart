@@ -14,6 +14,15 @@ import 'package:mockito/src/dummies.dart' as _i6;
 import 'package:sentry/sentry.dart' as _i2;
 import 'package:sentry/src/profiling.dart' as _i4;
 
+import 'package:hive/src/box_collection/box_collection_stub.dart' as stub;
+
+// ignore: implementation_imports
+import 'package:hive/src/box_collection/box_collection_stub.dart'
+    if (dart.library.html) 'package:hive/src/box_collection/box_collection_indexed_db.dart'
+    if (dart.library.js_interop) 'package:hive/src/box_collection/box_collection_indexed_db.dart'
+    if (dart.library.io) 'package:hive/src/box_collection/box_collection.dart'
+    as impl;
+
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
 // ignore_for_file: avoid_setters_without_getters
@@ -927,7 +936,7 @@ class MockHiveInterface extends _i1.Mock implements _i3.HiveInterface {
 /// A class which mocks [BoxCollection].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockBoxCollection extends _i1.Mock implements _i3.BoxCollection {
+class MockBoxCollection extends _i1.Mock implements impl.BoxCollection {
   MockBoxCollection() {
     _i1.throwOnMissingStub(this);
   }
@@ -944,10 +953,10 @@ class MockBoxCollection extends _i1.Mock implements _i3.BoxCollection {
           as Set<String>);
 
   @override
-  _i5.Future<_i3.CollectionBox<V>> openBox<V>(
+  _i5.Future<impl.CollectionBox<V>> openBox<V>(
     String? name, {
     bool? preload = false,
-    _i3.CollectionBox<V> Function(String, _i3.BoxCollection)? boxCreator,
+    stub.CollectionBox<V> Function(String, impl.BoxCollection)? boxCreator,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -955,7 +964,7 @@ class MockBoxCollection extends _i1.Mock implements _i3.BoxCollection {
           [name],
           {#preload: preload, #boxCreator: boxCreator},
         ),
-        returnValue: _i5.Future<_i3.CollectionBox<V>>.value(
+        returnValue: _i5.Future<impl.CollectionBox<V>>.value(
           _FakeCollectionBox_7<V>(
             this,
             Invocation.method(
@@ -965,7 +974,7 @@ class MockBoxCollection extends _i1.Mock implements _i3.BoxCollection {
             ),
           ),
         ),
-      ) as _i5.Future<_i3.CollectionBox<V>>);
+      ) as _i5.Future<impl.CollectionBox<V>>);
 
   @override
   _i5.Future<void> transaction(
