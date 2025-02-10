@@ -1,7 +1,5 @@
 import 'dart:async';
 
-import 'package:file/file.dart';
-import 'package:file/local.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart' as meta;
@@ -389,9 +387,6 @@ class SentryFlutterOptions extends SentryOptions {
   @override
   // ignore: invalid_use_of_internal_member
   set automatedTestMode(bool value) => super.automatedTestMode = value;
-
-  @meta.internal
-  FileSystem fileSystem = LocalFileSystem();
 
   /// Configuration of experimental features that may change or be removed
   /// without prior notice. Additionally, these features may not be ready for
