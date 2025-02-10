@@ -187,7 +187,6 @@ class _AndroidNativeReplayWorker {
       _closed = true;
       _commands.send('shutdown');
       if (_activeRequests.isEmpty) _responses.close();
-      print('--- port closed --- ');
     }
   }
 }
