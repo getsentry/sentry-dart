@@ -13,6 +13,11 @@ class SentryNativeJava extends SentryNativeChannel {
   @override
   bool get supportsReplay => true;
 
+  @visibleForTesting
+  AndroidReplayRecorder Function(
+          ScheduledScreenshotRecorderConfig, SentryFlutterOptions)
+      replayRecorderFactory = AndroidReplayRecorder.new;
+
   @override
   Future<void> init(Hub hub) async {
     // We only need these when replay is enabled (session or error capture)
@@ -29,7 +34,7 @@ class SentryNativeJava extends SentryNativeChannel {
                 height: (call.arguments['height'] as num).toDouble(),
                 frameRate: call.arguments['frameRate'] as int);
 
-            _replayRecorder = AndroidReplayRecorder(config, options);
+            _replayRecorder = replayRecorderFactory(config, options);
             await _replayRecorder!.start();
 
             hub.configureScope((s) {
