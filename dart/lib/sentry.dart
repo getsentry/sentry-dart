@@ -7,7 +7,6 @@ library;
 
 export 'src/event_processor.dart';
 export 'src/exception_cause.dart';
-// exception extraction
 export 'src/exception_cause_extractor.dart';
 export 'src/exception_stacktrace_extractor.dart';
 export 'src/exception_type_identifier.dart';
@@ -15,7 +14,6 @@ export 'src/hint.dart';
 export 'src/http_client/sentry_http_client.dart';
 export 'src/http_client/sentry_http_client_error.dart';
 export 'src/hub.dart';
-// useful for tests
 export 'src/hub_adapter.dart';
 export 'src/integration.dart';
 export 'src/noop_isolate_error_integration.dart'
@@ -23,9 +21,7 @@ export 'src/noop_isolate_error_integration.dart'
 export 'src/performance_collector.dart';
 export 'src/platform_checker.dart';
 export 'src/protocol.dart';
-// feedback
 export 'src/protocol/sentry_feedback.dart';
-// proxy
 export 'src/protocol/sentry_proxy.dart';
 export 'src/run_zoned_guarded_integration.dart';
 export 'src/scope.dart';
@@ -41,13 +37,9 @@ export 'src/sentry_options.dart';
 export 'src/sentry_span_operations.dart';
 // ignore: invalid_export_of_internal_element
 export 'src/sentry_trace_origins.dart';
-// constants
 export 'src/span_data_convention.dart';
-// spotlight debugging
 export 'src/spotlight.dart';
-// useful for integrations
 export 'src/throwable_mechanism.dart';
-// tracing
 export 'src/tracing.dart';
 export 'src/transport/transport.dart';
 export 'src/type_check_hint.dart';
@@ -55,7 +47,6 @@ export 'src/type_check_hint.dart';
 export 'src/utils.dart';
 // ignore: invalid_export_of_internal_element
 export 'src/utils/http_header_utils.dart';
-// URL
 // ignore: invalid_export_of_internal_element
 export 'src/utils/http_sanitizer.dart';
 export 'src/utils/tracing_utils.dart';
