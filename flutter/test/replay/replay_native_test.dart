@@ -66,6 +66,10 @@ void main() {
 
       tearDown(() async {
         await sut.close();
+
+        if (mockPlatform.isAndroid) {
+          await native.invokeFromNative('ReplayRecorder.stop');
+        }
       });
 
       group('replay recorder', () {
