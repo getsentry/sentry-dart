@@ -15,20 +15,7 @@ class NativeMemory {
   factory NativeMemory.fromByteData(ByteData source) {
     final lengthInBytes = source.lengthInBytes;
     final ptr = pkg_ffi.malloc.allocate<Uint8>(lengthInBytes);
-
-    // TODO memcpy() from source.buffer.asUint8List().address
-    //      once we can depend on Dart SDK 3.5+
-    final numWords = lengthInBytes ~/ 8;
-    final words = ptr.cast<Uint64>().asTypedList(numWords);
-    if (numWords > 0) {
-      words.setAll(0, source.buffer.asUint64List(0, numWords));
-    }
-
-    final bytes = ptr.asTypedList(lengthInBytes);
-    for (var i = words.lengthInBytes; i < source.lengthInBytes; i++) {
-      bytes[i] = source.getUint8(i);
-    }
-
+    memcpy(ptr, source.buffer.asUint8List().address, lengthInBytes);
     return NativeMemory._(ptr, lengthInBytes);
   }
 
@@ -58,3 +45,7 @@ class NativeMemory {
 extension ByteDataNativeMemory on ByteData {
   NativeMemory toNativeMemory() => NativeMemory.fromByteData(this);
 }
+
+/// void* memcpy( void* dest, const void* src, std::size_t count );
+@Native<Void Function(Pointer, Pointer, Int32)>(symbol: 'memcpy', isLeaf: true)
+external void memcpy(Pointer<Uint8> dest, Pointer<Uint8> src, int count);
