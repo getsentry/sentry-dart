@@ -486,7 +486,7 @@ class SentryFlutterPlugin :
   private fun loadImageList(call: MethodCall, result: Result) {
     val options = HubAdapter.getInstance().options as SentryAndroidOptions
 
-    val args = call.arguments() as List<Long>? ?: listOf()
+    val args = call.arguments() as List<String>? ?: listOf()
     val newDebugImages = mutableListOf<Map<String, Any?>>()
     if (args.isNotEmpty()) {
       val debugImages = options.debugImagesLoader.loadDebugImagesForAddresses(args.toSet())
@@ -496,7 +496,6 @@ class SentryFlutterPlugin :
       debugImages?.let {
         it.forEach { image ->
           val item = mutableMapOf<String, Any?>()
-
           item["image_addr"] = image.imageAddr
           item["image_size"] = image.imageSize
           item["code_file"] = image.codeFile
@@ -504,7 +503,8 @@ class SentryFlutterPlugin :
           item["debug_id"] = image.debugId
           item["code_id"] = image.codeId
           item["debug_file"] = image.debugFile
-
+          item["arch"] = image.arch
+          item["uuid"] = image.uuid
           newDebugImages.add(item)
         }
       }
