@@ -4,12 +4,13 @@ import 'dart:math';
 import 'package:benchmarking/benchmarking.dart';
 import 'package:flutter/foundation.dart';
 import 'package:test/test.dart';
+import 'package:ffi/ffi.dart';
 
 Future<void> execute() async {
   final rand = Random();
 
   // Randomized size prevents loop optimizations of constant sized loops.
-  final size = 1000 * 1000 + rand.nextInt(5);
+  final size = 10 * 1000 * 1000 + rand.nextInt(5);
   final dataA = Uint8List.fromList(
       List.generate(size, (index) => rand.nextInt(size) % 256));
   final byteDataA = dataA.buffer.asByteData();
@@ -30,6 +31,25 @@ Future<void> execute() async {
 
   nativeMemcmp(dataA, dataB) || fail('Invalid result');
   syncBenchmark('nativeMemcmp()', () => nativeMemcmp(dataA, dataB)).report();
+
+  final ptr = malloc.allocate<Uint8>(size);
+  syncBenchmark('Uint64List.SetAll', () {
+    final numWords = size ~/ 8;
+    final words = ptr.cast<Uint64>().asTypedList(numWords);
+    if (numWords > 0) {
+      words.setAll(0, dataA.buffer.asUint64List(0, numWords));
+    }
+
+    final bytes = ptr.asTypedList(size);
+    for (var i = words.lengthInBytes; i < dataA.lengthInBytes; i++) {
+      bytes[i] = byteDataA.getUint8(i);
+    }
+  }).report();
+  syncBenchmark('memcpy', () => memcpy(ptr, dataA.address, size)).report();
+  syncBenchmark(
+          'Uint8List.SetAll', () => ptr.asTypedList(size).setAll(0, dataA))
+      .report();
+  malloc.free(ptr);
 }
 
 bool byteDataGetUint64(ByteData dataA, ByteData dataB) {
@@ -104,3 +124,7 @@ bool nativeMemcmp(Uint8List dataA, Uint8List dataB) {
 ///  different from zero representing which is greater if they do not.
 @Native<Int32 Function(Pointer, Pointer, Int32)>(symbol: 'memcmp', isLeaf: true)
 external int memcmp(Pointer<Uint8> ptr1, Pointer<Uint8> ptr2, int len);
+
+/// void* memcpy( void* dest, const void* src, std::size_t count );
+@Native<Void Function(Pointer, Pointer, Int32)>(symbol: 'memcpy', isLeaf: true)
+external void memcpy(Pointer<Uint8> dest, Pointer<Uint8> src, int count);
