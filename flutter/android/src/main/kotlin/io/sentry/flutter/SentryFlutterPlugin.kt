@@ -36,7 +36,6 @@ import io.sentry.protocol.DebugImage
 import io.sentry.protocol.SentryId
 import io.sentry.protocol.User
 import io.sentry.transport.CurrentDateProvider
-import java.io.File
 import java.lang.ref.WeakReference
 import kotlin.math.roundToInt
 
@@ -519,9 +518,7 @@ class SentryFlutterPlugin :
 
     private const val NATIVE_CRASH_WAIT_TIME = 500L
 
-    @JvmStatic fun privateSentryGetReplayIntegration() : ReplayIntegration? {
-      return replay
-    }
+    @JvmStatic fun privateSentryGetReplayIntegration(): ReplayIntegration? = replay
 
     private fun crash() {
       val exception = RuntimeException("FlutterSentry Native Integration: Sample RuntimeException")
