@@ -33,7 +33,6 @@ class AndroidReplayRecorder extends ScheduledScreenshotRecorder {
 
   Future<void> _addReplayScreenshot(
       Screenshot screenshot, bool isNewlyCaptured) async {
-    // TODO this is currently missing in native onScreenshotRecorded()
     final timestamp = screenshot.timestamp.millisecondsSinceEpoch;
 
     try {
@@ -44,7 +43,6 @@ class AndroidReplayRecorder extends ScheduledScreenshotRecorder {
           '${screenshot.width}x${screenshot.height} pixels, '
           '${data.lengthInBytes} bytes)');
 
-      // TODO evaluate setAll() performance, consider memcpy.
       final jBuffer = JByteBuffer.fromList(data.buffer.asUint8List());
       int width = screenshot.width;
       int height = screenshot.height;
@@ -166,6 +164,7 @@ class _AndroidNativeReplayWorker {
         }
 
         if (bitmap != null) {
+          // TODO timestamp is currently missing in onScreenshotRecorded()
           _nativeReplay.onScreenshotRecorded(bitmap!);
         }
 
