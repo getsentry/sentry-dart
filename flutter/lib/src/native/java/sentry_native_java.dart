@@ -29,7 +29,8 @@ class SentryNativeJava extends SentryNativeChannel {
                 height: (call.arguments['height'] as num).toDouble(),
                 frameRate: call.arguments['frameRate'] as int);
 
-            _replayRecorder = AndroidReplayRecorder(config, options)..start();
+            _replayRecorder = AndroidReplayRecorder(config, options);
+            await _replayRecorder!.start();
 
             hub.configureScope((s) {
               // ignore: invalid_use_of_internal_member
