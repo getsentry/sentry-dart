@@ -94,6 +94,7 @@ class _FakeHub_11 extends _i1.SmartFake implements _i2.Hub {
 /// A class which mocks [SentryTracer].
 ///
 /// See the documentation for Mockito's code generation for more information.
+// ignore: invalid_use_of_internal_member
 class MockSentryTracer extends _i1.Mock implements _i5.SentryTracer {
   MockSentryTracer() {
     _i1.throwOnMissingStub(this);
@@ -128,12 +129,14 @@ class MockSentryTracer extends _i1.Mock implements _i5.SentryTracer {
       );
 
   @override
+  // ignore: invalid_use_of_internal_member
   set profiler(_i7.SentryProfiler? _profiler) => super.noSuchMethod(
         Invocation.setter(#profiler, _profiler),
         returnValueForMissingStub: null,
       );
 
   @override
+  // ignore: invalid_use_of_internal_member
   set profileInfo(_i7.SentryProfileInfo? _profileInfo) => super.noSuchMethod(
         Invocation.setter(#profileInfo, _profileInfo),
         returnValueForMissingStub: null,
@@ -1083,6 +1086,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
       ) as _i2.Scope);
 
   @override
+  // ignore: invalid_use_of_internal_member
   set profilerFactory(_i7.SentryProfilerFactory? value) => super.noSuchMethod(
         Invocation.setter(#profilerFactory, value),
         returnValueForMissingStub: null,
