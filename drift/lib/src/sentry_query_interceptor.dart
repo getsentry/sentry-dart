@@ -31,7 +31,12 @@ class SentryQueryInterceptor extends QueryInterceptor {
     options?.sdk.addPackage(packageName, sdkVersion);
   }
 
-  Future<T> _run<T>(
+  /// Wraps database operations in Sentry spans.
+  ///
+  /// This handles most CRUD operations but excludes transaction lifecycle methods
+  /// (begin/commit/rollback), which require maintaining an ongoing transaction span
+  /// across multiple operations. Those are handled separately via [SentrySpanHelper].
+  Future<T> _instrumentOperation<T>(
     String description,
     FutureOr<T> Function() execute, {
     String? operation,
@@ -47,7 +52,7 @@ class SentryQueryInterceptor extends QueryInterceptor {
   Future<bool> ensureOpen(QueryExecutor executor, QueryExecutorUser user) {
     if (!_isDbOpen) {
       _isDbOpen = true;
-      return _run(
+      return _instrumentOperation(
         constants.dbOpenDesc(dbName: _dbName),
         () => super.ensureOpen(executor, user),
         operation: constants.dbOpenOp,
@@ -66,7 +71,7 @@ class SentryQueryInterceptor extends QueryInterceptor {
 
   @override
   Future<void> close(QueryExecutor inner) {
-    return _run(
+    return _instrumentOperation(
       constants.dbCloseDesc(dbName: _dbName),
       () => super.close(inner),
       operation: constants.dbCloseOp,
@@ -76,7 +81,7 @@ class SentryQueryInterceptor extends QueryInterceptor {
   @override
   Future<void> runBatched(
       QueryExecutor executor, BatchedStatements statements) {
-    return _run(
+    return _instrumentOperation(
       constants.dbBatchDesc,
       () => super.runBatched(executor, statements),
       operation: constants.dbSqlBatchOp,
@@ -99,7 +104,7 @@ class SentryQueryInterceptor extends QueryInterceptor {
     String statement,
     List<Object?> args,
   ) {
-    return _run(
+    return _instrumentOperation(
       statement,
       () => executor.runInsert(statement, args),
     );
@@ -111,7 +116,8 @@ class SentryQueryInterceptor extends QueryInterceptor {
     String statement,
     List<Object?> args,
   ) {
-    return _run(statement, () => executor.runUpdate(statement, args));
+    return _instrumentOperation(
+        statement, () => executor.runUpdate(statement, args));
   }
 
   @override
@@ -120,7 +126,8 @@ class SentryQueryInterceptor extends QueryInterceptor {
     String statement,
     List<Object?> args,
   ) {
-    return _run(statement, () => executor.runDelete(statement, args));
+    return _instrumentOperation(
+        statement, () => executor.runDelete(statement, args));
   }
 
   @override
@@ -129,7 +136,8 @@ class SentryQueryInterceptor extends QueryInterceptor {
     String statement,
     List<Object?> args,
   ) {
-    return _run(statement, () => executor.runCustom(statement, args));
+    return _instrumentOperation(
+        statement, () => executor.runCustom(statement, args));
   }
 
   @override
@@ -138,6 +146,7 @@ class SentryQueryInterceptor extends QueryInterceptor {
     String statement,
     List<Object?> args,
   ) {
-    return _run(statement, () => executor.runSelect(statement, args));
+    return _instrumentOperation(
+        statement, () => executor.runSelect(statement, args));
   }
 }
