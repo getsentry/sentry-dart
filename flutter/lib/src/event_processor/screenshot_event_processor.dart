@@ -1,13 +1,11 @@
 import 'dart:async';
 import 'dart:typed_data';
-import 'dart:ui';
 
 import 'package:meta/meta.dart';
 import '../../sentry_flutter.dart';
 import '../renderer/renderer.dart';
 import '../screenshot/recorder.dart';
 import '../screenshot/recorder_config.dart';
-import 'package:flutter/widgets.dart' as widget;
 
 import '../utils/debouncer.dart';
 
@@ -100,14 +98,6 @@ class ScreenshotEventProcessor implements EventProcessor {
         SentryLevel.debug,
         'Cannot take screenshot with ${renderer?.name} renderer.',
       );
-      return event;
-    }
-
-    if (_options.attachScreenshotOnlyWhenResumed &&
-        widget.WidgetsBinding.instance.lifecycleState !=
-            AppLifecycleState.resumed) {
-      _options.logger(SentryLevel.debug,
-          'Only attaching screenshots when application state is resumed.');
       return event;
     }
 
