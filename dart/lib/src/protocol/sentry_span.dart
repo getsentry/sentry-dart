@@ -48,7 +48,8 @@ class SentrySpan extends ISentrySpan {
   }
 
   @override
-  Future<void> finish({SpanStatus? status, DateTime? endTimestamp}) async {
+  Future<void> finish(
+      {SpanStatus? status, DateTime? endTimestamp, Hint? hint}) async {
     if (finished) {
       return;
     }
@@ -84,7 +85,8 @@ class SentrySpan extends ISentrySpan {
       _hub.setSpanContext(_throwable, this, _tracer.name);
     }
     await _finishedCallback?.call(endTimestamp: _endTimestamp);
-    return super.finish(status: status, endTimestamp: _endTimestamp);
+    return super
+        .finish(status: status, endTimestamp: _endTimestamp, hint: hint);
   }
 
   @override
