@@ -46,8 +46,6 @@ class SentryRunZonedGuarded {
           // We somehow landed in a recursion.
           // This happens for example if:
           // - hub.addBreadcrumb() called print() itself
-          // - This happens for example if hub.isEnabled == false and
-          //   options.logger == dartLogger
           //
           // Anyway, in order to not cause a stack overflow due to recursion
           // we drop any further print() call while adding a breadcrumb.

@@ -37,8 +37,7 @@ void main() {
     final options = defaultTestOptions();
     // ignore: deprecated_member_use_from_same_package
     expect(options.logger, noOpLogger);
-    // ignore: deprecated_member_use_from_same_package
-    options.logger = dartLogger;
+    options.debug = true;
 
     // ignore: deprecated_member_use_from_same_package
     expect(options.logger, isNot(noOpLogger));

@@ -489,7 +489,7 @@ void main() {
     );
 
     // ignore: deprecated_member_use_from_same_package
-    expect(sentryOptions.logger, isNot(dartLogger));
+    expect(sentryOptions.logger, noOpLogger);
   });
 
   group('Sentry init optionsConfiguration', () {
