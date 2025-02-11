@@ -118,6 +118,7 @@ void main() {
 
     test('with disabled auto app start waits until appStartEnd is set',
         () async {
+      // ignore: deprecated_member_use_from_same_package
       fixture.options.autoAppStart = false;
 
       fixture.callIntegration();
@@ -137,6 +138,7 @@ void main() {
     });
 
     test('with disabled auto app start waits until timeout', () async {
+      // ignore: deprecated_member_use_from_same_package
       fixture.options.autoAppStart = false;
 
       fixture.callIntegration();
