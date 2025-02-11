@@ -131,8 +131,7 @@ void main() {
             await pumpTestElement(tester);
             if (mockPlatform.isAndroid) {
               nextFrame({bool wait = true}) async {
-                mockAndroidRecorder.completer = Completer();
-                final future = mockAndroidRecorder.completer!.future;
+                final future = mockAndroidRecorder.completer.future;
                 await tester.pumpAndWaitUntil(future, requiredToComplete: wait);
               }
 
@@ -198,14 +197,13 @@ void main() {
 class _MockAndroidReplayRecorder extends ScheduledScreenshotRecorder
     implements AndroidReplayRecorder {
   final captured = <Screenshot>[];
-  Completer<void>? completer;
+  var completer = Completer<void>();
 
   _MockAndroidReplayRecorder(super.config, super.options) {
     super.callback = (screenshot, _) async {
       captured.add(screenshot);
-      if (completer?.isCompleted == false) {
-        completer?.complete();
-      }
+      completer.complete();
+      completer = Completer<void>();
     };
   }
 
