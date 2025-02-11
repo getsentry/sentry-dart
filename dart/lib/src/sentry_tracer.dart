@@ -371,9 +371,6 @@ class SentryTracer extends ISentrySpan {
       return _sentryTraceContextHeader;
     }
 
-    SentryUser? user;
-    _hub.configureScope((scope) => user = scope.user);
-
     _sentryTraceContextHeader = SentryTraceContextHeader(
       _rootSpan.context.traceId,
       _hub.options.parsedDsn.publicKey,
