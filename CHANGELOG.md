@@ -2,9 +2,13 @@
 
 ## Unreleased 9.0.0
 
+- Remove `SentryDisplayWidget` and manual TTID implementation ([#2668](https://github.com/getsentry/sentry-dart/pull/2668))
 - Increase minimum SDK version requirements to Dart v3.5.0 and Flutter v3.24.0 ([#2643](https://github.com/getsentry/sentry-dart/pull/2643))
 - Remove screenshot option `attachScreenshotOnlyWhenResumed` ([#2664](https://github.com/getsentry/sentry-dart/pull/2664))
 - Remove deprecated `beforeScreenshot` ([#2662](https://github.com/getsentry/sentry-dart/pull/2662))
+- Remove deprecated loggers ([#2685](https://github.com/getsentry/sentry-dart/pull/2685))
+- Remove user segment ([#2687](https://github.com/getsentry/sentry-dart/pull/2687))
+- Remove `options.autoAppStart` and `setAppStartEnd` ([#2680](https://github.com/getsentry/sentry-dart/pull/2680))
 
 ### Dependencies
 
@@ -14,11 +18,21 @@
 
 ## Unreleased
 
+### Deprecations
+
+- Deprecate `autoAppStart` and `setAppStartEnd` ([#2681](https://github.com/getsentry/sentry-dart/pull/2681))
+
 ### Other
 
 - Remove macOS display refresh rate support ([#2628](https://github.com/getsentry/sentry-dart/pull/2628))
   - Can't reliably detect on multi-monitor systems and on older macOS versions.
   - Not very meaningful, as other applications may be running in parallel and affecting it.
+
+### Dependencies
+
+- Bump Native SDK from v0.7.19 to v0.7.20 ([#2652](https://github.com/getsentry/sentry-dart/pull/2652))
+  - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#0720)
+  - [diff](https://github.com/getsentry/sentry-native/compare/0.7.19...0.7.20)
 
 ## 8.13.0
 

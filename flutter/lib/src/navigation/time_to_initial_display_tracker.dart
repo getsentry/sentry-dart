@@ -3,7 +3,6 @@
 import 'dart:async';
 
 import 'package:meta/meta.dart';
-
 // ignore: implementation_imports
 import 'package:sentry/src/sentry_tracer.dart';
 
@@ -26,10 +25,8 @@ class TimeToInitialDisplayTracker {
   TimeToInitialDisplayTracker._();
 
   FrameCallbackHandler _frameCallbackHandler = DefaultFrameCallbackHandler();
-  bool _isManual = false;
   Completer<DateTime?>? _trackingCompleter;
   DateTime? _endTimestamp;
-  DateTime? _completeTrackingTimeStamp;
 
   final Duration _determineEndtimeTimeout = Duration(seconds: 5);
 
@@ -61,10 +58,7 @@ class TimeToInitialDisplayTracker {
       startTimestamp: startTimestamp,
     );
 
-    ttidSpan.origin = origin ??
-        (_isManual
-            ? SentryTraceOrigins.manualUiTimeToDisplay
-            : SentryTraceOrigins.autoUiTimeToDisplay);
+    ttidSpan.origin = origin ?? SentryTraceOrigins.autoUiTimeToDisplay;
 
     final duration = Duration(
         milliseconds: _endTimestamp.difference(startTimestamp).inMilliseconds);
@@ -87,31 +81,11 @@ class TimeToInitialDisplayTracker {
       },
     );
 
-    // If we already know it's manual we can return the future immediately
-    if (_isManual) {
-      final completeTrackingTimeStamp = _completeTrackingTimeStamp;
-      if (completeTrackingTimeStamp != null) {
-        // If complete was called before we could call start, complete it here.
-        _endTimestamp = completeTrackingTimeStamp;
-        _trackingCompleter?.complete(completeTrackingTimeStamp);
-        _completeTrackingTimeStamp = null;
-      }
-      return future;
-    }
-
-    // Schedules a check at the end of the frame to determine if the tracking
-    // should be completed immediately (approximation mode) or deferred (manual mode).
     _frameCallbackHandler.addPostFrameCallback((_) {
-      if (!_isManual) {
-        completeTracking();
-      }
+      completeTracking();
     });
 
     return future;
-  }
-
-  void markAsManual() {
-    _isManual = true;
   }
 
   void completeTracking() {
@@ -120,13 +94,10 @@ class TimeToInitialDisplayTracker {
     if (_trackingCompleter != null && !_trackingCompleter!.isCompleted) {
       _endTimestamp = timestamp;
       _trackingCompleter?.complete(timestamp);
-    } else {
-      _completeTrackingTimeStamp = timestamp;
     }
   }
 
   void clear() {
-    _isManual = false;
     _trackingCompleter = null;
     // We can't clear the ttid end time stamp here, because it might be needed
     // in the [TimeToFullDisplayTracker] class
