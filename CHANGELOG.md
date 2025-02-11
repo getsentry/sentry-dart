@@ -5,6 +5,7 @@
 ### Features
 
 - Disable `ScreenshotIntegration`, `WidgetsBindingIntegration` and `SentryWidget` in multi-view apps #2366 ([#2366](https://github.com/getsentry/sentry-dart/pull/2366))
+
 ### Other
 
 - Remove macOS display refresh rate support ([#2628](https://github.com/getsentry/sentry-dart/pull/2628))
