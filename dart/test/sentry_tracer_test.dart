@@ -487,6 +487,7 @@ void main() {
           SentryTracesSamplingDecision(
             true,
             sampleRate: 1.0,
+            sampleRand: 0.8,
           );
       final _context = SentryTransactionContext(
         'name',
@@ -512,6 +513,7 @@ void main() {
       expect(newBaggage.get('sentry-user_segment'), 'segment');
       expect(newBaggage.get('sentry-transaction'), 'name');
       expect(newBaggage.get('sentry-sample_rate'), '1');
+      expect(newBaggage.getSampleRand(), 0.8);
       expect(newBaggage.get('sentry-sampled'), 'true');
     });
 

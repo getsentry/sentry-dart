@@ -210,6 +210,9 @@ import '../../sentry_flutter.dart';
 import '../widget_utils.dart';
 import 'user_interaction_info.dart';
 
+// ignore: implementation_imports
+import 'package:sentry/src/sentry_tracer.dart';
+
 const _tapDeltaArea = 20 * 20;
 Element? _clickTrackerElement;
 
@@ -428,18 +431,22 @@ class _SentryUserInteractionWidgetState
           lastElement?.widget == element.widget &&
           !activeTransaction.finished) {
         // ignore: invalid_use_of_internal_member
-        activeTransaction.scheduleFinish();
-        return;
+        if (activeTransaction is SentryTracer &&
+            activeTransaction.children.isNotEmpty) {
+          activeTransaction.finish();
+        } else {
+          activeTransaction.finish(status: SpanStatus.cancelled());
+        }
       } else {
         activeTransaction.finish();
-        _hub.configureScope((scope) {
-          if (scope.span == activeTransaction) {
-            scope.span = null;
-          }
-        });
-        _activeTransaction = null;
-        _lastTappedWidget = null;
       }
+      _hub.configureScope((scope) {
+        if (scope.span == activeTransaction) {
+          scope.span = null;
+        }
+      });
+      _activeTransaction = null;
+      _lastTappedWidget = null;
     }
 
     _lastTappedWidget = info;

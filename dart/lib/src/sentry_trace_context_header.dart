@@ -1,7 +1,7 @@
 import 'package:meta/meta.dart';
 
-import 'protocol/sentry_id.dart';
 import 'protocol/access_aware_map.dart';
+import 'protocol/sentry_id.dart';
 import 'sentry_baggage.dart';
 import 'sentry_options.dart';
 
@@ -15,6 +15,7 @@ class SentryTraceContextHeader {
     this.userSegment,
     this.transaction,
     this.sampleRate,
+    this.sampleRand,
     this.sampled,
     this.unknown,
     this.replayId,
@@ -30,6 +31,7 @@ class SentryTraceContextHeader {
   final String? userSegment;
   final String? transaction;
   final String? sampleRate;
+  final String? sampleRand;
   final String? sampled;
 
   @internal
@@ -102,6 +104,9 @@ class SentryTraceContextHeader {
     if (sampleRate != null) {
       baggage.setSampleRate(sampleRate!);
     }
+    if (sampleRand != null) {
+      baggage.setSampleRand(sampleRand!);
+    }
     if (sampled != null) {
       baggage.setSampled(sampled!);
     }
@@ -113,6 +118,7 @@ class SentryTraceContextHeader {
 
   factory SentryTraceContextHeader.fromBaggage(SentryBaggage baggage) {
     return SentryTraceContextHeader(
+      // TODO: implement and use proper get methods here
       SentryId.fromId(baggage.get('sentry-trace_id').toString()),
       baggage.get('sentry-public_key').toString(),
       release: baggage.get('sentry-release'),

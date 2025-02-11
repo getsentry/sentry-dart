@@ -36,6 +36,10 @@ void main() {
       late Map<String, dynamic> replayConfig;
 
       setUp(() {
+        hub = MockHub();
+        fs = MemoryFileSystem.test();
+        native = NativeChannelFixture();
+
         if (mockPlatform.isIOS) {
           replayConfig = {
             'replayId': '123',
@@ -48,13 +52,10 @@ void main() {
             'height': 600,
             'frameRate': 1000,
           };
+          fs.directory(replayConfig['directory']).createSync(recursive: true);
+          when(native.handler('addReplayScreenshot', any))
+              .thenAnswer((_) => Future.value());
         }
-
-        hub = MockHub();
-
-        fs = MemoryFileSystem.test();
-
-        native = NativeChannelFixture();
 
         options =
             defaultTestOptions(MockPlatformChecker(mockPlatform: mockPlatform))
@@ -99,6 +100,10 @@ void main() {
             expect(scope.replayId, isNull);
             await closure(scope);
             expect(scope.replayId.toString(), replayConfig['replayId']);
+
+            if (mockPlatform.isAndroid) {
+              await native.invokeFromNative('ReplayRecorder.stop');
+            }
           });
         });
 
@@ -126,8 +131,7 @@ void main() {
 
             await pumpTestElement(tester);
             if (mockPlatform.isAndroid) {
-              final replayDir = fs.directory(replayConfig['directory'])
-                ..createSync(recursive: true);
+              final replayDir = fs.directory(replayConfig['directory']);
 
               var callbackFinished = Completer<void>();
 
