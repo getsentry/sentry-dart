@@ -133,6 +133,7 @@ void main() {
           await SentryFlutter.init((options) {
             options.enableSentryJs = true;
             options.dsn = fakeDsn;
+            options.attachScreenshot = true;
 
             confOptions = options;
           }, appRunner: () async {
@@ -141,6 +142,10 @@ void main() {
             );
           });
         });
+        expect(
+          confOptions?.sdk.integrations.contains("screenshotIntegration"),
+          isTrue,
+        );
         expect(
           confOptions?.sdk.integrations.contains("widgetsBindingIntegration"),
           isTrue,
