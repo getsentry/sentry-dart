@@ -5,6 +5,7 @@ library;
 
 import 'dart:async';
 
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -66,11 +67,6 @@ void main() {
 
       tearDown(() async {
         await sut.close();
-
-        if (mockPlatform.isAndroid) {
-          await native.invokeFromNative('ReplayRecorder.stop');
-          AndroidReplayRecorder.factory = AndroidReplayRecorder.new;
-        }
       });
 
       group('replay recorder', () {
@@ -103,6 +99,15 @@ void main() {
             expect(scope.replayId, isNull);
             await closure(scope);
             expect(scope.replayId.toString(), replayConfig['replayId']);
+
+            if (mockPlatform.isAndroid) {
+              await native.invokeFromNative('ReplayRecorder.stop');
+              AndroidReplayRecorder.factory = AndroidReplayRecorder.new;
+
+              // Workaround for "A Timer is still pending even after the widget tree was disposed."
+              await tester.pumpWidget(Container());
+              await tester.pumpAndSettle();
+            }
           });
         });
 
