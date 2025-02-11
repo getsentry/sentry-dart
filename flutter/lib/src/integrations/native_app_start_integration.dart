@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:ui';
 
 import '../../sentry_flutter.dart';
@@ -13,9 +12,7 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
 
   final FrameCallbackHandler _frameCallbackHandler;
   final NativeAppStartHandler _nativeAppStartHandler;
-  DateTime? _appStartEnd;
 
-  final Completer<void> _appStartEndCompleter = Completer<void>();
   bool _allowProcessing = true;
 
   @override
