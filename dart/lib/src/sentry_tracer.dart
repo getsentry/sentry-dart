@@ -371,17 +371,12 @@ class SentryTracer extends ISentrySpan {
       return _sentryTraceContextHeader;
     }
 
-    SentryUser? user;
-    _hub.configureScope((scope) => user = scope.user);
-
     _sentryTraceContextHeader = SentryTraceContextHeader(
       _rootSpan.context.traceId,
       _hub.options.parsedDsn.publicKey,
       release: _hub.options.release,
       environment: _hub.options.environment,
       userId: null, // because of PII not sending it for now
-      // ignore: deprecated_member_use_from_same_package
-      userSegment: user?.segment,
       transaction:
           _isHighQualityTransactionName(transactionNameSource) ? name : null,
       sampleRate: _sampleRateToString(_rootSpan.samplingDecision?.sampleRate),
