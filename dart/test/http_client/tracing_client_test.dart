@@ -177,7 +177,6 @@ void main() {
 
     test('set headers from propagationContext when tracing is disabled',
         () async {
-      // ignore: deprecated_member_use_from_same_package
       fixture._options.tracesSampler = null;
       fixture._options.tracesSampleRate = null;
 
