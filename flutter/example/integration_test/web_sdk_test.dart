@@ -124,6 +124,41 @@ void main() {
         // sent in the JS layer
         expect(jsEventJson, equals(dartEventJson));
       });
+
+      testWidgets('includes single-view supporting integrations',
+          (tester) async {
+        SentryFlutterOptions? confOptions;
+
+        await restoreFlutterOnErrorAfter(() async {
+          await SentryFlutter.init((options) {
+            options.enableSentryJs = true;
+            options.dsn = fakeDsn;
+
+            confOptions = options;
+          }, appRunner: () async {
+            await tester.pumpWidget(
+              SentryWidget(child: const app.MyApp()),
+            );
+          });
+        });
+
+        expect(
+          confOptions?.sdk.integrations.contains("screenshotIntegration"),
+          isTrue,
+        );
+        expect(
+          confOptions?.sdk.integrations.contains("widgetsBindingIntegration"),
+          isTrue,
+        );
+        expect(
+          find.byType(SentryScreenshotWidget),
+          findsOneWidget,
+        );
+        expect(
+          find.byType(SentryUserInteractionWidget),
+          findsOneWidget,
+        );
+      });
     });
 
     group('disabled', () {
