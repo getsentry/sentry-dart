@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixes 
+
+- Reference to `SentryWidgetsFlutterBinding` in warning message in `FramesTrackingIntegration` ([#2704](https://github.com/getsentry/sentry-dart/pull/2704))
+
 ### Deprecations
 
 - Deprecate `autoAppStart` and `setAppStartEnd` ([#2681](https://github.com/getsentry/sentry-dart/pull/2681))
