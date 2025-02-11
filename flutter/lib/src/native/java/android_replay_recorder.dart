@@ -16,8 +16,8 @@ class AndroidReplayRecorder extends ScheduledScreenshotRecorder {
 
   @internal // visible for testing, used by SentryNativeJava
   static AndroidReplayRecorder Function(
-          ScheduledScreenshotRecorderConfig, SentryFlutterOptions)
-      factory = AndroidReplayRecorder.new;
+          ScheduledScreenshotRecorderConfig, SentryFlutterOptions) factory =
+      AndroidReplayRecorder.new;
 
   AndroidReplayRecorder(super.config, super.options) {
     super.callback = _addReplayScreenshot;
