@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Deprecations
+
+- Deprecate `autoAppStart` and `setAppStartEnd` ([#2681](https://github.com/getsentry/sentry-dart/pull/2681))
+
 ### Other
 
 - Remove macOS display refresh rate support ([#2628](https://github.com/getsentry/sentry-dart/pull/2628))

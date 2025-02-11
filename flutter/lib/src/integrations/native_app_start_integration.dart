@@ -18,6 +18,7 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
   DateTime? _appStartEnd;
 
   /// This timestamp marks the end of app startup. Either set by calling
+  // ignore: deprecated_member_use_from_same_package
   /// [SentryFlutter.setAppStartEnd]. The [SentryFlutterOptions.autoAppStart]
   /// option needs to be false.
   @internal
@@ -43,6 +44,7 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
 
       try {
         DateTime? appStartEnd;
+        // ignore: deprecated_member_use_from_same_package
         if (options.autoAppStart) {
           // ignore: invalid_use_of_internal_member
           appStartEnd = DateTime.fromMicrosecondsSinceEpoch(timings.first
