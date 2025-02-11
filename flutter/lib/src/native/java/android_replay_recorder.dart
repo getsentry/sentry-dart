@@ -10,6 +10,8 @@ import '../../replay/scheduled_recorder_config.dart';
 import '../../screenshot/screenshot.dart';
 import 'binding.dart' as native;
 
+// Note, this is currently not unit-tested because mocking the JNI calls is
+// cumbersome, see https://github.com/dart-lang/native/issues/1794
 @internal
 class AndroidReplayRecorder extends ScheduledScreenshotRecorder {
   _AndroidNativeReplayWorker? _worker;
