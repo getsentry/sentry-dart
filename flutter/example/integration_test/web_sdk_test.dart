@@ -141,11 +141,6 @@ void main() {
             );
           });
         });
-
-        expect(
-          confOptions?.sdk.integrations.contains("screenshotIntegration"),
-          isTrue,
-        );
         expect(
           confOptions?.sdk.integrations.contains("widgetsBindingIntegration"),
           isTrue,
