@@ -9,8 +9,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/native/factory.dart';
-import 'package:sentry_flutter/src/native/java/android_replay_recorder.dart';
-import 'package:sentry_flutter/src/native/java/sentry_native_java.dart';
+import 'android_replay_recorder_web.dart' // see https://github.com/flutter/flutter/issues/160675
+    if (dart.library.io) 'package:sentry_flutter/src/native/java/android_replay_recorder.dart';
 import 'package:sentry_flutter/src/replay/scheduled_recorder.dart';
 import 'package:sentry_flutter/src/screenshot/screenshot.dart';
 import '../native_memory_web_mock.dart'
@@ -57,7 +57,7 @@ void main() {
             'height': 600,
             'frameRate': 1000,
           };
-          (sut as SentryNativeJava).replayRecorderFactory = (config, options) {
+          AndroidReplayRecorder.factory = (config, options) {
             mockAndroidRecorder = _MockAndroidReplayRecorder(config, options);
             return mockAndroidRecorder;
           };
@@ -69,6 +69,7 @@ void main() {
 
         if (mockPlatform.isAndroid) {
           await native.invokeFromNative('ReplayRecorder.stop');
+          AndroidReplayRecorder.factory = AndroidReplayRecorder.new;
         }
       });
 
