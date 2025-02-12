@@ -6,6 +6,10 @@
 
 - Ues debug image loading by address API for Android ([#2706](https://github.com/getsentry/sentry-dart/pull/2706))
 
+### Features
+
+- Disable `ScreenshotIntegration`, `WidgetsBindingIntegration` and `SentryWidget` in multi-view apps #2366 ([#2366](https://github.com/getsentry/sentry-dart/pull/2366))
+
 ### Deprecations
 
 - Deprecate `autoAppStart` and `setAppStartEnd` ([#2681](https://github.com/getsentry/sentry-dart/pull/2681))
