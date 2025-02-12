@@ -520,7 +520,6 @@ void main() {
       expect(newBaggage.get('sentry-public_key'), 'public');
       expect(newBaggage.get('sentry-release'), 'release');
       expect(newBaggage.get('sentry-environment'), 'environment');
-      expect(newBaggage.get('sentry-user_segment'), 'segment');
       expect(newBaggage.get('sentry-transaction'), 'name');
       expect(newBaggage.get('sentry-sample_rate'), '1');
       expect(newBaggage.getSampleRand(), 0.8);
@@ -595,8 +594,6 @@ void main() {
       expect(context.publicKey, 'public');
       expect(context.release, 'release');
       expect(context.environment, 'environment');
-      // ignore: deprecated_member_use_from_same_package
-      expect(context.userSegment, 'segment');
       expect(context.transaction, 'name');
       expect(context.sampleRate, '1');
       expect(context.sampled, 'true');
@@ -613,7 +610,6 @@ class Fixture {
 
   final user = SentryUser(
     id: 'id',
-    segment: 'segment',
   );
 
   final hub = MockHub();

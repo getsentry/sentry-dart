@@ -486,18 +486,15 @@ void main() {
       (options) {
         options.dsn = fakeDsn;
         options.debug = true;
-        // ignore: deprecated_member_use_from_same_package
         expect(options.logger, isNot(noOpLogger));
 
         options.debug = false;
-        // ignore: deprecated_member_use_from_same_package
         expect(options.logger, noOpLogger);
       },
       options: sentryOptions,
     );
 
-    // ignore: deprecated_member_use_from_same_package
-    expect(sentryOptions.logger, isNot(dartLogger));
+    expect(sentryOptions.logger, noOpLogger);
   });
 
   group('Sentry init optionsConfiguration', () {
