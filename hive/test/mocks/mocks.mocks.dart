@@ -9,6 +9,13 @@ import 'dart:typed_data' as _i9;
 import 'package:hive/hive.dart' as _i3;
 import 'package:hive/src/box/default_compaction_strategy.dart' as _i8;
 import 'package:hive/src/box/default_key_comparator.dart' as _i7;
+// ignore: implementation_imports
+import 'package:hive/src/box_collection/box_collection_stub.dart'
+    if (dart.library.html) 'package:hive/src/box_collection/box_collection_indexed_db.dart'
+    if (dart.library.js_interop) 'package:hive/src/box_collection/box_collection_indexed_db.dart'
+    if (dart.library.io) 'package:hive/src/box_collection/box_collection.dart'
+    as impl;
+import 'package:hive/src/box_collection/box_collection_stub.dart' as stub;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i6;
 import 'package:sentry/sentry.dart' as _i2;
@@ -365,12 +372,13 @@ class MockHub extends _i1.Mock implements _i2.Hub {
   _i5.Future<_i2.SentryId> captureTransaction(
     _i2.SentryTransaction? transaction, {
     _i2.SentryTraceContextHeader? traceContext,
+    _i2.Hint? hint,
   }) =>
       (super.noSuchMethod(
             Invocation.method(
               #captureTransaction,
               [transaction],
-              {#traceContext: traceContext},
+              {#traceContext: traceContext, #hint: hint},
             ),
             returnValue: _i5.Future<_i2.SentryId>.value(
               _FakeSentryId_1(
@@ -378,7 +386,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
                 Invocation.method(
                   #captureTransaction,
                   [transaction],
-                  {#traceContext: traceContext},
+                  {#traceContext: traceContext, #hint: hint},
                 ),
               ),
             ),
@@ -1021,7 +1029,7 @@ class MockHiveInterface extends _i1.Mock implements _i3.HiveInterface {
 /// A class which mocks [BoxCollection].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockBoxCollection extends _i1.Mock implements _i3.BoxCollection {
+class MockBoxCollection extends _i1.Mock implements impl.BoxCollection {
   MockBoxCollection() {
     _i1.throwOnMissingStub(this);
   }
@@ -1040,10 +1048,10 @@ class MockBoxCollection extends _i1.Mock implements _i3.BoxCollection {
           as Set<String>);
 
   @override
-  _i5.Future<_i3.CollectionBox<V>> openBox<V>(
+  _i5.Future<impl.CollectionBox<V>> openBox<V>(
     String? name, {
     bool? preload = false,
-    _i3.CollectionBox<V> Function(String, _i3.BoxCollection)? boxCreator,
+    stub.CollectionBox<V> Function(String, impl.BoxCollection)? boxCreator,
   }) =>
       (super.noSuchMethod(
             Invocation.method(
@@ -1051,7 +1059,7 @@ class MockBoxCollection extends _i1.Mock implements _i3.BoxCollection {
               [name],
               {#preload: preload, #boxCreator: boxCreator},
             ),
-            returnValue: _i5.Future<_i3.CollectionBox<V>>.value(
+            returnValue: _i5.Future<impl.CollectionBox<V>>.value(
               _FakeCollectionBox_7<V>(
                 this,
                 Invocation.method(
@@ -1062,7 +1070,7 @@ class MockBoxCollection extends _i1.Mock implements _i3.BoxCollection {
               ),
             ),
           )
-          as _i5.Future<_i3.CollectionBox<V>>);
+          as _i5.Future<impl.CollectionBox<V>>);
 
   @override
   _i5.Future<void> transaction(
