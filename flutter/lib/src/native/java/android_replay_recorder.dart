@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:isolate';
+import 'dart:typed_data';
 
 import 'package:jni/jni.dart';
 import 'package:meta/meta.dart';
@@ -10,7 +11,7 @@ import '../../replay/scheduled_recorder_config.dart';
 import '../../screenshot/screenshot.dart';
 import 'binding.dart' as native;
 
-// Note, this is currently not unit-tested because mocking the JNI calls is
+// Note, this is currently not unit-tested because mocking JNI calls is
 // cumbersome, see https://github.com/dart-lang/native/issues/1794
 @internal
 class AndroidReplayRecorder extends ScheduledScreenshotRecorder {
@@ -51,15 +52,12 @@ class AndroidReplayRecorder extends ScheduledScreenshotRecorder {
           '${screenshot.width}x${screenshot.height} pixels, '
           '${data.lengthInBytes} bytes)');
 
-      final jBuffer = JByteBuffer.fromList(data.buffer.asUint8List());
-      int width = screenshot.width;
-      int height = screenshot.height;
-
       await _worker!.nativeAddScreenshot(_WorkItem(
-          timestamp: timestamp,
-          jBuffer: jBuffer,
-          width: width,
-          height: height));
+        timestamp: timestamp,
+        data: data.buffer.asUint8List(),
+        width: screenshot.width,
+        height: screenshot.height,
+      ));
     } catch (error, stackTrace) {
       options.logger(
         SentryLevel.error,
@@ -161,20 +159,19 @@ class _AndroidNativeReplayWorker {
         }
 
         // https://developer.android.com/reference/android/graphics/Bitmap#createBitmap(int,%20int,%20android.graphics.Bitmap.Config)
-        // Note: in the currently generated API this may return null so we null-check below.
+        // Note: while the generated API is nullable, the docs say the returned value cannot be null..
         bitmap ??= native.Bitmap.createBitmap$3(
             item.width, item.height, native.Bitmap$Config.ARGB_8888);
 
+        final jBuffer = JByteBuffer.fromList(item.data);
         try {
-          bitmap?.copyPixelsFromBuffer(item.jBuffer);
+          bitmap!.copyPixelsFromBuffer(jBuffer);
         } finally {
-          item.jBuffer.release();
+          jBuffer.release();
         }
 
-        if (bitmap != null) {
-          // TODO timestamp is currently missing in onScreenshotRecorded()
-          _nativeReplay.onScreenshotRecorded(bitmap!);
-        }
+        // TODO timestamp is currently missing in onScreenshotRecorded()
+        _nativeReplay.onScreenshotRecorded(bitmap!);
 
         sendPort.send((id, null));
       } catch (e, stacktrace) {
@@ -200,13 +197,13 @@ class _AndroidNativeReplayWorker {
 
 class _WorkItem {
   final int timestamp;
-  final JByteBuffer jBuffer;
+  final Uint8List data;
   final int width;
   final int height;
 
   const _WorkItem({
     required this.timestamp,
-    required this.jBuffer,
+    required this.data,
     required this.width,
     required this.height,
   });
