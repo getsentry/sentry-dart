@@ -1,13 +1,1 @@
-const String dbSystemKey = 'db.system';
-const String dbSystem = 'db.sqlite';
-const String dbNameKey = 'db.name';
-const String dbSqlQueryOp = 'db.sql.query';
-const String dbSqlTransactionOp = 'db.sql.transaction';
-const String dbSqlBatchOp = 'db.sql.batch';
-const String dbOpenOp = 'db.open';
-const String dbCloseOp = 'db.close';
 const String integrationName = 'SentryDriftTracing';
-const String dbTransactionDesc = 'Transaction';
-const String dbBatchDesc = 'Batch';
-String dbOpenDesc({required String dbName}) => 'Open database $dbName';
-String dbCloseDesc({required String dbName}) => 'Close database $dbName';

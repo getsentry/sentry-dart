@@ -9,7 +9,7 @@ import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry_drift/sentry_drift.dart';
-import 'package:sentry_drift/src/constants.dart' as constants;
+import 'package:sentry_drift/src/constants.dart' as drift_constants;
 import 'package:sentry_drift/src/version.dart';
 import 'package:sqlite3/open.dart';
 
@@ -35,16 +35,19 @@ void main() {
     SpanStatus? status,
   }) {
     status ??= SpanStatus.ok();
-    expect(span?.context.operation, operation ?? constants.dbSqlQueryOp);
+    expect(
+      span?.context.operation,
+      operation ?? SentrySpanOperations.dbSqlQuery,
+    );
     expect(span?.context.description, description);
     expect(span?.status, status);
     expect(span?.origin, SentryTraceOrigins.autoDbDriftQueryInterceptor);
     expect(
-      span?.data[constants.dbSystemKey],
-      constants.dbSystem,
+      span?.data[SentrySpanData.dbSystemKey],
+      SentrySpanData.dbSystemSqlite,
     );
     expect(
-      span?.data[constants.dbNameKey],
+      span?.data[SentrySpanData.dbNameKey],
       Fixture.dbName,
     );
   }
@@ -56,16 +59,19 @@ void main() {
     String? operation,
     SpanStatus? status,
   }) {
-    expect(span?.context.operation, operation ?? constants.dbSqlQueryOp);
+    expect(
+      span?.context.operation,
+      operation ?? SentrySpanOperations.dbSqlQuery,
+    );
     expect(span?.context.description, description);
     expect(span?.status, status ?? SpanStatus.internalError());
     expect(span?.origin, SentryTraceOrigins.autoDbDriftQueryInterceptor);
     expect(
-      span?.data[constants.dbSystemKey],
-      constants.dbSystem,
+      span?.data[SentrySpanData.dbSystemKey],
+      SentrySpanData.dbSystemSqlite,
     );
     expect(
-      span?.data[constants.dbNameKey],
+      span?.data[SentrySpanData.dbNameKey],
       Fixture.dbName,
     );
 
@@ -154,7 +160,7 @@ void main() {
           .where(
             (element) =>
                 element.context.description ==
-                constants.dbOpenDesc(dbName: Fixture.dbName),
+                SentrySpanDescriptions.dbOpen(dbName: Fixture.dbName),
           )
           .length;
 
@@ -228,9 +234,10 @@ void main() {
       );
 
       verifySpan(
-        constants.dbTransactionDesc,
-        fixture.getCreatedSpanByDescription(constants.dbTransactionDesc),
-        operation: constants.dbSqlTransactionOp,
+        SentrySpanDescriptions.dbTransaction,
+        fixture
+            .getCreatedSpanByDescription(SentrySpanDescriptions.dbTransaction),
+        operation: SentrySpanOperations.dbSqlTransaction,
       );
     });
 
@@ -255,9 +262,10 @@ void main() {
       );
 
       verifySpan(
-        constants.dbTransactionDesc,
-        fixture.getCreatedSpanByDescription(constants.dbTransactionDesc),
-        operation: constants.dbSqlTransactionOp,
+        SentrySpanDescriptions.dbTransaction,
+        fixture
+            .getCreatedSpanByDescription(SentrySpanDescriptions.dbTransaction),
+        operation: SentrySpanOperations.dbSqlTransaction,
       );
     });
 
@@ -282,9 +290,10 @@ void main() {
       );
 
       verifySpan(
-        constants.dbTransactionDesc,
-        fixture.getCreatedSpanByDescription(constants.dbTransactionDesc),
-        operation: constants.dbSqlTransactionOp,
+        SentrySpanDescriptions.dbTransaction,
+        fixture
+            .getCreatedSpanByDescription(SentrySpanDescriptions.dbTransaction),
+        operation: SentrySpanOperations.dbSqlTransaction,
       );
     });
 
@@ -309,9 +318,10 @@ void main() {
       );
 
       verifySpan(
-        constants.dbTransactionDesc,
-        fixture.getCreatedSpanByDescription(constants.dbTransactionDesc),
-        operation: constants.dbSqlTransactionOp,
+        SentrySpanDescriptions.dbTransaction,
+        fixture
+            .getCreatedSpanByDescription(SentrySpanDescriptions.dbTransaction),
+        operation: SentrySpanOperations.dbSqlTransaction,
       );
     });
 
@@ -333,10 +343,10 @@ void main() {
       final abortedSpan = spans.first;
 
       verifySpan(
-        constants.dbTransactionDesc,
+        SentrySpanDescriptions.dbTransaction,
         abortedSpan,
         status: SpanStatus.aborted(),
-        operation: constants.dbSqlTransactionOp,
+        operation: SentrySpanOperations.dbSqlTransaction,
       );
     });
 
@@ -346,9 +356,9 @@ void main() {
       await insertIntoBatch(sut);
 
       verifySpan(
-        constants.dbBatchDesc,
+        SentrySpanDescriptions.dbBatch,
         fixture.getCreatedSpan(),
-        operation: constants.dbSqlBatchOp,
+        operation: SentrySpanOperations.dbSqlBatch,
       );
     });
 
@@ -358,9 +368,9 @@ void main() {
       await sut.close();
 
       verifySpan(
-        constants.dbCloseDesc(dbName: Fixture.dbName),
+        SentrySpanDescriptions.dbClose(dbName: Fixture.dbName),
         fixture.getCreatedSpan(),
-        operation: constants.dbCloseOp,
+        operation: SentrySpanOperations.dbClose,
       );
     });
 
@@ -372,11 +382,11 @@ void main() {
       await sut.select(sut.todoItems).get();
 
       verifySpan(
-        constants.dbOpenDesc(dbName: Fixture.dbName),
+        SentrySpanDescriptions.dbOpen(dbName: Fixture.dbName),
         fixture.getCreatedSpanByDescription(
-          constants.dbOpenDesc(dbName: Fixture.dbName),
+          SentrySpanDescriptions.dbOpen(dbName: Fixture.dbName),
         ),
-        operation: constants.dbOpenOp,
+        operation: SentrySpanOperations.dbOpen,
       );
     });
   });
@@ -513,9 +523,12 @@ void main() {
         expect(exception, fixture.exception);
       }
 
-      verifyErrorSpan(constants.dbTransactionDesc, fixture.exception,
-          fixture.getCreatedSpan(),
-          operation: constants.dbSqlTransactionOp);
+      verifyErrorSpan(
+        SentrySpanDescriptions.dbTransaction,
+        fixture.exception,
+        fixture.getCreatedSpan(),
+        operation: SentrySpanOperations.dbSqlTransaction,
+      );
     });
 
     test('throwing batch throws error span in transaction', () async {
@@ -536,17 +549,18 @@ void main() {
 
       // errored batch
       verifyErrorSpan(
-        constants.dbBatchDesc,
+        SentrySpanDescriptions.dbBatch,
         fixture.exception,
-        fixture.getCreatedSpanByDescription(constants.dbBatchDesc),
-        operation: constants.dbSqlBatchOp,
+        fixture.getCreatedSpanByDescription(SentrySpanDescriptions.dbBatch),
+        operation: SentrySpanOperations.dbSqlBatch,
       );
 
       // aborted transaction
       verifySpan(
-        constants.dbTransactionDesc,
-        fixture.getCreatedSpanByDescription(constants.dbTransactionDesc),
-        operation: constants.dbSqlTransactionOp,
+        SentrySpanDescriptions.dbTransaction,
+        fixture
+            .getCreatedSpanByDescription(SentrySpanDescriptions.dbTransaction),
+        operation: SentrySpanOperations.dbSqlTransaction,
         status: SpanStatus.aborted(),
       );
     });
@@ -566,11 +580,12 @@ void main() {
       }
 
       verifyErrorSpan(
-        constants.dbCloseDesc(dbName: Fixture.dbName),
+        SentrySpanDescriptions.dbClose(dbName: Fixture.dbName),
         fixture.exception,
         fixture.getCreatedSpanByDescription(
-            constants.dbCloseDesc(dbName: Fixture.dbName)),
-        operation: constants.dbCloseOp,
+          SentrySpanDescriptions.dbClose(dbName: Fixture.dbName),
+        ),
+        operation: SentrySpanOperations.dbClose,
       );
     });
 
@@ -587,11 +602,12 @@ void main() {
       }
 
       verifyErrorSpan(
-        constants.dbOpenDesc(dbName: Fixture.dbName),
+        SentrySpanDescriptions.dbOpen(dbName: Fixture.dbName),
         fixture.exception,
         fixture.getCreatedSpanByDescription(
-            constants.dbOpenDesc(dbName: Fixture.dbName)),
-        operation: constants.dbOpenOp,
+          SentrySpanDescriptions.dbOpen(dbName: Fixture.dbName),
+        ),
+        operation: SentrySpanOperations.dbOpen,
       );
     });
 
@@ -633,7 +649,8 @@ void main() {
 
     test('adds integration', () {
       expect(
-        fixture.options.sdk.integrations.contains(constants.integrationName),
+        fixture.options.sdk.integrations
+            .contains(drift_constants.integrationName),
         true,
       );
     });

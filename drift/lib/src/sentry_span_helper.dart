@@ -1,7 +1,7 @@
+// ignore_for_file: invalid_use_of_internal_member
+
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
-
-import 'constants.dart' as constants;
 
 @internal
 class SentrySpanHelper {
@@ -19,20 +19,19 @@ class SentrySpanHelper {
   }) async {
     final currentSpan = _parentSpan ?? _hub.getSpan();
     final span = currentSpan?.startChild(
-      operation ?? constants.dbSqlQueryOp,
+      operation ?? SentrySpanOperations.dbSqlQuery,
       description: description,
     );
 
-    // ignore: invalid_use_of_internal_member
     span?.origin = _origin;
 
     span?.setData(
-      constants.dbSystemKey,
-      constants.dbSystem,
+      SentrySpanData.dbSystemKey,
+      SentrySpanData.dbSystemSqlite,
     );
 
     if (dbName != null) {
-      span?.setData(constants.dbNameKey, dbName);
+      span?.setData(SentrySpanData.dbNameKey, dbName);
     }
 
     try {
@@ -56,20 +55,19 @@ class SentrySpanHelper {
   }) {
     final scopeSpan = _hub.getSpan();
     _parentSpan = scopeSpan?.startChild(
-      constants.dbSqlTransactionOp,
-      description: constants.dbTransactionDesc,
+      SentrySpanOperations.dbSqlTransaction,
+      description: SentrySpanDescriptions.dbTransaction,
     );
 
-    // ignore: invalid_use_of_internal_member
     _parentSpan?.origin = _origin;
 
     _parentSpan?.setData(
-      constants.dbSystemKey,
-      constants.dbSystem,
+      SentrySpanData.dbSystemKey,
+      SentrySpanData.dbSystemSqlite,
     );
 
     if (dbName != null) {
-      _parentSpan?.setData(constants.dbNameKey, dbName);
+      _parentSpan?.setData(SentrySpanData.dbNameKey, dbName);
     }
 
     try {

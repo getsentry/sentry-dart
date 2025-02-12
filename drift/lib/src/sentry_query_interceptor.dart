@@ -1,10 +1,12 @@
+// ignore_for_file: invalid_use_of_internal_member
+
 import 'dart:async';
 
 import 'package:drift/drift.dart';
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 
-import 'constants.dart' as constants;
+import 'constants.dart' as drift_constants;
 import 'sentry_span_helper.dart';
 import 'version.dart';
 
@@ -21,13 +23,11 @@ class SentryQueryInterceptor extends QueryInterceptor {
   SentryQueryInterceptor({required String databaseName, @internal Hub? hub})
       : _dbName = databaseName {
     _spanHelper = SentrySpanHelper(
-      // ignore: invalid_use_of_internal_member
       SentryTraceOrigins.autoDbDriftQueryInterceptor,
       hub: hub,
     );
-    // ignore: invalid_use_of_internal_member
     final options = hub?.options;
-    options?.sdk.addIntegration(constants.integrationName);
+    options?.sdk.addIntegration(drift_constants.integrationName);
     options?.sdk.addPackage(packageName, sdkVersion);
   }
 
@@ -53,9 +53,9 @@ class SentryQueryInterceptor extends QueryInterceptor {
     if (!_isDbOpen) {
       _isDbOpen = true;
       return _instrumentOperation(
-        constants.dbOpenDesc(dbName: _dbName),
+        SentrySpanDescriptions.dbOpen(dbName: _dbName),
         () => super.ensureOpen(executor, user),
-        operation: constants.dbOpenOp,
+        operation: SentrySpanOperations.dbOpen,
       );
     }
     return super.ensureOpen(executor, user);
@@ -72,19 +72,23 @@ class SentryQueryInterceptor extends QueryInterceptor {
   @override
   Future<void> close(QueryExecutor inner) {
     return _instrumentOperation(
-      constants.dbCloseDesc(dbName: _dbName),
+      SentrySpanDescriptions.dbClose(dbName: _dbName),
       () => super.close(inner),
-      operation: constants.dbCloseOp,
+      operation: SentrySpanOperations.dbClose,
     );
   }
 
   @override
   Future<void> runBatched(
-      QueryExecutor executor, BatchedStatements statements) {
+    QueryExecutor executor,
+    BatchedStatements statements,
+  ) {
+    final description =
+        '${SentrySpanDescriptions.dbBatch} ${statements.statements}';
     return _instrumentOperation(
-      constants.dbBatchDesc,
+      description,
       () => super.runBatched(executor, statements),
-      operation: constants.dbSqlBatchOp,
+      operation: SentrySpanOperations.dbSqlBatch,
     );
   }
 
@@ -117,7 +121,9 @@ class SentryQueryInterceptor extends QueryInterceptor {
     List<Object?> args,
   ) {
     return _instrumentOperation(
-        statement, () => executor.runUpdate(statement, args));
+      statement,
+      () => executor.runUpdate(statement, args),
+    );
   }
 
   @override
@@ -127,7 +133,9 @@ class SentryQueryInterceptor extends QueryInterceptor {
     List<Object?> args,
   ) {
     return _instrumentOperation(
-        statement, () => executor.runDelete(statement, args));
+      statement,
+      () => executor.runDelete(statement, args),
+    );
   }
 
   @override
@@ -137,7 +145,9 @@ class SentryQueryInterceptor extends QueryInterceptor {
     List<Object?> args,
   ) {
     return _instrumentOperation(
-        statement, () => executor.runCustom(statement, args));
+      statement,
+      () => executor.runCustom(statement, args),
+    );
   }
 
   @override
@@ -147,6 +157,8 @@ class SentryQueryInterceptor extends QueryInterceptor {
     List<Object?> args,
   ) {
     return _instrumentOperation(
-        statement, () => executor.runSelect(statement, args));
+      statement,
+      () => executor.runSelect(statement, args),
+    );
   }
 }
