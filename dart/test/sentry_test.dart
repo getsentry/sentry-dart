@@ -143,6 +143,14 @@ void main() {
       expect(client.captureTransactionCalls.length, 1);
     });
 
+    test('should start transaction with hint', () async {
+      final tr = Sentry.startTransactionWithContext(
+          SentryTransactionContext('name', 'operation'));
+      await tr.finish();
+
+      expect(client.captureTransactionCalls.length, 1);
+    });
+
     test('should return span if bound to the scope', () async {
       final tr = Sentry.startTransaction('name', 'op', bindToScope: true);
 
