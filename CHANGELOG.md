@@ -4,7 +4,7 @@
 
 ### Enhancements 
 
-- Ues debug image loading by address API for Android ([#2706](https://github.com/getsentry/sentry-dart/pull/2706))
+- Use `loadDebugImagesForAddresses` API for Android ([#2706](https://github.com/getsentry/sentry-dart/pull/2706))
   - This reduces the envelope size and data transferred across method channels
   - If debug images received by `loadDebugImagesForAddresses` are empty, the SDK loads all debug images as fallback
 
