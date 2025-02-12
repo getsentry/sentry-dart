@@ -26,6 +26,7 @@ import 'native/sentry_native_binding.dart';
 import 'profiling.dart';
 import 'renderer/renderer.dart';
 import 'replay/integration.dart';
+import 'utils/platform_dispatcher_wrapper.dart';
 import 'version.dart';
 import 'view_hierarchy/view_hierarchy_integration.dart';
 
@@ -66,8 +67,8 @@ mixin SentryFlutter {
       _native = createBinding(options);
     }
 
-    final platformDispatcher = PlatformDispatcher.instance;
-    final wrapper = PlatformDispatcherWrapper(platformDispatcher);
+    final wrapper = PlatformDispatcherWrapper(PlatformDispatcher.instance);
+    options.isMultiViewApp = wrapper.isMultiViewEnabled(options);
 
     // Flutter Web doesn't capture [Future] errors if using [PlatformDispatcher.onError] and not
     // the [runZonedGuarded].
@@ -85,8 +86,10 @@ mixin SentryFlutter {
 
     // first step is to install the native integration and set default values,
     // so we are able to capture future errors.
-    final defaultIntegrations =
-        _createDefaultIntegrations(options, isOnErrorSupported);
+    final defaultIntegrations = _createDefaultIntegrations(
+      options,
+      isOnErrorSupported,
+    );
     for (final defaultIntegration in defaultIntegrations) {
       options.addIntegration(defaultIntegration);
     }

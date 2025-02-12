@@ -239,6 +239,9 @@ class SentryFlutterOptions extends SentryOptions {
   late RendererWrapper rendererWrapper = RendererWrapper();
 
   @meta.internal
+  bool isMultiViewApp = false;
+
+  @meta.internal
   late MethodChannel methodChannel = const MethodChannel('sentry_flutter');
 
   /// Enables the View Hierarchy feature.
