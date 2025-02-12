@@ -103,7 +103,12 @@ class SentryFlutterPlugin :
       "displayRefreshRate" -> displayRefreshRate(result)
       "nativeCrash" -> crash()
       "setReplayConfig" -> setReplayConfig(call, result)
-      "addReplayScreenshot" -> addReplayScreenshot(call.argument("path"), call.argument("timestamp"), result)
+      "addReplayScreenshot" -> addReplayScreenshot(
+        call.argument("path"),
+        call.argument("timestamp"),
+        result,
+      )
+
       "captureReplay" -> captureReplay(call.argument("isCrash"), result)
       else -> result.notImplemented()
     }
@@ -166,7 +171,8 @@ class SentryFlutterPlugin :
     options.integrations.removeAll { it is ReplayIntegration }
     val cacheDirPath = options.cacheDirPath
     val replayOptions = options.sessionReplay
-    val isReplayEnabled = replayOptions.isSessionReplayEnabled || replayOptions.isSessionReplayForErrorsEnabled
+    val isReplayEnabled =
+      replayOptions.isSessionReplayEnabled || replayOptions.isSessionReplayForErrorsEnabled
     if (cacheDirPath != null && isReplayEnabled) {
       replay =
         ReplayIntegration(
@@ -483,17 +489,21 @@ class SentryFlutterPlugin :
     result.error("3", "Envelope is null or empty", null)
   }
 
-  private fun loadImageList(call: MethodCall, result: Result) {
+  private fun loadImageList(
+    call: MethodCall,
+    result: Result,
+  ) {
     val options = HubAdapter.getInstance().options as SentryAndroidOptions
 
     val addresses = call.arguments() as List<String>? ?: listOf()
-    val debugImages = if (addresses.isEmpty()) {
-      options.debugImagesLoader.loadDebugImages().orEmpty().serialize()
-    } else {
-      options.debugImagesLoader.loadDebugImagesForAddresses(addresses.toSet())
-        .takeIf { it.isNullOrEmpty().not() }?.toList().serialize()
-        ?: options.debugImagesLoader.loadDebugImages().orEmpty().serialize()
-    }
+    val debugImages =
+      if (addresses.isEmpty()) {
+        options.debugImagesLoader.loadDebugImages().orEmpty().serialize()
+      } else {
+        options.debugImagesLoader.loadDebugImagesForAddresses(addresses.toSet())
+          .takeIf { it.isNullOrEmpty().not() }?.toList().serialize()
+          ?: options.debugImagesLoader.loadDebugImages().orEmpty().serialize()
+      }
 
     result.success(debugImages)
   }
@@ -506,7 +516,7 @@ class SentryFlutterPlugin :
     "type" to type,
     "debug_id" to debugId,
     "code_id" to codeId,
-    "debug_file" to debugFile
+    "debug_file" to debugFile,
   )
 
   private fun closeNativeSdk(result: Result) {
