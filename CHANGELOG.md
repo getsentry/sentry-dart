@@ -9,6 +9,7 @@
 - Remove deprecated loggers ([#2685](https://github.com/getsentry/sentry-dart/pull/2685))
 - Remove user segment ([#2687](https://github.com/getsentry/sentry-dart/pull/2687))
 - Remove `options.autoAppStart` and `setAppStartEnd` ([#2680](https://github.com/getsentry/sentry-dart/pull/2680))
+- Bump Drift min version to `2.24.0` and use `QueryInterceptor` instead of `QueryExecutor` ([#2679](https://github.com/getsentry/sentry-dart/pull/2679))
 
 ### Dependencies
 
