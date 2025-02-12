@@ -14,7 +14,7 @@
 
 ### Enhancements
 
-- Replay: improve iOS native interop performance by using JNI ([#2670](https://github.com/getsentry/sentry-dart/pull/2670))
+- Replay: improve Android native interop performance by using JNI ([#2670](https://github.com/getsentry/sentry-dart/pull/2670))
 
 ### Dependencies
 
