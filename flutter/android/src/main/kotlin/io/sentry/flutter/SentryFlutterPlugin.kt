@@ -485,16 +485,14 @@ class SentryFlutterPlugin :
 
   private fun loadImageList(
     call: MethodCall,
-    result: Result
+    result: Result,
   ) {
     val options = HubAdapter.getInstance().options as SentryAndroidOptions
 
     val addresses = call.arguments() as List<String>? ?: listOf()
     val debugImages =
       if (addresses.isEmpty()) {
-        options.debugImagesLoader.loadDebugImages()
-          ?.toList()
-          .serialize()
+        options.debugImagesLoader.loadDebugImages()?.toList().serialize()
       } else {
         options.debugImagesLoader
           .loadDebugImagesForAddresses(addresses.toSet())
@@ -507,15 +505,16 @@ class SentryFlutterPlugin :
   }
 
   private fun List<DebugImage>?.serialize() = this?.map { it.serialize() }
-  private fun DebugImage.serialize() = mapOf(
-    "image_addr" to imageAddr,
-    "image_size" to imageSize,
-    "code_file" to codeFile,
-    "type" to type,
-    "debug_id" to debugId,
-    "code_id" to codeId,
-    "debug_file" to debugFile
-  )
+  private fun DebugImage.serialize() =
+    mapOf(
+      "image_addr" to imageAddr,
+      "image_size" to imageSize,
+      "code_file" to codeFile,
+      "type" to type,
+      "debug_id" to debugId,
+      "code_id" to codeId,
+      "debug_file" to debugFile,
+    )
 
   private fun closeNativeSdk(result: Result) {
     HubAdapter.getInstance().close()
