@@ -55,9 +55,9 @@ class SentryTracesSampler {
     double? optionsRate = _options.tracesSampleRate;
     if (optionsRate != null) {
       return _makeSampleDecision(optionsRate);
-    } else {
-      return SentryTracesSamplingDecision(false);
     }
+
+    return SentryTracesSamplingDecision(false);
   }
 
   bool sampleProfiling(SentryTracesSamplingDecision tracesSamplingDecision) {
