@@ -222,18 +222,6 @@ mixin SentryFlutter {
     };
   }
 
-  /// Manually set when your app finished startup. Make sure to set
-  /// [SentryFlutterOptions.autoAppStart] to false on init. The timeout duration
-  /// for this to work is 10 seconds.
-  static void setAppStartEnd(DateTime appStartEnd) {
-    // ignore: invalid_use_of_internal_member
-    final integrations = Sentry.currentHub.options.integrations
-        .whereType<NativeAppStartIntegration>();
-    for (final integration in integrations) {
-      integration.appStartEnd = appStartEnd;
-    }
-  }
-
   static void _setSdk(SentryFlutterOptions options) {
     // overwrite sdk info with current flutter sdk
     final sdk = SdkVersion(

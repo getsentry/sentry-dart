@@ -12,7 +12,6 @@ import 'event_processor/screenshot_event_processor.dart';
 import 'navigation/time_to_display_tracker.dart';
 import 'renderer/renderer.dart';
 import 'screenshot/sentry_screenshot_quality.dart';
-import 'sentry_flutter.dart';
 import 'sentry_privacy_options.dart';
 import 'sentry_replay_options.dart';
 import 'user_interaction/sentry_user_interaction_widget.dart';
@@ -174,12 +173,6 @@ class SentryFlutterOptions extends SentryOptions {
 
   /// Enable auto performance tracking by default.
   bool enableAutoPerformanceTracing = true;
-
-  /// Automatically track app start measurement and send it with the
-  /// first transaction. Set to false when configuring option to disable or if
-  /// you want to set the end time of app startup manually using
-  /// [SentryFlutter.setAppStartEnd].
-  bool autoAppStart = true;
 
   /// Automatically attaches a screenshot when capturing an error or exception.
   ///
