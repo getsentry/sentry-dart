@@ -17,8 +17,6 @@ void main() {
       baggage.setRelease('release');
       baggage.setEnvironment('environment');
       baggage.setUserId('userId');
-      // ignore: deprecated_member_use_from_same_package
-      baggage.setUserSegment('userSegment');
       baggage.setTransaction('transaction');
       baggage.setSampleRate('1.0');
       baggage.setSampleRand('0.4');
@@ -35,7 +33,6 @@ void main() {
           'sentry-release=release,'
           'sentry-environment=environment,'
           'sentry-user_id=userId,'
-          'sentry-user_segment=userSegment,'
           'sentry-transaction=transaction,'
           'sentry-sample_rate=1.0,'
           'sentry-sample_rand=0.4,'

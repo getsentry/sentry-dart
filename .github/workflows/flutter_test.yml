@@ -173,7 +173,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install Chrome Browser
-        uses: browser-actions/setup-chrome@facf10a55b9caf92e0cc749b4f82bf8220989148 # pin@v1.7.2
+        uses: browser-actions/setup-chrome@c785b87e244131f27c9f19c1a33e2ead956ab7ce # pin@v1.7.3
         with:
           chrome-version: stable
       - run: chrome --version
