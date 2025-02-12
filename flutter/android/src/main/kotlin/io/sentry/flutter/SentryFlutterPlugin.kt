@@ -492,7 +492,10 @@ class SentryFlutterPlugin :
     val addresses = call.arguments() as List<String>? ?: listOf()
     val debugImages =
       if (addresses.isEmpty()) {
-        options.debugImagesLoader.loadDebugImages()?.toList().serialize()
+        options.debugImagesLoader
+          .loadDebugImages()
+          ?.toList()
+          .serialize()
       } else {
         options.debugImagesLoader
           .loadDebugImagesForAddresses(addresses.toSet())
@@ -505,6 +508,7 @@ class SentryFlutterPlugin :
   }
 
   private fun List<DebugImage>?.serialize() = this?.map { it.serialize() }
+
   private fun DebugImage.serialize() =
     mapOf(
       "image_addr" to imageAddr,
