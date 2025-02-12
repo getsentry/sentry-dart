@@ -16,7 +16,6 @@ Future<void> main() async {
       options.sendDefaultPii = true;
 
       options.maxRequestBodySize = MaxRequestBodySize.small;
-      options.maxResponseBodySize = MaxResponseBodySize.small;
     },
     appRunner: runApp, // Init your App.
   );

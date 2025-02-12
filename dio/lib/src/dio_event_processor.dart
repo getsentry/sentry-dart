@@ -86,77 +86,30 @@ class DioEventProcessor implements EventProcessor {
     final headers = response?.headers.map.map(
       (key, value) => MapEntry(key, value.join('; ')),
     );
+    final contentLengthHeader = headers?['content-length'];
+    int? contentLength;
+    if (contentLengthHeader != null) {
+      contentLength = int.tryParse(contentLengthHeader);
+    }
 
     return SentryResponse(
       headers: _options.sendDefaultPii ? headers : null,
-      bodySize: _getBodySize(
-        dioError.response?.data,
-        dioError.requestOptions.responseType,
-      ),
+      bodySize: contentLength,
       statusCode: response?.statusCode,
-      data: _getResponseData(
-        dioError.response?.data,
-        dioError.requestOptions.responseType,
-      ),
+      data: _getResponseData(dioError.response?.data, contentLength),
     );
   }
 
-  /// Returns the response data, if possible according to the users settings.
-  Object? _getResponseData(Object? data, ResponseType responseType) {
+  Object? _getResponseData(Object? data, int? contentLength) {
     if (!_options.sendDefaultPii || data == null) {
       return null;
     }
-    switch (responseType) {
-      case ResponseType.json:
-        // ignore: invalid_use_of_internal_member
-        final jsData = utf8JsonEncoder.convert(data);
-        if (_options.maxResponseBodySize.shouldAddBody(jsData.length)) {
-          return data;
-        }
-        break;
-      case ResponseType.stream:
-        break; // No support for logging stream body.
-      case ResponseType.plain:
-        if (data is String &&
-            _options.maxResponseBodySize.shouldAddBody(data.codeUnits.length)) {
-          return data;
-        }
-        break;
-      case ResponseType.bytes:
-        if (data is List<int> &&
-            _options.maxResponseBodySize.shouldAddBody(data.length)) {
-          return data;
-        }
-        break;
-    }
-    return null;
-  }
-
-  int? _getBodySize(Object? data, ResponseType responseType) {
-    if (data == null) {
+    if (contentLength == null) {
       return null;
     }
-    switch (responseType) {
-      case ResponseType.json:
-        return json.encode(data).codeUnits.length;
-      case ResponseType.stream:
-        if (data is String) {
-          return data.length;
-        } else {
-          return null;
-        }
-      case ResponseType.plain:
-        if (data is String) {
-          return data.codeUnits.length;
-        } else {
-          return null;
-        }
-      case ResponseType.bytes:
-        if (data is List<int>) {
-          return data.length;
-        } else {
-          return null;
-        }
+    if (contentLength > 157286) {
+      return null;
     }
+    return data;
   }
 }

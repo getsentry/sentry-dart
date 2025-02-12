@@ -133,26 +133,25 @@ void main() {
       expect(processedEvent.request?.headers, <String, String>{});
     });
 
-    test('request body is included according to $MaxResponseBodySize',
-        () async {
+    test('request body is included according to $MaxRequestBodySize', () async {
       final scenarios = [
         // never
-        MaxBodySizeTestConfig(MaxRequestBodySize.never, 0, false),
-        MaxBodySizeTestConfig(MaxRequestBodySize.never, 4001, false),
-        MaxBodySizeTestConfig(MaxRequestBodySize.never, 10001, false),
+        MaxRequestBodySizeTestConfig(MaxRequestBodySize.never, 0, false),
+        MaxRequestBodySizeTestConfig(MaxRequestBodySize.never, 4001, false),
+        MaxRequestBodySizeTestConfig(MaxRequestBodySize.never, 10001, false),
         // always
-        MaxBodySizeTestConfig(MaxRequestBodySize.always, 0, true),
-        MaxBodySizeTestConfig(MaxRequestBodySize.always, 4001, true),
-        MaxBodySizeTestConfig(MaxRequestBodySize.always, 10001, true),
+        MaxRequestBodySizeTestConfig(MaxRequestBodySize.always, 0, true),
+        MaxRequestBodySizeTestConfig(MaxRequestBodySize.always, 4001, true),
+        MaxRequestBodySizeTestConfig(MaxRequestBodySize.always, 10001, true),
         // small
-        MaxBodySizeTestConfig(MaxRequestBodySize.small, 0, true),
-        MaxBodySizeTestConfig(MaxRequestBodySize.small, 4000, true),
-        MaxBodySizeTestConfig(MaxRequestBodySize.small, 4001, false),
+        MaxRequestBodySizeTestConfig(MaxRequestBodySize.small, 0, true),
+        MaxRequestBodySizeTestConfig(MaxRequestBodySize.small, 4000, true),
+        MaxRequestBodySizeTestConfig(MaxRequestBodySize.small, 4001, false),
         // medium
-        MaxBodySizeTestConfig(MaxRequestBodySize.medium, 0, true),
-        MaxBodySizeTestConfig(MaxRequestBodySize.medium, 4001, true),
-        MaxBodySizeTestConfig(MaxRequestBodySize.medium, 10000, true),
-        MaxBodySizeTestConfig(MaxRequestBodySize.medium, 10001, false),
+        MaxRequestBodySizeTestConfig(MaxRequestBodySize.medium, 0, true),
+        MaxRequestBodySizeTestConfig(MaxRequestBodySize.medium, 4001, true),
+        MaxRequestBodySizeTestConfig(MaxRequestBodySize.medium, 10000, true),
+        MaxRequestBodySizeTestConfig(MaxRequestBodySize.medium, 10001, false),
       ];
 
       for (final scenario in scenarios) {
@@ -208,6 +207,7 @@ void main() {
           headers: Headers.fromMap(<String, List<String>>{
             'foo': ['bar'],
             'set-cookie': ['foo=bar'],
+            'content-length': ['6'],
           }),
           requestOptions: request,
           isRedirect: true,
@@ -231,6 +231,7 @@ void main() {
       expect(processedEvent.contexts.response?.headers, {
         'foo': 'bar',
         'set-cookie': 'foo=bar',
+        'content-length': '6',
       });
       expect(processedEvent.contexts.response?.cookies, 'foo=bar');
     });
@@ -249,6 +250,7 @@ void main() {
           data: 'foobar',
           headers: Headers.fromMap(<String, List<String>>{
             'foo': ['bar'],
+            'content-length': ['6'],
           }),
           requestOptions: request,
           isRedirect: true,
@@ -272,33 +274,24 @@ void main() {
       expect(processedEvent.contexts.response?.headers, <String, String>{});
     });
 
-    test('response body is included according to $MaxResponseBodySize',
-        () async {
+    test('response body is included if smaller 0.15mb', () async {
       final scenarios = [
-        // never
-        MaxBodySizeTestConfig(MaxResponseBodySize.never, 0, false),
-        MaxBodySizeTestConfig(MaxResponseBodySize.never, 4001, false),
-        MaxBodySizeTestConfig(MaxResponseBodySize.never, 10001, false),
-        // always
-        MaxBodySizeTestConfig(MaxResponseBodySize.always, 0, true),
-        MaxBodySizeTestConfig(MaxResponseBodySize.always, 4001, true),
-        MaxBodySizeTestConfig(MaxResponseBodySize.always, 10001, true),
-        // small
-        MaxBodySizeTestConfig(MaxResponseBodySize.small, 0, true),
-        MaxBodySizeTestConfig(MaxResponseBodySize.small, 4000, true),
-        MaxBodySizeTestConfig(MaxResponseBodySize.small, 4001, false),
-        // medium
-        MaxBodySizeTestConfig(MaxResponseBodySize.medium, 0, true),
-        MaxBodySizeTestConfig(MaxResponseBodySize.medium, 4001, true),
-        MaxBodySizeTestConfig(MaxResponseBodySize.medium, 10000, true),
-        MaxBodySizeTestConfig(MaxResponseBodySize.medium, 10001, false),
+        // Headers with content-length
+        MaxResponseBodySizeTestConfig(0, true, true),
+        MaxResponseBodySizeTestConfig(4001, true, true),
+        MaxResponseBodySizeTestConfig(10001, true, true),
+        MaxResponseBodySizeTestConfig(157287, true, false),
+        // // Headers without content-length
+        MaxResponseBodySizeTestConfig(0, false, false),
+        MaxResponseBodySizeTestConfig(4001, false, false),
+        MaxResponseBodySizeTestConfig(10001, false, false),
+        MaxResponseBodySizeTestConfig(157287, false, false),
       ];
 
       for (final scenario in scenarios) {
         final sut = fixture.getSut(
           sendDefaultPii: true,
           captureFailedRequests: true,
-          maxResponseBodySize: scenario.maxBodySize,
         );
 
         final data = List.generate(scenario.contentLength, (index) => 0);
@@ -308,12 +301,19 @@ void main() {
           responseType: ResponseType.bytes,
         );
         final throwable = Exception();
+        final headers = {
+          'content-length': ['${scenario.contentLength}']
+        };
+
         final dioError = DioError(
           requestOptions: request,
           response: Response<dynamic>(
             requestOptions: request,
             statusCode: 401,
             data: data,
+            headers: scenario.headersHaveContentLength
+                ? Headers.fromMap(headers)
+                : null,
           ),
         );
         final event = SentryEvent(
@@ -327,6 +327,11 @@ void main() {
         final capturedResponse = processedEvent.contexts.response;
 
         expect(capturedResponse, isNotNull);
+        expect(
+            capturedResponse?.bodySize,
+            scenario.headersHaveContentLength
+                ? scenario.contentLength
+                : isNull);
         expect(
           capturedResponse?.data,
           scenario.shouldBeIncluded ? isNotNull : isNull,
@@ -445,15 +450,11 @@ class Fixture {
     bool sendDefaultPii = false,
     bool captureFailedRequests = true,
     MaxRequestBodySize maxRequestBodySize = MaxRequestBodySize.always,
-    MaxResponseBodySize maxResponseBodySize = MaxResponseBodySize.always,
   }) {
-    return DioEventProcessor(
-      options
-        ..sendDefaultPii = sendDefaultPii
-        ..captureFailedRequests = captureFailedRequests
-        ..maxRequestBodySize = maxRequestBodySize
-        ..maxResponseBodySize = maxResponseBodySize,
-    );
+    return DioEventProcessor(options
+      ..sendDefaultPii = sendDefaultPii
+      ..captureFailedRequests = captureFailedRequests
+      ..maxRequestBodySize = maxRequestBodySize);
   }
 
   SentryException sentryError(dynamic throwable) {
@@ -465,8 +466,8 @@ class Fixture {
   }
 }
 
-class MaxBodySizeTestConfig<T> {
-  MaxBodySizeTestConfig(
+class MaxRequestBodySizeTestConfig<T> {
+  MaxRequestBodySizeTestConfig(
     this.maxBodySize,
     this.contentLength,
     this.shouldBeIncluded,
@@ -474,6 +475,20 @@ class MaxBodySizeTestConfig<T> {
 
   final T maxBodySize;
   final int contentLength;
+  final bool shouldBeIncluded;
+
+  Matcher get matcher => shouldBeIncluded ? isNotNull : isNull;
+}
+
+class MaxResponseBodySizeTestConfig {
+  MaxResponseBodySizeTestConfig(
+    this.contentLength,
+    this.headersHaveContentLength,
+    this.shouldBeIncluded,
+  );
+
+  final int contentLength;
+  final bool headersHaveContentLength;
   final bool shouldBeIncluded;
 
   Matcher get matcher => shouldBeIncluded ? isNotNull : isNull;
