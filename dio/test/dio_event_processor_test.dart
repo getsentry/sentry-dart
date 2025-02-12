@@ -222,18 +222,20 @@ void main() {
           fixture.sentryError(dioError),
         ],
       );
-      final processedEvent = sut.apply(event, Hint()) as SentryEvent;
+      final hint = Hint();
+      final processedEvent = sut.apply(event, hint) as SentryEvent;
+      final capturedResponse = hint.response;
 
       expect(processedEvent.throwable, event.throwable);
-      expect(processedEvent.contexts.response, isNotNull);
-      expect(processedEvent.contexts.response?.bodySize, 6);
-      expect(processedEvent.contexts.response?.statusCode, 200);
-      expect(processedEvent.contexts.response?.headers, {
+      expect(capturedResponse, isNotNull);
+      expect(capturedResponse?.bodySize, 6);
+      expect(capturedResponse?.statusCode, 200);
+      expect(capturedResponse?.headers, {
         'foo': 'bar',
         'set-cookie': 'foo=bar',
         'content-length': '6',
       });
-      expect(processedEvent.contexts.response?.cookies, 'foo=bar');
+      expect(capturedResponse?.cookies, 'foo=bar');
     });
 
     test('$DioEventProcessor adds response without PII', () {
@@ -267,11 +269,15 @@ void main() {
       );
       final processedEvent = sut.apply(event, Hint()) as SentryEvent;
 
+      final hint = Hint();
+      sut.apply(event, hint) as SentryEvent;
+      final capturedResponse = hint.response;
+
       expect(processedEvent.throwable, event.throwable);
-      expect(processedEvent.contexts.response, isNotNull);
-      expect(processedEvent.contexts.response?.bodySize, 6);
-      expect(processedEvent.contexts.response?.statusCode, 200);
-      expect(processedEvent.contexts.response?.headers, <String, String>{});
+      expect(capturedResponse, isNotNull);
+      expect(capturedResponse?.bodySize, 6);
+      expect(capturedResponse?.statusCode, 200);
+      expect(capturedResponse?.headers, <String, String>{});
     });
 
     test('response body is included if smaller 0.15mb', () async {
@@ -323,15 +329,15 @@ void main() {
             fixture.sentryError(dioError),
           ],
         );
-        final processedEvent = sut.apply(event, Hint()) as SentryEvent;
-        final capturedResponse = processedEvent.contexts.response;
+        final hint = Hint();
+        sut.apply(event, hint) as SentryEvent;
+        final capturedResponse = hint.response;
 
         expect(capturedResponse, isNotNull);
         expect(
-            capturedResponse?.bodySize,
-            scenario.headersHaveContentLength
-                ? scenario.contentLength
-                : isNull);
+          capturedResponse?.bodySize,
+          scenario.headersHaveContentLength ? scenario.contentLength : isNull,
+        );
         expect(
           capturedResponse?.data,
           scenario.shouldBeIncluded ? isNotNull : isNull,
@@ -365,12 +371,18 @@ void main() {
             responseType: responseType,
           );
           final throwable = Exception();
+          final headers = {
+            'content-length': [
+              '9001'
+            ], // Dummy content size, not relevant for this test
+          };
           final dioError = DioError(
             requestOptions: request,
             response: Response<dynamic>(
               requestOptions: request,
               statusCode: 401,
               data: data,
+              headers: Headers.fromMap(headers),
             ),
           );
 
@@ -383,8 +395,9 @@ void main() {
               fixture.sentryError(dioError),
             ],
           );
-          final processedEvent = sut.apply(event, Hint()) as SentryEvent;
-          final capturedResponse = processedEvent.contexts.response;
+          final hint = Hint();
+          sut.apply(event, hint) as SentryEvent;
+          final capturedResponse = hint.response;
 
           expect(capturedResponse, isNotNull);
           expect(capturedResponse?.data, data);

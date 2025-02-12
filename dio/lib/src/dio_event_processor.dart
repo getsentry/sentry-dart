@@ -34,17 +34,13 @@ class DioEventProcessor implements EventProcessor {
       return event;
     }
 
-    final response = _responseFrom(dioError);
+    hint.response ??= _responseFrom(dioError);
 
-    var contexts = event.contexts;
-    if (event.contexts.response == null) {
-      contexts = contexts.copyWith(response: response);
-    }
     // Don't override just parts of the original request.
     // Keep the original one or if there's none create one.
     event = event.copyWith(
       request: event.request ?? _requestFrom(dioError),
-      contexts: contexts,
+      contexts: event.contexts,
     );
 
     return event;
