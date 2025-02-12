@@ -182,9 +182,6 @@ jobs:
         with:
           channel: ${{ matrix.sdk }}
 
-      - name: flutter upgrade
-        run: flutter upgrade
-
       - name: flutter pub get
         run: flutter pub get
 

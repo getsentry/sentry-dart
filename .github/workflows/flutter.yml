@@ -115,7 +115,7 @@ jobs:
       - uses: subosito/flutter-action@f2c4f6686ca8e8d6e6d0f28410eeef506ed66aff # pin@v2.18.0
         with:
           channel: main
-      - run: flutter upgrade
+      - run: flutter pub get
       - run: flutter config --enable-swift-package-manager
       - name: Run on iOS
         if: matrix.target == 'ios'
