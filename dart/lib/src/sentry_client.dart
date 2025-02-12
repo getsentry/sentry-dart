@@ -355,8 +355,9 @@ class SentryClient {
     SentryTransaction transaction, {
     Scope? scope,
     SentryTraceContextHeader? traceContext,
+    Hint? hint,
   }) async {
-    final hint = Hint();
+    hint ??= Hint();
 
     SentryTransaction? preparedTransaction =
         _prepareEvent(transaction, hint) as SentryTransaction;
@@ -481,7 +482,7 @@ class SentryClient {
     try {
       if (event is SentryTransaction && beforeSendTransaction != null) {
         beforeSendName = 'beforeSendTransaction';
-        final callbackResult = beforeSendTransaction(event);
+        final callbackResult = beforeSendTransaction(event, hint);
         if (callbackResult is Future<SentryTransaction?>) {
           processedEvent = await callbackResult;
         } else {

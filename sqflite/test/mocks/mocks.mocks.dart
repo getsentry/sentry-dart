@@ -32,158 +32,151 @@ import 'mocks.dart' as _i9;
 class _FakeSentrySpanContext_0 extends _i1.SmartFake
     implements _i2.SentrySpanContext {
   _FakeSentrySpanContext_0(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
+      : super(parent, parentInvocation);
 }
 
 class _FakeDateTime_1 extends _i1.SmartFake implements DateTime {
   _FakeDateTime_1(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
+      : super(parent, parentInvocation);
 }
 
 class _FakeISentrySpan_2 extends _i1.SmartFake implements _i2.ISentrySpan {
   _FakeISentrySpan_2(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
+      : super(parent, parentInvocation);
 }
 
 class _FakeSentryTraceHeader_3 extends _i1.SmartFake
     implements _i2.SentryTraceHeader {
   _FakeSentryTraceHeader_3(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
+      : super(parent, parentInvocation);
 }
 
 class _FakeDatabase_4 extends _i1.SmartFake implements _i3.Database {
   _FakeDatabase_4(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
+      : super(parent, parentInvocation);
 }
 
 class _FakeFuture_5<T1> extends _i1.SmartFake implements _i4.Future<T1> {
   _FakeFuture_5(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
+      : super(parent, parentInvocation);
 }
 
 class _FakeQueryCursor_6 extends _i1.SmartFake implements _i3.QueryCursor {
   _FakeQueryCursor_6(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
+      : super(parent, parentInvocation);
 }
 
 class _FakeBatch_7 extends _i1.SmartFake implements _i3.Batch {
   _FakeBatch_7(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
+      : super(parent, parentInvocation);
 }
 
 class _FakeSentryOptions_8 extends _i1.SmartFake implements _i2.SentryOptions {
   _FakeSentryOptions_8(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
+      : super(parent, parentInvocation);
 }
 
 class _FakeSentryId_9 extends _i1.SmartFake implements _i2.SentryId {
   _FakeSentryId_9(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
+      : super(parent, parentInvocation);
 }
 
 class _FakeScope_10 extends _i1.SmartFake implements _i2.Scope {
   _FakeScope_10(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
+      : super(parent, parentInvocation);
 }
 
 class _FakeHub_11 extends _i1.SmartFake implements _i2.Hub {
   _FakeHub_11(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
+      : super(parent, parentInvocation);
 }
 
 /// A class which mocks [SentryTracer].
 ///
 /// See the documentation for Mockito's code generation for more information.
+// ignore: invalid_use_of_internal_member
 class MockSentryTracer extends _i1.Mock implements _i5.SentryTracer {
   MockSentryTracer() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  String get name =>
-      (super.noSuchMethod(
-            Invocation.getter(#name),
-            returnValue: _i6.dummyValue<String>(this, Invocation.getter(#name)),
-          )
-          as String);
+  String get name => (super.noSuchMethod(
+        Invocation.getter(#name),
+        returnValue: _i6.dummyValue<String>(this, Invocation.getter(#name)),
+      ) as String);
 
   @override
   set name(String? _name) => super.noSuchMethod(
-    Invocation.setter(#name, _name),
-    returnValueForMissingStub: null,
-  );
+        Invocation.setter(#name, _name),
+        returnValueForMissingStub: null,
+      );
 
   @override
   _i2.SentryTransactionNameSource get transactionNameSource =>
       (super.noSuchMethod(
-            Invocation.getter(#transactionNameSource),
-            returnValue: _i2.SentryTransactionNameSource.custom,
-          )
-          as _i2.SentryTransactionNameSource);
+        Invocation.getter(#transactionNameSource),
+        returnValue: _i2.SentryTransactionNameSource.custom,
+      ) as _i2.SentryTransactionNameSource);
 
   @override
   set transactionNameSource(
     _i2.SentryTransactionNameSource? _transactionNameSource,
-  ) => super.noSuchMethod(
-    Invocation.setter(#transactionNameSource, _transactionNameSource),
-    returnValueForMissingStub: null,
-  );
+  ) =>
+      super.noSuchMethod(
+        Invocation.setter(#transactionNameSource, _transactionNameSource),
+        returnValueForMissingStub: null,
+      );
 
   @override
+  // ignore: invalid_use_of_internal_member
   set profiler(_i7.SentryProfiler? _profiler) => super.noSuchMethod(
-    Invocation.setter(#profiler, _profiler),
-    returnValueForMissingStub: null,
-  );
+        Invocation.setter(#profiler, _profiler),
+        returnValueForMissingStub: null,
+      );
 
   @override
+  // ignore: invalid_use_of_internal_member
   set profileInfo(_i7.SentryProfileInfo? _profileInfo) => super.noSuchMethod(
-    Invocation.setter(#profileInfo, _profileInfo),
-    returnValueForMissingStub: null,
-  );
+        Invocation.setter(#profileInfo, _profileInfo),
+        returnValueForMissingStub: null,
+      );
 
   @override
-  Map<String, _i2.SentryMeasurement> get measurements =>
-      (super.noSuchMethod(
-            Invocation.getter(#measurements),
-            returnValue: <String, _i2.SentryMeasurement>{},
-          )
-          as Map<String, _i2.SentryMeasurement>);
+  Map<String, _i2.SentryMeasurement> get measurements => (super.noSuchMethod(
+        Invocation.getter(#measurements),
+        returnValue: <String, _i2.SentryMeasurement>{},
+      ) as Map<String, _i2.SentryMeasurement>);
 
   @override
-  _i2.SentrySpanContext get context =>
-      (super.noSuchMethod(
-            Invocation.getter(#context),
-            returnValue: _FakeSentrySpanContext_0(
-              this,
-              Invocation.getter(#context),
-            ),
-          )
-          as _i2.SentrySpanContext);
+  _i2.SentrySpanContext get context => (super.noSuchMethod(
+        Invocation.getter(#context),
+        returnValue: _FakeSentrySpanContext_0(
+          this,
+          Invocation.getter(#context),
+        ),
+      ) as _i2.SentrySpanContext);
 
   @override
   set origin(String? origin) => super.noSuchMethod(
-    Invocation.setter(#origin, origin),
-    returnValueForMissingStub: null,
-  );
+        Invocation.setter(#origin, origin),
+        returnValueForMissingStub: null,
+      );
 
   @override
-  DateTime get startTimestamp =>
-      (super.noSuchMethod(
-            Invocation.getter(#startTimestamp),
-            returnValue: _FakeDateTime_1(
-              this,
-              Invocation.getter(#startTimestamp),
-            ),
-          )
-          as DateTime);
+  DateTime get startTimestamp => (super.noSuchMethod(
+        Invocation.getter(#startTimestamp),
+        returnValue: _FakeDateTime_1(
+          this,
+          Invocation.getter(#startTimestamp),
+        ),
+      ) as DateTime);
 
   @override
-  Map<String, dynamic> get data =>
-      (super.noSuchMethod(
-            Invocation.getter(#data),
-            returnValue: <String, dynamic>{},
-          )
-          as Map<String, dynamic>);
+  Map<String, dynamic> get data => (super.noSuchMethod(
+        Invocation.getter(#data),
+        returnValue: <String, dynamic>{},
+      ) as Map<String, dynamic>);
 
   @override
   bool get finished =>
@@ -191,68 +184,68 @@ class MockSentryTracer extends _i1.Mock implements _i5.SentryTracer {
           as bool);
 
   @override
-  List<_i2.SentrySpan> get children =>
-      (super.noSuchMethod(
-            Invocation.getter(#children),
-            returnValue: <_i2.SentrySpan>[],
-          )
-          as List<_i2.SentrySpan>);
+  List<_i2.SentrySpan> get children => (super.noSuchMethod(
+        Invocation.getter(#children),
+        returnValue: <_i2.SentrySpan>[],
+      ) as List<_i2.SentrySpan>);
 
   @override
   set throwable(dynamic throwable) => super.noSuchMethod(
-    Invocation.setter(#throwable, throwable),
-    returnValueForMissingStub: null,
-  );
+        Invocation.setter(#throwable, throwable),
+        returnValueForMissingStub: null,
+      );
 
   @override
   set status(_i2.SpanStatus? status) => super.noSuchMethod(
-    Invocation.setter(#status, status),
-    returnValueForMissingStub: null,
-  );
+        Invocation.setter(#status, status),
+        returnValueForMissingStub: null,
+      );
 
   @override
-  Map<String, String> get tags =>
-      (super.noSuchMethod(
-            Invocation.getter(#tags),
-            returnValue: <String, String>{},
-          )
-          as Map<String, String>);
+  Map<String, String> get tags => (super.noSuchMethod(
+        Invocation.getter(#tags),
+        returnValue: <String, String>{},
+      ) as Map<String, String>);
 
   @override
-  _i4.Future<void> finish({_i2.SpanStatus? status, DateTime? endTimestamp}) =>
+  _i4.Future<void> finish({
+    _i2.SpanStatus? status,
+    DateTime? endTimestamp,
+    _i2.Hint? hint,
+  }) =>
       (super.noSuchMethod(
-            Invocation.method(#finish, [], {
-              #status: status,
-              #endTimestamp: endTimestamp,
-            }),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
-          )
-          as _i4.Future<void>);
+        Invocation.method(#finish, [], {
+          #status: status,
+          #endTimestamp: endTimestamp,
+          #hint: hint,
+        }),
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
   void removeData(String? key) => super.noSuchMethod(
-    Invocation.method(#removeData, [key]),
-    returnValueForMissingStub: null,
-  );
+        Invocation.method(#removeData, [key]),
+        returnValueForMissingStub: null,
+      );
 
   @override
   void removeTag(String? key) => super.noSuchMethod(
-    Invocation.method(#removeTag, [key]),
-    returnValueForMissingStub: null,
-  );
+        Invocation.method(#removeTag, [key]),
+        returnValueForMissingStub: null,
+      );
 
   @override
   void setData(String? key, dynamic value) => super.noSuchMethod(
-    Invocation.method(#setData, [key, value]),
-    returnValueForMissingStub: null,
-  );
+        Invocation.method(#setData, [key, value]),
+        returnValueForMissingStub: null,
+      );
 
   @override
   void setTag(String? key, String? value) => super.noSuchMethod(
-    Invocation.method(#setTag, [key, value]),
-    returnValueForMissingStub: null,
-  );
+        Invocation.method(#setTag, [key, value]),
+        returnValueForMissingStub: null,
+      );
 
   @override
   _i2.ISentrySpan startChild(
@@ -261,21 +254,20 @@ class MockSentryTracer extends _i1.Mock implements _i5.SentryTracer {
     DateTime? startTimestamp,
   }) =>
       (super.noSuchMethod(
-            Invocation.method(
-              #startChild,
-              [operation],
-              {#description: description, #startTimestamp: startTimestamp},
-            ),
-            returnValue: _FakeISentrySpan_2(
-              this,
-              Invocation.method(
-                #startChild,
-                [operation],
-                {#description: description, #startTimestamp: startTimestamp},
-              ),
-            ),
-          )
-          as _i2.ISentrySpan);
+        Invocation.method(
+          #startChild,
+          [operation],
+          {#description: description, #startTimestamp: startTimestamp},
+        ),
+        returnValue: _FakeISentrySpan_2(
+          this,
+          Invocation.method(
+            #startChild,
+            [operation],
+            {#description: description, #startTimestamp: startTimestamp},
+          ),
+        ),
+      ) as _i2.ISentrySpan);
 
   @override
   _i2.ISentrySpan startChildWithParentSpanId(
@@ -285,58 +277,58 @@ class MockSentryTracer extends _i1.Mock implements _i5.SentryTracer {
     DateTime? startTimestamp,
   }) =>
       (super.noSuchMethod(
-            Invocation.method(
-              #startChildWithParentSpanId,
-              [parentSpanId, operation],
-              {#description: description, #startTimestamp: startTimestamp},
-            ),
-            returnValue: _FakeISentrySpan_2(
-              this,
-              Invocation.method(
-                #startChildWithParentSpanId,
-                [parentSpanId, operation],
-                {#description: description, #startTimestamp: startTimestamp},
-              ),
-            ),
-          )
-          as _i2.ISentrySpan);
+        Invocation.method(
+          #startChildWithParentSpanId,
+          [parentSpanId, operation],
+          {#description: description, #startTimestamp: startTimestamp},
+        ),
+        returnValue: _FakeISentrySpan_2(
+          this,
+          Invocation.method(
+            #startChildWithParentSpanId,
+            [parentSpanId, operation],
+            {#description: description, #startTimestamp: startTimestamp},
+          ),
+        ),
+      ) as _i2.ISentrySpan);
 
   @override
-  _i2.SentryTraceHeader toSentryTrace() =>
-      (super.noSuchMethod(
-            Invocation.method(#toSentryTrace, []),
-            returnValue: _FakeSentryTraceHeader_3(
-              this,
-              Invocation.method(#toSentryTrace, []),
-            ),
-          )
-          as _i2.SentryTraceHeader);
+  _i2.SentryTraceHeader toSentryTrace() => (super.noSuchMethod(
+        Invocation.method(#toSentryTrace, []),
+        returnValue: _FakeSentryTraceHeader_3(
+          this,
+          Invocation.method(#toSentryTrace, []),
+        ),
+      ) as _i2.SentryTraceHeader);
 
   @override
   void setMeasurement(
     String? name,
     num? value, {
     _i2.SentryMeasurementUnit? unit,
-  }) => super.noSuchMethod(
-    Invocation.method(#setMeasurement, [name, value], {#unit: unit}),
-    returnValueForMissingStub: null,
-  );
+  }) =>
+      super.noSuchMethod(
+        Invocation.method(#setMeasurement, [name, value], {#unit: unit}),
+        returnValueForMissingStub: null,
+      );
 
   @override
   void setMeasurementFromChild(
     String? name,
     num? value, {
     _i2.SentryMeasurementUnit? unit,
-  }) => super.noSuchMethod(
-    Invocation.method(#setMeasurementFromChild, [name, value], {#unit: unit}),
-    returnValueForMissingStub: null,
-  );
+  }) =>
+      super.noSuchMethod(
+        Invocation.method(
+            #setMeasurementFromChild, [name, value], {#unit: unit}),
+        returnValueForMissingStub: null,
+      );
 
   @override
   void scheduleFinish() => super.noSuchMethod(
-    Invocation.method(#scheduleFinish, []),
-    returnValueForMissingStub: null,
-  );
+        Invocation.method(#scheduleFinish, []),
+        returnValueForMissingStub: null,
+      );
 }
 
 /// A class which mocks [Batch].
@@ -358,31 +350,29 @@ class MockBatch extends _i1.Mock implements _i3.Batch {
     bool? continueOnError,
   }) =>
       (super.noSuchMethod(
-            Invocation.method(#commit, [], {
-              #exclusive: exclusive,
-              #noResult: noResult,
-              #continueOnError: continueOnError,
-            }),
-            returnValue: _i4.Future<List<Object?>>.value(<Object?>[]),
-          )
-          as _i4.Future<List<Object?>>);
+        Invocation.method(#commit, [], {
+          #exclusive: exclusive,
+          #noResult: noResult,
+          #continueOnError: continueOnError,
+        }),
+        returnValue: _i4.Future<List<Object?>>.value(<Object?>[]),
+      ) as _i4.Future<List<Object?>>);
 
   @override
   _i4.Future<List<Object?>> apply({bool? noResult, bool? continueOnError}) =>
       (super.noSuchMethod(
-            Invocation.method(#apply, [], {
-              #noResult: noResult,
-              #continueOnError: continueOnError,
-            }),
-            returnValue: _i4.Future<List<Object?>>.value(<Object?>[]),
-          )
-          as _i4.Future<List<Object?>>);
+        Invocation.method(#apply, [], {
+          #noResult: noResult,
+          #continueOnError: continueOnError,
+        }),
+        returnValue: _i4.Future<List<Object?>>.value(<Object?>[]),
+      ) as _i4.Future<List<Object?>>);
 
   @override
   void rawInsert(String? sql, [List<Object?>? arguments]) => super.noSuchMethod(
-    Invocation.method(#rawInsert, [sql, arguments]),
-    returnValueForMissingStub: null,
-  );
+        Invocation.method(#rawInsert, [sql, arguments]),
+        returnValueForMissingStub: null,
+      );
 
   @override
   void insert(
@@ -390,20 +380,24 @@ class MockBatch extends _i1.Mock implements _i3.Batch {
     Map<String, Object?>? values, {
     String? nullColumnHack,
     _i8.ConflictAlgorithm? conflictAlgorithm,
-  }) => super.noSuchMethod(
-    Invocation.method(
-      #insert,
-      [table, values],
-      {#nullColumnHack: nullColumnHack, #conflictAlgorithm: conflictAlgorithm},
-    ),
-    returnValueForMissingStub: null,
-  );
+  }) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #insert,
+          [table, values],
+          {
+            #nullColumnHack: nullColumnHack,
+            #conflictAlgorithm: conflictAlgorithm
+          },
+        ),
+        returnValueForMissingStub: null,
+      );
 
   @override
   void rawUpdate(String? sql, [List<Object?>? arguments]) => super.noSuchMethod(
-    Invocation.method(#rawUpdate, [sql, arguments]),
-    returnValueForMissingStub: null,
-  );
+        Invocation.method(#rawUpdate, [sql, arguments]),
+        returnValueForMissingStub: null,
+      );
 
   @override
   void update(
@@ -412,24 +406,25 @@ class MockBatch extends _i1.Mock implements _i3.Batch {
     String? where,
     List<Object?>? whereArgs,
     _i8.ConflictAlgorithm? conflictAlgorithm,
-  }) => super.noSuchMethod(
-    Invocation.method(
-      #update,
-      [table, values],
-      {
-        #where: where,
-        #whereArgs: whereArgs,
-        #conflictAlgorithm: conflictAlgorithm,
-      },
-    ),
-    returnValueForMissingStub: null,
-  );
+  }) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #update,
+          [table, values],
+          {
+            #where: where,
+            #whereArgs: whereArgs,
+            #conflictAlgorithm: conflictAlgorithm,
+          },
+        ),
+        returnValueForMissingStub: null,
+      );
 
   @override
   void rawDelete(String? sql, [List<Object?>? arguments]) => super.noSuchMethod(
-    Invocation.method(#rawDelete, [sql, arguments]),
-    returnValueForMissingStub: null,
-  );
+        Invocation.method(#rawDelete, [sql, arguments]),
+        returnValueForMissingStub: null,
+      );
 
   @override
   void delete(String? table, {String? where, List<Object?>? whereArgs}) =>
@@ -444,9 +439,9 @@ class MockBatch extends _i1.Mock implements _i3.Batch {
 
   @override
   void execute(String? sql, [List<Object?>? arguments]) => super.noSuchMethod(
-    Invocation.method(#execute, [sql, arguments]),
-    returnValueForMissingStub: null,
-  );
+        Invocation.method(#execute, [sql, arguments]),
+        returnValueForMissingStub: null,
+      );
 
   @override
   void query(
@@ -460,30 +455,31 @@ class MockBatch extends _i1.Mock implements _i3.Batch {
     String? orderBy,
     int? limit,
     int? offset,
-  }) => super.noSuchMethod(
-    Invocation.method(
-      #query,
-      [table],
-      {
-        #distinct: distinct,
-        #columns: columns,
-        #where: where,
-        #whereArgs: whereArgs,
-        #groupBy: groupBy,
-        #having: having,
-        #orderBy: orderBy,
-        #limit: limit,
-        #offset: offset,
-      },
-    ),
-    returnValueForMissingStub: null,
-  );
+  }) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #query,
+          [table],
+          {
+            #distinct: distinct,
+            #columns: columns,
+            #where: where,
+            #whereArgs: whereArgs,
+            #groupBy: groupBy,
+            #having: having,
+            #orderBy: orderBy,
+            #limit: limit,
+            #offset: offset,
+          },
+        ),
+        returnValueForMissingStub: null,
+      );
 
   @override
   void rawQuery(String? sql, [List<Object?>? arguments]) => super.noSuchMethod(
-    Invocation.method(#rawQuery, [sql, arguments]),
-    returnValueForMissingStub: null,
-  );
+        Invocation.method(#rawQuery, [sql, arguments]),
+        returnValueForMissingStub: null,
+      );
 }
 
 /// A class which mocks [Database].
@@ -495,12 +491,10 @@ class MockDatabase extends _i1.Mock implements _i3.Database {
   }
 
   @override
-  String get path =>
-      (super.noSuchMethod(
-            Invocation.getter(#path),
-            returnValue: _i6.dummyValue<String>(this, Invocation.getter(#path)),
-          )
-          as String);
+  String get path => (super.noSuchMethod(
+        Invocation.getter(#path),
+        returnValue: _i6.dummyValue<String>(this, Invocation.getter(#path)),
+      ) as String);
 
   @override
   bool get isOpen =>
@@ -508,21 +502,17 @@ class MockDatabase extends _i1.Mock implements _i3.Database {
           as bool);
 
   @override
-  _i3.Database get database =>
-      (super.noSuchMethod(
-            Invocation.getter(#database),
-            returnValue: _FakeDatabase_4(this, Invocation.getter(#database)),
-          )
-          as _i3.Database);
+  _i3.Database get database => (super.noSuchMethod(
+        Invocation.getter(#database),
+        returnValue: _FakeDatabase_4(this, Invocation.getter(#database)),
+      ) as _i3.Database);
 
   @override
-  _i4.Future<void> close() =>
-      (super.noSuchMethod(
-            Invocation.method(#close, []),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
-          )
-          as _i4.Future<void>);
+  _i4.Future<void> close() => (super.noSuchMethod(
+        Invocation.method(#close, []),
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
   _i4.Future<T> transaction<T>(
@@ -530,69 +520,63 @@ class MockDatabase extends _i1.Mock implements _i3.Database {
     bool? exclusive,
   }) =>
       (super.noSuchMethod(
-            Invocation.method(#transaction, [action], {#exclusive: exclusive}),
-            returnValue:
-                _i6.ifNotNull(
-                  _i6.dummyValueOrNull<T>(
-                    this,
-                    Invocation.method(
-                      #transaction,
-                      [action],
-                      {#exclusive: exclusive},
-                    ),
-                  ),
-                  (T v) => _i4.Future<T>.value(v),
-                ) ??
-                _FakeFuture_5<T>(
-                  this,
-                  Invocation.method(
-                    #transaction,
-                    [action],
-                    {#exclusive: exclusive},
-                  ),
+        Invocation.method(#transaction, [action], {#exclusive: exclusive}),
+        returnValue: _i6.ifNotNull(
+              _i6.dummyValueOrNull<T>(
+                this,
+                Invocation.method(
+                  #transaction,
+                  [action],
+                  {#exclusive: exclusive},
                 ),
-          )
-          as _i4.Future<T>);
+              ),
+              (T v) => _i4.Future<T>.value(v),
+            ) ??
+            _FakeFuture_5<T>(
+              this,
+              Invocation.method(
+                #transaction,
+                [action],
+                {#exclusive: exclusive},
+              ),
+            ),
+      ) as _i4.Future<T>);
 
   @override
   _i4.Future<T> readTransaction<T>(
     _i4.Future<T> Function(_i3.Transaction)? action,
   ) =>
       (super.noSuchMethod(
-            Invocation.method(#readTransaction, [action]),
-            returnValue:
-                _i6.ifNotNull(
-                  _i6.dummyValueOrNull<T>(
-                    this,
-                    Invocation.method(#readTransaction, [action]),
-                  ),
-                  (T v) => _i4.Future<T>.value(v),
-                ) ??
-                _FakeFuture_5<T>(
-                  this,
-                  Invocation.method(#readTransaction, [action]),
-                ),
-          )
-          as _i4.Future<T>);
+        Invocation.method(#readTransaction, [action]),
+        returnValue: _i6.ifNotNull(
+              _i6.dummyValueOrNull<T>(
+                this,
+                Invocation.method(#readTransaction, [action]),
+              ),
+              (T v) => _i4.Future<T>.value(v),
+            ) ??
+            _FakeFuture_5<T>(
+              this,
+              Invocation.method(#readTransaction, [action]),
+            ),
+      ) as _i4.Future<T>);
 
   @override
   _i4.Future<T> devInvokeMethod<T>(String? method, [Object? arguments]) =>
       (super.noSuchMethod(
-            Invocation.method(#devInvokeMethod, [method, arguments]),
-            returnValue:
-                _i6.ifNotNull(
-                  _i6.dummyValueOrNull<T>(
-                    this,
-                    Invocation.method(#devInvokeMethod, [method, arguments]),
-                  ),
-                  (T v) => _i4.Future<T>.value(v),
-                ) ??
-                _FakeFuture_5<T>(
-                  this,
-                  Invocation.method(#devInvokeMethod, [method, arguments]),
-                ),
-          )
-          as _i4.Future<T>);
+        Invocation.method(#devInvokeMethod, [method, arguments]),
+        returnValue: _i6.ifNotNull(
+              _i6.dummyValueOrNull<T>(
+                this,
+                Invocation.method(#devInvokeMethod, [method, arguments]),
+              ),
+              (T v) => _i4.Future<T>.value(v),
+            ) ??
+            _FakeFuture_5<T>(
+              this,
+              Invocation.method(#devInvokeMethod, [method, arguments]),
+            ),
+      ) as _i4.Future<T>);
 
   @override
   _i4.Future<T> devInvokeSqlMethod<T>(
@@ -601,46 +585,42 @@ class MockDatabase extends _i1.Mock implements _i3.Database {
     List<Object?>? arguments,
   ]) =>
       (super.noSuchMethod(
-            Invocation.method(#devInvokeSqlMethod, [method, sql, arguments]),
-            returnValue:
-                _i6.ifNotNull(
-                  _i6.dummyValueOrNull<T>(
-                    this,
-                    Invocation.method(#devInvokeSqlMethod, [
-                      method,
-                      sql,
-                      arguments,
-                    ]),
-                  ),
-                  (T v) => _i4.Future<T>.value(v),
-                ) ??
-                _FakeFuture_5<T>(
-                  this,
-                  Invocation.method(#devInvokeSqlMethod, [
-                    method,
-                    sql,
-                    arguments,
-                  ]),
-                ),
-          )
-          as _i4.Future<T>);
+        Invocation.method(#devInvokeSqlMethod, [method, sql, arguments]),
+        returnValue: _i6.ifNotNull(
+              _i6.dummyValueOrNull<T>(
+                this,
+                Invocation.method(#devInvokeSqlMethod, [
+                  method,
+                  sql,
+                  arguments,
+                ]),
+              ),
+              (T v) => _i4.Future<T>.value(v),
+            ) ??
+            _FakeFuture_5<T>(
+              this,
+              Invocation.method(#devInvokeSqlMethod, [
+                method,
+                sql,
+                arguments,
+              ]),
+            ),
+      ) as _i4.Future<T>);
 
   @override
   _i4.Future<void> execute(String? sql, [List<Object?>? arguments]) =>
       (super.noSuchMethod(
-            Invocation.method(#execute, [sql, arguments]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
-          )
-          as _i4.Future<void>);
+        Invocation.method(#execute, [sql, arguments]),
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
   _i4.Future<int> rawInsert(String? sql, [List<Object?>? arguments]) =>
       (super.noSuchMethod(
-            Invocation.method(#rawInsert, [sql, arguments]),
-            returnValue: _i4.Future<int>.value(0),
-          )
-          as _i4.Future<int>);
+        Invocation.method(#rawInsert, [sql, arguments]),
+        returnValue: _i4.Future<int>.value(0),
+      ) as _i4.Future<int>);
 
   @override
   _i4.Future<int> insert(
@@ -650,17 +630,16 @@ class MockDatabase extends _i1.Mock implements _i3.Database {
     _i8.ConflictAlgorithm? conflictAlgorithm,
   }) =>
       (super.noSuchMethod(
-            Invocation.method(
-              #insert,
-              [table, values],
-              {
-                #nullColumnHack: nullColumnHack,
-                #conflictAlgorithm: conflictAlgorithm,
-              },
-            ),
-            returnValue: _i4.Future<int>.value(0),
-          )
-          as _i4.Future<int>);
+        Invocation.method(
+          #insert,
+          [table, values],
+          {
+            #nullColumnHack: nullColumnHack,
+            #conflictAlgorithm: conflictAlgorithm,
+          },
+        ),
+        returnValue: _i4.Future<int>.value(0),
+      ) as _i4.Future<int>);
 
   @override
   _i4.Future<List<Map<String, Object?>>> query(
@@ -676,26 +655,25 @@ class MockDatabase extends _i1.Mock implements _i3.Database {
     int? offset,
   }) =>
       (super.noSuchMethod(
-            Invocation.method(
-              #query,
-              [table],
-              {
-                #distinct: distinct,
-                #columns: columns,
-                #where: where,
-                #whereArgs: whereArgs,
-                #groupBy: groupBy,
-                #having: having,
-                #orderBy: orderBy,
-                #limit: limit,
-                #offset: offset,
-              },
-            ),
-            returnValue: _i4.Future<List<Map<String, Object?>>>.value(
-              <Map<String, Object?>>[],
-            ),
-          )
-          as _i4.Future<List<Map<String, Object?>>>);
+        Invocation.method(
+          #query,
+          [table],
+          {
+            #distinct: distinct,
+            #columns: columns,
+            #where: where,
+            #whereArgs: whereArgs,
+            #groupBy: groupBy,
+            #having: having,
+            #orderBy: orderBy,
+            #limit: limit,
+            #offset: offset,
+          },
+        ),
+        returnValue: _i4.Future<List<Map<String, Object?>>>.value(
+          <Map<String, Object?>>[],
+        ),
+      ) as _i4.Future<List<Map<String, Object?>>>);
 
   @override
   _i4.Future<List<Map<String, Object?>>> rawQuery(
@@ -703,12 +681,11 @@ class MockDatabase extends _i1.Mock implements _i3.Database {
     List<Object?>? arguments,
   ]) =>
       (super.noSuchMethod(
-            Invocation.method(#rawQuery, [sql, arguments]),
-            returnValue: _i4.Future<List<Map<String, Object?>>>.value(
-              <Map<String, Object?>>[],
-            ),
-          )
-          as _i4.Future<List<Map<String, Object?>>>);
+        Invocation.method(#rawQuery, [sql, arguments]),
+        returnValue: _i4.Future<List<Map<String, Object?>>>.value(
+          <Map<String, Object?>>[],
+        ),
+      ) as _i4.Future<List<Map<String, Object?>>>);
 
   @override
   _i4.Future<_i3.QueryCursor> rawQueryCursor(
@@ -717,23 +694,22 @@ class MockDatabase extends _i1.Mock implements _i3.Database {
     int? bufferSize,
   }) =>
       (super.noSuchMethod(
+        Invocation.method(
+          #rawQueryCursor,
+          [sql, arguments],
+          {#bufferSize: bufferSize},
+        ),
+        returnValue: _i4.Future<_i3.QueryCursor>.value(
+          _FakeQueryCursor_6(
+            this,
             Invocation.method(
               #rawQueryCursor,
               [sql, arguments],
               {#bufferSize: bufferSize},
             ),
-            returnValue: _i4.Future<_i3.QueryCursor>.value(
-              _FakeQueryCursor_6(
-                this,
-                Invocation.method(
-                  #rawQueryCursor,
-                  [sql, arguments],
-                  {#bufferSize: bufferSize},
-                ),
-              ),
-            ),
-          )
-          as _i4.Future<_i3.QueryCursor>);
+          ),
+        ),
+      ) as _i4.Future<_i3.QueryCursor>);
 
   @override
   _i4.Future<_i3.QueryCursor> queryCursor(
@@ -750,6 +726,25 @@ class MockDatabase extends _i1.Mock implements _i3.Database {
     int? bufferSize,
   }) =>
       (super.noSuchMethod(
+        Invocation.method(
+          #queryCursor,
+          [table],
+          {
+            #distinct: distinct,
+            #columns: columns,
+            #where: where,
+            #whereArgs: whereArgs,
+            #groupBy: groupBy,
+            #having: having,
+            #orderBy: orderBy,
+            #limit: limit,
+            #offset: offset,
+            #bufferSize: bufferSize,
+          },
+        ),
+        returnValue: _i4.Future<_i3.QueryCursor>.value(
+          _FakeQueryCursor_6(
+            this,
             Invocation.method(
               #queryCursor,
               [table],
@@ -766,37 +761,16 @@ class MockDatabase extends _i1.Mock implements _i3.Database {
                 #bufferSize: bufferSize,
               },
             ),
-            returnValue: _i4.Future<_i3.QueryCursor>.value(
-              _FakeQueryCursor_6(
-                this,
-                Invocation.method(
-                  #queryCursor,
-                  [table],
-                  {
-                    #distinct: distinct,
-                    #columns: columns,
-                    #where: where,
-                    #whereArgs: whereArgs,
-                    #groupBy: groupBy,
-                    #having: having,
-                    #orderBy: orderBy,
-                    #limit: limit,
-                    #offset: offset,
-                    #bufferSize: bufferSize,
-                  },
-                ),
-              ),
-            ),
-          )
-          as _i4.Future<_i3.QueryCursor>);
+          ),
+        ),
+      ) as _i4.Future<_i3.QueryCursor>);
 
   @override
   _i4.Future<int> rawUpdate(String? sql, [List<Object?>? arguments]) =>
       (super.noSuchMethod(
-            Invocation.method(#rawUpdate, [sql, arguments]),
-            returnValue: _i4.Future<int>.value(0),
-          )
-          as _i4.Future<int>);
+        Invocation.method(#rawUpdate, [sql, arguments]),
+        returnValue: _i4.Future<int>.value(0),
+      ) as _i4.Future<int>);
 
   @override
   _i4.Future<int> update(
@@ -807,26 +781,24 @@ class MockDatabase extends _i1.Mock implements _i3.Database {
     _i8.ConflictAlgorithm? conflictAlgorithm,
   }) =>
       (super.noSuchMethod(
-            Invocation.method(
-              #update,
-              [table, values],
-              {
-                #where: where,
-                #whereArgs: whereArgs,
-                #conflictAlgorithm: conflictAlgorithm,
-              },
-            ),
-            returnValue: _i4.Future<int>.value(0),
-          )
-          as _i4.Future<int>);
+        Invocation.method(
+          #update,
+          [table, values],
+          {
+            #where: where,
+            #whereArgs: whereArgs,
+            #conflictAlgorithm: conflictAlgorithm,
+          },
+        ),
+        returnValue: _i4.Future<int>.value(0),
+      ) as _i4.Future<int>);
 
   @override
   _i4.Future<int> rawDelete(String? sql, [List<Object?>? arguments]) =>
       (super.noSuchMethod(
-            Invocation.method(#rawDelete, [sql, arguments]),
-            returnValue: _i4.Future<int>.value(0),
-          )
-          as _i4.Future<int>);
+        Invocation.method(#rawDelete, [sql, arguments]),
+        returnValue: _i4.Future<int>.value(0),
+      ) as _i4.Future<int>);
 
   @override
   _i4.Future<int> delete(
@@ -835,22 +807,19 @@ class MockDatabase extends _i1.Mock implements _i3.Database {
     List<Object?>? whereArgs,
   }) =>
       (super.noSuchMethod(
-            Invocation.method(
-              #delete,
-              [table],
-              {#where: where, #whereArgs: whereArgs},
-            ),
-            returnValue: _i4.Future<int>.value(0),
-          )
-          as _i4.Future<int>);
+        Invocation.method(
+          #delete,
+          [table],
+          {#where: where, #whereArgs: whereArgs},
+        ),
+        returnValue: _i4.Future<int>.value(0),
+      ) as _i4.Future<int>);
 
   @override
-  _i3.Batch batch() =>
-      (super.noSuchMethod(
-            Invocation.method(#batch, []),
-            returnValue: _FakeBatch_7(this, Invocation.method(#batch, [])),
-          )
-          as _i3.Batch);
+  _i3.Batch batch() => (super.noSuchMethod(
+        Invocation.method(#batch, []),
+        returnValue: _FakeBatch_7(this, Invocation.method(#batch, [])),
+      ) as _i3.Batch);
 }
 
 /// A class which mocks [DatabaseExecutor].
@@ -862,29 +831,25 @@ class MockDatabaseExecutor extends _i1.Mock implements _i3.DatabaseExecutor {
   }
 
   @override
-  _i3.Database get database =>
-      (super.noSuchMethod(
-            Invocation.getter(#database),
-            returnValue: _FakeDatabase_4(this, Invocation.getter(#database)),
-          )
-          as _i3.Database);
+  _i3.Database get database => (super.noSuchMethod(
+        Invocation.getter(#database),
+        returnValue: _FakeDatabase_4(this, Invocation.getter(#database)),
+      ) as _i3.Database);
 
   @override
   _i4.Future<void> execute(String? sql, [List<Object?>? arguments]) =>
       (super.noSuchMethod(
-            Invocation.method(#execute, [sql, arguments]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
-          )
-          as _i4.Future<void>);
+        Invocation.method(#execute, [sql, arguments]),
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
   _i4.Future<int> rawInsert(String? sql, [List<Object?>? arguments]) =>
       (super.noSuchMethod(
-            Invocation.method(#rawInsert, [sql, arguments]),
-            returnValue: _i4.Future<int>.value(0),
-          )
-          as _i4.Future<int>);
+        Invocation.method(#rawInsert, [sql, arguments]),
+        returnValue: _i4.Future<int>.value(0),
+      ) as _i4.Future<int>);
 
   @override
   _i4.Future<int> insert(
@@ -894,17 +859,16 @@ class MockDatabaseExecutor extends _i1.Mock implements _i3.DatabaseExecutor {
     _i8.ConflictAlgorithm? conflictAlgorithm,
   }) =>
       (super.noSuchMethod(
-            Invocation.method(
-              #insert,
-              [table, values],
-              {
-                #nullColumnHack: nullColumnHack,
-                #conflictAlgorithm: conflictAlgorithm,
-              },
-            ),
-            returnValue: _i4.Future<int>.value(0),
-          )
-          as _i4.Future<int>);
+        Invocation.method(
+          #insert,
+          [table, values],
+          {
+            #nullColumnHack: nullColumnHack,
+            #conflictAlgorithm: conflictAlgorithm,
+          },
+        ),
+        returnValue: _i4.Future<int>.value(0),
+      ) as _i4.Future<int>);
 
   @override
   _i4.Future<List<Map<String, Object?>>> query(
@@ -920,26 +884,25 @@ class MockDatabaseExecutor extends _i1.Mock implements _i3.DatabaseExecutor {
     int? offset,
   }) =>
       (super.noSuchMethod(
-            Invocation.method(
-              #query,
-              [table],
-              {
-                #distinct: distinct,
-                #columns: columns,
-                #where: where,
-                #whereArgs: whereArgs,
-                #groupBy: groupBy,
-                #having: having,
-                #orderBy: orderBy,
-                #limit: limit,
-                #offset: offset,
-              },
-            ),
-            returnValue: _i4.Future<List<Map<String, Object?>>>.value(
-              <Map<String, Object?>>[],
-            ),
-          )
-          as _i4.Future<List<Map<String, Object?>>>);
+        Invocation.method(
+          #query,
+          [table],
+          {
+            #distinct: distinct,
+            #columns: columns,
+            #where: where,
+            #whereArgs: whereArgs,
+            #groupBy: groupBy,
+            #having: having,
+            #orderBy: orderBy,
+            #limit: limit,
+            #offset: offset,
+          },
+        ),
+        returnValue: _i4.Future<List<Map<String, Object?>>>.value(
+          <Map<String, Object?>>[],
+        ),
+      ) as _i4.Future<List<Map<String, Object?>>>);
 
   @override
   _i4.Future<List<Map<String, Object?>>> rawQuery(
@@ -947,12 +910,11 @@ class MockDatabaseExecutor extends _i1.Mock implements _i3.DatabaseExecutor {
     List<Object?>? arguments,
   ]) =>
       (super.noSuchMethod(
-            Invocation.method(#rawQuery, [sql, arguments]),
-            returnValue: _i4.Future<List<Map<String, Object?>>>.value(
-              <Map<String, Object?>>[],
-            ),
-          )
-          as _i4.Future<List<Map<String, Object?>>>);
+        Invocation.method(#rawQuery, [sql, arguments]),
+        returnValue: _i4.Future<List<Map<String, Object?>>>.value(
+          <Map<String, Object?>>[],
+        ),
+      ) as _i4.Future<List<Map<String, Object?>>>);
 
   @override
   _i4.Future<_i3.QueryCursor> rawQueryCursor(
@@ -961,23 +923,22 @@ class MockDatabaseExecutor extends _i1.Mock implements _i3.DatabaseExecutor {
     int? bufferSize,
   }) =>
       (super.noSuchMethod(
+        Invocation.method(
+          #rawQueryCursor,
+          [sql, arguments],
+          {#bufferSize: bufferSize},
+        ),
+        returnValue: _i4.Future<_i3.QueryCursor>.value(
+          _FakeQueryCursor_6(
+            this,
             Invocation.method(
               #rawQueryCursor,
               [sql, arguments],
               {#bufferSize: bufferSize},
             ),
-            returnValue: _i4.Future<_i3.QueryCursor>.value(
-              _FakeQueryCursor_6(
-                this,
-                Invocation.method(
-                  #rawQueryCursor,
-                  [sql, arguments],
-                  {#bufferSize: bufferSize},
-                ),
-              ),
-            ),
-          )
-          as _i4.Future<_i3.QueryCursor>);
+          ),
+        ),
+      ) as _i4.Future<_i3.QueryCursor>);
 
   @override
   _i4.Future<_i3.QueryCursor> queryCursor(
@@ -994,6 +955,25 @@ class MockDatabaseExecutor extends _i1.Mock implements _i3.DatabaseExecutor {
     int? bufferSize,
   }) =>
       (super.noSuchMethod(
+        Invocation.method(
+          #queryCursor,
+          [table],
+          {
+            #distinct: distinct,
+            #columns: columns,
+            #where: where,
+            #whereArgs: whereArgs,
+            #groupBy: groupBy,
+            #having: having,
+            #orderBy: orderBy,
+            #limit: limit,
+            #offset: offset,
+            #bufferSize: bufferSize,
+          },
+        ),
+        returnValue: _i4.Future<_i3.QueryCursor>.value(
+          _FakeQueryCursor_6(
+            this,
             Invocation.method(
               #queryCursor,
               [table],
@@ -1010,37 +990,16 @@ class MockDatabaseExecutor extends _i1.Mock implements _i3.DatabaseExecutor {
                 #bufferSize: bufferSize,
               },
             ),
-            returnValue: _i4.Future<_i3.QueryCursor>.value(
-              _FakeQueryCursor_6(
-                this,
-                Invocation.method(
-                  #queryCursor,
-                  [table],
-                  {
-                    #distinct: distinct,
-                    #columns: columns,
-                    #where: where,
-                    #whereArgs: whereArgs,
-                    #groupBy: groupBy,
-                    #having: having,
-                    #orderBy: orderBy,
-                    #limit: limit,
-                    #offset: offset,
-                    #bufferSize: bufferSize,
-                  },
-                ),
-              ),
-            ),
-          )
-          as _i4.Future<_i3.QueryCursor>);
+          ),
+        ),
+      ) as _i4.Future<_i3.QueryCursor>);
 
   @override
   _i4.Future<int> rawUpdate(String? sql, [List<Object?>? arguments]) =>
       (super.noSuchMethod(
-            Invocation.method(#rawUpdate, [sql, arguments]),
-            returnValue: _i4.Future<int>.value(0),
-          )
-          as _i4.Future<int>);
+        Invocation.method(#rawUpdate, [sql, arguments]),
+        returnValue: _i4.Future<int>.value(0),
+      ) as _i4.Future<int>);
 
   @override
   _i4.Future<int> update(
@@ -1051,26 +1010,24 @@ class MockDatabaseExecutor extends _i1.Mock implements _i3.DatabaseExecutor {
     _i8.ConflictAlgorithm? conflictAlgorithm,
   }) =>
       (super.noSuchMethod(
-            Invocation.method(
-              #update,
-              [table, values],
-              {
-                #where: where,
-                #whereArgs: whereArgs,
-                #conflictAlgorithm: conflictAlgorithm,
-              },
-            ),
-            returnValue: _i4.Future<int>.value(0),
-          )
-          as _i4.Future<int>);
+        Invocation.method(
+          #update,
+          [table, values],
+          {
+            #where: where,
+            #whereArgs: whereArgs,
+            #conflictAlgorithm: conflictAlgorithm,
+          },
+        ),
+        returnValue: _i4.Future<int>.value(0),
+      ) as _i4.Future<int>);
 
   @override
   _i4.Future<int> rawDelete(String? sql, [List<Object?>? arguments]) =>
       (super.noSuchMethod(
-            Invocation.method(#rawDelete, [sql, arguments]),
-            returnValue: _i4.Future<int>.value(0),
-          )
-          as _i4.Future<int>);
+        Invocation.method(#rawDelete, [sql, arguments]),
+        returnValue: _i4.Future<int>.value(0),
+      ) as _i4.Future<int>);
 
   @override
   _i4.Future<int> delete(
@@ -1079,22 +1036,19 @@ class MockDatabaseExecutor extends _i1.Mock implements _i3.DatabaseExecutor {
     List<Object?>? whereArgs,
   }) =>
       (super.noSuchMethod(
-            Invocation.method(
-              #delete,
-              [table],
-              {#where: where, #whereArgs: whereArgs},
-            ),
-            returnValue: _i4.Future<int>.value(0),
-          )
-          as _i4.Future<int>);
+        Invocation.method(
+          #delete,
+          [table],
+          {#where: where, #whereArgs: whereArgs},
+        ),
+        returnValue: _i4.Future<int>.value(0),
+      ) as _i4.Future<int>);
 
   @override
-  _i3.Batch batch() =>
-      (super.noSuchMethod(
-            Invocation.method(#batch, []),
-            returnValue: _FakeBatch_7(this, Invocation.method(#batch, [])),
-          )
-          as _i3.Batch);
+  _i3.Batch batch() => (super.noSuchMethod(
+        Invocation.method(#batch, []),
+        returnValue: _FakeBatch_7(this, Invocation.method(#batch, [])),
+      ) as _i3.Batch);
 }
 
 /// A class which mocks [Hub].
@@ -1106,15 +1060,13 @@ class MockHub extends _i1.Mock implements _i2.Hub {
   }
 
   @override
-  _i2.SentryOptions get options =>
-      (super.noSuchMethod(
-            Invocation.getter(#options),
-            returnValue: _FakeSentryOptions_8(
-              this,
-              Invocation.getter(#options),
-            ),
-          )
-          as _i2.SentryOptions);
+  _i2.SentryOptions get options => (super.noSuchMethod(
+        Invocation.getter(#options),
+        returnValue: _FakeSentryOptions_8(
+          this,
+          Invocation.getter(#options),
+        ),
+      ) as _i2.SentryOptions);
 
   @override
   bool get isEnabled =>
@@ -1122,26 +1074,23 @@ class MockHub extends _i1.Mock implements _i2.Hub {
           as bool);
 
   @override
-  _i2.SentryId get lastEventId =>
-      (super.noSuchMethod(
-            Invocation.getter(#lastEventId),
-            returnValue: _FakeSentryId_9(this, Invocation.getter(#lastEventId)),
-          )
-          as _i2.SentryId);
+  _i2.SentryId get lastEventId => (super.noSuchMethod(
+        Invocation.getter(#lastEventId),
+        returnValue: _FakeSentryId_9(this, Invocation.getter(#lastEventId)),
+      ) as _i2.SentryId);
 
   @override
-  _i2.Scope get scope =>
-      (super.noSuchMethod(
-            Invocation.getter(#scope),
-            returnValue: _FakeScope_10(this, Invocation.getter(#scope)),
-          )
-          as _i2.Scope);
+  _i2.Scope get scope => (super.noSuchMethod(
+        Invocation.getter(#scope),
+        returnValue: _FakeScope_10(this, Invocation.getter(#scope)),
+      ) as _i2.Scope);
 
   @override
+  // ignore: invalid_use_of_internal_member
   set profilerFactory(_i7.SentryProfilerFactory? value) => super.noSuchMethod(
-    Invocation.setter(#profilerFactory, value),
-    returnValueForMissingStub: null,
-  );
+        Invocation.setter(#profilerFactory, value),
+        returnValueForMissingStub: null,
+      );
 
   @override
   _i4.Future<_i2.SentryId> captureEvent(
@@ -1151,23 +1100,22 @@ class MockHub extends _i1.Mock implements _i2.Hub {
     _i2.ScopeCallback? withScope,
   }) =>
       (super.noSuchMethod(
+        Invocation.method(
+          #captureEvent,
+          [event],
+          {#stackTrace: stackTrace, #hint: hint, #withScope: withScope},
+        ),
+        returnValue: _i4.Future<_i2.SentryId>.value(
+          _FakeSentryId_9(
+            this,
             Invocation.method(
               #captureEvent,
               [event],
               {#stackTrace: stackTrace, #hint: hint, #withScope: withScope},
             ),
-            returnValue: _i4.Future<_i2.SentryId>.value(
-              _FakeSentryId_9(
-                this,
-                Invocation.method(
-                  #captureEvent,
-                  [event],
-                  {#stackTrace: stackTrace, #hint: hint, #withScope: withScope},
-                ),
-              ),
-            ),
-          )
-          as _i4.Future<_i2.SentryId>);
+          ),
+        ),
+      ) as _i4.Future<_i2.SentryId>);
 
   @override
   _i4.Future<_i2.SentryId> captureException(
@@ -1177,23 +1125,22 @@ class MockHub extends _i1.Mock implements _i2.Hub {
     _i2.ScopeCallback? withScope,
   }) =>
       (super.noSuchMethod(
+        Invocation.method(
+          #captureException,
+          [throwable],
+          {#stackTrace: stackTrace, #hint: hint, #withScope: withScope},
+        ),
+        returnValue: _i4.Future<_i2.SentryId>.value(
+          _FakeSentryId_9(
+            this,
             Invocation.method(
               #captureException,
               [throwable],
               {#stackTrace: stackTrace, #hint: hint, #withScope: withScope},
             ),
-            returnValue: _i4.Future<_i2.SentryId>.value(
-              _FakeSentryId_9(
-                this,
-                Invocation.method(
-                  #captureException,
-                  [throwable],
-                  {#stackTrace: stackTrace, #hint: hint, #withScope: withScope},
-                ),
-              ),
-            ),
-          )
-          as _i4.Future<_i2.SentryId>);
+          ),
+        ),
+      ) as _i4.Future<_i2.SentryId>);
 
   @override
   _i4.Future<_i2.SentryId> captureMessage(
@@ -1205,6 +1152,20 @@ class MockHub extends _i1.Mock implements _i2.Hub {
     _i2.ScopeCallback? withScope,
   }) =>
       (super.noSuchMethod(
+        Invocation.method(
+          #captureMessage,
+          [message],
+          {
+            #level: level,
+            #template: template,
+            #params: params,
+            #hint: hint,
+            #withScope: withScope,
+          },
+        ),
+        returnValue: _i4.Future<_i2.SentryId>.value(
+          _FakeSentryId_9(
+            this,
             Invocation.method(
               #captureMessage,
               [message],
@@ -1216,24 +1177,17 @@ class MockHub extends _i1.Mock implements _i2.Hub {
                 #withScope: withScope,
               },
             ),
-            returnValue: _i4.Future<_i2.SentryId>.value(
-              _FakeSentryId_9(
-                this,
-                Invocation.method(
-                  #captureMessage,
-                  [message],
-                  {
-                    #level: level,
-                    #template: template,
-                    #params: params,
-                    #hint: hint,
-                    #withScope: withScope,
-                  },
-                ),
-              ),
-            ),
-          )
-          as _i4.Future<_i2.SentryId>);
+          ),
+        ),
+      ) as _i4.Future<_i2.SentryId>);
+
+  @override
+  _i4.Future<void> captureUserFeedback(_i2.SentryUserFeedback? userFeedback) =>
+      (super.noSuchMethod(
+        Invocation.method(#captureUserFeedback, [userFeedback]),
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
   _i4.Future<_i2.SentryId> captureFeedback(
@@ -1242,55 +1196,49 @@ class MockHub extends _i1.Mock implements _i2.Hub {
     _i2.ScopeCallback? withScope,
   }) =>
       (super.noSuchMethod(
+        Invocation.method(
+          #captureFeedback,
+          [feedback],
+          {#hint: hint, #withScope: withScope},
+        ),
+        returnValue: _i4.Future<_i2.SentryId>.value(
+          _FakeSentryId_9(
+            this,
             Invocation.method(
               #captureFeedback,
               [feedback],
               {#hint: hint, #withScope: withScope},
             ),
-            returnValue: _i4.Future<_i2.SentryId>.value(
-              _FakeSentryId_9(
-                this,
-                Invocation.method(
-                  #captureFeedback,
-                  [feedback],
-                  {#hint: hint, #withScope: withScope},
-                ),
-              ),
-            ),
-          )
-          as _i4.Future<_i2.SentryId>);
+          ),
+        ),
+      ) as _i4.Future<_i2.SentryId>);
 
   @override
   _i4.Future<void> addBreadcrumb(_i2.Breadcrumb? crumb, {_i2.Hint? hint}) =>
       (super.noSuchMethod(
-            Invocation.method(#addBreadcrumb, [crumb], {#hint: hint}),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
-          )
-          as _i4.Future<void>);
+        Invocation.method(#addBreadcrumb, [crumb], {#hint: hint}),
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
   void bindClient(_i2.SentryClient? client) => super.noSuchMethod(
-    Invocation.method(#bindClient, [client]),
-    returnValueForMissingStub: null,
-  );
+        Invocation.method(#bindClient, [client]),
+        returnValueForMissingStub: null,
+      );
 
   @override
-  _i2.Hub clone() =>
-      (super.noSuchMethod(
-            Invocation.method(#clone, []),
-            returnValue: _FakeHub_11(this, Invocation.method(#clone, [])),
-          )
-          as _i2.Hub);
+  _i2.Hub clone() => (super.noSuchMethod(
+        Invocation.method(#clone, []),
+        returnValue: _FakeHub_11(this, Invocation.method(#clone, [])),
+      ) as _i2.Hub);
 
   @override
-  _i4.Future<void> close() =>
-      (super.noSuchMethod(
-            Invocation.method(#close, []),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
-          )
-          as _i4.Future<void>);
+  _i4.Future<void> close() => (super.noSuchMethod(
+        Invocation.method(#close, []),
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
   _i4.FutureOr<void> configureScope(_i2.ScopeCallback? callback) =>
@@ -1311,34 +1259,33 @@ class MockHub extends _i1.Mock implements _i2.Hub {
     Map<String, dynamic>? customSamplingContext,
   }) =>
       (super.noSuchMethod(
-            Invocation.method(
-              #startTransaction,
-              [name, operation],
-              {
-                #description: description,
-                #startTimestamp: startTimestamp,
-                #bindToScope: bindToScope,
-                #waitForChildren: waitForChildren,
-                #autoFinishAfter: autoFinishAfter,
-                #trimEnd: trimEnd,
-                #onFinish: onFinish,
-                #customSamplingContext: customSamplingContext,
-              },
-            ),
-            returnValue: _i9.startTransactionShim(
-              name,
-              operation,
-              description: description,
-              startTimestamp: startTimestamp,
-              bindToScope: bindToScope,
-              waitForChildren: waitForChildren,
-              autoFinishAfter: autoFinishAfter,
-              trimEnd: trimEnd,
-              onFinish: onFinish,
-              customSamplingContext: customSamplingContext,
-            ),
-          )
-          as _i2.ISentrySpan);
+        Invocation.method(
+          #startTransaction,
+          [name, operation],
+          {
+            #description: description,
+            #startTimestamp: startTimestamp,
+            #bindToScope: bindToScope,
+            #waitForChildren: waitForChildren,
+            #autoFinishAfter: autoFinishAfter,
+            #trimEnd: trimEnd,
+            #onFinish: onFinish,
+            #customSamplingContext: customSamplingContext,
+          },
+        ),
+        returnValue: _i9.startTransactionShim(
+          name,
+          operation,
+          description: description,
+          startTimestamp: startTimestamp,
+          bindToScope: bindToScope,
+          waitForChildren: waitForChildren,
+          autoFinishAfter: autoFinishAfter,
+          trimEnd: trimEnd,
+          onFinish: onFinish,
+          customSamplingContext: customSamplingContext,
+        ),
+      ) as _i2.ISentrySpan);
 
   @override
   _i2.ISentrySpan startTransactionWithContext(
@@ -1352,69 +1299,69 @@ class MockHub extends _i1.Mock implements _i2.Hub {
     _i2.OnTransactionFinish? onFinish,
   }) =>
       (super.noSuchMethod(
-            Invocation.method(
-              #startTransactionWithContext,
-              [transactionContext],
-              {
-                #customSamplingContext: customSamplingContext,
-                #startTimestamp: startTimestamp,
-                #bindToScope: bindToScope,
-                #waitForChildren: waitForChildren,
-                #autoFinishAfter: autoFinishAfter,
-                #trimEnd: trimEnd,
-                #onFinish: onFinish,
-              },
-            ),
-            returnValue: _FakeISentrySpan_2(
-              this,
-              Invocation.method(
-                #startTransactionWithContext,
-                [transactionContext],
-                {
-                  #customSamplingContext: customSamplingContext,
-                  #startTimestamp: startTimestamp,
-                  #bindToScope: bindToScope,
-                  #waitForChildren: waitForChildren,
-                  #autoFinishAfter: autoFinishAfter,
-                  #trimEnd: trimEnd,
-                  #onFinish: onFinish,
-                },
-              ),
-            ),
-          )
-          as _i2.ISentrySpan);
+        Invocation.method(
+          #startTransactionWithContext,
+          [transactionContext],
+          {
+            #customSamplingContext: customSamplingContext,
+            #startTimestamp: startTimestamp,
+            #bindToScope: bindToScope,
+            #waitForChildren: waitForChildren,
+            #autoFinishAfter: autoFinishAfter,
+            #trimEnd: trimEnd,
+            #onFinish: onFinish,
+          },
+        ),
+        returnValue: _FakeISentrySpan_2(
+          this,
+          Invocation.method(
+            #startTransactionWithContext,
+            [transactionContext],
+            {
+              #customSamplingContext: customSamplingContext,
+              #startTimestamp: startTimestamp,
+              #bindToScope: bindToScope,
+              #waitForChildren: waitForChildren,
+              #autoFinishAfter: autoFinishAfter,
+              #trimEnd: trimEnd,
+              #onFinish: onFinish,
+            },
+          ),
+        ),
+      ) as _i2.ISentrySpan);
 
   @override
   _i4.Future<_i2.SentryId> captureTransaction(
     _i2.SentryTransaction? transaction, {
     _i2.SentryTraceContextHeader? traceContext,
+    _i2.Hint? hint,
   }) =>
       (super.noSuchMethod(
+        Invocation.method(
+          #captureTransaction,
+          [transaction],
+          {#traceContext: traceContext, #hint: hint},
+        ),
+        returnValue: _i4.Future<_i2.SentryId>.value(
+          _FakeSentryId_9(
+            this,
             Invocation.method(
               #captureTransaction,
               [transaction],
-              {#traceContext: traceContext},
+              {#traceContext: traceContext, #hint: hint},
             ),
-            returnValue: _i4.Future<_i2.SentryId>.value(
-              _FakeSentryId_9(
-                this,
-                Invocation.method(
-                  #captureTransaction,
-                  [transaction],
-                  {#traceContext: traceContext},
-                ),
-              ),
-            ),
-          )
-          as _i4.Future<_i2.SentryId>);
+          ),
+        ),
+      ) as _i4.Future<_i2.SentryId>);
 
   @override
   void setSpanContext(
     dynamic throwable,
     _i2.ISentrySpan? span,
     String? transaction,
-  ) => super.noSuchMethod(
-    Invocation.method(#setSpanContext, [throwable, span, transaction]),
-    returnValueForMissingStub: null,
-  );
+  ) =>
+      super.noSuchMethod(
+        Invocation.method(#setSpanContext, [throwable, span, transaction]),
+        returnValueForMissingStub: null,
+      );
 }

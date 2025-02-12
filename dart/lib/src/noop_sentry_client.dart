@@ -58,6 +58,7 @@ class NoOpSentryClient implements SentryClient {
     SentryTransaction transaction, {
     Scope? scope,
     SentryTraceContextHeader? traceContext,
+    Hint? hint,
   }) async =>
       SentryId.empty();
 

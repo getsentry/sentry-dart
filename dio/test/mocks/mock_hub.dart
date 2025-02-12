@@ -115,6 +115,7 @@ class MockHub with NoSuchMethodProvider implements Hub {
   Future<SentryId> captureTransaction(
     SentryTransaction transaction, {
     SentryTraceContextHeader? traceContext,
+    Hint? hint,
   }) async {
     captureTransactionCalls.add(transaction);
     return transaction.eventId;

@@ -2,7 +2,7 @@
 // in sentry_isar/test/mocks/mocks.dart.
 // Do not manually edit this file.
 
-// ignore_for_file: no_leading_underscores_for_library_prefixes
+// ignore_for_file: no_leading_underscores_for_library_prefixes, invalid_use_of_internal_member
 import 'dart:async' as _i3;
 import 'dart:typed_data' as _i7;
 
@@ -288,6 +288,17 @@ class MockHub extends _i1.Mock implements _i2.Hub {
       ) as _i3.Future<_i2.SentryId>);
 
   @override
+  _i3.Future<void> captureUserFeedback(_i2.SentryUserFeedback? userFeedback) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #captureUserFeedback,
+          [userFeedback],
+        ),
+        returnValue: _i3.Future<void>.value(),
+        returnValueForMissingStub: _i3.Future<void>.value(),
+      ) as _i3.Future<void>);
+
+  @override
   _i3.Future<_i2.SentryId> captureFeedback(
     _i2.SentryFeedback? feedback, {
     _i2.Hint? hint,
@@ -471,19 +482,26 @@ class MockHub extends _i1.Mock implements _i2.Hub {
   _i3.Future<_i2.SentryId> captureTransaction(
     _i2.SentryTransaction? transaction, {
     _i2.SentryTraceContextHeader? traceContext,
+    _i2.Hint? hint,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
           #captureTransaction,
           [transaction],
-          {#traceContext: traceContext},
+          {
+            #traceContext: traceContext,
+            #hint: hint,
+          },
         ),
         returnValue: _i3.Future<_i2.SentryId>.value(_FakeSentryId_1(
           this,
           Invocation.method(
             #captureTransaction,
             [transaction],
-            {#traceContext: traceContext},
+            {
+              #traceContext: traceContext,
+              #hint: hint,
+            },
           ),
         )),
       ) as _i3.Future<_i2.SentryId>);
