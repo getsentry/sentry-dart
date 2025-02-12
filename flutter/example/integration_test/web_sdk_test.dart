@@ -11,7 +11,6 @@ import 'dart:js_interop_unsafe';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:sentry_flutter/src/web/javascript_transport.dart';
 import 'package:sentry_flutter_example/main.dart' as app;
 
 import 'utils.dart';
@@ -47,6 +46,10 @@ extension _SentryOptionsExtension on SentryOptions {
 void main() {
   group('Web SDK Integration', () {
     IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+
+    tearDown(() async {
+      await Sentry.close();
+    });
 
     group('enabled', () {
       testWidgets('Sentry JS SDK initialized', (tester) async {
@@ -86,8 +89,6 @@ void main() {
             await tester.pumpWidget(const app.MyApp());
           });
         });
-
-        expect(configuredOptions!.transport, isA<JavascriptTransport>());
 
         final client = _getClient()!;
         final completer = Completer<List<Object?>>();

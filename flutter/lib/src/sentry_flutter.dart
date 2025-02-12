@@ -119,10 +119,10 @@ mixin SentryFlutter {
     // Not all platforms have a native integration.
     if (_native != null) {
       if (_native!.supportsCaptureEnvelope) {
-        if (!options.platformChecker.isWeb) {
-          options.transport = FileSystemTransport(_native!, options);
-        } else {
+        if (options.platformChecker.isWeb) {
           options.transport = JavascriptTransport(_native!, options);
+        } else {
+          options.transport = FileSystemTransport(_native!, options);
         }
       }
       if (!options.platformChecker.isWeb) {
