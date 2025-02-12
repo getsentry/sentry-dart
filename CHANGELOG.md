@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Enhancements 
+
+- Ues debug image loading by address API for Android ([#2706](https://github.com/getsentry/sentry-dart/pull/2706))
+
 ### Deprecations
 
 - Deprecate `autoAppStart` and `setAppStartEnd` ([#2681](https://github.com/getsentry/sentry-dart/pull/2681))
