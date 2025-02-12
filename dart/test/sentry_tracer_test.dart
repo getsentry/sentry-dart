@@ -468,6 +468,16 @@ void main() {
       expect(sut.measurements.containsKey("test"), true);
       expect(sut.measurements["test"]!.value, 1);
     });
+
+    test('hint passed to hub', () async {
+      final hint = Hint();
+
+      final sut = fixture.getSut();
+
+      await sut.finish(hint: hint);
+
+      expect(fixture.hub.captureTransactionCalls.first.hint, hint);
+    });
   });
 
   group('$SentryBaggageHeader', () {

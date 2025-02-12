@@ -614,6 +614,7 @@ typedef BeforeSendCallback = FutureOr<SentryEvent?> Function(
 /// object or nothing to skip reporting the transaction
 typedef BeforeSendTransactionCallback = FutureOr<SentryTransaction?> Function(
   SentryTransaction transaction,
+  Hint hint,
 );
 
 /// This function is called with an SDK specific breadcrumb object before the breadcrumb is added
