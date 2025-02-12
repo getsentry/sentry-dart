@@ -80,6 +80,18 @@ void main() {
     expect(sut.sample(context).sampled, false);
   });
 
+  test('does not sample if tracesSampleRate and tracesSampleRate are null', () {
+    final sut = fixture.getSut(tracesSampleRate: null, tracesSampler: null);
+
+    final trContext = SentryTransactionContext(
+      'name',
+      'op',
+    );
+    final context = SentrySamplingContext(trContext, {});
+
+    expect(sut.sample(context).sampled, false);
+  });
+
   test('tracesSampler exception is handled', () {
     fixture.options.automatedTestMode = false;
     final sut = fixture.getSut(debug: true);
