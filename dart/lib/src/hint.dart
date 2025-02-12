@@ -1,6 +1,5 @@
-import '../sentry.dart';
+import 'protocol/sentry_response.dart';
 import 'sentry_attachment/sentry_attachment.dart';
-import 'sentry_options.dart';
 
 /// Hints are used in [BeforeSendCallback], [BeforeBreadcrumbCallback] and
 /// event processors.

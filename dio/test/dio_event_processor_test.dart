@@ -308,7 +308,7 @@ void main() {
         );
         final throwable = Exception();
         final headers = {
-          'content-length': ['${scenario.contentLength}']
+          'content-length': ['${scenario.contentLength}'],
         };
 
         final dioError = DioError(
@@ -373,7 +373,7 @@ void main() {
           final throwable = Exception();
           final headers = {
             'content-length': [
-              '9001'
+              '9001',
             ], // Dummy content size, not relevant for this test
           };
           final dioError = DioError(
@@ -467,7 +467,7 @@ class Fixture {
     return DioEventProcessor(options
       ..sendDefaultPii = sendDefaultPii
       ..captureFailedRequests = captureFailedRequests
-      ..maxRequestBodySize = maxRequestBodySize);
+      ..maxRequestBodySize = maxRequestBodySize,);
   }
 
   SentryException sentryError(dynamic throwable) {
