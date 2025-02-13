@@ -1,11 +1,8 @@
-import 'dart:ui';
-
-import 'package:flutter/widgets.dart';
 import 'package:sentry/sentry.dart';
-import '../sentry_flutter_options.dart';
-
 // ignore: implementation_imports
 import 'package:sentry/src/utils/stacktrace_utils.dart';
+import '../sentry_flutter_options.dart';
+import '../utils/platform_dispatcher_wrapper.dart';
 
 typedef ErrorCallback = bool Function(Object exception, StackTrace stackTrace);
 
