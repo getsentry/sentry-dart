@@ -130,7 +130,6 @@ void main() {
 
         await restoreFlutterOnErrorAfter(() async {
           await SentryFlutter.init((options) {
-            options.enableSentryJs = true;
             options.dsn = fakeDsn;
             options.attachScreenshot = true;
 
