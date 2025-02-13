@@ -17,8 +17,8 @@ typedef DatabaseOpener = FutureOr<QueryExecutor> Function();
 /// used as a default.
 @experimental
 @Deprecated(
-    'This will be replace by SentryQueryInterceptor in the next major v9. '
-    'See https://drift.simonbinder.eu/examples/tracing/ in how to attach an interceptor to your executor.')
+    'This will be replace by SentryQueryInterceptor in the next major v9 '
+    'where you can use .interceptWith(...) to attach the SentryQueryInterceptor')
 class SentryQueryExecutor extends QueryExecutor {
   Hub _hub;
 
