@@ -13,6 +13,7 @@
 - Remove `options.autoAppStart` and `setAppStartEnd` ([#2680](https://github.com/getsentry/sentry-dart/pull/2680))
 - Add hint for transactions ([#2675](https://github.com/getsentry/sentry-dart/pull/2675))
   - `BeforeSendTransactionCallback` now has a `Hint` parameter
+- Remove `dart:html` usage in favour of `package:web` ([#2710](https://github.com/getsentry/sentry-dart/pull/2710))
 
 ### Enhancements
 
