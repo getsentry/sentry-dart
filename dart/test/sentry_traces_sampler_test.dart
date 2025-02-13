@@ -88,8 +88,11 @@ void main() {
       'op',
     );
     final context = SentrySamplingContext(trContext, {});
+    final samplingDecision = sut.sample(context);
 
-    expect(sut.sample(context).sampled, false);
+    expect(samplingDecision.sampleRate, isNull);
+    expect(samplingDecision.sampleRand, isNull);
+    expect(samplingDecision.sampled, false);
   });
 
   test('tracesSampler exception is handled', () {
