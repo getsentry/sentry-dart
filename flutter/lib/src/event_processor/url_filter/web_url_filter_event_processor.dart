@@ -1,11 +1,9 @@
-// We would lose compatibility with old dart versions by adding web to pubspec.
-// ignore: depend_on_referenced_packages
+// ignore: implementation_imports
+import 'package:sentry/src/utils/regex_utils.dart';
 import 'package:web/web.dart' as web show window, Window;
 
 import '../../../sentry_flutter.dart';
 import 'url_filter_event_processor.dart';
-// ignore: implementation_imports
-import 'package:sentry/src/utils/regex_utils.dart';
 
 // ignore_for_file: invalid_use_of_internal_member
 
