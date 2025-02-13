@@ -1,4 +1,5 @@
 import 'dart:async';
+// ignore: deprecated_member_use
 import 'dart:html';
 
 import 'package:sentry/sentry.dart';
