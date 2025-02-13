@@ -551,8 +551,11 @@ void main() {
       verifyErrorSpan(
         SentrySpanDescriptions.dbBatch(statements: [expectedInsertStatement]),
         fixture.exception,
-        fixture.getCreatedSpanByDescription(SentrySpanDescriptions.dbBatch(
-            statements: [expectedInsertStatement])),
+        fixture.getCreatedSpanByDescription(
+          SentrySpanDescriptions.dbBatch(
+            statements: [expectedInsertStatement],
+          ),
+        ),
         operation: SentrySpanOperations.dbSqlBatch,
       );
 
