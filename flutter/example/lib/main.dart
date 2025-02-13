@@ -84,7 +84,6 @@ Future<void> setupSentry(
       options.enableSentryJs = true;
 
       options.maxRequestBodySize = MaxRequestBodySize.always;
-      options.maxResponseBodySize = MaxResponseBodySize.always;
       options.navigatorKey = navigatorKey;
 
       options.experimental.replay.sessionSampleRate = 1.0;

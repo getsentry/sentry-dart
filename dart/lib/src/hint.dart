@@ -1,5 +1,5 @@
+import 'protocol/sentry_response.dart';
 import 'sentry_attachment/sentry_attachment.dart';
-import 'sentry_options.dart';
 
 /// Hints are used in [BeforeSendCallback], [BeforeBreadcrumbCallback] and
 /// event processors.
@@ -49,6 +49,8 @@ class Hint {
 
   SentryAttachment? viewHierarchy;
 
+  SentryResponse? response;
+
   Hint();
 
   factory Hint.withAttachment(SentryAttachment attachment) {
@@ -78,6 +80,12 @@ class Hint {
   factory Hint.withViewHierarchy(SentryAttachment viewHierarchy) {
     final hint = Hint();
     hint.viewHierarchy = viewHierarchy;
+    return hint;
+  }
+
+  factory Hint.withResponse(SentryResponse response) {
+    final hint = Hint();
+    hint.response = response;
     return hint;
   }
 
