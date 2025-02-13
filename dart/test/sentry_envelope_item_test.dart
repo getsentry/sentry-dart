@@ -95,26 +95,5 @@ void main() {
       expect(sut.header.type, SentryItemType.clientReport);
       expect(actualData, expectedData);
     });
-
-    test('fromUserFeedback', () async {
-      // ignore: deprecated_member_use_from_same_package
-      final userFeedback = SentryUserFeedback(
-          eventId: SentryId.newId(),
-          name: 'name',
-          comments: 'comments',
-          email: 'email');
-      // ignore: deprecated_member_use_from_same_package
-      final sut = SentryEnvelopeItem.fromUserFeedback(userFeedback);
-
-      final expectedData = utf8.encode(jsonEncode(
-        userFeedback.toJson(),
-        toEncodable: jsonSerializationFallback,
-      ));
-      final actualData = await sut.dataFactory();
-
-      expect(sut.header.contentType, 'application/json');
-      expect(sut.header.type, SentryItemType.userFeedback);
-      expect(actualData, expectedData);
-    });
   });
 }
