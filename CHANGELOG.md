@@ -2,6 +2,8 @@
 
 ## Unreleased 9.0.0
 
+### Breaking changes
+
 - Remove `SentryDisplayWidget` and manual TTID implementation ([#2668](https://github.com/getsentry/sentry-dart/pull/2668))
 - Increase minimum SDK version requirements to Dart v3.5.0 and Flutter v3.24.0 ([#2643](https://github.com/getsentry/sentry-dart/pull/2643))
 - Remove screenshot option `attachScreenshotOnlyWhenResumed` ([#2664](https://github.com/getsentry/sentry-dart/pull/2664))
@@ -13,6 +15,10 @@
 - Add hint for transactions ([#2675](https://github.com/getsentry/sentry-dart/pull/2675))
   - `BeforeSendTransactionCallback` now has a `Hint` parameter
 
+### Enhancements
+
+- Replay: improve Android native interop performance by using JNI ([#2670](https://github.com/getsentry/sentry-dart/pull/2670))
+
 ### Dependencies
 
 - Bump Android SDK from v7.20.1 to v8.1.0 ([#2650](https://github.com/getsentry/sentry-dart/pull/2650))
@@ -20,6 +26,14 @@
   - [diff](https://github.com/getsentry/sentry-java/compare/7.20.1...8.1.0)
 
 ## Unreleased
+
+### Features
+
+- Disable `ScreenshotIntegration`, `WidgetsBindingIntegration` and `SentryWidget` in multi-view apps #2366 ([#2366](https://github.com/getsentry/sentry-dart/pull/2366))
+
+### Fixes 
+
+- Reference to `SentryWidgetsFlutterBinding` in warning message in `FramesTrackingIntegration` ([#2704](https://github.com/getsentry/sentry-dart/pull/2704))
 
 ### Deprecations
 
@@ -33,6 +47,9 @@
 
 ### Dependencies
 
+- Bump Android SDK from v7.20.1 to v7.22.0 ([#2660](https://github.com/getsentry/sentry-dart/pull/2660))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/7.x.x/CHANGELOG.md#7220)
+  - [diff](https://github.com/getsentry/sentry-java/compare/7.20.1...7.22.0)
 - Bump Native SDK from v0.7.19 to v0.7.20 ([#2652](https://github.com/getsentry/sentry-dart/pull/2652))
   - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#0720)
   - [diff](https://github.com/getsentry/sentry-native/compare/0.7.19...0.7.20)

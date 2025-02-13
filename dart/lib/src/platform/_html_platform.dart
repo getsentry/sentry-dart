@@ -1,4 +1,6 @@
+// ignore: deprecated_member_use
 import 'dart:html' as html;
+
 import 'platform.dart';
 
 const Platform instance = WebPlatform();
