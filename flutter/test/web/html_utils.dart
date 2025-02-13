@@ -1,3 +1,4 @@
+// ignore: deprecated_member_use
 import 'dart:html';
 
 void injectMetaTag(Map<String, String> attributes) {

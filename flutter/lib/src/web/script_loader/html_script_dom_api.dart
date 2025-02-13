@@ -1,5 +1,7 @@
 import 'dart:async';
+// ignore: deprecated_member_use
 import 'dart:html';
+// ignore: deprecated_member_use
 import 'dart:js_util' as js_util;
 
 import '../../../sentry_flutter.dart';
