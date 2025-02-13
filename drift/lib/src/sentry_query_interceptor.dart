@@ -84,7 +84,7 @@ class SentryQueryInterceptor extends QueryInterceptor {
     BatchedStatements statements,
   ) {
     final description =
-        '${SentrySpanDescriptions.dbBatch} ${statements.statements}';
+        SentrySpanDescriptions.dbBatch(statements: statements.statements);
     return _instrumentOperation(
       description,
       () => super.runBatched(executor, statements),

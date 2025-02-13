@@ -356,7 +356,7 @@ void main() {
       await insertIntoBatch(sut);
 
       verifySpan(
-        SentrySpanDescriptions.dbBatch,
+        SentrySpanDescriptions.dbBatch(statements: [expectedInsertStatement]),
         fixture.getCreatedSpan(),
         operation: SentrySpanOperations.dbSqlBatch,
       );
@@ -549,13 +549,14 @@ void main() {
 
       // errored batch
       verifyErrorSpan(
-        SentrySpanDescriptions.dbBatch,
+        SentrySpanDescriptions.dbBatch(statements: [expectedInsertStatement]),
         fixture.exception,
-        fixture.getCreatedSpanByDescription(SentrySpanDescriptions.dbBatch),
+        fixture.getCreatedSpanByDescription(SentrySpanDescriptions.dbBatch(
+            statements: [expectedInsertStatement])),
         operation: SentrySpanOperations.dbSqlBatch,
       );
 
-      // aborted transaction
+      // // aborted transaction
       verifySpan(
         SentrySpanDescriptions.dbTransaction,
         fixture
