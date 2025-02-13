@@ -1,6 +1,7 @@
 import 'package:sentry/sentry.dart';
 // ignore: implementation_imports
 import 'package:sentry/src/utils/stacktrace_utils.dart';
+
 import '../sentry_flutter_options.dart';
 import '../utils/platform_dispatcher_wrapper.dart';
 
@@ -99,19 +100,5 @@ class OnErrorIntegration implements Integration<SentryFlutterOptions> {
       _defaultOnError = null;
       _integrationOnError = null;
     }
-  }
-}
-
-/// Wrapper to make this testable. Should not become public API.
-@visibleForTesting
-class PlatformDispatcherWrapper {
-  PlatformDispatcherWrapper(this._dispatcher);
-
-  final PlatformDispatcher? _dispatcher;
-
-  ErrorCallback? get onError => _dispatcher?.onError;
-
-  set onError(ErrorCallback? callback) {
-    _dispatcher?.onError = callback;
   }
 }
