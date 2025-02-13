@@ -23,10 +23,8 @@ class SentrySpanData {
 @internal
 class SentrySpanDescriptions {
   static const String dbTransaction = 'Transaction';
-  static String dbBatch({required List<String> statements}) {
-    return 'Batch $statements';
-  }
-
+  static String dbBatch({required List<String> statements}) =>
+      'Batch $statements';
   static String dbOpen({required String dbName}) => 'Open database $dbName';
   static String dbClose({required String dbName}) => 'Close database $dbName';
 }
