@@ -7,3 +7,4 @@ high_risk_code: &high_risk_code
   - "flutter/ios/Classes/SentryFlutterPluginApple.swift"
   - "flutter/lib/src/screenshot/recorder.dart"
   - "flutter/lib/src/screenshot/widget_filter.dart"
+  - "flutter/lib/src/native/java/android_replay_recorder.dart"
