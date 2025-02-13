@@ -74,7 +74,6 @@ void main() {
       });
 
       testWidgets('sends the correct envelope', (tester) async {
-        SentryFlutterOptions? configuredOptions;
         SentryEvent? dartEvent;
 
         await restoreFlutterOnErrorAfter(() async {
@@ -84,7 +83,6 @@ void main() {
               dartEvent = event;
               return event;
             };
-            configuredOptions = options;
           }, appRunner: () async {
             await tester.pumpWidget(const app.MyApp());
           });
@@ -164,6 +162,7 @@ void main() {
         await restoreFlutterOnErrorAfter(() async {
           await SentryFlutter.init((options) {
             options.dsn = fakeDsn;
+            options.autoInitializeNativeSdk = false;
           }, appRunner: () async {
             await tester.pumpWidget(const app.MyApp());
           });
