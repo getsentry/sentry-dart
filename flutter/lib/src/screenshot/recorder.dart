@@ -118,7 +118,7 @@ class ScreenshotRecorder {
 
   List<WidgetFilterItem>? _obscureSync(_Capture<dynamic> capture) {
     if (_maskingConfig != null) {
-      final filter = WidgetFilter(_maskingConfig!, options.logger);
+      final filter = WidgetFilter(_maskingConfig, options.logger);
       final colorScheme = capture.context.findColorScheme();
       filter.obscure(
         root: capture.root,

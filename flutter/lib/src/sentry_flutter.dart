@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:ui';
 
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
@@ -73,8 +72,7 @@ mixin SentryFlutter {
     // Flutter Web doesn't capture [Future] errors if using [PlatformDispatcher.onError] and not
     // the [runZonedGuarded].
     // likely due to https://github.com/flutter/flutter/issues/100277
-    final bool isOnErrorSupported =
-        !options.platformChecker.isWeb && wrapper.isOnErrorSupported(options);
+    final isOnErrorSupported = !options.platformChecker.isWeb;
 
     final bool isRootZone = options.platformChecker.isRootZone;
 
@@ -228,20 +226,6 @@ mixin SentryFlutter {
       );
       FlutterError.dumpErrorToConsole(errorDetails, forceReport: true);
     };
-  }
-
-  /// Manually set when your app finished startup. Make sure to set
-  /// [SentryFlutterOptions.autoAppStart] to false on init. The timeout duration
-  /// for this to work is 10 seconds.
-  @Deprecated(
-      'Will be removed in v9. This functionality will not be supported anymore.')
-  static void setAppStartEnd(DateTime appStartEnd) {
-    // ignore: invalid_use_of_internal_member
-    final integrations = Sentry.currentHub.options.integrations
-        .whereType<NativeAppStartIntegration>();
-    for (final integration in integrations) {
-      integration.appStartEnd = appStartEnd;
-    }
   }
 
   static void _setSdk(SentryFlutterOptions options) {

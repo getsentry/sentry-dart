@@ -11,7 +11,6 @@ typedef ErrorCallback = bool Function(Object exception, StackTrace stackTrace);
 /// - https://api.flutter.dev/flutter/dart-ui/PlatformDispatcher/onError.html
 ///
 /// Remarks:
-/// - Only usable on Flutter >= 3.3.0.
 /// - Does not work on Flutter Web
 ///
 /// This is used instead of [RunZonedGuardedIntegration]. Not using the
@@ -94,16 +93,25 @@ class OnErrorIntegration implements Integration<SentryFlutterOptions> {
 
   @override
   void close() {
-    if (!(dispatchWrapper?.isOnErrorSupported(_options!) == true)) {
-      // bail out
-      return;
-    }
-
     /// Restore default if the integration error is still set.
     if (dispatchWrapper?.onError == _integrationOnError) {
       dispatchWrapper?.onError = _defaultOnError;
       _defaultOnError = null;
       _integrationOnError = null;
     }
+  }
+}
+
+/// Wrapper to make this testable. Should not become public API.
+@visibleForTesting
+class PlatformDispatcherWrapper {
+  PlatformDispatcherWrapper(this._dispatcher);
+
+  final PlatformDispatcher? _dispatcher;
+
+  ErrorCallback? get onError => _dispatcher?.onError;
+
+  set onError(ErrorCallback? callback) {
+    _dispatcher?.onError = callback;
   }
 }

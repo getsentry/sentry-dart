@@ -1,7 +1,7 @@
 // ignore_for_file: invalid_use_of_internal_member
 
 @TestOn('vm')
-library flutter_test;
+library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';

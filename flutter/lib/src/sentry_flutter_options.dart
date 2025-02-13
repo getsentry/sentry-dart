@@ -1,7 +1,5 @@
 import 'dart:async';
 
-import 'package:file/file.dart';
-import 'package:file/local.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart' as meta;
@@ -12,7 +10,6 @@ import 'event_processor/screenshot_event_processor.dart';
 import 'navigation/time_to_display_tracker.dart';
 import 'renderer/renderer.dart';
 import 'screenshot/sentry_screenshot_quality.dart';
-import 'sentry_flutter.dart';
 import 'sentry_privacy_options.dart';
 import 'sentry_replay_options.dart';
 import 'user_interaction/sentry_user_interaction_widget.dart';
@@ -175,14 +172,6 @@ class SentryFlutterOptions extends SentryOptions {
   /// Enable auto performance tracking by default.
   bool enableAutoPerformanceTracing = true;
 
-  /// Automatically track app start measurement and send it with the
-  /// first transaction. Set to false when configuring option to disable or if
-  /// you want to set the end time of app startup manually using
-  /// [SentryFlutter.setAppStartEnd].
-  @Deprecated(
-      'Will be removed in v9. In order to disable app starts disable it via option.removeIntegration(...) instead')
-  bool autoAppStart = true;
-
   /// Automatically attaches a screenshot when capturing an error or exception.
   ///
   /// Requires adding the [SentryWidget] to the widget tree.
@@ -193,14 +182,6 @@ class SentryFlutterOptions extends SentryOptions {
 
   /// The quality of the attached screenshot
   SentryScreenshotQuality screenshotQuality = SentryScreenshotQuality.high;
-
-  /// Only attach a screenshot when the app is resumed.
-  /// See https://docs.sentry.io/platforms/flutter/troubleshooting/#screenshot-integration-background-crash
-  bool attachScreenshotOnlyWhenResumed = false;
-
-  @Deprecated(
-      'Will be removed in a future version. Use [beforeCaptureScreenshot] instead')
-  BeforeScreenshotCallback? beforeScreenshot;
 
   /// Sets a callback which is executed before capturing screenshots. Only
   /// relevant if `attachScreenshot` is set to true. When false is returned
@@ -395,9 +376,6 @@ class SentryFlutterOptions extends SentryOptions {
   // ignore: invalid_use_of_internal_member
   set automatedTestMode(bool value) => super.automatedTestMode = value;
 
-  @meta.internal
-  FileSystem fileSystem = LocalFileSystem();
-
   /// Configuration of experimental features that may change or be removed
   /// without prior notice. Additionally, these features may not be ready for
   /// production use yet.
@@ -438,11 +416,6 @@ class _SentryFlutterExperimentalOptions {
   SentryPrivacyOptions get privacyForReplay =>
       _privacy ?? SentryPrivacyOptions();
 }
-
-@Deprecated(
-    'Will be removed in a future version. Use [BeforeCaptureCallback] instead')
-typedef BeforeScreenshotCallback = FutureOr<bool> Function(SentryEvent event,
-    {Hint? hint});
 
 /// A callback which can be used to suppress capturing of screenshots.
 /// It's called in [ScreenshotEventProcessor] if screenshots are enabled.

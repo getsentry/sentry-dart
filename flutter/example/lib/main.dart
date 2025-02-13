@@ -346,18 +346,13 @@ class MainScaffold extends StatelessWidget {
             ),
             TooltipButton(
               onPressed: () {
-                // Only usable on Flutter >= 3.3
-                // and needs the following additional setup:
-                // options.addIntegration(OnErrorIntegration());
-                (WidgetsBinding.instance.platformDispatcher as dynamic)
-                    .onError
-                    ?.call(
-                      Exception('PlatformDispatcher.onError'),
-                      StackTrace.current,
-                    );
+                WidgetsBinding.instance.platformDispatcher.onError?.call(
+                  Exception('PlatformDispatcher.onError'),
+                  StackTrace.current,
+                );
               },
               text:
-                  'This is only usable on Flutter >= 3.3 and requires additional setup: options.addIntegration(OnErrorIntegration());',
+                  'This requires additional setup: options.addIntegration(OnErrorIntegration());',
               buttonTitle: 'Capture from PlatformDispatcher.onError',
             ),
             TooltipButton(
@@ -682,17 +677,6 @@ class MainScaffold extends StatelessWidget {
   }
 }
 
-extension BuildContextExtension on BuildContext {
-  bool get isMounted {
-    try {
-      return (this as dynamic).mounted;
-    } on NoSuchMethodError catch (_) {
-      // ignore, only available in newer Flutter versions
-    }
-    return true;
-  }
-}
-
 class AndroidExample extends StatelessWidget {
   const AndroidExample({super.key});
 
@@ -746,7 +730,7 @@ void navigateToAutoCloseScreen(BuildContext context) {
     MaterialPageRoute(
       settings: const RouteSettings(name: 'AutoCloseScreen'),
       // ignore: deprecated_member_use
-      builder: (context) => SentryDisplayWidget(child: const AutoCloseScreen()),
+      builder: (context) => const AutoCloseScreen(),
     ),
   );
 }
