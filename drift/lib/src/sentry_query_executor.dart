@@ -16,6 +16,9 @@ typedef DatabaseOpener = FutureOr<QueryExecutor> Function();
 /// If the constructor parameter queryExecutor is null, [LazyDatabase] will be
 /// used as a default.
 @experimental
+@Deprecated(
+    'This will be replaced by SentryQueryInterceptor in the next major v9 '
+    'where you can use executor.interceptWith(...) to attach the SentryQueryInterceptor')
 class SentryQueryExecutor extends QueryExecutor {
   Hub _hub;
 

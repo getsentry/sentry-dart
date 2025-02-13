@@ -1,5 +1,6 @@
-import 'package:meta/meta.dart';
+// ignore_for_file: deprecated_member_use_from_same_package
 
+import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 
 import 'sentry_query_executor.dart';
