@@ -2,6 +2,8 @@
 
 ## Unreleased 9.0.0
 
+### Breaking changes
+
 - Remove `SentryDisplayWidget` and manual TTID implementation ([#2668](https://github.com/getsentry/sentry-dart/pull/2668))
 - Increase minimum SDK version requirements to Dart v3.5.0 and Flutter v3.24.0 ([#2643](https://github.com/getsentry/sentry-dart/pull/2643))
 - Remove screenshot option `attachScreenshotOnlyWhenResumed` ([#2664](https://github.com/getsentry/sentry-dart/pull/2664))
@@ -11,6 +13,10 @@
 - Remove `options.autoAppStart` and `setAppStartEnd` ([#2680](https://github.com/getsentry/sentry-dart/pull/2680))
 - Add hint for transactions ([#2675](https://github.com/getsentry/sentry-dart/pull/2675))
   - `BeforeSendTransactionCallback` now has a `Hint` parameter
+
+### Enhancements
+
+- Replay: improve Android native interop performance by using JNI ([#2670](https://github.com/getsentry/sentry-dart/pull/2670))
 
 ### Dependencies
 
