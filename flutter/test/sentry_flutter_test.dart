@@ -17,6 +17,7 @@ import 'package:sentry_flutter/src/renderer/renderer.dart';
 import 'package:sentry_flutter/src/replay/integration.dart';
 import 'package:sentry_flutter/src/version.dart';
 import 'package:sentry_flutter/src/view_hierarchy/view_hierarchy_integration.dart';
+import 'package:sentry_flutter/src/web/javascript_transport.dart';
 
 import 'mocks.dart';
 import 'mocks.mocks.dart';
@@ -336,7 +337,7 @@ void main() {
         options: sentryFlutterOptions,
       );
 
-      expect(transport, isNot(isA<FileSystemTransport>()));
+      expect(transport, isA<JavascriptTransport>());
 
       testScopeObserver(
         options: sentryFlutterOptions,
@@ -409,7 +410,7 @@ void main() {
         options: sentryFlutterOptions,
       );
 
-      expect(transport, isNot(isA<FileSystemTransport>()));
+      expect(transport, isA<JavascriptTransport>());
 
       testConfiguration(
         integrations: integrations,
@@ -452,7 +453,7 @@ void main() {
         options: sentryFlutterOptions,
       );
 
-      expect(transport, isNot(isA<FileSystemTransport>()));
+      expect(transport, isA<JavascriptTransport>());
 
       testConfiguration(
         integrations: integrations,
@@ -495,7 +496,7 @@ void main() {
         options: sentryFlutterOptions,
       );
 
-      expect(transport, isNot(isA<FileSystemTransport>()));
+      expect(transport, isA<JavascriptTransport>());
 
       testConfiguration(
         integrations: integrations,
