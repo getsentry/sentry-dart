@@ -29,9 +29,7 @@ Future<void> runApp() async {
   final db = AppDatabase(executor);
 
   await db.transaction(() async {
-    await db
-        .into(db.todoItems)
-        .insert(
+    await db.into(db.todoItems).insert(
           TodoItemsCompanion.insert(
             title: 'This is a test thing',
             content: 'test',
