@@ -2,7 +2,7 @@ import 'package:meta/meta.dart';
 
 // todo: set up ci to update this and the integrity
 @internal
-const jsSdkVersion = '8.42.0';
+const jsSdkVersion = '9.1.0';
 
 // The URLs from which the script should be downloaded.
 @internal
@@ -10,7 +10,7 @@ const productionScripts = [
   {
     'url': 'https://browser.sentry-cdn.com/$jsSdkVersion/bundle.tracing.min.js',
     'integrity':
-        'sha384-bG2vyJAuRm/JbGQrlET5H7y0CTvPF0atiBjekU/WUKUwKwThDXrqRhZiQ+jWaagS'
+        'sha384-MCeGoX8VPkitB3OcF9YprViry6xHPhBleDzXdwCqUvHJdrf7g0DjOGvrhIzpsyKp'
   }
 ];
 
@@ -19,6 +19,6 @@ const debugScripts = [
   {
     'url': 'https://browser.sentry-cdn.com/$jsSdkVersion/bundle.tracing.js',
     'integrity':
-        'sha384-WybdMW5lxuTpznT+4dobKr9wWgFoISsinHnIXDF8HBrG5/yGrmEhHRyMS1kfLsMi'
+        'sha384-LRAuQWLW6ApqgsRYGfKXlxcs3ylFmeUJsGnVVXxfZgRHNelPjw1712hNEHNuUoVO'
   },
 ];
