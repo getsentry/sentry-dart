@@ -32,7 +32,7 @@ class FramesTrackingIntegration implements Integration<SentryFlutterOptions> {
     if (widgetsBinding == null ||
         widgetsBinding is! SentryWidgetsBindingMixin) {
       return options.logger(SentryLevel.warning,
-          '$FramesTrackingIntegration disabled: incompatible binding, SentryFlutterWidgetsBinding has not been instantiated. Please, use SentryFlutterWidgetsBinding.ensureInitialized() instead of FlutterWidgetsBinding.ensureInitialized()');
+          '$FramesTrackingIntegration disabled: incompatible binding, SentryWidgetsFlutterBinding has not been instantiated. Please, use SentryWidgetsFlutterBinding.ensureInitialized() instead of WidgetsFlutterBinding.ensureInitialized()');
     }
     _widgetsBinding = widgetsBinding;
 
