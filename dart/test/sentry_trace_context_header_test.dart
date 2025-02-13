@@ -14,7 +14,6 @@ void main() {
       release: 'release',
       environment: 'environment',
       userId: 'user_id',
-      userSegment: 'user_segment',
       transaction: 'transaction',
       sampleRate: '1.0',
       sampled: 'false',
@@ -28,7 +27,6 @@ void main() {
       'release': 'release',
       'environment': 'environment',
       'user_id': 'user_id',
-      'user_segment': 'user_segment',
       'transaction': 'transaction',
       'sample_rate': '1.0',
       'sampled': 'false',
@@ -42,8 +40,6 @@ void main() {
       expect(context.release, 'release');
       expect(context.environment, 'environment');
       expect(context.userId, 'user_id');
-      // ignore: deprecated_member_use_from_same_package
-      expect(context.userSegment, 'user_segment');
       expect(context.transaction, 'transaction');
       expect(context.sampleRate, '1.0');
       expect(context.sampled, 'false');
@@ -66,7 +62,6 @@ void main() {
         'sentry-release=release,'
         'sentry-environment=environment,'
         'sentry-user_id=user_id,'
-        'sentry-user_segment=user_segment,'
         'sentry-transaction=transaction,'
         'sentry-sample_rate=1.0,'
         'sentry-sampled=false,'

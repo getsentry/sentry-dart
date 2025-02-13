@@ -2,7 +2,7 @@
 // a browser. @TestOn('vm') doesn't help by itself in this case because imports
 // are still evaluated, thus causing a compilation failure.
 @TestOn('vm && (windows || linux)')
-library sentry_native_test;
+library;
 
 import 'package:flutter_test/flutter_test.dart';
 

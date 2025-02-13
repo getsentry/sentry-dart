@@ -562,6 +562,7 @@ class Hub {
   Future<SentryId> captureTransaction(
     SentryTransaction transaction, {
     SentryTraceContextHeader? traceContext,
+    Hint? hint,
   }) async {
     var sentryId = SentryId.empty();
 
@@ -603,6 +604,7 @@ class Hub {
             transaction,
             scope: item.scope,
             traceContext: traceContext,
+            hint: hint,
           );
         } catch (exception, stackTrace) {
           _options.logger(

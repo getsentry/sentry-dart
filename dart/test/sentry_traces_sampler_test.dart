@@ -80,6 +80,21 @@ void main() {
     expect(sut.sample(context).sampled, false);
   });
 
+  test('does not sample if tracesSampleRate and tracesSampleRate are null', () {
+    final sut = fixture.getSut(tracesSampleRate: null, tracesSampler: null);
+
+    final trContext = SentryTransactionContext(
+      'name',
+      'op',
+    );
+    final context = SentrySamplingContext(trContext, {});
+    final samplingDecision = sut.sample(context);
+
+    expect(samplingDecision.sampleRate, isNull);
+    expect(samplingDecision.sampleRand, isNull);
+    expect(samplingDecision.sampled, false);
+  });
+
   test('tracesSampler exception is handled', () {
     fixture.options.automatedTestMode = false;
     final sut = fixture.getSut(debug: true);
@@ -101,54 +116,6 @@ void main() {
     expect(fixture.loggedException, exception);
     expect(fixture.loggedLevel, SentryLevel.error);
   });
-
-  test('when no tracesSampleRate is set, do not sample with enableTracing null',
-      () {
-    final sampler = fixture.getSut(tracesSampleRate: null, enableTracing: null);
-    final trContext = SentryTransactionContext(
-      'name',
-      'op',
-      parentSamplingDecision: null,
-    );
-    final context = SentrySamplingContext(trContext, {});
-    final samplingDecision = sampler.sample(context);
-
-    expect(samplingDecision.sampleRate, isNull);
-    expect(samplingDecision.sampled, false);
-  });
-
-  test(
-      'when no tracesSampleRate is set, do not sample with enableTracing false',
-      () {
-    final sampler =
-        fixture.getSut(tracesSampleRate: null, enableTracing: false);
-    final trContext = SentryTransactionContext(
-      'name',
-      'op',
-      parentSamplingDecision: null,
-    );
-    final context = SentrySamplingContext(trContext, {});
-    final samplingDecision = sampler.sample(context);
-
-    expect(samplingDecision.sampleRate, isNull);
-    expect(samplingDecision.sampled, false);
-  });
-
-  test(
-      'when no tracesSampleRate is set, uses default rate with enableTracing true',
-      () {
-    final sampler = fixture.getSut(tracesSampleRate: null, enableTracing: true);
-    final trContext = SentryTransactionContext(
-      'name',
-      'op',
-      parentSamplingDecision: null,
-    );
-    final context = SentrySamplingContext(trContext, {});
-    final samplingDecision = sampler.sample(context);
-
-    expect(samplingDecision.sampled, true);
-    expect(1.0, samplingDecision.sampleRate);
-  });
 }
 
 class Fixture {
@@ -161,14 +128,11 @@ class Fixture {
     double? tracesSampleRate = 1.0,
     TracesSamplerCallback? tracesSampler,
     bool debug = false,
-    bool? enableTracing,
   }) {
     options.tracesSampleRate = tracesSampleRate;
     options.tracesSampler = tracesSampler;
     options.debug = debug;
     options.logger = mockLogger;
-    // ignore: deprecated_member_use_from_same_package
-    options.enableTracing = enableTracing;
     return SentryTracesSampler(options);
   }
 

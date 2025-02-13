@@ -1,3 +1,3 @@
-library sentry_logging;
+library;
 
 export 'src/logging_integration.dart';

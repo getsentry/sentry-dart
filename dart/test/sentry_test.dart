@@ -143,6 +143,14 @@ void main() {
       expect(client.captureTransactionCalls.length, 1);
     });
 
+    test('should start transaction with hint', () async {
+      final tr = Sentry.startTransactionWithContext(
+          SentryTransactionContext('name', 'operation'));
+      await tr.finish();
+
+      expect(client.captureTransactionCalls.length, 1);
+    });
+
     test('should return span if bound to the scope', () async {
       final tr = Sentry.startTransaction('name', 'op', bindToScope: true);
 
@@ -478,18 +486,15 @@ void main() {
       (options) {
         options.dsn = fakeDsn;
         options.debug = true;
-        // ignore: deprecated_member_use_from_same_package
         expect(options.logger, isNot(noOpLogger));
 
         options.debug = false;
-        // ignore: deprecated_member_use_from_same_package
         expect(options.logger, noOpLogger);
       },
       options: sentryOptions,
     );
 
-    // ignore: deprecated_member_use_from_same_package
-    expect(sentryOptions.logger, isNot(dartLogger));
+    expect(sentryOptions.logger, noOpLogger);
   });
 
   group('Sentry init optionsConfiguration', () {

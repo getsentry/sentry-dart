@@ -1,4 +1,4 @@
-library sentry_hive;
+library;
 
 import 'package:meta/meta.dart';
 import 'package:hive/hive.dart';

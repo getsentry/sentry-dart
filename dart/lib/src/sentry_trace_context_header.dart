@@ -12,7 +12,6 @@ class SentryTraceContextHeader {
     this.release,
     this.environment,
     this.userId,
-    this.userSegment,
     this.transaction,
     this.sampleRate,
     this.sampleRand,
@@ -26,9 +25,6 @@ class SentryTraceContextHeader {
   final String? release;
   final String? environment;
   final String? userId;
-  @Deprecated(
-      'Will be removed in v9 since functionality has been removed from Sentry')
-  final String? userSegment;
   final String? transaction;
   final String? sampleRate;
   final String? sampleRand;
@@ -49,7 +45,6 @@ class SentryTraceContextHeader {
       release: json['release'],
       environment: json['environment'],
       userId: json['user_id'],
-      userSegment: json['user_segment'],
       transaction: json['transaction'],
       sampleRate: json['sample_rate'],
       sampled: json['sampled'],
@@ -68,8 +63,6 @@ class SentryTraceContextHeader {
       if (release != null) 'release': release,
       if (environment != null) 'environment': environment,
       if (userId != null) 'user_id': userId,
-      // ignore: deprecated_member_use_from_same_package
-      if (userSegment != null) 'user_segment': userSegment,
       if (transaction != null) 'transaction': transaction,
       if (sampleRate != null) 'sample_rate': sampleRate,
       if (sampled != null) 'sampled': sampled,
@@ -92,11 +85,6 @@ class SentryTraceContextHeader {
     }
     if (userId != null) {
       baggage.setUserId(userId!);
-    }
-    // ignore: deprecated_member_use_from_same_package
-    if (userSegment != null) {
-      // ignore: deprecated_member_use_from_same_package
-      baggage.setUserSegment(userSegment!);
     }
     if (transaction != null) {
       baggage.setTransaction(transaction!);

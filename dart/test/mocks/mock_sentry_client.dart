@@ -102,9 +102,10 @@ class MockSentryClient with NoSuchMethodProvider implements SentryClient {
     SentryTransaction transaction, {
     Scope? scope,
     SentryTraceContextHeader? traceContext,
+    Hint? hint,
   }) async {
     captureTransactionCalls
-        .add(CaptureTransactionCall(transaction, traceContext));
+        .add(CaptureTransactionCall(transaction, traceContext, hint));
     return transaction.eventId;
   }
 }
@@ -176,6 +177,7 @@ class CaptureEnvelopeCall {
 class CaptureTransactionCall {
   final SentryTransaction transaction;
   final SentryTraceContextHeader? traceContext;
+  final Hint? hint;
 
-  CaptureTransactionCall(this.transaction, this.traceContext);
+  CaptureTransactionCall(this.transaction, this.traceContext, this.hint);
 }
