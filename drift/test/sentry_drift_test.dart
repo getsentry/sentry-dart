@@ -8,8 +8,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/sentry_tracer.dart';
-import 'package:sentry_drift/sentry_drift.dart';
 import 'package:sentry_drift/src/constants.dart' as drift_constants;
+import 'package:sentry_drift/src/sentry_query_interceptor.dart';
 import 'package:sentry_drift/src/version.dart';
 import 'package:sqlite3/open.dart';
 
@@ -637,14 +637,12 @@ void main() {
 
   group('integrations', () {
     late Fixture fixture;
+    late Hub hub;
 
     setUp(() async {
       fixture = Fixture();
-
-      when(fixture.hub.options).thenReturn(fixture.options);
-      when(fixture.hub.getSpan()).thenReturn(fixture.tracer);
-
-      await fixture.setUp();
+      await fixture.setUp(useRealHub: true);
+      hub = HubAdapter();
     });
 
     tearDown(() async {
@@ -653,15 +651,14 @@ void main() {
 
     test('adds integration', () {
       expect(
-        fixture.options.sdk.integrations
-            .contains(drift_constants.integrationName),
+        hub.options.sdk.integrations.contains(drift_constants.integrationName),
         true,
       );
     });
 
     test('adds package', () {
       expect(
-        fixture.options.sdk.packages.any(
+        hub.options.sdk.packages.any(
           (element) =>
               element.name == packageName && element.version == sdkVersion,
         ),
@@ -683,10 +680,15 @@ class Fixture {
 
   Future<void> setUp({
     bool injectMock = false,
+    bool useRealHub = false,
     QueryExecutor? customExecutor,
   }) async {
     sut = AppDatabase(
-      openConnection(injectMock: injectMock, customExecutor: customExecutor),
+      openConnection(
+        useRealHub: useRealHub,
+        injectMock: injectMock,
+        customExecutor: customExecutor,
+      ),
     );
     driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
   }
@@ -705,20 +707,25 @@ class Fixture {
   }
 
   QueryExecutor openConnection({
+    bool useRealHub = false,
     bool injectMock = false,
     QueryExecutor? customExecutor,
   }) {
+    Hub? _hub = hub;
+    if (useRealHub) {
+      _hub = null;
+    }
     if (customExecutor != null) {
       return customExecutor.interceptWith(
-        SentryQueryInterceptor(databaseName: dbName, hub: hub),
+        SentryQueryInterceptor(databaseName: dbName, hub: _hub),
       );
     } else if (injectMock) {
       return mockLazyDatabase.interceptWith(
-        SentryQueryInterceptor(databaseName: dbName, hub: hub),
+        SentryQueryInterceptor(databaseName: dbName, hub: _hub),
       );
     } else {
       return NativeDatabase.memory().interceptWith(
-        SentryQueryInterceptor(databaseName: dbName, hub: hub),
+        SentryQueryInterceptor(databaseName: dbName, hub: _hub),
       );
     }
   }

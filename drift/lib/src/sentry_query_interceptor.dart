@@ -22,13 +22,14 @@ class SentryQueryInterceptor extends QueryInterceptor {
 
   SentryQueryInterceptor({required String databaseName, @internal Hub? hub})
       : _dbName = databaseName {
+    hub = hub ?? HubAdapter();
     _spanHelper = SentrySpanHelper(
       SentryTraceOrigins.autoDbDriftQueryInterceptor,
       hub: hub,
     );
-    final options = hub?.options;
-    options?.sdk.addIntegration(drift_constants.integrationName);
-    options?.sdk.addPackage(packageName, sdkVersion);
+    final options = hub.options;
+    options.sdk.addIntegration(drift_constants.integrationName);
+    options.sdk.addPackage(packageName, sdkVersion);
   }
 
   /// Wraps database operations in Sentry spans.
@@ -51,7 +52,7 @@ class SentryQueryInterceptor extends QueryInterceptor {
   @override
   Future<bool> ensureOpen(QueryExecutor executor, QueryExecutorUser user) {
     if (_isDbOpen) {
-      return ensureOpen(executor, user);
+      return super.ensureOpen(executor, user);
     }
     return _instrumentOperation(
       SentrySpanDescriptions.dbOpen(dbName: _dbName),
