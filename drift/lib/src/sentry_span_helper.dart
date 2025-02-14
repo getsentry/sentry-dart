@@ -57,8 +57,8 @@ class SentrySpanHelper {
     T Function() execute, {
     String? dbName,
   }) {
-    final currentParent = _spanStack.last;
-    final newParent = currentParent?.startChild(
+    final parentSpan = _spanStack.last;
+    final newParent = parentSpan?.startChild(
           SentrySpanOperations.dbSqlTransaction,
           description: SentrySpanDescriptions.dbTransaction,
         ) ??
@@ -95,6 +95,7 @@ class SentrySpanHelper {
 
   Future<T> finishTransaction<T>(Future<T> Function() execute) async {
     final parentSpan = _spanStack.removeLast();
+
     try {
       final result = await execute();
       parentSpan?.status = SpanStatus.ok();
