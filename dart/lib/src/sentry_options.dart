@@ -441,13 +441,6 @@ class SentryOptions {
     _stackTraceExtractorsByType[extractor.exceptionType] = extractor;
   }
 
-  /// Enables generation of transactions and propagation of trace data. If set
-  /// to null, tracing might be enabled if [tracesSampleRate] or [tracesSampler]
-  /// are set.
-  @Deprecated(
-      'Use either tracesSampleRate or tracesSampler instead. This will be removed in v9')
-  bool? enableTracing;
-
   /// Only for internal use. Changed SDK behaviour when set to true:
   /// - Rethrow exceptions that occur in user provided closures
   @internal
@@ -557,11 +550,6 @@ class SentryOptions {
   /// Returns if tracing should be enabled. If tracing is disabled, starting transactions returns
   /// [NoOpSentrySpan].
   bool isTracingEnabled() {
-    // ignore: deprecated_member_use_from_same_package
-    final enable = enableTracing;
-    if (enable != null) {
-      return enable;
-    }
     return tracesSampleRate != null || tracesSampler != null;
   }
 
