@@ -748,21 +748,6 @@ class Fixture {
         .firstWhere((element) => element.context.description == description);
   }
 
-  AppDatabase getSut({
-    bool injectMock = false,
-    bool useRealHub = false,
-    QueryExecutor? customExecutor,
-  }) {
-    return AppDatabase(
-      openConnection(
-        useRealHub: useRealHub,
-        injectMock: injectMock,
-        customExecutor: customExecutor,
-      ),
-    );
-    driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
-  }
-
   QueryExecutor openConnection({
     bool useRealHub = false,
     bool injectMock = false,
