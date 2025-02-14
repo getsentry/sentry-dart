@@ -67,6 +67,7 @@ class SentryQueryInterceptor extends QueryInterceptor {
 
   @override
   TransactionExecutor beginTransaction(QueryExecutor parent) {
+    print('begin transaction');
     return _spanHelper.beginTransaction(
       () => super.beginTransaction(parent),
       dbName: _dbName,

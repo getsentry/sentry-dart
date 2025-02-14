@@ -15,6 +15,7 @@ Future<void> main() async {
       options.dsn = dsn;
       options.tracesSampleRate = 1.0;
       options.debug = true;
+      options.spotlight = Spotlight(enabled: true);
     },
     appRunner: runApp, // Init your App.
   );
@@ -37,6 +38,17 @@ Future<void> runApp() async {
             content: 'test',
           ),
         );
+
+    await db.transaction(() async {
+      await db
+          .into(db.todoItems)
+          .insert(
+            TodoItemsCompanion.insert(
+              title: 'This is a test thing in the tx',
+              content: 'test',
+            ),
+          );
+    });
 
     await db.batch((batch) {
       batch.insertAll(db.todoItems, [

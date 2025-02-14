@@ -1,5 +1,7 @@
 // ignore_for_file: invalid_use_of_internal_member
 
+import 'dart:collection';
+
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 
@@ -7,10 +9,10 @@ import 'package:sentry/sentry.dart';
 class SentrySpanHelper {
   final Hub _hub;
   final String _origin;
-  ISentrySpan? _parentSpan;
+  final ListQueue<ISentrySpan?> _spanStack = ListQueue();
 
   SentrySpanHelper(this._origin, {Hub? hub}) : _hub = hub ?? HubAdapter() {
-    _parentSpan = hub?.getSpan();
+    _spanStack.add(hub?.getSpan());
   }
 
   Future<T> asyncWrapInSpan<T>(
@@ -19,7 +21,8 @@ class SentrySpanHelper {
     String? dbName,
     String? operation,
   }) async {
-    final span = _parentSpan?.startChild(
+    final parentSpan = _spanStack.last;
+    final span = parentSpan?.startChild(
       operation ?? SentrySpanOperations.dbSqlQuery,
       description: description,
     );
@@ -54,67 +57,74 @@ class SentrySpanHelper {
     T Function() execute, {
     String? dbName,
   }) {
-    final scopeSpan = _hub.getSpan();
-    _parentSpan = scopeSpan?.startChild(
-      SentrySpanOperations.dbSqlTransaction,
-      description: SentrySpanDescriptions.dbTransaction,
-    );
+    final currentParent = _spanStack.last;
+    final newParent = currentParent?.startChild(
+          SentrySpanOperations.dbSqlTransaction,
+          description: SentrySpanDescriptions.dbTransaction,
+        ) ??
+        _hub.getSpan()?.startChild(
+              SentrySpanOperations.dbSqlTransaction,
+              description: SentrySpanDescriptions.dbTransaction,
+            );
 
-    _parentSpan?.origin = _origin;
+    _spanStack.add(newParent);
 
-    _parentSpan?.setData(
+    newParent?.origin = _origin;
+
+    newParent?.setData(
       SentrySpanData.dbSystemKey,
       SentrySpanData.dbSystemSqlite,
     );
 
     if (dbName != null) {
-      _parentSpan?.setData(SentrySpanData.dbNameKey, dbName);
+      newParent?.setData(SentrySpanData.dbNameKey, dbName);
     }
 
     try {
       final result = execute();
-      _parentSpan?.status = SpanStatus.unknown();
+      newParent?.status = SpanStatus.unknown();
 
       return result;
     } catch (exception) {
-      _parentSpan?.throwable = exception;
-      _parentSpan?.status = SpanStatus.internalError();
+      newParent?.throwable = exception;
+      newParent?.status = SpanStatus.internalError();
 
       rethrow;
     }
   }
 
   Future<T> finishTransaction<T>(Future<T> Function() execute) async {
+    final parentSpan = _spanStack.removeLast();
     try {
       final result = await execute();
-      _parentSpan?.status = SpanStatus.ok();
+      parentSpan?.status = SpanStatus.ok();
 
       return result;
     } catch (exception) {
-      _parentSpan?.throwable = exception;
-      _parentSpan?.status = SpanStatus.internalError();
+      parentSpan?.throwable = exception;
+      parentSpan?.status = SpanStatus.internalError();
 
       rethrow;
     } finally {
-      await _parentSpan?.finish();
-      _parentSpan = null;
+      await parentSpan?.finish();
     }
   }
 
   Future<T> abortTransaction<T>(Future<T> Function() execute) async {
+    final parentSpan = _spanStack.removeLast();
+
     try {
       final result = await execute();
-      _parentSpan?.status = SpanStatus.aborted();
+      parentSpan?.status = SpanStatus.aborted();
 
       return result;
     } catch (exception) {
-      _parentSpan?.throwable = exception;
-      _parentSpan?.status = SpanStatus.internalError();
+      parentSpan?.throwable = exception;
+      parentSpan?.status = SpanStatus.internalError();
 
       rethrow;
     } finally {
-      await _parentSpan?.finish();
-      _parentSpan = null;
+      await parentSpan?.finish();
     }
   }
 }

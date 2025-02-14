@@ -350,6 +350,36 @@ void main() {
       );
     });
 
+    test('nested transaction adds spans', () async {
+      final sut = fixture.sut;
+
+      await sut.transaction(() async {
+        await sut.into(sut.todoItems).insert(
+              TodoItemsCompanion.insert(
+                title: 'first transaction insert',
+                content: 'test',
+              ),
+            );
+        await sut.transaction(() async {
+          await fixture.sut.delete(fixture.sut.todoItems).go();
+        });
+      });
+
+      // 5 spans = 1 db open + 2 tx + 1 insert + 1 delete
+      expect(fixture.tracer.children.length, 5);
+
+      final outerTxSpan = fixture.tracer.children[1];
+      final insertSpan = fixture.tracer.children[2];
+      final innerTxSpan = fixture.tracer.children[3];
+      final deleteSpan = fixture.tracer.children[4];
+
+      // Verify parent relationships
+      expect(outerTxSpan.context.parentSpanId, fixture.tracer.context.spanId);
+      expect(insertSpan.context.parentSpanId, outerTxSpan.context.spanId);
+      expect(innerTxSpan.context.parentSpanId, outerTxSpan.context.spanId);
+      expect(deleteSpan.context.parentSpanId, innerTxSpan.context.spanId);
+    });
+
     test('batch adds span', () async {
       final sut = fixture.sut;
 
