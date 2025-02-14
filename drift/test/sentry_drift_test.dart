@@ -139,8 +139,8 @@ void main() {
     setUp(() async {
       fixture = Fixture();
 
-      when(fixture.hub.options).thenReturn(fixture.options);
-      when(fixture.hub.getSpan()).thenReturn(fixture.tracer);
+      when(fixture.mockHub.options).thenReturn(fixture.options);
+      when(fixture.mockHub.getSpan()).thenReturn(fixture.tracer);
 
       await fixture.setUp();
     });
@@ -427,8 +427,8 @@ void main() {
     setUp(() async {
       fixture = Fixture();
 
-      when(fixture.hub.options).thenReturn(fixture.options);
-      when(fixture.hub.getSpan()).thenReturn(fixture.tracer);
+      when(fixture.mockHub.options).thenReturn(fixture.options);
+      when(fixture.mockHub.getSpan()).thenReturn(fixture.tracer);
 
       await fixture.setUp();
     });
@@ -463,8 +463,8 @@ void main() {
     setUp(() async {
       fixture = Fixture();
 
-      when(fixture.hub.options).thenReturn(fixture.options);
-      when(fixture.hub.getSpan()).thenReturn(fixture.tracer);
+      when(fixture.mockHub.options).thenReturn(fixture.options);
+      when(fixture.mockHub.getSpan()).thenReturn(fixture.tracer);
       when(fixture.mockLazyDatabase.ensureOpen(any))
           .thenAnswer((_) => Future.value(true));
       when(fixture.mockLazyDatabase.dialect).thenReturn(SqlDialect.sqlite);
@@ -700,11 +700,11 @@ void main() {
 
 class Fixture {
   final options = defaultTestOptions();
-  final hub = MockHub();
+  final mockHub = MockHub();
   static final dbName = 'people-drift-impl';
   final exception = Exception('fixture-exception');
   final _context = SentryTransactionContext('name', 'operation');
-  late final tracer = SentryTracer(_context, hub);
+  late final tracer = SentryTracer(_context, mockHub);
   late AppDatabase sut;
   final mockLazyDatabase = MockLazyDatabase();
 
@@ -741,21 +741,18 @@ class Fixture {
     bool injectMock = false,
     QueryExecutor? customExecutor,
   }) {
-    Hub? _hub = hub;
-    if (useRealHub) {
-      _hub = null;
-    }
+    final hub = useRealHub ? null : mockHub;
     if (customExecutor != null) {
       return customExecutor.interceptWith(
-        SentryQueryInterceptor(databaseName: dbName, hub: _hub),
+        SentryQueryInterceptor(databaseName: dbName, hub: hub),
       );
     } else if (injectMock) {
       return mockLazyDatabase.interceptWith(
-        SentryQueryInterceptor(databaseName: dbName, hub: _hub),
+        SentryQueryInterceptor(databaseName: dbName, hub: hub),
       );
     } else {
       return NativeDatabase.memory().interceptWith(
-        SentryQueryInterceptor(databaseName: dbName, hub: _hub),
+        SentryQueryInterceptor(databaseName: dbName, hub: hub),
       );
     }
   }
