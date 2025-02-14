@@ -9,7 +9,9 @@ class SentrySpanHelper {
   final String _origin;
   ISentrySpan? _parentSpan;
 
-  SentrySpanHelper(this._origin, {Hub? hub}) : _hub = hub ?? HubAdapter();
+  SentrySpanHelper(this._origin, {Hub? hub}) : _hub = hub ?? HubAdapter() {
+    _parentSpan = hub?.getSpan();
+  }
 
   Future<T> asyncWrapInSpan<T>(
     String description,
@@ -17,8 +19,7 @@ class SentrySpanHelper {
     String? dbName,
     String? operation,
   }) async {
-    final currentSpan = _parentSpan ?? _hub.getSpan();
-    final span = currentSpan?.startChild(
+    final span = _parentSpan?.startChild(
       operation ?? SentrySpanOperations.dbSqlQuery,
       description: description,
     );
