@@ -437,6 +437,18 @@ void main() {
       await fixture.tearDown();
     });
 
+    test('disabled tracing does not create spans', () async {
+      HubAdapter().options.tracesSampleRate = null;
+      HubAdapter().options.tracesSampler = null;
+      await fixture.setUp(useRealHub: true);
+      final sut = fixture.sut;
+      expect(fixture.tracer.children, isEmpty);
+
+      await insertRow(sut);
+
+      expect(fixture.tracer.children, isEmpty);
+    });
+
     test('does not add open span if db is not used', () async {
       fixture.sut;
 
@@ -734,6 +746,21 @@ class Fixture {
   SentrySpan? getCreatedSpanByDescription(String description) {
     return tracer.children
         .firstWhere((element) => element.context.description == description);
+  }
+
+  AppDatabase getSut({
+    bool injectMock = false,
+    bool useRealHub = false,
+    QueryExecutor? customExecutor,
+  }) {
+    return AppDatabase(
+      openConnection(
+        useRealHub: useRealHub,
+        injectMock: injectMock,
+        customExecutor: customExecutor,
+      ),
+    );
+    driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
   }
 
   QueryExecutor openConnection({
