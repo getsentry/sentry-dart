@@ -11,6 +11,7 @@
 - Remove old user feedback api ([#2686](https://github.com/getsentry/sentry-dart/pull/2686))
 - Remove deprecated loggers ([#2685](https://github.com/getsentry/sentry-dart/pull/2685))
 - Remove user segment ([#2687](https://github.com/getsentry/sentry-dart/pull/2687))
+- Remove `enableTracing` ([#2695](https://github.com/getsentry/sentry-dart/pull/2695))
 - Remove `options.autoAppStart` and `setAppStartEnd` ([#2680](https://github.com/getsentry/sentry-dart/pull/2680))
 - Add hint for transactions ([#2675](https://github.com/getsentry/sentry-dart/pull/2675))
   - `BeforeSendTransactionCallback` now has a `Hint` parameter
@@ -48,9 +49,9 @@
 
 ### Dependencies
 
-- Bump Android SDK from v7.20.1 to v7.22.0 ([#2660](https://github.com/getsentry/sentry-dart/pull/2660))
-  - [changelog](https://github.com/getsentry/sentry-java/blob/7.x.x/CHANGELOG.md#7220)
-  - [diff](https://github.com/getsentry/sentry-java/compare/7.20.1...7.22.0)
+- Bump Android SDK from v7.20.1 to v8.2.0 ([#2660](https://github.com/getsentry/sentry-dart/pull/2660), [#2713](https://github.com/getsentry/sentry-dart/pull/2713))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/7.x.x/CHANGELOG.md#820)
+  - [diff](https://github.com/getsentry/sentry-java/compare/7.20.1...8.2.0)
 - Bump Native SDK from v0.7.19 to v0.7.20 ([#2652](https://github.com/getsentry/sentry-dart/pull/2652))
   - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#0720)
   - [diff](https://github.com/getsentry/sentry-native/compare/0.7.19...0.7.20)

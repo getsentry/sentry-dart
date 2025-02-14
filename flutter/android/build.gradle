@@ -34,7 +34,7 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 19
+        minSdkVersion 21
         targetSdkVersion 34
 
         ndk {
@@ -60,7 +60,7 @@ android {
 }
 
 dependencies {
-    api 'io.sentry:sentry-android:8.1.0'
+    api 'io.sentry:sentry-android:8.2.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 
     // Required -- JUnit 4 framework
