@@ -50,15 +50,18 @@ class SentryQueryInterceptor extends QueryInterceptor {
 
   @override
   Future<bool> ensureOpen(QueryExecutor executor, QueryExecutorUser user) {
-    if (!_isDbOpen) {
-      _isDbOpen = true;
-      return _instrumentOperation(
-        SentrySpanDescriptions.dbOpen(dbName: _dbName),
-        () => super.ensureOpen(executor, user),
-        operation: SentrySpanOperations.dbOpen,
-      );
+    if (_isDbOpen) {
+      return ensureOpen(executor, user);
     }
-    return super.ensureOpen(executor, user);
+    return _instrumentOperation(
+      SentrySpanDescriptions.dbOpen(dbName: _dbName),
+      () async {
+        final result = await super.ensureOpen(executor, user);
+        _isDbOpen = true;
+        return result;
+      },
+      operation: SentrySpanOperations.dbOpen,
+    );
   }
 
   @override
