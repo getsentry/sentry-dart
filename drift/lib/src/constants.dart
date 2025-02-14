@@ -1,1 +1,1 @@
-const String integrationName = 'SentryDriftTracing';
+const String integrationName = 'sentryDriftTracing';
