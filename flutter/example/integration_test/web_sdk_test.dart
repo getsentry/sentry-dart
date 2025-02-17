@@ -11,7 +11,6 @@ import 'dart:js_interop_unsafe';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:sentry_flutter/src/web/javascript_transport.dart';
 import 'package:sentry_flutter_example/main.dart' as app;
 
 import 'utils.dart';
@@ -48,11 +47,14 @@ void main() {
   group('Web SDK Integration', () {
     IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
+    tearDown(() async {
+      await Sentry.close();
+    });
+
     group('enabled', () {
       testWidgets('Sentry JS SDK initialized', (tester) async {
         await restoreFlutterOnErrorAfter(() async {
           await SentryFlutter.init((options) {
-            options.enableSentryJs = true;
             options.dsn = fakeDsn;
           }, appRunner: () async {
             await tester.pumpWidget(const app.MyApp());
@@ -72,24 +74,19 @@ void main() {
       });
 
       testWidgets('sends the correct envelope', (tester) async {
-        SentryFlutterOptions? configuredOptions;
         SentryEvent? dartEvent;
 
         await restoreFlutterOnErrorAfter(() async {
           await SentryFlutter.init((options) {
-            options.enableSentryJs = true;
             options.dsn = fakeDsn;
             options.beforeSend = (event, hint) {
               dartEvent = event;
               return event;
             };
-            configuredOptions = options;
           }, appRunner: () async {
             await tester.pumpWidget(const app.MyApp());
           });
         });
-
-        expect(configuredOptions!.transport, isA<JavascriptTransport>());
 
         final client = _getClient()!;
         final completer = Completer<List<Object?>>();
@@ -131,7 +128,6 @@ void main() {
 
         await restoreFlutterOnErrorAfter(() async {
           await SentryFlutter.init((options) {
-            options.enableSentryJs = true;
             options.dsn = fakeDsn;
             options.attachScreenshot = true;
 
@@ -165,8 +161,8 @@ void main() {
       testWidgets('Sentry JS SDK is not initialized', (tester) async {
         await restoreFlutterOnErrorAfter(() async {
           await SentryFlutter.init((options) {
-            options.enableSentryJs = false;
             options.dsn = fakeDsn;
+            options.autoInitializeNativeSdk = false;
           }, appRunner: () async {
             await tester.pumpWidget(const app.MyApp());
           });
