@@ -464,10 +464,12 @@ class Fixture {
     bool captureFailedRequests = true,
     MaxRequestBodySize maxRequestBodySize = MaxRequestBodySize.always,
   }) {
-    return DioEventProcessor(options
-      ..sendDefaultPii = sendDefaultPii
-      ..captureFailedRequests = captureFailedRequests
-      ..maxRequestBodySize = maxRequestBodySize,);
+    return DioEventProcessor(
+      options
+        ..sendDefaultPii = sendDefaultPii
+        ..captureFailedRequests = captureFailedRequests
+        ..maxRequestBodySize = maxRequestBodySize,
+    );
   }
 
   SentryException sentryError(dynamic throwable) {

@@ -19,7 +19,8 @@
 - Remove max response body size ([#2709](https://github.com/getsentry/sentry-dart/pull/2709))
   - Responses are now only attached if size is below ~0.15mb
   - Responses are attached to the `Hint` object, which can be read in `beforeSend`/`beforeSendTransaction` callbacks.
-
+  - For now, only the `dio` integration is supported.
+  
 ### Enhancements
 
 - Replay: improve Android native interop performance by using JNI ([#2670](https://github.com/getsentry/sentry-dart/pull/2670))
