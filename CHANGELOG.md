@@ -15,10 +15,10 @@
 - Remove `options.autoAppStart` and `setAppStartEnd` ([#2680](https://github.com/getsentry/sentry-dart/pull/2680))
 - Add hint for transactions ([#2675](https://github.com/getsentry/sentry-dart/pull/2675))
   - `BeforeSendTransactionCallback` now has a `Hint` parameter
-- Remove max response body size ([#2709](https://github.com/getsentry/sentry-dart/pull/2709))
-  - Responses are now only attached if size is below ~15mb
-  - Responses are attached to the `Hint` object, which can be read in `beforeSend`/`beforeSendTransaction` callbacks.
 - Remove `dart:html` usage in favour of `package:web` ([#2710](https://github.com/getsentry/sentry-dart/pull/2710))
+- Remove max response body size ([#2709](https://github.com/getsentry/sentry-dart/pull/2709))
+  - Responses are now only attached if size is below ~0.15mb
+  - Responses are attached to the `Hint` object, which can be read in `beforeSend`/`beforeSendTransaction` callbacks.
 
 ### Enhancements
 
