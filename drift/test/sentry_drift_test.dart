@@ -28,135 +28,25 @@ void main() {
   final expectedSelectStatement = 'SELECT * FROM todo_items';
   final expectedDeleteStatement = 'DELETE FROM "todo_items";';
 
-  void verifySpan(
-    String description,
-    SentrySpan? span, {
-    String? operation,
-    SpanStatus? status,
-  }) {
-    status ??= SpanStatus.ok();
-    expect(
-      span?.context.operation,
-      operation ?? SentrySpanOperations.dbSqlQuery,
-    );
-    expect(span?.context.description, description);
-    expect(span?.status, status);
-    expect(span?.origin, SentryTraceOrigins.autoDbDriftQueryInterceptor);
-    expect(
-      span?.data[SentrySpanData.dbSystemKey],
-      SentrySpanData.dbSystemSqlite,
-    );
-    expect(
-      span?.data[SentrySpanData.dbNameKey],
-      Fixture.dbName,
-    );
-  }
+  late Fixture fixture;
 
-  void verifyErrorSpan(
-    String description,
-    Exception exception,
-    SentrySpan? span, {
-    String? operation,
-    SpanStatus? status,
-  }) {
-    expect(
-      span?.context.operation,
-      operation ?? SentrySpanOperations.dbSqlQuery,
+  setUp(() async {
+    fixture = Fixture();
+    await Sentry.init(
+      (options) {},
+      options: fixture.options,
     );
-    expect(span?.context.description, description);
-    expect(span?.status, status ?? SpanStatus.internalError());
-    expect(span?.origin, SentryTraceOrigins.autoDbDriftQueryInterceptor);
-    expect(
-      span?.data[SentrySpanData.dbSystemKey],
-      SentrySpanData.dbSystemSqlite,
-    );
-    expect(
-      span?.data[SentrySpanData.dbNameKey],
-      Fixture.dbName,
-    );
-
-    expect(span?.throwable, exception);
-  }
-
-  Future<void> insertRow(AppDatabase db, {bool withError = false}) {
-    if (withError) {
-      return db.into(db.todoItems).insert(
-            TodoItemsCompanion.insert(
-              title: '',
-              content: '',
-            ),
-          );
-    } else {
-      return db.into(db.todoItems).insert(
-            TodoItemsCompanion.insert(
-              title: 'todo: finish drift setup',
-              content: 'We can now write queries and define our own tables.',
-            ),
-          );
-    }
-  }
-
-  Future<void> insertIntoBatch(AppDatabase sut) {
-    return sut.batch((batch) {
-      batch.insertAll(sut.todoItems, [
-        TodoItemsCompanion.insert(
-          title: 'todo: finish drift setup #1',
-          content: 'We can now write queries and define our own tables.',
-        ),
-        TodoItemsCompanion.insert(
-          title: 'todo: finish drift setup #2',
-          content: 'We can now write queries and define our own tables.',
-        ),
-      ]);
-    });
-  }
-
-  Future<void> updateRow(AppDatabase sut, {bool withError = false}) {
-    if (withError) {
-      return (sut.update(sut.todoItems)
-            ..where((tbl) => tbl.title.equals('doesnt exist')))
-          .write(
-        TodoItemsCompanion(
-          title: Value('after update'),
-          content: Value('We can now write queries and define our own tables.'),
-        ),
-      );
-    } else {
-      return (sut.update(sut.todoItems)
-            ..where((tbl) => tbl.title.equals('todo: finish drift setup')))
-          .write(
-        TodoItemsCompanion(
-          title: Value('after update'),
-          content: Value('We can now write queries and define our own tables.'),
-        ),
-      );
-    }
-  }
-
-  SentryTracer startTransaction() {
-    return Sentry.startTransaction('drift', 'test op', bindToScope: true)
-        as SentryTracer;
-  }
+  });
 
   group('open operations', () {
-    late Fixture fixture;
-
-    setUp(() async {
-      fixture = Fixture();
-      await Sentry.init(
-        (options) {},
-        options: fixture.options,
-      );
-    });
-
     test('successful adds span only once', () async {
       final sut = fixture.getSut();
       final db = AppDatabase(NativeDatabase.memory().interceptWith(sut));
 
-      final tx = startTransaction();
-      await insertRow(db);
-      await insertRow(db);
-      await insertRow(db);
+      final tx = _startTransaction();
+      await _insertRow(db);
+      await _insertRow(db);
+      await _insertRow(db);
 
       final openSpans = tx.children.where(
         (element) =>
@@ -165,7 +55,7 @@ void main() {
       );
 
       expect(openSpans.length, 1);
-      verifySpan(
+      _verifySpan(
         operation: SentrySpanOperations.dbOpen,
         SentrySpanDescriptions.dbOpen(dbName: Fixture.dbName),
         openSpans.first,
@@ -183,9 +73,9 @@ void main() {
       final sut = fixture.getSut();
       final db = AppDatabase(queryExecutor.interceptWith(sut));
 
-      final tx = startTransaction();
+      final tx = _startTransaction();
       try {
-        await insertRow(db);
+        await _insertRow(db);
       } catch (e) {
         // making sure the thrown exception doesn't fail the test
       }
@@ -197,7 +87,7 @@ void main() {
       );
 
       expect(openSpans.length, 1);
-      verifyErrorSpan(
+      _verifyErrorSpan(
         operation: SentrySpanOperations.dbOpen,
         SentrySpanDescriptions.dbOpen(dbName: Fixture.dbName),
         exception,
@@ -207,22 +97,12 @@ void main() {
   });
 
   group('close operations', () {
-    late Fixture fixture;
-
-    setUp(() async {
-      fixture = Fixture();
-      await Sentry.init(
-        (options) {},
-        options: defaultTestOptions()..tracesSampleRate = 1.0,
-      );
-    });
-
     test('successful adds close only once', () async {
       final sut = fixture.getSut();
       final db = AppDatabase(NativeDatabase.memory().interceptWith(sut));
 
-      final tx = startTransaction();
-      await insertRow(db);
+      final tx = _startTransaction();
+      await _insertRow(db);
       await db.close();
 
       final closeSpans = tx.children.where(
@@ -232,7 +112,7 @@ void main() {
       );
 
       expect(closeSpans.length, 1);
-      verifySpan(
+      _verifySpan(
         operation: SentrySpanOperations.dbClose,
         SentrySpanDescriptions.dbClose(dbName: Fixture.dbName),
         closeSpans.first,
@@ -251,9 +131,9 @@ void main() {
       final sut = fixture.getSut();
       final db = AppDatabase(queryExecutor.interceptWith(sut));
 
-      final tx = startTransaction();
+      final tx = _startTransaction();
       try {
-        await insertRow(db);
+        await _insertRow(db);
         await db.close();
       } catch (e) {
         // making sure the thrown exception doesn't fail the test
@@ -266,7 +146,7 @@ void main() {
       );
 
       expect(closeSpans.length, 1);
-      verifyErrorSpan(
+      _verifyErrorSpan(
         SentrySpanDescriptions.dbClose(dbName: Fixture.dbName),
         exception,
         closeSpans.first,
@@ -276,21 +156,14 @@ void main() {
   });
 
   group('insert operations', () {
-    late Fixture fixture;
-
-    setUp(() async {
-      fixture = Fixture();
-      await fixture.sentryInit();
-    });
-
     test('successful adds span', () async {
       final sut = fixture.getSut();
       final db = AppDatabase(NativeDatabase.memory().interceptWith(sut));
 
-      final tx = startTransaction();
-      await insertRow(db);
+      final tx = _startTransaction();
+      await _insertRow(db);
 
-      verifySpan(
+      _verifySpan(
         expectedInsertStatement,
         tx.children.last,
       );
@@ -306,14 +179,14 @@ void main() {
       final sut = fixture.getSut();
       final db = AppDatabase(queryExecutor.interceptWith(sut));
 
-      final tx = startTransaction();
+      final tx = _startTransaction();
       try {
-        await insertRow(db);
+        await _insertRow(db);
       } catch (e) {
         // making sure the thrown exception doesn't fail the test
       }
 
-      verifyErrorSpan(
+      _verifyErrorSpan(
         expectedInsertStatement,
         exception,
         tx.children.last,
@@ -322,22 +195,15 @@ void main() {
   });
 
   group('update operations', () {
-    late Fixture fixture;
-
-    setUp(() async {
-      fixture = Fixture();
-      await fixture.sentryInit();
-    });
-
     test('successful adds span', () async {
       final sut = fixture.getSut();
       final db = AppDatabase(NativeDatabase.memory().interceptWith(sut));
 
-      final tx = startTransaction();
-      await insertRow(db);
-      await updateRow(db);
+      final tx = _startTransaction();
+      await _insertRow(db);
+      await _updateRow(db);
 
-      verifySpan(
+      _verifySpan(
         expectedUpdateStatement,
         tx.children.last,
       );
@@ -355,15 +221,15 @@ void main() {
       final sut = fixture.getSut();
       final db = AppDatabase(queryExecutor.interceptWith(sut));
 
-      final tx = startTransaction();
+      final tx = _startTransaction();
       try {
-        await insertRow(db);
-        await updateRow(db);
+        await _insertRow(db);
+        await _updateRow(db);
       } catch (e) {
         // making sure the thrown exception doesn't fail the test
       }
 
-      verifyErrorSpan(
+      _verifyErrorSpan(
         expectedUpdateStatement,
         exception,
         tx.children.last,
@@ -372,22 +238,15 @@ void main() {
   });
 
   group('delete operations', () {
-    late Fixture fixture;
-
-    setUp(() async {
-      fixture = Fixture();
-      await fixture.sentryInit();
-    });
-
     test('successful adds span', () async {
       final sut = fixture.getSut();
       final db = AppDatabase(NativeDatabase.memory().interceptWith(sut));
 
-      final tx = startTransaction();
-      await insertRow(db);
+      final tx = _startTransaction();
+      await _insertRow(db);
       await db.delete(db.todoItems).go();
 
-      verifySpan(
+      _verifySpan(
         expectedDeleteStatement,
         tx.children.last,
       );
@@ -405,15 +264,15 @@ void main() {
       final sut = fixture.getSut();
       final db = AppDatabase(queryExecutor.interceptWith(sut));
 
-      final tx = startTransaction();
+      final tx = _startTransaction();
       try {
-        await insertRow(db);
+        await _insertRow(db);
         await db.delete(db.todoItems).go();
       } catch (e) {
         // making sure the thrown exception doesn't fail the test
       }
 
-      verifyErrorSpan(
+      _verifyErrorSpan(
         expectedDeleteStatement,
         exception,
         tx.children.last,
@@ -422,21 +281,14 @@ void main() {
   });
 
   group('custom query operations', () {
-    late Fixture fixture;
-
-    setUp(() async {
-      fixture = Fixture();
-      await fixture.sentryInit();
-    });
-
     test('successful adds span', () async {
       final sut = fixture.getSut();
       final db = AppDatabase(NativeDatabase.memory().interceptWith(sut));
 
-      final tx = startTransaction();
+      final tx = _startTransaction();
       await db.customStatement(expectedSelectStatement);
 
-      verifySpan(
+      _verifySpan(
         expectedSelectStatement,
         tx.children.last,
       );
@@ -452,14 +304,14 @@ void main() {
       final sut = fixture.getSut();
       final db = AppDatabase(queryExecutor.interceptWith(sut));
 
-      final tx = startTransaction();
+      final tx = _startTransaction();
       try {
         await db.customStatement(expectedSelectStatement);
       } catch (e) {
         // making sure the thrown exception doesn't fail the test
       }
 
-      verifyErrorSpan(
+      _verifyErrorSpan(
         expectedSelectStatement,
         exception,
         tx.children.last,
@@ -468,19 +320,12 @@ void main() {
   });
 
   group('transaction operations', () {
-    late Fixture fixture;
-
-    setUp(() async {
-      fixture = Fixture();
-      await fixture.sentryInit();
-    });
-
     test('without transaction, spans are added to active scope span', () async {
       final sut = fixture.getSut();
       final db = AppDatabase(NativeDatabase.memory().interceptWith(sut));
 
-      final tx = startTransaction();
-      await insertRow(db);
+      final tx = _startTransaction();
+      await _insertRow(db);
 
       expect(tx.children.length, 2);
 
@@ -494,7 +339,7 @@ void main() {
       final sut = fixture.getSut();
       final db = AppDatabase(NativeDatabase.memory().interceptWith(sut));
 
-      final tx = startTransaction();
+      final tx = _startTransaction();
       await db.transaction(() async {
         await db.into(db.todoItems).insert(
               TodoItemsCompanion.insert(
@@ -526,10 +371,10 @@ void main() {
       final sut = fixture.getSut();
       final db = AppDatabase(NativeDatabase.memory().interceptWith(sut));
 
-      final tx = startTransaction();
+      final tx = _startTransaction();
       await db.transaction(() async {
-        await insertRow(db);
-        await insertRow(db);
+        await _insertRow(db);
+        await _insertRow(db);
       });
 
       final insertSpanCount = tx.children
@@ -539,12 +384,12 @@ void main() {
           .length;
       expect(insertSpanCount, 2);
 
-      verifySpan(
+      _verifySpan(
         expectedInsertStatement,
         tx.children.last,
       );
 
-      verifySpan(
+      _verifySpan(
         SentrySpanDescriptions.dbTransaction,
         tx.children[1],
         operation: SentrySpanOperations.dbSqlTransaction,
@@ -555,10 +400,10 @@ void main() {
       final sut = fixture.getSut();
       final db = AppDatabase(NativeDatabase.memory().interceptWith(sut));
 
-      final tx = startTransaction();
+      final tx = _startTransaction();
       await db.transaction(() async {
-        await insertRow(db);
-        await updateRow(db);
+        await _insertRow(db);
+        await _updateRow(db);
       });
 
       final insertSpanCount = tx.children
@@ -575,12 +420,12 @@ void main() {
           .length;
       expect(updateSpanCount, 1);
 
-      verifySpan(
+      _verifySpan(
         expectedUpdateStatement,
         tx.children.last,
       );
 
-      verifySpan(
+      _verifySpan(
         SentrySpanDescriptions.dbTransaction,
         tx.children[1],
         operation: SentrySpanOperations.dbSqlTransaction,
@@ -591,9 +436,9 @@ void main() {
       final sut = fixture.getSut();
       final db = AppDatabase(NativeDatabase.memory().interceptWith(sut));
 
-      final tx = startTransaction();
+      final tx = _startTransaction();
       await db.transaction(() async {
-        await insertRow(db);
+        await _insertRow(db);
         await db.delete(db.todoItems).go();
       });
 
@@ -611,12 +456,12 @@ void main() {
           .length;
       expect(deleteSpanCount, 1);
 
-      verifySpan(
+      _verifySpan(
         expectedDeleteStatement,
         tx.children.last,
       );
 
-      verifySpan(
+      _verifySpan(
         SentrySpanDescriptions.dbTransaction,
         tx.children[1],
         operation: SentrySpanOperations.dbSqlTransaction,
@@ -627,7 +472,7 @@ void main() {
       final sut = fixture.getSut();
       final db = AppDatabase(NativeDatabase.memory().interceptWith(sut));
 
-      final tx = startTransaction();
+      final tx = _startTransaction();
       await db.transaction(() async {
         await db.customStatement(expectedSelectStatement);
       });
@@ -639,12 +484,12 @@ void main() {
           .length;
       expect(customSpanCount, 1);
 
-      verifySpan(
+      _verifySpan(
         expectedSelectStatement,
         tx.children.last,
       );
 
-      verifySpan(
+      _verifySpan(
         SentrySpanDescriptions.dbTransaction,
         tx.children[1],
         operation: SentrySpanOperations.dbSqlTransaction,
@@ -655,12 +500,12 @@ void main() {
       final sut = fixture.getSut();
       final db = AppDatabase(NativeDatabase.memory().interceptWith(sut));
 
-      final tx = startTransaction();
+      final tx = _startTransaction();
       await db.transaction(() async {
-        await insertIntoBatch(db);
+        await _insertIntoBatch(db);
       });
 
-      verifySpan(
+      _verifySpan(
         SentrySpanDescriptions.dbBatch(statements: [expectedInsertStatement]),
         tx.children.last,
         operation: SentrySpanOperations.dbSqlBatch,
@@ -671,16 +516,16 @@ void main() {
       final sut = fixture.getSut();
       final db = AppDatabase(NativeDatabase.memory().interceptWith(sut));
 
-      final tx = startTransaction();
-      await insertIntoBatch(db);
+      final tx = _startTransaction();
+      await _insertIntoBatch(db);
 
-      verifySpan(
+      _verifySpan(
         SentrySpanDescriptions.dbTransaction,
         tx.children[1],
         operation: SentrySpanOperations.dbSqlTransaction,
       );
 
-      verifySpan(
+      _verifySpan(
         SentrySpanDescriptions.dbBatch(statements: [expectedInsertStatement]),
         tx.children.last,
         operation: SentrySpanOperations.dbSqlBatch,
@@ -691,13 +536,13 @@ void main() {
       final sut = fixture.getSut();
       final db = AppDatabase(NativeDatabase.memory().interceptWith(sut));
 
-      final tx = startTransaction();
-      await insertRow(db);
-      await insertRow(db);
+      final tx = _startTransaction();
+      await _insertRow(db);
+      await _insertRow(db);
 
       try {
         await db.transaction(() async {
-          await insertRow(db, withError: true);
+          await _insertRow(db, withError: true);
         });
       } catch (_) {}
 
@@ -707,7 +552,7 @@ void main() {
       final abortedSpan = spans.first;
 
       expect(sut.spanHelper.transactionStack, isEmpty);
-      verifySpan(
+      _verifySpan(
         SentrySpanDescriptions.dbTransaction,
         abortedSpan,
         status: SpanStatus.aborted(),
@@ -719,11 +564,11 @@ void main() {
       final sut = fixture.getSut();
       final db = AppDatabase(NativeDatabase.memory().interceptWith(sut));
 
-      final tx = startTransaction();
+      final tx = _startTransaction();
       try {
         await db.batch((batch) async {
-          await insertRow(db, withError: true);
-          await insertRow(db);
+          await _insertRow(db, withError: true);
+          await _insertRow(db);
         });
       } catch (_) {}
 
@@ -740,10 +585,10 @@ void main() {
       final sut = fixture.getSut();
       final db = AppDatabase(queryExecutor.interceptWith(sut));
 
-      final tx = startTransaction();
+      final tx = _startTransaction();
       try {
         await db.transaction(() async {
-          await insertRow(db);
+          await _insertRow(db);
         });
       } catch (e) {
         // making sure the thrown exception doesn't fail the test
@@ -751,7 +596,7 @@ void main() {
 
       // when beginTransaction errored, we don't add it to the stack
       expect(sut.spanHelper.transactionStack, isEmpty);
-      verifyErrorSpan(
+      _verifyErrorSpan(
         operation: SentrySpanOperations.dbSqlTransaction,
         SentrySpanDescriptions.dbTransaction,
         exception,
@@ -761,12 +606,7 @@ void main() {
   });
 
   group('integrations', () {
-    late Fixture fixture;
-
     setUp(() async {
-      fixture = Fixture();
-      await fixture.sentryInit();
-
       // init the interceptor so the integrations are added
       fixture.getSut();
     });
@@ -802,9 +642,118 @@ class Fixture {
     );
   }
 
-  SentryQueryInterceptor getSut({Hub? hub}) {
-    hub = hub ?? HubAdapter();
+  SentryQueryInterceptor getSut() {
     driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
-    return SentryQueryInterceptor(databaseName: dbName, hub: hub);
+    return SentryQueryInterceptor(databaseName: dbName);
   }
+}
+
+void _verifySpan(
+  String description,
+  SentrySpan? span, {
+  String? operation,
+  SpanStatus? status,
+}) {
+  status ??= SpanStatus.ok();
+  expect(
+    span?.context.operation,
+    operation ?? SentrySpanOperations.dbSqlQuery,
+  );
+  expect(span?.context.description, description);
+  expect(span?.status, status);
+  expect(span?.origin, SentryTraceOrigins.autoDbDriftQueryInterceptor);
+  expect(
+    span?.data[SentrySpanData.dbSystemKey],
+    SentrySpanData.dbSystemSqlite,
+  );
+  expect(
+    span?.data[SentrySpanData.dbNameKey],
+    Fixture.dbName,
+  );
+}
+
+void _verifyErrorSpan(
+  String description,
+  Exception exception,
+  SentrySpan? span, {
+  String? operation,
+  SpanStatus? status,
+}) {
+  expect(
+    span?.context.operation,
+    operation ?? SentrySpanOperations.dbSqlQuery,
+  );
+  expect(span?.context.description, description);
+  expect(span?.status, status ?? SpanStatus.internalError());
+  expect(span?.origin, SentryTraceOrigins.autoDbDriftQueryInterceptor);
+  expect(
+    span?.data[SentrySpanData.dbSystemKey],
+    SentrySpanData.dbSystemSqlite,
+  );
+  expect(
+    span?.data[SentrySpanData.dbNameKey],
+    Fixture.dbName,
+  );
+
+  expect(span?.throwable, exception);
+}
+
+Future<void> _insertRow(AppDatabase db, {bool withError = false}) {
+  if (withError) {
+    return db.into(db.todoItems).insert(
+          TodoItemsCompanion.insert(
+            title: '',
+            content: '',
+          ),
+        );
+  } else {
+    return db.into(db.todoItems).insert(
+          TodoItemsCompanion.insert(
+            title: 'todo: finish drift setup',
+            content: 'We can now write queries and define our own tables.',
+          ),
+        );
+  }
+}
+
+Future<void> _insertIntoBatch(AppDatabase sut) {
+  return sut.batch((batch) {
+    batch.insertAll(sut.todoItems, [
+      TodoItemsCompanion.insert(
+        title: 'todo: finish drift setup #1',
+        content: 'We can now write queries and define our own tables.',
+      ),
+      TodoItemsCompanion.insert(
+        title: 'todo: finish drift setup #2',
+        content: 'We can now write queries and define our own tables.',
+      ),
+    ]);
+  });
+}
+
+Future<void> _updateRow(AppDatabase sut, {bool withError = false}) {
+  if (withError) {
+    return (sut.update(sut.todoItems)
+          ..where((tbl) => tbl.title.equals('doesnt exist')))
+        .write(
+      TodoItemsCompanion(
+        title: Value('after update'),
+        content: Value('We can now write queries and define our own tables.'),
+      ),
+    );
+  } else {
+    return (sut.update(sut.todoItems)
+          ..where((tbl) => tbl.title.equals('todo: finish drift setup')))
+        .write(
+      TodoItemsCompanion(
+        title: Value('after update'),
+        content: Value('We can now write queries and define our own tables.'),
+      ),
+    );
+  }
+}
+
+SentryTracer _startTransaction() {
+  return Sentry.startTransaction('drift', 'test op', bindToScope: true)
+      as SentryTracer;
 }
