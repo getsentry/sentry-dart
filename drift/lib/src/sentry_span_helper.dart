@@ -126,7 +126,6 @@ class SentrySpanHelper {
       );
       return execute();
     }
-    _transactionStack.removeLast();
 
     try {
       final result = await execute();
@@ -140,6 +139,7 @@ class SentrySpanHelper {
       rethrow;
     } finally {
       await parentSpan.finish();
+      _transactionStack.removeLast();
     }
   }
 
@@ -153,7 +153,6 @@ class SentrySpanHelper {
       );
       return Future<T>.value();
     }
-    _transactionStack.removeLast();
 
     try {
       final result = await execute();
@@ -167,6 +166,7 @@ class SentrySpanHelper {
       rethrow;
     } finally {
       await parentSpan.finish();
+      _transactionStack.removeLast();
     }
   }
 }
