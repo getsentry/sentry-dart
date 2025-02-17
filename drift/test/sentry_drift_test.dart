@@ -78,16 +78,16 @@ void main() {
     expect(span?.throwable, exception);
   }
 
-  Future<void> insertRow(AppDatabase sut, {bool withError = false}) {
+  Future<void> insertRow(AppDatabase db, {bool withError = false}) {
     if (withError) {
-      return sut.into(sut.todoItems).insert(
+      return db.into(db.todoItems).insert(
             TodoItemsCompanion.insert(
               title: '',
               content: '',
             ),
           );
     } else {
-      return sut.into(sut.todoItems).insert(
+      return db.into(db.todoItems).insert(
             TodoItemsCompanion.insert(
               title: 'todo: finish drift setup',
               content: 'We can now write queries and define our own tables.',
@@ -473,6 +473,20 @@ void main() {
     setUp(() async {
       fixture = Fixture();
       await fixture.sentryInit();
+    });
+
+    test('without transaction, spans are added to active scope span', () async {
+      final sut = fixture.getSut();
+      final db = AppDatabase(NativeDatabase.memory().interceptWith(sut));
+
+      final tx = startTransaction();
+      await insertRow(db);
+
+      expect(tx.children.length, 2);
+
+      final insertSpan = tx.children.last;
+      expect(insertSpan.context.parentSpanId, tx.context.spanId);
+      expect(sut.spanHelper.transactionStack, isEmpty);
     });
 
     // already tests nesting
