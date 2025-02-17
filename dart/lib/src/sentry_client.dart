@@ -35,6 +35,9 @@ import 'version.dart';
 /// to true.
 const _defaultIpAddress = '{{auto}}';
 
+@visibleForTesting
+String get defaultIpAddress => _defaultIpAddress;
+
 /// Logs crash reports and events to the Sentry.io service.
 class SentryClient {
   final SentryOptions _options;

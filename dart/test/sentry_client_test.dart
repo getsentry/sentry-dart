@@ -1003,14 +1003,14 @@ void main() {
     });
   });
 
-  group('SentryClient: sets user & user ip', () {
+  group('SentryClient: user & user ip', () {
     late Fixture fixture;
 
     setUp(() {
       fixture = Fixture();
     });
 
-    test('event has no user', () async {
+    test('event has no user and sendDefaultPii = true', () async {
       final client = fixture.getSut(sendDefaultPii: true);
       var fakeEvent = SentryEvent();
 
@@ -1021,7 +1021,21 @@ void main() {
 
       expect(fixture.transport.envelopes.length, 1);
       expect(capturedEvent.user, isNotNull);
-      expect(capturedEvent.user?.ipAddress, '{{auto}}');
+      expect(capturedEvent.user?.ipAddress, defaultIpAddress);
+    });
+
+    test('event has no user and sendDefaultPii = false', () async {
+      final client = fixture.getSut(sendDefaultPii: false);
+      var fakeEvent = SentryEvent();
+
+      await client.captureEvent(fakeEvent);
+
+      final capturedEnvelope = fixture.transport.envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
+
+      expect(fixture.transport.envelopes.length, 1);
+      expect(capturedEvent.user, isNotNull);
+      expect(capturedEvent.user?.ipAddress, isNull);
     });
 
     test('event has a user with IP address', () async {
@@ -1040,7 +1054,8 @@ void main() {
       expect(capturedEvent.user?.email, fakeEvent.user!.email);
     });
 
-    test('event has a user without IP address', () async {
+    test('event has a user without IP address and sendDefaultPii = true',
+        () async {
       final client = fixture.getSut(sendDefaultPii: true);
 
       final event = fakeEvent.copyWith(user: fakeUser);
@@ -1052,7 +1067,25 @@ void main() {
 
       expect(fixture.transport.envelopes.length, 1);
       expect(capturedEvent.user, isNotNull);
-      expect(capturedEvent.user?.ipAddress, '{{auto}}');
+      expect(capturedEvent.user?.ipAddress, defaultIpAddress);
+      expect(capturedEvent.user?.id, fakeUser.id);
+      expect(capturedEvent.user?.email, fakeUser.email);
+    });
+
+    test('event has a user without IP address and sendDefaultPii = false',
+        () async {
+      final client = fixture.getSut(sendDefaultPii: false);
+
+      final event = fakeEvent.copyWith(user: fakeUser);
+
+      await client.captureEvent(event);
+
+      final capturedEnvelope = fixture.transport.envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
+
+      expect(fixture.transport.envelopes.length, 1);
+      expect(capturedEvent.user, isNotNull);
+      expect(capturedEvent.user?.ipAddress, isNull);
       expect(capturedEvent.user?.id, fakeUser.id);
       expect(capturedEvent.user?.email, fakeUser.email);
     });
