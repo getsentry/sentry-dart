@@ -15,7 +15,6 @@ Future<void> main() async {
       options.dsn = dsn;
       options.tracesSampleRate = 1.0;
       options.debug = true;
-      options.spotlight = Spotlight(enabled: true);
     },
     appRunner: runApp, // Init your App.
   );
