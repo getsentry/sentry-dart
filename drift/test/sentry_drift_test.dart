@@ -25,7 +25,7 @@ void main() {
       'INSERT INTO "todo_items" ("title", "body") VALUES (?, ?)';
   final expectedUpdateStatement =
       'UPDATE "todo_items" SET "title" = ?, "body" = ? WHERE "title" = ?;';
-  final expectedSelectStatement = 'SELECT * FROM todo_items';
+  final expectedSelectStatement = 'SELECT * FROM "todo_items";';
   final expectedDeleteStatement = 'DELETE FROM "todo_items";';
 
   late Fixture fixture;
@@ -274,6 +274,49 @@ void main() {
 
       _verifyErrorSpan(
         expectedDeleteStatement,
+        exception,
+        tx.children.last,
+      );
+    });
+  });
+
+  group('select operations', () {
+    test('successful adds span', () async {
+      final sut = fixture.getSut();
+      final db = AppDatabase(NativeDatabase.memory().interceptWith(sut));
+
+      final tx = _startTransaction();
+      await _insertRow(db);
+      await db.select(db.todoItems).get();
+
+      _verifySpan(
+        expectedSelectStatement,
+        tx.children.last,
+      );
+    });
+
+    test('error case adds error span', () async {
+      final exception = Exception('test');
+      final queryExecutor = MockQueryExecutor();
+      when(queryExecutor.ensureOpen(any)).thenAnswer((_) => Future.value(true));
+      when(queryExecutor.runInsert(any, any))
+          .thenAnswer((_) => Future.value(1));
+      when(queryExecutor.runSelect(any, any)).thenThrow(exception);
+      when(queryExecutor.dialect).thenReturn(SqlDialect.sqlite);
+
+      final sut = fixture.getSut();
+      final db = AppDatabase(queryExecutor.interceptWith(sut));
+
+      final tx = _startTransaction();
+      try {
+        await _insertRow(db);
+        await db.select(db.todoItems).get();
+      } catch (e) {
+        // making sure the thrown exception doesn't fail the test
+      }
+
+      _verifyErrorSpan(
+        expectedSelectStatement,
         exception,
         tx.children.last,
       );
