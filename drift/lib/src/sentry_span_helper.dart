@@ -5,6 +5,8 @@ import 'dart:collection';
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 
+import 'constants.dart';
+
 @internal
 class SentrySpanHelper {
   final Hub _hub;
@@ -16,6 +18,9 @@ class SentrySpanHelper {
   /// active span in the Hub's scope.
   final ListQueue<ISentrySpan?> _transactionStack = ListQueue();
 
+  @visibleForTesting
+  ListQueue<ISentrySpan?> get transactionStack => _transactionStack;
+
   SentrySpanHelper(this._origin, {Hub? hub}) : _hub = hub ?? HubAdapter();
 
   Future<T> asyncWrapInSpan<T>(
@@ -26,38 +31,42 @@ class SentrySpanHelper {
   }) async {
     final parentSpan = _transactionStack.lastOrNull ?? _hub.getSpan();
     if (parentSpan == null) {
-      _hub.options.logger(SentryLevel.info, 'Drift: active Sentry transaction does not exist, could not start span for the Drift operation: $description');
+      _hub.options.logger(
+        SentryLevel.warning,
+        'Active Sentry transaction does not exist, could not start span for the Drift operation: $description',
+        logger: loggerName,
+      );
       return execute();
     }
 
-    final span = parentSpan?.startChild(
+    final span = parentSpan.startChild(
       operation ?? SentrySpanOperations.dbSqlQuery,
       description: description,
     );
 
-    span?.origin = _origin;
+    span.origin = _origin;
 
-    span?.setData(
+    span.setData(
       SentrySpanData.dbSystemKey,
       SentrySpanData.dbSystemSqlite,
     );
 
     if (dbName != null) {
-      span?.setData(SentrySpanData.dbNameKey, dbName);
+      span.setData(SentrySpanData.dbNameKey, dbName);
     }
 
     try {
       final result = await execute();
-      span?.status = SpanStatus.ok();
+      span.status = SpanStatus.ok();
 
       return result;
     } catch (exception) {
-      span?.throwable = exception;
-      span?.status = SpanStatus.internalError();
+      span.throwable = exception;
+      span.status = SpanStatus.internalError();
 
       rethrow;
     } finally {
-      await span?.finish();
+      await span.finish();
     }
   }
 
@@ -67,51 +76,57 @@ class SentrySpanHelper {
   }) {
     final parentSpan = _transactionStack.lastOrNull ?? _hub.getSpan();
     if (parentSpan == null) {
-      _hub.options.logger(SentryLevel.info, 'Drift: active Sentry transaction does not exist, could not start span for Drift operation: Begin Transaction');
+      _hub.options.logger(
+        SentryLevel.warning,
+        'Active Sentry transaction does not exist, could not start span for Drift operation: Begin Transaction',
+        logger: loggerName,
+      );
       return execute();
     }
 
     final newParent = parentSpan.startChild(
-          SentrySpanOperations.dbSqlTransaction,
-          description: SentrySpanDescriptions.dbTransaction,
-        ) ??
-        _hub.getSpan()?.startChild(
-              SentrySpanOperations.dbSqlTransaction,
-              description: SentrySpanDescriptions.dbTransaction,
-            );
+      SentrySpanOperations.dbSqlTransaction,
+      description: SentrySpanDescriptions.dbTransaction,
+    );
 
-    _transactionStack.add(newParent);
+    newParent.origin = _origin;
 
-    newParent?.origin = _origin;
-
-    newParent?.setData(
+    newParent.setData(
       SentrySpanData.dbSystemKey,
       SentrySpanData.dbSystemSqlite,
     );
 
     if (dbName != null) {
-      newParent?.setData(SentrySpanData.dbNameKey, dbName);
+      newParent.setData(SentrySpanData.dbNameKey, dbName);
     }
 
     try {
       final result = execute();
-      newParent?.status = SpanStatus.unknown();
+      newParent.status = SpanStatus.unknown();
+
+      // Only add to the stack if no error occurred
+      _transactionStack.add(newParent);
 
       return result;
     } catch (exception) {
-      newParent?.throwable = exception;
-      newParent?.status = SpanStatus.internalError();
+      newParent.throwable = exception;
+      newParent.status = SpanStatus.internalError();
 
       rethrow;
     }
   }
 
   Future<T> finishTransaction<T>(Future<T> Function() execute) async {
-    final parentSpan = _transactionStack.removeLast();
+    final parentSpan = _transactionStack.lastOrNull;
     if (parentSpan == null) {
-      _hub.options.logger(SentryLevel.info, 'Drift: active Sentry transaction does not exist, could not finish span for Drift operation: Finish Transaction');
+      _hub.options.logger(
+        SentryLevel.warning,
+        'Active Sentry transaction does not exist, could not finish span for Drift operation: Finish Transaction',
+        logger: loggerName,
+      );
       return execute();
     }
+    _transactionStack.removeLast();
 
     try {
       final result = await execute();
@@ -129,11 +144,16 @@ class SentrySpanHelper {
   }
 
   Future<T> abortTransaction<T>(Future<T> Function() execute) async {
-    final parentSpan = _transactionStack.removeLast();
+    final parentSpan = _transactionStack.lastOrNull;
     if (parentSpan == null) {
-      _hub.options.logger(SentryLevel.info, 'Drift: active Sentry transaction does not exist, could not finish span for Drift operation: Abort Transaction');
+      _hub.options.logger(
+        SentryLevel.warning,
+        'Active Sentry transaction does not exist, could not finish span for Drift operation: Abort Transaction',
+        logger: loggerName,
+      );
       return Future<T>.value();
     }
+    _transactionStack.removeLast();
 
     try {
       final result = await execute();

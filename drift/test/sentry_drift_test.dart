@@ -133,95 +133,392 @@ void main() {
     }
   }
 
-  group('adds span', () {
+  SentryTracer startTransaction() {
+    return Sentry.startTransaction('drift', 'test op', bindToScope: true)
+        as SentryTracer;
+  }
+
+  group('open operations', () {
     late Fixture fixture;
 
     setUp(() async {
       fixture = Fixture();
-
-      when(fixture.mockHub.options).thenReturn(fixture.options);
-      when(fixture.mockHub.getSpan()).thenReturn(fixture.tracer);
-
-      await fixture.setUp();
+      await Sentry.init(
+        (options) {},
+        options: fixture.options,
+      );
     });
 
-    tearDown(() async {
-      await fixture.tearDown();
+    test('successful adds span only once', () async {
+      final sut = fixture.getSut();
+      final db = AppDatabase(NativeDatabase.memory().interceptWith(sut));
+
+      final tx = startTransaction();
+      await insertRow(db);
+      await insertRow(db);
+      await insertRow(db);
+
+      final openSpans = tx.children.where(
+        (element) =>
+            element.context.description ==
+            SentrySpanDescriptions.dbOpen(dbName: Fixture.dbName),
+      );
+
+      expect(openSpans.length, 1);
+      verifySpan(
+        operation: SentrySpanOperations.dbOpen,
+        SentrySpanDescriptions.dbOpen(dbName: Fixture.dbName),
+        openSpans.first,
+      );
     });
 
-    test('open span is only added once', () async {
-      final sut = fixture.sut;
+    test('error case adds error span', () async {
+      final exception = Exception('test');
+      final queryExecutor = MockQueryExecutor();
+      when(queryExecutor.ensureOpen(any)).thenThrow(exception);
+      when(queryExecutor.runInsert(any, any))
+          .thenAnswer((_) => Future.value(1));
+      when(queryExecutor.dialect).thenReturn(SqlDialect.sqlite);
 
-      await insertRow(sut);
-      await insertRow(sut);
-      await insertRow(sut);
+      final sut = fixture.getSut();
+      final db = AppDatabase(queryExecutor.interceptWith(sut));
 
-      final openSpansCount = fixture.tracer.children
-          .where(
-            (element) =>
-                element.context.description ==
-                SentrySpanDescriptions.dbOpen(dbName: Fixture.dbName),
-          )
-          .length;
+      final tx = startTransaction();
+      try {
+        await insertRow(db);
+      } catch (e) {
+        // making sure the thrown exception doesn't fail the test
+      }
 
-      expect(openSpansCount, 1);
+      final openSpans = tx.children.where(
+        (element) =>
+            element.context.description ==
+            SentrySpanDescriptions.dbOpen(dbName: Fixture.dbName),
+      );
+
+      expect(openSpans.length, 1);
+      verifyErrorSpan(
+        operation: SentrySpanOperations.dbOpen,
+        SentrySpanDescriptions.dbOpen(dbName: Fixture.dbName),
+        exception,
+        openSpans.first,
+      );
+    });
+  });
+
+  group('close operations', () {
+    late Fixture fixture;
+
+    setUp(() async {
+      fixture = Fixture();
+      await Sentry.init(
+        (options) {},
+        options: defaultTestOptions()..tracesSampleRate = 1.0,
+      );
     });
 
-    test('insert adds span', () async {
-      final sut = fixture.sut;
+    test('successful adds close only once', () async {
+      final sut = fixture.getSut();
+      final db = AppDatabase(NativeDatabase.memory().interceptWith(sut));
 
-      await insertRow(sut);
+      final tx = startTransaction();
+      await insertRow(db);
+      await db.close();
+
+      final closeSpans = tx.children.where(
+        (element) =>
+            element.context.description ==
+            SentrySpanDescriptions.dbClose(dbName: Fixture.dbName),
+      );
+
+      expect(closeSpans.length, 1);
+      verifySpan(
+        operation: SentrySpanOperations.dbClose,
+        SentrySpanDescriptions.dbClose(dbName: Fixture.dbName),
+        closeSpans.first,
+      );
+    });
+
+    test('error case adds error span', () async {
+      final exception = Exception('test');
+      final queryExecutor = MockQueryExecutor();
+      when(queryExecutor.ensureOpen(any)).thenAnswer((_) => Future.value(true));
+      when(queryExecutor.runInsert(any, any))
+          .thenAnswer((_) => Future.value(1));
+      when(queryExecutor.close()).thenThrow(exception);
+      when(queryExecutor.dialect).thenReturn(SqlDialect.sqlite);
+
+      final sut = fixture.getSut();
+      final db = AppDatabase(queryExecutor.interceptWith(sut));
+
+      final tx = startTransaction();
+      try {
+        await insertRow(db);
+        await db.close();
+      } catch (e) {
+        // making sure the thrown exception doesn't fail the test
+      }
+
+      final closeSpans = tx.children.where(
+        (element) =>
+            element.context.description ==
+            SentrySpanDescriptions.dbClose(dbName: Fixture.dbName),
+      );
+
+      expect(closeSpans.length, 1);
+      verifyErrorSpan(
+        SentrySpanDescriptions.dbClose(dbName: Fixture.dbName),
+        exception,
+        closeSpans.first,
+        operation: SentrySpanOperations.dbClose,
+      );
+    });
+  });
+
+  group('insert operations', () {
+    late Fixture fixture;
+
+    setUp(() async {
+      fixture = Fixture();
+      await fixture.sentryInit();
+    });
+
+    test('successful adds span', () async {
+      final sut = fixture.getSut();
+      final db = AppDatabase(NativeDatabase.memory().interceptWith(sut));
+
+      final tx = startTransaction();
+      await insertRow(db);
 
       verifySpan(
         expectedInsertStatement,
-        fixture.getCreatedSpan(),
+        tx.children.last,
       );
     });
 
-    test('update adds span', () async {
-      final sut = fixture.sut;
+    test('error case adds error span', () async {
+      final exception = Exception('test');
+      final queryExecutor = MockQueryExecutor();
+      when(queryExecutor.ensureOpen(any)).thenAnswer((_) => Future.value(true));
+      when(queryExecutor.runInsert(any, any)).thenThrow(exception);
+      when(queryExecutor.dialect).thenReturn(SqlDialect.sqlite);
 
-      await insertRow(sut);
-      await updateRow(sut);
+      final sut = fixture.getSut();
+      final db = AppDatabase(queryExecutor.interceptWith(sut));
+
+      final tx = startTransaction();
+      try {
+        await insertRow(db);
+      } catch (e) {
+        // making sure the thrown exception doesn't fail the test
+      }
+
+      verifyErrorSpan(
+        expectedInsertStatement,
+        exception,
+        tx.children.last,
+      );
+    });
+  });
+
+  group('update operations', () {
+    late Fixture fixture;
+
+    setUp(() async {
+      fixture = Fixture();
+      await fixture.sentryInit();
+    });
+
+    test('successful adds span', () async {
+      final sut = fixture.getSut();
+      final db = AppDatabase(NativeDatabase.memory().interceptWith(sut));
+
+      final tx = startTransaction();
+      await insertRow(db);
+      await updateRow(db);
 
       verifySpan(
         expectedUpdateStatement,
-        fixture.getCreatedSpan(),
+        tx.children.last,
       );
     });
 
-    test('custom adds span', () async {
-      final sut = fixture.sut;
+    test('error case adds error span', () async {
+      final exception = Exception('test');
+      final queryExecutor = MockQueryExecutor();
+      when(queryExecutor.ensureOpen(any)).thenAnswer((_) => Future.value(true));
+      when(queryExecutor.runInsert(any, any))
+          .thenAnswer((_) => Future.value(1));
+      when(queryExecutor.runUpdate(any, any)).thenThrow(exception);
+      when(queryExecutor.dialect).thenReturn(SqlDialect.sqlite);
 
-      await sut.customStatement('SELECT * FROM todo_items');
+      final sut = fixture.getSut();
+      final db = AppDatabase(queryExecutor.interceptWith(sut));
 
-      verifySpan(
-        expectedSelectStatement,
-        fixture.getCreatedSpan(),
+      final tx = startTransaction();
+      try {
+        await insertRow(db);
+        await updateRow(db);
+      } catch (e) {
+        // making sure the thrown exception doesn't fail the test
+      }
+
+      verifyErrorSpan(
+        expectedUpdateStatement,
+        exception,
+        tx.children.last,
       );
     });
+  });
 
-    test('delete adds span', () async {
-      final sut = fixture.sut;
+  group('delete operations', () {
+    late Fixture fixture;
 
-      await insertRow(sut);
-      await fixture.sut.delete(fixture.sut.todoItems).go();
+    setUp(() async {
+      fixture = Fixture();
+      await fixture.sentryInit();
+    });
+
+    test('successful adds span', () async {
+      final sut = fixture.getSut();
+      final db = AppDatabase(NativeDatabase.memory().interceptWith(sut));
+
+      final tx = startTransaction();
+      await insertRow(db);
+      await db.delete(db.todoItems).go();
 
       verifySpan(
         expectedDeleteStatement,
-        fixture.getCreatedSpan(),
+        tx.children.last,
       );
     });
 
-    test('transaction adds insert spans', () async {
-      final sut = fixture.sut;
+    test('error case adds error span', () async {
+      final exception = Exception('test');
+      final queryExecutor = MockQueryExecutor();
+      when(queryExecutor.ensureOpen(any)).thenAnswer((_) => Future.value(true));
+      when(queryExecutor.runInsert(any, any))
+          .thenAnswer((_) => Future.value(1));
+      when(queryExecutor.runDelete(any, any)).thenThrow(exception);
+      when(queryExecutor.dialect).thenReturn(SqlDialect.sqlite);
 
-      await sut.transaction(() async {
-        await insertRow(sut);
-        await insertRow(sut);
+      final sut = fixture.getSut();
+      final db = AppDatabase(queryExecutor.interceptWith(sut));
+
+      final tx = startTransaction();
+      try {
+        await insertRow(db);
+        await db.delete(db.todoItems).go();
+      } catch (e) {
+        // making sure the thrown exception doesn't fail the test
+      }
+
+      verifyErrorSpan(
+        expectedDeleteStatement,
+        exception,
+        tx.children.last,
+      );
+    });
+  });
+
+  group('custom query operations', () {
+    late Fixture fixture;
+
+    setUp(() async {
+      fixture = Fixture();
+      await fixture.sentryInit();
+    });
+
+    test('successful adds span', () async {
+      final sut = fixture.getSut();
+      final db = AppDatabase(NativeDatabase.memory().interceptWith(sut));
+
+      final tx = startTransaction();
+      await db.customStatement(expectedSelectStatement);
+
+      verifySpan(
+        expectedSelectStatement,
+        tx.children.last,
+      );
+    });
+
+    test('error case adds error span', () async {
+      final exception = Exception('test');
+      final queryExecutor = MockQueryExecutor();
+      when(queryExecutor.ensureOpen(any)).thenAnswer((_) => Future.value(true));
+      when(queryExecutor.runCustom(any, any)).thenThrow(exception);
+      when(queryExecutor.dialect).thenReturn(SqlDialect.sqlite);
+
+      final sut = fixture.getSut();
+      final db = AppDatabase(queryExecutor.interceptWith(sut));
+
+      final tx = startTransaction();
+      try {
+        await db.customStatement(expectedSelectStatement);
+      } catch (e) {
+        // making sure the thrown exception doesn't fail the test
+      }
+
+      verifyErrorSpan(
+        expectedSelectStatement,
+        exception,
+        tx.children.last,
+      );
+    });
+  });
+
+  group('transaction operations', () {
+    late Fixture fixture;
+
+    setUp(() async {
+      fixture = Fixture();
+      await fixture.sentryInit();
+    });
+
+    // already tests nesting
+    test('commit successful adds spans', () async {
+      final sut = fixture.getSut();
+      final db = AppDatabase(NativeDatabase.memory().interceptWith(sut));
+
+      final tx = startTransaction();
+      await db.transaction(() async {
+        await db.into(db.todoItems).insert(
+              TodoItemsCompanion.insert(
+                title: 'first transaction insert',
+                content: 'test',
+              ),
+            );
+        await db.transaction(() async {
+          await db.delete(db.todoItems).go();
+        });
       });
 
-      final insertSpanCount = fixture.tracer.children
+      // 5 spans = 1 db open + 2 tx + 1 insert + 1 delete
+      expect(tx.children.length, 5);
+
+      final outerTxSpan = tx.children[1];
+      final insertSpan = tx.children[2];
+      final innerTxSpan = tx.children[3];
+      final deleteSpan = tx.children[4];
+
+      // Verify parent relationships
+      expect(outerTxSpan.context.parentSpanId, tx.context.spanId);
+      expect(insertSpan.context.parentSpanId, outerTxSpan.context.spanId);
+      expect(innerTxSpan.context.parentSpanId, outerTxSpan.context.spanId);
+      expect(deleteSpan.context.parentSpanId, innerTxSpan.context.spanId);
+    });
+
+    test('successful commit adds insert spans', () async {
+      final sut = fixture.getSut();
+      final db = AppDatabase(NativeDatabase.memory().interceptWith(sut));
+
+      final tx = startTransaction();
+      await db.transaction(() async {
+        await insertRow(db);
+        await insertRow(db);
+      });
+
+      final insertSpanCount = tx.children
           .where(
             (element) => element.context.description == expectedInsertStatement,
           )
@@ -230,54 +527,70 @@ void main() {
 
       verifySpan(
         expectedInsertStatement,
-        fixture.getCreatedSpan(),
+        tx.children.last,
       );
 
       verifySpan(
         SentrySpanDescriptions.dbTransaction,
-        fixture
-            .getCreatedSpanByDescription(SentrySpanDescriptions.dbTransaction),
+        tx.children[1],
         operation: SentrySpanOperations.dbSqlTransaction,
       );
     });
 
-    test('transaction adds update spans', () async {
-      final sut = fixture.sut;
+    test('successful commit adds update spans', () async {
+      final sut = fixture.getSut();
+      final db = AppDatabase(NativeDatabase.memory().interceptWith(sut));
 
-      await sut.transaction(() async {
-        await insertRow(sut);
-        await updateRow(sut);
+      final tx = startTransaction();
+      await db.transaction(() async {
+        await insertRow(db);
+        await updateRow(db);
       });
 
-      final updateSpanCount = fixture.tracer.children
+      final insertSpanCount = tx.children
           .where(
-            (element) => element.context.description == expectedUpdateStatement,
+            (element) => element.context.description == expectedInsertStatement,
+          )
+          .length;
+      expect(insertSpanCount, 1);
+
+      final updateSpanCount = tx.children
+          .where(
+            (element) => element.context.description == expectedInsertStatement,
           )
           .length;
       expect(updateSpanCount, 1);
 
       verifySpan(
         expectedUpdateStatement,
-        fixture.getCreatedSpan(),
+        tx.children.last,
       );
 
       verifySpan(
         SentrySpanDescriptions.dbTransaction,
-        fixture
-            .getCreatedSpanByDescription(SentrySpanDescriptions.dbTransaction),
+        tx.children[1],
         operation: SentrySpanOperations.dbSqlTransaction,
       );
     });
 
-    test('transaction adds delete spans', () async {
-      final sut = fixture.sut;
+    test('successful commit adds delete spans', () async {
+      final sut = fixture.getSut();
+      final db = AppDatabase(NativeDatabase.memory().interceptWith(sut));
 
-      await sut.transaction(() async {
-        await insertRow(sut);
-        await fixture.sut.delete(fixture.sut.todoItems).go();
+      final tx = startTransaction();
+      await db.transaction(() async {
+        await insertRow(db);
+        await db.delete(db.todoItems).go();
       });
 
-      final deleteSpanCount = fixture.tracer.children
+      final insertSpanCount = tx.children
+          .where(
+            (element) => element.context.description == expectedInsertStatement,
+          )
+          .length;
+      expect(insertSpanCount, 1);
+
+      final deleteSpanCount = tx.children
           .where(
             (element) => element.context.description == expectedDeleteStatement,
           )
@@ -286,26 +599,26 @@ void main() {
 
       verifySpan(
         expectedDeleteStatement,
-        fixture.getCreatedSpan(),
+        tx.children.last,
       );
 
       verifySpan(
         SentrySpanDescriptions.dbTransaction,
-        fixture
-            .getCreatedSpanByDescription(SentrySpanDescriptions.dbTransaction),
+        tx.children[1],
         operation: SentrySpanOperations.dbSqlTransaction,
       );
     });
 
-    test('transaction adds custom spans', () async {
-      final sut = fixture.sut;
+    test('successful commit adds custom query spans', () async {
+      final sut = fixture.getSut();
+      final db = AppDatabase(NativeDatabase.memory().interceptWith(sut));
 
-      await sut.transaction(() async {
-        await insertRow(sut);
-        await sut.customStatement('SELECT * FROM todo_items');
+      final tx = startTransaction();
+      await db.transaction(() async {
+        await db.customStatement(expectedSelectStatement);
       });
 
-      final customSpanCount = fixture.tracer.children
+      final customSpanCount = tx.children
           .where(
             (element) => element.context.description == expectedSelectStatement,
           )
@@ -314,34 +627,72 @@ void main() {
 
       verifySpan(
         expectedSelectStatement,
-        fixture.getCreatedSpan(),
+        tx.children.last,
       );
 
       verifySpan(
         SentrySpanDescriptions.dbTransaction,
-        fixture
-            .getCreatedSpanByDescription(SentrySpanDescriptions.dbTransaction),
+        tx.children[1],
         operation: SentrySpanOperations.dbSqlTransaction,
       );
     });
 
-    test('transaction rollback adds span', () async {
-      final sut = fixture.sut;
+    test('successful commit adds batch spans', () async {
+      final sut = fixture.getSut();
+      final db = AppDatabase(NativeDatabase.memory().interceptWith(sut));
 
-      await insertRow(sut);
-      await insertRow(sut);
+      final tx = startTransaction();
+      await db.transaction(() async {
+        await insertIntoBatch(db);
+      });
+
+      verifySpan(
+        SentrySpanDescriptions.dbBatch(statements: [expectedInsertStatement]),
+        tx.children.last,
+        operation: SentrySpanOperations.dbSqlBatch,
+      );
+    });
+
+    test('batch creates transaction span', () async {
+      final sut = fixture.getSut();
+      final db = AppDatabase(NativeDatabase.memory().interceptWith(sut));
+
+      final tx = startTransaction();
+      await insertIntoBatch(db);
+
+      verifySpan(
+        SentrySpanDescriptions.dbTransaction,
+        tx.children[1],
+        operation: SentrySpanOperations.dbSqlTransaction,
+      );
+
+      verifySpan(
+        SentrySpanDescriptions.dbBatch(statements: [expectedInsertStatement]),
+        tx.children.last,
+        operation: SentrySpanOperations.dbSqlBatch,
+      );
+    });
+
+    test('rollback case adds aborted span', () async {
+      final sut = fixture.getSut();
+      final db = AppDatabase(NativeDatabase.memory().interceptWith(sut));
+
+      final tx = startTransaction();
+      await insertRow(db);
+      await insertRow(db);
 
       try {
-        await sut.transaction(() async {
-          await insertRow(sut, withError: true);
+        await db.transaction(() async {
+          await insertRow(db, withError: true);
         });
       } catch (_) {}
 
-      final spans = fixture.tracer.children
-          .where((child) => child.status == SpanStatus.aborted());
+      final spans =
+          tx.children.where((child) => child.status == SpanStatus.aborted());
       expect(spans.length, 1);
       final abortedSpan = spans.first;
 
+      expect(sut.spanHelper.transactionStack, isEmpty);
       verifySpan(
         SentrySpanDescriptions.dbTransaction,
         abortedSpan,
@@ -350,357 +701,73 @@ void main() {
       );
     });
 
-    test('nested transaction adds spans', () async {
-      final sut = fixture.sut;
-
-      await sut.transaction(() async {
-        await sut.into(sut.todoItems).insert(
-              TodoItemsCompanion.insert(
-                title: 'first transaction insert',
-                content: 'test',
-              ),
-            );
-        await sut.transaction(() async {
-          await fixture.sut.delete(fixture.sut.todoItems).go();
-        });
-      });
-
-      // 5 spans = 1 db open + 2 tx + 1 insert + 1 delete
-      expect(fixture.tracer.children.length, 5);
-
-      final outerTxSpan = fixture.tracer.children[1];
-      final insertSpan = fixture.tracer.children[2];
-      final innerTxSpan = fixture.tracer.children[3];
-      final deleteSpan = fixture.tracer.children[4];
-
-      // Verify parent relationships
-      expect(outerTxSpan.context.parentSpanId, fixture.tracer.context.spanId);
-      expect(insertSpan.context.parentSpanId, outerTxSpan.context.spanId);
-      expect(innerTxSpan.context.parentSpanId, outerTxSpan.context.spanId);
-      expect(deleteSpan.context.parentSpanId, innerTxSpan.context.spanId);
-    });
-
-    test('batch adds span', () async {
-      final sut = fixture.sut;
-
-      await insertIntoBatch(sut);
-
-      verifySpan(
-        SentrySpanDescriptions.dbBatch(statements: [expectedInsertStatement]),
-        fixture.getCreatedSpan(),
-        operation: SentrySpanOperations.dbSqlBatch,
-      );
-    });
-
-    test('close adds span', () async {
-      final sut = fixture.sut;
-
-      await sut.close();
-
-      verifySpan(
-        SentrySpanDescriptions.dbClose(dbName: Fixture.dbName),
-        fixture.getCreatedSpan(),
-        operation: SentrySpanOperations.dbClose,
-      );
-    });
-
-    test('open adds span', () async {
-      final sut = fixture.sut;
-
-      // SentryDriftDatabase is by default lazily opened by default so it won't
-      // create a span until it is actually used.
-      await sut.select(sut.todoItems).get();
-
-      verifySpan(
-        SentrySpanDescriptions.dbOpen(dbName: Fixture.dbName),
-        fixture.getCreatedSpanByDescription(
-          SentrySpanDescriptions.dbOpen(dbName: Fixture.dbName),
-        ),
-        operation: SentrySpanOperations.dbOpen,
-      );
-    });
-  });
-
-  group('does not add span', () {
-    late Fixture fixture;
-
-    setUp(() async {
-      fixture = Fixture();
-
-      when(fixture.mockHub.options).thenReturn(fixture.options);
-      when(fixture.mockHub.getSpan()).thenReturn(fixture.tracer);
-
-      await fixture.setUp();
-    });
-
-    tearDown(() async {
-      await fixture.tearDown();
-    });
-
-    test('disabled tracing does not create spans', () async {
-      HubAdapter().options.tracesSampleRate = null;
-      HubAdapter().options.tracesSampler = null;
-      await fixture.setUp(useRealHub: true);
-      final sut = fixture.sut;
-      expect(fixture.tracer.children, isEmpty);
-
-      await insertRow(sut);
-
-      expect(fixture.tracer.children, isEmpty);
-    });
-
-    test('does not add open span if db is not used', () async {
-      fixture.sut;
-
-      expect(fixture.tracer.children.isEmpty, true);
-    });
-
     test('batch does not add span for failed operations', () async {
-      final sut = fixture.sut;
+      final sut = fixture.getSut();
+      final db = AppDatabase(NativeDatabase.memory().interceptWith(sut));
 
+      final tx = startTransaction();
       try {
-        await sut.batch((batch) async {
-          await insertRow(sut, withError: true);
-          await insertRow(sut);
+        await db.batch((batch) async {
+          await insertRow(db, withError: true);
+          await insertRow(db);
         });
       } catch (_) {}
 
-      expect(fixture.tracer.children.isEmpty, true);
-    });
-  });
-
-  group('adds error span', () {
-    late Fixture fixture;
-
-    setUp(() async {
-      fixture = Fixture();
-
-      when(fixture.mockHub.options).thenReturn(fixture.options);
-      when(fixture.mockHub.getSpan()).thenReturn(fixture.tracer);
-      when(fixture.mockLazyDatabase.ensureOpen(any))
-          .thenAnswer((_) => Future.value(true));
-      when(fixture.mockLazyDatabase.dialect).thenReturn(SqlDialect.sqlite);
+      expect(tx.children.isEmpty, true);
     });
 
-    tearDown(() async {
-      // catch errors because we purposefully throw a close in one of the tests
+    test('error case adds error span', () async {
+      final exception = Exception('test');
+      final queryExecutor = MockQueryExecutor();
+      when(queryExecutor.ensureOpen(any)).thenAnswer((_) => Future.value(true));
+      when(queryExecutor.beginTransaction()).thenThrow(exception);
+      when(queryExecutor.dialect).thenReturn(SqlDialect.sqlite);
+
+      final sut = fixture.getSut();
+      final db = AppDatabase(queryExecutor.interceptWith(sut));
+
+      final tx = startTransaction();
       try {
-        await fixture.tearDown();
-      } catch (_) {}
-    });
-
-    test('throwing runInsert throws error span', () async {
-      await fixture.setUp(injectMock: true);
-
-      when(fixture.mockLazyDatabase.runInsert(any, any))
-          .thenThrow(fixture.exception);
-
-      try {
-        await insertRow(fixture.sut);
-      } catch (exception) {
-        expect(exception, fixture.exception);
-      }
-
-      verifyErrorSpan(
-        expectedInsertStatement,
-        fixture.exception,
-        fixture.getCreatedSpan(),
-      );
-    });
-
-    test('throwing runUpdate throws error span', () async {
-      await fixture.setUp(injectMock: true);
-
-      when(fixture.mockLazyDatabase.runUpdate(any, any))
-          .thenThrow(fixture.exception);
-      when(fixture.mockLazyDatabase.ensureOpen(any))
-          .thenAnswer((_) => Future.value(true));
-
-      try {
-        await updateRow(fixture.sut);
-      } catch (exception) {
-        expect(exception, fixture.exception);
-      }
-
-      verifyErrorSpan(
-        expectedUpdateStatement,
-        fixture.exception,
-        fixture.getCreatedSpan(),
-      );
-    });
-
-    test('throwing runCustom throws error span', () async {
-      await fixture.setUp(injectMock: true);
-
-      when(fixture.mockLazyDatabase.runCustom(any, any))
-          .thenThrow(fixture.exception);
-
-      try {
-        await fixture.sut.customStatement('SELECT * FROM todo_items');
-      } catch (exception) {
-        expect(exception, fixture.exception);
-      }
-
-      verifyErrorSpan(
-        expectedSelectStatement,
-        fixture.exception,
-        fixture.getCreatedSpan(),
-      );
-    });
-
-    test('throwing transaction throws error span', () async {
-      final mockTransactionExecutor = MockTransactionExecutor();
-      when(mockTransactionExecutor.beginTransaction())
-          .thenThrow(fixture.exception);
-      when(mockTransactionExecutor.ensureOpen(any))
-          .thenAnswer((_) => Future.value(true));
-
-      await fixture.setUp(customExecutor: mockTransactionExecutor);
-
-      try {
-        await fixture.sut.transaction(() async {
-          await insertRow(fixture.sut);
+        await db.transaction(() async {
+          await insertRow(db);
         });
-      } catch (exception) {
-        expect(exception, fixture.exception);
+      } catch (e) {
+        // making sure the thrown exception doesn't fail the test
       }
 
+      // when beginTransaction errored, we don't add it to the stack
+      expect(sut.spanHelper.transactionStack, isEmpty);
       verifyErrorSpan(
-        SentrySpanDescriptions.dbTransaction,
-        fixture.exception,
-        fixture.getCreatedSpan(),
         operation: SentrySpanOperations.dbSqlTransaction,
-      );
-    });
-
-    test('throwing batch throws error span in transaction', () async {
-      await fixture.setUp(injectMock: true);
-
-      final mockTransactionExecutor = MockTransactionExecutor();
-      when(mockTransactionExecutor.ensureOpen(any))
-          .thenAnswer((_) => Future.value(true));
-      when(fixture.mockLazyDatabase.beginTransaction())
-          .thenReturn(mockTransactionExecutor);
-      when(mockTransactionExecutor.runBatched(any))
-          .thenThrow(fixture.exception);
-
-      await expectLater(
-        () async => await insertIntoBatch(fixture.sut),
-        throwsException,
-      );
-
-      // errored batch
-      verifyErrorSpan(
-        SentrySpanDescriptions.dbBatch(statements: [expectedInsertStatement]),
-        fixture.exception,
-        fixture.getCreatedSpanByDescription(
-          SentrySpanDescriptions.dbBatch(
-            statements: [expectedInsertStatement],
-          ),
-        ),
-        operation: SentrySpanOperations.dbSqlBatch,
-      );
-
-      // // aborted transaction
-      verifySpan(
         SentrySpanDescriptions.dbTransaction,
-        fixture
-            .getCreatedSpanByDescription(SentrySpanDescriptions.dbTransaction),
-        operation: SentrySpanOperations.dbSqlTransaction,
-        status: SpanStatus.aborted(),
-      );
-    });
-
-    test('throwing close throws error span', () async {
-      when(fixture.mockLazyDatabase.close()).thenThrow(fixture.exception);
-      when(fixture.mockLazyDatabase.runInsert(any, any))
-          .thenAnswer((_) => Future.value(1));
-
-      await fixture.setUp(injectMock: true);
-
-      try {
-        await insertRow(fixture.sut);
-        await fixture.sut.close();
-      } catch (exception) {
-        expect(exception, fixture.exception);
-      }
-
-      verifyErrorSpan(
-        SentrySpanDescriptions.dbClose(dbName: Fixture.dbName),
-        fixture.exception,
-        fixture.getCreatedSpanByDescription(
-          SentrySpanDescriptions.dbClose(dbName: Fixture.dbName),
-        ),
-        operation: SentrySpanOperations.dbClose,
-      );
-    });
-
-    test('throwing ensureOpen throws error span', () async {
-      await fixture.setUp(injectMock: true);
-
-      when(fixture.mockLazyDatabase.ensureOpen(any))
-          .thenThrow(fixture.exception);
-
-      try {
-        await fixture.sut.select(fixture.sut.todoItems).get();
-      } catch (exception) {
-        expect(exception, fixture.exception);
-      }
-
-      verifyErrorSpan(
-        SentrySpanDescriptions.dbOpen(dbName: Fixture.dbName),
-        fixture.exception,
-        fixture.getCreatedSpanByDescription(
-          SentrySpanDescriptions.dbOpen(dbName: Fixture.dbName),
-        ),
-        operation: SentrySpanOperations.dbOpen,
-      );
-    });
-
-    test('throwing runDelete throws error span', () async {
-      await fixture.setUp(injectMock: true);
-
-      when(fixture.mockLazyDatabase.runDelete(any, any))
-          .thenThrow(fixture.exception);
-
-      try {
-        await fixture.sut.delete(fixture.sut.todoItems).go();
-      } catch (exception) {
-        expect(exception, fixture.exception);
-      }
-
-      verifyErrorSpan(
-        expectedDeleteStatement,
-        fixture.exception,
-        fixture.getCreatedSpan(),
+        exception,
+        tx.children.last,
       );
     });
   });
 
   group('integrations', () {
     late Fixture fixture;
-    late Hub hub;
 
     setUp(() async {
       fixture = Fixture();
-      await fixture.setUp(useRealHub: true);
-      hub = HubAdapter();
-    });
+      await fixture.sentryInit();
 
-    tearDown(() async {
-      await fixture.tearDown();
+      // init the interceptor so the integrations are added
+      fixture.getSut();
     });
 
     test('adds integration', () {
       expect(
-        hub.options.sdk.integrations.contains(drift_constants.integrationName),
+        fixture.options.sdk.integrations
+            .contains(drift_constants.integrationName),
         true,
       );
     });
 
     test('adds package', () {
       expect(
-        hub.options.sdk.packages.any(
+        fixture.options.sdk.packages.any(
           (element) =>
               element.name == packageName && element.version == sdkVersion,
         ),
@@ -711,61 +778,19 @@ void main() {
 }
 
 class Fixture {
-  final options = defaultTestOptions();
-  final mockHub = MockHub();
-  static final dbName = 'people-drift-impl';
-  final exception = Exception('fixture-exception');
-  final _context = SentryTransactionContext('name', 'operation');
-  late final tracer = SentryTracer(_context, mockHub);
-  late AppDatabase sut;
-  final mockLazyDatabase = MockLazyDatabase();
+  static final dbName = 'test_db_name';
+  final options = defaultTestOptions()..tracesSampleRate = 1.0;
 
-  Future<void> setUp({
-    bool injectMock = false,
-    bool useRealHub = false,
-    QueryExecutor? customExecutor,
-  }) async {
-    sut = AppDatabase(
-      openConnection(
-        useRealHub: useRealHub,
-        injectMock: injectMock,
-        customExecutor: customExecutor,
-      ),
+  Future<void> sentryInit() {
+    return Sentry.init(
+      (options) {},
+      options: options,
     );
+  }
+
+  SentryQueryInterceptor getSut({Hub? hub}) {
+    hub = hub ?? HubAdapter();
     driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
-  }
-
-  Future<void> tearDown() async {
-    await sut.close();
-  }
-
-  SentrySpan? getCreatedSpan() {
-    return tracer.children.last;
-  }
-
-  SentrySpan? getCreatedSpanByDescription(String description) {
-    return tracer.children
-        .firstWhere((element) => element.context.description == description);
-  }
-
-  QueryExecutor openConnection({
-    bool useRealHub = false,
-    bool injectMock = false,
-    QueryExecutor? customExecutor,
-  }) {
-    final hub = useRealHub ? null : mockHub;
-    if (customExecutor != null) {
-      return customExecutor.interceptWith(
-        SentryQueryInterceptor(databaseName: dbName, hub: hub),
-      );
-    } else if (injectMock) {
-      return mockLazyDatabase.interceptWith(
-        SentryQueryInterceptor(databaseName: dbName, hub: hub),
-      );
-    } else {
-      return NativeDatabase.memory().interceptWith(
-        SentryQueryInterceptor(databaseName: dbName, hub: hub),
-      );
-    }
+    return SentryQueryInterceptor(databaseName: dbName, hub: hub);
   }
 }

@@ -20,6 +20,9 @@ class SentryQueryInterceptor extends QueryInterceptor {
   late final SentrySpanHelper _spanHelper;
   bool _isDbOpen = false;
 
+  @visibleForTesting
+  SentrySpanHelper get spanHelper => _spanHelper;
+
   SentryQueryInterceptor({required String databaseName, @internal Hub? hub})
       : _dbName = databaseName {
     hub = hub ?? HubAdapter();
@@ -67,7 +70,6 @@ class SentryQueryInterceptor extends QueryInterceptor {
 
   @override
   TransactionExecutor beginTransaction(QueryExecutor parent) {
-    print('begin transaction');
     return _spanHelper.beginTransaction(
       () => super.beginTransaction(parent),
       dbName: _dbName,
