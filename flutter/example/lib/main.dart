@@ -84,7 +84,6 @@ Future<void> setupSentry(
       options.enableTimeToFullDisplayTracing = true;
 
       options.maxRequestBodySize = MaxRequestBodySize.always;
-      options.maxResponseBodySize = MaxResponseBodySize.always;
       options.navigatorKey = navigatorKey;
 
       options.experimental.replay.sessionSampleRate = 1.0;
