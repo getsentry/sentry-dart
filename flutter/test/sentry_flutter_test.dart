@@ -4,8 +4,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:platform/platform.dart';
 import 'package:sentry/src/dart_exception_type_identifier.dart';
-import 'package:sentry/src/platform/platform.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/file_system_transport.dart';
 import 'package:sentry_flutter/src/flutter_exception_type_identifier.dart';
@@ -131,7 +131,7 @@ void main() {
       late final Transport transport;
 
       final sentryFlutterOptions =
-          defaultTestOptions(getPlatformChecker(platform: MockPlatform.iOs()))
+          defaultTestOptions(getPlatformChecker(platform: MockPlatform.iOS()))
             ..methodChannel = native.channel;
 
       await SentryFlutter.init(
@@ -185,7 +185,7 @@ void main() {
       List<Integration> integrations = [];
       Transport transport = MockTransport();
       final sentryFlutterOptions =
-          defaultTestOptions(getPlatformChecker(platform: MockPlatform.macOs()))
+          defaultTestOptions(getPlatformChecker(platform: MockPlatform.macOS()))
             ..methodChannel = native.channel;
 
       await SentryFlutter.init(
@@ -396,7 +396,7 @@ void main() {
       List<Integration> integrations = [];
       Transport transport = MockTransport();
       final sentryFlutterOptions =
-          defaultTestOptions(getPlatformChecker(platform: MockPlatform.iOs()))
+          defaultTestOptions(getPlatformChecker(platform: MockPlatform.iOS()))
             ..methodChannel = native.channel;
 
       // Tests that iOS || macOS integrations aren't added on a browser which
@@ -439,7 +439,7 @@ void main() {
       List<Integration> integrations = [];
       Transport transport = MockTransport();
       final sentryFlutterOptions =
-          defaultTestOptions(getPlatformChecker(platform: MockPlatform.macOs()))
+          defaultTestOptions(getPlatformChecker(platform: MockPlatform.macOS()))
             ..methodChannel = native.channel;
 
       // Tests that iOS || macOS integrations aren't added on a browser which
@@ -531,7 +531,7 @@ void main() {
       List<Integration> integrations = [];
 
       final sentryFlutterOptions =
-          defaultTestOptions(getPlatformChecker(platform: MockPlatform.iOs()))
+          defaultTestOptions(getPlatformChecker(platform: MockPlatform.iOS()))
             ..methodChannel = native.channel
             ..rendererWrapper = MockRendererWrapper(FlutterRenderer.skia)
             ..release = ''
@@ -558,7 +558,7 @@ void main() {
       List<Integration> integrations = [];
 
       final sentryFlutterOptions =
-          defaultTestOptions(getPlatformChecker(platform: MockPlatform.iOs()))
+          defaultTestOptions(getPlatformChecker(platform: MockPlatform.iOS()))
             ..rendererWrapper = MockRendererWrapper(FlutterRenderer.canvasKit)
             ..release = ''
             ..dist = '';
@@ -584,7 +584,7 @@ void main() {
       List<Integration> integrations = [];
 
       final sentryFlutterOptions =
-          defaultTestOptions(getPlatformChecker(platform: MockPlatform.iOs()))
+          defaultTestOptions(getPlatformChecker(platform: MockPlatform.iOS()))
             ..rendererWrapper = MockRendererWrapper(FlutterRenderer.html)
             ..release = ''
             ..dist = '';

@@ -48,6 +48,7 @@ dev_dependencies:
       ref: 6aa2c2642f507eab3df83373189170797a9fa5e7
   jnigen: 0.14.0
 
+  platform: any
 flutter:
   plugin:
     platforms:

@@ -1,40 +1,23 @@
-import 'dart:typed_data';
+import 'package:platform/platform.dart';
 
-import 'package:sentry/src/platform/platform.dart';
-
-import 'no_such_method_provider.dart';
-
-class MockPlatform extends Platform with NoSuchMethodProvider {
-  MockPlatform({String? os, Endian? endian})
-      : operatingSystem = os ?? '',
-        endian = endian ?? Endian.host;
-
-  factory MockPlatform.android() {
-    return MockPlatform(os: 'android');
+extension MockPlatform on FakePlatform {
+  static Platform android() {
+    return FakePlatform(operatingSystem: 'android');
   }
 
-  factory MockPlatform.iOS() {
-    return MockPlatform(os: 'ios');
+  static Platform iOS() {
+    return FakePlatform(operatingSystem: 'ios');
   }
 
-  factory MockPlatform.macOS() {
-    return MockPlatform(os: 'macos');
+  static Platform macOS() {
+    return FakePlatform(operatingSystem: 'macos');
   }
 
-  factory MockPlatform.linux() {
-    return MockPlatform(os: 'linux');
+  static Platform linux() {
+    return FakePlatform(operatingSystem: 'linux');
   }
 
-  factory MockPlatform.windows() {
-    return MockPlatform(os: 'windows');
+  static Platform windows() {
+    return FakePlatform(operatingSystem: 'windows');
   }
-
-  @override
-  final String operatingSystem;
-
-  @override
-  final Endian endian;
-
-  @override
-  String toString() => operatingSystem;
 }
