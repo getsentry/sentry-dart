@@ -11,8 +11,8 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/native/factory.dart';
 import 'package:sentry_flutter/src/native/method_channel_helper.dart';
 import 'package:sentry_flutter/src/native/sentry_native_binding.dart';
-import 'package:sentry/src/platform/platform.dart' as platform;
 import 'package:sentry_flutter/src/replay/replay_config.dart';
+import 'package:platform/platform.dart';
 import 'mocks.dart';
 import 'mocks.mocks.dart';
 import 'sentry_flutter_test.dart';
@@ -20,8 +20,8 @@ import 'sentry_flutter_test.dart';
 void main() {
   for (var mockPlatform in [
     MockPlatform.android(),
-    MockPlatform.iOs(),
-    MockPlatform.macOs()
+    MockPlatform.iOS(),
+    MockPlatform.macOS()
   ]) {
     group('$SentryNativeBinding', () {
       late SentryNativeBinding sut;
@@ -207,7 +207,7 @@ void main() {
         if (mockPlatform.isAndroid) {
           matcher = throwsUnsupportedError;
         } else if (mockPlatform.isIOS || mockPlatform.isMacOS) {
-          if (platform.instance.isMacOS) {
+          if (LocalPlatform().isMacOS) {
             matcher = throwsA(predicate((e) =>
                 e is Exception &&
                 e.toString().contains('Failed to load Objective-C class')));

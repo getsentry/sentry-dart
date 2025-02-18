@@ -6,13 +6,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:meta/meta.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:sentry/src/platform/platform.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/frames_tracking/sentry_delayed_frames_tracker.dart';
 import 'package:sentry_flutter/src/native/sentry_native_binding.dart';
 import 'package:sentry_flutter/src/renderer/renderer.dart';
 import 'package:sentry_flutter/src/web/sentry_js_binding.dart';
+import 'package:platform/platform.dart';
 
 import 'mocks.mocks.dart';
 import 'no_such_method_provider.dart';
@@ -59,43 +59,26 @@ ISentrySpan startTransactionShim(
 ])
 void main() {}
 
-class MockPlatform with NoSuchMethodProvider implements Platform {
-  const MockPlatform(this.operatingSystem,
-      {this.operatingSystemVersion = '', this.localHostname = ''});
+extension MockPlatform on FakePlatform {
+  static Platform android() {
+    return FakePlatform(operatingSystem: 'android');
+  }
 
-  const MockPlatform.android() : this('android');
-  const MockPlatform.iOs() : this('ios');
-  const MockPlatform.macOs() : this('macos');
-  const MockPlatform.windows() : this('windows');
-  const MockPlatform.linux() : this('linux');
-  const MockPlatform.fuchsia() : this('fuchsia');
+  static Platform iOS() {
+    return FakePlatform(operatingSystem: 'ios');
+  }
 
-  @override
-  final String operatingSystem;
+  static Platform macOS() {
+    return FakePlatform(operatingSystem: 'macos');
+  }
 
-  @override
-  final String operatingSystemVersion;
+  static Platform linux() {
+    return FakePlatform(operatingSystem: 'linux');
+  }
 
-  @override
-  final String localHostname;
-
-  @override
-  bool get isLinux => (operatingSystem == 'linux');
-
-  @override
-  bool get isMacOS => (operatingSystem == 'macos');
-
-  @override
-  bool get isWindows => (operatingSystem == 'windows');
-
-  @override
-  bool get isAndroid => (operatingSystem == 'android');
-
-  @override
-  bool get isIOS => (operatingSystem == 'ios');
-
-  @override
-  bool get isFuchsia => (operatingSystem == 'fuchsia');
+  static Platform windows() {
+    return FakePlatform(operatingSystem: 'windows');
+  }
 }
 
 class MockPlatformChecker with NoSuchMethodProvider implements PlatformChecker {
@@ -105,7 +88,7 @@ class MockPlatformChecker with NoSuchMethodProvider implements PlatformChecker {
     this.hasNativeIntegration = false,
     this.isRoot = true,
     Platform? mockPlatform,
-  }) : _mockPlatform = mockPlatform ?? MockPlatform('');
+  }) : _mockPlatform = mockPlatform ?? FakePlatform(operatingSystem: '');
 
   final MockPlatformCheckerBuildMode buildMode;
   final bool isWebValue;

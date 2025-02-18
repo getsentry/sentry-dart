@@ -1,6 +1,5 @@
+import 'package:platform/platform.dart';
 import 'package:web/web.dart' as web;
-
-import 'platform.dart';
 
 const Platform instance = WebPlatform();
 
@@ -48,4 +47,52 @@ class WebPlatform extends Platform {
     }
     return 'android';
   }
+
+  @override
+  // TODO: implement environment
+  Map<String, String> get environment => throw UnimplementedError();
+
+  @override
+  // TODO: implement executable
+  String get executable => throw UnimplementedError();
+
+  @override
+  // TODO: implement executableArguments
+  List<String> get executableArguments => throw UnimplementedError();
+
+  @override
+  // TODO: implement localeName
+  String get localeName => throw UnimplementedError();
+
+  @override
+  // TODO: implement numberOfProcessors
+  int get numberOfProcessors => throw UnimplementedError();
+
+  @override
+  // TODO: implement packageConfig
+  String? get packageConfig => throw UnimplementedError();
+
+  @override
+  // TODO: implement pathSeparator
+  String get pathSeparator => throw UnimplementedError();
+
+  @override
+  // TODO: implement resolvedExecutable
+  String get resolvedExecutable => throw UnimplementedError();
+
+  @override
+  // TODO: implement script
+  Uri get script => throw UnimplementedError();
+
+  @override
+  // TODO: implement stdinSupportsAnsi
+  bool get stdinSupportsAnsi => throw UnimplementedError();
+
+  @override
+  // TODO: implement stdoutSupportsAnsi
+  bool get stdoutSupportsAnsi => throw UnimplementedError();
+
+  @override
+  // TODO: implement version
+  String get version => throw UnimplementedError();
 }

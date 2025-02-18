@@ -1,6 +1,6 @@
 import 'dart:async';
-
-import 'platform/platform.dart';
+import 'package:platform/platform.dart';
+import 'platform/platform.dart' as pf;
 
 /// Helper to check in which environment the library is running.
 /// The environment checks (release/debug/profile) are mutually exclusive.
@@ -8,7 +8,7 @@ class PlatformChecker {
   static const _jsUtil = 'dart.library.js_util';
 
   PlatformChecker({
-    this.platform = instance,
+    this.platform = pf.instance,
     bool? isWeb,
     bool? isRootZone,
   })  : isWeb = isWeb ?? _isWebWithWasmSupport(),

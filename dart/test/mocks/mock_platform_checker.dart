@@ -1,4 +1,4 @@
-import 'package:sentry/src/platform/platform.dart';
+import 'package:platform/platform.dart';
 import 'package:sentry/src/platform_checker.dart';
 
 import 'no_such_method_provider.dart';
