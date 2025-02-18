@@ -191,14 +191,6 @@ class MockHub extends _i1.Mock implements _i2.Hub {
       ) as _i5.Future<_i2.SentryId>);
 
   @override
-  _i5.Future<void> captureUserFeedback(_i2.SentryUserFeedback? userFeedback) =>
-      (super.noSuchMethod(
-        Invocation.method(#captureUserFeedback, [userFeedback]),
-        returnValue: _i5.Future<void>.value(),
-        returnValueForMissingStub: _i5.Future<void>.value(),
-      ) as _i5.Future<void>);
-
-  @override
   _i5.Future<_i2.SentryId> captureFeedback(
     _i2.SentryFeedback? feedback, {
     _i2.Hint? hint,

@@ -28,6 +28,7 @@ import 'mocks.dart' as _i9;
 // ignore_for_file: unnecessary_parenthesis
 // ignore_for_file: camel_case_types
 // ignore_for_file: subtype_of_sealed_class
+// ignore_for_file: invalid_use_of_internal_member
 
 class _FakeSentrySpanContext_0 extends _i1.SmartFake
     implements _i2.SentrySpanContext {
@@ -94,7 +95,6 @@ class _FakeHub_11 extends _i1.SmartFake implements _i2.Hub {
 /// A class which mocks [SentryTracer].
 ///
 /// See the documentation for Mockito's code generation for more information.
-// ignore: invalid_use_of_internal_member
 class MockSentryTracer extends _i1.Mock implements _i5.SentryTracer {
   MockSentryTracer() {
     _i1.throwOnMissingStub(this);
@@ -129,14 +129,12 @@ class MockSentryTracer extends _i1.Mock implements _i5.SentryTracer {
       );
 
   @override
-  // ignore: invalid_use_of_internal_member
   set profiler(_i7.SentryProfiler? _profiler) => super.noSuchMethod(
         Invocation.setter(#profiler, _profiler),
         returnValueForMissingStub: null,
       );
 
   @override
-  // ignore: invalid_use_of_internal_member
   set profileInfo(_i7.SentryProfileInfo? _profileInfo) => super.noSuchMethod(
         Invocation.setter(#profileInfo, _profileInfo),
         returnValueForMissingStub: null,
@@ -1086,7 +1084,6 @@ class MockHub extends _i1.Mock implements _i2.Hub {
       ) as _i2.Scope);
 
   @override
-  // ignore: invalid_use_of_internal_member
   set profilerFactory(_i7.SentryProfilerFactory? value) => super.noSuchMethod(
         Invocation.setter(#profilerFactory, value),
         returnValueForMissingStub: null,
@@ -1180,14 +1177,6 @@ class MockHub extends _i1.Mock implements _i2.Hub {
           ),
         ),
       ) as _i4.Future<_i2.SentryId>);
-
-  @override
-  _i4.Future<void> captureUserFeedback(_i2.SentryUserFeedback? userFeedback) =>
-      (super.noSuchMethod(
-        Invocation.method(#captureUserFeedback, [userFeedback]),
-        returnValue: _i4.Future<void>.value(),
-        returnValueForMissingStub: _i4.Future<void>.value(),
-      ) as _i4.Future<void>);
 
   @override
   _i4.Future<_i2.SentryId> captureFeedback(
