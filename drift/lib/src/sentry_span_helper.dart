@@ -1,155 +1,172 @@
-import 'package:meta/meta.dart';
+// ignore_for_file: invalid_use_of_internal_member
 
+import 'dart:collection';
+
+import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 
-import 'sentry_query_executor.dart';
+import 'constants.dart';
 
-/// @nodoc
 @internal
 class SentrySpanHelper {
-  /// @nodoc
-  Hub _hub = HubAdapter();
-
-  /// @nodoc
+  final Hub _hub;
   final String _origin;
 
-  /// @nodoc
-  SentrySpanHelper(this._origin);
+  /// Represents a stack of Drift transaction spans.
+  /// These are used to allow nested spans if the user nests Drift transactions.
+  /// If the transaction stack is empty, the spans are attached to the
+  /// active span in the Hub's scope.
+  final ListQueue<ISentrySpan?> _transactionStack = ListQueue();
 
-  /// @nodoc
-  void setHub(Hub hub) {
-    _hub = hub;
-  }
+  @visibleForTesting
+  ListQueue<ISentrySpan?> get transactionStack => _transactionStack;
 
-  /// @nodoc
-  @internal
+  SentrySpanHelper(this._origin, {Hub? hub}) : _hub = hub ?? HubAdapter();
+
   Future<T> asyncWrapInSpan<T>(
     String description,
     Future<T> Function() execute, {
     String? dbName,
-    bool useTransactionSpan = false,
+    String? operation,
   }) async {
-    ISentrySpan? currentSpan = _hub.getSpan();
-    if (useTransactionSpan) {
-      currentSpan = transactionSpan;
+    final parentSpan = _transactionStack.lastOrNull ?? _hub.getSpan();
+    if (parentSpan == null) {
+      _hub.options.logger(
+        SentryLevel.warning,
+        'Active Sentry transaction does not exist, could not start span for the Drift operation: $description',
+        logger: loggerName,
+      );
+      return execute();
     }
-    final span = currentSpan?.startChild(
-      SentryQueryExecutor.dbOp,
+
+    final span = parentSpan.startChild(
+      operation ?? SentrySpanOperations.dbSqlQuery,
       description: description,
     );
 
-    // ignore: invalid_use_of_internal_member
-    span?.origin = _origin;
+    span.origin = _origin;
 
-    span?.setData(
-      SentryQueryExecutor.dbSystemKey,
-      SentryQueryExecutor.dbSystem,
+    span.setData(
+      SentrySpanData.dbSystemKey,
+      SentrySpanData.dbSystemSqlite,
     );
 
     if (dbName != null) {
-      span?.setData(SentryQueryExecutor.dbNameKey, dbName);
+      span.setData(SentrySpanData.dbNameKey, dbName);
     }
 
     try {
       final result = await execute();
-      span?.status = SpanStatus.ok();
+      span.status = SpanStatus.ok();
 
       return result;
     } catch (exception) {
-      span?.throwable = exception;
-      span?.status = SpanStatus.internalError();
+      span.throwable = exception;
+      span.status = SpanStatus.internalError();
 
       rethrow;
     } finally {
-      await span?.finish();
+      await span.finish();
     }
   }
 
-  /// This span is used for the database transaction.
-  @internal
-  ISentrySpan? transactionSpan;
-
-  /// @nodoc
-  @internal
   T beginTransaction<T>(
-    String description,
     T Function() execute, {
     String? dbName,
   }) {
-    final currentSpan = _hub.getSpan();
-    final span = currentSpan?.startChild(
-      SentryQueryExecutor.dbOp,
-      description: description,
+    final parentSpan = _transactionStack.lastOrNull ?? _hub.getSpan();
+    if (parentSpan == null) {
+      _hub.options.logger(
+        SentryLevel.warning,
+        'Active Sentry transaction does not exist, could not start span for Drift operation: Begin Transaction',
+        logger: loggerName,
+      );
+      return execute();
+    }
+
+    final newParent = parentSpan.startChild(
+      SentrySpanOperations.dbSqlTransaction,
+      description: SentrySpanDescriptions.dbTransaction,
     );
 
-    // ignore: invalid_use_of_internal_member
-    span?.origin = _origin;
+    newParent.origin = _origin;
 
-    span?.setData(
-      SentryQueryExecutor.dbSystemKey,
-      SentryQueryExecutor.dbSystem,
+    newParent.setData(
+      SentrySpanData.dbSystemKey,
+      SentrySpanData.dbSystemSqlite,
     );
 
     if (dbName != null) {
-      span?.setData(SentryQueryExecutor.dbNameKey, dbName);
+      newParent.setData(SentrySpanData.dbNameKey, dbName);
     }
 
     try {
       final result = execute();
-      span?.status = SpanStatus.unknown();
+      newParent.status = SpanStatus.unknown();
+
+      // Only add to the stack if no error occurred
+      _transactionStack.add(newParent);
 
       return result;
     } catch (exception) {
-      span?.throwable = exception;
-      span?.status = SpanStatus.internalError();
+      newParent.throwable = exception;
+      newParent.status = SpanStatus.internalError();
 
       rethrow;
-    } finally {
-      transactionSpan = span;
     }
   }
 
-  /// @nodoc
-  @internal
-  Future<T> finishTransaction<T>(
-    Future<T> Function() execute, {
-    String? dbName,
-  }) async {
+  Future<T> finishTransaction<T>(Future<T> Function() execute) async {
+    final parentSpan = _transactionStack.lastOrNull;
+    if (parentSpan == null) {
+      _hub.options.logger(
+        SentryLevel.warning,
+        'Active Sentry transaction does not exist, could not finish span for Drift operation: Finish Transaction',
+        logger: loggerName,
+      );
+      return execute();
+    }
+
     try {
       final result = await execute();
-      transactionSpan?.status = SpanStatus.ok();
+      parentSpan.status = SpanStatus.ok();
 
       return result;
     } catch (exception) {
-      transactionSpan?.throwable = exception;
-      transactionSpan?.status = SpanStatus.internalError();
+      parentSpan.throwable = exception;
+      parentSpan.status = SpanStatus.internalError();
 
       rethrow;
     } finally {
-      await transactionSpan?.finish();
-      transactionSpan = null;
+      await parentSpan.finish();
+      _transactionStack.removeLast();
     }
   }
 
-  /// @nodoc
-  @internal
-  Future<T> abortTransaction<T>(
-    Future<T> Function() execute, {
-    String? dbName,
-  }) async {
+  Future<T> abortTransaction<T>(Future<T> Function() execute) async {
+    final parentSpan = _transactionStack.lastOrNull;
+    if (parentSpan == null) {
+      _hub.options.logger(
+        SentryLevel.warning,
+        'Active Sentry transaction does not exist, could not finish span for Drift operation: Abort Transaction',
+        logger: loggerName,
+      );
+      return Future<T>.value();
+    }
+
     try {
       final result = await execute();
-      transactionSpan?.status = SpanStatus.aborted();
+      parentSpan.status = SpanStatus.aborted();
 
       return result;
     } catch (exception) {
-      transactionSpan?.throwable = exception;
-      transactionSpan?.status = SpanStatus.internalError();
+      parentSpan.throwable = exception;
+      parentSpan.status = SpanStatus.internalError();
 
       rethrow;
     } finally {
-      await transactionSpan?.finish();
-      transactionSpan = null;
+      await parentSpan.finish();
+      _transactionStack.removeLast();
     }
   }
 }

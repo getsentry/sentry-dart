@@ -2,7 +2,7 @@
 // in sentry_isar/test/mocks/mocks.dart.
 // Do not manually edit this file.
 
-// ignore_for_file: no_leading_underscores_for_library_prefixes, invalid_use_of_internal_member
+// ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _i3;
 import 'dart:typed_data' as _i7;
 
@@ -24,6 +24,7 @@ import 'package:sentry/src/profiling.dart' as _i5;
 // ignore_for_file: unnecessary_parenthesis
 // ignore_for_file: camel_case_types
 // ignore_for_file: subtype_of_sealed_class
+// ignore_for_file: invalid_use_of_internal_member
 
 class _FakeSentryOptions_0 extends _i1.SmartFake implements _i2.SentryOptions {
   _FakeSentryOptions_0(
@@ -286,17 +287,6 @@ class MockHub extends _i1.Mock implements _i2.Hub {
           ),
         )),
       ) as _i3.Future<_i2.SentryId>);
-
-  @override
-  _i3.Future<void> captureUserFeedback(_i2.SentryUserFeedback? userFeedback) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #captureUserFeedback,
-          [userFeedback],
-        ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
 
   @override
   _i3.Future<_i2.SentryId> captureFeedback(

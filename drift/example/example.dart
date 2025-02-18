@@ -22,18 +22,45 @@ Future<void> main() async {
 
 Future<void> runApp() async {
   final tr = Sentry.startTransaction('drift', 'op', bindToScope: true);
-  final executor = SentryQueryExecutor(
-    () => NativeDatabase.memory(),
-    databaseName: 'your_db_name',
+  final executor = NativeDatabase.memory().interceptWith(
+    SentryQueryInterceptor(databaseName: 'your_db_name'),
   );
+
   final db = AppDatabase(executor);
 
-  await db.into(db.todoItems).insert(
+  await db.transaction(() async {
+    await db.into(db.todoItems).insert(
+          TodoItemsCompanion.insert(
+            title: 'This is a test thing',
+            content: 'test',
+          ),
+        );
+
+    await db.transaction(() async {
+      await db.into(db.todoItems).insert(
+            TodoItemsCompanion.insert(
+              title: 'This is a test thing in the tx',
+              content: 'test',
+            ),
+          );
+    });
+
+    await db.batch((batch) {
+      batch.insertAll(db.todoItems, [
+        TodoItemsCompanion.insert(title: 'First entry', content: 'My content'),
         TodoItemsCompanion.insert(
-          title: 'This is a test thing',
-          content: 'test',
+          title: 'Another entry',
+          content: 'More content',
         ),
-      );
+      ]);
+    });
+  });
+
+  await db.batch((batch) async {
+    batch.insertAll(db.todoItems, [
+      TodoItemsCompanion.insert(title: 'This is a test', content: 'test'),
+    ]);
+  });
 
   final items = await db.select(db.todoItems).get();
   print(items);

@@ -1055,14 +1055,6 @@ class MockSentryClient extends _i1.Mock implements _i2.SentryClient {
       ) as _i11.Future<_i2.SentryId?>);
 
   @override
-  _i11.Future<void> captureUserFeedback(_i2.SentryUserFeedback? userFeedback) =>
-      (super.noSuchMethod(
-        Invocation.method(#captureUserFeedback, [userFeedback]),
-        returnValue: _i11.Future<void>.value(),
-        returnValueForMissingStub: _i11.Future<void>.value(),
-      ) as _i11.Future<void>);
-
-  @override
   _i11.Future<_i2.SentryId> captureFeedback(
     _i2.SentryFeedback? feedback, {
     _i2.Scope? scope,
@@ -2700,14 +2692,6 @@ class MockHub extends _i1.Mock implements _i2.Hub {
           ),
         ),
       ) as _i11.Future<_i2.SentryId>);
-
-  @override
-  _i11.Future<void> captureUserFeedback(_i2.SentryUserFeedback? userFeedback) =>
-      (super.noSuchMethod(
-        Invocation.method(#captureUserFeedback, [userFeedback]),
-        returnValue: _i11.Future<void>.value(),
-        returnValueForMissingStub: _i11.Future<void>.value(),
-      ) as _i11.Future<void>);
 
   @override
   _i11.Future<_i2.SentryId> captureFeedback(
