@@ -9,7 +9,6 @@ import 'dart:ui';
 import 'package:flutter/widgets.dart' as widgets;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:sentry_flutter/src/replay/replay_recorder.dart';
 import 'package:sentry_flutter/src/screenshot/recorder.dart';
 import 'package:sentry_flutter/src/screenshot/recorder_config.dart';
 import 'package:sentry_flutter/src/screenshot/screenshot.dart';
