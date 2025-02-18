@@ -30,7 +30,7 @@ jobs:
         working-directory: ${{ matrix.package.name }}
     steps:
       - uses: actions/checkout@v4
-      - uses: dart-lang/setup-dart@e630b99d28a3b71860378cafdc2a067c71107f94 # pin@v1
+      - uses: dart-lang/setup-dart@e51d8e571e22473a2ddebf0ef8a2123f0ab2c02c # pin@v1
         if: ${{ matrix.package.sdk == 'dart' }}
       - uses: subosito/flutter-action@f2c4f6686ca8e8d6e6d0f28410eeef506ed66aff # pin@v2.18.0
         if: ${{ matrix.package.sdk == 'flutter' }}

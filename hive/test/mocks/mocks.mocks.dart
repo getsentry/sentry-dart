@@ -9,19 +9,17 @@ import 'dart:typed_data' as _i9;
 import 'package:hive/hive.dart' as _i3;
 import 'package:hive/src/box/default_compaction_strategy.dart' as _i8;
 import 'package:hive/src/box/default_key_comparator.dart' as _i7;
-import 'package:mockito/mockito.dart' as _i1;
-import 'package:mockito/src/dummies.dart' as _i6;
-import 'package:sentry/sentry.dart' as _i2;
-import 'package:sentry/src/profiling.dart' as _i4;
-
-import 'package:hive/src/box_collection/box_collection_stub.dart' as stub;
-
 // ignore: implementation_imports
 import 'package:hive/src/box_collection/box_collection_stub.dart'
     if (dart.library.html) 'package:hive/src/box_collection/box_collection_indexed_db.dart'
     if (dart.library.js_interop) 'package:hive/src/box_collection/box_collection_indexed_db.dart'
     if (dart.library.io) 'package:hive/src/box_collection/box_collection.dart'
     as impl;
+import 'package:hive/src/box_collection/box_collection_stub.dart' as stub;
+import 'package:mockito/mockito.dart' as _i1;
+import 'package:mockito/src/dummies.dart' as _i6;
+import 'package:sentry/sentry.dart' as _i2;
+import 'package:sentry/src/profiling.dart' as _i4;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -206,14 +204,6 @@ class MockHub extends _i1.Mock implements _i2.Hub {
           ),
         ),
       ) as _i5.Future<_i2.SentryId>);
-
-  @override
-  _i5.Future<void> captureUserFeedback(_i2.SentryUserFeedback? userFeedback) =>
-      (super.noSuchMethod(
-        Invocation.method(#captureUserFeedback, [userFeedback]),
-        returnValue: _i5.Future<void>.value(),
-        returnValueForMissingStub: _i5.Future<void>.value(),
-      ) as _i5.Future<void>);
 
   @override
   _i5.Future<_i2.SentryId> captureFeedback(

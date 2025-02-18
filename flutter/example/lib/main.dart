@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
+import 'package:drift/drift.dart' show ApplyInterceptor;
 import 'package:feedback/feedback.dart' as feedback;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -83,7 +84,6 @@ Future<void> setupSentry(
       options.enableTimeToFullDisplayTracing = true;
 
       options.maxRequestBodySize = MaxRequestBodySize.always;
-      options.maxResponseBodySize = MaxResponseBodySize.always;
       options.navigatorKey = navigatorKey;
 
       options.experimental.replay.sessionSampleRate = 1.0;
@@ -654,10 +654,8 @@ class MainScaffold extends StatelessWidget {
       bindToScope: true,
     );
 
-    final executor = SentryQueryExecutor(
-      () async => inMemoryExecutor(),
-      databaseName: 'sentry_in_memory_db',
-    );
+    final executor = inMemoryExecutor().interceptWith(
+        SentryQueryInterceptor(databaseName: 'sentry_in_memory_db'));
 
     final db = AppDatabase(executor);
 

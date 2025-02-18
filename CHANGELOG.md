@@ -8,15 +8,21 @@
 - Increase minimum SDK version requirements to Dart v3.5.0 and Flutter v3.24.0 ([#2643](https://github.com/getsentry/sentry-dart/pull/2643))
 - Remove screenshot option `attachScreenshotOnlyWhenResumed` ([#2664](https://github.com/getsentry/sentry-dart/pull/2664))
 - Remove deprecated `beforeScreenshot` ([#2662](https://github.com/getsentry/sentry-dart/pull/2662))
+- Remove old user feedback api ([#2686](https://github.com/getsentry/sentry-dart/pull/2686))
 - Remove deprecated loggers ([#2685](https://github.com/getsentry/sentry-dart/pull/2685))
 - Remove user segment ([#2687](https://github.com/getsentry/sentry-dart/pull/2687))
 - Enable JS SDK native integration by default ([#2688](https://github.com/getsentry/sentry-dart/pull/2688))
 - Remove `enableTracing` ([#2695](https://github.com/getsentry/sentry-dart/pull/2695))
 - Remove `options.autoAppStart` and `setAppStartEnd` ([#2680](https://github.com/getsentry/sentry-dart/pull/2680))
+- Bump Drift min version to `2.24.0` and use `QueryInterceptor` instead of `QueryExecutor` ([#2679](https://github.com/getsentry/sentry-dart/pull/2679))
 - Add hint for transactions ([#2675](https://github.com/getsentry/sentry-dart/pull/2675))
   - `BeforeSendTransactionCallback` now has a `Hint` parameter
 - Remove `dart:html` usage in favour of `package:web` ([#2710](https://github.com/getsentry/sentry-dart/pull/2710))
-
+- Remove max response body size ([#2709](https://github.com/getsentry/sentry-dart/pull/2709))
+  - Responses are now only attached if size is below ~0.15mb
+  - Responses are attached to the `Hint` object, which can be read in `beforeSend`/`beforeSendTransaction` callbacks via `hint.response`.
+  - For now, only the `dio` integration is supported.
+  
 ### Enhancements
 
 - Replay: improve Android native interop performance by using JNI ([#2670](https://github.com/getsentry/sentry-dart/pull/2670))
@@ -39,6 +45,16 @@
 
 ### Deprecations
 
+- Deprecate Drift `SentryQueryExecutor` ([#2715](https://github.com/getsentry/sentry-dart/pull/2715))
+  - This will be replace by `SentryQueryInterceptor` in the next major v9
+```dart
+// Example usage in Sentry Flutter v9
+final executor = NativeDatabase.memory().interceptWith(
+  SentryQueryInterceptor(databaseName: 'your_db_name'),
+);
+
+final db = AppDatabase(executor);
+```
 - Deprecate `autoAppStart` and `setAppStartEnd` ([#2681](https://github.com/getsentry/sentry-dart/pull/2681))
 
 ### Other
