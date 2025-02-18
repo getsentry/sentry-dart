@@ -1,6 +1,8 @@
 import 'protocol/sentry_response.dart';
 import 'sentry_attachment/sentry_attachment.dart';
 
+import 'package:meta/meta.dart';
+
 /// Hints are used in [BeforeSendCallback], [BeforeBreadcrumbCallback] and
 /// event processors.
 ///
@@ -41,6 +43,7 @@ import 'sentry_attachment/sentry_attachment.dart';
 /// };
 /// ```
 class Hint {
+  @internal
   static const maxResponseBodySize = 157286;
 
   final Map<String, dynamic> _internalStorage = {};

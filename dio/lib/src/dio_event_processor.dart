@@ -101,6 +101,7 @@ class DioEventProcessor implements EventProcessor {
     if (contentLength == null) {
       return null;
     }
+    // ignore: invalid_use_of_internal_member
     if (contentLength > Hint.maxResponseBodySize) {
       return null;
     }
