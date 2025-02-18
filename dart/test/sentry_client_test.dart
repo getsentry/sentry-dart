@@ -6,6 +6,7 @@ import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/client_reports/discard_reason.dart';
 import 'package:sentry/src/client_reports/noop_client_report_recorder.dart';
+import 'package:sentry/src/platform/mock_platform.dart';
 import 'package:sentry/src/sentry_item_type.dart';
 import 'package:sentry/src/sentry_stack_trace_factory.dart';
 import 'package:sentry/src/sentry_tracer.dart';
@@ -19,7 +20,6 @@ import 'package:test/test.dart';
 import 'mocks.dart';
 import 'mocks/mock_client_report_recorder.dart';
 import 'mocks/mock_hub.dart';
-import 'mocks/mock_platform.dart';
 import 'mocks/mock_platform_checker.dart';
 import 'mocks/mock_transport.dart';
 import 'test_utils.dart';
@@ -1905,7 +1905,8 @@ void main() {
     test(
         'Spotlight enabled should set transport to SpotlightHttpTransport on Web',
         () async {
-      fixture.options.platformChecker = MockPlatformChecker(isWebValue: true);
+      fixture.options.platformChecker =
+          MockPlatformChecker(platform: MockPlatform(isWeb: true));
       fixture.options.spotlight = Spotlight(enabled: true);
       fixture.getSut();
 

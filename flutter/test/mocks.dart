@@ -12,7 +12,7 @@ import 'package:sentry_flutter/src/frames_tracking/sentry_delayed_frames_tracker
 import 'package:sentry_flutter/src/native/sentry_native_binding.dart';
 import 'package:sentry_flutter/src/renderer/renderer.dart';
 import 'package:sentry_flutter/src/web/sentry_js_binding.dart';
-import 'package:platform/platform.dart';
+import 'package:sentry/src/platform/platform.dart';
 
 import 'mocks.mocks.dart';
 import 'no_such_method_provider.dart';
@@ -59,39 +59,15 @@ ISentrySpan startTransactionShim(
 ])
 void main() {}
 
-extension MockPlatform on FakePlatform {
-  static Platform android() {
-    return FakePlatform(operatingSystem: 'android');
-  }
-
-  static Platform iOS() {
-    return FakePlatform(operatingSystem: 'ios');
-  }
-
-  static Platform macOS() {
-    return FakePlatform(operatingSystem: 'macos');
-  }
-
-  static Platform linux() {
-    return FakePlatform(operatingSystem: 'linux');
-  }
-
-  static Platform windows() {
-    return FakePlatform(operatingSystem: 'windows');
-  }
-}
-
 class MockPlatformChecker with NoSuchMethodProvider implements PlatformChecker {
   MockPlatformChecker({
     this.buildMode = MockPlatformCheckerBuildMode.debug,
-    this.isWebValue = false,
     this.hasNativeIntegration = false,
     this.isRoot = true,
     Platform? mockPlatform,
-  }) : _mockPlatform = mockPlatform ?? FakePlatform(operatingSystem: '');
+  }) : _mockPlatform = mockPlatform ?? currentPlatform;
 
   final MockPlatformCheckerBuildMode buildMode;
-  final bool isWebValue;
   final bool isRoot;
   final Platform _mockPlatform;
 
@@ -109,9 +85,6 @@ class MockPlatformChecker with NoSuchMethodProvider implements PlatformChecker {
 
   @override
   bool get isRootZone => isRoot;
-
-  @override
-  bool get isWeb => isWebValue;
 
   @override
   Platform get platform => _mockPlatform;

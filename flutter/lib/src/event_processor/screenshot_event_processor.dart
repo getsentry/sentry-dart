@@ -92,7 +92,7 @@ class ScreenshotEventProcessor implements EventProcessor {
 
     final renderer = _options.rendererWrapper.getRenderer();
 
-    if (_options.platformChecker.isWeb &&
+    if (_options.platformChecker.platform.isWeb &&
         renderer != FlutterRenderer.canvasKit) {
       _options.logger(
         SentryLevel.debug,

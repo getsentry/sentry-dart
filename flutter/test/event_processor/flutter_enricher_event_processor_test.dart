@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:sentry/src/platform/mock_platform.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/event_processor/flutter_enricher_event_processor.dart';
 
@@ -223,22 +224,22 @@ void main() {
     testWidgets('adds correct flutter runtime', (WidgetTester tester) async {
       final checkerMap = {
         MockPlatformChecker(
-            isWebValue: false,
+            mockPlatform: MockPlatform(isWeb: false),
             buildMode: MockPlatformCheckerBuildMode.debug): 'Dart VM',
         MockPlatformChecker(
-            isWebValue: false,
+            mockPlatform: MockPlatform(isWeb: false),
             buildMode: MockPlatformCheckerBuildMode.profile): 'Dart AOT',
         MockPlatformChecker(
-            isWebValue: false,
+            mockPlatform: MockPlatform(isWeb: false),
             buildMode: MockPlatformCheckerBuildMode.release): 'Dart AOT',
         MockPlatformChecker(
-            isWebValue: true,
+            mockPlatform: MockPlatform(isWeb: true),
             buildMode: MockPlatformCheckerBuildMode.debug): 'dartdevc',
         MockPlatformChecker(
-            isWebValue: true,
+            mockPlatform: MockPlatform(isWeb: true),
             buildMode: MockPlatformCheckerBuildMode.profile): 'dart2js',
         MockPlatformChecker(
-            isWebValue: true,
+            mockPlatform: MockPlatform(isWeb: true),
             buildMode: MockPlatformCheckerBuildMode.release): 'dart2js',
       };
 

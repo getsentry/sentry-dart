@@ -74,7 +74,7 @@ mixin SentryFlutter {
     // Flutter Web doesn't capture [Future] errors if using [PlatformDispatcher.onError] and not
     // the [runZonedGuarded].
     // likely due to https://github.com/flutter/flutter/issues/100277
-    final isOnErrorSupported = !options.platformChecker.isWeb;
+    final isOnErrorSupported = !options.platformChecker.platform.isWeb;
 
     final bool isRootZone = options.platformChecker.isRootZone;
 
@@ -126,13 +126,13 @@ mixin SentryFlutter {
     // Not all platforms have a native integration.
     if (_native != null) {
       if (_native!.supportsCaptureEnvelope) {
-        if (options.platformChecker.isWeb) {
+        if (options.platformChecker.platform.isWeb) {
           options.transport = JavascriptTransport(_native!, options);
         } else {
           options.transport = FileSystemTransport(_native!, options);
         }
       }
-      if (!options.platformChecker.isWeb) {
+      if (!options.platformChecker.platform.isWeb) {
         options.addScopeObserver(NativeScopeObserver(_native!));
       }
     }
@@ -180,7 +180,7 @@ mixin SentryFlutter {
     final native = _native;
     if (native != null) {
       integrations.add(createSdkIntegration(native));
-      if (!platformChecker.isWeb) {
+      if (!platformChecker.platform.isWeb) {
         if (native.supportsLoadContexts) {
           integrations.add(LoadContextsIntegration(native));
         }
@@ -198,11 +198,12 @@ mixin SentryFlutter {
     }
 
     final renderer = options.rendererWrapper.getRenderer();
-    if (!platformChecker.isWeb || renderer == FlutterRenderer.canvasKit) {
+    if (!platformChecker.platform.isWeb ||
+        renderer == FlutterRenderer.canvasKit) {
       integrations.add(ScreenshotIntegration());
     }
 
-    if (platformChecker.isWeb) {
+    if (platformChecker.platform.isWeb) {
       integrations.add(ConnectivityIntegration());
     }
 

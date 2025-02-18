@@ -13,7 +13,8 @@ class SentryViewHierarchyIntegration
   void call(Hub hub, SentryFlutterOptions options) {
     // View hierarchy is always minified on Web and we don't support
     // symbolication of source maps for view hierarchy yet.
-    if (!options.attachViewHierarchy || options.platformChecker.isWeb) {
+    if (!options.attachViewHierarchy ||
+        options.platformChecker.platform.isWeb) {
       return;
     }
     _options = options;

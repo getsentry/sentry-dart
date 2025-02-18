@@ -34,12 +34,13 @@ void main() {
       setUpAll(() async {
         late final List<String> expectedDistFiles;
         if (backend.actualValue == NativeBackend.crashpad) {
-          expectedDistFiles = platform.instance.isWindows
+          expectedDistFiles = platform.currentPlatform.isWindows
               ? ['sentry.dll', 'crashpad_handler.exe', 'crashpad_wer.dll']
               : ['libsentry.so', 'crashpad_handler'];
         } else {
-          expectedDistFiles =
-              platform.instance.isWindows ? ['sentry.dll'] : ['libsentry.so'];
+          expectedDistFiles = platform.currentPlatform.isWindows
+              ? ['sentry.dll']
+              : ['libsentry.so'];
         }
 
         helper = NativeTestHelper(
@@ -246,10 +247,11 @@ void main() {
       test('loadDebugImages', () async {
         final list = await sut.loadDebugImages(SentryStackTrace(frames: []));
         expect(list, isNotEmpty);
-        expect(list![0].type, platform.instance.isWindows ? 'pe' : 'elf');
+        expect(
+            list![0].type, platform.currentPlatform.isWindows ? 'pe' : 'elf');
         expect(list[0].debugId!.length, greaterThan(30));
         expect(list[0].debugFile,
-            platform.instance.isWindows ? isNotEmpty : isNull);
+            platform.currentPlatform.isWindows ? isNotEmpty : isNull);
         expect(list[0].imageSize, greaterThan(0));
         expect(list[0].imageAddr, startsWith('0x'));
         expect(list[0].imageAddr?.length, greaterThan(2));
@@ -314,7 +316,7 @@ int main(int argc, char *argv[]) { return 0; }
       File('$cmakeConfDir/CMakeLists.txt').writeAsStringSync('''
 cmake_minimum_required(VERSION 3.14)
 project(sentry-native-flutter-test)
-add_subdirectory(../../../${platform.instance.operatingSystem} plugin)
+add_subdirectory(../../../${platform.currentPlatform.operatingSystem.name} plugin)
 add_executable(\${CMAKE_PROJECT_NAME} main.c)
 target_link_libraries(\${CMAKE_PROJECT_NAME} PRIVATE sentry_flutter_plugin)
 
@@ -333,7 +335,7 @@ set(CMAKE_INSTALL_PREFIX "${buildOutputDir.replaceAll('\\', '/')}")
         '--config',
         'Release',
       ]);
-      if (platform.instance.isLinux &&
+      if (platform.currentPlatform.isLinux &&
           nativeBackend.actualValue == NativeBackend.crashpad) {
         await _exec('chmod', ['+x', '$buildOutputDir/crashpad_handler']);
       }

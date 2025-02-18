@@ -499,7 +499,8 @@ class SentryOptions {
     if (checker != null) {
       platformChecker = checker;
     }
-    sdk = SdkVersion(name: sdkName(platformChecker.isWeb), version: sdkVersion);
+    sdk = SdkVersion(
+        name: sdkName(platformChecker.platform.isWeb), version: sdkVersion);
     sdk.addPackage('pub:sentry', sdkVersion);
   }
 

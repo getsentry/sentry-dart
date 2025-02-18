@@ -26,7 +26,7 @@ class SentryNativeProfilerFactory implements SentryProfilerFactory {
       return;
     }
 
-    if (options.platformChecker.isWeb) {
+    if (options.platformChecker.platform.isWeb) {
       return;
     }
 

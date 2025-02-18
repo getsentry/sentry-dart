@@ -1,10 +1,10 @@
 // ignore_for_file: invalid_use_of_internal_member
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:platform/platform.dart';
+import 'package:sentry/src/platform/platform.dart';
+import 'package:sentry/src/platform/mock_platform.dart';
 import 'package:sentry/src/dart_exception_type_identifier.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/file_system_transport.dart';
@@ -761,12 +761,10 @@ void loadTestPackage() {
 
 PlatformChecker getPlatformChecker({
   required Platform platform,
-  bool isWeb = kIsWeb,
   bool isRootZone = true,
 }) {
   final platformChecker = PlatformChecker(
     platform: platform,
-    isWeb: isWeb,
     isRootZone: isRootZone,
   );
   return platformChecker;
