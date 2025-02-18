@@ -41,6 +41,8 @@ import 'sentry_attachment/sentry_attachment.dart';
 /// };
 /// ```
 class Hint {
+  static const maxResponseBodySize = 157286;
+
   final Map<String, dynamic> _internalStorage = {};
 
   final List<SentryAttachment> attachments = [];

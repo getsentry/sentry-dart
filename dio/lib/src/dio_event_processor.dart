@@ -101,7 +101,7 @@ class DioEventProcessor implements EventProcessor {
     if (contentLength == null) {
       return null;
     }
-    if (contentLength > 157286) {
+    if (contentLength > Hint.maxResponseBodySize) {
       return null;
     }
     return data;
