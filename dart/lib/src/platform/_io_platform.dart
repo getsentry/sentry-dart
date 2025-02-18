@@ -1,7 +1,6 @@
-export 'platform_interface.dart';
-
-import 'platform_interface.dart';
 import 'dart:io' as io;
+
+import 'platform.dart';
 
 const Platform currentPlatform = IOPlatform();
 

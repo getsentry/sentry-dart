@@ -1,7 +1,6 @@
-export 'platform_interface.dart';
-
 import 'package:web/web.dart' as web;
-import 'platform_interface.dart';
+
+import 'platform.dart';
 
 const Platform currentPlatform = WebPlatform();
 
