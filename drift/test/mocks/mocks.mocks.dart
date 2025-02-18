@@ -476,40 +476,19 @@ class MockLazyDatabase extends _i1.Mock implements _i6.LazyDatabase {
       ) as _i5.Future<void>);
 }
 
-/// A class which mocks [TransactionExecutor].
+/// A class which mocks [QueryExecutor].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockTransactionExecutor extends _i1.Mock
-    implements _i3.TransactionExecutor {
-  MockTransactionExecutor() {
+class MockQueryExecutor extends _i1.Mock implements _i3.QueryExecutor {
+  MockQueryExecutor() {
     _i1.throwOnMissingStub(this);
   }
-
-  @override
-  bool get supportsNestedTransactions => (super.noSuchMethod(
-        Invocation.getter(#supportsNestedTransactions),
-        returnValue: false,
-      ) as bool);
 
   @override
   _i3.SqlDialect get dialect => (super.noSuchMethod(
         Invocation.getter(#dialect),
         returnValue: _i3.SqlDialect.sqlite,
       ) as _i3.SqlDialect);
-
-  @override
-  _i5.Future<void> send() => (super.noSuchMethod(
-        Invocation.method(#send, []),
-        returnValue: _i5.Future<void>.value(),
-        returnValueForMissingStub: _i5.Future<void>.value(),
-      ) as _i5.Future<void>);
-
-  @override
-  _i5.Future<void> rollback() => (super.noSuchMethod(
-        Invocation.method(#rollback, []),
-        returnValue: _i5.Future<void>.value(),
-        returnValueForMissingStub: _i5.Future<void>.value(),
-      ) as _i5.Future<void>);
 
   @override
   _i5.Future<bool> ensureOpen(_i3.QueryExecutorUser? user) =>
