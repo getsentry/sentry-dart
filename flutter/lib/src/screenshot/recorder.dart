@@ -26,21 +26,17 @@ class ScreenshotRecorder {
   bool _warningLogged = false;
   late final SentryMaskingConfig? _maskingConfig;
 
-  // TODO: remove in the next major release, see recorder_test.dart.
-  @visibleForTesting
-  bool get hasWidgetFilter => _maskingConfig != null;
-
   ScreenshotRecorder(
     this.config,
     this.options, {
     SentryPrivacyOptions? privacyOptions,
     this.logName = 'ScreenshotRecorder',
   }) {
-    privacyOptions ??= options.experimental.privacyForScreenshots;
+    privacyOptions ??= options.experimental.privacy;
 
     final maskingConfig =
-        privacyOptions?.buildMaskingConfig(_log, options.platformChecker);
-    _maskingConfig = (maskingConfig?.length ?? 0) > 0 ? maskingConfig : null;
+        privacyOptions.buildMaskingConfig(_log, options.platformChecker);
+    _maskingConfig = maskingConfig.length > 0 ? maskingConfig : null;
   }
 
   void _log(SentryLevel level, String message,

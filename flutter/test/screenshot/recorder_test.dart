@@ -114,31 +114,6 @@ void main() async {
     expect(await fixture.capture(), isNull);
   });
 
-  // TODO: remove in the next major release, see _SentryFlutterExperimentalOptions.
-  group('Widget filter is used based on config or application', () {
-    test('Uses widget filter by default for Replay', () {
-      final sut = ReplayScreenshotRecorder(
-        ScreenshotRecorderConfig(),
-        defaultTestOptions(),
-      );
-      expect(sut.hasWidgetFilter, isTrue);
-    });
-
-    test('Does not use widget filter by default for Screenshots', () {
-      final sut =
-          ScreenshotRecorder(ScreenshotRecorderConfig(), defaultTestOptions());
-      expect(sut.hasWidgetFilter, isFalse);
-    });
-
-    test(
-        'Uses widget filter for Screenshots when privacy configured explicitly',
-        () {
-      final sut = ScreenshotRecorder(ScreenshotRecorderConfig(),
-          defaultTestOptions()..experimental.privacy.maskAllText = false);
-      expect(sut.hasWidgetFilter, isTrue);
-    });
-  });
-
   group('$Screenshot', () {
     test('listEquals()', () {
       expect(
