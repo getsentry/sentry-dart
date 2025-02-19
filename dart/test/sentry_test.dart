@@ -5,7 +5,6 @@ import 'package:sentry/src/dart_exception_type_identifier.dart';
 import 'package:sentry/src/event_processor/deduplication_event_processor.dart';
 import 'package:test/test.dart';
 
-import 'fake_platform_checker.dart';
 import 'mocks.dart';
 import 'mocks/mock_integration.dart';
 import 'mocks/mock_platform_checker.dart';
@@ -443,7 +442,7 @@ void main() {
   });
 
   test('options.environment debug', () async {
-    final sentryOptions = defaultTestOptions(FakePlatformChecker.debugMode());
+    final sentryOptions = defaultTestOptions(MockPlatformChecker(isDebug: true));
     await Sentry.init(
       (options) {
         options.dsn = fakeDsn;
@@ -455,7 +454,7 @@ void main() {
   });
 
   test('options.environment profile', () async {
-    final sentryOptions = defaultTestOptions(FakePlatformChecker.profileMode());
+    final sentryOptions = defaultTestOptions(MockPlatformChecker(isProfile: true));
 
     await Sentry.init(
       (options) {
@@ -468,7 +467,7 @@ void main() {
   });
 
   test('options.environment production (defaultEnvironment)', () async {
-    final sentryOptions = defaultTestOptions(FakePlatformChecker.releaseMode());
+    final sentryOptions = defaultTestOptions(MockPlatformChecker(isRelease: true));
     await Sentry.init(
       (options) {
         options.dsn = fakeDsn;
@@ -480,7 +479,7 @@ void main() {
   });
 
   test('options.logger is set by setting the debug flag', () async {
-    final sentryOptions = defaultTestOptions(FakePlatformChecker.debugMode());
+    final sentryOptions = defaultTestOptions(MockPlatformChecker(isDebug: true));
 
     await Sentry.init(
       (options) {
@@ -507,7 +506,7 @@ void main() {
     test('throw is handled and logged', () async {
       // Use release mode in platform checker to avoid additional log
       final sentryOptions =
-          defaultTestOptions(FakePlatformChecker.releaseMode())
+          defaultTestOptions(MockPlatformChecker(isRelease: true))
             ..automatedTestMode = false
             ..debug = true
             ..logger = fixture.mockLogger;
