@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- ⚠️ Auto IP assignment for `SentryUser` is now guarded by `sendDefaultPii` ([#2726](https://github.com/getsentry/sentry-dart/pull/2726))
+  - If you rely on Sentry automatically processing the IP address of the user, set `options.sendDefaultPii = true` or manually set the ip address of the `SentryUser` to `{{auto}}`
+
 ### Features
 
 - Disable `ScreenshotIntegration`, `WidgetsBindingIntegration` and `SentryWidget` in multi-view apps #2366 ([#2366](https://github.com/getsentry/sentry-dart/pull/2366))
