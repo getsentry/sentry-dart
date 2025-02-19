@@ -17,7 +17,8 @@ class MockPlatform extends Platform {
   }) {
     this.isWeb = isWeb ?? super.isWeb;
     this.operatingSystem = operatingSystem ?? super.operatingSystem;
-    this.operatingSystemVersion = operatingSystemVersion ?? super.operatingSystemVersion;
+    this.operatingSystemVersion =
+        operatingSystemVersion ?? super.operatingSystemVersion;
   }
 
   factory MockPlatform.android({bool isWeb = false}) {

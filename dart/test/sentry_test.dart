@@ -442,7 +442,8 @@ void main() {
   });
 
   test('options.environment debug', () async {
-    final sentryOptions = defaultTestOptions(MockPlatformChecker(isDebug: true));
+    final sentryOptions =
+        defaultTestOptions(MockPlatformChecker(isDebug: true));
     await Sentry.init(
       (options) {
         options.dsn = fakeDsn;
@@ -454,7 +455,8 @@ void main() {
   });
 
   test('options.environment profile', () async {
-    final sentryOptions = defaultTestOptions(MockPlatformChecker(isProfile: true));
+    final sentryOptions =
+        defaultTestOptions(MockPlatformChecker(isProfile: true));
 
     await Sentry.init(
       (options) {
@@ -467,7 +469,8 @@ void main() {
   });
 
   test('options.environment production (defaultEnvironment)', () async {
-    final sentryOptions = defaultTestOptions(MockPlatformChecker(isRelease: true));
+    final sentryOptions =
+        defaultTestOptions(MockPlatformChecker(isRelease: true));
     await Sentry.init(
       (options) {
         options.dsn = fakeDsn;
@@ -479,7 +482,8 @@ void main() {
   });
 
   test('options.logger is set by setting the debug flag', () async {
-    final sentryOptions = defaultTestOptions(MockPlatformChecker(isDebug: true));
+    final sentryOptions =
+        defaultTestOptions(MockPlatformChecker(isDebug: true));
 
     await Sentry.init(
       (options) {
