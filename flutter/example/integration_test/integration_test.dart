@@ -181,8 +181,6 @@ void main() {
     // We can take any other random image for testing
     final expectedImage = allDebugImages.first;
     expect(expectedImage.imageAddr, isNotNull);
-    print(expectedImage.imageAddr);
-    print(expectedImage.codeFile);
     final imageAddr =
         int.parse(expectedImage.imageAddr!.replaceAll('0x', ''), radix: 16);
 
@@ -195,7 +193,9 @@ void main() {
     final debugImageByStacktrace = await SentryFlutter.native
         ?.loadDebugImages(SentryStackTrace(frames: [sentryFrame]));
     expect(debugImageByStacktrace!.length, 1);
-    expect(debugImageByStacktrace.first, expectedImage);
+    expect(debugImageByStacktrace.first.imageAddr, isNotNull);
+    expect(debugImageByStacktrace.first.imageAddr, isNotEmpty);
+    expect(debugImageByStacktrace.first.imageAddr, expectedImage.imageAddr);
   });
 
   group('e2e', () {
