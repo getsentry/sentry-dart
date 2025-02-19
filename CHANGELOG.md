@@ -36,13 +36,25 @@
 
 ## Unreleased
 
+### Behavioral changes
+
+- ⚠️ Auto IP assignment for `SentryUser` is now guarded by `sendDefaultPii` ([#2726](https://github.com/getsentry/sentry-dart/pull/2726))
+  - If you rely on Sentry automatically processing the IP address of the user, set `options.sendDefaultPii = true` or manually set the IP address of the `SentryUser` to `{{auto}}`
+
 ### Features
 
 - Disable `ScreenshotIntegration`, `WidgetsBindingIntegration` and `SentryWidget` in multi-view apps #2366 ([#2366](https://github.com/getsentry/sentry-dart/pull/2366))
 
-### Fixes 
+### Enhancements
+
+- Use `loadDebugImagesForAddresses` API for Android ([#2706](https://github.com/getsentry/sentry-dart/pull/2706))
+  - This reduces the envelope size and data transferred across method channels
+  - If debug images received by `loadDebugImagesForAddresses` are empty, the SDK loads all debug images as fallback
+
+### Fixes
 
 - Reference to `SentryWidgetsFlutterBinding` in warning message in `FramesTrackingIntegration` ([#2704](https://github.com/getsentry/sentry-dart/pull/2704))
+- Replay video interruption if a `navigation` breadcrumb is missing `to` route info ([#2720](https://github.com/getsentry/sentry-dart/pull/2720))
 
 ### Deprecations
 
@@ -72,6 +84,9 @@ final db = AppDatabase(executor);
 - Bump Native SDK from v0.7.19 to v0.7.20 ([#2652](https://github.com/getsentry/sentry-dart/pull/2652))
   - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#0720)
   - [diff](https://github.com/getsentry/sentry-native/compare/0.7.19...0.7.20)
+- Bump Cocoa SDK from v8.44.0 to v8.45.0 ([#2718](https://github.com/getsentry/sentry-dart/pull/2718))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8450)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.44.0...8.45.0)
 
 ## 8.13.0
 
