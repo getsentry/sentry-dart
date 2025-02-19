@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixes
+
+- Replay video interruption if a `navigation` breadcrumb is missing `to` route info ([#2720](https://github.com/getsentry/sentry-dart/pull/2720))
+
 ### Dependencies
 
 - Bump Android SDK from v7.20.1 to v7.22.0 ([#2705](https://github.com/getsentry/sentry-dart/pull/2705))
