@@ -308,19 +308,16 @@ class SentryClient {
 
   SentryEvent _createUserOrSetDefaultIpAddress(SentryEvent event) {
     final user = event.user;
-    // Set default IP address if sendDefaultPii is enabled and no existing IP
-    final effectiveIpAddress =
-        user?.ipAddress ?? (_options.sendDefaultPii ? _defaultIpAddress : null);
-
-    if (user == null && effectiveIpAddress != null) {
-      return event.copyWith(user: SentryUser(ipAddress: effectiveIpAddress));
+    final effectiveIpAddress = user?.ipAddress ?? (_options.sendDefaultPii ? _defaultIpAddress : null);
+    
+    if (effectiveIpAddress != null) {
+      final updatedUser = user == null 
+          ? SentryUser(ipAddress: effectiveIpAddress)
+          : user.copyWith(ipAddress: effectiveIpAddress);
+          
+      return event.copyWith(user: updatedUser);
     }
-
-    if (user?.ipAddress == null && effectiveIpAddress != null) {
-      return event.copyWith(
-          user: user?.copyWith(ipAddress: effectiveIpAddress));
-    }
-
+    
     return event;
   }
 
