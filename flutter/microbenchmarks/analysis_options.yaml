@@ -5,5 +5,3 @@ analyzer:
     avoid_print: ignore
     implementation_imports: ignore
     invalid_use_of_internal_member: ignore
-  enable-experiment:
-    - records
