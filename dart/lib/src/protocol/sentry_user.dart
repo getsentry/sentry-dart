@@ -47,7 +47,11 @@ class SentryUser {
     Map<String, dynamic>? extras,
     this.unknown,
   })  : assert(
-          id != null || username != null || email != null || segment != null,
+          id != null ||
+              username != null ||
+              email != null ||
+              ipAddress != null ||
+              segment != null,
         ),
         data = data == null ? null : Map.from(data),
         // ignore: deprecated_member_use_from_same_package

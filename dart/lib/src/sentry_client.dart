@@ -312,12 +312,13 @@ class SentryClient {
     final effectiveIpAddress =
         user?.ipAddress ?? (_options.sendDefaultPii ? _defaultIpAddress : null);
 
-    if (user == null) {
+    if (user == null && effectiveIpAddress != null) {
       return event.copyWith(user: SentryUser(ipAddress: effectiveIpAddress));
     }
 
-    if (user.ipAddress == null) {
-      return event.copyWith(user: user.copyWith(ipAddress: effectiveIpAddress));
+    if (user?.ipAddress == null && effectiveIpAddress != null) {
+      return event.copyWith(
+          user: user?.copyWith(ipAddress: effectiveIpAddress));
     }
 
     return event;

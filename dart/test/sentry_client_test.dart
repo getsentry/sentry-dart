@@ -1034,8 +1034,7 @@ void main() {
       final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
       expect(fixture.transport.envelopes.length, 1);
-      expect(capturedEvent.user, isNotNull);
-      expect(capturedEvent.user?.ipAddress, isNull);
+      expect(capturedEvent.user, isNull);
     });
 
     test('event has a user with IP address', () async {
