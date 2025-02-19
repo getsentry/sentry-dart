@@ -2,16 +2,12 @@ import 'package:web/web.dart' as web;
 
 import 'platform.dart';
 
-const Platform currentPlatform = WebPlatform();
-
 /// [Platform] implementation that delegates to `dart:web`.
-class WebPlatform extends Platform {
-  const WebPlatform();
+class PlatformBase {
+  const PlatformBase();
 
-  @override
   bool get isWeb => true;
 
-  @override
   OperatingSystem get operatingSystem {
     final navigatorPlatform = web.window.navigator.platform.toLowerCase();
     if (navigatorPlatform.startsWith('mac')) {
@@ -43,9 +39,7 @@ class WebPlatform extends Platform {
     return OperatingSystem.android;
   }
 
-  @override
   String? get operatingSystemVersion => null;
 
-  @override
   String get localHostname => web.window.location.hostname;
 }

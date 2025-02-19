@@ -1,12 +1,10 @@
 import '_io_platform.dart' if (dart.library.js_interop) '_web_platform.dart'
-    as platform;
+    as impl;
 
-const Platform currentPlatform = platform.currentPlatform;
+const currentPlatform = Platform();
 
-abstract class Platform {
+class Platform extends impl.PlatformBase {
   const Platform();
-
-  bool get isWeb;
 
   bool get isLinux => operatingSystem == OperatingSystem.linux;
 
@@ -19,16 +17,6 @@ abstract class Platform {
   bool get isIOS => operatingSystem == OperatingSystem.ios;
 
   bool get isFuchsia => operatingSystem == OperatingSystem.fuchsia;
-
-  /// A string (`linux`, `macos`, `windows`, `android`, `ios`, or `fuchsia`)
-  /// representing the operating system.
-  OperatingSystem get operatingSystem;
-
-  /// A string representing the version of the operating system or platform.
-  String? get operatingSystemVersion;
-
-  /// Get the local hostname for the system.
-  String get localHostname;
 }
 
 enum OperatingSystem {

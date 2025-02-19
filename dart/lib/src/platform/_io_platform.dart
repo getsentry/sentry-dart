@@ -2,13 +2,10 @@ import 'dart:io' as io;
 
 import 'platform.dart';
 
-const Platform currentPlatform = IOPlatform();
-
 /// [Platform] implementation that delegates directly to `dart:io`.
-class IOPlatform extends Platform {
-  const IOPlatform();
+class PlatformBase {
+  const PlatformBase();
 
-  @override
   OperatingSystem get operatingSystem {
     switch (io.Platform.operatingSystem) {
       case 'macos':
@@ -28,12 +25,9 @@ class IOPlatform extends Platform {
     }
   }
 
-  @override
   String? get operatingSystemVersion => io.Platform.operatingSystemVersion;
 
-  @override
   String get localHostname => io.Platform.localHostname;
 
-  @override
   bool get isWeb => false;
 }

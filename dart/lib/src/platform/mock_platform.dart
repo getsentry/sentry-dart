@@ -2,23 +2,23 @@ import 'platform.dart';
 
 class MockPlatform extends Platform {
   @override
-  final bool isWeb;
+  late final bool isWeb;
 
   @override
-  final String localHostname;
+  late final OperatingSystem operatingSystem;
 
   @override
-  final OperatingSystem operatingSystem;
-
-  @override
-  final String operatingSystemVersion;
+  late final String? operatingSystemVersion;
 
   MockPlatform({
-    this.operatingSystem = OperatingSystem.unknown,
-    this.operatingSystemVersion = '',
-    this.isWeb = false,
-    this.localHostname = '',
-  });
+    OperatingSystem? operatingSystem,
+    String? operatingSystemVersion,
+    bool? isWeb,
+  }) {
+    this.isWeb = isWeb ?? super.isWeb;
+    this.operatingSystem = operatingSystem ?? super.operatingSystem;
+    this.operatingSystemVersion = operatingSystemVersion ?? super.operatingSystemVersion;
+  }
 
   factory MockPlatform.android() {
     return MockPlatform(operatingSystem: OperatingSystem.android);
