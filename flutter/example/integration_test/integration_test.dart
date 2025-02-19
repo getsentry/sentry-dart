@@ -167,6 +167,38 @@ void main() {
     await transaction.finish();
   });
 
+  testWidgets('setup sentry and test loading debug image', (tester) async {
+    await restoreFlutterOnErrorAfter(() async {
+      await setupSentryAndApp(tester);
+    });
+
+    // By default it should load all debug images
+    final allDebugImages = await SentryFlutter.native
+        ?.loadDebugImages(SentryStackTrace(frames: const []));
+    // Typically loading all images results in a larger numbers
+    expect(allDebugImages!.length > 100, isTrue);
+
+    // We can take any other random image for testing
+    // I chose this one because most of the time this will be the one loaded
+    const codeFileName = 'libflutter.so';
+    final expectedImage = allDebugImages
+        .firstWhere((image) => image.codeFile!.contains(codeFileName));
+    expect(expectedImage.imageAddr, isNotNull);
+    final imageAddr =
+        int.parse(expectedImage.imageAddr!.replaceAll('0x', ''), radix: 16);
+
+    // Use the base image address and increase so the instructionAddress will be
+    // within the range of the image address
+    final imageOffset = (expectedImage.imageSize! / 2).toInt();
+    final instructionAddr = '0x${(imageAddr + imageOffset).toRadixString(16)}';
+    final sentryFrame = SentryStackFrame(instructionAddr: instructionAddr);
+
+    final debugImageByStacktrace = await SentryFlutter.native
+        ?.loadDebugImages(SentryStackTrace(frames: [sentryFrame]));
+    expect(debugImageByStacktrace!.length, 1);
+    expect(debugImageByStacktrace.first, expectedImage);
+  });
+
   group('e2e', () {
     var output = find.byKey(const Key('output'));
     late Fixture fixture;
