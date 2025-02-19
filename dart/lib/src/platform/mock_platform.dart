@@ -20,23 +20,23 @@ class MockPlatform extends Platform {
     this.operatingSystemVersion = operatingSystemVersion ?? super.operatingSystemVersion;
   }
 
-  factory MockPlatform.android() {
-    return MockPlatform(operatingSystem: OperatingSystem.android, isWeb: false);
+  factory MockPlatform.android({bool isWeb = false}) {
+    return MockPlatform(operatingSystem: OperatingSystem.android, isWeb: isWeb);
   }
 
-  factory MockPlatform.iOS() {
-    return MockPlatform(operatingSystem: OperatingSystem.ios, isWeb: false);
+  factory MockPlatform.iOS({bool isWeb = false}) {
+    return MockPlatform(operatingSystem: OperatingSystem.ios, isWeb: isWeb);
   }
 
-  factory MockPlatform.macOS() {
-    return MockPlatform(operatingSystem: OperatingSystem.macos, isWeb: false);
+  factory MockPlatform.macOS({bool isWeb = false}) {
+    return MockPlatform(operatingSystem: OperatingSystem.macos, isWeb: isWeb);
   }
 
-  factory MockPlatform.linux() {
-    return MockPlatform(operatingSystem: OperatingSystem.linux, isWeb: false);
+  factory MockPlatform.linux({bool isWeb = false}) {
+    return MockPlatform(operatingSystem: OperatingSystem.linux, isWeb: isWeb);
   }
 
-  factory MockPlatform.windows() {
-    return MockPlatform(operatingSystem: OperatingSystem.windows, isWeb: false);
+  factory MockPlatform.windows({bool isWeb = false}) {
+    return MockPlatform(operatingSystem: OperatingSystem.windows, isWeb: isWeb);
   }
 }
