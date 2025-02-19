@@ -10,6 +10,14 @@ class ScreenshotIntegration implements Integration<SentryFlutterOptions> {
 
   @override
   void call(Hub hub, SentryFlutterOptions options) {
+    if (options.isMultiViewApp) {
+      // ignore: invalid_use_of_internal_member
+      options.logger(
+        SentryLevel.debug,
+        '`ScreenshotIntegration` is not available in multi-view applications.',
+      );
+      return;
+    }
     if (options.attachScreenshot) {
       _options = options;
       final screenshotEventProcessor = ScreenshotEventProcessor(options);
