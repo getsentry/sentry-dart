@@ -1013,6 +1013,7 @@ void main() {
     test('event has no user and sendDefaultPii = true', () async {
       final client = fixture.getSut(sendDefaultPii: true);
       var fakeEvent = SentryEvent();
+      expect(fakeEvent.user, isNull);
 
       await client.captureEvent(fakeEvent);
 
@@ -1027,6 +1028,7 @@ void main() {
     test('event has no user and sendDefaultPii = false', () async {
       final client = fixture.getSut(sendDefaultPii: false);
       var fakeEvent = SentryEvent();
+      expect(fakeEvent.user, isNull);
 
       await client.captureEvent(fakeEvent);
 
@@ -1040,6 +1042,7 @@ void main() {
     test('event has a user with IP address', () async {
       final client = fixture.getSut(sendDefaultPii: true);
 
+      expect(fakeEvent.user?.ipAddress, isNotNull);
       await client.captureEvent(fakeEvent);
 
       final capturedEnvelope = fixture.transport.envelopes.first;
@@ -1058,6 +1061,7 @@ void main() {
       final client = fixture.getSut(sendDefaultPii: true);
 
       final event = fakeEvent.copyWith(user: fakeUser);
+      expect(event.user?.ipAddress, isNull);
 
       await client.captureEvent(event);
 
@@ -1076,6 +1080,7 @@ void main() {
       final client = fixture.getSut(sendDefaultPii: false);
 
       final event = fakeEvent.copyWith(user: fakeUser);
+      expect(event.user?.ipAddress, isNull);
 
       await client.captureEvent(event);
 
