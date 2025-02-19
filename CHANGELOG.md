@@ -11,10 +11,16 @@
 
 - Disable `ScreenshotIntegration`, `WidgetsBindingIntegration` and `SentryWidget` in multi-view apps #2366 ([#2366](https://github.com/getsentry/sentry-dart/pull/2366))
 
+### Enhancements
+
+- Use `loadDebugImagesForAddresses` API for Android ([#2706](https://github.com/getsentry/sentry-dart/pull/2706))
+  - This reduces the envelope size and data transferred across method channels
+  - If debug images received by `loadDebugImagesForAddresses` are empty, the SDK loads all debug images as fallback
+
 ### Fixes
 
 - Reference to `SentryWidgetsFlutterBinding` in warning message in `FramesTrackingIntegration` ([#2704](https://github.com/getsentry/sentry-dart/pull/2704))
-- Replay video interuption if a `navigation` breadcrumb is missing `to` route info ([#2720](https://github.com/getsentry/sentry-dart/pull/2720))
+- Replay video interruption if a `navigation` breadcrumb is missing `to` route info ([#2720](https://github.com/getsentry/sentry-dart/pull/2720))
 
 ### Deprecations
 
