@@ -71,13 +71,11 @@ class SentryNativeChannel
         'sessionSampleRate': options.experimental.replay.sessionSampleRate,
         'onErrorSampleRate': options.experimental.replay.onErrorSampleRate,
         'tags': <String, dynamic>{
-          'maskAllText': options.experimental.privacyForReplay.maskAllText,
-          'maskAllImages': options.experimental.privacyForReplay.maskAllImages,
-          'maskAssetImages':
-              options.experimental.privacyForReplay.maskAssetImages,
-          if (options.experimental.privacyForReplay.userMaskingRules.isNotEmpty)
-            'maskingRules': options
-                .experimental.privacyForReplay.userMaskingRules
+          'maskAllText': options.experimental.privacy.maskAllText,
+          'maskAllImages': options.experimental.privacy.maskAllImages,
+          'maskAssetImages': options.experimental.privacy.maskAssetImages,
+          if (options.experimental.privacy.userMaskingRules.isNotEmpty)
+            'maskingRules': options.experimental.privacy.userMaskingRules
                 .map((rule) => '${rule.name}: ${rule.description}')
                 .toList(growable: false),
         },

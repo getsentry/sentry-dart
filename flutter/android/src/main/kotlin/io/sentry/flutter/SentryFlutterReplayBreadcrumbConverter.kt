@@ -28,7 +28,13 @@ class SentryFlutterReplayBreadcrumbConverter : DefaultReplayBreadcrumbConverter(
       "sentry.event" -> null
       "sentry.transaction" -> null
       "http" -> convertNetworkBreadcrumb(breadcrumb)
-      "navigation" -> newRRWebBreadcrumb(breadcrumb)
+      "navigation" -> {
+        if (breadcrumb.data.containsKey("to") && breadcrumb.data["to"] is String) {
+          newRRWebBreadcrumb(breadcrumb)
+        } else {
+          null
+        }
+      }
       "ui.click" ->
         newRRWebBreadcrumb(breadcrumb).apply {
           category = "ui.tap"
