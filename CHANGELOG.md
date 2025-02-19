@@ -12,12 +12,23 @@
 
 - Disable `ScreenshotIntegration`, `WidgetsBindingIntegration` and `SentryWidget` in multi-view apps #2366 ([#2366](https://github.com/getsentry/sentry-dart/pull/2366))
 
-### Fixes 
+### Fixes
 
 - Reference to `SentryWidgetsFlutterBinding` in warning message in `FramesTrackingIntegration` ([#2704](https://github.com/getsentry/sentry-dart/pull/2704))
+- Replay video interuption if a `navigation` breadcrumb is missing `to` route info ([#2720](https://github.com/getsentry/sentry-dart/pull/2720))
 
 ### Deprecations
 
+- Deprecate Drift `SentryQueryExecutor` ([#2715](https://github.com/getsentry/sentry-dart/pull/2715))
+  - This will be replace by `SentryQueryInterceptor` in the next major v9
+```dart
+// Example usage in Sentry Flutter v9
+final executor = NativeDatabase.memory().interceptWith(
+  SentryQueryInterceptor(databaseName: 'your_db_name'),
+);
+
+final db = AppDatabase(executor);
+```
 - Deprecate `autoAppStart` and `setAppStartEnd` ([#2681](https://github.com/getsentry/sentry-dart/pull/2681))
 
 ### Other
