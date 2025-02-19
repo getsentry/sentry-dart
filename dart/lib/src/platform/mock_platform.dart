@@ -21,22 +21,22 @@ class MockPlatform extends Platform {
   }
 
   factory MockPlatform.android() {
-    return MockPlatform(operatingSystem: OperatingSystem.android);
+    return MockPlatform(operatingSystem: OperatingSystem.android, isWeb: false);
   }
 
   factory MockPlatform.iOS() {
-    return MockPlatform(operatingSystem: OperatingSystem.ios);
+    return MockPlatform(operatingSystem: OperatingSystem.ios, isWeb: false);
   }
 
   factory MockPlatform.macOS() {
-    return MockPlatform(operatingSystem: OperatingSystem.macos);
+    return MockPlatform(operatingSystem: OperatingSystem.macos, isWeb: false);
   }
 
   factory MockPlatform.linux() {
-    return MockPlatform(operatingSystem: OperatingSystem.linux);
+    return MockPlatform(operatingSystem: OperatingSystem.linux, isWeb: false);
   }
 
   factory MockPlatform.windows() {
-    return MockPlatform(operatingSystem: OperatingSystem.windows);
+    return MockPlatform(operatingSystem: OperatingSystem.windows, isWeb: false);
   }
 }
