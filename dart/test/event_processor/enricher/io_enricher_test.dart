@@ -57,8 +57,15 @@ void main() {
     }
   });
 
-  test('device has name', () {
+  test('device has no name if sendDefaultPii = false', () {
     final enricher = fixture.getSut();
+    final event = enricher.apply(SentryEvent(), Hint());
+
+    expect(event?.contexts.device?.name, isNull);
+  });
+
+  test('device has name if sendDefaultPii = true', () {
+    final enricher = fixture.getSut(includePii: true);
     final event = enricher.apply(SentryEvent(), Hint());
 
     expect(event?.contexts.device?.name, isNotNull);
