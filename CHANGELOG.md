@@ -6,6 +6,8 @@
 
 - ⚠️ Auto IP assignment for `SentryUser` is now guarded by `sendDefaultPii` ([#2726](https://github.com/getsentry/sentry-dart/pull/2726))
   - If you rely on Sentry automatically processing the IP address of the user, set `options.sendDefaultPii = true` or manually set the IP address of the `SentryUser` to `{{auto}}`
+- Adding the device name to Contexts is now guarded by `sendDefaultPii` ([#2741](https://github.com/getsentry/sentry-dart/pull/2741))
+  - Set `options.sendDefaultPii = true` if you want to have the device name reported
 
 ### Features
 
