@@ -16,6 +16,8 @@
 - Use `loadDebugImagesForAddresses` API for Android ([#2706](https://github.com/getsentry/sentry-dart/pull/2706))
   - This reduces the envelope size and data transferred across method channels
   - If debug images received by `loadDebugImagesForAddresses` are empty, the SDK loads all debug images as fallback
+- Add Flutter runtime information ([#2742](https://github.com/getsentry/sentry-dart/pull/2742))
+  - This will start working as soon as [this code](https://github.com/flutter/flutter/pull/140783) is available on the Flutter master, beta or stable channel.
 
 ### Fixes
 
