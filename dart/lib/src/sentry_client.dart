@@ -35,6 +35,9 @@ import 'version.dart';
 /// to true.
 const _defaultIpAddress = '{{auto}}';
 
+@visibleForTesting
+String get defaultIpAddress => _defaultIpAddress;
+
 /// Logs crash reports and events to the Sentry.io service.
 class SentryClient {
   final SentryOptions _options;
@@ -304,12 +307,18 @@ class SentryClient {
   }
 
   SentryEvent _createUserOrSetDefaultIpAddress(SentryEvent event) {
-    var user = event.user;
-    if (user == null) {
-      return event.copyWith(user: SentryUser(ipAddress: _defaultIpAddress));
-    } else if (event.user?.ipAddress == null) {
-      return event.copyWith(user: user.copyWith(ipAddress: _defaultIpAddress));
+    final user = event.user;
+    final effectiveIpAddress =
+        user?.ipAddress ?? (_options.sendDefaultPii ? _defaultIpAddress : null);
+
+    if (effectiveIpAddress != null) {
+      final updatedUser = user == null
+          ? SentryUser(ipAddress: effectiveIpAddress)
+          : user.copyWith(ipAddress: effectiveIpAddress);
+
+      return event.copyWith(user: updatedUser);
     }
+
     return event;
   }
 

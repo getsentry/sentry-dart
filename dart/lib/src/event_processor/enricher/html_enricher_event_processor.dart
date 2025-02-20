@@ -1,3 +1,4 @@
+// ignore: deprecated_member_use
 import 'dart:html' as html show window, Window;
 
 import '../../../sentry.dart';
