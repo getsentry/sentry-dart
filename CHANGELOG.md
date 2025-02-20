@@ -52,6 +52,13 @@ final db = AppDatabase(executor);
   - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8450)
   - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.44.0...8.45.0)
 
+## 8.13.2
+
+### Fixes
+
+- `build_web_compiler` error ([#2736](https://github.com/getsentry/sentry-dart/pull/2736))
+  - Use `if (dart.library.html)` instead of `if (dart.html)` for imports
+
 ## 8.13.1
 
 ### Fixes
