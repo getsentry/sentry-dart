@@ -1,3 +1,5 @@
+// Will be removed in v9
+// ignore: deprecated_member_use
 import 'dart:js';
 
 import 'package:flutter/cupertino.dart';
@@ -56,7 +58,8 @@ class HtmlSentryJsBinding implements SentryJsBinding {
   @visibleForTesting
   @override
   getJsOptions() {
-    final sentry = context['Sentry'] as JsObject;
-    return sentry.callMethod('getClient').callMethod('getOptions').dartify();
+    // newest flutter version removed dartify from JsObject
+    // we will remove this file in v9 anyway
+    return null;
   }
 }
