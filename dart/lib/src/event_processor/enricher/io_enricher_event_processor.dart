@@ -112,7 +112,8 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
   SentryDevice _getDevice(SentryDevice? device) {
     final platformMemory = PlatformMemory(_options);
     return (device ?? SentryDevice()).copyWith(
-      name: device?.name ?? Platform.localHostname,
+      name: device?.name ??
+          (_options.sendDefaultPii ? Platform.localHostname : null),
       processorCount: device?.processorCount ?? Platform.numberOfProcessors,
       memorySize: device?.memorySize ?? platformMemory.getTotalPhysicalMemory(),
       freeMemory: device?.freeMemory ?? platformMemory.getFreePhysicalMemory(),
