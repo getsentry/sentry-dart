@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- `build_web_compilers` error ([#2736](https://github.com/getsentry/sentry-dart/pull/2736))
+  - Use `if (dart.library.html)` instead of `if (dart.html)` in imports
+
 ## 8.13.1
 
 ### Fixes
