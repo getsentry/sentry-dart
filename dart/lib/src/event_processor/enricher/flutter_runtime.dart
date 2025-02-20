@@ -1,5 +1,13 @@
 import '../../protocol/sentry_runtime.dart';
 
+// The Flutter version information can be fetched via Dart defines,
+// see https://github.com/flutter/flutter/pull/140783.
+// This code lives in the Dart only Sentry code, since the code
+// doesn't require any Flutter dependency.
+// Additionally, this makes it work on background isolates in
+// Flutter, where one may not initialize the whole Flutter Sentry
+// SDK.
+
 SentryRuntime? get flutterRuntime {
   if (FlutterVersion.version == null ||
       FlutterVersion.channel == null ||
