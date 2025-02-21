@@ -82,6 +82,7 @@ extension SentryDioExtension on Dio {
         FailedRequestInterceptor(
           failedRequestStatusCodes: failedRequestStatusCodes,
           failedRequestTargets: failedRequestTargets,
+          captureFailedRequests: captureFailedRequests,
         ),
       );
       // ignore: invalid_use_of_internal_member
