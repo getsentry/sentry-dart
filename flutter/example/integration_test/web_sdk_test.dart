@@ -107,11 +107,10 @@ void main() {
         expect((header['sdk'] as Map<Object?, Object?>)['name'],
             'sentry.dart.flutter');
 
-        final item = (envelope[1] as List<Object?>).first as List<Object?>;
-        final itemPayloadJs = (item[1] as JSArray).toDart;
-        final itemPayload = json.decode(utf8.decoder.convert(itemPayloadJs
-            .map((el) => int.parse(el.dartify().toString()))
-            .toList())) as Map<Object?, Object?>;
+        final item = (envelope[1] as List).first as List<Object?>;
+        final itemPayload =
+            json.decode(utf8.decoder.convert(item[1] as List<int>))
+                as Map<Object?, Object?>;
 
         final jsEventJson = (itemPayload).map((key, value) {
           return MapEntry(key.toString(), value as dynamic);
