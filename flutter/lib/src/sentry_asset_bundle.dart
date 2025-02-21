@@ -78,7 +78,7 @@ class SentryAssetBundle implements AssetBundle {
       outerSpan,
       'loadBuffer',
       key,
-      () => _loadBuffer(key),
+      () => _bundle.loadBuffer(key),
       updateInnerSpan: (innerSpan) => innerSpan?.setData('file.path', key),
     );
   }
@@ -110,14 +110,14 @@ class SentryAssetBundle implements AssetBundle {
   Future<T> loadStructuredBinaryData<T>(
       String key, FutureOr<T> Function(ByteData data) parser) {
     if (!_enableStructuredDataTracing) {
-      return _loadStructuredBinaryDataWrapper(key, parser);
+      return _bundle.loadStructuredBinaryData<T>(key, parser);
     }
     final outerSpan = _hub.getSpan();
     return _wrapLoad(
       outerSpan,
       'loadStructuredBinaryData',
       key,
-      () => _loadStructuredBinaryDataWrapper(
+      () => _bundle.loadStructuredBinaryData<T>(
         key,
         (value) => _wrapParser(
           outerSpan,
@@ -255,42 +255,6 @@ class SentryAssetBundle implements AssetBundle {
       return key;
     }
     return uri.pathSegments.isEmpty ? key : uri.pathSegments.last;
-  }
-
-  // Helper: Safe method calls for older flutter versions
-
-  Future<ImmutableBuffer> _loadBuffer(String key) {
-    try {
-      // ignore: return_of_invalid_type
-      return (_bundle as dynamic).loadBuffer(key);
-    } on NoSuchMethodError catch (_) {
-      // The loadBuffer method exists as of Flutter greater than 3.1
-      // Previous versions don't have it, but later versions do.
-      // We can't use `extends` in order to provide this method because this is
-      // a wrapper and thus the method call must be forwarded.
-      // On Flutter versions <=3.1 we can't forward this call and
-      // just catch the error which is thrown. On later version the call gets
-      // correctly forwarded.
-      //
-      // In case of a NoSuchMethodError we just return an empty list
-      return ImmutableBuffer.fromUint8List(Uint8List.fromList([]));
-    }
-  }
-
-  Future<T> _loadStructuredBinaryDataWrapper<T>(
-    String key,
-    FutureOr<T> Function(ByteData data) parser,
-  ) {
-    // The loadStructuredBinaryData method exists as of Flutter greater than 3.8
-    // Previous versions don't have it, but later versions do.
-    // We can't use `extends` in order to provide this method because this is
-    // a wrapper and thus the method call must be forwarded.
-    // On Flutter versions <=3.8 we can't forward this call.
-    // On later version the call gets correctly forwarded.
-    // The error doesn't need to handled since it can't be called on earlier versions,
-    // and it's correctly forwarded on later versions.
-    return (_bundle as dynamic).loadStructuredBinaryData<T>(key, parser)
-        as Future<T>;
   }
 }
 

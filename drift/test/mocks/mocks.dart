@@ -5,6 +5,6 @@ import 'package:sentry/sentry.dart';
 @GenerateMocks([
   Hub,
   LazyDatabase,
-  TransactionExecutor,
+  QueryExecutor,
 ])
 void main() {}

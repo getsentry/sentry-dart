@@ -1404,7 +1404,8 @@ void main() {
     test('thrown error is handled', () async {
       fixture.options.automatedTestMode = false;
       final exception = Exception("before send exception");
-      final beforeSendTransactionCallback = (SentryTransaction event) {
+      final beforeSendTransactionCallback =
+          (SentryTransaction event, Hint hint) {
         throw exception;
       };
 
@@ -1803,7 +1804,7 @@ void main() {
       fixture.tracer.startChild('child2');
       fixture.tracer.startChild('child3');
 
-      fixture.options.beforeSendTransaction = (transaction) {
+      fixture.options.beforeSendTransaction = (transaction, hint) {
         if (transaction.tracer == fixture.tracer) {
           return null;
         }
@@ -1830,7 +1831,7 @@ void main() {
       fixture.tracer.startChild('child2');
       fixture.tracer.startChild('child3');
 
-      fixture.options.beforeSendTransaction = (transaction) {
+      fixture.options.beforeSendTransaction = (transaction, hint) {
         if (transaction.tracer == fixture.tracer) {
           transaction.spans
               .removeWhere((element) => element.context.operation == 'child2');
@@ -1892,22 +1893,6 @@ void main() {
           DiscardReason.sampleRate);
       expect(
           fixture.recorder.discardedEvents.first.category, DataCategory.error);
-    });
-
-    test('user feedback envelope contains dsn', () async {
-      final client = fixture.getSut();
-      final event = SentryEvent();
-      // ignore: deprecated_member_use_from_same_package
-      final feedback = SentryUserFeedback(
-        eventId: event.eventId,
-        name: 'test',
-      );
-      // ignore: deprecated_member_use_from_same_package
-      await client.captureUserFeedback(feedback);
-
-      final capturedEnvelope = (fixture.transport).envelopes.first;
-
-      expect(capturedEnvelope.header.dsn, fixture.options.dsn);
     });
   });
 
@@ -2081,6 +2066,33 @@ void main() {
           SentryAttachment.typeAttachmentDefault);
     });
 
+    test('captureTransaction hint passed to beforeSendTransaction', () async {
+      final sut = fixture.getSut();
+
+      final hint = Hint();
+      final transaction = SentryTransaction(fixture.tracer);
+
+      fixture.options.beforeSendTransaction = (bsTransaction, bsHint) async {
+        expect(hint, bsHint);
+        return bsTransaction;
+      };
+
+      await sut.captureTransaction(transaction, hint: hint);
+    });
+
+    test('captureTransaction hint passed to event processors', () async {
+      final hint = Hint();
+
+      final eventProcessor = FunctionEventProcessor((event, epHint) {
+        expect(epHint, hint);
+        return event;
+      });
+      final sut = fixture.getSut(eventProcessor: eventProcessor);
+
+      final transaction = SentryTransaction(fixture.tracer);
+      await sut.captureTransaction(transaction, hint: hint);
+    });
+
     test('captureEvent adds screenshot from hint', () async {
       final client = fixture.getSut();
       final screenshot =
@@ -2233,6 +2245,7 @@ Future<SentryEvent?> asyncBeforeSendFeedbackCallbackDropEvent(
 
 SentryTransaction? beforeSendTransactionCallbackDropEvent(
   SentryTransaction event,
+  Hint hint,
 ) =>
     null;
 
@@ -2245,7 +2258,9 @@ Future<SentryEvent?> asyncBeforeSendCallbackDropEvent(
 }
 
 Future<SentryTransaction?> asyncBeforeSendTransactionCallbackDropEvent(
-    SentryEvent event) async {
+  SentryEvent event,
+  Hint hint,
+) async {
   await Future.delayed(Duration(milliseconds: 200));
   return null;
 }
@@ -2267,7 +2282,9 @@ SentryEvent? beforeSendCallback(SentryEvent event, Hint hint) {
 }
 
 SentryTransaction? beforeSendTransactionCallback(
-    SentryTransaction transaction) {
+  SentryTransaction transaction,
+  Hint hint,
+) {
   return transaction
     ..tags!.addAll({'theme': 'material'})
     // ignore: deprecated_member_use_from_same_package

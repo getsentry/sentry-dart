@@ -453,11 +453,16 @@ class MockSentryTracer extends _i1.Mock implements _i3.SentryTracer {
           as Map<String, String>);
 
   @override
-  _i11.Future<void> finish({_i2.SpanStatus? status, DateTime? endTimestamp}) =>
+  _i11.Future<void> finish({
+    _i2.SpanStatus? status,
+    DateTime? endTimestamp,
+    _i2.Hint? hint,
+  }) =>
       (super.noSuchMethod(
             Invocation.method(#finish, [], {
               #status: status,
               #endTimestamp: endTimestamp,
+              #hint: hint,
             }),
             returnValue: _i11.Future<void>.value(),
             returnValueForMissingStub: _i11.Future<void>.value(),
@@ -859,11 +864,16 @@ class MockSentrySpan extends _i1.Mock implements _i2.SentrySpan {
           as Map<String, dynamic>);
 
   @override
-  _i11.Future<void> finish({_i2.SpanStatus? status, DateTime? endTimestamp}) =>
+  _i11.Future<void> finish({
+    _i2.SpanStatus? status,
+    DateTime? endTimestamp,
+    _i2.Hint? hint,
+  }) =>
       (super.noSuchMethod(
             Invocation.method(#finish, [], {
               #status: status,
               #endTimestamp: endTimestamp,
+              #hint: hint,
             }),
             returnValue: _i11.Future<void>.value(),
             returnValueForMissingStub: _i11.Future<void>.value(),
@@ -1058,12 +1068,13 @@ class MockSentryClient extends _i1.Mock implements _i2.SentryClient {
     _i2.SentryTransaction? transaction, {
     _i2.Scope? scope,
     _i2.SentryTraceContextHeader? traceContext,
+    _i2.Hint? hint,
   }) =>
       (super.noSuchMethod(
             Invocation.method(
               #captureTransaction,
               [transaction],
-              {#scope: scope, #traceContext: traceContext},
+              {#scope: scope, #traceContext: traceContext, #hint: hint},
             ),
             returnValue: _i11.Future<_i2.SentryId>.value(
               _FakeSentryId_5(
@@ -1071,7 +1082,7 @@ class MockSentryClient extends _i1.Mock implements _i2.SentryClient {
                 Invocation.method(
                   #captureTransaction,
                   [transaction],
-                  {#scope: scope, #traceContext: traceContext},
+                  {#scope: scope, #traceContext: traceContext, #hint: hint},
                 ),
               ),
             ),
@@ -1085,15 +1096,6 @@ class MockSentryClient extends _i1.Mock implements _i2.SentryClient {
             returnValue: _i11.Future<_i2.SentryId?>.value(),
           )
           as _i11.Future<_i2.SentryId?>);
-
-  @override
-  _i11.Future<void> captureUserFeedback(_i2.SentryUserFeedback? userFeedback) =>
-      (super.noSuchMethod(
-            Invocation.method(#captureUserFeedback, [userFeedback]),
-            returnValue: _i11.Future<void>.value(),
-            returnValueForMissingStub: _i11.Future<void>.value(),
-          )
-          as _i11.Future<void>);
 
   @override
   _i11.Future<_i2.SentryId> captureFeedback(
@@ -2895,15 +2897,6 @@ class MockHub extends _i1.Mock implements _i2.Hub {
           as _i11.Future<_i2.SentryId>);
 
   @override
-  _i11.Future<void> captureUserFeedback(_i2.SentryUserFeedback? userFeedback) =>
-      (super.noSuchMethod(
-            Invocation.method(#captureUserFeedback, [userFeedback]),
-            returnValue: _i11.Future<void>.value(),
-            returnValueForMissingStub: _i11.Future<void>.value(),
-          )
-          as _i11.Future<void>);
-
-  @override
   _i11.Future<_i2.SentryId> captureFeedback(
     _i2.SentryFeedback? feedback, {
     _i2.Hint? hint,
@@ -3056,12 +3049,13 @@ class MockHub extends _i1.Mock implements _i2.Hub {
   _i11.Future<_i2.SentryId> captureTransaction(
     _i2.SentryTransaction? transaction, {
     _i2.SentryTraceContextHeader? traceContext,
+    _i2.Hint? hint,
   }) =>
       (super.noSuchMethod(
             Invocation.method(
               #captureTransaction,
               [transaction],
-              {#traceContext: traceContext},
+              {#traceContext: traceContext, #hint: hint},
             ),
             returnValue: _i11.Future<_i2.SentryId>.value(
               _FakeSentryId_5(
@@ -3069,7 +3063,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
                 Invocation.method(
                   #captureTransaction,
                   [transaction],
-                  {#traceContext: traceContext},
+                  {#traceContext: traceContext, #hint: hint},
                 ),
               ),
             ),

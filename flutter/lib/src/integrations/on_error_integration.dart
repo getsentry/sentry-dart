@@ -1,6 +1,7 @@
 import 'package:sentry/sentry.dart';
 // ignore: implementation_imports
 import 'package:sentry/src/utils/stacktrace_utils.dart';
+
 import '../sentry_flutter_options.dart';
 import '../utils/platform_dispatcher_wrapper.dart';
 
@@ -11,7 +12,6 @@ typedef ErrorCallback = bool Function(Object exception, StackTrace stackTrace);
 /// - https://api.flutter.dev/flutter/dart-ui/PlatformDispatcher/onError.html
 ///
 /// Remarks:
-/// - Only usable on Flutter >= 3.3.0.
 /// - Does not work on Flutter Web
 ///
 /// This is used instead of [RunZonedGuardedIntegration]. Not using the
@@ -94,11 +94,6 @@ class OnErrorIntegration implements Integration<SentryFlutterOptions> {
 
   @override
   void close() {
-    if (!(dispatchWrapper?.isOnErrorSupported(_options!) == true)) {
-      // bail out
-      return;
-    }
-
     /// Restore default if the integration error is still set.
     if (dispatchWrapper?.onError == _integrationOnError) {
       dispatchWrapper?.onError = _defaultOnError;

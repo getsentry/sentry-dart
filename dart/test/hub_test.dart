@@ -395,6 +395,16 @@ void main() {
       expect(
           fixture.client.captureTransactionCalls.first.traceContext, context);
     });
+
+    test('captureTransaction hint is passed to client', () async {
+      final hub = fixture.getSut();
+
+      var hint = Hint();
+      var tr = SentryTransaction(fixture.tracer);
+      await hub.captureTransaction(tr, hint: hint);
+
+      expect(fixture.client.captureTransactionCalls.first.hint, hint);
+    });
   });
 
   group('Hub profiles', () {

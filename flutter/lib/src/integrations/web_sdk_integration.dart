@@ -5,7 +5,6 @@ import 'package:sentry/sentry.dart';
 
 import '../native/sentry_native_binding.dart';
 import '../sentry_flutter_options.dart';
-import '../web/javascript_transport.dart';
 import '../web/script_loader/sentry_script_loader.dart';
 import '../web/sentry_js_bundle.dart';
 
@@ -27,7 +26,7 @@ class WebSdkIntegration implements Integration<SentryFlutterOptions> {
 
   @override
   FutureOr<void> call(Hub hub, SentryFlutterOptions options) async {
-    if (!options.enableSentryJs || !options.autoInitializeNativeSdk) {
+    if (!options.autoInitializeNativeSdk) {
       return;
     }
 
@@ -39,9 +38,6 @@ class WebSdkIntegration implements Integration<SentryFlutterOptions> {
           : productionScripts;
       await _scriptLoader.loadWebSdk(scripts);
       await _web.init(hub);
-      if (_web.supportsCaptureEnvelope) {
-        options.transport = JavascriptTransport(_web, options);
-      }
       options.sdk.addIntegration(name);
     } catch (exception, stackTrace) {
       options.logger(

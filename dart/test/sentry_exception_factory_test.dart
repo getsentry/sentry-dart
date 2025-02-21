@@ -279,7 +279,7 @@ ${StackTraceErrorStackTrace()}''';
   }
 }
 
-class StackTraceErrorStackTrace extends StackTrace {
+class StackTraceErrorStackTrace implements StackTrace {
   @override
   String toString() {
     return '''
@@ -318,7 +318,7 @@ ${SentryStackTrace()}''';
   }
 }
 
-class SentryStackTrace extends StackTrace {
+class SentryStackTrace implements StackTrace {
   @override
   String toString() {
     return '''

@@ -83,35 +83,6 @@ void main() {
         await sut.track(transaction, startTimestamp: fixture.startTimestamp);
       });
     });
-
-    group('with manual strategy', () {
-      test('finishes ttid span', () async {
-        final sut = fixture.getSut();
-
-        Future.delayed(const Duration(milliseconds: 1), () {
-          fixture.ttidTracker?.markAsManual();
-          fixture.ttidTracker?.completeTracking();
-        });
-        final transaction = fixture.getTransaction() as SentryTracer;
-        await sut.track(transaction, startTimestamp: fixture.startTimestamp);
-
-        final ttidSpan = _getTTIDSpan(transaction);
-        expect(ttidSpan, isNotNull);
-        expect(ttidSpan?.finished, isTrue);
-        expect(ttidSpan?.origin, SentryTraceOrigins.manualUiTimeToDisplay);
-      });
-
-      // skipping test, flaky
-      test('completes with timeout when not completing the tracking', () async {
-        final sut = fixture.getSut();
-
-        fixture.ttidTracker?.markAsManual();
-        // Not calling completeTracking() triggers the manual timeout
-
-        final transaction = fixture.getTransaction() as SentryTracer;
-        await sut.track(transaction, startTimestamp: fixture.startTimestamp);
-      }, skip: true);
-    });
   });
 
   group('time to full display', () {

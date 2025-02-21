@@ -22,7 +22,6 @@ import 'sentry_attachment/sentry_attachment.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
 import 'sentry_run_zoned_guarded.dart';
-import 'sentry_user_feedback.dart';
 import 'tracing.dart';
 import 'transport/data_category.dart';
 import 'transport/task_queue.dart';
@@ -248,14 +247,6 @@ class Sentry {
         SentryId.empty(),
         DataCategory.unknown,
       );
-
-  /// Reports a [userFeedback] to Sentry.io.
-  ///
-  /// First capture an event and use the [SentryId] to create a [SentryUserFeedback]
-  @Deprecated(
-      'Will be removed in a future version. Use [captureFeedback] instead')
-  static Future<void> captureUserFeedback(SentryUserFeedback userFeedback) =>
-      _hub.captureUserFeedback(userFeedback);
 
   /// Reports [SentryFeedback] to Sentry.io.
   ///
