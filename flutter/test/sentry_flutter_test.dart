@@ -1,11 +1,11 @@
 // ignore_for_file: invalid_use_of_internal_member
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:sentry/src/dart_exception_type_identifier.dart';
 import 'package:sentry/src/platform/platform.dart';
+import 'package:sentry/src/platform/mock_platform.dart';
+import 'package:sentry/src/dart_exception_type_identifier.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/file_system_transport.dart';
 import 'package:sentry_flutter/src/flutter_exception_type_identifier.dart';
@@ -131,7 +131,7 @@ void main() {
       late final Transport transport;
 
       final sentryFlutterOptions =
-          defaultTestOptions(getPlatformChecker(platform: MockPlatform.iOs()))
+          defaultTestOptions(getPlatformChecker(platform: MockPlatform.iOS()))
             ..methodChannel = native.channel;
 
       await SentryFlutter.init(
@@ -185,7 +185,7 @@ void main() {
       List<Integration> integrations = [];
       Transport transport = MockTransport();
       final sentryFlutterOptions =
-          defaultTestOptions(getPlatformChecker(platform: MockPlatform.macOs()))
+          defaultTestOptions(getPlatformChecker(platform: MockPlatform.macOS()))
             ..methodChannel = native.channel;
 
       await SentryFlutter.init(
@@ -323,9 +323,9 @@ void main() {
     test('Web', () async {
       List<Integration> integrations = [];
       Transport transport = MockTransport();
-      final sentryFlutterOptions =
-          defaultTestOptions(getPlatformChecker(platform: MockPlatform.linux()))
-            ..methodChannel = native.channel;
+      final sentryFlutterOptions = defaultTestOptions(
+          getPlatformChecker(platform: MockPlatform.linux(isWeb: true)))
+        ..methodChannel = native.channel;
 
       await SentryFlutter.init(
         (options) async {
@@ -369,8 +369,8 @@ void main() {
     }, testOn: 'browser');
 
     test('Web (custom zone)', () async {
-      final sentryFlutterOptions = defaultTestOptions(
-          getPlatformChecker(platform: MockPlatform.linux(), isRootZone: false))
+      final sentryFlutterOptions = defaultTestOptions(getPlatformChecker(
+          platform: MockPlatform(isWeb: true), isRootZone: false))
         ..methodChannel = native.channel;
 
       await SentryFlutter.init(
@@ -395,9 +395,9 @@ void main() {
     test('Web && (iOS || macOS)', () async {
       List<Integration> integrations = [];
       Transport transport = MockTransport();
-      final sentryFlutterOptions =
-          defaultTestOptions(getPlatformChecker(platform: MockPlatform.iOs()))
-            ..methodChannel = native.channel;
+      final sentryFlutterOptions = defaultTestOptions(
+          getPlatformChecker(platform: MockPlatform.iOS(isWeb: true)))
+        ..methodChannel = native.channel;
 
       // Tests that iOS || macOS integrations aren't added on a browser which
       // runs on iOS or macOS
@@ -438,9 +438,9 @@ void main() {
     test('Web && (macOS)', () async {
       List<Integration> integrations = [];
       Transport transport = MockTransport();
-      final sentryFlutterOptions =
-          defaultTestOptions(getPlatformChecker(platform: MockPlatform.macOs()))
-            ..methodChannel = native.channel;
+      final sentryFlutterOptions = defaultTestOptions(
+          getPlatformChecker(platform: MockPlatform.macOS(isWeb: true)))
+        ..methodChannel = native.channel;
 
       // Tests that iOS || macOS integrations aren't added on a browser which
       // runs on iOS or macOS
@@ -483,7 +483,7 @@ void main() {
       List<Integration> integrations = [];
       Transport transport = MockTransport();
       final sentryFlutterOptions = defaultTestOptions(
-          getPlatformChecker(platform: MockPlatform.android()))
+          getPlatformChecker(platform: MockPlatform.android(isWeb: true)))
         ..methodChannel = native.channel;
 
       // Tests that Android integrations aren't added on an Android browser
@@ -531,7 +531,7 @@ void main() {
       List<Integration> integrations = [];
 
       final sentryFlutterOptions =
-          defaultTestOptions(getPlatformChecker(platform: MockPlatform.iOs()))
+          defaultTestOptions(getPlatformChecker(platform: MockPlatform.iOS()))
             ..methodChannel = native.channel
             ..rendererWrapper = MockRendererWrapper(FlutterRenderer.skia)
             ..release = ''
@@ -558,7 +558,7 @@ void main() {
       List<Integration> integrations = [];
 
       final sentryFlutterOptions =
-          defaultTestOptions(getPlatformChecker(platform: MockPlatform.iOs()))
+          defaultTestOptions(getPlatformChecker(platform: MockPlatform.iOS()))
             ..rendererWrapper = MockRendererWrapper(FlutterRenderer.canvasKit)
             ..release = ''
             ..dist = '';
@@ -583,11 +583,11 @@ void main() {
     test('not installed with html renderer', () async {
       List<Integration> integrations = [];
 
-      final sentryFlutterOptions =
-          defaultTestOptions(getPlatformChecker(platform: MockPlatform.iOs()))
-            ..rendererWrapper = MockRendererWrapper(FlutterRenderer.html)
-            ..release = ''
-            ..dist = '';
+      final sentryFlutterOptions = defaultTestOptions(
+          getPlatformChecker(platform: MockPlatform.iOS(isWeb: true)))
+        ..rendererWrapper = MockRendererWrapper(FlutterRenderer.html)
+        ..release = ''
+        ..dist = '';
 
       await SentryFlutter.init(
         (options) async {
@@ -761,12 +761,10 @@ void loadTestPackage() {
 
 PlatformChecker getPlatformChecker({
   required Platform platform,
-  bool isWeb = kIsWeb,
   bool isRootZone = true,
 }) {
   final platformChecker = PlatformChecker(
     platform: platform,
-    isWeb: isWeb,
     isRootZone: isRootZone,
   );
   return platformChecker;

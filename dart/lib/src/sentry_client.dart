@@ -67,7 +67,7 @@ class SentryClient {
     );
     // TODO: Use spotlight integration directly through JS SDK, then we can remove isWeb check
     final enableFlutterSpotlight = (options.spotlight.enabled &&
-        (options.platformChecker.isWeb ||
+        (options.platformChecker.platform.isWeb ||
             options.platformChecker.platform.isLinux ||
             options.platformChecker.platform.isWindows));
     // Spotlight in the Flutter layer is only enabled for Web, Linux and Windows
@@ -214,7 +214,8 @@ class SentryClient {
       environment: event.environment ?? _options.environment,
       release: event.release ?? _options.release,
       sdk: event.sdk ?? _options.sdk,
-      platform: event.platform ?? sdkPlatform(_options.platformChecker.isWeb),
+      platform: event.platform ??
+          sdkPlatform(_options.platformChecker.platform.isWeb),
     );
 
     if (event is SentryTransaction) {
@@ -249,7 +250,7 @@ class SentryClient {
 
         SentryThread? sentryThread;
 
-        if (!_options.platformChecker.isWeb &&
+        if (!_options.platformChecker.platform.isWeb &&
             isolateName != null &&
             _options.attachThreads) {
           sentryException = sentryException.copyWith(threadId: isolateId);

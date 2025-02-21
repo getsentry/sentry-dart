@@ -5,10 +5,10 @@ import 'dart:async';
 
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/load_dart_debug_images_integration.dart';
+import 'package:sentry/src/platform/mock_platform.dart';
 import 'package:sentry/src/sentry_stack_trace_factory.dart';
 import 'package:test/test.dart';
 
-import 'mocks/mock_platform.dart';
 import 'mocks/mock_platform_checker.dart';
 import 'test_utils.dart';
 

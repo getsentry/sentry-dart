@@ -30,7 +30,7 @@ extension SentryFileExtension on File {
   File sentryTrace({@internal Hub? hub}) {
     final _hub = hub ?? HubAdapter();
 
-    if (_hub.options.platformChecker.isWeb ||
+    if (_hub.options.platformChecker.platform.isWeb ||
         !_hub.options.isTracingEnabled()) {
       return this;
     }
