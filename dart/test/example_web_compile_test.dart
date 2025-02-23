@@ -48,6 +48,7 @@ void main() {
 }
 
 /// Runs [command] with command's stdout and stderr being forwrarded to
+///
 /// test runner's respective streams. It buffers stdout and returns it.
 ///
 /// Returns [_CommandResult] with exitCode and stdout as a single sting

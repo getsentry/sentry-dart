@@ -71,6 +71,7 @@ class SdkVersion {
     final json = AccessAwareMap(data);
     final packagesJson = json['packages'] as List<dynamic>?;
     final integrationsJson = json['integrations'] as List<dynamic>?;
+
     return SdkVersion(
       name: json['name'],
       version: json['version'],

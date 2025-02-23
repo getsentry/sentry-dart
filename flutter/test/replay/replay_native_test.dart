@@ -28,7 +28,7 @@ void main() {
 
   for (final mockPlatform in [
     MockPlatform.android(),
-    MockPlatform.iOs(),
+    MockPlatform.iOS(),
   ]) {
     group('$SentryNativeBinding (${mockPlatform.operatingSystem})', () {
       late SentryNativeBinding sut;
