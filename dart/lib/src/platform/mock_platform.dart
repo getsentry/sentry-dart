@@ -10,15 +10,20 @@ class MockPlatform extends Platform {
   @override
   late final String? operatingSystemVersion;
 
-  MockPlatform({
-    OperatingSystem? operatingSystem,
-    String? operatingSystemVersion,
-    bool? isWeb,
-  }) {
+  @override
+  late final bool supportsNativeIntegration;
+
+  MockPlatform(
+      {OperatingSystem? operatingSystem,
+      String? operatingSystemVersion,
+      bool? isWeb,
+      bool? supportsNativeIntegration}) {
     this.isWeb = isWeb ?? super.isWeb;
     this.operatingSystem = operatingSystem ?? super.operatingSystem;
     this.operatingSystemVersion =
         operatingSystemVersion ?? super.operatingSystemVersion;
+    this.supportsNativeIntegration =
+        supportsNativeIntegration ?? super.supportsNativeIntegration;
   }
 
   factory MockPlatform.android({bool isWeb = false}) {
@@ -39,5 +44,9 @@ class MockPlatform extends Platform {
 
   factory MockPlatform.windows({bool isWeb = false}) {
     return MockPlatform(operatingSystem: OperatingSystem.windows, isWeb: isWeb);
+  }
+
+  factory MockPlatform.fuchsia({bool isWeb = false}) {
+    return MockPlatform(operatingSystem: OperatingSystem.fuchsia, isWeb: isWeb);
   }
 }

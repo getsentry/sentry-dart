@@ -16,7 +16,6 @@ import 'package:sentry_flutter/src/replay/replay_config.dart';
 import 'package:sentry/src/platform/mock_platform.dart';
 import 'mocks.dart';
 import 'mocks.mocks.dart';
-import 'sentry_flutter_test.dart';
 
 void main() {
   for (var mockPlatform in [
@@ -30,9 +29,9 @@ void main() {
 
       setUp(() {
         channel = MockMethodChannel();
-        final options =
-            defaultTestOptions(getPlatformChecker(platform: mockPlatform))
-              ..methodChannel = channel;
+        final options = defaultTestOptions()
+          ..platform = mockPlatform
+          ..methodChannel = channel;
         sut = createBinding(options);
       });
 
@@ -208,7 +207,7 @@ void main() {
         if (mockPlatform.isAndroid) {
           matcher = throwsUnsupportedError;
         } else if (mockPlatform.isIOS || mockPlatform.isMacOS) {
-          if (currentPlatform.isMacOS) {
+          if (Platform().isMacOS) {
             matcher = throwsA(predicate((e) =>
                 e is Exception &&
                 e.toString().contains('Failed to load Objective-C class')));

@@ -55,8 +55,7 @@ class Fixture {
     bool isWeb = false,
   }) {
     options.tracesSampleRate = tracesSampleRate;
-    options.platformChecker =
-        PlatformChecker(platform: MockPlatform(isWeb: isWeb));
+    options.platform = MockPlatform(isWeb: isWeb);
 
     hub = Hub(options);
 

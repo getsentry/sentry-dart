@@ -443,7 +443,7 @@ void main() {
 
   test('options.environment debug', () async {
     final sentryOptions =
-        defaultTestOptions(MockPlatformChecker(isDebug: true));
+        defaultTestOptions(checker: MockPlatformChecker(isDebug: true));
     await Sentry.init(
       (options) {
         options.dsn = fakeDsn;
@@ -456,7 +456,7 @@ void main() {
 
   test('options.environment profile', () async {
     final sentryOptions =
-        defaultTestOptions(MockPlatformChecker(isProfile: true));
+        defaultTestOptions(checker: MockPlatformChecker(isProfile: true));
 
     await Sentry.init(
       (options) {
@@ -470,7 +470,7 @@ void main() {
 
   test('options.environment production (defaultEnvironment)', () async {
     final sentryOptions =
-        defaultTestOptions(MockPlatformChecker(isRelease: true));
+        defaultTestOptions(checker: MockPlatformChecker(isRelease: true));
     await Sentry.init(
       (options) {
         options.dsn = fakeDsn;
@@ -483,7 +483,7 @@ void main() {
 
   test('options.logger is set by setting the debug flag', () async {
     final sentryOptions =
-        defaultTestOptions(MockPlatformChecker(isDebug: true));
+        defaultTestOptions(checker: MockPlatformChecker(isDebug: true));
 
     await Sentry.init(
       (options) {
@@ -510,7 +510,7 @@ void main() {
     test('throw is handled and logged', () async {
       // Use release mode in platform checker to avoid additional log
       final sentryOptions =
-          defaultTestOptions(MockPlatformChecker(isRelease: true))
+          defaultTestOptions(checker: MockPlatformChecker(isRelease: true))
             ..automatedTestMode = false
             ..debug = true
             ..logger = fixture.mockLogger;

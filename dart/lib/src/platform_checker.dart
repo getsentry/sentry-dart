@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'platform/platform.dart';
 
 /// Helper to check in which environment the library is running.
 /// The environment checks (release/debug/profile) are mutually exclusive.
@@ -7,7 +6,6 @@ import 'platform/platform.dart';
 // TODO move `platform` directly to options - that is what we actually access 99 % of the times in tests and lib.
 class PlatformChecker {
   PlatformChecker({
-    this.platform = currentPlatform,
     bool? isRootZone,
   }) : isRootZone = isRootZone ?? Zone.current == Zone.root;
 
@@ -35,16 +33,4 @@ class PlatformChecker {
             ? 'debug'
             : 'profile';
   }
-
-  // TODO remove this check - it should be handled by the native integration... also, it's actually always true...
-  /// Indicates whether a native integration is available.
-  bool get hasNativeIntegration =>
-      platform.isWeb ||
-      platform.isAndroid ||
-      platform.isIOS ||
-      platform.isMacOS ||
-      platform.isWindows ||
-      platform.isLinux;
-
-  final Platform platform;
 }

@@ -64,7 +64,7 @@ mixin SentryFlutter {
     // ignore: invalid_use_of_internal_member
     sentrySetupStartTime ??= options.clock();
 
-    if (options.platformChecker.hasNativeIntegration) {
+    if (options.platform.supportsNativeIntegration) {
       _native = createBinding(options);
     }
 
@@ -74,7 +74,7 @@ mixin SentryFlutter {
     // Flutter Web doesn't capture [Future] errors if using [PlatformDispatcher.onError] and not
     // the [runZonedGuarded].
     // likely due to https://github.com/flutter/flutter/issues/100277
-    final isOnErrorSupported = !options.platformChecker.platform.isWeb;
+    final isOnErrorSupported = !options.platform.isWeb;
 
     final bool isRootZone = options.platformChecker.isRootZone;
 
@@ -126,13 +126,13 @@ mixin SentryFlutter {
     // Not all platforms have a native integration.
     if (_native != null) {
       if (_native!.supportsCaptureEnvelope) {
-        if (options.platformChecker.platform.isWeb) {
+        if (options.platform.isWeb) {
           options.transport = JavascriptTransport(_native!, options);
         } else {
           options.transport = FileSystemTransport(_native!, options);
         }
       }
-      if (!options.platformChecker.platform.isWeb) {
+      if (!options.platform.isWeb) {
         options.addScopeObserver(NativeScopeObserver(_native!));
       }
     }
@@ -141,7 +141,7 @@ mixin SentryFlutter {
     options.addEventProcessor(WidgetEventProcessor());
     options.addEventProcessor(UrlFilterEventProcessor(options));
 
-    if (options.platformChecker.platform.isAndroid) {
+    if (options.platform.isAndroid) {
       options.addEventProcessor(
         AndroidPlatformExceptionEventProcessor(options),
       );
@@ -159,7 +159,7 @@ mixin SentryFlutter {
     bool isOnErrorSupported,
   ) {
     final integrations = <Integration>[];
-    final platformChecker = options.platformChecker;
+    final platform = options.platform;
 
     // Will call WidgetsFlutterBinding.ensureInitialized() before all other integrations.
     integrations.add(WidgetsFlutterBindingIntegration());
@@ -180,7 +180,7 @@ mixin SentryFlutter {
     final native = _native;
     if (native != null) {
       integrations.add(createSdkIntegration(native));
-      if (!platformChecker.platform.isWeb) {
+      if (!platform.isWeb) {
         if (native.supportsLoadContexts) {
           integrations.add(LoadContextsIntegration(native));
         }
@@ -198,12 +198,11 @@ mixin SentryFlutter {
     }
 
     final renderer = options.rendererWrapper.getRenderer();
-    if (!platformChecker.platform.isWeb ||
-        renderer == FlutterRenderer.canvasKit) {
+    if (!platform.isWeb || renderer == FlutterRenderer.canvasKit) {
       integrations.add(ScreenshotIntegration());
     }
 
-    if (platformChecker.platform.isWeb) {
+    if (platform.isWeb) {
       integrations.add(ConnectivityIntegration());
     }
 

@@ -127,8 +127,7 @@ class SentryStackTraceFactory {
           SentryLevel.debug, "Failed to parse stack frame: $member");
     }
 
-    final platform =
-        _options.platformChecker.platform.isWeb ? 'javascript' : 'dart';
+    final platform = _options.platform.isWeb ? 'javascript' : 'dart';
     final fileName =
         frame.uri.pathSegments.isNotEmpty ? frame.uri.pathSegments.last : null;
     final abs = '$eventOrigin${_absolutePathForCrashReport(frame)}';

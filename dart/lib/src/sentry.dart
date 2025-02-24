@@ -87,7 +87,7 @@ class Sentry {
     _setEnvironmentVariables(options);
 
     // Throws when running on the browser
-    if (!options.platformChecker.platform.isWeb) {
+    if (!options.platform.isWeb) {
       // catch any errors that may occur within the entry function, main()
       // in the ‘root zone’ where all Dart programs start
       options.addIntegrationByIndex(0, IsolateErrorIntegration());

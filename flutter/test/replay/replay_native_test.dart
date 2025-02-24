@@ -42,10 +42,10 @@ void main() {
       setUp(() {
         hub = MockHub();
         native = NativeChannelFixture();
-        options =
-            defaultTestOptions(MockPlatformChecker(mockPlatform: mockPlatform))
-              ..methodChannel = native.channel
-              ..experimental.replay.quality = SentryReplayQuality.low;
+        options = defaultTestOptions()
+          ..platform = mockPlatform
+          ..methodChannel = native.channel
+          ..experimental.replay.quality = SentryReplayQuality.low;
         sut = createBinding(options);
 
         if (mockPlatform.isIOS) {

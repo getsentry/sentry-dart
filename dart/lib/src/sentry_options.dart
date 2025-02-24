@@ -10,6 +10,7 @@ import 'client_reports/noop_client_report_recorder.dart';
 import 'diagnostic_logger.dart';
 import 'environment/environment_variables.dart';
 import 'noop_client.dart';
+import 'platform/platform.dart';
 import 'sentry_exception_factory.dart';
 import 'sentry_stack_trace_factory.dart';
 import 'transport/noop_transport.dart';
@@ -275,6 +276,8 @@ class SentryOptions {
   /// This is useful in tests. Should be an implementation of [PlatformChecker].
   PlatformChecker platformChecker = PlatformChecker();
 
+  Platform platform = Platform();
+
   /// If [environmentVariables] is provided, it is used get the environment
   /// variables. This is useful in tests.
   EnvironmentVariables environmentVariables = EnvironmentVariables.instance();
@@ -494,13 +497,15 @@ class SentryOptions {
   /// iOS only supports http proxies, while macOS also supports socks.
   SentryProxy? proxy;
 
-  SentryOptions({String? dsn, PlatformChecker? checker}) {
+  SentryOptions({String? dsn, Platform? platform, PlatformChecker? checker}) {
     this.dsn = dsn;
+    if (platform != null) {
+      this.platform = platform;
+    }
     if (checker != null) {
       platformChecker = checker;
     }
-    sdk = SdkVersion(
-        name: sdkName(platformChecker.platform.isWeb), version: sdkVersion);
+    sdk = SdkVersion(name: sdkName(this.platform.isWeb), version: sdkVersion);
     sdk.addPackage('pub:sentry', sdkVersion);
   }
 

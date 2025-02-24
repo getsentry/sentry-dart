@@ -19,7 +19,7 @@ class FlutterEnricherEventProcessor implements EventProcessor {
 
   final SentryFlutterOptions _options;
 
-  bool get _hasNativeIntegration => _checker.hasNativeIntegration;
+  bool get _hasNativeIntegration => _options.platform.supportsNativeIntegration;
   PlatformChecker get _checker => _options.platformChecker;
 
   // We can't use `WidgetsBinding` as a direct parameter
@@ -40,7 +40,7 @@ class FlutterEnricherEventProcessor implements EventProcessor {
     // information available than Flutter.
     // TODO: while we have a native integration with JS SDK, it's currently opt in and we dont gather contexts yet
     // so for web it's still better to rely on the information of Flutter.
-    final device = _hasNativeIntegration && !_checker.platform.isWeb
+    final device = _hasNativeIntegration && !_options.platform.isWeb
         ? null
         : _getDevice(event.contexts.device);
 
@@ -209,7 +209,7 @@ class FlutterEnricherEventProcessor implements EventProcessor {
     // See
     // - https://flutter.dev/docs/testing/build-modes
     // - https://github.com/flutter/flutter/wiki/Flutter%27s-modes
-    if (_checker.platform.isWeb) {
+    if (_options.platform.isWeb) {
       if (_checker.isDebugMode()) {
         compiler = 'dartdevc';
       } else if (_checker.isReleaseMode() || _checker.isProfileMode()) {

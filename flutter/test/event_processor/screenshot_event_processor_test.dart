@@ -350,8 +350,7 @@ class Fixture {
   ScreenshotEventProcessor getSut(
       FlutterRenderer? flutterRenderer, bool isWeb) {
     options.rendererWrapper = MockRendererWrapper(flutterRenderer);
-    options.platformChecker =
-        MockPlatformChecker(mockPlatform: MockPlatform(isWeb: isWeb));
+    options.platform = MockPlatform(isWeb: isWeb);
     return ScreenshotEventProcessor(options);
   }
 }

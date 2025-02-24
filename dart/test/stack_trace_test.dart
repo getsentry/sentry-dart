@@ -8,7 +8,6 @@ import 'package:sentry/src/sentry_stack_trace_factory.dart';
 import 'package:stack_trace/stack_trace.dart';
 import 'package:test/test.dart';
 
-import 'mocks/mock_platform_checker.dart';
 import 'test_utils.dart';
 
 void main() {
@@ -285,15 +284,13 @@ isolate_instructions: 10fa27070, vm_instructions: 10fa21e20
       final fixture = Fixture();
 
       // Test for web platform
-      fixture.options.platformChecker =
-          MockPlatformChecker(platform: MockPlatform(isWeb: true));
+      fixture.options.platform = MockPlatform(isWeb: true);
       final webSut = fixture.getSut();
       var webFrame = webSut.encodeStackTraceFrame(frame)!;
       expect(webFrame.platform, 'javascript');
 
       // Test for non-web platform
-      fixture.options.platformChecker =
-          MockPlatformChecker(platform: MockPlatform(isWeb: false));
+      fixture.options.platform = MockPlatform(isWeb: false);
       final nativeFrameBeforeSut = fixture.getSut();
       var nativeFrameBefore =
           nativeFrameBeforeSut.encodeStackTraceFrame(frame)!;
@@ -310,8 +307,7 @@ isolate_instructions: 10fa27070, vm_instructions: 10fa21e20
 }
 
 class Fixture {
-  final options = defaultTestOptions(
-      MockPlatformChecker(platform: MockPlatform(isWeb: false)));
+  final options = defaultTestOptions()..platform = MockPlatform(isWeb: false);
 
   SentryStackTraceFactory getSut({
     List<String> inAppIncludes = const [],

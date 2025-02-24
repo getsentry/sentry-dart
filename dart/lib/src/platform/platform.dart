@@ -1,8 +1,6 @@
 import '_io_platform.dart' if (dart.library.js_interop) '_web_platform.dart'
     as impl;
 
-const currentPlatform = Platform();
-
 class Platform extends impl.PlatformBase {
   const Platform();
 
@@ -17,6 +15,8 @@ class Platform extends impl.PlatformBase {
   bool get isIOS => operatingSystem == OperatingSystem.ios;
 
   bool get isFuchsia => operatingSystem == OperatingSystem.fuchsia;
+
+  bool get supportsNativeIntegration => !isFuchsia;
 }
 
 enum OperatingSystem {

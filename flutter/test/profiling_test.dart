@@ -8,7 +8,6 @@ import 'package:sentry_flutter/src/profiling.dart';
 import 'package:sentry/src/platform/mock_platform.dart';
 import 'mocks.dart';
 import 'mocks.mocks.dart';
-import 'sentry_flutter_test.dart';
 
 void main() {
   late MockSentryNativeBinding mock;
@@ -21,7 +20,7 @@ void main() {
   group('$SentryNativeProfilerFactory', () {
     Hub hubWithSampleRate(double profilesSampleRate) {
       final o = defaultTestOptions();
-      o.platformChecker = getPlatformChecker(platform: MockPlatform.iOS());
+      o.platform = MockPlatform.iOS();
       o.profilesSampleRate = profilesSampleRate;
 
       final hub = MockHub();

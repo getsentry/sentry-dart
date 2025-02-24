@@ -20,8 +20,10 @@ import 'no_such_method_provider.dart';
 const fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
 const fakeProguardUuid = '3457d982-65ef-576d-a6ad-65b5f30f49a5';
 
-SentryFlutterOptions defaultTestOptions([PlatformChecker? checker]) {
-  return SentryFlutterOptions(dsn: fakeDsn, checker: checker)
+SentryFlutterOptions defaultTestOptions(
+    {Platform? platform, PlatformChecker? checker}) {
+  return SentryFlutterOptions(
+      dsn: fakeDsn, platform: platform, checker: checker)
     ..automatedTestMode = true;
 }
 
@@ -62,17 +64,11 @@ void main() {}
 class MockPlatformChecker with NoSuchMethodProvider implements PlatformChecker {
   MockPlatformChecker({
     this.buildMode = MockPlatformCheckerBuildMode.debug,
-    this.hasNativeIntegration = false,
     this.isRoot = true,
-    Platform? mockPlatform,
-  }) : _mockPlatform = mockPlatform ?? currentPlatform;
+  });
 
   final MockPlatformCheckerBuildMode buildMode;
   final bool isRoot;
-  final Platform _mockPlatform;
-
-  @override
-  bool hasNativeIntegration = false;
 
   @override
   bool isDebugMode() => buildMode == MockPlatformCheckerBuildMode.debug;
@@ -85,9 +81,6 @@ class MockPlatformChecker with NoSuchMethodProvider implements PlatformChecker {
 
   @override
   bool get isRootZone => isRoot;
-
-  @override
-  Platform get platform => _mockPlatform;
 }
 
 enum MockPlatformCheckerBuildMode { debug, profile, release }
