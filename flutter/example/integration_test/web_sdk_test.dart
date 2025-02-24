@@ -107,9 +107,9 @@ void main() {
         expect((header['sdk'] as Map<Object?, Object?>)['name'],
             'sentry.dart.flutter');
 
-        final item = (envelope[1] as List<Object?>).first as List<Object?>;
+        final item = (envelope[1] as List).first as List<Object?>;
         final itemPayload =
-            json.decode(utf8.decoder.convert((item[1] as List<int>)))
+            json.decode(utf8.decoder.convert(item[1] as List<int>))
                 as Map<Object?, Object?>;
 
         final jsEventJson = (itemPayload).map((key, value) {
