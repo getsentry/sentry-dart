@@ -2,8 +2,6 @@ import 'dart:async';
 
 /// Helper to check in which environment the library is running.
 /// The environment checks (release/debug/profile) are mutually exclusive.
-// TODO rename this to `RuntimeChecker` or something similar to better represent what it does.
-// TODO move `platform` directly to options - that is what we actually access 99 % of the times in tests and lib.
 class RuntimeChecker {
   RuntimeChecker({
     bool? isRootZone,
