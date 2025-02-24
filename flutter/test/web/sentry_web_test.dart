@@ -67,6 +67,7 @@ void main() {
         await sut.init(hub);
 
         final jsOptions = binding.getJsOptions();
+
         expect(jsOptions['dsn'], expectedDsn);
         expect(jsOptions['release'], expectedRelease);
         expect(jsOptions['sampleRate'], expectedSampleRate);
