@@ -35,7 +35,7 @@ class ScreenshotRecorder {
     privacyOptions ??= options.experimental.privacy;
 
     final maskingConfig =
-        privacyOptions.buildMaskingConfig(_log, options.platformChecker);
+        privacyOptions.buildMaskingConfig(_log, options.runtimeChecker);
     _maskingConfig = maskingConfig.length > 0 ? maskingConfig : null;
   }
 

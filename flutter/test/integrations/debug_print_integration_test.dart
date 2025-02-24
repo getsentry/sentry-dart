@@ -95,10 +95,10 @@ class Fixture {
     bool enablePrintBreadcrumbs = true,
   }) {
     return defaultTestOptions(
-        checker: MockPlatformChecker(
+        checker: MockRuntimeChecker(
             buildMode: debug
-                ? MockPlatformCheckerBuildMode.debug
-                : MockPlatformCheckerBuildMode.release))
+                ? MockRuntimeCheckerBuildMode.debug
+                : MockRuntimeCheckerBuildMode.release))
       ..enablePrintBreadcrumbs = enablePrintBreadcrumbs;
   }
 

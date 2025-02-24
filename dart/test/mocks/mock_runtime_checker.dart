@@ -1,9 +1,9 @@
-import 'package:sentry/src/platform_checker.dart';
+import 'package:sentry/src/runtime_checker.dart';
 
 import 'no_such_method_provider.dart';
 
-class MockPlatformChecker extends PlatformChecker with NoSuchMethodProvider {
-  MockPlatformChecker({
+class MockRuntimeChecker extends RuntimeChecker with NoSuchMethodProvider {
+  MockRuntimeChecker({
     this.isDebug = false,
     this.isProfile = false,
     this.isRelease = false,

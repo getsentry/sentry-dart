@@ -368,7 +368,7 @@ void main() {
     }, testOn: 'browser');
 
     test('Web (custom zone)', () async {
-      final checker = MockPlatformChecker(isRoot: false);
+      final checker = MockRuntimeChecker(isRoot: false);
       final sentryFlutterOptions = defaultTestOptions(checker: checker)
         ..platform = MockPlatform.android(isWeb: true)
         ..methodChannel = native.channel;

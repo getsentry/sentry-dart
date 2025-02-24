@@ -93,7 +93,7 @@ class Sentry {
       options.addIntegrationByIndex(0, IsolateErrorIntegration());
     }
 
-    if (options.platformChecker.isDebugMode()) {
+    if (options.runtimeChecker.isDebugMode()) {
       options.debug = true;
       options.logger(
         SentryLevel.debug,
@@ -123,7 +123,7 @@ class Sentry {
     options.dsn = options.dsn ?? vars.dsn;
 
     if (options.environment == null) {
-      var environment = vars.environmentForMode(options.platformChecker);
+      var environment = vars.environmentForMode(options.runtimeChecker);
       options.environment = vars.environment ?? environment;
     }
 

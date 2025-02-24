@@ -21,7 +21,7 @@ const fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
 const fakeProguardUuid = '3457d982-65ef-576d-a6ad-65b5f30f49a5';
 
 SentryFlutterOptions defaultTestOptions(
-    {Platform? platform, PlatformChecker? checker}) {
+    {Platform? platform, RuntimeChecker? checker}) {
   return SentryFlutterOptions(
       dsn: fakeDsn, platform: platform, checker: checker)
     ..automatedTestMode = true;
@@ -61,29 +61,29 @@ ISentrySpan startTransactionShim(
 ])
 void main() {}
 
-class MockPlatformChecker with NoSuchMethodProvider implements PlatformChecker {
-  MockPlatformChecker({
-    this.buildMode = MockPlatformCheckerBuildMode.debug,
+class MockRuntimeChecker with NoSuchMethodProvider implements RuntimeChecker {
+  MockRuntimeChecker({
+    this.buildMode = MockRuntimeCheckerBuildMode.debug,
     this.isRoot = true,
   });
 
-  final MockPlatformCheckerBuildMode buildMode;
+  final MockRuntimeCheckerBuildMode buildMode;
   final bool isRoot;
 
   @override
-  bool isDebugMode() => buildMode == MockPlatformCheckerBuildMode.debug;
+  bool isDebugMode() => buildMode == MockRuntimeCheckerBuildMode.debug;
 
   @override
-  bool isProfileMode() => buildMode == MockPlatformCheckerBuildMode.profile;
+  bool isProfileMode() => buildMode == MockRuntimeCheckerBuildMode.profile;
 
   @override
-  bool isReleaseMode() => buildMode == MockPlatformCheckerBuildMode.release;
+  bool isReleaseMode() => buildMode == MockRuntimeCheckerBuildMode.release;
 
   @override
   bool get isRootZone => isRoot;
 }
 
-enum MockPlatformCheckerBuildMode { debug, profile, release }
+enum MockRuntimeCheckerBuildMode { debug, profile, release }
 
 // Does nothing or returns default values.
 // Useful for when a Hub needs to be passed but is not used.

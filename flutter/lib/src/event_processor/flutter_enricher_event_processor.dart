@@ -20,7 +20,7 @@ class FlutterEnricherEventProcessor implements EventProcessor {
   final SentryFlutterOptions _options;
 
   bool get _hasNativeIntegration => _options.platform.supportsNativeIntegration;
-  PlatformChecker get _checker => _options.platformChecker;
+  RuntimeChecker get _checker => _options.runtimeChecker;
 
   // We can't use `WidgetsBinding` as a direct parameter
   // because it must be called inside the `runZoneGuarded`-Integration.

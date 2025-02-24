@@ -272,10 +272,11 @@ class SentryOptions {
   /// `debugPrint` calls are only recorded in release builds, though.
   bool enablePrintBreadcrumbs = true;
 
-  /// If [platformChecker] is provided, it is used get the environment.
-  /// This is useful in tests. Should be an implementation of [PlatformChecker].
-  PlatformChecker platformChecker = PlatformChecker();
+  /// If [runtimeChecker] is provided, it is used get the environment.
+  /// This is useful in tests. Should be an implementation of [RuntimeChecker].
+  RuntimeChecker runtimeChecker = RuntimeChecker();
 
+  /// Info on which platform the SDK runs.
   Platform platform = Platform();
 
   /// If [environmentVariables] is provided, it is used get the environment
@@ -497,13 +498,13 @@ class SentryOptions {
   /// iOS only supports http proxies, while macOS also supports socks.
   SentryProxy? proxy;
 
-  SentryOptions({String? dsn, Platform? platform, PlatformChecker? checker}) {
+  SentryOptions({String? dsn, Platform? platform, RuntimeChecker? checker}) {
     this.dsn = dsn;
     if (platform != null) {
       this.platform = platform;
     }
     if (checker != null) {
-      platformChecker = checker;
+      runtimeChecker = checker;
     }
     sdk = SdkVersion(name: sdkName(this.platform.isWeb), version: sdkVersion);
     sdk.addPackage('pub:sentry', sdkVersion);

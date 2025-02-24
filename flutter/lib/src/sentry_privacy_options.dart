@@ -31,7 +31,7 @@ class SentryPrivacyOptions {
 
   @internal
   SentryMaskingConfig buildMaskingConfig(
-      SentryLogger logger, PlatformChecker platform) {
+      SentryLogger logger, RuntimeChecker runtimeChecker) {
     // First, we collect rules defined by the user (so they're applied first).
     final rules = _userMaskingRules.toList();
 
@@ -76,7 +76,7 @@ class SentryPrivacyOptions {
 
     // In Debug mode, check if users explicitly mask (or unmask) widgets that
     // look like they should be masked, e.g. Videos, WebViews, etc.
-    if (platform.isDebugMode()) {
+    if (runtimeChecker.isDebugMode()) {
       final regexp = RegExp('video|webview|password|pinput|camera|chart',
           caseSensitive: false);
 

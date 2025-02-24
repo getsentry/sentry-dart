@@ -20,7 +20,7 @@ const String _testDsnWithPort =
     'https://public:secret@sentry.example.com:8888/1';
 
 SentryOptions defaultTestOptions(
-    {Platform? platform, PlatformChecker? checker}) {
+    {Platform? platform, RuntimeChecker? checker}) {
   return SentryOptions(dsn: testDsn, platform: platform, checker: checker)
     ..automatedTestMode = true;
 }

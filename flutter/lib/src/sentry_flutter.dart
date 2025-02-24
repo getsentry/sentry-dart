@@ -76,7 +76,7 @@ mixin SentryFlutter {
     // likely due to https://github.com/flutter/flutter/issues/100277
     final isOnErrorSupported = !options.platform.isWeb;
 
-    final bool isRootZone = options.platformChecker.isRootZone;
+    final bool isRootZone = options.runtimeChecker.isRootZone;
 
     // If onError is not supported and no custom zone exists, use runZonedGuarded to capture errors.
     final bool useRunZonedGuarded = !isOnErrorSupported && isRootZone;

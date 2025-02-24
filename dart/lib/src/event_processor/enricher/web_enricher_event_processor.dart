@@ -89,7 +89,7 @@ class WebEnricherEventProcessor implements EnricherEventProcessor {
 
   Map<String, dynamic> _getDartContext() {
     return <String, dynamic>{
-      'compile_mode': _options.platformChecker.compileMode,
+      'compile_mode': _options.runtimeChecker.compileMode,
     };
   }
 
