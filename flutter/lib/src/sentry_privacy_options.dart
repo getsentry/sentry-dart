@@ -11,17 +11,14 @@ class SentryPrivacyOptions {
   /// Mask all text content. Draws a rectangle of text bounds with text color
   /// on top. Currently, only [Text] and [EditableText] Widgets are masked.
   /// Default is enabled.
-  @experimental
   var maskAllText = true;
 
   /// Mask content of all images. Draws a rectangle of image bounds with image's
   /// dominant color on top. Currently, only [Image] widgets are masked.
   /// Default is enabled (except for asset images, see [maskAssetImages]).
-  @experimental
   var maskAllImages = true;
 
   /// Redact asset images coming from the root asset bundle.
-  @experimental
   var maskAssetImages = false;
 
   final _userMaskingRules = <SentryMaskingRule>[];
@@ -82,8 +79,8 @@ class SentryPrivacyOptions {
 
       // Note: the following line just makes sure if the option is renamed,
       // someone will notice that there is a string that needs updating too.
-      SentryFlutterOptions().experimental.privacy;
-      final optionsName = 'options.experimental.privacy';
+      SentryFlutterOptions().privacy;
+      final optionsName = 'options.privacy';
 
       rules.add(SentryMaskingCustomRule<Widget>(
           callback: (Element element, Widget widget) {

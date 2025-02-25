@@ -67,15 +67,15 @@ class SentryNativeChannel
           options.appHangTimeoutInterval.inMilliseconds,
       if (options.proxy != null) 'proxy': options.proxy?.toJson(),
       'replay': <String, dynamic>{
-        'quality': options.experimental.replay.quality.name,
-        'sessionSampleRate': options.experimental.replay.sessionSampleRate,
-        'onErrorSampleRate': options.experimental.replay.onErrorSampleRate,
+        'quality': options.replay.quality.name,
+        'sessionSampleRate': options.replay.sessionSampleRate,
+        'onErrorSampleRate': options.replay.onErrorSampleRate,
         'tags': <String, dynamic>{
-          'maskAllText': options.experimental.privacy.maskAllText,
-          'maskAllImages': options.experimental.privacy.maskAllImages,
-          'maskAssetImages': options.experimental.privacy.maskAssetImages,
-          if (options.experimental.privacy.userMaskingRules.isNotEmpty)
-            'maskingRules': options.experimental.privacy.userMaskingRules
+          'maskAllText': options.privacy.maskAllText,
+          'maskAllImages': options.privacy.maskAllImages,
+          'maskAssetImages': options.privacy.maskAssetImages,
+          if (options.privacy.userMaskingRules.isNotEmpty)
+            'maskingRules': options.privacy.userMaskingRules
                 .map((rule) => '${rule.name}: ${rule.description}')
                 .toList(growable: false),
         },
