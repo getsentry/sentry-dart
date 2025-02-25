@@ -77,11 +77,6 @@ class SentryPrivacyOptions {
       final regexp = RegExp('video|webview|password|pinput|camera|chart',
           caseSensitive: false);
 
-      // Note: the following line just makes sure if the option is renamed,
-      // someone will notice that there is a string that needs updating too.
-      SentryFlutterOptions().privacy;
-      final optionsName = 'options.privacy';
-
       rules.add(SentryMaskingCustomRule<Widget>(
           callback: (Element element, Widget widget) {
             final type = widget.runtimeType.toString();
@@ -93,9 +88,9 @@ class SentryPrivacyOptions {
                   'widget comes from a third-party plugin or your code, Sentry '
                   "doesn't recognize it and can't reliably mask it in release "
                   'builds (due to obfuscation). '
-                  'Please mask it explicitly using $optionsName.mask<$type>(). '
+                  'Please mask it explicitly using options.privacy.mask<$type>(). '
                   'If you want to silence this warning and keep the widget '
-                  'visible in captures, you can use $optionsName.unmask<$type>(). '
+                  'visible in captures, you can use options.privacy.unmask<$type>(). '
                   'Note: the RegExp matched is: $regexp (case insensitive).');
             }
             return SentryMaskingDecision.continueProcessing;
