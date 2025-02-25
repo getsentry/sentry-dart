@@ -19,7 +19,7 @@ export 'src/integration.dart';
 export 'src/noop_isolate_error_integration.dart'
     if (dart.library.io) 'src/isolate_error_integration.dart';
 export 'src/performance_collector.dart';
-export 'src/platform_checker.dart';
+export 'src/runtime_checker.dart';
 export 'src/protocol.dart';
 export 'src/protocol/sentry_feedback.dart';
 export 'src/protocol/sentry_proxy.dart';

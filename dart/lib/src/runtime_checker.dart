@@ -1,18 +1,11 @@
 import 'dart:async';
 
-import 'platform/platform.dart';
-
 /// Helper to check in which environment the library is running.
 /// The environment checks (release/debug/profile) are mutually exclusive.
-class PlatformChecker {
-  static const _jsUtil = 'dart.library.js_util';
-
-  PlatformChecker({
-    this.platform = instance,
-    bool? isWeb,
+class RuntimeChecker {
+  RuntimeChecker({
     bool? isRootZone,
-  })  : isWeb = isWeb ?? _isWebWithWasmSupport(),
-        isRootZone = isRootZone ?? Zone.current == Zone.root;
+  }) : isRootZone = isRootZone ?? Zone.current == Zone.root;
 
   /// Check if running in release/production environment
   bool isReleaseMode() {
@@ -29,7 +22,6 @@ class PlatformChecker {
     return const bool.fromEnvironment('dart.vm.profile', defaultValue: false);
   }
 
-  final bool isWeb;
   final bool isRootZone;
 
   String get compileMode {
@@ -39,22 +31,4 @@ class PlatformChecker {
             ? 'debug'
             : 'profile';
   }
-
-  /// Indicates whether a native integration is available.
-  bool get hasNativeIntegration =>
-      isWeb ||
-      platform.isAndroid ||
-      platform.isIOS ||
-      platform.isMacOS ||
-      platform.isWindows ||
-      platform.isLinux;
-
-  static bool _isWebWithWasmSupport() {
-    if (const bool.hasEnvironment(_jsUtil)) {
-      return const bool.fromEnvironment(_jsUtil);
-    }
-    return identical(0, 0.0);
-  }
-
-  final Platform platform;
 }

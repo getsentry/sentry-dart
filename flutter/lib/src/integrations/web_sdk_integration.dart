@@ -33,7 +33,7 @@ class WebSdkIntegration implements Integration<SentryFlutterOptions> {
     _options = options;
 
     try {
-      final scripts = options.platformChecker.isDebugMode()
+      final scripts = options.runtimeChecker.isDebugMode()
           ? debugScripts
           : productionScripts;
       await _scriptLoader.loadWebSdk(scripts);

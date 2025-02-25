@@ -8,6 +8,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/platform/platform.dart';
 import 'package:sentry/src/version.dart';
 import 'package:test/test.dart';
 
@@ -18,8 +19,9 @@ const String _testDsnWithPath =
 const String _testDsnWithPort =
     'https://public:secret@sentry.example.com:8888/1';
 
-SentryOptions defaultTestOptions([PlatformChecker? checker]) {
-  return SentryOptions(dsn: testDsn, checker: checker)
+SentryOptions defaultTestOptions(
+    {Platform? platform, RuntimeChecker? checker}) {
+  return SentryOptions(dsn: testDsn, platform: platform, checker: checker)
     ..automatedTestMode = true;
 }
 

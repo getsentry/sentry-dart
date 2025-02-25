@@ -57,6 +57,7 @@ void main() {
 
   test('$DebugPrintIntegration: disabled in debug builds', () {
     final integration = fixture.getSut();
+
     integration.call(fixture.hub, fixture.getOptions(debug: true));
 
     debugPrint('Foo Bar');
@@ -94,10 +95,11 @@ class Fixture {
     bool debug = false,
     bool enablePrintBreadcrumbs = true,
   }) {
-    return defaultTestOptions(MockPlatformChecker(
-        buildMode: debug
-            ? MockPlatformCheckerBuildMode.debug
-            : MockPlatformCheckerBuildMode.release))
+    return defaultTestOptions(
+        checker: MockRuntimeChecker(
+            buildMode: debug
+                ? MockRuntimeCheckerBuildMode.debug
+                : MockRuntimeCheckerBuildMode.release))
       ..enablePrintBreadcrumbs = enablePrintBreadcrumbs;
   }
 

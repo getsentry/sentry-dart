@@ -6,13 +6,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:meta/meta.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:sentry/src/platform/platform.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/frames_tracking/sentry_delayed_frames_tracker.dart';
 import 'package:sentry_flutter/src/native/sentry_native_binding.dart';
 import 'package:sentry_flutter/src/renderer/renderer.dart';
 import 'package:sentry_flutter/src/web/sentry_js_binding.dart';
+import 'package:sentry/src/platform/platform.dart';
 
 import 'mocks.mocks.dart';
 import 'no_such_method_provider.dart';
@@ -20,8 +20,10 @@ import 'no_such_method_provider.dart';
 const fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
 const fakeProguardUuid = '3457d982-65ef-576d-a6ad-65b5f30f49a5';
 
-SentryFlutterOptions defaultTestOptions([PlatformChecker? checker]) {
-  return SentryFlutterOptions(dsn: fakeDsn, checker: checker)
+SentryFlutterOptions defaultTestOptions(
+    {Platform? platform, RuntimeChecker? checker}) {
+  return SentryFlutterOptions(
+      dsn: fakeDsn, platform: platform, checker: checker)
     ..automatedTestMode = true;
 }
 
@@ -59,82 +61,29 @@ ISentrySpan startTransactionShim(
 ])
 void main() {}
 
-class MockPlatform with NoSuchMethodProvider implements Platform {
-  const MockPlatform(this.operatingSystem,
-      {this.operatingSystemVersion = '', this.localHostname = ''});
-
-  const MockPlatform.android() : this('android');
-  const MockPlatform.iOs() : this('ios');
-  const MockPlatform.macOs() : this('macos');
-  const MockPlatform.windows() : this('windows');
-  const MockPlatform.linux() : this('linux');
-  const MockPlatform.fuchsia() : this('fuchsia');
-
-  @override
-  final String operatingSystem;
-
-  @override
-  final String operatingSystemVersion;
-
-  @override
-  final String localHostname;
-
-  @override
-  bool get isLinux => (operatingSystem == 'linux');
-
-  @override
-  bool get isMacOS => (operatingSystem == 'macos');
-
-  @override
-  bool get isWindows => (operatingSystem == 'windows');
-
-  @override
-  bool get isAndroid => (operatingSystem == 'android');
-
-  @override
-  bool get isIOS => (operatingSystem == 'ios');
-
-  @override
-  bool get isFuchsia => (operatingSystem == 'fuchsia');
-}
-
-class MockPlatformChecker with NoSuchMethodProvider implements PlatformChecker {
-  MockPlatformChecker({
-    this.buildMode = MockPlatformCheckerBuildMode.debug,
-    this.isWebValue = false,
-    this.hasNativeIntegration = false,
+class MockRuntimeChecker with NoSuchMethodProvider implements RuntimeChecker {
+  MockRuntimeChecker({
+    this.buildMode = MockRuntimeCheckerBuildMode.debug,
     this.isRoot = true,
-    Platform? mockPlatform,
-  }) : _mockPlatform = mockPlatform ?? MockPlatform('');
+  });
 
-  final MockPlatformCheckerBuildMode buildMode;
-  final bool isWebValue;
+  final MockRuntimeCheckerBuildMode buildMode;
   final bool isRoot;
-  final Platform _mockPlatform;
 
   @override
-  bool hasNativeIntegration = false;
+  bool isDebugMode() => buildMode == MockRuntimeCheckerBuildMode.debug;
 
   @override
-  bool isDebugMode() => buildMode == MockPlatformCheckerBuildMode.debug;
+  bool isProfileMode() => buildMode == MockRuntimeCheckerBuildMode.profile;
 
   @override
-  bool isProfileMode() => buildMode == MockPlatformCheckerBuildMode.profile;
-
-  @override
-  bool isReleaseMode() => buildMode == MockPlatformCheckerBuildMode.release;
+  bool isReleaseMode() => buildMode == MockRuntimeCheckerBuildMode.release;
 
   @override
   bool get isRootZone => isRoot;
-
-  @override
-  bool get isWeb => isWebValue;
-
-  @override
-  Platform get platform => _mockPlatform;
 }
 
-enum MockPlatformCheckerBuildMode { debug, profile, release }
+enum MockRuntimeCheckerBuildMode { debug, profile, release }
 
 // Does nothing or returns default values.
 // Useful for when a Hub needs to be passed but is not used.

@@ -18,7 +18,7 @@ class DebugPrintIntegration implements Integration<SentryFlutterOptions> {
     _hub = hub;
     _options = options;
 
-    final isDebug = options.platformChecker.isDebugMode();
+    final isDebug = options.runtimeChecker.isDebugMode();
     final enablePrintBreadcrumbs = options.enablePrintBreadcrumbs;
     if (isDebug || !enablePrintBreadcrumbs) {
       return;
