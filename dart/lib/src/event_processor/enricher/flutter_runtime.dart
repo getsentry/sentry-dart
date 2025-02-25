@@ -1,37 +1,33 @@
 import '../../protocol/sentry_runtime.dart';
 
 // The Flutter version information can be fetched via Dart defines,
-// see https://github.com/flutter/flutter/pull/140783.
+// see 
+//  - https://github.com/flutter/flutter/pull/140783
+//  - https://github.com/flutter/flutter/pull/163761
 // This code lives in the Dart only Sentry code, since the code
 // doesn't require any Flutter dependency.
 // Additionally, this makes it work on background isolates in
 // Flutter, where one may not initialize the whole Flutter Sentry
 // SDK.
 
-SentryRuntime? get flutterRuntime {
-  if (FlutterVersion.version == null ||
-      FlutterVersion.channel == null ||
-      FlutterVersion.frameworkRevision == null) {
-    return null;
-  }
+const _hasFlutterRuntimeInformation = FlutterVersion.version == null ||
+    FlutterVersion.channel == null ||
+    FlutterVersion.frameworkRevision == null;
 
-  return SentryRuntime(
-    name: 'Flutter',
-    version: '${FlutterVersion.version} (${FlutterVersion.channel})',
-    build: FlutterVersion.frameworkRevision,
-  );
-}
+const SentryRuntime? flutterRuntime = _hasFlutterRuntimeInformation
+    ? null
+    : SentryRuntime(
+        name: 'Flutter',
+        version: '${FlutterVersion.version} (${FlutterVersion.channel})',
+        build: FlutterVersion.frameworkRevision,
+      );
 
-SentryRuntime? get dartFlutterRuntime {
-  if (FlutterVersion.dartVersion == null) {
-    return null;
-  }
-
-  return SentryRuntime(
-    name: 'Dart',
-    version: FlutterVersion.dartVersion,
-  );
-}
+const SentryRuntime? dartFlutterRuntime = FlutterVersion.dartVersion == null
+    ? null
+    : SentryRuntime(
+        name: 'Dart',
+        version: FlutterVersion.dartVersion,
+      );
 
 /// Details about the Flutter version this app was compiled with,
 /// corresponding to the output of `flutter --version`.
