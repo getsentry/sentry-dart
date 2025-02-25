@@ -27,7 +27,7 @@ Future<void> setupSentry(AppRunner appRunner) async {
       options.addIntegration(LoggingIntegration());
       options.sendDefaultPii = true;
       options.reportSilentFlutterErrors = true;
-      options.screenshot.attachScreenshot = true;
+      options.screenshot.attach = true;
       options.attachViewHierarchy = true;
       // We can enable Sentry debug logging during development. This is likely
       // going to log too much for your app, but can be useful when figuring out

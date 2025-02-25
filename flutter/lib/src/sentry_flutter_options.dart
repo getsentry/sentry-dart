@@ -379,15 +379,15 @@ class SentryFlutterScreenshotOptions {
   /// Example:
   /// runApp(SentryWidget(child: App()));
   /// The [SentryWidget] has to be the root widget of the app.
-  bool attachScreenshot = false;
+  bool attach = false;
 
   /// The quality of the attached screenshot
-  SentryScreenshotQuality screenshotQuality = SentryScreenshotQuality.high;
+  SentryScreenshotQuality quality = SentryScreenshotQuality.high;
 
   /// Sets a callback which is executed before capturing screenshots. Only
-  /// relevant if `attachScreenshot` is set to true. When false is returned
-  /// from the function, no screenshot will be attached.
-  BeforeCaptureCallback? beforeCaptureScreenshot;
+  /// relevant if `attach` is set to true. When false is returned from the
+  /// function, no screenshot will be attached.
+  BeforeCaptureCallback? beforeCapture;
 }
 
 /// A callback which can be used to suppress capturing of screenshots.
