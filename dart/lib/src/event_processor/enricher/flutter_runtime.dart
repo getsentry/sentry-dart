@@ -1,7 +1,7 @@
 import '../../protocol/sentry_runtime.dart';
 
 // The Flutter version information can be fetched via Dart defines,
-// see 
+// see
 //  - https://github.com/flutter/flutter/pull/140783
 //  - https://github.com/flutter/flutter/pull/163761
 //
@@ -9,7 +9,7 @@ import '../../protocol/sentry_runtime.dart';
 // doesn't require any Flutter dependency.
 // Additionally, this makes it work on background isolates in
 // Flutter, where one may not initialize the whole Flutter Sentry
-// SDK. 
+// SDK.
 // The const-ness of the properties below ensure that the code
 // is tree shaken in a non-Flutter environment.
 
