@@ -1,11 +1,13 @@
 # Changelog
 
-## Unreleased
+## 8.14.0-beta.1
 
 ### Behavioral changes
 
 - ⚠️ Auto IP assignment for `SentryUser` is now guarded by `sendDefaultPii` ([#2726](https://github.com/getsentry/sentry-dart/pull/2726))
   - If you rely on Sentry automatically processing the IP address of the user, set `options.sendDefaultPii = true` or manually set the IP address of the `SentryUser` to `{{auto}}`
+- Adding the device name to Contexts is now guarded by `sendDefaultPii` ([#2741](https://github.com/getsentry/sentry-dart/pull/2741))
+  - Set `options.sendDefaultPii = true` if you want to have the device name reported
 
 ### Features
 
@@ -51,6 +53,13 @@ final db = AppDatabase(executor);
 - Bump Cocoa SDK from v8.44.0 to v8.45.0 ([#2718](https://github.com/getsentry/sentry-dart/pull/2718))
   - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8450)
   - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.44.0...8.45.0)
+
+## 8.13.2
+
+### Fixes
+
+- `build_web_compiler` error ([#2736](https://github.com/getsentry/sentry-dart/pull/2736))
+  - Use `if (dart.library.html)` instead of `if (dart.html)` for imports
 
 ## 8.13.1
 
