@@ -4,11 +4,14 @@ import '../../protocol/sentry_runtime.dart';
 // see 
 //  - https://github.com/flutter/flutter/pull/140783
 //  - https://github.com/flutter/flutter/pull/163761
+//
 // This code lives in the Dart only Sentry code, since the code
 // doesn't require any Flutter dependency.
 // Additionally, this makes it work on background isolates in
 // Flutter, where one may not initialize the whole Flutter Sentry
-// SDK.
+// SDK. 
+// The const-ness of the properties below ensure that the code
+// is tree shaken in a non-Flutter environment.
 
 const _hasFlutterRuntimeInformation = FlutterVersion.version == null ||
     FlutterVersion.channel == null ||
