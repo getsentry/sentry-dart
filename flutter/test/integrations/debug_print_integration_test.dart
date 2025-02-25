@@ -57,6 +57,7 @@ void main() {
 
   test('$DebugPrintIntegration: disabled in debug builds', () {
     final integration = fixture.getSut();
+
     integration.call(fixture.hub, fixture.getOptions(debug: true));
 
     debugPrint('Foo Bar');

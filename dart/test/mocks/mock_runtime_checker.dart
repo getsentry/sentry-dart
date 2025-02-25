@@ -7,7 +7,8 @@ class MockRuntimeChecker extends RuntimeChecker with NoSuchMethodProvider {
     this.isDebug = false,
     this.isProfile = false,
     this.isRelease = false,
-  });
+    bool isRootZone = true,
+  }) : super(isRootZone: isRootZone);
 
   final bool isDebug;
   final bool isProfile;
