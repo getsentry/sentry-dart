@@ -83,7 +83,7 @@ void main() {
   testWidgets('does add screenshot in correct resolution for low',
       (tester) async {
     final height = SentryScreenshotQuality.low.targetResolution()!;
-    fixture.options.screenshotQuality = SentryScreenshotQuality.low;
+    fixture.options.screenshot.screenshotQuality = SentryScreenshotQuality.low;
     await _addScreenshotAttachment(tester, null,
         added: true, isWeb: false, expectedMaxWidthOrHeight: height);
   });
@@ -91,7 +91,7 @@ void main() {
   testWidgets('does add screenshot in correct resolution for medium',
       (tester) async {
     final height = SentryScreenshotQuality.medium.targetResolution()!;
-    fixture.options.screenshotQuality = SentryScreenshotQuality.medium;
+    fixture.options.screenshot.screenshotQuality = SentryScreenshotQuality.medium;
     await _addScreenshotAttachment(tester, null,
         added: true, isWeb: false, expectedMaxWidthOrHeight: height);
   });
@@ -99,7 +99,7 @@ void main() {
   testWidgets('does add screenshot in correct resolution for high',
       (tester) async {
     final widthOrHeight = SentryScreenshotQuality.high.targetResolution()!;
-    fixture.options.screenshotQuality = SentryScreenshotQuality.high;
+    fixture.options.screenshot.screenshotQuality = SentryScreenshotQuality.high;
     await _addScreenshotAttachment(tester, null,
         added: true, isWeb: false, expectedMaxWidthOrHeight: widthOrHeight);
   });
@@ -137,7 +137,7 @@ void main() {
   group('beforeCaptureScreenshot', () {
     testWidgets('does add screenshot if beforeCapture returns true',
         (tester) async {
-      fixture.options.beforeCaptureScreenshot =
+      fixture.options.screenshot.beforeCaptureScreenshot =
           (SentryEvent event, Hint hint, bool shouldDebounce) {
         return true;
       };
@@ -147,7 +147,7 @@ void main() {
 
     testWidgets('does add screenshot if async beforeCapture returns true',
         (tester) async {
-      fixture.options.beforeCaptureScreenshot =
+      fixture.options.screenshot.beforeCaptureScreenshot =
           (SentryEvent event, Hint hint, bool shouldDebounce) async {
         await Future<void>.delayed(Duration(milliseconds: 1));
         return true;
@@ -158,7 +158,7 @@ void main() {
 
     testWidgets('does not add screenshot if beforeCapture returns false',
         (tester) async {
-      fixture.options.beforeCaptureScreenshot =
+      fixture.options.screenshot.beforeCaptureScreenshot =
           (SentryEvent event, Hint hint, bool shouldDebounce) {
         return false;
       };
@@ -168,7 +168,7 @@ void main() {
 
     testWidgets('does not add screenshot if async beforeCapture returns false',
         (tester) async {
-      fixture.options.beforeCaptureScreenshot =
+      fixture.options.screenshot.beforeCaptureScreenshot =
           (SentryEvent event, Hint hint, bool shouldDebounce) async {
         await Future<void>.delayed(Duration(milliseconds: 1));
         return false;
@@ -179,7 +179,7 @@ void main() {
 
     testWidgets('does add screenshot if beforeCapture throws', (tester) async {
       fixture.options.automatedTestMode = false;
-      fixture.options.beforeCaptureScreenshot =
+      fixture.options.screenshot.beforeCaptureScreenshot =
           (SentryEvent event, Hint hint, bool shouldDebounce) {
         throw Error();
       };
@@ -190,7 +190,7 @@ void main() {
     testWidgets('does add screenshot if async beforeCapture throws',
         (tester) async {
       fixture.options.automatedTestMode = false;
-      fixture.options.beforeCaptureScreenshot =
+      fixture.options.screenshot.beforeCaptureScreenshot =
           (SentryEvent event, Hint hint, bool shouldDebounce) async {
         await Future<void>.delayed(Duration(milliseconds: 1));
         throw Error();
@@ -204,7 +204,7 @@ void main() {
       await tester.runAsync(() async {
         var shouldDebounceValues = <bool>[];
 
-        fixture.options.beforeCaptureScreenshot =
+        fixture.options.screenshot.beforeCaptureScreenshot =
             (SentryEvent event, Hint hint, bool shouldDebounce) {
           shouldDebounceValues.add(shouldDebounce);
           return true;
@@ -241,7 +241,7 @@ void main() {
       SentryEvent? beforeScreenshotEvent;
       Hint? beforeScreenshotHint;
 
-      fixture.options.beforeCaptureScreenshot =
+      fixture.options.screenshot.beforeCaptureScreenshot =
           (SentryEvent event, Hint hint, bool shouldDebounce) {
         beforeScreenshotEvent = event;
         beforeScreenshotHint = hint;
@@ -342,7 +342,7 @@ class Fixture {
   SentryFlutterOptions options = defaultTestOptions();
 
   Fixture() {
-    options.attachScreenshot = true;
+    options.screenshot.attachScreenshot = true;
     hub = Hub(options);
   }
 

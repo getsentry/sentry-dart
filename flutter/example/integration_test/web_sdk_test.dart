@@ -129,7 +129,7 @@ void main() {
         await restoreFlutterOnErrorAfter(() async {
           await SentryFlutter.init((options) {
             options.dsn = fakeDsn;
-            options.attachScreenshot = true;
+            options.screenshot.attachScreenshot = true;
 
             confOptions = options;
           }, appRunner: () async {

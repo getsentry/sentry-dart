@@ -18,7 +18,7 @@ class ScreenshotIntegration implements Integration<SentryFlutterOptions> {
       );
       return;
     }
-    if (options.attachScreenshot) {
+    if (options.screenshot.attachScreenshot) {
       _options = options;
       final screenshotEventProcessor = ScreenshotEventProcessor(options);
       options.addEventProcessor(screenshotEventProcessor);

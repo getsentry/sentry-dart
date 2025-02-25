@@ -16,7 +16,7 @@ class ScreenshotEventProcessor implements EventProcessor {
   late final Debouncer _debouncer;
 
   ScreenshotEventProcessor(this._options) {
-    final targetResolution = _options.screenshotQuality.targetResolution();
+    final targetResolution = _options.screenshot.screenshotQuality.targetResolution();
     _recorder = ScreenshotRecorder(
       ScreenshotRecorderConfig(
         width: targetResolution,
@@ -50,7 +50,7 @@ class ScreenshotEventProcessor implements EventProcessor {
     // skip capturing in case of debouncing (=too many frequent capture requests)
     // the BeforeCaptureCallback may overrule the debouncing decision
     final shouldDebounce = _debouncer.shouldDebounce();
-    final beforeCaptureScreenshot = _options.beforeCaptureScreenshot;
+    final beforeCaptureScreenshot = _options.screenshot.beforeCaptureScreenshot;
 
     try {
       FutureOr<bool>? result;

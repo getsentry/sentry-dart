@@ -89,7 +89,7 @@ class Fixture {
   final options = defaultTestOptions();
 
   ScreenshotIntegration getSut({bool attachScreenshot = true}) {
-    options.attachScreenshot = attachScreenshot;
+    options.screenshot.attachScreenshot = attachScreenshot;
     return ScreenshotIntegration();
   }
 }
