@@ -17,6 +17,7 @@ dependencies:
   benchmarking: ^0.6.1
   sentry_flutter:
     path: ../
+  jni: ^0.14.0
 
 dev_dependencies:
   flutter_lints: ^5.0.0

@@ -1,5 +1,6 @@
 package io.sentry.flutter
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.res.Configuration
@@ -35,7 +36,6 @@ import io.sentry.protocol.DebugImage
 import io.sentry.protocol.SentryId
 import io.sentry.protocol.User
 import io.sentry.transport.CurrentDateProvider
-import java.io.File
 import java.lang.ref.WeakReference
 import kotlin.math.roundToInt
 
@@ -49,7 +49,6 @@ class SentryFlutterPlugin :
   private lateinit var channel: MethodChannel
   private lateinit var context: Context
   private lateinit var sentryFlutter: SentryFlutter
-  private lateinit var replay: ReplayIntegration
 
   // Note: initial config because we don't yet have the numbers of the actual Flutter widget.
   // See how SentryFlutterReplayRecorder.start() handles it. New settings will be set by setReplayConfig() method below.
@@ -103,7 +102,6 @@ class SentryFlutterPlugin :
       "displayRefreshRate" -> displayRefreshRate(result)
       "nativeCrash" -> crash()
       "setReplayConfig" -> setReplayConfig(call, result)
-      "addReplayScreenshot" -> addReplayScreenshot(call.argument("path"), call.argument("timestamp"), result)
       "captureReplay" -> captureReplay(call.argument("isCrash"), result)
       else -> result.notImplemented()
     }
@@ -164,15 +162,13 @@ class SentryFlutterPlugin :
   private fun setupReplay(options: SentryAndroidOptions) {
     // Replace the default ReplayIntegration with a Flutter-specific recorder.
     options.integrations.removeAll { it is ReplayIntegration }
-    val cacheDirPath = options.cacheDirPath
     val replayOptions = options.sessionReplay
-    val isReplayEnabled = replayOptions.isSessionReplayEnabled || replayOptions.isSessionReplayForErrorsEnabled
-    if (cacheDirPath != null && isReplayEnabled) {
+    if (replayOptions.isSessionReplayEnabled || replayOptions.isSessionReplayForErrorsEnabled) {
       replay =
         ReplayIntegration(
-          context,
+          context.applicationContext,
           dateProvider = CurrentDateProvider.getInstance(),
-          recorderProvider = { SentryFlutterReplayRecorder(channel, replay) },
+          recorderProvider = { SentryFlutterReplayRecorder(channel, replay!!) },
           recorderConfigProvider = {
             Log.i(
               "Sentry",
@@ -187,8 +183,8 @@ class SentryFlutterPlugin :
           },
           replayCacheProvider = null,
         )
-      replay.breadcrumbConverter = SentryFlutterReplayBreadcrumbConverter()
-      options.addIntegration(replay)
+      replay!!.breadcrumbConverter = SentryFlutterReplayBreadcrumbConverter()
+      options.addIntegration(replay!!)
       options.setReplayController(replay)
     } else {
       options.setReplayController(null)
@@ -529,7 +525,12 @@ class SentryFlutterPlugin :
   }
 
   companion object {
+    @SuppressLint("StaticFieldLeak")
+    private var replay: ReplayIntegration? = null
+
     private const val NATIVE_CRASH_WAIT_TIME = 500L
+
+    @JvmStatic fun privateSentryGetReplayIntegration(): ReplayIntegration? = replay
 
     private fun crash() {
       val exception = RuntimeException("FlutterSentry Native Integration: Sample RuntimeException")
@@ -562,19 +563,6 @@ class SentryFlutterPlugin :
         currentScope,
       )
     result.success(serializedScope)
-  }
-
-  private fun addReplayScreenshot(
-    path: String?,
-    timestamp: Long?,
-    result: Result,
-  ) {
-    if (path == null || timestamp == null) {
-      result.error("5", "Arguments are null", null)
-      return
-    }
-    replay.onScreenshotRecorded(File(path), timestamp)
-    result.success("")
   }
 
   private fun setReplayConfig(
@@ -626,7 +614,7 @@ class SentryFlutterPlugin :
         replayConfig.bitRate,
       ),
     )
-    replay.onConfigurationChanged(Configuration())
+    replay!!.onConfigurationChanged(Configuration())
     result.success("")
   }
 
@@ -638,7 +626,7 @@ class SentryFlutterPlugin :
       result.error("5", "Arguments are null", null)
       return
     }
-    replay.captureReplay(isCrash)
-    result.success(replay.getReplayId().toString())
+    replay!!.captureReplay(isCrash)
+    result.success(replay!!.getReplayId().toString())
   }
 }

@@ -1,5 +1,5 @@
 @TestOn('browser')
-library flutter_test;
+library;
 
 import 'dart:typed_data';
 
@@ -42,47 +42,46 @@ void main() {
         await sut.close();
       });
 
-      // TODO: re-enable this test in V9
-      // test('init: options mapped to JS SDK', () async {
-      //   const expectedDsn = 'https://random@def.ingest.sentry.io/1234567';
-      //   const expectedRelease = 'my-random-release';
-      //   const expectedSampleRate = 0.2;
-      //   const expectedEnv = 'my-random-env';
-      //   const expectedDist = '999';
-      //   const expectedAttachStacktrace = false;
-      //   const expectedMaxBreadcrumbs = 1000;
-      //   const expectedDebug = true;
-      //
-      //   options.dsn = expectedDsn;
-      //   options.release = expectedRelease;
-      //   options.sampleRate = expectedSampleRate;
-      //   options.environment = expectedEnv;
-      //   options.dist = expectedDist;
-      //   options.attachStacktrace = expectedAttachStacktrace;
-      //   options.maxBreadcrumbs = expectedMaxBreadcrumbs;
-      //   options.debug = expectedDebug;
-      //
-      //   // quick check that Sentry is not initialized first
-      //   expect(() => binding.getJsOptions()['dsn'], throwsA(anything));
-      //
-      //   await sut.init(hub);
-      //
-      //   final jsOptions = binding.getJsOptions();
-      //
-      //   expect(jsOptions['dsn'], expectedDsn);
-      //   expect(jsOptions['release'], expectedRelease);
-      //   expect(jsOptions['sampleRate'], expectedSampleRate);
-      //   expect(jsOptions['environment'], expectedEnv);
-      //   expect(jsOptions['dist'], expectedDist);
-      //   expect(jsOptions['attachStacktrace'], expectedAttachStacktrace);
-      //   expect(jsOptions['maxBreadcrumbs'], expectedMaxBreadcrumbs);
-      //   expect(jsOptions['debug'], expectedDebug);
-      //   expect(jsOptions['defaultIntegrations'].length, 2);
-      //   expect(jsOptions['defaultIntegrations'][0].toString(),
-      //       contains('name: GlobalHandlers'));
-      //   expect(jsOptions['defaultIntegrations'][1].toString(),
-      //       contains('name: Dedupe'));
-      // });
+      test('init: options mapped to JS SDK', () async {
+        const expectedDsn = 'https://random@def.ingest.sentry.io/1234567';
+        const expectedRelease = 'my-random-release';
+        const expectedSampleRate = 0.2;
+        const expectedEnv = 'my-random-env';
+        const expectedDist = '999';
+        const expectedAttachStacktrace = false;
+        const expectedMaxBreadcrumbs = 1000;
+        const expectedDebug = true;
+
+        options.dsn = expectedDsn;
+        options.release = expectedRelease;
+        options.sampleRate = expectedSampleRate;
+        options.environment = expectedEnv;
+        options.dist = expectedDist;
+        options.attachStacktrace = expectedAttachStacktrace;
+        options.maxBreadcrumbs = expectedMaxBreadcrumbs;
+        options.debug = expectedDebug;
+
+        // quick check that Sentry is not initialized first
+        expect(() => binding.getJsOptions()['dsn'], throwsA(anything));
+
+        await sut.init(hub);
+
+        final jsOptions = binding.getJsOptions();
+
+        expect(jsOptions['dsn'], expectedDsn);
+        expect(jsOptions['release'], expectedRelease);
+        expect(jsOptions['sampleRate'], expectedSampleRate);
+        expect(jsOptions['environment'], expectedEnv);
+        expect(jsOptions['dist'], expectedDist);
+        expect(jsOptions['attachStacktrace'], expectedAttachStacktrace);
+        expect(jsOptions['maxBreadcrumbs'], expectedMaxBreadcrumbs);
+        expect(jsOptions['debug'], expectedDebug);
+        expect(jsOptions['defaultIntegrations'].length, 2);
+        expect(jsOptions['defaultIntegrations'][0].toString(),
+            contains('name: GlobalHandlers'));
+        expect(jsOptions['defaultIntegrations'][1].toString(),
+            contains('name: Dedupe'));
+      });
 
       test('options getter returns the original options', () {
         expect(sut.options, same(options));

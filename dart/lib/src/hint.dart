@@ -1,5 +1,7 @@
+import 'protocol/sentry_response.dart';
 import 'sentry_attachment/sentry_attachment.dart';
-import 'sentry_options.dart';
+
+import 'package:meta/meta.dart';
 
 /// Hints are used in [BeforeSendCallback], [BeforeBreadcrumbCallback] and
 /// event processors.
@@ -41,6 +43,9 @@ import 'sentry_options.dart';
 /// };
 /// ```
 class Hint {
+  @internal
+  static const maxResponseBodySize = 157286;
+
   final Map<String, dynamic> _internalStorage = {};
 
   final List<SentryAttachment> attachments = [];
@@ -48,6 +53,8 @@ class Hint {
   SentryAttachment? screenshot;
 
   SentryAttachment? viewHierarchy;
+
+  SentryResponse? response;
 
   Hint();
 
@@ -78,6 +85,12 @@ class Hint {
   factory Hint.withViewHierarchy(SentryAttachment viewHierarchy) {
     final hint = Hint();
     hint.viewHierarchy = viewHierarchy;
+    return hint;
+  }
+
+  factory Hint.withResponse(SentryResponse response) {
+    final hint = Hint();
+    hint.response = response;
     return hint;
   }
 

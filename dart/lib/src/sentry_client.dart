@@ -17,7 +17,6 @@ import 'sentry_exception_factory.dart';
 import 'sentry_options.dart';
 import 'sentry_stack_trace_factory.dart';
 import 'sentry_trace_context_header.dart';
-import 'sentry_user_feedback.dart';
 import 'transport/client_report_transport.dart';
 import 'transport/data_category.dart';
 import 'transport/http_transport.dart';
@@ -66,7 +65,7 @@ class SentryClient {
       options,
       options.transport,
     );
-    // TODO: Web might change soon to use the JS SDK so we can remove it here later on
+    // TODO: Use spotlight integration directly through JS SDK, then we can remove isWeb check
     final enableFlutterSpotlight = (options.spotlight.enabled &&
         (options.platformChecker.isWeb ||
             options.platformChecker.platform.isLinux ||
@@ -365,8 +364,9 @@ class SentryClient {
     SentryTransaction transaction, {
     Scope? scope,
     SentryTraceContextHeader? traceContext,
+    Hint? hint,
   }) async {
-    final hint = Hint();
+    hint ??= Hint();
 
     SentryTransaction? preparedTransaction =
         _prepareEvent(transaction, hint) as SentryTransaction;
@@ -452,18 +452,6 @@ class SentryClient {
     return _options.transport.send(envelope);
   }
 
-  /// Reports the [userFeedback] to Sentry.io.
-  @Deprecated(
-      'Will be removed in a future version. Use [captureFeedback] instead')
-  Future<void> captureUserFeedback(SentryUserFeedback userFeedback) {
-    final envelope = SentryEnvelope.fromUserFeedback(
-      userFeedback,
-      _options.sdk,
-      dsn: _options.dsn,
-    );
-    return _options.transport.send(envelope);
-  }
-
   /// Reports the [feedback] to Sentry.io.
   Future<SentryId> captureFeedback(
     SentryFeedback feedback, {
@@ -503,7 +491,7 @@ class SentryClient {
     try {
       if (event is SentryTransaction && beforeSendTransaction != null) {
         beforeSendName = 'beforeSendTransaction';
-        final callbackResult = beforeSendTransaction(event);
+        final callbackResult = beforeSendTransaction(event, hint);
         if (callbackResult is Future<SentryTransaction?>) {
           processedEvent = await callbackResult;
         } else {
@@ -564,7 +552,7 @@ class SentryClient {
 
   bool _sampleRate() {
     if (_options.sampleRate != null && _random != null) {
-      return (_options.sampleRate! < _random!.nextDouble());
+      return (_options.sampleRate! < _random.nextDouble());
     }
     return false;
   }

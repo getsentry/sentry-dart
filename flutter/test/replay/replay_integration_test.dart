@@ -1,7 +1,7 @@
 // ignore_for_file: invalid_use_of_internal_member
 
 @TestOn('vm')
-library flutter_test;
+library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
@@ -37,7 +37,7 @@ void main() {
         '$ReplayIntegration in options.sdk.integrations when supportsReplay=$supportsReplay',
         () {
       when(native.supportsReplay).thenReturn(supportsReplay);
-      options.experimental.replay.sessionSampleRate = 1.0;
+      options.replay.sessionSampleRate = 1.0;
       sut.call(hub, options);
       var matcher = contains(replayIntegrationName);
       matcher = supportsReplay ? matcher : isNot(matcher);
@@ -49,7 +49,7 @@ void main() {
     test(
         '$ReplayIntegration in options.sdk.integrations when sessionSampleRate=$sampleRate',
         () {
-      options.experimental.replay.sessionSampleRate = sampleRate;
+      options.replay.sessionSampleRate = sampleRate;
       sut.call(hub, options);
       var matcher = contains(replayIntegrationName);
       matcher = sampleRate > 0 ? matcher : isNot(matcher);
@@ -61,7 +61,7 @@ void main() {
     test(
         '$ReplayEventProcessor in options.EventProcessors when onErrorSampleRate=$sampleRate',
         () async {
-      options.experimental.replay.onErrorSampleRate = sampleRate;
+      options.replay.onErrorSampleRate = sampleRate;
       await sut.call(hub, options);
 
       if (sampleRate > 0) {
@@ -74,7 +74,7 @@ void main() {
   }
 
   testWidgets('Configures replay when displayed', (tester) async {
-    options.experimental.replay.sessionSampleRate = 1.0;
+    options.replay.sessionSampleRate = 1.0;
     when(native.setReplayConfig(any)).thenReturn(null);
     sut.call(hub, options);
 
@@ -90,8 +90,8 @@ void main() {
   });
 
   testWidgets('Adjusts resolution based on quality', (tester) async {
-    options.experimental.replay.sessionSampleRate = 1.0;
-    options.experimental.replay.quality = SentryReplayQuality.low;
+    options.replay.sessionSampleRate = 1.0;
+    options.replay.quality = SentryReplayQuality.low;
     when(native.setReplayConfig(any)).thenReturn(null);
     sut.call(hub, options);
 

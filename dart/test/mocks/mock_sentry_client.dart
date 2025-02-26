@@ -9,8 +9,6 @@ class MockSentryClient with NoSuchMethodProvider implements SentryClient {
   List<CaptureEnvelopeCall> captureEnvelopeCalls = [];
   List<CaptureTransactionCall> captureTransactionCalls = [];
 
-  // ignore: deprecated_member_use_from_same_package
-  List<SentryUserFeedback> userFeedbackCalls = [];
   List<CaptureFeedbackCall> captureFeedbackCalls = [];
   int closeCalls = 0;
 
@@ -73,12 +71,6 @@ class MockSentryClient with NoSuchMethodProvider implements SentryClient {
   }
 
   @override
-  // ignore: deprecated_member_use_from_same_package
-  Future<void> captureUserFeedback(SentryUserFeedback userFeedback) async {
-    userFeedbackCalls.add(userFeedback);
-  }
-
-  @override
   Future<SentryId> captureFeedback(
     SentryFeedback feedback, {
     Scope? scope,
@@ -102,9 +94,10 @@ class MockSentryClient with NoSuchMethodProvider implements SentryClient {
     SentryTransaction transaction, {
     Scope? scope,
     SentryTraceContextHeader? traceContext,
+    Hint? hint,
   }) async {
     captureTransactionCalls
-        .add(CaptureTransactionCall(transaction, traceContext));
+        .add(CaptureTransactionCall(transaction, traceContext, hint));
     return transaction.eventId;
   }
 }
@@ -176,6 +169,7 @@ class CaptureEnvelopeCall {
 class CaptureTransactionCall {
   final SentryTransaction transaction;
   final SentryTraceContextHeader? traceContext;
+  final Hint? hint;
 
-  CaptureTransactionCall(this.transaction, this.traceContext);
+  CaptureTransactionCall(this.transaction, this.traceContext, this.hint);
 }

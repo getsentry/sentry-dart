@@ -235,12 +235,15 @@ void main() {
 
   test('callback called on finish', () async {
     var numberOfCallbackCalls = 0;
-    final sut =
-        fixture.getSut(finishedCallback: ({DateTime? endTimestamp}) async {
+    final passedHint = Hint();
+
+    final sut = fixture.getSut(
+        finishedCallback: ({DateTime? endTimestamp, Hint? hint}) async {
+      expect(passedHint, hint);
       numberOfCallbackCalls += 1;
     });
 
-    await sut.finish();
+    await sut.finish(hint: passedHint);
 
     expect(numberOfCallbackCalls, 1);
   });

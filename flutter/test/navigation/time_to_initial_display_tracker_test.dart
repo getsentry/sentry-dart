@@ -55,45 +55,8 @@ void main() {
               .inMilliseconds);
     });
 
-    test(
-        'manual tracking creates and finishes ttid span with correct measurements',
-        () async {
-      sut.markAsManual();
-      Future.delayed(fixture.finishFrameDuration, () {
-        sut.completeTracking();
-      });
-
-      final transaction = fixture.getTransaction() as SentryTracer;
-      await sut.track(
-        transaction: transaction,
-        startTimestamp: fixture.startTimestamp,
-      );
-
-      final children = transaction.children;
-      expect(children, hasLength(1));
-
-      final ttidSpan = children.first;
-      expect(ttidSpan.context.operation,
-          SentrySpanOperations.uiTimeToInitialDisplay);
-      expect(ttidSpan.finished, isTrue);
-      expect(ttidSpan.context.description, 'Regular route initial display');
-      expect(ttidSpan.origin, SentryTraceOrigins.manualUiTimeToDisplay);
-      final ttidMeasurement =
-          transaction.measurements['time_to_initial_display'];
-      expect(ttidMeasurement, isNotNull);
-      expect(ttidMeasurement?.unit, DurationSentryMeasurementUnit.milliSecond);
-      expect(ttidMeasurement?.value,
-          greaterThanOrEqualTo(fixture.finishFrameDuration.inMilliseconds));
-      expect(
-          ttidMeasurement?.value,
-          ttidSpan.endTimestamp!
-              .difference(ttidSpan.startTimestamp)
-              .inMilliseconds);
-    });
-
     test('starting after completing still finished correctly', () async {
       await Future.delayed(fixture.finishFrameDuration, () {
-        sut.markAsManual();
         sut.completeTracking();
       });
 
@@ -111,7 +74,7 @@ void main() {
           SentrySpanOperations.uiTimeToInitialDisplay);
       expect(ttidSpan.finished, isTrue);
       expect(ttidSpan.context.description, 'Regular route initial display');
-      expect(ttidSpan.origin, SentryTraceOrigins.manualUiTimeToDisplay);
+      expect(ttidSpan.origin, SentryTraceOrigins.autoUiTimeToDisplay);
       final ttidMeasurement =
           transaction.measurements['time_to_initial_display'];
       expect(ttidMeasurement, isNotNull);
@@ -173,27 +136,7 @@ void main() {
       expect(futureEndTime, null);
     });
 
-    test('can complete as null in manual mode with timeout', () async {
-      final sut = fixture.getSut();
-      sut.markAsManual();
-      // Not calling completeTracking() triggers the manual timeout
-
-      final futureEndTime = await sut.determineEndTime();
-
-      expect(futureEndTime, null);
-    });
-
     test('can complete automatically in approximation mode', () async {
-      final futureEndTime = await sut.determineEndTime();
-
-      expect(futureEndTime, isNotNull);
-    });
-
-    test('can complete manually in manual mode', () async {
-      sut.markAsManual();
-      Future<void>.delayed(Duration(milliseconds: 1), () {
-        sut.completeTracking();
-      });
       final futureEndTime = await sut.determineEndTime();
 
       expect(futureEndTime, isNotNull);
@@ -203,18 +146,6 @@ void main() {
       final endTme = await sut.determineEndTime();
 
       expect(endTme?.difference(fixture.startTimestamp).inSeconds,
-          fixture.finishFrameDuration.inSeconds);
-    });
-
-    test('returns the correct manual end time', () async {
-      sut.markAsManual();
-      Future.delayed(fixture.finishFrameDuration, () {
-        sut.completeTracking();
-      });
-
-      final endTime = await sut.determineEndTime();
-
-      expect(endTime?.difference(fixture.startTimestamp).inSeconds,
           fixture.finishFrameDuration.inSeconds);
     });
   });

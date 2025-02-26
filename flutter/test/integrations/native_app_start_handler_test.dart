@@ -1,5 +1,5 @@
 @TestOn('vm')
-library flutter_test;
+library;
 
 import 'package:collection/collection.dart';
 import 'package:flutter_test/flutter_test.dart';
