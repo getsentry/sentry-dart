@@ -16,8 +16,7 @@ class CocoaReplayRecorder {
   CocoaReplayRecorder(this._options)
       : _recorder = ReplayScreenshotRecorder(
           ScreenshotRecorderConfig(
-            pixelRatio:
-                _options.experimental.replay.quality.resolutionScalingFactor,
+            pixelRatio: _options.replay.quality.resolutionScalingFactor,
           ),
           _options,
         );

@@ -44,7 +44,7 @@ void main() {
         options =
             defaultTestOptions(MockPlatformChecker(mockPlatform: mockPlatform))
               ..methodChannel = native.channel
-              ..experimental.replay.quality = SentryReplayQuality.low;
+              ..replay.quality = SentryReplayQuality.low;
         sut = createBinding(options);
 
         if (mockPlatform.isIOS) {
@@ -71,8 +71,8 @@ void main() {
 
       group('replay recorder', () {
         setUp(() async {
-          options.experimental.replay.sessionSampleRate = 0.1;
-          options.experimental.replay.onErrorSampleRate = 0.1;
+          options.replay.sessionSampleRate = 0.1;
+          options.replay.onErrorSampleRate = 0.1;
           await sut.init(hub);
         });
 
