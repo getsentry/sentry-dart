@@ -30,7 +30,7 @@
 - Enable privacy masking for screenshots by default ([#2728](https://github.com/getsentry/sentry-dart/pull/2728))
 - Cleanup platform mocking ([#2730](https://github.com/getsentry/sentry-dart/pull/2730))
   - The `PlatformChecker` was renamed to `RuntimeChecker`
-  - Moved `PlatfomrChecker.platform` to `options.platform`
+  - Moved `PlatformChecker.platform` to `options.platform`
   
 
 
