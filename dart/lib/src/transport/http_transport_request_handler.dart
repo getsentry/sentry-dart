@@ -19,7 +19,7 @@ class HttpTransportRequestHandler {
   HttpTransportRequestHandler(this._options, this._requestUri)
       : _dsn = _options.parsedDsn,
         _headers = _buildHeaders(
-          _options.platformChecker.isWeb,
+          _options.platform.isWeb,
           _options.sentryClientName,
         ) {
     _credentialBuilder = _CredentialBuilder(

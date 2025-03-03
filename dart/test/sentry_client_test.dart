@@ -6,6 +6,7 @@ import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/client_reports/discard_reason.dart';
 import 'package:sentry/src/client_reports/noop_client_report_recorder.dart';
+import 'package:sentry/src/platform/mock_platform.dart';
 import 'package:sentry/src/sentry_item_type.dart';
 import 'package:sentry/src/sentry_stack_trace_factory.dart';
 import 'package:sentry/src/sentry_tracer.dart';
@@ -19,8 +20,6 @@ import 'package:test/test.dart';
 import 'mocks.dart';
 import 'mocks/mock_client_report_recorder.dart';
 import 'mocks/mock_hub.dart';
-import 'mocks/mock_platform.dart';
-import 'mocks/mock_platform_checker.dart';
 import 'mocks/mock_transport.dart';
 import 'test_utils.dart';
 
@@ -1906,9 +1905,7 @@ void main() {
     test(
         'Spotlight enabled should not set transport to SpotlightHttpTransport on iOS',
         () async {
-      fixture.options.platformChecker = MockPlatformChecker(
-        platform: MockPlatform.iOS(),
-      );
+      fixture.options.platform = MockPlatform.iOS();
       fixture.options.spotlight = Spotlight(enabled: true);
       fixture.getSut();
 
@@ -1918,9 +1915,7 @@ void main() {
     test(
         'Spotlight enabled should not set transport to SpotlightHttpTransport on macOS',
         () async {
-      fixture.options.platformChecker = MockPlatformChecker(
-        platform: MockPlatform.macOS(),
-      );
+      fixture.options.platform = MockPlatform.macOS();
       fixture.options.spotlight = Spotlight(enabled: true);
       fixture.getSut();
 
@@ -1930,9 +1925,7 @@ void main() {
     test(
         'Spotlight enabled should not set transport to SpotlightHttpTransport on Android',
         () async {
-      fixture.options.platformChecker = MockPlatformChecker(
-        platform: MockPlatform.android(),
-      );
+      fixture.options.platform = MockPlatform.android();
       fixture.options.spotlight = Spotlight(enabled: true);
       fixture.getSut();
 
@@ -1942,7 +1935,7 @@ void main() {
     test(
         'Spotlight enabled should set transport to SpotlightHttpTransport on Web',
         () async {
-      fixture.options.platformChecker = MockPlatformChecker(isWebValue: true);
+      fixture.options.platform = MockPlatform(isWeb: true);
       fixture.options.spotlight = Spotlight(enabled: true);
       fixture.getSut();
 
@@ -1952,8 +1945,7 @@ void main() {
     test(
         'Spotlight enabled should set transport to SpotlightHttpTransport on Linux',
         () async {
-      fixture.options.platformChecker =
-          MockPlatformChecker(platform: MockPlatform.linux());
+      fixture.options.platform = MockPlatform.linux();
       fixture.options.spotlight = Spotlight(enabled: true);
       fixture.getSut();
 
@@ -1963,8 +1955,7 @@ void main() {
     test(
         'Spotlight enabled should set transport to SpotlightHttpTransport on Windows',
         () async {
-      fixture.options.platformChecker =
-          MockPlatformChecker(platform: MockPlatform.windows());
+      fixture.options.platform = MockPlatform.windows();
       fixture.options.spotlight = Spotlight(enabled: true);
       fixture.getSut();
 
@@ -2298,8 +2289,7 @@ class Fixture {
   final recorder = MockClientReportRecorder();
   final transport = MockTransport();
 
-  final options =
-      defaultTestOptions(MockPlatformChecker(platform: MockPlatform.iOS()));
+  final options = defaultTestOptions()..platform = MockPlatform.iOS();
 
   late SentryTransactionContext _context;
   late SentryTracer tracer;

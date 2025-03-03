@@ -11,9 +11,9 @@ class PlatformMemory {
   final SentryOptions options;
 
   int? getTotalPhysicalMemory() {
-    if (options.platformChecker.platform.isLinux) {
+    if (options.platform.isLinux) {
       return _getLinuxMemInfoValue('MemTotal');
-    } else if (options.platformChecker.platform.isWindows) {
+    } else if (options.platform.isWindows) {
       return _getWindowsWmicValue('ComputerSystem', 'TotalPhysicalMemory');
     } else {
       return null;
@@ -21,9 +21,9 @@ class PlatformMemory {
   }
 
   int? getFreePhysicalMemory() {
-    if (options.platformChecker.platform.isLinux) {
+    if (options.platform.isLinux) {
       return _getLinuxMemInfoValue('MemFree');
-    } else if (options.platformChecker.platform.isWindows) {
+    } else if (options.platform.isWindows) {
       return _getWindowsWmicValue('OS', 'FreePhysicalMemory');
     } else {
       return null;

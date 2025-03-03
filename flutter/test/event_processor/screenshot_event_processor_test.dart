@@ -6,11 +6,12 @@ import 'dart:ui';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sentry/src/platform/mock_platform.dart';
 import 'package:sentry_flutter/src/event_processor/screenshot_event_processor.dart';
 import 'package:sentry_flutter/src/renderer/renderer.dart';
-import '../mocks.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
+import '../mocks.dart';
 import '../replay/replay_test_util.dart';
 
 void main() {
@@ -349,7 +350,7 @@ class Fixture {
   ScreenshotEventProcessor getSut(
       FlutterRenderer? flutterRenderer, bool isWeb) {
     options.rendererWrapper = MockRendererWrapper(flutterRenderer);
-    options.platformChecker = MockPlatformChecker(isWebValue: isWeb);
+    options.platform = MockPlatform(isWeb: isWeb);
     return ScreenshotEventProcessor(options);
   }
 }

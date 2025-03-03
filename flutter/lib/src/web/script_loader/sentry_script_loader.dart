@@ -57,7 +57,7 @@ class SentryScriptLoader {
   }
 
   Future<void> close() async {
-    final scriptsToRemove = _options.platformChecker.isReleaseMode()
+    final scriptsToRemove = _options.runtimeChecker.isReleaseMode()
         ? productionScripts
         : debugScripts;
 

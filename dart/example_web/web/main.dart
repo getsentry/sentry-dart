@@ -24,6 +24,7 @@ Future<void> main() async {
 Future<void> runApp() async {
   print('runApp');
 
+  // ignore: deprecated_member_use
   document.querySelector('#output')?.text = 'Your Dart app is running.';
 
   await Sentry.addBreadcrumb(

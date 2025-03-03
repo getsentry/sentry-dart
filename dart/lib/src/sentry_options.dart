@@ -10,6 +10,7 @@ import 'client_reports/noop_client_report_recorder.dart';
 import 'diagnostic_logger.dart';
 import 'environment/environment_variables.dart';
 import 'noop_client.dart';
+import 'platform/platform.dart';
 import 'sentry_exception_factory.dart';
 import 'sentry_stack_trace_factory.dart';
 import 'transport/noop_transport.dart';
@@ -271,9 +272,12 @@ class SentryOptions {
   /// `debugPrint` calls are only recorded in release builds, though.
   bool enablePrintBreadcrumbs = true;
 
-  /// If [platformChecker] is provided, it is used get the environment.
-  /// This is useful in tests. Should be an implementation of [PlatformChecker].
-  PlatformChecker platformChecker = PlatformChecker();
+  /// If [runtimeChecker] is provided, it is used get the environment.
+  /// This is useful in tests. Should be an implementation of [RuntimeChecker].
+  RuntimeChecker runtimeChecker = RuntimeChecker();
+
+  /// Info on which platform the SDK runs.
+  Platform platform = Platform();
 
   /// If [environmentVariables] is provided, it is used get the environment
   /// variables. This is useful in tests.
@@ -494,12 +498,15 @@ class SentryOptions {
   /// iOS only supports http proxies, while macOS also supports socks.
   SentryProxy? proxy;
 
-  SentryOptions({String? dsn, PlatformChecker? checker}) {
+  SentryOptions({String? dsn, Platform? platform, RuntimeChecker? checker}) {
     this.dsn = dsn;
-    if (checker != null) {
-      platformChecker = checker;
+    if (platform != null) {
+      this.platform = platform;
     }
-    sdk = SdkVersion(name: sdkName(platformChecker.isWeb), version: sdkVersion);
+    if (checker != null) {
+      runtimeChecker = checker;
+    }
+    sdk = SdkVersion(name: sdkName(this.platform.isWeb), version: sdkVersion);
     sdk.addPackage('pub:sentry', sdkVersion);
   }
 

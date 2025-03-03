@@ -26,12 +26,11 @@ class SentryNativeProfilerFactory implements SentryProfilerFactory {
       return;
     }
 
-    if (options.platformChecker.isWeb) {
+    if (options.platform.isWeb) {
       return;
     }
 
-    if (options.platformChecker.platform.isMacOS ||
-        options.platformChecker.platform.isIOS) {
+    if (options.platform.isMacOS || options.platform.isIOS) {
       // ignore: invalid_use_of_internal_member
       hub.profilerFactory = SentryNativeProfilerFactory(native, options.clock);
     }

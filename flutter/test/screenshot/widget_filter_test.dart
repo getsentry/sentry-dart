@@ -24,13 +24,13 @@ void main() async {
   final createSut = (
       {bool redactImages = false,
       bool redactText = false,
-      PlatformChecker? platformChecker}) {
+      RuntimeChecker? runtimeChecker}) {
     final privacyOptions = SentryPrivacyOptions()
       ..maskAllImages = redactImages
       ..maskAllText = redactText;
     logger.clear();
     final maskingConfig = privacyOptions.buildMaskingConfig(
-        logger.call, platformChecker ?? PlatformChecker());
+        logger.call, runtimeChecker ?? RuntimeChecker());
     return WidgetFilter(maskingConfig, logger.call);
   };
 
@@ -219,12 +219,12 @@ void main() async {
   });
 
   group('warning on sensitive widgets', () {
-    assert(MockPlatformCheckerBuildMode.values.length == 3);
-    for (final buildMode in MockPlatformCheckerBuildMode.values) {
+    assert(MockRuntimeCheckerBuildMode.values.length == 3);
+    for (final buildMode in MockRuntimeCheckerBuildMode.values) {
       testWidgets(buildMode.name, (tester) async {
         final sut = createSut(
             redactText: true,
-            platformChecker: MockPlatformChecker(buildMode: buildMode));
+            runtimeChecker: MockRuntimeChecker(buildMode: buildMode));
         final element =
             await pumpTestElement(tester, children: [CustomPasswordWidget()]);
         sut.obscure(
@@ -236,7 +236,7 @@ void main() async {
             .map((item) => item.message)
             .toList();
 
-        if (buildMode == MockPlatformCheckerBuildMode.debug) {
+        if (buildMode == MockRuntimeCheckerBuildMode.debug) {
           expect(
               logMessages,
               anyElement(contains(

@@ -18,7 +18,7 @@ class SentryNativeCocoa extends SentryNativeChannel {
   SentryNativeCocoa(super.options);
 
   @override
-  bool get supportsReplay => options.platformChecker.platform.isIOS;
+  bool get supportsReplay => options.platform.isIOS;
 
   @override
   Future<void> init(Hub hub) async {
