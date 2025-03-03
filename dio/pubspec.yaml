@@ -19,7 +19,7 @@ platforms:
 
 dependencies:
   dio: ^5.0.0
-  sentry: 8.14.0-beta.1
+  sentry: 9.0.0-alpha.1
 
 dev_dependencies:
   meta: ^1.3.0
