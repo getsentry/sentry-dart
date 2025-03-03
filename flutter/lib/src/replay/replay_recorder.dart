@@ -11,7 +11,7 @@ var _instanceCounter = 0;
 class ReplayScreenshotRecorder extends ScreenshotRecorder {
   ReplayScreenshotRecorder(super.config, super.options)
       : super(
-            privacyOptions: options.experimental.privacy,
+            privacyOptions: options.privacy,
             logName: 'ReplayRecorder #${++_instanceCounter}');
 
   @override

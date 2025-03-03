@@ -18,7 +18,7 @@ class ReplayIntegration extends Integration<SentryFlutterOptions> {
 
   @override
   FutureOr<void> call(Hub hub, SentryFlutterOptions options) {
-    final replayOptions = options.experimental.replay;
+    final replayOptions = options.replay;
     if (_native.supportsReplay && replayOptions.isEnabled) {
       options.sdk.addIntegration(replayIntegrationName);
 

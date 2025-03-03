@@ -1,5 +1,9 @@
 # Changelog
 
+## 9.0.0 Unreleased
+
+- Move replay and privacy from experimental to options ([#2755](https://github.com/getsentry/sentry-dart/pull/2755))
+
 ## 9.0.0-alpha.1
 
 ### Breaking changes
