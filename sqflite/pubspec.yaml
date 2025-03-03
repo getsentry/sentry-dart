@@ -15,7 +15,7 @@ platforms:
   macos:
 
 dependencies:
-  sentry: 8.14.0-beta.1
+  sentry: 9.0.0-alpha.1
   sqflite: ^2.2.8
   sqflite_common: ^2.0.0
   meta: ^1.3.0
