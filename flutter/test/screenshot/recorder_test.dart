@@ -92,7 +92,7 @@ void main() async {
     final fixture = await _Fixture.create(tester);
     fixture.options
       ..automatedTestMode = true
-      ..experimental.privacy.maskCallback<widgets.Stack>((el, widget) {
+      ..privacy.maskCallback<widgets.Stack>((el, widget) {
         throw Exception('testing masking error');
       });
 
@@ -106,7 +106,7 @@ void main() async {
     final fixture = await _Fixture.create(tester);
     fixture.options
       ..automatedTestMode = false
-      ..experimental.privacy.maskCallback<widgets.Stack>((el, widget) {
+      ..privacy.maskCallback<widgets.Stack>((el, widget) {
         throw Exception('testing masking error');
       });
 

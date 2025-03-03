@@ -32,7 +32,7 @@ class ScreenshotRecorder {
     SentryPrivacyOptions? privacyOptions,
     this.logName = 'ScreenshotRecorder',
   }) {
-    privacyOptions ??= options.experimental.privacy;
+    privacyOptions ??= options.privacy;
 
     final maskingConfig =
         privacyOptions.buildMaskingConfig(_log, options.runtimeChecker);

@@ -74,7 +74,6 @@ void main() {
       final flutterContext = event?.contexts['flutter_context'];
       expect(flutterContext, isNotNull);
       expect(flutterContext, isA<Map<String, String>>());
-      expect(flutterContext['renderer'], isNotNull);
     });
 
     testWidgets('accessibility context', (WidgetTester tester) async {

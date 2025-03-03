@@ -65,7 +65,7 @@ void main() {
 
   testWidgets('adds screenshot attachment with masking enabled dart:io',
       (tester) async {
-    fixture.options.experimental.privacy.maskAllText = true;
+    fixture.options.privacy.maskAllText = true;
     await _addScreenshotAttachment(tester, null, added: true, isWeb: false);
   });
 

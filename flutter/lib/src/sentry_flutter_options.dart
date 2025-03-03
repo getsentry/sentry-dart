@@ -284,6 +284,13 @@ class SentryFlutterOptions extends SentryOptions {
   /// you must use `SentryWidgetsFlutterBinding.ensureInitialized()` instead.
   bool enableFramesTracking = true;
 
+  /// Replay recording configuration.
+  final replay = SentryReplayOptions();
+
+  /// Privacy configuration for masking sensitive data in screenshots and Session Replay.
+  /// Screen content masking is enabled by default.
+  final privacy = SentryPrivacyOptions();
+
   /// By using this, you are disabling native [Breadcrumb] tracking and instead
   /// you are just tracking [Breadcrumb]s which result from events available
   /// in the current Flutter environment.
@@ -368,21 +375,6 @@ class SentryFlutterOptions extends SentryOptions {
   @override
   // ignore: invalid_use_of_internal_member
   set automatedTestMode(bool value) => super.automatedTestMode = value;
-
-  /// Configuration of experimental features that may change or be removed
-  /// without prior notice. Additionally, these features may not be ready for
-  /// production use yet.
-  @meta.experimental
-  final experimental = _SentryFlutterExperimentalOptions();
-}
-
-class _SentryFlutterExperimentalOptions {
-  /// Replay recording configuration.
-  final replay = SentryReplayOptions();
-
-  /// Privacy configuration for masking sensitive data in screenshots and Session Replay.
-  /// Screen content masking is enabled by default.
-  final privacy = SentryPrivacyOptions();
 }
 
 /// A callback which can be used to suppress capturing of screenshots.
