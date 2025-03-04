@@ -1,5 +1,5 @@
 @TestOn('vm')
-library sqflite_test;
+library;
 
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/sentry_tracer.dart';

@@ -11,7 +11,7 @@ void main() {
         options.automatedTestMode = true;
         options.dsn = 'https://abc@def.ingest.sentry.io/1234567';
         options.debug = true;
-        options.experimental.replay.sessionSampleRate = 1.0;
+        options.replay.sessionSampleRate = 1.0;
       });
     });
 

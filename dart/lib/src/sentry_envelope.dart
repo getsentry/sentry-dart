@@ -8,7 +8,6 @@ import 'sentry_envelope_item.dart';
 import 'sentry_item_type.dart';
 import 'sentry_options.dart';
 import 'sentry_trace_context_header.dart';
-import 'sentry_user_feedback.dart';
 import 'utils.dart';
 
 /// Class representation of `Envelope` file.
@@ -56,23 +55,6 @@ class SentryEnvelope {
           ...attachments.map((e) => SentryEnvelopeItem.fromAttachment(e))
       ],
       containsUnhandledException: containsUnhandledException,
-    );
-  }
-
-  @Deprecated('Will be removed in a future version.')
-  factory SentryEnvelope.fromUserFeedback(
-    SentryUserFeedback feedback,
-    SdkVersion sdkVersion, {
-    String? dsn,
-  }) {
-    return SentryEnvelope(
-      // no need for [traceContext]
-      SentryEnvelopeHeader(
-        feedback.eventId,
-        sdkVersion,
-        dsn: dsn,
-      ),
-      [SentryEnvelopeItem.fromUserFeedback(feedback)],
     );
   }
 

@@ -11,17 +11,14 @@ class SentryPrivacyOptions {
   /// Mask all text content. Draws a rectangle of text bounds with text color
   /// on top. Currently, only [Text] and [EditableText] Widgets are masked.
   /// Default is enabled.
-  @experimental
   var maskAllText = true;
 
   /// Mask content of all images. Draws a rectangle of image bounds with image's
   /// dominant color on top. Currently, only [Image] widgets are masked.
   /// Default is enabled (except for asset images, see [maskAssetImages]).
-  @experimental
   var maskAllImages = true;
 
   /// Redact asset images coming from the root asset bundle.
-  @experimental
   var maskAssetImages = false;
 
   final _userMaskingRules = <SentryMaskingRule>[];
@@ -80,11 +77,6 @@ class SentryPrivacyOptions {
       final regexp = RegExp('video|webview|password|pinput|camera|chart',
           caseSensitive: false);
 
-      // Note: the following line just makes sure if the option is renamed,
-      // someone will notice that there is a string that needs updating too.
-      SentryFlutterOptions().experimental.privacy;
-      final optionsName = 'options.experimental.privacy';
-
       rules.add(SentryMaskingCustomRule<Widget>(
           callback: (Element element, Widget widget) {
             final type = widget.runtimeType.toString();
@@ -96,9 +88,9 @@ class SentryPrivacyOptions {
                   'widget comes from a third-party plugin or your code, Sentry '
                   "doesn't recognize it and can't reliably mask it in release "
                   'builds (due to obfuscation). '
-                  'Please mask it explicitly using $optionsName.mask<$type>(). '
+                  'Please mask it explicitly using options.privacy.mask<$type>(). '
                   'If you want to silence this warning and keep the widget '
-                  'visible in captures, you can use $optionsName.unmask<$type>(). '
+                  'visible in captures, you can use options.privacy.unmask<$type>(). '
                   'Note: the RegExp matched is: $regexp (case insensitive).');
             }
             return SentryMaskingDecision.continueProcessing;

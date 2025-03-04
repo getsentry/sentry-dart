@@ -29,6 +29,7 @@ import 'replay/integration.dart';
 import 'utils/platform_dispatcher_wrapper.dart';
 import 'version.dart';
 import 'view_hierarchy/view_hierarchy_integration.dart';
+import 'web/javascript_transport.dart';
 
 /// Configuration options callback
 typedef FlutterOptionsConfiguration = FutureOr<void> Function(
@@ -73,8 +74,7 @@ mixin SentryFlutter {
     // Flutter Web doesn't capture [Future] errors if using [PlatformDispatcher.onError] and not
     // the [runZonedGuarded].
     // likely due to https://github.com/flutter/flutter/issues/100277
-    final bool isOnErrorSupported =
-        !options.platformChecker.isWeb && wrapper.isOnErrorSupported(options);
+    final isOnErrorSupported = !options.platformChecker.isWeb;
 
     final bool isRootZone = options.platformChecker.isRootZone;
 
@@ -126,10 +126,9 @@ mixin SentryFlutter {
     // Not all platforms have a native integration.
     if (_native != null) {
       if (_native!.supportsCaptureEnvelope) {
-        // Sentry's native web integration is only enabled when enableSentryJs=true.
-        // Transport configuration happens in web_integration because the configuration
-        // options aren't available until after the options callback executes.
-        if (!options.platformChecker.isWeb) {
+        if (options.platformChecker.isWeb) {
+          options.transport = JavascriptTransport(_native!, options);
+        } else {
           options.transport = FileSystemTransport(_native!, options);
         }
       }
@@ -228,20 +227,6 @@ mixin SentryFlutter {
       );
       FlutterError.dumpErrorToConsole(errorDetails, forceReport: true);
     };
-  }
-
-  /// Manually set when your app finished startup. Make sure to set
-  /// [SentryFlutterOptions.autoAppStart] to false on init. The timeout duration
-  /// for this to work is 10 seconds.
-  @Deprecated(
-      'Will be removed in v9. This functionality will not be supported anymore.')
-  static void setAppStartEnd(DateTime appStartEnd) {
-    // ignore: invalid_use_of_internal_member
-    final integrations = Sentry.currentHub.options.integrations
-        .whereType<NativeAppStartIntegration>();
-    for (final integration in integrations) {
-      integration.appStartEnd = appStartEnd;
-    }
   }
 
   static void _setSdk(SentryFlutterOptions options) {

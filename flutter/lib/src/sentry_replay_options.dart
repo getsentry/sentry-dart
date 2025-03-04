@@ -2,8 +2,7 @@ import 'package:meta/meta.dart';
 
 import 'replay/replay_quality.dart';
 
-/// Configuration of the experimental replay feature.
-@experimental
+/// Configuration of the replay feature.
 class SentryReplayOptions {
   double? _sessionSampleRate;
 

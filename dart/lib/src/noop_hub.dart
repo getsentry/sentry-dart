@@ -10,7 +10,6 @@ import 'protocol/sentry_feedback.dart';
 import 'scope.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
-import 'sentry_user_feedback.dart';
 import 'tracing.dart';
 
 class NoOpHub implements Hub {
@@ -82,12 +81,9 @@ class NoOpHub implements Hub {
   Future<SentryId> captureTransaction(
     SentryTransaction transaction, {
     SentryTraceContextHeader? traceContext,
+    Hint? hint,
   }) async =>
       SentryId.empty();
-
-  @override
-  // ignore: deprecated_member_use_from_same_package
-  Future<void> captureUserFeedback(SentryUserFeedback userFeedback) async {}
 
   @override
   Future<SentryId> captureFeedback(

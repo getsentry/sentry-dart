@@ -6,8 +6,6 @@ import '../sentry.dart';
 
 @internal
 class SentryTracesSampler {
-  static const _defaultSampleRate = 1.0;
-
   final SentryOptions _options;
   final Random _random;
 
@@ -55,13 +53,8 @@ class SentryTracesSampler {
     }
 
     double? optionsRate = _options.tracesSampleRate;
-    double? defaultRate =
-        // ignore: deprecated_member_use_from_same_package
-        _options.enableTracing == true ? _defaultSampleRate : null;
-    double? optionsOrDefaultRate = optionsRate ?? defaultRate;
-
-    if (optionsOrDefaultRate != null) {
-      return _makeSampleDecision(optionsOrDefaultRate);
+    if (optionsRate != null) {
+      return _makeSampleDecision(optionsRate);
     }
 
     return SentryTracesSamplingDecision(false);
