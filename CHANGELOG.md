@@ -4,6 +4,10 @@
 
 - Move replay and privacy from experimental to options ([#2755](https://github.com/getsentry/sentry-dart/pull/2755))
 - Remove renderer from `flutter_context` ([#2751](https://github.com/getsentry/sentry-dart/pull/2751))
+- Screenshot Grouping ([#2754](https://github.com/getsentry/sentry-dart/pull/2754))
+  - Moved `SentryFlutterOptions.attachScreenshot` to `SentryFlutterOptions.screenshot.attach`
+  - Moved `SentryFlutterOptions.screenshotQuality` to `SentryFlutterOptions.screenshot.quality`
+  - Moved `SentryFlutterOptions.beforeCaptureScreenshot` to `SentryFlutterOptions.screenshot.beforeCapture`
 
 ## 9.0.0-alpha.1
 
@@ -28,12 +32,6 @@
   - Responses are attached to the `Hint` object, which can be read in `beforeSend`/`beforeSendTransaction` callbacks via `hint.response`.
   - For now, only the `dio` integration is supported.
 - Enable privacy masking for screenshots by default ([#2728](https://github.com/getsentry/sentry-dart/pull/2728))
-- Screenshot Grouping ([#2754](https://github.com/getsentry/sentry-dart/pull/2754))
-  - Moved `SentryFlutterOptions.attachScreenshot` to `SentryFlutterOptions.screenshot.attach`
-  - Moved `SentryFlutterOptions.screenshotQuality` to `SentryFlutterOptions.screenshot.quality`
-  - Moved `SentryFlutterOptions.beforeCaptureScreenshot` to `SentryFlutterOptions.screenshot.beforeCapture`
-  
-
 
 ### Enhancements
 
