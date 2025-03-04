@@ -17,7 +17,7 @@ class SentryNativeJava extends SentryNativeChannel {
   Future<void> init(Hub hub) async {
     // We only need these when replay is enabled (session or error capture)
     // so let's set it up conditionally. This allows Dart to trim the code.
-    if (options.experimental.replay.isEnabled) {
+    if (options.replay.isEnabled) {
       channel.setMethodCallHandler((call) async {
         switch (call.method) {
           case 'ReplayRecorder.start':

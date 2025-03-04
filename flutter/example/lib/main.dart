@@ -86,12 +86,8 @@ Future<void> setupSentry(
       options.maxRequestBodySize = MaxRequestBodySize.always;
       options.navigatorKey = navigatorKey;
 
-      options.experimental.replay.sessionSampleRate = 1.0;
-      options.experimental.replay.onErrorSampleRate = 1.0;
-
-      // This has a side-effect of creating the default privacy configuration,
-      // thus enabling Screenshot masking. No need to actually change it.
-      options.experimental.privacy;
+      options.replay.sessionSampleRate = 1.0;
+      options.replay.onErrorSampleRate = 1.0;
 
       _isIntegrationTest = isIntegrationTest;
       if (_isIntegrationTest) {

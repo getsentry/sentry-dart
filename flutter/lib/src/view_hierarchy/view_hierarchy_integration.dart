@@ -1,7 +1,7 @@
 import '../../sentry_flutter.dart';
 import 'view_hierarchy_event_processor.dart';
 
-/// A [Integration] that renders an ASCII represention of the entire view
+/// A [Integration] that renders an ASCII representation of the entire view
 /// hierarchy of the application when an error happens and includes it as an
 /// attachment to the [Hint].
 class SentryViewHierarchyIntegration
