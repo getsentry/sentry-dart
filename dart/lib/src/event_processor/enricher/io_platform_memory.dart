@@ -166,12 +166,11 @@ class PlatformMemory {
 /// values. Total memory is cached indefinitely, and free memory for the 
 /// configured duration (default 1 minute).
 class CachedPlatformMemory {
-  CachedPlatformMemory(this.options, {Duration? cacheDuration})
+  CachedPlatformMemory(SentryOptions options, {Duration? cacheDuration})
       : _cacheDuration = cacheDuration ?? const Duration(minutes: 1) {
     _delegate = PlatformMemory(options);
   }
 
-  final SentryOptions options;
   final Duration _cacheDuration;
   late final PlatformMemory _delegate;
 
