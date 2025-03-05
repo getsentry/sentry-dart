@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Cache platform memory on windows/linux ([#2774](https://github.com/getsentry/sentry-dart/pull/2774))
+  - Fixes an issue where total/free memory on windows was not read.
+  - Free memory on windows/linux is now cached for 1 minute due to performance issues in tranactions.
+
 ## 8.14.0-beta.1
 
 ### Behavioral changes
