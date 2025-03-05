@@ -163,8 +163,8 @@ class PlatformMemory {
 }
 
 /// A cached version of [PlatformMemory] that reduces system calls by caching
-/// vlaues. Total memory is cached indefinatley, and free
-/// memory for the configured duration.
+/// values. Total memory is cached indefinitely, and free memory for the 
+/// configured duration (default 1 minute).
 class CachedPlatformMemory {
   CachedPlatformMemory(this.options, {Duration? cacheDuration})
       : _cacheDuration = cacheDuration ?? const Duration(minutes: 1) {
