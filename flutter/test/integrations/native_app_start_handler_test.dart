@@ -28,7 +28,7 @@ void main() {
       callback(fixture.scope);
       return null;
     });
-    
+
     when(fixture.hub.captureTransaction(
       any,
       traceContext: anyNamed('traceContext'),
@@ -331,7 +331,7 @@ class Fixture {
   final nativeBinding = MockSentryNativeBinding();
   final hub = MockHub();
   final scope = MockScope();
-  
+
   late final tracer = SentryTracer(
     SentryTransactionContext(
       'name',
@@ -370,7 +370,6 @@ class Fixture {
 }
 
 class MockScope extends Mock implements Scope {
-
   final setSpans = <ISentrySpan?>[];
 
   @override
