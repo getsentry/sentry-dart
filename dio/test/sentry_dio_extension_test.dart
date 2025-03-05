@@ -92,7 +92,8 @@ void main() {
         1,
       );
 
-      final interceptor = dio.interceptors.whereType<FailedRequestInterceptor>().first;
+      final interceptor =
+          dio.interceptors.whereType<FailedRequestInterceptor>().first;
 
       final requestOptions = RequestOptions(path: 'https://example.com');
       final error = DioError(
