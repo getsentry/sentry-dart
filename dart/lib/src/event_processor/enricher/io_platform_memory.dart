@@ -163,7 +163,7 @@ class PlatformMemory {
 }
 
 /// A cached version of [PlatformMemory] that reduces system calls by caching
-/// values. Total memory is cached indefinitely, and free memory for the 
+/// values. Total memory is cached indefinitely, and free memory for the
 /// configured duration (default 1 minute).
 class CachedPlatformMemory {
   CachedPlatformMemory(SentryOptions options, {Duration? cacheDuration})

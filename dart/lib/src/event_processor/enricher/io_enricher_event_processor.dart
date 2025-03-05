@@ -114,7 +114,8 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
       name: device?.name ??
           (_options.sendDefaultPii ? Platform.localHostname : null),
       processorCount: device?.processorCount ?? Platform.numberOfProcessors,
-      memorySize: device?.memorySize ?? _platformMemory.getTotalPhysicalMemory(),
+      memorySize:
+          device?.memorySize ?? _platformMemory.getTotalPhysicalMemory(),
       freeMemory: device?.freeMemory ?? _platformMemory.getFreePhysicalMemory(),
     );
   }
