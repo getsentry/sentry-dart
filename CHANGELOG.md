@@ -6,6 +6,12 @@
 
 - Pass missing `captureFailedRequests` param to `FailedRequestInterceptor` ([#2744](https://github.com/getsentry/sentry-dart/pull/2744))
 
+### Dependencies
+
+- Bump Android SDK from v7.22.0 to v8.3.0 ([#2757](https://github.com/getsentry/sentry-dart/pull/2757))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#830)
+  - [diff](https://github.com/getsentry/sentry-java/compare/7.22.0...8.3.0)
+
 ## 8.14.0-beta.1
 
 ### Behavioral changes
