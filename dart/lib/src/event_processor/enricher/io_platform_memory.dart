@@ -6,15 +6,40 @@ import '../../sentry_options.dart';
 // Get total & free platform memory (in bytes) for linux and windows operating systems.
 // Source: https://github.com/onepub-dev/system_info/blob/8a9bf6b8eb7c86a09b3c3df4bf6d7fa5a6b50732/lib/src/platform/memory.dart
 class PlatformMemory {
-  PlatformMemory(this.options);
+  PlatformMemory(this.options) {
+    if (options.platformChecker.platform.isWindows) {
+      // Check for WMIC (deprecated in newer Windows versions)
+      // https://techcommunity.microsoft.com/blog/windows-itpro-blog/wmi-command-line-wmic-utility-deprecation-next-steps/4039242
+      useWindowsWmci =
+          File('C:\\Windows\\System32\\wbem\\wmic.exe').existsSync();
+      if (!useWindowsWmci) {
+        useWindowsPowerShell = File(
+                'C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe')
+            .existsSync();
+      } else {
+        useWindowsPowerShell = false;
+      }
+    } else {
+      useWindowsWmci = false;
+      useWindowsPowerShell = false;
+    }
+  }
 
   final SentryOptions options;
+  late final bool useWindowsWmci;
+  late final bool useWindowsPowerShell;
 
   int? getTotalPhysicalMemory() {
     if (options.platformChecker.platform.isLinux) {
       return _getLinuxMemInfoValue('MemTotal');
     } else if (options.platformChecker.platform.isWindows) {
-      return _getWindowsWmicValue('ComputerSystem', 'TotalPhysicalMemory');
+      if (useWindowsWmci) {
+        return _getWindowsWmicValue('ComputerSystem', 'TotalPhysicalMemory');
+      } else if (useWindowsPowerShell) {
+        return _getWindowsPowershellMemoryValue('TotalPhysicalMemory');
+      } else {
+        return null;
+      }
     } else {
       return null;
     }
@@ -24,7 +49,13 @@ class PlatformMemory {
     if (options.platformChecker.platform.isLinux) {
       return _getLinuxMemInfoValue('MemFree');
     } else if (options.platformChecker.platform.isWindows) {
-      return _getWindowsWmicValue('OS', 'FreePhysicalMemory');
+      if (useWindowsWmci) {
+        return _getWindowsWmicValue('OS', 'FreePhysicalMemory');
+      } else if (useWindowsPowerShell) {
+        return _getWindowsPowershellMemoryValue('FreePhysicalMemory');
+      } else {
+        return null;
+      }
     } else {
       return null;
     }
@@ -107,5 +138,64 @@ class PlatformMemory {
       }
     }
     return map;
+  }
+
+  int? _getWindowsPowershellMemoryValue(String property) {
+    final command = property == 'TotalPhysicalMemory'
+        ? 'Get-CimInstance Win32_ComputerSystem | Select-Object -ExpandProperty TotalPhysicalMemory'
+        : 'Get-CimInstance Win32_OperatingSystem | Select-Object -ExpandProperty FreePhysicalMemory';
+
+    final result = _exec('powershell.exe',
+        ['-NoProfile', '-NonInteractive', '-Command', command]);
+    if (result == null) {
+      return null;
+    }
+
+    final value = result.trim();
+    final size = int.tryParse(value);
+    if (size == null) {
+      return null;
+    }
+
+    // FreePhysicalMemory is in KB, while TotalPhysicalMemory is in bytes
+    return property == 'TotalPhysicalMemory' ? size : size * 1024;
+  }
+}
+
+/// A cached version of [PlatformMemory] that reduces system calls by caching
+/// vlaues. Total memory is cached indefinatley, and free
+/// memory for the configured duration.
+class CachedPlatformMemory {
+  CachedPlatformMemory(this.options, {Duration? cacheDuration})
+      : _cacheDuration = cacheDuration ?? const Duration(minutes: 1) {
+    _delegate = PlatformMemory(options);
+  }
+
+  final SentryOptions options;
+  final Duration _cacheDuration;
+  late final PlatformMemory _delegate;
+
+  int? _cachedTotalPhysicalMemory;
+  int? _cachedFreePhysicalMemory;
+  DateTime? _lastCacheUpdate;
+
+  void _refreshCachedFreePhysicalMemory() {
+    final now = DateTime.now();
+    if (_lastCacheUpdate != null &&
+        now.difference(_lastCacheUpdate!) < _cacheDuration) {
+      return;
+    }
+    _cachedFreePhysicalMemory = _delegate.getFreePhysicalMemory();
+    _lastCacheUpdate = now;
+  }
+
+  int? getTotalPhysicalMemory() {
+    _cachedTotalPhysicalMemory ??= _delegate.getTotalPhysicalMemory();
+    return _cachedTotalPhysicalMemory;
+  }
+
+  int? getFreePhysicalMemory() {
+    _refreshCachedFreePhysicalMemory();
+    return _cachedFreePhysicalMemory;
   }
 }

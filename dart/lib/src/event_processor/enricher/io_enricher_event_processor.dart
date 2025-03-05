@@ -19,7 +19,10 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
   final SentryOptions _options;
   late final String _dartVersion = _extractDartVersion(Platform.version);
   late final SentryOperatingSystem _os = extractOperatingSystem(
-      Platform.operatingSystem, Platform.operatingSystemVersion);
+    Platform.operatingSystem,
+    Platform.operatingSystemVersion,
+  );
+  late final _platformMemory = CachedPlatformMemory(_options);
 
   /// Extracts the semantic version and channel from the full version string.
   ///
@@ -37,14 +40,11 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
 
   @override
   SentryEvent? apply(SentryEvent event, Hint hint) {
-    // Amend app with current memory usage, as this is not available on native.
-    final app = _getApp(event.contexts.app);
-
     final contexts = event.contexts.copyWith(
       device: _getDevice(event.contexts.device),
       operatingSystem: _getOperatingSystem(event.contexts.operatingSystem),
       runtimes: _getRuntimes(event.contexts.runtimes),
-      app: app,
+      app: _getApp(event.contexts.app),
       culture: _getSentryCulture(event.contexts.culture),
     );
 
@@ -110,13 +110,12 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
   }
 
   SentryDevice _getDevice(SentryDevice? device) {
-    final platformMemory = PlatformMemory(_options);
     return (device ?? SentryDevice()).copyWith(
       name: device?.name ??
           (_options.sendDefaultPii ? Platform.localHostname : null),
       processorCount: device?.processorCount ?? Platform.numberOfProcessors,
-      memorySize: device?.memorySize ?? platformMemory.getTotalPhysicalMemory(),
-      freeMemory: device?.freeMemory ?? platformMemory.getFreePhysicalMemory(),
+      memorySize: device?.memorySize ?? _platformMemory.getTotalPhysicalMemory(),
+      freeMemory: device?.freeMemory ?? _platformMemory.getFreePhysicalMemory(),
     );
   }
 
