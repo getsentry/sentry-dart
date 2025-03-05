@@ -48,8 +48,7 @@ extension SentryDioExtension on Dio {
     Hub? hub,
     List<SentryStatusCode> failedRequestStatusCodes =
         SentryHttpClient.defaultFailedRequestStatusCodes,
-    List<String> failedRequestTargets =
-        SentryHttpClient.defaultFailedRequestTargets,
+    List<String> failedRequestTargets = SentryHttpClient.defaultFailedRequestTargets,
     bool? captureFailedRequests,
   }) {
     hub = hub ?? HubAdapter();
@@ -80,8 +79,10 @@ extension SentryDioExtension on Dio {
       interceptors.insert(
         0,
         FailedRequestInterceptor(
+          hub: hub,
           failedRequestStatusCodes: failedRequestStatusCodes,
           failedRequestTargets: failedRequestTargets,
+          captureFailedRequests: captureFailedRequests,
         ),
       );
       // ignore: invalid_use_of_internal_member
