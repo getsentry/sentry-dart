@@ -48,7 +48,8 @@ extension SentryDioExtension on Dio {
     Hub? hub,
     List<SentryStatusCode> failedRequestStatusCodes =
         SentryHttpClient.defaultFailedRequestStatusCodes,
-    List<String> failedRequestTargets = SentryHttpClient.defaultFailedRequestTargets,
+    List<String> failedRequestTargets =
+        SentryHttpClient.defaultFailedRequestTargets,
     bool? captureFailedRequests,
   }) {
     hub = hub ?? HubAdapter();
