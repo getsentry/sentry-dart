@@ -78,21 +78,7 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
 
     String? executable;
     if (_options.sendDefaultPii) {
-      try {
-        // This throws sometimes for some reason
-        // https://github.com/flutter/flutter/issues/83921
-        executable = Platform.executable;
-      } catch (exception, stackTrace) {
-        _options.logger(
-          SentryLevel.error,
-          'Platform.executable couldn\'t be retrieved.',
-          exception: exception,
-          stackTrace: stackTrace,
-        );
-        if (_options.automatedTestMode) {
-          rethrow;
-        }
-      }
+      executable = Platform.executable;
     }
 
     return <String, dynamic>{
