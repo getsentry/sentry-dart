@@ -30123,9 +30123,8 @@ class SentryCocoa {
   late final _sel_setEmail_1 = _registerName1("setEmail:");
   late final _sel_message1 = _registerName1("message");
   late final _sel_setMessage_1 = _registerName1("setMessage:");
-  late final _class_SentryId11 = _getClass1("Sentry.SentryId");
-  late final _sel_empty1 = _registerName1("empty");
-  ffi.Pointer<ObjCObject> _objc_msgSend_1062(
+  late final _sel_source1 = _registerName1("source");
+  int _objc_msgSend_1062(
     ffi.Pointer<ObjCObject> obj,
     ffi.Pointer<ObjCSel> sel,
   ) {
@@ -30137,9 +30136,48 @@ class SentryCocoa {
 
   late final __objc_msgSend_1062Ptr = _lookup<
       ffi.NativeFunction<
-          ffi.Pointer<ObjCObject> Function(
+          ffi.Int32 Function(
               ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>)>>('objc_msgSend');
   late final __objc_msgSend_1062 = __objc_msgSend_1062Ptr.asFunction<
+      int Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>)>();
+
+  late final _sel_setSource_1 = _registerName1("setSource:");
+  void _objc_msgSend_1063(
+    ffi.Pointer<ObjCObject> obj,
+    ffi.Pointer<ObjCSel> sel,
+    int value,
+  ) {
+    return __objc_msgSend_1063(
+      obj,
+      sel,
+      value,
+    );
+  }
+
+  late final __objc_msgSend_1063Ptr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
+              ffi.Int32)>>('objc_msgSend');
+  late final __objc_msgSend_1063 = __objc_msgSend_1063Ptr.asFunction<
+      void Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>, int)>();
+
+  late final _class_SentryId11 = _getClass1("Sentry.SentryId");
+  late final _sel_empty1 = _registerName1("empty");
+  ffi.Pointer<ObjCObject> _objc_msgSend_1064(
+    ffi.Pointer<ObjCObject> obj,
+    ffi.Pointer<ObjCSel> sel,
+  ) {
+    return __objc_msgSend_1064(
+      obj,
+      sel,
+    );
+  }
+
+  late final __objc_msgSend_1064Ptr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<ObjCObject> Function(
+              ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>)>>('objc_msgSend');
+  late final __objc_msgSend_1064 = __objc_msgSend_1064Ptr.asFunction<
       ffi.Pointer<ObjCObject> Function(
           ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>)>();
 
@@ -30148,73 +30186,31 @@ class SentryCocoa {
   late final _sel_UUID1 = _registerName1("UUID");
   late final _sel_initWithUUIDString_1 = _registerName1("initWithUUIDString:");
   late final _sel_initWithUUIDBytes_1 = _registerName1("initWithUUIDBytes:");
-  instancetype _objc_msgSend_1063(
+  instancetype _objc_msgSend_1065(
     ffi.Pointer<ObjCObject> obj,
     ffi.Pointer<ObjCSel> sel,
     ffi.Pointer<ffi.UnsignedChar> bytes,
   ) {
-    return __objc_msgSend_1063(
+    return __objc_msgSend_1065(
       obj,
       sel,
       bytes,
     );
   }
 
-  late final __objc_msgSend_1063Ptr = _lookup<
+  late final __objc_msgSend_1065Ptr = _lookup<
       ffi.NativeFunction<
           instancetype Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
               ffi.Pointer<ffi.UnsignedChar>)>>('objc_msgSend');
-  late final __objc_msgSend_1063 = __objc_msgSend_1063Ptr.asFunction<
+  late final __objc_msgSend_1065 = __objc_msgSend_1065Ptr.asFunction<
       instancetype Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
           ffi.Pointer<ffi.UnsignedChar>)>();
 
   late final _sel_getUUIDBytes_1 = _registerName1("getUUIDBytes:");
-  void _objc_msgSend_1064(
+  void _objc_msgSend_1066(
     ffi.Pointer<ObjCObject> obj,
     ffi.Pointer<ObjCSel> sel,
     ffi.Pointer<ffi.UnsignedChar> uuid,
-  ) {
-    return __objc_msgSend_1064(
-      obj,
-      sel,
-      uuid,
-    );
-  }
-
-  late final __objc_msgSend_1064Ptr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
-              ffi.Pointer<ffi.UnsignedChar>)>>('objc_msgSend');
-  late final __objc_msgSend_1064 = __objc_msgSend_1064Ptr.asFunction<
-      void Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
-          ffi.Pointer<ffi.UnsignedChar>)>();
-
-  int _objc_msgSend_1065(
-    ffi.Pointer<ObjCObject> obj,
-    ffi.Pointer<ObjCSel> sel,
-    ffi.Pointer<ObjCObject> otherUUID,
-  ) {
-    return __objc_msgSend_1065(
-      obj,
-      sel,
-      otherUUID,
-    );
-  }
-
-  late final __objc_msgSend_1065Ptr = _lookup<
-      ffi.NativeFunction<
-          ffi.Int32 Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
-              ffi.Pointer<ObjCObject>)>>('objc_msgSend');
-  late final __objc_msgSend_1065 = __objc_msgSend_1065Ptr.asFunction<
-      int Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
-          ffi.Pointer<ObjCObject>)>();
-
-  late final _sel_UUIDString1 = _registerName1("UUIDString");
-  late final _sel_initWithUuid_1 = _registerName1("initWithUuid:");
-  instancetype _objc_msgSend_1066(
-    ffi.Pointer<ObjCObject> obj,
-    ffi.Pointer<ObjCSel> sel,
-    ffi.Pointer<ObjCObject> uuid,
   ) {
     return __objc_msgSend_1066(
       obj,
@@ -30225,22 +30221,130 @@ class SentryCocoa {
 
   late final __objc_msgSend_1066Ptr = _lookup<
       ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
+              ffi.Pointer<ffi.UnsignedChar>)>>('objc_msgSend');
+  late final __objc_msgSend_1066 = __objc_msgSend_1066Ptr.asFunction<
+      void Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
+          ffi.Pointer<ffi.UnsignedChar>)>();
+
+  int _objc_msgSend_1067(
+    ffi.Pointer<ObjCObject> obj,
+    ffi.Pointer<ObjCSel> sel,
+    ffi.Pointer<ObjCObject> otherUUID,
+  ) {
+    return __objc_msgSend_1067(
+      obj,
+      sel,
+      otherUUID,
+    );
+  }
+
+  late final __objc_msgSend_1067Ptr = _lookup<
+      ffi.NativeFunction<
+          ffi.Int32 Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
+              ffi.Pointer<ObjCObject>)>>('objc_msgSend');
+  late final __objc_msgSend_1067 = __objc_msgSend_1067Ptr.asFunction<
+      int Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
+          ffi.Pointer<ObjCObject>)>();
+
+  late final _sel_UUIDString1 = _registerName1("UUIDString");
+  late final _sel_initWithUuid_1 = _registerName1("initWithUuid:");
+  instancetype _objc_msgSend_1068(
+    ffi.Pointer<ObjCObject> obj,
+    ffi.Pointer<ObjCSel> sel,
+    ffi.Pointer<ObjCObject> uuid,
+  ) {
+    return __objc_msgSend_1068(
+      obj,
+      sel,
+      uuid,
+    );
+  }
+
+  late final __objc_msgSend_1068Ptr = _lookup<
+      ffi.NativeFunction<
           instancetype Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
               ffi.Pointer<ObjCObject>)>>('objc_msgSend');
-  late final __objc_msgSend_1066 = __objc_msgSend_1066Ptr.asFunction<
+  late final __objc_msgSend_1068 = __objc_msgSend_1068Ptr.asFunction<
       instancetype Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
           ffi.Pointer<ObjCObject>)>();
 
   late final _sel_isEqual_1 = _registerName1("isEqual:");
   late final _sel_eventId1 = _registerName1("eventId");
-  late final _sel_screenshot1 = _registerName1("screenshot");
-  late final _sel_setScreenshot_1 = _registerName1("setScreenshot:");
   late final _sel_associatedEventId1 = _registerName1("associatedEventId");
   late final _sel_setAssociatedEventId_1 =
       _registerName1("setAssociatedEventId:");
+  void _objc_msgSend_1069(
+    ffi.Pointer<ObjCObject> obj,
+    ffi.Pointer<ObjCSel> sel,
+    ffi.Pointer<ObjCObject> value,
+  ) {
+    return __objc_msgSend_1069(
+      obj,
+      sel,
+      value,
+    );
+  }
+
+  late final __objc_msgSend_1069Ptr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
+              ffi.Pointer<ObjCObject>)>>('objc_msgSend');
+  late final __objc_msgSend_1069 = __objc_msgSend_1069Ptr.asFunction<
+      void Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>,
+          ffi.Pointer<ObjCObject>)>();
+
+  late final _sel_initWithMessage_name_email_source_associatedEventId_attachments_1 =
+      _registerName1(
+          "initWithMessage:name:email:source:associatedEventId:attachments:");
+  instancetype _objc_msgSend_1070(
+    ffi.Pointer<ObjCObject> obj,
+    ffi.Pointer<ObjCSel> sel,
+    ffi.Pointer<ObjCObject> message,
+    ffi.Pointer<ObjCObject> name,
+    ffi.Pointer<ObjCObject> email,
+    int source,
+    ffi.Pointer<ObjCObject> associatedEventId,
+    ffi.Pointer<ObjCObject> attachments,
+  ) {
+    return __objc_msgSend_1070(
+      obj,
+      sel,
+      message,
+      name,
+      email,
+      source,
+      associatedEventId,
+      attachments,
+    );
+  }
+
+  late final __objc_msgSend_1070Ptr = _lookup<
+      ffi.NativeFunction<
+          instancetype Function(
+              ffi.Pointer<ObjCObject>,
+              ffi.Pointer<ObjCSel>,
+              ffi.Pointer<ObjCObject>,
+              ffi.Pointer<ObjCObject>,
+              ffi.Pointer<ObjCObject>,
+              ffi.Int32,
+              ffi.Pointer<ObjCObject>,
+              ffi.Pointer<ObjCObject>)>>('objc_msgSend');
+  late final __objc_msgSend_1070 = __objc_msgSend_1070Ptr.asFunction<
+      instancetype Function(
+          ffi.Pointer<ObjCObject>,
+          ffi.Pointer<ObjCSel>,
+          ffi.Pointer<ObjCObject>,
+          ffi.Pointer<ObjCObject>,
+          ffi.Pointer<ObjCObject>,
+          int,
+          ffi.Pointer<ObjCObject>,
+          ffi.Pointer<ObjCObject>)>();
+
   late final _sel_serialize1 = _registerName1("serialize");
   late final _sel_dataDictionary1 = _registerName1("dataDictionary");
-  late final _sel_attachments1 = _registerName1("attachments");
+  late final _sel_attachmentsForEnvelope1 =
+      _registerName1("attachmentsForEnvelope");
 }
 
 class _ObjCWrapper implements ffi.Finalizable {
@@ -71263,39 +71367,56 @@ class SentryFeedback extends NSObject {
         _id, _lib._sel_setMessage_1, value?._id ?? ffi.nullptr);
   }
 
+  int get source {
+    return _lib._objc_msgSend_1062(_id, _lib._sel_source1);
+  }
+
+  set source(int value) {
+    return _lib._objc_msgSend_1063(_id, _lib._sel_setSource_1, value);
+  }
+
   SentryId1? get eventId {
-    final _ret = _lib._objc_msgSend_1062(_id, _lib._sel_eventId1);
+    final _ret = _lib._objc_msgSend_1064(_id, _lib._sel_eventId1);
     return _ret.address == 0
         ? null
         : SentryId1._(_ret, _lib, retain: true, release: true);
   }
 
-  /// PNG data for the screenshot image
-  NSData? get screenshot {
-    final _ret = _lib._objc_msgSend_39(_id, _lib._sel_screenshot1);
+  /// The event id that this feedback is associated with, like a crash report.
+  SentryId1? get associatedEventId {
+    final _ret = _lib._objc_msgSend_1064(_id, _lib._sel_associatedEventId1);
     return _ret.address == 0
         ? null
-        : NSData._(_ret, _lib, retain: true, release: true);
-  }
-
-  /// PNG data for the screenshot image
-  set screenshot(NSData? value) {
-    return _lib._objc_msgSend_939(
-        _id, _lib._sel_setScreenshot_1, value?._id ?? ffi.nullptr);
+        : SentryId1._(_ret, _lib, retain: true, release: true);
   }
 
   /// The event id that this feedback is associated with, like a crash report.
-  NSString? get associatedEventId {
-    final _ret = _lib._objc_msgSend_20(_id, _lib._sel_associatedEventId1);
-    return _ret.address == 0
-        ? null
-        : NSString._(_ret, _lib, retain: true, release: true);
-  }
-
-  /// The event id that this feedback is associated with, like a crash report.
-  set associatedEventId(NSString? value) {
-    return _lib._objc_msgSend_509(
+  set associatedEventId(SentryId1? value) {
+    return _lib._objc_msgSend_1069(
         _id, _lib._sel_setAssociatedEventId_1, value?._id ?? ffi.nullptr);
+  }
+
+  /// \param associatedEventId The ID for an event you’d like associated with the feedback.
+  ///
+  /// \param attachments Data objects for any attachments. Currently the web UI only supports showing one attached image, like for a screenshot.
+  SentryFeedback
+      initWithMessage_name_email_source_associatedEventId_attachments_(
+          NSString? message,
+          NSString? name,
+          NSString? email,
+          int source,
+          SentryId1? associatedEventId,
+          NSArray? attachments) {
+    final _ret = _lib._objc_msgSend_1070(
+        _id,
+        _lib._sel_initWithMessage_name_email_source_associatedEventId_attachments_1,
+        message?._id ?? ffi.nullptr,
+        name?._id ?? ffi.nullptr,
+        email?._id ?? ffi.nullptr,
+        source,
+        associatedEventId?._id ?? ffi.nullptr,
+        attachments?._id ?? ffi.nullptr);
+    return SentryFeedback._(_ret, _lib, retain: true, release: true);
   }
 
   @override
@@ -71324,8 +71445,8 @@ class SentryFeedback extends NSObject {
 
   /// note:
   /// Currently there is only a single attachment possible, for the screenshot, of which there can be only one.
-  NSArray attachments() {
-    final _ret = _lib._objc_msgSend_79(_id, _lib._sel_attachments1);
+  NSArray attachmentsForEnvelope() {
+    final _ret = _lib._objc_msgSend_79(_id, _lib._sel_attachmentsForEnvelope1);
     return NSArray._(_ret, _lib, retain: true, release: true);
   }
 
@@ -71410,6 +71531,11 @@ class SentryFeedback extends NSObject {
   }
 }
 
+abstract class SentryFeedbackSource {
+  static const int SentryFeedbackSourceWidget = 0;
+  static const int SentryFeedbackSourceCustom = 1;
+}
+
 class SentryId1 extends NSObject {
   SentryId1._(ffi.Pointer<ObjCObject> id, SentryCocoa lib,
       {bool retain = false, bool release = false})
@@ -71435,7 +71561,7 @@ class SentryId1 extends NSObject {
 
   static SentryId1? getEmpty(SentryCocoa _lib) {
     final _ret =
-        _lib._objc_msgSend_1062(_lib._class_SentryId11, _lib._sel_empty1);
+        _lib._objc_msgSend_1064(_lib._class_SentryId11, _lib._sel_empty1);
     return _ret.address == 0
         ? null
         : SentryId1._(_ret, _lib, retain: true, release: true);
@@ -71459,7 +71585,7 @@ class SentryId1 extends NSObject {
 
   /// Creates a SentryId with the given UUID.
   SentryId1 initWithUuid_(NSUUID? uuid) {
-    final _ret = _lib._objc_msgSend_1066(
+    final _ret = _lib._objc_msgSend_1068(
         _id, _lib._sel_initWithUuid_1, uuid?._id ?? ffi.nullptr);
     return SentryId1._(_ret, _lib, retain: true, release: true);
   }
@@ -71614,16 +71740,16 @@ class NSUUID extends NSObject {
 
   NSUUID initWithUUIDBytes_(ffi.Pointer<ffi.UnsignedChar> bytes) {
     final _ret =
-        _lib._objc_msgSend_1063(_id, _lib._sel_initWithUUIDBytes_1, bytes);
+        _lib._objc_msgSend_1065(_id, _lib._sel_initWithUUIDBytes_1, bytes);
     return NSUUID._(_ret, _lib, retain: true, release: true);
   }
 
   void getUUIDBytes_(ffi.Pointer<ffi.UnsignedChar> uuid) {
-    _lib._objc_msgSend_1064(_id, _lib._sel_getUUIDBytes_1, uuid);
+    _lib._objc_msgSend_1066(_id, _lib._sel_getUUIDBytes_1, uuid);
   }
 
   int compare_(NSUUID? otherUUID) {
-    return _lib._objc_msgSend_1065(
+    return _lib._objc_msgSend_1067(
         _id, _lib._sel_compare_1, otherUUID?._id ?? ffi.nullptr);
   }
 
