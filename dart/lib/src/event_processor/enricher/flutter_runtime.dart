@@ -13,24 +13,24 @@ import '../../protocol/sentry_runtime.dart';
 // The const-ness of the properties below ensure that the code
 // is tree shaken in a non-Flutter environment.
 
-const _hasFlutterRuntimeInformation = FlutterVersion.version == null ||
+const _isFlutterRuntimeInformationAbsent = FlutterVersion.version == null ||
     FlutterVersion.channel == null ||
     FlutterVersion.frameworkRevision == null;
 
-const SentryRuntime? flutterRuntime = _hasFlutterRuntimeInformation
+const SentryRuntime? flutterRuntime = _isFlutterRuntimeInformationAbsent
     ? null
     : SentryRuntime(
         name: 'Flutter',
         version: '${FlutterVersion.version} (${FlutterVersion.channel})',
         build: FlutterVersion.frameworkRevision,
+        rawDescription: '${FlutterVersion.version} (${FlutterVersion.channel}) '
+            '- Git hash ${FlutterVersion.frameworkRevision} '
+            '- Git URL ${FlutterVersion.gitUrl}',
       );
 
 const SentryRuntime? dartFlutterRuntime = FlutterVersion.dartVersion == null
     ? null
-    : SentryRuntime(
-        name: 'Dart',
-        version: FlutterVersion.dartVersion,
-      );
+    : SentryRuntime(name: 'Dart', version: FlutterVersion.dartVersion);
 
 /// Details about the Flutter version this app was compiled with,
 /// corresponding to the output of `flutter --version`.
