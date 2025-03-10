@@ -38,6 +38,9 @@ jobs:
         if: ${{ inputs.sdk == 'flutter' }}
 
       - run: ${{ inputs.sdk }} pub get
+      - run: flutter pub get
+        if: ${{ inputs.sdk == 'flutter' }}
+        working-directory: microbenchmarks
       - run: dart format --set-exit-if-changed ./
 
       - name: dart analyze
