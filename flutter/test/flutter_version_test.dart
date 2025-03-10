@@ -37,5 +37,5 @@ void main() {
       expect(FlutterVersion.dartVersion,
           const String.fromEnvironment('FLUTTER_DART_VERSION'));
     });
-  }, skip: const bool.hasEnvironment('FLUTTER_VERSION'));
+  }, skip: !(const bool.hasEnvironment('FLUTTER_VERSION')));
 }
