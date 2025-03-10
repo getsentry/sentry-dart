@@ -1,6 +1,7 @@
 name: 🐞 Bug Report
 description: Tell us about something that's not working the way we (probably) intend.
 labels: ["Platform: Dart", "bug"]
+type: Bug
 body:
   - type: dropdown
     id: environment
@@ -94,7 +95,7 @@ body:
     id: submit-a-pr
     attributes:
       label: Are you willing to submit a PR?
-      description:  We accept contributions!
+      description: We accept contributions!
       options:
         - "Yes"
         - "No"
