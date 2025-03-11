@@ -8,6 +8,16 @@
   - Fixes an issue where total/free memory on windows was not read.
   - Free memory on windows/linux is now cached for 1 minute due to performance issues in tranactions.
 
+### Enhancements
+
+- Add Flutter runtime information ([#2742](https://github.com/getsentry/sentry-dart/pull/2742))
+  - This works if the version of Flutter you're using includes [this code](https://github.com/flutter/flutter/pull/163761).
+
+### Fixes
+
+- Pass missing `captureFailedRequests` param to `FailedRequestInterceptor` ([#2744](https://github.com/getsentry/sentry-dart/pull/2744))
+
+
 ## 8.14.0-beta.1
 
 ### Behavioral changes
