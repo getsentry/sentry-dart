@@ -7,6 +7,9 @@
 - Cleanup platform mocking ([#2730](https://github.com/getsentry/sentry-dart/pull/2730))
   - The `PlatformChecker` was renamed to `RuntimeChecker`
   - Moved `PlatformChecker.platform` to `options.platform`
+- Bump Javascript SDK from v8.42.0 to v9.5.0 ([#2784](https://github.com/getsentry/sentry-dart/pull/2784))
+  - [changelog](https://github.com/getsentry/sentry-javascript/blob/main/CHANGELOG.md#950)
+  - [diff](https://github.com/getsentry/sentry-javascript/compare/8.42.0...9.5.0)
 
 ## 9.0.0-alpha.1
 
