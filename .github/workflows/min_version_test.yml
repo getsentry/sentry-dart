@@ -59,12 +59,20 @@ jobs:
         with:
           ruby-version: '3.1.2' # https://github.com/flutter/flutter/issues/109385#issuecomment-1212614125
 
-      - name: Update Pods
-        run: sudo gem update
+      - name: Uninstall existing CocoaPods and install globally
+        run: |
+          gem uninstall cocoapods -a
+          sudo gem install cocoapods
+          echo "$(which pod)"
+
       - name: Build iOS
         run: |
           cd min_version_test
           flutter pub get
+          cd ios
+          pod repo update
+          pod install
+          cd ..
           flutter build ios --no-codesign
 
   build-web:
