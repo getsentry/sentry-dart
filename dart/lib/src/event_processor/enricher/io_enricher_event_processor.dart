@@ -82,7 +82,7 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
     }
 
     return <String, dynamic>{
-      'compile_mode': _options.platformChecker.compileMode,
+      'compile_mode': _options.runtimeChecker.compileMode,
       if (packageConfig != null) 'package_config': packageConfig,
       // The following information could potentially contain PII
       if (_options.sendDefaultPii) ...{

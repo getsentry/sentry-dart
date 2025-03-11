@@ -18,7 +18,7 @@ import 'user_interaction/sentry_user_interaction_widget.dart';
 /// Note that some of these options require native Sentry integration, which is
 /// not available on all platforms.
 class SentryFlutterOptions extends SentryOptions {
-  SentryFlutterOptions({super.dsn, super.checker}) {
+  SentryFlutterOptions({super.dsn, super.platform, super.checker}) {
     enableBreadcrumbTrackingForCurrentPlatform();
   }
 
@@ -331,7 +331,7 @@ class SentryFlutterOptions extends SentryOptions {
   /// available in the Flutter environment. This way you get more detailed
   /// information where available.
   void enableBreadcrumbTrackingForCurrentPlatform() {
-    if (platformChecker.hasNativeIntegration) {
+    if (platform.supportsNativeIntegration) {
       useNativeBreadcrumbTracking();
     } else {
       useFlutterBreadcrumbTracking();

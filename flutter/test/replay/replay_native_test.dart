@@ -8,6 +8,7 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
+import 'package:sentry/src/platform/mock_platform.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/native/factory.dart';
 import 'android_replay_recorder_web.dart' // see https://github.com/flutter/flutter/issues/160675
@@ -28,7 +29,7 @@ void main() {
 
   for (final mockPlatform in [
     MockPlatform.android(),
-    MockPlatform.iOs(),
+    MockPlatform.iOS(),
   ]) {
     group('$SentryNativeBinding (${mockPlatform.operatingSystem})', () {
       late SentryNativeBinding sut;
@@ -41,10 +42,12 @@ void main() {
       setUp(() {
         hub = MockHub();
         native = NativeChannelFixture();
-        options =
-            defaultTestOptions(MockPlatformChecker(mockPlatform: mockPlatform))
-              ..methodChannel = native.channel
-              ..replay.quality = SentryReplayQuality.low;
+
+        options = defaultTestOptions()
+          ..platform = mockPlatform
+          ..methodChannel = native.channel
+          ..replay.quality = SentryReplayQuality.low;
+
         sut = createBinding(options);
 
         if (mockPlatform.isIOS) {

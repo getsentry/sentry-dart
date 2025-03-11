@@ -87,13 +87,13 @@ class Sentry {
     _setEnvironmentVariables(options);
 
     // Throws when running on the browser
-    if (!options.platformChecker.isWeb) {
+    if (!options.platform.isWeb) {
       // catch any errors that may occur within the entry function, main()
       // in the ‘root zone’ where all Dart programs start
       options.addIntegrationByIndex(0, IsolateErrorIntegration());
     }
 
-    if (options.platformChecker.isDebugMode()) {
+    if (options.runtimeChecker.isDebugMode()) {
       options.debug = true;
       options.logger(
         SentryLevel.debug,
@@ -123,7 +123,7 @@ class Sentry {
     options.dsn = options.dsn ?? vars.dsn;
 
     if (options.environment == null) {
-      var environment = vars.environmentForMode(options.platformChecker);
+      var environment = vars.environmentForMode(options.runtimeChecker);
       options.environment = vars.environment ?? environment;
     }
 
