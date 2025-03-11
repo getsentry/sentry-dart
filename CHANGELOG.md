@@ -39,6 +39,11 @@
 - Bump Android SDK from v7.20.1 to v8.1.0 ([#2650](https://github.com/getsentry/sentry-dart/pull/2650))
   - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#810)
   - [diff](https://github.com/getsentry/sentry-java/compare/7.20.1...8.1.0)
+## Unreleased
+
+### Fixes
+
+- Pass missing `captureFailedRequests` param to `FailedRequestInterceptor` ([#2744](https://github.com/getsentry/sentry-dart/pull/2744))
 
 ## 8.14.0-beta.1
 
@@ -97,12 +102,20 @@ final db = AppDatabase(executor);
 
 ## 8.13.2
 
+> [!WARNING]
+> This release contains an issue where Cold starts can be incorrectly reported as Warm starts on Android. We recommend staying on version 8.12.0 if you use this feature on Android.
+> See issue [#2769](https://github.com/getsentry/sentry-dart/issues/2769) for more details.
+
 ### Fixes
 
 - `build_web_compiler` error ([#2736](https://github.com/getsentry/sentry-dart/pull/2736))
   - Use `if (dart.library.html)` instead of `if (dart.html)` for imports
 
 ## 8.13.1
+
+> [!WARNING]
+> This release contains an issue where Cold starts can be incorrectly reported as Warm starts on Android. We recommend staying on version 8.12.0 if you use this feature on Android.
+> See issue [#2769](https://github.com/getsentry/sentry-dart/issues/2769) for more details.
 
 ### Fixes
 
@@ -115,6 +128,10 @@ final db = AppDatabase(executor);
   - [diff](https://github.com/getsentry/sentry-java/compare/7.20.1...7.22.0)
 
 ## 8.13.0
+
+> [!WARNING]
+> This release contains an issue where Cold starts can be incorrectly reported as Warm starts on Android. We recommend staying on version 8.12.0 if you use this feature on Android.
+> See issue [#2769](https://github.com/getsentry/sentry-dart/issues/2769) for more details.
 
 ### Breaking changes
 
