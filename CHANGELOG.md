@@ -13,6 +13,12 @@
 - Pass missing `captureFailedRequests` param to `FailedRequestInterceptor` ([#2744](https://github.com/getsentry/sentry-dart/pull/2744))
 
 
+### Dependencies
+
+- Bump Cocoa SDK from v8.45.0 to v8.46.0 ([#2772](https://github.com/getsentry/sentry-dart/pull/2772))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8460)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.45.0...8.46.0)
+
 ## 8.14.0-beta.1
 
 ### Behavioral changes
