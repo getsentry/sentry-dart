@@ -2,7 +2,6 @@
 
 ## Unreleased
 
-
 ### Enhancements
 
 - Add Flutter runtime information ([#2742](https://github.com/getsentry/sentry-dart/pull/2742))
@@ -11,7 +10,6 @@
 ### Fixes
 
 - Pass missing `captureFailedRequests` param to `FailedRequestInterceptor` ([#2744](https://github.com/getsentry/sentry-dart/pull/2744))
-
 
 ### Dependencies
 
