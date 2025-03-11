@@ -63,15 +63,16 @@ jobs:
         run: |
           gem uninstall cocoapods -a
           sudo gem install cocoapods
+          echo "CocoaPods version: $(pod --version)"
 
       - name: Build iOS
         run: |
           cd min_version_test
+          flutter pub get
           cd ios
           pod repo update
           pod install
           cd ..
-          flutter pub get
           flutter build ios --no-codesign
 
   build-web:
