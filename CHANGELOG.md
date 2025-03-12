@@ -29,15 +29,6 @@ This release fixes an issue where Cold starts can be incorrectly reported as War
 - Bind root screen transaction to scope ([#2756](https://github.com/getsentry/sentry-dart/pull/2756))
 - Reference to `SentryWidgetsFlutterBinding` in warning message in `FramesTrackingIntegration` ([#2704](https://github.com/getsentry/sentry-dart/pull/2704))
 
-### Dependencies
-
-- Bump Native SDK from v0.7.19 to v0.7.20 ([#2652](https://github.com/getsentry/sentry-dart/pull/2652))
-  - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#0720)
-  - [diff](https://github.com/getsentry/sentry-native/compare/0.7.19...0.7.20)
-- Bump Cocoa SDK from v8.44.0 to v8.46.0 ([#2772](https://github.com/getsentry/sentry-dart/pull/2772))
-  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8460)
-  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.44.0...8.46.0)
-
 ### Deprecations
 
 - Deprecate Drift `SentryQueryExecutor` ([#2715](https://github.com/getsentry/sentry-dart/pull/2715))
@@ -51,6 +42,15 @@ final executor = NativeDatabase.memory().interceptWith(
 final db = AppDatabase(executor);
 ```
 - Deprecate `autoAppStart` and `setAppStartEnd` ([#2681](https://github.com/getsentry/sentry-dart/pull/2681))
+
+### Dependencies
+
+- Bump Native SDK from v0.7.19 to v0.7.20 ([#2652](https://github.com/getsentry/sentry-dart/pull/2652))
+  - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#0720)
+  - [diff](https://github.com/getsentry/sentry-native/compare/0.7.19...0.7.20)
+- Bump Cocoa SDK from v8.44.0 to v8.46.0 ([#2772](https://github.com/getsentry/sentry-dart/pull/2772))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8460)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.44.0...8.46.0)
 
 ## 8.14.0-beta.1
 
