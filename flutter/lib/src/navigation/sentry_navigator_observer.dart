@@ -154,8 +154,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       final from = _getRouteName(previousRoute);
       final to = _getRouteName(route);
       if (from != null && to != null && from != to) {
-        _native?.startSession();
-        _native?.captureSession();
+        hello();
       }
     }
 
@@ -165,6 +164,11 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     DateTime timestamp = _hub.options.clock();
     _finishTimeToDisplayTracking(endTimestamp: timestamp);
     _startTimeToDisplayTracking(route, timestamp);
+  }
+
+  void hello() async {
+    await _native?.startSession();
+    await _native?.captureSession();
   }
 
   @override
@@ -208,8 +212,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       final from = _getRouteName(route);
       final to = _getRouteName(previousRoute);
       if (from != null && to != null && from != to) {
-        _native?.startSession();
-        _native?.captureSession();
+        hello();
       }
     }
 

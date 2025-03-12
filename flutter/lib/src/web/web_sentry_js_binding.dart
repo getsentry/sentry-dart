@@ -13,13 +13,41 @@ class WebSentryJsBinding implements SentryJsBinding {
   SentryJsClient? _client;
 
   @override
-  void init(Map<String, dynamic> options) {
+  void init(Map<String, dynamic> options) async {
     if (options['defaultIntegrations'] != null) {
       options['defaultIntegrations'] = options['defaultIntegrations']
           .map((String integration) => _createIntegration(integration));
     }
     _init(options.jsify());
     _client = SentryJsClient();
+
+    simulateCrash();
+  }
+
+  void simulateCrash() {
+    // First get the current session
+    final isolationScope = SentryJsIsolationScope();
+    JSObject? currentSession = isolationScope.getSession();
+
+    if (currentSession == null) {
+      print('No active session to crash, starting one...');
+      startSession();
+    }
+
+    currentSession = isolationScope.getSession();
+
+    // Important: Update these fields while preserving others
+    currentSession?['status'] = 'crashed'.toJS;
+    currentSession?['errors'] = 1.toJS;
+
+    // Set it back and send it
+    isolationScope.setSession(currentSession!);
+
+    final session = SentryJsIsolationScope().getSession();
+    captureSession();
+
+    // After sending a crashed session, you might want to start a new one
+    _startSession({'ignoreDuration': true}.jsify());
   }
 
   JSObject? _createIntegration(String integration) {
@@ -57,7 +85,6 @@ class WebSentryJsBinding implements SentryJsBinding {
 
   @override
   void startSession() {
-    print('starting session');
     _startSession({'ignoreDuration': true}.jsify());
   }
 
@@ -72,6 +99,17 @@ external void _init(JSAny? options);
 
 @JS('Sentry.close')
 external void _close();
+
+@JS('Sentry.getIsolationScope')
+@staticInterop
+class SentryJsIsolationScope {
+  external factory SentryJsIsolationScope();
+}
+
+extension _SentryJsIsolationScopeExtension on SentryJsIsolationScope {
+  external JSObject? getSession();
+  external void setSession(JSAny session);
+}
 
 @JS('Sentry.getClient')
 @staticInterop
