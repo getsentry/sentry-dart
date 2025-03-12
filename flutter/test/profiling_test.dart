@@ -21,7 +21,7 @@ void main() {
     Hub hubWithSampleRate(double profilesSampleRate) {
       final o = defaultTestOptions();
       o.platform = MockPlatform.iOS();
-      
+
       o.profilesSampleRate = profilesSampleRate;
 
       final hub = MockHub();
