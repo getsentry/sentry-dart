@@ -47,14 +47,22 @@ class WebSentryJsBinding implements SentryJsBinding {
     if (_client != null) {
       _client?.sendEnvelope(envelope.jsify());
     }
-    _startSession({'ignoreDurations': true}.jsify());
-    _captureSession();
   }
 
   @visibleForTesting
   @override
   getJsOptions() {
     return _client?.getOptions().dartify();
+  }
+
+  @override
+  void captureSession() {
+    _captureSession();
+  }
+
+  @override
+  void startSession() {
+    _startSession(null);
   }
 }
 

@@ -18,4 +18,10 @@ class NoOpSentryJsBinding implements SentryJsBinding {
 
   @override
   getJsOptions() {}
+
+  @override
+  void captureSession() {}
+
+  @override
+  void startSession() {}
 }

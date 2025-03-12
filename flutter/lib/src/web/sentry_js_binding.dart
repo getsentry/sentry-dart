@@ -7,6 +7,8 @@ abstract class SentryJsBinding {
   void init(Map<String, dynamic> options);
   void close();
   void captureEnvelope(List<Object> envelope);
+  void startSession();
+  void captureSession();
 
   @visibleForTesting
   dynamic getJsOptions();
