@@ -41,13 +41,13 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
 
   @override
   SentryEvent? apply(SentryEvent event, Hint hint) {
-    final contexts = event.contexts.copyWith(
-      device: _getDevice(event.contexts.device),
-      operatingSystem: _getOperatingSystem(event.contexts.operatingSystem),
-      runtimes: _getRuntimes(event.contexts.runtimes),
-      app: _getApp(event.contexts.app),
-      culture: _getSentryCulture(event.contexts.culture),
-    );
+    final contexts = event.contexts;
+    
+    contexts.device = _getDevice(event.contexts.device);
+    contexts.operatingSystem = _getOperatingSystem(event.contexts.operatingSystem);
+    contexts.runtimes = _getRuntimes(event.contexts.runtimes);
+    contexts.app = _getApp(event.contexts.app);
+    contexts.culture = _getSentryCulture(event.contexts.culture);
 
     contexts['dart_context'] = _getDartContext();
 
