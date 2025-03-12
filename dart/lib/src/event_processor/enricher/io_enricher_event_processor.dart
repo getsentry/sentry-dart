@@ -15,7 +15,11 @@ EnricherEventProcessor enricherEventProcessor(SentryOptions options) {
 /// Uses Darts [Platform](https://api.dart.dev/stable/dart-io/Platform-class.html)
 /// class to read information.
 class IoEnricherEventProcessor implements EnricherEventProcessor {
-  IoEnricherEventProcessor(this._options);
+  IoEnricherEventProcessor(this._options) {
+    _platformMemory = _options.collectPlatformDeviceMemory
+        ? CachedPlatformMemory(_options)
+        : null;
+  }
 
   final SentryOptions _options;
   late final String _dartVersion = _extractDartVersion(Platform.version);
@@ -23,7 +27,7 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
     Platform.operatingSystem,
     Platform.operatingSystemVersion,
   );
-  late final _platformMemory = CachedPlatformMemory(_options);
+  late final CachedPlatformMemory? _platformMemory;
 
   /// Extracts the semantic version and channel from the full version string.
   ///
@@ -42,9 +46,10 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
   @override
   SentryEvent? apply(SentryEvent event, Hint hint) {
     final contexts = event.contexts;
-    
+
     contexts.device = _getDevice(event.contexts.device);
-    contexts.operatingSystem = _getOperatingSystem(event.contexts.operatingSystem);
+    contexts.operatingSystem =
+        _getOperatingSystem(event.contexts.operatingSystem);
     contexts.runtimes = _getRuntimes(event.contexts.runtimes);
     contexts.app = _getApp(event.contexts.app);
     contexts.culture = _getSentryCulture(event.contexts.culture);
@@ -119,8 +124,9 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
           (_options.sendDefaultPii ? Platform.localHostname : null),
       processorCount: device?.processorCount ?? Platform.numberOfProcessors,
       memorySize:
-          device?.memorySize ?? _platformMemory.getTotalPhysicalMemory(),
-      freeMemory: device?.freeMemory ?? _platformMemory.getFreePhysicalMemory(),
+          device?.memorySize ?? _platformMemory?.getTotalPhysicalMemory(),
+      freeMemory:
+          device?.freeMemory ?? _platformMemory?.getFreePhysicalMemory(),
     );
   }
 
