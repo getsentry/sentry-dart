@@ -1,12 +1,18 @@
 # Changelog
 
+## Unreleased
+
+- Improve platform memory collection on windows/linux ([#2774](https://github.com/getsentry/sentry-dart/pull/2774))
+  - Fixes an issue where total/free memory on windows was not read.
+  - Memory collection is disabled per default on windows/linux, due to performance impact.
+  - Can be enabled `SentryOptions.collectPlatformDeviceMemory`
+  - If enabled, free system memory on windows/linux is now cached for 1 minute.
+
 ## 8.14.0
 
 ### Fixes
 
-- Cache platform memory on windows/linux ([#2774](https://github.com/getsentry/sentry-dart/pull/2774))
-  - Fixes an issue where total/free memory on windows was not read.
-  - Free memory on windows/linux is now cached for 1 minute due to performance issues in tranactions.
+
 This release fixes an issue where Cold starts can be incorrectly reported as Warm starts on Android.
 
 ### Behavioral changes
