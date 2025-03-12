@@ -1,4 +1,5 @@
 import 'dart:async';
+// ignore: deprecated_member_use
 import 'dart:html' as html;
 
 import 'connectivity_provider.dart';

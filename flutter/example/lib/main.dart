@@ -660,6 +660,7 @@ class MainScaffold extends StatelessWidget {
       bindToScope: true,
     );
 
+    // ignore: deprecated_member_use
     final executor = SentryQueryExecutor(
       () async => inMemoryExecutor(),
       databaseName: 'sentry_in_memory_db',

@@ -11,6 +11,7 @@ import 'package:sentry_dio/src/sentry_transformer.dart';
 import 'package:sentry_dio/src/version.dart';
 import 'package:test/test.dart';
 
+import 'failed_request_interceptor_test.dart';
 import 'mocks/mock_hub.dart';
 
 void main() {
@@ -90,6 +91,18 @@ void main() {
         dio.interceptors.whereType<FailedRequestInterceptor>().length,
         1,
       );
+
+      final interceptor =
+          dio.interceptors.whereType<FailedRequestInterceptor>().first;
+
+      final requestOptions = RequestOptions(path: 'https://example.com');
+      final error = DioError(
+        requestOptions: requestOptions,
+        response: Response(statusCode: 500, requestOptions: requestOptions),
+      );
+      interceptor.onError(error, fixture.errorInterceptorHandler);
+
+      expect(fixture.hub.captureExceptionCalls.length, 1);
     });
 
     test('addSentry does not add $FailedRequestInterceptor if override false',
@@ -184,6 +197,8 @@ void main() {
 
 class Fixture {
   final MockHub hub = MockHub();
+  final errorInterceptorHandler = MockedErrorInterceptorHandler();
+
   Dio getSut() {
     return Dio();
   }

@@ -179,6 +179,8 @@ class SentryFlutterOptions extends SentryOptions {
   /// first transaction. Set to false when configuring option to disable or if
   /// you want to set the end time of app startup manually using
   /// [SentryFlutter.setAppStartEnd].
+  @Deprecated(
+      'Will be removed in v9. In order to disable app starts disable it via option.removeIntegration(...) instead')
   bool autoAppStart = true;
 
   /// Automatically attaches a screenshot when capturing an error or exception.
@@ -235,6 +237,9 @@ class SentryFlutterOptions extends SentryOptions {
 
   @meta.internal
   late RendererWrapper rendererWrapper = RendererWrapper();
+
+  @meta.internal
+  bool isMultiViewApp = false;
 
   @meta.internal
   late MethodChannel methodChannel = const MethodChannel('sentry_flutter');

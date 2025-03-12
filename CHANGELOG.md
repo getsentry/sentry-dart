@@ -12,12 +12,92 @@ This release fixes an issue where Cold starts can be incorrectly reported as War
 
 ## 8.13.2
 
+## Unreleased
+
+### Enhancements
+
+- Add Flutter runtime information ([#2742](https://github.com/getsentry/sentry-dart/pull/2742))
+  - This works if the version of Flutter you're using includes [this code](https://github.com/flutter/flutter/pull/163761).
+
+### Fixes
+
+- Pass missing `captureFailedRequests` param to `FailedRequestInterceptor` ([#2744](https://github.com/getsentry/sentry-dart/pull/2744))
+- Bind root screen transaction to scope ([#2756](https://github.com/getsentry/sentry-dart/pull/2756))
+
+### Dependencies
+
+- Bump Cocoa SDK from v8.45.0 to v8.46.0 ([#2772](https://github.com/getsentry/sentry-dart/pull/2772))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8460)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.45.0...8.46.0)
+
+## 8.14.0-beta.1
+
+### Behavioral changes
+
+- ⚠️ Auto IP assignment for `SentryUser` is now guarded by `sendDefaultPii` ([#2726](https://github.com/getsentry/sentry-dart/pull/2726))
+  - If you rely on Sentry automatically processing the IP address of the user, set `options.sendDefaultPii = true` or manually set the IP address of the `SentryUser` to `{{auto}}`
+- Adding the device name to Contexts is now guarded by `sendDefaultPii` ([#2741](https://github.com/getsentry/sentry-dart/pull/2741))
+  - Set `options.sendDefaultPii = true` if you want to have the device name reported
+
+### Features
+
+- Disable `ScreenshotIntegration`, `WidgetsBindingIntegration` and `SentryWidget` in multi-view apps #2366 ([#2366](https://github.com/getsentry/sentry-dart/pull/2366))
+
+### Enhancements
+
+- Use `loadDebugImagesForAddresses` API for Android ([#2706](https://github.com/getsentry/sentry-dart/pull/2706))
+  - This reduces the envelope size and data transferred across method channels
+  - If debug images received by `loadDebugImagesForAddresses` are empty, the SDK loads all debug images as fallback
+
+### Fixes
+
+- Reference to `SentryWidgetsFlutterBinding` in warning message in `FramesTrackingIntegration` ([#2704](https://github.com/getsentry/sentry-dart/pull/2704))
+
+### Deprecations
+
+- Deprecate Drift `SentryQueryExecutor` ([#2715](https://github.com/getsentry/sentry-dart/pull/2715))
+  - This will be replace by `SentryQueryInterceptor` in the next major v9
+```dart
+// Example usage in Sentry Flutter v9
+final executor = NativeDatabase.memory().interceptWith(
+  SentryQueryInterceptor(databaseName: 'your_db_name'),
+);
+
+final db = AppDatabase(executor);
+```
+- Deprecate `autoAppStart` and `setAppStartEnd` ([#2681](https://github.com/getsentry/sentry-dart/pull/2681))
+
+### Other
+
+- Remove macOS display refresh rate support ([#2628](https://github.com/getsentry/sentry-dart/pull/2628))
+  - Can't reliably detect on multi-monitor systems and on older macOS versions.
+  - Not very meaningful, as other applications may be running in parallel and affecting it.
+
+### Dependencies
+
+- Bump Native SDK from v0.7.19 to v0.7.20 ([#2652](https://github.com/getsentry/sentry-dart/pull/2652))
+  - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#0720)
+  - [diff](https://github.com/getsentry/sentry-native/compare/0.7.19...0.7.20)
+- Bump Cocoa SDK from v8.44.0 to v8.45.0 ([#2718](https://github.com/getsentry/sentry-dart/pull/2718))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8450)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.44.0...8.45.0)
+
+## 8.13.2
+
+> [!WARNING]
+> This release contains an issue where Cold starts can be incorrectly reported as Warm starts on Android. We recommend staying on version 8.12.0 if you use this feature on Android.
+> See issue [#2769](https://github.com/getsentry/sentry-dart/issues/2769) for more details.
+
 ### Fixes
 
 - `build_web_compiler` error ([#2736](https://github.com/getsentry/sentry-dart/pull/2736))
   - Use `if (dart.library.html)` instead of `if (dart.html)` for imports
 
 ## 8.13.1
+
+> [!WARNING]
+> This release contains an issue where Cold starts can be incorrectly reported as Warm starts on Android. We recommend staying on version 8.12.0 if you use this feature on Android.
+> See issue [#2769](https://github.com/getsentry/sentry-dart/issues/2769) for more details.
 
 ### Fixes
 
@@ -30,6 +110,10 @@ This release fixes an issue where Cold starts can be incorrectly reported as War
   - [diff](https://github.com/getsentry/sentry-java/compare/7.20.1...7.22.0)
 
 ## 8.13.0
+
+> [!WARNING]
+> This release contains an issue where Cold starts can be incorrectly reported as Warm starts on Android. We recommend staying on version 8.12.0 if you use this feature on Android.
+> See issue [#2769](https://github.com/getsentry/sentry-dart/issues/2769) for more details.
 
 ### Breaking changes
 

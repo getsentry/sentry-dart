@@ -4,6 +4,7 @@ import 'package:meta/meta.dart';
 
 import '../../../sentry.dart';
 import 'enricher_event_processor.dart';
+import 'flutter_runtime.dart';
 import 'io_platform_memory.dart';
 
 EnricherEventProcessor enricherEventProcessor(SentryOptions options) {
@@ -63,12 +64,15 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
       version: _dartVersion,
       rawDescription: Platform.version,
     );
+    final flRuntime = flutterRuntime;
+
     if (runtimes == null) {
-      return [dartRuntime];
+      return [dartRuntime, if (flRuntime != null) flRuntime];
     }
     return [
       ...runtimes,
       dartRuntime,
+      if (flRuntime != null) flRuntime,
     ];
   }
 
@@ -112,7 +116,8 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
   SentryDevice _getDevice(SentryDevice? device) {
     final platformMemory = PlatformMemory(_options);
     return (device ?? SentryDevice()).copyWith(
-      name: device?.name ?? Platform.localHostname,
+      name: device?.name ??
+          (_options.sendDefaultPii ? Platform.localHostname : null),
       processorCount: device?.processorCount ?? Platform.numberOfProcessors,
       memorySize: device?.memorySize ?? platformMemory.getTotalPhysicalMemory(),
       freeMemory: device?.freeMemory ?? platformMemory.getFreePhysicalMemory(),

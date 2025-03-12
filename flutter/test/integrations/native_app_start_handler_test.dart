@@ -23,7 +23,12 @@ void main() {
       startTimestamp: anyNamed('startTimestamp'),
     )).thenReturn(fixture.tracer);
 
-    when(fixture.hub.configureScope(captureAny)).thenAnswer((_) {});
+    when(fixture.hub.configureScope(captureAny)).thenAnswer((invocation) {
+      final callback = invocation.positionalArguments[0] as ScopeCallback;
+      callback(fixture.scope);
+      return null;
+    });
+
     when(fixture.hub.captureTransaction(
       any,
       traceContext: anyNamed('traceContext'),
@@ -124,6 +129,25 @@ void main() {
         captureAny,
         traceContext: captureAnyNamed('traceContext'),
       ));
+    });
+
+    test('added transaction is bound to scope', () async {
+      await fixture.call(
+        appStartEnd: DateTime.fromMillisecondsSinceEpoch(10),
+      );
+      expect(fixture.scope.setSpans.length, 2);
+      expect(fixture.scope.setSpans[0], fixture.tracer);
+      expect(fixture.scope.setSpans[1], isNull);
+    });
+
+    test('added transaction is not bound to scope if already set', () async {
+      final alreadySet = MockSentryTracer();
+      fixture.scope.span = alreadySet;
+      await fixture.call(
+        appStartEnd: DateTime.fromMillisecondsSinceEpoch(10),
+      );
+      expect(fixture.scope.setSpans.length, 1);
+      expect(fixture.scope.setSpans[0], alreadySet);
     });
   });
 
@@ -306,6 +330,7 @@ class Fixture {
   final options = SentryFlutterOptions(dsn: fakeDsn);
   final nativeBinding = MockSentryNativeBinding();
   final hub = MockHub();
+  final scope = MockScope();
 
   late final tracer = SentryTracer(
     SentryTransactionContext(
@@ -341,5 +366,16 @@ class Fixture {
       traceContext: captureAnyNamed('traceContext'),
     )).captured;
     return args[0] as SentryTransaction;
+  }
+}
+
+class MockScope extends Mock implements Scope {
+  final setSpans = <ISentrySpan?>[];
+
+  @override
+  ISentrySpan? get span => setSpans.lastOrNull;
+  @override
+  set span(ISentrySpan? value) {
+    setSpans.add(value);
   }
 }
