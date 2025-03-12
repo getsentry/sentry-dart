@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+This release fixes an issue where Cold starts can be incorrectly reported as Warm starts on Android.
+
 ### Behavioral changes
 
 - ⚠️ Auto IP assignment for `SentryUser` is now guarded by `sendDefaultPii` ([#2726](https://github.com/getsentry/sentry-dart/pull/2726))
