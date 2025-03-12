@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 8.14.0
 
 This release fixes an issue where Cold starts can be incorrectly reported as Warm starts on Android.
 
