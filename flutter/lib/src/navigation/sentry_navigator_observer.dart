@@ -141,6 +141,13 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       return;
     }
 
+    /** TODO
+     *  if (from !== undefined && from !== to) {
+          startSession({ ignoreDuration: true });
+          captureSession();
+        }
+     */
+
     _setCurrentRouteName(route);
     _setCurrentRouteNameAsTransaction(route);
 
