@@ -1,17 +1,5 @@
 # Changelog
 
-## 8.13.3
-
-This release fixes an issue where Cold starts can be incorrectly reported as Warm starts on Android.
-
-### Dependencies
-
-- Bump Android SDK from v7.22.0 to v7.22.1 ([#2785](https://github.com/getsentry/sentry-dart/pull/2785))
-  - [changelog](https://github.com/getsentry/sentry-java/blob/7.x.x/CHANGELOG.md#7221)
-  - [diff](https://github.com/getsentry/sentry-java/compare/7.22.0...7.22.1)
-
-## 8.13.2
-
 ## Unreleased
 
 ### Enhancements
@@ -81,6 +69,16 @@ final db = AppDatabase(executor);
 - Bump Cocoa SDK from v8.44.0 to v8.45.0 ([#2718](https://github.com/getsentry/sentry-dart/pull/2718))
   - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8450)
   - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.44.0...8.45.0)
+
+## 8.13.3
+
+This release fixes an issue where Cold starts can be incorrectly reported as Warm starts on Android.
+
+### Dependencies
+
+- Bump Android SDK from v7.22.0 to v7.22.1 ([#2785](https://github.com/getsentry/sentry-dart/pull/2785))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/7.x.x/CHANGELOG.md#7221)
+  - [diff](https://github.com/getsentry/sentry-java/compare/7.22.0...7.22.1)
 
 ## 8.13.2
 
