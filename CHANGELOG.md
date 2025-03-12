@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### Dependencies
+
+- Bump Android SDK from v7.22.1 to v8.3.0 ([#2757](https://github.com/getsentry/sentry-dart/pull/2757))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#830)
+  - [diff](https://github.com/getsentry/sentry-java/compare/7.22.1...8.3.0)
+
 ## 8.14.0
 
 This release fixes an issue where Cold starts can be incorrectly reported as Warm starts on Android.
