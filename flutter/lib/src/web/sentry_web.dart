@@ -28,7 +28,7 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
         'dsn': _options.dsn,
         'debug': _options.debug,
         'environment': _options.environment,
-        'release': _options.release,
+        'release': '_options.release', // TODO: release needs to be fixed
         'dist': _options.dist,
         'sampleRate': _options.sampleRate ?? 1,
         'tracesSampleRate': 0,

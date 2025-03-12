@@ -47,6 +47,8 @@ class WebSentryJsBinding implements SentryJsBinding {
     if (_client != null) {
       _client?.sendEnvelope(envelope.jsify());
     }
+    _startSession({'ignoreDurations': true}.jsify());
+    _captureSession();
   }
 
   @visibleForTesting
@@ -73,6 +75,12 @@ extension _SentryJsClientExtension on SentryJsClient {
   external JSObject? getOptions();
 }
 
+@JS('Sentry.startSession')
+external void _startSession(JSAny? context);
+
+@JS('Sentry.captureSession')
+external void _captureSession();
+
 @JS('Sentry.globalHandlersIntegration')
 external JSObject _globalHandlersIntegration();
 
@@ -81,3 +89,13 @@ external JSObject _dedupeIntegration();
 
 @JS('globalThis')
 external JSObject get _globalThis;
+
+/**
+ * Sessions
+ *
+ * Terminal State: When a session is marked as "crashed", it enters a terminal state and according to Sentry's session protocol,
+ * "When a session is moved away from ok it must not be updated anymore." This means the session won't receive further updates.
+ * Session Continuation: The crashed session remains on the isolation scope until explicitly replaced.
+ * New Session Creation: In browser environments, a new session is automatically created on:
+ * Page reload (which naturally happens after many crashes) or Navigation to a new route
+ */
