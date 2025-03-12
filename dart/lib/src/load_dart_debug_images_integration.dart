@@ -91,7 +91,7 @@ class LoadImageIntegrationEventProcessor implements EventProcessor {
     // It doesn't need to exist and is not used for symbolication.
     late final String codeFile;
 
-    final platform = _options.platformChecker.platform;
+    final platform = _options.platform;
 
     if (platform.isAndroid || platform.isWindows) {
       type = 'elf';

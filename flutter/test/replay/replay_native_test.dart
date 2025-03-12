@@ -8,6 +8,7 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
+import 'package:sentry/src/platform/mock_platform.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/native/factory.dart';
 import 'android_replay_recorder_web.dart' // see https://github.com/flutter/flutter/issues/160675
@@ -41,10 +42,12 @@ void main() {
       setUp(() {
         hub = MockHub();
         native = NativeChannelFixture();
-        options =
-            defaultTestOptions(MockPlatformChecker(mockPlatform: mockPlatform))
-              ..methodChannel = native.channel
-              ..experimental.replay.quality = SentryReplayQuality.low;
+
+        options = defaultTestOptions()
+          ..platform = mockPlatform
+          ..methodChannel = native.channel
+          ..replay.quality = SentryReplayQuality.low;
+
         sut = createBinding(options);
 
         if (mockPlatform.isIOS) {
@@ -71,8 +74,8 @@ void main() {
 
       group('replay recorder', () {
         setUp(() async {
-          options.experimental.replay.sessionSampleRate = 0.1;
-          options.experimental.replay.onErrorSampleRate = 0.1;
+          options.replay.sessionSampleRate = 0.1;
+          options.replay.onErrorSampleRate = 0.1;
           await sut.init(hub);
         });
 

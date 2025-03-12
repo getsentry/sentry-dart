@@ -18,7 +18,7 @@ import 'user_interaction/sentry_user_interaction_widget.dart';
 /// Note that some of these options require native Sentry integration, which is
 /// not available on all platforms.
 class SentryFlutterOptions extends SentryOptions {
-  SentryFlutterOptions({super.dsn, super.checker}) {
+  SentryFlutterOptions({super.dsn, super.platform, super.checker}) {
     enableBreadcrumbTrackingForCurrentPlatform();
   }
 
@@ -284,6 +284,13 @@ class SentryFlutterOptions extends SentryOptions {
   /// you must use `SentryWidgetsFlutterBinding.ensureInitialized()` instead.
   bool enableFramesTracking = true;
 
+  /// Replay recording configuration.
+  final replay = SentryReplayOptions();
+
+  /// Privacy configuration for masking sensitive data in screenshots and Session Replay.
+  /// Screen content masking is enabled by default.
+  final privacy = SentryPrivacyOptions();
+
   /// By using this, you are disabling native [Breadcrumb] tracking and instead
   /// you are just tracking [Breadcrumb]s which result from events available
   /// in the current Flutter environment.
@@ -324,7 +331,7 @@ class SentryFlutterOptions extends SentryOptions {
   /// available in the Flutter environment. This way you get more detailed
   /// information where available.
   void enableBreadcrumbTrackingForCurrentPlatform() {
-    if (platformChecker.hasNativeIntegration) {
+    if (platform.supportsNativeIntegration) {
       useNativeBreadcrumbTracking();
     } else {
       useFlutterBreadcrumbTracking();
@@ -368,46 +375,6 @@ class SentryFlutterOptions extends SentryOptions {
   @override
   // ignore: invalid_use_of_internal_member
   set automatedTestMode(bool value) => super.automatedTestMode = value;
-
-  /// Configuration of experimental features that may change or be removed
-  /// without prior notice. Additionally, these features may not be ready for
-  /// production use yet.
-  @meta.experimental
-  final experimental = _SentryFlutterExperimentalOptions();
-}
-
-class _SentryFlutterExperimentalOptions {
-  /// Replay recording configuration.
-  final replay = SentryReplayOptions();
-
-  /// Privacy configuration for masking sensitive data in screenshots and Session Replay.
-  /// Screen content masking is:
-  /// - enabled by default for SessionReplay
-  /// - disabled by default for screenshots captured with events.
-  /// In order to mask screenshots captured with events, access or change
-  /// this property in your application: `options.experimental.privacy`.
-  /// Doing so will indicate that you want to configure privacy settings and
-  /// will enable screenshot masking alongside the default replay masking.
-  /// Note: this will change in a future SDK major release to enable screenshot
-  /// masking by default for all captures.
-  SentryPrivacyOptions get privacy {
-    // If the user explicitly sets the privacy setting, we use that.
-    // Otherwise, we use the default settings, which is no masking for screenshots
-    // and full masking for session replay.
-    // This property must only by accessed by user code otherwise it defeats the purpose.
-    _privacy ??= SentryPrivacyOptions();
-    return _privacy!;
-  }
-
-  /// TODO: remove when default masking value are synced with SS & SR in the next major release
-  SentryPrivacyOptions? _privacy;
-
-  @meta.internal
-  SentryPrivacyOptions? get privacyForScreenshots => _privacy;
-
-  @meta.internal
-  SentryPrivacyOptions get privacyForReplay =>
-      _privacy ?? SentryPrivacyOptions();
 }
 
 /// A callback which can be used to suppress capturing of screenshots.

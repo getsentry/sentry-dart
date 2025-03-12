@@ -98,7 +98,7 @@ void main() {
     final options = defaultTestOptions();
 
     expect(options.sentryClientName,
-        '${sdkName(options.platformChecker.isWeb)}/$sdkVersion');
+        '${sdkName(options.platform.isWeb)}/$sdkVersion');
   });
 
   test('SentryOptions has default idleTimeout', () {

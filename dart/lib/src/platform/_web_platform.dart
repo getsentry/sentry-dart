@@ -1,40 +1,32 @@
 import 'package:platform/platform.dart';
 import 'package:web/web.dart' as web;
 
-const Platform instance = WebPlatform();
+import 'platform.dart';
 
 /// [Platform] implementation that delegates to `dart:web`.
-class WebPlatform extends Platform {
-  /// Creates a new [Platform].
-  const WebPlatform();
+class PlatformBase {
+  const PlatformBase();
 
-  @override
-  String get operatingSystem => _browserPlatform();
+  bool get isWeb => true;
 
-  @override
-  String get operatingSystemVersion => 'unknown';
-
-  @override
-  String get localHostname => web.window.location.hostname;
-
-  String _browserPlatform() {
+  OperatingSystem get operatingSystem {
     final navigatorPlatform = web.window.navigator.platform.toLowerCase();
     if (navigatorPlatform.startsWith('mac')) {
-      return 'macos';
+      return OperatingSystem.macos;
     }
     if (navigatorPlatform.startsWith('win')) {
-      return 'windows';
+      return OperatingSystem.windows;
     }
     if (navigatorPlatform.contains('iphone') ||
         navigatorPlatform.contains('ipad') ||
         navigatorPlatform.contains('ipod')) {
-      return 'ios';
+      return OperatingSystem.ios;
     }
     if (navigatorPlatform.contains('android')) {
-      return 'android';
+      return OperatingSystem.android;
     }
     if (navigatorPlatform.contains('fuchsia')) {
-      return 'fuchsia';
+      return OperatingSystem.fuchsia;
     }
 
     // Since some phones can report a window.navigator.platform as Linux, fall
@@ -43,56 +35,12 @@ class WebPlatform extends Platform {
     // pointing device, then we'll assume desktop linux, and otherwise we'll
     // assume Android.
     if (web.window.matchMedia('only screen and (pointer: fine)').matches) {
-      return 'linux';
+      return OperatingSystem.linux;
     }
-    return 'android';
+    return OperatingSystem.android;
   }
 
-  @override
-  // TODO: implement environment
-  Map<String, String> get environment => throw UnimplementedError();
+  String? get operatingSystemVersion => null;
 
-  @override
-  // TODO: implement executable
-  String get executable => throw UnimplementedError();
-
-  @override
-  // TODO: implement executableArguments
-  List<String> get executableArguments => throw UnimplementedError();
-
-  @override
-  // TODO: implement localeName
-  String get localeName => throw UnimplementedError();
-
-  @override
-  // TODO: implement numberOfProcessors
-  int get numberOfProcessors => throw UnimplementedError();
-
-  @override
-  // TODO: implement packageConfig
-  String? get packageConfig => throw UnimplementedError();
-
-  @override
-  // TODO: implement pathSeparator
-  String get pathSeparator => throw UnimplementedError();
-
-  @override
-  // TODO: implement resolvedExecutable
-  String get resolvedExecutable => throw UnimplementedError();
-
-  @override
-  // TODO: implement script
-  Uri get script => throw UnimplementedError();
-
-  @override
-  // TODO: implement stdinSupportsAnsi
-  bool get stdinSupportsAnsi => throw UnimplementedError();
-
-  @override
-  // TODO: implement stdoutSupportsAnsi
-  bool get stdoutSupportsAnsi => throw UnimplementedError();
-
-  @override
-  // TODO: implement version
-  String get version => throw UnimplementedError();
+  String get localHostname => web.window.location.hostname;
 }

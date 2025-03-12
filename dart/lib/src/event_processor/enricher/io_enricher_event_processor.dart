@@ -4,6 +4,7 @@ import 'package:meta/meta.dart';
 
 import '../../../sentry.dart';
 import 'enricher_event_processor.dart';
+import 'flutter_runtime.dart';
 import 'io_platform_memory.dart';
 
 EnricherEventProcessor enricherEventProcessor(SentryOptions options) {
@@ -63,12 +64,15 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
       version: _dartVersion,
       rawDescription: Platform.version,
     );
+    final flRuntime = flutterRuntime;
+
     if (runtimes == null) {
-      return [dartRuntime];
+      return [dartRuntime, if (flRuntime != null) flRuntime];
     }
     return [
       ...runtimes,
       dartRuntime,
+      if (flRuntime != null) flRuntime,
     ];
   }
 
@@ -78,25 +82,11 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
 
     String? executable;
     if (_options.sendDefaultPii) {
-      try {
-        // This throws sometimes for some reason
-        // https://github.com/flutter/flutter/issues/83921
-        executable = Platform.executable;
-      } catch (exception, stackTrace) {
-        _options.logger(
-          SentryLevel.error,
-          'Platform.executable couldn\'t be retrieved.',
-          exception: exception,
-          stackTrace: stackTrace,
-        );
-        if (_options.automatedTestMode) {
-          rethrow;
-        }
-      }
+      executable = Platform.executable;
     }
 
     return <String, dynamic>{
-      'compile_mode': _options.platformChecker.compileMode,
+      'compile_mode': _options.runtimeChecker.compileMode,
       if (packageConfig != null) 'package_config': packageConfig,
       // The following information could potentially contain PII
       if (_options.sendDefaultPii) ...{
@@ -112,7 +102,8 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
   SentryDevice _getDevice(SentryDevice? device) {
     final platformMemory = PlatformMemory(_options);
     return (device ?? SentryDevice()).copyWith(
-      name: device?.name ?? Platform.localHostname,
+      name: device?.name ??
+          (_options.sendDefaultPii ? Platform.localHostname : null),
       processorCount: device?.processorCount ?? Platform.numberOfProcessors,
       memorySize: device?.memorySize ?? platformMemory.getTotalPhysicalMemory(),
       freeMemory: device?.freeMemory ?? platformMemory.getFreePhysicalMemory(),

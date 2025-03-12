@@ -5,10 +5,10 @@ import 'dart:io';
 
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/event_processor/enricher/io_enricher_event_processor.dart';
+import 'package:sentry/src/platform/mock_platform.dart';
 import 'package:test/test.dart';
 
 import '../../mocks.dart';
-import '../../mocks/mock_platform_checker.dart';
 import '../../test_utils.dart';
 
 void main() {
@@ -57,8 +57,15 @@ void main() {
     }
   });
 
-  test('device has name', () {
+  test('device has no name if sendDefaultPii = false', () {
     final enricher = fixture.getSut();
+    final event = enricher.apply(SentryEvent(), Hint());
+
+    expect(event?.contexts.device?.name, isNull);
+  });
+
+  test('device has name if sendDefaultPii = true', () {
+    final enricher = fixture.getSut(includePii: true);
     final event = enricher.apply(SentryEvent(), Hint());
 
     expect(event?.contexts.device?.name, isNotNull);
@@ -248,8 +255,9 @@ class Fixture {
     bool hasNativeIntegration = false,
     bool includePii = false,
   }) {
-    final options = defaultTestOptions(
-        MockPlatformChecker(hasNativeIntegration: hasNativeIntegration))
+    final options = defaultTestOptions()
+      ..platform =
+          hasNativeIntegration ? MockPlatform.iOS() : MockPlatform.fuchsia()
       ..sendDefaultPii = includePii;
 
     return IoEnricherEventProcessor(options);

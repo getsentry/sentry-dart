@@ -34,6 +34,9 @@ import 'version.dart';
 /// to true.
 const _defaultIpAddress = '{{auto}}';
 
+@visibleForTesting
+String get defaultIpAddress => _defaultIpAddress;
+
 /// Logs crash reports and events to the Sentry.io service.
 class SentryClient {
   final SentryOptions _options;
@@ -64,9 +67,9 @@ class SentryClient {
     );
     // TODO: Use spotlight integration directly through JS SDK, then we can remove isWeb check
     final enableFlutterSpotlight = (options.spotlight.enabled &&
-        (options.platformChecker.isWeb ||
-            options.platformChecker.platform.isLinux ||
-            options.platformChecker.platform.isWindows));
+        (options.platform.isWeb ||
+            options.platform.isLinux ||
+            options.platform.isWindows));
     // Spotlight in the Flutter layer is only enabled for Web, Linux and Windows
     // Other platforms use spotlight through their native SDKs
     if (enableFlutterSpotlight) {
@@ -211,7 +214,7 @@ class SentryClient {
       environment: event.environment ?? _options.environment,
       release: event.release ?? _options.release,
       sdk: event.sdk ?? _options.sdk,
-      platform: event.platform ?? sdkPlatform(_options.platformChecker.isWeb),
+      platform: event.platform ?? sdkPlatform(_options.platform.isWeb),
     );
 
     if (event is SentryTransaction) {
@@ -246,7 +249,7 @@ class SentryClient {
 
         SentryThread? sentryThread;
 
-        if (!_options.platformChecker.isWeb &&
+        if (!_options.platform.isWeb &&
             isolateName != null &&
             _options.attachThreads) {
           sentryException = sentryException.copyWith(threadId: isolateId);
@@ -303,12 +306,18 @@ class SentryClient {
   }
 
   SentryEvent _createUserOrSetDefaultIpAddress(SentryEvent event) {
-    var user = event.user;
-    if (user == null) {
-      return event.copyWith(user: SentryUser(ipAddress: _defaultIpAddress));
-    } else if (event.user?.ipAddress == null) {
-      return event.copyWith(user: user.copyWith(ipAddress: _defaultIpAddress));
+    final user = event.user;
+    final effectiveIpAddress =
+        user?.ipAddress ?? (_options.sendDefaultPii ? _defaultIpAddress : null);
+
+    if (effectiveIpAddress != null) {
+      final updatedUser = user == null
+          ? SentryUser(ipAddress: effectiveIpAddress)
+          : user.copyWith(ipAddress: effectiveIpAddress);
+
+      return event.copyWith(user: updatedUser);
     }
+
     return event;
   }
 

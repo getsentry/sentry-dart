@@ -44,7 +44,7 @@ class _LoadImageListIntegrationEventProcessor implements EventProcessor {
 
       // On windows, we need to add the ELF debug image of the AOT code.
       // See https://github.com/flutter/flutter/issues/154840
-      if (_options.platformChecker.platform.isWindows) {
+      if (_options.platform.isWindows) {
         final debugImage = _dartProcessor.getAppDebugImage(stackTrace);
         if (debugImage != null) {
           images ??= List.empty();

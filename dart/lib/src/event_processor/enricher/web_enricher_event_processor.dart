@@ -2,6 +2,7 @@ import 'package:web/web.dart' as web show window, Window, Navigator;
 
 import '../../../sentry.dart';
 import 'enricher_event_processor.dart';
+import 'flutter_runtime.dart';
 
 EnricherEventProcessor enricherEventProcessor(SentryOptions options) {
   return WebEnricherEventProcessor(
@@ -27,6 +28,7 @@ class WebEnricherEventProcessor implements EnricherEventProcessor {
     final contexts = event.contexts.copyWith(
       device: _getDevice(event.contexts.device),
       culture: _getSentryCulture(event.contexts.culture),
+      runtimes: _getRuntimes(event.contexts.runtimes),
     );
 
     contexts['dart_context'] = _getDartContext();
@@ -89,7 +91,7 @@ class WebEnricherEventProcessor implements EnricherEventProcessor {
 
   Map<String, dynamic> _getDartContext() {
     return <String, dynamic>{
-      'compile_mode': _options.platformChecker.compileMode,
+      'compile_mode': _options.runtimeChecker.compileMode,
     };
   }
 
@@ -97,6 +99,23 @@ class WebEnricherEventProcessor implements EnricherEventProcessor {
     return (culture ?? SentryCulture()).copyWith(
       timezone: culture?.timezone ?? DateTime.now().timeZoneName,
     );
+  }
+
+  List<SentryRuntime> _getRuntimes(List<SentryRuntime>? runtimes) {
+    final flRuntime = flutterRuntime;
+    final dartFlRuntime = dartFlutterRuntime;
+
+    if (runtimes == null) {
+      return [
+        if (flRuntime != null) flRuntime,
+        if (dartFlRuntime != null) dartFlRuntime,
+      ];
+    }
+    return [
+      ...runtimes,
+      if (flRuntime != null) flRuntime,
+      if (dartFlRuntime != null) dartFlRuntime,
+    ];
   }
 }
 
