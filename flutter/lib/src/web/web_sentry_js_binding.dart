@@ -56,13 +56,14 @@ class WebSentryJsBinding implements SentryJsBinding {
   }
 
   @override
-  void captureSession() {
-    _captureSession();
+  void startSession() {
+    print('starting session');
+    _startSession({'ignoreDuration': true}.jsify());
   }
 
   @override
-  void startSession() {
-    _startSession(null);
+  void captureSession() {
+    _captureSession();
   }
 }
 

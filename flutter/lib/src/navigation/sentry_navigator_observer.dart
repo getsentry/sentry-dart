@@ -141,13 +141,6 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       return;
     }
 
-    /** TODO
-     *  if (from !== undefined && from !== to) {
-          startSession({ ignoreDuration: true });
-          captureSession();
-        }
-     */
-
     _setCurrentRouteName(route);
     _setCurrentRouteNameAsTransaction(route);
 
@@ -156,6 +149,15 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       from: previousRoute?.settings,
       to: route.settings,
     );
+
+    if (previousRoute != null) {
+      final from = _getRouteName(previousRoute);
+      final to = _getRouteName(route);
+      if (from != null && to != null && from != to) {
+        _native?.startSession();
+        _native?.captureSession();
+      }
+    }
 
     // Clearing the display tracker here is safe since didPush happens before the Widget is built
     _timeToDisplayTracker?.clear();
@@ -201,6 +203,15 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       from: route.settings,
       to: previousRoute?.settings,
     );
+
+    if (previousRoute != null) {
+      final from = _getRouteName(route);
+      final to = _getRouteName(previousRoute);
+      if (from != null && to != null && from != to) {
+        _native?.startSession();
+        _native?.captureSession();
+      }
+    }
 
     final timestamp = _hub.options.clock();
     _finishTimeToDisplayTracking(endTimestamp: timestamp, clearAfter: true);

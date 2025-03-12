@@ -67,6 +67,10 @@ abstract class SentryNativeBinding {
 
   FutureOr<void> nativeCrash();
 
+  FutureOr<void> startSession();
+
+  FutureOr<void> captureSession();
+
   bool get supportsReplay;
 
   FutureOr<void> setReplayConfig(ReplayConfig config);

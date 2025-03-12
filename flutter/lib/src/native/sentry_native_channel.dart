@@ -246,4 +246,14 @@ class SentryNativeChannel
       channel.invokeMethod('captureReplay', {
         'isCrash': isCrash,
       }).then((value) => SentryId.fromId(value as String));
+
+  @override
+  FutureOr<void> captureSession() {
+    // not supported
+  }
+
+  @override
+  FutureOr<void> startSession() {
+    // not supported
+  }
 }

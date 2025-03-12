@@ -287,6 +287,16 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
     _logNotSupported('capturing replay');
     return SentryId.empty();
   }
+
+  @override
+  FutureOr<void> captureSession() {
+    _logNotSupported('capturing session');
+  }
+
+  @override
+  FutureOr<void> startSession() {
+    _logNotSupported('capturing replay');
+  }
 }
 
 extension on binding.sentry_value_u {
