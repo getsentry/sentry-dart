@@ -1,27 +1,27 @@
 // ignore_for_file: inference_failure_on_function_invocation
 
 @TestOn('vm')
-library flutter_test;
+library;
 
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
+import 'package:sentry/src/platform/platform.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/native/factory.dart';
 import 'package:sentry_flutter/src/native/method_channel_helper.dart';
 import 'package:sentry_flutter/src/native/sentry_native_binding.dart';
-import 'package:sentry/src/platform/platform.dart' as platform;
 import 'package:sentry_flutter/src/replay/replay_config.dart';
+import 'package:sentry/src/platform/mock_platform.dart';
 import 'mocks.dart';
 import 'mocks.mocks.dart';
-import 'sentry_flutter_test.dart';
 
 void main() {
   for (var mockPlatform in [
     MockPlatform.android(),
-    MockPlatform.iOs(),
-    MockPlatform.macOs()
+    MockPlatform.iOS(),
+    MockPlatform.macOS()
   ]) {
     group('$SentryNativeBinding', () {
       late SentryNativeBinding sut;
@@ -29,9 +29,9 @@ void main() {
 
       setUp(() {
         channel = MockMethodChannel();
-        final options =
-            defaultTestOptions(getPlatformChecker(platform: mockPlatform))
-              ..methodChannel = channel;
+        final options = defaultTestOptions()
+          ..platform = mockPlatform
+          ..methodChannel = channel;
         sut = createBinding(options);
       });
 
@@ -207,7 +207,7 @@ void main() {
         if (mockPlatform.isAndroid) {
           matcher = throwsUnsupportedError;
         } else if (mockPlatform.isIOS || mockPlatform.isMacOS) {
-          if (platform.instance.isMacOS) {
+          if (Platform().isMacOS) {
             matcher = throwsA(predicate((e) =>
                 e is Exception &&
                 e.toString().contains('Failed to load Objective-C class')));

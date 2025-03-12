@@ -182,9 +182,6 @@ jobs:
         with:
           channel: ${{ matrix.sdk }}
 
-      - name: flutter upgrade
-        run: flutter upgrade
-
       - name: flutter pub get
         run: flutter pub get
 
@@ -204,10 +201,10 @@ jobs:
           # Start Xvfb with specific screen settings
           Xvfb -ac :99 -screen 0 1280x1024x16 &
           export DISPLAY=:99
-          
+
           # Start ChromeDriver
           chromedriver --port=4444 &
-          
+
           # Wait for services to start
           sleep 5
 

@@ -1,5 +1,3 @@
-// We would lose compatibility with old dart versions by adding web to pubspec.
-// ignore: depend_on_referenced_packages
 import 'package:web/web.dart' as web show window, Window, Navigator;
 
 import '../../../sentry.dart';
@@ -93,7 +91,7 @@ class WebEnricherEventProcessor implements EnricherEventProcessor {
 
   Map<String, dynamic> _getDartContext() {
     return <String, dynamic>{
-      'compile_mode': _options.platformChecker.compileMode,
+      'compile_mode': _options.runtimeChecker.compileMode,
     };
   }
 

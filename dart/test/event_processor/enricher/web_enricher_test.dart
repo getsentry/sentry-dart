@@ -1,14 +1,12 @@
 @TestOn('browser')
-library dart_test;
+library;
 
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/event_processor/enricher/html_enricher_event_processor.dart'
-    if (dart.library.html) 'package:sentry/src/event_processor/enricher/html_enricher_event_processor.dart'
-    if (dart.library.js_interop) 'package:sentry/src/event_processor/enricher/web_enricher_event_processor.dart';
+import 'package:sentry/src/event_processor/enricher/web_enricher_event_processor.dart';
+import 'package:sentry/src/platform/mock_platform.dart';
 import 'package:test/test.dart';
 
 import '../../mocks.dart';
-import '../../mocks/mock_platform_checker.dart';
 import '../../test_utils.dart';
 
 // can be tested on command line with
@@ -202,8 +200,8 @@ void main() {
 
 class Fixture {
   WebEnricherEventProcessor getSut() {
-    final options =
-        defaultTestOptions(MockPlatformChecker(hasNativeIntegration: false));
+    final options = defaultTestOptions()
+      ..platform = MockPlatform.fuchsia(); // Does not have native integration
     return enricherEventProcessor(options) as WebEnricherEventProcessor;
   }
 }

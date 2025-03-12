@@ -11,7 +11,6 @@ import 'scope.dart';
 import 'sentry.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
-import 'sentry_user_feedback.dart';
 import 'tracing.dart';
 
 /// Hub adapter to make Integrations testable
@@ -101,20 +100,16 @@ class HubAdapter implements Hub {
   Future<SentryId> captureTransaction(
     SentryTransaction transaction, {
     SentryTraceContextHeader? traceContext,
+    Hint? hint,
   }) =>
       Sentry.currentHub.captureTransaction(
         transaction,
         traceContext: traceContext,
+        hint: hint,
       );
 
   @override
   ISentrySpan? getSpan() => Sentry.currentHub.getSpan();
-
-  @override
-  // ignore: deprecated_member_use_from_same_package
-  Future<void> captureUserFeedback(SentryUserFeedback userFeedback) =>
-      // ignore: deprecated_member_use_from_same_package
-      Sentry.captureUserFeedback(userFeedback);
 
   @override
   ISentrySpan startTransactionWithContext(

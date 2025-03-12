@@ -1,15 +1,14 @@
 @TestOn('vm')
-library dart_test;
+library;
 
 import 'dart:async';
 
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/load_dart_debug_images_integration.dart';
+import 'package:sentry/src/platform/mock_platform.dart';
 import 'package:sentry/src/sentry_stack_trace_factory.dart';
 import 'package:test/test.dart';
 
-import 'mocks/mock_platform.dart';
-import 'mocks/mock_platform_checker.dart';
 import 'test_utils.dart';
 
 void main() {
@@ -26,8 +25,7 @@ void main() {
 
       setUp(() {
         fixture = Fixture();
-        fixture.options.platformChecker =
-            MockPlatformChecker(platform: platform);
+        fixture.options.platform = platform;
       });
 
       test('adds itself to sdk.integrations', () {
@@ -193,9 +191,7 @@ isolate_dso_base: 10000000
   }
 
   test('debug image is null on unsupported platforms', () async {
-    final fixture = Fixture()
-      ..options.platformChecker =
-          MockPlatformChecker(platform: MockPlatform.linux());
+    final fixture = Fixture()..options.platform = MockPlatform.linux();
     final event = fixture.newEvent(stackTrace: fixture.parse('''
 *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
 build_id: 'b680cb890f9e3c12a24b172d050dec73'

@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-
 import 'package:min_version_test/transaction/transaction_stub.dart'
-    if (dart.library.html) 'package:min_version_test/transaction/web_transaction.dart'
     if (dart.library.js_interop) 'package:min_version_test/transaction/web_transaction.dart'
     if (dart.library.io) 'package:min_version_test/transaction/file_transaction.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -12,32 +10,33 @@ const String _exampleDsn =
     'https://e85b375ffb9f43cf8bdf9787768149e0@o447951.ingest.sentry.io/5428562';
 
 Future<void> main() async {
-  await setupSentry(() => runApp(
-        DefaultAssetBundle(
-          bundle: SentryAssetBundle(),
-          child: const MyApp(),
-        ),
-      ));
+  await setupSentry(
+    () => runApp(
+      DefaultAssetBundle(bundle: SentryAssetBundle(), child: const MyApp()),
+    ),
+  );
 }
 
 Future<void> setupSentry(AppRunner appRunner) async {
-  await SentryFlutter.init((options) {
-    options.dsn = _exampleDsn;
-    options.tracesSampleRate = 1.0;
-    options.attachThreads = true;
-    options.enableWindowMetricBreadcrumbs = true;
-    options.addIntegration(LoggingIntegration());
-    options.sendDefaultPii = true;
-    options.reportSilentFlutterErrors = true;
-    options.attachScreenshot = true;
-    options.attachViewHierarchy = true;
-    // We can enable Sentry debug logging during development. This is likely
-    // going to log too much for your app, but can be useful when figuring out
-    // configuration issues, e.g. finding out why your events are not uploaded.
-    options.debug = true;
-  },
-      // Init your App.
-      appRunner: appRunner);
+  await SentryFlutter.init(
+    (options) {
+      options.dsn = _exampleDsn;
+      options.tracesSampleRate = 1.0;
+      options.attachThreads = true;
+      options.enableWindowMetricBreadcrumbs = true;
+      options.addIntegration(LoggingIntegration());
+      options.sendDefaultPii = true;
+      options.reportSilentFlutterErrors = true;
+      options.attachScreenshot = true;
+      options.attachViewHierarchy = true;
+      // We can enable Sentry debug logging during development. This is likely
+      // going to log too much for your app, but can be useful when figuring out
+      // configuration issues, e.g. finding out why your events are not uploaded.
+      options.debug = true;
+    },
+    // Init your App.
+    appRunner: appRunner,
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -61,7 +60,8 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: SentryWidget(
-          child: const MyHomePage(title: 'Flutter Demo Home Page')),
+        child: const MyHomePage(title: 'Flutter Demo Home Page'),
+      ),
     );
   }
 }
@@ -135,9 +135,7 @@ class _MyHomePageState extends State<MyHomePage> {
           // horizontal).
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
+            const Text('You have pushed the button this many times:'),
             Text(
               '$_counter',
               // ignore: deprecated_member_use

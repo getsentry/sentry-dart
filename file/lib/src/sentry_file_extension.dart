@@ -1,8 +1,6 @@
 // ignore_for_file: invalid_use_of_internal_member
 
-import 'dart:io'
-    if (dart.library.html) 'dart:html'
-    if (dart.library.js_interop) 'dart:js_interop';
+import 'dart:io' if (dart.library.js_interop) 'dart:js_interop';
 
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
@@ -29,13 +27,10 @@ extension SentryFileExtension on File {
   ///
   /// All the copy, create, delete, open, rename, read, and write operations are
   /// supported.
-  File sentryTrace({
-    @internal Hub? hub,
-  }) {
+  File sentryTrace({@internal Hub? hub}) {
     final _hub = hub ?? HubAdapter();
 
-    if (_hub.options.platformChecker.isWeb ||
-        !_hub.options.isTracingEnabled()) {
+    if (_hub.options.platform.isWeb || !_hub.options.isTracingEnabled()) {
       return this;
     }
 

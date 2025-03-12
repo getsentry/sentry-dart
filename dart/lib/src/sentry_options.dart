@@ -10,6 +10,7 @@ import 'client_reports/noop_client_report_recorder.dart';
 import 'diagnostic_logger.dart';
 import 'environment/environment_variables.dart';
 import 'noop_client.dart';
+import 'platform/platform.dart';
 import 'sentry_exception_factory.dart';
 import 'sentry_stack_trace_factory.dart';
 import 'transport/noop_transport.dart';
@@ -124,11 +125,6 @@ class SentryOptions {
   /// This does not change whether an event is captured.
   MaxRequestBodySize maxRequestBodySize = MaxRequestBodySize.never;
 
-  /// Configures up to which size response bodies should be included in events.
-  /// This does not change whether an event is captured.
-  MaxResponseBodySize maxResponseBodySize = MaxResponseBodySize.never;
-
-  // ignore: deprecated_member_use_from_same_package
   SentryLogger _logger = noOpLogger;
 
   /// Logger interface to log useful debugging information if debug is enabled
@@ -159,12 +155,10 @@ class SentryOptions {
 
   set debug(bool newValue) {
     _debug = newValue;
-    // ignore: deprecated_member_use_from_same_package
     if (_debug == true && logger == noOpLogger) {
       _logger = _debugLogger;
     }
     if (_debug == false && logger == _debugLogger) {
-      // ignore: deprecated_member_use_from_same_package
       _logger = noOpLogger;
     }
   }
@@ -278,9 +272,12 @@ class SentryOptions {
   /// `debugPrint` calls are only recorded in release builds, though.
   bool enablePrintBreadcrumbs = true;
 
-  /// If [platformChecker] is provided, it is used get the environment.
-  /// This is useful in tests. Should be an implementation of [PlatformChecker].
-  PlatformChecker platformChecker = PlatformChecker();
+  /// If [runtimeChecker] is provided, it is used get the environment.
+  /// This is useful in tests. Should be an implementation of [RuntimeChecker].
+  RuntimeChecker runtimeChecker = RuntimeChecker();
+
+  /// Info on which platform the SDK runs.
+  Platform platform = Platform();
 
   /// If [environmentVariables] is provided, it is used get the environment
   /// variables. This is useful in tests.
@@ -444,13 +441,6 @@ class SentryOptions {
     _stackTraceExtractorsByType[extractor.exceptionType] = extractor;
   }
 
-  /// Enables generation of transactions and propagation of trace data. If set
-  /// to null, tracing might be enabled if [tracesSampleRate] or [tracesSampler]
-  /// are set.
-  @Deprecated(
-      'Use either tracesSampleRate or tracesSampler instead. This will be removed in v9')
-  bool? enableTracing;
-
   /// Only for internal use. Changed SDK behaviour when set to true:
   /// - Rethrow exceptions that occur in user provided closures
   @internal
@@ -508,12 +498,15 @@ class SentryOptions {
   /// iOS only supports http proxies, while macOS also supports socks.
   SentryProxy? proxy;
 
-  SentryOptions({String? dsn, PlatformChecker? checker}) {
+  SentryOptions({String? dsn, Platform? platform, RuntimeChecker? checker}) {
     this.dsn = dsn;
-    if (checker != null) {
-      platformChecker = checker;
+    if (platform != null) {
+      this.platform = platform;
     }
-    sdk = SdkVersion(name: sdkName(platformChecker.isWeb), version: sdkVersion);
+    if (checker != null) {
+      runtimeChecker = checker;
+    }
+    sdk = SdkVersion(name: sdkName(this.platform.isWeb), version: sdkVersion);
     sdk.addPackage('pub:sentry', sdkVersion);
   }
 
@@ -560,11 +553,6 @@ class SentryOptions {
   /// Returns if tracing should be enabled. If tracing is disabled, starting transactions returns
   /// [NoOpSentrySpan].
   bool isTracingEnabled() {
-    // ignore: deprecated_member_use_from_same_package
-    final enable = enableTracing;
-    if (enable != null) {
-      return enable;
-    }
     return tracesSampleRate != null || tracesSampler != null;
   }
 
@@ -601,6 +589,15 @@ class SentryOptions {
   }
 }
 
+@visibleForTesting
+void noOpLogger(
+  SentryLevel level,
+  String message, {
+  String? logger,
+  Object? exception,
+  StackTrace? stackTrace,
+}) {}
+
 /// This function is called with an SDK specific event object and can return a modified event
 /// object or nothing to skip reporting the event
 typedef BeforeSendCallback = FutureOr<SentryEvent?> Function(
@@ -612,6 +609,7 @@ typedef BeforeSendCallback = FutureOr<SentryEvent?> Function(
 /// object or nothing to skip reporting the transaction
 typedef BeforeSendTransactionCallback = FutureOr<SentryTransaction?> Function(
   SentryTransaction transaction,
+  Hint hint,
 );
 
 /// This function is called with an SDK specific breadcrumb object before the breadcrumb is added
@@ -642,32 +640,3 @@ typedef SentryLogger = void Function(
 
 typedef TracesSamplerCallback = double? Function(
     SentrySamplingContext samplingContext);
-
-/// A NoOp logger that does nothing
-@Deprecated('Will be removed in v8. Disable [debug] instead')
-void noOpLogger(
-  SentryLevel level,
-  String message, {
-  String? logger,
-  Object? exception,
-  StackTrace? stackTrace,
-}) {}
-
-/// A Logger that prints out the level and message
-@Deprecated('Will be removed in v8. Enable [debug] instead')
-void dartLogger(
-  SentryLevel level,
-  String message, {
-  String? logger,
-  Object? exception,
-  StackTrace? stackTrace,
-}) {
-  log(
-    '[${level.name}] $message',
-    level: level.toDartLogLevel(),
-    name: logger ?? 'sentry',
-    time: getUtcDateTime(),
-    error: exception,
-    stackTrace: stackTrace,
-  );
-}
