@@ -67,9 +67,15 @@ abstract class SentryNativeBinding {
 
   FutureOr<void> nativeCrash();
 
+  bool get supportsReplay;
+
+  FutureOr<void> setReplayConfig(ReplayConfig config);
+
+  FutureOr<SentryId> captureReplay(bool isCrash);
+
   /// Starts a new session.
   ///
-  /// Note: This is primarily used on web platforms. Android and iOS handle sessions
+  /// Note: This is used on web platforms. Android and iOS handle sessions
   /// automatically through their respective native SDKs.
   /// Windows and Linux currently don't support sessions.
   ///
@@ -90,10 +96,4 @@ abstract class SentryNativeBinding {
   ///
   /// Note: This is primarily used on web platforms. No-op on other platforms.
   FutureOr<void> captureSession();
-
-  bool get supportsReplay;
-
-  FutureOr<void> setReplayConfig(ReplayConfig config);
-
-  FutureOr<SentryId> captureReplay(bool isCrash);
 }

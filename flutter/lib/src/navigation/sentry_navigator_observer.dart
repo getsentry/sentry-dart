@@ -209,11 +209,18 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     if (!_hub.options.platform.isWeb) {
       return;
     }
-    // Don't create an additional session if the location did not change
-    if ((from != null &&
-            to != null &&
-            _getRouteName(from) != _getRouteName(to)) ||
-        (from == null && _getRouteName(to)! == '/')) {
+
+    final fromName = from != null ? _getRouteName(from) : null;
+    final toName = to != null ? _getRouteName(to) : null;
+
+    // Only start new session if:
+    // 1. We have a valid route change, or
+    // 2. It's the initial navigation to root route
+    final shouldStartSession =
+        (fromName != null && toName != null && fromName != toName) ||
+            (fromName == null && toName == '/');
+
+    if (shouldStartSession) {
       await _native?.startSession(ignoreDuration: true);
       await _native?.captureSession();
     }

@@ -108,16 +108,23 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
   }
 
   @override
-  FutureOr<Map<dynamic, dynamic>?> getSession() => _binding.getSession();
+  FutureOr<Map<dynamic, dynamic>?> getSession() =>
+      tryCatchSync('getSession', () {
+        return _binding.getSession();
+      });
 
   @override
   FutureOr<void> updateSession({int? errors, String? status}) {
-    _binding.updateSession(errors: errors, status: status);
+    tryCatchSync('updateSession', () {
+      _binding.updateSession(errors: errors, status: status);
+    });
   }
 
   @override
   FutureOr<void> captureSession() {
-    _binding.captureSession();
+    tryCatchSync('captureSession', () {
+      _binding.captureSession();
+    });
   }
 
   @override

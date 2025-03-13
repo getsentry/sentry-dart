@@ -289,22 +289,25 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   }
 
   @override
+  FutureOr<void> startSession({bool ignoreDuration = false}) {
+    _logNotSupported('starting session');
+  }
+
+  @override
   FutureOr<void> captureSession() {
     _logNotSupported('capturing session');
   }
 
   @override
-  FutureOr<void> startSession({bool ignoreDuration = false}) {
-    _logNotSupported('capturing replay');
-  }
-
-  @override
   FutureOr<Map<dynamic, dynamic>?> getSession() {
+    _logNotSupported('getting session');
     return null;
   }
 
   @override
-  FutureOr<void> updateSession({int? errors, String? status}) {}
+  FutureOr<void> updateSession({int? errors, String? status}) {
+    _logNotSupported('updating session');
+  }
 }
 
 extension on binding.sentry_value_u {

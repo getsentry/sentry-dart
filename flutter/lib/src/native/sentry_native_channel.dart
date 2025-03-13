@@ -29,6 +29,9 @@ class SentryNativeChannel
   SentryNativeChannel(this.options)
       : channel = SentrySafeMethodChannel(options);
 
+  void _logNotSupported(String operation) => options.logger(
+      SentryLevel.debug, 'SentryNativeChannel: $operation is not supported');
+
   @override
   Future<void> init(Hub hub) async {
     return channel.invokeMethod('initNativeSdk', <String, dynamic>{
@@ -249,17 +252,22 @@ class SentryNativeChannel
 
   @override
   FutureOr<void> captureSession() {
-    // not supported
+    _logNotSupported('capturing session');
   }
 
   @override
-  FutureOr<void> startSession({bool ignoreDuration = false}) {}
+  FutureOr<void> startSession({bool ignoreDuration = false}) {
+    _logNotSupported('starting session');
+  }
 
   @override
   FutureOr<Map<dynamic, dynamic>?> getSession() {
+    _logNotSupported('getting session');
     return null;
   }
 
   @override
-  FutureOr<void> updateSession({int? errors, String? status}) {}
+  FutureOr<void> updateSession({int? errors, String? status}) {
+    _logNotSupported('updating session');
+  }
 }
