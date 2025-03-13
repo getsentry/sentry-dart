@@ -66,8 +66,6 @@ class WebSdkIntegration implements Integration<SentryFlutterOptions> {
       return;
     }
 
-    print('updating');
-
     bool crashed = event.level == SentryLevel.fatal;
     bool errored = false;
 
