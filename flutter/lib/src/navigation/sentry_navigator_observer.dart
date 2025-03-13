@@ -318,7 +318,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     _transaction = null;
     try {
       _hub.configureScope((scope) {
-        if (scope.span == transaction) {
+        if (transaction != null && scope.span == transaction) {
           scope.span = null;
         }
       });
