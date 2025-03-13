@@ -36,7 +36,6 @@ class WebSentryJsBinding implements SentryJsBinding {
 
     currentSession = isolationScope.getSession();
 
-    // Important: Update these fields while preserving others
     currentSession?['status'] = 'crashed'.toJS;
     currentSession?['errors'] = 1.toJS;
 
@@ -108,7 +107,7 @@ class SentryJsIsolationScope {
 
 extension _SentryJsIsolationScopeExtension on SentryJsIsolationScope {
   external JSObject? getSession();
-  external void setSession(JSAny session);
+  external void setSession(JSObject session);
 }
 
 @JS('Sentry.getClient')
