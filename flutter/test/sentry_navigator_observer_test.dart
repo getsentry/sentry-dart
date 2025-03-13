@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
+import 'package:sentry/src/platform/mock_platform.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/native/native_frames.dart';
@@ -1180,6 +1181,129 @@ void main() {
       sut.didReplace(newRoute: firstRoute, oldRoute: secondRoute);
       expect(
           SentryNavigatorObserver.currentRouteName, firstRoute.settings.name);
+    });
+  });
+
+  group('sessions', () {
+    late MockSentryNativeBinding mockNative;
+    late MockHub mockHub;
+
+    setUp(() {
+      mockHub = _MockHub();
+      mockNative = MockSentryNativeBinding();
+      SentryFlutter.native = mockNative;
+
+      when(mockNative.startSession(ignoreDuration: true)).thenAnswer((_) {});
+      when(mockNative.captureSession()).thenAnswer((_) {});
+    });
+
+    tearDown(() {
+      SentryFlutter.native = null;
+    });
+
+    SentryNavigatorObserver _getSut() {
+      return fixture.getSut(hub: mockHub, enableAutoTransactions: false);
+    }
+
+    group('on platform web', () {
+      setUp(() {
+        mockHub.options.platform = MockPlatform(isWeb: true);
+      });
+
+      test('starts new session on didPush between different routes', () async {
+        final fromRoute = route(RouteSettings(name: 'From Route'));
+        final toRoute = route(RouteSettings(name: 'To Route'));
+
+        final sut = _getSut();
+
+        sut.didPush(toRoute, fromRoute);
+        // Delay a bit since we use await with the session api and we cannot await the navigation methods
+        await Future<void>.delayed(Duration(milliseconds: 100));
+
+        verify(mockNative.startSession(ignoreDuration: true)).called(1);
+        verify(mockNative.captureSession()).called(1);
+      });
+
+      test('starts new session on didPop between different routes', () async {
+        final fromRoute = route(RouteSettings(name: 'From Route'));
+        final toRoute = route(RouteSettings(name: 'To Route'));
+
+        final sut = _getSut();
+
+        sut.didPop(toRoute, fromRoute);
+        // Delay a bit since we use await with the session api and we cannot await the navigation methods
+        await Future<void>.delayed(Duration(milliseconds: 100));
+
+        verify(mockNative.startSession(ignoreDuration: true)).called(1);
+        verify(mockNative.captureSession()).called(1);
+      });
+
+      test('starts new session on didReplace between different routes',
+          () async {
+        final fromRoute = route(RouteSettings(name: 'From Route'));
+        final toRoute = route(RouteSettings(name: 'To Route'));
+
+        final sut = _getSut();
+
+        sut.didReplace(newRoute: toRoute, oldRoute: fromRoute);
+        // Delay a bit since we use await with the session api and we cannot await the navigation methods
+        await Future<void>.delayed(Duration(milliseconds: 100));
+
+        verify(mockNative.startSession(ignoreDuration: true)).called(1);
+        verify(mockNative.captureSession()).called(1);
+      });
+
+      test('starts new session on didPush in initial route', () async {
+        final toRoute = route(RouteSettings(name: '/'));
+
+        final sut = _getSut();
+
+        sut.didPush(toRoute, null);
+        // Delay a bit since we use await with the session api and we cannot await the navigation methods
+        await Future<void>.delayed(Duration(milliseconds: 100));
+
+        verify(mockNative.startSession(ignoreDuration: true)).called(1);
+        verify(mockNative.captureSession()).called(1);
+      });
+
+      test('does not start new session when navigating to the same route',
+          () async {
+        final fromRoute = route(RouteSettings(name: 'Same Route'));
+        final toRoute = route(RouteSettings(name: 'Same Route'));
+
+        final sut = _getSut();
+
+        sut.didPush(fromRoute, toRoute);
+        sut.didPop(fromRoute, toRoute);
+        sut.didReplace(newRoute: toRoute, oldRoute: fromRoute);
+        // Delay a bit since we use await with the session api and we cannot await the navigation methods
+        await Future<void>.delayed(Duration(milliseconds: 100));
+
+        verifyNever(mockNative.startSession(ignoreDuration: true));
+        verifyNever(mockNative.captureSession());
+      });
+    });
+
+    group('on platform not web', () {
+      setUp(() {
+        mockHub.options.platform = MockPlatform(isWeb: false);
+      });
+
+      test('does not start new session on navigation', () async {
+        final fromRoute = route(RouteSettings(name: 'From Route'));
+        final toRoute = route(RouteSettings(name: 'To Route'));
+
+        final sut = _getSut();
+
+        sut.didPush(toRoute, fromRoute);
+        sut.didPop(toRoute, fromRoute);
+        sut.didReplace(newRoute: toRoute, oldRoute: fromRoute);
+        // Delay a bit since we use await with the session api and we cannot await the navigation methods
+        await Future<void>.delayed(Duration(milliseconds: 100));
+
+        verifyNever(mockNative.startSession(ignoreDuration: true));
+        verifyNever(mockNative.captureSession());
+      });
     });
   });
 }

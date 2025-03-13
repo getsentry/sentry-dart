@@ -220,6 +220,11 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
         (fromName != null && toName != null && fromName != toName) ||
             (fromName == null && toName == '/');
 
+    // Comment from Sentry Javascript SDK:
+    // The session duration for browser sessions does not track a meaningful
+    // concept that can be used as a metric.
+    // Automatically captured sessions are akin to page views, and thus we
+    // discard their duration.
     if (shouldStartSession) {
       await _native?.startSession(ignoreDuration: true);
       await _native?.captureSession();
