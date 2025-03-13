@@ -1184,7 +1184,7 @@ void main() {
     });
   });
 
-  group('sessions', () {
+  group('web sessions', () {
     late MockSentryNativeBinding mockNative;
     late MockHub mockHub;
 
