@@ -569,7 +569,7 @@ class SentryClient {
 
   FutureOr<void> _emitBeforeSendEventCallback(
       SentryEvent event, Hint hint) async {
-    for (final callback in _options.beforeSendEventObserver) {
+    for (final callback in _options.beforeSendEventObservers) {
       try {
         final result = callback.onBeforeSendEvent(event, hint);
         if (result is Future) {

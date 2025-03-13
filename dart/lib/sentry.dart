@@ -5,6 +5,8 @@
 /// A pure Dart client for Sentry.io crash reporting.
 library;
 
+// ignore: invalid_export_of_internal_element
+export 'src/constants.dart';
 export 'src/event_processor.dart';
 export 'src/exception_cause.dart';
 export 'src/exception_cause_extractor.dart';

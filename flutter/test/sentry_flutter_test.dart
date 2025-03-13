@@ -1,10 +1,11 @@
 // ignore_for_file: invalid_use_of_internal_member
 
+import 'package:collection/collection.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:sentry/src/platform/mock_platform.dart';
 import 'package:sentry/src/dart_exception_type_identifier.dart';
+import 'package:sentry/src/platform/mock_platform.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/file_system_transport.dart';
 import 'package:sentry_flutter/src/flutter_exception_type_identifier.dart';
@@ -17,6 +18,7 @@ import 'package:sentry_flutter/src/replay/integration.dart';
 import 'package:sentry_flutter/src/version.dart';
 import 'package:sentry_flutter/src/view_hierarchy/view_hierarchy_integration.dart';
 import 'package:sentry_flutter/src/web/javascript_transport.dart';
+import 'package:sentry_flutter/src/web_session_updater.dart';
 
 import 'mocks.dart';
 import 'mocks.mocks.dart';
@@ -348,6 +350,10 @@ void main() {
         options: sentryFlutterOptions,
         expectedHasNativeScopeObserver: false,
       );
+
+      final sessionUpdater = sentryFlutterOptions.beforeSendEventObservers
+          .firstWhereOrNull((observer) => observer is WebSessionUpdater);
+      expect(sessionUpdater, isNotNull);
 
       testConfiguration(
         integrations: integrations,

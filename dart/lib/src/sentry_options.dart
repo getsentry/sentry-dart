@@ -500,7 +500,7 @@ class SentryOptions {
 
   final List<BeforeSendEventObserver> _beforeSendEventObserver = [];
 
-  List<BeforeSendEventObserver> get beforeSendEventObserver =>
+  List<BeforeSendEventObserver> get beforeSendEventObservers =>
       List.unmodifiable(_beforeSendEventObserver);
 
   /// Adds an observer which is called right before an event is sent.
