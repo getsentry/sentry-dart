@@ -7,7 +7,7 @@ set(SENTRY_BUILD_SHARED_LIBS ON CACHE BOOL "Build shared libraries (.dll/.so) in
 # Note: the backend is also set in linux/CMakeLists.txt and windows/CMakeLists.txt. This overwrites those if user sets an env var.
 if("$ENV{SENTRY_NATIVE_BACKEND}" STREQUAL "")
     # Windows ARM64 currently has issues with crashpad so we opt for using breakpad
-    if(WIN32 AND CMAKE_SYSTEM_PROCESSOR MATCHES "ARM64")
+    if(WIN32 AND CMAKE_SYSTEM_PROCESSOR STREQUAL "ARM64")
         set(SENTRY_BACKEND "breakpad" CACHE STRING "The sentry backend responsible for reporting crashes" FORCE)
     else()
         set(SENTRY_BACKEND "crashpad" CACHE STRING "The sentry backend responsible for reporting crashes" FORCE)
