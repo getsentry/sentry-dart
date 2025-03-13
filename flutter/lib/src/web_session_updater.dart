@@ -16,7 +16,7 @@ class WebSessionUpdater implements BeforeSendEventObserver {
     if (_options.enableAutoSessionTracking == false) {
       _options.logger(
         SentryLevel.info,
-        'Auto session tracking is disabled.',
+        'Auto session tracking for web disabled.',
       );
       return;
     }
