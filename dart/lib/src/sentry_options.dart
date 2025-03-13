@@ -498,15 +498,15 @@ class SentryOptions {
   /// iOS only supports http proxies, while macOS also supports socks.
   SentryProxy? proxy;
 
-  final List<BeforeSendEventCallback> _beforeSendEventCallbacks = [];
+  final List<BeforeSendEventObserver> _beforeSendEventObserver = [];
 
-  List<BeforeSendEventCallback> get beforeSendEventCallbacks =>
-      List.unmodifiable(_beforeSendEventCallbacks);
+  List<BeforeSendEventObserver> get beforeSendEventObserver =>
+      List.unmodifiable(_beforeSendEventObserver);
 
-  /// Adds a callback which is called right before an event is sent.
+  /// Adds an observer which is called right before an event is sent.
   /// This should not be used to mutate the event.
-  void addBeforeSendEventCallback(BeforeSendEventCallback callback) {
-    _beforeSendEventCallbacks.add(callback);
+  void addBeforeSendEventObserver(BeforeSendEventObserver observer) {
+    _beforeSendEventObserver.add(observer);
   }
 
   SentryOptions({String? dsn, Platform? platform, RuntimeChecker? checker}) {
@@ -651,8 +651,3 @@ typedef SentryLogger = void Function(
 
 typedef TracesSamplerCallback = double? Function(
     SentrySamplingContext samplingContext);
-
-/// Called right before an event is sent, after all processing is complete
-/// Cannot modify the event at this point (for inspection only)
-typedef BeforeSendEventCallback = FutureOr<void> Function(
-    SentryEvent event, Hint hint);

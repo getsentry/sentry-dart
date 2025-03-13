@@ -36,16 +36,6 @@ void main() {
             true);
       });
 
-      test('adds beforeSendEvent callback for sessions', () async {
-        final lenBefore = fixture.options.beforeSendEventCallbacks.length;
-
-        await sut.call(fixture.hub, fixture.options);
-
-        final lenAfter = fixture.options.beforeSendEventCallbacks.length;
-
-        expect(lenAfter, lenBefore + 1);
-      });
-
       test('loads scripts and initializes web', () async {
         await sut.call(fixture.hub, fixture.options);
 
@@ -72,16 +62,6 @@ void main() {
             await sut.call(fixture.hub, fixture.options);
             expect(fixture.options.sdk.integrations,
                 isNot(contains(WebSdkIntegration.name)));
-          });
-
-          test('does not add beforeSendEvent callback for sessions', () async {
-            final lenBefore = fixture.options.beforeSendEventCallbacks.length;
-
-            await sut.call(fixture.hub, fixture.options);
-
-            final lenAfter = fixture.options.beforeSendEventCallbacks.length;
-
-            expect(lenAfter, lenBefore);
           });
 
           test('does not load scripts and initialize web', () async {

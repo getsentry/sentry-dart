@@ -30,6 +30,7 @@ import 'utils/platform_dispatcher_wrapper.dart';
 import 'version.dart';
 import 'view_hierarchy/view_hierarchy_integration.dart';
 import 'web/javascript_transport.dart';
+import 'web_session_updater.dart';
 
 /// Configuration options callback
 typedef FlutterOptionsConfiguration = FutureOr<void> Function(
@@ -132,7 +133,12 @@ mixin SentryFlutter {
           options.transport = FileSystemTransport(_native!, options);
         }
       }
-      if (!options.platform.isWeb) {
+      if (options.platform.isWeb) {
+        // Currently updating sessions manually is only relevant for web
+        // iOS & Android sessions are handled by the native SDKs directly
+        options
+            .addBeforeSendEventObserver(WebSessionUpdater(_native!, options));
+      } else {
         options.addScopeObserver(NativeScopeObserver(_native!));
       }
     }

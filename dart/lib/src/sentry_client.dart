@@ -324,28 +324,6 @@ class SentryClient {
     return event;
   }
 
-  FutureOr<void> _emitBeforeSendEventCallback(
-      SentryEvent event, Hint hint) async {
-    for (final callback in _options.beforeSendEventCallbacks) {
-      try {
-        final result = callback(event, hint);
-        if (result is Future) {
-          await result;
-        }
-      } catch (exception, stackTrace) {
-        _options.logger(
-          SentryLevel.error,
-          'Error while running beforeSendEvent callback',
-          exception: exception,
-          stackTrace: stackTrace,
-        );
-        if (_options.automatedTestMode) {
-          rethrow;
-        }
-      }
-    }
-  }
-
   /// Reports the [throwable] and optionally its [stackTrace] to Sentry.io.
   Future<SentryId> captureException(
     dynamic throwable, {
@@ -587,5 +565,27 @@ class SentryClient {
       return DataCategory.transaction;
     }
     return DataCategory.error;
+  }
+
+  FutureOr<void> _emitBeforeSendEventCallback(
+      SentryEvent event, Hint hint) async {
+    for (final callback in _options.beforeSendEventObserver) {
+      try {
+        final result = callback.onBeforeSendEvent(event, hint);
+        if (result is Future) {
+          await result;
+        }
+      } catch (exception, stackTrace) {
+        _options.logger(
+          SentryLevel.error,
+          'Error while running beforeSendEvent callback',
+          exception: exception,
+          stackTrace: stackTrace,
+        );
+        if (_options.automatedTestMode) {
+          rethrow;
+        }
+      }
+    }
   }
 }

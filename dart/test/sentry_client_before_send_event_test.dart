@@ -17,13 +17,8 @@ void main() {
     });
 
     test('beforeSendEvent is called with correct event and hint', () async {
-      SentryEvent? inspectedEvent;
-      Hint? inspectedHint;
-
-      fixture.options.addBeforeSendEventCallback((event, hint) {
-        inspectedEvent = event;
-        inspectedHint = hint;
-      });
+      final observer = _TestEventObserver();
+      fixture.options.addBeforeSendEventObserver(observer);
 
       final client = fixture.getSut();
       final hint = Hint();
@@ -31,18 +26,13 @@ void main() {
 
       await client.captureEvent(event, hint: hint);
 
-      expect(inspectedEvent?.type, 'some random type');
-      expect(inspectedHint, same(hint));
+      expect(observer.inspectedEvent?.type, 'some random type');
+      expect(observer.inspectedHint, same(hint));
     });
 
     test('beforeSendEvent is called for transactions', () async {
-      SentryTransaction? inspectedTransaction;
-      Hint? inspectedHint;
-
-      fixture.options.addBeforeSendEventCallback((event, hint) {
-        inspectedTransaction = event as SentryTransaction;
-        inspectedHint = hint;
-      });
+      final observer = _TestEventObserver();
+      fixture.options.addBeforeSendEventObserver(observer);
 
       final client = fixture.getSut();
       final hint = Hint();
@@ -54,9 +44,15 @@ void main() {
 
       await client.captureEvent(event, hint: hint);
 
-      expect(inspectedTransaction?.tracer.name, 'name');
-      expect(inspectedTransaction?.tracer.context.operation, 'op');
-      expect(inspectedHint, same(hint));
+      expect(
+          (observer.inspectedEvent as SentryTransaction).tracer.name, 'name');
+      expect(
+          (observer.inspectedEvent as SentryTransaction)
+              .tracer
+              .context
+              .operation,
+          'op');
+      expect(observer.inspectedHint, same(hint));
     });
 
     test('beforeSendEvent is called after all other processors', () async {
@@ -68,9 +64,8 @@ void main() {
         return event;
       };
 
-      fixture.options.addBeforeSendEventCallback((event, hint) {
-        processingOrder.add('beforeSendEvent');
-      });
+      fixture.options
+          .addBeforeSendEventObserver(_TestOrderObserver(processingOrder));
 
       final client = fixture.getSut();
       final event = SentryEvent();
@@ -100,6 +95,17 @@ class Fixture {
   }
 }
 
+class _TestEventObserver implements BeforeSendEventObserver {
+  SentryEvent? inspectedEvent;
+  Hint? inspectedHint;
+
+  @override
+  FutureOr<void> onBeforeSendEvent(SentryEvent event, Hint hint) {
+    inspectedEvent = event;
+    inspectedHint = hint;
+  }
+}
+
 class _TestEventProcessor extends EventProcessor {
   _TestEventProcessor(this._processingOrder);
 
@@ -109,5 +115,16 @@ class _TestEventProcessor extends EventProcessor {
   FutureOr<SentryEvent?> apply(SentryEvent event, Hint hint) {
     _processingOrder.add('eventProcessor');
     return event;
+  }
+}
+
+class _TestOrderObserver extends BeforeSendEventObserver {
+  final List<String> _processingOrder;
+
+  _TestOrderObserver(this._processingOrder);
+
+  @override
+  FutureOr<void> onBeforeSendEvent(SentryEvent event, Hint hint) {
+    _processingOrder.add('beforeSendEvent');
   }
 }

@@ -31,9 +31,6 @@ class WebSdkIntegration implements Integration<SentryFlutterOptions> {
     }
 
     _options = options;
-    _options?.addBeforeSendEventCallback((event, hint) {
-      _updateSessionFromEvent(event);
-    });
 
     try {
       final scripts = options.runtimeChecker.isDebugMode()
