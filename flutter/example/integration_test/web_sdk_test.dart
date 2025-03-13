@@ -157,6 +157,8 @@ void main() {
       });
     });
 
+    // todo: test that sessions are correctly sent
+
     group('disabled', () {
       testWidgets('Sentry JS SDK is not initialized', (tester) async {
         await restoreFlutterOnErrorAfter(() async {
