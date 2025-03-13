@@ -150,13 +150,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       to: route.settings,
     );
 
-    if (previousRoute != null) {
-      final from = _getRouteName(previousRoute);
-      final to = _getRouteName(route);
-      if (from != null && to != null && from != to) {
-        hello();
-      }
-    }
+    _addWebSessions(from: previousRoute, to: route);
 
     // Clearing the display tracker here is safe since didPush happens before the Widget is built
     _timeToDisplayTracker?.clear();
@@ -164,11 +158,6 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     DateTime timestamp = _hub.options.clock();
     _finishTimeToDisplayTracking(endTimestamp: timestamp);
     _startTimeToDisplayTracking(route, timestamp);
-  }
-
-  void hello() async {
-    await _native?.startSession();
-    await _native?.captureSession();
   }
 
   @override
@@ -188,6 +177,8 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       from: oldRoute?.settings,
       to: newRoute?.settings,
     );
+
+    _addWebSessions(from: oldRoute, to: newRoute);
   }
 
   @override
@@ -208,16 +199,24 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       to: previousRoute?.settings,
     );
 
-    if (previousRoute != null) {
-      final from = _getRouteName(route);
-      final to = _getRouteName(previousRoute);
-      if (from != null && to != null && from != to) {
-        hello();
-      }
-    }
+    _addWebSessions(from: route, to: previousRoute);
 
     final timestamp = _hub.options.clock();
     _finishTimeToDisplayTracking(endTimestamp: timestamp, clearAfter: true);
+  }
+
+  void _addWebSessions({Route<dynamic>? from, Route<dynamic>? to}) async {
+    if (!_hub.options.platform.isWeb) {
+      return;
+    }
+    // Don't create an additional session if the location did not change
+    if ((from != null &&
+            to != null &&
+            _getRouteName(from) != _getRouteName(to)) ||
+        (from == null && _getRouteName(to)! == '/')) {
+      await _native?.startSession(ignoreDuration: true);
+      await _native?.captureSession();
+    }
   }
 
   void _addBreadcrumb({

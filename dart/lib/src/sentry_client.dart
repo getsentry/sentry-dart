@@ -160,6 +160,9 @@ class SentryClient {
       return _emptySentryId;
     }
 
+    // Event is fully processed and ready to be sent, emit beforeSendEvent callbacks
+    await _emitBeforeSendEventCallback(preparedEvent, hint);
+
     var attachments = List<SentryAttachment>.from(scope?.attachments ?? []);
     attachments.addAll(hint.attachments);
     var screenshot = hint.screenshot;
@@ -319,6 +322,28 @@ class SentryClient {
     }
 
     return event;
+  }
+
+  FutureOr<void> _emitBeforeSendEventCallback(
+      SentryEvent event, Hint hint) async {
+    for (final callback in _options.beforeSendEventCallbacks) {
+      try {
+        final result = callback(event, hint);
+        if (result is Future) {
+          await result;
+        }
+      } catch (exception, stackTrace) {
+        _options.logger(
+          SentryLevel.error,
+          'Error while running beforeSendEvent callback',
+          exception: exception,
+          stackTrace: stackTrace,
+        );
+        if (_options.automatedTestMode) {
+          rethrow;
+        }
+      }
+    }
   }
 
   /// Reports the [throwable] and optionally its [stackTrace] to Sentry.io.

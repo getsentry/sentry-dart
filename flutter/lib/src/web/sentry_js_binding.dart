@@ -8,6 +8,8 @@ abstract class SentryJsBinding {
   void close();
   void captureEnvelope(List<Object> envelope);
   void startSession();
+  Map<dynamic, dynamic>? getSession();
+  void updateSession({int? errors, String? status});
   void captureSession();
 
   @visibleForTesting

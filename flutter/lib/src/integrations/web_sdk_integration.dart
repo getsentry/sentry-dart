@@ -31,6 +31,9 @@ class WebSdkIntegration implements Integration<SentryFlutterOptions> {
     }
 
     _options = options;
+    _options?.addBeforeSendEventCallback((event, hint) {
+      _updateSessionFromEvent(event);
+    });
 
     try {
       final scripts = options.runtimeChecker.isDebugMode()
@@ -49,6 +52,54 @@ class WebSdkIntegration implements Integration<SentryFlutterOptions> {
       if (options.automatedTestMode) {
         rethrow;
       }
+    }
+  }
+
+  // Currently updating sessions is only relevant for web
+  // iOS & Android sessions are handled by the native SDKs directly
+  void _updateSessionFromEvent(SentryEvent event) async {
+    if (_options?.enableAutoSessionTracking == false) {
+      _options?.logger(
+        SentryLevel.info,
+        'Auto session tracking is disabled. ',
+      );
+      return;
+    }
+
+    print('updating');
+
+    bool crashed = event.level == SentryLevel.fatal;
+    bool errored = false;
+
+    if (event.exceptions?.isNotEmpty == true) {
+      errored = true;
+
+      for (final exception in event.exceptions!) {
+        if (exception.mechanism?.handled == false) {
+          crashed = true;
+          break;
+        }
+      }
+    }
+
+    // A session is updated and that session update is sent in only one of the two following scenarios:
+    // 1. Session with non terminal status and 0 errors + an error occurred -> Will set error count to 1 and send update
+    // 2. Session with non terminal status and 1 error + a crash occurred -> Will set status crashed and send update
+    final session = await _web.getSession();
+    if (session == null) {
+      return;
+    }
+
+    final sessionNonTerminal = session['status'] == 'ok';
+    final shouldUpdateAndSend =
+        (sessionNonTerminal && session['errors'] == 0) ||
+            (sessionNonTerminal && crashed);
+
+    if (shouldUpdateAndSend) {
+      final status = crashed ? 'crashed' : session['status'].toString();
+      await _web.updateSession(
+          status: status, errors: errored || crashed ? 1 : 0);
+      await _web.captureSession();
     }
   }
 

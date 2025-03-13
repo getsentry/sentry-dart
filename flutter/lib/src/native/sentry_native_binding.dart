@@ -67,8 +67,28 @@ abstract class SentryNativeBinding {
 
   FutureOr<void> nativeCrash();
 
-  FutureOr<void> startSession();
+  /// Starts a new session.
+  ///
+  /// Note: This is primarily used on web platforms. Android and iOS handle sessions
+  /// automatically through their respective native SDKs.
+  /// Windows and Linux currently don't support sessions.
+  ///
+  /// @param ignoreDurations If true, the session will ignore the configured session duration
+  FutureOr<void> startSession({bool ignoreDuration = false});
 
+  /// Gets the current active session.
+  ///
+  /// Note: This is used on web platforms. Returns null on other platforms.
+  FutureOr<Map<dynamic, dynamic>?> getSession();
+
+  /// Updates the current session with the provided status and/or error count.
+  ///
+  /// Note: This is primarily used on web platforms. No-op on other platforms.
+  FutureOr<void> updateSession({int? errors, String? status});
+
+  /// Sends the current session immediately.
+  ///
+  /// Note: This is primarily used on web platforms. No-op on other platforms.
   FutureOr<void> captureSession();
 
   bool get supportsReplay;

@@ -253,7 +253,13 @@ class SentryNativeChannel
   }
 
   @override
-  FutureOr<void> startSession() {
-    // not supported
+  FutureOr<void> startSession({bool ignoreDuration = false}) {}
+
+  @override
+  FutureOr<Map<dynamic, dynamic>?> getSession() {
+    return null;
   }
+
+  @override
+  FutureOr<void> updateSession({int? errors, String? status}) {}
 }

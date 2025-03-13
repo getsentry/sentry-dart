@@ -20,33 +20,22 @@ class WebSentryJsBinding implements SentryJsBinding {
     }
     _init(options.jsify());
     _client = SentryJsClient();
-
-    simulateCrash();
   }
 
-  void simulateCrash() {
-    // First get the current session
+  @override
+  void updateSession({int? errors, String? status}) {
     final isolationScope = SentryJsIsolationScope();
     JSObject? currentSession = isolationScope.getSession();
 
-    if (currentSession == null) {
-      print('No active session to crash, starting one...');
-      startSession();
+    if (status != null) {
+      currentSession?['status'] = status.toJS;
     }
 
-    currentSession = isolationScope.getSession();
+    if (errors != null) {
+      currentSession?['errors'] = errors.toJS;
+    }
 
-    currentSession?['status'] = 'crashed'.toJS;
-    currentSession?['errors'] = 1.toJS;
-
-    // Set it back and send it
     isolationScope.setSession(currentSession!);
-
-    final session = SentryJsIsolationScope().getSession();
-    captureSession();
-
-    // After sending a crashed session, you might want to start a new one
-    _startSession({'ignoreDuration': true}.jsify());
   }
 
   JSObject? _createIntegration(String integration) {
@@ -83,13 +72,23 @@ class WebSentryJsBinding implements SentryJsBinding {
   }
 
   @override
-  void startSession() {
-    _startSession({'ignoreDuration': true}.jsify());
+  void startSession({bool ignoreDuration = false}) {
+    _startSession({'ignoreDuration': ignoreDuration}.jsify());
   }
 
   @override
   void captureSession() {
     _captureSession();
+  }
+
+  @override
+  Map<dynamic, dynamic>? getSession() {
+    try {
+      return SentryJsIsolationScope().getSession().dartify()
+          as Map<dynamic, dynamic>;
+    } catch (e) {
+      return null;
+    }
   }
 }
 

@@ -103,8 +103,16 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
       });
 
   @override
-  FutureOr<void> startSession() {
+  FutureOr<void> startSession({bool ignoreDuration = false}) {
     _binding.startSession();
+  }
+
+  @override
+  FutureOr<Map<dynamic, dynamic>?> getSession() => _binding.getSession();
+
+  @override
+  FutureOr<void> updateSession({int? errors, String? status}) {
+    _binding.updateSession(errors: errors, status: status);
   }
 
   @override

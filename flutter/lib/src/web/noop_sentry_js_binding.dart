@@ -24,4 +24,12 @@ class NoOpSentryJsBinding implements SentryJsBinding {
 
   @override
   void startSession() {}
+
+  @override
+  Map<dynamic, dynamic> getSession() {
+    return {};
+  }
+
+  @override
+  void updateSession({int? errors, String? status}) {}
 }

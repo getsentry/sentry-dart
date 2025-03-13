@@ -33,7 +33,7 @@ class SentryFlutterOptions extends SentryOptions {
   /// Enable or disable reporting of used packages.
   bool reportPackages = true;
 
-  /// Enable or disable the Auto session tracking on the Native SDKs (Android/iOS)
+  /// Enable or disable the Auto session tracking on the Native SDKs (Android/iOS) and Web
   bool enableAutoSessionTracking = true;
 
   /// Enable or disable the Crash handling on the Native SDKs, e.g.,
