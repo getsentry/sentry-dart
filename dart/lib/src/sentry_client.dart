@@ -160,8 +160,8 @@ class SentryClient {
       return _emptySentryId;
     }
 
-    // Event is fully processed and ready to be sent, emit beforeSendEvent callbacks
-    await _emitBeforeSendEventCallback(preparedEvent, hint);
+    // Event is fully processed and ready to be sent, emit beforeSendEvent observer
+    await _emitBeforeSendEventObserver(preparedEvent, hint);
 
     var attachments = List<SentryAttachment>.from(scope?.attachments ?? []);
     attachments.addAll(hint.attachments);
@@ -567,7 +567,7 @@ class SentryClient {
     return DataCategory.error;
   }
 
-  FutureOr<void> _emitBeforeSendEventCallback(
+  FutureOr<void> _emitBeforeSendEventObserver(
       SentryEvent event, Hint hint) async {
     for (final callback in _options.beforeSendEventObservers) {
       try {
