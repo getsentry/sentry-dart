@@ -503,7 +503,8 @@ class SentryOptions {
   List<BeforeSendEventCallback> get beforeSendEventCallbacks =>
       List.unmodifiable(_beforeSendEventCallbacks);
 
-  /// Adds a callback which is called right before an event is sent and should not be used to mutate the event.
+  /// Adds a callback which is called right before an event is sent.
+  /// This should not be used to mutate the event.
   void addBeforeSendEventCallback(BeforeSendEventCallback callback) {
     _beforeSendEventCallbacks.add(callback);
   }
