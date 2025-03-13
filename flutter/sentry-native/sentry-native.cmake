@@ -9,8 +9,6 @@ if(NOT "$ENV{SENTRY_NATIVE_BACKEND}" STREQUAL "")
     set(SENTRY_BACKEND $ENV{SENTRY_NATIVE_BACKEND} CACHE STRING "The sentry backend responsible for reporting crashes" FORCE)
 endif()
 
-message(STATUS "Sentry Native is using backend: ${SENTRY_BACKEND}")
-
 include(FetchContent)
 FetchContent_Declare(
     sentry-native
