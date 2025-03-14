@@ -155,9 +155,33 @@ void main() {
           findsOneWidget,
         );
       });
-    });
 
-    // todo: test that sessions are correctly sent
+      testWidgets('sends the session update for error event', (tester) async {
+        await restoreFlutterOnErrorAfter(() async {
+          await SentryFlutter.init((options) {
+            options.dsn = fakeDsn;
+          }, appRunner: () async {
+            await tester.pumpWidget(
+              SentryWidget(child: const app.MyApp()),
+            );
+          });
+        });
+
+        final client = _getClient()!;
+        final completer = Completer<Map<dynamic, dynamic>>();
+
+        JSFunction beforeSendSessionCallback = ((JSObject session) {
+          final sessionDart = session.dartify() as Map<dynamic, dynamic>;
+          completer.complete(sessionDart);
+        }).toJS;
+
+        client.on('beforeSendSession'.toJS, beforeSendSessionCallback);
+
+        await Sentry.captureException(Exception('test'));
+
+        final session = await completer.future;
+      });
+    });
 
     group('disabled', () {
       testWidgets('Sentry JS SDK is not initialized', (tester) async {
