@@ -7,7 +7,7 @@ import '../../sentry_options.dart';
 // Source: https://github.com/onepub-dev/system_info/blob/8a9bf6b8eb7c86a09b3c3df4bf6d7fa5a6b50732/lib/src/platform/memory.dart
 class PlatformMemory {
   PlatformMemory(this.options) {
-    if (options.platformChecker.platform.isWindows) {
+    if (options.platform.isWindows) {
       // Check for WMIC (deprecated in newer Windows versions)
       // https://techcommunity.microsoft.com/blog/windows-itpro-blog/wmi-command-line-wmic-utility-deprecation-next-steps/4039242
       useWindowsWmci =
