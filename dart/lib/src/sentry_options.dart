@@ -498,6 +498,17 @@ class SentryOptions {
   /// iOS only supports http proxies, while macOS also supports socks.
   SentryProxy? proxy;
 
+  final List<BeforeSendEventObserver> _beforeSendEventObserver = [];
+
+  List<BeforeSendEventObserver> get beforeSendEventObservers =>
+      List.unmodifiable(_beforeSendEventObserver);
+
+  /// Adds an observer which is called right before an event is sent.
+  /// This should not be used to mutate the event.
+  void addBeforeSendEventObserver(BeforeSendEventObserver observer) {
+    _beforeSendEventObserver.add(observer);
+  }
+
   SentryOptions({String? dsn, Platform? platform, RuntimeChecker? checker}) {
     this.dsn = dsn;
     if (platform != null) {

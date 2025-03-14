@@ -28,7 +28,7 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
         'dsn': _options.dsn,
         'debug': _options.debug,
         'environment': _options.environment,
-        'release': _options.release,
+        'release': '_options.release', // TODO: release needs to be fixed
         'dist': _options.dist,
         'sampleRate': _options.sampleRate ?? 1,
         'tracesSampleRate': 0,
@@ -101,6 +101,31 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
 
         _binding.captureEnvelope(jsEnvelope);
       });
+
+  @override
+  FutureOr<void> startSession({bool ignoreDuration = false}) {
+    _binding.startSession();
+  }
+
+  @override
+  FutureOr<Map<dynamic, dynamic>?> getSession() =>
+      tryCatchSync('getSession', () {
+        return _binding.getSession();
+      });
+
+  @override
+  FutureOr<void> updateSession({int? errors, String? status}) {
+    tryCatchSync('updateSession', () {
+      _binding.updateSession(errors: errors, status: status);
+    });
+  }
+
+  @override
+  FutureOr<void> captureSession() {
+    tryCatchSync('captureSession', () {
+      _binding.captureSession();
+    });
+  }
 
   @override
   FutureOr<SentryId> captureReplay(bool isCrash) {

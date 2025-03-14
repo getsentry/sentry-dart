@@ -150,6 +150,8 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       to: route.settings,
     );
 
+    _addWebSessions(from: previousRoute, to: route);
+
     // Clearing the display tracker here is safe since didPush happens before the Widget is built
     _timeToDisplayTracker?.clear();
 
@@ -175,6 +177,8 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       from: oldRoute?.settings,
       to: newRoute?.settings,
     );
+
+    _addWebSessions(from: oldRoute, to: newRoute);
   }
 
   @override
@@ -195,8 +199,36 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       to: previousRoute?.settings,
     );
 
+    _addWebSessions(from: route, to: previousRoute);
+
     final timestamp = _hub.options.clock();
     _finishTimeToDisplayTracking(endTimestamp: timestamp, clearAfter: true);
+  }
+
+  void _addWebSessions({Route<dynamic>? from, Route<dynamic>? to}) async {
+    if (!_hub.options.platform.isWeb) {
+      return;
+    }
+
+    final fromName = from != null ? _getRouteName(from) : null;
+    final toName = to != null ? _getRouteName(to) : null;
+
+    // Only start new session if:
+    // 1. We have a valid route change, or
+    // 2. It's the initial navigation to root route
+    final shouldStartSession =
+        (fromName != null && toName != null && fromName != toName) ||
+            (fromName == null && toName == '/');
+
+    // Comment from Sentry Javascript SDK:
+    // The session duration for browser sessions does not track a meaningful
+    // concept that can be used as a metric.
+    // Automatically captured sessions are akin to page views, and thus we
+    // discard their duration.
+    if (shouldStartSession) {
+      await _native?.startSession(ignoreDuration: true);
+      await _native?.captureSession();
+    }
   }
 
   void _addBreadcrumb({
