@@ -17,7 +17,7 @@ class SentryNativeJava extends SentryNativeChannel {
   Future<void> init(Hub hub) async {
     // We only need these when replay is enabled (session or error capture)
     // so let's set it up conditionally. This allows Dart to trim the code.
-    if (options.experimental.replay.isEnabled) {
+    if (options.replay.isEnabled) {
       channel.setMethodCallHandler((call) async {
         switch (call.method) {
           case 'ReplayRecorder.start':
@@ -29,9 +29,8 @@ class SentryNativeJava extends SentryNativeChannel {
                 height: (call.arguments['height'] as num).toDouble(),
                 frameRate: call.arguments['frameRate'] as int);
 
-            _replayRecorder = AndroidReplayRecorder(
-                config, options, channel, call.arguments['directory'] as String)
-              ..start();
+            _replayRecorder = AndroidReplayRecorder.factory(config, options);
+            await _replayRecorder!.start();
 
             hub.configureScope((s) {
               // ignore: invalid_use_of_internal_member

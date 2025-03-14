@@ -29,6 +29,7 @@ import 'replay/integration.dart';
 import 'utils/platform_dispatcher_wrapper.dart';
 import 'version.dart';
 import 'view_hierarchy/view_hierarchy_integration.dart';
+import 'web/javascript_transport.dart';
 
 /// Configuration options callback
 typedef FlutterOptionsConfiguration = FutureOr<void> Function(
@@ -63,7 +64,7 @@ mixin SentryFlutter {
     // ignore: invalid_use_of_internal_member
     sentrySetupStartTime ??= options.clock();
 
-    if (options.platformChecker.hasNativeIntegration) {
+    if (options.platform.supportsNativeIntegration) {
       _native = createBinding(options);
     }
 
@@ -73,10 +74,9 @@ mixin SentryFlutter {
     // Flutter Web doesn't capture [Future] errors if using [PlatformDispatcher.onError] and not
     // the [runZonedGuarded].
     // likely due to https://github.com/flutter/flutter/issues/100277
-    final bool isOnErrorSupported =
-        !options.platformChecker.isWeb && wrapper.isOnErrorSupported(options);
+    final isOnErrorSupported = !options.platform.isWeb;
 
-    final bool isRootZone = options.platformChecker.isRootZone;
+    final bool isRootZone = options.runtimeChecker.isRootZone;
 
     // If onError is not supported and no custom zone exists, use runZonedGuarded to capture errors.
     final bool useRunZonedGuarded = !isOnErrorSupported && isRootZone;
@@ -126,14 +126,13 @@ mixin SentryFlutter {
     // Not all platforms have a native integration.
     if (_native != null) {
       if (_native!.supportsCaptureEnvelope) {
-        // Sentry's native web integration is only enabled when enableSentryJs=true.
-        // Transport configuration happens in web_integration because the configuration
-        // options aren't available until after the options callback executes.
-        if (!options.platformChecker.isWeb) {
+        if (options.platform.isWeb) {
+          options.transport = JavascriptTransport(_native!, options);
+        } else {
           options.transport = FileSystemTransport(_native!, options);
         }
       }
-      if (!options.platformChecker.isWeb) {
+      if (!options.platform.isWeb) {
         options.addScopeObserver(NativeScopeObserver(_native!));
       }
     }
@@ -142,7 +141,7 @@ mixin SentryFlutter {
     options.addEventProcessor(WidgetEventProcessor());
     options.addEventProcessor(UrlFilterEventProcessor(options));
 
-    if (options.platformChecker.platform.isAndroid) {
+    if (options.platform.isAndroid) {
       options.addEventProcessor(
         AndroidPlatformExceptionEventProcessor(options),
       );
@@ -160,7 +159,7 @@ mixin SentryFlutter {
     bool isOnErrorSupported,
   ) {
     final integrations = <Integration>[];
-    final platformChecker = options.platformChecker;
+    final platform = options.platform;
 
     // Will call WidgetsFlutterBinding.ensureInitialized() before all other integrations.
     integrations.add(WidgetsFlutterBindingIntegration());
@@ -181,7 +180,7 @@ mixin SentryFlutter {
     final native = _native;
     if (native != null) {
       integrations.add(createSdkIntegration(native));
-      if (!platformChecker.isWeb) {
+      if (!platform.isWeb) {
         if (native.supportsLoadContexts) {
           integrations.add(LoadContextsIntegration(native));
         }
@@ -199,11 +198,11 @@ mixin SentryFlutter {
     }
 
     final renderer = options.rendererWrapper.getRenderer();
-    if (!platformChecker.isWeb || renderer == FlutterRenderer.canvasKit) {
+    if (!platform.isWeb || renderer == FlutterRenderer.canvasKit) {
       integrations.add(ScreenshotIntegration());
     }
 
-    if (platformChecker.isWeb) {
+    if (platform.isWeb) {
       integrations.add(ConnectivityIntegration());
     }
 
@@ -228,20 +227,6 @@ mixin SentryFlutter {
       );
       FlutterError.dumpErrorToConsole(errorDetails, forceReport: true);
     };
-  }
-
-  /// Manually set when your app finished startup. Make sure to set
-  /// [SentryFlutterOptions.autoAppStart] to false on init. The timeout duration
-  /// for this to work is 10 seconds.
-  @Deprecated(
-      'Will be removed in v9. This functionality will not be supported anymore.')
-  static void setAppStartEnd(DateTime appStartEnd) {
-    // ignore: invalid_use_of_internal_member
-    final integrations = Sentry.currentHub.options.integrations
-        .whereType<NativeAppStartIntegration>();
-    for (final integration in integrations) {
-      integration.appStartEnd = appStartEnd;
-    }
   }
 
   static void _setSdk(SentryFlutterOptions options) {

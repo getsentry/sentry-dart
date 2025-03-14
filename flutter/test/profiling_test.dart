@@ -1,13 +1,13 @@
 @TestOn('vm')
-library flutter_test;
+library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/profiling.dart';
+import 'package:sentry/src/platform/mock_platform.dart';
 import 'mocks.dart';
 import 'mocks.mocks.dart';
-import 'sentry_flutter_test.dart';
 
 void main() {
   late MockSentryNativeBinding mock;
@@ -20,7 +20,7 @@ void main() {
   group('$SentryNativeProfilerFactory', () {
     Hub hubWithSampleRate(double profilesSampleRate) {
       final o = defaultTestOptions();
-      o.platformChecker = getPlatformChecker(platform: MockPlatform.iOs());
+      o.platform = MockPlatform.iOS();
       o.profilesSampleRate = profilesSampleRate;
 
       final hub = MockHub();

@@ -11,7 +11,6 @@ import 'dart:js_interop_unsafe';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:sentry_flutter/src/web/javascript_transport.dart';
 import 'package:sentry_flutter_example/main.dart' as app;
 
 import 'utils.dart';
@@ -48,11 +47,14 @@ void main() {
   group('Web SDK Integration', () {
     IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
+    tearDown(() async {
+      await Sentry.close();
+    });
+
     group('enabled', () {
       testWidgets('Sentry JS SDK initialized', (tester) async {
         await restoreFlutterOnErrorAfter(() async {
           await SentryFlutter.init((options) {
-            options.enableSentryJs = true;
             options.dsn = fakeDsn;
           }, appRunner: () async {
             await tester.pumpWidget(const app.MyApp());
@@ -72,24 +74,19 @@ void main() {
       });
 
       testWidgets('sends the correct envelope', (tester) async {
-        SentryFlutterOptions? configuredOptions;
         SentryEvent? dartEvent;
 
         await restoreFlutterOnErrorAfter(() async {
           await SentryFlutter.init((options) {
-            options.enableSentryJs = true;
             options.dsn = fakeDsn;
             options.beforeSend = (event, hint) {
               dartEvent = event;
               return event;
             };
-            configuredOptions = options;
           }, appRunner: () async {
             await tester.pumpWidget(const app.MyApp());
           });
         });
-
-        expect(configuredOptions!.transport, isA<JavascriptTransport>());
 
         final client = _getClient()!;
         final completer = Completer<List<Object?>>();
@@ -110,11 +107,10 @@ void main() {
         expect((header['sdk'] as Map<Object?, Object?>)['name'],
             'sentry.dart.flutter');
 
-        final item = (envelope[1] as List<Object?>).first as List<Object?>;
-        final itemPayloadJs = (item[1] as JSArray).toDart;
-        final itemPayload = json.decode(utf8.decoder.convert(itemPayloadJs
-            .map((el) => int.parse(el.dartify().toString()))
-            .toList())) as Map<Object?, Object?>;
+        final item = (envelope[1] as List).first as List<Object?>;
+        final itemPayload =
+            json.decode(utf8.decoder.convert(item[1] as List<int>))
+                as Map<Object?, Object?>;
 
         final jsEventJson = (itemPayload).map((key, value) {
           return MapEntry(key.toString(), value as dynamic);
@@ -132,7 +128,6 @@ void main() {
 
         await restoreFlutterOnErrorAfter(() async {
           await SentryFlutter.init((options) {
-            options.enableSentryJs = true;
             options.dsn = fakeDsn;
             options.attachScreenshot = true;
 
@@ -166,8 +161,8 @@ void main() {
       testWidgets('Sentry JS SDK is not initialized', (tester) async {
         await restoreFlutterOnErrorAfter(() async {
           await SentryFlutter.init((options) {
-            options.enableSentryJs = false;
             options.dsn = fakeDsn;
+            options.autoInitializeNativeSdk = false;
           }, appRunner: () async {
             await tester.pumpWidget(const app.MyApp());
           });

@@ -30,9 +30,9 @@ class PlatformMemory {
   late final bool useWindowsPowerShell;
 
   int? getTotalPhysicalMemory() {
-    if (options.platformChecker.platform.isLinux) {
+    if (options.platform.isLinux) {
       return _getLinuxMemInfoValue('MemTotal');
-    } else if (options.platformChecker.platform.isWindows) {
+    } else if (options.platform.isWindows) {
       if (useWindowsWmci) {
         return _getWindowsWmicValue('ComputerSystem', 'TotalPhysicalMemory');
       } else if (useWindowsPowerShell) {
@@ -46,9 +46,9 @@ class PlatformMemory {
   }
 
   int? getFreePhysicalMemory() {
-    if (options.platformChecker.platform.isLinux) {
+    if (options.platform.isLinux) {
       return _getLinuxMemInfoValue('MemFree');
-    } else if (options.platformChecker.platform.isWindows) {
+    } else if (options.platform.isWindows) {
       if (useWindowsWmci) {
         return _getWindowsWmicValue('OS', 'FreePhysicalMemory');
       } else if (useWindowsPowerShell) {

@@ -7,7 +7,6 @@ import 'scope.dart';
 import 'sentry_client.dart';
 import 'sentry_envelope.dart';
 import 'sentry_trace_context_header.dart';
-import 'sentry_user_feedback.dart';
 
 class NoOpSentryClient implements SentryClient {
   NoOpSentryClient._();
@@ -52,10 +51,6 @@ class NoOpSentryClient implements SentryClient {
       SentryId.empty();
 
   @override
-  // ignore: deprecated_member_use_from_same_package
-  Future<void> captureUserFeedback(SentryUserFeedback userFeedback) async {}
-
-  @override
   Future<void> close() async {}
 
   @override
@@ -63,6 +58,7 @@ class NoOpSentryClient implements SentryClient {
     SentryTransaction transaction, {
     Scope? scope,
     SentryTraceContextHeader? traceContext,
+    Hint? hint,
   }) async =>
       SentryId.empty();
 

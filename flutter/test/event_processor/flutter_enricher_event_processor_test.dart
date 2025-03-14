@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:sentry/src/platform/mock_platform.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/event_processor/flutter_enricher_event_processor.dart';
 
@@ -73,7 +74,6 @@ void main() {
       final flutterContext = event?.contexts['flutter_context'];
       expect(flutterContext, isNotNull);
       expect(flutterContext, isA<Map<String, String>>());
-      expect(flutterContext['renderer'], isNotNull);
     });
 
     testWidgets('accessibility context', (WidgetTester tester) async {
@@ -221,31 +221,43 @@ void main() {
     });
 
     testWidgets('adds correct flutter runtime', (WidgetTester tester) async {
-      final checkerMap = {
-        MockPlatformChecker(
-            isWebValue: false,
-            buildMode: MockPlatformCheckerBuildMode.debug): 'Dart VM',
-        MockPlatformChecker(
-            isWebValue: false,
-            buildMode: MockPlatformCheckerBuildMode.profile): 'Dart AOT',
-        MockPlatformChecker(
-            isWebValue: false,
-            buildMode: MockPlatformCheckerBuildMode.release): 'Dart AOT',
-        MockPlatformChecker(
-            isWebValue: true,
-            buildMode: MockPlatformCheckerBuildMode.debug): 'dartdevc',
-        MockPlatformChecker(
-            isWebValue: true,
-            buildMode: MockPlatformCheckerBuildMode.profile): 'dart2js',
-        MockPlatformChecker(
-            isWebValue: true,
-            buildMode: MockPlatformCheckerBuildMode.release): 'dart2js',
-      };
+      final testData = [
+        PlatformTestData(
+          MockPlatform(isWeb: false),
+          MockRuntimeCheckerBuildMode.debug,
+          'Dart VM',
+        ),
+        PlatformTestData(
+          MockPlatform(isWeb: false),
+          MockRuntimeCheckerBuildMode.profile,
+          'Dart AOT',
+        ),
+        PlatformTestData(
+          MockPlatform(isWeb: false),
+          MockRuntimeCheckerBuildMode.release,
+          'Dart AOT',
+        ),
+        PlatformTestData(
+          MockPlatform(isWeb: true),
+          MockRuntimeCheckerBuildMode.debug,
+          'dartdevc',
+        ),
+        PlatformTestData(
+          MockPlatform(isWeb: true),
+          MockRuntimeCheckerBuildMode.profile,
+          'dart2js',
+        ),
+        PlatformTestData(
+          MockPlatform(isWeb: true),
+          MockRuntimeCheckerBuildMode.release,
+          'dart2js',
+        ),
+      ];
 
-      for (var pair in checkerMap.entries) {
+      for (var entry in testData) {
         final enricher = fixture.getSut(
           binding: () => tester.binding,
-          checker: pair.key,
+          platformTestData: entry,
         );
 
         final event = await enricher.apply(SentryEvent(), Hint());
@@ -253,7 +265,7 @@ void main() {
             .firstWhere((element) => element.name == 'Flutter');
 
         expect(flutterRuntime?.name, 'Flutter');
-        expect(flutterRuntime?.compiler, pair.value);
+        expect(flutterRuntime?.compiler, entry.compiler);
       }
     });
 
@@ -380,9 +392,9 @@ void main() {
 
     testWidgets('$FlutterEnricherEventProcessor gets added on init',
         (tester) async {
-      // use a mockplatform checker so that we don't need to mock platform channels
-      final sentryOptions =
-          defaultTestOptions(MockPlatformChecker(hasNativeIntegration: false));
+      // use a mock platform so that we don't need to mock platform channels
+      final sentryOptions = defaultTestOptions();
+      sentryOptions.platform = MockPlatform.fuchsia(); // Without native
 
       loadTestPackage();
       await SentryFlutter.init((options) {
@@ -416,21 +428,40 @@ void main() {
   });
 }
 
+class PlatformTestData {
+  PlatformTestData(this.platform, this.buildMode, this.compiler);
+  MockPlatform platform;
+  MockRuntimeCheckerBuildMode buildMode;
+  String compiler;
+}
+
 class Fixture {
   FlutterEnricherEventProcessor getSut({
     required WidgetBindingGetter binding,
-    PlatformChecker? checker,
+    PlatformTestData? platformTestData,
     bool hasNativeIntegration = false,
     bool reportPackages = true,
     SentryFlutterOptions Function(SentryFlutterOptions)? optionsBuilder,
   }) {
-    final platformChecker = checker ??
-        MockPlatformChecker(
-          hasNativeIntegration: hasNativeIntegration,
-        );
+    RuntimeChecker runtimeChecker;
+    if (platformTestData != null) {
+      runtimeChecker = MockRuntimeChecker(
+        buildMode: platformTestData.buildMode,
+      );
+    } else {
+      runtimeChecker = MockRuntimeChecker();
+    }
 
-    final options = defaultTestOptions(platformChecker)
+    final options = defaultTestOptions(
+        platform:
+            hasNativeIntegration ? MockPlatform.iOS() : MockPlatform.fuchsia(),
+        checker: runtimeChecker)
       ..reportPackages = reportPackages;
+
+    if (platformTestData != null) {
+      options.platform = platformTestData.platform;
+    }
+
     final customizedOptions = optionsBuilder?.call(options) ?? options;
     return FlutterEnricherEventProcessor(customizedOptions);
   }
