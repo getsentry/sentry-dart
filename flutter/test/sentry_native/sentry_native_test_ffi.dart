@@ -15,9 +15,8 @@ import '../mocks.mocks.dart';
 enum NativeBackend { default_, crashpad, breakpad, inproc, none }
 
 extension on NativeBackend {
-  // TODO change default to crashpad in v9
   NativeBackend get actualValue =>
-      this == NativeBackend.default_ ? NativeBackend.none : this;
+      this == NativeBackend.default_ ? NativeBackend.crashpad : this;
 }
 
 // NOTE: Don't run/debug this main(), it likely won't work.

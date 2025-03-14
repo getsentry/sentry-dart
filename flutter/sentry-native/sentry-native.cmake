@@ -4,11 +4,8 @@ message(STATUS "Fetching Sentry native version: ${SENTRY_NATIVE_version} from ${
 set(SENTRY_SDK_NAME "sentry.native.flutter" CACHE STRING "The SDK name to report when sending events." FORCE)
 set(SENTRY_BUILD_SHARED_LIBS ON CACHE BOOL "Build shared libraries (.dll/.so) instead of static ones (.lib/.a)" FORCE)
 
-# Note: the backend is also set in linux/CMakeLists.txt and windows/CMakeLists.txt. This overwrites those if user sets an env var.
-if("$ENV{SENTRY_NATIVE_BACKEND}" STREQUAL "")
-    # Until sentry-dart v9, we disable native backend by default.
-    set(SENTRY_BACKEND "none" CACHE STRING "The sentry backend responsible for reporting crashes" FORCE)
-else()
+if(NOT "$ENV{SENTRY_NATIVE_BACKEND}" STREQUAL "")
+    # If environment variable is set, it takes highest precedence
     set(SENTRY_BACKEND $ENV{SENTRY_NATIVE_BACKEND} CACHE STRING "The sentry backend responsible for reporting crashes" FORCE)
 endif()
 
