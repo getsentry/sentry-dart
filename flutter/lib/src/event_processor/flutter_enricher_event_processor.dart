@@ -36,6 +36,8 @@ class FlutterEnricherEventProcessor implements EventProcessor {
     SentryEvent event,
     Hint hint,
   ) async {
+    final contexts = event.contexts;
+
     // If there's a native integration available, it probably has better
     // information available than Flutter.
     // TODO: while we have a native integration with JS SDK, it's currently opt in and we dont gather contexts yet
@@ -43,14 +45,10 @@ class FlutterEnricherEventProcessor implements EventProcessor {
     final device = _hasNativeIntegration && !_options.platform.isWeb
         ? null
         : _getDevice(event.contexts.device);
-
-    final contexts = event.contexts.copyWith(
-      device: device,
-      runtimes: _getRuntimes(event.contexts.runtimes),
-      culture: _getCulture(event.contexts.culture),
-      operatingSystem: _getOperatingSystem(event.contexts.operatingSystem),
-      app: _getApp(event.contexts.app),
-    );
+    contexts.runtimes = _getRuntimes(contexts.runtimes);
+    contexts.culture = _getCulture(contexts.culture);
+    contexts.operatingSystem = _getOperatingSystem(contexts.operatingSystem);
+    contexts.app = _getApp(contexts.app);
 
     final app = contexts.app;
     if (app != null) {

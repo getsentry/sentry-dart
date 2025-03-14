@@ -15,9 +15,9 @@ void main() {
     fixture = Fixture();
   });
 
-  test('total physical memory', () {
+  test('total physical memory', () async {
     final sut = fixture.getSut();
-    final totalPhysicalMemory = sut.getTotalPhysicalMemory();
+    final totalPhysicalMemory = await sut.getTotalPhysicalMemory();
 
     switch (Platform.operatingSystem) {
       case 'linux':
@@ -30,24 +30,6 @@ void main() {
         break;
       default:
         expect(totalPhysicalMemory, isNull);
-    }
-  });
-
-  test('free physical memory', () {
-    final sut = fixture.getSut();
-    final freePhysicalMemory = sut.getTotalPhysicalMemory();
-
-    switch (Platform.operatingSystem) {
-      case 'linux':
-        expect(freePhysicalMemory, isNotNull);
-        expect(freePhysicalMemory! > 0, true);
-        break;
-      case 'windows':
-        expect(freePhysicalMemory, isNotNull);
-        expect(freePhysicalMemory! > 0, true);
-        break;
-      default:
-        expect(freePhysicalMemory, isNull);
     }
   });
 }

@@ -98,6 +98,9 @@ class Contexts extends MapView<String, dynamic> {
   List<SentryRuntime> get runtimes =>
       List.unmodifiable(this[SentryRuntime.listType] ?? []);
 
+  set runtimes(List<SentryRuntime> runtimes) =>
+      this[SentryRuntime.listType] = runtimes;
+
   void addRuntime(SentryRuntime runtime) =>
       this[SentryRuntime.listType].add(runtime);
 

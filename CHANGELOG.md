@@ -7,8 +7,13 @@
 - Cleanup platform mocking ([#2730](https://github.com/getsentry/sentry-dart/pull/2730))
   - The `PlatformChecker` was renamed to `RuntimeChecker`
   - Moved `PlatformChecker.platform` to `options.platform`
+- Improve platform memory collection on windows/linux ([#2774](https://github.com/getsentry/sentry-dart/pull/2774))
+  - Fixes an issue where total memory on windows was not read.
+  - Free memory collection was removed on windows/linux, due to performance impact.
 
 ## 8.14.0
+
+### Fixes
 
 This release fixes an issue where Cold starts can be incorrectly reported as Warm starts on Android.
 
