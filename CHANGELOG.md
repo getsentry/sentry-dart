@@ -8,10 +8,8 @@
   - The `PlatformChecker` was renamed to `RuntimeChecker`
   - Moved `PlatformChecker.platform` to `options.platform`
 - Improve platform memory collection on windows/linux ([#2774](https://github.com/getsentry/sentry-dart/pull/2774))
-  - Fixes an issue where total/free memory on windows was not read.
-  - Memory collection is disabled per default on windows/linux, due to performance impact.
-  - Can be enabled `SentryOptions.collectPlatformDeviceMemory`
-  - If enabled, free system memory on windows/linux is now cached for 1 minute.
+  - Fixes an issue where total memory on windows was not read.
+  - Free memory collection was removed on windows/linux, due to performance impact.
 
 ## 8.14.0
 

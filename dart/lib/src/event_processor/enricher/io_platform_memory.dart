@@ -29,14 +29,14 @@ class PlatformMemory {
   late final bool useWindowsWmci;
   late final bool useWindowsPowerShell;
 
-  int? getTotalPhysicalMemory() {
+  Future<int?> getTotalPhysicalMemory() async {
     if (options.platform.isLinux) {
       return _getLinuxMemInfoValue('MemTotal');
     } else if (options.platform.isWindows) {
       if (useWindowsWmci) {
         return _getWindowsWmicValue('ComputerSystem', 'TotalPhysicalMemory');
       } else if (useWindowsPowerShell) {
-        return _getWindowsPowershellMemoryValue('TotalPhysicalMemory');
+        return _getWindowsPowershellTotalMemoryValue();
       } else {
         return null;
       }
@@ -45,24 +45,8 @@ class PlatformMemory {
     }
   }
 
-  int? getFreePhysicalMemory() {
-    if (options.platform.isLinux) {
-      return _getLinuxMemInfoValue('MemFree');
-    } else if (options.platform.isWindows) {
-      if (useWindowsWmci) {
-        return _getWindowsWmicValue('OS', 'FreePhysicalMemory');
-      } else if (useWindowsPowerShell) {
-        return _getWindowsPowershellMemoryValue('FreePhysicalMemory');
-      } else {
-        return null;
-      }
-    } else {
-      return null;
-    }
-  }
-
-  int? _getWindowsWmicValue(String section, String key) {
-    final os = _wmicGetValueAsMap(section, [key]);
+  Future<int?> _getWindowsWmicValue(String section, String key) async {
+    final os = await _wmicGetValueAsMap(section, [key]);
     final totalPhysicalMemoryValue = os?[key];
     if (totalPhysicalMemoryValue == null) {
       return null;
@@ -74,12 +58,10 @@ class PlatformMemory {
     return size;
   }
 
-  int? _getLinuxMemInfoValue(String key) {
-    final meminfoList = _exec('cat', ['/proc/meminfo'])
-            ?.trim()
-            .replaceAll('\r\n', '\n')
-            .split('\n') ??
-        [];
+  Future<int?> _getLinuxMemInfoValue(String key) async {
+    final result = await _exec('cat', ['/proc/meminfo']);
+    final meminfoList =
+        result?.trim().replaceAll('\r\n', '\n').split('\n') ?? [];
 
     final meminfoMap = _listToMap(meminfoList, ':');
     final memsizeResults = meminfoMap[key]?.split(' ') ?? [];
@@ -96,11 +78,11 @@ class PlatformMemory {
     return memsize;
   }
 
-  String? _exec(String executable, List<String> arguments,
-      {bool runInShell = false}) {
+  Future<String?> _exec(String executable, List<String> arguments,
+      {bool runInShell = false}) async {
     try {
       final result =
-          Process.runSync(executable, arguments, runInShell: runInShell);
+          await Process.run(executable, arguments, runInShell: runInShell);
       if (result.exitCode == 0) {
         return result.stdout.toString();
       }
@@ -113,16 +95,16 @@ class PlatformMemory {
     return null;
   }
 
-  Map<String, String>? _wmicGetValueAsMap(String section, List<String> fields) {
+  Future<Map<String, String>?> _wmicGetValueAsMap(
+      String section, List<String> fields) async {
     final arguments = <String>[section];
     arguments
       ..add('get')
       ..addAll(fields.join(', ').split(' '))
       ..add('/VALUE');
 
-    final list =
-        _exec('wmic', arguments)?.trim().replaceAll('\r\n', '\n').split('\n') ??
-            [];
+    final result = await _exec('wmic', arguments);
+    final list = result?.trim().replaceAll('\r\n', '\n').split('\n') ?? [];
 
     return _listToMap(list, '=');
   }
@@ -140,12 +122,11 @@ class PlatformMemory {
     return map;
   }
 
-  int? _getWindowsPowershellMemoryValue(String property) {
-    final command = property == 'TotalPhysicalMemory'
-        ? 'Get-CimInstance Win32_ComputerSystem | Select-Object -ExpandProperty TotalPhysicalMemory'
-        : 'Get-CimInstance Win32_OperatingSystem | Select-Object -ExpandProperty FreePhysicalMemory';
+  Future<int?> _getWindowsPowershellTotalMemoryValue() async {
+    final command =
+        'Get-CimInstance Win32_ComputerSystem | Select-Object -ExpandProperty TotalPhysicalMemory';
 
-    final result = _exec('powershell.exe',
+    final result = await _exec('powershell.exe',
         ['-NoProfile', '-NonInteractive', '-Command', command]);
     if (result == null) {
       return null;
@@ -157,44 +138,6 @@ class PlatformMemory {
       return null;
     }
 
-    // FreePhysicalMemory is in KB, while TotalPhysicalMemory is in bytes
-    return property == 'TotalPhysicalMemory' ? size : size * 1024;
-  }
-}
-
-/// A cached version of [PlatformMemory] that reduces system calls by caching
-/// values. Total memory is cached indefinitely, and free memory for the
-/// configured duration (default 1 minute).
-class CachedPlatformMemory {
-  CachedPlatformMemory(SentryOptions options, {Duration? cacheDuration})
-      : _cacheDuration = cacheDuration ?? const Duration(minutes: 1) {
-    _delegate = PlatformMemory(options);
-  }
-
-  final Duration _cacheDuration;
-  late final PlatformMemory _delegate;
-
-  int? _cachedTotalPhysicalMemory;
-  int? _cachedFreePhysicalMemory;
-  DateTime? _lastCacheUpdate;
-
-  void _refreshCachedFreePhysicalMemory() {
-    final now = DateTime.now();
-    if (_lastCacheUpdate != null &&
-        now.difference(_lastCacheUpdate!) < _cacheDuration) {
-      return;
-    }
-    _cachedFreePhysicalMemory = _delegate.getFreePhysicalMemory();
-    _lastCacheUpdate = now;
-  }
-
-  int? getTotalPhysicalMemory() {
-    _cachedTotalPhysicalMemory ??= _delegate.getTotalPhysicalMemory();
-    return _cachedTotalPhysicalMemory;
-  }
-
-  int? getFreePhysicalMemory() {
-    _refreshCachedFreePhysicalMemory();
-    return _cachedFreePhysicalMemory;
+    return size;
   }
 }

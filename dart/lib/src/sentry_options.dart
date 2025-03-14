@@ -362,10 +362,6 @@ class SentryOptions {
   /// If enabled, [scopeObservers] will be called when mutating scope.
   bool enableScopeSync = true;
 
-  /// Read memory information on Windows & Linux (total/free) by calling system APIs.
-  /// This might have negative performance impact, use with caution.
-  bool collectPlatformDeviceMemory = false;
-
   final List<ScopeObserver> _scopeObservers = [];
 
   List<ScopeObserver> get scopeObservers => _scopeObservers;

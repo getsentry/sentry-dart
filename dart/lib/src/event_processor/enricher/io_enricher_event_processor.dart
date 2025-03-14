@@ -15,11 +15,7 @@ EnricherEventProcessor enricherEventProcessor(SentryOptions options) {
 /// Uses Darts [Platform](https://api.dart.dev/stable/dart-io/Platform-class.html)
 /// class to read information.
 class IoEnricherEventProcessor implements EnricherEventProcessor {
-  IoEnricherEventProcessor(this._options) {
-    _platformMemory = _options.collectPlatformDeviceMemory
-        ? CachedPlatformMemory(_options)
-        : null;
-  }
+  IoEnricherEventProcessor(this._options);
 
   final SentryOptions _options;
   late final String _dartVersion = _extractDartVersion(Platform.version);
@@ -27,7 +23,8 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
     Platform.operatingSystem,
     Platform.operatingSystemVersion,
   );
-  late final CachedPlatformMemory? _platformMemory;
+  bool _fetchedTotalPhysicalMemory = false;
+  int? _totalPhysicalMemory;
 
   /// Extracts the semantic version and channel from the full version string.
   ///
@@ -44,10 +41,10 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
   }
 
   @override
-  SentryEvent? apply(SentryEvent event, Hint hint) {
+  Future<SentryEvent?> apply(SentryEvent event, Hint hint) async {
     final contexts = event.contexts;
 
-    contexts.device = _getDevice(event.contexts.device);
+    contexts.device = await _getDevice(event.contexts.device);
     contexts.operatingSystem =
         _getOperatingSystem(event.contexts.operatingSystem);
     contexts.runtimes = _getRuntimes(event.contexts.runtimes);
@@ -104,16 +101,23 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
     };
   }
 
-  SentryDevice _getDevice(SentryDevice? device) {
+  Future<SentryDevice> _getDevice(SentryDevice? device) async {
     return (device ?? SentryDevice()).copyWith(
       name: device?.name ??
           (_options.sendDefaultPii ? Platform.localHostname : null),
       processorCount: device?.processorCount ?? Platform.numberOfProcessors,
-      memorySize:
-          device?.memorySize ?? _platformMemory?.getTotalPhysicalMemory(),
-      freeMemory:
-          device?.freeMemory ?? _platformMemory?.getFreePhysicalMemory(),
+      memorySize: device?.memorySize ?? await _getTotalPhysicalMemory(),
+      freeMemory: device?.freeMemory,
     );
+  }
+
+  Future<int?> _getTotalPhysicalMemory() async {
+    if (!_fetchedTotalPhysicalMemory) {
+      _totalPhysicalMemory =
+          await PlatformMemory(_options).getTotalPhysicalMemory();
+      _fetchedTotalPhysicalMemory = true;
+    }
+    return _totalPhysicalMemory;
   }
 
   SentryApp _getApp(SentryApp? app) {
