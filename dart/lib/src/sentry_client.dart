@@ -569,16 +569,16 @@ class SentryClient {
 
   FutureOr<void> _emitBeforeSendEventObserver(
       SentryEvent event, Hint hint) async {
-    for (final callback in _options.beforeSendEventObservers) {
+    for (final observer in _options.beforeSendEventObservers) {
       try {
-        final result = callback.onBeforeSendEvent(event, hint);
+        final result = observer.onBeforeSendEvent(event, hint);
         if (result is Future) {
           await result;
         }
       } catch (exception, stackTrace) {
         _options.logger(
           SentryLevel.error,
-          'Error while running beforeSendEvent callback',
+          'Error while running beforeSendEvent observer',
           exception: exception,
           stackTrace: stackTrace,
         );
