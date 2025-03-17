@@ -21,11 +21,6 @@ class WebSessionUpdater implements BeforeSendEventObserver {
     }
     final exceptions = event.exceptions;
     if (exceptions == null || exceptions.isEmpty) {
-      _options.logger(
-        SentryLevel.debug,
-        'No exceptions found in the event, not updating session.',
-        logger: '$WebSessionUpdater',
-      );
       return;
     }
 
