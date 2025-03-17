@@ -9,7 +9,7 @@ abstract class SentryJsBinding {
   void captureEnvelope(List<Object> envelope);
   void startSession();
   Map<dynamic, dynamic>? getSession();
-  void updateSession({int? errors, String? status});
+  void updateSession({required int errors, required String status});
   void captureSession();
 
   @visibleForTesting

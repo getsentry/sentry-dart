@@ -23,19 +23,17 @@ class WebSentryJsBinding implements SentryJsBinding {
   }
 
   @override
-  void updateSession({int? errors, String? status}) {
+  void updateSession({required int errors, required String status}) {
     final isolationScope = SentryJsIsolationScope();
     JSObject? currentSession = isolationScope.getSession();
-
-    if (status != null) {
-      currentSession?['status'] = status.toJS;
+    if (currentSession == null) {
+      return;
     }
 
-    if (errors != null) {
-      currentSession?['errors'] = errors.toJS;
-    }
+    currentSession['status'] = status.toJS;
+    currentSession['errors'] = errors.toJS;
 
-    isolationScope.setSession(currentSession!);
+    isolationScope.setSession(currentSession);
   }
 
   JSObject? _createIntegration(String integration) {
@@ -106,6 +104,7 @@ class SentryJsIsolationScope {
 
 extension _SentryJsIsolationScopeExtension on SentryJsIsolationScope {
   external JSObject? getSession();
+
   external void setSession(JSObject session);
 }
 
@@ -117,6 +116,7 @@ class SentryJsClient {
 
 extension _SentryJsClientExtension on SentryJsClient {
   external void sendEnvelope(JSAny? envelope);
+
   external JSObject? getOptions();
 }
 

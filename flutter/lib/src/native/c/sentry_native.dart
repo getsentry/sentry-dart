@@ -305,7 +305,7 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   }
 
   @override
-  FutureOr<void> updateSession({int? errors, String? status}) {
+  FutureOr<void> updateSession({required int errors, required String status}) {
     _logNotSupported('updating session');
   }
 }
