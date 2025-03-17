@@ -317,7 +317,7 @@ class Scope {
           level: level ?? event.level);
     }
 
-    _contexts.clone().forEach((key, value) {
+    _contexts.forEach((key, value) {
       // add the contexts runtime list to the event.contexts.runtimes
       if (key == SentryRuntime.listType &&
           value is List<SentryRuntime> &&

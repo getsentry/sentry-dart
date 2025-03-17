@@ -20,7 +20,11 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
   final SentryOptions _options;
   late final String _dartVersion = _extractDartVersion(Platform.version);
   late final SentryOperatingSystem _os = extractOperatingSystem(
-      Platform.operatingSystem, Platform.operatingSystemVersion);
+    Platform.operatingSystem,
+    Platform.operatingSystemVersion,
+  );
+  bool _fetchedTotalPhysicalMemory = false;
+  int? _totalPhysicalMemory;
 
   /// Extracts the semantic version and channel from the full version string.
   ///
@@ -37,17 +41,15 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
   }
 
   @override
-  SentryEvent? apply(SentryEvent event, Hint hint) {
-    // Amend app with current memory usage, as this is not available on native.
-    final app = _getApp(event.contexts.app);
+  Future<SentryEvent?> apply(SentryEvent event, Hint hint) async {
+    final contexts = event.contexts;
 
-    final contexts = event.contexts.copyWith(
-      device: _getDevice(event.contexts.device),
-      operatingSystem: _getOperatingSystem(event.contexts.operatingSystem),
-      runtimes: _getRuntimes(event.contexts.runtimes),
-      app: app,
-      culture: _getSentryCulture(event.contexts.culture),
-    );
+    contexts.device = await _getDevice(event.contexts.device);
+    contexts.operatingSystem =
+        _getOperatingSystem(event.contexts.operatingSystem);
+    contexts.runtimes = _getRuntimes(event.contexts.runtimes);
+    contexts.app = _getApp(event.contexts.app);
+    contexts.culture = _getSentryCulture(event.contexts.culture);
 
     contexts['dart_context'] = _getDartContext();
 
@@ -113,15 +115,23 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
     };
   }
 
-  SentryDevice _getDevice(SentryDevice? device) {
-    final platformMemory = PlatformMemory(_options);
+  Future<SentryDevice> _getDevice(SentryDevice? device) async {
     return (device ?? SentryDevice()).copyWith(
       name: device?.name ??
           (_options.sendDefaultPii ? Platform.localHostname : null),
       processorCount: device?.processorCount ?? Platform.numberOfProcessors,
-      memorySize: device?.memorySize ?? platformMemory.getTotalPhysicalMemory(),
-      freeMemory: device?.freeMemory ?? platformMemory.getFreePhysicalMemory(),
+      memorySize: device?.memorySize ?? await _getTotalPhysicalMemory(),
+      freeMemory: device?.freeMemory,
     );
+  }
+
+  Future<int?> _getTotalPhysicalMemory() async {
+    if (!_fetchedTotalPhysicalMemory) {
+      _totalPhysicalMemory =
+          await PlatformMemory(_options).getTotalPhysicalMemory();
+      _fetchedTotalPhysicalMemory = true;
+    }
+    return _totalPhysicalMemory;
   }
 
   SentryApp _getApp(SentryApp? app) {
