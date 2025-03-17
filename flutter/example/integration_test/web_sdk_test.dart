@@ -91,9 +91,14 @@ void main() {
         final client = _getClient()!;
         final completer = Completer<List<Object?>>();
 
+        int count = 0;
         JSFunction beforeEnvelopeCallback = ((JSArray envelope) {
           final envelopDart = envelope.dartify() as List<Object?>;
-          completer.complete(envelopDart);
+          // the first envelope will be session envelope, we can ignore that
+          if (count == 1) {
+            completer.complete(envelopDart);
+          }
+          count += 1;
         }).toJS;
 
         client.on('beforeEnvelope'.toJS, beforeEnvelopeCallback);
