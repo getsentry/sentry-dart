@@ -500,13 +500,20 @@ class SentryOptions {
 
   final List<BeforeSendEventObserver> _beforeSendEventObserver = [];
 
+  @internal
   List<BeforeSendEventObserver> get beforeSendEventObservers =>
       List.unmodifiable(_beforeSendEventObserver);
 
   /// Adds an observer which is called right before an event is sent.
   /// This should not be used to mutate the event.
+  @internal
   void addBeforeSendEventObserver(BeforeSendEventObserver observer) {
     _beforeSendEventObserver.add(observer);
+  }
+
+  @internal
+  void removeBeforeSendEventObserver(BeforeSendEventObserver observer) {
+    _beforeSendEventObserver.remove(observer);
   }
 
   SentryOptions({String? dsn, Platform? platform, RuntimeChecker? checker}) {
