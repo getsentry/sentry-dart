@@ -90,7 +90,7 @@ abstract class SentryNativeBinding {
   /// Updates the current session with the provided status and/or error count.
   ///
   /// Note: This is currently only used on web platforms. No-op on other platforms.
-  FutureOr<void> updateSession({required int errors, required String status});
+  FutureOr<void> updateSession({int? errors, String? status});
 
   /// Sends the current session immediately.
   ///

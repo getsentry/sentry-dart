@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import '../sentry_flutter.dart';
 import 'native/sentry_native_binding.dart';
 
@@ -10,7 +12,7 @@ class WebSessionUpdater implements BeforeSendEventObserver {
   WebSessionUpdater(this._nativeBinding, this._options);
 
   @override
-  void onBeforeSendEvent(SentryEvent event, Hint hint) async {
+  FutureOr<void> onBeforeSendEvent(SentryEvent event, Hint hint) async {
     if (_options.enableAutoSessionTracking == false) {
       _options.logger(
         SentryLevel.info,
@@ -19,6 +21,15 @@ class WebSessionUpdater implements BeforeSendEventObserver {
       );
       return;
     }
+    if (!_options.platform.isWeb) {
+      _options.logger(
+        SentryLevel.info,
+        '$WebSessionUpdater only runs on web.',
+        logger: '$WebSessionUpdater',
+      );
+      return;
+    }
+
     final exceptions = event.exceptions;
     if (exceptions == null || exceptions.isEmpty) {
       return;

@@ -156,7 +156,7 @@ void main() {
         );
       });
 
-      testWidgets('sends the session update for error event', (tester) async {
+      testWidgets('send session update if unhandled error', (tester) async {
         await restoreFlutterOnErrorAfter(() async {
           await SentryFlutter.init((options) {
             options.dsn = fakeDsn;
@@ -177,26 +177,62 @@ void main() {
 
         client.on('beforeSendSession'.toJS, beforeSendSessionCallback);
 
-        await Sentry.captureException(Exception('test'));
+        final mechanism = Mechanism(type: 'FlutterError', handled: false);
+        final throwableMechanism =
+            ThrowableMechanism(mechanism, Exception('test'));
+        await Sentry.captureException(throwableMechanism);
 
         final session = await completer.future;
+
+        expect(session['status'], 'crashed');
+        expect(session['errors'], 1);
       });
     });
 
-    group('disabled', () {
-      testWidgets('Sentry JS SDK is not initialized', (tester) async {
-        await restoreFlutterOnErrorAfter(() async {
-          await SentryFlutter.init((options) {
-            options.dsn = fakeDsn;
-            options.autoInitializeNativeSdk = false;
-          }, appRunner: () async {
-            await tester.pumpWidget(const app.MyApp());
-          });
+    testWidgets('send session update if handled error and error count = 0',
+        (tester) async {
+      await restoreFlutterOnErrorAfter(() async {
+        await SentryFlutter.init((options) {
+          options.dsn = fakeDsn;
+        }, appRunner: () async {
+          await tester.pumpWidget(
+            SentryWidget(child: const app.MyApp()),
+          );
         });
-
-        expect(globalThis['Sentry'], isNull);
-        expect(() => _getClient(), throwsA(anything));
       });
+
+      final client = _getClient()!;
+      final completer = Completer<Map<dynamic, dynamic>>();
+
+      JSFunction beforeSendSessionCallback = ((JSObject session) {
+        final sessionDart = session.dartify() as Map<dynamic, dynamic>;
+        completer.complete(sessionDart);
+      }).toJS;
+
+      client.on('beforeSendSession'.toJS, beforeSendSessionCallback);
+
+      await Sentry.captureException(Exception('test'));
+
+      final session = await completer.future;
+
+      expect(session['status'], 'ok');
+      expect(session['errors'], 1);
+    });
+  });
+
+  group('disabled', () {
+    testWidgets('Sentry JS SDK is not initialized', (tester) async {
+      await restoreFlutterOnErrorAfter(() async {
+        await SentryFlutter.init((options) {
+          options.dsn = fakeDsn;
+          options.autoInitializeNativeSdk = false;
+        }, appRunner: () async {
+          await tester.pumpWidget(const app.MyApp());
+        });
+      });
+
+      expect(globalThis['Sentry'], isNull);
+      expect(() => _getClient(), throwsA(anything));
     });
   });
 }
