@@ -506,6 +506,8 @@ class SentryOptions {
 
   /// Adds an observer which is called right before an event is sent.
   /// This should not be used to mutate the event.
+  ///
+  /// Note: this is not triggered for transactions/spans with startTransaction or startChild.
   @internal
   void addBeforeSendEventObserver(BeforeSendEventObserver observer) {
     _beforeSendEventObserver.add(observer);
