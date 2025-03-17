@@ -28,7 +28,7 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
         'dsn': _options.dsn,
         'debug': _options.debug,
         'environment': _options.environment,
-        'release': '_options.release', // TODO: release needs to be fixed
+        'release': _options.release,
         'dist': _options.dist,
         'sampleRate': _options.sampleRate ?? 1,
         'tracesSampleRate': 0,
@@ -116,7 +116,7 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
       });
 
   @override
-  FutureOr<void> updateSession({required int errors, required String status}) {
+  FutureOr<void> updateSession({int? errors, String? status}) {
     tryCatchSync('updateSession', () {
       _binding.updateSession(errors: errors, status: status);
     });

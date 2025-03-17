@@ -185,6 +185,12 @@ mixin SentryFlutter {
     // That allow us to send events to the network and then the Flutter integrations.
     final native = _native;
     if (native != null) {
+      // This is an Integration because we want to execute it after all the
+      // error handlers are in place. Calling a MethodChannel might result
+      // in errors. We also need to call this before the native sdk integrations
+      // so release is properly propagated.
+      integrations.add(LoadReleaseIntegration());
+
       integrations.add(createSdkIntegration(native));
       if (!platform.isWeb) {
         if (native.supportsLoadContexts) {
@@ -216,11 +222,6 @@ mixin SentryFlutter {
     integrations.add(SentryViewHierarchyIntegration());
 
     integrations.add(DebugPrintIntegration());
-
-    // This is an Integration because we want to execute it after all the
-    // error handlers are in place. Calling a MethodChannel might result
-    // in errors.
-    integrations.add(LoadReleaseIntegration());
 
     return integrations;
   }
