@@ -511,11 +511,6 @@ class SentryOptions {
     _beforeSendEventObserver.add(observer);
   }
 
-  @internal
-  void removeBeforeSendEventObserver(BeforeSendEventObserver observer) {
-    _beforeSendEventObserver.remove(observer);
-  }
-
   SentryOptions({String? dsn, Platform? platform, RuntimeChecker? checker}) {
     this.dsn = dsn;
     if (platform != null) {
