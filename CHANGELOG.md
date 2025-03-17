@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Improve platform memory collection on windows/linux ([#2798](https://github.com/getsentry/sentry-dart/pull/2798))
+  - Fixes an issue where total memory on windows was not read.
+  - Free memory collection was removed on windows/linux, due to performance issues.
+
 ## 8.14.0
 
 This release fixes an issue where Cold starts can be incorrectly reported as Warm starts on Android.
@@ -28,9 +36,6 @@ This release fixes an issue where Cold starts can be incorrectly reported as War
 - Pass missing `captureFailedRequests` param to `FailedRequestInterceptor` ([#2744](https://github.com/getsentry/sentry-dart/pull/2744))
 - Bind root screen transaction to scope ([#2756](https://github.com/getsentry/sentry-dart/pull/2756))
 - Reference to `SentryWidgetsFlutterBinding` in warning message in `FramesTrackingIntegration` ([#2704](https://github.com/getsentry/sentry-dart/pull/2704))
-- Improve platform memory collection on windows/linux ([#2798](https://github.com/getsentry/sentry-dart/pull/2798))
-  - Fixes an issue where total memory on windows was not read.
-  - Free memory collection was removed on windows/linux, due to performance issues.
   
 ### Deprecations
 
