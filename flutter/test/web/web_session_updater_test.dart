@@ -158,7 +158,6 @@ void main() {
   });
 }
 
-// ... existing code ...
 class Fixture {
   final options = defaultTestOptions();
   final native = MockSentryNativeBinding();
