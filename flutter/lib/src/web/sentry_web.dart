@@ -104,7 +104,9 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
 
   @override
   FutureOr<void> startSession({bool ignoreDuration = false}) {
-    _binding.startSession();
+    tryCatchSync('startSession', () {
+      _binding.startSession();
+    });
   }
 
   @override
