@@ -1,3 +1,4 @@
+import '../sentry.dart';
 import 'protocol.dart';
 import 'recursive_exception_cause_extractor.dart';
 import 'sentry_options.dart';
@@ -20,13 +21,16 @@ class SentryExceptionFactory {
     dynamic stackTrace,
     bool? removeSentryFrames,
   }) {
-    var throwable = exception;
     Mechanism? mechanism;
+    var throwable = exception;
+    
     bool? snapshot;
     if (exception is ThrowableMechanism) {
-      throwable = exception.throwable;
       mechanism = exception.mechanism;
+      throwable = exception.throwable;
       snapshot = exception.snapshot;
+    } else {
+      mechanism = Mechanism(type: "generic");
     }
 
     if (throwable is Error) {
@@ -72,6 +76,12 @@ class SentryExceptionFactory {
           break;
         }
       }
+    }
+
+    if (throwable is ExceptionCause) {
+      mechanism = mechanism.copyWith(
+        source: throwable.source,
+      );
     }
 
     // if --obfuscate feature is enabled, 'type' won't be human readable.

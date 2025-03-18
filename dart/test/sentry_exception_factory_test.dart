@@ -248,6 +248,30 @@ void main() {
     expect(sentryStackTrace.frames[16].package, 'sentry_flutter_example');
     expect(sentryStackTrace.frames[15].package, 'flutter');
   });
+
+  test('adds generic type mechanism if there is none', () {
+    final sentryException =
+    fixture.getSut(attachStacktrace: false).getSentryException(
+      SentryStackTraceError(),
+      stackTrace: SentryStackTrace(),
+    );
+
+    expect(sentryException.mechanism, isNotNull);
+    expect(sentryException.mechanism?.type, 'generic');
+  });
+
+  test('adds source for exception cause exception', () {
+    final exception = SentryStackTraceError();
+    final stackTrace = SentryStackTrace();
+    final cause = ExceptionCause(exception, stackTrace, source: "fixture-source");
+
+    final sentryException = fixture.getSut(attachStacktrace: false)
+        .getSentryException(cause);
+
+    expect(sentryException.mechanism, isNotNull);
+    expect(sentryException.mechanism?.type, 'generic');
+    expect(sentryException.mechanism?.source, 'fixture-source');
+  });
 }
 
 class CustomError extends Error {}
