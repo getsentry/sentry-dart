@@ -33,7 +33,9 @@ class SentryFlutterOptions extends SentryOptions {
   /// Enable or disable reporting of used packages.
   bool reportPackages = true;
 
-  /// Enable or disable the Auto session tracking on the Native SDKs (Android/iOS) and Web
+  /// Enable or disable the Auto session tracking on the Native SDKs (Android/iOS) and Web.
+  ///
+  /// Note: On web platforms, this requires using [SentryNavigatorObserver] to function properly.
   bool enableAutoSessionTracking = true;
 
   /// Enable or disable the Crash handling on the Native SDKs, e.g.,
@@ -375,6 +377,11 @@ class SentryFlutterOptions extends SentryOptions {
   @override
   // ignore: invalid_use_of_internal_member
   set automatedTestMode(bool value) => super.automatedTestMode = value;
+
+  /// Indicates if SentryNavigatorObserver has been registered
+  /// This is used internally to manage web session tracking features
+  @meta.internal
+  bool navigatorObserverRegistered = false;
 }
 
 /// A callback which can be used to suppress capturing of screenshots.
