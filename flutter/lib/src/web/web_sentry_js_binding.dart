@@ -13,7 +13,7 @@ class WebSentryJsBinding implements SentryJsBinding {
   SentryJsClient? _client;
 
   @override
-  void init(Map<String, dynamic> options) async {
+  void init(Map<String, dynamic> options) {
     if (options['defaultIntegrations'] != null) {
       options['defaultIntegrations'] = options['defaultIntegrations']
           .map((String integration) => _createIntegration(integration));
