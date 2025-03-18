@@ -251,10 +251,10 @@ void main() {
 
   test('adds generic type mechanism if there is none', () {
     final sentryException =
-    fixture.getSut(attachStacktrace: false).getSentryException(
-      SentryStackTraceError(),
-      stackTrace: SentryStackTrace(),
-    );
+        fixture.getSut(attachStacktrace: false).getSentryException(
+              SentryStackTraceError(),
+              stackTrace: SentryStackTrace(),
+            );
 
     expect(sentryException.mechanism, isNotNull);
     expect(sentryException.mechanism?.type, 'generic');

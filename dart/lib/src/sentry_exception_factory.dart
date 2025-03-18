@@ -1,4 +1,3 @@
-import '../sentry.dart';
 import 'protocol.dart';
 import 'recursive_exception_cause_extractor.dart';
 import 'sentry_options.dart';
@@ -21,13 +20,13 @@ class SentryExceptionFactory {
     dynamic stackTrace,
     bool? removeSentryFrames,
   }) {
-    Mechanism? mechanism;
     var throwable = exception;
-    
+    Mechanism? mechanism;
+
     bool? snapshot;
     if (exception is ThrowableMechanism) {
-      mechanism = exception.mechanism;
       throwable = exception.throwable;
+      mechanism = exception.mechanism;
       snapshot = exception.snapshot;
     }
 

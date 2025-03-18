@@ -49,7 +49,8 @@ void main() {
     final sut = fixture.getSut();
 
     final flattened = sut.flatten(errorA, null);
-    final actual = flattened.map((exceptionCause) => exceptionCause.source).toList();
+    final actual =
+        flattened.map((exceptionCause) => exceptionCause.source).toList();
     expect(actual, [null, "other", "anotherOther"]);
   });
 
