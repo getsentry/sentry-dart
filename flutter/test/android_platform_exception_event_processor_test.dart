@@ -12,6 +12,7 @@ import 'mocks.dart';
 
 void main() {
   late Fixture fixture;
+
   setUp(() {
     fixture = Fixture();
 
@@ -34,6 +35,9 @@ void main() {
       final exceptions = platformExceptionEvent!.exceptions!;
       expect(exceptions.length, 3);
 
+      final exception = exceptions[0];
+      expect(exception.mechanism?.source, isNull);
+
       final platformException_1 = exceptions[1];
 
       expect(platformException_1.type, 'IllegalArgumentException');
@@ -42,6 +46,7 @@ void main() {
         "Unsupported value: '[Ljava.lang.StackTraceElement;@ba6feed' of type 'class [Ljava.lang.StackTraceElement;'",
       );
       expect(platformException_1.stackTrace!.frames.length, 18);
+      expect(platformException_1.mechanism?.source, "stackTrace");
 
       final platformException_2 = exceptions[2];
 
@@ -51,6 +56,7 @@ void main() {
         "Unsupported value: '[Ljava.lang.StackTraceElement;@ba6feed' of type 'class [Ljava.lang.StackTraceElement;'",
       );
       expect(platformException_2.stackTrace!.frames.length, 18);
+      expect(platformException_2.mechanism?.source, "details");
     });
 
     test('platform exception with details correctly parsed', () async {
@@ -59,6 +65,9 @@ void main() {
 
       final exceptions = platformExceptionEvent!.exceptions!;
       expect(exceptions.length, 2);
+
+      final exception = exceptions[0];
+      expect(exception.mechanism?.source, isNull);
 
       final platformException_1 = exceptions[1];
 
@@ -69,6 +78,7 @@ void main() {
         "Unable to find resource ID #0x7f14000d",
       );
       expect(platformException_1.stackTrace!.frames.length, 19);
+      expect(platformException_1.mechanism?.source, "details");
     });
 
     test('platform exception with stackTrace correctly parsed', () async {
@@ -77,6 +87,9 @@ void main() {
 
       final exceptions = platformExceptionEvent!.exceptions!;
       expect(exceptions.length, 2);
+
+      final exception = exceptions[0];
+      expect(exception.mechanism?.source, isNull);
 
       final platformException_1 = exceptions[1];
 
@@ -87,6 +100,7 @@ void main() {
         "Not supported, use openfile",
       );
       expect(platformException_1.stackTrace!.frames.length, 22);
+      expect(platformException_1.mechanism?.source, "stackTrace");
     });
 
     test(
