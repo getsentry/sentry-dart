@@ -13,6 +13,8 @@ void main() {
 
     setUp(() {
       fixture = Fixture();
+      fixture.options.navigatorObserverRegistered = true;
+      fixture.options.enableAutoSessionTracking = true;
 
       when(fixture.native.updateSession(
               status: anyNamed('status'), errors: anyNamed('errors')))
@@ -21,30 +23,14 @@ void main() {
           .thenAnswer((_) => Future<void>.value());
     });
 
-    group('on web', () {
+    group('on web platform', () {
       setUp(() {
         fixture.options.platform = MockPlatform(isWeb: true);
       });
 
-      test('events without exceptions should not update or capture session',
-          () async {
-        final sut = fixture.getSut();
-        final event = SentryEvent();
-        final hint = Hint();
-
-        await sut.onBeforeSendEvent(event, hint);
-
-        verifyNever(fixture.native.updateSession(
-            status: anyNamed('status'), errors: anyNamed('errors')));
-        verifyNever(fixture.native.captureSession());
-      });
-
-      group('handled exceptions', () {
-        test(
-            'should update and increment error count for first error in active session',
-            () async {
-          when(fixture.native.getSession())
-              .thenReturn({'status': 'ok', 'errors': 0});
+      group('initialization conditions', () {
+        test('skips updates when navigator observer not registered', () async {
+          fixture.options.navigatorObserverRegistered = false;
 
           final sut = fixture.getSut();
           final event = SentryEvent().copyWith(
@@ -53,34 +39,14 @@ void main() {
 
           await sut.onBeforeSendEvent(event, hint);
 
-          verify(fixture.native.updateSession(status: 'ok', errors: 1))
-              .called(1);
-          verify(fixture.native.captureSession()).called(1);
-        });
-
-        test('should not update session when error count is > 0', () async {
-          when(fixture.native.getSession())
-              .thenReturn({'status': 'ok', 'errors': 1});
-
-          final sut = fixture.getSut();
-          final event = SentryEvent().copyWith(exceptions: [
-            SentryException(
-              type: 'test',
-              value: 'test',
-            )
-          ]);
-          final hint = Hint();
-
-          await sut.onBeforeSendEvent(event, hint);
-
+          verifyNever(fixture.native.getSession());
           verifyNever(fixture.native.updateSession(
               status: anyNamed('status'), errors: anyNamed('errors')));
           verifyNever(fixture.native.captureSession());
         });
 
-        test('should not update terminal sessions', () async {
-          when(fixture.native.getSession())
-              .thenReturn({'status': 'exit', 'errors': 0});
+        test('skips updates when auto session tracking disabled', () async {
+          fixture.options.enableAutoSessionTracking = false;
 
           final sut = fixture.getSut();
           final event = SentryEvent().copyWith(
@@ -89,46 +55,17 @@ void main() {
 
           await sut.onBeforeSendEvent(event, hint);
 
+          verifyNever(fixture.native.getSession());
           verifyNever(fixture.native.updateSession(
               status: anyNamed('status'), errors: anyNamed('errors')));
           verifyNever(fixture.native.captureSession());
         });
       });
 
-      group('unhandled exceptions', () {
-        test(
-            'should update and mark active sessions as crashed regardless of error count',
-            () async {
-          when(fixture.native.getSession())
-              .thenReturn({'status': 'ok', 'errors': 5});
-
+      group('event processing', () {
+        test('ignores events without exceptions', () async {
           final sut = fixture.getSut();
-          final event = SentryEvent().copyWith(exceptions: [
-            SentryException(
-                type: 'test',
-                value: 'test',
-                mechanism: Mechanism(type: 'test', handled: false))
-          ]);
-          final hint = Hint();
-
-          await sut.onBeforeSendEvent(event, hint);
-
-          verify(fixture.native.updateSession(status: 'crashed', errors: 6))
-              .called(1);
-          verify(fixture.native.captureSession()).called(1);
-        });
-
-        test('should not update terminal sessions', () async {
-          when(fixture.native.getSession())
-              .thenReturn({'status': 'exit', 'errors': 5});
-
-          final sut = fixture.getSut();
-          final event = SentryEvent().copyWith(exceptions: [
-            SentryException(
-                type: 'test',
-                value: 'test',
-                mechanism: Mechanism(type: 'test', handled: false))
-          ]);
+          final event = SentryEvent();
           final hint = Hint();
 
           await sut.onBeforeSendEvent(event, hint);
@@ -136,16 +73,112 @@ void main() {
           verifyNever(fixture.native.updateSession(
               status: anyNamed('status'), errors: anyNamed('errors')));
           verifyNever(fixture.native.captureSession());
+        });
+
+        group('handled exceptions', () {
+          test('increments error count for first error', () async {
+            when(fixture.native.getSession())
+                .thenReturn({'status': 'ok', 'errors': 0});
+
+            final sut = fixture.getSut();
+            final event = SentryEvent().copyWith(
+                exceptions: [SentryException(type: 'test', value: 'test')]);
+            final hint = Hint();
+
+            await sut.onBeforeSendEvent(event, hint);
+
+            verify(fixture.native.updateSession(status: 'ok', errors: 1))
+                .called(1);
+            verify(fixture.native.captureSession()).called(1);
+          });
+
+          test('ignores subsequent errors', () async {
+            when(fixture.native.getSession())
+                .thenReturn({'status': 'ok', 'errors': 1});
+
+            final sut = fixture.getSut();
+            final event = SentryEvent().copyWith(exceptions: [
+              SentryException(
+                type: 'test',
+                value: 'test',
+              )
+            ]);
+            final hint = Hint();
+
+            await sut.onBeforeSendEvent(event, hint);
+
+            verifyNever(fixture.native.updateSession(
+                status: anyNamed('status'), errors: anyNamed('errors')));
+            verifyNever(fixture.native.captureSession());
+          });
+
+          test('ignores terminal sessions', () async {
+            when(fixture.native.getSession())
+                .thenReturn({'status': 'exit', 'errors': 0});
+
+            final sut = fixture.getSut();
+            final event = SentryEvent().copyWith(
+                exceptions: [SentryException(type: 'test', value: 'test')]);
+            final hint = Hint();
+
+            await sut.onBeforeSendEvent(event, hint);
+
+            verifyNever(fixture.native.updateSession(
+                status: anyNamed('status'), errors: anyNamed('errors')));
+            verifyNever(fixture.native.captureSession());
+          });
+        });
+
+        group('unhandled exceptions', () {
+          test('marks active sessions as crashed', () async {
+            when(fixture.native.getSession())
+                .thenReturn({'status': 'ok', 'errors': 5});
+
+            final sut = fixture.getSut();
+            final event = SentryEvent().copyWith(exceptions: [
+              SentryException(
+                  type: 'test',
+                  value: 'test',
+                  mechanism: Mechanism(type: 'test', handled: false))
+            ]);
+            final hint = Hint();
+
+            await sut.onBeforeSendEvent(event, hint);
+
+            verify(fixture.native.updateSession(status: 'crashed', errors: 5))
+                .called(1);
+            verify(fixture.native.captureSession()).called(1);
+          });
+
+          test('ignores terminal sessions', () async {
+            when(fixture.native.getSession())
+                .thenReturn({'status': 'exit', 'errors': 5});
+
+            final sut = fixture.getSut();
+            final event = SentryEvent().copyWith(exceptions: [
+              SentryException(
+                  type: 'test',
+                  value: 'test',
+                  mechanism: Mechanism(type: 'test', handled: false))
+            ]);
+            final hint = Hint();
+
+            await sut.onBeforeSendEvent(event, hint);
+
+            verifyNever(fixture.native.updateSession(
+                status: anyNamed('status'), errors: anyNamed('errors')));
+            verifyNever(fixture.native.captureSession());
+          });
         });
       });
     });
 
-    group('on not web', () {
+    group('on non-web platform', () {
       setUp(() {
         fixture.options.platform = MockPlatform(isWeb: false);
       });
 
-      test('does not trigger session updates', () async {
+      test('no session updates', () async {
         final sut = fixture.getSut();
         final event = SentryEvent().copyWith(exceptions: [
           SentryException(
