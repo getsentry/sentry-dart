@@ -148,7 +148,7 @@ void main() async {
   group('$SentryReplayOptions.buildMaskingConfig()', () {
     List<String> rulesAsStrings(SentryPrivacyOptions options) {
       final config =
-          options.buildMaskingConfig(MockLogger().call, PlatformChecker());
+          options.buildMaskingConfig(MockLogger().call, RuntimeChecker());
       return config.rules
           .map((rule) => rule.toString())
           // These normalize the string on VM & js & wasm:

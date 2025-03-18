@@ -25,7 +25,6 @@ import 'access_aware_map.dart';
 ///   "username": "my_user",
 ///   "email": "foo@example.com",
 ///   "ip_address": "127.0.0.1",
-///   "segment": "segment"
 /// }
 /// ```
 @immutable
@@ -39,20 +38,16 @@ class SentryUser {
     this.username,
     this.email,
     this.ipAddress,
-    this.segment,
     this.geo,
     this.name,
     Map<String, dynamic>? data,
     @Deprecated('Will be removed in v8. Use [data] instead')
     Map<String, dynamic>? extras,
     this.unknown,
-  })  : assert(
-          id != null ||
-              username != null ||
-              email != null ||
-              ipAddress != null ||
-              segment != null,
-        ),
+  })  : assert(id != null ||
+            username != null ||
+            email != null ||
+            ipAddress != null),
         data = data == null ? null : Map.from(data),
         // ignore: deprecated_member_use_from_same_package
         extras = extras == null ? null : Map.from(extras);
@@ -68,11 +63,6 @@ class SentryUser {
 
   /// The IP of the user.
   final String? ipAddress;
-
-  /// The user segment, for apps that divide users in user segments.
-  @Deprecated(
-      'Will be removed in v9. Use a custom tag or context instead to capture this information.')
-  final String? segment;
 
   /// Any other user context information that may be helpful.
   ///
@@ -121,7 +111,6 @@ class SentryUser {
       username: json['username'],
       email: json['email'],
       ipAddress: json['ip_address'],
-      segment: json['segment'],
       data: data,
       geo: geo,
       name: json['name'],
@@ -140,8 +129,6 @@ class SentryUser {
       if (username != null) 'username': username,
       if (email != null) 'email': email,
       if (ipAddress != null) 'ip_address': ipAddress,
-      // ignore: deprecated_member_use_from_same_package
-      if (segment != null) 'segment': segment,
       if (data?.isNotEmpty ?? false) 'data': data,
       // ignore: deprecated_member_use_from_same_package
       if (extras?.isNotEmpty ?? false) 'extras': extras,
@@ -155,7 +142,6 @@ class SentryUser {
     String? username,
     String? email,
     String? ipAddress,
-    String? segment,
     @Deprecated('Will be removed in v8. Use [data] instead')
     Map<String, dynamic>? extras,
     String? name,
@@ -167,8 +153,6 @@ class SentryUser {
       username: username ?? this.username,
       email: email ?? this.email,
       ipAddress: ipAddress ?? this.ipAddress,
-      // ignore: deprecated_member_use_from_same_package
-      segment: segment ?? this.segment,
       data: data ?? this.data,
       // ignore: deprecated_member_use_from_same_package
       extras: extras ?? this.extras,

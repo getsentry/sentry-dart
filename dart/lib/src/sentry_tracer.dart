@@ -91,7 +91,8 @@ class SentryTracer extends ISentrySpan {
   }
 
   @override
-  Future<void> finish({SpanStatus? status, DateTime? endTimestamp}) async {
+  Future<void> finish(
+      {SpanStatus? status, DateTime? endTimestamp, Hint? hint}) async {
     final commonEndTimestamp = endTimestamp ?? _hub.options.clock();
     _autoFinishAfterTimer?.cancel();
     _finishStatus = SentryTracerFinishStatus.finishing(status);
@@ -135,7 +136,7 @@ class SentryTracer extends ISentrySpan {
       if (finish is Future) {
         await finish;
       }
-      await _rootSpan.finish(endTimestamp: _rootEndTimestamp);
+      await _rootSpan.finish(endTimestamp: _rootEndTimestamp, hint: hint);
 
       // remove from scope
       await _hub.configureScope((scope) {
@@ -159,6 +160,7 @@ class SentryTracer extends ISentrySpan {
       await _hub.captureTransaction(
         transaction,
         traceContext: traceContext(),
+        hint: hint,
       );
     } finally {
       profiler?.dispose();
@@ -275,10 +277,15 @@ class SentryTracer extends ISentrySpan {
 
   Future<void> _finishedCallback({
     DateTime? endTimestamp,
+    Hint? hint,
   }) async {
     final finishStatus = _finishStatus;
     if (finishStatus.finishing) {
-      await finish(status: finishStatus.status, endTimestamp: endTimestamp);
+      await finish(
+        status: finishStatus.status,
+        endTimestamp: endTimestamp,
+        hint: hint,
+      );
     }
   }
 
@@ -371,17 +378,12 @@ class SentryTracer extends ISentrySpan {
       return _sentryTraceContextHeader;
     }
 
-    SentryUser? user;
-    _hub.configureScope((scope) => user = scope.user);
-
     _sentryTraceContextHeader = SentryTraceContextHeader(
       _rootSpan.context.traceId,
       _hub.options.parsedDsn.publicKey,
       release: _hub.options.release,
       environment: _hub.options.environment,
       userId: null, // because of PII not sending it for now
-      // ignore: deprecated_member_use_from_same_package
-      userSegment: user?.segment,
       transaction:
           _isHighQualityTransactionName(transactionNameSource) ? name : null,
       sampleRate: _sampleRateToString(_rootSpan.samplingDecision?.sampleRate),

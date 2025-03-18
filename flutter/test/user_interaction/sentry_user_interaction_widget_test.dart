@@ -1,5 +1,5 @@
 @TestOn('vm')
-library flutter_test;
+library;
 // ignore_for_file: invalid_use_of_internal_member
 
 import 'package:flutter/cupertino.dart';

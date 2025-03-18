@@ -1,20 +1,33 @@
-import 'dart:io' as io show Platform;
+import 'dart:io' as io;
 
 import 'platform.dart';
 
-const Platform instance = IOPlatform();
-
 /// [Platform] implementation that delegates directly to `dart:io`.
-class IOPlatform extends Platform {
-  /// Creates a new [IOPlatform].
-  const IOPlatform();
+class PlatformBase {
+  const PlatformBase();
 
-  @override
-  String get operatingSystem => io.Platform.operatingSystem;
+  OperatingSystem get operatingSystem {
+    switch (io.Platform.operatingSystem) {
+      case 'macos':
+        return OperatingSystem.macos;
+      case 'windows':
+        return OperatingSystem.windows;
+      case 'linux':
+        return OperatingSystem.linux;
+      case 'android':
+        return OperatingSystem.android;
+      case 'ios':
+        return OperatingSystem.ios;
+      case 'fuchsia':
+        return OperatingSystem.fuchsia;
+      default:
+        return OperatingSystem.unknown;
+    }
+  }
 
-  @override
-  String get operatingSystemVersion => io.Platform.operatingSystemVersion;
+  String? get operatingSystemVersion => io.Platform.operatingSystemVersion;
 
-  @override
   String get localHostname => io.Platform.localHostname;
+
+  bool get isWeb => false;
 }

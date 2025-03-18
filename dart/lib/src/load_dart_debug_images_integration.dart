@@ -1,8 +1,16 @@
 import 'dart:typed_data';
-
 import 'package:meta/meta.dart';
 
-import '../sentry.dart';
+import 'event_processor.dart';
+import 'hint.dart';
+import 'hub.dart';
+import 'integration.dart';
+import 'protocol/debug_image.dart';
+import 'protocol/debug_meta.dart';
+import 'protocol/sentry_event.dart';
+import 'protocol/sentry_level.dart';
+import 'protocol/sentry_stack_trace.dart';
+import 'sentry_options.dart';
 
 class LoadDartDebugImagesIntegration extends Integration<SentryOptions> {
   @override
@@ -83,11 +91,11 @@ class LoadImageIntegrationEventProcessor implements EventProcessor {
     // It doesn't need to exist and is not used for symbolication.
     late final String codeFile;
 
-    final platform = _options.platformChecker.platform;
+    final platform = _options.platform;
 
     if (platform.isAndroid || platform.isWindows) {
       type = 'elf';
-      debugId = _convertBuildIdToDebugId(stackTrace.buildId!, platform.endian);
+      debugId = _convertBuildIdToDebugId(stackTrace.buildId!, Endian.host);
       if (platform.isAndroid) {
         codeFile = 'libapp.so';
       } else if (platform.isWindows) {

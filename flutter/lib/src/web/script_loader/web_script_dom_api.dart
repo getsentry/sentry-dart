@@ -1,10 +1,7 @@
 import 'dart:async';
 import 'dart:js_interop';
 import 'dart:js_interop_unsafe';
-
-// ignore: depend_on_referenced_packages
 import 'package:web/web.dart';
-
 import '../../../sentry_flutter.dart';
 import 'script_dom_api.dart';
 import 'sentry_script_loader.dart';

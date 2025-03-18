@@ -1,13 +1,11 @@
 import 'dart:async';
 import 'dart:typed_data';
-import 'dart:ui';
 
 import 'package:meta/meta.dart';
 import '../../sentry_flutter.dart';
 import '../renderer/renderer.dart';
 import '../screenshot/recorder.dart';
 import '../screenshot/recorder_config.dart';
-import 'package:flutter/widgets.dart' as widget;
 
 import '../utils/debouncer.dart';
 
@@ -52,18 +50,13 @@ class ScreenshotEventProcessor implements EventProcessor {
     // skip capturing in case of debouncing (=too many frequent capture requests)
     // the BeforeCaptureCallback may overrule the debouncing decision
     final shouldDebounce = _debouncer.shouldDebounce();
-
-    // ignore: deprecated_member_use_from_same_package
-    final beforeScreenshot = _options.beforeScreenshot;
-    final beforeCapture = _options.beforeCaptureScreenshot;
+    final beforeCaptureScreenshot = _options.beforeCaptureScreenshot;
 
     try {
       FutureOr<bool>? result;
 
-      if (beforeCapture != null) {
-        result = beforeCapture(event, hint, shouldDebounce);
-      } else if (beforeScreenshot != null) {
-        result = beforeScreenshot(event, hint: hint);
+      if (beforeCaptureScreenshot != null) {
+        result = beforeCaptureScreenshot(event, hint, shouldDebounce);
       }
 
       bool takeScreenshot = true;
@@ -99,20 +92,11 @@ class ScreenshotEventProcessor implements EventProcessor {
 
     final renderer = _options.rendererWrapper.getRenderer();
 
-    if (_options.platformChecker.isWeb &&
-        renderer != FlutterRenderer.canvasKit) {
+    if (_options.platform.isWeb && renderer != FlutterRenderer.canvasKit) {
       _options.logger(
         SentryLevel.debug,
         'Cannot take screenshot with ${renderer?.name} renderer.',
       );
-      return event;
-    }
-
-    if (_options.attachScreenshotOnlyWhenResumed &&
-        widget.WidgetsBinding.instance.lifecycleState !=
-            AppLifecycleState.resumed) {
-      _options.logger(SentryLevel.debug,
-          'Only attaching screenshots when application state is resumed.');
       return event;
     }
 

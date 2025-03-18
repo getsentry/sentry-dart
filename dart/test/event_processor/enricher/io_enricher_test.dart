@@ -1,14 +1,14 @@
 @TestOn('vm')
-library dart_test;
+library;
 
 import 'dart:io';
 
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/event_processor/enricher/io_enricher_event_processor.dart';
+import 'package:sentry/src/platform/mock_platform.dart';
 import 'package:test/test.dart';
 
 import '../../mocks.dart';
-import '../../mocks/mock_platform_checker.dart';
 import '../../test_utils.dart';
 
 void main() {
@@ -255,8 +255,9 @@ class Fixture {
     bool hasNativeIntegration = false,
     bool includePii = false,
   }) {
-    final options = defaultTestOptions(
-        MockPlatformChecker(hasNativeIntegration: hasNativeIntegration))
+    final options = defaultTestOptions()
+      ..platform =
+          hasNativeIntegration ? MockPlatform.iOS() : MockPlatform.fuchsia()
       ..sendDefaultPii = includePii;
 
     return IoEnricherEventProcessor(options);

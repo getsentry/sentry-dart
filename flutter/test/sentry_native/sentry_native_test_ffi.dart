@@ -15,14 +15,15 @@ import '../mocks.mocks.dart';
 enum NativeBackend { default_, crashpad, breakpad, inproc, none }
 
 extension on NativeBackend {
-  // TODO change default to crashpad in v9
   NativeBackend get actualValue =>
-      this == NativeBackend.default_ ? NativeBackend.none : this;
+      this == NativeBackend.default_ ? NativeBackend.crashpad : this;
 }
 
 // NOTE: Don't run/debug this main(), it likely won't work.
 // You can use main() in `sentry_native_test.dart`.
 void main() {
+  final currentPlatform = platform.Platform();
+
   final repoRootDir = Directory.current.path.endsWith('/test')
       ? Directory.current.parent.path
       : Directory.current.path;
@@ -34,12 +35,12 @@ void main() {
       setUpAll(() async {
         late final List<String> expectedDistFiles;
         if (backend.actualValue == NativeBackend.crashpad) {
-          expectedDistFiles = platform.instance.isWindows
+          expectedDistFiles = currentPlatform.isWindows
               ? ['sentry.dll', 'crashpad_handler.exe', 'crashpad_wer.dll']
               : ['libsentry.so', 'crashpad_handler'];
         } else {
           expectedDistFiles =
-              platform.instance.isWindows ? ['sentry.dll'] : ['libsentry.so'];
+              currentPlatform.isWindows ? ['sentry.dll'] : ['libsentry.so'];
         }
 
         helper = NativeTestHelper(
@@ -246,10 +247,10 @@ void main() {
       test('loadDebugImages', () async {
         final list = await sut.loadDebugImages(SentryStackTrace(frames: []));
         expect(list, isNotEmpty);
-        expect(list![0].type, platform.instance.isWindows ? 'pe' : 'elf');
+        expect(list![0].type, currentPlatform.isWindows ? 'pe' : 'elf');
         expect(list[0].debugId!.length, greaterThan(30));
-        expect(list[0].debugFile,
-            platform.instance.isWindows ? isNotEmpty : isNull);
+        expect(
+            list[0].debugFile, currentPlatform.isWindows ? isNotEmpty : isNull);
         expect(list[0].imageSize, greaterThan(0));
         expect(list[0].imageAddr, startsWith('0x'));
         expect(list[0].imageAddr?.length, greaterThan(2));
@@ -305,6 +306,7 @@ class NativeTestHelper {
   /// Compile sentry-native using CMake, as if it was part of a Flutter app.
   /// Returns the directory containing built libraries
   Future<String> _buildSentryNative() async {
+    final currentPlatform = platform.Platform();
     if (!_builtVersionIsExpected()) {
       Directory(cmakeConfDir).createSync(recursive: true);
       Directory(buildOutputDir).createSync(recursive: true);
@@ -314,7 +316,7 @@ int main(int argc, char *argv[]) { return 0; }
       File('$cmakeConfDir/CMakeLists.txt').writeAsStringSync('''
 cmake_minimum_required(VERSION 3.14)
 project(sentry-native-flutter-test)
-add_subdirectory(../../../${platform.instance.operatingSystem} plugin)
+add_subdirectory(../../../${currentPlatform.operatingSystem.name} plugin)
 add_executable(\${CMAKE_PROJECT_NAME} main.c)
 target_link_libraries(\${CMAKE_PROJECT_NAME} PRIVATE sentry_flutter_plugin)
 
@@ -333,7 +335,7 @@ set(CMAKE_INSTALL_PREFIX "${buildOutputDir.replaceAll('\\', '/')}")
         '--config',
         'Release',
       ]);
-      if (platform.instance.isLinux &&
+      if (currentPlatform.isLinux &&
           nativeBackend.actualValue == NativeBackend.crashpad) {
         await _exec('chmod', ['+x', '$buildOutputDir/crashpad_handler']);
       }

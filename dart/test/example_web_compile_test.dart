@@ -1,19 +1,16 @@
 @TestOn('vm')
-library dart_test;
+library;
 
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:version/version.dart';
 import 'package:test/test.dart';
 
 // Tests for the following issue
 // https://github.com/getsentry/sentry-dart/issues/1893
 void main() {
-  final dartVersion = Version.parse(Platform.version.split(' ')[0]);
-  final isLegacy = dartVersion < Version.parse('3.3.0');
-  final exampleAppDir = isLegacy ? 'example_web_legacy' : 'example_web';
+  final exampleAppDir = 'example_web';
   final exampleAppWorkingDir =
       '${Directory.current.path}${Platform.pathSeparator}$exampleAppDir';
   group('Compile $exampleAppDir', () {
@@ -41,10 +38,9 @@ void main() {
             reason:
                 'Could not compile main.dart, likely because of dart:io import.');
         expect(
-            compileResult.stdout,
-            contains(isLegacy
-                ? 'Succeeded after '
-                : 'build_web_compilers:entrypoint on web/main.dart:Compiled'));
+          compileResult.stdout,
+          contains('build_web_compilers:entrypoint on web/main.dart:Compiled'),
+        );
       },
       timeout: Timeout(const Duration(minutes: 1)), // double of detault timeout
     );
@@ -52,6 +48,7 @@ void main() {
 }
 
 /// Runs [command] with command's stdout and stderr being forwrarded to
+///
 /// test runner's respective streams. It buffers stdout and returns it.
 ///
 /// Returns [_CommandResult] with exitCode and stdout as a single sting
