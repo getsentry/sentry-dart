@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_use_of_internal_member
+
 import 'dart:async';
 import 'dart:ui';
 
@@ -40,7 +42,6 @@ typedef FlutterOptionsConfiguration = FutureOr<void> Function(
 mixin SentryFlutter {
   /// Represents the time when the Sentry init set up has started.
   @internal
-  // ignore: invalid_use_of_internal_member
   static DateTime? sentrySetupStartTime;
 
   /// Initializes the Sentry Flutter SDK.
@@ -62,7 +63,6 @@ mixin SentryFlutter {
     SentryScreenshotWidget.reset();
     options ??= SentryFlutterOptions();
 
-    // ignore: invalid_use_of_internal_member
     sentrySetupStartTime ??= options.clock();
 
     if (options.platform.supportsNativeIntegration) {
@@ -103,16 +103,12 @@ mixin SentryFlutter {
         return optionsConfiguration(o as SentryFlutterOptions);
       },
       appRunner: appRunner,
-      // ignore: invalid_use_of_internal_member
       options: options,
-      // ignore: invalid_use_of_internal_member
       callAppRunnerInRunZonedGuarded: useRunZonedGuarded,
-      // ignore: invalid_use_of_internal_member
       runZonedGuardedOnError: runZonedGuardedOnError,
     );
 
     if (_native != null) {
-      // ignore: invalid_use_of_internal_member
       SentryNativeProfilerFactory.attachTo(Sentry.currentHub, _native!);
     }
 
@@ -251,7 +247,6 @@ mixin SentryFlutter {
   /// Reports the time it took for the screen to be fully displayed.
   /// This requires the [SentryFlutterOptions.enableTimeToFullDisplayTracing] option to be set to `true`.
   static Future<void> reportFullyDisplayed() async {
-    // ignore: invalid_use_of_internal_member
     final options = Sentry.currentHub.options;
     if (options is SentryFlutterOptions) {
       try {
@@ -292,7 +287,6 @@ mixin SentryFlutter {
   /// Uses [SentryScreenshotWidget] to capture the current screen as a
   /// [SentryAttachment].
   static Future<SentryAttachment?> captureScreenshot() async {
-    // ignore: invalid_use_of_internal_member
     final options = Sentry.currentHub.options;
     if (!SentryScreenshotWidget.isMounted) {
       options.logger(
@@ -339,7 +333,6 @@ mixin SentryFlutter {
   }
 
   static void _logNativeIntegrationNotAvailable(String methodName) {
-    // ignore: invalid_use_of_internal_member
     Sentry.currentHub.options.logger(
       SentryLevel.debug,
       'Native integration is not available. Make sure SentryFlutter is initialized before accessing the $methodName API.',
