@@ -153,7 +153,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       to: route.settings,
     );
 
-    // _addWebSessions(from: previousRoute, to: route);
+    _addWebSessions(from: previousRoute, to: route);
 
     // Clearing the display tracker here is safe since didPush happens before the Widget is built
     _timeToDisplayTracker?.clear();
@@ -181,7 +181,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       to: newRoute?.settings,
     );
 
-    // _addWebSessions(from: oldRoute, to: newRoute);
+    _addWebSessions(from: oldRoute, to: newRoute);
   }
 
   @override
@@ -202,7 +202,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       to: previousRoute?.settings,
     );
 
-    // _addWebSessions(from: route, to: previousRoute);
+    _addWebSessions(from: route, to: previousRoute);
 
     final timestamp = _hub.options.clock();
     _finishTimeToDisplayTracking(endTimestamp: timestamp, clearAfter: true);
