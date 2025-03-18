@@ -60,9 +60,8 @@ class WebSessionUpdater implements BeforeSendEventObserver {
         (sessionNonTerminal && errors == 0) || (sessionNonTerminal && crashed);
 
     if (shouldUpdateAndSend) {
-      final changedStatus = crashed ? 'crashed' : status;
-      await _nativeBinding.updateSession(
-          status: changedStatus, errors: errors + 1);
+      final newStatus = crashed ? 'crashed' : status;
+      await _nativeBinding.updateSession(status: newStatus, errors: errors + 1);
       await _nativeBinding.captureSession();
     }
   }
