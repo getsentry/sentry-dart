@@ -29,8 +29,6 @@ class SentryExceptionFactory {
       mechanism = exception.mechanism;
       throwable = exception.throwable;
       snapshot = exception.snapshot;
-    } else {
-      mechanism = Mechanism(type: "generic");
     }
 
     if (throwable is Error) {
@@ -76,12 +74,6 @@ class SentryExceptionFactory {
           break;
         }
       }
-    }
-
-    if (throwable is ExceptionCause) {
-      mechanism = mechanism.copyWith(
-        source: throwable.source,
-      );
     }
 
     // if --obfuscate feature is enabled, 'type' won't be human readable.

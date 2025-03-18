@@ -259,19 +259,6 @@ void main() {
     expect(sentryException.mechanism, isNotNull);
     expect(sentryException.mechanism?.type, 'generic');
   });
-
-  test('adds source for exception cause exception', () {
-    final exception = SentryStackTraceError();
-    final stackTrace = SentryStackTrace();
-    final cause = ExceptionCause(exception, stackTrace, source: "fixture-source");
-
-    final sentryException = fixture.getSut(attachStacktrace: false)
-        .getSentryException(cause);
-
-    expect(sentryException.mechanism, isNotNull);
-    expect(sentryException.mechanism?.type, 'generic');
-    expect(sentryException.mechanism?.source, 'fixture-source');
-  });
 }
 
 class CustomError extends Error {}
