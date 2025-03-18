@@ -53,7 +53,7 @@ class IoExceptionEventProcessor implements ExceptionEventProcessor {
           // OSError is the underlying error
           // https://api.dart.dev/stable/dart-io/SocketException/osError.html
           // https://api.dart.dev/stable/dart-io/OSError-class.html
-          if (osError != null) _sentryExceptionfromOsError(osError),
+          if (osError != null) _sentryExceptionFromOsError(osError),
           ...?event.exceptions,
         ],
       );
@@ -80,7 +80,7 @@ class IoExceptionEventProcessor implements ExceptionEventProcessor {
         // OSError is the underlying error
         // https://api.dart.dev/stable/dart-io/SocketException/osError.html
         // https://api.dart.dev/stable/dart-io/OSError-class.html
-        if (osError != null) _sentryExceptionfromOsError(osError),
+        if (osError != null) _sentryExceptionFromOsError(osError),
         ...?event.exceptions,
       ],
     );
@@ -97,14 +97,14 @@ class IoExceptionEventProcessor implements ExceptionEventProcessor {
         // OSError is the underlying error
         // https://api.dart.dev/stable/dart-io/FileSystemException/osError.html
         // https://api.dart.dev/stable/dart-io/OSError-class.html
-        if (osError != null) _sentryExceptionfromOsError(osError),
+        if (osError != null) _sentryExceptionFromOsError(osError),
         ...?event.exceptions,
       ],
     );
   }
 }
 
-SentryException _sentryExceptionfromOsError(OSError osError) {
+SentryException _sentryExceptionFromOsError(OSError osError) {
   return SentryException(
     type: osError.runtimeType.toString(),
     value: osError.toString(),
@@ -115,6 +115,7 @@ SentryException _sentryExceptionfromOsError(OSError osError) {
       meta: {
         'errno': {'number': osError.errorCode},
       },
+      source: 'osError'
     ),
   );
 }

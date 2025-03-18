@@ -73,6 +73,7 @@ void main() {
       );
       expect(event?.exceptions?.first.mechanism?.type, 'OSError');
       expect(event?.exceptions?.first.mechanism?.meta['errno']['number'], 54);
+      expect(event?.exceptions?.first.mechanism?.source, 'osError');
     });
 
     test('adds OSError SentryException for $FileSystemException', () {
@@ -97,6 +98,7 @@ void main() {
       );
       expect(event?.exceptions?.first.mechanism?.type, 'OSError');
       expect(event?.exceptions?.first.mechanism?.meta['errno']['number'], 42);
+      expect(event?.exceptions?.first.mechanism?.source, 'osError');
     });
   });
 }
