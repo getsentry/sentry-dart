@@ -84,16 +84,16 @@ abstract class SentryNativeBinding {
 
   /// Gets the current active session.
   ///
-  /// Note: This is used on web platforms. Returns null on other platforms.
+  /// Note: This is used on web platforms and returns null on non-web.
   FutureOr<Map<dynamic, dynamic>?> getSession();
 
   /// Updates the current session with the provided status and/or error count.
   ///
-  /// Note: This is currently only used on web platforms. No-op on other platforms.
+  /// Note: This is used on web platforms and is a no-op on non-web.
   FutureOr<void> updateSession({int? errors, String? status});
 
   /// Sends the current session immediately.
   ///
-  /// Note: This is primarily used on web platforms. No-op on other platforms.
+  /// NNote: This is used on web platforms and is a no-op on non-web.
   FutureOr<void> captureSession();
 }
