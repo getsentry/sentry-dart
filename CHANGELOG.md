@@ -4,6 +4,11 @@
 
 - Add support for Flutter Web release health
   - Requires using `SentryNavigatorObserver`;
+- Bump Native SDK from v0.7.20 to v0.8.1 ([#2761](https://github.com/getsentry/sentry-dart/pull/2761))
+  - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#081)
+  - [diff](https://github.com/getsentry/sentry-native/compare/0.7.20...0.8.1)
+- Set sentry-native backend to `crashpad` by default and `breakpad` for Windows ARM64 ([#2791](https://github.com/getsentry/sentry-dart/pull/2791))
+  - Setting the `SENTRY_NATIVE_BACKEND` environment variable will override the defaults.
 - Move replay and privacy from experimental to options ([#2755](https://github.com/getsentry/sentry-dart/pull/2755))
 - Remove renderer from `flutter_context` ([#2751](https://github.com/getsentry/sentry-dart/pull/2751))
 - Cleanup platform mocking ([#2730](https://github.com/getsentry/sentry-dart/pull/2730))
@@ -89,6 +94,7 @@ final db = AppDatabase(executor);
   - For now, only the `dio` integration is supported.
 - Enable privacy masking for screenshots by default ([#2728](https://github.com/getsentry/sentry-dart/pull/2728))
 
+  
 ### Enhancements
 
 - Replay: improve Android native interop performance by using JNI ([#2670](https://github.com/getsentry/sentry-dart/pull/2670))
