@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Add support for Flutter Web release health
+- Add support for Flutter Web release health ([#2794](https://github.com/getsentry/sentry-dart/pull/2794))
   - Requires using `SentryNavigatorObserver`;
 - Bump Native SDK from v0.7.20 to v0.8.1 ([#2761](https://github.com/getsentry/sentry-dart/pull/2761))
   - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#081)
@@ -93,7 +93,6 @@ final db = AppDatabase(executor);
   - Responses are attached to the `Hint` object, which can be read in `beforeSend`/`beforeSendTransaction` callbacks via `hint.response`.
   - For now, only the `dio` integration is supported.
 - Enable privacy masking for screenshots by default ([#2728](https://github.com/getsentry/sentry-dart/pull/2728))
-
   
 ### Enhancements
 
