@@ -46,7 +46,7 @@ void main() {
         "Unsupported value: '[Ljava.lang.StackTraceElement;@ba6feed' of type 'class [Ljava.lang.StackTraceElement;'",
       );
       expect(platformException_1.stackTrace!.frames.length, 18);
-      expect(platformException_1.mechanism?.source, "stackTrace");
+      expect(platformException_1.mechanism?.source, "stackTrace[0]");
 
       final platformException_2 = exceptions[2];
 
@@ -56,7 +56,7 @@ void main() {
         "Unsupported value: '[Ljava.lang.StackTraceElement;@ba6feed' of type 'class [Ljava.lang.StackTraceElement;'",
       );
       expect(platformException_2.stackTrace!.frames.length, 18);
-      expect(platformException_2.mechanism?.source, "details");
+      expect(platformException_2.mechanism?.source, "details[0]");
     });
 
     test('platform exception with details correctly parsed', () async {
@@ -78,7 +78,7 @@ void main() {
         "Unable to find resource ID #0x7f14000d",
       );
       expect(platformException_1.stackTrace!.frames.length, 19);
-      expect(platformException_1.mechanism?.source, "details");
+      expect(platformException_1.mechanism?.source, "details[0]");
     });
 
     test('platform exception with stackTrace correctly parsed', () async {
@@ -100,7 +100,7 @@ void main() {
         "Not supported, use openfile",
       );
       expect(platformException_1.stackTrace!.frames.length, 22);
-      expect(platformException_1.mechanism?.source, "stackTrace");
+      expect(platformException_1.mechanism?.source, "stackTrace[0]");
     });
 
     test(
