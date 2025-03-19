@@ -22,6 +22,7 @@ import 'integrations/frames_tracking_integration.dart';
 import 'integrations/integrations.dart';
 import 'integrations/native_app_start_handler.dart';
 import 'integrations/screenshot_integration.dart';
+import 'integrations/web_session_integration.dart';
 import 'native/factory.dart';
 import 'native/native_scope_observer.dart';
 import 'native/sentry_native_binding.dart';
@@ -32,7 +33,6 @@ import 'utils/platform_dispatcher_wrapper.dart';
 import 'version.dart';
 import 'view_hierarchy/view_hierarchy_integration.dart';
 import 'web/javascript_transport.dart';
-import 'web_session_updater.dart';
 
 /// Configuration options callback
 typedef FlutterOptionsConfiguration = FutureOr<void> Function(
@@ -129,14 +129,7 @@ mixin SentryFlutter {
           options.transport = FileSystemTransport(_native!, options);
         }
       }
-      if (options.platform.isWeb) {
-        // Currently updating sessions manually is only relevant for web
-        // iOS & Android sessions are handled by the native SDKs directly
-        options
-            .addBeforeSendEventObserver(WebSessionUpdater(_native!, options));
-      } else {
-        options.addScopeObserver(NativeScopeObserver(_native!));
-      }
+      options.addScopeObserver(NativeScopeObserver(_native!));
     }
 
     options.addEventProcessor(FlutterEnricherEventProcessor(options));
@@ -181,12 +174,10 @@ mixin SentryFlutter {
     // That allow us to send events to the network and then the Flutter integrations.
     final native = _native;
     if (native != null) {
-      // This is an Integration because we want to execute it after all the
-      // error handlers are in place. Calling a MethodChannel might result
-      // in errors. We also need to call this before the native sdk integrations
-      // so release is properly propagated.
+      // LoadReleaseIntegration needs to be executed after all the error handlers are in place.
+      // Calling a MethodChannel might result in errors.
+      // We also need to call this before the native sdk integrations so release is properly propagated.
       integrations.add(LoadReleaseIntegration());
-
       integrations.add(createSdkIntegration(native));
       if (!platform.isWeb) {
         if (native.supportsLoadContexts) {
@@ -201,6 +192,13 @@ mixin SentryFlutter {
           ),
         );
         integrations.add(ReplayIntegration(native));
+      } else {
+        // Updating sessions manually is only relevant for web
+        // iOS & Android sessions are handled by the native SDKs directly
+        //
+        // Important:
+        // Complete initialization of the integration depends on the SentryNavigatorObserver
+        integrations.add(WebSessionIntegration(native));
       }
       options.enableDartSymbolication = false;
     }

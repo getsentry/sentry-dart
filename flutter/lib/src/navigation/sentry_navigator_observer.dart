@@ -2,6 +2,7 @@
 
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
@@ -10,8 +11,10 @@ import 'package:sentry/src/sentry_tracer.dart';
 
 import '../../sentry_flutter.dart';
 import '../event_processor/flutter_enricher_event_processor.dart';
+import '../integrations/web_session_integration.dart';
 import '../native/native_frames.dart';
 import '../native/sentry_native_binding.dart';
+import '../web/web_session_handler.dart';
 import 'time_to_display_tracker.dart';
 import 'time_to_full_display_tracker.dart';
 
@@ -92,9 +95,11 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       _hub.options.sdk.addIntegration('UINavigationTracing');
     }
     _timeToDisplayTracker = _initializeTimeToDisplayTracker();
-    if (_hub.options is SentryFlutterOptions) {
-      (_hub.options as SentryFlutterOptions).navigatorObserverRegistered = true;
-    }
+    final webSessionIntegration = _hub.options.integrations
+        .whereType<WebSessionIntegration>()
+        .firstOrNull;
+    webSessionIntegration?.finishInitialization();
+    _webSessionHandler = webSessionIntegration?.webSessionHandler;
   }
 
   /// Initializes the TimeToDisplayTracker with the option to enable time to full display tracing.
@@ -116,6 +121,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   final SentryNativeBinding? _native;
   final List<String> _ignoreRoutes;
   TimeToDisplayTracker? _timeToDisplayTracker;
+  WebSessionHandler? _webSessionHandler;
 
   ISentrySpan? _transaction;
 
@@ -209,29 +215,10 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   }
 
   void _addWebSessions({Route<dynamic>? from, Route<dynamic>? to}) async {
-    if (!_hub.options.platform.isWeb) {
-      return;
-    }
-
     final fromName = from != null ? _getRouteName(from) : null;
     final toName = to != null ? _getRouteName(to) : null;
 
-    // Only start new session if:
-    // 1. We have a valid route change, or
-    // 2. It's the initial navigation to root route
-    final shouldStartSession =
-        (fromName != null && toName != null && fromName != toName) ||
-            (fromName == null && toName == '/');
-
-    // Comment from Sentry Javascript SDK:
-    // The session duration for browser sessions does not track a meaningful
-    // concept that can be used as a metric.
-    // Automatically captured sessions are akin to page views, and thus we
-    // discard their duration.
-    if (shouldStartSession) {
-      await _native?.startSession(ignoreDuration: true);
-      await _native?.captureSession();
-    }
+    await _webSessionHandler?.startSession(from: fromName, to: toName);
   }
 
   void _addBreadcrumb({
