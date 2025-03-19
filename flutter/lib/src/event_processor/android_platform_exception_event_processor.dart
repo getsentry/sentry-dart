@@ -143,15 +143,23 @@ class _JvmExceptionFactory {
     String exceptionAsString,
   ) {
     final jvmException = JvmException.parse(exceptionAsString);
-    final jvmExceptions = <JvmException>[
-      jvmException,
-      ...?jvmException.causes,
-      ...?jvmException.suppressed,
-    ];
 
-    return jvmExceptions.map((exception) {
-      return exception.toSentryException(nativePackageName);
-    }).toList(growable: false);
+    List<MapEntry<SentryException, SentryThread>> sentryExceptions = [];
+
+    final sentryException = jvmException.toSentryException(nativePackageName);
+    sentryExceptions.add(sentryException);
+
+    for (final cause in jvmException.causes ?? <JvmException>[]) {
+      final causeSentryException = cause.toSentryException(nativePackageName);
+      sentryExceptions.add(causeSentryException);
+    }
+
+    for (final suppressed in jvmException.suppressed ?? <JvmException>[]) {
+      final suppressedSentryException = suppressed.toSentryException(nativePackageName);
+      sentryExceptions.add(suppressedSentryException);
+    }
+
+    return sentryExceptions.toList(growable: false);
   }
 }
 
