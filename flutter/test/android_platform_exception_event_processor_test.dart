@@ -33,12 +33,12 @@ void main() {
           .apply(fixture.eventWithPlatformDetailsAndStackTrace, Hint());
 
       final exceptions = platformExceptionEvent!.exceptions!;
-      expect(exceptions.length, 3);
+      expect(exceptions.length, 1);
 
       final exception = exceptions[0];
       expect(exception.mechanism?.source, isNull);
 
-      final platformException_1 = exceptions[1];
+      final platformException_1 = exception.exceptions![0];
 
       expect(platformException_1.type, 'IllegalArgumentException');
       expect(
@@ -46,9 +46,9 @@ void main() {
         "Unsupported value: '[Ljava.lang.StackTraceElement;@ba6feed' of type 'class [Ljava.lang.StackTraceElement;'",
       );
       expect(platformException_1.stackTrace!.frames.length, 18);
-      expect(platformException_1.mechanism?.source, "stackTrace[0]");
+      expect(platformException_1.mechanism?.source, "stackTrace");
 
-      final platformException_2 = exceptions[2];
+      final platformException_2 = exception.exceptions![1];
 
       expect(platformException_2.type, 'IllegalArgumentException');
       expect(
@@ -56,7 +56,7 @@ void main() {
         "Unsupported value: '[Ljava.lang.StackTraceElement;@ba6feed' of type 'class [Ljava.lang.StackTraceElement;'",
       );
       expect(platformException_2.stackTrace!.frames.length, 18);
-      expect(platformException_2.mechanism?.source, "details[0]");
+      expect(platformException_2.mechanism?.source, "details");
     });
 
     test('platform exception with details correctly parsed', () async {
@@ -64,12 +64,12 @@ void main() {
           .apply(fixture.eventWithPlatformDetails, Hint());
 
       final exceptions = platformExceptionEvent!.exceptions!;
-      expect(exceptions.length, 2);
+      expect(exceptions.length, 1);
 
       final exception = exceptions[0];
       expect(exception.mechanism?.source, isNull);
 
-      final platformException_1 = exceptions[1];
+      final platformException_1 = exception.exceptions![0];
 
       expect(platformException_1.type, 'Resources\$NotFoundException');
       expect(platformException_1.module, 'android.content.res');
@@ -78,7 +78,7 @@ void main() {
         "Unable to find resource ID #0x7f14000d",
       );
       expect(platformException_1.stackTrace!.frames.length, 19);
-      expect(platformException_1.mechanism?.source, "details[0]");
+      expect(platformException_1.mechanism?.source, "details");
     });
 
     test('platform exception with stackTrace correctly parsed', () async {
@@ -86,12 +86,12 @@ void main() {
           .apply(fixture.eventWithPlatformStackTrace, Hint());
 
       final exceptions = platformExceptionEvent!.exceptions!;
-      expect(exceptions.length, 2);
+      expect(exceptions.length, 1);
 
       final exception = exceptions[0];
       expect(exception.mechanism?.source, isNull);
 
-      final platformException_1 = exceptions[1];
+      final platformException_1 = exception.exceptions![0];
 
       expect(platformException_1.type, 'IllegalArgumentException');
       expect(platformException_1.module, 'java.lang');
@@ -100,7 +100,7 @@ void main() {
         "Not supported, use openfile",
       );
       expect(platformException_1.stackTrace!.frames.length, 22);
-      expect(platformException_1.mechanism?.source, "stackTrace[0]");
+      expect(platformException_1.mechanism?.source, "stackTrace");
     });
 
     test(
@@ -110,7 +110,7 @@ void main() {
           .apply(fixture.eventWithPlatformDetailsAndStackTrace, Hint());
 
       final exceptions = platformExceptionEvent!.exceptions!;
-      expect(exceptions.length, 3);
+      expect(exceptions.length, 1);
 
       expect(platformExceptionEvent.threads?.first.current, true);
       expect(platformExceptionEvent.threads?.first.crashed, false);
@@ -121,9 +121,10 @@ void main() {
           .apply(fixture.eventWithPlatformDetailsAndStackTrace, Hint());
 
       final exceptions = platformExceptionEvent!.exceptions!;
-      expect(exceptions.length, 3);
+      expect(exceptions.length, 1);
 
-      final platformException = exceptions[1];
+      final exception = exceptions[0];
+      final platformException = exception.exceptions![0];
       final platformThread = platformExceptionEvent.threads?[1];
 
       expect(platformException.threadId, platformThread?.id);
@@ -142,7 +143,7 @@ void main() {
           .apply(fixture.eventWithPlatformDetailsAndStackTrace, Hint());
 
       final exceptions = platformExceptionEvent!.exceptions!;
-      expect(exceptions.length, 3);
+      expect(exceptions.length, 1);
 
       expect(platformExceptionEvent.threads?.length, threadCount);
     });

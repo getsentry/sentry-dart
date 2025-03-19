@@ -155,4 +155,273 @@ void main() {
       expect(stackTrace.toJson(), copy.stackTrace!.toJson());
     });
   });
+
+  group('flatten', () {
+    test('flatten exception without nested exceptions', () {
+      final origin = sentryException.copyWith(
+        value: 'origin',
+      );
+
+      final flattened = origin.flatten();
+
+      expect(flattened.length, 1);
+      expect(flattened.first.value, 'origin');
+
+      expect(flattened.first.mechanism?.source, isNull);
+      expect(flattened.first.mechanism?.exceptionId, 0);
+      expect(flattened.first.mechanism?.parentId, null);
+    });
+
+    test('flatten exception with nested chained exceptions', () {
+      final origin = sentryException.copyWith(
+        value: 'origin',
+      );
+      final originChild = sentryException.copyWith(
+        value: 'originChild',
+      );
+      origin.addException(originChild);
+      final originChildChild = sentryException.copyWith(
+        value: 'originChildChild',
+      );
+      originChild.addException(originChildChild);
+
+      final flattened = origin.flatten();
+
+      expect(flattened.length, 3);
+
+      expect(flattened[0].value, 'origin');
+      expect(flattened[0].mechanism?.isExceptionGroup, isNull);
+      expect(flattened[0].mechanism?.source, isNull);
+      expect(flattened[0].mechanism?.exceptionId, 0);
+      expect(flattened[0].mechanism?.parentId, null);
+
+      expect(flattened[1].value, 'originChild');
+      expect(flattened[1].mechanism?.source, isNull);
+      expect(flattened[1].mechanism?.exceptionId, 1);
+      expect(flattened[1].mechanism?.parentId, 0);
+
+      expect(flattened[2].value, 'originChildChild');
+      expect(flattened[2].mechanism?.source, isNull);
+      expect(flattened[2].mechanism?.exceptionId, 2);
+      expect(flattened[2].mechanism?.parentId, 1);
+    });
+
+    test('flatten exception with nested parallel exceptions', () {
+      final origin = sentryException.copyWith(
+        value: 'origin',
+      );
+      final originChild = sentryException.copyWith(
+        value: 'originChild',
+      );
+      origin.addException(originChild);
+      final originChild2 = sentryException.copyWith(
+        value: 'originChild2',
+      );
+      origin.addException(originChild2);
+
+      final flattened = origin.flatten();
+
+      expect(flattened.length, 3);
+
+      expect(flattened[0].value, 'origin');
+      expect(flattened[0].mechanism?.isExceptionGroup, true);
+      expect(flattened[0].mechanism?.source, isNull);
+      expect(flattened[0].mechanism?.exceptionId, 0);
+      expect(flattened[0].mechanism?.parentId, null);
+
+      expect(flattened[1].value, 'originChild');
+      expect(flattened[1].mechanism?.source, isNull);
+      expect(flattened[1].mechanism?.exceptionId, 1);
+      expect(flattened[1].mechanism?.parentId, 0);
+
+      expect(flattened[2].value, 'originChild2');
+      expect(flattened[2].mechanism?.source, isNull);
+      expect(flattened[2].mechanism?.exceptionId, 2);
+      expect(flattened[2].mechanism?.parentId, 0);
+    });
+
+    test('flatten rfc example', () {
+      // try:
+      //   raise RuntimeError("something")
+      // except:
+      //   raise ExceptionGroup("nested",
+      //     [
+      //       ValueError(654),
+      //       ExceptionGroup("imports",
+      //         [
+      //           ImportError("no_such_module"),
+      //           ModuleNotFoundError("another_module"),
+      //         ]
+      //       ),
+      //       TypeError("int"),
+      //     ]
+      //   )
+
+      // https://github.com/getsentry/rfcs/blob/main/text/0079-exception-groups.md#example-event
+      // In the example, the runtime error is inserted as the first exception in the outer exception group.
+
+      final exceptionGroupNested = sentryException.copyWith(
+        value: 'ExceptionGroup',
+      );
+      final runtimeError = sentryException.copyWith(
+        value: 'RuntimeError',
+        mechanism: sentryException.mechanism?.copyWith(source: '__source__'),
+      );
+      exceptionGroupNested.addException(runtimeError);
+      final valueError = sentryException.copyWith(
+        value: 'ValueError',
+        mechanism: sentryException.mechanism?.copyWith(source: 'exceptions[0]'),
+      );
+      exceptionGroupNested.addException(valueError);
+
+      final exceptionGroupImports = sentryException.copyWith(
+        value: 'ExceptionGroup',
+        mechanism: sentryException.mechanism?.copyWith(source: 'exceptions[1]'),
+      );
+      exceptionGroupNested.addException(exceptionGroupImports);
+
+      final importError = sentryException.copyWith(
+        value: 'ImportError',
+        mechanism: sentryException.mechanism?.copyWith(source: 'exceptions[0]'),
+      );
+      exceptionGroupImports.addException(importError);
+      final moduleNotFoundError = sentryException.copyWith(
+        value: 'ModuleNotFoundError',
+        mechanism: sentryException.mechanism?.copyWith(source: 'exceptions[1]'),
+      );
+      exceptionGroupImports.addException(moduleNotFoundError);
+
+      final typeError = sentryException.copyWith(
+        value: 'TypeError',
+        mechanism: sentryException.mechanism?.copyWith(source: 'exceptions[2]'),
+      );
+      exceptionGroupNested.addException(typeError);
+
+      final flattened =
+          exceptionGroupNested.flatten().reversed.toList(growable: false);
+
+      expect(flattened.length, 7);
+
+      // {
+      //   "exception": {
+      //     "values": [
+      //       {
+      //         "type": "TypeError",
+      //         "value": "int",
+      //         "mechanism": {
+      //           "type": "chained",
+      //           "source": "exceptions[2]",
+      //           "exception_id": 6,
+      //           "parent_id": 0
+      //         }
+      //       },
+      //       {
+      //         "type": "ModuleNotFoundError",
+      //         "value": "another_module",
+      //         "mechanism": {
+      //           "type": "chained",
+      //           "source": "exceptions[1]",
+      //           "exception_id": 5,
+      //           "parent_id": 3
+      //         }
+      //       },
+      //       {
+      //         "type": "ImportError",
+      //         "value": "no_such_module",
+      //         "mechanism": {
+      //           "type": "chained",
+      //           "source": "exceptions[0]",
+      //           "exception_id": 4,
+      //           "parent_id": 3
+      //         }
+      //       },
+      //       {
+      //         "type": "ExceptionGroup",
+      //         "value": "imports",
+      //         "mechanism": {
+      //           "type": "chained",
+      //           "source": "exceptions[1]",
+      //           "is_exception_group": true,
+      //           "exception_id": 3,
+      //           "parent_id": 0
+      //         }
+      //       },
+      //       {
+      //         "type": "ValueError",
+      //         "value": "654",
+      //         "mechanism": {
+      //           "type": "chained",
+      //           "source": "exceptions[0]",
+      //           "exception_id": 2,
+      //           "parent_id": 0
+      //         }
+      //       },
+      //       {
+      //         "type": "RuntimeError",
+      //         "value": "something",
+      //         "mechanism": {
+      //           "type": "chained",
+      //           "source": "__context__",
+      //           "exception_id": 1,
+      //           "parent_id": 0
+      //         }
+      //       },
+      //       {
+      //         "type": "ExceptionGroup",
+      //         "value": "nested",
+      //         "mechanism": {
+      //           "type": "exceptionhook",
+      //           "handled": false,
+      //           "is_exception_group": true,
+      //           "exception_id": 0
+      //         }
+      //       },
+      //     ]
+      //   }
+      // }
+
+      expect(flattened[0].value, 'TypeError');
+      expect(flattened[0].mechanism?.source, 'exceptions[2]');
+      expect(flattened[0].mechanism?.exceptionId, 6);
+      expect(flattened[0].mechanism?.parentId, 0);
+      expect(flattened[0].mechanism?.type, 'chained');
+
+      expect(flattened[1].value, 'ModuleNotFoundError');
+      expect(flattened[1].mechanism?.source, 'exceptions[1]');
+      expect(flattened[1].mechanism?.exceptionId, 5);
+      expect(flattened[1].mechanism?.parentId, 3);
+      expect(flattened[1].mechanism?.type, 'chained');
+
+      expect(flattened[2].value, 'ImportError');
+      expect(flattened[2].mechanism?.source, 'exceptions[0]');
+      expect(flattened[2].mechanism?.exceptionId, 4);
+      expect(flattened[2].mechanism?.parentId, 3);
+      expect(flattened[2].mechanism?.type, 'chained');
+
+      expect(flattened[3].value, 'ExceptionGroup');
+      expect(flattened[3].mechanism?.source, 'exceptions[1]');
+      expect(flattened[3].mechanism?.isExceptionGroup, true);
+      expect(flattened[3].mechanism?.exceptionId, 3);
+      expect(flattened[3].mechanism?.parentId, 0);
+      expect(flattened[3].mechanism?.type, 'chained');
+
+      expect(flattened[4].value, 'ValueError');
+      expect(flattened[4].mechanism?.source, 'exceptions[0]');
+      expect(flattened[4].mechanism?.exceptionId, 2);
+      expect(flattened[4].mechanism?.parentId, 0);
+      expect(flattened[4].mechanism?.type, 'chained');
+
+      expect(flattened[5].value, 'RuntimeError');
+      expect(flattened[5].mechanism?.exceptionId, 1);
+      expect(flattened[5].mechanism?.parentId, 0);
+      expect(flattened[5].mechanism?.type, 'chained');
+
+      expect(flattened[6].value, 'ExceptionGroup');
+      expect(flattened[6].mechanism?.isExceptionGroup, true);
+      expect(flattened[6].mechanism?.exceptionId, 0);
+      expect(flattened[6].mechanism?.parentId, isNull);
+      expect(
+          flattened[6].mechanism?.type, exceptionGroupNested.mechanism?.type);
+    });
+  });
 }

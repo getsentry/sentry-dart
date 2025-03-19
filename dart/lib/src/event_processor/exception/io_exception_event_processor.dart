@@ -45,17 +45,24 @@ class IoExceptionEventProcessor implements ExceptionEventProcessor {
     SocketException exception,
     SentryEvent event,
   ) {
-    final address = exception.address;
     final osError = exception.osError;
+    SentryException? osException;
+    List<SentryException>? exceptions;
+    if (osError != null) {
+      // OSError is the underlying error
+      // https://api.dart.dev/stable/dart-io/SocketException/osError.html
+      // https://api.dart.dev/stable/dart-io/OSError-class.html
+      osException = _sentryExceptionFromOsError(osError);
+      osException.exceptions = event.exceptions;
+      exceptions = [osException];
+    } else {
+      exceptions = event.exceptions;
+    }
+
+    final address = exception.address;
     if (address == null) {
       return event.copyWith(
-        exceptions: [
-          // OSError is the underlying error
-          // https://api.dart.dev/stable/dart-io/SocketException/osError.html
-          // https://api.dart.dev/stable/dart-io/OSError-class.html
-          if (osError != null) _sentryExceptionFromOsError(osError),
-          ...?event.exceptions,
-        ],
+        exceptions: exceptions,
       );
     }
     SentryRequest? request;
@@ -76,13 +83,7 @@ class IoExceptionEventProcessor implements ExceptionEventProcessor {
 
     return event.copyWith(
       request: event.request ?? request,
-      exceptions: [
-        // OSError is the underlying error
-        // https://api.dart.dev/stable/dart-io/SocketException/osError.html
-        // https://api.dart.dev/stable/dart-io/OSError-class.html
-        if (osError != null) _sentryExceptionFromOsError(osError),
-        ...?event.exceptions,
-      ],
+      exceptions: exceptions,
     );
   }
 
@@ -92,14 +93,22 @@ class IoExceptionEventProcessor implements ExceptionEventProcessor {
     SentryEvent event,
   ) {
     final osError = exception.osError;
+
+    SentryException? osException;
+    List<SentryException>? exceptions;
+    if (osError != null) {
+      // OSError is the underlying error
+      // https://api.dart.dev/stable/dart-io/SocketException/osError.html
+      // https://api.dart.dev/stable/dart-io/OSError-class.html
+      osException = _sentryExceptionFromOsError(osError);
+      osException.exceptions = event.exceptions;
+      exceptions = [osException];
+    } else {
+      exceptions = event.exceptions;
+    }
+
     return event.copyWith(
-      exceptions: [
-        // OSError is the underlying error
-        // https://api.dart.dev/stable/dart-io/FileSystemException/osError.html
-        // https://api.dart.dev/stable/dart-io/OSError-class.html
-        if (osError != null) _sentryExceptionFromOsError(osError),
-        ...?event.exceptions,
-      ],
+      exceptions: exceptions,
     );
   }
 }

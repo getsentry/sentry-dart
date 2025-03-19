@@ -29,7 +29,22 @@ class SentryException {
   @internal
   final Map<String, dynamic>? unknown;
 
-  const SentryException({
+  List<SentryException>? _exceptions;
+
+  List<SentryException>? get exceptions => _exceptions;
+
+  @internal
+  set exceptions(List<SentryException>? value) {
+    _exceptions = value;
+  }
+
+  @internal
+  void addException(SentryException exception) {
+    _exceptions ??= [];
+    _exceptions!.add(exception);
+  }
+
+  SentryException({
     required this.type,
     required this.value,
     this.module,
@@ -92,4 +107,35 @@ class SentryException {
         throwable: throwable ?? this.throwable,
         unknown: unknown,
       );
+
+  List<SentryException> flatten({int? parentId, int id = 0}) {
+    final exceptions = this.exceptions ?? [];
+
+    var mechanism = this.mechanism ?? Mechanism(type: "generic");
+    mechanism = mechanism.copyWith(
+      type: id > 0 ? "chained" : null,
+      parentId: parentId,
+      exceptionId: id,
+      isExceptionGroup: exceptions.length > 1 ? true : null,
+    );
+
+    final exception = copyWith(
+      mechanism: mechanism,
+    );
+
+    var all = <SentryException>[];
+    all.add(exception);
+
+    if (exceptions.isNotEmpty) {
+      final parentId = id;
+      for (var exception in exceptions) {
+        id++;
+        final flattenedExceptions =
+            exception.flatten(parentId: parentId, id: id);
+        id = flattenedExceptions.lastOrNull?.mechanism?.exceptionId ?? id;
+        all.addAll(flattenedExceptions);
+      }
+    }
+    return all.toList(growable: false);
+  }
 }

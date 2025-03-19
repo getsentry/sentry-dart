@@ -30,8 +30,8 @@ class AndroidPlatformExceptionEventProcessor implements EventProcessor {
       // PackageInfo has an internal cache, so no need to do it ourselves.
       final packageInfo = await PackageInfo.fromPlatform();
 
-      final nativeStackTrace =
-          _tryParse(platformException.stacktrace, packageInfo.packageName);
+      final nativeStackTrace = _tryParse(
+          platformException.stacktrace, packageInfo.packageName, "stackTrace",);
 
       final details = platformException.details;
       String? detailsString;
@@ -39,7 +39,7 @@ class AndroidPlatformExceptionEventProcessor implements EventProcessor {
         detailsString = details;
       }
       final detailsStackTrace =
-          _tryParse(detailsString, packageInfo.packageName);
+          _tryParse(detailsString, packageInfo.packageName, "details",);
 
       if (nativeStackTrace == null && detailsStackTrace == null) {
         return event;
@@ -65,34 +65,43 @@ class AndroidPlatformExceptionEventProcessor implements EventProcessor {
     }
   }
 
-  List<MapEntry<SentryException, SentryThread>>? _tryParse(
+  MapEntry<SentryException, List<SentryThread>>? _tryParse(
     String? potentialStackTrace,
     String packageName,
+    String source,
   ) {
     if (potentialStackTrace == null) {
       return null;
     }
-
     return _JvmExceptionFactory(packageName)
-        .fromJvmStackTrace(potentialStackTrace);
+        .fromJvmStackTrace(potentialStackTrace, source);
   }
 
   SentryEvent _processPlatformException(
     SentryEvent event,
-    List<MapEntry<SentryException, SentryThread>>? nativeStackTrace,
-    List<MapEntry<SentryException, SentryThread>>? detailsStackTrace,
+    MapEntry<SentryException, List<SentryThread>>? nativeStackTrace,
+    MapEntry<SentryException, List<SentryThread>>? detailsStackTrace,
   ) {
     final threads = _markDartThreadsAsNonCrashed(event.threads);
+    final exception = event.exceptions?.firstOrNull;
 
-    final jvmExceptions = [
-      ...?nativeStackTrace?.map((e) => e.key),
-      ...?detailsStackTrace?.map((e) => e.key)
-    ];
+    // Assumption is that the first exception is the original exception and there is only one.
+    if (exception == null) {
+      return event;
+    }
 
-    var jvmThreads = [
-      ...?nativeStackTrace?.map((e) => e.value),
-      ...?detailsStackTrace?.map((e) => e.value),
-    ];
+    var jvmThreads = <SentryThread>[];
+    if (nativeStackTrace != null) {
+      // ignore: invalid_use_of_internal_member
+      exception.addException(nativeStackTrace.key);
+      jvmThreads.addAll(nativeStackTrace.value);
+    }
+
+    if (detailsStackTrace != null) {
+      // ignore: invalid_use_of_internal_member
+      exception.addException(detailsStackTrace.key);
+      jvmThreads.addAll(detailsStackTrace.value);
+    }
 
     if (jvmThreads.isNotEmpty) {
       // filter potential duplicated threads
@@ -105,10 +114,7 @@ class AndroidPlatformExceptionEventProcessor implements EventProcessor {
     }
 
     return event.copyWith(
-      exceptions: [
-        ...?event.exceptions,
-        ...jvmExceptions,
-      ],
+      exceptions: [exception],
       threads: [
         ...?threads,
         if (_options.attachThreads) ...jvmThreads,
@@ -139,33 +145,66 @@ class _JvmExceptionFactory {
 
   final String nativePackageName;
 
-  List<MapEntry<SentryException, SentryThread>> fromJvmStackTrace(
+  MapEntry<SentryException, List<SentryThread>> fromJvmStackTrace(
     String exceptionAsString,
+    String source,
   ) {
     final jvmException = JvmException.parse(exceptionAsString);
 
-    List<MapEntry<SentryException, SentryThread>> sentryExceptions = [];
+    var sentryException = jvmException.toSentryException(nativePackageName);
+    sentryException = sentryException.copyWith(
+        mechanism:
+            (sentryException.mechanism ?? Mechanism(type: "generic")).copyWith(
+      source: source,
+    ));
 
-    final sentryException = jvmException.toSentryException(nativePackageName);
-    sentryExceptions.add(sentryException);
+    List<SentryThread> sentryThreads = [];
 
+    int causeIndex = 0;
     for (final cause in jvmException.causes ?? <JvmException>[]) {
-      final causeSentryException = cause.toSentryException(nativePackageName);
-      sentryExceptions.add(causeSentryException);
+      var causeSentryException = cause.toSentryException(nativePackageName);
+      final causeSentryThread = cause.toSentryThread();
+
+      var mechanism =
+          causeSentryException.mechanism ?? Mechanism(type: "generic");
+      mechanism = mechanism.copyWith(source: 'causes[$causeIndex]');
+
+      sentryThreads.add(causeSentryThread);
+
+      causeSentryException = causeSentryException.copyWith(
+        threadId: causeSentryThread.id,
+        mechanism: mechanism,
+      );
+
+      // ignore: invalid_use_of_internal_member
+      sentryException.addException(causeSentryException);
+      causeIndex++;
     }
 
+    int suppressedIndex = 0;
     for (final suppressed in jvmException.suppressed ?? <JvmException>[]) {
-      final suppressedSentryException = suppressed.toSentryException(nativePackageName);
-      sentryExceptions.add(suppressedSentryException);
-    }
+      var suppressedSentryException =
+          suppressed.toSentryException(nativePackageName);
+      final suppressedSentryThread = suppressed.toSentryThread();
 
-    return sentryExceptions.toList(growable: false);
+      var mechanism =
+          suppressedSentryException.mechanism ?? Mechanism(type: "generic");
+      mechanism = mechanism.copyWith(source: 'suppressed[$suppressedIndex]');
+
+      sentryThreads.add(suppressedSentryThread);
+
+      suppressedSentryException = suppressedSentryException.copyWith(
+        threadId: suppressedSentryThread.id,
+        mechanism: mechanism,
+      );
+      suppressedIndex++;
+    }
+    return MapEntry(sentryException, sentryThreads.toList(growable: false));
   }
 }
 
 extension on JvmException {
-  MapEntry<SentryException, SentryThread> toSentryException(
-      String nativePackageName) {
+  SentryException toSentryException(String nativePackageName) {
     String? exceptionType;
     String? module;
     final typeParts = type?.split('.');
@@ -183,7 +222,7 @@ extension on JvmException {
       return entry.value.toSentryStackFrame(entry.key, nativePackageName);
     }).toList(growable: false);
 
-    var exception = SentryException(
+    return SentryException(
       value: description,
       type: exceptionType,
       module: module,
@@ -191,7 +230,9 @@ extension on JvmException {
         frames: stackFrames.reversed.toList(growable: false),
       ),
     );
+  }
 
+  SentryThread toSentryThread() {
     String threadName;
     if (thread != null) {
       // Needs to be prefixed with 'Android', otherwise this thread id might
@@ -204,15 +245,12 @@ extension on JvmException {
     }
     final threadId = threadName.hashCode;
 
-    final sentryThread = SentryThread(
+    return SentryThread(
       crashed: true,
       current: false,
       name: threadName,
       id: threadId,
     );
-    exception = exception.copyWith(threadId: threadId);
-
-    return MapEntry(exception, sentryThread);
   }
 }
 
