@@ -14,7 +14,7 @@ class ExceptionGroupEventProcessor implements EventProcessor {
 
     int exceptionId = sentryExceptions.length - 1;
 
-    for (SentryException sentryException in sentryExceptions) {
+    for (SentryException sentryException in sentryExceptions.reversed) {
       final mechanism = sentryException.mechanism ?? Mechanism(type: "generic");
 
       final isChild = exceptionId > 0;

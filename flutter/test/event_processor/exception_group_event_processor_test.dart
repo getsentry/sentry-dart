@@ -17,9 +17,9 @@ void main() {
 
       // Would be the result of RecursiveExceptionCauseExtractor
       final causes = [
-        ExceptionCause(exceptionA, null, source: "anotherOther"),
+        ExceptionCause(exceptionA, null, source: null),
         ExceptionCause(exceptionB, null, source: "other"),
-        ExceptionCause(exceptionC, null, source: null),
+        ExceptionCause(exceptionC, null, source: "anotherOther"),
       ];
 
       final sentryExceptions = causes.map((e) {
@@ -36,22 +36,28 @@ void main() {
       event = (sut.apply(event, Hint()))!;
 
       final sentryExceptionC = event.exceptions![0];
+      expect(sentryExceptionC.throwable, exceptionC);
       expect(sentryExceptionC.mechanism?.type, "chained");
       expect(sentryExceptionC.mechanism?.isExceptionGroup, isNull);
       expect(sentryExceptionC.mechanism?.exceptionId, 2);
       expect(sentryExceptionC.mechanism?.parentId, 1);
+      expect(sentryExceptionC.mechanism?.source, "anotherOther");
 
       final sentryExceptionB = event.exceptions![1];
+      expect(sentryExceptionB.throwable, exceptionB);
       expect(sentryExceptionB.mechanism?.type, "chained");
       expect(sentryExceptionB.mechanism?.isExceptionGroup, isNull);
       expect(sentryExceptionB.mechanism?.exceptionId, 1);
       expect(sentryExceptionB.mechanism?.parentId, 0);
+      expect(sentryExceptionB.mechanism?.source, "other");
 
       final sentryExceptionA = event.exceptions![2];
+      expect(sentryExceptionA.throwable, exceptionA);
       expect(sentryExceptionA.mechanism?.type, "fixture-type");
       expect(sentryExceptionA.mechanism?.isExceptionGroup, true);
       expect(sentryExceptionA.mechanism?.exceptionId, 0);
       expect(sentryExceptionA.mechanism?.parentId, isNull);
+      expect(sentryExceptionA.mechanism?.source, isNull);
     });
   });
 }
