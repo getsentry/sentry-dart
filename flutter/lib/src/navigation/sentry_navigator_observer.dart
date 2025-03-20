@@ -98,7 +98,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     final webSessionIntegration = _hub.options.integrations
         .whereType<WebSessionIntegration>()
         .firstOrNull;
-    webSessionIntegration?.enable();
+    webSessionIntegration?.finishInitialization();
     _webSessionHandler = webSessionIntegration?.webSessionHandler;
   }
 

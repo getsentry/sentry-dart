@@ -8,7 +8,11 @@ import '../web/web_session_handler.dart';
 
 /// Integration for handling web sessions in Sentry.
 ///
-/// This integration requires the [SentryNavigationObserver] to enable.
+/// Enables tracking of web sessions in a manner similar to page views.
+/// It requires using the[SentryNavigatorObserver] since sessions are automatically
+/// started on route changes and updated when errors occur.
+///
+/// The integration is only active on web platforms with enableAutoSessionTracking enabled.
 class WebSessionIntegration implements Integration<SentryFlutterOptions> {
   static const _integrationName = 'WebSessionIntegration';
   final SentryNativeBinding _native;
@@ -16,6 +20,7 @@ class WebSessionIntegration implements Integration<SentryFlutterOptions> {
   BeforeSendEventObserver? _observer;
   WebSessionHandler? _webSessionHandler;
   WebSessionHandler? get webSessionHandler => _webSessionHandler;
+  bool _isEnabled = false;
 
   WebSessionIntegration(this._native);
 
@@ -34,8 +39,13 @@ class WebSessionIntegration implements Integration<SentryFlutterOptions> {
     }
   }
 
-  /// Should only be called once and from [SentryNavigatorObserver].
+  /// [SentryNavigatorObserver] is created at a later point than the integration
+  /// so we need to wait until it fully enables the integration.
   void enable() {
+    if (_isEnabled) {
+      _log(SentryLevel.debug, '$_integrationName is already enabled.');
+      return;
+    }
     if (!_shouldEnable()) {
       return;
     }
@@ -45,6 +55,7 @@ class WebSessionIntegration implements Integration<SentryFlutterOptions> {
     _options?.addBeforeSendEventObserver(_observer!);
     _options?.sdk.addIntegration(_integrationName);
     _log(SentryLevel.info, '$_integrationName successfully enabled.');
+    _isEnabled = true;
   }
 
   bool _shouldEnable() {
