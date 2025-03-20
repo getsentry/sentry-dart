@@ -187,41 +187,43 @@ void main() {
             ThrowableMechanism(mechanism, Exception('test'));
         await Sentry.captureException(throwableMechanism);
 
-        final session = await completer.future;
+        final session =
+            await completer.future.timeout(const Duration(seconds: 5));
 
         expect(session['status'], 'crashed');
         expect(session['errors'], 1);
       });
-    });
 
-    testWidgets('send session update if handled error and error count = 0',
-        (tester) async {
-      await restoreFlutterOnErrorAfter(() async {
-        await SentryFlutter.init((options) {
-          options.dsn = fakeDsn;
-        }, appRunner: () async {
-          await tester.pumpWidget(
-            SentryWidget(child: const app.MyApp()),
-          );
+      testWidgets('send session update if handled error and error count = 0',
+          (tester) async {
+        await restoreFlutterOnErrorAfter(() async {
+          await SentryFlutter.init((options) {
+            options.dsn = fakeDsn;
+          }, appRunner: () async {
+            await tester.pumpWidget(
+              SentryWidget(child: const app.MyApp()),
+            );
+          });
         });
+
+        final client = _getClient()!;
+        final completer = Completer<Map<dynamic, dynamic>>();
+
+        JSFunction beforeSendSessionCallback = ((JSObject session) {
+          final sessionDart = session.dartify() as Map<dynamic, dynamic>;
+          completer.complete(sessionDart);
+        }).toJS;
+
+        client.on('beforeSendSession'.toJS, beforeSendSessionCallback);
+
+        await Sentry.captureException(Exception('test'));
+
+        final session =
+            await completer.future.timeout(const Duration(seconds: 5));
+
+        expect(session['status'], 'ok');
+        expect(session['errors'], 1);
       });
-
-      final client = _getClient()!;
-      final completer = Completer<Map<dynamic, dynamic>>();
-
-      JSFunction beforeSendSessionCallback = ((JSObject session) {
-        final sessionDart = session.dartify() as Map<dynamic, dynamic>;
-        completer.complete(sessionDart);
-      }).toJS;
-
-      client.on('beforeSendSession'.toJS, beforeSendSessionCallback);
-
-      await Sentry.captureException(Exception('test'));
-
-      final session = await completer.future;
-
-      expect(session['status'], 'ok');
-      expect(session['errors'], 1);
     });
   });
 
