@@ -1,6 +1,5 @@
 // ignore_for_file: invalid_use_of_internal_member
 
-import 'package:collection/collection.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -12,13 +11,13 @@ import 'package:sentry_flutter/src/flutter_exception_type_identifier.dart';
 import 'package:sentry_flutter/src/integrations/connectivity/connectivity_integration.dart';
 import 'package:sentry_flutter/src/integrations/integrations.dart';
 import 'package:sentry_flutter/src/integrations/screenshot_integration.dart';
+import 'package:sentry_flutter/src/integrations/web_session_integration.dart';
 import 'package:sentry_flutter/src/profiling.dart';
 import 'package:sentry_flutter/src/renderer/renderer.dart';
 import 'package:sentry_flutter/src/replay/integration.dart';
 import 'package:sentry_flutter/src/version.dart';
 import 'package:sentry_flutter/src/view_hierarchy/view_hierarchy_integration.dart';
 import 'package:sentry_flutter/src/web/javascript_transport.dart';
-import 'package:sentry_flutter/src/web_session_updater.dart';
 
 import 'mocks.dart';
 import 'mocks.mocks.dart';
@@ -36,6 +35,7 @@ final platformAgnosticIntegrations = [
 
 final webIntegrations = [
   ConnectivityIntegration,
+  WebSessionIntegration,
 ];
 
 final nonWebIntegrations = [
@@ -350,10 +350,6 @@ void main() {
         options: sentryFlutterOptions,
         expectedHasNativeScopeObserver: false,
       );
-
-      final sessionUpdater = sentryFlutterOptions.beforeSendEventObservers
-          .firstWhereOrNull((observer) => observer is WebSessionUpdater);
-      expect(sessionUpdater, isNotNull);
 
       testConfiguration(
         integrations: integrations,
