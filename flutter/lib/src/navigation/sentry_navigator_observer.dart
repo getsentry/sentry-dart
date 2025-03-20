@@ -122,6 +122,8 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   final List<String> _ignoreRoutes;
   TimeToDisplayTracker? _timeToDisplayTracker;
   WebSessionHandler? _webSessionHandler;
+  @visibleForTesting
+  WebSessionHandler? get webSessionHandler => _webSessionHandler;
 
   ISentrySpan? _transaction;
 

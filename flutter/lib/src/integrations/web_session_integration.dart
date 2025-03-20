@@ -2,6 +2,8 @@
 
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
+
 import '../../sentry_flutter.dart';
 import '../native/sentry_native_binding.dart';
 import '../web/web_session_handler.dart';
@@ -14,7 +16,7 @@ import '../web/web_session_handler.dart';
 ///
 /// The integration is only active on web platforms with enableAutoSessionTracking enabled.
 class WebSessionIntegration implements Integration<SentryFlutterOptions> {
-  static const _integrationName = 'WebSessionIntegration';
+  static const integrationName = 'WebSessionIntegration';
   final SentryNativeBinding _native;
   SentryFlutterOptions? _options;
   BeforeSendEventObserver? _observer;
@@ -28,22 +30,23 @@ class WebSessionIntegration implements Integration<SentryFlutterOptions> {
   void call(Hub hub, SentryFlutterOptions options) {
     _options = options;
 
-    _log(SentryLevel.info,
-        '$_integrationName initialization started, waiting for SentryNavigatorObserver to be initialized.');
+    _options?.logger(SentryLevel.info,
+        '$integrationName initialization started, waiting for SentryNavigatorObserver to be initialized.');
   }
 
   @override
-  FutureOr<void> close() {
+  void close() {
     if (_options != null && _observer != null) {
       _options!.removeBeforeSendEventObserver(_observer!);
     }
   }
 
   /// [SentryNavigatorObserver] is created at a later point than the integration
-  /// so we need to wait until it fully enables the integration.
+  /// so we need to wait until this function is called by the observer.
   void enable() {
     if (_isEnabled) {
-      _log(SentryLevel.debug, '$_integrationName is already enabled.');
+      _options?.logger(
+          SentryLevel.debug, '$integrationName is already enabled.');
       return;
     }
     if (!_shouldEnable()) {
@@ -51,11 +54,12 @@ class WebSessionIntegration implements Integration<SentryFlutterOptions> {
     }
 
     _webSessionHandler = WebSessionHandler(_native);
-    _observer = _BeforeSendEventObserver(_webSessionHandler!);
+    _observer = WebSessionUpdateObserver(_webSessionHandler!);
     _options?.addBeforeSendEventObserver(_observer!);
-    _options?.sdk.addIntegration(_integrationName);
-    _log(SentryLevel.info, '$_integrationName successfully enabled.');
+    _options?.sdk.addIntegration(integrationName);
     _isEnabled = true;
+    _options?.logger(
+        SentryLevel.info, '$integrationName successfully enabled.');
   }
 
   bool _shouldEnable() {
@@ -64,28 +68,27 @@ class WebSessionIntegration implements Integration<SentryFlutterOptions> {
     }
 
     if (!_options!.enableAutoSessionTracking) {
-      _log(SentryLevel.info,
-          '$_integrationName disabled: enableAutoSessionTracking is not enabled');
+      _options?.logger(SentryLevel.info,
+          '$integrationName disabled: enableAutoSessionTracking is not enabled');
       return false;
     }
 
     if (!_options!.platform.isWeb) {
-      _log(SentryLevel.info, '$_integrationName disabled: platform is not web');
+      _options?.logger(
+          SentryLevel.info, '$integrationName disabled: platform is not web');
       return false;
     }
 
     return true;
   }
-
-  void _log(SentryLevel level, String message) {
-    _options?.logger(level, message);
-  }
 }
 
-class _BeforeSendEventObserver implements BeforeSendEventObserver {
+@visibleForTesting
+class WebSessionUpdateObserver implements BeforeSendEventObserver {
   final WebSessionHandler _webSessionHandler;
+  WebSessionHandler? get webSessionHandler => _webSessionHandler;
 
-  _BeforeSendEventObserver(this._webSessionHandler);
+  WebSessionUpdateObserver(this._webSessionHandler);
 
   @override
   FutureOr<void> onBeforeSendEvent(SentryEvent event, Hint hint) async {
