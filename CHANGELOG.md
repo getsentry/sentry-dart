@@ -10,7 +10,7 @@
 
 ### Dependencies
 
-- Bump Android SDK from v7.22.1 to v7.22.4 link tbd
+- Bump Android SDK from v7.22.1 to v7.22.4 ([#2810](https://github.com/getsentry/sentry-dart/pull/2810))
   - [changelog](https://github.com/getsentry/sentry-java/blob/7.x.x/CHANGELOG.md#7224)
   - [diff](https://github.com/getsentry/sentry-java/compare/7.22.1...7.22.4)
 
