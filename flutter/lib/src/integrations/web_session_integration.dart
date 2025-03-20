@@ -35,7 +35,7 @@ class WebSessionIntegration implements Integration<SentryFlutterOptions> {
   }
 
   /// Should only be called once and from [SentryNavigatorObserver].
-  void finishInitialization() {
+  void enable() {
     if (!_shouldEnable()) {
       return;
     }
@@ -54,12 +54,12 @@ class WebSessionIntegration implements Integration<SentryFlutterOptions> {
 
     if (!_options!.enableAutoSessionTracking) {
       _log(SentryLevel.info,
-          'Integration disabled: enableAutoSessionTracking is not enabled');
+          '$_integrationName disabled: enableAutoSessionTracking is not enabled');
       return false;
     }
 
     if (!_options!.platform.isWeb) {
-      _log(SentryLevel.info, 'Integration disabled: platform is not web');
+      _log(SentryLevel.info, '$_integrationName disabled: platform is not web');
       return false;
     }
 
