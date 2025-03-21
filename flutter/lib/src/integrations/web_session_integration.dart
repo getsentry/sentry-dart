@@ -22,7 +22,7 @@ class WebSessionIntegration implements Integration<SentryFlutterOptions> {
   BeforeSendEventObserver? _observer;
   WebSessionHandler? _webSessionHandler;
   WebSessionHandler? get webSessionHandler => _webSessionHandler;
-  bool _isEnabled = false;
+  bool get _isEnabled => _webSessionHandler != null;
 
   WebSessionIntegration(this._native);
 
@@ -57,7 +57,6 @@ class WebSessionIntegration implements Integration<SentryFlutterOptions> {
     _observer = WebSessionUpdateObserver(_webSessionHandler!);
     _options?.addBeforeSendEventObserver(_observer!);
     _options?.sdk.addIntegration(integrationName);
-    _isEnabled = true;
     _options?.logger(
         SentryLevel.info, '$integrationName successfully enabled.');
   }
