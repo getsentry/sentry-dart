@@ -72,8 +72,6 @@ class WebSessionIntegration
 
   @override
   FutureOr<void> onBeforeSendEvent(SentryEvent event, Hint hint) async {
-    if (_webSessionHandler != null) {
-      await _webSessionHandler!.updateSessionFromEvent(event);
-    }
+    await _webSessionHandler?.updateSessionFromEvent(event);
   }
 }
