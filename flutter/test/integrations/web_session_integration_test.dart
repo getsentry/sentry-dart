@@ -83,17 +83,17 @@ void main() {
       expect(fixture.options.beforeSendEventObservers.length, 1);
       expect(
           fixture.options.beforeSendEventObservers.first
-              is WebSessionUpdateObserver,
+              is WebSessionIntegration,
           true);
     });
 
-    test('WebSessionUpdateObserver uses correct session handler', () {
+    test('BeforeSendEventObserver uses correct session handler', () {
       final sut = fixture.getSut(native);
       sut.call(hub, fixture.options);
       sut.enable();
 
       final observer = fixture.options.beforeSendEventObservers.first
-          as WebSessionUpdateObserver;
+          as WebSessionIntegration;
       expect(observer.webSessionHandler, equals(sut.webSessionHandler));
     });
 

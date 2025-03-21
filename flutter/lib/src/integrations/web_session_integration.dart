@@ -2,8 +2,6 @@
 
 import 'dart:async';
 
-import 'package:flutter/cupertino.dart';
-
 import '../../sentry_flutter.dart';
 import '../native/sentry_native_binding.dart';
 import '../web/web_session_handler.dart';
@@ -15,11 +13,11 @@ import '../web/web_session_handler.dart';
 /// started on route changes and updated when errors occur.
 ///
 /// The integration is only active on web platforms with enableAutoSessionTracking enabled.
-class WebSessionIntegration implements Integration<SentryFlutterOptions> {
+class WebSessionIntegration
+    implements Integration<SentryFlutterOptions>, BeforeSendEventObserver {
   static const integrationName = 'WebSessionIntegration';
   final SentryNativeBinding _native;
   SentryFlutterOptions? _options;
-  BeforeSendEventObserver? _observer;
   WebSessionHandler? _webSessionHandler;
   WebSessionHandler? get webSessionHandler => _webSessionHandler;
   bool get _isEnabled => _webSessionHandler != null;
@@ -36,8 +34,8 @@ class WebSessionIntegration implements Integration<SentryFlutterOptions> {
 
   @override
   void close() {
-    if (_options != null && _observer != null) {
-      _options!.removeBeforeSendEventObserver(_observer!);
+    if (_options != null && _webSessionHandler != null) {
+      _options!.removeBeforeSendEventObserver(this);
     }
   }
 
@@ -54,8 +52,7 @@ class WebSessionIntegration implements Integration<SentryFlutterOptions> {
     }
 
     _webSessionHandler = WebSessionHandler(_native);
-    _observer = WebSessionUpdateObserver(_webSessionHandler!);
-    _options?.addBeforeSendEventObserver(_observer!);
+    _options?.addBeforeSendEventObserver(this);
     _options?.sdk.addIntegration(integrationName);
     _options?.logger(
         SentryLevel.info, '$integrationName successfully enabled.');
@@ -74,17 +71,11 @@ class WebSessionIntegration implements Integration<SentryFlutterOptions> {
 
     return true;
   }
-}
-
-@visibleForTesting
-class WebSessionUpdateObserver implements BeforeSendEventObserver {
-  final WebSessionHandler _webSessionHandler;
-  WebSessionHandler? get webSessionHandler => _webSessionHandler;
-
-  WebSessionUpdateObserver(this._webSessionHandler);
 
   @override
   FutureOr<void> onBeforeSendEvent(SentryEvent event, Hint hint) async {
-    await _webSessionHandler.updateSessionFromEvent(event);
+    if (_webSessionHandler != null) {
+      await _webSessionHandler!.updateSessionFromEvent(event);
+    }
   }
 }
