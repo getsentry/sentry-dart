@@ -72,12 +72,6 @@ class WebSessionIntegration implements Integration<SentryFlutterOptions> {
       return false;
     }
 
-    if (!_options!.platform.isWeb) {
-      _options?.logger(
-          SentryLevel.info, '$integrationName disabled: platform is not web');
-      return false;
-    }
-
     return true;
   }
 }
