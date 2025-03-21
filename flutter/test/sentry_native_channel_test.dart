@@ -7,13 +7,14 @@ import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
+import 'package:sentry/src/platform/mock_platform.dart';
 import 'package:sentry/src/platform/platform.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/native/factory.dart';
 import 'package:sentry_flutter/src/native/method_channel_helper.dart';
 import 'package:sentry_flutter/src/native/sentry_native_binding.dart';
 import 'package:sentry_flutter/src/replay/replay_config.dart';
-import 'package:sentry/src/platform/mock_platform.dart';
+
 import 'mocks.dart';
 import 'mocks.mocks.dart';
 
@@ -355,6 +356,24 @@ void main() {
 
         verify(channel.invokeMethod('captureReplay', {'isCrash': true}));
         expect(returnedId, sentryId);
+      });
+
+      test('getSession is no-op', () async {
+        await sut.getSession();
+
+        verifyZeroInteractions(channel);
+      });
+
+      test('updateSession is no-op', () async {
+        await sut.updateSession(status: 'test', errors: 1);
+
+        verifyZeroInteractions(channel);
+      });
+
+      test('captureSession is no-op', () async {
+        await sut.captureSession();
+
+        verifyZeroInteractions(channel);
       });
     });
   }

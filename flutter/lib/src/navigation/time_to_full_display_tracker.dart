@@ -134,3 +134,5 @@ typedef EndTimestampProvider = DateTime? Function();
 @internal
 EndTimestampProvider ttidEndTimestampProvider =
     () => TimeToInitialDisplayTracker().endTimestamp;
+
+// Screen A, starts async task like HTTP fetching and finishes TTFD after 5 seconds

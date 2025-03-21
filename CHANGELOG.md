@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Add support for Flutter Web release health ([#2794](https://github.com/getsentry/sentry-dart/pull/2794))
+  - Requires using `SentryNavigatorObserver`;
 - Bump Native SDK from v0.7.20 to v0.8.2 ([#2761](https://github.com/getsentry/sentry-dart/pull/2761), [#2807](https://github.com/getsentry/sentry-dart/pull/2807))
   - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#082)
   - [diff](https://github.com/getsentry/sentry-native/compare/0.7.20...0.8.2)

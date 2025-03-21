@@ -22,6 +22,25 @@ class WebSentryJsBinding implements SentryJsBinding {
     _client = SentryJsClient();
   }
 
+  @override
+  void updateSession({int? errors, String? status}) {
+    final isolationScope = SentryJsIsolationScope();
+    JSObject? currentSession = isolationScope.getSession();
+    if (currentSession == null) {
+      return;
+    }
+
+    if (status != null) {
+      currentSession['status'] = status.toJS;
+    }
+
+    if (errors != null) {
+      currentSession['errors'] = errors.toJS;
+    }
+
+    isolationScope.setSession(currentSession);
+  }
+
   JSObject? _createIntegration(String integration) {
     switch (integration) {
       case SentryJsIntegrationName.globalHandlers:
@@ -54,6 +73,26 @@ class WebSentryJsBinding implements SentryJsBinding {
   getJsOptions() {
     return _client?.getOptions().dartify();
   }
+
+  @override
+  void startSession({bool ignoreDuration = false}) {
+    _startSession({'ignoreDuration': ignoreDuration}.jsify());
+  }
+
+  @override
+  void captureSession() {
+    _captureSession();
+  }
+
+  @override
+  Map<dynamic, dynamic>? getSession() {
+    try {
+      return SentryJsIsolationScope().getSession().dartify()
+          as Map<dynamic, dynamic>;
+    } catch (e) {
+      return null;
+    }
+  }
 }
 
 @JS('Sentry.init')
@@ -61,6 +100,17 @@ external void _init(JSAny? options);
 
 @JS('Sentry.close')
 external void _close();
+
+@JS('Sentry.getIsolationScope')
+@staticInterop
+class SentryJsIsolationScope {
+  external factory SentryJsIsolationScope();
+}
+
+extension _SentryJsIsolationScopeExtension on SentryJsIsolationScope {
+  external JSObject? getSession();
+  external void setSession(JSObject session);
+}
 
 @JS('Sentry.getClient')
 @staticInterop
@@ -72,6 +122,12 @@ extension _SentryJsClientExtension on SentryJsClient {
   external void sendEnvelope(JSAny? envelope);
   external JSObject? getOptions();
 }
+
+@JS('Sentry.startSession')
+external void _startSession(JSAny? context);
+
+@JS('Sentry.captureSession')
+external void _captureSession();
 
 @JS('Sentry.globalHandlersIntegration')
 external JSObject _globalHandlersIntegration();

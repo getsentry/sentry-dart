@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_use_of_internal_member
+
 import 'dart:async';
 import 'dart:ui';
 
@@ -20,6 +22,7 @@ import 'integrations/frames_tracking_integration.dart';
 import 'integrations/integrations.dart';
 import 'integrations/native_app_start_handler.dart';
 import 'integrations/screenshot_integration.dart';
+import 'integrations/web_session_integration.dart';
 import 'native/factory.dart';
 import 'native/native_scope_observer.dart';
 import 'native/sentry_native_binding.dart';
@@ -39,7 +42,6 @@ typedef FlutterOptionsConfiguration = FutureOr<void> Function(
 mixin SentryFlutter {
   /// Represents the time when the Sentry init set up has started.
   @internal
-  // ignore: invalid_use_of_internal_member
   static DateTime? sentrySetupStartTime;
 
   /// Initializes the Sentry Flutter SDK.
@@ -61,7 +63,6 @@ mixin SentryFlutter {
     SentryScreenshotWidget.reset();
     options ??= SentryFlutterOptions();
 
-    // ignore: invalid_use_of_internal_member
     sentrySetupStartTime ??= options.clock();
 
     if (options.platform.supportsNativeIntegration) {
@@ -102,16 +103,12 @@ mixin SentryFlutter {
         return optionsConfiguration(o as SentryFlutterOptions);
       },
       appRunner: appRunner,
-      // ignore: invalid_use_of_internal_member
       options: options,
-      // ignore: invalid_use_of_internal_member
       callAppRunnerInRunZonedGuarded: useRunZonedGuarded,
-      // ignore: invalid_use_of_internal_member
       runZonedGuardedOnError: runZonedGuardedOnError,
     );
 
     if (_native != null) {
-      // ignore: invalid_use_of_internal_member
       SentryNativeProfilerFactory.attachTo(Sentry.currentHub, _native!);
     }
 
@@ -179,6 +176,10 @@ mixin SentryFlutter {
     // That allow us to send events to the network and then the Flutter integrations.
     final native = _native;
     if (native != null) {
+      // LoadReleaseIntegration needs to be executed after all the error handlers are in place.
+      // Calling a MethodChannel might result in errors.
+      // We also need to call this before the native sdk integrations so release is properly propagated.
+      integrations.add(LoadReleaseIntegration());
       integrations.add(createSdkIntegration(native));
       if (!platform.isWeb) {
         if (native.supportsLoadContexts) {
@@ -193,6 +194,13 @@ mixin SentryFlutter {
           ),
         );
         integrations.add(ReplayIntegration(native));
+      } else {
+        // Updating sessions manually is only relevant for web
+        // iOS & Android sessions are handled by the native SDKs directly
+        //
+        // Important:
+        // Complete initialization of the integration depends on the SentryNavigatorObserver
+        integrations.add(WebSessionIntegration(native));
       }
       options.enableDartSymbolication = false;
     }
@@ -210,11 +218,6 @@ mixin SentryFlutter {
     integrations.add(SentryViewHierarchyIntegration());
 
     integrations.add(DebugPrintIntegration());
-
-    // This is an Integration because we want to execute it after all the
-    // error handlers are in place. Calling a MethodChannel might result
-    // in errors.
-    integrations.add(LoadReleaseIntegration());
 
     return integrations;
   }
@@ -244,7 +247,6 @@ mixin SentryFlutter {
   /// Reports the time it took for the screen to be fully displayed.
   /// This requires the [SentryFlutterOptions.enableTimeToFullDisplayTracing] option to be set to `true`.
   static Future<void> reportFullyDisplayed() async {
-    // ignore: invalid_use_of_internal_member
     final options = Sentry.currentHub.options;
     if (options is SentryFlutterOptions) {
       try {
@@ -285,7 +287,6 @@ mixin SentryFlutter {
   /// Uses [SentryScreenshotWidget] to capture the current screen as a
   /// [SentryAttachment].
   static Future<SentryAttachment?> captureScreenshot() async {
-    // ignore: invalid_use_of_internal_member
     final options = Sentry.currentHub.options;
     if (!SentryScreenshotWidget.isMounted) {
       options.logger(
@@ -332,7 +333,6 @@ mixin SentryFlutter {
   }
 
   static void _logNativeIntegrationNotAvailable(String methodName) {
-    // ignore: invalid_use_of_internal_member
     Sentry.currentHub.options.logger(
       SentryLevel.debug,
       'Native integration is not available. Make sure SentryFlutter is initialized before accessing the $methodName API.',
