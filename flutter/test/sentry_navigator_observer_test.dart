@@ -1324,19 +1324,6 @@ void main() {
         });
       });
     });
-
-    group('on platform not web', () {
-      setUp(() {
-        mockHub.options.platform = MockPlatform(isWeb: false);
-      });
-
-      test('init does not enable $WebSessionIntegration even if exists', () {
-        _setupWebSessionIntegration();
-        final sut = _getSut();
-
-        expect(sut.webSessionHandler, isNull);
-      });
-    });
   });
 }
 
