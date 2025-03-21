@@ -62,13 +62,11 @@ class WebSessionIntegration
     if (_options == null) {
       return false;
     }
-
     if (!_options!.enableAutoSessionTracking) {
       _options?.logger(SentryLevel.info,
           '$integrationName disabled: enableAutoSessionTracking is not enabled');
       return false;
     }
-
     return true;
   }
 
