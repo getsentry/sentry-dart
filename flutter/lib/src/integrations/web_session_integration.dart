@@ -11,7 +11,7 @@ import '../web/web_session_handler.dart';
 /// Integration for handling web sessions in Sentry.
 ///
 /// Enables tracking of web sessions in a manner similar to page views.
-/// It requires using the[SentryNavigatorObserver] since sessions are automatically
+/// It requires using the [SentryNavigatorObserver] since sessions are automatically
 /// started on route changes and updated when errors occur.
 ///
 /// The integration is only active on web platforms with enableAutoSessionTracking enabled.
