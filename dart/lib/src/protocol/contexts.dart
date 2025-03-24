@@ -24,7 +24,7 @@ class Contexts extends MapView<String, dynamic> {
   }) : super({
           SentryDevice.type: device,
           SentryOperatingSystem.type: operatingSystem,
-          SentryRuntime.listType: List.from(runtimes ?? []),
+          SentryRuntime.listType: List<SentryRuntime>.from(runtimes ?? []),
           SentryApp.type: app,
           SentryBrowser.type: browser,
           SentryGpu.type: gpu,
@@ -99,7 +99,7 @@ class Contexts extends MapView<String, dynamic> {
       List.unmodifiable(this[SentryRuntime.listType] ?? []);
 
   set runtimes(List<SentryRuntime> runtimes) =>
-      this[SentryRuntime.listType] = List.from(runtimes);
+      this[SentryRuntime.listType] = List<SentryRuntime>.from(runtimes);
 
   void addRuntime(SentryRuntime runtime) =>
       this[SentryRuntime.listType].add(runtime);
@@ -294,9 +294,7 @@ class Contexts extends MapView<String, dynamic> {
         device: device ?? this.device,
         operatingSystem: operatingSystem ?? this.operatingSystem,
         runtimes: runtimes ??
-            (this[SentryRuntime.listType] ?? [])
-                .map((runtime) => runtime as SentryRuntime)
-                .toList(growable: true),
+            List<SentryRuntime>.from(this[SentryRuntime.listType] ?? []),
         app: app ?? this.app,
         browser: browser ?? this.browser,
         gpu: gpu ?? this.gpu,
