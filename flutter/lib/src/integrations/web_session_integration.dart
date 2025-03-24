@@ -27,7 +27,6 @@ class WebSessionIntegration
   @override
   void call(Hub hub, SentryFlutterOptions options) {
     _options = options;
-
     _options?.logger(SentryLevel.info,
         '$integrationName initialization started, waiting for SentryNavigatorObserver to be initialized.');
   }
