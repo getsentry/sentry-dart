@@ -7,26 +7,25 @@ import '../utils/http_sanitizer.dart';
 /// The Request interface contains information on a HTTP request related to the event.
 /// In client SDKs, this can be an outgoing request, or the request that rendered the current web page.
 /// On server SDKs, this could be the incoming web request that is being handled.
-@immutable
 class SentryRequest {
   ///The URL of the request if available.
   ///The query string can be declared either as part of the url,
   ///or separately in queryString.
-  final String? url;
+  String? url;
 
   ///The HTTP method of the request.
-  final String? method;
+  String? method;
 
   /// The query string component of the URL.
   ///
   /// If the query string is not declared and part of the url parameter,
   /// Sentry moves it to the query string.
-  final String? queryString;
+  String? queryString;
 
   /// The cookie values as string.
-  final String? cookies;
+  String? cookies;
 
-  final dynamic _data;
+  dynamic _data;
 
   /// Submitted data in a format that makes the most sense.
   /// SDKs should discard large bodies by default.
@@ -41,7 +40,7 @@ class SentryRequest {
     return _data;
   }
 
-  final Map<String, String>? _headers;
+  Map<String, String>? _headers;
 
   /// An immutable dictionary of submitted headers.
   /// If a header appears multiple times it,
@@ -49,29 +48,29 @@ class SentryRequest {
   /// Header names are treated case-insensitively by Sentry.
   Map<String, String> get headers => Map.unmodifiable(_headers ?? const {});
 
-  final Map<String, String>? _env;
+  Map<String, String>? _env;
 
   /// An immutable dictionary containing environment information passed from the server.
   /// This is where information such as CGI/WSGI/Rack keys go that are not HTTP headers.
   Map<String, String> get env => Map.unmodifiable(_env ?? const {});
 
-  final Map<String, String>? _other;
+  Map<String, String>? _other;
 
   @Deprecated('Will be removed in v8. Use [data] instead')
   Map<String, String> get other => Map.unmodifiable(_other ?? const {});
 
   /// The fragment of the request URL.
-  final String? fragment;
+  String? fragment;
 
   /// The API target/specification that made the request.
   /// Values can be `graphql`, `rest`, etc.
   ///
   /// The data field should contain the request and response bodies based on
   /// its target specification.
-  final String? apiTarget;
+  String? apiTarget;
 
   @internal
-  final Map<String, dynamic>? unknown;
+  Map<String, dynamic>? unknown;
 
   SentryRequest({
     this.url,
