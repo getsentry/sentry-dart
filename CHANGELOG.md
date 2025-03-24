@@ -7,7 +7,6 @@
 - Improve platform memory collection on windows/linux ([#2798](https://github.com/getsentry/sentry-dart/pull/2798))
   - Fixes an issue where total memory on windows was not read.
   - Free memory collection was removed on windows/linux, due to performance issues.
-    
 - Fix adding runtime to contexts ([#2813](https://github.com/getsentry/sentry-dart/pull/2813))
 
 ### Dependencies
