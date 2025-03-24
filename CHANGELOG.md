@@ -2,11 +2,22 @@
 
 ## Unreleased
 
+### Features
+
 - Add support for Flutter Web release health ([#2794](https://github.com/getsentry/sentry-dart/pull/2794))
   - Requires using `SentryNavigatorObserver`;
+ 
+### Dependencies
+
 - Bump Native SDK from v0.7.20 to v0.8.2 ([#2761](https://github.com/getsentry/sentry-dart/pull/2761), [#2807](https://github.com/getsentry/sentry-dart/pull/2807))
   - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#082)
   - [diff](https://github.com/getsentry/sentry-native/compare/0.7.20...0.8.2)
+- Bump Javascript SDK from v8.42.0 to v9.5.0 ([#2784](https://github.com/getsentry/sentry-dart/pull/2784))
+  - [changelog](https://github.com/getsentry/sentry-javascript/blob/main/CHANGELOG.md#950)
+  - [diff](https://github.com/getsentry/sentry-javascript/compare/8.42.0...9.5.0)
+ 
+### Behavioral changes
+
 - Set sentry-native backend to `crashpad` by default and `breakpad` for Windows ARM64 ([#2791](https://github.com/getsentry/sentry-dart/pull/2791))
   - Setting the `SENTRY_NATIVE_BACKEND` environment variable will override the defaults.
 - Move replay and privacy from experimental to options ([#2755](https://github.com/getsentry/sentry-dart/pull/2755))
@@ -14,9 +25,6 @@
 - Cleanup platform mocking ([#2730](https://github.com/getsentry/sentry-dart/pull/2730))
   - The `PlatformChecker` was renamed to `RuntimeChecker`
   - Moved `PlatformChecker.platform` to `options.platform`
-- Bump Javascript SDK from v8.42.0 to v9.5.0 ([#2784](https://github.com/getsentry/sentry-dart/pull/2784))
-  - [changelog](https://github.com/getsentry/sentry-javascript/blob/main/CHANGELOG.md#950)
-  - [diff](https://github.com/getsentry/sentry-javascript/compare/8.42.0...9.5.0)
 
 ## 8.14.0
 
