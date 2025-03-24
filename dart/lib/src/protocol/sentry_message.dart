@@ -13,22 +13,21 @@ import 'access_aware_map.dart';
 ///   }
 /// }
 /// ```
-@immutable
 class SentryMessage {
   /// The fully formatted message. If missing, Sentry will try to interpolate the message.
-  final String formatted;
+  String formatted;
 
   /// The raw message string (uninterpolated).
   /// example : "My raw message with interpreted strings like %s",
-  final String? template;
+  String? template;
 
   /// A list of formatting parameters, preferably strings. Non-strings will be coerced to strings.
-  final List<dynamic>? params;
+  List<dynamic>? params;
 
   @internal
-  final Map<String, dynamic>? unknown;
+  Map<String, dynamic>? unknown;
 
-  const SentryMessage(
+  SentryMessage(
     this.formatted, {
     this.template,
     this.params,
