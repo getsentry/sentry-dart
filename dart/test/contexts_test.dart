@@ -147,6 +147,42 @@ void main() {
       expect(contexts.runtimes.last.name, 'testRT2');
       expect(contexts.runtimes.last.version, '2.0');
     });
+
+    test('copyWith with contexts does not throw', () {
+      final contexts = Contexts(
+        runtimes: [
+          const SentryRuntime(name: 'testRT1', version: '1.0'),
+        ],
+      );
+      final copy = contexts.copyWith();
+      copy.addRuntime(SentryRuntime(name: 'testRT2', version: '2.0'));
+
+      expect(copy.runtimes.length, 2);
+      expect(copy.runtimes.last.name, 'testRT2');
+    });
+
+    test('can add runtime if runtime setter unmodifiable', () {
+      final contexts = Contexts();
+      contexts.runtimes = List.unmodifiable([
+        const SentryRuntime(name: 'testRT1', version: '1.0'),
+      ]);
+      contexts.addRuntime(SentryRuntime(name: 'testRT2', version: '2.0'));
+
+      expect(contexts.runtimes.length, 2);
+      expect(contexts.runtimes.last.name, 'testRT2');
+    });
+
+    test('can add runtime if runtime ctor unmodifiable', () {
+      final contexts = Contexts(
+        runtimes: List.unmodifiable([
+          const SentryRuntime(name: 'testRT1', version: '1.0'),
+        ]),
+      );
+      contexts.addRuntime(SentryRuntime(name: 'testRT2', version: '2.0'));
+
+      expect(contexts.runtimes.length, 2);
+      expect(contexts.runtimes.last.name, 'testRT2');
+    });
   });
 
   group('parse contexts', () {
