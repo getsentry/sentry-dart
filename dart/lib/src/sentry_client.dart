@@ -160,6 +160,9 @@ class SentryClient {
       return _emptySentryId;
     }
 
+    // Event is fully processed and ready to be sent, emit beforeSendEvent observer
+    await _emitBeforeSendEventObserver(preparedEvent, hint);
+
     var attachments = List<SentryAttachment>.from(scope?.attachments ?? []);
     attachments.addAll(hint.attachments);
     var screenshot = hint.screenshot;
@@ -562,5 +565,27 @@ class SentryClient {
       return DataCategory.transaction;
     }
     return DataCategory.error;
+  }
+
+  FutureOr<void> _emitBeforeSendEventObserver(
+      SentryEvent event, Hint hint) async {
+    for (final observer in _options.beforeSendEventObservers) {
+      try {
+        final result = observer.onBeforeSendEvent(event, hint);
+        if (result is Future) {
+          await result;
+        }
+      } catch (exception, stackTrace) {
+        _options.logger(
+          SentryLevel.error,
+          'Error while running beforeSendEvent observer',
+          exception: exception,
+          stackTrace: stackTrace,
+        );
+        if (_options.automatedTestMode) {
+          rethrow;
+        }
+      }
+    }
   }
 }
