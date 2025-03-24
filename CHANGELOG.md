@@ -1,19 +1,5 @@
 # Changelog
 
-## 8.14.1
-
-### Fixes
-
-- Improve platform memory collection on windows/linux ([#2798](https://github.com/getsentry/sentry-dart/pull/2798))
-  - Fixes an issue where total memory on windows was not read.
-  - Free memory collection was removed on windows/linux, due to performance issues.
-- Fix adding runtime to contexts ([#2813](https://github.com/getsentry/sentry-dart/pull/2813))
-
-### Dependencies
-
-- Bump Android SDK from v7.22.1 to v7.22.4 ([#2810](https://github.com/getsentry/sentry-dart/pull/2810))
-  - [changelog](https://github.com/getsentry/sentry-java/blob/7.x.x/CHANGELOG.md#7224)
-  - [diff](https://github.com/getsentry/sentry-java/compare/7.22.1...7.22.4)
 ## Unreleased
 
 - Add support for Flutter Web release health ([#2794](https://github.com/getsentry/sentry-dart/pull/2794))
@@ -31,6 +17,21 @@
 - Bump Javascript SDK from v8.42.0 to v9.5.0 ([#2784](https://github.com/getsentry/sentry-dart/pull/2784))
   - [changelog](https://github.com/getsentry/sentry-javascript/blob/main/CHANGELOG.md#950)
   - [diff](https://github.com/getsentry/sentry-javascript/compare/8.42.0...9.5.0)
+
+## 8.14.1
+
+### Fixes
+
+- Improve platform memory collection on windows/linux ([#2798](https://github.com/getsentry/sentry-dart/pull/2798))
+  - Fixes an issue where total memory on windows was not read.
+  - Free memory collection was removed on windows/linux, due to performance issues.
+- Fix adding runtime to contexts ([#2813](https://github.com/getsentry/sentry-dart/pull/2813))
+
+### Dependencies
+
+- Bump Android SDK from v7.22.1 to v7.22.4 ([#2810](https://github.com/getsentry/sentry-dart/pull/2810))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/7.x.x/CHANGELOG.md#7224)
+  - [diff](https://github.com/getsentry/sentry-java/compare/7.22.1...7.22.4)
 
 ## 8.14.0
 
@@ -60,7 +61,7 @@ This release fixes an issue where Cold starts can be incorrectly reported as War
 - Pass missing `captureFailedRequests` param to `FailedRequestInterceptor` ([#2744](https://github.com/getsentry/sentry-dart/pull/2744))
 - Bind root screen transaction to scope ([#2756](https://github.com/getsentry/sentry-dart/pull/2756))
 - Reference to `SentryWidgetsFlutterBinding` in warning message in `FramesTrackingIntegration` ([#2704](https://github.com/getsentry/sentry-dart/pull/2704))
-  
+
 ### Deprecations
 
 - Deprecate Drift `SentryQueryExecutor` ([#2715](https://github.com/getsentry/sentry-dart/pull/2715))
