@@ -293,7 +293,10 @@ class Contexts extends MapView<String, dynamic> {
       Contexts(
         device: device ?? this.device,
         operatingSystem: operatingSystem ?? this.operatingSystem,
-        runtimes: runtimes ?? List.from(this[SentryRuntime.listType] ?? []),
+        runtimes: runtimes ??
+            (this[SentryRuntime.listType] ?? [])
+                .map((runtime) => runtime as SentryRuntime)
+                .toList(growable: true),
         app: app ?? this.app,
         browser: browser ?? this.browser,
         gpu: gpu ?? this.gpu,
