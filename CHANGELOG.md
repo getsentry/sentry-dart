@@ -29,6 +29,21 @@
   - The `PlatformChecker` was renamed to `RuntimeChecker`
   - Moved `PlatformChecker.platform` to `options.platform`
 
+## 8.14.1
+
+### Fixes
+
+- Improve platform memory collection on windows/linux ([#2798](https://github.com/getsentry/sentry-dart/pull/2798))
+  - Fixes an issue where total memory on windows was not read.
+  - Free memory collection was removed on windows/linux, due to performance issues.
+- Fix adding runtime to contexts ([#2813](https://github.com/getsentry/sentry-dart/pull/2813))
+
+### Dependencies
+
+- Bump Android SDK from v7.22.1 to v7.22.4 ([#2810](https://github.com/getsentry/sentry-dart/pull/2810))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/7.x.x/CHANGELOG.md#7224)
+  - [diff](https://github.com/getsentry/sentry-java/compare/7.22.1...7.22.4)
+
 ## 8.14.0
 
 This release fixes an issue where Cold starts can be incorrectly reported as Warm starts on Android.
