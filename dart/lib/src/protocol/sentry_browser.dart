@@ -6,18 +6,17 @@ import 'access_aware_map.dart';
 ///
 /// This can either be the browser this event ocurred in, or the user
 /// agent of a web request that triggered the event.
-@immutable
 class SentryBrowser {
   static const type = 'browser';
 
   /// Creates an instance of [SentryBrowser].
-  const SentryBrowser({this.name, this.version, this.unknown});
+  SentryBrowser({this.name, this.version, this.unknown});
 
   /// Human readable application name, as it appears on the platform.
-  final String? name;
+  String? name;
 
   /// Human readable application version, as it appears on the platform.
-  final String? version;
+  String? version;
 
   @internal
   final Map<String, dynamic>? unknown;

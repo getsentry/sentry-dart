@@ -6,11 +6,10 @@ import 'access_aware_map.dart';
 ///
 /// As opposed to the runtime, this is the actual application that was
 /// running and carries metadata about the current session.
-@immutable
 class SentryApp {
   static const type = 'app';
 
-  const SentryApp({
+  SentryApp({
     this.name,
     this.version,
     this.identifier,
@@ -26,38 +25,38 @@ class SentryApp {
   });
 
   /// Human readable application name, as it appears on the platform.
-  final String? name;
+  String? name;
 
   /// Human readable application version, as it appears on the platform.
-  final String? version;
+  String? version;
 
   /// Version-independent application identifier, often a dotted bundle ID.
-  final String? identifier;
+  String? identifier;
 
   /// Internal build identifier, as it appears on the platform.
-  final String? build;
+  String? build;
 
   /// String identifying the kind of build, e.g. `testflight`.
-  final String? buildType;
+  String? buildType;
 
   /// When the application was started by the user.
-  final DateTime? startTime;
+  DateTime? startTime;
 
   /// Application specific device identifier.
-  final String? deviceAppHash;
+  String? deviceAppHash;
 
   /// Amount of memory used by the application in bytes.
-  final int? appMemory;
+  int? appMemory;
 
   /// A flag indicating whether the app is in foreground or not.
   /// An app is in foreground when it's visible to the user.
-  final bool? inForeground;
+  bool? inForeground;
 
   /// The names of the currently visible views.
-  final List<String>? viewNames;
+  List<String>? viewNames;
 
   /// The current text scale. Only available on Flutter.
-  final double? textScale;
+  double? textScale;
 
   @internal
   final Map<String, dynamic>? unknown;

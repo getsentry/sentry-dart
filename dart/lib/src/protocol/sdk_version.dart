@@ -63,7 +63,7 @@ class SdkVersion {
   List<SentryPackage> get packages => List.unmodifiable(_packages);
 
   @internal
-  Map<String, dynamic>? unknown;
+  final Map<String, dynamic>? unknown;
 
   /// Deserializes a [SdkVersion] from JSON [Map].
   factory SdkVersion.fromJson(Map<String, dynamic> data) {

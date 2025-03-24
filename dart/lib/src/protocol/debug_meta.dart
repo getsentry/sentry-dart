@@ -4,12 +4,11 @@ import '../protocol.dart';
 import 'access_aware_map.dart';
 
 /// The debug meta interface carries debug information for processing errors and crash reports.
-@immutable
 class DebugMeta {
   /// An object describing the system SDK.
-  final SdkInfo? sdk;
+  SdkInfo? sdk;
 
-  final List<DebugImage>? _images;
+  List<DebugImage>? _images;
 
   /// The immutable list of debug images contains all dynamic libraries loaded
   /// into the process and their memory addresses.

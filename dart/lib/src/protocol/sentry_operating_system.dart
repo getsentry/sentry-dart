@@ -6,11 +6,10 @@ import 'access_aware_map.dart';
 ///
 /// In web contexts, this is the operating system of the browse
 /// (normally pulled from the User-Agent string).
-@immutable
 class SentryOperatingSystem {
   static const type = 'os';
 
-  const SentryOperatingSystem({
+  SentryOperatingSystem({
     this.name,
     this.version,
     this.build,
@@ -22,31 +21,31 @@ class SentryOperatingSystem {
   });
 
   /// The name of the operating system.
-  final String? name;
+  String? name;
 
   /// The version of the operating system.
-  final String? version;
+  String? version;
 
   /// The internal build revision of the operating system.
-  final String? build;
+  String? build;
 
   /// An independent kernel version string.
   ///
   /// This is typically the entire output of the `uname` syscall.
-  final String? kernelVersion;
+  String? kernelVersion;
 
   /// A flag indicating whether the OS has been jailbroken or rooted.
-  final bool? rooted;
+  bool? rooted;
 
   /// An unprocessed description string obtained by the operating system.
   ///
   /// For some well-known runtimes, Sentry will attempt to parse name and
   /// version from this string, if they are not explicitly given.
-  final String? rawDescription;
+  String? rawDescription;
 
   /// Optional. Either light or dark.
   /// Describes whether the OS runs in dark mode or not.
-  final String? theme;
+  String? theme;
 
   @internal
   final Map<String, dynamic>? unknown;

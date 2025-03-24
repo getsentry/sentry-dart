@@ -163,7 +163,7 @@ class Breadcrumb {
   DateTime timestamp;
 
   @internal
-  Map<String, dynamic>? unknown;
+  final Map<String, dynamic>? unknown;
 
   /// Deserializes a [Breadcrumb] from JSON [Map].
   factory Breadcrumb.fromJson(Map<String, dynamic> jsonData) {

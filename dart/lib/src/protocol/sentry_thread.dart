@@ -48,7 +48,7 @@ class SentryThread {
   SentryStackTrace? stacktrace;
 
   @internal
-  Map<String, dynamic>? unknown;
+  final Map<String, dynamic>? unknown;
 
   Map<String, dynamic> toJson() {
     final stacktrace = this.stacktrace;

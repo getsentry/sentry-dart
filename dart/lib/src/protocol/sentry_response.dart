@@ -3,17 +3,16 @@ import 'contexts.dart';
 import '../utils/iterable_utils.dart';
 
 /// The response interface contains information on a HTTP request related to the event.
-@immutable
 class SentryResponse {
   /// The type of this class in the [Contexts] field
   static const String type = 'response';
 
   /// The size of the response body.
-  final int? bodySize;
+  int? bodySize;
 
   /// The HTTP status code of the response.
   /// See https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
-  final int? statusCode;
+  int? statusCode;
 
   /// An immutable dictionary of submitted headers.
   /// If a header appears multiple times it,
@@ -21,12 +20,12 @@ class SentryResponse {
   /// Header names are treated case-insensitively by Sentry.
   Map<String, String> get headers => Map.unmodifiable(_headers ?? const {});
 
-  final Map<String, String>? _headers;
+  Map<String, String>? _headers;
 
   /// Cookie key-value pairs as string.
-  final String? cookies;
+  String? cookies;
 
-  final Object? _data;
+  Object? _data;
 
   /// Response data in any format that makes sense.
   ///

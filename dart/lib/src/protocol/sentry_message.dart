@@ -25,7 +25,7 @@ class SentryMessage {
   List<dynamic>? params;
 
   @internal
-  Map<String, dynamic>? unknown;
+  final Map<String, dynamic>? unknown;
 
   SentryMessage(
     this.formatted, {

@@ -3,7 +3,6 @@ import 'access_aware_map.dart';
 
 /// Frames belong to a StackTrace
 /// It should contain at least a filename, function or instruction_addr
-@immutable
 class SentryStackFrame {
   SentryStackFrame({
     this.absPath,
@@ -35,24 +34,24 @@ class SentryStackFrame {
         _vars = vars != null ? Map.from(vars) : null;
 
   /// The absolute path to filename.
-  final String? absPath;
+  String? absPath;
 
-  final List<String>? _preContext;
+  List<String>? _preContext;
 
   /// An immutable list of source code lines before context_line (in order) – usually `lineno - 5:lineno`.
   List<String> get preContext => List.unmodifiable(_preContext ?? const []);
 
-  final List<String>? _postContext;
+  List<String>? _postContext;
 
   /// An immutable list of source code lines after context_line (in order) – usually `lineno + 1:lineno + 5`.
   List<String> get postContext => List.unmodifiable(_postContext ?? const []);
 
-  final Map<String, dynamic>? _vars;
+  Map<String, dynamic>? _vars;
 
   /// An immutable mapping of variables which were available within this frame (usually context-locals).
   Map<String, dynamic> get vars => Map.unmodifiable(_vars ?? const {});
 
-  final List<int>? _framesOmitted;
+  List<int>? _framesOmitted;
 
   /// Which frames were omitted, if any.
   ///
@@ -66,49 +65,49 @@ class SentryStackFrame {
   List<int> get framesOmitted => List.unmodifiable(_framesOmitted ?? const []);
 
   /// The relative file path to the call.
-  final String? fileName;
+  String? fileName;
 
   /// The name of the function being called.
-  final String? function;
+  String? function;
 
   /// Platform-specific module path.
-  final String? module;
+  String? module;
 
   /// The column number of the call
-  final int? lineNo;
+  int? lineNo;
 
   /// The column number of the call
-  final int? colNo;
+  int? colNo;
 
   /// Source code in filename at line number.
-  final String? contextLine;
+  String? contextLine;
 
   /// Signifies whether this frame is related to the execution of the relevant code in this stacktrace.
   ///
   /// For example, the frames that might power the framework’s web server of your app are probably not relevant, however calls to the framework’s library once you start handling code likely are.
-  final bool? inApp;
+  bool? inApp;
 
   /// The "package" the frame was contained in.
-  final String? package;
+  String? package;
 
   // TODO what is this? doesn't seem to be part of the spec https://develop.sentry.dev/sdk/event-payloads/stacktrace/
-  final bool? native;
+  bool? native;
 
   /// This can override the platform for a single frame. Otherwise, the platform of the event is assumed. This can be used for multi-platform stack traces
-  final String? platform;
+  String? platform;
 
   /// Optionally an address of the debug image to reference.
-  final String? imageAddr;
+  String? imageAddr;
 
   /// An optional address that points to a symbol. We use the instruction address for symbolication, but this can be used to calculate an instruction offset automatically.
-  final String? symbolAddr;
+  String? symbolAddr;
 
   /// The instruction address
   /// The official docs refer to it as 'The difference between instruction address and symbol address in bytes.'
-  final String? instructionAddr;
+  String? instructionAddr;
 
   /// The original function name, if the function name is shortened or demangled. Sentry shows the raw function when clicking on the shortened one in the UI.
-  final String? rawFunction;
+  String? rawFunction;
 
   /// Marks this frame as the bottom of a chained stack trace.
   ///
@@ -118,14 +117,14 @@ class SentryStackFrame {
   /// this is either the main function or a thread base stub.
   ///
   /// This field should only be specified when true.
-  final bool? stackStart;
+  bool? stackStart;
 
   /// Potentially mangled name of the symbol as it appears in an executable.
   ///
   /// This is different from a function name by generally being the mangled name
   /// that appears natively in the binary.
   /// This is relevant for languages like Swift, C++ or Rust.
-  final String? symbol;
+  String? symbol;
 
   @internal
   final Map<String, dynamic>? unknown;

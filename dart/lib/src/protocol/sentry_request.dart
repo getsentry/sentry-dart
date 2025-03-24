@@ -70,7 +70,7 @@ class SentryRequest {
   String? apiTarget;
 
   @internal
-  Map<String, dynamic>? unknown;
+  final Map<String, dynamic>? unknown;
 
   SentryRequest({
     this.url,

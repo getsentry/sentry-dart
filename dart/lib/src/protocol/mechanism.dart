@@ -8,24 +8,23 @@ import 'access_aware_map.dart';
 /// the way the exception was created on the target system.
 /// This includes general exception values obtained from operating system or
 /// runtime APIs, as well as mechanism-specific values.
-@immutable
 class Mechanism {
   /// Required unique identifier of this mechanism determining rendering and processing of the mechanism data
   /// The type attribute is required to send any exception mechanism attribute,
   /// even if the SDK cannot determine the specific mechanism.
   /// In this case, set the type to "generic". See below for an example.
-  final String type;
+  String type;
 
   /// Optional human readable description of the error mechanism and a possible hint on how to solve this error
-  final String? description;
+  String? description;
 
   /// Optional fully qualified URL to an online help resource, possible interpolated with error parameters
-  final String? helpLink;
+  String? helpLink;
 
   /// Optional flag indicating whether the exception has been handled by the user (e.g. via try..catch)
-  final bool? handled;
+  bool? handled;
 
-  final Map<String, dynamic>? _meta;
+  Map<String, dynamic>? _meta;
 
   /// Optional information from the operating system or runtime on the exception mechanism
   /// The mechanism meta data usually carries error codes reported by
@@ -36,7 +35,7 @@ class Mechanism {
   /// adding these values will give additional information to the user.
   Map<String, dynamic> get meta => Map.unmodifiable(_meta ?? const {});
 
-  final Map<String, dynamic>? _data;
+  Map<String, dynamic>? _data;
 
   /// Arbitrary extra data that might help the user understand the error thrown by this mechanism
   Map<String, dynamic> get data => Map.unmodifiable(_data ?? const {});
@@ -44,14 +43,14 @@ class Mechanism {
   /// An optional flag indicating that this error is synthetic.
   /// Synthetic errors are errors that carry little meaning by themselves.
   /// This may be because they are created at a central place (like a crash handler), and are all called the same: Error, Segfault etc. When the flag is set, Sentry will then try to use other information (top in-app frame function) rather than exception type and value in the UI for the primary event display. This flag should be set for all "segfaults" for instance as every single error group would look very similar otherwise.
-  final bool? synthetic;
+  bool? synthetic;
 
   /// An optional boolean value, set `true` when the exception is the exception
   /// group type specific to the platform or language.
   /// The default is false when omitted.
   /// For example, exceptions of type [PlatformException](https://api.flutter.dev/flutter/services/PlatformException-class.html)
   /// have set it to `true`, others are set to `false`.
-  final bool? isExceptionGroup;
+  bool? isExceptionGroup;
 
   /// An optional string value describing the source of the exception.
   ///
@@ -59,7 +58,7 @@ class Mechanism {
   /// the parent exception that this exception was acquired from.
   /// In the case of an array, it should include the zero-based array index as
   /// well.
-  final String? source;
+  String? source;
 
   /// An optional numeric value providing an ID for the exception relative to
   /// this specific event.
@@ -69,14 +68,14 @@ class Mechanism {
   /// In other words, when flattened into the list provided in the exception
   /// values on the event, the last exception in the list should have ID 0,
   /// the previous one should have ID 1, the next previous should have ID 2, etc.
-  final int? exceptionId;
+  int? exceptionId;
 
   /// An optional numeric value pointing at the [exceptionId] that is the parent
   /// of this exception.
   ///
   /// The SDK should assign this to all exceptions except the root exception
   /// (the last to be listed in the exception values).
-  final int? parentId;
+  int? parentId;
 
   @internal
   final Map<String, dynamic>? unknown;

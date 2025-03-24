@@ -84,7 +84,7 @@ class SentryUser {
   String? name;
 
   @internal
-  Map<String, dynamic>? unknown;
+  final Map<String, dynamic>? unknown;
 
   /// Deserializes a [SentryUser] from JSON [Map].
   factory SentryUser.fromJson(Map<String, dynamic> jsonData) {
