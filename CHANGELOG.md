@@ -17,6 +17,7 @@
 - Bump Javascript SDK from v8.42.0 to v9.5.0 ([#2784](https://github.com/getsentry/sentry-dart/pull/2784))
   - [changelog](https://github.com/getsentry/sentry-javascript/blob/main/CHANGELOG.md#950)
   - [diff](https://github.com/getsentry/sentry-javascript/compare/8.42.0...9.5.0)
+- Mutable Data Classes ([#2818](https://github.com/getsentry/sentry-dart/pull/2818))
 
 ## 8.14.0
 
