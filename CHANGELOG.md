@@ -15,14 +15,16 @@
 - Bump Javascript SDK from v8.42.0 to v9.5.0 ([#2784](https://github.com/getsentry/sentry-dart/pull/2784))
   - [changelog](https://github.com/getsentry/sentry-javascript/blob/main/CHANGELOG.md#950)
   - [diff](https://github.com/getsentry/sentry-javascript/compare/8.42.0...9.5.0)
-- Mutable Data Classes ([#2818](https://github.com/getsentry/sentry-dart/pull/2818))
+
  
 ### Behavioral changes
 
 - Set sentry-native backend to `crashpad` by default and `breakpad` for Windows ARM64 ([#2791](https://github.com/getsentry/sentry-dart/pull/2791))
   - Setting the `SENTRY_NATIVE_BACKEND` environment variable will override the defaults.
 - Remove renderer from `flutter_context` ([#2751](https://github.com/getsentry/sentry-dart/pull/2751))
-
+- Mutable Data Classes ([#2818](https://github.com/getsentry/sentry-dart/pull/2818))
+  - Some SDK classes do not have `const` constructors anymore.
+  
 ### API changes
 
 - Move replay and privacy from experimental to options ([#2755](https://github.com/getsentry/sentry-dart/pull/2755))
