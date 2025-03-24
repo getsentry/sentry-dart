@@ -1,4 +1,3 @@
-import 'package:meta/meta.dart';
 
 import 'protocol.dart';
 import 'sentry_baggage.dart';
