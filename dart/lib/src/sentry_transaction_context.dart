@@ -1,4 +1,3 @@
-
 import 'protocol.dart';
 import 'sentry_baggage.dart';
 import 'sentry_trace_origins.dart';
