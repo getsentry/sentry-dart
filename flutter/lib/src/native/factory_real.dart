@@ -6,7 +6,7 @@ import 'sentry_native_binding.dart';
 import 'sentry_native_channel.dart';
 
 SentryNativeBinding createBinding(SentryFlutterOptions options) {
-  final platform = options.platformChecker.platform;
+  final platform = options.platform;
   if (platform.isIOS || platform.isMacOS) {
     return SentryNativeCocoa(options);
   } else if (platform.isAndroid) {

@@ -1,5 +1,5 @@
 @TestOn('vm')
-library flutter_test;
+library;
 
 import 'dart:convert';
 

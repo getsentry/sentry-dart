@@ -1,4 +1,4 @@
-library sentry_sqflite;
+library;
 
 export 'src/sentry_database.dart';
 export 'src/sentry_sqflite.dart';

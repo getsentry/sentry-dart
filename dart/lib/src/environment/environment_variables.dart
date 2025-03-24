@@ -1,6 +1,5 @@
-import '../platform_checker.dart';
+import '../runtime_checker.dart';
 import '_io_environment_variables.dart'
-    if (dart.library.html) '_web_environment_variables.dart'
     if (dart.library.js_interop) '_web_environment_variables.dart' as env;
 
 /// Reads environment variables from the system.
@@ -29,7 +28,7 @@ abstract class EnvironmentVariables {
 
   /// Returns an environment based on the compilation mode of Dart or Flutter.
   /// This can be set as [SentryOptions.environment]
-  String environmentForMode(PlatformChecker checker) {
+  String environmentForMode(RuntimeChecker checker) {
     // We infer the environment based on the release/non-release and profile
     // constants.
 

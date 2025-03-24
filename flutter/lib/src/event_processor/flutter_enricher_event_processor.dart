@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:sentry/sentry.dart';
 
 import '../navigation/sentry_navigator_observer.dart';
@@ -18,8 +19,8 @@ class FlutterEnricherEventProcessor implements EventProcessor {
 
   final SentryFlutterOptions _options;
 
-  bool get _hasNativeIntegration => _checker.hasNativeIntegration;
-  PlatformChecker get _checker => _options.platformChecker;
+  bool get _hasNativeIntegration => _options.platform.supportsNativeIntegration;
+  RuntimeChecker get _checker => _options.runtimeChecker;
 
   // We can't use `WidgetsBinding` as a direct parameter
   // because it must be called inside the `runZoneGuarded`-Integration.
@@ -39,7 +40,7 @@ class FlutterEnricherEventProcessor implements EventProcessor {
     // information available than Flutter.
     // TODO: while we have a native integration with JS SDK, it's currently opt in and we dont gather contexts yet
     // so for web it's still better to rely on the information of Flutter.
-    final device = _hasNativeIntegration && !_checker.isWeb
+    final device = _hasNativeIntegration && !_options.platform.isWeb
         ? null
         : _getDevice(event.contexts.device);
 
@@ -137,8 +138,6 @@ class FlutterEnricherEventProcessor implements EventProcessor {
     // ignore: deprecated_member_use
     final hasRenderView = _widgetsBinding?.renderViewElement != null;
 
-    final renderer = _options.rendererWrapper.getRenderer()?.name;
-
     return <String, String>{
       'has_render_view': hasRenderView.toString(),
       if (tempDebugBrightnessOverride != null)
@@ -155,8 +154,7 @@ class FlutterEnricherEventProcessor implements EventProcessor {
       // Also always fails in tests.
       // See https://github.com/flutter/flutter/issues/83919
       // 'window_is_visible': _window.viewConfiguration.visible,
-      if (renderer != null) 'renderer': renderer,
-      if (_appFlavor != null) 'appFlavor': _appFlavor!,
+      if (appFlavor != null) 'appFlavor': appFlavor!,
     };
   }
 
@@ -208,7 +206,7 @@ class FlutterEnricherEventProcessor implements EventProcessor {
     // See
     // - https://flutter.dev/docs/testing/build-modes
     // - https://github.com/flutter/flutter/wiki/Flutter%27s-modes
-    if (_checker.isWeb) {
+    if (_options.platform.isWeb) {
       if (_checker.isDebugMode()) {
         compiler = 'dartdevc';
       } else if (_checker.isReleaseMode() || _checker.isProfileMode()) {
@@ -270,10 +268,3 @@ class FlutterEnricherEventProcessor implements EventProcessor {
     return null;
   }
 }
-
-/// Copied from https://api.flutter.dev/flutter/services/appFlavor-constant.html
-/// As soon as Flutter 3.16 is the minimal supported version of Sentry, this
-/// can be replaced with the property from the link above.
-const String? _appFlavor = String.fromEnvironment('FLUTTER_APP_FLAVOR') != ''
-    ? String.fromEnvironment('FLUTTER_APP_FLAVOR')
-    : null;

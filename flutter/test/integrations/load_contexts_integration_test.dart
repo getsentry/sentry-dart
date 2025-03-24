@@ -1,5 +1,5 @@
 @TestOn('vm')
-library flutter_test;
+library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
@@ -162,7 +162,7 @@ void main() {
       const expectedId = '1';
       String? actualId;
 
-      fixture.options.beforeSendTransaction = (transaction) {
+      fixture.options.beforeSendTransaction = (transaction, hint) {
         actualIp = transaction.user?.ipAddress;
         actualId = transaction.user?.id;
         return transaction;
@@ -197,7 +197,7 @@ void main() {
       const expectedId = '1';
       String? actualId;
 
-      fixture.options.beforeSendTransaction = (transaction) {
+      fixture.options.beforeSendTransaction = (transaction, hint) {
         actualIp = transaction.user?.ipAddress;
         actualId = transaction.user?.id;
         return transaction;

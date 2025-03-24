@@ -135,36 +135,6 @@ void main() {
       expect(actualItem, expectedItem);
     });
 
-    test('fromUserFeedback', () async {
-      final eventId = SentryId.newId();
-      // ignore: deprecated_member_use_from_same_package
-      final userFeedback = SentryUserFeedback(
-          eventId: eventId, name: 'name', email: 'email', comments: 'comments');
-      final sdkVersion =
-          SdkVersion(name: 'fixture-name', version: 'fixture-version');
-      // ignore: deprecated_member_use_from_same_package
-      final sut = SentryEnvelope.fromUserFeedback(
-        userFeedback,
-        sdkVersion,
-        dsn: fakeDsn,
-      );
-
-      final expectedEnvelopeItem =
-          // ignore: deprecated_member_use_from_same_package
-          SentryEnvelopeItem.fromUserFeedback(userFeedback);
-
-      expect(sut.header.eventId, eventId);
-      expect(sut.header.sdkVersion, sdkVersion);
-      expect(sut.header.dsn, fakeDsn);
-      expect(sut.items[0].header.contentType,
-          expectedEnvelopeItem.header.contentType);
-      expect(sut.items[0].header.type, expectedEnvelopeItem.header.type);
-
-      final actualItem = await sut.items[0].dataFactory();
-      final expectedItem = await expectedEnvelopeItem.dataFactory();
-      expect(actualItem, expectedItem);
-    });
-
     test('max attachment size', () async {
       final attachment = SentryAttachment.fromLoader(
         loader: () => Uint8List.fromList([1, 2, 3, 4]),

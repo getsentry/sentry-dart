@@ -22,7 +22,6 @@ import 'sentry_attachment/sentry_attachment.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
 import 'sentry_run_zoned_guarded.dart';
-import 'sentry_user_feedback.dart';
 import 'tracing.dart';
 import 'transport/data_category.dart';
 import 'transport/task_queue.dart';
@@ -88,13 +87,13 @@ class Sentry {
     _setEnvironmentVariables(options);
 
     // Throws when running on the browser
-    if (!options.platformChecker.isWeb) {
+    if (!options.platform.isWeb) {
       // catch any errors that may occur within the entry function, main()
       // in the ‘root zone’ where all Dart programs start
       options.addIntegrationByIndex(0, IsolateErrorIntegration());
     }
 
-    if (options.platformChecker.isDebugMode()) {
+    if (options.runtimeChecker.isDebugMode()) {
       options.debug = true;
       options.logger(
         SentryLevel.debug,
@@ -124,7 +123,7 @@ class Sentry {
     options.dsn = options.dsn ?? vars.dsn;
 
     if (options.environment == null) {
-      var environment = vars.environmentForMode(options.platformChecker);
+      var environment = vars.environmentForMode(options.runtimeChecker);
       options.environment = vars.environment ?? environment;
     }
 
@@ -248,14 +247,6 @@ class Sentry {
         SentryId.empty(),
         DataCategory.unknown,
       );
-
-  /// Reports a [userFeedback] to Sentry.io.
-  ///
-  /// First capture an event and use the [SentryId] to create a [SentryUserFeedback]
-  @Deprecated(
-      'Will be removed in a future version. Use [captureFeedback] instead')
-  static Future<void> captureUserFeedback(SentryUserFeedback userFeedback) =>
-      _hub.captureUserFeedback(userFeedback);
 
   /// Reports [SentryFeedback] to Sentry.io.
   ///

@@ -1,5 +1,5 @@
 @TestOn('vm')
-library flutter_test;
+library;
 
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -129,10 +129,10 @@ void main() {
         user: 'admin',
         pass: '0000',
       )
-      ..experimental.replay.quality = SentryReplayQuality.high
-      ..experimental.replay.sessionSampleRate = 0.1
-      ..experimental.replay.onErrorSampleRate = 0.2
-      ..experimental.privacy.mask<Image>()
+      ..replay.quality = SentryReplayQuality.high
+      ..replay.sessionSampleRate = 0.1
+      ..replay.onErrorSampleRate = 0.2
+      ..privacy.mask<Image>()
       ..spotlight =
           Spotlight(enabled: true, url: 'http://localhost:8969/stream');
 
@@ -217,8 +217,7 @@ MethodChannel createChannelWithCallback(
 }
 
 SentryFlutterOptions createOptions() {
-  final mockPlatformChecker = MockPlatformChecker(hasNativeIntegration: true);
-  final options = defaultTestOptions(mockPlatformChecker);
+  final options = defaultTestOptions();
   options.sdk = SdkVersion(
     name: sdkName,
     version: sdkVersion,

@@ -19,17 +19,11 @@ internal class SentryFlutterReplayRecorder(
       return
     }
 
-    val cacheDirPath = integration.replayCacheDir?.absolutePath
-    if (cacheDirPath == null) {
-      Log.w("Sentry", "Replay cache directory is null, can't start replay recorder.")
-      return
-    }
     Handler(Looper.getMainLooper()).post {
       try {
         channel.invokeMethod(
           "ReplayRecorder.start",
           mapOf(
-            "directory" to cacheDirPath,
             "width" to recorderConfig.recordingWidth,
             "height" to recorderConfig.recordingHeight,
             "frameRate" to recorderConfig.frameRate,

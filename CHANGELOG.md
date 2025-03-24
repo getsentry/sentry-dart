@@ -14,6 +14,23 @@
 - Bump Android SDK from v7.22.1 to v7.22.4 ([#2810](https://github.com/getsentry/sentry-dart/pull/2810))
   - [changelog](https://github.com/getsentry/sentry-java/blob/7.x.x/CHANGELOG.md#7224)
   - [diff](https://github.com/getsentry/sentry-java/compare/7.22.1...7.22.4)
+## Unreleased
+
+- Add support for Flutter Web release health ([#2794](https://github.com/getsentry/sentry-dart/pull/2794))
+  - Requires using `SentryNavigatorObserver`;
+- Bump Native SDK from v0.7.20 to v0.8.2 ([#2761](https://github.com/getsentry/sentry-dart/pull/2761), [#2807](https://github.com/getsentry/sentry-dart/pull/2807))
+  - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#082)
+  - [diff](https://github.com/getsentry/sentry-native/compare/0.7.20...0.8.2)
+- Set sentry-native backend to `crashpad` by default and `breakpad` for Windows ARM64 ([#2791](https://github.com/getsentry/sentry-dart/pull/2791))
+  - Setting the `SENTRY_NATIVE_BACKEND` environment variable will override the defaults.
+- Move replay and privacy from experimental to options ([#2755](https://github.com/getsentry/sentry-dart/pull/2755))
+- Remove renderer from `flutter_context` ([#2751](https://github.com/getsentry/sentry-dart/pull/2751))
+- Cleanup platform mocking ([#2730](https://github.com/getsentry/sentry-dart/pull/2730))
+  - The `PlatformChecker` was renamed to `RuntimeChecker`
+  - Moved `PlatformChecker.platform` to `options.platform`
+- Bump Javascript SDK from v8.42.0 to v9.5.0 ([#2784](https://github.com/getsentry/sentry-dart/pull/2784))
+  - [changelog](https://github.com/getsentry/sentry-javascript/blob/main/CHANGELOG.md#950)
+  - [diff](https://github.com/getsentry/sentry-javascript/compare/8.42.0...9.5.0)
 
 ## 8.14.0
 
@@ -67,6 +84,40 @@ final db = AppDatabase(executor);
   - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8460)
   - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.44.0...8.46.0)
 
+## 9.0.0-alpha.1
+
+### Breaking changes
+
+- Remove `SentryDisplayWidget` and manual TTID implementation ([#2668](https://github.com/getsentry/sentry-dart/pull/2668))
+- Increase minimum SDK version requirements to Dart v3.5.0 and Flutter v3.24.0 ([#2643](https://github.com/getsentry/sentry-dart/pull/2643))
+- Remove screenshot option `attachScreenshotOnlyWhenResumed` ([#2664](https://github.com/getsentry/sentry-dart/pull/2664))
+- Remove deprecated `beforeScreenshot` ([#2662](https://github.com/getsentry/sentry-dart/pull/2662))
+- Remove old user feedback api ([#2686](https://github.com/getsentry/sentry-dart/pull/2686))
+- Remove deprecated loggers ([#2685](https://github.com/getsentry/sentry-dart/pull/2685))
+- Remove user segment ([#2687](https://github.com/getsentry/sentry-dart/pull/2687))
+- Enable JS SDK native integration by default ([#2688](https://github.com/getsentry/sentry-dart/pull/2688))
+- Remove `enableTracing` ([#2695](https://github.com/getsentry/sentry-dart/pull/2695))
+- Remove `options.autoAppStart` and `setAppStartEnd` ([#2680](https://github.com/getsentry/sentry-dart/pull/2680))
+- Bump Drift min version to `2.24.0` and use `QueryInterceptor` instead of `QueryExecutor` ([#2679](https://github.com/getsentry/sentry-dart/pull/2679))
+- Add hint for transactions ([#2675](https://github.com/getsentry/sentry-dart/pull/2675))
+  - `BeforeSendTransactionCallback` now has a `Hint` parameter
+- Remove `dart:html` usage in favour of `package:web` ([#2710](https://github.com/getsentry/sentry-dart/pull/2710))
+- Remove max response body size ([#2709](https://github.com/getsentry/sentry-dart/pull/2709))
+  - Responses are now only attached if size is below ~0.15mb
+  - Responses are attached to the `Hint` object, which can be read in `beforeSend`/`beforeSendTransaction` callbacks via `hint.response`.
+  - For now, only the `dio` integration is supported.
+- Enable privacy masking for screenshots by default ([#2728](https://github.com/getsentry/sentry-dart/pull/2728))
+  
+### Enhancements
+
+- Replay: improve Android native interop performance by using JNI ([#2670](https://github.com/getsentry/sentry-dart/pull/2670))
+
+### Dependencies
+
+- Bump Android SDK from v7.20.1 to v8.1.0 ([#2650](https://github.com/getsentry/sentry-dart/pull/2650))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#810)
+  - [diff](https://github.com/getsentry/sentry-java/compare/7.20.1...8.1.0)
+
 ## 8.14.0-beta.1
 
 ### Behavioral changes
@@ -112,6 +163,9 @@ final db = AppDatabase(executor);
 
 ### Dependencies
 
+- Bump Android SDK from v7.20.1 to v8.2.0 ([#2660](https://github.com/getsentry/sentry-dart/pull/2660), [#2713](https://github.com/getsentry/sentry-dart/pull/2713))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/7.x.x/CHANGELOG.md#820)
+  - [diff](https://github.com/getsentry/sentry-java/compare/7.20.1...8.2.0)
 - Bump Native SDK from v0.7.19 to v0.7.20 ([#2652](https://github.com/getsentry/sentry-dart/pull/2652))
   - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#0720)
   - [diff](https://github.com/getsentry/sentry-native/compare/0.7.19...0.7.20)
@@ -592,7 +646,6 @@ This release fixes an issue where Cold starts can be incorrectly reported as War
   });
   ```
   - Replace deprecated `BeforeScreenshotCallback` with new `BeforeCaptureCallback`.
-
 
 ### Fixes
 

@@ -35,12 +35,9 @@ void main() {
 
   test('SentryLogger sets a diagnostic logger', () {
     final options = defaultTestOptions();
-    // ignore: deprecated_member_use_from_same_package
     expect(options.logger, noOpLogger);
-    // ignore: deprecated_member_use_from_same_package
-    options.logger = dartLogger;
+    options.debug = true;
 
-    // ignore: deprecated_member_use_from_same_package
     expect(options.logger, isNot(noOpLogger));
   });
 
@@ -101,33 +98,13 @@ void main() {
     final options = defaultTestOptions();
 
     expect(options.sentryClientName,
-        '${sdkName(options.platformChecker.isWeb)}/$sdkVersion');
+        '${sdkName(options.platform.isWeb)}/$sdkVersion');
   });
 
   test('SentryOptions has default idleTimeout', () {
     final options = SentryOptions.empty();
 
     expect(options.idleTimeout?.inSeconds, Duration(seconds: 3).inSeconds);
-  });
-
-  test('when enableTracing is set to true tracing is considered enabled', () {
-    final options = SentryOptions.empty();
-    // ignore: deprecated_member_use_from_same_package
-    options.enableTracing = true;
-
-    expect(options.isTracingEnabled(), true);
-  });
-
-  test('when enableTracing is set to false tracing is considered disabled', () {
-    final options = SentryOptions.empty();
-    // ignore: deprecated_member_use_from_same_package
-    options.enableTracing = false;
-    options.tracesSampleRate = 1.0;
-    options.tracesSampler = (_) {
-      return 1.0;
-    };
-
-    expect(options.isTracingEnabled(), false);
   });
 
   test('Spotlight is disabled by default', () {

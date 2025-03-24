@@ -1,5 +1,0 @@
-include: package:lints/recommended.yaml
-
-analyzer:
-  errors:
-    path_does_not_exist: ignore
