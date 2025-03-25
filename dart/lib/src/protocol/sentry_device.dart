@@ -316,6 +316,7 @@ class SentryDevice {
         unknown: unknown,
       );
 
+  @Deprecated('Assign values directly to the instance.')
   SentryDevice copyWith({
     String? name,
     String? family,

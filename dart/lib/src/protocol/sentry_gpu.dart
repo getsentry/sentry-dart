@@ -158,6 +158,7 @@ class SentryGpu {
     };
   }
 
+  @Deprecated('Assign values directly to the instance.')
   SentryGpu copyWith({
     String? name,
     int? id,

@@ -62,6 +62,7 @@ class SentryThread {
     };
   }
 
+  @Deprecated('Assign values directly to the instance.')
   SentryThread copyWith({
     int? id,
     String? name,

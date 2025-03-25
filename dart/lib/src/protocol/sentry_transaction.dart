@@ -93,6 +93,7 @@ class SentryTransaction extends SentryEvent {
 
   bool get sampled => contexts.trace?.sampled == true;
 
+  @Deprecated('Assign values directly to the instance.')
   @override
   SentryTransaction copyWith({
     SentryId? eventId,

@@ -159,6 +159,7 @@ class SentryRequest {
     };
   }
 
+  @Deprecated('Assign values directly to the instance.')
   SentryRequest copyWith({
     String? url,
     String? method,

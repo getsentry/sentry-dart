@@ -136,6 +136,7 @@ class SentryUser {
     };
   }
 
+  @Deprecated('Assign values directly to the instance.')
   SentryUser copyWith({
     String? id,
     String? username,

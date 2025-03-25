@@ -201,6 +201,7 @@ class Breadcrumb {
     };
   }
 
+  @Deprecated('Assign values directly to the instance.')
   Breadcrumb copyWith({
     String? message,
     String? category,

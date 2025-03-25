@@ -35,6 +35,7 @@ class SentryPackage {
     };
   }
 
+  @Deprecated('Assign values directly to the instance.')
   SentryPackage copyWith({
     String? name,
     String? version,

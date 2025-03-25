@@ -193,6 +193,7 @@ class SentryEvent with SentryEventLike<SentryEvent> {
   @internal
   final Map<String, dynamic>? unknown;
 
+  @Deprecated('Assign values directly to the instance.')
   @override
   SentryEvent copyWith({
     SentryId? eventId,

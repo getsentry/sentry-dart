@@ -79,6 +79,7 @@ class SentryResponse {
     };
   }
 
+  @Deprecated('Assign values directly to the instance.')
   SentryResponse copyWith({
     int? statusCode,
     int? bodySize,

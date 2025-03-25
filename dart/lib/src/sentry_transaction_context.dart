@@ -51,6 +51,7 @@ class SentryTransactionContext extends SentrySpanContext {
     );
   }
 
+  @Deprecated('Assign values directly to the instance.')
   SentryTransactionContext copyWith({
     String? name,
     String? operation,

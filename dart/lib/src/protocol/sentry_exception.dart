@@ -72,6 +72,7 @@ class SentryException {
     };
   }
 
+  @Deprecated('Assign values directly to the instance.')
   SentryException copyWith({
     String? type,
     String? value,

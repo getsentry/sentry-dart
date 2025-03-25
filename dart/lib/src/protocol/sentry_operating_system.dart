@@ -90,6 +90,7 @@ class SentryOperatingSystem {
         unknown: unknown,
       );
 
+  @Deprecated('Assign values directly to the instance.')
   SentryOperatingSystem copyWith({
     String? name,
     String? version,

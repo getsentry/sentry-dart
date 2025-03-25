@@ -96,6 +96,7 @@ class Mechanism {
   })  : _meta = meta != null ? Map.from(meta) : null,
         _data = data != null ? Map.from(data) : null;
 
+  @Deprecated('Assign values directly to the instance.')
   Mechanism copyWith({
     String? type,
     String? description,

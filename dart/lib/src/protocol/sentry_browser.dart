@@ -46,6 +46,7 @@ class SentryBrowser {
         unknown: unknown,
       );
 
+  @Deprecated('Assign values directly to the instance.')
   SentryBrowser copyWith({
     String? name,
     String? version,

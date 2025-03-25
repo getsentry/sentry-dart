@@ -39,6 +39,7 @@ class SentryProxy {
     };
   }
 
+  @Deprecated('Assign values directly to the instance.')
   SentryProxy copyWith({
     String? host,
     int? port,

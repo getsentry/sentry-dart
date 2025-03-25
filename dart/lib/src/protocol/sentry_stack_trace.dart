@@ -86,6 +86,7 @@ class SentryStackTrace {
     };
   }
 
+  @Deprecated('Assign values directly to the instance.')
   SentryStackTrace copyWith({
     List<SentryStackFrame>? frames,
     Map<String, String>? registers,

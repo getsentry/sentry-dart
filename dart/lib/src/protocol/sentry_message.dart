@@ -55,6 +55,7 @@ class SentryMessage {
     };
   }
 
+  @Deprecated('Assign values directly to the instance.')
   SentryMessage copyWith({
     String? formatted,
     String? template,

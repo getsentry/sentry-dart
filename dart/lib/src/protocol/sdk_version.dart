@@ -114,6 +114,7 @@ class SdkVersion {
     _integrations.add(integration);
   }
 
+  @Deprecated('Assign values directly to the instance.')
   SdkVersion copyWith({
     String? name,
     String? version,

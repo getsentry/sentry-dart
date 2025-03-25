@@ -57,6 +57,7 @@ class SentryFeedback {
     };
   }
 
+  @Deprecated('Assign values directly to the instance.')
   SentryFeedback copyWith({
     String? message,
     String? contactEmail,

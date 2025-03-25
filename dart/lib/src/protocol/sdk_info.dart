@@ -43,6 +43,7 @@ class SdkInfo {
     };
   }
 
+  @Deprecated('Assign values directly to the instance.')
   SdkInfo copyWith({
     String? sdkName,
     int? versionMajor,

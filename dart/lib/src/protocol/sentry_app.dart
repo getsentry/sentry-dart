@@ -116,6 +116,7 @@ class SentryApp {
         unknown: unknown,
       );
 
+  @Deprecated('Assign values directly to the instance.')
   SentryApp copyWith({
     String? name,
     String? version,

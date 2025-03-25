@@ -69,6 +69,7 @@ class SentryCulture {
         unknown: unknown,
       );
 
+  @Deprecated('Assign values directly to the instance.')
   SentryCulture copyWith({
     String? calendar,
     String? displayName,

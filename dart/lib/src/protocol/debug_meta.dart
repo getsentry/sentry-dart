@@ -51,6 +51,7 @@ class DebugMeta {
     };
   }
 
+  @Deprecated('Assign values directly to the instance.')
   DebugMeta copyWith({
     SdkInfo? sdk,
     List<DebugImage>? images,

@@ -186,6 +186,7 @@ class SentryStackFrame {
     };
   }
 
+  @Deprecated('Assign values directly to the instance.')
   SentryStackFrame copyWith({
     String? absPath,
     String? fileName,

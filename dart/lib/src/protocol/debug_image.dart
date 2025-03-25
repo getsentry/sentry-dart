@@ -113,6 +113,7 @@ class DebugImage {
     };
   }
 
+  @Deprecated('Assign values directly to the instance.')
   DebugImage copyWith({
     String? uuid,
     String? name,
