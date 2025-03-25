@@ -56,7 +56,7 @@ class SentryBatch implements Batch {
       span?.origin = SentryTraceOrigins.autoDbSqfliteBatch;
       setDatabaseAttributeData(span, _dbName);
 
-      var breadcrumb = Breadcrumb(
+      final breadcrumb = Breadcrumb(
         message: _buffer.toString().trim(),
         data: {},
         type: 'query',
@@ -108,7 +108,7 @@ class SentryBatch implements Batch {
       span?.origin = SentryTraceOrigins.autoDbSqfliteBatch;
       setDatabaseAttributeData(span, _dbName);
 
-      var breadcrumb = Breadcrumb(
+      final breadcrumb = Breadcrumb(
         message: _buffer.toString().trim(),
         data: {},
         type: 'query',

@@ -35,7 +35,7 @@ class SentrySpanHelper {
     // ignore: invalid_use_of_internal_member
     span?.origin = _origin;
 
-    var breadcrumb = Breadcrumb(
+    final breadcrumb = Breadcrumb(
       message: description,
       data: {},
       type: 'query',

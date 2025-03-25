@@ -469,9 +469,7 @@ class Hub {
         transactionContext.samplingDecision = samplingDecision;
       }
 
-      if (transactionContext.origin == null) {
-        transactionContext.origin = SentryTraceOrigins.manual;
-      }
+      transactionContext.origin ??= SentryTraceOrigins.manual;
 
       SentryProfiler? profiler;
       if (_profilerFactory != null &&

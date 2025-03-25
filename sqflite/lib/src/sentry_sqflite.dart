@@ -48,7 +48,7 @@ Future<Database> openDatabaseWithSentry(
     // ignore: invalid_use_of_internal_member
     span?.origin = SentryTraceOrigins.autoDbSqfliteOpenDatabase;
 
-    var breadcrumb = Breadcrumb(
+    final breadcrumb = Breadcrumb(
       message: description,
       category: SentryDatabase.dbOp,
       data: {},

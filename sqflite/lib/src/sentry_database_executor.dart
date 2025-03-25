@@ -47,7 +47,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
       setDatabaseAttributeData(span, _dbName);
 
-      var breadcrumb = Breadcrumb(
+      final breadcrumb = Breadcrumb(
         message: builder.sql,
         category: SentryDatabase.dbSqlExecuteOp,
         data: {},
@@ -91,7 +91,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
       setDatabaseAttributeData(span, _dbName);
 
-      var breadcrumb = Breadcrumb(
+      final breadcrumb = Breadcrumb(
         message: sql,
         category: SentryDatabase.dbSqlExecuteOp,
         data: {},
@@ -142,7 +142,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
       setDatabaseAttributeData(span, _dbName);
 
-      var breadcrumb = Breadcrumb(
+      final breadcrumb = Breadcrumb(
         message: builder.sql,
         category: SentryDatabase.dbSqlExecuteOp,
         data: {},
@@ -212,7 +212,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
       setDatabaseAttributeData(span, _dbName);
 
-      var breadcrumb = Breadcrumb(
+      final breadcrumb = Breadcrumb(
         message: builder.sql,
         category: SentryDatabase.dbSqlQueryOp,
         data: {},
@@ -289,7 +289,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
       setDatabaseAttributeData(span, _dbName);
 
-      var breadcrumb = Breadcrumb(
+      final breadcrumb = Breadcrumb(
         message: builder.sql,
         category: SentryDatabase.dbSqlQueryOp,
         data: {},
@@ -343,7 +343,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
       setDatabaseAttributeData(span, _dbName);
 
-      var breadcrumb = Breadcrumb(
+      final breadcrumb = Breadcrumb(
         message: sql,
         category: SentryDatabase.dbSqlExecuteOp,
         data: {},
@@ -385,7 +385,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
       setDatabaseAttributeData(span, _dbName);
 
-      var breadcrumb = Breadcrumb(
+      final breadcrumb = Breadcrumb(
         message: sql,
         category: SentryDatabase.dbSqlExecuteOp,
         data: {},
@@ -430,7 +430,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
       setDatabaseAttributeData(span, _dbName);
 
-      var breadcrumb = Breadcrumb(
+      final breadcrumb = Breadcrumb(
         message: sql,
         category: SentryDatabase.dbSqlQueryOp,
         data: {},
@@ -476,7 +476,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
       setDatabaseAttributeData(span, _dbName);
 
-      var breadcrumb = Breadcrumb(
+      final breadcrumb = Breadcrumb(
         message: sql,
         category: SentryDatabase.dbSqlQueryOp,
         data: {},
@@ -522,7 +522,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
       setDatabaseAttributeData(span, _dbName);
 
-      var breadcrumb = Breadcrumb(
+      final breadcrumb = Breadcrumb(
         message: sql,
         category: SentryDatabase.dbSqlExecuteOp,
         data: {},
@@ -577,7 +577,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
       setDatabaseAttributeData(span, _dbName);
 
-      var breadcrumb = Breadcrumb(
+      final breadcrumb = Breadcrumb(
         message: builder.sql,
         category: SentryDatabase.dbSqlExecuteOp,
         data: {},
