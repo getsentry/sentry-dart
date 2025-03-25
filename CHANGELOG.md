@@ -4,6 +4,7 @@
 
 - Mutable Data Classes ([#2818](https://github.com/getsentry/sentry-dart/pull/2818))
   - Some SDK classes do not have `const` constructors anymore.
+  - The `copyWith` and `clone` methods of SDK classes were deprecated.
 
 ## 9.0.0-alpha.2
 
