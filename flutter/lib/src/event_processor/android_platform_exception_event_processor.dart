@@ -103,17 +103,15 @@ class AndroidPlatformExceptionEventProcessor implements EventProcessor {
           .toList(growable: true);
       jvmThreads.add(first);
     }
-
-    return event.copyWith(
-      exceptions: [
-        ...?event.exceptions,
-        ...jvmExceptions,
-      ],
-      threads: [
-        ...?threads,
-        if (_options.attachThreads) ...jvmThreads,
-      ],
-    );
+    event.exceptions = [
+      ...?event.exceptions,
+      ...jvmExceptions,
+    ];
+    event.threads = [
+      ...?threads,
+      if (_options.attachThreads) ...jvmThreads,
+    ];
+    return event;
   }
 
   /// If the crash originated on Android, the Dart side didn't crash.
@@ -121,16 +119,13 @@ class AndroidPlatformExceptionEventProcessor implements EventProcessor {
   List<SentryThread>? _markDartThreadsAsNonCrashed(
     List<SentryThread>? threads,
   ) {
-    return threads
-        ?.map(
-          (e) => e.copyWith(
-            crashed: false,
-            // Isolate is safe to use directly,
-            // because Android is only run in the dart:io context.
-            current: e.name == Isolate.current.debugName,
-          ),
-        )
-        .toList(growable: false);
+    return threads?.map((thread) {
+      thread.crashed = false;
+      // Isolate is safe to use directly,
+      // because Android is only run in the dart:io context.
+      thread.current = thread.name == Isolate.current.debugName;
+      return thread;
+    }).toList(growable: false);
   }
 }
 
@@ -202,8 +197,7 @@ extension on JvmException {
       name: threadName,
       id: threadId,
     );
-    exception = exception.copyWith(threadId: threadId);
-
+    exception.threadId = threadId;
     return MapEntry(exception, sentryThread);
   }
 }

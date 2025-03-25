@@ -62,7 +62,8 @@ void main() {
       fixture.options.enableScopeSync = true;
       fixture.options.beforeBreadcrumb = (breadcrumb, hint) {
         if (breadcrumb?.message == 'native-mutated') {
-          return breadcrumb?.copyWith(message: 'native-mutated-applied');
+          breadcrumb?.message = 'native-mutated-applied';
+          return breadcrumb;
         } else {
           return null;
         }

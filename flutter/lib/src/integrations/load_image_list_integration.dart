@@ -52,7 +52,7 @@ class _LoadImageListIntegrationEventProcessor implements EventProcessor {
         }
       }
       if (images != null) {
-        return event.copyWith(debugMeta: DebugMeta(images: images));
+        event.debugMeta = DebugMeta(images: images);
       }
     }
 

@@ -40,6 +40,10 @@ class Mechanism {
   /// Arbitrary extra data that might help the user understand the error thrown by this mechanism
   Map<String, dynamic> get data => Map.unmodifiable(_data ?? const {});
 
+  set data(Map<String, dynamic>? data) {
+    _data = (data != null) ? Map<String, dynamic>.from(data) : null;
+  }
+
   /// An optional flag indicating that this error is synthetic.
   /// Synthetic errors are errors that carry little meaning by themselves.
   /// This may be because they are created at a central place (like a crash handler), and are all called the same: Error, Segfault etc. When the flag is set, Sentry will then try to use other information (top in-app frame function) rather than exception type and value in the UI for the primary event display. This flag should be set for all "segfaults" for instance as every single error group would look very similar otherwise.

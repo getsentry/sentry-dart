@@ -65,8 +65,8 @@ void main() {
               .thenReturn({'status': 'ok', 'errors': 0});
 
           final sut = fixture.getSut();
-          final event = SentryEvent().copyWith(
-              exceptions: [SentryException(type: 'test', value: 'test')]);
+          final event = SentryEvent();
+          event.exceptions = [SentryException(type: 'test', value: 'test')];
 
           await sut.updateSessionFromEvent(event);
 
@@ -80,7 +80,7 @@ void main() {
               .thenReturn({'status': 'ok', 'errors': 1});
 
           final sut = fixture.getSut();
-          final event = SentryEvent().copyWith(exceptions: [
+          final event = SentryEvent(exceptions: [
             SentryException(
               type: 'test',
               value: 'test',
@@ -99,8 +99,9 @@ void main() {
               .thenReturn({'status': 'exit', 'errors': 0});
 
           final sut = fixture.getSut();
-          final event = SentryEvent().copyWith(
-              exceptions: [SentryException(type: 'test', value: 'test')]);
+          final event = SentryEvent(
+            exceptions: [SentryException(type: 'test', value: 'test')],
+          );
 
           await sut.updateSessionFromEvent(event);
 
@@ -116,12 +117,14 @@ void main() {
               .thenReturn({'status': 'ok', 'errors': 5});
 
           final sut = fixture.getSut();
-          final event = SentryEvent().copyWith(exceptions: [
-            SentryException(
-                type: 'test',
-                value: 'test',
-                mechanism: Mechanism(type: 'test', handled: false))
-          ]);
+          final event = SentryEvent(
+            exceptions: [
+              SentryException(
+                  type: 'test',
+                  value: 'test',
+                  mechanism: Mechanism(type: 'test', handled: false))
+            ],
+          );
 
           await sut.updateSessionFromEvent(event);
 
@@ -135,12 +138,14 @@ void main() {
               .thenReturn({'status': 'exit', 'errors': 5});
 
           final sut = fixture.getSut();
-          final event = SentryEvent().copyWith(exceptions: [
-            SentryException(
-                type: 'test',
-                value: 'test',
-                mechanism: Mechanism(type: 'test', handled: false))
-          ]);
+          final event = SentryEvent(
+            exceptions: [
+              SentryException(
+                  type: 'test',
+                  value: 'test',
+                  mechanism: Mechanism(type: 'test', handled: false))
+            ],
+          );
 
           await sut.updateSessionFromEvent(event);
 
