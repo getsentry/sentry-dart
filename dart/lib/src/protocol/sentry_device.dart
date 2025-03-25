@@ -276,6 +276,7 @@ class SentryDevice {
     };
   }
 
+  @Deprecated('Will be removed in a future version.')
   SentryDevice clone() => SentryDevice(
         name: name,
         family: family,

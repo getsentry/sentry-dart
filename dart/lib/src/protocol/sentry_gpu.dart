@@ -111,6 +111,7 @@ class SentryGpu {
     );
   }
 
+  @Deprecated('Will be removed in a future version.')
   SentryGpu clone() => SentryGpu(
         name: name,
         id: id,

@@ -60,6 +60,7 @@ class SentryCulture {
     };
   }
 
+  @Deprecated('Will be removed in a future version.')
   SentryCulture clone() => SentryCulture(
         calendar: calendar,
         displayName: displayName,

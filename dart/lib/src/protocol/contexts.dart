@@ -260,6 +260,7 @@ class Contexts extends MapView<String, dynamic> {
     return json;
   }
 
+  @Deprecated('Will be removed in a future version.')
   Contexts clone() {
     final copy = Contexts(
       device: device?.clone(),
@@ -279,7 +280,7 @@ class Contexts extends MapView<String, dynamic> {
     return copy;
   }
 
-  @Deprecated('Assign values directly to the instance.')
+  @Deprecated('Will be removed in a future version. Assign values directly to the instance.')
   Contexts copyWith({
     SentryDevice? device,
     SentryOperatingSystem? operatingSystem,

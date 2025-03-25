@@ -79,6 +79,7 @@ class SentryOperatingSystem {
     };
   }
 
+  @Deprecated('Will be removed in a future version.')
   SentryOperatingSystem clone() => SentryOperatingSystem(
         name: name,
         version: version,

@@ -101,6 +101,7 @@ class SentryApp {
     };
   }
 
+  @Deprecated('Will be removed in a future version.')
   SentryApp clone() => SentryApp(
         name: name,
         version: version,

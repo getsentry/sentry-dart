@@ -40,6 +40,7 @@ class SentryBrowser {
     };
   }
 
+  @Deprecated('Will be removed in a future version.')
   SentryBrowser clone() => SentryBrowser(
         name: name,
         version: version,

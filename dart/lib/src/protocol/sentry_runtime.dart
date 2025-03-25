@@ -74,6 +74,7 @@ class SentryRuntime {
     };
   }
 
+  @Deprecated('Will be removed in a future version.')
   SentryRuntime clone() => SentryRuntime(
         key: key,
         name: name,

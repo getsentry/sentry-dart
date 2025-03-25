@@ -84,6 +84,7 @@ class SentryTraceContext {
     };
   }
 
+  @Deprecated('Will be removed in a future version.')
   SentryTraceContext clone() => SentryTraceContext(
         operation: operation,
         traceId: traceId,

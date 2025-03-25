@@ -77,5 +77,6 @@ class SentryFeedback {
         unknown: unknown ?? this.unknown,
       );
 
+  @Deprecated('Will be removed in a future version.')
   SentryFeedback clone() => copyWith();
 }
