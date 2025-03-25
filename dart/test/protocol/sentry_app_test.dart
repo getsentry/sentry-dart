@@ -66,47 +66,4 @@ void main() {
       expect(json['text_scale'], 2.0);
     });
   });
-
-  group('copyWith', () {
-    test('copyWith keeps unchanged', () {
-      final data = sentryApp;
-
-      final copy = data.copyWith();
-
-      expect(
-        MapEquality().equals(data.toJson(), copy.toJson()),
-        true,
-      );
-    });
-
-    test('copyWith takes new values', () {
-      final data = sentryApp;
-
-      final startTime = DateTime.now();
-
-      final copy = data.copyWith(
-        name: 'name1',
-        version: 'version1',
-        identifier: 'identifier1',
-        build: 'build1',
-        buildType: 'buildType1',
-        startTime: startTime,
-        deviceAppHash: 'hash1',
-        inForeground: true,
-        viewNames: ['screen1'],
-        textScale: 3.0,
-      );
-
-      expect('name1', copy.name);
-      expect('version1', copy.version);
-      expect('identifier1', copy.identifier);
-      expect('build1', copy.build);
-      expect('buildType1', copy.buildType);
-      expect(startTime, copy.startTime);
-      expect('hash1', copy.deviceAppHash);
-      expect(true, copy.inForeground);
-      expect(['screen1'], copy.viewNames);
-      expect(3.0, copy.textScale);
-    });
-  });
 }

@@ -298,23 +298,20 @@ class Scope {
     SentryEvent event,
     Hint hint,
   ) async {
-    event = event.copyWith(
-      transaction: event.transaction ?? transaction,
-      user: _mergeUsers(user, event.user),
-      breadcrumbs: (event.breadcrumbs?.isNotEmpty ?? false)
-          ? event.breadcrumbs
-          : List.from(_breadcrumbs),
-      tags: tags.isNotEmpty ? _mergeEventTags(event) : event.tags,
-      // ignore: deprecated_member_use_from_same_package
-      extra: extra.isNotEmpty ? _mergeEventExtra(event) : event.extra,
-    );
+    event.transaction = event.transaction ?? transaction;
+    event.user = _mergeUsers(user, event.user);
+    event.breadcrumbs = (event.breadcrumbs?.isNotEmpty ?? false)
+        ? event.breadcrumbs
+        : List.from(_breadcrumbs);
+    event.tags = tags.isNotEmpty ? _mergeEventTags(event) : event.tags;
+    // ignore: deprecated_member_use_from_same_package
+    event.extra = extra.isNotEmpty ? _mergeEventExtra(event) : event.extra;
 
     if (event is! SentryTransaction) {
-      event = event.copyWith(
-          fingerprint: (event.fingerprint?.isNotEmpty ?? false)
-              ? event.fingerprint
-              : _fingerprint,
-          level: level ?? event.level);
+      event.fingerprint = (event.fingerprint?.isNotEmpty ?? false)
+          ? event.fingerprint
+          : _fingerprint;
+      event.level = level ?? event.level;
     }
 
     _contexts.forEach((key, value) {
@@ -375,15 +372,14 @@ class Scope {
       return scopeUser;
     }
     // otherwise the user of scope takes precedence over the event user
-    return scopeUser?.copyWith(
-      id: eventUser?.id,
-      email: eventUser?.email,
-      ipAddress: eventUser?.ipAddress,
-      username: eventUser?.username,
-      data: _mergeUserData(eventUser?.data, scopeUser.data),
-      // ignore: deprecated_member_use_from_same_package
-      extras: _mergeUserData(eventUser?.extras, scopeUser.extras),
-    );
+    scopeUser?.id = eventUser?.id;
+    scopeUser?.email = eventUser?.email;
+    scopeUser?.ipAddress = eventUser?.ipAddress;
+    scopeUser?.username = eventUser?.username;
+    scopeUser?.data = _mergeUserData(eventUser?.data, scopeUser.data);
+    // ignore: deprecated_member_use_from_same_package
+    scopeUser?.extras = _mergeUserData(eventUser?.extras, scopeUser.extras);
+    return scopeUser;
   }
 
   /// If the User on the scope and the user of an event have extra entries with

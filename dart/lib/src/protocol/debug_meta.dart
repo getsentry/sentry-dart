@@ -16,6 +16,11 @@ class DebugMeta {
   /// images in order to retrieve debug files for symbolication.
   List<DebugImage> get images => List.unmodifiable(_images ?? const []);
 
+  void addDebugImage(DebugImage debugImage) {
+    _images ??= [];
+    _images?.add(debugImage);
+  }
+
   DebugMeta({this.sdk, List<DebugImage>? images, this.unknown})
       : _images = images;
 

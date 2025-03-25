@@ -18,6 +18,8 @@ void main() {
     var client = MockSentryClient();
 
     var anException = Exception();
+    late SentryEvent fakeEvent;
+    late SentryMessage fakeMessage;
 
     setUp(() async {
       final options = defaultTestOptions();
@@ -29,7 +31,8 @@ void main() {
         },
       );
       anException = Exception('anException');
-
+      fakeEvent = getFakeEvent();
+      fakeMessage = getFakeMessage();
       client = MockSentryClient();
       Sentry.bindClient(client);
     });

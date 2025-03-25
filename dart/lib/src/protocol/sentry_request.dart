@@ -48,6 +48,10 @@ class SentryRequest {
   /// Header names are treated case-insensitively by Sentry.
   Map<String, String> get headers => Map.unmodifiable(_headers ?? const {});
 
+  set headers(Map<String, String> headers) {
+    _headers = Map<String, String>.of(headers);
+  }
+
   Map<String, String>? _env;
 
   /// An immutable dictionary containing environment information passed from the server.

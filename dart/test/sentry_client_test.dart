@@ -1004,14 +1004,16 @@ void main() {
 
   group('SentryClient: user & user ip', () {
     late Fixture fixture;
+    late SentryUser fakeUser;
 
     setUp(() {
       fixture = Fixture();
+      fakeUser = getFakeUser();
     });
 
     test('event has no user and sendDefaultPii = true', () async {
       final client = fixture.getSut(sendDefaultPii: true);
-      var fakeEvent = SentryEvent();
+      final fakeEvent = SentryEvent();
       expect(fakeEvent.user, isNull);
 
       await client.captureEvent(fakeEvent);
@@ -1040,6 +1042,7 @@ void main() {
 
     test('event has a user with IP address', () async {
       final client = fixture.getSut(sendDefaultPii: true);
+      final fakeEvent = getFakeEvent();
 
       expect(fakeEvent.user?.ipAddress, isNotNull);
       await client.captureEvent(fakeEvent);
@@ -1058,6 +1061,7 @@ void main() {
     test('event has a user without IP address and sendDefaultPii = true',
         () async {
       final client = fixture.getSut(sendDefaultPii: true);
+      final fakeEvent = getFakeEvent();
 
       final event = fakeEvent.copyWith(user: fakeUser);
       expect(event.user?.ipAddress, isNull);
@@ -1077,6 +1081,7 @@ void main() {
     test('event has a user without IP address and sendDefaultPii = false',
         () async {
       final client = fixture.getSut(sendDefaultPii: false);
+      final fakeEvent = getFakeEvent();
 
       final event = fakeEvent.copyWith(user: fakeUser);
       expect(event.user?.ipAddress, isNull);
@@ -1096,9 +1101,11 @@ void main() {
 
   group('SentryClient sampling', () {
     late Fixture fixture;
+    late SentryEvent fakeEvent;
 
     setUp(() {
       fixture = Fixture();
+      fakeEvent = getFakeEvent();
     });
 
     test('captures event, sample rate is 100% enabled', () async {
@@ -1421,9 +1428,11 @@ void main() {
 
   group('SentryClient before send', () {
     late Fixture fixture;
+    late SentryEvent fakeEvent;
 
     setUp(() {
       fixture = Fixture();
+      fakeEvent = getFakeEvent();
     });
 
     test('before send drops event', () async {
@@ -1485,9 +1494,11 @@ void main() {
 
   group('EventProcessors', () {
     late Fixture fixture;
+    late SentryEvent fakeEvent;
 
     setUp(() {
       fixture = Fixture();
+      fakeEvent = getFakeEvent();
       fixture.options.addEventProcessor(FunctionEventProcessor(
         (event, hint) => event.copyWith(tags: {'theme': 'material'})
           // ignore: deprecated_member_use_from_same_package
@@ -1652,6 +1663,7 @@ void main() {
 
   group('SentryClient captures envelope', () {
     late Fixture fixture;
+    final fakeEnvelope = getFakeEnvelope();
 
     setUp(() {
       fixture = Fixture();
@@ -1710,9 +1722,11 @@ void main() {
 
   group('ClientReportRecorder', () {
     late Fixture fixture;
+    late SentryEvent fakeEvent;
 
     setUp(() {
       fixture = Fixture();
+      fakeEvent = getFakeEvent();
     });
 
     test('recorder is not noop if client reports are enabled', () async {
@@ -1965,9 +1979,11 @@ void main() {
 
   group('trace context', () {
     late Fixture fixture;
+    late SentryEvent fakeEvent;
 
     setUp(() {
       fixture = Fixture();
+      fakeEvent = getFakeEvent();
     });
 
     test('captureEvent adds trace context', () async {
@@ -2019,9 +2035,11 @@ void main() {
 
   group('Hint', () {
     late Fixture fixture;
+    late SentryEvent fakeEvent;
 
     setUp(() {
       fixture = Fixture();
+      fakeEvent = getFakeEvent();
     });
 
     test('captureEvent adds attachments from hint', () async {

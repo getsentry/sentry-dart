@@ -280,7 +280,8 @@ class Contexts extends MapView<String, dynamic> {
     return copy;
   }
 
-  @Deprecated('Will be removed in a future version. Assign values directly to the instance.')
+  @Deprecated(
+      'Will be removed in a future version. Assign values directly to the instance.')
   Contexts copyWith({
     SentryDevice? device,
     SentryOperatingSystem? operatingSystem,

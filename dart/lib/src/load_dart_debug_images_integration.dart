@@ -37,15 +37,11 @@ class LoadImageIntegrationEventProcessor implements EventProcessor {
     if (stackTrace != null) {
       final debugImage = getAppDebugImage(stackTrace);
       if (debugImage != null) {
-        late final DebugMeta debugMeta;
         if (event.debugMeta != null) {
-          final images = List<DebugImage>.from(event.debugMeta!.images);
-          images.add(debugImage);
-          debugMeta = event.debugMeta!.copyWith(images: images);
+          event.debugMeta?.addDebugImage(debugImage);
         } else {
-          debugMeta = DebugMeta(images: [debugImage]);
+          event.debugMeta = DebugMeta(images: [debugImage]);
         }
-        return event.copyWith(debugMeta: debugMeta);
       }
     }
 

@@ -53,9 +53,9 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
 
     contexts['dart_context'] = _getDartContext();
 
-    return event.copyWith(
-      contexts: contexts,
-    );
+    event.contexts = contexts;
+
+    return event;
   }
 
   List<SentryRuntime> _getRuntimes(List<SentryRuntime>? runtimes) {
@@ -102,13 +102,14 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
   }
 
   Future<SentryDevice> _getDevice(SentryDevice? device) async {
-    return (device ?? SentryDevice()).copyWith(
-      name: device?.name ??
-          (_options.sendDefaultPii ? Platform.localHostname : null),
-      processorCount: device?.processorCount ?? Platform.numberOfProcessors,
-      memorySize: device?.memorySize ?? await _getTotalPhysicalMemory(),
-      freeMemory: device?.freeMemory,
-    );
+    device ??= SentryDevice();
+    device.name = device.name ??
+        (_options.sendDefaultPii ? Platform.localHostname : null);
+    device.processorCount =
+        device.processorCount ?? Platform.numberOfProcessors;
+    device.memorySize = device.memorySize ?? await _getTotalPhysicalMemory();
+    device.freeMemory = device.freeMemory;
+    return device;
   }
 
   Future<int?> _getTotalPhysicalMemory() async {
@@ -121,9 +122,9 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
   }
 
   SentryApp _getApp(SentryApp? app) {
-    return (app ?? SentryApp()).copyWith(
-      appMemory: app?.appMemory ?? ProcessInfo.currentRss,
-    );
+    app ??= SentryApp();
+    app.appMemory = app.appMemory ?? ProcessInfo.currentRss;
+    return app;
   }
 
   SentryOperatingSystem _getOperatingSystem(SentryOperatingSystem? os) {
@@ -171,10 +172,10 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
   }
 
   SentryCulture _getSentryCulture(SentryCulture? culture) {
-    return (culture ?? SentryCulture()).copyWith(
-      locale: culture?.locale ?? Platform.localeName,
-      timezone: culture?.timezone ?? DateTime.now().timeZoneName,
-    );
+    culture ??= SentryCulture();
+    culture.locale = culture.locale ?? Platform.localeName;
+    culture.timezone = culture.timezone ?? DateTime.now().timeZoneName;
+    return culture;
   }
 }
 

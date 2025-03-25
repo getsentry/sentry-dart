@@ -66,32 +66,4 @@ void main() {
       expect(json.containsKey('extras'), false);
     });
   });
-
-  group('copyWith', () {
-    test('copyWith keeps unchanged', () {
-      final data = sentryUser;
-
-      final copy = data.copyWith();
-
-      expect(data.toJson(), copy.toJson());
-    });
-
-    test('copyWith takes new values', () {
-      final data = sentryUser;
-
-      final copy = data.copyWith(
-        id: 'id1',
-        username: 'username1',
-        email: 'email1',
-        ipAddress: 'ipAddress1',
-        data: {'key1': 'value1'},
-      );
-
-      expect('id1', copy.id);
-      expect('username1', copy.username);
-      expect('email1', copy.email);
-      expect('ipAddress1', copy.ipAddress);
-      expect({'key1': 'value1'}, copy.data);
-    });
-  });
 }
