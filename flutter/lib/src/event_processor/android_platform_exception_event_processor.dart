@@ -82,7 +82,7 @@ class AndroidPlatformExceptionEventProcessor implements EventProcessor {
     List<MapEntry<SentryException, SentryThread>>? nativeStackTrace,
     List<MapEntry<SentryException, SentryThread>>? detailsStackTrace,
   ) {
-    final threads = _markDartThreadsAsNonCrashed(event.threads);
+    _markDartThreadsAsNonCrashed(event.threads);
 
     final jvmExceptions = [
       ...?nativeStackTrace?.map((e) => e.key),
@@ -108,7 +108,7 @@ class AndroidPlatformExceptionEventProcessor implements EventProcessor {
       ...jvmExceptions,
     ];
     event.threads = [
-      ...?threads,
+      ...?event.threads,
       if (_options.attachThreads) ...jvmThreads,
     ];
     return event;
@@ -116,16 +116,15 @@ class AndroidPlatformExceptionEventProcessor implements EventProcessor {
 
   /// If the crash originated on Android, the Dart side didn't crash.
   /// Mark it accordingly.
-  List<SentryThread>? _markDartThreadsAsNonCrashed(
+  void _markDartThreadsAsNonCrashed(
     List<SentryThread>? threads,
   ) {
-    return threads?.map((thread) {
+    for (final thread in threads ?? []) {
       thread.crashed = false;
       // Isolate is safe to use directly,
       // because Android is only run in the dart:io context.
       thread.current = thread.name == Isolate.current.debugName;
-      return thread;
-    }).toList(growable: false);
+    }
   }
 }
 
