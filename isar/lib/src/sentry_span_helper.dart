@@ -68,9 +68,7 @@ class SentrySpanHelper {
       span?.status = SpanStatus.internalError();
 
       breadcrumb.data?['status'] = 'internal_error';
-      breadcrumb = breadcrumb.copyWith(
-        level: SentryLevel.warning,
-      );
+      breadcrumb.level = SentryLevel.warning;
 
       rethrow;
     } finally {

@@ -62,7 +62,7 @@ class _LoadContextsIntegrationEventProcessor implements EventProcessor {
         final contexts = Contexts.fromJson(
           Map<String, dynamic>.from(contextsMap),
         );
-        final eventContexts = event.contexts.clone();
+        final eventContexts = event.contexts;
 
         contexts.forEach(
           (key, dynamic value) {
