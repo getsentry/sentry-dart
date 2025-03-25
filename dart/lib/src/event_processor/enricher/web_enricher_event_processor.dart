@@ -53,8 +53,8 @@ class WebEnricherEventProcessor implements EnricherEventProcessor {
     final url = request?.url ?? _window.location.toString();
     request ??= SentryRequest(url: url);
     request.headers = header;
-    request.sanitized();
-    return request.sanitized();
+    request.sanitize();
+    return request;
   }
 
   SentryDevice _getDevice(SentryDevice? device) {

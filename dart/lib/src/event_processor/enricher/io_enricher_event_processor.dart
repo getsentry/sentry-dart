@@ -129,7 +129,16 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
 
   SentryOperatingSystem _getOperatingSystem(SentryOperatingSystem? os) {
     if (os == null) {
-      return _os.clone();
+      return SentryOperatingSystem(
+        name: _os.name,
+        version: _os.version,
+        build: _os.build,
+        kernelVersion: _os.kernelVersion,
+        rooted: _os.rooted,
+        rawDescription: _os.rawDescription,
+        theme: _os.theme,
+        unknown: _os.unknown,
+      );
     } else {
       return _os.mergeWith(os);
     }

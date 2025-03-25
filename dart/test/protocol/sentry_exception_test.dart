@@ -5,16 +5,6 @@ import 'package:test/test.dart';
 import '../mocks.dart';
 
 void main() {
-  final sentryException = SentryException(
-    type: 'type',
-    value: 'value',
-    module: 'module',
-    stackTrace: SentryStackTrace(frames: [SentryStackFrame(absPath: 'abs')]),
-    mechanism: Mechanism(type: 'type'),
-    threadId: 1,
-    unknown: testUnknown,
-  );
-
   final sentryExceptionJson = <String, dynamic>{
     'type': 'type',
     'value': 'value',

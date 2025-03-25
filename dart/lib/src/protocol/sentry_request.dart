@@ -111,7 +111,7 @@ class SentryRequest {
     @Deprecated('Will be removed in v8. Use [data] instead')
     Map<String, String>? other,
   }) {
-    return SentryRequest(
+    final request = SentryRequest(
       url: uri.toString(),
       method: method,
       cookies: cookies,
@@ -123,7 +123,9 @@ class SentryRequest {
       // ignore: deprecated_member_use_from_same_package
       other: other,
       apiTarget: apiTarget,
-    ).sanitized();
+    );
+    request.sanitize();
+    return request;
   }
 
   /// Deserializes a [SentryRequest] from JSON [Map].
