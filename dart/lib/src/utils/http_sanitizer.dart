@@ -80,14 +80,12 @@ extension _UriPath on Uri {
 
 @internal
 extension SanitizedSentryRequest on SentryRequest {
-  SentryRequest sanitized() {
+  void sanitize() {
     final urlDetails = HttpSanitizer.sanitizeUrl(url) ?? UrlDetails();
-    return copyWith(
-      url: urlDetails.urlOrFallback,
-      queryString: urlDetails.query,
-      fragment: urlDetails.fragment,
-      headers: HttpSanitizer.sanitizedHeaders(headers),
-      removeCookies: true,
-    );
+    url = urlDetails.urlOrFallback;
+    queryString = urlDetails.query;
+    fragment = urlDetails.fragment;
+    headers = HttpSanitizer.sanitizedHeaders(headers) ?? {};
+    cookies = null;
   }
 }

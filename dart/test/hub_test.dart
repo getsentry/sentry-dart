@@ -33,9 +33,11 @@ void main() {
 
   group('Hub captures', () {
     late Fixture fixture;
+    late SentryEvent fakeEvent;
 
     setUp(() {
       fixture = Fixture();
+      fakeEvent = getFakeEvent();
     });
 
     test(
@@ -87,6 +89,8 @@ void main() {
 
     test('should capture message', () async {
       final hub = fixture.getSut();
+      final fakeMessage = getFakeMessage();
+
       await hub.captureMessage(
         fakeMessage.formatted,
         level: SentryLevel.warning,
@@ -474,11 +478,15 @@ void main() {
   group('Hub scope', () {
     var hub = Hub(defaultTestOptions());
     var client = MockSentryClient();
+    late SentryEvent fakeEvent;
+    late SentryUser fakeUser;
 
     setUp(() {
       hub = Hub(defaultTestOptions());
       client = MockSentryClient();
       hub.bindClient(client);
+      fakeEvent = getFakeEvent();
+      fakeUser = getFakeUser();
     });
 
     test('returns scope', () async {
@@ -550,9 +558,11 @@ void main() {
 
   group('Hub scope callback', () {
     late Fixture fixture;
+    late SentryEvent fakeEvent;
 
     setUp(() {
       fixture = Fixture();
+      fakeEvent = getFakeEvent();
     });
 
     test('captureEvent should handle thrown error in scope callback', () async {
@@ -625,9 +635,11 @@ void main() {
     late Hub hub;
     late SentryClient client;
     SentryOptions options;
+    late SentryEvent fakeEvent;
 
     setUp(() {
       options = defaultTestOptions();
+      fakeEvent = getFakeEvent();
       hub = Hub(options);
       client = MockSentryClient();
       hub.bindClient(client);

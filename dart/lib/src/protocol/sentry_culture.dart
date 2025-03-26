@@ -4,11 +4,10 @@ import 'access_aware_map.dart';
 
 /// Culture Context describes certain properties of the culture in which the
 /// software is used.
-@immutable
 class SentryCulture {
   static const type = 'culture';
 
-  const SentryCulture({
+  SentryCulture({
     this.calendar,
     this.displayName,
     this.locale,
@@ -30,21 +29,21 @@ class SentryCulture {
   }
 
   /// Optional: For example `GregorianCalendar`. Free form string.
-  final String? calendar;
+  String? calendar;
 
   /// Optional: Human readable name of the culture.
   /// For example `English (United States)`
-  final String? displayName;
+  String? displayName;
 
   /// Optional. The name identifier, usually following the RFC 4646.
   /// For example `en-US` or `pt-BR`.
-  final String? locale;
+  String? locale;
 
   /// Optional. boolean, either true or false.
-  final bool? is24HourFormat;
+  bool? is24HourFormat;
 
   /// Optional. The timezone of the locale. For example, `Europe/Vienna`.
-  final String? timezone;
+  String? timezone;
 
   @internal
   final Map<String, dynamic>? unknown;
@@ -61,6 +60,7 @@ class SentryCulture {
     };
   }
 
+  @Deprecated('Will be removed in a future version.')
   SentryCulture clone() => SentryCulture(
         calendar: calendar,
         displayName: displayName,
@@ -70,6 +70,7 @@ class SentryCulture {
         unknown: unknown,
       );
 
+  @Deprecated('Assign values directly to the instance.')
   SentryCulture copyWith({
     String? calendar,
     String? displayName,

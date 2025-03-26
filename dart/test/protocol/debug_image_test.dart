@@ -50,45 +50,4 @@ void main() {
       );
     });
   });
-
-  group('copyWith', () {
-    test('copyWith keeps unchanged', () {
-      final data = debugImage;
-
-      final copy = data.copyWith();
-
-      expect(
-        MapEquality().equals(data.toJson(), copy.toJson()),
-        true,
-      );
-    });
-
-    test('copyWith takes new values', () {
-      final data = debugImage;
-
-      final copy = data.copyWith(
-        type: 'type1',
-        name: 'name',
-        imageAddr: 'imageAddr1',
-        imageVmAddr: 'imageVmAddr1',
-        debugId: 'debugId1',
-        debugFile: 'debugFile1',
-        imageSize: 2,
-        uuid: 'uuid1',
-        codeFile: 'codeFile1',
-        arch: 'arch1',
-        codeId: 'codeId1',
-      );
-
-      expect('type1', copy.type);
-      expect('imageAddr1', copy.imageAddr);
-      expect('debugId1', copy.debugId);
-      expect('debugFile1', copy.debugFile);
-      expect(2, copy.imageSize);
-      expect('uuid1', copy.uuid);
-      expect('codeFile1', copy.codeFile);
-      expect('arch1', copy.arch);
-      expect('codeId1', copy.codeId);
-    });
-  });
 }

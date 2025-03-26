@@ -223,7 +223,7 @@ void main() {
                     versionMinor: 1,
                     versionPatchlevel: 2,
                   ),
-                  images: const <DebugImage>[
+                  images: <DebugImage>[
                     DebugImage(
                       type: 'macho',
                       debugId: '84a04d24-0e60-3810-a8c0-90a65e2df61a',

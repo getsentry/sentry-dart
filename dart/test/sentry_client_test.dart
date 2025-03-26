@@ -898,22 +898,15 @@ void main() {
   group('SentryClient : apply partial scope to the captured event', () {
     late Fixture fixture;
 
-    final transaction = '/test/scope';
-    final eventTransaction = '/event/transaction';
-    final fingerprint = ['foo', 'bar', 'baz'];
-    final eventFingerprint = ['123', '456', '798'];
-    final user = SentryUser(id: '123');
-    final crumb = Breadcrumb(message: 'bread');
-    final eventUser = SentryUser(id: '987');
-    final eventCrumbs = [Breadcrumb(message: 'bread')];
-
-    final event = SentryEvent(
-      level: SentryLevel.warning,
-      transaction: eventTransaction,
-      user: eventUser,
-      fingerprint: eventFingerprint,
-      breadcrumbs: eventCrumbs,
-    );
+    late String transaction;
+    late String eventTransaction;
+    late List<String> fingerprint;
+    late List<String> eventFingerprint;
+    late SentryUser user;
+    late Breadcrumb crumb;
+    late SentryUser eventUser;
+    late List<Breadcrumb> eventCrumbs;
+    late SentryEvent event;
 
     Future<Scope> createScope(SentryOptions options) async {
       final scope = Scope(options)
@@ -926,6 +919,22 @@ void main() {
 
     setUp(() {
       fixture = Fixture();
+
+      transaction = '/test/scope';
+      eventTransaction = '/event/transaction';
+      fingerprint = ['foo', 'bar', 'baz'];
+      eventFingerprint = ['123', '456', '798'];
+      user = SentryUser(id: '123');
+      crumb = Breadcrumb(message: 'bread');
+      eventUser = SentryUser(id: '987');
+      eventCrumbs = [Breadcrumb(message: 'bread')];
+      event = SentryEvent(
+        level: SentryLevel.warning,
+        transaction: eventTransaction,
+        user: eventUser,
+        fingerprint: eventFingerprint,
+        breadcrumbs: eventCrumbs,
+      );
     });
 
     test('should not apply the scope to non null event fields', () async {
@@ -951,10 +960,8 @@ void main() {
 
       await scope.setUser(SentryUser(id: '987'));
 
-      var eventWithUser = event.copyWith(
-        user: SentryUser(id: '123', username: 'foo bar'),
-      );
-      await client.captureEvent(eventWithUser, scope: scope);
+      event.user = SentryUser(id: '123', username: 'foo bar');
+      await client.captureEvent(event, scope: scope);
 
       final capturedEnvelope = fixture.transport.envelopes.first;
       final capturedEvent = await eventFromEnvelope(capturedEnvelope);
@@ -982,16 +989,14 @@ void main() {
         ),
       );
 
-      var eventWithUser = event.copyWith(
-        user: SentryUser(
-          id: 'id',
-          data: {
-            'foo': 'this bar is more important',
-            'event': 'Really important event'
-          },
-        ),
+      event.user = SentryUser(
+        id: 'id',
+        data: {
+          'foo': 'this bar is more important',
+          'event': 'Really important event'
+        },
       );
-      await client.captureEvent(eventWithUser, scope: scope);
+      await client.captureEvent(event, scope: scope);
 
       final capturedEnvelope = fixture.transport.envelopes.first;
       final capturedEvent = await eventFromEnvelope(capturedEnvelope);
@@ -1004,14 +1009,16 @@ void main() {
 
   group('SentryClient: user & user ip', () {
     late Fixture fixture;
+    late SentryUser fakeUser;
 
     setUp(() {
       fixture = Fixture();
+      fakeUser = getFakeUser();
     });
 
     test('event has no user and sendDefaultPii = true', () async {
       final client = fixture.getSut(sendDefaultPii: true);
-      var fakeEvent = SentryEvent();
+      final fakeEvent = SentryEvent();
       expect(fakeEvent.user, isNull);
 
       await client.captureEvent(fakeEvent);
@@ -1040,6 +1047,7 @@ void main() {
 
     test('event has a user with IP address', () async {
       final client = fixture.getSut(sendDefaultPii: true);
+      final fakeEvent = getFakeEvent();
 
       expect(fakeEvent.user?.ipAddress, isNotNull);
       await client.captureEvent(fakeEvent);
@@ -1058,11 +1066,12 @@ void main() {
     test('event has a user without IP address and sendDefaultPii = true',
         () async {
       final client = fixture.getSut(sendDefaultPii: true);
+      final fakeEvent = getFakeEvent();
+      fakeEvent.user = fakeUser;
 
-      final event = fakeEvent.copyWith(user: fakeUser);
-      expect(event.user?.ipAddress, isNull);
+      expect(fakeEvent.user?.ipAddress, isNull);
 
-      await client.captureEvent(event);
+      await client.captureEvent(fakeEvent);
 
       final capturedEnvelope = fixture.transport.envelopes.first;
       final capturedEvent = await eventFromEnvelope(capturedEnvelope);
@@ -1077,11 +1086,12 @@ void main() {
     test('event has a user without IP address and sendDefaultPii = false',
         () async {
       final client = fixture.getSut(sendDefaultPii: false);
+      final fakeEvent = getFakeEvent();
+      fakeEvent.user = fakeUser;
 
-      final event = fakeEvent.copyWith(user: fakeUser);
-      expect(event.user?.ipAddress, isNull);
+      expect(fakeEvent.user?.ipAddress, isNull);
 
-      await client.captureEvent(event);
+      await client.captureEvent(fakeEvent);
 
       final capturedEnvelope = fixture.transport.envelopes.first;
       final capturedEvent = await eventFromEnvelope(capturedEnvelope);
@@ -1096,9 +1106,11 @@ void main() {
 
   group('SentryClient sampling', () {
     late Fixture fixture;
+    late SentryEvent fakeEvent;
 
     setUp(() {
       fixture = Fixture();
+      fakeEvent = getFakeEvent();
     });
 
     test('captures event, sample rate is 100% enabled', () async {
@@ -1421,9 +1433,11 @@ void main() {
 
   group('SentryClient before send', () {
     late Fixture fixture;
+    late SentryEvent fakeEvent;
 
     setUp(() {
       fixture = Fixture();
+      fakeEvent = getFakeEvent();
     });
 
     test('before send drops event', () async {
@@ -1485,19 +1499,23 @@ void main() {
 
   group('EventProcessors', () {
     late Fixture fixture;
+    late SentryEvent fakeEvent;
 
     setUp(() {
       fixture = Fixture();
-      fixture.options.addEventProcessor(FunctionEventProcessor(
-        (event, hint) => event.copyWith(tags: {'theme': 'material'})
-          // ignore: deprecated_member_use_from_same_package
-          ..extra?['host'] = '0.0.0.1'
-          ..modules?.addAll({'core': '1.0'})
-          ..breadcrumbs?.add(Breadcrumb(message: 'processor crumb'))
-          ..fingerprint?.add('process')
-          ..sdk?.addIntegration('testIntegration')
-          ..sdk?.addPackage('test-pkg', '1.0'),
-      ));
+      fakeEvent = getFakeEvent();
+      fixture.options.addEventProcessor(FunctionEventProcessor((event, hint) {
+        event.tags = {'theme': 'material'};
+        // ignore: deprecated_member_use_from_same_package
+        event.extra?['host'] = '0.0.0.1';
+        event.modules?.addAll({'core': '1.0'});
+        event.breadcrumbs?.add(Breadcrumb(message: 'processor crumb'));
+        event.fingerprint?.add('process');
+        event.sdk?.addIntegration('testIntegration');
+        event.sdk?.addPackage('test-pkg', '1.0');
+
+        return event;
+      }));
     });
 
     test('should execute eventProcessors for event', () async {
@@ -1652,6 +1670,7 @@ void main() {
 
   group('SentryClient captures envelope', () {
     late Fixture fixture;
+    final fakeEnvelope = getFakeEnvelope();
 
     setUp(() {
       fixture = Fixture();
@@ -1710,9 +1729,11 @@ void main() {
 
   group('ClientReportRecorder', () {
     late Fixture fixture;
+    late SentryEvent fakeEvent;
 
     setUp(() {
       fixture = Fixture();
+      fakeEvent = getFakeEvent();
     });
 
     test('recorder is not noop if client reports are enabled', () async {
@@ -1965,9 +1986,11 @@ void main() {
 
   group('trace context', () {
     late Fixture fixture;
+    late SentryEvent fakeEvent;
 
     setUp(() {
       fixture = Fixture();
+      fakeEvent = getFakeEvent();
     });
 
     test('captureEvent adds trace context', () async {
@@ -2019,9 +2042,11 @@ void main() {
 
   group('Hint', () {
     late Fixture fixture;
+    late SentryEvent fakeEvent;
 
     setUp(() {
       fixture = Fixture();
+      fakeEvent = getFakeEvent();
     });
 
     test('captureEvent adds attachments from hint', () async {
@@ -2211,7 +2236,7 @@ void main() {
 
       final client = fixture.getSut();
       final hint = Hint();
-      final event = SentryEvent().copyWith(type: 'some random type');
+      final event = SentryEvent(type: 'some random type');
 
       await client.captureEvent(event, hint: hint);
 
@@ -2300,7 +2325,8 @@ Future<SentryTransaction?> asyncBeforeSendTransactionCallbackDropEvent(
 }
 
 SentryEvent? beforeSendFeedbackCallback(SentryEvent event, Hint hint) {
-  return event.copyWith(tags: {'theme': 'material'});
+  event.tags = {'theme': 'material'};
+  return event;
 }
 
 SentryEvent? beforeSendCallback(SentryEvent event, Hint hint) {

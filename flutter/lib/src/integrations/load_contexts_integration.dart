@@ -62,7 +62,7 @@ class _LoadContextsIntegrationEventProcessor implements EventProcessor {
         final contexts = Contexts.fromJson(
           Map<String, dynamic>.from(contextsMap),
         );
-        final eventContexts = event.contexts.clone();
+        final eventContexts = event.contexts;
 
         contexts.forEach(
           (key, dynamic value) {
@@ -93,7 +93,7 @@ class _LoadContextsIntegrationEventProcessor implements EventProcessor {
             }
           },
         );
-        event = event.copyWith(contexts: eventContexts);
+        event.contexts = eventContexts;
       }
 
       final tagsMap = infos['tags'] as Map?;
@@ -106,7 +106,7 @@ class _LoadContextsIntegrationEventProcessor implements EventProcessor {
             tags[tag.key] = tag.value;
           }
         }
-        event = event.copyWith(tags: tags);
+        event.tags = tags;
       }
 
       final extraMap = infos['extra'] as Map?;
@@ -122,23 +122,23 @@ class _LoadContextsIntegrationEventProcessor implements EventProcessor {
         }
 
         // ignore: deprecated_member_use
-        event = event.copyWith(extra: extras);
+        event.extra = extras;
       }
 
       final userMap = infos['user'] as Map?;
       if (event.user == null && userMap != null && userMap.isNotEmpty) {
         final user = Map<String, dynamic>.from(userMap);
-        event = event.copyWith(user: SentryUser.fromJson(user));
+        event.user = SentryUser.fromJson(user);
       }
 
       final distString = infos['dist'] as String?;
       if (event.dist == null && distString != null) {
-        event = event.copyWith(dist: distString);
+        event.dist = distString;
       }
 
       final environmentString = infos['environment'] as String?;
       if (event.environment == null && environmentString != null) {
-        event = event.copyWith(environment: environmentString);
+        event.environment = environmentString;
       }
 
       final fingerprintList = infos['fingerprint'] as List?;
@@ -151,12 +151,12 @@ class _LoadContextsIntegrationEventProcessor implements EventProcessor {
             eventFingerprints.add(fingerprint);
           }
         }
-        event = event.copyWith(fingerprint: eventFingerprints);
+        event.fingerprint = eventFingerprints;
       }
 
       final levelString = infos['level'] as String?;
       if (event.level == null && levelString != null) {
-        event = event.copyWith(level: SentryLevel.fromName(levelString));
+        event.level = SentryLevel.fromName(levelString);
       }
 
       final breadcrumbsList = infos['breadcrumbs'] as List?;
@@ -183,7 +183,7 @@ class _LoadContextsIntegrationEventProcessor implements EventProcessor {
           }
         }
 
-        event = event.copyWith(breadcrumbs: breadcrumbs);
+        event.breadcrumbs = breadcrumbs;
       }
 
       final integrationsList = infos['integrations'] as List?;
@@ -195,7 +195,7 @@ class _LoadContextsIntegrationEventProcessor implements EventProcessor {
           sdk.addIntegration(integration);
         }
 
-        event = event.copyWith(sdk: sdk);
+        event.sdk = sdk;
       }
 
       final packageMap = infos['package'] as Map?;
@@ -212,7 +212,7 @@ class _LoadContextsIntegrationEventProcessor implements EventProcessor {
           sdk.addPackage(name, version);
         }
 
-        event = event.copyWith(sdk: sdk);
+        event.sdk = sdk;
       }
 
       // captureEnvelope does not call the beforeSend callback, hence we need to
@@ -221,7 +221,7 @@ class _LoadContextsIntegrationEventProcessor implements EventProcessor {
         final tags = event.tags ?? {};
         tags['event.origin'] = 'flutter';
         tags['event.environment'] = 'dart';
-        event = event.copyWith(tags: tags);
+        event.tags = tags;
       }
     } catch (exception, stackTrace) {
       _options.logger(

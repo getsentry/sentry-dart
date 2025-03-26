@@ -3,7 +3,6 @@ import 'package:meta/meta.dart';
 import 'access_aware_map.dart';
 import 'sentry_id.dart';
 
-@immutable
 class SentryFeedback {
   static const type = 'feedback';
 
@@ -17,12 +16,12 @@ class SentryFeedback {
     this.unknown,
   });
 
-  final String message;
-  final String? contactEmail;
-  final String? name;
-  final String? replayId;
-  final String? url;
-  final SentryId? associatedEventId;
+  String message;
+  String? contactEmail;
+  String? name;
+  String? replayId;
+  String? url;
+  SentryId? associatedEventId;
 
   @internal
   final Map<String, dynamic>? unknown;
@@ -58,6 +57,7 @@ class SentryFeedback {
     };
   }
 
+  @Deprecated('Assign values directly to the instance.')
   SentryFeedback copyWith({
     String? message,
     String? contactEmail,
@@ -77,5 +77,6 @@ class SentryFeedback {
         unknown: unknown ?? this.unknown,
       );
 
+  @Deprecated('Will be removed in a future version.')
   SentryFeedback clone() => copyWith();
 }

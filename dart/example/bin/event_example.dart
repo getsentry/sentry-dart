@@ -29,7 +29,7 @@ final event = SentryEvent(
     )
   ],
   contexts: Contexts(
-    operatingSystem: const SentryOperatingSystem(
+    operatingSystem: SentryOperatingSystem(
       name: 'Android',
       version: '5.0.2',
       build: 'LRX22G.P900XXS0BPL2',
@@ -37,7 +37,7 @@ final event = SentryEvent(
           'Linux version 3.4.39-5726670 (dpi@SWHC3807) (gcc version 4.8 (GCC) ) #1 SMP PREEMPT Thu Dec 1 19:42:39 KST 2016',
       rooted: false,
     ),
-    runtimes: [const SentryRuntime(name: 'ART', version: '5')],
+    runtimes: [SentryRuntime(name: 'ART', version: '5')],
     app: SentryApp(
       name: 'Example Dart App',
       version: '1.42.0',
@@ -47,7 +47,7 @@ final event = SentryEvent(
       deviceAppHash: '5afd3a6',
       startTime: DateTime.now().toUtc(),
     ),
-    browser: const SentryBrowser(name: 'Firefox', version: '42.0.1'),
+    browser: SentryBrowser(name: 'Firefox', version: '42.0.1'),
     device: SentryDevice(
       name: 'SM-P900',
       family: 'SM-P900',

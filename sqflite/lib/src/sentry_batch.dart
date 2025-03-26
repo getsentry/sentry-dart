@@ -56,7 +56,7 @@ class SentryBatch implements Batch {
       span?.origin = SentryTraceOrigins.autoDbSqfliteBatch;
       setDatabaseAttributeData(span, _dbName);
 
-      var breadcrumb = Breadcrumb(
+      final breadcrumb = Breadcrumb(
         message: _buffer.toString().trim(),
         data: {},
         type: 'query',
@@ -79,9 +79,7 @@ class SentryBatch implements Batch {
         span?.status = SpanStatus.internalError();
 
         breadcrumb.data?['status'] = 'internal_error';
-        breadcrumb = breadcrumb.copyWith(
-          level: SentryLevel.warning,
-        );
+        breadcrumb.level = SentryLevel.warning;
 
         rethrow;
       } finally {
@@ -110,7 +108,7 @@ class SentryBatch implements Batch {
       span?.origin = SentryTraceOrigins.autoDbSqfliteBatch;
       setDatabaseAttributeData(span, _dbName);
 
-      var breadcrumb = Breadcrumb(
+      final breadcrumb = Breadcrumb(
         message: _buffer.toString().trim(),
         data: {},
         type: 'query',
@@ -133,9 +131,7 @@ class SentryBatch implements Batch {
         span?.status = SpanStatus.internalError();
 
         breadcrumb.data?['status'] = 'internal_error';
-        breadcrumb = breadcrumb.copyWith(
-          level: SentryLevel.warning,
-        );
+        breadcrumb.level = SentryLevel.warning;
 
         rethrow;
       } finally {

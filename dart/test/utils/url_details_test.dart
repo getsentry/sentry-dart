@@ -49,7 +49,8 @@ void main() {
 
   test('applies details to request', () {
     final url = "https://sentry.io/api?q=1#top";
-    final request = SentryRequest(url: url).sanitized();
+    final request = SentryRequest(url: url);
+    request.sanitize();
 
     expect(request.url, "https://sentry.io/api");
     expect(request.queryString, "q=1");
@@ -57,7 +58,8 @@ void main() {
   });
 
   test('applies details without fragment and url to request', () {
-    final request = SentryRequest(url: 'https://sentry.io/api').sanitized();
+    final request = SentryRequest(url: 'https://sentry.io/api');
+    request.sanitize();
 
     expect(request.url, "https://sentry.io/api");
     expect(request.queryString, isNull);
@@ -66,8 +68,8 @@ void main() {
 
   test('removes cookies from request', () {
     final request =
-        SentryRequest(url: 'https://sentry.io/api', cookies: 'foo=bar')
-            .sanitized();
+        SentryRequest(url: 'https://sentry.io/api', cookies: 'foo=bar');
+    request.sanitize();
     expect(request.cookies, isNull);
   });
 

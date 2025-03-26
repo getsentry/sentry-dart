@@ -5,16 +5,6 @@ import 'package:test/test.dart';
 import '../mocks.dart';
 
 void main() {
-  final sentryException = SentryException(
-    type: 'type',
-    value: 'value',
-    module: 'module',
-    stackTrace: SentryStackTrace(frames: [SentryStackFrame(absPath: 'abs')]),
-    mechanism: Mechanism(type: 'type'),
-    threadId: 1,
-    unknown: testUnknown,
-  );
-
   final sentryExceptionJson = <String, dynamic>{
     'type': 'type',
     'value': 'value',
@@ -119,40 +109,6 @@ void main() {
       expect(serializedFrame['platform'], 'dart');
       expect(serializedFrame['raw_function'], 'example-rawFunction');
       expect(serializedFrame['frames_omitted'], [1, 2, 3]);
-    });
-  });
-
-  group('copyWith', () {
-    test('copyWith keeps unchanged', () {
-      final data = sentryException;
-
-      final copy = data.copyWith();
-
-      expect(data.toJson(), copy.toJson());
-    });
-
-    test('copyWith takes new values', () {
-      final data = sentryException;
-
-      final stackTrace =
-          SentryStackTrace(frames: [SentryStackFrame(absPath: 'abs1')]);
-      final mechanism = Mechanism(type: 'type1');
-
-      final copy = data.copyWith(
-        type: 'type1',
-        value: 'value1',
-        module: 'module1',
-        stackTrace: stackTrace,
-        mechanism: mechanism,
-        threadId: 2,
-      );
-
-      expect('type1', copy.type);
-      expect('value1', copy.value);
-      expect('module1', copy.module);
-      expect(2, copy.threadId);
-      expect(mechanism.toJson(), copy.mechanism!.toJson());
-      expect(stackTrace.toJson(), copy.stackTrace!.toJson());
     });
   });
 }

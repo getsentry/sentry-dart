@@ -163,8 +163,7 @@ class Fixture {
 
   late SentryException withPlatformDetailsAndStackTrace = options
       .exceptionFactory
-      .getSentryException(detailsAndStackTracePlatformException)
-      .copyWith(threadId: 1);
+      .getSentryException(detailsAndStackTracePlatformException);
 
   late SentryEvent eventWithPlatformDetailsAndStackTrace = SentryEvent(
     exceptions: [withPlatformDetailsAndStackTrace],
@@ -172,9 +171,8 @@ class Fixture {
     threads: [dartThread],
   );
 
-  late SentryException withPlatformDetails = options.exceptionFactory
-      .getSentryException(detailsPlatformException)
-      .copyWith(threadId: 1);
+  late SentryException withPlatformDetails =
+      options.exceptionFactory.getSentryException(detailsPlatformException);
 
   late SentryEvent eventWithPlatformDetails = SentryEvent(
     exceptions: [withPlatformDetails],
@@ -182,9 +180,8 @@ class Fixture {
     threads: [dartThread],
   );
 
-  late SentryException withPlatformStackTrace = options.exceptionFactory
-      .getSentryException(stackTracePlatformException)
-      .copyWith(threadId: 1);
+  late SentryException withPlatformStackTrace =
+      options.exceptionFactory.getSentryException(stackTracePlatformException);
 
   late SentryEvent eventWithPlatformStackTrace = SentryEvent(
     exceptions: [withPlatformDetails],
@@ -192,9 +189,8 @@ class Fixture {
     threads: [dartThread],
   );
 
-  late SentryException withPlatformEmpty = options.exceptionFactory
-      .getSentryException(emptyPlatformException)
-      .copyWith(threadId: 1);
+  late SentryException withPlatformEmpty =
+      options.exceptionFactory.getSentryException(emptyPlatformException);
 
   late SentryEvent eventWithPlatformEmpty = SentryEvent(
     exceptions: [withPlatformEmpty],
@@ -210,6 +206,13 @@ class Fixture {
   );
 
   SentryFlutterOptions options = defaultTestOptions()..attachThreads = true;
+
+  Fixture() {
+    withPlatformDetailsAndStackTrace.threadId = 1;
+    withPlatformDetails.threadId = 1;
+    withPlatformStackTrace.threadId = 1;
+    withPlatformEmpty.threadId = 1;
+  }
 }
 
 final detailsAndStackTracePlatformException = PlatformException(

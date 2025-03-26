@@ -36,11 +36,7 @@ class DioEventProcessor implements EventProcessor {
 
     // Don't override just parts of the original request.
     // Keep the original one or if there's none create one.
-    event = event.copyWith(
-      request: event.request ?? _requestFrom(dioError),
-      contexts: event.contexts,
-    );
-
+    event.request = event.request ?? _requestFrom(dioError);
     return event;
   }
 

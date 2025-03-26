@@ -17,6 +17,7 @@ class SentryTransactionInfo {
     };
   }
 
+  @Deprecated('Assign values directly to the instance.')
   SentryTransactionInfo copyWith({
     String? source,
   }) {

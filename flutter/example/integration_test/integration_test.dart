@@ -66,7 +66,7 @@ void main() {
     await setupSentryAndApp(tester);
 
     try {
-      throw const SentryException(
+      throw SentryException(
           type: 'StarError', value: 'I have a bad feeling about this...');
     } catch (exception, stacktrace) {
       final sentryId =

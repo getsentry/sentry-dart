@@ -7,12 +7,11 @@ import 'access_aware_map.dart';
 /// Typically this context is used multiple times if multiple runtimes
 /// are involved (for instance if you have a JavaScript application running
 /// on top of JVM).
-@immutable
 class SentryRuntime {
   static const listType = 'runtimes';
   static const type = 'runtime';
 
-  const SentryRuntime({
+  SentryRuntime({
     this.key,
     this.name,
     this.version,
@@ -20,32 +19,32 @@ class SentryRuntime {
     this.rawDescription,
     this.build,
     this.unknown,
-  }) : assert(key == null || key.length >= 1);
+  }) : assert(key == null || key.isNotEmpty);
 
   /// Key used in the JSON and which will be displayed
   /// in the Sentry UI. Defaults to lower case version of [name].
   ///
   /// Unused if only one [SentryRuntime] is provided in [Contexts].
-  final String? key;
+  String? key;
 
   /// The name of the runtime.
-  final String? name;
+  String? name;
 
   /// The version identifier of the runtime.
-  final String? version;
+  String? version;
 
   /// Dart has a couple different compilers.
   /// E.g: dart2js, dartdevc, AOT, VM
-  final String? compiler;
+  String? compiler;
 
   /// An unprocessed description string obtained by the runtime.
   ///
   /// For some well-known runtimes, Sentry will attempt to parse name
   /// and version from this string, if they are not explicitly given.
-  final String? rawDescription;
+  String? rawDescription;
 
   /// Application build string, if it is separate from the version.
-  final String? build;
+  String? build;
 
   @internal
   final Map<String, dynamic>? unknown;
@@ -75,6 +74,7 @@ class SentryRuntime {
     };
   }
 
+  @Deprecated('Will be removed in a future version.')
   SentryRuntime clone() => SentryRuntime(
         key: key,
         name: name,

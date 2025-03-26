@@ -1,16 +1,13 @@
-import 'package:meta/meta.dart';
-
 import 'protocol.dart';
 import 'sentry_baggage.dart';
 import 'sentry_trace_origins.dart';
 import 'tracing.dart';
 
-@immutable
 class SentryTransactionContext extends SentrySpanContext {
-  final String name;
-  final SentryTransactionNameSource? transactionNameSource;
-  final SentryTracesSamplingDecision? samplingDecision;
-  final SentryTracesSamplingDecision? parentSamplingDecision;
+  String name;
+  SentryTransactionNameSource? transactionNameSource;
+  SentryTracesSamplingDecision? samplingDecision;
+  SentryTracesSamplingDecision? parentSamplingDecision;
 
   SentryTransactionContext(
     this.name,
@@ -54,6 +51,7 @@ class SentryTransactionContext extends SentrySpanContext {
     );
   }
 
+  @Deprecated('Assign values directly to the instance.')
   SentryTransactionContext copyWith({
     String? name,
     String? operation,

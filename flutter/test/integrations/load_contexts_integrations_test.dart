@@ -41,10 +41,11 @@ void main() {
     SentryLevel? level,
     List<Breadcrumb>? breadcrumbs,
     List<String> integrations = const ['EventIntegration'],
-    List<SentryPackage> packages = const [
-      SentryPackage('event-package', '2.0')
-    ],
+    List<SentryPackage> packages = const [],
   }) {
+    if (packages.isEmpty) {
+      packages = [SentryPackage('event-package', '2.0')];
+    }
     return SentryEvent(
       sdk: sdk ??
           getSdkVersion(
@@ -113,12 +114,12 @@ void main() {
     expect(fixture.options.eventProcessors.length, 1);
 
     final eventContexts = Contexts(
-        device: const SentryDevice(name: 'eDevice'),
-        app: const SentryApp(name: 'eApp', inForeground: true),
-        operatingSystem: const SentryOperatingSystem(name: 'eOS'),
-        gpu: const SentryGpu(name: 'eGpu'),
-        browser: const SentryBrowser(name: 'eBrowser'),
-        runtimes: [const SentryRuntime(name: 'eRT')])
+        device: SentryDevice(name: 'eDevice'),
+        app: SentryApp(name: 'eApp', inForeground: true),
+        operatingSystem: SentryOperatingSystem(name: 'eOS'),
+        gpu: SentryGpu(name: 'eGpu'),
+        browser: SentryBrowser(name: 'eBrowser'),
+        runtimes: [SentryRuntime(name: 'eRT')])
       ..['theme'] = 'cuppertino';
     final e =
         SentryEvent(contexts: eventContexts, user: SentryUser(id: 'myId'));

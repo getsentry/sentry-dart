@@ -15,62 +15,61 @@ import 'package:meta/meta.dart';
 import 'access_aware_map.dart';
 
 /// GPU context describes the GPU of the device.
-@immutable
 class SentryGpu {
   static const type = 'gpu';
 
   /// The name of the graphics device.
-  final String? name;
+  String? name;
 
   /// The PCI identifier of the graphics device.
-  final int? id;
+  int? id;
 
   /// The PCI vendor identifier of the graphics device.
-  final String? vendorId;
+  String? vendorId;
 
   /// The vendor name as reported by the graphics device.
-  final String? vendorName;
+  String? vendorName;
 
   /// The total GPU memory available in Megabytes.
-  final int? memorySize;
+  int? memorySize;
 
   /// The device low-level API type.
-  final String? apiType;
+  String? apiType;
 
   /// Whether the GPU has multi-threaded rendering or not.
-  final bool? multiThreadedRendering;
+  bool? multiThreadedRendering;
 
   /// The Version of the graphics device.
-  final String? version;
+  String? version;
 
   /// The Non-Power-Of-Two-Support support.
-  final String? npotSupport;
+  String? npotSupport;
 
   /// Approximate "shader capability" level of the graphics device.
   /// For Example:
   /// Shader Model 2.0, OpenGL ES 3.0, Metal / OpenGL ES 3.1, 27 (unknown)
-  final String? graphicsShaderLevel;
+  String? graphicsShaderLevel;
 
   /// Largest size of a texture that is supported by the graphics hardware.
   /// For Example: 16384
-  final int? maxTextureSize;
+  int? maxTextureSize;
 
   /// Whether compute shaders are available on the device.
-  final bool? supportsComputeShaders;
+  bool? supportsComputeShaders;
 
   /// Whether GPU draw call instancing is supported.
-  final bool? supportsDrawCallInstancing;
+  bool? supportsDrawCallInstancing;
 
   /// Whether geometry shaders are available on the device.
-  final bool? supportsGeometryShaders;
+  bool? supportsGeometryShaders;
 
   /// Whether ray tracing is available on the device.
-  final bool? supportsRayTracing;
+  bool? supportsRayTracing;
 
   @internal
   final Map<String, dynamic>? unknown;
 
-  const SentryGpu({
+  SentryGpu({
     this.name,
     this.id,
     this.vendorId,
@@ -112,6 +111,7 @@ class SentryGpu {
     );
   }
 
+  @Deprecated('Will be removed in a future version.')
   SentryGpu clone() => SentryGpu(
         name: name,
         id: id,
@@ -159,6 +159,7 @@ class SentryGpu {
     };
   }
 
+  @Deprecated('Assign values directly to the instance.')
   SentryGpu copyWith({
     String? name,
     int? id,

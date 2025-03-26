@@ -295,13 +295,6 @@ isolate_instructions: 10fa27070, vm_instructions: 10fa21e20
       var nativeFrameBefore =
           nativeFrameBeforeSut.encodeStackTraceFrame(frame)!;
       expect(nativeFrameBefore.platform, 'dart');
-
-      // Test when platform is already set
-      final frameWithPlatform = fixture
-          .getSut()
-          .encodeStackTraceFrame(frame)!
-          .copyWith(platform: 'native');
-      expect(frameWithPlatform.platform, 'native');
     });
   });
 }

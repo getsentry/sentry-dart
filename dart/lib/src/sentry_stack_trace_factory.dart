@@ -144,12 +144,12 @@ class SentryStackTraceFactory {
 
     final line = frame.line;
     if (line != null && line >= 0) {
-      sentryStackFrame = sentryStackFrame.copyWith(lineNo: frame.line);
+      sentryStackFrame.lineNo = frame.line;
     }
 
     final column = frame.column;
     if (column != null && column >= 0) {
-      sentryStackFrame = sentryStackFrame.copyWith(colNo: frame.column);
+      sentryStackFrame.colNo = frame.column;
     }
     return sentryStackFrame;
   }

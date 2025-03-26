@@ -132,19 +132,43 @@ class SentryNativeChannel
 
   @override
   Future<void> setUser(SentryUser? user) async {
-    final normalizedUser = user?.copyWith(
-      data: MethodChannelHelper.normalizeMap(user.data),
-    );
-    await channel.invokeMethod(
-      'setUser',
-      {'user': normalizedUser?.toJson()},
-    );
+    if (user == null) {
+      await channel.invokeMethod(
+        'setUser',
+        {'user': null},
+      );
+    } else {
+      final normalizedUser = SentryUser(
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        ipAddress: user.ipAddress,
+        data: MethodChannelHelper.normalizeMap(user.data),
+        // ignore: deprecated_member_use
+        extras: user.extras,
+        geo: user.geo,
+        name: user.name,
+        // ignore: invalid_use_of_internal_member
+        unknown: user.unknown,
+      );
+      await channel.invokeMethod(
+        'setUser',
+        {'user': normalizedUser.toJson()},
+      );
+    }
   }
 
   @override
   Future<void> addBreadcrumb(Breadcrumb breadcrumb) async {
-    final normalizedBreadcrumb = breadcrumb.copyWith(
+    final normalizedBreadcrumb = Breadcrumb(
+      message: breadcrumb.message,
+      category: breadcrumb.category,
       data: MethodChannelHelper.normalizeMap(breadcrumb.data),
+      level: breadcrumb.level,
+      type: breadcrumb.type,
+      timestamp: breadcrumb.timestamp,
+      // ignore: invalid_use_of_internal_member
+      unknown: breadcrumb.unknown,
     );
     await channel.invokeMethod(
       'addBreadcrumb',

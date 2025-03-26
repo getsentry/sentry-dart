@@ -20,12 +20,9 @@ class FlutterExceptionEventProcessor implements EventProcessor {
     SentryEvent event,
     NetworkImageLoadException exception,
   ) {
-    return event.copyWith(
-      request: event.request ?? SentryRequest.fromUri(uri: exception.uri),
-      contexts: event.contexts.copyWith(
-        response: event.contexts.response ??
-            SentryResponse(statusCode: exception.statusCode),
-      ),
-    );
+    event.request = event.request ?? SentryRequest.fromUri(uri: exception.uri);
+    event.contexts.response = event.contexts.response ??
+        SentryResponse(statusCode: exception.statusCode);
+    return event;
   }
 }

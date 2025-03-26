@@ -4,7 +4,6 @@ import 'sentry_stack_frame.dart';
 import 'access_aware_map.dart';
 
 /// Stacktrace holds information about the frames of the stack.
-@immutable
 class SentryStackTrace {
   SentryStackTrace({
     required List<SentryStackFrame> frames,
@@ -17,14 +16,14 @@ class SentryStackTrace {
   })  : _frames = frames,
         _registers = Map.from(registers ?? {});
 
-  final List<SentryStackFrame>? _frames;
+  List<SentryStackFrame>? _frames;
 
   /// Required. A non-empty immutable list of stack frames (see below).
   /// The list is ordered from caller to callee, or oldest to youngest.
   /// The last frame is the one creating the exception.
   List<SentryStackFrame> get frames => List.unmodifiable(_frames ?? const []);
 
-  final Map<String, String>? _registers;
+  Map<String, String>? _registers;
 
   /// Optional. A map of register names and their values.
   /// The values should contain the actual register values of the thread,
@@ -32,7 +31,7 @@ class SentryStackTrace {
   Map<String, String> get registers => Map.unmodifiable(_registers ?? const {});
 
   /// The language of the stacktrace
-  final String? lang;
+  String? lang;
 
   /// Indicates that this stack trace is a snapshot triggered
   /// by an external signal.
@@ -46,13 +45,13 @@ class SentryStackTrace {
   /// of creating an unrelated event. For example, a thread other than the
   /// crashing thread, or a stack trace computed as a result of an external kill
   /// signal.
-  final bool? snapshot;
+  bool? snapshot;
 
   @internal
-  final String? baseAddr;
+  String? baseAddr;
 
   @internal
-  final String? buildId;
+  String? buildId;
 
   @internal
   final Map<String, dynamic>? unknown;
@@ -87,6 +86,7 @@ class SentryStackTrace {
     };
   }
 
+  @Deprecated('Assign values directly to the instance.')
   SentryStackTrace copyWith({
     List<SentryStackFrame>? frames,
     Map<String, String>? registers,
