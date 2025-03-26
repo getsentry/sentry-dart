@@ -372,13 +372,14 @@ class Scope {
       return scopeUser;
     }
     // otherwise the user of scope takes precedence over the event user
-    scopeUser?.id = eventUser?.id;
-    scopeUser?.email = eventUser?.email;
-    scopeUser?.ipAddress = eventUser?.ipAddress;
-    scopeUser?.username = eventUser?.username;
-    scopeUser?.data = _mergeUserData(eventUser?.data, scopeUser.data);
-    // ignore: deprecated_member_use_from_same_package
-    scopeUser?.extras = _mergeUserData(eventUser?.extras, scopeUser.extras);
+    scopeUser
+      ?..id = eventUser?.id
+      ..email = eventUser?.email
+      ..ipAddress = eventUser?.ipAddress
+      ..username = eventUser?.username
+      ..data = _mergeUserData(eventUser?.data, scopeUser.data)
+      // ignore: deprecated_member_use_from_same_package
+      ..extras = _mergeUserData(eventUser?.extras, scopeUser.extras);
     return scopeUser;
   }
 
