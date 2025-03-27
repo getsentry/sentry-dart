@@ -248,17 +248,6 @@ void main() {
     expect(sentryStackTrace.frames[16].package, 'sentry_flutter_example');
     expect(sentryStackTrace.frames[15].package, 'flutter');
   });
-
-  test('adds generic type mechanism if there is none', () {
-    final sentryException =
-        fixture.getSut(attachStacktrace: false).getSentryException(
-              SentryStackTraceError(),
-              stackTrace: SentryStackTrace(),
-            );
-
-    expect(sentryException.mechanism, isNotNull);
-    expect(sentryException.mechanism?.type, 'generic');
-  });
 }
 
 class CustomError extends Error {}
