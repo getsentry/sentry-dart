@@ -4,7 +4,6 @@ import '../protocol.dart';
 import 'access_aware_map.dart';
 
 /// The Exception Interface specifies an exception or error that occurred in a program.
-@immutable
 class SentryException {
   /// Required. The type of exception
   final String? type;
