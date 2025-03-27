@@ -157,25 +157,30 @@ class _JvmExceptionFactory {
   ) {
     final jvmException = JvmException.parse(exceptionAsString);
 
-    var sentryException = jvmException.toSentryException(nativePackageName);
-    sentryException = sentryException.copyWith(
-        mechanism:
-            (sentryException.mechanism ?? Mechanism(type: "generic")).copyWith(
-      source: source,
-    ));
-
     List<SentryThread> sentryThreads = [];
+
+    var sentryException = jvmException.toSentryException(nativePackageName);
+    final sentryThread = jvmException.toSentryThread();
+    sentryThreads.add(sentryThread);
+
+    var mechanism =
+        (sentryException.mechanism ?? Mechanism(type: "generic")).copyWith(
+      source: source,
+    );
+    sentryException = sentryException.copyWith(
+      threadId: sentryThread.id,
+      mechanism: mechanism,
+    );
 
     int causeIndex = 0;
     for (final cause in jvmException.causes ?? <JvmException>[]) {
       var causeSentryException = cause.toSentryException(nativePackageName);
       final causeSentryThread = cause.toSentryThread();
+      sentryThreads.add(causeSentryThread);
 
       var mechanism =
           causeSentryException.mechanism ?? Mechanism(type: "generic");
       mechanism = mechanism.copyWith(source: 'causes[$causeIndex]');
-
-      sentryThreads.add(causeSentryThread);
 
       causeSentryException = causeSentryException.copyWith(
         threadId: causeSentryThread.id,
@@ -192,12 +197,11 @@ class _JvmExceptionFactory {
       var suppressedSentryException =
           suppressed.toSentryException(nativePackageName);
       final suppressedSentryThread = suppressed.toSentryThread();
+      sentryThreads.add(suppressedSentryThread);
 
       var mechanism =
           suppressedSentryException.mechanism ?? Mechanism(type: "generic");
       mechanism = mechanism.copyWith(source: 'suppressed[$suppressedIndex]');
-
-      sentryThreads.add(suppressedSentryThread);
 
       suppressedSentryException = suppressedSentryException.copyWith(
         threadId: suppressedSentryThread.id,
