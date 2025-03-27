@@ -12,8 +12,8 @@ class ExceptionGroupEventProcessor implements EventProcessor {
     }
     final firstException = sentryExceptions.first;
 
-    if (sentryExceptions.length > 1) {
-      // Somehow already a list here, no grouping possible, as there is no root exception.
+    if (sentryExceptions.length > 1 || firstException.exceptions == null) {
+      // If already a list or no child exceptions, no grouping possible/needed.
       return event;
     } else {
       final grouped = firstException.flatten().reversed.toList(growable: false);
