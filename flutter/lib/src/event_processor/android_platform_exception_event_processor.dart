@@ -31,15 +31,21 @@ class AndroidPlatformExceptionEventProcessor implements EventProcessor {
       final packageInfo = await PackageInfo.fromPlatform();
 
       final nativeStackTrace = _tryParse(
-          platformException.stacktrace, packageInfo.packageName, "stackTrace",);
+        platformException.stacktrace,
+        packageInfo.packageName,
+        "stackTrace",
+      );
 
       final details = platformException.details;
       String? detailsString;
       if (details is String) {
         detailsString = details;
       }
-      final detailsStackTrace =
-          _tryParse(detailsString, packageInfo.packageName, "details",);
+      final detailsStackTrace = _tryParse(
+        detailsString,
+        packageInfo.packageName,
+        "details",
+      );
 
       if (nativeStackTrace == null && detailsStackTrace == null) {
         return event;

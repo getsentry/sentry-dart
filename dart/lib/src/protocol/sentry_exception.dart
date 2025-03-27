@@ -31,19 +31,6 @@ class SentryException {
 
   List<SentryException>? _exceptions;
 
-  List<SentryException>? get exceptions => _exceptions;
-
-  @internal
-  set exceptions(List<SentryException>? value) {
-    _exceptions = value;
-  }
-
-  @internal
-  void addException(SentryException exception) {
-    _exceptions ??= [];
-    _exceptions!.add(exception);
-  }
-
   SentryException({
     required this.type,
     required this.value,
@@ -108,6 +95,22 @@ class SentryException {
         unknown: unknown,
       );
 
+  @internal
+  List<SentryException>? get exceptions =>
+      _exceptions != null ? List.unmodifiable(_exceptions!) : null;
+
+  @internal
+  set exceptions(List<SentryException>? value) {
+    _exceptions = value;
+  }
+
+  @internal
+  void addException(SentryException exception) {
+    _exceptions ??= [];
+    _exceptions!.add(exception);
+  }
+
+  @internal
   List<SentryException> flatten({int? parentId, int id = 0}) {
     final exceptions = this.exceptions ?? [];
 
