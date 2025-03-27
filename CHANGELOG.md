@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Behavioral changes
+
+- Parent-child relationship for the PlatformExceptions and Cause ([#2803](https://github.com/getsentry/sentry-dart/pull/2803))
+  - Improves and changes exception grouping
+
 ## 9.0.0-alpha.2
 
 ### Features
@@ -21,8 +28,6 @@
 - Set sentry-native backend to `crashpad` by default and `breakpad` for Windows ARM64 ([#2791](https://github.com/getsentry/sentry-dart/pull/2791))
   - Setting the `SENTRY_NATIVE_BACKEND` environment variable will override the defaults.
 - Remove renderer from `flutter_context` ([#2751](https://github.com/getsentry/sentry-dart/pull/2751))
-- Parent-child relationship for the PlatformExceptions and Cause ([#2803](https://github.com/getsentry/sentry-dart/pull/2803))
-  - Improves and changes exception grouping
 
 ### API changes
 
