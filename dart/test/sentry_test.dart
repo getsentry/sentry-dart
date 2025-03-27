@@ -444,7 +444,7 @@ void main() {
       await completer.future;
       expect(completed, true);
     });
-  });
+  }, testOn: 'vm');
 
   test('should complete when appRunner is not called in runZonedGuarded',
       () async {
