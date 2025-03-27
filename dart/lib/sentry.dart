@@ -5,6 +5,8 @@
 /// A pure Dart client for Sentry.io crash reporting.
 library;
 
+// ignore: invalid_export_of_internal_element
+export 'src/constants.dart';
 export 'src/event_processor.dart';
 export 'src/exception_cause.dart';
 export 'src/exception_cause_extractor.dart';
@@ -18,12 +20,14 @@ export 'src/hub_adapter.dart';
 export 'src/integration.dart';
 export 'src/noop_isolate_error_integration.dart'
     if (dart.library.io) 'src/isolate_error_integration.dart';
+// ignore: invalid_export_of_internal_element
+export 'src/observers.dart';
 export 'src/performance_collector.dart';
-export 'src/runtime_checker.dart';
 export 'src/protocol.dart';
 export 'src/protocol/sentry_feedback.dart';
 export 'src/protocol/sentry_proxy.dart';
 export 'src/run_zoned_guarded_integration.dart';
+export 'src/runtime_checker.dart';
 export 'src/scope.dart';
 export 'src/scope_observer.dart';
 export 'src/sentry.dart';
@@ -33,8 +37,6 @@ export 'src/sentry_client.dart';
 export 'src/sentry_envelope.dart';
 export 'src/sentry_envelope_item.dart';
 export 'src/sentry_options.dart';
-// ignore: invalid_export_of_internal_element
-export 'src/constants.dart';
 // ignore: invalid_export_of_internal_element
 export 'src/sentry_trace_origins.dart';
 export 'src/span_data_convention.dart';
