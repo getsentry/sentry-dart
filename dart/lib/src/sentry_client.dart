@@ -237,18 +237,27 @@ class SentryClient {
     final isolateId = isolateName?.hashCode;
 
     if (event.throwableMechanism != null) {
-      final extractedExceptions = _exceptionFactory.extractor
+      final extractedExceptionCauses = _exceptionFactory.extractor
           .flatten(event.throwableMechanism, stackTrace);
 
-      final sentryExceptions = <SentryException>[];
+      SentryException? rootException;
+      SentryException? currentException;
       final sentryThreads = <SentryThread>[];
 
-      for (final extractedException in extractedExceptions) {
+      for (final extractedExceptionCause in extractedExceptionCauses) {
         var sentryException = _exceptionFactory.getSentryException(
-          extractedException.exception,
-          stackTrace: extractedException.stackTrace,
+          extractedExceptionCause.exception,
+          stackTrace: extractedExceptionCause.stackTrace,
           removeSentryFrames: hint.get(TypeCheckHint.currentStackTrace),
         );
+        if (extractedExceptionCause.source != null) {
+          var mechanism =
+              sentryException.mechanism ?? Mechanism(type: "generic");
+          mechanism = mechanism.copyWith(
+            source: extractedExceptionCause.source,
+          );
+          sentryException = sentryException.copyWith(mechanism: mechanism);
+        }
 
         SentryThread? sentryThread;
 
@@ -264,14 +273,21 @@ class SentryClient {
           );
         }
 
-        sentryExceptions.add(sentryException);
+        rootException ??= sentryException;
+        currentException?.addException(sentryException);
+        currentException = sentryException;
+
         if (sentryThread != null) {
           sentryThreads.add(sentryThread);
         }
       }
 
+      final exceptions = [...?event.exceptions];
+      if (rootException != null) {
+        exceptions.add(rootException);
+      }
       return event.copyWith(
-        exceptions: [...?event.exceptions, ...sentryExceptions],
+        exceptions: exceptions,
         threads: [
           ...?event.threads,
           ...sentryThreads,
