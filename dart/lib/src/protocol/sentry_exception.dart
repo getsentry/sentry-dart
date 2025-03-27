@@ -4,7 +4,6 @@ import '../protocol.dart';
 import 'access_aware_map.dart';
 
 /// The Exception Interface specifies an exception or error that occurred in a program.
-@immutable
 class SentryException {
   /// Required. The type of exception
   final String? type;
@@ -29,7 +28,9 @@ class SentryException {
   @internal
   final Map<String, dynamic>? unknown;
 
-  const SentryException({
+  List<SentryException>? _exceptions;
+
+  SentryException({
     required this.type,
     required this.value,
     this.module,
@@ -92,4 +93,51 @@ class SentryException {
         throwable: throwable ?? this.throwable,
         unknown: unknown,
       );
+
+  @internal
+  List<SentryException>? get exceptions =>
+      _exceptions != null ? List.unmodifiable(_exceptions!) : null;
+
+  @internal
+  set exceptions(List<SentryException>? value) {
+    _exceptions = value;
+  }
+
+  @internal
+  void addException(SentryException exception) {
+    _exceptions ??= [];
+    _exceptions!.add(exception);
+  }
+
+  @internal
+  List<SentryException> flatten({int? parentId, int id = 0}) {
+    final exceptions = this.exceptions ?? [];
+
+    var mechanism = this.mechanism ?? Mechanism(type: "generic");
+    mechanism = mechanism.copyWith(
+      type: id > 0 ? "chained" : null,
+      parentId: parentId,
+      exceptionId: id,
+      isExceptionGroup: exceptions.length > 1 ? true : null,
+    );
+
+    final exception = copyWith(
+      mechanism: mechanism,
+    );
+
+    var all = <SentryException>[];
+    all.add(exception);
+
+    if (exceptions.isNotEmpty) {
+      final parentId = id;
+      for (var exception in exceptions) {
+        id++;
+        final flattenedExceptions =
+            exception.flatten(parentId: parentId, id: id);
+        id = flattenedExceptions.lastOrNull?.mechanism?.exceptionId ?? id;
+        all.addAll(flattenedExceptions);
+      }
+    }
+    return all.toList(growable: false);
+  }
 }

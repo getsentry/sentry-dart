@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Behavioral changes
+
+- Parent-child relationship for the PlatformExceptions and Cause ([#2803](https://github.com/getsentry/sentry-dart/pull/2803))
+  - Improves and changes exception grouping
+
 ## 9.0.0-alpha.2
 
 ### Features

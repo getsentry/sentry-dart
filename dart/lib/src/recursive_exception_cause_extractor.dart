@@ -16,8 +16,10 @@ class RecursiveExceptionCauseExtractor {
     final circularityDetector = <dynamic>{};
 
     var currentException = exception;
-    ExceptionCause? currentExceptionCause =
-        ExceptionCause(exception, stackTrace);
+    ExceptionCause? currentExceptionCause = ExceptionCause(
+      exception,
+      stackTrace,
+    );
 
     while (currentException != null &&
         currentExceptionCause != null &&

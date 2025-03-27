@@ -33,6 +33,27 @@ void main() {
     expect(actual, [errorA, errorB, errorC]);
   });
 
+  test('parent (source) references', () {
+    final errorC = ExceptionC();
+    final errorB = ExceptionB(errorC);
+    final errorA = ExceptionA(errorB);
+
+    fixture.options.addExceptionCauseExtractor(
+      ExceptionACauseExtractor(false),
+    );
+
+    fixture.options.addExceptionCauseExtractor(
+      ExceptionBCauseExtractor(),
+    );
+
+    final sut = fixture.getSut();
+
+    final flattened = sut.flatten(errorA, null);
+    final actual =
+        flattened.map((exceptionCause) => exceptionCause.source).toList();
+    expect(actual, [null, "other", "anotherOther"]);
+  });
+
   test('flatten breaks circularity', () {
     final a = ExceptionCircularA();
     final b = ExceptionCircularB();
@@ -132,14 +153,14 @@ class ExceptionACauseExtractor extends ExceptionCauseExtractor<ExceptionA> {
     if (throwing) {
       throw StateError("Unexpected exception");
     }
-    return ExceptionCause(error.other, null);
+    return ExceptionCause(error.other, null, source: "other");
   }
 }
 
 class ExceptionBCauseExtractor extends ExceptionCauseExtractor<ExceptionB> {
   @override
   ExceptionCause? cause(ExceptionB error) {
-    return ExceptionCause(error.anotherOther, null);
+    return ExceptionCause(error.anotherOther, null, source: "anotherOther");
   }
 }
 
