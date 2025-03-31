@@ -21,6 +21,7 @@ class Contexts extends MapView<String, dynamic> {
     SentryTraceContext? trace,
     SentryResponse? response,
     SentryFeedback? feedback,
+    SentryFeatureFlags? flags,
   }) : super({
           SentryDevice.type: device,
           SentryOperatingSystem.type: operatingSystem,
@@ -32,6 +33,7 @@ class Contexts extends MapView<String, dynamic> {
           SentryTraceContext.type: trace,
           SentryResponse.type: response,
           SentryFeedback.type: feedback,
+          SentryFeatureFlags.type: flags,
         });
 
   /// Deserializes [Contexts] from JSON [Map].
@@ -67,6 +69,9 @@ class Contexts extends MapView<String, dynamic> {
           : null,
       feedback: data[SentryFeedback.type] != null
           ? SentryFeedback.fromJson(Map.from(data[SentryFeedback.type]))
+          : null,
+      flags: data[SentryFeatureFlags.type] != null
+          ? SentryFeatureFlags.fromJson(Map.from(data[SentryFeatureFlags.type]))
           : null,
     );
 
@@ -150,6 +155,11 @@ class Contexts extends MapView<String, dynamic> {
   SentryFeedback? get feedback => this[SentryFeedback.type];
 
   set feedback(SentryFeedback? value) => this[SentryFeedback.type] = value;
+
+  /// Feature flags context for a feature flag event.
+  SentryFeatureFlags? get flags => this[SentryFeatureFlags.type];
+
+  set flags(SentryFeatureFlags? value) => this[SentryFeatureFlags.type] = value;
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
@@ -250,6 +260,13 @@ class Contexts extends MapView<String, dynamic> {
 
           break;
 
+        case SentryFeatureFlags.type:
+          final flagsMap = flags?.toJson();
+          if (flagsMap?.isNotEmpty ?? false) {
+            json[SentryFeatureFlags.type] = flagsMap;
+          }
+          break;
+
         default:
           if (value != null) {
             json[key] = value;
@@ -272,6 +289,7 @@ class Contexts extends MapView<String, dynamic> {
       response: response?.clone(),
       runtimes: runtimes.map((runtime) => runtime.clone()).toList(),
       feedback: feedback?.clone(),
+      flags: flags?.clone(),
     )..addEntries(
         entries.where((element) => !_defaultFields.contains(element.key)),
       );
@@ -290,6 +308,7 @@ class Contexts extends MapView<String, dynamic> {
     SentryTraceContext? trace,
     SentryResponse? response,
     SentryFeedback? feedback,
+    SentryFeatureFlags? flags,
   }) =>
       Contexts(
         device: device ?? this.device,
@@ -303,6 +322,7 @@ class Contexts extends MapView<String, dynamic> {
         trace: trace ?? this.trace,
         response: response ?? this.response,
         feedback: feedback ?? this.feedback,
+        flags: flags ?? this.flags,
       )..addEntries(
           entries.where((element) => !_defaultFields.contains(element.key)),
         );
@@ -319,5 +339,6 @@ class Contexts extends MapView<String, dynamic> {
     SentryTraceContext.type,
     SentryResponse.type,
     SentryFeedback.type,
+    SentryFeatureFlags.type,
   ];
 }
