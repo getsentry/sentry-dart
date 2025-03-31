@@ -437,6 +437,11 @@ void main() {
       await scope.setTag('build', '579');
       await scope.setExtra('company-name', 'Dart Inc');
       await scope.setContexts('theme', 'material');
+      await scope.setContexts(
+          SentryFeatureFlags.type,
+          SentryFeatureFlags(
+            values: [SentryFeatureFlag(name: 'foo', value: 'bar')],
+          ));
       await scope.setUser(scopeUser);
 
       final updatedEvent = await scope.applyToEvent(event, Hint());
@@ -451,6 +456,11 @@ void main() {
       expect(
           updatedEvent?.extra, {'e-infos': 'abc', 'company-name': 'Dart Inc'});
       expect(updatedEvent?.contexts['theme'], {'value': 'material'});
+      expect(updatedEvent?.contexts[SentryFeatureFlags.type]?.values.first.name,
+          'foo');
+      expect(
+          updatedEvent?.contexts[SentryFeatureFlags.type]?.values.first.value,
+          'bar');
     });
 
     test('apply trace context to event', () async {

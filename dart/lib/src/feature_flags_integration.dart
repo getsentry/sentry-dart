@@ -17,11 +17,6 @@ class FeatureFlagsIntegration extends Integration<SentryOptions> {
   }
 
   FutureOr<void> addFeatureFlag(String name, String value) async {
-    // LRU cache of 100 feature flags on scope
-    // if the cache is full, remove the oldest feature flag
-    // if the feature flag is already in the cache, update the value
-    // if the feature flag is not in the cache, add it
-
     final flags =
         _hub?.scope.contexts[SentryFeatureFlags.type] as SentryFeatureFlags? ??
             SentryFeatureFlags(values: []);
