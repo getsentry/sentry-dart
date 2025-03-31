@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/dart_exception_type_identifier.dart';
 import 'package:sentry/src/event_processor/deduplication_event_processor.dart';
+import 'package:sentry/src/feature_flags_integration.dart';
 import 'package:test/test.dart';
 
 import 'mocks.dart';
@@ -264,6 +265,12 @@ void main() {
       );
       expect(
         optionsReference.integrations
+            .whereType<FeatureFlagsIntegration>()
+            .length,
+        1,
+      );
+      expect(
+        optionsReference.integrations
             .whereType<IsolateErrorIntegration>()
             .length,
         1,
@@ -289,6 +296,26 @@ void main() {
         },
       );
     }, onPlatform: {'vm': Skip()});
+
+    test('should add feature flagg FeatureFlagsIntegration', () async {
+      await Sentry.init(
+        options: defaultTestOptions(),
+        (options) => options.dsn = fakeDsn,
+      );
+
+      await Sentry.addFeatureFlag('foo', 'bar');
+
+      expect(
+        Sentry.currentHub.scope.contexts[SentryFeatureFlags.type]?.values.first
+            .name,
+        equals('foo'),
+      );
+      expect(
+        Sentry.currentHub.scope.contexts[SentryFeatureFlags.type]?.values.first
+            .value,
+        equals('bar'),
+      );
+    });
 
     test('should close integrations', () async {
       final integration = MockIntegration();
