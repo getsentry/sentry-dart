@@ -16,7 +16,7 @@ class FeatureFlagsIntegration extends Integration<SentryOptions> {
     options.sdk.addIntegration('featureFlagsIntegration');
   }
 
-  FutureOr<void> addFeatureFlag(String name, String value) async {
+  FutureOr<void> addFeatureFlag(String name, bool value) async {
     final flags =
         _hub?.scope.contexts[SentryFeatureFlags.type] as SentryFeatureFlags? ??
             SentryFeatureFlags(values: []);

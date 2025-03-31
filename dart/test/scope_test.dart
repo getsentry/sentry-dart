@@ -440,7 +440,7 @@ void main() {
       await scope.setContexts(
           SentryFeatureFlags.type,
           SentryFeatureFlags(
-            values: [SentryFeatureFlag(name: 'foo', value: 'bar')],
+            values: [SentryFeatureFlag(name: 'foo', value: true)],
           ));
       await scope.setUser(scopeUser);
 
@@ -460,7 +460,7 @@ void main() {
           'foo');
       expect(
           updatedEvent?.contexts[SentryFeatureFlags.type]?.values.first.value,
-          'bar');
+          true);
     });
 
     test('apply trace context to event', () async {

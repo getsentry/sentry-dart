@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Add `FeatureFlagIntegration` ([#2825](https://github.com/getsentry/sentry-dart/pull/2825))
+```dart
+// Manually track a feature flag
+Sentry.addFeatureFlag('my-feature', true);
+```
+
 ## 9.0.0-alpha.2
 
 ### Features

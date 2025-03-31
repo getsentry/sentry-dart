@@ -49,8 +49,8 @@ void main() {
 
     final flags = SentryFeatureFlags(
       values: [
-        SentryFeatureFlag(name: 'feature_flag_1', value: 'value_1'),
-        SentryFeatureFlag(name: 'feature_flag_2', value: 'value_2'),
+        SentryFeatureFlag(name: 'feature_flag_1', value: true),
+        SentryFeatureFlag(name: 'feature_flag_2', value: false),
       ],
     );
 
@@ -104,8 +104,8 @@ void main() {
       'version': {'value': 9},
       'flags': {
         'values': [
-          {'name': 'feature_flag_1', 'value': 'value_1'},
-          {'name': 'feature_flag_2', 'value': 'value_2'},
+          {'name': 'feature_flag_1', 'value': true},
+          {'name': 'feature_flag_2', 'value': false},
         ]
       },
     };
@@ -202,8 +202,8 @@ void main() {
       final contexts = Contexts();
       contexts.flags = SentryFeatureFlags(
         values: [
-          SentryFeatureFlag(name: 'feature_flag_1', value: 'value_1'),
-          SentryFeatureFlag(name: 'feature_flag_2', value: 'value_2'),
+          SentryFeatureFlag(name: 'feature_flag_1', value: true),
+          SentryFeatureFlag(name: 'feature_flag_2', value: false),
         ],
       );
       expect(contexts.flags!.toJson(), flags.toJson());
@@ -321,8 +321,8 @@ const jsonContexts = '''
    "gpu": {"name": "Radeon", "version": "1"},
    "flags": {
       "values": [
-        {"name": "feature_flag_1", "value": "value_1"},
-        {"name": "feature_flag_2", "value": "value_2"}
+        {"name": "feature_flag_1", "value": true},
+        {"name": "feature_flag_2", "value": false}
       ]
    }
 }

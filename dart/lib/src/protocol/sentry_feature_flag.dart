@@ -5,7 +5,7 @@ import 'access_aware_map.dart';
 @immutable
 class SentryFeatureFlag {
   final String name;
-  final String value;
+  final bool value;
 
   @internal
   final Map<String, dynamic>? unknown;
@@ -36,7 +36,7 @@ class SentryFeatureFlag {
 
   SentryFeatureFlag copyWith({
     String? name,
-    String? value,
+    bool? value,
     Map<String, dynamic>? unknown,
   }) {
     return SentryFeatureFlag(

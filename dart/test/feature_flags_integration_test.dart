@@ -29,7 +29,7 @@ void main() {
 
     sut.call(fixture.hub, fixture.options);
 
-    await sut.addFeatureFlag('foo', 'bar');
+    await sut.addFeatureFlag('foo', true);
 
     expect(fixture.hub.scope.contexts[SentryFeatureFlags.type], isNotNull);
     expect(
@@ -37,7 +37,7 @@ void main() {
         equals('foo'));
     expect(
         fixture.hub.scope.contexts[SentryFeatureFlags.type]?.values.first.value,
-        equals('bar'));
+        equals(true));
   });
 
   test('replaces existing feature flag', () async {
@@ -45,8 +45,8 @@ void main() {
 
     sut.call(fixture.hub, fixture.options);
 
-    await sut.addFeatureFlag('foo', 'bar');
-    await sut.addFeatureFlag('foo', 'baz');
+    await sut.addFeatureFlag('foo', true);
+    await sut.addFeatureFlag('foo', false);
 
     expect(fixture.hub.scope.contexts[SentryFeatureFlags.type], isNotNull);
     expect(
@@ -54,7 +54,7 @@ void main() {
         equals('foo'));
     expect(
         fixture.hub.scope.contexts[SentryFeatureFlags.type]?.values.first.value,
-        equals('baz'));
+        equals(false));
   });
 
   test('removes oldest feature flag when there are more than 100', () async {
@@ -63,7 +63,7 @@ void main() {
     sut.call(fixture.hub, fixture.options);
 
     for (var i = 0; i < 100; i++) {
-      await sut.addFeatureFlag('foo_$i', 'bar_$i');
+      await sut.addFeatureFlag('foo_$i', i % 2 == 0 ? true : false);
     }
 
     expect(fixture.hub.scope.contexts[SentryFeatureFlags.type]?.values.length,
@@ -74,16 +74,16 @@ void main() {
         equals('foo_0'));
     expect(
         fixture.hub.scope.contexts[SentryFeatureFlags.type]?.values.first.value,
-        equals('bar_0'));
+        equals(true));
 
     expect(
         fixture.hub.scope.contexts[SentryFeatureFlags.type]?.values.last.name,
         equals('foo_99'));
     expect(
         fixture.hub.scope.contexts[SentryFeatureFlags.type]?.values.last.value,
-        equals('bar_99'));
+        equals(false));
 
-    await sut.addFeatureFlag('foo_100', 'bar_100');
+    await sut.addFeatureFlag('foo_100', true);
 
     expect(fixture.hub.scope.contexts[SentryFeatureFlags.type]?.values.length,
         equals(100));
@@ -93,14 +93,14 @@ void main() {
         equals('foo_1'));
     expect(
         fixture.hub.scope.contexts[SentryFeatureFlags.type]?.values.first.value,
-        equals('bar_1'));
+        equals(false));
 
     expect(
         fixture.hub.scope.contexts[SentryFeatureFlags.type]?.values.last.name,
         equals('foo_100'));
     expect(
         fixture.hub.scope.contexts[SentryFeatureFlags.type]?.values.last.value,
-        equals('bar_100'));
+        equals(true));
   });
 }
 

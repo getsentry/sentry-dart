@@ -303,7 +303,7 @@ void main() {
         (options) => options.dsn = fakeDsn,
       );
 
-      await Sentry.addFeatureFlag('foo', 'bar');
+      await Sentry.addFeatureFlag('foo', true);
 
       expect(
         Sentry.currentHub.scope.contexts[SentryFeatureFlags.type]?.values.first
@@ -313,7 +313,7 @@ void main() {
       expect(
         Sentry.currentHub.scope.contexts[SentryFeatureFlags.type]?.values.first
             .value,
-        equals('bar'),
+        equals(true),
       );
     });
 

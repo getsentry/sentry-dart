@@ -7,13 +7,13 @@ import '../mocks.dart';
 void main() {
   final featureFlag = SentryFeatureFlag(
     name: 'feature_flag_1',
-    value: 'value_1',
+    value: true,
     unknown: testUnknown,
   );
   final featureFlagJson = <String, dynamic>{
     ...testUnknown,
     'name': 'feature_flag_1',
-    'value': 'value_1',
+    'value': true,
   };
 
   group('json', () {
