@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+
 import 'package:meta/meta.dart';
 
 import 'event_processor.dart';
@@ -17,7 +18,7 @@ class LoadDartDebugImagesIntegration extends Integration<SentryOptions> {
   void call(Hub hub, SentryOptions options) {
     if (options.enableDartSymbolication) {
       options.addEventProcessor(LoadImageIntegrationEventProcessor(options));
-      options.sdk.addIntegration('loadDartImageIntegration');
+      options.sdk.addIntegration('LoadDartImagesIntegration');
     }
   }
 }

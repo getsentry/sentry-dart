@@ -7,12 +7,12 @@ import 'package:sentry/src/load_dart_debug_images_integration.dart';
 import '../native/sentry_native_binding.dart';
 import '../sentry_flutter_options.dart';
 
-/// Loads the native debug image list for stack trace symbolication.
-class LoadImageListIntegration extends Integration<SentryFlutterOptions> {
-  /// TODO: rename to LoadNativeDebugImagesIntegration in the next major version
+/// Loads the native debug image list from the native SDKs on Android and Cocoa for stack trace symbolication.
+class LoadNativeDebugImagesIntegration
+    extends Integration<SentryFlutterOptions> {
   final SentryNativeBinding _native;
 
-  LoadImageListIntegration(this._native);
+  LoadNativeDebugImagesIntegration(this._native);
 
   @override
   void call(Hub hub, SentryFlutterOptions options) {
@@ -20,7 +20,7 @@ class LoadImageListIntegration extends Integration<SentryFlutterOptions> {
       _LoadImageListIntegrationEventProcessor(options, _native),
     );
 
-    options.sdk.addIntegration('loadImageListIntegration');
+    options.sdk.addIntegration('LoadNativeDebugImagesIntegration');
   }
 }
 
