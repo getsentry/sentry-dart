@@ -21,8 +21,8 @@ import 'version.dart';
 
 /// Sentry SDK options
 class SentryOptions {
-  /// Default Log level if not specified Default is DEBUG
-  static final SentryLevel _defaultDiagnosticLevel = SentryLevel.debug;
+  /// Default Log level if not specified Default is WARNING
+  static final SentryLevel _defaultDiagnosticLevel = SentryLevel.warning;
 
   String? _dsn;
   Dsn? _parsedDsn;
@@ -156,10 +156,10 @@ class SentryOptions {
   set debug(bool newValue) {
     _debug = newValue;
     if (_debug == true && logger == noOpLogger) {
-      _logger = _debugLogger;
+      logger = _debugLogger;
     }
     if (_debug == false && logger == _debugLogger) {
-      _logger = noOpLogger;
+      logger = noOpLogger;
     }
   }
 

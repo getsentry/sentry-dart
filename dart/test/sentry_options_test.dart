@@ -125,6 +125,12 @@ void main() {
     expect(options.enableDartSymbolication, true);
   });
 
+  test('diagnosticLevel is warning by default', () {
+    final options = defaultTestOptions();
+
+    expect(options.diagnosticLevel, SentryLevel.warning);
+  });
+
   test('parsedDsn is correctly parsed and cached', () {
     final options = defaultTestOptions();
 
