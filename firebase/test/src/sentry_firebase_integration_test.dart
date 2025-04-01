@@ -8,7 +8,7 @@ import '../mocks/mocks.mocks.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 
 void main() {
-  late final Fixture fixture;
+  late Fixture fixture;
 
   givenRemoveConfigUpdate() {
     final update = RemoteConfigUpdate({'test'});
@@ -78,6 +78,23 @@ void main() {
     expect(featureFlags, isNotNull);
     expect(featureFlags?.values.first.name, 'test');
     expect(featureFlags?.values.first.value, true);
+  });
+
+  test('stream canceld on close', () async {
+    final streamSubscription = MockStreamSubscription<RemoteConfigUpdate>();
+    when(streamSubscription.cancel()).thenAnswer((_) => Future.value());
+
+    final stream = MockStream<RemoteConfigUpdate>();
+    when(stream.listen(any)).thenAnswer((_) => streamSubscription);
+
+    when(fixture.mockFirebaseRemoteConfig.onConfigUpdated)
+        .thenAnswer((_) => stream);
+
+    final sut = await fixture.getSut({'test'});
+    await sut.call(fixture.hub, fixture.options);
+    await sut.close();
+
+    verify(streamSubscription.cancel()).called(1);
   });
 
   test('doesn`t add update to feature flags if key is not in the list',
