@@ -30,49 +30,49 @@ import 'package:sentry/src/profiling.dart' as _i5;
 
 class _FakeSentryOptions_0 extends _i1.SmartFake implements _i2.SentryOptions {
   _FakeSentryOptions_0(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
+      : super(parent, parentInvocation);
 }
 
 class _FakeSentryId_1 extends _i1.SmartFake implements _i2.SentryId {
   _FakeSentryId_1(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
+      : super(parent, parentInvocation);
 }
 
 class _FakeScope_2 extends _i1.SmartFake implements _i2.Scope {
   _FakeScope_2(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
+      : super(parent, parentInvocation);
 }
 
 class _FakeHub_3 extends _i1.SmartFake implements _i2.Hub {
   _FakeHub_3(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
+      : super(parent, parentInvocation);
 }
 
 class _FakeISentrySpan_4 extends _i1.SmartFake implements _i2.ISentrySpan {
   _FakeISentrySpan_4(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
+      : super(parent, parentInvocation);
 }
 
 class _FakeFirebaseApp_5 extends _i1.SmartFake implements _i3.FirebaseApp {
   _FakeFirebaseApp_5(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
+      : super(parent, parentInvocation);
 }
 
 class _FakeDateTime_6 extends _i1.SmartFake implements DateTime {
   _FakeDateTime_6(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
+      : super(parent, parentInvocation);
 }
 
 class _FakeRemoteConfigSettings_7 extends _i1.SmartFake
     implements _i4.RemoteConfigSettings {
   _FakeRemoteConfigSettings_7(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
+      : super(parent, parentInvocation);
 }
 
 class _FakeRemoteConfigValue_8 extends _i1.SmartFake
     implements _i4.RemoteConfigValue {
   _FakeRemoteConfigValue_8(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
+      : super(parent, parentInvocation);
 }
 
 /// A class which mocks [Hub].
@@ -84,15 +84,13 @@ class MockHub extends _i1.Mock implements _i2.Hub {
   }
 
   @override
-  _i2.SentryOptions get options =>
-      (super.noSuchMethod(
-            Invocation.getter(#options),
-            returnValue: _FakeSentryOptions_0(
-              this,
-              Invocation.getter(#options),
-            ),
-          )
-          as _i2.SentryOptions);
+  _i2.SentryOptions get options => (super.noSuchMethod(
+        Invocation.getter(#options),
+        returnValue: _FakeSentryOptions_0(
+          this,
+          Invocation.getter(#options),
+        ),
+      ) as _i2.SentryOptions);
 
   @override
   bool get isEnabled =>
@@ -100,27 +98,23 @@ class MockHub extends _i1.Mock implements _i2.Hub {
           as bool);
 
   @override
-  _i2.SentryId get lastEventId =>
-      (super.noSuchMethod(
-            Invocation.getter(#lastEventId),
-            returnValue: _FakeSentryId_1(this, Invocation.getter(#lastEventId)),
-          )
-          as _i2.SentryId);
+  _i2.SentryId get lastEventId => (super.noSuchMethod(
+        Invocation.getter(#lastEventId),
+        returnValue: _FakeSentryId_1(this, Invocation.getter(#lastEventId)),
+      ) as _i2.SentryId);
 
   @override
-  _i2.Scope get scope =>
-      (super.noSuchMethod(
-            Invocation.getter(#scope),
-            returnValue: _FakeScope_2(this, Invocation.getter(#scope)),
-          )
-          as _i2.Scope);
+  _i2.Scope get scope => (super.noSuchMethod(
+        Invocation.getter(#scope),
+        returnValue: _FakeScope_2(this, Invocation.getter(#scope)),
+      ) as _i2.Scope);
 
   @override
   // ignore: invalid_use_of_internal_member
   set profilerFactory(_i5.SentryProfilerFactory? value) => super.noSuchMethod(
-    Invocation.setter(#profilerFactory, value),
-    returnValueForMissingStub: null,
-  );
+        Invocation.setter(#profilerFactory, value),
+        returnValueForMissingStub: null,
+      );
 
   @override
   _i6.Future<_i2.SentryId> captureEvent(
@@ -130,23 +124,22 @@ class MockHub extends _i1.Mock implements _i2.Hub {
     _i2.ScopeCallback? withScope,
   }) =>
       (super.noSuchMethod(
+        Invocation.method(
+          #captureEvent,
+          [event],
+          {#stackTrace: stackTrace, #hint: hint, #withScope: withScope},
+        ),
+        returnValue: _i6.Future<_i2.SentryId>.value(
+          _FakeSentryId_1(
+            this,
             Invocation.method(
               #captureEvent,
               [event],
               {#stackTrace: stackTrace, #hint: hint, #withScope: withScope},
             ),
-            returnValue: _i6.Future<_i2.SentryId>.value(
-              _FakeSentryId_1(
-                this,
-                Invocation.method(
-                  #captureEvent,
-                  [event],
-                  {#stackTrace: stackTrace, #hint: hint, #withScope: withScope},
-                ),
-              ),
-            ),
-          )
-          as _i6.Future<_i2.SentryId>);
+          ),
+        ),
+      ) as _i6.Future<_i2.SentryId>);
 
   @override
   _i6.Future<_i2.SentryId> captureException(
@@ -156,23 +149,22 @@ class MockHub extends _i1.Mock implements _i2.Hub {
     _i2.ScopeCallback? withScope,
   }) =>
       (super.noSuchMethod(
+        Invocation.method(
+          #captureException,
+          [throwable],
+          {#stackTrace: stackTrace, #hint: hint, #withScope: withScope},
+        ),
+        returnValue: _i6.Future<_i2.SentryId>.value(
+          _FakeSentryId_1(
+            this,
             Invocation.method(
               #captureException,
               [throwable],
               {#stackTrace: stackTrace, #hint: hint, #withScope: withScope},
             ),
-            returnValue: _i6.Future<_i2.SentryId>.value(
-              _FakeSentryId_1(
-                this,
-                Invocation.method(
-                  #captureException,
-                  [throwable],
-                  {#stackTrace: stackTrace, #hint: hint, #withScope: withScope},
-                ),
-              ),
-            ),
-          )
-          as _i6.Future<_i2.SentryId>);
+          ),
+        ),
+      ) as _i6.Future<_i2.SentryId>);
 
   @override
   _i6.Future<_i2.SentryId> captureMessage(
@@ -184,6 +176,20 @@ class MockHub extends _i1.Mock implements _i2.Hub {
     _i2.ScopeCallback? withScope,
   }) =>
       (super.noSuchMethod(
+        Invocation.method(
+          #captureMessage,
+          [message],
+          {
+            #level: level,
+            #template: template,
+            #params: params,
+            #hint: hint,
+            #withScope: withScope,
+          },
+        ),
+        returnValue: _i6.Future<_i2.SentryId>.value(
+          _FakeSentryId_1(
+            this,
             Invocation.method(
               #captureMessage,
               [message],
@@ -195,24 +201,9 @@ class MockHub extends _i1.Mock implements _i2.Hub {
                 #withScope: withScope,
               },
             ),
-            returnValue: _i6.Future<_i2.SentryId>.value(
-              _FakeSentryId_1(
-                this,
-                Invocation.method(
-                  #captureMessage,
-                  [message],
-                  {
-                    #level: level,
-                    #template: template,
-                    #params: params,
-                    #hint: hint,
-                    #withScope: withScope,
-                  },
-                ),
-              ),
-            ),
-          )
-          as _i6.Future<_i2.SentryId>);
+          ),
+        ),
+      ) as _i6.Future<_i2.SentryId>);
 
   @override
   _i6.Future<_i2.SentryId> captureFeedback(
@@ -221,55 +212,49 @@ class MockHub extends _i1.Mock implements _i2.Hub {
     _i2.ScopeCallback? withScope,
   }) =>
       (super.noSuchMethod(
+        Invocation.method(
+          #captureFeedback,
+          [feedback],
+          {#hint: hint, #withScope: withScope},
+        ),
+        returnValue: _i6.Future<_i2.SentryId>.value(
+          _FakeSentryId_1(
+            this,
             Invocation.method(
               #captureFeedback,
               [feedback],
               {#hint: hint, #withScope: withScope},
             ),
-            returnValue: _i6.Future<_i2.SentryId>.value(
-              _FakeSentryId_1(
-                this,
-                Invocation.method(
-                  #captureFeedback,
-                  [feedback],
-                  {#hint: hint, #withScope: withScope},
-                ),
-              ),
-            ),
-          )
-          as _i6.Future<_i2.SentryId>);
+          ),
+        ),
+      ) as _i6.Future<_i2.SentryId>);
 
   @override
   _i6.Future<void> addBreadcrumb(_i2.Breadcrumb? crumb, {_i2.Hint? hint}) =>
       (super.noSuchMethod(
-            Invocation.method(#addBreadcrumb, [crumb], {#hint: hint}),
-            returnValue: _i6.Future<void>.value(),
-            returnValueForMissingStub: _i6.Future<void>.value(),
-          )
-          as _i6.Future<void>);
+        Invocation.method(#addBreadcrumb, [crumb], {#hint: hint}),
+        returnValue: _i6.Future<void>.value(),
+        returnValueForMissingStub: _i6.Future<void>.value(),
+      ) as _i6.Future<void>);
 
   @override
   void bindClient(_i2.SentryClient? client) => super.noSuchMethod(
-    Invocation.method(#bindClient, [client]),
-    returnValueForMissingStub: null,
-  );
+        Invocation.method(#bindClient, [client]),
+        returnValueForMissingStub: null,
+      );
 
   @override
-  _i2.Hub clone() =>
-      (super.noSuchMethod(
-            Invocation.method(#clone, []),
-            returnValue: _FakeHub_3(this, Invocation.method(#clone, [])),
-          )
-          as _i2.Hub);
+  _i2.Hub clone() => (super.noSuchMethod(
+        Invocation.method(#clone, []),
+        returnValue: _FakeHub_3(this, Invocation.method(#clone, [])),
+      ) as _i2.Hub);
 
   @override
-  _i6.Future<void> close() =>
-      (super.noSuchMethod(
-            Invocation.method(#close, []),
-            returnValue: _i6.Future<void>.value(),
-            returnValueForMissingStub: _i6.Future<void>.value(),
-          )
-          as _i6.Future<void>);
+  _i6.Future<void> close() => (super.noSuchMethod(
+        Invocation.method(#close, []),
+        returnValue: _i6.Future<void>.value(),
+        returnValueForMissingStub: _i6.Future<void>.value(),
+      ) as _i6.Future<void>);
 
   @override
   _i6.FutureOr<void> configureScope(_i2.ScopeCallback? callback) =>
@@ -290,39 +275,38 @@ class MockHub extends _i1.Mock implements _i2.Hub {
     Map<String, dynamic>? customSamplingContext,
   }) =>
       (super.noSuchMethod(
-            Invocation.method(
-              #startTransaction,
-              [name, operation],
-              {
-                #description: description,
-                #startTimestamp: startTimestamp,
-                #bindToScope: bindToScope,
-                #waitForChildren: waitForChildren,
-                #autoFinishAfter: autoFinishAfter,
-                #trimEnd: trimEnd,
-                #onFinish: onFinish,
-                #customSamplingContext: customSamplingContext,
-              },
-            ),
-            returnValue: _FakeISentrySpan_4(
-              this,
-              Invocation.method(
-                #startTransaction,
-                [name, operation],
-                {
-                  #description: description,
-                  #startTimestamp: startTimestamp,
-                  #bindToScope: bindToScope,
-                  #waitForChildren: waitForChildren,
-                  #autoFinishAfter: autoFinishAfter,
-                  #trimEnd: trimEnd,
-                  #onFinish: onFinish,
-                  #customSamplingContext: customSamplingContext,
-                },
-              ),
-            ),
-          )
-          as _i2.ISentrySpan);
+        Invocation.method(
+          #startTransaction,
+          [name, operation],
+          {
+            #description: description,
+            #startTimestamp: startTimestamp,
+            #bindToScope: bindToScope,
+            #waitForChildren: waitForChildren,
+            #autoFinishAfter: autoFinishAfter,
+            #trimEnd: trimEnd,
+            #onFinish: onFinish,
+            #customSamplingContext: customSamplingContext,
+          },
+        ),
+        returnValue: _FakeISentrySpan_4(
+          this,
+          Invocation.method(
+            #startTransaction,
+            [name, operation],
+            {
+              #description: description,
+              #startTimestamp: startTimestamp,
+              #bindToScope: bindToScope,
+              #waitForChildren: waitForChildren,
+              #autoFinishAfter: autoFinishAfter,
+              #trimEnd: trimEnd,
+              #onFinish: onFinish,
+              #customSamplingContext: customSamplingContext,
+            },
+          ),
+        ),
+      ) as _i2.ISentrySpan);
 
   @override
   _i2.ISentrySpan startTransactionWithContext(
@@ -336,37 +320,36 @@ class MockHub extends _i1.Mock implements _i2.Hub {
     _i2.OnTransactionFinish? onFinish,
   }) =>
       (super.noSuchMethod(
-            Invocation.method(
-              #startTransactionWithContext,
-              [transactionContext],
-              {
-                #customSamplingContext: customSamplingContext,
-                #startTimestamp: startTimestamp,
-                #bindToScope: bindToScope,
-                #waitForChildren: waitForChildren,
-                #autoFinishAfter: autoFinishAfter,
-                #trimEnd: trimEnd,
-                #onFinish: onFinish,
-              },
-            ),
-            returnValue: _FakeISentrySpan_4(
-              this,
-              Invocation.method(
-                #startTransactionWithContext,
-                [transactionContext],
-                {
-                  #customSamplingContext: customSamplingContext,
-                  #startTimestamp: startTimestamp,
-                  #bindToScope: bindToScope,
-                  #waitForChildren: waitForChildren,
-                  #autoFinishAfter: autoFinishAfter,
-                  #trimEnd: trimEnd,
-                  #onFinish: onFinish,
-                },
-              ),
-            ),
-          )
-          as _i2.ISentrySpan);
+        Invocation.method(
+          #startTransactionWithContext,
+          [transactionContext],
+          {
+            #customSamplingContext: customSamplingContext,
+            #startTimestamp: startTimestamp,
+            #bindToScope: bindToScope,
+            #waitForChildren: waitForChildren,
+            #autoFinishAfter: autoFinishAfter,
+            #trimEnd: trimEnd,
+            #onFinish: onFinish,
+          },
+        ),
+        returnValue: _FakeISentrySpan_4(
+          this,
+          Invocation.method(
+            #startTransactionWithContext,
+            [transactionContext],
+            {
+              #customSamplingContext: customSamplingContext,
+              #startTimestamp: startTimestamp,
+              #bindToScope: bindToScope,
+              #waitForChildren: waitForChildren,
+              #autoFinishAfter: autoFinishAfter,
+              #trimEnd: trimEnd,
+              #onFinish: onFinish,
+            },
+          ),
+        ),
+      ) as _i2.ISentrySpan);
 
   @override
   _i6.Future<_i2.SentryId> captureTransaction(
@@ -375,33 +358,33 @@ class MockHub extends _i1.Mock implements _i2.Hub {
     _i2.Hint? hint,
   }) =>
       (super.noSuchMethod(
+        Invocation.method(
+          #captureTransaction,
+          [transaction],
+          {#traceContext: traceContext, #hint: hint},
+        ),
+        returnValue: _i6.Future<_i2.SentryId>.value(
+          _FakeSentryId_1(
+            this,
             Invocation.method(
               #captureTransaction,
               [transaction],
               {#traceContext: traceContext, #hint: hint},
             ),
-            returnValue: _i6.Future<_i2.SentryId>.value(
-              _FakeSentryId_1(
-                this,
-                Invocation.method(
-                  #captureTransaction,
-                  [transaction],
-                  {#traceContext: traceContext, #hint: hint},
-                ),
-              ),
-            ),
-          )
-          as _i6.Future<_i2.SentryId>);
+          ),
+        ),
+      ) as _i6.Future<_i2.SentryId>);
 
   @override
   void setSpanContext(
     dynamic throwable,
     _i2.ISentrySpan? span,
     String? transaction,
-  ) => super.noSuchMethod(
-    Invocation.method(#setSpanContext, [throwable, span, transaction]),
-    returnValueForMissingStub: null,
-  );
+  ) =>
+      super.noSuchMethod(
+        Invocation.method(#setSpanContext, [throwable, span, transaction]),
+        returnValueForMissingStub: null,
+      );
 }
 
 /// A class which mocks [FirebaseRemoteConfig].
@@ -414,108 +397,84 @@ class MockFirebaseRemoteConfig extends _i1.Mock
   }
 
   @override
-  _i3.FirebaseApp get app =>
-      (super.noSuchMethod(
-            Invocation.getter(#app),
-            returnValue: _FakeFirebaseApp_5(this, Invocation.getter(#app)),
-          )
-          as _i3.FirebaseApp);
+  _i3.FirebaseApp get app => (super.noSuchMethod(
+        Invocation.getter(#app),
+        returnValue: _FakeFirebaseApp_5(this, Invocation.getter(#app)),
+      ) as _i3.FirebaseApp);
 
   @override
-  DateTime get lastFetchTime =>
-      (super.noSuchMethod(
-            Invocation.getter(#lastFetchTime),
-            returnValue: _FakeDateTime_6(
-              this,
-              Invocation.getter(#lastFetchTime),
-            ),
-          )
-          as DateTime);
+  DateTime get lastFetchTime => (super.noSuchMethod(
+        Invocation.getter(#lastFetchTime),
+        returnValue: _FakeDateTime_6(
+          this,
+          Invocation.getter(#lastFetchTime),
+        ),
+      ) as DateTime);
 
   @override
-  _i4.RemoteConfigFetchStatus get lastFetchStatus =>
-      (super.noSuchMethod(
-            Invocation.getter(#lastFetchStatus),
-            returnValue: _i4.RemoteConfigFetchStatus.noFetchYet,
-          )
-          as _i4.RemoteConfigFetchStatus);
+  _i4.RemoteConfigFetchStatus get lastFetchStatus => (super.noSuchMethod(
+        Invocation.getter(#lastFetchStatus),
+        returnValue: _i4.RemoteConfigFetchStatus.noFetchYet,
+      ) as _i4.RemoteConfigFetchStatus);
 
   @override
-  _i4.RemoteConfigSettings get settings =>
-      (super.noSuchMethod(
-            Invocation.getter(#settings),
-            returnValue: _FakeRemoteConfigSettings_7(
-              this,
-              Invocation.getter(#settings),
-            ),
-          )
-          as _i4.RemoteConfigSettings);
+  _i4.RemoteConfigSettings get settings => (super.noSuchMethod(
+        Invocation.getter(#settings),
+        returnValue: _FakeRemoteConfigSettings_7(
+          this,
+          Invocation.getter(#settings),
+        ),
+      ) as _i4.RemoteConfigSettings);
 
   @override
-  _i6.Stream<_i4.RemoteConfigUpdate> get onConfigUpdated =>
-      (super.noSuchMethod(
-            Invocation.getter(#onConfigUpdated),
-            returnValue: _i6.Stream<_i4.RemoteConfigUpdate>.empty(),
-          )
-          as _i6.Stream<_i4.RemoteConfigUpdate>);
+  _i6.Stream<_i4.RemoteConfigUpdate> get onConfigUpdated => (super.noSuchMethod(
+        Invocation.getter(#onConfigUpdated),
+        returnValue: _i6.Stream<_i4.RemoteConfigUpdate>.empty(),
+      ) as _i6.Stream<_i4.RemoteConfigUpdate>);
 
   @override
-  Map<dynamic, dynamic> get pluginConstants =>
-      (super.noSuchMethod(
-            Invocation.getter(#pluginConstants),
-            returnValue: <dynamic, dynamic>{},
-          )
-          as Map<dynamic, dynamic>);
+  Map<dynamic, dynamic> get pluginConstants => (super.noSuchMethod(
+        Invocation.getter(#pluginConstants),
+        returnValue: <dynamic, dynamic>{},
+      ) as Map<dynamic, dynamic>);
 
   @override
-  _i6.Future<bool> activate() =>
-      (super.noSuchMethod(
-            Invocation.method(#activate, []),
-            returnValue: _i6.Future<bool>.value(false),
-          )
-          as _i6.Future<bool>);
+  _i6.Future<bool> activate() => (super.noSuchMethod(
+        Invocation.method(#activate, []),
+        returnValue: _i6.Future<bool>.value(false),
+      ) as _i6.Future<bool>);
 
   @override
-  _i6.Future<void> ensureInitialized() =>
-      (super.noSuchMethod(
-            Invocation.method(#ensureInitialized, []),
-            returnValue: _i6.Future<void>.value(),
-            returnValueForMissingStub: _i6.Future<void>.value(),
-          )
-          as _i6.Future<void>);
+  _i6.Future<void> ensureInitialized() => (super.noSuchMethod(
+        Invocation.method(#ensureInitialized, []),
+        returnValue: _i6.Future<void>.value(),
+        returnValueForMissingStub: _i6.Future<void>.value(),
+      ) as _i6.Future<void>);
 
   @override
-  _i6.Future<void> fetch() =>
-      (super.noSuchMethod(
-            Invocation.method(#fetch, []),
-            returnValue: _i6.Future<void>.value(),
-            returnValueForMissingStub: _i6.Future<void>.value(),
-          )
-          as _i6.Future<void>);
+  _i6.Future<void> fetch() => (super.noSuchMethod(
+        Invocation.method(#fetch, []),
+        returnValue: _i6.Future<void>.value(),
+        returnValueForMissingStub: _i6.Future<void>.value(),
+      ) as _i6.Future<void>);
 
   @override
-  _i6.Future<bool> fetchAndActivate() =>
-      (super.noSuchMethod(
-            Invocation.method(#fetchAndActivate, []),
-            returnValue: _i6.Future<bool>.value(false),
-          )
-          as _i6.Future<bool>);
+  _i6.Future<bool> fetchAndActivate() => (super.noSuchMethod(
+        Invocation.method(#fetchAndActivate, []),
+        returnValue: _i6.Future<bool>.value(false),
+      ) as _i6.Future<bool>);
 
   @override
-  Map<String, _i4.RemoteConfigValue> getAll() =>
-      (super.noSuchMethod(
-            Invocation.method(#getAll, []),
-            returnValue: <String, _i4.RemoteConfigValue>{},
-          )
-          as Map<String, _i4.RemoteConfigValue>);
+  Map<String, _i4.RemoteConfigValue> getAll() => (super.noSuchMethod(
+        Invocation.method(#getAll, []),
+        returnValue: <String, _i4.RemoteConfigValue>{},
+      ) as Map<String, _i4.RemoteConfigValue>);
 
   @override
-  bool getBool(String? key) =>
-      (super.noSuchMethod(
-            Invocation.method(#getBool, [key]),
-            returnValue: false,
-          )
-          as bool);
+  bool getBool(String? key) => (super.noSuchMethod(
+        Invocation.method(#getBool, [key]),
+        returnValue: false,
+      ) as bool);
 
   @override
   int getInt(String? key) =>
@@ -523,61 +482,52 @@ class MockFirebaseRemoteConfig extends _i1.Mock
           as int);
 
   @override
-  double getDouble(String? key) =>
-      (super.noSuchMethod(
-            Invocation.method(#getDouble, [key]),
-            returnValue: 0.0,
-          )
-          as double);
+  double getDouble(String? key) => (super.noSuchMethod(
+        Invocation.method(#getDouble, [key]),
+        returnValue: 0.0,
+      ) as double);
 
   @override
-  String getString(String? key) =>
-      (super.noSuchMethod(
-            Invocation.method(#getString, [key]),
-            returnValue: _i8.dummyValue<String>(
-              this,
-              Invocation.method(#getString, [key]),
-            ),
-          )
-          as String);
+  String getString(String? key) => (super.noSuchMethod(
+        Invocation.method(#getString, [key]),
+        returnValue: _i8.dummyValue<String>(
+          this,
+          Invocation.method(#getString, [key]),
+        ),
+      ) as String);
 
   @override
-  _i4.RemoteConfigValue getValue(String? key) =>
-      (super.noSuchMethod(
-            Invocation.method(#getValue, [key]),
-            returnValue: _FakeRemoteConfigValue_8(
-              this,
-              Invocation.method(#getValue, [key]),
-            ),
-          )
-          as _i4.RemoteConfigValue);
+  _i4.RemoteConfigValue getValue(String? key) => (super.noSuchMethod(
+        Invocation.method(#getValue, [key]),
+        returnValue: _FakeRemoteConfigValue_8(
+          this,
+          Invocation.method(#getValue, [key]),
+        ),
+      ) as _i4.RemoteConfigValue);
 
   @override
   _i6.Future<void> setConfigSettings(
     _i4.RemoteConfigSettings? remoteConfigSettings,
   ) =>
       (super.noSuchMethod(
-            Invocation.method(#setConfigSettings, [remoteConfigSettings]),
-            returnValue: _i6.Future<void>.value(),
-            returnValueForMissingStub: _i6.Future<void>.value(),
-          )
-          as _i6.Future<void>);
+        Invocation.method(#setConfigSettings, [remoteConfigSettings]),
+        returnValue: _i6.Future<void>.value(),
+        returnValueForMissingStub: _i6.Future<void>.value(),
+      ) as _i6.Future<void>);
 
   @override
   _i6.Future<void> setDefaults(Map<String, dynamic>? defaultParameters) =>
       (super.noSuchMethod(
-            Invocation.method(#setDefaults, [defaultParameters]),
-            returnValue: _i6.Future<void>.value(),
-            returnValueForMissingStub: _i6.Future<void>.value(),
-          )
-          as _i6.Future<void>);
+        Invocation.method(#setDefaults, [defaultParameters]),
+        returnValue: _i6.Future<void>.value(),
+        returnValueForMissingStub: _i6.Future<void>.value(),
+      ) as _i6.Future<void>);
 
   @override
   _i6.Future<void> setCustomSignals(Map<String, Object?>? customSignals) =>
       (super.noSuchMethod(
-            Invocation.method(#setCustomSignals, [customSignals]),
-            returnValue: _i6.Future<void>.value(),
-            returnValueForMissingStub: _i6.Future<void>.value(),
-          )
-          as _i6.Future<void>);
+        Invocation.method(#setCustomSignals, [customSignals]),
+        returnValue: _i6.Future<void>.value(),
+        returnValueForMissingStub: _i6.Future<void>.value(),
+      ) as _i6.Future<void>);
 }
