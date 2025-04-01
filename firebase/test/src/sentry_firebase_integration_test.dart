@@ -15,6 +15,9 @@ void main() {
     when(fixture.mockFirebaseRemoteConfig.onConfigUpdated)
         .thenAnswer((_) => Stream.value(update));
     when(fixture.mockFirebaseRemoteConfig.getBool('test')).thenReturn(true);
+
+    when(fixture.mockFirebaseRemoteConfig.activate())
+        .thenAnswer((_) => Future.value(true));
   }
 
   setUp(() async {
@@ -115,6 +118,48 @@ void main() {
 
     expect(featureFlags, isNull);
   });
+
+  test('activate called by default', () async {
+    givenRemoveConfigUpdate();
+
+    final sut = await fixture.getSut({'test'});
+    sut.call(fixture.hub, fixture.options);
+    await Future<void>.delayed(
+      const Duration(
+        milliseconds: 100,
+      ),
+    );
+
+    verify(fixture.mockFirebaseRemoteConfig.activate()).called(1);
+  });
+
+  test('activate not called if activateOnConfigUpdated is false', () async {
+    givenRemoveConfigUpdate();
+
+    final sut = await fixture.getSut({'test'}, activateOnConfigUpdated: false);
+    sut.call(fixture.hub, fixture.options);
+    await Future<void>.delayed(
+      const Duration(
+        milliseconds: 100,
+      ),
+    );
+
+    verifyNever(fixture.mockFirebaseRemoteConfig.activate());
+  });
+
+  test('activate called if activateOnConfigUpdated is true', () async {
+    givenRemoveConfigUpdate();
+
+    final sut = await fixture.getSut({'test'}, activateOnConfigUpdated: true);
+    sut.call(fixture.hub, fixture.options);
+    await Future<void>.delayed(
+      const Duration(
+        milliseconds: 100,
+      ),
+    );
+
+    verify(fixture.mockFirebaseRemoteConfig.activate()).called(1);
+  });
 }
 
 class Fixture {
@@ -123,7 +168,12 @@ class Fixture {
 
   final mockFirebaseRemoteConfig = MockFirebaseRemoteConfig();
 
-  Future<SentryFirebaseIntegration> getSut(Set<String> keys) async {
-    return SentryFirebaseIntegration(mockFirebaseRemoteConfig, keys);
+  Future<SentryFirebaseIntegration> getSut(Set<String> keys,
+      {bool activateOnConfigUpdated = false}) async {
+    return SentryFirebaseIntegration(
+      mockFirebaseRemoteConfig,
+      keys,
+      activateOnConfigUpdated: activateOnConfigUpdated,
+    );
   }
 }

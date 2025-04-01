@@ -4,11 +4,13 @@ import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:sentry/sentry.dart';
 
 class SentryFirebaseIntegration extends Integration<SentryOptions> {
-  SentryFirebaseIntegration(this._firebaseRemoteConfig, this._keys);
+  SentryFirebaseIntegration(this._firebaseRemoteConfig, this._keys,
+      {bool activateOnConfigUpdated = true})
+      : _activateOnConfigUpdated = activateOnConfigUpdated;
 
   final FirebaseRemoteConfig _firebaseRemoteConfig;
   final Set<String> _keys;
-
+  final bool _activateOnConfigUpdated;
   StreamSubscription<RemoteConfigUpdate>? _subscription;
 
   @override
@@ -18,6 +20,9 @@ class SentryFirebaseIntegration extends Integration<SentryOptions> {
       return;
     }
     _subscription = _firebaseRemoteConfig.onConfigUpdated.listen((event) async {
+      if (_activateOnConfigUpdated) {
+        await _firebaseRemoteConfig.activate();
+      }
       for (final updatedKey in event.updatedKeys) {
         if (_keys.contains(updatedKey)) {
           final value = _firebaseRemoteConfig.getBool(updatedKey);
