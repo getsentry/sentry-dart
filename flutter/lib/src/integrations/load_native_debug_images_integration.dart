@@ -7,7 +7,7 @@ import 'package:sentry/src/load_dart_debug_images_integration.dart';
 import '../native/sentry_native_binding.dart';
 import '../sentry_flutter_options.dart';
 
-/// Loads the native debug image list from the native SDKs on Android and Cocoa for stack trace symbolication.
+/// Loads the native debug image list from the native SDKs for stack trace symbolication.
 class LoadNativeDebugImagesIntegration
     extends Integration<SentryFlutterOptions> {
   final SentryNativeBinding _native;
