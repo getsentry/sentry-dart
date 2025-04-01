@@ -11,6 +11,7 @@ import '../sentry_flutter_options.dart';
 class LoadNativeDebugImagesIntegration
     extends Integration<SentryFlutterOptions> {
   final SentryNativeBinding _native;
+  static const integrationName = 'LoadNativeDebugImagesIntegration';
 
   LoadNativeDebugImagesIntegration(this._native);
 
@@ -19,7 +20,7 @@ class LoadNativeDebugImagesIntegration
     options.addEventProcessor(
       _LoadImageListIntegrationEventProcessor(options, _native),
     );
-    options.sdk.addIntegration('LoadNativeDebugImagesIntegration');
+    options.sdk.addIntegration(integrationName);
   }
 }
 

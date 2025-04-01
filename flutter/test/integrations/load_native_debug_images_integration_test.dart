@@ -31,10 +31,10 @@ void main() {
       await fixture.registerIntegration();
     });
 
-    test('$LoadNativeDebugImagesIntegration adds itself to sdk.integrations',
-        () async {
+    test('adds itself to sdk.integrations', () async {
       expect(
-        fixture.options.sdk.integrations.contains('loadImageListIntegration'),
+        fixture.options.sdk.integrations
+            .contains(LoadNativeDebugImagesIntegration.integrationName),
         true,
       );
     });
