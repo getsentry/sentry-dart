@@ -423,7 +423,6 @@ void main() {
             ..dsn = fakeDsn
             ..tracesSampleRate = 1.0;
         });
-        print(message);
         await Sentry.close();
       }
 
