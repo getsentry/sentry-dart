@@ -131,8 +131,12 @@ class SentryOptions {
   SentryLogger get logger => _logger;
 
   set logger(SentryLogger logger) {
-    _logger = DiagnosticLogger(logger, this).log;
+    diagnosticLogger = DiagnosticLogger(logger, this);
+    _logger = diagnosticLogger!.log;
   }
+
+  @visibleForTesting
+  DiagnosticLogger? diagnosticLogger;
 
   final List<EventProcessor> _eventProcessors = [];
 
@@ -155,10 +159,12 @@ class SentryOptions {
 
   set debug(bool newValue) {
     _debug = newValue;
-    if (_debug == true && logger == noOpLogger) {
+    if (_debug == true &&
+        (logger == noOpLogger || diagnosticLogger?.logger == noOpLogger)) {
       logger = _debugLogger;
     }
-    if (_debug == false && logger == _debugLogger) {
+    if (_debug == false &&
+        (logger == _debugLogger || diagnosticLogger?.logger == _debugLogger)) {
       logger = noOpLogger;
     }
   }

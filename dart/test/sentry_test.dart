@@ -489,15 +489,18 @@ void main() {
       (options) {
         options.dsn = fakeDsn;
         options.debug = true;
-        expect(options.logger, isNot(noOpLogger));
+        expect(options.diagnosticLogger?.logger, isNot(noOpLogger));
 
         options.debug = false;
-        expect(options.logger, noOpLogger);
+        expect(options.diagnosticLogger?.logger, noOpLogger);
+
+        options.debug = true;
+        expect(options.diagnosticLogger?.logger, isNot(noOpLogger));
       },
       options: sentryOptions,
     );
 
-    expect(sentryOptions.logger, noOpLogger);
+    expect(sentryOptions.diagnosticLogger?.logger, isNot(noOpLogger));
   });
 
   group('Sentry init optionsConfiguration', () {
