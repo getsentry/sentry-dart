@@ -18,7 +18,7 @@ class LoadDartDebugImagesIntegration extends Integration<SentryOptions> {
   void call(Hub hub, SentryOptions options) {
     if (options.enableDartSymbolication) {
       options.addEventProcessor(LoadImageIntegrationEventProcessor(options));
-      options.sdk.addIntegration('LoadDartImagesIntegration');
+      options.sdk.addIntegration('LoadDartDebugImagesIntegration');
     }
   }
 }

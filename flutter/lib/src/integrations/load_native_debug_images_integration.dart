@@ -19,7 +19,6 @@ class LoadNativeDebugImagesIntegration
     options.addEventProcessor(
       _LoadImageListIntegrationEventProcessor(options, _native),
     );
-
     options.sdk.addIntegration('LoadNativeDebugImagesIntegration');
   }
 }
