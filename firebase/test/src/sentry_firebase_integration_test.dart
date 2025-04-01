@@ -65,8 +65,11 @@ void main() {
 
     final sut = await fixture.getSut({'test'});
     sut.call(fixture.hub, fixture.options);
-    await Future<void>.delayed(const Duration(
-        milliseconds: 100)); // wait for the subscription to be called
+    await Future<void>.delayed(
+      const Duration(
+        milliseconds: 100,
+      ),
+    ); // wait for the subscription to be called
 
     // ignore: invalid_use_of_internal_member
     final featureFlags = fixture.hub.scope.contexts[SentryFeatureFlags.type]
@@ -83,8 +86,11 @@ void main() {
 
     final sut = await fixture.getSut({'test2'});
     sut.call(fixture.hub, fixture.options);
-    await Future<void>.delayed(const Duration(
-        milliseconds: 100)); // wait for the subscription to be called
+    await Future<void>.delayed(
+      const Duration(
+        milliseconds: 100,
+      ),
+    ); // wait for the subscription to be called
 
     // ignore: invalid_use_of_internal_member
     final featureFlags = fixture.hub.scope.contexts[SentryFeatureFlags.type]
