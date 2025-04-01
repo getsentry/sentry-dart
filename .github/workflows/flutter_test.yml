@@ -49,7 +49,7 @@ jobs:
           distribution: 'adopt'
           java-version: '17'
 
-      - uses: subosito/flutter-action@f2c4f6686ca8e8d6e6d0f28410eeef506ed66aff # pin@v2.18.0
+      - uses: subosito/flutter-action@e938fdf56512cc96ef2f93601a5a40bde3801046 # pin@v2.19.0
         with:
           channel: ${{ matrix.sdk }}
 
@@ -119,7 +119,7 @@ jobs:
       - name: checkout
         uses: actions/checkout@v4
 
-      - uses: subosito/flutter-action@f2c4f6686ca8e8d6e6d0f28410eeef506ed66aff # pin@v2.18.0
+      - uses: subosito/flutter-action@e938fdf56512cc96ef2f93601a5a40bde3801046 # pin@v2.19.0
         with:
           channel: ${{ matrix.sdk }}
 
@@ -178,7 +178,7 @@ jobs:
           chrome-version: stable
       - run: chrome --version
 
-      - uses: subosito/flutter-action@f2c4f6686ca8e8d6e6d0f28410eeef506ed66aff # pin@v2.18.0
+      - uses: subosito/flutter-action@e938fdf56512cc96ef2f93601a5a40bde3801046 # pin@v2.19.0
         with:
           channel: ${{ matrix.sdk }}
 
