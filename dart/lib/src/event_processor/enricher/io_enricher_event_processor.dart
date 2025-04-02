@@ -44,12 +44,12 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
   Future<SentryEvent?> apply(SentryEvent event, Hint hint) async {
     final contexts = event.contexts;
 
-    contexts.device = await _getDevice(event.contexts.device);
-    contexts.operatingSystem =
-        _getOperatingSystem(event.contexts.operatingSystem);
-    contexts.runtimes = _getRuntimes(event.contexts.runtimes);
-    contexts.app = _getApp(event.contexts.app);
-    contexts.culture = _getSentryCulture(event.contexts.culture);
+    contexts
+      ..device = await _getDevice(event.contexts.device)
+      ..operatingSystem = _getOperatingSystem(event.contexts.operatingSystem)
+      ..runtimes = _getRuntimes(event.contexts.runtimes)
+      ..app = _getApp(event.contexts.app)
+      ..culture = _getSentryCulture(event.contexts.culture);
 
     contexts['dart_context'] = _getDartContext();
 
@@ -103,13 +103,12 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
 
   Future<SentryDevice> _getDevice(SentryDevice? device) async {
     device ??= SentryDevice();
-    device.name = device.name ??
-        (_options.sendDefaultPii ? Platform.localHostname : null);
-    device.processorCount =
-        device.processorCount ?? Platform.numberOfProcessors;
-    device.memorySize = device.memorySize ?? await _getTotalPhysicalMemory();
-    device.freeMemory = device.freeMemory;
-    return device;
+    return device
+      ..name = device.name ??
+          (_options.sendDefaultPii ? Platform.localHostname : null)
+      ..processorCount = device.processorCount ?? Platform.numberOfProcessors
+      ..memorySize = device.memorySize ?? await _getTotalPhysicalMemory()
+      ..freeMemory = device.freeMemory;
   }
 
   Future<int?> _getTotalPhysicalMemory() async {
@@ -123,8 +122,7 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
 
   SentryApp _getApp(SentryApp? app) {
     app ??= SentryApp();
-    app.appMemory = app.appMemory ?? ProcessInfo.currentRss;
-    return app;
+    return app..appMemory = app.appMemory ?? ProcessInfo.currentRss;
   }
 
   SentryOperatingSystem _getOperatingSystem(SentryOperatingSystem? os) {
@@ -182,9 +180,9 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
 
   SentryCulture _getSentryCulture(SentryCulture? culture) {
     culture ??= SentryCulture();
-    culture.locale = culture.locale ?? Platform.localeName;
-    culture.timezone = culture.timezone ?? DateTime.now().timeZoneName;
-    return culture;
+    return culture
+      ..locale = culture.locale ?? Platform.localeName
+      ..timezone = culture.timezone ?? DateTime.now().timeZoneName;
   }
 }
 

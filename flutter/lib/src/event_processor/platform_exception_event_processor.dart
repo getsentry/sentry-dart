@@ -19,8 +19,7 @@ class PlatformExceptionEventProcessor implements EventProcessor {
       exceptions.add(exception);
     }
 
-    event.exceptions = exceptions;
-    return event;
+    return event..exceptions = exceptions;
   }
 
   SentryException _enrich(

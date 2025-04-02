@@ -115,11 +115,11 @@ class FlutterEnricherEventProcessor implements EventProcessor {
     // _window?.locales
 
     culture ??= SentryCulture();
-    culture.is24HourFormat =
-        culture.is24HourFormat ?? _window?.alwaysUse24HourFormat;
-    culture.locale = culture.locale ?? languageTag;
-    culture.timezone = culture.timezone ?? DateTime.now().timeZoneName;
-    return culture;
+    return culture
+      ..is24HourFormat =
+          culture.is24HourFormat ?? _window?.alwaysUse24HourFormat
+      ..locale = culture.locale ?? languageTag
+      ..timezone = culture.timezone ?? DateTime.now().timeZoneName;
   }
 
   Map<String, String> _getFlutterContext() {
@@ -181,20 +181,21 @@ class FlutterEnricherEventProcessor implements EventProcessor {
         : SentryOrientation.portrait;
 
     device ??= SentryDevice();
-    device.orientation = device.orientation ?? orientation;
-    device.screenHeightPixels =
-        device.screenHeightPixels ?? window.physicalSize.height.toInt();
-    device.screenWidthPixels =
-        device.screenWidthPixels ?? window.physicalSize.width.toInt();
-    device.screenDensity = device.screenDensity ?? window.devicePixelRatio;
-    return device;
+    return device
+      ..orientation = device.orientation ?? orientation
+      ..screenHeightPixels =
+          device.screenHeightPixels ?? window.physicalSize.height.toInt()
+      ..screenWidthPixels =
+          device.screenWidthPixels ?? window.physicalSize.width.toInt()
+      ..screenDensity = device.screenDensity ?? window.devicePixelRatio;
   }
 
   SentryOperatingSystem _getOperatingSystem(SentryOperatingSystem? os) {
     os ??= SentryOperatingSystem();
-    // ignore: deprecated_member_use
-    os.theme = os.theme ?? describeEnum(window.platformBrightness);
-    return os;
+
+    return os
+      // ignore: deprecated_member_use
+      ..theme = os.theme ?? describeEnum(window.platformBrightness);
   }
 
   List<SentryRuntime> _getRuntimes(List<SentryRuntime>? runtimes) {
@@ -240,8 +241,7 @@ class FlutterEnricherEventProcessor implements EventProcessor {
 
     app ??= SentryApp();
     // See 'flutter_context' for more detailed app state.
-    app.inForeground = currentLifecycle == AppLifecycleState.resumed;
-    return app;
+    return app..inForeground = currentLifecycle == AppLifecycleState.resumed;
   }
 
   SentryApp _appWithCurrentRouteViewName(SentryApp app) {

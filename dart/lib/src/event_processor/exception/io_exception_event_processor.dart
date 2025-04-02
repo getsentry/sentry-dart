@@ -35,8 +35,7 @@ class IoExceptionEventProcessor implements ExceptionEventProcessor {
     if (uri == null) {
       return event;
     }
-    event.request = event.request ?? SentryRequest.fromUri(uri: uri);
-    return event;
+    return event..request = event.request ?? SentryRequest.fromUri(uri: uri);
   }
 
   // https://api.dart.dev/stable/dart-io/SocketException-class.html
