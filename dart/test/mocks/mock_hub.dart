@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 
@@ -21,9 +23,15 @@ class MockHub with NoSuchMethodProvider implements Hub {
 
   final _options = defaultTestOptions();
 
+  late Scope _scope;
+
   @override
   @internal
   SentryOptions get options => _options;
+
+  MockHub() {
+    _scope = Scope(_options);
+  }
 
   /// Useful for tests.
   void reset() {
@@ -37,6 +45,7 @@ class MockHub with NoSuchMethodProvider implements Hub {
     spanContextCals = 0;
     captureTransactionCalls = [];
     getSpanCalls = 0;
+    _scope = Scope(_options);
   }
 
   @override
@@ -130,7 +139,7 @@ class MockHub with NoSuchMethodProvider implements Hub {
   }
 
   @override
-  Scope get scope => Scope(_options);
+  Scope get scope => _scope;
 }
 
 class CaptureEventCall {

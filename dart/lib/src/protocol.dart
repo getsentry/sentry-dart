@@ -39,3 +39,5 @@ export 'protocol/sentry_view_hierarchy_element.dart';
 export 'protocol/span_id.dart';
 export 'protocol/span_status.dart';
 export 'sentry_event_like.dart';
+export 'protocol/sentry_feature_flag.dart';
+export 'protocol/sentry_feature_flags.dart';
