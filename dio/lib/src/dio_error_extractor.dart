@@ -16,6 +16,7 @@ class DioErrorExtractor extends ExceptionCauseExtractor<DioError> {
       // A custom [ExceptionStackTraceExtractor] can be
       // used to extract the inner stacktrace in other cases
       cause is Error ? cause.stackTrace : null,
+      source: 'error',
     );
   }
 }
