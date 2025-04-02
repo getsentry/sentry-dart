@@ -6,6 +6,17 @@
 
 - Parent-child relationship for the PlatformExceptions and Cause ([#2803](https://github.com/getsentry/sentry-dart/pull/2803))
   - Improves and changes exception grouping
+### Dependencies
+
+- Bump Android SDK from v8.2.0 to v8.6.0 ([#2819](https://github.com/getsentry/sentry-dart/pull/2819), [#2831](https://github.com/getsentry/sentry-dart/pull/2831))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#860)
+  - [diff](https://github.com/getsentry/sentry-java/compare/8.2.0...8.6.0)
+- Bump Cocoa SDK from v8.46.0 to v8.48.0 ([#2820](https://github.com/getsentry/sentry-dart/pull/2820))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8480)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.46.0...8.48.0)
+- Bump Native SDK from v0.8.2 to v0.8.3 ([#2823](https://github.com/getsentry/sentry-dart/pull/2823))
+  - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#083)
+  - [diff](https://github.com/getsentry/sentry-native/compare/0.8.2...0.8.3)
 
 ## 9.0.0-alpha.2
 
