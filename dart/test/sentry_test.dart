@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:isolate';
 
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/dart_exception_type_identifier.dart';
@@ -415,7 +416,37 @@ void main() {
       );
       expect(options.debug, isFalse);
     });
-  });
+
+    test('isolate completes when closing sentry', () async {
+      final onExit = ReceivePort();
+
+      Future<void> _runSentry(String message) async {
+        await Sentry.init((options) {
+          options
+            ..dsn = fakeDsn
+            ..tracesSampleRate = 1.0;
+        });
+        await Sentry.close();
+      }
+
+      final completer = Completer<void>();
+
+      await Isolate.spawn<String>(
+        _runSentry,
+        'test',
+        onExit: onExit.sendPort,
+      );
+
+      var completed = false;
+      onExit.listen((message) {
+        completed = true;
+        completer.complete();
+      });
+
+      await completer.future;
+      expect(completed, true);
+    });
+  }, testOn: 'vm');
 
   test('should complete when appRunner is not called in runZonedGuarded',
       () async {
