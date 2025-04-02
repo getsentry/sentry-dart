@@ -1,4 +1,3 @@
-@TestOn('vm')
 library;
 
 import 'package:sentry/sentry.dart';
@@ -20,7 +19,7 @@ void main() {
 
     sut.call(fixture.hub, fixture.options);
 
-    expect(fixture.options.sdk.integrations.contains('featureFlagsIntegration'),
+    expect(fixture.options.sdk.integrations.contains('FeatureFlagsIntegration'),
         isTrue);
   });
 

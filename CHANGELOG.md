@@ -9,6 +9,7 @@
 // Manually track a feature flag
 Sentry.addFeatureFlag('my-feature', true);
 ```
+
 ### Dependencies
 
 - Bump Android SDK from v8.2.0 to v8.6.0 ([#2819](https://github.com/getsentry/sentry-dart/pull/2819), [#2831](https://github.com/getsentry/sentry-dart/pull/2831))

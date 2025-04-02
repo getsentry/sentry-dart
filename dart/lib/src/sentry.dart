@@ -367,7 +367,7 @@ class Sentry {
 
     if (featureFlagsIntegration == null) {
       currentHub.options.logger(
-        SentryLevel.debug,
+        SentryLevel.warning,
         'FeatureFlagsIntegration not found. Make sure Sentry is initialized before accessing the addFeatureFlag API.',
       );
       return;
