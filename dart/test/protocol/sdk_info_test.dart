@@ -43,4 +43,32 @@ void main() {
       );
     });
   });
+
+  group('copyWith', () {
+    test('copyWith keeps unchanged', () {
+      final data = sdkInfo;
+      // ignore: deprecated_member_use_from_same_package
+      final copy = data.copyWith();
+
+      expect(
+        MapEquality().equals(data.toJson(), copy.toJson()),
+        true,
+      );
+    });
+    test('copyWith takes new values', () {
+      final data = sdkInfo;
+      // ignore: deprecated_member_use_from_same_package
+      final copy = data.copyWith(
+        sdkName: 'sdkName1',
+        versionMajor: 11,
+        versionMinor: 22,
+        versionPatchlevel: 33,
+      );
+
+      expect('sdkName1', copy.sdkName);
+      expect(11, copy.versionMajor);
+      expect(22, copy.versionMinor);
+      expect(33, copy.versionPatchlevel);
+    });
+  });
 }

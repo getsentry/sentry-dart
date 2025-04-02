@@ -27,6 +27,43 @@ void main() {
     });
   });
 
+  group('copyWith', () {
+    final fixture = Fixture();
+
+    test('copyWith keeps unchanged', () {
+      final sut = fixture.getSut();
+      // ignore: deprecated_member_use_from_same_package
+      final copy = sut.copyWith();
+
+      expect(sut.toJson(), copy.toJson());
+    });
+
+    test('copyWith takes new values', () {
+      final sut = fixture.getSut();
+
+      final packages = [SentryPackage('name1', 'version1')];
+      final integrations = ['test1'];
+      // ignore: deprecated_member_use_from_same_package
+      final copy = sut.copyWith(
+        name: 'name1',
+        version: 'version1',
+        integrations: integrations,
+        packages: packages,
+      );
+
+      expect(
+        ListEquality().equals(integrations, copy.integrations),
+        true,
+      );
+      expect(
+        ListEquality().equals(packages, copy.packages),
+        true,
+      );
+      expect('name1', copy.name);
+      expect('version1', copy.version);
+    });
+  });
+
   group('addPackage', () {
     final fixture = Fixture();
 

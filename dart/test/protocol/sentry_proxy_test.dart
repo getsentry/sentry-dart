@@ -71,4 +71,32 @@ void main() {
       );
     });
   });
+
+  group('copyWith', () {
+    test('copyWith keeps unchanged', () {
+      final data = proxy;
+      // ignore: deprecated_member_use_from_same_package
+      final copy = data.copyWith();
+
+      expect(data.toJson(), copy.toJson());
+    });
+
+    test('copyWith takes new values', () {
+      final data = proxy;
+      // ignore: deprecated_member_use_from_same_package
+      final copy = data.copyWith(
+        host: 'localhost-2',
+        port: 9001,
+        type: SentryProxyType.socks,
+        user: 'user',
+        pass: '1234',
+      );
+
+      expect('localhost-2', copy.host);
+      expect(9001, copy.port);
+      expect(SentryProxyType.socks, copy.type);
+      expect('user', copy.user);
+      expect('1234', copy.pass);
+    });
+  });
 }

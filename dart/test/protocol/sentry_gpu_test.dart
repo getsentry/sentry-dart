@@ -50,4 +50,42 @@ void main() {
       );
     });
   });
+
+  group('copyWith', () {
+    test('copyWith keeps unchanged', () {
+      final data = sentryGpu;
+      // ignore: deprecated_member_use_from_same_package
+      final copy = data.copyWith();
+
+      expect(
+        MapEquality().equals(data.toJson(), copy.toJson()),
+        true,
+      );
+    });
+    test('copyWith takes new values', () {
+      final data = sentryGpu;
+      // ignore: deprecated_member_use_from_same_package
+      final copy = data.copyWith(
+        name: 'name1',
+        id: 11,
+        vendorId: '22',
+        vendorName: 'vendorName1',
+        memorySize: 33,
+        apiType: 'apiType1',
+        multiThreadedRendering: false,
+        version: 'version1',
+        npotSupport: 'npotSupport1',
+      );
+
+      expect('name1', copy.name);
+      expect(11, copy.id);
+      expect('22', copy.vendorId);
+      expect('vendorName1', copy.vendorName);
+      expect(33, copy.memorySize);
+      expect('apiType1', copy.apiType);
+      expect(false, copy.multiThreadedRendering);
+      expect('version1', copy.version);
+      expect('npotSupport1', copy.npotSupport);
+    });
+  });
 }

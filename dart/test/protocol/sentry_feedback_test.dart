@@ -49,4 +49,37 @@ void main() {
       );
     });
   });
+
+  group('copyWith', () {
+    test('copyWith keeps unchanged', () {
+      final data = feedback;
+      // ignore: deprecated_member_use_from_same_package
+      final copy = data.copyWith();
+
+      expect(
+        MapEquality().equals(data.toJson(), copy.toJson()),
+        true,
+      );
+    });
+    test('copyWith takes new values', () {
+      final data = feedback;
+      // ignore: deprecated_member_use_from_same_package
+      final copy = data.copyWith(
+        message: 'fixture-2-message',
+        contactEmail: 'fixture-2-contactEmail',
+        name: 'fixture-2-name',
+        replayId: 'fixture-2-replayId',
+        url: "https://fixture-2-url.com",
+        associatedEventId: SentryId.fromId('1d49af08b6e2c437f9052b1ecfd83dca'),
+      );
+
+      expect(copy.message, 'fixture-2-message');
+      expect(copy.contactEmail, 'fixture-2-contactEmail');
+      expect(copy.name, 'fixture-2-name');
+      expect(copy.replayId, 'fixture-2-replayId');
+      expect(copy.url, "https://fixture-2-url.com");
+      expect(copy.associatedEventId.toString(),
+          '1d49af08b6e2c437f9052b1ecfd83dca');
+    });
+  });
 }

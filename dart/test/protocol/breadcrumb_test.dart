@@ -48,6 +48,40 @@ void main() {
     });
   });
 
+  group('copyWith', () {
+    test('copyWith keeps unchanged', () {
+      final data = breadcrumb;
+      // ignore: deprecated_member_use_from_same_package
+      final copy = data.copyWith();
+
+      expect(
+        MapEquality().equals(data.toJson(), copy.toJson()),
+        true,
+      );
+    });
+    test('copyWith takes new values', () {
+      final data = breadcrumb;
+
+      final timestamp = DateTime.now();
+      // ignore: deprecated_member_use_from_same_package
+      final copy = data.copyWith(
+        message: 'message1',
+        timestamp: timestamp,
+        data: {'key1': 'value1'},
+        level: SentryLevel.fatal,
+        category: 'category1',
+        type: 'type1',
+      );
+
+      expect('message1', copy.message);
+      expect(timestamp, copy.timestamp);
+      expect({'key1': 'value1'}, copy.data);
+      expect(SentryLevel.fatal, copy.level);
+      expect('category1', copy.category);
+      expect('type1', copy.type);
+    });
+  });
+
   group('ctor', () {
     test('Breadcrumb http', () {
       final breadcrumb = Breadcrumb.http(

@@ -39,4 +39,33 @@ void main() {
       );
     });
   });
+
+  group('copyWith', () {
+    test('copyWith keeps unchanged', () {
+      final data = sentryRuntime;
+      // ignore: deprecated_member_use_from_same_package
+      final copy = data.copyWith();
+
+      expect(
+        MapEquality().equals(data.toJson(), copy.toJson()),
+        true,
+      );
+    });
+
+    test('copyWith takes new values', () {
+      final data = sentryRuntime;
+      // ignore: deprecated_member_use_from_same_package
+      final copy = data.copyWith(
+        key: 'key1',
+        name: 'name1',
+        version: 'version1',
+        rawDescription: 'rawDescription1',
+      );
+
+      expect('key1', copy.key);
+      expect('name1', copy.name);
+      expect('version1', copy.version);
+      expect('rawDescription1', copy.rawDescription);
+    });
+  });
 }

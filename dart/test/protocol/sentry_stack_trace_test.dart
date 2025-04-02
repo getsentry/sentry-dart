@@ -42,4 +42,35 @@ void main() {
       );
     });
   });
+
+  group('copyWith', () {
+    test('copyWith keeps unchanged', () {
+      final data = sentryStackTrace;
+      // ignore: deprecated_member_use_from_same_package
+      final copy = data.copyWith();
+
+      expect(data.toJson(), copy.toJson());
+    });
+
+    test('copyWith takes new values', () {
+      final data = sentryStackTrace;
+
+      final frames = [SentryStackFrame(absPath: 'abs1')];
+      final registers = {'key1': 'value1'};
+// ignore: deprecated_member_use_from_same_package
+      final copy = data.copyWith(
+        frames: frames,
+        registers: registers,
+      );
+
+      expect(
+        ListEquality().equals(frames, copy.frames),
+        true,
+      );
+      expect(
+        MapEquality().equals(registers, copy.registers),
+        true,
+      );
+    });
+  });
 }

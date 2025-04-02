@@ -38,4 +38,27 @@ void main() {
       );
     });
   });
+
+  group('copyWith', () {
+    test('copyWith keeps unchanged', () {
+      final data = sentryResponse;
+      // ignore: deprecated_member_use_from_same_package
+      final copy = data.copyWith();
+      expect(data.toJson(), copy.toJson());
+    });
+
+    test('copyWith takes new values', () {
+      final data = sentryResponse;
+      // ignore: deprecated_member_use_from_same_package
+      final copy = data.copyWith(
+        bodySize: 11,
+        headers: {'key1': 'value1'},
+        statusCode: 301,
+      );
+
+      expect(11, copy.bodySize);
+      expect({'key1': 'value1'}, copy.headers);
+      expect(301, copy.statusCode);
+    });
+  });
 }

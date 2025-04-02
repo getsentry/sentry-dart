@@ -32,4 +32,29 @@ void main() {
       );
     });
   });
+
+  group('copyWith', () {
+    test('copyWith keeps unchanged', () {
+      final data = sentryBrowser;
+      // ignore: deprecated_member_use_from_same_package
+      final copy = data.copyWith();
+
+      expect(
+        MapEquality().equals(data.toJson(), copy.toJson()),
+        true,
+      );
+    });
+
+    test('copyWith takes new values', () {
+      final data = sentryBrowser;
+      // ignore: deprecated_member_use_from_same_package
+      final copy = data.copyWith(
+        name: 'name1',
+        version: 'version1',
+      );
+
+      expect('name1', copy.name);
+      expect('version1', copy.version);
+    });
+  });
 }
