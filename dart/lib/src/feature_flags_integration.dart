@@ -13,7 +13,7 @@ class FeatureFlagsIntegration extends Integration<SentryOptions> {
   @override
   void call(Hub hub, SentryOptions options) {
     _hub = hub;
-    options.sdk.addIntegration('featureFlagsIntegration');
+    options.sdk.addIntegration('FeatureFlagsIntegration');
   }
 
   FutureOr<void> addFeatureFlag(String name, bool value) async {
