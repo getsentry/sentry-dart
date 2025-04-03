@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Behavioral changes
+
+- Set log level to `warning` by default when `debug = true` ([#2836](https://github.com/getsentry/sentry-dart/pull/2836))
+
 ### API Changes
 
 - Update naming of `LoadImagesListIntegration` to `LoadNativeDebugImagesIntegration` ([#2833](https://github.com/getsentry/sentry-dart/pull/2833))
