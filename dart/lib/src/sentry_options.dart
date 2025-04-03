@@ -386,7 +386,7 @@ class SentryOptions {
         _ignoredExceptionsForType.contains(exception.runtimeType);
   }
 
-  /// Enables Dart symbolication for stack traces in Flutter.
+  /// Enables Dart symbolication for stack traces in Flutter for Android and Cocoa.
   ///
   /// If true, the SDK will attempt to symbolicate Dart stack traces when
   /// [Sentry.init] is used instead of `SentryFlutter.init`. This is useful
@@ -497,6 +497,26 @@ class SentryOptions {
   /// On Android & iOS, the proxy settings are handled by the native SDK.
   /// iOS only supports http proxies, while macOS also supports socks.
   SentryProxy? proxy;
+
+  final List<BeforeSendEventObserver> _beforeSendEventObserver = [];
+
+  @internal
+  List<BeforeSendEventObserver> get beforeSendEventObservers =>
+      List.unmodifiable(_beforeSendEventObserver);
+
+  /// Adds an observer which is called right before an event is sent.
+  /// This should not be used to mutate the event.
+  ///
+  /// Note: this is not triggered for transactions/spans with startTransaction or startChild.
+  @internal
+  void addBeforeSendEventObserver(BeforeSendEventObserver observer) {
+    _beforeSendEventObserver.add(observer);
+  }
+
+  @internal
+  void removeBeforeSendEventObserver(BeforeSendEventObserver observer) {
+    _beforeSendEventObserver.remove(observer);
+  }
 
   SentryOptions({String? dsn, Platform? platform, RuntimeChecker? checker}) {
     this.dsn = dsn;

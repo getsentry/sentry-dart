@@ -34,7 +34,7 @@ jobs:
           distribution: "adopt"
           java-version: "17"
 
-      - uses: subosito/flutter-action@f2c4f6686ca8e8d6e6d0f28410eeef506ed66aff # pin@v2.18.0
+      - uses: subosito/flutter-action@e938fdf56512cc96ef2f93601a5a40bde3801046 # pin@v2.19.0
         with:
           flutter-version: "3.24.0"
 
@@ -51,11 +51,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: subosito/flutter-action@f2c4f6686ca8e8d6e6d0f28410eeef506ed66aff # pin@v2.18.0
+      - uses: subosito/flutter-action@e938fdf56512cc96ef2f93601a5a40bde3801046 # pin@v2.19.0
         with:
           flutter-version: "3.24.0"
 
-      - uses: ruby/setup-ruby@922ebc4c5262cd14e07bb0e1db020984b6c064fe # pin@v1.226.0
+      - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # pin@v1.229.0
         with:
           ruby-version: '3.1.2' # https://github.com/flutter/flutter/issues/109385#issuecomment-1212614125
 
@@ -82,7 +82,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: subosito/flutter-action@f2c4f6686ca8e8d6e6d0f28410eeef506ed66aff # pin@v2.18.0
+      - uses: subosito/flutter-action@e938fdf56512cc96ef2f93601a5a40bde3801046 # pin@v2.19.0
         with:
           flutter-version: "3.24.0"
 

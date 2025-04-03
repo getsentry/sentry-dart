@@ -30,7 +30,8 @@ void main() {
 
       test('adds itself to sdk.integrations', () {
         expect(
-          fixture.options.sdk.integrations.contains('loadDartImageIntegration'),
+          fixture.options.sdk.integrations
+              .contains(LoadDartDebugImagesIntegration.integrationName),
           true,
         );
       });
