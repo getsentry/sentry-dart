@@ -161,10 +161,10 @@ class SentryOptions {
     _debug = newValue;
     if (_debug == true &&
         (logger == noOpLogger || diagnosticLogger?.logger == noOpLogger)) {
-      logger = _debugLogger;
+      logger = debugLogger;
     }
     if (_debug == false &&
-        (logger == _debugLogger || diagnosticLogger?.logger == _debugLogger)) {
+        (logger == debugLogger || diagnosticLogger?.logger == debugLogger)) {
       logger = noOpLogger;
     }
   }
@@ -597,7 +597,8 @@ class SentryOptions {
   late SentryStackTraceFactory stackTraceFactory =
       SentryStackTraceFactory(this);
 
-  void _debugLogger(
+  @visibleForTesting
+  void debugLogger(
     SentryLevel level,
     String message, {
     String? logger,
