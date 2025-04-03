@@ -32,7 +32,7 @@ void main() {
 
     test('copyWith keeps unchanged', () {
       final sut = fixture.getSut();
-
+      // ignore: deprecated_member_use_from_same_package
       final copy = sut.copyWith();
 
       expect(sut.toJson(), copy.toJson());
@@ -43,7 +43,7 @@ void main() {
 
       final packages = [SentryPackage('name1', 'version1')];
       final integrations = ['test1'];
-
+      // ignore: deprecated_member_use_from_same_package
       final copy = sut.copyWith(
         name: 'name1',
         version: 'version1',

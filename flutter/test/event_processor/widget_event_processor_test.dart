@@ -25,11 +25,7 @@ void main() {
 
       final throwable = Exception();
       SentryEvent? event = SentryEvent(throwable: throwable);
-      event = event.copyWith(
-        contexts: event.contexts.copyWith(
-          app: SentryApp(),
-        ),
-      );
+      event.contexts.app = SentryApp();
       event = await sut.apply(event, Hint());
 
       expect(event?.contexts.app?.textScale, 1.0);

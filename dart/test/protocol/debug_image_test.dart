@@ -54,7 +54,7 @@ void main() {
   group('copyWith', () {
     test('copyWith keeps unchanged', () {
       final data = debugImage;
-
+      // ignore: deprecated_member_use_from_same_package
       final copy = data.copyWith();
 
       expect(
@@ -65,7 +65,7 @@ void main() {
 
     test('copyWith takes new values', () {
       final data = debugImage;
-
+      // ignore: deprecated_member_use_from_same_package
       final copy = data.copyWith(
         type: 'type1',
         name: 'name',

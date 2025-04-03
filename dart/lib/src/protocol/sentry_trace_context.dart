@@ -5,43 +5,42 @@ import '../propagation_context.dart';
 import '../protocol.dart';
 import 'access_aware_map.dart';
 
-@immutable
 class SentryTraceContext {
   static const String type = 'trace';
 
   /// Determines which trace the Span belongs to
-  late final SentryId traceId;
+  final SentryId traceId;
 
   /// Span id
-  late final SpanId spanId;
+  final SpanId spanId;
 
   /// Id of a parent span
-  final SpanId? parentSpanId;
+  SpanId? parentSpanId;
 
   /// Replay associated with this trace.
-  final SentryId? replayId;
+  SentryId? replayId;
 
   /// Whether the span is sampled or not
-  final bool? sampled;
+  bool? sampled;
 
   /// Short code identifying the type of operation the span is measuring
-  final String operation;
+  String operation;
 
   /// Longer description of the span's operation, which uniquely identifies the span but is
   /// consistent across instances of the span.
-  final String? description;
+  String? description;
 
   /// The Span status
-  final SpanStatus? status;
+  SpanStatus? status;
 
   /// The origin of the span indicates what created the span.
   ///
   /// @note Gets set by the SDK. It is not expected to be set manually by users.
   ///
   /// @see <https://develop.sentry.dev/sdk/performance/trace-origin>
-  final String? origin;
+  String? origin;
 
-  final Map<String, dynamic>? data;
+  Map<String, dynamic>? data;
 
   @internal
   final Map<String, dynamic>? unknown;
@@ -85,6 +84,7 @@ class SentryTraceContext {
     };
   }
 
+  @Deprecated('Will be removed in a future version.')
   SentryTraceContext clone() => SentryTraceContext(
         operation: operation,
         traceId: traceId,

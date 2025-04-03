@@ -53,7 +53,7 @@ void main() {
   group('copyWith', () {
     test('copyWith keeps unchanged', () {
       final data = feedback;
-
+      // ignore: deprecated_member_use_from_same_package
       final copy = data.copyWith();
 
       expect(
@@ -63,7 +63,7 @@ void main() {
     });
     test('copyWith takes new values', () {
       final data = feedback;
-
+      // ignore: deprecated_member_use_from_same_package
       final copy = data.copyWith(
         message: 'fixture-2-message',
         contactEmail: 'fixture-2-contactEmail',

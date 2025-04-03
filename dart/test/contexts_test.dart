@@ -37,13 +37,13 @@ void main() {
       externalFreeStorage: 98765,
       bootTime: testBootTime,
     );
-    const testOS = SentryOperatingSystem(name: 'testOS');
+    final testOS = SentryOperatingSystem(name: 'testOS');
     final testRuntimes = [
-      const SentryRuntime(name: 'testRT1', version: '1.0'),
-      const SentryRuntime(name: 'testRT2', version: '2.3.1'),
+      SentryRuntime(name: 'testRT1', version: '1.0'),
+      SentryRuntime(name: 'testRT2', version: '2.3.1'),
     ];
-    const testApp = SentryApp(version: '1.2.3');
-    const testBrowser = SentryBrowser(version: '12.3.4');
+    final testApp = SentryApp(version: '1.2.3');
+    final testBrowser = SentryBrowser(version: '12.3.4');
 
     final gpu = SentryGpu(name: 'Radeon', version: '1');
 
@@ -113,6 +113,7 @@ void main() {
     });
 
     test('clone context', () {
+      // ignore: deprecated_member_use_from_same_package
       final clone = contexts.clone();
 
       expect(clone.app!.toJson(), contexts.app!.toJson());
@@ -138,8 +139,8 @@ void main() {
     test('set runtimes', () {
       final contexts = Contexts();
       contexts.runtimes = [
-        const SentryRuntime(name: 'testRT1', version: '1.0'),
-        const SentryRuntime(name: 'testRT2', version: '2.0'),
+        SentryRuntime(name: 'testRT1', version: '1.0'),
+        SentryRuntime(name: 'testRT2', version: '2.0'),
       ];
       expect(contexts.runtimes.length, 2);
       expect(contexts.runtimes.first.name, 'testRT1');
@@ -151,9 +152,10 @@ void main() {
     test('copyWith with contexts does not throw', () {
       final contexts = Contexts(
         runtimes: [
-          const SentryRuntime(name: 'testRT1', version: '1.0'),
+          SentryRuntime(name: 'testRT1', version: '1.0'),
         ],
       );
+      // ignore: deprecated_member_use_from_same_package
       final copy = contexts.copyWith();
       copy.addRuntime(SentryRuntime(name: 'testRT2', version: '2.0'));
 
@@ -164,7 +166,7 @@ void main() {
     test('can add runtime if runtime setter unmodifiable', () {
       final contexts = Contexts();
       contexts.runtimes = List.unmodifiable([
-        const SentryRuntime(name: 'testRT1', version: '1.0'),
+        SentryRuntime(name: 'testRT1', version: '1.0'),
       ]);
       contexts.addRuntime(SentryRuntime(name: 'testRT2', version: '2.0'));
 
@@ -175,7 +177,7 @@ void main() {
     test('can add runtime if runtime ctor unmodifiable', () {
       final contexts = Contexts(
         runtimes: List.unmodifiable([
-          const SentryRuntime(name: 'testRT1', version: '1.0'),
+          SentryRuntime(name: 'testRT1', version: '1.0'),
         ]),
       );
       contexts.addRuntime(SentryRuntime(name: 'testRT2', version: '2.0'));
