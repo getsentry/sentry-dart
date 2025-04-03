@@ -17,6 +17,9 @@
 - Bump Native SDK from v0.8.2 to v0.8.3 ([#2823](https://github.com/getsentry/sentry-dart/pull/2823))
   - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#083)
   - [diff](https://github.com/getsentry/sentry-native/compare/0.8.2...0.8.3)
+- Bump jni from v0.14.0 to v0.14.1 ([#2800])(https://github.com/getsentry/sentry-dart/pull/2800)
+  - [changelog](https://github.com/dart-lang/native/blob/main/pkgs/jni/CHANGELOG.md#0141)
+  - [diff](https://github.com/dart-lang/native/compare/jnigen-v0.14.0..jnigen-v0.14.1)
 
 ## 9.0.0-alpha.2
 
