@@ -3,14 +3,15 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:sentry/src/platform/mock_platform.dart';
 import 'package:sentry/src/dart_exception_type_identifier.dart';
+import 'package:sentry/src/platform/mock_platform.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/file_system_transport.dart';
 import 'package:sentry_flutter/src/flutter_exception_type_identifier.dart';
 import 'package:sentry_flutter/src/integrations/connectivity/connectivity_integration.dart';
 import 'package:sentry_flutter/src/integrations/integrations.dart';
 import 'package:sentry_flutter/src/integrations/screenshot_integration.dart';
+import 'package:sentry_flutter/src/integrations/web_session_integration.dart';
 import 'package:sentry_flutter/src/profiling.dart';
 import 'package:sentry_flutter/src/renderer/renderer.dart';
 import 'package:sentry_flutter/src/replay/integration.dart';
@@ -34,6 +35,7 @@ final platformAgnosticIntegrations = [
 
 final webIntegrations = [
   ConnectivityIntegration,
+  WebSessionIntegration,
 ];
 
 final nonWebIntegrations = [
@@ -42,13 +44,13 @@ final nonWebIntegrations = [
 
 // These should be added to Android
 final androidIntegrations = [
-  LoadImageListIntegration,
+  LoadNativeDebugImagesIntegration,
   LoadContextsIntegration,
 ];
 
 // These should be added to iOS and macOS
 final iOsAndMacOsIntegrations = [
-  LoadImageListIntegration,
+  LoadNativeDebugImagesIntegration,
   LoadContextsIntegration,
 ];
 

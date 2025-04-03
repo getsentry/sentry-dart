@@ -44,13 +44,13 @@ class FlutterEnricherEventProcessor implements EventProcessor {
         ? null
         : _getDevice(event.contexts.device);
 
-    final contexts = event.contexts.copyWith(
-      device: device,
-      runtimes: _getRuntimes(event.contexts.runtimes),
-      culture: _getCulture(event.contexts.culture),
-      operatingSystem: _getOperatingSystem(event.contexts.operatingSystem),
-      app: _getApp(event.contexts.app),
-    );
+    final contexts = event.contexts;
+    contexts.device = device;
+    contexts.runtimes = _getRuntimes(event.contexts.runtimes);
+    contexts.culture = _getCulture(event.contexts.culture);
+    contexts.operatingSystem =
+        _getOperatingSystem(event.contexts.operatingSystem);
+    contexts.app = _getApp(event.contexts.app);
 
     final app = contexts.app;
     if (app != null) {
