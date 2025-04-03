@@ -392,7 +392,7 @@ class SentryOptions {
         _ignoredExceptionsForType.contains(exception.runtimeType);
   }
 
-  /// Enables Dart symbolication for stack traces in Flutter.
+  /// Enables Dart symbolication for stack traces in Flutter for Android and Cocoa.
   ///
   /// If true, the SDK will attempt to symbolicate Dart stack traces when
   /// [Sentry.init] is used instead of `SentryFlutter.init`. This is useful

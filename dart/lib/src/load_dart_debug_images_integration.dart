@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+
 import 'package:meta/meta.dart';
 
 import 'event_processor.dart';
@@ -13,11 +14,13 @@ import 'protocol/sentry_stack_trace.dart';
 import 'sentry_options.dart';
 
 class LoadDartDebugImagesIntegration extends Integration<SentryOptions> {
+  static const integrationName = 'LoadDartDebugImagesIntegration';
+
   @override
   void call(Hub hub, SentryOptions options) {
     if (options.enableDartSymbolication) {
       options.addEventProcessor(LoadImageIntegrationEventProcessor(options));
-      options.sdk.addIntegration('loadDartImageIntegration');
+      options.sdk.addIntegration(integrationName);
     }
   }
 }
