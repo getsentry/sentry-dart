@@ -50,6 +50,7 @@ class TracingClient extends BaseClient {
           _hub.options.tracePropagationTargets, request.url.toString())) {
         if (span != null) {
           addSentryTraceHeaderFromSpan(span, request.headers);
+          addW3CHeaderFromSpan(span, request.headers);
           addBaggageHeaderFromSpan(
             span,
             request.headers,
@@ -61,6 +62,7 @@ class TracingClient extends BaseClient {
 
           final traceHeader = propagationContext.toSentryTrace();
           addSentryTraceHeader(traceHeader, request.headers);
+          addW3CHeaderFromSentryTrace(traceHeader, request.headers);
 
           final baggage = propagationContext.baggage;
           if (baggage != null) {
