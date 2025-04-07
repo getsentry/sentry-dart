@@ -47,7 +47,7 @@ void main() {
   group('copyWith', () {
     test('copyWith keeps unchanged', () {
       final data = sdkInfo;
-
+      // ignore: deprecated_member_use_from_same_package
       final copy = data.copyWith();
 
       expect(
@@ -57,7 +57,7 @@ void main() {
     });
     test('copyWith takes new values', () {
       final data = sdkInfo;
-
+      // ignore: deprecated_member_use_from_same_package
       final copy = data.copyWith(
         sdkName: 'sdkName1',
         versionMajor: 11,

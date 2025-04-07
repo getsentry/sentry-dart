@@ -2,7 +2,6 @@ import 'package:meta/meta.dart';
 
 import 'access_aware_map.dart';
 
-@immutable
 class SentryFeatureFlag {
   final String name;
   final bool value;
@@ -34,6 +33,7 @@ class SentryFeatureFlag {
     };
   }
 
+  @Deprecated('Assign values directly to the instance.')
   SentryFeatureFlag copyWith({
     String? name,
     bool? value,
@@ -46,5 +46,6 @@ class SentryFeatureFlag {
     );
   }
 
+  @Deprecated('Will be removed in a future version.')
   SentryFeatureFlag clone() => copyWith();
 }

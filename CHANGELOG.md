@@ -10,6 +10,14 @@
 Sentry.addFeatureFlag('my-feature', true);
 ```
 
+### Behavioral changes
+
+- Set log level to `warning` by default when `debug = true` ([#2836](https://github.com/getsentry/sentry-dart/pull/2836))
+
+### API Changes
+
+- Update naming of `LoadImagesListIntegration` to `LoadNativeDebugImagesIntegration` ([#2833](https://github.com/getsentry/sentry-dart/pull/2833))
+
 ### Dependencies
 
 - Bump Android SDK from v8.2.0 to v8.6.0 ([#2819](https://github.com/getsentry/sentry-dart/pull/2819), [#2831](https://github.com/getsentry/sentry-dart/pull/2831))
@@ -21,6 +29,15 @@ Sentry.addFeatureFlag('my-feature', true);
 - Bump Native SDK from v0.8.2 to v0.8.3 ([#2823](https://github.com/getsentry/sentry-dart/pull/2823))
   - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#083)
   - [diff](https://github.com/getsentry/sentry-native/compare/0.8.2...0.8.3)
+- Bump jni from v0.14.0 to v0.14.1 ([#2800])(https://github.com/getsentry/sentry-dart/pull/2800)
+  - [changelog](https://github.com/dart-lang/native/blob/main/pkgs/jni/CHANGELOG.md#0141)
+  - [diff](https://github.com/dart-lang/native/compare/jnigen-v0.14.0..jnigen-v0.14.1)
+
+### Behavioral changes
+
+- Mutable Data Classes ([#2818](https://github.com/getsentry/sentry-dart/pull/2818))
+  - Some SDK classes do not have `const` constructors anymore.
+  - The `copyWith` and `clone` methods of SDK classes were deprecated.
 
 ## 9.0.0-alpha.2
 
@@ -37,13 +54,13 @@ Sentry.addFeatureFlag('my-feature', true);
 - Bump Javascript SDK from v8.42.0 to v9.5.0 ([#2784](https://github.com/getsentry/sentry-dart/pull/2784))
   - [changelog](https://github.com/getsentry/sentry-javascript/blob/main/CHANGELOG.md#950)
   - [diff](https://github.com/getsentry/sentry-javascript/compare/8.42.0...9.5.0)
- 
+
 ### Behavioral changes
 
 - Set sentry-native backend to `crashpad` by default and `breakpad` for Windows ARM64 ([#2791](https://github.com/getsentry/sentry-dart/pull/2791))
   - Setting the `SENTRY_NATIVE_BACKEND` environment variable will override the defaults.
 - Remove renderer from `flutter_context` ([#2751](https://github.com/getsentry/sentry-dart/pull/2751))
-
+  
 ### API changes
 
 - Move replay and privacy from experimental to options ([#2755](https://github.com/getsentry/sentry-dart/pull/2755))

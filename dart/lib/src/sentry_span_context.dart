@@ -2,30 +2,29 @@ import 'package:meta/meta.dart';
 
 import '../sentry.dart';
 
-@immutable
 class SentrySpanContext {
   /// Determines which trace the Span belongs to
-  late final SentryId traceId;
+  late SentryId traceId;
 
   /// Span id
-  late final SpanId spanId;
+  late SpanId spanId;
 
   /// Id of a parent span
-  final SpanId? parentSpanId;
+  SpanId? parentSpanId;
 
   /// Short code identifying the type of operation the span is measuring
-  final String operation;
+  String operation;
 
   /// Longer description of the span's operation, which uniquely identifies the span but is
   /// consistent across instances of the span.
-  final String? description;
+  String? description;
 
   /// The origin of the span indicates what created the span.
   ///
   /// Gets set by the SDK. It is not expected to be set manually by users.
   ///
   /// See https://develop.sentry.dev/sdk/performance/trace-origin
-  final String? origin;
+  String? origin;
 
   /// Item encoded as JSON
   Map<String, dynamic> toJson() {

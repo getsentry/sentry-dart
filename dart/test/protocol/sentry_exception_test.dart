@@ -125,7 +125,7 @@ void main() {
   group('copyWith', () {
     test('copyWith keeps unchanged', () {
       final data = sentryException;
-
+      // ignore: deprecated_member_use_from_same_package
       final copy = data.copyWith();
 
       expect(data.toJson(), copy.toJson());
@@ -137,7 +137,7 @@ void main() {
       final stackTrace =
           SentryStackTrace(frames: [SentryStackFrame(absPath: 'abs1')]);
       final mechanism = Mechanism(type: 'type1');
-
+      // ignore: deprecated_member_use_from_same_package
       final copy = data.copyWith(
         type: 'type1',
         value: 'value1',

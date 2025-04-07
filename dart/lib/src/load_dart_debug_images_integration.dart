@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+
 import 'package:meta/meta.dart';
 
 import 'event_processor.dart';
@@ -13,11 +14,13 @@ import 'protocol/sentry_stack_trace.dart';
 import 'sentry_options.dart';
 
 class LoadDartDebugImagesIntegration extends Integration<SentryOptions> {
+  static const integrationName = 'LoadDartDebugImagesIntegration';
+
   @override
   void call(Hub hub, SentryOptions options) {
     if (options.enableDartSymbolication) {
       options.addEventProcessor(LoadImageIntegrationEventProcessor(options));
-      options.sdk.addIntegration('loadDartImageIntegration');
+      options.sdk.addIntegration(integrationName);
     }
   }
 }
@@ -37,15 +40,11 @@ class LoadImageIntegrationEventProcessor implements EventProcessor {
     if (stackTrace != null) {
       final debugImage = getAppDebugImage(stackTrace);
       if (debugImage != null) {
-        late final DebugMeta debugMeta;
         if (event.debugMeta != null) {
-          final images = List<DebugImage>.from(event.debugMeta!.images);
-          images.add(debugImage);
-          debugMeta = event.debugMeta!.copyWith(images: images);
+          event.debugMeta?.addDebugImage(debugImage);
         } else {
-          debugMeta = DebugMeta(images: [debugImage]);
+          event.debugMeta = DebugMeta(images: [debugImage]);
         }
-        return event.copyWith(debugMeta: debugMeta);
       }
     }
 

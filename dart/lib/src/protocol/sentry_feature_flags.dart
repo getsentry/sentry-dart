@@ -2,14 +2,13 @@ import 'package:meta/meta.dart';
 import 'sentry_feature_flag.dart';
 import 'access_aware_map.dart';
 
-@immutable
 class SentryFeatureFlags {
   static const type = 'flags';
 
-  final List<SentryFeatureFlag> values;
+  List<SentryFeatureFlag> values;
 
   @internal
-  final Map<String, dynamic>? unknown;
+  Map<String, dynamic>? unknown;
 
   SentryFeatureFlags({
     required this.values,
@@ -37,6 +36,7 @@ class SentryFeatureFlags {
     };
   }
 
+  @Deprecated('Assign values directly to the instance.')
   SentryFeatureFlags copyWith({
     List<SentryFeatureFlag>? values,
     Map<String, dynamic>? unknown,
@@ -48,5 +48,6 @@ class SentryFeatureFlags {
     );
   }
 
+  @Deprecated('Will be removed in a future version.')
   SentryFeatureFlags clone() => copyWith();
 }

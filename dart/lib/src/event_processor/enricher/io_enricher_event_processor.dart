@@ -44,18 +44,18 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
   Future<SentryEvent?> apply(SentryEvent event, Hint hint) async {
     final contexts = event.contexts;
 
-    contexts.device = await _getDevice(event.contexts.device);
-    contexts.operatingSystem =
-        _getOperatingSystem(event.contexts.operatingSystem);
-    contexts.runtimes = _getRuntimes(event.contexts.runtimes);
-    contexts.app = _getApp(event.contexts.app);
-    contexts.culture = _getSentryCulture(event.contexts.culture);
+    contexts
+      ..device = await _getDevice(event.contexts.device)
+      ..operatingSystem = _getOperatingSystem(event.contexts.operatingSystem)
+      ..runtimes = _getRuntimes(event.contexts.runtimes)
+      ..app = _getApp(event.contexts.app)
+      ..culture = _getSentryCulture(event.contexts.culture);
 
     contexts['dart_context'] = _getDartContext();
 
-    return event.copyWith(
-      contexts: contexts,
-    );
+    event.contexts = contexts;
+
+    return event;
   }
 
   List<SentryRuntime> _getRuntimes(List<SentryRuntime>? runtimes) {
@@ -102,13 +102,13 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
   }
 
   Future<SentryDevice> _getDevice(SentryDevice? device) async {
-    return (device ?? SentryDevice()).copyWith(
-      name: device?.name ??
-          (_options.sendDefaultPii ? Platform.localHostname : null),
-      processorCount: device?.processorCount ?? Platform.numberOfProcessors,
-      memorySize: device?.memorySize ?? await _getTotalPhysicalMemory(),
-      freeMemory: device?.freeMemory,
-    );
+    device ??= SentryDevice();
+    return device
+      ..name = device.name ??
+          (_options.sendDefaultPii ? Platform.localHostname : null)
+      ..processorCount = device.processorCount ?? Platform.numberOfProcessors
+      ..memorySize = device.memorySize ?? await _getTotalPhysicalMemory()
+      ..freeMemory = device.freeMemory;
   }
 
   Future<int?> _getTotalPhysicalMemory() async {
@@ -121,14 +121,22 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
   }
 
   SentryApp _getApp(SentryApp? app) {
-    return (app ?? SentryApp()).copyWith(
-      appMemory: app?.appMemory ?? ProcessInfo.currentRss,
-    );
+    app ??= SentryApp();
+    return app..appMemory = app.appMemory ?? ProcessInfo.currentRss;
   }
 
   SentryOperatingSystem _getOperatingSystem(SentryOperatingSystem? os) {
     if (os == null) {
-      return _os.clone();
+      return SentryOperatingSystem(
+        name: _os.name,
+        version: _os.version,
+        build: _os.build,
+        kernelVersion: _os.kernelVersion,
+        rooted: _os.rooted,
+        rawDescription: _os.rawDescription,
+        theme: _os.theme,
+        unknown: _os.unknown,
+      );
     } else {
       return _os.mergeWith(os);
     }
@@ -171,10 +179,10 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
   }
 
   SentryCulture _getSentryCulture(SentryCulture? culture) {
-    return (culture ?? SentryCulture()).copyWith(
-      locale: culture?.locale ?? Platform.localeName,
-      timezone: culture?.timezone ?? DateTime.now().timeZoneName,
-    );
+    culture ??= SentryCulture();
+    return culture
+      ..locale = culture.locale ?? Platform.localeName
+      ..timezone = culture.timezone ?? DateTime.now().timeZoneName;
   }
 }
 

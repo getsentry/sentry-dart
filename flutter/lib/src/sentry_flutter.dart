@@ -185,7 +185,7 @@ mixin SentryFlutter {
         if (native.supportsLoadContexts) {
           integrations.add(LoadContextsIntegration(native));
         }
-        integrations.add(LoadImageListIntegration(native));
+        integrations.add(LoadNativeDebugImagesIntegration(native));
         integrations.add(FramesTrackingIntegration(native));
         integrations.add(
           NativeAppStartIntegration(

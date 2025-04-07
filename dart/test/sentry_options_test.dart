@@ -41,6 +41,26 @@ void main() {
     expect(options.logger, isNot(noOpLogger));
   });
 
+  test('setting debug correctly sets logger', () {
+    final options = defaultTestOptions();
+    expect(options.logger, noOpLogger);
+    expect(options.diagnosticLogger, isNull);
+    options.debug = true;
+    expect(options.logger, isNot(options.debugLogger));
+    expect(options.diagnosticLogger!.logger, options.debugLogger);
+    expect(options.logger, options.diagnosticLogger!.log);
+
+    options.debug = false;
+    expect(options.logger, isNot(noOpLogger));
+    expect(options.diagnosticLogger!.logger, noOpLogger);
+    expect(options.logger, options.diagnosticLogger!.log);
+
+    options.debug = true;
+    expect(options.logger, isNot(options.debugLogger));
+    expect(options.diagnosticLogger!.logger, options.debugLogger);
+    expect(options.logger, options.diagnosticLogger!.log);
+  });
+
   test('tracesSampler is null by default', () {
     final options = defaultTestOptions();
 
@@ -123,6 +143,12 @@ void main() {
     final options = defaultTestOptions();
 
     expect(options.enableDartSymbolication, true);
+  });
+
+  test('diagnosticLevel is warning by default', () {
+    final options = defaultTestOptions();
+
+    expect(options.diagnosticLevel, SentryLevel.warning);
   });
 
   test('parsedDsn is correctly parsed and cached', () {

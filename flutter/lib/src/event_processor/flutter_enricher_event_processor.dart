@@ -63,14 +63,10 @@ class FlutterEnricherEventProcessor implements EventProcessor {
     // Conflicts with Flutter runtime if it's just called `Flutter`
     contexts['flutter_context'] = _getFlutterContext();
 
-    event = event.copyWith(
-      contexts: contexts,
-    );
+    event.contexts = contexts;
 
     if (event is! SentryTransaction) {
-      event = event.copyWith(
-        modules: await _getPackages(),
-      );
+      event.modules = await _getPackages();
     }
     return event;
   }
@@ -118,11 +114,12 @@ class FlutterEnricherEventProcessor implements EventProcessor {
     // Future enhancement:
     // _window?.locales
 
-    return (culture ?? SentryCulture()).copyWith(
-      is24HourFormat: culture?.is24HourFormat ?? _window?.alwaysUse24HourFormat,
-      locale: culture?.locale ?? languageTag,
-      timezone: culture?.timezone ?? DateTime.now().timeZoneName,
-    );
+    culture ??= SentryCulture();
+    return culture
+      ..is24HourFormat =
+          culture.is24HourFormat ?? _window?.alwaysUse24HourFormat
+      ..locale = culture.locale ?? languageTag
+      ..timezone = culture.timezone ?? DateTime.now().timeZoneName;
   }
 
   Map<String, String> _getFlutterContext() {
@@ -183,21 +180,22 @@ class FlutterEnricherEventProcessor implements EventProcessor {
         ? SentryOrientation.landscape
         : SentryOrientation.portrait;
 
-    return (device ?? SentryDevice()).copyWith(
-      orientation: device?.orientation ?? orientation,
-      screenHeightPixels:
-          device?.screenHeightPixels ?? window.physicalSize.height.toInt(),
-      screenWidthPixels:
-          device?.screenWidthPixels ?? window.physicalSize.width.toInt(),
-      screenDensity: device?.screenDensity ?? window.devicePixelRatio,
-    );
+    device ??= SentryDevice();
+    return device
+      ..orientation = device.orientation ?? orientation
+      ..screenHeightPixels =
+          device.screenHeightPixels ?? window.physicalSize.height.toInt()
+      ..screenWidthPixels =
+          device.screenWidthPixels ?? window.physicalSize.width.toInt()
+      ..screenDensity = device.screenDensity ?? window.devicePixelRatio;
   }
 
   SentryOperatingSystem _getOperatingSystem(SentryOperatingSystem? os) {
-    return (os ?? SentryOperatingSystem()).copyWith(
+    os ??= SentryOperatingSystem();
+
+    return os
       // ignore: deprecated_member_use
-      theme: os?.theme ?? describeEnum(window.platformBrightness),
-    );
+      ..theme = os.theme ?? describeEnum(window.platformBrightness);
   }
 
   List<SentryRuntime> _getRuntimes(List<SentryRuntime>? runtimes) {
@@ -241,12 +239,9 @@ class FlutterEnricherEventProcessor implements EventProcessor {
       return app;
     }
 
+    app ??= SentryApp();
     // See 'flutter_context' for more detailed app state.
-    final inForeground = currentLifecycle == AppLifecycleState.resumed;
-
-    return (app ?? SentryApp()).copyWith(
-      inForeground: inForeground,
-    );
+    return app..inForeground = currentLifecycle == AppLifecycleState.resumed;
   }
 
   SentryApp _appWithCurrentRouteViewName(SentryApp app) {
@@ -254,10 +249,9 @@ class FlutterEnricherEventProcessor implements EventProcessor {
     if (currentRouteName != null) {
       final viewNames = app.viewNames ?? [];
       viewNames.add(currentRouteName);
-      return app.copyWith(viewNames: viewNames);
-    } else {
-      return app;
+      app.viewNames = viewNames;
     }
+    return app;
   }
 
   Locale? _retrieveWidgetLocale(GlobalKey<NavigatorState>? navigatorKey) {
