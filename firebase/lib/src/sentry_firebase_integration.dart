@@ -16,7 +16,10 @@ class SentryFirebaseIntegration extends Integration<SentryOptions> {
   @override
   FutureOr<void> call(Hub hub, SentryOptions options) async {
     if (_keys.isEmpty) {
-      // TODO: log warning
+      options.logger(
+        SentryLevel.warning,
+        'No keys provided to $SentryFirebaseIntegration. Will not track feature flags.',
+      );
       return;
     }
     _subscription = _firebaseRemoteConfig.onConfigUpdated.listen((event) async {
