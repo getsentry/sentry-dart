@@ -170,12 +170,19 @@ class Fixture {
 
   Future<SentryFirebaseIntegration> getSut(
     Set<String> keys, {
-    bool activateOnConfigUpdated = false,
+    bool? activateOnConfigUpdated,
   }) async {
-    return SentryFirebaseIntegration(
-      mockFirebaseRemoteConfig,
-      keys,
-      activateOnConfigUpdated: activateOnConfigUpdated,
-    );
+    if (activateOnConfigUpdated == null) {
+      return SentryFirebaseIntegration(
+        mockFirebaseRemoteConfig,
+        keys,
+      );
+    } else {
+      return SentryFirebaseIntegration(
+        mockFirebaseRemoteConfig,
+        keys,
+        activateOnConfigUpdated: activateOnConfigUpdated,
+      );
+    }
   }
 }
