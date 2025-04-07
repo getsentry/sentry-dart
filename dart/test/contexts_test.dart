@@ -47,6 +47,13 @@ void main() {
 
     final gpu = SentryGpu(name: 'Radeon', version: '1');
 
+    final flags = SentryFeatureFlags(
+      values: [
+        SentryFeatureFlag(name: 'feature_flag_1', value: true),
+        SentryFeatureFlag(name: 'feature_flag_2', value: false),
+      ],
+    );
+
     final contexts = Contexts(
       device: testDevice,
       operatingSystem: testOS,
@@ -54,6 +61,7 @@ void main() {
       app: testApp,
       browser: testBrowser,
       gpu: gpu,
+      flags: flags,
     )
       ..['theme'] = {'value': 'material'}
       ..['version'] = {'value': 9};
@@ -94,6 +102,12 @@ void main() {
       'testrt2': {'name': 'testRT2', 'type': 'runtime', 'version': '2.3.1'},
       'theme': {'value': 'material'},
       'version': {'value': 9},
+      'flags': {
+        'values': [
+          {'name': 'feature_flag_1', 'value': true},
+          {'name': 'feature_flag_2', 'value': false},
+        ]
+      },
     };
 
     test('serializes to JSON', () {
@@ -122,7 +136,7 @@ void main() {
       expect(
           clone.operatingSystem!.toJson(), contexts.operatingSystem!.toJson());
       expect(clone.gpu!.toJson(), contexts.gpu!.toJson());
-
+      expect(clone.flags!.toJson(), contexts.flags!.toJson());
       for (final element in contexts.runtimes) {
         expect(
           clone.runtimes.where(
@@ -184,6 +198,17 @@ void main() {
 
       expect(contexts.runtimes.length, 2);
       expect(contexts.runtimes.last.name, 'testRT2');
+    });
+
+    test('set flags', () {
+      final contexts = Contexts();
+      contexts.flags = SentryFeatureFlags(
+        values: [
+          SentryFeatureFlag(name: 'feature_flag_1', value: true),
+          SentryFeatureFlag(name: 'feature_flag_2', value: false),
+        ],
+      );
+      expect(contexts.flags!.toJson(), flags.toJson());
     });
   });
 
@@ -295,7 +320,12 @@ const jsonContexts = '''
       "raw_description":"runtime description RT1 1.0"
    },
    "browser": {"version": "12.3.4"},
-   "gpu": {"name": "Radeon", "version": "1"}
-  
+   "gpu": {"name": "Radeon", "version": "1"},
+   "flags": {
+      "values": [
+        {"name": "feature_flag_1", "value": true},
+        {"name": "feature_flag_2", "value": false}
+      ]
+   }
 }
 ''';
