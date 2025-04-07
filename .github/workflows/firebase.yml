@@ -38,7 +38,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: ./.github/actions/dart-test
+      - uses: ./.github/actions/flutter-test
         with:
           directory: firebase
           web: false
