@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### Features
+
+- Add `FeatureFlagIntegration` ([#2825](https://github.com/getsentry/sentry-dart/pull/2825))
+```dart
+// Manually track a feature flag
+Sentry.addFeatureFlag('my-feature', true);
+```
+
 ### Behavioral changes
 
 - Set log level to `warning` by default when `debug = true` ([#2836](https://github.com/getsentry/sentry-dart/pull/2836))
