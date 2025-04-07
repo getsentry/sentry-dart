@@ -6,11 +6,10 @@ import 'access_aware_map.dart';
 enum SentryOrientation { portrait, landscape }
 
 /// This describes the device that caused the event.
-@immutable
 class SentryDevice {
   static const type = 'device';
 
-  const SentryDevice({
+  SentryDevice({
     this.name,
     this.family,
     this.model,
@@ -53,125 +52,125 @@ class SentryDevice {
         );
 
   /// The name of the device. This is typically a hostname.
-  final String? name;
+  String? name;
 
   /// The family of the device.
   ///
   /// This is normally the common part of model names across generations.
   /// For instance `iPhone` would be a reasonable family,
   /// so would be `Samsung Galaxy`.
-  final String? family;
+  String? family;
 
   /// The model name. This for instance can be `Samsung Galaxy S3`.
-  final String? model;
+  String? model;
 
   /// An internal hardware revision to identify the device exactly.
-  final String? modelId;
+  String? modelId;
 
   /// The CPU architecture.
-  final String? arch;
+  String? arch;
 
   /// If the device has a battery, this can be an floating point value
   /// defining the battery level (in the range 0-100).
-  final double? batteryLevel;
+  double? batteryLevel;
 
   /// Defines the orientation of a device.
-  final SentryOrientation? orientation;
+  SentryOrientation? orientation;
 
   /// The manufacturer of the device.
-  final String? manufacturer;
+  String? manufacturer;
 
   /// The brand of the device.
-  final String? brand;
+  String? brand;
 
   /// The screen height in pixels. (e.g.: `600`, `1080`).
-  final int? screenHeightPixels;
+  int? screenHeightPixels;
 
   /// The screen width in pixels. (e.g.: `800`, `1920`).
-  final int? screenWidthPixels;
+  int? screenWidthPixels;
 
   /// A floating point denoting the screen density.
-  final double? screenDensity;
+  double? screenDensity;
 
   /// A decimal value reflecting the DPI (dots-per-inch) density.
-  final int? screenDpi;
+  int? screenDpi;
 
   /// Whether the device was online or not.
-  final bool? online;
+  bool? online;
 
   /// Whether the device was charging or not.
-  final bool? charging;
+  bool? charging;
 
   /// Whether the device was low on memory.
-  final bool? lowMemory;
+  bool? lowMemory;
 
   /// A flag indicating whether this device is a simulator or an actual device.
-  final bool? simulator;
+  bool? simulator;
 
   /// Total system memory available in bytes.
-  final int? memorySize;
+  int? memorySize;
 
   /// Free system memory in bytes.
-  final int? freeMemory;
+  int? freeMemory;
 
   /// Memory usable for the app in bytes.
-  final int? usableMemory;
+  int? usableMemory;
 
   /// Total device storage in bytes.
-  final int? storageSize;
+  int? storageSize;
 
   /// Free device storage in bytes.
-  final int? freeStorage;
+  int? freeStorage;
 
   /// Total size of an attached external storage in bytes
   /// (e.g.: android SDK card).
-  final int? externalStorageSize;
+  int? externalStorageSize;
 
   /// Free size of an attached external storage in bytes
   /// (e.g.: android SDK card).
-  final int? externalFreeStorage;
+  int? externalFreeStorage;
 
   /// When the system was booted
-  final DateTime? bootTime;
+  DateTime? bootTime;
 
   /// Optional. Number of "logical processors". For example, `8`.
-  final int? processorCount;
+  int? processorCount;
 
   /// Optional. CPU description. For example, `Intel(R) Core(TM)2 Quad CPU Q6600 @ 2.40GHz`.
-  final String? cpuDescription;
+  String? cpuDescription;
 
   /// Optional. Processor frequency in MHz. Note that the actual CPU frequency
   /// might vary depending on current load and power conditions,
   /// especially on low-powered devices like phones and laptops.
-  final double? processorFrequency;
+  double? processorFrequency;
 
   /// Optional. Kind of device the application is running on.
   /// For example, `Unknown`, `Handheld`, `Console`, `Desktop`.
-  final String? deviceType;
+  String? deviceType;
 
   /// Optional. Status of the device's battery.
   /// For example, `Unknown`, `Charging`, `Discharging`, `NotCharging`, `Full`.
-  final String? batteryStatus;
+  String? batteryStatus;
 
   /// Optional. Unique device identifier.
   /// This value might only be used if [SentryOptions.sendDefaultPii]
   ///  is enabled.
-  final String? deviceUniqueIdentifier;
+  String? deviceUniqueIdentifier;
 
   /// Optional. Is vibration available on the device?
-  final bool? supportsVibration;
+  bool? supportsVibration;
 
   /// Optional. Is accelerometer available on the device?
-  final bool? supportsAccelerometer;
+  bool? supportsAccelerometer;
 
   /// Optional. Is gyroscope available on the device?
-  final bool? supportsGyroscope;
+  bool? supportsGyroscope;
 
   /// Optional. Is audio available on the device?
-  final bool? supportsAudio;
+  bool? supportsAudio;
 
   /// Optional. Is the device capable of reporting its location?
-  final bool? supportsLocationService;
+  bool? supportsLocationService;
 
   @internal
   final Map<String, dynamic>? unknown;
@@ -277,6 +276,7 @@ class SentryDevice {
     };
   }
 
+  @Deprecated('Will be removed in a future version.')
   SentryDevice clone() => SentryDevice(
         name: name,
         family: family,
@@ -317,6 +317,7 @@ class SentryDevice {
         unknown: unknown,
       );
 
+  @Deprecated('Assign values directly to the instance.')
   SentryDevice copyWith({
     String? name,
     String? family,

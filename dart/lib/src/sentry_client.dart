@@ -211,14 +211,13 @@ class SentryClient {
 
   SentryEvent _prepareEvent(SentryEvent event, Hint hint,
       {dynamic stackTrace}) {
-    event = event.copyWith(
-      serverName: event.serverName ?? _options.serverName,
-      dist: event.dist ?? _options.dist,
-      environment: event.environment ?? _options.environment,
-      release: event.release ?? _options.release,
-      sdk: event.sdk ?? _options.sdk,
-      platform: event.platform ?? sdkPlatform(_options.platform.isWeb),
-    );
+    event
+      ..serverName = event.serverName ?? _options.serverName
+      ..dist = event.dist ?? _options.dist
+      ..environment = event.environment ?? _options.environment
+      ..release = event.release ?? _options.release
+      ..sdk = event.sdk ?? _options.sdk
+      ..platform = event.platform ?? sdkPlatform(_options.platform.isWeb);
 
     if (event is SentryTransaction) {
       return event;
@@ -253,10 +252,9 @@ class SentryClient {
         if (extractedExceptionCause.source != null) {
           var mechanism =
               sentryException.mechanism ?? Mechanism(type: "generic");
-          mechanism = mechanism.copyWith(
-            source: extractedExceptionCause.source,
-          );
-          sentryException = sentryException.copyWith(mechanism: mechanism);
+
+          mechanism.source = extractedExceptionCause.source;
+          sentryException.mechanism = mechanism;
         }
 
         SentryThread? sentryThread;
@@ -264,7 +262,7 @@ class SentryClient {
         if (!_options.platform.isWeb &&
             isolateName != null &&
             _options.attachThreads) {
-          sentryException = sentryException.copyWith(threadId: isolateId);
+          sentryException.threadId = isolateId;
           sentryThread = SentryThread(
             id: isolateId,
             name: isolateName,
@@ -286,13 +284,12 @@ class SentryClient {
       if (rootException != null) {
         exceptions.add(rootException);
       }
-      return event.copyWith(
-        exceptions: exceptions,
-        threads: [
+      return event
+        ..exceptions = exceptions
+        ..threads = [
           ...?event.threads,
           ...sentryThreads,
-        ],
-      );
+        ];
     }
 
     // The stacktrace is not part of an exception,
@@ -308,7 +305,7 @@ class SentryClient {
         removeSentryFrames: hint.get(TypeCheckHint.currentStackTrace),
       );
       if (sentryStackTrace.frames.isNotEmpty) {
-        event = event.copyWith(threads: [
+        event.threads = [
           ...?event.threads,
           SentryThread(
             name: isolateName,
@@ -317,7 +314,7 @@ class SentryClient {
             current: true,
             stacktrace: sentryStackTrace,
           ),
-        ]);
+        ];
       }
     }
 
@@ -325,16 +322,14 @@ class SentryClient {
   }
 
   SentryEvent _createUserOrSetDefaultIpAddress(SentryEvent event) {
-    final user = event.user;
+    var user = event.user;
     final effectiveIpAddress =
         user?.ipAddress ?? (_options.sendDefaultPii ? _defaultIpAddress : null);
 
     if (effectiveIpAddress != null) {
-      final updatedUser = user == null
-          ? SentryUser(ipAddress: effectiveIpAddress)
-          : user.copyWith(ipAddress: effectiveIpAddress);
-
-      return event.copyWith(user: updatedUser);
+      user ??= SentryUser(ipAddress: effectiveIpAddress);
+      user.ipAddress = effectiveIpAddress;
+      event.user = user;
     }
 
     return event;

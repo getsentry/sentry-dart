@@ -88,7 +88,7 @@ class AndroidPlatformExceptionEventProcessor implements EventProcessor {
     MapEntry<SentryException, List<SentryThread>>? nativeStackTrace,
     MapEntry<SentryException, List<SentryThread>>? detailsStackTrace,
   ) {
-    final threads = _markDartThreadsAsNonCrashed(event.threads);
+    _markDartThreadsAsNonCrashed(event.threads);
     final exception = event.exceptions?.firstOrNull;
 
     // Assumption is that the first exception is the original exception and there is only one.
@@ -119,30 +119,25 @@ class AndroidPlatformExceptionEventProcessor implements EventProcessor {
       jvmThreads.add(first);
     }
 
-    return event.copyWith(
-      exceptions: [exception],
-      threads: [
-        ...?threads,
-        if (_options.attachThreads) ...jvmThreads,
-      ],
-    );
+    event.exceptions = [exception];
+    event.threads = [
+      ...?event.threads,
+      if (_options.attachThreads) ...jvmThreads,
+    ];
+    return event;
   }
 
   /// If the crash originated on Android, the Dart side didn't crash.
   /// Mark it accordingly.
-  List<SentryThread>? _markDartThreadsAsNonCrashed(
+  void _markDartThreadsAsNonCrashed(
     List<SentryThread>? threads,
   ) {
-    return threads
-        ?.map(
-          (e) => e.copyWith(
-            crashed: false,
-            // Isolate is safe to use directly,
-            // because Android is only run in the dart:io context.
-            current: e.name == Isolate.current.debugName,
-          ),
-        )
-        .toList(growable: false);
+    for (final thread in threads ?? []) {
+      thread.crashed = false;
+      // Isolate is safe to use directly,
+      // because Android is only run in the dart:io context.
+      thread.current = thread.name == Isolate.current.debugName;
+    }
   }
 }
 

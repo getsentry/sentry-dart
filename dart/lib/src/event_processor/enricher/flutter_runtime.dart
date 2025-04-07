@@ -17,7 +17,7 @@ const _isFlutterRuntimeInformationAbsent = FlutterVersion.version == null ||
     FlutterVersion.channel == null ||
     FlutterVersion.frameworkRevision == null;
 
-const SentryRuntime? flutterRuntime = _isFlutterRuntimeInformationAbsent
+final SentryRuntime? flutterRuntime = _isFlutterRuntimeInformationAbsent
     ? null
     : SentryRuntime(
         name: 'Flutter',
@@ -28,7 +28,7 @@ const SentryRuntime? flutterRuntime = _isFlutterRuntimeInformationAbsent
             '- Git URL ${FlutterVersion.gitUrl}',
       );
 
-const SentryRuntime? dartFlutterRuntime = FlutterVersion.dartVersion == null
+final SentryRuntime? dartFlutterRuntime = FlutterVersion.dartVersion == null
     ? null
     : SentryRuntime(name: 'Dart', version: FlutterVersion.dartVersion);
 

@@ -6,7 +6,6 @@ import 'access_aware_map.dart';
 /// The Threads Interface specifies threads that were running at the time an
 /// event happened. These threads can also contain stack traces.
 /// See https://develop.sentry.dev/sdk/event-payloads/threads/
-@immutable
 class SentryThread {
   SentryThread({
     this.id,
@@ -31,22 +30,22 @@ class SentryThread {
   }
 
   /// The Id of the thread.
-  final int? id;
+  int? id;
 
   /// The name of the thread.
   /// On Dart platforms where Isolates are available, this can be set to
   /// [Isolate.debugName](https://api.flutter.dev/flutter/dart-isolate/Isolate/debugName.html)
-  final String? name;
+  String? name;
 
   /// Whether the crash happened on this thread.
-  final bool? crashed;
+  bool? crashed;
 
   /// An optional flag to indicate that the thread was in the foreground.
-  final bool? current;
+  bool? current;
 
   /// Stack trace.
   /// See https://develop.sentry.dev/sdk/event-payloads/stacktrace/
-  final SentryStackTrace? stacktrace;
+  SentryStackTrace? stacktrace;
 
   @internal
   final Map<String, dynamic>? unknown;
@@ -63,6 +62,7 @@ class SentryThread {
     };
   }
 
+  @Deprecated('Assign values directly to the instance.')
   SentryThread copyWith({
     int? id,
     String? name,

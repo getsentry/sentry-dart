@@ -27,7 +27,6 @@ import 'access_aware_map.dart';
 ///   "ip_address": "127.0.0.1",
 /// }
 /// ```
-@immutable
 class SentryUser {
   /// You should provide at least one of [id], [email], [ipAddress], [username]
   /// for Sentry to be able to tell you how many users are affected by one
@@ -53,25 +52,25 @@ class SentryUser {
         extras = extras == null ? null : Map.from(extras);
 
   /// A unique identifier of the user.
-  final String? id;
+  String? id;
 
   /// The username of the user.
-  final String? username;
+  String? username;
 
   /// The email address of the user.
-  final String? email;
+  String? email;
 
   /// The IP of the user.
-  final String? ipAddress;
+  String? ipAddress;
 
   /// Any other user context information that may be helpful.
   ///
   /// These keys are stored as extra information but not specifically processed
   /// by Sentry.
-  final Map<String, dynamic>? data;
+  Map<String, dynamic>? data;
 
   @Deprecated('Will be removed in v8. Use [data] instead')
-  final Map<String, dynamic>? extras;
+  Map<String, dynamic>? extras;
 
   /// Approximate geographical location of the end user or device.
   ///
@@ -79,10 +78,10 @@ class SentryUser {
   /// Sentry however doesn't collect the [ipAddress] automatically because it is PII.
   /// The geo location will currently not be synced to the native layer, if available.
   // See https://github.com/getsentry/sentry-dart/issues/1065
-  final SentryGeo? geo;
+  SentryGeo? geo;
 
   /// Human readable name of the user.
-  final String? name;
+  String? name;
 
   @internal
   final Map<String, dynamic>? unknown;
@@ -137,6 +136,7 @@ class SentryUser {
     };
   }
 
+  @Deprecated('Assign values directly to the instance.')
   SentryUser copyWith({
     String? id,
     String? username,

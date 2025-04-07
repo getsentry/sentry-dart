@@ -21,8 +21,8 @@ import 'version.dart';
 
 /// Sentry SDK options
 class SentryOptions {
-  /// Default Log level if not specified Default is DEBUG
-  static final SentryLevel _defaultDiagnosticLevel = SentryLevel.debug;
+  /// Default Log level if not specified Default is WARNING
+  static final SentryLevel _defaultDiagnosticLevel = SentryLevel.warning;
 
   String? _dsn;
   Dsn? _parsedDsn;
@@ -131,8 +131,12 @@ class SentryOptions {
   SentryLogger get logger => _logger;
 
   set logger(SentryLogger logger) {
-    _logger = DiagnosticLogger(logger, this).log;
+    diagnosticLogger = DiagnosticLogger(logger, this);
+    _logger = diagnosticLogger!.log;
   }
+
+  @visibleForTesting
+  DiagnosticLogger? diagnosticLogger;
 
   final List<EventProcessor> _eventProcessors = [];
 
@@ -155,11 +159,13 @@ class SentryOptions {
 
   set debug(bool newValue) {
     _debug = newValue;
-    if (_debug == true && logger == noOpLogger) {
-      _logger = _debugLogger;
+    if (_debug == true &&
+        (logger == noOpLogger || diagnosticLogger?.logger == noOpLogger)) {
+      logger = debugLogger;
     }
-    if (_debug == false && logger == _debugLogger) {
-      _logger = noOpLogger;
+    if (_debug == false &&
+        (logger == debugLogger || diagnosticLogger?.logger == debugLogger)) {
+      logger = noOpLogger;
     }
   }
 
@@ -386,7 +392,7 @@ class SentryOptions {
         _ignoredExceptionsForType.contains(exception.runtimeType);
   }
 
-  /// Enables Dart symbolication for stack traces in Flutter.
+  /// Enables Dart symbolication for stack traces in Flutter for Android and Cocoa.
   ///
   /// If true, the SDK will attempt to symbolicate Dart stack traces when
   /// [Sentry.init] is used instead of `SentryFlutter.init`. This is useful
@@ -591,7 +597,8 @@ class SentryOptions {
   late SentryStackTraceFactory stackTraceFactory =
       SentryStackTraceFactory(this);
 
-  void _debugLogger(
+  @visibleForTesting
+  void debugLogger(
     SentryLevel level,
     String message, {
     String? logger,

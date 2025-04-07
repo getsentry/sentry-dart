@@ -51,7 +51,7 @@ void main() {
   group('copyWith', () {
     test('copyWith keeps unchanged', () {
       final data = breadcrumb;
-
+      // ignore: deprecated_member_use_from_same_package
       final copy = data.copyWith();
 
       expect(
@@ -63,7 +63,7 @@ void main() {
       final data = breadcrumb;
 
       final timestamp = DateTime.now();
-
+      // ignore: deprecated_member_use_from_same_package
       final copy = data.copyWith(
         message: 'message1',
         timestamp: timestamp,

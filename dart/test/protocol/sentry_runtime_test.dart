@@ -43,7 +43,7 @@ void main() {
   group('copyWith', () {
     test('copyWith keeps unchanged', () {
       final data = sentryRuntime;
-
+      // ignore: deprecated_member_use_from_same_package
       final copy = data.copyWith();
 
       expect(
@@ -54,7 +54,7 @@ void main() {
 
     test('copyWith takes new values', () {
       final data = sentryRuntime;
-
+      // ignore: deprecated_member_use_from_same_package
       final copy = data.copyWith(
         key: 'key1',
         name: 'name1',

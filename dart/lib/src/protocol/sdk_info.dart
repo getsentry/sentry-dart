@@ -3,17 +3,16 @@ import 'package:meta/meta.dart';
 import 'access_aware_map.dart';
 
 /// An object describing the system SDK.
-@immutable
 class SdkInfo {
-  final String? sdkName;
-  final int? versionMajor;
-  final int? versionMinor;
-  final int? versionPatchlevel;
+  String? sdkName;
+  int? versionMajor;
+  int? versionMinor;
+  int? versionPatchlevel;
 
   @internal
   final Map<String, dynamic>? unknown;
 
-  const SdkInfo({
+  SdkInfo({
     this.sdkName,
     this.versionMajor,
     this.versionMinor,
@@ -44,6 +43,7 @@ class SdkInfo {
     };
   }
 
+  @Deprecated('Assign values directly to the instance.')
   SdkInfo copyWith({
     String? sdkName,
     int? versionMajor,

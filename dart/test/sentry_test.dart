@@ -19,6 +19,8 @@ void main() {
     var client = MockSentryClient();
 
     var anException = Exception();
+    late SentryEvent fakeEvent;
+    late SentryMessage fakeMessage;
 
     setUp(() async {
       final options = defaultTestOptions();
@@ -30,7 +32,8 @@ void main() {
         },
       );
       anException = Exception('anException');
-
+      fakeEvent = getFakeEvent();
+      fakeMessage = getFakeMessage();
       client = MockSentryClient();
       Sentry.bindClient(client);
     });
@@ -520,15 +523,18 @@ void main() {
       (options) {
         options.dsn = fakeDsn;
         options.debug = true;
-        expect(options.logger, isNot(noOpLogger));
+        expect(options.diagnosticLogger?.logger, isNot(noOpLogger));
 
         options.debug = false;
-        expect(options.logger, noOpLogger);
+        expect(options.diagnosticLogger?.logger, noOpLogger);
+
+        options.debug = true;
+        expect(options.diagnosticLogger?.logger, isNot(noOpLogger));
       },
       options: sentryOptions,
     );
 
-    expect(sentryOptions.logger, noOpLogger);
+    expect(sentryOptions.diagnosticLogger?.logger, isNot(noOpLogger));
   });
 
   group('Sentry init optionsConfiguration', () {
