@@ -21,7 +21,6 @@ import 'access_aware_map.dart';
 /// ```
 /// See also:
 /// * https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/
-@immutable
 class Breadcrumb {
   /// Creates a breadcrumb that can be attached to an [SentryEvent].
   Breadcrumb({
@@ -122,12 +121,12 @@ class Breadcrumb {
   /// Describes the breadcrumb.
   ///
   /// This field is optional and may be set to null.
-  final String? message;
+  String? message;
 
   /// A dot-separated string describing the source of the breadcrumb, e.g. "ui.click".
   ///
   /// This field is optional and may be set to null.
-  final String? category;
+  String? category;
 
   /// Data associated with the breadcrumb.
   ///
@@ -138,12 +137,12 @@ class Breadcrumb {
   /// See also:
   ///
   /// * https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/#breadcrumb-types
-  final Map<String, dynamic>? data;
+  Map<String, dynamic>? data;
 
   /// Severity of the breadcrumb.
   ///
   /// This field is optional and may be set to null.
-  final SentryLevel? level;
+  SentryLevel? level;
 
   /// Describes what type of breadcrumb this is.
   ///
@@ -154,14 +153,14 @@ class Breadcrumb {
   /// See also:
   ///
   /// * https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/#breadcrumb-types
-  final String? type;
+  String? type;
 
   /// The time the breadcrumb was recorded.
   ///
   /// This field is required, it must not be null.
   ///
   /// The value is submitted to Sentry with second precision.
-  final DateTime timestamp;
+  DateTime timestamp;
 
   @internal
   final Map<String, dynamic>? unknown;
@@ -202,6 +201,7 @@ class Breadcrumb {
     };
   }
 
+  @Deprecated('Assign values directly to the instance.')
   Breadcrumb copyWith({
     String? message,
     String? category,

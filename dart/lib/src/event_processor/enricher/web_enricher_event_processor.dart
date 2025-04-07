@@ -24,20 +24,16 @@ class WebEnricherEventProcessor implements EnricherEventProcessor {
   @override
   SentryEvent? apply(SentryEvent event, Hint hint) {
     // Web has no native integration, so no need to check for it
+    event.contexts
+      ..device = _getDevice(event.contexts.device)
+      ..culture = _getSentryCulture(event.contexts.culture)
+      ..runtimes = _getRuntimes(event.contexts.runtimes);
 
-    final contexts = event.contexts.copyWith(
-      device: _getDevice(event.contexts.device),
-      culture: _getSentryCulture(event.contexts.culture),
-      runtimes: _getRuntimes(event.contexts.runtimes),
-    );
+    event.contexts['dart_context'] = _getDartContext();
 
-    contexts['dart_context'] = _getDartContext();
-
-    return event.copyWith(
-      contexts: contexts,
-      request: _getRequest(event.request),
-      transaction: event.transaction ?? _window.location.pathname,
-    );
+    return event
+      ..request = _getRequest(event.request)
+      ..transaction = event.transaction ?? _window.location.pathname;
   }
 
   // As seen in
@@ -51,22 +47,24 @@ class WebEnricherEventProcessor implements EnricherEventProcessor {
     header.putIfAbsent('User-Agent', () => _window.navigator.userAgent);
 
     final url = request?.url ?? _window.location.toString();
-    return (request ?? SentryRequest(url: url))
-        .copyWith(headers: header)
-        .sanitized();
+    request ??= SentryRequest(url: url);
+    return request
+      ..headers = header
+      ..sanitize();
   }
 
   SentryDevice _getDevice(SentryDevice? device) {
-    return (device ?? SentryDevice()).copyWith(
-      online: device?.online ?? _window.navigator.onLine,
-      memorySize: device?.memorySize ?? _getMemorySize(),
-      orientation: device?.orientation ?? _getScreenOrientation(),
-      screenHeightPixels:
-          device?.screenHeightPixels ?? _window.screen.availHeight,
-      screenWidthPixels: device?.screenWidthPixels ?? _window.screen.availWidth,
-      screenDensity:
-          device?.screenDensity ?? _window.devicePixelRatio.toDouble(),
-    );
+    device ??= SentryDevice();
+    return device
+      ..online = device.online ?? _window.navigator.onLine
+      ..memorySize = device.memorySize ?? _getMemorySize()
+      ..orientation = device.orientation ?? _getScreenOrientation()
+      ..screenHeightPixels =
+          device.screenHeightPixels ?? _window.screen.availHeight
+      ..screenWidthPixels =
+          device.screenWidthPixels ?? _window.screen.availWidth
+      ..screenDensity =
+          device.screenDensity ?? _window.devicePixelRatio.toDouble();
   }
 
   int? _getMemorySize() {
@@ -96,9 +94,8 @@ class WebEnricherEventProcessor implements EnricherEventProcessor {
   }
 
   SentryCulture _getSentryCulture(SentryCulture? culture) {
-    return (culture ?? SentryCulture()).copyWith(
-      timezone: culture?.timezone ?? DateTime.now().timeZoneName,
-    );
+    culture ??= SentryCulture();
+    return culture..timezone = culture.timezone ?? DateTime.now().timeZoneName;
   }
 
   List<SentryRuntime> _getRuntimes(List<SentryRuntime>? runtimes) {

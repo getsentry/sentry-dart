@@ -19,7 +19,7 @@ class PlatformExceptionEventProcessor implements EventProcessor {
       exceptions.add(exception);
     }
 
-    return event.copyWith(exceptions: exceptions);
+    return event..exceptions = exceptions;
   }
 
   SentryException _enrich(
@@ -33,8 +33,8 @@ class PlatformExceptionEventProcessor implements EventProcessor {
     }
     final mechanism =
         sentryException.mechanism ?? Mechanism(type: "platformException");
-    return sentryException.copyWith(
-      mechanism: mechanism.copyWith(data: data),
-    );
+    mechanism.data = data;
+    sentryException.mechanism = mechanism;
+    return sentryException;
   }
 }

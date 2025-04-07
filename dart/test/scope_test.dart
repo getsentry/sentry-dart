@@ -660,7 +660,8 @@ void main() {
         Breadcrumb? breadcrumb,
         Hint hint,
       ) {
-        return breadcrumb?.copyWith(message: "modified");
+        breadcrumb?.message = "modified";
+        return breadcrumb;
       },
     );
     await sut.addBreadcrumb(Breadcrumb());
@@ -823,8 +824,10 @@ class Fixture {
       null;
 
   Breadcrumb? beforeBreadcrumbMutateCallback(
-          Breadcrumb? breadcrumb, Hint hint) =>
-      breadcrumb?.copyWith(message: 'new message');
+      Breadcrumb? breadcrumb, Hint hint) {
+    breadcrumb?.message = 'new message';
+    return breadcrumb;
+  }
 
   void mockLogger(
     SentryLevel level,

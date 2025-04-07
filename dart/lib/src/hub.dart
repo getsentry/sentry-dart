@@ -466,15 +466,10 @@ class Hub {
         final samplingContext = SentrySamplingContext(
             transactionContext, customSamplingContext ?? {});
         samplingDecision = _tracesSampler.sample(samplingContext);
-        transactionContext =
-            transactionContext.copyWith(samplingDecision: samplingDecision);
+        transactionContext.samplingDecision = samplingDecision;
       }
 
-      if (transactionContext.origin == null) {
-        transactionContext = transactionContext.copyWith(
-          origin: SentryTraceOrigins.manual,
-        );
-      }
+      transactionContext.origin ??= SentryTraceOrigins.manual;
 
       SentryProfiler? profiler;
       if (_profilerFactory != null &&
@@ -617,9 +612,7 @@ class Hub {
         );
 
         // set transaction name to event.transaction
-        if (event.transaction == null) {
-          event = event.copyWith(transaction: pair.value);
-        }
+        event.transaction ??= pair.value;
       }
     }
     return event;

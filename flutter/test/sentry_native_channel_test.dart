@@ -100,8 +100,18 @@ void main() {
           id: "fixture-id",
           data: {'object': Object()},
         );
-        final normalizedUser = user.copyWith(
+        final normalizedUser = SentryUser(
+          id: user.id,
+          username: user.username,
+          email: user.email,
+          ipAddress: user.ipAddress,
           data: MethodChannelHelper.normalizeMap(user.data),
+          // ignore: deprecated_member_use
+          extras: user.extras,
+          geo: user.geo,
+          name: user.name,
+          // ignore: invalid_use_of_internal_member
+          unknown: user.unknown,
         );
         when(channel.invokeMethod('setUser', {'user': normalizedUser.toJson()}))
             .thenAnswer((_) => Future.value());
@@ -116,9 +126,16 @@ void main() {
         final breadcrumb = Breadcrumb(
           data: {'object': Object()},
         );
-        final normalizedBreadcrumb = breadcrumb.copyWith(
-            data: MethodChannelHelper.normalizeMap(breadcrumb.data));
-
+        final normalizedBreadcrumb = Breadcrumb(
+          message: breadcrumb.message,
+          category: breadcrumb.category,
+          data: MethodChannelHelper.normalizeMap(breadcrumb.data),
+          level: breadcrumb.level,
+          type: breadcrumb.type,
+          timestamp: breadcrumb.timestamp,
+          // ignore: invalid_use_of_internal_member
+          unknown: breadcrumb.unknown,
+        );
         when(channel.invokeMethod(
                 'addBreadcrumb', {'breadcrumb': normalizedBreadcrumb.toJson()}))
             .thenAnswer((_) => Future.value());
