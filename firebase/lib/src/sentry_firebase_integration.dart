@@ -4,9 +4,11 @@ import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:sentry/sentry.dart';
 
 class SentryFirebaseIntegration extends Integration<SentryOptions> {
-  SentryFirebaseIntegration(this._firebaseRemoteConfig, this._keys,
-      {bool activateOnConfigUpdated = true})
-      : _activateOnConfigUpdated = activateOnConfigUpdated;
+  SentryFirebaseIntegration(
+    this._firebaseRemoteConfig,
+    this._keys, {
+    bool activateOnConfigUpdated = true,
+  }) : _activateOnConfigUpdated = activateOnConfigUpdated;
 
   final FirebaseRemoteConfig _firebaseRemoteConfig;
   final Set<String> _keys;

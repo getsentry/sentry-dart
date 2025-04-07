@@ -168,8 +168,10 @@ class Fixture {
 
   final mockFirebaseRemoteConfig = MockFirebaseRemoteConfig();
 
-  Future<SentryFirebaseIntegration> getSut(Set<String> keys,
-      {bool activateOnConfigUpdated = false}) async {
+  Future<SentryFirebaseIntegration> getSut(
+    Set<String> keys, {
+    bool activateOnConfigUpdated = false,
+  }) async {
     return SentryFirebaseIntegration(
       mockFirebaseRemoteConfig,
       keys,
