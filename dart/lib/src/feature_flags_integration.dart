@@ -33,9 +33,9 @@ class FeatureFlagsIntegration extends Integration<SentryOptions> {
       values.add(SentryFeatureFlag(name: name, value: value));
     }
 
-    final newFlags = flags.copyWith(values: values);
+    flags.values = values;
 
-    await _hub?.scope.setContexts(SentryFeatureFlags.type, newFlags);
+    await _hub?.scope.setContexts(SentryFeatureFlags.type, flags);
   }
 
   @override
