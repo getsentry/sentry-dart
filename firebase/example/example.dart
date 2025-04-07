@@ -20,8 +20,7 @@ Future<void> main() async {
 
   await SentryFlutter.init(
     (options) {
-      options.dsn =
-          'https://e85b375ffb9f43cf8bdf9787768149e0@o447951.ingest.sentry.io/5428562';
+      options.dsn = 'https://example@sentry.io/add-your-dsn-here';
 
       final sentryFirebaseIntegration = SentryFirebaseIntegration(
         remoteConfig,
