@@ -16,8 +16,9 @@ class ExceptionGroupEventProcessor implements EventProcessor {
       // If already a list or no child exceptions, no grouping possible/needed.
       return event;
     } else {
-      final grouped = firstException.flatten().reversed.toList(growable: false);
-      return event.copyWith(exceptions: grouped);
+      event.exceptions =
+          firstException.flatten().reversed.toList(growable: false);
+      return event;
     }
   }
 }
@@ -26,20 +27,17 @@ extension _SentryExceptionFlatten on SentryException {
   List<SentryException> flatten({int? parentId, int id = 0}) {
     final exceptions = this.exceptions ?? [];
 
-    var mechanism = this.mechanism ?? Mechanism(type: "generic");
-    mechanism = mechanism.copyWith(
-      type: id > 0 ? "chained" : null,
-      parentId: parentId,
-      exceptionId: id,
-      isExceptionGroup: exceptions.length > 1 ? true : null,
-    );
+    final newMechanism = mechanism ?? Mechanism(type: "generic");
+    newMechanism
+      ..type = id > 0 ? "chained" : newMechanism.type
+      ..parentId = parentId
+      ..exceptionId = id
+      ..isExceptionGroup = exceptions.length > 1 ? true : null;
 
-    final exception = copyWith(
-      mechanism: mechanism,
-    );
+    mechanism = newMechanism;
 
     var all = <SentryException>[];
-    all.add(exception);
+    all.add(this);
 
     if (exceptions.isNotEmpty) {
       final parentId = id;
