@@ -4,20 +4,22 @@ import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:sentry/sentry.dart';
 
 class SentryFirebaseIntegration extends Integration<SentryOptions> {
-  SentryFirebaseIntegration(
-    this._firebaseRemoteConfig,
-    this._keys, {
+  SentryFirebaseIntegration({
+    required FirebaseRemoteConfig firebaseRemoteConfig,
+    required Set<String> featureFlagKeys,
     bool activateOnConfigUpdated = true,
-  }) : _activateOnConfigUpdated = activateOnConfigUpdated;
+  })  : _firebaseRemoteConfig = firebaseRemoteConfig,
+        _featureFlagKeys = featureFlagKeys,
+        _activateOnConfigUpdated = activateOnConfigUpdated;
 
   final FirebaseRemoteConfig _firebaseRemoteConfig;
-  final Set<String> _keys;
+  final Set<String> _featureFlagKeys;
   final bool _activateOnConfigUpdated;
   StreamSubscription<RemoteConfigUpdate>? _subscription;
 
   @override
   FutureOr<void> call(Hub hub, SentryOptions options) async {
-    if (_keys.isEmpty) {
+    if (_featureFlagKeys.isEmpty) {
       options.logger(
         SentryLevel.warning,
         'No keys provided to $SentryFirebaseIntegration. Will not track feature flags.',
@@ -29,7 +31,7 @@ class SentryFirebaseIntegration extends Integration<SentryOptions> {
         await _firebaseRemoteConfig.activate();
       }
       for (final updatedKey in event.updatedKeys) {
-        if (_keys.contains(updatedKey)) {
+        if (_featureFlagKeys.contains(updatedKey)) {
           final value = _firebaseRemoteConfig.getBool(updatedKey);
           await Sentry.addFeatureFlag(updatedKey, value);
         }
