@@ -54,3 +54,5 @@ export 'src/utils/http_sanitizer.dart';
 export 'src/utils/tracing_utils.dart';
 // ignore: invalid_export_of_internal_element
 export 'src/utils/url_details.dart';
+// ignore: invalid_export_of_internal_element
+export 'src/utils/breadcrumb_log_level.dart';
