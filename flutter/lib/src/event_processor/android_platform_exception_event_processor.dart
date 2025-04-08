@@ -154,18 +154,14 @@ class _JvmExceptionFactory {
 
     List<SentryThread> sentryThreads = [];
 
-    var sentryException = jvmException.toSentryException(nativePackageName);
+    final sentryException = jvmException.toSentryException(nativePackageName);
     final sentryThread = jvmException.toSentryThread();
     sentryThreads.add(sentryThread);
 
-    var mechanism =
-        (sentryException.mechanism ?? Mechanism(type: "generic")).copyWith(
-      source: source,
-    );
-    sentryException = sentryException.copyWith(
-      threadId: sentryThread.id,
-      mechanism: mechanism,
-    );
+    final mechanism = sentryException.mechanism ?? Mechanism(type: "generic");
+    mechanism.source = source;
+    sentryException.threadId = sentryThread.id;
+    sentryException.mechanism = mechanism;
 
     int causeIndex = 0;
     for (final cause in jvmException.causes ?? <JvmException>[]) {
@@ -173,14 +169,12 @@ class _JvmExceptionFactory {
       final causeSentryThread = cause.toSentryThread();
       sentryThreads.add(causeSentryThread);
 
-      var mechanism =
+      final causeMechanism =
           causeSentryException.mechanism ?? Mechanism(type: "generic");
-      mechanism = mechanism.copyWith(source: 'causes[$causeIndex]');
+      causeMechanism.source = 'causes[$causeIndex]';
 
-      causeSentryException = causeSentryException.copyWith(
-        threadId: causeSentryThread.id,
-        mechanism: mechanism,
-      );
+      causeSentryException.threadId = causeSentryThread.id;
+      causeSentryException.mechanism = causeMechanism;
 
       // ignore: invalid_use_of_internal_member
       sentryException.addException(causeSentryException);
@@ -194,14 +188,15 @@ class _JvmExceptionFactory {
       final suppressedSentryThread = suppressed.toSentryThread();
       sentryThreads.add(suppressedSentryThread);
 
-      var mechanism =
+      final suppressedMechanism =
           suppressedSentryException.mechanism ?? Mechanism(type: "generic");
-      mechanism = mechanism.copyWith(source: 'suppressed[$suppressedIndex]');
+      suppressedMechanism.source = 'suppressed[$suppressedIndex]';
 
-      suppressedSentryException = suppressedSentryException.copyWith(
-        threadId: suppressedSentryThread.id,
-        mechanism: mechanism,
-      );
+      suppressedSentryException.threadId = suppressedSentryThread.id;
+      suppressedSentryException.mechanism = suppressedMechanism;
+
+      // ignore: invalid_use_of_internal_member
+      sentryException.addException(suppressedSentryException);
       suppressedIndex++;
     }
     return MapEntry(sentryException, sentryThreads.toList(growable: false));
