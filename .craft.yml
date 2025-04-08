@@ -18,6 +18,7 @@ targets:
       drift:
       isar:
       link:
+      # firebase: TODO: Uncomment after we published sentry_firebase
   - name: github
   - name: registry
     sdks:
@@ -32,3 +33,5 @@ targets:
       pub:sentry_isar:
       # TODO: after we published link we need to add it to the registry repo and then uncomment here
       # pub:sentry_link:
+      # TODO: after we published firebase we need to add it to the registry repo and then uncomment here
+      # pub:sentry_firebase:
