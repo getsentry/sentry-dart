@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sentry_firebase/src/sentry_firebase_integration.dart';
 import 'package:sentry/sentry.dart';
 
 import 'package:mockito/mockito.dart';
@@ -45,7 +44,7 @@ void main() {
     sut.call(fixture.hub, fixture.options);
 
     expect(
-      fixture.options.sdk.integrations.contains('sentryFirebaseIntegration'),
+      fixture.options.sdk.integrations.contains('$SentryFirebaseRemoteConfigIntegration'),
       isTrue,
     );
   });
@@ -58,7 +57,7 @@ void main() {
     sut.call(fixture.hub, fixture.options);
 
     expect(
-      fixture.options.sdk.integrations.contains('sentryFirebaseIntegration'),
+      fixture.options.sdk.integrations.contains('$SentryFirebaseRemoteConfigIntegration'),
       isFalse,
     );
   });
@@ -168,17 +167,17 @@ class Fixture {
 
   final mockFirebaseRemoteConfig = MockFirebaseRemoteConfig();
 
-  Future<SentryFirebaseIntegration> getSut(
+  Future<SentryFirebaseRemoteConfigIntegration> getSut(
     Set<String> featureFlagKeys, {
     bool? activateOnConfigUpdated,
   }) async {
     if (activateOnConfigUpdated == null) {
-      return SentryFirebaseIntegration(
+      return SentryFirebaseRemoteConfigIntegration(
         firebaseRemoteConfig: mockFirebaseRemoteConfig,
         featureFlagKeys: featureFlagKeys,
       );
     } else {
-      return SentryFirebaseIntegration(
+      return SentryFirebaseRemoteConfigIntegration(
         firebaseRemoteConfig: mockFirebaseRemoteConfig,
         featureFlagKeys: featureFlagKeys,
         activateOnConfigUpdated: activateOnConfigUpdated,

@@ -16,15 +16,12 @@ on:
       - 'flutter/**'
       - 'firebase/**'
 
-jobs:
-  cancel-previous-workflow:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Cancel Previous Runs
-        uses: styfle/cancel-workflow-action@85880fa0301c86cca9da44039ee3bb12d3bedbfa # pin@0.12.1
-        with:
-          access_token: ${{ github.token }}
+# https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
 
+jobs:
   build:
     name: '${{ matrix.os }} | ${{ matrix.sdk }}'
     runs-on: ${{ matrix.os }}-latest
@@ -49,7 +46,7 @@ jobs:
 #        with:
 #          token: ${{ secrets.CODECOV_TOKEN }}
 #          directory: firebase
-#          coverage: sentry_firebase
+#          coverage: sentry_firebase_remote_config
 #          min-coverage: 55
 
   analyze:

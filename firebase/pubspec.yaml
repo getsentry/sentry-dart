@@ -1,4 +1,4 @@
-name: sentry_firebase
+name: sentry_firebase_remote_config
 description: "Sentry integration to use feature flags from Firebase Remote Config."
 version: 9.0.0-alpha.2
 homepage: https://docs.sentry.io/platforms/flutter/

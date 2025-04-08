@@ -2,7 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_remote_config_example/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:sentry_firebase/sentry_firebase.dart';
+import 'package:sentry_firebase_remote_config/sentry_firebase_remote_config.dart';
 
 import 'firebase_options.dart';
 
@@ -22,13 +22,13 @@ Future<void> main() async {
     (options) {
       options.dsn = 'https://example@sentry.io/add-your-dsn-here';
 
-      final sentryFirebaseIntegration = SentryFirebaseIntegration(
+      final sentryFirebaseRemoteConfigIntegration = SentryFirebaseRemoteConfigIntegration(
         firebaseRemoteConfig: remoteConfig,
         featureFlagKeys: {'firebase_feature_flag_a', 'firebase_feature_flag_b'},
         // Don't call `await remoteConfig.activate();` when firebase config is updated. Per default this is true.
         activateOnConfigUpdated: false,
       );
-      options.addIntegration(sentryFirebaseIntegration);
+      options.addIntegration(sentryFirebaseRemoteConfigIntegration);
     },
   );
 

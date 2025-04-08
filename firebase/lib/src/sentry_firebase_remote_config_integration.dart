@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:sentry/sentry.dart';
 
-class SentryFirebaseIntegration extends Integration<SentryOptions> {
-  SentryFirebaseIntegration({
+class SentryFirebaseRemoteConfigIntegration extends Integration<SentryOptions> {
+  SentryFirebaseRemoteConfigIntegration({
     required FirebaseRemoteConfig firebaseRemoteConfig,
     required Set<String> featureFlagKeys,
     bool activateOnConfigUpdated = true,
@@ -22,7 +22,7 @@ class SentryFirebaseIntegration extends Integration<SentryOptions> {
     if (_featureFlagKeys.isEmpty) {
       options.logger(
         SentryLevel.warning,
-        'No keys provided to $SentryFirebaseIntegration. Will not track feature flags.',
+        'No keys provided to $SentryFirebaseRemoteConfigIntegration. Will not track feature flags.',
       );
       return;
     }
@@ -37,7 +37,7 @@ class SentryFirebaseIntegration extends Integration<SentryOptions> {
         }
       }
     });
-    options.sdk.addIntegration('sentryFirebaseIntegration');
+    options.sdk.addIntegration('$SentryFirebaseRemoteConfigIntegration');
   }
 
   @override

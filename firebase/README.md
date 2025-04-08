@@ -20,7 +20,7 @@ Sentry integration for `firebase_remote_config` package
 
 | package     | build                                                                                                                                                                                | pub                                                                                                  | likes                                                                                                | popularity                                                                                                     | pub points |
 |-------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------| ------- |
-| sentry_firebase | [![build](https://github.com/getsentry/sentry-dart/actions/workflows/firebase.yml/badge.svg?branch=main)](https://github.com/getsentry/sentry-dart/actions?query=workflow%3Asentry-firebase) | [![pub package](https://img.shields.io/pub/v/sentry_firebase.svg)](https://pub.dev/packages/sentry_firebase) | [![likes](https://img.shields.io/pub/likes/sentry_firebase)](https://pub.dev/packages/sentry_firebase/score) | [![popularity](https://img.shields.io/pub/popularity/sentry_firebase)](https://pub.dev/packages/sentry_firebase/score) | [![pub points](https://img.shields.io/pub/points/sentry_firebase)](https://pub.dev/packages/sentry_firebase/score)
+| sentry_firebase_remote_config | [![build](https://github.com/getsentry/sentry-dart/actions/workflows/firebase.yml/badge.svg?branch=main)](https://github.com/getsentry/sentry-dart/actions?query=workflow%3Asentry-firebase) | [![pub package](https://img.shields.io/pub/v/sentry_firebase_remote_config.svg)](https://pub.dev/packages/sentry_firebase_remote_config) | [![likes](https://img.shields.io/pub/likes/sentry_firebase_remote_config)](https://pub.dev/packages/sentry_firebase_remote_config/score) | [![popularity](https://img.shields.io/pub/popularity/sentry_firebase_remote_config)](https://pub.dev/packages/sentry_firebase_remote_config/score) | [![pub points](https://img.shields.io/pub/points/sentry_firebase_remote_config)](https://pub.dev/packages/sentry_firebase_remote_config/score)
 
 Integration for [`firebase_remote_config`](https://pub.dev/packages/firebase_remote_config) package. Track changes to firebase boolean values as feature flags in Sentry.io
 
@@ -39,7 +39,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_remote_config_example/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:sentry_firebase/sentry_firebase.dart';
+import 'package:sentry_firebase_remote_config/sentry_firebase_remote_config.dart';
 
 import 'firebase_options.dart';
 
@@ -59,13 +59,13 @@ Future<void> main() async {
     (options) {
       options.dsn = 'https://example@sentry.io/add-your-dsn-here';
 
-      final sentryFirebaseIntegration = SentryFirebaseIntegration(
+      final sentryFirebaseRemoteConfigIntegration = SentryFirebaseRemoteConfigIntegration(
         firebaseRemoteConfig: remoteConfig,
         featureFlagKeys: {'firebase_feature_flag_a', 'firebase_feature_flag_b'},
         // Don't call `await remoteConfig.activate();` when firebase config is updated. Per default this is true.
         activateOnConfigUpdated: false,
       );
-      options.addIntegration(sentryFirebaseIntegration);
+      options.addIntegration(sentryFirebaseRemoteConfigIntegration);
     },
   );
 
