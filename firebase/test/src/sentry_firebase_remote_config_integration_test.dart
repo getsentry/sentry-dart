@@ -5,6 +5,7 @@ import 'package:mockito/mockito.dart';
 import '../mocks/mocks.mocks.dart';
 
 import 'package:firebase_remote_config/firebase_remote_config.dart';
+import 'package:sentry_firebase_remote_config/sentry_firebase_remote_config.dart';
 
 void main() {
   late Fixture fixture;
@@ -44,7 +45,8 @@ void main() {
     sut.call(fixture.hub, fixture.options);
 
     expect(
-      fixture.options.sdk.integrations.contains('$SentryFirebaseRemoteConfigIntegration'),
+      fixture.options.sdk.integrations
+          .contains('SentryFirebaseRemoteConfigIntegration'),
       isTrue,
     );
   });
@@ -57,7 +59,8 @@ void main() {
     sut.call(fixture.hub, fixture.options);
 
     expect(
-      fixture.options.sdk.integrations.contains('$SentryFirebaseRemoteConfigIntegration'),
+      fixture.options.sdk.integrations
+          .contains('SentryFirebaseRemoteConfigIntegration'),
       isFalse,
     );
   });

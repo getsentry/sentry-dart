@@ -22,7 +22,7 @@ class SentryFirebaseRemoteConfigIntegration extends Integration<SentryOptions> {
     if (_featureFlagKeys.isEmpty) {
       options.logger(
         SentryLevel.warning,
-        'No keys provided to $SentryFirebaseRemoteConfigIntegration. Will not track feature flags.',
+        'No keys provided to SentryFirebaseRemoteConfigIntegration. Will not track feature flags.',
       );
       return;
     }
@@ -37,7 +37,7 @@ class SentryFirebaseRemoteConfigIntegration extends Integration<SentryOptions> {
         }
       }
     });
-    options.sdk.addIntegration('$SentryFirebaseRemoteConfigIntegration');
+    options.sdk.addIntegration('SentryFirebaseRemoteConfigIntegration');
   }
 
   @override
