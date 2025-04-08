@@ -81,13 +81,11 @@ class BreadcrumbClient extends BaseClient {
       final urlDetails =
           HttpSanitizer.sanitizeUrl(request.url.toString()) ?? UrlDetails();
 
-      SentryLevel level;
+      SentryLevel? level;
       if (requestHadException) {
         level = SentryLevel.error;
       } else if (statusCode != null) {
         level = getBreadcrumbLogLevelFromHttpStatusCode(statusCode);
-      } else {
-        level = SentryLevel.info;
       }
 
       var breadcrumb = Breadcrumb.http(

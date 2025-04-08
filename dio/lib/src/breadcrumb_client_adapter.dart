@@ -56,14 +56,12 @@ class BreadcrumbClientAdapter implements HttpClientAdapter {
           // ignore: invalid_use_of_internal_member
           HttpSanitizer.sanitizeUrl(options.uri.toString()) ?? UrlDetails();
 
-      SentryLevel level;
+      SentryLevel? level;
       if (requestHadException) {
         level = SentryLevel.error;
       } else if (statusCode != null) {
         // ignore: invalid_use_of_internal_member
         level = getBreadcrumbLogLevelFromHttpStatusCode(statusCode);
-      } else {
-        level = SentryLevel.info;
       }
 
       final breadcrumb = Breadcrumb.http(
