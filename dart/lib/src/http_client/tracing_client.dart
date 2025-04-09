@@ -1,11 +1,13 @@
 import 'package:http/http.dart';
+
 import '../hub.dart';
 import '../hub_adapter.dart';
 import '../protocol.dart';
 import '../sentry_trace_origins.dart';
 import '../tracing.dart';
-import '../utils/tracing_utils.dart';
+import '../utils/add_tracing_headers_to_http_request.dart';
 import '../utils/http_sanitizer.dart';
+import '../utils/tracing_utils.dart';
 
 /// A [http](https://pub.dev/packages/http)-package compatible HTTP client
 /// which adds support to Sentry Performance feature.
@@ -48,27 +50,7 @@ class TracingClient extends BaseClient {
     try {
       if (containsTargetOrMatchesRegExp(
           _hub.options.tracePropagationTargets, request.url.toString())) {
-        if (span != null) {
-          addSentryTraceHeaderFromSpan(span, request.headers);
-          addBaggageHeaderFromSpan(
-            span,
-            request.headers,
-            logger: _hub.options.logger,
-          );
-        } else {
-          final scope = _hub.scope;
-          final propagationContext = scope.propagationContext;
-
-          final traceHeader = propagationContext.toSentryTrace();
-          addSentryTraceHeader(traceHeader, request.headers);
-
-          final baggage = propagationContext.baggage;
-          if (baggage != null) {
-            final baggageHeader = SentryBaggageHeader.fromBaggage(baggage);
-            addBaggageHeader(baggageHeader, request.headers,
-                logger: _hub.options.logger);
-          }
-        }
+        addTracingHeadersToHttpHeader(request.headers, span: span, hub: _hub);
       }
 
       response = await _client.send(request);

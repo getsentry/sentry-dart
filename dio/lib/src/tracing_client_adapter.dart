@@ -56,34 +56,8 @@ class TracingClientAdapter implements HttpClientAdapter {
         _hub.options.tracePropagationTargets,
         options.uri.toString(),
       )) {
-        if (span != null) {
-          addSentryTraceHeaderFromSpan(span, options.headers);
-          addBaggageHeaderFromSpan(
-            span,
-            options.headers,
-            // ignore: invalid_use_of_internal_member
-            logger: _hub.options.logger,
-          );
-        } else {
-          // ignore: invalid_use_of_internal_member
-          final scope = _hub.scope;
-          // ignore: invalid_use_of_internal_member
-          final propagationContext = scope.propagationContext;
-
-          final traceHeader = propagationContext.toSentryTrace();
-          addSentryTraceHeader(traceHeader, options.headers);
-
-          final baggage = propagationContext.baggage;
-          if (baggage != null) {
-            final baggageHeader = SentryBaggageHeader.fromBaggage(baggage);
-            addBaggageHeader(
-              baggageHeader,
-              options.headers,
-              // ignore: invalid_use_of_internal_member
-              logger: _hub.options.logger,
-            );
-          }
-        }
+        // ignore: invalid_use_of_internal_member
+        addTracingHeadersToHttpHeader(options.headers, span: span, hub: _hub);
       }
 
       response = await _client.fetch(options, requestStream, cancelFuture);
