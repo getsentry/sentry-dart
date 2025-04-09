@@ -6,6 +6,7 @@ import '../../sentry.dart';
 void addTracingHeadersToHttpHeader(Map<String, dynamic> headers,
     {ISentrySpan? span, Hub? hub}) {
   hub ??= Sentry.currentHub;
+
   if (span != null) {
     addSentryTraceHeaderFromSpan(span, headers);
     addBaggageHeaderFromSpan(
