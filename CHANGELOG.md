@@ -5,6 +5,9 @@
 ### Behavioral changes
 
 - Set log level to `warning` by default when `debug = true` ([#2836](https://github.com/getsentry/sentry-dart/pull/2836))
+- Set HTTP client breadcrumbs log level based on response status code ([#2847](https://github.com/getsentry/sentry-dart/pull/2847))
+  - 5xx is mapped to `SentryLevel.error`
+  - 4xx is mapped to `SentryLevel.warning`
 
 ### API Changes
 
