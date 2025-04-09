@@ -321,7 +321,7 @@ void main() {
       );
     });
 
-    test('addFeatureFlag ignores non-boolean values', () async {
+    test('addFeatureFlag should ignore non-boolean values', () async {
       await Sentry.init(
         options: defaultTestOptions(),
             (options) => options.dsn = fakeDsn,
