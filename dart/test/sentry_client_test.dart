@@ -270,10 +270,16 @@ void main() {
       final firstException = capturedEvent.exceptions?[0];
       expect(firstException is SentryException, true);
       expect(firstException?.mechanism?.source, "cause");
+      expect(firstException?.mechanism?.parentId, 0);
+      expect(firstException?.mechanism?.exceptionId, 1);
+      expect(firstException?.mechanism?.isExceptionGroup, isNull);
 
       final secondException = capturedEvent.exceptions?[1];
       expect(secondException is SentryException, true);
       expect(secondException?.mechanism?.source, null);
+      expect(secondException?.mechanism?.parentId, null);
+      expect(secondException?.mechanism?.exceptionId, 0);
+      expect(secondException?.mechanism?.isExceptionGroup, isTrue);
     });
 
     test('should capture cause stacktrace', () async {

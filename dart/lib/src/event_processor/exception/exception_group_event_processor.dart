@@ -32,7 +32,7 @@ extension _SentryExceptionFlatten on SentryException {
       ..type = id > 0 ? "chained" : newMechanism.type
       ..parentId = parentId
       ..exceptionId = id
-      ..isExceptionGroup = exceptions.length > 1 ? true : null;
+      ..isExceptionGroup = exceptions.isNotEmpty ? true : null;
 
     mechanism = newMechanism;
 

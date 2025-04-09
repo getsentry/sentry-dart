@@ -73,15 +73,15 @@ void main() {
       expect(event?.request?.url, '127.0.0.1');
 
       final rootException = event?.exceptions?.first;
-      expect(rootException?.type, 'OSError');
-      expect(rootException?.value,
-          'OS Error: Connection reset by peer, errno = 54');
-      expect(rootException?.mechanism?.type, 'OSError');
-      expect(rootException?.mechanism?.meta['errno']['number'], 54);
-      expect(rootException?.mechanism?.source, 'osError');
+      expect(rootException, sentryException);
 
       final childException = rootException?.exceptions?.first;
-      expect(childException, sentryException);
+      expect(childException?.type, 'OSError');
+      expect(childException?.value,
+          'OS Error: Connection reset by peer, errno = 54');
+      expect(childException?.mechanism?.type, 'OSError');
+      expect(childException?.mechanism?.meta['errno']['number'], 54);
+      expect(childException?.mechanism?.source, 'osError');
     });
 
     test('adds OSError SentryException for $FileSystemException', () {
@@ -102,19 +102,20 @@ void main() {
         Hint(),
       );
 
+      final rootException = event?.exceptions?.first;
+      expect(rootException, sentryException);
+
+      final childException = rootException?.exceptions?.firstOrNull;
       // Due to the test setup, there's no SentryException for the FileSystemException.
       // And thus only one entry for the added OSError
-      expect(event?.exceptions?.first.type, 'OSError');
+      expect(childException?.type, 'OSError');
       expect(
-        event?.exceptions?.first.value,
+        childException?.value,
         'OS Error: Oh no :(, errno = 42',
       );
-      expect(event?.exceptions?.first.mechanism?.type, 'OSError');
-      expect(event?.exceptions?.first.mechanism?.meta['errno']['number'], 42);
-      expect(event?.exceptions?.first.mechanism?.source, 'osError');
-
-      final childException = event?.exceptions?.first.exceptions?.first;
-      expect(childException, sentryException);
+      expect(childException?.mechanism?.type, 'OSError');
+      expect(childException?.mechanism?.meta['errno']['number'], 42);
+      expect(childException?.mechanism?.source, 'osError');
     });
   });
 }

@@ -45,7 +45,7 @@ void main() {
 
       expect(sentryExceptionA.throwable, throwableA);
       expect(sentryExceptionA.mechanism?.type, "generic");
-      expect(sentryExceptionA.mechanism?.isExceptionGroup, isNull);
+      expect(sentryExceptionA.mechanism?.isExceptionGroup, isTrue);
       expect(sentryExceptionA.mechanism?.exceptionId, 0);
       expect(sentryExceptionA.mechanism?.parentId, isNull);
     });
@@ -127,17 +127,19 @@ void main() {
       expect(flattened.length, 3);
 
       expect(flattened[2].value, 'origin');
-      expect(flattened[2].mechanism?.isExceptionGroup, isNull);
+      expect(flattened[2].mechanism?.isExceptionGroup, isTrue);
       expect(flattened[2].mechanism?.source, isNull);
       expect(flattened[2].mechanism?.exceptionId, 0);
       expect(flattened[2].mechanism?.parentId, null);
 
       expect(flattened[1].value, 'originChild');
+      expect(flattened[1].mechanism?.isExceptionGroup, isTrue);
       expect(flattened[1].mechanism?.source, isNull);
       expect(flattened[1].mechanism?.exceptionId, 1);
       expect(flattened[1].mechanism?.parentId, 0);
 
       expect(flattened[0].value, 'originChildChild');
+      expect(flattened[0].mechanism?.isExceptionGroup, isNull);
       expect(flattened[0].mechanism?.source, isNull);
       expect(flattened[0].mechanism?.exceptionId, 2);
       expect(flattened[0].mechanism?.parentId, 1);
