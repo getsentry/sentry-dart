@@ -1,4 +1,4 @@
-// ignore_for_file: strict_raw_type
+// ignore_for_file: strict_raw_type, invalid_use_of_internal_member
 
 import 'dart:typed_data';
 
@@ -12,7 +12,11 @@ class TracingClientAdapter implements HttpClientAdapter {
   // ignore: public_member_api_docs
   TracingClientAdapter({required HttpClientAdapter client, Hub? hub})
       : _hub = hub ?? HubAdapter(),
-        _client = client;
+        _client = client {
+    if (_hub.options.isTracingEnabled()) {
+      _hub.options.sdk.addIntegration('DioNetworkTracing');
+    }
+  }
 
   final HttpClientAdapter _client;
   final Hub _hub;
@@ -23,7 +27,6 @@ class TracingClientAdapter implements HttpClientAdapter {
     Stream<Uint8List>? requestStream,
     Future? cancelFuture,
   ) async {
-    // ignore: invalid_use_of_internal_member
     final urlDetails = HttpSanitizer.sanitizeUrl(options.uri.toString());
 
     var description = options.method;
@@ -38,33 +41,29 @@ class TracingClientAdapter implements HttpClientAdapter {
       description: description,
     );
 
-    // ignore: invalid_use_of_internal_member
-    span?.origin = SentryTraceOrigins.autoHttpDioHttpClientAdapter;
-
-    // if the span is NoOp, we don't want to attach headers
     if (span is NoOpSentrySpan) {
       span = null;
     }
 
+    // Regardless whether tracing is enabled or not, we always want to attach
+    // Sentry trace headers (tracing without performance).
+    if (containsTargetOrMatchesRegExp(
+      _hub.options.tracePropagationTargets,
+      options.uri.toString(),
+    )) {
+      addTracingHeadersToHttpHeader(options.headers, span: span, hub: _hub);
+    }
+
+    span?.origin = SentryTraceOrigins.autoHttpDioHttpClientAdapter;
     span?.setData('http.request.method', options.method);
     urlDetails?.applyToSpan(span);
 
     ResponseBody? response;
     try {
-      if (containsTargetOrMatchesRegExp(
-        // ignore: invalid_use_of_internal_member
-        _hub.options.tracePropagationTargets,
-        options.uri.toString(),
-      )) {
-        // ignore: invalid_use_of_internal_member
-        addTracingHeadersToHttpHeader(options.headers, span: span, hub: _hub);
-      }
-
       response = await _client.fetch(options, requestStream, cancelFuture);
       span?.status = SpanStatus.fromHttpStatusCode(response.statusCode);
       span?.setData('http.response.status_code', response.statusCode);
       final contentLengthHeader =
-          // ignore: invalid_use_of_internal_member
           HttpHeaderUtils.getContentLength(response.headers);
       if (contentLengthHeader != null) {
         span?.setData('http.response_content_length', contentLengthHeader);

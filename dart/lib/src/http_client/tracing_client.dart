@@ -15,7 +15,11 @@ import '../utils/tracing_utils.dart';
 class TracingClient extends BaseClient {
   TracingClient({Client? client, Hub? hub})
       : _hub = hub ?? HubAdapter(),
-        _client = client ?? Client();
+        _client = client ?? Client() {
+    if (_hub.options.isTracingEnabled()) {
+      _hub.options.sdk.addIntegration('HTTPNetworkTracing');
+    }
+  }
 
   final Client _client;
   final Hub _hub;
@@ -36,23 +40,24 @@ class TracingClient extends BaseClient {
       'http.client',
       description: description,
     );
-    span?.origin = SentryTraceOrigins.autoHttpHttp;
 
-    // if the span is NoOp, we don't want to attach headers
     if (span is NoOpSentrySpan) {
       span = null;
     }
 
+    // Regardless whether tracing is enabled or not, we always want to attach
+    // Sentry trace headers (tracing without performance).
+    if (containsTargetOrMatchesRegExp(
+        _hub.options.tracePropagationTargets, request.url.toString())) {
+      addTracingHeadersToHttpHeader(request.headers, span: span, hub: _hub);
+    }
+
+    span?.origin = SentryTraceOrigins.autoHttpHttp;
     span?.setData('http.request.method', request.method);
     urlDetails?.applyToSpan(span);
 
     StreamedResponse? response;
     try {
-      if (containsTargetOrMatchesRegExp(
-          _hub.options.tracePropagationTargets, request.url.toString())) {
-        addTracingHeadersToHttpHeader(request.headers, span: span, hub: _hub);
-      }
-
       response = await _client.send(request);
       span?.setData('http.response.status_code', response.statusCode);
       span?.setData('http.response_content_length', response.contentLength);
