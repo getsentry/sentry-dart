@@ -11,11 +11,12 @@ void main() {
   late Fixture fixture;
 
   givenRemoveConfigUpdate() {
-    final update = RemoteConfigUpdate({'test'});
+    final update = RemoteConfigUpdate({'test', 'foo'});
     when(fixture.mockFirebaseRemoteConfig.onConfigUpdated)
         .thenAnswer((_) => Stream.value(update));
-    when(fixture.mockFirebaseRemoteConfig.getBool('test')).thenReturn(true);
 
+    when(fixture.mockFirebaseRemoteConfig.getString('test')).thenReturn('true');
+    when(fixture.mockFirebaseRemoteConfig.getString('foo')).thenReturn('bar');
     when(fixture.mockFirebaseRemoteConfig.activate())
         .thenAnswer((_) => Future.value(true));
   }
@@ -40,7 +41,7 @@ void main() {
   test('adds integration to options', () async {
     givenRemoveConfigUpdate();
 
-    final sut = await fixture.getSut({'test'});
+    final sut = await fixture.getSut();
 
     sut.call(fixture.hub, fixture.options);
 
@@ -51,24 +52,10 @@ void main() {
     );
   });
 
-  test('does not add integration to options if no keys are provided', () async {
+  test('adds boolean update to feature flags', () async {
     givenRemoveConfigUpdate();
 
-    final sut = await fixture.getSut({});
-
-    sut.call(fixture.hub, fixture.options);
-
-    expect(
-      fixture.options.sdk.integrations
-          .contains('SentryFirebaseRemoteConfigIntegration'),
-      isFalse,
-    );
-  });
-
-  test('adds update to feature flags', () async {
-    givenRemoveConfigUpdate();
-
-    final sut = await fixture.getSut({'test'});
+    final sut = await fixture.getSut();
     sut.call(fixture.hub, fixture.options);
     await Future<void>.delayed(
       const Duration(
@@ -81,6 +68,7 @@ void main() {
         as SentryFeatureFlags?;
 
     expect(featureFlags, isNotNull);
+    expect(featureFlags?.values.length, 1);
     expect(featureFlags?.values.first.name, 'test');
     expect(featureFlags?.values.first.value, true);
   });
@@ -95,36 +83,17 @@ void main() {
     when(fixture.mockFirebaseRemoteConfig.onConfigUpdated)
         .thenAnswer((_) => stream);
 
-    final sut = await fixture.getSut({'test'});
+    final sut = await fixture.getSut();
     await sut.call(fixture.hub, fixture.options);
     await sut.close();
 
     verify(streamSubscription.cancel()).called(1);
   });
 
-  test('doesn`t add update to feature flags if key is not in the list',
-      () async {
-    givenRemoveConfigUpdate();
-
-    final sut = await fixture.getSut({'test2'});
-    sut.call(fixture.hub, fixture.options);
-    await Future<void>.delayed(
-      const Duration(
-        milliseconds: 100,
-      ),
-    ); // wait for the subscription to be called
-
-    // ignore: invalid_use_of_internal_member
-    final featureFlags = fixture.hub.scope.contexts[SentryFeatureFlags.type]
-        as SentryFeatureFlags?;
-
-    expect(featureFlags, isNull);
-  });
-
   test('activate called by default', () async {
     givenRemoveConfigUpdate();
 
-    final sut = await fixture.getSut({'test'});
+    final sut = await fixture.getSut();
     sut.call(fixture.hub, fixture.options);
     await Future<void>.delayed(
       const Duration(
@@ -138,7 +107,7 @@ void main() {
   test('activate not called if activateOnConfigUpdated is false', () async {
     givenRemoveConfigUpdate();
 
-    final sut = await fixture.getSut({'test'}, activateOnConfigUpdated: false);
+    final sut = await fixture.getSut(activateOnConfigUpdated: false);
     sut.call(fixture.hub, fixture.options);
     await Future<void>.delayed(
       const Duration(
@@ -152,7 +121,7 @@ void main() {
   test('activate called if activateOnConfigUpdated is true', () async {
     givenRemoveConfigUpdate();
 
-    final sut = await fixture.getSut({'test'}, activateOnConfigUpdated: true);
+    final sut = await fixture.getSut(activateOnConfigUpdated: true);
     sut.call(fixture.hub, fixture.options);
     await Future<void>.delayed(
       const Duration(
@@ -171,18 +140,14 @@ class Fixture {
   final mockFirebaseRemoteConfig = MockFirebaseRemoteConfig();
 
   Future<SentryFirebaseRemoteConfigIntegration> getSut(
-    Set<String> featureFlagKeys, {
-    bool? activateOnConfigUpdated,
-  }) async {
+      {bool? activateOnConfigUpdated}) async {
     if (activateOnConfigUpdated == null) {
       return SentryFirebaseRemoteConfigIntegration(
         firebaseRemoteConfig: mockFirebaseRemoteConfig,
-        featureFlagKeys: featureFlagKeys,
       );
     } else {
       return SentryFirebaseRemoteConfigIntegration(
         firebaseRemoteConfig: mockFirebaseRemoteConfig,
-        featureFlagKeys: featureFlagKeys,
         activateOnConfigUpdated: activateOnConfigUpdated,
       );
     }

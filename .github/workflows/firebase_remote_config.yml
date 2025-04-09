@@ -1,4 +1,4 @@
-name: sentry-firebase
+name: sentry-firebase-remote-config
 on:
   push:
     branches:
@@ -8,13 +8,13 @@ on:
     paths:
       - '!**/*.md'
       - '!**/class-diagram.svg'
-      - '.github/workflows/firebase.yml'
+      - '.github/workflows/firebase_remote_config.yml'
       - '.github/workflows/analyze.yml'
       - '.github/actions/dart-test/**'
       - '.github/actions/coverage/**'
       - 'dart/**'
       - 'flutter/**'
-      - 'firebase/**'
+      - 'firebase_remote_config/**'
 
 # https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
 concurrency:
@@ -37,7 +37,7 @@ jobs:
 
       - uses: ./.github/actions/flutter-test
         with:
-          directory: firebase
+          directory: firebase_remote_config
           web: false
 
 #       TODO: don't set coverage for now to finish publishing it
@@ -45,12 +45,12 @@ jobs:
 #        if: runner.os == 'Linux' && matrix.sdk == 'stable'
 #        with:
 #          token: ${{ secrets.CODECOV_TOKEN }}
-#          directory: firebase
+#          directory: firebase_remote_config
 #          coverage: sentry_firebase_remote_config
 #          min-coverage: 55
 
   analyze:
     uses: ./.github/workflows/analyze.yml
     with:
-      package: firebase
+      package: firebase_remote_config
       sdk: flutter

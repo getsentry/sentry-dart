@@ -18,7 +18,7 @@ targets:
       drift:
       isar:
       link:
-      firebase:
+      firebase_remote_config:
   - name: github
   - name: registry
     sdks:

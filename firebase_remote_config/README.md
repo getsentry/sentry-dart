@@ -61,7 +61,6 @@ Future<void> main() async {
 
       final sentryFirebaseRemoteConfigIntegration = SentryFirebaseRemoteConfigIntegration(
         firebaseRemoteConfig: remoteConfig,
-        featureFlagKeys: {'firebase_feature_flag_a', 'firebase_feature_flag_b'},
         // Don't call `await remoteConfig.activate();` when firebase config is updated. Per default this is true.
         activateOnConfigUpdated: false,
       );
