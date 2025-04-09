@@ -24,6 +24,8 @@ export 'src/noop_isolate_error_integration.dart'
 export 'src/observers.dart';
 export 'src/performance_collector.dart';
 export 'src/protocol.dart';
+export 'src/protocol/sentry_feature_flags.dart';
+export 'src/protocol/sentry_feature_flag.dart';
 export 'src/protocol/sentry_feedback.dart';
 export 'src/protocol/sentry_proxy.dart';
 export 'src/run_zoned_guarded_integration.dart';

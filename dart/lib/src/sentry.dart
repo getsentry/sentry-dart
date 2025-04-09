@@ -25,6 +25,7 @@ import 'sentry_run_zoned_guarded.dart';
 import 'tracing.dart';
 import 'transport/data_category.dart';
 import 'transport/task_queue.dart';
+import 'feature_flags_integration.dart';
 
 /// Configuration options callback
 typedef OptionsConfiguration = FutureOr<void> Function(SentryOptions);
@@ -104,6 +105,8 @@ class Sentry {
     if (options.enableDartSymbolication) {
       options.addIntegration(LoadDartDebugImagesIntegration());
     }
+
+    options.addIntegration(FeatureFlagsIntegration());
 
     options.addEventProcessor(EnricherEventProcessor(options));
     options.addEventProcessor(ExceptionEventProcessor(options));
@@ -356,6 +359,22 @@ class Sentry {
 
   /// Gets the current active transaction or span bound to the scope.
   static ISentrySpan? getSpan() => _hub.getSpan();
+
+  static Future<void> addFeatureFlag(String name, bool value) async {
+    final featureFlagsIntegration = currentHub.options.integrations
+        .whereType<FeatureFlagsIntegration>()
+        .firstOrNull;
+
+    if (featureFlagsIntegration == null) {
+      currentHub.options.logger(
+        SentryLevel.warning,
+        '$FeatureFlagsIntegration not found. Make sure Sentry is initialized before accessing the addFeatureFlag API.',
+      );
+      return;
+    }
+
+    await featureFlagsIntegration.addFeatureFlag(name, value);
+  }
 
   @internal
   static Hub get currentHub => _hub;
