@@ -139,8 +139,9 @@ class Fixture {
 
   final mockFirebaseRemoteConfig = MockFirebaseRemoteConfig();
 
-  Future<SentryFirebaseRemoteConfigIntegration> getSut(
-      {bool? activateOnConfigUpdated}) async {
+  Future<SentryFirebaseRemoteConfigIntegration> getSut({
+    bool? activateOnConfigUpdated,
+  }) async {
     if (activateOnConfigUpdated == null) {
       return SentryFirebaseRemoteConfigIntegration(
         firebaseRemoteConfig: mockFirebaseRemoteConfig,
