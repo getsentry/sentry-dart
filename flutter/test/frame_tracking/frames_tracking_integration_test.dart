@@ -74,7 +74,8 @@ void main() {
   test('adds integration to SDK list', () async {
     await fromWorkingState(options);
 
-    expect(options.sdk.integrations, contains('framesTrackingIntegration'));
+    expect(options.sdk.integrations,
+        contains(FramesTrackingIntegration.integrationName));
   });
 
   test('properly cleans up resources on close', () async {

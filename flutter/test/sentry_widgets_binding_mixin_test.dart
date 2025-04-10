@@ -16,7 +16,7 @@ void main() {
     });
 
     test('frame processing continues execution when clock throws', () {
-      binding.registerFramesTracking(
+      binding.initializeFramesTracking(
         (_, __) {},
         () => throw Exception('Clock error'),
       );
@@ -31,7 +31,7 @@ void main() {
     });
 
     test('frame processing execution when callback throws', () {
-      binding.registerFramesTracking(
+      binding.initializeFramesTracking(
         (_, __) {
           throw Exception('Callback error');
         },
