@@ -22,7 +22,6 @@ class SentryExceptionFactory {
   }) {
     var throwable = exception;
     Mechanism? mechanism;
-
     bool? snapshot;
     if (exception is ThrowableMechanism) {
       throwable = exception.throwable;
