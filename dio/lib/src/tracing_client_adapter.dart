@@ -10,11 +10,14 @@ import 'package:sentry/sentry.dart';
 /// https://develop.sentry.dev/sdk/performance
 class TracingClientAdapter implements HttpClientAdapter {
   // ignore: public_member_api_docs
+  static const String integrationName = 'HTTPNetworkTracing';
+
+  // ignore: public_member_api_docs
   TracingClientAdapter({required HttpClientAdapter client, Hub? hub})
       : _hub = hub ?? HubAdapter(),
         _client = client {
     if (_hub.options.isTracingEnabled()) {
-      _hub.options.sdk.addIntegration('DioNetworkTracing');
+      _hub.options.sdk.addIntegration(integrationName);
     }
   }
 

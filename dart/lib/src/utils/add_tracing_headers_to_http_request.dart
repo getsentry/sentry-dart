@@ -21,9 +21,8 @@ void addTracingHeadersToHttpHeader(Map<String, dynamic> headers,
     final traceHeader = propagationContext.toSentryTrace();
     addSentryTraceHeader(traceHeader, headers);
 
-    final baggage = propagationContext.baggage;
-    if (baggage != null) {
-      final baggageHeader = SentryBaggageHeader.fromBaggage(baggage);
+    final baggageHeader = propagationContext.toBaggageHeader();
+    if (baggageHeader != null) {
       addBaggageHeader(baggageHeader, headers, logger: hub.options.logger);
     }
   }

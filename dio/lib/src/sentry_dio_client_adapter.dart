@@ -7,7 +7,6 @@ import 'package:sentry/sentry.dart';
 
 import 'breadcrumb_client_adapter.dart';
 import 'tracing_client_adapter.dart';
-import 'tracing_without_performance_client.dart';
 
 /// A [Dio](https://pub.dev/packages/dio)-package compatible HTTP client adapter.
 ///
@@ -33,16 +32,6 @@ class SentryDioClientAdapter implements HttpClientAdapter {
     var innerClient = client;
 
     innerClient = TracingClientAdapter(client: innerClient, hub: _hub);
-
-    // ignore: invalid_use_of_internal_member
-    if (_hub.options.isTracingEnabled()) {
-      innerClient = TracingClientAdapter(client: innerClient, hub: _hub);
-      // ignore: invalid_use_of_internal_member
-      _hub.options.sdk.addIntegration('DioNetworkTracing');
-    } else {
-      innerClient =
-          TracingWithoutPerformanceClient(client: innerClient, hub: _hub);
-    }
 
     // The ordering here matters.
     // We don't want to include the breadcrumbs for the current request

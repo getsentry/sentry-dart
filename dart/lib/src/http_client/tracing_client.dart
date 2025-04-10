@@ -10,14 +10,18 @@ import '../utils/http_sanitizer.dart';
 import '../utils/tracing_utils.dart';
 
 /// A [http](https://pub.dev/packages/http)-package compatible HTTP client
-/// which adds support to Sentry Performance feature.
+/// which adds support to Sentry Performance feature. If tracing is disabled
+/// generated spans will be no-op. This client also handles adding the
+/// of Sentry trace headers to the request header.
 /// https://develop.sentry.dev/sdk/performance
 class TracingClient extends BaseClient {
+  static const String integrationName = 'HTTPNetworkTracing';
+
   TracingClient({Client? client, Hub? hub})
       : _hub = hub ?? HubAdapter(),
         _client = client ?? Client() {
     if (_hub.options.isTracingEnabled()) {
-      _hub.options.sdk.addIntegration('HTTPNetworkTracing');
+      _hub.options.sdk.addIntegration(integrationName);
     }
   }
 
@@ -27,7 +31,6 @@ class TracingClient extends BaseClient {
   @override
   Future<StreamedResponse> send(BaseRequest request) async {
     // see https://develop.sentry.dev/sdk/performance/#header-sentry-trace
-
     final urlDetails = HttpSanitizer.sanitizeUrl(request.url.toString());
 
     var description = request.method;
