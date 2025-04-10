@@ -301,7 +301,7 @@ void main() {
       );
     }, onPlatform: {'vm': Skip()});
 
-    test('should add feature flagg FeatureFlagsIntegration', () async {
+    test('should add feature flag FeatureFlagsIntegration', () async {
       await Sentry.init(
         options: defaultTestOptions(),
         (options) => options.dsn = fakeDsn,
@@ -319,6 +319,21 @@ void main() {
             .value,
         equals(true),
       );
+    });
+
+    test('addFeatureFlag should ignore non-boolean values', () async {
+      await Sentry.init(
+        options: defaultTestOptions(),
+        (options) => options.dsn = fakeDsn,
+      );
+
+      await Sentry.addFeatureFlag('foo1', 'some string');
+      await Sentry.addFeatureFlag('foo2', 123);
+      await Sentry.addFeatureFlag('foo3', 1.23);
+
+      final featureFlagsContext =
+          Sentry.currentHub.scope.contexts[SentryFeatureFlags.type];
+      expect(featureFlagsContext, isNull);
     });
 
     test('should close integrations', () async {

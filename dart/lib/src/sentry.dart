@@ -360,7 +360,11 @@ class Sentry {
   /// Gets the current active transaction or span bound to the scope.
   static ISentrySpan? getSpan() => _hub.getSpan();
 
-  static Future<void> addFeatureFlag(String name, bool value) async {
+  static Future<void> addFeatureFlag(String name, dynamic value) async {
+    if (value is! bool) {
+      return;
+    }
+
     final featureFlagsIntegration = currentHub.options.integrations
         .whereType<FeatureFlagsIntegration>()
         .firstOrNull;
