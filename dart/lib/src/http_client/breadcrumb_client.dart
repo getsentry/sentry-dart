@@ -2,6 +2,7 @@ import 'package:http/http.dart';
 import '../protocol.dart';
 import '../hub.dart';
 import '../hub_adapter.dart';
+import '../utils/breadcrumb_log_level.dart';
 import '../utils/url_details.dart';
 import '../utils/http_sanitizer.dart';
 
@@ -80,8 +81,15 @@ class BreadcrumbClient extends BaseClient {
       final urlDetails =
           HttpSanitizer.sanitizeUrl(request.url.toString()) ?? UrlDetails();
 
+      SentryLevel? level;
+      if (requestHadException) {
+        level = SentryLevel.error;
+      } else if (statusCode != null) {
+        level = getBreadcrumbLogLevelFromHttpStatusCode(statusCode);
+      }
+
       var breadcrumb = Breadcrumb.http(
-        level: requestHadException ? SentryLevel.error : SentryLevel.info,
+        level: level,
         url: Uri.parse(urlDetails.urlOrFallback),
         method: request.method,
         statusCode: statusCode,
