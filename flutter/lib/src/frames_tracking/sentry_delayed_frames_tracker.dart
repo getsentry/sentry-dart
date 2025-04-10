@@ -70,8 +70,12 @@ class SentryDelayedFramesTracker {
     }).toList(growable: false);
   }
 
+  /// Records the start and end time of a delayed frame.
+  ///
+  /// [startTimestamp] The time when the delayed frame rendering started.
+  /// [endTimestamp] The time when the delayed frame rendering ended.
   @pragma('vm:prefer-inline')
-  void addFrame(DateTime startTimestamp, DateTime endTimestamp) {
+  void addDelayedFrame(DateTime startTimestamp, DateTime endTimestamp) {
     if (!_options.enableFramesTracking) {
       return;
     }
@@ -79,8 +83,8 @@ class SentryDelayedFramesTracker {
       return;
     }
     if (_delayedFrames.length > maxDelayedFramesBuffer) {
-      // buffer is full, we stop collecting frames until all active spans have
-      // finished processing
+      _options.logger(SentryLevel.debug,
+          'Frame tracking buffer is full, stopping frame collection until all active spans have finished processing');
       return;
     }
     final frameTiming = SentryFrameTiming(
