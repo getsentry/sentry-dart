@@ -13,6 +13,8 @@ Sentry.addFeatureFlag('my-feature', true);
 ### Behavioral changes
 
 - Set log level to `warning` by default when `debug = true` ([#2836](https://github.com/getsentry/sentry-dart/pull/2836))
+- Parent-child relationship for the PlatformExceptions and Cause ([#2803](https://github.com/getsentry/sentry-dart/pull/2803))
+  - Improves and changes exception grouping
 
 ### API Changes
 
