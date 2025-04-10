@@ -3,6 +3,7 @@
 import 'dart:math';
 
 import 'package:meta/meta.dart';
+
 import '../../sentry_flutter.dart';
 
 /// This is just an upper limit, ensuring that the buffer does not grow
@@ -40,17 +41,6 @@ class SentryDelayedFramesTracker {
   @visibleForTesting
   DateTime? get oldestFrameEndTimestamp => _oldestFrameEndTimestamp;
   DateTime? _oldestFrameEndTimestamp;
-  bool _isTrackingActive = false;
-
-  /// Resumes the collecting of frames.
-  void resume() {
-    _isTrackingActive = true;
-  }
-
-  /// Pauses the collecting of frames.
-  void pause() {
-    _isTrackingActive = false;
-  }
 
   /// Retrieves the frames the intersect with the provided [startTimestamp] and [endTimestamp].
   @visibleForTesting
@@ -82,7 +72,7 @@ class SentryDelayedFramesTracker {
 
   @pragma('vm:prefer-inline')
   void addFrame(DateTime startTimestamp, DateTime endTimestamp) {
-    if (!_isTrackingActive || !_options.enableFramesTracking) {
+    if (!_options.enableFramesTracking) {
       return;
     }
     if (startTimestamp.isAfter(endTimestamp)) {
@@ -91,16 +81,12 @@ class SentryDelayedFramesTracker {
     if (_delayedFrames.length > maxDelayedFramesBuffer) {
       // buffer is full, we stop collecting frames until all active spans have
       // finished processing
-      pause();
       return;
     }
-    final duration = endTimestamp.difference(startTimestamp);
-    if (duration > _expectedFrameDuration) {
-      final frameTiming = SentryFrameTiming(
-          startTimestamp: startTimestamp, endTimestamp: endTimestamp);
-      _delayedFrames.add(frameTiming);
-      _oldestFrameEndTimestamp ??= endTimestamp;
-    }
+    final frameTiming = SentryFrameTiming(
+        startTimestamp: startTimestamp, endTimestamp: endTimestamp);
+    _delayedFrames.add(frameTiming);
+    _oldestFrameEndTimestamp ??= endTimestamp;
   }
 
   void removeIrrelevantFrames(DateTime spanStartTimestamp) {
@@ -227,15 +213,11 @@ class SentryDelayedFramesTracker {
   /// Clears the state of the tracker.
   void clear() {
     _delayedFrames.clear();
-    pause();
     _oldestFrameEndTimestamp = null;
   }
 
   @visibleForTesting
   List<SentryFrameTiming> get delayedFrames => _delayedFrames.toList();
-
-  @visibleForTesting
-  bool get isTrackingActive => _isTrackingActive;
 }
 
 /// Frame timing that represents an approximation of the frame's build duration.
