@@ -46,8 +46,10 @@ class FramesTrackingIntegration implements Integration<SentryFlutterOptions> {
     final framesTracker =
         SentryDelayedFramesTracker(options, expectedFrameDuration);
     widgetsBinding.registerFramesTracking(
-        framesTracker.addFrame, options.clock);
-    final collector = SpanFrameMetricsCollector(options, framesTracker);
+        framesTracker.addFrame, options.clock, expectedFrameDuration);
+    final collector = SpanFrameMetricsCollector(options, framesTracker,
+        resumeFrameTracking: () => widgetsBinding.startTrackingFrames(),
+        pauseFrameTracking: () => widgetsBinding.stopTrackingFrames());
     options.addPerformanceCollector(collector);
     _collector = collector;
 
