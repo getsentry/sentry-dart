@@ -10,6 +10,10 @@
 Sentry.addFeatureFlag('my-feature', true);
 ```
 
+### Fixes
+
+- Trace propagation in HTTP tracing clients not correctly set up if performance is disabled ([#2850](https://github.com/getsentry/sentry-dart/pull/2850))
+
 ### Behavioral changes
 
 - Set log level to `warning` by default when `debug = true` ([#2836](https://github.com/getsentry/sentry-dart/pull/2836))

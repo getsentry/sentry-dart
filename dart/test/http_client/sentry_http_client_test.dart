@@ -126,6 +126,18 @@ void main() {
 
       expect(fixture.hub.getSpanCalls, 1);
     });
+
+    test('should add TracingClient', () async {
+      fixture.hub.options.tracesSampleRate = 1.0;
+      final sut = fixture.getSut(
+        client: fixture.getClient(statusCode: 200, reason: 'OK'),
+      );
+
+      await sut.get(requestUri);
+
+      // Spans are created from the tracing client
+      expect(fixture.hub.getSpanCalls, 1);
+    });
   });
 }
 

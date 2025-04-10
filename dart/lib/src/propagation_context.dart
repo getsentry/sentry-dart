@@ -1,4 +1,5 @@
 import 'package:meta/meta.dart';
+
 import 'protocol.dart';
 import 'sentry_baggage.dart';
 
@@ -8,5 +9,7 @@ class PropagationContext {
   late SpanId spanId = SpanId.newId();
   SentryBaggage? baggage;
 
+  SentryBaggageHeader? toBaggageHeader() =>
+      baggage != null ? SentryBaggageHeader.fromBaggage(baggage!) : null;
   SentryTraceHeader toSentryTrace() => SentryTraceHeader(traceId, spanId);
 }

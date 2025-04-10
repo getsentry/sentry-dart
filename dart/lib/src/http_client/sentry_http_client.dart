@@ -1,9 +1,10 @@
 import 'package:http/http.dart';
-import 'tracing_client.dart';
+
 import '../hub.dart';
 import '../hub_adapter.dart';
 import 'breadcrumb_client.dart';
 import 'failed_request_client.dart';
+import 'tracing_client.dart';
 
 /// A [http](https://pub.dev/packages/http)-package compatible HTTP client.
 ///
@@ -103,10 +104,7 @@ class SentryHttpClient extends BaseClient {
       captureFailedRequests: captureFailedRequests,
     );
 
-    if (_hub.options.isTracingEnabled()) {
-      innerClient = TracingClient(client: innerClient, hub: _hub);
-      _hub.options.sdk.addIntegration('HTTPNetworkTracing');
-    }
+    innerClient = TracingClient(client: innerClient, hub: _hub);
 
     // The ordering here matters.
     // We don't want to include the breadcrumbs for the current request
