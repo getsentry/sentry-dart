@@ -122,8 +122,8 @@ void main() {
     });
 
     test('server error response (500)', () async {
-      final sut = fixture
-          .getSut(fixture.getClient(statusCode: 500, reason: 'INTERNAL SERVER ERROR'));
+      final sut = fixture.getSut(
+          fixture.getClient(statusCode: 500, reason: 'INTERNAL SERVER ERROR'));
 
       final response = await sut.get(requestUri);
 
@@ -144,8 +144,8 @@ void main() {
     });
 
     test('server redirect (3xx)', () async {
-      final sut = fixture
-          .getSut(fixture.getClient(statusCode: 308, reason: 'PERMANENT REDIRECT'));
+      final sut = fixture.getSut(
+          fixture.getClient(statusCode: 308, reason: 'PERMANENT REDIRECT'));
 
       final response = await sut.get(requestUri);
 
