@@ -36,11 +36,13 @@ class SentryDelayedFramesTracker {
   /// Since startFrame and endFrame is always called sequentially by Flutter we
   /// don't need a SplayTree
   final List<SentryFrameTiming> _delayedFrames = [];
+  @visibleForTesting
+  List<SentryFrameTiming> get delayedFrames => _delayedFrames.toList();
   final SentryFlutterOptions _options;
   final Duration _expectedFrameDuration;
+  DateTime? _oldestFrameEndTimestamp;
   @visibleForTesting
   DateTime? get oldestFrameEndTimestamp => _oldestFrameEndTimestamp;
-  DateTime? _oldestFrameEndTimestamp;
 
   /// Retrieves the frames the intersect with the provided [startTimestamp] and [endTimestamp].
   @visibleForTesting
@@ -219,9 +221,6 @@ class SentryDelayedFramesTracker {
     _delayedFrames.clear();
     _oldestFrameEndTimestamp = null;
   }
-
-  @visibleForTesting
-  List<SentryFrameTiming> get delayedFrames => _delayedFrames.toList();
 }
 
 /// Frame timing that represents an approximation of the frame's build duration.
