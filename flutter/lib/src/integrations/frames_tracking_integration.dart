@@ -1,5 +1,7 @@
 // ignore_for_file: invalid_use_of_internal_member
 
+import 'dart:core';
+
 import '../../sentry_flutter.dart';
 import '../binding_wrapper.dart';
 import '../frames_tracking/sentry_delayed_frames_tracker.dart';
@@ -9,6 +11,7 @@ import '../native/sentry_native_binding.dart';
 class FramesTrackingIntegration implements Integration<SentryFlutterOptions> {
   FramesTrackingIntegration(this._native);
 
+  static const integrationName = 'FramesTracking';
   final SentryNativeBinding _native;
   SentryFlutterOptions? _options;
   PerformanceCollector? _collector;
@@ -45,15 +48,15 @@ class FramesTrackingIntegration implements Integration<SentryFlutterOptions> {
     // Everything valid, we can initialize now
     final framesTracker =
         SentryDelayedFramesTracker(options, expectedFrameDuration);
-    widgetsBinding.registerFramesTracking(
-        framesTracker.addFrame, options.clock, expectedFrameDuration);
+    widgetsBinding.initializeFramesTracking(framesTracker.addDelayedFrame,
+        options.clock, expectedFrameDuration, Stopwatch());
     final collector = SpanFrameMetricsCollector(options, framesTracker,
-        resumeFrameTracking: () => widgetsBinding.startTrackingFrames(),
-        pauseFrameTracking: () => widgetsBinding.stopTrackingFrames());
+        resumeFrameTracking: () => widgetsBinding.resumeTrackingFrames(),
+        pauseFrameTracking: () => widgetsBinding.pauseTrackingFrames());
     options.addPerformanceCollector(collector);
     _collector = collector;
 
-    options.sdk.addIntegration('framesTrackingIntegration');
+    options.sdk.addIntegration(integrationName);
     options.logger(SentryLevel.debug,
         '$FramesTrackingIntegration successfully initialized with an expected frame duration of ${expectedFrameDuration.inMilliseconds}ms');
   }

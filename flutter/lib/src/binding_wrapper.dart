@@ -78,31 +78,34 @@ mixin SentryWidgetsBindingMixin on WidgetsBinding {
   Stopwatch? _stopwatch;
   Duration? _expectedFrameDuration;
   bool _isTrackingActive = false;
-
   SentryOptions get _options => Sentry.currentHub.options;
 
   @internal
-  void registerFramesTracking(FrameTimingCallback callback, ClockProvider clock,
-      Duration expectedFrameDuration) {
+  void initializeFramesTracking(
+      FrameTimingCallback callback,
+      ClockProvider clock,
+      Duration expectedFrameDuration,
+      Stopwatch stopwatch) {
     _frameTimingCallback ??= callback;
     _clock ??= clock;
-    _stopwatch ??= Stopwatch();
+    _stopwatch ??= stopwatch;
     _expectedFrameDuration ??= expectedFrameDuration;
-  }
-
-  void startTrackingFrames() {
-    _isTrackingActive = true;
-  }
-
-  void stopTrackingFrames() {
-    _isTrackingActive = false;
   }
 
   @visibleForTesting
   bool isFramesTrackingInitialized() {
     return _frameTimingCallback != null &&
         _clock != null &&
-        _expectedFrameDuration != null;
+        _expectedFrameDuration != null &&
+        _stopwatch != null;
+  }
+
+  void resumeTrackingFrames() {
+    _isTrackingActive = true;
+  }
+
+  void pauseTrackingFrames() {
+    _isTrackingActive = false;
   }
 
   @internal
@@ -115,7 +118,6 @@ mixin SentryWidgetsBindingMixin on WidgetsBinding {
   void handleBeginFrame(Duration? rawTimeStamp) {
     if (_isTrackingActive) {
       try {
-        _stopwatch?.reset();
         _stopwatch?.start();
       } catch (_) {
         if (_options.automatedTestMode) {
@@ -131,17 +133,17 @@ mixin SentryWidgetsBindingMixin on WidgetsBinding {
   void handleDrawFrame() {
     super.handleDrawFrame();
 
-    if (_isTrackingActive) {
+    if (_isTrackingActive && isFramesTrackingInitialized()) {
       try {
         _stopwatch?.stop();
-        if (isFramesTrackingInitialized() &&
-            _stopwatch!.elapsedMilliseconds >
-                _expectedFrameDuration!.inMilliseconds) {
+        if (_stopwatch!.elapsedMilliseconds >
+            _expectedFrameDuration!.inMilliseconds) {
           final endTimestamp = _clock!.call();
           final startTimestamp = endTimestamp.subtract(
               Duration(milliseconds: _stopwatch!.elapsedMilliseconds));
           _frameTimingCallback?.call(startTimestamp, endTimestamp);
         }
+        _stopwatch?.reset();
       } catch (_) {
         if (_options.automatedTestMode) {
           rethrow;
