@@ -77,7 +77,7 @@ mixin SentryWidgetsBindingMixin on WidgetsBinding {
   ClockProvider? _clock;
   Stopwatch? _stopwatch;
   Duration? _expectedFrameDuration;
-  bool _isTrackingActive = true;
+  bool _isTrackingActive = false;
   SentryOptions get _options => Sentry.currentHub.options;
 
   @internal
@@ -105,7 +105,7 @@ mixin SentryWidgetsBindingMixin on WidgetsBinding {
   }
 
   void pauseTrackingFrames() {
-    _isTrackingActive = true;
+    _isTrackingActive = false;
   }
 
   @internal
