@@ -11,6 +11,22 @@ void addSentryTraceHeader(
   headers[traceHeader.name] = traceHeader.value;
 }
 
+void addW3CHeaderFromSpan(ISentrySpan span, Map<String, dynamic> headers) {
+  final traceHeader = span.toSentryTrace();
+  addW3CHeaderFromSentryTrace(traceHeader, headers);
+}
+
+void addW3CHeaderFromSentryTrace(
+    SentryTraceHeader traceHeader, Map<String, dynamic> headers) {
+  headers['traceparent'] = formatAsW3CHeader(traceHeader);
+}
+
+String formatAsW3CHeader(SentryTraceHeader traceHeader) {
+  final sampled = traceHeader.sampled;
+  final traceFlags = sampled != null && sampled ? '01' : '00';
+  return '00-${traceHeader.traceId}-${traceHeader.spanId}-$traceFlags';
+}
+
 void addBaggageHeaderFromSpan(
   ISentrySpan span,
   Map<String, dynamic> headers, {

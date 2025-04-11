@@ -58,6 +58,7 @@ class TracingClientAdapter implements HttpClientAdapter {
       )) {
         if (span != null) {
           addSentryTraceHeaderFromSpan(span, options.headers);
+          addW3CHeaderFromSpan(span, request.headers);
           addBaggageHeaderFromSpan(
             span,
             options.headers,
@@ -72,6 +73,7 @@ class TracingClientAdapter implements HttpClientAdapter {
 
           final traceHeader = propagationContext.toSentryTrace();
           addSentryTraceHeader(traceHeader, options.headers);
+          addW3CHeaderFromSentryTrace(traceHeader, options.headers);
 
           final baggage = propagationContext.baggage;
           if (baggage != null) {
