@@ -116,7 +116,15 @@ mixin SentryWidgetsBindingMixin on WidgetsBinding {
 
   @override
   void handleBeginFrame(Duration? rawTimeStamp) {
-    _trackFrameStart();
+    if (_isTrackingActive) {
+      try {
+        _stopwatch?.start();
+      } catch (_) {
+        if (_options.automatedTestMode) {
+          rethrow;
+        }
+      }
+    }
 
     super.handleBeginFrame(rawTimeStamp);
   }
@@ -125,11 +133,6 @@ mixin SentryWidgetsBindingMixin on WidgetsBinding {
   void handleDrawFrame() {
     super.handleDrawFrame();
 
-    _trackFrameEnd();
-  }
-
-  @pragma('vm:prefer-inline')
-  void _trackFrameEnd() {
     if (_isTrackingActive && isFramesTrackingInitialized()) {
       try {
         _stopwatch?.stop();
@@ -141,19 +144,6 @@ mixin SentryWidgetsBindingMixin on WidgetsBinding {
           _frameTimingCallback?.call(startTimestamp, endTimestamp);
         }
         _stopwatch?.reset();
-      } catch (_) {
-        if (_options.automatedTestMode) {
-          rethrow;
-        }
-      }
-    }
-  }
-
-  @pragma('vm:prefer-inline')
-  void _trackFrameStart() {
-    if (_isTrackingActive) {
-      try {
-        _stopwatch?.start();
       } catch (_) {
         if (_options.automatedTestMode) {
           rethrow;
