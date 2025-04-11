@@ -4,7 +4,7 @@
 
 ### Fixes
 
-- `options.diagnostLevel` not applying to logs ...
+- `options.diagnosticLevel` not applying to logs ...
 
 ## 8.14.1
 
