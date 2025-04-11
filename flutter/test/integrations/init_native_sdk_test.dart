@@ -50,7 +50,7 @@ void main() {
           {'name': 'pub:sentry_flutter', 'version': sdkVersion}
         ]
       },
-      'diagnosticLevel': 'debug',
+      'diagnosticLevel': 'warning',
       'maxBreadcrumbs': 100,
       'anrEnabled': false,
       'anrTimeoutIntervalMillis': 5000,

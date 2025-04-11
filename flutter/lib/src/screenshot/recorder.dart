@@ -2,10 +2,10 @@ import 'dart:async';
 import 'dart:developer';
 import 'dart:ui';
 
+import 'package:flutter/cupertino.dart' as cupertino;
+import 'package:flutter/material.dart' as material;
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart' as widgets;
-import 'package:flutter/material.dart' as material;
-import 'package:flutter/cupertino.dart' as cupertino;
 import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
