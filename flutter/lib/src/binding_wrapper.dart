@@ -77,7 +77,7 @@ mixin SentryWidgetsBindingMixin on WidgetsBinding {
   ClockProvider? _clock;
   Stopwatch? _stopwatch;
   Duration? _expectedFrameDuration;
-  bool _isTrackingActive = false;
+  bool _isTrackingActive = true;
   SentryOptions get _options => Sentry.currentHub.options;
 
   @internal
@@ -105,7 +105,7 @@ mixin SentryWidgetsBindingMixin on WidgetsBinding {
   }
 
   void pauseTrackingFrames() {
-    _isTrackingActive = false;
+    _isTrackingActive = true;
   }
 
   @internal
@@ -116,15 +116,7 @@ mixin SentryWidgetsBindingMixin on WidgetsBinding {
 
   @override
   void handleBeginFrame(Duration? rawTimeStamp) {
-    if (_isTrackingActive) {
-      try {
-        _stopwatch?.start();
-      } catch (_) {
-        if (_options.automatedTestMode) {
-          rethrow;
-        }
-      }
-    }
+    _trackFrameStart();
 
     super.handleBeginFrame(rawTimeStamp);
   }
@@ -133,6 +125,11 @@ mixin SentryWidgetsBindingMixin on WidgetsBinding {
   void handleDrawFrame() {
     super.handleDrawFrame();
 
+    _trackFrameEnd();
+  }
+
+  @pragma('vm:prefer-inline')
+  void _trackFrameEnd() {
     if (_isTrackingActive && isFramesTrackingInitialized()) {
       try {
         _stopwatch?.stop();
@@ -144,6 +141,19 @@ mixin SentryWidgetsBindingMixin on WidgetsBinding {
           _frameTimingCallback?.call(startTimestamp, endTimestamp);
         }
         _stopwatch?.reset();
+      } catch (_) {
+        if (_options.automatedTestMode) {
+          rethrow;
+        }
+      }
+    }
+  }
+
+  @pragma('vm:prefer-inline')
+  void _trackFrameStart() {
+    if (_isTrackingActive) {
+      try {
+        _stopwatch?.start();
       } catch (_) {
         if (_options.automatedTestMode) {
           rethrow;
