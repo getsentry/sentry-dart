@@ -1,6 +1,7 @@
 // ignore_for_file: invalid_use_of_internal_member
 
 import 'package:meta/meta.dart';
+
 import '../../sentry_flutter.dart';
 import 'sentry_delayed_frames_tracker.dart';
 
@@ -8,10 +9,18 @@ import 'sentry_delayed_frames_tracker.dart';
 /// and attaches them to spans.
 @internal
 class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
-  SpanFrameMetricsCollector(this._options, this._frameTracker);
+  SpanFrameMetricsCollector(
+    this._options,
+    this._frameTracker, {
+    required void Function() resumeFrameTracking,
+    required void Function() pauseFrameTracking,
+  })  : _resumeFrameTracking = resumeFrameTracking,
+        _pauseFrameTracking = pauseFrameTracking;
 
   final SentryFlutterOptions _options;
   final SentryDelayedFramesTracker _frameTracker;
+  final void Function() _resumeFrameTracking;
+  final void Function() _pauseFrameTracking;
 
   /// Stores the spans that are actively being tracked.
   /// After the frames are calculated and stored in the span the span is removed from this list.
@@ -26,7 +35,7 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
       }
 
       activeSpans.add(span);
-      _frameTracker.resume();
+      _resumeFrameTracking();
     });
   }
 
@@ -69,6 +78,7 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
 
   @override
   void clear() {
+    _pauseFrameTracking();
     _frameTracker.clear();
     activeSpans.clear();
     // we don't need to clear the expected frame duration as that realistically

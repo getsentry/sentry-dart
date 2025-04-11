@@ -3,6 +3,7 @@
 import 'dart:math';
 
 import 'package:meta/meta.dart';
+
 import '../../sentry_flutter.dart';
 
 /// This is just an upper limit, ensuring that the buffer does not grow
@@ -35,22 +36,13 @@ class SentryDelayedFramesTracker {
   /// Since startFrame and endFrame is always called sequentially by Flutter we
   /// don't need a SplayTree
   final List<SentryFrameTiming> _delayedFrames = [];
+  @visibleForTesting
+  List<SentryFrameTiming> get delayedFrames => _delayedFrames.toList();
   final SentryFlutterOptions _options;
   final Duration _expectedFrameDuration;
+  DateTime? _oldestFrameEndTimestamp;
   @visibleForTesting
   DateTime? get oldestFrameEndTimestamp => _oldestFrameEndTimestamp;
-  DateTime? _oldestFrameEndTimestamp;
-  bool _isTrackingActive = false;
-
-  /// Resumes the collecting of frames.
-  void resume() {
-    _isTrackingActive = true;
-  }
-
-  /// Pauses the collecting of frames.
-  void pause() {
-    _isTrackingActive = false;
-  }
 
   /// Retrieves the frames the intersect with the provided [startTimestamp] and [endTimestamp].
   @visibleForTesting
@@ -80,27 +72,27 @@ class SentryDelayedFramesTracker {
     }).toList(growable: false);
   }
 
+  /// Records the start and end time of a delayed frame.
+  ///
+  /// [startTimestamp] The time when the delayed frame rendering started.
+  /// [endTimestamp] The time when the delayed frame rendering ended.
   @pragma('vm:prefer-inline')
-  void addFrame(DateTime startTimestamp, DateTime endTimestamp) {
-    if (!_isTrackingActive || !_options.enableFramesTracking) {
+  void addDelayedFrame(DateTime startTimestamp, DateTime endTimestamp) {
+    if (!_options.enableFramesTracking) {
       return;
     }
     if (startTimestamp.isAfter(endTimestamp)) {
       return;
     }
     if (_delayedFrames.length > maxDelayedFramesBuffer) {
-      // buffer is full, we stop collecting frames until all active spans have
-      // finished processing
-      pause();
+      _options.logger(SentryLevel.debug,
+          'Frame tracking buffer is full, stopping frame collection until all active spans have finished processing');
       return;
     }
-    final duration = endTimestamp.difference(startTimestamp);
-    if (duration > _expectedFrameDuration) {
-      final frameTiming = SentryFrameTiming(
-          startTimestamp: startTimestamp, endTimestamp: endTimestamp);
-      _delayedFrames.add(frameTiming);
-      _oldestFrameEndTimestamp ??= endTimestamp;
-    }
+    final frameTiming = SentryFrameTiming(
+        startTimestamp: startTimestamp, endTimestamp: endTimestamp);
+    _delayedFrames.add(frameTiming);
+    _oldestFrameEndTimestamp ??= endTimestamp;
   }
 
   void removeIrrelevantFrames(DateTime spanStartTimestamp) {
@@ -227,15 +219,8 @@ class SentryDelayedFramesTracker {
   /// Clears the state of the tracker.
   void clear() {
     _delayedFrames.clear();
-    pause();
     _oldestFrameEndTimestamp = null;
   }
-
-  @visibleForTesting
-  List<SentryFrameTiming> get delayedFrames => _delayedFrames.toList();
-
-  @visibleForTesting
-  bool get isTrackingActive => _isTrackingActive;
 }
 
 /// Frame timing that represents an approximation of the frame's build duration.

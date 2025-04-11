@@ -73,22 +73,39 @@ typedef FrameTimingCallback = void Function(
     DateTime startTimestamp, DateTime endTimestamp);
 
 mixin SentryWidgetsBindingMixin on WidgetsBinding {
-  DateTime? _startTimestamp;
   FrameTimingCallback? _frameTimingCallback;
   ClockProvider? _clock;
-
+  Stopwatch? _stopwatch;
+  Duration? _expectedFrameDuration;
+  bool _isTrackingActive = false;
   SentryOptions get _options => Sentry.currentHub.options;
 
   @internal
-  void registerFramesTracking(
-      FrameTimingCallback callback, ClockProvider clock) {
+  void initializeFramesTracking(
+      FrameTimingCallback callback,
+      ClockProvider clock,
+      Duration expectedFrameDuration,
+      Stopwatch stopwatch) {
     _frameTimingCallback ??= callback;
     _clock ??= clock;
+    _stopwatch ??= stopwatch;
+    _expectedFrameDuration ??= expectedFrameDuration;
   }
 
   @visibleForTesting
   bool isFramesTrackingInitialized() {
-    return _frameTimingCallback != null && _clock != null;
+    return _frameTimingCallback != null &&
+        _clock != null &&
+        _expectedFrameDuration != null &&
+        _stopwatch != null;
+  }
+
+  void resumeTrackingFrames() {
+    _isTrackingActive = true;
+  }
+
+  void pauseTrackingFrames() {
+    _isTrackingActive = false;
   }
 
   @internal
@@ -99,11 +116,13 @@ mixin SentryWidgetsBindingMixin on WidgetsBinding {
 
   @override
   void handleBeginFrame(Duration? rawTimeStamp) {
-    try {
-      _startTimestamp = _clock?.call();
-    } catch (_) {
-      if (_options.automatedTestMode) {
-        rethrow;
+    if (_isTrackingActive) {
+      try {
+        _stopwatch?.start();
+      } catch (_) {
+        if (_options.automatedTestMode) {
+          rethrow;
+        }
       }
     }
 
@@ -114,16 +133,21 @@ mixin SentryWidgetsBindingMixin on WidgetsBinding {
   void handleDrawFrame() {
     super.handleDrawFrame();
 
-    try {
-      final endTimestamp = _clock?.call();
-      if (_startTimestamp != null &&
-          endTimestamp != null &&
-          _startTimestamp!.isBefore(endTimestamp)) {
-        _frameTimingCallback?.call(_startTimestamp!, endTimestamp);
-      }
-    } catch (_) {
-      if (_options.automatedTestMode) {
-        rethrow;
+    if (_isTrackingActive && isFramesTrackingInitialized()) {
+      try {
+        _stopwatch?.stop();
+        if (_stopwatch!.elapsedMilliseconds >
+            _expectedFrameDuration!.inMilliseconds) {
+          final endTimestamp = _clock!.call();
+          final startTimestamp = endTimestamp.subtract(
+              Duration(milliseconds: _stopwatch!.elapsedMilliseconds));
+          _frameTimingCallback?.call(startTimestamp, endTimestamp);
+        }
+        _stopwatch?.reset();
+      } catch (_) {
+        if (_options.automatedTestMode) {
+          rethrow;
+        }
       }
     }
   }
