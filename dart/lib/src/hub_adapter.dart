@@ -160,7 +160,7 @@ class HubAdapter implements Hub {
       );
 
   @override
-  void startNewTrace() => Sentry.currentHub.startNewTrace();
+  void generateNewTrace() => Sentry.currentHub.generateNewTrace();
 
   @override
   void setSpanContext(

@@ -95,9 +95,7 @@ class Hub {
       }
 
       try {
-        if (_options.isTracingEnabled()) {
-          event = _assignTraceContext(event);
-        }
+        event = _assignTraceContext(event);
 
         sentryId = await item.client.captureEvent(
           event,
@@ -157,9 +155,7 @@ class Hub {
           timestamp: _options.clock(),
         );
 
-        if (_options.isTracingEnabled()) {
-          event = _assignTraceContext(event);
-        }
+        event = _assignTraceContext(event);
 
         sentryId = await item.client.captureEvent(
           event,
@@ -498,7 +494,7 @@ class Hub {
     return NoOpSentrySpan();
   }
 
-  /// Start's a new trace - re-generates the trace id.
+  /// Generates a new trace - re-generates the trace id.
   ///
   /// Default behaviour of trace generation in Flutter:
   ///
@@ -513,7 +509,7 @@ class Hub {
   ///
   /// Implementation might change in the future so we are keeping this internal.
   @internal
-  void startNewTrace() {
+  void generateNewTrace() {
     scope.propagationContext = PropagationContext();
   }
 

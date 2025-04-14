@@ -152,7 +152,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       return;
     }
 
-    _hub.startNewTrace();
+    _hub.generateNewTrace();
     _setCurrentRouteName(route);
     _setCurrentRouteNameAsTransaction(route);
 
@@ -181,7 +181,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       return;
     }
 
-    _hub.startNewTrace();
+    _hub.generateNewTrace();
     _setCurrentRouteName(newRoute);
     _setCurrentRouteNameAsTransaction(newRoute);
 
@@ -203,7 +203,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       return;
     }
 
-    _hub.startNewTrace();
+    _hub.generateNewTrace();
     _setCurrentRouteName(previousRoute);
     _setCurrentRouteNameAsTransaction(previousRoute);
 

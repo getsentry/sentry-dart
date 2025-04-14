@@ -122,7 +122,7 @@ class NoOpHub implements Hub {
       NoOpSentrySpan();
 
   @override
-  void startNewTrace() {}
+  void generateNewTrace() {}
 
   @override
   ISentrySpan? getSpan() => null;
