@@ -105,6 +105,9 @@ mixin SentryWidgetsBindingMixin on WidgetsBinding {
   }
 
   void pauseTrackingFrames() {
+    // Stopwatch could continue running if we pause tracking in between a frame
+    _stopwatch?.stop();
+    _stopwatch?.reset();
     _isTrackingActive = false;
   }
 
