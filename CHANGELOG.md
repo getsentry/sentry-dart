@@ -9,6 +9,7 @@
 // Manually track a feature flag
 Sentry.addFeatureFlag('my-feature', true);
 ```
+- Make hierarchical exception grouping opt-in ([#2858](https://github.com/getsentry/sentry-dart/pull/2858))
 
 ### Behavioral changes
 
