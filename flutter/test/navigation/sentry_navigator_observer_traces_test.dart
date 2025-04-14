@@ -48,6 +48,8 @@ void main() {
     final newTraceId = fixture.hub.scope.propagationContext.traceId;
     expect(oldTraceId, isNot(newTraceId));
   });
+
+  // TODO: test that trace generation happens before instrumentations
 }
 
 PageRoute<dynamic> _route(RouteSettings? settings) => PageRouteBuilder<void>(
