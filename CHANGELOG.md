@@ -10,6 +10,19 @@
 Sentry.addFeatureFlag('my-feature', true);
 ```
 - Firebase Remote Config Integration ([#2837](https://github.com/getsentry/sentry-dart/pull/2837))
+```dart
+// Add the integration to automatically track feature flags from firebase remote config.
+await SentryFlutter.init(
+  (options) {
+    options.dsn = 'https://example@sentry.io/add-your-dsn-here';
+    options.addIntegration(
+      SentryFirebaseRemoteConfigIntegration(
+        firebaseRemoteConfig: yourRirebaseRemoteConfig,
+      ),
+    );
+  },
+);
+```
 
 ### Behavioral changes
 
