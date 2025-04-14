@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/sentry_tracer.dart';
 
 import '../test_utils.dart';
 import 'mock_sentry_client.dart';
@@ -13,6 +14,8 @@ class MockHub with NoSuchMethodProvider implements Hub {
   List<CaptureMessageCall> captureMessageCalls = [];
   List<AddBreadcrumbCall> addBreadcrumbCalls = [];
   List<SentryClient?> bindClientCalls = [];
+  SentryTracer get tracer =>
+      SentryTracer(SentryTransactionContext('name', 'op'), this);
 
   // ignore: deprecated_member_use_from_same_package
   List<CaptureTransactionCall> captureTransactionCalls = [];
