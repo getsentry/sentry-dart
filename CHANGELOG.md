@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Improve performance of frames tracking ([#2854](https://github.com/getsentry/sentry-dart/pull/2854))
+
 ## 8.14.1
 
 ### Fixes
