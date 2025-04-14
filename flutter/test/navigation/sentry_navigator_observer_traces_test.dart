@@ -7,48 +7,46 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import '../mocks.dart';
 
 void main() {
-  group('start new trace', () {
-    late Fixture fixture;
+  late Fixture fixture;
 
-    setUp(() {
-      fixture = Fixture();
-    });
+  setUp(() {
+    fixture = Fixture();
+  });
 
-    test('didPush starts a new trace', () {
-      final fromRoute = _route(RouteSettings(name: 'From Route'));
-      final toRoute = _route(RouteSettings(name: 'To Route'));
-      final oldTraceId = fixture.hub.scope.propagationContext.traceId;
+  test('didPush generates a new trace', () {
+    final fromRoute = _route(RouteSettings(name: 'From Route'));
+    final toRoute = _route(RouteSettings(name: 'To Route'));
+    final oldTraceId = fixture.hub.scope.propagationContext.traceId;
 
-      final sut = fixture.getSut();
-      sut.didPush(toRoute, fromRoute);
+    final sut = fixture.getSut();
+    sut.didPush(toRoute, fromRoute);
 
-      final newTraceId = fixture.hub.scope.propagationContext.traceId;
-      expect(oldTraceId, isNot(newTraceId));
-    });
+    final newTraceId = fixture.hub.scope.propagationContext.traceId;
+    expect(oldTraceId, isNot(newTraceId));
+  });
 
-    test('didPop starts a new trace', () {
-      final fromRoute = _route(RouteSettings(name: 'From Route'));
-      final toRoute = _route(RouteSettings(name: 'To Route'));
-      final oldTraceId = fixture.hub.scope.propagationContext.traceId;
+  test('didPop generates a new trace', () {
+    final fromRoute = _route(RouteSettings(name: 'From Route'));
+    final toRoute = _route(RouteSettings(name: 'To Route'));
+    final oldTraceId = fixture.hub.scope.propagationContext.traceId;
 
-      final sut = fixture.getSut();
-      sut.didPop(toRoute, fromRoute);
+    final sut = fixture.getSut();
+    sut.didPop(toRoute, fromRoute);
 
-      final newTraceId = fixture.hub.scope.propagationContext.traceId;
-      expect(oldTraceId, isNot(newTraceId));
-    });
+    final newTraceId = fixture.hub.scope.propagationContext.traceId;
+    expect(oldTraceId, isNot(newTraceId));
+  });
 
-    test('didReplace starts a new trace', () {
-      final fromRoute = _route(RouteSettings(name: 'From Route'));
-      final toRoute = _route(RouteSettings(name: 'To Route'));
-      final oldTraceId = fixture.hub.scope.propagationContext.traceId;
+  test('didReplace generates a new trace', () {
+    final fromRoute = _route(RouteSettings(name: 'From Route'));
+    final toRoute = _route(RouteSettings(name: 'To Route'));
+    final oldTraceId = fixture.hub.scope.propagationContext.traceId;
 
-      final sut = fixture.getSut();
-      sut.didReplace(newRoute: toRoute, oldRoute: fromRoute);
+    final sut = fixture.getSut();
+    sut.didReplace(newRoute: toRoute, oldRoute: fromRoute);
 
-      final newTraceId = fixture.hub.scope.propagationContext.traceId;
-      expect(oldTraceId, isNot(newTraceId));
-    });
+    final newTraceId = fixture.hub.scope.propagationContext.traceId;
+    expect(oldTraceId, isNot(newTraceId));
   });
 }
 
