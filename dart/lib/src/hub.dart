@@ -95,7 +95,9 @@ class Hub {
       }
 
       try {
-        event = _assignTraceContext(event);
+        if (_options.isTracingEnabled()) {
+          event = _assignTraceContext(event);
+        }
 
         sentryId = await item.client.captureEvent(
           event,
@@ -155,7 +157,9 @@ class Hub {
           timestamp: _options.clock(),
         );
 
-        event = _assignTraceContext(event);
+        if (_options.isTracingEnabled()) {
+          event = _assignTraceContext(event);
+        }
 
         sentryId = await item.client.captureEvent(
           event,
