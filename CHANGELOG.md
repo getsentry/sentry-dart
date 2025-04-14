@@ -9,7 +9,6 @@
 // Manually track a feature flag
 Sentry.addFeatureFlag('my-feature', true);
 ```
-- Make hierarchical exception grouping opt-in ([#2858](https://github.com/getsentry/sentry-dart/pull/2858))
 - Firebase Remote Config Integration ([#2837](https://github.com/getsentry/sentry-dart/pull/2837))
 ```dart
 // Add the integration to automatically track feature flags from firebase remote config.
@@ -24,6 +23,7 @@ await SentryFlutter.init(
   },
 );
 ```
+- Make hierarchical exception grouping opt-in ([#2858](https://github.com/getsentry/sentry-dart/pull/2858))
 
 ### Behavioral changes
 
