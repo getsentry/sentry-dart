@@ -15,8 +15,9 @@ import 'package:sentry/src/transport/data_category.dart';
 import 'package:sentry/src/transport/noop_transport.dart';
 import 'package:sentry/src/transport/spotlight_http_transport.dart';
 import 'package:sentry/src/utils/iterable_utils.dart';
-import 'package:test/test.dart';
+import 'package:sentry/src/event_processor/exception/exception_group_event_processor.dart';
 
+import 'package:test/test.dart';
 import 'mocks.dart';
 import 'mocks/mock_client_report_recorder.dart';
 import 'mocks/mock_hub.dart';
@@ -256,14 +257,29 @@ void main() {
       final cause = Object();
       exception = ExceptionWithCause(cause, null);
 
-      final client = fixture.getSut();
+      final client = fixture.getSut(
+        eventProcessor: ExceptionGroupEventProcessor(),
+      );
       await client.captureException(exception, stackTrace: null);
 
       final capturedEnvelope = (fixture.transport).envelopes.first;
       final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
-      expect(capturedEvent.exceptions?[0] is SentryException, true);
-      expect(capturedEvent.exceptions?[1] is SentryException, true);
+      expect(capturedEvent.exceptions?.length, 2);
+
+      final firstException = capturedEvent.exceptions?[0];
+      expect(firstException is SentryException, true);
+      expect(firstException?.mechanism?.source, "cause");
+      expect(firstException?.mechanism?.parentId, 0);
+      expect(firstException?.mechanism?.exceptionId, 1);
+      expect(firstException?.mechanism?.isExceptionGroup, isNull);
+
+      final secondException = capturedEvent.exceptions?[1];
+      expect(secondException is SentryException, true);
+      expect(secondException?.mechanism?.source, null);
+      expect(secondException?.mechanism?.parentId, null);
+      expect(secondException?.mechanism?.exceptionId, 0);
+      expect(secondException?.mechanism?.isExceptionGroup, isTrue);
     });
 
     test('should capture cause stacktrace', () async {
@@ -280,17 +296,20 @@ void main() {
 
       exception = ExceptionWithCause(cause, stackTrace);
 
-      final client = fixture.getSut(attachStacktrace: true);
+      final client = fixture.getSut(
+        attachStacktrace: true,
+        eventProcessor: ExceptionGroupEventProcessor(),
+      );
       await client.captureException(exception, stackTrace: null);
 
       final capturedEnvelope = (fixture.transport).envelopes.first;
       final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
-      expect(capturedEvent.exceptions?[1].stackTrace, isNotNull);
-      expect(capturedEvent.exceptions?[1].stackTrace!.frames.first.fileName,
+      expect(capturedEvent.exceptions?[0].stackTrace, isNotNull);
+      expect(capturedEvent.exceptions?[0].stackTrace!.frames.first.fileName,
           'test.dart');
-      expect(capturedEvent.exceptions?[1].stackTrace!.frames.first.lineNo, 46);
-      expect(capturedEvent.exceptions?[1].stackTrace!.frames.first.colNo, 9);
+      expect(capturedEvent.exceptions?[0].stackTrace!.frames.first.lineNo, 46);
+      expect(capturedEvent.exceptions?[0].stackTrace!.frames.first.colNo, 9);
     });
 
     test('should capture custom stacktrace', () async {
@@ -306,7 +325,10 @@ void main() {
 
       exception = ExceptionWithStackTrace(stackTrace);
 
-      final client = fixture.getSut(attachStacktrace: true);
+      final client = fixture.getSut(
+        attachStacktrace: true,
+        eventProcessor: ExceptionGroupEventProcessor(),
+      );
       await client.captureException(exception, stackTrace: null);
 
       final capturedEnvelope = (fixture.transport).envelopes.first;
@@ -328,13 +350,16 @@ void main() {
       final cause = Object();
       exception = ExceptionWithCause(cause, null);
 
-      final client = fixture.getSut(attachStacktrace: false);
+      final client = fixture.getSut(
+        attachStacktrace: false,
+        eventProcessor: ExceptionGroupEventProcessor(),
+      );
       await client.captureException(exception, stackTrace: null);
 
       final capturedEnvelope = (fixture.transport).envelopes.first;
       final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
-      expect(capturedEvent.exceptions?[1].stackTrace, isNull);
+      expect(capturedEvent.exceptions?[0].stackTrace, isNull);
     });
 
     test(
@@ -347,13 +372,16 @@ void main() {
       final cause = Object();
       exception = ExceptionWithCause(cause, StackTrace.empty);
 
-      final client = fixture.getSut(attachStacktrace: false);
+      final client = fixture.getSut(
+        attachStacktrace: false,
+        eventProcessor: ExceptionGroupEventProcessor(),
+      );
       await client.captureException(exception, stackTrace: null);
 
       final capturedEnvelope = (fixture.transport).envelopes.first;
       final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
-      expect(capturedEvent.exceptions?[1].stackTrace, isNull);
+      expect(capturedEvent.exceptions?[0].stackTrace, isNull);
     });
 
     test('should capture cause exception with Stackframe.current', () async {
@@ -364,13 +392,16 @@ void main() {
       final cause = Object();
       exception = ExceptionWithCause(cause, null);
 
-      final client = fixture.getSut(attachStacktrace: true);
+      final client = fixture.getSut(
+        attachStacktrace: true,
+        eventProcessor: ExceptionGroupEventProcessor(),
+      );
       await client.captureException(exception, stackTrace: null);
 
       final capturedEnvelope = (fixture.transport).envelopes.first;
       final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
-      expect(capturedEvent.exceptions?[1].stackTrace, isNotNull);
+      expect(capturedEvent.exceptions?[0].stackTrace, isNotNull);
     });
 
     test('should capture sentry frames exception', () async {
@@ -387,13 +418,16 @@ void main() {
       ''';
       exception = ExceptionWithCause(cause, stackTrace);
 
-      final client = fixture.getSut(attachStacktrace: true);
+      final client = fixture.getSut(
+        attachStacktrace: true,
+        eventProcessor: ExceptionGroupEventProcessor(),
+      );
       await client.captureException(exception, stackTrace: null);
 
       final capturedEnvelope = (fixture.transport).envelopes.first;
       final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
-      final sentryFramesCount = capturedEvent.exceptions?[1].stackTrace!.frames
+      final sentryFramesCount = capturedEvent.exceptions?[0].stackTrace!.frames
           .where((frame) => frame.package == 'sentry')
           .length;
 
@@ -2468,7 +2502,7 @@ class ExceptionWithCauseExtractor
     extends ExceptionCauseExtractor<ExceptionWithCause> {
   @override
   ExceptionCause? cause(ExceptionWithCause error) {
-    return ExceptionCause(error.cause, error.stackTrace);
+    return ExceptionCause(error.cause, error.stackTrace, source: "cause");
   }
 }
 

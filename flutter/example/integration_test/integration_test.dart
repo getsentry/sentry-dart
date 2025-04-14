@@ -67,7 +67,9 @@ void main() {
 
     try {
       throw SentryException(
-          type: 'StarError', value: 'I have a bad feeling about this...');
+        type: 'StarError',
+        value: 'I have a bad feeling about this...',
+      );
     } catch (exception, stacktrace) {
       final sentryId =
           await Sentry.captureException(exception, stackTrace: stacktrace);

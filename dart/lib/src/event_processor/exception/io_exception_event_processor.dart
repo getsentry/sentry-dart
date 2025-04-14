@@ -43,16 +43,27 @@ class IoExceptionEventProcessor implements ExceptionEventProcessor {
     SocketException exception,
     SentryEvent event,
   ) {
-    final address = exception.address;
     final osError = exception.osError;
+    SentryException? osException;
+    List<SentryException>? exceptions = event.exceptions;
+    if (osError != null) {
+      // OSError is the underlying error
+      // https://api.dart.dev/stable/dart-io/SocketException/osError.html
+      // https://api.dart.dev/stable/dart-io/OSError-class.html
+      osException = _sentryExceptionFromOsError(osError);
+      final exception = event.exceptions?.firstOrNull;
+      if (exception != null) {
+        exception.addException(osException);
+      } else {
+        exceptions = [osException];
+      }
+    } else {
+      exceptions = event.exceptions;
+    }
+
+    final address = exception.address;
     if (address == null) {
-      event.exceptions = [
-        // OSError is the underlying error
-        // https://api.dart.dev/stable/dart-io/SocketException/osError.html
-        // https://api.dart.dev/stable/dart-io/OSError-class.html
-        if (osError != null) _sentryExceptionfromOsError(osError),
-        ...?event.exceptions,
-      ];
+      event.exceptions = exceptions;
       return event;
     }
     SentryRequest? request;
@@ -71,15 +82,9 @@ class IoExceptionEventProcessor implements ExceptionEventProcessor {
       }
     }
 
-    event.request = event.request ?? request;
-    event.exceptions = [
-      // OSError is the underlying error
-      // https://api.dart.dev/stable/dart-io/SocketException/osError.html
-      // https://api.dart.dev/stable/dart-io/OSError-class.html
-      if (osError != null) _sentryExceptionfromOsError(osError),
-      ...?event.exceptions,
-    ];
-    return event;
+    return event
+      ..request = event.request ?? request
+      ..exceptions = exceptions;
   }
 
   // https://api.dart.dev/stable/dart-io/FileSystemException-class.html
@@ -88,18 +93,24 @@ class IoExceptionEventProcessor implements ExceptionEventProcessor {
     SentryEvent event,
   ) {
     final osError = exception.osError;
-    event.exceptions = [
+
+    if (osError != null) {
       // OSError is the underlying error
-      // https://api.dart.dev/stable/dart-io/FileSystemException/osError.html
+      // https://api.dart.dev/stable/dart-io/SocketException/osError.html
       // https://api.dart.dev/stable/dart-io/OSError-class.html
-      if (osError != null) _sentryExceptionfromOsError(osError),
-      ...?event.exceptions,
-    ];
+      final osException = _sentryExceptionFromOsError(osError);
+      final exception = event.exceptions?.firstOrNull;
+      if (exception != null) {
+        exception.addException(osException);
+      } else {
+        event.exceptions = [osException];
+      }
+    }
     return event;
   }
 }
 
-SentryException _sentryExceptionfromOsError(OSError osError) {
+SentryException _sentryExceptionFromOsError(OSError osError) {
   return SentryException(
     type: osError.runtimeType.toString(),
     value: osError.toString(),
@@ -110,6 +121,7 @@ SentryException _sentryExceptionfromOsError(OSError osError) {
       meta: {
         'errno': {'number': osError.errorCode},
       },
+      source: 'osError',
     ),
   );
 }

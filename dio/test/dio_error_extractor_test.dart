@@ -29,6 +29,7 @@ void main() {
 
       expect(cause?.exception, error);
       expect(cause?.stackTrace, error.stackTrace);
+      expect(cause?.source, 'error');
     });
 
     test('extracts exception', () {
@@ -43,6 +44,7 @@ void main() {
 
       expect(cause?.exception, 'Some error');
       expect(cause?.stackTrace, isNull);
+      expect(cause?.source, 'error');
     });
 
     test('extracts nothing with missing cause', () {
