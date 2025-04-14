@@ -9,8 +9,8 @@ class PropagationContext {
   final SentryId traceId = SentryId.newId();
 
   /// A span ID that should be used for the `trace` context of various event type, when performance is disabled or when there is no active span.
-  /// This value should be set by the SDK in an informed way when the same span ID should be used for one unit of execution (e.g. a request, usually tied to the isolation scope).
   /// If this value is undefined on the propagation context, the SDK will generate a random span ID for `trace` contexts and trace propagation.
+  /// TODO: is this correct currently?
   final SpanId propagationSpanId = SpanId.newId();
 
   /// The dynamic sampling context.
