@@ -7,6 +7,7 @@ import 'environment/environment_variables.dart';
 import 'event_processor/deduplication_event_processor.dart';
 import 'event_processor/enricher/enricher_event_processor.dart';
 import 'event_processor/exception/exception_event_processor.dart';
+import 'event_processor/exception/exception_group_event_processor.dart';
 import 'hint.dart';
 import 'hub.dart';
 import 'hub_adapter.dart';
@@ -113,6 +114,9 @@ class Sentry {
     options.addEventProcessor(DeduplicationEventProcessor(options));
 
     options.prependExceptionTypeIdentifier(DartExceptionTypeIdentifier());
+
+    // Added last to ensure all error events have correct parent/child relationships
+    options.addEventProcessor(ExceptionGroupEventProcessor());
   }
 
   /// This method reads available environment variables and uses them

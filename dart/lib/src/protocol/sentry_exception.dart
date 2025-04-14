@@ -26,7 +26,9 @@ class SentryException {
   dynamic throwable;
 
   @internal
-  final Map<String, dynamic>? unknown;
+  Map<String, dynamic>? unknown;
+
+  List<SentryException>? _exceptions;
 
   SentryException({
     required this.type,
@@ -86,10 +88,25 @@ class SentryException {
         type: type ?? this.type,
         value: value ?? this.value,
         module: module ?? this.module,
-        stackTrace: stackTrace ?? this.stackTrace,
-        mechanism: mechanism ?? this.mechanism,
+        stackTrace: stackTrace ?? this.stackTrace?.copyWith(),
+        mechanism: mechanism ?? this.mechanism?.copyWith(),
         threadId: threadId ?? this.threadId,
         throwable: throwable ?? this.throwable,
         unknown: unknown,
       );
+
+  @internal
+  List<SentryException>? get exceptions =>
+      _exceptions != null ? List.unmodifiable(_exceptions!) : null;
+
+  @internal
+  set exceptions(List<SentryException>? value) {
+    _exceptions = value;
+  }
+
+  @internal
+  void addException(SentryException exception) {
+    _exceptions ??= [];
+    _exceptions!.add(exception);
+  }
 }
