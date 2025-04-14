@@ -13,9 +13,10 @@ class PropagationContext {
   /// If this value is undefined on the propagation context, the SDK will generate a random span ID for `trace` contexts and trace propagation.
   final SpanId propagationSpanId = SpanId.newId();
 
-  /// Dynamic sampling
+  /// The dynamic sampling context.
   SentryBaggage? baggage;
 
+  /// Sentry trace header to attach to http headers.
   SentryTraceHeader toSentryTrace() =>
       SentryTraceHeader(traceId, propagationSpanId);
 }
