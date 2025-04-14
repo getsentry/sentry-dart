@@ -143,7 +143,7 @@ mixin SentryWidgetsBindingMixin on WidgetsBinding {
           final endTimestamp = _clock!.call();
           final startTimestamp = endTimestamp.subtract(
               Duration(milliseconds: _stopwatch!.elapsedMilliseconds));
-          _onDelayedFrames?.call(startTimestamp, endTimestamp);
+          _onDelayedFrame?.call(startTimestamp, endTimestamp);
         }
         _stopwatch?.reset();
       } catch (_) {
