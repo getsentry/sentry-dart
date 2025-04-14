@@ -117,10 +117,10 @@ void main() {
         hub: fixture.realHub,
         client: fixture.getClient(statusCode: 200, reason: 'OK'),
       );
+      final response = await sut.get(requestUri);
 
       await tr.finish();
 
-      final response = await sut.get(requestUri);
       expect(response.statusCode, 200);
       expect(tr, isA<NoOpSentrySpan>());
     });
@@ -138,8 +138,8 @@ void main() {
         client: fixture.getClient(statusCode: 200, reason: 'OK'),
         hub: fixture.realHub,
       );
-
       final response = await sut.get(requestUri);
+
       await tr.finish();
 
       expect(response.statusCode, 200);
