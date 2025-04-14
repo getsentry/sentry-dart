@@ -164,11 +164,13 @@ class SentryOptions {
   set debug(bool newValue) {
     _debug = newValue;
     if (_debug == true &&
+        // ignore: deprecated_member_use_from_same_package
         (logger == noOpLogger || diagnosticLogger?.logger == noOpLogger)) {
       logger = debugLogger;
     }
     if (_debug == false &&
         (logger == debugLogger || diagnosticLogger?.logger == debugLogger)) {
+      // ignore: deprecated_member_use_from_same_package
       logger = noOpLogger;
     }
   }

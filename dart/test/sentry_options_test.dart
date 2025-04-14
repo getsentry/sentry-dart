@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use_from_same_package
+
 import 'package:http/http.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/noop_client.dart';
@@ -35,12 +37,9 @@ void main() {
 
   test('SentryLogger sets a diagnostic logger', () {
     final options = defaultTestOptions();
-    // ignore: deprecated_member_use_from_same_package
     expect(options.logger, noOpLogger);
-    // ignore: deprecated_member_use_from_same_package
     options.logger = dartLogger;
 
-    // ignore: deprecated_member_use_from_same_package
     expect(options.logger, isNot(noOpLogger));
   });
 
@@ -132,7 +131,6 @@ void main() {
 
   test('when enableTracing is set to true tracing is considered enabled', () {
     final options = SentryOptions.empty();
-    // ignore: deprecated_member_use_from_same_package
     options.enableTracing = true;
 
     expect(options.isTracingEnabled(), true);
@@ -140,7 +138,6 @@ void main() {
 
   test('when enableTracing is set to false tracing is considered disabled', () {
     final options = SentryOptions.empty();
-    // ignore: deprecated_member_use_from_same_package
     options.enableTracing = false;
     options.tracesSampleRate = 1.0;
     options.tracesSampler = (_) {
