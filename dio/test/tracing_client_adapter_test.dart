@@ -152,7 +152,9 @@ void main() {
       final sentryTraceHeader = span.toSentryTrace();
 
       expect(
-          response.headers[baggageHeader!.name], <String>[baggageHeader.value]);
+        response.headers[baggageHeader!.name],
+        <String>[baggageHeader.value],
+      );
       expect(
         response.headers[sentryTraceHeader.name],
         <String>[sentryTraceHeader.value],
@@ -177,7 +179,9 @@ void main() {
 
       expect(propagationContext.toBaggageHeader(), isNotNull);
       expect(
-          response.headers[baggageHeader!.name], <String>[baggageHeader.value]);
+        response.headers[baggageHeader!.name],
+        <String>[baggageHeader.value],
+      );
       expect(
         response.headers[sentryTraceHeader.name],
         <String>[sentryTraceHeader.value],
@@ -264,8 +268,10 @@ class Fixture {
     _hub = Hub(_options);
   }
 
-  Dio getSut(
-      {MockHttpClientAdapter? client, List<String>? tracePropagationTargets}) {
+  Dio getSut({
+    MockHttpClientAdapter? client,
+    List<String>? tracePropagationTargets,
+  }) {
     final mc = client ?? getClient();
     final dio = Dio(BaseOptions(baseUrl: 'https://example.com'));
     if (tracePropagationTargets != null) {
