@@ -33,42 +33,19 @@ class TracingClient extends BaseClient {
     // see https://develop.sentry.dev/sdk/performance/#header-sentry-trace
     final urlDetails = HttpSanitizer.sanitizeUrl(request.url.toString());
 
-    ISentrySpan? span;
-    StreamedResponse? response;
-    if (_hub.options.isTracingEnabled()) {
-      var description = request.method;
-      if (urlDetails != null) {
-        description += ' ${urlDetails.urlOrFallback}';
-      }
+    var description = request.method;
+    if (urlDetails != null) {
+      description += ' ${urlDetails.urlOrFallback}';
+    }
 
-      final currentSpan = _hub.getSpan();
-      var span = currentSpan?.startChild(
-        'http.client',
-        description: description,
-      );
+    final currentSpan = _hub.getSpan();
+    var span = currentSpan?.startChild(
+      'http.client',
+      description: description,
+    );
 
-      if (span is NoOpSentrySpan) {
-        span = null;
-      }
-      span?.origin = SentryTraceOrigins.autoHttpHttp;
-      span?.setData('http.request.method', request.method);
-      urlDetails?.applyToSpan(span);
-
-      try {
-        response = await _client.send(request);
-        span?.setData('http.response.status_code', response.statusCode);
-        span?.setData('http.response_content_length', response.contentLength);
-        span?.status = SpanStatus.fromHttpStatusCode(response.statusCode);
-      } catch (exception) {
-        span?.throwable = exception;
-        span?.status = SpanStatus.internalError();
-
-        rethrow;
-      } finally {
-        await span?.finish();
-      }
-    } else {
-      response = await _client.send(request);
+    if (span is NoOpSentrySpan) {
+      span = null;
     }
 
     // Regardless whether tracing is enabled or not, we always want to attach
@@ -78,6 +55,24 @@ class TracingClient extends BaseClient {
       addTracingHeadersToHttpHeader(request.headers, span: span, hub: _hub);
     }
 
+    span?.origin = SentryTraceOrigins.autoHttpHttp;
+    span?.setData('http.request.method', request.method);
+    urlDetails?.applyToSpan(span);
+
+    StreamedResponse? response;
+    try {
+      response = await _client.send(request);
+      span?.setData('http.response.status_code', response.statusCode);
+      span?.setData('http.response_content_length', response.contentLength);
+      span?.status = SpanStatus.fromHttpStatusCode(response.statusCode);
+    } catch (exception) {
+      span?.throwable = exception;
+      span?.status = SpanStatus.internalError();
+
+      rethrow;
+    } finally {
+      await span?.finish();
+    }
     return response;
   }
 
