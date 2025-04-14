@@ -211,12 +211,13 @@ class SentryClient {
 
   SentryEvent _prepareEvent(SentryEvent event, Hint hint,
       {dynamic stackTrace}) {
-    event.serverName = event.serverName ?? _options.serverName;
-    event.dist = event.dist ?? _options.dist;
-    event.environment = event.environment ?? _options.environment;
-    event.release = event.release ?? _options.release;
-    event.sdk = event.sdk ?? _options.sdk;
-    event.platform = event.platform ?? sdkPlatform(_options.platform.isWeb);
+    event
+      ..serverName = event.serverName ?? _options.serverName
+      ..dist = event.dist ?? _options.dist
+      ..environment = event.environment ?? _options.environment
+      ..release = event.release ?? _options.release
+      ..sdk = event.sdk ?? _options.sdk
+      ..platform = event.platform ?? sdkPlatform(_options.platform.isWeb);
 
     if (event is SentryTransaction) {
       return event;
@@ -235,18 +236,26 @@ class SentryClient {
     final isolateId = isolateName?.hashCode;
 
     if (event.throwableMechanism != null) {
-      final extractedExceptions = _exceptionFactory.extractor
+      final extractedExceptionCauses = _exceptionFactory.extractor
           .flatten(event.throwableMechanism, stackTrace);
 
-      final sentryExceptions = <SentryException>[];
+      SentryException? rootException;
+      SentryException? currentException;
       final sentryThreads = <SentryThread>[];
 
-      for (final extractedException in extractedExceptions) {
+      for (final extractedExceptionCause in extractedExceptionCauses) {
         var sentryException = _exceptionFactory.getSentryException(
-          extractedException.exception,
-          stackTrace: extractedException.stackTrace,
+          extractedExceptionCause.exception,
+          stackTrace: extractedExceptionCause.stackTrace,
           removeSentryFrames: hint.get(TypeCheckHint.currentStackTrace),
         );
+        if (extractedExceptionCause.source != null) {
+          var mechanism =
+              sentryException.mechanism ?? Mechanism(type: "generic");
+
+          mechanism.source = extractedExceptionCause.source;
+          sentryException.mechanism = mechanism;
+        }
 
         SentryThread? sentryThread;
 
@@ -262,21 +271,25 @@ class SentryClient {
           );
         }
 
-        sentryExceptions.add(sentryException);
+        rootException ??= sentryException;
+        currentException?.addException(sentryException);
+        currentException = sentryException;
+
         if (sentryThread != null) {
           sentryThreads.add(sentryThread);
         }
       }
 
-      event.exceptions = [
-        ...?event.exceptions,
-        ...sentryExceptions,
-      ];
-      event.threads = [
-        ...?event.threads,
-        ...sentryThreads,
-      ];
-      return event;
+      final exceptions = [...?event.exceptions];
+      if (rootException != null) {
+        exceptions.add(rootException);
+      }
+      return event
+        ..exceptions = exceptions
+        ..threads = [
+          ...?event.threads,
+          ...sentryThreads,
+        ];
     }
 
     // The stacktrace is not part of an exception,

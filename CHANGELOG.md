@@ -16,7 +16,12 @@ Sentry.addFeatureFlag('my-feature', true);
 
 ### Behavioral changes
 
+- Mutable Data Classes ([#2818](https://github.com/getsentry/sentry-dart/pull/2818))
+  - Some SDK classes do not have `const` constructors anymore.
+  - The `copyWith` and `clone` methods of SDK classes were deprecated.
 - Set log level to `warning` by default when `debug = true` ([#2836](https://github.com/getsentry/sentry-dart/pull/2836))
+- Parent-child relationship for the PlatformExceptions and Cause ([#2803](https://github.com/getsentry/sentry-dart/pull/2803))
+  - Improves and changes exception grouping
 
 ### API Changes
 
@@ -24,9 +29,9 @@ Sentry.addFeatureFlag('my-feature', true);
 
 ### Dependencies
 
-- Bump Android SDK from v8.2.0 to v8.6.0 ([#2819](https://github.com/getsentry/sentry-dart/pull/2819), [#2831](https://github.com/getsentry/sentry-dart/pull/2831))
-  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#860)
-  - [diff](https://github.com/getsentry/sentry-java/compare/8.2.0...8.6.0)
+- Bump Android SDK from v8.2.0 to v8.7.0 ([#2819](https://github.com/getsentry/sentry-dart/pull/2819), [#2831](https://github.com/getsentry/sentry-dart/pull/2831), [#2848](https://github.com/getsentry/sentry-dart/pull/2848))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#870)
+  - [diff](https://github.com/getsentry/sentry-java/compare/8.2.0...8.7.0)
 - Bump Cocoa SDK from v8.46.0 to v8.48.0 ([#2820](https://github.com/getsentry/sentry-dart/pull/2820))
   - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8480)
   - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.46.0...8.48.0)
@@ -36,12 +41,6 @@ Sentry.addFeatureFlag('my-feature', true);
 - Bump jni from v0.14.0 to v0.14.1 ([#2800])(https://github.com/getsentry/sentry-dart/pull/2800)
   - [changelog](https://github.com/dart-lang/native/blob/main/pkgs/jni/CHANGELOG.md#0141)
   - [diff](https://github.com/dart-lang/native/compare/jnigen-v0.14.0..jnigen-v0.14.1)
-
-### Behavioral changes
-
-- Mutable Data Classes ([#2818](https://github.com/getsentry/sentry-dart/pull/2818))
-  - Some SDK classes do not have `const` constructors anymore.
-  - The `copyWith` and `clone` methods of SDK classes were deprecated.
 
 ## 9.0.0-alpha.2
 
