@@ -503,7 +503,7 @@ class Hub {
   /// Default behaviour of trace generation in Flutter:
   ///
   /// If `SentryNavigatorObserver` is available:
-  ///  - implementation will be the same for both, new trace on navigations
+  ///  - new trace on navigation for all platforms
   ///
   /// if `SentryNavigatorObserver` is not available:
   ///  - Mobile: traces will be cycled with the background/foreground hooks, similar to how sessions are defined in mobile
