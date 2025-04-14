@@ -73,7 +73,7 @@ typedef FrameTimingCallback = void Function(
     DateTime startTimestamp, DateTime endTimestamp);
 
 mixin SentryWidgetsBindingMixin on WidgetsBinding {
-  FrameTimingCallback? _frameTimingCallback;
+  FrameTimingCallback? _onDelayedFrames;
   ClockProvider? _clock;
   Stopwatch? _stopwatch;
   Duration? _expectedFrameDuration;
@@ -82,11 +82,11 @@ mixin SentryWidgetsBindingMixin on WidgetsBinding {
 
   @internal
   void initializeFramesTracking(
-      FrameTimingCallback callback,
+      FrameTimingCallback onDelayedFrames,
       ClockProvider clock,
       Duration expectedFrameDuration,
       Stopwatch stopwatch) {
-    _frameTimingCallback ??= callback;
+    _onDelayedFrames ??= onDelayedFrames;
     _clock ??= clock;
     _stopwatch ??= stopwatch;
     _expectedFrameDuration ??= expectedFrameDuration;
@@ -94,7 +94,7 @@ mixin SentryWidgetsBindingMixin on WidgetsBinding {
 
   @visibleForTesting
   bool isFramesTrackingInitialized() {
-    return _frameTimingCallback != null &&
+    return _onDelayedFrames != null &&
         _clock != null &&
         _expectedFrameDuration != null &&
         _stopwatch != null;
@@ -110,7 +110,7 @@ mixin SentryWidgetsBindingMixin on WidgetsBinding {
 
   @internal
   void removeFramesTracking() {
-    _frameTimingCallback = null;
+    _onDelayedFrames = null;
     _clock = null;
   }
 
@@ -141,7 +141,7 @@ mixin SentryWidgetsBindingMixin on WidgetsBinding {
           final endTimestamp = _clock!.call();
           final startTimestamp = endTimestamp.subtract(
               Duration(milliseconds: _stopwatch!.elapsedMilliseconds));
-          _frameTimingCallback?.call(startTimestamp, endTimestamp);
+          _onDelayedFrames?.call(startTimestamp, endTimestamp);
         }
         _stopwatch?.reset();
       } catch (_) {
