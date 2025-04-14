@@ -15,9 +15,9 @@ import 'package:sentry_flutter/src/navigation/time_to_display_tracker.dart';
 import 'package:sentry_flutter/src/navigation/time_to_full_display_tracker.dart';
 import 'package:sentry_flutter/src/navigation/time_to_initial_display_tracker.dart';
 
-import 'fake_frame_callback_handler.dart';
-import 'mocks.dart';
-import 'mocks.mocks.dart';
+import '../fake_frame_callback_handler.dart';
+import '../mocks.dart';
+import '../mocks.mocks.dart';
 
 void main() {
   late Fixture fixture;

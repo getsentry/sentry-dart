@@ -169,6 +169,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     DateTime timestamp = _hub.options.clock();
     _finishTimeToDisplayTracking(endTimestamp: timestamp);
     _startTimeToDisplayTracking(route, timestamp);
+    _hub.startNewTrace();
   }
 
   @override
@@ -190,6 +191,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     );
 
     _addWebSessions(from: oldRoute, to: newRoute);
+    _hub.startNewTrace();
   }
 
   @override
@@ -214,6 +216,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
 
     final timestamp = _hub.options.clock();
     _finishTimeToDisplayTracking(endTimestamp: timestamp, clearAfter: true);
+    _hub.startNewTrace();
   }
 
   void _addWebSessions({Route<dynamic>? from, Route<dynamic>? to}) async {

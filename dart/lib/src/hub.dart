@@ -470,6 +470,7 @@ class Hub {
       }
 
       transactionContext.origin ??= SentryTraceOrigins.manual;
+      transactionContext.traceId = scope.propagationContext.traceId;
 
       SentryProfiler? profiler;
       if (_profilerFactory != null &&
@@ -495,6 +496,25 @@ class Hub {
     }
 
     return NoOpSentrySpan();
+  }
+
+  /// Start's a new trace - re-generates the trace id.
+  ///
+  /// Default behaviour of trace generation in Flutter:
+  ///
+  /// If `SentryNavigatorObserver` is available:
+  ///  - implementation will be the same for both, new trace on navigations
+  ///
+  /// if `SentryNavigatorObserver` is not available:
+  ///  - Mobile: traces will be cycled with the background/foreground hooks, similar to how sessions are defined in mobile
+  ///  - Web if performance is enabled:
+  ///    - traces are started on every new transaction (unless there is an ongoing active transaction)
+  ///    - otherwise for Tracing without Performance the trace will stick until the next refresh
+  ///
+  /// Implementation might change in the future so we are keeping this internal.
+  @internal
+  void startNewTrace() {
+    scope.propagationContext = PropagationContext();
   }
 
   /// Gets the current active transaction or span.
