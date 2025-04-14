@@ -30,22 +30,52 @@ class TracingClientAdapter implements HttpClientAdapter {
     Stream<Uint8List>? requestStream,
     Future? cancelFuture,
   ) async {
+    // see https://develop.sentry.dev/sdk/performance/#header-sentry-trace
     final urlDetails = HttpSanitizer.sanitizeUrl(options.uri.toString());
 
-    var description = options.method;
-    if (urlDetails != null) {
-      description += ' ${urlDetails.urlOrFallback}';
-    }
+    ISentrySpan? span;
+    ResponseBody? response;
 
-    // see https://develop.sentry.dev/sdk/performance/#header-sentry-trace
-    final currentSpan = _hub.getSpan();
-    var span = currentSpan?.startChild(
-      'http.client',
-      description: description,
-    );
+    if (_hub.options.isTracingEnabled()) {
+      var description = options.method;
+      if (urlDetails != null) {
+        description += ' ${urlDetails.urlOrFallback}';
+      }
 
-    if (span is NoOpSentrySpan) {
-      span = null;
+      final currentSpan = _hub.getSpan();
+      var span = currentSpan?.startChild(
+        'http.client',
+        description: description,
+      );
+
+      if (span is NoOpSentrySpan) {
+        span = null;
+      }
+
+      span?.origin = SentryTraceOrigins.autoHttpDioHttpClientAdapter;
+      span?.setData('http.request.method', options.method);
+      urlDetails?.applyToSpan(span);
+
+      ResponseBody? response;
+      try {
+        response = await _client.fetch(options, requestStream, cancelFuture);
+        span?.status = SpanStatus.fromHttpStatusCode(response.statusCode);
+        span?.setData('http.response.status_code', response.statusCode);
+        final contentLengthHeader =
+            HttpHeaderUtils.getContentLength(response.headers);
+        if (contentLengthHeader != null) {
+          span?.setData('http.response_content_length', contentLengthHeader);
+        }
+      } catch (exception) {
+        span?.throwable = exception;
+        span?.status = const SpanStatus.internalError();
+
+        rethrow;
+      } finally {
+        await span?.finish();
+      }
+    } else {
+      response = await _client.fetch(options, requestStream, cancelFuture);
     }
 
     // Regardless whether tracing is enabled or not, we always want to attach
@@ -57,29 +87,8 @@ class TracingClientAdapter implements HttpClientAdapter {
       addTracingHeadersToHttpHeader(options.headers, span: span, hub: _hub);
     }
 
-    span?.origin = SentryTraceOrigins.autoHttpDioHttpClientAdapter;
-    span?.setData('http.request.method', options.method);
-    urlDetails?.applyToSpan(span);
-
-    ResponseBody? response;
-    try {
-      response = await _client.fetch(options, requestStream, cancelFuture);
-      span?.status = SpanStatus.fromHttpStatusCode(response.statusCode);
-      span?.setData('http.response.status_code', response.statusCode);
-      final contentLengthHeader =
-          HttpHeaderUtils.getContentLength(response.headers);
-      if (contentLengthHeader != null) {
-        span?.setData('http.response_content_length', contentLengthHeader);
-      }
-    } catch (exception) {
-      span?.throwable = exception;
-      span?.status = const SpanStatus.internalError();
-
-      rethrow;
-    } finally {
-      await span?.finish();
-    }
-    return response;
+    // If we reach this point the response will be non-null anyway
+    return response!;
   }
 
   @override
