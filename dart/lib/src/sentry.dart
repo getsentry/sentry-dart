@@ -116,7 +116,7 @@ class Sentry {
     options.prependExceptionTypeIdentifier(DartExceptionTypeIdentifier());
 
     // Added last to ensure all error events have correct parent/child relationships
-    options.addEventProcessor(ExceptionGroupEventProcessor());
+    options.addEventProcessor(ExceptionGroupEventProcessor(options));
   }
 
   /// This method reads available environment variables and uses them

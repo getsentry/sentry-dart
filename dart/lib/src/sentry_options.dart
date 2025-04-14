@@ -524,6 +524,13 @@ class SentryOptions {
     _beforeSendEventObserver.remove(observer);
   }
 
+  /// Whether to group exceptions hierarchically.
+  ///
+  /// If true, exceptions will be grouped hierarchically if possible.
+  ///
+  /// This is opt-in, as it can lead to existing exception beeing grouped as new ones.
+  bool groupExceptions = false;
+
   SentryOptions({String? dsn, Platform? platform, RuntimeChecker? checker}) {
     this.dsn = dsn;
     if (platform != null) {

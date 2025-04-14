@@ -3,12 +3,54 @@ import 'package:test/test.dart';
 
 import 'package:sentry/src/event_processor/exception/exception_group_event_processor.dart';
 
+import '../../test_utils.dart';
+
 void main() {
   group(ExceptionGroupEventProcessor, () {
     late Fixture fixture;
 
     setUp(() {
       fixture = Fixture();
+    });
+
+    test('does not group exceptions if groupExceptions is false', () {
+      final throwableA = Exception('ExceptionA');
+      final exceptionA = SentryException(
+        type: 'ExceptionA',
+        value: 'ExceptionA',
+        throwable: throwableA,
+        mechanism: Mechanism(type: 'foo'),
+      );
+      final throwableB = Exception('ExceptionB');
+      final exceptionB = SentryException(
+        type: 'ExceptionB',
+        value: 'ExceptionB',
+        throwable: throwableB,
+      );
+      exceptionA.addException(exceptionB);
+
+      var event = SentryEvent(
+        throwable: throwableA,
+        exceptions: [exceptionA],
+      );
+
+      final sut = fixture.getSut(groupExceptions: false);
+      event = (sut.apply(event, Hint()))!;
+
+      final sentryExceptionA = event.exceptions![0];
+      final sentryExceptionB = event.exceptions![1];
+
+      expect(sentryExceptionB.throwable, throwableB);
+      expect(sentryExceptionB.mechanism?.type, isNull);
+      expect(sentryExceptionB.mechanism?.isExceptionGroup, isNull);
+      expect(sentryExceptionB.mechanism?.exceptionId, isNull);
+      expect(sentryExceptionB.mechanism?.parentId, isNull);
+
+      expect(sentryExceptionA.throwable, throwableA);
+      expect(sentryExceptionA.mechanism?.type, "foo");
+      expect(sentryExceptionA.mechanism?.isExceptionGroup, isNull);
+      expect(sentryExceptionA.mechanism?.exceptionId, isNull);
+      expect(sentryExceptionA.mechanism?.parentId, isNull);
     });
 
     test('applies grouping to exception with children', () {
@@ -31,7 +73,7 @@ void main() {
         exceptions: [exceptionA],
       );
 
-      final sut = fixture.getSut();
+      final sut = fixture.getSut(groupExceptions: true);
       event = (sut.apply(event, Hint()))!;
 
       final sentryExceptionB = event.exceptions![0];
@@ -52,7 +94,7 @@ void main() {
 
     test('applies no grouping if there is no exception', () {
       final event = SentryEvent();
-      final sut = fixture.getSut();
+      final sut = fixture.getSut(groupExceptions: true);
 
       final result = sut.apply(event, Hint());
 
@@ -74,7 +116,7 @@ void main() {
               throwable: Exception('ExceptionB')),
         ],
       );
-      final sut = fixture.getSut();
+      final sut = fixture.getSut(groupExceptions: true);
 
       final result = sut.apply(event, Hint());
 
@@ -119,7 +161,7 @@ void main() {
       );
       originChild.addException(originChildChild);
 
-      final sut = fixture.getSut();
+      final sut = fixture.getSut(groupExceptions: true);
       var event = SentryEvent(exceptions: [origin]);
       event = sut.apply(event, Hint())!;
       final flattened = event.exceptions ?? [];
@@ -161,7 +203,7 @@ void main() {
       );
       origin.addException(originChild2);
 
-      final sut = fixture.getSut();
+      final sut = fixture.getSut(groupExceptions: true);
       var event = SentryEvent(exceptions: [origin]);
       event = sut.apply(event, Hint())!;
       final flattened = event.exceptions ?? [];
@@ -256,7 +298,7 @@ void main() {
       );
       exceptionGroupNested.addException(typeError);
 
-      final sut = fixture.getSut();
+      final sut = fixture.getSut(groupExceptions: true);
       var event = SentryEvent(exceptions: [exceptionGroupNested]);
       event = sut.apply(event, Hint())!;
       final flattened = event.exceptions ?? [];
@@ -388,8 +430,11 @@ void main() {
 }
 
 class Fixture {
-  ExceptionGroupEventProcessor getSut() {
-    return ExceptionGroupEventProcessor();
+  final options = defaultTestOptions();
+
+  ExceptionGroupEventProcessor getSut({required bool groupExceptions}) {
+    options.groupExceptions = groupExceptions;
+    return ExceptionGroupEventProcessor(options);
   }
 }
 
