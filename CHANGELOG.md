@@ -35,6 +35,7 @@ await SentryFlutter.init(
   - 4xx is mapped to `SentryLevel.warning`
 - Parent-child relationship for the PlatformExceptions and Cause ([#2803](https://github.com/getsentry/sentry-dart/pull/2803))
   - Improves and changes exception grouping
+
 ### API Changes
 
 - Update naming of `LoadImagesListIntegration` to `LoadNativeDebugImagesIntegration` ([#2833](https://github.com/getsentry/sentry-dart/pull/2833))
