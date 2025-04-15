@@ -24,6 +24,8 @@ export 'src/noop_isolate_error_integration.dart'
 export 'src/observers.dart';
 export 'src/performance_collector.dart';
 export 'src/protocol.dart';
+export 'src/protocol/sentry_feature_flag.dart';
+export 'src/protocol/sentry_feature_flags.dart';
 export 'src/protocol/sentry_feedback.dart';
 export 'src/protocol/sentry_proxy.dart';
 export 'src/run_zoned_guarded_integration.dart';
@@ -48,9 +50,13 @@ export 'src/type_check_hint.dart';
 // ignore: invalid_export_of_internal_element
 export 'src/utils.dart';
 // ignore: invalid_export_of_internal_element
+export 'src/utils/add_tracing_headers_to_http_request.dart';
+// ignore: invalid_export_of_internal_element
 export 'src/utils/http_header_utils.dart';
 // ignore: invalid_export_of_internal_element
 export 'src/utils/http_sanitizer.dart';
 export 'src/utils/tracing_utils.dart';
 // ignore: invalid_export_of_internal_element
 export 'src/utils/url_details.dart';
+// ignore: invalid_export_of_internal_element
+export 'src/utils/breadcrumb_log_level.dart';

@@ -7,6 +7,7 @@ import 'environment/environment_variables.dart';
 import 'event_processor/deduplication_event_processor.dart';
 import 'event_processor/enricher/enricher_event_processor.dart';
 import 'event_processor/exception/exception_event_processor.dart';
+import 'event_processor/exception/exception_group_event_processor.dart';
 import 'hint.dart';
 import 'hub.dart';
 import 'hub_adapter.dart';
@@ -25,6 +26,7 @@ import 'sentry_run_zoned_guarded.dart';
 import 'tracing.dart';
 import 'transport/data_category.dart';
 import 'transport/task_queue.dart';
+import 'feature_flags_integration.dart';
 
 /// Configuration options callback
 typedef OptionsConfiguration = FutureOr<void> Function(SentryOptions);
@@ -105,11 +107,16 @@ class Sentry {
       options.addIntegration(LoadDartDebugImagesIntegration());
     }
 
+    options.addIntegration(FeatureFlagsIntegration());
+
     options.addEventProcessor(EnricherEventProcessor(options));
     options.addEventProcessor(ExceptionEventProcessor(options));
     options.addEventProcessor(DeduplicationEventProcessor(options));
 
     options.prependExceptionTypeIdentifier(DartExceptionTypeIdentifier());
+
+    // Added last to ensure all error events have correct parent/child relationships
+    options.addEventProcessor(ExceptionGroupEventProcessor(options));
   }
 
   /// This method reads available environment variables and uses them
@@ -356,6 +363,26 @@ class Sentry {
 
   /// Gets the current active transaction or span bound to the scope.
   static ISentrySpan? getSpan() => _hub.getSpan();
+
+  static Future<void> addFeatureFlag(String name, dynamic value) async {
+    if (value is! bool) {
+      return;
+    }
+
+    final featureFlagsIntegration = currentHub.options.integrations
+        .whereType<FeatureFlagsIntegration>()
+        .firstOrNull;
+
+    if (featureFlagsIntegration == null) {
+      currentHub.options.logger(
+        SentryLevel.warning,
+        '$FeatureFlagsIntegration not found. Make sure Sentry is initialized before accessing the addFeatureFlag API.',
+      );
+      return;
+    }
+
+    await featureFlagsIntegration.addFeatureFlag(name, value);
+  }
 
   @internal
   static Hub get currentHub => _hub;
