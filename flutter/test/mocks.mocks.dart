@@ -1296,24 +1296,6 @@ class MockSentryDelayedFramesTracker extends _i1.Mock
       ) as List<_i20.SentryFrameTiming>);
 
   @override
-  bool get isTrackingActive => (super.noSuchMethod(
-        Invocation.getter(#isTrackingActive),
-        returnValue: false,
-      ) as bool);
-
-  @override
-  void resume() => super.noSuchMethod(
-        Invocation.method(#resume, []),
-        returnValueForMissingStub: null,
-      );
-
-  @override
-  void pause() => super.noSuchMethod(
-        Invocation.method(#pause, []),
-        returnValueForMissingStub: null,
-      );
-
-  @override
   List<_i20.SentryFrameTiming> getFramesIntersecting({
     required DateTime? startTimestamp,
     required DateTime? endTimestamp,
@@ -1327,9 +1309,9 @@ class MockSentryDelayedFramesTracker extends _i1.Mock
       ) as List<_i20.SentryFrameTiming>);
 
   @override
-  void addFrame(DateTime? startTimestamp, DateTime? endTimestamp) =>
+  void addDelayedFrame(DateTime? startTimestamp, DateTime? endTimestamp) =>
       super.noSuchMethod(
-        Invocation.method(#addFrame, [startTimestamp, endTimestamp]),
+        Invocation.method(#addDelayedFrame, [startTimestamp, endTimestamp]),
         returnValueForMissingStub: null,
       );
 
