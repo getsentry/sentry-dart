@@ -18,7 +18,7 @@ class PropagationContext {
   /// Baggage header to attach to http headers.
   SentryBaggageHeader? toBaggageHeader() =>
       baggage != null ? SentryBaggageHeader.fromBaggage(baggage!) : null;
-  
+
   /// Sentry trace header to attach to http headers.
   SentryTraceHeader toSentryTrace() => SentryTraceHeader(traceId, spanId);
 }
