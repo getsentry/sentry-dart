@@ -226,6 +226,7 @@ class Fixture {
     this.ttidTracker = ttidTracker;
 
     final ttfdTracker = TimeToFullDisplayTracker(
+      options: options,
       autoFinishAfter: Duration(seconds: 2),
       endTimestampProvider: () => ttidTracker.endTimestamp,
     );

@@ -21,6 +21,7 @@ class TimeToDisplayTracker {
     _ttidTracker = ttidTracker ?? TimeToInitialDisplayTracker();
     _ttfdTracker = ttfdTracker ??
         TimeToFullDisplayTracker(
+          options: options,
           endTimestampProvider: () => _ttidTracker.endTimestamp,
         );
   }

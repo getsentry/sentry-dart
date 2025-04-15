@@ -153,6 +153,7 @@ class Fixture {
       {EndTimestampProvider? endTimestampProvider}) {
     endTimestampProvider ??= this.endTimestampProvider;
     return TimeToFullDisplayTracker(
+      options: hub.options,
       endTimestampProvider: endTimestampProvider,
       autoFinishAfter: autoFinishAfter,
     );

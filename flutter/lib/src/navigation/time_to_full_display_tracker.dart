@@ -9,9 +9,12 @@ import '../../sentry_flutter.dart';
 
 @internal
 class TimeToFullDisplayTracker {
-  TimeToFullDisplayTracker(
-      {required EndTimestampProvider endTimestampProvider,
-      Duration autoFinishAfter = const Duration(seconds: 30)}) {
+  TimeToFullDisplayTracker({
+    required SentryOptions options,
+    required EndTimestampProvider endTimestampProvider,
+    Duration autoFinishAfter = const Duration(seconds: 30),
+  }) {
+    _options = options;
     _endTimestampProvider = endTimestampProvider;
     _autoFinishAfter = autoFinishAfter;
   }
@@ -21,7 +24,7 @@ class TimeToFullDisplayTracker {
 
   ISentrySpan? _ttfdSpan;
 
-  final options = Sentry.currentHub.options;
+  late final SentryOptions _options;
   // End timestamp provider is only needed when the TTFD timeout is triggered
   late final EndTimestampProvider _endTimestampProvider;
   late final Duration _autoFinishAfter;
@@ -57,7 +60,7 @@ class TimeToFullDisplayTracker {
     if (startRouteName != null &&
         endRouteName != null &&
         startRouteName != endRouteName) {
-      options.logger(
+      _options.logger(
         SentryLevel.warning,
         'TTFD tracker for route "$startRouteName" does not match requested route "$endRouteName"',
       );
@@ -75,7 +78,7 @@ class TimeToFullDisplayTracker {
     final endTimestamp = timestamp ?? _endTimestampProvider();
 
     if (ttfdSpan == null || ttfdSpan.finished || endTimestamp == null) {
-      options.logger(
+      _options.logger(
         SentryLevel.warning,
         'TTFD tracker not started or already completed. Dropping TTFD measurement.',
       );
@@ -97,7 +100,7 @@ class TimeToFullDisplayTracker {
         endTimestamp: endTimestamp,
       );
     } catch (e, stackTrace) {
-      options.logger(
+      _options.logger(
         SentryLevel.error,
         'Failed to finish TTFD span',
         exception: e,

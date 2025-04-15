@@ -1347,6 +1347,7 @@ class Fixture {
       frameCallbackHandler: frameCallbackHandler,
     );
     timeToFullDisplayTracker = TimeToFullDisplayTracker(
+      options: hub.options,
       endTimestampProvider: () => timeToInitialDisplayTracker.endTimestamp,
     );
     final options = hub.options;
