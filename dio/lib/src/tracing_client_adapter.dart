@@ -6,7 +6,9 @@ import 'package:dio/dio.dart';
 import 'package:sentry/sentry.dart';
 
 /// A [Dio](https://pub.dev/packages/dio)-package compatible HTTP client adapter
-/// which adds support to Sentry Performance feature.
+/// which adds support to Sentry Performance feature. If tracing is disabled
+/// generated spans will be no-op. This client also handles adding the
+/// Sentry trace headers to the HTTP request header.
 /// https://develop.sentry.dev/sdk/performance
 class TracingClientAdapter implements HttpClientAdapter {
   // ignore: public_member_api_docs
