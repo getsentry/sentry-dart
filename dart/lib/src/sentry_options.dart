@@ -135,8 +135,12 @@ class SentryOptions {
   SentryLogger get logger => _logger;
 
   set logger(SentryLogger logger) {
-    _logger = DiagnosticLogger(logger, this).log;
+    diagnosticLogger = DiagnosticLogger(logger, this);
+    _logger = diagnosticLogger!.log;
   }
+
+  @visibleForTesting
+  DiagnosticLogger? diagnosticLogger;
 
   final List<EventProcessor> _eventProcessors = [];
 
@@ -159,13 +163,15 @@ class SentryOptions {
 
   set debug(bool newValue) {
     _debug = newValue;
-    // ignore: deprecated_member_use_from_same_package
-    if (_debug == true && logger == noOpLogger) {
-      _logger = _debugLogger;
+    if (_debug == true &&
+        // ignore: deprecated_member_use_from_same_package
+        (logger == noOpLogger || diagnosticLogger?.logger == noOpLogger)) {
+      logger = debugLogger;
     }
-    if (_debug == false && logger == _debugLogger) {
+    if (_debug == false &&
+        (logger == debugLogger || diagnosticLogger?.logger == debugLogger)) {
       // ignore: deprecated_member_use_from_same_package
-      _logger = noOpLogger;
+      logger = noOpLogger;
     }
   }
 
@@ -583,7 +589,8 @@ class SentryOptions {
   late SentryStackTraceFactory stackTraceFactory =
       SentryStackTraceFactory(this);
 
-  void _debugLogger(
+  @visibleForTesting
+  void debugLogger(
     SentryLevel level,
     String message, {
     String? logger,

@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- `options.diagnosticLevel` not affecting logs ([#2856](https://github.com/getsentry/sentry-dart/pull/2856))
+
 ## 8.14.1
 
 ### Fixes

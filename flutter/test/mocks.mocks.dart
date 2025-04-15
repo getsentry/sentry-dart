@@ -2020,12 +2020,16 @@ class MockWidgetsFlutterBinding extends _i1.Mock
   int scheduleFrameCallback(
     _i21.FrameCallback? callback, {
     bool? rescheduling = false,
+    bool? scheduleNewFrame = true,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
           #scheduleFrameCallback,
           [callback],
-          {#rescheduling: rescheduling},
+          {
+            #rescheduling: rescheduling,
+            #scheduleNewFrame: scheduleNewFrame,
+          },
         ),
         returnValue: 0,
       ) as int);
@@ -2300,6 +2304,24 @@ class MockWidgetsFlutterBinding extends _i1.Mock
   void removeSemanticsEnabledListener(_i6.VoidCallback? listener) =>
       super.noSuchMethod(
         Invocation.method(#removeSemanticsEnabledListener, [listener]),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void addSemanticsActionListener(
+    _i8.ValueSetter<_i6.SemanticsActionEvent>? listener,
+  ) =>
+      super.noSuchMethod(
+        Invocation.method(#addSemanticsActionListener, [listener]),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void removeSemanticsActionListener(
+    _i8.ValueSetter<_i6.SemanticsActionEvent>? listener,
+  ) =>
+      super.noSuchMethod(
+        Invocation.method(#removeSemanticsActionListener, [listener]),
         returnValueForMissingStub: null,
       );
 
