@@ -53,6 +53,7 @@ class NativeAppStartHandler {
       startTimestamp: appStartInfo.start,
       endTimestamp: appStartInfo.end,
       origin: SentryTraceOrigins.autoUiTimeToDisplay,
+      routeName: screenName,
     );
 
     SentryTracer sentryTracer;

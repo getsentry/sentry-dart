@@ -246,11 +246,29 @@ mixin SentryFlutter {
 
   /// Reports the time it took for the screen to be fully displayed.
   /// This requires the [SentryFlutterOptions.enableTimeToFullDisplayTracing] option to be set to `true`.
-  static Future<void> reportFullyDisplayed() async {
+  ///
+  /// If [routeName] is not provided, the most recently tracked route will be used.
+  ///
+  /// Example:
+  /// ```dart
+  /// // At the start of async work
+  /// final routeName = SentryNavigatorObserver.currentRouteName;
+  ///
+  /// // After async work completes
+  /// if (routeName != null) {
+  ///   SentryFlutter.reportFullyDisplayed(routeName);
+  /// }
+  ///
+  /// // Or simply report the most recent route
+  /// SentryFlutter.reportFullyDisplayed();
+  /// ```
+  static Future<void> reportFullyDisplayed({String? routeName}) async {
     final options = Sentry.currentHub.options;
     if (options is SentryFlutterOptions) {
       try {
-        return options.timeToDisplayTracker.reportFullyDisplayed();
+        return options.timeToDisplayTracker.reportFullyDisplayed(
+          routeName: routeName,
+        );
       } catch (exception, stackTrace) {
         options.logger(
           SentryLevel.error,
@@ -259,8 +277,6 @@ mixin SentryFlutter {
           stackTrace: stackTrace,
         );
       }
-    } else {
-      return;
     }
   }
 

@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/navigation/time_to_full_display_tracker.dart';
 import 'package:sentry/src/sentry_tracer.dart';
+import 'dart:async';
 
 import '../mocks.dart';
 
@@ -26,6 +27,7 @@ void main() {
     await sut.track(
       transaction: transaction,
       startTimestamp: fixture.startTimestamp,
+      routeName: fixture.latestTransactionName,
     );
 
     final ttfdSpan = transaction.children.first;
@@ -56,6 +58,7 @@ void main() {
     await sut.track(
       transaction: transaction,
       startTimestamp: fixture.startTimestamp,
+      routeName: fixture.latestTransactionName,
     );
 
     final ttfdSpan = transaction.children.first;
@@ -81,13 +84,82 @@ void main() {
     });
 
     await sut.track(
-        transaction: transaction, startTimestamp: fixture.startTimestamp);
+      transaction: transaction,
+      startTimestamp: fixture.startTimestamp,
+      routeName: fixture.latestTransactionName,
+    );
   });
 
   test('finishing ttfd without starting tracker does not throw', () async {
     final sut = fixture.getSut();
 
     await sut.reportFullyDisplayed();
+  });
+
+  test(
+      'starting a new transaction before the timeout finishes the previous one',
+      () async {
+    final sut = fixture.getSut();
+
+    final transactionA = fixture.getTransaction() as SentryTracer;
+    unawaited(
+      sut.track(
+        transaction: transactionA,
+        startTimestamp: fixture.startTimestamp,
+        routeName: fixture.latestTransactionName,
+      ),
+    );
+
+    final transactionB = fixture.getTransaction() as SentryTracer;
+    await sut.track(
+      transaction: transactionB,
+      startTimestamp: fixture.startTimestamp,
+      routeName: fixture.latestTransactionName,
+    );
+
+    final ttfdSpanA = transactionA.children.first;
+    expect(ttfdSpanA.finished, isTrue);
+    expect(ttfdSpanA.status, SpanStatus.ok());
+
+    final ttfdSpanB = transactionB.children.first;
+    expect(ttfdSpanB.finished, isTrue);
+    expect(ttfdSpanB.status, SpanStatus.deadlineExceeded());
+  });
+
+  test('reportFullyDisplayed with name does not finish unrelated span',
+      () async {
+    final sut = fixture.getSut();
+
+    final transactionA = fixture.getTransaction(name: "a") as SentryTracer;
+    unawaited(
+      sut.track(
+        transaction: transactionA,
+        startTimestamp: fixture.startTimestamp,
+        routeName: fixture.latestTransactionName,
+      ),
+    );
+    await transactionA.finish();
+
+    final transactionB = fixture.getTransaction(name: "b") as SentryTracer;
+    unawaited(
+      sut.track(
+        transaction: transactionB,
+        startTimestamp: fixture.startTimestamp,
+        routeName: fixture.latestTransactionName,
+      ),
+    );
+
+    // Don't await timeout to finish
+    await sut.reportFullyDisplayed(routeName: "a");
+
+    final ttfdSpanB = transactionB.children.first;
+    expect(ttfdSpanB.finished, isFalse);
+    expect(ttfdSpanB.status, isNull);
+
+    await sut.reportFullyDisplayed(routeName: "b");
+
+    expect(ttfdSpanB.finished, isTrue);
+    expect(ttfdSpanB.status, SpanStatus.ok());
   });
 }
 
@@ -97,7 +169,10 @@ class Fixture {
   final autoFinishAfter = const Duration(seconds: 2);
   late final endTimestampProvider = fakeTTIDEndTimestampProvider();
 
+  late String latestTransactionName;
+
   ISentrySpan getTransaction({String? name = "Current route"}) {
+    latestTransactionName = name ?? "Current route";
     return hub.startTransaction(name!, SentrySpanOperations.uiLoad,
         bindToScope: true, startTimestamp: startTimestamp);
   }

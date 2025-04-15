@@ -22,6 +22,7 @@ class TimeToDisplayTracker {
   Future<void> track(
     ISentrySpan transaction, {
     required DateTime startTimestamp,
+    required String routeName,
     DateTime? endTimestamp,
     String? origin,
   }) async {
@@ -38,14 +39,15 @@ class TimeToDisplayTracker {
       await _ttfdTracker.track(
         transaction: transaction,
         startTimestamp: startTimestamp,
+        routeName: routeName,
       );
     }
   }
 
   @internal
-  Future<void> reportFullyDisplayed() async {
+  Future<void> reportFullyDisplayed({String? routeName}) async {
     if (options.enableTimeToFullDisplayTracing) {
-      return _ttfdTracker.reportFullyDisplayed();
+      return _ttfdTracker.reportFullyDisplayed(routeName: routeName);
     }
   }
 

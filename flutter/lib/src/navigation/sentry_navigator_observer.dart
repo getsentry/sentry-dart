@@ -134,7 +134,8 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   @internal
   static bool get isCreated => _isCreated;
 
-  @internal
+  /// Returns the current route name being tracked by the [SentryNavigatorObserver].
+  /// This can be used to report full display for the current route.
   static String? get currentRouteName => _currentRouteName;
 
   Completer<void>? _completedDisplayTracking = Completer();
@@ -387,6 +388,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
         await _timeToDisplayTracker?.track(
           transaction,
           startTimestamp: startTimestamp,
+          routeName: routeName,
         );
       }
     } catch (exception, stacktrace) {
