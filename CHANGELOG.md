@@ -25,6 +25,8 @@ await SentryFlutter.init(
 ```
 - Make hierarchical exception grouping opt-in ([#2858](https://github.com/getsentry/sentry-dart/pull/2858))
 
+- If an incoming HTTP request has the `traceparent` header, it is now parsed and interpreted like the `sentry-trace` header. Outgoing requests now contain the `traceparent` header to facilitate integration with servesr that only support the [W3C Trace Context](https://www.w3.org/TR/trace-context/). ([#2843](https://github.com/getsentry/sentry-dart/pull/2843))
+
 ### Fixes
 
 - Trace propagation in HTTP tracing clients not correctly set up if performance is disabled ([#2850](https://github.com/getsentry/sentry-dart/pull/2850))
