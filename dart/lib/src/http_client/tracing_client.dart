@@ -52,7 +52,7 @@ class TracingClient extends BaseClient {
     // Sentry trace headers (tracing without performance).
     if (containsTargetOrMatchesRegExp(
         _hub.options.tracePropagationTargets, request.url.toString())) {
-      addTracingHeadersToHttpHeader(request.headers, span: span, hub: _hub);
+      addTracingHeadersToHttpHeader(request.headers, _hub, span: span);
     }
 
     span?.origin = SentryTraceOrigins.autoHttpHttp;

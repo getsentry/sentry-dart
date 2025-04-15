@@ -54,7 +54,7 @@ class TracingClientAdapter implements HttpClientAdapter {
       _hub.options.tracePropagationTargets,
       options.uri.toString(),
     )) {
-      addTracingHeadersToHttpHeader(options.headers, span: span, hub: _hub);
+      addTracingHeadersToHttpHeader(options.headers, _hub, span: span);
     }
 
     span?.origin = SentryTraceOrigins.autoHttpDioHttpClientAdapter;
