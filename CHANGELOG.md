@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Improvements
+
+- Improve performance of frames tracking ([#2854](https://github.com/getsentry/sentry-dart/pull/2854))
+
 ### Fixes
 
 - `options.diagnosticLevel` not affecting logs ([#2856](https://github.com/getsentry/sentry-dart/pull/2856))

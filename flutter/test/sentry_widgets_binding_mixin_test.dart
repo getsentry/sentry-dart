@@ -1,4 +1,7 @@
+// ignore_for_file: invalid_use_of_internal_member
+
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/binding_wrapper.dart';
 
 import 'binding.dart';
@@ -8,17 +11,21 @@ void main() {
   // Otherwise it would disrupt the frame processing and freeze the UI
   group('$SentryWidgetsBindingMixin', () {
     late SentryAutomatedTestWidgetsFlutterBinding binding;
+    late SentryOptions options;
 
     setUp(() {
+      options = SentryOptions();
       binding = SentryAutomatedTestWidgetsFlutterBinding.ensureInitialized();
       // reset state
       binding.removeFramesTracking();
     });
 
     test('frame processing continues execution when clock throws', () {
-      binding.registerFramesTracking(
+      options.clock = () => throw Exception('Clock error');
+      binding.initializeFramesTracking(
         (_, __) {},
-        () => throw Exception('Clock error'),
+        options,
+        Duration(milliseconds: 16),
       );
 
       expect(
@@ -30,12 +37,14 @@ void main() {
       );
     });
 
-    test('frame processing execution when callback throws', () {
-      binding.registerFramesTracking(
+    test('frame processing continues execution when callback throws', () {
+      options.clock = () => DateTime.now();
+      binding.initializeFramesTracking(
         (_, __) {
           throw Exception('Callback error');
         },
-        () => DateTime.now(),
+        options,
+        Duration(milliseconds: 16),
       );
 
       expect(
