@@ -1340,6 +1340,9 @@ class Fixture {
     AdditionalInfoExtractor? additionalInfoProvider,
     List<String>? ignoreRoutes,
   }) {
+    if (hub is MockHub) {
+      when(hub.generateNewTraceId()).thenAnswer((_) => {});
+    }
     final frameCallbackHandler = FakeFrameCallbackHandler(
         postFrameCallbackDelay: Duration(milliseconds: 10));
     timeToInitialDisplayTracker = TimeToInitialDisplayTracker(
