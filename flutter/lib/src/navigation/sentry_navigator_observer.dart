@@ -153,8 +153,6 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     }
 
     _hub.generateNewTraceId();
-    print('hello2: ${_hub.scope.propagationContext.traceId}');
-
     _setCurrentRouteName(route);
     _setCurrentRouteNameAsTransaction(route);
 
