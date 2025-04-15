@@ -74,30 +74,20 @@ typedef FrameTimingCallback = void Function(
 
 mixin SentryWidgetsBindingMixin on WidgetsBinding {
   FrameTimingCallback? _onDelayedFrame;
-  ClockProvider? _clock;
-  Stopwatch? _stopwatch;
+  FrameTimingCallback? get onDelayedFrame => _onDelayedFrame;
   Duration? _expectedFrameDuration;
+  Duration? get expectedFrameDuration => _expectedFrameDuration;
   bool _isTrackingActive = false;
-  SentryOptions get _options => Sentry.currentHub.options;
+  SentryOptions? _options;
+  SentryOptions? get options => _options;
+  final Stopwatch _stopwatch = Stopwatch();
 
   @internal
-  void initializeFramesTracking(
-      FrameTimingCallback onDelayedFrame,
-      ClockProvider clock,
-      Duration expectedFrameDuration,
-      Stopwatch stopwatch) {
+  void initializeFramesTracking(FrameTimingCallback onDelayedFrame,
+      SentryOptions options, Duration expectedFrameDuration) {
     _onDelayedFrame ??= onDelayedFrame;
-    _clock ??= clock;
-    _stopwatch ??= stopwatch;
+    _options ??= options;
     _expectedFrameDuration ??= expectedFrameDuration;
-  }
-
-  @visibleForTesting
-  bool isFramesTrackingInitialized() {
-    return _onDelayedFrame != null &&
-        _clock != null &&
-        _expectedFrameDuration != null &&
-        _stopwatch != null;
   }
 
   void resumeTrackingFrames() {
@@ -106,26 +96,25 @@ mixin SentryWidgetsBindingMixin on WidgetsBinding {
 
   void pauseTrackingFrames() {
     // Stopwatch could continue running if we pause tracking in between a frame
-    _stopwatch?.stop();
-    _stopwatch?.reset();
+    _stopwatch.stop();
+    _stopwatch.reset();
     _isTrackingActive = false;
   }
 
   @internal
   void removeFramesTracking() {
     _onDelayedFrame = null;
-    _clock = null;
-    _stopwatch = null;
     _expectedFrameDuration = null;
+    _options = null;
   }
 
   @override
   void handleBeginFrame(Duration? rawTimeStamp) {
     if (_isTrackingActive) {
       try {
-        _stopwatch?.start();
+        _stopwatch.start();
       } catch (_) {
-        if (_options.automatedTestMode) {
+        if (_options?.automatedTestMode == true) {
           rethrow;
         }
       }
@@ -138,21 +127,26 @@ mixin SentryWidgetsBindingMixin on WidgetsBinding {
   void handleDrawFrame() {
     super.handleDrawFrame();
 
-    if (_isTrackingActive && isFramesTrackingInitialized()) {
-      try {
-        _stopwatch?.stop();
-        if (_stopwatch!.elapsedMilliseconds >
-            _expectedFrameDuration!.inMilliseconds) {
-          final endTimestamp = _clock!.call();
-          final startTimestamp = endTimestamp.subtract(
-              Duration(milliseconds: _stopwatch!.elapsedMilliseconds));
-          _onDelayedFrame?.call(startTimestamp, endTimestamp);
-        }
-        _stopwatch?.reset();
-      } catch (_) {
-        if (_options.automatedTestMode) {
-          rethrow;
-        }
+    if (!_isTrackingActive) {
+      return;
+    }
+    final expectedFrameDuration = _expectedFrameDuration;
+    final options = _options;
+    try {
+      _stopwatch.stop();
+      if (options != null &&
+          expectedFrameDuration != null &&
+          _stopwatch.elapsedMilliseconds >
+              expectedFrameDuration.inMilliseconds) {
+        final endTimestamp = options.clock();
+        final startTimestamp = endTimestamp
+            .subtract(Duration(milliseconds: _stopwatch.elapsedMilliseconds));
+        _onDelayedFrame?.call(startTimestamp, endTimestamp);
+      }
+      _stopwatch.reset();
+    } catch (_) {
+      if (_options?.automatedTestMode == true) {
+        rethrow;
       }
     }
   }

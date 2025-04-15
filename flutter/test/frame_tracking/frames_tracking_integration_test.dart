@@ -53,9 +53,15 @@ void main() {
     await integration.call(Hub(options), options);
   }
 
+  bool isFramesTrackingInitialized(SentryWidgetsBindingMixin binding) {
+    return binding.options != null &&
+        binding.onDelayedFrame != null &&
+        binding.expectedFrameDuration != null;
+  }
+
   void assertInitFailure() {
     if (widgetsBinding != null) {
-      expect(widgetsBinding!.isFramesTrackingInitialized(), isFalse);
+      expect(isFramesTrackingInitialized(widgetsBinding!), isFalse);
     }
     expect(options.performanceCollectors, isEmpty);
   }
@@ -81,12 +87,12 @@ void main() {
   test('properly cleans up resources on close', () async {
     await fromWorkingState(options);
 
-    expect(widgetsBinding!.isFramesTrackingInitialized(), isTrue);
+    expect(isFramesTrackingInitialized(widgetsBinding!), isTrue);
     expect(options.performanceCollectors, isNotEmpty);
 
     integration.close();
 
-    expect(widgetsBinding!.isFramesTrackingInitialized(), isFalse);
+    expect(isFramesTrackingInitialized(widgetsBinding!), isFalse);
     expect(options.performanceCollectors, isEmpty);
   });
 
