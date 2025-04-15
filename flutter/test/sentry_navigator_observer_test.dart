@@ -1347,8 +1347,8 @@ class Fixture {
       frameCallbackHandler: frameCallbackHandler,
     );
     timeToFullDisplayTracker = TimeToFullDisplayTracker(
-      options: hub.options,
-      endTimestampProvider: () => timeToInitialDisplayTracker.endTimestamp,
+      hub.options,
+      () => timeToInitialDisplayTracker.endTimestamp,
     );
     final options = hub.options;
     if (options is SentryFlutterOptions) {

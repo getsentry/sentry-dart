@@ -9,25 +9,20 @@ import '../../sentry_flutter.dart';
 
 @internal
 class TimeToFullDisplayTracker {
-  TimeToFullDisplayTracker({
-    required SentryOptions options,
-    required EndTimestampProvider endTimestampProvider,
+  TimeToFullDisplayTracker(
+    this._options,
+    this._endTimestampProvider, {
     Duration autoFinishAfter = const Duration(seconds: 30),
-  }) {
-    _options = options;
-    _endTimestampProvider = endTimestampProvider;
-    _autoFinishAfter = autoFinishAfter;
-  }
+  }) : _autoFinishAfter = autoFinishAfter;
+
+  final SentryOptions _options;
+  // End timestamp provider is only needed when the TTFD timeout is triggered
+  final EndTimestampProvider _endTimestampProvider;
+  final Duration _autoFinishAfter;
 
   ISentrySpan? _transaction;
   String? _routeName;
-
   ISentrySpan? _ttfdSpan;
-
-  late final SentryOptions _options;
-  // End timestamp provider is only needed when the TTFD timeout is triggered
-  late final EndTimestampProvider _endTimestampProvider;
-  late final Duration _autoFinishAfter;
   Completer<void> _completedTTFDTracking = Completer<void>();
 
   Future<void> track({

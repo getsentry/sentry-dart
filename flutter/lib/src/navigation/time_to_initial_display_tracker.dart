@@ -13,16 +13,13 @@ import '../frame_callback_handler.dart';
 class TimeToInitialDisplayTracker {
   TimeToInitialDisplayTracker({
     FrameCallbackHandler? frameCallbackHandler,
-  }) {
-    _frameCallbackHandler =
-        frameCallbackHandler ?? DefaultFrameCallbackHandler();
-  }
+  }) : _frameCallbackHandler =
+            frameCallbackHandler ?? DefaultFrameCallbackHandler();
 
-  late final FrameCallbackHandler _frameCallbackHandler;
+  final FrameCallbackHandler _frameCallbackHandler;
+
   Completer<DateTime?>? _trackingCompleter;
   DateTime? _endTimestamp;
-
-  final Duration _determineEndtimeTimeout = Duration(seconds: 5);
 
   /// This endTimestamp is needed in the [TimeToFullDisplayTracker] class
   @internal
@@ -70,7 +67,7 @@ class TimeToInitialDisplayTracker {
   Future<DateTime?>? determineEndTime() {
     _trackingCompleter = Completer<DateTime?>();
     final future = _trackingCompleter?.future.timeout(
-      _determineEndtimeTimeout,
+      Duration(seconds: 5),
       onTimeout: () {
         return Future.value(null);
       },
