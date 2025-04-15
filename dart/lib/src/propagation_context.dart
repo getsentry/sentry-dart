@@ -10,12 +10,11 @@ class PropagationContext {
 
   /// A span ID that should be used for the `trace` context of various event type, when performance is disabled or when there is no active span.
   /// If this value is undefined on the propagation context, the SDK will generate a random span ID for `trace` contexts and trace propagation.
-  final SpanId propagationSpanId = SpanId.newId();
+  final SpanId spanId = SpanId.newId();
 
   /// The dynamic sampling context.
   SentryBaggage? baggage;
 
   /// Sentry trace header to attach to http headers.
-  SentryTraceHeader toSentryTrace() =>
-      SentryTraceHeader(traceId, propagationSpanId);
+  SentryTraceHeader toSentryTrace() => SentryTraceHeader(traceId, spanId);
 }

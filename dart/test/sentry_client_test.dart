@@ -644,8 +644,8 @@ void main() {
       expect(fixture.transport.envelopes.length, 1);
       expect(
           scopePropagationContext.traceId, sentryEvent.contexts.trace!.traceId);
-      expect(scopePropagationContext.propagationSpanId,
-          sentryEvent.contexts.trace!.spanId);
+      expect(
+          scopePropagationContext.spanId, sentryEvent.contexts.trace!.spanId);
     });
 
     test('keeps existing trace context if already present', () async {
@@ -677,8 +677,8 @@ void main() {
       expect(spanContext.spanId, isNot(sentryEvent.contexts.trace!.spanId));
       expect(propagationContext.traceId,
           isNot(sentryEvent.contexts.trace!.traceId));
-      expect(propagationContext.propagationSpanId,
-          isNot(sentryEvent.contexts.trace!.spanId));
+      expect(
+          propagationContext.spanId, isNot(sentryEvent.contexts.trace!.spanId));
     });
 
     test(
