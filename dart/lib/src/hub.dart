@@ -495,7 +495,7 @@ class Hub {
   }
 
   @internal
-  void generateNewTrace() {
+  void generateNewTraceId() {
     scope.propagationContext.traceId = SentryId.newId();
   }
 

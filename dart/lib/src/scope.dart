@@ -341,20 +341,31 @@ class Scope {
       }
     });
 
-    final newSpan = span;
-    if (event.contexts.trace == null) {
-      if (newSpan != null) {
-        event.contexts.trace = newSpan.context.toTraceContext(
-          sampled: newSpan.samplingDecision?.sampled,
-        );
-      } else {
-        event.contexts.trace =
-            SentryTraceContext.fromPropagationContext(propagationContext);
-      }
-    }
+    event.contexts.trace =
+        SentryTraceContext.fromPropagationContext(propagationContext);
 
     return await runEventProcessors(event, hint, _eventProcessors, _options);
   }
+
+  // /**
+  //  * Get a trace context for the given scope.
+  //  */
+  // export function getTraceContextFromScope(scope: Scope): TraceContext {
+  // const propagationContext = scope.getPropagationContext();
+  //
+  // const { traceId, parentSpanId, propagationSpanId } = propagationContext;
+  //
+  // const traceContext: TraceContext = {
+  // trace_id: traceId,
+  // span_id: propagationSpanId || generateSpanId(),
+  // };
+  //
+  // if (parentSpanId) {
+  // traceContext.parent_span_id = parentSpanId;
+  // }
+  //
+  // return traceContext;
+  // }
 
   /// Merge the scope contexts runtimes and the event contexts runtimes.
   void _mergeEventContextsRuntimes(
