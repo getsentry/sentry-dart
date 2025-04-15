@@ -34,6 +34,9 @@ await SentryFlutter.init(
   - Some SDK classes do not have `const` constructors anymore.
   - The `copyWith` and `clone` methods of SDK classes were deprecated.
 - Set log level to `warning` by default when `debug = true` ([#2836](https://github.com/getsentry/sentry-dart/pull/2836))
+- Set HTTP client breadcrumbs log level based on response status code ([#2847](https://github.com/getsentry/sentry-dart/pull/2847))
+  - 5xx is mapped to `SentryLevel.error`
+  - 4xx is mapped to `SentryLevel.warning`
 - Parent-child relationship for the PlatformExceptions and Cause ([#2803](https://github.com/getsentry/sentry-dart/pull/2803))
   - Improves and changes exception grouping
 

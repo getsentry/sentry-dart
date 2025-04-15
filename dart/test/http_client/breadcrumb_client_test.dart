@@ -39,6 +39,7 @@ void main() {
       expect(breadcrumb.data?['duration'], isNotNull);
       expect(breadcrumb.data?['request_body_size'], isNotNull);
       expect(breadcrumb.data?['response_body_size'], isNotNull);
+      expect(breadcrumb.level, SentryLevel.info);
     });
 
     test('GET: happy path for 404', () async {
@@ -60,6 +61,7 @@ void main() {
       expect(breadcrumb.data?['status_code'], 404);
       expect(breadcrumb.data?['reason'], 'NOT FOUND');
       expect(breadcrumb.data?['duration'], isNotNull);
+      expect(breadcrumb.level, SentryLevel.warning);
     });
 
     test('POST: happy path', () async {
@@ -78,6 +80,7 @@ void main() {
       expect(breadcrumb.data?['http.fragment'], 'baz');
       expect(breadcrumb.data?['status_code'], 200);
       expect(breadcrumb.data?['duration'], isNotNull);
+      expect(breadcrumb.level, SentryLevel.info);
     });
 
     test('PUT: happy path', () async {
@@ -96,6 +99,7 @@ void main() {
       expect(breadcrumb.data?['http.fragment'], 'baz');
       expect(breadcrumb.data?['status_code'], 200);
       expect(breadcrumb.data?['duration'], isNotNull);
+      expect(breadcrumb.level, SentryLevel.info);
     });
 
     test('DELETE: happy path', () async {
@@ -114,6 +118,73 @@ void main() {
       expect(breadcrumb.data?['http.fragment'], 'baz');
       expect(breadcrumb.data?['status_code'], 200);
       expect(breadcrumb.data?['duration'], isNotNull);
+      expect(breadcrumb.level, SentryLevel.info);
+    });
+
+    test('server error response (500)', () async {
+      final sut = fixture.getSut(
+          fixture.getClient(statusCode: 500, reason: 'INTERNAL SERVER ERROR'));
+
+      final response = await sut.get(requestUri);
+
+      expect(response.statusCode, 500);
+
+      expect(fixture.hub.addBreadcrumbCalls.length, 1);
+      final breadcrumb = fixture.hub.addBreadcrumbCalls.first.crumb;
+
+      expect(breadcrumb.type, 'http');
+      expect(breadcrumb.data?['url'], 'https://example.com/path');
+      expect(breadcrumb.data?['method'], 'GET');
+      expect(breadcrumb.data?['http.query'], 'foo=bar');
+      expect(breadcrumb.data?['http.fragment'], 'baz');
+      expect(breadcrumb.data?['status_code'], 500);
+      expect(breadcrumb.data?['reason'], 'INTERNAL SERVER ERROR');
+      expect(breadcrumb.data?['duration'], isNotNull);
+      expect(breadcrumb.level, SentryLevel.error);
+    });
+
+    test('server redirect (3xx)', () async {
+      final sut = fixture.getSut(
+          fixture.getClient(statusCode: 308, reason: 'PERMANENT REDIRECT'));
+
+      final response = await sut.get(requestUri);
+
+      expect(response.statusCode, 308);
+
+      expect(fixture.hub.addBreadcrumbCalls.length, 1);
+      final breadcrumb = fixture.hub.addBreadcrumbCalls.first.crumb;
+
+      expect(breadcrumb.type, 'http');
+      expect(breadcrumb.data?['url'], 'https://example.com/path');
+      expect(breadcrumb.data?['method'], 'GET');
+      expect(breadcrumb.data?['http.query'], 'foo=bar');
+      expect(breadcrumb.data?['http.fragment'], 'baz');
+      expect(breadcrumb.data?['status_code'], 308);
+      expect(breadcrumb.data?['reason'], 'PERMANENT REDIRECT');
+      expect(breadcrumb.data?['duration'], isNotNull);
+      expect(breadcrumb.level, SentryLevel.info);
+    });
+
+    test('invalid status (>= 6xx)', () async {
+      final sut = fixture.getSut(
+          fixture.getClient(statusCode: 600, reason: 'UNKNOWN STATUS CODE'));
+
+      final response = await sut.get(requestUri);
+
+      expect(response.statusCode, 600);
+
+      expect(fixture.hub.addBreadcrumbCalls.length, 1);
+      final breadcrumb = fixture.hub.addBreadcrumbCalls.first.crumb;
+
+      expect(breadcrumb.type, 'http');
+      expect(breadcrumb.data?['url'], 'https://example.com/path');
+      expect(breadcrumb.data?['method'], 'GET');
+      expect(breadcrumb.data?['http.query'], 'foo=bar');
+      expect(breadcrumb.data?['http.fragment'], 'baz');
+      expect(breadcrumb.data?['status_code'], 600);
+      expect(breadcrumb.data?['reason'], 'UNKNOWN STATUS CODE');
+      expect(breadcrumb.data?['duration'], isNotNull);
+      expect(breadcrumb.level, SentryLevel.info);
     });
 
     /// Tests, that in case an exception gets thrown, that
