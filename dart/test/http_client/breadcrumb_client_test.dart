@@ -165,6 +165,28 @@ void main() {
       expect(breadcrumb.level, SentryLevel.info);
     });
 
+    test('invalid status (>= 6xx)', () async {
+      final sut = fixture.getSut(
+          fixture.getClient(statusCode: 600, reason: 'UNKNOWN STATUS CODE'));
+
+      final response = await sut.get(requestUri);
+
+      expect(response.statusCode, 600);
+
+      expect(fixture.hub.addBreadcrumbCalls.length, 1);
+      final breadcrumb = fixture.hub.addBreadcrumbCalls.first.crumb;
+
+      expect(breadcrumb.type, 'http');
+      expect(breadcrumb.data?['url'], 'https://example.com/path');
+      expect(breadcrumb.data?['method'], 'GET');
+      expect(breadcrumb.data?['http.query'], 'foo=bar');
+      expect(breadcrumb.data?['http.fragment'], 'baz');
+      expect(breadcrumb.data?['status_code'], 600);
+      expect(breadcrumb.data?['reason'], 'UNKNOWN STATUS CODE');
+      expect(breadcrumb.data?['duration'], isNotNull);
+      expect(breadcrumb.level, SentryLevel.info);
+    });
+
     /// Tests, that in case an exception gets thrown, that
     /// no exception gets reported by Sentry, in case the user wants to
     /// handle the exception

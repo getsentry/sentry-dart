@@ -8,7 +8,7 @@ SentryLevel? getBreadcrumbLogLevelFromHttpStatusCode(int statusCode) {
   // NOTE: null defaults to 'info' in Sentry
   if (statusCode >= 400 && statusCode < 500) {
     return SentryLevel.warning;
-  } else if (statusCode >= 500) {
+  } else if (statusCode >= 500 && statusCode < 600) {
     return SentryLevel.error;
   } else {
     return null;
