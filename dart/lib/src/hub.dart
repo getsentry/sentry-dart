@@ -454,9 +454,6 @@ class Hub {
         SentryLevel.warning,
         "Instance is disabled and this 'startTransaction' call is a no-op.",
       );
-    } else if (!_options.isTracingEnabled()) {
-      final item = _peek();
-      item.scope.propagationContext = PropagationContext();
     } else {
       final item = _peek();
 
@@ -498,20 +495,6 @@ class Hub {
     return NoOpSentrySpan();
   }
 
-  /// Generates a new trace - re-generates the trace id.
-  ///
-  /// Default behaviour of trace generation in Flutter:
-  ///
-  /// If `SentryNavigatorObserver` is available:
-  ///  - new trace on navigation for all platforms
-  ///
-  /// if `SentryNavigatorObserver` is not available:
-  ///  - Mobile: traces will be cycled with the background/foreground hooks, similar to how sessions are defined in mobile
-  ///  - Web if performance is enabled:
-  ///    - traces are started on every new transaction (unless there is an ongoing active transaction)
-  ///    - otherwise for Tracing without Performance the trace will stick until the next refresh
-  ///
-  /// Implementation might change in the future so we are keeping this internal.
   @internal
   void generateNewTrace() {
     scope.propagationContext = PropagationContext();
