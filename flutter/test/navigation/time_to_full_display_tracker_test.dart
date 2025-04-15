@@ -26,7 +26,6 @@ void main() {
 
     await sut.track(
       transaction: transaction,
-      startTimestamp: fixture.startTimestamp,
       routeName: fixture.latestTransactionName,
     );
 
@@ -57,7 +56,6 @@ void main() {
 
     await sut.track(
       transaction: transaction,
-      startTimestamp: fixture.startTimestamp,
       routeName: fixture.latestTransactionName,
     );
 
@@ -85,7 +83,6 @@ void main() {
 
     await sut.track(
       transaction: transaction,
-      startTimestamp: fixture.startTimestamp,
       routeName: fixture.latestTransactionName,
     );
   });
@@ -104,7 +101,6 @@ void main() {
     unawaited(
       sut.track(
         transaction: transactionA,
-        startTimestamp: fixture.startTimestamp,
         routeName: fixture.latestTransactionName,
       ),
     );
@@ -114,7 +110,6 @@ void main() {
     unawaited(
       sut.track(
         transaction: transactionB,
-        startTimestamp: fixture.startTimestamp,
         routeName: fixture.latestTransactionName,
       ),
     );

@@ -43,7 +43,6 @@ void main() {
       final transaction = fixture.getTransaction() as SentryTracer;
       await sut.track(
         transaction,
-        startTimestamp: fixture.startTimestamp,
         routeName: fixture.latestTransactionName,
       );
 
@@ -57,11 +56,9 @@ void main() {
       final sut = fixture.getSut();
 
       final transaction = fixture.getTransaction() as SentryTracer;
-      final start = fixture.startTimestamp;
       final end = fixture.startTimestamp.add(Duration(milliseconds: 100));
       await sut.track(
         transaction,
-        startTimestamp: start,
         endTimestamp: end,
         routeName: fixture.latestTransactionName,
       );
@@ -78,7 +75,6 @@ void main() {
         final transaction = fixture.getTransaction() as SentryTracer;
         await sut.track(
           transaction,
-          startTimestamp: fixture.startTimestamp,
           routeName: fixture.latestTransactionName,
         );
 
@@ -95,7 +91,6 @@ void main() {
         final transaction = fixture.getTransaction() as SentryTracer;
         await sut.track(
           transaction,
-          startTimestamp: fixture.startTimestamp,
           routeName: fixture.latestTransactionName,
         );
       });
@@ -115,7 +110,6 @@ void main() {
 
       await sut.track(
         transaction,
-        startTimestamp: fixture.startTimestamp,
         routeName: fixture.latestTransactionName,
       );
 
@@ -137,7 +131,6 @@ void main() {
       // First ttfd timeout
       await sut.track(
         transaction,
-        startTimestamp: fixture.startTimestamp,
         routeName: fixture.latestTransactionName,
       );
 
@@ -153,7 +146,6 @@ void main() {
       // Second ttfd timeout
       await sut.track(
         transaction,
-        startTimestamp: fixture.startTimestamp,
         routeName: fixture.latestTransactionName,
       );
 
@@ -176,7 +168,6 @@ void main() {
 
       await sut.track(
         transaction,
-        startTimestamp: fixture.startTimestamp,
         routeName: fixture.latestTransactionName,
       );
 
@@ -193,7 +184,6 @@ void main() {
     final transaction = fixture.getTransaction() as SentryTracer;
     await sut.track(
       transaction,
-      startTimestamp: fixture.startTimestamp,
       routeName: fixture.latestTransactionName,
     );
 

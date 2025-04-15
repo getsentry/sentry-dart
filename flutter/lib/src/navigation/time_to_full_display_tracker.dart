@@ -16,33 +16,31 @@ class TimeToFullDisplayTracker {
     _autoFinishAfter = autoFinishAfter;
   }
 
-  DateTime? _startTimestamp;
-  ISentrySpan? _ttfdSpan;
-  String? _routeName;
   ISentrySpan? _transaction;
-  Duration _autoFinishAfter = const Duration(seconds: 30);
-  final options = Sentry.currentHub.options;
+  String? _routeName;
 
+  ISentrySpan? _ttfdSpan;
+
+  final options = Sentry.currentHub.options;
   // End timestamp provider is only needed when the TTFD timeout is triggered
   late final EndTimestampProvider _endTimestampProvider;
+  late final Duration _autoFinishAfter;
   Completer<void> _completedTTFDTracking = Completer<void>();
 
   Future<void> track({
     required ISentrySpan transaction,
-    required DateTime startTimestamp,
     required String routeName,
   }) async {
     if (transaction is! SentryTracer) {
       return;
     }
-    _startTimestamp = startTimestamp;
+    _transaction = transaction;
     _routeName = routeName;
 
-    _transaction = transaction;
     _ttfdSpan = transaction.startChild(
       SentrySpanOperations.uiTimeToFullDisplay,
       description: '${transaction.name} full display',
-      startTimestamp: startTimestamp,
+      startTimestamp: transaction.startTimestamp,
     );
     _ttfdSpan?.origin = SentryTraceOrigins.manualUiTimeToDisplay;
     // Wait for TTFD to finish
@@ -74,13 +72,9 @@ class TimeToFullDisplayTracker {
 
   Future<void> _complete(DateTime? timestamp) async {
     final ttfdSpan = _ttfdSpan;
-    final startTimestamp = _startTimestamp;
     final endTimestamp = timestamp ?? _endTimestampProvider();
 
-    if (ttfdSpan == null ||
-        ttfdSpan.finished ||
-        startTimestamp == null ||
-        endTimestamp == null) {
+    if (ttfdSpan == null || ttfdSpan.finished || endTimestamp == null) {
       options.logger(
         SentryLevel.warning,
         'TTFD tracker not started or already completed. Dropping TTFD measurement.',
@@ -96,7 +90,7 @@ class TimeToFullDisplayTracker {
     try {
       // Should only add measurements if the span is successful
       if (status == SpanStatus.ok()) {
-        _setTTFDMeasurement(startTimestamp, endTimestamp);
+        _setTTFDMeasurement(ttfdSpan.startTimestamp, endTimestamp);
       }
       await ttfdSpan.finish(
         status: status,
@@ -123,7 +117,6 @@ class TimeToFullDisplayTracker {
   }
 
   void clear() {
-    _startTimestamp = null;
     _routeName = null;
     _ttfdSpan = null;
     _transaction = null;

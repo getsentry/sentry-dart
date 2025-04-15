@@ -68,6 +68,7 @@ void main() {
               description: anyNamed('description'),
               startTimestamp: anyNamed('startTimestamp')))
           .thenReturn(NoOpSentrySpan());
+      when(tracer.startTimestamp).thenReturn(getUtcDateTime());
       when(tracer.finished).thenReturn(false);
       when(tracer.status).thenReturn(SpanStatus.ok());
 
@@ -1385,8 +1386,10 @@ class _MockHub extends MockHub {
   }
 }
 
-MockSentryTracer getMockSentryTracer({String? name, bool? finished}) {
+MockSentryTracer getMockSentryTracer(
+    {String? name, bool? finished, DateTime? startTimestamp}) {
   final tracer = MockSentryTracer();
+  when(tracer.startTimestamp).thenReturn(startTimestamp ?? getUtcDateTime());
   when(tracer.name).thenReturn(name ?? 'name');
   when(tracer.finished).thenReturn(finished ?? true);
   return tracer;

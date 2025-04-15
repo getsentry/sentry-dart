@@ -16,7 +16,6 @@ import '../native/native_frames.dart';
 import '../native/sentry_native_binding.dart';
 import '../web/web_session_handler.dart';
 import 'time_to_display_tracker.dart';
-import 'time_to_full_display_tracker.dart';
 
 /// This key must be used so that the web interface displays the events nicely
 /// See https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/
@@ -387,7 +386,6 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       if (!isAppStart) {
         await _timeToDisplayTracker?.track(
           transaction,
-          startTimestamp: startTimestamp,
           routeName: routeName,
         );
       }

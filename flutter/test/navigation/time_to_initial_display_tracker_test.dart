@@ -29,7 +29,6 @@ void main() {
       final transaction = fixture.getTransaction() as SentryTracer;
       await sut.track(
         transaction: transaction,
-        startTimestamp: fixture.startTimestamp,
       );
 
       final children = transaction.children;
@@ -63,7 +62,6 @@ void main() {
       final transaction = fixture.getTransaction() as SentryTracer;
       await sut.track(
         transaction: transaction,
-        startTimestamp: fixture.startTimestamp,
       );
 
       final children = transaction.children;
@@ -95,7 +93,6 @@ void main() {
 
       await sut.track(
         transaction: transaction,
-        startTimestamp: fixture.startTimestamp,
         endTimestamp: endTimestamp,
       );
 
@@ -119,7 +116,6 @@ void main() {
 
       await sut.track(
         transaction: transaction,
-        startTimestamp: fixture.startTimestamp,
         endTimestamp: endTimestamp,
       );
 
