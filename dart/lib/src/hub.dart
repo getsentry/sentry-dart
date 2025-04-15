@@ -453,7 +453,7 @@ class Hub {
         SentryLevel.warning,
         "Instance is disabled and this 'startTransaction' call is a no-op.",
       );
-    } else {
+    } else if (_options.isTracingEnabled()) {
       final item = _peek();
 
       // if transactionContext has no sampled decision, run the traces sampler
