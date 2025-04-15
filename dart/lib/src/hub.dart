@@ -6,7 +6,6 @@ import 'package:meta/meta.dart';
 import '../sentry.dart';
 import 'client_reports/discard_reason.dart';
 import 'profiling.dart';
-import 'propagation_context.dart';
 import 'sentry_tracer.dart';
 import 'sentry_traces_sampler.dart';
 import 'transport/data_category.dart';
@@ -497,7 +496,7 @@ class Hub {
 
   @internal
   void generateNewTrace() {
-    scope.propagationContext = PropagationContext();
+    scope.propagationContext.traceId = SentryId.newId();
   }
 
   /// Gets the current active transaction or span.
