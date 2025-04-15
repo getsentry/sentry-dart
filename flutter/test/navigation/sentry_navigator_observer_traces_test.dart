@@ -55,7 +55,7 @@ void main() {
     /// Prepares mocks, we don't care about what they exactly do.
     /// We only test the order of execution in this group.
     void _prepareMocks() {
-      when(fixture.mockHub.generateNewTrace()).thenAnswer((_) => {});
+      when(fixture.mockHub.generateNewTraceId()).thenAnswer((_) => {});
       when(fixture.mockHub.configureScope(any))
           .thenAnswer((_) => Future.value());
       when(fixture.mockHub.startTransactionWithContext(
@@ -79,7 +79,7 @@ void main() {
       final sut = fixture.getSut(hub: fixture.mockHub);
       sut.didPush(toRoute, fromRoute);
       verifyInOrder([
-        fixture.mockHub.generateNewTrace(),
+        fixture.mockHub.generateNewTraceId(),
         fixture.mockHub.startTransactionWithContext(
           any,
           bindToScope: anyNamed('bindToScope'),
