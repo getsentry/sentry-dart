@@ -24,6 +24,21 @@ await SentryFlutter.init(
 );
 ```
 - Make hierarchical exception grouping opt-in ([#2858](https://github.com/getsentry/sentry-dart/pull/2858))
+- TTID/TTFD Improvements ([#2866](https://github.com/getsentry/sentry-dart/pull/2866))
+```dart
+// Pass the [routeName] of the route that was displayed to close the correct route, 
+// even if navigation occurred in the meantime.
+
+// At the start of async work
+final routeName = SentryNavigatorObserver.currentRouteName;
+// After async work completes
+if (routeName != null) {
+  SentryFlutter.reportFullyDisplayed(routeName);
+}
+
+// Or simply report the most recent route
+SentryFlutter.reportFullyDisplayed();
+```
 
 ### Fixes
 
