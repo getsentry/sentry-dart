@@ -1,9 +1,14 @@
 import '../../event_processor.dart';
 import '../../protocol.dart';
 import '../../hint.dart';
+import '../../sentry_options.dart';
 
 /// Group exceptions into a flat list with references to hierarchy.
 class ExceptionGroupEventProcessor implements EventProcessor {
+  final SentryOptions _options;
+
+  ExceptionGroupEventProcessor(this._options);
+
   @override
   SentryEvent? apply(SentryEvent event, Hint hint) {
     final sentryExceptions = event.exceptions ?? [];
@@ -16,25 +21,34 @@ class ExceptionGroupEventProcessor implements EventProcessor {
       // If already a list or no child exceptions, no grouping possible/needed.
       return event;
     } else {
-      event.exceptions =
-          firstException.flatten().reversed.toList(growable: false);
+      if (_options.groupExceptions) {
+        event.exceptions = firstException
+            .flatten(groupExceptions: true)
+            .reversed
+            .toList(growable: false);
+      } else {
+        event.exceptions = firstException.flatten(groupExceptions: false);
+      }
       return event;
     }
   }
 }
 
 extension _SentryExceptionFlatten on SentryException {
-  List<SentryException> flatten({int? parentId, int id = 0}) {
+  List<SentryException> flatten(
+      {int? parentId, int id = 0, required bool groupExceptions}) {
     final exceptions = this.exceptions ?? [];
 
-    final newMechanism = mechanism ?? Mechanism(type: "generic");
-    newMechanism
-      ..type = id > 0 ? "chained" : newMechanism.type
-      ..parentId = parentId
-      ..exceptionId = id
-      ..isExceptionGroup = exceptions.isNotEmpty ? true : null;
+    if (groupExceptions) {
+      final newMechanism = mechanism ?? Mechanism(type: "generic");
+      newMechanism
+        ..type = id > 0 ? "chained" : newMechanism.type
+        ..parentId = parentId
+        ..exceptionId = id
+        ..isExceptionGroup = exceptions.isNotEmpty ? true : null;
 
-    mechanism = newMechanism;
+      mechanism = newMechanism;
+    }
 
     var all = <SentryException>[];
     all.add(this);
@@ -43,8 +57,8 @@ extension _SentryExceptionFlatten on SentryException {
       final parentId = id;
       for (var exception in exceptions) {
         id++;
-        final flattenedExceptions =
-            exception.flatten(parentId: parentId, id: id);
+        final flattenedExceptions = exception.flatten(
+            parentId: parentId, id: id, groupExceptions: groupExceptions);
         id = flattenedExceptions.lastOrNull?.mechanism?.exceptionId ?? id;
         all.addAll(flattenedExceptions);
       }

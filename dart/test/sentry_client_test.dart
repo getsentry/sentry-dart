@@ -258,7 +258,7 @@ void main() {
       exception = ExceptionWithCause(cause, null);
 
       final client = fixture.getSut(
-        eventProcessor: ExceptionGroupEventProcessor(),
+        eventProcessor: ExceptionGroupEventProcessor(fixture.options),
       );
       await client.captureException(exception, stackTrace: null);
 
@@ -298,7 +298,7 @@ void main() {
 
       final client = fixture.getSut(
         attachStacktrace: true,
-        eventProcessor: ExceptionGroupEventProcessor(),
+        eventProcessor: ExceptionGroupEventProcessor(fixture.options),
       );
       await client.captureException(exception, stackTrace: null);
 
@@ -327,7 +327,7 @@ void main() {
 
       final client = fixture.getSut(
         attachStacktrace: true,
-        eventProcessor: ExceptionGroupEventProcessor(),
+        eventProcessor: ExceptionGroupEventProcessor(fixture.options),
       );
       await client.captureException(exception, stackTrace: null);
 
@@ -352,7 +352,7 @@ void main() {
 
       final client = fixture.getSut(
         attachStacktrace: false,
-        eventProcessor: ExceptionGroupEventProcessor(),
+        eventProcessor: ExceptionGroupEventProcessor(fixture.options),
       );
       await client.captureException(exception, stackTrace: null);
 
@@ -374,7 +374,7 @@ void main() {
 
       final client = fixture.getSut(
         attachStacktrace: false,
-        eventProcessor: ExceptionGroupEventProcessor(),
+        eventProcessor: ExceptionGroupEventProcessor(fixture.options),
       );
       await client.captureException(exception, stackTrace: null);
 
@@ -394,7 +394,7 @@ void main() {
 
       final client = fixture.getSut(
         attachStacktrace: true,
-        eventProcessor: ExceptionGroupEventProcessor(),
+        eventProcessor: ExceptionGroupEventProcessor(fixture.options),
       );
       await client.captureException(exception, stackTrace: null);
 
@@ -420,7 +420,7 @@ void main() {
 
       final client = fixture.getSut(
         attachStacktrace: true,
-        eventProcessor: ExceptionGroupEventProcessor(),
+        eventProcessor: ExceptionGroupEventProcessor(fixture.options),
       );
       await client.captureException(exception, stackTrace: null);
 
@@ -2392,7 +2392,9 @@ class Fixture {
   final recorder = MockClientReportRecorder();
   final transport = MockTransport();
 
-  final options = defaultTestOptions()..platform = MockPlatform.iOS();
+  final options = defaultTestOptions()
+    ..platform = MockPlatform.iOS()
+    ..groupExceptions = true;
 
   late SentryTransactionContext _context;
   late SentryTracer tracer;
