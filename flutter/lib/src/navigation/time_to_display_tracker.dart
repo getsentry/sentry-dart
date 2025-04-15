@@ -8,16 +8,25 @@ import 'time_to_initial_display_tracker.dart';
 
 @internal
 class TimeToDisplayTracker {
-  final TimeToInitialDisplayTracker _ttidTracker;
-  final TimeToFullDisplayTracker _ttfdTracker;
+  late final TimeToInitialDisplayTracker _ttidTracker;
+  late final TimeToFullDisplayTracker _ttfdTracker;
+
   final SentryFlutterOptions options;
 
   TimeToDisplayTracker({
     TimeToInitialDisplayTracker? ttidTracker,
     TimeToFullDisplayTracker? ttfdTracker,
     required this.options,
-  })  : _ttidTracker = ttidTracker ?? TimeToInitialDisplayTracker(),
-        _ttfdTracker = ttfdTracker ?? TimeToFullDisplayTracker();
+  }) {
+    _ttidTracker = ttidTracker ?? TimeToInitialDisplayTracker();
+    _ttfdTracker = ttfdTracker ??
+        TimeToFullDisplayTracker(
+          endTimestampProvider: () => _ttidTracker.endTimestamp,
+        );
+  }
+
+  @internal
+  DateTime? get ttidEndTimestamp => _ttidTracker.endTimestamp;
 
   Future<void> track(
     ISentrySpan transaction, {

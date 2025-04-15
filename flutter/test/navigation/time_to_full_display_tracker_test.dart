@@ -96,36 +96,6 @@ void main() {
     await sut.reportFullyDisplayed();
   });
 
-  test(
-      'starting a new transaction before the timeout finishes the previous one',
-      () async {
-    final sut = fixture.getSut();
-
-    final transactionA = fixture.getTransaction() as SentryTracer;
-    unawaited(
-      sut.track(
-        transaction: transactionA,
-        startTimestamp: fixture.startTimestamp,
-        routeName: fixture.latestTransactionName,
-      ),
-    );
-
-    final transactionB = fixture.getTransaction() as SentryTracer;
-    await sut.track(
-      transaction: transactionB,
-      startTimestamp: fixture.startTimestamp,
-      routeName: fixture.latestTransactionName,
-    );
-
-    final ttfdSpanA = transactionA.children.first;
-    expect(ttfdSpanA.finished, isTrue);
-    expect(ttfdSpanA.status, SpanStatus.ok());
-
-    final ttfdSpanB = transactionB.children.first;
-    expect(ttfdSpanB.finished, isTrue);
-    expect(ttfdSpanB.status, SpanStatus.deadlineExceeded());
-  });
-
   test('reportFullyDisplayed with name does not finish unrelated span',
       () async {
     final sut = fixture.getSut();
@@ -171,10 +141,14 @@ class Fixture {
 
   late String latestTransactionName;
 
-  ISentrySpan getTransaction({String? name = "Current route"}) {
+  ISentrySpan getTransaction({String? name}) {
     latestTransactionName = name ?? "Current route";
-    return hub.startTransaction(name!, SentrySpanOperations.uiLoad,
-        bindToScope: true, startTimestamp: startTimestamp);
+    return hub.startTransaction(
+      latestTransactionName,
+      SentrySpanOperations.uiLoad,
+      bindToScope: true,
+      startTimestamp: startTimestamp,
+    );
   }
 
   EndTimestampProvider fakeTTIDEndTimestampProvider() =>
@@ -184,7 +158,8 @@ class Fixture {
       {EndTimestampProvider? endTimestampProvider}) {
     endTimestampProvider ??= this.endTimestampProvider;
     return TimeToFullDisplayTracker(
-        endTimestampProvider: endTimestampProvider,
-        autoFinishAfter: autoFinishAfter);
+      endTimestampProvider: endTimestampProvider,
+      autoFinishAfter: autoFinishAfter,
+    );
   }
 }

@@ -11,20 +11,14 @@ import '../frame_callback_handler.dart';
 
 @internal
 class TimeToInitialDisplayTracker {
-  static final TimeToInitialDisplayTracker _instance =
-      TimeToInitialDisplayTracker._();
-
-  factory TimeToInitialDisplayTracker(
-      {FrameCallbackHandler? frameCallbackHandler}) {
-    if (frameCallbackHandler != null) {
-      _instance._frameCallbackHandler = frameCallbackHandler;
-    }
-    return _instance;
+  TimeToInitialDisplayTracker({
+    FrameCallbackHandler? frameCallbackHandler,
+  }) {
+    _frameCallbackHandler =
+        frameCallbackHandler ?? DefaultFrameCallbackHandler();
   }
 
-  TimeToInitialDisplayTracker._();
-
-  FrameCallbackHandler _frameCallbackHandler = DefaultFrameCallbackHandler();
+  late final FrameCallbackHandler _frameCallbackHandler;
   Completer<DateTime?>? _trackingCompleter;
   DateTime? _endTimestamp;
 

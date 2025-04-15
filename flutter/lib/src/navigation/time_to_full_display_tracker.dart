@@ -5,26 +5,15 @@ import 'dart:async';
 import 'package:meta/meta.dart';
 // ignore: implementation_imports
 import 'package:sentry/src/sentry_tracer.dart';
-
 import '../../sentry_flutter.dart';
-import 'time_to_initial_display_tracker.dart';
 
 @internal
 class TimeToFullDisplayTracker {
-  static final TimeToFullDisplayTracker _instance =
-      TimeToFullDisplayTracker._();
-
-  TimeToFullDisplayTracker._();
-
-  factory TimeToFullDisplayTracker(
-      {EndTimestampProvider? endTimestampProvider, Duration? autoFinishAfter}) {
-    if (autoFinishAfter != null) {
-      _instance._autoFinishAfter = autoFinishAfter;
-    }
-    if (endTimestampProvider != null) {
-      _instance._endTimestampProvider = endTimestampProvider;
-    }
-    return _instance;
+  TimeToFullDisplayTracker(
+      {required EndTimestampProvider endTimestampProvider,
+      Duration autoFinishAfter = const Duration(seconds: 30)}) {
+    _endTimestampProvider = endTimestampProvider;
+    _autoFinishAfter = autoFinishAfter;
   }
 
   DateTime? _startTimestamp;
@@ -35,7 +24,7 @@ class TimeToFullDisplayTracker {
   final options = Sentry.currentHub.options;
 
   // End timestamp provider is only needed when the TTFD timeout is triggered
-  EndTimestampProvider _endTimestampProvider = ttidEndTimestampProvider;
+  late final EndTimestampProvider _endTimestampProvider;
   Completer<void> _completedTTFDTracking = Completer<void>();
 
   Future<void> track({
@@ -147,9 +136,3 @@ class TimeToFullDisplayTracker {
 /// This provider allows us to inject endTimestamps for testing as well.
 @internal
 typedef EndTimestampProvider = DateTime? Function();
-
-@internal
-EndTimestampProvider ttidEndTimestampProvider =
-    () => TimeToInitialDisplayTracker().endTimestamp;
-
-// Screen A, starts async task like HTTP fetching and finishes TTFD after 5 seconds

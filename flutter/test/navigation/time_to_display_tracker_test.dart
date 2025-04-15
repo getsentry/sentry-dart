@@ -207,7 +207,6 @@ class Fixture {
   final options = defaultTestOptions()
     ..dsn = fakeDsn
     ..tracesSampleRate = 1.0;
-  late final endTimeProvider = ttidEndTimestampProvider;
   late final hub = Hub(options);
 
   TimeToInitialDisplayTracker? ttidTracker;
@@ -218,22 +217,30 @@ class Fixture {
   ISentrySpan getTransaction({String? name}) {
     latestTransactionName = name ?? 'Current route';
     return hub.startTransaction(
-      name!,
+      latestTransactionName,
       'ui.load',
       startTimestamp: startTimestamp,
     );
   }
 
   TimeToDisplayTracker getSut({bool triggerApproximationTimeout = false}) {
-    ttidTracker = TimeToInitialDisplayTracker(
-        frameCallbackHandler: triggerApproximationTimeout
-            ? DefaultFrameCallbackHandler()
-            : FakeFrameCallbackHandler(
-                postFrameCallbackDelay: Duration(milliseconds: 10)));
-    ttfdTracker = TimeToFullDisplayTracker(
-      autoFinishAfter: Duration(seconds: 2),
-      endTimestampProvider: endTimeProvider,
+    final ttidTracker = TimeToInitialDisplayTracker(
+      frameCallbackHandler: triggerApproximationTimeout
+          ? DefaultFrameCallbackHandler()
+          : FakeFrameCallbackHandler(
+              postFrameCallbackDelay: Duration(
+                milliseconds: 10,
+              ),
+            ),
     );
+    this.ttidTracker = ttidTracker;
+
+    final ttfdTracker = TimeToFullDisplayTracker(
+      autoFinishAfter: Duration(seconds: 2),
+      endTimestampProvider: () => ttidTracker.endTimestamp,
+    );
+    this.ttfdTracker = ttfdTracker;
+
     return TimeToDisplayTracker(
       ttidTracker: ttidTracker,
       ttfdTracker: ttfdTracker,
