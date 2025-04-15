@@ -341,8 +341,17 @@ class Scope {
       }
     });
 
-    event.contexts.trace =
-        SentryTraceContext.fromPropagationContext(propagationContext);
+    final newSpan = span;
+    if (event.contexts.trace == null) {
+      if (newSpan != null) {
+        event.contexts.trace = newSpan.context.toTraceContext(
+          sampled: newSpan.samplingDecision?.sampled,
+        );
+      } else {
+        event.contexts.trace =
+            SentryTraceContext.fromPropagationContext(propagationContext);
+      }
+    }
 
     return await runEventProcessors(event, hint, _eventProcessors, _options);
   }
