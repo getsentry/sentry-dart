@@ -24,6 +24,10 @@ await SentryFlutter.init(
 );
 ```
 
+### Fixes
+
+- Trace propagation in HTTP tracing clients not correctly set up if performance is disabled ([#2850](https://github.com/getsentry/sentry-dart/pull/2850))
+
 ### Behavioral changes
 
 - Mutable Data Classes ([#2818](https://github.com/getsentry/sentry-dart/pull/2818))

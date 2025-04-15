@@ -17,6 +17,9 @@ class MockHub with NoSuchMethodProvider implements Hub {
   int spanContextCals = 0;
   int getSpanCalls = 0;
 
+  @override
+  Scope get scope => Scope(_options);
+
   final _options = defaultTestOptions();
 
   @override

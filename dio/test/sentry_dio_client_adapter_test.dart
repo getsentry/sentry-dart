@@ -1,10 +1,15 @@
+// ignore_for_file: invalid_use_of_internal_member
+
 import 'package:dio/dio.dart';
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry_dio/src/sentry_dio_client_adapter.dart';
 import 'package:test/test.dart';
 
+import 'mocks.dart';
 import 'mocks/mock_http_client_adapter.dart';
 import 'mocks/mock_hub.dart';
+import 'mocks/mock_transport.dart';
 
 final requestUri = Uri.parse('https://example.com/');
 
@@ -26,8 +31,8 @@ void main() {
       final response = await sut.get<dynamic>('/');
       expect(response.statusCode, 200);
 
-      expect(fixture.hub.captureEventCalls.length, 0);
-      expect(fixture.hub.addBreadcrumbCalls.length, 1);
+      expect(fixture.mockHub.captureEventCalls.length, 0);
+      expect(fixture.mockHub.addBreadcrumbCalls.length, 1);
     });
 
     test('no captured event with default config', () async {
@@ -40,8 +45,8 @@ void main() {
         throwsException,
       );
 
-      expect(fixture.hub.captureEventCalls.length, 0);
-      expect(fixture.hub.addBreadcrumbCalls.length, 1);
+      expect(fixture.mockHub.captureEventCalls.length, 0);
+      expect(fixture.mockHub.addBreadcrumbCalls.length, 1);
     });
 
     test('close does get called for user defined client', () async {
@@ -52,28 +57,46 @@ void main() {
     });
 
     test('no captured span if tracing disabled', () async {
-      fixture.hub.options.captureFailedRequests = false;
-      fixture.hub.options.recordHttpBreadcrumbs = false;
-      final sut = fixture.getSut(
-        client: fixture.getClient(statusCode: 200, reason: 'OK'),
+      fixture.realHub.options.captureFailedRequests = false;
+      fixture.realHub.options.recordHttpBreadcrumbs = false;
+      final tr = fixture.realHub.startTransaction(
+        'name',
+        'op',
+        bindToScope: true,
       );
 
+      final sut = fixture.getSut(
+        client: fixture.getClient(statusCode: 200, reason: 'OK'),
+        hub: fixture.realHub,
+      );
       final response = await sut.get<dynamic>('/');
-      expect(response.statusCode, 200);
 
-      expect(fixture.hub.getSpanCalls, 0);
+      await tr.finish();
+
+      expect(response.statusCode, 200);
+      expect(tr, isA<NoOpSentrySpan>());
     });
 
     test('captured span if tracing enabled', () async {
-      fixture.hub.options.recordHttpBreadcrumbs = false;
+      fixture.realHub.options.tracesSampleRate = 1.0;
+      fixture.realHub.options.recordHttpBreadcrumbs = false;
+      final tr = fixture.realHub.startTransaction(
+        'name',
+        'op',
+        bindToScope: true,
+      ) as SentryTracer;
+
       final sut = fixture.getSut(
         client: fixture.getClient(statusCode: 200, reason: 'OK'),
+        hub: fixture.realHub,
       );
-
       final response = await sut.get<dynamic>('/');
-      expect(response.statusCode, 200);
 
-      expect(fixture.hub.getSpanCalls, 0);
+      await tr.finish();
+
+      expect(response.statusCode, 200);
+      expect(tr.children.length, 1);
+      expect(tr.children.first.context.operation, 'http.client');
     });
   });
 }
@@ -101,13 +124,28 @@ MockHttpClientAdapter createCloseClient() {
 }
 
 class Fixture {
+  late MockHub mockHub;
+  late Hub realHub;
+  late MockTransport transport;
+  final options = defaultTestOptions();
+
+  Fixture() {
+    // For some tests the real hub is needed, for other the mock is enough
+    transport = MockTransport();
+    options.transport = transport;
+    realHub = Hub(options);
+    mockHub = MockHub();
+  }
+
   Dio getSut({
     MockHttpClientAdapter? client,
     MaxRequestBodySize maxRequestBodySize = MaxRequestBodySize.never,
     List<SentryStatusCode> badStatusCodes = const [],
     bool captureFailedRequests = true,
+    Hub? hub,
   }) {
     final mc = client ?? getClient();
+    hub ??= mockHub;
     final dio = Dio(BaseOptions(baseUrl: requestUri.toString()));
     hub.options.captureFailedRequests = captureFailedRequests;
     dio.httpClientAdapter = SentryDioClientAdapter(
@@ -116,8 +154,6 @@ class Fixture {
     );
     return dio;
   }
-
-  final MockHub hub = MockHub();
 
   MockHttpClientAdapter getClient({int statusCode = 200, String? reason}) {
     return MockHttpClientAdapter(

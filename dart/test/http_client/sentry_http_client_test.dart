@@ -3,9 +3,12 @@ import 'package:http/testing.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/http_client/failed_request_client.dart';
+import 'package:sentry/src/sentry_tracer.dart';
 import 'package:test/test.dart';
 
 import '../mocks/mock_hub.dart';
+import '../mocks/mock_transport.dart';
+import '../test_utils.dart';
 
 final requestUri = Uri.parse('https://example.com');
 
@@ -27,12 +30,12 @@ void main() {
       final response = await sut.get(requestUri);
       expect(response.statusCode, 200);
 
-      expect(fixture.hub.captureEventCalls.length, 0);
-      expect(fixture.hub.addBreadcrumbCalls.length, 1);
+      expect(fixture.mockHub.captureEventCalls.length, 0);
+      expect(fixture.mockHub.addBreadcrumbCalls.length, 1);
     });
 
     test('no captured event with default config', () async {
-      fixture.hub.options.captureFailedRequests = false;
+      fixture.mockHub.options.captureFailedRequests = false;
 
       final sut = fixture.getSut(
         client: createThrowingClient(),
@@ -40,12 +43,12 @@ void main() {
 
       await expectLater(() async => await sut.get(requestUri), throwsException);
 
-      expect(fixture.hub.captureEventCalls.length, 0);
-      expect(fixture.hub.addBreadcrumbCalls.length, 1);
+      expect(fixture.mockHub.captureEventCalls.length, 0);
+      expect(fixture.mockHub.addBreadcrumbCalls.length, 1);
     });
 
     test('captured event with override', () async {
-      fixture.hub.options.captureFailedRequests = false;
+      fixture.mockHub.options.captureFailedRequests = false;
 
       final sut = fixture.getSut(
         client: createThrowingClient(),
@@ -54,31 +57,31 @@ void main() {
 
       await expectLater(() async => await sut.get(requestUri), throwsException);
 
-      expect(fixture.hub.captureEventCalls.length, 1);
+      expect(fixture.mockHub.captureEventCalls.length, 1);
     });
 
     test('one captured event with when enabling $FailedRequestClient',
         () async {
-      fixture.hub.options.captureFailedRequests = true;
-      fixture.hub.options.recordHttpBreadcrumbs = true;
+      fixture.mockHub.options.captureFailedRequests = true;
+      fixture.mockHub.options.recordHttpBreadcrumbs = true;
       final sut = fixture.getSut(
         client: createThrowingClient(),
       );
 
       await expectLater(() async => await sut.get(requestUri), throwsException);
 
-      expect(fixture.hub.captureEventCalls.length, 1);
+      expect(fixture.mockHub.captureEventCalls.length, 1);
       // The event should not have breadcrumbs from the BreadcrumbClient
-      expect(fixture.hub.captureEventCalls.first.event.breadcrumbs, null);
+      expect(fixture.mockHub.captureEventCalls.first.event.breadcrumbs, null);
       // The breadcrumb for the request should still be added for every
       // following event.
-      expect(fixture.hub.addBreadcrumbCalls.length, 1);
+      expect(fixture.mockHub.addBreadcrumbCalls.length, 1);
     });
 
     test(
         'no captured event with when enabling $FailedRequestClient with override',
         () async {
-      fixture.hub.options.captureFailedRequests = true;
+      fixture.mockHub.options.captureFailedRequests = true;
       final sut = fixture.getSut(
         client: createThrowingClient(),
         captureFailedRequests: false,
@@ -86,7 +89,7 @@ void main() {
 
       await expectLater(() async => await sut.get(requestUri), throwsException);
 
-      expect(fixture.hub.captureEventCalls.length, 0);
+      expect(fixture.mockHub.captureEventCalls.length, 0);
     });
 
     test('close does get called for user defined client', () async {
@@ -103,28 +106,45 @@ void main() {
     });
 
     test('no captured span if tracing disabled', () async {
-      fixture.hub.options.recordHttpBreadcrumbs = false;
-      final sut = fixture.getSut(
-        client: fixture.getClient(statusCode: 200, reason: 'OK'),
+      fixture.realHub.options.recordHttpBreadcrumbs = false;
+      final tr = fixture.realHub.startTransaction(
+        'name',
+        'op',
+        bindToScope: true,
       );
 
+      final sut = fixture.getSut(
+        hub: fixture.realHub,
+        client: fixture.getClient(statusCode: 200, reason: 'OK'),
+      );
       final response = await sut.get(requestUri);
-      expect(response.statusCode, 200);
 
-      expect(fixture.hub.getSpanCalls, 0);
+      await tr.finish();
+
+      expect(response.statusCode, 200);
+      expect(tr, isA<NoOpSentrySpan>());
     });
 
     test('captured span if tracing enabled', () async {
-      fixture.hub.options.tracesSampleRate = 1.0;
-      fixture.hub.options.recordHttpBreadcrumbs = false;
+      fixture.realHub.options.tracesSampleRate = 1.0;
+      fixture.realHub.options.recordHttpBreadcrumbs = false;
+      final tr = fixture.realHub.startTransaction(
+        'name',
+        'op',
+        bindToScope: true,
+      ) as SentryTracer;
+
       final sut = fixture.getSut(
         client: fixture.getClient(statusCode: 200, reason: 'OK'),
+        hub: fixture.realHub,
       );
-
       final response = await sut.get(requestUri);
-      expect(response.statusCode, 200);
 
-      expect(fixture.hub.getSpanCalls, 1);
+      await tr.finish();
+
+      expect(response.statusCode, 200);
+      expect(tr.children.length, 1);
+      expect(tr.children.first.context.operation, 'http.client');
     });
   });
 }
@@ -141,12 +161,27 @@ MockClient createThrowingClient() {
 class CloseableMockClient extends Mock implements BaseClient {}
 
 class Fixture {
+  late MockHub mockHub;
+  late Hub realHub;
+  late MockTransport transport;
+  final options = defaultTestOptions();
+
+  Fixture() {
+    // For some tests the real hub is needed, for other the mock is enough
+    transport = MockTransport();
+    options.transport = transport;
+    realHub = Hub(options);
+    mockHub = MockHub();
+  }
+
   SentryHttpClient getSut({
     MockClient? client,
     List<SentryStatusCode> badStatusCodes = const [],
     bool? captureFailedRequests,
+    Hub? hub,
   }) {
     final mc = client ?? getClient();
+    hub ??= mockHub;
     return SentryHttpClient(
       client: mc,
       hub: hub,
@@ -154,8 +189,6 @@ class Fixture {
       captureFailedRequests: captureFailedRequests,
     );
   }
-
-  final MockHub hub = MockHub();
 
   MockClient getClient({int statusCode = 200, String? reason}) {
     return MockClient((request) async {
