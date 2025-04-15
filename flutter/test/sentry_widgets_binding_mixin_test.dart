@@ -38,7 +38,7 @@ void main() {
     });
 
     test('frame processing continues execution when callback throws', () {
-      options.clock = () => DateTime.now()
+      options.clock = () => DateTime.now();
       binding.initializeFramesTracking(
         (_, __) {
           throw Exception('Callback error');
