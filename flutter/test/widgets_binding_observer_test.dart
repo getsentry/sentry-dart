@@ -1,8 +1,11 @@
+// ignore_for_file: invalid_use_of_internal_member
+
 import 'dart:ui';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
+import 'package:sentry/src/platform/mock_platform.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/widgets_binding_observer.dart';
 
@@ -24,6 +27,94 @@ void main() {
       flutterTrackingDisabledOptions = defaultTestOptions()
         ..bindingUtils = TestBindingWrapper();
       flutterTrackingDisabledOptions.useNativeBreadcrumbTracking();
+    });
+
+    testWidgets(
+        'app lifecycle does not generate new trace if SentryNavigatorObserver is used',
+        (WidgetTester tester) async {
+      Future<void> sendLifecycle(String event) async {
+        final messenger = TestWidgetsFlutterBinding.ensureInitialized()
+            .defaultBinaryMessenger;
+        final message =
+            const StringCodec().encodeMessage('AppLifecycleState.$event');
+        await messenger.handlePlatformMessage(
+            'flutter/lifecycle', message, (_) {});
+      }
+
+      SentryNavigatorObserver();
+      flutterTrackingDisabledOptions.appInBackgroundTracingThreshold =
+          Duration(seconds: -1);
+      final hub = MockHub();
+      final observer = SentryWidgetsBindingObserver(
+        hub: hub,
+        options: flutterTrackingDisabledOptions,
+      );
+      final instance = flutterTrackingDisabledOptions.bindingUtils.instance!;
+      instance.addObserver(observer);
+
+      await sendLifecycle('paused');
+      // await Future<void>.delayed(Duration(seconds: 1));
+      await sendLifecycle('resumed');
+
+      verifyNever(hub.generateNewTraceId());
+    });
+
+    testWidgets('app lifecycle does not generate new trace if platform is web',
+        (WidgetTester tester) async {
+      Future<void> sendLifecycle(String event) async {
+        final messenger = TestWidgetsFlutterBinding.ensureInitialized()
+            .defaultBinaryMessenger;
+        final message =
+            const StringCodec().encodeMessage('AppLifecycleState.$event');
+        await messenger.handlePlatformMessage(
+            'flutter/lifecycle', message, (_) {});
+      }
+
+      flutterTrackingDisabledOptions.platform = MockPlatform(isWeb: true);
+      flutterTrackingDisabledOptions.appInBackgroundTracingThreshold =
+          Duration(seconds: -1);
+      final hub = MockHub();
+      final observer = SentryWidgetsBindingObserver(
+        hub: hub,
+        options: flutterTrackingDisabledOptions,
+      );
+      final instance = flutterTrackingDisabledOptions.bindingUtils.instance!;
+      instance.addObserver(observer);
+
+      await sendLifecycle('paused');
+      await sendLifecycle('resumed');
+
+      verifyNever(hub.generateNewTraceId());
+    });
+
+    testWidgets(
+        'app lifecycle generates new trace if SentryNavigatorObserver is not used and platform is not web',
+        (WidgetTester tester) async {
+      Future<void> sendLifecycle(String event) async {
+        final messenger = TestWidgetsFlutterBinding.ensureInitialized()
+            .defaultBinaryMessenger;
+        final message =
+            const StringCodec().encodeMessage('AppLifecycleState.$event');
+        await messenger.handlePlatformMessage(
+            'flutter/lifecycle', message, (_) {});
+      }
+
+      flutterTrackingDisabledOptions.platform = MockPlatform(isWeb: false);
+      flutterTrackingDisabledOptions.appInBackgroundTracingThreshold =
+          Duration(seconds: -1);
+      final hub = MockHub();
+      when(hub.generateNewTraceId()).thenAnswer((_) {});
+      final observer = SentryWidgetsBindingObserver(
+        hub: hub,
+        options: flutterTrackingDisabledOptions,
+      );
+      final instance = flutterTrackingDisabledOptions.bindingUtils.instance!;
+      instance.addObserver(observer);
+
+      await sendLifecycle('paused');
+      await sendLifecycle('resumed');
+
+      verify(hub.generateNewTraceId()).called(1);
     });
 
     testWidgets('memory pressure breadcrumb', (WidgetTester tester) async {

@@ -378,10 +378,13 @@ class SentryFlutterOptions extends SentryOptions {
   // ignore: invalid_use_of_internal_member
   set automatedTestMode(bool value) => super.automatedTestMode = value;
 
-  /// Indicates if SentryNavigatorObserver has been registered
-  /// This is used internally to manage web session tracking features
+  /// If app lifecycle trace generation is enabled, this sets the duration the app must
+  /// be in the background before a new trace starts upon resuming.
+  /// For more infos on app life cycle trace generation see [SentryWidgetsBindingObserver].
+  ///
+  /// Defaults to 30 seconds.
   @meta.internal
-  bool navigatorObserverRegistered = false;
+  Duration appInBackgroundTracingThreshold = Duration(seconds: 30);
 }
 
 /// A callback which can be used to suppress capturing of screenshots.
