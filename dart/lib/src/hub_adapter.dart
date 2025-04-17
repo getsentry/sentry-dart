@@ -160,6 +160,9 @@ class HubAdapter implements Hub {
       );
 
   @override
+  void generateNewTraceId() => Sentry.currentHub.generateNewTraceId();
+
+  @override
   void setSpanContext(
     dynamic throwable,
     ISentrySpan span,

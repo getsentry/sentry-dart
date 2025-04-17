@@ -6,7 +6,6 @@ import 'package:meta/meta.dart';
 import '../sentry.dart';
 import 'client_reports/discard_reason.dart';
 import 'profiling.dart';
-import 'propagation_context.dart';
 import 'sentry_tracer.dart';
 import 'sentry_traces_sampler.dart';
 import 'transport/data_category.dart';
@@ -454,10 +453,7 @@ class Hub {
         SentryLevel.warning,
         "Instance is disabled and this 'startTransaction' call is a no-op.",
       );
-    } else if (!_options.isTracingEnabled()) {
-      final item = _peek();
-      item.scope.propagationContext = PropagationContext();
-    } else {
+    } else if (_options.isTracingEnabled()) {
       final item = _peek();
 
       // if transactionContext has no sampled decision, run the traces sampler
@@ -470,6 +466,7 @@ class Hub {
       }
 
       transactionContext.origin ??= SentryTraceOrigins.manual;
+      transactionContext.traceId = scope.propagationContext.traceId;
 
       SentryProfiler? profiler;
       if (_profilerFactory != null &&
@@ -495,6 +492,11 @@ class Hub {
     }
 
     return NoOpSentrySpan();
+  }
+
+  @internal
+  void generateNewTraceId() {
+    scope.propagationContext.traceId = SentryId.newId();
   }
 
   /// Gets the current active transaction or span.
