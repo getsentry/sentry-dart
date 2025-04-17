@@ -4,6 +4,8 @@
 
 ### Features
 
+- Generate new trace on navigation ([#2861](https://github.com/getsentry/sentry-dart/pull/2861))
+  - If you have the `SentryNavigatorObserver` installed in your routing, errors and spans will now be linked in a trace properly.
 - Add `FeatureFlagIntegration` ([#2825](https://github.com/getsentry/sentry-dart/pull/2825))
 ```dart
 // Manually track a feature flag
