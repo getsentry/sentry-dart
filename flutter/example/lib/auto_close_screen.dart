@@ -32,9 +32,10 @@ class AutoCloseScreenState extends State<AutoCloseScreen> {
     } catch (exception, stackTrace) {
       await Sentry.captureException(exception, stackTrace: stackTrace);
     }
-    SentryFlutter.reportFullyDisplayed();
-    // ignore: use_build_context_synchronously
-    Navigator.of(context).pop();
+    if (mounted) {
+      SentryDisplayWidget.of(context).reportFullyDisplayed();
+      Navigator.of(context).pop();
+    }
   }
 
   @override
