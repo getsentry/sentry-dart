@@ -52,6 +52,8 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
   final Hub _hub;
   final SentryFlutterOptions _options;
   final TimerDebouncer _didChangeMetricsDebouncer;
+
+  /// Measures how long the app stayed in the background
   final _appInBackgroundStopwatch = Stopwatch();
 
   // ignore: deprecated_member_use
@@ -84,9 +86,9 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
 
     // Enable app lifecycle trace generation if:
     // - SentryNavigatorObserver is not used
-    // - Platform is not web
+    // - Platform is not web, app lifecycle hooks are not reliable enough on web
     if (!SentryNavigatorObserver.isCreated && !_options.platform.isWeb) {
-      if (state == AppLifecycleState.paused) {
+      if (state == AppLifecycleState.inactive) {
         _appInBackgroundStopwatch.start();
       } else if (state == AppLifecycleState.resumed) {
         _appInBackgroundStopwatch.stop();
@@ -94,6 +96,7 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
             _options.appInBackgroundTracingThreshold.inSeconds) {
           _hub.generateNewTraceId();
         }
+        _appInBackgroundStopwatch.reset();
       }
     }
   }
