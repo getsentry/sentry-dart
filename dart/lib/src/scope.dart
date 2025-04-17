@@ -43,6 +43,17 @@ class Scope {
   /// Returns active transaction or null if there is no active transaction.
   ISentrySpan? span;
 
+  /// The propagation context for connecting errors and spans to traces.
+  /// There should always be a propagation context available at all times.
+  ///
+  /// Default behaviour of trace generation in Flutter:
+  ///
+  /// If `SentryNavigatorObserver` is available:
+  ///  - new trace on navigation for all platforms
+  ///
+  /// if `SentryNavigatorObserver` is not available:
+  ///  - Mobile: traces will be cycled with the background/foreground hooks, similar to how sessions are defined in mobile
+  ///  - Web: traces will stick until the next refresh (this might change in the future)
   @internal
   PropagationContext propagationContext = PropagationContext();
 
@@ -246,6 +257,7 @@ class Scope {
     _extra.clear();
     _eventProcessors.clear();
     _replayId = null;
+    propagationContext = PropagationContext();
 
     _clearBreadcrumbsSync();
     _setUserSync(null);

@@ -15,9 +15,9 @@ import 'package:sentry_flutter/src/navigation/time_to_display_tracker.dart';
 import 'package:sentry_flutter/src/navigation/time_to_full_display_tracker.dart';
 import 'package:sentry_flutter/src/navigation/time_to_initial_display_tracker.dart';
 
-import 'fake_frame_callback_handler.dart';
-import 'mocks.dart';
-import 'mocks.mocks.dart';
+import '../fake_frame_callback_handler.dart';
+import '../mocks.dart';
+import '../mocks.mocks.dart';
 
 void main() {
   late Fixture fixture;
@@ -1340,6 +1340,9 @@ class Fixture {
     AdditionalInfoExtractor? additionalInfoProvider,
     List<String>? ignoreRoutes,
   }) {
+    if (hub is MockHub) {
+      when(hub.generateNewTraceId()).thenAnswer((_) => {});
+    }
     final frameCallbackHandler = FakeFrameCallbackHandler(
         postFrameCallbackDelay: Duration(milliseconds: 10));
     timeToInitialDisplayTracker = TimeToInitialDisplayTracker(
