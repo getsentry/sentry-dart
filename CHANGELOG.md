@@ -4,8 +4,6 @@
 
 ### Features
 
-- Generate new trace on navigation ([#2861](https://github.com/getsentry/sentry-dart/pull/2861))
-  - If you have the `SentryNavigatorObserver` installed in your routing, errors and spans will now be linked in a trace properly.
 - Add `FeatureFlagIntegration` ([#2825](https://github.com/getsentry/sentry-dart/pull/2825))
 ```dart
 // Manually track a feature flag
@@ -29,6 +27,11 @@ await SentryFlutter.init(
 
 ### Fixes
 
+- Add support for app lifecycle trace generation ([#2869](https://github.com/getsentry/sentry-dart/pull/2869))
+  - If you have the `SentryNavigatorObserver` installed in your routing, app lifecycle hooks will be used to generate a new trace.
+  - If the app is in background for longer than 30 seconds, a new trace is generated on app resume.
+- Generate new trace on navigation ([#2861](https://github.com/getsentry/sentry-dart/pull/2861))
+  - If you have the `SentryNavigatorObserver` installed in your routing, errors and spans will now be linked in a trace properly.
 - Trace propagation in HTTP tracing clients not correctly set up if performance is disabled ([#2850](https://github.com/getsentry/sentry-dart/pull/2850))
 
 ### Behavioral changes
