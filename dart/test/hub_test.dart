@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/client_reports/discard_reason.dart';
+import 'package:sentry/src/propagation_context.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry/src/transport/data_category.dart';
 import 'package:test/test.dart';
@@ -409,6 +410,22 @@ void main() {
 
       expect(fixture.client.captureTransactionCalls.first.hint, hint);
     });
+
+    test(
+        'startTransactionWithContext sets traceId from scope propagationContext',
+        () async {
+      final hub = fixture.getSut();
+
+      hub.scope.propagationContext = PropagationContext();
+      final tr1 = hub.startTransactionWithContext(fixture._context);
+      expect(tr1.traceContext()?.traceId, hub.scope.propagationContext.traceId);
+
+      hub.scope.propagationContext = PropagationContext();
+      final tr2 = hub.startTransactionWithContext(fixture._context);
+      expect(tr2.traceContext()?.traceId, hub.scope.propagationContext.traceId);
+
+      expect(tr1.traceContext()?.traceId, isNot(tr2.traceContext()?.traceId));
+    });
   });
 
   group('Hub profiles', () {
@@ -553,6 +570,15 @@ void main() {
         expect(1, scope.breadcrumbs.length);
         expect('test', scope.breadcrumbs.first.message);
       });
+    });
+
+    test('generateNewTraceId creates new trace id in propagation context', () {
+      final oldTraceId = hub.scope.propagationContext.traceId;
+
+      hub.generateNewTraceId();
+
+      final newTraceId = hub.scope.propagationContext.traceId;
+      expect(oldTraceId, isNot(newTraceId));
     });
   });
 
