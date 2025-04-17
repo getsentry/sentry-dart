@@ -8,27 +8,36 @@ import 'time_to_initial_display_tracker.dart';
 
 @internal
 class TimeToDisplayTracker {
-  final TimeToInitialDisplayTracker _ttidTracker;
-  final TimeToFullDisplayTracker _ttfdTracker;
+  late final TimeToInitialDisplayTracker _ttidTracker;
+  late final TimeToFullDisplayTracker _ttfdTracker;
+
   final SentryFlutterOptions options;
 
   TimeToDisplayTracker({
     TimeToInitialDisplayTracker? ttidTracker,
     TimeToFullDisplayTracker? ttfdTracker,
     required this.options,
-  })  : _ttidTracker = ttidTracker ?? TimeToInitialDisplayTracker(),
-        _ttfdTracker = ttfdTracker ?? TimeToFullDisplayTracker();
+  }) {
+    _ttidTracker = ttidTracker ?? TimeToInitialDisplayTracker();
+    _ttfdTracker = ttfdTracker ??
+        TimeToFullDisplayTracker(
+          options,
+          () => _ttidTracker.endTimestamp,
+        );
+  }
+
+  @internal
+  DateTime? get ttidEndTimestamp => _ttidTracker.endTimestamp;
 
   Future<void> track(
     ISentrySpan transaction, {
-    required DateTime startTimestamp,
+    required String routeName,
     DateTime? endTimestamp,
     String? origin,
   }) async {
     // TTID
     await _ttidTracker.track(
       transaction: transaction,
-      startTimestamp: startTimestamp,
       endTimestamp: endTimestamp,
       origin: origin,
     );
@@ -37,15 +46,15 @@ class TimeToDisplayTracker {
     if (options.enableTimeToFullDisplayTracing) {
       await _ttfdTracker.track(
         transaction: transaction,
-        startTimestamp: startTimestamp,
+        routeName: routeName,
       );
     }
   }
 
   @internal
-  Future<void> reportFullyDisplayed() async {
+  Future<void> reportFullyDisplayed({String? routeName}) async {
     if (options.enableTimeToFullDisplayTracing) {
-      return _ttfdTracker.reportFullyDisplayed();
+      return _ttfdTracker.reportFullyDisplayed(routeName: routeName);
     }
   }
 

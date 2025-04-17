@@ -16,7 +16,6 @@ import '../native/native_frames.dart';
 import '../native/sentry_native_binding.dart';
 import '../web/web_session_handler.dart';
 import 'time_to_display_tracker.dart';
-import 'time_to_full_display_tracker.dart';
 
 /// This key must be used so that the web interface displays the events nicely
 /// See https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/
@@ -134,7 +133,8 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   @internal
   static bool get isCreated => _isCreated;
 
-  @internal
+  /// Returns the current route name being tracked by the [SentryNavigatorObserver].
+  /// This can be used to report full display for the current route.
   static String? get currentRouteName => _currentRouteName;
 
   Completer<void>? _completedDisplayTracking = Completer();
@@ -344,7 +344,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
             child.context.operation == SentrySpanOperations.uiTimeToFullDisplay;
         if (isTTIDSpan || isTTFDSpan) {
           final finishTimestamp = isTTFDSpan
-              ? (ttidEndTimestampProvider() ?? endTimestamp)
+              ? (_timeToDisplayTracker?.ttidEndTimestamp ?? endTimestamp)
               : endTimestamp;
           await child.finish(
             endTimestamp: finishTimestamp,
@@ -389,7 +389,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       if (!isAppStart) {
         await _timeToDisplayTracker?.track(
           transaction,
-          startTimestamp: startTimestamp,
+          routeName: routeName,
         );
       }
     } catch (exception, stacktrace) {

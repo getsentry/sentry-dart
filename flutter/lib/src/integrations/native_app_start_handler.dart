@@ -50,9 +50,9 @@ class NativeAppStartHandler {
 
     await options.timeToDisplayTracker.track(
       rootScreenTransaction,
-      startTimestamp: appStartInfo.start,
       endTimestamp: appStartInfo.end,
       origin: SentryTraceOrigins.autoUiTimeToDisplay,
+      routeName: screenName,
     );
 
     SentryTracer sentryTracer;

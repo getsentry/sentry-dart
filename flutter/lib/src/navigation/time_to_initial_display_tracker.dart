@@ -11,24 +11,15 @@ import '../frame_callback_handler.dart';
 
 @internal
 class TimeToInitialDisplayTracker {
-  static final TimeToInitialDisplayTracker _instance =
-      TimeToInitialDisplayTracker._();
+  TimeToInitialDisplayTracker({
+    FrameCallbackHandler? frameCallbackHandler,
+  }) : _frameCallbackHandler =
+            frameCallbackHandler ?? DefaultFrameCallbackHandler();
 
-  factory TimeToInitialDisplayTracker(
-      {FrameCallbackHandler? frameCallbackHandler}) {
-    if (frameCallbackHandler != null) {
-      _instance._frameCallbackHandler = frameCallbackHandler;
-    }
-    return _instance;
-  }
+  final FrameCallbackHandler _frameCallbackHandler;
 
-  TimeToInitialDisplayTracker._();
-
-  FrameCallbackHandler _frameCallbackHandler = DefaultFrameCallbackHandler();
   Completer<DateTime?>? _trackingCompleter;
   DateTime? _endTimestamp;
-
-  final Duration _determineEndtimeTimeout = Duration(seconds: 5);
 
   /// This endTimestamp is needed in the [TimeToFullDisplayTracker] class
   @internal
@@ -36,7 +27,6 @@ class TimeToInitialDisplayTracker {
 
   Future<void> track({
     required ISentrySpan transaction,
-    required DateTime startTimestamp,
     DateTime? endTimestamp,
     String? origin,
   }) async {
@@ -55,13 +45,15 @@ class TimeToInitialDisplayTracker {
     final ttidSpan = transaction.startChild(
       SentrySpanOperations.uiTimeToInitialDisplay,
       description: '${transaction.name} initial display',
-      startTimestamp: startTimestamp,
+      startTimestamp: transaction.startTimestamp,
     );
 
     ttidSpan.origin = origin ?? SentryTraceOrigins.autoUiTimeToDisplay;
 
     final duration = Duration(
-        milliseconds: _endTimestamp.difference(startTimestamp).inMilliseconds);
+        milliseconds: _endTimestamp
+            .difference(transaction.startTimestamp)
+            .inMilliseconds);
     final ttidMeasurement = SentryMeasurement.timeToInitialDisplay(duration);
 
     transaction.setMeasurement(
@@ -75,7 +67,7 @@ class TimeToInitialDisplayTracker {
   Future<DateTime?>? determineEndTime() {
     _trackingCompleter = Completer<DateTime?>();
     final future = _trackingCompleter?.future.timeout(
-      _determineEndtimeTimeout,
+      Duration(seconds: 5),
       onTimeout: () {
         return Future.value(null);
       },

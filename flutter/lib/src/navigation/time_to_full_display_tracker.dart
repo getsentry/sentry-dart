@@ -5,51 +5,40 @@ import 'dart:async';
 import 'package:meta/meta.dart';
 // ignore: implementation_imports
 import 'package:sentry/src/sentry_tracer.dart';
-
 import '../../sentry_flutter.dart';
-import 'time_to_initial_display_tracker.dart';
 
 @internal
 class TimeToFullDisplayTracker {
-  static final TimeToFullDisplayTracker _instance =
-      TimeToFullDisplayTracker._();
+  TimeToFullDisplayTracker(
+    this._options,
+    this._endTimestampProvider, {
+    Duration autoFinishAfter = const Duration(seconds: 30),
+  }) : _autoFinishAfter = autoFinishAfter;
 
-  TimeToFullDisplayTracker._();
-
-  factory TimeToFullDisplayTracker(
-      {EndTimestampProvider? endTimestampProvider, Duration? autoFinishAfter}) {
-    if (autoFinishAfter != null) {
-      _instance._autoFinishAfter = autoFinishAfter;
-    }
-    if (endTimestampProvider != null) {
-      _instance._endTimestampProvider = endTimestampProvider;
-    }
-    return _instance;
-  }
-
-  DateTime? _startTimestamp;
-  ISentrySpan? _ttfdSpan;
-  ISentrySpan? _transaction;
-  Duration _autoFinishAfter = const Duration(seconds: 30);
-  final options = Sentry.currentHub.options;
-
+  final SentryOptions _options;
   // End timestamp provider is only needed when the TTFD timeout is triggered
-  EndTimestampProvider _endTimestampProvider = ttidEndTimestampProvider;
+  final EndTimestampProvider _endTimestampProvider;
+  final Duration _autoFinishAfter;
+
+  ISentrySpan? _transaction;
+  String? _routeName;
+  ISentrySpan? _ttfdSpan;
   Completer<void> _completedTTFDTracking = Completer<void>();
 
   Future<void> track({
     required ISentrySpan transaction,
-    required DateTime startTimestamp,
+    required String routeName,
   }) async {
     if (transaction is! SentryTracer) {
       return;
     }
-    _startTimestamp = startTimestamp;
     _transaction = transaction;
+    _routeName = routeName;
+
     _ttfdSpan = transaction.startChild(
       SentrySpanOperations.uiTimeToFullDisplay,
       description: '${transaction.name} full display',
-      startTimestamp: startTimestamp,
+      startTimestamp: transaction.startTimestamp,
     );
     _ttfdSpan?.origin = SentryTraceOrigins.manualUiTimeToDisplay;
     // Wait for TTFD to finish
@@ -59,7 +48,19 @@ class TimeToFullDisplayTracker {
     );
   }
 
-  Future<void> reportFullyDisplayed() async {
+  Future<void> reportFullyDisplayed({String? routeName}) async {
+    final startRouteName = _routeName;
+    final endRouteName = routeName;
+
+    if (startRouteName != null &&
+        endRouteName != null &&
+        startRouteName != endRouteName) {
+      _options.logger(
+        SentryLevel.warning,
+        'TTFD tracker for route "$startRouteName" does not match requested route "$endRouteName"',
+      );
+      return;
+    }
     await _complete(getUtcDateTime());
   }
 
@@ -69,14 +70,10 @@ class TimeToFullDisplayTracker {
 
   Future<void> _complete(DateTime? timestamp) async {
     final ttfdSpan = _ttfdSpan;
-    final startTimestamp = _startTimestamp;
     final endTimestamp = timestamp ?? _endTimestampProvider();
 
-    if (ttfdSpan == null ||
-        ttfdSpan.finished ||
-        startTimestamp == null ||
-        endTimestamp == null) {
-      options.logger(
+    if (ttfdSpan == null || ttfdSpan.finished || endTimestamp == null) {
+      _options.logger(
         SentryLevel.warning,
         'TTFD tracker not started or already completed. Dropping TTFD measurement.',
       );
@@ -91,14 +88,14 @@ class TimeToFullDisplayTracker {
     try {
       // Should only add measurements if the span is successful
       if (status == SpanStatus.ok()) {
-        _setTTFDMeasurement(startTimestamp, endTimestamp);
+        _setTTFDMeasurement(ttfdSpan.startTimestamp, endTimestamp);
       }
       await ttfdSpan.finish(
         status: status,
         endTimestamp: endTimestamp,
       );
     } catch (e, stackTrace) {
-      options.logger(
+      _options.logger(
         SentryLevel.error,
         'Failed to finish TTFD span',
         exception: e,
@@ -118,7 +115,7 @@ class TimeToFullDisplayTracker {
   }
 
   void clear() {
-    _startTimestamp = null;
+    _routeName = null;
     _ttfdSpan = null;
     _transaction = null;
     _completedTTFDTracking = Completer();
@@ -130,9 +127,3 @@ class TimeToFullDisplayTracker {
 /// This provider allows us to inject endTimestamps for testing as well.
 @internal
 typedef EndTimestampProvider = DateTime? Function();
-
-@internal
-EndTimestampProvider ttidEndTimestampProvider =
-    () => TimeToInitialDisplayTracker().endTimestamp;
-
-// Screen A, starts async task like HTTP fetching and finishes TTFD after 5 seconds

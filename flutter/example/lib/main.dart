@@ -724,7 +724,9 @@ void navigateToAutoCloseScreen(BuildContext context) {
     MaterialPageRoute(
       settings: const RouteSettings(name: 'AutoCloseScreen'),
       // ignore: deprecated_member_use
-      builder: (context) => const AutoCloseScreen(),
+      builder: (context) => const SentryDisplayWidget(
+        child: AutoCloseScreen(),
+      ),
     ),
   );
 }
