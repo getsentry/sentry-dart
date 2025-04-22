@@ -11,7 +11,7 @@ The goal of this release is to bump the minimum Dart and Flutter versions to `v3
 # TODO: add docs guide
 Please carefully read through the migration guide in the Sentry docs on how to upgrade from version 8 to version 9: https://docs.sentry.io/platforms/dart/migration/v8-to-v9/
 
-### Breaking Changes
+### Breaking changes
 
 - Update naming of `LoadImagesListIntegration` to `LoadNativeDebugImagesIntegration` ([#2833](https://github.com/getsentry/sentry-dart/pull/2833))
 - Set sentry-native backend to `crashpad` by default and `breakpad` for Windows ARM64 ([#2791](https://github.com/getsentry/sentry-dart/pull/2791))
