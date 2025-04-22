@@ -64,10 +64,7 @@ class SentryFlutterOptions extends SentryOptions {
   }
 
   /// Enable or disable ANR (Application Not Responding).
-  /// Available only for Android.
-  /// Disabled by default as the stack trace most of the time is hanging on
-  /// the MessageChannel from Flutter, but you can enable it if you have
-  /// Java/Kotlin code as well.
+  /// Available only for Android. Enabled by default.
   bool anrEnabled = true;
 
   Duration _anrTimeoutInterval = Duration(milliseconds: 5000);
