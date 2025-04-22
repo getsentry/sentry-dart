@@ -65,10 +65,9 @@ class SentryFlutterOptions extends SentryOptions {
 
   /// Enable or disable ANR (Application Not Responding).
   /// Available only for Android.
-  /// Disabled by default as the stack trace most of the time is hanging on
-  /// the MessageChannel from Flutter, but you can enable it if you have
-  /// Java/Kotlin code as well.
-  bool anrEnabled = false;
+  ///
+  /// Default is `true`.
+  bool anrEnabled = true;
 
   Duration _anrTimeoutInterval = Duration(milliseconds: 5000);
 
@@ -405,8 +404,5 @@ class SentryFlutterOptions extends SentryOptions {
 /// [debounce] indicates if capturing is marked for being debounced.
 ///
 /// Returns `true` if capturing should be performed, otherwise `false`.
-typedef BeforeCaptureCallback = FutureOr<bool> Function(
-  SentryEvent event,
-  Hint hint,
-  bool debounce,
-);
+typedef BeforeCaptureCallback =
+    FutureOr<bool> Function(SentryEvent event, Hint hint, bool debounce);
