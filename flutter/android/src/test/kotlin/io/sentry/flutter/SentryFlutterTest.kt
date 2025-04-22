@@ -47,7 +47,7 @@ class SentryFlutterTest {
     assertEquals(false, fixture.options.isEnableUserInteractionBreadcrumbs)
     assertEquals(9003, fixture.options.maxBreadcrumbs)
     assertEquals(9004, fixture.options.maxCacheItems)
-    assertEquals(false, fixture.options.isAnrEnabled)
+    assertEquals(true, fixture.options.isAnrEnabled)
     assertEquals(true, fixture.options.isSendDefaultPii)
     assertEquals(false, fixture.options.isEnableScopeSync)
     assertEquals("fixture-proguardUuid", fixture.options.proguardUuid)
