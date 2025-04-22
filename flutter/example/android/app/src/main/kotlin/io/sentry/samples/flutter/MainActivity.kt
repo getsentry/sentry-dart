@@ -63,8 +63,7 @@ class MainActivity : FlutterActivity() {
           }
         }
       }
-    }
-      .start()
+    }.start()
 
     Handler()
       .postDelayed(
