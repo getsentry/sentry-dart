@@ -35,6 +35,7 @@ await SentryFlutter.init(
     lifecycle hooks.
   - **Web without `SentryNavigatorObserver`** - the same trace ID is reused until the page is
     refreshed or closed.
+- Trace propagation in HTTP tracing clients not correctly set up if performance is disabled ([#2850](https://github.com/getsentry/sentry-dart/pull/2850))
 
 ### Behavioral changes
 
