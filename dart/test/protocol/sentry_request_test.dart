@@ -26,7 +26,6 @@ void main() {
     'headers': {'header_key': 'header_value'},
     'env': {'env_key': 'env_value'},
     'api_target': 'GraphQL',
-    'other': {'other_key': 'other_value'},
   };
   sentryRequestJson.addAll(testUnknown);
 
