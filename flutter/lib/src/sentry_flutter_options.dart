@@ -68,7 +68,7 @@ class SentryFlutterOptions extends SentryOptions {
   /// Disabled by default as the stack trace most of the time is hanging on
   /// the MessageChannel from Flutter, but you can enable it if you have
   /// Java/Kotlin code as well.
-  bool anrEnabled = false;
+  bool anrEnabled = true;
 
   Duration _anrTimeoutInterval = Duration(milliseconds: 5000);
 
