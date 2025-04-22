@@ -106,6 +106,7 @@ void main() {
       final observer = SentryWidgetsBindingObserver(
         hub: hub,
         options: flutterTrackingDisabledOptions,
+        isNavigatorObserverCreated: () => false,
       );
       final instance = flutterTrackingDisabledOptions.bindingUtils.instance!;
       instance.addObserver(observer);

@@ -29,8 +29,7 @@ await SentryFlutter.init(
 
 ### Fixes
 
-- Properly generates and links trace IDs for errors and
-  spans ([#2869](https://github.com/getsentry/sentry-dart/pull/2869), [#2861](https://github.com/getsentry/sentry-dart/pull/2861)):
+- Properly generates and links trace IDs for errors and spans ([#2869](https://github.com/getsentry/sentry-dart/pull/2869), [#2861](https://github.com/getsentry/sentry-dart/pull/2861)):
   - **With `SentryNavigatorObserver`** - each navigation event starts a new trace.
   - **Without `SentryNavigatorObserver` on non-web platforms** - a new trace is started from app
     lifecycle hooks.
