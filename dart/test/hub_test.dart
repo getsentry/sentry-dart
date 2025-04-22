@@ -90,9 +90,11 @@ void main() {
 
     test('should capture exception with message', () async {
       final hub = fixture.getSut();
-      await hub.captureException(fakeException, message: SentryMessage('Sentry rocks'));
+      await hub.captureException(fakeException,
+          message: SentryMessage('Sentry rocks'));
 
-      expect(fixture.client.captureEventCalls.first.event.message?.formatted, 'Sentry rocks');
+      expect(fixture.client.captureEventCalls.first.event.message?.formatted,
+          'Sentry rocks');
     });
 
     test('should capture message', () async {

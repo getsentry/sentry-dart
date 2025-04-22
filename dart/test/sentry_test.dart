@@ -100,9 +100,11 @@ void main() {
     });
 
     test('should capture exception with message', () async {
-      await Sentry.captureException(anException, message: SentryMessage('Sentry rocks'));
+      await Sentry.captureException(anException,
+          message: SentryMessage('Sentry rocks'));
 
-      expect(client.captureEventCalls.first.event.message?.formatted, 'Sentry rocks');
+      expect(client.captureEventCalls.first.event.message?.formatted,
+          'Sentry rocks');
     });
 
     test('should capture exception withScope', () async {
