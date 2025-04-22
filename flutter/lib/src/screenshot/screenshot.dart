@@ -1,7 +1,5 @@
 import 'dart:async';
 import 'dart:developer';
-import 'dart:ui';
-// ignore: unnecessary_import // backcompatibility for Flutter < 3.3
 import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
@@ -18,7 +16,12 @@ class Screenshot {
 
   Screenshot(this._image, this.timestamp, this.flow);
   Screenshot._cloned(
-      this._image, this.timestamp, this.flow, this._rawRgbaData, this._pngData);
+    this._image,
+    this.timestamp,
+    this.flow,
+    this._rawRgbaData,
+    this._pngData,
+  );
 
   int get width => _image.width;
   int get height => _image.height;
@@ -52,7 +55,12 @@ class Screenshot {
   Screenshot clone() {
     assert(!_disposed, 'Cannot clone a disposed screenshot');
     return Screenshot._cloned(
-        _image.clone(), timestamp, flow, _rawRgbaData, _pngData);
+      _image.clone(),
+      timestamp,
+      flow,
+      _rawRgbaData,
+      _pngData,
+    );
   }
 
   void dispose() {

@@ -1,8 +1,8 @@
 import 'package:meta/meta.dart';
-import 'access_aware_map.dart';
 
-import '../utils/iterable_utils.dart';
 import '../utils/http_sanitizer.dart';
+import '../utils/iterable_utils.dart';
+import 'access_aware_map.dart';
 
 /// The Request interface contains information on a HTTP request related to the event.
 /// In client SDKs, this can be an outgoing request, or the request that rendered the current web page.
@@ -58,11 +58,6 @@ class SentryRequest {
   /// This is where information such as CGI/WSGI/Rack keys go that are not HTTP headers.
   Map<String, String> get env => Map.unmodifiable(_env ?? const {});
 
-  Map<String, String>? _other;
-
-  @Deprecated('Will be removed in v8. Use [data] instead')
-  Map<String, String> get other => Map.unmodifiable(_other ?? const {});
-
   /// The fragment of the request URL.
   String? fragment;
 
@@ -86,8 +81,6 @@ class SentryRequest {
     dynamic data,
     Map<String, String>? headers,
     Map<String, String>? env,
-    @Deprecated('Will be removed in v8. Use [data] instead')
-    Map<String, String>? other,
     this.unknown,
   })  : _data = data,
         _headers = headers != null ? Map.from(headers) : null,
@@ -97,8 +90,7 @@ class SentryRequest {
               headers?.entries,
               (MapEntry<String, String> e) => e.key.toLowerCase() == 'cookie',
             )?.value,
-        _env = env != null ? Map.from(env) : null,
-        _other = other != null ? Map.from(other) : null;
+        _env = env != null ? Map.from(env) : null;
 
   factory SentryRequest.fromUri({
     required Uri uri,
@@ -108,8 +100,6 @@ class SentryRequest {
     Map<String, String>? headers,
     Map<String, String>? env,
     String? apiTarget,
-    @Deprecated('Will be removed in v8. Use [data] instead')
-    Map<String, String>? other,
   }) {
     final request = SentryRequest(
       url: uri.toString(),
@@ -121,7 +111,6 @@ class SentryRequest {
       queryString: uri.query,
       fragment: uri.fragment,
       // ignore: deprecated_member_use_from_same_package
-      other: other,
       apiTarget: apiTarget,
     );
     request.sanitize();
@@ -139,8 +128,6 @@ class SentryRequest {
       data: json['data'],
       headers: json.containsKey('headers') ? Map.from(json['headers']) : null,
       env: json.containsKey('env') ? Map.from(json['env']) : null,
-      // ignore: deprecated_member_use_from_same_package
-      other: json.containsKey('other') ? Map.from(json['other']) : null,
       fragment: json['fragment'],
       apiTarget: json['api_target'],
       unknown: json.notAccessed(),
@@ -158,8 +145,6 @@ class SentryRequest {
       if (cookies != null) 'cookies': cookies,
       if (headers.isNotEmpty) 'headers': headers,
       if (env.isNotEmpty) 'env': env,
-      // ignore: deprecated_member_use_from_same_package
-      if (other.isNotEmpty) 'other': other,
       if (fragment != null) 'fragment': fragment,
       if (apiTarget != null) 'api_target': apiTarget,
     };
@@ -177,8 +162,6 @@ class SentryRequest {
     Map<String, String>? env,
     bool removeCookies = false,
     String? apiTarget,
-    @Deprecated('Will be removed in v8. Use [data] instead')
-    Map<String, String>? other,
   }) =>
       SentryRequest(
         url: url ?? this.url,
@@ -190,8 +173,6 @@ class SentryRequest {
         env: env ?? _env,
         fragment: fragment ?? this.fragment,
         apiTarget: apiTarget ?? this.apiTarget,
-        // ignore: deprecated_member_use_from_same_package
-        other: other ?? _other,
         unknown: unknown,
       );
 }
