@@ -64,7 +64,7 @@ class MainActivity : FlutterActivity() {
         }
       }
     }
-    .start()
+      .start()
 
     Handler()
       .postDelayed(
@@ -74,7 +74,7 @@ class MainActivity : FlutterActivity() {
             throw IllegalStateException()
           }
         },
-        1000
+        1000,
       )
   }
 
