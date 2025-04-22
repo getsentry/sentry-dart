@@ -118,37 +118,38 @@ void main() {
 
     testWidgets(
         'when app lifecycle tracing enabled is enabled, only inactive and resumed are tracked',
-            (WidgetTester tester) async {
-          Future<void> sendLifecycle(String event) async {
-            final messenger = TestWidgetsFlutterBinding.ensureInitialized()
-                .defaultBinaryMessenger;
-            final message =
+        (WidgetTester tester) async {
+      Future<void> sendLifecycle(String event) async {
+        final messenger = TestWidgetsFlutterBinding.ensureInitialized()
+            .defaultBinaryMessenger;
+        final message =
             const StringCodec().encodeMessage('AppLifecycleState.$event');
-            await messenger.handlePlatformMessage(
-                'flutter/lifecycle', message, (_) {});
-          }
+        await messenger.handlePlatformMessage(
+            'flutter/lifecycle', message, (_) {});
+      }
 
-          flutterTrackingDisabledOptions.platform = MockPlatform(isWeb: false);
-          flutterTrackingDisabledOptions.appInBackgroundTracingThreshold =
-              Duration(seconds: -1);
-          final hub = MockHub();
-          when(hub.generateNewTraceId()).thenAnswer((_) {});
-          final observer = SentryWidgetsBindingObserver(
-            hub: hub,
-            options: flutterTrackingDisabledOptions,
-          );
-          final instance = flutterTrackingDisabledOptions.bindingUtils.instance!;
-          instance.addObserver(observer);
+      flutterTrackingDisabledOptions.platform = MockPlatform(isWeb: false);
+      flutterTrackingDisabledOptions.appInBackgroundTracingThreshold =
+          Duration(seconds: -1);
+      final hub = MockHub();
+      when(hub.generateNewTraceId()).thenAnswer((_) {});
+      final observer = SentryWidgetsBindingObserver(
+        hub: hub,
+        options: flutterTrackingDisabledOptions,
+        isNavigatorObserverCreated: () => false,
+      );
+      final instance = flutterTrackingDisabledOptions.bindingUtils.instance!;
+      instance.addObserver(observer);
 
-          await sendLifecycle('paused');
-          await sendLifecycle('resumed');
+      await sendLifecycle('detached');
+      await sendLifecycle('resumed');
 
-          verifyNever(hub.generateNewTraceId());
+      verifyNever(hub.generateNewTraceId());
 
-          await sendLifecycle('inactive');
-          await sendLifecycle('resumed');
+      await sendLifecycle('inactive');
+      await sendLifecycle('resumed');
 
-          verify(hub.generateNewTraceId()).called(1);
+      verify(hub.generateNewTraceId()).called(1);
     });
 
     testWidgets('memory pressure breadcrumb', (WidgetTester tester) async {

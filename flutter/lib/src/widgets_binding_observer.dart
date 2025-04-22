@@ -25,11 +25,14 @@ import 'utils/timer_debouncer.dart';
 class SentryWidgetsBindingObserver with WidgetsBindingObserver {
   SentryWidgetsBindingObserver({
     Hub? hub,
+    bool Function()? isNavigatorObserverCreated,
     required SentryFlutterOptions options,
   })  : _hub = hub ?? HubAdapter(),
         _options = options,
         _screenSizeStreamController = StreamController(sync: true),
-        _didChangeMetricsDebouncer = TimerDebouncer(milliseconds: 100) {
+        _didChangeMetricsDebouncer = TimerDebouncer(milliseconds: 100),
+        _isNavigatorObserverCreated = isNavigatorObserverCreated ??
+            (() => SentryNavigatorObserver.isCreated) {
     if (_options.enableWindowMetricBreadcrumbs) {
       _screenSizeStreamController.stream
           .map(
@@ -52,6 +55,7 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
   final Hub _hub;
   final SentryFlutterOptions _options;
   final TimerDebouncer _didChangeMetricsDebouncer;
+  final bool Function() _isNavigatorObserverCreated;
 
   /// Measures how long the app stayed in the background
   final _appInBackgroundStopwatch = Stopwatch();
@@ -87,10 +91,11 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
     // Enable app lifecycle trace generation if:
     // - SentryNavigatorObserver is not used
     // - Platform is not web, app lifecycle hooks are not reliable enough on web
-    if (!SentryNavigatorObserver.isCreated && !_options.platform.isWeb) {
+    if (!_isNavigatorObserverCreated() && !_options.platform.isWeb) {
       if (state == AppLifecycleState.inactive) {
         _appInBackgroundStopwatch.start();
-      } else if (state == AppLifecycleState.resumed) {
+      } else if (_appInBackgroundStopwatch.isRunning &&
+          state == AppLifecycleState.resumed) {
         _appInBackgroundStopwatch.stop();
         if (_appInBackgroundStopwatch.elapsed.inSeconds >
             _options.appInBackgroundTracingThreshold.inSeconds) {
