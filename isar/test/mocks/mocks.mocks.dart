@@ -24,7 +24,6 @@ import 'package:sentry/src/profiling.dart' as _i5;
 // ignore_for_file: unnecessary_parenthesis
 // ignore_for_file: camel_case_types
 // ignore_for_file: subtype_of_sealed_class
-// ignore_for_file: invalid_use_of_internal_member
 
 class _FakeSentryOptions_0 extends _i1.SmartFake implements _i2.SentryOptions {
   _FakeSentryOptions_0(
@@ -225,6 +224,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
     dynamic throwable, {
     dynamic stackTrace,
     _i2.Hint? hint,
+    _i2.SentryMessage? message,
     _i2.ScopeCallback? withScope,
   }) =>
       (super.noSuchMethod(
@@ -234,6 +234,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
           {
             #stackTrace: stackTrace,
             #hint: hint,
+            #message: message,
             #withScope: withScope,
           },
         ),
@@ -245,6 +246,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
             {
               #stackTrace: stackTrace,
               #hint: hint,
+              #message: message,
               #withScope: withScope,
             },
           ),
@@ -467,6 +469,15 @@ class MockHub extends _i1.Mock implements _i2.Hub {
           ),
         ),
       ) as _i2.ISentrySpan);
+
+  @override
+  void generateNewTraceId() => super.noSuchMethod(
+        Invocation.method(
+          #generateNewTraceId,
+          [],
+        ),
+        returnValueForMissingStub: null,
+      );
 
   @override
   _i3.Future<_i2.SentryId> captureTransaction(
