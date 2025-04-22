@@ -2,6 +2,73 @@
 
 ## Unreleased
 
+Version 9.0.0 marks a major release of the Sentry Dart/Flutter SDKs containing breaking changes.
+
+The goal of this release is to bump the minimum Dart and Flutter versions to `v3.5.0` and `v3.24.0` respectively, add interopability with the Sentry Javascript SDK in Flutter Web, GA the [Session Replay](https://docs.sentry.io/product/explore/session-replay/) feature and trim down unused and potentially confusing APIs.
+
+### How To Upgrade
+
+Please carefully read through the migration guide in the Sentry docs on how to upgrade from version 8 to version 9: https://docs.sentry.io/platforms/dart/migration/v8-to-v9/
+
+### Breaking Changes
+
+- Update naming of `LoadImagesListIntegration` to `LoadNativeDebugImagesIntegration` ([#2833](https://github.com/getsentry/sentry-dart/pull/2833))
+- Set sentry-native backend to `crashpad` by default and `breakpad` for Windows ARM64 ([#2791](https://github.com/getsentry/sentry-dart/pull/2791))
+  - Setting the `SENTRY_NATIVE_BACKEND` environment variable will override the defaults.
+- Remove manual TTID implementation ([#2668](https://github.com/getsentry/sentry-dart/pull/2668))
+- Increase minimum SDK version requirements to Dart v3.5.0 and Flutter v3.24.0 ([#2643](https://github.com/getsentry/sentry-dart/pull/2643))
+- Remove screenshot option `attachScreenshotOnlyWhenResumed` ([#2664](https://github.com/getsentry/sentry-dart/pull/2664))
+- Remove deprecated `beforeScreenshot` ([#2662](https://github.com/getsentry/sentry-dart/pull/2662))
+- Remove old user feedback api ([#2686](https://github.com/getsentry/sentry-dart/pull/2686))
+- Remove deprecated loggers ([#2685](https://github.com/getsentry/sentry-dart/pull/2685))
+- Remove user segment ([#2687](https://github.com/getsentry/sentry-dart/pull/2687))
+- Enable JS SDK native integration by default ([#2688](https://github.com/getsentry/sentry-dart/pull/2688))
+- Remove `enableTracing` ([#2695](https://github.com/getsentry/sentry-dart/pull/2695))
+- Remove `options.autoAppStart` and `setAppStartEnd` ([#2680](https://github.com/getsentry/sentry-dart/pull/2680))
+- Bump Drift min version to `2.24.0` and use `QueryInterceptor` instead of `QueryExecutor` ([#2679](https://github.com/getsentry/sentry-dart/pull/2679))
+- Add hint for transactions ([#2675](https://github.com/getsentry/sentry-dart/pull/2675))
+  - `BeforeSendTransactionCallback` now has a `Hint` parameter
+- Remove `dart:html` usage in favour of `package:web` ([#2710](https://github.com/getsentry/sentry-dart/pull/2710))
+- Remove max response body size ([#2709](https://github.com/getsentry/sentry-dart/pull/2709))
+  - Responses are now only attached if size is below ~0.15mb
+  - Responses are attached to the `Hint` object, which can be read in `beforeSend`/`beforeSendTransaction` callbacks via `hint.response`.
+  - For now, only the `dio` integration is supported.
+- Enable privacy masking for screenshots by default ([#2728](https://github.com/getsentry/sentry-dart/pull/2728))
+
+### Features
+
+- Properly generates and links trace IDs for errors and spans ([#2869](https://github.com/getsentry/sentry-dart/pull/2869), [#2861](https://github.com/getsentry/sentry-dart/pull/2861)):
+  - **With `SentryNavigatorObserver`** - each navigation event starts a new trace.
+  - **Without `SentryNavigatorObserver` on non-web platforms** - a new trace is started from app
+    lifecycle hooks.
+  - **Web without `SentryNavigatorObserver`** - the same trace ID is reused until the page is
+    refreshed or closed.
+- Add support for feature flags and integration with Firebase Remote Config ([#2825](https://github.com/getsentry/sentry-dart/pull/2825), [#2837](https://github.com/getsentry/sentry-dart/pull/2837))
+```dart
+// Manually track a feature flag
+Sentry.addFeatureFlag('my-feature', true);
+
+// or use the Sentry Firebase Integration (sentry_firebase_remote_config package is required)
+// Add the integration to automatically track feature flags from firebase remote config.
+await SentryFlutter.init(
+  (options) {
+    options.dsn = 'https://example@sentry.io/add-your-dsn-here';
+    options.addIntegration(
+      SentryFirebaseRemoteConfigIntegration(
+        firebaseRemoteConfig: yourRirebaseRemoteConfig,
+      ),
+    );
+  },
+);
+```
+- Add support for Flutter Web release health ([#2794](https://github.com/getsentry/sentry-dart/pull/2794))
+  - Requires using `SentryNavigatorObserver`;
+- Trace propagation in HTTP tracing clients not correctly set up if performance is disabled ([#2850](https://github.com/getsentry/sentry-dart/pull/2850))
+
+
+### Fixes
+
+
 ### Features
 
 - Generate new trace on navigation ([#2861](https://github.com/getsentry/sentry-dart/pull/2861))
