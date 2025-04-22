@@ -4,10 +4,11 @@
 
 Version 9.0.0 marks a major release of the Sentry Dart/Flutter SDKs containing breaking changes.
 
-The goal of this release is to bump the minimum Dart and Flutter versions to `v3.5.0` and `v3.24.0` respectively, add interopability with the Sentry Javascript SDK in Flutter Web, GA the [Session Replay](https://docs.sentry.io/product/explore/session-replay/) feature and trim down unused and potentially confusing APIs.
+The goal of this release is to bump the minimum Dart and Flutter versions to `v3.5.0` and `v3.24.0` respectively, add interoperability with the Sentry Javascript SDK in Flutter Web, GA the [Session Replay](https://docs.sentry.io/product/explore/session-replay/) feature and trim down unused and potentially confusing APIs.
 
 ### How To Upgrade
 
+# TODO: add docs guide
 Please carefully read through the migration guide in the Sentry docs on how to upgrade from version 8 to version 9: https://docs.sentry.io/platforms/dart/migration/v8-to-v9/
 
 ### Breaking Changes
@@ -16,7 +17,7 @@ Please carefully read through the migration guide in the Sentry docs on how to u
 - Set sentry-native backend to `crashpad` by default and `breakpad` for Windows ARM64 ([#2791](https://github.com/getsentry/sentry-dart/pull/2791))
   - Setting the `SENTRY_NATIVE_BACKEND` environment variable will override the defaults.
 - Remove manual TTID implementation ([#2668](https://github.com/getsentry/sentry-dart/pull/2668))
-- Increase minimum SDK version requirements to Dart v3.5.0 and Flutter v3.24.0 ([#2643](https://github.com/getsentry/sentry-dart/pull/2643))
+- Increase minimum SDK version requirements to Dart `v3.5.0` and Flutter `v3.24.0` ([#2643](https://github.com/getsentry/sentry-dart/pull/2643))
 - Remove screenshot option `attachScreenshotOnlyWhenResumed` ([#2664](https://github.com/getsentry/sentry-dart/pull/2664))
 - Remove deprecated `beforeScreenshot` ([#2662](https://github.com/getsentry/sentry-dart/pull/2662))
 - Remove old user feedback api ([#2686](https://github.com/getsentry/sentry-dart/pull/2686))
@@ -63,46 +64,9 @@ await SentryFlutter.init(
 ```
 - Add support for Flutter Web release health ([#2794](https://github.com/getsentry/sentry-dart/pull/2794))
   - Requires using `SentryNavigatorObserver`;
-- Trace propagation in HTTP tracing clients not correctly set up if performance is disabled ([#2850](https://github.com/getsentry/sentry-dart/pull/2850))
 
+### Behavioral Changes
 
-### Fixes
-
-
-### Features
-
-- Generate new trace on navigation ([#2861](https://github.com/getsentry/sentry-dart/pull/2861))
-  - If you have the `SentryNavigatorObserver` installed in your routing, errors and spans will now be linked in a trace properly.
-- Add `FeatureFlagIntegration` ([#2825](https://github.com/getsentry/sentry-dart/pull/2825))
-```dart
-// Manually track a feature flag
-Sentry.addFeatureFlag('my-feature', true);
-```
-- Firebase Remote Config Integration ([#2837](https://github.com/getsentry/sentry-dart/pull/2837))
-```dart
-// Add the integration to automatically track feature flags from firebase remote config.
-await SentryFlutter.init(
-  (options) {
-    options.dsn = 'https://example@sentry.io/add-your-dsn-here';
-    options.addIntegration(
-      SentryFirebaseRemoteConfigIntegration(
-        firebaseRemoteConfig: yourRirebaseRemoteConfig,
-      ),
-    );
-  },
-);
-```
-- Make hierarchical exception grouping opt-in ([#2858](https://github.com/getsentry/sentry-dart/pull/2858))
-
-### Fixes
-
-- Trace propagation in HTTP tracing clients not correctly set up if performance is disabled ([#2850](https://github.com/getsentry/sentry-dart/pull/2850))
-
-### Behavioral changes
-
-- Mutable Data Classes ([#2818](https://github.com/getsentry/sentry-dart/pull/2818))
-  - Some SDK classes do not have `const` constructors anymore.
-  - The `copyWith` and `clone` methods of SDK classes were deprecated.
 - Set log level to `warning` by default when `debug = true` ([#2836](https://github.com/getsentry/sentry-dart/pull/2836))
 - Set HTTP client breadcrumbs log level based on response status code ([#2847](https://github.com/getsentry/sentry-dart/pull/2847))
   - 5xx is mapped to `SentryLevel.error`
@@ -110,12 +74,16 @@ await SentryFlutter.init(
 - Parent-child relationship for the PlatformExceptions and Cause ([#2803](https://github.com/getsentry/sentry-dart/pull/2803))
   - Improves and changes exception grouping
 
-### API Changes
+### Improvements
 
-- Update naming of `LoadImagesListIntegration` to `LoadNativeDebugImagesIntegration` ([#2833](https://github.com/getsentry/sentry-dart/pull/2833))
+- Mutable Data Classes ([#2818](https://github.com/getsentry/sentry-dart/pull/2818))
+  - Some SDK classes do not have `const` constructors anymore.
+  - The `copyWith` and `clone` methods of SDK classes were deprecated.
+- Replay: improve Android native interop performance by using JNI ([#2670](https://github.com/getsentry/sentry-dart/pull/2670))
 
 ### Dependencies
 
+# TODO: fix dependencies
 - Bump Android SDK from v8.2.0 to v8.8.0 ([#2819](https://github.com/getsentry/sentry-dart/pull/2819), [#2831](https://github.com/getsentry/sentry-dart/pull/2831), [#2848](https://github.com/getsentry/sentry-dart/pull/2848), [#2873](https://github.com/getsentry/sentry-dart/pull/2873))
   - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#880)
   - [diff](https://github.com/getsentry/sentry-java/compare/8.2.0...8.8.0)
