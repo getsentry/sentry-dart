@@ -45,6 +45,7 @@ await SentryFlutter.init(
 ### API Changes
 
 - Update naming of `LoadImagesListIntegration` to `LoadNativeDebugImagesIntegration` ([#2833](https://github.com/getsentry/sentry-dart/pull/2833))
+- Remove `other` from `SentryRequest` ([#2879](https://github.com/getsentry/sentry-dart/pull/2879))
 
 ### Dependencies
 
