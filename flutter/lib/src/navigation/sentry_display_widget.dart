@@ -79,12 +79,12 @@ class SentryDisplayWidget extends StatefulWidget {
 }
 
 class _SentryDisplayWidgetState extends State<SentryDisplayWidget> {
-  String? _routeName;
+  SentryDisplay? _display;
 
   @override
   void initState() {
     super.initState();
-    _routeName = SentryNavigatorObserver.currentRouteName;
+    _display = SentryNavigatorObserver.currentDisplay;
   }
 
   @override
@@ -96,7 +96,7 @@ class _SentryDisplayWidgetState extends State<SentryDisplayWidget> {
   }
 
   void reportFullyDisplayed() {
-    SentryFlutter.reportFullyDisplayed(routeName: _routeName);
+    _display?.reportFullyDisplayed();
   }
 }
 

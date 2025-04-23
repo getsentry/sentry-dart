@@ -2788,11 +2788,9 @@ class MockTimeToDisplayTracker extends _i1.Mock
       ) as _i11.Future<void>);
 
   @override
-  _i11.Future<void> reportFullyDisplayed({String? routeName}) =>
+  _i11.Future<void> reportFullyDisplayed({_i2.SpanId? spanId}) =>
       (super.noSuchMethod(
-        Invocation.method(#reportFullyDisplayed, [], {
-          #routeName: routeName,
-        }),
+        Invocation.method(#reportFullyDisplayed, [], {#spanId: spanId}),
         returnValue: _i11.Future<void>.value(),
         returnValueForMissingStub: _i11.Future<void>.value(),
       ) as _i11.Future<void>);
@@ -3073,6 +3071,12 @@ class MockHub extends _i1.Mock implements _i2.Hub {
           ),
         ),
       ) as _i2.ISentrySpan);
+
+  @override
+  void generateNewTraceId() => super.noSuchMethod(
+        Invocation.method(#generateNewTraceId, []),
+        returnValueForMissingStub: null,
+      );
 
   @override
   _i11.Future<_i2.SentryId> captureTransaction(

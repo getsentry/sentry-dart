@@ -21,19 +21,16 @@ class TimeToFullDisplayTracker {
   final Duration _autoFinishAfter;
 
   ISentrySpan? _transaction;
-  String? _routeName;
   ISentrySpan? _ttfdSpan;
   Completer<void> _completedTTFDTracking = Completer<void>();
 
   Future<void> track({
     required ISentrySpan transaction,
-    required String routeName,
   }) async {
     if (transaction is! SentryTracer) {
       return;
     }
     _transaction = transaction;
-    _routeName = routeName;
 
     _ttfdSpan = transaction.startChild(
       SentrySpanOperations.uiTimeToFullDisplay,
@@ -48,17 +45,11 @@ class TimeToFullDisplayTracker {
     );
   }
 
-  Future<void> reportFullyDisplayed({String? routeName}) async {
-    final startRouteName = _routeName;
-    final endRouteName = routeName;
+  Future<void> reportFullyDisplayed({SpanId? spanId}) async {
+    final startSpanId = _transaction?.context.spanId;
+    final endSpanId = spanId;
 
-    if (startRouteName != null &&
-        endRouteName != null &&
-        startRouteName != endRouteName) {
-      _options.logger(
-        SentryLevel.warning,
-        'TTFD tracker for route "$startRouteName" does not match requested route "$endRouteName"',
-      );
+    if (startSpanId != null && endSpanId != null && startSpanId != endSpanId) {
       return;
     }
     await _complete(getUtcDateTime());
@@ -115,7 +106,6 @@ class TimeToFullDisplayTracker {
   }
 
   void clear() {
-    _routeName = null;
     _ttfdSpan = null;
     _transaction = null;
     _completedTTFDTracking = Completer();

@@ -24,10 +24,7 @@ void main() {
       sut.reportFullyDisplayed();
     });
 
-    await sut.track(
-      transaction: transaction,
-      routeName: fixture.latestTransactionName,
-    );
+    await sut.track(transaction: transaction);
 
     final ttfdSpan = transaction.children.first;
     expect(transaction.children, hasLength(1));
@@ -54,10 +51,7 @@ void main() {
     final sut = fixture.getSut();
     final transaction = fixture.getTransaction() as SentryTracer;
 
-    await sut.track(
-      transaction: transaction,
-      routeName: fixture.latestTransactionName,
-    );
+    await sut.track(transaction: transaction);
 
     final ttfdSpan = transaction.children.first;
     expect(transaction.children, hasLength(1));
@@ -81,10 +75,7 @@ void main() {
       sut.reportFullyDisplayed();
     });
 
-    await sut.track(
-      transaction: transaction,
-      routeName: fixture.latestTransactionName,
-    );
+    await sut.track(transaction: transaction);
   });
 
   test('finishing ttfd without starting tracker does not throw', () async {
@@ -93,7 +84,7 @@ void main() {
     await sut.reportFullyDisplayed();
   });
 
-  test('reportFullyDisplayed with name does not finish unrelated span',
+  test('reportFullyDisplayed with span id does not finish unrelated span',
       () async {
     final sut = fixture.getSut();
 
@@ -101,7 +92,6 @@ void main() {
     unawaited(
       sut.track(
         transaction: transactionA,
-        routeName: fixture.latestTransactionName,
       ),
     );
     await transactionA.finish();
@@ -110,18 +100,17 @@ void main() {
     unawaited(
       sut.track(
         transaction: transactionB,
-        routeName: fixture.latestTransactionName,
       ),
     );
 
     // Don't await timeout to finish
-    await sut.reportFullyDisplayed(routeName: "a");
+    await sut.reportFullyDisplayed(spanId: transactionA.context.spanId);
 
     final ttfdSpanB = transactionB.children.first;
     expect(ttfdSpanB.finished, isFalse);
     expect(ttfdSpanB.status, isNull);
 
-    await sut.reportFullyDisplayed(routeName: "b");
+    await sut.reportFullyDisplayed(spanId: transactionB.context.spanId);
 
     expect(ttfdSpanB.finished, isTrue);
     expect(ttfdSpanB.status, SpanStatus.ok());
@@ -134,12 +123,9 @@ class Fixture {
   final autoFinishAfter = const Duration(seconds: 2);
   late final endTimestampProvider = fakeTTIDEndTimestampProvider();
 
-  late String latestTransactionName;
-
   ISentrySpan getTransaction({String? name}) {
-    latestTransactionName = name ?? "Current route";
     return hub.startTransaction(
-      latestTransactionName,
+      name ?? "Current route",
       SentrySpanOperations.uiLoad,
       bindToScope: true,
       startTimestamp: startTimestamp,

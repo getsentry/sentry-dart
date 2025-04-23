@@ -36,9 +36,8 @@ class NativeAppStartHandler {
 
     // Create Transaction & Span
 
-    const screenName = 'root /';
     final rootScreenTransaction = _hub.startTransaction(
-      screenName,
+      'root /',
       SentrySpanOperations.uiLoad,
       startTimestamp: appStartInfo.start,
     );
@@ -52,7 +51,6 @@ class NativeAppStartHandler {
       rootScreenTransaction,
       endTimestamp: appStartInfo.end,
       origin: SentryTraceOrigins.autoUiTimeToDisplay,
-      routeName: screenName,
     );
 
     SentryTracer sentryTracer;

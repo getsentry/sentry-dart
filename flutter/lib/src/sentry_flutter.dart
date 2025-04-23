@@ -244,32 +244,14 @@ mixin SentryFlutter {
     options.sdk = sdk;
   }
 
-  /// Reports the time it took for the screen to be fully displayed.
-  /// This requires the [SentryFlutterOptions.enableTimeToFullDisplayTracing] option to be set to `true`.
-  ///
-  /// Pass the [routeName] of the route that was displayed to close the correct route,
-  /// even if navigation occurred in the meantime.
-  /// If [routeName] is not provided, the most recently tracked route will be used.
-  ///
-  /// Example:
-  /// ```dart
-  /// // At the start of async work
-  /// final routeName = SentryNavigatorObserver.currentRouteName;
-  ///
-  /// // After async work completes
-  /// if (routeName != null) {
-  ///   SentryFlutter.reportFullyDisplayed(routeName);
-  /// }
-  ///
-  /// // Or simply report the most recent route
-  /// SentryFlutter.reportFullyDisplayed();
-  /// ```
-  static Future<void> reportFullyDisplayed({String? routeName}) async {
+  @Deprecated('Use SentryDisplay.reportFullyDisplayed() instead.')
+  static Future<void> reportFullyDisplayed() async {
     final options = Sentry.currentHub.options;
     if (options is SentryFlutterOptions) {
       try {
+        final currentDisplay = SentryNavigatorObserver.currentDisplay;
         return options.timeToDisplayTracker.reportFullyDisplayed(
-          routeName: routeName,
+          spanId: currentDisplay?.spanId,
         );
       } catch (exception, stackTrace) {
         options.logger(
@@ -280,6 +262,24 @@ mixin SentryFlutter {
         );
       }
     }
+  }
+
+  /// Returns the current display.
+  ///
+  /// Use it to report fully displayed for a widget when using the [SentryNavigatorObserver].
+  ///
+  /// Example:
+  /// ```dart
+  /// // At the start of async work
+  /// final currentDisplay = SentryNavigatorObserver.currentDisplay;
+  ///
+  /// // After async work completes
+  /// if (currentDisplay != null) {
+  ///   currentDisplay.reportFullyDisplayed();
+  /// }
+  /// ```
+  static SentryDisplay? currentDisplay() {
+    return SentryNavigatorObserver.currentDisplay;
   }
 
   /// Pauses the app hang tracking.

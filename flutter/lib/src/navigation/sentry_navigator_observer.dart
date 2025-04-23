@@ -16,6 +16,7 @@ import '../native/native_frames.dart';
 import '../native/sentry_native_binding.dart';
 import '../web/web_session_handler.dart';
 import 'time_to_display_tracker.dart';
+import 'sentry_display.dart';
 
 /// This key must be used so that the web interface displays the events nicely
 /// See https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/
@@ -126,6 +127,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
 
   ISentrySpan? _transaction;
 
+  static SpanId? _currentTransactionSpanId;
   static String? _currentRouteName;
 
   static bool _isCreated = false;
@@ -133,9 +135,14 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   @internal
   static bool get isCreated => _isCreated;
 
-  /// Returns the current route name being tracked by the [SentryNavigatorObserver].
-  /// This can be used to report full display for the current route.
+  @internal
   static String? get currentRouteName => _currentRouteName;
+
+  /// Returns the current display being tracked by the [SentryNavigatorObserver].
+  /// This can be used to report full display for the current route.
+  static SentryDisplay? get currentDisplay => _currentTransactionSpanId != null
+      ? SentryDisplay(_currentTransactionSpanId!)
+      : null;
 
   Completer<void>? _completedDisplayTracking = Completer();
 
@@ -315,6 +322,8 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       scope.span ??= _transaction;
     });
 
+    _currentTransactionSpanId = _transaction?.context.spanId;
+
     await _native?.beginNativeFrames();
   }
 
@@ -387,10 +396,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       }
 
       if (!isAppStart) {
-        await _timeToDisplayTracker?.track(
-          transaction,
-          routeName: routeName,
-        );
+        await _timeToDisplayTracker?.track(transaction);
       }
     } catch (exception, stacktrace) {
       _hub.options.logger(

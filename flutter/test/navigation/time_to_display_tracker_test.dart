@@ -41,10 +41,7 @@ void main() {
       final sut = fixture.getSut();
 
       final transaction = fixture.getTransaction() as SentryTracer;
-      await sut.track(
-        transaction,
-        routeName: fixture.latestTransactionName,
-      );
+      await sut.track(transaction);
 
       final ttidSpan = _getTTIDSpan(transaction);
       expect(transaction, isNotNull);
@@ -60,7 +57,6 @@ void main() {
       await sut.track(
         transaction,
         endTimestamp: end,
-        routeName: fixture.latestTransactionName,
       );
 
       final ttidSpan = _getTTIDSpan(transaction);
@@ -73,10 +69,7 @@ void main() {
         final sut = fixture.getSut();
 
         final transaction = fixture.getTransaction() as SentryTracer;
-        await sut.track(
-          transaction,
-          routeName: fixture.latestTransactionName,
-        );
+        await sut.track(transaction);
 
         final ttidSpan = _getTTIDSpan(transaction);
         expect(ttidSpan?.context.operation,
@@ -91,7 +84,6 @@ void main() {
         final transaction = fixture.getTransaction() as SentryTracer;
         await sut.track(
           transaction,
-          routeName: fixture.latestTransactionName,
         );
       });
     });
@@ -107,11 +99,7 @@ void main() {
         () async {
       final sut = fixture.getSut();
       final transaction = fixture.getTransaction() as SentryTracer;
-
-      await sut.track(
-        transaction,
-        routeName: fixture.latestTransactionName,
-      );
+      await sut.track(transaction);
 
       final ttidSpan = _getTTIDSpan(transaction);
       expect(ttidSpan, isNotNull);
@@ -129,10 +117,7 @@ void main() {
       final transaction = fixture.getTransaction() as SentryTracer;
 
       // First ttfd timeout
-      await sut.track(
-        transaction,
-        routeName: fixture.latestTransactionName,
-      );
+      await sut.track(transaction);
 
       final ttidSpanA = _getTTIDSpan(transaction);
       expect(ttidSpanA, isNotNull);
@@ -144,10 +129,7 @@ void main() {
       expect(ttfdSpanA?.startTimestamp, ttidSpanA?.startTimestamp);
 
       // Second ttfd timeout
-      await sut.track(
-        transaction,
-        routeName: fixture.latestTransactionName,
-      );
+      await sut.track(transaction);
 
       final ttidSpanB = _getTTIDSpan(transaction);
       expect(ttidSpanB, isNotNull);
@@ -165,11 +147,7 @@ void main() {
       final sut = fixture.getSut();
 
       final transaction = fixture.getTransaction() as SentryTracer;
-
-      await sut.track(
-        transaction,
-        routeName: fixture.latestTransactionName,
-      );
+      await sut.track(transaction);
 
       final ttfdSpan = transaction.children.firstWhereOrNull((element) =>
           element.context.operation ==
@@ -182,10 +160,7 @@ void main() {
     final sut = fixture.getSut();
 
     final transaction = fixture.getTransaction() as SentryTracer;
-    await sut.track(
-      transaction,
-      routeName: fixture.latestTransactionName,
-    );
+    await sut.track(transaction);
 
     expect(transaction, isNotNull);
     expect(transaction.context.operation, SentrySpanOperations.uiLoad);

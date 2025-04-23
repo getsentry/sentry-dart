@@ -64,6 +64,7 @@ void main() {
 
       final tracer = getMockSentryTracer();
       _whenAnyStart(mockHub, tracer);
+      when(tracer.context).thenReturn(SentrySpanContext(operation: 'op'));
       when(tracer.startChild('ui.load.initial_display',
               description: anyNamed('description'),
               startTimestamp: anyNamed('startTimestamp')))
@@ -685,8 +686,11 @@ void main() {
 
       const op = 'navigation';
       final hub = _MockHub();
+
+      final spanContext =
+          SentrySpanContext(operation: op, spanId: SpanId.newId());
       final span = getMockSentryTracer(name: name);
-      when(span.context).thenReturn(SentrySpanContext(operation: op));
+      when(span.context).thenReturn(spanContext);
       when(span.finished).thenReturn(false);
       when(span.status).thenReturn(SpanStatus.ok());
       when(span.startChild('ui.load.initial_display',
@@ -704,6 +708,8 @@ void main() {
       await sut.completedDisplayTracking?.future;
 
       expect(SentryNavigatorObserver.currentRouteName, 'Current Route');
+      expect(
+          SentryNavigatorObserver.currentDisplay?.spanId, spanContext.spanId);
     });
 
     test('didReplace sets new route name', () {
@@ -714,8 +720,10 @@ void main() {
 
       const op = 'navigation';
       final hub = _MockHub();
+      final spanContext =
+          SentrySpanContext(operation: op, spanId: SpanId.newId());
       final span = getMockSentryTracer(name: oldRouteName);
-      when(span.context).thenReturn(SentrySpanContext(operation: op));
+      when(span.context).thenReturn(spanContext);
       when(span.finished).thenReturn(false);
       when(span.status).thenReturn(SpanStatus.ok());
       when(span.startChild('ui.load.initial_display',
