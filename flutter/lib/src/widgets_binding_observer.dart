@@ -25,12 +25,10 @@ import 'utils/timer_debouncer.dart';
 class SentryWidgetsBindingObserver with WidgetsBindingObserver {
   SentryWidgetsBindingObserver({
     Hub? hub,
-    bool Function()? isNavigatorObserverCreated,
     required SentryFlutterOptions options,
+    bool Function()? isNavigatorObserverCreated,
   })  : _hub = hub ?? HubAdapter(),
         _options = options,
-        _screenSizeStreamController = StreamController(sync: true),
-        _didChangeMetricsDebouncer = TimerDebouncer(milliseconds: 100),
         _isNavigatorObserverCreated = isNavigatorObserverCreated ??
             (() => SentryNavigatorObserver.isCreated) {
     if (_options.enableWindowMetricBreadcrumbs) {
@@ -54,14 +52,16 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
 
   final Hub _hub;
   final SentryFlutterOptions _options;
-  final TimerDebouncer _didChangeMetricsDebouncer;
+  final TimerDebouncer _didChangeMetricsDebouncer =
+      TimerDebouncer(milliseconds: 100);
   final bool Function() _isNavigatorObserverCreated;
 
   /// Measures how long the app stayed in the background
   final _appInBackgroundStopwatch = Stopwatch();
 
   // ignore: deprecated_member_use
-  final StreamController<SingletonFlutterWindow?> _screenSizeStreamController;
+  final StreamController<SingletonFlutterWindow?> _screenSizeStreamController =
+      StreamController(sync: true);
 
   /// This method records lifecycle events.
   /// It tries to mimic the behavior of ActivityBreadcrumbsIntegration of Sentry

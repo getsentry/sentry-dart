@@ -379,7 +379,7 @@ class SentryFlutterOptions extends SentryOptions {
   set automatedTestMode(bool value) => super.automatedTestMode = value;
 
   /// If app lifecycle trace generation is enabled, this sets the duration the app must
-  /// be in the background before a new trace id is generated starts upon resuming.
+  /// be in the background before a new trace id is generated upon resuming.
   ///
   /// Defaults to 30 seconds.
   @meta.internal

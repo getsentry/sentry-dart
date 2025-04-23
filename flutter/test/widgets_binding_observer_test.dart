@@ -29,18 +29,18 @@ void main() {
       flutterTrackingDisabledOptions.useNativeBreadcrumbTracking();
     });
 
+    Future<void> sendLifecycle(String event) async {
+      final messenger =
+          TestWidgetsFlutterBinding.ensureInitialized().defaultBinaryMessenger;
+      final message =
+          const StringCodec().encodeMessage('AppLifecycleState.$event');
+      await messenger.handlePlatformMessage(
+          'flutter/lifecycle', message, (_) {});
+    }
+
     testWidgets(
         'app lifecycle does not generate new trace if SentryNavigatorObserver is used',
         (WidgetTester tester) async {
-      Future<void> sendLifecycle(String event) async {
-        final messenger = TestWidgetsFlutterBinding.ensureInitialized()
-            .defaultBinaryMessenger;
-        final message =
-            const StringCodec().encodeMessage('AppLifecycleState.$event');
-        await messenger.handlePlatformMessage(
-            'flutter/lifecycle', message, (_) {});
-      }
-
       SentryNavigatorObserver();
       flutterTrackingDisabledOptions.appInBackgroundTracingThreshold =
           Duration(seconds: -1);
@@ -48,6 +48,7 @@ void main() {
       final observer = SentryWidgetsBindingObserver(
         hub: hub,
         options: flutterTrackingDisabledOptions,
+        isNavigatorObserverCreated: () => true,
       );
       final instance = flutterTrackingDisabledOptions.bindingUtils.instance!;
       instance.addObserver(observer);
@@ -60,15 +61,6 @@ void main() {
 
     testWidgets('app lifecycle does not generate new trace if platform is web',
         (WidgetTester tester) async {
-      Future<void> sendLifecycle(String event) async {
-        final messenger = TestWidgetsFlutterBinding.ensureInitialized()
-            .defaultBinaryMessenger;
-        final message =
-            const StringCodec().encodeMessage('AppLifecycleState.$event');
-        await messenger.handlePlatformMessage(
-            'flutter/lifecycle', message, (_) {});
-      }
-
       flutterTrackingDisabledOptions.platform = MockPlatform(isWeb: true);
       flutterTrackingDisabledOptions.appInBackgroundTracingThreshold =
           Duration(seconds: -1);
@@ -76,6 +68,7 @@ void main() {
       final observer = SentryWidgetsBindingObserver(
         hub: hub,
         options: flutterTrackingDisabledOptions,
+        isNavigatorObserverCreated: () => false,
       );
       final instance = flutterTrackingDisabledOptions.bindingUtils.instance!;
       instance.addObserver(observer);
@@ -89,15 +82,6 @@ void main() {
     testWidgets(
         'app lifecycle generates new trace if SentryNavigatorObserver is not used and platform is not web',
         (WidgetTester tester) async {
-      Future<void> sendLifecycle(String event) async {
-        final messenger = TestWidgetsFlutterBinding.ensureInitialized()
-            .defaultBinaryMessenger;
-        final message =
-            const StringCodec().encodeMessage('AppLifecycleState.$event');
-        await messenger.handlePlatformMessage(
-            'flutter/lifecycle', message, (_) {});
-      }
-
       flutterTrackingDisabledOptions.platform = MockPlatform(isWeb: false);
       flutterTrackingDisabledOptions.appInBackgroundTracingThreshold =
           Duration(seconds: -1);
@@ -120,15 +104,6 @@ void main() {
     testWidgets(
         'when app lifecycle tracing enabled is enabled, only inactive and resumed are tracked',
         (WidgetTester tester) async {
-      Future<void> sendLifecycle(String event) async {
-        final messenger = TestWidgetsFlutterBinding.ensureInitialized()
-            .defaultBinaryMessenger;
-        final message =
-            const StringCodec().encodeMessage('AppLifecycleState.$event');
-        await messenger.handlePlatformMessage(
-            'flutter/lifecycle', message, (_) {});
-      }
-
       flutterTrackingDisabledOptions.platform = MockPlatform(isWeb: false);
       flutterTrackingDisabledOptions.appInBackgroundTracingThreshold =
           Duration(seconds: -1);
@@ -210,15 +185,6 @@ void main() {
     });
 
     testWidgets('lifecycle breadcrumbs', (WidgetTester tester) async {
-      Future<void> sendLifecycle(String event) async {
-        final messenger = TestWidgetsFlutterBinding.ensureInitialized()
-            .defaultBinaryMessenger;
-        final message =
-            const StringCodec().encodeMessage('AppLifecycleState.$event');
-        await messenger.handlePlatformMessage(
-            'flutter/lifecycle', message, (_) {});
-      }
-
       Map<String, String> mapForLifecycle(String state) {
         return <String, String>{'state': state};
       }
@@ -277,15 +243,6 @@ void main() {
     });
 
     testWidgets('disable lifecycle breadcrumbs', (WidgetTester tester) async {
-      Future<void> sendLifecycle(String event) async {
-        final messenger = TestWidgetsFlutterBinding.ensureInitialized()
-            .defaultBinaryMessenger;
-        final message =
-            const StringCodec().encodeMessage('AppLifecycleState.$event');
-        await messenger.handlePlatformMessage(
-            'flutter/lifecycle', message, (_) {});
-      }
-
       final hub = MockHub();
 
       final observer = SentryWidgetsBindingObserver(
