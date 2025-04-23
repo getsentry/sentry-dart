@@ -45,6 +45,7 @@ class MainActivity : FlutterActivity() {
     }
   }
 
+  @Suppress("MagicNumber")
   private fun anr() {
     // Try cause ANR by blocking for 10 seconds.
     // By default the SDK sends an event if blocked by at least 5 seconds.
