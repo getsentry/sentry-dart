@@ -41,6 +41,7 @@ await SentryFlutter.init(
   - 4xx is mapped to `SentryLevel.warning`
 - Parent-child relationship for the PlatformExceptions and Cause ([#2803](https://github.com/getsentry/sentry-dart/pull/2803), [#2858](https://github.com/getsentry/sentry-dart/pull/2858))
   - Improves and changes exception grouping. To opt in, set `groupExceptions=true`
+- Set `anrEnabled` enabled per default ([#2878](https://github.com/getsentry/sentry-dart/pull/2878))
 
 ### API Changes
 
