@@ -53,11 +53,14 @@ class MainActivity : FlutterActivity() {
     // Sentry.
     // NOTE: By default it doesn't raise if the debugger is attached. That can also be
     // configured.
+
+    val sleepDurationInMillis = 10000L
+
     Thread {
       synchronized(mutex) {
         while (true) {
           try {
-            Thread.sleep(10000)
+            Thread.sleep(sleepDurationInMillis)
           } catch (e: InterruptedException) {
             e.printStackTrace()
           }
@@ -70,10 +73,10 @@ class MainActivity : FlutterActivity() {
         {
           synchronized(mutex) {
             // Shouldn't happen
-            throw IllegalStateException()
+            throw IllegalStateException("This should not happen.")
           }
         },
-        1000,
+        sleepDurationInMillis,
       )
   }
 
