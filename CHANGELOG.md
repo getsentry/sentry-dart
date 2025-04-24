@@ -66,7 +66,7 @@ await SentryFlutter.init(
 - Add support for Flutter Web release health ([#2794](https://github.com/getsentry/sentry-dart/pull/2794))
   - Requires using `SentryNavigatorObserver`;
 
-### Behavioral Changes
+### Behavioral changes
 
 - Set log level to `warning` by default when `debug = true` ([#2836](https://github.com/getsentry/sentry-dart/pull/2836))
 - Set HTTP client breadcrumbs log level based on response status code ([#2847](https://github.com/getsentry/sentry-dart/pull/2847))
