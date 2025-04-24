@@ -58,7 +58,7 @@ void main() {
   group('copyWith', () {
     test('copyWith keeps unchanged', () {
       final data = mechanism;
-
+      // ignore: deprecated_member_use_from_same_package
       final copy = data.copyWith();
 
       expect(data.toJson(), copy.toJson());
@@ -66,7 +66,7 @@ void main() {
 
     test('copyWith takes new values', () {
       final data = mechanism;
-
+      // ignore: deprecated_member_use_from_same_package
       final copy = data.copyWith(
         type: 'type1',
         description: 'description1',

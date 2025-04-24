@@ -7,7 +7,6 @@ import '../utils.dart';
 import 'access_aware_map.dart';
 
 /// An event to be reported to Sentry.io.
-@immutable
 class SentryEvent with SentryEventLike<SentryEvent> {
   /// Creates an event.
   SentryEvent({
@@ -60,38 +59,38 @@ class SentryEvent with SentryEventLike<SentryEvent> {
   static const String defaultFingerprint = '{{ default }}';
 
   /// The ID Sentry.io assigned to the submitted event for future reference.
-  final SentryId eventId;
+  SentryId eventId;
 
   /// A timestamp representing when the event occurred.
-  final DateTime? timestamp;
+  DateTime? timestamp;
 
   /// A string representing the platform the SDK is submitting from. This will be used by the Sentry interface to customize various components in the interface.
-  final String? platform;
+  String? platform;
 
   /// The logger that logged the event.
-  final String? logger;
+  String? logger;
 
   /// Identifies the server that logged this event.
-  final String? serverName;
+  String? serverName;
 
   /// The version of the application that logged the event.
-  final String? release;
+  String? release;
 
   /// The distribution of the application.
-  final String? dist;
+  String? dist;
 
   /// The environment that logged the event, e.g. "production", "staging".
-  final String? environment;
+  String? environment;
 
   /// A list of relevant modules and their versions.
-  final Map<String, String>? modules;
+  Map<String, String>? modules;
 
   /// Event message.
   ///
   /// Generally an event either contains a [message] or [exceptions].
-  final SentryMessage? message;
+  SentryMessage? message;
 
-  final dynamic _throwable;
+  dynamic _throwable;
 
   /// An object that was thrown.
   ///
@@ -99,9 +98,8 @@ class SentryEvent with SentryEventLike<SentryEvent> {
   /// If it's an Error, with a stackTrace, the stackTrace is logged.
   /// If this behavior is undesirable, consider using a custom formatted
   /// [message] instead.
-  dynamic get throwable => (_throwable is ThrowableMechanism)
-      ? (_throwable as ThrowableMechanism).throwable
-      : _throwable;
+  dynamic get throwable =>
+      (_throwable is ThrowableMechanism) ? _throwable.throwable : _throwable;
 
   /// A throwable decorator that holds a [Mechanism] related to the decorated
   /// [throwable]
@@ -110,25 +108,25 @@ class SentryEvent with SentryEventLike<SentryEvent> {
   dynamic get throwableMechanism => _throwable;
 
   /// One or multiple chained (nested) exceptions that occurred in a program.
-  final List<SentryException>? exceptions;
+  List<SentryException>? exceptions;
 
   /// The Threads Interface specifies threads that were running at the time an
   /// event happened. These threads can also contain stack traces.
   /// Typically not needed in Dart applications.
-  final List<SentryThread>? threads;
+  List<SentryThread>? threads;
 
   /// The name of the transaction which generated this event,
   /// for example, the route name: `"/users/<username>/"`.
-  final String? transaction;
+  String? transaction;
 
   /// How important this event is.
-  final SentryLevel? level;
+  SentryLevel? level;
 
   /// What caused this event to be logged.
-  final String? culprit;
+  String? culprit;
 
   /// Name/value pairs that events can be searched by.
-  final Map<String, String>? tags;
+  Map<String, String>? tags;
 
   /// Arbitrary name/value pairs attached to the event.
   ///
@@ -136,25 +134,25 @@ class SentryEvent with SentryEventLike<SentryEvent> {
   /// they must be JSON-serializable.
   @Deprecated(
       'Additional Data is deprecated in favor of structured [Contexts] and should be avoided when possible')
-  final Map<String, dynamic>? extra;
+  Map<String, dynamic>? extra;
 
   /// List of breadcrumbs for this event.
   ///
   /// See also:
   /// * https://docs.sentry.io/platforms/dart/enriching-events/breadcrumbs/
   /// * https://docs.sentry.io/platforms/flutter/enriching-events/breadcrumbs/
-  final List<Breadcrumb>? breadcrumbs;
+  List<Breadcrumb>? breadcrumbs;
 
   /// Information about the current user.
   ///
   /// The value in this field overrides the user context
   /// set in [Scope.user] for this logged event.
-  final SentryUser? user;
+  SentryUser? user;
 
   /// The context interfaces provide additional context data.
   /// Typically this is data related to the current user,
   /// the current HTTP request.
-  final Contexts contexts;
+  Contexts contexts;
 
   /// Used to deduplicate events by grouping ones with the same fingerprint
   /// together.
@@ -171,30 +169,31 @@ class SentryEvent with SentryEventLike<SentryEvent> {
   /// // A fingerprint that supplements the default one with value 'foo':
   /// var supplemented = [SentryEvent.defaultFingerprint, 'foo'];
   /// ```
-  final List<String>? fingerprint;
+  List<String>? fingerprint;
 
   /// The SDK Interface describes the Sentry SDK and its configuration used
   /// to capture and transmit an event.
-  final SdkVersion? sdk;
+  SdkVersion? sdk;
 
   /// Contains information on a HTTP request related to the event.
   /// In client, this can be an outgoing request, or the request that rendered
   /// the current web page.
   /// On server, this could be the incoming web request that is being handled
-  final SentryRequest? request;
+  SentryRequest? request;
 
   /// The debug meta interface carries debug information for processing errors
   /// and crash reports.
-  final DebugMeta? debugMeta;
+  DebugMeta? debugMeta;
 
   /// The event type determines how Sentry handles the event and has an impact
   /// on processing, rate limiting, and quotas.
   /// defaults to 'default'
-  final String? type;
+  String? type;
 
   @internal
   final Map<String, dynamic>? unknown;
 
+  @Deprecated('Assign values directly to the instance.')
   @override
   SentryEvent copyWith({
     SentryId? eventId,

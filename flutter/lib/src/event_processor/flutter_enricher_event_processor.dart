@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:sentry/sentry.dart';
 
 import '../navigation/sentry_navigator_observer.dart';
@@ -18,8 +19,8 @@ class FlutterEnricherEventProcessor implements EventProcessor {
 
   final SentryFlutterOptions _options;
 
-  bool get _hasNativeIntegration => _checker.hasNativeIntegration;
-  PlatformChecker get _checker => _options.platformChecker;
+  bool get _hasNativeIntegration => _options.platform.supportsNativeIntegration;
+  RuntimeChecker get _checker => _options.runtimeChecker;
 
   // We can't use `WidgetsBinding` as a direct parameter
   // because it must be called inside the `runZoneGuarded`-Integration.
@@ -39,7 +40,7 @@ class FlutterEnricherEventProcessor implements EventProcessor {
     // information available than Flutter.
     // TODO: while we have a native integration with JS SDK, it's currently opt in and we dont gather contexts yet
     // so for web it's still better to rely on the information of Flutter.
-    final device = _hasNativeIntegration && !_checker.isWeb
+    final device = _hasNativeIntegration && !_options.platform.isWeb
         ? null
         : _getDevice(event.contexts.device);
 
@@ -62,14 +63,10 @@ class FlutterEnricherEventProcessor implements EventProcessor {
     // Conflicts with Flutter runtime if it's just called `Flutter`
     contexts['flutter_context'] = _getFlutterContext();
 
-    event = event.copyWith(
-      contexts: contexts,
-    );
+    event.contexts = contexts;
 
     if (event is! SentryTransaction) {
-      event = event.copyWith(
-        modules: await _getPackages(),
-      );
+      event.modules = await _getPackages();
     }
     return event;
   }
@@ -117,11 +114,12 @@ class FlutterEnricherEventProcessor implements EventProcessor {
     // Future enhancement:
     // _window?.locales
 
-    return (culture ?? SentryCulture()).copyWith(
-      is24HourFormat: culture?.is24HourFormat ?? _window?.alwaysUse24HourFormat,
-      locale: culture?.locale ?? languageTag,
-      timezone: culture?.timezone ?? DateTime.now().timeZoneName,
-    );
+    culture ??= SentryCulture();
+    return culture
+      ..is24HourFormat =
+          culture.is24HourFormat ?? _window?.alwaysUse24HourFormat
+      ..locale = culture.locale ?? languageTag
+      ..timezone = culture.timezone ?? DateTime.now().timeZoneName;
   }
 
   Map<String, String> _getFlutterContext() {
@@ -136,8 +134,6 @@ class FlutterEnricherEventProcessor implements EventProcessor {
     // to keep compatibility with older versions
     // ignore: deprecated_member_use
     final hasRenderView = _widgetsBinding?.renderViewElement != null;
-
-    final renderer = _options.rendererWrapper.getRenderer()?.name;
 
     return <String, String>{
       'has_render_view': hasRenderView.toString(),
@@ -155,8 +151,7 @@ class FlutterEnricherEventProcessor implements EventProcessor {
       // Also always fails in tests.
       // See https://github.com/flutter/flutter/issues/83919
       // 'window_is_visible': _window.viewConfiguration.visible,
-      if (renderer != null) 'renderer': renderer,
-      if (_appFlavor != null) 'appFlavor': _appFlavor!,
+      if (appFlavor != null) 'appFlavor': appFlavor!,
     };
   }
 
@@ -185,21 +180,22 @@ class FlutterEnricherEventProcessor implements EventProcessor {
         ? SentryOrientation.landscape
         : SentryOrientation.portrait;
 
-    return (device ?? SentryDevice()).copyWith(
-      orientation: device?.orientation ?? orientation,
-      screenHeightPixels:
-          device?.screenHeightPixels ?? window.physicalSize.height.toInt(),
-      screenWidthPixels:
-          device?.screenWidthPixels ?? window.physicalSize.width.toInt(),
-      screenDensity: device?.screenDensity ?? window.devicePixelRatio,
-    );
+    device ??= SentryDevice();
+    return device
+      ..orientation = device.orientation ?? orientation
+      ..screenHeightPixels =
+          device.screenHeightPixels ?? window.physicalSize.height.toInt()
+      ..screenWidthPixels =
+          device.screenWidthPixels ?? window.physicalSize.width.toInt()
+      ..screenDensity = device.screenDensity ?? window.devicePixelRatio;
   }
 
   SentryOperatingSystem _getOperatingSystem(SentryOperatingSystem? os) {
-    return (os ?? SentryOperatingSystem()).copyWith(
+    os ??= SentryOperatingSystem();
+
+    return os
       // ignore: deprecated_member_use
-      theme: os?.theme ?? describeEnum(window.platformBrightness),
-    );
+      ..theme = os.theme ?? describeEnum(window.platformBrightness);
   }
 
   List<SentryRuntime> _getRuntimes(List<SentryRuntime>? runtimes) {
@@ -208,7 +204,7 @@ class FlutterEnricherEventProcessor implements EventProcessor {
     // See
     // - https://flutter.dev/docs/testing/build-modes
     // - https://github.com/flutter/flutter/wiki/Flutter%27s-modes
-    if (_checker.isWeb) {
+    if (_options.platform.isWeb) {
       if (_checker.isDebugMode()) {
         compiler = 'dartdevc';
       } else if (_checker.isReleaseMode() || _checker.isProfileMode()) {
@@ -243,12 +239,9 @@ class FlutterEnricherEventProcessor implements EventProcessor {
       return app;
     }
 
+    app ??= SentryApp();
     // See 'flutter_context' for more detailed app state.
-    final inForeground = currentLifecycle == AppLifecycleState.resumed;
-
-    return (app ?? SentryApp()).copyWith(
-      inForeground: inForeground,
-    );
+    return app..inForeground = currentLifecycle == AppLifecycleState.resumed;
   }
 
   SentryApp _appWithCurrentRouteViewName(SentryApp app) {
@@ -256,10 +249,9 @@ class FlutterEnricherEventProcessor implements EventProcessor {
     if (currentRouteName != null) {
       final viewNames = app.viewNames ?? [];
       viewNames.add(currentRouteName);
-      return app.copyWith(viewNames: viewNames);
-    } else {
-      return app;
+      app.viewNames = viewNames;
     }
+    return app;
   }
 
   Locale? _retrieveWidgetLocale(GlobalKey<NavigatorState>? navigatorKey) {
@@ -270,10 +262,3 @@ class FlutterEnricherEventProcessor implements EventProcessor {
     return null;
   }
 }
-
-/// Copied from https://api.flutter.dev/flutter/services/appFlavor-constant.html
-/// As soon as Flutter 3.16 is the minimal supported version of Sentry, this
-/// can be replaced with the property from the link above.
-const String? _appFlavor = String.fromEnvironment('FLUTTER_APP_FLAVOR') != ''
-    ? String.fromEnvironment('FLUTTER_APP_FLAVOR')
-    : null;

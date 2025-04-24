@@ -43,6 +43,17 @@ class Scope {
   /// Returns active transaction or null if there is no active transaction.
   ISentrySpan? span;
 
+  /// The propagation context for connecting errors and spans to traces.
+  /// There should always be a propagation context available at all times.
+  ///
+  /// Default behaviour of trace generation in Flutter:
+  ///
+  /// If `SentryNavigatorObserver` is available:
+  ///  - new trace on navigation for all platforms
+  ///
+  /// if `SentryNavigatorObserver` is not available:
+  ///  - Mobile: traces will be cycled with the background/foreground hooks, similar to how sessions are defined in mobile
+  ///  - Web: traces will stick until the next refresh (this might change in the future)
   @internal
   PropagationContext propagationContext = PropagationContext();
 
@@ -246,6 +257,7 @@ class Scope {
     _extra.clear();
     _eventProcessors.clear();
     _replayId = null;
+    propagationContext = PropagationContext();
 
     _clearBreadcrumbsSync();
     _setUserSync(null);
@@ -298,23 +310,22 @@ class Scope {
     SentryEvent event,
     Hint hint,
   ) async {
-    event = event.copyWith(
-      transaction: event.transaction ?? transaction,
-      user: _mergeUsers(user, event.user),
-      breadcrumbs: (event.breadcrumbs?.isNotEmpty ?? false)
+    event
+      ..transaction = event.transaction ?? transaction
+      ..user = _mergeUsers(user, event.user)
+      ..breadcrumbs = (event.breadcrumbs?.isNotEmpty ?? false)
           ? event.breadcrumbs
-          : List.from(_breadcrumbs),
-      tags: tags.isNotEmpty ? _mergeEventTags(event) : event.tags,
+          : List.from(_breadcrumbs)
+      ..tags = tags.isNotEmpty ? _mergeEventTags(event) : event.tags
       // ignore: deprecated_member_use_from_same_package
-      extra: extra.isNotEmpty ? _mergeEventExtra(event) : event.extra,
-    );
+      ..extra = extra.isNotEmpty ? _mergeEventExtra(event) : event.extra;
 
     if (event is! SentryTransaction) {
-      event = event.copyWith(
-          fingerprint: (event.fingerprint?.isNotEmpty ?? false)
-              ? event.fingerprint
-              : _fingerprint,
-          level: level ?? event.level);
+      event
+        ..fingerprint = (event.fingerprint?.isNotEmpty ?? false)
+            ? event.fingerprint
+            : _fingerprint
+        ..level = level ?? event.level;
     }
 
     _contexts.forEach((key, value) {
@@ -375,15 +386,14 @@ class Scope {
       return scopeUser;
     }
     // otherwise the user of scope takes precedence over the event user
-    return scopeUser?.copyWith(
-      id: eventUser?.id,
-      email: eventUser?.email,
-      ipAddress: eventUser?.ipAddress,
-      username: eventUser?.username,
-      data: _mergeUserData(eventUser?.data, scopeUser.data),
+    return scopeUser
+      ?..id = eventUser?.id
+      ..email = eventUser?.email
+      ..ipAddress = eventUser?.ipAddress
+      ..username = eventUser?.username
+      ..data = _mergeUserData(eventUser?.data, scopeUser.data)
       // ignore: deprecated_member_use_from_same_package
-      extras: _mergeUserData(eventUser?.extras, scopeUser.extras),
-    );
+      ..extras = _mergeUserData(eventUser?.extras, scopeUser.extras);
   }
 
   /// If the User on the scope and the user of an event have extra entries with

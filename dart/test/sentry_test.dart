@@ -1,16 +1,17 @@
 // ignore_for_file: deprecated_member_use_from_same_package
 
 import 'dart:async';
+import 'dart:isolate';
 
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/dart_exception_type_identifier.dart';
 import 'package:sentry/src/event_processor/deduplication_event_processor.dart';
+import 'package:sentry/src/feature_flags_integration.dart';
 import 'package:test/test.dart';
 
-import 'fake_platform_checker.dart';
 import 'mocks.dart';
 import 'mocks/mock_integration.dart';
-import 'mocks/mock_platform_checker.dart';
+import 'mocks/mock_runtime_checker.dart';
 import 'mocks/mock_sentry_client.dart';
 import 'test_utils.dart';
 
@@ -21,6 +22,8 @@ void main() {
     var client = MockSentryClient();
 
     var anException = Exception();
+    late SentryEvent fakeEvent;
+    late SentryMessage fakeMessage;
 
     setUp(() async {
       final options = defaultTestOptions();
@@ -32,7 +35,8 @@ void main() {
         },
       );
       anException = Exception('anException');
-
+      fakeEvent = getFakeEvent();
+      fakeMessage = getFakeMessage();
       client = MockSentryClient();
       Sentry.bindClient(client);
     });
@@ -138,6 +142,14 @@ void main() {
     });
 
     test('should start transaction with context', () async {
+      final tr = Sentry.startTransactionWithContext(
+          SentryTransactionContext('name', 'operation'));
+      await tr.finish();
+
+      expect(client.captureTransactionCalls.length, 1);
+    });
+
+    test('should start transaction with hint', () async {
       final tr = Sentry.startTransactionWithContext(
           SentryTransactionContext('name', 'operation'));
       await tr.finish();
@@ -259,6 +271,12 @@ void main() {
       );
       expect(
         optionsReference.integrations
+            .whereType<FeatureFlagsIntegration>()
+            .length,
+        1,
+      );
+      expect(
+        optionsReference.integrations
             .whereType<IsolateErrorIntegration>()
             .length,
         1,
@@ -284,6 +302,41 @@ void main() {
         },
       );
     }, onPlatform: {'vm': Skip()});
+
+    test('should add feature flag FeatureFlagsIntegration', () async {
+      await Sentry.init(
+        options: defaultTestOptions(),
+        (options) => options.dsn = fakeDsn,
+      );
+
+      await Sentry.addFeatureFlag('foo', true);
+
+      expect(
+        Sentry.currentHub.scope.contexts[SentryFeatureFlags.type]?.values.first
+            .name,
+        equals('foo'),
+      );
+      expect(
+        Sentry.currentHub.scope.contexts[SentryFeatureFlags.type]?.values.first
+            .value,
+        equals(true),
+      );
+    });
+
+    test('addFeatureFlag should ignore non-boolean values', () async {
+      await Sentry.init(
+        options: defaultTestOptions(),
+        (options) => options.dsn = fakeDsn,
+      );
+
+      await Sentry.addFeatureFlag('foo1', 'some string');
+      await Sentry.addFeatureFlag('foo2', 123);
+      await Sentry.addFeatureFlag('foo3', 1.23);
+
+      final featureFlagsContext =
+          Sentry.currentHub.scope.contexts[SentryFeatureFlags.type];
+      expect(featureFlagsContext, isNull);
+    });
 
     test('should close integrations', () async {
       final integration = MockIntegration();
@@ -366,7 +419,7 @@ void main() {
 
     test('should set options.debug to true when in debug mode', () async {
       final options = defaultTestOptions();
-      options.platformChecker = MockPlatformChecker(isDebug: true);
+      options.runtimeChecker = MockRuntimeChecker(isDebug: true);
 
       expect(options.debug, isFalse);
       await Sentry.init(
@@ -380,7 +433,7 @@ void main() {
 
     test('should respect user options.debug when in debug mode', () async {
       final options = defaultTestOptions();
-      options.platformChecker = MockPlatformChecker(isDebug: true);
+      options.runtimeChecker = MockRuntimeChecker(isDebug: true);
 
       expect(options.debug, isFalse);
       await Sentry.init(
@@ -396,7 +449,7 @@ void main() {
     test('should leave options.debug unchanged when not in debug mode',
         () async {
       final options = defaultTestOptions();
-      options.platformChecker = MockPlatformChecker(isDebug: false);
+      options.runtimeChecker = MockRuntimeChecker(isDebug: false);
 
       expect(options.debug, isFalse);
       await Sentry.init(
@@ -407,7 +460,37 @@ void main() {
       );
       expect(options.debug, isFalse);
     });
-  });
+
+    test('isolate completes when closing sentry', () async {
+      final onExit = ReceivePort();
+
+      Future<void> _runSentry(String message) async {
+        await Sentry.init((options) {
+          options
+            ..dsn = fakeDsn
+            ..tracesSampleRate = 1.0;
+        });
+        await Sentry.close();
+      }
+
+      final completer = Completer<void>();
+
+      await Isolate.spawn<String>(
+        _runSentry,
+        'test',
+        onExit: onExit.sendPort,
+      );
+
+      var completed = false;
+      onExit.listen((message) {
+        completed = true;
+        completer.complete();
+      });
+
+      await completer.future;
+      expect(completed, true);
+    });
+  }, testOn: 'vm');
 
   test('should complete when appRunner is not called in runZonedGuarded',
       () async {
@@ -437,7 +520,8 @@ void main() {
   });
 
   test('options.environment debug', () async {
-    final sentryOptions = defaultTestOptions(FakePlatformChecker.debugMode());
+    final sentryOptions =
+        defaultTestOptions(checker: MockRuntimeChecker(isDebug: true));
     await Sentry.init(
       (options) {
         options.dsn = fakeDsn;
@@ -449,7 +533,8 @@ void main() {
   });
 
   test('options.environment profile', () async {
-    final sentryOptions = defaultTestOptions(FakePlatformChecker.profileMode());
+    final sentryOptions =
+        defaultTestOptions(checker: MockRuntimeChecker(isProfile: true));
 
     await Sentry.init(
       (options) {
@@ -462,7 +547,8 @@ void main() {
   });
 
   test('options.environment production (defaultEnvironment)', () async {
-    final sentryOptions = defaultTestOptions(FakePlatformChecker.releaseMode());
+    final sentryOptions =
+        defaultTestOptions(checker: MockRuntimeChecker(isRelease: true));
     await Sentry.init(
       (options) {
         options.dsn = fakeDsn;
@@ -474,7 +560,8 @@ void main() {
   });
 
   test('options.logger is set by setting the debug flag', () async {
-    final sentryOptions = defaultTestOptions(FakePlatformChecker.debugMode());
+    final sentryOptions =
+        defaultTestOptions(checker: MockRuntimeChecker(isDebug: true));
 
     await Sentry.init(
       (options) {
@@ -502,9 +589,9 @@ void main() {
     });
 
     test('throw is handled and logged', () async {
-      // Use release mode in platform checker to avoid additional log
+      // Use release mode in runtime checker to avoid additional log
       final sentryOptions =
-          defaultTestOptions(FakePlatformChecker.releaseMode())
+          defaultTestOptions(checker: MockRuntimeChecker(isRelease: true))
             ..automatedTestMode = false
             ..debug = true
             ..logger = fixture.mockLogger;

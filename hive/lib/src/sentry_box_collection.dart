@@ -1,18 +1,15 @@
 import 'package:hive/hive.dart';
+// ignore: implementation_imports
+import 'package:hive/src/box_collection/box_collection_stub.dart'
+    if (dart.library.js_interop) 'package:hive/src/box_collection/box_collection_indexed_db.dart'
+    if (dart.library.io) 'package:hive/src/box_collection/box_collection.dart'
+    as impl;
+// ignore: implementation_imports
+import 'package:hive/src/box_collection/box_collection_stub.dart' as stub;
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 
 import 'sentry_span_helper.dart';
-
-// ignore: implementation_imports
-import 'package:hive/src/box_collection/box_collection_stub.dart' as stub;
-
-// ignore: implementation_imports
-import 'package:hive/src/box_collection/box_collection_stub.dart'
-    if (dart.library.html) 'package:hive/src/box_collection/box_collection_indexed_db.dart'
-    if (dart.library.js_interop) 'package:hive/src/box_collection/box_collection_indexed_db.dart'
-    if (dart.library.io) 'package:hive/src/box_collection/box_collection.dart'
-    as impl;
 
 /// Use instead of [BoxCollection] to add automatic tracing.
 class SentryBoxCollection implements stub.BoxCollection {

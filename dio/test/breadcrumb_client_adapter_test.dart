@@ -37,6 +37,7 @@ void main() {
       expect(breadcrumb.data?['duration'], isNotNull);
       expect(breadcrumb.data?['request_body_size'], isNull);
       expect(breadcrumb.data?['response_body_size'], isNull);
+      expect(breadcrumb.level, SentryLevel.info);
     });
 
     test('POST: happy path', () async {
@@ -55,6 +56,7 @@ void main() {
       expect(breadcrumb.data?['http.fragment'], 'baz');
       expect(breadcrumb.data?['status_code'], 200);
       expect(breadcrumb.data?['duration'], isNotNull);
+      expect(breadcrumb.level, SentryLevel.info);
     });
 
     test('PUT: happy path', () async {
@@ -73,6 +75,7 @@ void main() {
       expect(breadcrumb.data?['http.fragment'], 'baz');
       expect(breadcrumb.data?['status_code'], 200);
       expect(breadcrumb.data?['duration'], isNotNull);
+      expect(breadcrumb.level, SentryLevel.info);
     });
 
     test('DELETE: happy path', () async {
@@ -91,6 +94,7 @@ void main() {
       expect(breadcrumb.data?['http.fragment'], 'baz');
       expect(breadcrumb.data?['status_code'], 200);
       expect(breadcrumb.data?['duration'], isNotNull);
+      expect(breadcrumb.level, SentryLevel.info);
     });
 
     /// Tests, that in case an exception gets thrown, that

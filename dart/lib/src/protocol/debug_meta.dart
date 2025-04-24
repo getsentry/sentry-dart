@@ -4,18 +4,22 @@ import '../protocol.dart';
 import 'access_aware_map.dart';
 
 /// The debug meta interface carries debug information for processing errors and crash reports.
-@immutable
 class DebugMeta {
   /// An object describing the system SDK.
-  final SdkInfo? sdk;
+  SdkInfo? sdk;
 
-  final List<DebugImage>? _images;
+  List<DebugImage>? _images;
 
   /// The immutable list of debug images contains all dynamic libraries loaded
   /// into the process and their memory addresses.
   /// Instruction addresses in the Stack Trace are mapped into the list of debug
   /// images in order to retrieve debug files for symbolication.
   List<DebugImage> get images => List.unmodifiable(_images ?? const []);
+
+  void addDebugImage(DebugImage debugImage) {
+    _images ??= [];
+    _images?.add(debugImage);
+  }
 
   DebugMeta({this.sdk, List<DebugImage>? images, this.unknown})
       : _images = images;
@@ -52,6 +56,7 @@ class DebugMeta {
     };
   }
 
+  @Deprecated('Assign values directly to the instance.')
   DebugMeta copyWith({
     SdkInfo? sdk,
     List<DebugImage>? images,

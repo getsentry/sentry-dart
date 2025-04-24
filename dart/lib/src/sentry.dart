@@ -7,6 +7,7 @@ import 'environment/environment_variables.dart';
 import 'event_processor/deduplication_event_processor.dart';
 import 'event_processor/enricher/enricher_event_processor.dart';
 import 'event_processor/exception/exception_event_processor.dart';
+import 'event_processor/exception/exception_group_event_processor.dart';
 import 'hint.dart';
 import 'hub.dart';
 import 'hub_adapter.dart';
@@ -22,10 +23,10 @@ import 'sentry_attachment/sentry_attachment.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
 import 'sentry_run_zoned_guarded.dart';
-import 'sentry_user_feedback.dart';
 import 'tracing.dart';
 import 'transport/data_category.dart';
 import 'transport/task_queue.dart';
+import 'feature_flags_integration.dart';
 
 /// Configuration options callback
 typedef OptionsConfiguration = FutureOr<void> Function(SentryOptions);
@@ -88,13 +89,13 @@ class Sentry {
     _setEnvironmentVariables(options);
 
     // Throws when running on the browser
-    if (!options.platformChecker.isWeb) {
+    if (!options.platform.isWeb) {
       // catch any errors that may occur within the entry function, main()
       // in the ‘root zone’ where all Dart programs start
       options.addIntegrationByIndex(0, IsolateErrorIntegration());
     }
 
-    if (options.platformChecker.isDebugMode()) {
+    if (options.runtimeChecker.isDebugMode()) {
       options.debug = true;
       options.logger(
         SentryLevel.debug,
@@ -106,11 +107,16 @@ class Sentry {
       options.addIntegration(LoadDartDebugImagesIntegration());
     }
 
+    options.addIntegration(FeatureFlagsIntegration());
+
     options.addEventProcessor(EnricherEventProcessor(options));
     options.addEventProcessor(ExceptionEventProcessor(options));
     options.addEventProcessor(DeduplicationEventProcessor(options));
 
     options.prependExceptionTypeIdentifier(DartExceptionTypeIdentifier());
+
+    // Added last to ensure all error events have correct parent/child relationships
+    options.addEventProcessor(ExceptionGroupEventProcessor(options));
   }
 
   /// This method reads available environment variables and uses them
@@ -124,7 +130,7 @@ class Sentry {
     options.dsn = options.dsn ?? vars.dsn;
 
     if (options.environment == null) {
-      var environment = vars.environmentForMode(options.platformChecker);
+      var environment = vars.environmentForMode(options.runtimeChecker);
       options.environment = vars.environment ?? environment;
     }
 
@@ -249,14 +255,6 @@ class Sentry {
         DataCategory.unknown,
       );
 
-  /// Reports a [userFeedback] to Sentry.io.
-  ///
-  /// First capture an event and use the [SentryId] to create a [SentryUserFeedback]
-  @Deprecated(
-      'Will be removed in a future version. Use [captureFeedback] instead')
-  static Future<void> captureUserFeedback(SentryUserFeedback userFeedback) =>
-      _hub.captureUserFeedback(userFeedback);
-
   /// Reports [SentryFeedback] to Sentry.io.
   ///
   /// Use [withScope] to add [SentryAttachment] to the feedback.
@@ -366,6 +364,26 @@ class Sentry {
   /// Gets the current active transaction or span bound to the scope.
   /// Returns `null` if performance is disabled in the options.
   static ISentrySpan? getSpan() => _hub.getSpan();
+
+  static Future<void> addFeatureFlag(String name, dynamic value) async {
+    if (value is! bool) {
+      return;
+    }
+
+    final featureFlagsIntegration = currentHub.options.integrations
+        .whereType<FeatureFlagsIntegration>()
+        .firstOrNull;
+
+    if (featureFlagsIntegration == null) {
+      currentHub.options.logger(
+        SentryLevel.warning,
+        '$FeatureFlagsIntegration not found. Make sure Sentry is initialized before accessing the addFeatureFlag API.',
+      );
+      return;
+    }
+
+    await featureFlagsIntegration.addFeatureFlag(name, value);
+  }
 
   @internal
   static Hub get currentHub => _hub;

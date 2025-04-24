@@ -17,7 +17,6 @@ import 'sentry_exception_factory.dart';
 import 'sentry_options.dart';
 import 'sentry_stack_trace_factory.dart';
 import 'sentry_trace_context_header.dart';
-import 'sentry_user_feedback.dart';
 import 'transport/client_report_transport.dart';
 import 'transport/data_category.dart';
 import 'transport/http_transport.dart';
@@ -66,11 +65,11 @@ class SentryClient {
       options,
       options.transport,
     );
-    // TODO: Web might change soon to use the JS SDK so we can remove it here later on
+    // TODO: Use spotlight integration directly through JS SDK, then we can remove isWeb check
     final enableFlutterSpotlight = (options.spotlight.enabled &&
-        (options.platformChecker.isWeb ||
-            options.platformChecker.platform.isLinux ||
-            options.platformChecker.platform.isWindows));
+        (options.platform.isWeb ||
+            options.platform.isLinux ||
+            options.platform.isWindows));
     // Spotlight in the Flutter layer is only enabled for Web, Linux and Windows
     // Other platforms use spotlight through their native SDKs
     if (enableFlutterSpotlight) {
@@ -161,6 +160,9 @@ class SentryClient {
       return _emptySentryId;
     }
 
+    // Event is fully processed and ready to be sent, emit beforeSendEvent observer
+    await _emitBeforeSendEventObserver(preparedEvent, hint);
+
     var attachments = List<SentryAttachment>.from(scope?.attachments ?? []);
     attachments.addAll(hint.attachments);
     var screenshot = hint.screenshot;
@@ -209,14 +211,13 @@ class SentryClient {
 
   SentryEvent _prepareEvent(SentryEvent event, Hint hint,
       {dynamic stackTrace}) {
-    event = event.copyWith(
-      serverName: event.serverName ?? _options.serverName,
-      dist: event.dist ?? _options.dist,
-      environment: event.environment ?? _options.environment,
-      release: event.release ?? _options.release,
-      sdk: event.sdk ?? _options.sdk,
-      platform: event.platform ?? sdkPlatform(_options.platformChecker.isWeb),
-    );
+    event
+      ..serverName = event.serverName ?? _options.serverName
+      ..dist = event.dist ?? _options.dist
+      ..environment = event.environment ?? _options.environment
+      ..release = event.release ?? _options.release
+      ..sdk = event.sdk ?? _options.sdk
+      ..platform = event.platform ?? sdkPlatform(_options.platform.isWeb);
 
     if (event is SentryTransaction) {
       return event;
@@ -235,25 +236,33 @@ class SentryClient {
     final isolateId = isolateName?.hashCode;
 
     if (event.throwableMechanism != null) {
-      final extractedExceptions = _exceptionFactory.extractor
+      final extractedExceptionCauses = _exceptionFactory.extractor
           .flatten(event.throwableMechanism, stackTrace);
 
-      final sentryExceptions = <SentryException>[];
+      SentryException? rootException;
+      SentryException? currentException;
       final sentryThreads = <SentryThread>[];
 
-      for (final extractedException in extractedExceptions) {
+      for (final extractedExceptionCause in extractedExceptionCauses) {
         var sentryException = _exceptionFactory.getSentryException(
-          extractedException.exception,
-          stackTrace: extractedException.stackTrace,
+          extractedExceptionCause.exception,
+          stackTrace: extractedExceptionCause.stackTrace,
           removeSentryFrames: hint.get(TypeCheckHint.currentStackTrace),
         );
+        if (extractedExceptionCause.source != null) {
+          var mechanism =
+              sentryException.mechanism ?? Mechanism(type: "generic");
+
+          mechanism.source = extractedExceptionCause.source;
+          sentryException.mechanism = mechanism;
+        }
 
         SentryThread? sentryThread;
 
-        if (!_options.platformChecker.isWeb &&
+        if (!_options.platform.isWeb &&
             isolateName != null &&
             _options.attachThreads) {
-          sentryException = sentryException.copyWith(threadId: isolateId);
+          sentryException.threadId = isolateId;
           sentryThread = SentryThread(
             id: isolateId,
             name: isolateName,
@@ -262,19 +271,25 @@ class SentryClient {
           );
         }
 
-        sentryExceptions.add(sentryException);
+        rootException ??= sentryException;
+        currentException?.addException(sentryException);
+        currentException = sentryException;
+
         if (sentryThread != null) {
           sentryThreads.add(sentryThread);
         }
       }
 
-      return event.copyWith(
-        exceptions: [...?event.exceptions, ...sentryExceptions],
-        threads: [
+      final exceptions = [...?event.exceptions];
+      if (rootException != null) {
+        exceptions.add(rootException);
+      }
+      return event
+        ..exceptions = exceptions
+        ..threads = [
           ...?event.threads,
           ...sentryThreads,
-        ],
-      );
+        ];
     }
 
     // The stacktrace is not part of an exception,
@@ -290,7 +305,7 @@ class SentryClient {
         removeSentryFrames: hint.get(TypeCheckHint.currentStackTrace),
       );
       if (sentryStackTrace.frames.isNotEmpty) {
-        event = event.copyWith(threads: [
+        event.threads = [
           ...?event.threads,
           SentryThread(
             name: isolateName,
@@ -299,7 +314,7 @@ class SentryClient {
             current: true,
             stacktrace: sentryStackTrace,
           ),
-        ]);
+        ];
       }
     }
 
@@ -307,16 +322,14 @@ class SentryClient {
   }
 
   SentryEvent _createUserOrSetDefaultIpAddress(SentryEvent event) {
-    final user = event.user;
+    var user = event.user;
     final effectiveIpAddress =
         user?.ipAddress ?? (_options.sendDefaultPii ? _defaultIpAddress : null);
 
     if (effectiveIpAddress != null) {
-      final updatedUser = user == null
-          ? SentryUser(ipAddress: effectiveIpAddress)
-          : user.copyWith(ipAddress: effectiveIpAddress);
-
-      return event.copyWith(user: updatedUser);
+      user ??= SentryUser(ipAddress: effectiveIpAddress);
+      user.ipAddress = effectiveIpAddress;
+      event.user = user;
     }
 
     return event;
@@ -365,8 +378,9 @@ class SentryClient {
     SentryTransaction transaction, {
     Scope? scope,
     SentryTraceContextHeader? traceContext,
+    Hint? hint,
   }) async {
-    final hint = Hint();
+    hint ??= Hint();
 
     SentryTransaction? preparedTransaction =
         _prepareEvent(transaction, hint) as SentryTransaction;
@@ -452,18 +466,6 @@ class SentryClient {
     return _options.transport.send(envelope);
   }
 
-  /// Reports the [userFeedback] to Sentry.io.
-  @Deprecated(
-      'Will be removed in a future version. Use [captureFeedback] instead')
-  Future<void> captureUserFeedback(SentryUserFeedback userFeedback) {
-    final envelope = SentryEnvelope.fromUserFeedback(
-      userFeedback,
-      _options.sdk,
-      dsn: _options.dsn,
-    );
-    return _options.transport.send(envelope);
-  }
-
   /// Reports the [feedback] to Sentry.io.
   Future<SentryId> captureFeedback(
     SentryFeedback feedback, {
@@ -503,7 +505,7 @@ class SentryClient {
     try {
       if (event is SentryTransaction && beforeSendTransaction != null) {
         beforeSendName = 'beforeSendTransaction';
-        final callbackResult = beforeSendTransaction(event);
+        final callbackResult = beforeSendTransaction(event, hint);
         if (callbackResult is Future<SentryTransaction?>) {
           processedEvent = await callbackResult;
         } else {
@@ -564,7 +566,7 @@ class SentryClient {
 
   bool _sampleRate() {
     if (_options.sampleRate != null && _random != null) {
-      return (_options.sampleRate! < _random!.nextDouble());
+      return (_options.sampleRate! < _random.nextDouble());
     }
     return false;
   }
@@ -574,5 +576,27 @@ class SentryClient {
       return DataCategory.transaction;
     }
     return DataCategory.error;
+  }
+
+  FutureOr<void> _emitBeforeSendEventObserver(
+      SentryEvent event, Hint hint) async {
+    for (final observer in _options.beforeSendEventObservers) {
+      try {
+        final result = observer.onBeforeSendEvent(event, hint);
+        if (result is Future) {
+          await result;
+        }
+      } catch (exception, stackTrace) {
+        _options.logger(
+          SentryLevel.error,
+          'Error while running beforeSendEvent observer',
+          exception: exception,
+          stackTrace: stackTrace,
+        );
+        if (_options.automatedTestMode) {
+          rethrow;
+        }
+      }
+    }
   }
 }

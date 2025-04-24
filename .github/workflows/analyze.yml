@@ -34,7 +34,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: dart-lang/setup-dart@e51d8e571e22473a2ddebf0ef8a2123f0ab2c02c # pin@v1
         if: ${{ inputs.sdk == 'dart' }}
-      - uses: subosito/flutter-action@f2c4f6686ca8e8d6e6d0f28410eeef506ed66aff # pin@v2.18.0
+      - uses: subosito/flutter-action@e938fdf56512cc96ef2f93601a5a40bde3801046 # pin@v2.19.0
         if: ${{ inputs.sdk == 'flutter' }}
 
       - run: ${{ inputs.sdk }} pub get
@@ -54,17 +54,12 @@ jobs:
 
       - run: dart doc --dry-run
 
-      - name: Run publish validation
-        run: |
-          dart pub get --directory ../scripts/publish_validation
-          dart run ../scripts/publish_validation/bin/publish_validation.dart --executable ${{ inputs.sdk }}
-
   package-analysis:
     # `axel-op/dart-package-analyzer` is using `flutter pub upgrade` instead of `get`,
     # which ignores pubspec.yaml `dependency_overrides`. Because of that, all `release/*` branches are failing,
     # because the package cannot find the "about to be released" version of our sentry-dart package that it depends on.
     if: ${{ !startsWith(github.ref, 'refs/heads/release/') && inputs.panaThreshold > 0 }}
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4

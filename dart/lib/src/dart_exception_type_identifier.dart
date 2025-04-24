@@ -4,7 +4,6 @@ import 'package:http/http.dart' show ClientException;
 
 import '../sentry.dart';
 import 'dart_exception_type_identifier_io.dart'
-    if (dart.library.html) 'dart_exception_type_identifier_web.dart'
     if (dart.library.js_interop) 'dart_exception_type_identifier_web.dart';
 
 class DartExceptionTypeIdentifier implements ExceptionTypeIdentifier {

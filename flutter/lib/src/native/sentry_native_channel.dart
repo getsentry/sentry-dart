@@ -29,6 +29,9 @@ class SentryNativeChannel
   SentryNativeChannel(this.options)
       : channel = SentrySafeMethodChannel(options);
 
+  void _logNotSupported(String operation) => options.logger(
+      SentryLevel.debug, 'SentryNativeChannel: $operation is not supported');
+
   @override
   Future<void> init(Hub hub) async {
     return channel.invokeMethod('initNativeSdk', <String, dynamic>{
@@ -67,17 +70,15 @@ class SentryNativeChannel
           options.appHangTimeoutInterval.inMilliseconds,
       if (options.proxy != null) 'proxy': options.proxy?.toJson(),
       'replay': <String, dynamic>{
-        'quality': options.experimental.replay.quality.name,
-        'sessionSampleRate': options.experimental.replay.sessionSampleRate,
-        'onErrorSampleRate': options.experimental.replay.onErrorSampleRate,
+        'quality': options.replay.quality.name,
+        'sessionSampleRate': options.replay.sessionSampleRate,
+        'onErrorSampleRate': options.replay.onErrorSampleRate,
         'tags': <String, dynamic>{
-          'maskAllText': options.experimental.privacyForReplay.maskAllText,
-          'maskAllImages': options.experimental.privacyForReplay.maskAllImages,
-          'maskAssetImages':
-              options.experimental.privacyForReplay.maskAssetImages,
-          if (options.experimental.privacyForReplay.userMaskingRules.isNotEmpty)
-            'maskingRules': options
-                .experimental.privacyForReplay.userMaskingRules
+          'maskAllText': options.privacy.maskAllText,
+          'maskAllImages': options.privacy.maskAllImages,
+          'maskAssetImages': options.privacy.maskAssetImages,
+          if (options.privacy.userMaskingRules.isNotEmpty)
+            'maskingRules': options.privacy.userMaskingRules
                 .map((rule) => '${rule.name}: ${rule.description}')
                 .toList(growable: false),
         },
@@ -131,19 +132,43 @@ class SentryNativeChannel
 
   @override
   Future<void> setUser(SentryUser? user) async {
-    final normalizedUser = user?.copyWith(
-      data: MethodChannelHelper.normalizeMap(user.data),
-    );
-    await channel.invokeMethod(
-      'setUser',
-      {'user': normalizedUser?.toJson()},
-    );
+    if (user == null) {
+      await channel.invokeMethod(
+        'setUser',
+        {'user': null},
+      );
+    } else {
+      final normalizedUser = SentryUser(
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        ipAddress: user.ipAddress,
+        data: MethodChannelHelper.normalizeMap(user.data),
+        // ignore: deprecated_member_use
+        extras: user.extras,
+        geo: user.geo,
+        name: user.name,
+        // ignore: invalid_use_of_internal_member
+        unknown: user.unknown,
+      );
+      await channel.invokeMethod(
+        'setUser',
+        {'user': normalizedUser.toJson()},
+      );
+    }
   }
 
   @override
   Future<void> addBreadcrumb(Breadcrumb breadcrumb) async {
-    final normalizedBreadcrumb = breadcrumb.copyWith(
+    final normalizedBreadcrumb = Breadcrumb(
+      message: breadcrumb.message,
+      category: breadcrumb.category,
       data: MethodChannelHelper.normalizeMap(breadcrumb.data),
+      level: breadcrumb.level,
+      type: breadcrumb.type,
+      timestamp: breadcrumb.timestamp,
+      // ignore: invalid_use_of_internal_member
+      unknown: breadcrumb.unknown,
     );
     await channel.invokeMethod(
       'addBreadcrumb',
@@ -248,4 +273,25 @@ class SentryNativeChannel
       channel.invokeMethod('captureReplay', {
         'isCrash': isCrash,
       }).then((value) => SentryId.fromId(value as String));
+
+  @override
+  FutureOr<void> captureSession() {
+    _logNotSupported('capturing session');
+  }
+
+  @override
+  FutureOr<void> startSession({bool ignoreDuration = false}) {
+    _logNotSupported('starting session');
+  }
+
+  @override
+  FutureOr<Map<dynamic, dynamic>?> getSession() {
+    _logNotSupported('getting session');
+    return null;
+  }
+
+  @override
+  FutureOr<void> updateSession({int? errors, String? status}) {
+    _logNotSupported('updating session');
+  }
 }

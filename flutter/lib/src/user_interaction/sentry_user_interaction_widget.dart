@@ -620,21 +620,6 @@ class _SentryUserInteractionWidgetState
     if (element == null) {
       return false;
     }
-    try {
-      // ignore: return_of_invalid_type
-      return (element as dynamic).mounted;
-    } on NoSuchMethodError catch (_) {
-      // mounted checks if the widget is not null.
-
-      try {
-        // Flutter 3.0.0 does `_widget!` and if `_widget` is null it throws.
-
-        // ignore: unnecessary_null_comparison
-        return element.widget != null;
-      } catch (_) {
-        // if it throws, the `_widget` is null and not mounted.
-        return false;
-      }
-    }
+    return element.mounted;
   }
 }

@@ -6,7 +6,6 @@ import 'package:meta/meta.dart';
 import '../sentry.dart';
 import 'client_reports/discard_reason.dart';
 import 'profiling.dart';
-import 'propagation_context.dart';
 import 'sentry_tracer.dart';
 import 'sentry_traces_sampler.dart';
 import 'transport/data_category.dart';
@@ -242,40 +241,6 @@ class Hub {
     return sentryId;
   }
 
-  @Deprecated(
-      'Will be removed in a future version. Use [captureFeedback] instead')
-  Future<void> captureUserFeedback(SentryUserFeedback userFeedback) async {
-    if (!_isEnabled) {
-      _options.logger(
-        SentryLevel.warning,
-        "Instance is disabled and this 'captureUserFeedback' call is a no-op.",
-      );
-      return;
-    }
-    if (userFeedback.eventId == SentryId.empty()) {
-      _options.logger(
-        SentryLevel.warning,
-        'Captured UserFeedback with empty id, dropping the feedback',
-      );
-      return;
-    }
-    try {
-      final item = _peek();
-
-      await item.client.captureUserFeedback(userFeedback);
-    } catch (exception, stacktrace) {
-      _options.logger(
-        SentryLevel.error,
-        'Error while capturing user feedback for ${userFeedback.eventId}',
-        exception: exception,
-        stackTrace: stacktrace,
-      );
-      if (_options.automatedTestMode) {
-        rethrow;
-      }
-    }
-  }
-
   /// Captures the feedback.
   Future<SentryId> captureFeedback(
     SentryFeedback feedback, {
@@ -488,10 +453,7 @@ class Hub {
         SentryLevel.warning,
         "Instance is disabled and this 'startTransaction' call is a no-op.",
       );
-    } else if (!_options.isTracingEnabled()) {
-      final item = _peek();
-      item.scope.propagationContext = PropagationContext();
-    } else {
+    } else if (_options.isTracingEnabled()) {
       final item = _peek();
 
       // if transactionContext has no sampled decision, run the traces sampler
@@ -500,15 +462,11 @@ class Hub {
         final samplingContext = SentrySamplingContext(
             transactionContext, customSamplingContext ?? {});
         samplingDecision = _tracesSampler.sample(samplingContext);
-        transactionContext =
-            transactionContext.copyWith(samplingDecision: samplingDecision);
+        transactionContext.samplingDecision = samplingDecision;
       }
 
-      if (transactionContext.origin == null) {
-        transactionContext = transactionContext.copyWith(
-          origin: SentryTraceOrigins.manual,
-        );
-      }
+      transactionContext.origin ??= SentryTraceOrigins.manual;
+      transactionContext.traceId = scope.propagationContext.traceId;
 
       SentryProfiler? profiler;
       if (_profilerFactory != null &&
@@ -536,6 +494,11 @@ class Hub {
     return NoOpSentrySpan();
   }
 
+  @internal
+  void generateNewTraceId() {
+    scope.propagationContext.traceId = SentryId.newId();
+  }
+
   /// Gets the current active transaction or span.
   ISentrySpan? getSpan() {
     ISentrySpan? span;
@@ -557,6 +520,7 @@ class Hub {
   Future<SentryId> captureTransaction(
     SentryTransaction transaction, {
     SentryTraceContextHeader? traceContext,
+    Hint? hint,
   }) async {
     var sentryId = SentryId.empty();
 
@@ -598,6 +562,7 @@ class Hub {
             transaction,
             scope: item.scope,
             traceContext: traceContext,
+            hint: hint,
           );
         } catch (exception, stackTrace) {
           _options.logger(
@@ -644,9 +609,7 @@ class Hub {
         );
 
         // set transaction name to event.transaction
-        if (event.transaction == null) {
-          event = event.copyWith(transaction: pair.value);
-        }
+        event.transaction ??= pair.value;
       }
     }
     return event;

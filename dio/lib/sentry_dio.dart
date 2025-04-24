@@ -1,4 +1,4 @@
-library sentry_dio;
+library;
 
 export 'src/sentry_dio_extension.dart';
 

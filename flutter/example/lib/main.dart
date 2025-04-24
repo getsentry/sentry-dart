@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
+import 'package:drift/drift.dart' show ApplyInterceptor;
 import 'package:feedback/feedback.dart' as feedback;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -78,21 +79,16 @@ Future<void> setupSentry(
       // We can enable Sentry debug logging during development. This is likely
       // going to log too much for your app, but can be useful when figuring out
       // configuration issues, e.g. finding out why your events are not uploaded.
+      options.diagnosticLevel = SentryLevel.debug;
       options.debug = kDebugMode;
       options.spotlight = Spotlight(enabled: true);
       options.enableTimeToFullDisplayTracing = true;
-      options.enableSentryJs = true;
 
       options.maxRequestBodySize = MaxRequestBodySize.always;
-      options.maxResponseBodySize = MaxResponseBodySize.always;
       options.navigatorKey = navigatorKey;
 
-      options.experimental.replay.sessionSampleRate = 1.0;
-      options.experimental.replay.onErrorSampleRate = 1.0;
-
-      // This has a side-effect of creating the default privacy configuration,
-      // thus enabling Screenshot masking. No need to actually change it.
-      options.experimental.privacy;
+      options.replay.sessionSampleRate = 1.0;
+      options.replay.onErrorSampleRate = 1.0;
 
       _isIntegrationTest = isIntegrationTest;
       if (_isIntegrationTest) {
@@ -346,18 +342,13 @@ class MainScaffold extends StatelessWidget {
             ),
             TooltipButton(
               onPressed: () {
-                // Only usable on Flutter >= 3.3
-                // and needs the following additional setup:
-                // options.addIntegration(OnErrorIntegration());
-                (WidgetsBinding.instance.platformDispatcher as dynamic)
-                    .onError
-                    ?.call(
-                      Exception('PlatformDispatcher.onError'),
-                      StackTrace.current,
-                    );
+                WidgetsBinding.instance.platformDispatcher.onError?.call(
+                  Exception('PlatformDispatcher.onError'),
+                  StackTrace.current,
+                );
               },
               text:
-                  'This is only usable on Flutter >= 3.3 and requires additional setup: options.addIntegration(OnErrorIntegration());',
+                  'This requires additional setup: options.addIntegration(OnErrorIntegration());',
               buttonTitle: 'Capture from PlatformDispatcher.onError',
             ),
             TooltipButton(
@@ -660,11 +651,8 @@ class MainScaffold extends StatelessWidget {
       bindToScope: true,
     );
 
-    // ignore: deprecated_member_use
-    final executor = SentryQueryExecutor(
-      () async => inMemoryExecutor(),
-      databaseName: 'sentry_in_memory_db',
-    );
+    final executor = inMemoryExecutor().interceptWith(
+        SentryQueryInterceptor(databaseName: 'sentry_in_memory_db'));
 
     final db = AppDatabase(executor);
 
@@ -680,17 +668,6 @@ class MainScaffold extends StatelessWidget {
     await db.close();
 
     await tr.finish(status: const SpanStatus.ok());
-  }
-}
-
-extension BuildContextExtension on BuildContext {
-  bool get isMounted {
-    try {
-      return (this as dynamic).mounted;
-    } on NoSuchMethodError catch (_) {
-      // ignore, only available in newer Flutter versions
-    }
-    return true;
   }
 }
 
@@ -717,7 +694,7 @@ class AndroidExample extends StatelessWidget {
         onPressed: () async {
           await execute('anr');
         },
-        child: const Text('ANR: UI blocked 6 seconds'),
+        child: const Text('ANR: Block UI 10s (Press until dialog appears)'),
       ),
       ElevatedButton(
         onPressed: () async {
@@ -747,7 +724,7 @@ void navigateToAutoCloseScreen(BuildContext context) {
     MaterialPageRoute(
       settings: const RouteSettings(name: 'AutoCloseScreen'),
       // ignore: deprecated_member_use
-      builder: (context) => SentryDisplayWidget(child: const AutoCloseScreen()),
+      builder: (context) => const AutoCloseScreen(),
     ),
   );
 }

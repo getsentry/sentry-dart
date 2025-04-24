@@ -1,7 +1,6 @@
 @TestOn('vm')
-library flutter_test;
+library;
 
-import 'dart:async';
 import 'dart:core';
 import 'dart:ui';
 
@@ -114,47 +113,6 @@ void main() {
       await Future<void>.delayed(Duration(milliseconds: 10));
 
       expect(fixture.frameCallbackHandler.timingsCallback, isNull);
-    });
-
-    test('with disabled auto app start waits until appStartEnd is set',
-        () async {
-      // ignore: deprecated_member_use_from_same_package
-      fixture.options.autoAppStart = false;
-
-      fixture.callIntegration();
-      final timingsCallback = fixture.frameCallbackHandler.timingsCallback!;
-      timingsCallback([_fakeFrameTiming]);
-
-      expect(fixture.nativeAppStartHandler.calls, 0);
-
-      final appStartEnd = DateTime.fromMicrosecondsSinceEpoch(50);
-      fixture.sut.appStartEnd = appStartEnd;
-
-      await Future<void>.delayed(Duration(milliseconds: 10));
-
-      expect(fixture.frameCallbackHandler.timingsCallback, isNull);
-      expect(fixture.nativeAppStartHandler.calls, 1);
-      expect(fixture.nativeAppStartHandler.appStartEnd, appStartEnd);
-    });
-
-    test('with disabled auto app start waits until timeout', () async {
-      // ignore: deprecated_member_use_from_same_package
-      fixture.options.autoAppStart = false;
-
-      fixture.callIntegration();
-      final timingsCallback = fixture.frameCallbackHandler.timingsCallback!;
-      await expectLater(
-        () => timingsCallback([_fakeFrameTiming]),
-        throwsA(isA<TimeoutException>()),
-      );
-
-      expect(fixture.nativeAppStartHandler.calls, 0);
-
-      await Future<void>.delayed(Duration(seconds: 11));
-
-      expect(fixture.frameCallbackHandler.timingsCallback, isNull);
-      expect(fixture.nativeAppStartHandler.calls, 0);
-      expect(fixture.nativeAppStartHandler.appStartEnd, null);
     });
   });
 }

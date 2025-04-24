@@ -1,5 +1,5 @@
 @TestOn('vm')
-library flutter_test;
+library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
@@ -62,7 +62,8 @@ void main() {
       fixture.options.enableScopeSync = true;
       fixture.options.beforeBreadcrumb = (breadcrumb, hint) {
         if (breadcrumb?.message == 'native-mutated') {
-          return breadcrumb?.copyWith(message: 'native-mutated-applied');
+          breadcrumb?.message = 'native-mutated-applied';
+          return breadcrumb;
         } else {
           return null;
         }
@@ -162,7 +163,7 @@ void main() {
       const expectedId = '1';
       String? actualId;
 
-      fixture.options.beforeSendTransaction = (transaction) {
+      fixture.options.beforeSendTransaction = (transaction, hint) {
         actualIp = transaction.user?.ipAddress;
         actualId = transaction.user?.id;
         return transaction;
@@ -197,7 +198,7 @@ void main() {
       const expectedId = '1';
       String? actualId;
 
-      fixture.options.beforeSendTransaction = (transaction) {
+      fixture.options.beforeSendTransaction = (transaction, hint) {
         actualIp = transaction.user?.ipAddress;
         actualId = transaction.user?.id;
         return transaction;

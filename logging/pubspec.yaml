@@ -1,13 +1,13 @@
 name: sentry_logging
 description: An integration which adds support for recording log from the logging package.
-version: 8.14.2
+version: 9.0.0-alpha.2
 homepage: https://docs.sentry.io/platforms/dart/
 repository: https://github.com/getsentry/sentry-dart
 issue_tracker: https://github.com/getsentry/sentry-dart/issues
 documentation: https://docs.sentry.io/platforms/dart/integrations/logging/
 
 environment:
-  sdk: '>=2.17.0 <4.0.0'
+  sdk: '>=3.5.0 <4.0.0'
 
 platforms:
   android:
@@ -19,7 +19,7 @@ platforms:
 
 dependencies:
   logging: ^1.0.0
-  sentry: 8.14.2
+  sentry: 9.0.0-alpha.2
 
 dev_dependencies:
   lints: '>=2.0.0'

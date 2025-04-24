@@ -5,10 +5,10 @@
 import 'dart:io';
 
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/platform/mock_platform.dart';
 import 'package:sentry_file/sentry_file.dart';
 import 'package:test/test.dart';
 
-import 'mock_platform_checker.dart';
 import 'mock_sentry_client.dart';
 
 void main() {
@@ -55,7 +55,7 @@ class Fixture {
     bool isWeb = false,
   }) {
     options.tracesSampleRate = tracesSampleRate;
-    options.platformChecker = MockPlatformChecker(isWeb);
+    options.platform = MockPlatform(isWeb: isWeb);
 
     hub = Hub(options);
 

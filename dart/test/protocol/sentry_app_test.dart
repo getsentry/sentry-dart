@@ -70,7 +70,7 @@ void main() {
   group('copyWith', () {
     test('copyWith keeps unchanged', () {
       final data = sentryApp;
-
+      // ignore: deprecated_member_use_from_same_package
       final copy = data.copyWith();
 
       expect(
@@ -83,7 +83,7 @@ void main() {
       final data = sentryApp;
 
       final startTime = DateTime.now();
-
+      // ignore: deprecated_member_use_from_same_package
       final copy = data.copyWith(
         name: 'name1',
         version: 'version1',

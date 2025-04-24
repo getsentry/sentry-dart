@@ -4,32 +4,33 @@ import '../protocol.dart';
 import 'access_aware_map.dart';
 
 /// The Exception Interface specifies an exception or error that occurred in a program.
-@immutable
 class SentryException {
   /// Required. The type of exception
-  final String? type;
+  String? type;
 
   /// Required. The value of the exception
-  final String? value;
+  String? value;
 
   /// The optional module, or package which the exception type lives in.
-  final String? module;
+  String? module;
 
   /// An optional stack trace object
-  final SentryStackTrace? stackTrace;
+  SentryStackTrace? stackTrace;
 
   /// An optional object describing the [Mechanism] that created this exception
-  final Mechanism? mechanism;
+  Mechanism? mechanism;
 
   /// Represents a [SentryThread.id].
-  final int? threadId;
+  int? threadId;
 
-  final dynamic throwable;
+  dynamic throwable;
 
   @internal
-  final Map<String, dynamic>? unknown;
+  Map<String, dynamic>? unknown;
 
-  const SentryException({
+  List<SentryException>? _exceptions;
+
+  SentryException({
     required this.type,
     required this.value,
     this.module,
@@ -73,6 +74,7 @@ class SentryException {
     };
   }
 
+  @Deprecated('Assign values directly to the instance.')
   SentryException copyWith({
     String? type,
     String? value,
@@ -86,10 +88,25 @@ class SentryException {
         type: type ?? this.type,
         value: value ?? this.value,
         module: module ?? this.module,
-        stackTrace: stackTrace ?? this.stackTrace,
-        mechanism: mechanism ?? this.mechanism,
+        stackTrace: stackTrace ?? this.stackTrace?.copyWith(),
+        mechanism: mechanism ?? this.mechanism?.copyWith(),
         threadId: threadId ?? this.threadId,
         throwable: throwable ?? this.throwable,
         unknown: unknown,
       );
+
+  @internal
+  List<SentryException>? get exceptions =>
+      _exceptions != null ? List.unmodifiable(_exceptions!) : null;
+
+  @internal
+  set exceptions(List<SentryException>? value) {
+    _exceptions = value;
+  }
+
+  @internal
+  void addException(SentryException exception) {
+    _exceptions ??= [];
+    _exceptions!.add(exception);
+  }
 }

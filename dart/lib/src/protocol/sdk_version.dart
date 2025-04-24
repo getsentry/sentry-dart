@@ -33,7 +33,6 @@ import 'access_aware_map.dart';
 ///   ]
 /// }
 /// ```
-@immutable
 class SdkVersion {
   /// Creates an [SdkVersion] object which represents the SDK that created an [Event].
   SdkVersion({
@@ -48,17 +47,17 @@ class SdkVersion {
         _packages = List.from(packages ?? []);
 
   /// The name of the SDK.
-  final String name;
+  String name;
 
   /// The version of the SDK.
-  final String version;
+  String version;
 
-  final List<String> _integrations;
+  List<String> _integrations;
 
   /// An immutable list of integrations enabled in the SDK that created the [Event].
   List<String> get integrations => List.unmodifiable(_integrations);
 
-  final List<SentryPackage> _packages;
+  List<SentryPackage> _packages;
 
   /// An immutable list of packages that compose this SDK.
   List<SentryPackage> get packages => List.unmodifiable(_packages);
@@ -71,6 +70,7 @@ class SdkVersion {
     final json = AccessAwareMap(data);
     final packagesJson = json['packages'] as List<dynamic>?;
     final integrationsJson = json['integrations'] as List<dynamic>?;
+
     return SdkVersion(
       name: json['name'],
       version: json['version'],
@@ -114,6 +114,7 @@ class SdkVersion {
     _integrations.add(integration);
   }
 
+  @Deprecated('Assign values directly to the instance.')
   SdkVersion copyWith({
     String? name,
     String? version,

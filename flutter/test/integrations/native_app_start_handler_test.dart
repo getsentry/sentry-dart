@@ -1,5 +1,5 @@
 @TestOn('vm')
-library flutter_test;
+library;
 
 import 'package:collection/collection.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -83,7 +83,7 @@ void main() {
         appStartEnd: DateTime.fromMillisecondsSinceEpoch(10),
       );
 
-      final transaction = fixture.capturedTransaction().copyWith();
+      final transaction = fixture.capturedTransaction();
 
       final measurement = transaction.measurements['time_to_initial_display']!;
       expect(measurement.value, 10);
@@ -95,7 +95,7 @@ void main() {
         appStartEnd: DateTime.fromMillisecondsSinceEpoch(10),
       );
 
-      final transaction = fixture.capturedTransaction().copyWith();
+      final transaction = fixture.capturedTransaction();
 
       final measurement = transaction.measurements['time_to_full_display'];
       expect(measurement, isNull);
@@ -114,7 +114,7 @@ void main() {
         appStartEnd: DateTime.fromMillisecondsSinceEpoch(10),
       );
 
-      final transaction = fixture.capturedTransaction().copyWith();
+      final transaction = fixture.capturedTransaction();
 
       final measurement = transaction.measurements['time_to_full_display'];
       expect(measurement, isNotNull);

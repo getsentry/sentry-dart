@@ -11,52 +11,51 @@ import 'access_aware_map.dart';
 /// Native debug images with types macho, elf, and pe
 /// Android debug images with type proguard
 /// more details : https://develop.sentry.dev/sdk/event-payloads/debugmeta/
-@immutable
 class DebugImage {
-  final String? uuid;
+  String? uuid;
 
   /// Required. Type of the debug image.
-  final String type;
+  String type;
 
   // Name of the image. Sentry-cocoa only.
-  final String? name;
+  String? name;
 
   /// Required. Identifier of the dynamic library or executable. It is the value of the LC_UUID load command in the Mach header, formatted as UUID.
-  final String? debugId;
+  String? debugId;
 
   /// Required. Memory address, at which the image is mounted in the virtual address space of the process.
   /// Should be a string in hex representation prefixed with "0x".
-  final String? imageAddr;
+  String? imageAddr;
 
   /// Optional. Preferred load address of the image in virtual memory, as declared in the headers of the image.
   /// When loading an image, the operating system may still choose to place it at a different address.
-  final String? imageVmAddr;
+  String? imageVmAddr;
 
   /// Required. The size of the image in virtual memory. If missing, Sentry will assume that the image spans up to the next image, which might lead to invalid stack traces.
-  final int? imageSize;
+  int? imageSize;
 
   /// OptionalName or absolute path to the dSYM file containing debug information for this image. This value might be required to retrieve debug files from certain symbol servers.
-  final String? debugFile;
+  String? debugFile;
 
   /// Optional. The absolute path to the dynamic library or executable. This helps to locate the file if it is missing on Sentry.
-  final String? codeFile;
+  String? codeFile;
 
   /// Optional Architecture of the module. If missing, this will be backfilled by Sentry.
-  final String? arch;
+  String? arch;
 
   /// Optional. Identifier of the dynamic library or executable. It is the value of the LC_UUID load command in the Mach header, formatted as UUID. Can be empty for Mach images, as it is equivalent to the debug identifier.
-  final String? codeId;
+  String? codeId;
 
   /// MachO CPU subtype identifier.
-  final int? cpuSubtype;
+  int? cpuSubtype;
 
   /// MachO CPU type identifier.
-  final int? cpuType;
+  int? cpuType;
 
   @internal
   final Map<String, dynamic>? unknown;
 
-  const DebugImage({
+  DebugImage({
     required this.type,
     this.name,
     this.imageAddr,
@@ -114,6 +113,7 @@ class DebugImage {
     };
   }
 
+  @Deprecated('Assign values directly to the instance.')
   DebugImage copyWith({
     String? uuid,
     String? name,

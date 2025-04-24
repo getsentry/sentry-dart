@@ -1,16 +1,17 @@
 @Tags(['canvasKit']) // Web renderer where this test can run
-library flutter_test;
+library;
 
 import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sentry/src/platform/mock_platform.dart';
 import 'package:sentry_flutter/src/event_processor/screenshot_event_processor.dart';
 import 'package:sentry_flutter/src/renderer/renderer.dart';
-import '../mocks.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
+import '../mocks.dart';
 import '../replay/replay_test_util.dart';
 
 void main() {
@@ -64,7 +65,7 @@ void main() {
 
   testWidgets('adds screenshot attachment with masking enabled dart:io',
       (tester) async {
-    fixture.options.experimental.privacy.maskAllText = true;
+    fixture.options.privacy.maskAllText = true;
     await _addScreenshotAttachment(tester, null, added: true, isWeb: false);
   });
 
@@ -131,96 +132,6 @@ void main() {
       await sut.apply(feedbackEvent, hint);
 
       expect(hint.screenshot, isNull);
-    });
-  });
-
-  group('beforeScreenshot', () {
-    testWidgets('does add screenshot if beforeScreenshot returns true',
-        (tester) async {
-      // ignore: deprecated_member_use_from_same_package
-      fixture.options.beforeScreenshot = (SentryEvent event, {Hint? hint}) {
-        return true;
-      };
-      await _addScreenshotAttachment(tester, FlutterRenderer.canvasKit,
-          added: true, isWeb: false);
-    });
-
-    testWidgets('does add screenshot if async beforeScreenshot returns true',
-        (tester) async {
-      // ignore: deprecated_member_use_from_same_package
-      fixture.options.beforeScreenshot =
-          (SentryEvent event, {Hint? hint}) async {
-        await Future<void>.delayed(Duration(milliseconds: 1));
-        return true;
-      };
-      await _addScreenshotAttachment(tester, FlutterRenderer.canvasKit,
-          added: true, isWeb: false);
-    });
-
-    testWidgets('does not add screenshot if beforeScreenshot returns false',
-        (tester) async {
-      // ignore: deprecated_member_use_from_same_package
-      fixture.options.beforeScreenshot = (SentryEvent event, {Hint? hint}) {
-        return false;
-      };
-      await _addScreenshotAttachment(tester, FlutterRenderer.canvasKit,
-          added: false, isWeb: false);
-    });
-
-    testWidgets(
-        'does not add screenshot if async beforeScreenshot returns false',
-        (tester) async {
-      // ignore: deprecated_member_use_from_same_package
-      fixture.options.beforeScreenshot =
-          (SentryEvent event, {Hint? hint}) async {
-        await Future<void>.delayed(Duration(milliseconds: 1));
-        return false;
-      };
-      await _addScreenshotAttachment(tester, FlutterRenderer.canvasKit,
-          added: false, isWeb: false);
-    });
-
-    testWidgets('does add screenshot if beforeScreenshot throws',
-        (tester) async {
-      fixture.options.automatedTestMode = false;
-      // ignore: deprecated_member_use_from_same_package
-      fixture.options.beforeScreenshot = (SentryEvent event, {Hint? hint}) {
-        throw Error();
-      };
-      await _addScreenshotAttachment(tester, FlutterRenderer.canvasKit,
-          added: true, isWeb: false);
-    });
-
-    testWidgets('does add screenshot if async beforeScreenshot throws',
-        (tester) async {
-      fixture.options.automatedTestMode = false;
-      // ignore: deprecated_member_use_from_same_package
-      fixture.options.beforeScreenshot =
-          (SentryEvent event, {Hint? hint}) async {
-        await Future<void>.delayed(Duration(milliseconds: 1));
-        throw Error();
-      };
-      await _addScreenshotAttachment(tester, FlutterRenderer.canvasKit,
-          added: true, isWeb: false);
-    });
-
-    testWidgets('passes event & hint to beforeScreenshot callback',
-        (tester) async {
-      SentryEvent? beforeScreenshotEvent;
-      Hint? beforeScreenshotHint;
-
-      // ignore: deprecated_member_use_from_same_package
-      fixture.options.beforeScreenshot = (SentryEvent event, {Hint? hint}) {
-        beforeScreenshotEvent = event;
-        beforeScreenshotHint = hint;
-        return true;
-      };
-
-      await _addScreenshotAttachment(tester, FlutterRenderer.canvasKit,
-          added: true, isWeb: false);
-
-      expect(beforeScreenshotEvent, event);
-      expect(beforeScreenshotHint, hint);
     });
   });
 
@@ -439,7 +350,7 @@ class Fixture {
   ScreenshotEventProcessor getSut(
       FlutterRenderer? flutterRenderer, bool isWeb) {
     options.rendererWrapper = MockRendererWrapper(flutterRenderer);
-    options.platformChecker = MockPlatformChecker(isWebValue: isWeb);
+    options.platform = MockPlatform(isWeb: isWeb);
     return ScreenshotEventProcessor(options);
   }
 }

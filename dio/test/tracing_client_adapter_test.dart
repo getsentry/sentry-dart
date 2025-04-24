@@ -22,6 +22,33 @@ void main() {
       fixture = Fixture();
     });
 
+    test('should add sdk integration on init when tracing is enabled',
+        () async {
+      fixture.getSut(
+        client: fixture.getClient(statusCode: 200, reason: 'OK'),
+      );
+
+      expect(fixture._hub.options.isTracingEnabled(), isTrue);
+      expect(
+        fixture._hub.options.sdk.integrations,
+        contains(TracingClientAdapter.integrationName),
+      );
+    });
+
+    test('should not add sdk integration on init when tracing is disabled',
+        () async {
+      fixture._hub.options.tracesSampleRate = null;
+      fixture.getSut(
+        client: fixture.getClient(statusCode: 200, reason: 'OK'),
+      );
+
+      expect(fixture._hub.options.isTracingEnabled(), isFalse);
+      expect(
+        fixture._hub.options.sdk.integrations,
+        isNot(contains(TracingClientAdapter.integrationName)),
+      );
+    });
+
     test('captured span if successful request', () async {
       final sut = fixture.getSut(
         client:
@@ -104,7 +131,8 @@ void main() {
       expect((exception as DioError).error, isA<TestException>());
     });
 
-    test('captured span adds sentry-trace header to the request', () async {
+    test('should add tracing headers from span when tracing is enabled',
+        () async {
       final sut = fixture.getSut(
         client: fixture.getClient(statusCode: 200, reason: 'OK'),
       );
@@ -120,11 +148,95 @@ void main() {
 
       final tracer = (tr as SentryTracer);
       final span = tracer.children.first;
+      final baggageHeader = span.toBaggageHeader();
+      final sentryTraceHeader = span.toSentryTrace();
 
       expect(
-        response.headers['sentry-trace'],
-        <String>[span.toSentryTrace().value],
+        response.headers[baggageHeader!.name],
+        <String>[baggageHeader.value],
       );
+      expect(
+        response.headers[sentryTraceHeader.name],
+        <String>[sentryTraceHeader.value],
+      );
+    });
+
+    test(
+        'should add tracing headers from propagation context when tracing is disabled',
+        () async {
+      fixture._options.tracesSampleRate = null;
+      fixture._options.tracesSampler = null;
+      final sut = fixture.getSut(
+        client: fixture.getClient(statusCode: 200, reason: 'OK'),
+      );
+      final propagationContext = fixture._hub.scope.propagationContext;
+      propagationContext.baggage = SentryBaggage({'foo': 'bar'});
+
+      final response = await sut.get<dynamic>(requestOptions);
+
+      final baggageHeader = propagationContext.toBaggageHeader();
+      final sentryTraceHeader = propagationContext.toSentryTrace();
+
+      expect(propagationContext.toBaggageHeader(), isNotNull);
+      expect(
+        response.headers[baggageHeader!.name],
+        <String>[baggageHeader.value],
+      );
+      expect(
+        response.headers[sentryTraceHeader.name],
+        <String>[sentryTraceHeader.value],
+      );
+    });
+
+    test(
+        'should not add tracing headers when URL does not match tracePropagationTargets with tracing enabled',
+        () async {
+      final sut = fixture.getSut(
+        client: fixture.getClient(
+          statusCode: 200,
+          reason: 'OK',
+        ),
+        tracePropagationTargets: ['nope'],
+      );
+      final tr = fixture._hub.startTransaction(
+        'name',
+        'op',
+        bindToScope: true,
+      );
+
+      final response = await sut.get<dynamic>(requestOptions);
+
+      await tr.finish();
+
+      final tracer = (tr as SentryTracer);
+      final span = tracer.children.first;
+      final baggageHeader = span.toBaggageHeader();
+      final sentryTraceHeader = span.toSentryTrace();
+
+      expect(response.headers[baggageHeader!.name], isNull);
+      expect(response.headers[sentryTraceHeader.name], isNull);
+    });
+
+    test(
+        'should not add tracing headers when URL does not match tracePropagationTargets with tracing disabled',
+        () async {
+      final sut = fixture.getSut(
+        client: fixture.getClient(
+          statusCode: 200,
+          reason: 'OK',
+        ),
+        tracePropagationTargets: ['nope'],
+      );
+      final propagationContext = fixture._hub.scope.propagationContext;
+      propagationContext.baggage = SentryBaggage({'foo': 'bar'});
+
+      final response = await sut.get<dynamic>(requestOptions);
+
+      final baggageHeader = propagationContext.toBaggageHeader();
+      final sentryTraceHeader = propagationContext.toSentryTrace();
+
+      expect(response.headers[baggageHeader!.name], isNull);
+      expect(response.headers[sentryTraceHeader.name], isNull);
     });
 
     test('do not throw if no span bound to the scope', () async {
@@ -133,42 +245,6 @@ void main() {
       );
 
       await sut.get<dynamic>(requestOptions);
-    });
-
-    test('set headers from propagationContext when tracing is disabled',
-        () async {
-      fixture._options.enableTracing = false;
-      final sut = fixture.getSut(
-        client: fixture.getClient(statusCode: 200, reason: 'OK'),
-      );
-
-      final propagationContext = fixture._hub.scope.propagationContext;
-      propagationContext.baggage = SentryBaggage({'foo': 'bar'});
-
-      final response = await sut.get<dynamic>(requestOptions);
-
-      expect(
-        response.headers['sentry-trace'],
-        [propagationContext.toSentryTrace().value],
-      );
-      expect(response.headers['baggage'], ['foo=bar']);
-    });
-
-    test('set headers from propagationContext when no transaction', () async {
-      final sut = fixture.getSut(
-        client: fixture.getClient(statusCode: 200, reason: 'OK'),
-      );
-
-      final propagationContext = fixture._hub.scope.propagationContext;
-      propagationContext.baggage = SentryBaggage({'foo': 'bar'});
-
-      final response = await sut.get<dynamic>(requestOptions);
-
-      expect(
-        response.headers['sentry-trace'],
-        [propagationContext.toSentryTrace().value],
-      );
-      expect(response.headers['baggage'], ['foo=bar']);
     });
   });
 }
@@ -192,9 +268,16 @@ class Fixture {
     _hub = Hub(_options);
   }
 
-  Dio getSut({MockHttpClientAdapter? client}) {
+  Dio getSut({
+    MockHttpClientAdapter? client,
+    List<String>? tracePropagationTargets,
+  }) {
     final mc = client ?? getClient();
     final dio = Dio(BaseOptions(baseUrl: 'https://example.com'));
+    if (tracePropagationTargets != null) {
+      _hub.options.tracePropagationTargets.clear();
+      _hub.options.tracePropagationTargets.addAll(tracePropagationTargets);
+    }
     dio.httpClientAdapter = TracingClientAdapter(
       client: mc,
       hub: _hub,

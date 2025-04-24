@@ -1,13 +1,14 @@
 import 'package:http/http.dart';
+
 import '../hint.dart';
-import '../type_check_hint.dart';
-import '../utils/tracing_utils.dart';
-import 'sentry_http_client_error.dart';
-import '../protocol.dart';
 import '../hub.dart';
 import '../hub_adapter.dart';
+import '../protocol.dart';
 import '../throwable_mechanism.dart';
+import '../type_check_hint.dart';
+import '../utils/tracing_utils.dart';
 import 'sentry_http_client.dart';
+import 'sentry_http_client_error.dart';
 
 /// A [http](https://pub.dev/packages/http)-package compatible HTTP client
 /// which records events for failed requests.
@@ -177,11 +178,6 @@ class FailedRequestClient extends BaseClient {
       headers: _hub.options.sendDefaultPii ? request.headers : null,
       uri: request.url,
       data: _hub.options.sendDefaultPii ? _getDataFromRequest(request) : null,
-      // ignore: deprecated_member_use_from_same_package
-      other: {
-        'content_length': request.contentLength.toString(),
-        'duration': requestDuration.toString(),
-      },
     );
 
     final mechanism = Mechanism(

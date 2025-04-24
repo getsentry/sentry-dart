@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 
@@ -13,7 +15,6 @@ class MockHub with NoSuchMethodProvider implements Hub {
   List<SentryClient?> bindClientCalls = [];
 
   // ignore: deprecated_member_use_from_same_package
-  List<SentryUserFeedback> userFeedbackCalls = [];
   List<CaptureTransactionCall> captureTransactionCalls = [];
   int closeCalls = 0;
   bool _isEnabled = true;
@@ -22,9 +23,15 @@ class MockHub with NoSuchMethodProvider implements Hub {
 
   final _options = defaultTestOptions();
 
+  late Scope _scope;
+
   @override
   @internal
   SentryOptions get options => _options;
+
+  MockHub() {
+    _scope = Scope(_options);
+  }
 
   /// Useful for tests.
   void reset() {
@@ -38,6 +45,7 @@ class MockHub with NoSuchMethodProvider implements Hub {
     spanContextCals = 0;
     captureTransactionCalls = [];
     getSpanCalls = 0;
+    _scope = Scope(_options);
   }
 
   @override
@@ -112,16 +120,11 @@ class MockHub with NoSuchMethodProvider implements Hub {
   Future<SentryId> captureTransaction(
     SentryTransaction transaction, {
     SentryTraceContextHeader? traceContext,
+    Hint? hint,
   }) async {
     captureTransactionCalls
-        .add(CaptureTransactionCall(transaction, traceContext));
+        .add(CaptureTransactionCall(transaction, traceContext, hint));
     return transaction.eventId;
-  }
-
-  @override
-  // ignore: deprecated_member_use_from_same_package
-  Future<void> captureUserFeedback(SentryUserFeedback userFeedback) async {
-    userFeedbackCalls.add(userFeedback);
   }
 
   @override
@@ -136,7 +139,7 @@ class MockHub with NoSuchMethodProvider implements Hub {
   }
 
   @override
-  Scope get scope => Scope(_options);
+  Scope get scope => _scope;
 }
 
 class CaptureEventCall {

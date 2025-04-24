@@ -14,8 +14,6 @@ void main() {
     headers: {'header_key': 'header_value'},
     env: {'env_key': 'env_value'},
     apiTarget: 'GraphQL',
-    // ignore: deprecated_member_use_from_same_package
-    other: {'other_key': 'other_value'},
     unknown: testUnknown,
   );
 
@@ -28,7 +26,6 @@ void main() {
     'headers': {'header_key': 'header_value'},
     'env': {'env_key': 'env_value'},
     'api_target': 'GraphQL',
-    'other': {'other_key': 'other_value'},
   };
   sentryRequestJson.addAll(testUnknown);
 
@@ -55,7 +52,7 @@ void main() {
   group('copyWith', () {
     test('copyWith keeps unchanged', () {
       final data = sentryRequest;
-
+      // ignore: deprecated_member_use_from_same_package
       final copy = data.copyWith();
 
       expect(
@@ -66,7 +63,7 @@ void main() {
 
     test('copyWith takes new values', () {
       final data = sentryRequest;
-
+      // ignore: deprecated_member_use_from_same_package
       final copy = data.copyWith(
         url: 'url1',
         method: 'method1',

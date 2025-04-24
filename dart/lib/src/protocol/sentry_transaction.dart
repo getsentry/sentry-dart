@@ -5,7 +5,6 @@ import '../sentry_measurement.dart';
 import '../sentry_tracer.dart';
 import '../utils.dart';
 
-@immutable
 class SentryTransaction extends SentryEvent {
   late final DateTime startTimestamp;
   static const String _type = 'transaction';
@@ -94,6 +93,7 @@ class SentryTransaction extends SentryEvent {
 
   bool get sampled => contexts.trace?.sampled == true;
 
+  @Deprecated('Assign values directly to the instance.')
   @override
   SentryTransaction copyWith({
     SentryId? eventId,

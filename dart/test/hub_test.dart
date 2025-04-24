@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/client_reports/discard_reason.dart';
+import 'package:sentry/src/propagation_context.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry/src/transport/data_category.dart';
 import 'package:test/test.dart';
@@ -33,9 +34,11 @@ void main() {
 
   group('Hub captures', () {
     late Fixture fixture;
+    late SentryEvent fakeEvent;
 
     setUp(() {
       fixture = Fixture();
+      fakeEvent = getFakeEvent();
     });
 
     test(
@@ -87,6 +90,8 @@ void main() {
 
     test('should capture message', () async {
       final hub = fixture.getSut();
+      final fakeMessage = getFakeMessage();
+
       await hub.captureMessage(
         fakeMessage.formatted,
         level: SentryLevel.warning,
@@ -395,6 +400,32 @@ void main() {
       expect(
           fixture.client.captureTransactionCalls.first.traceContext, context);
     });
+
+    test('captureTransaction hint is passed to client', () async {
+      final hub = fixture.getSut();
+
+      var hint = Hint();
+      var tr = SentryTransaction(fixture.tracer);
+      await hub.captureTransaction(tr, hint: hint);
+
+      expect(fixture.client.captureTransactionCalls.first.hint, hint);
+    });
+
+    test(
+        'startTransactionWithContext sets traceId from scope propagationContext',
+        () async {
+      final hub = fixture.getSut();
+
+      hub.scope.propagationContext = PropagationContext();
+      final tr1 = hub.startTransactionWithContext(fixture._context);
+      expect(tr1.traceContext()?.traceId, hub.scope.propagationContext.traceId);
+
+      hub.scope.propagationContext = PropagationContext();
+      final tr2 = hub.startTransactionWithContext(fixture._context);
+      expect(tr2.traceContext()?.traceId, hub.scope.propagationContext.traceId);
+
+      expect(tr1.traceContext()?.traceId, isNot(tr2.traceContext()?.traceId));
+    });
   });
 
   group('Hub profiles', () {
@@ -464,11 +495,15 @@ void main() {
   group('Hub scope', () {
     var hub = Hub(defaultTestOptions());
     var client = MockSentryClient();
+    late SentryEvent fakeEvent;
+    late SentryUser fakeUser;
 
     setUp(() {
       hub = Hub(defaultTestOptions());
       client = MockSentryClient();
       hub.bindClient(client);
+      fakeEvent = getFakeEvent();
+      fakeUser = getFakeUser();
     });
 
     test('returns scope', () async {
@@ -536,13 +571,24 @@ void main() {
         expect('test', scope.breadcrumbs.first.message);
       });
     });
+
+    test('generateNewTraceId creates new trace id in propagation context', () {
+      final oldTraceId = hub.scope.propagationContext.traceId;
+
+      hub.generateNewTraceId();
+
+      final newTraceId = hub.scope.propagationContext.traceId;
+      expect(oldTraceId, isNot(newTraceId));
+    });
   });
 
   group('Hub scope callback', () {
     late Fixture fixture;
+    late SentryEvent fakeEvent;
 
     setUp(() {
       fixture = Fixture();
+      fakeEvent = getFakeEvent();
     });
 
     test('captureEvent should handle thrown error in scope callback', () async {
@@ -615,9 +661,11 @@ void main() {
     late Hub hub;
     late SentryClient client;
     SentryOptions options;
+    late SentryEvent fakeEvent;
 
     setUp(() {
       options = defaultTestOptions();
+      fakeEvent = getFakeEvent();
       hub = Hub(options);
       client = MockSentryClient();
       hub.bindClient(client);

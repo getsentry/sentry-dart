@@ -88,7 +88,7 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabase;
 
-      var breadcrumb = Breadcrumb(
+      final breadcrumb = Breadcrumb(
         message: description,
         category: dbOp,
         data: {},
@@ -104,9 +104,7 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
         span?.throwable = exception;
         span?.status = SpanStatus.internalError();
         breadcrumb.data?['status'] = 'internal_error';
-        breadcrumb = breadcrumb.copyWith(
-          level: SentryLevel.warning,
-        );
+        breadcrumb.level = SentryLevel.warning;
 
         rethrow;
       } finally {
@@ -155,7 +153,7 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabase;
       setDatabaseAttributeData(span, dbName);
 
-      var breadcrumb = Breadcrumb(
+      final breadcrumb = Breadcrumb(
         message: description,
         category: _dbSqlTransactionOp,
         data: {},
@@ -188,9 +186,7 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
         span?.throwable = exception;
         span?.status = SpanStatus.internalError();
         breadcrumb.data?['status'] = 'internal_error';
-        breadcrumb = breadcrumb.copyWith(
-          level: SentryLevel.warning,
-        );
+        breadcrumb.level = SentryLevel.warning;
 
         rethrow;
       } finally {
@@ -216,7 +212,7 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabase;
       setDatabaseAttributeData(span, dbName);
 
-      var breadcrumb = Breadcrumb(
+      final breadcrumb = Breadcrumb(
         message: description,
         category: _dbSqlReadTransactionOp,
         data: {},
@@ -255,9 +251,7 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
         span?.throwable = exception;
         span?.status = SpanStatus.internalError();
         breadcrumb.data?['status'] = 'internal_error';
-        breadcrumb = breadcrumb.copyWith(
-          level: SentryLevel.warning,
-        );
+        breadcrumb.level = SentryLevel.warning;
 
         rethrow;
       } finally {

@@ -2,6 +2,7 @@
 
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
@@ -10,8 +11,10 @@ import 'package:sentry/src/sentry_tracer.dart';
 
 import '../../sentry_flutter.dart';
 import '../event_processor/flutter_enricher_event_processor.dart';
+import '../integrations/web_session_integration.dart';
 import '../native/native_frames.dart';
 import '../native/sentry_native_binding.dart';
+import '../web/web_session_handler.dart';
 import 'time_to_display_tracker.dart';
 import 'time_to_full_display_tracker.dart';
 
@@ -92,6 +95,11 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       _hub.options.sdk.addIntegration('UINavigationTracing');
     }
     _timeToDisplayTracker = _initializeTimeToDisplayTracker();
+    final webSessionIntegration = _hub.options.integrations
+        .whereType<WebSessionIntegration>()
+        .firstOrNull;
+    webSessionIntegration?.enable();
+    _webSessionHandler = webSessionIntegration?.webSessionHandler;
   }
 
   /// Initializes the TimeToDisplayTracker with the option to enable time to full display tracing.
@@ -113,6 +121,9 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   final SentryNativeBinding? _native;
   final List<String> _ignoreRoutes;
   TimeToDisplayTracker? _timeToDisplayTracker;
+  WebSessionHandler? _webSessionHandler;
+  @visibleForTesting
+  WebSessionHandler? get webSessionHandler => _webSessionHandler;
 
   ISentrySpan? _transaction;
 
@@ -141,6 +152,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       return;
     }
 
+    _hub.generateNewTraceId();
     _setCurrentRouteName(route);
     _setCurrentRouteNameAsTransaction(route);
 
@@ -149,6 +161,8 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       from: previousRoute?.settings,
       to: route.settings,
     );
+
+    _addWebSessions(from: previousRoute, to: route);
 
     // Clearing the display tracker here is safe since didPush happens before the Widget is built
     _timeToDisplayTracker?.clear();
@@ -167,6 +181,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       return;
     }
 
+    _hub.generateNewTraceId();
     _setCurrentRouteName(newRoute);
     _setCurrentRouteNameAsTransaction(newRoute);
 
@@ -175,6 +190,8 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       from: oldRoute?.settings,
       to: newRoute?.settings,
     );
+
+    _addWebSessions(from: oldRoute, to: newRoute);
   }
 
   @override
@@ -186,6 +203,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       return;
     }
 
+    _hub.generateNewTraceId();
     _setCurrentRouteName(previousRoute);
     _setCurrentRouteNameAsTransaction(previousRoute);
 
@@ -195,8 +213,17 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       to: previousRoute?.settings,
     );
 
+    _addWebSessions(from: route, to: previousRoute);
+
     final timestamp = _hub.options.clock();
     _finishTimeToDisplayTracking(endTimestamp: timestamp, clearAfter: true);
+  }
+
+  void _addWebSessions({Route<dynamic>? from, Route<dynamic>? to}) async {
+    final fromName = from != null ? _getRouteName(from) : null;
+    final toName = to != null ? _getRouteName(to) : null;
+
+    await _webSessionHandler?.startSession(from: fromName, to: toName);
   }
 
   void _addBreadcrumb({
