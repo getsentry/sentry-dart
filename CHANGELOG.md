@@ -24,7 +24,7 @@ Please carefully read through the migration guide in the Sentry docs on how to u
 - Remove old user feedback api ([#2686](https://github.com/getsentry/sentry-dart/pull/2686))
 - Remove deprecated loggers ([#2685](https://github.com/getsentry/sentry-dart/pull/2685))
 - Remove user segment ([#2687](https://github.com/getsentry/sentry-dart/pull/2687))
-- Enable JS SDK native integration by default ([#2688](https://github.com/getsentry/sentry-dart/pull/2688))
+- Enable Sentry JS SDK native integration by default ([#2688](https://github.com/getsentry/sentry-dart/pull/2688))
 - Remove `enableTracing` ([#2695](https://github.com/getsentry/sentry-dart/pull/2695))
 - Remove `options.autoAppStart` and `setAppStartEnd` ([#2680](https://github.com/getsentry/sentry-dart/pull/2680))
 - Bump Drift min version to `2.24.0` and use `QueryInterceptor` instead of `QueryExecutor` ([#2679](https://github.com/getsentry/sentry-dart/pull/2679))
