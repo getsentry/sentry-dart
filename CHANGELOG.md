@@ -4,7 +4,7 @@
 
 Version 9.0.0 marks a major release of the Sentry Dart/Flutter SDKs containing breaking changes.
 
-The goal of this release is to bump the minimum Dart and Flutter versions to `v3.5.0` and `v3.24.0` respectively, add interoperability with the Sentry Javascript SDK in Flutter Web, GA the [Session Replay](https://docs.sentry.io/product/explore/session-replay/) feature and trim down unused and potentially confusing APIs.
+The goal of this release is to bump the minimum Dart and Flutter versions to `3.5.0` and `3.24.0` respectively, add interoperability with the Sentry Javascript SDK in Flutter Web, GA the [Session Replay](https://docs.sentry.io/product/explore/session-replay/) feature and trim down unused and potentially confusing APIs.
 
 ### How To Upgrade
 
