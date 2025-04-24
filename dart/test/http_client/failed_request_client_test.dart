@@ -62,10 +62,6 @@ void main() {
       expect(request?.fragment, 'myFragment');
       expect(request?.cookies, isNull);
       expect(request?.headers, {});
-      // ignore: deprecated_member_use_from_same_package
-      expect(request?.other.keys.contains('duration'), true);
-      // ignore: deprecated_member_use_from_same_package
-      expect(request?.other.keys.contains('content_length'), true);
 
       // Response is not captured in case of exception
       expect(eventCall.contexts.response, isNull);
@@ -174,10 +170,6 @@ void main() {
       expect(request?.fragment, 'myFragment');
       expect(request?.cookies, isNull);
       expect(request?.headers, {});
-      // ignore: deprecated_member_use_from_same_package
-      expect(request?.other.keys.contains('duration'), true);
-      // ignore: deprecated_member_use_from_same_package
-      expect(request?.other.keys.contains('content_length'), true);
 
       final response = eventCall.contexts.response!;
       expect(response.bodySize, 3);
