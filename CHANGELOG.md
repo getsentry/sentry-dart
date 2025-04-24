@@ -4,7 +4,12 @@
 
 Version 9.0.0 marks a major release of the Sentry Dart/Flutter SDKs containing breaking changes.
 
-The goal of this release is to bump the minimum Dart and Flutter versions to `3.5.0` and `3.24.0` respectively, add interoperability with the Sentry Javascript SDK in Flutter Web, GA the [Session Replay](https://docs.sentry.io/product/explore/session-replay/) feature and trim down unused and potentially confusing APIs.
+The goal of this release is the following:
+ - bump the minimum Dart and Flutter versions to `3.5.0` and `3.24.0` respectively
+ - add interoperability with the Sentry Javascript SDK in Flutter Web for features such as release health and reporting native JS errors
+ - GA the [Session Replay](https://docs.sentry.io/product/explore/session-replay/) feature
+ - provide feature flag support as well as [Firebase Remote Config](https://firebase.google.com/docs/remote-config) support
+ - trim down unused and potentially confusing APIs
 
 ### How To Upgrade
 
@@ -51,7 +56,7 @@ Please carefully read through the migration guide in the Sentry docs on how to u
 // Manually track a feature flag
 Sentry.addFeatureFlag('my-feature', true);
 
-// or use the Sentry Firebase Integration (sentry_firebase_remote_config package is required)
+// or use the Sentry Firebase Remote Config Integration (sentry_firebase_remote_config package is required)
 // Add the integration to automatically track feature flags from firebase remote config.
 await SentryFlutter.init(
   (options) {
@@ -74,7 +79,9 @@ await SentryFlutter.init(
   - 5xx is mapped to `SentryLevel.error`
   - 4xx is mapped to `SentryLevel.warning`
 - Parent-child relationship for the PlatformExceptions and Cause ([#2803](https://github.com/getsentry/sentry-dart/pull/2803))
-  - Improves and changes exception grouping
+  - Improves and more accurately represent exception groups
+  - Disabled by default as it may cause issues to group differently
+  - You can enable this feature by setting `options.groupException = true`
 
 ### Improvements
 
