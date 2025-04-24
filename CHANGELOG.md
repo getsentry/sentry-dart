@@ -8,8 +8,9 @@ The goal of this release is to bump the minimum Dart and Flutter versions to `v3
 
 ### How To Upgrade
 
-# TODO: add docs guide
-Please carefully read through the migration guide in the Sentry docs on how to upgrade from version 8 to version 9: https://docs.sentry.io/platforms/dart/migration/v8-to-v9/
+Please carefully read through the migration guide in the Sentry docs on how to upgrade from version 8 to version 9
+ - [Dart migration guide](https://docs.sentry.io/platforms/dart/migration/v8-to-v9/)
+ - [Flutter migration guide](https://docs.sentry.io/platforms/dart/guides/flutter/migration/v8-to-v9/)
 
 ### Breaking changes
 
