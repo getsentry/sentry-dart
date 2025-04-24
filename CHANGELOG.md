@@ -54,9 +54,9 @@ await SentryFlutter.init(
 
 ### Dependencies
 
-- Bump Android SDK from v8.2.0 to v8.8.0 ([#2819](https://github.com/getsentry/sentry-dart/pull/2819), [#2831](https://github.com/getsentry/sentry-dart/pull/2831), [#2848](https://github.com/getsentry/sentry-dart/pull/2848), [#2873](https://github.com/getsentry/sentry-dart/pull/2873))
-  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#880)
-  - [diff](https://github.com/getsentry/sentry-java/compare/8.2.0...8.8.0)
+- Bump Android SDK from v8.2.0 to v8.9.0 ([#2819](https://github.com/getsentry/sentry-dart/pull/2819), [#2831](https://github.com/getsentry/sentry-dart/pull/2831), [#2848](https://github.com/getsentry/sentry-dart/pull/2848), [#2873](https://github.com/getsentry/sentry-dart/pull/2873), [#2883](https://github.com/getsentry/sentry-dart/pull/2883))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#890)
+  - [diff](https://github.com/getsentry/sentry-java/compare/8.2.0...8.9.0)
 - Bump Cocoa SDK from v8.46.0 to v8.49.0 ([#2820](https://github.com/getsentry/sentry-dart/pull/2820), [#2851](https://github.com/getsentry/sentry-dart/pull/2851))
   - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8490)
   - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.46.0...8.49.0)
