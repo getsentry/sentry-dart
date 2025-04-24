@@ -1,15 +1,5 @@
 # Changelog
 
-## 8.14.2
-
-### Improvements
-
-- Improve performance of frames tracking ([#2854](https://github.com/getsentry/sentry-dart/pull/2854))
-- Clean up `getSpan()` log ([#2865](https://github.com/getsentry/sentry-dart/pull/2865))
-
-### Fixes
-
-- `options.diagnosticLevel` not affecting logs ([#2856](https://github.com/getsentry/sentry-dart/pull/2856))
 ## Unreleased
 
 ### Features
@@ -76,6 +66,17 @@ await SentryFlutter.init(
 - Bump jni from v0.14.0 to v0.14.1 ([#2800])(https://github.com/getsentry/sentry-dart/pull/2800)
   - [changelog](https://github.com/dart-lang/native/blob/main/pkgs/jni/CHANGELOG.md#0141)
   - [diff](https://github.com/dart-lang/native/compare/jnigen-v0.14.0..jnigen-v0.14.1)
+
+## 8.14.2
+
+### Improvements
+
+- Improve performance of frames tracking ([#2854](https://github.com/getsentry/sentry-dart/pull/2854))
+- Clean up `getSpan()` log ([#2865](https://github.com/getsentry/sentry-dart/pull/2865))
+
+### Fixes
+
+- `options.diagnosticLevel` not affecting logs ([#2856](https://github.com/getsentry/sentry-dart/pull/2856))
 
 ## 9.0.0-alpha.2
 
