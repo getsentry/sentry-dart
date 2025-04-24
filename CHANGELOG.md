@@ -98,6 +98,73 @@ await SentryFlutter.init(
   - [changelog](https://github.com/dart-lang/native/blob/main/pkgs/jni/CHANGELOG.md#0141)
   - [diff](https://github.com/dart-lang/native/compare/jnigen-v0.14.0..jnigen-v0.14.1)
 
+## 9.0.0-beta.1
+
+### Features
+
+- Properly generates and links trace IDs for errors and spans ([#2869](https://github.com/getsentry/sentry-dart/pull/2869), [#2861](https://github.com/getsentry/sentry-dart/pull/2861)):
+  - **With `SentryNavigatorObserver`** - each navigation event starts a new trace.
+  - **Without `SentryNavigatorObserver` on non-web platforms** - a new trace is started from app
+    lifecycle hooks.
+  - **Web without `SentryNavigatorObserver`** - the same trace ID is reused until the page is
+    refreshed or closed.
+- Add `FeatureFlagIntegration` ([#2825](https://github.com/getsentry/sentry-dart/pull/2825))
+```dart
+// Manually track a feature flag
+Sentry.addFeatureFlag('my-feature', true);
+```
+- Firebase Remote Config Integration ([#2837](https://github.com/getsentry/sentry-dart/pull/2837))
+```dart
+// Add the integration to automatically track feature flags from firebase remote config.
+await SentryFlutter.init(
+  (options) {
+    options.dsn = 'https://example@sentry.io/add-your-dsn-here';
+    options.addIntegration(
+      SentryFirebaseRemoteConfigIntegration(
+        firebaseRemoteConfig: yourRirebaseRemoteConfig,
+      ),
+    );
+  },
+);
+```
+
+### Fixes
+
+- Trace propagation in HTTP tracing clients not correctly set up if performance is disabled ([#2850](https://github.com/getsentry/sentry-dart/pull/2850))
+
+### Behavioral changes
+
+- Mutable Data Classes ([#2818](https://github.com/getsentry/sentry-dart/pull/2818))
+  - Some SDK classes do not have `const` constructors anymore.
+  - The `copyWith` and `clone` methods of SDK classes were deprecated.
+- Set log level to `warning` by default when `debug = true` ([#2836](https://github.com/getsentry/sentry-dart/pull/2836))
+- Set HTTP client breadcrumbs log level based on response status code ([#2847](https://github.com/getsentry/sentry-dart/pull/2847))
+  - 5xx is mapped to `SentryLevel.error`
+  - 4xx is mapped to `SentryLevel.warning`
+- Parent-child relationship for the PlatformExceptions and Cause ([#2803](https://github.com/getsentry/sentry-dart/pull/2803), [#2858](https://github.com/getsentry/sentry-dart/pull/2858))
+  - Improves and changes exception grouping. To opt in, set `groupExceptions=true`
+- Set `anrEnabled` enabled per default ([#2878](https://github.com/getsentry/sentry-dart/pull/2878))
+
+### API Changes
+
+- Update naming of `LoadImagesListIntegration` to `LoadNativeDebugImagesIntegration` ([#2833](https://github.com/getsentry/sentry-dart/pull/2833))
+- Remove `other` from `SentryRequest` ([#2879](https://github.com/getsentry/sentry-dart/pull/2879))
+
+### Dependencies
+
+- Bump Android SDK from v8.2.0 to v8.9.0 ([#2819](https://github.com/getsentry/sentry-dart/pull/2819), [#2831](https://github.com/getsentry/sentry-dart/pull/2831), [#2848](https://github.com/getsentry/sentry-dart/pull/2848), [#2873](https://github.com/getsentry/sentry-dart/pull/2873), [#2883](https://github.com/getsentry/sentry-dart/pull/2883))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#890)
+  - [diff](https://github.com/getsentry/sentry-java/compare/8.2.0...8.9.0)
+- Bump Cocoa SDK from v8.46.0 to v8.49.1 ([#2820](https://github.com/getsentry/sentry-dart/pull/2820), [#2851](https://github.com/getsentry/sentry-dart/pull/2851), [#2884](https://github.com/getsentry/sentry-dart/pull/2884))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8491)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.46.0...8.49.1)
+- Bump Native SDK from v0.8.2 to v0.8.4 ([#2823](https://github.com/getsentry/sentry-dart/pull/2823), [#2872](https://github.com/getsentry/sentry-dart/pull/2872))
+  - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#084)
+  - [diff](https://github.com/getsentry/sentry-native/compare/0.8.2...0.8.4)
+- Bump jni from v0.14.0 to v0.14.1 ([#2800])(https://github.com/getsentry/sentry-dart/pull/2800)
+  - [changelog](https://github.com/dart-lang/native/blob/main/pkgs/jni/CHANGELOG.md#0141)
+  - [diff](https://github.com/dart-lang/native/compare/jnigen-v0.14.0..jnigen-v0.14.1)
+
 ## 9.0.0-alpha.2
 
 ### Features
