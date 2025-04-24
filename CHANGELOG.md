@@ -4,8 +4,12 @@
 
 ### Features
 
-- Generate new trace on navigation ([#2861](https://github.com/getsentry/sentry-dart/pull/2861))
-  - If you have the `SentryNavigatorObserver` installed in your routing, errors and spans will now be linked in a trace properly.
+- Properly generates and links trace IDs for errors and spans ([#2869](https://github.com/getsentry/sentry-dart/pull/2869), [#2861](https://github.com/getsentry/sentry-dart/pull/2861)):
+  - **With `SentryNavigatorObserver`** - each navigation event starts a new trace.
+  - **Without `SentryNavigatorObserver` on non-web platforms** - a new trace is started from app
+    lifecycle hooks.
+  - **Web without `SentryNavigatorObserver`** - the same trace ID is reused until the page is
+    refreshed or closed.
 - Add `FeatureFlagIntegration` ([#2825](https://github.com/getsentry/sentry-dart/pull/2825))
 ```dart
 // Manually track a feature flag
