@@ -36,6 +36,7 @@ Please carefully read through the migration guide in the Sentry docs on how to u
   - Responses are attached to the `Hint` object, which can be read in `beforeSend`/`beforeSendTransaction` callbacks via `hint.response`.
   - For now, only the `dio` integration is supported.
 - Enable privacy masking for screenshots by default ([#2728](https://github.com/getsentry/sentry-dart/pull/2728))
+- Set option `anrEnabled` to `true` by default (#2878)
 
 ### Features
 
