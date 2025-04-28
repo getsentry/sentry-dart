@@ -26,7 +26,7 @@ void main() {
     test(
         'approximation tracking creates and finishes ttid span with correct measurements',
         () async {
-      final transaction = fixture.getTransaction() as SentryTracer;
+      final transaction = fixture.getTransaction();
       await sut.track(
         transaction: transaction,
       );
@@ -55,11 +55,12 @@ void main() {
     });
 
     test('starting after completing still finished correctly', () async {
-      await Future.delayed(fixture.finishFrameDuration, () {
-        sut.completeTracking();
-      });
+      final previousTransaction = fixture.getTransaction();
+      await sut.track(
+        transaction: previousTransaction,
+      );
 
-      final transaction = fixture.getTransaction() as SentryTracer;
+      final transaction = fixture.getTransaction();
       await sut.track(
         transaction: transaction,
       );
@@ -87,7 +88,7 @@ void main() {
     });
 
     test('providing endTimestamp finishes transaction with it', () async {
-      final transaction = fixture.getTransaction() as SentryTracer;
+      final transaction = fixture.getTransaction();
       final endTimestamp =
           fixture.startTimestamp.add(Duration(milliseconds: 100));
 
@@ -111,7 +112,7 @@ void main() {
     });
 
     test('providing endTimestamp sets endTimestamp ivar', () async {
-      final transaction = fixture.getTransaction() as SentryTracer;
+      final transaction = fixture.getTransaction();
       final endTimestamp = fixture.startTimestamp.add(Duration(seconds: 1));
 
       await sut.track(
@@ -125,23 +126,32 @@ void main() {
 
   group('determineEndtime', () {
     test('can complete as null in approximation mode with timeout', () async {
-      final futureEndTime = await fixture
-          .getSut(triggerApproximationTimeout: true)
-          .determineEndTime();
+      final transaction = fixture.getTransaction();
 
-      expect(futureEndTime, null);
+      sut = fixture.getSut(triggerApproximationTimeout: true);
+      await sut.track(transaction: transaction);
+
+      expect(sut.endTimestamp, isNull);
+      expect(transaction.children, isEmpty);
     });
 
     test('can complete automatically in approximation mode', () async {
-      final futureEndTime = await sut.determineEndTime();
+      final transaction = fixture.getTransaction();
 
-      expect(futureEndTime, isNotNull);
+      await sut.track(transaction: transaction);
+
+      expect(sut.endTimestamp, isNotNull);
+      expect(transaction.children, hasLength(1));
     });
 
     test('returns the correct approximation end time', () async {
-      final endTme = await sut.determineEndTime();
+      final transaction = fixture.getTransaction();
 
-      expect(endTme?.difference(fixture.startTimestamp).inSeconds,
+      await sut.track(transaction: transaction);
+
+      final endTimestamp = sut.endTimestamp;
+      expect(endTimestamp, isNotNull);
+      expect(endTimestamp!.difference(fixture.startTimestamp).inSeconds,
           fixture.finishFrameDuration.inSeconds);
     });
   });
@@ -152,9 +162,13 @@ class Fixture {
   final hub = Hub(defaultTestOptions()..tracesSampleRate = 1.0);
   final fakeFrameCallbackHandler = FakeFrameCallbackHandler();
 
-  ISentrySpan getTransaction({String? name = "Regular route"}) {
-    return hub.startTransaction(name!, 'ui.load',
-        bindToScope: true, startTimestamp: startTimestamp);
+  SentryTracer getTransaction({String? name = "Regular route"}) {
+    return hub.startTransaction(
+      name!,
+      'ui.load',
+      bindToScope: true,
+      startTimestamp: startTimestamp,
+    ) as SentryTracer;
   }
 
   /// The time it takes until a fake frame has been triggered
@@ -163,9 +177,11 @@ class Fixture {
   TimeToInitialDisplayTracker getSut(
       {bool triggerApproximationTimeout = false}) {
     return TimeToInitialDisplayTracker(
-        frameCallbackHandler: triggerApproximationTimeout
-            ? DefaultFrameCallbackHandler()
-            : FakeFrameCallbackHandler(
-                postFrameCallbackDelay: finishFrameDuration));
+      frameCallbackHandler: triggerApproximationTimeout
+          ? DefaultFrameCallbackHandler()
+          : FakeFrameCallbackHandler(
+              postFrameCallbackDelay: finishFrameDuration,
+            ),
+    );
   }
 }

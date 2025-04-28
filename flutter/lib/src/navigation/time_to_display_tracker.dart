@@ -5,6 +5,7 @@ import 'package:meta/meta.dart';
 import '../../sentry_flutter.dart';
 import 'time_to_full_display_tracker.dart';
 import 'time_to_initial_display_tracker.dart';
+import 'package:sentry/src/sentry_tracer.dart';
 
 @internal
 class TimeToDisplayTracker {
@@ -34,6 +35,9 @@ class TimeToDisplayTracker {
     DateTime? endTimestamp,
     String? origin,
   }) async {
+    if (transaction is! SentryTracer) {
+      return;
+    }
     // TTID
     await _ttidTracker.track(
       transaction: transaction,

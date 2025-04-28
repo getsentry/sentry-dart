@@ -133,10 +133,6 @@ void main() {
   });
 
   group('$SentryNavigatorObserver', () {
-    tearDown(() {
-      fixture.timeToInitialDisplayTracker.clearForTest();
-      fixture.timeToFullDisplayTracker.clear();
-    });
 
     test('didPush starts transaction', () async {
       const name = 'Current Route';

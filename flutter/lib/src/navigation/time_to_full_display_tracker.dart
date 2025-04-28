@@ -20,18 +20,14 @@ class TimeToFullDisplayTracker {
   final EndTimestampProvider _endTimestampProvider;
   final Duration _autoFinishAfter;
 
-  ISentrySpan? _transaction;
+  SentryTracer? _transaction;
   ISentrySpan? _ttfdSpan;
   Completer<void> _completedTTFDTracking = Completer<void>();
 
   Future<void> track({
-    required ISentrySpan transaction,
+    required SentryTracer transaction,
   }) async {
-    if (transaction is! SentryTracer) {
-      return;
-    }
     _transaction = transaction;
-
     _ttfdSpan = transaction.startChild(
       SentrySpanOperations.uiTimeToFullDisplay,
       description: '${transaction.name} full display',
