@@ -11,8 +11,8 @@ import 'package:sentry/src/sentry_tracer.dart';
 
 @internal
 class TimeToDisplayTracker {
-  late final TimeToInitialDisplayTracker _ttidTracker;
-  late final TimeToFullDisplayTracker _ttfdTracker;
+  final TimeToInitialDisplayTracker _ttidTracker;
+  final TimeToFullDisplayTracker _ttfdTracker;
 
   final SentryFlutterOptions options;
 
@@ -20,13 +20,11 @@ class TimeToDisplayTracker {
     TimeToInitialDisplayTracker? ttidTracker,
     TimeToFullDisplayTracker? ttfdTracker,
     required this.options,
-  }) {
-    _ttidTracker = ttidTracker ?? TimeToInitialDisplayTracker();
-    _ttfdTracker = ttfdTracker ??
-        TimeToFullDisplayTracker(
-          Duration(seconds: 30),
-        );
-  }
+  })  : _ttidTracker = ttidTracker ?? TimeToInitialDisplayTracker(),
+        _ttfdTracker = ttfdTracker ??
+            TimeToFullDisplayTracker(
+              Duration(seconds: 30),
+            );
 
   Future<void> track(
     ISentrySpan transaction, {
