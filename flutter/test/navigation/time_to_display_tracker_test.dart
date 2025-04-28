@@ -1,174 +1,123 @@
 // ignore_for_file: invalid_use_of_internal_member
 // ignore_for_file: inference_failure_on_instance_creation
 
-import 'package:collection/collection.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:sentry_flutter/src/frame_callback_handler.dart';
 import 'package:sentry_flutter/src/navigation/time_to_display_tracker.dart';
-import 'package:sentry_flutter/src/navigation/time_to_full_display_tracker.dart';
-import 'package:sentry_flutter/src/navigation/time_to_initial_display_tracker.dart';
 
-import '../fake_frame_callback_handler.dart';
 import '../mocks.dart';
+import '../mocks.mocks.dart';
+import 'package:mockito/mockito.dart';
 
 void main() {
   late Fixture fixture;
 
   setUp(() {
-    TestWidgetsFlutterBinding.ensureInitialized();
     fixture = Fixture();
   });
 
-  tearDown(() {
-    fixture.ttidTracker?.clear();
-  });
-
-  ISentrySpan? _getTTIDSpan(SentryTracer transaction) {
-    return transaction.children.firstWhereOrNull((element) =>
-        element.context.operation ==
-        SentrySpanOperations.uiTimeToInitialDisplay);
-  }
-
-  ISentrySpan? _getTTFDSpan(SentryTracer transaction) {
-    return transaction.children.firstWhereOrNull((element) =>
-        element.context.operation == SentrySpanOperations.uiTimeToFullDisplay);
-  }
-
-  group('time to initial display', () {
-    test('matches startTimestamp of transaction', () async {
+  group('track', () {
+    test('calls ttid tracker', () async {
       final sut = fixture.getSut();
 
-      final transaction = fixture.getTransaction() as SentryTracer;
+      final transaction = fixture.getTransaction();
+      final ttidTransaction = fixture.getTTIDTransaction(transaction);
+      when(fixture.ttidTracker.track(transaction: transaction))
+          .thenAnswer((_) async => ttidTransaction);
+
       await sut.track(transaction);
 
-      final ttidSpan = _getTTIDSpan(transaction);
-      expect(transaction, isNotNull);
-      expect(transaction.context.operation, SentrySpanOperations.uiLoad);
-      expect(transaction.startTimestamp, ttidSpan?.startTimestamp);
+      verify(fixture.ttidTracker.track(transaction: transaction)).called(1);
     });
 
-    test('matches provided endTimestamp', () async {
+    test('calls ttid tracker with endTimestamp', () async {
       final sut = fixture.getSut();
+      final endTimestamp =
+          fixture.startTimestamp.add(Duration(milliseconds: 100));
 
-      final transaction = fixture.getTransaction() as SentryTracer;
-      final end = fixture.startTimestamp.add(Duration(milliseconds: 100));
-      await sut.track(
-        transaction,
-        endTimestamp: end,
-      );
+      final transaction = fixture.getTransaction();
+      final ttidTransaction = fixture.getTTIDTransaction(transaction);
+      when(fixture.ttidTracker.track(
+              transaction: transaction, endTimestamp: anyNamed('endTimestamp')))
+          .thenAnswer((_) async => ttidTransaction);
 
-      final ttidSpan = _getTTIDSpan(transaction);
-      expect(transaction, isNotNull);
-      expect(ttidSpan?.endTimestamp, end);
+      await sut.track(transaction, endTimestamp: endTimestamp);
+
+      verify(fixture.ttidTracker.track(
+        transaction: transaction,
+        endTimestamp: endTimestamp,
+      )).called(1);
     });
 
-    group('with approximation strategy', () {
-      test('finishes ttid span', () async {
-        final sut = fixture.getSut();
-
-        final transaction = fixture.getTransaction() as SentryTracer;
-        await sut.track(transaction);
-
-        final ttidSpan = _getTTIDSpan(transaction);
-        expect(ttidSpan?.context.operation,
-            SentrySpanOperations.uiTimeToInitialDisplay);
-        expect(ttidSpan?.finished, isTrue);
-        expect(ttidSpan?.origin, SentryTraceOrigins.autoUiTimeToDisplay);
-      });
-
-      test('completes with timeout when not completing the tracking', () async {
-        final sut = fixture.getSut(triggerApproximationTimeout: true);
-
-        final transaction = fixture.getTransaction() as SentryTracer;
-        await sut.track(
-          transaction,
-        );
-      });
-    });
-  });
-
-  group('time to full display', () {
-    setUp(() {
+    test('calls ttfd tracker', () async {
       fixture.options.enableTimeToFullDisplayTracing = true;
-    });
 
-    test(
-        'finishes span after timeout with deadline exceeded and ttid matching end time',
-        () async {
       final sut = fixture.getSut();
-      final transaction = fixture.getTransaction() as SentryTracer;
+
+      final transaction = fixture.getTransaction();
+      final ttidTransaction = fixture.getTTIDTransaction(transaction);
+      when(fixture.ttidTracker.track(transaction: transaction))
+          .thenAnswer((_) async => ttidTransaction);
+
       await sut.track(transaction);
 
-      final ttidSpan = _getTTIDSpan(transaction);
-      expect(ttidSpan, isNotNull);
-
-      final ttfdSpan = _getTTFDSpan(transaction);
-      expect(ttfdSpan?.finished, isTrue);
-      expect(ttfdSpan?.status, SpanStatus.deadlineExceeded());
-      expect(ttfdSpan?.endTimestamp, ttidSpan?.endTimestamp);
-      expect(ttfdSpan?.startTimestamp, ttidSpan?.startTimestamp);
+      verify(fixture.ttfdTracker.track(transaction: transaction)).called(1);
     });
 
-    test('multiple ttfd timeouts have correct ttid matching end time',
-        () async {
-      final sut = fixture.getSut();
-      final transaction = fixture.getTransaction() as SentryTracer;
-
-      // First ttfd timeout
-      await sut.track(transaction);
-
-      final ttidSpanA = _getTTIDSpan(transaction);
-      expect(ttidSpanA, isNotNull);
-
-      final ttfdSpanA = _getTTFDSpan(transaction);
-      expect(ttfdSpanA?.finished, isTrue);
-      expect(ttfdSpanA?.status, SpanStatus.deadlineExceeded());
-      expect(ttfdSpanA?.endTimestamp, ttidSpanA?.endTimestamp);
-      expect(ttfdSpanA?.startTimestamp, ttidSpanA?.startTimestamp);
-
-      // Second ttfd timeout
-      await sut.track(transaction);
-
-      final ttidSpanB = _getTTIDSpan(transaction);
-      expect(ttidSpanB, isNotNull);
-
-      final ttfdSpanB = _getTTFDSpan(transaction);
-      expect(ttfdSpanB?.finished, isTrue);
-      expect(ttfdSpanB?.status, SpanStatus.deadlineExceeded());
-      expect(ttfdSpanB?.endTimestamp, ttidSpanB?.endTimestamp);
-      expect(ttfdSpanB?.startTimestamp, ttidSpanB?.startTimestamp);
-    });
-
-    test('does not create ttfd span when not enabled', () async {
+    test('track does not call ttid tracker if disabled', () async {
       fixture.options.enableTimeToFullDisplayTracing = false;
 
       final sut = fixture.getSut();
 
-      final transaction = fixture.getTransaction() as SentryTracer;
+      final transaction = fixture.getTransaction();
+      final ttidTransaction = fixture.getTTIDTransaction(transaction);
+      when(fixture.ttidTracker.track(transaction: transaction))
+          .thenAnswer((_) async => ttidTransaction);
+
       await sut.track(transaction);
 
-      final ttfdSpan = transaction.children.firstWhereOrNull((element) =>
-          element.context.operation ==
-          SentrySpanOperations.uiTimeToFullDisplay);
-      expect(ttfdSpan, isNull);
+      verify(fixture.ttidTracker.track(transaction: transaction)).called(1);
+    });
+
+    test('track calls ttdf tracker with ttid end timestamp', () async {
+      fixture.options.enableTimeToFullDisplayTracing = true;
+
+      final sut = fixture.getSut();
+
+      final ttidEndTimestamp =
+          fixture.startTimestamp.add(Duration(milliseconds: 75));
+
+      final transaction = fixture.getTransaction();
+      final ttidTransaction = fixture.getTTIDTransaction(transaction);
+      await ttidTransaction.finish(endTimestamp: ttidEndTimestamp);
+      when(fixture.ttidTracker.track(transaction: transaction))
+          .thenAnswer((_) async => ttidTransaction);
+
+      await sut.track(transaction);
+
+      verify(fixture.ttfdTracker.track(
+        transaction: transaction,
+        ttidEndTimestamp: ttidEndTimestamp,
+      )).called(1);
     });
   });
 
-  test('screen load tracking creates ui.load transaction', () async {
-    final sut = fixture.getSut();
+  group('clear', () {
+    test('calls ttfd/ttid clear', () async {
+      fixture.options.enableTimeToFullDisplayTracing = true;
 
-    final transaction = fixture.getTransaction() as SentryTracer;
-    await sut.track(transaction);
+      final sut = fixture.getSut();
+      sut.clear();
 
-    expect(transaction, isNotNull);
-    expect(transaction.context.operation, SentrySpanOperations.uiLoad);
+      verify(fixture.ttidTracker.clear()).called(1);
+      verify(fixture.ttfdTracker.clear()).called(1);
+    });
   });
 
   group('cancelUnfinishedSpans', () {
     test('cancels unfinished ttid/ttfd spans', () async {
-      final transaction = fixture.getTransaction() as SentryTracer;
+      final transaction = fixture.getTransaction();
 
       final ttidSpan = transaction.startChild(
         SentrySpanOperations.uiTimeToInitialDisplay,
@@ -198,7 +147,7 @@ void main() {
     });
 
     test('unfinished ttfd will match ttid duration if available', () async {
-      final transaction = fixture.getTransaction() as SentryTracer;
+      final transaction = fixture.getTransaction();
       final ttidEndTimestamp =
           transaction.startTimestamp.add(Duration(milliseconds: 50));
 
@@ -225,6 +174,18 @@ void main() {
       expect(ttfdSpan.status, SpanStatus.deadlineExceeded());
       expect(ttfdSpan.endTimestamp, ttidEndTimestamp);
     });
+
+    test('calls ttfd/ttid clear', () async {
+      fixture.options.enableTimeToFullDisplayTracing = true;
+
+      final sut = fixture.getSut();
+
+      final transaction = fixture.getTransaction();
+      await sut.cancelUnfinishedSpans(transaction, transaction.startTimestamp);
+
+      verify(fixture.ttidTracker.clear()).called(1);
+      verify(fixture.ttfdTracker.clear()).called(1);
+    });
   });
 }
 
@@ -235,35 +196,31 @@ class Fixture {
     ..tracesSampleRate = 1.0;
   late final hub = Hub(options);
 
-  TimeToInitialDisplayTracker? ttidTracker;
-  TimeToFullDisplayTracker? ttfdTracker;
+  late MockTimeToInitialDisplayTracker ttidTracker =
+      MockTimeToInitialDisplayTracker();
+  late MockTimeToFullDisplayTracker ttfdTracker =
+      MockTimeToFullDisplayTracker();
 
   var latestTransactionName = 'Current route';
 
-  ISentrySpan getTransaction({String? name}) {
+  SentryTracer getTransaction({String? name}) {
     latestTransactionName = name ?? 'Current route';
     return hub.startTransaction(
       latestTransactionName,
       'ui.load',
       startTimestamp: startTimestamp,
+    ) as SentryTracer;
+  }
+
+  ISentrySpan getTTIDTransaction(SentryTracer parent) {
+    return parent.startChild(
+      SentrySpanOperations.uiTimeToInitialDisplay,
+      description: 'Current route initial display',
+      startTimestamp: parent.startTimestamp,
     );
   }
 
-  TimeToDisplayTracker getSut({bool triggerApproximationTimeout = false}) {
-    final ttidTracker = TimeToInitialDisplayTracker(
-      frameCallbackHandler: triggerApproximationTimeout
-          ? DefaultFrameCallbackHandler()
-          : FakeFrameCallbackHandler(
-              postFrameCallbackDelay: Duration(
-                milliseconds: 10,
-              ),
-            ),
-    );
-    this.ttidTracker = ttidTracker;
-
-    final ttfdTracker = TimeToFullDisplayTracker(Duration(seconds: 2));
-    this.ttfdTracker = ttfdTracker;
-
+  TimeToDisplayTracker getSut() {
     return TimeToDisplayTracker(
       ttidTracker: ttidTracker,
       ttfdTracker: ttfdTracker,

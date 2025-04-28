@@ -217,7 +217,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     _addWebSessions(from: route, to: previousRoute);
 
     final timestamp = _hub.options.clock();
-    _finishTransaction(endTimestamp: timestamp, clearAfter: true);
+    _finishTransaction(endTimestamp: timestamp);
   }
 
   void _addWebSessions({Route<dynamic>? from, Route<dynamic>? to}) async {
@@ -321,8 +321,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     await _native?.beginNativeFrames();
   }
 
-  Future<void> _finishTransaction(
-      {required DateTime endTimestamp, bool clearAfter = false}) async {
+  Future<void> _finishTransaction({required DateTime endTimestamp}) async {
     final transaction = _transaction;
     _transaction = null;
     try {
@@ -337,12 +336,14 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       }
       if (transaction is SentryTracer) {
         await _timeToDisplayTracker?.cancelUnfinishedSpans(
-            transaction, endTimestamp);
+          transaction,
+          endTimestamp,
+        );
       }
     } catch (exception, stacktrace) {
       _hub.options.logger(
         SentryLevel.error,
-        'Error while finishing time to display tracking',
+        'Error while finishing transaction',
         exception: exception,
         stackTrace: stacktrace,
       );
@@ -351,9 +352,6 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       }
     } finally {
       await transaction?.finish(endTimestamp: endTimestamp);
-      if (clearAfter) {
-        _timeToDisplayTracker?.clear();
-      }
     }
   }
 
@@ -386,8 +384,6 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       if (_hub.options.automatedTestMode) {
         rethrow;
       }
-    } finally {
-      _timeToDisplayTracker?.clear();
     }
   }
 

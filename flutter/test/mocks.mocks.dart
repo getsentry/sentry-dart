@@ -27,6 +27,10 @@ import 'package:sentry_flutter/src/native/native_frames.dart' as _i18;
 import 'package:sentry_flutter/src/native/sentry_native_binding.dart' as _i16;
 import 'package:sentry_flutter/src/navigation/time_to_display_tracker.dart'
     as _i24;
+import 'package:sentry_flutter/src/navigation/time_to_full_display_tracker.dart'
+    as _i26;
+import 'package:sentry_flutter/src/navigation/time_to_initial_display_tracker.dart'
+    as _i25;
 import 'package:sentry_flutter/src/replay/replay_config.dart' as _i19;
 import 'package:sentry_flutter/src/web/sentry_js_binding.dart' as _i23;
 
@@ -2749,18 +2753,6 @@ class MockTimeToDisplayTracker extends _i1.Mock
       ) as _i2.SentryFlutterOptions);
 
   @override
-  set ttidSpan(_i2.ISentrySpan? _ttidSpan) => super.noSuchMethod(
-        Invocation.setter(#ttidSpan, _ttidSpan),
-        returnValueForMissingStub: null,
-      );
-
-  @override
-  set ttfdSpan(_i2.ISentrySpan? _ttfdSpan) => super.noSuchMethod(
-        Invocation.setter(#ttfdSpan, _ttfdSpan),
-        returnValueForMissingStub: null,
-      );
-
-  @override
   _i11.Future<void> track(
     _i2.ISentrySpan? transaction, {
     DateTime? endTimestamp,
@@ -2793,6 +2785,73 @@ class MockTimeToDisplayTracker extends _i1.Mock
           transaction,
           endTimestamp,
         ]),
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
+
+  @override
+  void clear() => super.noSuchMethod(
+        Invocation.method(#clear, []),
+        returnValueForMissingStub: null,
+      );
+}
+
+/// A class which mocks [TimeToInitialDisplayTracker].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockTimeToInitialDisplayTracker extends _i1.Mock
+    implements _i25.TimeToInitialDisplayTracker {
+  MockTimeToInitialDisplayTracker() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i11.Future<_i2.ISentrySpan?> track({
+    required _i3.SentryTracer? transaction,
+    DateTime? endTimestamp,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(#track, [], {
+          #transaction: transaction,
+          #endTimestamp: endTimestamp,
+        }),
+        returnValue: _i11.Future<_i2.ISentrySpan?>.value(),
+      ) as _i11.Future<_i2.ISentrySpan?>);
+
+  @override
+  void clear() => super.noSuchMethod(
+        Invocation.method(#clear, []),
+        returnValueForMissingStub: null,
+      );
+}
+
+/// A class which mocks [TimeToFullDisplayTracker].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockTimeToFullDisplayTracker extends _i1.Mock
+    implements _i26.TimeToFullDisplayTracker {
+  MockTimeToFullDisplayTracker() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i11.Future<void> track({
+    required _i3.SentryTracer? transaction,
+    DateTime? ttidEndTimestamp,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(#track, [], {
+          #transaction: transaction,
+          #ttidEndTimestamp: ttidEndTimestamp,
+        }),
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
+
+  @override
+  _i11.Future<void> reportFullyDisplayed({_i2.SpanId? spanId}) =>
+      (super.noSuchMethod(
+        Invocation.method(#reportFullyDisplayed, [], {#spanId: spanId}),
         returnValue: _i11.Future<void>.value(),
         returnValueForMissingStub: _i11.Future<void>.value(),
       ) as _i11.Future<void>);
