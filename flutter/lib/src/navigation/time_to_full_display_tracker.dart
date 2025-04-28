@@ -16,7 +16,7 @@ class TimeToFullDisplayTracker {
   SpanId? _parentSpanId;
   Completer<DateTime?>? _trackingCompleter;
 
-  Future<ISentrySpan?> track({
+  Future<void> track({
     required SentryTracer transaction,
     DateTime? ttidEndTimestamp,
   }) async {
@@ -54,8 +54,6 @@ class TimeToFullDisplayTracker {
       status: status,
       endTimestamp: endTimestamp,
     );
-
-    return ttfdSpan;
   }
 
   FutureOr<DateTime?> _determineEndTime() {

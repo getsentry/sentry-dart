@@ -144,12 +144,6 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       ? SentryDisplay(_currentTransactionSpanId!)
       : null;
 
-  Completer<void>? _completedDisplayTracking = Completer();
-
-  // Since didPush does not have a future, we can keep track of when the display tracking has finished
-  @visibleForTesting
-  Completer<void>? get completedDisplayTracking => _completedDisplayTracking;
-
   @override
   void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
     super.didPush(route, previousRoute);
@@ -358,7 +352,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     } finally {
       await transaction?.finish(endTimestamp: endTimestamp);
       if (clearAfter) {
-        _clear();
+        _timeToDisplayTracker?.clear();
       }
     }
   }
@@ -393,16 +387,8 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
         rethrow;
       }
     } finally {
-      _clear();
+      _timeToDisplayTracker?.clear();
     }
-  }
-
-  void _clear() {
-    if (_completedDisplayTracking?.isCompleted == false) {
-      _completedDisplayTracking?.complete();
-    }
-    _completedDisplayTracking = Completer();
-    _timeToDisplayTracker?.clear();
   }
 
   bool _isRouteIgnored(Route<dynamic> route) {

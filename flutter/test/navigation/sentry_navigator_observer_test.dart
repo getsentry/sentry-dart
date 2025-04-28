@@ -72,7 +72,6 @@ void main() {
       final sut = fixture.getSut(hub: mockHub);
 
       sut.didPush(currentRoute, null);
-      await sut.completedDisplayTracking?.future;
 
       // Handle internal async method calls.
       await Future.delayed(const Duration(milliseconds: 10), () {});
@@ -94,7 +93,6 @@ void main() {
       final sut = fixture.getSut(hub: hub);
 
       sut.didPush(currentRoute, null);
-      await sut.completedDisplayTracking?.future;
 
       // Get ref to created transaction
       SentryTracer? actualTransaction;
@@ -151,7 +149,6 @@ void main() {
       );
 
       sut.didPush(currentRoute, null);
-      await sut.completedDisplayTracking?.future;
 
       final context = verify(hub.startTransactionWithContext(
         captureAny,
@@ -185,7 +182,6 @@ void main() {
       );
 
       sut.didPush(currentRoute, null);
-      await sut.completedDisplayTracking?.future;
 
       verify(hub.startTransactionWithContext(
         any,
@@ -380,7 +376,6 @@ void main() {
       final sut = fixture.getSut(hub: hub);
 
       sut.didPush(currentRoute, null);
-      await sut.completedDisplayTracking?.future;
 
       sut.didPop(currentRoute, null);
       sut.didPop(currentRoute, null);
@@ -420,7 +415,6 @@ void main() {
       final sut = fixture.getSut(hub: hub);
 
       sut.didPush(currentRoute, null);
-      await sut.completedDisplayTracking?.future;
 
       verify(span.setData('route_settings_arguments', arguments));
     });
@@ -479,7 +473,7 @@ void main() {
       );
 
       sut.didPush(currentRoute, null);
-      await sut.completedDisplayTracking?.future;
+      await Future<void>.delayed(const Duration(milliseconds: 100));
 
       expect(SentryNavigatorObserver.currentRouteName, 'Current Route');
       expect(

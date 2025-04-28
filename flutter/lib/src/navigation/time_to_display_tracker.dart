@@ -6,6 +6,7 @@ import 'package:meta/meta.dart';
 import '../../sentry_flutter.dart';
 import 'time_to_full_display_tracker.dart';
 import 'time_to_initial_display_tracker.dart';
+// ignore: implementation_imports
 import 'package:sentry/src/sentry_tracer.dart';
 
 @internal
@@ -27,9 +28,6 @@ class TimeToDisplayTracker {
         );
   }
 
-  ISentrySpan? ttidSpan;
-  ISentrySpan? ttfdSpan;
-
   Future<void> track(
     ISentrySpan transaction, {
     DateTime? endTimestamp,
@@ -38,14 +36,14 @@ class TimeToDisplayTracker {
       return;
     }
     // TTID
-    ttidSpan = await _ttidTracker.track(
+    final ttidSpan = await _ttidTracker.track(
       transaction: transaction,
       endTimestamp: endTimestamp,
     );
 
     // TTFD
     if (options.enableTimeToFullDisplayTracing) {
-      ttfdSpan = await _ttfdTracker.track(
+      await _ttfdTracker.track(
         transaction: transaction,
         ttidEndTimestamp: ttidSpan?.endTimestamp,
       );
@@ -86,11 +84,8 @@ class TimeToDisplayTracker {
 
   void clear() {
     _ttidTracker.clear();
-    ttidSpan = null;
-
     if (options.enableTimeToFullDisplayTracing) {
       _ttfdTracker.clear();
-      ttfdSpan = null;
     }
   }
 }
