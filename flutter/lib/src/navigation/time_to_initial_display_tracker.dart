@@ -23,7 +23,6 @@ class TimeToInitialDisplayTracker {
   Future<ISentrySpan?> track({
     required SentryTracer transaction,
     DateTime? endTimestamp,
-    String? origin,
   }) async {
     final _endTimestamp = await _determineEndTime(endTimestamp);
     if (_endTimestamp == null) return null;
@@ -33,7 +32,7 @@ class TimeToInitialDisplayTracker {
       description: '${transaction.name} initial display',
       startTimestamp: transaction.startTimestamp,
     );
-    ttidSpan.origin = origin ?? SentryTraceOrigins.autoUiTimeToDisplay;
+    ttidSpan.origin = SentryTraceOrigins.autoUiTimeToDisplay;
 
     final ttidMeasurement = SentryMeasurement.timeToInitialDisplay(
       _endTimestamp.difference(transaction.startTimestamp),

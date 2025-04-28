@@ -32,7 +32,6 @@ class TimeToDisplayTracker {
   Future<void> track(
     ISentrySpan transaction, {
     DateTime? endTimestamp,
-    String? origin,
   }) async {
     if (transaction is! SentryTracer) {
       return;
@@ -41,7 +40,6 @@ class TimeToDisplayTracker {
     ttidSpan = await _ttidTracker.track(
       transaction: transaction,
       endTimestamp: endTimestamp,
-      origin: origin,
     );
 
     // TTFD
