@@ -244,7 +244,7 @@ mixin SentryFlutter {
     options.sdk = sdk;
   }
 
-  @Deprecated('Use SentryDisplay.reportFullyDisplayed() instead.')
+  @Deprecated('Use reportFullyDisplayed() on a SentryDisplay instance instead. Read the TTFD documentation at https://docs.sentry.io/platforms/dart/guides/flutter/integrations/routing-instrumentation/#time-to-full-display.')
   static Future<void> reportFullyDisplayed() async {
     final options = Sentry.currentHub.options;
     if (options is SentryFlutterOptions) {
