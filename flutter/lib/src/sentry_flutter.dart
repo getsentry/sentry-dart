@@ -244,7 +244,8 @@ mixin SentryFlutter {
     options.sdk = sdk;
   }
 
-  @Deprecated('Use reportFullyDisplayed() on a SentryDisplay instance instead. Read the TTFD documentation at https://docs.sentry.io/platforms/dart/guides/flutter/integrations/routing-instrumentation/#time-to-full-display.')
+  @Deprecated(
+      'Use reportFullyDisplayed() on a SentryDisplay instance instead. Read the TTFD documentation at https://docs.sentry.io/platforms/dart/guides/flutter/integrations/routing-instrumentation/#time-to-full-display.')
   static Future<void> reportFullyDisplayed() async {
     final options = Sentry.currentHub.options;
     if (options is SentryFlutterOptions) {
@@ -271,7 +272,7 @@ mixin SentryFlutter {
   /// Example:
   /// ```dart
   /// // At the start of async work
-  /// final currentDisplay = SentryNavigatorObserver.currentDisplay;
+  /// final currentDisplay = SentryFlutter.currentDisplay;
   ///
   /// // After async work completes
   /// if (currentDisplay != null) {
