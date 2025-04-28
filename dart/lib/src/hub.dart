@@ -507,12 +507,7 @@ class Hub {
         SentryLevel.warning,
         "Instance is disabled and this 'getSpan' call is a no-op.",
       );
-    } else if (!_options.isTracingEnabled()) {
-      _options.logger(
-        SentryLevel.info,
-        "Tracing is disabled and this 'getSpan' returns null.",
-      );
-    } else {
+    } else if (_options.isTracingEnabled()) {
       final item = _peek();
 
       span = item.scope.span;

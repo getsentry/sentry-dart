@@ -64,11 +64,8 @@ class SentryFlutterOptions extends SentryOptions {
   }
 
   /// Enable or disable ANR (Application Not Responding).
-  /// Available only for Android.
-  /// Disabled by default as the stack trace most of the time is hanging on
-  /// the MessageChannel from Flutter, but you can enable it if you have
-  /// Java/Kotlin code as well.
-  bool anrEnabled = false;
+  /// Available only for Android. Enabled by default.
+  bool anrEnabled = true;
 
   Duration _anrTimeoutInterval = Duration(milliseconds: 5000);
 
@@ -378,10 +375,12 @@ class SentryFlutterOptions extends SentryOptions {
   // ignore: invalid_use_of_internal_member
   set automatedTestMode(bool value) => super.automatedTestMode = value;
 
-  /// Indicates if SentryNavigatorObserver has been registered
-  /// This is used internally to manage web session tracking features
+  /// If app lifecycle trace generation is enabled, this sets the duration the app must
+  /// be in the background before a new trace id is generated upon resuming.
+  ///
+  /// Defaults to 30 seconds.
   @meta.internal
-  bool navigatorObserverRegistered = false;
+  Duration appInBackgroundTracingThreshold = Duration(seconds: 30);
 }
 
 /// A callback which can be used to suppress capturing of screenshots.

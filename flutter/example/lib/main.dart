@@ -694,7 +694,7 @@ class AndroidExample extends StatelessWidget {
         onPressed: () async {
           await execute('anr');
         },
-        child: const Text('ANR: UI blocked 6 seconds'),
+        child: const Text('ANR: Block UI 10s (Press until dialog appears)'),
       ),
       ElevatedButton(
         onPressed: () async {
