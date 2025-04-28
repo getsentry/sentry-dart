@@ -9,19 +9,23 @@ class SentryDisplay {
   Future<void> reportFullyDisplayed() async {
     // ignore: invalid_use_of_internal_member
     final options = _hub.options;
-    if (options is SentryFlutterOptions) {
-      try {
-        return options.timeToDisplayTracker.reportFullyDisplayed(
-          spanId: spanId,
-        );
-      } catch (exception, stackTrace) {
-        options.logger(
-          SentryLevel.error,
-          'Error while reporting TTFD',
-          exception: exception,
-          stackTrace: stackTrace,
-        );
+    if (options is! SentryFlutterOptions) {
+      return;
+    }
+    try {
+      return options.timeToDisplayTracker.reportFullyDisplayed(
+        spanId: spanId,
+      );
+    } catch (exception, stackTrace) {
+      if (options.automatedTestMode) {
+        rethrow;
       }
+      options.logger(
+        SentryLevel.error,
+        'Error while reporting TTFD',
+        exception: exception,
+        stackTrace: stackTrace,
+      );
     }
   }
 }

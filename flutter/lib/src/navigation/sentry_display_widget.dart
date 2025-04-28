@@ -95,8 +95,8 @@ class _SentryDisplayWidgetState extends State<SentryDisplayWidget> {
     );
   }
 
-  void reportFullyDisplayed() {
-    _display?.reportFullyDisplayed();
+  Future<void> reportFullyDisplayed() async {
+    return _display?.reportFullyDisplayed();
   }
 }
 
