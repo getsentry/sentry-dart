@@ -65,7 +65,7 @@ class TimeToFullDisplayTracker {
 
     if (ttfdSpan == null || ttfdSpan.finished || endTimestamp == null) {
       _options.logger(
-        SentryLevel.warning,
+        SentryLevel.debug,
         'TTFD tracker not started or already completed. Dropping TTFD measurement.',
       );
       _completedTTFDTracking.complete();
