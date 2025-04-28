@@ -165,6 +165,67 @@ void main() {
     expect(transaction, isNotNull);
     expect(transaction.context.operation, SentrySpanOperations.uiLoad);
   });
+
+  group('cancelUnfinishedSpans', () {
+    test('cancels unfinished ttid/ttfd spans', () async {
+      final transaction = fixture.getTransaction() as SentryTracer;
+
+      final ttidSpan = transaction.startChild(
+        SentrySpanOperations.uiTimeToInitialDisplay,
+        description: 'Current route initial display',
+        startTimestamp: transaction.startTimestamp,
+      );
+
+      final ttfdSpan = transaction.startChild(
+        SentrySpanOperations.uiTimeToFullDisplay,
+        description: 'Current route full display',
+        startTimestamp: transaction.startTimestamp,
+      );
+
+      final sut = fixture.getSut();
+
+      final endTimestamp =
+          transaction.startTimestamp.add(Duration(milliseconds: 100));
+      await sut.cancelUnfinishedSpans(transaction, endTimestamp);
+
+      expect(ttidSpan.finished, isTrue);
+      expect(ttidSpan.status, SpanStatus.deadlineExceeded());
+      expect(ttidSpan.endTimestamp, endTimestamp);
+
+      expect(ttfdSpan.finished, isTrue);
+      expect(ttfdSpan.status, SpanStatus.deadlineExceeded());
+      expect(ttfdSpan.endTimestamp, endTimestamp);
+    });
+
+    test('unfinished ttfd will match ttid duration if available', () async {
+      final transaction = fixture.getTransaction() as SentryTracer;
+      final ttidEndTimestamp =
+          transaction.startTimestamp.add(Duration(milliseconds: 50));
+
+      final ttidSpan = transaction.startChild(
+        SentrySpanOperations.uiTimeToInitialDisplay,
+        description: 'Current route initial display',
+        startTimestamp: transaction.startTimestamp,
+      );
+      await ttidSpan.finish(endTimestamp: ttidEndTimestamp);
+
+      final ttfdSpan = transaction.startChild(
+        SentrySpanOperations.uiTimeToFullDisplay,
+        description: 'Current route full display',
+        startTimestamp: transaction.startTimestamp,
+      );
+
+      final sut = fixture.getSut();
+
+      final endTimestamp =
+          transaction.startTimestamp.add(Duration(milliseconds: 100));
+      await sut.cancelUnfinishedSpans(transaction, endTimestamp);
+
+      expect(ttfdSpan.finished, isTrue);
+      expect(ttfdSpan.status, SpanStatus.deadlineExceeded());
+      expect(ttfdSpan.endTimestamp, ttidEndTimestamp);
+    });
+  });
 }
 
 class Fixture {

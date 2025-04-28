@@ -119,7 +119,7 @@ void main() {
       sut = fixture.getSut(triggerApproximationTimeout: true);
       final ttidSpan = await sut.track(transaction: transaction);
 
-      expect(ttidSpan, isNull); 
+      expect(ttidSpan, isNull);
       expect(transaction.children, isEmpty);
     });
 

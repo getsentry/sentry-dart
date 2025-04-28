@@ -175,7 +175,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     _timeToDisplayTracker?.clear();
 
     DateTime timestamp = _hub.options.clock();
-    _finishTimeToDisplayTracking(endTimestamp: timestamp);
+    _finishTransaction(endTimestamp: timestamp);
     _startTimeToDisplayTracking(route, timestamp);
   }
 
@@ -223,7 +223,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     _addWebSessions(from: route, to: previousRoute);
 
     final timestamp = _hub.options.clock();
-    _finishTimeToDisplayTracking(endTimestamp: timestamp, clearAfter: true);
+    _finishTransaction(endTimestamp: timestamp, clearAfter: true);
   }
 
   void _addWebSessions({Route<dynamic>? from, Route<dynamic>? to}) async {
@@ -327,7 +327,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     await _native?.beginNativeFrames();
   }
 
-  Future<void> _finishTimeToDisplayTracking(
+  Future<void> _finishTransaction(
       {required DateTime endTimestamp, bool clearAfter = false}) async {
     final transaction = _transaction;
     _transaction = null;
@@ -341,25 +341,9 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       if (transaction == null || transaction.finished) {
         return;
       }
-
-      // Cancel unfinished TTID/TTFD spans, e.g this might happen if the user navigates
-      // away from the current route before TTFD or TTID is finished.
-      for (final child in (transaction as SentryTracer).children) {
-        if (child.finished) continue;
-
-        final isTTIDSpan = child.context.operation ==
-            SentrySpanOperations.uiTimeToInitialDisplay;
-        final isTTFDSpan =
-            child.context.operation == SentrySpanOperations.uiTimeToFullDisplay;
-        if (isTTIDSpan || isTTFDSpan) {
-          final finishTimestamp = isTTFDSpan
-              ? (_timeToDisplayTracker?.ttidSpan?.endTimestamp ?? endTimestamp)
-              : endTimestamp;
-          await child.finish(
-            endTimestamp: finishTimestamp,
-            status: SpanStatus.deadlineExceeded(),
-          );
-        }
+      if (transaction is SentryTracer) {
+        await _timeToDisplayTracker?.cancelUnfinishedSpans(
+            transaction, endTimestamp);
       }
     } catch (exception, stacktrace) {
       _hub.options.logger(

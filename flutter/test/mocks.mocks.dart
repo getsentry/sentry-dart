@@ -2749,21 +2749,27 @@ class MockTimeToDisplayTracker extends _i1.Mock
       ) as _i2.SentryFlutterOptions);
 
   @override
+  set ttidSpan(_i2.ISentrySpan? _ttidSpan) => super.noSuchMethod(
+        Invocation.setter(#ttidSpan, _ttidSpan),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  set ttfdSpan(_i2.ISentrySpan? _ttfdSpan) => super.noSuchMethod(
+        Invocation.setter(#ttfdSpan, _ttfdSpan),
+        returnValueForMissingStub: null,
+      );
+
+  @override
   _i11.Future<void> track(
     _i2.ISentrySpan? transaction, {
-    required String? routeName,
     DateTime? endTimestamp,
-    String? origin,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
           #track,
           [transaction],
-          {
-            #routeName: routeName,
-            #endTimestamp: endTimestamp,
-            #origin: origin,
-          },
+          {#endTimestamp: endTimestamp},
         ),
         returnValue: _i11.Future<void>.value(),
         returnValueForMissingStub: _i11.Future<void>.value(),
@@ -2773,6 +2779,20 @@ class MockTimeToDisplayTracker extends _i1.Mock
   _i11.Future<void> reportFullyDisplayed({_i2.SpanId? spanId}) =>
       (super.noSuchMethod(
         Invocation.method(#reportFullyDisplayed, [], {#spanId: spanId}),
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
+
+  @override
+  _i11.Future<void> cancelUnfinishedSpans(
+    _i3.SentryTracer? transaction,
+    DateTime? endTimestamp,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(#cancelUnfinishedSpans, [
+          transaction,
+          endTimestamp,
+        ]),
         returnValue: _i11.Future<void>.value(),
         returnValueForMissingStub: _i11.Future<void>.value(),
       ) as _i11.Future<void>);
