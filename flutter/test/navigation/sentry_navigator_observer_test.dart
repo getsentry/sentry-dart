@@ -133,7 +133,6 @@ void main() {
   });
 
   group('$SentryNavigatorObserver', () {
-
     test('didPush starts transaction', () async {
       const name = 'Current Route';
       final currentRoute = route(RouteSettings(name: name));
@@ -1349,13 +1348,13 @@ class Fixture {
       when(hub.generateNewTraceId()).thenAnswer((_) => {});
     }
     final frameCallbackHandler = FakeFrameCallbackHandler(
-        postFrameCallbackDelay: Duration(milliseconds: 10));
+      postFrameCallbackDelay: Duration(milliseconds: 10),
+    );
     timeToInitialDisplayTracker = TimeToInitialDisplayTracker(
       frameCallbackHandler: frameCallbackHandler,
     );
     timeToFullDisplayTracker = TimeToFullDisplayTracker(
-      hub.options,
-      () => timeToInitialDisplayTracker.endTimestamp,
+      autoFinishAfter,
     );
     final options = hub.options;
     if (options is SentryFlutterOptions) {

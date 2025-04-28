@@ -110,18 +110,6 @@ void main() {
       expect(ttidMeasurement?.unit, DurationSentryMeasurementUnit.milliSecond);
       expect(ttidMeasurement?.value, greaterThanOrEqualTo(100));
     });
-
-    test('providing endTimestamp sets endTimestamp ivar', () async {
-      final transaction = fixture.getTransaction();
-      final endTimestamp = fixture.startTimestamp.add(Duration(seconds: 1));
-
-      await sut.track(
-        transaction: transaction,
-        endTimestamp: endTimestamp,
-      );
-
-      expect(sut.endTimestamp, endTimestamp);
-    });
   });
 
   group('determineEndtime', () {
@@ -129,27 +117,27 @@ void main() {
       final transaction = fixture.getTransaction();
 
       sut = fixture.getSut(triggerApproximationTimeout: true);
-      await sut.track(transaction: transaction);
+      final ttidSpan = await sut.track(transaction: transaction);
 
-      expect(sut.endTimestamp, isNull);
+      expect(ttidSpan, isNull); 
       expect(transaction.children, isEmpty);
     });
 
     test('can complete automatically in approximation mode', () async {
       final transaction = fixture.getTransaction();
 
-      await sut.track(transaction: transaction);
+      final ttidSpan = await sut.track(transaction: transaction);
 
-      expect(sut.endTimestamp, isNotNull);
+      expect(ttidSpan, isNotNull);
       expect(transaction.children, hasLength(1));
     });
 
     test('returns the correct approximation end time', () async {
       final transaction = fixture.getTransaction();
 
-      await sut.track(transaction: transaction);
+      final ttidSpan = await sut.track(transaction: transaction);
 
-      final endTimestamp = sut.endTimestamp;
+      final endTimestamp = ttidSpan?.endTimestamp;
       expect(endTimestamp, isNotNull);
       expect(endTimestamp!.difference(fixture.startTimestamp).inSeconds,
           fixture.finishFrameDuration.inSeconds);

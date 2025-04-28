@@ -19,19 +19,14 @@ class TimeToInitialDisplayTracker {
   final FrameCallbackHandler _frameCallbackHandler;
 
   Completer<DateTime?>? _trackingCompleter;
-  DateTime? _endTimestamp;
 
-  /// This endTimestamp is needed in the [TimeToFullDisplayTracker] class
-  @internal
-  DateTime? get endTimestamp => _endTimestamp;
-
-  Future<void> track({
+  Future<ISentrySpan?> track({
     required SentryTracer transaction,
     DateTime? endTimestamp,
     String? origin,
   }) async {
     final _endTimestamp = await _determineEndTime(endTimestamp);
-    if (_endTimestamp == null) return;
+    if (_endTimestamp == null) return null;
 
     final ttidSpan = transaction.startChild(
       SentrySpanOperations.uiTimeToInitialDisplay,
@@ -50,20 +45,17 @@ class TimeToInitialDisplayTracker {
     );
 
     await ttidSpan.finish(endTimestamp: _endTimestamp);
+
+    return ttidSpan;
   }
 
   FutureOr<DateTime?> _determineEndTime(DateTime? endTimestamp) {
     if (endTimestamp != null) {
-      // Store the end timestamp for potential use by TTFD tracking
-      _endTimestamp = endTimestamp;
       return endTimestamp;
     }
     _trackingCompleter = Completer<DateTime?>();
     _frameCallbackHandler.addPostFrameCallback((_) {
-      if (_trackingCompleter != null && !_trackingCompleter!.isCompleted) {
-        _endTimestamp = DateTime.now();
-        _trackingCompleter?.complete(_endTimestamp);
-      }
+      _reportInitialDisplayed();
     });
     return _trackingCompleter?.future.timeout(
       Duration(seconds: 5),
@@ -71,9 +63,13 @@ class TimeToInitialDisplayTracker {
     );
   }
 
+  Future<void> _reportInitialDisplayed() async {
+    if (_trackingCompleter != null && !_trackingCompleter!.isCompleted) {
+      _trackingCompleter?.complete(DateTime.now());
+    }
+  }
+
   void clear() {
     _trackingCompleter = null;
-    // We can't clear the ttid end time stamp here, because it might be needed
-    // in the [TimeToFullDisplayTracker] class
   }
 }

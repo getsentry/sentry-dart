@@ -200,11 +200,7 @@ class Fixture {
     );
     this.ttidTracker = ttidTracker;
 
-    final ttfdTracker = TimeToFullDisplayTracker(
-      options,
-      () => ttidTracker.endTimestamp,
-      autoFinishAfter: Duration(seconds: 2),
-    );
+    final ttfdTracker = TimeToFullDisplayTracker(Duration(seconds: 2));
     this.ttfdTracker = ttfdTracker;
 
     return TimeToDisplayTracker(

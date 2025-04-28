@@ -353,7 +353,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
             child.context.operation == SentrySpanOperations.uiTimeToFullDisplay;
         if (isTTIDSpan || isTTFDSpan) {
           final finishTimestamp = isTTFDSpan
-              ? (_timeToDisplayTracker?.ttidEndTimestamp ?? endTimestamp)
+              ? (_timeToDisplayTracker?.ttidSpan?.endTimestamp ?? endTimestamp)
               : endTimestamp;
           await child.finish(
             endTimestamp: finishTimestamp,

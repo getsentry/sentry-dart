@@ -17,7 +17,7 @@ void main() {
 
   test('reportFullyDisplayed() finishes span', () async {
     final sut = fixture.getSut();
-    final transaction = fixture.getTransaction() as SentryTracer;
+    final transaction = fixture.getTransaction();
     const finishAfterDuration = Duration(seconds: 1);
 
     Future<void>.delayed(finishAfterDuration, () {
@@ -49,13 +49,18 @@ void main() {
       'span finishes automatically after timeout with deadline_exceeded status',
       () async {
     final sut = fixture.getSut();
-    final transaction = fixture.getTransaction() as SentryTracer;
+    final transaction = fixture.getTransaction();
 
-    await sut.track(transaction: transaction);
+    final ttidEndTimestamp = fixture.fakeTTIDEndTimestamp();
+
+    await sut.track(
+      transaction: transaction,
+      ttidEndTimestamp: ttidEndTimestamp,
+    );
 
     final ttfdSpan = transaction.children.first;
     expect(transaction.children, hasLength(1));
-    expect(ttfdSpan.endTimestamp, equals(fixture.endTimestampProvider()));
+    expect(ttfdSpan.endTimestamp, equals(ttidEndTimestamp));
     expect(ttfdSpan.context.operation,
         equals(SentrySpanOperations.uiTimeToFullDisplay));
     expect(ttfdSpan.finished, isTrue);
@@ -67,7 +72,7 @@ void main() {
 
   test('finishing ttfd twice does not throw', () async {
     final sut = fixture.getSut();
-    final transaction = fixture.getTransaction() as SentryTracer;
+    final transaction = fixture.getTransaction();
     const finishAfterDuration = Duration(seconds: 1);
 
     Future<void>.delayed(finishAfterDuration, () {
@@ -88,7 +93,7 @@ void main() {
       () async {
     final sut = fixture.getSut();
 
-    final transactionA = fixture.getTransaction(name: "a") as SentryTracer;
+    final transactionA = fixture.getTransaction(name: "a");
     unawaited(
       sut.track(
         transaction: transactionA,
@@ -96,7 +101,7 @@ void main() {
     );
     await transactionA.finish();
 
-    final transactionB = fixture.getTransaction(name: "b") as SentryTracer;
+    final transactionB = fixture.getTransaction(name: "b");
     unawaited(
       sut.track(
         transaction: transactionB,
@@ -121,27 +126,20 @@ class Fixture {
   final startTimestamp = getUtcDateTime();
   final hub = Hub(defaultTestOptions()..tracesSampleRate = 1.0);
   final autoFinishAfter = const Duration(seconds: 2);
-  late final endTimestampProvider = fakeTTIDEndTimestampProvider();
 
-  ISentrySpan getTransaction({String? name}) {
+  SentryTracer getTransaction({String? name}) {
     return hub.startTransaction(
       name ?? "Current route",
       SentrySpanOperations.uiLoad,
       bindToScope: true,
       startTimestamp: startTimestamp,
-    );
+    ) as SentryTracer;
   }
 
-  EndTimestampProvider fakeTTIDEndTimestampProvider() =>
-      () => startTimestamp.add(const Duration(seconds: 1));
+  DateTime fakeTTIDEndTimestamp() =>
+      startTimestamp.add(const Duration(seconds: 1));
 
-  TimeToFullDisplayTracker getSut(
-      {EndTimestampProvider? endTimestampProvider}) {
-    endTimestampProvider ??= this.endTimestampProvider;
-    return TimeToFullDisplayTracker(
-      hub.options,
-      endTimestampProvider,
-      autoFinishAfter: autoFinishAfter,
-    );
+  TimeToFullDisplayTracker getSut() {
+    return TimeToFullDisplayTracker(autoFinishAfter);
   }
 }

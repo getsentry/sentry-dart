@@ -22,13 +22,12 @@ class TimeToDisplayTracker {
     _ttidTracker = ttidTracker ?? TimeToInitialDisplayTracker();
     _ttfdTracker = ttfdTracker ??
         TimeToFullDisplayTracker(
-          options,
-          () => _ttidTracker.endTimestamp,
+          Duration(seconds: 30),
         );
   }
 
-  @internal
-  DateTime? get ttidEndTimestamp => _ttidTracker.endTimestamp;
+  ISentrySpan? ttidSpan;
+  ISentrySpan? ttfdSpan;
 
   Future<void> track(
     ISentrySpan transaction, {
@@ -39,7 +38,7 @@ class TimeToDisplayTracker {
       return;
     }
     // TTID
-    await _ttidTracker.track(
+    ttidSpan = await _ttidTracker.track(
       transaction: transaction,
       endTimestamp: endTimestamp,
       origin: origin,
@@ -47,7 +46,10 @@ class TimeToDisplayTracker {
 
     // TTFD
     if (options.enableTimeToFullDisplayTracing) {
-      await _ttfdTracker.track(transaction: transaction);
+      ttfdSpan = await _ttfdTracker.track(
+        transaction: transaction,
+        ttidEndTimestamp: ttidSpan?.endTimestamp,
+      );
     }
   }
 
@@ -60,8 +62,11 @@ class TimeToDisplayTracker {
 
   void clear() {
     _ttidTracker.clear();
+    ttidSpan = null;
+
     if (options.enableTimeToFullDisplayTracing) {
       _ttfdTracker.clear();
+      ttfdSpan = null;
     }
   }
 }
