@@ -24,9 +24,6 @@ class TimeToInitialDisplayTracker {
     required SentryTracer transaction,
     DateTime? endTimestamp,
   }) async {
-    final _endTimestamp = await _determineEndTime(endTimestamp);
-    if (_endTimestamp == null) return null;
-
     final ttidSpan = transaction.startChild(
       SentrySpanOperations.uiTimeToInitialDisplay,
       description: '${transaction.name} initial display',
@@ -34,16 +31,31 @@ class TimeToInitialDisplayTracker {
     );
     ttidSpan.origin = SentryTraceOrigins.autoUiTimeToDisplay;
 
-    final ttidMeasurement = SentryMeasurement.timeToInitialDisplay(
-      _endTimestamp.difference(transaction.startTimestamp),
-    );
-    transaction.setMeasurement(
-      ttidMeasurement.name,
-      ttidMeasurement.value,
-      unit: ttidMeasurement.unit,
-    );
+    final determinedEndTimestamp = await _determineEndTime(endTimestamp);
+    final fallbackEndTimestamp = getUtcDateTime();
+    final _endTimestamp = determinedEndTimestamp ?? fallbackEndTimestamp;
 
-    await ttidSpan.finish(endTimestamp: _endTimestamp);
+    // If a timestamp is provided, the operation was successful; otherwise, it timed out
+    final status = determinedEndTimestamp != null
+        ? SpanStatus.ok()
+        : SpanStatus.deadlineExceeded();
+
+    // Should only add measurements if the span is successful
+    if (status == SpanStatus.ok()) {
+      final ttidMeasurement = SentryMeasurement.timeToInitialDisplay(
+        _endTimestamp.difference(transaction.startTimestamp),
+      );
+      transaction.setMeasurement(
+        ttidMeasurement.name,
+        ttidMeasurement.value,
+        unit: ttidMeasurement.unit,
+      );
+    }
+
+    await ttidSpan.finish(
+      status: status,
+      endTimestamp: _endTimestamp,
+    );
 
     return ttidSpan;
   }

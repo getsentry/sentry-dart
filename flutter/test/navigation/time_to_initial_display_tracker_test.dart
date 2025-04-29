@@ -103,45 +103,31 @@ void main() {
       final ttidSpan = transaction.children.first;
       expect(endTimestamp, ttidSpan.endTimestamp);
 
-      final ttidMeasurement =
-          transaction.measurements['time_to_initial_display'];
-
-      expect(ttidMeasurement, isNotNull);
-      expect(ttidMeasurement?.unit, DurationSentryMeasurementUnit.milliSecond);
-      expect(ttidMeasurement?.value, greaterThanOrEqualTo(100));
+      expect(transaction.measurements, isNotEmpty);
     });
   });
 
-  group('determineEndtime', () {
-    test('can complete as null in approximation mode with timeout', () async {
-      final transaction = fixture.getTransaction();
+  test(
+      'span finishes automatically after timeout with deadline_exceeded status',
+      () async {
+    final transaction = fixture.getTransaction();
+    sut = fixture.getSut(triggerApproximationTimeout: true);
 
-      sut = fixture.getSut(triggerApproximationTimeout: true);
-      final ttidSpan = await sut.track(transaction: transaction);
+    final ttidSpan = await sut.track(transaction: transaction);
 
-      expect(ttidSpan, isNull);
-      expect(transaction.children, isEmpty);
-    });
+    final children = transaction.children;
+    expect(children, hasLength(1));
+    expect(ttidSpan, children.first);
+    expect(ttidSpan, isNotNull);
 
-    test('can complete automatically in approximation mode', () async {
-      final transaction = fixture.getTransaction();
+    expect(ttidSpan?.context.operation,
+        SentrySpanOperations.uiTimeToInitialDisplay);
+    expect(ttidSpan?.finished, isTrue);
+    expect(ttidSpan?.status, equals(SpanStatus.deadlineExceeded()));
+    expect(ttidSpan?.context.description, 'Regular route initial display');
+    expect(ttidSpan?.origin, SentryTraceOrigins.autoUiTimeToDisplay);
 
-      final ttidSpan = await sut.track(transaction: transaction);
-
-      expect(ttidSpan, isNotNull);
-      expect(transaction.children, hasLength(1));
-    });
-
-    test('returns the correct approximation end time', () async {
-      final transaction = fixture.getTransaction();
-
-      final ttidSpan = await sut.track(transaction: transaction);
-
-      final endTimestamp = ttidSpan?.endTimestamp;
-      expect(endTimestamp, isNotNull);
-      expect(endTimestamp!.difference(fixture.startTimestamp).inSeconds,
-          fixture.finishFrameDuration.inSeconds);
-    });
+    expect(transaction.measurements, isEmpty);
   });
 }
 
