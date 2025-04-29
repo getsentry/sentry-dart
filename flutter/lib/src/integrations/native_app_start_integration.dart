@@ -17,6 +17,7 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
 
   @override
   void call(Hub hub, SentryFlutterOptions options) async {
+    // Create context early so we have an id to refernce for reporting full display
     final context = SentryTransactionContext(
       'root /',
       // ignore: invalid_use_of_internal_member

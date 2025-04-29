@@ -31,7 +31,7 @@ class TimeToInitialDisplayTracker {
     );
     ttidSpan.origin = SentryTraceOrigins.autoUiTimeToDisplay;
 
-    final determinedEndTimestamp = await _determineEndTime(endTimestamp);
+    final determinedEndTimestamp = endTimestamp ?? await _determineEndTime();
     final fallbackEndTimestamp = getUtcDateTime();
     final _endTimestamp = determinedEndTimestamp ?? fallbackEndTimestamp;
 
@@ -60,10 +60,7 @@ class TimeToInitialDisplayTracker {
     return ttidSpan;
   }
 
-  FutureOr<DateTime?> _determineEndTime(DateTime? endTimestamp) {
-    if (endTimestamp != null) {
-      return endTimestamp;
-    }
+  FutureOr<DateTime?> _determineEndTime() {
     _trackingCompleter = Completer<DateTime?>();
     _frameCallbackHandler.addPostFrameCallback((_) {
       _reportInitialDisplayed();
