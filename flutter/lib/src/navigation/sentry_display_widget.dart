@@ -84,7 +84,7 @@ class _SentryDisplayWidgetState extends State<SentryDisplayWidget> {
   @override
   void initState() {
     super.initState();
-    _display = SentryNavigatorObserver.currentDisplay;
+    _display = SentryFlutter.currentDisplay();
   }
 
   @override

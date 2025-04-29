@@ -475,8 +475,6 @@ void main() {
       await Future<void>.delayed(const Duration(milliseconds: 100));
 
       expect(SentryNavigatorObserver.currentRouteName, 'Current Route');
-      expect(
-          SentryNavigatorObserver.currentDisplay?.spanId, spanContext.spanId);
     });
 
     test('didReplace sets new route name', () {

@@ -250,9 +250,10 @@ mixin SentryFlutter {
     final options = Sentry.currentHub.options;
     if (options is SentryFlutterOptions) {
       try {
-        final currentDisplay = SentryNavigatorObserver.currentDisplay;
+        final currentTransaction =
+            options.timeToDisplayTracker.currentTransaction;
         return options.timeToDisplayTracker.reportFullyDisplayed(
-          spanId: currentDisplay?.spanId,
+          spanId: currentTransaction?.context.spanId,
         );
       } catch (exception, stackTrace) {
         options.logger(
@@ -280,7 +281,15 @@ mixin SentryFlutter {
   /// }
   /// ```
   static SentryDisplay? currentDisplay() {
-    return SentryNavigatorObserver.currentDisplay;
+    final options = Sentry.currentHub.options;
+    if (options is! SentryFlutterOptions) {
+      return null;
+    }
+    final transaction = options.timeToDisplayTracker.currentTransaction;
+    if (transaction == null) {
+      return null;
+    }
+    return SentryDisplay(transaction.context.spanId);
   }
 
   /// Pauses the app hang tracking.

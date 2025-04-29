@@ -9,6 +9,7 @@ import 'package:sentry_flutter/src/navigation/time_to_display_tracker.dart';
 import '../mocks.dart';
 import '../mocks.mocks.dart';
 import 'package:mockito/mockito.dart';
+import 'dart:async';
 
 void main() {
   late Fixture fixture;
@@ -185,6 +186,38 @@ void main() {
 
       verify(fixture.ttidTracker.clear()).called(1);
       verify(fixture.ttfdTracker.clear()).called(1);
+    });
+  });
+
+  group('currentTransaction', () {
+    test('is set when tracking', () async {
+      final transaction = fixture.getTransaction();
+      final ttidTransaction = fixture.getTTIDTransaction(transaction);
+      when(fixture.ttidTracker.track(transaction: transaction))
+          .thenAnswer((_) async => ttidTransaction);
+
+      final sut = fixture.getSut();
+      unawaited(sut.track(transaction));
+
+      expect(sut.currentTransaction, equals(transaction));
+    });
+
+    test('is not set when not tracking', () async {
+      final sut = fixture.getSut();
+
+      expect(sut.currentTransaction, isNull);
+    });
+    test('is reset when clear is called', () async {
+      final transaction = fixture.getTransaction();
+      final ttidTransaction = fixture.getTTIDTransaction(transaction);
+      when(fixture.ttidTracker.track(transaction: transaction))
+          .thenAnswer((_) async => ttidTransaction);
+
+      final sut = fixture.getSut();
+      unawaited(sut.track(transaction));
+      sut.clear();
+
+      expect(sut.currentTransaction, isNull);
     });
   });
 }

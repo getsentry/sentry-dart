@@ -33,9 +33,9 @@ void main() {
   testWidgets(
       '$SentryDisplayWidget reports display with current route spanId when child calls reportFullDisplay',
       (WidgetTester tester) async {
-    const testRouteName = 'test-route';
-    final testRoute = route(RouteSettings(name: testRouteName));
-    fixture.navigatorObserver.didPush(testRoute, null);
+    when(fixture.mockTimeToDisplayTracker.currentTransaction).thenReturn(
+      fixture.mockSentryTracer,
+    );
 
     SpanId? spanId;
 
@@ -44,7 +44,7 @@ void main() {
         home: SentryDisplayWidget(
           child: Builder(
             builder: (context) {
-              final currentDisplay = SentryNavigatorObserver.currentDisplay;
+              final currentDisplay = SentryFlutter.currentDisplay();
               spanId = currentDisplay?.spanId;
 
               expect(spanId, isNotNull);
@@ -69,8 +69,9 @@ class Fixture {
 
   late SentrySpanContext mockSentrySpanContext;
   late MockSentryTracer mockSentryTracer;
-  late MockHub mockHub;
-  late MockTimeToDisplayTracker mockTimeToDisplayTracker;
+  final MockHub mockHub = MockHub();
+  final MockTimeToDisplayTracker mockTimeToDisplayTracker =
+      MockTimeToDisplayTracker();
   late SentryNavigatorObserver navigatorObserver;
 
   Fixture() {
@@ -79,35 +80,9 @@ class Fixture {
 
     mockSentryTracer = MockSentryTracer();
     when(mockSentryTracer.context).thenReturn(mockSentrySpanContext);
-    when(mockSentryTracer.name).thenReturn('foo');
-    when(mockSentryTracer.startTimestamp).thenReturn(DateTime.now());
-    when(mockSentryTracer.startChild(any,
-            description: anyNamed('description'),
-            startTimestamp: anyNamed('startTimestamp')))
-        .thenAnswer((_) => NoOpSentrySpan());
-    when(mockSentryTracer.setMeasurement(any, any, unit: anyNamed('unit')))
-        .thenAnswer((_) => Future<void>.value());
-    when(mockSentryTracer.finish(endTimestamp: anyNamed('endTimestamp')))
-        .thenAnswer((_) => Future<void>.value());
 
-    mockHub = MockHub();
     when(mockHub.options).thenReturn(options);
-    when(mockHub.configureScope(any)).thenAnswer((_) => Future<void>.value());
-    when(mockHub.startTransactionWithContext(
-      any,
-      customSamplingContext: anyNamed('customSamplingContext'),
-      startTimestamp: anyNamed('startTimestamp'),
-      bindToScope: anyNamed('bindToScope'),
-      waitForChildren: anyNamed('waitForChildren'),
-      autoFinishAfter: anyNamed('autoFinishAfter'),
-      trimEnd: anyNamed('trimEnd'),
-      onFinish: anyNamed('onFinish'),
-    )).thenAnswer((_) => mockSentryTracer);
-
-    mockTimeToDisplayTracker = MockTimeToDisplayTracker();
-    when(mockTimeToDisplayTracker.reportFullyDisplayed(
-            spanId: anyNamed('spanId')))
-        .thenAnswer((_) => Future<void>.value());
+    options.timeToDisplayTracker = mockTimeToDisplayTracker;
 
     navigatorObserver = SentryNavigatorObserver(
       hub: mockHub,

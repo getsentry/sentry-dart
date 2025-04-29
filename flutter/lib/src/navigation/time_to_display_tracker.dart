@@ -26,6 +26,12 @@ class TimeToDisplayTracker {
               Duration(seconds: 30),
             );
 
+  ISentrySpan? _currentTransaction;
+
+  /// Returns the current transaction being tracked by the [TimeToDisplayTracker].
+  /// This can be used to report full display for the current route.
+  ISentrySpan? get currentTransaction => _currentTransaction;
+
   Future<void> track(
     ISentrySpan transaction, {
     DateTime? endTimestamp,
@@ -33,6 +39,8 @@ class TimeToDisplayTracker {
     if (transaction is! SentryTracer) {
       return;
     }
+    _currentTransaction = transaction;
+
     // TTID
     final ttidSpan = await _ttidTracker.track(
       transaction: transaction,
@@ -82,6 +90,8 @@ class TimeToDisplayTracker {
   }
 
   void clear() {
+    _currentTransaction = null;
+
     _ttidTracker.clear();
     if (options.enableTimeToFullDisplayTracing) {
       _ttfdTracker.clear();

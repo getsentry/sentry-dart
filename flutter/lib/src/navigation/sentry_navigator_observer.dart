@@ -127,7 +127,6 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
 
   ISentrySpan? _transaction;
 
-  static SpanId? _currentTransactionSpanId;
   static String? _currentRouteName;
 
   static bool _isCreated = false;
@@ -137,12 +136,6 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
 
   @internal
   static String? get currentRouteName => _currentRouteName;
-
-  /// Returns the current display being tracked by the [SentryNavigatorObserver].
-  /// This can be used to report full display for the current route.
-  static SentryDisplay? get currentDisplay => _currentTransactionSpanId != null
-      ? SentryDisplay(_currentTransactionSpanId!)
-      : null;
 
   @override
   void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
@@ -315,8 +308,6 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     await _hub.configureScope((scope) {
       scope.span ??= _transaction;
     });
-
-    _currentTransactionSpanId = _transaction?.context.spanId;
 
     await _native?.beginNativeFrames();
   }
