@@ -11,11 +11,6 @@ const fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
 void main() {
   late Fixture fixture;
 
-  PageRoute<dynamic> route(RouteSettings? settings) => PageRouteBuilder<void>(
-        pageBuilder: (_, __, ___) => Container(),
-        settings: settings,
-      );
-
   setUp(() async {
     fixture = Fixture();
     await SentryFlutter.init(
