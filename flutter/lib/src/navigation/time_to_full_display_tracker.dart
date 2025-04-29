@@ -64,7 +64,8 @@ class TimeToFullDisplayTracker {
     );
   }
 
-  Future<void> reportFullyDisplayed({SpanId? spanId}) async {
+  Future<void> reportFullyDisplayed(
+      {SpanId? spanId, DateTime? endTimestamp}) async {
     final startSpanId = _parentSpanId;
     final endSpanId = spanId;
 
@@ -72,7 +73,7 @@ class TimeToFullDisplayTracker {
       return;
     }
     if (_trackingCompleter != null && !_trackingCompleter!.isCompleted) {
-      _trackingCompleter?.complete(getUtcDateTime());
+      _trackingCompleter?.complete(endTimestamp ?? getUtcDateTime());
     }
   }
 

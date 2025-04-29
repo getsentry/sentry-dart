@@ -26,11 +26,14 @@ class TimeToDisplayTracker {
               Duration(seconds: 30),
             );
 
-  ISentrySpan? _currentTransaction;
+  // The id of the currently tracked transaction
+  SpanId? transactionId;
 
-  /// Returns the current transaction being tracked by the [TimeToDisplayTracker].
-  /// This can be used to report full display for the current route.
-  ISentrySpan? get currentTransaction => _currentTransaction;
+  // The id of the root transaction created in [NativeAppStartIntegration]
+  SpanId? rootTransactionId;
+
+  // The end timestamp of the root transaction. Used in [NativeAppStartHandler]
+  DateTime? rootTransactionEndTimestamp;
 
   Future<void> track(
     ISentrySpan transaction, {
@@ -39,7 +42,7 @@ class TimeToDisplayTracker {
     if (transaction is! SentryTracer) {
       return;
     }
-    _currentTransaction = transaction;
+    transactionId = transaction.context.spanId;
 
     // TTID
     final ttidSpan = await _ttidTracker.track(
@@ -56,16 +59,20 @@ class TimeToDisplayTracker {
     }
   }
 
-  @internal
-  Future<void> reportFullyDisplayed({SpanId? spanId}) async {
+  Future<void> reportFullyDisplayed(
+      {SpanId? spanId, DateTime? endTimestamp}) async {
     if (options.enableTimeToFullDisplayTracing) {
-      return _ttfdTracker.reportFullyDisplayed(spanId: spanId);
+      // Special case for root transaction
+      if (rootTransactionId != null && rootTransactionId == spanId) {
+        rootTransactionEndTimestamp = endTimestamp ?? DateTime.now();
+      }
+      return _ttfdTracker.reportFullyDisplayed(
+          spanId: spanId, endTimestamp: endTimestamp);
     }
   }
 
   // Cancel unfinished TTID/TTFD spans, e.g this might happen if the user navigates
   // away from the current route before TTFD or TTID is finished.
-  @internal
   Future<void> cancelUnfinishedSpans(
       SentryTracer transaction, DateTime endTimestamp) async {
     final ttidSpan = transaction.children.firstWhereOrNull((child) =>
@@ -90,7 +97,7 @@ class TimeToDisplayTracker {
   }
 
   void clear() {
-    _currentTransaction = null;
+    transactionId = null;
 
     _ttidTracker.clear();
     if (options.enableTimeToFullDisplayTracing) {

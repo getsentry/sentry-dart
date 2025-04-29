@@ -2753,6 +2753,28 @@ class MockTimeToDisplayTracker extends _i1.Mock
       ) as _i2.SentryFlutterOptions);
 
   @override
+  set transactionId(_i2.SpanId? _transactionId) => super.noSuchMethod(
+        Invocation.setter(#transactionId, _transactionId),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  set rootTransactionId(_i2.SpanId? _rootTransactionId) => super.noSuchMethod(
+        Invocation.setter(#rootTransactionId, _rootTransactionId),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  set rootTransactionEndTimestamp(DateTime? _rootTransactionEndTimestamp) =>
+      super.noSuchMethod(
+        Invocation.setter(
+          #rootTransactionEndTimestamp,
+          _rootTransactionEndTimestamp,
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
   _i11.Future<void> track(
     _i2.ISentrySpan? transaction, {
     DateTime? endTimestamp,
@@ -2768,9 +2790,15 @@ class MockTimeToDisplayTracker extends _i1.Mock
       ) as _i11.Future<void>);
 
   @override
-  _i11.Future<void> reportFullyDisplayed({_i2.SpanId? spanId}) =>
+  _i11.Future<void> reportFullyDisplayed({
+    _i2.SpanId? spanId,
+    DateTime? endTimestamp,
+  }) =>
       (super.noSuchMethod(
-        Invocation.method(#reportFullyDisplayed, [], {#spanId: spanId}),
+        Invocation.method(#reportFullyDisplayed, [], {
+          #spanId: spanId,
+          #endTimestamp: endTimestamp,
+        }),
         returnValue: _i11.Future<void>.value(),
         returnValueForMissingStub: _i11.Future<void>.value(),
       ) as _i11.Future<void>);
@@ -2849,9 +2877,15 @@ class MockTimeToFullDisplayTracker extends _i1.Mock
       ) as _i11.Future<void>);
 
   @override
-  _i11.Future<void> reportFullyDisplayed({_i2.SpanId? spanId}) =>
+  _i11.Future<void> reportFullyDisplayed({
+    _i2.SpanId? spanId,
+    DateTime? endTimestamp,
+  }) =>
       (super.noSuchMethod(
-        Invocation.method(#reportFullyDisplayed, [], {#spanId: spanId}),
+        Invocation.method(#reportFullyDisplayed, [], {
+          #spanId: spanId,
+          #endTimestamp: endTimestamp,
+        }),
         returnValue: _i11.Future<void>.value(),
         returnValueForMissingStub: _i11.Future<void>.value(),
       ) as _i11.Future<void>);

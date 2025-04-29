@@ -6,6 +6,7 @@ import '../native/sentry_native_binding.dart';
 
 // ignore: implementation_imports
 import 'package:sentry/src/sentry_tracer.dart';
+import 'dart:async';
 
 /// Handles communication with native frameworks in order to enrich
 /// root [SentryTransaction] with app start data for mobile vitals.
@@ -20,8 +21,12 @@ class NativeAppStartHandler {
   /// We filter out App starts more than 60s
   static const _maxAppStartMillis = 60000;
 
-  Future<void> call(Hub hub, SentryFlutterOptions options,
-      {required DateTime appStartEnd}) async {
+  Future<void> call(
+    Hub hub,
+    SentryFlutterOptions options, {
+    required SentryTransactionContext context,
+    required DateTime appStartEnd,
+  }) async {
     _hub = hub;
     _options = options;
 
@@ -36,15 +41,28 @@ class NativeAppStartHandler {
 
     // Create Transaction & Span
 
-    final rootScreenTransaction = _hub.startTransaction(
-      'root /',
-      SentrySpanOperations.uiLoad,
+    final rootScreenTransaction = _hub.startTransactionWithContext(
+      context,
       startTimestamp: appStartInfo.start,
     );
 
     // Bind to scope if null
     await _hub.configureScope((scope) {
       scope.span ??= rootScreenTransaction;
+    });
+
+    /// Workaround to get TTFD when users called it before the root transaction is even created.
+    Future.delayed(const Duration(milliseconds: 1), () {
+      final reportedRootTTFDEndTimestamp =
+          options.timeToDisplayTracker.rootTransactionEndTimestamp;
+      if (reportedRootTTFDEndTimestamp != null) {
+        options.timeToDisplayTracker.reportFullyDisplayed(
+          spanId: rootScreenTransaction.context.spanId,
+          endTimestamp: reportedRootTTFDEndTimestamp.isAfter(appStartInfo.end)
+              ? reportedRootTTFDEndTimestamp
+              : appStartInfo.end,
+        );
+      }
     });
 
     await options.timeToDisplayTracker.track(

@@ -120,6 +120,18 @@ void main() {
     expect(ttfdSpanB.finished, isTrue);
     expect(ttfdSpanB.status, SpanStatus.ok());
   });
+
+  test('reportFullyDisplayed takes optional endTimestamp', () async {
+    final sut = fixture.getSut();
+    final transaction = fixture.getTransaction();
+
+    final endTimestamp = fixture.startTimestamp.add(const Duration(seconds: 1));
+    unawaited(sut.track(transaction: transaction));
+    await sut.reportFullyDisplayed(endTimestamp: endTimestamp);
+
+    final ttfdSpan = transaction.children.first;
+    expect(ttfdSpan.endTimestamp, equals(endTimestamp));
+  });
 }
 
 class Fixture {

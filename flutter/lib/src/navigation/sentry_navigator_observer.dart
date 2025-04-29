@@ -16,7 +16,6 @@ import '../native/native_frames.dart';
 import '../native/sentry_native_binding.dart';
 import '../web/web_session_handler.dart';
 import 'time_to_display_tracker.dart';
-import 'sentry_display.dart';
 
 /// This key must be used so that the web interface displays the events nicely
 /// See https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/

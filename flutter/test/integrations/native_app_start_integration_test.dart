@@ -54,6 +54,7 @@ void main() {
 
       expect(fixture.nativeAppStartHandler.calls, 1);
       expect(fixture.nativeAppStartHandler.appStartEnd, isNotNull);
+      expect(fixture.nativeAppStartHandler.context, isNotNull);
     });
 
     test('sets correct app start from timing', () async {
@@ -114,6 +115,31 @@ void main() {
 
       expect(fixture.frameCallbackHandler.timingsCallback, isNull);
     });
+
+    test('sets root transaction context and ttd transaction ids', () async {
+      fixture.callIntegration();
+
+      final timingsCallback = fixture.frameCallbackHandler.timingsCallback!;
+      timingsCallback([_fakeFrameTiming]);
+
+      expect(fixture.nativeAppStartHandler.context, isNotNull);
+
+      expect(fixture.nativeAppStartHandler.context?.name, 'root /');
+      expect(
+        fixture.nativeAppStartHandler.context?.operation,
+        // ignore: invalid_use_of_internal_member
+        SentrySpanOperations.uiLoad,
+      );
+
+      expect(
+        fixture.options.timeToDisplayTracker.transactionId,
+        fixture.nativeAppStartHandler.context?.spanId,
+      );
+      expect(
+        fixture.options.timeToDisplayTracker.rootTransactionId,
+        fixture.nativeAppStartHandler.context?.spanId,
+      );
+    });
   });
 }
 
@@ -139,13 +165,16 @@ class Fixture {
 }
 
 class FakeNativeAppStartHandler implements NativeAppStartHandler {
+  SentryTransactionContext? context;
   DateTime? appStartEnd;
   var calls = 0;
 
   @override
   Future<void> call(Hub hub, SentryFlutterOptions options,
-      {required DateTime? appStartEnd}) async {
+      {required DateTime? appStartEnd,
+      required SentryTransactionContext context}) async {
     this.appStartEnd = appStartEnd;
+    this.context = context;
     calls += 1;
   }
 }

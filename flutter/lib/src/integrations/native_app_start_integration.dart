@@ -17,6 +17,14 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
 
   @override
   void call(Hub hub, SentryFlutterOptions options) async {
+    final context = SentryTransactionContext(
+      'root /',
+      // ignore: invalid_use_of_internal_member
+      SentrySpanOperations.uiLoad,
+    );
+    options.timeToDisplayTracker.transactionId = context.spanId;
+    options.timeToDisplayTracker.rootTransactionId = context.spanId;
+
     void timingsCallback(List<FrameTiming> timings) async {
       if (!_allowProcessing) {
         return;
@@ -32,6 +40,7 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
         await _nativeAppStartHandler.call(
           hub,
           options,
+          context: context,
           appStartEnd: appStartEnd,
         );
       } catch (exception, stackTrace) {

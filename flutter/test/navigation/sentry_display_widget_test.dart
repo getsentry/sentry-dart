@@ -33,8 +33,8 @@ void main() {
   testWidgets(
       '$SentryDisplayWidget reports display with current route spanId when child calls reportFullDisplay',
       (WidgetTester tester) async {
-    when(fixture.mockTimeToDisplayTracker.currentTransaction).thenReturn(
-      fixture.mockSentryTracer,
+    when(fixture.mockTimeToDisplayTracker.transactionId).thenReturn(
+      fixture.mockSentrySpanContext.spanId,
     );
 
     SpanId? spanId;
@@ -82,7 +82,6 @@ class Fixture {
     when(mockSentryTracer.context).thenReturn(mockSentrySpanContext);
 
     when(mockHub.options).thenReturn(options);
-    options.timeToDisplayTracker = mockTimeToDisplayTracker;
 
     navigatorObserver = SentryNavigatorObserver(
       hub: mockHub,

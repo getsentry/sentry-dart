@@ -250,10 +250,9 @@ mixin SentryFlutter {
     final options = Sentry.currentHub.options;
     if (options is SentryFlutterOptions) {
       try {
-        final currentTransaction =
-            options.timeToDisplayTracker.currentTransaction;
+        final transactionId = options.timeToDisplayTracker.transactionId;
         return options.timeToDisplayTracker.reportFullyDisplayed(
-          spanId: currentTransaction?.context.spanId,
+          spanId: transactionId,
         );
       } catch (exception, stackTrace) {
         options.logger(
@@ -285,11 +284,11 @@ mixin SentryFlutter {
     if (options is! SentryFlutterOptions) {
       return null;
     }
-    final transaction = options.timeToDisplayTracker.currentTransaction;
-    if (transaction == null) {
+    final transactionId = options.timeToDisplayTracker.transactionId;
+    if (transactionId == null) {
       return null;
     }
-    return SentryDisplay(transaction.context.spanId);
+    return SentryDisplay(transactionId);
   }
 
   /// Pauses the app hang tracking.

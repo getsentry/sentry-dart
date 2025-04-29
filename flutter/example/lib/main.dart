@@ -62,7 +62,7 @@ Future<void> setupSentry(
   BeforeSendCallback? beforeSendCallback,
 }) async {
   await SentryFlutter.init(
-    (options) {
+    (options) async {
       options.dsn = exampleDsn;
       options.tracesSampleRate = 1.0;
       options.profilesSampleRate = 1.0;
@@ -111,10 +111,17 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   @override
-  Widget build(BuildContext context) {
+  void initState() {
+    super.initState();
+    final rootDisplay = SentryFlutter.currentDisplay();
     Future.delayed(const Duration(seconds: 3), () {
-      SentryFlutter.reportFullyDisplayed();
+      // Do some long running work...
+      rootDisplay?.reportFullyDisplayed();
     });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return feedback.BetterFeedback(
       child: ChangeNotifierProvider<ThemeProvider>(
         create: (_) => ThemeProvider(),

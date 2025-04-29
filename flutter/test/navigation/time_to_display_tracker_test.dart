@@ -189,7 +189,7 @@ void main() {
     });
   });
 
-  group('currentTransaction', () {
+  group('transactionId', () {
     test('is set when tracking', () async {
       final transaction = fixture.getTransaction();
       final ttidTransaction = fixture.getTTIDTransaction(transaction);
@@ -199,13 +199,13 @@ void main() {
       final sut = fixture.getSut();
       unawaited(sut.track(transaction));
 
-      expect(sut.currentTransaction, equals(transaction));
+      expect(sut.transactionId, equals(transaction.context.spanId));
     });
 
     test('is not set when not tracking', () async {
       final sut = fixture.getSut();
 
-      expect(sut.currentTransaction, isNull);
+      expect(sut.transactionId, isNull);
     });
     test('is reset when clear is called', () async {
       final transaction = fixture.getTransaction();
@@ -217,7 +217,35 @@ void main() {
       unawaited(sut.track(transaction));
       sut.clear();
 
-      expect(sut.currentTransaction, isNull);
+      expect(sut.transactionId, isNull);
+    });
+  });
+
+  group('rootId ', () {
+    test('ttfd on root span sets timestamp', () async {
+      fixture.options.enableTimeToFullDisplayTracing = true;
+
+      final sut = fixture.getSut();
+      final spanId = SpanId.newId();
+      sut.rootTransactionId = spanId;
+
+      await sut.reportFullyDisplayed(spanId: spanId);
+
+      expect(sut.rootTransactionEndTimestamp, isNotNull);
+    });
+
+    test('ttfd on root span sets providedtimestamp', () async {
+      fixture.options.enableTimeToFullDisplayTracing = true;
+
+      final sut = fixture.getSut();
+      final spanId = SpanId.newId();
+      sut.rootTransactionId = spanId;
+
+      final endTimestamp = DateTime.now().add(Duration(milliseconds: 100));
+      await sut.reportFullyDisplayed(
+          spanId: spanId, endTimestamp: endTimestamp);
+
+      expect(sut.rootTransactionEndTimestamp, endTimestamp);
     });
   });
 }
