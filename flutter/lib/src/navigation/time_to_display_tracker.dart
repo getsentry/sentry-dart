@@ -13,7 +13,6 @@ import 'package:sentry/src/sentry_tracer.dart';
 class TimeToDisplayTracker {
   final TimeToInitialDisplayTracker _ttidTracker;
   final TimeToFullDisplayTracker _ttfdTracker;
-
   final SentryFlutterOptions options;
 
   TimeToDisplayTracker({
