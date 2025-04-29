@@ -189,8 +189,9 @@ class _FakeAccessibilityFeatures_25 extends _i1.SmartFake
       : super(parent, parentInvocation);
 }
 
-class _FakeRenderView_26 extends _i1.SmartFake implements _i10.RenderView {
-  _FakeRenderView_26(Object parent, Invocation parentInvocation)
+class _FakePipelineOwner_26 extends _i1.SmartFake
+    implements _i10.PipelineOwner {
+  _FakePipelineOwner_26(Object parent, Invocation parentInvocation)
       : super(parent, parentInvocation);
 
   @override
@@ -198,19 +199,28 @@ class _FakeRenderView_26 extends _i1.SmartFake implements _i10.RenderView {
       super.toString();
 }
 
-class _FakeMouseTracker_27 extends _i1.SmartFake implements _i10.MouseTracker {
-  _FakeMouseTracker_27(Object parent, Invocation parentInvocation)
+class _FakeRenderView_27 extends _i1.SmartFake implements _i10.RenderView {
+  _FakeRenderView_27(Object parent, Invocation parentInvocation)
+      : super(parent, parentInvocation);
+
+  @override
+  String toString({_i4.DiagnosticLevel? minLevel = _i4.DiagnosticLevel.info}) =>
+      super.toString();
+}
+
+class _FakeMouseTracker_28 extends _i1.SmartFake implements _i10.MouseTracker {
+  _FakeMouseTracker_28(Object parent, Invocation parentInvocation)
       : super(parent, parentInvocation);
 }
 
-class _FakePlatformMenuDelegate_28 extends _i1.SmartFake
+class _FakePlatformMenuDelegate_29 extends _i1.SmartFake
     implements _i9.PlatformMenuDelegate {
-  _FakePlatformMenuDelegate_28(Object parent, Invocation parentInvocation)
+  _FakePlatformMenuDelegate_29(Object parent, Invocation parentInvocation)
       : super(parent, parentInvocation);
 }
 
-class _FakeFocusManager_29 extends _i1.SmartFake implements _i9.FocusManager {
-  _FakeFocusManager_29(Object parent, Invocation parentInvocation)
+class _FakeFocusManager_30 extends _i1.SmartFake implements _i9.FocusManager {
+  _FakeFocusManager_30(Object parent, Invocation parentInvocation)
       : super(parent, parentInvocation);
 
   @override
@@ -218,52 +228,52 @@ class _FakeFocusManager_29 extends _i1.SmartFake implements _i9.FocusManager {
       super.toString();
 }
 
-class _FakeFuture_30<T1> extends _i1.SmartFake implements _i11.Future<T1> {
-  _FakeFuture_30(Object parent, Invocation parentInvocation)
+class _FakeFuture_31<T1> extends _i1.SmartFake implements _i11.Future<T1> {
+  _FakeFuture_31(Object parent, Invocation parentInvocation)
       : super(parent, parentInvocation);
 }
 
-class _FakeCodec_31 extends _i1.SmartFake implements _i6.Codec {
-  _FakeCodec_31(Object parent, Invocation parentInvocation)
+class _FakeCodec_32 extends _i1.SmartFake implements _i6.Codec {
+  _FakeCodec_32(Object parent, Invocation parentInvocation)
       : super(parent, parentInvocation);
 }
 
-class _FakeSemanticsHandle_32 extends _i1.SmartFake
+class _FakeSemanticsHandle_33 extends _i1.SmartFake
     implements _i12.SemanticsHandle {
-  _FakeSemanticsHandle_32(Object parent, Invocation parentInvocation)
+  _FakeSemanticsHandle_33(Object parent, Invocation parentInvocation)
       : super(parent, parentInvocation);
 }
 
-class _FakeSemanticsUpdateBuilder_33 extends _i1.SmartFake
+class _FakeSemanticsUpdateBuilder_34 extends _i1.SmartFake
     implements _i6.SemanticsUpdateBuilder {
-  _FakeSemanticsUpdateBuilder_33(Object parent, Invocation parentInvocation)
+  _FakeSemanticsUpdateBuilder_34(Object parent, Invocation parentInvocation)
       : super(parent, parentInvocation);
 }
 
-class _FakeViewConfiguration_34 extends _i1.SmartFake
+class _FakeViewConfiguration_35 extends _i1.SmartFake
     implements _i10.ViewConfiguration {
-  _FakeViewConfiguration_34(Object parent, Invocation parentInvocation)
+  _FakeViewConfiguration_35(Object parent, Invocation parentInvocation)
       : super(parent, parentInvocation);
 }
 
-class _FakeSceneBuilder_35 extends _i1.SmartFake implements _i6.SceneBuilder {
-  _FakeSceneBuilder_35(Object parent, Invocation parentInvocation)
+class _FakeSceneBuilder_36 extends _i1.SmartFake implements _i6.SceneBuilder {
+  _FakeSceneBuilder_36(Object parent, Invocation parentInvocation)
       : super(parent, parentInvocation);
 }
 
-class _FakePictureRecorder_36 extends _i1.SmartFake
+class _FakePictureRecorder_37 extends _i1.SmartFake
     implements _i6.PictureRecorder {
-  _FakePictureRecorder_36(Object parent, Invocation parentInvocation)
+  _FakePictureRecorder_37(Object parent, Invocation parentInvocation)
       : super(parent, parentInvocation);
 }
 
-class _FakeCanvas_37 extends _i1.SmartFake implements _i6.Canvas {
-  _FakeCanvas_37(Object parent, Invocation parentInvocation)
+class _FakeCanvas_38 extends _i1.SmartFake implements _i6.Canvas {
+  _FakeCanvas_38(Object parent, Invocation parentInvocation)
       : super(parent, parentInvocation);
 }
 
-class _FakeWidget_38 extends _i1.SmartFake implements _i9.Widget {
-  _FakeWidget_38(Object parent, Invocation parentInvocation)
+class _FakeWidget_39 extends _i1.SmartFake implements _i9.Widget {
+  _FakeWidget_39(Object parent, Invocation parentInvocation)
       : super(parent, parentInvocation);
 
   @override
@@ -271,18 +281,18 @@ class _FakeWidget_38 extends _i1.SmartFake implements _i9.Widget {
       super.toString();
 }
 
-class _FakeSentryOptions_39 extends _i1.SmartFake implements _i2.SentryOptions {
-  _FakeSentryOptions_39(Object parent, Invocation parentInvocation)
+class _FakeSentryOptions_40 extends _i1.SmartFake implements _i2.SentryOptions {
+  _FakeSentryOptions_40(Object parent, Invocation parentInvocation)
       : super(parent, parentInvocation);
 }
 
-class _FakeScope_40 extends _i1.SmartFake implements _i2.Scope {
-  _FakeScope_40(Object parent, Invocation parentInvocation)
+class _FakeScope_41 extends _i1.SmartFake implements _i2.Scope {
+  _FakeScope_41(Object parent, Invocation parentInvocation)
       : super(parent, parentInvocation);
 }
 
-class _FakeHub_41 extends _i1.SmartFake implements _i2.Hub {
-  _FakeHub_41(Object parent, Invocation parentInvocation)
+class _FakeHub_42 extends _i1.SmartFake implements _i2.Hub {
+  _FakeHub_42(Object parent, Invocation parentInvocation)
       : super(parent, parentInvocation);
 }
 
@@ -1780,7 +1790,7 @@ class MockWidgetsFlutterBinding extends _i1.Mock
   @override
   _i10.PipelineOwner get pipelineOwner => (super.noSuchMethod(
         Invocation.getter(#pipelineOwner),
-        returnValue: _i14.dummyValue<_i10.PipelineOwner>(
+        returnValue: _FakePipelineOwner_26(
           this,
           Invocation.getter(#pipelineOwner),
         ),
@@ -1789,7 +1799,7 @@ class MockWidgetsFlutterBinding extends _i1.Mock
   @override
   _i10.RenderView get renderView => (super.noSuchMethod(
         Invocation.getter(#renderView),
-        returnValue: _FakeRenderView_26(
+        returnValue: _FakeRenderView_27(
           this,
           Invocation.getter(#renderView),
         ),
@@ -1798,7 +1808,7 @@ class MockWidgetsFlutterBinding extends _i1.Mock
   @override
   _i10.MouseTracker get mouseTracker => (super.noSuchMethod(
         Invocation.getter(#mouseTracker),
-        returnValue: _FakeMouseTracker_27(
+        returnValue: _FakeMouseTracker_28(
           this,
           Invocation.getter(#mouseTracker),
         ),
@@ -1807,7 +1817,7 @@ class MockWidgetsFlutterBinding extends _i1.Mock
   @override
   _i10.PipelineOwner get rootPipelineOwner => (super.noSuchMethod(
         Invocation.getter(#rootPipelineOwner),
-        returnValue: _i14.dummyValue<_i10.PipelineOwner>(
+        returnValue: _FakePipelineOwner_26(
           this,
           Invocation.getter(#rootPipelineOwner),
         ),
@@ -1828,7 +1838,7 @@ class MockWidgetsFlutterBinding extends _i1.Mock
   @override
   _i9.PlatformMenuDelegate get platformMenuDelegate => (super.noSuchMethod(
         Invocation.getter(#platformMenuDelegate),
-        returnValue: _FakePlatformMenuDelegate_28(
+        returnValue: _FakePlatformMenuDelegate_29(
           this,
           Invocation.getter(#platformMenuDelegate),
         ),
@@ -1882,7 +1892,7 @@ class MockWidgetsFlutterBinding extends _i1.Mock
   @override
   _i9.FocusManager get focusManager => (super.noSuchMethod(
         Invocation.getter(#focusManager),
-        returnValue: _FakeFocusManager_29(
+        returnValue: _FakeFocusManager_30(
           this,
           Invocation.getter(#focusManager),
         ),
@@ -2142,7 +2152,7 @@ class MockWidgetsFlutterBinding extends _i1.Mock
               ),
               (T v) => _i11.Future<T>.value(v),
             ) ??
-            _FakeFuture_30<T>(
+            _FakeFuture_31<T>(
               this,
               Invocation.method(
                 #scheduleTask,
@@ -2162,16 +2172,12 @@ class MockWidgetsFlutterBinding extends _i1.Mock
   int scheduleFrameCallback(
     _i21.FrameCallback? callback, {
     bool? rescheduling = false,
-    bool? scheduleNewFrame = true,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
           #scheduleFrameCallback,
           [callback],
-          {
-            #rescheduling: rescheduling,
-            #scheduleNewFrame: scheduleNewFrame,
-          },
+          {#rescheduling: rescheduling},
         ),
         returnValue: 0,
       ) as int);
@@ -2397,7 +2403,7 @@ class MockWidgetsFlutterBinding extends _i1.Mock
           },
         ),
         returnValue: _i11.Future<_i6.Codec>.value(
-          _FakeCodec_31(
+          _FakeCodec_32(
             this,
             Invocation.method(
               #instantiateImageCodecFromBuffer,
@@ -2424,7 +2430,7 @@ class MockWidgetsFlutterBinding extends _i1.Mock
           {#getTargetSize: getTargetSize},
         ),
         returnValue: _i11.Future<_i6.Codec>.value(
-          _FakeCodec_31(
+          _FakeCodec_32(
             this,
             Invocation.method(
               #instantiateImageCodecWithSize,
@@ -2450,27 +2456,9 @@ class MockWidgetsFlutterBinding extends _i1.Mock
       );
 
   @override
-  void addSemanticsActionListener(
-    _i8.ValueSetter<_i6.SemanticsActionEvent>? listener,
-  ) =>
-      super.noSuchMethod(
-        Invocation.method(#addSemanticsActionListener, [listener]),
-        returnValueForMissingStub: null,
-      );
-
-  @override
-  void removeSemanticsActionListener(
-    _i8.ValueSetter<_i6.SemanticsActionEvent>? listener,
-  ) =>
-      super.noSuchMethod(
-        Invocation.method(#removeSemanticsActionListener, [listener]),
-        returnValueForMissingStub: null,
-      );
-
-  @override
   _i12.SemanticsHandle ensureSemantics() => (super.noSuchMethod(
         Invocation.method(#ensureSemantics, []),
-        returnValue: _FakeSemanticsHandle_32(
+        returnValue: _FakeSemanticsHandle_33(
           this,
           Invocation.method(#ensureSemantics, []),
         ),
@@ -2493,7 +2481,7 @@ class MockWidgetsFlutterBinding extends _i1.Mock
   _i6.SemanticsUpdateBuilder createSemanticsUpdateBuilder() =>
       (super.noSuchMethod(
         Invocation.method(#createSemanticsUpdateBuilder, []),
-        returnValue: _FakeSemanticsUpdateBuilder_33(
+        returnValue: _FakeSemanticsUpdateBuilder_34(
           this,
           Invocation.method(#createSemanticsUpdateBuilder, []),
         ),
@@ -2502,7 +2490,7 @@ class MockWidgetsFlutterBinding extends _i1.Mock
   @override
   _i10.PipelineOwner createRootPipelineOwner() => (super.noSuchMethod(
         Invocation.method(#createRootPipelineOwner, []),
-        returnValue: _i14.dummyValue<_i10.PipelineOwner>(
+        returnValue: _FakePipelineOwner_26(
           this,
           Invocation.method(#createRootPipelineOwner, []),
         ),
@@ -2526,7 +2514,7 @@ class MockWidgetsFlutterBinding extends _i1.Mock
   ) =>
       (super.noSuchMethod(
         Invocation.method(#createViewConfigurationFor, [renderView]),
-        returnValue: _FakeViewConfiguration_34(
+        returnValue: _FakeViewConfiguration_35(
           this,
           Invocation.method(#createViewConfigurationFor, [renderView]),
         ),
@@ -2535,7 +2523,7 @@ class MockWidgetsFlutterBinding extends _i1.Mock
   @override
   _i6.SceneBuilder createSceneBuilder() => (super.noSuchMethod(
         Invocation.method(#createSceneBuilder, []),
-        returnValue: _FakeSceneBuilder_35(
+        returnValue: _FakeSceneBuilder_36(
           this,
           Invocation.method(#createSceneBuilder, []),
         ),
@@ -2544,7 +2532,7 @@ class MockWidgetsFlutterBinding extends _i1.Mock
   @override
   _i6.PictureRecorder createPictureRecorder() => (super.noSuchMethod(
         Invocation.method(#createPictureRecorder, []),
-        returnValue: _FakePictureRecorder_36(
+        returnValue: _FakePictureRecorder_37(
           this,
           Invocation.method(#createPictureRecorder, []),
         ),
@@ -2553,7 +2541,7 @@ class MockWidgetsFlutterBinding extends _i1.Mock
   @override
   _i6.Canvas createCanvas(_i6.PictureRecorder? recorder) => (super.noSuchMethod(
         Invocation.method(#createCanvas, [recorder]),
-        returnValue: _FakeCanvas_37(
+        returnValue: _FakeCanvas_38(
           this,
           Invocation.method(#createCanvas, [recorder]),
         ),
@@ -2653,7 +2641,7 @@ class MockWidgetsFlutterBinding extends _i1.Mock
   @override
   _i9.Widget wrapWithDefaultView(_i9.Widget? rootWidget) => (super.noSuchMethod(
         Invocation.method(#wrapWithDefaultView, [rootWidget]),
-        returnValue: _FakeWidget_38(
+        returnValue: _FakeWidget_39(
           this,
           Invocation.method(#wrapWithDefaultView, [rootWidget]),
         ),
@@ -2745,7 +2733,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
   @override
   _i2.SentryOptions get options => (super.noSuchMethod(
         Invocation.getter(#options),
-        returnValue: _FakeSentryOptions_39(
+        returnValue: _FakeSentryOptions_40(
           this,
           Invocation.getter(#options),
         ),
@@ -2765,7 +2753,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
   @override
   _i2.Scope get scope => (super.noSuchMethod(
         Invocation.getter(#scope),
-        returnValue: _FakeScope_40(this, Invocation.getter(#scope)),
+        returnValue: _FakeScope_41(this, Invocation.getter(#scope)),
       ) as _i2.Scope);
 
   @override
@@ -2804,13 +2792,19 @@ class MockHub extends _i1.Mock implements _i2.Hub {
     dynamic throwable, {
     dynamic stackTrace,
     _i2.Hint? hint,
+    _i2.SentryMessage? message,
     _i2.ScopeCallback? withScope,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
           #captureException,
           [throwable],
-          {#stackTrace: stackTrace, #hint: hint, #withScope: withScope},
+          {
+            #stackTrace: stackTrace,
+            #hint: hint,
+            #message: message,
+            #withScope: withScope,
+          },
         ),
         returnValue: _i11.Future<_i2.SentryId>.value(
           _FakeSentryId_5(
@@ -2818,7 +2812,12 @@ class MockHub extends _i1.Mock implements _i2.Hub {
             Invocation.method(
               #captureException,
               [throwable],
-              {#stackTrace: stackTrace, #hint: hint, #withScope: withScope},
+              {
+                #stackTrace: stackTrace,
+                #hint: hint,
+                #message: message,
+                #withScope: withScope,
+              },
             ),
           ),
         ),
@@ -2904,7 +2903,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
   @override
   _i2.Hub clone() => (super.noSuchMethod(
         Invocation.method(#clone, []),
-        returnValue: _FakeHub_41(this, Invocation.method(#clone, [])),
+        returnValue: _FakeHub_42(this, Invocation.method(#clone, [])),
       ) as _i2.Hub);
 
   @override
@@ -3003,6 +3002,12 @@ class MockHub extends _i1.Mock implements _i2.Hub {
           ),
         ),
       ) as _i2.ISentrySpan);
+
+  @override
+  void generateNewTraceId() => super.noSuchMethod(
+        Invocation.method(#generateNewTraceId, []),
+        returnValueForMissingStub: null,
+      );
 
   @override
   _i11.Future<_i2.SentryId> captureTransaction(
