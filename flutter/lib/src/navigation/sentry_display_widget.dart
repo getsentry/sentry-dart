@@ -64,9 +64,11 @@ import '../../sentry_flutter.dart';
 /// }
 /// ```
 class SentryDisplayWidget extends StatefulWidget {
-  const SentryDisplayWidget({super.key, required this.child});
+  const SentryDisplayWidget({super.key, required this.child, Hub? hub})
+      : _hub = hub;
 
   final Widget child;
+  final Hub? _hub;
 
   static _SentryDisplayWidgetState of(BuildContext context) {
     return context
@@ -79,7 +81,13 @@ class SentryDisplayWidget extends StatefulWidget {
 }
 
 class _SentryDisplayWidgetState extends State<SentryDisplayWidget> {
-  final SentryDisplay? _display = SentryFlutter.currentDisplay();
+  SentryDisplay? _display;
+
+  @override
+  void initState() {
+    super.initState();
+    _display = SentryFlutter.currentDisplay(hub: widget._hub);
+  }
 
   @override
   Widget build(BuildContext context) {

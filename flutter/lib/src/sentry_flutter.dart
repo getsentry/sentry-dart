@@ -279,8 +279,10 @@ mixin SentryFlutter {
   ///   currentDisplay.reportFullyDisplayed();
   /// }
   /// ```
-  static SentryDisplay? currentDisplay() {
-    final options = Sentry.currentHub.options;
+  static SentryDisplay? currentDisplay({Hub? hub}) {
+    hub ??= Sentry.currentHub;
+
+    final options = hub.options;
     if (options is! SentryFlutterOptions) {
       return null;
     }
@@ -288,7 +290,7 @@ mixin SentryFlutter {
     if (transactionId == null) {
       return null;
     }
-    return SentryDisplay(transactionId);
+    return SentryDisplay(transactionId, hub: hub);
   }
 
   /// Pauses the app hang tracking.
