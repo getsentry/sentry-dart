@@ -7,6 +7,8 @@ import 'package:sentry/src/sentry_tracer.dart';
 import 'dart:async';
 
 import '../mocks.dart';
+import '../mocks.mocks.dart';
+import 'package:mockito/mockito.dart';
 
 void main() {
   late Fixture fixture;
@@ -154,9 +156,21 @@ void main() {
 }
 
 class Fixture {
+  final options = defaultTestOptions()..tracesSampleRate = 1.0;
+  final mockSentryClient = MockSentryClient();
+
   final startTimestamp = getUtcDateTime();
-  final hub = Hub(defaultTestOptions()..tracesSampleRate = 1.0);
+  late final Hub hub;
   final autoFinishAfter = const Duration(seconds: 2);
+
+  Fixture() {
+    hub = Hub(options);
+    hub.bindClient(mockSentryClient);
+
+    when(mockSentryClient.captureTransaction(any,
+            scope: anyNamed('scope'), traceContext: anyNamed('traceContext')))
+        .thenAnswer((_) => Future.value(SentryId.newId()));
+  }
 
   SentryTracer getTransaction({String? name}) {
     return hub.startTransaction(
