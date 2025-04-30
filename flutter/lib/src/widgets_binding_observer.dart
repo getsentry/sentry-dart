@@ -1,10 +1,13 @@
+// ignore_for_file: invalid_use_of_internal_member
+
 import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'utils/timer_debouncer.dart';
+
 import '../sentry_flutter.dart';
+import 'utils/timer_debouncer.dart';
 
 /// This is a `WidgetsBindingObserver` which can observe some events of a
 /// Flutter application.
@@ -23,10 +26,11 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
   SentryWidgetsBindingObserver({
     Hub? hub,
     required SentryFlutterOptions options,
+    bool Function()? isNavigatorObserverCreated,
   })  : _hub = hub ?? HubAdapter(),
         _options = options,
-        _screenSizeStreamController = StreamController(sync: true),
-        _didChangeMetricsDebouncer = TimerDebouncer(milliseconds: 100) {
+        _isNavigatorObserverCreated = isNavigatorObserverCreated ??
+            (() => SentryNavigatorObserver.isCreated) {
     if (_options.enableWindowMetricBreadcrumbs) {
       _screenSizeStreamController.stream
           .map(
@@ -48,10 +52,16 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
 
   final Hub _hub;
   final SentryFlutterOptions _options;
-  final TimerDebouncer _didChangeMetricsDebouncer;
+  final TimerDebouncer _didChangeMetricsDebouncer =
+      TimerDebouncer(milliseconds: 100);
+  final bool Function() _isNavigatorObserverCreated;
+
+  /// Measures how long the app stayed in the background
+  final _appInBackgroundStopwatch = Stopwatch();
 
   // ignore: deprecated_member_use
-  final StreamController<SingletonFlutterWindow?> _screenSizeStreamController;
+  final StreamController<SingletonFlutterWindow?> _screenSizeStreamController =
+      StreamController(sync: true);
 
   /// This method records lifecycle events.
   /// It tries to mimic the behavior of ActivityBreadcrumbsIntegration of Sentry
@@ -64,21 +74,36 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
   ///   - [WidgetsBindingObserver](https://api.flutter.dev/flutter/widgets/WidgetsBindingObserver-class.html)
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (!_options.enableAppLifecycleBreadcrumbs) {
-      return;
+    if (_options.enableAppLifecycleBreadcrumbs) {
+      // References:
+      // https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/
+      // https://github.com/getsentry/sentry-java/blob/de00462e3499fa9a21a7992317503f1ccda7d226/sentry-android-core/src/main/java/io/sentry/android/core/LifecycleWatcher.java#L119-L128
+      _hub.addBreadcrumb(Breadcrumb(
+        category: 'app.lifecycle',
+        type: 'navigation',
+        data: <String, String>{
+          'state': state.name,
+        },
+        timestamp: _options.clock(),
+      ));
     }
-    // References:
-    // https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/
-    // https://github.com/getsentry/sentry-java/blob/de00462e3499fa9a21a7992317503f1ccda7d226/sentry-android-core/src/main/java/io/sentry/android/core/LifecycleWatcher.java#L119-L128
-    _hub.addBreadcrumb(Breadcrumb(
-      category: 'app.lifecycle',
-      type: 'navigation',
-      data: <String, String>{
-        'state': state.name,
-      },
-      // ignore: invalid_use_of_internal_member
-      timestamp: _options.clock(),
-    ));
+
+    // Enable app lifecycle trace generation if:
+    // - SentryNavigatorObserver is not used
+    // - Platform is not web, app lifecycle hooks are not reliable enough on web
+    if (!_isNavigatorObserverCreated() && !_options.platform.isWeb) {
+      if (state == AppLifecycleState.inactive) {
+        _appInBackgroundStopwatch.start();
+      } else if (_appInBackgroundStopwatch.isRunning &&
+          state == AppLifecycleState.resumed) {
+        _appInBackgroundStopwatch.stop();
+        if (_appInBackgroundStopwatch.elapsed.inSeconds >
+            _options.appInBackgroundTracingThreshold.inSeconds) {
+          _hub.generateNewTraceId();
+        }
+        _appInBackgroundStopwatch.reset();
+      }
+    }
   }
 
   /// Called when the application's dimensions change. For example,
@@ -104,7 +129,6 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
       category: 'device.screen',
       type: 'navigation',
       data: data,
-      // ignore: invalid_use_of_internal_member
       timestamp: _options.clock(),
     ));
   }
@@ -129,7 +153,6 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
       data: <String, String>{
         'action': 'BRIGHTNESS_CHANGED_TO_${brightnessDescription.toUpperCase()}'
       },
-      // ignore: invalid_use_of_internal_member
       timestamp: _options.clock(),
     ));
   }
@@ -152,7 +175,6 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
       data: <String, String>{
         'action': 'TEXT_SCALE_CHANGED_TO_$newTextScaleFactor'
       },
-      // ignore: invalid_use_of_internal_member
       timestamp: _options.clock(),
     ));
   }
@@ -180,7 +202,6 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
       },
       // This is kinda bad. Therefore this gets added as a warning.
       level: SentryLevel.warning,
-      // ignore: invalid_use_of_internal_member
       timestamp: _options.clock(),
     ));
   }

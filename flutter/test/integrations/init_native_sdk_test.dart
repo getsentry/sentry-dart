@@ -52,7 +52,7 @@ void main() {
       },
       'diagnosticLevel': 'warning',
       'maxBreadcrumbs': 100,
-      'anrEnabled': false,
+      'anrEnabled': true,
       'anrTimeoutIntervalMillis': 5000,
       'enableAutoNativeBreadcrumbs': true,
       'maxCacheItems': 30,
