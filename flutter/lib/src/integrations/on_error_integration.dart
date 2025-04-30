@@ -41,14 +41,6 @@ class OnErrorIntegration implements Integration<SentryFlutterOptions> {
     _defaultOnError = wrapper.onError;
 
     _integrationOnError = (Object exception, StackTrace stackTrace) {
-      _options!.logger(
-        SentryLevel.error,
-        "Uncaught Platform Error",
-        logger: 'sentry.platformError',
-        exception: exception,
-        stackTrace: stackTrace,
-      );
-
       final handled = _defaultOnError?.call(exception, stackTrace) ?? false;
 
       // As per docs, the app might crash on some platforms
