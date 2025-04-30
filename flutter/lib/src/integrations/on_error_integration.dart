@@ -23,11 +23,9 @@ class OnErrorIntegration implements Integration<SentryFlutterOptions> {
   ErrorCallback? _defaultOnError;
   ErrorCallback? _integrationOnError;
   PlatformDispatcherWrapper? dispatchWrapper;
-  SentryFlutterOptions? _options;
 
   @override
   void call(Hub hub, SentryFlutterOptions options) {
-    _options = options;
     final binding = options.bindingUtils.instance;
 
     if (binding == null) {
