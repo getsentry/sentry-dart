@@ -79,14 +79,8 @@ class SentryDisplayWidget extends StatefulWidget {
 }
 
 class _SentryDisplayWidgetState extends State<SentryDisplayWidget> {
-  SentryDisplay? _display;
-
-  @override
-  void initState() {
-    super.initState();
-    _display = SentryFlutter.currentDisplay();
-  }
-
+  final SentryDisplay? _display = SentryFlutter.currentDisplay();
+  
   @override
   Widget build(BuildContext context) {
     return _SentryDisplayInheritedWidget(
