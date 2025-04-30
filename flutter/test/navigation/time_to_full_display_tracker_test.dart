@@ -45,9 +45,7 @@ void main() {
     expect(transaction.measurements, isNotEmpty);
   });
 
-  test(
-      'span finishes automatically after timeout with deadline_exceeded status',
-      () async {
+  test('finishes span after timeout with deadline_exceeded status', () async {
     final sut = fixture.getSut();
     final transaction = fixture.getTransaction();
 
@@ -68,6 +66,27 @@ void main() {
     expect(ttfdSpan.context.description, equals('Current route full display'));
     expect(ttfdSpan.origin, equals(SentryTraceOrigins.manualUiTimeToDisplay));
     expect(transaction.measurements, isEmpty);
+  });
+
+  test('finishes span with ttfdEndTimestamp if provided', () async {
+    final sut = fixture.getSut();
+    final transaction = fixture.getTransaction();
+
+    final ttfdEndTimestamp = fixture.fakeTTIDEndTimestamp();
+
+    await sut.track(
+      transaction: transaction,
+      ttfdEndTimestamp: ttfdEndTimestamp,
+    );
+
+    final ttfdSpan = transaction.children.first;
+    expect(ttfdSpan.endTimestamp, equals(ttfdEndTimestamp));
+    expect(ttfdSpan.context.operation,
+        equals(SentrySpanOperations.uiTimeToFullDisplay));
+    expect(ttfdSpan.finished, isTrue);
+
+    expect(ttfdSpan.status, equals(SpanStatus.ok()));
+    expect(transaction.measurements, isNotEmpty);
   });
 
   test('finishing ttfd twice does not throw', () async {

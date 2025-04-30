@@ -43,7 +43,7 @@ void main() {
               transaction: transaction, endTimestamp: anyNamed('endTimestamp')))
           .thenAnswer((_) async => ttidTransaction);
 
-      await sut.track(transaction, endTimestamp: endTimestamp);
+      await sut.track(transaction, ttidEndTimestamp: endTimestamp);
 
       verify(fixture.ttidTracker.track(
         transaction: transaction,
@@ -231,7 +231,7 @@ void main() {
 
       await sut.reportFullyDisplayed(spanId: spanId);
 
-      expect(sut.rootTransactionEndTimestamp, isNotNull);
+      expect(sut.rootTTFDEndTimestamp, isNotNull);
     });
 
     test('ttfd on root span sets providedtimestamp', () async {
@@ -245,7 +245,7 @@ void main() {
       await sut.reportFullyDisplayed(
           spanId: spanId, endTimestamp: endTimestamp);
 
-      expect(sut.rootTransactionEndTimestamp, endTimestamp);
+      expect(sut.rootTTFDEndTimestamp, endTimestamp);
     });
   });
 }

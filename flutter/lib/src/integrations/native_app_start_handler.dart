@@ -52,22 +52,16 @@ class NativeAppStartHandler {
     });
 
     /// Workaround to get TTFD when users called it before the root transaction is even created.
-    Future.delayed(const Duration(milliseconds: 1), () {
-      final reportedRootTTFDEndTimestamp =
-          options.timeToDisplayTracker.rootTransactionEndTimestamp;
-      if (reportedRootTTFDEndTimestamp != null) {
-        options.timeToDisplayTracker.reportFullyDisplayed(
-          spanId: rootScreenTransaction.context.spanId,
-          endTimestamp: reportedRootTTFDEndTimestamp.isAfter(appStartInfo.end)
-              ? reportedRootTTFDEndTimestamp
-              : appStartInfo.end,
-        );
-      }
-    });
+    var ttfdEndTimestamp = options.timeToDisplayTracker.rootTTFDEndTimestamp;
+    ttfdEndTimestamp =
+        ttfdEndTimestamp != null && ttfdEndTimestamp.isAfter(appStartInfo.end)
+            ? ttfdEndTimestamp
+            : appStartInfo.end;
 
     await options.timeToDisplayTracker.track(
       rootScreenTransaction,
-      endTimestamp: appStartInfo.end,
+      ttidEndTimestamp: appStartInfo.end,
+      ttfdEndTimestamp: ttfdEndTimestamp,
     );
 
     SentryTracer sentryTracer;

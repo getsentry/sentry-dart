@@ -2777,13 +2777,17 @@ class MockTimeToDisplayTracker extends _i1.Mock
   @override
   _i11.Future<void> track(
     _i2.ISentrySpan? transaction, {
-    DateTime? endTimestamp,
+    DateTime? ttidEndTimestamp,
+    DateTime? ttfdEndTimestamp,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
           #track,
           [transaction],
-          {#endTimestamp: endTimestamp},
+          {
+            #ttidEndTimestamp: ttidEndTimestamp,
+            #ttfdEndTimestamp: ttfdEndTimestamp,
+          },
         ),
         returnValue: _i11.Future<void>.value(),
         returnValueForMissingStub: _i11.Future<void>.value(),
@@ -2866,11 +2870,13 @@ class MockTimeToFullDisplayTracker extends _i1.Mock
   _i11.Future<void> track({
     required _i3.SentryTracer? transaction,
     DateTime? ttidEndTimestamp,
+    DateTime? ttfdEndTimestamp,
   }) =>
       (super.noSuchMethod(
         Invocation.method(#track, [], {
           #transaction: transaction,
           #ttidEndTimestamp: ttidEndTimestamp,
+          #ttfdEndTimestamp: ttfdEndTimestamp,
         }),
         returnValue: _i11.Future<void>.value(),
         returnValueForMissingStub: _i11.Future<void>.value(),

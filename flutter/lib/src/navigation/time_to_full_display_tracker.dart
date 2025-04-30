@@ -19,6 +19,7 @@ class TimeToFullDisplayTracker {
   Future<void> track({
     required SentryTracer transaction,
     DateTime? ttidEndTimestamp,
+    DateTime? ttfdEndTimestamp,
   }) async {
     _parentSpanId = transaction.context.spanId;
 
@@ -29,7 +30,8 @@ class TimeToFullDisplayTracker {
     );
     ttfdSpan.origin = SentryTraceOrigins.manualUiTimeToDisplay;
 
-    final determinedEndTimestamp = await _determineEndTime();
+    final determinedEndTimestamp =
+        ttfdEndTimestamp ?? await _determineEndTime();
     final fallbackEndTimestamp = ttidEndTimestamp ?? getUtcDateTime();
     final endTimestamp = determinedEndTimestamp ?? fallbackEndTimestamp;
 

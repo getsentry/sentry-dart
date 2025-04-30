@@ -32,11 +32,12 @@ class TimeToDisplayTracker {
   SpanId? rootTransactionId;
 
   // The end timestamp of the root transaction. Used in [NativeAppStartHandler]
-  DateTime? rootTransactionEndTimestamp;
+  DateTime? rootTTFDEndTimestamp;
 
   Future<void> track(
     ISentrySpan transaction, {
-    DateTime? endTimestamp,
+    DateTime? ttidEndTimestamp,
+    DateTime? ttfdEndTimestamp,
   }) async {
     if (transaction is! SentryTracer) {
       return;
@@ -46,7 +47,7 @@ class TimeToDisplayTracker {
     // TTID
     final ttidSpan = await _ttidTracker.track(
       transaction: transaction,
-      endTimestamp: endTimestamp,
+      endTimestamp: ttidEndTimestamp,
     );
 
     // TTFD
@@ -54,6 +55,7 @@ class TimeToDisplayTracker {
       await _ttfdTracker.track(
         transaction: transaction,
         ttidEndTimestamp: ttidSpan?.endTimestamp,
+        ttfdEndTimestamp: ttfdEndTimestamp,
       );
     }
   }
@@ -63,7 +65,7 @@ class TimeToDisplayTracker {
     if (options.enableTimeToFullDisplayTracing) {
       // Special case for root transaction
       if (rootTransactionId != null && rootTransactionId == spanId) {
-        rootTransactionEndTimestamp = endTimestamp ?? DateTime.now();
+        rootTTFDEndTimestamp = endTimestamp ?? DateTime.now();
       }
       return _ttfdTracker.reportFullyDisplayed(
           spanId: spanId, endTimestamp: endTimestamp);
