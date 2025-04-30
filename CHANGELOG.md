@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Errors caught by `OnErrorIntegration` should be unhandled by default ([#2901](https://github.com/getsentry/sentry-dart/pull/2901))
+  - This will not affect grouping
+  - This might affect crash-free rate
+
 ## 9.0.0-beta.1
 
 ### Features
