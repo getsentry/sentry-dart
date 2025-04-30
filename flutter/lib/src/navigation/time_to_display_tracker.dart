@@ -68,7 +68,9 @@ class TimeToDisplayTracker {
         rootTTFDEndTimestamp = endTimestamp ?? DateTime.now();
       }
       return _ttfdTracker.reportFullyDisplayed(
-          spanId: spanId, endTimestamp: endTimestamp);
+        spanId: spanId,
+        endTimestamp: endTimestamp,
+      );
     }
   }
 
