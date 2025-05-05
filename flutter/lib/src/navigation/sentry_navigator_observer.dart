@@ -339,7 +339,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       Route<dynamic>? route, DateTime startTimestamp) async {
     try {
       final routeName = _getRouteName(route) ?? _currentRouteName;
-      final isRoot = routeName == '/';
+      final isRoot = routeName == '/'; // Root transaction is already created by the app start integration.
       if (!_enableAutoTransactions || routeName == null || isRoot) {
         return;
       }
