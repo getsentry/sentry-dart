@@ -13,10 +13,10 @@ final sentryDisplay = Sentry.currentDisplay();
 
 // Then do some work like file I/O or networking....
 
-// Finally call `reportFullyDisplayed` on the sentryDisplay instance.
+// Finally call `reportFullyDisplayed` on the sentryDisplay instance when the work operation is done.
 sentryDisplay?.reportFullyDisplayed()
 
-// Alternativlye, you can wrap your widget in `SentryDisplayWidget`.
+// Alternatively, you can wrap your widget in `SentryDisplayWidget`.
 
 SentryDisplayWidget(child: YourWidget())
 
