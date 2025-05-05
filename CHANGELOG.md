@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Fixes
+
+- Errors caught by `OnErrorIntegration` should be unhandled by default ([#2901](https://github.com/getsentry/sentry-dart/pull/2901))
+  - This will not affect grouping
+  - This might affect crash-free rate
+
 ### Dependencies
 
 - Bump Android SDK from v8.9.0 to v8.11.1 ([#2899](https://github.com/getsentry/sentry-dart/pull/2899), [#2904](https://github.com/getsentry/sentry-dart/pull/2904))
