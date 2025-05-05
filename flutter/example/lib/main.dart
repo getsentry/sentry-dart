@@ -62,7 +62,7 @@ Future<void> setupSentry(
   BeforeSendCallback? beforeSendCallback,
 }) async {
   await SentryFlutter.init(
-    (options) async {
+    (options) {
       options.dsn = exampleDsn;
       options.tracesSampleRate = 1.0;
       options.profilesSampleRate = 1.0;
