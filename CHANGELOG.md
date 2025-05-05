@@ -8,6 +8,7 @@ final sentryDisplay = Sentry.currentDisplay();
 // Do some work....
 sentryDisplay?.reportFullyDisplayed()
 ```
+
 ### Dependencies
 
 - Bump Android SDK from v8.9.0 to v8.11.0 ([#2899](https://github.com/getsentry/sentry-dart/pull/2899))
