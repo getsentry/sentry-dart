@@ -6,13 +6,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:meta/meta.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
+import 'package:sentry/src/platform/platform.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/frames_tracking/sentry_delayed_frames_tracker.dart';
 import 'package:sentry_flutter/src/native/sentry_native_binding.dart';
 import 'package:sentry_flutter/src/renderer/renderer.dart';
 import 'package:sentry_flutter/src/web/sentry_js_binding.dart';
-import 'package:sentry/src/platform/platform.dart';
 
 import 'mocks.mocks.dart';
 import 'no_such_method_provider.dart';
@@ -64,10 +64,12 @@ void main() {}
 class MockRuntimeChecker with NoSuchMethodProvider implements RuntimeChecker {
   MockRuntimeChecker({
     this.buildMode = MockRuntimeCheckerBuildMode.debug,
+    this.isObfuscated = false,
     this.isRoot = true,
   });
 
   final MockRuntimeCheckerBuildMode buildMode;
+  final bool isObfuscated;
   final bool isRoot;
 
   @override
@@ -78,6 +80,9 @@ class MockRuntimeChecker with NoSuchMethodProvider implements RuntimeChecker {
 
   @override
   bool isReleaseMode() => buildMode == MockRuntimeCheckerBuildMode.release;
+
+  @override
+  bool isAppObfuscated() => isObfuscated;
 
   @override
   bool get isRootZone => isRoot;

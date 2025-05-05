@@ -6,6 +6,7 @@ import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/integrations/load_native_debug_images_integration.dart';
 
+import '../mocks.dart';
 import 'fixture.dart';
 
 void main() {
@@ -26,6 +27,7 @@ void main() {
 
     setUp(() async {
       fixture = IntegrationTestFixture(LoadNativeDebugImagesIntegration.new);
+      fixture.options.runtimeChecker = MockRuntimeChecker(isObfuscated: true);
       when(fixture.binding.loadDebugImages(any))
           .thenAnswer((_) async => imageList.toList());
       await fixture.registerIntegration();
@@ -103,6 +105,28 @@ void main() {
       await fixture.hub.captureMessage('error');
       verifyNever(fixture.binding.loadDebugImages(any));
     });
+  });
+
+  test('does not add itself to sdk.integrations if app is not obfuscated',
+      () async {
+    final fixture =
+        IntegrationTestFixture(LoadNativeDebugImagesIntegration.new);
+    fixture.options.runtimeChecker = MockRuntimeChecker();
+    await fixture.registerIntegration();
+    expect(
+      fixture.options.sdk.integrations
+          .contains(LoadNativeDebugImagesIntegration.integrationName),
+      false,
+    );
+  });
+
+  test('does not add event processor to options if app is not obfuscated',
+      () async {
+    final fixture =
+        IntegrationTestFixture(LoadNativeDebugImagesIntegration.new);
+    fixture.options.runtimeChecker = MockRuntimeChecker();
+    await fixture.registerIntegration();
+    expect(fixture.options.eventProcessors.length, 0);
   });
 }
 

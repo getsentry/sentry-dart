@@ -3,8 +3,6 @@ import 'dart:async';
 import 'package:sentry/sentry.dart';
 // ignore: implementation_imports
 import 'package:sentry/src/load_dart_debug_images_integration.dart';
-// ignore: implementation_imports
-import 'package:sentry/src/utils/obfuscation.dart';
 
 import '../native/sentry_native_binding.dart';
 import '../sentry_flutter_options.dart';
@@ -20,7 +18,7 @@ class LoadNativeDebugImagesIntegration
   @override
   void call(Hub hub, SentryFlutterOptions options) {
     // ignore: invalid_use_of_internal_member
-    if (isAppObfuscated()) {
+    if (options.runtimeChecker.isAppObfuscated()) {
       options.addEventProcessor(
         _LoadImageListIntegrationEventProcessor(options, _native),
       );
