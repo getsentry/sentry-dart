@@ -1,6 +1,12 @@
 # Changelog
 
-## Unreleased
+## 9.0.0-beta.2
+
+### Fixes
+
+- Errors caught by `OnErrorIntegration` should be unhandled by default ([#2901](https://github.com/getsentry/sentry-dart/pull/2901))
+  - This will not affect grouping
+  - This might affect crash-free rate
 
 - TTID/TTFD Improvements ([#2866](https://github.com/getsentry/sentry-dart/pull/2866))
 ```dart
@@ -11,9 +17,12 @@ sentryDisplay?.reportFullyDisplayed()
 
 ### Dependencies
 
-- Bump Android SDK from v8.9.0 to v8.11.0 ([#2899](https://github.com/getsentry/sentry-dart/pull/2899))
-  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#8110)
-  - [diff](https://github.com/getsentry/sentry-java/compare/8.9.0...8.11.0)
+- Bump Android SDK from v8.9.0 to v8.11.1 ([#2899](https://github.com/getsentry/sentry-dart/pull/2899), [#2904](https://github.com/getsentry/sentry-dart/pull/2904))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#8111)
+  - [diff](https://github.com/getsentry/sentry-java/compare/8.9.0...8.11.1)
+- Bump Cocoa SDK from v8.49.1 to v8.49.2 ([#2905](https://github.com/getsentry/sentry-dart/pull/2905))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8492)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.49.1...8.49.2)
 
 ## 9.0.0-beta.1
 
