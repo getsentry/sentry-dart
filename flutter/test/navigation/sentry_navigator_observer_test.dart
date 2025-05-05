@@ -1099,6 +1099,77 @@ void main() {
       });
     });
   });
+
+  group('time to display', () {
+    test('didPush sets transactionId', () {
+      final mockHub = _MockHub();
+
+      final tracer = getMockSentryTracer();
+      _whenAnyStart(mockHub, tracer);
+
+      final sut = fixture.getSut(
+        hub: mockHub,
+        autoFinishAfter: Duration(seconds: 5),
+      );
+
+      sut.didPush(route(RouteSettings(name: 'To Route')), null);
+
+      verify(fixture.mockTimeToDisplayTracker.transactionId = any).called(1);
+    });
+
+    test('didPush calls track with transaction', () async {
+      final mockHub = _MockHub();
+
+      final tracer = getMockSentryTracer();
+      _whenAnyStart(mockHub, tracer);
+
+      final sut = fixture.getSut(
+        hub: mockHub,
+        autoFinishAfter: Duration(seconds: 5),
+      );
+
+      sut.didPush(route(RouteSettings(name: 'To Route')), null);
+      // Delay a bit since we use await with the session api and we cannot await the navigation methods
+      await Future<void>.delayed(Duration(milliseconds: 100));
+
+      verify(fixture.mockTimeToDisplayTracker.track(tracer)).called(1);
+    });
+
+    test('didPush does not call track if transaction is null', () async {
+      final mockHub = _MockHub();
+
+      final noOpSpan = NoOpSentrySpan();
+      _whenAnyStart(mockHub, noOpSpan);
+
+      final sut = fixture.getSut(
+        hub: mockHub,
+        autoFinishAfter: Duration(seconds: 5),
+      );
+
+      sut.didPush(route(RouteSettings(name: 'To Route')), null);
+      // Delay a bit since we use await with the session api and we cannot await the navigation methods
+      await Future<void>.delayed(Duration(milliseconds: 100));
+
+      verifyNever(fixture.mockTimeToDisplayTracker.track(any));
+    });
+
+    test('didPush calls clear', () async {
+      final mockHub = _MockHub();
+
+      final tracer = getMockSentryTracer();
+      _whenAnyStart(mockHub, tracer);
+
+      final sut = fixture.getSut(
+        hub: mockHub,
+      );
+
+      sut.didPush(route(RouteSettings(name: 'To Route')), null);
+      // Delay a bit since we use await with the session api and we cannot await the navigation methods
+      await Future<void>.delayed(Duration(milliseconds: 100));
+
+      verify(fixture.mockTimeToDisplayTracker.clear()).called(1);
+    });
+  });
 }
 
 class Fixture {

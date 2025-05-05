@@ -255,21 +255,11 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   }
 
   Future<void> _startTransaction(
-      Route<dynamic>? route, DateTime startTimestamp) async {
-    String? name = _getRouteName(route);
+    SentryTransactionContext transactionContext,
+    Route<dynamic>? route,
+    DateTime startTimestamp,
+  ) async {
     final arguments = route?.settings.arguments;
-
-    if (name == null || (name == '/')) {
-      return;
-    }
-
-    final transactionContext = SentryTransactionContext(
-      name,
-      SentrySpanOperations.uiLoad,
-      transactionNameSource: SentryTransactionNameSource.component,
-      origin: SentryTraceOrigins.autoNavigationRouteObserver,
-    );
-
     _transaction = _hub.startTransactionWithContext(
       transactionContext,
       startTimestamp: startTimestamp,
@@ -349,20 +339,25 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       Route<dynamic>? route, DateTime startTimestamp) async {
     try {
       final routeName = _getRouteName(route) ?? _currentRouteName;
-      if (!_enableAutoTransactions || routeName == null) {
+      final isRoot = routeName == '/';
+      if (!_enableAutoTransactions || routeName == null || isRoot) {
         return;
       }
 
-      bool isAppStart = routeName == '/';
-      await _startTransaction(route, startTimestamp);
+      final transactionContext = SentryTransactionContext(
+        routeName,
+        SentrySpanOperations.uiLoad,
+        transactionNameSource: SentryTransactionNameSource.component,
+        origin: SentryTraceOrigins.autoNavigationRouteObserver,
+      );
+      _timeToDisplayTracker?.transactionId = transactionContext.spanId;
+      await _startTransaction(transactionContext, route, startTimestamp);
 
       final transaction = _transaction;
-      if (transaction == null) {
-        return;
-      }
-
-      if (!isAppStart) {
+      if (transaction != null) {
         await _timeToDisplayTracker?.track(transaction);
+      } else {
+        _timeToDisplayTracker?.transactionId = null;
       }
     } catch (exception, stacktrace) {
       _hub.options.logger(
