@@ -162,7 +162,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
 
     DateTime timestamp = _hub.options.clock();
     _finishTransaction(endTimestamp: timestamp);
-    _startTimeToDisplayTracking(route, timestamp);
+    _startTransaction(route, timestamp);
   }
 
   @override
@@ -255,12 +255,27 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   }
 
   Future<void> _startTransaction(
-    SentryTransactionContext transactionContext,
     Route<dynamic>? route,
     DateTime startTimestamp,
   ) async {
+    final routeName = _getRouteName(route) ?? _currentRouteName;
     final arguments = route?.settings.arguments;
-    _transaction = _hub.startTransactionWithContext(
+
+    final isRoot = routeName ==
+        '/'; // Root transaction is already created by the app start integration.
+    if (!_enableAutoTransactions || routeName == null || isRoot) {
+      return;
+    }
+
+    final transactionContext = SentryTransactionContext(
+      routeName,
+      SentrySpanOperations.uiLoad,
+      transactionNameSource: SentryTransactionNameSource.component,
+      origin: SentryTraceOrigins.autoNavigationRouteObserver,
+    );
+    _timeToDisplayTracker?.transactionId = transactionContext.spanId;
+
+    final transaction = _hub.startTransactionWithContext(
       transactionContext,
       startTimestamp: startTimestamp,
       waitForChildren: true,
@@ -283,22 +298,25 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
         }
       },
     );
-
     // if _enableAutoTransactions is enabled but there's no traces sample rate
-    if (_transaction is NoOpSentrySpan) {
-      _transaction = null;
+    if (transaction is NoOpSentrySpan) {
+      _timeToDisplayTracker?.transactionId = null;
       return;
     }
 
     if (arguments != null) {
-      _transaction?.setData('route_settings_arguments', arguments);
+      transaction.setData('route_settings_arguments', arguments);
     }
+
+    _transaction = transaction;
 
     await _hub.configureScope((scope) {
       scope.span ??= _transaction;
     });
 
     await _native?.beginNativeFrames();
+
+    await _timeToDisplayTracker?.track(transaction);
   }
 
   Future<void> _finishTransaction({required DateTime endTimestamp}) async {
@@ -332,43 +350,6 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       }
     } finally {
       await transaction?.finish(endTimestamp: endTimestamp);
-    }
-  }
-
-  Future<void> _startTimeToDisplayTracking(
-      Route<dynamic>? route, DateTime startTimestamp) async {
-    try {
-      final routeName = _getRouteName(route) ?? _currentRouteName;
-      final isRoot = routeName == '/'; // Root transaction is already created by the app start integration.
-      if (!_enableAutoTransactions || routeName == null || isRoot) {
-        return;
-      }
-
-      final transactionContext = SentryTransactionContext(
-        routeName,
-        SentrySpanOperations.uiLoad,
-        transactionNameSource: SentryTransactionNameSource.component,
-        origin: SentryTraceOrigins.autoNavigationRouteObserver,
-      );
-      _timeToDisplayTracker?.transactionId = transactionContext.spanId;
-      await _startTransaction(transactionContext, route, startTimestamp);
-
-      final transaction = _transaction;
-      if (transaction != null) {
-        await _timeToDisplayTracker?.track(transaction);
-      } else {
-        _timeToDisplayTracker?.transactionId = null;
-      }
-    } catch (exception, stacktrace) {
-      _hub.options.logger(
-        SentryLevel.error,
-        'Error while tracking time to display',
-        exception: exception,
-        stackTrace: stacktrace,
-      );
-      if (_hub.options.automatedTestMode) {
-        rethrow;
-      }
     }
   }
 
