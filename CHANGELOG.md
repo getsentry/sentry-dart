@@ -8,7 +8,7 @@
 ```dart
 // To report TTFD you need to use the SentryNavigatorObserver.
  
-// Before reporting long running work, you can get a refernce to the currently displayed route.
+// Before reporting long running work, you can get a reference to the currently displayed route.
 final sentryDisplay = Sentry.currentDisplay();
 
 // Then do some work like file I/O or networking....
