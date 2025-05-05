@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
-import 'package:sentry_flutter/src/frames_tracking/span_frame_metrics_collector.dart';
-import 'package:sentry_flutter/src/frames_tracking/sentry_delayed_frames_tracker.dart';
 import 'package:sentry/src/sentry_tracer.dart';
+import 'package:sentry_flutter/src/frames_tracking/sentry_delayed_frames_tracker.dart';
+import 'package:sentry_flutter/src/frames_tracking/span_frame_metrics_collector.dart';
 
 import '../mocks.dart';
 import '../mocks.mocks.dart';
@@ -33,7 +33,7 @@ void main() {
       await sut.onSpanStarted(span);
 
       expect(sut.activeSpans, contains(span));
-      verify(fixture.mockFrameTracker.resume()).called(1);
+      expect(fixture.resumeFrameTrackingCalledCount, 1);
     });
 
     test('ignores NoOpSentrySpan', () async {
@@ -43,7 +43,7 @@ void main() {
       await sut.onSpanStarted(span);
 
       expect(sut.activeSpans, isEmpty);
-      verifyNever(fixture.mockFrameTracker.resume());
+      expect(fixture.resumeFrameTrackingCalledCount, 0);
     });
   });
 
@@ -180,6 +180,7 @@ void main() {
       await sut.onSpanFinished(span, endTime);
 
       verify(fixture.mockFrameTracker.clear()).called(1);
+      expect(fixture.pauseFrameTrackingCalledCount, 1);
     });
 
     test('does not clear tracker when active spans exist', () async {
@@ -207,6 +208,7 @@ void main() {
       await sut.onSpanFinished(span, endTime);
 
       verifyNever(fixture.mockFrameTracker.clear());
+      expect(fixture.pauseFrameTrackingCalledCount, 0);
       verify(fixture.mockFrameTracker.removeIrrelevantFrames(any)).called(1);
     });
   });
@@ -215,11 +217,15 @@ void main() {
 class Fixture {
   final options = defaultTestOptions();
   final mockFrameTracker = MockSentryDelayedFramesTracker();
+  int resumeFrameTrackingCalledCount = 0;
+  int pauseFrameTrackingCalledCount = 0;
 
   SpanFrameMetricsCollector getSut() {
     return SpanFrameMetricsCollector(
       options,
       mockFrameTracker,
+      resumeFrameTracking: () => resumeFrameTrackingCalledCount += 1,
+      pauseFrameTracking: () => pauseFrameTrackingCalledCount += 1,
     );
   }
 }

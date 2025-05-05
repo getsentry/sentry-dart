@@ -362,6 +362,7 @@ class Sentry {
       );
 
   /// Gets the current active transaction or span bound to the scope.
+  /// Returns `null` if performance is disabled in the options.
   static ISentrySpan? getSpan() => _hub.getSpan();
 
   static Future<void> addFeatureFlag(String name, dynamic value) async {
