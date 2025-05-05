@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:sentry/sentry.dart';
 // ignore: implementation_imports
 import 'package:sentry/src/load_dart_debug_images_integration.dart';
+// ignore: implementation_imports
+import 'package:sentry/src/utils/obfuscation.dart';
 
 import '../native/sentry_native_binding.dart';
 import '../sentry_flutter_options.dart';
@@ -11,16 +13,19 @@ import '../sentry_flutter_options.dart';
 class LoadNativeDebugImagesIntegration
     extends Integration<SentryFlutterOptions> {
   final SentryNativeBinding _native;
-  static const integrationName = 'LoadNativeDebugImagesIntegration';
+  static const integrationName = 'LoadNativeDebugImages';
 
   LoadNativeDebugImagesIntegration(this._native);
 
   @override
   void call(Hub hub, SentryFlutterOptions options) {
-    options.addEventProcessor(
-      _LoadImageListIntegrationEventProcessor(options, _native),
-    );
-    options.sdk.addIntegration(integrationName);
+    // ignore: invalid_use_of_internal_member
+    if (isAppObfuscated()) {
+      options.addEventProcessor(
+        _LoadImageListIntegrationEventProcessor(options, _native),
+      );
+      options.sdk.addIntegration(integrationName);
+    }
   }
 }
 
