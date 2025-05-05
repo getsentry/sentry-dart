@@ -31,7 +31,7 @@ await SentryFlutter.init(
     options.dsn = 'https://example@sentry.io/add-your-dsn-here';
     options.addIntegration(
       SentryFirebaseRemoteConfigIntegration(
-        firebaseRemoteConfig: yourRirebaseRemoteConfig,
+        firebaseRemoteConfig: yourFirebaseRemoteConfig,
       ),
     );
   },
