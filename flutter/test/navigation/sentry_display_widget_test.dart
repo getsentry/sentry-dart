@@ -18,25 +18,11 @@ void main() {
   testWidgets(
       '$SentryDisplayWidget reports display with current route spanId when child calls reportFullDisplay',
       (WidgetTester tester) async {
-    SpanId? spanId;
-
     await tester.pumpWidget(
       MaterialApp(
         home: SentryDisplayWidget(
           hub: fixture.mockHub,
-          child: Builder(
-            builder: (context) {
-              final currentDisplay =
-                  SentryFlutter.currentDisplay(hub: fixture.mockHub);
-              spanId = currentDisplay?.spanId;
-
-              expect(spanId, isNotNull);
-              expect(spanId, fixture.mockSentrySpanContext.spanId);
-
-              SentryDisplayWidget.of(context).reportFullyDisplayed();
-              return const Text('Test');
-            },
-          ),
+          child: TestStatefulWidget(),
         ),
       ),
     );
@@ -44,9 +30,29 @@ void main() {
     // Wait for the frame to be rendered
     await tester.pumpAndSettle();
 
-    verify(fixture.mockTimeToDisplayTracker
-            .reportFullyDisplayed(spanId: spanId))
-        .called(1);
+    verify(fixture.mockTimeToDisplayTracker.reportFullyDisplayed(
+      spanId: fixture.mockSentrySpanContext.spanId,
+    )).called(1);
+  });
+
+  testWidgets(
+      '$SentryDisplayWidget reports calls ttfd immediately if child is a StatelessWidget',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: SentryDisplayWidget(
+          hub: fixture.mockHub,
+          child: TestStatelessWidget(),
+        ),
+      ),
+    );
+
+    // Wait for the frame to be rendered
+    await tester.pumpAndSettle();
+
+    verify(fixture.mockTimeToDisplayTracker.reportFullyDisplayed(
+      spanId: fixture.mockSentrySpanContext.spanId,
+    )).called(1);
   });
 }
 
@@ -75,5 +81,39 @@ class Fixture {
     when(mockHub.options).thenReturn(options);
 
     options.timeToDisplayTracker = mockTimeToDisplayTracker;
+  }
+}
+
+class TestStatelessWidget extends StatelessWidget {
+  const TestStatelessWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Text('Test');
+  }
+}
+
+class TestStatefulWidget extends StatefulWidget {
+  const TestStatefulWidget({super.key});
+
+  @override
+  State<TestStatefulWidget> createState() => _TestStatefulWidgetState();
+}
+
+class _TestStatefulWidgetState extends State<TestStatefulWidget> {
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(Duration(microseconds: 1), () {
+      // Some long running task
+      if (mounted) {
+        SentryDisplayWidget.of(context).reportFullyDisplayed();
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return const Text('Test');
   }
 }

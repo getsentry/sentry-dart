@@ -24,7 +24,6 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
       SentrySpanOperations.uiLoad,
     );
     options.timeToDisplayTracker.transactionId = context.spanId;
-    options.timeToDisplayTracker.rootTransactionId = context.spanId;
 
     void timingsCallback(List<FrameTiming> timings) async {
       if (!_allowProcessing) {

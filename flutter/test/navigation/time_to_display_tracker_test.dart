@@ -221,31 +221,165 @@ void main() {
     });
   });
 
-  group('rootId ', () {
-    test('ttfd on root span sets timestamp', () async {
+  group('pending ttfd end timestamp', () {
+    test('ttfd before track sets pending ttfd end timestamp', () async {
       fixture.options.enableTimeToFullDisplayTracing = true;
 
       final sut = fixture.getSut();
       final spanId = SpanId.newId();
-      sut.rootTransactionId = spanId;
+      sut.transactionId = spanId;
 
-      await sut.reportFullyDisplayed(spanId: spanId);
-
-      expect(sut.rootTTFDEndTimestamp, isNotNull);
-    });
-
-    test('ttfd on root span sets providedtimestamp', () async {
-      fixture.options.enableTimeToFullDisplayTracing = true;
-
-      final sut = fixture.getSut();
-      final spanId = SpanId.newId();
-      sut.rootTransactionId = spanId;
+      when(fixture.ttfdTracker.reportFullyDisplayed(
+        spanId: spanId,
+        endTimestamp: anyNamed('endTimestamp'),
+      )).thenAnswer((_) async => false);
 
       final endTimestamp = DateTime.now().add(Duration(milliseconds: 100));
       await sut.reportFullyDisplayed(
           spanId: spanId, endTimestamp: endTimestamp);
 
-      expect(sut.rootTTFDEndTimestamp, endTimestamp);
+      expect(sut.pendingTTFDEndTimestamp, endTimestamp);
+    });
+
+    test('ttfd after track does not set pending ttfd', () async {
+      fixture.options.enableTimeToFullDisplayTracing = true;
+
+      final sut = fixture.getSut();
+      final spanId = SpanId.newId();
+      sut.transactionId = spanId;
+
+      when(fixture.ttfdTracker.reportFullyDisplayed(
+        spanId: spanId,
+        endTimestamp: anyNamed('endTimestamp'),
+      )).thenAnswer((_) async => true);
+
+      final endTimestamp = DateTime.now().add(Duration(milliseconds: 100));
+      await sut.reportFullyDisplayed(
+          spanId: spanId, endTimestamp: endTimestamp);
+
+      expect(sut.pendingTTFDEndTimestamp, isNull);
+    });
+
+    test(
+        'ttfd before track does not set pending ttfd end timestamp if spanId does not match',
+        () async {
+      fixture.options.enableTimeToFullDisplayTracing = true;
+
+      final sut = fixture.getSut();
+      final spanId = SpanId.newId();
+      sut.transactionId = SpanId.newId();
+
+      when(fixture.ttfdTracker.reportFullyDisplayed(
+        spanId: spanId,
+        endTimestamp: anyNamed('endTimestamp'),
+      )).thenAnswer((_) async => false);
+
+      final endTimestamp = DateTime.now().add(Duration(milliseconds: 100));
+      await sut.reportFullyDisplayed(
+          spanId: spanId, endTimestamp: endTimestamp);
+
+      expect(sut.pendingTTFDEndTimestamp, isNull);
+    });
+
+    test('track uses pending ttfd', () async {
+      fixture.options.enableTimeToFullDisplayTracing = true;
+
+      final sut = fixture.getSut();
+      final transaction = fixture.getTransaction();
+      final ttidTransaction = fixture.getTTIDTransaction(transaction);
+      when(fixture.ttidTracker.track(transaction: transaction))
+          .thenAnswer((_) async => ttidTransaction);
+
+      final spanId = transaction.context.spanId;
+      sut.transactionId = spanId;
+
+      when(fixture.ttfdTracker.reportFullyDisplayed(
+        spanId: spanId,
+        endTimestamp: anyNamed('endTimestamp'),
+      )).thenAnswer((_) async => false);
+
+      final endTimestamp = DateTime.now().add(Duration(milliseconds: 100));
+
+      await sut.reportFullyDisplayed(
+        spanId: spanId,
+        endTimestamp: endTimestamp,
+      );
+      await sut.track(transaction);
+
+      verify(fixture.ttfdTracker.track(
+        transaction: anyNamed('transaction'),
+        ttfdEndTimestamp: endTimestamp,
+      )).called(1);
+    });
+
+    test('track with unrelated transaction resets pending ttfd', () async {
+      fixture.options.enableTimeToFullDisplayTracing = true;
+
+      final sut = fixture.getSut();
+
+      final spanId = SpanId.newId();
+      sut.transactionId = spanId;
+
+      when(fixture.ttfdTracker.reportFullyDisplayed(
+        spanId: spanId,
+        endTimestamp: anyNamed('endTimestamp'),
+      )).thenAnswer((_) async => false);
+
+      final endTimestamp = DateTime.now().add(Duration(milliseconds: 100));
+
+      await sut.reportFullyDisplayed(
+        spanId: spanId,
+        endTimestamp: endTimestamp,
+      );
+
+      final transaction = fixture.getTransaction();
+      final ttidTransaction = fixture.getTTIDTransaction(transaction);
+      when(fixture.ttidTracker.track(transaction: transaction))
+          .thenAnswer((_) async => ttidTransaction);
+
+      await sut.track(transaction);
+
+      expect(sut.pendingTTFDEndTimestamp, isNull);
+    });
+
+    test('track falls back to ttid if pending ttfd is before ttid', () async {
+      fixture.options.enableTimeToFullDisplayTracing = true;
+
+      final sut = fixture.getSut();
+      final transaction = fixture.getTransaction();
+
+      // TTFD
+      final spanId = transaction.context.spanId;
+      sut.transactionId = spanId;
+
+      when(fixture.ttfdTracker.reportFullyDisplayed(
+        spanId: spanId,
+        endTimestamp: anyNamed('endTimestamp'),
+      )).thenAnswer((_) async => false);
+
+      // TTID
+
+      final ttidEndTimestamp = DateTime.now();
+      final ttidTransaction = fixture.getTTIDTransaction(transaction);
+      await ttidTransaction.finish(endTimestamp: ttidEndTimestamp);
+
+      when(fixture.ttidTracker
+              .track(transaction: transaction, endTimestamp: ttidEndTimestamp))
+          .thenAnswer((_) async => ttidTransaction);
+
+      final endTimestamp = ttidEndTimestamp.add(Duration(milliseconds: -100));
+
+      await sut.reportFullyDisplayed(
+        spanId: spanId,
+        endTimestamp: endTimestamp,
+      );
+      await sut.track(transaction, ttidEndTimestamp: ttidEndTimestamp);
+
+      verify(fixture.ttfdTracker.track(
+        transaction: anyNamed('transaction'),
+        ttidEndTimestamp: ttidTransaction.endTimestamp,
+        ttfdEndTimestamp: ttidTransaction.endTimestamp,
+      )).called(1);
     });
   });
 }

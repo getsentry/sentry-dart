@@ -135,10 +135,6 @@ void main() {
         fixture.options.timeToDisplayTracker.transactionId,
         fixture.nativeAppStartHandler.context?.spanId,
       );
-      expect(
-        fixture.options.timeToDisplayTracker.rootTransactionId,
-        fixture.nativeAppStartHandler.context?.spanId,
-      );
     });
   });
 }

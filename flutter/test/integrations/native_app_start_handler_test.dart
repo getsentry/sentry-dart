@@ -124,7 +124,7 @@ void main() {
     test('added transaction has ttfd measurement if set before by root id',
         () async {
       fixture.options.enableTimeToFullDisplayTracing = true;
-      fixture.options.timeToDisplayTracker.rootTransactionId =
+      fixture.options.timeToDisplayTracker.transactionId =
           fixture.context.spanId;
 
       await fixture.options.timeToDisplayTracker.reportFullyDisplayed(
@@ -143,7 +143,7 @@ void main() {
 
     test('ttfd end from ttid if reported end is before', () async {
       fixture.options.enableTimeToFullDisplayTracing = true;
-      fixture.options.timeToDisplayTracker.rootTransactionId =
+      fixture.options.timeToDisplayTracker.transactionId =
           fixture.context.spanId;
 
       await fixture.options.timeToDisplayTracker.reportFullyDisplayed(

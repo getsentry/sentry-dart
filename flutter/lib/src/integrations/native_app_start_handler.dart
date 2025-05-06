@@ -51,17 +51,9 @@ class NativeAppStartHandler {
       scope.span ??= rootScreenTransaction;
     });
 
-    /// Workaround to get TTFD when users called it before the root transaction is even created.
-    var ttfdEndTimestamp = options.timeToDisplayTracker.rootTTFDEndTimestamp;
-    ttfdEndTimestamp =
-        ttfdEndTimestamp != null && ttfdEndTimestamp.isAfter(appStartInfo.end)
-            ? ttfdEndTimestamp
-            : appStartInfo.end;
-
     await options.timeToDisplayTracker.track(
       rootScreenTransaction,
       ttidEndTimestamp: appStartInfo.end,
-      ttfdEndTimestamp: ttfdEndTimestamp,
     );
 
     SentryTracer sentryTracer;

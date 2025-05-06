@@ -9,6 +9,8 @@ import '../../sentry_flutter.dart';
 /// ```
 /// This should be called when your widget is fully rendered and ready to be displayed.
 ///
+/// If the child is a stateless widget, report full display is called immediately.
+///
 /// Example usage:
 /// ```dart
 /// class MyScreen extends StatelessWidget {
@@ -87,6 +89,9 @@ class _SentryDisplayWidgetState extends State<SentryDisplayWidget> {
   void initState() {
     super.initState();
     _display = SentryFlutter.currentDisplay(hub: widget._hub);
+    if (widget.child is StatelessWidget) {
+      _display?.reportFullyDisplayed();
+    }
   }
 
   @override

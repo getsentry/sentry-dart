@@ -66,16 +66,21 @@ class TimeToFullDisplayTracker {
     );
   }
 
-  Future<void> reportFullyDisplayed(
+  Future<bool> reportFullyDisplayed(
       {SpanId? spanId, DateTime? endTimestamp}) async {
     final startSpanId = _parentSpanId;
     final endSpanId = spanId;
 
     if (startSpanId != null && endSpanId != null && startSpanId != endSpanId) {
-      return;
+      return true; // Called on unrelated transaction, ignore.
     }
-    if (_trackingCompleter != null && !_trackingCompleter!.isCompleted) {
-      _trackingCompleter?.complete(endTimestamp ?? getUtcDateTime());
+    if (_trackingCompleter != null) {
+      if (!_trackingCompleter!.isCompleted) {
+        _trackingCompleter?.complete(endTimestamp ?? getUtcDateTime());
+      }
+      return true;
+    } else {
+      return false; // Called before track was called.
     }
   }
 

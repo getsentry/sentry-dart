@@ -28,19 +28,20 @@ class TimeToDisplayTracker {
   // The id of the currently tracked transaction
   SpanId? transactionId;
 
-  // The id of the root transaction created in [NativeAppStartIntegration]
-  SpanId? rootTransactionId;
+  DateTime? _pendingTTFDEndTimestamp;
 
-  // The end timestamp of the root transaction. Used in [NativeAppStartHandler]
-  DateTime? rootTTFDEndTimestamp;
+  // The timestamp where report TTFD was called before the transaction was started.
+  DateTime? get pendingTTFDEndTimestamp => _pendingTTFDEndTimestamp;
 
   Future<void> track(
     ISentrySpan transaction, {
     DateTime? ttidEndTimestamp,
-    DateTime? ttfdEndTimestamp,
   }) async {
     if (transaction is! SentryTracer) {
       return;
+    }
+    if (transactionId != transaction.context.spanId) {
+      _pendingTTFDEndTimestamp = null;
     }
     transactionId = transaction.context.spanId;
 
@@ -52,9 +53,20 @@ class TimeToDisplayTracker {
 
     // TTFD
     if (options.enableTimeToFullDisplayTracing) {
+      final ttidEndTimestamp = ttidSpan?.endTimestamp;
+      final pendingTTFDEndTimestamp = _pendingTTFDEndTimestamp;
+      DateTime? ttfdEndTimestamp;
+      if (pendingTTFDEndTimestamp != null) {
+        ttfdEndTimestamp = pendingTTFDEndTimestamp;
+        if (ttidEndTimestamp != null &&
+            ttfdEndTimestamp.isBefore(ttidEndTimestamp)) {
+          ttfdEndTimestamp = ttidEndTimestamp;
+        }
+      }
+
       await _ttfdTracker.track(
         transaction: transaction,
-        ttidEndTimestamp: ttidSpan?.endTimestamp,
+        ttidEndTimestamp: ttidEndTimestamp,
         ttfdEndTimestamp: ttfdEndTimestamp,
       );
     }
@@ -63,14 +75,14 @@ class TimeToDisplayTracker {
   Future<void> reportFullyDisplayed(
       {SpanId? spanId, DateTime? endTimestamp}) async {
     if (options.enableTimeToFullDisplayTracing) {
-      // Special case for root transaction
-      if (rootTransactionId != null && rootTransactionId == spanId) {
-        rootTTFDEndTimestamp = endTimestamp ?? DateTime.now();
-      }
-      return _ttfdTracker.reportFullyDisplayed(
+      final reported = await _ttfdTracker.reportFullyDisplayed(
         spanId: spanId,
         endTimestamp: endTimestamp,
       );
+
+      if (!reported && spanId == transactionId) {
+        _pendingTTFDEndTimestamp = endTimestamp ?? DateTime.now();
+      }
     }
   }
 
@@ -101,6 +113,7 @@ class TimeToDisplayTracker {
 
   void clear() {
     transactionId = null;
+    _pendingTTFDEndTimestamp = null;
 
     _ttidTracker.clear();
     if (options.enableTimeToFullDisplayTracing) {
