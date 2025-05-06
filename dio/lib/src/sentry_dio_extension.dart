@@ -14,11 +14,11 @@ import 'version.dart';
 extension SentryDioExtension on Dio {
   /// Adds support for automatic spans for http requests,
   /// as well as request and response transformations.
-  /// This must be the last initialization step of the [Dio] setup. Sentry will use 
-  /// your configuration, so update it first, and call `addSentry()` as the last step.
-  /// Since Sentry does not override any user configuration, it then uses whatever 
-  /// transformer, adapter, etc., you configured [Dio] to use.
-  /// 
+  /// This must be the last initialization step of the [Dio] setup. Sentry will
+  /// use your configuration, so update it first, and call `addSentry()` as the
+  /// last step. Since Sentry does not override any user configuration, it then
+  /// uses whatever transformer, adapter, etc., you configured [Dio] to use.
+  ///
   /// ```dart
   /// final dio = Dio();
   /// dio.transformer = YourCustomTransformer();
