@@ -72,6 +72,7 @@ void main() {
       expect(breadcrumb.message, 'from(countries)');
       expect(breadcrumb.category, 'db.insert');
       expect(breadcrumb.type, 'supabase');
+      expect(breadcrumb.data?['body'], {'id': 42});
     });
 
     test('upsert adds a breadcrumb', () async {
@@ -94,6 +95,7 @@ void main() {
       expect(breadcrumb.category, 'db.upsert');
       expect(breadcrumb.type, 'supabase');
       expect(breadcrumb.data?['query'], ['select(*)']);
+      expect(breadcrumb.data?['body'], {'id': 42});
     });
 
     test('update adds a breadcrumb', () async {
@@ -116,6 +118,7 @@ void main() {
       expect(breadcrumb.category, 'db.update');
       expect(breadcrumb.type, 'supabase');
       expect(breadcrumb.data?['query'], ['eq(id, 42)']);
+      expect(breadcrumb.data?['body'], {'id': 1337});
     });
 
     test('delete adds a breadcrumb', () async {

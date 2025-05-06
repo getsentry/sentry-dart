@@ -1,6 +1,7 @@
 import 'package:http/http.dart';
 import 'operation.dart';
 import 'package:sentry/sentry.dart';
+import 'dart:convert';
 
 class SentrySupabaseClient extends BaseClient {
   final bool _breadcrumbs;
@@ -68,8 +69,12 @@ class SentrySupabaseClient extends BaseClient {
       query.add(_translateFiltersIntoMethods(entry.key, entry.value));
     }
 
+    final bodyString =
+        request is Request && request.body.isNotEmpty ? request.body : null;
+    final body = bodyString != null ? jsonDecode(bodyString) : null;
+
     if (_breadcrumbs) {
-      _addBreadcrumb(description, operation, query);
+      _addBreadcrumb(description, operation, query, body);
     }
   }
 
@@ -77,6 +82,7 @@ class SentrySupabaseClient extends BaseClient {
     String description,
     Operation operation,
     List<String> query,
+    Map<String, dynamic>? body,
   ) {
     final breadcrumb = Breadcrumb(
       message: description,
@@ -84,10 +90,16 @@ class SentrySupabaseClient extends BaseClient {
       type: 'supabase',
     );
 
+    if (query.isNotEmpty || body != null) {
+      breadcrumb.data = {};
+    }
+
     if (query.isNotEmpty) {
-      breadcrumb.data = {
-        'query': query,
-      };
+      breadcrumb.data?['query'] = query;
+    }
+
+    if (body != null) {
+      breadcrumb.data?['body'] = body;
     }
 
     _hub.addBreadcrumb(breadcrumb);
