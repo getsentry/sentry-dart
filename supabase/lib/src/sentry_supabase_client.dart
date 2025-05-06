@@ -7,6 +7,36 @@ class SentrySupabaseClient extends BaseClient {
   final Client _client;
   final Hub _hub;
   
+  static const Map<String, String> filterMappings = {
+    "eq": "eq",
+    "neq": "neq",
+    "gt": "gt",
+    "gte": "gte",
+    "lt": "lt",
+    "lte": "lte",
+    "like": "like",
+    "like(all)": "likeAllOf",
+    "like(any)": "likeAnyOf",
+    "ilike": "ilike",
+    "ilike(all)": "ilikeAllOf",
+    "ilike(any)": "ilikeAnyOf",
+    "is": "is",
+    "in": "in",
+    "cs": "contains",
+    "cd": "containedBy",
+    "sr": "rangeGt",
+    "nxl": "rangeGte",
+    "sl": "rangeLt",
+    "nxr": "rangeLte",
+    "adj": "rangeAdjacent",
+    "ov": "overlaps",
+    "fts": "",
+    "plfts": "plain",
+    "phfts": "phrase",
+    "wfts": "websearch",
+    "not": "not",
+  };
+
   SentrySupabaseClient({required bool breadcrumbs, Client? client, Hub? hub}) : 
     _breadcrumbs = breadcrumbs,
     _client = client ?? Client(),
@@ -14,31 +44,49 @@ class SentrySupabaseClient extends BaseClient {
   
   @override
   Future<StreamedResponse> send(BaseRequest request) {
-    final url = request.url;
     final method = request.method;
     final headers = request.headers;
-
-    final table = url.pathSegments.last;
-    final description = 'from($table)';
-    final operation = extractOperation(method, headers);
+    final operation = _extractOperation(method, headers);
     
-    if (operation != null && _breadcrumbs) {
-      _addBreadcrumb(description, operation: operation);
+    if (operation != null) {
+      _instrument(request, operation);
     }
 
     return _client.send(request);
   }
 
-  void _addBreadcrumb(String description, {required Operation operation}) {
+  void _instrument(BaseRequest request, Operation operation) {
+    final url = request.url;
+    final table = url.pathSegments.last;
+    final description = 'from($table)';
+
+    final query = <String>[];
+    for (final entry in request.url.queryParameters.entries) {
+      query.add(_translateFiltersIntoMethods(entry.key, entry.value));
+    }
+
+    if (_breadcrumbs) {
+      _addBreadcrumb(description, operation, query);
+    }
+  }
+
+  void _addBreadcrumb(String description, Operation operation, List<String> query) {
     final breadcrumb = Breadcrumb(
       message: description,
       category: 'db.${operation.value}',
       type: 'supabase',
     );
+
+    if (query.isNotEmpty) {
+      breadcrumb.data = {
+        'query': query,
+      };
+    }
+    
     _hub.addBreadcrumb(breadcrumb);
   }
 
-  Operation? extractOperation(String method, Map<String, String> headers) {
+  Operation? _extractOperation(String method, Map<String, String> headers) {
     switch (method) {
       case "GET":
         {
@@ -65,5 +113,39 @@ class SentrySupabaseClient extends BaseClient {
           return null;
         }
     }
+  }
+
+  String _translateFiltersIntoMethods(String key, String query) {
+    if (query.isEmpty || query == "*") {
+      return "select(*)";
+    }
+
+    if (key == "select") {
+      return "select($query)";
+    }
+
+    if (key == "or" || key.endsWith(".or")) {
+      return "$key$query";
+    }
+
+    final parts = query.split(".");
+    final filter = parts[0];
+    final value = parts.sublist(1).join(".");
+
+    String method;
+    // Handle optional `configPart` of the filter
+    if (filter.startsWith("fts")) {
+      method = "textSearch";
+    } else if (filter.startsWith("plfts")) {
+      method = "textSearch[plain]";
+    } else if (filter.startsWith("phfts")) {
+      method = "textSearch[phrase]";
+    } else if (filter.startsWith("wfts")) {
+      method = "textSearch[websearch]";
+    } else {
+      method = filterMappings[filter] ?? "filter";
+    }
+
+    return "$method($key, $value)";
   }
 }

@@ -40,7 +40,7 @@ void main() {
       );
 
       try {
-        await supabase.from('countries').select();
+        await supabase.from('countries').select().eq('id', 42);
       } catch (e) {
         print(e);
       }
@@ -50,6 +50,7 @@ void main() {
       expect(breadcrumb.message, 'from(countries)');
       expect(breadcrumb.category, 'db.select');
       expect(breadcrumb.type, 'supabase');
+      expect(breadcrumb.data?['query'], ['select(*)', 'eq(id, 42)']);
     });
 
     test('insert adds a breadcrumb', () async {
@@ -61,7 +62,7 @@ void main() {
       );
 
       try {
-        await supabase.from('countries').insert({});
+        await supabase.from('countries').insert({ 'id': 42 });
       } catch (e) {
         print(e);
       }
@@ -82,7 +83,7 @@ void main() {
       );
 
       try {
-        await supabase.from('countries').upsert({});
+        await supabase.from('countries').upsert({ 'id': 42 }).select();
       } catch (e) {
         print(e);
       }
@@ -92,6 +93,7 @@ void main() {
       expect(breadcrumb.message, 'from(countries)');
       expect(breadcrumb.category, 'db.upsert');
       expect(breadcrumb.type, 'supabase');
+      expect(breadcrumb.data?['query'], ['select(*)']);
     });
 
     test('update adds a breadcrumb', () async {
@@ -103,7 +105,7 @@ void main() {
       );
 
       try {
-        await supabase.from('countries').update({});
+        await supabase.from('countries').update({ 'id': 1337 }).eq('id', 42);
       } catch (e) {
         print(e);
       }
@@ -113,6 +115,7 @@ void main() {
       expect(breadcrumb.message, 'from(countries)');
       expect(breadcrumb.category, 'db.update');
       expect(breadcrumb.type, 'supabase');
+      expect(breadcrumb.data?['query'], ['eq(id, 42)']);
     });
 
     test('delete adds a breadcrumb', () async {
@@ -124,7 +127,7 @@ void main() {
       );
 
       try {
-        await supabase.from('countries').delete();
+        await supabase.from('countries').delete().eq('id', 42);
       } catch (e) {
         print(e);
       }
@@ -134,6 +137,7 @@ void main() {
       expect(breadcrumb.message, 'from(countries)');
       expect(breadcrumb.category, 'db.delete');
       expect(breadcrumb.type, 'supabase');
+      expect(breadcrumb.data?['query'], ['eq(id, 42)']);
     });
 
     test('does not add breadcrumb when breadcrumbs are disabled', () async {
