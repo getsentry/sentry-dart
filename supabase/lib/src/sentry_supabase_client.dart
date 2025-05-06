@@ -72,25 +72,33 @@ class SentrySupabaseClient extends BaseClient {
     final url = request.url;
     final table = url.pathSegments.last;
     final description = 'from($table)';
-
-    final query = <String>[];
-    for (final entry in request.url.queryParameters.entries) {
-      query.add(_translateFiltersIntoMethods(entry.key, entry.value));
-    }
-
-    final bodyString =
-        request is Request && request.body.isNotEmpty ? request.body : null;
-    var body = bodyString != null ? jsonDecode(bodyString) : null;
-
-    if (_redactRequestBody != null) {
-      for (final entry in body?.entries ?? []) {
-        body[entry.key] = _redactRequestBody(table, entry.key, entry.value);
-      }
-    }
+    final query = _readQuery(request);
+    final body = _readBody(table, request);
 
     if (_breadcrumbs) {
       _addBreadcrumb(description, operation, query, body);
     }
+  }
+
+  List<String> _readQuery(BaseRequest request) {
+    return request.url.queryParameters.entries
+        .map(
+          (entry) => _translateFiltersIntoMethods(entry.key, entry.value),
+        )
+        .toList();
+  }
+
+  Map<String, dynamic>? _readBody(String table, BaseRequest request) {
+    final bodyString =
+        request is Request && request.body.isNotEmpty ? request.body : null;
+    var body = bodyString != null ? jsonDecode(bodyString) : null;
+
+    if (body != null && _redactRequestBody != null) {
+      for (final entry in body.entries) {
+        body[entry.key] = _redactRequestBody(table, entry.key, entry.value);
+      }
+    }
+    return body;
   }
 
   void _addBreadcrumb(
