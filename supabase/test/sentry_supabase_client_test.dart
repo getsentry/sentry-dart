@@ -20,7 +20,7 @@ void main() {
   group('Client', () {
     test('calls send on inner client', () async {
       final sentrySupabaseClient = fixture.getSut();
-      
+
       final request = Request('GET', Uri.parse('https://example.com/123'));
 
       await sentrySupabaseClient.send(request);
@@ -62,7 +62,7 @@ void main() {
       );
 
       try {
-        await supabase.from('countries').insert({ 'id': 42 });
+        await supabase.from('countries').insert({'id': 42});
       } catch (e) {
         print(e);
       }
@@ -83,7 +83,7 @@ void main() {
       );
 
       try {
-        await supabase.from('countries').upsert({ 'id': 42 }).select();
+        await supabase.from('countries').upsert({'id': 42}).select();
       } catch (e) {
         print(e);
       }
@@ -105,7 +105,7 @@ void main() {
       );
 
       try {
-        await supabase.from('countries').update({ 'id': 1337 }).eq('id', 42);
+        await supabase.from('countries').update({'id': 1337}).eq('id', 42);
       } catch (e) {
         print(e);
       }
@@ -180,7 +180,6 @@ void main() {
 
       expect(fixture.mockHub.addBreadcrumbCalls.length, 0);
     });
-    
   });
 }
 

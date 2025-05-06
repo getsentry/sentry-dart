@@ -6,7 +6,7 @@ class SentrySupabaseClient extends BaseClient {
   final bool _breadcrumbs;
   final Client _client;
   final Hub _hub;
-  
+
   static const Map<String, String> filterMappings = {
     "eq": "eq",
     "neq": "neq",
@@ -37,17 +37,20 @@ class SentrySupabaseClient extends BaseClient {
     "not": "not",
   };
 
-  SentrySupabaseClient({required bool breadcrumbs, Client? client, Hub? hub}) : 
-    _breadcrumbs = breadcrumbs,
-    _client = client ?? Client(),
-    _hub = hub ?? HubAdapter();
-  
+  SentrySupabaseClient({
+    required bool breadcrumbs,
+    Client? client,
+    Hub? hub,
+  })  : _breadcrumbs = breadcrumbs,
+        _client = client ?? Client(),
+        _hub = hub ?? HubAdapter();
+
   @override
   Future<StreamedResponse> send(BaseRequest request) {
     final method = request.method;
     final headers = request.headers;
     final operation = _extractOperation(method, headers);
-    
+
     if (operation != null) {
       _instrument(request, operation);
     }
@@ -70,7 +73,11 @@ class SentrySupabaseClient extends BaseClient {
     }
   }
 
-  void _addBreadcrumb(String description, Operation operation, List<String> query) {
+  void _addBreadcrumb(
+    String description,
+    Operation operation,
+    List<String> query,
+  ) {
     final breadcrumb = Breadcrumb(
       message: description,
       category: 'db.${operation.value}',
@@ -82,7 +89,7 @@ class SentrySupabaseClient extends BaseClient {
         'query': query,
       };
     }
-    
+
     _hub.addBreadcrumb(breadcrumb);
   }
 
