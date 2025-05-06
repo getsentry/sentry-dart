@@ -3,8 +3,15 @@ import 'operation.dart';
 import 'package:sentry/sentry.dart';
 import 'dart:convert';
 
+typedef SentrySupabaseRedactRequestBody = String? Function(
+  String table,
+  String key,
+  String value,
+);
+
 class SentrySupabaseClient extends BaseClient {
   final bool _breadcrumbs;
+  final SentrySupabaseRedactRequestBody? _redactRequestBody;
   final Client _client;
   final Hub _hub;
 
@@ -40,9 +47,11 @@ class SentrySupabaseClient extends BaseClient {
 
   SentrySupabaseClient({
     required bool breadcrumbs,
+    SentrySupabaseRedactRequestBody? redactRequestBody,
     Client? client,
     Hub? hub,
   })  : _breadcrumbs = breadcrumbs,
+        _redactRequestBody = redactRequestBody,
         _client = client ?? Client(),
         _hub = hub ?? HubAdapter();
 
@@ -71,7 +80,13 @@ class SentrySupabaseClient extends BaseClient {
 
     final bodyString =
         request is Request && request.body.isNotEmpty ? request.body : null;
-    final body = bodyString != null ? jsonDecode(bodyString) : null;
+    var body = bodyString != null ? jsonDecode(bodyString) : null;
+
+    if (_redactRequestBody != null) {
+      for (final entry in body?.entries ?? []) {
+        body[entry.key] = _redactRequestBody(table, entry.key, entry.value);
+      }
+    }
 
     if (_breadcrumbs) {
       _addBreadcrumb(description, operation, query, body);

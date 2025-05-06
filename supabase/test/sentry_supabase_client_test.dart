@@ -183,6 +183,67 @@ void main() {
 
       expect(fixture.mockHub.addBreadcrumbCalls.length, 0);
     });
+
+    test('redact request body', () async {
+      final sentrySupabaseClient = fixture.getSut(
+        redactRequestBody: (table, key, value) {
+          switch (key) {
+            case "password":
+              return "<redacted>";
+            case "token":
+              return "<nope>";
+            case "secret":
+              return "<uwatm8>";
+            case "null-me":
+              return null;
+            default:
+              {
+                return value;
+              }
+          }
+        },
+      );
+      final supabase = SupabaseClient(
+        supabaseUrl,
+        supabaseKey,
+        httpClient: sentrySupabaseClient,
+      );
+
+      try {
+        await supabase.from("mock-table").insert(
+            {'user': 'picklerick', 'password': 'whoops', 'null-me': 'foo'});
+      } catch (e) {
+        print(e);
+      }
+
+      try {
+        await supabase
+            .from("mock-table")
+            .upsert({'user': 'picklerick', 'token': 'whoops'});
+      } catch (e) {
+        print(e);
+      }
+
+      try {
+        await supabase
+            .from("mock-table")
+            .update({'user': 'picklerick', 'secret': 'whoops'}).eq("id", 42);
+      } catch (e) {
+        print(e);
+      }
+
+      expect(fixture.mockHub.addBreadcrumbCalls.length, 3);
+      final inserted = fixture.mockHub.addBreadcrumbCalls[0].$1;
+      expect(inserted.data?['body'],
+          {'user': 'picklerick', 'password': '<redacted>', 'null-me': null});
+
+      final upserted = fixture.mockHub.addBreadcrumbCalls[1].$1;
+      expect(upserted.data?['body'], {'user': 'picklerick', 'token': '<nope>'});
+
+      final updated = fixture.mockHub.addBreadcrumbCalls[2].$1;
+      expect(
+          updated.data?['body'], {'user': 'picklerick', 'secret': '<uwatm8>'});
+    });
   });
 }
 
@@ -193,11 +254,14 @@ class Fixture {
   final mockClient = MockClient();
   final mockHub = MockHub();
 
-  SentrySupabaseClient getSut({bool breadcrumbs = true}) {
+  SentrySupabaseClient getSut(
+      {bool breadcrumbs = true,
+      SentrySupabaseRedactRequestBody? redactRequestBody}) {
     return SentrySupabaseClient(
       breadcrumbs: breadcrumbs,
       client: mockClient,
       hub: mockHub,
+      redactRequestBody: redactRequestBody,
     );
   }
 }
