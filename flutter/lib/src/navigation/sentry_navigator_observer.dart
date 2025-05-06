@@ -162,7 +162,9 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
 
     DateTime timestamp = _hub.options.clock();
     _finishTransaction(endTimestamp: timestamp);
-    _startTransaction(route, timestamp);
+
+    final transactionContext = _createTransactionContext(route);
+    _startTransaction(route, timestamp, transactionContext);
   }
 
   @override
@@ -254,9 +256,23 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     }
   }
 
+  SentryTransactionContext? _createTransactionContext(Route<dynamic>? route) {
+    final routeName = _getRouteName(route) ?? _currentRouteName;
+    if (routeName == null) {
+      return null;
+    }
+    return SentryTransactionContext(
+      routeName,
+      SentrySpanOperations.uiLoad,
+      transactionNameSource: SentryTransactionNameSource.component,
+      origin: SentryTraceOrigins.autoNavigationRouteObserver,
+    );
+  }
+
   Future<void> _startTransaction(
     Route<dynamic>? route,
     DateTime startTimestamp,
+    SentryTransactionContext? transactionContext,
   ) async {
     final routeName = _getRouteName(route) ?? _currentRouteName;
     final arguments = route?.settings.arguments;
@@ -266,13 +282,9 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     if (!_enableAutoTransactions || routeName == null || isRoot) {
       return;
     }
-
-    final transactionContext = SentryTransactionContext(
-      routeName,
-      SentrySpanOperations.uiLoad,
-      transactionNameSource: SentryTransactionNameSource.component,
-      origin: SentryTraceOrigins.autoNavigationRouteObserver,
-    );
+    if (transactionContext == null) {
+      return;
+    }
     _timeToDisplayTracker?.transactionId = transactionContext.spanId;
 
     final transaction = _hub.startTransactionWithContext(
