@@ -18,7 +18,7 @@ void main() {
   });
 
   group('Client', () {
-    test('calls send on innser client', () async {
+    test('calls send on inner client', () async {
       final sentrySupabaseClient = fixture.getSut();
       
       final request = Request('GET', Uri.parse('https://example.com/123'));
