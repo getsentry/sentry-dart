@@ -6,23 +6,24 @@
 
 - TTID/TTFD Improvements ([#2866](https://github.com/getsentry/sentry-dart/pull/2866))
 ```dart
-// To report TTFD you need to use the SentryNavigatorObserver.
- 
-// Before reporting long running work, you can get a reference to the currently displayed route.
-final sentryDisplay = Sentry.currentDisplay();
-
-// Then do some work like file I/O or networking....
-
-// Finally call `reportFullyDisplayed` on the sentryDisplay instance when the work operation is done.
-sentryDisplay?.reportFullyDisplayed()
-
-// Alternatively, you can wrap your widget in `SentryDisplayWidget`.
+// To report TTFD you need to use the SentryNavigatorObserver and wrap your widget in `SentryDisplayWidget`:
 
 SentryDisplayWidget(child: YourWidget())
 
-// Then call to finish TTFD when your long running work within your widget is done.
+// Then report TTFD after long running work (File I/O, Network) within your widget.
 
 SentryDisplayWidget.of(context).reportFullDisplay();
+
+// Stateless widgets will report TTFD automatically when wrapped with SentryDisplayWidget.
+
+// Alternativeley, you can manually report TTFD:
+
+// Get a reference to the current display before doing work.
+
+final sentryDisplay = Sentry.currentDisplay();
+
+// After long running work, call `reportFullyDisplayed` on the SentryDisplay instance.
+sentryDisplay?.reportFullyDisplayed()
 ```
 
 ## 9.0.0-beta.2
