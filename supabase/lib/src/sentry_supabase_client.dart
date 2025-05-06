@@ -123,29 +123,19 @@ class SentrySupabaseClient extends BaseClient {
   Operation? _extractOperation(String method, Map<String, String> headers) {
     switch (method) {
       case "GET":
-        {
-          return Operation.select;
-        }
+        return Operation.select;
       case "POST":
-        {
-          if (headers["Prefer"]?.contains("resolution=") ?? false) {
-            return Operation.upsert;
-          } else {
-            return Operation.insert;
-          }
+        if (headers["Prefer"]?.contains("resolution=") ?? false) {
+          return Operation.upsert;
+        } else {
+          return Operation.insert;
         }
       case "PATCH":
-        {
-          return Operation.update;
-        }
+        return Operation.update;
       case "DELETE":
-        {
-          return Operation.delete;
-        }
+        return Operation.delete;
       default:
-        {
-          return null;
-        }
+        return null;
     }
   }
 

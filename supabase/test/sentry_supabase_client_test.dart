@@ -197,9 +197,7 @@ void main() {
             case "null-me":
               return null;
             default:
-              {
-                return value;
-              }
+              return value;
           }
         },
       );
