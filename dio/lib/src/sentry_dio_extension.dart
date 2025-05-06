@@ -14,8 +14,17 @@ import 'version.dart';
 extension SentryDioExtension on Dio {
   /// Adds support for automatic spans for http requests,
   /// as well as request and response transformations.
-  /// This must be the last initialization step of the [Dio] setup, otherwise
-  /// your configuration of Dio might overwrite the Sentry configuration.
+  /// This must be the last initialization step of the [Dio] setup. Sentry will use 
+  /// your configuration, so update it first, and call `addSentry()` as the last step.
+  /// Since Sentry does not override any user configuration, it then uses whatever 
+  /// transformer, adapter, etc., you configured [Dio] to use.
+  /// 
+  /// ```dart
+  /// final dio = Dio();
+  /// dio.transformer = YourCustomTransformer();
+  /// dio.httpClientAdapter = YourCustomHttpClientAdapter();
+  /// dio.addSentry();
+  /// ```
   ///
   /// You can also configure specific HTTP response codes to be considered
   /// as a failed request. In the following example, the status codes 404 and 500
