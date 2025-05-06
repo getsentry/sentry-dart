@@ -135,6 +135,48 @@ void main() {
       expect(breadcrumb.category, 'db.delete');
       expect(breadcrumb.type, 'supabase');
     });
+
+    test('does not add breadcrumb when breadcrumbs are disabled', () async {
+      final sentrySupabaseClient = fixture.getSut(breadcrumbs: false);
+      final supabase = SupabaseClient(
+        supabaseUrl,
+        supabaseKey,
+        httpClient: sentrySupabaseClient,
+      );
+
+      try {
+        await supabase.from('countries').select();
+      } catch (e) {
+        print(e);
+      }
+
+      try {
+        await supabase.from('countries').insert({});
+      } catch (e) {
+        print(e);
+      }
+
+      try {
+        await supabase.from('countries').upsert({});
+      } catch (e) {
+        print(e);
+      }
+
+      try {
+        await supabase.from('countries').update({});
+      } catch (e) {
+        print(e);
+      }
+
+      try {
+        await supabase.from('countries').delete();
+      } catch (e) {
+        print(e);
+      }
+
+      expect(fixture.mockHub.addBreadcrumbCalls.length, 0);
+    });
+    
   });
 }
 
@@ -145,8 +187,9 @@ class Fixture {
   final mockClient = MockClient();
   final mockHub = MockHub();
 
-  SentrySupabaseClient getSut() {
+  SentrySupabaseClient getSut({bool breadcrumbs = true}) {
     return SentrySupabaseClient(
+      breadcrumbs: breadcrumbs,
       client: mockClient,
       hub: mockHub,
     );

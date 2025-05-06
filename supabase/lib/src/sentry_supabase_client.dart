@@ -3,10 +3,12 @@ import 'operation.dart';
 import 'package:sentry/sentry.dart';
 
 class SentrySupabaseClient extends BaseClient {
+  final bool _breadcrumbs;
   final Client _client;
   final Hub _hub;
   
-  SentrySupabaseClient({Client? client, Hub? hub}) : 
+  SentrySupabaseClient({required bool breadcrumbs, Client? client, Hub? hub}) : 
+    _breadcrumbs = breadcrumbs,
     _client = client ?? Client(),
     _hub = hub ?? HubAdapter();
   
@@ -19,8 +21,8 @@ class SentrySupabaseClient extends BaseClient {
     final table = url.pathSegments.last;
     final description = 'from($table)';
     final operation = extractOperation(method, headers);
-
-    if (operation != null) {
+    
+    if (operation != null && _breadcrumbs) {
       _addBreadcrumb(description, operation: operation);
     }
 
