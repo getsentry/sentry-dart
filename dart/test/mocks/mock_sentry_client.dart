@@ -8,8 +8,8 @@ class MockSentryClient with NoSuchMethodProvider implements SentryClient {
   List<CaptureMessageCall> captureMessageCalls = [];
   List<CaptureEnvelopeCall> captureEnvelopeCalls = [];
   List<CaptureTransactionCall> captureTransactionCalls = [];
-
   List<CaptureFeedbackCall> captureFeedbackCalls = [];
+  List<CaptureLogsCall> captureLogsCalls = [];
   int closeCalls = 0;
 
   @override
@@ -81,6 +81,12 @@ class MockSentryClient with NoSuchMethodProvider implements SentryClient {
       scope,
       hint,
     ));
+    return SentryId.newId();
+  }
+
+  @override
+  Future<SentryId> captureLogs(List<SentryLogItem> logs) async {
+    captureLogsCalls.add(CaptureLogsCall(logs));
     return SentryId.newId();
   }
 
@@ -172,4 +178,10 @@ class CaptureTransactionCall {
   final Hint? hint;
 
   CaptureTransactionCall(this.transaction, this.traceContext, this.hint);
+}
+
+class CaptureLogsCall {
+  final List<SentryLogItem> logs;
+
+  CaptureLogsCall(this.logs);
 }

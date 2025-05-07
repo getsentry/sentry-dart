@@ -1702,6 +1702,42 @@ void main() {
     });
   });
 
+  group('SentryClient captures logs', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    test('should capture logs', () async {
+      final client = fixture.getSut();
+      final logs = [
+        SentryLogItem(
+          timestamp: DateTime.now(),
+          traceId: SentryId.newId(),
+          level: SentryLogLevel.info,
+          body: 'test',
+          attributes: {},
+        ),
+      ];
+      final logItemJson = logs.first.toJson();
+
+      await client.captureLogs(logs);
+
+      final capturedLogJson = (fixture.transport).logs.first;
+
+      expect(capturedLogJson, isNotNull);
+      expect(capturedLogJson['items'].first['timestamp'],
+          logItemJson['timestamp']);
+      expect(
+          capturedLogJson['items'].first['trace_id'], logItemJson['trace_id']);
+      expect(capturedLogJson['items'].first['level'], logItemJson['level']);
+      expect(capturedLogJson['items'].first['body'], logItemJson['body']);
+      expect(capturedLogJson['items'].first['attributes'],
+          logItemJson['attributes']);
+    });
+  });
+
   group('SentryClient captures envelope', () {
     late Fixture fixture;
     final fakeEnvelope = getFakeEnvelope();
