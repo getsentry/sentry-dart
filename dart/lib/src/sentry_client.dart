@@ -486,41 +486,38 @@ class SentryClient {
   }
 
   @internal
-  Future<SentryId> captureLogs(
-    List<SentryLog> logs, {
+  Future<void> captureLog(
+    SentryLog log, {
     Scope? scope,
   }) async {
-    for (final log in logs) {
-      log.attributes['sentry.sdk.name'] = SentryLogAttribute.string(
-        _options.sdk.name,
+    log.attributes['sentry.sdk.name'] = SentryLogAttribute.string(
+      _options.sdk.name,
+    );
+    log.attributes['sentry.sdk.version'] = SentryLogAttribute.string(
+      _options.sdk.version,
+    );
+    final environment = _options.environment;
+    if (environment != null) {
+      log.attributes['sentry.environment'] = SentryLogAttribute.string(
+        environment,
       );
-      log.attributes['sentry.sdk.version'] = SentryLogAttribute.string(
-        _options.sdk.version,
+    }
+    final release = _options.release;
+    if (release != null) {
+      log.attributes['sentry.release'] = SentryLogAttribute.string(
+        release,
       );
-      final environment = _options.environment;
-      if (environment != null) {
-        log.attributes['sentry.environment'] = SentryLogAttribute.string(
-          environment,
-        );
-      }
-      final release = _options.release;
-      if (release != null) {
-        log.attributes['sentry.release'] = SentryLogAttribute.string(
-          release,
-        );
-      }
-      final span = scope?.span;
-      if (span != null) {
-        log.attributes['sentry.trace.parent_span_id'] =
-            SentryLogAttribute.string(
-          span.context.spanId.toString(),
-        );
-      }
+    }
+    final span = scope?.span;
+    if (span != null) {
+      log.attributes['sentry.trace.parent_span_id'] = SentryLogAttribute.string(
+        span.context.spanId.toString(),
+      );
     }
 
-    final envelope = SentryEnvelope.fromLogs(logs, _options.sdk);
-    final id = await captureEnvelope(envelope);
-    return id ?? SentryId.empty();
+    // TODO: Batch in separate PR, so we can send multiple logs at once.
+    final envelope = SentryEnvelope.fromLogs([log], _options.sdk);
+    await captureEnvelope(envelope);
   }
 
   void close() {

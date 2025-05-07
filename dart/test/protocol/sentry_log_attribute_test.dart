@@ -12,7 +12,7 @@ void main() {
   });
 
   test('$SentryLogAttribute boolean to json', () {
-    final attribute = SentryLogAttribute.boolean(true);
+    final attribute = SentryLogAttribute.bool(true);
     final json = attribute.toJson();
     expect(json, {
       'value': true,
@@ -21,7 +21,7 @@ void main() {
   });
 
   test('$SentryLogAttribute integer to json', () {
-    final attribute = SentryLogAttribute.integer(1);
+    final attribute = SentryLogAttribute.int(1);
     final json = attribute.toJson();
 
     expect(json, {

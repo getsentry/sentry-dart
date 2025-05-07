@@ -1704,7 +1704,7 @@ void main() {
     });
   });
 
-  group('SentryClient captureLogs', () {
+  group('SentryClient captureLog', () {
     late Fixture fixture;
 
     setUp(() {
@@ -1725,20 +1725,18 @@ void main() {
 
     test('should capture logs as envelope', () async {
       final client = fixture.getSut();
-      final logs = [givenLog()];
-      final logItemJson = logs.first.toJson();
+      final log = givenLog();
+      final logJson = log.toJson();
 
-      await client.captureLogs(logs);
+      await client.captureLog(log);
 
       final capturedLogJson = (fixture.transport).logs.first;
 
       expect(capturedLogJson, isNotNull);
-      expect(capturedLogJson['items'].first['timestamp'],
-          logItemJson['timestamp']);
-      expect(
-          capturedLogJson['items'].first['trace_id'], logItemJson['trace_id']);
-      expect(capturedLogJson['items'].first['level'], logItemJson['level']);
-      expect(capturedLogJson['items'].first['body'], logItemJson['body']);
+      expect(capturedLogJson['items'].first['timestamp'], logJson['timestamp']);
+      expect(capturedLogJson['items'].first['trace_id'], logJson['trace_id']);
+      expect(capturedLogJson['items'].first['level'], logJson['level']);
+      expect(capturedLogJson['items'].first['body'], logJson['body']);
       expect(capturedLogJson['items'].first['attributes']['attribute']['value'],
           'value');
     });
@@ -1747,14 +1745,14 @@ void main() {
       fixture.options.environment = 'test-environment';
       fixture.options.release = 'test-release';
 
-      final logs = [givenLog()];
+      final log = givenLog();
 
       final scope = Scope(fixture.options);
       final span = MockSpan();
       scope.span = span;
 
       final client = fixture.getSut();
-      await client.captureLogs(logs, scope: scope);
+      await client.captureLog(log, scope: scope);
 
       final capturedLogJson = (fixture.transport).logs.first;
       final attributesJson = capturedLogJson['items'].first['attributes'];

@@ -152,7 +152,7 @@ void main() {
           level: SentryLogLevel.info,
           body: 'test2',
           attributes: {
-            'test2': SentryLogAttribute.integer(9001),
+            'test2': SentryLogAttribute.int(9001),
           },
         ),
       ];
