@@ -9,7 +9,6 @@ import 'sentry_item_type.dart';
 import 'sentry_options.dart';
 import 'sentry_trace_context_header.dart';
 import 'utils.dart';
-import 'protocol/sentry_log.dart';
 
 /// Class representation of `Envelope` file.
 class SentryEnvelope {

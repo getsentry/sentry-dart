@@ -6,7 +6,6 @@ import 'sentry_attachment/sentry_attachment.dart';
 import 'sentry_envelope_item_header.dart';
 import 'sentry_item_type.dart';
 import 'utils.dart';
-import 'protocol/sentry_log.dart';
 
 /// Item holding header information and JSON encoded data.
 class SentryEnvelopeItem {
