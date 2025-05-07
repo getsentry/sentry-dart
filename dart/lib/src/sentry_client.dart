@@ -487,6 +487,16 @@ class SentryClient {
 
   @internal
   Future<SentryId> captureLogs(List<SentryLog> logs) async {
+    
+    for (final log in logs) {
+      log.attributes['sentry.sdk.name'] = SentryLogAttribute.string(
+        _options.sdk.name,
+      );
+      log.attributes['sentry.sdk.version'] = SentryLogAttribute.string(
+        _options.sdk.version,
+      );
+    }
+
     final envelope = SentryEnvelope.fromLogs(logs, _options.sdk);
     final id = await captureEnvelope(envelope);
     return id ?? SentryId.empty();

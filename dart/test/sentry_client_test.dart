@@ -1702,14 +1702,14 @@ void main() {
     });
   });
 
-  group('SentryClient captures logs', () {
+  group('SentryClient captureLogs', () {
     late Fixture fixture;
 
     setUp(() {
       fixture = Fixture();
     });
 
-    test('should capture logs', () async {
+    test('should capture logs as envelope', () async {
       final client = fixture.getSut();
       final logs = [
         SentryLog(
@@ -1735,6 +1735,40 @@ void main() {
       expect(capturedLogJson['items'].first['body'], logItemJson['body']);
       expect(capturedLogJson['items'].first['attributes'],
           logItemJson['attributes']);
+    });
+
+    test('should apply sdk name and version as attrubute', () async {
+      final client = fixture.getSut();
+      final logs = [
+        SentryLog(
+          timestamp: DateTime.now(),
+          traceId: SentryId.newId(),
+          level: SentryLogLevel.info,
+          body: 'test',
+          attributes: {},
+        ),
+      ];
+
+      await client.captureLogs(logs);
+      final capturedLogJson = (fixture.transport).logs.first;
+      final attributesJson = capturedLogJson['items'].first['attributes'];
+      
+      expect(
+        attributesJson['sentry.sdk.name']['value'],
+        fixture.options.sdk.name,
+      );
+      expect(
+        attributesJson['sentry.sdk.name']['type'],
+        'string',
+      );
+      expect(
+        attributesJson['sentry.sdk.version']['value'],
+        fixture.options.sdk.version,
+      );
+      expect(
+        attributesJson['sentry.sdk.version']['type'],
+        'string',
+      );
     });
   });
 
