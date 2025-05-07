@@ -17,6 +17,7 @@ void main() {
         'test3': SentryLogAttribute.integer(9001),
         'test4': SentryLogAttribute.double(9000.1),
       },
+      severityNumber: 1,
     );
 
     final json = logItem.toJson();
@@ -44,6 +45,7 @@ void main() {
           'type': 'double',
         },
       },
+      'severity_number': 1,
     });
   });
 }

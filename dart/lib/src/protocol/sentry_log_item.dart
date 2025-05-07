@@ -8,6 +8,7 @@ class SentryLogItem {
   SentryLogLevel level;
   String body;
   Map<String, SentryLogAttribute> attributes;
+  int? severityNumber;
 
   SentryLogItem({
     required this.timestamp,
@@ -15,6 +16,7 @@ class SentryLogItem {
     required this.level,
     required this.body,
     required this.attributes,
+    this.severityNumber,
   });
 
   Map<String, dynamic> toJson() {
@@ -25,6 +27,7 @@ class SentryLogItem {
       'body': body,
       'attributes':
           attributes.map((key, value) => MapEntry(key, value.toJson())),
+      if (severityNumber != null) 'severity_number': severityNumber,
     };
   }
 }
