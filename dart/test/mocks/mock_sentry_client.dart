@@ -85,7 +85,7 @@ class MockSentryClient with NoSuchMethodProvider implements SentryClient {
   }
 
   @override
-  Future<SentryId> captureLogs(List<SentryLogItem> logs) async {
+  Future<SentryId> captureLogs(List<SentryLog> logs) async {
     captureLogsCalls.add(CaptureLogsCall(logs));
     return SentryId.newId();
   }
@@ -181,7 +181,7 @@ class CaptureTransactionCall {
 }
 
 class CaptureLogsCall {
-  final List<SentryLogItem> logs;
+  final List<SentryLog> logs;
 
   CaptureLogsCall(this.logs);
 }

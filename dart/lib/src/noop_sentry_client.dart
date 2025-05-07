@@ -68,6 +68,5 @@ class NoOpSentryClient implements SentryClient {
       SentryId.empty();
 
   @override
-  Future<SentryId> captureLogs(List<SentryLogItem> logs) async =>
-      SentryId.empty();
+  Future<SentryId> captureLogs(List<SentryLog> logs) async => SentryId.empty();
 }

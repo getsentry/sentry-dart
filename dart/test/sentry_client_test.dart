@@ -1712,7 +1712,7 @@ void main() {
     test('should capture logs', () async {
       final client = fixture.getSut();
       final logs = [
-        SentryLogItem(
+        SentryLog(
           timestamp: DateTime.now(),
           traceId: SentryId.newId(),
           level: SentryLogLevel.info,
