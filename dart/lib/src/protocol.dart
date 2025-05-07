@@ -42,6 +42,5 @@ export 'sentry_event_like.dart';
 export 'protocol/sentry_feature_flag.dart';
 export 'protocol/sentry_feature_flags.dart';
 export 'protocol/sentry_log.dart';
-export 'protocol/sentry_log_item.dart';
 export 'protocol/sentry_log_level.dart';
 export 'protocol/sentry_log_attribute.dart';
