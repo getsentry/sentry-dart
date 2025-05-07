@@ -5,7 +5,7 @@ class SentryLog {
 
   SentryLog({required this.items});
 
-  toJson() {
+  Map<String, dynamic> toJson() {
     return {
       'items': items.map((e) => e.toJson()).toList(),
     };
