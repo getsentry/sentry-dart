@@ -27,7 +27,7 @@ class SentryLog {
       'body': body,
       'attributes':
           attributes.map((key, value) => MapEntry(key, value.toJson())),
-      if (severityNumber != null) 'severity_number': severityNumber,
+      'severity_number': severityNumber ?? level.toSeverityNumber(),
     };
   }
 }

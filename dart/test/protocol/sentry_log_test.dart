@@ -48,4 +48,39 @@ void main() {
       'severity_number': 1,
     });
   });
+
+  test('$SentryLevel without severity number infers from level in toJson', () {
+    final logItem = SentryLog(
+      timestamp: DateTime.now(),
+      traceId: SentryId.newId(),
+      level: SentryLogLevel.trace,
+      body: 'fixture-body',
+      attributes: {
+        'test': SentryLogAttribute.string('fixture-test'),
+      },
+    );
+
+    var json = logItem.toJson();
+    expect(json['severity_number'], 1);
+
+    logItem.level = SentryLogLevel.debug;
+    json = logItem.toJson();
+    expect(json['severity_number'], 5);
+
+    logItem.level = SentryLogLevel.info;
+    json = logItem.toJson();
+    expect(json['severity_number'], 9);
+
+    logItem.level = SentryLogLevel.warn;
+    json = logItem.toJson();
+    expect(json['severity_number'], 13);
+
+    logItem.level = SentryLogLevel.error;
+    json = logItem.toJson();
+    expect(json['severity_number'], 17);
+
+    logItem.level = SentryLogLevel.fatal;
+    json = logItem.toJson();
+    expect(json['severity_number'], 21);
+  });
 }
