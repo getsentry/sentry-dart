@@ -6,6 +6,7 @@ import 'sentry_attachment/sentry_attachment.dart';
 import 'sentry_envelope_item_header.dart';
 import 'sentry_item_type.dart';
 import 'utils.dart';
+import 'protocol/sentry_log.dart';
 
 /// Item holding header information and JSON encoded data.
 class SentryEnvelopeItem {
@@ -60,6 +61,18 @@ class SentryEnvelopeItem {
       ),
       () => utf8JsonEncoder.convert(clientReport.toJson()),
       originalObject: clientReport,
+    );
+  }
+
+  factory SentryEnvelopeItem.fromLog(SentryLog log) {
+    return SentryEnvelopeItem(
+      SentryEnvelopeItemHeader(
+        SentryItemType.log,
+        itemCount: log.items.length,
+        contentType: 'application/vnd.sentry.items.log+json',
+      ),
+      () => utf8JsonEncoder.convert(log.toJson()),
+      originalObject: log,
     );
   }
 
