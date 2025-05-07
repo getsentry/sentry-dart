@@ -19,9 +19,6 @@ class WebSentryJsBinding implements SentryJsBinding {
           .map((String integration) => _createIntegration(integration));
     }
     _init(options.jsify());
-    print('hello');
-    print(getFilenameToDebugIdMap().keys.elementAt(1));
-    print(getFilenameToDebugIdMap().keys.first);
     _client = SentryJsClient();
   }
 
@@ -101,6 +98,7 @@ class WebSentryJsBinding implements SentryJsBinding {
   int? lastKeysCount;
   Map<String, List<String>>? parsedStackResults;
 
+  @override
   Map<String, String> getFilenameToDebugIdMap() {
     final debugIdMap =
         _globalThis['_sentryDebugIds'].dartify() as Map<dynamic, dynamic>?;
