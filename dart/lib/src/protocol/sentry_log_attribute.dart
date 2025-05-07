@@ -20,6 +20,7 @@ class SentryLogAttribute {
     return SentryLogAttribute(value, 'double');
   }
 
+  // In the future the SDK will also support string[], boolean[], integer[], double[] values.
   Map<String, dynamic> toJson() {
     return {
       'value': value,
