@@ -486,8 +486,10 @@ class SentryClient {
   }
 
   @internal
-  Future<SentryId> captureLogs(List<SentryLog> logs) async {
-    
+  Future<SentryId> captureLogs(
+    List<SentryLog> logs, {
+    Scope? scope,
+  }) async {
     for (final log in logs) {
       log.attributes['sentry.sdk.name'] = SentryLogAttribute.string(
         _options.sdk.name,
@@ -495,6 +497,25 @@ class SentryClient {
       log.attributes['sentry.sdk.version'] = SentryLogAttribute.string(
         _options.sdk.version,
       );
+      final environment = _options.environment;
+      if (environment != null) {
+        log.attributes['sentry.environment'] = SentryLogAttribute.string(
+          environment,
+        );
+      }
+      final release = _options.release;
+      if (release != null) {
+        log.attributes['sentry.release'] = SentryLogAttribute.string(
+          release,
+        );
+      }
+      final span = scope?.span;
+      if (span != null) {
+        log.attributes['sentry.trace.parent_span_id'] =
+            SentryLogAttribute.string(
+          span.context.spanId.toString(),
+        );
+      }
     }
 
     final envelope = SentryEnvelope.fromLogs(logs, _options.sdk);

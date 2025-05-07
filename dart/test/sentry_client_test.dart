@@ -23,6 +23,8 @@ import 'mocks/mock_client_report_recorder.dart';
 import 'mocks/mock_hub.dart';
 import 'mocks/mock_transport.dart';
 import 'test_utils.dart';
+import 'utils/url_details_test.dart';
+import 'package:mockito/mockito.dart';
 
 void main() {
   group('SentryClient captures message', () {
@@ -1709,17 +1711,21 @@ void main() {
       fixture = Fixture();
     });
 
+    SentryLog givenLog() {
+      return SentryLog(
+        timestamp: DateTime.now(),
+        traceId: SentryId.newId(),
+        level: SentryLogLevel.info,
+        body: 'test',
+        attributes: {
+          'attribute': SentryLogAttribute.string('value'),
+        },
+      );
+    }
+
     test('should capture logs as envelope', () async {
       final client = fixture.getSut();
-      final logs = [
-        SentryLog(
-          timestamp: DateTime.now(),
-          traceId: SentryId.newId(),
-          level: SentryLogLevel.info,
-          body: 'test',
-          attributes: {},
-        ),
-      ];
+      final logs = [givenLog()];
       final logItemJson = logs.first.toJson();
 
       await client.captureLogs(logs);
@@ -1733,26 +1739,26 @@ void main() {
           capturedLogJson['items'].first['trace_id'], logItemJson['trace_id']);
       expect(capturedLogJson['items'].first['level'], logItemJson['level']);
       expect(capturedLogJson['items'].first['body'], logItemJson['body']);
-      expect(capturedLogJson['items'].first['attributes'],
-          logItemJson['attributes']);
+      expect(capturedLogJson['items'].first['attributes']['attribute']['value'],
+          'value');
     });
 
-    test('should apply sdk name and version as attrubute', () async {
-      final client = fixture.getSut();
-      final logs = [
-        SentryLog(
-          timestamp: DateTime.now(),
-          traceId: SentryId.newId(),
-          level: SentryLogLevel.info,
-          body: 'test',
-          attributes: {},
-        ),
-      ];
+    test('should add additional info to attributes', () async {
+      fixture.options.environment = 'test-environment';
+      fixture.options.release = 'test-release';
 
-      await client.captureLogs(logs);
+      final logs = [givenLog()];
+
+      final scope = Scope(fixture.options);
+      final span = MockSpan();
+      scope.span = span;
+
+      final client = fixture.getSut();
+      await client.captureLogs(logs, scope: scope);
+
       final capturedLogJson = (fixture.transport).logs.first;
       final attributesJson = capturedLogJson['items'].first['attributes'];
-      
+
       expect(
         attributesJson['sentry.sdk.name']['value'],
         fixture.options.sdk.name,
@@ -1767,6 +1773,30 @@ void main() {
       );
       expect(
         attributesJson['sentry.sdk.version']['type'],
+        'string',
+      );
+      expect(
+        attributesJson['sentry.environment']['value'],
+        fixture.options.environment,
+      );
+      expect(
+        attributesJson['sentry.environment']['type'],
+        'string',
+      );
+      expect(
+        attributesJson['sentry.release']['value'],
+        fixture.options.release,
+      );
+      expect(
+        attributesJson['sentry.release']['type'],
+        'string',
+      );
+      expect(
+        attributesJson['sentry.trace.parent_span_id']['value'],
+        span.context.spanId.toString(),
+      );
+      expect(
+        attributesJson['sentry.trace.parent_span_id']['type'],
         'string',
       );
     });
