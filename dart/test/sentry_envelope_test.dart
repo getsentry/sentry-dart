@@ -135,6 +135,44 @@ void main() {
       expect(actualItem, expectedItem);
     });
 
+    test('fromLogs', () async {
+      final logs = [
+        SentryLog(
+          timestamp: DateTime.now(),
+          traceId: SentryId.newId(),
+          level: SentryLogLevel.info,
+          body: 'test',
+          attributes: {
+            'test': SentryLogAttribute.string('test'),
+          },
+        ),
+        SentryLog(
+          timestamp: DateTime.now(),
+          traceId: SentryId.newId(),
+          level: SentryLogLevel.info,
+          body: 'test2',
+          attributes: {
+            'test2': SentryLogAttribute.integer(9001),
+          },
+        ),
+      ];
+
+      final sdkVersion = SdkVersion(
+        name: 'fixture-name',
+        version: 'fixture-version',
+      );
+
+      final sut = SentryEnvelope.fromLogs(logs, sdkVersion);
+
+      expect(sut.header.sdkVersion, sdkVersion);
+
+      final expectedItem = SentryEnvelopeItem.fromLogs(logs);
+      final expectedItemData = await expectedItem.dataFactory();
+      final actualItemData = await sut.items[0].dataFactory();
+
+      expect(actualItemData, expectedItemData);
+    });
+
     test('max attachment size', () async {
       final attachment = SentryAttachment.fromLoader(
         loader: () => Uint8List.fromList([1, 2, 3, 4]),
