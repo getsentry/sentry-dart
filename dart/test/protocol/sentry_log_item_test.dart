@@ -2,11 +2,11 @@ import 'package:test/test.dart';
 import 'package:sentry/sentry.dart';
 
 void main() {
-  test('$SentryLogItem to json', () {
+  test('$SentryLog to json', () {
     final timestamp = DateTime.now();
     final traceId = SentryId.newId();
 
-    final logItem = SentryLogItem(
+    final logItem = SentryLog(
       timestamp: timestamp,
       traceId: traceId,
       level: SentryLogLevel.info,

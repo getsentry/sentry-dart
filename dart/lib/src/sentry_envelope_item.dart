@@ -63,15 +63,18 @@ class SentryEnvelopeItem {
     );
   }
 
-  factory SentryEnvelopeItem.fromLog(SentryLog log) {
+  factory SentryEnvelopeItem.fromLogs(List<SentryLog> items) {
+    final payload = {
+      'items': items.map((e) => e.toJson()).toList(),
+    };
     return SentryEnvelopeItem(
       SentryEnvelopeItemHeader(
         SentryItemType.log,
-        itemCount: log.items.length,
+        itemCount: items.length,
         contentType: 'application/vnd.sentry.items.log+json',
       ),
-      () => utf8JsonEncoder.convert(log.toJson()),
-      originalObject: log,
+      () => utf8JsonEncoder.convert(payload),
+      originalObject: payload,
     );
   }
 

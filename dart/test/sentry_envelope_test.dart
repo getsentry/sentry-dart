@@ -135,9 +135,9 @@ void main() {
       expect(actualItem, expectedItem);
     });
 
-    test('fromLog', () async {
-      final log = SentryLog(items: [
-        SentryLogItem(
+    test('fromLogs', () async {
+      final logs = [
+        SentryLog(
           timestamp: DateTime.now(),
           traceId: SentryId.newId(),
           level: SentryLogLevel.info,
@@ -146,7 +146,7 @@ void main() {
             'test': SentryLogAttribute.string('test'),
           },
         ),
-        SentryLogItem(
+        SentryLog(
           timestamp: DateTime.now(),
           traceId: SentryId.newId(),
           level: SentryLogLevel.info,
@@ -155,18 +155,18 @@ void main() {
             'test2': SentryLogAttribute.integer(9001),
           },
         ),
-      ]);
+      ];
 
       final sdkVersion = SdkVersion(
         name: 'fixture-name',
         version: 'fixture-version',
       );
 
-      final sut = SentryEnvelope.fromLog(log, sdkVersion);
+      final sut = SentryEnvelope.fromLogs(logs, sdkVersion);
 
       expect(sut.header.sdkVersion, sdkVersion);
 
-      final expectedItem = SentryEnvelopeItem.fromLog(log);
+      final expectedItem = SentryEnvelopeItem.fromLogs(logs);
       final expectedItemData = await expectedItem.dataFactory();
       final actualItemData = await sut.items[0].dataFactory();
 

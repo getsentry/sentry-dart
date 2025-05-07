@@ -81,8 +81,8 @@ class SentryEnvelope {
     );
   }
 
-  factory SentryEnvelope.fromLog(
-    SentryLog log,
+  factory SentryEnvelope.fromLogs(
+    List<SentryLog> items,
     SdkVersion sdkVersion,
   ) {
     return SentryEnvelope(
@@ -91,7 +91,7 @@ class SentryEnvelope {
         sdkVersion,
       ),
       [
-        SentryEnvelopeItem.fromLog(log),
+        SentryEnvelopeItem.fromLogs(items),
       ],
     );
   }

@@ -97,8 +97,8 @@ void main() {
     });
 
     test('fromLog', () async {
-      final log = SentryLog(items: [
-        SentryLogItem(
+      final logs = [
+        SentryLog(
           timestamp: DateTime.now(),
           traceId: SentryId.newId(),
           level: SentryLogLevel.info,
@@ -107,7 +107,7 @@ void main() {
             'test': SentryLogAttribute.string('test'),
           },
         ),
-        SentryLogItem(
+        SentryLog(
           timestamp: DateTime.now(),
           traceId: SentryId.newId(),
           level: SentryLogLevel.info,
@@ -116,12 +116,14 @@ void main() {
             'test2': SentryLogAttribute.integer(9001),
           },
         ),
-      ]);
+      ];
 
-      final sut = SentryEnvelopeItem.fromLog(log);
+      final sut = SentryEnvelopeItem.fromLogs(logs);
 
       final expectedData = utf8.encode(jsonEncode(
-        log.toJson(),
+        {
+          'items': logs.map((e) => e.toJson()).toList(),
+        },
         toEncodable: jsonSerializationFallback,
       ));
       final actualData = await sut.dataFactory();
