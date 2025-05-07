@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Logs: Models & Envelopes ([#2916](https://github.com/getsentry/sentry-dart/pull/2916))
+
 ## 9.0.0-beta.2
 
 ### Fixes
