@@ -517,6 +517,8 @@ class SentryClient {
 
     // TODO: Batch in separate PR, so we can send multiple logs at once.
     final envelope = SentryEnvelope.fromLogs([log], _options.sdk);
+
+    // TODO: Make sure the Android SDK understands the log envelope type.
     await captureEnvelope(envelope);
   }
 
