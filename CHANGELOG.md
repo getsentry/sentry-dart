@@ -1,5 +1,12 @@
 # Changelog
 
+## 9.0.0-RC
+
+### Various fixes & improvements
+
+- build(deps): bump ruby/setup-ruby from 1.233.0 to 1.237.0 (#2908) by @dependabot
+- build(deps): bump actions/create-github-app-token from 2.0.2 to 2.0.6 (#2909) by @dependabot
+
 ## 9.0.0-beta.2
 
 ### Fixes
