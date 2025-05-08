@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- [Flutter Web]: add debug ids to events ([#2917](https://github.com/getsentry/sentry-dart/pull/2917))
+  - This allows support for symbolication based on [debug ids](https://docs.sentry.io/platforms/javascript/sourcemaps/troubleshooting_js/debug-ids/)
+
 ## 9.0.0-RC
 
 ### Various fixes & improvements
