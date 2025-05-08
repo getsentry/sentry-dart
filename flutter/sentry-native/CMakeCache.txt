@@ -1,5 +1,0 @@
-# This is not actually a CMakeCache.txt file, but a load_cache() requires the name.
-# Basically, this is a properties file we use both in CMake and update-deps.yml to update dependencies.
-
-repo=https://github.com/getsentry/sentry-native
-version=0.8.4
