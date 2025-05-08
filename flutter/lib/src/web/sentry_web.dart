@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:collection/collection.dart';
 import 'package:sentry/src/sentry_item_type.dart';
 
 import '../../sentry_flutter.dart';
@@ -181,22 +182,31 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
 
   @override
   FutureOr<List<DebugImage>?> loadDebugImages(SentryStackTrace stackTrace) {
-    final map = _binding.getFilenameToDebugIdMap();
-    if (map.isEmpty) {
+    final debugIdMap = _binding.getFilenameToDebugIdMap();
+    if (debugIdMap.isEmpty) {
       _log('Could not find debug id in js source file.');
       return null;
     }
 
-    // Find the first frame that has an entry in the map.
-    for (final frame in stackTrace.frames) {
-      final debugId = map[frame.absPath] ?? map[frame.fileName];
-      if (debugId != null) {
-        final codeFile =
-            map.containsKey(frame.absPath) ? frame.absPath : frame.fileName;
-        return [
-          DebugImage(debugId: debugId, type: 'sourcemap', codeFile: codeFile)
-        ];
-      }
+    final frame = stackTrace.frames.firstWhereOrNull((frame) {
+      return debugIdMap.containsKey(frame.absPath) ||
+          debugIdMap.containsKey(frame.fileName);
+    });
+    if (frame == null) {
+      _log('Could not find any frame with a matching debug id.');
+      return null;
+    }
+
+    final codeFile = frame.absPath ?? frame.fileName;
+    final debugId = debugIdMap[codeFile];
+    if (debugId != null) {
+      return [
+        DebugImage(
+          debugId: debugId,
+          type: 'sourcemap',
+          codeFile: codeFile,
+        ),
+      ];
     }
 
     _log('Could not match any frame against the debug id map.');
