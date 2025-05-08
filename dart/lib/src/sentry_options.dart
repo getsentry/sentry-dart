@@ -199,6 +199,9 @@ class SentryOptions {
   /// Can return true to emit the metric, or false to drop it.
   BeforeMetricCallback? beforeMetricCallback;
 
+  @meta.experimental
+  BeforeSendLogCallback? beforeSendLog;
+
   /// Sets the release. SDK will try to automatically configure a release out of the box
   /// See [docs for further information](https://docs.sentry.io/platforms/flutter/configuration/releases/)
   String? release;
@@ -663,6 +666,9 @@ typedef BeforeMetricCallback = bool Function(
   String key, {
   Map<String, String>? tags,
 });
+
+@meta.experimental
+typedef BeforeSendLogCallback = SentryLog? Function(SentryLog log);
 
 /// Used to provide timestamp for logging.
 typedef ClockProvider = DateTime Function();

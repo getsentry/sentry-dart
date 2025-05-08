@@ -24,7 +24,6 @@ import 'mocks/mock_hub.dart';
 import 'mocks/mock_transport.dart';
 import 'test_utils.dart';
 import 'utils/url_details_test.dart';
-import 'package:mockito/mockito.dart';
 
 void main() {
   group('SentryClient captures message', () {
@@ -1843,6 +1842,55 @@ void main() {
       final logJson = envelopePayloadJson['items'].first;
 
       expect(logJson['trace_id'], scope.propagationContext.traceId.toString());
+    });
+
+    test('$BeforeSendLogCallback returning null drops the log', () async {
+      fixture.options.enableLogs = true;
+      fixture.options.beforeSendLog = (log) => null;
+
+      final client = fixture.getSut();
+      final log = givenLog();
+
+      await client.captureLog(log);
+
+      expect((fixture.transport).logs, isEmpty);
+    });
+
+    test('$BeforeSendLogCallback returning a log modifies it', () async {
+      fixture.options.enableLogs = true;
+      fixture.options.beforeSendLog = (log) {
+        log.body = 'modified';
+        return log;
+      };
+
+      final client = fixture.getSut();
+      final log = givenLog();
+
+      await client.captureLog(log);
+
+      final capturedLogJson = (fixture.transport).logs.first;
+      final logJson = capturedLogJson['items'].first;
+
+      expect(logJson['body'], 'modified');
+    });
+
+    test('$BeforeSendLogCallback throwing is caught', () async {
+      fixture.options.enableLogs = true;
+      fixture.options.automatedTestMode = false;
+
+      fixture.options.beforeSendLog = (log) {
+        throw Exception('test');
+      };
+
+      final client = fixture.getSut();
+      final log = givenLog();
+
+      await client.captureLog(log);
+
+      final capturedLogJson = (fixture.transport).logs.first;
+      final logJson = capturedLogJson['items'].first;
+
+      expect(logJson['body'], 'test');
     });
   });
 

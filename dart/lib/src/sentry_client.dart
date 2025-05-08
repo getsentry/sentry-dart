@@ -522,9 +522,33 @@ class SentryClient {
     } else if (propagationContext != null) {
       log.traceId = propagationContext.traceId;
     }
-    
+
+    final beforeSendLog = _options.beforeSendLog;
+    SentryLog? processedLog = log;
+    if (beforeSendLog != null) {
+      try {
+        processedLog = beforeSendLog(log);
+        if (processedLog == null) {
+          return;
+        }
+      } catch (exception, stackTrace) {
+        _options.logger(
+          SentryLevel.error,
+          'The beforeSendLog callback threw an exception',
+          exception: exception,
+          stackTrace: stackTrace,
+        );
+        if (_options.automatedTestMode) {
+          rethrow;
+        }
+      }
+    }
+
     // TODO: Batch in separate PR, so we can send multiple logs at once.
-    final envelope = SentryEnvelope.fromLogs([log], _options.sdk);
+    final envelope = SentryEnvelope.fromLogs(
+      [processedLog ?? log],
+      _options.sdk,
+    );
 
     // TODO: Make sure the Android SDK understands the log envelope type.
     await captureEnvelope(envelope);
