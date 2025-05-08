@@ -1740,14 +1740,18 @@ void main() {
 
       await client.captureLog(log);
 
-      final capturedLogJson = (fixture.transport).logs.first;
+      final envelopePayloadJson = (fixture.transport).logs.first;
 
-      expect(capturedLogJson, isNotNull);
-      expect(capturedLogJson['items'].first['timestamp'], logJson['timestamp']);
-      expect(capturedLogJson['items'].first['trace_id'], logJson['trace_id']);
-      expect(capturedLogJson['items'].first['level'], logJson['level']);
-      expect(capturedLogJson['items'].first['body'], logJson['body']);
-      expect(capturedLogJson['items'].first['attributes']['attribute']['value'],
+      expect(envelopePayloadJson, isNotNull);
+      expect(envelopePayloadJson['items'].first['timestamp'],
+          logJson['timestamp']);
+      expect(
+          envelopePayloadJson['items'].first['trace_id'], logJson['trace_id']);
+      expect(envelopePayloadJson['items'].first['level'], logJson['level']);
+      expect(envelopePayloadJson['items'].first['body'], logJson['body']);
+      expect(
+          envelopePayloadJson['items'].first['attributes']['attribute']
+              ['value'],
           'value');
     });
 
@@ -1765,8 +1769,8 @@ void main() {
       final client = fixture.getSut();
       await client.captureLog(log, scope: scope);
 
-      final capturedLogJson = (fixture.transport).logs.first;
-      final attributesJson = capturedLogJson['items'].first['attributes'];
+      final envelopePayloadJson = (fixture.transport).logs.first;
+      final attributesJson = envelopePayloadJson['items'].first['attributes'];
 
       expect(
         attributesJson['sentry.sdk.name']['value'],
@@ -1868,8 +1872,8 @@ void main() {
 
       await client.captureLog(log);
 
-      final capturedLogJson = (fixture.transport).logs.first;
-      final logJson = capturedLogJson['items'].first;
+      final envelopePayloadJson = (fixture.transport).logs.first;
+      final logJson = envelopePayloadJson['items'].first;
 
       expect(logJson['body'], 'modified');
     });
@@ -1887,8 +1891,8 @@ void main() {
 
       await client.captureLog(log);
 
-      final capturedLogJson = (fixture.transport).logs.first;
-      final logJson = capturedLogJson['items'].first;
+      final envelopePayloadJson = (fixture.transport).logs.first;
+      final logJson = envelopePayloadJson['items'].first;
 
       expect(logJson['body'], 'test');
     });
