@@ -1,6 +1,8 @@
 @TestOn('browser')
 library;
 
+import 'dart:js_interop';
+import 'dart:js_interop_unsafe';
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -18,7 +20,7 @@ import '../mocks.dart';
 import '../mocks.mocks.dart';
 
 void main() {
-  group('$SentryWeb', () {
+  group(SentryWeb, () {
     late SentryFlutterOptions options;
     late Hub hub;
 
@@ -102,6 +104,40 @@ void main() {
         await sut.captureStructuredEnvelope(SentryEnvelope.fromEvent(
             SentryEvent(), SdkVersion(name: 'test', version: '0')));
       });
+
+      test(
+          'loadDebugImages loads debug id to debug images with matching absPath',
+          () async {
+        _globalThis['_sentryDebugIds'] = _debugIdMap.jsify();
+
+        final frames = [
+          SentryStackFrame(absPath: 'http://127.0.0.1:8080/main.dart.js')
+        ];
+        final stackTrace = SentryStackTrace(frames: frames);
+        final images = await sut.loadDebugImages(stackTrace);
+
+        expect(images, isNotNull);
+        expect(images!.length, 1);
+        expect(images.first.codeFile, frames.first.absPath);
+        expect(images.first.debugId, _debugId);
+      });
+
+      test(
+          'loadDebugImages loads debug id to debug images with matching filename',
+          () async {
+        _globalThis['_sentryDebugIds'] = _debugIdMap.jsify();
+
+        final frames = [
+          SentryStackFrame(fileName: 'http://127.0.0.1:8080/main.dart.js')
+        ];
+        final stackTrace = SentryStackTrace(frames: frames);
+        final images = await sut.loadDebugImages(stackTrace);
+
+        expect(images, isNotNull);
+        expect(images!.length, 1);
+        expect(images.first.codeFile, frames.first.fileName);
+        expect(images.first.debugId, _debugId);
+      });
     });
 
     group('with mock binding', () {
@@ -155,7 +191,6 @@ void main() {
           sut.endNativeFrames(SentryId.empty());
           sut.fetchNativeAppStart();
           sut.loadContexts();
-          sut.loadDebugImages(SentryStackTrace(frames: []));
           sut.nativeCrash();
           sut.removeContexts('key');
           sut.removeExtra('key');
@@ -176,7 +211,6 @@ void main() {
           expect(sut.displayRefreshRate(), isNull);
           expect(sut.fetchNativeAppStart(), isNull);
           expect(sut.loadContexts(), isNull);
-          expect(sut.loadDebugImages(SentryStackTrace(frames: [])), isNull);
           expect(sut.collectProfile(SentryId.empty(), 0, 0), isNull);
           expect(sut.endNativeFrames(SentryId.empty()), isNull);
           expect(sut.startProfiler(SentryId.empty()), isNull);
@@ -234,3 +268,16 @@ void main() {
     });
   });
 }
+
+@JS('globalThis')
+external JSObject get _globalThis;
+
+final _debugId = '82cc8a97-04c5-5e1e-b98d-bb3e647208e6';
+final _firstFrame =
+    '''Error at chrome-extension://aeblfdkhhhdcdjpifhhbdiojplfjncoa/inline/injected/webauthn-listeners.js:2:127
+  at chrome-extension://aeblfdkhhhdcdjpifhhbdiojplfjncoa/inline/injected/webauthn-listeners.js:2:260
+''';
+final _secondFrame = '''Error at http://127.0.0.1:8080/main.dart.js:2:169
+  at http://127.0.0.1:8080/main.dart.js:2:304''';
+// We wanna assert that the second frame is the correct debug id match
+final _debugIdMap = {_firstFrame: 'whatever debug id', _secondFrame: _debugId};

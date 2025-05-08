@@ -95,6 +95,7 @@ class WebSentryJsBinding implements SentryJsBinding {
   }
 
   Map<String, String>? _cachedFilenameDebugIds;
+  Map<String, String>? get cachedFilenameDebugIds => _cachedFilenameDebugIds;
   int? _lastKeysCount;
   Map<String, List<String>>? _parsedStackResults;
 
