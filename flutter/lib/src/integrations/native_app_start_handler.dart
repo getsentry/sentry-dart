@@ -6,6 +6,7 @@ import '../native/sentry_native_binding.dart';
 
 // ignore: implementation_imports
 import 'package:sentry/src/sentry_tracer.dart';
+import 'dart:async';
 
 /// Handles communication with native frameworks in order to enrich
 /// root [SentryTransaction] with app start data for mobile vitals.
@@ -20,8 +21,12 @@ class NativeAppStartHandler {
   /// We filter out App starts more than 60s
   static const _maxAppStartMillis = 60000;
 
-  Future<void> call(Hub hub, SentryFlutterOptions options,
-      {required DateTime appStartEnd}) async {
+  Future<void> call(
+    Hub hub,
+    SentryFlutterOptions options, {
+    required SentryTransactionContext context,
+    required DateTime appStartEnd,
+  }) async {
     _hub = hub;
     _options = options;
 
@@ -36,10 +41,8 @@ class NativeAppStartHandler {
 
     // Create Transaction & Span
 
-    const screenName = 'root /';
-    final rootScreenTransaction = _hub.startTransaction(
-      screenName,
-      SentrySpanOperations.uiLoad,
+    final rootScreenTransaction = _hub.startTransactionWithContext(
+      context,
       startTimestamp: appStartInfo.start,
     );
 
@@ -50,9 +53,7 @@ class NativeAppStartHandler {
 
     await options.timeToDisplayTracker.track(
       rootScreenTransaction,
-      startTimestamp: appStartInfo.start,
-      endTimestamp: appStartInfo.end,
-      origin: SentryTraceOrigins.autoUiTimeToDisplay,
+      ttidEndTimestamp: appStartInfo.end,
     );
 
     SentryTracer sentryTracer;

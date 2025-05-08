@@ -1,5 +1,31 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- TTID/TTFD Improvements ([#2866](https://github.com/getsentry/sentry-dart/pull/2866))
+```dart
+// To report TTFD you need to use the SentryNavigatorObserver and wrap your widget in `SentryDisplayWidget`:
+
+SentryDisplayWidget(child: YourWidget())
+
+// Then report TTFD after long running work (File I/O, Network) within your widget.
+
+SentryDisplayWidget.of(context).reportFullDisplay();
+
+// Stateless widgets will report TTFD automatically when wrapped with SentryDisplayWidget.
+
+// Alternativeley, you can manually report TTFD:
+
+// Get a reference to the current display before doing work.
+
+final sentryDisplay = Sentry.currentDisplay();
+
+// After long running work, call `reportFullyDisplayed` on the SentryDisplay instance.
+sentryDisplay?.reportFullyDisplayed()
+```
+
 ## 9.0.0-beta.2
 
 ### Fixes
@@ -46,6 +72,8 @@ await SentryFlutter.init(
   },
 );
 ```
+- Make hierarchical exception grouping opt-in ([#2858](https://github.com/getsentry/sentry-dart/pull/2858))
+
 
 ### Fixes
 

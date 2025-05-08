@@ -14,12 +14,13 @@ import 'package:sentry_flutter/src/native/native_app_start.dart';
 import '../mocks.dart';
 import '../mocks.mocks.dart';
 
+// ignore_for_file: invalid_use_of_internal_member
+// ignore_for_file: inference_failure_on_instance_creation
+
 void main() {
   void setupMocks(Fixture fixture) {
-    when(fixture.hub.startTransaction(
-      'root /',
-      'ui.load',
-      description: null,
+    when(fixture.hub.startTransactionWithContext(
+      any,
       startTimestamp: anyNamed('startTimestamp'),
     )).thenReturn(fixture.tracer);
 
@@ -120,6 +121,54 @@ void main() {
       expect(measurement, isNotNull);
     });
 
+    test('added transaction has ttfd measurement if set before by root id',
+        () async {
+      fixture.options.enableTimeToFullDisplayTracing = true;
+      fixture.options.timeToDisplayTracker.transactionId =
+          fixture.context.spanId;
+
+      await fixture.options.timeToDisplayTracker.reportFullyDisplayed(
+        spanId: fixture.context.spanId,
+      );
+
+      await fixture.call(
+        appStartEnd: DateTime.fromMillisecondsSinceEpoch(10),
+      );
+
+      final transaction = fixture.capturedTransaction();
+
+      final measurement = transaction.measurements['time_to_full_display'];
+      expect(measurement, isNotNull);
+    });
+
+    test('ttfd end from ttid if reported end is before', () async {
+      fixture.options.enableTimeToFullDisplayTracing = true;
+      fixture.options.timeToDisplayTracker.transactionId =
+          fixture.context.spanId;
+
+      await fixture.options.timeToDisplayTracker.reportFullyDisplayed(
+        spanId: fixture.context.spanId,
+        endTimestamp: DateTime.fromMillisecondsSinceEpoch(5),
+      );
+
+      await fixture.call(
+        appStartEnd: DateTime.fromMillisecondsSinceEpoch(10),
+      );
+
+      final transaction = fixture.capturedTransaction();
+
+      final ttidSpan = transaction.spans.firstWhereOrNull((child) =>
+          child.context.operation ==
+          SentrySpanOperations.uiTimeToInitialDisplay);
+
+      final ttfdSpan = transaction.spans.firstWhereOrNull((child) =>
+          child.context.operation == SentrySpanOperations.uiTimeToFullDisplay);
+
+      expect(ttidSpan, isNotNull);
+      expect(ttfdSpan, isNotNull);
+      expect(ttfdSpan?.endTimestamp, ttidSpan?.endTimestamp);
+    });
+
     test('no transaction if app start takes more than 60s', () async {
       await fixture.call(
         appStartEnd: DateTime.fromMillisecondsSinceEpoch(60001),
@@ -156,7 +205,6 @@ void main() {
         pluginRegistrationSpan,
         sentrySetupSpan,
         firstFrameRenderSpan;
-    // ignore: invalid_use_of_internal_member
     late SentryTracer tracer;
     late Fixture fixture;
     late SentryTransaction enriched;
@@ -332,12 +380,14 @@ class Fixture {
   final hub = MockHub();
   final scope = MockScope();
 
+  late final context = SentryTransactionContext(
+    'name',
+    'op',
+    samplingDecision: SentryTracesSamplingDecision(true),
+  );
+
   late final tracer = SentryTracer(
-    SentryTransactionContext(
-      'name',
-      'op',
-      samplingDecision: SentryTracesSamplingDecision(true),
-    ),
+    context,
     hub,
     startTimestamp: DateTime.fromMillisecondsSinceEpoch(0),
   );
@@ -357,7 +407,7 @@ class Fixture {
   }
 
   Future<void> call({required DateTime appStartEnd}) async {
-    await sut.call(hub, options, appStartEnd: appStartEnd);
+    await sut.call(hub, options, context: context, appStartEnd: appStartEnd);
   }
 
   SentryTransaction capturedTransaction() {
