@@ -5,6 +5,7 @@
 ### Features
 
 - Logs: Models & Envelopes ([#2916](https://github.com/getsentry/sentry-dart/pull/2916))
+- Logs: Integrate in Sentry Client ([#2920](https://github.com/getsentry/sentry-dart/pull/2920))
 
 ## 9.0.0-beta.2
 
