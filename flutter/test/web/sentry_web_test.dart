@@ -108,6 +108,7 @@ void main() {
       test(
           'loadDebugImages loads debug id to debug images with matching absPath',
           () async {
+        await sut.init(hub);
         _globalThis['_sentryDebugIds'] = _debugIdMap.jsify();
 
         final frames = [
@@ -125,6 +126,7 @@ void main() {
       test(
           'loadDebugImages loads debug id to debug images with matching filename',
           () async {
+        await sut.init(hub);
         _globalThis['_sentryDebugIds'] = _debugIdMap.jsify();
 
         final frames = [

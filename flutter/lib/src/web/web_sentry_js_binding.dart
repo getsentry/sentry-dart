@@ -124,41 +124,36 @@ class WebSentryJsBinding implements SentryJsBinding {
 
     // 3) Build a map of filename -> debug_id and refresh cache
     final options = _client?.getOptions();
-    _cachedFilenameDebugIds =
-        debugIdKeys.fold<Map<String, String>>({}, (acc, stackKey) {
+    final Map<String, String> filenameDebugIdMap = {};
+    for (final stackKey in debugIdKeys) {
       _parsedStackResults ??= {};
 
       final String stackKeyStr = stackKey.toString();
       final List<String>? result = _parsedStackResults![stackKeyStr];
 
       if (result != null) {
-        acc[result[0]] = result[1];
+        filenameDebugIdMap[result[0]] = result[1];
       } else {
         final parsedStack = stackParser
             .callAsFunction(options, stackKeyStr.toJS)
             .dartify() as List<dynamic>?;
 
-        if (parsedStack == null) {
-          return acc;
-        }
+        if (parsedStack == null) continue;
 
         for (int i = parsedStack.length - 1; i >= 0; i--) {
           final stackFrame = parsedStack[i] as Map<dynamic, dynamic>?;
           final filename = stackFrame?['filename']?.toString();
           final debugId = debugIdMap[stackKeyStr]?.toString();
-
           if (filename != null && debugId != null) {
-            acc[filename] = debugId;
+            filenameDebugIdMap[filename] = debugId;
             _parsedStackResults![stackKeyStr] = [filename, debugId];
             break;
           }
         }
       }
-
-      return acc;
-    });
-
-    return Map<String, String>.from(_cachedFilenameDebugIds!);
+    }
+    _cachedFilenameDebugIds = filenameDebugIdMap;
+    return filenameDebugIdMap;
   }
 
   JSFunction? _stackParser() {
