@@ -36,8 +36,7 @@ class MockCallbacks extends _i1.Mock implements _i2.Callbacks {
     _i3.SentryScreenshotWidgetStatus? b,
   ) =>
       (super.noSuchMethod(
-            Invocation.method(#onBuild, [a, b]),
-            returnValue: false,
-          )
-          as bool);
+        Invocation.method(#onBuild, [a, b]),
+        returnValue: false,
+      ) as bool);
 }
