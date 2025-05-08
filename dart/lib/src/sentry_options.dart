@@ -15,6 +15,7 @@ import 'sentry_exception_factory.dart';
 import 'sentry_stack_trace_factory.dart';
 import 'transport/noop_transport.dart';
 import 'version.dart';
+import 'package:meta/meta.dart' as meta;
 
 // TODO: shutdownTimeout, flushTimeoutMillis
 // https://api.dart.dev/stable/2.10.2/dart-io/HttpClient/close.html doesn't have a timeout param, we'd need to implement manually
@@ -530,6 +531,9 @@ class SentryOptions {
   ///
   /// This is opt-in, as it can lead to existing exception beeing grouped as new ones.
   bool groupExceptions = false;
+
+  @meta.experimental
+  bool enableLogs = false;
 
   SentryOptions({String? dsn, Platform? platform, RuntimeChecker? checker}) {
     this.dsn = dsn;

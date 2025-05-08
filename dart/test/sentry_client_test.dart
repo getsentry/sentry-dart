@@ -1723,7 +1723,18 @@ void main() {
       );
     }
 
+    test('disabled by default', () async {
+      final client = fixture.getSut();
+      final log = givenLog();
+
+      await client.captureLog(log);
+
+      expect((fixture.transport).logs, isEmpty);
+    });
+
     test('should capture logs as envelope', () async {
+      fixture.options.enableLogs = true;
+
       final client = fixture.getSut();
       final log = givenLog();
       final logJson = log.toJson();
@@ -1742,6 +1753,7 @@ void main() {
     });
 
     test('should add additional info to attributes', () async {
+      fixture.options.enableLogs = true;
       fixture.options.environment = 'test-environment';
       fixture.options.release = 'test-release';
 
@@ -1800,6 +1812,8 @@ void main() {
     });
 
     test('should set trace id if there is a scope span', () async {
+      fixture.options.enableLogs = true;
+
       final client = fixture.getSut();
       final log = givenLog();
       final scope = Scope(fixture.options);
@@ -1817,6 +1831,8 @@ void main() {
     test(
         'should set trace id from propagation context if there is no scope span',
         () async {
+      fixture.options.enableLogs = true;
+
       final client = fixture.getSut();
       final log = givenLog();
       final scope = Scope(fixture.options);

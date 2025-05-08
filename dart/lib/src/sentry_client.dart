@@ -490,6 +490,10 @@ class SentryClient {
     SentryLog log, {
     Scope? scope,
   }) async {
+    if (!_options.enableLogs) {
+      return;
+    }
+
     log.attributes['sentry.sdk.name'] = SentryLogAttribute.string(
       _options.sdk.name,
     );
@@ -518,7 +522,7 @@ class SentryClient {
     } else if (propagationContext != null) {
       log.traceId = propagationContext.traceId;
     }
-
+    
     // TODO: Batch in separate PR, so we can send multiple logs at once.
     final envelope = SentryEnvelope.fromLogs([log], _options.sdk);
 
