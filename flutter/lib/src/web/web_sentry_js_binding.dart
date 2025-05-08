@@ -94,43 +94,47 @@ class WebSentryJsBinding implements SentryJsBinding {
     }
   }
 
-  Map<String, String>? cachedFilenameDebugIds;
-  int? lastKeysCount;
-  Map<String, List<String>>? parsedStackResults;
+  Map<String, String>? _cachedFilenameDebugIds;
+  int? _lastKeysCount;
+  Map<String, List<String>>? _parsedStackResults;
 
   @override
-  Map<String, String> getFilenameToDebugIdMap() {
+  Map<String, String>? getFilenameToDebugIdMap() {
+    // 1) Read the debug-ID table once
     final debugIdMap =
         _globalThis['_sentryDebugIds'].dartify() as Map<dynamic, dynamic>?;
+    if (debugIdMap == null) {
+      return null;
+    }
+
     final stackParser = _stackParser();
-    // final debugIdMap = test
-    if (debugIdMap == null || stackParser == null) {
-      return {};
+    if (stackParser == null) {
+      return null;
     }
 
     final debugIdKeys = debugIdMap.keys.toList();
 
-    // Use cached results if available
-    if (cachedFilenameDebugIds != null && debugIdKeys.length == lastKeysCount) {
-      return Map<String, String>.from(cachedFilenameDebugIds!);
+    // 2) Fast path: use cached results if available
+    if (_cachedFilenameDebugIds != null &&
+        debugIdKeys.length == _lastKeysCount) {
+      return Map<String, String>.from(_cachedFilenameDebugIds!);
     }
+    _lastKeysCount = debugIdKeys.length;
 
-    lastKeysCount = debugIdKeys.length;
-
-    // Build a map of filename -> debug_id.
-    cachedFilenameDebugIds =
+    // 3) Build a map of filename -> debug_id and refresh cache
+    final options = _client?.getOptions();
+    _cachedFilenameDebugIds =
         debugIdKeys.fold<Map<String, String>>({}, (acc, stackKey) {
-      parsedStackResults ??= {};
+      _parsedStackResults ??= {};
 
       final String stackKeyStr = stackKey.toString();
-      print(stackKeyStr);
-      final List<String>? result = parsedStackResults![stackKeyStr];
+      final List<String>? result = _parsedStackResults![stackKeyStr];
 
       if (result != null) {
         acc[result[0]] = result[1];
       } else {
-        final parsedStack = _stackParser()
-            ?.callAsFunction(SentryJsClient().getOptions(), stackKeyStr.toJS)
+        final parsedStack = stackParser
+            .callAsFunction(options, stackKeyStr.toJS)
             .dartify() as List<dynamic>?;
 
         if (parsedStack == null) {
@@ -144,7 +148,7 @@ class WebSentryJsBinding implements SentryJsBinding {
 
           if (filename != null && debugId != null) {
             acc[filename] = debugId;
-            parsedStackResults![stackKeyStr] = [filename, debugId];
+            _parsedStackResults![stackKeyStr] = [filename, debugId];
             break;
           }
         }
@@ -153,7 +157,7 @@ class WebSentryJsBinding implements SentryJsBinding {
       return acc;
     });
 
-    return Map<String, String>.from(cachedFilenameDebugIds!);
+    return Map<String, String>.from(_cachedFilenameDebugIds!);
   }
 
   JSFunction? _stackParser() {

@@ -11,7 +11,7 @@ abstract class SentryJsBinding {
   Map<dynamic, dynamic>? getSession();
   void updateSession({int? errors, String? status});
   void captureSession();
-  Map<String, String> getFilenameToDebugIdMap();
+  Map<String, String>? getFilenameToDebugIdMap();
   @visibleForTesting
   dynamic getJsOptions();
 }

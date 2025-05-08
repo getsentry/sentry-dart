@@ -2732,12 +2732,6 @@ class MockSentryJsBinding extends _i1.Mock implements _i23.SentryJsBinding {
         Invocation.method(#captureSession, []),
         returnValueForMissingStub: null,
       );
-
-  @override
-  Map<String, String> getFilenameToDebugIdMap() => (super.noSuchMethod(
-        Invocation.method(#getFilenameToDebugIdMap, []),
-        returnValue: <String, String>{},
-      ) as Map<String, String>);
 }
 
 /// A class which mocks [Hub].

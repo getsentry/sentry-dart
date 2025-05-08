@@ -79,16 +79,17 @@ Future<void> setupSentry(
       // We can enable Sentry debug logging during development. This is likely
       // going to log too much for your app, but can be useful when figuring out
       // configuration issues, e.g. finding out why your events are not uploaded.
-      options.diagnosticLevel = SentryLevel.debug;
+      options.diagnosticLevel = SentryLevel.info;
       options.debug = kDebugMode;
       options.spotlight = Spotlight(enabled: true);
       options.enableTimeToFullDisplayTracing = true;
 
       options.maxRequestBodySize = MaxRequestBodySize.always;
       options.navigatorKey = navigatorKey;
+      options.addIntegration(LoggingIntegration());
 
-      options.replay.sessionSampleRate = 1.0;
-      options.replay.onErrorSampleRate = 1.0;
+      // options.replay.sessionSampleRate = 1.0;
+      // options.replay.onErrorSampleRate = 1.0;
 
       _isIntegrationTest = isIntegrationTest;
       if (_isIntegrationTest) {

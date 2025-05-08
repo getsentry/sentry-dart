@@ -34,7 +34,7 @@ class NoOpSentryJsBinding implements SentryJsBinding {
   void updateSession({int? errors, String? status}) {}
 
   @override
-  Map<String, String> getFilenameToDebugIdMap() {
+  Map<String, String>? getFilenameToDebugIdMap() {
     return {};
   }
 }

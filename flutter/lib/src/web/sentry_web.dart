@@ -183,7 +183,7 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
   @override
   FutureOr<List<DebugImage>?> loadDebugImages(SentryStackTrace stackTrace) {
     final debugIdMap = _binding.getFilenameToDebugIdMap();
-    if (debugIdMap.isEmpty) {
+    if (debugIdMap == null || debugIdMap.isEmpty) {
       _log('Could not find debug id in js source file.');
       return null;
     }
