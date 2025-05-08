@@ -509,10 +509,14 @@ class SentryClient {
       );
     }
     final span = scope?.span;
+    final propagationContext = scope?.propagationContext;
     if (span != null) {
       log.attributes['sentry.trace.parent_span_id'] = SentryLogAttribute.string(
         span.context.spanId.toString(),
       );
+      log.traceId = span.context.traceId;
+    } else if (propagationContext != null) {
+      log.traceId = propagationContext.traceId;
     }
 
     // TODO: Batch in separate PR, so we can send multiple logs at once.

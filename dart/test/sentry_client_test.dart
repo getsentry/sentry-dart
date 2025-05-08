@@ -1798,6 +1798,36 @@ void main() {
         'string',
       );
     });
+
+    test('should set trace id if there is a scope span', () async {
+      final client = fixture.getSut();
+      final log = givenLog();
+      final scope = Scope(fixture.options);
+      final span = MockSpan();
+      scope.span = span;
+
+      await client.captureLog(log, scope: scope);
+
+      final envelopePayloadJson = (fixture.transport).logs.first;
+      final logJson = envelopePayloadJson['items'].first;
+
+      expect(logJson['trace_id'], span.context.traceId.toString());
+    });
+
+    test(
+        'should set trace id from propagation context if there is no scope span',
+        () async {
+      final client = fixture.getSut();
+      final log = givenLog();
+      final scope = Scope(fixture.options);
+
+      await client.captureLog(log, scope: scope);
+
+      final envelopePayloadJson = (fixture.transport).logs.first;
+      final logJson = envelopePayloadJson['items'].first;
+
+      expect(logJson['trace_id'], scope.propagationContext.traceId.toString());
+    });
   });
 
   group('SentryClient captures envelope', () {
