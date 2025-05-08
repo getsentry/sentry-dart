@@ -15,6 +15,7 @@ import 'sentry_exception_factory.dart';
 import 'sentry_stack_trace_factory.dart';
 import 'transport/noop_transport.dart';
 import 'version.dart';
+import 'package:meta/meta.dart' as meta;
 
 // TODO: shutdownTimeout, flushTimeoutMillis
 // https://api.dart.dev/stable/2.10.2/dart-io/HttpClient/close.html doesn't have a timeout param, we'd need to implement manually
@@ -197,6 +198,9 @@ class SentryOptions {
   /// This function is called right before a metric is about to be emitted.
   /// Can return true to emit the metric, or false to drop it.
   BeforeMetricCallback? beforeMetricCallback;
+
+  @meta.experimental
+  BeforeSendLogCallback? beforeSendLog;
 
   /// Sets the release. SDK will try to automatically configure a release out of the box
   /// See [docs for further information](https://docs.sentry.io/platforms/flutter/configuration/releases/)
@@ -531,6 +535,9 @@ class SentryOptions {
   /// This is opt-in, as it can lead to existing exception beeing grouped as new ones.
   bool groupExceptions = false;
 
+  @meta.experimental
+  bool enableLogs = false;
+
   SentryOptions({String? dsn, Platform? platform, RuntimeChecker? checker}) {
     this.dsn = dsn;
     if (platform != null) {
@@ -659,6 +666,9 @@ typedef BeforeMetricCallback = bool Function(
   String key, {
   Map<String, String>? tags,
 });
+
+@meta.experimental
+typedef BeforeSendLogCallback = SentryLog? Function(SentryLog log);
 
 /// Used to provide timestamp for logging.
 typedef ClockProvider = DateTime Function();

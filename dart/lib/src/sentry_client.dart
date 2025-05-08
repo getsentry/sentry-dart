@@ -485,6 +485,75 @@ class SentryClient {
     );
   }
 
+  @internal
+  Future<void> captureLog(
+    SentryLog log, {
+    Scope? scope,
+  }) async {
+    if (!_options.enableLogs) {
+      return;
+    }
+
+    log.attributes['sentry.sdk.name'] = SentryLogAttribute.string(
+      _options.sdk.name,
+    );
+    log.attributes['sentry.sdk.version'] = SentryLogAttribute.string(
+      _options.sdk.version,
+    );
+    final environment = _options.environment;
+    if (environment != null) {
+      log.attributes['sentry.environment'] = SentryLogAttribute.string(
+        environment,
+      );
+    }
+    final release = _options.release;
+    if (release != null) {
+      log.attributes['sentry.release'] = SentryLogAttribute.string(
+        release,
+      );
+    }
+    final span = scope?.span;
+    final propagationContext = scope?.propagationContext;
+    if (span != null) {
+      log.attributes['sentry.trace.parent_span_id'] = SentryLogAttribute.string(
+        span.context.spanId.toString(),
+      );
+      log.traceId = span.context.traceId;
+    } else if (propagationContext != null) {
+      log.traceId = propagationContext.traceId;
+    }
+
+    final beforeSendLog = _options.beforeSendLog;
+    SentryLog? processedLog = log;
+    if (beforeSendLog != null) {
+      try {
+        processedLog = beforeSendLog(log);
+        if (processedLog == null) {
+          return;
+        }
+      } catch (exception, stackTrace) {
+        _options.logger(
+          SentryLevel.error,
+          'The beforeSendLog callback threw an exception',
+          exception: exception,
+          stackTrace: stackTrace,
+        );
+        if (_options.automatedTestMode) {
+          rethrow;
+        }
+      }
+    }
+
+    // TODO: Batch in separate PR, so we can send multiple logs at once.
+    final envelope = SentryEnvelope.fromLogs(
+      [processedLog ?? log],
+      _options.sdk,
+    );
+
+    // TODO: Make sure the Android SDK understands the log envelope type.
+    await captureEnvelope(envelope);
+  }
+
   void close() {
     _options.httpClient.close();
   }

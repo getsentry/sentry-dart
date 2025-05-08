@@ -13,8 +13,8 @@ void main() {
       body: 'fixture-body',
       attributes: {
         'test': SentryLogAttribute.string('fixture-test'),
-        'test2': SentryLogAttribute.boolean(true),
-        'test3': SentryLogAttribute.integer(9001),
+        'test2': SentryLogAttribute.bool(true),
+        'test3': SentryLogAttribute.int(9001),
         'test4': SentryLogAttribute.double(9000.1),
       },
       severityNumber: 1,

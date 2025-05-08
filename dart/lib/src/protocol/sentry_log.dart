@@ -12,12 +12,12 @@ class SentryLog {
 
   SentryLog({
     required this.timestamp,
-    required this.traceId,
+    SentryId? traceId,
     required this.level,
     required this.body,
     required this.attributes,
     this.severityNumber,
-  });
+  }) : traceId = traceId ?? SentryId.empty();
 
   Map<String, dynamic> toJson() {
     return {
