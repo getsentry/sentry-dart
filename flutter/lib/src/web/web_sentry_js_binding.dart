@@ -118,7 +118,8 @@ class WebSentryJsBinding implements SentryJsBinding {
     // 2) Fast path: use cached results if available
     if (_cachedFilenameDebugIds != null &&
         debugIdKeys.length == _lastKeysCount) {
-      return Map<String, String>.from(_cachedFilenameDebugIds!);
+      // Return a copy
+      return Map.unmodifiable(_cachedFilenameDebugIds!);
     }
     _lastKeysCount = debugIdKeys.length;
 
@@ -153,7 +154,7 @@ class WebSentryJsBinding implements SentryJsBinding {
       }
     }
     _cachedFilenameDebugIds = filenameDebugIdMap;
-    return filenameDebugIdMap;
+    return Map.unmodifiable(filenameDebugIdMap);
   }
 
   JSFunction? _stackParser() {
