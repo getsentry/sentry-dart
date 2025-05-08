@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
+// ignore: implementation_imports
 import 'package:sentry/src/sentry_item_type.dart';
 
 import '../../sentry_flutter.dart';

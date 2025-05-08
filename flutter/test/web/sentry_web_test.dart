@@ -109,7 +109,7 @@ void main() {
           'loadDebugImages loads debug id to debug images with matching absPath',
           () async {
         await sut.init(hub);
-        _globalThis['_sentryDebugIds'] = _debugIdMap.jsify();
+        _globalThis['_sentryDebugIds'] = debugIdMap.jsify();
 
         final frames = [
           SentryStackFrame(absPath: 'http://127.0.0.1:8080/main.dart.js')
@@ -120,14 +120,14 @@ void main() {
         expect(images, isNotNull);
         expect(images!.length, 1);
         expect(images.first.codeFile, frames.first.absPath);
-        expect(images.first.debugId, _debugId);
+        expect(images.first.debugId, debugId);
       });
 
       test(
           'loadDebugImages loads debug id to debug images with matching filename',
           () async {
         await sut.init(hub);
-        _globalThis['_sentryDebugIds'] = _debugIdMap.jsify();
+        _globalThis['_sentryDebugIds'] = debugIdMap.jsify();
 
         final frames = [
           SentryStackFrame(fileName: 'http://127.0.0.1:8080/main.dart.js')
@@ -138,7 +138,7 @@ void main() {
         expect(images, isNotNull);
         expect(images!.length, 1);
         expect(images.first.codeFile, frames.first.fileName);
-        expect(images.first.debugId, _debugId);
+        expect(images.first.debugId, debugId);
       });
     });
 
@@ -273,13 +273,3 @@ void main() {
 
 @JS('globalThis')
 external JSObject get _globalThis;
-
-final _debugId = '82cc8a97-04c5-5e1e-b98d-bb3e647208e6';
-final _firstFrame =
-    '''Error at chrome-extension://aeblfdkhhhdcdjpifhhbdiojplfjncoa/inline/injected/webauthn-listeners.js:2:127
-  at chrome-extension://aeblfdkhhhdcdjpifhhbdiojplfjncoa/inline/injected/webauthn-listeners.js:2:260
-''';
-final _secondFrame = '''Error at http://127.0.0.1:8080/main.dart.js:2:169
-  at http://127.0.0.1:8080/main.dart.js:2:304''';
-// We wanna assert that the second frame is the correct debug id match
-final _debugIdMap = {_firstFrame: 'whatever debug id', _secondFrame: _debugId};
