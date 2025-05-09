@@ -93,6 +93,77 @@ class WebSentryJsBinding implements SentryJsBinding {
       return null;
     }
   }
+
+  Map<String, String>? _cachedFilenameDebugIds;
+  Map<String, String>? get cachedFilenameDebugIds => _cachedFilenameDebugIds;
+  int? _lastKeysCount;
+  Map<String, List<String>>? _parsedStackResults;
+
+  @override
+  Map<String, String>? getFilenameToDebugIdMap() {
+    // 1) Read the debug-ID table once
+    final debugIdMap =
+        _globalThis['_sentryDebugIds'].dartify() as Map<dynamic, dynamic>?;
+    if (debugIdMap == null) {
+      return null;
+    }
+
+    final stackParser = _stackParser();
+    if (stackParser == null) {
+      return null;
+    }
+
+    final debugIdKeys = debugIdMap.keys.toList();
+
+    // 2) Fast path: use cached results if available
+    if (_cachedFilenameDebugIds != null &&
+        debugIdKeys.length == _lastKeysCount) {
+      // Return a copy
+      return Map.unmodifiable(_cachedFilenameDebugIds!);
+    }
+    _lastKeysCount = debugIdKeys.length;
+
+    // 3) Build a map of filename -> debug_id and refresh cache
+    final options = _client?.getOptions();
+    final Map<String, String> filenameDebugIdMap = {};
+    for (final stackKey in debugIdKeys) {
+      _parsedStackResults ??= {};
+
+      final String stackKeyStr = stackKey.toString();
+      final List<String>? result = _parsedStackResults![stackKeyStr];
+
+      if (result != null) {
+        filenameDebugIdMap[result[0]] = result[1];
+      } else {
+        final parsedStack = stackParser
+            .callAsFunction(options, stackKeyStr.toJS)
+            .dartify() as List<dynamic>?;
+
+        if (parsedStack == null) continue;
+
+        for (int i = parsedStack.length - 1; i >= 0; i--) {
+          final stackFrame = parsedStack[i] as Map<dynamic, dynamic>?;
+          final filename = stackFrame?['filename']?.toString();
+          final debugId = debugIdMap[stackKeyStr]?.toString();
+          if (filename != null && debugId != null) {
+            filenameDebugIdMap[filename] = debugId;
+            _parsedStackResults![stackKeyStr] = [filename, debugId];
+            break;
+          }
+        }
+      }
+    }
+    _cachedFilenameDebugIds = filenameDebugIdMap;
+    return Map.unmodifiable(filenameDebugIdMap);
+  }
+
+  JSFunction? _stackParser() {
+    final parser = SentryJsClient().getOptions()?['stackParser'];
+    if (parser != null && parser.isA<JSFunction>()) {
+      return parser as JSFunction;
+    }
+    return null;
+  }
 }
 
 @JS('Sentry.init')

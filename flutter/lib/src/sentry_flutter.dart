@@ -181,11 +181,11 @@ mixin SentryFlutter {
       // We also need to call this before the native sdk integrations so release is properly propagated.
       integrations.add(LoadReleaseIntegration());
       integrations.add(createSdkIntegration(native));
+      integrations.add(createLoadDebugImagesIntegration(native));
       if (!platform.isWeb) {
         if (native.supportsLoadContexts) {
           integrations.add(LoadContextsIntegration(native));
         }
-        integrations.add(LoadNativeDebugImagesIntegration(native));
         integrations.add(FramesTrackingIntegration(native));
         integrations.add(
           NativeAppStartIntegration(
