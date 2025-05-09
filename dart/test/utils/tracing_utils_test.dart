@@ -112,6 +112,41 @@ void main() {
       expect(headers[baggage.name], newValue);
     });
 
+    group('$addW3CHeaderFromSentryTrace', () {
+      final fixture = Fixture();
+      final headerName = 'traceparent';
+      final headerValue =
+          '00-${fixture._context.traceId}-${fixture._context.spanId}-01';
+
+      test('formats SentryTraceHeader as W3C header', () {
+        final sut = fixture.getSut();
+        final sentryHeader = sut.toSentryTrace();
+
+        final w3cHeader = formatAsW3CHeader(sentryHeader);
+
+        expect(w3cHeader, headerValue);
+      });
+
+      test('adds W3C traceparent from span', () {
+        final headers = <String, String>{};
+        final sut = fixture.getSut();
+
+        addW3CHeaderFromSpan(sut, headers);
+
+        expect(headers[headerName], headerValue);
+      });
+
+      test('adds W3C traceparent header', () {
+        final headers = <String, String>{};
+        final sut = fixture.getSut();
+        final sentryHeader = sut.toSentryTrace();
+
+        addW3CHeaderFromSentryTrace(sentryHeader, headers);
+
+        expect(headers[headerName], headerValue);
+      });
+    });
+
     test('overwrites duplicate key values', () {
       final headers = <String, String>{};
       final oldValue =

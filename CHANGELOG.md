@@ -54,6 +54,8 @@ await SentryFlutter.init(
 );
 ```
 
+- Outgoing HTTP requests now contain the `traceparent` header to facilitate integration with servers that only support the [W3C Trace Context](https://www.w3.org/TR/trace-context/). ([#2843](https://github.com/getsentry/sentry-dart/pull/2843))
+
 ### Fixes
 
 - Trace propagation in HTTP tracing clients not correctly set up if performance is disabled ([#2850](https://github.com/getsentry/sentry-dart/pull/2850))

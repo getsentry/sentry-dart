@@ -7,6 +7,7 @@ void addTracingHeadersToHttpHeader(Map<String, dynamic> headers, Hub hub,
     {ISentrySpan? span}) {
   if (span != null) {
     addSentryTraceHeaderFromSpan(span, headers);
+    addW3CHeaderFromSpan(span, headers);
     addBaggageHeaderFromSpan(
       span,
       headers,
@@ -18,6 +19,7 @@ void addTracingHeadersToHttpHeader(Map<String, dynamic> headers, Hub hub,
 
     final traceHeader = propagationContext.toSentryTrace();
     addSentryTraceHeader(traceHeader, headers);
+    addW3CHeaderFromSentryTrace(traceHeader, headers);
 
     final baggageHeader = propagationContext.toBaggageHeader();
     if (baggageHeader != null) {
