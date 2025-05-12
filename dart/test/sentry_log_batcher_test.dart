@@ -69,6 +69,37 @@ void main() {
     expect(envelopePayloadJson['items'].length, 10);
   });
 
+  test('more than max logs are flushed eventuelly', () async {
+    final flushTimeout = Duration(milliseconds: 100);
+    final batcher = fixture.getSut(maxBufferSize: 10, flushTimeout: flushTimeout);
+
+    final log = SentryLog(
+      timestamp: DateTime.now(),
+      level: SentryLogLevel.info,
+      body: 'test',
+      attributes: {},
+    );
+
+    for (var i = 0; i < 15; i++) {
+      batcher.addLog(log);
+    }
+
+    await Future.delayed(flushTimeout);
+
+    expect(fixture.mockTransport.envelopes.length, 2);
+
+    final firstEnvelopePayloadJson = (fixture.mockTransport).logs.first;
+
+    expect(firstEnvelopePayloadJson, isNotNull);
+    expect(firstEnvelopePayloadJson['items'].length, 10);
+
+    final secondEnvelopePayloadJson = (fixture.mockTransport).logs.last;
+
+    expect(secondEnvelopePayloadJson, isNotNull);
+    expect(secondEnvelopePayloadJson['items'].length, 5);
+  });
+  
+
   test('calling flush directly flushes logs', () async {
     final batcher = fixture.getSut();
 
