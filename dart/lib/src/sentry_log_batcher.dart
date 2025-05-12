@@ -16,7 +16,7 @@ class SentryLogBatcher {
 
   Timer? _flushTimer;
 
-  FutureOr<void> addLog(SentryLog log) async {
+  FutureOr<void> addLog(SentryLog log) {
     _logBuffer.add(log);
 
     _flushTimer?.cancel();
