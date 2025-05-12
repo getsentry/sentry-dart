@@ -44,6 +44,7 @@ class SentryLogBatcher {
       _options.sdk,
     );
 
+    // TODO: Make sure the Android SDK understands the log envelope type.
     await _options.transport.send(envelope);
   }
 }

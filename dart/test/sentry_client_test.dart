@@ -17,6 +17,7 @@ import 'package:sentry/src/transport/noop_transport.dart';
 import 'package:sentry/src/transport/spotlight_http_transport.dart';
 import 'package:sentry/src/utils/iterable_utils.dart';
 import 'package:test/test.dart';
+import 'package:sentry/src/noop_log_batcher.dart';
 
 import 'mocks.dart';
 import 'mocks/mock_client_report_recorder.dart';
@@ -24,6 +25,7 @@ import 'mocks/mock_hub.dart';
 import 'mocks/mock_transport.dart';
 import 'test_utils.dart';
 import 'utils/url_details_test.dart';
+import 'mocks/mock_log_batcher.dart';
 
 void main() {
   group('SentryClient captures message', () {
@@ -1722,37 +1724,47 @@ void main() {
       );
     }
 
+    test('sets log batcher on options when logs are enabled', () async {
+      expect(fixture.options.logBatcher is NoopLogBatcher, true);
+
+      fixture.options.enableLogs = true;
+      fixture.getSut();
+
+      expect(fixture.options.logBatcher is NoopLogBatcher, false);
+    });
+
     test('disabled by default', () async {
       final client = fixture.getSut();
+      fixture.options.logBatcher = MockLogBatcher();
+
       final log = givenLog();
 
       await client.captureLog(log);
 
-      expect((fixture.transport).logs, isEmpty);
+      final mockLogBatcher = fixture.options.logBatcher as MockLogBatcher;
+      expect(mockLogBatcher.addLogCalls, isEmpty);
     });
 
     test('should capture logs as envelope', () async {
       fixture.options.enableLogs = true;
 
       final client = fixture.getSut();
+      fixture.options.logBatcher = MockLogBatcher();
+
       final log = givenLog();
-      final logJson = log.toJson();
 
       await client.captureLog(log);
 
-      final envelopePayloadJson = (fixture.transport).logs.first;
+      final mockLogBatcher = fixture.options.logBatcher as MockLogBatcher;
+      expect(mockLogBatcher.addLogCalls.length, 1);
 
-      expect(envelopePayloadJson, isNotNull);
-      expect(envelopePayloadJson['items'].first['timestamp'],
-          logJson['timestamp']);
-      expect(
-          envelopePayloadJson['items'].first['trace_id'], logJson['trace_id']);
-      expect(envelopePayloadJson['items'].first['level'], logJson['level']);
-      expect(envelopePayloadJson['items'].first['body'], logJson['body']);
-      expect(
-          envelopePayloadJson['items'].first['attributes']['attribute']
-              ['value'],
-          'value');
+      final capturedLog = mockLogBatcher.addLogCalls.first;
+
+      expect(capturedLog.traceId, log.traceId);
+      expect(capturedLog.level, log.level);
+      expect(capturedLog.body, log.body);
+      expect(capturedLog.attributes['attribute']?.value,
+          log.attributes['attribute']?.value);
     });
 
     test('should add additional info to attributes', () async {
@@ -1767,49 +1779,52 @@ void main() {
       scope.span = span;
 
       final client = fixture.getSut();
+      fixture.options.logBatcher = MockLogBatcher();
+
       await client.captureLog(log, scope: scope);
 
-      final envelopePayloadJson = (fixture.transport).logs.first;
-      final attributesJson = envelopePayloadJson['items'].first['attributes'];
+      final mockLogBatcher = fixture.options.logBatcher as MockLogBatcher;
+      expect(mockLogBatcher.addLogCalls.length, 1);
+      final capturedLog = mockLogBatcher.addLogCalls.first;
 
       expect(
-        attributesJson['sentry.sdk.name']['value'],
+        capturedLog.attributes['sentry.sdk.name']?.value,
         fixture.options.sdk.name,
       );
       expect(
-        attributesJson['sentry.sdk.name']['type'],
+        capturedLog.attributes['sentry.sdk.name']?.type,
         'string',
       );
       expect(
-        attributesJson['sentry.sdk.version']['value'],
+        capturedLog.attributes['sentry.sdk.version']?.value,
         fixture.options.sdk.version,
       );
       expect(
-        attributesJson['sentry.sdk.version']['type'],
+        capturedLog.attributes['sentry.sdk.version']?.type,
         'string',
       );
       expect(
-        attributesJson['sentry.environment']['value'],
+        capturedLog.attributes['sentry.environment']?.value,
         fixture.options.environment,
       );
       expect(
-        attributesJson['sentry.environment']['type'],
+        capturedLog.attributes['sentry.environment']?.type,
         'string',
       );
       expect(
-        attributesJson['sentry.release']['value'],
+        capturedLog.attributes['sentry.release']?.value,
         fixture.options.release,
       );
       expect(
-        attributesJson['sentry.release']['type'],
+        capturedLog.attributes['sentry.release']?.type,
         'string',
       );
       expect(
-        attributesJson['sentry.trace.parent_span_id']['value'],
+        capturedLog.attributes['sentry.trace.parent_span_id']?.value,
         span.context.spanId.toString(),
       );
       expect(
-        attributesJson['sentry.trace.parent_span_id']['type'],
+        capturedLog.attributes['sentry.trace.parent_span_id']?.type,
         'string',
       );
     });
@@ -1818,6 +1833,8 @@ void main() {
       fixture.options.enableLogs = true;
 
       final client = fixture.getSut();
+      fixture.options.logBatcher = MockLogBatcher();
+
       final log = givenLog();
       final scope = Scope(fixture.options);
       final span = MockSpan();
@@ -1825,10 +1842,11 @@ void main() {
 
       await client.captureLog(log, scope: scope);
 
-      final envelopePayloadJson = (fixture.transport).logs.first;
-      final logJson = envelopePayloadJson['items'].first;
+      final mockLogBatcher = fixture.options.logBatcher as MockLogBatcher;
+      expect(mockLogBatcher.addLogCalls.length, 1);
+      final capturedLog = mockLogBatcher.addLogCalls.first;
 
-      expect(logJson['trace_id'], span.context.traceId.toString());
+      expect(capturedLog.traceId, span.context.traceId);
     });
 
     test(
@@ -1837,15 +1855,18 @@ void main() {
       fixture.options.enableLogs = true;
 
       final client = fixture.getSut();
+      fixture.options.logBatcher = MockLogBatcher();
+
       final log = givenLog();
       final scope = Scope(fixture.options);
 
       await client.captureLog(log, scope: scope);
 
-      final envelopePayloadJson = (fixture.transport).logs.first;
-      final logJson = envelopePayloadJson['items'].first;
+      final mockLogBatcher = fixture.options.logBatcher as MockLogBatcher;
+      expect(mockLogBatcher.addLogCalls.length, 1);
+      final capturedLog = mockLogBatcher.addLogCalls.first;
 
-      expect(logJson['trace_id'], scope.propagationContext.traceId.toString());
+      expect(capturedLog.traceId, scope.propagationContext.traceId);
     });
 
     test('$BeforeSendLogCallback returning null drops the log', () async {
@@ -1853,11 +1874,14 @@ void main() {
       fixture.options.beforeSendLog = (log) => null;
 
       final client = fixture.getSut();
+      fixture.options.logBatcher = MockLogBatcher();
+
       final log = givenLog();
 
       await client.captureLog(log);
 
-      expect((fixture.transport).logs, isEmpty);
+      final mockLogBatcher = fixture.options.logBatcher as MockLogBatcher;
+      expect(mockLogBatcher.addLogCalls.length, 0);
     });
 
     test('$BeforeSendLogCallback returning a log modifies it', () async {
@@ -1868,14 +1892,17 @@ void main() {
       };
 
       final client = fixture.getSut();
+      fixture.options.logBatcher = MockLogBatcher();
+
       final log = givenLog();
 
       await client.captureLog(log);
 
-      final envelopePayloadJson = (fixture.transport).logs.first;
-      final logJson = envelopePayloadJson['items'].first;
+      final mockLogBatcher = fixture.options.logBatcher as MockLogBatcher;
+      expect(mockLogBatcher.addLogCalls.length, 1);
+      final capturedLog = mockLogBatcher.addLogCalls.first;
 
-      expect(logJson['body'], 'modified');
+      expect(capturedLog.body, 'modified');
     });
 
     test('$BeforeSendLogCallback throwing is caught', () async {
@@ -1887,14 +1914,17 @@ void main() {
       };
 
       final client = fixture.getSut();
+      fixture.options.logBatcher = MockLogBatcher();
+
       final log = givenLog();
 
       await client.captureLog(log);
 
-      final envelopePayloadJson = (fixture.transport).logs.first;
-      final logJson = envelopePayloadJson['items'].first;
+      final mockLogBatcher = fixture.options.logBatcher as MockLogBatcher;
+      expect(mockLogBatcher.addLogCalls.length, 1);
+      final capturedLog = mockLogBatcher.addLogCalls.first;
 
-      expect(logJson['body'], 'test');
+      expect(capturedLog.body, 'test');
     });
   });
 
