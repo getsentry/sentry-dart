@@ -111,7 +111,7 @@ class WebSentryJsBinding implements SentryJsBinding {
     }
 
     final filenameDebugIdMap =
-        parseFilenameToDebugIdMap(debugIdMap, stackParser, _options);
+        buildFilenameToDebugIdMap(debugIdMap, stackParser, _options);
     if (filenameDebugIdMap != null) {
       return Map.unmodifiable(filenameDebugIdMap);
     }

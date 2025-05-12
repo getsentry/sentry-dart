@@ -8,7 +8,7 @@ final Map<String, List<String>> _parsedStackResults = {};
 int? _lastKeysCount;
 
 @internal
-Map<String, String>? parseFilenameToDebugIdMap(Map<dynamic, dynamic> debugIdMap,
+Map<String, String>? buildFilenameToDebugIdMap(Map<dynamic, dynamic> debugIdMap,
     JSFunction stackParser, JSObject? options) {
   final debugIdKeys = debugIdMap.keys.toList();
 
