@@ -1829,9 +1829,7 @@ void main() {
       );
     });
 
-    test(
-        'should set trace id from propagation context',
-        () async {
+    test('should set trace id from propagation context', () async {
       fixture.options.enableLogs = true;
 
       final client = fixture.getSut();

@@ -574,7 +574,7 @@ void main() {
       final options = defaultTestOptions();
       options.platform = MockPlatform(isWeb: false);
       options.bindingUtils = TestBindingWrapper();
-      
+
       options.logBatcher = mockLogBatcher;
       options.enableLogs = true;
 
