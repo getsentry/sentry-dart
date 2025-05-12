@@ -105,6 +105,20 @@ void main() {
             SentryEvent(), SdkVersion(name: 'test', version: '0')));
       });
 
+      test('loadDebugImages returns null if no debug ids are available',
+          () async {
+        await sut.init(hub);
+        _globalThis['_sentryDebugIds'] = null;
+
+        final frames = [
+          SentryStackFrame(absPath: 'http://127.0.0.1:8080/main.dart.js')
+        ];
+        final stackTrace = SentryStackTrace(frames: frames);
+        final images = await sut.loadDebugImages(stackTrace);
+
+        expect(images, isNull);
+      });
+
       test(
           'loadDebugImages loads debug id to debug images with matching absPath',
           () async {

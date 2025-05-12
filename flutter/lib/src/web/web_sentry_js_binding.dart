@@ -3,6 +3,7 @@ import 'dart:js_interop_unsafe';
 
 import 'package:flutter/cupertino.dart';
 
+import 'debug_ids.dart';
 import 'sentry_js_binding.dart';
 
 SentryJsBinding createJsBinding() {
@@ -11,6 +12,7 @@ SentryJsBinding createJsBinding() {
 
 class WebSentryJsBinding implements SentryJsBinding {
   SentryJsClient? _client;
+  JSObject? _options;
 
   @override
   void init(Map<String, dynamic> options) {
@@ -20,6 +22,7 @@ class WebSentryJsBinding implements SentryJsBinding {
     }
     _init(options.jsify());
     _client = SentryJsClient();
+    _options = _client?.getOptions();
   }
 
   @override
@@ -94,14 +97,8 @@ class WebSentryJsBinding implements SentryJsBinding {
     }
   }
 
-  Map<String, String>? _cachedFilenameDebugIds;
-  Map<String, String>? get cachedFilenameDebugIds => _cachedFilenameDebugIds;
-  int? _lastKeysCount;
-  Map<String, List<String>>? _parsedStackResults;
-
   @override
   Map<String, String>? getFilenameToDebugIdMap() {
-    // 1) Read the debug-ID table once
     final debugIdMap =
         _globalThis['_sentryDebugIds'].dartify() as Map<dynamic, dynamic>?;
     if (debugIdMap == null) {
@@ -113,52 +110,17 @@ class WebSentryJsBinding implements SentryJsBinding {
       return null;
     }
 
-    final debugIdKeys = debugIdMap.keys.toList();
-
-    // 2) Fast path: use cached results if available
-    if (_cachedFilenameDebugIds != null &&
-        debugIdKeys.length == _lastKeysCount) {
-      // Return a copy
-      return Map.unmodifiable(_cachedFilenameDebugIds!);
+    final filenameDebugIdMap =
+        parseFilenameToDebugIdMap(debugIdMap, stackParser, _options);
+    if (filenameDebugIdMap != null) {
+      return Map.unmodifiable(filenameDebugIdMap);
     }
-    _lastKeysCount = debugIdKeys.length;
 
-    // 3) Build a map of filename -> debug_id and refresh cache
-    final options = _client?.getOptions();
-    final Map<String, String> filenameDebugIdMap = {};
-    for (final stackKey in debugIdKeys) {
-      _parsedStackResults ??= {};
-
-      final String stackKeyStr = stackKey.toString();
-      final List<String>? result = _parsedStackResults![stackKeyStr];
-
-      if (result != null) {
-        filenameDebugIdMap[result[0]] = result[1];
-      } else {
-        final parsedStack = stackParser
-            .callAsFunction(options, stackKeyStr.toJS)
-            .dartify() as List<dynamic>?;
-
-        if (parsedStack == null) continue;
-
-        for (int i = parsedStack.length - 1; i >= 0; i--) {
-          final stackFrame = parsedStack[i] as Map<dynamic, dynamic>?;
-          final filename = stackFrame?['filename']?.toString();
-          final debugId = debugIdMap[stackKeyStr]?.toString();
-          if (filename != null && debugId != null) {
-            filenameDebugIdMap[filename] = debugId;
-            _parsedStackResults![stackKeyStr] = [filename, debugId];
-            break;
-          }
-        }
-      }
-    }
-    _cachedFilenameDebugIds = filenameDebugIdMap;
-    return Map.unmodifiable(filenameDebugIdMap);
+    return null;
   }
 
   JSFunction? _stackParser() {
-    final parser = SentryJsClient().getOptions()?['stackParser'];
+    final parser = _options?['stackParser'];
     if (parser != null && parser.isA<JSFunction>()) {
       return parser as JSFunction;
     }
