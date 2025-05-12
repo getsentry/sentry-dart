@@ -108,7 +108,13 @@ void main() {
     });
 
     test('adds module for package frames', () {
-      final frame = Frame(Uri.parse('package:app_name/features/login/ui/view_model/login_view_model.dart'), 1, 2, 'buzz');
+      final frame = Frame(
+        Uri.parse(
+            'package:app_name/features/login/ui/view_model/login_view_model.dart'),
+        1,
+        2,
+        'buzz',
+      );
 
       expect(
         Fixture().getSut().encodeStackTraceFrame(frame)!.toJson(),
@@ -119,9 +125,10 @@ void main() {
           'module': 'app_name/features/login/ui/view_model',
           'lineno': 1,
           'colno': 2,
-          'abs_path': 'package:app_name/features/login/ui/view_model/login_view_model.dart',
+          'abs_path':
+              'package:app_name/features/login/ui/view_model/login_view_model.dart',
           'in_app': true,
-          'platform': 'dart'
+          'platform': 'dart',
         },
       );
     });
