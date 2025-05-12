@@ -282,6 +282,7 @@ isolate_instructions: 10fa27070, vm_instructions: 10fa21e20
           'abs_path': '${eventOrigin}package:example/main.dart',
           'in_app': true,
           'platform': 'dart',
+          'module': 'example',
         },
         {
           'filename': 'main.dart',
