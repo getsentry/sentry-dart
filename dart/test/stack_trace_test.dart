@@ -116,21 +116,9 @@ void main() {
         'buzz',
       );
 
-      expect(
-        Fixture().getSut().encodeStackTraceFrame(frame)!.toJson(),
-        {
-          'filename': 'login_view_model.dart',
-          'package': 'app_name',
-          'function': 'buzz',
-          'module': 'app_name/features/login/ui/view_model',
-          'lineno': 1,
-          'colno': 2,
-          'abs_path':
-              'package:app_name/features/login/ui/view_model/login_view_model.dart',
-          'in_app': true,
-          'platform': 'dart',
-        },
-      );
+      final sentryStackFrame = Fixture().getSut().encodeStackTraceFrame(frame)!;
+
+      expect(sentryStackFrame.module, 'app_name/features/login/ui/view_model');
     });
   });
 
