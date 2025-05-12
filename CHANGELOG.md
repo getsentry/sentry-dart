@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Add module in SentryStackFrame ([#2931](https://github.com/getsentry/sentry-dart/pull/2931))
+
 ## 9.0.0-RC
 
 ### Various fixes & improvements
