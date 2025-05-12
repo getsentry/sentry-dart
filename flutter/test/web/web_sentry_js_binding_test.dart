@@ -30,7 +30,7 @@ void main() {
       _globalThis['_sentryDebugIds'] = debugIdMap.jsify();
 
       final firstResult = sut.getFilenameToDebugIdMap();
-      final cachedResult = cachedFilenameDebugIds;
+      final cachedResult = filenameToDebugIds;
       final secondResult = sut.getFilenameToDebugIdMap();
 
       expect(firstResult, isNotNull);

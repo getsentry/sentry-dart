@@ -106,14 +106,6 @@ class WebSentryJsBinding implements SentryJsBinding {
 
     return getOrCreateFilenameToDebugIdMap(options);
   }
-
-  JSFunction? _stackParser() {
-    final parser = _options?['stackParser'];
-    if (parser != null && parser.isA<JSFunction>()) {
-      return parser as JSFunction;
-    }
-    return null;
-  }
 }
 
 @JS('Sentry.init')
