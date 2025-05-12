@@ -6,6 +6,7 @@ Version 9.0.0 marks a major release of the Sentry Dart/Flutter SDKs containing b
 
 The goal of this release is the following:
  - bump the minimum Dart and Flutter versions to `3.5.0` and `3.24.0` respectively
+ - bump the minimum Android API version to 21
  - add interoperability with the Sentry Javascript SDK in Flutter Web for features such as release health and reporting native JS errors
  - GA the [Session Replay](https://docs.sentry.io/product/explore/session-replay/) feature
  - provide feature flag support as well as [Firebase Remote Config](https://firebase.google.com/docs/remote-config) support
