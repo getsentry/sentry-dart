@@ -119,6 +119,18 @@ void main() {
         expect(images, isNull);
       });
 
+      test('loadDebugImages returns null if no matching absPath or filename',
+          () async {
+        await sut.init(hub);
+        _globalThis['_sentryDebugIds'] = debugIdMap.jsify();
+
+        final frames = [SentryStackFrame(absPath: 'abc', fileName: 'def')];
+        final stackTrace = SentryStackTrace(frames: frames);
+        final images = await sut.loadDebugImages(stackTrace);
+
+        expect(images, isNull);
+      });
+
       test(
           'loadDebugImages loads debug id to debug images with matching absPath',
           () async {
