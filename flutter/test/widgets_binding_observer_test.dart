@@ -564,7 +564,8 @@ void main() {
       instance.removeObserver(observer);
     });
 
-    testWidgets('calls flush on logs batcher when transitioning to inactive state',
+    testWidgets(
+        'calls flush on logs batcher when transitioning to inactive state',
         (WidgetTester tester) async {
       final hub = MockHub();
 
@@ -593,7 +594,6 @@ void main() {
 }
 
 class MockLogBatcher implements SentryLogBatcher {
-
   var flushCalled = false;
 
   @override
