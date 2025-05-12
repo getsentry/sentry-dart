@@ -1,7 +1,7 @@
 import 'dart:js_interop';
 import 'dart:js_interop_unsafe';
 
-import 'package:flutter/cupertino.dart';
+import 'package:meta/meta.dart';
 
 import 'debug_ids.dart';
 import 'sentry_js_binding.dart';
@@ -57,10 +57,10 @@ class WebSentryJsBinding implements SentryJsBinding {
 
   @override
   void close() {
-    final sentryProp = _globalThis.getProperty('Sentry'.toJS);
+    final sentryProp = globalThis.getProperty('Sentry'.toJS);
     if (sentryProp != null) {
       _close();
-      _globalThis['Sentry'] = null;
+      globalThis['Sentry'] = null;
     }
   }
 
@@ -99,24 +99,12 @@ class WebSentryJsBinding implements SentryJsBinding {
 
   @override
   Map<String, String>? getFilenameToDebugIdMap() {
-    final debugIdMap =
-        _globalThis['_sentryDebugIds'].dartify() as Map<dynamic, dynamic>?;
-    if (debugIdMap == null) {
+    final options = _options;
+    if (options == null) {
       return null;
     }
 
-    final stackParser = _stackParser();
-    if (stackParser == null) {
-      return null;
-    }
-
-    final filenameDebugIdMap =
-        buildFilenameToDebugIdMap(debugIdMap, stackParser, _options);
-    if (filenameDebugIdMap != null) {
-      return Map.unmodifiable(filenameDebugIdMap);
-    }
-
-    return null;
+    return getOrCreateFilenameToDebugIdMap(options);
   }
 
   JSFunction? _stackParser() {
@@ -169,4 +157,5 @@ external JSObject _globalHandlersIntegration();
 external JSObject _dedupeIntegration();
 
 @JS('globalThis')
-external JSObject get _globalThis;
+@internal
+external JSObject get globalThis;

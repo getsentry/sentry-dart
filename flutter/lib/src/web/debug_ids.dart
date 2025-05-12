@@ -1,51 +1,78 @@
 import 'dart:js_interop';
+import 'dart:js_interop_unsafe';
 
-import 'package:meta/meta.dart';
+import 'package:flutter/cupertino.dart';
 
-Map<String, String>? _cachedFilenameDebugIds;
+import 'web_sentry_js_binding.dart';
+
+final Map<String, String> _filenameToDebugIds = {};
+final Set<String> _debugIdsWithFilenames = {};
+
+int _lastKeysCount = 0;
+
 @visibleForTesting
-Map<String, String>? get cachedFilenameDebugIds => _cachedFilenameDebugIds;
-final Map<String, List<String>> _parsedStackResults = {};
-int? _lastKeysCount;
+Map<String, String>? get filenameToDebugIds => _filenameToDebugIds;
 
-@internal
-Map<String, String>? buildFilenameToDebugIdMap(Map<dynamic, dynamic> debugIdMap,
-    JSFunction stackParser, JSObject? options) {
-  final debugIdKeys = debugIdMap.keys.toList();
-
-  // Fast path: use cached results if available
-  if (_cachedFilenameDebugIds != null && debugIdKeys.length == _lastKeysCount) {
-    return Map.unmodifiable(_cachedFilenameDebugIds!);
+/// Returns the cached map if available, otherwise builds the map with the
+/// injected debug ids.
+Map<String, String>? getOrCreateFilenameToDebugIdMap(JSObject options) {
+  final debugIdMap =
+      globalThis['_sentryDebugIds'].dartify() as Map<dynamic, dynamic>?;
+  if (debugIdMap == null) {
+    return null;
   }
-  _lastKeysCount = debugIdKeys.length;
 
-  // Build a map of filename -> debug_id and refresh cache
-  final Map<String, String> filenameDebugIdMap = {};
-  for (final stackKey in debugIdKeys) {
-    final String stackKeyStr = stackKey.toString();
-    final List<String>? result = _parsedStackResults[stackKeyStr];
+  if (debugIdMap.keys.length != _lastKeysCount) {
+    _buildFilenameToDebugIdMap(
+      debugIdMap,
+      options,
+    );
+    _lastKeysCount = debugIdMap.keys.length;
+  }
 
-    if (result != null) {
-      filenameDebugIdMap[result[0]] = result[1];
-    } else {
+  return Map.unmodifiable(_filenameToDebugIds);
+}
+
+void _buildFilenameToDebugIdMap(
+  Map<dynamic, dynamic> debugIdMap,
+  JSObject options,
+) {
+  final stackParser = _stackParser(options);
+  if (stackParser == null) {
+    return;
+  }
+
+  for (final debugIdMapEntry in debugIdMap.entries) {
+    final String stackKeyStr = debugIdMapEntry.key.toString();
+    final String debugIdStr = debugIdMapEntry.value.toString();
+
+    final debugIdHasCachedFilename =
+        _debugIdsWithFilenames.contains(debugIdStr);
+
+    if (!debugIdHasCachedFilename) {
       final parsedStack = stackParser
           .callAsFunction(options, stackKeyStr.toJS)
           .dartify() as List<dynamic>?;
 
       if (parsedStack == null) continue;
 
-      for (int i = parsedStack.length - 1; i >= 0; i--) {
-        final stackFrame = parsedStack[i] as Map<dynamic, dynamic>?;
-        final filename = stackFrame?['filename']?.toString();
-        final debugId = debugIdMap[stackKeyStr]?.toString();
-        if (filename != null && debugId != null) {
-          filenameDebugIdMap[filename] = debugId;
-          _parsedStackResults[stackKeyStr] = [filename, debugId];
+      for (final stackFrame in parsedStack) {
+        final stackFrameMap = stackFrame as Map<dynamic, dynamic>;
+        final filename = stackFrameMap['filename']?.toString();
+        if (filename != null) {
+          _filenameToDebugIds[filename] = debugIdStr;
+          _debugIdsWithFilenames.add(debugIdStr);
           break;
         }
       }
     }
   }
-  _cachedFilenameDebugIds = filenameDebugIdMap;
-  return Map.unmodifiable(filenameDebugIdMap);
+}
+
+JSFunction? _stackParser(JSObject options) {
+  final parser = options['stackParser'];
+  if (parser != null && parser.isA<JSFunction>()) {
+    return parser as JSFunction;
+  }
+  return null;
 }
