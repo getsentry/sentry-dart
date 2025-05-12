@@ -140,6 +140,7 @@ class SentryStackTraceFactory {
       fileName: fileName,
       package: frame.package,
       platform: platform,
+      module: frame.package == null ? null : frame.uri.pathSegments.sublist(0, frame.uri.pathSegments.length - 1).join('/'),
     );
 
     final line = frame.line;
