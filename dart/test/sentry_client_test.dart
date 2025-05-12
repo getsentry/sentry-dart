@@ -1829,28 +1829,8 @@ void main() {
       );
     });
 
-    test('should set trace id if there is a scope span', () async {
-      fixture.options.enableLogs = true;
-
-      final client = fixture.getSut();
-      fixture.options.logBatcher = MockLogBatcher();
-
-      final log = givenLog();
-      final scope = Scope(fixture.options);
-      final span = MockSpan();
-      scope.span = span;
-
-      await client.captureLog(log, scope: scope);
-
-      final mockLogBatcher = fixture.options.logBatcher as MockLogBatcher;
-      expect(mockLogBatcher.addLogCalls.length, 1);
-      final capturedLog = mockLogBatcher.addLogCalls.first;
-
-      expect(capturedLog.traceId, span.context.traceId);
-    });
-
     test(
-        'should set trace id from propagation context if there is no scope span',
+        'should set trace id from propagation context',
         () async {
       fixture.options.enableLogs = true;
 

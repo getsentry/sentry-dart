@@ -516,15 +516,16 @@ class SentryClient {
         release,
       );
     }
-    final span = scope?.span;
+
     final propagationContext = scope?.propagationContext;
+    if (propagationContext != null) {
+      log.traceId = propagationContext.traceId;
+    }
+    final span = scope?.span;
     if (span != null) {
       log.attributes['sentry.trace.parent_span_id'] = SentryLogAttribute.string(
         span.context.spanId.toString(),
       );
-      log.traceId = span.context.traceId;
-    } else if (propagationContext != null) {
-      log.traceId = propagationContext.traceId;
     }
 
     final beforeSendLog = _options.beforeSendLog;
