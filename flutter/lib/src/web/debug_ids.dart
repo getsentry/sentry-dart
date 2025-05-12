@@ -3,6 +3,7 @@ import 'dart:js_interop';
 import 'package:meta/meta.dart';
 
 Map<String, String>? _cachedFilenameDebugIds;
+@visibleForTesting
 Map<String, String>? get cachedFilenameDebugIds => _cachedFilenameDebugIds;
 final Map<String, List<String>> _parsedStackResults = {};
 int? _lastKeysCount;

@@ -5,6 +5,7 @@ import 'dart:js_interop';
 import 'dart:js_interop_unsafe';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sentry_flutter/src/web/debug_ids.dart';
 import 'package:sentry_flutter/src/web/script_loader/sentry_script_loader.dart';
 import 'package:sentry_flutter/src/web/sentry_js_bundle.dart';
 import 'package:sentry_flutter/src/web/web_sentry_js_binding.dart';
@@ -29,7 +30,7 @@ void main() {
       _globalThis['_sentryDebugIds'] = debugIdMap.jsify();
 
       final firstResult = sut.getFilenameToDebugIdMap();
-      final cachedResult = sut.cachedFilenameDebugIds;
+      final cachedResult = cachedFilenameDebugIds;
       final secondResult = sut.getFilenameToDebugIdMap();
 
       expect(firstResult, isNotNull);
