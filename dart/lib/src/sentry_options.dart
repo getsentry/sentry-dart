@@ -15,6 +15,8 @@ import 'sentry_exception_factory.dart';
 import 'sentry_stack_trace_factory.dart';
 import 'transport/noop_transport.dart';
 import 'version.dart';
+import 'sentry_log_batcher.dart';
+import 'noop_log_batcher.dart';
 
 // TODO: shutdownTimeout, flushTimeoutMillis
 // https://api.dart.dev/stable/2.10.2/dart-io/HttpClient/close.html doesn't have a timeout param, we'd need to implement manually
@@ -540,6 +542,9 @@ class SentryOptions {
   /// Disabled by default.
   bool enableLogs = false;
 
+  @internal
+  SentryLogBatcher logBatcher = NoopLogBatcher();
+
   SentryOptions({String? dsn, Platform? platform, RuntimeChecker? checker}) {
     this.dsn = dsn;
     if (platform != null) {
@@ -671,7 +676,7 @@ typedef BeforeMetricCallback = bool Function(
 
 /// This function is called right before a log is about to be sent.
 /// Can return a modified log or null to drop the log.
-typedef BeforeSendLogCallback = SentryLog? Function(SentryLog log);
+typedef BeforeSendLogCallback = FutureOr<SentryLog?> Function(SentryLog log);
 
 /// Used to provide timestamp for logging.
 typedef ClockProvider = DateTime Function();
