@@ -27,6 +27,7 @@ import 'type_check_hint.dart';
 import 'utils/isolate_utils.dart';
 import 'utils/regex_utils.dart';
 import 'utils/stacktrace_utils.dart';
+import 'sentry_log_batcher.dart';
 import 'version.dart';
 
 /// Default value for [SentryUser.ipAddress]. It gets set when an event does not have
@@ -74,6 +75,9 @@ class SentryClient {
     // Other platforms use spotlight through their native SDKs
     if (enableFlutterSpotlight) {
       options.transport = SpotlightHttpTransport(options, options.transport);
+    }
+    if (options.enableLogs) {
+      options.logBatcher = SentryLogBatcher(options);
     }
     return SentryClient._(options);
   }
@@ -483,6 +487,73 @@ class SentryClient {
       scope: scope,
       hint: hint,
     );
+  }
+
+  @internal
+  Future<void> captureLog(
+    SentryLog log, {
+    Scope? scope,
+  }) async {
+    if (!_options.enableLogs) {
+      return;
+    }
+
+    log.attributes['sentry.sdk.name'] = SentryLogAttribute.string(
+      _options.sdk.name,
+    );
+    log.attributes['sentry.sdk.version'] = SentryLogAttribute.string(
+      _options.sdk.version,
+    );
+    final environment = _options.environment;
+    if (environment != null) {
+      log.attributes['sentry.environment'] = SentryLogAttribute.string(
+        environment,
+      );
+    }
+    final release = _options.release;
+    if (release != null) {
+      log.attributes['sentry.release'] = SentryLogAttribute.string(
+        release,
+      );
+    }
+
+    final propagationContext = scope?.propagationContext;
+    if (propagationContext != null) {
+      log.traceId = propagationContext.traceId;
+    }
+    final span = scope?.span;
+    if (span != null) {
+      log.attributes['sentry.trace.parent_span_id'] = SentryLogAttribute.string(
+        span.context.spanId.toString(),
+      );
+    }
+
+    final beforeSendLog = _options.beforeSendLog;
+    SentryLog? processedLog = log;
+    if (beforeSendLog != null) {
+      try {
+        final callbackResult = beforeSendLog(log);
+
+        if (callbackResult is Future<SentryLog?>) {
+          processedLog = await callbackResult;
+        } else {
+          processedLog = callbackResult;
+        }
+      } catch (exception, stackTrace) {
+        _options.logger(
+          SentryLevel.error,
+          'The beforeSendLog callback threw an exception',
+          exception: exception,
+          stackTrace: stackTrace,
+        );
+        if (_options.automatedTestMode) {
+          rethrow;
+        }
+      }
+    }
+    if (processedLog != null) {
+      _options.logBatcher.addLog(processedLog);
+    }
   }
 
   void close() {

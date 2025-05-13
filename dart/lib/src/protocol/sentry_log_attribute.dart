@@ -8,11 +8,11 @@ class SentryLogAttribute {
     return SentryLogAttribute._(value, 'string');
   }
 
-  factory SentryLogAttribute.boolean(bool value) {
+  factory SentryLogAttribute.bool(bool value) {
     return SentryLogAttribute._(value, 'boolean');
   }
 
-  factory SentryLogAttribute.integer(int value) {
+  factory SentryLogAttribute.int(int value) {
     return SentryLogAttribute._(value, 'integer');
   }
 
@@ -20,7 +20,7 @@ class SentryLogAttribute {
     return SentryLogAttribute._(value, 'double');
   }
 
-  // In the future the SDK will also support string[], boolean[], integer[], double[] values.
+  // In the future the SDK will also support List<String>, List<bool>, List<int>, List<double> values.
   Map<String, dynamic> toJson() {
     return {
       'value': value,

@@ -5,6 +5,8 @@
 ### Features
 
 - Logs: Models & Envelopes ([#2916](https://github.com/getsentry/sentry-dart/pull/2916))
+- Logs: Integrate in Sentry Client ([#2920](https://github.com/getsentry/sentry-dart/pull/2920))
+- [Structured Logs]: Buffering and Flushing of Logs ([#2930](https://github.com/getsentry/sentry-dart/pull/2930))
 
 ## 9.0.0-beta.2
 

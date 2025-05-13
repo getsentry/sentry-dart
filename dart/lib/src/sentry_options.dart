@@ -15,6 +15,8 @@ import 'sentry_exception_factory.dart';
 import 'sentry_stack_trace_factory.dart';
 import 'transport/noop_transport.dart';
 import 'version.dart';
+import 'sentry_log_batcher.dart';
+import 'noop_log_batcher.dart';
 
 // TODO: shutdownTimeout, flushTimeoutMillis
 // https://api.dart.dev/stable/2.10.2/dart-io/HttpClient/close.html doesn't have a timeout param, we'd need to implement manually
@@ -197,6 +199,10 @@ class SentryOptions {
   /// This function is called right before a metric is about to be emitted.
   /// Can return true to emit the metric, or false to drop it.
   BeforeMetricCallback? beforeMetricCallback;
+
+  /// This function is called right before a log is about to be sent.
+  /// Can return a modified log or null to drop the log.
+  BeforeSendLogCallback? beforeSendLog;
 
   /// Sets the release. SDK will try to automatically configure a release out of the box
   /// See [docs for further information](https://docs.sentry.io/platforms/flutter/configuration/releases/)
@@ -531,6 +537,14 @@ class SentryOptions {
   /// This is opt-in, as it can lead to existing exception beeing grouped as new ones.
   bool groupExceptions = false;
 
+  /// Enable to capture and send logs to Sentry.
+  ///
+  /// Disabled by default.
+  bool enableLogs = false;
+
+  @internal
+  SentryLogBatcher logBatcher = NoopLogBatcher();
+
   SentryOptions({String? dsn, Platform? platform, RuntimeChecker? checker}) {
     this.dsn = dsn;
     if (platform != null) {
@@ -659,6 +673,10 @@ typedef BeforeMetricCallback = bool Function(
   String key, {
   Map<String, String>? tags,
 });
+
+/// This function is called right before a log is about to be sent.
+/// Can return a modified log or null to drop the log.
+typedef BeforeSendLogCallback = FutureOr<SentryLog?> Function(SentryLog log);
 
 /// Used to provide timestamp for logging.
 typedef ClockProvider = DateTime Function();
