@@ -10,7 +10,8 @@ class SentryLog {
   Map<String, SentryLogAttribute> attributes;
   int? severityNumber;
 
-  /// The traceId optional with empty default value. The correct value will be set before transport.
+  /// The traceId is initially an empty default value and is populated during event processing;
+  /// by the time processing completes, it is guaranteed to be a valid non-empty trace id.
   SentryLog({
     required this.timestamp,
     SentryId? traceId,
