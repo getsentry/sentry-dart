@@ -7,6 +7,8 @@
 - Logs: Models & Envelopes ([#2916](https://github.com/getsentry/sentry-dart/pull/2916))
 - Logs: Integrate in Sentry Client ([#2920](https://github.com/getsentry/sentry-dart/pull/2920))
 - [Structured Logs]: Buffering and Flushing of Logs ([#2930](https://github.com/getsentry/sentry-dart/pull/2930))
+- [Structured Logs]: Expose Public API ([#2940](https://github.com/getsentry/sentry-dart/pull/2940))
+  - The old `SentryLogger` has been ranamed to `SdkLogCallback` and can be accessd through `options.log` now.
 ## 9.0.0-RC
 
 ### Various fixes & improvements

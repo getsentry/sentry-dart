@@ -43,8 +43,7 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   @override
   FutureOr<void> init(Hub hub) {
     if (!options.enableNativeCrashHandling) {
-      options.log(
-          SentryLevel.info, 'SentryNative crash handling is disabled');
+      options.log(SentryLevel.info, 'SentryNative crash handling is disabled');
     } else {
       tryCatchSync("init", () {
         final cOptions = createOptions(options);

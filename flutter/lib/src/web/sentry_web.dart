@@ -18,8 +18,8 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
   final SentryJsBinding _binding;
   final SentryFlutterOptions _options;
 
-  void _logNotSupported(String operation) => options.log(
-      SentryLevel.debug, 'SentryWeb: $operation is not supported');
+  void _logNotSupported(String operation) =>
+      options.log(SentryLevel.debug, 'SentryWeb: $operation is not supported');
 
   @override
   FutureOr<void> init(Hub hub) {

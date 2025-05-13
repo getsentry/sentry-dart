@@ -42,8 +42,7 @@ class WebSessionIntegration
   /// so we need to wait until this function is called by the observer.
   void enable() {
     if (_isEnabled) {
-      _options?.log(
-          SentryLevel.debug, '$integrationName is already enabled.');
+      _options?.log(SentryLevel.debug, '$integrationName is already enabled.');
       return;
     }
     if (!_shouldEnable()) {
@@ -53,8 +52,7 @@ class WebSessionIntegration
     _webSessionHandler = WebSessionHandler(_native);
     _options?.addBeforeSendEventObserver(this);
     _options?.sdk.addIntegration(integrationName);
-    _options?.log(
-        SentryLevel.info, '$integrationName successfully enabled.');
+    _options?.log(SentryLevel.info, '$integrationName successfully enabled.');
   }
 
   bool _shouldEnable() {

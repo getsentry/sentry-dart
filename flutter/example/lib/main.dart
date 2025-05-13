@@ -524,12 +524,12 @@ class MainScaffold extends StatelessWidget {
             ),
             TooltipButton(
               onPressed: () {
-                Sentry.logger.info('Sentry Log With Test Attribute', attributes: {
+                Sentry.logger
+                    .info('Sentry Log With Test Attribute', attributes: {
                   'test-attribute': SentryLogAttribute.string('test-value'),
                 });
               },
-              text:
-                  'Demonstrates the logging with Sentry Log.',
+              text: 'Demonstrates the logging with Sentry Log.',
               buttonTitle: 'Sentry Log with Attribute',
             ),
             if (UniversalPlatform.isIOS || UniversalPlatform.isMacOS)
