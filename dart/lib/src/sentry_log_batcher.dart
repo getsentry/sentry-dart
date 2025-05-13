@@ -18,7 +18,7 @@ class SentryLogBatcher {
 
   Timer? _flushTimer;
 
-  FutureOr<void> addLog(SentryLog log) {
+  void addLog(SentryLog log) {
     _logBuffer.add(log);
 
     _flushTimer?.cancel();
@@ -30,7 +30,7 @@ class SentryLogBatcher {
     }
   }
 
-  Future<void> flush() async {
+  void flush() {
     _flushTimer?.cancel();
     _flushTimer = null;
 
@@ -47,6 +47,6 @@ class SentryLogBatcher {
     );
 
     // TODO: Make sure the Android SDK understands the log envelope type.
-    await _options.transport.send(envelope);
+    _options.transport.send(envelope);
   }
 }

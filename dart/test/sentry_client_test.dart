@@ -1883,6 +1883,28 @@ void main() {
       expect(capturedLog.body, 'modified');
     });
 
+    test('$BeforeSendLogCallback returning a log async modifies it', () async {
+      fixture.options.enableLogs = true;
+      fixture.options.beforeSendLog = (log) async {
+        await Future.delayed(Duration(milliseconds: 100));
+        log.body = 'modified';
+        return log;
+      };
+
+      final client = fixture.getSut();
+      fixture.options.logBatcher = MockLogBatcher();
+
+      final log = givenLog();
+
+      await client.captureLog(log);
+
+      final mockLogBatcher = fixture.options.logBatcher as MockLogBatcher;
+      expect(mockLogBatcher.addLogCalls.length, 1);
+      final capturedLog = mockLogBatcher.addLogCalls.first;
+
+      expect(capturedLog.body, 'modified');
+    });
+
     test('$BeforeSendLogCallback throwing is caught', () async {
       fixture.options.enableLogs = true;
       fixture.options.automatedTestMode = false;

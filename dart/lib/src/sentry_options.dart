@@ -672,7 +672,7 @@ typedef BeforeMetricCallback = bool Function(
 });
 
 @experimental
-typedef BeforeSendLogCallback = SentryLog? Function(SentryLog log);
+typedef BeforeSendLogCallback = FutureOr<SentryLog?> Function(SentryLog log);
 
 /// Used to provide timestamp for logging.
 typedef ClockProvider = DateTime Function();

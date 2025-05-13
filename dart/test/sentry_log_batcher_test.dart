@@ -48,7 +48,7 @@ void main() {
     expect(envelopePayloadJson['items'].last['body'], log2.body);
   });
 
-  test('max logs are flushed immediately', () async {
+  test('max logs are flushed without timeout', () async {
     final batcher = fixture.getSut(maxBufferSize: 10);
 
     final log = SentryLog(
@@ -59,8 +59,11 @@ void main() {
     );
 
     for (var i = 0; i < 10; i++) {
-      await batcher.addLog(log);
+      batcher.addLog(log);
     }
+
+    // Just wait a little bit, as we call capture without awaiting internally.
+    await Future.delayed(Duration(milliseconds: 1));
 
     expect(fixture.mockTransport.envelopes.length, 1);
     final envelopePayloadJson = (fixture.mockTransport).logs.first;
@@ -112,10 +115,12 @@ void main() {
       attributes: {},
     );
 
-    await batcher.addLog(log);
-    await batcher.addLog(log);
+    batcher.addLog(log);
+    batcher.addLog(log);
+    batcher.flush();
 
-    await batcher.flush();
+    // Just wait a little bit, as we call capture without awaiting internally.
+    await Future.delayed(Duration(milliseconds: 1));
 
     expect(fixture.mockTransport.envelopes.length, 1);
     final envelopePayloadJson = (fixture.mockTransport).logs.first;

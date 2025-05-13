@@ -532,9 +532,12 @@ class SentryClient {
     SentryLog? processedLog = log;
     if (beforeSendLog != null) {
       try {
-        processedLog = beforeSendLog(log);
-        if (processedLog == null) {
-          return;
+        final callbackResult = beforeSendLog(log);
+
+        if (callbackResult is Future<SentryLog?>) {
+          processedLog = await callbackResult;
+        } else {
+          processedLog = callbackResult;
         }
       } catch (exception, stackTrace) {
         _options.logger(
@@ -548,8 +551,9 @@ class SentryClient {
         }
       }
     }
-
-    await _options.logBatcher.addLog(processedLog ?? log);
+    if (processedLog != null) {
+      _options.logBatcher.addLog(processedLog);
+    }
   }
 
   void close() {
