@@ -196,10 +196,5 @@ class HubAdapter implements Hub {
       );
 
   @override
-  Future<void> captureLog(
-    SentryLog log, {
-    Hint? hint,
-    ScopeCallback? withScope,
-  }) =>
-      Sentry.currentHub.captureLog(log, hint: hint, withScope: withScope);
+  Future<void> captureLog(SentryLog log) => Sentry.currentHub.captureLog(log);
 }

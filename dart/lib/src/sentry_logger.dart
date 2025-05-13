@@ -16,47 +16,47 @@ class SentryLogger {
     String body, {
     Map<String, SentryLogAttribute>? attributes,
   }) {
-    return _log(SentryLogLevel.trace, body, attributes: attributes);
+    return _captureLog(SentryLogLevel.trace, body, attributes: attributes);
   }
 
   FutureOr<void> debug(
     String body, {
     Map<String, SentryLogAttribute>? attributes,
   }) {
-    return _log(SentryLogLevel.debug, body, attributes: attributes);
+    return _captureLog(SentryLogLevel.debug, body, attributes: attributes);
   }
 
   FutureOr<void> info(
     String body, {
     Map<String, SentryLogAttribute>? attributes,
   }) {
-    return _log(SentryLogLevel.info, body, attributes: attributes);
+    return _captureLog(SentryLogLevel.info, body, attributes: attributes);
   }
 
   FutureOr<void> warn(
     String body, {
     Map<String, SentryLogAttribute>? attributes,
   }) {
-    return _log(SentryLogLevel.warn, body, attributes: attributes);
+    return _captureLog(SentryLogLevel.warn, body, attributes: attributes);
   }
 
   FutureOr<void> error(
     String body, {
     Map<String, SentryLogAttribute>? attributes,
   }) {
-    return _log(SentryLogLevel.error, body, attributes: attributes);
+    return _captureLog(SentryLogLevel.error, body, attributes: attributes);
   }
 
   FutureOr<void> fatal(
     String body, {
     Map<String, SentryLogAttribute>? attributes,
   }) {
-    return _log(SentryLogLevel.fatal, body, attributes: attributes);
+    return _captureLog(SentryLogLevel.fatal, body, attributes: attributes);
   }
 
   // Helper
 
-  FutureOr<void> _log(
+  FutureOr<void> _captureLog(
     SentryLogLevel level,
     String body, {
     Map<String, SentryLogAttribute>? attributes,

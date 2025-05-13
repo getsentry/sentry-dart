@@ -12,6 +12,7 @@ class MockHub with NoSuchMethodProvider implements Hub {
   List<CaptureExceptionCall> captureExceptionCalls = [];
   List<CaptureMessageCall> captureMessageCalls = [];
   List<AddBreadcrumbCall> addBreadcrumbCalls = [];
+  List<CaptureLogCall> captureLogCalls = [];
   List<SentryClient?> bindClientCalls = [];
 
   // ignore: deprecated_member_use_from_same_package
@@ -105,6 +106,11 @@ class MockHub with NoSuchMethodProvider implements Hub {
       hint,
     ));
     return SentryId.newId();
+  }
+
+  @override
+  Future<void> captureLog(SentryLog log) async {
+    captureLogCalls.add(CaptureLogCall(log, null));
   }
 
   @override
