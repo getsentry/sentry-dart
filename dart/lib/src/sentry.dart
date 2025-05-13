@@ -27,6 +27,7 @@ import 'tracing.dart';
 import 'transport/data_category.dart';
 import 'transport/task_queue.dart';
 import 'feature_flags_integration.dart';
+import 'sentry_logger.dart';
 
 /// Configuration options callback
 typedef OptionsConfiguration = FutureOr<void> Function(SentryOptions);
@@ -428,4 +429,6 @@ class Sentry {
         zoneValues: zoneValues,
         zoneSpecification: zoneSpecification,
       );
+
+  static SentryLogger get logger => currentHub.options.logger;
 }

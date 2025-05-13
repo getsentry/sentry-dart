@@ -282,6 +282,42 @@ class Hub {
     return sentryId;
   }
 
+  Future<void> captureLog(
+    SentryLog log, {
+    Hint? hint,
+    ScopeCallback? withScope,
+  }) async {
+    if (!_isEnabled) {
+      _options.log(
+        SentryLevel.warning,
+        "Instance is disabled and this 'captureFeedback' call is a no-op.",
+      );
+    } else {
+      final item = _peek();
+      late Scope scope;
+      final s = _cloneAndRunWithScope(item.scope, withScope);
+      if (s is Future<Scope>) {
+        scope = await s;
+      } else {
+        scope = s;
+      }
+
+      try {
+        await item.client.captureLog(
+          log,
+          scope: scope,
+        );
+      } catch (exception, stacktrace) {
+        _options.log(
+          SentryLevel.error,
+          'Error while capturing log',
+          exception: exception,
+          stackTrace: stacktrace,
+        );
+      }
+    }
+  }
+
   FutureOr<Scope> _cloneAndRunWithScope(
       Scope scope, ScopeCallback? withScope) async {
     if (withScope != null) {
