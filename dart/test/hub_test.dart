@@ -823,7 +823,7 @@ class Fixture {
     options.tracesSampleRate = tracesSampleRate;
     options.tracesSampler = tracesSampler;
     options.debug = debug;
-    options.logger = mockLogger; // Enable logging in DiagnosticsLogger
+    options.log = mockLogger; // Enable logging in DiagnosticsLogger
 
     final hub = Hub(options);
 

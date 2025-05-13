@@ -37,7 +37,7 @@ class _SentryWidgetState extends State<SentryWidget> {
     Widget content = widget.child;
     if (widget._options?.isMultiViewApp ?? false) {
       // ignore: invalid_use_of_internal_member
-      Sentry.currentHub.options.logger(
+      Sentry.currentHub.options.log(
         SentryLevel.debug,
         '`SentryWidget` is not available in multi-view apps.',
       );

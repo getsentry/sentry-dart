@@ -62,11 +62,11 @@ class Sentry {
       }
       _taskQueue = DefaultTaskQueue<SentryId>(
         sentryOptions.maxQueueSize,
-        sentryOptions.logger,
+        sentryOptions.log,
         sentryOptions.recorder,
       );
     } catch (exception, stackTrace) {
-      sentryOptions.logger(
+      sentryOptions.log(
         SentryLevel.error,
         'Error in options configuration.',
         exception: exception,
@@ -97,7 +97,7 @@ class Sentry {
 
     if (options.runtimeChecker.isDebugMode()) {
       options.debug = true;
-      options.logger(
+      options.log(
         SentryLevel.debug,
         'Debug mode is enabled: Application is running in a debug environment.',
       );
@@ -146,7 +146,7 @@ class Sentry {
     RunZonedGuardedOnError? runZonedGuardedOnError,
   ) async {
     if (isEnabled) {
-      options.logger(
+      options.log(
         SentryLevel.warning,
         'Sentry has been already initialized. Previous configuration will be overwritten.',
       );
@@ -375,7 +375,7 @@ class Sentry {
         .firstOrNull;
 
     if (featureFlagsIntegration == null) {
-      currentHub.options.logger(
+      currentHub.options.log(
         SentryLevel.warning,
         '$FeatureFlagsIntegration not found. Make sure Sentry is initialized before accessing the addFeatureFlag API.',
       );

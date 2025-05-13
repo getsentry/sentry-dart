@@ -27,7 +27,7 @@ class WebSessionIntegration
   @override
   void call(Hub hub, SentryFlutterOptions options) {
     _options = options;
-    _options?.logger(SentryLevel.info,
+    _options?.log(SentryLevel.info,
         '$integrationName initialization started, waiting for SentryNavigatorObserver to be initialized.');
   }
 
@@ -42,7 +42,7 @@ class WebSessionIntegration
   /// so we need to wait until this function is called by the observer.
   void enable() {
     if (_isEnabled) {
-      _options?.logger(
+      _options?.log(
           SentryLevel.debug, '$integrationName is already enabled.');
       return;
     }
@@ -53,7 +53,7 @@ class WebSessionIntegration
     _webSessionHandler = WebSessionHandler(_native);
     _options?.addBeforeSendEventObserver(this);
     _options?.sdk.addIntegration(integrationName);
-    _options?.logger(
+    _options?.log(
         SentryLevel.info, '$integrationName successfully enabled.');
   }
 
@@ -62,7 +62,7 @@ class WebSessionIntegration
       return false;
     }
     if (!_options!.enableAutoSessionTracking) {
-      _options?.logger(SentryLevel.info,
+      _options?.log(SentryLevel.info,
           '$integrationName disabled: enableAutoSessionTracking is not enabled');
       return false;
     }

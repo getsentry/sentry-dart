@@ -1,12 +1,12 @@
 import 'protocol.dart';
 import 'sentry_options.dart';
 
-class DiagnosticLogger {
+class DiagnosticLog {
   final SentryOptions _options;
-  final SdkLogger _logger;
-  SdkLogger get logger => _logger;
+  final SdkLogCallback _logger;
+  SdkLogCallback get logger => _logger;
 
-  DiagnosticLogger(this._logger, this._options);
+  DiagnosticLog(this._logger, this._options);
 
   void log(
     SentryLevel level,

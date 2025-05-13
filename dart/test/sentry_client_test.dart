@@ -2650,7 +2650,7 @@ class Fixture {
     options.beforeSendTransaction = beforeSendTransaction;
     options.beforeSendFeedback = beforeSendFeedback;
     options.debug = debug;
-    options.logger = mockLogger;
+    options.log = mockLogger;
 
     if (eventProcessor != null) {
       options.addEventProcessor(eventProcessor);

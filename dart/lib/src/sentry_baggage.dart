@@ -13,11 +13,11 @@ class SentryBaggage {
 
   SentryBaggage(
     this._keyValues, {
-    this.logger,
+    this.log,
   });
 
   final Map<String, String> _keyValues;
-  final SdkLogger? logger;
+  final SdkLogCallback? log;
 
   String toHeaderString() {
     final buffer = StringBuffer();
@@ -26,7 +26,7 @@ class SentryBaggage {
 
     for (final entry in _keyValues.entries) {
       if (listMemberCount >= _maxListMember) {
-        logger?.call(
+        log?.call(
           SentryLevel.info,
           'Baggage key ${entry.key} dropped because of max list member.',
         );
@@ -40,7 +40,7 @@ class SentryBaggage {
         final totalLengthIfValueAdded = buffer.length + encodedKeyValue.length;
 
         if (totalLengthIfValueAdded >= _maxChars) {
-          logger?.call(
+          log?.call(
             SentryLevel.info,
             'Baggage key ${entry.key} dropped because of max baggage chars.',
           );
@@ -51,7 +51,7 @@ class SentryBaggage {
         buffer.write(encodedKeyValue);
         separator = ',';
       } catch (exception, stackTrace) {
-        logger?.call(
+        log?.call(
           SentryLevel.error,
           'Failed to parse the baggage key ${entry.key}.',
           exception: exception,
@@ -66,31 +66,31 @@ class SentryBaggage {
 
   factory SentryBaggage.fromHeaderList(
     List<String> headerValues, {
-    SdkLogger? logger,
+    SdkLogCallback? log,
   }) {
     final keyValues = <String, String>{};
 
     for (final headerValue in headerValues) {
       final keyValuesToAdd = _extractKeyValuesFromBaggageString(
         headerValue,
-        logger: logger,
+        log: log,
       );
       keyValues.addAll(keyValuesToAdd);
     }
 
-    return SentryBaggage(keyValues, logger: logger);
+    return SentryBaggage(keyValues, log: log);
   }
 
   factory SentryBaggage.fromHeader(
     String headerValue, {
-    SdkLogger? logger,
+    SdkLogCallback? log,
   }) {
     final keyValues = _extractKeyValuesFromBaggageString(
       headerValue,
-      logger: logger,
+      log: log,
     );
 
-    return SentryBaggage(keyValues, logger: logger);
+    return SentryBaggage(keyValues, log: log);
   }
 
   @internal
@@ -114,7 +114,7 @@ class SentryBaggage {
 
   static Map<String, String> _extractKeyValuesFromBaggageString(
     String headerValue, {
-    SdkLogger? logger,
+    SdkLogCallback? log,
   }) {
     final keyValues = <String, String>{};
 
@@ -130,7 +130,7 @@ class SentryBaggage {
           final value = _urlDecode(keyAndValue.last.trim());
           keyValues[key] = value;
         } catch (exception, stackTrace) {
-          logger?.call(
+          log?.call(
             SentryLevel.error,
             'Failed to parse the baggage entry $keyAndValue.',
             exception: exception,

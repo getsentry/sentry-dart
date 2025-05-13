@@ -94,7 +94,7 @@ class SentryClient {
     Hint? hint,
   }) async {
     if (_isIgnoredError(event)) {
-      _options.logger(
+      _options.log(
         SentryLevel.debug,
         'Error was ignored as specified in the ignoredErrors options.',
       );
@@ -104,7 +104,7 @@ class SentryClient {
     }
 
     if (_options.containsIgnoredExceptionForType(event.throwable)) {
-      _options.logger(
+      _options.log(
         SentryLevel.debug,
         'Event was dropped as the exception ${event.throwable.runtimeType.toString()} is ignored.',
       );
@@ -116,7 +116,7 @@ class SentryClient {
     if (_sampleRate() && event.type != 'feedback') {
       _options.recorder
           .recordLostEvent(DiscardReason.sampleRate, _getCategory(event));
-      _options.logger(
+      _options.log(
         SentryLevel.debug,
         'Event ${event.eventId.toString()} was dropped due to sampling decision.',
       );
@@ -131,7 +131,7 @@ class SentryClient {
     if (scope != null) {
       preparedEvent = await scope.applyToEvent(preparedEvent, hint);
     } else {
-      _options.logger(
+      _options.log(
           SentryLevel.debug, 'No scope to apply on event was provided');
     }
 
@@ -183,7 +183,7 @@ class SentryClient {
     if (traceContext == null) {
       if (scope != null) {
         scope.propagationContext.baggage ??=
-            SentryBaggage({}, logger: _options.logger)
+            SentryBaggage({}, log: _options.log)
               ..setValuesFromScope(scope, _options);
         traceContext = SentryTraceContextHeader.fromBaggage(
             scope.propagationContext.baggage!);
@@ -393,7 +393,7 @@ class SentryClient {
       preparedTransaction = await scope.applyToEvent(preparedTransaction, hint)
           as SentryTransaction?;
     } else {
-      _options.logger(
+      _options.log(
           SentryLevel.debug, 'No scope to apply on transaction was provided');
     }
 
@@ -415,7 +415,7 @@ class SentryClient {
     }
 
     if (_isIgnoredTransaction(preparedTransaction)) {
-      _options.logger(
+      _options.log(
         SentryLevel.debug,
         'Transaction was ignored as specified in the ignoredTransactions options.',
       );
@@ -540,7 +540,7 @@ class SentryClient {
           processedLog = callbackResult;
         }
       } catch (exception, stackTrace) {
-        _options.logger(
+        _options.log(
           SentryLevel.error,
           'The beforeSendLog callback threw an exception',
           exception: exception,
@@ -598,7 +598,7 @@ class SentryClient {
         }
       }
     } catch (exception, stackTrace) {
-      _options.logger(
+      _options.log(
         SentryLevel.error,
         'The $beforeSendName callback threw an exception',
         exception: exception,
@@ -617,7 +617,7 @@ class SentryClient {
         _options.recorder.recordLostEvent(discardReason, DataCategory.span,
             count: spanCountBeforeCallback + 1);
       }
-      _options.logger(
+      _options.log(
         SentryLevel.debug,
         '${event.runtimeType} was dropped by $beforeSendName callback',
       );
@@ -658,7 +658,7 @@ class SentryClient {
           await result;
         }
       } catch (exception, stackTrace) {
-        _options.logger(
+        _options.log(
           SentryLevel.error,
           'Error while running beforeSendEvent observer',
           exception: exception,
