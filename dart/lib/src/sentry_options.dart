@@ -200,7 +200,7 @@ class SentryOptions {
   /// Can return true to emit the metric, or false to drop it.
   BeforeMetricCallback? beforeMetricCallback;
 
-  @meta.experimental
+  @experimental
   BeforeSendLogCallback? beforeSendLog;
 
   /// Sets the release. SDK will try to automatically configure a release out of the box
@@ -536,10 +536,10 @@ class SentryOptions {
   /// This is opt-in, as it can lead to existing exception beeing grouped as new ones.
   bool groupExceptions = false;
 
-  @meta.experimental
+  @experimental
   bool enableLogs = false;
 
-  @meta.experimental
+  @internal
   SentryLogBatcher logBatcher = NoopLogBatcher();
 
   SentryOptions({String? dsn, Platform? platform, RuntimeChecker? checker}) {
@@ -671,7 +671,7 @@ typedef BeforeMetricCallback = bool Function(
   Map<String, String>? tags,
 });
 
-@meta.experimental
+@experimental
 typedef BeforeSendLogCallback = SentryLog? Function(SentryLog log);
 
 /// Used to provide timestamp for logging.

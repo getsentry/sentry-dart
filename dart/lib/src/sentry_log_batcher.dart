@@ -2,7 +2,9 @@ import 'dart:async';
 import 'sentry_envelope.dart';
 import 'sentry_options.dart';
 import 'protocol/sentry_log.dart';
+import 'package:meta/meta.dart';
 
+@internal
 class SentryLogBatcher {
   SentryLogBatcher(this._options, {Duration? flushTimeout, int? maxBufferSize})
       : _flushTimeout = flushTimeout ?? Duration(seconds: 5),

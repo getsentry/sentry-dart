@@ -71,7 +71,10 @@ void main() {
 
   test('more than max logs are flushed eventuelly', () async {
     final flushTimeout = Duration(milliseconds: 100);
-    final batcher = fixture.getSut(maxBufferSize: 10, flushTimeout: flushTimeout);
+    final batcher = fixture.getSut(
+      maxBufferSize: 10,
+      flushTimeout: flushTimeout,
+    );
 
     final log = SentryLog(
       timestamp: DateTime.now(),
@@ -98,7 +101,6 @@ void main() {
     expect(secondEnvelopePayloadJson, isNotNull);
     expect(secondEnvelopePayloadJson['items'].length, 5);
   });
-  
 
   test('calling flush directly flushes logs', () async {
     final batcher = fixture.getSut();
