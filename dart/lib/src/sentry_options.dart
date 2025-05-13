@@ -15,7 +15,6 @@ import 'sentry_exception_factory.dart';
 import 'sentry_stack_trace_factory.dart';
 import 'transport/noop_transport.dart';
 import 'version.dart';
-import 'package:meta/meta.dart' as meta;
 import 'sentry_log_batcher.dart';
 import 'noop_log_batcher.dart';
 // TODO: shutdownTimeout, flushTimeoutMillis
