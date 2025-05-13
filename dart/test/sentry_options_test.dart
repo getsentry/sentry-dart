@@ -33,7 +33,7 @@ void main() {
     expect(200, options.maxBreadcrumbs);
   });
 
-  test('SentryLogger sets a diagnostic logger', () {
+  test('SdkLogger sets a diagnostic logger', () {
     final options = defaultTestOptions();
     expect(options.logger, noOpLogger);
     options.debug = true;
