@@ -127,12 +127,12 @@ class SentryOptions {
   /// This does not change whether an event is captured.
   MaxRequestBodySize maxRequestBodySize = MaxRequestBodySize.never;
 
-  SentryLogger _logger = noOpLogger;
+  SdkLogger _logger = noOpLogger;
 
   /// Logger interface to log useful debugging information if debug is enabled
-  SentryLogger get logger => _logger;
+  SdkLogger get logger => _logger;
 
-  set logger(SentryLogger logger) {
+  set logger(SdkLogger logger) {
     diagnosticLogger = DiagnosticLogger(logger, this);
     _logger = diagnosticLogger!.log;
   }
@@ -682,7 +682,8 @@ typedef BeforeSendLogCallback = FutureOr<SentryLog?> Function(SentryLog log);
 typedef ClockProvider = DateTime Function();
 
 /// Logger interface to log useful debugging information if debug is enabled
-typedef SentryLogger = void Function(
+@internal
+typedef SdkLogger = void Function(
   SentryLevel level,
   String message, {
   String? logger,

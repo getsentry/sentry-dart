@@ -3,8 +3,8 @@ import 'sentry_options.dart';
 
 class DiagnosticLogger {
   final SentryOptions _options;
-  final SentryLogger _logger;
-  SentryLogger get logger => _logger;
+  final SdkLogger _logger;
+  SdkLogger get logger => _logger;
 
   DiagnosticLogger(this._logger, this._options);
 

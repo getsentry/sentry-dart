@@ -17,7 +17,7 @@ class SentryBaggage {
   });
 
   final Map<String, String> _keyValues;
-  final SentryLogger? logger;
+  final SdkLogger? logger;
 
   String toHeaderString() {
     final buffer = StringBuffer();
@@ -66,7 +66,7 @@ class SentryBaggage {
 
   factory SentryBaggage.fromHeaderList(
     List<String> headerValues, {
-    SentryLogger? logger,
+    SdkLogger? logger,
   }) {
     final keyValues = <String, String>{};
 
@@ -83,7 +83,7 @@ class SentryBaggage {
 
   factory SentryBaggage.fromHeader(
     String headerValue, {
-    SentryLogger? logger,
+    SdkLogger? logger,
   }) {
     final keyValues = _extractKeyValuesFromBaggageString(
       headerValue,
@@ -114,7 +114,7 @@ class SentryBaggage {
 
   static Map<String, String> _extractKeyValuesFromBaggageString(
     String headerValue, {
-    SentryLogger? logger,
+    SdkLogger? logger,
   }) {
     final keyValues = <String, String>{};
 

@@ -28,7 +28,7 @@ class SentryPrivacyOptions {
 
   @internal
   SentryMaskingConfig buildMaskingConfig(
-      SentryLogger logger, RuntimeChecker runtimeChecker) {
+      SdkLogger logger, RuntimeChecker runtimeChecker) {
     // First, we collect rules defined by the user (so they're applied first).
     final rules = _userMaskingRules.toList();
 

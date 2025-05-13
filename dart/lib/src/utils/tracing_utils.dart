@@ -14,7 +14,7 @@ void addSentryTraceHeader(
 void addBaggageHeaderFromSpan(
   ISentrySpan span,
   Map<String, dynamic> headers, {
-  SentryLogger? logger,
+  SdkLogger? logger,
 }) {
   final baggage = span.toBaggageHeader();
   if (baggage != null) {
@@ -25,7 +25,7 @@ void addBaggageHeaderFromSpan(
 void addBaggageHeader(
   SentryBaggageHeader baggage,
   Map<String, dynamic> headers, {
-  SentryLogger? logger,
+  SdkLogger? logger,
 }) {
   final currentValue = headers[baggage.name] as String? ?? '';
 

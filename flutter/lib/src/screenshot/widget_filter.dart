@@ -9,7 +9,7 @@ import 'masking_config.dart';
 @internal
 class WidgetFilter {
   final items = <WidgetFilterItem>[];
-  final SentryLogger logger;
+  final SdkLogger logger;
   final SentryMaskingConfig config;
   late WidgetFilterColorScheme _scheme;
   late RenderObject _root;

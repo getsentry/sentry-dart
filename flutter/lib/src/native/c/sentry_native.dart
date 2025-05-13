@@ -330,7 +330,7 @@ extension on binding.sentry_value_u {
     }
   }
 
-  T? castPrimitive<T>(SentryLogger logger) {
+  T? castPrimitive<T>(SdkLogger logger) {
     if (SentryNative.native.value_is_null(this) == 1) {
       return null;
     }
@@ -358,7 +358,7 @@ extension on binding.sentry_value_u {
 }
 
 binding.sentry_value_u? dynamicToNativeValue(
-    dynamic value, SentryLogger logger) {
+    dynamic value, SdkLogger logger) {
   if (value is String) {
     return value.toNativeValue();
   } else if (value is int) {
@@ -410,7 +410,7 @@ extension on bool {
 }
 
 extension on Map<String, dynamic> {
-  binding.sentry_value_u toNativeValue(SentryLogger logger) {
+  binding.sentry_value_u toNativeValue(SdkLogger logger) {
     final cObject = SentryNative.native.value_new_object();
     for (final entry in entries) {
       final cValue = dynamicToNativeValue(entry.value, logger);
@@ -421,7 +421,7 @@ extension on Map<String, dynamic> {
 }
 
 extension on List<dynamic> {
-  binding.sentry_value_u toNativeValue(SentryLogger logger) {
+  binding.sentry_value_u toNativeValue(SdkLogger logger) {
     final cObject = SentryNative.native.value_new_list();
     for (final value in this) {
       final cValue = dynamicToNativeValue(value, logger);
