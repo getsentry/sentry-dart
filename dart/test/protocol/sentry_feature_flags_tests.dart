@@ -7,8 +7,8 @@ import '../mocks.dart';
 void main() {
   final featureFlags = SentryFeatureFlags(
     values: [
-      SentryFeatureFlag(name: 'feature_flag_1', value: true),
-      SentryFeatureFlag(name: 'feature_flag_2', value: false),
+      SentryFeatureFlag(flag: 'feature_flag_1', result: true),
+      SentryFeatureFlag(flag: 'feature_flag_2', result: false),
     ],
     unknown: testUnknown,
   );
