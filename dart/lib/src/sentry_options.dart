@@ -16,7 +16,6 @@ import 'transport/noop_transport.dart';
 import 'version.dart';
 import 'sentry_log_batcher.dart';
 import 'noop_log_batcher.dart';
-import 'sentry_logger.dart';
 import 'dart:developer' as developer;
 
 // TODO: shutdownTimeout, flushTimeoutMillis
