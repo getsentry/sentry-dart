@@ -26,7 +26,7 @@ enum DataCategory {
       // whereas the client report category is metric_bucket
       case 'statsd':
         return DataCategory.metricBucket;
-      case 'log_item':
+      case 'log':
         return DataCategory.logItem;
       default:
         return DataCategory.unknown;
