@@ -1847,7 +1847,9 @@ void main() {
       expect(capturedLog.traceId, scope.propagationContext.traceId);
     });
 
-    test('$BeforeSendLogCallback returning null drops the log', () async {
+    test(
+        '$BeforeSendLogCallback returning null drops the log and record it as lost',
+        () async {
       fixture.options.enableLogs = true;
       fixture.options.beforeSendLog = (log) => null;
 
@@ -1860,6 +1862,15 @@ void main() {
 
       final mockLogBatcher = fixture.options.logBatcher as MockLogBatcher;
       expect(mockLogBatcher.addLogCalls.length, 0);
+
+      expect(
+        fixture.recorder.discardedEvents.first.reason,
+        DiscardReason.beforeSend,
+      );
+      expect(
+        fixture.recorder.discardedEvents.first.category,
+        DataCategory.logItem,
+      );
     });
 
     test('$BeforeSendLogCallback returning a log modifies it', () async {

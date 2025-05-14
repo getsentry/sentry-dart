@@ -553,6 +553,11 @@ class SentryClient {
     }
     if (processedLog != null) {
       _options.logBatcher.addLog(processedLog);
+    } else {
+      _options.recorder.recordLostEvent(
+        DiscardReason.beforeSend,
+        DataCategory.logItem,
+      );
     }
   }
 
