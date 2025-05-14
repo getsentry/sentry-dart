@@ -12,42 +12,42 @@ class SentryLogger {
   final ClockProvider _clock;
   final Hub _hub;
 
-  Future<void> trace(
+  FutureOr<void> trace(
     String body, {
     Map<String, SentryLogAttribute>? attributes,
   }) {
     return _captureLog(SentryLogLevel.trace, body, attributes: attributes);
   }
 
-  Future<void> debug(
+  FutureOr<void> debug(
     String body, {
     Map<String, SentryLogAttribute>? attributes,
   }) {
     return _captureLog(SentryLogLevel.debug, body, attributes: attributes);
   }
 
-  Future<void> info(
+  FutureOr<void> info(
     String body, {
     Map<String, SentryLogAttribute>? attributes,
   }) {
     return _captureLog(SentryLogLevel.info, body, attributes: attributes);
   }
 
-  Future<void> warn(
+  FutureOr<void> warn(
     String body, {
     Map<String, SentryLogAttribute>? attributes,
   }) {
     return _captureLog(SentryLogLevel.warn, body, attributes: attributes);
   }
 
-  Future<void> error(
+  FutureOr<void> error(
     String body, {
     Map<String, SentryLogAttribute>? attributes,
   }) {
     return _captureLog(SentryLogLevel.error, body, attributes: attributes);
   }
 
-  Future<void> fatal(
+  FutureOr<void> fatal(
     String body, {
     Map<String, SentryLogAttribute>? attributes,
   }) {
@@ -56,7 +56,7 @@ class SentryLogger {
 
   // Helper
 
-  Future<void> _captureLog(
+  FutureOr<void> _captureLog(
     SentryLogLevel level,
     String body, {
     Map<String, SentryLogAttribute>? attributes,

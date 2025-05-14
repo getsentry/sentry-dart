@@ -490,7 +490,7 @@ class SentryClient {
   }
 
   @internal
-  Future<void> captureLog(
+  FutureOr<void> captureLog(
     SentryLog log, {
     Scope? scope,
   }) async {

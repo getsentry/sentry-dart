@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:sentry/sentry.dart';
 
 import 'no_such_method_provider.dart';
@@ -85,7 +86,7 @@ class MockSentryClient with NoSuchMethodProvider implements SentryClient {
   }
 
   @override
-  Future<void> captureLog(SentryLog log, {Scope? scope}) async {
+  FutureOr<void> captureLog(SentryLog log, {Scope? scope}) async {
     captureLogCalls.add(CaptureLogCall(log, scope));
   }
 
