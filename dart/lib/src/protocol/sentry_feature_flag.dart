@@ -3,15 +3,15 @@ import 'package:meta/meta.dart';
 import 'access_aware_map.dart';
 
 class SentryFeatureFlag {
-  final String name;
-  final bool value;
+  final String flag;
+  final bool result;
 
   @internal
   final Map<String, dynamic>? unknown;
 
   SentryFeatureFlag({
-    required this.name,
-    required this.value,
+    required this.flag,
+    required this.result,
     this.unknown,
   });
 
@@ -19,8 +19,8 @@ class SentryFeatureFlag {
     final json = AccessAwareMap(data);
 
     return SentryFeatureFlag(
-      name: json['name'],
-      value: json['value'],
+      flag: json['flag'],
+      result: json['result'],
       unknown: json.notAccessed(),
     );
   }
@@ -28,20 +28,20 @@ class SentryFeatureFlag {
   Map<String, dynamic> toJson() {
     return {
       ...?unknown,
-      'name': name,
-      'value': value,
+      'flag': flag,
+      'result': result,
     };
   }
 
   @Deprecated('Assign values directly to the instance.')
   SentryFeatureFlag copyWith({
-    String? name,
-    bool? value,
+    String? flag,
+    bool? result,
     Map<String, dynamic>? unknown,
   }) {
     return SentryFeatureFlag(
-      name: name ?? this.name,
-      value: value ?? this.value,
+      flag: flag ?? this.flag,
+      result: result ?? this.result,
       unknown: unknown ?? this.unknown,
     );
   }
