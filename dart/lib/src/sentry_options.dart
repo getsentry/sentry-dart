@@ -685,7 +685,6 @@ typedef BeforeSendLogCallback = FutureOr<SentryLog?> Function(SentryLog log);
 typedef ClockProvider = DateTime Function();
 
 /// Logger callback to log useful debugging information if debug is enabled
-@internal
 typedef SdkLogCallback = void Function(
   SentryLevel level,
   String message, {
