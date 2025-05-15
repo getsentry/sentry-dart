@@ -1,5 +1,11 @@
 # Changelog
 
+## 9.0.0-RC.1
+
+### Fixes
+
+- Fix feature flag model keys ([#2943](https://github.com/getsentry/sentry-dart/pull/2943))
+
 ## 9.0.0-RC
 
 ### Various fixes & improvements
@@ -499,7 +505,7 @@ This release fixes an issue where Cold starts can be incorrectly reported as War
       },
       appRunner: () => runApp(MyApp()),
     );
-  } (error, stackTrace) {
+  }, (error, stackTrace) {
     // Automatically sends errors to Sentry, no need to do any
     // captureException calls on your part.
     // On top of that, you can do your own custom stuff in this callback.
@@ -590,7 +596,7 @@ This release fixes an issue where Cold starts can be incorrectly reported as War
       },
       appRunner: () => runApp(MyApp()),
     );
-  } (error, stackTrace) {
+  }, (error, stackTrace) {
     // Automatically sends errors to Sentry, no need to do any
     // captureException calls on your part.
     // On top of that, you can do your own custom stuff in this callback.

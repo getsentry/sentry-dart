@@ -38,6 +38,9 @@ void main() {
     culture: SentryCulture(locale: 'foo-bar'),
     trace: _trace,
     feedback: _feedback,
+    flags: SentryFeatureFlags(values: [
+      SentryFeatureFlag(flag: 'name', result: true),
+    ]),
   );
 
   final _contextsJson = <String, dynamic>{
@@ -63,7 +66,12 @@ void main() {
       'replay_id': 'fixture-replayId',
       'url': 'https://fixture-url.com',
       'associated_event_id': '8a32c0f9be1d34a5efb2c4a10d80de9a',
-    }
+    },
+    'flags': {
+      'values': [
+        {'flag': 'name', 'result': true}
+      ],
+    },
   };
 
   final _contextsMutlipleRuntimes = Contexts(

@@ -32,10 +32,11 @@ void main() {
 
     expect(fixture.hub.scope.contexts[SentryFeatureFlags.type], isNotNull);
     expect(
-        fixture.hub.scope.contexts[SentryFeatureFlags.type]?.values.first.name,
+        fixture.hub.scope.contexts[SentryFeatureFlags.type]?.values.first.flag,
         equals('foo'));
     expect(
-        fixture.hub.scope.contexts[SentryFeatureFlags.type]?.values.first.value,
+        fixture
+            .hub.scope.contexts[SentryFeatureFlags.type]?.values.first.result,
         equals(true));
   });
 
@@ -49,10 +50,11 @@ void main() {
 
     expect(fixture.hub.scope.contexts[SentryFeatureFlags.type], isNotNull);
     expect(
-        fixture.hub.scope.contexts[SentryFeatureFlags.type]?.values.first.name,
+        fixture.hub.scope.contexts[SentryFeatureFlags.type]?.values.first.flag,
         equals('foo'));
     expect(
-        fixture.hub.scope.contexts[SentryFeatureFlags.type]?.values.first.value,
+        fixture
+            .hub.scope.contexts[SentryFeatureFlags.type]?.values.first.result,
         equals(false));
   });
 
@@ -69,17 +71,18 @@ void main() {
         equals(100));
 
     expect(
-        fixture.hub.scope.contexts[SentryFeatureFlags.type]?.values.first.name,
+        fixture.hub.scope.contexts[SentryFeatureFlags.type]?.values.first.flag,
         equals('foo_0'));
     expect(
-        fixture.hub.scope.contexts[SentryFeatureFlags.type]?.values.first.value,
+        fixture
+            .hub.scope.contexts[SentryFeatureFlags.type]?.values.first.result,
         equals(true));
 
     expect(
-        fixture.hub.scope.contexts[SentryFeatureFlags.type]?.values.last.name,
+        fixture.hub.scope.contexts[SentryFeatureFlags.type]?.values.last.flag,
         equals('foo_99'));
     expect(
-        fixture.hub.scope.contexts[SentryFeatureFlags.type]?.values.last.value,
+        fixture.hub.scope.contexts[SentryFeatureFlags.type]?.values.last.result,
         equals(false));
 
     await sut.addFeatureFlag('foo_100', true);
@@ -88,17 +91,18 @@ void main() {
         equals(100));
 
     expect(
-        fixture.hub.scope.contexts[SentryFeatureFlags.type]?.values.first.name,
+        fixture.hub.scope.contexts[SentryFeatureFlags.type]?.values.first.flag,
         equals('foo_1'));
     expect(
-        fixture.hub.scope.contexts[SentryFeatureFlags.type]?.values.first.value,
+        fixture
+            .hub.scope.contexts[SentryFeatureFlags.type]?.values.first.result,
         equals(false));
 
     expect(
-        fixture.hub.scope.contexts[SentryFeatureFlags.type]?.values.last.name,
+        fixture.hub.scope.contexts[SentryFeatureFlags.type]?.values.last.flag,
         equals('foo_100'));
     expect(
-        fixture.hub.scope.contexts[SentryFeatureFlags.type]?.values.last.value,
+        fixture.hub.scope.contexts[SentryFeatureFlags.type]?.values.last.result,
         equals(true));
   });
 }
