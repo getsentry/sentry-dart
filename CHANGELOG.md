@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Add `hasSize` guard when using a renderObject in `SentryUserInteractionWidget` ([#2946](https://github.com/getsentry/sentry-dart/pull/2946))
+
 ## 9.0.0-RC.1
 
 ### Fixes
