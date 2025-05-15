@@ -353,7 +353,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
         }
       }
     } catch (exception, stacktrace) {
-      _hub.options.logger(
+      _hub.options.log(
         SentryLevel.error,
         'Error while finishing time to display tracking',
         exception: exception,
@@ -393,7 +393,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
         );
       }
     } catch (exception, stacktrace) {
-      _hub.options.logger(
+      _hub.options.log(
         SentryLevel.error,
         'Error while tracking time to display',
         exception: exception,

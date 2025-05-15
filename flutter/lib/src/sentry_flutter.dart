@@ -252,7 +252,7 @@ mixin SentryFlutter {
       try {
         return options.timeToDisplayTracker.reportFullyDisplayed();
       } catch (exception, stackTrace) {
-        options.logger(
+        options.log(
           SentryLevel.error,
           'Error while reporting TTFD',
           exception: exception,
@@ -289,7 +289,7 @@ mixin SentryFlutter {
   static Future<SentryAttachment?> captureScreenshot() async {
     final options = Sentry.currentHub.options;
     if (!SentryScreenshotWidget.isMounted) {
-      options.logger(
+      options.log(
         SentryLevel.debug,
         'SentryScreenshotWidget could not be found in the widget tree.',
       );
@@ -298,7 +298,7 @@ mixin SentryFlutter {
     final processors =
         options.eventProcessors.whereType<ScreenshotEventProcessor>();
     if (processors.isEmpty) {
-      options.logger(
+      options.log(
         SentryLevel.debug,
         'ScreenshotEventProcessor could not be found.',
       );
@@ -333,7 +333,7 @@ mixin SentryFlutter {
   }
 
   static void _logNativeIntegrationNotAvailable(String methodName) {
-    Sentry.currentHub.options.logger(
+    Sentry.currentHub.options.log(
       SentryLevel.debug,
       'Native integration is not available. Make sure SentryFlutter is initialized before accessing the $methodName API.',
     );

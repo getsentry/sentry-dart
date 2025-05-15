@@ -94,6 +94,9 @@ class NoOpHub implements Hub {
       SentryId.empty();
 
   @override
+  FutureOr<void> captureLog(SentryLog log) async {}
+
+  @override
   ISentrySpan startTransaction(
     String name,
     String operation, {

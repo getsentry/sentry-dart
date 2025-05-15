@@ -25,7 +25,7 @@ class FlutterErrorIntegration implements Integration<SentryFlutterOptions> {
     _integrationOnError = (FlutterErrorDetails errorDetails) async {
       final exception = errorDetails.exception;
 
-      options.logger(
+      options.log(
         SentryLevel.debug,
         'Capture from onError $exception',
       );
@@ -49,7 +49,7 @@ class FlutterErrorIntegration implements Integration<SentryFlutterOptions> {
           if (library != null) 'library': library,
         };
 
-        options.logger(
+        options.log(
           SentryLevel.error,
           errorDetails.toStringShort(),
           logger: 'sentry.flutterError',
@@ -92,7 +92,7 @@ class FlutterErrorIntegration implements Integration<SentryFlutterOptions> {
         // we don't call Zone.current.handleUncaughtError because we'd like
         // to set a specific mechanism for FlutterError.onError.
       } else {
-        options.logger(
+        options.log(
           SentryLevel.debug,
           'Error not captured due to [FlutterErrorDetails.silent], '
           'Enable [SentryFlutterOptions.reportSilentFlutterErrors] '
