@@ -10,6 +10,11 @@
 - [Structured Logs]: Expose Public API ([#2940](https://github.com/getsentry/sentry-dart/pull/2940))
   - The old `SentryLogger` has been renamed to `SdkLogCallback` and can be accessed through `options.log` now.
 - [Structured Logs]: Send client reports for dropped logs ([#2942](https://github.com/getsentry/sentry-dart/pull/2942))
+## 9.0.0-RC.1
+
+### Fixes
+
+- Fix feature flag model keys ([#2943](https://github.com/getsentry/sentry-dart/pull/2943))
 
 ## 9.0.0-RC
 

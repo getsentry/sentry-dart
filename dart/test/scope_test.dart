@@ -440,7 +440,7 @@ void main() {
       await scope.setContexts(
           SentryFeatureFlags.type,
           SentryFeatureFlags(
-            values: [SentryFeatureFlag(name: 'foo', value: true)],
+            values: [SentryFeatureFlag(flag: 'foo', result: true)],
           ));
       await scope.setUser(scopeUser);
 
@@ -456,10 +456,10 @@ void main() {
       expect(
           updatedEvent?.extra, {'e-infos': 'abc', 'company-name': 'Dart Inc'});
       expect(updatedEvent?.contexts['theme'], {'value': 'material'});
-      expect(updatedEvent?.contexts[SentryFeatureFlags.type]?.values.first.name,
+      expect(updatedEvent?.contexts[SentryFeatureFlags.type]?.values.first.flag,
           'foo');
       expect(
-          updatedEvent?.contexts[SentryFeatureFlags.type]?.values.first.value,
+          updatedEvent?.contexts[SentryFeatureFlags.type]?.values.first.result,
           true);
     });
 

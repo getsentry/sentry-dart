@@ -366,8 +366,8 @@ class Sentry {
   /// Returns `null` if performance is disabled in the options.
   static ISentrySpan? getSpan() => _hub.getSpan();
 
-  static Future<void> addFeatureFlag(String name, dynamic value) async {
-    if (value is! bool) {
+  static Future<void> addFeatureFlag(String flag, dynamic result) async {
+    if (result is! bool) {
       return;
     }
 
@@ -383,7 +383,7 @@ class Sentry {
       return;
     }
 
-    await featureFlagsIntegration.addFeatureFlag(name, value);
+    await featureFlagsIntegration.addFeatureFlag(flag, result);
   }
 
   @internal

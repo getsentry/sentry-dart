@@ -524,6 +524,13 @@ class MainScaffold extends StatelessWidget {
             ),
             TooltipButton(
               onPressed: () {
+                Sentry.addFeatureFlag('feature-one', true);
+              },
+              text: 'Demonstrates the feature flags.',
+              buttonTitle: 'Add "feature-one" flag',
+            ),
+            TooltipButton(
+              onPressed: () {
                 Sentry.logger
                     .info('Sentry Log With Test Attribute', attributes: {
                   'test-attribute': SentryLogAttribute.string('test-value'),
